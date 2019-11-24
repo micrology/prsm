@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Prism: PaRtIcipatory System Mapping!</title>
+	<meta charset="utf-8">
+	<meta content="IE=edge" http-equiv="X-UA-Compatible">
+	<meta content="width=device-width, initial-scale=1" name="viewport">
+	<link href="https://fonts.googleapis.com/css?family=Oxygen&display=swap" rel="stylesheet">
+	<link href="css/reset.css" rel="stylesheet">
+	<link href="css/styles.css" rel="stylesheet">
+	<link href="css/navbar.css" rel="stylesheet">
+	<link href="css/tabs.css" rel="stylesheet">
+	<link href="css/all.min.css" rel="stylesheet">
+</head>
+<body class="container" id="container">
+	<header>
+		<nav class="navbar">
+			<span class="navbar-toggle" id="js-navbar-toggle"><i class="fas fa-bars"></i></span>
+			<div class="logo"><img src="img/prism-logo.png" alt="PRISM">
+				<p class="strapline">Prism: PaRtIcipatory System Mapping</p></div>
+			<ul class="main-nav" id="js-menu">
+				<li>
+					<div class="tooltip">
+						<a class="nav-links" href="#"><i class="fas fa-save"></i></a><span class="tooltiptext">Save network</span>
+					</div>
+				</li>
+				<li>
+					<div class="tooltip">
+						<a class="nav-links" href="#"><i class="fas fa-folder-open"></i></a><span class="tooltiptext">Open network</span>
+					</div>
+				</li>
+				<li>
+					<div class="tooltip">
+						<a class="nav-links" href="#"><i class="fas fa-plus"></i></a><span class="tooltiptext">Add node</span>
+					</div>
+				</li>
+				<li>
+					<div class="tooltip">
+						<a class="nav-links" href="#"><i class="fas fa-wave-square"></i></a><span class="tooltiptext">Add link</span>
+					</div>
+				</li>
+				<li>
+					<div class="tooltip">
+						<a class="nav-links" href="#"><i class="fas fa-trash-alt"></i></a><span class="tooltiptext">Delete selected</span>
+					</div>
+				</li>
+				<li class="tooltip">
+					<a class="nav-links" href="#panel" id="panelToggle"><i class="fas fa-clone"></i></a> <span class="tooltiptext">Show or hide panel</span>
+				</li>
+			</ul>
+		</nav>
+	</header>
+	<main>
+		<h1>Main</h1>
+		<p>Vestibulum consectetur sit amet nisi ut consectetur. Praesent efficitur, nibh vitae fringilla scelerisque, est neque faucibus quam, in iaculis purus libero eget mauris. Curabitur et luctus sapien, ac gravida orci. Aliquam erat volutpat. In hac habitasse platea dictumst. Aenean commodo, arcu a commodo efficitur, libero dolor mollis turpis, non posuere orci leo eget enim. Curabitur sit amet elementum orci, pulvinar dignissim urna. Morbi id ex eu ex congue laoreet. Aenean tincidunt dolor justo, semper pretium libero luctus nec. Ut vulputate metus accumsan leo imperdiet tincidunt. Phasellus nec rutrum dolor. Cras imperdiet sollicitudin arcu, id interdum nibh fermentum in.</p>
+	</main>
+	<aside id="panel">
+		<div class="tab">
+			<button class="tablinks" id="nodesButton">Nodes</button> 
+			<button class="tablinks" id="linksButton">Links</button> 
+			<button class="tablinks" id="statisticsButton">Statistics</button>
+		</div>
+		<!-- Tab content -->
+		<div class="tabcontent" id="nodesTab">
+			<div class="sampleGrid">
+				<div class="sampleNode" id="nodeSample1"><img src="img/node-sample.png" alt="Sample"></div>
+				<div class="sampleNode" id="nodeSample2"><img src="img/node-sample.png" alt="Sample"></div>
+				<div class="sampleNode" id="nodeSample3"><img src="img/node-sample.png" alt="Sample"></div>
+				<div class="sampleNode" id="nodeSample4"><img src="img/node-sample.png" alt="Sample"></div>
+				<div class="sampleNode" id="nodeSample5"><img src="img/node-sample.png" alt="Sample"></div>
+				<div class="sampleNode" id="nodeSample6"><img src="img/node-sample.png" alt="Sample"></div>
+			</div>			
+		</div>
+		<div class="tabcontent" id="linksTab">
+			<div class="sampleGrid">
+				<div class="sampleLink" id="nodeLink1">Link Sample</div>
+				<div class="sampleLink" id="nodeLink2">Sample</div>
+				<div class="sampleLink" id="nodeLink3">Sample</div>
+				<div class="sampleLink" id="nodeLink4">Sample</div>
+				<div class="sampleLink" id="nodeLink5">Sample</div>
+				<div class="sampleLink" id="nodeLink6">Sample</div>
+			</div>			
+		</div>
+		<div class="tabcontent" id="statisticsTab">
+			<h3>Statistics</h3>
+			<p>Vestibulum consectetur sit amet nisi ut consectetur. Praesent efficitur, nibh vitae.</p>
+		</div>
+	</aside>
+	<footer id="statusBar">
+		<br>
+	</footer>
+	<script src="js/navbar.js"></script>
+	<script src="js/tabs.js"></script>
+</body>
+</html>

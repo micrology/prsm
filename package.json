@@ -1,0 +1,19 @@
+{
+  "name": "psm",
+  "version": "1.0.0",
+  "description": "PRISM: Participatory System Mapping",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nigel Gilbert",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "install-peers": "^1.0.3",
+    "keycharm": "^0.2.0",
+    "moment": "^2.24.0",
+    "vis-data": "^6.2.3",
+    "vis-network": "^6.4.4",
+    "vis-util": "^1.1.10"
+  }
+}
