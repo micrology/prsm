@@ -1,9 +1,15 @@
-var nodes = null;
-var edges = null;
 var network = null;
 // randomly create some nodes and edges
-var data = getScaleFreeNetwork(25);
+var SFNdata = getScaleFreeNetwork(25);
 var seed = 2;
+var nodes = new vis.DataSet();
+nodes.add(SFNdata.nodes);
+var edges = new vis.DataSet();
+edges.add(SFNdata.edges);
+var data = {
+	nodes: nodes,
+	edges: edges
+	};
 
 function destroy() {
   if (network !== null) {
@@ -14,14 +20,15 @@ function destroy() {
 
 function draw() {
   destroy();
-  nodes = [];
-  edges = [];
 
   // create a network
   var container = document.getElementById('net-pane');
   var options = {
 	layout: {randomSeed:seed}, // just to make sure the layout is the same when the locale is changed
 	//configure: 'nodes,edges',
+	interaction: {
+		multiselect: true
+		},
 	manipulation: {
   	  enabled: false,
 	  addNode: function (data, callback) {
