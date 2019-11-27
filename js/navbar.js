@@ -33,3 +33,21 @@ function plusNode() {
 	document.getElementById("container").style.cursor = "cell";
 	network.addNodeMode();
 	}
+	
+
+vis.Network.prototype.zoom = function (scale) {
+	let newScale = (scale === undefined ? 1 : scale);
+    const animationOptions = {
+        scale: newScale,
+        animation: { duration: 300 }
+    };
+    this.view.moveTo(animationOptions);
+};
+
+function zoomnet() {
+	network.zoom(document.getElementById("zoom").value);
+}
+
+function dblclk(arg) {
+	document.getElementById("statusBar").innerHTML = JSON.stringify(arg);
+}

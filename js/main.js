@@ -27,7 +27,9 @@ function draw() {
 	layout: {randomSeed:seed}, // just to make sure the layout is the same when the locale is changed
 	//configure: 'nodes,edges',
 	interaction: {
-		multiselect: true
+		multiselect: true,
+		hover: true,
+		zoomView: false
 		},
 	manipulation: {
   	  enabled: false,
@@ -61,6 +63,15 @@ function draw() {
 	}
   };
   network = new vis.Network(container, data, options);
+  
+  network.on("doubleClick", function (params) {
+	if (params.nodes.length === 1) {
+		network.editNodeMode();
+		}
+	else network.fit();
+    }
+ );
+
 }
 
 function editNode(data, cancelAction, callback) {
