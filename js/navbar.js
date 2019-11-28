@@ -26,6 +26,44 @@ function togglePanel() {
 	}
 }
 
+document.getElementById("openFile").addEventListener("click", getJSONfile);
+
+async function getJSONfile() {
+	nodes.clear();
+	edges.clear();
+	fetch('data/BBE2019.json')
+    .then(function(response) {
+      if (!response.ok) {
+        throw new Error("HTTP error, status = " + response.status);
+      }
+      return response.json();
+    })
+    .then(function(json) {
+    	let options = { 
+    		edges: { 
+    			inheritColors: false
+					},
+			nodes: {
+				fixed: false,
+				parseColor: true
+					}
+			};
+    	let parsed = vis.parseGephiNetwork(json, options);
+		nodes.add(parsed.nodes);
+		edges.add(parsed.edges);
+		data = {
+			nodes: nodes,
+			edges: edges
+		};
+		network.setData(data);
+    })
+    .catch(function(error) {
+      console.log('Error: ' + error.message)
+    });
+    return data;
+}
+
+
 document.getElementById("addNode").addEventListener("click", plusNode);
 
 function plusNode() {
@@ -33,7 +71,15 @@ function plusNode() {
 	document.getElementById("container").style.cursor = "cell";
 	network.addNodeMode();
 	}
-	
+
+document.getElementById("deleteNode").addEventListener("click", deleteNode);
+
+function deleteNode() {
+	document.getElementById("statusBar").innerHTML = "Add Node mode";
+	document.getElementById("container").style.cursor = "cell";
+	network.addNodeMode();
+	}
+
 
 vis.Network.prototype.zoom = function (scale) {
 	let newScale = (scale === undefined ? 1 : scale);

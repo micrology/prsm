@@ -50,7 +50,6 @@ let target = event.currentTarget.id;
 let selectedNodeIds = network.getSelectedNodes();
 let sampleFormat = sampleFormats.find( ({sample}) => sample === target);
 for (let e of data.nodes.get(selectedNodeIds)) {
-//	e.color = {highlight: {border: "red"}};
 	e = Object.assign(e, sampleFormat);
 	data.nodes.update(e);
 	}
