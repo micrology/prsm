@@ -54,7 +54,14 @@ function draw() {
 		  document.getElementById('edge-operation').innerHTML = "Edit Edge";
 		  editEdgeWithoutDrag(data,callback);
 		}
-	  }
+	  },
+	  deleteNode: function (data, callback) {
+		  var r = confirm("Confirm delete");
+		  if (r != true) {
+			callback(null);
+			return;
+		  	}
+	  	  }
 	}
   };
 // getRandomData();

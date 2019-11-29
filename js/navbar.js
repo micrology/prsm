@@ -75,9 +75,8 @@ function plusNode() {
 document.getElementById("deleteNode").addEventListener("click", deleteNode);
 
 function deleteNode() {
-	document.getElementById("statusBar").innerHTML = "Add Node mode";
-	document.getElementById("container").style.cursor = "cell";
-	network.addNodeMode();
+	
+	network.deleteSelected();
 	}
 
 
