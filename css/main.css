@@ -47,3 +47,7 @@
 	padding: 3px;
 	font-weight: bold; 
 	}
+	
+input::placeholder {
+	color: #3498DB; /* light blue */
+	}

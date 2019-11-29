@@ -31,7 +31,7 @@ document.getElementById("openFile").addEventListener("click", getJSONfile);
 async function getJSONfile() {
 	nodes.clear();
 	edges.clear();
-	fetch('data/BBE2019.json')
+	fetch('data/mega.json')
     .then(function(response) {
       if (!response.ok) {
         throw new Error("HTTP error, status = " + response.status);

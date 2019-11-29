@@ -30,6 +30,7 @@ function draw() {
   	  enabled: false,
 	  addNode: function (data, callback) {
 		// filling in the popup DOM elements
+		data.label = '';
 		document.getElementById('node-operation').innerHTML = "Add Node";
 		editNode(data, clearNodePopUp, callback);
 	  },
@@ -56,20 +57,21 @@ function draw() {
 		}
 	  },
 	  deleteNode: function (data, callback) {
-		  var r = confirm("Confirm delete");
+		  var r = confirm(`Confirm deletion of ${data.nodes.length} nodes and ${data.edges.length} edges?`);
 		  if (r != true) {
 			callback(null);
 			return;
 		  	}
+		  callback(data);
 	  	  }
-	}
+	}  
   };
 // getRandomData();
   network = new vis.Network(container, data, options);
   
   network.on("doubleClick", function (params) {
 	if (params.nodes.length === 1) {
-		network.editNodeMode();
+		network.editNode();
 		}
 	else network.fit();
     }
@@ -83,6 +85,7 @@ function editNode(data, cancelAction, callback) {
   document.getElementById('node-popUp').style.top = `${event.clientY}px`;
   document.getElementById('node-popUp').style.left = `${event.clientX}px`;
   document.getElementById('node-popUp').style.display = 'block';
+  document.getElementById('node-label').value = data.label;
   document.getElementById('node-label').focus();  
   document.getElementById("container").style.cursor = "auto";
 }
