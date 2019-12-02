@@ -21,6 +21,7 @@ function draw() {
     var container = document.getElementById('net-pane');
     var options = {
         //configure: 'nodes,edges',
+        physics: { enabled: false },
         nodes: sampleFormats[0],
         interaction: {
             multiselect: true,

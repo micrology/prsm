@@ -1,20 +1,23 @@
 body {
 	font-family: Oxygen, sans-serif;
+	box-sizing: border-box;
 }
 
 .container {
 	display: flex;
 	flex-direction: column;
-	min-height: 100vh;
+	height: 100vh;
 }
 
 
 @media (min-width: 768px) {
 	.container {
 		display: grid;
-		grid-template-columns: 4fr minmax(200px, 1fr);
+		grid-template-columns: 6fr 1fr;
 		grid-template-rows: auto 1fr auto;
-
+	}
+	main {
+	    height: calc(100vh - 75px);
 	}
 }
 
@@ -25,6 +28,7 @@ header {
 	font-size: 1em;
 	background-color: whitesmoke;
 	color: black;
+	height: 50px;
 }
 
 main {
@@ -48,6 +52,7 @@ footer {
 	display: flex;
 	justify-content: space-between;
 	padding: 5px;
+	height: 25px;
 	text-align: center;
 	font-size: 14px;
 	background-color: white;
