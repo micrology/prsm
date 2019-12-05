@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>File(s) size</title>
+</head>
+<body>
+<form>
+	<p><input type="file" id="fileElem" multiple style="display: none">
+	<button id="fileSelect" type="button">Select some files</button></p>
+</form>
+
+<script>
+const fileSelect = document.getElementById("fileSelect");
+const fileElem = document.getElementById("fileElem");
+
+fileElem.addEventListener("change", function (event) {
+	var files = fileElem.files;
+	if (files.length) {
+		console.log("Filename: " + files[0].name);
+		console.log("Type: " + files[0].type);
+		console.log("Size: " + files[0].size + " bytes")
+		}
+	}, false);
+
+fileSelect.addEventListener("click", function (e) {
+    fileElem.click();
+	}, false);
+
+</script>
+</body>
+</html>
