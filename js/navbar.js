@@ -4,7 +4,7 @@ document.getElementById("js-navbar-toggle").addEventListener("click", closeMainN
 const navMenuItems = document.querySelectorAll(".nav-links");
 const closeDropdownMenuSelectingItem = (() => navMenuItems.forEach((item) => item.addEventListener("click", closeMainNav)))();
 
-document.getElementById("openFile").addEventListener("click", getJSONfile);
+//document.getElementById("openFile").addEventListener("click", getJSONfile);
 document.getElementById("saveFile").addEventListener("click", saveJSONfile);
 document.getElementById("panelToggle").addEventListener("click", togglePanel);
 document.getElementById("addNode").addEventListener("click", plusNode);
@@ -31,10 +31,33 @@ function togglePanel() {
     }
 }
 
-async function getJSONfile() {
+const fileElem = document.getElementById("fileElem");
+
+fileElem.addEventListener("change", function (event) {
+	var files = fileElem.files;
+	if (files.length) {
+		console.log("Filename: " + files[0].name);
+		console.log("Type: " + files[0].type);
+		console.log("Size: " + files[0].size + " bytes")
+		var myFile = this.files[0];
+		var reader = new FileReader();
+	
+		reader.addEventListener('load', function (e) {
+		console.log(JSON.parse(e.target.result));
+		});
+    reader.readAsBinaryString(myFile);
+    }
+        
+	}, false);
+
+document.getElementById("openFile").addEventListener("click", function (e) {
+    fileElem.click();
+	}, false);
+
+async function getJSONfile(file) {
     nodes.clear();
     edges.clear();
-    fetch('data/BBE2019.json')
+    fetch(file)
         .then(function(response) {
             if (!response.ok) {
                 throw new Error("HTTP error, status = " + response.status);
