@@ -1,10 +1,13 @@
 
+var lastFileName = 'network.json';
+
+
 document.getElementById("js-navbar-toggle").addEventListener("click", closeMainNav);
 
 const navMenuItems = document.querySelectorAll(".nav-links");
 const closeDropdownMenuSelectingItem = (() => navMenuItems.forEach((item) => item.addEventListener("click", closeMainNav)))();
 
-//document.getElementById("openFile").addEventListener("click", getJSONfile);
+document.getElementById("openFile").addEventListener("click", doClickOpenFile);
 document.getElementById("saveFile").addEventListener("click", saveJSONfile);
 document.getElementById("panelToggle").addEventListener("click", togglePanel);
 document.getElementById("addNode").addEventListener("click", plusNode);
@@ -34,63 +37,84 @@ function togglePanel() {
 const fileElem = document.getElementById("fileElem");
 
 fileElem.addEventListener("change", function (event) {
-	var files = fileElem.files;
+	let files = fileElem.files;
 	if (files.length) {
-		console.log("Filename: " + files[0].name);
-		console.log("Type: " + files[0].type);
-		console.log("Size: " + files[0].size + " bytes")
-		var myFile = this.files[0];
-		var reader = new FileReader();
+		let myFile = this.files[0];
+		let fileName = myFile.name;
+		lastFileName = fileName;
+		let reader = new FileReader();
 	
 		reader.addEventListener('load', function (e) {
-		console.log(JSON.parse(e.target.result));
-		});
+			try {
+				let json = JSON.parse(e.target.result);
+				loadJSONfile(json);
+				statusMsg("Read '" + fileName + "'");
+				}
+			catch (err) {
+				statusMsg("Error reading '" + fileName + "': " + err.message);
+				return;
+				}
+			});
     reader.readAsBinaryString(myFile);
-    }
-        
-	}, false);
+	}
+}, false);
+ 
+function doClickOpenFile() {
+	fileElem.click();
+}
 
-document.getElementById("openFile").addEventListener("click", function (e) {
-    fileElem.click();
-	}, false);
-
-async function getJSONfile(file) {
+function loadJSONfile(json) {
     nodes.clear();
     edges.clear();
-    fetch(file)
-        .then(function(response) {
-            if (!response.ok) {
-                throw new Error("HTTP error, status = " + response.status);
-            }
-            return response.json();
-        })
-        .then(function(json) {
-            let options = {
-                edges: {
-                    inheritColors: false
-                },
-                nodes: {
-                    fixed: false,
-                    parseColor: true
-                }
-            };
-            let parsed = vis.parseGephiNetwork(json, options);
-            nodes.add(parsed.nodes);
-            edges.add(parsed.edges);
-            data = {
-                nodes: nodes,
-                edges: edges
-            };
-            network.setData(data);
-        })
-        .catch(function(error) {
-            statusMsg('Error: ' + error.message)
-        });
-    return data;
+	let options = {
+		edges: {
+			inheritColors: false
+		},
+		nodes: {
+			fixed: false,
+			parseColor: true
+		}
+	};
+	if ('source' in json.edges[0]) {
+		// the file is from Gephi and needs to be translated
+		let parsed = vis.parseGephiNetwork(json, options);
+		nodes.add(parsed.nodes);
+		edges.add(parsed.edges);
+		}
+	else {
+		nodes.add(json.nodes);
+		edges.add(json.edges);
+		}
+	data = {
+		nodes: nodes,
+		edges: edges
+	};
+	network.setData(data);
+}
+
+/* 
+Browser will only ask for name and location of the file to be saved if
+it has a user setting to do so.  Otherwise, it is saved at a default
+download location with a default name.
+ */
+
+function download(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
 }
 
 function saveJSONfile() {
-//TODO
+	let json = JSON.stringify({nodes: data.nodes.get(), edges: data.edges.get()});
+	console.log("about to call download");
+	download(lastFileName, json);
 }
 
 function plusNode() {

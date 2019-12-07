@@ -5,8 +5,8 @@ document.getElementById("nodesButton").addEventListener("click", () => {
 document.getElementById("linksButton").addEventListener("click", () => {
     openTab("linksTab");
 }, false);
-document.getElementById("statisticsButton").addEventListener("click", () => {
-    openTab("statisticsTab");
+document.getElementById("networkButton").addEventListener("click", () => {
+    openTab("networkTab");
 }, false);
 
 function openTab(tabId) {

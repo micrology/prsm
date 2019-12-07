@@ -4,27 +4,26 @@
 	<meta charset="utf-8" />
 	<title>file test</title>
 </head>
+
 <body>
-<script>
-function download(filename, text) {
-  var element = document.createElement('a');
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-  element.setAttribute('download', filename);
-
-  element.style.display = 'none';
-  document.body.appendChild(element);
-
-  element.click();
-
-  document.body.removeChild(element);
+    <a id="link" target="_blank" download="nice.txt">Download</a>
+    <script type="text/javascript">
+        var file;
+var data = [];
+data.push("This is a test\n");
+data.push("Of creating a file\n");
+data.push("In a browser\n");
+var properties = {type: 'text/plain'}; // Specify the file's mime-type.
+try {
+  // Specify the filename using the File constructor, but ...
+  file = new File(data, "file.txt", properties);
+  console.log("Using File constructor");
+} catch (e) {
+  // ... fall back to the Blob constructor if that isn't supported.
+  file = new Blob(data, properties);
 }
-
-// Start file download.
-download("hello.txt","This is the content of my file :)");
-
-</script>
-
-
-<div>Hallo</div>
+var url = URL.createObjectURL(file);
+document.getElementById('link').href = url;
+    </script>
 </body>
 </html>
