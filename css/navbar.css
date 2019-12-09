@@ -76,3 +76,9 @@
 		color: rgba(0, 0, 0, 0.5);
 	}
 }
+
+#download {
+	width: 0;
+	height: 0;
+	visibility: hidden;
+	}

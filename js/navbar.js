@@ -1,4 +1,3 @@
-
 var lastFileName = 'network.json';
 
 
@@ -19,9 +18,9 @@ function closeMainNav() {
 }
 
 function statusMsg(msg) {
-	document.getElementById("statusBar").innerHTML = msg;
+    document.getElementById("statusBar").innerHTML = msg;
 }
-	
+
 function togglePanel() {
     let container = document.getElementById("container");
     let panel = document.getElementById("panel");
@@ -36,60 +35,58 @@ function togglePanel() {
 
 const fileElem = document.getElementById("fileElem");
 
-fileElem.addEventListener("change", function (event) {
-	let files = fileElem.files;
-	if (files.length) {
-		let myFile = this.files[0];
-		let fileName = myFile.name;
-		lastFileName = fileName;
-		let reader = new FileReader();
-	
-		reader.addEventListener('load', function (e) {
-			try {
-				let json = JSON.parse(e.target.result);
-				loadJSONfile(json);
-				statusMsg("Read '" + fileName + "'");
-				}
-			catch (err) {
-				statusMsg("Error reading '" + fileName + "': " + err.message);
-				return;
-				}
-			});
-    reader.readAsBinaryString(myFile);
-	}
+fileElem.addEventListener("change", function(event) {
+    let files = fileElem.files;
+    if (files.length) {
+        let myFile = this.files[0];
+        let fileName = myFile.name;
+        lastFileName = fileName;
+        let reader = new FileReader();
+
+        reader.addEventListener('load', function(e) {
+            try {
+                let json = JSON.parse(e.target.result);
+                loadJSONfile(json);
+                statusMsg("Read '" + fileName + "'");
+            } catch (err) {
+                statusMsg("Error reading '" + fileName + "': " + err.message);
+                return;
+            }
+        });
+        reader.readAsBinaryString(myFile);
+    }
 }, false);
- 
+
 function doClickOpenFile() {
-	fileElem.click();
+    fileElem.click();
 }
 
 function loadJSONfile(json) {
     nodes.clear();
     edges.clear();
-	let options = {
-		edges: {
-			inheritColors: false
-		},
-		nodes: {
-			fixed: false,
-			parseColor: true
-		}
-	};
-	if ('source' in json.edges[0]) {
-		// the file is from Gephi and needs to be translated
-		let parsed = vis.parseGephiNetwork(json, options);
-		nodes.add(parsed.nodes);
-		edges.add(parsed.edges);
-		}
-	else {
-		nodes.add(json.nodes);
-		edges.add(json.edges);
-		}
-	data = {
-		nodes: nodes,
-		edges: edges
-	};
-	network.setData(data);
+    let options = {
+        edges: {
+            inheritColors: false
+        },
+        nodes: {
+            fixed: false,
+            parseColor: true
+        }
+    };
+    if ('source' in json.edges[0]) {
+        // the file is from Gephi and needs to be translated
+        let parsed = vis.parseGephiNetwork(json, options);
+        nodes.add(parsed.nodes);
+        edges.add(parsed.edges);
+    } else {
+        nodes.add(json.nodes);
+        edges.add(json.edges);
+    }
+    data = {
+        nodes: nodes,
+        edges: edges
+    };
+    network.setData(data);
 }
 
 /* 
@@ -98,23 +95,15 @@ it has a user setting to do so.  Otherwise, it is saved at a default
 download location with a default name.
  */
 
-function download(filename, text) {
-  var element = document.createElement('a');
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-  element.setAttribute('download', filename);
-
-  element.style.display = 'none';
-  document.body.appendChild(element);
-
-  element.click();
-
-  document.body.removeChild(element);
-}
-
 function saveJSONfile() {
-	let json = JSON.stringify({nodes: data.nodes.get(), edges: data.edges.get()});
-	console.log("about to call download");
-	download(lastFileName, json);
+    let json = JSON.stringify({
+        nodes: data.nodes.get(),
+        edges: data.edges.get()
+    });
+    let element = document.getElementById("download");
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(json));
+    element.setAttribute('download', lastFileName);
+    element.click();
 }
 
 function plusNode() {
@@ -124,7 +113,7 @@ function plusNode() {
 }
 
 function plusLink() {
-// TODO
+    // TODO
 }
 
 function deleteNode() {
@@ -145,4 +134,3 @@ vis.Network.prototype.zoom = function(scale) {
 function zoomnet() {
     network.zoom(document.getElementById("zoom").value);
 }
-
