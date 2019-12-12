@@ -3,7 +3,6 @@
 	display: flex;
 	justify-content: space-between;
 	overflow: hidden;
-	background-color: whitesmoke;
 	border-bottom: 1px solid #ccc;
 }
 
@@ -36,6 +35,9 @@
 .tabcontent {
 	display: none;
 	padding: 12px;
+	background-color: #404040;
+	color: white;
+	font-size: 11px;
 }
 
 .sampleGrid {
@@ -45,8 +47,62 @@
 	}
 	
 .sampleNode img, .sampleLink img{
-	width:100%;
-	height:100%;
-	object-fit:contain; 
+	width: 100%;
+	height: 100%;
+	object-fit: contain; 
 	border: 0;
+	border-radius: 5px
 	}
+
+.networkGrid {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	overflow: hidden;
+	}
+	
+.onoffswitch {
+    position: relative; width: 50px;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+}
+.onoffswitch-checkbox {
+    display: none;
+}
+.onoffswitch-label {
+    display: block; overflow: hidden; cursor: pointer;
+    border: 0px solid #999999; border-radius: 11px;
+}
+.onoffswitch-inner {
+    display: block; width: 200%; margin-left: -100%;
+    transition: margin 0.3s ease-in 0s;
+}
+.onoffswitch-inner:before, .onoffswitch-inner:after {
+    display: block; float: left; width: 50%; height: 16px; padding: 0; line-height: 16px;
+    font-size: 11px; color: white; font-weight: bold;
+    box-sizing: border-box;
+}
+.onoffswitch-inner:before {
+    content: "ON";
+    padding-left: 10px;
+    background-color: #EEEEEE; color: #000000;
+}
+.onoffswitch-inner:after {
+    content: "OFF";
+    padding-right: 10px;
+    background-color: #bbbbbb; color: #000000;
+    text-align: right;
+}
+.onoffswitch-switch {
+    display: block; width: 18px; margin: -1px;
+    background: #000000;
+    position: absolute; top: 0; bottom: 0;
+    right: 32px;
+    border: 2px solid #999999; border-radius: 11px;
+    transition: all 0.3s ease-in 0s; 
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+    margin-left: 0;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+    right: 0px; 
+}

@@ -81,11 +81,23 @@
 	</main>
 	<aside id="panel">
 		<div class="tab">
+			<button class="tablinks" id="networkButton">Network</button>
 			<button class="tablinks" id="nodesButton">Nodes</button> 
 			<button class="tablinks" id="linksButton">Links</button> 
-			<button class="tablinks" id="networkButton">Network</button>
 		</div>
 		<!-- Tab content -->
+		<div class="tabcontent" id="networkTab">
+			<div class="networkGrid">
+				<div>Auto. layout</div>
+				<div class="onoffswitch">
+					<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="autolayoutswitch" checked>
+					<label class="onoffswitch-label" for="autolayoutswitch">
+						<span class="onoffswitch-inner"></span>
+						<span class="onoffswitch-switch"></span>
+					</label>
+				</div>
+			</div>
+		</div>
 		<div class="tabcontent" id="nodesTab">
 			<div class="sampleGrid">
 				<div class="sampleNode" id="nodeSample1"><img src="img/nodeSample1.png" alt="Sample"></div>
@@ -107,10 +119,6 @@
 				<div class="sampleLink" id="nodeLink5">Sample</div>
 				<div class="sampleLink" id="nodeLink6">Sample</div>
 			</div>			
-		</div>
-		<div class="tabcontent" id="networkTab">
-			<h3>Network</h3>
-			<p>Vestibulum consectetur sit amet nisi ut consectetur. Praesent efficitur, nibh vitae.</p>
 		</div>
 	</aside>
 	<footer>

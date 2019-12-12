@@ -31,7 +31,7 @@ function openTab(tabId) {
 }
 
 // start with first tab open
-document.getElementById("nodesButton").click();
+document.getElementById("networkButton").click();
 
 // samples: add listeners
 
@@ -77,3 +77,16 @@ function applySampleToLink() {
 function clearStatusBar() {
     statusMsg("<br>");
 }
+
+document.getElementById('autolayoutswitch').addEventListener('click', autoLayoutSwitch);
+
+function autoLayoutSwitch(e) {
+	if (e.target.checked) {
+		network.setOptions({'physics': {'enabled': true}});
+		}
+	else {
+		network.setOptions({'physics': {'enabled': false}});
+		}
+}
+																																																	
+		
