@@ -11,7 +11,7 @@
 	<link href="css/navbar.css" rel="stylesheet">
 	<link href="css/tabs.css" rel="stylesheet">
 	<link href="css/main.css" rel="stylesheet">
-	<link href="css/all.min.css" rel="stylesheet">
+	<link href="css/fa.min.css" rel="stylesheet">
   	<script type="text/javascript" src="js/exampleUtil.js"></script>
 	<script type="text/javascript" src="node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
 	<script type="text/javascript" src="js/main.js"></script>
@@ -37,7 +37,7 @@
 				</li>
 				<li>
 					<div class="tooltip">
-						<a class="nav-links" href="#" id="addNode"><i class="fas fa-plus"></i></a><span class="tooltiptext">Add node</span>
+						<a class="nav-links" href="#" id="addNode"><i class="fas fa-plus"></i></a><span class="tooltiptext">Add factor</span>
 					</div>
 				</li>
 				<li>
@@ -60,7 +60,7 @@
 	<main>
 	
 		<div id="node-popUp">
-		  <span id="node-operation">node</span> <br>
+		  <span id="node-operation">factor</span> <br>
 		  <input id="node-label" placeholder="Label" value=""/> <br>
 		  <input type="button" value="save" id="node-saveButton" />
 		  <input type="button" value="cancel" id="node-cancelButton" />
@@ -82,19 +82,35 @@
 	<aside id="panel">
 		<div class="tab">
 			<button class="tablinks" id="networkButton">Network</button>
-			<button class="tablinks" id="nodesButton">Nodes</button> 
+			<button class="tablinks" id="nodesButton">Factors</button> 
 			<button class="tablinks" id="linksButton">Links</button> 
 		</div>
 		<!-- Tab content -->
 		<div class="tabcontent" id="networkTab">
 			<div class="networkGrid">
-				<div>Auto. layout</div>
-				<div class="onoffswitch">
-					<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="autolayoutswitch" checked>
-					<label class="onoffswitch-label" for="autolayoutswitch">
-						<span class="onoffswitch-inner"></span>
-						<span class="onoffswitch-switch"></span>
-					</label>
+				<div class="networkRow">
+					<div>Auto. layout</div>
+					<div class="onoffswitch">
+						<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="autolayoutswitch" checked>
+						<label class="onoffswitch-label" for="autolayoutswitch">
+							<span class="onoffswitch-inner"></span>
+							<span class="onoffswitch-switch"></span>
+						</label>
+					</div>
+				</div>
+				<div class="networkRow">				
+					<div>Layout type:</div>
+					<div>
+						<select id="layoutSelect" onChange=selectLayout()">
+							<option value="4">400%</option>
+							<option value="2">200%</option>
+							<option value="1.5">150%</option>
+							<option value="1" selected>100%</option>
+							<option value="0.75">75%</option>
+							<option value="0.5">50%</option>
+							<option value="0.25">25%</option>
+						</select>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -112,12 +128,14 @@
 		</div>
 		<div class="tabcontent" id="linksTab">
 			<div class="sampleGrid">
-				<div class="sampleLink" id="nodeLink1">Link Sample</div>
-				<div class="sampleLink" id="nodeLink2">Sample</div>
-				<div class="sampleLink" id="nodeLink3">Sample</div>
-				<div class="sampleLink" id="nodeLink4">Sample</div>
-				<div class="sampleLink" id="nodeLink5">Sample</div>
-				<div class="sampleLink" id="nodeLink6">Sample</div>
+				<div class="sampleLink" id="LinkSample1"><img src="img/nodeSample1.png" alt="Sample"></div>
+				<div class="sampleLink" id="LinkSample2"><img src="img/nodeSample2.png" alt="Sample"></div>
+				<div class="sampleLink" id="LinkSample3"><img src="img/nodeSample3.png" alt="Sample"></div>
+				<div class="sampleLink" id="LinkSample4"><img src="img/nodeSample4.png" alt="Sample"></div>
+				<div class="sampleLink" id="LinkSample5"><img src="img/nodeSample5.png" alt="Sample"></div>
+				<div class="sampleLink" id="LinkSample6"><img src="img/nodeSample6.png" alt="Sample"></div>
+				<div class="sampleLink" id="LinkSample7"><img src="img/nodeSample7.png" alt="Sample"></div>
+				<div class="sampleLink" id="LinkSample8"><img src="img/nodeSample8.png" alt="Sample"></div>
 			</div>			
 		</div>
 	</aside>

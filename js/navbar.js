@@ -86,6 +86,12 @@ function loadJSONfile(json) {
         nodes: nodes,
         edges: edges
     };
+    if (data.nodes.length > 100) {
+			network.setOptions({interaction: {
+				hideEdgesOnDrag: true,
+				hideEdgesOnZoom: true,
+		  }});
+		}
     network.setData(data);
 }
 

@@ -55,10 +55,15 @@
 	}
 
 .networkGrid {
+	display: grid;
+	grid-template-columns: 1fr;
+}
+
+.networkRow {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	overflow: hidden;
+	padding: 10px;
 	}
 	
 .onoffswitch {

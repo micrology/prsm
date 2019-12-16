@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Color pot</title>
+	<style>
+		input:focus { outline: none; }
+	</style>
+</head>
+<body>
+		<script src="../js/jscolor-2.0.5/jscolor.js"></script>
+Fill: <input
+    class="jscolor {required:false,  padding:0, shadow:true,
+    backgroundColor:'transparent', insetColor:'#000'}"
+    style="width:20px; height:20px; border: 2px solid gray; font-size: 0;"
+    id="colorpot" onchange="update(this)">
+<script>
+function update(picker) {
+	console.log('Color ' + picker.jscolor.toHEXString());
+	}
+</script>
+</body>
+</html>

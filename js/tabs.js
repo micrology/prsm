@@ -65,8 +65,9 @@ function applySampleToNode() {
         e = Object.assign(e, sampleFormat);
         data.nodes.update(e);
     }
+    network.unselectAll();
     network.redraw();
-   statusMsg("Clicked " + target + " for nodes " + selectedNodeIds);
+    statusMsg("Factors "  + selectedNodeIds + 'changed');
 }
 
 function applySampleToLink() {

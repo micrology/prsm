@@ -20,13 +20,16 @@ function draw() {
     // create a network
     var container = document.getElementById('net-pane');
     var options = {
-        //configure: 'nodes,edges',
+        configure: 'nodes,edges',
         //physics: { enabled: false },
         nodes: sampleFormats[0],
         interaction: {
             multiselect: true,
             hover: true,
             zoomView: false
+        },
+        layout: {
+        	improvedLayout:true
         },
         manipulation: {
             enabled: false,
@@ -77,8 +80,38 @@ function draw() {
             network.editNode();
         } else network.fit();
     });
+    
+    network.on('selectNode', function() {
+    	statusMsg('Factors ' + network.getSelectedNodes() + ' selected');
+    	});
+    network.on('hoverNode', function () {
+	changeCursor('grab');
+	});
+	network.on('blurNode', function () {
+	changeCursor('default');
+	});
+	network.on('dragStart', function () {
+	changeCursor('grabbing');
+	});
+	network.on('dragging', function () {
+	changeCursor('grabbing');
+	});
+	network.on('dragEnd', function () {
+	changeCursor('grab');
+	});
+	network.on('startStabilizing', function () {
+	changeCursor('wait');
+	});
+	network.on('stabilizationIterationsDone', function () {
+	changeCursor('default');
+	});
+	
 
 }
+
+function changeCursor(newCursorStyle){
+	document.getElementById("container").style.cursor = newCursorStyle;
+  }
 
 function editNode(data, cancelAction, callback) {
     document.getElementById('node-saveButton').onclick = saveNodeData.bind(this, data, callback);
@@ -144,3 +177,5 @@ function saveEdgeData(data, callback) {
 function init() {
     draw();
 }
+
+

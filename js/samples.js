@@ -377,7 +377,7 @@ let sampleFormats = [{  // the first is the global default
     {
         format: "nodeSample8",
         borderWidth: 0,
-        borderWidthSelected: 2,
+        borderWidthSelected: 5,
         chosen: true,
         color: {
             border: '#2B7CE9',
