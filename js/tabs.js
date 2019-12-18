@@ -8,6 +8,11 @@ document.getElementById("linksButton").addEventListener("click", () => {
 document.getElementById("networkButton").addEventListener("click", () => {
     openTab("networkTab");
 }, false);
+// Clicking anywhere else clears the status bar (note trick: click is processed in the capturing phase)
+document.getElementById("container").addEventListener("click", () => {
+    clearStatusBar();
+}, true);
+
 
 function openTab(tabId) {
     // Declare all variables
@@ -29,18 +34,19 @@ function openTab(tabId) {
     document.getElementById(tabId).style.display = "block";
     event.currentTarget.className += " active";
 }
+// Factors and Links Tabs
 
-// start with first tab open
-document.getElementById("networkButton").click();
+// samples
 
-// samples: add listeners
-
-// Get all elements with class="sampleNode" and add listener
-let samples = document.getElementsByClassName("sampleNode");
-for (let i = 0; i < samples.length; i++) {
-    samples[i].addEventListener("click", () => {
-        applySampleToNode();
-    }, false);
+// Get all elements with class="sampleNode" and add listener and canvas
+let emptyDataSet = new vis.DataSet([]);
+let sampleElements = document.getElementsByClassName("sampleNode");
+for (let i = 0; i < sampleElements.length; i++) {
+	sampleElement = sampleElements[i];
+    sampleElement.addEventListener("click", () => {applySampleToNode();}, false);
+   let sampleFormat = sampleFormats.find(({format}) => format === sampleElement.id);
+	let nodeDataSet = new vis.DataSet([Object.assign({id:1, label: 'Sample'}, sampleFormat)])
+   initSample(sampleElement, {nodes: nodeDataSet, edges: emptyDataSet});
 }
 // and to all sampleLinks
 samples = document.getElementsByClassName("sampleLink");
@@ -50,10 +56,21 @@ for (let i = 0; i < samples.length; i++) {
     }, false);
 }
 
-// Clicking anywhere else clears the status bar (note trick: click is processed in the capturing phase)
-document.getElementById("container").addEventListener("click", () => {
-    clearStatusBar();
-}, true);
+var network1;
+
+function initSample(wrapper, sampleData) {
+	let options = {interaction: {
+						dragNodes:false,
+						dragView: false,
+						selectable: false,
+						zoomView: false}};
+	let network = new vis.Network(wrapper, sampleData, options);
+	network1 = network;
+	network1.storePositions();
+	console.log(network1.body.data.nodes.get()[0].format)
+	console.log(network1.body.data.nodes.get()[0].x)
+	console.log(network1.body.data.nodes.get()[0].y)	
+}
 
 function applySampleToNode() {
     let target = event.currentTarget.id;
@@ -67,27 +84,30 @@ function applySampleToNode() {
     }
     network.unselectAll();
     network.redraw();
-    statusMsg("Factors "  + selectedNodeIds + 'changed');
+    statusMsg("Factors "  + selectedNodeIds + ' changed');
 }
 
 function applySampleToLink() {
     let target = event.currentTarget.id;
-    statusLsg("Clicked " + target);
+    statusMsg("Clicked " + target);
 }
 
-function clearStatusBar() {
-    statusMsg("<br>");
-}
+
+// Network tab
 
 document.getElementById('autolayoutswitch').addEventListener('click', autoLayoutSwitch);
 
 function autoLayoutSwitch(e) {
-	if (e.target.checked) {
-		network.setOptions({'physics': {'enabled': true}});
-		}
-	else {
-		network.setOptions({'physics': {'enabled': false}});
-		}
+	network.setOptions({'physics': {'enabled': e.target.checked}});
 }
 																																																	
+function selectLayout() {
+	network.setOptions({layout: {hierarchical: document.getElementById('layoutSelect').value === 'Hierarchical'}});
+}
+
+function selectCurve() {
+	network.setOptions({edges: {smooth: document.getElementById('curveSelect').value === 'Curved'}});
+}
+// start with first tab open
+document.getElementById("nodesButton").click();
 		

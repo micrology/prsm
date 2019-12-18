@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>import World Cup data</title>
+</head>
+<body>
+<script src="../data/WorldCup2014.js"></script>
+<a id="download" download></a>
+<script>
+json = JSON.stringify({nodes: nodes, edges: edges});
+    let element = document.getElementById("download");
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(json));
+    element.setAttribute('download', 'WorldCup2014.json');
+    element.click();
+</script>
+</body>
+</html>

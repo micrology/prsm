@@ -1,10 +1,10 @@
 let sampleFormats = [{  // the first is the global default
         borderWidth: 1,
-        borderWidthSelected: 2,
+        borderWidthSelected: 12,
         chosen: true,
         color: {
             border: '#2B7CE9',
-            background: '#97C2FC',
+            background: 'red', //'#97C2FC',
             highlight: {
                 border: '#2B7CE9',
                 background: '#D2E5FF'
@@ -107,7 +107,7 @@ let sampleFormats = [{  // the first is the global default
     {
         format: "nodeSample1",
         borderWidth: 2,
-        borderWidthSelected: 1,
+        borderWidthSelected: 100,
         chosen: true,
         color: {
             border: '#0000ff',

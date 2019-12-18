@@ -20,7 +20,7 @@ function draw() {
     // create a network
     var container = document.getElementById('net-pane');
     var options = {
-        configure: 'nodes,edges',
+        //configure: 'nodes,edges',
         //physics: { enabled: false },
         nodes: sampleFormats[0],
         interaction: {
@@ -78,7 +78,11 @@ function draw() {
     network.on("doubleClick", function(params) {
         if (params.nodes.length === 1) {
             network.editNode();
-        } else network.fit();
+        } 
+        else {
+        	network.fit();
+        	document.getElementById('zoom').value='fit';
+        	}
     });
     
     network.on('selectNode', function() {
@@ -98,14 +102,7 @@ function draw() {
 	});
 	network.on('dragEnd', function () {
 	changeCursor('grab');
-	});
-	network.on('startStabilizing', function () {
-	changeCursor('wait');
-	});
-	network.on('stabilizationIterationsDone', function () {
-	changeCursor('default');
-	});
-	
+	});	
 
 }
 
@@ -176,6 +173,14 @@ function saveEdgeData(data, callback) {
 
 function init() {
     draw();
+}
+
+function statusMsg(msg) {
+    document.getElementById("statusBar").innerHTML = msg;
+}
+
+function clearStatusBar() {
+    statusMsg("<br>");
 }
 
 

@@ -17,10 +17,6 @@ function closeMainNav() {
     document.getElementById("js-menu").classList.toggle("active");
 }
 
-function statusMsg(msg) {
-    document.getElementById("statusBar").innerHTML = msg;
-}
-
 function togglePanel() {
     let container = document.getElementById("container");
     let panel = document.getElementById("panel");
@@ -127,6 +123,10 @@ function deleteNode() {
 }
 
 vis.Network.prototype.zoom = function(scale) {
+	if (scale === 'fit') {
+		this.view.fit();
+		return;
+		}
     let newScale = (scale === undefined ? 1 : scale);
     const animationOptions = {
         scale: newScale,

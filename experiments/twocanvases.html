@@ -2,16 +2,24 @@
 <head>
 <script type="text/javascript" src="../node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
     <style type="text/css">
+    .sampleGrid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-gap: 10px;
+	}
+	
         #mynetwork, #mynetwork2 {
-            width: 100px;
-            height: 100px;
+            width: 70px;
+            height: 70px;
             border: 1px solid lightgray;
         }
     </style>
 </head>
 <body>
-<div id="mynetwork"></div>
+<div class="sampleGrid"
+><div id="mynetwork"></div>
 <div id="mynetwork2"></div>
+</div>
 
 <script type="text/javascript">
     // create an array with nodes
@@ -33,7 +41,48 @@
     ]);
  */
 	var nodes = new vis.DataSet([
-		{id: 1, label: 'Sample'}
+		{id: 1, label: 'Sample',
+
+        format: "nodeSample1",
+        borderWidth: 2,
+        borderWidthSelected: 1,
+        chosen: true,
+        color: {
+            border: '#0000ff',
+            background: "white",
+            highlight: {
+                border: '#000080',
+                background: '#efefff'
+            },
+            hover: {
+                border: '#2B7CE9',
+                background: 'white'
+            }
+        },
+        font: {
+            color: 'black',
+		},
+        labelHighlightBold: true,
+        shadow: {
+            enabled: true,
+            color: 'rgba(0,0,0,0.5)',
+            size: 5,
+            x: 5,
+            y: 5
+        },
+        shape: 'ellipse',
+        shapeProperties: {
+            borderDashes: false, // only for borders
+            borderRadius: 6, // only for box shape
+        },
+        size: 50,
+        widthConstraint: {
+            minimum: 50
+        },
+        heightConstraint: {
+            minimum: 20
+        }
+    }
 		]);
 	var edges = new vis.DataSet([]);
 	

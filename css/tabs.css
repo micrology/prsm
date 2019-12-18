@@ -46,12 +46,12 @@
 	grid-gap: 10px;
 	}
 	
-.sampleNode img, .sampleLink img{
-	width: 100%;
-	height: 100%;
-	object-fit: contain; 
+.sampleNode, .sampleLink {
+	width: 70px;
+	height: 70px;
 	border: 0;
-	border-radius: 5px
+	border-radius: 5px;
+	background-color: white;
 	}
 
 .networkGrid {
@@ -63,7 +63,7 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 10px;
+	padding: 3px;
 	}
 	
 .onoffswitch {

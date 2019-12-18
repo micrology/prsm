@@ -101,14 +101,18 @@
 				<div class="networkRow">				
 					<div>Layout type:</div>
 					<div>
-						<select id="layoutSelect" onChange=selectLayout()">
-							<option value="4">400%</option>
-							<option value="2">200%</option>
-							<option value="1.5">150%</option>
-							<option value="1" selected>100%</option>
-							<option value="0.75">75%</option>
-							<option value="0.5">50%</option>
-							<option value="0.25">25%</option>
+						<select id="layoutSelect" onChange=selectLayout()>
+							<option value="Network" selected>Network</option>
+							<option value="Hierarchical">Hierarchical</option>
+						</select>
+					</div>
+				</div>
+				<div class="networkRow">				
+					<div>Link curve:</div>
+					<div>
+						<select id="curveSelect" onChange=selectCurve()>
+							<option value="Curved" selected>Curved</option>
+							<option value="Straight">Straight</option>
 						</select>
 					</div>
 				</div>
@@ -116,14 +120,14 @@
 		</div>
 		<div class="tabcontent" id="nodesTab">
 			<div class="sampleGrid">
-				<div class="sampleNode" id="nodeSample1"><img src="img/nodeSample1.png" alt="Sample"></div>
-				<div class="sampleNode" id="nodeSample2"><img src="img/nodeSample2.png" alt="Sample"></div>
-				<div class="sampleNode" id="nodeSample3"><img src="img/nodeSample3.png" alt="Sample"></div>
-				<div class="sampleNode" id="nodeSample4"><img src="img/nodeSample4.png" alt="Sample"></div>
-				<div class="sampleNode" id="nodeSample5"><img src="img/nodeSample5.png" alt="Sample"></div>
-				<div class="sampleNode" id="nodeSample6"><img src="img/nodeSample6.png" alt="Sample"></div>
-				<div class="sampleNode" id="nodeSample7"><img src="img/nodeSample7.png" alt="Sample"></div>
-				<div class="sampleNode" id="nodeSample8"><img src="img/nodeSample8.png" alt="Sample"></div>
+				<div class="sampleNode" id="nodeSample1"></div>
+				<div class="sampleNode" id="nodeSample2"></div>
+				<div class="sampleNode" id="nodeSample3"></div>
+				<div class="sampleNode" id="nodeSample4"></div>
+				<div class="sampleNode" id="nodeSample5"></div>
+				<div class="sampleNode" id="nodeSample6"></div>
+				<div class="sampleNode" id="nodeSample7"></div>
+				<div class="sampleNode" id="nodeSample8"></div>
 			</div>			
 		</div>
 		<div class="tabcontent" id="linksTab">
@@ -143,10 +147,11 @@
 		<div id="statusBar"><br></div>
 		<div>
 			<select id="zoom" onChange="zoomnet()">
+				<option value="fit" selected>fit to window</option>
 				<option value="4">400%</option>
 				<option value="2">200%</option>
 				<option value="1.5">150%</option>
-				<option value="1" selected>100%</option>
+				<option value="1">100%</option>
 				<option value="0.75">75%</option>
 				<option value="0.5">50%</option>
 				<option value="0.25">25%</option>
