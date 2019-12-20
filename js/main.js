@@ -36,24 +36,26 @@ function draw() {
             addNode: function(data, callback) {
                 // filling in the popup DOM elements
                 data.label = '';
-                document.getElementById('node-operation').innerHTML = "Add Node";
+                document.getElementById('node-operation').innerHTML = "Add Factor";
                 editNode(data, clearNodePopUp, callback);
             },
             editNode: function(data, callback) {
                 // filling in the popup DOM elements
-                document.getElementById('node-operation').innerHTML = "Edit Node";
+                document.getElementById('node-operation').innerHTML = "Edit Factor";
                 editNode(data, cancelNodeEdit, callback);
             },
             addEdge: function(data, callback) {
+				document.getElementById("net-pane").style.cursor = "auto";
                 if (data.from == data.to) {
-                    var r = confirm("Do you want to connect the node to itself?");
+                    var r = confirm("Do you want to connect the Factor to itself?");
                     if (r != true) {
                         callback(null);
                         return;
                     }
                 }
-                document.getElementById('edge-operation').innerHTML = "Add Edge";
-                editEdgeWithoutDrag(data, callback);
+//                 document.getElementById('edge-operation').innerHTML = "Add Edge";
+//                 editEdgeWithoutDrag(data, callback);
+					callback(data);
             },
             editEdge: {
                 editWithoutDrag: function(data, callback) {
@@ -183,4 +185,16 @@ function clearStatusBar() {
     statusMsg("<br>");
 }
 
+// keyboard events
 
+window.addEventListener('keydown', function (event) {
+	if (event.defaultPrevented) {
+		return;
+		}
+	switch (event.key) {
+		case "AAA": // select all nodes
+			break;
+		default: console.log(event.key); return;
+		}
+	event.preventDefault();
+	}, true);

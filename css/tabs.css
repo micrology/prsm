@@ -33,17 +33,22 @@
 
 /* Style the tab content */
 .tabcontent {
-	display: none;
-	padding: 12px;
+	padding: 6px;
 	background-color: #404040;
 	color: white;
 	font-size: 11px;
 }
 
+.hide {
+	position: absolute !important;
+	top :-9999px !important;
+	left: -9999px !important;
+	}
+
 .sampleGrid {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
-	grid-gap: 10px;
+	grid-gap: 6px;
 	}
 	
 .sampleNode, .sampleLink {

@@ -404,7 +404,381 @@ let sampleFormats = [{  // the first is the global default
         },
         shape: 'star',
         size: 25
-    }
+    },
+    
+// edges (first is the default)
 
+	{
+		arrows: {
+		  to: {
+			enabled: false,
+			imageHeight: undefined,
+			imageWidth: undefined,
+			scaleFactor: 1,
+			src: undefined,
+			type: "arrow"
+		  },
+		  middle: {
+			enabled: false,
+			imageHeight: 32,
+			imageWidth: 32,
+			scaleFactor: 1,
+			src: "https://visjs.org/images/visjs_logo.png",
+			type: "image"
+		  },
+		  from: {
+			enabled: false,
+			imageHeight: undefined,
+			imageWidth: undefined,
+			scaleFactor: 1,
+			src: undefined,
+			type: "arrow"
+		  }
+		},
+		arrowStrikethrough: true,
+		chosen: true,
+		color: {
+		  color:'#848484',
+		  highlight:'#848484',
+		  hover: '#848484',
+		  inherit: 'from',
+		  opacity:1.0
+		},
+		dashes: false,
+		font: {
+		  color: '#343434',
+		  size: 14, // px
+		  face: 'arial',
+		  background: 'none',
+		  strokeWidth: 2, // px
+		  strokeColor: '#ffffff',
+		  align: 'horizontal',
+		  multi: false,
+		  vadjust: 0,
+		  bold: {
+			color: '#343434',
+			size: 14, // px
+			face: 'arial',
+			vadjust: 0,
+			mod: 'bold'
+		  },
+		  ital: {
+			color: '#343434',
+			size: 14, // px
+			face: 'arial',
+			vadjust: 0,
+			mod: 'italic',
+		  },
+		  boldital: {
+			color: '#343434',
+			size: 14, // px
+			face: 'arial',
+			vadjust: 0,
+			mod: 'bold italic'
+		  },
+		  mono: {
+			color: '#343434',
+			size: 15, // px
+			face: 'courier new',
+			vadjust: 2,
+			mod: ''
+		  }
+		},
+		hidden: false,
+		hoverWidth: 1.5,
+		label: undefined,
+		labelHighlightBold: true,
+		length: undefined,
+		physics: true,
+		scaling:{
+		  min: 1,
+		  max: 15,
+		  label: {
+			enabled: true,
+			min: 14,
+			max: 30,
+			maxVisible: 30,
+			drawThreshold: 5
+		  },
+		  customScalingFunction: function (min,max,total,value) {
+			if (max === min) {
+			  return 0.5;
+			}
+			else {
+			  var scale = 1 / (max - min);
+			  return Math.max(0,(value - min)*scale);
+			}
+		  }
+		},
+		selectionWidth: 1,
+		selfReferenceSize:20,
+		shadow:{
+		  enabled: false,
+		  color: 'rgba(0,0,0,0.5)',
+		  size:10,
+		  x:5,
+		  y:5
+		},
+		smooth: {
+		  enabled: true,
+		  type: "dynamic",
+		  roundness: 0.5
+		},
+		title:undefined,
+		value: undefined,
+		width: 1,
+		widthConstraint: false
+  },
+  
+  // simple directed black link
+  
+  	{
+  		format: "linkSample1",
+		arrows: {
+		  to: {
+			enabled: true,
+			type: "arrow"
+		  },
+		  from: {
+			enabled: false,
+		  }
+		},
+		color: {
+		  color: 'black',
+		  highlight:'black',
+		  hover: 'black',
+		  inherit: false,
+		  opacity:1.0
+		},
+		hoverWidth: 1.5,
+		selectionWidth: 2,
+		selfReferenceSize:20,
+		smooth: {
+		  enabled: true,
+		  type: "dynamic",
+		  roundness: 0.5
+		},
+		width: 1,
+  },
+  
+  // simple directed blue link
+  
+  	{
+  		format: "linkSample2",
+		arrows: {
+		  to: {
+			enabled: true,
+			type: "arrow"
+		  },
+		  from: {
+			enabled: false,
+		  }
+		},
+		color: {
+		  color: 'blue',
+		  highlight:'blue',
+		  hover: 'blue',
+		  inherit: false,
+		  opacity:1.0
+		},
+		hoverWidth: 3,
+		selectionWidth: 4,
+		selfReferenceSize:20,
+		smooth: {
+		  enabled: true,
+		  type: "dynamic",
+		  roundness: 0.5
+		},
+		width: 2,
+  },
+  
+  // simple directed red link
+  
+  	{
+  		format: "linkSample3",
+		arrows: {
+		  to: {
+			enabled: true,
+			type: "arrow"
+		  },
+		  from: {
+			enabled: false,
+		  }
+		},
+		color: {
+		  color: 'red',
+		  highlight:'red',
+		  hover: 'red',
+		  inherit: false,
+		  opacity:1.0
+		},
+		hoverWidth: 1.5,
+		selectionWidth: 2,
+		selfReferenceSize:20,
+		smooth: {
+		  enabled: true,
+		  type: "dynamic",
+		  roundness: 0.5
+		},
+		width: 1,
+  },
+    
+  // simple directed grey link
+  
+  	{
+  		format: "linkSample4",
+		arrows: {
+		  to: {
+			enabled: true,
+			type: "arrow"
+		  },
+		  from: {
+			enabled: false,
+		  }
+		},
+		color: {
+		  color: 'grey',
+		  highlight:'grey',
+		  hover: 'grey',
+		  inherit: false,
+		  opacity:1.0
+		},
+		hoverWidth: 3,
+		selectionWidth: 4,
+		selfReferenceSize:20,
+		smooth: {
+		  enabled: true,
+		  type: "dynamic",
+		  roundness: 0.5
+		},
+		width: 2
+  },
+  
+    // medium directed yellow link
+  
+  	{
+  		format: "linkSample5",
+		arrows: {
+		  to: {
+			enabled: true,
+			type: "arrow"
+		  },
+		  from: {
+			enabled: false,
+		  }
+		},
+		color: {
+		  color: 'gold',
+		  highlight:'gold',
+		  hover: 'gold',
+		  inherit: false,
+		  opacity:1.0
+		},
+		hoverWidth: 6,
+		selectionWidth: 8,
+		selfReferenceSize:20,
+		smooth: {
+		  enabled: true,
+		  type: "dynamic",
+		  roundness: 0.5
+		},
+		width: 4
+  },
+
+    // thick directed red link
+  
+  	{
+  		format: "linkSample6",
+		arrows: {
+		  to: {
+			enabled: true,
+			type: "arrow"
+		  },
+		  from: {
+			enabled: false,
+		  }
+		},
+		color: {
+		  color: 'red',
+		  highlight:'red',
+		  hover: 'red',
+		  inherit: false,
+		  opacity:1.0
+		},
+		hoverWidth: 10,
+		selectionWidth: 12,
+		selfReferenceSize:20,
+		smooth: {
+		  enabled: true,
+		  type: "dynamic",
+		  roundness: 0.5
+		},
+		width: 8
+  },
+  
+  
+    // thick directed green link
+  
+  	{
+  		format: "linkSample7",
+		arrows: {
+		  to: {
+			enabled: true,
+			type: "arrow"
+		  },
+		  from: {
+			enabled: false,
+		  }
+		},
+		color: {
+		  color: 'green',
+		  highlight:'green',
+		  hover: 'green',
+		  inherit: false,
+		  opacity:1.0
+		},
+		hoverWidth: 10,
+		selectionWidth: 12,
+		selfReferenceSize:20,
+		smooth: {
+		  enabled: true,
+		  type: "dynamic",
+		  roundness: 0.5
+		},
+		width: 8
+  },
+  
+  
+    //  directed black dashed link
+  
+    	{
+  		format: "linkSample8",
+		arrows: {
+		  to: {
+			enabled: true,
+			type: "arrow"
+		  },
+		  from: {
+			enabled: false,
+		  }
+		},
+		color: {
+		  color: 'black',
+		  highlight:'black',
+		  hover: 'black',
+		  inherit: false,
+		  opacity:1.0
+		},
+		dashes: true,
+		hoverWidth: 6,
+		selectionWidth: 8,
+		selfReferenceSize:20,
+		smooth: {
+		  enabled: true,
+		  type: "dynamic",
+		  roundness: 0.5
+		},
+		width: 3
+  }
 
 ];

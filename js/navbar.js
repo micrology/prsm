@@ -110,12 +110,14 @@ function saveJSONfile() {
 
 function plusNode() {
     statusMsg("Add Node mode");
-    document.getElementById("container").style.cursor = "cell";
+    document.getElementById("net-pane").style.cursor = "cell";
     network.addNodeMode();
 }
 
 function plusLink() {
-    // TODO
+    statusMsg("Add Edge mode");
+    document.getElementById("net-pane").style.cursor = "cell";
+    network.addEdgeMode();
 }
 
 function deleteNode() {
