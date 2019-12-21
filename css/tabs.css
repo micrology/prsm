@@ -47,17 +47,32 @@
 
 .sampleGrid {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: 1fr 1fr 1fr;
 	grid-gap: 6px;
 	}
 	
 .sampleNode, .sampleLink {
-	width: 70px;
-	height: 70px;
+	width: 45px;
+	height: 45px;
 	border: 0;
 	border-radius: 5px;
 	background-color: white;
 	}
+
+.notesWrapper {
+	margin: 10px 0 0 0;
+	padding: 2px 0 0 2px;
+	border-radius: 5px;
+	color: black;
+	background-color: white;
+	font-family: sans-serif;
+	}
+		
+.notes {
+	width: 100%; 
+	max-height: 100px;
+	height: 30px; 
+}
 
 .networkGrid {
 	display: grid;

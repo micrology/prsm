@@ -89,6 +89,10 @@ function draw() {
     
     network.on('selectNode', function() {
     	statusMsg('Factors ' + network.getSelectedNodes() + ' selected');
+    	displayNotes();
+    	});
+    network.on('deselectNode',  function() {
+    	hideNotes();
     	});
     network.on('hoverNode', function () {
 	changeCursor('grab');
@@ -185,16 +189,3 @@ function clearStatusBar() {
     statusMsg("<br>");
 }
 
-// keyboard events
-
-window.addEventListener('keydown', function (event) {
-	if (event.defaultPrevented) {
-		return;
-		}
-	switch (event.key) {
-		case "AAA": // select all nodes
-			break;
-		default: console.log(event.key); return;
-		}
-	event.preventDefault();
-	}, true);

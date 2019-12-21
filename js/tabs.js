@@ -13,6 +13,7 @@ document.getElementById("net-pane").addEventListener("click", () => {
     clearStatusBar();
 }, true);
 
+var tabOpen = null;
 
 function openTab(tabId) {
     // Declare all variables
@@ -33,6 +34,9 @@ function openTab(tabId) {
     // Show the current tab, and add an "active" class to the button that opened the tab
     document.getElementById(tabId).classList.remove('hide');
     event.currentTarget.className += " active";
+    
+    tabOpen = tabId;
+    if (tabOpen == 'nodesTab') displayNotes();
 }
 // Factors and Links Tabs
 
@@ -122,6 +126,71 @@ function applySampleToLink() {
     statusMsg(selectedEdges + ' changed');
 }
 
+// Notes
+
+document.getElementById('notes').addEventListener('click', addEditor);
+
+var editor = null;
+
+function addEditor() {
+	editor = new nicEditor({
+		buttonList : ['fontSize','bold','italic','underline'], 
+		iconsPath: 'js/nicEdit/nicEditorIcons.gif',
+		maxHeight: '30px'}).panelInstance('notes', {hasPanel : true});
+	editor.addEvent('blur', removeEditor);
+	}
+	
+function removeEditor() {
+	if (editor.nicInstances.length > 0) {
+		let title = stripTags(editor.nicInstances[0].getContent(), "<b><i><div><font>");
+		let nodeId = network.getSelectedNodes()[0];
+        data.nodes.update({id: nodeId, title: title});
+
+		editor.removeInstance('notes');
+		}
+	}
+	
+function stripTags(input, allowed) {
+
+  // making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
+  allowed = (((allowed || '') + '').toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join('')
+
+  var tags = /<\/?([a-z0-9]*)\b[^>]*>?/gi
+  var commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi
+
+  var after = input
+  // removes tha '<' char at the end of the string to replicate PHP's behaviour
+  after = (after.substring(after.length - 1) === '<') ? after.substring(0, after.length - 1) : after
+
+  // recursively remove tags to ensure that the returned string doesn't contain forbidden tags after previous passes (e.g. '<<bait/>switch/>')
+  while (true) {
+    var before = after
+    after = before.replace(commentsAndPhpTags, '').replace(tags, function ($0, $1) {
+      return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : ''
+    })
+
+    // return once no more tags are removed
+    if (before === after) {
+      return after
+    }
+  }
+}
+
+function displayNotes () {
+	let panel = document.getElementById("1nodeSelected");
+	if (tabOpen == 'nodesTab' && network.getSelectedNodes().length == 1) {
+		panel.classList.remove('hide');
+		}
+	else {
+		panel.classList.add('hide')
+		}
+}
+
+function hideNotes() {
+	document.getElementById("1nodeSelected").classList.add('hide')
+}
+
+hideNotes();
 
 // Network tab
 
