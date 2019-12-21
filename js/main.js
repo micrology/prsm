@@ -45,7 +45,7 @@ function draw() {
                 editNode(data, cancelNodeEdit, callback);
             },
             addEdge: function(data, callback) {
-				document.getElementById("net-pane").style.cursor = "auto";
+				changeCursor("auto");
                 if (data.from == data.to) {
                     var r = confirm("Do you want to connect the Factor to itself?");
                     if (r != true) {
@@ -86,7 +86,6 @@ function draw() {
         	document.getElementById('zoom').value='fit';
         	}
     });
-    
     network.on('selectNode', function() {
     	statusMsg('Factors ' + network.getSelectedNodes() + ' selected');
     	displayNotes();
@@ -113,10 +112,11 @@ function draw() {
 }
 
 function changeCursor(newCursorStyle){
-	document.getElementById("container").style.cursor = newCursorStyle;
+	document.getElementById("net-pane").style.cursor = newCursorStyle;
   }
 
 function editNode(data, cancelAction, callback) {
+	changeCursor('auto');
     document.getElementById('node-saveButton').onclick = saveNodeData.bind(this, data, callback);
     document.getElementById('node-cancelButton').onclick = cancelAction.bind(this, callback);
     document.getElementById('node-popUp').style.top = `${event.clientY}px`;
@@ -124,7 +124,6 @@ function editNode(data, cancelAction, callback) {
     document.getElementById('node-popUp').style.display = 'block';
     document.getElementById('node-label').value = data.label;
     document.getElementById('node-label').focus();
-    document.getElementById("container").style.cursor = "auto";
 }
 
 // Callback passed as parameter is ignored

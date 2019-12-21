@@ -1,5 +1,5 @@
 body {
-	font-family: Oxygen, sans-serif;
+	font-family: sans-serif;
 	box-sizing: border-box;
 }
 
@@ -95,4 +95,10 @@ footer {
 }
 .tooltip:active .tooltiptext {
 	visibility: hidden;
+}
+
+@media print {
+	header, aside, footer {
+		display: none;
+		}
 }

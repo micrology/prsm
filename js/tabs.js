@@ -96,6 +96,9 @@ function initSample(wrapper, sampleData) {
 	return network;
 }
 
+var lastNodeSample = null;
+var lastLinkSample = null;
+
 function applySampleToNode() {
     let target = event.currentTarget.id;
     let selectedNodeIds = network.getSelectedNodes();
@@ -109,6 +112,7 @@ function applySampleToNode() {
     network.unselectAll();
     network.redraw();
     statusMsg("Factors "  + selectedNodeIds + ' changed');
+    lastNodeSample = sampleFormat;
 }
 
 function applySampleToLink() {
@@ -179,6 +183,9 @@ function stripTags(input, allowed) {
 function displayNotes () {
 	let panel = document.getElementById("1nodeSelected");
 	if (tabOpen == 'nodesTab' && network.getSelectedNodes().length == 1) {
+		let nodeId = network.getSelectedNodes()[0];
+		let title = data.nodes.get(nodeId).title;
+		document.getElementById("notes").innerHTML = (title ? title : "");
 		panel.classList.remove('hide');
 		}
 	else {
