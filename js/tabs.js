@@ -49,24 +49,24 @@ sampleElements = document.getElementsByClassName("sampleNode");
 for (let i = 0; i < sampleElements.length; i++) {
 	sampleElement = sampleElements[i];
     sampleElement.addEventListener("click", () => {applySampleToNode();}, false);
-    sampleFormat = sampleFormats.find(({format}) => format === sampleElement.id);
-	let nodeDataSet = new vis.DataSet([Object.assign({id:1, label: 'Sample'}, sampleFormat)])
+	let nodeDataSet = new vis.DataSet([{id:1, label: 'Sample', group: 'group' + i}]);
     let sampleNetwork = initSample(sampleElement, {nodes: nodeDataSet, edges: emptyDataSet});
     sampleNetwork.on("doubleClick", function(params) {
         if (params.nodes.length === 1) {
             sampleNetwork.editNode();
         }
     });
+    sampleElement.group = 'group' + i;
 }
 // and to all sampleLinks
 sampleElements = document.getElementsByClassName("sampleLink");
 for (let i = 0; i < sampleElements.length; i++) {
 	sampleElement = sampleElements[i];
     sampleElement.addEventListener("click", () => {applySampleToLink();}, false);
-    sampleFormat = sampleFormats.find(({format}) => format === sampleElement.id);
-	let edgeDataSet = new vis.DataSet([Object.assign({from: 1, to: 2}, sampleFormat)])
+	let edgeDataSet = new vis.DataSet([Object.assign({from: 1, to: 2}, groupEdges['edge' + i])])
 	let nodesDataSet = new vis.DataSet([{id:1}, {id:2}])
     initSample(sampleElement, {nodes: nodesDataSet, edges: edgeDataSet});
+    sampleElement.groupLink = 'edge' + i;
 }
 
 function initSample(wrapper, sampleData) {
@@ -88,7 +88,8 @@ function initSample(wrapper, sampleData) {
 							enabled: true,
 							direction: 'LR'
 							}
-						}
+						},
+					groups: groups
 					};
 	let network = new vis.Network(wrapper, sampleData, options);
 	network.storePositions();
@@ -96,38 +97,32 @@ function initSample(wrapper, sampleData) {
 	return network;
 }
 
-var lastNodeSample = null;
-var lastLinkSample = null;
-
 function applySampleToNode() {
-    let target = event.currentTarget.id;
     let selectedNodeIds = network.getSelectedNodes();
-    let sampleFormat = sampleFormats.find(({
-        format
-    }) => format === target);
+    if (selectedNodeIds.length == 0) return;
     for (let e of data.nodes.get(selectedNodeIds)) {
-        e = Object.assign(e, sampleFormat);
+        e.group = event.currentTarget.group;
         data.nodes.update(e);
     }
     network.unselectAll();
+    hideNotes();
     network.redraw();
     statusMsg("Factors "  + selectedNodeIds + ' changed');
-    lastNodeSample = sampleFormat;
+    lastNodeSample = event.currentTarget.group;
 }
 
 function applySampleToLink() {
-    let target = event.currentTarget.id;
     let selectedEdges = network.getSelectedEdges();
-    let sampleFormat = sampleFormats.find(({
-        format
-    }) => format === target);
+    if (selectedEdges.length == 0) return;
     for (let e of data.edges.get(selectedEdges)) {
-        e = Object.assign(e, sampleFormat);
+        e = Object.assign(e, groupEdges[event.currentTarget.groupLink]);
         data.edges.update(e);
     }
     network.unselectAll();
+    hideNotes();
     network.redraw();
     statusMsg(selectedEdges + ' changed');
+    lastLinkSample = event.currentTarget.groupLink;
 }
 
 // Notes

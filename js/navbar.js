@@ -29,33 +29,34 @@ function togglePanel() {
     }
 }
 
-const fileElem = document.getElementById("fileElem");
+document.getElementById('fileInput').addEventListener('change', readSingleFile, false);
 
-fileElem.addEventListener("change", function(event) {
-    let files = fileElem.files;
-    if (files.length) {
-        let myFile = this.files[0];
-        let fileName = myFile.name;
-        lastFileName = fileName;
-        let reader = new FileReader();
-
-        reader.addEventListener('load', function(e) {
-            try {
-                let json = JSON.parse(e.target.result);
-                loadJSONfile(json);
-                statusMsg("Read '" + fileName + "'");
-            } catch (err) {
-                statusMsg("Error reading '" + fileName + "': " + err.message);
-                return;
-            }
-        });
-        reader.readAsBinaryString(myFile);
-    }
-}, false);
+function readSingleFile(e) {
+  var file = e.target.files[0];
+  if (!file) {
+    return;
+  }
+  let fileName = file.name;
+  lastFileName = fileName;
+  statusMsg("Reading '" + fileName + "'");
+  var reader = new FileReader();
+  reader.onload = function(e) {
+  	try {
+			let json = JSON.parse(e.target.result);
+			loadJSONfile(json);
+			statusMsg("Read '" + fileName + "'");
+		} catch (err) {
+			statusMsg("Error reading '" + fileName + "': " + err.message);
+			return;
+		}
+  };
+  reader.readAsText(file);
+}
 
 function doClickOpenFile() {
-    fileElem.click();
+ 	document.getElementById('fileInput').click();
 }
+
 
 function loadJSONfile(json) {
     nodes.clear();
@@ -69,6 +70,9 @@ function loadJSONfile(json) {
             parseColor: true
         }
     };
+    if (json.version && (version > json.version)) {
+    	statusMsg("Warning: file was created in an earlier version of PRISM");
+    	}
     if ('source' in json.edges[0]) {
         // the file is from Gephi and needs to be translated
         let parsed = vis.parseGephiNetwork(json, options);
@@ -82,11 +86,16 @@ function loadJSONfile(json) {
         nodes: nodes,
         edges: edges
     };
-    if (data.nodes.length > 100) {
-			network.setOptions({interaction: {
-				hideEdgesOnDrag: true,
-				hideEdgesOnZoom: true,
+	network.setOptions({interaction: {
+		hideEdgesOnDrag: data.nodes.length > 100,
+		hideEdgesOnZoom: data.nodes.length > 100
 		  }});
+	if (json.groups) {
+		groups = json.groups;
+		network.setOptions({groups: groups});
+		}
+	if (json.groupEdges) {
+		groupEdges = json.groupEdges;
 		}
     network.setData(data);
 }
@@ -99,6 +108,10 @@ download location with a default name.
 
 function saveJSONfile() {
     let json = JSON.stringify({
+    	saved: new Date(Date.now()).toLocaleString(),
+    	version: version,
+    	groups: network.groups.groups,
+    	groupEdges: groupEdges,
         nodes: data.nodes.get(),
         edges: data.edges.get()
     });
@@ -116,7 +129,7 @@ function plusNode() {
 
 function plusLink() {
     statusMsg("Add Edge mode");
-    document.getElementById("net-pane").style.cursor = "cell";
+    document.getElementById("net-pane").style.cursor = "crosshair";
     network.addEdgeMode();
 }
 

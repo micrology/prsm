@@ -1,111 +1,8 @@
-let sampleFormats = [{  // the first is the global default
-        borderWidth: 1,
-        borderWidthSelected: 12,
-        chosen: true,
-        color: {
-            border: '#2B7CE9',
-            background: 'red', //'#97C2FC',
-            highlight: {
-                border: '#2B7CE9',
-                background: '#D2E5FF'
-            },
-            hover: {
-                border: '#2B7CE9',
-                background: '#D2E5FF'
-            }
-        },
-        font: {
-            color: '#343434',
-            size: 14, // px
-            face: 'arial',
-            background: 'none',
-            strokeWidth: 0, // px
-            strokeColor: '#ffffff',
-            align: 'center',
-            multi: true,
-            vadjust: 0,
-            bold: {
-                color: '#343434',
-                size: 14, // px
-                face: 'arial',
-                vadjust: 0,
-                mod: 'bold'
-            },
-            ital: {
-                color: '#343434',
-                size: 14, // px
-                face: 'arial',
-                vadjust: 0,
-                mod: 'italic',
-            },
-            boldital: {
-                color: '#343434',
-                size: 14, // px
-                face: 'arial',
-                vadjust: 0,
-                mod: 'bold italic'
-            },
-            mono: {
-                color: '#343434',
-                size: 15, // px
-                face: 'courier new',
-                vadjust: 2,
-                mod: ''
-            }
-        },
-        icon: {
-            face: 'FontAwesome',
-            size: 50, //50,
-            color: '#2B7CE9'
-        },
-        labelHighlightBold: true,
-        mass: 1,
-        physics: true,
-        scaling: {
-            min: 10,
-            max: 30,
-            label: {
-                enabled: false,
-                min: 14,
-                max: 30,
-                maxVisible: 30,
-                drawThreshold: 5
-            },
-            customScalingFunction: function(min, max, total, value) {
-                if (max === min) {
-                    return 0.5;
-                } else {
-                    let scale = 1 / (max - min);
-                    return Math.max(0, (value - min) * scale);
-                }
-            }
-        },
-        shadow: {
-            enabled: false,
-            color: 'rgba(0,0,0,0.5)',
-            size: 10,
-            x: 5,
-            y: 5
-        },
-        shape: 'ellipse',
-        shapeProperties: {
-            borderDashes: false, // only for borders
-            borderRadius: 6, // only for box shape
-            interpolation: false, // only for image and circularImage shapes
-            useImageSize: false, // only for image and circularImage shapes
-            useBorderWithImage: false // only for image shape
-        },
-        size: 25,
-        title: undefined,
-        value: undefined,
-        widthConstraint: false
-    },
-
+var groups = {
     //------------------------------
     // blue bordered white ellipse 
-
+	group1:
     {
-        format: "nodeSample1",
         borderWidth: 2,
         borderWidthSelected: 100,
         chosen: true,
@@ -146,11 +43,10 @@ let sampleFormats = [{  // the first is the global default
         }
     },
     
-     //------------------------------
+    //------------------------------
     // red bordered white ellipse 
 
-    {
-        format: "nodeSample2",
+    group2: {
         borderWidth: 2,
         borderWidthSelected: 1,
         chosen: true,
@@ -189,12 +85,13 @@ let sampleFormats = [{  // the first is the global default
         heightConstraint: {
             minimum: 20
         }
-    },   
-	 //------------------------------
+    }, 
+      
+	//------------------------------
     // purple bordered white ellipse 
 
+	group3:
     {
-        format: "nodeSample3",
         borderWidth: 2,
         borderWidthSelected: 1,
         chosen: true,
@@ -238,8 +135,8 @@ let sampleFormats = [{  // the first is the global default
     //------------------------------
     //  black text only 
 
+    group4:
     {
-        format: "nodeSample4",
         borderWidth: 2,
         borderWidthSelected: 1,
         chosen: true,
@@ -261,8 +158,8 @@ let sampleFormats = [{  // the first is the global default
     //------------------------------
     //  brown text only 
 
+    group5:
     {
-        format: "nodeSample5",
         borderWidth: 2,
         borderWidthSelected: 1,
         chosen: true,
@@ -284,8 +181,8 @@ let sampleFormats = [{  // the first is the global default
     //------------------------------
     // yellow box
 
+    group6:
     {
-        format: "nodeSample6",
         borderWidth: 2,
         borderWidthSelected: 4,
         chosen: true,
@@ -330,8 +227,8 @@ let sampleFormats = [{  // the first is the global default
     //------------------------------
     //   blue box with white text
 
+    group7:
     {
-        format: "nodeSample7",
         borderWidth: 1,
         borderWidthSelected: 2,
         chosen: true,
@@ -374,8 +271,9 @@ let sampleFormats = [{  // the first is the global default
     
     //------------------------------
 	// red star
+	
+    group8:
     {
-        format: "nodeSample8",
         borderWidth: 0,
         borderWidthSelected: 5,
         chosen: true,
@@ -405,135 +303,22 @@ let sampleFormats = [{  // the first is the global default
         shape: 'star',
         size: 25
     },
+    group9:
+    {
+    }
+};
+
+
+
     
 // edges (first is the default)
 
-	{
-		arrows: {
-		  to: {
-			enabled: false,
-			imageHeight: undefined,
-			imageWidth: undefined,
-			scaleFactor: 1,
-			src: undefined,
-			type: "arrow"
-		  },
-		  middle: {
-			enabled: false,
-			imageHeight: 32,
-			imageWidth: 32,
-			scaleFactor: 1,
-			src: "https://visjs.org/images/visjs_logo.png",
-			type: "image"
-		  },
-		  from: {
-			enabled: false,
-			imageHeight: undefined,
-			imageWidth: undefined,
-			scaleFactor: 1,
-			src: undefined,
-			type: "arrow"
-		  }
-		},
-		arrowStrikethrough: true,
-		chosen: true,
-		color: {
-		  color:'#848484',
-		  highlight:'#848484',
-		  hover: '#848484',
-		  inherit: 'from',
-		  opacity:1.0
-		},
-		dashes: false,
-		font: {
-		  color: '#343434',
-		  size: 14, // px
-		  face: 'arial',
-		  background: 'none',
-		  strokeWidth: 2, // px
-		  strokeColor: '#ffffff',
-		  align: 'horizontal',
-		  multi: false,
-		  vadjust: 0,
-		  bold: {
-			color: '#343434',
-			size: 14, // px
-			face: 'arial',
-			vadjust: 0,
-			mod: 'bold'
-		  },
-		  ital: {
-			color: '#343434',
-			size: 14, // px
-			face: 'arial',
-			vadjust: 0,
-			mod: 'italic',
-		  },
-		  boldital: {
-			color: '#343434',
-			size: 14, // px
-			face: 'arial',
-			vadjust: 0,
-			mod: 'bold italic'
-		  },
-		  mono: {
-			color: '#343434',
-			size: 15, // px
-			face: 'courier new',
-			vadjust: 2,
-			mod: ''
-		  }
-		},
-		hidden: false,
-		hoverWidth: 1.5,
-		label: undefined,
-		labelHighlightBold: true,
-		length: undefined,
-		physics: true,
-		scaling:{
-		  min: 1,
-		  max: 15,
-		  label: {
-			enabled: true,
-			min: 14,
-			max: 30,
-			maxVisible: 30,
-			drawThreshold: 5
-		  },
-		  customScalingFunction: function (min,max,total,value) {
-			if (max === min) {
-			  return 0.5;
-			}
-			else {
-			  var scale = 1 / (max - min);
-			  return Math.max(0,(value - min)*scale);
-			}
-		  }
-		},
-		selectionWidth: 1,
-		selfReferenceSize:20,
-		shadow:{
-		  enabled: false,
-		  color: 'rgba(0,0,0,0.5)',
-		  size:10,
-		  x:5,
-		  y:5
-		},
-		smooth: {
-		  enabled: true,
-		  type: "dynamic",
-		  roundness: 0.5
-		},
-		title:undefined,
-		value: undefined,
-		width: 1,
-		widthConstraint: false
-  },
+var groupEdges = {
   
   // simple directed black link
   
+  	edge1:
   	{
-  		format: "linkSample1",
 		arrows: {
 		  to: {
 			enabled: true,
@@ -563,8 +348,8 @@ let sampleFormats = [{  // the first is the global default
   
   // simple directed blue link
   
+  	edge2:
   	{
-  		format: "linkSample2",
 		arrows: {
 		  to: {
 			enabled: true,
@@ -594,8 +379,8 @@ let sampleFormats = [{  // the first is the global default
   
   // simple directed red link
   
+  	edge3:
   	{
-  		format: "linkSample3",
 		arrows: {
 		  to: {
 			enabled: true,
@@ -625,8 +410,8 @@ let sampleFormats = [{  // the first is the global default
     
   // simple directed grey link
   
+  	edge4:
   	{
-  		format: "linkSample4",
 		arrows: {
 		  to: {
 			enabled: true,
@@ -656,8 +441,8 @@ let sampleFormats = [{  // the first is the global default
   
     // medium directed yellow link
   
+  	edge5:
   	{
-  		format: "linkSample5",
 		arrows: {
 		  to: {
 			enabled: true,
@@ -687,8 +472,8 @@ let sampleFormats = [{  // the first is the global default
 
     // thick directed red link
   
+  	edge6:
   	{
-  		format: "linkSample6",
 		arrows: {
 		  to: {
 			enabled: true,
@@ -719,8 +504,8 @@ let sampleFormats = [{  // the first is the global default
   
     // thick directed green link
   
+  	edge7:
   	{
-  		format: "linkSample7",
 		arrows: {
 		  to: {
 			enabled: true,
@@ -751,8 +536,8 @@ let sampleFormats = [{  // the first is the global default
   
     //  directed black dashed link
   
-    	{
-  		format: "linkSample8",
+    edge8:
+    {
 		arrows: {
 		  to: {
 			enabled: true,
@@ -779,6 +564,10 @@ let sampleFormats = [{  // the first is the global default
 		  roundness: 0.5
 		},
 		width: 3
-  }
+  },
+  
+  edge9:
+  	{
+  	}
 
-];
+};

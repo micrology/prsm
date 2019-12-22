@@ -1,8 +1,12 @@
+var version = 0.9;
+
 var network = null;
 var nodes = new vis.DataSet();
 var edges = new vis.DataSet();
 var data;
 
+var lastNodeSample = null;
+var lastLinkSample = null;
 
 function getRandomData() {
     // randomly create some nodes and edges
@@ -22,7 +26,7 @@ function draw() {
     var options = {
         //configure: 'nodes,edges',
         //physics: { enabled: false },
-        nodes: sampleFormats[0],
+        groups: groups,
         interaction: {
             multiselect: true,
             hover: true,
@@ -36,6 +40,7 @@ function draw() {
             addNode: function(data, callback) {
                 // filling in the popup DOM elements
                 data.label = '';
+                data.group = lastNodeSample;
                 document.getElementById('node-operation').innerHTML = "Add Factor";
                 editNode(data, clearNodePopUp, callback);
             },
@@ -55,6 +60,7 @@ function draw() {
                 }
 //                 document.getElementById('edge-operation').innerHTML = "Add Edge";
 //                 editEdgeWithoutDrag(data, callback);
+					data = Object.assign(data, groupEdges[lastLinkSample]);
 					callback(data);
             },
             editEdge: {
