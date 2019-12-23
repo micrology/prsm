@@ -6,7 +6,9 @@
 	<meta content="IE=edge" http-equiv="X-UA-Compatible">
 	<meta content="width=device-width, initial-scale=1" name="viewport">
 	<!-- <link href="https://fonts.googleapis.com/css?family=Oxygen&display=swap" rel="stylesheet"> -->
+<!-- 
 	<link href="css/reset.css" rel="stylesheet">
+ -->
 	<link href="css/styles.css" rel="stylesheet">
 	<link href="css/navbar.css" rel="stylesheet">
 	<link href="css/tabs.css" rel="stylesheet">
@@ -17,6 +19,7 @@
 	<script src="js/samples.js"></script>
 	<script type="text/javascript" src="js/main.js"></script>
 	<script type="text/javascript" src="js/nicEdit/nicEdit.js"></script>
+	<script type="text/javascript" src="js/jscolor-2.0.5/jscolor.js"></script>
 </head>
 <body class="container" id="container" onload="init();">
 	<header>
@@ -117,6 +120,24 @@
 						</select>
 					</div>
 				</div>
+				<div class="networkRow">				
+					<div>Background:</div>
+					<div>
+						<input
+							class="jscolor {required:false,  padding:0, shadow:true,
+							backgroundColor:'transparent', insetColor:'#000'}"
+							style="width:20px; height:20px; border: 2px solid gray; font-size: 0;"
+							id="colorpot" onchange="updateNetBack(this)">
+					</div>
+				</div>
+				<div class="networkRow">
+					<button type="button" onclick="selectAllFactors()">Select all factors</button>
+				</div>				
+				<div class="networkRow">
+					<button type="button" onclick="selectAllEdges()">Select all edges</button>
+				</div>				
+
+				
 			</div>
 		</div>
 		<div class="tabcontent hide" id="nodesTab">
@@ -132,6 +153,26 @@
 				<div class="sampleNode" id="nodeSample9"></div>
 			</div>
 			<div id="1nodeSelected">
+				<div class="networkRow">
+					<div>In-degree</div><div id="inDegree">1</div>
+				</div>
+				<div class="networkRow">
+					<div>Out-degree</div><div id="outDegree">0</div>
+				</div>
+				<div class="networkRow">
+					<div>Betweenness centrality</div><div id="bc">0.123</div>
+				</div>
+				<div class="networkRow">
+					<div>Dim factors more<br>than 2 links away</div>
+					<div class="onoffswitch">
+						<input type="checkbox" name="dimremotes"
+							 class="onoffswitch-checkbox" id="autolayoutswitch" checked>
+						<label class="onoffswitch-label" for="autolayoutswitch">
+							<span class="onoffswitch-inner"></span>
+							<span class="onoffswitch-switch"></span>
+						</label>
+					</div>				
+				</div>
 				<div class="notesWrapper"><u>Notes</u>			
 					<div class="notes" id="notes"></div>
 				</div>
@@ -169,5 +210,6 @@
  	<input type="file" id="fileInput" style="display: none">
 	<script src="js/navbar.js"></script>
 	<script src="js/tabs.js"></script>
+	<script src="js/statistics.js"></script>
 </body>
 </html>

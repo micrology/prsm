@@ -1,10 +1,10 @@
 var groups = {
     //------------------------------
     // blue bordered white ellipse 
-	group1:
+	group0:
     {
         borderWidth: 2,
-        borderWidthSelected: 100,
+        borderWidthSelected: 1,
         chosen: true,
         color: {
             border: '#0000ff',
@@ -46,7 +46,7 @@ var groups = {
     //------------------------------
     // red bordered white ellipse 
 
-    group2: {
+    group1: {
         borderWidth: 2,
         borderWidthSelected: 1,
         chosen: true,
@@ -90,7 +90,7 @@ var groups = {
 	//------------------------------
     // purple bordered white ellipse 
 
-	group3:
+	group2:
     {
         borderWidth: 2,
         borderWidthSelected: 1,
@@ -135,7 +135,7 @@ var groups = {
     //------------------------------
     //  black text only 
 
-    group4:
+    group3:
     {
         borderWidth: 2,
         borderWidthSelected: 1,
@@ -158,7 +158,7 @@ var groups = {
     //------------------------------
     //  brown text only 
 
-    group5:
+    group4:
     {
         borderWidth: 2,
         borderWidthSelected: 1,
@@ -181,7 +181,7 @@ var groups = {
     //------------------------------
     // yellow box
 
-    group6:
+    group5:
     {
         borderWidth: 2,
         borderWidthSelected: 4,
@@ -227,7 +227,7 @@ var groups = {
     //------------------------------
     //   blue box with white text
 
-    group7:
+    group6:
     {
         borderWidth: 1,
         borderWidthSelected: 2,
@@ -272,7 +272,7 @@ var groups = {
     //------------------------------
 	// red star
 	
-    group8:
+    group7:
     {
         borderWidth: 0,
         borderWidthSelected: 5,
@@ -303,7 +303,7 @@ var groups = {
         shape: 'star',
         size: 25
     },
-    group9:
+    group8:
     {
     }
 };
@@ -317,7 +317,7 @@ var groupEdges = {
   
   // simple directed black link
   
-  	edge1:
+  	edge0:
   	{
 		arrows: {
 		  to: {
@@ -348,7 +348,7 @@ var groupEdges = {
   
   // simple directed blue link
   
-  	edge2:
+  	edge1:
   	{
 		arrows: {
 		  to: {
@@ -379,7 +379,7 @@ var groupEdges = {
   
   // simple directed red link
   
-  	edge3:
+  	edge2:
   	{
 		arrows: {
 		  to: {
@@ -410,7 +410,7 @@ var groupEdges = {
     
   // simple directed grey link
   
-  	edge4:
+  	edge3:
   	{
 		arrows: {
 		  to: {
@@ -441,7 +441,7 @@ var groupEdges = {
   
     // medium directed yellow link
   
-  	edge5:
+  	edge4:
   	{
 		arrows: {
 		  to: {
@@ -472,7 +472,7 @@ var groupEdges = {
 
     // thick directed red link
   
-  	edge6:
+  	edge5:
   	{
 		arrows: {
 		  to: {
@@ -504,7 +504,7 @@ var groupEdges = {
   
     // thick directed green link
   
-  	edge7:
+  	edge6:
   	{
 		arrows: {
 		  to: {
@@ -536,7 +536,7 @@ var groupEdges = {
   
     //  directed black dashed link
   
-    edge8:
+    edge7:
     {
 		arrows: {
 		  to: {
@@ -566,7 +566,7 @@ var groupEdges = {
 		width: 3
   },
   
-  edge9:
+  edge8:
   	{
   	}
 

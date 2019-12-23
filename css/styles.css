@@ -1,3 +1,14 @@
+html, body, div, span, applet, object, iframe,
+a, img, article, aside, canvas, footer, header, nav,
+h1, h2, h3, h4, h5, h6, p {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+
 body {
 	font-family: sans-serif;
 	box-sizing: border-box;
@@ -23,7 +34,6 @@ body {
 
 header {
 	grid-column: span 2;
-	padding: 5px;
 	text-align: center;
 	font-size: 1em;
 	background-color: whitesmoke;
@@ -40,11 +50,6 @@ nav {
 }
  
 aside {
-	background-color: whitesmoke;
-	font: inherit;
-	border-left: 1px solid #ccc;
-	border-right: 1px solid #ccc;
-	margin-right: 5px;
 }
 
 footer {

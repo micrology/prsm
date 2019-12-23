@@ -16,7 +16,6 @@
 	cursor: pointer;
 	padding: 5px 10px;
 	transition: 0.3s;
-	font-family: Oxygen;
 	border-radius: 6px 6px 0 0;
 	border-left: 1px solid #ccc;
 }
@@ -28,7 +27,8 @@
 
 /* Create an active/current tablink class */
 .tab button.active {
-	background-color: #c9c9c9;
+	background-color: #404040; /*#c9c9c9;*/
+	color: white;
 }
 
 /* Style the tab content */
@@ -37,6 +37,7 @@
 	background-color: #404040;
 	color: white;
 	font-size: 11px;
+	border-radius: 0 0 6px 6px;
 }
 
 .hide {
@@ -71,7 +72,8 @@
 .notes {
 	width: 100%; 
 	max-height: 100px;
-	height: 30px; 
+	height: 70px;
+	overflow: auto;
 }
 
 .networkGrid {

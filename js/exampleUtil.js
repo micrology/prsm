@@ -2,7 +2,7 @@
  * Created by Alex on 5/20/2015.
  */
 
-function loadJSON(path, success, error) {
+function loadJSONorig(path, success, error) {
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function () {
     if (xhr.readyState === 4) {

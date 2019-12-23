@@ -133,7 +133,7 @@ var editor = null;
 
 function addEditor() {
 	editor = new nicEditor({
-		buttonList : ['fontSize','bold','italic','underline'], 
+		buttonList : ['bold','italic','underline'], 
 		iconsPath: 'js/nicEdit/nicEditorIcons.gif',
 		maxHeight: '30px'}).panelInstance('notes', {hasPanel : true});
 	editor.addEvent('blur', removeEditor);
@@ -182,6 +182,7 @@ function displayNotes () {
 		let title = data.nodes.get(nodeId).title;
 		document.getElementById("notes").innerHTML = (title ? title : "");
 		panel.classList.remove('hide');
+		displayStatistics(nodeId);
 		}
 	else {
 		panel.classList.add('hide')
@@ -209,6 +210,20 @@ function selectLayout() {
 function selectCurve() {
 	network.setOptions({edges: {smooth: document.getElementById('curveSelect').value === 'Curved'}});
 }
+
+function updateNetBack(picker) {
+	document.getElementById('net-pane').style.background = picker.jscolor.toHEXString();
+	}
+	
+function selectAllFactors() {
+	network.selectNodes(network.body.nodeIndices);
+}
+
+function selectAllEdges() {
+	network.selectEdges(network.body.edgeIndices);
+}	
+
+
 // start with first tab open
 document.getElementById("networkButton").click();
 		

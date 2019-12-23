@@ -27,6 +27,7 @@ function draw() {
         //configure: 'nodes,edges',
         //physics: { enabled: false },
         groups: groups,
+        nodes: { group: 'group0' },
         interaction: {
             multiselect: true,
             hover: true,
