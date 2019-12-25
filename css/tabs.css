@@ -59,7 +59,11 @@
 	border-radius: 5px;
 	background-color: white;
 	}
-
+	
+#oneNodeSelected {
+	margin-top: 10px;
+	}
+	
 .notesWrapper {
 	margin: 10px 0 0 0;
 	padding: 2px 0 0 2px;
@@ -84,7 +88,7 @@
 .networkRow {
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
+	align-items: flex-start;
 	padding: 3px;
 	}
 	

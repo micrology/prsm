@@ -4,9 +4,11 @@
 
 function displayStatistics(nodeId) {
 
-	document.getElementById('inDegree').innerHTML = network.getConnectedNodes(nodeId, 'from').length;
-	document.getElementById('outDegree').innerHTML = network.getConnectedNodes(nodeId, 'to').length;
-	
+	let inDegree = network.getConnectedNodes(nodeId, 'from').length;
+	let outDegree = network.getConnectedNodes(nodeId, 'to').length;
+	let leverage = (inDegree == 0) ? '--' : (outDegree / inDegree).toPrecision(3);
+	document.getElementById('leverage').textContent = leverage;
+	document.getElementById('bc').textContent = betweenness(data)[nodeId;]
 }
 
 /*eslint max-len:[1, 94]*/

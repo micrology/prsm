@@ -112,7 +112,7 @@
 					</div>
 				</div>
 				<div class="networkRow">				
-					<div>Link curve:</div>
+					<div>Link:</div>
 					<div>
 						<select id="curveSelect" onChange=selectCurve()>
 							<option value="Curved" selected>Curved</option>
@@ -136,8 +136,26 @@
 				<div class="networkRow">
 					<button type="button" onclick="selectAllEdges()">Select all edges</button>
 				</div>				
+				<div class="networkRow">
+					<div>Show only factors</br>links away from selected</div>
+					<select id="dimRest" onChange=selectDim(this.value)>
+						<option value="All" selected>(off))</option>
+						<option value="1">1</option>		
+						<option value="2">2</option>		
+						<option value="3">3</option>
+					</select>		
+				</div>
+				<div class="networkRow">
+					<div>Show labels</div>
+					<div class="onoffswitch">
+						<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="showLabelSwitch" checked>
+						<label class="onoffswitch-label" for="showLabelSwitch">
+							<span class="onoffswitch-inner"></span>
+							<span class="onoffswitch-switch"></span>
+						</label>
+					</div>
+				</div>
 
-				
 			</div>
 		</div>
 		<div class="tabcontent hide" id="nodesTab">
@@ -152,26 +170,12 @@
 				<div class="sampleNode" id="nodeSample8"></div>
 				<div class="sampleNode" id="nodeSample9"></div>
 			</div>
-			<div id="1nodeSelected">
+			<div id="oneNodeSelected">
 				<div class="networkRow">
-					<div>In-degree</div><div id="inDegree">1</div>
+					<div>Leverage</div><div id="leverage"></div>
 				</div>
 				<div class="networkRow">
-					<div>Out-degree</div><div id="outDegree">0</div>
-				</div>
-				<div class="networkRow">
-					<div>Betweenness centrality</div><div id="bc">0.123</div>
-				</div>
-				<div class="networkRow">
-					<div>Dim factors more<br>than 2 links away</div>
-					<div class="onoffswitch">
-						<input type="checkbox" name="dimremotes"
-							 class="onoffswitch-checkbox" id="autolayoutswitch" checked>
-						<label class="onoffswitch-label" for="autolayoutswitch">
-							<span class="onoffswitch-inner"></span>
-							<span class="onoffswitch-switch"></span>
-						</label>
-					</div>				
+					<div>Betweenness centrality</div><div id="bc"></div>
 				</div>
 				<div class="notesWrapper"><u>Notes</u>			
 					<div class="notes" id="notes"></div>
@@ -209,7 +213,7 @@
 	</footer>
  	<input type="file" id="fileInput" style="display: none">
 	<script src="js/navbar.js"></script>
+	<script src="js/betweenness.js"></script>
 	<script src="js/tabs.js"></script>
-	<script src="js/statistics.js"></script>
 </body>
 </html>

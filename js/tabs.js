@@ -175,10 +175,14 @@ function stripTags(input, allowed) {
   }
 }
 
+var lastSelectedNode;
+
 function displayNotes () {
-	let panel = document.getElementById("1nodeSelected");
-	if (tabOpen == 'nodesTab' && network.getSelectedNodes().length == 1) {
-		let nodeId = network.getSelectedNodes()[0];
+	let panel = document.getElementById("oneNodeSelected");
+	let selectedNodes = network.getSelectedNodes();
+	if (selectedNodes != lastSelectedNode) panel.classList.add('hide');
+	if (tabOpen == 'nodesTab' && selectedNodes.length == 1) {
+		let nodeId = selectedNodes[0];
 		let title = data.nodes.get(nodeId).title;
 		document.getElementById("notes").innerHTML = (title ? title : "");
 		panel.classList.remove('hide');
@@ -190,10 +194,22 @@ function displayNotes () {
 }
 
 function hideNotes() {
-	document.getElementById("1nodeSelected").classList.add('hide')
+	document.getElementById("oneNodeSelected").classList.add('hide')
 }
 
 hideNotes();
+
+// Statistics specific to a node
+
+function displayStatistics(nodeId) {
+
+	let inDegree = network.getConnectedNodes(nodeId, 'from').length;
+	let outDegree = network.getConnectedNodes(nodeId, 'to').length;
+	let leverage = (inDegree == 0) ? '--' : (outDegree / inDegree).toPrecision(3);
+	document.getElementById('leverage').textContent = leverage;
+	document.getElementById('bc').textContent = betweenness(data)[nodeId];
+}
+
 
 // Network tab
 
@@ -221,9 +237,112 @@ function selectAllFactors() {
 
 function selectAllEdges() {
 	network.selectEdges(network.body.edgeIndices);
-}	
+}
 
+document.getElementById('showLabelSwitch').addEventListener('click', labelSwitch);
 
+var labelsShown = true;
+
+function labelSwitch(e) {
+	if (labelsShown) {
+		labelsShown = false;
+		hideLabels();
+		}
+	else {
+		labelsShown = true;
+		unHideLabels()
+		}
+}
+
+function hideLabels() {
+	data.nodes.forEach(
+		function(n) {
+			if (n.hiddenLabel == undefined) n.hiddenLabel = n.label;
+			n.label = undefined;
+			data.nodes.update(n);
+			}
+		)
+	}
+
+function unHideLabels() {
+	data.nodes.forEach(
+		function(n) {
+			if (n.hiddenLabel) n.label = n.hiddenLabel;
+			n.hiddenLabel = undefined;
+			data.nodes.update(n);
+			}
+		)
+	}
+	
+function selectDim(sel) {
+	if (sel == 'All') unDimAll();
+	else hideDistantNodes(sel);
+	}		
+
+function hideDistantNodes(radius) {
+	let nodeIdsInRadius = new Set();
+	let linkIdsInRadius = new Set();
+	data.nodes.forEach(unDimNode);
+	data.edges.forEach(unDimLink);
+	let selectedNodes = network.getSelectedNodes();
+	if (selectedNodes == null || selectedNodes == lastSelectedNode) return;
+	data.nodes.forEach(dimNode);
+	data.edges.forEach(dimLink);
+	nn(selectedNodes, radius);
+	let nodesInRadius = data.nodes.get(Array.from(nodeIdsInRadius));
+	nodesInRadius.forEach(unDimNode);
+	let linksInRadius = data.edges.get(Array.from(linkIdsInRadius));
+	linksInRadius.forEach(unDimLink);
+	
+	function nn(nodeIds, radius) {
+	if (radius < 0) return;
+	nodeIds.forEach(function(nId) {
+		nodeIdsInRadius.add(nId);
+		let links = network.getConnectedEdges(nId);
+		if (links) links.forEach(function(lId) {
+			linkIdsInRadius.add(lId);
+			});
+		let linked = network.getConnectedNodes(nId);
+		if (linked) nn(linked, radius - 1);
+		})
+	}
+}
+
+const dimColor = "#E5E7E9";
+
+function dimNode(node) {
+	node.hiddenLabel = node.label;
+	node.hiddenColor = node.color;
+	node.label = undefined;
+	node.color = dimColor;
+	data.nodes.update(node);
+	}
+	
+function unDimNode(node) {
+	if (node.label == undefined) node.label = node.hiddenLabel;
+	if (node.color == dimColor) node.color = node.hiddenColor;
+	node.hiddenLabel = undefined;
+	node.hiddenColor = undefined;
+	data.nodes.update(node);
+	}
+	
+function dimLink(link) {
+	link.hiddenColor = link.color;
+	link.color = dimColor;
+	data.edges.update(link);
+}
+
+function unDimLink(link) {
+	if (link.color == dimColor) link.color = link.hiddenColor;
+	link.hiddenColor = undefined;
+	data.edges.update(link);
+	}
+ 
+function unDimAll() {
+	data.nodes.forEach(unDimNode);
+	data.edges.forEach(unDimLink);
+	}
+	 
 // start with first tab open
 document.getElementById("networkButton").click();
 		

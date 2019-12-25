@@ -2,7 +2,7 @@
 /**
  Adapted from https://github.com/anvaka/ngraph.centrality/tree/master/src
  */
- 
+
 function betweenness(graph) {
 // graph is an object: {nodes, edges} where nodes and edges are vis.DataSets
   var Q = [],
@@ -99,28 +99,20 @@ function betweenness(graph) {
   function forEachLinkedNode(nodeId, callback) {
      let links = linksFrom(nodeId);
      if (links) {
-     	return forEachOrientedLink(links, nodeId, callback);
+		for (var i = 0; i < links.length; ++i) {
+		  var link = links[i];
+		  if (link.from === nodeId) {
+			callback(nodes.get(link.to), link)
+		  }
      	}
-  }
-
-  function forEachOrientedLink(links, nodeId, callback) {
-    var quitFast;
-    for (var i = 0; i < links.length; ++i) {
-      var link = links[i];
-      if (link.from === nodeId) {
-        quitFast = callback(nodes.get(link.to), link)
-        if (quitFast) {
-          return true; // Client does not need more iterations. Break now.
-        }
-      }
-    }
+     }
   }
   
   function linksFrom(nodeId) {
-  	data.edges.get({filter: function(item){
-  		return (item.from == nodeId);
-  		}
-  	})
+  	return data.edges.get({filter: function(item){
+  										return (item.from == nodeId);
+  									}
+  							})
   }
   
  } 
