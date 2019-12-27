@@ -10,7 +10,7 @@ var lastLinkSample = null;
 
 function getRandomData() {
     // randomly create some nodes and edges
-    var SFNdata = getScaleFreeNetwork(25);
+    var SFNdata = getScaleFreeNetwork(1000);
     nodes.add(SFNdata.nodes);
     edges.add(SFNdata.edges);
     data = {
@@ -25,7 +25,9 @@ function draw() {
     var container = document.getElementById('net-pane');
     var options = {
         //configure: 'nodes,edges',
-        //physics: { enabled: false },
+        physics: {
+          stabilization: false
+        },
         groups: groups,
         nodes: { group: 'group0' },
         interaction: {
@@ -59,10 +61,8 @@ function draw() {
                         return;
                     }
                 }
-//                 document.getElementById('edge-operation').innerHTML = "Add Edge";
-//                 editEdgeWithoutDrag(data, callback);
-					data = Object.assign(data, groupEdges[lastLinkSample]);
-					callback(data);
+				data = Object.assign(data, groupEdges[lastLinkSample]);
+				callback(data);
             },
             editEdge: {
                 editWithoutDrag: function(data, callback) {
@@ -115,6 +115,7 @@ function draw() {
 	network.on('dragEnd', function () {
 	changeCursor('grab');
 	});	
+
 
 }
 
