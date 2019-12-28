@@ -2,8 +2,28 @@
 /**
  Adapted from https://github.com/anvaka/ngraph.centrality/tree/master/src
  */
-
+ 
+var betweennessCache = {
+	structure: [],
+	betweenness: 0
+	};
+	
 function betweenness(graph) {
+	let struct = data.nodes.getIds().concat(data.edges.getIds());
+	if (eqArray(struct, betweennessCache.structure)) return betweennessCache.betweenness;
+	betweennessCache = {structure: struct, betweenness: betweenness1(graph)};
+	console.log('calculating betweenness');
+	return betweennessCache.betweenness;
+}
+
+function eqArray(a,b) {
+	if (a.length != b.length) return false;
+	a = a.sort(); b = b.sort();
+	for (let i = 0; i < a.length; i++) if (a[i] != b[i]) return false;
+	return true;
+}
+
+function betweenness1(graph) {
 // graph is an object: {nodes, edges} where nodes and edges are vis.DataSets
   var Q = [],
     S = []; // Queue and Stack

@@ -23,7 +23,7 @@
 </head>
 <body class="container" id="container" onload="init();">
 	<header>
-		<nav class="navbar">
+		<nav class="navbar" id="navbar">
 			<span class="navbar-toggle" id="js-navbar-toggle"><i class="fas fa-bars"></i></span>
 			<div class="logo"><img src="img/prism-logo.png" alt="PRISM">
 				<p class="strapline">Prism: PaRtIcipatory System Mapping</p></div>
@@ -171,6 +171,9 @@
 				<div class="sampleNode" id="nodeSample9"></div>
 			</div>
 			<div id="oneNodeSelected">
+				<div class="networkRow">
+					<div><b><span id="nodeLabel"></span></b></div>
+				</div>
 				<div class="networkRow">
 					<div>Leverage</div><div id="leverage"></div>
 				</div>

@@ -61,6 +61,7 @@ function doClickOpenFile() {
 function loadJSONfile(json) {
     nodes.clear();
     edges.clear();
+    hideNotes();
     let options = {
         edges: {
             inheritColors: false
@@ -90,10 +91,12 @@ function loadJSONfile(json) {
 		hideEdgesOnDrag: data.nodes.length > 100,
 		hideEdgesOnZoom: data.nodes.length > 100
 		  }});
+/* TODO
 	if (json.groups) {
 		groups = json.groups;
 		network.setOptions({groups: groups});
 		}
+ */
 	if (json.groupEdges) {
 		groupEdges = json.groupEdges;
 		}
@@ -123,13 +126,15 @@ function saveJSONfile() {
 
 function plusNode() {
     statusMsg("Add Node mode");
-    document.getElementById("net-pane").style.cursor = "cell";
+    inAddMode = true;
+    changeCursor("cell");
     network.addNodeMode();
 }
 
 function plusLink() {
     statusMsg("Add Edge mode");
-    document.getElementById("net-pane").style.cursor = "crosshair";
+    inAddMode = true;
+    changeCursor("crosshair");
     network.addEdgeMode();
 }
 

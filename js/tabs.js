@@ -100,28 +100,28 @@ function initSample(wrapper, sampleData) {
 function applySampleToNode() {
     let selectedNodeIds = network.getSelectedNodes();
     if (selectedNodeIds.length == 0) return;
-    for (let e of data.nodes.get(selectedNodeIds)) {
-        e.group = event.currentTarget.group;
-        data.nodes.update(e);
+    let nodesToUpdate = [];
+    for (let node of data.nodes.get(selectedNodeIds)) {
+        node.group = event.currentTarget.group;
+        nodesToUpdate.push(node);
     }
+    data.nodes.update(nodesToUpdate);
     network.unselectAll();
     hideNotes();
-    network.redraw();
-    statusMsg("Factors "  + selectedNodeIds + ' changed');
     lastNodeSample = event.currentTarget.group;
 }
 
 function applySampleToLink() {
     let selectedEdges = network.getSelectedEdges();
     if (selectedEdges.length == 0) return;
-    for (let e of data.edges.get(selectedEdges)) {
-        e = Object.assign(e, groupEdges[event.currentTarget.groupLink]);
-        data.edges.update(e);
+    let edgesToUpdate = [];
+    for (let edge of data.edges.get(selectedEdges)) {
+        edge = Object.assign(edge, groupEdges[event.currentTarget.groupLink]);
+        edgesToUpdate.push(edge);
     }
+    data.edges.update(edgesToUpdate);
     network.unselectAll();
     hideNotes();
-    network.redraw();
-    statusMsg(selectedEdges + ' changed');
     lastLinkSample = event.currentTarget.groupLink;
 }
 
@@ -183,7 +183,10 @@ function displayNotes () {
 	if (selectedNodes != lastSelectedNode) panel.classList.add('hide');
 	if (tabOpen == 'nodesTab' && selectedNodes.length == 1) {
 		let nodeId = selectedNodes[0];
-		let title = data.nodes.get(nodeId).title;
+		let node = data.nodes.get(nodeId);
+		let label = (node.label ? node.label : node.hiddenLabel);
+		document.getElementById("nodeLabel").innerHTML = (label ? label : "");		
+		let title = node.title;
 		document.getElementById("notes").innerHTML = (title ? title : "");
 		panel.classList.remove('hide');
 		displayStatistics(nodeId);
@@ -255,44 +258,48 @@ function labelSwitch(e) {
 }
 
 function hideLabels() {
+	let nodesToUpdate = [];
 	data.nodes.forEach(
 		function(n) {
 			if (n.hiddenLabel == undefined) n.hiddenLabel = n.label;
 			n.label = undefined;
-			data.nodes.update(n);
+			nodesToUpdate.push(n);
 			}
-		)
+		);
+	data.nodes.update(nodesToUpdate);
 	}
 
 function unHideLabels() {
+	let nodesToUpdate = [];
 	data.nodes.forEach(
 		function(n) {
 			if (n.hiddenLabel) n.label = n.hiddenLabel;
 			n.hiddenLabel = undefined;
-			data.nodes.update(n);
+			nodesToUpdate.push(n);
 			}
-		)
+		);
+	data.nodes.update(nodesToUpdate);
 	}
-	
+		
 function selectDim(sel) {
 	if (sel == 'All') unDimAll();
 	else hideDistantNodes(sel);
 	}		
 
 function hideDistantNodes(radius) {
-	let nodeIdsInRadius = new Set();
-	let linkIdsInRadius = new Set();
-	data.nodes.forEach(unDimNode);
-	data.edges.forEach(unDimLink);
+	unDimAllNodes();
+	unDimAllLinks();
 	let selectedNodes = network.getSelectedNodes();
 	if (selectedNodes == null || selectedNodes == lastSelectedNode) return;
-	data.nodes.forEach(dimNode);
-	data.edges.forEach(dimLink);
+	dimAllNodes();
+	dimAllLinks();
+
+	let nodeIdsInRadius = new Set();
+	let linkIdsInRadius = new Set();
 	nn(selectedNodes, radius);
-	let nodesInRadius = data.nodes.get(Array.from(nodeIdsInRadius));
-	nodesInRadius.forEach(unDimNode);
-	let linksInRadius = data.edges.get(Array.from(linkIdsInRadius));
-	linksInRadius.forEach(unDimLink);
+	unDimNodes(data.nodes.get(Array.from(nodeIdsInRadius)));
+	unDimLinks(data.edges.get(Array.from(linkIdsInRadius)));
+	if (selectedNodes.length == 1) network.focus(selectedNodes[0]);
 	
 	function nn(nodeIds, radius) {
 	if (radius < 0) return;
@@ -310,12 +317,44 @@ function hideDistantNodes(radius) {
 
 const dimColor = "#E5E7E9";
 
+function dimAllNodes() {
+	dimNodes(data.nodes.get());
+}
+
+function dimNodes(nodeArray) {
+	data.nodes.update(nodeArray.map(dimNode));
+}
+
+function unDimAllNodes() {
+	unDimNodes(data.nodes.get());
+}
+
+function unDimNodes(nodeArray) {
+	data.nodes.update(nodeArray.map(unDimNode));
+}
+
+function dimAllLinks() {
+	dimLinks(data.edges.get());
+}
+
+function dimLinks(edgeArray) {
+	data.edges.update(edgeArray.map(dimLink));
+}
+
+function unDimAllLinks() {
+	unDimLinks(data.edges.get());
+}
+
+function unDimLinks(edgeArray) {
+	data.edges.update(edgeArray.map(unDimLink));
+}
+
 function dimNode(node) {
 	node.hiddenLabel = node.label;
 	node.hiddenColor = node.color;
 	node.label = undefined;
 	node.color = dimColor;
-	data.nodes.update(node);
+	return node;
 	}
 	
 function unDimNode(node) {
@@ -323,24 +362,24 @@ function unDimNode(node) {
 	if (node.color == dimColor) node.color = node.hiddenColor;
 	node.hiddenLabel = undefined;
 	node.hiddenColor = undefined;
-	data.nodes.update(node);
+	return node;
 	}
 	
 function dimLink(link) {
 	link.hiddenColor = link.color;
 	link.color = dimColor;
-	data.edges.update(link);
+	return link;
 }
 
 function unDimLink(link) {
 	if (link.color == dimColor) link.color = link.hiddenColor;
 	link.hiddenColor = undefined;
-	data.edges.update(link);
+	return link;
 	}
  
 function unDimAll() {
-	data.nodes.forEach(unDimNode);
-	data.edges.forEach(unDimLink);
+	unDimAllNodes();
+	unDimAllLinks();
 	}
 	 
 // start with first tab open

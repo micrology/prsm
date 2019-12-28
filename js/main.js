@@ -7,10 +7,11 @@ var data;
 
 var lastNodeSample = null;
 var lastLinkSample = null;
+var inAddMode = false;
 
 function getRandomData() {
     // randomly create some nodes and edges
-    var SFNdata = getScaleFreeNetwork(1000);
+    var SFNdata = getScaleFreeNetwork(25);
     nodes.add(SFNdata.nodes);
     edges.add(SFNdata.edges);
     data = {
@@ -20,6 +21,8 @@ function getRandomData() {
 };
 
 function draw() {
+
+    getRandomData();  // start with some random network
 
     // create a network
     var container = document.getElementById('net-pane');
@@ -36,14 +39,14 @@ function draw() {
             zoomView: false
         },
         layout: {
-        	improvedLayout:true
+        	improvedLayout: (data.nodes.length < 150)
         },
         manipulation: {
             enabled: false,
             addNode: function(data, callback) {
                 // filling in the popup DOM elements
                 data.label = '';
-                data.group = lastNodeSample;
+                if (lastNodeSample) data.group = lastNodeSample;
                 document.getElementById('node-operation').innerHTML = "Add Factor";
                 editNode(data, clearNodePopUp, callback);
             },
@@ -53,6 +56,7 @@ function draw() {
                 editNode(data, cancelNodeEdit, callback);
             },
             addEdge: function(data, callback) {
+				inAddMode = false;
 				changeCursor("auto");
                 if (data.from == data.to) {
                     var r = confirm("Do you want to connect the Factor to itself?");
@@ -61,7 +65,7 @@ function draw() {
                         return;
                     }
                 }
-				data = Object.assign(data, groupEdges[lastLinkSample]);
+				if (lastLinkSample) data = Object.assign(data, groupEdges[lastLinkSample]);
 				callback(data);
             },
             editEdge: {
@@ -77,11 +81,11 @@ function draw() {
                     return;
                 }
                 callback(data);
-            }
+            },
+            controlNodeStyle: {shape: 'diamond'}
         }
     };
     
-    getRandomData();  // start with some random network
     network = new vis.Network(container, data, options);
 
     network.on("doubleClick", function(params) {
@@ -101,19 +105,19 @@ function draw() {
     	hideNotes();
     	});
     network.on('hoverNode', function () {
-	changeCursor('grab');
+		if (!inAddMode) changeCursor('grab');
 	});
 	network.on('blurNode', function () {
-	changeCursor('default');
+		changeCursor('default');
 	});
 	network.on('dragStart', function () {
-	changeCursor('grabbing');
+		if (!inAddMode) changeCursor('grabbing');
 	});
 	network.on('dragging', function () {
-	changeCursor('grabbing');
+		if (!inAddMode) changeCursor('grabbing');
 	});
 	network.on('dragEnd', function () {
-	changeCursor('grab');
+		if (!inAddMode) changeCursor('grab');
 	});	
 
 
@@ -121,9 +125,11 @@ function draw() {
 
 function changeCursor(newCursorStyle){
 	document.getElementById("net-pane").style.cursor = newCursorStyle;
+	document.getElementById("navbar").style.cursor = newCursorStyle;
   }
 
 function editNode(data, cancelAction, callback) {
+	inAddMode = false;
 	changeCursor('auto');
     document.getElementById('node-saveButton').onclick = saveNodeData.bind(this, data, callback);
     document.getElementById('node-cancelButton').onclick = cancelAction.bind(this, callback);
