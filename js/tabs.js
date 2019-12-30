@@ -63,7 +63,7 @@ sampleElements = document.getElementsByClassName("sampleLink");
 for (let i = 0; i < sampleElements.length; i++) {
 	sampleElement = sampleElements[i];
     sampleElement.addEventListener("click", () => {applySampleToLink();}, false);
-	let edgeDataSet = new vis.DataSet([Object.assign({from: 1, to: 2}, groupEdges['edge' + i])])
+	let edgeDataSet = new vis.DataSet([Object.assign({from: 1, to: 2, value: 7}, groupEdges['edge' + i])])
 	let nodesDataSet = new vis.DataSet([{id:1}, {id:2}])
     initSample(sampleElement, {nodes: nodesDataSet, edges: edgeDataSet});
     sampleElement.groupLink = 'edge' + i;
@@ -210,7 +210,7 @@ function displayStatistics(nodeId) {
 	let outDegree = network.getConnectedNodes(nodeId, 'to').length;
 	let leverage = (inDegree == 0) ? '--' : (outDegree / inDegree).toPrecision(3);
 	document.getElementById('leverage').textContent = leverage;
-	document.getElementById('bc').textContent = betweenness(data)[nodeId];
+	document.getElementById('bc').textContent = (betweenness(data)[nodeId]).toPrecision(3);
 }
 
 

@@ -82,7 +82,7 @@ function draw() {
                 }
                 callback(data);
             },
-            controlNodeStyle: {shape: 'diamond'}
+            controlNodeStyle: {shape: 'dot', color: 'black', group: 'group8'}
         }
     };
     
@@ -119,8 +119,12 @@ function draw() {
 	network.on('dragEnd', function () {
 		if (!inAddMode) changeCursor('grab');
 	});	
-
-
+	
+	data.nodes.on('add', recalculateStats);
+	data.nodes.on('remove', recalculateStats);
+	data.edges.on('add', recalculateStats);
+	data.edges.on('remove', recalculateStats);
+	
 }
 
 function changeCursor(newCursorStyle){
@@ -131,8 +135,8 @@ function changeCursor(newCursorStyle){
 function editNode(data, cancelAction, callback) {
 	inAddMode = false;
 	changeCursor('auto');
-    document.getElementById('node-saveButton').onclick = saveNodeData.bind(this, data, callback);
     document.getElementById('node-cancelButton').onclick = cancelAction.bind(this, callback);
+    document.getElementById('node-saveButton').onclick = saveNodeData.bind(this, data, callback);
     document.getElementById('node-popUp').style.top = `${event.clientY}px`;
     document.getElementById('node-popUp').style.left = `${event.clientX}px`;
     document.getElementById('node-popUp').style.display = 'block';
@@ -193,6 +197,30 @@ function saveEdgeData(data, callback) {
 function init() {
     draw();
 }
+
+/* 
+var myWorker = new Worker('worker.js');
+first.onchange = function() {
+  myWorker.postMessage([first.value,second.value]);
+  console.log('Message posted to worker');
+}
+
+second.onchange = function() {
+  myWorker.postMessage([first.value,second.value]);
+  console.log('Message posted to worker');
+}
+onmessage = function(e) {
+  console.log('Message received from main script');
+  var workerResult = 'Result: ' + (e.data[0] * e.data[1]);
+  console.log('Posting message back to main script');
+  postMessage(workerResult);
+}
+myWorker.onmessage = function(e) {
+  result.textContent = e.data;
+  console.log('Message received from worker');
+}
+ */
+
 
 function statusMsg(msg) {
     document.getElementById("statusBar").innerHTML = msg;
