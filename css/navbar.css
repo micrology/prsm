@@ -7,14 +7,15 @@
 	display: none;
 }
 
-.nav-links {
-	text-decoration: none;
+.nav-button {
 	color: black;
+	font-size: 24px;
 }
 
 .main-nav li {
 	text-align: center;
 	margin: 15px auto;
+	padding: 0 15px 0 15px;
 }
 
 .logo {

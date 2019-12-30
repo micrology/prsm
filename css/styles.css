@@ -24,7 +24,7 @@ body {
 @media (min-width: 768px) {
 	.container {
 		display: grid;
-		grid-template-columns: 6fr 1fr;
+		grid-template-columns: 1fr 0px;
 		grid-template-rows: auto 1fr auto;
 	}
 	main {

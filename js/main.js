@@ -3,26 +3,26 @@ var version = 0.9;
 var network = null;
 var nodes = new vis.DataSet();
 var edges = new vis.DataSet();
-var data;
+var data= {
+        nodes: nodes,
+        edges: edges
+    };
 
 var lastNodeSample = null;
 var lastLinkSample = null;
 var inAddMode = false;
 
-function getRandomData() {
+function getRandomData(nNodes) {
     // randomly create some nodes and edges
-    var SFNdata = getScaleFreeNetwork(25);
+    var SFNdata = getScaleFreeNetwork(nNodes);
     nodes.add(SFNdata.nodes);
     edges.add(SFNdata.edges);
-    data = {
-        nodes: nodes,
-        edges: edges
-    };
 };
 
 function draw() {
 
-    getRandomData();  // start with some random network
+	let nNodes = window.location.hash.substr(1);
+    if (nNodes) getRandomData(nNodes);  // start with some random network
 
     // create a network
     var container = document.getElementById('net-pane');
@@ -196,6 +196,9 @@ function saveEdgeData(data, callback) {
 
 function init() {
     draw();
+}
+
+function recalculateStats() {
 }
 
 /* 

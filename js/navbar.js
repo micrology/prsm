@@ -19,6 +19,16 @@ function closeMainNav() {
 
 function togglePanel() {
     let container = document.getElementById("container");
+    if (getComputedStyle(container).gridTemplateColumns.match(/\d+px\s(\d+)px/)[1] == 0) {
+        container.style.gridTemplateColumns = "1fr 200px";
+    } else {
+        container.style.gridTemplateColumns = "1fr 0px";
+    }
+}
+
+/* 
+function togglePanel() {
+    let container = document.getElementById("container");
     let panel = document.getElementById("panel");
     if (getComputedStyle(document.getElementById("panel")).display == "none") {
         container.style.gridTemplateColumns = "1fr 200px";
@@ -28,6 +38,7 @@ function togglePanel() {
         panel.style.display = "none";
     }
 }
+ */
 
 document.getElementById('fileInput').addEventListener('change', readSingleFile, false);
 
