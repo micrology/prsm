@@ -17,28 +17,13 @@ function closeMainNav() {
     document.getElementById("js-menu").classList.toggle("active");
 }
 
-function togglePanel() {
-    let container = document.getElementById("container");
-    if (getComputedStyle(container).gridTemplateColumns.match(/\d+px\s(\d+)px/)[1] == 0) {
-        container.style.gridTemplateColumns = "1fr 200px";
-    } else {
-        container.style.gridTemplateColumns = "1fr 0px";
-    }
-}
+let container = document.getElementById("container");
+container.panelHidden = true;
 
-/* 
 function togglePanel() {
-    let container = document.getElementById("container");
-    let panel = document.getElementById("panel");
-    if (getComputedStyle(document.getElementById("panel")).display == "none") {
-        container.style.gridTemplateColumns = "1fr 200px";
-        panel.style.display = "block";
-    } else {
-        container.style.gridTemplateColumns = "1fr 0px";
-        panel.style.display = "none";
-    }
+    container.style.gridTemplateColumns = (container.panelHidden ? "1fr 200px" : "1fr 0px");
+    container.panelHidden = !container.panelHidden;
 }
- */
 
 document.getElementById('fileInput').addEventListener('change', readSingleFile, false);
 
