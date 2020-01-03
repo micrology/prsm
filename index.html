@@ -5,10 +5,6 @@
 	<meta charset="utf-8">
 	<meta content="IE=edge" http-equiv="X-UA-Compatible">
 	<meta content="width=device-width, initial-scale=1" name="viewport">
-	<!-- <link href="https://fonts.googleapis.com/css?family=Oxygen&display=swap" rel="stylesheet"> -->
-<!-- 
-	<link href="css/reset.css" rel="stylesheet">
- -->
 	<link href="css/styles.css" rel="stylesheet">
 	<link href="css/navbar.css" rel="stylesheet">
 	<link href="css/tabs.css" rel="stylesheet">
@@ -53,8 +49,12 @@
 					<div class="tooltip">
 						<button class="nav-button" id="deleteNode"><i class="fas fa-trash-alt"></i></button><span class="tooltiptext">Delete selected</span>
 					</div>
-				</li>
-				<li> 
+				</li> 
+				<li>
+					<div class="tooltip">
+						<button class="nav-button" id="share"><i class="fas fa-user-friends"></i></button><span class="tooltiptext">Share</span>
+					</div>
+				</li><li> 
 					<div class="tooltip">
 						<button class="nav-button" id="panelToggle"><i class="fas fa-clone"></i></button> <span class="tooltiptext">Show or hide panel</span>
 					</div>
@@ -216,9 +216,26 @@
 			</select>
 		</div>
 	</footer>
+	<!-- Share model dialog -->
+	<div id="shareModal" class="modal">
+	  <!-- Modal content -->
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <span class="close">&times;</span>
+		  <h2>Share the network with other participants</h2>
+		</div>
+		<div class="modal-body">
+		  <p>To invite others to participate in developing this map, send them this link:</p>
+		  <p><input type="text" id="text-to-copy"></p>
+		  <p><button id="copy-text">Copy to clipboard</button>
+		<span class="modal-copied-text" id="copied-text">Copied!</span></p>
+		</div>
+	  </div>
+	</div>
+	<!-- Open file dialog -->
  	<input type="file" id="fileInput" style="display: none">
+ 	
 	<script src="js/navbar.js"></script>
-	<script src="js/betweenness.js"></script>
 	<script src="js/tabs.js"></script>
 </body>
 </html>

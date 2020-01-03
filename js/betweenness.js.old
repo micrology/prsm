@@ -2,13 +2,7 @@
 /**
  Adapted from https://github.com/anvaka/ngraph.centrality/tree/master/src
  */
-
-onmessage = function(e) {
-	let graph = {
-		nodes: e.data[0],  // array of node objects
-		edges: e.data[1]};	// array of edge objects
-	postMessage(betweenness(graph));
-}
+ 
 	
 var betweennessCache = {
 	structure: [],
@@ -16,17 +10,11 @@ var betweennessCache = {
 	};
 	
 function betweenness(graph) {
-	let struct = getIds(graph.nodes).concat(getIds(graph.edges));
+	let struct = data.nodes.getIds().concat(data.edges.getIds());
 	if (eqArray(struct, betweennessCache.structure)) return betweennessCache.betweenness;
-	console.log('calculating betweenness');
 	betweennessCache = {structure: struct, betweenness: betweenness1(graph)};
+	console.log('calculating betweenness');
 	return betweennessCache.betweenness;
-}
-
-function getIds(arr) {
-	return arr.map(function(item) { 
-		return item.id
-	});
 }
 
 function eqArray(a,b) {
@@ -37,7 +25,7 @@ function eqArray(a,b) {
 }
 
 function betweenness1(graph) {
-// graph is an object: {nodes, edges} where nodes and edges are arrays of objects
+// graph is an object: {nodes, edges} where nodes and edges are vis.DataSets
   var Q = [],
     S = []; // Queue and Stack
   // list of predecessors on shortest paths from source
@@ -135,18 +123,17 @@ function betweenness1(graph) {
 		for (var i = 0; i < links.length; ++i) {
 		  var link = links[i];
 		  if (link.from === nodeId) {
-			callback(getNode(link.to), link)
+			callback(nodes.get(link.to), link)
 		  }
      	}
      }
   }
   
   function linksFrom(nodeId) {
-  	return graph.edges.filter(function(item) { return (item.from == nodeId) } )
-  }
-  
-  function getNode(nodeId) {
-  	return graph.nodes.filter(function(item) { return (item.id == nodeId) } )[0] 
+  	return data.edges.get({filter: function(item){
+  										return (item.from == nodeId);
+  									}
+  							})
   }
   
  } 

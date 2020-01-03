@@ -18,10 +18,19 @@ function closeMainNav() {
 }
 
 let container = document.getElementById("container");
+let panel = document.getElementById("panel");
+panel.classList.add('hide');
 container.panelHidden = true;
 
 function togglePanel() {
-    container.style.gridTemplateColumns = (container.panelHidden ? "1fr 200px" : "1fr 0px");
+    if (container.panelHidden) {
+    	container.style.gridTemplateColumns = "1fr 200px";
+    	panel.classList.remove('hide');
+    	}
+    else {
+    	panel.classList.add('hide');
+    	container.style.gridTemplateColumns = "1fr 0px";
+    	}
     container.panelHidden = !container.panelHidden;
 }
 
@@ -155,4 +164,76 @@ vis.Network.prototype.zoom = function(scale) {
 
 function zoomnet() {
     network.zoom(document.getElementById("zoom").value);
+}
+
+/* Share modal dialog */
+
+var linkToShare = window.location.href.concat('?u=' + rndString(8));
+
+// Get the modal
+var modal = document.getElementById("shareModal");
+
+// Get the button that opens the modal
+var btn = document.getElementById("share");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// Get the input element to be filled with the link
+var inputElem = document.getElementById('text-to-copy');
+
+// And the place to say that the link has been copied to the clipboard
+var copiedText = document.getElementById('copied-text');
+
+// When the user clicks the button, open the modal 
+btn.onclick = function() {
+	inputElem.value = linkToShare;
+	inputElem.select();
+	copiedText.style.display = 'none';
+  modal.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+document.getElementById('copy-text').addEventListener('click', function(e) {
+	
+	e.preventDefault();
+
+  // Select the text
+  inputElem.select();
+
+  let copied;
+  try
+  {
+      // Copy the text
+      copied = document.execCommand('copy');
+  } 
+  catch (ex)
+  {
+      copied = false;  
+  }
+  if (copied)
+  {
+    // Display the copied text message
+    copiedText.style.display = 'inline-block';    
+  }
+});
+
+
+function rndString(length) {
+	let str = "";
+	for (let i=0; i < length; i++) {
+		str = str + (Math.random() * 100).toFixed().toString();
+		}
+	return str;
 }

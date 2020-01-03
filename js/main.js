@@ -17,6 +17,7 @@ function getRandomData(nNodes) {
     var SFNdata = getScaleFreeNetwork(nNodes);
     nodes.add(SFNdata.nodes);
     edges.add(SFNdata.edges);
+    recalculateStats();
 };
 
 function draw() {
@@ -198,32 +199,19 @@ function init() {
     draw();
 }
 
+var worker = new Worker('./js/betweenness.js');
+var bc = [];
+
 function recalculateStats() {
-}
-
-/* 
-var myWorker = new Worker('worker.js');
-first.onchange = function() {
-  myWorker.postMessage([first.value,second.value]);
+  worker.postMessage([nodes.get(), edges.get()]);
   console.log('Message posted to worker');
 }
 
-second.onchange = function() {
-  myWorker.postMessage([first.value,second.value]);
-  console.log('Message posted to worker');
+worker.onmessage = function(e) {
+  console.log('Centrality calculated');
+  console.log(e.data);
+  bc = e.data;
 }
-onmessage = function(e) {
-  console.log('Message received from main script');
-  var workerResult = 'Result: ' + (e.data[0] * e.data[1]);
-  console.log('Posting message back to main script');
-  postMessage(workerResult);
-}
-myWorker.onmessage = function(e) {
-  result.textContent = e.data;
-  console.log('Message received from worker');
-}
- */
-
 
 function statusMsg(msg) {
     document.getElementById("statusBar").innerHTML = msg;

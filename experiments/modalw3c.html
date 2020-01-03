@@ -57,17 +57,16 @@ body {font-family: Arial, Helvetica, sans-serif;}
 
 .modal-header {
   padding: 2px 16px;
-  background-color: #5cb85c;
+  background-color: #B0C4DE;
   color: white;
 }
 
 .modal-body {padding: 2px 16px;}
 
-.modal-footer {
-  padding: 2px 16px;
-  background-color: #5cb85c;
-  color: white;
-}
+.modal-body input {
+	width: 60%;
+	}
+
 </style>
 </head>
 <body>
@@ -78,28 +77,29 @@ body {font-family: Arial, Helvetica, sans-serif;}
 <button id="myBtn">Open Modal</button>
 
 <!-- The Modal -->
-<div id="myModal" class="modal">
+<div id="shareModal" class="modal">
 
   <!-- Modal content -->
   <div class="modal-content">
     <div class="modal-header">
       <span class="close">&times;</span>
-      <h2>Modal Header</h2>
+      <h2>Share the network with other participants</h2>
     </div>
     <div class="modal-body">
-      <p>Some text in the Modal Body</p>
-      <p>Some other text...</p>
-    </div>
-    <div class="modal-footer">
-      <h3>Modal Footer</h3>
+      <p>To invite others to participate in developing this map, send them this link:</p>
+      <p><input type="text" id="text-to-copy"></p>
+      <p><button id="copy-text">Copy to clipboard</button>
+    <span id="copied-text" style="display: none;">Copied!</span></p>
     </div>
   </div>
-
 </div>
 
 <script>
+
+var linkToShare = window.location.href.concat('?u=' + rndString(8));
+
 // Get the modal
-var modal = document.getElementById("myModal");
+var modal = document.getElementById("shareModal");
 
 // Get the button that opens the modal
 var btn = document.getElementById("myBtn");
@@ -107,8 +107,17 @@ var btn = document.getElementById("myBtn");
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
 
+// Get the input element to be filled with the link
+var inputElem = document.getElementById('text-to-copy');
+
+// And the place to say that the link has been copied to the clipboard
+var copiedText = document.getElementById('copied-text');
+
 // When the user clicks the button, open the modal 
 btn.onclick = function() {
+	inputElem.value = linkToShare;
+	inputElem.select();
+	copiedText.style.display = 'none';
   modal.style.display = "block";
 }
 
@@ -123,6 +132,41 @@ window.onclick = function(event) {
     modal.style.display = "none";
   }
 }
+
+document.getElementById('copy-text').addEventListener('click', function(e) {
+	
+	e.preventDefault();
+
+  // Select the text
+  inputElem.select();
+
+  let copied;
+  try
+  {
+      // Copy the text
+      copied = document.execCommand('copy');
+  } 
+  catch (ex)
+  {
+      copied = false;  
+  }
+  if (copied)
+  {
+    // Display the copied text message
+    copiedText.style.display = 'inline-block';    
+  }
+});
+
+
+function rndString(length) {
+	let str = "";
+	for (let i=0; i < length; i++) {
+		str = str + (Math.random() * 100).toFixed().toString();
+		}
+	return str;
+}
+
+
 </script>
 
 </body>
