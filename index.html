@@ -19,47 +19,37 @@
 </head>
 <body class="container" id="container" onload="init();">
 	<header>
-		<nav class="navbar" id="navbar">
-			<span class="navbar-toggle" id="js-navbar-toggle"><i class="fas fa-bars"></i></span>
-			<div class="logo"><img src="img/prism-logo.png" alt="PRISM">
-				<p class="strapline">Prism: PaRtIcipatory System Mapping</p></div>
-			<ul class="main-nav" id="js-menu">
-				<li>
-					<div class="tooltip">
-						<button class="nav-button" id="openFile"><i class="fas fa-folder-open"></i></button><span class="tooltiptext">Open network</span>
-					</div>
-				</li>
-				<li>
-					<div class="tooltip">
-						<button class="nav-button" id="saveFile"><i class="fas fa-save"></i></button><span class="tooltiptext">Save network</span>
-						<a id="download" download></a>
-					</div>
-				</li>
-				<li>
-					<div class="tooltip">
-						<button class="nav-button" id="addNode"><i class="fas fa-plus"></i></button><span class="tooltiptext">Add factor</span>
-					</div>
-				</li>
-				<li>
-					<div class="tooltip">
-						<button class="nav-button" id="addLink"><i class="fas fa-wave-square"></i></button><span class="tooltiptext">Add link</span>
-					</div>
-				</li>
-				<li>
-					<div class="tooltip">
-						<button class="nav-button" id="deleteNode"><i class="fas fa-trash-alt"></i></button><span class="tooltiptext">Delete selected</span>
-					</div>
-				</li> 
-				<li>
-					<div class="tooltip">
-						<button class="nav-button" id="share"><i class="fas fa-user-friends"></i></button><span class="tooltiptext">Share</span>
-					</div>
-				</li><li> 
-					<div class="tooltip">
-						<button class="nav-button" id="panelToggle"><i class="fas fa-clone"></i></button> <span class="tooltiptext">Show or hide panel</span>
-					</div>
-				</li>
-			</ul>
+		<nav id="navbar">
+			<img src="img/prism-logo.png" alt="PRISM">
+			<div class="strapline">Prism: PaRtIcipatory System Mapping</div>
+			<span class="toggle" id="toggle"><i class="fas fa-bars"></i></span>
+
+			<dev class="button-wrapper">
+				<div class="buttons" id="buttons">
+						<div class="tooltip">
+							<button id="openFile"><i class="fas fa-folder-open"></i></button><span class="tooltiptext">Open network</span>
+						</div>
+						<div class="tooltip">
+							<button  id="saveFile"><i class="fas fa-save"></i></button><span class="tooltiptext">Save network</span>
+							<a href='#' id="download" download></a>
+						</div>
+						<div class="tooltip">
+							<button  id="addNode"><i class="fas fa-plus"></i></button><span class="tooltiptext">Add factor</span>
+						</div>
+						<div class="tooltip">
+							<button  id="addLink"><i class="fas fa-wave-square"></i></button><span class="tooltiptext">Add link</span>
+						</div>
+						<div class="tooltip">
+							<button  id="deleteNode"><i class="fas fa-trash-alt"></i></button><span class="tooltiptext">Delete selected</span>
+						</div>
+						<div class="tooltip">
+							<button  id="share"><i class="fas fa-user-friends"></i></button><span class="tooltiptext">Share</span>
+						</div>
+						<div class="tooltip">
+							<button  id="panelToggle"><i class="fas fa-clone"></i></button> <span class="tooltiptext">Show or hide panel</span>
+						</div>
+				</div>
+			</div>
 		</nav>
 
 	</header>
@@ -68,8 +58,8 @@
 		<div id="node-popUp">
 		  <span id="node-operation">factor</span> <br>
 		  <input id="node-label" placeholder="Label" value=""/> <br>
-		  <input type="button" value="save" id="node-saveButton" />
 		  <input type="button" value="cancel" id="node-cancelButton" />
+		  <input type="button" value="save" id="node-saveButton" />
 		</div>
 
 		<div id="edge-popUp">
@@ -78,8 +68,8 @@
 				<tr>
 				  <td>label</td><td><input id="edge-label" value="new value" /></td>
 				</tr></table>
-			<input type="button" value="save" id="edge-saveButton" />
 			<input type="button" value="cancel" id="edge-cancelButton" />
+			<input type="button" value="save" id="edge-saveButton" />
 		</div>
 		
 		<div id="net-pane"></div>

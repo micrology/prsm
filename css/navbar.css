@@ -1,82 +1,84 @@
-.navbar {
-	font-size: 18px;
-}
-
-.main-nav {
-	list-style-type: none;
-	display: none;
-}
-
-.nav-button {
-	color: black;
-	font-size: 24px;
-}
-
-.main-nav li {
-	text-align: center;
-	margin: 15px auto;
-	padding: 0 15px 0 15px;
-	z-index: 10;
-}
-
-.logo {
+nav {
 	display: flex;
-	margin: 5px 0 0 10px; 
-}
-
-.logo img {
-	height: 40px;
+	background-color: #809fff;
+	flex-direction: row;
+	justify-content: flex-start;
+	height: 70px;
+	box-shadow: 6px 6px 5px 0px rgba(0,0,0,0.55);
+	padding: 10px 0 0 20px;
 	}
-	
+nav img {
+	height: 60px;
+	}
 .strapline {
-	margin: auto 10px;
-	font-size: 18px;
-	}
-
-.navbar-toggle {
-	position: absolute;
-	top: 10px;
-	right: 20px;
-	cursor: pointer;
-	color: black;
 	font-size: 24px;
-}
-
-.active {
-	display: block;
-}
-
-@media screen and (min-width: 768px) {
-	.navbar {
-		display: flex;
-		justify-content: space-between;
-		height: 50px;
-		align-items: center;
+	margin: auto 0;
+	}
+.button-wrapper {
+	margin: auto 0 auto auto;
+	}
+.buttons {
+	flex-grow: 3;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	}
+nav button {
+	border: 1px solid #809fff;
+	color: white;
+	font-size: 20px;
+	background-color: #809fff;
+	margin: auto 15px;
+	outline: none;
+	}
+nav button:hover {
+	color: grey;
+	}
+nav button:active {
+	color: grey;
+	border: 1px solid black;
+	}
+nav .toggle {
+	display: none;
+	position: absolute;
+	top: 30px;
+	right: 50px;
+	font-size: 30px;
+	}
+.reveal {
+	display: flex !important;
 	}
 
-	.main-nav {
-		display: flex;
-		margin-right: 30px;
-		flex-direction: row;
-		justify-content: flex-end;
-	}
+@media screen and (max-width: 950px) {
 
-	.main-nav li {
-		margin: 0;
-	}
-
-	.nav-links {
-		margin-left: 40px;
-	}
-
-	.navbar-toggle {
+	nav {
+		display: grid;
+		height: 90px;
+		grid-template-columns: 80px 1fr;
+		}
+	nav img {
+		grid-column: 1;
+		}
+	.strapline {
+		grid-column: 2;
+		}
+	.button-wrapper {
+		grid-column: 1 / 3;
+		grid-row: 2;
+		width: 100%;
+		}
+	.buttons {
 		display: none;
-	}
-
-	.nav-links:hover {
-		color: rgba(0, 0, 0, 0.5);
-	}
+		justify-content: center;
+		}
+	nav button {
+	margin: auto 5px;
+		}			
+	nav .toggle {
+		display: block;
+		}
 }
+
 
 #download {
 	width: 0;
@@ -148,10 +150,6 @@
 	line-height: 2;
 }
 
-.modal-body input {
-	width: 60%;
-	}
-	
 .modal-copied-text {
 	display: none;
 	font-size: 12px;

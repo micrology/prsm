@@ -28,7 +28,7 @@ body {
 		grid-template-rows: auto 1fr auto;
 	}
 	main {
-	    height: calc(100vh - 75px);
+	    height: calc(100vh - 93px);
 	}
 }
 
@@ -38,16 +38,12 @@ header {
 	font-size: 1em;
 	background-color: whitesmoke;
 	color: black;
-	height: 50px;
+	height: 93px;
 }
 
 main {
 	flex: 1;
-    border: 1px solid lightgray;
     }
-
-nav {
-}
  
 aside {
 }
@@ -90,7 +86,7 @@ footer {
 	z-index: 1;
 	opacity: 0;
 	transition: opacity 2s;
-	transition-delay: 1s;
+	transition-delay: 2s;
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */

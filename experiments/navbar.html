@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta content="IE=edge" http-equiv="X-UA-Compatible">
+	<meta content="width=device-width, initial-scale=1" name="viewport">
+	<title>navbar</title>
+	<link href="../css/fa.min.css" rel="stylesheet">
+
+<style>
+	body {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		font-size: 100%;
+		font: inherit;
+		vertical-align: baseline;
+		font-family: sans-serif;
+		box-sizing: border-box;
+		}
+	nav {
+		display: flex;
+		background-color: #809fff;
+		flex-direction: row;
+		justify-content: flex-start;
+		height: 70px;
+		box-shadow: 6px 6px 5px 0px rgba(0,0,0,0.55);
+		padding: 10px 0 0 20px;
+		}
+	nav img {
+		height: 60px;
+		}
+	.strapline {
+		font-size: 24px;
+		margin: auto 0;
+		}
+	.button-wrapper {
+		margin: auto 0 auto auto;
+		}
+	.buttons {
+		flex-grow: 3;
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		}
+	nav button {
+		border: 1px solid #809fff;
+		color: white;
+		font-size: 20px;
+		background-color: #809fff;
+		margin: auto 15px;
+		outline: none;
+		}
+	nav button:hover {
+		color: grey;
+		}
+	nav button:active {
+		color: grey;
+		border: 1px solid black;
+		}
+	nav .toggle {
+		display: none;
+		position: absolute;
+		top: 30px;
+		right: 50px;
+		font-size: 30px;
+		}
+	.reveal {
+		display: flex !important;
+		}
+
+@media screen and (max-width: 950px) {
+
+		nav {
+			display: grid;
+			height: 90px;
+			grid-template-columns: 80px 1fr;
+			}
+		nav img {
+			grid-column: 1;
+			}
+		.strapline {
+			grid-column: 2;
+			}
+		.button-wrapper {
+			grid-column: 1 / 3;
+			grid-row: 2;
+			width: 100%;
+			}
+		.buttons {
+			display: none;
+			justify-content: center;
+			}
+		nav button {
+		margin: auto 5px;
+			}			
+		nav .toggle {
+			display: block;
+			}
+ 	}
+
+	/* Tooltip container */
+	.tooltip {
+		position: relative;
+		display: inline-block;
+	}
+
+	/* Tooltip text */
+	.tooltip .tooltiptext {
+		visibility: hidden;
+		width: 120px;
+		top: 100%;
+		left: 50%;
+		margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+		background-color: gray;
+		color: white;
+		text-align: center;
+		padding: 5px 0;
+		border-radius: 6px;
+		font-size: 70%;
+
+		/* Position the tooltip text */
+		position: absolute;
+		z-index: 1;
+		opacity: 0;
+		transition: opacity 2s;
+		transition-delay: 1s;
+	}
+
+	/* Show the tooltip text when you mouse over the tooltip container */
+	.tooltip:hover .tooltiptext {
+		visibility: visible;
+		opacity: 1;
+	}
+	.tooltip:active .tooltiptext {
+		visibility: hidden;
+	}
+
+</style>
+
+
+</head>
+<body>
+<nav>
+	<img src="../img/prism-logo.png" alt="PRISM">
+	<div class="strapline">Prism: PaRtIcipatory System Mapping</div>
+	<span class="toggle" id="toggle"><i class="fas fa-bars"></i></span>
+
+	<dev class="button-wrapper">
+		<div class="buttons" id="buttons">
+				<div class="tooltip">
+					<button id="openFile"><i class="fas fa-folder-open"></i></button><span class="tooltiptext">Open network</span>
+				</div>
+				<div class="tooltip">
+					<button  id="saveFile"><i class="fas fa-save"></i></button><span class="tooltiptext">Save network</span>
+					<a href='#' id="download" download></a>
+				</div>
+				<div class="tooltip">
+					<button  id="addNode"><i class="fas fa-plus"></i></button><span class="tooltiptext">Add factor</span>
+				</div>
+				<div class="tooltip">
+					<button  id="addLink"><i class="fas fa-wave-square"></i></button><span class="tooltiptext">Add link</span>
+				</div>
+				<div class="tooltip">
+					<button  id="deleteNode"><i class="fas fa-trash-alt"></i></button><span class="tooltiptext">Delete selected</span>
+				</div>
+				<div class="tooltip">
+					<button  id="share"><i class="fas fa-user-friends"></i></button><span class="tooltiptext">Share</span>
+				</div>
+				<div class="tooltip">
+					<button  id="panelToggle"><i class="fas fa-clone"></i></button> <span class="tooltiptext">Show or hide panel</span>
+				</div>
+		</div>
+	</div>
+</nav>
+<main>
+</main>
+<script>
+document.getElementById("toggle").addEventListener("click", closeMainNav);
+function closeMainNav() {
+	document.getElementById("buttons").classList.toggle("reveal");
+}
+</script>
+</body>
+</html>
