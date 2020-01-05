@@ -1,21 +1,11 @@
 var lastFileName = 'network.json';
 
-
-document.getElementById("toggle").addEventListener("click", closeMainNav);
-function closeMainNav() {
-	document.getElementById("buttons").classList.toggle("reveal");
-}
-
 document.getElementById("openFile").addEventListener("click", doClickOpenFile);
 document.getElementById("saveFile").addEventListener("click", saveJSONfile);
 document.getElementById("panelToggle").addEventListener("click", togglePanel);
 document.getElementById("addNode").addEventListener("click", plusNode);
 document.getElementById("addLink").addEventListener("click", plusLink);
 document.getElementById("deleteNode").addEventListener("click", deleteNode);
-
-function closeMainNav() {
-	document.getElementById("js-menu").classList.toggle("active");
-}
 
 let container = document.getElementById("container");
 let panel = document.getElementById("panel");

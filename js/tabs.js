@@ -8,10 +8,6 @@ document.getElementById("linksButton").addEventListener("click", () => {
 document.getElementById("networkButton").addEventListener("click", () => {
 	openTab("networkTab");
 }, false);
-// Clicking anywhere else clears the status bar (note trick: click is processed in the capturing phase)
-document.getElementById("net-pane").addEventListener("click", () => {
-	clearStatusBar();
-}, true);
 
 var tabOpen = null;
 

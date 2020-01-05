@@ -1,3 +1,7 @@
+/* 
+Top level styles setting out the page elements
+ */
+
 html, body, div, span, applet, object, iframe,
 a, img, article, aside, canvas, footer, header, nav,
 h1, h2, h3, h4, h5, h6, p {
@@ -12,40 +16,33 @@ h1, h2, h3, h4, h5, h6, p {
 body {
 	font-family: sans-serif;
 	box-sizing: border-box;
+	
+	/* interface colours defined here */
+	--header-color: #809fff;
+	--panel-color: #404040;
+	--pop-up-color: #999;
+	--modal-header-color: #B0C4DE;
 }
 
 .container {
-	display: flex;
-	flex-direction: column;
-	height: 100vh;
+	display: grid;
+	grid-template-columns: 1fr 0px;
+	grid-template-rows: auto 1fr auto;
 }
 
-
-@media (min-width: 768px) {
-	.container {
-		display: grid;
-		grid-template-columns: 1fr 0px;
-		grid-template-rows: auto 1fr auto;
-	}
-	main {
-	    height: calc(100vh - 93px);
-	}
+main {
+	height: calc(100vh - 129px);
+	flex: 1;
 }
 
 header {
 	grid-column: span 2;
 	text-align: center;
-	font-size: 1em;
-	background-color: whitesmoke;
-	color: black;
 	height: 93px;
 }
-
-main {
-	flex: 1;
-    }
  
 aside {
+	margin-right: 5px;
 }
 
 footer {
@@ -59,43 +56,6 @@ footer {
 	background-color: white;
 	color: black;
 	border-top: 1px solid lightgrey;
-}
-
-/* Tooltip container */
-.tooltip {
-	position: relative;
-	display: inline-block;
-}
-
-/* Tooltip text */
-.tooltip .tooltiptext {
-	visibility: hidden;
-	width: 120px;
-	top: 100%;
-	left: 50%;
-	margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
-	background-color: gray;
-	color: white;
-	text-align: center;
-	padding: 5px 0;
-	border-radius: 6px;
-	font-size: 70%;
- 
-	/* Position the tooltip text */
-	position: absolute;
-	z-index: 1;
-	opacity: 0;
-	transition: opacity 2s;
-	transition-delay: 2s;
-}
-
-/* Show the tooltip text when you mouse over the tooltip container */
-.tooltip:hover .tooltiptext {
-	visibility: visible;
-	opacity: 1;
-}
-.tooltip:active .tooltiptext {
-	visibility: hidden;
 }
 
 @media print {

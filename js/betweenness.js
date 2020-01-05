@@ -1,6 +1,24 @@
+'use strict';
 
 /**
- Adapted from https://github.com/anvaka/ngraph.centrality/tree/master/src
+
+Calculate betweenness centrality for the current network factors
+
+Since this can take several seconds, this calculation is passed off to a Web Worker 
+(i.e. a separate thread).
+
+It is invoked every time the network changes (factors or links are added or deleted).  
+The centralities are cached after calculation, and can therefore be retrieved whenever
+required.
+
+
+ Code adapted from https://github.com/anvaka/ngraph.centrality/tree/master/src
+ 
+ */
+
+/* 
+Receive message from main thread, consisting of node and link objects, do calculation 
+and return it to the main thread
  */
 
 onmessage = function(e) {
@@ -17,18 +35,21 @@ var betweennessCache = {
 	
 function betweenness(graph) {
 	let struct = getIds(graph.nodes).concat(getIds(graph.edges));
+	// check whether the network structure has changed; 
+	// if not, just return the previous result immediately
 	if (eqArray(struct, betweennessCache.structure)) return betweennessCache.betweenness;
-	console.log('calculating betweenness');
 	betweennessCache = {structure: struct, betweenness: betweenness1(graph)};
 	return betweennessCache.betweenness;
 }
 
+// return an array of ids extracted from an array of node or link objects
 function getIds(arr) {
 	return arr.map(function(item) { 
 		return item.id
 	});
 }
 
+// check whether two arrays of Ids are the same
 function eqArray(a,b) {
 	if (a.length != b.length) return false;
 	a = a.sort(); b = b.sort();
@@ -141,10 +162,12 @@ function betweenness1(graph) {
      }
   }
   
+  // return all the link objects that start from the given node 
   function linksFrom(nodeId) {
   	return graph.edges.filter(function(item) { return (item.from == nodeId) } )
   }
   
+  // return the node object with the given Id
   function getNode(nodeId) {
   	return graph.nodes.filter(function(item) { return (item.id == nodeId) } )[0] 
   }
