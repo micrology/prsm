@@ -14,9 +14,7 @@
 	<script src="js/exampleUtil.js"></script>
 	<script src="node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
 	<script src="js/samples.js"></script>
-	<script src="js/main.js"></script>
 	<script src="js/nicEdit/nicEdit.js"></script>
-	<script src="js/jscolor.js"></script>
 </head>
 
 <body class="container" id="container" onload="init();">
@@ -91,7 +89,7 @@
 				<div class="networkRow">
 					<div>Auto. layout</div>
 					<div class="onoffswitch">
-						<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="autolayoutswitch" checked>
+						<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="autolayoutswitch">
 						<label class="onoffswitch-label" for="autolayoutswitch">
 							<span class="onoffswitch-inner"></span>
 							<span class="onoffswitch-switch"></span>
@@ -119,8 +117,7 @@
 				<div class="networkRow">
 					<div>Background:</div>
 					<div>
-						<input class="jscolor {required:false,  padding:0, shadow:true,
-							backgroundColor:'transparent', insetColor:'#000'}" style="width:20px; height:20px; border: 2px solid gray; font-size: 0;" id="colorpot" onchange="updateNetBack(this)">
+						<input type="color" value="#ffffff" id="netBackColorWell">
 					</div>
 				</div>
 				<div class="networkRow">
@@ -237,6 +234,7 @@
 	<!-- Open file dialog This element is augmented by Javascript (see navbar.js) -->
 	<input type="file" id="fileInput" style="display: none">
 
+	<script src="js/main.js"></script>
 	<script src="js/navbar.js"></script>
 	<script src="js/tabs.js"></script>
 </body>

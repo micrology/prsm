@@ -267,8 +267,10 @@ function selectCurve() {
 	});
 }
 
-function updateNetBack(picker) {
-	document.getElementById('net-pane').style.background = picker.jscolor.toHEXString();
+document.getElementById('netBackColorWell').addEventListener('input', updateNetBack, false);
+
+function updateNetBack(event) {
+	document.getElementById('net-pane').style.backgroundColor = event.target.value;
 }
 
 function selectAllFactors() {

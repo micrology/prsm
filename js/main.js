@@ -38,6 +38,7 @@ function draw() {
 	var container = document.getElementById('net-pane');
 	var options = {
 		physics: {
+			enabled: false,
 			stabilization: false
 		},
 		edges: {
@@ -157,11 +158,12 @@ function changeCursor(newCursorStyle) {
 function editNode(data, cancelAction, callback) {
 	inAddMode = false;
 	changeCursor('auto');
+	let popUp = document.getElementById('node-popUp');
 	document.getElementById('node-cancelButton').onclick = cancelAction.bind(this, callback);
 	document.getElementById('node-saveButton').onclick = saveNodeData.bind(this, data, callback);
-	document.getElementById('node-popUp').style.top = `${event.clientY}px`;
-	document.getElementById('node-popUp').style.left = `${event.clientX}px`;
-	document.getElementById('node-popUp').style.display = 'block';
+	popUp.style.top = `${event.clientY - popUp.offsetHeight / 2}px`;
+	popUp.style.left = `${event.clientX - popUp.offsetWidth - 3}px`;
+	popUp.style.display = 'block';
 	document.getElementById('node-label').value = data.label;
 	document.getElementById('node-label').focus();
 }

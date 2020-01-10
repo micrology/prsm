@@ -39,12 +39,18 @@ Network pane and pop-up for new Factors
 #node-popUp::after {
 	content: "";
 	position: absolute;
+/* 
 	top: 0;
 	left: 0;
 	margin-left: -10px;
 	border-width: 10px;
-	border-style: solid;
-	border-color: var(--pop-up-color) transparent transparent transparent;
+ */
+	  top: 50%;
+  left: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+	border-color: transparent transparent transparent var(--pop-up-color);
 	}
 
 #node-popUp input {
