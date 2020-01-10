@@ -12,12 +12,11 @@
 	<link href="css/main.css" rel="stylesheet">
 	<link href="css/fa.min.css" rel="stylesheet">
 	<script src="js/exampleUtil.js"></script>
-	<script src="node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
 	<script src="js/samples.js"></script>
 	<script src="js/nicEdit/nicEdit.js"></script>
 </head>
 
-<body class="container" id="container" onload="init();">
+<body class="container" id="container">
 	<header>
 		<nav id="navbar">
 			<img src="img/prism-logo.png" alt="PRISM">
@@ -99,7 +98,7 @@
 				<div class="networkRow">
 					<div>Layout type:</div>
 					<div>
-						<select id="layoutSelect" onChange=selectLayout()>
+						<select id="layoutSelect">
 							<option value="Network" selected>Network</option>
 							<option value="Hierarchical">Hierarchical</option>
 						</select>
@@ -108,7 +107,7 @@
 				<div class="networkRow">
 					<div>Link:</div>
 					<div>
-						<select id="curveSelect" onChange=selectCurve()>
+						<select id="curveSelect">
 							<option value="Curved" selected>Curved</option>
 							<option value="Straight">Straight</option>
 						</select>
@@ -121,14 +120,14 @@
 					</div>
 				</div>
 				<div class="networkRow">
-					<button type="button" onclick="selectAllFactors()">Select all factors</button>
+					<button type="button" id="allFactors">Select all factors</button>
 				</div>
 				<div class="networkRow">
-					<button type="button" onclick="selectAllEdges()">Select all edges</button>
+					<button type="button" id="allEdges" >Select all edges</button>
 				</div>
 				<div class="networkRow">
 					<div>Show only factors<br>links away from selected</div>
-					<select id="dimRest" onChange=selectDim(this.value)>
+					<select id="dimRest">
 						<option value="All" selected>(off))</option>
 						<option value="1">1</option>
 						<option value="2">2</option>
@@ -200,7 +199,7 @@
 	<footer>
 		<div id="statusBar"><br></div>
 		<div>
-			<select id="zoom" onChange="zoomnet()">
+			<select id="zoom">
 				<option value="fit" selected>fit to window</option>
 				<option value="4">400%</option>
 				<option value="2">200%</option>
@@ -233,10 +232,7 @@
 	
 	<!-- Open file dialog This element is augmented by Javascript (see navbar.js) -->
 	<input type="file" id="fileInput" style="display: none">
-
-	<script src="js/main.js"></script>
-	<script src="js/navbar.js"></script>
-	<script src="js/tabs.js"></script>
+	<script src="./dist/prism.bundle.js"></script>
 </body>
 
 </html>

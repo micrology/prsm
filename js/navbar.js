@@ -138,7 +138,7 @@ function deleteNode() {
 	network.deleteSelected();
 }
 
-vis.Network.prototype.zoom = function(scale) {
+Network.prototype.zoom = function(scale) {
 	if (scale === 'fit') {
 		this.view.fit();
 		return;

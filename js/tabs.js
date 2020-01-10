@@ -39,7 +39,7 @@ function openTab(tabId) {
 // samples
 
 // Get all elements with class="sampleNode" and add listener and canvas
-let emptyDataSet = new vis.DataSet([]);
+let emptyDataSet = new DataSet([]);
 let sampleElements, sampleFormat;
 sampleElements = document.getElementsByClassName("sampleNode");
 for (let i = 0; i < sampleElements.length; i++) {
