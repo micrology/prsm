@@ -20,50 +20,37 @@ from "vis-data";
 
 import 'vis-network/dist/vis-network.min.css';
 
-/* 
+/*
 Remember to start the WS provider first:
 	npx y-websocket-server
- */
+*/
+
+const version = "0.9";
+
+var network, room, nodes, edges, data;
+
+var lastNodeSample = null;
+var lastLinkSample = null;
+var inAddMode = false; // true when adding a new Factor to the network; used to choose cursor pointer
+
 
 window.addEventListener('load', () => {
+	checkFeatures();
 	addEventListeners();
 	setUpPage();
-	init();
+	startY();
+	draw();
 });
 
-/* 
-create a new shared document and start the WebSocket provider
- */
-const doc = new Y.Doc();
-const wsProvider = new WebsocketProvider('ws://localhost:1234', 'y-vis-network-example7', doc);
-wsProvider.on('status', event => {
-	console.log(event.status) // logs "connected" or "disconnected"
-})
-
-/* 
-create a yMap for the nodes and one for the edges (we need two because there is no 
-guarantee that the the ids of nodes will differ from the ids of edges 
- */
-const yNodesMap = doc.getMap('nodes');
-const yEdgesMap = doc.getMap('edges');
-
-const clientID = doc.clientID;  // used to identify nodes and edges created by this client
-console.log('My client ID: ' + doc.clientID);
-
-var network = null;
-var nodes = new DataSet();
-var edges = new DataSet();
-var data = {
-	nodes: nodes,
-	edges: edges
-};
-
-/* 
-for convenience when debugging
- */
-window.data = data;
-window.yNodesMap = yNodesMap;
-window.yEdgesMap = yEdgesMap;
+function checkFeatures() {
+	if (!(Modernizr.borderradius && Modernizr.boxsizing && Modernizr.flexbox && 
+		Modernizr.boxshadow && Modernizr.opacity && Modernizr.canvas && 
+		Modernizr.fileinput && Modernizr.eventlistener && Modernizr.webworkers
+		&& Modernizr.json && Modernizr.canvastext)) {
+		alert("Your browser does not support all the features required.  Try an up-to-date copy of Edge, Chrome or Safari");
+		}
+}
+		
 
 function addEventListeners() {
 	// Clicking anywhere other than on the tabs clears the status bar 
@@ -99,7 +86,7 @@ function addEventListeners() {
 	document.getElementById('layoutSelect').addEventListener('change', selectLayout);	
 	document.getElementById('curveSelect').addEventListener('change', selectCurve);	
 	document.getElementById('dimRest').addEventListener('change', (value) => { selectDim(value)});	
-	document.getElementById('zoom').addEventListener('change', zoomnet); 	
+	document.getElementById('zoom').addEventListener('change', zoomnet);
 }
 
 function setUpPage() {
@@ -110,84 +97,120 @@ function setUpPage() {
 	// start with first tab open
 	document.getElementById("networkButton").click();
 }
+
+function startY() {
+
+// create a new shared document and start the WebSocket provider
+
+	let url = new URL(document.location);
+	room = url.searchParams.get('room');
+	if (room == null) room = rndString(10);
 	
-/* 
-nodes.on listens for when local nodes or edges are changed (added, updated or removed).
-If a local node is removed, the yMap is updated to broadcat to other clients that the node 
-has been deleted. If a local node is added or updated, that is also broadcast, with a 
-copy of the node, augmented with this client's ID, so that the originator can be identified.
-Nodes that are not originated locally are not broadcast (if they were, there would be a 
-feedback loop, with each client re-broadcasting everything it received)
- */
+	const doc = new Y.Doc();
+	const wsProvider = new WebsocketProvider('ws://192.168.0.12:1234', 'prism' + room, doc);
+	wsProvider.on('status', event => {
+		console.log(event.status, ' to ', room) // logs "connected" or "disconnected"
+		});
 
-nodes.on('*', (event, properties) => {
-	properties.items.forEach(id => {
-		if (event == 'remove') {
-			yNodesMap.delete(id.toString())
-		}
-		else {
-			let obj = nodes.get(id);
-			if (obj.clientID == undefined || obj.clientID == clientID) {
-				obj.clientID = clientID;
-				yNodesMap.set(id.toString(), obj);
+	/* 
+	create a yMap for the nodes and one for the edges (we need two because there is no 
+	guarantee that the the ids of nodes will differ from the ids of edges 
+	 */
+	const yNodesMap = doc.getMap('nodes');
+	const yEdgesMap = doc.getMap('edges');
+
+	const clientID = doc.clientID;  // used to identify nodes and edges created by this client
+	console.log('My client ID: ' + doc.clientID);
+
+
+	nodes = new DataSet();
+	edges = new DataSet();
+	data = {
+		nodes: nodes,
+		edges: edges
+	};
+
+	/* 
+	for convenience when debugging
+	 */
+	window.data = data;
+	window.yNodesMap = yNodesMap;
+	window.yEdgesMap = yEdgesMap;
+
+	/* 
+	nodes.on listens for when local nodes or edges are changed (added, updated or removed).
+	If a local node is removed, the yMap is updated to broadcat to other clients that the node 
+	has been deleted. If a local node is added or updated, that is also broadcast, with a 
+	copy of the node, augmented with this client's ID, so that the originator can be identified.
+	Nodes that are not originated locally are not broadcast (if they were, there would be a 
+	feedback loop, with each client re-broadcasting everything it received)
+	 */
+
+	nodes.on('*', (event, properties) => {
+		properties.items.forEach(id => {
+			if (event == 'remove') {
+				yNodesMap.delete(id.toString())
 			}
-		}
-	})
-});
-
-/* 
-yNodesMap.observe listens for changes in the yMap, reciving a set of the keys that have
-had changed values.  If the change was to delete an entry, the corresponding node is
-removed from the local nodes dataSet. Otherwise, the local node dataSet is updated (which 
-includes adding a new node if it does not already exist locally).
- */
-
-yNodesMap.observe((event, trans) => {
-	for (let key of event.keysChanged) {
-		if (yNodesMap.has(key)) {
-			let obj = yNodesMap.get(key);
-			if (obj.clientID != clientID) {
-				nodes.update(obj);
+			else {
+				let obj = nodes.get(id);
+				if (obj.clientID == undefined || obj.clientID == clientID) {
+					obj.clientID = clientID;
+					yNodesMap.set(id.toString(), obj);
+				}
 			}
-		}
-		else nodes.remove(key);
-	}
-});
+		})
+	});
 
-/* 
-See comments above about nodes
- */
-edges.on('*', (event, properties) => {
-	properties.items.forEach(id => {
-		if (event == 'remove') {
-			yEdgesMap.delete(id.toString())
-		}
-		else {
-			let obj = edges.get(id);
-			if (obj.clientID == undefined || obj.clientID == clientID) {
-				obj.clientID = clientID;
-				yEdgesMap.set(id.toString(), obj);
+	/* 
+	yNodesMap.observe listens for changes in the yMap, reciving a set of the keys that have
+	had changed values.  If the change was to delete an entry, the corresponding node is
+	removed from the local nodes dataSet. Otherwise, the local node dataSet is updated (which 
+	includes adding a new node if it does not already exist locally).
+	 */
+
+	yNodesMap.observe((event, trans) => { console.log(event);
+		for (let key of event.keysChanged) {
+			if (yNodesMap.has(key)) {
+				let obj = yNodesMap.get(key);
+				if (obj.clientID != clientID) {
+					nodes.update(obj);
+				}
 			}
+			else nodes.remove(key);
 		}
-	})
-});
+	});
 
-yEdgesMap.observe((event, trans) => {
-	for (let key of event.keysChanged) {
-		if (yEdgesMap.has(key)) {
-			let obj = yEdgesMap.get(key);
-			if (obj.clientID != clientID) {
-				edges.update(obj);
+	/* 
+	See comments above about nodes
+	 */
+	edges.on('*', (event, properties) => {
+		properties.items.forEach(id => {
+			if (event == 'remove') {
+				yEdgesMap.delete(id.toString())
 			}
+			else {
+				let obj = edges.get(id);
+				if (obj.clientID == undefined || obj.clientID == clientID) {
+					obj.clientID = clientID;
+					yEdgesMap.set(id.toString(), obj);
+				}
+			}
+		})
+	});
+
+	yEdgesMap.observe((event, trans) => {
+		for (let key of event.keysChanged) {
+			if (yEdgesMap.has(key)) {
+				let obj = yEdgesMap.get(key);
+				if (obj.clientID != clientID) {
+					edges.update(obj);
+				}
+			}
+			else edges.remove(key);
 		}
-		else edges.remove(key);
-	}
-});
+	});
 
-
-var lastNodeSample = null;
-var lastLinkSample = null;
-var inAddMode = false; // true when adding a new Factor to the network; used to choose cursor pointer
+}
 
 function getRandomData(nNodes) {
 	// randomly create some nodes and edges
@@ -199,9 +222,10 @@ function getRandomData(nNodes) {
 
 function draw() {
 
-	// for testing, append #XXX to the URL of the page, where XXX is the number
+	// for testing, append ?t=XXX to the URL of the page, where XXX is the number
 	// of factors to include in a random network
-	let nNodes = window.location.hash.substr(1);
+	let url = new URL(document.location);
+	let nNodes = url.searchParams.get('t');
 	if (nNodes) getRandomData(nNodes); // start with some random network
 
 	// create a network
@@ -211,11 +235,7 @@ function draw() {
 			enabled: false,
 			stabilization: false
 		},
-		edges: {
-			color: {
-				color: 'black'
-			}
-		},
+		edges: groupEdges.edge0,
 		groups: groups,
 		nodes: {
 			group: 'group0'
@@ -269,6 +289,14 @@ function draw() {
 				}
 				callback(data);
 			},
+			deleteEdge: function(data, callback) {
+				var r = confirm(deleteMsg(data));
+				if (r != true) {
+					callback(null);
+					return;
+				}
+				callback(data);
+			},
 			controlNodeStyle: {
 				shape: 'dot',
 				color: 'black',
@@ -278,6 +306,7 @@ function draw() {
 	};
 
 	network = new Network(container, data, options);
+	window.network = network;
 
 	// listen for click events on the network pane
 	network.on("doubleClick", function(params) {
@@ -285,7 +314,7 @@ function draw() {
 			network.editNode();
 		} else {
 			network.fit();
-			document.getElementById('zoom').value = 'fit';
+			document.getElementById('zoom').value = network.getScale();
 		}
 	});
 	network.on('selectNode', function() {
@@ -387,10 +416,6 @@ function saveEdgeData(data, callback) {
 }
  */
 
-function init() {
-	draw();
-}
-
 function deleteMsg(data) {
 	let nNodes = data.nodes.length;
 	let nEdges = data.edges.length;
@@ -409,7 +434,7 @@ function changeCursor(newCursorStyle) {
 
 
 var worker = new Worker('./js/betweenness.js');
-var bc = [];
+var bc;
 
 function recalculateStats() {
 	worker.postMessage([nodes.get(), edges.get()]);
@@ -508,6 +533,8 @@ function loadJSONfile(json) {
 	if (json.version && (version > json.version)) {
 		statusMsg("Warning: file was created in an earlier version of PRISM");
 	}
+	if (json.lastNodeSample) lastNodeSample = json.lastNodeSample;
+	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
 	if ('source' in json.edges[0]) {
 		// the file is from Gephi and needs to be translated
 		let parsed = parseGephiNetwork(json, options);
@@ -546,9 +573,12 @@ download location with a default name.
  */
 
 function saveJSONfile() {
+	network.storePositions();
 	let json = JSON.stringify({
 		saved: new Date(Date.now()).toLocaleString(),
 		version: version,
+		lastNodeSample: lastNodeSample,
+		lastLinkSample: lastLinkSample,
 		groups: network.groups.groups,
 		groupEdges: groupEdges,
 		nodes: data.nodes.get(),
@@ -579,10 +609,6 @@ function deleteNode() {
 }
 
 Network.prototype.zoom = function(scale) {
-	if (scale === 'fit') {
-		this.view.fit();
-		return;
-	}
 	let newScale = (scale === undefined ? 1 : scale);
 	const animationOptions = {
 		scale: newScale,
@@ -599,7 +625,6 @@ function zoomnet() {
 
 /* Share modal dialog */
 
-var linkToShare = window.location.href.concat('?u=' + rndString(8));
 
 // Get the modal
 var modal = document.getElementById("shareModal");
@@ -618,11 +643,13 @@ var copiedText = document.getElementById('copied-text');
 
 // When the user clicks the button, open the modal 
 btn.onclick = function() {
+	let linkToShare = window.location.origin + window.location.pathname + '?room=' + room;
 	copiedText.style.display = 'none';
 	modal.style.display = "block";
 	inputElem.setAttribute('size', linkToShare.length);
 	inputElem.value = linkToShare;
 	inputElem.select();
+	network.storePositions();
 }
 
 // When the user clicks on <span> (x), close the modal
@@ -770,10 +797,10 @@ function initSample(wrapper, sampleData) {
 		},
 		groups: groups
 	};
-	let network = new Network(wrapper, sampleData, options);
-	network.storePositions();
-	wrapper.network = network;
-	return network;
+	let net = new Network(wrapper, sampleData, options);
+	net.storePositions();
+	wrapper.net = net;
+	return net;
 }
 
 function applySampleToNode() {
@@ -892,7 +919,8 @@ function displayStatistics(nodeId) {
 	let outDegree = network.getConnectedNodes(nodeId, 'to').length;
 	let leverage = (inDegree == 0) ? '--' : (outDegree / inDegree).toPrecision(3);
 	document.getElementById('leverage').textContent = leverage;
-	document.getElementById('bc').textContent = (bc[nodeId]).toPrecision(3);
+	document.getElementById('bc').textContent = 
+		(bc[nodeId] >= 0 ? (bc[nodeId]).toPrecision(3) : '--');
 }
 
 
@@ -972,7 +1000,8 @@ function unHideLabels() {
 	data.nodes.update(nodesToUpdate);
 }
 
-function selectDim(sel) {
+function selectDim(event) {
+	let sel = event.currentTarget.value;
 	if (sel == 'All') unDimAll();
 	else hideDistantNodes(sel);
 }
@@ -981,7 +1010,11 @@ function hideDistantNodes(radius) {
 	unDimAllNodes();
 	unDimAllLinks();
 	let selectedNodes = network.getSelectedNodes();
-	if (selectedNodes == null || selectedNodes == lastSelectedNode) return;
+	if (selectedNodes.length == 0 || selectedNodes == lastSelectedNode) {
+		statusMsg('Select a Factor first');
+		document.getElementById('dimRest').value = 'All';
+		return;
+		}
 	dimAllNodes();
 	dimAllLinks();
 
@@ -997,7 +1030,7 @@ function hideDistantNodes(radius) {
 		nodeIds.forEach(function(nId) {
 			nodeIdsInRadius.add(nId);
 			let links = network.getConnectedEdges(nId);
-			if (links) links.forEach(function(lId) {
+			if (links && radius > 0) links.forEach(function(lId) {
 				linkIdsInRadius.add(lId);
 			});
 			let linked = network.getConnectedNodes(nId);
@@ -1006,7 +1039,7 @@ function hideDistantNodes(radius) {
 	}
 }
 
-const dimColor = "#E5E7E9";
+const dimColor = "#f1f2f3";
 
 function dimAllNodes() {
 	dimNodes(data.nodes.get());
@@ -1043,16 +1076,20 @@ function unDimLinks(edgeArray) {
 function dimNode(node) {
 	node.hiddenLabel = node.label;
 	node.hiddenColor = node.color;
+	node.hiddenGroup = (node.group ? node.group : "group0");
 	node.label = undefined;
 	node.color = dimColor;
+	node.group = "dimmedGroup";
 	return node;
 }
 
 function unDimNode(node) {
 	if (node.label == undefined) node.label = node.hiddenLabel;
 	if (node.color == dimColor) node.color = node.hiddenColor;
-	node.hiddenLabel = undefined;
-	node.hiddenColor = undefined;
+	if (node.group == "dimmedGroup") node.group = node.hiddenGroup;
+	delete node.hiddenLabel;
+	delete node.hiddenColor;
+	delete node.hiddenGroup;
 	return node;
 }
 
@@ -1064,7 +1101,8 @@ function dimLink(link) {
 
 function unDimLink(link) {
 	if (link.color == dimColor) link.color = link.hiddenColor;
-	link.hiddenColor = undefined;
+	if (!link.color) link.color = groupEdges.edge0.color;
+	delete link.hiddenColor;
 	return link;
 }
 

@@ -30,11 +30,12 @@ onmessage = function(e) {
 	
 var betweennessCache = {
 	structure: [],
-	betweenness: 0
+	betweenness: undefined
 	};
 	
 function betweenness(graph) {
 	let struct = getIds(graph.nodes).concat(getIds(graph.edges));
+	if (struct.length == 0) return null;
 	// check whether the network structure has changed; 
 	// if not, just return the previous result immediately
 	if (eqArray(struct, betweennessCache.structure)) return betweennessCache.betweenness;

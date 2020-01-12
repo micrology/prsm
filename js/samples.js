@@ -305,6 +305,17 @@ var groups = {
     },
     group8:
     {
+    },
+     dimmedGroup:
+    {
+        borderWidth: 0,
+        borderWidthSelected: 0,
+        chosen: false,
+        color: "#E5E7E9",
+        labelHighlightBold: false,
+        shadow: false,
+        shape: 'ellipse',
+        size: 25
     }
 };
 

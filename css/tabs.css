@@ -101,12 +101,22 @@ Factor tab if one Factor is selected */
 	grid-template-columns: 1fr;
 }
 
-.networkRow {
+.panelRow {
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-start;
 	padding: 3px;
 }
+.panelRow.centered {
+	justify-content: center;
+	}
+	
+.panelRow.divider {
+	margin-top: 5px;
+	padding-top: 5px;
+	border-top: 1px solid white;
+}
+	
 
 /* create the impression of a sliding on/off switch 
 see https://proto.io/freebies/onoff/ */
