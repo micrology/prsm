@@ -154,7 +154,7 @@ nav .toggle {
 }
 
 /* Modal Content */
-.modal-content {
+.modal-content, .confirm-content {
   position: relative;
   background-color: #fefefe;
   margin: auto;

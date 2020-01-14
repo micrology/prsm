@@ -132,44 +132,87 @@ var groups = {
         }
     },
     
-    //------------------------------
-    //  black text only 
+	//------------------------------
+    //   blue box with white text
 
     group3:
     {
-        borderWidth: 2,
-        borderWidthSelected: 1,
+        borderWidth: 1,
+        borderWidthSelected: 2,
         chosen: true,
+        color: {
+            border: '#2B7CE9',
+            background: "#3498db",
+            highlight: {
+                border: '#2B7CE9',
+                background: '#2980b9'
+            },
+            hover: {
+                border: '#2B7CE9',
+                background: '#2980b9'
+            }
+        },
         font: {
-            color: 'black',
-            size: 20, // px
+            color: 'white',
 		},
         labelHighlightBold: true,
-        shape: 'text',
-        size: 50,
+        shadow: {
+            enabled: true,
+            color: 'rgba(0,0,0,0.5)',
+            size: 10,
+            x: 5,
+            y: 5
+        },
+        shape: 'box',
+        shapeProperties: {
+            borderDashes: false, // only for borders
+            borderRadius: 6, // only for box shape
+        },
+        size: 30,
         widthConstraint: {
             minimum: 50
         },
         heightConstraint: {
             minimum: 20
         }
-    },
-    
+    },       
     //------------------------------
-    //  brown text only 
+    //   green box with white text
 
     group4:
     {
-        borderWidth: 2,
-        borderWidthSelected: 1,
+        borderWidth: 1,
+        borderWidthSelected: 2,
         chosen: true,
+        color: {
+            border: '#00b300',
+            background: "#33cc33",
+            highlight: {
+                border: '#00b300',
+                background: '#00b300'
+            },
+            hover: {
+                border: '#2B7CE9',
+                background: '#006600'
+            }
+        },
         font: {
-            color: '#996633',
-            size: 20, // px
+            color: 'white',
 		},
         labelHighlightBold: true,
-        shape: 'text',
-        size: 50,
+        shadow: {
+            enabled: true,
+            color: 'rgba(0,0,0,0.5)',
+            size: 10,
+            x: 5,
+            y: 5
+        },
+        shape: 'box',
+        shapeProperties: {
+            borderDashes: false, // only for borders
+            borderRadius: 6, // only for box shape
+        },
+        size: 30,
         widthConstraint: {
             minimum: 50
         },
@@ -225,42 +268,23 @@ var groups = {
 
     
     //------------------------------
-    //   blue box with white text
+    //  black text only 
 
     group6:
     {
-        borderWidth: 1,
-        borderWidthSelected: 2,
+        borderWidth: 2,
+        borderWidthSelected: 1,
         chosen: true,
-        color: {
-            border: '#2B7CE9',
-            background: "#3498db",
-            highlight: {
-                border: '#2B7CE9',
-                background: '#2980b9'
-            },
-            hover: {
-                border: '#2B7CE9',
-                background: '#2980b9'
-            }
-        },
         font: {
-            color: 'white',
+            color: 'black',
+            size: 20, // px
 		},
         labelHighlightBold: true,
         shadow: {
-            enabled: true,
-            color: 'rgba(0,0,0,0.5)',
-            size: 10,
-            x: 5,
-            y: 5
-        },
-        shape: 'box',
-        shapeProperties: {
-            borderDashes: false, // only for borders
-            borderRadius: 6, // only for box shape
-        },
-        size: 30,
+            enabled: false
+            },
+        shape: 'text',
+        size: 50,
         widthConstraint: {
             minimum: 50
         },
@@ -335,6 +359,9 @@ var groupEdges = {
 			enabled: true,
 			type: "arrow"
 		  },
+		  middle: {
+		  	enabled: false
+		  	},
 		  from: {
 			enabled: false,
 		  }
@@ -346,14 +373,10 @@ var groupEdges = {
 		  inherit: false,
 		  opacity:1.0
 		},
+		dashes: false,
 		hoverWidth: 1.5,
 		selectionWidth: 2,
 		selfReferenceSize:20,
-		smooth: {
-		  enabled: true,
-		  type: "dynamic",
-		  roundness: 0.5
-		},
 		width: 1,
   },
   
@@ -366,6 +389,9 @@ var groupEdges = {
 			enabled: true,
 			type: "arrow"
 		  },
+		  middle: {
+		  	enabled: false
+		  	},
 		  from: {
 			enabled: false,
 		  }
@@ -377,14 +403,10 @@ var groupEdges = {
 		  inherit: false,
 		  opacity:1.0
 		},
-		hoverWidth: 3,
-		selectionWidth: 4,
+		dashes: false,
+		hoverWidth: 1,
+		selectionWidth: 1,
 		selfReferenceSize:20,
-		smooth: {
-		  enabled: true,
-		  type: "dynamic",
-		  roundness: 0.5
-		},
 		width: 2,
   },
   
@@ -397,6 +419,9 @@ var groupEdges = {
 			enabled: true,
 			type: "arrow"
 		  },
+		  middle: {
+		  	enabled: false
+		  	},
 		  from: {
 			enabled: false,
 		  }
@@ -408,14 +433,10 @@ var groupEdges = {
 		  inherit: false,
 		  opacity:1.0
 		},
-		hoverWidth: 1.5,
-		selectionWidth: 2,
+		dashes: false,
+		hoverWidth: 1,
+		selectionWidth: 1,
 		selfReferenceSize:20,
-		smooth: {
-		  enabled: true,
-		  type: "dynamic",
-		  roundness: 0.5
-		},
 		width: 1,
   },
     
@@ -428,6 +449,9 @@ var groupEdges = {
 			enabled: true,
 			type: "arrow"
 		  },
+		  middle: {
+		  	enabled: false
+		  	},
 		  from: {
 			enabled: false,
 		  }
@@ -439,14 +463,10 @@ var groupEdges = {
 		  inherit: false,
 		  opacity:1.0
 		},
-		hoverWidth: 3,
-		selectionWidth: 4,
+		dashes: false,
+		hoverWidth: 1,
+		selectionWidth: 1,
 		selfReferenceSize:20,
-		smooth: {
-		  enabled: true,
-		  type: "dynamic",
-		  roundness: 0.5
-		},
 		width: 2
   },
   
@@ -459,6 +479,9 @@ var groupEdges = {
 			enabled: true,
 			type: "arrow"
 		  },
+		  middle: {
+		  	enabled: false
+		  	},
 		  from: {
 			enabled: false,
 		  }
@@ -470,14 +493,10 @@ var groupEdges = {
 		  inherit: false,
 		  opacity:1.0
 		},
-		hoverWidth: 6,
-		selectionWidth: 8,
+		dashes: false,
+		hoverWidth: 1,
+		selectionWidth: 1,
 		selfReferenceSize:20,
-		smooth: {
-		  enabled: true,
-		  type: "dynamic",
-		  roundness: 0.5
-		},
 		width: 4
   },
 
@@ -490,6 +509,9 @@ var groupEdges = {
 			enabled: true,
 			type: "arrow"
 		  },
+		  middle: {
+		  	enabled: false
+		  	},
 		  from: {
 			enabled: false,
 		  }
@@ -501,15 +523,11 @@ var groupEdges = {
 		  inherit: false,
 		  opacity:1.0
 		},
-		hoverWidth: 10,
-		selectionWidth: 12,
+		dashes: false,
+		hoverWidth: 1,
+		selectionWidth: 1,
 		selfReferenceSize:20,
-		smooth: {
-		  enabled: true,
-		  type: "dynamic",
-		  roundness: 0.5
-		},
-		width: 8
+		width: 4
   },
   
   
@@ -522,6 +540,9 @@ var groupEdges = {
 			enabled: true,
 			type: "arrow"
 		  },
+		  middle: {
+		  	enabled: false
+		  	},
 		  from: {
 			enabled: false,
 		  }
@@ -533,15 +554,11 @@ var groupEdges = {
 		  inherit: false,
 		  opacity:1.0
 		},
-		hoverWidth: 10,
-		selectionWidth: 12,
+		dashes: false,
+		hoverWidth: 1,
+		selectionWidth: 1,
 		selfReferenceSize:20,
-		smooth: {
-		  enabled: true,
-		  type: "dynamic",
-		  roundness: 0.5
-		},
-		width: 8
+		width: 4
   },
   
   
@@ -554,6 +571,9 @@ var groupEdges = {
 			enabled: true,
 			type: "arrow"
 		  },
+		  middle: {
+		  	enabled: false
+		  	},
 		  from: {
 			enabled: false,
 		  }
@@ -565,20 +585,43 @@ var groupEdges = {
 		  inherit: false,
 		  opacity:1.0
 		},
-		dashes: true,
-		hoverWidth: 6,
-		selectionWidth: 8,
+		dashes: [10, 10],
+		hoverWidth: 1,
+		selectionWidth: 1,
 		selfReferenceSize:20,
-		smooth: {
-		  enabled: true,
-		  type: "dynamic",
-		  roundness: 0.5
-		},
-		width: 3
+		width: 5
   },
   
+ 
+     //  directed black link with middle arrow
+ 
   edge8:
-  	{
-  	}
+  	  	{
+		arrows: {
+		  to: {
+			enabled: true,
+			type: "arrow"
+		  },
+		  middle: {
+			enabled: true,
+			type: "arrow"
+		  },		  
+		  from: {
+			enabled: false,
+		  }
+		},
+		color: {
+		  color: 'black',
+		  highlight:'black',
+		  hover: 'black',
+		  inherit: false,
+		  opacity:1.0
+		},
+		dashes: false,
+		hoverWidth: 1,
+		selectionWidth: 1,
+		selfReferenceSize:20,
+		width: 1,
+  }
 
 };

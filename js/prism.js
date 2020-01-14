@@ -27,7 +27,7 @@ Remember to start the WS provider first:
 
 const version = "0.9";
 
-var network, room, nodes, edges, data;
+var network, room, nodes, edges, data, clientID, yNodesMap, yEdgesMap;
 
 var lastNodeSample = null;
 var lastLinkSample = null;
@@ -58,7 +58,7 @@ function addEventListeners() {
 	document.getElementById("net-pane").addEventListener("click", () => {
 		clearStatusBar();
 	}, true);
-	document.getElementById("openFile").addEventListener("click", doClickOpenFile);
+	document.getElementById("openFile").addEventListener("click", openFile);
 	document.getElementById("saveFile").addEventListener("click", saveJSONfile);
 	document.getElementById("panelToggle").addEventListener("click", togglePanel);
 	document.getElementById("addNode").addEventListener("click", plusNode);
@@ -94,8 +94,6 @@ function setUpPage() {
 	let panel = document.getElementById("panel");
 	panel.classList.add('hide');
 	container.panelHidden = true;
-	// start with first tab open
-	document.getElementById("networkButton").click();
 }
 
 function startY() {
@@ -109,18 +107,22 @@ function startY() {
 	const doc = new Y.Doc();
 	const wsProvider = new WebsocketProvider('ws://192.168.0.12:1234', 'prism' + room, doc);
 	wsProvider.on('status', event => {
-		console.log(event.status, ' to ', room) // logs "connected" or "disconnected"
+		console.log(event.status + ' to room ' + room) // logs "connected" or "disconnected"
 		});
 
 	/* 
 	create a yMap for the nodes and one for the edges (we need two because there is no 
 	guarantee that the the ids of nodes will differ from the ids of edges 
 	 */
-	const yNodesMap = doc.getMap('nodes');
-	const yEdgesMap = doc.getMap('edges');
+	yNodesMap = doc.getMap('nodes');
+	yEdgesMap = doc.getMap('edges');
 
-	const clientID = doc.clientID;  // used to identify nodes and edges created by this client
-	console.log('My client ID: ' + doc.clientID);
+	if (localStorage.getItem('clientID')) clientID = localStorage.getItem('clientID')
+	else {
+		clientID = doc.clientID;  // used to identify nodes and edges created by this client
+		localStorage.setItem('clientID', clientID);
+		}
+	console.log('My client ID: ' + clientID);
 
 
 	nodes = new DataSet();
@@ -148,14 +150,16 @@ function startY() {
 
 	nodes.on('*', (event, properties) => {
 		properties.items.forEach(id => {
+			console.log('nodes.on: ' + event + JSON.stringify(properties.items));
 			if (event == 'remove') {
-				yNodesMap.delete(id.toString())
-			}
+				yNodesMap.delete(id.toString()); console.log('deleted from YMapNodes: ' + id);
+				}
 			else {
 				let obj = nodes.get(id);
 				if (obj.clientID == undefined || obj.clientID == clientID) {
 					obj.clientID = clientID;
-					yNodesMap.set(id.toString(), obj);
+					yNodesMap.set(id.toString(), obj); 
+					console.log('setting yNodesMap: ' + id + ' to ' + JSON.stringify(obj));		
 				}
 			}
 		})
@@ -307,6 +311,8 @@ function draw() {
 
 	network = new Network(container, data, options);
 	window.network = network;
+	// start with factor tab open
+	document.getElementById("nodesButton").click();
 
 	// listen for click events on the network pane
 	network.on("doubleClick", function(params) {
@@ -353,11 +359,18 @@ function draw() {
 		let popUp = document.getElementById('node-popUp');
 		document.getElementById('node-cancelButton').onclick = cancelAction.bind(this, callback);
 		document.getElementById('node-saveButton').onclick = saveNodeData.bind(this, data, callback);
+		popUp.style.display = 'block';
 		popUp.style.top = `${event.clientY - popUp.offsetHeight / 2}px`;
 		popUp.style.left = `${event.clientX - popUp.offsetWidth - 3}px`;
-		popUp.style.display = 'block';
 		document.getElementById('node-label').value = data.label;
 		document.getElementById('node-label').focus();
+		/* allow Enter to click the Save button */
+		document.getElementById('node-label').addEventListener("keypress", 
+			function onEvent(event) {
+    			if (event.key === "Enter") {
+        			document.getElementById("node-saveButton").click();
+    			}
+			});
 	}
 
 	// Callback passed as parameter is ignored
@@ -382,39 +395,6 @@ function draw() {
 	}
 	
 } // end draw()
-
-
-/* Not currently used
-
-function editEdgeWithoutDrag(data, callback) {
-    // filling in the popup DOM elements
-    document.getElementById('edge-label').value = data.label;
-    document.getElementById('edge-saveButton').onclick = saveEdgeData.bind(this, data, callback);
-    document.getElementById('edge-cancelButton').onclick = cancelEdgeEdit.bind(this, callback);
-    document.getElementById('edge-popUp').style.display = 'block';
-}
-
-function clearEdgePopUp() {
-    document.getElementById('edge-saveButton').onclick = null;
-    document.getElementById('edge-cancelButton').onclick = null;
-    document.getElementById('edge-popUp').style.display = 'none';
-}
-
-function cancelEdgeEdit(callback) {
-    clearEdgePopUp();
-    callback(null);
-}
-
-function saveEdgeData(data, callback) {
-    if (typeof data.to === 'object')
-        data.to = data.to.id
-    if (typeof data.from === 'object')
-        data.from = data.from.id
-    data.label = document.getElementById('edge-label').value;
-    clearEdgePopUp();
-    callback(data);
-}
- */
 
 function deleteMsg(data) {
 	let nNodes = data.nodes.length;
@@ -481,7 +461,7 @@ var lastFileName = 'network.json';
 
 function togglePanel() {
 	if (container.panelHidden) {
-		container.style.gridTemplateColumns = "1fr 200px";
+		container.style.gridTemplateColumns = "5fr minmax(200px, 1fr)";// "1fr 200px";
 		panel.classList.remove('hide');
 	} else {
 		panel.classList.add('hide');
@@ -498,10 +478,11 @@ function readSingleFile(e) {
 	let fileName = file.name;
 	lastFileName = fileName;
 	statusMsg("Reading '" + fileName + "'");
+	e.target.value='';
 	var reader = new FileReader();
-	reader.onload = function(e) {
-		try {
-			let json = JSON.parse(e.target.result);
+	reader.onloadend = function(e) {
+		try { console.log(e.target.result);
+			let json = JSON.parse(e.target.result); 
 			loadJSONfile(json);
 			statusMsg("Read '" + fileName + "'");
 		} catch (err) {
@@ -512,12 +493,14 @@ function readSingleFile(e) {
 	reader.readAsText(file);
 }
 
-function doClickOpenFile() {
+function openFile() {
 	document.getElementById('fileInput').click();
 }
 
 
 function loadJSONfile(json) {
+	if (data.nodes.length > 0)
+		if (!confirm("Loading a file will delete the current network.  Are you sure you want to replace it?")) return;
 	nodes.clear();
 	edges.clear();
 	hideNotes();
@@ -564,6 +547,20 @@ function loadJSONfile(json) {
 		groupEdges = json.groupEdges;
 	}
 	network.setData(data);
+	updateYMaps();
+}
+
+function updateYMaps() {
+	data.nodes.forEach ((obj) => {
+		let id = obj.id;
+		obj.clientID = clientID;
+		yNodesMap.set(id.toString(), obj); 
+	});
+	data.edges.forEach ((obj) => {
+		let id = obj.id;
+		obj.clientID = clientID;
+		yEdgesMap.set(id.toString(), obj); 
+	});				
 }
 
 /* 
@@ -809,6 +806,7 @@ function applySampleToNode() {
 	let nodesToUpdate = [];
 	for (let node of data.nodes.get(selectedNodeIds)) {
 		node.group = event.currentTarget.group;
+		delete node.color;
 		nodesToUpdate.push(node);
 	}
 	data.nodes.update(nodesToUpdate);
@@ -848,7 +846,7 @@ function addEditor() {
 
 function removeEditor() {
 	if (editor.nicInstances.length > 0) {
-		let title = stripTags(editor.nicInstances[0].getContent(), "<b><i><div><font>");
+		let title = stripTags(editor.nicInstances[0].getContent(), "<b><i><u><div><font>");
 		let nodeId = network.getSelectedNodes()[0];
 		data.nodes.update({
 			id: nodeId,

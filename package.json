@@ -12,16 +12,17 @@
   "author": "Nigel Gilbert",
   "license": "GPL-3.0-or-later",
   "dependencies": {
+    "dialog-polyfill": "^0.5.0",
     "keycharm": "^0.2.0",
     "moment": "^2.24.0",
-    "vis-data": "^6.2.3",
-    "vis-network": "^6.4.4",
+    "vis-data": "^6.3.3",
+    "vis-network": "^6.5.2",
     "vis-util": "^1.1.10",
     "y-websocket": "^1.0.7",
     "yjs": "^13.0.0-103"
   },
   "devDependencies": {
-    "css-loader": "^3.4.1",
+    "css-loader": "^3.4.2",
     "style-loader": "^1.1.2",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",

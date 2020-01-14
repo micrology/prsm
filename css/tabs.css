@@ -66,6 +66,7 @@ moving the panel out of sight works instead */
 .sampleLink {
 	width: 45px;
 	height: 45px;
+	justify-self: center;
 	border: 0;
 	border-radius: 5px;
 	background-color: white;

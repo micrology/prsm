@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8" />
-	<title>file read</title>
+	<title>local file read</title>
 </head>
 <body>
 <input type="file" id="fileInput" style="display:none">
-<button id="openFile" type="button">Select some files</button></p>
+<button id="openFile" type="button">Select a text file</button></p>
 
 <div id="file-content"></div>
 
@@ -32,12 +32,6 @@ function displayContents(contents) {
  
 document.getElementById('fileInput').addEventListener('change', readSingleFile, false);
 document.getElementById("openFile").addEventListener("click", doClickOpenFile);
-
-/* 
-document.getElementById('openFile').addEventListener("click", function (e) {
-    document.getElementById('fileInput').click();
-	}, false);
- */
  
  function doClickOpenFile() {
  	document.getElementById('fileInput').click();
