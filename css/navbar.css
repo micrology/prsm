@@ -1,78 +1,206 @@
-.navbar {
-	font-size: 18px;
-}
-
-.main-nav {
-	list-style-type: none;
-	display: none;
-}
-
-.nav-links {
-	text-decoration: none;
-	color: black;
-}
-
-.main-nav li {
-	text-align: center;
-	margin: 15px auto;
-}
-
-.logo {
+nav {
 	display: flex;
-	margin: auto 0; 
-	height: 40px;
+	background-color: var(--header-color);
+	flex-direction: row;
+	justify-content: flex-start;
+	height: 70px;
+	box-shadow: 0px 6px 5px 0px rgba(0,0,0,0.55);
+	padding: 10px 0 0 20px;
+	}
+nav img {
+	height: 60px;
+	}
+.strapline {
+	font-size: 24px;
+	margin: auto 0;
+	}
+.button-wrapper {
+	margin: auto 50px auto auto;
+	}
+.buttons {
+	flex-grow: 3;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	}
+nav button {
+	border: 1px solid  var(--header-color);
+	color: white;
+	font-size: 24px;
+	background-color:  var(--header-color);
+	margin: auto 15px;
+	outline: none;
+	}
+nav button:hover {
+	color: grey;
+	}
+nav button:active {
+	color: grey;
+	border: 1px solid black;
+	}
+/* 
+nav .toggle {
+	display: none;
+	position: absolute;
+	top: 30px;
+	right: 50px;
+	font-size: 30px;
+	}
+ */
+.reveal {
+	display: flex !important;
+	}
+
+@media screen and (max-width: 1025px) {
+
+	main {
+		height: calc(100vh - 157px);
+		}
+	header {
+		height: 115px;
+		}
+	nav {
+		display: grid;
+		height: 90px;
+		grid-template-columns: 80px 1fr;
+		}
+	nav img {
+		grid-column: 1;
+		grid-row: 1 / 3;
+		align-self: center;
+		}
+	.strapline {
+		grid-column: 2;
+		}
+	.button-wrapper {
+		grid-column: 2 / 3;
+		grid-row: 2;
+		width: 100%;
+		}
+	.buttons {
+/* 		display: none; */
+		justify-content: center;
+		}
+	nav button {
+		margin: auto 5px;
+		}			
+/* 
+	nav .toggle {
+		display: block;
+		}
+ */
 }
 
-.logo img {
-	height: 40px;
+
+#download {
+	width: 0;
+	height: 0;
+	visibility: hidden;
 	}
 	
-.strapline {
-	margin: auto 10px;
-	font-size: 18px;
-	}
+/* Tooltip container */
+.tooltip {
+	position: relative;
+	display: inline-block;
+}
 
-.navbar-toggle {
+/* Tooltip text */
+.tooltip .tooltiptext {
+	visibility: hidden;
+	width: 120px;
+	top: 100%;
+	left: 50%;
+	margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+	background-color: gray;
+	color: white;
+	text-align: center;
+	padding: 5px 0;
+	border-radius: 6px;
+	font-size: 70%;
+ 
+	/* Position the tooltip text */
 	position: absolute;
-	top: 10px;
-	right: 20px;
-	cursor: pointer;
-	color: black;
-	font-size: 24px;
+	z-index: 1;
+	opacity: 0;
+	transition: opacity 1s;
+	transition-delay: 2s;
 }
 
-.active {
-	display: block;
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+	visibility: visible;
+	opacity: 1;
+}
+.tooltip:active .tooltiptext {
+	visibility: hidden;
 }
 
-@media screen and (min-width: 768px) {
-	.navbar {
-		display: flex;
-		justify-content: space-between;
-		height: 40px;
-		align-items: center;
-	}
+	
+/* Share modal dialog */
 
-	.main-nav {
-		display: flex;
-		margin-right: 30px;
-		flex-direction: row;
-		justify-content: flex-end;
-	}
-
-	.main-nav li {
-		margin: 0;
-	}
-
-	.nav-links {
-		margin-left: 40px;
-	}
-
-	.navbar-toggle {
-		display: none;
-	}
-
-	.nav-links:hover {
-		color: rgba(0, 0, 0, 0.5);
-	}
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
+
+/* Modal Content */
+.modal-content, .confirm-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #888;
+  width: 80%;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  animation-name: animatetop;
+  animation-duration: 0.4s
+}
+
+/* Add Animation */
+
+@keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+
+/* The Close Button */
+.close {
+  color: white;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modal-header {
+  padding: 16px;
+  background-color: var(--modal-header-color);
+  color: white;
+}
+
+.modal-body {
+	padding: 16px;
+	font-size: 16px;
+	line-height: 2;
+}
+
+.modal-copied-text {
+	display: none;
+	font-size: 12px;
+	}

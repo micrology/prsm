@@ -1,8 +1,13 @@
+/* 
+Network pane and pop-up for new Factors
+ */
+ 
+
 #net-pane{
 	width:100%;
 	height:100%;
 	}
-
+	
 #edge-popUp {
 	display:none;
 	position:absolute;
@@ -23,10 +28,10 @@
 	display:none;
 	position:absolute;
 	z-index:299;
-	background-color: #555;
+	background-color: var(--pop-up-color);
 	color: white;
 	border-radius: 6px;
-	padding: 8px;
+	padding: 4px;
 	line-height: 1.5;
 	}
 		
@@ -34,16 +39,31 @@
 #node-popUp::after {
 	content: "";
 	position: absolute;
+/* 
 	top: 0;
 	left: 0;
 	margin-left: -10px;
 	border-width: 10px;
-	border-style: solid;
-	border-color: #555 transparent transparent transparent;
+ */
+	  top: 50%;
+  left: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+	border-color: transparent transparent transparent var(--pop-up-color);
 	}
 
 #node-popUp input {
-	margin 5px;
+	margin: 5px;
 	padding: 3px;
 	font-weight: bold; 
+	}
+	
+#node-saveButton {
+	float:right;
+	margin-top: 5px;
+	}
+	
+input::placeholder {
+	color: var(--header-color);
 	}

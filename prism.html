@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Prism: PaRtIcipatory System Mapping</title>
+	<meta charset="utf-8">
+	<meta content="IE=edge" http-equiv="X-UA-Compatible">
+	<meta content="width=device-width, initial-scale=1" name="viewport">
+	<link href="css/styles.css" rel="stylesheet">
+	<link href="css/navbar.css" rel="stylesheet">
+	<link href="css/tabs.css" rel="stylesheet">
+	<link href="css/main.css" rel="stylesheet">
+	<link href="css/fa.min.css" rel="stylesheet">
+	<script src="js/modernizr-custom.js"></script>
+	<script src="js/exampleUtil.js"></script>
+	<script src="js/samples.js"></script>
+	<script src="js/nicEdit/nicEdit.min.js"></script>
+</head>
+
+<body class="container" id="container">
+	<header>
+		<nav id="navbar">
+			<img src="img/prism-logo.png" alt="PRISM">
+			<div class="strapline">Prism: PaRtIcipatory System Mapping</div>
+			<div class="button-wrapper">
+				<div class="buttons" id="buttons">
+					<div class="tooltip">
+						<button id="openFile"><i class="fas fa-folder-open"></i></button><span class="tooltiptext">Open network</span>
+					</div>
+					<div class="tooltip">
+						<button id="saveFile"><i class="fas fa-save"></i></button><span class="tooltiptext">Save network</span>
+						<a href='#' id="download" download></a>
+					</div>
+					<div class="tooltip">
+						<button id="addNode"><i class="fas fa-plus"></i></button><span class="tooltiptext">Add factor</span>
+					</div>
+					<div class="tooltip">
+						<button id="addLink"><i class="fas fa-wave-square"></i></button><span class="tooltiptext">Add link</span>
+					</div>
+					<div class="tooltip">
+						<button id="deleteNode"><i class="fas fa-trash-alt"></i></button><span class="tooltiptext">Delete selected</span>
+					</div>
+					<div class="tooltip">
+						<button id="share"><i class="fas fa-user-friends"></i></button><span class="tooltiptext">Share</span>
+					</div>
+					<div class="tooltip">
+						<button id="panelToggle"><i class="fas fa-clone"></i></button> <span class="tooltiptext">Show or hide panel</span>
+					</div>
+				</div>
+			</div>
+		</nav>
+	</header>
+	<main>
+	
+		<div id="node-popUp">
+			<span id="node-operation">factor</span> <br>
+			<input id="node-label" placeholder="Label" value="" /> <br>
+			<input type="button" value="cancel" id="node-cancelButton" />
+			<input type="button" value="save" id="node-saveButton" />
+		</div>
+		<!-- The edge pop up is not currently used -->
+		<div id="edge-popUp">
+			<span id="edge-operation">edge</span> <br>
+			<table style="margin:auto;">
+				<tr>
+					<td>label</td>
+					<td><input id="edge-label" value="new value" /></td>
+				</tr>
+			</table>
+			<input type="button" value="cancel" id="edge-cancelButton" />
+			<input type="button" value="save" id="edge-saveButton" />
+		</div>
+
+		<div id="net-pane"></div>
+
+	</main>
+	<aside id="panel">
+		<!-- Tabs -->
+		<div class="tab">
+			<button class="tablinks" id="networkButton">Network</button>
+			<button class="tablinks" id="nodesButton">Factors</button>
+			<button class="tablinks" id="linksButton">Links</button>
+		</div>
+		<!-- Tab content -->
+		
+		<!-- Network tab This one is displayed initially -->
+		<div class="tabcontent hide" id="networkTab">
+			<div class="networkGrid">
+				<div class="panelRow">
+					<div>Auto. layout</div>
+					<div class="onoffswitch">
+						<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="autolayoutswitch">
+						<label class="onoffswitch-label" for="autolayoutswitch">
+							<span class="onoffswitch-inner"></span>
+							<span class="onoffswitch-switch"></span>
+						</label>
+					</div>
+				</div>
+				<div class="panelRow">
+					<div>Layout type:</div>
+					<div>
+						<select id="layoutSelect">
+							<option value="Network" selected>Network</option>
+							<option value="Hierarchical">Hierarchical</option>
+						</select>
+					</div>
+				</div>
+				<div class="panelRow">
+					<div>Link:</div>
+					<div>
+						<select id="curveSelect">
+							<option value="Curved" selected>Curved</option>
+							<option value="Straight">Straight</option>
+						</select>
+					</div>
+				</div>
+				<div class="panelRow">
+					<div>Background:</div>
+					<div>
+						<input type="color" value="#ffffff" id="netBackColorWell">
+					</div>
+				</div>
+				<div class="panelRow">
+					<div>Show only factors<br>links away from selected</div>
+					<select id="dimRest">
+						<option value="All" selected>(off))</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+					</select>
+				</div>
+				<div class="panelRow">
+					<div>Show labels</div>
+					<div class="onoffswitch">
+						<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="showLabelSwitch" checked>
+						<label class="onoffswitch-label" for="showLabelSwitch">
+							<span class="onoffswitch-inner"></span>
+							<span class="onoffswitch-switch"></span>
+						</label>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		
+		<!-- Factor tab -->
+		<div class="tabcontent hide" id="nodesTab">
+			<div class="sampleGrid">
+				<div class="sampleNode" id="nodeSample1"></div>
+				<div class="sampleNode" id="nodeSample2"></div>
+				<div class="sampleNode" id="nodeSample3"></div>
+				<div class="sampleNode" id="nodeSample4"></div>
+				<div class="sampleNode" id="nodeSample5"></div>
+				<div class="sampleNode" id="nodeSample6"></div>
+				<div class="sampleNode" id="nodeSample7"></div>
+				<div class="sampleNode" id="nodeSample8"></div>
+				<div class="sampleNode" id="nodeSample9"></div>
+			</div>
+			<div class="panelRow centered divider">
+				<button type="button" id="allFactors">Select all factors</button>
+			</div>
+			<div id="oneNodeSelected">
+				<div class="panelRow centered">
+					<div><b><span id="nodeLabel"></span></b></div>
+				</div>
+				<div class="panelRow">
+					<div>Leverage</div>
+					<div id="leverage"></div>
+				</div>
+				<div class="panelRow">
+					<div>Betweenness centrality</div>
+					<div id="bc"></div>
+				</div>
+				<div class="notesWrapper"><u>Notes</u>
+					<div class="notes" id="notes"></div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- Links Tab -->
+		<div class="tabcontent hide" id="linksTab">
+			<div class="sampleGrid">
+				<div class="sampleLink" id="linkSample1"></div>
+				<div class="sampleLink" id="linkSample2"></div>
+				<div class="sampleLink" id="linkSample3"></div>
+				<div class="sampleLink" id="linkSample4"></div>
+				<div class="sampleLink" id="linkSample5"></div>
+				<div class="sampleLink" id="linkSample6"></div>
+				<div class="sampleLink" id="linkSample7"></div>
+				<div class="sampleLink" id="linkSample8"></div>
+				<div class="sampleLink" id="linkSample9"></div>
+			</div>
+			<div class="panelRow centered divider">
+				<button type="button" id="allEdges" >Select all links</button>
+			</div>
+		</div>
+	</aside>
+	
+	
+	<footer>
+		<div id="statusBar"><br></div>
+		<div>
+			<label for="zoom">Zoom</label>
+			<input type="range" id="zoom" min="0.1" max="4" step="0.1">
+		</div>
+	</footer>
+	
+	<!-- Share model dialog -->
+	<div id="shareModal" class="modal">
+		<!-- Modal content -->
+		<div class="modal-content">
+			<div class="modal-header">
+				<span class="close">&times;</span>
+				<h2>Share the network with other participants</h2>
+			</div>
+			<div class="modal-body">
+				<p>To invite others to participate in developing this map, 
+				send them this link:</p>
+				<p><input type="text" id="text-to-copy"></p>
+				<p><button id="copy-text">Copy to clipboard</button>
+					<span class="modal-copied-text" id="copied-text">Copied!</span></p>
+			</div>
+		</div>
+	</div>
+	<!-- Open file dialog This element is augmented by Javascript (see navbar.js) -->
+	<input type="file" id="fileInput" style="display: none">
+	<script src="./dist/prism.bundle.js"></script>
+</body>
+
+</html>
