@@ -6,7 +6,7 @@
  */
 
 
-function getScaleFreeNetwork(nodeCount) {
+export function getScaleFreeNetwork(nodeCount) {
   var nodes = [];
   var edges = [];
   var connectionCount = [];

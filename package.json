@@ -7,6 +7,7 @@
     "dist": "webpack --mode=development",
     "start": "webpack-dev-server --open-page prism.html",
     "postinstall": "npm run dist",
+    "lint": "./node_modules/.bin/eslint ./js/*.js --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Nigel Gilbert",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "css-loader": "^3.4.2",
+    "eslint": "^6.8.0",
     "style-loader": "^1.1.2",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",

@@ -1,6 +1,5 @@
 /* 
 The main entry point for PRISM.  
-Sets up the data structures for the netwok.
  */
 import * as Y from 'yjs';
 import {
@@ -9,7 +8,8 @@ import {
 from 'y-websocket';
 
 import {
-	 Network, parseGephiNetwork
+	Network,
+	parseGephiNetwork
 }
 from "vis-network/peer/esm/vis-network";
 
@@ -18,16 +18,23 @@ import {
 }
 from "vis-data";
 
+import {
+	getScaleFreeNetwork
+}
+from "./exampleUtil.js";
+
 import 'vis-network/dist/vis-network.min.css';
 
+/* for esLint: */
+/* global Modernizr, groups, groupEdges, nicEditor, getScaleFreeNetwork */
 /*
 Remember to start the WS provider first:
 	npx y-websocket-server
 */
 
-const version = "0.9";
+const version = "0.91";
 
-var network, room, nodes, edges, data, clientID, yNodesMap, yEdgesMap;
+var network, room, nodes, edges, data, clientID, yNodesMap, yEdgesMap, panel, container;
 
 var lastNodeSample = null;
 var lastLinkSample = null;
@@ -43,72 +50,105 @@ window.addEventListener('load', () => {
 });
 
 function checkFeatures() {
-	if (!(Modernizr.borderradius && Modernizr.boxsizing && Modernizr.flexbox && 
-		Modernizr.boxshadow && Modernizr.opacity && Modernizr.canvas && 
-		Modernizr.fileinput && Modernizr.eventlistener && Modernizr.webworkers
-		&& Modernizr.json && Modernizr.canvastext)) {
-		alert("Your browser does not support all the features required.  Try an up-to-date copy of Edge, Chrome or Safari");
-		}
+	if (!(Modernizr.borderradius && 
+			Modernizr.boxsizing && 
+			Modernizr.flexbox &&
+			Modernizr.boxshadow && 
+			Modernizr.opacity && 
+			Modernizr.canvas &&
+			Modernizr.fileinput && 
+			Modernizr.eventlistener &&
+			Modernizr.webworkers &&
+			Modernizr.json && 
+			Modernizr.canvastext)) {
+		alert(
+			"Your browser does not support all the features required.  Try an up-to-date copy of Edge, Chrome or Safari");
+	}
 }
-		
+
 
 function addEventListeners() {
 	// Clicking anywhere other than on the tabs clears the status bar 
 	// (note trick: click is processed in the capturing phase)
-	document.getElementById("net-pane").addEventListener("click", () => {
-		clearStatusBar();
-	}, true);
-	document.getElementById("openFile").addEventListener("click", openFile);
-	document.getElementById("saveFile").addEventListener("click", saveJSONfile);
-	document.getElementById("panelToggle").addEventListener("click", togglePanel);
-	document.getElementById("addNode").addEventListener("click", plusNode);
-	document.getElementById("addLink").addEventListener("click", plusLink);
-	document.getElementById("deleteNode").addEventListener("click", deleteNode);
-	document.getElementById('fileInput').addEventListener('change', readSingleFile, false);
-
-	// Add event listeners to tab buttons
-	document.getElementById("nodesButton").addEventListener("click", () => {
+	document.getElementById("net-pane").addEventListener("click",
+	() => {
+			clearStatusBar();
+		}, true);
+	document.getElementById("openFile").addEventListener("click",
+		openFile);
+	document.getElementById("saveFile").addEventListener("click",
+		saveJSONfile);
+	document.getElementById("panelToggle").addEventListener("click",
+		togglePanel);
+	document.getElementById("addNode").addEventListener("click",
+		plusNode);
+	document.getElementById("addLink").addEventListener("click",
+		plusLink);
+	document.getElementById("deleteNode").addEventListener("click",
+		deleteNode);
+	document.getElementById('fileInput').addEventListener('change',
+		readSingleFile);
+	document.getElementById("nodesButton").addEventListener("click",
+	() => {
 		openTab("nodesTab");
-	}, false);
-	document.getElementById("linksButton").addEventListener("click", () => {
+	});
+	document.getElementById("linksButton").addEventListener("click",
+	() => {
 		openTab("linksTab");
-	}, false);
-	document.getElementById("networkButton").addEventListener("click", () => {
-		openTab("networkTab");
-	}, false);
-	document.getElementById('notes').addEventListener('click', addEditor);
-	document.getElementById('autolayoutswitch').addEventListener('click', autoLayoutSwitch);
-	document.getElementById('netBackColorWell').addEventListener('input', updateNetBack, false);
-	document.getElementById('allFactors').addEventListener('click', selectAllFactors);
-	document.getElementById('allEdges').addEventListener('click', selectAllEdges);
-	document.getElementById('showLabelSwitch').addEventListener('click', labelSwitch);
-	document.getElementById('showLabelSwitch').addEventListener('click', labelSwitch);
-	document.getElementById('layoutSelect').addEventListener('change', selectLayout);	
-	document.getElementById('curveSelect').addEventListener('change', selectCurve);	
-	document.getElementById('dimRest').addEventListener('change', (value) => { selectDim(value)});	
-	document.getElementById('zoom').addEventListener('change', zoomnet);
+	});
+	document.getElementById("networkButton").addEventListener("click",
+		() => {
+			openTab("networkTab");
+		});
+	document.getElementById('notes').addEventListener('click',
+		addEditor);
+	document.getElementById('autolayoutswitch').addEventListener(
+		'click', autoLayoutSwitch);
+	document.getElementById('netBackColorWell').addEventListener(
+		'input', updateNetBack);
+	document.getElementById('allFactors').addEventListener('click',
+		selectAllFactors);
+	document.getElementById('allEdges').addEventListener('click',
+		selectAllEdges);
+	document.getElementById('showLabelSwitch').addEventListener(
+		'click', labelSwitch);
+	document.getElementById('showLabelSwitch').addEventListener(
+		'click', labelSwitch);
+	document.getElementById('layoutSelect').addEventListener('change',
+		selectLayout);
+	document.getElementById('curveSelect').addEventListener('change',
+		selectCurve);
+	document.getElementById('dimRest').addEventListener('change', (
+		value) => {
+		selectDim(value)
+	});
+	document.getElementById('zoom').addEventListener('change',
+		zoomnet);
 }
 
 function setUpPage() {
-	let container = document.getElementById("container");
-	let panel = document.getElementById("panel");
+	container = document.getElementById("container");
+	panel = document.getElementById("panel");
 	panel.classList.add('hide');
 	container.panelHidden = true;
 }
 
 function startY() {
 
-// create a new shared document and start the WebSocket provider
+	// create a new shared document and start the WebSocket provider
 
+	// get the room number from the URL, or if none, generate a new one
 	let url = new URL(document.location);
 	room = url.searchParams.get('room');
-	if (room == null) room = rndString(10);
-	
+	if (room == null) room = rndString(20);
+
 	const doc = new Y.Doc();
-	const wsProvider = new WebsocketProvider('ws://192.168.0.12:1234', 'prism' + room, doc);
+	const wsProvider = new WebsocketProvider('ws://35.177.28.97:1234',
+		'prism' + room, doc);
 	wsProvider.on('status', event => {
-		console.log(event.status + ' to room ' + room) // logs "connected" or "disconnected"
-		});
+		console.log(event.status + ' to room ' +
+			room) // logs "connected" or "disconnected"
+	});
 
 	/* 
 	create a yMap for the nodes and one for the edges (we need two because there is no 
@@ -117,11 +157,13 @@ function startY() {
 	yNodesMap = doc.getMap('nodes');
 	yEdgesMap = doc.getMap('edges');
 
-	if (localStorage.getItem('clientID')) clientID = localStorage.getItem('clientID')
+	// get an existing or generate a new clientID, used to identify nodes and edges created by this client
+	if (localStorage.getItem('clientID')) 
+		clientID = localStorage.getItem('clientID')
 	else {
-		clientID = doc.clientID;  // used to identify nodes and edges created by this client
+		clientID = doc.clientID;
 		localStorage.setItem('clientID', clientID);
-		}
+	}
 	console.log('My client ID: ' + clientID);
 
 
@@ -150,16 +192,24 @@ function startY() {
 
 	nodes.on('*', (event, properties) => {
 		properties.items.forEach(id => {
-			console.log('nodes.on: ' + event + JSON.stringify(properties.items));
+			console.log('nodes.on: ' + event + JSON
+				.stringify(properties.items));
 			if (event == 'remove') {
-				yNodesMap.delete(id.toString()); console.log('deleted from YMapNodes: ' + id);
-				}
+				yNodesMap.delete(id.toString());
+				console.log(
+					'deleted from YMapNodes: ' +
+					id);
+			}
 			else {
 				let obj = nodes.get(id);
-				if (obj.clientID == undefined || obj.clientID == clientID) {
+				if (obj.clientID == undefined || obj
+					.clientID == clientID) {
 					obj.clientID = clientID;
-					yNodesMap.set(id.toString(), obj); 
-					console.log('setting yNodesMap: ' + id + ' to ' + JSON.stringify(obj));		
+					yNodesMap.set(id.toString(), obj);
+					console.log(
+						'setting yNodesMap: ' +
+						id + ' to ' + JSON
+						.stringify(obj));
 				}
 			}
 		})
@@ -172,7 +222,8 @@ function startY() {
 	includes adding a new node if it does not already exist locally).
 	 */
 
-	yNodesMap.observe((event, trans) => { console.log(event);
+	yNodesMap.observe((event) => {
+		console.log(event);
 		for (let key of event.keysChanged) {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key);
@@ -194,7 +245,8 @@ function startY() {
 			}
 			else {
 				let obj = edges.get(id);
-				if (obj.clientID == undefined || obj.clientID == clientID) {
+				if (obj.clientID == undefined || obj
+					.clientID == clientID) {
 					obj.clientID = clientID;
 					yEdgesMap.set(id.toString(), obj);
 				}
@@ -202,7 +254,7 @@ function startY() {
 		})
 	});
 
-	yEdgesMap.observe((event, trans) => {
+	yEdgesMap.observe((event) => {
 		for (let key of event.keysChanged) {
 			if (yEdgesMap.has(key)) {
 				let obj = yEdgesMap.get(key);
@@ -216,31 +268,42 @@ function startY() {
 
 }
 
+function rndString(length) {
+// generate a random string of length digits to use as the room number
+	let str = "";
+	for (let i = 0; i < length; i++) {
+		str = str + (Math.random() * 10).toFixed().toString();
+	}
+	return str;
+}
+
 function getRandomData(nNodes) {
 	// randomly create some nodes and edges
-	var SFNdata = getScaleFreeNetwork(nNodes);
+	let SFNdata = getScaleFreeNetwork(nNodes);
 	nodes.add(SFNdata.nodes);
 	edges.add(SFNdata.edges);
 	recalculateStats();
-};
+}
 
 function draw() {
 
-	// for testing, append ?t=XXX to the URL of the page, where XXX is the number
+	// for testing, you can append ?t=XXX to the URL of the page, where XXX is the number
 	// of factors to include in a random network
 	let url = new URL(document.location);
 	let nNodes = url.searchParams.get('t');
-	if (nNodes) getRandomData(nNodes); // start with some random network
+	if (nNodes) getRandomData(nNodes);
 
 	// create a network
-	var container = document.getElementById('net-pane');
+	var netPane = document.getElementById('net-pane');
 	var options = {
 		physics: {
 			enabled: false,
 			stabilization: false
 		},
+		// default edge format is edge-
 		edges: groupEdges.edge0,
 		groups: groups,
+		// default node format is group0
 		nodes: {
 			group: 'group0'
 		},
@@ -270,12 +333,19 @@ function draw() {
 				inAddMode = false;
 				changeCursor("auto");
 				if (data.from == data.to) {
-					var r = confirm("Do you want to connect the Factor to itself?");
+					let r = confirm(
+						"Do you want to connect the Factor to itself?"
+						);
 					if (r != true) {
 						callback(null);
 						return;
 					}
 				}
+				if (duplEdge(data.from, data.to).length > 0) {
+					alert("There is already a link from this Factor to the other.")
+					callback(null);
+					return;
+					}
 				if (lastLinkSample) data = Object.assign(data, groupEdges[lastLinkSample]);
 				callback(data);
 			},
@@ -286,7 +356,7 @@ function draw() {
 				}
 			},
 			deleteNode: function(data, callback) {
-				var r = confirm(deleteMsg(data));
+				let r = confirm(deleteMsg(data));
 				if (r != true) {
 					callback(null);
 					return;
@@ -294,7 +364,7 @@ function draw() {
 				callback(data);
 			},
 			deleteEdge: function(data, callback) {
-				var r = confirm(deleteMsg(data));
+				let r = confirm(deleteMsg(data));
 				if (r != true) {
 					callback(null);
 					return;
@@ -303,28 +373,36 @@ function draw() {
 			},
 			controlNodeStyle: {
 				shape: 'dot',
-				color: 'black',
+				color: 'red',
 				group: 'group8'
 			}
 		}
 	};
 
-	network = new Network(container, data, options);
+	network = new Network(netPane, data, options);
+	
 	window.network = network;
-	// start with factor tab open
+	
+	// start with factor tab open, but hidden
 	document.getElementById("nodesButton").click();
 
 	// listen for click events on the network pane
+	network.on('click', function() {
+		clearStatusBar()
+		});
 	network.on("doubleClick", function(params) {
 		if (params.nodes.length === 1) {
 			network.editNode();
-		} else {
+		}
+		else {
 			network.fit();
-			document.getElementById('zoom').value = network.getScale();
+			document.getElementById('zoom').value = network
+				.getScale();
 		}
 	});
 	network.on('selectNode', function() {
-		statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
+		statusMsg(listFactors(network.getSelectedNodes()) +
+			' selected');
 		displayNotes();
 	});
 	network.on('deselectNode', function() {
@@ -348,6 +426,7 @@ function draw() {
 	});
 
 	// listen for changes to the network structure
+	// and recalculate the network statistics when there is one
 	data.nodes.on('add', recalculateStats);
 	data.nodes.on('remove', recalculateStats);
 	data.edges.on('add', recalculateStats);
@@ -357,19 +436,26 @@ function draw() {
 		inAddMode = false;
 		changeCursor('auto');
 		let popUp = document.getElementById('node-popUp');
-		document.getElementById('node-cancelButton').onclick = cancelAction.bind(this, callback);
-		document.getElementById('node-saveButton').onclick = saveNodeData.bind(this, data, callback);
+		document.getElementById('node-cancelButton').onclick =
+			cancelAction.bind(this, callback);
+		document.getElementById('node-saveButton').onclick =
+			saveNodeData.bind(this, data, callback);
 		popUp.style.display = 'block';
-		popUp.style.top = `${event.clientY - popUp.offsetHeight / 2}px`;
-		popUp.style.left = `${event.clientX - popUp.offsetWidth - 3}px`;
+		// popup appears to the left of the mouse pointer
+		popUp.style.top =
+			`${event.clientY - popUp.offsetHeight / 2}px`;
+		popUp.style.left =
+			`${event.clientX - popUp.offsetWidth - 3}px`;
 		document.getElementById('node-label').value = data.label;
 		document.getElementById('node-label').focus();
 		/* allow Enter to click the Save button */
-		document.getElementById('node-label').addEventListener("keypress", 
+		document.getElementById('node-label').addEventListener(
+			"keypress",
 			function onEvent(event) {
-    			if (event.key === "Enter") {
-        			document.getElementById("node-saveButton").click();
-    			}
+				if (event.key === "Enter") {
+					document.getElementById("node-saveButton")
+						.click();
+				}
 			});
 	}
 
@@ -389,32 +475,43 @@ function draw() {
 		data.label = document.getElementById('node-label').value;
 		clearNodePopUp();
 		if (data.label === "") {
-			document.getElementById("statusBar").innerHTML = "No label: cancelled";
+			statusMsg("No label: cancelled");
 			callback(null);
-		} else callback(data);
+		}
+		else callback(data);
 	}
-	
+
 } // end draw()
 
+
+function duplEdge(from, to) {
+	// if there is already a link from the 'from' node to the 'to' node, return it
+	return data.edges.get({filter: function(item) {return (item.from == from) && (item.to == to)}})
+	}
+	
 function deleteMsg(data) {
+//constructs a nice string to tell the user what nodes and links are being deleted.
 	let nNodes = data.nodes.length;
 	let nEdges = data.edges.length;
-	let msg = 'Delete '; 
-	if (nNodes > 0) msg = msg + nNodes + ' Factor' + (nNodes == 1 ? "" : "s");
+	let msg = 'Delete ';
+	if (nNodes > 0) msg = msg + nNodes + ' Factor' + (nNodes == 1 ?
+		"" : "s");
 	if (nNodes > 0 && nEdges > 0) msg = msg + ' and ';
 	if (nEdges > 0) msg = msg + nEdges + ' Link' + (nEdges == 1 ? "" : "s");
 	return msg + '?';
 }
-	
+
 function changeCursor(newCursorStyle) {
 	if (inAddMode) return;
 	document.getElementById("net-pane").style.cursor = newCursorStyle;
 	document.getElementById("navbar").style.cursor = newCursorStyle;
 }
 
+// set  up a web worker to calculate network statistics in parallel with whatever
+// the user is doing
 
 var worker = new Worker('./js/betweenness.js');
-var bc;
+var bc;  //caches the betweenness centralities
 
 function recalculateStats() {
 	worker.postMessage([nodes.get(), edges.get()]);
@@ -431,6 +528,9 @@ function statusMsg(msg) {
 	document.getElementById("statusBar").innerHTML = msg;
 }
 
+function clearStatusBar() {
+	statusMsg("<br>");
+}
 function listFactors(nodes) {
 	// return a string listing the labels of the given nodes
 	let str = 'Factor';
@@ -439,7 +539,7 @@ function listFactors(nodes) {
 }
 
 function lf(nodes) {
-	// return a string of the node labels, separated by commas and 'and'
+	// recursive fn to return a string of the node labels, separated by commas and 'and'
 	let n = nodes.length;
 	let label = data.nodes.get(nodes[0]).label
 	if (n == 1) return label;
@@ -448,27 +548,11 @@ function lf(nodes) {
 	return label.concat(', ' + lf(nodes));
 }
 
-function clearStatusBar() {
-	statusMsg("<br>");
-}
-
 /* 
---------------------------------------------navbar.js--------------------------------------------
+  Operations related to the top button bar (not the side panel)
  */
-var lastFileName = 'network.json';
 
-
-
-function togglePanel() {
-	if (container.panelHidden) {
-		container.style.gridTemplateColumns = "5fr minmax(200px, 1fr)";// "1fr 200px";
-		panel.classList.remove('hide');
-	} else {
-		panel.classList.add('hide');
-		container.style.gridTemplateColumns = "1fr 0px";
-	}
-	container.panelHidden = !container.panelHidden;
-}
+var lastFileName = 'network.json';  // the name of the file last read in
 
 function readSingleFile(e) {
 	var file = e.target.files[0];
@@ -478,15 +562,18 @@ function readSingleFile(e) {
 	let fileName = file.name;
 	lastFileName = fileName;
 	statusMsg("Reading '" + fileName + "'");
-	e.target.value='';
+	e.target.value = '';
 	var reader = new FileReader();
 	reader.onloadend = function(e) {
-		try { console.log(e.target.result);
-			let json = JSON.parse(e.target.result); 
+		try {
+			console.log(e.target.result);
+			let json = JSON.parse(e.target.result);
 			loadJSONfile(json);
 			statusMsg("Read '" + fileName + "'");
-		} catch (err) {
-			statusMsg("Error reading '" + fileName + "': " + err.message);
+		}
+		catch (err) {
+			statusMsg("Error reading '" + fileName + "': " + err
+				.message);
 			return;
 		}
 	};
@@ -500,7 +587,9 @@ function openFile() {
 
 function loadJSONfile(json) {
 	if (data.nodes.length > 0)
-		if (!confirm("Loading a file will delete the current network.  Are you sure you want to replace it?")) return;
+		if (!confirm(
+				"Loading a file will delete the current network.  Are you sure you want to replace it?"
+				)) return;
 	nodes.clear();
 	edges.clear();
 	hideNotes();
@@ -514,7 +603,9 @@ function loadJSONfile(json) {
 		}
 	};
 	if (json.version && (version > json.version)) {
-		statusMsg("Warning: file was created in an earlier version of PRISM");
+		statusMsg(
+			"Warning: file was created in an earlier version of PRISM"
+			);
 	}
 	if (json.lastNodeSample) lastNodeSample = json.lastNodeSample;
 	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
@@ -523,7 +614,8 @@ function loadJSONfile(json) {
 		let parsed = parseGephiNetwork(json, options);
 		nodes.add(parsed.nodes);
 		edges.add(parsed.edges);
-	} else {
+	}
+	else {
 		nodes.add(json.nodes);
 		edges.add(json.edges);
 	}
@@ -542,25 +634,28 @@ function loadJSONfile(json) {
 			groups = json.groups;
 			network.setOptions({groups: groups});
 			}
-	 */
 	if (json.groupEdges) {
 		groupEdges = json.groupEdges;
 	}
+		 */
 	network.setData(data);
 	updateYMaps();
 }
 
 function updateYMaps() {
-	data.nodes.forEach ((obj) => {
+// this shouldn't be necessary, but it seems that it is (it should be handled 
+// by 'network.on()' )
+
+	data.nodes.forEach((obj) => {
 		let id = obj.id;
 		obj.clientID = clientID;
-		yNodesMap.set(id.toString(), obj); 
+		yNodesMap.set(id.toString(), obj);
 	});
-	data.edges.forEach ((obj) => {
+	data.edges.forEach((obj) => {
 		let id = obj.id;
 		obj.clientID = clientID;
-		yEdgesMap.set(id.toString(), obj); 
-	});				
+		yEdgesMap.set(id.toString(), obj);
+	});
 }
 
 /* 
@@ -582,7 +677,8 @@ function saveJSONfile() {
 		edges: data.edges.get()
 	});
 	let element = document.getElementById("download");
-	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(json));
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' +
+		encodeURIComponent(json));
 	element.setAttribute('download', lastFileName);
 	element.click();
 }
@@ -622,7 +718,6 @@ function zoomnet() {
 
 /* Share modal dialog */
 
-
 // Get the modal
 var modal = document.getElementById("shareModal");
 
@@ -640,7 +735,8 @@ var copiedText = document.getElementById('copied-text');
 
 // When the user clicks the button, open the modal 
 btn.onclick = function() {
-	let linkToShare = window.location.origin + window.location.pathname + '?room=' + room;
+	let linkToShare = window.location.origin + window.location
+		.pathname + '?room=' + room;
 	copiedText.style.display = 'none';
 	modal.style.display = "block";
 	inputElem.setAttribute('size', linkToShare.length);
@@ -661,42 +757,49 @@ window.onclick = function(event) {
 	}
 }
 
-document.getElementById('copy-text').addEventListener('click', function(e) {
+document.getElementById('copy-text').addEventListener('click',
+	function(e) {
 
-	e.preventDefault();
+		e.preventDefault();
 
-	// Select the text
-	inputElem.select();
+		// Select the text
+		inputElem.select();
 
-	let copied;
-	try {
-		// Copy the text
-		copied = document.execCommand('copy');
-	} catch (ex) {
-		copied = false;
+		let copied;
+		try {
+			// Copy the text
+			copied = document.execCommand('copy');
+		}
+		catch (ex) {
+			copied = false;
+		}
+		if (copied) {
+			// Display the copied text message
+			copiedText.style.display = 'inline-block';
+		}
+	});
+
+
+function togglePanel() {
+// Hide/unhide the side panel
+	if (container.panelHidden) {
+		container.style.gridTemplateColumns = "5fr minmax(200px, 1fr)";
+		panel.classList.remove('hide');
 	}
-	if (copied) {
-		// Display the copied text message
-		copiedText.style.display = 'inline-block';
+	else {
+		panel.classList.add('hide');
+		container.style.gridTemplateColumns = "1fr 0px";
 	}
-});
-
-
-function rndString(length) {
-	let str = "";
-	for (let i = 0; i < length; i++) {
-		str = str + (Math.random() * 100).toFixed().toString();
-	}
-	return str;
+	container.panelHidden = !container.panelHidden;
 }
 
-/* --------------------------------------------tabs.js-------------------------------------------- */
+
+/* operations related to the side panel */
 
 var tabOpen = null;
 
 function openTab(tabId) {
-	// Declare all variables
-	var i, tabcontent, tablinks;
+	let i, tabcontent, tablinks;
 
 	// Get all elements with class="tabcontent" and hide them by moving them off screen
 	tabcontent = document.getElementsByClassName("tabcontent");
@@ -717,16 +820,17 @@ function openTab(tabId) {
 	tabOpen = tabId;
 	if (tabOpen == 'nodesTab') displayNotes();
 }
+
+
 // Factors and Links Tabs
 
-// samples
+// The samples are each a mini vis-network showing just one node or two nodes and a link
 
 // Get all elements with class="sampleNode" and add listener and canvas
 let emptyDataSet = new DataSet([]);
-let sampleElement, sampleFormat;
 let sampleElements = document.getElementsByClassName("sampleNode");
 for (let i = 0; i < sampleElements.length; i++) {
-	sampleElement = sampleElements[i];
+	let sampleElement = sampleElements[i];
 	sampleElement.addEventListener("click", () => {
 		applySampleToNode();
 	}, false);
@@ -749,7 +853,7 @@ for (let i = 0; i < sampleElements.length; i++) {
 // and to all sampleLinks
 sampleElements = document.getElementsByClassName("sampleLink");
 for (let i = 0; i < sampleElements.length; i++) {
-	sampleElement = sampleElements[i];
+	let sampleElement = sampleElements[i];
 	sampleElement.addEventListener("click", () => {
 		applySampleToLink();
 	}, false);
@@ -820,7 +924,8 @@ function applySampleToLink() {
 	if (selectedEdges.length == 0) return;
 	let edgesToUpdate = [];
 	for (let edge of data.edges.get(selectedEdges)) {
-		edge = Object.assign(edge, groupEdges[event.currentTarget.groupLink]);
+		edge = Object.assign(edge, groupEdges[event.currentTarget
+			.groupLink]);
 		edgesToUpdate.push(edge);
 	}
 	data.edges.update(edgesToUpdate);
@@ -846,7 +951,8 @@ function addEditor() {
 
 function removeEditor() {
 	if (editor.nicInstances.length > 0) {
-		let title = stripTags(editor.nicInstances[0].getContent(), "<b><i><u><div><font>");
+		let title = stripTags(editor.nicInstances[0].getContent(),
+			"<b><i><u><div><font>");
 		let nodeId = network.getSelectedNodes()[0];
 		data.nodes.update({
 			id: nodeId,
@@ -860,21 +966,25 @@ function removeEditor() {
 function stripTags(input, allowed) {
 
 	// making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
-	allowed = (((allowed || '') + '').toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join('')
+	allowed = (((allowed || '') + '').toLowerCase().match(
+		/<[a-z][a-z0-9]*>/g) || []).join('')
 
-	var tags = /<\/?([a-z0-9]*)\b[^>]*>?/gi
-	var commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi
+	let tags = /<\/?([a-z0-9]*)\b[^>]*>?/gi
+	let commentsAndPhpTags =
+		/<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi
 
-	var after = input
+	let after = input;
 	// removes tha '<' char at the end of the string to replicate PHP's behaviour
-	after = (after.substring(after.length - 1) === '<') ? after.substring(0, after.length - 1) : after
+	after = ((after.substring(after.length - 1) === '<') ? after.substring(0, after.length - 1) : after);
 
 	// recursively remove tags to ensure that the returned string doesn't contain forbidden tags after previous passes (e.g. '<<bait/>switch/>')
 	while (true) {
-		var before = after
-		after = before.replace(commentsAndPhpTags, '').replace(tags, function($0, $1) {
-			return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : ''
-		})
+		let before = after;
+		after = before.replace(commentsAndPhpTags, '').replace(tags,
+			function($0, $1) {
+				return allowed.indexOf('<' + $1.toLowerCase() +
+					'>') > -1 ? $0 : ''
+			});
 
 		// return once no more tags are removed
 		if (before === after) {
@@ -888,17 +998,21 @@ var lastSelectedNode;
 function displayNotes() {
 	let panel = document.getElementById("oneNodeSelected");
 	let selectedNodes = network.getSelectedNodes();
-	if (selectedNodes != lastSelectedNode) panel.classList.add('hide');
+	if (selectedNodes != lastSelectedNode) panel.classList.add(
+	'hide');
 	if (tabOpen == 'nodesTab' && selectedNodes.length == 1) {
 		let nodeId = selectedNodes[0];
 		let node = data.nodes.get(nodeId);
 		let label = (node.label ? node.label : node.hiddenLabel);
-		document.getElementById("nodeLabel").innerHTML = (label ? label : "");
+		document.getElementById("nodeLabel").innerHTML = (label ?
+			label : "");
 		let title = node.title;
-		document.getElementById("notes").innerHTML = (title ? title : "");
+		document.getElementById("notes").innerHTML = (title ? title :
+			"");
 		panel.classList.remove('hide');
 		displayStatistics(nodeId);
-	} else {
+	}
+	else {
 		panel.classList.add('hide')
 	}
 }
@@ -915,9 +1029,10 @@ function displayStatistics(nodeId) {
 
 	let inDegree = network.getConnectedNodes(nodeId, 'from').length;
 	let outDegree = network.getConnectedNodes(nodeId, 'to').length;
-	let leverage = (inDegree == 0) ? '--' : (outDegree / inDegree).toPrecision(3);
+	let leverage = (inDegree == 0) ? '--' : (outDegree / inDegree)
+		.toPrecision(3);
 	document.getElementById('leverage').textContent = leverage;
-	document.getElementById('bc').textContent = 
+	document.getElementById('bc').textContent =
 		(bc[nodeId] >= 0 ? (bc[nodeId]).toPrecision(3) : '--');
 }
 
@@ -936,7 +1051,8 @@ function autoLayoutSwitch(e) {
 function selectLayout() {
 	network.setOptions({
 		layout: {
-			hierarchical: document.getElementById('layoutSelect').value === 'Hierarchical'
+			hierarchical: document.getElementById(
+				'layoutSelect').value === 'Hierarchical'
 		}
 	});
 }
@@ -944,13 +1060,15 @@ function selectLayout() {
 function selectCurve() {
 	network.setOptions({
 		edges: {
-			smooth: document.getElementById('curveSelect').value === 'Curved'
+			smooth: document.getElementById('curveSelect')
+				.value === 'Curved'
 		}
 	});
 }
 
 function updateNetBack(event) {
-	document.getElementById('net-pane').style.backgroundColor = event.target.value;
+	document.getElementById('net-pane').style.backgroundColor = event
+		.target.value;
 }
 
 function selectAllFactors() {
@@ -964,11 +1082,12 @@ function selectAllEdges() {
 
 var labelsShown = true;
 
-function labelSwitch(e) {
+function labelSwitch() {
 	if (labelsShown) {
 		labelsShown = false;
 		hideLabels();
-	} else {
+	}
+	else {
 		labelsShown = true;
 		unHideLabels()
 	}
@@ -978,7 +1097,8 @@ function hideLabels() {
 	let nodesToUpdate = [];
 	data.nodes.forEach(
 		function(n) {
-			if (n.hiddenLabel == undefined) n.hiddenLabel = n.label;
+			if (n.hiddenLabel == undefined) n.hiddenLabel = n
+				.label;
 			n.label = undefined;
 			nodesToUpdate.push(n);
 		}
@@ -1008,11 +1128,12 @@ function hideDistantNodes(radius) {
 	unDimAllNodes();
 	unDimAllLinks();
 	let selectedNodes = network.getSelectedNodes();
-	if (selectedNodes.length == 0 || selectedNodes == lastSelectedNode) {
+	if (selectedNodes.length == 0 || selectedNodes ==
+		lastSelectedNode) {
 		statusMsg('Select a Factor first');
 		document.getElementById('dimRest').value = 'All';
 		return;
-		}
+	}
 	dimAllNodes();
 	dimAllLinks();
 
@@ -1028,7 +1149,8 @@ function hideDistantNodes(radius) {
 		nodeIds.forEach(function(nId) {
 			nodeIdsInRadius.add(nId);
 			let links = network.getConnectedEdges(nId);
-			if (links && radius > 0) links.forEach(function(lId) {
+			if (links && radius > 0) links.forEach(function(
+				lId) {
 				linkIdsInRadius.add(lId);
 			});
 			let linked = network.getConnectedNodes(nId);
@@ -1108,5 +1230,3 @@ function unDimAll() {
 	unDimAllNodes();
 	unDimAllLinks();
 }
-
-
