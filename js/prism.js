@@ -1098,28 +1098,67 @@ function hideDistantNodes(radius) {
 	dimAllNodes();
 	dimAllLinks();
 
-	let nodeIdsInRadius = new Set();
-	let linkIdsInRadius = new Set();
-	inRadius(selectedNodes, radius);
-	unDimNodes(data.nodes.get(Array.from(nodeIdsInRadius)));
-	unDimLinks(data.edges.get(Array.from(linkIdsInRadius)));
+	let nodeIdsInSet = new Set();
+	let linkIdsInSet = new Set();
+	
+	switch(radius) {
+	case '1':
+	case '2':
+	case '3':
+		InSet(selectedNodes, radius);
+		break;
+	case 'upstream':
+		upstream(selectedNodes);
+		break;
+	case 'downstream':
+		downstream(selectedNodes);
+		break;
+	default: console.log('Illegal selection from selectDim()')
+	}
+	unDimNodes(data.nodes.get(Array.from(nodeIdsInSet)));
+	unDimLinks(data.edges.get(Array.from(linkIdsInSet)));
 	if (selectedNodes.length == 1) network.focus(selectedNodes[0]);
 
-	function inRadius(nodeIds, radius) {
+	function InSet(nodeIds, radius) {
 	// recursive function to collect nodes within radius links from any
 	// of the nodes listed in nodeIds
 		if (radius < 0) return;
 		nodeIds.forEach(function(nId) {
-			nodeIdsInRadius.add(nId);
+			nodeIdsInSet.add(nId);
 			let links = network.getConnectedEdges(nId);
-			if (links && radius > 0) links.forEach(function(
-				lId) {
-				linkIdsInRadius.add(lId);
+			if (links && radius > 0) links.forEach(function(lId) {
+				linkIdsInSet.add(lId);
 			});
 			let linked = network.getConnectedNodes(nId);
-			if (linked) inRadius(linked, radius - 1);
+			if (linked) InSet(linked, radius - 1);
 		})
 	}
+	function upstream(nodeIds) {
+	// recursively add the nodes in and downstream of those in nodeIds
+		if (nodeIds.length == 0) return;
+		nodeIds.forEach(function(nId) {
+			nodeIdsInSet.add(nId);
+			let links = data.edges.get({filter: function(item) 
+				{return item.to == nId}});
+			if (links) links.forEach(function(link) {
+				linkIdsInSet.add(link.id);
+				upstream([link.from]);
+				});
+			});
+		}
+	function downstream(nodeIds) {
+	// recursively add the nodes in and upstream of those in nodeIds
+		if (nodeIds.length == 0) return;
+		nodeIds.forEach(function(nId) {
+			nodeIdsInSet.add(nId);
+			let links = data.edges.get({filter: function(item) 
+				{return item.from == nId}});
+			if (links) links.forEach(function(link) {
+				linkIdsInSet.add(link.id);
+				downstream([link.to]);
+				});
+			});
+		}
 }
 
 const dimColor = "#f1f2f3";
