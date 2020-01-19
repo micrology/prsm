@@ -1,4 +1,4 @@
-var groups = {
+export const samples = {nodes: {
 	//------------------------------
 	// blue bordered white ellipse 
 	group0: {
@@ -331,14 +331,14 @@ var groups = {
 		shape: 'ellipse',
 		size: 25
 	}
-};
+}, // end of node samples
 
 
 
 
 // edges (first is the default)
 
-var groupEdges = {
+edges: {
 
 	// simple directed black link
 
@@ -605,4 +605,7 @@ var groupEdges = {
 		width: 1,
 	}
 
-};
+} // end of edges samples
+
+
+}

@@ -23,10 +23,16 @@ import {
 }
 from "./exampleUtil.js";
 
+import {
+	samples
+}
+from "./samples.js";
+
+
 import 'vis-network/dist/vis-network.min.css';
 
 /* for esLint: */
-/* global Modernizr, groups, groupEdges, nicEditor, getScaleFreeNetwork */
+/* global Modernizr, nicEditor */
 /*
 Remember to start the WS provider first:
 	npx y-websocket-server
@@ -131,6 +137,7 @@ function setUpPage() {
 	panel = document.getElementById("panel");
 	panel.classList.add('hide');
 	container.panelHidden = true;
+	hideNotes();
 }
 
 function startY() {
@@ -301,8 +308,8 @@ function draw() {
 			stabilization: false
 		},
 		// default edge format is edge-
-		edges: groupEdges.edge0,
-		groups: groups,
+		edges: samples.edges.edge0,
+		groups: samples.nodes,
 		// default node format is group0
 		nodes: {
 			group: 'group0'
@@ -346,14 +353,8 @@ function draw() {
 					callback(null);
 					return;
 					}
-				if (lastLinkSample) data = Object.assign(data, groupEdges[lastLinkSample]);
+				if (lastLinkSample) data = Object.assign(data, samples.edges[lastLinkSample]);
 				callback(data);
-			},
-			editEdge: {
-				editWithoutDrag: function(data, callback) {
-					document.getElementById('edge-operation').innerHTML = "Edit Edge";
-					editEdgeWithoutDrag(data, callback);
-				}
 			},
 			deleteNode: function(data, callback) {
 				let r = confirm(deleteMsg(data));
@@ -432,57 +433,56 @@ function draw() {
 	data.edges.on('add', recalculateStats);
 	data.edges.on('remove', recalculateStats);
 
-	function editNode(data, cancelAction, callback) {
-		inAddMode = false;
-		changeCursor('auto');
-		let popUp = document.getElementById('node-popUp');
-		document.getElementById('node-cancelButton').onclick =
-			cancelAction.bind(this, callback);
-		document.getElementById('node-saveButton').onclick =
-			saveNodeData.bind(this, data, callback);
-		popUp.style.display = 'block';
-		// popup appears to the left of the mouse pointer
-		popUp.style.top =
-			`${event.clientY - popUp.offsetHeight / 2}px`;
-		popUp.style.left =
-			`${event.clientX - popUp.offsetWidth - 3}px`;
-		document.getElementById('node-label').value = data.label;
-		document.getElementById('node-label').focus();
-		/* allow Enter to click the Save button */
-		document.getElementById('node-label').addEventListener(
-			"keypress",
-			function onEvent(event) {
-				if (event.key === "Enter") {
-					document.getElementById("node-saveButton")
-						.click();
-				}
-			});
-	}
-
-	// Callback passed as parameter is ignored
-	function clearNodePopUp() {
-		document.getElementById('node-saveButton').onclick = null;
-		document.getElementById('node-cancelButton').onclick = null;
-		document.getElementById('node-popUp').style.display = 'none';
-	}
-
-	function cancelNodeEdit(callback) {
-		clearNodePopUp();
-		callback(null);
-	}
-
-	function saveNodeData(data, callback) {
-		data.label = document.getElementById('node-label').value;
-		clearNodePopUp();
-		if (data.label === "") {
-			statusMsg("No label: cancelled");
-			callback(null);
-		}
-		else callback(data);
-	}
-
 } // end draw()
 
+function editNode(data, cancelAction, callback) {
+	inAddMode = false;
+	changeCursor('auto');
+	let popUp = document.getElementById('node-popUp');
+	document.getElementById('node-cancelButton').onclick =
+		cancelAction.bind(this, callback);
+	document.getElementById('node-saveButton').onclick =
+		saveNodeData.bind(this, data, callback);
+	popUp.style.display = 'block';
+	// popup appears to the left of the mouse pointer
+	popUp.style.top =
+		`${event.clientY - popUp.offsetHeight / 2}px`;
+	popUp.style.left =
+		`${event.clientX - popUp.offsetWidth - 3}px`;
+	document.getElementById('node-label').value = data.label;
+	document.getElementById('node-label').focus();
+	/* allow Enter to click the Save button */
+	document.getElementById('node-label').addEventListener(
+		"keypress",
+		function onEvent(event) {
+			if (event.key === "Enter") {
+				document.getElementById("node-saveButton")
+					.click();
+			}
+		});
+}
+
+// Callback passed as parameter is ignored
+function clearNodePopUp() {
+	document.getElementById('node-saveButton').onclick = null;
+	document.getElementById('node-cancelButton').onclick = null;
+	document.getElementById('node-popUp').style.display = 'none';
+}
+
+function cancelNodeEdit(callback) {
+	clearNodePopUp();
+	callback(null);
+}
+
+function saveNodeData(data, callback) {
+	data.label = document.getElementById('node-label').value;
+	clearNodePopUp();
+	if (data.label === "") {
+		statusMsg("No label: cancelled");
+		callback(null);
+	}
+	else callback(data);
+}
 
 function duplEdge(from, to) {
 	// if there is already a link from the 'from' node to the 'to' node, return it
@@ -672,7 +672,7 @@ function saveJSONfile() {
 		lastNodeSample: lastNodeSample,
 		lastLinkSample: lastLinkSample,
 		groups: network.groups.groups,
-		groupEdges: groupEdges,
+		sampleEdges: samples.edges,
 		nodes: data.nodes.get(),
 		edges: data.edges.get()
 	});
@@ -861,7 +861,7 @@ for (let i = 0; i < sampleElements.length; i++) {
 		from: 1,
 		to: 2,
 		value: 7
-	}, groupEdges['edge' + i])])
+	}, samples.edges['edge' + i])])
 	let nodesDataSet = new DataSet([{
 		id: 1
 	}, {
@@ -896,7 +896,7 @@ function initSample(wrapper, sampleData) {
 				direction: 'LR'
 			}
 		},
-		groups: groups
+		groups: samples.nodes
 	};
 	let net = new Network(wrapper, sampleData, options);
 	net.storePositions();
@@ -908,30 +908,31 @@ function applySampleToNode() {
 	let selectedNodeIds = network.getSelectedNodes();
 	if (selectedNodeIds.length == 0) return;
 	let nodesToUpdate = [];
+	let sample = event.currentTarget.group;
 	for (let node of data.nodes.get(selectedNodeIds)) {
-		node.group = event.currentTarget.group;
+		node.group = sample;
 		delete node.color;
 		nodesToUpdate.push(node);
 	}
 	data.nodes.update(nodesToUpdate);
 	network.unselectAll();
 	hideNotes();
-	lastNodeSample = event.currentTarget.group;
+	lastNodeSample = sample;
 }
 
 function applySampleToLink() {
+	let sample = event.currentTarget.groupLink;
 	let selectedEdges = network.getSelectedEdges();
 	if (selectedEdges.length == 0) return;
 	let edgesToUpdate = [];
 	for (let edge of data.edges.get(selectedEdges)) {
-		edge = Object.assign(edge, groupEdges[event.currentTarget
-			.groupLink]);
+		edge = Object.assign(edge, samples.edges[sample]);
 		edgesToUpdate.push(edge);
 	}
 	data.edges.update(edgesToUpdate);
 	network.unselectAll();
 	hideNotes();
-	lastLinkSample = event.currentTarget.groupLink;
+	lastLinkSample = sample;
 }
 
 // Notes
@@ -951,45 +952,11 @@ function addEditor() {
 
 function removeEditor() {
 	if (editor.nicInstances.length > 0) {
-		let title = stripTags(editor.nicInstances[0].getContent(),
-			"<b><i><u><div><font>");
-		let nodeId = network.getSelectedNodes()[0];
 		data.nodes.update({
-			id: nodeId,
-			title: title
+			id: network.getSelectedNodes()[0],
+			title: editor.nicInstances[0].getContent()
 		});
-
 		editor.removeInstance('notes');
-	}
-}
-
-function stripTags(input, allowed) {
-
-	// making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
-	allowed = (((allowed || '') + '').toLowerCase().match(
-		/<[a-z][a-z0-9]*>/g) || []).join('')
-
-	let tags = /<\/?([a-z0-9]*)\b[^>]*>?/gi
-	let commentsAndPhpTags =
-		/<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi
-
-	let after = input;
-	// removes tha '<' char at the end of the string to replicate PHP's behaviour
-	after = ((after.substring(after.length - 1) === '<') ? after.substring(0, after.length - 1) : after);
-
-	// recursively remove tags to ensure that the returned string doesn't contain forbidden tags after previous passes (e.g. '<<bait/>switch/>')
-	while (true) {
-		let before = after;
-		after = before.replace(commentsAndPhpTags, '').replace(tags,
-			function($0, $1) {
-				return allowed.indexOf('<' + $1.toLowerCase() +
-					'>') > -1 ? $0 : ''
-			});
-
-		// return once no more tags are removed
-		if (before === after) {
-			return after
-		}
 	}
 }
 
@@ -998,17 +965,14 @@ var lastSelectedNode;
 function displayNotes() {
 	let panel = document.getElementById("oneNodeSelected");
 	let selectedNodes = network.getSelectedNodes();
-	if (selectedNodes != lastSelectedNode) panel.classList.add(
-	'hide');
+	if (selectedNodes != lastSelectedNode) panel.classList.add('hide');
 	if (tabOpen == 'nodesTab' && selectedNodes.length == 1) {
 		let nodeId = selectedNodes[0];
 		let node = data.nodes.get(nodeId);
 		let label = (node.label ? node.label : node.hiddenLabel);
-		document.getElementById("nodeLabel").innerHTML = (label ?
-			label : "");
+		document.getElementById("nodeLabel").innerHTML = (label ? label : "");
 		let title = node.title;
-		document.getElementById("notes").innerHTML = (title ? title :
-			"");
+		document.getElementById("notes").innerHTML = (title ? title : "");
 		panel.classList.remove('hide');
 		displayStatistics(nodeId);
 	}
@@ -1021,24 +985,22 @@ function hideNotes() {
 	document.getElementById("oneNodeSelected").classList.add('hide')
 }
 
-hideNotes();
-
 // Statistics specific to a node
 
 function displayStatistics(nodeId) {
 
+	// leverage (outDegree / inDegree)
 	let inDegree = network.getConnectedNodes(nodeId, 'from').length;
 	let outDegree = network.getConnectedNodes(nodeId, 'to').length;
-	let leverage = (inDegree == 0) ? '--' : (outDegree / inDegree)
-		.toPrecision(3);
+	let leverage = (inDegree == 0) ? '--' : (outDegree / inDegree).toPrecision(3);
 	document.getElementById('leverage').textContent = leverage;
+	
 	document.getElementById('bc').textContent =
 		(bc[nodeId] >= 0 ? (bc[nodeId]).toPrecision(3) : '--');
 }
 
 
 // Network tab
-
 
 function autoLayoutSwitch(e) {
 	network.setOptions({
@@ -1051,8 +1013,7 @@ function autoLayoutSwitch(e) {
 function selectLayout() {
 	network.setOptions({
 		layout: {
-			hierarchical: document.getElementById(
-				'layoutSelect').value === 'Hierarchical'
+			hierarchical: document.getElementById('layoutSelect').value === 'Hierarchical'
 		}
 	});
 }
@@ -1060,15 +1021,13 @@ function selectLayout() {
 function selectCurve() {
 	network.setOptions({
 		edges: {
-			smooth: document.getElementById('curveSelect')
-				.value === 'Curved'
+			smooth: document.getElementById('curveSelect').value === 'Curved'
 		}
 	});
 }
 
 function updateNetBack(event) {
-	document.getElementById('net-pane').style.backgroundColor = event
-		.target.value;
+	document.getElementById('net-pane').style.backgroundColor = event.target.value;
 }
 
 function selectAllFactors() {
@@ -1094,12 +1053,12 @@ function labelSwitch() {
 }
 
 function hideLabels() {
+// move the label to the hiddenLabel property and set the label to an empty string
 	let nodesToUpdate = [];
 	data.nodes.forEach(
 		function(n) {
-			if (n.hiddenLabel == undefined) n.hiddenLabel = n
-				.label;
-			n.label = undefined;
+			n.hiddenLabel = n.label;
+			n.label = "";
 			nodesToUpdate.push(n);
 		}
 	);
@@ -1119,17 +1078,19 @@ function unHideLabels() {
 }
 
 function selectDim(event) {
+// dim all nodes except those some distance from the selected nodes
 	let sel = event.currentTarget.value;
 	if (sel == 'All') unDimAll();
 	else hideDistantNodes(sel);
 }
 
 function hideDistantNodes(radius) {
+// start by dimming everything and then undim the ones we want to see
+
 	unDimAllNodes();
 	unDimAllLinks();
 	let selectedNodes = network.getSelectedNodes();
-	if (selectedNodes.length == 0 || selectedNodes ==
-		lastSelectedNode) {
+	if (selectedNodes.length == 0) {
 		statusMsg('Select a Factor first');
 		document.getElementById('dimRest').value = 'All';
 		return;
@@ -1139,12 +1100,14 @@ function hideDistantNodes(radius) {
 
 	let nodeIdsInRadius = new Set();
 	let linkIdsInRadius = new Set();
-	nn(selectedNodes, radius);
+	inRadius(selectedNodes, radius);
 	unDimNodes(data.nodes.get(Array.from(nodeIdsInRadius)));
 	unDimLinks(data.edges.get(Array.from(linkIdsInRadius)));
 	if (selectedNodes.length == 1) network.focus(selectedNodes[0]);
 
-	function nn(nodeIds, radius) {
+	function inRadius(nodeIds, radius) {
+	// recursive function to collect nodes within radius links from any
+	// of the nodes listed in nodeIds
 		if (radius < 0) return;
 		nodeIds.forEach(function(nId) {
 			nodeIdsInRadius.add(nId);
@@ -1154,7 +1117,7 @@ function hideDistantNodes(radius) {
 				linkIdsInRadius.add(lId);
 			});
 			let linked = network.getConnectedNodes(nId);
-			if (linked) nn(linked, radius - 1);
+			if (linked) inRadius(linked, radius - 1);
 		})
 	}
 }
@@ -1194,17 +1157,19 @@ function unDimLinks(edgeArray) {
 }
 
 function dimNode(node) {
+// hide the color and other attributes of this node and replace with attributes
+// that make the node appear greyed out
 	node.hiddenLabel = node.label;
 	node.hiddenColor = node.color;
 	node.hiddenGroup = (node.group ? node.group : "group0");
-	node.label = undefined;
+	node.label = '';
 	node.color = dimColor;
 	node.group = "dimmedGroup";
 	return node;
 }
 
 function unDimNode(node) {
-	if (node.label == undefined) node.label = node.hiddenLabel;
+	if (node.label == '') node.label = node.hiddenLabel;
 	if (node.color == dimColor) node.color = node.hiddenColor;
 	if (node.group == "dimmedGroup") node.group = node.hiddenGroup;
 	delete node.hiddenLabel;
@@ -1221,7 +1186,7 @@ function dimLink(link) {
 
 function unDimLink(link) {
 	if (link.color == dimColor) link.color = link.hiddenColor;
-	if (!link.color) link.color = groupEdges.edge0.color;
+	if (!link.color) link.color = samples.edges.edge0.color;
 	delete link.hiddenColor;
 	return link;
 }
