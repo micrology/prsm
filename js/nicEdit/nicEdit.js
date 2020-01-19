@@ -87,7 +87,7 @@ var bkElement = bkClass.extend({
 	},
 	
 	addClass : function(cls) {
-		if (!this.hasClass(cls)) { this.className += " nicEdit-"+cls };
+		if (!this.hasClass(cls)) { this.className += " nicEdit-"+cls }
 		return this;
 	},
 	
@@ -149,7 +149,7 @@ var bkLib = {
 	
 	toArray : function(iterable) {
 		var length = iterable.length, results = new Array(length);
-    	while (length--) { results[length] = iterable[length] };
+    	while (length--) { results[length] = iterable[length] }
     	return results;	
 	},
 	
@@ -241,7 +241,7 @@ Function.prototype.closureListener = function() {
   	var __method = this, args = bkLib.toArray(arguments), object = args.shift(); 
   	return function(e) { 
   	e = e || window.event;
-  	if(e.target) { var target = e.target; } else { var target =  e.srcElement };
+  	if(e.target) { var target = e.target; } else { var target =  e.srcElement }
 	  	return __method.apply(object, [e,target].concat(args) ); 
 	};
 }		

@@ -7,12 +7,14 @@
     "dist": "webpack --mode=development",
     "start": "webpack-dev-server --open-page prism.html",
     "postinstall": "npm run dist",
+    "lint": "./node_modules/.bin/eslint ./js/*.js --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Nigel Gilbert",
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "dialog-polyfill": "^0.5.0",
+    "fsevents": "^2.1.2",
     "keycharm": "^0.2.0",
     "moment": "^2.24.0",
     "vis-data": "^6.3.3",
@@ -23,6 +25,7 @@
   },
   "devDependencies": {
     "css-loader": "^3.4.2",
+    "eslint": "^6.8.0",
     "style-loader": "^1.1.2",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
