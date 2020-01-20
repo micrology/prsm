@@ -640,6 +640,8 @@ function loadJSONfile(json) {
 		 */
 	network.setData(data);
 	updateYMaps();
+	// in case the previous network was dimmed
+	document.getElementById('dimRest').value = 'All';
 }
 
 function updateYMaps() {
@@ -1117,7 +1119,7 @@ function hideDistantNodes(radius) {
 	}
 	unDimNodes(data.nodes.get(Array.from(nodeIdsInSet)));
 	unDimLinks(data.edges.get(Array.from(linkIdsInSet)));
-	if (selectedNodes.length == 1) network.focus(selectedNodes[0]);
+//	if (selectedNodes.length == 1) network.focus(selectedNodes[0]);
 
 	function InSet(nodeIds, radius) {
 	// recursive function to collect nodes within radius links from any
@@ -1134,34 +1136,38 @@ function hideDistantNodes(radius) {
 		})
 	}
 	function upstream(nodeIds) {
-	// recursively add the nodes in and downstream of those in nodeIds
-		if (nodeIds.length == 0) return;
-		nodeIds.forEach(function(nId) {
-			nodeIdsInSet.add(nId);
-			let links = data.edges.get({filter: function(item) 
-				{return item.to == nId}});
-			if (links) links.forEach(function(link) {
-				linkIdsInSet.add(link.id);
-				upstream([link.from]);
-				});
-			});
-		}
-	function downstream(nodeIds) {
 	// recursively add the nodes in and upstream of those in nodeIds
 		if (nodeIds.length == 0) return;
 		nodeIds.forEach(function(nId) {
-			nodeIdsInSet.add(nId);
-			let links = data.edges.get({filter: function(item) 
-				{return item.from == nId}});
-			if (links) links.forEach(function(link) {
-				linkIdsInSet.add(link.id);
-				downstream([link.to]);
-				});
+			if (!nodeIdsInSet.has(nId)) {
+				nodeIdsInSet.add(nId);
+				let links = data.edges.get({filter: function(item) 
+					{return item.to == nId}});
+				if (links) links.forEach(function(link) {
+					linkIdsInSet.add(link.id);
+					upstream([link.from]);
+					});
+				}
+			});
+		}
+	function downstream(nodeIds) {
+	// recursively add the nodes in and downstream of those in nodeIds
+		if (nodeIds.length == 0) return;
+		nodeIds.forEach(function(nId) {
+			if (!nodeIdsInSet.has(nId)) {
+				nodeIdsInSet.add(nId);
+				let links = data.edges.get({filter: function(item) 
+					{return item.from == nId}});
+				if (links) links.forEach(function(link) {
+					linkIdsInSet.add(link.id);
+					downstream([link.to]);
+					});
+				}
 			});
 		}
 }
 
-const dimColor = "#f1f2f3";
+const dimColor = "#e3e6e8";
 
 function dimAllNodes() {
 	dimNodes(data.nodes.get());
