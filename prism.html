@@ -6,10 +6,7 @@
 	<meta charset="utf-8">
 	<meta content="IE=edge" http-equiv="X-UA-Compatible">
 	<meta content="width=device-width, initial-scale=1" name="viewport">
-	<link href="css/styles.css" rel="stylesheet">
-	<link href="css/navbar.css" rel="stylesheet">
-	<link href="css/tabs.css" rel="stylesheet">
-	<link href="css/main.css" rel="stylesheet">
+	<link href="css/prism.css" rel="stylesheet">
 	<link href="css/fa.min.css" rel="stylesheet">
 	<script src="js/modernizr-custom.js"></script>
 	<script src="js/nicEdit/nicEdit.min.js"></script>
@@ -23,13 +20,6 @@
 			<div class="button-wrapper">
 				<div class="buttons" id="buttons">
 					<div class="tooltip">
-						<button id="openFile"><i class="fas fa-folder-open"></i></button><span class="tooltiptext">Open network</span>
-					</div>
-					<div class="tooltip">
-						<button id="saveFile"><i class="fas fa-save"></i></button><span class="tooltiptext">Save network</span>
-						<a href='#' id="download" download></a>
-					</div>
-					<div class="tooltip">
 						<button id="addNode"><i class="fas fa-plus"></i></button><span class="tooltiptext">Add factor</span>
 					</div>
 					<div class="tooltip">
@@ -40,6 +30,13 @@
 					</div>
 					<div class="tooltip">
 						<button id="share"><i class="fas fa-user-friends"></i></button><span class="tooltiptext">Share</span>
+					</div>
+					<div class="tooltip">
+						<button id="openFile"><i class="fas fa-folder-open"></i></button><span class="tooltiptext">Open network</span>
+					</div>
+					<div class="tooltip">
+						<button id="saveFile"><i class="fas fa-save"></i></button><span class="tooltiptext">Save network</span>
+						<a href='#' id="download" download></a>
 					</div>
 					<div class="tooltip">
 						<button id="panelToggle"><i class="fas fa-clone"></i></button> <span class="tooltiptext">Show or hide panel</span>
@@ -119,15 +116,28 @@
 					</div>
 				</div>
 				<div class="panelRow">
-					<div>Show only factors<br>1, 2,or 3 links away or upstream or downstream from selected</div>
-					<select id="dimRest">
-						<option value="All" selected>(off))</option>
-						<option value="1">1</option>
-						<option value="2">2</option>
-						<option value="3">3</option>
-						<option value="upstream">Upstream</option>
-						<option value="downstream">Downstream</option>
-					</select>
+					<label for="dimAll">Show all</label>
+					<input type="radio" id="dimAll" name="dim" value="All" checked>
+				</div>
+				<div class="panelRow">
+					<label for="oneLink">Show only Factors 1 link away</label>
+					<input type="radio" id="oneLink" name="dim" value="1">
+				</div>
+				<div class="panelRow">
+					<label for="oneLink">Show only Factors 2 links away</label>
+					<input type="radio" id="twoLinks" name="dim" value="2">
+				</div>
+				<div class="panelRow">
+					<label for="threeLinks">Show only Factors 3 links away</label>
+					<input type="radio" id="threeLinks" name="dim" value="3">
+				</div>
+				<div class="panelRow">
+					<label for="upstream">Show only Factors upstream</label>
+					<input type="radio" id="upstream" name="dim" value="upstream">
+				</div>
+				<div class="panelRow">
+					<label for="downstream">Show only Factors downstream</label>
+						<input type="radio" id="downstream" name="dim" value="downstream">
 				</div>
 				<div class="panelRow">
 					<div>Show labels</div>
@@ -156,8 +166,8 @@
 				<div class="sampleNode" id="nodeSample8"></div>
 				<div class="sampleNode" id="nodeSample9"></div>
 			</div>
-			<div class="panelRow centered divider">
-				<button type="button" id="allFactors">Select all factors</button>
+			<div class="panelRow centered">
+				<button type="button" class="btn" id="allFactors">Select all factors</button>
 			</div>
 			<div id="oneNodeSelected">
 				<div class="panelRow centered">
@@ -190,8 +200,8 @@
 				<div class="sampleLink" id="linkSample8"></div>
 				<div class="sampleLink" id="linkSample9"></div>
 			</div>
-			<div class="panelRow centered divider">
-				<button type="button" id="allEdges" >Select all links</button>
+			<div class="panelRow centered">
+				<button type="button" class="btn" id="allEdges" >Select all links</button>
 			</div>
 		</div>
 	</aside>

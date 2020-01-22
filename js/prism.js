@@ -74,7 +74,7 @@ function checkFeatures() {
 
 
 function addEventListeners() {
-	// Clicking anywhere other than on the tabs clears the status bar 
+	// Clicking anywhere on the network canvas clears the status bar 
 	// (note trick: click is processed in the capturing phase)
 	document.getElementById("net-pane").addEventListener("click",
 	() => {
@@ -124,12 +124,10 @@ function addEventListeners() {
 		selectLayout);
 	document.getElementById('curveSelect').addEventListener('change',
 		selectCurve);
-	document.getElementById('dimRest').addEventListener('change', (
-		value) => {
-		selectDim(value)
-	});
 	document.getElementById('zoom').addEventListener('change',
 		zoomnet);
+	Array.from(document.getElementsByName("dim")).forEach(() => {
+		addEventListener('click', selectDim)});
 }
 
 function setUpPage() {
@@ -153,7 +151,8 @@ function startY() {
 	const wsProvider = new WebsocketProvider('ws://35.177.28.97:1234',
 		'prism' + room, doc);
 	wsProvider.on('status', event => {
-		console.log(event.status + ' to room ' +
+		console.log(new Date().toLocaleTimeString() + ': '  + 
+			event.status + (event.status == 'connected' ? ' to' : ' from') + ' room ' +
 			room) // logs "connected" or "disconnected"
 	});
 
@@ -641,7 +640,7 @@ function loadJSONfile(json) {
 	network.setData(data);
 	updateYMaps();
 	// in case the previous network was dimmed
-	document.getElementById('dimRest').value = 'All';
+	document.getElementById('dimAll').checked = true;
 }
 
 function updateYMaps() {
@@ -1006,8 +1005,8 @@ function displayStatistics(nodeId) {
 
 function autoLayoutSwitch(e) {
 	network.setOptions({
-		'physics': {
-			'enabled': e.target.checked
+		physics: {
+			enabled: e.target.checked
 		}
 	});
 }
@@ -1016,6 +1015,9 @@ function selectLayout() {
 	network.setOptions({
 		layout: {
 			hierarchical: document.getElementById('layoutSelect').value === 'Hierarchical'
+		},
+		physics: {
+			enabled: false
 		}
 	});
 }
@@ -1079,11 +1081,23 @@ function unHideLabels() {
 	data.nodes.update(nodesToUpdate);
 }
 
-function selectDim(event) {
+function selectDim() {
 // dim all nodes except those some distance from the selected nodes
-	let sel = event.currentTarget.value;
+
+	let sel = getRadioVal('dim');
+	if (sel == undefined) return;
 	if (sel == 'All') unDimAll();
 	else hideDistantNodes(sel);
+}
+
+function getRadioVal(name) {
+    // get list of radio buttons with specified name
+    let radios = document.getElementsByName(name);   
+    // loop through list of radio buttons
+    for (let i=0, len=radios.length; i<len; i++) {
+        if ( radios[i].checked )
+            return radios[i].value; // if so, hold its value in val
+    }
 }
 
 function hideDistantNodes(radius) {
@@ -1094,7 +1108,7 @@ function hideDistantNodes(radius) {
 	let selectedNodes = network.getSelectedNodes();
 	if (selectedNodes.length == 0) {
 		statusMsg('Select a Factor first');
-		document.getElementById('dimRest').value = 'All';
+		document.getElementById('dimAll').checked = true;
 		return;
 	}
 	dimAllNodes();
