@@ -215,10 +215,12 @@ function startY() {
 					.clientID == clientID) {
 					obj.clientID = clientID;
 					yNodesMap.set(id.toString(), obj);
+/* 
 					console.log(
 						'setting yNodesMap: ' +
 						id + ' to ' + JSON
 						.stringify(obj));
+ */
 				}
 			}
 		})
@@ -439,7 +441,7 @@ function draw() {
 } // end draw()
 
 function snapToGrid(nodeId, x, y, spacing) {
-	if (spacing == undefined) spacing = 50;
+	if (spacing == undefined) spacing = 100;
 	let node = data.nodes.get(nodeId);
 	node.x = (spacing) * Math.round(x / (spacing));
 	node.y = (spacing) * Math.round(y / (spacing));
@@ -649,6 +651,7 @@ function loadJSONfile(json) {
 		groupEdges = json.groupEdges;
 	}
 		 */
+	snapToGridOff();
 	network.setData(data);
 	updateYMaps();
 	// in case the previous network was dimmed
@@ -1016,10 +1019,12 @@ function displayStatistics(nodeId) {
 // Network tab
 
 function autoLayoutSwitch(e) {
-	if (e.target.checked && snapToGridToggle) snapToGridOff(); // no snapping with auto layout.
+	let switchOn = e.target.checked;
+	if (switchOn && snapToGridToggle) snapToGridOff(); // no snapping with auto layout.
+	if (!switchOn) network.storePositions(); //if changing from auto, record current positions
 	network.setOptions({
 		physics: {
-			enabled: e.target.checked
+			enabled: switchOn
 		}
 	});
 }
