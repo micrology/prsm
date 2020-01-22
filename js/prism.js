@@ -45,6 +45,7 @@ var network, room, nodes, edges, data, clientID, yNodesMap, yEdgesMap, panel, co
 var lastNodeSample = null;
 var lastLinkSample = null;
 var inAddMode = false; // true when adding a new Factor to the network; used to choose cursor pointer
+var snapToGridToggle = false;
 
 
 window.addEventListener('load', () => {
@@ -74,7 +75,7 @@ function checkFeatures() {
 
 
 function addEventListeners() {
-	// Clicking anywhere other than on the tabs clears the status bar 
+	// Clicking anywhere on the network canvas clears the status bar 
 	// (note trick: click is processed in the capturing phase)
 	document.getElementById("net-pane").addEventListener("click",
 	() => {
@@ -110,6 +111,8 @@ function addEventListeners() {
 		addEditor);
 	document.getElementById('autolayoutswitch').addEventListener(
 		'click', autoLayoutSwitch);
+	document.getElementById('snaptogridswitch').addEventListener(
+		'click', snapToGridSwitch);
 	document.getElementById('netBackColorWell').addEventListener(
 		'input', updateNetBack);
 	document.getElementById('allFactors').addEventListener('click',
@@ -124,12 +127,10 @@ function addEventListeners() {
 		selectLayout);
 	document.getElementById('curveSelect').addEventListener('change',
 		selectCurve);
-	document.getElementById('dimRest').addEventListener('change', (
-		value) => {
-		selectDim(value)
-	});
 	document.getElementById('zoom').addEventListener('change',
 		zoomnet);
+	Array.from(document.getElementsByName("dim")).forEach(() => {
+		addEventListener('change', selectDim)});
 }
 
 function setUpPage() {
@@ -153,7 +154,8 @@ function startY() {
 	const wsProvider = new WebsocketProvider('ws://35.177.28.97:1234',
 		'prism' + room, doc);
 	wsProvider.on('status', event => {
-		console.log(event.status + ' to room ' +
+		console.log(new Date().toLocaleTimeString() + ': '  + 
+			event.status + (event.status == 'connected' ? ' to' : ' from') + ' room ' +
 			room) // logs "connected" or "disconnected"
 	});
 
@@ -422,7 +424,8 @@ function draw() {
 	network.on('dragging', function() {
 		changeCursor('grabbing');
 	});
-	network.on('dragEnd', function() {
+	network.on('dragEnd', function(obj) {
+		if (snapToGridToggle) snapToGrid(obj.nodes[0], obj.pointer.canvas.x,  obj.pointer.canvas.y);
 		changeCursor('grab');
 	});
 
@@ -434,6 +437,14 @@ function draw() {
 	data.edges.on('remove', recalculateStats);
 
 } // end draw()
+
+function snapToGrid(nodeId, x, y, spacing) {
+	if (spacing == undefined) spacing = 50;
+	let node = data.nodes.get(nodeId);
+	node.x = (spacing) * Math.round(x / (spacing));
+	node.y = (spacing) * Math.round(y / (spacing));
+	data.nodes.update(node);
+}
 
 function editNode(data, cancelAction, callback) {
 	inAddMode = false;
@@ -641,7 +652,7 @@ function loadJSONfile(json) {
 	network.setData(data);
 	updateYMaps();
 	// in case the previous network was dimmed
-	document.getElementById('dimRest').value = 'All';
+	document.getElementById('dimAll').checked = true;
 }
 
 function updateYMaps() {
@@ -1005,17 +1016,43 @@ function displayStatistics(nodeId) {
 // Network tab
 
 function autoLayoutSwitch(e) {
+	if (e.target.checked && snapToGridToggle) snapToGridOff(); // no snapping with auto layout.
 	network.setOptions({
-		'physics': {
-			'enabled': e.target.checked
+		physics: {
+			enabled: e.target.checked
 		}
 	});
+}
+
+function autoLayoutOff() {
+	document.getElementById('autolayoutswitch').checked=false;
+	network.setOptions({physics: { enabled: false }});
+}
+
+function snapToGridSwitch(e) {
+	snapToGridToggle = e.target.checked;
+	if (snapToGridToggle) {
+		autoLayoutOff();
+		let positions = network.getPositions();
+		for (let prop in positions) {
+			snapToGrid(prop, positions[prop].x, positions[prop].y)
+			}
+		data.nodes.update(data.nodes.get());
+		}
+}
+
+function snapToGridOff() {
+	document.getElementById('snaptogridswitch').checked=false;
+	snapToGridToggle = false;
 }
 
 function selectLayout() {
 	network.setOptions({
 		layout: {
 			hierarchical: document.getElementById('layoutSelect').value === 'Hierarchical'
+		},
+		physics: {
+			enabled: false
 		}
 	});
 }
@@ -1079,11 +1116,23 @@ function unHideLabels() {
 	data.nodes.update(nodesToUpdate);
 }
 
-function selectDim(event) {
+function selectDim() {
 // dim all nodes except those some distance from the selected nodes
-	let sel = event.currentTarget.value;
+
+	let sel = getRadioVal('dim');
+	if (sel == undefined) return;
 	if (sel == 'All') unDimAll();
 	else hideDistantNodes(sel);
+}
+
+function getRadioVal(name) {
+    // get list of radio buttons with specified name
+    let radios = document.getElementsByName(name);   
+    // loop through list of radio buttons
+    for (let i=0, len=radios.length; i<len; i++) {
+        if ( radios[i].checked )
+            return radios[i].value; // if so, hold its value in val
+    }
 }
 
 function hideDistantNodes(radius) {
@@ -1094,7 +1143,7 @@ function hideDistantNodes(radius) {
 	let selectedNodes = network.getSelectedNodes();
 	if (selectedNodes.length == 0) {
 		statusMsg('Select a Factor first');
-		document.getElementById('dimRest').value = 'All';
+		document.getElementById('dimAll').checked = true;
 		return;
 	}
 	dimAllNodes();
