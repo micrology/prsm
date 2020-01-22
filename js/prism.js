@@ -45,6 +45,7 @@ var network, room, nodes, edges, data, clientID, yNodesMap, yEdgesMap, panel, co
 var lastNodeSample = null;
 var lastLinkSample = null;
 var inAddMode = false; // true when adding a new Factor to the network; used to choose cursor pointer
+var snapToGridToggle = false;
 
 
 window.addEventListener('load', () => {
@@ -110,6 +111,8 @@ function addEventListeners() {
 		addEditor);
 	document.getElementById('autolayoutswitch').addEventListener(
 		'click', autoLayoutSwitch);
+	document.getElementById('snaptogridswitch').addEventListener(
+		'click', snapToGridSwitch);
 	document.getElementById('netBackColorWell').addEventListener(
 		'input', updateNetBack);
 	document.getElementById('allFactors').addEventListener('click',
@@ -127,7 +130,7 @@ function addEventListeners() {
 	document.getElementById('zoom').addEventListener('change',
 		zoomnet);
 	Array.from(document.getElementsByName("dim")).forEach(() => {
-		addEventListener('click', selectDim)});
+		addEventListener('change', selectDim)});
 }
 
 function setUpPage() {
@@ -421,7 +424,8 @@ function draw() {
 	network.on('dragging', function() {
 		changeCursor('grabbing');
 	});
-	network.on('dragEnd', function() {
+	network.on('dragEnd', function(obj) {
+		if (snapToGridToggle) snapToGrid(obj.nodes[0], obj.pointer.canvas.x,  obj.pointer.canvas.y);
 		changeCursor('grab');
 	});
 
@@ -433,6 +437,14 @@ function draw() {
 	data.edges.on('remove', recalculateStats);
 
 } // end draw()
+
+function snapToGrid(nodeId, x, y, spacing) {
+	if (spacing == undefined) spacing = 50;
+	let node = data.nodes.get(nodeId);
+	node.x = (spacing) * Math.round(x / (spacing));
+	node.y = (spacing) * Math.round(y / (spacing));
+	data.nodes.update(node);
+}
 
 function editNode(data, cancelAction, callback) {
 	inAddMode = false;
@@ -1004,11 +1016,34 @@ function displayStatistics(nodeId) {
 // Network tab
 
 function autoLayoutSwitch(e) {
+	if (e.target.checked && snapToGridToggle) snapToGridOff(); // no snapping with auto layout.
 	network.setOptions({
 		physics: {
 			enabled: e.target.checked
 		}
 	});
+}
+
+function autoLayoutOff() {
+	document.getElementById('autolayoutswitch').checked=false;
+	network.setOptions({physics: { enabled: false }});
+}
+
+function snapToGridSwitch(e) {
+	snapToGridToggle = e.target.checked;
+	if (snapToGridToggle) {
+		autoLayoutOff();
+		let positions = network.getPositions();
+		for (let prop in positions) {
+			snapToGrid(prop, positions[prop].x, positions[prop].y)
+			}
+		data.nodes.update(data.nodes.get());
+		}
+}
+
+function snapToGridOff() {
+	document.getElementById('snaptogridswitch').checked=false;
+	snapToGridToggle = false;
 }
 
 function selectLayout() {

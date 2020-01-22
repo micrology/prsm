@@ -12,7 +12,7 @@ export function getScaleFreeNetwork(nodeCount) {
 	// randomly create some nodes and edges
 	for (var i = 0; i < nodeCount; i++) {
 		nodes.push({
-			id: i,
+			id: String(i),
 			label: String(i)
 		});
 
@@ -23,8 +23,8 @@ export function getScaleFreeNetwork(nodeCount) {
 			var from = i;
 			var to = 0;
 			edges.push({
-				from: from,
-				to: to
+				from: from.toString(),
+				to: to.toString()
 			});
 			connectionCount[from]++;
 			connectionCount[to]++;
@@ -41,8 +41,8 @@ export function getScaleFreeNetwork(nodeCount) {
 			from = i;
 			to = j;
 			edges.push({
-				from: from,
-				to: to
+				from: from.toString(),
+				to: to.toString()
 			});
 			connectionCount[from]++;
 			connectionCount[to]++;
