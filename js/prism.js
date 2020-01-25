@@ -40,7 +40,7 @@ Remember to start the WS provider first:
 
 const version = "0.91";
 
-var network, room, nodes, edges, data, clientID, yNodesMap, yEdgesMap, panel, container;
+var network, room, nodes, edges, data, clientID, yNodesMap, yEdgesMap, yUndoManager, panel, container;
 
 var lastNodeSample = null;
 var lastLinkSample = null;
@@ -78,59 +78,34 @@ function addEventListeners() {
 	// Clicking anywhere on the network canvas clears the status bar 
 	// (note trick: click is processed in the capturing phase)
 	document.getElementById("net-pane").addEventListener("click",
-	() => {
-			clearStatusBar();
-		}, true);
-	document.getElementById("openFile").addEventListener("click",
-		openFile);
-	document.getElementById("saveFile").addEventListener("click",
-		saveJSONfile);
-	document.getElementById("panelToggle").addEventListener("click",
-		togglePanel);
-	document.getElementById("addNode").addEventListener("click",
-		plusNode);
-	document.getElementById("addLink").addEventListener("click",
-		plusLink);
-	document.getElementById("deleteNode").addEventListener("click",
-		deleteNode);
-	document.getElementById('fileInput').addEventListener('change',
-		readSingleFile);
+		() => {clearStatusBar()}, true);
+	document.getElementById("openFile").addEventListener("click", openFile);
+	document.getElementById("saveFile").addEventListener("click", saveJSONfile);
+	document.getElementById("panelToggle").addEventListener("click", togglePanel);
+	document.getElementById("addNode").addEventListener("click", plusNode);
+	document.getElementById("addLink").addEventListener("click", plusLink);
+	document.getElementById("deleteNode").addEventListener("click", deleteNode);
+	document.getElementById('undo').addEventListener('click', undo);
+	document.getElementById('redo').addEventListener('click', redo);
+	document.getElementById('fileInput').addEventListener('change', readSingleFile);
 	document.getElementById("nodesButton").addEventListener("click",
-	() => {
-		openTab("nodesTab");
-	});
+		() => { openTab("nodesTab") });
 	document.getElementById("linksButton").addEventListener("click",
-	() => {
-		openTab("linksTab");
-	});
+		() => { openTab("linksTab") });
 	document.getElementById("networkButton").addEventListener("click",
-		() => {
-			openTab("networkTab");
-		});
-	document.getElementById('notes').addEventListener('click',
-		addEditor);
-	document.getElementById('autolayoutswitch').addEventListener(
-		'click', autoLayoutSwitch);
-	document.getElementById('snaptogridswitch').addEventListener(
-		'click', snapToGridSwitch);
-	document.getElementById('netBackColorWell').addEventListener(
-		'input', updateNetBack);
-	document.getElementById('allFactors').addEventListener('click',
-		selectAllFactors);
-	document.getElementById('allEdges').addEventListener('click',
-		selectAllEdges);
-	document.getElementById('showLabelSwitch').addEventListener(
-		'click', labelSwitch);
-	document.getElementById('showLabelSwitch').addEventListener(
-		'click', labelSwitch);
-	document.getElementById('layoutSelect').addEventListener('change',
-		selectLayout);
-	document.getElementById('curveSelect').addEventListener('change',
-		selectCurve);
-	document.getElementById('zoom').addEventListener('change',
-		zoomnet);
-	Array.from(document.getElementsByName("dim")).forEach(() => {
-		addEventListener('change', selectDim)});
+		() => { openTab("networkTab") });
+	document.getElementById('notes').addEventListener('click', addEditor);
+	document.getElementById('autolayoutswitch').addEventListener('click', autoLayoutSwitch);
+	document.getElementById('snaptogridswitch').addEventListener('click', snapToGridSwitch);
+	document.getElementById('netBackColorWell').addEventListener('input', updateNetBack);
+	document.getElementById('allFactors').addEventListener('click', selectAllFactors);
+	document.getElementById('allEdges').addEventListener('click', selectAllEdges);
+	document.getElementById('showLabelSwitch').addEventListener('click', labelSwitch);
+	document.getElementById('layoutSelect').addEventListener('change', selectLayout);
+	document.getElementById('curveSelect').addEventListener('change', selectCurve);
+	document.getElementById('zoom').addEventListener('change', zoomnet);
+	Array.from(document.getElementsByName("hide")).forEach((elem) => {
+		elem.addEventListener('change', selectHide)});
 }
 
 function setUpPage() {
@@ -175,7 +150,9 @@ function startY() {
 	}
 	console.log('My client ID: ' + clientID);
 
-
+	/* set up the undomanagers */
+	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap]);
+	
 	nodes = new DataSet();
 	edges = new DataSet();
 	data = {
@@ -189,6 +166,7 @@ function startY() {
 	window.data = data;
 	window.yNodesMap = yNodesMap;
 	window.yEdgesMap = yEdgesMap;
+	window.yUndoManager = yUndoManager;
 
 	/* 
 	nodes.on listens for when local nodes or edges are changed (added, updated or removed).
@@ -199,28 +177,18 @@ function startY() {
 	feedback loop, with each client re-broadcasting everything it received)
 	 */
 
-	nodes.on('*', (event, properties) => {
+	nodes.on('*', (event, properties, origin) => {
+		console.log('nodes.on: ' + event + JSON.stringify(properties.items) + 'origin: ' + origin);
 		properties.items.forEach(id => {
-			console.log('nodes.on: ' + event + JSON
-				.stringify(properties.items));
-			if (event == 'remove') {
-				yNodesMap.delete(id.toString());
-				console.log(
-					'deleted from YMapNodes: ' +
-					id);
-			}
-			else {
-				let obj = nodes.get(id);
-				if (obj.clientID == undefined || obj
-					.clientID == clientID) {
-					obj.clientID = clientID;
-					yNodesMap.set(id.toString(), obj);
-/* 
-					console.log(
-						'setting yNodesMap: ' +
-						id + ' to ' + JSON
-						.stringify(obj));
- */
+			if (origin == null) {
+				if (event == 'remove') {
+					yNodesMap.delete(id.toString());
+					console.log('deleted from YMapNodes: ' + id);
+				}
+				else {
+					let obj = nodes.get(id);
+					if (obj.clientID == undefined) obj.clientID = clientID;
+					if (obj.clientID == clientID) yNodesMap.set(id.toString(), obj);
 				}
 			}
 		})
@@ -238,8 +206,10 @@ function startY() {
 		for (let key of event.keysChanged) {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key);
-				if (obj.clientID != clientID) {
-					nodes.update(obj);
+				let origin = event.transaction.origin;
+				if (obj.clientID != clientID || origin != null) {
+					nodes.remove(obj, origin);
+					nodes.add(obj, origin);
 				}
 			}
 			else nodes.remove(key);
@@ -249,17 +219,16 @@ function startY() {
 	/* 
 	See comments above about nodes
 	 */
-	edges.on('*', (event, properties) => {
+	edges.on('*', (event, properties, origin) => {
 		properties.items.forEach(id => {
-			if (event == 'remove') {
-				yEdgesMap.delete(id.toString())
-			}
-			else {
-				let obj = edges.get(id);
-				if (obj.clientID == undefined || obj
-					.clientID == clientID) {
-					obj.clientID = clientID;
-					yEdgesMap.set(id.toString(), obj);
+			if (origin == null) {
+				if (event == 'remove') {
+					yEdgesMap.delete(id.toString())
+				}
+				else {
+					let obj = edges.get(id);
+					if (obj.clientID == undefined) obj.clientID = clientID;
+					if (obj.clientID == clientID) yEdgesMap.set(id.toString(), obj);
 				}
 			}
 		})
@@ -269,13 +238,25 @@ function startY() {
 		for (let key of event.keysChanged) {
 			if (yEdgesMap.has(key)) {
 				let obj = yEdgesMap.get(key);
-				if (obj.clientID != clientID) {
-					edges.update(obj);
+				let origin = event.transaction.origin;
+				if (obj.clientID != clientID || origin != null) {
+					edges.remove(obj, origin);
+					edges.add(obj, origin);
 				}
 			}
 			else edges.remove(key);
 		}
 	});
+	
+	yUndoManager.on('stack-item-added', event => {
+		undoButtonstatus();
+		redoButtonStatus();
+		});
+
+	yUndoManager.on('stack-item-popped', event => {
+		undoButtonstatus();
+		redoButtonStatus();
+		});
 
 }
 
@@ -381,7 +362,16 @@ function draw() {
 				color: 'red',
 				group: 'group8'
 			}
+		},
+/* 
+		physics: {
+			forceAtlas2Based: {
+				avoidOverlap: 0.2, 
+				springConstant: 0.002
+				}, 
+			solver: 'forceAtlas2Based'
 		}
+ */
 	};
 
 	network = new Network(netPane, data, options);
@@ -520,6 +510,12 @@ function changeCursor(newCursorStyle) {
 	document.getElementById("navbar").style.cursor = newCursorStyle;
 }
 
+function unSelect() {
+/* unselect all nodes and edges */
+	hideNotes();
+	network.unselectAll();
+}
+
 // set  up a web worker to calculate network statistics in parallel with whatever
 // the user is doing
 
@@ -562,8 +558,30 @@ function lf(nodes) {
 }
 
 /* 
-  Operations related to the top button bar (not the side panel)
+  -----------Operations related to the top button bar (not the side panel)-------------
  */
+
+function undo() {
+	unSelect();
+	yUndoManager.undo();
+}
+
+function redo() {
+	unSelect();
+	yUndoManager.redo()
+}
+
+function undoButtonstatus() {
+	if (yUndoManager.undoStack.length == 0) 
+		document.getElementById('undo').classList.add('disabled');
+	else document.getElementById('undo').classList.remove('disabled');
+}
+
+function redoButtonStatus() {
+	if (yUndoManager.redoStack.length == 0) 
+		document.getElementById('redo').classList.add('disabled');
+	else document.getElementById('redo').classList.remove('disabled');
+}
 
 var lastFileName = 'network.json';  // the name of the file last read in
 
@@ -579,7 +597,6 @@ function readSingleFile(e) {
 	var reader = new FileReader();
 	reader.onloadend = function(e) {
 		try {
-			console.log(e.target.result);
 			let json = JSON.parse(e.target.result);
 			loadJSONfile(json);
 			statusMsg("Read '" + fileName + "'");
@@ -603,9 +620,9 @@ function loadJSONfile(json) {
 		if (!confirm(
 				"Loading a file will delete the current network.  Are you sure you want to replace it?"
 				)) return;
+	unSelect();
 	nodes.clear();
 	edges.clear();
-	hideNotes();
 	let options = {
 		edges: {
 			inheritColors: false
@@ -652,10 +669,12 @@ function loadJSONfile(json) {
 	}
 		 */
 	snapToGridOff();
+/* 
 	network.setData(data);
 	updateYMaps();
+ */
 	// in case the previous network was dimmed
-	document.getElementById('dimAll').checked = true;
+	document.getElementById('hideAll').checked = true;
 }
 
 function updateYMaps() {
@@ -810,7 +829,7 @@ function togglePanel() {
 }
 
 
-/* operations related to the side panel */
+/* ---------operations related to the side panel -------------------------------------*/
 
 var tabOpen = null;
 
@@ -1057,9 +1076,14 @@ function selectLayout() {
 			hierarchical: document.getElementById('layoutSelect').value === 'Hierarchical'
 		},
 		physics: {
-			enabled: false
+			enabled: true,
+			stabilization: true
 		}
 	});
+	// allow the physics module to re-arrange the nodes and then turn it off again
+	network.once('stabilized', () => {
+		network.setOptions({ physics: { enabled: false, stabilization: false }})})
+
 }
 
 function selectCurve() {
@@ -1121,12 +1145,13 @@ function unHideLabels() {
 	data.nodes.update(nodesToUpdate);
 }
 
-function selectDim() {
-// dim all nodes except those some distance from the selected nodes
+function selectHide() {
+// hide all nodes except those some distance from the selected nodes, r 
+// up or downstream of the selected nodes
 
-	let sel = getRadioVal('dim');
+	let sel = getRadioVal('hide');
 	if (sel == undefined) return;
-	if (sel == 'All') unDimAll();
+	if (sel == 'All') unHideAll();
 	else hideDistantNodes(sel);
 }
 
@@ -1141,18 +1166,18 @@ function getRadioVal(name) {
 }
 
 function hideDistantNodes(radius) {
-// start by dimming everything and then undim the ones we want to see
+// start by hideming everything and then unhide the ones we want to see
 
-	unDimAllNodes();
-	unDimAllLinks();
+	unHideAllNodes();
+	unHideAllLinks();
 	let selectedNodes = network.getSelectedNodes();
 	if (selectedNodes.length == 0) {
 		statusMsg('Select a Factor first');
-		document.getElementById('dimAll').checked = true;
+		document.getElementById('hideAll').checked = true;
 		return;
 	}
-	dimAllNodes();
-	dimAllLinks();
+	hideAllNodes();
+	hideAllLinks();
 
 	let nodeIdsInSet = new Set();
 	let linkIdsInSet = new Set();
@@ -1169,10 +1194,10 @@ function hideDistantNodes(radius) {
 	case 'downstream':
 		downstream(selectedNodes);
 		break;
-	default: console.log('Illegal selection from selectDim()')
+	default: console.log('Illegal selection from selectHide()')
 	}
-	unDimNodes(data.nodes.get(Array.from(nodeIdsInSet)));
-	unDimLinks(data.edges.get(Array.from(linkIdsInSet)));
+	unHideNodes(data.nodes.get(Array.from(nodeIdsInSet)));
+	unHideLinks(data.edges.get(Array.from(linkIdsInSet)));
 //	if (selectedNodes.length == 1) network.focus(selectedNodes[0]);
 
 	function InSet(nodeIds, radius) {
@@ -1221,76 +1246,60 @@ function hideDistantNodes(radius) {
 		}
 }
 
-const dimColor = "#e3e6e8";
-
-function dimAllNodes() {
-	dimNodes(data.nodes.get());
+function hideAllNodes() {
+	hideNodes(data.nodes.get());
 }
 
-function dimNodes(nodeArray) {
-	data.nodes.update(nodeArray.map(dimNode));
+function hideNodes(nodeArray) {
+	data.nodes.update(nodeArray.map(hideNode));
 }
 
-function unDimAllNodes() {
-	unDimNodes(data.nodes.get());
+function unHideAllNodes() {
+	unHideNodes(data.nodes.get());
 }
 
-function unDimNodes(nodeArray) {
-	data.nodes.update(nodeArray.map(unDimNode));
+function unHideNodes(nodeArray) {
+	data.nodes.update(nodeArray.map(unHideNode));
 }
 
-function dimAllLinks() {
-	dimLinks(data.edges.get());
+function hideAllLinks() {
+	hideLinks(data.edges.get());
 }
 
-function dimLinks(edgeArray) {
-	data.edges.update(edgeArray.map(dimLink));
+function hideLinks(edgeArray) {
+	data.edges.update(edgeArray.map(hideLink));
 }
 
-function unDimAllLinks() {
-	unDimLinks(data.edges.get());
+function unHideAllLinks() {
+	unHideLinks(data.edges.get());
 }
 
-function unDimLinks(edgeArray) {
-	data.edges.update(edgeArray.map(unDimLink));
+function unHideLinks(edgeArray) {
+	data.edges.update(edgeArray.map(unHideLink));
 }
 
-function dimNode(node) {
-// hide the color and other attributes of this node and replace with attributes
-// that make the node appear greyed out
-	node.hiddenLabel = node.label;
-	node.hiddenColor = node.color;
-	node.hiddenGroup = (node.group ? node.group : "group0");
-	node.label = '';
-	node.color = dimColor;
-	node.group = "dimmedGroup";
+function hideNode(node) {
+// set this node to hidden
+	node.hidden = true;
 	return node;
 }
 
-function unDimNode(node) {
-	if (node.label == '') node.label = node.hiddenLabel;
-	if (node.color == dimColor) node.color = node.hiddenColor;
-	if (node.group == "dimmedGroup") node.group = node.hiddenGroup;
-	delete node.hiddenLabel;
-	delete node.hiddenColor;
-	delete node.hiddenGroup;
+function unHideNode(node) {
+	node.hidden = false;
 	return node;
 }
 
-function dimLink(link) {
-	link.hiddenColor = link.color;
-	link.color = dimColor;
+function hideLink(link) {
+	link.hidden = true;
 	return link;
 }
 
-function unDimLink(link) {
-	if (link.color == dimColor) link.color = link.hiddenColor;
-	if (!link.color) link.color = samples.edges.edge0.color;
-	delete link.hiddenColor;
+function unHideLink(link) {
+	link.hidden = false;
 	return link;
 }
 
-function unDimAll() {
-	unDimAllNodes();
-	unDimAllLinks();
+function unHideAll() {
+	unHideAllNodes();
+	unHideAllLinks();
 }

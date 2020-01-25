@@ -22,20 +22,26 @@
 					<div class="tooltip">
 						<button id="addNode"><i class="fas fa-plus"></i></button><span class="tooltiptext">Add factor</span>
 					</div>
-					<div class="tooltip">
+					<div class="tooltip right-border">
 						<button id="addLink"><i class="fas fa-wave-square"></i></button><span class="tooltiptext">Add link</span>
 					</div>
 					<div class="tooltip">
-						<button id="deleteNode"><i class="fas fa-trash-alt"></i></button><span class="tooltiptext">Delete selected</span>
+						<button id="undo" class="disabled"><i class="fas fa-undo small-button"></i></button><span class="tooltiptext">Undo</span>
+					</div>
+					<div class="tooltip">
+						<button id="redo" class="disabled"><i class="fas fa-redo small-button"></i></button><span class="tooltiptext">Redo</span>
+					</div>
+					<div class="tooltip right-border">
+						<button id="deleteNode"><i class="fas fa-trash-alt small-button"></i></button><span class="tooltiptext">Delete selected</span>
 					</div>
 					<div class="tooltip">
 						<button id="share"><i class="fas fa-user-friends"></i></button><span class="tooltiptext">Share</span>
 					</div>
 					<div class="tooltip">
-						<button id="openFile"><i class="fas fa-folder-open"></i></button><span class="tooltiptext">Open network</span>
+						<button id="openFile"><i class="fas fa-folder-open small-button"></i></button><span class="tooltiptext">Open network</span>
 					</div>
-					<div class="tooltip">
-						<button id="saveFile"><i class="fas fa-save"></i></button><span class="tooltiptext">Save network</span>
+					<div class="tooltip right-border">
+						<button id="saveFile"><i class="fas fa-save small-button"></i></button><span class="tooltiptext">Save network</span>
 						<a href='#' id="download" download></a>
 					</div>
 					<div class="tooltip">
@@ -128,28 +134,28 @@
 					</div>
 				</div>
 				<div class="panelRow">
-					<label for="dimAll">Show all</label>
-					<input type="radio" id="dimAll" name="dim" value="All" checked>
+					<label for="hideAll">Show all</label>
+					<input type="radio" id="hideAll" name="hide" value="All" checked>
 				</div>
 				<div class="panelRow">
 					<label for="oneLink">Show only Factors 1 link away</label>
-					<input type="radio" id="oneLink" name="dim" value="1">
+					<input type="radio" id="oneLink" name="hide" value="1">
 				</div>
 				<div class="panelRow">
 					<label for="oneLink">Show only Factors 2 links away</label>
-					<input type="radio" id="twoLinks" name="dim" value="2">
+					<input type="radio" id="twoLinks" name="hide" value="2">
 				</div>
 				<div class="panelRow">
 					<label for="threeLinks">Show only Factors 3 links away</label>
-					<input type="radio" id="threeLinks" name="dim" value="3">
+					<input type="radio" id="threeLinks" name="hide" value="3">
 				</div>
 				<div class="panelRow">
 					<label for="upstream">Show only Factors upstream</label>
-					<input type="radio" id="upstream" name="dim" value="upstream">
+					<input type="radio" id="upstream" name="hide" value="upstream">
 				</div>
 				<div class="panelRow">
 					<label for="downstream">Show only Factors downstream</label>
-						<input type="radio" id="downstream" name="dim" value="downstream">
+						<input type="radio" id="downstream" name="hide" value="downstream">
 				</div>
 				<div class="panelRow">
 					<div>Show labels</div>

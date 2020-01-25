@@ -366,7 +366,7 @@ edges: {
 		hoverWidth: 1.5,
 		selectionWidth: 2,
 		selfReferenceSize: 20,
-		width: 1,
+		width: 1
 	},
 
 	// simple directed blue link
