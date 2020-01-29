@@ -166,6 +166,7 @@ function startY() {
 	for convenience when debugging
 	 */
 	window.data = data;
+	window.clientID = clientID;
 	window.yNodesMap = yNodesMap;
 	window.yEdgesMap = yEdgesMap;
 	window.yUndoManager = yUndoManager;
@@ -180,7 +181,8 @@ function startY() {
 	 */
 
 	nodes.on('*', (event, properties, origin) => {
-		console.log('nodes.on: ' + event + JSON.stringify(properties.items) + 'origin: ' + origin);
+		console.log(new Date().toLocaleTimeString() + ': nodes.on: ' + 
+			event + JSON.stringify(properties.items) + 'origin: ' + origin);
 		properties.items.forEach(id => {
 			if (origin == null) {
 				if (event == 'remove') {
@@ -190,7 +192,11 @@ function startY() {
 				else {
 					let obj = nodes.get(id);
 					if (obj.clientID == undefined) obj.clientID = clientID;
-					if (obj.clientID == clientID) yNodesMap.set(id.toString(), obj);
+					if (obj.clientID == clientID) {
+						yNodesMap.set(id.toString(), obj);
+						console.log(new Date().toLocaleTimeString() + ': added to YMapNodes: ' 
+							+ JSON.stringify(obj));
+					}
 				}
 			}
 		})
@@ -375,6 +381,7 @@ function draw() {
 	};
 
 	network = new Network(netPane, data, options);
+	network.storePositions();
 	
 	window.network = network;
 	
@@ -430,6 +437,12 @@ function draw() {
 
 } // end draw()
 
+function claim(item) {
+// remove any existing clientID, to show that I now
+// own this and can broadcast my changes to the item
+	item.clientID = undefined;
+}
+	
 function snapToGrid(nodeId, x, y, spacing) {
 	if (spacing == undefined) spacing = 100;
 	let node = data.nodes.get(nodeId);
@@ -531,21 +544,21 @@ function statusMsg(msg) {
 function clearStatusBar() {
 	statusMsg("<br>");
 }
-function listFactors(nodes) {
+function listFactors(factors) {
 	// return a string listing the labels of the given nodes
 	let str = 'Factor';
-	if (nodes.length > 1) str = str + 's';
-	return str + ' ' + lf(nodes);
+	if (factors.length > 1) str = str + 's';
+	return str + ' ' + lf(factors);
 }
 
-function lf(nodes) {
+function lf(factors) {
 	// recursive fn to return a string of the node labels, separated by commas and 'and'
-	let n = nodes.length;
-	let label = data.nodes.get(nodes[0]).label
+	let n = factors.length;
+	let label = data.nodes.get(factors[0]).label
 	if (n == 1) return label;
-	nodes.shift();
-	if (n == 2) return label.concat(' and ' + lf(nodes));
-	return label.concat(', ' + lf(nodes));
+	factors.shift();
+	if (n == 2) return label.concat(' and ' + lf(factors));
+	return label.concat(', ' + lf(factors));
 }
 
 /* 
@@ -633,12 +646,12 @@ function loadJSONfile(json) {
 	if ('source' in json.edges[0]) {
 		// the file is from Gephi and needs to be translated
 		let parsed = parseGephiNetwork(json, options);
-		nodes.add(parsed.nodes);
-		edges.add(parsed.edges);
+		nodes.add(clean(parsed.nodes));
+		edges.add(clean(parsed.edges));
 	}
 	else {
-		nodes.add(json.nodes);
-		edges.add(json.edges);
+		nodes.add(clean(json.nodes));
+		edges.add(clean(json.edges));
 	}
 	data = {
 		nodes: nodes,
@@ -660,10 +673,6 @@ function loadJSONfile(json) {
 	}
 		 */
 	snapToGridOff();
-/* 
-	network.setData(data);
-	updateYMaps();
- */
 	// in case parts of the previous network was hidden
 	document.getElementById('hideAll').checked = true;
 	document.getElementById('streamAll').checked = true;
@@ -684,14 +693,19 @@ function saveJSONfile() {
 		lastLinkSample: lastLinkSample,
 		groups: network.groups.groups,
 		sampleEdges: samples.edges,
-		nodes: data.nodes.get(),
-		edges: data.edges.get()
+		nodes: clean(data.nodes.get()),
+		edges: clean(data.edges.get())
 	});
 	let element = document.getElementById("download");
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' +
 		encodeURIComponent(json));
 	element.setAttribute('download', lastFileName);
 	element.click();
+}
+
+function clean(items) {
+// return a copy of an array of objects, with some properties removed
+	return items.map(({clientID, color, ...keepAttrs}) => keepAttrs)
 }
 
 function plusNode() {
@@ -770,12 +784,9 @@ window.onclick = function(event) {
 
 document.getElementById('copy-text').addEventListener('click',
 	function(e) {
-
 		e.preventDefault();
-
 		// Select the text
 		inputElem.select();
-
 		let copied;
 		try {
 			// Copy the text
@@ -922,12 +933,10 @@ function applySampleToNode() {
 	let sample = event.currentTarget.group;
 	for (let node of data.nodes.get(selectedNodeIds)) {
 		node.group = sample;
-		delete node.color;
+		claim(node);
 		nodesToUpdate.push(node);
 	}
 	data.nodes.update(nodesToUpdate);
-	network.unselectAll();
-	hideNotes();
 	lastNodeSample = sample;
 }
 
@@ -938,11 +947,10 @@ function applySampleToLink() {
 	let edgesToUpdate = [];
 	for (let edge of data.edges.get(selectedEdges)) {
 		edge = Object.assign(edge, samples.edges[sample]);
+		claim(edge);
 		edgesToUpdate.push(edge);
 	}
 	data.edges.update(edgesToUpdate);
-	network.unselectAll();
-	hideNotes();
 	lastLinkSample = sample;
 }
 
@@ -980,7 +988,8 @@ function addNotesTA(str) {
 function updateNotes() {
 		data.nodes.update({
 			id: network.getSelectedNodes()[0],
-			title: document.getElementById('notesTA').value.replace(/\n/g, '</br>')
+			title: document.getElementById('notesTA').value.replace(/\n/g, '</br>'),
+			clientID: undefined
 		});
 }	
 
@@ -1008,7 +1017,7 @@ function displayStatistics(nodeId) {
 function autoLayoutSwitch(e) {
 	let switchOn = e.target.checked;
 	if (switchOn && snapToGridToggle) snapToGridOff(); // no snapping with auto layout.
-	if (!switchOn) network.storePositions(); //if changing from auto, record current positions
+	network.storePositions(); // record current positions so it can be undone
 	network.setOptions({
 		physics: {
 			enabled: switchOn
@@ -1039,10 +1048,12 @@ function snapToGridOff() {
 }
 
 function selectLayout() {
+	let layout = {hierarchical: {enabled:false}};
+	if (document.getElementById('layoutSelect').value === 'Hierarchical') 
+		layout = {hierarchical: {enabled: true, sortMethod: 'directed',
+							shakeTowards: 'leaves'}}; 
 	network.setOptions({
-		layout: {
-			hierarchical: document.getElementById('layoutSelect').value === 'Hierarchical'
-		},
+		layout: layout,
 		physics: {
 			enabled: true,
 			stabilization: true

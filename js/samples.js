@@ -12,10 +12,6 @@ export const samples = {nodes: {
 				border: '#000080',
 				background: '#efefff'
 			},
-			hover: {
-				border: '#2B7CE9',
-				background: 'white'
-			}
 		},
 		font: {
 			color: 'black',
@@ -45,10 +41,6 @@ export const samples = {nodes: {
 				border: '#c0392b',
 				background: '#ffe6e6'
 			},
-			hover: {
-				border: '#e74c3c',
-				background: 'white'
-			}
 		},
 		font: {
 			color: 'black',
@@ -78,9 +70,6 @@ export const samples = {nodes: {
 				background: "#99e699",
 				border: '#c0392b',
 			},
-			hover: {
-				border: '#e74c3c',
-			}
 		},
 		font: {
 			color: 'black',
@@ -110,9 +99,6 @@ export const samples = {nodes: {
 				background: "#ffccdd",
 				border: '#c0392b',
 			},
-			hover: {
-				border: '#e74c3c',
-			}
 		},
 		font: {
 			color: 'black',
@@ -142,9 +128,6 @@ export const samples = {nodes: {
 				background: "#ffccdd",
 				border: '#c0392b',
 			},
-			hover: {
-				border: '#e74c3c',
-			}
 		},
 		font: {
 			color: 'black',
@@ -178,9 +161,6 @@ export const samples = {nodes: {
 				background: "#b3ccff",
 				border: '#c0392b',
 			},
-			hover: {
-				border: '#e74c3c',
-			}
 		},
 		font: {
 			color: 'black',
@@ -211,9 +191,6 @@ export const samples = {nodes: {
 				background: "#ffff99",
 				border: '#c0392b',
 			},
-			hover: {
-				border: '#e74c3c',
-			}
 		},
 		font: {
 			color: 'black',
