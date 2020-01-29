@@ -21,18 +21,7 @@ export const samples = {nodes: {
 			color: 'black',
 		},
 		labelHighlightBold: true,
-		shadow: {
-			enabled: true,
-			color: 'rgba(0,0,0,0.5)',
-			size: 5,
-			x: 5,
-			y: 5
-		},
 		shape: 'ellipse',
-		shapeProperties: {
-			borderDashes: false, // only for borders
-			borderRadius: 6, // only for box shape
-		},
 		size: 50,
 		widthConstraint: {
 			minimum: 50
@@ -43,14 +32,14 @@ export const samples = {nodes: {
 	},
 
 	//------------------------------
-	// red bordered white ellipse 
+	// black bordered white ellipse 
 
 	group1: {
 		borderWidth: 2,
 		borderWidthSelected: 1,
 		chosen: true,
 		color: {
-			border: 'red',
+			border: 'black',
 			background: "white",
 			highlight: {
 				border: '#c0392b',
@@ -65,18 +54,7 @@ export const samples = {nodes: {
 			color: 'black',
 		},
 		labelHighlightBold: true,
-		shadow: {
-			enabled: true,
-			color: 'rgba(0,0,0,0.5)',
-			size: 5,
-			x: 5,
-			y: 5
-		},
 		shape: 'ellipse',
-		shapeProperties: {
-			borderDashes: false, // only for borders
-			borderRadius: 6, // only for box shape
-		},
 		size: 50,
 		widthConstraint: {
 			minimum: 50
@@ -87,40 +65,28 @@ export const samples = {nodes: {
 	},
 
 	//------------------------------
-	// purple bordered white ellipse 
+	// black bordered green ellipse 
 
 	group2: {
 		borderWidth: 2,
 		borderWidthSelected: 1,
 		chosen: true,
 		color: {
-			border: '#9b59b6',
-			background: "white",
+			border: 'black',
+			background: "#99e699",
 			highlight: {
-				border: '#8e44ad',
-				background: '#efefff'
+				background: "#99e699",
+				border: '#c0392b',
 			},
 			hover: {
-				border: '#8e44ad',
-				background: 'white'
+				border: '#e74c3c',
 			}
 		},
 		font: {
 			color: 'black',
 		},
 		labelHighlightBold: true,
-		shadow: {
-			enabled: true,
-			color: 'rgba(0,0,0,0.5)',
-			size: 5,
-			x: 5,
-			y: 5
-		},
 		shape: 'ellipse',
-		shapeProperties: {
-			borderDashes: false, // only for borders
-			borderRadius: 6, // only for box shape
-		},
 		size: 50,
 		widthConstraint: {
 			minimum: 50
@@ -131,41 +97,29 @@ export const samples = {nodes: {
 	},
 
 	//------------------------------
-	//   blue box with white text
+	// black bordered pink ellipse 
 
 	group3: {
-		borderWidth: 1,
-		borderWidthSelected: 2,
+		borderWidth: 2,
+		borderWidthSelected: 1,
 		chosen: true,
 		color: {
-			border: '#2B7CE9',
-			background: "#3498db",
+			border: 'black',
+			background: "#ffccdd",
 			highlight: {
-				border: '#2B7CE9',
-				background: '#2980b9'
+				background: "#ffccdd",
+				border: '#c0392b',
 			},
 			hover: {
-				border: '#2B7CE9',
-				background: '#2980b9'
+				border: '#e74c3c',
 			}
 		},
 		font: {
-			color: 'white',
+			color: 'black',
 		},
 		labelHighlightBold: true,
-		shadow: {
-			enabled: true,
-			color: 'rgba(0,0,0,0.5)',
-			size: 10,
-			x: 5,
-			y: 5
-		},
-		shape: 'box',
-		shapeProperties: {
-			borderDashes: false, // only for borders
-			borderRadius: 6, // only for box shape
-		},
-		size: 30,
+		shape: 'ellipse',
+		size: 50,
 		widthConstraint: {
 			minimum: 50
 		},
@@ -173,42 +127,34 @@ export const samples = {nodes: {
 			minimum: 20
 		}
 	},
+
 	//------------------------------
-	//   green box with white text
+	// black dashed bordered pink ellipse 
 
 	group4: {
-		borderWidth: 1,
-		borderWidthSelected: 2,
+		borderWidth: 2,
+		borderWidthSelected: 1,
 		chosen: true,
 		color: {
-			border: '#00b300',
-			background: "#33cc33",
+			border: 'black',
+			background: "#ffccdd",
 			highlight: {
-				border: '#00b300',
-				background: '#00b300'
+				background: "#ffccdd",
+				border: '#c0392b',
 			},
 			hover: {
-				border: '#2B7CE9',
-				background: '#006600'
+				border: '#e74c3c',
 			}
 		},
 		font: {
-			color: 'white',
+			color: 'black',
 		},
 		labelHighlightBold: true,
-		shadow: {
-			enabled: true,
-			color: 'rgba(0,0,0,0.5)',
-			size: 10,
-			x: 5,
-			y: 5
-		},
-		shape: 'box',
+		shape: 'ellipse',
 		shapeProperties: {
-			borderDashes: false, // only for borders
-			borderRadius: 6, // only for box shape
+			borderDashes: true, // only for borders
 		},
-		size: 30,
+		size: 50,
 		widthConstraint: {
 			minimum: 50
 		},
@@ -217,44 +163,66 @@ export const samples = {nodes: {
 		}
 	},
 
+
 	//------------------------------
-	// yellow box
+	// black bordered blue ellipse 
 
 	group5: {
 		borderWidth: 2,
-		borderWidthSelected: 4,
+		borderWidthSelected: 1,
 		chosen: true,
 		color: {
-			border: '#e6e600',
-			background: "#ffff80", // yellow
+			border: 'black',
+			background: "#b3ccff",
 			highlight: {
-				border: '#999900',
-				background: '#f1c41f'
+				background: "#b3ccff",
+				border: '#c0392b',
 			},
 			hover: {
-				border: '#2B7CE9',
-				background: '#f1c41f'
+				border: '#e74c3c',
 			}
 		},
 		font: {
 			color: 'black',
 		},
 		labelHighlightBold: true,
-		shadow: {
-			enabled: true,
-			color: 'rgba(0,0,0,0.5)',
-			size: 10,
-			x: 5,
-			y: 5
-		},
-		shape: 'box',
-		shapeProperties: {
-			borderDashes: false, // only for borders
-			borderRadius: 6, // only for box shape
-		},
+		shape: 'ellipse',
 		size: 50,
 		widthConstraint: {
-			minimum: 30
+			minimum: 50
+		},
+		heightConstraint: {
+			minimum: 20
+		}
+	},
+	
+	//------------------------------
+	// black bordered yellow ellipse 
+
+
+	group6: {
+		borderWidth: 2,
+		borderWidthSelected: 1,
+		chosen: true,
+		color: {
+			border: 'black',
+			background: "#ffff99",
+			highlight: {
+				background: "#ffff99",
+				border: '#c0392b',
+			},
+			hover: {
+				border: '#e74c3c',
+			}
+		},
+		font: {
+			color: 'black',
+		},
+		labelHighlightBold: true,
+		shape: 'ellipse',
+		size: 50,
+		widthConstraint: {
+			minimum: 50
 		},
 		heightConstraint: {
 			minimum: 20
@@ -265,7 +233,7 @@ export const samples = {nodes: {
 	//------------------------------
 	//  black text only 
 
-	group6: {
+	group7: {
 		borderWidth: 2,
 		borderWidthSelected: 1,
 		chosen: true,
@@ -274,9 +242,6 @@ export const samples = {nodes: {
 			size: 20, // px
 		},
 		labelHighlightBold: true,
-		shadow: {
-			enabled: false
-		},
 		shape: 'text',
 		size: 50,
 		widthConstraint: {
@@ -288,49 +253,27 @@ export const samples = {nodes: {
 	},
 
 	//------------------------------
-	// red star
+	//  red text only 
 
-	group7: {
-		borderWidth: 0,
-		borderWidthSelected: 5,
+	group8: {
+		borderWidth: 2,
+		borderWidthSelected: 1,
 		chosen: true,
-		color: {
-			border: '#2B7CE9',
-			background: "#e74c3c",
-			highlight: {
-				border: '#2B7CE9',
-				background: '#c0392b'
-			},
-			hover: {
-				border: '#2B7CE9',
-				background: '#c0392c'
-			}
-		},
 		font: {
-			color: 'black',
+			color: 'red',
+			size: 20, // px
 		},
 		labelHighlightBold: true,
-		shadow: {
-			enabled: false,
-			color: 'rgba(0,0,0,0.5)',
-			size: 10,
-			x: 5,
-			y: 5
+		shape: 'text',
+		size: 50,
+		widthConstraint: {
+			minimum: 50
 		},
-		shape: 'star',
-		size: 25
-	},
-	group8: {},
-	dimmedGroup: {
-		borderWidth: 0,
-		borderWidthSelected: 0,
-		chosen: false,
-		color: "#E5E7E9",
-		labelHighlightBold: false,
-		shadow: false,
-		shape: 'ellipse',
-		size: 25
+		heightConstraint: {
+			minimum: 20
+		}
 	}
+
 }, // end of node samples
 
 
@@ -427,9 +370,38 @@ edges: {
 		width: 1,
 	},
 
-	// simple directed grey link
+	// simple directed green link
 
 	edge3: {
+		arrows: {
+			to: {
+				enabled: true,
+				type: "arrow"
+			},
+			middle: {
+				enabled: false
+			},
+			from: {
+				enabled: false,
+			}
+		},
+		color: {
+			color: 'green',
+			highlight: 'red',
+			hover: 'red',
+			inherit: false,
+			opacity: 1.0
+		},
+		dashes: false,
+		hoverWidth: 1,
+		selectionWidth: 1,
+		selfReferenceSize: 20,
+		width: 1,
+	},
+	
+	// simple directed grey link
+
+	edge4: {
 		arrows: {
 			to: {
 				enabled: true,
@@ -458,7 +430,7 @@ edges: {
 
 	// medium directed yellow link
 
-	edge4: {
+	edge5: {
 		arrows: {
 			to: {
 				enabled: true,
@@ -485,69 +457,9 @@ edges: {
 		width: 4
 	},
 
-	// thick directed red link
-
-	edge5: {
-		arrows: {
-			to: {
-				enabled: true,
-				type: "arrow"
-			},
-			middle: {
-				enabled: false
-			},
-			from: {
-				enabled: false,
-			}
-		},
-		color: {
-			color: 'red',
-			highlight: 'red',
-			hover: 'red',
-			inherit: false,
-			opacity: 1.0
-		},
-		dashes: false,
-		hoverWidth: 1,
-		selectionWidth: 1,
-		selfReferenceSize: 20,
-		width: 4
-	},
-
-
-	// thick directed green link
-
-	edge6: {
-		arrows: {
-			to: {
-				enabled: true,
-				type: "arrow"
-			},
-			middle: {
-				enabled: false
-			},
-			from: {
-				enabled: false,
-			}
-		},
-		color: {
-			color: 'green',
-			highlight: 'green',
-			hover: 'green',
-			inherit: false,
-			opacity: 1.0
-		},
-		dashes: false,
-		hoverWidth: 1,
-		selectionWidth: 1,
-		selfReferenceSize: 20,
-		width: 4
-	},
-
-
 	//  directed black dashed link
 
-	edge7: {
+	edge6: {
 		arrows: {
 			to: {
 				enabled: true,
@@ -564,6 +476,35 @@ edges: {
 			color: 'black',
 			highlight: 'black',
 			hover: 'black',
+			inherit: false,
+			opacity: 1.0
+		},
+		dashes: [10, 10],
+		hoverWidth: 1,
+		selectionWidth: 1,
+		selfReferenceSize: 20,
+		width: 5
+	},
+
+	//  directed green dashed link
+
+	edge7: {
+		arrows: {
+			to: {
+				enabled: true,
+				type: "arrow"
+			},
+			middle: {
+				enabled: false
+			},
+			from: {
+				enabled: false,
+			}
+		},
+		color: {
+			color: 'green',
+			highlight: 'green',
+			hover: 'green',
 			inherit: false,
 			opacity: 1.0
 		},
