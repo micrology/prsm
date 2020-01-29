@@ -454,15 +454,6 @@ function editNode(data, cancelAction, callback) {
 		`${event.clientX - popUp.offsetWidth - 3}px`;
 	document.getElementById('node-label').value = data.label;
 	document.getElementById('node-label').focus();
-	/* allow Enter to click the Save button */
-	document.getElementById('node-label').addEventListener(
-		"keypress",
-		function onEvent(event) {
-			if (event.key === "Enter") {
-				document.getElementById("node-saveButton")
-					.click();
-			}
-		});
 }
 
 // Callback passed as parameter is ignored
@@ -1135,14 +1126,9 @@ function getRadioVal(name) {
 // Performs intersection operation between called set and otherSet 
 Set.prototype.intersection = function(otherSet) 
 { 
-	var intersectionSet = new Set(); 
-
-	for(var elem of otherSet) 
-	{ 
-		if(this.has(elem)) 
-			intersectionSet.add(elem); 
-	} 
-return intersectionSet;				 
+	let intersectionSet = new Set(); 
+	for(var elem of otherSet) if (this.has(elem)) intersectionSet.add(elem); 
+	return intersectionSet;				 
 } 
 
 function hideDistantOrStreamNodes() {
@@ -1152,12 +1138,11 @@ function hideDistantOrStreamNodes() {
 	let selectedNodes = network.getSelectedNodes();
 	if (selectedNodes.length == 0) {
 		statusMsg('Select a Factor first');
+		// unhide everything
 		document.getElementById('hideAll').checked = true;
 		document.getElementById('streamAll').checked = true;
-		data.nodes.forEach( (node) => {node.hidden = false});
-		data.nodes.update(data.nodes.get());
-		data.edges.forEach( (edge) => {edge.hidden = false});
-		data.edge.update(data.edge.get());
+		data.nodes.update(data.nodes.map((node) => {node.hidden = false; return node}))
+		data.edges.update(data.edges.map((edge) => {edge.hidden = false; return edge}))
 		return;
 	}
 
@@ -1171,7 +1156,6 @@ function hideDistantOrStreamNodes() {
 		data.edges.forEach(edge => linkIdsInRadiusSet.add(edge.id));
 		}
 	else inSet(selectedNodes, radius);
-	console.log(nodeIdsInRadiusSet);
 	
 	// stream	
 	let nodeIdsInStreamSet = new Set();
@@ -1187,13 +1171,10 @@ function hideDistantOrStreamNodes() {
 		if (stream == 'upstream') upstream(selectedNodes);
 		else downstream(selectedNodes);
 		}
-	console.log(nodeIdsInStreamSet);
 	
 	//intersection
 	let nodesToShow = nodeIdsInRadiusSet.intersection(nodeIdsInStreamSet);
 	let linksToShow = linkIdsInRadiusSet.intersection(linkIdsInStreamSet);
-	
-	console.log(nodesToShow);
 	
 	// update the network
 	data.nodes.update(data.nodes.map((node) => {node.hidden = !nodesToShow.has(node.id); return node}))
