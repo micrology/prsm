@@ -20,7 +20,7 @@
     "vis-data": "^6.3.3",
     "vis-network": "^6.5.2",
     "vis-util": "^1.1.10",
-    "y-websocket": "^1.0.7",
+    "y-websocket": "^1.2.0",
     "yjs": "^13.0.0-103"
   },
   "devDependencies": {

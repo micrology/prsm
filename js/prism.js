@@ -40,7 +40,7 @@ Remember to start the WS provider first:
 
 const version = "0.91";
 
-var network, room, nodes, edges, data, clientID, yNodesMap, yEdgesMap, panel, container;
+var network, room, nodes, edges, data, clientID, yNodesMap, yEdgesMap, yUndoManager, panel, container;
 
 var lastNodeSample = null;
 var lastLinkSample = null;
@@ -78,59 +78,35 @@ function addEventListeners() {
 	// Clicking anywhere on the network canvas clears the status bar 
 	// (note trick: click is processed in the capturing phase)
 	document.getElementById("net-pane").addEventListener("click",
-	() => {
-			clearStatusBar();
-		}, true);
-	document.getElementById("openFile").addEventListener("click",
-		openFile);
-	document.getElementById("saveFile").addEventListener("click",
-		saveJSONfile);
-	document.getElementById("panelToggle").addEventListener("click",
-		togglePanel);
-	document.getElementById("addNode").addEventListener("click",
-		plusNode);
-	document.getElementById("addLink").addEventListener("click",
-		plusLink);
-	document.getElementById("deleteNode").addEventListener("click",
-		deleteNode);
-	document.getElementById('fileInput').addEventListener('change',
-		readSingleFile);
+		() => {clearStatusBar()}, true);
+	document.getElementById("openFile").addEventListener("click", openFile);
+	document.getElementById("saveFile").addEventListener("click", saveJSONfile);
+	document.getElementById("panelToggle").addEventListener("click", togglePanel);
+	document.getElementById("addNode").addEventListener("click", plusNode);
+	document.getElementById("addLink").addEventListener("click", plusLink);
+	document.getElementById("deleteNode").addEventListener("click", deleteNode);
+	document.getElementById('undo').addEventListener('click', undo);
+	document.getElementById('redo').addEventListener('click', redo);
+	document.getElementById('fileInput').addEventListener('change', readSingleFile);
 	document.getElementById("nodesButton").addEventListener("click",
-	() => {
-		openTab("nodesTab");
-	});
+		() => { openTab("nodesTab") });
 	document.getElementById("linksButton").addEventListener("click",
-	() => {
-		openTab("linksTab");
-	});
+		() => { openTab("linksTab") });
 	document.getElementById("networkButton").addEventListener("click",
-		() => {
-			openTab("networkTab");
-		});
-	document.getElementById('notes').addEventListener('click',
-		addEditor);
-	document.getElementById('autolayoutswitch').addEventListener(
-		'click', autoLayoutSwitch);
-	document.getElementById('snaptogridswitch').addEventListener(
-		'click', snapToGridSwitch);
-	document.getElementById('netBackColorWell').addEventListener(
-		'input', updateNetBack);
-	document.getElementById('allFactors').addEventListener('click',
-		selectAllFactors);
-	document.getElementById('allEdges').addEventListener('click',
-		selectAllEdges);
-	document.getElementById('showLabelSwitch').addEventListener(
-		'click', labelSwitch);
-	document.getElementById('showLabelSwitch').addEventListener(
-		'click', labelSwitch);
-	document.getElementById('layoutSelect').addEventListener('change',
-		selectLayout);
-	document.getElementById('curveSelect').addEventListener('change',
-		selectCurve);
-	document.getElementById('zoom').addEventListener('change',
-		zoomnet);
-	Array.from(document.getElementsByName("dim")).forEach(() => {
-		addEventListener('change', selectDim)});
+		() => { openTab("networkTab") });
+	document.getElementById('autolayoutswitch').addEventListener('click', autoLayoutSwitch);
+	document.getElementById('snaptogridswitch').addEventListener('click', snapToGridSwitch);
+	document.getElementById('netBackColorWell').addEventListener('input', updateNetBack);
+	document.getElementById('allFactors').addEventListener('click', selectAllFactors);
+	document.getElementById('allEdges').addEventListener('click', selectAllEdges);
+	document.getElementById('showLabelSwitch').addEventListener('click', labelSwitch);
+	document.getElementById('layoutSelect').addEventListener('change', selectLayout);
+	document.getElementById('curveSelect').addEventListener('change', selectCurve);
+	document.getElementById('zoom').addEventListener('change', zoomnet);
+	Array.from(document.getElementsByName("hide")).forEach((elem) => {
+		elem.addEventListener('change', hideDistantOrStreamNodes)});
+	Array.from(document.getElementsByName("stream")).forEach((elem) => {
+		elem.addEventListener('change', hideDistantOrStreamNodes)});
 }
 
 function setUpPage() {
@@ -139,6 +115,7 @@ function setUpPage() {
 	panel.classList.add('hide');
 	container.panelHidden = true;
 	hideNotes();
+	document.getElementById('version').innerHTML = version;
 }
 
 function startY() {
@@ -175,7 +152,9 @@ function startY() {
 	}
 	console.log('My client ID: ' + clientID);
 
-
+	/* set up the undomanagers */
+	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap]);
+	
 	nodes = new DataSet();
 	edges = new DataSet();
 	data = {
@@ -189,6 +168,7 @@ function startY() {
 	window.data = data;
 	window.yNodesMap = yNodesMap;
 	window.yEdgesMap = yEdgesMap;
+	window.yUndoManager = yUndoManager;
 
 	/* 
 	nodes.on listens for when local nodes or edges are changed (added, updated or removed).
@@ -199,28 +179,18 @@ function startY() {
 	feedback loop, with each client re-broadcasting everything it received)
 	 */
 
-	nodes.on('*', (event, properties) => {
+	nodes.on('*', (event, properties, origin) => {
+		console.log('nodes.on: ' + event + JSON.stringify(properties.items) + 'origin: ' + origin);
 		properties.items.forEach(id => {
-			console.log('nodes.on: ' + event + JSON
-				.stringify(properties.items));
-			if (event == 'remove') {
-				yNodesMap.delete(id.toString());
-				console.log(
-					'deleted from YMapNodes: ' +
-					id);
-			}
-			else {
-				let obj = nodes.get(id);
-				if (obj.clientID == undefined || obj
-					.clientID == clientID) {
-					obj.clientID = clientID;
-					yNodesMap.set(id.toString(), obj);
-/* 
-					console.log(
-						'setting yNodesMap: ' +
-						id + ' to ' + JSON
-						.stringify(obj));
- */
+			if (origin == null) {
+				if (event == 'remove') {
+					yNodesMap.delete(id.toString());
+					console.log('deleted from YMapNodes: ' + id);
+				}
+				else {
+					let obj = nodes.get(id);
+					if (obj.clientID == undefined) obj.clientID = clientID;
+					if (obj.clientID == clientID) yNodesMap.set(id.toString(), obj);
 				}
 			}
 		})
@@ -234,12 +204,14 @@ function startY() {
 	 */
 
 	yNodesMap.observe((event) => {
-		console.log(event);
+//		console.log(event);
 		for (let key of event.keysChanged) {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key);
-				if (obj.clientID != clientID) {
-					nodes.update(obj);
+				let origin = event.transaction.origin;
+				if (obj.clientID != clientID || origin != null) {
+					nodes.remove(obj, origin);
+					nodes.add(obj, origin);
 				}
 			}
 			else nodes.remove(key);
@@ -249,17 +221,14 @@ function startY() {
 	/* 
 	See comments above about nodes
 	 */
-	edges.on('*', (event, properties) => {
+	edges.on('*', (event, properties, origin) => {
 		properties.items.forEach(id => {
-			if (event == 'remove') {
-				yEdgesMap.delete(id.toString())
-			}
-			else {
-				let obj = edges.get(id);
-				if (obj.clientID == undefined || obj
-					.clientID == clientID) {
-					obj.clientID = clientID;
-					yEdgesMap.set(id.toString(), obj);
+			if (origin == null) {
+				if (event == 'remove') yEdgesMap.delete(id.toString())
+				else {
+					let obj = edges.get(id);
+					if (obj.clientID == undefined) obj.clientID = clientID;
+					if (obj.clientID == clientID) yEdgesMap.set(id.toString(), obj);
 				}
 			}
 		})
@@ -269,13 +238,25 @@ function startY() {
 		for (let key of event.keysChanged) {
 			if (yEdgesMap.has(key)) {
 				let obj = yEdgesMap.get(key);
-				if (obj.clientID != clientID) {
-					edges.update(obj);
+				let origin = event.transaction.origin;
+				if (obj.clientID != clientID || origin != null) {
+					edges.remove(obj, origin);
+					edges.add(obj, origin);
 				}
 			}
 			else edges.remove(key);
 		}
 	});
+	
+	yUndoManager.on('stack-item-added', () => {
+		undoButtonstatus();
+		redoButtonStatus();
+		});
+
+	yUndoManager.on('stack-item-popped', () => {
+		undoButtonstatus();
+		redoButtonStatus();
+		});
 
 }
 
@@ -381,7 +362,16 @@ function draw() {
 				color: 'red',
 				group: 'group8'
 			}
+		},
+/* 
+		physics: {
+			forceAtlas2Based: {
+				avoidOverlap: 0.2, 
+				springConstant: 0.002
+				}, 
+			solver: 'forceAtlas2Based'
 		}
+ */
 	};
 
 	network = new Network(netPane, data, options);
@@ -520,6 +510,12 @@ function changeCursor(newCursorStyle) {
 	document.getElementById("navbar").style.cursor = newCursorStyle;
 }
 
+function unSelect() {
+/* unselect all nodes and edges */
+	hideNotes();
+	network.unselectAll();
+}
+
 // set  up a web worker to calculate network statistics in parallel with whatever
 // the user is doing
 
@@ -562,8 +558,30 @@ function lf(nodes) {
 }
 
 /* 
-  Operations related to the top button bar (not the side panel)
+  -----------Operations related to the top button bar (not the side panel)-------------
  */
+
+function undo() {
+	unSelect();
+	yUndoManager.undo();
+}
+
+function redo() {
+	unSelect();
+	yUndoManager.redo()
+}
+
+function undoButtonstatus() {
+	if (yUndoManager.undoStack.length == 0) 
+		document.getElementById('undo').classList.add('disabled');
+	else document.getElementById('undo').classList.remove('disabled');
+}
+
+function redoButtonStatus() {
+	if (yUndoManager.redoStack.length == 0) 
+		document.getElementById('redo').classList.add('disabled');
+	else document.getElementById('redo').classList.remove('disabled');
+}
 
 var lastFileName = 'network.json';  // the name of the file last read in
 
@@ -579,7 +597,6 @@ function readSingleFile(e) {
 	var reader = new FileReader();
 	reader.onloadend = function(e) {
 		try {
-			console.log(e.target.result);
 			let json = JSON.parse(e.target.result);
 			loadJSONfile(json);
 			statusMsg("Read '" + fileName + "'");
@@ -603,9 +620,9 @@ function loadJSONfile(json) {
 		if (!confirm(
 				"Loading a file will delete the current network.  Are you sure you want to replace it?"
 				)) return;
+	unSelect();
 	nodes.clear();
 	edges.clear();
-	hideNotes();
 	let options = {
 		edges: {
 			inheritColors: false
@@ -652,26 +669,13 @@ function loadJSONfile(json) {
 	}
 		 */
 	snapToGridOff();
+/* 
 	network.setData(data);
 	updateYMaps();
-	// in case the previous network was dimmed
-	document.getElementById('dimAll').checked = true;
-}
-
-function updateYMaps() {
-// this shouldn't be necessary, but it seems that it is (it should be handled 
-// by 'network.on()' )
-
-	data.nodes.forEach((obj) => {
-		let id = obj.id;
-		obj.clientID = clientID;
-		yNodesMap.set(id.toString(), obj);
-	});
-	data.edges.forEach((obj) => {
-		let id = obj.id;
-		obj.clientID = clientID;
-		yEdgesMap.set(id.toString(), obj);
-	});
+ */
+	// in case parts of the previous network was hidden
+	document.getElementById('hideAll').checked = true;
+	document.getElementById('streamAll').checked = true;
 }
 
 /* 
@@ -810,7 +814,7 @@ function togglePanel() {
 }
 
 
-/* operations related to the side panel */
+/* ---------operations related to the side panel -------------------------------------*/
 
 var tabOpen = null;
 
@@ -953,29 +957,6 @@ function applySampleToLink() {
 
 // Notes
 
-var editor = null;
-
-function addEditor() {
-	editor = new nicEditor({
-		buttonList: ['bold', 'italic', 'underline'],
-		iconsPath: 'js/nicEdit/nicEditorIcons.gif',
-		maxHeight: '30px'
-	}).panelInstance('notes', {
-		hasPanel: true
-	});
-	editor.addEvent('blur', removeEditor);
-}
-
-function removeEditor() {
-	if (editor.nicInstances.length > 0) {
-		data.nodes.update({
-			id: network.getSelectedNodes()[0],
-			title: editor.nicInstances[0].getContent()
-		});
-		editor.removeInstance('notes');
-	}
-}
-
 var lastSelectedNode;
 
 function displayNotes() {
@@ -987,8 +968,8 @@ function displayNotes() {
 		let node = data.nodes.get(nodeId);
 		let label = (node.label ? node.label : node.hiddenLabel);
 		document.getElementById("nodeLabel").innerHTML = (label ? label : "");
-		let title = node.title;
-		document.getElementById("notes").innerHTML = (title ? title : "");
+		let title = (node.title ? node.title : "");
+		addNotesTA(title);
 		panel.classList.remove('hide');
 		displayStatistics(nodeId);
 	}
@@ -996,6 +977,21 @@ function displayNotes() {
 		panel.classList.add('hide')
 	}
 }
+
+function addNotesTA(str) {
+	document.getElementById('notes').innerHTML = 
+		'<textarea class="notesTA" id="notesTA"</textarea>';
+	let textarea = document.getElementById('notesTA');
+	textarea.innerHTML = str.replace(/<\/br>/g, '\n');
+	textarea.addEventListener('blur', updateNotes);
+	}
+	
+function updateNotes() {
+		data.nodes.update({
+			id: network.getSelectedNodes()[0],
+			title: document.getElementById('notesTA').value.replace(/\n/g, '</br>')
+		});
+}	
 
 function hideNotes() {
 	document.getElementById("oneNodeSelected").classList.add('hide')
@@ -1057,9 +1053,14 @@ function selectLayout() {
 			hierarchical: document.getElementById('layoutSelect').value === 'Hierarchical'
 		},
 		physics: {
-			enabled: false
+			enabled: true,
+			stabilization: true
 		}
 	});
+	// allow the physics module to re-arrange the nodes and then turn it off again
+	network.once('stabilized', () => {
+		network.setOptions({ physics: { enabled: false, stabilization: false }})})
+
 }
 
 function selectCurve() {
@@ -1121,15 +1122,6 @@ function unHideLabels() {
 	data.nodes.update(nodesToUpdate);
 }
 
-function selectDim() {
-// dim all nodes except those some distance from the selected nodes
-
-	let sel = getRadioVal('dim');
-	if (sel == undefined) return;
-	if (sel == 'All') unDimAll();
-	else hideDistantNodes(sel);
-}
-
 function getRadioVal(name) {
     // get list of radio buttons with specified name
     let radios = document.getElementsByName(name);   
@@ -1140,65 +1132,97 @@ function getRadioVal(name) {
     }
 }
 
-function hideDistantNodes(radius) {
-// start by dimming everything and then undim the ones we want to see
+// Performs intersection operation between called set and otherSet 
+Set.prototype.intersection = function(otherSet) 
+{ 
+	var intersectionSet = new Set(); 
 
-	unDimAllNodes();
-	unDimAllLinks();
+	for(var elem of otherSet) 
+	{ 
+		if(this.has(elem)) 
+			intersectionSet.add(elem); 
+	} 
+return intersectionSet;				 
+} 
+
+function hideDistantOrStreamNodes() {
+// get the intersection of the nodes (and links) in radius and up or downstream,
+// and then hide everything not in that intersection
+
 	let selectedNodes = network.getSelectedNodes();
 	if (selectedNodes.length == 0) {
 		statusMsg('Select a Factor first');
-		document.getElementById('dimAll').checked = true;
+		document.getElementById('hideAll').checked = true;
+		document.getElementById('streamAll').checked = true;
+		data.nodes.forEach( (node) => {node.hidden = false});
+		data.nodes.update(data.nodes.get());
+		data.edges.forEach( (edge) => {edge.hidden = false});
+		data.edge.update(data.edge.get());
 		return;
 	}
-	dimAllNodes();
-	dimAllLinks();
 
-	let nodeIdsInSet = new Set();
-	let linkIdsInSet = new Set();
+	// radius
+	let nodeIdsInRadiusSet = new Set();
+	let linkIdsInRadiusSet = new Set();
 	
-	switch(radius) {
-	case '1':
-	case '2':
-	case '3':
-		InSet(selectedNodes, radius);
-		break;
-	case 'upstream':
-		upstream(selectedNodes);
-		break;
-	case 'downstream':
-		downstream(selectedNodes);
-		break;
-	default: console.log('Illegal selection from selectDim()')
-	}
-	unDimNodes(data.nodes.get(Array.from(nodeIdsInSet)));
-	unDimLinks(data.edges.get(Array.from(linkIdsInSet)));
-//	if (selectedNodes.length == 1) network.focus(selectedNodes[0]);
+	let radius = getRadioVal('hide');
+	if (radius == 'All') {
+		data.nodes.forEach(node => nodeIdsInRadiusSet.add(node.id));
+		data.edges.forEach(edge => linkIdsInRadiusSet.add(edge.id));
+		}
+	else inSet(selectedNodes, radius);
+	console.log(nodeIdsInRadiusSet);
+	
+	// stream	
+	let nodeIdsInStreamSet = new Set();
+	let linkIdsInStreamSet = new Set();
 
-	function InSet(nodeIds, radius) {
+	let stream = getRadioVal('stream');
+	if (stream == undefined) return;
+	if (stream == 'All') {
+		data.nodes.forEach(node => nodeIdsInStreamSet.add(node.id));
+		data.edges.forEach(edge => linkIdsInStreamSet.add(edge.id));
+		}
+	else {
+		if (stream == 'upstream') upstream(selectedNodes);
+		else downstream(selectedNodes);
+		}
+	console.log(nodeIdsInStreamSet);
+	
+	//intersection
+	let nodesToShow = nodeIdsInRadiusSet.intersection(nodeIdsInStreamSet);
+	let linksToShow = linkIdsInRadiusSet.intersection(linkIdsInStreamSet);
+	
+	console.log(nodesToShow);
+	
+	// update the network
+	data.nodes.update(data.nodes.map((node) => {node.hidden = !nodesToShow.has(node.id); return node}))
+	data.edges.update(data.edges.map((edge) => {edge.hidden = !linksToShow.has(edge.id); return edge}))
+	
+	function inSet(nodeIds, radius) {
 	// recursive function to collect nodes within radius links from any
 	// of the nodes listed in nodeIds
 		if (radius < 0) return;
 		nodeIds.forEach(function(nId) {
-			nodeIdsInSet.add(nId);
+			nodeIdsInRadiusSet.add(nId);
 			let links = network.getConnectedEdges(nId);
 			if (links && radius > 0) links.forEach(function(lId) {
-				linkIdsInSet.add(lId);
+				linkIdsInRadiusSet.add(lId);
 			});
 			let linked = network.getConnectedNodes(nId);
-			if (linked) InSet(linked, radius - 1);
+			if (linked) inSet(linked, radius - 1);
 		})
 	}
 	function upstream(nodeIds) {
 	// recursively add the nodes in and upstream of those in nodeIds
 		if (nodeIds.length == 0) return;
 		nodeIds.forEach(function(nId) {
-			if (!nodeIdsInSet.has(nId)) {
-				nodeIdsInSet.add(nId);
+			if (!nodeIdsInStreamSet.has(nId)) {
+				nodeIdsInStreamSet.add(nId);
 				let links = data.edges.get({filter: function(item) 
 					{return item.to == nId}});
 				if (links) links.forEach(function(link) {
-					linkIdsInSet.add(link.id);
+					linkIdsInStreamSet.add(link.id);
 					upstream([link.from]);
 					});
 				}
@@ -1208,89 +1232,15 @@ function hideDistantNodes(radius) {
 	// recursively add the nodes in and downstream of those in nodeIds
 		if (nodeIds.length == 0) return;
 		nodeIds.forEach(function(nId) {
-			if (!nodeIdsInSet.has(nId)) {
-				nodeIdsInSet.add(nId);
+			if (!nodeIdsInStreamSet.has(nId)) {
+				nodeIdsInStreamSet.add(nId);
 				let links = data.edges.get({filter: function(item) 
 					{return item.from == nId}});
 				if (links) links.forEach(function(link) {
-					linkIdsInSet.add(link.id);
+					linkIdsInStreamSet.add(link.id);
 					downstream([link.to]);
 					});
 				}
 			});
 		}
-}
-
-const dimColor = "#e3e6e8";
-
-function dimAllNodes() {
-	dimNodes(data.nodes.get());
-}
-
-function dimNodes(nodeArray) {
-	data.nodes.update(nodeArray.map(dimNode));
-}
-
-function unDimAllNodes() {
-	unDimNodes(data.nodes.get());
-}
-
-function unDimNodes(nodeArray) {
-	data.nodes.update(nodeArray.map(unDimNode));
-}
-
-function dimAllLinks() {
-	dimLinks(data.edges.get());
-}
-
-function dimLinks(edgeArray) {
-	data.edges.update(edgeArray.map(dimLink));
-}
-
-function unDimAllLinks() {
-	unDimLinks(data.edges.get());
-}
-
-function unDimLinks(edgeArray) {
-	data.edges.update(edgeArray.map(unDimLink));
-}
-
-function dimNode(node) {
-// hide the color and other attributes of this node and replace with attributes
-// that make the node appear greyed out
-	node.hiddenLabel = node.label;
-	node.hiddenColor = node.color;
-	node.hiddenGroup = (node.group ? node.group : "group0");
-	node.label = '';
-	node.color = dimColor;
-	node.group = "dimmedGroup";
-	return node;
-}
-
-function unDimNode(node) {
-	if (node.label == '') node.label = node.hiddenLabel;
-	if (node.color == dimColor) node.color = node.hiddenColor;
-	if (node.group == "dimmedGroup") node.group = node.hiddenGroup;
-	delete node.hiddenLabel;
-	delete node.hiddenColor;
-	delete node.hiddenGroup;
-	return node;
-}
-
-function dimLink(link) {
-	link.hiddenColor = link.color;
-	link.color = dimColor;
-	return link;
-}
-
-function unDimLink(link) {
-	if (link.color == dimColor) link.color = link.hiddenColor;
-	if (!link.color) link.color = samples.edges.edge0.color;
-	delete link.hiddenColor;
-	return link;
-}
-
-function unDimAll() {
-	unDimAllNodes();
-	unDimAllLinks();
 }
