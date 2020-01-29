@@ -9,14 +9,14 @@
 	<link href="css/prism.css" rel="stylesheet">
 	<link href="css/fa.min.css" rel="stylesheet">
 	<script src="js/modernizr-custom.js"></script>
-	<script src="js/nicEdit/nicEdit.min.js"></script>
 </head>
 
 <body class="container" id="container">
 	<header>
 		<nav id="navbar">
-			<img src="img/prism-logo.png" alt="PRISM">
-			<div class="strapline">Prism: PaRtIcipatory System Mapping</div>
+			<!-- <img src="img/prism-logo.png" alt="PRISM"> -->
+			<div class="strapline">Participatory System Mapping</div>
+			<div id="version"></div>
 			<div class="button-wrapper">
 				<div class="buttons" id="buttons">
 					<div class="tooltip">
@@ -73,6 +73,8 @@
 		</div>
 
 		<div id="net-pane"></div>
+		<div id="underlay">
+		<img id="img" src="img/CECAN.jpg"></div>
 
 	</main>
 	<aside id="panel">
@@ -84,7 +86,7 @@
 		</div>
 		<!-- Tab content -->
 		
-		<!-- Network tab This one is displayed initially -->
+		<!-- Network tab -->
 		<div class="tabcontent hide" id="networkTab">
 			<div class="networkGrid">
 				<div class="panelRow">
@@ -133,7 +135,7 @@
 						<input type="color" value="#ffffff" id="netBackColorWell">
 					</div>
 				</div>
-				<div class="panelRow">
+				<div class="panelRow divider">
 					<label for="hideAll">Show all</label>
 					<input type="radio" id="hideAll" name="hide" value="All" checked>
 				</div>
@@ -149,18 +151,23 @@
 					<label for="threeLinks">Show only Factors 3 links away</label>
 					<input type="radio" id="threeLinks" name="hide" value="3">
 				</div>
+				<div class="panelRow divider">
+					<label for="streamAll">Show all</label>
+					<input type="radio" id="streamAll" name="stream" value="All" checked>
+				</div>
 				<div class="panelRow">
 					<label for="upstream">Show only Factors upstream</label>
-					<input type="radio" id="upstream" name="hide" value="upstream">
+					<input type="radio" id="upstream" name="stream" value="upstream">
 				</div>
 				<div class="panelRow">
 					<label for="downstream">Show only Factors downstream</label>
-						<input type="radio" id="downstream" name="hide" value="downstream">
+						<input type="radio" id="downstream" name="stream" value="downstream">
 				</div>
-				<div class="panelRow">
+				<div class="panelRow divider">
 					<div>Show labels</div>
 					<div class="onoffswitch">
-						<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="showLabelSwitch" checked>
+						<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" 
+							id="showLabelSwitch" checked>
 						<label class="onoffswitch-label" for="showLabelSwitch">
 							<span class="onoffswitch-inner"></span>
 							<span class="onoffswitch-switch"></span>

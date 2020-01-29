@@ -24,9 +24,18 @@ and return it to the main thread
 onmessage = function(e) {
 	let graph = {
 		nodes: e.data[0], // array of node objects
-		edges: e.data[1]
-	}; // array of edge objects
-	postMessage(betweenness(graph));
+		edges: e.data[1]  // array of edge objects
+	}; 
+	if (checkComplete(graph)) postMessage(betweenness(graph));
+}
+
+function checkComplete(graph) {
+// sanity check: do all the edges connect existing nodes
+	graph.edges.forEach( (edge) => {
+		if (graph.nodes.find(node => (node.id == edge.from)) == null || 
+			graph.nodes.find(node => (node.id == edge.to)) == null) return false
+		});
+	return true
 }
 
 var betweennessCache = {
