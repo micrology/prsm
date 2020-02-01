@@ -38,7 +38,9 @@ Remember to start the WS provider first:
 	npx y-websocket-server
 */
 
-const version = "0.91";
+const version = "0.92";
+
+const GRIDSPACING = 100;
 
 var network, room, nodes, edges, data, clientID, yNodesMap, yEdgesMap, yUndoManager, panel, container;
 
@@ -423,8 +425,17 @@ function draw() {
 	network.on('dragging', function() {
 		changeCursor('grabbing');
 	});
-	network.on('dragEnd', function(obj) {
-		if (snapToGridToggle) snapToGrid(obj.nodes[0], obj.pointer.canvas.x,  obj.pointer.canvas.y);
+	network.on('dragEnd', function(event) {
+		let newPositions = network.getPositions(event.nodes);
+		data.nodes.update(
+			data.nodes.get(event.nodes).map( n=> {
+				n.x = newPositions[n.id].x;
+				n.y = newPositions[n.id].y;
+				if (snapToGridToggle) snapToGrid(n);
+				claim(n);
+				return n;
+			})
+		);
 		changeCursor('grab');
 	});
 
@@ -443,12 +454,9 @@ function claim(item) {
 	item.clientID = undefined;
 }
 	
-function snapToGrid(nodeId, x, y, spacing) {
-	if (spacing == undefined) spacing = 100;
-	let node = data.nodes.get(nodeId);
-	node.x = (spacing) * Math.round(x / (spacing));
-	node.y = (spacing) * Math.round(y / (spacing));
-	data.nodes.update(node);
+function snapToGrid(node) {
+	node.x = (GRIDSPACING) * Math.round(node.x / (GRIDSPACING));
+	node.y = (GRIDSPACING) * Math.round(node.y / (GRIDSPACING));
 }
 
 function editNode(data, cancelAction, callback) {
@@ -1035,11 +1043,17 @@ function snapToGridSwitch(e) {
 	if (snapToGridToggle) {
 		autoLayoutOff();
 		let positions = network.getPositions();
-		for (let prop in positions) {
-			snapToGrid(prop, positions[prop].x, positions[prop].y)
-			}
-		data.nodes.update(data.nodes.get());
-		}
+		data.nodes.update(
+			data.nodes.get().map( n => {
+				n.x = positions[n.id].x;
+				n.y = positions[n.id].y;
+				snapToGrid(n);
+				claim(n);
+				return n;
+				}
+			)
+		);
+	}
 }
 
 function snapToGridOff() {
@@ -1074,7 +1088,7 @@ function selectCurve() {
 }
 
 function updateNetBack(event) {
-	document.getElementById('net-pane').style.backgroundColor = event.target.value;
+	document.getElementById('underlay').style.backgroundColor = event.target.value;
 }
 
 function selectAllFactors() {
