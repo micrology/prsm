@@ -2,6 +2,7 @@ export const samples = {nodes: {
 	//------------------------------
 	// blue bordered white ellipse 
 	group0: {
+		groupLabel: 'Sample',
 		borderWidth: 2,
 		borderWidthSelected: 1,
 		chosen: true,
@@ -15,9 +16,13 @@ export const samples = {nodes: {
 		},
 		font: {
 			color: 'black',
+			size: 14
 		},
 		labelHighlightBold: true,
 		shape: 'ellipse',
+		shapeProperties: {
+			borderDashes: false
+		},
 		size: 50,
 		widthConstraint: {
 			minimum: 50
@@ -31,6 +36,7 @@ export const samples = {nodes: {
 	// black bordered white ellipse 
 
 	group1: {
+		groupLabel: 'Sample',
 		borderWidth: 2,
 		borderWidthSelected: 1,
 		chosen: true,
@@ -44,9 +50,13 @@ export const samples = {nodes: {
 		},
 		font: {
 			color: 'black',
+			size: 14
 		},
 		labelHighlightBold: true,
 		shape: 'ellipse',
+		shapeProperties: {
+			borderDashes: false
+		},
 		size: 50,
 		widthConstraint: {
 			minimum: 50
@@ -60,6 +70,7 @@ export const samples = {nodes: {
 	// black bordered green ellipse 
 
 	group2: {
+		groupLabel: 'Sample',
 		borderWidth: 2,
 		borderWidthSelected: 1,
 		chosen: true,
@@ -73,9 +84,13 @@ export const samples = {nodes: {
 		},
 		font: {
 			color: 'black',
+			size: 14
 		},
 		labelHighlightBold: true,
 		shape: 'ellipse',
+		shapeProperties: {
+			borderDashes: false
+		},
 		size: 50,
 		widthConstraint: {
 			minimum: 50
@@ -89,6 +104,7 @@ export const samples = {nodes: {
 	// black bordered pink ellipse 
 
 	group3: {
+		groupLabel: 'Sample',
 		borderWidth: 2,
 		borderWidthSelected: 1,
 		chosen: true,
@@ -102,9 +118,13 @@ export const samples = {nodes: {
 		},
 		font: {
 			color: 'black',
+			size: 14
 		},
 		labelHighlightBold: true,
 		shape: 'ellipse',
+		shapeProperties: {
+			borderDashes: false
+		},
 		size: 50,
 		widthConstraint: {
 			minimum: 50
@@ -118,6 +138,7 @@ export const samples = {nodes: {
 	// black dashed bordered pink ellipse 
 
 	group4: {
+		groupLabel: 'Sample',
 		borderWidth: 2,
 		borderWidthSelected: 1,
 		chosen: true,
@@ -131,6 +152,7 @@ export const samples = {nodes: {
 		},
 		font: {
 			color: 'black',
+			size: 14
 		},
 		labelHighlightBold: true,
 		shape: 'ellipse',
@@ -151,6 +173,7 @@ export const samples = {nodes: {
 	// black bordered blue ellipse 
 
 	group5: {
+		groupLabel: 'Sample',
 		borderWidth: 2,
 		borderWidthSelected: 1,
 		chosen: true,
@@ -164,9 +187,13 @@ export const samples = {nodes: {
 		},
 		font: {
 			color: 'black',
+			size: 14
 		},
 		labelHighlightBold: true,
 		shape: 'ellipse',
+		shapeProperties: {
+			borderDashes: true, // only for borders
+		},
 		size: 50,
 		widthConstraint: {
 			minimum: 50
@@ -181,6 +208,7 @@ export const samples = {nodes: {
 
 
 	group6: {
+		groupLabel: 'Sample',
 		borderWidth: 2,
 		borderWidthSelected: 1,
 		chosen: true,
@@ -194,9 +222,13 @@ export const samples = {nodes: {
 		},
 		font: {
 			color: 'black',
+			size: 14
 		},
 		labelHighlightBold: true,
 		shape: 'ellipse',
+		shapeProperties: {
+			borderDashes: false
+		},
 		size: 50,
 		widthConstraint: {
 			minimum: 50
@@ -211,15 +243,27 @@ export const samples = {nodes: {
 	//  black text only 
 
 	group7: {
+		groupLabel: 'Sample',
 		borderWidth: 2,
 		borderWidthSelected: 1,
 		chosen: true,
+		color: {
+			border: 'black',
+			background: "#ffff99",
+			highlight: {
+				background: "#ffff99",
+				border: '#c0392b',
+			},
+		},
 		font: {
 			color: 'black',
 			size: 20, // px
 		},
 		labelHighlightBold: true,
 		shape: 'text',
+		shapeProperties: {
+			borderDashes: false
+		},
 		size: 50,
 		widthConstraint: {
 			minimum: 50
@@ -233,15 +277,27 @@ export const samples = {nodes: {
 	//  red text only 
 
 	group8: {
+		groupLabel: 'Sample',
 		borderWidth: 2,
 		borderWidthSelected: 1,
 		chosen: true,
+		color: {
+			border: 'black',
+			background: "#ffff99",
+			highlight: {
+				background: "#ffff99",
+				border: '#c0392b',
+			},
+		},
 		font: {
 			color: 'red',
 			size: 20, // px
 		},
 		labelHighlightBold: true,
 		shape: 'text',
+		shapeProperties: {
+			borderDashes: false
+		},
 		size: 50,
 		widthConstraint: {
 			minimum: 50
