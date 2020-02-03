@@ -5,7 +5,7 @@
 	<title>Prism: PaRtIcipatory System Mapping</title>
 	<meta charset="utf-8">
 	<meta content="IE=edge" http-equiv="X-UA-Compatible">
-	<meta content="width=device-width, initial-scale=1" name="viewport">
+	<meta content="width=device-width, height=device-height" name="viewport">
 	<link href="css/prism.css" rel="stylesheet">
 	<link href="css/fa.min.css" rel="stylesheet">
 	<script src="js/modernizr-custom.js"></script>
@@ -239,6 +239,62 @@
 			<input type="range" id="zoom" min="0.1" max="4" step="0.1">
 		</div>
 	</footer>
+	
+	<!-- sample node edit panel -->
+	
+	<div id="editNodeDrawer" class="drawerContent hideDrawer">
+		<div class="sampleEditorPanel">
+		  <div class="sampleTitleInput">Name: <input name="label" /></div>
+		  <div>
+			fill
+		  </div>
+		  <div>
+			border
+		  </div>
+		  <div>
+			font
+		  </div>
+		  <div>
+			<input type="color" name="fillColor" />
+		  </div>
+		  <div>
+			<input type="color" name="borderColor" />
+		  </div>
+		  <div>
+			<input type="color" name="fontColor" />
+		  </div>
+		  <div>
+			<select name="shape">
+			  <option value="">Shape...</option>
+			  <option value="ellipse">Ellipse</option>
+			  <option value="circle">Circle</option>
+			  <option value="box">Rect</option>
+			  <option value="text">Text</option>
+			</select>
+		  </div>
+		  <div>
+			<select name="borderType">
+			  <option value="">Type...</option>
+			  <option value="false">Solid</option>
+			  <option value="true">Dashed</option>
+			  <option value="dots">Dotted</option>
+			</select>
+		  </div>
+		  <div>
+			<select name="fontSize">
+			  <option value="">Size...</option>
+			  <option value="18">Large</option>
+			  <option value="14">Normal</option>
+			  <option value="10">Small</option>
+			</select>
+		  </div>
+		  <div class="sampleEditorSubmit">
+			<button id="sampleEditorSubmitButton">
+			  Save
+			</button>
+		  </div>
+		</div>
+	</div>
 	
 	<!-- Share model dialog -->
 	<div id="shareModal" class="modal">

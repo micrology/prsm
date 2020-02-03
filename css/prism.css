@@ -128,12 +128,6 @@ Network pane and pop-up for new Factors
 #node-popUp::after {
 	content: "";
 	position: absolute;
-/* 
-	top: 0;
-	left: 0;
-	margin-left: -10px;
-	border-width: 10px;
- */
 	  top: 50%;
   left: 100%;
   margin-top: -5px;
@@ -167,7 +161,6 @@ nav {
 	flex-direction: row;
 	justify-content: flex-start;
 	height: 70px;
-/* 	box-shadow: 0px 6px 5px 0px rgba(0,0,0,0.55); */
 	padding: 10px 0 0 20px;
 	}
 nav img {
@@ -200,7 +193,6 @@ nav button {
 nav button .small-button {
 	font-size: 16px;
 	}
-
 nav button:hover {
 	color: var(--header-hover-color);
 	}
@@ -394,6 +386,7 @@ nav button:active {
 	outline: none;
 	cursor: pointer;
 	padding: 5px 10px;
+	margin: 0;
 	transition: 0.3s;
 	border-radius: 4px 4px 0 0;
 }
@@ -602,3 +595,41 @@ see https://proto.io/freebies/onoff/ */
 .onoffswitch-checkbox:checked+.onoffswitch-label .onoffswitch-switch {
 	right: 0px;
 }
+
+/*edit node sample panel */
+
+.hideDrawer {
+  display: none;
+}
+.drawerContent{
+  position: absolute;
+  z-index: 100;
+}
+.sampleEditorPanel {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  justify-items: center;
+  grid-gap: 5px;
+  border-radius: 4px;
+  width: 230px;
+  background-color: var(--pop-up-color);
+  color: white;
+  font-family: sans-serif;
+  font-size: 12px;
+  padding: 10px;
+}
+.sampleTitleInput {
+  grid-column: 1/4;
+}
+.sampleTitleInput input{
+  font-family: sans-serif
+  font-size: 12px;
+  border: 0;
+  border-radius: 4px;
+  padding: 4px
+}
+.sampleEditorSubmit {
+  grid-column: 3/4;
+  justify-self: end;
+}
+
