@@ -38,7 +38,7 @@ Remember to start the WS provider first:
 	npx y-websocket-server
 */
 
-const version = "0.92";
+const version = "0.93";
 
 const GRIDSPACING = 100;
 
@@ -717,6 +717,7 @@ function saveJSONfile() {
 
 function clean(items) {
 	// return a copy of an array of objects, with some properties removed
+	/*eslint no-unused-vars: ["error", { "ignoreRestSiblings": true }]*/
 	return items.map(({
 		clientID, color, ...keepAttrs
 	}) => keepAttrs)
@@ -818,7 +819,7 @@ document.getElementById('copy-text').addEventListener('click',
 function togglePanel() {
 	// Hide/unhide the side panel
 	if (container.panelHidden) {
-		container.style.gridTemplateColumns = "5fr minmax(200px, 1fr)";
+		container.style.gridTemplateColumns = "5fr minmax(210px, 1fr)";
 		panel.classList.remove('hide');
 	} else {
 		panel.classList.add('hide');
@@ -866,9 +867,7 @@ let sampleElements = document.getElementsByClassName("sampleNode");
 for (let i = 0; i < sampleElements.length; i++) {
 	let groupId = 'group' + i;
 	let sampleElement = sampleElements[i];
-	sampleElement.addEventListener("click", () => {
-		applySampleToNode();
-	}, false);
+	sampleElement.addEventListener("click", () => { applySampleToNode(); }, false);
 	let groupLabel = samples.nodes[groupId].groupLabel;
 	let nodeDataSet = new DataSet([{
 		id: "1",

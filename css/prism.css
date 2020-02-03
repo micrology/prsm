@@ -386,6 +386,7 @@ nav button:active {
 	outline: none;
 	cursor: pointer;
 	padding: 5px 10px;
+	margin: 0;
 	transition: 0.3s;
 	border-radius: 4px 4px 0 0;
 }
