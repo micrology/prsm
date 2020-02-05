@@ -118,6 +118,7 @@ function addEventListeners() {
 }
 
 function setUpPage() {
+	setUpSamples();
 	container = document.getElementById("container");
 	panel = document.getElementById("panel");
 	panel.classList.add('hide');
@@ -287,6 +288,12 @@ function getRandomData(nNodes) {
 	edges.add(SFNdata.edges);
 	recalculateStats();
 }
+
+// to handle iPad viewport sizing problem
+window.onresize = function() {
+    document.body.height = window.innerHeight;
+}
+window.onresize(); // called to initially set the height.
 
 function draw() {
 
@@ -859,33 +866,84 @@ function openTab(tabId) {
 
 // Factors and Links Tabs
 
-// The samples are each a mini vis-network showing just one node or two nodes and a link
+function  setUpSamples() {
+	// The samples are each a mini vis-network showing just one node or two nodes and a link
 
-// Get all elements with class="sampleNode" and add listener and canvas
-let emptyDataSet = new DataSet([]);
-let sampleElements = document.getElementsByClassName("sampleNode");
-for (let i = 0; i < sampleElements.length; i++) {
-	let groupId = 'group' + i;
-	let sampleElement = sampleElements[i];
-	sampleElement.addEventListener("click", () => { applySampleToNode(); }, false);
-	let groupLabel = samples.nodes[groupId].groupLabel;
-	let nodeDataSet = new DataSet([{
-		id: "1",
-		label: (groupLabel == undefined ? "" : groupLabel),
-		group: groupId,
-		chosen: false
-	}]);
-	initSample(sampleElement, {
-		nodes: nodeDataSet,
-		edges: emptyDataSet
-	});
-	sampleElement.addEventListener('dblclick', () => {
-		editSampleNode(sampleElement, samples, groupId)
-	});
-	sampleElement.group = groupId;
-	sampleElement.dataSet = nodeDataSet;
+	// create sample configurations
+	configSamples();
+	
+	// Get all elements with class="sampleNode" and add listener and canvas
+	let emptyDataSet = new DataSet([]);
+	let sampleElements = document.getElementsByClassName("sampleNode");
+	for (let i = 0; i < sampleElements.length; i++) {
+		let groupId = 'group' + i;
+		let sampleElement = sampleElements[i];
+		sampleElement.addEventListener("click", () => { applySampleToNode(); }, false);
+		let groupLabel = samples.nodes[groupId].groupLabel;
+		let nodeDataSet = new DataSet([{
+			id: "1",
+			label: (groupLabel == undefined ? "" : groupLabel),
+			group: groupId,
+			chosen: false
+		}]);
+		initSample(sampleElement, {
+			nodes: nodeDataSet,
+			edges: emptyDataSet
+		});
+		sampleElement.addEventListener('dblclick', () => {
+			editSampleNode(sampleElement, samples, groupId)
+		});
+		sampleElement.group = groupId;
+		sampleElement.dataSet = nodeDataSet;
+	};
+	// and to all sampleLinks
+	sampleElements = document.getElementsByClassName("sampleLink");
+	for (let i = 0; i < sampleElements.length; i++) {
+		let sampleElement = sampleElements[i];
+		sampleElement.addEventListener("click", () => {
+			applySampleToLink();
+		}, false);
+		let edgeDataSet = new DataSet([Object.assign({
+			from: 1,
+			to: 2,
+			value: 7
+		}, samples.edges['edge' + i])])
+		let nodesDataSet = new DataSet([{
+			id: 1
+		}, {
+			id: 2
+		}])
+		initSample(sampleElement, {
+			nodes: nodesDataSet,
+			edges: edgeDataSet
+		});
+		sampleElement.groupLink = 'edge' + i;
+	}
 }
 
+function configSamples() {
+// assemble configurations by merging the specifics into the default
+
+	let base = samples.nodes.base;
+	for (let prop in samples.nodes) {
+		let grp = {...base, ...samples.nodes[prop]};
+		// make the hover and highlight colors the same as the basic ones
+		grp.color.highlight = {};
+		grp.color.highlight.border = grp.color.border;
+		grp.color.highlight.background = grp.color.background;
+		grp.color.hover = {};
+		grp.color.hover.border = grp.color.border;
+		grp.color.hover.background = grp.color.background;
+		samples.nodes[prop] = grp;
+		};
+	base = samples.edges.base;
+	for (let prop in samples.edges) {
+		samples.edges[prop] = {...base, ...samples.edges[prop]}
+		};
+	console.log(samples);
+}
+
+ 
 function editSampleNode(sampleElement, samples, groupId) {
 	let drawer = document.getElementById("editNodeDrawer");
 	changeCursor('auto');
@@ -999,29 +1057,7 @@ function getSelection(name, prop) {
 	else document.getElementsByName(name)[0].selectedIndex = 0;
 }
 
-// and to all sampleLinks
-sampleElements = document.getElementsByClassName("sampleLink");
-for (let i = 0; i < sampleElements.length; i++) {
-	let sampleElement = sampleElements[i];
-	sampleElement.addEventListener("click", () => {
-		applySampleToLink();
-	}, false);
-	let edgeDataSet = new DataSet([Object.assign({
-		from: 1,
-		to: 2,
-		value: 7
-	}, samples.edges['edge' + i])])
-	let nodesDataSet = new DataSet([{
-		id: 1
-	}, {
-		id: 2
-	}])
-	initSample(sampleElement, {
-		nodes: nodesDataSet,
-		edges: edgeDataSet
-	});
-	sampleElement.groupLink = 'edge' + i;
-}
+
 
 function initSample(wrapper, sampleData) {
 	let options = {
