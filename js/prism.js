@@ -24,11 +24,10 @@ import {
 from "./exampleUtil.js";
 
 import {
-	samples
+	samples, setUpSamples, deepCopy
 }
 from "./samples.js";
-
-
+	
 import 'vis-network/dist/vis-network.min.css';
 
 /* for esLint: */
@@ -42,7 +41,17 @@ const version = "0.93";
 
 const GRIDSPACING = 100;
 
-var network, room, nodes, edges, data, clientID, yNodesMap, yEdgesMap, yUndoManager, panel, container;
+var network;
+var room;
+var nodes; 
+var edges;
+var data;
+var clientID;
+var yNodesMap;
+var yEdgesMap;
+var yUndoManager;
+var panel;
+var container;
 
 var lastNodeSample = null;
 var lastLinkSample = null;
@@ -115,14 +124,18 @@ function addEventListeners() {
 	Array.from(document.getElementsByName("stream")).forEach((elem) => {
 		elem.addEventListener('change', hideDistantOrStreamNodes)
 	});
+	Array.from(document.getElementsByClassName("sampleNode")).forEach( (elem) =>
+			elem.addEventListener("click", () => { applySampleToNode() }, false));
+	Array.from(document.getElementsByClassName("sampleLink")).forEach( (elem) =>
+			elem.addEventListener("click", () => { applySampleToLink() }, false));
 }
 
 function setUpPage() {
-	setUpSamples();
 	container = document.getElementById("container");
 	panel = document.getElementById("panel");
 	panel.classList.add('hide');
 	container.panelHidden = true;
+	setUpSamples();
 	hideNotes();
 	document.getElementById('version').innerHTML = version;
 }
@@ -336,7 +349,7 @@ function draw() {
 				},
 				editNode: function(data, callback) {
 					// filling in the popup DOM elements
-					document.getElementById('node-operation').innerHTML = "Edit Factor";
+					document.getElementById('node-operation').innerHTML = "Edit Factor Label";
 					editNode(data, cancelNodeEdit, callback);
 				},
 				addEdge: function(data, callback) {
@@ -358,6 +371,13 @@ function draw() {
 					}
 					if (lastLinkSample) data = Object.assign(data, samples.edges[lastLinkSample]);
 					callback(data);
+				},
+				editEdge: {
+					editWithoutDrag: function(data, callback) {
+						// filling in the popup DOM elements
+						document.getElementById('node-operation').innerHTML = "Edit Link Label";
+						editNode(data, cancelNodeEdit, callback);
+						}
 				},
 				deleteNode: function(data, callback) {
 					let r = confirm(deleteMsg(data));
@@ -407,7 +427,11 @@ function draw() {
 		network.on("doubleClick", function(params) {
 			if (params.nodes.length === 1) {
 				network.editNode();
-			} else {
+				}
+			else if (params.edges.length === 1) {
+				network.editEdgeMode();
+				} 
+			else {
 				network.fit();
 				document.getElementById('zoom').value = network
 					.getScale();
@@ -482,7 +506,7 @@ function editNode(data, cancelAction, callback) {
 		`${event.clientY - popUp.offsetHeight / 2}px`;
 	popUp.style.left =
 		`${event.clientX - popUp.offsetWidth - 3}px`;
-	document.getElementById('node-label').value = data.label;
+	document.getElementById('node-label').value = (data.label === undefined ? '' : data.label);
 	document.getElementById('node-label').focus();
 }
 
@@ -866,229 +890,6 @@ function openTab(tabId) {
 
 // Factors and Links Tabs
 
-function  setUpSamples() {
-	// The samples are each a mini vis-network showing just one node or two nodes and a link
-
-	// create sample configurations
-	configSamples();
-	
-	// Get all elements with class="sampleNode" and add listener and canvas
-	let emptyDataSet = new DataSet([]);
-	let sampleElements = document.getElementsByClassName("sampleNode");
-	for (let i = 0; i < sampleElements.length; i++) {
-		let groupId = 'group' + i;
-		let sampleElement = sampleElements[i];
-		sampleElement.addEventListener("click", () => { applySampleToNode(); }, false);
-		let groupLabel = samples.nodes[groupId].groupLabel;
-		let nodeDataSet = new DataSet([{
-			id: "1",
-			label: (groupLabel == undefined ? "" : groupLabel),
-			group: groupId,
-			chosen: false
-		}]);
-		initSample(sampleElement, {
-			nodes: nodeDataSet,
-			edges: emptyDataSet
-		});
-		sampleElement.addEventListener('dblclick', () => {
-			editSampleNode(sampleElement, samples, groupId)
-		});
-		sampleElement.group = groupId;
-		sampleElement.dataSet = nodeDataSet;
-	};
-	// and to all sampleLinks
-	sampleElements = document.getElementsByClassName("sampleLink");
-	for (let i = 0; i < sampleElements.length; i++) {
-		let sampleElement = sampleElements[i];
-		sampleElement.addEventListener("click", () => {
-			applySampleToLink();
-		}, false);
-		let edgeDataSet = new DataSet([Object.assign({
-			from: 1,
-			to: 2,
-			value: 7
-		}, samples.edges['edge' + i])])
-		let nodesDataSet = new DataSet([{
-			id: 1
-		}, {
-			id: 2
-		}])
-		initSample(sampleElement, {
-			nodes: nodesDataSet,
-			edges: edgeDataSet
-		});
-		sampleElement.groupLink = 'edge' + i;
-	}
-}
-
-function configSamples() {
-// assemble configurations by merging the specifics into the default
-
-	let base = samples.nodes.base;
-	for (let prop in samples.nodes) {
-		let grp = {...base, ...samples.nodes[prop]};
-		// make the hover and highlight colors the same as the basic ones
-		grp.color.highlight = {};
-		grp.color.highlight.border = grp.color.border;
-		grp.color.highlight.background = grp.color.background;
-		grp.color.hover = {};
-		grp.color.hover.border = grp.color.border;
-		grp.color.hover.background = grp.color.background;
-		samples.nodes[prop] = grp;
-		};
-	base = samples.edges.base;
-	for (let prop in samples.edges) {
-		samples.edges[prop] = {...base, ...samples.edges[prop]}
-		};
-	console.log(samples);
-}
-
- 
-function editSampleNode(sampleElement, samples, groupId) {
-	let drawer = document.getElementById("editNodeDrawer");
-	changeCursor('auto');
-	getNodeSampleEdit(sampleElement, samples.nodes[groupId]);
-	document.getElementById('sampleEditorSubmitButton').addEventListener('click', () => {
-		saveNodeSampleEdit(sampleElement, samples, groupId)
-	}, {once: true});
-	drawer.style.top =
-		`${document.getElementById('panel').getBoundingClientRect().top}px`;
-	drawer.style.left =
-		`${document.getElementById('panel').getBoundingClientRect().left - 300}px`;
-	drawer.classList.remove("hideDrawer");
-}
-
-function saveNodeSampleEdit(sampleElement, samples, groupId) {
-	let group = samples.nodes[groupId];
-	group.groupLabel = document.getElementsByName("label")[0].value;
-	setColor("fillColor", group, "color", "background");
-	setColor3("fillColor", group, "color", "highlight", "background");
-	setColor3("fillColor", group, "color", "hover", "background");
-	setColor("borderColor", group, "color", "border");
-	setColor3("borderColor", group, "color", "highlight", "border");
-	setColor3("borderColor", group, "color", "hover", "border");
-	setColor("fontColor", group, "font", "color");
-	setShape(group);
-	setBorderType(group);
-	setFontSize(group);
-	network.setOptions({
-		groups: samples.nodes
-	})
-	let node = sampleElement.dataSet.get("1");
-	node.label = group.groupLabel;
-	let dataSet = sampleElement.dataSet;
-	dataSet.remove(node);
-	dataSet.add(node);
-	sampleElement.net.setOptions({
-		groups: samples.nodes
-	});
-	document.getElementById("editNodeDrawer").classList.add("hideDrawer");
-	network.redraw();
-}
-
-function getNodeSampleEdit(sampleElement, group) {
-	document.getElementsByName("label")[0].value = sampleElement.dataSet.get("1").label;
-	getColor("fillColor", group.color.background);
-	getColor("borderColor", group.color.border);
-	getColor("fontColor", group.font.color);
-	getSelection("shape", group.shape);
-	getSelection("borderType", group.shapeProperties.borderDashes);
-	getSelection("fontSize", group.font.size);
-}
-
-function standardize_color(str) {
-	let ctx = document.createElement("canvas").getContext("2d");
-	ctx.fillStyle = str;
-	return ctx.fillStyle;
-}
-
-function getColor(well, prop) {
-	document.getElementsByName(well)[0].value = standardize_color(prop);
-}
-
-function setColor(well, obj, prop1, prop2) {
-	if (obj[prop1] === undefined) obj[prop1] = {};
-	obj[prop1][prop2] = document.getElementsByName(well)[0].value;
-}
-
-function setColor3(well, obj, prop1, prop2, prop3) {
-	if (obj[prop1] === undefined) obj[prop1] = {};
-	if (obj[prop1][prop2] === undefined) obj[prop1][prop2] = {};
-	obj[prop1][prop2][prop3] = document.getElementsByName(well)[0].value;
-}
-
-function setShape(obj) {
-	let val = document.getElementsByName("shape")[0].value;
-	if (val != "") obj.shape = val;
-}
-
-function setBorderType(obj) {
-	let val = document.getElementsByName("borderType")[0].value;
-	if (obj.shapeProperties == undefined) obj.shapeProperties = {};
-	if (val != "") obj.shapeProperties.borderDashes = deString(val);
-}
-
-function deString(val) {
-	switch (val) {
-		case "true":
-			return true;
-		case "false":
-			return false;
-		case "dots":
-			return [3, 3];
-		default:
-			return val;
-	}
-}
-
-function setFontSize(obj) {
-	let val = document.getElementsByName("fontSize")[0].value;
-	if (obj.font == undefined) obj.font = {};
-	if (val != "") obj.font.size = val;
-}
-
-function getSelection(name, prop) {
-	if (
-		Array.from(document.getElementsByName(name)[0].options)
-		.map(opt => opt.value)
-		.includes(prop.toString())
-	)
-		document.getElementsByName(name)[0].value = prop;
-	else document.getElementsByName(name)[0].selectedIndex = 0;
-}
-
-
-
-function initSample(wrapper, sampleData) {
-	let options = {
-		interaction: {
-			dragNodes: false,
-			dragView: false,
-			selectable: true,
-			zoomView: false
-		},
-		manipulation: {
-			enabled: false,
-			editNode: function(data, callback) {
-				// filling in the popup DOM elements
-				document.getElementById('node-operation').innerHTML = "Group name";
-				editSampleNode(data, cancelNodeEdit, callback, samples);
-			}
-		},
-		layout: {
-			hierarchical: {
-				enabled: true,
-				direction: 'LR'
-			}
-		},
-		groups: samples.nodes
-	};
-	let net = new Network(wrapper, sampleData, options);
-	net.storePositions();
-	wrapper.net = net;
-	return net;
-}
-
 function applySampleToNode() {
 	let selectedNodeIds = network.getSelectedNodes();
 	if (selectedNodeIds.length == 0) return;
@@ -1109,7 +910,8 @@ function applySampleToLink() {
 	if (selectedEdges.length == 0) return;
 	let edgesToUpdate = [];
 	for (let edge of data.edges.get(selectedEdges)) {
-		edge = Object.assign(edge, samples.edges[sample]);
+		edge = Object.assign(edge, deepCopy(samples.edges[sample]));
+		edge.group = sample;
 		claim(edge);
 		edgesToUpdate.push(edge);
 	}
