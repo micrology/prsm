@@ -345,12 +345,12 @@ function draw() {
 					data.label = '';
 					if (lastNodeSample) data.group = lastNodeSample;
 					document.getElementById('node-operation').innerHTML = "Add Factor";
-					editNode(data, clearNodePopUp, callback);
+					editLabel(data, clearPopUp, callback);
 				},
 				editNode: function(data, callback) {
 					// filling in the popup DOM elements
 					document.getElementById('node-operation').innerHTML = "Edit Factor Label";
-					editNode(data, cancelNodeEdit, callback);
+					editLabel(data, cancelEdit, callback);
 				},
 				addEdge: function(data, callback) {
 					inAddMode = false;
@@ -376,7 +376,7 @@ function draw() {
 					editWithoutDrag: function(data, callback) {
 						// filling in the popup DOM elements
 						document.getElementById('node-operation').innerHTML = "Edit Link Label";
-						editNode(data, cancelNodeEdit, callback);
+						editLabel(data, cancelEdit, callback);
 						}
 				},
 				deleteNode: function(data, callback) {
@@ -492,14 +492,14 @@ function snapToGrid(node) {
 	node.y = (GRIDSPACING) * Math.round(node.y / (GRIDSPACING));
 }
 
-function editNode(data, cancelAction, callback) {
+function editLabel(data, cancelAction, callback) {
 	inAddMode = false;
 	changeCursor('auto');
 	let popUp = document.getElementById('node-popUp');
 	document.getElementById('node-cancelButton').onclick =
 		cancelAction.bind(this, callback);
 	document.getElementById('node-saveButton').onclick =
-		saveNodeData.bind(this, data, callback);
+		saveLabel.bind(this, data, callback);
 	popUp.style.display = 'block';
 	// popup appears to the left of the mouse pointer
 	popUp.style.top =
@@ -511,20 +511,20 @@ function editNode(data, cancelAction, callback) {
 }
 
 // Callback passed as parameter is ignored
-function clearNodePopUp() {
+function clearPopUp() {
 	document.getElementById('node-saveButton').onclick = null;
 	document.getElementById('node-cancelButton').onclick = null;
 	document.getElementById('node-popUp').style.display = 'none';
 }
 
-function cancelNodeEdit(callback) {
-	clearNodePopUp();
+function cancelEdit(callback) {
+	clearPopUp();
 	callback(null);
 }
 
-function saveNodeData(data, callback) {
+function saveLabel(data, callback) {
 	data.label = document.getElementById('node-label').value;
-	clearNodePopUp();
+	clearPopUp();
 	if (data.label === "") {
 		statusMsg("No label: cancelled");
 		callback(null);

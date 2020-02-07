@@ -9,296 +9,298 @@ import {
 from "vis-data";
 
 export const samples = {
-nodes: {
-	base: {
-		groupLabel: 'Sample',
-		borderWidth: 2,
-		borderWidthSelected: 1,
-		chosen: true,
-		color: {
-			border: 'black',
-			background: 'white',
-			highlight: {
+	nodes: {
+		base: {
+			groupLabel: 'Sample',
+			borderWidth: 2,
+			borderWidthSelected: 1,
+			chosen: true,
+			color: {
 				border: 'black',
-				background: 'white'
+				background: 'white',
+				highlight: {
+					border: 'black',
+					background: 'white'
 				},
-			hover: {
-				border: 'black',
-				background: 'white'
+				hover: {
+					border: 'black',
+					background: 'white'
+				},
 			},
-		},
-		font: {
-			color: 'black',
-			size: 14
-		},
-		labelHighlightBold: true,
-		shape: 'ellipse',
-		shapeProperties: {
-			borderDashes: false
-		},
-		size: 50,
-		widthConstraint: {
-			minimum: 50
-		},
-		heightConstraint: {
-			minimum: 20
-		}
-	},
-	//------------------------------
-	// blue bordered white ellipse 
-	group0: {
-		color: {
-			border: '#0000ff',
-			background: "white",
+			font: {
+				color: 'black',
+				size: 14
 			},
-		font: {
-			color: 'black',
-		},
-	},
-
-	//------------------------------
-	// black bordered white ellipse 
-
-	group1: {
-		color: {
-			border: 'black',
-			background: "white",
-		},
-		font: {
-			color: 'black',
-		},
-	},
-
-	//------------------------------
-	// black bordered green ellipse 
-
-	group2: {
-		color: {
-			border: 'black',
-			background: "#99e699",
-		},
-		font: {
-			color: 'black',
-		},
-	},
-
-	//------------------------------
-	// black bordered pink ellipse 
-
-	group3: {
-		color: {
-			border: 'black',
-			background: "#ffccdd",
-		},
-		font: {
-			color: 'black',
-		},
-	},
-
-	//------------------------------
-	// black dashed bordered pink ellipse 
-
-	group4: {
-		color: {
-			border: 'black',
-			background: "#ffccdd",
-		},
-		font: {
-			color: 'black',
-		},
-		shapeProperties: {
-			borderDashes: true
-		},
-	},
-
-
-	//------------------------------
-	// black bordered blue ellipse 
-
-	group5: {
-		color: {
-			border: 'black',
-			background: "#b3ccff",
-		},
-		font: {
-			color: 'black',
-		},
-	},
-	
-	//------------------------------
-	// black bordered yellow ellipse 
-
-
-	group6: {
-		color: {
-			border: 'black',
-			background: "#ffff99",
-		},
-		font: {
-			color: 'black',
-		},
-	},
-
-
-	//------------------------------
-	//  black large text only 
-
-	group7: {
-		color: {
-			border: 'black',
-			background: "#ffff99",
-		},
-		font: {
-			color: 'black',
-			size: 20
-		},
-		labelHighlightBold: true,
-		shape: 'text',
-	},
-
-	//------------------------------
-	//  red text only 
-
-	group8: {
-		color: {
-			border: 'black',
-			background: "#ffff99",
-		},
-		font: {
-			color: 'red',
-			size: 20
-		},
-		shape: 'text',
-	}
-
-}, // end of node samples
-
-
-edges: {
-
-	base: {
-			arrows: {
-			to: {
-				enabled: true,
-				type: "arrow"
+			labelHighlightBold: true,
+			shape: 'ellipse',
+			shapeProperties: {
+				borderDashes: false
 			},
-			middle: {
-				enabled: false
+			size: 50,
+			widthConstraint: {
+				minimum: 50
 			},
-			from: {
-				enabled: false,
+			heightConstraint: {
+				minimum: 20
 			}
 		},
-		color: {
-			color: 'black',
-			highlight: 'black',
-			hover: 'black',
-			inherit: false,
-			opacity: 1.0
-		},
-		dashes: false,
-		font: '20px sans-serif black',
-		hoverWidth: 1,
-		label: '',
-		selectionWidth: 1,
-		selfReferenceSize: 20,
-		width: 1
-	},
-
-	// simple directed black link
-
-	edge0: {
-		color: {
-			color: 'black',
-		},
-	},
-
-	// simple directed blue link
-
-	edge1: {
-		color: {
-			color: 'blue',
-		},
-	},
-
-	// simple directed red link
-
-	edge2: {
-		color: {
-			color: 'red',
-		},
-	},
-
-	// simple directed green link
-
-	edge3: {
-		color: {
-			color: 'green',
-		},
-	},
-	
-	// simple directed grey link
-
-	edge4: {
-		color: {
-			color: 'grey',
-		},
-	},
-
-	// medium directed yellow link
-
-	edge5: {
-		color: {
-			color: 'gold',
-		},
-		width: 4
-	},
-
-	//  directed black dashed link
-
-	edge6: {
-		color: {
-			color: 'black',
-		},
-		dashes: [10, 10],
-		width: 5
-	},
-
-	//  directed green dashed link
-
-	edge7: {
-		color: {
-			color: 'green',
-		},
-		dashes: [10, 10],
-		width: 5
-	},
-
-
-	//  directed black link with middle arrow
-
-	edge8: {
-		arrows: {
-			middle: {
-				enabled: true,
-				type: "arrow"
+		//------------------------------
+		// blue bordered white ellipse 
+		group0: {
+			color: {
+				border: '#0000ff',
+				background: "white",
+			},
+			font: {
+				color: 'black',
 			},
 		},
-		color: {
-			color: 'black',
-		},
-	}
 
-} // end of edges samples
+		//------------------------------
+		// black bordered white ellipse 
+
+		group1: {
+			color: {
+				border: 'black',
+				background: "white",
+			},
+			font: {
+				color: 'black',
+			},
+		},
+
+		//------------------------------
+		// black bordered green ellipse 
+
+		group2: {
+			color: {
+				border: 'black',
+				background: "#99e699",
+			},
+			font: {
+				color: 'black',
+			},
+		},
+
+		//------------------------------
+		// black bordered pink ellipse 
+
+		group3: {
+			color: {
+				border: 'black',
+				background: "#ffccdd",
+			},
+			font: {
+				color: 'black',
+			},
+		},
+
+		//------------------------------
+		// black dashed bordered pink ellipse 
+
+		group4: {
+			color: {
+				border: 'black',
+				background: "#ffccdd",
+			},
+			font: {
+				color: 'black',
+			},
+			shapeProperties: {
+				borderDashes: true
+			},
+		},
+
+
+		//------------------------------
+		// black bordered blue ellipse 
+
+		group5: {
+			color: {
+				border: 'black',
+				background: "#b3ccff",
+			},
+			font: {
+				color: 'black',
+			},
+		},
+
+		//------------------------------
+		// black bordered yellow ellipse 
+
+
+		group6: {
+			color: {
+				border: 'black',
+				background: "#ffff99",
+			},
+			font: {
+				color: 'black',
+			},
+		},
+
+
+		//------------------------------
+		//  black large text only 
+
+		group7: {
+			color: {
+				border: 'black',
+				background: "#ffff99",
+			},
+			font: {
+				color: 'black',
+				size: 20
+			},
+			labelHighlightBold: true,
+			shape: 'text',
+		},
+
+		//------------------------------
+		//  red text only 
+
+		group8: {
+			color: {
+				border: 'black',
+				background: "#ffff99",
+			},
+			font: {
+				color: 'red',
+				size: 20
+			},
+			shape: 'text',
+		}
+
+	}, // end of node samples
+
+
+	edges: {
+
+		base: {
+			arrows: {
+				to: {
+					enabled: true,
+					type: "arrow"
+				},
+				middle: {
+					enabled: false
+				},
+				from: {
+					enabled: false,
+				}
+			},
+			color: {
+				color: 'black',
+				highlight: 'black',
+				hover: 'black',
+				inherit: false,
+				opacity: 1.0
+			},
+			dashes: false,
+			font: {
+				size: 20
+			},
+			hoverWidth: 1,
+			label: '',
+			selectionWidth: 1,
+			selfReferenceSize: 20,
+			width: 1
+		},
+
+		// simple directed black link
+
+		edge0: {
+			color: {
+				color: 'black',
+			},
+		},
+
+		// simple directed blue link
+
+		edge1: {
+			color: {
+				color: 'blue',
+			},
+		},
+
+		// simple directed red link
+
+		edge2: {
+			color: {
+				color: 'red',
+			},
+		},
+
+		// simple directed green link
+
+		edge3: {
+			color: {
+				color: 'green',
+			},
+		},
+
+		// simple directed grey link
+
+		edge4: {
+			color: {
+				color: 'grey',
+			},
+		},
+
+		// medium directed yellow link
+
+		edge5: {
+			color: {
+				color: 'gold',
+			},
+			width: 4
+		},
+
+		//  directed black dashed link
+
+		edge6: {
+			color: {
+				color: 'black',
+			},
+			dashes: [10, 10],
+			width: 5
+		},
+
+		//  directed green dashed link
+
+		edge7: {
+			color: {
+				color: 'green',
+			},
+			dashes: [10, 10],
+			width: 5
+		},
+
+
+		//  directed black link with middle arrow
+
+		edge8: {
+			arrows: {
+				middle: {
+					enabled: true,
+					type: "arrow"
+				},
+			},
+			color: {
+				color: 'black',
+			},
+		}
+
+	} // end of edges samples
 
 }
 
-export function  setUpSamples() {
+export function setUpSamples() {
 	// The samples are each a mini vis-network showing just one node or two nodes and a link
 
 	// create sample configurations
 	configSamples();
-	
+
 	// Get all elements with class="sampleNode" and add listener and canvas
 	let emptyDataSet = new DataSet([]);
 	let sampleElements = document.getElementsByClassName("sampleNode");
@@ -350,11 +352,12 @@ export function  setUpSamples() {
 }
 
 function configSamples() {
-// assemble configurations by merging the specifics into the default
+	// assemble configurations by merging the specifics into the default
 
 	let base = samples.nodes.base;
 	for (let prop in samples.nodes) {
-		let grp = {...deepCopy(base), ...samples.nodes[prop]};
+		let grp = {...deepCopy(base), ...samples.nodes[prop]
+		};
 		// make the hover and highlight colors the same as the basic ones
 		grp.color.highlight = {};
 		grp.color.highlight.border = grp.color.border;
@@ -364,29 +367,30 @@ function configSamples() {
 		grp.color.hover.background = grp.color.background;
 		grp.font.size = base.font.size;
 		samples.nodes[prop] = grp;
-		}
+	}
 	base = samples.edges.base;
 	for (let prop in samples.edges) {
-		let grp = {...deepCopy(base), ...samples.edges[prop]};
+		let grp = {...deepCopy(base), ...samples.edges[prop]
+		};
 		grp.color.highlight = grp.color.color;
-		grp.color.hover = grp.color.color;	
+		grp.color.hover = grp.color.color;
 		samples.edges[prop] = grp;
-		}
+	}
 }
 
 export function deepCopy(inObject) {
-  let outObject, value, key;
-  if (typeof inObject !== "object" || inObject === null) {
-    return inObject // Return the value if inObject is not an object
-  }
-  // Create an array or object to hold the values
-  outObject = Array.isArray(inObject) ? [] : {}
-  for (key in inObject) {
-    value = inObject[key]
-    // Recursively (deep) copy for nested objects, including arrays
-    outObject[key] = (typeof value === "object" && value !== null) ? deepCopy(value) : value
-  }
-  return outObject
+	let outObject, value, key;
+	if (typeof inObject !== "object" || inObject === null) {
+		return inObject // Return the value if inObject is not an object
+	}
+	// Create an array or object to hold the values
+	outObject = Array.isArray(inObject) ? [] : {}
+	for (key in inObject) {
+		value = inObject[key]
+			// Recursively (deep) copy for nested objects, including arrays
+		outObject[key] = (typeof value === "object" && value !== null) ? deepCopy(value) : value
+	}
+	return outObject
 }
 
 function editNodeSample(sampleElement, samples, groupId) {
@@ -394,7 +398,9 @@ function editNodeSample(sampleElement, samples, groupId) {
 	getNodeSampleEdit(sampleElement, samples.nodes[groupId]);
 	document.getElementById('sampleNodeEditorSubmitButton').addEventListener('click', () => {
 		saveNodeSampleEdit(sampleElement, samples, groupId)
-	}, {once: true});
+	}, {
+		once: true
+	});
 	drawer.style.top =
 		`${document.getElementById('panel').getBoundingClientRect().top}px`;
 	drawer.style.left =
@@ -417,7 +423,9 @@ function editLinkSample(sampleElement, samples, groupId) {
 	getLinkSampleEdit(sampleElement, samples.edges[groupId]);
 	document.getElementById('sampleLinkEditorSubmitButton').addEventListener('click', () => {
 		saveLinkSampleEdit(sampleElement, samples, groupId)
-	}, {once: true});
+	}, {
+		once: true
+	});
 	drawer.style.top =
 		`${document.getElementById('panel').getBoundingClientRect().top}px`;
 	drawer.style.left =
@@ -473,20 +481,32 @@ function saveLinkSampleEdit(sampleElement, samples, groupId) {
 	if (val != "") group.dashes = deString(val);
 	val = document.getElementsByName("arrows")[0].value;
 	if (val != "") {
-		group.arrows.from = {enabled: false};
-		group.arrows.middle = {enabled: false};
-		group.arrows.to = {enabled: false};	
+		group.arrows.from = {
+			enabled: false
+		};
+		group.arrows.middle = {
+			enabled: false
+		};
+		group.arrows.to = {
+			enabled: false
+		};
 		switch (val) {
-		case "toMiddleFrom": 
-			group.arrows.from = {enabled: true};
+		case "toMiddleFrom":
+			group.arrows.from = {
+				enabled: true
+			};
 			// falls through
 		case "toMiddle":
-			group.arrows.middle = {enabled: true};
+			group.arrows.middle = {
+				enabled: true
+			};
 			// falls through
 		case "to":
-			group.arrows.to = {enabled: true};
-			}
+			group.arrows.to = {
+				enabled: true
+			};
 		}
+	}
 	let edge = sampleElement.dataSet.get("1");
 	edge.label = group.groupLabel;
 	let dataSet = sampleElement.dataSet;
@@ -498,13 +518,17 @@ function saveLinkSampleEdit(sampleElement, samples, groupId) {
 }
 
 function reApplySampleToLinks(groupId) {
-	let edgesToUpdate = data.edges.get({filter: item => {return item.group == groupId}});
+	let edgesToUpdate = window.data.edges.get({
+		filter: item => {
+			return item.group == groupId
+		}
+	});
 	for (let edge of edgesToUpdate) {
 		edge = Object.assign(edge, deepCopy(samples.edges[groupId]));
 	}
-	data.edges.update(edgesToUpdate);
-}		
-		
+	window.data.edges.update(edgesToUpdate);
+}
+
 function standardize_color(str) {
 	let ctx = document.createElement("canvas").getContext("2d");
 	ctx.fillStyle = str;
@@ -533,10 +557,10 @@ function setShape(obj) {
 
 function getDashes(name, val) {
 	if (Array.isArray(val)) val = 'dots';
-	else val = val.toString(); 
+	else val = val.toString();
 	document.getElementsByName(name)[0].value = val;
 }
-	
+
 function setBorderType(obj) {
 	let val = document.getElementsByName("borderType")[0].value;
 	if (obj.shapeProperties === undefined) obj.shapeProperties = {};
@@ -545,14 +569,14 @@ function setBorderType(obj) {
 
 function deString(val) {
 	switch (val) {
-		case "true":
-			return true;
-		case "false":
-			return false;
-		case "dots":
-			return [3, 3];
-		default:
-			return val;
+	case "true":
+		return true;
+	case "false":
+		return false;
+	case "dots":
+		return [3, 3];
+	default:
+		return val;
 	}
 }
 
@@ -604,4 +628,3 @@ function initSample(wrapper, sampleData) {
 	wrapper.net = net;
 	return net;
 }
-
