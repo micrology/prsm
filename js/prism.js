@@ -37,7 +37,7 @@ Remember to start the WS provider first:
 	npx y-websocket-server
 */
 
-const version = "0.93";
+const version = "0.94";
 
 const GRIDSPACING = 100;
 
@@ -323,8 +323,8 @@ function draw() {
 				enabled: false,
 				stabilization: false
 			},
-			// default edge format is edge-
-			edges: samples.edges.edge0,
+			// default edge format is edge0
+			edges: defaultEdgeFormat(),
 			groups: samples.nodes,
 			// default node format is group0
 			nodes: {
@@ -481,6 +481,11 @@ function draw() {
 
 	} // end draw()
 
+function defaultEdgeFormat() {
+		let {groupLabel, ...edg0} = samples.edges.edge0;
+		return edg0
+}
+	
 function claim(item) {
 	// remove any existing clientID, to show that I now
 	// own this and can broadcast my changes to the item
@@ -671,15 +676,6 @@ function loadJSONfile(json) {
 	unSelect();
 	nodes.clear();
 	edges.clear();
-	let options = {
-		edges: {
-			inheritColors: false
-		},
-		nodes: {
-			fixed: false,
-			parseColor: true
-		}
-	};
 	if (json.version && (version > json.version)) {
 		statusMsg(
 			"Warning: file was created in an earlier version of PRISM"
@@ -689,7 +685,8 @@ function loadJSONfile(json) {
 	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
 	if ('source' in json.edges[0]) {
 		// the file is from Gephi and needs to be translated
-		let parsed = parseGephiNetwork(json, options);
+		let parsed = parseGephiNetwork(json, 
+			{edges: {inheritColors: false}, nodes: {fixed: false, parseColor: true}});
 		nodes.add(clean(parsed.nodes));
 		edges.add(clean(parsed.edges));
 	} else {
@@ -706,20 +703,45 @@ function loadJSONfile(json) {
 			hideEdgesOnZoom: data.nodes.length > 100
 		}
 	});
-	/* TODO
-		if (json.groups) {
-			groups = json.groups;
-			network.setOptions({groups: groups});
-			}
-	if (json.groupEdges) {
-		groupEdges = json.groupEdges;
-	}
-		 */
+	if (json.samples) {
+		samples.nodes = json.samples.nodes;
+		samples.edges = json.samples.edges;
+		network.setOptions({
+			edges: defaultEdgeFormat(),
+			groups: samples.nodes,
+			nodes: {group: 'group0'}
+			})
+		refreshSampleNodes();
+		refreshSampleLinks();
+		}
 	snapToGridOff();
 	// in case parts of the previous network was hidden
 	document.getElementById('hideAll').checked = true;
 	document.getElementById('streamAll').checked = true;
 }
+
+function refreshSampleNodes() {
+	let sampleElements = Array.from(document.getElementsByClassName('sampleNode'));
+	for (let i = 0; i < sampleElements.length; i++) {
+		let groupId = 'group' + i;
+		sampleElements[i].net.setOptions({
+			groups: {[groupId]: samples.nodes[groupId]}
+		});
+		sampleElements[i].net.redraw()
+	}
+}
+
+function refreshSampleLinks() {
+	let sampleElements = Array.from(document.getElementsByClassName('sampleLink'));
+	for (let i = 0; i < sampleElements.length; i++) {
+		let edge = sampleElements[i].dataSet.get()[0];
+		edge = Object.assign(edge, samples.edges['edge' + i]);
+		edge.label = edge.groupLabel;
+		sampleElements[i].dataSet.remove(edge);
+		sampleElements[i].dataSet.add(edge);
+		}
+}
+	
 
 /* 
 Browser will only ask for name and location of the file to be saved if
@@ -734,8 +756,7 @@ function saveJSONfile() {
 		version: version,
 		lastNodeSample: lastNodeSample,
 		lastLinkSample: lastLinkSample,
-		groups: network.groups.groups,
-		sampleEdges: samples.edges,
+		samples: samples,
 		nodes: clean(data.nodes.get()),
 		edges: clean(data.edges.get())
 	});

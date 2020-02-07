@@ -204,7 +204,8 @@ export const samples = {
 			label: '',
 			selectionWidth: 1,
 			selfReferenceSize: 20,
-			width: 1
+			width: 1,
+			groupLabel: ''
 		},
 
 		// simple directed black link
@@ -319,7 +320,7 @@ export function setUpSamples() {
 			edges: emptyDataSet
 		});
 		sampleElement.addEventListener('dblclick', () => {
-			editNodeSample(sampleElement, samples, groupId)
+			editNodeSample(sampleElement, groupId)
 		});
 		sampleElement.group = groupId;
 		sampleElement.dataSet = nodeDataSet;
@@ -344,7 +345,7 @@ export function setUpSamples() {
 			edges: edgeDataSet
 		});
 		sampleElement.addEventListener('dblclick', () => {
-			editLinkSample(sampleElement, samples, groupId)
+			editLinkSample(sampleElement, groupId)
 		});
 		sampleElement.groupLink = groupId;
 		sampleElement.dataSet = edgeDataSet;
@@ -393,11 +394,16 @@ export function deepCopy(inObject) {
 	return outObject
 }
 
-function editNodeSample(sampleElement, samples, groupId) {
+function editNodeSample(sampleElement, groupId) {
 	let drawer = document.getElementById("editNodeDrawer");
 	getNodeSampleEdit(sampleElement, samples.nodes[groupId]);
 	document.getElementById('sampleNodeEditorSubmitButton').addEventListener('click', () => {
 		saveNodeSampleEdit(sampleElement, samples, groupId)
+	}, {
+		once: true
+	});
+	document.getElementById('sampleNodeEditorCancelButton').addEventListener('click', () => {
+		cancelSampleEdit()
 	}, {
 		once: true
 	});
@@ -418,11 +424,16 @@ function getNodeSampleEdit(sampleElement, group) {
 	getSelection("fontSize", group.font.size);
 }
 
-function editLinkSample(sampleElement, samples, groupId) {
+function editLinkSample(sampleElement, groupId) {
 	let drawer = document.getElementById("editLinkDrawer");
 	getLinkSampleEdit(sampleElement, samples.edges[groupId]);
 	document.getElementById('sampleLinkEditorSubmitButton').addEventListener('click', () => {
 		saveLinkSampleEdit(sampleElement, samples, groupId)
+	}, {
+		once: true
+	});
+	document.getElementById('sampleLinkEditorCancelButton').addEventListener('click', () => {
+		cancelSampleEdit()
 	}, {
 		once: true
 	});
@@ -463,7 +474,7 @@ function saveNodeSampleEdit(sampleElement, samples, groupId) {
 	dataSet.remove(node);
 	dataSet.add(node);
 	sampleElement.net.setOptions({
-		groups: samples.nodes
+		groups: {[groupId]: samples.nodes[groupId]}
 	});
 	document.getElementById("editNodeDrawer").classList.add("hideDrawer");
 	window.network.redraw();
@@ -517,6 +528,11 @@ function saveLinkSampleEdit(sampleElement, samples, groupId) {
 	window.network.redraw();
 }
 
+function cancelSampleEdit() {
+	document.getElementById("editLinkDrawer").classList.add("hideDrawer");
+	document.getElementById("editNodeDrawer").classList.add("hideDrawer");
+}
+	
 function reApplySampleToLinks(groupId) {
 	let edgesToUpdate = window.data.edges.get({
 		filter: item => {

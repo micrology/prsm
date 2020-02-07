@@ -617,4 +617,8 @@ see https://proto.io/freebies/onoff/ */
   grid-column: 3/4;
   justify-self: end;
 }
+.sampleEditorCancel {
+  grid-column: 1/2;
+  justify-self: start;
+}
 
