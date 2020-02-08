@@ -52,6 +52,7 @@ var yEdgesMap;
 var yUndoManager;
 var panel;
 var container;
+var buttonStatus;
 
 var lastNodeSample = null;
 var lastLinkSample = null;
@@ -138,6 +139,7 @@ function setUpPage() {
 	setUpSamples();
 	hideNotes();
 	document.getElementById('version').innerHTML = version;
+	storeButtonStatus();
 }
 
 function startY() {
@@ -216,11 +218,12 @@ function startY() {
 					if (obj.clientID == undefined) obj.clientID = clientID;
 					if (obj.clientID == clientID) {
 						yNodesMap.set(id.toString(), obj);
-						console.log(new Date().toLocaleTimeString() + ': added to YMapNodes: ' + JSON.stringify(obj));
+						console.log(new Date().toLocaleTimeString() + 
+						': added to YMapNodes: ' + JSON.stringify(obj));
 					}
 				}
 			}
-		})
+		});
 	});
 
 	/* 
@@ -273,12 +276,14 @@ function startY() {
 		}
 	});
 
-	yUndoManager.on('stack-item-added', () => {
+	yUndoManager.on('stack-item-added', (event) => {
+		saveButtonStatus(event);
 		undoButtonstatus();
 		redoButtonStatus();
 	});
 
-	yUndoManager.on('stack-item-popped', () => {
+	yUndoManager.on('stack-item-popped', (event) => {
+		setButtonStatus(event);
 		undoButtonstatus();
 		redoButtonStatus();
 	});
@@ -883,6 +888,8 @@ function togglePanel() {
 
 /* ---------operations related to the side panel -------------------------------------*/
 
+// Panel
+
 var tabOpen = null;
 
 function openTab(tabId) {
@@ -908,6 +915,37 @@ function openTab(tabId) {
 	if (tabOpen == 'nodesTab') displayNotes();
 }
 
+function storeButtonStatus() {
+	buttonStatus =  {
+			autoLayout: document.getElementById('autolayoutswitch').checked,
+			snapToGrid: document.getElementById('snaptogridswitch').checked,
+			layout: document.getElementById('layoutSelect').value,
+			curve: document.getElementById('curveSelect').value,
+			linkRadius: getRadioVal('hide'),
+			stream: getRadioVal('stream'),
+			showLabels: document.getElementById('showLabelSwitch').value,
+			};
+}
+
+function saveButtonStatus(event) {
+	event.stackItem.meta.set('buttons', buttonStatus);
+	storeButtonStatus();
+}
+
+function setButtonStatus(event) {
+	let settings;
+	if (event.type == "undo") 
+		settings = yUndoManager.undoStack[yUndoManager.undoStack.length - 1].meta.get('buttons');
+	else settings = event.stackItem.meta.get('buttons');
+	document.getElementById('autolayoutswitch').checked = settings.autoLayout;
+	document.getElementById('snaptogridswitch').checked = settings.snapToGrid;
+	document.getElementById('layoutSelect').value = settings.layout;
+	document.getElementById('curveSelect').checked = settings.curve;
+	document.getElementById('autolayoutswitch').checked = settings.autoLayout;
+	setRadioVal('hide', settings.linkRadius);
+	setRadioVal('stream', settings.stream);
+	document.getElementById('showLabelSwitch').value = settings.showLabels;
+}
 
 // Factors and Links Tabs
 
@@ -1142,6 +1180,14 @@ function getRadioVal(name) {
 	}
 }
 
+function setRadioVal(name, value) {
+	// get list of radio buttons with specified name
+	let radios = document.getElementsByName(name);
+	// loop through list of radio buttons
+	for (let i = 0, len = radios.length; i < len; i++) {
+		radios[i].checked = (radios[i].value == value)
+	}
+}
 // Performs intersection operation between called set and otherSet 
 Set.prototype.intersection = function(otherSet) {
 	let intersectionSet = new Set();
