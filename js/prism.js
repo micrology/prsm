@@ -324,7 +324,7 @@ function draw() {
 				stabilization: false
 			},
 			// default edge format is edge0
-			edges: defaultEdgeFormat(),
+			edges: clean(samples.edges.edge0, {groupLabel: null}),
 			groups: samples.nodes,
 			// default node format is group0
 			nodes: {
@@ -481,11 +481,6 @@ function draw() {
 
 	} // end draw()
 
-function defaultEdgeFormat() {
-		let {groupLabel, ...edg0} = samples.edges.edge0;
-		return edg0
-}
-	
 function claim(item) {
 	// remove any existing clientID, to show that I now
 	// own this and can broadcast my changes to the item
@@ -687,11 +682,11 @@ function loadJSONfile(json) {
 		// the file is from Gephi and needs to be translated
 		let parsed = parseGephiNetwork(json, 
 			{edges: {inheritColors: false}, nodes: {fixed: false, parseColor: true}});
-		nodes.add(clean(parsed.nodes));
-		edges.add(clean(parsed.edges));
+		nodes.add(cleanArray(parsed.nodes, {clientID: null, color: null}));
+		edges.add(cleanArray(parsed.edges, {clientID: null, color: null}));
 	} else {
-		nodes.add(clean(json.nodes));
-		edges.add(clean(json.edges));
+		nodes.add(cleanArray(json.nodes, {clientID: null, color: null}));
+		edges.add(cleanArray(json.edges, {clientID: null, color: null}));
 	}
 	data = {
 		nodes: nodes,
@@ -707,7 +702,7 @@ function loadJSONfile(json) {
 		samples.nodes = json.samples.nodes;
 		samples.edges = json.samples.edges;
 		network.setOptions({
-			edges: defaultEdgeFormat(),
+			edges: clean(samples.edges.edge0, {groupLabel: null}),
 			groups: samples.nodes,
 			nodes: {group: 'group0'}
 			})
@@ -757,8 +752,8 @@ function saveJSONfile() {
 		lastNodeSample: lastNodeSample,
 		lastLinkSample: lastLinkSample,
 		samples: samples,
-		nodes: clean(data.nodes.get()),
-		edges: clean(data.edges.get())
+		nodes: cleanArray(data.nodes.get(), {clientId: null, color: null}),
+		edges: cleanArray(data.edges.get(), {clientId: null})
 	});
 	let element = document.getElementById("download");
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' +
@@ -767,12 +762,17 @@ function saveJSONfile() {
 	element.click();
 }
 
-function clean(items) {
-	// return a copy of an array of objects, with some properties removed
-	/*eslint no-unused-vars: ["error", { "ignoreRestSiblings": true }]*/
-	return items.map(({
-		clientID, color, ...keepAttrs
-	}) => keepAttrs)
+function cleanArray(arr, propsToRemove) {
+	return arr.map( (item) => {return clean(item, propsToRemove)})
+}
+
+function clean(source, propsToRemove) {
+	// return a copy of an object, with the properties in the object propsToRemove removed
+	let out = {};
+	for (let key in source) {
+		if (!(key in propsToRemove)) out[key] = source[key]
+	}
+	return out
 }
 
 function plusNode() {

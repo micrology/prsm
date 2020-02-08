@@ -357,8 +357,7 @@ function configSamples() {
 
 	let base = samples.nodes.base;
 	for (let prop in samples.nodes) {
-		let grp = {...deepCopy(base), ...samples.nodes[prop]
-		};
+		let grp = Object.assign(deepCopy(base), samples.nodes[prop]);
 		// make the hover and highlight colors the same as the basic ones
 		grp.color.highlight = {};
 		grp.color.highlight.border = grp.color.border;
@@ -371,8 +370,7 @@ function configSamples() {
 	}
 	base = samples.edges.base;
 	for (let prop in samples.edges) {
-		let grp = {...deepCopy(base), ...samples.edges[prop]
-		};
+		let grp = Object.assign(deepCopy(base),samples.edges[prop]);
 		grp.color.highlight = grp.color.color;
 		grp.color.hover = grp.color.color;
 		samples.edges[prop] = grp;
