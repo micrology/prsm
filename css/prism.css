@@ -60,12 +60,21 @@ footer {
 	background-color: white;
 	color: black;
 	border-top: 1px solid lightgrey;
+	user-select: none;
 }
 
 @media print {
 	header, aside, footer {
 		display: none;
 		}
+}
+
+#zoomplus {
+	cursor: zoom-in;
+}
+
+#zoomminus {
+	cursor: zoom-out;
 }
 
 /* 
@@ -96,22 +105,6 @@ Network pane and pop-up for new Factors
 	margin: 20px;
 	width: 300px;
 	}
-	
-#edge-popUp {
-	display:none;
-	position:absolute;
-	top:350px;
-	left:170px;
-	z-index:299;
-	width:250px;
-	height:90px;
-	background-color: #f9f9f9;
-	border-style:solid;
-	border-width:3px;
-	border-color: #5394ed;
-	padding:10px;
-	text-align: center;
-	}
 
 #node-popUp {
 	display:none;
@@ -120,8 +113,9 @@ Network pane and pop-up for new Factors
 	background-color: var(--pop-up-color);
 	color: white;
 	border-radius: 6px;
-	padding: 4px;
+	padding: 6px;
 	line-height: 1.5;
+	font-size: 14px;
 	}
 		
 /* Popup arrow */
@@ -631,5 +625,9 @@ see https://proto.io/freebies/onoff/ */
 .sampleEditorSubmit {
   grid-column: 3/4;
   justify-self: end;
+}
+.sampleEditorCancel {
+  grid-column: 1/2;
+  justify-self: start;
 }
 

@@ -24,11 +24,10 @@ import {
 from "./exampleUtil.js";
 
 import {
-	samples
+	samples, setUpSamples, deepCopy
 }
 from "./samples.js";
-
-
+	
 import 'vis-network/dist/vis-network.min.css';
 
 /* for esLint: */
@@ -38,11 +37,22 @@ Remember to start the WS provider first:
 	npx y-websocket-server
 */
 
-const version = "0.93";
+const version = "0.94";
 
 const GRIDSPACING = 100;
 
-var network, room, nodes, edges, data, clientID, yNodesMap, yEdgesMap, yUndoManager, panel, container;
+var network;
+var room;
+var nodes; 
+var edges;
+var data;
+var clientID;
+var yNodesMap;
+var yEdgesMap;
+var yUndoManager;
+var panel;
+var container;
+var buttonStatus;
 
 var lastNodeSample = null;
 var lastLinkSample = null;
@@ -91,6 +101,9 @@ function addEventListeners() {
 	document.getElementById('undo').addEventListener('click', undo);
 	document.getElementById('redo').addEventListener('click', redo);
 	document.getElementById('fileInput').addEventListener('change', readSingleFile);
+	document.getElementById('zoom').addEventListener('change', zoomnet);
+	document.getElementById('zoomminus').addEventListener('click', zoomminus);
+	document.getElementById('zoomplus').addEventListener('click', zoomplus);
 	document.getElementById("nodesButton").addEventListener("click", () => {
 		openTab("nodesTab")
 	});
@@ -108,13 +121,17 @@ function addEventListeners() {
 	document.getElementById('showLabelSwitch').addEventListener('click', labelSwitch);
 	document.getElementById('layoutSelect').addEventListener('change', selectLayout);
 	document.getElementById('curveSelect').addEventListener('change', selectCurve);
-	document.getElementById('zoom').addEventListener('change', zoomnet);
 	Array.from(document.getElementsByName("hide")).forEach((elem) => {
 		elem.addEventListener('change', hideDistantOrStreamNodes)
 	});
 	Array.from(document.getElementsByName("stream")).forEach((elem) => {
 		elem.addEventListener('change', hideDistantOrStreamNodes)
 	});
+	document.getElementById('sizing').addEventListener('change', sizing);
+	Array.from(document.getElementsByClassName("sampleNode")).forEach( (elem) =>
+			elem.addEventListener("click", () => { applySampleToNode() }, false));
+	Array.from(document.getElementsByClassName("sampleLink")).forEach( (elem) =>
+			elem.addEventListener("click", () => { applySampleToLink() }, false));
 }
 
 function setUpPage() {
@@ -122,8 +139,10 @@ function setUpPage() {
 	panel = document.getElementById("panel");
 	panel.classList.add('hide');
 	container.panelHidden = true;
+	setUpSamples();
 	hideNotes();
 	document.getElementById('version').innerHTML = version;
+	storeButtonStatus();
 }
 
 function startY() {
@@ -202,11 +221,12 @@ function startY() {
 					if (obj.clientID == undefined) obj.clientID = clientID;
 					if (obj.clientID == clientID) {
 						yNodesMap.set(id.toString(), obj);
-						console.log(new Date().toLocaleTimeString() + ': added to YMapNodes: ' + JSON.stringify(obj));
+						console.log(new Date().toLocaleTimeString() + 
+						': added to YMapNodes: ' + JSON.stringify(obj));
 					}
 				}
 			}
-		})
+		});
 	});
 
 	/* 
@@ -259,12 +279,14 @@ function startY() {
 		}
 	});
 
-	yUndoManager.on('stack-item-added', () => {
+	yUndoManager.on('stack-item-added', (event) => {
+		saveButtonStatus(event);
 		undoButtonstatus();
 		redoButtonStatus();
 	});
 
-	yUndoManager.on('stack-item-popped', () => {
+	yUndoManager.on('stack-item-popped', (event) => {
+		setButtonStatus(event);
 		undoButtonstatus();
 		redoButtonStatus();
 	});
@@ -288,6 +310,12 @@ function getRandomData(nNodes) {
 	recalculateStats();
 }
 
+// to handle iPad viewport sizing problem
+window.onresize = function() {
+    document.body.height = window.innerHeight;
+}
+window.onresize(); // called to initially set the height.
+
 function draw() {
 
 		// for testing, you can append ?t=XXX to the URL of the page, where XXX is the number
@@ -303,8 +331,8 @@ function draw() {
 				enabled: false,
 				stabilization: false
 			},
-			// default edge format is edge-
-			edges: samples.edges.edge0,
+			// default edge format is edge0
+			edges: clean(samples.edges.edge0, {groupLabel: null}),
 			groups: samples.nodes,
 			// default node format is group0
 			nodes: {
@@ -325,12 +353,12 @@ function draw() {
 					data.label = '';
 					if (lastNodeSample) data.group = lastNodeSample;
 					document.getElementById('node-operation').innerHTML = "Add Factor";
-					editNode(data, clearNodePopUp, callback);
+					editLabel(data, clearPopUp, callback);
 				},
 				editNode: function(data, callback) {
 					// filling in the popup DOM elements
-					document.getElementById('node-operation').innerHTML = "Edit Factor";
-					editNode(data, cancelNodeEdit, callback);
+					document.getElementById('node-operation').innerHTML = "Edit Factor Label";
+					editLabel(data, cancelEdit, callback);
 				},
 				addEdge: function(data, callback) {
 					inAddMode = false;
@@ -351,6 +379,13 @@ function draw() {
 					}
 					if (lastLinkSample) data = Object.assign(data, samples.edges[lastLinkSample]);
 					callback(data);
+				},
+				editEdge: {
+					editWithoutDrag: function(data, callback) {
+						// filling in the popup DOM elements
+						document.getElementById('node-operation').innerHTML = "Edit Link Label";
+						editLabel(data, cancelEdit, callback);
+						}
 				},
 				deleteNode: function(data, callback) {
 					let r = confirm(deleteMsg(data));
@@ -374,20 +409,12 @@ function draw() {
 					group: 'group8'
 				}
 			},
-			/* 
-					physics: {
-						forceAtlas2Based: {
-							avoidOverlap: 0.2, 
-							springConstant: 0.002
-							}, 
-						solver: 'forceAtlas2Based'
-					}
-			 */
 		};
 
 		network = new Network(netPane, data, options);
 		network.storePositions();
-
+		document.getElementById("zoom").value = network.getScale();
+		
 		window.network = network;
 
 		// start with factor tab open, but hidden
@@ -400,10 +427,13 @@ function draw() {
 		network.on("doubleClick", function(params) {
 			if (params.nodes.length === 1) {
 				network.editNode();
-			} else {
+				}
+			else if (params.edges.length === 1) {
+				network.editEdgeMode();
+				} 
+			else {
 				network.fit();
-				document.getElementById('zoom').value = network
-					.getScale();
+				document.getElementById('zoom').value = network.getScale();
 			}
 		});
 		network.on('selectNode', function() {
@@ -461,39 +491,39 @@ function snapToGrid(node) {
 	node.y = (GRIDSPACING) * Math.round(node.y / (GRIDSPACING));
 }
 
-function editNode(data, cancelAction, callback) {
+function editLabel(data, cancelAction, callback) {
 	inAddMode = false;
 	changeCursor('auto');
 	let popUp = document.getElementById('node-popUp');
 	document.getElementById('node-cancelButton').onclick =
 		cancelAction.bind(this, callback);
 	document.getElementById('node-saveButton').onclick =
-		saveNodeData.bind(this, data, callback);
+		saveLabel.bind(this, data, callback);
 	popUp.style.display = 'block';
 	// popup appears to the left of the mouse pointer
 	popUp.style.top =
 		`${event.clientY - popUp.offsetHeight / 2}px`;
 	popUp.style.left =
 		`${event.clientX - popUp.offsetWidth - 3}px`;
-	document.getElementById('node-label').value = data.label;
+	document.getElementById('node-label').value = (data.label === undefined ? '' : data.label);
 	document.getElementById('node-label').focus();
 }
 
 // Callback passed as parameter is ignored
-function clearNodePopUp() {
+function clearPopUp() {
 	document.getElementById('node-saveButton').onclick = null;
 	document.getElementById('node-cancelButton').onclick = null;
 	document.getElementById('node-popUp').style.display = 'none';
 }
 
-function cancelNodeEdit(callback) {
-	clearNodePopUp();
+function cancelEdit(callback) {
+	clearPopUp();
 	callback(null);
 }
 
-function saveNodeData(data, callback) {
+function saveLabel(data, callback) {
 	data.label = document.getElementById('node-label').value;
-	clearNodePopUp();
+	clearPopUp();
 	if (data.label === "") {
 		statusMsg("No label: cancelled");
 		callback(null);
@@ -640,15 +670,6 @@ function loadJSONfile(json) {
 	unSelect();
 	nodes.clear();
 	edges.clear();
-	let options = {
-		edges: {
-			inheritColors: false
-		},
-		nodes: {
-			fixed: false,
-			parseColor: true
-		}
-	};
 	if (json.version && (version > json.version)) {
 		statusMsg(
 			"Warning: file was created in an earlier version of PRISM"
@@ -658,12 +679,13 @@ function loadJSONfile(json) {
 	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
 	if ('source' in json.edges[0]) {
 		// the file is from Gephi and needs to be translated
-		let parsed = parseGephiNetwork(json, options);
-		nodes.add(clean(parsed.nodes));
-		edges.add(clean(parsed.edges));
+		let parsed = parseGephiNetwork(json, 
+			{edges: {inheritColors: false}, nodes: {fixed: false, parseColor: true}});
+		nodes.add(cleanArray(parsed.nodes, {clientID: null, color: null}));
+		edges.add(cleanArray(parsed.edges, {clientID: null, color: null}));
 	} else {
-		nodes.add(clean(json.nodes));
-		edges.add(clean(json.edges));
+		nodes.add(cleanArray(json.nodes, {clientID: null, color: null}));
+		edges.add(cleanArray(json.edges, {clientID: null, color: null}));
 	}
 	data = {
 		nodes: nodes,
@@ -675,20 +697,45 @@ function loadJSONfile(json) {
 			hideEdgesOnZoom: data.nodes.length > 100
 		}
 	});
-	/* TODO
-		if (json.groups) {
-			groups = json.groups;
-			network.setOptions({groups: groups});
-			}
-	if (json.groupEdges) {
-		groupEdges = json.groupEdges;
-	}
-		 */
+	if (json.samples) {
+		samples.nodes = json.samples.nodes;
+		samples.edges = json.samples.edges;
+		network.setOptions({
+			edges: clean(samples.edges.edge0, {groupLabel: null}),
+			groups: samples.nodes,
+			nodes: {group: 'group0'}
+			})
+		refreshSampleNodes();
+		refreshSampleLinks();
+		}
 	snapToGridOff();
 	// in case parts of the previous network was hidden
 	document.getElementById('hideAll').checked = true;
 	document.getElementById('streamAll').checked = true;
 }
+
+function refreshSampleNodes() {
+	let sampleElements = Array.from(document.getElementsByClassName('sampleNode'));
+	for (let i = 0; i < sampleElements.length; i++) {
+		let groupId = 'group' + i;
+		sampleElements[i].net.setOptions({
+			groups: {[groupId]: samples.nodes[groupId]}
+		});
+		sampleElements[i].net.redraw()
+	}
+}
+
+function refreshSampleLinks() {
+	let sampleElements = Array.from(document.getElementsByClassName('sampleLink'));
+	for (let i = 0; i < sampleElements.length; i++) {
+		let edge = sampleElements[i].dataSet.get()[0];
+		edge = Object.assign(edge, samples.edges['edge' + i]);
+		edge.label = edge.groupLabel;
+		sampleElements[i].dataSet.remove(edge);
+		sampleElements[i].dataSet.add(edge);
+		}
+}
+	
 
 /* 
 Browser will only ask for name and location of the file to be saved if
@@ -703,10 +750,9 @@ function saveJSONfile() {
 		version: version,
 		lastNodeSample: lastNodeSample,
 		lastLinkSample: lastLinkSample,
-		groups: network.groups.groups,
-		sampleEdges: samples.edges,
-		nodes: clean(data.nodes.get()),
-		edges: clean(data.edges.get())
+		samples: samples,
+		nodes: cleanArray(data.nodes.get(), {clientId: null, color: null}),
+		edges: cleanArray(data.edges.get(), {clientId: null})
 	});
 	let element = document.getElementById("download");
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' +
@@ -715,12 +761,17 @@ function saveJSONfile() {
 	element.click();
 }
 
-function clean(items) {
-	// return a copy of an array of objects, with some properties removed
-	/*eslint no-unused-vars: ["error", { "ignoreRestSiblings": true }]*/
-	return items.map(({
-		clientID, color, ...keepAttrs
-	}) => keepAttrs)
+function cleanArray(arr, propsToRemove) {
+	return arr.map( (item) => {return clean(item, propsToRemove)})
+}
+
+function clean(source, propsToRemove) {
+	// return a copy of an object, with the properties in the object propsToRemove removed
+	let out = {};
+	for (let key in source) {
+		if (!(key in propsToRemove)) out[key] = source[key]
+	}
+	return out
 }
 
 function plusNode() {
@@ -753,8 +804,24 @@ Network.prototype.zoom = function(scale) {
 };
 
 function zoomnet() {
-	network.zoom(document.getElementById("zoom").value);
+	network.zoom(Number(document.getElementById("zoom").value));
 }
+
+function zoomminus() {
+	zoomincr(-0.1)
+}
+
+function zoomplus() {
+	zoomincr(0.1)
+}
+
+function zoomincr(incr) {
+	let newScale = Number(document.getElementById("zoom").value) + incr;
+	if (newScale > 4) newScale = 4;
+	if (newScale <= 0) newScale = 0.1;
+	document.getElementById("zoom").value = newScale;
+	network.zoom(newScale);
+}	
 
 /* Share modal dialog */
 
@@ -831,6 +898,8 @@ function togglePanel() {
 
 /* ---------operations related to the side panel -------------------------------------*/
 
+// Panel
+
 var tabOpen = null;
 
 function openTab(tabId) {
@@ -856,202 +925,41 @@ function openTab(tabId) {
 	if (tabOpen == 'nodesTab') displayNotes();
 }
 
+function storeButtonStatus() {
+	buttonStatus =  {
+			autoLayout: document.getElementById('autolayoutswitch').checked,
+			snapToGrid: document.getElementById('snaptogridswitch').checked,
+			layout: document.getElementById('layoutSelect').value,
+			curve: document.getElementById('curveSelect').value,
+			linkRadius: getRadioVal('hide'),
+			stream: getRadioVal('stream'),
+			showLabels: document.getElementById('showLabelSwitch').value,
+			sizing: document.getElementById('sizing').value
+			};
+}
+
+function saveButtonStatus(event) {
+	event.stackItem.meta.set('buttons', buttonStatus);
+	storeButtonStatus();
+}
+
+function setButtonStatus(event) {
+	let settings;
+	if (event.type == "undo") 
+		settings = yUndoManager.undoStack[yUndoManager.undoStack.length - 1].meta.get('buttons');
+	else settings = event.stackItem.meta.get('buttons');
+	document.getElementById('autolayoutswitch').checked = settings.autoLayout;
+	document.getElementById('snaptogridswitch').checked = settings.snapToGrid;
+	document.getElementById('layoutSelect').value = settings.layout;
+	document.getElementById('curveSelect').checked = settings.curve;
+	document.getElementById('autolayoutswitch').checked = settings.autoLayout;
+	setRadioVal('hide', settings.linkRadius);
+	setRadioVal('stream', settings.stream);
+	document.getElementById('showLabelSwitch').value = settings.showLabels;
+	document.getElementById('sizing').value = settings.sizing;
+}
 
 // Factors and Links Tabs
-
-// The samples are each a mini vis-network showing just one node or two nodes and a link
-
-// Get all elements with class="sampleNode" and add listener and canvas
-let emptyDataSet = new DataSet([]);
-let sampleElements = document.getElementsByClassName("sampleNode");
-for (let i = 0; i < sampleElements.length; i++) {
-	let groupId = 'group' + i;
-	let sampleElement = sampleElements[i];
-	sampleElement.addEventListener("click", () => { applySampleToNode(); }, false);
-	let groupLabel = samples.nodes[groupId].groupLabel;
-	let nodeDataSet = new DataSet([{
-		id: "1",
-		label: (groupLabel == undefined ? "" : groupLabel),
-		group: groupId,
-		chosen: false
-	}]);
-	initSample(sampleElement, {
-		nodes: nodeDataSet,
-		edges: emptyDataSet
-	});
-	sampleElement.addEventListener('dblclick', () => {
-		editSampleNode(sampleElement, samples, groupId)
-	});
-	sampleElement.group = groupId;
-	sampleElement.dataSet = nodeDataSet;
-}
-
-function editSampleNode(sampleElement, samples, groupId) {
-	let drawer = document.getElementById("editNodeDrawer");
-	changeCursor('auto');
-	getNodeSampleEdit(sampleElement, samples.nodes[groupId]);
-	document.getElementById('sampleEditorSubmitButton').addEventListener('click', () => {
-		saveNodeSampleEdit(sampleElement, samples, groupId)
-	}, {once: true});
-	drawer.style.top =
-		`${document.getElementById('panel').getBoundingClientRect().top}px`;
-	drawer.style.left =
-		`${document.getElementById('panel').getBoundingClientRect().left - 300}px`;
-	drawer.classList.remove("hideDrawer");
-}
-
-function saveNodeSampleEdit(sampleElement, samples, groupId) {
-	let group = samples.nodes[groupId];
-	group.groupLabel = document.getElementsByName("label")[0].value;
-	setColor("fillColor", group, "color", "background");
-	setColor3("fillColor", group, "color", "highlight", "background");
-	setColor3("fillColor", group, "color", "hover", "background");
-	setColor("borderColor", group, "color", "border");
-	setColor3("borderColor", group, "color", "highlight", "border");
-	setColor3("borderColor", group, "color", "hover", "border");
-	setColor("fontColor", group, "font", "color");
-	setShape(group);
-	setBorderType(group);
-	setFontSize(group);
-	network.setOptions({
-		groups: samples.nodes
-	})
-	let node = sampleElement.dataSet.get("1");
-	node.label = group.groupLabel;
-	let dataSet = sampleElement.dataSet;
-	dataSet.remove(node);
-	dataSet.add(node);
-	sampleElement.net.setOptions({
-		groups: samples.nodes
-	});
-	document.getElementById("editNodeDrawer").classList.add("hideDrawer");
-	network.redraw();
-}
-
-function getNodeSampleEdit(sampleElement, group) {
-	document.getElementsByName("label")[0].value = sampleElement.dataSet.get("1").label;
-	getColor("fillColor", group.color.background);
-	getColor("borderColor", group.color.border);
-	getColor("fontColor", group.font.color);
-	getSelection("shape", group.shape);
-	getSelection("borderType", group.shapeProperties.borderDashes);
-	getSelection("fontSize", group.font.size);
-}
-
-function standardize_color(str) {
-	let ctx = document.createElement("canvas").getContext("2d");
-	ctx.fillStyle = str;
-	return ctx.fillStyle;
-}
-
-function getColor(well, prop) {
-	document.getElementsByName(well)[0].value = standardize_color(prop);
-}
-
-function setColor(well, obj, prop1, prop2) {
-	if (obj[prop1] === undefined) obj[prop1] = {};
-	obj[prop1][prop2] = document.getElementsByName(well)[0].value;
-}
-
-function setColor3(well, obj, prop1, prop2, prop3) {
-	if (obj[prop1] === undefined) obj[prop1] = {};
-	if (obj[prop1][prop2] === undefined) obj[prop1][prop2] = {};
-	obj[prop1][prop2][prop3] = document.getElementsByName(well)[0].value;
-}
-
-function setShape(obj) {
-	let val = document.getElementsByName("shape")[0].value;
-	if (val != "") obj.shape = val;
-}
-
-function setBorderType(obj) {
-	let val = document.getElementsByName("borderType")[0].value;
-	if (obj.shapeProperties == undefined) obj.shapeProperties = {};
-	if (val != "") obj.shapeProperties.borderDashes = deString(val);
-}
-
-function deString(val) {
-	switch (val) {
-		case "true":
-			return true;
-		case "false":
-			return false;
-		case "dots":
-			return [3, 3];
-		default:
-			return val;
-	}
-}
-
-function setFontSize(obj) {
-	let val = document.getElementsByName("fontSize")[0].value;
-	if (obj.font == undefined) obj.font = {};
-	if (val != "") obj.font.size = val;
-}
-
-function getSelection(name, prop) {
-	if (
-		Array.from(document.getElementsByName(name)[0].options)
-		.map(opt => opt.value)
-		.includes(prop.toString())
-	)
-		document.getElementsByName(name)[0].value = prop;
-	else document.getElementsByName(name)[0].selectedIndex = 0;
-}
-
-// and to all sampleLinks
-sampleElements = document.getElementsByClassName("sampleLink");
-for (let i = 0; i < sampleElements.length; i++) {
-	let sampleElement = sampleElements[i];
-	sampleElement.addEventListener("click", () => {
-		applySampleToLink();
-	}, false);
-	let edgeDataSet = new DataSet([Object.assign({
-		from: 1,
-		to: 2,
-		value: 7
-	}, samples.edges['edge' + i])])
-	let nodesDataSet = new DataSet([{
-		id: 1
-	}, {
-		id: 2
-	}])
-	initSample(sampleElement, {
-		nodes: nodesDataSet,
-		edges: edgeDataSet
-	});
-	sampleElement.groupLink = 'edge' + i;
-}
-
-function initSample(wrapper, sampleData) {
-	let options = {
-		interaction: {
-			dragNodes: false,
-			dragView: false,
-			selectable: true,
-			zoomView: false
-		},
-		manipulation: {
-			enabled: false,
-			editNode: function(data, callback) {
-				// filling in the popup DOM elements
-				document.getElementById('node-operation').innerHTML = "Group name";
-				editSampleNode(data, cancelNodeEdit, callback, samples);
-			}
-		},
-		layout: {
-			hierarchical: {
-				enabled: true,
-				direction: 'LR'
-			}
-		},
-		groups: samples.nodes
-	};
-	let net = new Network(wrapper, sampleData, options);
-	net.storePositions();
-	wrapper.net = net;
-	return net;
-}
 
 function applySampleToNode() {
 	let selectedNodeIds = network.getSelectedNodes();
@@ -1073,7 +981,8 @@ function applySampleToLink() {
 	if (selectedEdges.length == 0) return;
 	let edgesToUpdate = [];
 	for (let edge of data.edges.get(selectedEdges)) {
-		edge = Object.assign(edge, samples.edges[sample]);
+		edge = Object.assign(edge, deepCopy(samples.edges[sample]));
+		edge.group = sample;
 		claim(edge);
 		edgesToUpdate.push(edge);
 	}
@@ -1259,6 +1168,17 @@ function hideLabels() {
 		}
 	);
 	data.nodes.update(nodesToUpdate);
+	
+	let edgesToUpdate = [];
+	data.edges.forEach(
+		function(n) {
+			n.hiddenLabel = n.label;
+			n.label = "";
+			edgesToUpdate.push(n);
+		}
+	);
+	data.edges.remove(edgesToUpdate);
+	data.edges.add(edgesToUpdate);
 }
 
 function unHideLabels() {
@@ -1271,6 +1191,17 @@ function unHideLabels() {
 		}
 	);
 	data.nodes.update(nodesToUpdate);
+	
+	let edgesToUpdate = [];
+	data.edges.forEach(
+		function(n) {
+			if (n.hiddenLabel) n.label = n.hiddenLabel;
+			n.hiddenLabel = undefined;
+			edgesToUpdate.push(n);
+		}
+	);
+	data.edges.remove(edgesToUpdate);
+	data.edges.add(edgesToUpdate);
 }
 
 function getRadioVal(name) {
@@ -1283,6 +1214,14 @@ function getRadioVal(name) {
 	}
 }
 
+function setRadioVal(name, value) {
+	// get list of radio buttons with specified name
+	let radios = document.getElementsByName(name);
+	// loop through list of radio buttons
+	for (let i = 0, len = radios.length; i < len; i++) {
+		radios[i].checked = (radios[i].value == value)
+	}
+}
 // Performs intersection operation between called set and otherSet 
 Set.prototype.intersection = function(otherSet) {
 	let intersectionSet = new Set();
@@ -1403,3 +1342,31 @@ function hideDistantOrStreamNodes() {
 		});
 	}
 }
+
+function sizing() {
+// set the size of the nodes proportional to the selected metric 
+//  none, in degree out degree or betweenness centrality
+	
+	let metric = document.getElementById('sizing').value;
+	data.nodes.forEach( (node) => {
+		switch(metric) {
+			case 'Off': node.value = 0;
+				break;
+			case 'Inputs': node.value = network.getConnectedNodes(node.id, 'from').length;
+				break;
+			case 'Outputs': node.value = network.getConnectedNodes(node.id, 'to').length;
+				break;
+			case 'Leverage':
+				let inDegree = network.getConnectedNodes(node.id, 'from').length;
+				let outDegree = network.getConnectedNodes(node.id, 'to').length;
+				node.value = (inDegree == 0) ? 0 : (outDegree / inDegree);
+				break;
+			case 'Centrality': node.value = bc[node.id];
+				break;
+			}
+		data.nodes.update(node);
+		});
+	network.fit();
+	document.getElementById('zoom').value = network.getScale();
+}
+

@@ -2,320 +2,369 @@
 <html lang="en">
 
 <head>
-	<title>Prism: PaRtIcipatory System Mapping</title>
-	<meta charset="utf-8">
-	<meta content="IE=edge" http-equiv="X-UA-Compatible">
-	<meta content="width=device-width, height=device-height" name="viewport">
-	<link href="css/prism.css" rel="stylesheet">
-	<link href="css/fa.min.css" rel="stylesheet">
-	<script src="js/modernizr-custom.js"></script>
+    <title>Prism: PaRtIcipatory System Mapping</title>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, height=device-height, user-scalable=no" name="viewport">
+    <link href="css/prism.css" rel="stylesheet">
+    <link href="css/fa.min.css" rel="stylesheet">
+    <script src="js/modernizr-custom.js"></script>
 </head>
 
 <body class="container" id="container">
-	<header>
-		<nav id="navbar">
-			<!-- <img src="img/prism-logo.png" alt="PRISM"> -->
-			<div class="strapline">Participatory System Mapping</div>
-			<div id="version"></div>
-			<div class="button-wrapper">
-				<div class="buttons" id="buttons">
-					<div class="tooltip">
-						<button id="addNode"><i class="fas fa-plus"></i></button><span class="tooltiptext">Add factor</span>
-					</div>
-					<div class="tooltip right-border">
-						<button id="addLink"><i class="fas fa-wave-square"></i></button><span class="tooltiptext">Add link</span>
-					</div>
-					<div class="tooltip">
-						<button id="undo" class="disabled"><i class="fas fa-undo small-button"></i></button><span class="tooltiptext">Undo</span>
-					</div>
-					<div class="tooltip">
-						<button id="redo" class="disabled"><i class="fas fa-redo small-button"></i></button><span class="tooltiptext">Redo</span>
-					</div>
-					<div class="tooltip right-border">
-						<button id="deleteNode"><i class="fas fa-trash-alt small-button"></i></button><span class="tooltiptext">Delete selected</span>
-					</div>
-					<div class="tooltip">
-						<button id="share"><i class="fas fa-user-friends"></i></button><span class="tooltiptext">Share</span>
-					</div>
-					<div class="tooltip">
-						<button id="openFile"><i class="fas fa-folder-open small-button"></i></button><span class="tooltiptext">Open network</span>
-					</div>
-					<div class="tooltip right-border">
-						<button id="saveFile"><i class="fas fa-save small-button"></i></button><span class="tooltiptext">Save network</span>
-						<a href='#' id="download" download></a>
-					</div>
-					<div class="tooltip">
-						<button id="panelToggle"><i class="fas fa-clone"></i></button> <span class="tooltiptext">Show or hide panel</span>
-					</div>
-				</div>
-			</div>
-		</nav>
-	</header>
-	<main>
-	
-		<div id="node-popUp">
-			<span id="node-operation">factor</span> <br>
-			<textarea id="node-label" placeholder="Label" value=""></textarea> <br>
-			<input type="button" value="cancel" id="node-cancelButton" />
-			<input type="button" value="save" id="node-saveButton" />
-		</div>
-		<!-- The edge pop up is not currently used -->
-		<div id="edge-popUp">
-			<span id="edge-operation">edge</span> <br>
-			<table style="margin:auto;">
-				<tr>
-					<td>label</td>
-					<td><input id="edge-label" value="new value" /></td>
-				</tr>
-			</table>
-			<input type="button" value="cancel" id="edge-cancelButton" />
-			<input type="button" value="save" id="edge-saveButton" />
-		</div>
+    <header>
+        <nav id="navbar">
+            <!-- <img src="img/prism-logo.png" alt="PRISM"> -->
+            <div class="strapline">Participatory System Mapping</div>
+            <div id="version"></div>
+            <div class="button-wrapper">
+                <div class="buttons" id="buttons">
+                    <div class="tooltip">
+                        <button id="addNode"><i class="fas fa-plus"></i></button><span class="tooltiptext">Add factor</span>
+                    </div>
+                    <div class="tooltip right-border">
+                        <button id="addLink"><i class="fas fa-wave-square"></i></button><span class="tooltiptext">Add link</span>
+                    </div>
+                    <div class="tooltip">
+                        <button id="undo" class="disabled"><i class="fas fa-undo small-button"></i></button><span class="tooltiptext">Undo</span>
+                    </div>
+                    <div class="tooltip">
+                        <button id="redo" class="disabled"><i class="fas fa-redo small-button"></i></button><span class="tooltiptext">Redo</span>
+                    </div>
+                    <div class="tooltip right-border">
+                        <button id="deleteNode"><i class="fas fa-trash-alt small-button"></i></button><span class="tooltiptext">Delete selected</span>
+                    </div>
+                    <div class="tooltip">
+                        <button id="share"><i class="fas fa-user-friends"></i></button><span class="tooltiptext">Share</span>
+                    </div>
+                    <div class="tooltip">
+                        <button id="openFile"><i class="fas fa-folder-open small-button"></i></button><span class="tooltiptext">Open network</span>
+                    </div>
+                    <div class="tooltip right-border">
+                        <button id="saveFile"><i class="fas fa-save small-button"></i></button><span class="tooltiptext">Save network</span>
+                        <a href='#' id="download" download></a>
+                    </div>
+                    <div class="tooltip">
+                        <button id="panelToggle"><i class="fas fa-clone"></i></button> <span class="tooltiptext">Show or hide panel</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
 
-		<div id="net-pane"></div>
-		<div id="underlay">
-		<img id="img" src="img/CECAN.jpg"></div>
+        <div id="node-popUp">
+            <span id="node-operation">factor</span> <br>
+            <textarea id="node-label" placeholder="Label" value=""></textarea> <br>
+            <input type="button" value="cancel" id="node-cancelButton" />
+            <input type="button" value="save" id="node-saveButton" />
+        </div>
+ 
+        <div id="net-pane"></div>
+        <div id="underlay">
+            <img id="img" src="img/CECAN.jpg"></div>
 
-	</main>
-	<aside id="panel">
-		<!-- Tabs -->
-		<div class="tab">
-			<button class="tablinks" id="networkButton">Network</button>
-			<button class="tablinks" id="nodesButton">Factors</button>
-			<button class="tablinks" id="linksButton">Links</button>
-		</div>
-		<!-- Tab content -->
-		
-		<!-- Network tab -->
-		<div class="tabcontent hide" id="networkTab">
-			<div class="networkGrid">
-				<div class="panelRow">
-					<div>Auto. layout</div>
-					<div class="onoffswitch">
-						<input type="checkbox" name="onoffswitch" 
-							class="onoffswitch-checkbox" id="autolayoutswitch">
-						<label class="onoffswitch-label" for="autolayoutswitch">
+    </main>
+    <aside id="panel">
+        <!-- Tabs -->
+        <div class="tab">
+            <button class="tablinks" id="networkButton">Network</button>
+            <button class="tablinks" id="nodesButton">Factors</button>
+            <button class="tablinks" id="linksButton">Links</button>
+        </div>
+        <!-- Tab content -->
+
+        <!-- Network tab -->
+        <div class="tabcontent hide" id="networkTab">
+            <div class="networkGrid">
+                <div class="panelRow">
+                    <div>Auto. layout</div>
+                    <div class="onoffswitch">
+                        <input type="checkbox" name="onoffswitch" 
+                        	class="onoffswitch-checkbox" id="autolayoutswitch">
+                        <label class="onoffswitch-label" for="autolayoutswitch">
 							<span class="onoffswitch-inner"></span>
 							<span class="onoffswitch-switch"></span>
 						</label>
-					</div>
-				</div>
-				<div class="panelRow">
-					<div>Snap to grid</div>
-					<div class="onoffswitch">
-						<input type="checkbox" name="onoffswitch" 
-							class="onoffswitch-checkbox" id="snaptogridswitch">
-						<label class="onoffswitch-label" for="snaptogridswitch">
+                    </div>
+                </div>
+                <div class="panelRow">
+                    <div>Snap to grid</div>
+                    <div class="onoffswitch">
+                        <input type="checkbox" name="onoffswitch" 
+                        	class="onoffswitch-checkbox" id="snaptogridswitch">
+                        <label class="onoffswitch-label" for="snaptogridswitch">
 							<span class="onoffswitch-inner"></span>
 							<span class="onoffswitch-switch"></span>
 						</label>
-					</div>
-				</div>				
-				<div class="panelRow">
-					<div>Layout type:</div>
-					<div>
-						<select id="layoutSelect">
+                    </div>
+                </div>
+                <div class="panelRow">
+                    <div>Layout type:</div>
+                    <div>
+                        <select id="layoutSelect">
 							<option value="Network" selected>Network</option>
 							<option value="Hierarchical">Hierarchical</option>
 						</select>
-					</div>
-				</div>
-				<div class="panelRow">
-					<div>Link:</div>
-					<div>
-						<select id="curveSelect">
+                    </div>
+                </div>
+                <div class="panelRow">
+                    <div>Link:</div>
+                    <div>
+                        <select id="curveSelect">
 							<option value="Curved" selected>Curved</option>
 							<option value="Straight">Straight</option>
 						</select>
-					</div>
-				</div>
-				<div class="panelRow">
-					<div>Background:</div>
-					<div>
-						<input type="color" value="#ffffff" id="netBackColorWell">
-					</div>
-				</div>
-				<div class="panelRow divider">
-					<label for="hideAll">Show all</label>
-					<input type="radio" id="hideAll" name="hide" value="All" checked>
-				</div>
-				<div class="panelRow">
-					<label for="oneLink">Show only Factors 1 link away</label>
-					<input type="radio" id="oneLink" name="hide" value="1">
-				</div>
-				<div class="panelRow">
-					<label for="oneLink">Show only Factors 2 links away</label>
-					<input type="radio" id="twoLinks" name="hide" value="2">
-				</div>
-				<div class="panelRow">
-					<label for="threeLinks">Show only Factors 3 links away</label>
-					<input type="radio" id="threeLinks" name="hide" value="3">
-				</div>
-				<div class="panelRow divider">
-					<label for="streamAll">Show all</label>
-					<input type="radio" id="streamAll" name="stream" value="All" checked>
-				</div>
-				<div class="panelRow">
-					<label for="upstream">Show only Factors upstream</label>
-					<input type="radio" id="upstream" name="stream" value="upstream">
-				</div>
-				<div class="panelRow">
-					<label for="downstream">Show only Factors downstream</label>
-						<input type="radio" id="downstream" name="stream" value="downstream">
-				</div>
-				<div class="panelRow divider">
-					<div>Show labels</div>
-					<div class="onoffswitch">
-						<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" 
-							id="showLabelSwitch" checked>
-						<label class="onoffswitch-label" for="showLabelSwitch">
+                    </div>
+                </div>
+                <div class="panelRow">
+                    <div>Background:</div>
+                    <div>
+                        <input type="color" value="#ffffff" id="netBackColorWell">
+                    </div>
+                </div>
+                <div class="panelRow">
+                    <div>Show labels</div>
+                    <div class="onoffswitch">
+                        <input type="checkbox" name="onoffswitch" 
+                        	class="onoffswitch-checkbox" id="showLabelSwitch" checked>
+                        <label class="onoffswitch-label" for="showLabelSwitch">
 							<span class="onoffswitch-inner"></span>
 							<span class="onoffswitch-switch"></span>
 						</label>
-					</div>
-				</div>
+                    </div>
+                </div>
+                <div class="panelRow divider">
+                    <label for="hideAll">Show all</label>
+                    <input type="radio" id="hideAll" name="hide" value="All" checked>
+                </div>
+                <div class="panelRow">
+                    <label for="oneLink">Show only Factors 1 link away</label>
+                    <input type="radio" id="oneLink" name="hide" value="1">
+                </div>
+                <div class="panelRow">
+                    <label for="oneLink">Show only Factors 2 links away</label>
+                    <input type="radio" id="twoLinks" name="hide" value="2">
+                </div>
+                <div class="panelRow">
+                    <label for="threeLinks">Show only Factors 3 links away</label>
+                    <input type="radio" id="threeLinks" name="hide" value="3">
+                </div>
+                <div class="panelRow divider">
+                    <label for="streamAll">Show all</label>
+                    <input type="radio" id="streamAll" name="stream" value="All" checked>
+                </div>
+                <div class="panelRow">
+                    <label for="upstream">Show only Factors upstream</label>
+                    <input type="radio" id="upstream" name="stream" value="upstream">
+                </div>
+                <div class="panelRow">
+                    <label for="downstream">Show only Factors downstream</label>
+                    <input type="radio" id="downstream" name="stream" value="downstream">
+                </div>
+                <div class="panelRow divider">
+                    <div>Size Factors to:</div>
+                    <div>
+                        <select id="sizing">
+							<option value="Off" selected>---</option>
+							<option value="Inputs">Inputs</option>
+							<option value="Outputs">Outputs</option>
+							<option value="Leverage">Leverage</option>
+							<option value="Centrality">Centrality</option>
+						</select>
+                    </div>
+                </div>
 
-			</div>
-		</div>
-		
-		<!-- Factor tab -->
-		<div class="tabcontent hide" id="nodesTab">
-			<div class="sampleGrid">
-				<div class="sampleNode" id="nodeSample1"></div>
-				<div class="sampleNode" id="nodeSample2"></div>
-				<div class="sampleNode" id="nodeSample3"></div>
-				<div class="sampleNode" id="nodeSample4"></div>
-				<div class="sampleNode" id="nodeSample5"></div>
-				<div class="sampleNode" id="nodeSample6"></div>
-				<div class="sampleNode" id="nodeSample7"></div>
-				<div class="sampleNode" id="nodeSample8"></div>
-				<div class="sampleNode" id="nodeSample9"></div>
-			</div>
-			<div class="panelRow centered">
-				<button type="button" class="btn" id="allFactors">Select all factors</button>
-			</div>
-			<div id="oneNodeSelected">
-				<div class="panelRow centered">
-					<div><b><span id="nodeLabel"></span></b></div>
-				</div>
-				<div class="panelRow">
-					<div>Leverage</div>
-					<div id="leverage"></div>
-				</div>
-				<div class="panelRow">
-					<div>Betweenness centrality</div>
-					<div id="bc"></div>
-				</div>
-				<div class="notesWrapper"><u>Notes</u>
-					<div class="notes" id="notes"></div>
-				</div>
-			</div>
-		</div>
-		
-		<!-- Links Tab -->
-		<div class="tabcontent hide" id="linksTab">
-			<div class="sampleGrid">
-				<div class="sampleLink" id="linkSample1"></div>
-				<div class="sampleLink" id="linkSample2"></div>
-				<div class="sampleLink" id="linkSample3"></div>
-				<div class="sampleLink" id="linkSample4"></div>
-				<div class="sampleLink" id="linkSample5"></div>
-				<div class="sampleLink" id="linkSample6"></div>
-				<div class="sampleLink" id="linkSample7"></div>
-				<div class="sampleLink" id="linkSample8"></div>
-				<div class="sampleLink" id="linkSample9"></div>
-			</div>
-			<div class="panelRow centered">
-				<button type="button" class="btn" id="allEdges" >Select all links</button>
-			</div>
-		</div>
-	</aside>
-	
-	
-	<footer>
-		<div id="statusBar"><br></div>
-		<div>
-			<label for="zoom">Zoom</label>
-			<input type="range" id="zoom" min="0.1" max="4" step="0.1">
-		</div>
-	</footer>
-	
-	<!-- sample node edit panel -->
-	
-	<div id="editNodeDrawer" class="drawerContent hideDrawer">
-		<div class="sampleEditorPanel">
-		  <div class="sampleTitleInput">Name: <input name="label" /></div>
-		  <div>
-			fill
-		  </div>
-		  <div>
-			border
-		  </div>
-		  <div>
-			font
-		  </div>
-		  <div>
-			<input type="color" name="fillColor" />
-		  </div>
-		  <div>
-			<input type="color" name="borderColor" />
-		  </div>
-		  <div>
-			<input type="color" name="fontColor" />
-		  </div>
-		  <div>
-			<select name="shape">
+            </div>
+        </div>
+
+        <!-- Factor tab -->
+        <div class="tabcontent hide" id="nodesTab">
+            <div class="sampleGrid">
+                <div class="sampleNode" id="nodeSample1"></div>
+                <div class="sampleNode" id="nodeSample2"></div>
+                <div class="sampleNode" id="nodeSample3"></div>
+                <div class="sampleNode" id="nodeSample4"></div>
+                <div class="sampleNode" id="nodeSample5"></div>
+                <div class="sampleNode" id="nodeSample6"></div>
+                <div class="sampleNode" id="nodeSample7"></div>
+                <div class="sampleNode" id="nodeSample8"></div>
+                <div class="sampleNode" id="nodeSample9"></div>
+            </div>
+            <div class="panelRow centered">
+                <button type="button" class="btn" id="allFactors">Select all factors</button>
+            </div>
+            <div id="oneNodeSelected">
+                <div class="panelRow centered">
+                    <div><b><span id="nodeLabel"></span></b></div>
+                </div>
+                <div class="panelRow">
+                    <div>Leverage</div>
+                    <div id="leverage"></div>
+                </div>
+                <div class="panelRow">
+                    <div>Betweenness centrality</div>
+                    <div id="bc"></div>
+                </div>
+                <div class="notesWrapper"><u>Notes</u>
+                    <div class="notes" id="notes"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Links Tab -->
+        <div class="tabcontent hide" id="linksTab">
+            <div class="sampleGrid">
+                <div class="sampleLink" id="linkSample1"></div>
+                <div class="sampleLink" id="linkSample2"></div>
+                <div class="sampleLink" id="linkSample3"></div>
+                <div class="sampleLink" id="linkSample4"></div>
+                <div class="sampleLink" id="linkSample5"></div>
+                <div class="sampleLink" id="linkSample6"></div>
+                <div class="sampleLink" id="linkSample7"></div>
+                <div class="sampleLink" id="linkSample8"></div>
+                <div class="sampleLink" id="linkSample9"></div>
+            </div>
+            <div class="panelRow centered">
+                <button type="button" class="btn" id="allEdges">Select all links</button>
+            </div>
+        </div>
+    </aside>
+
+
+    <footer>
+        <div id="statusBar"><br></div>
+        <div>Zoom <span id="zoomminus">&ndash;</span><input type="range" id="zoom" min="0.1" max="4" step="0.1"><span id="zoomplus">+</span></div>
+    </footer>
+
+    <!-- sample node edit panel -->
+
+    <div id="editNodeDrawer" class="drawerContent hideDrawer">
+        <div class="sampleEditorPanel">
+            <div class="sampleTitleInput">Name: <input name="nodeLabel" /></div>
+            <div>
+                fill
+            </div>
+            <div>
+                border
+            </div>
+            <div>
+                font
+            </div>
+            <div>
+                <input type="color" name="fillColor" />
+            </div>
+            <div>
+                <input type="color" name="borderColor" />
+            </div>
+            <div>
+                <input type="color" name="fontColor" />
+            </div>
+            <div>
+                <select name="shape">
 			  <option value="">Shape...</option>
 			  <option value="ellipse">Ellipse</option>
 			  <option value="circle">Circle</option>
 			  <option value="box">Rect</option>
 			  <option value="text">Text</option>
 			</select>
-		  </div>
-		  <div>
-			<select name="borderType">
+            </div>
+            <div>
+                <select name="borderType">
 			  <option value="">Type...</option>
 			  <option value="false">Solid</option>
 			  <option value="true">Dashed</option>
 			  <option value="dots">Dotted</option>
 			</select>
-		  </div>
-		  <div>
-			<select name="fontSize">
+            </div>
+            <div>
+                <select name="fontSize">
 			  <option value="">Size...</option>
 			  <option value="18">Large</option>
 			  <option value="14">Normal</option>
 			  <option value="10">Small</option>
 			</select>
-		  </div>
-		  <div class="sampleEditorSubmit">
-			<button id="sampleEditorSubmitButton">
-			  Save
-			</button>
-		  </div>
-		</div>
-	</div>
-	
-	<!-- Share model dialog -->
-	<div id="shareModal" class="modal">
-		<!-- Modal content -->
-		<div class="modal-content">
-			<div class="modal-header">
-				<span class="close">&times;</span>
-				<h2>Share the network with other participants</h2>
+            </div>
+            <div class="sampleEditorCancel">
+				<button id="sampleNodeEditorCancelButton">
+				Cancel
+				</button>
 			</div>
-			<div class="modal-body">
-				<p>To invite others to participate in developing this map, 
-				send them this link:</p>
-				<p><input type="text" id="text-to-copy"></p>
-				<p><button id="copy-text">Copy to clipboard</button>
-					<span class="modal-copied-text" id="copied-text">Copied!</span></p>
+      		<div class="sampleEditorSubmit">
+                <button id="sampleNodeEditorSubmitButton">
+			  	Save
+				</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- sample link edit panel -->
+
+    <div id="editLinkDrawer" class="drawerContent hideDrawer">
+        <div class="sampleEditorPanel">
+            <div class="sampleTitleInput">Name:
+                <input name="edgeLabel" /></div>
+            <div>
+                <input type="color" name="lineColor" />
+            </div>
+            <div>
+                <div>Width</div>
+                <select name="width">
+				<option value="">Width...</option>
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="4">4</option>
+			  </select>
+            </div>
+            <div></div>
+            <div>
+                <select name="dashes">
+				<option value="">Dashed...</option>
+				<option value="false">Solid</option>
+				<option value="true">Dashed</option>
+				<option value="dots">Dotted</option>
+			  </select>
+            </div>
+            <div>
+                <select name="arrows" style="grid-column: 1/2">
+				<option value="">Arrows...</option>
+				<option value="to">End only</option>
+				<option value="toMiddle">Middle and end</option>
+			  </select>
+            </div>
+            <div class="sampleEditorCancel">
+				<button id="sampleLinkEditorCancelButton">
+				Cancel
+				</button>
 			</div>
-		</div>
-	</div>
-	<!-- Open file dialog This element is augmented by Javascript (see navbar.js) -->
-	<input type="file" id="fileInput" style="display: none">
-	<script src="./dist/prism.bundle.js"></script>
+            <div class="sampleEditorSubmit" style="grid-column: 2/3">
+                <button id="sampleLinkEditorSubmitButton">
+				Save
+				</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share model dialog -->
+    <div id="shareModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <h2>Share the network with other participants</h2>
+            </div>
+            <div class="modal-body">
+                <p>To invite others to participate in developing this map, send them this link:</p>
+                <p><input type="text" id="text-to-copy"></p>
+                <p><button id="copy-text">Copy to clipboard</button>
+                    <span class="modal-copied-text" id="copied-text">Copied!</span></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Open file dialog -->
+    <input type="file" id="fileInput" style="display: none">
+    <script src="./dist/prism.bundle.js"></script>
 </body>
 
 </html>
