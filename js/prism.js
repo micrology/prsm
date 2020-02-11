@@ -101,6 +101,9 @@ function addEventListeners() {
 	document.getElementById('undo').addEventListener('click', undo);
 	document.getElementById('redo').addEventListener('click', redo);
 	document.getElementById('fileInput').addEventListener('change', readSingleFile);
+	document.getElementById('zoom').addEventListener('change', zoomnet);
+	document.getElementById('zoomminus').addEventListener('click', zoomminus);
+	document.getElementById('zoomplus').addEventListener('click', zoomplus);
 	document.getElementById("nodesButton").addEventListener("click", () => {
 		openTab("nodesTab")
 	});
@@ -118,13 +121,13 @@ function addEventListeners() {
 	document.getElementById('showLabelSwitch').addEventListener('click', labelSwitch);
 	document.getElementById('layoutSelect').addEventListener('change', selectLayout);
 	document.getElementById('curveSelect').addEventListener('change', selectCurve);
-	document.getElementById('zoom').addEventListener('change', zoomnet);
 	Array.from(document.getElementsByName("hide")).forEach((elem) => {
 		elem.addEventListener('change', hideDistantOrStreamNodes)
 	});
 	Array.from(document.getElementsByName("stream")).forEach((elem) => {
 		elem.addEventListener('change', hideDistantOrStreamNodes)
 	});
+	document.getElementById('sizing').addEventListener('change', sizing);
 	Array.from(document.getElementsByClassName("sampleNode")).forEach( (elem) =>
 			elem.addEventListener("click", () => { applySampleToNode() }, false));
 	Array.from(document.getElementsByClassName("sampleLink")).forEach( (elem) =>
@@ -406,20 +409,12 @@ function draw() {
 					group: 'group8'
 				}
 			},
-			/* 
-					physics: {
-						forceAtlas2Based: {
-							avoidOverlap: 0.2, 
-							springConstant: 0.002
-							}, 
-						solver: 'forceAtlas2Based'
-					}
-			 */
 		};
 
 		network = new Network(netPane, data, options);
 		network.storePositions();
-
+		document.getElementById("zoom").value = network.getScale();
+		
 		window.network = network;
 
 		// start with factor tab open, but hidden
@@ -438,8 +433,7 @@ function draw() {
 				} 
 			else {
 				network.fit();
-				document.getElementById('zoom').value = network
-					.getScale();
+				document.getElementById('zoom').value = network.getScale();
 			}
 		});
 		network.on('selectNode', function() {
@@ -810,8 +804,24 @@ Network.prototype.zoom = function(scale) {
 };
 
 function zoomnet() {
-	network.zoom(document.getElementById("zoom").value);
+	network.zoom(Number(document.getElementById("zoom").value));
 }
+
+function zoomminus() {
+	zoomincr(-0.1)
+}
+
+function zoomplus() {
+	zoomincr(0.1)
+}
+
+function zoomincr(incr) {
+	let newScale = Number(document.getElementById("zoom").value) + incr;
+	if (newScale > 4) newScale = 4;
+	if (newScale <= 0) newScale = 0.1;
+	document.getElementById("zoom").value = newScale;
+	network.zoom(newScale);
+}	
 
 /* Share modal dialog */
 
@@ -924,6 +934,7 @@ function storeButtonStatus() {
 			linkRadius: getRadioVal('hide'),
 			stream: getRadioVal('stream'),
 			showLabels: document.getElementById('showLabelSwitch').value,
+			sizing: document.getElementById('sizing').value
 			};
 }
 
@@ -945,6 +956,7 @@ function setButtonStatus(event) {
 	setRadioVal('hide', settings.linkRadius);
 	setRadioVal('stream', settings.stream);
 	document.getElementById('showLabelSwitch').value = settings.showLabels;
+	document.getElementById('sizing').value = settings.sizing;
 }
 
 // Factors and Links Tabs
@@ -1156,6 +1168,17 @@ function hideLabels() {
 		}
 	);
 	data.nodes.update(nodesToUpdate);
+	
+	let edgesToUpdate = [];
+	data.edges.forEach(
+		function(n) {
+			n.hiddenLabel = n.label;
+			n.label = "";
+			edgesToUpdate.push(n);
+		}
+	);
+	data.edges.remove(edgesToUpdate);
+	data.edges.add(edgesToUpdate);
 }
 
 function unHideLabels() {
@@ -1168,6 +1191,17 @@ function unHideLabels() {
 		}
 	);
 	data.nodes.update(nodesToUpdate);
+	
+	let edgesToUpdate = [];
+	data.edges.forEach(
+		function(n) {
+			if (n.hiddenLabel) n.label = n.hiddenLabel;
+			n.hiddenLabel = undefined;
+			edgesToUpdate.push(n);
+		}
+	);
+	data.edges.remove(edgesToUpdate);
+	data.edges.add(edgesToUpdate);
 }
 
 function getRadioVal(name) {
@@ -1308,3 +1342,31 @@ function hideDistantOrStreamNodes() {
 		});
 	}
 }
+
+function sizing() {
+// set the size of the nodes proportional to the selected metric 
+//  none, in degree out degree or betweenness centrality
+	
+	let metric = document.getElementById('sizing').value;
+	data.nodes.forEach( (node) => {
+		switch(metric) {
+			case 'Off': node.value = 0;
+				break;
+			case 'Inputs': node.value = network.getConnectedNodes(node.id, 'from').length;
+				break;
+			case 'Outputs': node.value = network.getConnectedNodes(node.id, 'to').length;
+				break;
+			case 'Leverage':
+				let inDegree = network.getConnectedNodes(node.id, 'from').length;
+				let outDegree = network.getConnectedNodes(node.id, 'to').length;
+				node.value = (inDegree == 0) ? 0 : (outDegree / inDegree);
+				break;
+			case 'Centrality': node.value = bc[node.id];
+				break;
+			}
+		data.nodes.update(node);
+		});
+	network.fit();
+	document.getElementById('zoom').value = network.getScale();
+}
+

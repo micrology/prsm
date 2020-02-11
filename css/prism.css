@@ -60,12 +60,21 @@ footer {
 	background-color: white;
 	color: black;
 	border-top: 1px solid lightgrey;
+	user-select: none;
 }
 
 @media print {
 	header, aside, footer {
 		display: none;
 		}
+}
+
+#zoomplus {
+	cursor: zoom-in;
+}
+
+#zoomminus {
+	cursor: zoom-out;
 }
 
 /* 

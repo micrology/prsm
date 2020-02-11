@@ -12,7 +12,7 @@ export const samples = {
 	nodes: {
 		base: {
 			groupLabel: 'Sample',
-			borderWidth: 2,
+			borderWidth: 1,
 			borderWidthSelected: 1,
 			chosen: true,
 			color: {
@@ -36,13 +36,24 @@ export const samples = {
 			shapeProperties: {
 				borderDashes: false
 			},
-			size: 50,
+			scaling: {
+				min: 5,
+				max: 150,
+				label: {
+					enabled: true,
+					min: 12,
+					max: 60
+					}
+				},
+// 			size: 50,
+/* 
 			widthConstraint: {
 				minimum: 50
 			},
 			heightConstraint: {
 				minimum: 20
 			}
+ */
 		},
 		//------------------------------
 		// blue bordered white ellipse 
