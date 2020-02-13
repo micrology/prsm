@@ -37,7 +37,7 @@ Remember to start the WS provider first:
 	npx y-websocket-server
 */
 
-const version = "0.94";
+const version = "0.95";
 
 const GRIDSPACING = 100;
 
@@ -688,8 +688,8 @@ function loadJSONfile(json) {
 		nodes.add(cleanArray(parsed.nodes, {clientID: null, color: null}));
 		edges.add(cleanArray(parsed.edges, {clientID: null, color: null}));
 	} else {
-		nodes.add(cleanArray(json.nodes, {clientID: null, color: null}));
-		edges.add(cleanArray(json.edges, {clientID: null, color: null}));
+		nodes.add(cleanArray(json.nodes, {clientID: null}));
+		edges.add(cleanArray(json.edges, {clientID: null}));
 	}
 	data = {
 		nodes: nodes,
