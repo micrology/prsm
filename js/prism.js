@@ -102,8 +102,8 @@ function addEventListeners() {
 	document.getElementById('redo').addEventListener('click', redo);
 	document.getElementById('fileInput').addEventListener('change', readSingleFile);
 	document.getElementById('zoom').addEventListener('change', zoomnet);
-	document.getElementById('zoomminus').addEventListener('click', zoomminus);
-	document.getElementById('zoomplus').addEventListener('click', zoomplus);
+	document.getElementById('zoomminus').addEventListener('click', () => {zoomincr(-0.1)});
+	document.getElementById('zoomplus').addEventListener('click', () => {zoomincr(0.1)});
 	document.getElementById("nodesButton").addEventListener("click", () => {
 		openTab("nodesTab")
 	});
@@ -348,22 +348,26 @@ function draw() {
 			},
 			manipulation: {
 				enabled: false,
-				addNode: function(data, callback) {
+				addNode: function(item, callback) {
 					// filling in the popup DOM elements
-					data.label = '';
-					if (lastNodeSample) data.group = lastNodeSample;
+					item.label = '';
+					if (lastNodeSample) item.group = lastNodeSample;
 					document.getElementById('node-operation').innerHTML = "Add Factor";
-					editLabel(data, clearPopUp, callback);
+					editLabel(item, clearPopUp, callback);
 				},
-				editNode: function(data, callback) {
+				editNode: function(item, callback) {
+					// for some weird reason, vis-network copies the group properties into the 
+					// node properties before calling this fn, which we don't want.  So we
+					// revert to using the original node properties before continuing.
+					item = data.nodes.get(item.id);
 					// filling in the popup DOM elements
 					document.getElementById('node-operation').innerHTML = "Edit Factor Label";
-					editLabel(data, cancelEdit, callback);
+					editLabel(item, cancelEdit, callback);
 				},
-				addEdge: function(data, callback) {
+				addEdge: function(item, callback) {
 					inAddMode = false;
 					changeCursor("auto");
-					if (data.from == data.to) {
+					if (item.from == item.to) {
 						let r = confirm(
 							"Do you want to connect the Factor to itself?"
 						);
@@ -372,36 +376,36 @@ function draw() {
 							return;
 						}
 					}
-					if (duplEdge(data.from, data.to).length > 0) {
+					if (duplEdge(item.from, item.to).length > 0) {
 						alert("There is already a link from this Factor to the other.")
 						callback(null);
 						return;
 					}
-					if (lastLinkSample) data = Object.assign(data, samples.edges[lastLinkSample]);
-					callback(data);
+					if (lastLinkSample) item = Object.assign(item, samples.edges[lastLinkSample]);
+					callback(item);
 				},
 				editEdge: {
-					editWithoutDrag: function(data, callback) {
+					editWithoutDrag: function(item, callback) {
 						// filling in the popup DOM elements
 						document.getElementById('node-operation').innerHTML = "Edit Link Label";
-						editLabel(data, cancelEdit, callback);
+						editLabel(item, cancelEdit, callback);
 						}
 				},
-				deleteNode: function(data, callback) {
-					let r = confirm(deleteMsg(data));
+				deleteNode: function(item, callback) {
+					let r = confirm(deleteMsg(item));
 					if (r != true) {
 						callback(null);
 						return;
 					}
-					callback(data);
+					callback(item);
 				},
-				deleteEdge: function(data, callback) {
-					let r = confirm(deleteMsg(data));
+				deleteEdge: function(item, callback) {
+					let r = confirm(deleteMsg(item));
 					if (r != true) {
 						callback(null);
 						return;
 					}
-					callback(data);
+					callback(item);
 				},
 				controlNodeStyle: {
 					shape: 'dot',
@@ -491,21 +495,21 @@ function snapToGrid(node) {
 	node.y = (GRIDSPACING) * Math.round(node.y / (GRIDSPACING));
 }
 
-function editLabel(data, cancelAction, callback) {
+function editLabel(item, cancelAction, callback) {
 	inAddMode = false;
 	changeCursor('auto');
 	let popUp = document.getElementById('node-popUp');
 	document.getElementById('node-cancelButton').onclick =
 		cancelAction.bind(this, callback);
 	document.getElementById('node-saveButton').onclick =
-		saveLabel.bind(this, data, callback);
+		saveLabel.bind(this, item, callback);
 	popUp.style.display = 'block';
 	// popup appears to the left of the mouse pointer
 	popUp.style.top =
 		`${event.clientY - popUp.offsetHeight / 2}px`;
 	popUp.style.left =
 		`${event.clientX - popUp.offsetWidth - 3}px`;
-	document.getElementById('node-label').value = (data.label === undefined ? '' : data.label);
+	document.getElementById('node-label').value = (item.label === undefined ? '' : item.label);
 	document.getElementById('node-label').focus();
 }
 
@@ -521,13 +525,13 @@ function cancelEdit(callback) {
 	callback(null);
 }
 
-function saveLabel(data, callback) {
-	data.label = document.getElementById('node-label').value;
+function saveLabel(item, callback) {
+	item.label = document.getElementById('node-label').value;
 	clearPopUp();
-	if (data.label === "") {
+	if (item.label === "") {
 		statusMsg("No label: cancelled");
 		callback(null);
-	} else callback(data);
+	} else callback(item);
 }
 
 function duplEdge(from, to) {
@@ -539,10 +543,10 @@ function duplEdge(from, to) {
 	})
 }
 
-function deleteMsg(data) {
+function deleteMsg(item) {
 	//constructs a nice string to tell the user what nodes and links are being deleted.
-	let nNodes = data.nodes.length;
-	let nEdges = data.edges.length;
+	let nNodes = item.nodes.length;
+	let nEdges = item.edges.length;
 	let msg = 'Delete ';
 	if (nNodes > 0) msg = msg + nNodes + ' Factor' + (nNodes == 1 ?
 		"" : "s");
@@ -805,14 +809,6 @@ Network.prototype.zoom = function(scale) {
 
 function zoomnet() {
 	network.zoom(Number(document.getElementById("zoom").value));
-}
-
-function zoomminus() {
-	zoomincr(-0.1)
-}
-
-function zoomplus() {
-	zoomincr(0.1)
 }
 
 function zoomincr(incr) {
@@ -1356,11 +1352,12 @@ function sizing() {
 				break;
 			case 'Outputs': node.value = network.getConnectedNodes(node.id, 'to').length;
 				break;
-			case 'Leverage':
+			case 'Leverage': {
 				let inDegree = network.getConnectedNodes(node.id, 'from').length;
 				let outDegree = network.getConnectedNodes(node.id, 'to').length;
 				node.value = (inDegree == 0) ? 0 : (outDegree / inDegree);
 				break;
+				}
 			case 'Centrality': node.value = bc[node.id];
 				break;
 			}

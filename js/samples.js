@@ -37,14 +37,15 @@ export const samples = {
 				borderDashes: false
 			},
 			scaling: {
-				min: 5,
-				max: 150,
+				min: 10,
+				max: 20,
 				label: {
 					enabled: true,
-					min: 12,
-					max: 60
+					min: 10,
+					max: 20
 					}
 				},
+//			value: 0
 // 			size: 50,
 /* 
 			widthConstraint: {
@@ -324,7 +325,8 @@ export function setUpSamples() {
 			id: "1",
 			label: (groupLabel == undefined ? "" : groupLabel),
 			group: groupId,
-			chosen: false
+			chosen: false,
+			value: 50
 		}]);
 		initSample(sampleElement, {
 			nodes: nodeDataSet,
@@ -486,7 +488,7 @@ function saveNodeSampleEdit(sampleElement, samples, groupId) {
 		groups: {[groupId]: samples.nodes[groupId]}
 	});
 	document.getElementById("editNodeDrawer").classList.add("hideDrawer");
-	window.network.redraw();
+	window.network.fit();
 }
 
 function saveLinkSampleEdit(sampleElement, samples, groupId) {
@@ -649,6 +651,7 @@ function initSample(wrapper, sampleData) {
 		groups: samples.nodes
 	};
 	let net = new Network(wrapper, sampleData, options);
+	net.fit();
 	net.storePositions();
 	wrapper.net = net;
 	return net;
