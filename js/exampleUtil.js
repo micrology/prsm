@@ -13,7 +13,8 @@ export function getScaleFreeNetwork(nodeCount) {
 	for (var i = 0; i < nodeCount; i++) {
 		nodes.push({
 			id: String(i),
-			label: String(i)
+			label: String(i),
+			value: 1
 		});
 
 		connectionCount[i] = 0;

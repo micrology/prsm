@@ -200,13 +200,13 @@ nav button:active {
 .disabled {
 	color: var(--header-disabled-color);
 }
-
 .disabled:hover, .disabled:active {
 	color: var(--header-disabled-color);
 }
-	
 
-@media screen and (max-width: 1025px) {
+/* for iPads etc in landscape: nav buttons go under title */	
+
+@media screen and (min-width: 481px) and (max-width: 1024px) {
 
 	main {
 		height: calc(100vh - 157px);
@@ -240,6 +240,44 @@ nav button:active {
 		}			
 }
 
+/* for iPads etc in portrait and smart phones: nav buttons go under title
+	and font is smaller */	
+
+@media screen and (max-width: 480px) {
+
+	main {
+		height: calc(100vh - 157px);
+		}
+	header {
+		height: 115px;
+		}
+	nav {
+		display: grid;
+		height: 90px;
+		grid-template-columns: 1fr;
+		padding: 0;
+		}
+	nav img {
+		display: none;
+		}
+	.strapline {
+		grid-column: 1;
+		grid-row: 1;
+		font-size: 20px
+		}
+	.button-wrapper {
+		grid-column: 1;
+		grid-row: 2;
+		width: 100%;
+		}
+	.buttons {
+		justify-content: center;
+		}
+	nav button {
+		margin: auto 0px;
+		font-size: 12px;
+		}			
+}
 
 #download {
 	width: 0;
