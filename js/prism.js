@@ -165,7 +165,7 @@ function startY() {
 
 	/* 
 	create a yMap for the nodes and one for the edges (we need two because there is no 
-	guarantee that the the ids of nodes will differ from the ids of edges 
+	guarantee that the the ids of nodes will differ from the ids of edges) 
 	 */
 	yNodesMap = doc.getMap('nodes');
 	yEdgesMap = doc.getMap('edges');
@@ -201,7 +201,7 @@ function startY() {
 
 	/* 
 	nodes.on listens for when local nodes or edges are changed (added, updated or removed).
-	If a local node is removed, the yMap is updated to broadcat to other clients that the node 
+	If a local node is removed, the yMap is updated to broadcast to other clients that the node 
 	has been deleted. If a local node is added or updated, that is also broadcast, with a 
 	copy of the node, augmented with this client's ID, so that the originator can be identified.
 	Nodes that are not originated locally are not broadcast (if they were, there would be a 
@@ -529,9 +529,15 @@ function saveLabel(item, callback) {
 	item.label = document.getElementById('node-label').value;
 	clearPopUp();
 	if (item.label === "") {
-		statusMsg("No label: cancelled");
-		callback(null);
-	} else callback(item);
+		// if there is no label and it is an edge, blank the label, else cancel
+		// (nodes must have a label)
+		if ('from' in item) item.label = ' ';
+		else {
+			statusMsg("No label: cancelled");
+			callback(null);
+		}
+	}
+	callback(item);
 }
 
 function duplEdge(from, to) {

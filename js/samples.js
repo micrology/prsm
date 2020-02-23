@@ -216,6 +216,7 @@ export const samples = {
 			label: '',
 			selectionWidth: 1,
 			selfReferenceSize: 20,
+			smooth: {type: 'straightCross'},
 			width: 1,
 			groupLabel: ''
 		},

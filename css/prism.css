@@ -105,6 +105,13 @@ Network pane and pop-up for new Factors
 	margin: 20px;
 	width: 300px;
 	}
+	
+#underlay .edit {
+	border: 20px solid transparent;
+    outline: 2px dashed black;
+    outline-offset: -10px;
+    z-index: 100;
+    }
 
 #node-popUp {
 	display:none;
