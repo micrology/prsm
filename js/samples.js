@@ -488,6 +488,7 @@ function saveNodeSampleEdit(sampleElement, samples, groupId) {
 	sampleElement.net.setOptions({
 		groups: {[groupId]: samples.nodes[groupId]}
 	});
+	window.ySamplesMap.set(groupId, {node: samples.nodes[groupId], clientID: window.clientId});
 	document.getElementById("editNodeDrawer").classList.add("hideDrawer");
 	window.network.fit();
 }
@@ -536,6 +537,7 @@ function saveLinkSampleEdit(sampleElement, samples, groupId) {
 	dataSet.remove(edge);
 	dataSet.add(edge);
 	reApplySampleToLinks(groupId);
+	window.ySamplesMap.set(groupId, {edge: samples.edges[groupId], clientID: window.clientId});
 	document.getElementById("editLinkDrawer").classList.add("hideDrawer");
 	window.network.redraw();
 }
@@ -545,7 +547,7 @@ function cancelSampleEdit() {
 	document.getElementById("editNodeDrawer").classList.add("hideDrawer");
 }
 	
-function reApplySampleToLinks(groupId) {
+export function reApplySampleToLinks(groupId) {
 	let edgesToUpdate = window.data.edges.get({
 		filter: item => {
 			return item.group == groupId
