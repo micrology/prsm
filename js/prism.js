@@ -39,7 +39,7 @@ Remember to start the WS provider first:
 	npx y-websocket-server
 */
 
-const version = "0.95";
+const version = "0.96";
 
 const GRIDSPACING = 100;
 
@@ -92,18 +92,22 @@ function checkFeatures() {
 function addEventListeners() {
 	// Clicking anywhere on the network canvas clears the status bar 
 	// (note trick: click is processed in the capturing phase)
+/* 
 	document.getElementById("net-pane").addEventListener("click", () => {
 		clearStatusBar()
 	}, true);
-	document.getElementById("openFile").addEventListener("click", openFile);
-	document.getElementById("saveFile").addEventListener("click", saveJSONfile);
-	document.getElementById("panelToggle").addEventListener("click", togglePanel);
+ */
 	document.getElementById("addNode").addEventListener("click", plusNode);
 	document.getElementById("addLink").addEventListener("click", plusLink);
 	document.getElementById("deleteNode").addEventListener("click", deleteNode);
 	document.getElementById('undo').addEventListener('click', undo);
 	document.getElementById('redo').addEventListener('click', redo);
 	document.getElementById('fileInput').addEventListener('change', readSingleFile);
+	document.getElementById("openFile").addEventListener("click", openFile);
+	document.getElementById("saveFile").addEventListener("click", saveJSONfile);
+	document.getElementById("exportGraphML").addEventListener("click", exportGraphML);
+	document.getElementById("exportGML").addEventListener("click", exportGML);
+	document.getElementById("panelToggle").addEventListener("click", togglePanel);
 	document.getElementById('zoom').addEventListener('change', zoomnet);
 	document.getElementById('zoomminus').addEventListener('click', () => {
 		zoomincr(-0.1)
@@ -375,6 +379,7 @@ function draw() {
 			},
 			interaction: {
 				multiselect: true,
+				selectConnectedEdges: false,
 				hover: true,
 				zoomView: false
 			},
@@ -460,9 +465,11 @@ function draw() {
 		document.getElementById("nodesButton").click();
 
 		// listen for click events on the network pane
+/* 
 		network.on('click', function () {
 			clearStatusBar()
 		});
+ */
 		network.on("doubleClick", function (params) {
 			if (params.nodes.length === 1) {
 				network.editNode();
@@ -487,6 +494,13 @@ function draw() {
 		});
 		network.on('blurNode', function () {
 			changeCursor('default');
+		});
+		network.on('selectEdge', function () {
+			statusMsg(listLinks(network.getSelectedEdges()) +
+				' selected');
+		});
+		network.on('deselectEdge', function () {
+			clearStatusBar();
 		});
 		network.on('dragStart', function () {
 			changeCursor('grabbing');
@@ -536,13 +550,13 @@ function editLabel(item, cancelAction, callback) {
 		cancelAction.bind(this, callback);
 	document.getElementById('node-saveButton').onclick =
 		saveLabel.bind(this, item, callback);
+	document.getElementById('node-label').value = (item.label === undefined ? '' : item.label);
 	popUp.style.display = 'block';
 	// popup appears to the left of the mouse pointer
 	popUp.style.top =
-		`${event.clientY - popUp.offsetHeight / 2}px`;
+		`${event.clientY - (popUp.offsetHeight / 2) - popUp.offsetParent.offsetTop}px`;
 	popUp.style.left =
 		`${event.clientX - popUp.offsetWidth - 3}px`;
-	document.getElementById('node-label').value = (item.label === undefined ? '' : item.label);
 	document.getElementById('node-label').focus();
 }
 
@@ -566,7 +580,7 @@ function saveLabel(item, callback) {
 		// (nodes must have a label)
 		if ('from' in item) item.label = ' ';
 		else {
-			statusMsg("No label: cancelled");
+			statusMsg("No label: cancelled", 'warn');
 			callback(null);
 		}
 	}
@@ -623,8 +637,14 @@ worker.onmessage = function (e) {
 
 /* show status messages at the bottom of the window */
 
-function statusMsg(msg) {
-	document.getElementById("statusBar").innerHTML = htmlEntities(msg);
+function statusMsg(msg, status) {
+	let elem = document.getElementById("statusBar");
+	switch(status) {
+	case 'warn': elem.style.backgroundColor = 'yellow'; break;
+	case 'error': elem.style.backgroundColor = 'red'; break;
+	default: elem.style.backgroundColor = 'white'; break;
+	}
+	elem.innerHTML = htmlEntities(msg);
 }
 
 function htmlEntities(str) {
@@ -632,7 +652,7 @@ function htmlEntities(str) {
 }
 
 function clearStatusBar() {
-	statusMsg("<br>");
+	statusMsg(' ');
 }
 
 function listFactors(factors) {
@@ -651,6 +671,13 @@ function lf(factors) {
 	if (n == 2) return label.concat(' and ' + lf(factors));
 	return label.concat(', ' + lf(factors));
 }
+
+function listLinks(links) {
+	// return a string listing the number of Links
+	if (links.length > 1) return links.length + ' links';
+	return '1 link';
+}
+
 
 /* 
   -----------Operations related to the top button bar (not the side panel)-------------
@@ -695,8 +722,7 @@ function readSingleFile(e) {
 			loadFile(e.target.result);
 			statusMsg("Read '" + fileName + "'");
 		} catch (err) {
-			statusMsg("Error reading '" + fileName + "': " + err
-				.message);
+			statusMsg("Error reading '" + fileName + "': " + err.message, 'error');
 			return;
 		}
 	};
@@ -736,9 +762,7 @@ function loadFile(contents) {
 function loadJSONfile(json) {
 	json = JSON.parse(json);
 	if (json.version && (version > json.version)) {
-		statusMsg(
-			"Warning: file was created in an earlier version of PRISM"
-		);
+		statusMsg("Warning: file was created in an earlier version", 'warn');
 	}
 	if (json.lastNodeSample) lastNodeSample = json.lastNodeSample;
 	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
@@ -864,7 +888,7 @@ function parseGML(gml) {
 					node.id = tokens.shift();
 					break;
 				case 'label':
-					node.label = tokens.shift();
+					node.label = tokens.shift().replace(/\"/g, '');
 					break;
 				default:
 					break;
@@ -889,6 +913,9 @@ function parseGML(gml) {
 				case 'target':
 					edge.from = tokens.shift();
 					break;
+				case 'label':
+					edge.label = tokens.shift().replace(/\"/g, '');
+					break;
 				default:
 					break;
 				}
@@ -901,7 +928,6 @@ function parseGML(gml) {
 			break;
 		}
 		tok = tokens.shift();
-		console.log(tok);
 	}
 	return {
 		nodes: nodes,
@@ -955,9 +981,15 @@ function saveJSONfile() {
 			clientId: null
 		})
 	});
+	saveStr(json, 'json');
+}
+
+function saveStr(str, extn) {
 	let element = document.getElementById("download");
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' +
-		encodeURIComponent(json));
+		encodeURIComponent(str));
+	let pos = lastFileName.indexOf(".");
+	lastFileName = lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) + '.' + extn;
 	element.setAttribute('download', lastFileName);
 	element.click();
 }
@@ -977,15 +1009,51 @@ function clean(source, propsToRemove) {
 	return out
 }
 
+function exportGraphML () {
+	let str = 'Id,Label\n';
+	for (let node of data.nodes.get()) {
+		str += node.id;
+		if (node.label) str += ',"' + node.label + '"';
+		str += '\n';
+		}
+	saveStr(str, 'nodes.csv');
+	str = 'Source,Target,Type,Id,Label\n';
+	for (let edge of data.edges.get()) {
+		str += edge.from + ',';
+		str += edge.to + ',';
+		str += 'directed,';
+		str += edge.id + ',';
+		if (edge.label) str += edge.label + '"';
+		str += '\n';
+		}
+	saveStr(str, 'edges.csv');
+}
+
+function exportGML() {
+	let str = 'Creator \"PRISM ' + version + ' on ' + new Date(Date.now()).toLocaleString() 
+		+ '\"\ngraph\n[\n\tdirected 1\n';
+	for (let node of data.nodes.get()) {
+		str += '\tnode\n\t[\n\t\tid ' + node.id;
+		if (node.label) str += '\n\t\tlabel "' + node.label + '"';
+		str += '\n\t]\n';
+		}
+	for (let edge of data.edges.get()) {
+		str += '\tedge\n\t[\n\t\tsource ' + edge.from;
+		str += '\n\t\ttarget ' + edge.to;
+		if (edge.label) str += '\n\t\tlabel "' + edge.label + '"';
+		str += '\n\t]\n';
+		}
+	str += '\n]';
+	saveStr(str, 'gml');	
+}
+
 function plusNode() {
-	statusMsg("Add Node mode");
 	changeCursor("cell");
 	inAddMode = true;
 	network.addNodeMode();
 }
 
 function plusLink() {
-	statusMsg("Add Edge mode");
 	changeCursor("crosshair");
 	inAddMode = true;
 	network.addEdgeMode();
@@ -1405,7 +1473,7 @@ function getRadioVal(name) {
 	// loop through list of radio buttons
 	for (let i = 0, len = radios.length; i < len; i++) {
 		if (radios[i].checked)
-			return radios[i].value; // if so, hold its value in val
+			return radios[i].value;
 	}
 }
 
@@ -1417,7 +1485,8 @@ function setRadioVal(name, value) {
 			radios[i].checked = (radios[i].value == value)
 		}
 	}
-	// Performs intersection operation between called set and otherSet 
+	
+// Performs intersection operation between called set and otherSet 
 Set.prototype.intersection = function (otherSet) {
 	let intersectionSet = new Set();
 	for (var elem of otherSet)
@@ -1429,9 +1498,12 @@ function hideDistantOrStreamNodes() {
 	// get the intersection of the nodes (and links) in radius and up or downstream,
 	// and then hide everything not in that intersection
 
+	let radius = getRadioVal('hide');
+	let stream = getRadioVal('stream');
+	
 	let selectedNodes = network.getSelectedNodes();
-	if (selectedNodes.length == 0) {
-		statusMsg('Select a Factor first');
+	if (selectedNodes.length == 0 && !(radius == 'All' && stream == 'All')) {
+		statusMsg('Select a Factor first', 'error');
 		// unhide everything
 		document.getElementById('hideAll').checked = true;
 		document.getElementById('streamAll').checked = true;
@@ -1450,7 +1522,6 @@ function hideDistantOrStreamNodes() {
 	let nodeIdsInRadiusSet = new Set();
 	let linkIdsInRadiusSet = new Set();
 
-	let radius = getRadioVal('hide');
 	if (radius == 'All') {
 		data.nodes.forEach(node => nodeIdsInRadiusSet.add(node.id));
 		data.edges.forEach(edge => linkIdsInRadiusSet.add(edge.id));
@@ -1460,7 +1531,6 @@ function hideDistantOrStreamNodes() {
 	let nodeIdsInStreamSet = new Set();
 	let linkIdsInStreamSet = new Set();
 
-	let stream = getRadioVal('stream');
 	if (stream == undefined) return;
 	if (stream == 'All') {
 		data.nodes.forEach(node => nodeIdsInStreamSet.add(node.id));
