@@ -40,11 +40,24 @@
                     <div class="tooltip">
                         <button id="openFile"><i class="fas fa-folder-open small-button"></i></button><span class="tooltiptext">Open network</span>
                     </div>
-                    <div class="tooltip right-border">
-                        <button id="saveFile"><i class="fas fa-save small-button"></i></button><span class="tooltiptext">Save network</span>
-                        <a href='#' id="download" download></a>
-                    </div>
-                    <div class="tooltip">
+					<div class="tooltip">
+						<button id="saveFile"><i class="fas fa-save small-button"></i></button><span class="tooltiptext">Save network</span>
+					</div>
+					<div class="dropdown-wrapper">
+						<span id="save-dropdown"> <i class="fa fa-caret-down small-button"></i></span>
+						<div class="dropdown-content">
+								<div class="tooltip">
+									<button id="exportCVS">CVS</button>
+									<span class="tooltiptext">Save as CVS files</span>
+								</div>
+								<div class="tooltip">
+									<button id="exportGML">GML</button>
+									<span class="tooltiptext">Save as GML file</span>
+								</div>
+						</div>
+					</div>
+ 					<a href='#' id="download" download></a>
+					<div class="tooltip left-border">
                         <button id="panelToggle"><i class="fas fa-clone"></i></button> <span class="tooltiptext">Show or hide panel</span>
                     </div>
                 </div>
@@ -55,14 +68,14 @@
 
         <div id="node-popUp">
             <span id="node-operation">factor</span> <br>
-            <textarea id="node-label" placeholder="Label" value=""></textarea> <br>
+            <textarea id="node-label" placeholder="Label"></textarea> <br>
             <input type="button" value="cancel" id="node-cancelButton" />
             <input type="button" value="save" id="node-saveButton" />
         </div>
  
         <div id="net-pane"></div>
         <div id="underlay">
-            <img id="img" src="img/CECAN.jpg" draggable="true"></div>
+            <img id="img" src="img/CECAN.jpg" draggable="true" alt="logo"></div>
 
     </main>
     <aside id="panel">

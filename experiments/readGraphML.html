@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Read GraphML file</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/3.16.0/parser.min.js"></script>
+</head>
+<body>
+<input type="file" id="fileInput" style="display:none">
+<button id="openFile" type="button">Select a text file</button></p>
+
+<div id="file-content"></div>
+
+<script>
+function readSingleFile(e) {
+  var file = e.target.files[0];
+  if (!file) {
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var contents = e.target.result;
+    var graph;
+    if (contents.search('graphml') >= 0) graph = parseGraphML(contents);
+    else { 
+    	if (contents.search('graph') >= 0) graph = parseGML(contents);
+    	else graph = "prism json";
+    	}
+	displayContents(graph);
+  };
+  reader.readAsText(file);
+}
+ 
+function displayContents(contents) {
+  var element = document.getElementById('file-content');
+  element.innerHTML = "<pre>" + JSON.stringify(contents, null, 2) + "</pre>";
+}
+ 
+document.getElementById('fileInput').addEventListener('change', readSingleFile, false);
+document.getElementById("openFile").addEventListener("click", doClickOpenFile);
+ 
+ function doClickOpenFile() {
+ 	document.getElementById('fileInput').click();
+ }
+ 
+ function parseGraphML(graphML) {
+ var options = {
+    attributeNamePrefix: "",
+    attrNodeName: "attr",
+    textNodeName : "txt",
+    ignoreAttributes: false,
+    ignoreNameSpace : true,
+    allowBooleanAttributes : false,
+    parseNodeValue : true,
+    parseAttributeValue : true,
+    trimValues: true,
+    parseTrueNumberOnly: false,
+    arrayMode: false, //"strict"
+};
+ 	var result = parser.validate(graphML, options);
+	if (result !== true) console.log(result.err);
+	let jsonObj = parser.parse(graphML, options);
+	let nodes = jsonObj.graphml.graph.node.map((n) => { return {id: n.attr.id, label: getLabel(n.data)}});
+	let edges = jsonObj.graphml.graph.edge.map((e) => { return {id: e.attr.id, from: e.attr.source, to: e.attr.target}});
+ 	return {nodes: nodes, edges: edges};
+ 	
+ 	function getLabel(arr) {
+ 		for (let at of arr) {
+ 			if (at.attr.key =="label") return at.txt
+ 		}
+ 	}
+}
+
+function parseGML(gml) {
+ let tokens = gml.match(/\S+/g);
+ let nodes = [];
+ let edges = [];
+ let node;
+ let edge;
+ let edgeId = 0;
+ let tok = tokens.shift();
+ while (tok)  {
+ 	switch (tok) {
+ 		case 'graph': break;
+ 		case 'node':
+ 			tokens.shift(); // [
+ 			node = {};
+ 			tok = tokens.shift();
+ 			while (tok != ']') {
+				switch(tok) {
+					case 'id': node.id = tokens.shift();
+					break;
+					case 'label': node.label = tokens.shift();
+					break;
+					default: break;
+					}
+ 				tok = tokens.shift(); // ]
+				}
+ 			nodes.push(node);
+ 			break;
+ 		case 'edge':
+  			tokens.shift(); // [
+ 			edge = {};
+ 			tok = tokens.shift();
+ 			while (tok != ']') {
+				switch(tok) {
+					case 'id': edge.id = tokens.shift();
+					break;
+					case 'source': edge.to = tokens.shift();
+					break;
+					case 'target': edge.from = tokens.shift();
+					break;
+					default: break;
+					}
+ 				tok = tokens.shift(); // ]
+				}
+			if (edge.id == undefined) edge.id = edgeId++;
+ 			edges.push(edge);
+ 			break;
+ 		default: break;
+ 		}
+ 	tok = tokens.shift();
+ 	console.log(tok);	
+ 	}
+ 	return {nodes: nodes, edges: edges}
+ }
+
+</script>
+</body>
+</html>

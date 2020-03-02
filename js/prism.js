@@ -23,11 +23,13 @@ import {
 }
 from "./exampleUtil.js";
 
+import * as parser from 'fast-xml-parser';
+
 import {
-	samples, setUpSamples, deepCopy
+	samples, setUpSamples, deepCopy, reApplySampleToLinks
 }
 from "./samples.js";
-	
+
 import 'vis-network/dist/vis-network.min.css';
 
 /* for esLint: */
@@ -37,18 +39,19 @@ Remember to start the WS provider first:
 	npx y-websocket-server
 */
 
-const version = "0.95";
+const version = "0.96";
 
 const GRIDSPACING = 100;
 
 var network;
 var room;
-var nodes; 
+var nodes;
 var edges;
 var data;
 var clientID;
 var yNodesMap;
 var yEdgesMap;
+var ySamplesMap;
 var yUndoManager;
 var panel;
 var container;
@@ -89,21 +92,29 @@ function checkFeatures() {
 function addEventListeners() {
 	// Clicking anywhere on the network canvas clears the status bar 
 	// (note trick: click is processed in the capturing phase)
+/* 
 	document.getElementById("net-pane").addEventListener("click", () => {
 		clearStatusBar()
 	}, true);
-	document.getElementById("openFile").addEventListener("click", openFile);
-	document.getElementById("saveFile").addEventListener("click", saveJSONfile);
-	document.getElementById("panelToggle").addEventListener("click", togglePanel);
+ */
 	document.getElementById("addNode").addEventListener("click", plusNode);
 	document.getElementById("addLink").addEventListener("click", plusLink);
 	document.getElementById("deleteNode").addEventListener("click", deleteNode);
 	document.getElementById('undo').addEventListener('click', undo);
 	document.getElementById('redo').addEventListener('click', redo);
 	document.getElementById('fileInput').addEventListener('change', readSingleFile);
+	document.getElementById("openFile").addEventListener("click", openFile);
+	document.getElementById("saveFile").addEventListener("click", saveJSONfile);
+	document.getElementById("exportCVS").addEventListener("click", exportCVS);
+	document.getElementById("exportGML").addEventListener("click", exportGML);
+	document.getElementById("panelToggle").addEventListener("click", togglePanel);
 	document.getElementById('zoom').addEventListener('change', zoomnet);
-	document.getElementById('zoomminus').addEventListener('click', () => {zoomincr(-0.1)});
-	document.getElementById('zoomplus').addEventListener('click', () => {zoomincr(0.1)});
+	document.getElementById('zoomminus').addEventListener('click', () => {
+		zoomincr(-0.1)
+	});
+	document.getElementById('zoomplus').addEventListener('click', () => {
+		zoomincr(0.1)
+	});
 	document.getElementById("nodesButton").addEventListener("click", () => {
 		openTab("nodesTab")
 	});
@@ -128,10 +139,14 @@ function addEventListeners() {
 		elem.addEventListener('change', hideDistantOrStreamNodes)
 	});
 	document.getElementById('sizing').addEventListener('change', sizing);
-	Array.from(document.getElementsByClassName("sampleNode")).forEach( (elem) =>
-			elem.addEventListener("click", () => { applySampleToNode() }, false));
-	Array.from(document.getElementsByClassName("sampleLink")).forEach( (elem) =>
-			elem.addEventListener("click", () => { applySampleToLink() }, false));
+	Array.from(document.getElementsByClassName("sampleNode")).forEach((elem) =>
+		elem.addEventListener("click", () => {
+			applySampleToNode()
+		}, false));
+	Array.from(document.getElementsByClassName("sampleLink")).forEach((elem) =>
+		elem.addEventListener("click", () => {
+			applySampleToLink()
+		}, false));
 }
 
 function setUpPage() {
@@ -169,6 +184,7 @@ function startY() {
 	 */
 	yNodesMap = doc.getMap('nodes');
 	yEdgesMap = doc.getMap('edges');
+	ySamplesMap = doc.getMap('samples');
 
 	// get an existing or generate a new clientID, used to identify nodes and edges created by this client
 	if (localStorage.getItem('clientID'))
@@ -196,6 +212,7 @@ function startY() {
 	window.clientID = clientID;
 	window.yNodesMap = yNodesMap;
 	window.yEdgesMap = yEdgesMap;
+	window.ySamplesMap = ySamplesMap;
 	window.yUndoManager = yUndoManager;
 	window.samples = samples;
 
@@ -221,8 +238,8 @@ function startY() {
 					if (obj.clientID == undefined) obj.clientID = clientID;
 					if (obj.clientID == clientID) {
 						yNodesMap.set(id.toString(), obj);
-						console.log(new Date().toLocaleTimeString() + 
-						': added to YMapNodes: ' + JSON.stringify(obj));
+						console.log(new Date().toLocaleTimeString() +
+							': added to YMapNodes: ' + JSON.stringify(obj));
 					}
 				}
 			}
@@ -278,6 +295,26 @@ function startY() {
 			} else edges.remove(key);
 		}
 	});
+	
+	ySamplesMap.observe((event) => {
+		console.log(event);
+		for (let key of event.keysChanged) {
+			let sample = ySamplesMap.get(key);
+			let origin = event.transaction.origin;
+			if (sample.clientID != clientID || origin != null) {
+				if (sample.node != undefined) {
+					samples.nodes[key] = sample.node;
+					refreshSampleNodes();
+					network.setOptions({groups: samples.nodes});
+					}
+				else {
+					samples.edges[key] = sample.edge;
+					refreshSampleLinks();
+					reApplySampleToLinks(key);
+					}
+				}
+			}
+		});
 
 	yUndoManager.on('stack-item-added', (event) => {
 		saveButtonStatus(event);
@@ -311,8 +348,8 @@ function getRandomData(nNodes) {
 }
 
 // to handle iPad viewport sizing problem
-window.onresize = function() {
-    document.body.height = window.innerHeight;
+window.onresize = function () {
+	document.body.height = window.innerHeight;
 }
 window.onresize(); // called to initially set the height.
 
@@ -332,7 +369,9 @@ function draw() {
 				stabilization: false
 			},
 			// default edge format is edge0
-			edges: clean(samples.edges.edge0, {groupLabel: null}),
+			edges: clean(samples.edges.edge0, {
+				groupLabel: null
+			}),
 			groups: samples.nodes,
 			// default node format is group0
 			nodes: {
@@ -340,6 +379,7 @@ function draw() {
 			},
 			interaction: {
 				multiselect: true,
+				selectConnectedEdges: false,
 				hover: true,
 				zoomView: false
 			},
@@ -348,14 +388,14 @@ function draw() {
 			},
 			manipulation: {
 				enabled: false,
-				addNode: function(item, callback) {
+				addNode: function (item, callback) {
 					// filling in the popup DOM elements
 					item.label = '';
 					if (lastNodeSample) item.group = lastNodeSample;
 					document.getElementById('node-operation').innerHTML = "Add Factor";
 					editLabel(item, clearPopUp, callback);
 				},
-				editNode: function(item, callback) {
+				editNode: function (item, callback) {
 					// for some weird reason, vis-network copies the group properties into the 
 					// node properties before calling this fn, which we don't want.  So we
 					// revert to using the original node properties before continuing.
@@ -364,7 +404,7 @@ function draw() {
 					document.getElementById('node-operation').innerHTML = "Edit Factor Label";
 					editLabel(item, cancelEdit, callback);
 				},
-				addEdge: function(item, callback) {
+				addEdge: function (item, callback) {
 					inAddMode = false;
 					changeCursor("auto");
 					if (item.from == item.to) {
@@ -385,13 +425,13 @@ function draw() {
 					callback(item);
 				},
 				editEdge: {
-					editWithoutDrag: function(item, callback) {
+					editWithoutDrag: function (item, callback) {
 						// filling in the popup DOM elements
 						document.getElementById('node-operation').innerHTML = "Edit Link Label";
 						editLabel(item, cancelEdit, callback);
-						}
+					}
 				},
-				deleteNode: function(item, callback) {
+				deleteNode: function (item, callback) {
 					let r = confirm(deleteMsg(item));
 					if (r != true) {
 						callback(null);
@@ -399,7 +439,7 @@ function draw() {
 					}
 					callback(item);
 				},
-				deleteEdge: function(item, callback) {
+				deleteEdge: function (item, callback) {
 					let r = confirm(deleteMsg(item));
 					if (r != true) {
 						callback(null);
@@ -418,50 +458,57 @@ function draw() {
 		network = new Network(netPane, data, options);
 		network.storePositions();
 		document.getElementById("zoom").value = network.getScale();
-		
+
 		window.network = network;
 
 		// start with factor tab open, but hidden
 		document.getElementById("nodesButton").click();
 
 		// listen for click events on the network pane
-		network.on('click', function() {
+/* 
+		network.on('click', function () {
 			clearStatusBar()
 		});
-		network.on("doubleClick", function(params) {
+ */
+		network.on("doubleClick", function (params) {
 			if (params.nodes.length === 1) {
 				network.editNode();
-				}
-			else if (params.edges.length === 1) {
+			} else if (params.edges.length === 1) {
 				network.editEdgeMode();
-				} 
-			else {
+			} else {
 				network.fit();
 				document.getElementById('zoom').value = network.getScale();
 			}
 		});
-		network.on('selectNode', function() {
+		network.on('selectNode', function () {
 			statusMsg(listFactors(network.getSelectedNodes()) +
 				' selected');
 			displayNotes();
 		});
-		network.on('deselectNode', function() {
+		network.on('deselectNode', function () {
 			hideNotes();
 			clearStatusBar();
 		});
-		network.on('hoverNode', function() {
+		network.on('hoverNode', function () {
 			changeCursor('grab');
 		});
-		network.on('blurNode', function() {
+		network.on('blurNode', function () {
 			changeCursor('default');
 		});
-		network.on('dragStart', function() {
+		network.on('selectEdge', function () {
+			statusMsg(listLinks(network.getSelectedEdges()) +
+				' selected');
+		});
+		network.on('deselectEdge', function () {
+			clearStatusBar();
+		});
+		network.on('dragStart', function () {
 			changeCursor('grabbing');
 		});
-		network.on('dragging', function() {
+		network.on('dragging', function () {
 			changeCursor('grabbing');
 		});
-		network.on('dragEnd', function(event) {
+		network.on('dragEnd', function (event) {
 			let newPositions = network.getPositions(event.nodes);
 			data.nodes.update(
 				data.nodes.get(event.nodes).map(n => {
@@ -503,13 +550,13 @@ function editLabel(item, cancelAction, callback) {
 		cancelAction.bind(this, callback);
 	document.getElementById('node-saveButton').onclick =
 		saveLabel.bind(this, item, callback);
+	document.getElementById('node-label').value = (item.label === undefined ? '' : item.label);
 	popUp.style.display = 'block';
 	// popup appears to the left of the mouse pointer
 	popUp.style.top =
-		`${event.clientY - popUp.offsetHeight / 2}px`;
+		`${event.clientY - (popUp.offsetHeight / 2) - popUp.offsetParent.offsetTop}px`;
 	popUp.style.left =
 		`${event.clientX - popUp.offsetWidth - 3}px`;
-	document.getElementById('node-label').value = (item.label === undefined ? '' : item.label);
 	document.getElementById('node-label').focus();
 }
 
@@ -533,7 +580,7 @@ function saveLabel(item, callback) {
 		// (nodes must have a label)
 		if ('from' in item) item.label = ' ';
 		else {
-			statusMsg("No label: cancelled");
+			statusMsg("No label: cancelled", 'warn');
 			callback(null);
 		}
 	}
@@ -543,7 +590,7 @@ function saveLabel(item, callback) {
 function duplEdge(from, to) {
 	// if there is already a link from the 'from' node to the 'to' node, return it
 	return data.edges.get({
-		filter: function(item) {
+		filter: function (item) {
 			return (item.from == from) && (item.to == to)
 		}
 	})
@@ -583,19 +630,29 @@ function recalculateStats() {
 	worker.postMessage([nodes.get(), edges.get()]);
 }
 
-worker.onmessage = function(e) {
+worker.onmessage = function (e) {
 	bc = e.data;
 }
 
 
 /* show status messages at the bottom of the window */
 
-function statusMsg(msg) {
-	document.getElementById("statusBar").innerHTML = msg;
+function statusMsg(msg, status) {
+	let elem = document.getElementById("statusBar");
+	switch(status) {
+	case 'warn': elem.style.backgroundColor = 'yellow'; break;
+	case 'error': elem.style.backgroundColor = 'red'; break;
+	default: elem.style.backgroundColor = 'white'; break;
+	}
+	elem.innerHTML = htmlEntities(msg);
+}
+
+function htmlEntities(str) {
+	return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&quot;');
 }
 
 function clearStatusBar() {
-	statusMsg("<br>");
+	statusMsg(' ');
 }
 
 function listFactors(factors) {
@@ -614,6 +671,13 @@ function lf(factors) {
 	if (n == 2) return label.concat(' and ' + lf(factors));
 	return label.concat(', ' + lf(factors));
 }
+
+function listLinks(links) {
+	// return a string listing the number of Links
+	if (links.length > 1) return links.length + ' links';
+	return '1 link';
+}
+
 
 /* 
   -----------Operations related to the top button bar (not the side panel)-------------
@@ -653,14 +717,12 @@ function readSingleFile(e) {
 	statusMsg("Reading '" + fileName + "'");
 	e.target.value = '';
 	var reader = new FileReader();
-	reader.onloadend = function(e) {
+	reader.onloadend = function (e) {
 		try {
-			let json = JSON.parse(e.target.result);
-			loadJSONfile(json);
+			loadFile(e.target.result);
 			statusMsg("Read '" + fileName + "'");
 		} catch (err) {
-			statusMsg("Error reading '" + fileName + "': " + err
-				.message);
+			statusMsg("Error reading '" + fileName + "': " + err.message, 'error');
 			return;
 		}
 	};
@@ -671,8 +733,7 @@ function openFile() {
 	document.getElementById('fileInput').click();
 }
 
-
-function loadJSONfile(json) {
+function loadFile(contents) {
 	if (data.nodes.length > 0)
 		if (!confirm(
 				"Loading a file will delete the current network.  Are you sure you want to replace it?"
@@ -680,48 +741,198 @@ function loadJSONfile(json) {
 	unSelect();
 	nodes.clear();
 	edges.clear();
-	if (json.version && (version > json.version)) {
-		statusMsg(
-			"Warning: file was created in an earlier version of PRISM"
-		);
+
+	if (contents.search('graphml') >= 0) data = parseGraphML(contents);
+	else {
+		if (contents.search('graph') >= 0) data = parseGML(contents);
+		else data = loadJSONfile(contents);
 	}
-	if (json.lastNodeSample) lastNodeSample = json.lastNodeSample;
-	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
-	if ('source' in json.edges[0]) {
-		// the file is from Gephi and needs to be translated
-		let parsed = parseGephiNetwork(json, 
-			{edges: {inheritColors: false}, nodes: {fixed: false, parseColor: true}});
-		nodes.add(cleanArray(parsed.nodes, {clientID: null, color: null}));
-		edges.add(cleanArray(parsed.edges, {clientID: null, color: null}));
-	} else {
-		nodes.add(cleanArray(json.nodes, {clientID: null}));
-		edges.add(cleanArray(json.edges, {clientID: null}));
-	}
-	data = {
-		nodes: nodes,
-		edges: edges
-	};
 	network.setOptions({
 		interaction: {
 			hideEdgesOnDrag: data.nodes.length > 100,
 			hideEdgesOnZoom: data.nodes.length > 100
 		}
 	});
-	if (json.samples) {
-		samples.nodes = json.samples.nodes;
-		samples.edges = json.samples.edges;
-		network.setOptions({
-			edges: clean(samples.edges.edge0, {groupLabel: null}),
-			groups: samples.nodes,
-			nodes: {group: 'group0'}
-			})
-		refreshSampleNodes();
-		refreshSampleLinks();
-		}
 	snapToGridOff();
 	// in case parts of the previous network was hidden
 	document.getElementById('hideAll').checked = true;
 	document.getElementById('streamAll').checked = true;
+}
+
+function loadJSONfile(json) {
+	json = JSON.parse(json);
+	if (json.version && (version > json.version)) {
+		statusMsg("Warning: file was created in an earlier version", 'warn');
+	}
+	if (json.lastNodeSample) lastNodeSample = json.lastNodeSample;
+	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
+	if ('source' in json.edges[0]) {
+		// the file is from Gephi and needs to be translated
+		let parsed = parseGephiNetwork(json, {
+			edges: {
+				inheritColors: false
+			},
+			nodes: {
+				fixed: false,
+				parseColor: true
+			}
+		});
+		nodes.add(cleanArray(parsed.nodes, {
+			clientID: null,
+			color: null
+		}));
+		edges.add(cleanArray(parsed.edges, {
+			clientID: null,
+			color: null
+		}));
+	} else {
+		nodes.add(cleanArray(json.nodes, {
+			clientID: null
+		}));
+		edges.add(cleanArray(json.edges, {
+			clientID: null
+		}));
+	}
+	if (json.samples) {
+		samples.nodes = json.samples.nodes;
+		samples.edges = json.samples.edges;
+		network.setOptions({
+			edges: clean(samples.edges.edge0, {
+				groupLabel: null
+			}),
+			groups: samples.nodes,
+			nodes: {
+				group: 'group0'
+			}
+		})
+		refreshSampleNodes();
+		refreshSampleLinks();
+		for (let groupId in samples.nodes) {
+			ySamplesMap.set(groupId, {node: samples.nodes[groupId], clientID: clientID});
+			console.log('ySamplesMap ' + groupId);
+			}
+		for (let edgeId in samples.edges) {
+			ySamplesMap.set(edgeId, {edge: samples.edges[edgeId], clientID: clientID});
+			console.log('ySamplesMap ' + edgeId);
+			}
+	}
+	return {
+		nodes: nodes,
+		edges: edges
+	}
+}
+
+function parseGraphML(graphML) {
+	let options = {
+		attributeNamePrefix: "",
+		attrNodeName: "attr",
+		textNodeName: "txt",
+		ignoreAttributes: false,
+		ignoreNameSpace: true,
+		allowBooleanAttributes: false,
+		parseNodeValue: true,
+		parseAttributeValue: true,
+		trimValues: true,
+		parseTrueNumberOnly: false,
+		arrayMode: false, //"strict"
+	};
+	var result = parser.validate(graphML, options);
+	if (result !== true) {
+		throw {
+			message: result.err.msg + "(line " + result.err.line + ")"
+		};
+	}
+	let jsonObj = parser.parse(graphML, options);
+	nodes.add(jsonObj.graphml.graph.node.map((n) => {
+		return {
+			id: n.attr.id,
+			label: getLabel(n.data)
+		}
+	}));
+	edges.add(jsonObj.graphml.graph.edge.map((e) => {
+		return {
+			id: e.attr.id,
+			from: e.attr.source,
+			to: e.attr.target
+		}
+	}));
+	return {
+		nodes: nodes,
+		edges: edges
+	};
+
+	function getLabel(arr) {
+		for (let at of arr) {
+			if (at.attr.key == "label") return at.txt
+		}
+	}
+}
+
+function parseGML(gml) {
+	let tokens = gml.match(/\S+/g);
+	let node;
+	let edge;
+	let edgeId = 0;
+	let tok = tokens.shift();
+	while (tok) {
+		switch (tok) {
+		case 'graph':
+			break;
+		case 'node':
+			tokens.shift(); // [
+			node = {};
+			tok = tokens.shift();
+			while (tok != ']') {
+				switch (tok) {
+				case 'id':
+					node.id = tokens.shift();
+					break;
+				case 'label':
+					node.label = tokens.shift().replace(/"/g, '');
+					break;
+				default:
+					break;
+				}
+				tok = tokens.shift(); // ]
+			}
+			if (node.label == undefined) node.label = node.id;
+			nodes.add(node);
+			break;
+		case 'edge':
+			tokens.shift(); // [
+			edge = {};
+			tok = tokens.shift();
+			while (tok != ']') {
+				switch (tok) {
+				case 'id':
+					edge.id = tokens.shift();
+					break;
+				case 'source':
+					edge.to = tokens.shift();
+					break;
+				case 'target':
+					edge.from = tokens.shift();
+					break;
+				case 'label':
+					edge.label = tokens.shift().replace(/"/g, '');
+					break;
+				default:
+					break;
+				}
+				tok = tokens.shift(); // ]
+			}
+			if (edge.id == undefined) edge.id = edgeId++;
+			edges.add(edge);
+			break;
+		default:
+			break;
+		}
+		tok = tokens.shift();
+	}
+	return {
+		nodes: nodes,
+		edges: edges
+	}
 }
 
 function refreshSampleNodes() {
@@ -729,7 +940,9 @@ function refreshSampleNodes() {
 	for (let i = 0; i < sampleElements.length; i++) {
 		let groupId = 'group' + i;
 		sampleElements[i].net.setOptions({
-			groups: {[groupId]: samples.nodes[groupId]}
+			groups: {
+				[groupId]: samples.nodes[groupId]
+			}
 		});
 		sampleElements[i].net.redraw()
 	}
@@ -743,9 +956,8 @@ function refreshSampleLinks() {
 		edge.label = edge.groupLabel;
 		sampleElements[i].dataSet.remove(edge);
 		sampleElements[i].dataSet.add(edge);
-		}
+	}
 }
-	
 
 /* 
 Browser will only ask for name and location of the file to be saved if
@@ -761,18 +973,31 @@ function saveJSONfile() {
 		lastNodeSample: lastNodeSample,
 		lastLinkSample: lastLinkSample,
 		samples: samples,
-		nodes: cleanArray(data.nodes.get(), {clientId: null, color: null}),
-		edges: cleanArray(data.edges.get(), {clientId: null})
+		nodes: cleanArray(data.nodes.get(), {
+			clientId: null,
+			color: null
+		}),
+		edges: cleanArray(data.edges.get(), {
+			clientId: null
+		})
 	});
+	saveStr(json, 'json');
+}
+
+function saveStr(str, extn) {
 	let element = document.getElementById("download");
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' +
-		encodeURIComponent(json));
+		encodeURIComponent(str));
+	let pos = lastFileName.indexOf(".");
+	lastFileName = lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) + '.' + extn;
 	element.setAttribute('download', lastFileName);
 	element.click();
 }
 
 function cleanArray(arr, propsToRemove) {
-	return arr.map( (item) => {return clean(item, propsToRemove)})
+	return arr.map((item) => {
+		return clean(item, propsToRemove)
+	})
 }
 
 function clean(source, propsToRemove) {
@@ -784,15 +1009,51 @@ function clean(source, propsToRemove) {
 	return out
 }
 
+function exportCVS () {
+	let str = 'Id,Label\n';
+	for (let node of data.nodes.get()) {
+		str += node.id;
+		if (node.label) str += ',"' + node.label + '"';
+		str += '\n';
+		}
+	saveStr(str, 'nodes.csv');
+	str = 'Source,Target,Type,Id,Label\n';
+	for (let edge of data.edges.get()) {
+		str += edge.from + ',';
+		str += edge.to + ',';
+		str += 'directed,';
+		str += edge.id + ',';
+		if (edge.label) str += edge.label + '"';
+		str += '\n';
+		}
+	saveStr(str, 'edges.csv');
+}
+
+function exportGML() {
+	let str = 'Creator "PRISM ' + version + ' on ' + new Date(Date.now()).toLocaleString() 
+		+ '"\ngraph\n[\n\tdirected 1\n';
+	for (let node of data.nodes.get()) {
+		str += '\tnode\n\t[\n\t\tid ' + node.id;
+		if (node.label) str += '\n\t\tlabel "' + node.label + '"';
+		str += '\n\t]\n';
+		}
+	for (let edge of data.edges.get()) {
+		str += '\tedge\n\t[\n\t\tsource ' + edge.from;
+		str += '\n\t\ttarget ' + edge.to;
+		if (edge.label) str += '\n\t\tlabel "' + edge.label + '"';
+		str += '\n\t]\n';
+		}
+	str += '\n]';
+	saveStr(str, 'gml');	
+}
+
 function plusNode() {
-	statusMsg("Add Node mode");
 	changeCursor("cell");
 	inAddMode = true;
 	network.addNodeMode();
 }
 
 function plusLink() {
-	statusMsg("Add Edge mode");
 	changeCursor("crosshair");
 	inAddMode = true;
 	network.addEdgeMode();
@@ -802,7 +1063,7 @@ function deleteNode() {
 	network.deleteSelected();
 }
 
-Network.prototype.zoom = function(scale) {
+Network.prototype.zoom = function (scale) {
 	let newScale = (scale === undefined ? 1 : scale);
 	const animationOptions = {
 		scale: newScale,
@@ -823,7 +1084,7 @@ function zoomincr(incr) {
 	if (newScale <= 0) newScale = 0.1;
 	document.getElementById("zoom").value = newScale;
 	network.zoom(newScale);
-}	
+}
 
 /* Share modal dialog */
 
@@ -843,7 +1104,7 @@ var inputElem = document.getElementById('text-to-copy');
 var copiedText = document.getElementById('copied-text');
 
 // When the user clicks the button, open the modal 
-btn.onclick = function() {
+btn.onclick = function () {
 	let linkToShare = window.location.origin + window.location
 		.pathname + '?room=' + room;
 	copiedText.style.display = 'none';
@@ -855,19 +1116,19 @@ btn.onclick = function() {
 }
 
 // When the user clicks on <span> (x), close the modal
-span.onclick = function() {
+span.onclick = function () {
 	modal.style.display = "none";
 }
 
 // When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
+window.onclick = function (event) {
 	if (event.target == modal) {
 		modal.style.display = "none";
 	}
 }
 
 document.getElementById('copy-text').addEventListener('click',
-	function(e) {
+	function (e) {
 		e.preventDefault();
 		// Select the text
 		inputElem.select();
@@ -928,16 +1189,16 @@ function openTab(tabId) {
 }
 
 function storeButtonStatus() {
-	buttonStatus =  {
-			autoLayout: document.getElementById('autolayoutswitch').checked,
-			snapToGrid: document.getElementById('snaptogridswitch').checked,
-			layout: document.getElementById('layoutSelect').value,
-			curve: document.getElementById('curveSelect').value,
-			linkRadius: getRadioVal('hide'),
-			stream: getRadioVal('stream'),
-			showLabels: document.getElementById('showLabelSwitch').value,
-			sizing: document.getElementById('sizing').value
-			};
+	buttonStatus = {
+		autoLayout: document.getElementById('autolayoutswitch').checked,
+		snapToGrid: document.getElementById('snaptogridswitch').checked,
+		layout: document.getElementById('layoutSelect').value,
+		curve: document.getElementById('curveSelect').value,
+		linkRadius: getRadioVal('hide'),
+		stream: getRadioVal('stream'),
+		showLabels: document.getElementById('showLabelSwitch').value,
+		sizing: document.getElementById('sizing').value
+	};
 }
 
 function saveButtonStatus(event) {
@@ -947,7 +1208,7 @@ function saveButtonStatus(event) {
 
 function setButtonStatus(event) {
 	let settings;
-	if (event.type == "undo") 
+	if (event.type == "undo")
 		settings = yUndoManager.undoStack[yUndoManager.undoStack.length - 1].meta.get('buttons');
 	else settings = event.stackItem.meta.get('buttons');
 	document.getElementById('autolayoutswitch').checked = settings.autoLayout;
@@ -1163,17 +1424,17 @@ function hideLabels() {
 	// move the label to the hiddenLabel property and set the label to an empty string
 	let nodesToUpdate = [];
 	data.nodes.forEach(
-		function(n) {
+		function (n) {
 			n.hiddenLabel = n.label;
 			n.label = "";
 			nodesToUpdate.push(n);
 		}
 	);
 	data.nodes.update(nodesToUpdate);
-	
+
 	let edgesToUpdate = [];
 	data.edges.forEach(
-		function(n) {
+		function (n) {
 			n.hiddenLabel = n.label;
 			n.label = "";
 			edgesToUpdate.push(n);
@@ -1186,17 +1447,17 @@ function hideLabels() {
 function unHideLabels() {
 	let nodesToUpdate = [];
 	data.nodes.forEach(
-		function(n) {
+		function (n) {
 			if (n.hiddenLabel) n.label = n.hiddenLabel;
 			n.hiddenLabel = undefined;
 			nodesToUpdate.push(n);
 		}
 	);
 	data.nodes.update(nodesToUpdate);
-	
+
 	let edgesToUpdate = [];
 	data.edges.forEach(
-		function(n) {
+		function (n) {
 			if (n.hiddenLabel) n.label = n.hiddenLabel;
 			n.hiddenLabel = undefined;
 			edgesToUpdate.push(n);
@@ -1212,20 +1473,21 @@ function getRadioVal(name) {
 	// loop through list of radio buttons
 	for (let i = 0, len = radios.length; i < len; i++) {
 		if (radios[i].checked)
-			return radios[i].value; // if so, hold its value in val
+			return radios[i].value;
 	}
 }
 
 function setRadioVal(name, value) {
-	// get list of radio buttons with specified name
-	let radios = document.getElementsByName(name);
-	// loop through list of radio buttons
-	for (let i = 0, len = radios.length; i < len; i++) {
-		radios[i].checked = (radios[i].value == value)
+		// get list of radio buttons with specified name
+		let radios = document.getElementsByName(name);
+		// loop through list of radio buttons
+		for (let i = 0, len = radios.length; i < len; i++) {
+			radios[i].checked = (radios[i].value == value)
+		}
 	}
-}
+	
 // Performs intersection operation between called set and otherSet 
-Set.prototype.intersection = function(otherSet) {
+Set.prototype.intersection = function (otherSet) {
 	let intersectionSet = new Set();
 	for (var elem of otherSet)
 		if (this.has(elem)) intersectionSet.add(elem);
@@ -1236,9 +1498,12 @@ function hideDistantOrStreamNodes() {
 	// get the intersection of the nodes (and links) in radius and up or downstream,
 	// and then hide everything not in that intersection
 
+	let radius = getRadioVal('hide');
+	let stream = getRadioVal('stream');
+	
 	let selectedNodes = network.getSelectedNodes();
-	if (selectedNodes.length == 0) {
-		statusMsg('Select a Factor first');
+	if (selectedNodes.length == 0 && !(radius == 'All' && stream == 'All')) {
+		statusMsg('Select a Factor first', 'error');
 		// unhide everything
 		document.getElementById('hideAll').checked = true;
 		document.getElementById('streamAll').checked = true;
@@ -1257,7 +1522,6 @@ function hideDistantOrStreamNodes() {
 	let nodeIdsInRadiusSet = new Set();
 	let linkIdsInRadiusSet = new Set();
 
-	let radius = getRadioVal('hide');
 	if (radius == 'All') {
 		data.nodes.forEach(node => nodeIdsInRadiusSet.add(node.id));
 		data.edges.forEach(edge => linkIdsInRadiusSet.add(edge.id));
@@ -1267,7 +1531,6 @@ function hideDistantOrStreamNodes() {
 	let nodeIdsInStreamSet = new Set();
 	let linkIdsInStreamSet = new Set();
 
-	let stream = getRadioVal('stream');
 	if (stream == undefined) return;
 	if (stream == 'All') {
 		data.nodes.forEach(node => nodeIdsInStreamSet.add(node.id));
@@ -1295,10 +1558,10 @@ function hideDistantOrStreamNodes() {
 		// recursive function to collect nodes within radius links from any
 		// of the nodes listed in nodeIds
 		if (radius < 0) return;
-		nodeIds.forEach(function(nId) {
+		nodeIds.forEach(function (nId) {
 			nodeIdsInRadiusSet.add(nId);
 			let links = network.getConnectedEdges(nId);
-			if (links && radius > 0) links.forEach(function(lId) {
+			if (links && radius > 0) links.forEach(function (lId) {
 				linkIdsInRadiusSet.add(lId);
 			});
 			let linked = network.getConnectedNodes(nId);
@@ -1309,15 +1572,15 @@ function hideDistantOrStreamNodes() {
 	function upstream(nodeIds) {
 		// recursively add the nodes in and upstream of those in nodeIds
 		if (nodeIds.length == 0) return;
-		nodeIds.forEach(function(nId) {
+		nodeIds.forEach(function (nId) {
 			if (!nodeIdsInStreamSet.has(nId)) {
 				nodeIdsInStreamSet.add(nId);
 				let links = data.edges.get({
-					filter: function(item) {
+					filter: function (item) {
 						return item.to == nId
 					}
 				});
-				if (links) links.forEach(function(link) {
+				if (links) links.forEach(function (link) {
 					linkIdsInStreamSet.add(link.id);
 					upstream([link.from]);
 				});
@@ -1328,15 +1591,15 @@ function hideDistantOrStreamNodes() {
 	function downstream(nodeIds) {
 		// recursively add the nodes in and downstream of those in nodeIds
 		if (nodeIds.length == 0) return;
-		nodeIds.forEach(function(nId) {
+		nodeIds.forEach(function (nId) {
 			if (!nodeIdsInStreamSet.has(nId)) {
 				nodeIdsInStreamSet.add(nId);
 				let links = data.edges.get({
-					filter: function(item) {
+					filter: function (item) {
 						return item.from == nId
 					}
 				});
-				if (links) links.forEach(function(link) {
+				if (links) links.forEach(function (link) {
 					linkIdsInStreamSet.add(link.id);
 					downstream([link.to]);
 				});
@@ -1346,30 +1609,34 @@ function hideDistantOrStreamNodes() {
 }
 
 function sizing() {
-// set the size of the nodes proportional to the selected metric 
-//  none, in degree out degree or betweenness centrality
-	
+	// set the size of the nodes proportional to the selected metric 
+	//  none, in degree out degree or betweenness centrality
+
 	let metric = document.getElementById('sizing').value;
-	data.nodes.forEach( (node) => {
-		switch(metric) {
-			case 'Off': node.value = 0;
-				break;
-			case 'Inputs': node.value = network.getConnectedNodes(node.id, 'from').length;
-				break;
-			case 'Outputs': node.value = network.getConnectedNodes(node.id, 'to').length;
-				break;
-			case 'Leverage': {
+	data.nodes.forEach((node) => {
+		switch (metric) {
+		case 'Off':
+			node.value = 0;
+			break;
+		case 'Inputs':
+			node.value = network.getConnectedNodes(node.id, 'from').length;
+			break;
+		case 'Outputs':
+			node.value = network.getConnectedNodes(node.id, 'to').length;
+			break;
+		case 'Leverage':
+			{
 				let inDegree = network.getConnectedNodes(node.id, 'from').length;
 				let outDegree = network.getConnectedNodes(node.id, 'to').length;
 				node.value = (inDegree == 0) ? 0 : (outDegree / inDegree);
 				break;
-				}
-			case 'Centrality': node.value = bc[node.id];
-				break;
 			}
+		case 'Centrality':
+			node.value = bc[node.id];
+			break;
+		}
 		data.nodes.update(node);
-		});
+	});
 	network.fit();
 	document.getElementById('zoom').value = network.getScale();
 }
-

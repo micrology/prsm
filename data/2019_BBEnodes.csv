@@ -1,0 +1,20 @@
+Id,Label,timeset,Eccentricity,closnesscentrality,harmonicclosnesscentrality,betweenesscentrality,indegree,outdegree,Degree,controllability,controllability_num,Lineage,IsOrigin,IsAncestor,IsDescendant,DistanceAncestor,DistanceDescendant,Competitiveness_ancestor_dist,DistanceAncestor_copy,Controllability_local,controllability_industry
+EcologicalSustainability,BBEEnergy,,5,0.541667,0.717949,143.9,4,7,11,medium,2,Hybrid,false,false,false,-5,2,false,5,2,2
+CommunityAcceptance,By products,,4,0.361111,0.442308,7,1,2,3,medium,2,Hybrid,false,false,false,-4,3,false,4,2,2
+Infrastructure,"Community, Acceptance",,5,0.382353,0.429487,94,3,1,4,medium,2,Hybrid,false,false,false,-5,2,false,5,1,2
+LandAvailability-Development,Competitiveness,,6,0.371429,0.447436,43,3,1,4,medium,2,Hybrid,false,false,false,-6,2,false,6,3,2
+FloodRisk,EcologicalSustainability,,7,0.295455,0.348718,47.9,3,1,4,medium,2,Ancestor,false,false,false,-7,0,false,7,2,1
+LandAvailability-Feedstock,ExistingIndustries,,6,0.342105,0.39359,0,1,1,2,medium,2,Unrelated,false,false,false,0,0,false,0,1,3
+Feedstock,Feedstock,,5,0.361111,0.434615,15.216667,3,1,4,medium,2,Descendant,false,false,false,0,2,false,0,2,2
+Policy-HabitatRegulations,FloodRisk,,7,0.205882,0.273299,0,0,1,1,medium,2,Ancestor,false,false,false,-7,0,false,7,1,1
+Policy-Positive,FossilFuelPrice,,3,0.285714,0.347619,1,1,1,2,hard,1,Hybrid,false,false,false,-3,4,false,3,1,1
+ExistingIndustries,Funding,,5,0.433333,0.521795,27.216667,3,2,5,medium,2,Hybrid,false,false,false,-3,5,false,3,2,2
+Funding,Infrastructure,,5,0.333333,0.457692,11.55,1,3,4,medium,2,Hybrid,false,false,false,-2,5,false,2,2,2
+BBEEnergy,InternationalInstability,,4,0.470588,0.588542,0,0,5,5,hard,1,Hybrid,false,false,false,-2,1,false,2,2,2
+InternationalInstability,Jobs,,4,0.295455,0.348718,15.55,2,1,3,medium,2,Ancestor,false,false,false,-2,0,false,2,1,1
+FossilFuelPrice,Knowledge,,6,0.236364,0.306593,6,1,1,2,easy,3,Ancestor,false,false,false,-1,0,false,1,1,1
+Technology,LandAvailability-Development,,6,0.240741,0.303846,28.1,5,1,6,easy,3,Hybrid,false,false,false,-1,3,false,1,2,2
+Jobs,LandAvailability-Feedstock,,5,0.28,0.341667,0,1,1,2,medium,2,Hybrid,false,false,false,-5,2,false,5,2,2
+By-products,Policy-HabitatRegulations,,4,0.205882,0.273299,0,0,1,1,hard,1,Hybrid,false,false,false,-1,2,false,1,1,3
+Knowledge,Policy-Positive,,7,0.541667,0.628205,94.566667,2,4,6,hard,1,Hybrid,false,false,false,-2,2,false,2,3,2
+Competitiveness,Technology,,5,0.288889,0.355128,18,2,1,3,medium,2,Origin,false,false,false,0,0,false,0,2,2

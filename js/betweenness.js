@@ -25,7 +25,7 @@ onmessage = function(e) {
 	let graph = {
 		nodes: e.data[0], // array of node objects
 		edges: e.data[1]  // array of edge objects
-	}; console.log(graph.nodes); console.log(graph.edges);
+	};
 	if (checkComplete(graph)) postMessage(betweenness(graph));
 }
 
