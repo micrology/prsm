@@ -105,7 +105,7 @@ function addEventListeners() {
 	document.getElementById('fileInput').addEventListener('change', readSingleFile);
 	document.getElementById("openFile").addEventListener("click", openFile);
 	document.getElementById("saveFile").addEventListener("click", saveJSONfile);
-	document.getElementById("exportGraphML").addEventListener("click", exportGraphML);
+	document.getElementById("exportCVS").addEventListener("click", exportCVS);
 	document.getElementById("exportGML").addEventListener("click", exportGML);
 	document.getElementById("panelToggle").addEventListener("click", togglePanel);
 	document.getElementById('zoom').addEventListener('change', zoomnet);
@@ -888,7 +888,7 @@ function parseGML(gml) {
 					node.id = tokens.shift();
 					break;
 				case 'label':
-					node.label = tokens.shift().replace(/\"/g, '');
+					node.label = tokens.shift().replace(/"/g, '');
 					break;
 				default:
 					break;
@@ -914,7 +914,7 @@ function parseGML(gml) {
 					edge.from = tokens.shift();
 					break;
 				case 'label':
-					edge.label = tokens.shift().replace(/\"/g, '');
+					edge.label = tokens.shift().replace(/"/g, '');
 					break;
 				default:
 					break;
@@ -1009,7 +1009,7 @@ function clean(source, propsToRemove) {
 	return out
 }
 
-function exportGraphML () {
+function exportCVS () {
 	let str = 'Id,Label\n';
 	for (let node of data.nodes.get()) {
 		str += node.id;
@@ -1030,8 +1030,8 @@ function exportGraphML () {
 }
 
 function exportGML() {
-	let str = 'Creator \"PRISM ' + version + ' on ' + new Date(Date.now()).toLocaleString() 
-		+ '\"\ngraph\n[\n\tdirected 1\n';
+	let str = 'Creator "PRISM ' + version + ' on ' + new Date(Date.now()).toLocaleString() 
+		+ '"\ngraph\n[\n\tdirected 1\n';
 	for (let node of data.nodes.get()) {
 		str += '\tnode\n\t[\n\t\tid ' + node.id;
 		if (node.label) str += '\n\t\tlabel "' + node.label + '"';

@@ -217,6 +217,9 @@ nav button:active {
 .right-border {
 	border-right: 1px solid white;
 }
+.left-border {
+	border-left: 1px solid white;
+}
 .dropdown-wrapper {
 	position: relative;
 	display: inline-block;
@@ -242,7 +245,7 @@ nav button:active {
 }
 .dropdown-content .tooltip .tooltiptext {
 	top: 0;
-	left: -60px;
+	left: -70px;
 }
 
 /* for iPads etc in landscape: nav buttons go under title */	
