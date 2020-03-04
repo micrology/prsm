@@ -69,6 +69,7 @@ window.addEventListener('load', () => {
 	setUpPage();
 	startY();
 	draw();
+	setTimeout(fit, 500);  // need to wait until the canvas draw has been completed
 });
 
 function checkFeatures() {
@@ -394,6 +395,7 @@ function draw() {
 					if (lastNodeSample) item.group = lastNodeSample;
 					document.getElementById('node-operation').innerHTML = "Add Factor";
 					editLabel(item, clearPopUp, callback);
+					showPressed('addNode', 'remove');
 				},
 				editNode: function (item, callback) {
 					// for some weird reason, vis-network copies the group properties into the 
@@ -422,6 +424,7 @@ function draw() {
 						return;
 					}
 					if (lastLinkSample) item = Object.assign(item, samples.edges[lastLinkSample]);
+					showPressed('addLink', 'remove');
 					callback(item);
 				},
 				editEdge: {
@@ -456,9 +459,6 @@ function draw() {
 		};
 
 		network = new Network(netPane, data, options);
-		network.storePositions();
-		document.getElementById("zoom").value = network.getScale();
-
 		window.network = network;
 
 		// start with factor tab open, but hidden
@@ -476,14 +476,13 @@ function draw() {
 			} else if (params.edges.length === 1) {
 				network.editEdgeMode();
 			} else {
-				network.fit();
-				document.getElementById('zoom').value = network.getScale();
+				fit();
 			}
 		});
 		network.on('selectNode', function () {
 			statusMsg(listFactors(network.getSelectedNodes()) +
 				' selected');
-			displayNotes();
+			showNodeData();
 		});
 		network.on('deselectNode', function () {
 			hideNotes();
@@ -498,8 +497,10 @@ function draw() {
 		network.on('selectEdge', function () {
 			statusMsg(listLinks(network.getSelectedEdges()) +
 				' selected');
+			showEdgeData();
 		});
 		network.on('deselectEdge', function () {
+			hideNotes();
 			clearStatusBar();
 		});
 		network.on('dragStart', function () {
@@ -531,6 +532,12 @@ function draw() {
 
 	} // end draw()
 
+function fit() {
+	network.fit();
+	document.getElementById('zoom').value = network.getScale();
+	network.storePositions();
+}
+				
 function claim(item) {
 	// remove any existing clientID, to show that I now
 	// own this and can broadcast my changes to the item
@@ -678,10 +685,70 @@ function listLinks(links) {
 	return '1 link';
 }
 
+/* zoom slider */
+
+Network.prototype.zoom = function (scale) {
+	let newScale = (scale === undefined ? 1 : scale);
+	const animationOptions = {
+		scale: newScale,
+		animation: {
+			duration: 300
+		}
+	};
+	this.view.moveTo(animationOptions);
+};
+
+function zoomnet() {
+	network.zoom(Number(document.getElementById("zoom").value));
+}
+
+function zoomincr(incr) {
+	let newScale = Number(document.getElementById("zoom").value) + incr;
+	if (newScale > 4) newScale = 4;
+	if (newScale <= 0) newScale = 0.1;
+	document.getElementById("zoom").value = newScale;
+	network.zoom(newScale);
+}
+
 
 /* 
   -----------Operations related to the top button bar (not the side panel)-------------
  */
+
+
+function plusNode() {
+	if (inAddMode) {
+		showPressed('addNode', 'remove');
+		stopEdit();
+		return;
+		}
+	changeCursor("cell");
+	inAddMode = true;
+	showPressed('addNode', 'add');
+	network.addNodeMode();
+}
+
+function plusLink() {
+	if (inAddMode) {
+		showPressed('addLink', 'remove');
+		stopEdit();
+		return;
+		}
+	changeCursor("crosshair");
+	inAddMode = true;
+	showPressed('addLink', 'add');
+	network.addEdgeMode();
+}
+
+function stopEdit() {
+	inAddMode = false;
+	network.disableEditMode();
+	changeCursor('auto');
+}
+
+function showPressed(elem, action) {
+	document.getElementById(elem).children.item(0).classList[action]('pressed');
+} 
 
 function undo() {
 	unSelect();
@@ -703,6 +770,10 @@ function redoButtonStatus() {
 	if (yUndoManager.redoStack.length == 0)
 		document.getElementById('redo').classList.add('disabled');
 	else document.getElementById('redo').classList.remove('disabled');
+}
+
+function deleteNode() {
+	network.deleteSelected();
 }
 
 var lastFileName = 'network.json'; // the name of the file last read in
@@ -757,6 +828,7 @@ function loadFile(contents) {
 	// in case parts of the previous network was hidden
 	document.getElementById('hideAll').checked = true;
 	document.getElementById('streamAll').checked = true;
+	fit();
 }
 
 function loadJSONfile(json) {
@@ -1047,45 +1119,6 @@ function exportGML() {
 	saveStr(str, 'gml');	
 }
 
-function plusNode() {
-	changeCursor("cell");
-	inAddMode = true;
-	network.addNodeMode();
-}
-
-function plusLink() {
-	changeCursor("crosshair");
-	inAddMode = true;
-	network.addEdgeMode();
-}
-
-function deleteNode() {
-	network.deleteSelected();
-}
-
-Network.prototype.zoom = function (scale) {
-	let newScale = (scale === undefined ? 1 : scale);
-	const animationOptions = {
-		scale: newScale,
-		animation: {
-			duration: 300
-		}
-	};
-	this.view.moveTo(animationOptions);
-};
-
-function zoomnet() {
-	network.zoom(Number(document.getElementById("zoom").value));
-}
-
-function zoomincr(incr) {
-	let newScale = Number(document.getElementById("zoom").value) + incr;
-	if (newScale > 4) newScale = 4;
-	if (newScale <= 0) newScale = 0.1;
-	document.getElementById("zoom").value = newScale;
-	network.zoom(newScale);
-}
-
 /* Share modal dialog */
 
 // Get the modal
@@ -1185,7 +1218,8 @@ function openTab(tabId) {
 	event.currentTarget.className += " active";
 
 	tabOpen = tabId;
-	if (tabOpen == 'nodesTab') displayNotes();
+	if (tabOpen == 'nodesTab') showNodeData();
+	if (tabOpen == 'linksTab') showEdgeData();
 }
 
 function storeButtonStatus() {
@@ -1255,19 +1289,18 @@ function applySampleToLink() {
 
 // Notes
 
-var lastSelectedNode;
-
-function displayNotes() {
-	let panel = document.getElementById("oneNodeSelected");
+function showNodeData() {
+	let panel = document.getElementById("nodeDataPanel");
 	let selectedNodes = network.getSelectedNodes();
-	if (selectedNodes != lastSelectedNode) panel.classList.add('hide');
 	if (tabOpen == 'nodesTab' && selectedNodes.length == 1) {
 		let nodeId = selectedNodes[0];
 		let node = data.nodes.get(nodeId);
-		let label = (node.label ? node.label : node.hiddenLabel);
-		document.getElementById("nodeLabel").innerHTML = (label ? label : "");
+		document.getElementById("nodeLabel").innerHTML = (node.label ? node.label : "");
+		document.getElementById('nodeNotes').innerHTML = '<textarea class="notesTA" id="notesTA"</textarea>';
+		let textarea = document.getElementById('notesTA');
 		let title = (node.title ? node.title : "");
-		addNotesTA(title);
+		textarea.innerHTML = title.replace(/<\/br>/g, '\n');
+		textarea.addEventListener('blur', updateNodeNotes);
 		panel.classList.remove('hide');
 		displayStatistics(nodeId);
 	} else {
@@ -1275,15 +1308,7 @@ function displayNotes() {
 	}
 }
 
-function addNotesTA(str) {
-	document.getElementById('notes').innerHTML =
-		'<textarea class="notesTA" id="notesTA"</textarea>';
-	let textarea = document.getElementById('notesTA');
-	textarea.innerHTML = str.replace(/<\/br>/g, '\n');
-	textarea.addEventListener('blur', updateNotes);
-}
-
-function updateNotes() {
+function updateNodeNotes() {
 	data.nodes.update({
 		id: network.getSelectedNodes()[0],
 		title: document.getElementById('notesTA').value.replace(/\n/g, '</br>'),
@@ -1291,8 +1316,34 @@ function updateNotes() {
 	});
 }
 
+function showEdgeData() {
+	let panel = document.getElementById("edgeDataPanel");
+	let selectedEdges = network.getSelectedEdges();
+	if (tabOpen == 'linksTab' && selectedEdges.length == 1) {
+		let edgeId = selectedEdges[0];
+		let edge = data.edges.get(edgeId);
+		document.getElementById("edgeLabel").innerHTML = (edge.label ? edge.label : "");
+		document.getElementById('edgeNotes').innerHTML = '<textarea class="notesTA" id="notesTA"</textarea>';
+		let textarea = document.getElementById('notesTA');
+		let title = (edge.title ? edge.title : "");
+		textarea.innerHTML = title.replace(/<\/br>/g, '\n');
+		textarea.addEventListener('blur', updateEdgeNotes);
+		panel.classList.remove('hide');
+	} else {
+		panel.classList.add('hide')
+	}
+}
+
+function updateEdgeNotes() {
+	data.edges.update({
+		id: network.getSelectedEdges()[0],
+		title: document.getElementById('notesTA').value.replace(/\n/g, '</br>'),
+		clientID: undefined
+	});
+}
 function hideNotes() {
-	document.getElementById("oneNodeSelected").classList.add('hide')
+	document.getElementById("nodeDataPanel").classList.add('hide')
+	document.getElementById("edgeDataPanel").classList.add('hide')
 }
 
 // Statistics specific to a node

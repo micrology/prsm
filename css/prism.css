@@ -34,7 +34,8 @@ body {
 	box-sizing: border-box;
 	/* interface colours defined here */
 	--header-color: #3498DB;
-	--header-hover-color: grey;
+	--header-hover-color: lightgrey;
+	--header-pressed-color: grey;
 	--header-disabled-color: #a8d3f0;
 	--panel-color: #404040;
 	--pop-up-color: #999;
@@ -199,6 +200,9 @@ nav button:hover {
 nav button:active {
 	color: var(--header-hover-color);
 	border: 1px solid black;
+}
+nav button .pressed {
+	color: var(--header-pressed-color);
 }
 .reveal {
 	display: flex !important;
