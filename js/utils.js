@@ -61,3 +61,29 @@ function seededRandom() {
 	var x = Math.sin(randomSeed++) * 10000;
 	return x - Math.floor(x);
 }
+
+export function cleanArray(arr, propsToRemove) {
+	return arr.map((item) => {
+		return clean(item, propsToRemove)
+	})
+}
+
+export function clean(source, propsToRemove) {
+	// return a copy of an object, with the properties in the object propsToRemove removed
+	let out = {};
+	for (let key in source) {
+		if (!(key in propsToRemove)) out[key] = source[key]
+	}
+	return out
+}
+
+// Performs intersection operation between called set and otherSet 
+Set.prototype.intersection = function (otherSet) {
+	let intersectionSet = new Set();
+	for (var elem of otherSet)
+		if (this.has(elem)) intersectionSet.add(elem);
+	return intersectionSet;
+}
+
+
+

@@ -19,9 +19,9 @@ import {
 from "vis-data";
 
 import {
-	getScaleFreeNetwork
+	getScaleFreeNetwork, clean, cleanArray
 }
-from "./exampleUtil.js";
+from "./utils.js";
 
 import * as parser from 'fast-xml-parser';
 
@@ -39,7 +39,7 @@ Remember to start the WS provider first:
 	npx y-websocket-server
 */
 
-const version = "0.96";
+const version = "0.97";
 
 const GRIDSPACING = 100;
 
@@ -126,6 +126,7 @@ function addEventListeners() {
 		openTab("networkTab")
 	});
 	document.getElementById('autolayoutswitch').addEventListener('click', autoLayoutSwitch);
+	document.getElementById('antiGravity').addEventListener('change', setGravity);	
 	document.getElementById('snaptogridswitch').addEventListener('click', snapToGridSwitch);
 	document.getElementById('netBackColorWell').addEventListener('input', updateNetBack);
 	document.getElementById('allFactors').addEventListener('click', selectAllFactors);
@@ -465,11 +466,6 @@ function draw() {
 		document.getElementById("nodesButton").click();
 
 		// listen for click events on the network pane
-/* 
-		network.on('click', function () {
-			clearStatusBar()
-		});
- */
 		network.on("doubleClick", function (params) {
 			if (params.nodes.length === 1) {
 				network.editNode();
@@ -664,19 +660,20 @@ function clearStatusBar() {
 
 function listFactors(factors) {
 	// return a string listing the labels of the given nodes
+	if (factors.length > 5) return factors.length + ' factors';
 	let str = 'Factor';
 	if (factors.length > 1) str = str + 's';
 	return str + ' ' + lf(factors);
-}
 
-function lf(factors) {
-	// recursive fn to return a string of the node labels, separated by commas and 'and'
-	let n = factors.length;
-	let label = data.nodes.get(factors[0]).label
-	if (n == 1) return label;
-	factors.shift();
-	if (n == 2) return label.concat(' and ' + lf(factors));
-	return label.concat(', ' + lf(factors));
+	function lf(factors) {
+		// recursive fn to return a string of the node labels, separated by commas and 'and'
+		let n = factors.length;
+		let label = data.nodes.get(factors[0]).label
+		if (n == 1) return label;
+		factors.shift();
+		if (n == 2) return label.concat(' and ' + lf(factors));
+		return label.concat(', ' + lf(factors));
+	}
 }
 
 function listLinks(links) {
@@ -1066,21 +1063,6 @@ function saveStr(str, extn) {
 	element.click();
 }
 
-function cleanArray(arr, propsToRemove) {
-	return arr.map((item) => {
-		return clean(item, propsToRemove)
-	})
-}
-
-function clean(source, propsToRemove) {
-	// return a copy of an object, with the properties in the object propsToRemove removed
-	let out = {};
-	for (let key in source) {
-		if (!(key in propsToRemove)) out[key] = source[key]
-	}
-	return out
-}
-
 function exportCVS () {
 	let str = 'Id,Label\n';
 	for (let node of data.nodes.get()) {
@@ -1383,6 +1365,11 @@ function autoLayoutOff() {
 	});
 }
 
+function setGravity() {
+	let gravity = -(Number(document.getElementById("antiGravity").value));
+	network.setOptions({physics: {barnesHut: {gravitationalConstant: gravity}}});
+}
+
 function snapToGridSwitch(e) {
 	snapToGridToggle = e.target.checked;
 	if (snapToGridToggle) {
@@ -1537,14 +1524,6 @@ function setRadioVal(name, value) {
 		}
 	}
 	
-// Performs intersection operation between called set and otherSet 
-Set.prototype.intersection = function (otherSet) {
-	let intersectionSet = new Set();
-	for (var elem of otherSet)
-		if (this.has(elem)) intersectionSet.add(elem);
-	return intersectionSet;
-}
-
 function hideDistantOrStreamNodes() {
 	// get the intersection of the nodes (and links) in radius and up or downstream,
 	// and then hide everything not in that intersection
