@@ -566,8 +566,8 @@ function editLabel(item, cancelAction, callback) {
 	// popup appears to the left of the mouse pointer
 	popUp.style.top =
 		`${event.clientY - (popUp.offsetHeight / 2) - popUp.offsetParent.offsetTop}px`;
-	popUp.style.left =
-		`${event.clientX - popUp.offsetWidth - 3}px`;
+	let left = event.clientX - popUp.offsetWidth - 3;
+	popUp.style.left = `${(left < 0 ? 0 : left)}px`;
 	document.getElementById('node-label').focus();
 }
 
