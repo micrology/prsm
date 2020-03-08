@@ -90,6 +90,11 @@ footer {
 #zoomminus {
 	cursor: zoom-out;
 }
+
+input[type=range] {
+	vertical-align: middle;
+	}
+	
 /* Network pane and pop-up for new Factors */
 
 #net-pane {
@@ -532,6 +537,10 @@ nav button .pressed {
 	border-top: 1px solid whitesmoke;
 	padding-top: 10px;
 }
+.nodeLabel {
+	font-weight: bold;
+	text-decoration: underline;
+	}
 .notesWrapper {
 	margin: 10px 0 0 0;
 	padding: 2px 0 0 2px;

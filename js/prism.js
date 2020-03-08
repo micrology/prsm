@@ -19,9 +19,9 @@ import {
 from "vis-data";
 
 import {
-	getScaleFreeNetwork
+	getScaleFreeNetwork, clean, cleanArray
 }
-from "./exampleUtil.js";
+from "./utils.js";
 
 import * as parser from 'fast-xml-parser';
 
@@ -39,7 +39,7 @@ Remember to start the WS provider first:
 	npx y-websocket-server
 */
 
-const version = "0.96";
+const version = "0.97";
 
 const GRIDSPACING = 100;
 
@@ -126,6 +126,7 @@ function addEventListeners() {
 		openTab("networkTab")
 	});
 	document.getElementById('autolayoutswitch').addEventListener('click', autoLayoutSwitch);
+	document.getElementById('antiGravity').addEventListener('change', setGravity);	
 	document.getElementById('snaptogridswitch').addEventListener('click', snapToGridSwitch);
 	document.getElementById('netBackColorWell').addEventListener('input', updateNetBack);
 	document.getElementById('allFactors').addEventListener('click', selectAllFactors);
@@ -133,6 +134,7 @@ function addEventListeners() {
 	document.getElementById('showLabelSwitch').addEventListener('click', labelSwitch);
 	document.getElementById('layoutSelect').addEventListener('change', selectLayout);
 	document.getElementById('curveSelect').addEventListener('change', selectCurve);
+	document.getElementById('fixed').addEventListener('click', setFixed);
 	Array.from(document.getElementsByName("hide")).forEach((elem) => {
 		elem.addEventListener('change', hideDistantOrStreamNodes)
 	});
@@ -168,7 +170,7 @@ function startY() {
 	// get the room number from the URL, or if none, generate a new one
 	let url = new URL(document.location);
 	room = url.searchParams.get('room');
-	if (room == null) room = rndString(20);
+	if (room == null) room = generateRoom();
 
 	const doc = new Y.Doc();
 	const wsProvider = new WebsocketProvider('ws://35.177.28.97:1234',
@@ -227,20 +229,23 @@ function startY() {
 	 */
 
 	nodes.on('*', (event, properties, origin) => {
+/* 
 		console.log(new Date().toLocaleTimeString() + ': nodes.on: ' +
 			event + JSON.stringify(properties.items) + 'origin: ' + origin);
+ */
 		properties.items.forEach(id => {
 			if (origin == null) {
 				if (event == 'remove') {
 					yNodesMap.delete(id.toString());
-					console.log('deleted from YMapNodes: ' + id);
 				} else {
 					let obj = nodes.get(id);
 					if (obj.clientID == undefined) obj.clientID = clientID;
 					if (obj.clientID == clientID) {
 						yNodesMap.set(id.toString(), obj);
+/* 
 						console.log(new Date().toLocaleTimeString() +
 							': added to YMapNodes: ' + JSON.stringify(obj));
+ */
 					}
 				}
 			}
@@ -298,7 +303,7 @@ function startY() {
 	});
 	
 	ySamplesMap.observe((event) => {
-		console.log(event);
+//		console.log(event);
 		for (let key of event.keysChanged) {
 			let sample = ySamplesMap.get(key);
 			let origin = event.transaction.origin;
@@ -331,13 +336,15 @@ function startY() {
 
 }
 
-function rndString(length) {
-	// generate a random string of length digits to use as the room number
-	let str = "";
-	for (let i = 0; i < length; i++) {
-		str = str + (Math.random() * 10).toFixed().toString();
-	}
-	return str;
+function generateRoom() {
+	let room = '';
+	for (let i = 0; i < 4; i++) {
+		for (let j = 0; j < 3; j++) {
+ 			room += String.fromCharCode(65+ Math.floor(Math.random() * 26));
+			}
+		if (i < 3) room += '-';
+		}
+	 return room;
 }
 
 function getRandomData(nNodes) {
@@ -382,7 +389,8 @@ function draw() {
 				multiselect: true,
 				selectConnectedEdges: false,
 				hover: true,
-				zoomView: false
+				zoomView: false,
+				tooltipDelay: 0
 			},
 			layout: {
 				improvedLayout: (data.nodes.length < 150)
@@ -453,7 +461,8 @@ function draw() {
 				controlNodeStyle: {
 					shape: 'dot',
 					color: 'red',
-					group: 'group8'
+					size: 5,
+					group: undefined
 				}
 			},
 		};
@@ -465,11 +474,6 @@ function draw() {
 		document.getElementById("nodesButton").click();
 
 		// listen for click events on the network pane
-/* 
-		network.on('click', function () {
-			clearStatusBar()
-		});
- */
 		network.on("doubleClick", function (params) {
 			if (params.nodes.length === 1) {
 				network.editNode();
@@ -562,8 +566,8 @@ function editLabel(item, cancelAction, callback) {
 	// popup appears to the left of the mouse pointer
 	popUp.style.top =
 		`${event.clientY - (popUp.offsetHeight / 2) - popUp.offsetParent.offsetTop}px`;
-	popUp.style.left =
-		`${event.clientX - popUp.offsetWidth - 3}px`;
+	let left = event.clientX - popUp.offsetWidth - 3;
+	popUp.style.left = `${(left < 0 ? 0 : left)}px`;
 	document.getElementById('node-label').focus();
 }
 
@@ -664,19 +668,20 @@ function clearStatusBar() {
 
 function listFactors(factors) {
 	// return a string listing the labels of the given nodes
+	if (factors.length > 5) return factors.length + ' factors';
 	let str = 'Factor';
 	if (factors.length > 1) str = str + 's';
-	return str + ' ' + lf(factors);
-}
+	return str + ': ' + lf(factors);
 
-function lf(factors) {
-	// recursive fn to return a string of the node labels, separated by commas and 'and'
-	let n = factors.length;
-	let label = data.nodes.get(factors[0]).label
-	if (n == 1) return label;
-	factors.shift();
-	if (n == 2) return label.concat(' and ' + lf(factors));
-	return label.concat(', ' + lf(factors));
+	function lf(factors) {
+		// recursive fn to return a string of the node labels, separated by commas and 'and'
+		let n = factors.length;
+		let label = "'" + data.nodes.get(factors[0]).label + "'";
+		if (n == 1) return label;
+		factors.shift();
+		if (n == 2) return label.concat(' and ' + lf(factors));
+		return label.concat(', ' + lf(factors));
+	}
 }
 
 function listLinks(links) {
@@ -881,11 +886,9 @@ function loadJSONfile(json) {
 		refreshSampleLinks();
 		for (let groupId in samples.nodes) {
 			ySamplesMap.set(groupId, {node: samples.nodes[groupId], clientID: clientID});
-			console.log('ySamplesMap ' + groupId);
 			}
 		for (let edgeId in samples.edges) {
 			ySamplesMap.set(edgeId, {edge: samples.edges[edgeId], clientID: clientID});
-			console.log('ySamplesMap ' + edgeId);
 			}
 	}
 	return {
@@ -1064,21 +1067,6 @@ function saveStr(str, extn) {
 	lastFileName = lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) + '.' + extn;
 	element.setAttribute('download', lastFileName);
 	element.click();
-}
-
-function cleanArray(arr, propsToRemove) {
-	return arr.map((item) => {
-		return clean(item, propsToRemove)
-	})
-}
-
-function clean(source, propsToRemove) {
-	// return a copy of an object, with the properties in the object propsToRemove removed
-	let out = {};
-	for (let key in source) {
-		if (!(key in propsToRemove)) out[key] = source[key]
-	}
-	return out
 }
 
 function exportCVS () {
@@ -1287,6 +1275,19 @@ function applySampleToLink() {
 	lastLinkSample = sample;
 }
 
+function setFixed() {
+  let checkbox = document.getElementById('fixed');
+  let node = data.nodes.get(network.getSelectedNodes()[0]);
+  if (checkbox.checked == true) {
+  	node.fixed = true;
+  	data.nodes.update(node);
+  	}
+  else {
+  	node.fixed = false;
+  	data.nodes.update(node);
+  	}
+}
+
 // Notes
 
 function showNodeData() {
@@ -1295,6 +1296,7 @@ function showNodeData() {
 	if (tabOpen == 'nodesTab' && selectedNodes.length == 1) {
 		let nodeId = selectedNodes[0];
 		let node = data.nodes.get(nodeId);
+		document.getElementById('fixed').checked = (node.fixed ? true: false);
 		document.getElementById("nodeLabel").innerHTML = (node.label ? node.label : "");
 		document.getElementById('nodeNotes').innerHTML = '<textarea class="notesTA" id="notesTA"</textarea>';
 		let textarea = document.getElementById('notesTA');
@@ -1381,6 +1383,11 @@ function autoLayoutOff() {
 			enabled: false
 		}
 	});
+}
+
+function setGravity() {
+	let gravity = -(Number(document.getElementById("antiGravity").value));
+	network.setOptions({physics: {barnesHut: {gravitationalConstant: gravity}}});
 }
 
 function snapToGridSwitch(e) {
@@ -1537,14 +1544,6 @@ function setRadioVal(name, value) {
 		}
 	}
 	
-// Performs intersection operation between called set and otherSet 
-Set.prototype.intersection = function (otherSet) {
-	let intersectionSet = new Set();
-	for (var elem of otherSet)
-		if (this.has(elem)) intersectionSet.add(elem);
-	return intersectionSet;
-}
-
 function hideDistantOrStreamNodes() {
 	// get the intersection of the nodes (and links) in radius and up or downstream,
 	// and then hide everything not in that intersection
