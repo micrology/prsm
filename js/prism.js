@@ -508,6 +508,7 @@ function draw() {
 			clearStatusBar();
 		});
 		network.on('dragStart', function () {
+			hideNotes();
 			changeCursor('grabbing');
 		});
 		network.on('dragging', function () {
@@ -1298,8 +1299,8 @@ function showNodeData() {
 		let node = data.nodes.get(nodeId);
 		document.getElementById('fixed').checked = (node.fixed ? true: false);
 		document.getElementById("nodeLabel").innerHTML = (node.label ? node.label : "");
-		document.getElementById('nodeNotes').innerHTML = '<textarea class="notesTA" id="notesTA"</textarea>';
-		let textarea = document.getElementById('notesTA');
+		document.getElementById('nodeNotes').innerHTML = '<textarea class="notesTA" id="nodesTA"</textarea>';
+		let textarea = document.getElementById('nodesTA');
 		let title = (node.title ? node.title : "");
 		textarea.innerHTML = title.replace(/<\/br>/g, '\n');
 		textarea.addEventListener('blur', updateNodeNotes);
@@ -1313,7 +1314,7 @@ function showNodeData() {
 function updateNodeNotes() {
 	data.nodes.update({
 		id: network.getSelectedNodes()[0],
-		title: document.getElementById('notesTA').value.replace(/\n/g, '</br>'),
+		title: document.getElementById('nodesTA').value.replace(/\n/g, '</br>'),
 		clientID: undefined
 	});
 }
@@ -1325,8 +1326,8 @@ function showEdgeData() {
 		let edgeId = selectedEdges[0];
 		let edge = data.edges.get(edgeId);
 		document.getElementById("edgeLabel").innerHTML = (edge.label ? edge.label : "");
-		document.getElementById('edgeNotes').innerHTML = '<textarea class="notesTA" id="notesTA"</textarea>';
-		let textarea = document.getElementById('notesTA');
+		document.getElementById('edgeNotes').innerHTML = '<textarea class="notesTA" id="edgesTA"</textarea>';
+		let textarea = document.getElementById('edgesTA');
 		let title = (edge.title ? edge.title : "");
 		textarea.innerHTML = title.replace(/<\/br>/g, '\n');
 		textarea.addEventListener('blur', updateEdgeNotes);
@@ -1339,7 +1340,7 @@ function showEdgeData() {
 function updateEdgeNotes() {
 	data.edges.update({
 		id: network.getSelectedEdges()[0],
-		title: document.getElementById('notesTA').value.replace(/\n/g, '</br>'),
+		title: document.getElementById('edgesTA').value.replace(/\n/g, '</br>'),
 		clientID: undefined
 	});
 }
@@ -1423,7 +1424,8 @@ function selectLayout() {
 			hierarchical: {
 				enabled: true,
 				sortMethod: 'directed',
-				shakeTowards: 'leaves'
+				shakeTowards: 'leaves',
+				levelSeparation: 50
 			}
 		};
 	network.setOptions({
