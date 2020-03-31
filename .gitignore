@@ -4,6 +4,7 @@ prism-demo
 dist
 node_modules
 *.bbprojectd
+experiments
 
 # Compiled source #
 ###################

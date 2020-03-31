@@ -7,12 +7,13 @@
 
 <body>
     <a id="link" target="_blank" download="nice.txt">Download</a>
-    <script type="text/javascript">
+<script type="text/javascript">
         var file;
 var data = [];
 data.push("This is a test\n");
 data.push("Of creating a file\n");
 data.push("In a browser\n");
+/* 
 var properties = {type: 'text/plain'}; // Specify the file's mime-type.
 try {
   // Specify the filename using the File constructor, but ...
@@ -24,6 +25,31 @@ try {
 }
 var url = URL.createObjectURL(file);
 document.getElementById('link').href = url;
+ */
+
+
+//change to your format.
+var blob = new Blob(data, { type: 'text/plain' });
+//output file name
+var fileName = "test.json";
+
+//detect whether the browser is IE/Edge or another browser
+if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+  //To IE or Edge browser, using msSaveorOpenBlob method to download file.
+  window.navigator.msSaveOrOpenBlob(blob, fileName);
+} else {
+    //To another browser, create a tag to downlad file.
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    document.body.appendChild(a);
+    a.setAttribute('style', 'display: none');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+
+    window.URL.revokeObjectURL(url);
+    a.remove();
+}
     </script>
 </body>
 </html>

@@ -61,7 +61,6 @@
 							</div>
 						</div>
 					</div>
-					<a href='#' id="download" download></a>
 					<div class="tooltip left-border">
 						<button id="panelToggle"><i class="fas fa-clone"></i>
 						</button> <span class="tooltiptext">Show or hide panel</span>
@@ -105,8 +104,8 @@
 				</div>
 				<div class="panelRow">
 					<div>Spacing</div>
-					<div>
-						&nbsp;<input type="range" id="antiGravity" min="0" max="100000" step="10000">
+					<div>&nbsp;
+						<input type="range" id="antiGravity" min="0" max="100000" step="10000">
 					</div>
 				</div>
 				<div class="panelRow">
@@ -211,11 +210,10 @@
 			</div>
 			<div id="nodeDataPanel">
 				<div class="panelRow divider">
-					<div>
-						<span class= "nodeLabel" id="nodeLabel"></span>
+					<div>	<span class="nodeLabel" id="nodeLabel"></span>
 					</div>
 					<div>
-						<label for="fixed">Fix: </label>
+						<label for="fixed">Fix:</label>
 						<input type="checkbox" id="fixed">
 					</div>
 				</div>
@@ -363,7 +361,6 @@
 	</div>
 	<!-- Share model dialog -->
 	<div id="shareModal" class="modal">
-		<!-- Modal content -->
 		<div class="modal-content">
 			<div class="modal-header"> <span class="close">&times;</span>
 				<h2>Share the network with other participants</h2>
@@ -381,6 +378,40 @@
 	</div>
 	<!-- Open file dialog -->
 	<input type="file" id="fileInput" style="display: none">
+	<!-- Chat window -->
+	<div class="chatbox-tab" id="chatbox-tab">
+		<div class="tooltip">	<i class="fas fa-comments"></i>
+			<span class="tooltiptext" style="margin-left: -120px">Open chat window</span>
+		</div>
+	</div>
+	<div class="chatbox-holder">
+		<div class="chatbox chatbox-hide" id="chatbox">
+			<div class="chatbox-top">
+				<div class="chat-name">My name:
+					<div class="tooltip">
+						<input type="text" id="chat-name">	<span class="tooltiptext">Click to change your nickname</span>
+					</div>
+				</div>
+				<div class="chatbox-icons">
+					<div class="tooltip">	<span id="minimize"><i class="fas fa-times"></i></span>
+						<span class="tooltiptext">Close chat window</span>
+					</div>
+				</div>
+			</div>
+			<div class="chat-messages" id="chat-messages">
+				<!-- Messages stream appears here -->
+			</div>
+			<div class="chat-input-holder">
+				<div class="tooltip">
+					<button class="emoji" id="emoji-button">&#128512;</button>	<span class="tooltiptext">Add an emoji</span>
+				</div>
+				<textarea class="chat-input" id="chat-input" placeholder="Your message here..."></textarea>
+				<button class="message-send" id="send-button"><i class="fas fa-paper-plane"></i>
+				</button>
+			</div>
+		</div>
+	</div>
 	<script src="./dist/prism.bundle.js"></script>
 </body>
+
 </html>
