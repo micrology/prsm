@@ -90,11 +90,9 @@ footer {
 #zoomminus {
 	cursor: zoom-out;
 }
-
 input[type=range] {
 	vertical-align: middle;
-	}
-	
+}
 /* Network pane and pop-up for new Factors */
 
 #net-pane {
@@ -353,7 +351,6 @@ nav button .pressed {
 	opacity: 0;
 	transition: opacity 1s;
 }
-
 /* Show the tooltip text when you mouse over the tooltip container */
 
 .tooltip:hover .tooltiptext {
@@ -540,7 +537,7 @@ nav button .pressed {
 .nodeLabel {
 	font-weight: bold;
 	text-decoration: underline;
-	}
+}
 .notesWrapper {
 	margin: 10px 0 0 0;
 	padding: 2px 0 0 2px;
@@ -736,172 +733,154 @@ nav button .pressed {
 	justify-self: start;
 	padding-top: 20px;
 }
-
 /* chat window */
+
 /* based on https://codepen.io/kh-mamun/pen/jBgGwa */
 
 .chatbox-holder {
-  position: fixed;
-  right: 0;
-  bottom: 40px;
-  display: flex;
-  align-items: flex-end;
-  height: 0;
-  z-index: 1000;
+	position: fixed;
+	right: 0;
+	bottom: 40px;
+	display: flex;
+	align-items: flex-end;
+	height: 0;
+	z-index: 1000;
 }
-
 .chatbox {
-  width: 300px;
-  height: 330px;
-  margin-right: 5px;
-  position: relative;
-  display: flex;
-  flex-flow: column;
-  border-radius: 10px 10px 0 0;
-  background: white;
-  bottom: 0;
+	width: 300px;
+	height: 330px;
+	margin-right: 5px;
+	position: relative;
+	display: flex;
+	flex-flow: column;
+	border-radius: 10px 10px 0 0;
+	background: white;
+	bottom: 0;
 }
-
 .chatbox-hide {
 	display: none;
-	}
-	
+}
 .chatbox-top {
-  position: relative;
-  display: flex;
-  padding: 10px 0;
-  border-radius: 10px 10px 0 0;
-  background: var(--panel-color);
+	position: relative;
+	display: flex;
+	padding: 10px 0;
+	border-radius: 10px 10px 0 0;
+	background: var(--panel-color);
 }
-
 .chatbox-icons {
-  padding: 0 10px 0 0;
-  display: flex;
-  position: relative;
+	padding: 0 10px 0 0;
+	display: flex;
+	position: relative;
 }
-
 .chatbox-icons .fas {
-  background: var(--panel-color);
-  padding: 3px 5px;
-  margin: 0 0 0 3px;
-  color: white;
-  border-radius: 0 5px 0 5px;
+	background: var(--panel-color);
+	padding: 3px 5px;
+	margin: 0 0 0 3px;
+	color: white;
+	border-radius: 0 5px 0 5px;
 }
-
 .chatbox-icons .fas:hover {
-  border-radius: 5px 0 5px 0;
-  background: var(--header-hover-color);
+	border-radius: 5px 0 5px 0;
+	background: var(--header-hover-color);
 }
-
 .chat-name {
-  flex: 1;
-  padding-left: 50px;
-  font-size: 12px;
-  color: white;
+	flex: 1;
+	padding-left: 50px;
+	font-size: 12px;
+	color: white;
 }
-
 .chat-messages {
-  border: 1px solid black;
-  padding: 10px;
-  overflow: auto;
-  display: flex;
-  flex-flow: row wrap;
-  align-content: flex-start;
-  flex: 1;
+	border: 1px solid black;
+	padding: 10px;
+	overflow: auto;
+	display: flex;
+	flex-flow: row wrap;
+	align-content: flex-start;
+	flex: 1;
 }
-
 .message-box-holder {
-  width: 100%;
-  margin: 0 0 15px;
-  display: flex;
-  flex-flow: column;
-  align-items: flex-end;
+	width: 100%;
+	margin: 0 0 15px;
+	display: flex;
+	flex-flow: column;
+	align-items: flex-end;
 }
-
 .message-sender {
-  font-size: 12px;
-  margin: 0 0 15px;
-  color: #30649c;
-  align-self: flex-start;
+	font-size: 12px;
+	margin: 0 0 15px;
+	color: #30649c;
+	align-self: flex-start;
 }
-
 .message-box {
-  padding: 3px;
-  position: relative;
-  background: rgba(100, 170, 0, .2);
-  color: black;
-  font-size: 14px;
+	padding: 3px;
+	position: relative;
+	background: rgba(100, 170, 0, .2);
+	color: black;
+	font-size: 14px;
 }
-
 .message-box:after {
-  content: "";
-  position: absolute;
-  border: 10px solid transparent;
-  border-top: 10px solid rgba(100, 170, 0, .2);
-  border-right: none;
-  bottom: -20px;
-  right: 10px;
+	content: "";
+	position: absolute;
+	border: 10px solid transparent;
+	border-top: 10px solid rgba(100, 170, 0, .2);
+	border-right: none;
+	bottom: -20px;
+	right: 10px;
 }
-
 .message-partner {
-  background: rgba(0, 114, 135, .2);
-  align-self: flex-start;
+	background: rgba(0, 114, 135, .2);
+	align-self: flex-start;
 }
-
 .message-partner:after {
-  right: auto;
-  bottom: auto;
-  top: -20px;
-  left: 9px;
-  border: 10px solid transparent;
-  border-bottom: 10px solid rgba(0, 114, 135, .2);
-  border-left: none;
+	right: auto;
+	bottom: auto;
+	top: -20px;
+	left: 9px;
+	border: 10px solid transparent;
+	border-bottom: 10px solid rgba(0, 114, 135, .2);
+	border-left: none;
 }
-
 .chat-input-holder {
-  display: flex;
+	display: flex;
 	border-left: 1px solid black;
 	border-bottom: 1px solid black;
 	border-right: 1px solid black;
 }
-
 .chat-input {
-  resize: none;
-  padding: 5px 10px;
-  height: 40px;
+	resize: none;
+	padding: 5px 10px;
+	height: 40px;
 	font-size: 12px;
-  color: black;
-  flex: 1;
-  border: none;
-  background: white;
-  outline: none;
+	color: black;
+	flex: 1;
+	border: none;
+	background: white;
+	outline: none;
 }
-
 .message-send {
-  background: var(--header-color);
-  color: white;
-  font-size: 24px;
-  padding: 0 10px;
-  border: none;
-  border-radius: 10px;
-  margin: 5px;
-  outline: none;
+	background: var(--header-color);
+	color: white;
+	font-size: 24px;
+	padding: 0 10px;
+	border: none;
+	border-radius: 10px;
+	margin: 5px;
+	outline: none;
 }
-
 .chatbox-tab {
-  background: var(--panel-color);
-  border-radius: 10px 0 0 10px;
-  font-size: 28px;
+	background: var(--panel-color);
+	border-radius: 10px 0 0 10px;
+	font-size: 28px;
 	color: white;
 	padding: 14px;
 	position: fixed;
 	right: 0;
 	bottom: 40px;
-	z-index:1000;
+	z-index: 1000;
 }
 .emoji {
 	border: 0;
 	font-size: 18px;
 	background: white;
 	outline: none;
-	}		
+}
