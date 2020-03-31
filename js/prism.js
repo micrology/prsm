@@ -25,6 +25,8 @@ from "./utils.js";
 
 import * as parser from 'fast-xml-parser';
 
+import EmojiButton from '@joeattardi/emoji-button';
+
 import {
 	samples, setUpSamples, deepCopy, reApplySampleToLinks
 }
@@ -53,9 +55,11 @@ var yNodesMap;
 var yEdgesMap;
 var ySamplesMap;
 var yUndoManager;
+var yChatArray;
 var panel;
 var container;
 var buttonStatus;
+var myName;
 
 var lastNodeSample = null;
 var lastLinkSample = null;
@@ -68,6 +72,7 @@ window.addEventListener('load', () => {
 	addEventListeners();
 	setUpPage();
 	startY();
+	setUpChat();
 	draw();
 	setTimeout(fit, 500);  // need to wait until the canvas draw has been completed
 });
@@ -178,7 +183,7 @@ function startY() {
 	wsProvider.on('status', event => {
 		console.log(new Date().toLocaleTimeString() + ': ' +
 				event.status + (event.status == 'connected' ? ' to' : ' from') + ' room ' +
-				room) // logs "connected" or "disconnected"
+				room); // logs "connected" or "disconnected"
 	});
 
 	/* 
@@ -188,6 +193,7 @@ function startY() {
 	yNodesMap = doc.getMap('nodes');
 	yEdgesMap = doc.getMap('edges');
 	ySamplesMap = doc.getMap('samples');
+	yChatArray = doc.getArray('chat');
 
 	// get an existing or generate a new clientID, used to identify nodes and edges created by this client
 	if (localStorage.getItem('clientID'))
@@ -197,7 +203,7 @@ function startY() {
 		localStorage.setItem('clientID', clientID);
 	}
 	console.log('My client ID: ' + clientID);
-
+	
 	/* set up the undomanagers */
 	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap]);
 
@@ -217,6 +223,7 @@ function startY() {
 	window.yEdgesMap = yEdgesMap;
 	window.ySamplesMap = ySamplesMap;
 	window.yUndoManager = yUndoManager;
+	window.yChatArray = yChatArray;
 	window.samples = samples;
 
 	/* 
@@ -360,6 +367,50 @@ window.onresize = function () {
 	document.body.height = window.innerHeight;
 }
 window.onresize(); // called to initially set the height.
+
+const chatbox = document.getElementById("chatbox");
+const chatboxTab = document.getElementById("chatbox-tab");
+const chatNameBox = document.getElementById("chat-name");
+const chatInput = document.getElementById('chat-input');
+const chatSend = document.getElementById('send-button');
+const chatMessages = document.getElementById('chat-messages');
+const emojiButton = document.querySelector('#emoji-button');
+const emojiPicker = new EmojiButton({rootElement: chatbox, zIndex: 1000});
+
+function setUpChat() {
+	if (localStorage.getItem('myName'))
+		myName = localStorage.getItem('myName')
+	else myName = 'User' + clientID;	
+	console.log('My name: ' + myName);
+
+	yChatArray.observe(() => {
+		displayLastMsg()
+	});
+
+	chatboxTab.addEventListener("click", maximize);
+	document.getElementById("minimize").addEventListener("click", minimize);
+	chatNameBox.addEventListener('keyup', (e) => {
+		if (e.key == 'Enter') {
+			myName = chatNameBox.value;
+			localStorage.setItem('myName', myName);
+			chatInput.focus();
+		}
+	});
+	chatNameBox.addEventListener('click', () => {
+		chatNameBox.focus();
+		chatNameBox.select();
+	});
+
+	chatSend.addEventListener('click', sendMsg);
+
+	emojiPicker.on('emoji', emoji => {
+		document.querySelector('#chat-input').value += emoji;
+	  });
+
+	emojiButton.addEventListener('click', () => {
+		emojiPicker.togglePicker(emojiButton);
+	  });
+}
 
 function draw() {
 
@@ -1060,6 +1111,7 @@ function saveJSONfile() {
 	saveStr(json, 'json');
 }
 
+/* 
 function saveStr(str, extn) {
 	let element = document.getElementById("download");
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' +
@@ -1068,6 +1120,32 @@ function saveStr(str, extn) {
 	lastFileName = lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) + '.' + extn;
 	element.setAttribute('download', lastFileName);
 	element.click();
+}
+ */
+
+function saveStr(str, extn) {
+	/* download str to a local file */
+	let blob = new Blob([str], { type: 'text/plain' });
+	let pos = lastFileName.indexOf(".");
+	lastFileName = lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) + '.' + extn;
+
+	//detect whether the browser is IE/Edge or another browser
+	if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+  		//To IE or Edge browser, using msSaveorOpenBlob method to download file.
+  		window.navigator.msSaveOrOpenBlob(blob, lastFileName);
+		}
+	else {
+		//To another browser, create a tag to download file.
+		const url = window.URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		document.body.appendChild(a);
+		a.setAttribute('style', 'display: none');
+		a.href = url;
+		a.download = lastFileName;
+		a.click();
+		window.URL.revokeObjectURL(url);
+		a.remove();
+	}
 }
 
 function exportCVS () {
@@ -1692,3 +1770,67 @@ function sizing() {
 	network.fit();
 	document.getElementById('zoom').value = network.getScale();
 }
+
+
+/* ---------------------------------------chat window --------------------------------*/
+
+function minimize() {
+	chatbox.classList.add('chatbox-hide');
+	chatboxTab.classList.remove('chatbox-hide');
+}
+
+function maximize() {
+	chatboxTab.classList.add('chatbox-hide');
+	chatbox.classList.remove('chatbox-hide');
+	displayUserName()
+	displayAllMsgs();
+	chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function sendMsg() {
+	let inputMsg = chatInput.value;
+	let clock = new Date().toLocaleTimeString();
+	yChatArray.push([{
+		client: clientID,
+		author: myName,
+		time: clock,
+		msg: inputMsg
+	}]);
+}
+
+function displayLastMsg() {
+	chatMessages.innerHTML = '';
+	displayMsg(yChatArray.get(yChatArray.length - 1))
+}
+
+function displayAllMsgs() {
+	for (let m = 0; m < yChatArray.length; m++) {
+		displayMsg(yChatArray.get(m))
+	}
+}
+
+function displayMsg(msg) {
+	if (msg.client == clientID) { /* my own message */
+		chatMessages.innerHTML += `<div class="message-box-holder">
+			<div class="message-box">
+				${msg.msg}
+			</div>
+		</div>`;
+	} else {
+		chatMessages.innerHTML += `<div class="message-box-holder">
+			<div class="message-sender">
+				${msg.time} ${msg.author}
+			</div>
+			<div class="message-box message-partner">
+				${msg.msg}
+			</div>
+		</div>`;
+	}
+	chatMessages.scrollTop = chatMessages.scrollHeight;
+	chatInput.value = '';
+}
+
+function displayUserName() {
+	chatNameBox.value = myName;
+}
+
