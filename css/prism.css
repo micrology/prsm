@@ -868,7 +868,7 @@ nav button .pressed {
 	outline: none;
 }
 .chatbox-tab {
-	background: var(--panel-color);
+	background: var(--header-color);
 	border-radius: 10px 0 0 10px;
 	font-size: 28px;
 	color: white;
