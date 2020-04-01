@@ -399,6 +399,10 @@ function setUpChat() {
 			chatInput.focus();
 		}
 	});
+	chatNameBox.addEventListener("blur", () => {
+		myName = chatNameBox.value;
+		localStorage.setItem("myName", myName);
+	});
 	chatNameBox.addEventListener("click", () => {
 		chatNameBox.focus();
 		chatNameBox.select();
@@ -1782,7 +1786,6 @@ function maximize() {
 	chatbox.classList.remove("chatbox-hide");
 	displayUserName();
 	displayAllMsgs();
-	chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 function blinkChatboxTab() {
@@ -1807,7 +1810,6 @@ function sendMsg() {
 }
 
 function displayLastMsg() {
-	chatMessages.innerHTML = "";
 	displayMsg(yChatArray.get(yChatArray.length - 1));
 }
 
@@ -1815,6 +1817,7 @@ function displayAllMsgs() {
 	for (let m = 0; m < yChatArray.length; m++) {
 		displayMsg(yChatArray.get(m));
 	}
+	chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 function displayMsg(msg) {
