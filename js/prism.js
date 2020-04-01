@@ -388,6 +388,7 @@ function setUpChat() {
 	console.log("My name: " + myName);
 	yChatArray.observe(() => {
 		displayLastMsg();
+		blinkChatboxTab();
 	});
 	chatboxTab.addEventListener("click", maximize);
 	document.getElementById("minimize").addEventListener("click", minimize);
@@ -1772,15 +1773,25 @@ function sizing() {
 function minimize() {
 	chatbox.classList.add("chatbox-hide");
 	chatboxTab.classList.remove("chatbox-hide");
+	chatboxTab.classList.remove('chatbox-blink');
 }
 
 function maximize() {
 	chatboxTab.classList.add("chatbox-hide");
+	chatboxTab.classList.remove('chatbox-blink');
 	chatbox.classList.remove("chatbox-hide");
 	displayUserName();
 	displayAllMsgs();
 	chatMessages.scrollTop = chatMessages.scrollHeight;
 }
+
+function blinkChatboxTab() {
+	if (yChatArray.length > 0 ) chatboxTab.classList.add('chatbox-blink');
+	}
+	
+function unblinkChatboxTab() {
+	chatboxTab.classList.remove('chatbox-blink');
+	}
 
 function sendMsg() {
 	let inputMsg = chatInput.value;
