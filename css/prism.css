@@ -878,6 +878,20 @@ nav button .pressed {
 	bottom: 40px;
 	z-index: 1000;
 }
+.chatbox-blink {
+	animation-duration: 1s;
+	animation-name: blinking;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+}
+@keyframes blinking {
+	from {
+		background: var(--header-color);
+		}
+	to {
+		background: var(--header-hover-color);
+		}
+}
 .emoji {
 	border: 0;
 	font-size: 18px;
