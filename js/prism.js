@@ -22,7 +22,7 @@ import "vis-network/dist/vis-network.min.css";
 Remember to start the WS provider first:
 	npx y-websocket-server
 */
-const version = "0.98";
+const version = "0.99";
 const GRIDSPACING = 100;
 var network;
 var room;
@@ -135,9 +135,11 @@ function addEventListeners() {
 	document
 		.getElementById("showLabelSwitch")
 		.addEventListener("click", labelSwitch);
+/* 
 	document
 		.getElementById("layoutSelect")
 		.addEventListener("change", selectLayout);
+ */
 	document
 		.getElementById("curveSelect")
 		.addEventListener("change", selectCurve);
@@ -1304,7 +1306,7 @@ function storeButtonStatus() {
 	buttonStatus = {
 		autoLayout: document.getElementById("autolayoutswitch").checked,
 		snapToGrid: document.getElementById("snaptogridswitch").checked,
-		layout: document.getElementById("layoutSelect").value,
+// 		layout: document.getElementById("layoutSelect").value,
 		curve: document.getElementById("curveSelect").value,
 		linkRadius: getRadioVal("hide"),
 		stream: getRadioVal("stream"),
@@ -1327,7 +1329,7 @@ function setButtonStatus(event) {
 	else settings = event.stackItem.meta.get("buttons");
 	document.getElementById("autolayoutswitch").checked = settings.autoLayout;
 	document.getElementById("snaptogridswitch").checked = settings.snapToGrid;
-	document.getElementById("layoutSelect").value = settings.layout;
+// 	document.getElementById("layoutSelect").value = settings.layout;
 	document.getElementById("curveSelect").checked = settings.curve;
 	document.getElementById("autolayoutswitch").checked = settings.autoLayout;
 	setRadioVal("hide", settings.linkRadius);
@@ -1505,6 +1507,7 @@ function snapToGridOff() {
 	snapToGridToggle = false;
 }
 
+/* 
 function selectLayout() {
 	let layout = {
 		hierarchical: {
@@ -1537,6 +1540,7 @@ function selectLayout() {
 		});
 	});
 }
+ */
 
 function selectCurve() {
 	network.setOptions({
@@ -1821,6 +1825,7 @@ function displayAllMsgs() {
 }
 
 function displayMsg(msg) {
+	if (msg == undefined) return;
 	if (msg.client == clientID) {
 		/* my own message */
 		chatMessages.innerHTML += `<div class="message-box-holder">
