@@ -45,16 +45,6 @@ export const samples = {
 					max: 20
 					}
 				},
-//			value: 0
-// 			size: 50,
-/* 
-			widthConstraint: {
-				minimum: 50
-			},
-			heightConstraint: {
-				minimum: 20
-			}
- */
 		},
 		//------------------------------
 		// blue bordered white ellipse 
@@ -229,11 +219,11 @@ export const samples = {
 			},
 		},
 
-		// simple directed blue link
+		// simple directed green link
 
 		edge1: {
 			color: {
-				color: 'blue',
+				color: '#00cc00',
 			},
 		},
 
@@ -245,11 +235,11 @@ export const samples = {
 			},
 		},
 
-		// simple directed green link
+		// simple directed blue link
 
 		edge3: {
 			color: {
-				color: 'green',
+				color: 'blue',
 			},
 		},
 
@@ -261,13 +251,13 @@ export const samples = {
 			},
 		},
 
-		// medium directed yellow link
+		// medium directed dark yellow link
 
 		edge5: {
 			color: {
-				color: 'gold',
+				color: '#e6b800',
 			},
-			width: 4
+			width: 2
 		},
 
 		//  directed black dashed link
@@ -277,7 +267,7 @@ export const samples = {
 				color: 'black',
 			},
 			dashes: [10, 10],
-			width: 5
+			width: 3
 		},
 
 		//  directed green dashed link
@@ -287,7 +277,7 @@ export const samples = {
 				color: 'green',
 			},
 			dashes: [10, 10],
-			width: 5
+			width: 3
 		},
 
 
@@ -296,6 +286,10 @@ export const samples = {
 		edge8: {
 			arrows: {
 				middle: {
+					enabled: true,
+					type: "arrow"
+				},
+				to: {
 					enabled: true,
 					type: "arrow"
 				},
@@ -344,11 +338,12 @@ export function setUpSamples() {
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i];
 		let groupId = 'edge' + i;
+		let sampleOptions = samples.edges[groupId];
 		let edgeDataSet = new DataSet([Object.assign({
 			id: "1",
 			from: 1,
 			to: 2
-		}, samples.edges[groupId])])
+		}, sampleOptions)])
 		let nodesDataSet = new DataSet([{
 			id: 1
 		}, {
@@ -651,7 +646,10 @@ function initSample(wrapper, sampleData) {
 				direction: 'LR'
 			}
 		},
-		groups: samples.nodes
+		groups: samples.nodes,
+		edges: {
+			value: 10 // to make the links more visible at very small scale for the samples
+			}
 	};
 	let net = new Network(wrapper, sampleData, options);
 	net.fit();

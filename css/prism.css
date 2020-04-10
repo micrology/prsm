@@ -197,9 +197,11 @@ nav button {
 nav button .small-button {
 	font-size: 16px;
 }
+/* 
 nav button:hover {
 	color: var(--header-hover-color);
 }
+ */
 nav button:active {
 	color: var(--header-hover-color);
 	border: 1px solid black;
