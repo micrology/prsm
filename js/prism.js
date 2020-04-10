@@ -22,7 +22,7 @@ import "vis-network/dist/vis-network.min.css";
 Remember to start the WS provider first:
 	npx y-websocket-server
 */
-const version = "0.99";
+const version = "1.01";
 const GRIDSPACING = 100;
 var network;
 var room;
@@ -38,6 +38,7 @@ var yChatArray;
 var panel;
 var container;
 var buttonStatus;
+var initialButtonStatus;
 var myName;
 var lastNodeSample = null;
 var lastLinkSample = null;
@@ -180,6 +181,7 @@ function setUpPage() {
 	hideNotes();
 	document.getElementById("version").innerHTML = version;
 	storeButtonStatus();
+	initialButtonStatus = buttonStatus;
 }
 
 function startY() {
@@ -248,10 +250,12 @@ function startY() {
 	feedback loop, with each client re-broadcasting everything it received)
 	 */
 	nodes.on("*", (event, properties, origin) => {
-		/* 
+		
+/* 
 		console.log(new Date().toLocaleTimeString() + ': nodes.on: ' +
 			event + JSON.stringify(properties.items) + 'origin: ' + origin);
  */
+ 
 		properties.items.forEach((id) => {
 			if (origin == null) {
 				if (event == "remove") {
@@ -271,7 +275,7 @@ function startY() {
 		});
 	});
 	/* 
-	yNodesMap.observe listens for changes in the yMap, reciving a set of the keys that have
+	yNodesMap.observe listens for changes in the yMap, receiving a set of the keys that have
 	had changed values.  If the change was to delete an entry, the corresponding node is
 	removed from the local nodes dataSet. Otherwise, the local node dataSet is updated (which 
 	includes adding a new node if it does not already exist locally).
@@ -585,11 +589,13 @@ function draw() {
 	});
 	// listen for changes to the network structure
 	// and recalculate the network statistics when there is one
+ 
 	data.nodes.on("add", recalculateStats);
 	data.nodes.on("remove", recalculateStats);
 	data.edges.on("add", recalculateStats);
 	data.edges.on("remove", recalculateStats);
 } // end draw()
+
 function fit() {
 	network.fit();
 	document.getElementById("zoom").value = network.getScale();
@@ -600,6 +606,17 @@ function claim(item) {
 	// remove any existing clientID, to show that I now
 	// own this and can broadcast my changes to the item
 	item.clientID = undefined;
+}
+
+function broadcast() {
+/* there are situations where vis does not update node positions
+(and therefore does not call nodes.on) such as auto layout, 
+and therefore other clients don't get to see the changes.
+This function forces a broadcast of all modes.  We only deal with
+nodes because the edges follow */
+
+	network.storePositions();
+	data.nodes.forEach((n) => yNodesMap.set(n.id, n))
 }
 
 function snapToGrid(node) {
@@ -689,16 +706,27 @@ function unSelect() {
 	hideNotes();
 	network.unselectAll();
 }
+/* 
+  ----------- Calculate statistics in the background -------------
+*/
+
 // set  up a web worker to calculate network statistics in parallel with whatever
 // the user is doing
 var worker = new Worker("./js/betweenness.js");
 var bc; //caches the betweenness centralities
 function recalculateStats() {
-	worker.postMessage([nodes.get(), edges.get()]);
+	// wait 200 mSecs for things to settle down before recalculating
+	setTimeout(() => {worker.postMessage([nodes.get(), edges.get()])}, 200);
 }
 worker.onmessage = function (e) {
 	bc = e.data;
 };
+
+/* 
+  ----------- Status messages ---------------------------------------
+*/
+
+
 /* show status messages at the bottom of the window */
 function statusMsg(msg, status) {
 	let elem = document.getElementById("statusBar");
@@ -752,6 +780,7 @@ function listLinks(links) {
 	if (links.length > 1) return links.length + " links";
 	return "1 link";
 }
+
 /* zoom slider */
 Network.prototype.zoom = function (scale) {
 	let newScale = scale === undefined ? 1 : scale;
@@ -1172,8 +1201,8 @@ function saveStr(str, extn) {
 		a.href = url;
 		a.download = lastFileName;
 		a.click();
-		window.URL.revokeObjectURL(url);
 		a.remove();
+//		window.URL.revokeObjectURL(url); generates Failed - Network error in Chrome
 	}
 }
 
@@ -1305,12 +1334,12 @@ function openTab(tabId) {
 function storeButtonStatus() {
 	buttonStatus = {
 		autoLayout: document.getElementById("autolayoutswitch").checked,
+ 		gravity: document.getElementById("antiGravity").value,
 		snapToGrid: document.getElementById("snaptogridswitch").checked,
-// 		layout: document.getElementById("layoutSelect").value,
 		curve: document.getElementById("curveSelect").value,
 		linkRadius: getRadioVal("hide"),
 		stream: getRadioVal("stream"),
-		showLabels: document.getElementById("showLabelSwitch").value,
+		showLabels: document.getElementById("showLabelSwitch").checked,
 		sizing: document.getElementById("sizing").value,
 	};
 }
@@ -1323,18 +1352,31 @@ function saveButtonStatus(event) {
 function setButtonStatus(event) {
 	let settings;
 	if (event.type == "undo")
-		settings = yUndoManager.undoStack[
-			yUndoManager.undoStack.length - 1
-		].meta.get("buttons");
-	else settings = event.stackItem.meta.get("buttons");
-	document.getElementById("autolayoutswitch").checked = settings.autoLayout;
+		if (yUndoManager.undoStack.length == 0) {
+			settings = initialButtonStatus
+			}
+		else {
+			settings = yUndoManager.undoStack[
+				yUndoManager.undoStack.length - 1
+				].meta.get("buttons");
+			}
+	else // event.type == "redo"
+		settings = event.stackItem.meta.get("buttons");
+	
+	if (document.getElementById("autolayoutswitch").checked != settings.autoLayout) {
+		autoLayoutSet(settings.autoLayout);
+		document.getElementById("autolayoutswitch").checked = settings.autoLayout
+		}
+	if (document.getElementById("antiGravity").value != settings.gravity) {
+ 		adjustGravity(settings.gravity);
+ 		document.getElementById("antiGravity").value = settings.gravity;
+ 		}
 	document.getElementById("snaptogridswitch").checked = settings.snapToGrid;
-// 	document.getElementById("layoutSelect").value = settings.layout;
-	document.getElementById("curveSelect").checked = settings.curve;
-	document.getElementById("autolayoutswitch").checked = settings.autoLayout;
+	document.getElementById("curveSelect").value = settings.curve;
+	selectCurve();
 	setRadioVal("hide", settings.linkRadius);
 	setRadioVal("stream", settings.stream);
-	document.getElementById("showLabelSwitch").value = settings.showLabels;
+	document.getElementById("showLabelSwitch").checked = settings.showLabels;
 	document.getElementById("sizing").value = settings.sizing;
 }
 // Factors and Links Tabs
@@ -1453,42 +1495,52 @@ function displayStatistics(nodeId) {
 	document.getElementById("bc").textContent =
 		bc[nodeId] >= 0 ? bc[nodeId].toPrecision(3) : "--";
 }
+
 // Network tab
 function autoLayoutSwitch(e) {
 	let switchOn = e.target.checked;
 	if (switchOn && snapToGridToggle) snapToGridOff(); // no snapping with auto layout.
+	autoLayoutSet(switchOn);
+}
+
+function autoLayoutSet(switchOn) {
 	network.storePositions(); // record current positions so it can be undone
 	network.setOptions({
 		physics: {
-			enabled: switchOn,
-		},
+			enabled: switchOn
+		}
 	});
-}
-
-function autoLayoutOff() {
-	document.getElementById("autolayoutswitch").checked = false;
-	network.setOptions({
-		physics: {
-			enabled: false,
-		},
-	});
+	network.once('stabilized', broadcast);
 }
 
 function setGravity() {
-	let gravity = -Number(document.getElementById("antiGravity").value);
+	adjustGravity(document.getElementById("antiGravity").value);
+}
+
+function adjustGravity(gravity) {
+	network.storePositions(); // record current positions so it can be undone
 	network.setOptions({
 		physics: {
 			barnesHut: {
-				gravitationalConstant: gravity,
+				gravitationalConstant: -Number(gravity),
 			},
 		},
+	});
+	network.once("stabilized", () => {
+		network.setOptions({
+			physics: {
+				enabled: false,
+				stabilization: false,
+			},
+		});
+		broadcast();
 	});
 }
 
 function snapToGridSwitch(e) {
 	snapToGridToggle = e.target.checked;
 	if (snapToGridToggle) {
-		autoLayoutOff();
+		autoLayoutSet(false);
 		let positions = network.getPositions();
 		data.nodes.update(
 			data.nodes.get().map((n) => {
@@ -1543,6 +1595,8 @@ function selectLayout() {
  */
 
 function selectCurve() {
+	// generate a node update to register on the undo stack
+	data.nodes.update(data.nodes.get()[0]);
 	network.setOptions({
 		edges: {
 			smooth: document.getElementById("curveSelect").value === "Curved",
