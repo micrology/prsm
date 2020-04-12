@@ -15,7 +15,7 @@ import {
 }
 from "vis-data/peer";
 import {
-	getScaleFreeNetwork, clean, cleanArray
+	getScaleFreeNetwork, clean, cleanArray, dragElement
 }
 from "./utils.js";
 import * as parser from "fast-xml-parser";
@@ -46,6 +46,7 @@ var clientID;
 var yNodesMap;
 var yEdgesMap;
 var ySamplesMap;
+var yNetMap;
 var yUndoManager;
 var yChatArray;
 var panel;
@@ -115,11 +116,6 @@ function addEventListeners() {
 	document.getElementById("allFactors").addEventListener("click", selectAllFactors);
 	document.getElementById("allEdges").addEventListener("click", selectAllEdges);
 	document.getElementById("showLabelSwitch").addEventListener("click", labelSwitch);
-	/* 
-	document
-		.getElementById("layoutSelect")
-		.addEventListener("change", selectLayout);
- */
 	document.getElementById("curveSelect").addEventListener("change", selectCurve);
 	document.getElementById("fixed").addEventListener("click", setFixed);
 	Array.from(document.getElementsByName("hide")).forEach((elem) => {
@@ -167,6 +163,7 @@ function startY() {
 	yNodesMap = doc.getMap("nodes");
 	yEdgesMap = doc.getMap("edges");
 	ySamplesMap = doc.getMap("samples");
+	yNetMap = doc.getMap("network");
 	yChatArray = doc.getArray("chat");
 	// get an existing or generate a new clientID, used to identify nodes and edges created by this client
 	if (localStorage.getItem("clientID")) clientID = localStorage.getItem("clientID");
@@ -176,7 +173,7 @@ function startY() {
 	}
 	console.log("My client ID: " + clientID);
 	/* set up the undomanagers */
-	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap]);
+	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap]);
 	nodes = new DataSet();
 	edges = new DataSet();
 	data = {
@@ -191,6 +188,7 @@ function startY() {
 	window.yNodesMap = yNodesMap;
 	window.yEdgesMap = yEdgesMap;
 	window.ySamplesMap = ySamplesMap;
+	window.yNetMap = yNetMap;
 	window.yUndoManager = yUndoManager;
 	window.yChatArray = yChatArray;
 	window.samples = samples;
@@ -289,6 +287,17 @@ function startY() {
 					reApplySampleToLinks(key);
 				}
 			}
+		}
+	});
+	yNetMap.observe((event) => {
+		for (let key of event.keysChanged) {
+			let obj = yNetMap.get(key);
+			let origin = event.transaction.origin;
+			if (obj.clientID != clientID || origin != null)
+				switch (key) {
+				case 'edges': setCurve(clean(obj, {clientID: null})); break;
+				default: console.log('Bad key in yMapNet.observe')
+				}
 		}
 	});
 	yUndoManager.on("stack-item-added", (event) => {
@@ -1429,48 +1438,21 @@ function snapToGridOff() {
 	document.getElementById("snaptogridswitch").checked = false;
 	snapToGridToggle = false;
 }
-/* 
-function selectLayout() {
-	let layout = {
-		hierarchical: {
-			enabled: false,
-		},
-	};
-	if (document.getElementById("layoutSelect").value === "Hierarchical")
-		layout = {
-			hierarchical: {
-				enabled: true,
-				sortMethod: "directed",
-				shakeTowards: "leaves",
-				levelSeparation: 50,
-			},
-		};
-	network.setOptions({
-		layout: layout,
-		physics: {
-			enabled: true,
-			stabilization: true,
-		},
-	});
-	// allow the physics module to re-arrange the nodes and then turn it off again
-	network.once("stabilized", () => {
-		network.setOptions({
-			physics: {
-				enabled: false,
-				stabilization: false,
-			},
-		});
-	});
-}
- */
+
 function selectCurve() {
-	// generate a node update to register on the undo stack
-	data.nodes.update(data.nodes.get()[0]);
-	network.setOptions({
+	let options = {
 		edges: {
 			smooth: document.getElementById("curveSelect").value === "Curved",
-		},
-	});
+			},
+		};
+	network.setOptions(options);
+	options.clientID = clientID;
+	yNetMap.set('edges', options);
+}
+
+function setCurve(options) {
+	document.getElementById("curveSelect").value = (options.edges.smooth ? "Curved" : "Straight");
+	network.setOptions(options);
 }
 
 function updateNetBack(event) {
@@ -1755,3 +1737,5 @@ function displayMsg(msg) {
 function displayUserName() {
 	chatNameBox.value = myName;
 }
+
+dragElement(document.getElementById("chatbox-holder"), document.getElementById("chatbox-top"));
