@@ -1,12 +1,12 @@
 import {
 	Network
 }
-from "vis-network/peer/esm/vis-network";
+from "vis-network/peer/";
 
 import {
 	DataSet
 }
-from "vis-data";
+from "vis-data/peer";
 
 export const samples = {
 	nodes: {
@@ -205,7 +205,6 @@ export const samples = {
 			hoverWidth: 1,
 			label: '',
 			selectionWidth: 1,
-			selfReferenceSize: 20,
 			smooth: {type: 'straightCross'},
 			width: 1,
 			groupLabel: ''

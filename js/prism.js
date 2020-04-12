@@ -2,10 +2,22 @@
 The main entry point for PRISM.  
  */
 import * as Y from "yjs";
-import { WebsocketProvider } from "y-websocket";
-import { Network, parseGephiNetwork } from "vis-network/peer/esm/vis-network";
-import { DataSet } from "vis-data";
-import { getScaleFreeNetwork, clean, cleanArray } from "./utils.js";
+import {
+	WebsocketProvider
+}
+from "y-websocket";
+import {
+	Network, parseGephiNetwork
+}
+from "vis-network/peer";
+import {
+	DataSet
+}
+from "vis-data/peer";
+import {
+	getScaleFreeNetwork, clean, cleanArray, dragElement
+}
+from "./utils.js";
 import * as parser from "fast-xml-parser";
 // see https://github.com/joeattardi/emoji-button
 import EmojiButton from "@joeattardi/emoji-button";
@@ -14,7 +26,8 @@ import {
 	setUpSamples,
 	deepCopy,
 	reApplySampleToLinks,
-} from "./samples.js";
+}
+from "./samples.js";
 import "vis-network/dist/vis-network.min.css";
 /* for esLint: */
 /* global Modernizr */
@@ -33,6 +46,7 @@ var clientID;
 var yNodesMap;
 var yEdgesMap;
 var ySamplesMap;
+var yNetMap;
 var yUndoManager;
 var yChatArray;
 var panel;
@@ -55,24 +69,8 @@ window.addEventListener("load", () => {
 });
 
 function checkFeatures() {
-	if (
-		!(
-			Modernizr.borderradius &&
-			Modernizr.boxsizing &&
-			Modernizr.flexbox &&
-			Modernizr.boxshadow &&
-			Modernizr.opacity &&
-			Modernizr.canvas &&
-			Modernizr.fileinput &&
-			Modernizr.eventlistener &&
-			Modernizr.webworkers &&
-			Modernizr.json &&
-			Modernizr.canvastext
-		)
-	) {
-		alert(
-			"Your browser does not support all the features required.  Try an up-to-date copy of Edge, Chrome or Safari"
-		);
+	if (!(Modernizr.borderradius && Modernizr.boxsizing && Modernizr.flexbox && Modernizr.boxshadow && Modernizr.opacity && Modernizr.canvas && Modernizr.fileinput && Modernizr.eventlistener && Modernizr.webworkers && Modernizr.json && Modernizr.canvastext)) {
+		alert("Your browser does not support all the features required.  Try an up-to-date copy of Edge, Chrome or Safari");
 	}
 }
 
@@ -89,16 +87,12 @@ function addEventListeners() {
 	document.getElementById("deleteNode").addEventListener("click", deleteNode);
 	document.getElementById("undo").addEventListener("click", undo);
 	document.getElementById("redo").addEventListener("click", redo);
-	document
-		.getElementById("fileInput")
-		.addEventListener("change", readSingleFile);
+	document.getElementById("fileInput").addEventListener("change", readSingleFile);
 	document.getElementById("openFile").addEventListener("click", openFile);
 	document.getElementById("saveFile").addEventListener("click", saveJSONfile);
 	document.getElementById("exportCVS").addEventListener("click", exportCVS);
 	document.getElementById("exportGML").addEventListener("click", exportGML);
-	document
-		.getElementById("panelToggle")
-		.addEventListener("click", togglePanel);
+	document.getElementById("panelToggle").addEventListener("click", togglePanel);
 	document.getElementById("zoom").addEventListener("change", zoomnet);
 	document.getElementById("zoomminus").addEventListener("click", () => {
 		zoomincr(-0.1);
@@ -115,35 +109,14 @@ function addEventListeners() {
 	document.getElementById("networkButton").addEventListener("click", () => {
 		openTab("networkTab");
 	});
-	document
-		.getElementById("autolayoutswitch")
-		.addEventListener("click", autoLayoutSwitch);
-	document
-		.getElementById("antiGravity")
-		.addEventListener("change", setGravity);
-	document
-		.getElementById("snaptogridswitch")
-		.addEventListener("click", snapToGridSwitch);
-	document
-		.getElementById("netBackColorWell")
-		.addEventListener("input", updateNetBack);
-	document
-		.getElementById("allFactors")
-		.addEventListener("click", selectAllFactors);
-	document
-		.getElementById("allEdges")
-		.addEventListener("click", selectAllEdges);
-	document
-		.getElementById("showLabelSwitch")
-		.addEventListener("click", labelSwitch);
-/* 
-	document
-		.getElementById("layoutSelect")
-		.addEventListener("change", selectLayout);
- */
-	document
-		.getElementById("curveSelect")
-		.addEventListener("change", selectCurve);
+	document.getElementById("autolayoutswitch").addEventListener("click", autoLayoutSwitch);
+	document.getElementById("antiGravity").addEventListener("change", setGravity);
+	document.getElementById("snaptogridswitch").addEventListener("click", snapToGridSwitch);
+	document.getElementById("netBackColorWell").addEventListener("input", updateNetBack);
+	document.getElementById("allFactors").addEventListener("click", selectAllFactors);
+	document.getElementById("allEdges").addEventListener("click", selectAllEdges);
+	document.getElementById("showLabelSwitch").addEventListener("click", labelSwitch);
+	document.getElementById("curveSelect").addEventListener("change", selectCurve);
 	document.getElementById("fixed").addEventListener("click", setFixed);
 	Array.from(document.getElementsByName("hide")).forEach((elem) => {
 		elem.addEventListener("change", hideDistantOrStreamNodes);
@@ -152,24 +125,12 @@ function addEventListeners() {
 		elem.addEventListener("change", hideDistantOrStreamNodes);
 	});
 	document.getElementById("sizing").addEventListener("change", sizing);
-	Array.from(document.getElementsByClassName("sampleNode")).forEach((elem) =>
-		elem.addEventListener(
-			"click",
-			() => {
-				applySampleToNode();
-			},
-			false
-		)
-	);
-	Array.from(document.getElementsByClassName("sampleLink")).forEach((elem) =>
-		elem.addEventListener(
-			"click",
-			() => {
-				applySampleToLink();
-			},
-			false
-		)
-	);
+	Array.from(document.getElementsByClassName("sampleNode")).forEach((elem) => elem.addEventListener("click", () => {
+		applySampleToNode();
+	}, false));
+	Array.from(document.getElementsByClassName("sampleLink")).forEach((elem) => elem.addEventListener("click", () => {
+		applySampleToLink();
+	}, false));
 }
 
 function setUpPage() {
@@ -189,22 +150,11 @@ function startY() {
 	// get the room number from the URL, or if none, generate a new one
 	let url = new URL(document.location);
 	room = url.searchParams.get("room");
-	if (room == null) room = generateRoom();
+	if (room == null || room == '') room = generateRoom();
 	const doc = new Y.Doc();
-	const wsProvider = new WebsocketProvider(
-		"ws://35.177.28.97:1234",
-		"prism" + room,
-		doc
-	);
+	const wsProvider = new WebsocketProvider("ws://35.177.28.97:1234", "prism" + room, doc);
 	wsProvider.on("status", (event) => {
-		console.log(
-			new Date().toLocaleTimeString() +
-				": " +
-				event.status +
-				(event.status == "connected" ? " to" : " from") +
-				" room " +
-				room
-		); // logs "connected" or "disconnected"
+		console.log(new Date().toLocaleTimeString() + ": " + event.status + (event.status == "connected" ? " to" : " from") + " room " + room); // logs "connected" or "disconnected"
 	});
 	/* 
 	create a yMap for the nodes and one for the edges (we need two because there is no 
@@ -213,17 +163,17 @@ function startY() {
 	yNodesMap = doc.getMap("nodes");
 	yEdgesMap = doc.getMap("edges");
 	ySamplesMap = doc.getMap("samples");
+	yNetMap = doc.getMap("network");
 	yChatArray = doc.getArray("chat");
 	// get an existing or generate a new clientID, used to identify nodes and edges created by this client
-	if (localStorage.getItem("clientID"))
-		clientID = localStorage.getItem("clientID");
+	if (localStorage.getItem("clientID")) clientID = localStorage.getItem("clientID");
 	else {
 		clientID = doc.clientID;
 		localStorage.setItem("clientID", clientID);
 	}
 	console.log("My client ID: " + clientID);
 	/* set up the undomanagers */
-	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap]);
+	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap]);
 	nodes = new DataSet();
 	edges = new DataSet();
 	data = {
@@ -238,6 +188,7 @@ function startY() {
 	window.yNodesMap = yNodesMap;
 	window.yEdgesMap = yEdgesMap;
 	window.ySamplesMap = ySamplesMap;
+	window.yNetMap = yNetMap;
 	window.yUndoManager = yUndoManager;
 	window.yChatArray = yChatArray;
 	window.samples = samples;
@@ -250,12 +201,10 @@ function startY() {
 	feedback loop, with each client re-broadcasting everything it received)
 	 */
 	nodes.on("*", (event, properties, origin) => {
-		
-/* 
+		/* 
 		console.log(new Date().toLocaleTimeString() + ': nodes.on: ' +
 			event + JSON.stringify(properties.items) + 'origin: ' + origin);
  */
- 
 		properties.items.forEach((id) => {
 			if (origin == null) {
 				if (event == "remove") {
@@ -303,8 +252,7 @@ function startY() {
 				else {
 					let obj = edges.get(id);
 					if (obj.clientID == undefined) obj.clientID = clientID;
-					if (obj.clientID == clientID)
-						yEdgesMap.set(id.toString(), obj);
+					if (obj.clientID == clientID) yEdgesMap.set(id.toString(), obj);
 				}
 			}
 		});
@@ -339,6 +287,17 @@ function startY() {
 					reApplySampleToLinks(key);
 				}
 			}
+		}
+	});
+	yNetMap.observe((event) => {
+		for (let key of event.keysChanged) {
+			let obj = yNetMap.get(key);
+			let origin = event.transaction.origin;
+			if (obj.clientID != clientID || origin != null)
+				switch (key) {
+				case 'edges': setCurve(clean(obj, {clientID: null})); break;
+				default: console.log('Bad key in yMapNet.observe')
+				}
 		}
 	});
 	yUndoManager.on("stack-item-added", (event) => {
@@ -460,8 +419,7 @@ function draw() {
 				// filling in the popup DOM elements
 				item.label = "";
 				if (lastNodeSample) item.group = lastNodeSample;
-				document.getElementById("node-operation").innerHTML =
-					"Add Factor";
+				document.getElementById("node-operation").innerHTML = "Add Factor";
 				editLabel(item, clearPopUp, callback);
 				showPressed("addNode", "remove");
 			},
@@ -471,39 +429,32 @@ function draw() {
 				// revert to using the original node properties before continuing.
 				item = data.nodes.get(item.id);
 				// filling in the popup DOM elements
-				document.getElementById("node-operation").innerHTML =
-					"Edit Factor Label";
+				document.getElementById("node-operation").innerHTML = "Edit Factor Label";
 				editLabel(item, cancelEdit, callback);
 			},
 			addEdge: function (item, callback) {
 				inAddMode = false;
 				changeCursor("auto");
 				if (item.from == item.to) {
-					let r = confirm(
-						"Do you want to connect the Factor to itself?"
-					);
+					let r = confirm("Do you want to connect the Factor to itself?");
 					if (r != true) {
 						callback(null);
 						return;
 					}
 				}
 				if (duplEdge(item.from, item.to).length > 0) {
-					alert(
-						"There is already a link from this Factor to the other."
-					);
+					alert("There is already a link from this Factor to the other.");
 					callback(null);
 					return;
 				}
-				if (lastLinkSample)
-					item = Object.assign(item, samples.edges[lastLinkSample]);
+				if (lastLinkSample) item = Object.assign(item, samples.edges[lastLinkSample]);
 				showPressed("addLink", "remove");
 				callback(item);
 			},
 			editEdge: {
 				editWithoutDrag: function (item, callback) {
 					// filling in the popup DOM elements
-					document.getElementById("node-operation").innerHTML =
-						"Edit Link Label";
+					document.getElementById("node-operation").innerHTML = "Edit Link Label";
 					editLabel(item, cancelEdit, callback);
 				},
 			},
@@ -576,26 +527,22 @@ function draw() {
 	});
 	network.on("dragEnd", function (event) {
 		let newPositions = network.getPositions(event.nodes);
-		data.nodes.update(
-			data.nodes.get(event.nodes).map((n) => {
-				n.x = newPositions[n.id].x;
-				n.y = newPositions[n.id].y;
-				if (snapToGridToggle) snapToGrid(n);
-				claim(n);
-				return n;
-			})
-		);
+		data.nodes.update(data.nodes.get(event.nodes).map((n) => {
+			n.x = newPositions[n.id].x;
+			n.y = newPositions[n.id].y;
+			if (snapToGridToggle) snapToGrid(n);
+			claim(n);
+			return n;
+		}));
 		changeCursor("grab");
 	});
 	// listen for changes to the network structure
 	// and recalculate the network statistics when there is one
- 
 	data.nodes.on("add", recalculateStats);
 	data.nodes.on("remove", recalculateStats);
 	data.edges.on("add", recalculateStats);
 	data.edges.on("remove", recalculateStats);
 } // end draw()
-
 function fit() {
 	network.fit();
 	document.getElementById("zoom").value = network.getScale();
@@ -609,12 +556,11 @@ function claim(item) {
 }
 
 function broadcast() {
-/* there are situations where vis does not update node positions
+	/* there are situations where vis does not update node positions
 (and therefore does not call nodes.on) such as auto layout, 
 and therefore other clients don't get to see the changes.
 This function forces a broadcast of all modes.  We only deal with
 nodes because the edges follow */
-
 	network.storePositions();
 	data.nodes.forEach((n) => yNodesMap.set(n.id, n))
 }
@@ -628,17 +574,9 @@ function editLabel(item, cancelAction, callback) {
 	inAddMode = false;
 	changeCursor("auto");
 	let popUp = document.getElementById("node-popUp");
-	document.getElementById("node-cancelButton").onclick = cancelAction.bind(
-		this,
-		callback
-	);
-	document.getElementById("node-saveButton").onclick = saveLabel.bind(
-		this,
-		item,
-		callback
-	);
-	document.getElementById("node-label").value =
-		item.label === undefined ? "" : item.label;
+	document.getElementById("node-cancelButton").onclick = cancelAction.bind(this, callback);
+	document.getElementById("node-saveButton").onclick = saveLabel.bind(this, item, callback);
+	document.getElementById("node-label").value = item.label === undefined ? "" : item.label;
 	popUp.style.display = "block";
 	// popup appears to the left of the mouse pointer
 	popUp.style.top = `${
@@ -709,48 +647,41 @@ function unSelect() {
 /* 
   ----------- Calculate statistics in the background -------------
 */
-
 // set  up a web worker to calculate network statistics in parallel with whatever
 // the user is doing
 var worker = new Worker("./js/betweenness.js");
 var bc; //caches the betweenness centralities
 function recalculateStats() {
 	// wait 200 mSecs for things to settle down before recalculating
-	setTimeout(() => {worker.postMessage([nodes.get(), edges.get()])}, 200);
+	setTimeout(() => {
+		worker.postMessage([nodes.get(), edges.get()])
+	}, 200);
 }
 worker.onmessage = function (e) {
 	bc = e.data;
 };
-
 /* 
   ----------- Status messages ---------------------------------------
 */
-
-
 /* show status messages at the bottom of the window */
 function statusMsg(msg, status) {
 	let elem = document.getElementById("statusBar");
 	switch (status) {
-		case "warn":
-			elem.style.backgroundColor = "yellow";
-			break;
-		case "error":
-			elem.style.backgroundColor = "red";
-			break;
-		default:
-			elem.style.backgroundColor = "white";
-			break;
+	case "warn":
+		elem.style.backgroundColor = "yellow";
+		break;
+	case "error":
+		elem.style.backgroundColor = "red";
+		break;
+	default:
+		elem.style.backgroundColor = "white";
+		break;
 	}
 	elem.innerHTML = htmlEntities(msg);
 }
 
 function htmlEntities(str) {
-	return String(str)
-		.replace(/&/g, "&amp;")
-		.replace(/</g, "&lt;")
-		.replace(/>/g, "&gt;")
-		.replace(/"/g, "&quot;")
-		.replace(/'/g, "&quot;");
+	return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&quot;");
 }
 
 function clearStatusBar() {
@@ -780,7 +711,6 @@ function listLinks(links) {
 	if (links.length > 1) return links.length + " links";
 	return "1 link";
 }
-
 /* zoom slider */
 Network.prototype.zoom = function (scale) {
 	let newScale = scale === undefined ? 1 : scale;
@@ -852,14 +782,12 @@ function redo() {
 }
 
 function undoButtonstatus() {
-	if (yUndoManager.undoStack.length == 0)
-		document.getElementById("undo").classList.add("disabled");
+	if (yUndoManager.undoStack.length == 0) document.getElementById("undo").classList.add("disabled");
 	else document.getElementById("undo").classList.remove("disabled");
 }
 
 function redoButtonStatus() {
-	if (yUndoManager.redoStack.length == 0)
-		document.getElementById("redo").classList.add("disabled");
+	if (yUndoManager.redoStack.length == 0) document.getElementById("redo").classList.add("disabled");
 	else document.getElementById("redo").classList.remove("disabled");
 }
 
@@ -882,10 +810,7 @@ function readSingleFile(e) {
 			loadFile(e.target.result);
 			statusMsg("Read '" + fileName + "'");
 		} catch (err) {
-			statusMsg(
-				"Error reading '" + fileName + "': " + err.message,
-				"error"
-			);
+			statusMsg("Error reading '" + fileName + "': " + err.message, "error");
 			return;
 		}
 	};
@@ -898,12 +823,7 @@ function openFile() {
 
 function loadFile(contents) {
 	if (data.nodes.length > 0)
-		if (
-			!confirm(
-				"Loading a file will delete the current network.  Are you sure you want to replace it?"
-			)
-		)
-			return;
+		if (!confirm("Loading a file will delete the current network.  Are you sure you want to replace it?")) return;
 	unSelect();
 	nodes.clear();
 	edges.clear();
@@ -943,29 +863,21 @@ function loadJSONfile(json) {
 				parseColor: true,
 			},
 		});
-		nodes.add(
-			cleanArray(parsed.nodes, {
-				clientID: null,
-				color: null,
-			})
-		);
-		edges.add(
-			cleanArray(parsed.edges, {
-				clientID: null,
-				color: null,
-			})
-		);
+		nodes.add(cleanArray(parsed.nodes, {
+			clientID: null,
+			color: null,
+		}));
+		edges.add(cleanArray(parsed.edges, {
+			clientID: null,
+			color: null,
+		}));
 	} else {
-		nodes.add(
-			cleanArray(json.nodes, {
-				clientID: null,
-			})
-		);
-		edges.add(
-			cleanArray(json.edges, {
-				clientID: null,
-			})
-		);
+		nodes.add(cleanArray(json.nodes, {
+			clientID: null,
+		}));
+		edges.add(cleanArray(json.edges, {
+			clientID: null,
+		}));
 	}
 	if (json.samples) {
 		samples.nodes = json.samples.nodes;
@@ -1021,23 +933,19 @@ function parseGraphML(graphML) {
 		};
 	}
 	let jsonObj = parser.parse(graphML, options);
-	nodes.add(
-		jsonObj.graphml.graph.node.map((n) => {
-			return {
-				id: n.attr.id,
-				label: getLabel(n.data),
-			};
-		})
-	);
-	edges.add(
-		jsonObj.graphml.graph.edge.map((e) => {
-			return {
-				id: e.attr.id,
-				from: e.attr.source,
-				to: e.attr.target,
-			};
-		})
-	);
+	nodes.add(jsonObj.graphml.graph.node.map((n) => {
+		return {
+			id: n.attr.id,
+			label: getLabel(n.data),
+		};
+	}));
+	edges.add(jsonObj.graphml.graph.edge.map((e) => {
+		return {
+			id: e.attr.id,
+			from: e.attr.source,
+			to: e.attr.target,
+		};
+	}));
 	return {
 		nodes: nodes,
 		edges: edges,
@@ -1058,56 +966,56 @@ function parseGML(gml) {
 	let tok = tokens.shift();
 	while (tok) {
 		switch (tok) {
-			case "graph":
-				break;
-			case "node":
-				tokens.shift(); // [
-				node = {};
-				tok = tokens.shift();
-				while (tok != "]") {
-					switch (tok) {
-						case "id":
-							node.id = tokens.shift();
-							break;
-						case "label":
-							node.label = tokens.shift().replace(/"/g, "");
-							break;
-						default:
-							break;
-					}
-					tok = tokens.shift(); // ]
+		case "graph":
+			break;
+		case "node":
+			tokens.shift(); // [
+			node = {};
+			tok = tokens.shift();
+			while (tok != "]") {
+				switch (tok) {
+				case "id":
+					node.id = tokens.shift();
+					break;
+				case "label":
+					node.label = tokens.shift().replace(/"/g, "");
+					break;
+				default:
+					break;
 				}
-				if (node.label == undefined) node.label = node.id;
-				nodes.add(node);
-				break;
-			case "edge":
-				tokens.shift(); // [
-				edge = {};
-				tok = tokens.shift();
-				while (tok != "]") {
-					switch (tok) {
-						case "id":
-							edge.id = tokens.shift();
-							break;
-						case "source":
-							edge.to = tokens.shift();
-							break;
-						case "target":
-							edge.from = tokens.shift();
-							break;
-						case "label":
-							edge.label = tokens.shift().replace(/"/g, "");
-							break;
-						default:
-							break;
-					}
-					tok = tokens.shift(); // ]
+				tok = tokens.shift(); // ]
+			}
+			if (node.label == undefined) node.label = node.id;
+			nodes.add(node);
+			break;
+		case "edge":
+			tokens.shift(); // [
+			edge = {};
+			tok = tokens.shift();
+			while (tok != "]") {
+				switch (tok) {
+				case "id":
+					edge.id = tokens.shift();
+					break;
+				case "source":
+					edge.to = tokens.shift();
+					break;
+				case "target":
+					edge.from = tokens.shift();
+					break;
+				case "label":
+					edge.label = tokens.shift().replace(/"/g, "");
+					break;
+				default:
+					break;
 				}
-				if (edge.id == undefined) edge.id = edgeId++;
-				edges.add(edge);
-				break;
-			default:
-				break;
+				tok = tokens.shift(); // ]
+			}
+			if (edge.id == undefined) edge.id = edgeId++;
+			edges.add(edge);
+			break;
+		default:
+			break;
 		}
 		tok = tokens.shift();
 	}
@@ -1118,9 +1026,7 @@ function parseGML(gml) {
 }
 
 function refreshSampleNodes() {
-	let sampleElements = Array.from(
-		document.getElementsByClassName("sampleNode")
-	);
+	let sampleElements = Array.from(document.getElementsByClassName("sampleNode"));
 	for (let i = 0; i < sampleElements.length; i++) {
 		let groupId = "group" + i;
 		sampleElements[i].net.setOptions({
@@ -1133,9 +1039,7 @@ function refreshSampleNodes() {
 }
 
 function refreshSampleLinks() {
-	let sampleElements = Array.from(
-		document.getElementsByClassName("sampleLink")
-	);
+	let sampleElements = Array.from(document.getElementsByClassName("sampleLink"));
 	for (let i = 0; i < sampleElements.length; i++) {
 		let edge = sampleElements[i].dataSet.get()[0];
 		edge = Object.assign(edge, samples.edges["edge" + i]);
@@ -1184,10 +1088,7 @@ function saveStr(str, extn) {
 		type: "text/plain",
 	});
 	let pos = lastFileName.indexOf(".");
-	lastFileName =
-		lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) +
-		"." +
-		extn;
+	lastFileName = lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) + "." + extn;
 	//detect whether the browser is IE/Edge or another browser
 	if (window.navigator && window.navigator.msSaveOrOpenBlob) {
 		//To IE or Edge browser, using msSaveorOpenBlob method to download file.
@@ -1202,7 +1103,7 @@ function saveStr(str, extn) {
 		a.download = lastFileName;
 		a.click();
 		a.remove();
-//		window.URL.revokeObjectURL(url); generates Failed - Network error in Chrome
+		//		window.URL.revokeObjectURL(url); generates Failed - Network error in Chrome
 	}
 }
 
@@ -1227,12 +1128,7 @@ function exportCVS() {
 }
 
 function exportGML() {
-	let str =
-		'Creator "PRISM ' +
-		version +
-		" on " +
-		new Date(Date.now()).toLocaleString() +
-		'"\ngraph\n[\n\tdirected 1\n';
+	let str = 'Creator "PRISM ' + version + " on " + new Date(Date.now()).toLocaleString() + '"\ngraph\n[\n\tdirected 1\n';
 	for (let node of data.nodes.get()) {
 		str += "\tnode\n\t[\n\t\tid " + node.id;
 		if (node.label) str += '\n\t\tlabel "' + node.label + '"';
@@ -1260,8 +1156,7 @@ var inputElem = document.getElementById("text-to-copy");
 var copiedText = document.getElementById("copied-text");
 // When the user clicks the button, open the modal
 btn.onclick = function () {
-	let linkToShare =
-		window.location.origin + window.location.pathname + "?room=" + room;
+	let linkToShare = window.location.origin + window.location.pathname + "?room=" + room;
 	copiedText.style.display = "none";
 	modal.style.display = "block";
 	inputElem.setAttribute("size", linkToShare.length);
@@ -1334,7 +1229,7 @@ function openTab(tabId) {
 function storeButtonStatus() {
 	buttonStatus = {
 		autoLayout: document.getElementById("autolayoutswitch").checked,
- 		gravity: document.getElementById("antiGravity").value,
+		gravity: document.getElementById("antiGravity").value,
 		snapToGrid: document.getElementById("snaptogridswitch").checked,
 		curve: document.getElementById("curveSelect").value,
 		linkRadius: getRadioVal("hide"),
@@ -1354,23 +1249,18 @@ function setButtonStatus(event) {
 	if (event.type == "undo")
 		if (yUndoManager.undoStack.length == 0) {
 			settings = initialButtonStatus
-			}
-		else {
-			settings = yUndoManager.undoStack[
-				yUndoManager.undoStack.length - 1
-				].meta.get("buttons");
-			}
-	else // event.type == "redo"
+		} else {
+			settings = yUndoManager.undoStack[yUndoManager.undoStack.length - 1].meta.get("buttons");
+		} else // event.type == "redo"
 		settings = event.stackItem.meta.get("buttons");
-	
 	if (document.getElementById("autolayoutswitch").checked != settings.autoLayout) {
 		autoLayoutSet(settings.autoLayout);
 		document.getElementById("autolayoutswitch").checked = settings.autoLayout
-		}
+	}
 	if (document.getElementById("antiGravity").value != settings.gravity) {
- 		adjustGravity(settings.gravity);
- 		document.getElementById("antiGravity").value = settings.gravity;
- 		}
+		adjustGravity(settings.gravity);
+		document.getElementById("antiGravity").value = settings.gravity;
+	}
 	document.getElementById("snaptogridswitch").checked = settings.snapToGrid;
 	document.getElementById("curveSelect").value = settings.curve;
 	selectCurve();
@@ -1428,11 +1318,8 @@ function showNodeData() {
 		let nodeId = selectedNodes[0];
 		let node = data.nodes.get(nodeId);
 		document.getElementById("fixed").checked = node.fixed ? true : false;
-		document.getElementById("nodeLabel").innerHTML = node.label
-			? node.label
-			: "";
-		document.getElementById("nodeNotes").innerHTML =
-			'<textarea class="notesTA" id="nodesTA"</textarea>';
+		document.getElementById("nodeLabel").innerHTML = node.label ? node.label : "";
+		document.getElementById("nodeNotes").innerHTML = '<textarea class="notesTA" id="nodesTA"</textarea>';
 		let textarea = document.getElementById("nodesTA");
 		let title = node.title ? node.title : "";
 		textarea.innerHTML = title.replace(/<\/br>/g, "\n");
@@ -1458,11 +1345,8 @@ function showEdgeData() {
 	if (tabOpen == "linksTab" && selectedEdges.length == 1) {
 		let edgeId = selectedEdges[0];
 		let edge = data.edges.get(edgeId);
-		document.getElementById("edgeLabel").innerHTML = edge.label
-			? edge.label
-			: "";
-		document.getElementById("edgeNotes").innerHTML =
-			'<textarea class="notesTA" id="edgesTA"</textarea>';
+		document.getElementById("edgeLabel").innerHTML = edge.label ? edge.label : "";
+		document.getElementById("edgeNotes").innerHTML = '<textarea class="notesTA" id="edgesTA"</textarea>';
 		let textarea = document.getElementById("edgesTA");
 		let title = edge.title ? edge.title : "";
 		textarea.innerHTML = title.replace(/<\/br>/g, "\n");
@@ -1492,10 +1376,8 @@ function displayStatistics(nodeId) {
 	let outDegree = network.getConnectedNodes(nodeId, "to").length;
 	let leverage = inDegree == 0 ? "--" : (outDegree / inDegree).toPrecision(3);
 	document.getElementById("leverage").textContent = leverage;
-	document.getElementById("bc").textContent =
-		bc[nodeId] >= 0 ? bc[nodeId].toPrecision(3) : "--";
+	document.getElementById("bc").textContent = bc[nodeId] >= 0 ? bc[nodeId].toPrecision(3) : "--";
 }
-
 // Network tab
 function autoLayoutSwitch(e) {
 	let switchOn = e.target.checked;
@@ -1542,15 +1424,13 @@ function snapToGridSwitch(e) {
 	if (snapToGridToggle) {
 		autoLayoutSet(false);
 		let positions = network.getPositions();
-		data.nodes.update(
-			data.nodes.get().map((n) => {
-				n.x = positions[n.id].x;
-				n.y = positions[n.id].y;
-				snapToGrid(n);
-				claim(n);
-				return n;
-			})
-		);
+		data.nodes.update(data.nodes.get().map((n) => {
+			n.x = positions[n.id].x;
+			n.y = positions[n.id].y;
+			snapToGrid(n);
+			claim(n);
+			return n;
+		}));
 	}
 }
 
@@ -1559,54 +1439,24 @@ function snapToGridOff() {
 	snapToGridToggle = false;
 }
 
-/* 
-function selectLayout() {
-	let layout = {
-		hierarchical: {
-			enabled: false,
-		},
-	};
-	if (document.getElementById("layoutSelect").value === "Hierarchical")
-		layout = {
-			hierarchical: {
-				enabled: true,
-				sortMethod: "directed",
-				shakeTowards: "leaves",
-				levelSeparation: 50,
-			},
-		};
-	network.setOptions({
-		layout: layout,
-		physics: {
-			enabled: true,
-			stabilization: true,
-		},
-	});
-	// allow the physics module to re-arrange the nodes and then turn it off again
-	network.once("stabilized", () => {
-		network.setOptions({
-			physics: {
-				enabled: false,
-				stabilization: false,
-			},
-		});
-	});
-}
- */
-
 function selectCurve() {
-	// generate a node update to register on the undo stack
-	data.nodes.update(data.nodes.get()[0]);
-	network.setOptions({
+	let options = {
 		edges: {
 			smooth: document.getElementById("curveSelect").value === "Curved",
-		},
-	});
+			},
+		};
+	network.setOptions(options);
+	options.clientID = clientID;
+	yNetMap.set('edges', options);
+}
+
+function setCurve(options) {
+	document.getElementById("curveSelect").value = (options.edges.smooth ? "Curved" : "Straight");
+	network.setOptions(options);
 }
 
 function updateNetBack(event) {
-	document.getElementById("underlay").style.backgroundColor =
-		event.target.value;
+	document.getElementById("underlay").style.backgroundColor = event.target.value;
 }
 
 function selectAllFactors() {
@@ -1694,18 +1544,14 @@ function hideDistantOrStreamNodes() {
 		// unhide everything
 		document.getElementById("hideAll").checked = true;
 		document.getElementById("streamAll").checked = true;
-		data.nodes.update(
-			data.nodes.map((node) => {
-				node.hidden = false;
-				return node;
-			})
-		);
-		data.edges.update(
-			data.edges.map((edge) => {
-				edge.hidden = false;
-				return edge;
-			})
-		);
+		data.nodes.update(data.nodes.map((node) => {
+			node.hidden = false;
+			return node;
+		}));
+		data.edges.update(data.edges.map((edge) => {
+			edge.hidden = false;
+			return edge;
+		}));
 		return;
 	}
 	// radius
@@ -1730,18 +1576,14 @@ function hideDistantOrStreamNodes() {
 	let nodesToShow = nodeIdsInRadiusSet.intersection(nodeIdsInStreamSet);
 	let linksToShow = linkIdsInRadiusSet.intersection(linkIdsInStreamSet);
 	// update the network
-	data.nodes.update(
-		data.nodes.map((node) => {
-			node.hidden = !nodesToShow.has(node.id);
-			return node;
-		})
-	);
-	data.edges.update(
-		data.edges.map((edge) => {
-			edge.hidden = !linksToShow.has(edge.id);
-			return edge;
-		})
-	);
+	data.nodes.update(data.nodes.map((node) => {
+		node.hidden = !nodesToShow.has(node.id);
+		return node;
+	}));
+	data.edges.update(data.edges.map((edge) => {
+		edge.hidden = !linksToShow.has(edge.id);
+		return edge;
+	}));
 
 	function inSet(nodeIds, radius) {
 		// recursive function to collect nodes within radius links from any
@@ -1750,10 +1592,9 @@ function hideDistantOrStreamNodes() {
 		nodeIds.forEach(function (nId) {
 			nodeIdsInRadiusSet.add(nId);
 			let links = network.getConnectedEdges(nId);
-			if (links && radius > 0)
-				links.forEach(function (lId) {
-					linkIdsInRadiusSet.add(lId);
-				});
+			if (links && radius > 0) links.forEach(function (lId) {
+				linkIdsInRadiusSet.add(lId);
+			});
 			let linked = network.getConnectedNodes(nId);
 			if (linked) inSet(linked, radius - 1);
 		});
@@ -1770,11 +1611,10 @@ function hideDistantOrStreamNodes() {
 						return item.to == nId;
 					},
 				});
-				if (links)
-					links.forEach(function (link) {
-						linkIdsInStreamSet.add(link.id);
-						upstream([link.from]);
-					});
+				if (links) links.forEach(function (link) {
+					linkIdsInStreamSet.add(link.id);
+					upstream([link.from]);
+				});
 			}
 		});
 	}
@@ -1790,11 +1630,10 @@ function hideDistantOrStreamNodes() {
 						return item.from == nId;
 					},
 				});
-				if (links)
-					links.forEach(function (link) {
-						linkIdsInStreamSet.add(link.id);
-						downstream([link.to]);
-					});
+				if (links) links.forEach(function (link) {
+					linkIdsInStreamSet.add(link.id);
+					downstream([link.to]);
+				});
 			}
 		});
 	}
@@ -1806,25 +1645,25 @@ function sizing() {
 	let metric = document.getElementById("sizing").value;
 	data.nodes.forEach((node) => {
 		switch (metric) {
-			case "Off":
-				node.value = 0;
-				break;
-			case "Inputs":
-				node.value = network.getConnectedNodes(node.id, "from").length;
-				break;
-			case "Outputs":
-				node.value = network.getConnectedNodes(node.id, "to").length;
-				break;
-			case "Leverage": {
-				let inDegree = network.getConnectedNodes(node.id, "from")
-					.length;
+		case "Off":
+			node.value = 0;
+			break;
+		case "Inputs":
+			node.value = network.getConnectedNodes(node.id, "from").length;
+			break;
+		case "Outputs":
+			node.value = network.getConnectedNodes(node.id, "to").length;
+			break;
+		case "Leverage":
+			{
+				let inDegree = network.getConnectedNodes(node.id, "from").length;
 				let outDegree = network.getConnectedNodes(node.id, "to").length;
 				node.value = inDegree == 0 ? 0 : outDegree / inDegree;
 				break;
 			}
-			case "Centrality":
-				node.value = bc[node.id];
-				break;
+		case "Centrality":
+			node.value = bc[node.id];
+			break;
 		}
 		data.nodes.update(node);
 	});
@@ -1847,24 +1686,18 @@ function maximize() {
 }
 
 function blinkChatboxTab() {
-	if (yChatArray.length > 0 ) chatboxTab.classList.add('chatbox-blink');
-	}
-	
-function unblinkChatboxTab() {
-	chatboxTab.classList.remove('chatbox-blink');
-	}
+	if (yChatArray.length > 0) chatboxTab.classList.add('chatbox-blink');
+}
 
 function sendMsg() {
 	let inputMsg = chatInput.value;
 	let clock = new Date().toLocaleTimeString();
-	yChatArray.push([
-		{
-			client: clientID,
-			author: myName,
-			time: clock,
-			msg: inputMsg,
-		},
-	]);
+	yChatArray.push([{
+		client: clientID,
+		author: myName,
+		time: clock,
+		msg: inputMsg,
+	}, ]);
 }
 
 function displayLastMsg() {
@@ -1904,3 +1737,5 @@ function displayMsg(msg) {
 function displayUserName() {
 	chatNameBox.value = myName;
 }
+
+dragElement(document.getElementById("chatbox-holder"), document.getElementById("chatbox-top"));
