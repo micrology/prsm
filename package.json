@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "PRISM: Participatory System Mapping",
   "main": "prism.html",
+  "sideEffects": ["*.css"],
   "scripts": {
     "dist": "webpack --mode=development",
-    "build": "webpack --config webpack.prod.js",
+    "build": "webpack --config webpack.prod.js --display-modules",
     "start": "webpack-dev-server --open-page prism.html",
     "postinstall": "npm run dist",
     "lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
