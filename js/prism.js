@@ -28,7 +28,7 @@ import {
 	reApplySampleToLinks,
 }
 from "./samples.js";
-import "vis-network/dist/vis-network.min.css";
+import "vis-network/styles/vis-network.css";
 /* for esLint: */
 /* global Modernizr */
 /*
@@ -152,7 +152,7 @@ function startY() {
 	room = url.searchParams.get("room");
 	if (room == null || room == '') room = generateRoom();
 	const doc = new Y.Doc();
-	const wsProvider = new WebsocketProvider("ws://35.177.28.97:1234", "prism" + room, doc);
+	const wsProvider = new WebsocketProvider("wss://cress.soc.surrey.ac.uk:1234", "prism" + room, doc);
 	wsProvider.on("status", (event) => {
 		console.log(new Date().toLocaleTimeString() + ": " + event.status + (event.status == "connected" ? " to" : " from") + " room " + room); // logs "connected" or "disconnected"
 	});
@@ -543,6 +543,7 @@ function draw() {
 	data.edges.on("add", recalculateStats);
 	data.edges.on("remove", recalculateStats);
 } // end draw()
+
 function fit() {
 	network.fit();
 	document.getElementById("zoom").value = network.getScale();
@@ -599,7 +600,7 @@ function cancelEdit(callback) {
 }
 
 function saveLabel(item, callback) {
-	item.label = document.getElementById("node-label").value;
+	item.label = splitText(document.getElementById("node-label").value, 10);
 	clearPopUp();
 	if (item.label === "") {
 		// if there is no label and it is an edge, blank the label, else cancel
@@ -611,6 +612,22 @@ function saveLabel(item, callback) {
 		}
 	}
 	callback(item);
+}
+
+function splitText(txt, width) {
+// divide txt into lines with max length of width
+  let words = txt.trim().split(/\s/);
+  let lines = "";
+  for (let i = 0, linelength = 0; i < words.length; i++) {
+    lines += words[i];
+    if (i == (words.length - 1)) break;
+    linelength += words[i].length;
+    if (linelength > width) {
+      lines += "\n";
+      linelength = 0;
+    } else lines += " ";
+  }
+  return lines;
 }
 
 function duplEdge(from, to) {
@@ -794,6 +811,7 @@ function redoButtonStatus() {
 function deleteNode() {
 	network.deleteSelected();
 }
+
 var lastFileName = "network.json"; // the name of the file last read in
 function readSingleFile(e) {
 	var file = e.target.files[0];
@@ -1058,6 +1076,7 @@ function saveJSONfile() {
 	let json = JSON.stringify({
 		saved: new Date(Date.now()).toLocaleString(),
 		version: version,
+		room: room,
 		lastNodeSample: lastNodeSample,
 		lastLinkSample: lastLinkSample,
 		samples: samples,
@@ -1071,17 +1090,7 @@ function saveJSONfile() {
 	});
 	saveStr(json, "json");
 }
-/* 
-function saveStr(str, extn) {
-	let element = document.getElementById("download");
-	element.setAttribute('href', 'data:text/plain;charset=utf-8,' +
-		encodeURIComponent(str));
-	let pos = lastFileName.indexOf(".");
-	lastFileName = lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) + '.' + extn;
-	element.setAttribute('download', lastFileName);
-	element.click();
-}
- */
+
 function saveStr(str, extn) {
 	/* download str to a local file */
 	let blob = new Blob([str], {
@@ -1690,7 +1699,7 @@ function blinkChatboxTab() {
 }
 
 function sendMsg() {
-	let inputMsg = chatInput.value;
+	let inputMsg = chatInput.value.replace(/\n/g, "</br>");
 	let clock = new Date().toLocaleTimeString();
 	yChatArray.push([{
 		client: clientID,
