@@ -366,7 +366,8 @@ function setUpChat() {
 	if (localStorage.getItem("myName")) myName = localStorage.getItem("myName");
 	else myName = "User" + clientID;
 	console.log("My name: " + myName);
-	yChatArray.observe(() => {
+	yChatArray.observe((event) => {
+		console.log(event);
 		displayLastMsg();
 		blinkChatboxTab();
 	});
@@ -1739,6 +1740,7 @@ function displayLastMsg() {
 }
 
 function displayAllMsgs() {
+	chatMessages.innerHTML = '';
 	for (let m = 0; m < yChatArray.length; m++) {
 		displayMsg(yChatArray.get(m));
 	}
