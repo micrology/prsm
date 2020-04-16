@@ -76,7 +76,9 @@ footer {
 @media print {
 	header,
 	aside,
-	footer {
+	footer,
+	.chatbox-tab,
+	.chatbox {
 		display: none;
 	}
 }

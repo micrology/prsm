@@ -142,7 +142,16 @@ function setUpPage() {
 	hideNotes();
 	document.getElementById("version").innerHTML = version;
 	storeButtonStatus();
-	initialButtonStatus = buttonStatus;
+	initialButtonStatus = {
+		autoLayout: false, 
+		gravity: "50000", 
+		snapToGrid: false, 
+		curve: "Curved", 
+		linkRadius: "All",
+		stream: "All", 
+		showLabels: true, 
+		sizing: "Off"
+		}
 }
 
 function startY() {
@@ -201,10 +210,10 @@ function startY() {
 	feedback loop, with each client re-broadcasting everything it received)
 	 */
 	nodes.on("*", (event, properties, origin) => {
-		/* 
+
 		console.log(new Date().toLocaleTimeString() + ': nodes.on: ' +
 			event + JSON.stringify(properties.items) + 'origin: ' + origin);
- */
+
 		properties.items.forEach((id) => {
 			if (origin == null) {
 				if (event == "remove") {
@@ -230,14 +239,17 @@ function startY() {
 	includes adding a new node if it does not already exist locally).
 	 */
 	yNodesMap.observe((event) => {
-		//		console.log(event);
+		console.log(event);
 		for (let key of event.keysChanged) {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key);
 				let origin = event.transaction.origin;
 				if (obj.clientID != clientID || origin != null) {
+/* 
 					nodes.remove(obj, origin);
 					nodes.add(obj, origin);
+ */
+					nodes.update(obj, origin)
 				}
 			} else nodes.remove(key);
 		}
@@ -263,8 +275,11 @@ function startY() {
 				let obj = yEdgesMap.get(key);
 				let origin = event.transaction.origin;
 				if (obj.clientID != clientID || origin != null) {
+/* 
 					edges.remove(obj, origin);
 					edges.add(obj, origin);
+ */
+					edges.update(obj, origin)
 				}
 			} else edges.remove(key);
 		}
@@ -306,7 +321,7 @@ function startY() {
 		redoButtonStatus();
 	});
 	yUndoManager.on("stack-item-popped", (event) => {
-		setButtonStatus(event);
+		undoRedoButtons(event);
 		undoButtonstatus();
 		redoButtonStatus();
 	});
@@ -351,7 +366,8 @@ function setUpChat() {
 	if (localStorage.getItem("myName")) myName = localStorage.getItem("myName");
 	else myName = "User" + clientID;
 	console.log("My name: " + myName);
-	yChatArray.observe(() => {
+	yChatArray.observe((event) => {
+		console.log(event);
 		displayLastMsg();
 		blinkChatboxTab();
 	});
@@ -611,6 +627,7 @@ function saveLabel(item, callback) {
 			callback(null);
 		}
 	}
+	claim(item);
 	callback(item);
 }
 
@@ -856,10 +873,11 @@ function loadFile(contents) {
 			hideEdgesOnZoom: data.nodes.length > 100,
 		},
 	});
-	snapToGridOff();
+/*	snapToGridOff();
 	// in case parts of the previous network was hidden
 	document.getElementById("hideAll").checked = true;
 	document.getElementById("streamAll").checked = true;
+*/
 	fit();
 }
 
@@ -870,6 +888,7 @@ function loadJSONfile(json) {
 	}
 	if (json.lastNodeSample) lastNodeSample = json.lastNodeSample;
 	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
+	if (json.buttons) setButtonStatus(json.buttons);
 	if ("source" in json.edges[0]) {
 		// the file is from Gephi and needs to be translated
 		let parsed = parseGephiNetwork(json, {
@@ -1079,6 +1098,7 @@ function saveJSONfile() {
 		room: room,
 		lastNodeSample: lastNodeSample,
 		lastLinkSample: lastLinkSample,
+		buttons: buttonStatus,
 		samples: samples,
 		nodes: cleanArray(data.nodes.get(), {
 			clientId: null,
@@ -1253,15 +1273,21 @@ function saveButtonStatus(event) {
 	storeButtonStatus();
 }
 
-function setButtonStatus(event) {
+function undoRedoButtons(event) {
 	let settings;
 	if (event.type == "undo")
 		if (yUndoManager.undoStack.length == 0) {
 			settings = initialButtonStatus
-		} else {
+			} 
+		else {
 			settings = yUndoManager.undoStack[yUndoManager.undoStack.length - 1].meta.get("buttons");
-		} else // event.type == "redo"
+			} 
+	else // event.type == "redo"
 		settings = event.stackItem.meta.get("buttons");
+	setButtonStatus(settings)
+}
+
+function setButtonStatus(settings) {
 	if (document.getElementById("autolayoutswitch").checked != settings.autoLayout) {
 		autoLayoutSet(settings.autoLayout);
 		document.getElementById("autolayoutswitch").checked = settings.autoLayout
@@ -1714,6 +1740,7 @@ function displayLastMsg() {
 }
 
 function displayAllMsgs() {
+	chatMessages.innerHTML = '';
 	for (let m = 0; m < yChatArray.length; m++) {
 		displayMsg(yChatArray.get(m));
 	}
