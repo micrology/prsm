@@ -211,8 +211,10 @@ function startY() {
 	 */
 	nodes.on("*", (event, properties, origin) => {
 
+/* 
 		console.log(new Date().toLocaleTimeString() + ': nodes.on: ' +
 			event + JSON.stringify(properties.items) + 'origin: ' + origin);
+ */
 
 		properties.items.forEach((id) => {
 			if (origin == null) {
@@ -223,10 +225,10 @@ function startY() {
 					if (obj.clientID == undefined) obj.clientID = clientID;
 					if (obj.clientID == clientID) {
 						yNodesMap.set(id.toString(), obj);
-						/* 
+/* 
 						console.log(new Date().toLocaleTimeString() +
 							': added to YMapNodes: ' + JSON.stringify(obj));
- */
+*/
 					}
 				}
 			}
@@ -239,16 +241,12 @@ function startY() {
 	includes adding a new node if it does not already exist locally).
 	 */
 	yNodesMap.observe((event) => {
-		console.log(event);
+//		console.log(event);
 		for (let key of event.keysChanged) {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key);
 				let origin = event.transaction.origin;
 				if (obj.clientID != clientID || origin != null) {
-/* 
-					nodes.remove(obj, origin);
-					nodes.add(obj, origin);
- */
 					nodes.update(obj, origin)
 				}
 			} else nodes.remove(key);
@@ -862,11 +860,14 @@ function loadFile(contents) {
 	unSelect();
 	nodes.clear();
 	edges.clear();
-	if (contents.search("graphml") >= 0) data = parseGraphML(contents);
-	else {
-		if (contents.search("graph") >= 0) data = parseGML(contents);
-		else data = loadJSONfile(contents);
-	}
+	if (lastFileName.substr(-3).toLowerCase() == 'csv') data = parseCSV(contents);
+		else {
+			if (contents.search("graphml") >= 0) data = parseGraphML(contents);
+			else {
+				if (contents.search("graph") >= 0) data = parseGML(contents);
+				else data = loadJSONfile(contents);
+			}
+		}
 	network.setOptions({
 		interaction: {
 			hideEdgesOnDrag: data.nodes.length > 100,
@@ -972,13 +973,13 @@ function parseGraphML(graphML) {
 	let jsonObj = parser.parse(graphML, options);
 	nodes.add(jsonObj.graphml.graph.node.map((n) => {
 		return {
-			id: n.attr.id,
+			id: n.attr.id.toString(),
 			label: getLabel(n.data),
 		};
 	}));
 	edges.add(jsonObj.graphml.graph.edge.map((e) => {
 		return {
-			id: e.attr.id,
+			id: e.attr.id.toString(),
 			from: e.attr.source,
 			to: e.attr.target,
 		};
@@ -1012,7 +1013,7 @@ function parseGML(gml) {
 			while (tok != "]") {
 				switch (tok) {
 				case "id":
-					node.id = tokens.shift();
+					node.id = tokens.shift().toString();
 					break;
 				case "label":
 					node.label = tokens.shift().replace(/"/g, "");
@@ -1032,13 +1033,13 @@ function parseGML(gml) {
 			while (tok != "]") {
 				switch (tok) {
 				case "id":
-					edge.id = tokens.shift();
+					edge.id = tokens.shift().toString();
 					break;
 				case "source":
-					edge.to = tokens.shift();
+					edge.to = tokens.shift().toString();
 					break;
 				case "target":
-					edge.from = tokens.shift();
+					edge.from = tokens.shift().toString();
 					break;
 				case "label":
 					edge.label = tokens.shift().replace(/"/g, "");
@@ -1048,7 +1049,7 @@ function parseGML(gml) {
 				}
 				tok = tokens.shift(); // ]
 			}
-			if (edge.id == undefined) edge.id = edgeId++;
+			if (edge.id == undefined) edge.id = (edgeId++).toString();
 			edges.add(edge);
 			break;
 		default:
@@ -1061,6 +1062,31 @@ function parseGML(gml) {
 		edges: edges,
 	};
 }
+
+function parseCSV(csv) {
+/* comma separated values file consisting of 'From' label and 'to' label, on each row,
+  with a header row (ignored) */
+  let lines = csv.split('\n');
+  let labels = [];
+  for (let i = 1; i < lines.length; i++) {
+  	let line = lines[i].split(',');
+  	edges.add({id: i, from: node(line[0]), to: node(line[1])});
+  	}
+  return {
+  	nodes: nodes,
+  	edges: edges
+  	};
+  	
+  function node(label) {
+  	label= label.trim();
+  	if (labels.indexOf(label) == -1) {
+  		labels.push(label);
+  		nodes.add({id: labels.indexOf(label).toString(), label: label});
+  		}
+  	return labels.indexOf(label).toString()
+  	}
+}
+	
 
 function refreshSampleNodes() {
 	let sampleElements = Array.from(document.getElementsByClassName("sampleNode"));
