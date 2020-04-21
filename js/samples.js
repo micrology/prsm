@@ -314,14 +314,14 @@ export function setUpSamples() {
 	for (let i = 0; i < sampleElements.length; i++) {
 		let groupId = 'group' + i;
 		let sampleElement = sampleElements[i];
+		let sampleOptions = samples.nodes[groupId];
 		let groupLabel = samples.nodes[groupId].groupLabel;
-		let nodeDataSet = new DataSet([{
+		let nodeDataSet = new DataSet([Object.assign({
 			id: "1",
 			label: (groupLabel == undefined ? "" : groupLabel),
-			group: groupId,
 			chosen: false,
 			value: 50
-		}]);
+		}, sampleOptions)]);
 		initSample(sampleElement, {
 			nodes: nodeDataSet,
 			edges: emptyDataSet
@@ -329,7 +329,7 @@ export function setUpSamples() {
 		sampleElement.addEventListener('dblclick', () => {
 			editNodeSample(sampleElement, groupId)
 		});
-		sampleElement.group = groupId;
+		sampleElement.groupNode = groupId;
 		sampleElement.dataSet = nodeDataSet;
 	}
 	// and to all sampleLinks
@@ -470,21 +470,17 @@ function saveNodeSampleEdit(sampleElement, samples, groupId) {
 	setColor("fontColor", group, "font", "color");
 	setShape(group);
 	setBorderType(group);
-	setFontSize(group);
-	window.network.setOptions({
-		groups: samples.nodes
-	})
+	setFont(group);
+	
 	let node = sampleElement.dataSet.get("1");
 	node.label = group.groupLabel;
+	node = Object.assign(node, deepCopy(samples.nodes[groupId]));
 	let dataSet = sampleElement.dataSet;
-	dataSet.remove(node);
-	dataSet.add(node);
-	sampleElement.net.setOptions({
-		groups: {[groupId]: samples.nodes[groupId]}
-	});
+	dataSet.update(node);
+	reApplySampleToNodes(groupId)
 	window.ySamplesMap.set(groupId, {node: samples.nodes[groupId], clientID: window.clientId});
 	document.getElementById("editNodeDrawer").classList.add("hideDrawer");
-	window.network.fit();
+	window.network.redraw();
 }
 
 function saveLinkSampleEdit(sampleElement, samples, groupId) {
@@ -527,9 +523,9 @@ function saveLinkSampleEdit(sampleElement, samples, groupId) {
 	}
 	let edge = sampleElement.dataSet.get("1");
 	edge.label = group.groupLabel;
+	edge = Object.assign(edge, deepCopy(samples.edges[groupId]));
 	let dataSet = sampleElement.dataSet;
-	dataSet.remove(edge);
-	dataSet.add(edge);
+	dataSet.update(edge);
 	reApplySampleToLinks(groupId);
 	window.ySamplesMap.set(groupId, {edge: samples.edges[groupId], clientID: window.clientId});
 	document.getElementById("editLinkDrawer").classList.add("hideDrawer");
@@ -541,10 +537,22 @@ function cancelSampleEdit() {
 	document.getElementById("editNodeDrawer").classList.add("hideDrawer");
 }
 	
+export function reApplySampleToNodes(groupId) {
+	let nodesToUpdate = window.data.nodes.get({
+		filter: item => {
+			return item.grp == groupId
+		}
+	});
+	for (let node of nodesToUpdate) {
+		node = Object.assign(node, deepCopy(samples.nodes[groupId]));
+	}
+	window.data.nodes.update(nodesToUpdate);
+}
+
 export function reApplySampleToLinks(groupId) {
 	let edgesToUpdate = window.data.edges.get({
 		filter: item => {
-			return item.group == groupId
+			return item.grp == groupId
 		}
 	});
 	for (let edge of edgesToUpdate) {
@@ -597,6 +605,8 @@ function deString(val) {
 		return true;
 	case "false":
 		return false;
+	case "dashes":
+		return [10, 10];
 	case "dots":
 		return [3, 3];
 	default:
@@ -604,11 +614,13 @@ function deString(val) {
 	}
 }
 
-function setFontSize(obj) {
+function setFont(obj) {
+	obj.font = {};
+	obj.font.face = 'arial';
+	obj.font.color = document.getElementsByName('fontColor')[0].value
 	let val = document.getElementsByName("fontSize")[0].value;
-	if (obj.font == undefined) obj.font = {};
-	if (val != "") obj.font.size = val;
-}
+	obj.font.size = (Number.isInteger(val) ? val : 14);
+	}
 
 function getSelection(name, prop) {
 	if (
@@ -645,7 +657,6 @@ function initSample(wrapper, sampleData) {
 				direction: 'LR'
 			}
 		},
-		groups: samples.nodes,
 		edges: {
 			value: 10 // to make the links more visible at very small scale for the samples
 			}

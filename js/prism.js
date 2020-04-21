@@ -25,7 +25,8 @@ import {
 	samples,
 	setUpSamples,
 	deepCopy,
-	reApplySampleToLinks,
+	reApplySampleToNodes,
+	reApplySampleToLinks
 }
 from "./samples.js";
 import "vis-network/styles/vis-network.css";
@@ -35,8 +36,9 @@ import "vis-network/styles/vis-network.css";
 Remember to start the WS provider first:
 	npx y-websocket-server
 */
-const version = "1.01";
+const version = "1.02";
 const GRIDSPACING = 100;
+
 var network;
 var room;
 var nodes;
@@ -125,11 +127,11 @@ function addEventListeners() {
 		elem.addEventListener("change", hideDistantOrStreamNodes);
 	});
 	document.getElementById("sizing").addEventListener("change", sizing);
-	Array.from(document.getElementsByClassName("sampleNode")).forEach((elem) => elem.addEventListener("click", () => {
-		applySampleToNode();
+	Array.from(document.getElementsByClassName("sampleNode")).forEach((elem) => elem.addEventListener("click", (event) => {
+		applySampleToNode(event);
 	}, false));
-	Array.from(document.getElementsByClassName("sampleLink")).forEach((elem) => elem.addEventListener("click", () => {
-		applySampleToLink();
+	Array.from(document.getElementsByClassName("sampleLink")).forEach((elem) => elem.addEventListener("click", (event) => {
+		applySampleToLink(event);
 	}, false));
 }
 
@@ -192,6 +194,7 @@ function startY() {
 	/* 
 	for convenience when debugging
 	 */
+	window.debug = false;
 	window.data = data;
 	window.clientID = clientID;
 	window.yNodesMap = yNodesMap;
@@ -210,10 +213,9 @@ function startY() {
 	feedback loop, with each client re-broadcasting everything it received)
 	 */
 	nodes.on("*", (event, properties, origin) => {
-
-		console.log(new Date().toLocaleTimeString() + ': nodes.on: ' +
-			event + JSON.stringify(properties.items) + 'origin: ' + origin);
-
+		if (window.debug) console.log(new Date().toLocaleTimeString() + ': nodes.on: ' +
+			event + JSON.stringify(properties.items) + ' origin: ' + 
+			(origin != null ?  origin.constructor.name : origin));
 		properties.items.forEach((id) => {
 			if (origin == null) {
 				if (event == "remove") {
@@ -223,15 +225,14 @@ function startY() {
 					if (obj.clientID == undefined) obj.clientID = clientID;
 					if (obj.clientID == clientID) {
 						yNodesMap.set(id.toString(), obj);
-						/* 
-						console.log(new Date().toLocaleTimeString() +
+ 					if (window.debug) console.log(new Date().toLocaleTimeString() +
 							': added to YMapNodes: ' + JSON.stringify(obj));
- */
 					}
 				}
 			}
 		});
 	});
+
 	/* 
 	yNodesMap.observe listens for changes in the yMap, receiving a set of the keys that have
 	had changed values.  If the change was to delete an entry, the corresponding node is
@@ -239,16 +240,12 @@ function startY() {
 	includes adding a new node if it does not already exist locally).
 	 */
 	yNodesMap.observe((event) => {
-		console.log(event);
+		if (window.debug) console.log(event);
 		for (let key of event.keysChanged) {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key);
 				let origin = event.transaction.origin;
 				if (obj.clientID != clientID || origin != null) {
-/* 
-					nodes.remove(obj, origin);
-					nodes.add(obj, origin);
- */
 					nodes.update(obj, origin)
 				}
 			} else nodes.remove(key);
@@ -258,6 +255,9 @@ function startY() {
 	See comments above about nodes
 	 */
 	edges.on("*", (event, properties, origin) => {
+		if (window.debug) console.log(new Date().toLocaleTimeString() + ': edges.on: ' +
+			event + JSON.stringify(properties.items) + ' origin: ' + 
+			(origin != null ?  origin.constructor.name : origin));
 		properties.items.forEach((id) => {
 			if (origin == null) {
 				if (event == "remove") yEdgesMap.delete(id.toString());
@@ -270,22 +270,19 @@ function startY() {
 		});
 	});
 	yEdgesMap.observe((event) => {
+		if (window.debug) console.log(event);
 		for (let key of event.keysChanged) {
 			if (yEdgesMap.has(key)) {
 				let obj = yEdgesMap.get(key);
 				let origin = event.transaction.origin;
 				if (obj.clientID != clientID || origin != null) {
-/* 
-					edges.remove(obj, origin);
-					edges.add(obj, origin);
- */
 					edges.update(obj, origin)
 				}
 			} else edges.remove(key);
 		}
 	});
 	ySamplesMap.observe((event) => {
-		//		console.log(event);
+		if (window.debug) console.log(event);
 		for (let key of event.keysChanged) {
 			let sample = ySamplesMap.get(key);
 			let origin = event.transaction.origin;
@@ -293,9 +290,7 @@ function startY() {
 				if (sample.node != undefined) {
 					samples.nodes[key] = sample.node;
 					refreshSampleNodes();
-					network.setOptions({
-						groups: samples.nodes,
-					});
+					reApplySampleToNodes(key);
 				} else {
 					samples.edges[key] = sample.edge;
 					refreshSampleLinks();
@@ -305,6 +300,7 @@ function startY() {
 		}
 	});
 	yNetMap.observe((event) => {
+		if (window.debug) console.log(event);
 		for (let key of event.keysChanged) {
 			let obj = yNetMap.get(key);
 			let origin = event.transaction.origin;
@@ -316,11 +312,13 @@ function startY() {
 		}
 	});
 	yUndoManager.on("stack-item-added", (event) => {
+		if (window.debug) console.log(event);
 		saveButtonStatus(event);
 		undoButtonstatus();
 		redoButtonStatus();
 	});
 	yUndoManager.on("stack-item-popped", (event) => {
+		if (window.debug) console.log(event);
 		undoRedoButtons(event);
 		undoButtonstatus();
 		redoButtonStatus();
@@ -434,7 +432,11 @@ function draw() {
 			addNode: function (item, callback) {
 				// filling in the popup DOM elements
 				item.label = "";
-				if (lastNodeSample) item.group = lastNodeSample;
+				if (lastNodeSample) {
+					item = Object.assign(item, 
+						deepCopy(samples.nodes[lastNodeSample]));
+					item.grp = lastNodeSample;
+					}
 				document.getElementById("node-operation").innerHTML = "Add Factor";
 				editLabel(item, clearPopUp, callback);
 				showPressed("addNode", "remove");
@@ -463,7 +465,11 @@ function draw() {
 					callback(null);
 					return;
 				}
-				if (lastLinkSample) item = Object.assign(item, samples.edges[lastLinkSample]);
+				if (lastLinkSample) {
+					item = Object.assign(item, 
+						deepCopy(samples.edges[lastLinkSample]));
+					item.grp = lastLinkSample;
+					}
 				showPressed("addLink", "remove");
 				callback(item);
 			},
@@ -862,22 +868,22 @@ function loadFile(contents) {
 	unSelect();
 	nodes.clear();
 	edges.clear();
-	if (contents.search("graphml") >= 0) data = parseGraphML(contents);
-	else {
-		if (contents.search("graph") >= 0) data = parseGML(contents);
-		else data = loadJSONfile(contents);
-	}
+	network.destroy();
+	draw();
+	if (lastFileName.substr(-3).toLowerCase() == 'csv') data = parseCSV(contents);
+		else {
+			if (contents.search("graphml") >= 0) data = parseGraphML(contents);
+			else {
+				if (contents.search("graph") >= 0) data = parseGML(contents);
+				else data = loadJSONfile(contents);
+			}
+		}
 	network.setOptions({
 		interaction: {
 			hideEdgesOnDrag: data.nodes.length > 100,
 			hideEdgesOnZoom: data.nodes.length > 100,
 		},
 	});
-/*	snapToGridOff();
-	// in case parts of the previous network was hidden
-	document.getElementById("hideAll").checked = true;
-	document.getElementById("streamAll").checked = true;
-*/
 	fit();
 }
 
@@ -972,13 +978,13 @@ function parseGraphML(graphML) {
 	let jsonObj = parser.parse(graphML, options);
 	nodes.add(jsonObj.graphml.graph.node.map((n) => {
 		return {
-			id: n.attr.id,
+			id: n.attr.id.toString(),
 			label: getLabel(n.data),
 		};
 	}));
 	edges.add(jsonObj.graphml.graph.edge.map((e) => {
 		return {
-			id: e.attr.id,
+			id: e.attr.id.toString(),
 			from: e.attr.source,
 			to: e.attr.target,
 		};
@@ -1012,7 +1018,7 @@ function parseGML(gml) {
 			while (tok != "]") {
 				switch (tok) {
 				case "id":
-					node.id = tokens.shift();
+					node.id = tokens.shift().toString();
 					break;
 				case "label":
 					node.label = tokens.shift().replace(/"/g, "");
@@ -1032,13 +1038,13 @@ function parseGML(gml) {
 			while (tok != "]") {
 				switch (tok) {
 				case "id":
-					edge.id = tokens.shift();
+					edge.id = tokens.shift().toString();
 					break;
 				case "source":
-					edge.to = tokens.shift();
+					edge.to = tokens.shift().toString();
 					break;
 				case "target":
-					edge.from = tokens.shift();
+					edge.from = tokens.shift().toString();
 					break;
 				case "label":
 					edge.label = tokens.shift().replace(/"/g, "");
@@ -1048,7 +1054,7 @@ function parseGML(gml) {
 				}
 				tok = tokens.shift(); // ]
 			}
-			if (edge.id == undefined) edge.id = edgeId++;
+			if (edge.id == undefined) edge.id = (edgeId++).toString();
 			edges.add(edge);
 			break;
 		default:
@@ -1062,16 +1068,38 @@ function parseGML(gml) {
 	};
 }
 
+function parseCSV(csv) {
+/* comma separated values file consisting of 'From' label and 'to' label, on each row,
+  with a header row (ignored) */
+  let lines = csv.split('\n');
+  let labels = [];
+  for (let i = 1; i < lines.length; i++) {
+  	let line = lines[i].split(',');
+  	edges.add({id: i, from: node(line[0]), to: node(line[1])});
+  	}
+  return {
+  	nodes: nodes,
+  	edges: edges
+  	};
+  	
+  function node(label) {
+  	label= label.trim();
+  	if (labels.indexOf(label) == -1) {
+  		labels.push(label);
+  		nodes.add({id: labels.indexOf(label).toString(), label: label});
+  		}
+  	return labels.indexOf(label).toString()
+  	}
+}
+	
+
 function refreshSampleNodes() {
 	let sampleElements = Array.from(document.getElementsByClassName("sampleNode"));
 	for (let i = 0; i < sampleElements.length; i++) {
-		let groupId = "group" + i;
-		sampleElements[i].net.setOptions({
-			groups: {
-				[groupId]: samples.nodes[groupId],
-			},
-		});
-		sampleElements[i].net.redraw();
+		let node = sampleElements[i].dataSet.get()[0];
+		node = Object.assign(node, samples.nodes["group" + i]);
+		node.label = node.groupLabel;
+		sampleElements[i].dataSet.update(node);
 	}
 }
 
@@ -1081,8 +1109,7 @@ function refreshSampleLinks() {
 		let edge = sampleElements[i].dataSet.get()[0];
 		edge = Object.assign(edge, samples.edges["edge" + i]);
 		edge.label = edge.groupLabel;
-		sampleElements[i].dataSet.remove(edge);
-		sampleElements[i].dataSet.add(edge);
+		sampleElements[i].dataSet.update(edge);
 	}
 }
 /* 
@@ -1107,7 +1134,7 @@ function saveJSONfile() {
 		edges: cleanArray(data.edges.get(), {
 			clientId: null,
 		}),
-	});
+	}, null, '\t');
 	saveStr(json, "json");
 }
 
@@ -1306,12 +1333,14 @@ function setButtonStatus(settings) {
 }
 // Factors and Links Tabs
 function applySampleToNode() {
+	if (event.detail != 1) return; // only process single clicks here
 	let selectedNodeIds = network.getSelectedNodes();
 	if (selectedNodeIds.length == 0) return;
 	let nodesToUpdate = [];
-	let sample = event.currentTarget.group;
+	let sample = event.currentTarget.groupNode;
 	for (let node of data.nodes.get(selectedNodeIds)) {
-		node.group = sample;
+		node = Object.assign(node, deepCopy(samples.nodes[sample]));
+		node.grp = sample;
 		claim(node);
 		nodesToUpdate.push(node);
 	}
@@ -1319,14 +1348,15 @@ function applySampleToNode() {
 	lastNodeSample = sample;
 }
 
-function applySampleToLink() {
+function applySampleToLink(event) {
+	if (event.detail != 1) return; // only process single clicks here
 	let sample = event.currentTarget.groupLink;
 	let selectedEdges = network.getSelectedEdges();
 	if (selectedEdges.length == 0) return;
 	let edgesToUpdate = [];
 	for (let edge of data.edges.get(selectedEdges)) {
 		edge = Object.assign(edge, deepCopy(samples.edges[sample]));
-		edge.group = sample;
+		edge.grp = sample;
 		claim(edge);
 		edgesToUpdate.push(edge);
 	}
