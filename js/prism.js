@@ -36,7 +36,7 @@ import "vis-network/styles/vis-network.css";
 Remember to start the WS provider first:
 	npx y-websocket-server
 */
-const version = "1.02";
+const version = "1.03";
 const GRIDSPACING = 100;
 
 var network;
@@ -1128,8 +1128,7 @@ function saveJSONfile() {
 		buttons: buttonStatus,
 		samples: samples,
 		nodes: cleanArray(data.nodes.get(), {
-			clientId: null,
-			color: null,
+			clientId: null
 		}),
 		edges: cleanArray(data.edges.get(), {
 			clientId: null,
