@@ -15,7 +15,7 @@ import {
 }
 from "vis-data/peer";
 import {
-	getScaleFreeNetwork, clean, cleanArray, dragElement
+	getScaleFreeNetwork, deepCopy, clean, strip, cleanArray, dragElement
 }
 from "./utils.js";
 import * as parser from "fast-xml-parser";
@@ -24,7 +24,6 @@ import EmojiButton from "@joeattardi/emoji-button";
 import {
 	samples,
 	setUpSamples,
-	deepCopy,
 	reApplySampleToNodes,
 	reApplySampleToLinks
 }
@@ -36,7 +35,8 @@ import "vis-network/styles/vis-network.css";
 Remember to start the WS provider first:
 	npx y-websocket-server
 */
-const version = "1.03";
+const version = "1.04";
+const LOGOURL = 'img/logo.png';
 const GRIDSPACING = 100;
 
 var network;
@@ -56,8 +56,8 @@ var container;
 var buttonStatus;
 var initialButtonStatus;
 var myName;
-var lastNodeSample = null;
-var lastLinkSample = null;
+var lastNodeSample = 'group0';
+var lastLinkSample = 'edge0';
 var inAddMode = false; // true when adding a new Factor to the network; used to choose cursor pointer
 var snapToGridToggle = false;
 window.addEventListener("load", () => {
@@ -146,7 +146,8 @@ function setUpPage() {
 		stream: "All", 
 		showLabels: true, 
 		sizing: "Off"
-		}
+		};
+	displayLogo()
 }
 
 function startY() {
@@ -318,6 +319,15 @@ function startY() {
 	});
 }
 
+async function displayLogo() {
+let response = await fetch(LOGOURL)
+if (response.ok) {
+	let img = document.createElement('img');
+	document.getElementById('underlay').appendChild(img);
+	img.src = LOGOURL 
+	}
+}
+	
 function generateRoom() {
 	let room = "";
 	for (let i = 0; i < 4; i++) {
@@ -402,6 +412,7 @@ function draw() {
 			stabilization: false,
 		},
 		// default edge format is edge0
+/* 
 		edges: clean(samples.edges.edge0, {
 			groupLabel: null,
 		}),
@@ -410,6 +421,7 @@ function draw() {
 		nodes: {
 			group: "group0",
 		},
+ */
 		interaction: {
 			multiselect: true,
 			selectConnectedEdges: false,
@@ -417,13 +429,9 @@ function draw() {
 			zoomView: false,
 			tooltipDelay: 0,
 		},
-		layout: {
-			improvedLayout: data.nodes.length < 150,
-		},
 		manipulation: {
 			enabled: false,
 			addNode: function (item, callback) {
-				// filling in the popup DOM elements
 				item.label = "";
 				if (lastNodeSample) {
 					item = Object.assign(item, 
@@ -829,6 +837,7 @@ function deleteNode() {
 }
 
 var lastFileName = "network.json"; // the name of the file last read in
+
 function readSingleFile(e) {
 	var file = e.target.files[0];
 	if (!file) {
@@ -877,6 +886,17 @@ function loadFile(contents) {
 			hideEdgesOnZoom: data.nodes.length > 100,
 		},
 	});
+	// ensure that all nodes have a grp property
+	data.nodes.update(
+		data.nodes.map((n) => {n.grp = n.group || 'group0'; return n}, 
+		{filter: function(n) {return n.grp == undefined}}))
+	// reassign the sample properties to the node
+	data.nodes.update(data.nodes.map((n) => Object.assign(n, deepCopy(samples.nodes[n.grp]))));
+	// same for edges
+	data.edges.update(
+		data.edges.map((e) => {e.grp = 'edge0'; return e}, 
+		{filter: function(e) {return e.grp == undefined}}))
+	data.edges.update(data.edges.map((e) => Object.assign(e, deepCopy(samples.edges[e.grp]))));
 	fit();
 }
 
@@ -912,15 +932,6 @@ function loadJSONfile(json) {
 	if (json.samples) {
 		samples.nodes = json.samples.nodes;
 		samples.edges = json.samples.edges;
-		network.setOptions({
-			edges: clean(samples.edges.edge0, {
-				groupLabel: null,
-			}),
-			groups: samples.nodes,
-			nodes: {
-				group: "group0",
-			},
-		});
 		refreshSampleNodes();
 		refreshSampleLinks();
 		for (let groupId in samples.nodes) {
@@ -1115,13 +1126,10 @@ function saveJSONfile() {
 		lastLinkSample: lastLinkSample,
 		buttons: buttonStatus,
 		samples: samples,
-		nodes: cleanArray(data.nodes.get(), {
-			clientId: null
-		}),
-		edges: cleanArray(data.edges.get(), {
-			clientId: null,
-		}),
-	}, null, '\t');
+		nodes: data.nodes.map((n) => strip(n,  ['id', 'label', 'grp', 'x', 'y'])),
+		edges: data.edges.map((e) => strip(e,  ['id', 'label', 'grp', 'from', 'to']))
+		},
+		null, '\t');
 	saveStr(json, "json");
 }
 
