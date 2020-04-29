@@ -77,13 +77,6 @@ function checkFeatures() {
 }
 
 function addEventListeners() {
-	// Clicking anywhere on the network canvas clears the status bar
-	// (note trick: click is processed in the capturing phase)
-	/* 
-	document.getElementById("net-pane").addEventListener("click", () => {
-		clearStatusBar()
-	}, true);
- */
 	document.getElementById("addNode").addEventListener("click", plusNode);
 	document.getElementById("addLink").addEventListener("click", plusLink);
 	document.getElementById("deleteNode").addEventListener("click", deleteNode);
@@ -906,14 +899,8 @@ function loadJSONfile(json) {
 				parseColor: true,
 			},
 		});
-		nodes.add(cleanArray(parsed.nodes, {
-			clientID: null,
-			color: null,
-		}));
-		edges.add(cleanArray(parsed.edges, {
-			clientID: null,
-			color: null,
-		}));
+		nodes.add(parsed.nodes);
+		edges.add(parsed.edges);
 	} else {
 		nodes.add(cleanArray(json.nodes, {
 			clientID: null,
@@ -1074,6 +1061,7 @@ function parseCSV(csv) {
   let lines = csv.split('\n');
   let labels = [];
   for (let i = 1; i < lines.length; i++) {
+  	if (lines[i].length <= 2) continue; // empty line
   	let line = lines[i].split(',');
   	edges.add({id: i, from: node(line[0]), to: node(line[1])});
   	}

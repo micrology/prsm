@@ -498,6 +498,7 @@ nav button .pressed {
 	font-size: 11px;
 	border-radius: 0 0 4px 4px;
 }
+
 /* Using display:none to hide tabs other than the one on display: causes problems with sizing the sample canvases on the Factor and Link panels (because the size of the area in which to place the canvas appears to be zero) but moving the panel out of sight works instead */
 
 .hide {
