@@ -7,6 +7,10 @@ import {
 	DataSet
 }
 from "vis-data/peer";
+import {
+	deepCopy, clean, strip, cleanArray
+}
+from "./utils.js";
 
 export const samples = {
 	nodes: {
@@ -385,21 +389,6 @@ function configSamples() {
 	}
 }
 
-export function deepCopy(inObject) {
-	let outObject, value, key;
-	if (typeof inObject !== "object" || inObject === null) {
-		return inObject // Return the value if inObject is not an object
-	}
-	// Create an array or object to hold the values
-	outObject = Array.isArray(inObject) ? [] : {}
-	for (key in inObject) {
-		value = inObject[key]
-			// Recursively (deep) copy for nested objects, including arrays
-		outObject[key] = (typeof value === "object" && value !== null) ? deepCopy(value) : value
-	}
-	return outObject
-}
-
 function editNodeSample(sampleElement, groupId) {
 	let drawer = document.getElementById("editNodeDrawer");
 	getNodeSampleEdit(sampleElement, samples.nodes[groupId]);
@@ -505,24 +494,28 @@ function saveLinkSampleEdit(sampleElement, samples, groupId) {
 			enabled: false
 		};
 		switch (val) {
-		case "toMiddleFrom":
-			group.arrows.from = {
-				enabled: true
-			};
-			// falls through
-		case "toMiddle":
+		case "none":
+			break;
+		case "middle":
 			group.arrows.middle = {
 				enabled: true
 			};
-			// falls through
-		case "to":
+			break;
+		default:
 			group.arrows.to = {
 				enabled: true
 			};
+			break;
 		}
 	}
 	let edge = sampleElement.dataSet.get("1");
 	edge.label = group.groupLabel;
+	if (edge.label) {
+		edge.font.align = 'top';
+		edge.font.vadjust = -20;
+		edge.font.size = 40;
+		edge.widthConstraint = 80;
+		}
 	edge = Object.assign(edge, deepCopy(samples.edges[groupId]));
 	let dataSet = sampleElement.dataSet;
 	dataSet.update(edge);
@@ -633,9 +626,9 @@ function getSelection(name, prop) {
 }
 
 function getArrows(name, prop) {
-	let val = 'to';
-	if (prop.from && prop.from.enabled) val = 'toMiddleFrom';
-	else if (prop.middle && prop.middle.enabled) val = 'toMiddle';
+	let val = 'none';
+	if (prop.middle && prop.middle.enabled) val = 'middle';
+	else if (prop.to && prop.to.enabled) val = 'to';
 	document.getElementsByName(name)[0].value = val;
 }
 
