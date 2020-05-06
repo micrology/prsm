@@ -95,7 +95,7 @@ export function clean(source, propsToRemove) {
 export function strip(obj, allowed) {
 	return Object.fromEntries(
    Object.entries(obj).filter(
-      ([key, val])=>allowed.includes(key)
+      ([key, val])=>allowed.includes(key) // eslint-disable-line no-unused-vars
    ))
 }
 

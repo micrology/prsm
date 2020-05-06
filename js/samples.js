@@ -2,17 +2,16 @@ import {
 	Network
 }
 from "vis-network/peer/";
-
 import {
 	DataSet
 }
 from "vis-data/peer";
 import {
-	deepCopy, clean, strip, cleanArray
+	deepCopy
 }
 from "./utils.js";
-
-export const samples = {
+export
+const samples = {
 	nodes: {
 		base: {
 			groupLabel: 'Sample',
@@ -47,8 +46,8 @@ export const samples = {
 					enabled: true,
 					min: 10,
 					max: 20
-					}
-				},
+				}
+			},
 		},
 		//------------------------------
 		// blue bordered white ellipse 
@@ -61,10 +60,8 @@ export const samples = {
 				color: 'black',
 			},
 		},
-
 		//------------------------------
 		// black bordered white ellipse 
-
 		group1: {
 			color: {
 				border: 'black',
@@ -74,10 +71,8 @@ export const samples = {
 				color: 'black',
 			},
 		},
-
 		//------------------------------
 		// black bordered green ellipse 
-
 		group2: {
 			color: {
 				border: 'black',
@@ -87,10 +82,8 @@ export const samples = {
 				color: 'black',
 			},
 		},
-
 		//------------------------------
 		// black bordered pink ellipse 
-
 		group3: {
 			color: {
 				border: 'black',
@@ -100,10 +93,8 @@ export const samples = {
 				color: 'black',
 			},
 		},
-
 		//------------------------------
 		// black dashed bordered pink ellipse 
-
 		group4: {
 			color: {
 				border: 'black',
@@ -116,11 +107,8 @@ export const samples = {
 				borderDashes: true
 			},
 		},
-
-
 		//------------------------------
 		// black bordered blue ellipse 
-
 		group5: {
 			color: {
 				border: 'black',
@@ -130,11 +118,8 @@ export const samples = {
 				color: 'black',
 			},
 		},
-
 		//------------------------------
 		// black bordered yellow ellipse 
-
-
 		group6: {
 			color: {
 				border: 'black',
@@ -144,11 +129,8 @@ export const samples = {
 				color: 'black',
 			},
 		},
-
-
 		//------------------------------
 		//  black large text only 
-
 		group7: {
 			color: {
 				border: 'black',
@@ -161,10 +143,8 @@ export const samples = {
 			labelHighlightBold: true,
 			shape: 'text',
 		},
-
 		//------------------------------
 		//  red text only 
-
 		group8: {
 			color: {
 				border: 'black',
@@ -176,12 +156,8 @@ export const samples = {
 			},
 			shape: 'text',
 		}
-
 	}, // end of node samples
-
-
 	edges: {
-
 		base: {
 			arrows: {
 				to: {
@@ -209,62 +185,50 @@ export const samples = {
 			hoverWidth: 1,
 			label: '',
 			selectionWidth: 1,
-			smooth: {type: 'straightCross'},
+			smooth: {
+				type: 'straightCross'
+			},
 			width: 1,
 			groupLabel: ''
 		},
-
 		// simple directed black link
-
 		edge0: {
 			color: {
 				color: 'black',
 			},
 		},
-
 		// simple directed green link
-
 		edge1: {
 			color: {
 				color: '#00cc00',
 			},
 		},
-
 		// simple directed red link
-
 		edge2: {
 			color: {
 				color: 'red',
 			},
 		},
-
 		// simple directed blue link
-
 		edge3: {
 			color: {
 				color: 'blue',
 			},
 		},
-
 		// simple directed grey link
-
 		edge4: {
 			color: {
 				color: 'grey',
 			},
 		},
-
 		// medium directed dark yellow link
-
 		edge5: {
 			color: {
 				color: '#e6b800',
 			},
 			width: 2
 		},
-
 		//  directed black dashed link
-
 		edge6: {
 			color: {
 				color: 'black',
@@ -272,9 +236,7 @@ export const samples = {
 			dashes: [10, 10],
 			width: 3
 		},
-
 		//  directed green dashed link
-
 		edge7: {
 			color: {
 				color: 'green',
@@ -282,10 +244,7 @@ export const samples = {
 			dashes: [10, 10],
 			width: 3
 		},
-
-
 		//  directed black link with middle arrow
-
 		edge8: {
 			arrows: {
 				middle: {
@@ -301,17 +260,14 @@ export const samples = {
 				color: 'black',
 			},
 		}
-
 	} // end of edges samples
-
 }
+export
 
-export function setUpSamples() {
+function setUpSamples() {
 	// The samples are each a mini vis-network showing just one node or two nodes and a link
-
 	// create sample configurations
 	configSamples();
-
 	// Get all elements with class="sampleNode" and add listener and canvas
 	let emptyDataSet = new DataSet([]);
 	let sampleElements = document.getElementsByClassName("sampleNode");
@@ -366,7 +322,6 @@ export function setUpSamples() {
 
 function configSamples() {
 	// assemble configurations by merging the specifics into the default
-
 	let base = samples.nodes.base;
 	for (let prop in samples.nodes) {
 		let grp = Object.assign(deepCopy(base), samples.nodes[prop]);
@@ -382,7 +337,7 @@ function configSamples() {
 	}
 	base = samples.edges.base;
 	for (let prop in samples.edges) {
-		let grp = Object.assign(deepCopy(base),samples.edges[prop]);
+		let grp = Object.assign(deepCopy(base), samples.edges[prop]);
 		grp.color.highlight = grp.color.color;
 		grp.color.hover = grp.color.color;
 		samples.edges[prop] = grp;
@@ -402,10 +357,8 @@ function editNodeSample(sampleElement, groupId) {
 	}, {
 		once: true
 	});
-	drawer.style.top =
-		`${document.getElementById('panel').getBoundingClientRect().top}px`;
-	drawer.style.left =
-		`${document.getElementById('panel').getBoundingClientRect().left - 300}px`;
+	drawer.style.top = `${document.getElementById('panel').getBoundingClientRect().top}px`;
+	drawer.style.left = `${document.getElementById('panel').getBoundingClientRect().left - 300}px`;
 	drawer.classList.remove("hideDrawer");
 }
 
@@ -432,10 +385,8 @@ function editLinkSample(sampleElement, groupId) {
 	}, {
 		once: true
 	});
-	drawer.style.top =
-		`${document.getElementById('panel').getBoundingClientRect().top}px`;
-	drawer.style.left =
-		`${document.getElementById('panel').getBoundingClientRect().left - 300}px`;
+	drawer.style.top = `${document.getElementById('panel').getBoundingClientRect().top}px`;
+	drawer.style.left = `${document.getElementById('panel').getBoundingClientRect().left - 300}px`;
 	drawer.classList.remove("hideDrawer");
 }
 
@@ -460,14 +411,16 @@ function saveNodeSampleEdit(sampleElement, samples, groupId) {
 	setShape(group);
 	setBorderType(group);
 	setFont(group);
-	
 	let node = sampleElement.dataSet.get("1");
 	node.label = group.groupLabel;
 	node = Object.assign(node, deepCopy(samples.nodes[groupId]));
 	let dataSet = sampleElement.dataSet;
 	dataSet.update(node);
 	reApplySampleToNodes(groupId)
-	window.ySamplesMap.set(groupId, {node: samples.nodes[groupId], clientID: window.clientId});
+	window.ySamplesMap.set(groupId, {
+		node: samples.nodes[groupId],
+		clientID: window.clientId
+	});
 	document.getElementById("editNodeDrawer").classList.add("hideDrawer");
 	window.network.redraw();
 }
@@ -515,12 +468,15 @@ function saveLinkSampleEdit(sampleElement, samples, groupId) {
 		edge.font.vadjust = -20;
 		edge.font.size = 40;
 		edge.widthConstraint = 80;
-		}
+	}
 	edge = Object.assign(edge, deepCopy(samples.edges[groupId]));
 	let dataSet = sampleElement.dataSet;
 	dataSet.update(edge);
 	reApplySampleToLinks(groupId);
-	window.ySamplesMap.set(groupId, {edge: samples.edges[groupId], clientID: window.clientId});
+	window.ySamplesMap.set(groupId, {
+		edge: samples.edges[groupId],
+		clientID: window.clientId
+	});
 	document.getElementById("editLinkDrawer").classList.add("hideDrawer");
 	window.network.redraw();
 }
@@ -529,8 +485,9 @@ function cancelSampleEdit() {
 	document.getElementById("editLinkDrawer").classList.add("hideDrawer");
 	document.getElementById("editNodeDrawer").classList.add("hideDrawer");
 }
-	
-export function reApplySampleToNodes(groupId) {
+export
+
+function reApplySampleToNodes(groupId) {
 	let nodesToUpdate = window.data.nodes.get({
 		filter: item => {
 			return item.grp == groupId
@@ -541,8 +498,9 @@ export function reApplySampleToNodes(groupId) {
 	}
 	window.data.nodes.update(nodesToUpdate);
 }
+export
 
-export function reApplySampleToLinks(groupId) {
+function reApplySampleToLinks(groupId) {
 	let edgesToUpdate = window.data.edges.get({
 		filter: item => {
 			return item.grp == groupId
@@ -613,15 +571,10 @@ function setFont(obj) {
 	obj.font.color = document.getElementsByName('fontColor')[0].value
 	let val = document.getElementsByName("fontSize")[0].value;
 	obj.font.size = (Number.isInteger(val) ? val : 14);
-	}
+}
 
 function getSelection(name, prop) {
-	if (
-		Array.from(document.getElementsByName(name)[0].options)
-		.map(opt => opt.value)
-		.includes(prop.toString())
-	)
-		document.getElementsByName(name)[0].value = prop;
+	if (Array.from(document.getElementsByName(name)[0].options).map(opt => opt.value).includes(prop.toString())) document.getElementsByName(name)[0].value = prop;
 	else document.getElementsByName(name)[0].selectedIndex = 0;
 }
 
@@ -631,7 +584,6 @@ function getArrows(name, prop) {
 	else if (prop.to && prop.to.enabled) val = 'to';
 	document.getElementsByName(name)[0].value = val;
 }
-
 
 function initSample(wrapper, sampleData) {
 	let options = {
@@ -652,11 +604,25 @@ function initSample(wrapper, sampleData) {
 		},
 		edges: {
 			value: 10 // to make the links more visible at very small scale for the samples
-			}
+		}
 	};
 	let net = new Network(wrapper, sampleData, options);
 	net.fit();
 	net.storePositions();
 	wrapper.net = net;
 	return net;
+}
+
+function legend() {
+	let sampleElements = document.getElementsByClassName("sampleNode");
+	let nodes = Array.from(sampleElements).filter(elem => elem.dataSet.get("1").groupLabel != 'Sample')
+	for (let i = 0; i < nodes.length; i++) {
+		let node = deepCopy(samples.nodes[nodes[i].groupNode]);
+		node.id = i + 10000;
+		node.fixed = true;
+		node.x = 0;
+		node.y = 0;
+		node.label = node.groupLabel;
+		window.data.nodes.update(node);
+	}
 }

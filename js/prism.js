@@ -35,10 +35,9 @@ import "vis-network/styles/vis-network.css";
 Remember to start the WS provider first:
 	npx y-websocket-server
 */
-const version = "1.04";
+const version = "1.05";
 const LOGOURL = 'img/logo.png';
 const GRIDSPACING = 100;
-
 var network;
 var room;
 var nodes;
@@ -138,15 +137,15 @@ function setUpPage() {
 	document.getElementById("version").innerHTML = version;
 	storeButtonStatus();
 	initialButtonStatus = {
-		autoLayout: false, 
-		gravity: "50000", 
-		snapToGrid: false, 
-		curve: "Curved", 
+		autoLayout: false,
+		gravity: "50000",
+		snapToGrid: false,
+		curve: "Curved",
 		linkRadius: "All",
-		stream: "All", 
-		showLabels: true, 
+		stream: "All",
+		showLabels: true,
 		sizing: "Off"
-		};
+	};
 	displayLogo()
 }
 
@@ -207,9 +206,7 @@ function startY() {
 	feedback loop, with each client re-broadcasting everything it received)
 	 */
 	nodes.on("*", (event, properties, origin) => {
-		if (window.debug) console.log(new Date().toLocaleTimeString() + ': nodes.on: ' +
-			event + JSON.stringify(properties.items) + ' origin: ' + 
-			(origin != null ?  origin.constructor.name : origin));
+		if (window.debug) console.log(new Date().toLocaleTimeString() + ': nodes.on: ' + event + JSON.stringify(properties.items) + ' origin: ' + (origin != null ? origin.constructor.name : origin));
 		properties.items.forEach((id) => {
 			if (origin == null) {
 				if (event == "remove") {
@@ -219,14 +216,12 @@ function startY() {
 					if (obj.clientID == undefined) obj.clientID = clientID;
 					if (obj.clientID == clientID) {
 						yNodesMap.set(id.toString(), obj);
- 					if (window.debug) console.log(new Date().toLocaleTimeString() +
-							': added to YMapNodes: ' + JSON.stringify(obj));
+						if (window.debug) console.log(new Date().toLocaleTimeString() + ': added to YMapNodes: ' + JSON.stringify(obj));
 					}
 				}
 			}
 		});
 	});
-
 	/* 
 	yNodesMap.observe listens for changes in the yMap, receiving a set of the keys that have
 	had changed values.  If the change was to delete an entry, the corresponding node is
@@ -249,9 +244,7 @@ function startY() {
 	See comments above about nodes
 	 */
 	edges.on("*", (event, properties, origin) => {
-		if (window.debug) console.log(new Date().toLocaleTimeString() + ': edges.on: ' +
-			event + JSON.stringify(properties.items) + ' origin: ' + 
-			(origin != null ?  origin.constructor.name : origin));
+		if (window.debug) console.log(new Date().toLocaleTimeString() + ': edges.on: ' + event + JSON.stringify(properties.items) + ' origin: ' + (origin != null ? origin.constructor.name : origin));
 		properties.items.forEach((id) => {
 			if (origin == null) {
 				if (event == "remove") yEdgesMap.delete(id.toString());
@@ -298,11 +291,15 @@ function startY() {
 		for (let key of event.keysChanged) {
 			let obj = yNetMap.get(key);
 			let origin = event.transaction.origin;
-			if (obj.clientID != clientID || origin != null)
-				switch (key) {
-				case 'edges': setCurve(clean(obj, {clientID: null})); break;
-				default: console.log('Bad key in yMapNet.observe')
-				}
+			if (obj.clientID != clientID || origin != null) switch (key) {
+			case 'edges':
+				setCurve(clean(obj, {
+					clientID: null
+				}));
+				break;
+			default:
+				console.log('Bad key in yMapNet.observe')
+			}
 		}
 	});
 	yUndoManager.on("stack-item-added", (event) => {
@@ -318,16 +315,15 @@ function startY() {
 		redoButtonStatus();
 	});
 }
-
 async function displayLogo() {
-let response = await fetch(LOGOURL)
-if (response.ok) {
-	let img = document.createElement('img');
-	document.getElementById('underlay').appendChild(img);
-	img.src = LOGOURL 
+	let response = await fetch(LOGOURL)
+	if (response.ok) {
+		let img = document.createElement('img');
+		document.getElementById('underlay').appendChild(img);
+		img.src = LOGOURL
 	}
 }
-	
+
 function generateRoom() {
 	let room = "";
 	for (let i = 0; i < 4; i++) {
@@ -411,17 +407,6 @@ function draw() {
 			enabled: false,
 			stabilization: false,
 		},
-		// default edge format is edge0
-/* 
-		edges: clean(samples.edges.edge0, {
-			groupLabel: null,
-		}),
-		groups: samples.nodes,
-		// default node format is group0
-		nodes: {
-			group: "group0",
-		},
- */
 		interaction: {
 			multiselect: true,
 			selectConnectedEdges: false,
@@ -434,10 +419,9 @@ function draw() {
 			addNode: function (item, callback) {
 				item.label = "";
 				if (lastNodeSample) {
-					item = Object.assign(item, 
-						deepCopy(samples.nodes[lastNodeSample]));
+					item = Object.assign(item, deepCopy(samples.nodes[lastNodeSample]));
 					item.grp = lastNodeSample;
-					}
+				}
 				document.getElementById("node-operation").innerHTML = "Add Factor";
 				editLabel(item, clearPopUp, callback);
 				showPressed("addNode", "remove");
@@ -467,10 +451,9 @@ function draw() {
 					return;
 				}
 				if (lastLinkSample) {
-					item = Object.assign(item, 
-						deepCopy(samples.edges[lastLinkSample]));
+					item = Object.assign(item, deepCopy(samples.edges[lastLinkSample]));
 					item.grp = lastLinkSample;
-					}
+				}
 				showPressed("addLink", "remove");
 				callback(item);
 			},
@@ -566,7 +549,6 @@ function draw() {
 	data.edges.on("add", recalculateStats);
 	data.edges.on("remove", recalculateStats);
 } // end draw()
-
 function fit() {
 	network.fit();
 	document.getElementById("zoom").value = network.getScale();
@@ -639,19 +621,19 @@ function saveLabel(item, callback) {
 }
 
 function splitText(txt, width) {
-// divide txt into lines with max length of width
-  let words = txt.trim().split(/\s/);
-  let lines = "";
-  for (let i = 0, linelength = 0; i < words.length; i++) {
-    lines += words[i];
-    if (i == (words.length - 1)) break;
-    linelength += words[i].length;
-    if (linelength > width) {
-      lines += "\n";
-      linelength = 0;
-    } else lines += " ";
-  }
-  return lines;
+	// divide txt into lines with max length of width
+	let words = txt.trim().split(/\s/);
+	let lines = "";
+	for (let i = 0, linelength = 0; i < words.length; i++) {
+		lines += words[i];
+		if (i == (words.length - 1)) break;
+		linelength += words[i].length;
+		if (linelength > width) {
+			lines += "\n";
+			linelength = 0;
+		} else lines += " ";
+	}
+	return lines;
 }
 
 function duplEdge(from, to) {
@@ -835,9 +817,7 @@ function redoButtonStatus() {
 function deleteNode() {
 	network.deleteSelected();
 }
-
 var lastFileName = "network.json"; // the name of the file last read in
-
 function readSingleFile(e) {
 	var file = e.target.files[0];
 	if (!file) {
@@ -872,14 +852,18 @@ function loadFile(contents) {
 	edges.clear();
 	network.destroy();
 	draw();
+	let isJSONfile = false;
 	if (lastFileName.substr(-3).toLowerCase() == 'csv') data = parseCSV(contents);
+	else {
+		if (contents.search("graphml") >= 0) data = parseGraphML(contents);
 		else {
-			if (contents.search("graphml") >= 0) data = parseGraphML(contents);
+			if (contents.search("graph") >= 0) data = parseGML(contents);
 			else {
-				if (contents.search("graph") >= 0) data = parseGML(contents);
-				else data = loadJSONfile(contents);
+				data = loadJSONfile(contents);
+				isJSONfile = true;
 			}
 		}
+	}
 	network.setOptions({
 		interaction: {
 			hideEdgesOnDrag: data.nodes.length > 100,
@@ -887,16 +871,27 @@ function loadFile(contents) {
 		},
 	});
 	// ensure that all nodes have a grp property
-	data.nodes.update(
-		data.nodes.map((n) => {n.grp = n.group || 'group0'; return n}, 
-		{filter: function(n) {return n.grp == undefined}}))
+	data.nodes.update(data.nodes.map((n) => {
+		n.grp = n.group || 'group0';
+		return n
+	}, {
+		filter: function (n) {
+			return n.grp == undefined
+		}
+	}))
 	// reassign the sample properties to the node
-	data.nodes.update(data.nodes.map((n) => Object.assign(n, deepCopy(samples.nodes[n.grp]))));
+	data.nodes.update(data.nodes.map((n) => Object.assign({}, deepCopy(samples.nodes[n.grp]), n)));
 	// same for edges
-	data.edges.update(
-		data.edges.map((e) => {e.grp = 'edge0'; return e}, 
-		{filter: function(e) {return e.grp == undefined}}))
-	data.edges.update(data.edges.map((e) => Object.assign(e, deepCopy(samples.edges[e.grp]))));
+	data.edges.update(data.edges.map((e) => {
+		e.grp = 'edge0';
+		return e
+	}, {
+		filter: function (e) {
+			return e.grp == undefined
+		}
+	}))
+	data.edges.update(data.edges.map((e) => Object.assign({}, deepCopy(samples.edges[e.grp]), e)));
+	if (!isJSONfile) adjustGravity(50000);
 	fit();
 }
 
@@ -983,8 +978,8 @@ function parseGraphML(graphML) {
 	edges.add(jsonObj.graphml.graph.edge.map((e) => {
 		return {
 			id: e.attr.id.toString(),
-			from: e.attr.source,
-			to: e.attr.target,
+			from: e.attr.source.toString(),
+			to: e.attr.target.toString()
 		};
 	}));
 	return {
@@ -1000,7 +995,7 @@ function parseGraphML(graphML) {
 }
 
 function parseGML(gml) {
-	let tokens = gml.match(/\S+/g);
+	let tokens = gml.match(/"[^"]+"|[\w]+|\[|\]/g);
 	let node;
 	let edge;
 	let edgeId = 0;
@@ -1020,6 +1015,14 @@ function parseGML(gml) {
 					break;
 				case "label":
 					node.label = tokens.shift().replace(/"/g, "");
+					break;
+				case "color":
+				case "colour":
+					node.color = {};
+					node.color.background = tokens.shift().replace(/"/g, "");
+					break;
+				case "[": // skip embedded groups
+					while (tok != ']') tok = tokens.shift();
 					break;
 				default:
 					break;
@@ -1047,6 +1050,13 @@ function parseGML(gml) {
 				case "label":
 					edge.label = tokens.shift().replace(/"/g, "");
 					break;
+				case "color":
+				case "colour":
+					edge.color = tokens.shift().replace(/"/g, "");
+					break;
+				case "[": // skip embedded groups
+					while (tok != ']') tok = tokens.shift();
+					break;
 				default:
 					break;
 				}
@@ -1067,30 +1077,47 @@ function parseGML(gml) {
 }
 
 function parseCSV(csv) {
-/* comma separated values file consisting of 'From' label and 'to' label, on each row,
-  with a header row (ignored) */
-  let lines = csv.split('\n');
-  let labels = [];
-  for (let i = 1; i < lines.length; i++) {
-  	if (lines[i].length <= 2) continue; // empty line
-  	let line = lines[i].split(',');
-  	edges.add({id: i, from: node(line[0]), to: node(line[1])});
-  	}
-  return {
-  	nodes: nodes,
-  	edges: edges
-  	};
-  	
-  function node(label) {
-  	label= label.trim();
-  	if (labels.indexOf(label) == -1) {
-  		labels.push(label);
-  		nodes.add({id: labels.indexOf(label).toString(), label: label});
-  		}
-  	return labels.indexOf(label).toString()
-  	}
+	/* comma separated values file consisting of 'From' label and 'to' label, on each row,
+  with a header row (ignored) 
+  optional, cols 3 and 4 can include the groups of the from and to nodes */
+	let lines = csv.split('\n');
+	let labels = [];
+	for (let i = 1; i < lines.length; i++) {
+		if (lines[i].length <= 2) continue; // empty line
+		let line = lines[i].split(',');
+		let from = node(line[0]);
+		let to = node(line[1]);
+		edges.add({
+			id: i,
+			from: from,
+			to: to
+		});
+		if (line[2]) nodes.update({
+			id: from,
+			grp: line[2].trim()
+		});
+		if (line[3]) nodes.update({
+			id: to,
+			grp: line[3].trim()
+		});
+	}
+	return {
+		nodes: nodes,
+		edges: edges
+	};
+
+	function node(label) {
+		label = label.trim();
+		if (labels.indexOf(label) == -1) {
+			labels.push(label);
+			nodes.add({
+				id: labels.indexOf(label).toString(),
+				label: label
+			});
+		}
+		return labels.indexOf(label).toString()
+	}
 }
-	
 
 function refreshSampleNodes() {
 	let sampleElements = Array.from(document.getElementsByClassName("sampleNode"));
@@ -1126,10 +1153,9 @@ function saveJSONfile() {
 		lastLinkSample: lastLinkSample,
 		buttons: buttonStatus,
 		samples: samples,
-		nodes: data.nodes.map((n) => strip(n,  ['id', 'label', 'grp', 'x', 'y'])),
-		edges: data.edges.map((e) => strip(e,  ['id', 'label', 'grp', 'from', 'to']))
-		},
-		null, '\t');
+		nodes: data.nodes.map((n) => strip(n, ['id', 'label', 'grp', 'x', 'y'])),
+		edges: data.edges.map((e) => strip(e, ['id', 'label', 'grp', 'from', 'to']))
+	}, null, '\t');
 	saveStr(json, "json");
 }
 
@@ -1300,11 +1326,9 @@ function undoRedoButtons(event) {
 	if (event.type == "undo")
 		if (yUndoManager.undoStack.length == 0) {
 			settings = initialButtonStatus
-			} 
-		else {
+		} else {
 			settings = yUndoManager.undoStack[yUndoManager.undoStack.length - 1].meta.get("buttons");
-			} 
-	else // event.type == "redo"
+		} else // event.type == "redo"
 		settings = event.stackItem.meta.get("buttons");
 	setButtonStatus(settings)
 }
@@ -1465,6 +1489,7 @@ function adjustGravity(gravity) {
 		physics: {
 			barnesHut: {
 				gravitationalConstant: -Number(gravity),
+				centralGravity: 3.5
 			},
 		},
 	});
@@ -1503,8 +1528,8 @@ function selectCurve() {
 	let options = {
 		edges: {
 			smooth: document.getElementById("curveSelect").value === "Curved",
-			},
-		};
+		},
+	};
 	network.setOptions(options);
 	options.clientID = clientID;
 	yNetMap.set('edges', options);
@@ -1798,5 +1823,4 @@ function displayMsg(msg) {
 function displayUserName() {
 	chatNameBox.value = myName;
 }
-
 dragElement(document.getElementById("chatbox-holder"), document.getElementById("chatbox-top"));
