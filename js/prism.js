@@ -1643,24 +1643,25 @@ function hideDistantOrStreamNodes() {
 	// radius
 	let nodeIdsInRadiusSet = new Set();
 	let linkIdsInRadiusSet = new Set();
+	let nodeIdsInStreamSet = new Set();
+	let linkIdsInStreamSet = new Set();
+	let nodesToShow;
+	let linksToShow;
 	if (radius == "All") {
 		data.nodes.forEach((node) => nodeIdsInRadiusSet.add(node.id));
 		data.edges.forEach((edge) => linkIdsInRadiusSet.add(edge.id));
 	} else inSet(selectedNodes, radius);
 	// stream
-	let nodeIdsInStreamSet = new Set();
-	let linkIdsInStreamSet = new Set();
 	if (stream == undefined) return;
 	if (stream == "All") {
-		data.nodes.forEach((node) => nodeIdsInStreamSet.add(node.id));
-		data.edges.forEach((edge) => linkIdsInStreamSet.add(edge.id));
+		nodesToShow = nodeIdsInRadiusSet;
+		linksToShow = linkIdsInRadiusSet;
 	} else {
 		if (stream == "upstream") upstream(selectedNodes);
 		else downstream(selectedNodes);
+		nodesToShow = nodeIdsInStreamSet;
+		linksToShow = linkIdsInStreamSet;
 	}
-	//intersection
-	let nodesToShow = nodeIdsInRadiusSet.intersection(nodeIdsInStreamSet);
-	let linksToShow = linkIdsInRadiusSet.intersection(linkIdsInStreamSet);
 	// update the network
 	data.nodes.update(data.nodes.map((node) => {
 		node.hidden = !nodesToShow.has(node.id);
@@ -1698,6 +1699,7 @@ function hideDistantOrStreamNodes() {
 					},
 				});
 				if (links) links.forEach(function (link) {
+					if (!nodeIdsInRadiusSet.has(link.from)) return; 
 					linkIdsInStreamSet.add(link.id);
 					upstream([link.from]);
 				});
@@ -1717,6 +1719,7 @@ function hideDistantOrStreamNodes() {
 					},
 				});
 				if (links) links.forEach(function (link) {
+					if (!nodeIdsInRadiusSet.has(link.to)) return; 
 					linkIdsInStreamSet.add(link.id);
 					downstream([link.to]);
 				});
