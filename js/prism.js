@@ -38,6 +38,7 @@ Remember to start the WS provider first:
 const version = "1.05";
 const LOGOURL = 'img/logo.png';
 const GRIDSPACING = 100;
+const NODEWIDTH = 10;  // chars for label splitting
 var network;
 var room;
 var nodes;
@@ -605,7 +606,7 @@ function cancelEdit(callback) {
 }
 
 function saveLabel(item, callback) {
-	item.label = splitText(document.getElementById("node-label").value, 10);
+	item.label = splitText(document.getElementById("node-label").value, NODEWIDTH);
 	clearPopUp();
 	if (item.label === "") {
 		// if there is no label and it is an edge, blank the label, else cancel
@@ -1014,7 +1015,7 @@ function parseGML(gml) {
 					node.id = tokens.shift().toString();
 					break;
 				case "label":
-					node.label = tokens.shift().replace(/"/g, "");
+					node.label = splitText(tokens.shift().replace(/"/g, ""), NODEWIDTH);
 					break;
 				case "color":
 				case "colour":
@@ -1042,10 +1043,10 @@ function parseGML(gml) {
 					edge.id = tokens.shift().toString();
 					break;
 				case "source":
-					edge.to = tokens.shift().toString();
+					edge.from = tokens.shift().toString();
 					break;
 				case "target":
-					edge.from = tokens.shift().toString();
+					edge.to = tokens.shift().toString();
 					break;
 				case "label":
 					edge.label = tokens.shift().replace(/"/g, "");
