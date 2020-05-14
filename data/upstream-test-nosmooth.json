@@ -1,0 +1,3074 @@
+{
+	"saved": "14/05/2020, 22:28:49",
+	"version": "1.05",
+	"room": "HKR-TQV-ULU-QKP",
+	"lastNodeSample": "group3",
+	"lastLinkSample": "edge0",
+	"buttons": {
+		"autoLayout": false,
+		"gravity": "500000",
+		"snapToGrid": false,
+		"curve": "Straight",
+		"linkRadius": "All",
+		"stream": "All",
+		"showLabels": true,
+		"sizing": "Off"
+	},
+	"samples": {
+		"nodes": {
+			"base": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "white",
+					"highlight": {
+						"border": "black",
+						"background": "white"
+					},
+					"hover": {
+						"border": "black",
+						"background": "white"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group0": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#0000ff",
+					"background": "white",
+					"highlight": {
+						"border": "#0000ff",
+						"background": "white"
+					},
+					"hover": {
+						"border": "#0000ff",
+						"background": "white"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group1": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "white",
+					"highlight": {
+						"border": "black",
+						"background": "white"
+					},
+					"hover": {
+						"border": "black",
+						"background": "white"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group2": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#99e699",
+					"highlight": {
+						"border": "black",
+						"background": "#99e699"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#99e699"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group3": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#ffccdd",
+					"highlight": {
+						"border": "black",
+						"background": "#ffccdd"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffccdd"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group4": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#ffccdd",
+					"highlight": {
+						"border": "black",
+						"background": "#ffccdd"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffccdd"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": true
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group5": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#b3ccff",
+					"highlight": {
+						"border": "black",
+						"background": "#b3ccff"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#b3ccff"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group6": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "black",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group7": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "black",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group8": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "black",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "red",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			}
+		},
+		"edges": {
+			"base": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge0": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge1": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#00cc00",
+					"highlight": "#00cc00",
+					"hover": "#00cc00"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge2": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "red",
+					"highlight": "red",
+					"hover": "red"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge3": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "blue",
+					"highlight": "blue",
+					"hover": "blue"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge4": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "grey",
+					"highlight": "grey",
+					"hover": "grey"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge5": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#e6b800",
+					"highlight": "#e6b800",
+					"hover": "#e6b800"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 2,
+				"groupLabel": ""
+			},
+			"edge6": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black"
+				},
+				"dashes": [
+					10,
+					10
+				],
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 3,
+				"groupLabel": ""
+			},
+			"edge7": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "green",
+					"highlight": "green",
+					"hover": "green"
+				},
+				"dashes": [
+					10,
+					10
+				],
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 3,
+				"groupLabel": ""
+			},
+			"edge8": {
+				"arrows": {
+					"middle": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			}
+		}
+	},
+	"nodes": [
+		{
+			"id": "0",
+			"label": "Climate change",
+			"grp": "group2",
+			"x": -292,
+			"y": -183
+		},
+		{
+			"id": "1",
+			"label": "Drought risk",
+			"grp": "group3",
+			"x": 365,
+			"y": -313
+		},
+		{
+			"id": "2",
+			"label": "Waste water infrastructure",
+			"grp": "group0",
+			"x": -95,
+			"y": 411
+		},
+		{
+			"id": "3",
+			"label": "Water infrastructure supply for homes",
+			"grp": "group0",
+			"x": -201,
+			"y": 788
+		},
+		{
+			"id": "4",
+			"label": "Company business plan (WRMP, DWMP % approval)",
+			"grp": "group0",
+			"x": -152,
+			"y": 547
+		},
+		{
+			"id": "5",
+			"label": "Demand for public water services",
+			"grp": "group0",
+			"x": -275,
+			"y": 374
+		},
+		{
+			"id": "6",
+			"label": "Amount of rainfall",
+			"grp": "group2",
+			"x": -112,
+			"y": 23
+		},
+		{
+			"id": "7",
+			"label": "Awareness and education in communities water use",
+			"grp": "group0",
+			"x": -421,
+			"y": 607
+		},
+		{
+			"id": "8",
+			"label": "Water quantity in the environment",
+			"grp": "group3",
+			"x": 326,
+			"y": 251
+		},
+		{
+			"id": "9",
+			"label": "Infiltration",
+			"grp": "group2",
+			"x": -113,
+			"y": -305
+		},
+		{
+			"id": "10",
+			"label": "Ground water level",
+			"grp": "group2",
+			"x": 151,
+			"y": 22
+		},
+		{
+			"id": "11",
+			"label": "River flow",
+			"grp": "group2",
+			"x": 597,
+			"y": 35
+		},
+		{
+			"id": "12",
+			"label": "Speed of drainage",
+			"grp": "group6",
+			"x": 766,
+			"y": -72
+		},
+		{
+			"id": "13",
+			"label": "Traditional land drainage agriculture (post-WW2)",
+			"grp": "group0",
+			"x": 303,
+			"y": -154
+		},
+		{
+			"id": "14",
+			"label": "Sustainable land drainage practices",
+			"grp": "group0",
+			"x": 278,
+			"y": -70
+		},
+		{
+			"id": "15",
+			"label": "Urban surface water drainage",
+			"grp": "group0",
+			"x": -333,
+			"y": -403
+		},
+		{
+			"id": "16",
+			"label": "Amount of urban green infrastructure",
+			"grp": "group0",
+			"x": -446,
+			"y": -646
+		},
+		{
+			"id": "17",
+			"label": "Housing",
+			"grp": "group0",
+			"x": -311,
+			"y": -158
+		},
+		{
+			"id": "18",
+			"label": "Built development (commercial)",
+			"grp": "group0",
+			"x": -418,
+			"y": -178
+		},
+		{
+			"id": "19",
+			"label": "New built infrastructure",
+			"grp": "group0",
+			"x": -317,
+			"y": -255
+		},
+		{
+			"id": "20",
+			"label": "Usable transport infrastructure",
+			"grp": "group0",
+			"x": -370,
+			"y": -98
+		},
+		{
+			"id": "21",
+			"label": "Jobs",
+			"grp": "group0",
+			"x": -174,
+			"y": 57
+		},
+		{
+			"id": "22",
+			"label": "Population growth (residential)",
+			"grp": "group0",
+			"x": -494,
+			"y": 130
+		},
+		{
+			"id": "23",
+			"label": "Heritage assets",
+			"grp": "group0",
+			"x": -579,
+			"y": 318
+		},
+		{
+			"id": "24",
+			"label": "Flood risk",
+			"grp": "group6",
+			"x": 394,
+			"y": 100
+		},
+		{
+			"id": "25",
+			"label": "Flood impact",
+			"grp": "group0",
+			"x": -259,
+			"y": 7
+		},
+		{
+			"id": "26",
+			"label": "Water management infrastructure maintenance",
+			"grp": "group0",
+			"x": -530,
+			"y": -180
+		},
+		{
+			"id": "27",
+			"label": "Community participation and interest",
+			"grp": "group0",
+			"x": -660,
+			"y": -10
+		},
+		{
+			"id": "28",
+			"label": "Flood risk infrastructure investment",
+			"grp": "group0",
+			"x": -214,
+			"y": -423
+		},
+		{
+			"id": "29",
+			"label": "Political interest",
+			"grp": "group0",
+			"x": -898,
+			"y": -65
+		},
+		{
+			"id": "30",
+			"label": "Availability of gov funding",
+			"grp": "group0",
+			"x": -818,
+			"y": -241
+		},
+		{
+			"id": "31",
+			"label": "Local economy",
+			"grp": "group0",
+			"x": -212,
+			"y": 274
+		},
+		{
+			"id": "32",
+			"label": "Transient population",
+			"grp": "group0",
+			"x": -425,
+			"y": 346
+		},
+		{
+			"id": "33",
+			"label": "Number of tourists",
+			"grp": "group0",
+			"x": -386,
+			"y": 171
+		},
+		{
+			"id": "34",
+			"label": "A sense of place",
+			"grp": "group0",
+			"x": -37,
+			"y": 59
+		},
+		{
+			"id": "35",
+			"label": "Intensity of rainfall",
+			"grp": "group2",
+			"x": 189,
+			"y": -368
+		},
+		{
+			"id": "36",
+			"label": "Sea level rise",
+			"grp": "group0",
+			"x": 109,
+			"y": -760
+		},
+		{
+			"id": "37",
+			"label": "Air and water temperature",
+			"grp": "group0",
+			"x": -133,
+			"y": -118
+		},
+		{
+			"id": "38",
+			"label": "Marine invasive species",
+			"grp": "group0",
+			"x": -452,
+			"y": 43
+		},
+		{
+			"id": "39",
+			"label": "Shellfish farming",
+			"grp": "group0",
+			"x": -262,
+			"y": 112
+		},
+		{
+			"id": "40",
+			"label": "Fresh water invasive species",
+			"grp": "group0",
+			"x": -238,
+			"y": -89
+		},
+		{
+			"id": "41",
+			"label": "Coastal squeeze",
+			"grp": "group0",
+			"x": -73,
+			"y": -663
+		},
+		{
+			"id": "42",
+			"label": "Area of healthy salt marsh",
+			"grp": "group0",
+			"x": 15,
+			"y": -425
+		},
+		{
+			"id": "43",
+			"label": "Diffuse pollution (water system)",
+			"grp": "group0",
+			"x": 131,
+			"y": -320
+		},
+		{
+			"id": "44",
+			"label": "Good water quality",
+			"grp": "group6",
+			"x": 809,
+			"y": 327
+		},
+		{
+			"id": "45",
+			"label": "Quality of natural environment",
+			"grp": "group0",
+			"x": -51,
+			"y": -76
+		},
+		{
+			"id": "46",
+			"label": "Water available to support ecosystems",
+			"grp": "group6",
+			"x": 587,
+			"y": 330
+		},
+		{
+			"id": "47",
+			"label": "Volume of wastewater discharges",
+			"grp": "group2",
+			"x": 131,
+			"y": -227
+		},
+		{
+			"id": "48",
+			"label": "Dilution of wastewater effluent",
+			"grp": "group6",
+			"x": 217,
+			"y": 349
+		},
+		{
+			"id": "49",
+			"label": "Water available to abstract",
+			"grp": "group6",
+			"x": 708,
+			"y": 260
+		},
+		{
+			"id": "50",
+			"label": "Water abstraction permits EA",
+			"grp": "group2",
+			"x": 665,
+			"y": -317
+		},
+		{
+			"id": "51",
+			"label": "Legislation and policy",
+			"grp": "group6",
+			"x": 787,
+			"y": -460
+		},
+		{
+			"id": "52",
+			"label": "Public water supply",
+			"grp": "group6",
+			"x": 946,
+			"y": 253
+		},
+		{
+			"id": "53",
+			"label": "Water supply for business",
+			"grp": "group6",
+			"x": 909,
+			"y": 175
+		},
+		{
+			"id": "54",
+			"label": "Other water intensive farming (horticulture)",
+			"grp": "group0",
+			"x": 153,
+			"y": 2
+		},
+		{
+			"id": "55",
+			"label": "Food production (fruit)",
+			"grp": "group0",
+			"x": 180,
+			"y": 65
+		},
+		{
+			"id": "56",
+			"label": "Good climatic condition for horticulture",
+			"grp": "group0",
+			"x": 445,
+			"y": 73
+		},
+		{
+			"id": "57",
+			"label": "Amount of high quality soils (grades 1&2)",
+			"grp": "group0",
+			"x": 126,
+			"y": 219
+		},
+		{
+			"id": "58",
+			"label": "Education and research",
+			"grp": "group0",
+			"x": 420,
+			"y": 173
+		},
+		{
+			"id": "59",
+			"label": "Quality of wastewater discharges",
+			"grp": "group0",
+			"x": -135,
+			"y": 172
+		},
+		{
+			"id": "60",
+			"label": "Carbon sequestration",
+			"grp": "group0",
+			"x": 234,
+			"y": -429
+		},
+		{
+			"id": "61",
+			"label": "Human modification of river",
+			"grp": "group0",
+			"x": -100,
+			"y": -306
+		},
+		{
+			"id": "62",
+			"label": "Angling",
+			"grp": "group0",
+			"x": -349,
+			"y": 37
+		},
+		{
+			"id": "63",
+			"label": "Blue space availability and access",
+			"grp": "group0",
+			"x": -332,
+			"y": 264
+		},
+		{
+			"id": "64",
+			"label": "Navigation",
+			"grp": "group6",
+			"x": 800,
+			"y": 11
+		},
+		{
+			"id": "65",
+			"label": "Health of local population",
+			"grp": "group0",
+			"x": -466,
+			"y": -51
+		},
+		{
+			"id": "66",
+			"label": "Green space availability",
+			"grp": "group0",
+			"x": -572,
+			"y": -311
+		},
+		{
+			"id": "67",
+			"label": "Green space accessibility",
+			"grp": "group0",
+			"x": -645,
+			"y": -165
+		},
+		{
+			"id": "68",
+			"label": "Number of businesses",
+			"grp": "group0",
+			"x": 18,
+			"y": 430
+		},
+		{
+			"id": "69",
+			"label": "Distribution networks",
+			"grp": "group0",
+			"x": 85,
+			"y": 675
+		},
+		{
+			"id": "70",
+			"label": "Access to markets",
+			"grp": "group0",
+			"x": 194,
+			"y": 538
+		},
+		{
+			"id": "71",
+			"label": "Market demand",
+			"grp": "group0",
+			"x": 369,
+			"y": 381
+		},
+		{
+			"id": "72",
+			"label": "Soil health",
+			"grp": "group0",
+			"x": 133,
+			"y": -203
+		},
+		{
+			"id": "73",
+			"label": "More sustainable farming practices",
+			"grp": "group0",
+			"x": 226,
+			"y": -128
+		},
+		{
+			"id": "74",
+			"label": "Business resilience to extreme weather",
+			"grp": "group0",
+			"x": 185,
+			"y": 125
+		},
+		{
+			"id": "75",
+			"label": "Retailers demand for resilient supply chains",
+			"grp": "group0",
+			"x": 228,
+			"y": 355
+		},
+		{
+			"id": "76",
+			"label": "Water storage in constructed systems (e.g. reservoirs)",
+			"grp": "group2",
+			"x": 762,
+			"y": 82
+		},
+		{
+			"id": "77",
+			"label": "Power supply infrastructure",
+			"grp": "group0",
+			"x": -235,
+			"y": -308
+		},
+		{
+			"id": "78",
+			"label": "Partnership (private) funding",
+			"grp": "group0",
+			"x": -413,
+			"y": -331
+		},
+		{
+			"id": "79",
+			"label": "Fish breeding",
+			"grp": "group0",
+			"x": -86,
+			"y": -516
+		},
+		{
+			"id": "80",
+			"label": "Retirees moving to country",
+			"grp": "group0",
+			"x": -756,
+			"y": 244
+		},
+		{
+			"id": "81",
+			"label": "Arable farming",
+			"grp": "group0",
+			"x": 91,
+			"y": -42
+		},
+		{
+			"id": "82",
+			"label": "Livestock farming (grazing)",
+			"grp": "group0",
+			"x": 70,
+			"y": -110
+		},
+		{
+			"id": "83",
+			"label": "On farm decisions",
+			"grp": "group0",
+			"x": 370,
+			"y": 295
+		},
+		{
+			"id": "84",
+			"label": "Willingness to change (social norms/ buy in)",
+			"grp": "group6",
+			"x": 518,
+			"y": -485
+		},
+		{
+			"id": "85",
+			"label": "Technical knowledge",
+			"grp": "group0",
+			"x": 550,
+			"y": 382
+		},
+		{
+			"id": "86",
+			"label": "Ability to change (financial, skills, permission)",
+			"grp": "group6",
+			"x": 83,
+			"y": -451
+		},
+		{
+			"id": "87",
+			"label": "Risk perception",
+			"grp": "group0",
+			"x": 548,
+			"y": 576
+		},
+		{
+			"id": "88",
+			"label": "Influence and strategy of producer organisations",
+			"grp": "group0",
+			"x": 721,
+			"y": 326
+		},
+		{
+			"id": "89",
+			"label": "Security of tenure/succession planning",
+			"grp": "group0",
+			"x": 447,
+			"y": 499
+		},
+		{
+			"id": "90",
+			"label": "Access to finance",
+			"grp": "group0",
+			"x": 353,
+			"y": 594
+		},
+		{
+			"id": "91",
+			"label": "Skills and labour availability",
+			"grp": "group0",
+			"x": 656,
+			"y": 462
+		},
+		{
+			"id": "92",
+			"label": "Financial viability",
+			"grp": "group0",
+			"x": 618,
+			"y": 250
+		}
+	],
+	"edges": [
+		{
+			"id": "0",
+			"from": "1",
+			"to": "86",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "1",
+			"from": "1",
+			"to": "84",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "2",
+			"from": "17",
+			"to": "84",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "3",
+			"from": "17",
+			"to": "86",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "4",
+			"from": "24",
+			"to": "84",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "5",
+			"from": "24",
+			"to": "86",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "6",
+			"from": "44",
+			"to": "81",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "7",
+			"from": "44",
+			"to": "82",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "8",
+			"from": "45",
+			"to": "82",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "9",
+			"from": "45",
+			"to": "81",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "10",
+			"from": "45",
+			"to": "54",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "11",
+			"from": "45",
+			"to": "55",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "12",
+			"from": "51",
+			"to": "83",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "13",
+			"from": "51",
+			"to": "88",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "14",
+			"from": "53",
+			"to": "81",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "15",
+			"from": "53",
+			"to": "82",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "16",
+			"from": "53",
+			"to": "86",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "17",
+			"from": "53",
+			"to": "84",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "18",
+			"from": "54",
+			"to": "21",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "19",
+			"from": "54",
+			"to": "73",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "20",
+			"from": "54",
+			"to": "13",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "21",
+			"from": "54",
+			"to": "14",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "22",
+			"from": "54",
+			"to": "34",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "23",
+			"from": "55",
+			"to": "21",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "24",
+			"from": "55",
+			"to": "73",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "25",
+			"from": "55",
+			"to": "13",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "26",
+			"from": "55",
+			"to": "14",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "27",
+			"from": "55",
+			"to": "34",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "28",
+			"from": "57",
+			"to": "81",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "29",
+			"from": "57",
+			"to": "86",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "30",
+			"from": "57",
+			"to": "84",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "31",
+			"from": "70",
+			"to": "83",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "32",
+			"from": "71",
+			"to": "83",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "33",
+			"from": "71",
+			"to": "88",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "34",
+			"from": "72",
+			"to": "84",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "35",
+			"from": "72",
+			"to": "86",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "36",
+			"from": "72",
+			"to": "55",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "37",
+			"from": "72",
+			"to": "54",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "38",
+			"from": "72",
+			"to": "81",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "39",
+			"from": "72",
+			"to": "82",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "40",
+			"from": "73",
+			"to": "43",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "41",
+			"from": "73",
+			"to": "60",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "42",
+			"from": "73",
+			"to": "45",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "43",
+			"from": "74",
+			"to": "84",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "44",
+			"from": "74",
+			"to": "86",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "45",
+			"from": "74",
+			"to": "55",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "46",
+			"from": "74",
+			"to": "54",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "47",
+			"from": "74",
+			"to": "81",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "48",
+			"from": "74",
+			"to": "82",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "49",
+			"from": "75",
+			"to": "83",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "50",
+			"from": "80",
+			"to": "22",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "51",
+			"from": "81",
+			"to": "43",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "52",
+			"from": "81",
+			"to": "21",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "53",
+			"from": "81",
+			"to": "73",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "54",
+			"from": "81",
+			"to": "13",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "55",
+			"from": "81",
+			"to": "14",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "56",
+			"from": "81",
+			"to": "34",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "57",
+			"from": "82",
+			"to": "43",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "58",
+			"from": "82",
+			"to": "21",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "59",
+			"from": "82",
+			"to": "73",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "60",
+			"from": "82",
+			"to": "13",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "61",
+			"from": "82",
+			"to": "14",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "62",
+			"from": "82",
+			"to": "34",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "63",
+			"from": "83",
+			"to": "14",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "64",
+			"from": "83",
+			"to": "13",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "65",
+			"from": "83",
+			"to": "73",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "66",
+			"from": "84",
+			"to": "83",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "67",
+			"from": "85",
+			"to": "83",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "68",
+			"from": "86",
+			"to": "83",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "69",
+			"from": "87",
+			"to": "83",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "70",
+			"from": "89",
+			"to": "83",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "71",
+			"from": "90",
+			"to": "83",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "72",
+			"from": "91",
+			"to": "83",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "73",
+			"from": "92",
+			"to": "83",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "74",
+			"from": "14",
+			"to": "12",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "75",
+			"from": "0",
+			"to": "36",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "76",
+			"from": "0",
+			"to": "37",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "77",
+			"from": "0",
+			"to": "35",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "78",
+			"from": "0",
+			"to": "6",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "79",
+			"from": "1",
+			"to": "8",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "80",
+			"from": "1",
+			"to": "50",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "81",
+			"from": "2",
+			"to": "59",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "82",
+			"from": "2",
+			"to": "47",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "83",
+			"from": "4",
+			"to": "2",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "84",
+			"from": "4",
+			"to": "3",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "85",
+			"from": "4",
+			"to": "76",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "86",
+			"from": "5",
+			"to": "4",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "87",
+			"from": "6",
+			"to": "8",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "88",
+			"from": "6",
+			"to": "9",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "89",
+			"from": "35",
+			"to": "13",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "90",
+			"from": "35",
+			"to": "14",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "91",
+			"from": "35",
+			"to": "11",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "92",
+			"from": "7",
+			"to": "5",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "93",
+			"from": "8",
+			"to": "50",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "94",
+			"from": "8",
+			"to": "49",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "95",
+			"from": "8",
+			"to": "48",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "96",
+			"from": "9",
+			"to": "10",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "97",
+			"from": "10",
+			"to": "8",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "98",
+			"from": "10",
+			"to": "24",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "99",
+			"from": "10",
+			"to": "11",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "100",
+			"from": "10",
+			"to": "1",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "101",
+			"from": "11",
+			"to": "8",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "102",
+			"from": "11",
+			"to": "24",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "103",
+			"from": "11",
+			"to": "64",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "104",
+			"from": "11",
+			"to": "1",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "105",
+			"from": "12",
+			"to": "11",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "106",
+			"from": "12",
+			"to": "24",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "107",
+			"from": "12",
+			"to": "72",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "108",
+			"from": "12",
+			"to": "43",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "109",
+			"from": "13",
+			"to": "9",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "110",
+			"from": "13",
+			"to": "12",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "111",
+			"from": "14",
+			"to": "9",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "112",
+			"from": "15",
+			"to": "12",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "113",
+			"from": "16",
+			"to": "15",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "114",
+			"from": "17",
+			"to": "15",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "115",
+			"from": "17",
+			"to": "66",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "116",
+			"from": "17",
+			"to": "67",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "117",
+			"from": "17",
+			"to": "78",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "118",
+			"from": "18",
+			"to": "15",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "119",
+			"from": "18",
+			"to": "21",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "120",
+			"from": "18",
+			"to": "78",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "121",
+			"from": "19",
+			"to": "15",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "122",
+			"from": "19",
+			"to": "21",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "123",
+			"from": "19",
+			"to": "78",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "124",
+			"from": "20",
+			"to": "15",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "125",
+			"from": "20",
+			"to": "21",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "126",
+			"from": "20",
+			"to": "33",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "127",
+			"from": "20",
+			"to": "78",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "128",
+			"from": "21",
+			"to": "31",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "129",
+			"from": "21",
+			"to": "32",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "130",
+			"from": "21",
+			"to": "22",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "131",
+			"from": "22",
+			"to": "17",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "132",
+			"from": "22",
+			"to": "18",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "133",
+			"from": "22",
+			"to": "5",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "134",
+			"from": "23",
+			"to": "33",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "135",
+			"from": "24",
+			"to": "25",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "136",
+			"from": "24",
+			"to": "77",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "137",
+			"from": "24",
+			"to": "17",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "138",
+			"from": "24",
+			"to": "18",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "139",
+			"from": "24",
+			"to": "20",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "140",
+			"from": "24",
+			"to": "19",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "141",
+			"from": "24",
+			"to": "78",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "142",
+			"from": "25",
+			"to": "27",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "143",
+			"from": "25",
+			"to": "52",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "144",
+			"from": "25",
+			"to": "53",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "145",
+			"from": "25",
+			"to": "31",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "146",
+			"from": "25",
+			"to": "33",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "147",
+			"from": "25",
+			"to": "65",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "148",
+			"from": "25",
+			"to": "59",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "149",
+			"from": "25",
+			"to": "47",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "150",
+			"from": "25",
+			"to": "45",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "151",
+			"from": "25",
+			"to": "20",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "152",
+			"from": "26",
+			"to": "24",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "153",
+			"from": "26",
+			"to": "25",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "154",
+			"from": "27",
+			"to": "26",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "155",
+			"from": "27",
+			"to": "29",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "156",
+			"from": "28",
+			"to": "24",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "157",
+			"from": "28",
+			"to": "25",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "158",
+			"from": "28",
+			"to": "41",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "159",
+			"from": "28",
+			"to": "61",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "160",
+			"from": "29",
+			"to": "30",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "161",
+			"from": "30",
+			"to": "26",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "162",
+			"from": "31",
+			"to": "68",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "163",
+			"from": "32",
+			"to": "5",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "164",
+			"from": "33",
+			"to": "21",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "165",
+			"from": "33",
+			"to": "31",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "166",
+			"from": "33",
+			"to": "32",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "167",
+			"from": "33",
+			"to": "23",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "168",
+			"from": "35",
+			"to": "9",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "169",
+			"from": "35",
+			"to": "72",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "170",
+			"from": "36",
+			"to": "41",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "171",
+			"from": "37",
+			"to": "40",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "172",
+			"from": "37",
+			"to": "38",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "173",
+			"from": "37",
+			"to": "5",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "174",
+			"from": "37",
+			"to": "72",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "175",
+			"from": "39",
+			"to": "38",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "176",
+			"from": "39",
+			"to": "40",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "177",
+			"from": "40",
+			"to": "45",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "178",
+			"from": "40",
+			"to": "44",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "179",
+			"from": "41",
+			"to": "42",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "180",
+			"from": "42",
+			"to": "60",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "181",
+			"from": "42",
+			"to": "45",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "182",
+			"from": "42",
+			"to": "44",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "183",
+			"from": "42",
+			"to": "79",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "184",
+			"from": "43",
+			"to": "44",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "185",
+			"from": "44",
+			"to": "39",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "186",
+			"from": "44",
+			"to": "49",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "187",
+			"from": "44",
+			"to": "45",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "188",
+			"from": "44",
+			"to": "54",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "189",
+			"from": "44",
+			"to": "55",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "190",
+			"from": "44",
+			"to": "79",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "191",
+			"from": "45",
+			"to": "62",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "192",
+			"from": "45",
+			"to": "65",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "193",
+			"from": "46",
+			"to": "45",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "194",
+			"from": "47",
+			"to": "11",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "195",
+			"from": "47",
+			"to": "10",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "196",
+			"from": "47",
+			"to": "46",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "197",
+			"from": "48",
+			"to": "46",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "198",
+			"from": "49",
+			"to": "76",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "199",
+			"from": "49",
+			"to": "53",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "200",
+			"from": "49",
+			"to": "52",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "201",
+			"from": "49",
+			"to": "46",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "202",
+			"from": "50",
+			"to": "11",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "203",
+			"from": "50",
+			"to": "49",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "204",
+			"from": "51",
+			"to": "50",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "205",
+			"from": "52",
+			"to": "4",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "206",
+			"from": "52",
+			"to": "53",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "207",
+			"from": "53",
+			"to": "54",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "208",
+			"from": "53",
+			"to": "55",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "209",
+			"from": "55",
+			"to": "75",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "210",
+			"from": "55",
+			"to": "58",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "211",
+			"from": "56",
+			"to": "54",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "212",
+			"from": "56",
+			"to": "55",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "213",
+			"from": "57",
+			"to": "54",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "214",
+			"from": "57",
+			"to": "55",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "215",
+			"from": "58",
+			"to": "55",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "216",
+			"from": "59",
+			"to": "44",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "217",
+			"from": "60",
+			"to": "0",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "218",
+			"from": "61",
+			"to": "44",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "219",
+			"from": "61",
+			"to": "45",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "220",
+			"from": "62",
+			"to": "40",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "221",
+			"from": "62",
+			"to": "65",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "222",
+			"from": "62",
+			"to": "33",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "223",
+			"from": "63",
+			"to": "65",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "224",
+			"from": "64",
+			"to": "40",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "225",
+			"from": "64",
+			"to": "33",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "226",
+			"from": "64",
+			"to": "61",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "227",
+			"from": "66",
+			"to": "65",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "228",
+			"from": "67",
+			"to": "65",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "229",
+			"from": "68",
+			"to": "5",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "230",
+			"from": "68",
+			"to": "21",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "231",
+			"from": "69",
+			"to": "68",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "232",
+			"from": "69",
+			"to": "70",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "233",
+			"from": "70",
+			"to": "68",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "234",
+			"from": "70",
+			"to": "69",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "235",
+			"from": "71",
+			"to": "68",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "236",
+			"from": "71",
+			"to": "74",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "237",
+			"from": "72",
+			"to": "60",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "238",
+			"from": "72",
+			"to": "12",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "239",
+			"from": "72",
+			"to": "43",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "240",
+			"from": "72",
+			"to": "9",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "241",
+			"from": "73",
+			"to": "72",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "242",
+			"from": "73",
+			"to": "74",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "243",
+			"from": "76",
+			"to": "63",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "244",
+			"from": "76",
+			"to": "11",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "245",
+			"from": "77",
+			"to": "24",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "246",
+			"from": "77",
+			"to": "21",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "247",
+			"from": "77",
+			"to": "78",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "248",
+			"from": "78",
+			"to": "26",
+			"grp": "edge0",
+			"label": ""
+		},
+		{
+			"id": "249",
+			"from": "78",
+			"to": "28",
+			"grp": "edge0",
+			"label": ""
+		}
+	]
+}

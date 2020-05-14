@@ -185,9 +185,6 @@ const samples = {
 			hoverWidth: 1,
 			label: '',
 			selectionWidth: 1,
-			smooth: {
-				type: 'straightCross'
-			},
 			width: 1,
 			groupLabel: ''
 		},

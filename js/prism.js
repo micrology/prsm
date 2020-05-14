@@ -35,9 +35,10 @@ import "vis-network/styles/vis-network.css";
 Remember to start the WS provider first:
 	npx y-websocket-server
 */
-const version = "1.05";
+const version = "1.06";
 const LOGOURL = 'img/logo.png';
 const GRIDSPACING = 100;
+const NODEWIDTH = 10;  // chars for label splitting
 var network;
 var room;
 var nodes;
@@ -403,6 +404,11 @@ function draw() {
 	// create a network
 	var netPane = document.getElementById("net-pane");
 	var options = {
+		edges: {
+			smooth: {
+				type: 'straightCross'
+			}
+		},
 		physics: {
 			enabled: false,
 			stabilization: false,
@@ -503,6 +509,7 @@ function draw() {
 		}
 	});
 	network.on("selectNode", function () {
+		if (network.getSelectedNodes().length > 1) hideDistantOrStreamNodes();
 		statusMsg(listFactors(network.getSelectedNodes()) + " selected");
 		showNodeData();
 	});
@@ -605,7 +612,7 @@ function cancelEdit(callback) {
 }
 
 function saveLabel(item, callback) {
-	item.label = splitText(document.getElementById("node-label").value, 10);
+	item.label = splitText(document.getElementById("node-label").value, NODEWIDTH);
 	clearPopUp();
 	if (item.label === "") {
 		// if there is no label and it is an edge, blank the label, else cancel
@@ -1014,7 +1021,7 @@ function parseGML(gml) {
 					node.id = tokens.shift().toString();
 					break;
 				case "label":
-					node.label = tokens.shift().replace(/"/g, "");
+					node.label = splitText(tokens.shift().replace(/"/g, ""), NODEWIDTH);
 					break;
 				case "color":
 				case "colour":
@@ -1042,10 +1049,10 @@ function parseGML(gml) {
 					edge.id = tokens.shift().toString();
 					break;
 				case "source":
-					edge.to = tokens.shift().toString();
+					edge.from = tokens.shift().toString();
 					break;
 				case "target":
-					edge.from = tokens.shift().toString();
+					edge.to = tokens.shift().toString();
 					break;
 				case "label":
 					edge.label = tokens.shift().replace(/"/g, "");
@@ -1530,7 +1537,7 @@ function selectCurve() {
 			smooth: document.getElementById("curveSelect").value === "Curved",
 		},
 	};
-	network.setOptions(options);
+	network.setOptions(options); 
 	options.clientID = clientID;
 	yNetMap.set('edges', options);
 }
@@ -1623,43 +1630,38 @@ function hideDistantOrStreamNodes() {
 	// and then hide everything not in that intersection
 	let radius = getRadioVal("hide");
 	let stream = getRadioVal("stream");
+	if (radius == "All" && stream == "All") {
+		showAll();
+		return;
+		}
 	let selectedNodes = network.getSelectedNodes();
-	if (selectedNodes.length == 0 && !(radius == "All" && stream == "All")) {
+	if (selectedNodes.length == 0) {
 		statusMsg("Select a Factor first", "error");
 		// unhide everything
 		document.getElementById("hideAll").checked = true;
 		document.getElementById("streamAll").checked = true;
-		data.nodes.update(data.nodes.map((node) => {
-			node.hidden = false;
-			return node;
-		}));
-		data.edges.update(data.edges.map((edge) => {
-			edge.hidden = false;
-			return edge;
-		}));
+		showAll();
 		return;
 	}
-	// radius
+	
 	let nodeIdsInRadiusSet = new Set();
 	let linkIdsInRadiusSet = new Set();
-	if (radius == "All") {
-		data.nodes.forEach((node) => nodeIdsInRadiusSet.add(node.id));
-		data.edges.forEach((edge) => linkIdsInRadiusSet.add(edge.id));
-	} else inSet(selectedNodes, radius);
-	// stream
-	let nodeIdsInStreamSet = new Set();
+	let nodeMap = new Map();
 	let linkIdsInStreamSet = new Set();
-	if (stream == undefined) return;
-	if (stream == "All") {
-		data.nodes.forEach((node) => nodeIdsInStreamSet.add(node.id));
-		data.edges.forEach((edge) => linkIdsInStreamSet.add(edge.id));
-	} else {
-		if (stream == "upstream") upstream(selectedNodes);
-		else downstream(selectedNodes);
+	let nodesToShow, linksToShow;
+
+	if (stream == "All") {  // filter by radius only
+		inSet(selectedNodes, radius);
+		nodesToShow = nodeIdsInRadiusSet;
+		linksToShow = linkIdsInRadiusSet;
 	}
-	//intersection
-	let nodesToShow = nodeIdsInRadiusSet.intersection(nodeIdsInStreamSet);
-	let linksToShow = linkIdsInRadiusSet.intersection(linkIdsInStreamSet);
+	else { // get nodes up or down stream
+		if (radius == 'All') radius = data.nodes.length;		
+		if (stream == "upstream") upstream(selectedNodes, radius);
+		else downstream(selectedNodes, radius);
+		nodesToShow = nodeMap;
+		linksToShow = linkIdsInStreamSet;
+	}
 	// update the network
 	data.nodes.update(data.nodes.map((node) => {
 		node.hidden = !nodesToShow.has(node.id);
@@ -1677,7 +1679,7 @@ function hideDistantOrStreamNodes() {
 		nodeIds.forEach(function (nId) {
 			nodeIdsInRadiusSet.add(nId);
 			let links = network.getConnectedEdges(nId);
-			if (links && radius > 0) links.forEach(function (lId) {
+			if (links && radius >= 0) links.forEach(function (lId) {
 				linkIdsInRadiusSet.add(lId);
 			});
 			let linked = network.getConnectedNodes(nId);
@@ -1685,42 +1687,70 @@ function hideDistantOrStreamNodes() {
 		});
 	}
 
-	function upstream(nodeIds) {
-		// recursively add the nodes in and upstream of those in nodeIds
-		if (nodeIds.length == 0) return;
-		nodeIds.forEach(function (nId) {
-			if (!nodeIdsInStreamSet.has(nId)) {
-				nodeIdsInStreamSet.add(nId);
+	function upstream(q, radius) {
+		let distance = 0;
+		q.forEach( (nId) => nodeMap.set(nId, distance));
+		while (q.length > 0 ) {
+			let nId = q.shift();
+			if (nodeMap.get(nId) < radius) {
 				let links = data.edges.get({
 					filter: function (item) {
 						return item.to == nId;
 					},
 				});
-				if (links) links.forEach(function (link) {
-					linkIdsInStreamSet.add(link.id);
-					upstream([link.from]);
-				});
-			}
-		});
+				distance++;
+				links.forEach( link => {
+					if (!nodeMap.has(link.from)) {
+						nodeMap.set(link.from, distance);
+						q.push(link.from)
+						}
+					});
+				}
+		}
+		addAllLinks();
 	}
-
-	function downstream(nodeIds) {
-		// recursively add the nodes in and downstream of those in nodeIds
-		if (nodeIds.length == 0) return;
-		nodeIds.forEach(function (nId) {
-			if (!nodeIdsInStreamSet.has(nId)) {
-				nodeIdsInStreamSet.add(nId);
+	
+	function addAllLinks() {
+		data.edges.get({filter: 
+			function(edge) {
+				return nodeMap.has(edge.from) && nodeMap.has(edge.to)
+				}
+			})
+			.forEach( edge => linkIdsInStreamSet.add(edge.id));
+	}	
+	
+	function downstream(q, radius) {
+		let distance = 0;
+		q.forEach( (nId) => nodeMap.set(nId, distance));
+		while (q.length > 0 ) {
+			let nId = q.shift();
+			if (nodeMap.get(nId) < radius) {
 				let links = data.edges.get({
 					filter: function (item) {
 						return item.from == nId;
 					},
 				});
-				if (links) links.forEach(function (link) {
-					linkIdsInStreamSet.add(link.id);
-					downstream([link.to]);
-				});
-			}
-		});
+				distance++;
+				links.forEach( link => {
+					if (!nodeMap.has(link.to)) {
+						nodeMap.set(link.to, distance);
+						q.push(link.to)
+						}
+					});
+				}
+		}
+		addAllLinks();
+	}
+		
+	function showAll () {
+		data.nodes.update(data.nodes.map((node) => {
+			node.hidden = false;
+			return node;
+		}));
+		data.edges.update(data.edges.map((edge) => {
+			edge.hidden = false;
+			return edge;
+		}));
 	}
 }
 
