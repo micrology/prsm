@@ -35,7 +35,7 @@ import "vis-network/styles/vis-network.css";
 Remember to start the WS provider first:
 	npx y-websocket-server
 */
-const version = "1.05";
+const version = "1.06";
 const LOGOURL = 'img/logo.png';
 const GRIDSPACING = 100;
 const NODEWIDTH = 10;  // chars for label splitting
@@ -404,6 +404,11 @@ function draw() {
 	// create a network
 	var netPane = document.getElementById("net-pane");
 	var options = {
+		edges: {
+			smooth: {
+				type: 'straightCross'
+			}
+		},
 		physics: {
 			enabled: false,
 			stabilization: false,
