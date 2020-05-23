@@ -73,12 +73,19 @@
 		</nav>
 	</header>
 	<main>
-		<div id="node-popUp"> <span id="node-operation">factor</span> 
-			<br>
-			<textarea id="node-label" placeholder="Label"></textarea>
-			<br>
-			<input type="button" value="cancel" id="node-cancelButton" />
-			<input type="button" value="save" id="node-saveButton" />
+		<div id="popup">
+			<span id="popup-operation">Edit factor</span>
+			<textarea id="popup-label" placeholder="Label"></textarea>
+			<table>
+				<tr>
+					<td>
+						<input type="button" value="cancel" id="popup-cancelButton" />
+					</td>
+					<td align="right">
+						<input type="button" value="save" id="popup-saveButton" />
+					</td>
+				</tr>
+			</table>
 		</div>
 		<div id="net-pane"></div>
 		<div id="underlay">

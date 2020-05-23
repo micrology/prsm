@@ -7,7 +7,7 @@ import {
 }
 from "vis-data/peer";
 import {
-	deepCopy
+	deepCopy, standardize_color
 }
 from "./utils.js";
 export
@@ -506,12 +506,6 @@ function reApplySampleToLinks(groupId) {
 		edge = Object.assign(edge, deepCopy(samples.edges[groupId]));
 	}
 	window.data.edges.update(edgesToUpdate);
-}
-
-function standardize_color(str) {
-	let ctx = document.createElement("canvas").getContext("2d");
-	ctx.fillStyle = str;
-	return ctx.fillStyle;
 }
 
 function getColor(well, prop) {

@@ -124,8 +124,9 @@ input[type=range] {
 	outline-offset: -10px;
 	z-index: 100;
 }
-#node-popUp {
+#popup {
 	display: none;
+	width: 150px;
 	position: absolute;
 	z-index: 299;
 	background-color: var(--pop-up-color);
@@ -136,8 +137,7 @@ input[type=range] {
 	font-size: 14px;
 }
 /* Popup arrow */
-
-#node-popUp::after {
+#popup::after {
 	content: "";
 	position: absolute;
 	top: 50%;
@@ -147,14 +147,12 @@ input[type=range] {
 	border-style: solid;
 	border-color: transparent transparent transparent var(--pop-up-color);
 }
-#node-popUp input {
-	margin: 5px;
-	padding: 3px;
-	font-weight: bold;
+#popup table {
+	width: 100%;
 }
-#node-saveButton {
-	float: right;
-	margin-top: 5px;
+#popup textarea {
+	width: 134px;
+	margin: 0 6px 0 6px;
 }
 input::placeholder {
 	color: var(--header-color);

@@ -15,7 +15,7 @@ import {
 }
 from "vis-data/peer";
 import {
-	getScaleFreeNetwork, deepCopy, clean, strip, cleanArray, dragElement
+	getScaleFreeNetwork, deepCopy, clean, strip, cleanArray, dragElement, standardize_color
 }
 from "./utils.js";
 import * as parser from "fast-xml-parser";
@@ -35,7 +35,7 @@ import "vis-network/styles/vis-network.css";
 Remember to start the WS provider first:
 	npx y-websocket-server
 */
-const version = "1.06";
+const version = "1.07";
 const LOGOURL = 'img/logo.png';
 const GRIDSPACING = 100;
 const NODEWIDTH = 10;  // chars for label splitting
@@ -364,7 +364,7 @@ function setUpChat() {
 	if (localStorage.getItem("myName")) myName = localStorage.getItem("myName");
 	else myName = "User" + clientID;
 	console.log("My name: " + myName);
-	yChatArray.observe((event) => {
+	yChatArray.observe(() => {
 		displayLastMsg();
 		blinkChatboxTab();
 	});
@@ -423,12 +423,9 @@ function draw() {
 			enabled: false,
 			addNode: function (item, callback) {
 				item.label = "";
-				if (lastNodeSample) {
-					item = Object.assign(item, deepCopy(samples.nodes[lastNodeSample]));
-					item.grp = lastNodeSample;
-				}
-				document.getElementById("node-operation").innerHTML = "Add Factor";
-				editLabel(item, clearPopUp, callback);
+				item = Object.assign(item, deepCopy(samples.nodes[lastNodeSample]));
+				item.grp = lastNodeSample;
+				addLabel(item, clearPopUp, callback);
 				showPressed("addNode", "remove");
 			},
 			editNode: function (item, callback) {
@@ -436,9 +433,7 @@ function draw() {
 				// node properties before calling this fn, which we don't want.  So we
 				// revert to using the original node properties before continuing.
 				item = data.nodes.get(item.id);
-				// filling in the popup DOM elements
-				document.getElementById("node-operation").innerHTML = "Edit Factor Label";
-				editLabel(item, cancelEdit, callback);
+				editNode(item, cancelEdit, callback);
 			},
 			addEdge: function (item, callback) {
 				inAddMode = false;
@@ -455,18 +450,15 @@ function draw() {
 					callback(null);
 					return;
 				}
-				if (lastLinkSample) {
-					item = Object.assign(item, deepCopy(samples.edges[lastLinkSample]));
-					item.grp = lastLinkSample;
-				}
+				item = Object.assign(item, deepCopy(samples.edges[lastLinkSample]));
+				item.grp = lastLinkSample;
 				showPressed("addLink", "remove");
 				callback(item);
 			},
 			editEdge: {
 				editWithoutDrag: function (item, callback) {
-					// filling in the popup DOM elements
-					document.getElementById("node-operation").innerHTML = "Edit Link Label";
-					editLabel(item, cancelEdit, callback);
+					item = data.edges.get(item.id);
+					editEdge(item, cancelEdit, callback);
 				},
 			},
 			deleteNode: function (item, callback) {
@@ -555,6 +547,7 @@ function draw() {
 	data.edges.on("add", recalculateStats);
 	data.edges.on("remove", recalculateStats);
 } // end draw()
+
 function fit() {
 	network.fit();
 	document.getElementById("zoom").value = network.getScale();
@@ -582,13 +575,112 @@ function snapToGrid(node) {
 	node.y = GRIDSPACING * Math.round(node.y / GRIDSPACING);
 }
 
-function editLabel(item, cancelAction, callback) {
+function addLabel(item, cancelAction, callback) {
+	initPopUp("Add Factor", item, cancelAction, saveLabel, callback);
+	positionPopUp();
+	document.getElementById("popup-label").focus();
+}
+
+function editNode(item, cancelAction, callback) {
+	initPopUp("Edit Factor", item, cancelAction, saveNode, callback);
+	document.getElementById('popup-label').insertAdjacentHTML('afterend', 
+	`	
+	<table id="popup-table">
+		<tr>
+			<td>
+				Border
+			</td>
+			<td>
+				Font
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="color" id="node-borderColor" />
+			</td>
+			<td>
+				<input type="color" id="node-fontColor" />
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<select id="node-borderType">
+					<option value="">Type...</option>
+					<option value="false">Solid</option>
+					<option value="true">Dashed</option>
+					<option value="dots">Dotted</option>
+				</select>
+			</td>
+		</tr>
+	</table>`);
+	document.getElementById('node-borderColor').value = standardize_color(item.color.border);
+	document.getElementById('node-fontColor').value = standardize_color(item.font.color);
+	document.getElementById('node-borderType').value = getDashes(item.shapeProperties.borderDashes);
+	positionPopUp();
+	document.getElementById("popup-label").focus();
+}
+
+function getDashes(val) {
+	return (Array.isArray(val) ? 'dots' : val.toString());
+}
+
+function editEdge(item, cancelAction, callback) {
+	initPopUp("Edit Link", item, cancelAction, saveEdge, callback);
+	document.getElementById('popup-label').insertAdjacentHTML('afterend',
+	` 
+		<table id="popup-table">
+		<tr>
+			<td>
+				Width
+			</td>
+			<td>
+				Colour
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<select id="edge-width">
+					<option value="">Width...</option>
+					<option value="1">Width: 1</option>
+					<option value="2">Width: 2</option>
+					<option value="4">Width: 4</option>
+				</select>
+			</td>
+			<td>
+				<input type="color" id="edge-color" />
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<select id="edge-type">
+					<option value="">Type...</option>
+					<option value="false">Solid</option>
+					<option value="true">Dashed</option>
+					<option value="dots">Dotted</option>
+				</select>
+			</td>
+		</tr>
+	</table>`);
+	document.getElementById('edge-width').value = item.width;
+	document.getElementById('edge-color').value = standardize_color(item.color.color);
+	document.getElementById('edge-type').value = getDashes(item.dashes);
+	positionPopUp();
+	document.getElementById("popup-label").focus();
+}
+
+function initPopUp(popUpTitle, item, cancelAction, saveAction, callback) {
 	inAddMode = false;
 	changeCursor("auto");
-	let popUp = document.getElementById("node-popUp");
-	document.getElementById("node-cancelButton").onclick = cancelAction.bind(this, callback);
-	document.getElementById("node-saveButton").onclick = saveLabel.bind(this, item, callback);
-	document.getElementById("node-label").value = item.label === undefined ? "" : item.label;
+	document.getElementById("popup-operation").innerHTML = popUpTitle;
+	document.getElementById("popup-cancelButton").onclick = cancelAction.bind(this, callback);
+	document.getElementById("popup-saveButton").onclick = saveAction.bind(this, item, callback);
+	document.getElementById("popup-label").value = item.label === undefined ? "" : item.label;
+	let table = document.getElementById('popup-table');
+	if (table) table.remove();
+}
+
+function positionPopUp() {
+	let popUp = document.getElementById("popup");
 	popUp.style.display = "block";
 	// popup appears to the left of the mouse pointer
 	popUp.style.top = `${
@@ -596,13 +688,13 @@ function editLabel(item, cancelAction, callback) {
 	}px`;
 	let left = event.clientX - popUp.offsetWidth - 3;
 	popUp.style.left = `${left < 0 ? 0 : left}px`;
-	document.getElementById("node-label").focus();
 }
+
 // Callback passed as parameter is ignored
 function clearPopUp() {
-	document.getElementById("node-saveButton").onclick = null;
-	document.getElementById("node-cancelButton").onclick = null;
-	document.getElementById("node-popUp").style.display = "none";
+	document.getElementById("popup-saveButton").onclick = null;
+	document.getElementById("popup-cancelButton").onclick = null;
+	document.getElementById("popup").style.display = "none";
 }
 
 function cancelEdit(callback) {
@@ -611,7 +703,7 @@ function cancelEdit(callback) {
 }
 
 function saveLabel(item, callback) {
-	item.label = splitText(document.getElementById("node-label").value, NODEWIDTH);
+	item.label = splitText(document.getElementById("popup-label").value, NODEWIDTH);
 	clearPopUp();
 	if (item.label === "") {
 		// if there is no label and it is an edge, blank the label, else cancel
@@ -624,6 +716,53 @@ function saveLabel(item, callback) {
 	}
 	claim(item);
 	callback(item);
+}
+
+function saveNode(item, callback) {
+	item.label = splitText(document.getElementById("popup-label").value, NODEWIDTH);
+	clearPopUp();
+	if (item.label === "") {
+		// if there is no label, cancel (nodes must have a label)
+		statusMsg("No label: cancelled", "warn");
+		callback(null);
+	}
+	let color = document.getElementById('node-borderColor').value;
+	item.color.border = color;
+	item.color.highlight.border = color;
+	item.color.hover.border = color;
+	item.font.color = document.getElementById('node-fontColor').value;
+	item.shapeProperties.borderDashes = convertDashes(document.getElementById('node-borderType').value);
+	claim(item);
+	callback(item);
+}
+
+function saveEdge(item,callback) {
+	item.label = splitText(document.getElementById("popup-label").value, NODEWIDTH);
+	clearPopUp();
+	if (item.label === "") item.label = " ";
+	let color = document.getElementById('edge-color').value;
+	item.color.color = color;
+	item.color.hover = color;
+	item.color.highlight = color;
+	item.width = document.getElementById('edge-width').value;
+	item.dashes = convertDashes(document.getElementById('edge-type').value);
+	claim(item);
+	callback(item);
+}
+
+function convertDashes(val) {
+	switch (val) {
+	case "true":
+		return true;
+	case "false":
+		return false;
+	case "dashes":
+		return [10, 10];
+	case "dots":
+		return [3, 3];
+	default:
+		return val;
+	}
 }
 
 function splitText(txt, width) {
@@ -1212,7 +1351,7 @@ function exportCVS() {
 
 function exportGML() {
 	let str = 'Creator "PRISM ' + version + " on " + new Date(Date.now()).toLocaleString() + '"\ngraph\n[\n\tdirected 1\n';
-	let nodeIds = data.nodes.map(n => n.id);
+	let nodeIds = data.nodes.map(n => n.id);  //use ints, not GUIDs for node ids
 	for (let node of data.nodes.get()) {
 		str += "\tnode\n\t[\n\t\tid " + nodeIds.indexOf(node.id);
 		if (node.label) str += '\n\t\tlabel "' + node.label + '"';
