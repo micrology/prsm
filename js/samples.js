@@ -276,9 +276,8 @@ function setUpSamples() {
 		let nodeDataSet = new DataSet([Object.assign({
 			id: "1",
 			label: (groupLabel == undefined ? "" : groupLabel),
-			chosen: false,
 			value: 50
-		}, sampleOptions)]);
+		}, sampleOptions, {chosen: false})]);
 		initSample(sampleElement, {
 			nodes: nodeDataSet,
 			edges: emptyDataSet

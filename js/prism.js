@@ -365,7 +365,6 @@ function setUpChat() {
 	else myName = "User" + clientID;
 	console.log("My name: " + myName);
 	yChatArray.observe((event) => {
-		console.log(event);
 		displayLastMsg();
 		blinkChatboxTab();
 	});
@@ -1213,31 +1212,33 @@ function exportCVS() {
 
 function exportGML() {
 	let str = 'Creator "PRISM ' + version + " on " + new Date(Date.now()).toLocaleString() + '"\ngraph\n[\n\tdirected 1\n';
+	let nodeIds = data.nodes.map(n => n.id);
 	for (let node of data.nodes.get()) {
-		str += "\tnode\n\t[\n\t\tid " + node.id;
+		str += "\tnode\n\t[\n\t\tid " + nodeIds.indexOf(node.id);
 		if (node.label) str += '\n\t\tlabel "' + node.label + '"';
+		let color = node.color.background || samples.nodes.group0.color.background;
+		str += '\n\t\tcolor "' + color + '"';
 		str += "\n\t]\n";
 	}
 	for (let edge of data.edges.get()) {
-		str += "\tedge\n\t[\n\t\tsource " + edge.from;
-		str += "\n\t\ttarget " + edge.to;
+		str += "\tedge\n\t[\n\t\tsource " + nodeIds.indexOf(edge.from);
+		str += "\n\t\ttarget " + nodeIds.indexOf(edge.to);
 		if (edge.label) str += '\n\t\tlabel "' + edge.label + '"';
+		let color = edge.color.color || samples.edges.edge0.color.color;
+		str += '\n\t\tcolor "' + color + '"';
 		str += "\n\t]\n";
 	}
 	str += "\n]";
 	saveStr(str, "gml");
 }
+
 /* Share modal dialog */
-// Get the modal
 var modal = document.getElementById("shareModal");
-// Get the button that opens the modal
 var btn = document.getElementById("share");
-// Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
-// Get the input element to be filled with the link
 var inputElem = document.getElementById("text-to-copy");
-// And the place to say that the link has been copied to the clipboard
 var copiedText = document.getElementById("copied-text");
+
 // When the user clicks the button, open the modal
 btn.onclick = function () {
 	let linkToShare = window.location.origin + window.location.pathname + "?room=" + room;
