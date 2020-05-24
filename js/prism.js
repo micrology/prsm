@@ -29,12 +29,7 @@ import {
 }
 from "./samples.js";
 import "vis-network/styles/vis-network.css";
-/* for esLint: */
-/* global Modernizr */
-/*
-Remember to start the WS provider first:
-	npx y-websocket-server
-*/
+
 const version = "1.07";
 const LOGOURL = 'img/logo.png';
 const GRIDSPACING = 100;
@@ -61,7 +56,6 @@ var lastLinkSample = 'edge0';
 var inAddMode = false; // true when adding a new Factor to the network; used to choose cursor pointer
 var snapToGridToggle = false;
 window.addEventListener("load", () => {
-	checkFeatures();
 	addEventListeners();
 	setUpPage();
 	startY();
@@ -69,12 +63,6 @@ window.addEventListener("load", () => {
 	draw();
 	setTimeout(fit, 500); // need to wait until the canvas draw has been completed
 });
-
-function checkFeatures() {
-	if (!(Modernizr.borderradius && Modernizr.boxsizing && Modernizr.flexbox && Modernizr.boxshadow && Modernizr.opacity && Modernizr.canvas && Modernizr.fileinput && Modernizr.eventlistener && Modernizr.webworkers && Modernizr.json && Modernizr.canvastext)) {
-		alert("Your browser does not support all the features required.  Try an up-to-date copy of Edge, Chrome or Safari");
-	}
-}
 
 function addEventListeners() {
 	document.getElementById("addNode").addEventListener("click", plusNode);

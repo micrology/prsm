@@ -2,20 +2,21 @@
   "name": "participatory-system-mapper",
   "version": "1.0.3",
   "description": "Participatory System Mapper, browser app for collaboratively creating system maps",
-  "keywords": ["social network", "participatory", "stakeholder", "policy analysis"],
+  "keywords": [
+    "social network",
+    "participatory",
+    "stakeholder",
+    "policy analysis"
+  ],
   "bugs": {
-  	"email": "n.gilbert@surrey.ac.uk"
-  	},
-  "author": {
-  	"name": "Nigel Gilbert",
-  	"email": "n.gilbert@surrey.ac.uk",
-  	"url": "https://www.cecan.ac.uk/about-us/cecan-team/prof-nigel-gilbert"
-  	},
+    "email": "n.gilbert@surrey.ac.uk"
+  },
+  "author": "Nigel Gilbert",
   "browser": "prism.html",
   "repository": {
-  	"type": "git",
-  	"url": "https://github.com/micrology/prism"
-  	},
+    "type": "git",
+    "url": "https://github.com/micrology/prism"
+  },
   "sideEffects": [
     "*.css"
   ],
@@ -27,7 +28,6 @@
     "lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Nigel Gilbert",
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@egjs/hammerjs": "^2.0.17",
@@ -35,6 +35,7 @@
     "component-emitter": "^1.3.0",
     "fast-xml-parser": "^3.16.0",
     "keycharm": "^0.3.1",
+    "modernizr": "^3.11.2",
     "moment": "^2.24.0",
     "timsort": "^0.3.0",
     "uuid": "^7.0.3",
@@ -53,7 +54,7 @@
     "terser-webpack-plugin": "^2.3.5",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.10.3"
+    "webpack-dev-server": "^3.11.0"
   },
   "private": true
 }
