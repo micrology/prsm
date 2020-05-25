@@ -1,0 +1,1443 @@
+{
+	"saved": "18/05/2020, 16:57:06",
+	"version": "1.06",
+	"room": "OYJ-NSN-SUP-FCK",
+	"lastNodeSample": "group2",
+	"lastLinkSample": "edge3",
+	"buttons": {
+		"autoLayout": false,
+		"gravity": "500000",
+		"snapToGrid": false,
+		"curve": "Curved",
+		"linkRadius": "All",
+		"stream": "All",
+		"showLabels": true,
+		"sizing": "Centrality"
+	},
+	"samples": {
+		"nodes": {
+			"base": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "white",
+					"highlight": {
+						"border": "black",
+						"background": "white"
+					},
+					"hover": {
+						"border": "black",
+						"background": "white"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group0": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#0000ff",
+					"background": "white",
+					"highlight": {
+						"border": "#0000ff",
+						"background": "white"
+					},
+					"hover": {
+						"border": "#0000ff",
+						"background": "white"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group1": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "white",
+					"highlight": {
+						"border": "black",
+						"background": "white"
+					},
+					"hover": {
+						"border": "black",
+						"background": "white"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group2": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#99e699",
+					"highlight": {
+						"border": "black",
+						"background": "#99e699"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#99e699"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group3": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#ffccdd",
+					"highlight": {
+						"border": "black",
+						"background": "#ffccdd"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffccdd"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group4": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#ffccdd",
+					"highlight": {
+						"border": "black",
+						"background": "#ffccdd"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffccdd"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": true
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group5": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#b3ccff",
+					"highlight": {
+						"border": "black",
+						"background": "#b3ccff"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#b3ccff"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group6": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "black",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group7": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "black",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group8": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "black",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "red",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			}
+		},
+		"edges": {
+			"base": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge0": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge1": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#00cc00",
+					"highlight": "#00cc00",
+					"hover": "#00cc00"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge2": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "red",
+					"highlight": "red",
+					"hover": "red"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge3": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "blue",
+					"highlight": "blue",
+					"hover": "blue"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge4": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "grey",
+					"highlight": "grey",
+					"hover": "grey"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge5": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#e6b800",
+					"highlight": "#e6b800",
+					"hover": "#e6b800"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 2,
+				"groupLabel": ""
+			},
+			"edge6": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black"
+				},
+				"dashes": [
+					10,
+					10
+				],
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 3,
+				"groupLabel": ""
+			},
+			"edge7": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "green",
+					"highlight": "green",
+					"hover": "green"
+				},
+				"dashes": [
+					10,
+					10
+				],
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 3,
+				"groupLabel": ""
+			},
+			"edge8": {
+				"arrows": {
+					"middle": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			}
+		}
+	},
+	"nodes": [
+		{
+			"id": "39a9f8f2-131d-491d-b87f-7afebe4671ce",
+			"x": 467,
+			"y": 7,
+			"label": "Foodbank usage\nin Surrey",
+			"grp": "group2"
+		},
+		{
+			"id": "489fca4d-6118-4fd4-92e5-25b2890d921c",
+			"x": 272,
+			"y": -155,
+			"label": "Referrals to\nfoodbanks",
+			"grp": "group1"
+		},
+		{
+			"id": "ca280a1f-fc12-4a84-a377-6c67c5127b71",
+			"x": -264,
+			"y": -399,
+			"label": "Unemployment",
+			"grp": "group8"
+		},
+		{
+			"id": "c306890a-e5ad-4b10-89a7-f34e4b29849a",
+			"x": 200,
+			"y": -468,
+			"label": "Cost of living",
+			"grp": "group1"
+		},
+		{
+			"id": "35df2284-fb91-4958-9f00-0f86d18b471a",
+			"x": -39,
+			"y": -370,
+			"label": "Income",
+			"grp": "group1"
+		},
+		{
+			"id": "187c2326-ee43-47a6-9aa9-bd7b03814a3e",
+			"x": 715,
+			"y": 5,
+			"label": "More foodbanks\nbeing set up",
+			"grp": "group2"
+		},
+		{
+			"id": "796c4c69-35ca-4fbb-9288-234ebbabfc01",
+			"x": 200,
+			"y": -63,
+			"label": "Stigma/shame",
+			"grp": "group1"
+		},
+		{
+			"id": "e7a78ba5-d091-4a95-8bd3-df31c0ff37a3",
+			"x": 221,
+			"y": 121,
+			"label": "Availability\nof stock/goods",
+			"grp": "group1"
+		},
+		{
+			"id": "41ad2a20-7e57-4078-a137-f6dc46b385b0",
+			"x": 122,
+			"y": -136,
+			"label": "Mental health",
+			"grp": "group1"
+		},
+		{
+			"id": "50bc554e-3531-4d34-8617-a85bc6dd009a",
+			"x": 594,
+			"y": -380,
+			"label": "Disability",
+			"grp": "group1"
+		},
+		{
+			"id": "da83c06e-f3bd-40e6-ad32-73a69d424b82",
+			"x": 405,
+			"y": -284,
+			"label": "Vulnerability",
+			"grp": "group1"
+		},
+		{
+			"id": "580fbdb5-79c6-4ad8-9ee7-f32112f6f980",
+			"x": 728,
+			"y": -222,
+			"label": "Distance to nearest\nfoodbank",
+			"grp": "group1"
+		},
+		{
+			"id": "87967fde-b6e3-421b-b295-7684be97836c",
+			"x": 547,
+			"y": -187,
+			"label": "Accessibility\nof foodbanks",
+			"grp": "group1"
+		},
+		{
+			"id": "2c4066a1-72cf-42fa-ab0b-23ae536f2ead",
+			"x": 41,
+			"y": -625,
+			"label": "Homelessness",
+			"grp": "group1"
+		},
+		{
+			"id": "ac011d29-7226-461e-9e6b-ab7ac377419a",
+			"x": 723,
+			"y": -345,
+			"label": "Transport links",
+			"grp": "group0"
+		},
+		{
+			"id": "75b9093b-97c4-4ef9-9bd3-e9b5bd0aecb1",
+			"x": 185,
+			"y": -331,
+			"label": "Financial independence",
+			"grp": "group1"
+		},
+		{
+			"id": "7a632df1-47c9-4569-ae26-f8cbd5c1bdf6",
+			"x": 36,
+			"y": -236,
+			"label": "I Mental health\nconditions",
+			"grp": "group1"
+		},
+		{
+			"id": "9ac2df7a-92ee-4baf-b112-420b7af2073d",
+			"x": 90,
+			"y": -427,
+			"label": "Income per child",
+			"grp": "group1"
+		},
+		{
+			"id": "42ba817e-696a-4ca5-b221-bec559d39c78",
+			"x": -162,
+			"y": -544,
+			"label": "Single parent\nfamilies",
+			"grp": "group1"
+		},
+		{
+			"id": "1757a5a3-77aa-49dd-8bd9-b4083096369d",
+			"x": 174,
+			"y": -605,
+			"label": "Number of children",
+			"grp": "group4"
+		},
+		{
+			"id": "fc5bfd15-95e4-4346-a732-46680dc88c14",
+			"x": -225,
+			"y": -336,
+			"label": "Personal support\nnetwork",
+			"grp": "group1"
+		},
+		{
+			"id": "219d7e41-aef3-4cb1-8b50-50ee4a3bd7ed",
+			"x": 477,
+			"y": -436,
+			"label": "Language and\ncultural barriers",
+			"grp": "group1"
+		},
+		{
+			"id": "f4af8435-72ed-4520-b96e-883e9df4d791",
+			"x": 405,
+			"y": -104,
+			"label": "Awareness of\nfoodbanks",
+			"grp": "group1"
+		},
+		{
+			"id": "c405313d-fad6-480d-8d0c-9d76c6662cbf",
+			"x": -370,
+			"y": -230,
+			"label": "Universal credit",
+			"grp": "group0"
+		},
+		{
+			"id": "c370ba4a-0529-4f1d-b445-602ad51ae8dc",
+			"x": 431,
+			"y": -570,
+			"label": "G Immigration",
+			"grp": "group1"
+		},
+		{
+			"id": "fabf0e6f-a427-4bc8-910b-2c54439c4183",
+			"x": -132,
+			"y": -630,
+			"label": "House prices",
+			"grp": "group8"
+		},
+		{
+			"id": "2145f625-5d83-431e-968b-256bd2c07b9e",
+			"x": -340,
+			"y": -574,
+			"label": "Proximity to\nLondon",
+			"grp": "group1"
+		},
+		{
+			"id": "9fda8337-4393-4230-9be3-0df60a4b3dd5",
+			"x": -169,
+			"y": -716,
+			"label": "Availability\nof housing",
+			"grp": "group0"
+		},
+		{
+			"id": "cb0de125-7808-4360-b6f4-1e65c74d34f1",
+			"x": 321,
+			"y": -652,
+			"label": "Substance abuse",
+			"grp": "group1"
+		},
+		{
+			"id": "8a7b24de-25b0-4453-9bea-98af1f9f1e3f",
+			"x": -330,
+			"y": -784,
+			"label": "Proximity to\nGreen Belt land",
+			"grp": "group1"
+		},
+		{
+			"id": "78c7dd26-f974-4d0a-82b4-71dbe7b18ef6",
+			"x": 430,
+			"y": 207,
+			"label": "Availability\nof staff",
+			"grp": "group1"
+		},
+		{
+			"id": "4ed3bc92-906d-4526-8b06-4510b3347c5f",
+			"x": -176,
+			"y": 21,
+			"label": "FB Quality of\nstaff",
+			"grp": "group6"
+		},
+		{
+			"id": "86413ce9-cffc-4290-af72-cdc36a9cdf42",
+			"x": -272,
+			"y": -114,
+			"label": "Pastoral care\nand support",
+			"grp": "group6"
+		},
+		{
+			"id": "a942b610-8a49-4148-899c-059dad82bce8",
+			"x": -34,
+			"y": -58,
+			"label": "FB Welcoming\natmosphere",
+			"grp": "group6"
+		},
+		{
+			"id": "7f7f4d6e-b2df-498d-904c-7591fca39671",
+			"x": 187,
+			"y": 39,
+			"label": "Promotion of\nfoodbanks",
+			"grp": "group6"
+		},
+		{
+			"id": "bb20c0c4-48f4-4071-82ea-5fd8baf1cad6",
+			"x": 622,
+			"y": 169,
+			"label": "I FB Access to\nhealthy and affordable\nfood",
+			"grp": "group1"
+		},
+		{
+			"id": "021764e3-f169-4351-b1c8-14ecf9c4f088",
+			"x": 948,
+			"y": -484,
+			"label": "Vulnerable to\nCovid factor",
+			"grp": "group8"
+		},
+		{
+			"id": "0d66a684-f73e-43b3-8c25-6e3d99c1610c",
+			"x": 946,
+			"y": -532,
+			"label": "Outcome",
+			"grp": "group2"
+		},
+		{
+			"id": "ac85afde-f446-42d5-8305-a52732c7237f",
+			"x": 948,
+			"y": -335,
+			"label": "Controllable\nby central govt",
+			"grp": "group0"
+		},
+		{
+			"id": "b21608a2-3f52-4842-8de8-c6ec2bb9683d",
+			"x": 954,
+			"y": -255,
+			"label": "Controllable\nby foodbank",
+			"grp": "group6"
+		},
+		{
+			"id": "00b3cd56-9330-4cd5-a49c-9059085f48ee",
+			"x": 950,
+			"y": -412,
+			"label": "Controllable\nby individual/family",
+			"grp": "group4"
+		}
+	],
+	"edges": [
+		{
+			"from": "489fca4d-6118-4fd4-92e5-25b2890d921c",
+			"to": "39a9f8f2-131d-491d-b87f-7afebe4671ce",
+			"label": "",
+			"grp": "edge1",
+			"id": "996d8cdf-61ed-4ee0-9556-933204149e4a"
+		},
+		{
+			"from": "796c4c69-35ca-4fbb-9288-234ebbabfc01",
+			"to": "39a9f8f2-131d-491d-b87f-7afebe4671ce",
+			"label": "",
+			"grp": "edge2",
+			"id": "1f033eee-826d-4a42-bf1a-1feb0740b196"
+		},
+		{
+			"from": "87967fde-b6e3-421b-b295-7684be97836c",
+			"to": "39a9f8f2-131d-491d-b87f-7afebe4671ce",
+			"label": "",
+			"grp": "edge1",
+			"id": "ec9ecfd5-6e7f-454f-88c3-8b6f918e63fa"
+		},
+		{
+			"from": "50bc554e-3531-4d34-8617-a85bc6dd009a",
+			"to": "87967fde-b6e3-421b-b295-7684be97836c",
+			"label": "",
+			"grp": "edge2",
+			"id": "bdef0ca8-e26c-4cda-88d2-9af0ffac2fdc"
+		},
+		{
+			"from": "580fbdb5-79c6-4ad8-9ee7-f32112f6f980",
+			"to": "87967fde-b6e3-421b-b295-7684be97836c",
+			"label": "",
+			"grp": "edge2",
+			"id": "fd8efc5e-04ad-4174-a927-6174ed39fd96"
+		},
+		{
+			"from": "ac011d29-7226-461e-9e6b-ab7ac377419a",
+			"to": "87967fde-b6e3-421b-b295-7684be97836c",
+			"label": "",
+			"grp": "edge1",
+			"id": "b6963009-e14e-44de-b82f-37c82304b6f8"
+		},
+		{
+			"from": "35df2284-fb91-4958-9f00-0f86d18b471a",
+			"to": "75b9093b-97c4-4ef9-9bd3-e9b5bd0aecb1",
+			"label": "",
+			"grp": "edge1",
+			"id": "ef2ba8f0-715e-4c24-89dc-12b9cc1ee0ae"
+		},
+		{
+			"from": "75b9093b-97c4-4ef9-9bd3-e9b5bd0aecb1",
+			"to": "489fca4d-6118-4fd4-92e5-25b2890d921c",
+			"label": "",
+			"grp": "edge2",
+			"id": "d8455c5b-ae1e-4222-975a-eb5bc1fc8695"
+		},
+		{
+			"from": "50bc554e-3531-4d34-8617-a85bc6dd009a",
+			"to": "75b9093b-97c4-4ef9-9bd3-e9b5bd0aecb1",
+			"label": "",
+			"grp": "edge2",
+			"id": "0d915b9f-7521-4831-b652-62bedf829b25"
+		},
+		{
+			"from": "7a632df1-47c9-4569-ae26-f8cbd5c1bdf6",
+			"to": "75b9093b-97c4-4ef9-9bd3-e9b5bd0aecb1",
+			"label": "",
+			"grp": "edge2",
+			"id": "594a4e1d-b3f2-48c9-a68c-4dbc1299d059"
+		},
+		{
+			"from": "796c4c69-35ca-4fbb-9288-234ebbabfc01",
+			"to": "41ad2a20-7e57-4078-a137-f6dc46b385b0",
+			"label": "",
+			"grp": "edge2",
+			"id": "6557f151-0472-4a17-8397-f338f84acda8"
+		},
+		{
+			"from": "41ad2a20-7e57-4078-a137-f6dc46b385b0",
+			"to": "796c4c69-35ca-4fbb-9288-234ebbabfc01",
+			"label": "",
+			"grp": "edge2",
+			"id": "6343a351-3b77-40c6-a7e1-90d26e092909"
+		},
+		{
+			"from": "41ad2a20-7e57-4078-a137-f6dc46b385b0",
+			"to": "7a632df1-47c9-4569-ae26-f8cbd5c1bdf6",
+			"label": "",
+			"grp": "edge2",
+			"id": "76a6a5d9-9f8b-4783-aad9-5a2657389222"
+		},
+		{
+			"from": "75b9093b-97c4-4ef9-9bd3-e9b5bd0aecb1",
+			"to": "da83c06e-f3bd-40e6-ad32-73a69d424b82",
+			"label": "",
+			"grp": "edge2",
+			"id": "ea81e4dc-1120-4a56-9020-518fd7565db8"
+		},
+		{
+			"from": "50bc554e-3531-4d34-8617-a85bc6dd009a",
+			"to": "da83c06e-f3bd-40e6-ad32-73a69d424b82",
+			"label": "",
+			"grp": "edge1",
+			"id": "7c4d7f98-d15b-4ee4-8f91-9cc97d1a71ed"
+		},
+		{
+			"from": "7a632df1-47c9-4569-ae26-f8cbd5c1bdf6",
+			"to": "da83c06e-f3bd-40e6-ad32-73a69d424b82",
+			"label": "",
+			"grp": "edge1",
+			"id": "86359430-5d67-4cfe-af89-c08d772ace92"
+		},
+		{
+			"from": "da83c06e-f3bd-40e6-ad32-73a69d424b82",
+			"to": "489fca4d-6118-4fd4-92e5-25b2890d921c",
+			"label": "",
+			"grp": "edge1",
+			"id": "1028f70b-5d95-40e7-8300-4ffb9d14476b"
+		},
+		{
+			"from": "35df2284-fb91-4958-9f00-0f86d18b471a",
+			"to": "9ac2df7a-92ee-4baf-b112-420b7af2073d",
+			"label": "",
+			"grp": "edge1",
+			"id": "fa00399d-8a02-4ab7-a145-b9a6d5985942"
+		},
+		{
+			"from": "9ac2df7a-92ee-4baf-b112-420b7af2073d",
+			"to": "75b9093b-97c4-4ef9-9bd3-e9b5bd0aecb1",
+			"label": "",
+			"grp": "edge1",
+			"id": "530565c8-209c-46cc-a9d1-f70386805685"
+		},
+		{
+			"from": "1757a5a3-77aa-49dd-8bd9-b4083096369d",
+			"to": "c306890a-e5ad-4b10-89a7-f34e4b29849a",
+			"label": "",
+			"grp": "edge1",
+			"id": "cafbc130-1e36-48c7-a020-43de870379ee"
+		},
+		{
+			"from": "c306890a-e5ad-4b10-89a7-f34e4b29849a",
+			"to": "75b9093b-97c4-4ef9-9bd3-e9b5bd0aecb1",
+			"label": "",
+			"grp": "edge2",
+			"id": "a3a50427-b114-4b3a-8066-81e7f813239f"
+		},
+		{
+			"from": "42ba817e-696a-4ca5-b221-bec559d39c78",
+			"to": "c306890a-e5ad-4b10-89a7-f34e4b29849a",
+			"label": "",
+			"grp": "edge1",
+			"id": "ab607958-e242-40e5-9c4c-157ea0e888bd"
+		},
+		{
+			"from": "42ba817e-696a-4ca5-b221-bec559d39c78",
+			"to": "35df2284-fb91-4958-9f00-0f86d18b471a",
+			"label": "",
+			"grp": "edge2",
+			"id": "ff65a638-c21e-4c42-ae07-cede4e32151b"
+		},
+		{
+			"from": "1757a5a3-77aa-49dd-8bd9-b4083096369d",
+			"to": "9ac2df7a-92ee-4baf-b112-420b7af2073d",
+			"label": "",
+			"grp": "edge2",
+			"id": "85b0672f-12c0-420d-aeb3-cc253e62bf91"
+		},
+		{
+			"from": "fc5bfd15-95e4-4346-a732-46680dc88c14",
+			"to": "41ad2a20-7e57-4078-a137-f6dc46b385b0",
+			"label": "",
+			"grp": "edge1",
+			"id": "7ce26d16-f741-435f-bb18-aa7a7dddde1a"
+		},
+		{
+			"from": "fc5bfd15-95e4-4346-a732-46680dc88c14",
+			"to": "35df2284-fb91-4958-9f00-0f86d18b471a",
+			"label": "",
+			"grp": "edge1",
+			"id": "48189914-9647-4544-8e9a-9dd7d82b3110"
+		},
+		{
+			"from": "ca280a1f-fc12-4a84-a377-6c67c5127b71",
+			"to": "35df2284-fb91-4958-9f00-0f86d18b471a",
+			"label": "",
+			"grp": "edge2",
+			"id": "d21690df-4623-43a2-b122-434e1e49f8fa"
+		},
+		{
+			"from": "2c4066a1-72cf-42fa-ab0b-23ae536f2ead",
+			"to": "ca280a1f-fc12-4a84-a377-6c67c5127b71",
+			"label": "",
+			"grp": "edge1",
+			"id": "d00e453e-d9e4-4b9c-aa0d-6857166c6065"
+		},
+		{
+			"from": "2c4066a1-72cf-42fa-ab0b-23ae536f2ead",
+			"to": "87967fde-b6e3-421b-b295-7684be97836c",
+			"label": "",
+			"grp": "edge2",
+			"id": "5ee4c815-4f20-45bf-9696-77f18a48a00d"
+		},
+		{
+			"from": "35df2284-fb91-4958-9f00-0f86d18b471a",
+			"to": "2c4066a1-72cf-42fa-ab0b-23ae536f2ead",
+			"label": "",
+			"grp": "edge2",
+			"id": "02b8526e-2799-4c90-97ec-0e07f73e212a"
+		},
+		{
+			"from": "fc5bfd15-95e4-4346-a732-46680dc88c14",
+			"to": "2c4066a1-72cf-42fa-ab0b-23ae536f2ead",
+			"label": "",
+			"grp": "edge2",
+			"id": "03e1aad9-f24e-4610-b04d-9f693e084ba0"
+		},
+		{
+			"from": "35df2284-fb91-4958-9f00-0f86d18b471a",
+			"to": "ac011d29-7226-461e-9e6b-ab7ac377419a",
+			"label": "",
+			"grp": "edge2",
+			"id": "bf86a493-a804-45a5-abd3-93f8e4d4c4de"
+		},
+		{
+			"from": "50bc554e-3531-4d34-8617-a85bc6dd009a",
+			"to": "41ad2a20-7e57-4078-a137-f6dc46b385b0",
+			"label": "",
+			"grp": "edge2",
+			"id": "0c647cad-3ede-4192-9198-abbf6829e555"
+		},
+		{
+			"from": "41ad2a20-7e57-4078-a137-f6dc46b385b0",
+			"to": "50bc554e-3531-4d34-8617-a85bc6dd009a",
+			"label": "",
+			"grp": "edge2",
+			"id": "17b4c426-8670-42be-be13-41c4e18a0357"
+		},
+		{
+			"from": "fc5bfd15-95e4-4346-a732-46680dc88c14",
+			"to": "da83c06e-f3bd-40e6-ad32-73a69d424b82",
+			"label": "",
+			"grp": "edge2",
+			"id": "a2bb0d8f-2438-44fb-b419-3e3f86c44fc0"
+		},
+		{
+			"from": "39a9f8f2-131d-491d-b87f-7afebe4671ce",
+			"to": "187c2326-ee43-47a6-9aa9-bd7b03814a3e",
+			"label": "",
+			"grp": "edge1",
+			"id": "e5a6f53b-d7bb-48f6-a937-1545f26ce93c"
+		},
+		{
+			"from": "187c2326-ee43-47a6-9aa9-bd7b03814a3e",
+			"to": "87967fde-b6e3-421b-b295-7684be97836c",
+			"label": "",
+			"grp": "edge1",
+			"id": "a1bd202b-4102-4088-976a-57d9eec487bd"
+		},
+		{
+			"from": "187c2326-ee43-47a6-9aa9-bd7b03814a3e",
+			"to": "580fbdb5-79c6-4ad8-9ee7-f32112f6f980",
+			"label": "",
+			"grp": "edge2",
+			"id": "57335aa5-320e-44e9-ac32-64f80036fd65"
+		},
+		{
+			"from": "e7a78ba5-d091-4a95-8bd3-df31c0ff37a3",
+			"to": "187c2326-ee43-47a6-9aa9-bd7b03814a3e",
+			"label": "",
+			"grp": "edge1",
+			"id": "0fd54f8d-2775-4003-ab22-6e9eaebb2f30"
+		},
+		{
+			"from": "e7a78ba5-d091-4a95-8bd3-df31c0ff37a3",
+			"to": "39a9f8f2-131d-491d-b87f-7afebe4671ce",
+			"label": "",
+			"grp": "edge1",
+			"id": "a328a5ec-7843-491a-8b47-016f21311bb4"
+		},
+		{
+			"from": "f4af8435-72ed-4520-b96e-883e9df4d791",
+			"to": "489fca4d-6118-4fd4-92e5-25b2890d921c",
+			"label": "",
+			"grp": "edge1",
+			"id": "dcdca728-3f28-453b-b5de-f618ff9e1880"
+		},
+		{
+			"from": "f4af8435-72ed-4520-b96e-883e9df4d791",
+			"to": "87967fde-b6e3-421b-b295-7684be97836c",
+			"label": "",
+			"grp": "edge1",
+			"id": "9c58979d-fbff-4f3c-8e64-e3ab9842daff"
+		},
+		{
+			"from": "219d7e41-aef3-4cb1-8b50-50ee4a3bd7ed",
+			"to": "f4af8435-72ed-4520-b96e-883e9df4d791",
+			"label": "",
+			"grp": "edge2",
+			"id": "b5d6b3f7-6324-420e-8198-82e9e03e329b"
+		},
+		{
+			"from": "39a9f8f2-131d-491d-b87f-7afebe4671ce",
+			"to": "e7a78ba5-d091-4a95-8bd3-df31c0ff37a3",
+			"label": "",
+			"grp": "edge2",
+			"id": "440a6c64-5963-49d0-8ea4-8c75111481a3"
+		},
+		{
+			"from": "c405313d-fad6-480d-8d0c-9d76c6662cbf",
+			"to": "75b9093b-97c4-4ef9-9bd3-e9b5bd0aecb1",
+			"label": "",
+			"grp": "edge3",
+			"id": "5fb5ac71-c7f9-4090-aab5-5085aef20071"
+		},
+		{
+			"from": "75b9093b-97c4-4ef9-9bd3-e9b5bd0aecb1",
+			"to": "c405313d-fad6-480d-8d0c-9d76c6662cbf",
+			"label": "",
+			"grp": "edge3",
+			"id": "10257fdb-fc56-49dc-ab00-e64b807ea290"
+		},
+		{
+			"from": "50bc554e-3531-4d34-8617-a85bc6dd009a",
+			"to": "ca280a1f-fc12-4a84-a377-6c67c5127b71",
+			"label": "",
+			"grp": "edge1",
+			"id": "e24aef42-be0f-456c-9b96-59d10a67bb08"
+		},
+		{
+			"from": "c370ba4a-0529-4f1d-b445-602ad51ae8dc",
+			"to": "219d7e41-aef3-4cb1-8b50-50ee4a3bd7ed",
+			"label": "",
+			"grp": "edge1",
+			"id": "7634306c-3c23-4f23-8094-335f72d6bf43"
+		},
+		{
+			"from": "c370ba4a-0529-4f1d-b445-602ad51ae8dc",
+			"to": "fc5bfd15-95e4-4346-a732-46680dc88c14",
+			"label": "",
+			"grp": "edge2",
+			"id": "5d23341b-7664-46de-aff4-01a331277a00"
+		},
+		{
+			"from": "2145f625-5d83-431e-968b-256bd2c07b9e",
+			"to": "fabf0e6f-a427-4bc8-910b-2c54439c4183",
+			"label": "",
+			"grp": "edge1",
+			"id": "348d157c-2ced-4965-af99-fb25a72781bc"
+		},
+		{
+			"from": "fabf0e6f-a427-4bc8-910b-2c54439c4183",
+			"to": "2c4066a1-72cf-42fa-ab0b-23ae536f2ead",
+			"label": "",
+			"grp": "edge1",
+			"id": "2fd2cce3-b064-42fe-b474-13c7b1e87bdf"
+		},
+		{
+			"from": "2145f625-5d83-431e-968b-256bd2c07b9e",
+			"to": "ca280a1f-fc12-4a84-a377-6c67c5127b71",
+			"label": "",
+			"grp": "edge2",
+			"id": "c3b906aa-4afa-4ac1-b9ea-0cada83001ce"
+		},
+		{
+			"from": "9fda8337-4393-4230-9be3-0df60a4b3dd5",
+			"to": "fabf0e6f-a427-4bc8-910b-2c54439c4183",
+			"label": "",
+			"grp": "edge1",
+			"id": "1cf3dcb9-18c2-4aef-9008-6173520de379"
+		},
+		{
+			"from": "cb0de125-7808-4360-b6f4-1e65c74d34f1",
+			"to": "da83c06e-f3bd-40e6-ad32-73a69d424b82",
+			"label": "",
+			"grp": "edge1",
+			"id": "8aa2e8bc-5386-4376-8ef1-7198d2107fc7"
+		},
+		{
+			"from": "cb0de125-7808-4360-b6f4-1e65c74d34f1",
+			"to": "c306890a-e5ad-4b10-89a7-f34e4b29849a",
+			"label": "",
+			"grp": "edge1",
+			"id": "630e0982-05a6-45dd-a3f3-eea21261bea4"
+		},
+		{
+			"from": "cb0de125-7808-4360-b6f4-1e65c74d34f1",
+			"to": "41ad2a20-7e57-4078-a137-f6dc46b385b0",
+			"label": "",
+			"grp": "edge2",
+			"id": "f5f73c5c-51b0-4ef9-9f98-3aae17c300a7"
+		},
+		{
+			"from": "41ad2a20-7e57-4078-a137-f6dc46b385b0",
+			"to": "cb0de125-7808-4360-b6f4-1e65c74d34f1",
+			"label": "",
+			"grp": "edge2",
+			"id": "1274052b-ee14-417e-b2d7-203110587c0f"
+		},
+		{
+			"from": "cb0de125-7808-4360-b6f4-1e65c74d34f1",
+			"to": "ca280a1f-fc12-4a84-a377-6c67c5127b71",
+			"label": "",
+			"grp": "edge1",
+			"id": "27b52798-21f8-4ab9-82ec-41ececc5c78e"
+		},
+		{
+			"from": "8a7b24de-25b0-4453-9bea-98af1f9f1e3f",
+			"to": "9fda8337-4393-4230-9be3-0df60a4b3dd5",
+			"label": "",
+			"grp": "edge2",
+			"id": "de7d6b97-6795-46b0-ba4a-ec909ccaaa0d"
+		},
+		{
+			"from": "4ed3bc92-906d-4526-8b06-4510b3347c5f",
+			"to": "a942b610-8a49-4148-899c-059dad82bce8",
+			"label": "",
+			"grp": "edge1",
+			"id": "5d1337f2-f4b0-446d-a36e-7da0b130394c"
+		},
+		{
+			"from": "a942b610-8a49-4148-899c-059dad82bce8",
+			"to": "796c4c69-35ca-4fbb-9288-234ebbabfc01",
+			"label": "",
+			"grp": "edge2",
+			"id": "69f84044-9044-4a32-9f09-46efa43b19a3"
+		},
+		{
+			"from": "78c7dd26-f974-4d0a-82b4-71dbe7b18ef6",
+			"to": "39a9f8f2-131d-491d-b87f-7afebe4671ce",
+			"label": "",
+			"grp": "edge1",
+			"id": "4576779a-e755-4201-8bd7-910591fc484f"
+		},
+		{
+			"from": "78c7dd26-f974-4d0a-82b4-71dbe7b18ef6",
+			"to": "187c2326-ee43-47a6-9aa9-bd7b03814a3e",
+			"label": "",
+			"grp": "edge1",
+			"id": "5a520d44-98cb-4ee1-b5cb-871fbd194d51"
+		},
+		{
+			"from": "4ed3bc92-906d-4526-8b06-4510b3347c5f",
+			"to": "86413ce9-cffc-4290-af72-cdc36a9cdf42",
+			"label": "",
+			"grp": "edge1",
+			"id": "2911fc62-7158-41e5-b3b1-7a2ce191a13f"
+		},
+		{
+			"from": "86413ce9-cffc-4290-af72-cdc36a9cdf42",
+			"to": "219d7e41-aef3-4cb1-8b50-50ee4a3bd7ed",
+			"label": "",
+			"grp": "edge2",
+			"id": "d90cc9b0-811a-4f6f-8042-35fe717c404a"
+		},
+		{
+			"from": "86413ce9-cffc-4290-af72-cdc36a9cdf42",
+			"to": "c405313d-fad6-480d-8d0c-9d76c6662cbf",
+			"label": "",
+			"grp": "edge1",
+			"id": "8556039c-3159-4c83-9494-06110f9a077b"
+		},
+		{
+			"from": "7f7f4d6e-b2df-498d-904c-7591fca39671",
+			"to": "f4af8435-72ed-4520-b96e-883e9df4d791",
+			"label": "",
+			"grp": "edge1",
+			"id": "992360b2-cecb-4a94-8caa-c300410bae58"
+		},
+		{
+			"from": "39a9f8f2-131d-491d-b87f-7afebe4671ce",
+			"to": "bb20c0c4-48f4-4071-82ea-5fd8baf1cad6",
+			"label": "",
+			"grp": "edge1",
+			"id": "521d1b51-bda8-42a3-ad42-45307c1cdfd2"
+		},
+		{
+			"from": "bb20c0c4-48f4-4071-82ea-5fd8baf1cad6",
+			"to": "187c2326-ee43-47a6-9aa9-bd7b03814a3e",
+			"label": "",
+			"grp": "edge3",
+			"id": "320b19af-0317-409e-9549-af723db2548f"
+		}
+	]
+}

@@ -7,7 +7,7 @@ import {
 }
 from "vis-data/peer";
 import {
-	deepCopy
+	deepCopy, standardize_color
 }
 from "./utils.js";
 export
@@ -276,9 +276,8 @@ function setUpSamples() {
 		let nodeDataSet = new DataSet([Object.assign({
 			id: "1",
 			label: (groupLabel == undefined ? "" : groupLabel),
-			chosen: false,
 			value: 50
-		}, sampleOptions)]);
+		}, sampleOptions, {chosen: false})]);
 		initSample(sampleElement, {
 			nodes: nodeDataSet,
 			edges: emptyDataSet
@@ -507,12 +506,6 @@ function reApplySampleToLinks(groupId) {
 		edge = Object.assign(edge, deepCopy(samples.edges[groupId]));
 	}
 	window.data.edges.update(edgesToUpdate);
-}
-
-function standardize_color(str) {
-	let ctx = document.createElement("canvas").getContext("2d");
-	ctx.fillStyle = str;
-	return ctx.fillStyle;
 }
 
 function getColor(well, prop) {

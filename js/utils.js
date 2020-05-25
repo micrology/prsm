@@ -145,5 +145,10 @@ export function dragElement(elmnt, header) {
 	}
 }
 
+export function standardize_color(str) {
+	let ctx = document.createElement("canvas").getContext("2d");
+	ctx.fillStyle = str;
+	return ctx.fillStyle;
+}
 
 
