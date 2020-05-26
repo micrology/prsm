@@ -19,19 +19,19 @@ const samples = {
 			borderWidthSelected: 1,
 			chosen: true,
 			color: {
-				border: 'black',
-				background: 'white',
+				border: '#000000',
+				background: '#ffffff',
 				highlight: {
-					border: 'black',
-					background: 'white'
+					border: '#000000',
+					background: '#ffffff'
 				},
 				hover: {
-					border: 'black',
-					background: 'white'
+					border: '#000000',
+					background: '#ffffff'
 				},
 			},
 			font: {
-				color: 'black',
+				color: '#000000',
 				size: 14
 			},
 			labelHighlightBold: true,
@@ -54,54 +54,54 @@ const samples = {
 		group0: {
 			color: {
 				border: '#0000ff',
-				background: "white",
+				background: '#ffffff',
 			},
 			font: {
-				color: 'black',
+				color: '#000000',
 			},
 		},
 		//------------------------------
 		// black bordered white ellipse 
 		group1: {
 			color: {
-				border: 'black',
-				background: "white",
+				border: '#000000',
+				background: '#ffffff',
 			},
 			font: {
-				color: 'black',
+				color: '#000000',
 			},
 		},
 		//------------------------------
 		// black bordered green ellipse 
 		group2: {
 			color: {
-				border: 'black',
+				border: '#000000',
 				background: "#99e699",
 			},
 			font: {
-				color: 'black',
+				color: '#000000',
 			},
 		},
 		//------------------------------
 		// black bordered pink ellipse 
 		group3: {
 			color: {
-				border: 'black',
+				border: '#000000',
 				background: "#ffccdd",
 			},
 			font: {
-				color: 'black',
+				color: '#000000',
 			},
 		},
 		//------------------------------
 		// black dashed bordered pink ellipse 
 		group4: {
 			color: {
-				border: 'black',
+				border: '#000000',
 				background: "#ffccdd",
 			},
 			font: {
-				color: 'black',
+				color: '#000000',
 			},
 			shapeProperties: {
 				borderDashes: true
@@ -111,33 +111,33 @@ const samples = {
 		// black bordered blue ellipse 
 		group5: {
 			color: {
-				border: 'black',
+				border: '#000000',
 				background: "#b3ccff",
 			},
 			font: {
-				color: 'black',
+				color: '#000000',
 			},
 		},
 		//------------------------------
 		// black bordered yellow ellipse 
 		group6: {
 			color: {
-				border: 'black',
+				border: '#000000',
 				background: "#ffff99",
 			},
 			font: {
-				color: 'black',
+				color: '#000000',
 			},
 		},
 		//------------------------------
 		//  black large text only 
 		group7: {
 			color: {
-				border: 'black',
+				border: '#000000',
 				background: "#ffff99",
 			},
 			font: {
-				color: 'black',
+				color: '#000000',
 				size: 20
 			},
 			labelHighlightBold: true,
@@ -147,11 +147,11 @@ const samples = {
 		//  red text only 
 		group8: {
 			color: {
-				border: 'black',
+				border: '#000000',
 				background: "#ffff99",
 			},
 			font: {
-				color: 'red',
+				color: '#ff0000',
 				size: 20
 			},
 			shape: 'text',
@@ -172,9 +172,9 @@ const samples = {
 				}
 			},
 			color: {
-				color: 'black',
-				highlight: 'black',
-				hover: 'black',
+				color: '#000000',
+				highlight: '#000000',
+				hover: '#000000',
 				inherit: false,
 				opacity: 1.0
 			},
@@ -191,7 +191,7 @@ const samples = {
 		// simple directed black link
 		edge0: {
 			color: {
-				color: 'black',
+				color: '#000000',
 			},
 		},
 		// simple directed green link
@@ -203,19 +203,19 @@ const samples = {
 		// simple directed red link
 		edge2: {
 			color: {
-				color: 'red',
+				color: '#ff0000',
 			},
 		},
 		// simple directed blue link
 		edge3: {
 			color: {
-				color: 'blue',
+				color: '#0000ff',
 			},
 		},
 		// simple directed grey link
 		edge4: {
 			color: {
-				color: 'grey',
+				color: '#808080',
 			},
 		},
 		// medium directed dark yellow link
@@ -228,7 +228,7 @@ const samples = {
 		//  directed black dashed link
 		edge6: {
 			color: {
-				color: 'black',
+				color: '#000000',
 			},
 			dashes: [10, 10],
 			width: 3
@@ -236,7 +236,7 @@ const samples = {
 		//  directed green dashed link
 		edge7: {
 			color: {
-				color: 'green',
+				color: '#008000',
 			},
 			dashes: [10, 10],
 			width: 3
@@ -254,7 +254,7 @@ const samples = {
 				},
 			},
 			color: {
-				color: 'black',
+				color: '#000000',
 			},
 		}
 	} // end of edges samples

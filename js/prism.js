@@ -30,7 +30,7 @@ import {
 from "./samples.js";
 import "vis-network/styles/vis-network.css";
 
-const version = "1.07";
+const version = "1.08";
 const LOGOURL = 'img/logo.png';
 const GRIDSPACING = 100;
 const NODEWIDTH = 10;  // chars for label splitting
@@ -286,6 +286,9 @@ function startY() {
 					clientID: null
 				}));
 				break;
+			case 'hideAndStream':
+				setHideAndStream(obj);
+				break;
 			default:
 				console.log('Bad key in yMapNet.observe')
 			}
@@ -537,7 +540,7 @@ function draw() {
 } // end draw()
 
 function fit() {
-	network.fit();
+	network.fit({animation: {duration: 1000, easingFunction: 'linear'}});
 	document.getElementById("zoom").value = network.getScale();
 	network.storePositions();
 }
@@ -873,7 +876,7 @@ Network.prototype.zoom = function (scale) {
 	const animationOptions = {
 		scale: newScale,
 		animation: {
-			duration: 300,
+			duration: 1000,
 		},
 	};
 	this.view.moveTo(animationOptions);
@@ -1747,7 +1750,7 @@ function getRadioVal(name) {
 function setRadioVal(name, value) {
 	// get list of radio buttons with specified name
 	let radios = document.getElementsByName(name);
-	// loop through list of radio buttons
+	// loop through list of radio buttons and set the check on the one with the value
 	for (let i = 0, len = radios.length; i < len; i++) {
 		radios[i].checked = radios[i].value == value;
 	}
@@ -1758,6 +1761,7 @@ function hideDistantOrStreamNodes() {
 	// and then hide everything not in that intersection
 	let radius = getRadioVal("hide");
 	let stream = getRadioVal("stream");
+	broadcastHideAndStream(radius, stream);
 	if (radius == "All" && stream == "All") {
 		showAll();
 		return;
@@ -1768,6 +1772,7 @@ function hideDistantOrStreamNodes() {
 		// unhide everything
 		document.getElementById("hideAll").checked = true;
 		document.getElementById("streamAll").checked = true;
+		broadcastHideAndStream('All', 'All');
 		showAll();
 		return;
 	}
@@ -1880,6 +1885,18 @@ function hideDistantOrStreamNodes() {
 			return edge;
 		}));
 	}
+}
+
+function broadcastHideAndStream(hideSetting, streamSetting) {
+	yNetMap.set('hideAndStream', {hideSetting: hideSetting, streamSetting: streamSetting, 
+		selected: network.getSelectedNodes()});
+}
+
+function setHideAndStream(obj) {
+	network.selectNodes(obj.selected);
+	statusMsg(listFactors(network.getSelectedNodes()) + " selected");
+	setRadioVal('hide', obj.hideSetting);
+	setRadioVal('stream', obj.streamSetting);
 }
 
 function sizing() {
