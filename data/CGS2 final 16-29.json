@@ -1,0 +1,1380 @@
+{
+	"saved": "27/05/2020, 16:29:56",
+	"version": "1.07",
+	"room": "UYO-JYF-FIZ-SGE",
+	"lastNodeSample": "group0",
+	"lastLinkSample": "edge0",
+	"buttons": {
+		"autoLayout": false,
+		"gravity": "500000",
+		"snapToGrid": false,
+		"curve": "Curved",
+		"linkRadius": "All",
+		"stream": "All",
+		"showLabels": true,
+		"sizing": "Off"
+	},
+	"samples": {
+		"nodes": {
+			"base": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "white",
+					"highlight": {
+						"border": "black",
+						"background": "white"
+					},
+					"hover": {
+						"border": "black",
+						"background": "white"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group0": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#0000ff",
+					"background": "white",
+					"highlight": {
+						"border": "#0000ff",
+						"background": "white"
+					},
+					"hover": {
+						"border": "#0000ff",
+						"background": "white"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group1": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "white",
+					"highlight": {
+						"border": "black",
+						"background": "white"
+					},
+					"hover": {
+						"border": "black",
+						"background": "white"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group2": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#99e699",
+					"highlight": {
+						"border": "black",
+						"background": "#99e699"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#99e699"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group3": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#ffccdd",
+					"highlight": {
+						"border": "black",
+						"background": "#ffccdd"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffccdd"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group4": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#ffccdd",
+					"highlight": {
+						"border": "black",
+						"background": "#ffccdd"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffccdd"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": true
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group5": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#b3ccff",
+					"highlight": {
+						"border": "black",
+						"background": "#b3ccff"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#b3ccff"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group6": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "black",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group7": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "black",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group8": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "black",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "black",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "red",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			}
+		},
+		"edges": {
+			"base": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge0": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge1": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#00cc00",
+					"highlight": "#00cc00",
+					"hover": "#00cc00"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge2": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "red",
+					"highlight": "red",
+					"hover": "red"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge3": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "blue",
+					"highlight": "blue",
+					"hover": "blue"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge4": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "grey",
+					"highlight": "grey",
+					"hover": "grey"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge5": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#e6b800",
+					"highlight": "#e6b800",
+					"hover": "#e6b800"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 2,
+				"groupLabel": ""
+			},
+			"edge6": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black"
+				},
+				"dashes": [
+					10,
+					10
+				],
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 3,
+				"groupLabel": ""
+			},
+			"edge7": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "green",
+					"highlight": "green",
+					"hover": "green"
+				},
+				"dashes": [
+					10,
+					10
+				],
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 3,
+				"groupLabel": ""
+			},
+			"edge8": {
+				"arrows": {
+					"middle": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black"
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			}
+		}
+	},
+	"nodes": [
+		{
+			"id": "5e99cdc2-9ef1-4f2e-abc8-934a6edfd70c",
+			"x": -19,
+			"y": -113,
+			"label": "Zero/low-carbon\ncooling in cold-chain",
+			"grp": "group6"
+		},
+		{
+			"id": "1e082bc3-19b2-4e7c-a333-19a5f9b11615",
+			"x": -245,
+			"y": 36,
+			"label": "Warehouses",
+			"grp": "group0"
+		},
+		{
+			"id": "1a7c9ec2-e83a-4c36-866d-dbffbd406842",
+			"x": -11,
+			"y": 53,
+			"label": "Transport",
+			"grp": "group0"
+		},
+		{
+			"id": "4502fdae-cf9e-4f85-9734-0bf9478b6745",
+			"x": -102,
+			"y": 241,
+			"label": "Cooling technology",
+			"grp": "group0"
+		},
+		{
+			"id": "e6aa63d7-d3c7-447f-aa6d-df769c19112e",
+			"x": 361,
+			"y": -68,
+			"label": "Big organizations",
+			"grp": "group0"
+		},
+		{
+			"id": "e6c80eac-40cc-4d5d-8ac5-525042b3865e",
+			"x": 368,
+			"y": -8,
+			"label": "SME organizations",
+			"grp": "group0"
+		},
+		{
+			"id": "4fc30987-00cd-4283-943a-bdcdf799d81f",
+			"x": 532,
+			"y": -54,
+			"label": "Collaboration\nlinks",
+			"grp": "group3"
+		},
+		{
+			"id": "2b4b3e68-f22c-4330-9abe-238440a83956",
+			"x": 319,
+			"y": -170,
+			"label": "Emissions actions",
+			"grp": "group0"
+		},
+		{
+			"id": "a6944b21-84b2-4b34-a70d-5ffc72f36131",
+			"x": -373,
+			"y": 122,
+			"label": "Poor quality\n/ old structures",
+			"grp": "group0"
+		},
+		{
+			"id": "fdad72f1-8ea7-446d-b779-56819a1b6a45",
+			"x": -297,
+			"y": 202,
+			"label": "Advanced / new\nstructures",
+			"grp": "group0"
+		},
+		{
+			"id": "abdbc973-ebe5-4f0f-a3eb-fe2ef7adc76a",
+			"x": -214,
+			"y": -110,
+			"label": "Policy",
+			"grp": "group0"
+		},
+		{
+			"id": "7ac82d9a-10a0-474a-b29a-8fd0c25c6e84",
+			"x": -330,
+			"y": -122,
+			"label": "Regulations\n& Standards",
+			"grp": "group0"
+		},
+		{
+			"id": "a95ecbab-5ef0-4200-9803-18aef35292ac",
+			"x": 94,
+			"y": 176,
+			"label": "Refrigeration\nsystems",
+			"grp": "group3"
+		},
+		{
+			"id": "fa48281f-e669-456a-88c7-e1f3c23b3e65",
+			"x": 303,
+			"y": 224,
+			"label": "Fuels (diesel)",
+			"grp": "group0"
+		},
+		{
+			"id": "496e64ba-4b48-4ba9-97fd-0e456e762bf5",
+			"x": 7,
+			"y": -215,
+			"label": "Economic",
+			"grp": "group0"
+		},
+		{
+			"id": "69e0b571-de2a-4eb1-b609-de96de326b90",
+			"x": -5,
+			"y": -251,
+			"label": "Energy prices",
+			"grp": "group0"
+		},
+		{
+			"id": "c0e58b0f-f1a4-420e-a09e-1c17023fd56f",
+			"x": 244,
+			"y": -239,
+			"label": "Investment Actions",
+			"grp": "group0"
+		},
+		{
+			"id": "a14b6e8a-5f86-48f3-aeba-07ac808af98d",
+			"x": 208,
+			"y": -180,
+			"label": "Actions",
+			"grp": "group0"
+		},
+		{
+			"id": "0062a696-7c02-4218-8376-af8a7dc7b9f0",
+			"x": 106,
+			"y": -151,
+			"label": "Choices",
+			"grp": "group0"
+		},
+		{
+			"id": "554b8502-35d4-4af0-b7cc-0efe3f3eb943",
+			"x": 236,
+			"y": -40,
+			"label": "Incentives &\nsupport",
+			"grp": "group3"
+		},
+		{
+			"id": "39da1340-77cd-4fbc-9b9d-ce7c9232cb7f",
+			"x": 151,
+			"y": 44,
+			"label": "Renewables &\nalternatives",
+			"grp": "group0"
+		},
+		{
+			"id": "4b717c97-d0c0-4236-a6ff-8e21b6e97e7d",
+			"x": 462,
+			"y": 117,
+			"label": "Capital constraints\nto invest",
+			"grp": "group3"
+		},
+		{
+			"id": "be99d948-0a21-4821-85bc-11680ff3a7cd",
+			"x": -211,
+			"y": 94,
+			"label": "Efficiency",
+			"grp": "group0"
+		},
+		{
+			"id": "bf94698c-3276-455b-affa-53b314737857",
+			"x": -518,
+			"y": -251,
+			"label": "Gases refrigerants\nstandards",
+			"grp": "group0"
+		},
+		{
+			"id": "915eedec-4d84-436d-951a-80b5ed917f25",
+			"x": -536,
+			"y": -98,
+			"label": "Building performance\nfor new / cold\nstores",
+			"grp": "group3"
+		},
+		{
+			"id": "60a1173c-1f80-4646-8e77-94f8b146a3c3",
+			"x": 259,
+			"y": -300,
+			"label": "Cost of technologies",
+			"grp": "group0"
+		},
+		{
+			"id": "05ee54e9-709d-483a-96ae-c5c66b026af7",
+			"x": 123,
+			"y": -348,
+			"label": "Resale market\nof technologies",
+			"grp": "group0"
+		},
+		{
+			"id": "beef3071-5ac8-4594-a237-4f36ded2c4d9",
+			"x": 194,
+			"y": 273,
+			"label": "Refigerants",
+			"grp": "group0"
+		},
+		{
+			"id": "b44c4bc8-e314-44c6-ae63-4cc89df335ec",
+			"x": -86,
+			"y": -353,
+			"label": "Business systems",
+			"grp": "group3"
+		},
+		{
+			"id": "d984deb3-402a-490a-9af8-f26f61d23037",
+			"x": -210,
+			"y": -361,
+			"label": "Supply chains",
+			"grp": "group0"
+		},
+		{
+			"id": "47c8693b-376a-46d4-9585-f9c14fdfe931",
+			"x": 85,
+			"y": -430,
+			"label": "Risk management",
+			"grp": "group3"
+		},
+		{
+			"id": "4a195e1f-e8d7-455a-89e5-6c3958188181",
+			"x": -155,
+			"y": -462,
+			"label": "Delivery and\ndrop-off systems",
+			"grp": "group0"
+		},
+		{
+			"id": "68d6e4ee-9ba3-48dc-bbc0-b69e3d482774",
+			"x": -198,
+			"y": -406,
+			"label": "Last mile solutions",
+			"grp": "group0"
+		},
+		{
+			"id": "d3381718-cad2-4722-891f-8f7edf8db43f",
+			"x": 61,
+			"y": 12,
+			"label": "EVs",
+			"grp": "group0"
+		},
+		{
+			"id": "eb06ea11-c1fe-43a9-897c-d5c2cb85b915",
+			"x": -68,
+			"y": 130,
+			"label": "HGV",
+			"grp": "group0"
+		},
+		{
+			"id": "9c13f7ce-c8de-4170-b667-48d24641d8f0",
+			"x": -19,
+			"y": 133,
+			"label": "LGV",
+			"grp": "group0"
+		},
+		{
+			"id": "5d8aecbe-9a14-4a3a-98ef-b89d8ab75c68",
+			"x": -40,
+			"y": 99,
+			"label": "Personal",
+			"grp": "group0"
+		},
+		{
+			"id": "8d1e07e3-6fc8-4287-ac9a-7b30c0152da5",
+			"x": 0,
+			"y": -385,
+			"label": "Customer types",
+			"grp": "group0"
+		},
+		{
+			"id": "0cb44a77-9abd-4169-b417-d698bc3d9dd1",
+			"x": 495,
+			"y": -177,
+			"label": "Forward planning",
+			"grp": "group0"
+		},
+		{
+			"id": "271e0266-981e-499a-942f-a0fcc8af96af",
+			"x": 452,
+			"y": -214,
+			"label": "Flexibility",
+			"grp": "group0"
+		},
+		{
+			"id": "67f76744-7d63-41ee-8839-36d9aede18a0",
+			"x": 206,
+			"y": -124,
+			"label": "Expectations",
+			"grp": "group0"
+		},
+		{
+			"id": "b877860d-25d8-4553-9f18-575f9eafdd00",
+			"x": -328,
+			"y": 290,
+			"label": "System operation\nmonitoring (i.e.\ntemperature)",
+			"grp": "group3"
+		},
+		{
+			"id": "44f90b10-4053-462f-b80f-054de899f3c7",
+			"x": -472,
+			"y": 237,
+			"label": "Smart systems",
+			"grp": "group0"
+		},
+		{
+			"id": "15b72315-e602-49c2-9c93-d9e946ca7e1b",
+			"x": -548,
+			"y": 291,
+			"label": "Cool to cool delivery",
+			"grp": "group0"
+		},
+		{
+			"id": "65bf5161-320b-4c78-bb67-fc7574ada7a2",
+			"x": -172,
+			"y": -270,
+			"label": "International",
+			"grp": "group0"
+		},
+		{
+			"id": "f64ee100-f291-44d4-a4b1-2435bbbb49ce",
+			"x": -359,
+			"y": -44,
+			"label": "Legal frameworks",
+			"grp": "group0"
+		},
+		{
+			"id": "77974ce6-5886-41b1-bcc9-0e80b1ea8a0a",
+			"x": -589,
+			"y": -1,
+			"label": "Contracts",
+			"grp": "group0"
+		},
+		{
+			"id": "af9e96e5-014a-4325-a6d4-fe928d2d5b99",
+			"x": -742,
+			"y": 53,
+			"label": "Goods temperature\nlevels",
+			"grp": "group0"
+		},
+		{
+			"id": "79871678-8b36-4ea8-98f4-9363638b27a7",
+			"x": -567,
+			"y": 86,
+			"label": "Green leasing",
+			"grp": "group3"
+		},
+		{
+			"id": "e04f4edb-66ed-4803-8917-455c1c0738c7",
+			"x": -157,
+			"y": -202,
+			"label": "Environment",
+			"grp": "group0"
+		},
+		{
+			"id": "41575d27-44f4-4dbb-b1af-9769dea28ea5",
+			"x": -379,
+			"y": -311,
+			"label": "Air pollution",
+			"grp": "group0"
+		},
+		{
+			"id": "f35c46cc-bedc-4691-b260-d506a4854a09",
+			"x": 106,
+			"y": 350,
+			"label": "Transport refrigeration\nunites (TRU)",
+			"grp": "group0"
+		},
+		{
+			"id": "9047fdf1-f8cd-4545-8218-f8eabb87b625",
+			"x": 338,
+			"y": 269,
+			"label": "Red diesel",
+			"grp": "group0"
+		},
+		{
+			"id": "e4c4ca12-fdea-44d9-a1fb-586211ababcd",
+			"x": -133,
+			"y": -31,
+			"label": "Physical & technological",
+			"grp": "group0"
+		}
+	],
+	"edges": [
+		{
+			"from": "4fc30987-00cd-4283-943a-bdcdf799d81f",
+			"to": "e6aa63d7-d3c7-447f-aa6d-df769c19112e",
+			"label": "",
+			"grp": "edge0",
+			"id": "e8c0b4ba-9bc1-4edc-8e16-7864dea48fca"
+		},
+		{
+			"from": "4fc30987-00cd-4283-943a-bdcdf799d81f",
+			"to": "e6c80eac-40cc-4d5d-8ac5-525042b3865e",
+			"label": "",
+			"grp": "edge0",
+			"id": "2ff29ec0-5041-406c-a7e9-30ba1d0febb8"
+		},
+		{
+			"from": "4fc30987-00cd-4283-943a-bdcdf799d81f",
+			"to": "2b4b3e68-f22c-4330-9abe-238440a83956",
+			"label": "",
+			"grp": "edge0",
+			"id": "ba4da9a2-e6b7-4532-8089-6b046e0b9f5d"
+		},
+		{
+			"from": "4502fdae-cf9e-4f85-9734-0bf9478b6745",
+			"to": "a6944b21-84b2-4b34-a70d-5ffc72f36131",
+			"label": "",
+			"grp": "edge0",
+			"id": "d8f63f48-667b-496b-bf08-58ea99d6858b"
+		},
+		{
+			"from": "4502fdae-cf9e-4f85-9734-0bf9478b6745",
+			"to": "fdad72f1-8ea7-446d-b779-56819a1b6a45",
+			"label": "",
+			"grp": "edge0",
+			"id": "5337615b-1ce2-439e-844d-09a3b718a001"
+		},
+		{
+			"from": "fdad72f1-8ea7-446d-b779-56819a1b6a45",
+			"to": "1e082bc3-19b2-4e7c-a333-19a5f9b11615",
+			"label": "",
+			"grp": "edge0",
+			"id": "2c431644-1246-48c5-99e4-2413d6e2dc33"
+		},
+		{
+			"from": "7ac82d9a-10a0-474a-b29a-8fd0c25c6e84",
+			"to": "1e082bc3-19b2-4e7c-a333-19a5f9b11615",
+			"label": "",
+			"grp": "edge0",
+			"id": "cdd0bb31-2e5b-49dd-83ad-edcac33dfa91"
+		},
+		{
+			"from": "7ac82d9a-10a0-474a-b29a-8fd0c25c6e84",
+			"to": "1a7c9ec2-e83a-4c36-866d-dbffbd406842",
+			"label": "",
+			"grp": "edge0",
+			"id": "f05f8a81-1374-487d-b099-96515af44c89"
+		},
+		{
+			"from": "4502fdae-cf9e-4f85-9734-0bf9478b6745",
+			"to": "a95ecbab-5ef0-4200-9803-18aef35292ac",
+			"label": "",
+			"grp": "edge0",
+			"id": "a4431776-f304-4178-967e-f6736c8f44c0"
+		},
+		{
+			"from": "a95ecbab-5ef0-4200-9803-18aef35292ac",
+			"to": "1a7c9ec2-e83a-4c36-866d-dbffbd406842",
+			"label": "",
+			"grp": "edge0",
+			"id": "c61ba4b4-026e-4a8a-9b54-75018b34fd3d"
+		},
+		{
+			"from": "fa48281f-e669-456a-88c7-e1f3c23b3e65",
+			"to": "a95ecbab-5ef0-4200-9803-18aef35292ac",
+			"label": "",
+			"grp": "edge0",
+			"id": "c73801ea-02ba-4045-9cf6-a731cf3589f0"
+		},
+		{
+			"from": "fa48281f-e669-456a-88c7-e1f3c23b3e65",
+			"to": "2b4b3e68-f22c-4330-9abe-238440a83956",
+			"label": "",
+			"grp": "edge0",
+			"id": "8103dcd4-efbe-40c6-af12-8632b9e58379"
+		},
+		{
+			"from": "69e0b571-de2a-4eb1-b609-de96de326b90",
+			"to": "c0e58b0f-f1a4-420e-a09e-1c17023fd56f",
+			"label": "",
+			"grp": "edge0",
+			"id": "618c7b9f-0021-4e80-9f0e-51f33b9a3674"
+		},
+		{
+			"from": "a14b6e8a-5f86-48f3-aeba-07ac808af98d",
+			"to": "4b717c97-d0c0-4236-a6ff-8e21b6e97e7d",
+			"label": "",
+			"grp": "edge0",
+			"id": "cf75cd07-0f24-437e-9241-17f08e75487a"
+		},
+		{
+			"from": "4b717c97-d0c0-4236-a6ff-8e21b6e97e7d",
+			"to": "e6c80eac-40cc-4d5d-8ac5-525042b3865e",
+			"label": "",
+			"grp": "edge0",
+			"id": "62f61fda-21d1-4fcf-9602-91894afd89ac"
+		},
+		{
+			"from": "39da1340-77cd-4fbc-9b9d-ce7c9232cb7f",
+			"to": "a95ecbab-5ef0-4200-9803-18aef35292ac",
+			"label": "",
+			"grp": "edge0",
+			"id": "9a9e79ad-ee2b-49a3-8343-f092fef4880a"
+		},
+		{
+			"from": "bf94698c-3276-455b-affa-53b314737857",
+			"to": "7ac82d9a-10a0-474a-b29a-8fd0c25c6e84",
+			"label": "",
+			"grp": "edge0",
+			"id": "96a7e4ce-e203-4087-95e8-03d2d6efb51d"
+		},
+		{
+			"from": "915eedec-4d84-436d-951a-80b5ed917f25",
+			"to": "7ac82d9a-10a0-474a-b29a-8fd0c25c6e84",
+			"label": "",
+			"grp": "edge0",
+			"id": "065a45e5-ddad-47c1-8ad2-b3469872c84e"
+		},
+		{
+			"from": "bf94698c-3276-455b-affa-53b314737857",
+			"to": "beef3071-5ac8-4594-a237-4f36ded2c4d9",
+			"label": "",
+			"grp": "edge0",
+			"id": "81e9a8b7-db20-40aa-81a8-99451a26ab5a"
+		},
+		{
+			"from": "beef3071-5ac8-4594-a237-4f36ded2c4d9",
+			"to": "a95ecbab-5ef0-4200-9803-18aef35292ac",
+			"label": "",
+			"grp": "edge0",
+			"id": "7a21a964-8f68-42a6-9605-760f5b682a2e"
+		},
+		{
+			"from": "8d1e07e3-6fc8-4287-ac9a-7b30c0152da5",
+			"to": "67f76744-7d63-41ee-8839-36d9aede18a0",
+			"label": "",
+			"grp": "edge0",
+			"id": "aff382c9-5d24-423a-866f-8b248a5deab6"
+		},
+		{
+			"from": "b877860d-25d8-4553-9f18-575f9eafdd00",
+			"to": "15b72315-e602-49c2-9c93-d9e946ca7e1b",
+			"label": "",
+			"grp": "edge0",
+			"id": "3337ad2f-2a36-4bc4-bce7-8d4acfc14932"
+		},
+		{
+			"from": "15b72315-e602-49c2-9c93-d9e946ca7e1b",
+			"to": "44f90b10-4053-462f-b80f-054de899f3c7",
+			"label": "",
+			"grp": "edge0",
+			"id": "53992c8f-aadf-4b14-98ac-6cf20a471464"
+		},
+		{
+			"from": "05ee54e9-709d-483a-96ae-c5c66b026af7",
+			"to": "65bf5161-320b-4c78-bb67-fc7574ada7a2",
+			"label": "",
+			"grp": "edge0",
+			"id": "7460bd4c-b363-4ded-a83e-4a5c26771d8a"
+		},
+		{
+			"from": "77974ce6-5886-41b1-bcc9-0e80b1ea8a0a",
+			"to": "f64ee100-f291-44d4-a4b1-2435bbbb49ce",
+			"label": "",
+			"grp": "edge0",
+			"id": "7bb9b6eb-d826-4593-ac6d-f7a02c4b91f0"
+		},
+		{
+			"from": "15b72315-e602-49c2-9c93-d9e946ca7e1b",
+			"to": "af9e96e5-014a-4325-a6d4-fe928d2d5b99",
+			"label": "",
+			"grp": "edge0",
+			"id": "0dc7bba3-d1e9-423f-8d94-fb2499f51d1f"
+		},
+		{
+			"from": "af9e96e5-014a-4325-a6d4-fe928d2d5b99",
+			"to": "77974ce6-5886-41b1-bcc9-0e80b1ea8a0a",
+			"label": "",
+			"grp": "edge0",
+			"id": "1bfa6eb5-e439-4f9f-99b3-6a984f7cd4b5"
+		},
+		{
+			"from": "fa48281f-e669-456a-88c7-e1f3c23b3e65",
+			"to": "41575d27-44f4-4dbb-b1af-9769dea28ea5",
+			"label": "",
+			"grp": "edge0",
+			"id": "b9dada5f-ced6-4d85-97c2-4cb3273022fb"
+		},
+		{
+			"from": "41575d27-44f4-4dbb-b1af-9769dea28ea5",
+			"to": "e04f4edb-66ed-4803-8917-455c1c0738c7",
+			"label": "",
+			"grp": "edge0",
+			"id": "2244437e-3f14-46c7-8107-61292dfaf6da"
+		},
+		{
+			"from": "f35c46cc-bedc-4691-b260-d506a4854a09",
+			"to": "a95ecbab-5ef0-4200-9803-18aef35292ac",
+			"label": "",
+			"grp": "edge0",
+			"id": "ea88b6da-8bf6-4a33-987e-4b28d4422925"
+		},
+		{
+			"from": "f35c46cc-bedc-4691-b260-d506a4854a09",
+			"to": "41575d27-44f4-4dbb-b1af-9769dea28ea5",
+			"label": "",
+			"grp": "edge0",
+			"id": "859fa632-9a6e-420c-87a5-5cdc2372ffa0"
+		},
+		{
+			"from": "0cb44a77-9abd-4169-b417-d698bc3d9dd1",
+			"to": "e6aa63d7-d3c7-447f-aa6d-df769c19112e",
+			"label": "",
+			"grp": "edge0",
+			"id": "240e134c-13ca-45a1-9dc7-cb8a7457db74"
+		},
+		{
+			"from": "0cb44a77-9abd-4169-b417-d698bc3d9dd1",
+			"to": "e6c80eac-40cc-4d5d-8ac5-525042b3865e",
+			"label": "",
+			"grp": "edge0",
+			"id": "15ba40c2-47cd-475d-a0ca-64b58205db6a"
+		},
+		{
+			"from": "915eedec-4d84-436d-951a-80b5ed917f25",
+			"to": "5e99cdc2-9ef1-4f2e-abc8-934a6edfd70c",
+			"label": "",
+			"grp": "edge5",
+			"id": "eeb3a827-f72e-4b59-b492-865715139c82"
+		},
+		{
+			"from": "b44c4bc8-e314-44c6-ae63-4cc89df335ec",
+			"to": "5e99cdc2-9ef1-4f2e-abc8-934a6edfd70c",
+			"label": "",
+			"grp": "edge5",
+			"id": "b2d37c39-866a-41d2-8000-83b6b22c1140"
+		},
+		{
+			"from": "4b717c97-d0c0-4236-a6ff-8e21b6e97e7d",
+			"to": "5e99cdc2-9ef1-4f2e-abc8-934a6edfd70c",
+			"label": "",
+			"grp": "edge5",
+			"id": "4a849f59-b775-46c4-bc70-49b86e310ab3"
+		},
+		{
+			"from": "a95ecbab-5ef0-4200-9803-18aef35292ac",
+			"to": "5e99cdc2-9ef1-4f2e-abc8-934a6edfd70c",
+			"label": "",
+			"grp": "edge5",
+			"id": "4493359e-5193-4d04-a94e-8296867e17e8"
+		},
+		{
+			"from": "b877860d-25d8-4553-9f18-575f9eafdd00",
+			"to": "5e99cdc2-9ef1-4f2e-abc8-934a6edfd70c",
+			"label": "",
+			"grp": "edge5",
+			"id": "8b9ecc3d-f64f-4868-9ff6-8718eea59891"
+		},
+		{
+			"from": "44f90b10-4053-462f-b80f-054de899f3c7",
+			"to": "4502fdae-cf9e-4f85-9734-0bf9478b6745",
+			"label": "",
+			"grp": "edge0",
+			"id": "85870d3c-bbc1-40ad-b1f7-dcc727589d3f"
+		},
+		{
+			"from": "4502fdae-cf9e-4f85-9734-0bf9478b6745",
+			"to": "be99d948-0a21-4821-85bc-11680ff3a7cd",
+			"label": "",
+			"grp": "edge0",
+			"id": "b9d11096-ba12-488d-8e5a-bce39ca50a58"
+		},
+		{
+			"from": "be99d948-0a21-4821-85bc-11680ff3a7cd",
+			"to": "5e99cdc2-9ef1-4f2e-abc8-934a6edfd70c",
+			"label": "",
+			"grp": "edge0",
+			"id": "63618956-e749-44b9-a002-bba6360da9e2"
+		},
+		{
+			"from": "77974ce6-5886-41b1-bcc9-0e80b1ea8a0a",
+			"to": "79871678-8b36-4ea8-98f4-9363638b27a7",
+			"label": "",
+			"grp": "edge0",
+			"id": "34f85d76-3908-4c16-8b2a-fea923e0a2e1"
+		},
+		{
+			"from": "79871678-8b36-4ea8-98f4-9363638b27a7",
+			"to": "5e99cdc2-9ef1-4f2e-abc8-934a6edfd70c",
+			"label": "",
+			"grp": "edge0",
+			"id": "4072d091-e579-4ee5-8166-19e831c04cf2"
+		},
+		{
+			"from": "39da1340-77cd-4fbc-9b9d-ce7c9232cb7f",
+			"to": "d3381718-cad2-4722-891f-8f7edf8db43f",
+			"label": "",
+			"grp": "edge0",
+			"id": "4219f0bb-f886-4385-80af-ef2d200e77d2"
+		},
+		{
+			"from": "d3381718-cad2-4722-891f-8f7edf8db43f",
+			"to": "1a7c9ec2-e83a-4c36-866d-dbffbd406842",
+			"label": "",
+			"grp": "edge0",
+			"id": "421507eb-0c8a-45e2-8bad-741df285b4ae"
+		},
+		{
+			"from": "67f76744-7d63-41ee-8839-36d9aede18a0",
+			"to": "a14b6e8a-5f86-48f3-aeba-07ac808af98d",
+			"label": "",
+			"grp": "edge0",
+			"id": "de6f0be9-6d7c-4c06-9824-dc67bea47474"
+		},
+		{
+			"from": "bf94698c-3276-455b-affa-53b314737857",
+			"to": "41575d27-44f4-4dbb-b1af-9769dea28ea5",
+			"label": "",
+			"grp": "edge0",
+			"id": "89bc6d0e-7ef5-4d9a-b701-cdc33a1c2563"
+		}
+	]
+}

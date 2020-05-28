@@ -706,6 +706,7 @@ function saveLabel(item, callback) {
 		}
 	}
 	claim(item);
+	network.addNodeMode(); // ensure still in Add mode, in case others have done smthg meanwhile
 	callback(item);
 }
 
@@ -724,6 +725,7 @@ function saveNode(item, callback) {
 	item.font.color = document.getElementById('node-fontColor').value;
 	item.shapeProperties.borderDashes = convertDashes(document.getElementById('node-borderType').value);
 	claim(item);
+	network.addNodeMode(); // ensure still in Add mode, in case others have done smthg meanwhile
 	callback(item);
 }
 
@@ -738,6 +740,7 @@ function saveEdge(item,callback) {
 	item.width = document.getElementById('edge-width').value;
 	item.dashes = convertDashes(document.getElementById('edge-type').value);
 	claim(item);
+	network.addEdgeMode(); // ensure still in Add mode, in case others have done smthg meanwhile
 	callback(item);
 }
 

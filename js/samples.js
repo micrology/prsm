@@ -610,8 +610,9 @@ function legend() {
 		let node = deepCopy(samples.nodes[nodes[i].groupNode]);
 		node.id = i + 10000;
 		node.fixed = true;
-		node.x = 0;
-		node.y = 0;
+		let nodePos = network.DOMtoCanvas({x: 20, y: 20});
+		node.x = nodePos.x;
+		node.y = nodePos.y;
 		node.label = node.groupLabel;
 		window.data.nodes.update(node);
 	}
