@@ -28,7 +28,7 @@ import {
 } from './samples.js';
 import 'vis-network/styles/vis-network.css';
 
-const version = '1.08';
+const version = '1.10';
 const LOGOURL = 'img/logo.png';
 const GRIDSPACING = 100;
 const NODEWIDTH = 10; // chars for label splitting
