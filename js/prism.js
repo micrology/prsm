@@ -430,11 +430,12 @@ function draw() {
 				inAddMode = false;
 				changeCursor("auto");
 				if (item.from == item.to) {
-					let r = confirm("Do you want to connect the Factor to itself?");
-					if (r != true) {
+//					let r = confirm("Do you want to connect the Factor to itself?");
+//					if (r != true) {
+						showPressed("addLink", "remove");
 						callback(null);
 						return;
-					}
+//					}
 				}
 				if (duplEdge(item.from, item.to).length > 0) {
 					alert("There is already a link from this Factor to the other.");
@@ -900,27 +901,37 @@ function zoomincr(incr) {
   -----------Operations related to the top button bar (not the side panel)-------------
  */
 function plusNode() {
-	if (inAddMode) {
+	switch (inAddMode) {
+	 case 'addNode':
 		showPressed("addNode", "remove");
 		stopEdit();
-		return;
-	}
-	changeCursor("cell");
-	inAddMode = true;
-	showPressed("addNode", "add");
-	network.addNodeMode();
+		break;
+	case 'addLink': 
+		showPressed("addLink", "remove");
+		stopEdit();
+	default:  // false
+		changeCursor("cell");
+		inAddMode = 'addNode';
+		showPressed("addNode", "add");
+		network.addNodeMode();
+		}
 }
 
 function plusLink() {
-	if (inAddMode) {
+	switch (inAddMode) {
+	 case 'addLink':
 		showPressed("addLink", "remove");
 		stopEdit();
-		return;
-	}
-	changeCursor("crosshair");
-	inAddMode = true;
-	showPressed("addLink", "add");
-	network.addEdgeMode();
+		break;
+	case 'addNode': 
+		showPressed("addNode", "remove");
+		stopEdit();
+	default:  // false
+		changeCursor("crosshair");
+		inAddMode = 'addLink';
+		showPressed("addLink", "add");
+		network.addEdgeMode();
+		}
 }
 
 function stopEdit() {

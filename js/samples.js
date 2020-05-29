@@ -603,17 +603,41 @@ function initSample(wrapper, sampleData) {
 	return net;
 }
 
+var underlayContainer = document.getElementById('underlay')
+var legendData = {nodes: new DataSet(), edges: new DataSet()};
+var underlayNetwork = new Network(underlayContainer, legendData, {});
+const LEGENDSPACEING = 50;
+
 function legend() {
+	legendData.nodes.clear();
+	let titleElement = document.getElementById('Legend');
+	if (titleElement) titleElement.remove();
+	
 	let sampleElements = document.getElementsByClassName("sampleNode");
 	let nodes = Array.from(sampleElements).filter(elem => elem.dataSet.get("1").groupLabel != 'Sample')
+	let height = underlayContainer.clientHeight - LEGENDSPACEING * (nodes.length + 1);
+	
+	let title = document.createElement("p");
+	title.style.left = LEGENDSPACEING / 2 +'px';
+	title.style.top = height +'px';
+	title.style.position = 'absolute';
+	title.style.fontWeight="bold";
+	title.id = 'Legend';
+	title.appendChild(document.createTextNode("Legend"));
+	document.getElementById('main').appendChild(title);
+	
 	for (let i = 0; i < nodes.length; i++) {
+		height += LEGENDSPACEING;
 		let node = deepCopy(samples.nodes[nodes[i].groupNode]);
 		node.id = i + 10000;
 		node.fixed = true;
-		let nodePos = network.DOMtoCanvas({x: 20, y: 20});
+		let nodePos = underlayNetwork.DOMtoCanvas({x: LEGENDSPACEING, y: height});
 		node.x = nodePos.x;
 		node.y = nodePos.y;
 		node.label = node.groupLabel;
-		window.data.nodes.update(node);
+		legendData.nodes.update(node);
 	}
 }
+window.legend = legend;
+window.legendData = legendData;
+window.underlayNetwork = underlayNetwork;
