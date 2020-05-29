@@ -1,15 +1,15 @@
 import {
 	Network
 }
-from "vis-network/peer/";
+from 'vis-network/peer/';
 import {
 	DataSet
 }
-from "vis-data/peer";
+from 'vis-data/peer';
 import {
 	deepCopy, standardize_color
 }
-from "./utils.js";
+from './utils.js';
 export
 const samples = {
 	nodes: {
@@ -76,7 +76,7 @@ const samples = {
 		group2: {
 			color: {
 				border: '#000000',
-				background: "#99e699",
+				background: '#99e699',
 			},
 			font: {
 				color: '#000000',
@@ -87,7 +87,7 @@ const samples = {
 		group3: {
 			color: {
 				border: '#000000',
-				background: "#ffccdd",
+				background: '#ffccdd',
 			},
 			font: {
 				color: '#000000',
@@ -98,7 +98,7 @@ const samples = {
 		group4: {
 			color: {
 				border: '#000000',
-				background: "#ffccdd",
+				background: '#ffccdd',
 			},
 			font: {
 				color: '#000000',
@@ -112,7 +112,7 @@ const samples = {
 		group5: {
 			color: {
 				border: '#000000',
-				background: "#b3ccff",
+				background: '#b3ccff',
 			},
 			font: {
 				color: '#000000',
@@ -123,7 +123,7 @@ const samples = {
 		group6: {
 			color: {
 				border: '#000000',
-				background: "#ffff99",
+				background: '#ffff99',
 			},
 			font: {
 				color: '#000000',
@@ -134,7 +134,7 @@ const samples = {
 		group7: {
 			color: {
 				border: '#000000',
-				background: "#ffff99",
+				background: '#ffff99',
 			},
 			font: {
 				color: '#000000',
@@ -148,7 +148,7 @@ const samples = {
 		group8: {
 			color: {
 				border: '#000000',
-				background: "#ffff99",
+				background: '#ffff99',
 			},
 			font: {
 				color: '#ff0000',
@@ -162,7 +162,7 @@ const samples = {
 			arrows: {
 				to: {
 					enabled: true,
-					type: "arrow"
+					type: 'arrow'
 				},
 				middle: {
 					enabled: false
@@ -246,11 +246,11 @@ const samples = {
 			arrows: {
 				middle: {
 					enabled: true,
-					type: "arrow"
+					type: 'arrow'
 				},
 				to: {
 					enabled: true,
-					type: "arrow"
+					type: 'arrow'
 				},
 			},
 			color: {
@@ -265,17 +265,17 @@ function setUpSamples() {
 	// The samples are each a mini vis-network showing just one node or two nodes and a link
 	// create sample configurations
 	configSamples();
-	// Get all elements with class="sampleNode" and add listener and canvas
+	// Get all elements with class='sampleNode' and add listener and canvas
 	let emptyDataSet = new DataSet([]);
-	let sampleElements = document.getElementsByClassName("sampleNode");
+	let sampleElements = document.getElementsByClassName('sampleNode');
 	for (let i = 0; i < sampleElements.length; i++) {
 		let groupId = 'group' + i;
 		let sampleElement = sampleElements[i];
 		let sampleOptions = samples.nodes[groupId];
 		let groupLabel = samples.nodes[groupId].groupLabel;
 		let nodeDataSet = new DataSet([Object.assign({
-			id: "1",
-			label: (groupLabel == undefined ? "" : groupLabel),
+			id: '1',
+			label: (groupLabel == undefined ? '' : groupLabel),
 			value: 50
 		}, sampleOptions, {chosen: false})]);
 		initSample(sampleElement, {
@@ -289,13 +289,13 @@ function setUpSamples() {
 		sampleElement.dataSet = nodeDataSet;
 	}
 	// and to all sampleLinks
-	sampleElements = document.getElementsByClassName("sampleLink");
+	sampleElements = document.getElementsByClassName('sampleLink');
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i];
 		let groupId = 'edge' + i;
 		let sampleOptions = samples.edges[groupId];
 		let edgeDataSet = new DataSet([Object.assign({
-			id: "1",
+			id: '1',
 			from: 1,
 			to: 2
 		}, sampleOptions)])
@@ -341,7 +341,7 @@ function configSamples() {
 }
 
 function editNodeSample(sampleElement, groupId) {
-	let drawer = document.getElementById("editNodeDrawer");
+	let drawer = document.getElementById('editNodeDrawer');
 	getNodeSampleEdit(sampleElement, samples.nodes[groupId]);
 	document.getElementById('sampleNodeEditorSubmitButton').addEventListener('click', () => {
 		saveNodeSampleEdit(sampleElement, samples, groupId)
@@ -355,21 +355,21 @@ function editNodeSample(sampleElement, groupId) {
 	});
 	drawer.style.top = `${document.getElementById('panel').getBoundingClientRect().top}px`;
 	drawer.style.left = `${document.getElementById('panel').getBoundingClientRect().left - 300}px`;
-	drawer.classList.remove("hideDrawer");
+	drawer.classList.remove('hideDrawer');
 }
 
 function getNodeSampleEdit(sampleElement, group) {
-	document.getElementsByName("nodeLabel")[0].value = sampleElement.dataSet.get("1").label;
-	getColor("fillColor", group.color.background);
-	getColor("borderColor", group.color.border);
-	getColor("fontColor", group.font.color);
-	getSelection("shape", group.shape);
-	getDashes("borderType", group.shapeProperties.borderDashes);
-	getSelection("fontSize", group.font.size);
+	document.getElementsByName('nodeLabel')[0].value = sampleElement.dataSet.get('1').label;
+	getColor('fillColor', group.color.background);
+	getColor('borderColor', group.color.border);
+	getColor('fontColor', group.font.color);
+	getSelection('shape', group.shape);
+	getDashes('borderType', group.shapeProperties.borderDashes);
+	getSelection('fontSize', group.font.size);
 }
 
 function editLinkSample(sampleElement, groupId) {
-	let drawer = document.getElementById("editLinkDrawer");
+	let drawer = document.getElementById('editLinkDrawer');
 	getLinkSampleEdit(sampleElement, samples.edges[groupId]);
 	document.getElementById('sampleLinkEditorSubmitButton').addEventListener('click', () => {
 		saveLinkSampleEdit(sampleElement, samples, groupId)
@@ -383,31 +383,31 @@ function editLinkSample(sampleElement, groupId) {
 	});
 	drawer.style.top = `${document.getElementById('panel').getBoundingClientRect().top}px`;
 	drawer.style.left = `${document.getElementById('panel').getBoundingClientRect().left - 300}px`;
-	drawer.classList.remove("hideDrawer");
+	drawer.classList.remove('hideDrawer');
 }
 
 function getLinkSampleEdit(sampleElement, group) {
-	document.getElementsByName("edgeLabel")[0].value = sampleElement.dataSet.get("1").label;
-	getColor("lineColor", group.color.color);
-	getSelection("width", group.width);
-	getSelection("dashes", group.dashes);
-	getArrows("arrows", group.arrows);
+	document.getElementsByName('edgeLabel')[0].value = sampleElement.dataSet.get('1').label;
+	getColor('lineColor', group.color.color);
+	getSelection('width', group.width);
+	getSelection('dashes', group.dashes);
+	getArrows('arrows', group.arrows);
 }
 
 function saveNodeSampleEdit(sampleElement, samples, groupId) {
 	let group = samples.nodes[groupId];
-	group.groupLabel = document.getElementsByName("nodeLabel")[0].value;
-	setColor("fillColor", group, "color", "background");
-	setColor3("fillColor", group, "color", "highlight", "background");
-	setColor3("fillColor", group, "color", "hover", "background");
-	setColor("borderColor", group, "color", "border");
-	setColor3("borderColor", group, "color", "highlight", "border");
-	setColor3("borderColor", group, "color", "hover", "border");
-	setColor("fontColor", group, "font", "color");
+	group.groupLabel = document.getElementsByName('nodeLabel')[0].value;
+	setColor('fillColor', group, 'color', 'background');
+	setColor3('fillColor', group, 'color', 'highlight', 'background');
+	setColor3('fillColor', group, 'color', 'hover', 'background');
+	setColor('borderColor', group, 'color', 'border');
+	setColor3('borderColor', group, 'color', 'highlight', 'border');
+	setColor3('borderColor', group, 'color', 'hover', 'border');
+	setColor('fontColor', group, 'font', 'color');
 	setShape(group);
 	setBorderType(group);
 	setFont(group);
-	let node = sampleElement.dataSet.get("1");
+	let node = sampleElement.dataSet.get('1');
 	node.label = group.groupLabel;
 	node = Object.assign(node, deepCopy(samples.nodes[groupId]));
 	let dataSet = sampleElement.dataSet;
@@ -417,22 +417,22 @@ function saveNodeSampleEdit(sampleElement, samples, groupId) {
 		node: samples.nodes[groupId],
 		clientID: window.clientId
 	});
-	document.getElementById("editNodeDrawer").classList.add("hideDrawer");
+	document.getElementById('editNodeDrawer').classList.add('hideDrawer');
 	window.network.redraw();
 }
 
 function saveLinkSampleEdit(sampleElement, samples, groupId) {
 	let group = samples.edges[groupId];
-	group.groupLabel = document.getElementsByName("edgeLabel")[0].value;
-	setColor("lineColor", group, "color", "color");
-	setColor("lineColor", group, "color", "highlight");
-	setColor("lineColor", group, "color", "hover");
-	let val = document.getElementsByName("width")[0].value;
-	if (val != "") group.width = parseInt(val, 10);
-	val = document.getElementsByName("dashes")[0].value;
-	if (val != "") group.dashes = deString(val);
-	val = document.getElementsByName("arrows")[0].value;
-	if (val != "") {
+	group.groupLabel = document.getElementsByName('edgeLabel')[0].value;
+	setColor('lineColor', group, 'color', 'color');
+	setColor('lineColor', group, 'color', 'highlight');
+	setColor('lineColor', group, 'color', 'hover');
+	let val = document.getElementsByName('width')[0].value;
+	if (val != '') group.width = parseInt(val, 10);
+	val = document.getElementsByName('dashes')[0].value;
+	if (val != '') group.dashes = deString(val);
+	val = document.getElementsByName('arrows')[0].value;
+	if (val != '') {
 		group.arrows.from = {
 			enabled: false
 		};
@@ -443,9 +443,9 @@ function saveLinkSampleEdit(sampleElement, samples, groupId) {
 			enabled: false
 		};
 		switch (val) {
-		case "none":
+		case 'none':
 			break;
-		case "middle":
+		case 'middle':
 			group.arrows.middle = {
 				enabled: true
 			};
@@ -457,7 +457,7 @@ function saveLinkSampleEdit(sampleElement, samples, groupId) {
 			break;
 		}
 	}
-	let edge = sampleElement.dataSet.get("1");
+	let edge = sampleElement.dataSet.get('1');
 	edge.label = group.groupLabel;
 	if (edge.label) {
 		edge.font.align = 'top';
@@ -473,13 +473,13 @@ function saveLinkSampleEdit(sampleElement, samples, groupId) {
 		edge: samples.edges[groupId],
 		clientID: window.clientId
 	});
-	document.getElementById("editLinkDrawer").classList.add("hideDrawer");
+	document.getElementById('editLinkDrawer').classList.add('hideDrawer');
 	window.network.redraw();
 }
 
 function cancelSampleEdit() {
-	document.getElementById("editLinkDrawer").classList.add("hideDrawer");
-	document.getElementById("editNodeDrawer").classList.add("hideDrawer");
+	document.getElementById('editLinkDrawer').classList.add('hideDrawer');
+	document.getElementById('editNodeDrawer').classList.add('hideDrawer');
 }
 export
 
@@ -524,8 +524,8 @@ function setColor3(well, obj, prop1, prop2, prop3) {
 }
 
 function setShape(obj) {
-	let val = document.getElementsByName("shape")[0].value;
-	if (val != "") obj.shape = val;
+	let val = document.getElementsByName('shape')[0].value;
+	if (val != '') obj.shape = val;
 }
 
 function getDashes(name, val) {
@@ -535,20 +535,20 @@ function getDashes(name, val) {
 }
 
 function setBorderType(obj) {
-	let val = document.getElementsByName("borderType")[0].value;
+	let val = document.getElementsByName('borderType')[0].value;
 	if (obj.shapeProperties === undefined) obj.shapeProperties = {};
-	if (val != "") obj.shapeProperties.borderDashes = deString(val);
+	if (val != '') obj.shapeProperties.borderDashes = deString(val);
 }
 
 function deString(val) {
 	switch (val) {
-	case "true":
+	case 'true':
 		return true;
-	case "false":
+	case 'false':
 		return false;
-	case "dashes":
+	case 'dashes':
 		return [10, 10];
-	case "dots":
+	case 'dots':
 		return [3, 3];
 	default:
 		return val;
@@ -559,7 +559,7 @@ function setFont(obj) {
 	obj.font = {};
 	obj.font.face = 'arial';
 	obj.font.color = document.getElementsByName('fontColor')[0].value
-	let val = document.getElementsByName("fontSize")[0].value;
+	let val = document.getElementsByName('fontSize')[0].value;
 	obj.font.size = (Number.isInteger(val) ? val : 14);
 }
 
@@ -605,39 +605,65 @@ function initSample(wrapper, sampleData) {
 
 var underlayContainer = document.getElementById('underlay')
 var legendData = {nodes: new DataSet(), edges: new DataSet()};
-var underlayNetwork = new Network(underlayContainer, legendData, {});
+var underlayNetwork = new Network(underlayContainer, legendData, {physics: {enabled: false}});
 const LEGENDSPACEING = 50;
 
-function legend() {
-	legendData.nodes.clear();
-	let titleElement = document.getElementById('Legend');
-	if (titleElement) titleElement.remove();
+export function legend() {
+	clearLegend();
 	
-	let sampleElements = document.getElementsByClassName("sampleNode");
-	let nodes = Array.from(sampleElements).filter(elem => elem.dataSet.get("1").groupLabel != 'Sample')
-	let height = underlayContainer.clientHeight - LEGENDSPACEING * (nodes.length + 1);
+	let sampleNodeDivs = document.getElementsByClassName('sampleNode');
+	let nodes = Array.from(sampleNodeDivs).filter(elem => elem.dataSet.get('1').groupLabel != 'Sample')
+	let sampleEdgeDivs = document.getElementsByClassName('sampleLink');
+	let edges = Array.from(sampleEdgeDivs).filter(elem => 
+		!['Sample', ''].includes(elem.dataSet.get('1').groupLabel))
+	let height = underlayContainer.clientHeight - LEGENDSPACEING * (nodes.length + edges.length + 1);
 	
-	let title = document.createElement("p");
-	title.style.left = LEGENDSPACEING / 2 +'px';
-	title.style.top = height +'px';
+	let title = document.createElement('p');
+	title.style.left = LEGENDSPACEING / 2 + 'px';
+	title.style.top = height + 'px';
 	title.style.position = 'absolute';
-	title.style.fontWeight="bold";
+	title.style.fontWeight = 'bold';
 	title.id = 'Legend';
-	title.appendChild(document.createTextNode("Legend"));
+	title.appendChild(document.createTextNode('Legend'));
 	document.getElementById('main').appendChild(title);
 	
 	for (let i = 0; i < nodes.length; i++) {
 		height += LEGENDSPACEING;
 		let node = deepCopy(samples.nodes[nodes[i].groupNode]);
 		node.id = i + 10000;
-		node.fixed = true;
 		let nodePos = underlayNetwork.DOMtoCanvas({x: LEGENDSPACEING, y: height});
 		node.x = nodePos.x;
 		node.y = nodePos.y;
 		node.label = node.groupLabel;
+		node.fixed = true;
 		legendData.nodes.update(node);
 	}
+	for (let i = 0; i < edges.length; i++) {
+		height += LEGENDSPACEING;
+		let edge = deepCopy(samples.edges[edges[i].groupLink]);
+		let edgePos = underlayNetwork.DOMtoCanvas({x: LEGENDSPACEING, y: height});
+		edge.label = edge.groupLabel;
+		edge.id = i + 10000;
+		edge.from = i + 20000;
+		edge.to = i + 30000;
+		edge.smooth = 'horizontal';
+		edge.font = {size: 12, color: 'black', align: 'top', vadjust: -2};
+		edge.widthConstraint = 80;
+		let nodes = [
+			{id: edge.from, shape: 'dot', size: 5, x: edgePos.x - 20, y: edgePos.y, fixed: true}, 
+			{id: edge.to, shape: 'dot', size: 5, x: edgePos.x + 30, y: edgePos.y, fixed: true}
+			];
+		legendData.nodes.update(nodes);
+		legendData.edges.update(edge);
+	}
 }
+
+export function clearLegend() {
+	legendData.nodes.clear();
+	let titleElement = document.getElementById('Legend');
+	if (titleElement) titleElement.remove();
+}
+
 window.legend = legend;
 window.legendData = legendData;
 window.underlayNetwork = underlayNetwork;
