@@ -5,7 +5,7 @@
 	<title>Participatory System Mapper</title>
 	<meta charset="utf-8">
 	<meta content="IE=edge" http-equiv="X-UA-Compatible">
-	<meta content="height=device-height, user-scalable=no, minimal-ui" name="viewport">
+	<meta content="height=device-height, user-scalable=no" name="viewport">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black">
 	<link href="css/prism.css" rel="stylesheet">
@@ -65,14 +65,14 @@
 						</div>
 					</div>
 					<div class="tooltip left-border">
-						<button id="panelToggle"><i class="fas fa-clone"></i>
-						</button> <span class="tooltiptext">Show or hide panel</span>
+						<button id="panelToggle"><i class="fas fa-sliders-h"></i></i>
+						</button> <span class="tooltiptext">Show or hide settings</span>
 					</div>
 				</div>
 			</div>
 		</nav>
 	</header>
-	<main>
+	<main id="main">
 		<div id="popup">
 			<span id="popup-operation">Edit factor</span>
 			<textarea id="popup-label" placeholder="Label"></textarea>
@@ -105,8 +105,10 @@
 				<div class="panelRow">
 					<div>Auto. layout</div>
 					<div class="onoffswitch">
-						<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="autolayoutswitch">
-						<label class="onoffswitch-label" for="autolayoutswitch">	<span class="onoffswitch-inner"></span>
+						<input type="checkbox" name="onoffswitch" 
+							class="onoffswitch-checkbox" id="autolayoutswitch">
+						<label class="onoffswitch-label" for="autolayoutswitch">
+							<span class="onoffswitch-inner"></span>
 							<span class="onoffswitch-switch"></span>
 						</label>
 					</div>
@@ -120,8 +122,10 @@
 				<div class="panelRow">
 					<div>Snap to grid</div>
 					<div class="onoffswitch">
-						<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="snaptogridswitch">
-						<label class="onoffswitch-label" for="snaptogridswitch">	<span class="onoffswitch-inner"></span>
+						<input type="checkbox" name="onoffswitch" 
+							class="onoffswitch-checkbox" id="snaptogridswitch">
+						<label class="onoffswitch-label" for="snaptogridswitch">
+							<span class="onoffswitch-inner"></span>
 							<span class="onoffswitch-switch"></span>
 						</label>
 					</div>
@@ -144,8 +148,21 @@
 				<div class="panelRow">
 					<div>Show labels</div>
 					<div class="onoffswitch">
-						<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="showLabelSwitch" checked>
-						<label class="onoffswitch-label" for="showLabelSwitch">	<span class="onoffswitch-inner"></span>
+						<input type="checkbox" name="onoffswitch" 
+							class="onoffswitch-checkbox" id="showLabelSwitch" checked>
+						<label class="onoffswitch-label" for="showLabelSwitch">
+							<span class="onoffswitch-inner"></span>
+							<span class="onoffswitch-switch"></span>
+						</label>
+					</div>
+				</div>
+				<div class="panelRow">
+					<div>Show legend</div>
+					<div class="onoffswitch">
+						<input type="checkbox" name="onoffswitch" 
+							class="onoffswitch-checkbox" id="showLegendSwitch">
+						<label class="onoffswitch-label" for="showLegendSwitch">
+							<span class="onoffswitch-inner"></span>
 							<span class="onoffswitch-switch"></span>
 						</label>
 					</div>
@@ -268,8 +285,8 @@
 	<!-- sample node edit panel -->
 	<div id="editNodeDrawer" class="drawerContent hideDrawer">
 		<div class="sampleEditorPanel">
-			<div class="nodeHeader">Edit factor format</div>
-			<div class="sampleTitleInput">Name of format:
+			<div class="nodeHeader">Edit factor style</div>
+			<div class="sampleTitleInput">Name of style:
 				<input name="nodeLabel" />
 			</div>
 			<div>fill</div>
@@ -320,8 +337,8 @@
 	<!-- sample link edit panel -->
 	<div id="editLinkDrawer" class="drawerContent hideDrawer">
 		<div class="linkEditorPanel">
-			<div class="linkHeader">Edit link format</div>
-			<div class="linkTitleInput">Name of format:
+			<div class="linkHeader">Edit link style</div>
+			<div class="linkTitleInput">Name of style:
 				<input name="edgeLabel" />
 			</div>
 			<div>Link colour</div>
