@@ -154,6 +154,9 @@ input[type=range] {
 	width: 134px;
 	margin: 0 6px 0 6px;
 }
+.right {
+	text-align: right;
+}
 input::placeholder {
 	color: var(--header-color);
 }
