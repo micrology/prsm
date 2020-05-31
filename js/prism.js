@@ -1,11 +1,10 @@
-
 /* 
 The main entry point for PRISM.  
  */
 import * as Y from 'yjs';
-import { WebsocketProvider } from 'y-websocket';
-import { Network, parseGephiNetwork } from 'vis-network/peer';
-import { DataSet } from 'vis-data/peer';
+import {WebsocketProvider} from 'y-websocket';
+import {Network, parseGephiNetwork} from 'vis-network/peer';
+import {DataSet} from 'vis-data/peer';
 import {
 	getScaleFreeNetwork,
 	deepCopy,
@@ -75,7 +74,9 @@ function addEventListeners() {
 	document.getElementById('saveFile').addEventListener('click', saveJSONfile);
 	document.getElementById('exportCVS').addEventListener('click', exportCVS);
 	document.getElementById('exportGML').addEventListener('click', exportGML);
-	document.getElementById('panelToggle').addEventListener('click', togglePanel);
+	document
+		.getElementById('panelToggle')
+		.addEventListener('click', togglePanel);
 	document.getElementById('zoom').addEventListener('change', zoomnet);
 	document.getElementById('zoomminus').addEventListener('click', () => {
 		zoomincr(-0.1);
@@ -95,7 +96,9 @@ function addEventListeners() {
 	document
 		.getElementById('autolayoutswitch')
 		.addEventListener('click', autoLayoutSwitch);
-	document.getElementById('antiGravity').addEventListener('change', setGravity);
+	document
+		.getElementById('antiGravity')
+		.addEventListener('change', setGravity);
 	document
 		.getElementById('snaptogridswitch')
 		.addEventListener('click', snapToGridSwitch);
@@ -105,7 +108,9 @@ function addEventListeners() {
 	document
 		.getElementById('allFactors')
 		.addEventListener('click', selectAllFactors);
-	document.getElementById('allEdges').addEventListener('click', selectAllEdges);
+	document
+		.getElementById('allEdges')
+		.addEventListener('click', selectAllEdges);
 	document
 		.getElementById('showLabelSwitch')
 		.addEventListener('click', labelSwitch);
@@ -300,7 +305,8 @@ function startY() {
 				else {
 					let obj = edges.get(id);
 					if (obj.clientID == undefined) obj.clientID = clientID;
-					if (obj.clientID == clientID) yEdgesMap.set(id.toString(), obj);
+					if (obj.clientID == clientID)
+						yEdgesMap.set(id.toString(), obj);
 				}
 			}
 		});
@@ -477,7 +483,10 @@ function draw() {
 			enabled: false,
 			addNode: function (item, callback) {
 				item.label = '';
-				item = Object.assign(item, deepCopy(samples.nodes[lastNodeSample]));
+				item = Object.assign(
+					item,
+					deepCopy(samples.nodes[lastNodeSample])
+				);
 				item.grp = lastNodeSample;
 				addLabel(item, clearPopUp, callback);
 				showPressed('addNode', 'remove');
@@ -498,11 +507,16 @@ function draw() {
 					return;
 				}
 				if (duplEdge(item.from, item.to).length > 0) {
-					alert('There is already a link from this Factor to the other.');
+					alert(
+						'There is already a link from this Factor to the other.'
+					);
 					callback(null);
 					return;
 				}
-				item = Object.assign(item, deepCopy(samples.edges[lastLinkSample]));
+				item = Object.assign(
+					item,
+					deepCopy(samples.edges[lastLinkSample])
+				);
 				item.grp = lastLinkSample;
 				showPressed('addLink', 'remove');
 				callback(item);
@@ -603,7 +617,7 @@ function draw() {
 } // end draw()
 
 function fit() {
-	network.fit({ animation: { duration: 1000, easingFunction: 'linear' } });
+	network.fit({animation: {duration: 1000, easingFunction: 'linear'}});
 	document.getElementById('zoom').value = network.getScale();
 	network.storePositions();
 }
@@ -920,7 +934,7 @@ worker.onmessage = function (e) {
   ----------- Status messages ---------------------------------------
 */
 /* show status messages at the bottom of the window */
-function statusMsg(msg, status) {
+export function statusMsg(msg, status) {
 	let elem = document.getElementById('statusBar');
 	switch (status) {
 		case 'warn':
@@ -1085,7 +1099,10 @@ function readSingleFile(e) {
 			loadFile(e.target.result);
 			statusMsg("Read '" + fileName + "'");
 		} catch (err) {
-			statusMsg("Error reading '" + fileName + "': " + err.message, 'error');
+			statusMsg(
+				"Error reading '" + fileName + "': " + err.message,
+				'error'
+			);
 			return;
 		}
 	};
@@ -1110,7 +1127,8 @@ function loadFile(contents) {
 	network.destroy();
 	draw();
 	let isJSONfile = false;
-	if (lastFileName.substr(-3).toLowerCase() == 'csv') data = parseCSV(contents);
+	if (lastFileName.substr(-3).toLowerCase() == 'csv')
+		data = parseCSV(contents);
 	else {
 		if (contents.search('graphml') >= 0) data = parseGraphML(contents);
 		else {
@@ -1143,7 +1161,9 @@ function loadFile(contents) {
 	);
 	// reassign the sample properties to the node
 	data.nodes.update(
-		data.nodes.map((n) => Object.assign({}, deepCopy(samples.nodes[n.grp]), n))
+		data.nodes.map((n) =>
+			Object.assign({}, deepCopy(samples.nodes[n.grp]), n)
+		)
 	);
 	// same for edges
 	data.edges.update(
@@ -1160,7 +1180,9 @@ function loadFile(contents) {
 		)
 	);
 	data.edges.update(
-		data.edges.map((e) => Object.assign({}, deepCopy(samples.edges[e.grp]), e))
+		data.edges.map((e) =>
+			Object.assign({}, deepCopy(samples.edges[e.grp]), e)
+		)
 	);
 	if (!isJSONfile) adjustGravity(50000);
 	fit();
@@ -1301,7 +1323,9 @@ function parseGML(gml) {
 						case 'color':
 						case 'colour':
 							node.color = {};
-							node.color.background = tokens.shift().replace(/"/g, '');
+							node.color.background = tokens
+								.shift()
+								.replace(/"/g, '');
 							break;
 						case '[': // skip embedded groups
 							while (tok != ']') tok = tokens.shift();
@@ -1442,7 +1466,9 @@ function saveJSONfile() {
 			lastLinkSample: lastLinkSample,
 			buttons: buttonStatus,
 			samples: samples,
-			nodes: data.nodes.map((n) => strip(n, ['id', 'label', 'grp', 'x', 'y'])),
+			nodes: data.nodes.map((n) =>
+				strip(n, ['id', 'label', 'grp', 'x', 'y'])
+			),
 			edges: data.edges.map((e) =>
 				strip(e, ['id', 'label', 'grp', 'from', 'to'])
 			),
@@ -1460,7 +1486,9 @@ function saveStr(str, extn) {
 	});
 	let pos = lastFileName.indexOf('.');
 	lastFileName =
-		lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) + '.' + extn;
+		lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) +
+		'.' +
+		extn;
 	//detect whether the browser is IE/Edge or another browser
 	if (window.navigator && window.navigator.msSaveOrOpenBlob) {
 		//To IE or Edge browser, using msSaveorOpenBlob method to download file.
@@ -1510,7 +1538,8 @@ function exportGML() {
 	for (let node of data.nodes.get()) {
 		str += '\tnode\n\t[\n\t\tid ' + nodeIds.indexOf(node.id);
 		if (node.label) str += '\n\t\tlabel "' + node.label + '"';
-		let color = node.color.background || samples.nodes.group0.color.background;
+		let color =
+			node.color.background || samples.nodes.group0.color.background;
 		str += '\n\t\tcolor "' + color + '"';
 		str += '\n\t]\n';
 	}
@@ -1641,10 +1670,12 @@ function undoRedoButtons(event) {
 
 function setButtonStatus(settings) {
 	if (
-		document.getElementById('autolayoutswitch').checked != settings.autoLayout
+		document.getElementById('autolayoutswitch').checked !=
+		settings.autoLayout
 	) {
 		autoLayoutSet(settings.autoLayout);
-		document.getElementById('autolayoutswitch').checked = settings.autoLayout;
+		document.getElementById('autolayoutswitch').checked =
+			settings.autoLayout;
 	}
 	if (document.getElementById('antiGravity').value != settings.gravity) {
 		adjustGravity(settings.gravity);
@@ -2116,7 +2147,8 @@ function sizing() {
 				node.value = network.getConnectedNodes(node.id, 'to').length;
 				break;
 			case 'Leverage': {
-				let inDegree = network.getConnectedNodes(node.id, 'from').length;
+				let inDegree = network.getConnectedNodes(node.id, 'from')
+					.length;
 				let outDegree = network.getConnectedNodes(node.id, 'to').length;
 				node.value = inDegree == 0 ? 0 : outDegree / inDegree;
 				break;

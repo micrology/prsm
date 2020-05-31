@@ -1,17 +1,8 @@
-import {
-	Network
-}
-from 'vis-network/peer/';
-import {
-	DataSet
-}
-from 'vis-data/peer';
-import {
-	deepCopy, standardize_color
-}
-from './utils.js';
-export
-const samples = {
+import {Network} from 'vis-network/peer/';
+import {DataSet} from 'vis-data/peer';
+import {deepCopy, standardize_color} from './utils.js';
+import {statusMsg} from './prism.js';
+export const samples = {
 	nodes: {
 		base: {
 			groupLabel: 'Sample',
@@ -23,21 +14,21 @@ const samples = {
 				background: '#ffffff',
 				highlight: {
 					border: '#000000',
-					background: '#ffffff'
+					background: '#ffffff',
 				},
 				hover: {
 					border: '#000000',
-					background: '#ffffff'
+					background: '#ffffff',
 				},
 			},
 			font: {
 				color: '#000000',
-				size: 14
+				size: 14,
 			},
 			labelHighlightBold: true,
 			shape: 'ellipse',
 			shapeProperties: {
-				borderDashes: false
+				borderDashes: false,
 			},
 			scaling: {
 				min: 10,
@@ -45,12 +36,12 @@ const samples = {
 				label: {
 					enabled: true,
 					min: 10,
-					max: 20
-				}
+					max: 20,
+				},
 			},
 		},
 		//------------------------------
-		// blue bordered white ellipse 
+		// blue bordered white ellipse
 		group0: {
 			color: {
 				border: '#0000ff',
@@ -61,7 +52,7 @@ const samples = {
 			},
 		},
 		//------------------------------
-		// black bordered white ellipse 
+		// black bordered white ellipse
 		group1: {
 			color: {
 				border: '#000000',
@@ -72,7 +63,7 @@ const samples = {
 			},
 		},
 		//------------------------------
-		// black bordered green ellipse 
+		// black bordered green ellipse
 		group2: {
 			color: {
 				border: '#000000',
@@ -83,7 +74,7 @@ const samples = {
 			},
 		},
 		//------------------------------
-		// black bordered pink ellipse 
+		// black bordered pink ellipse
 		group3: {
 			color: {
 				border: '#000000',
@@ -94,7 +85,7 @@ const samples = {
 			},
 		},
 		//------------------------------
-		// black dashed bordered pink ellipse 
+		// black dashed bordered pink ellipse
 		group4: {
 			color: {
 				border: '#000000',
@@ -104,11 +95,11 @@ const samples = {
 				color: '#000000',
 			},
 			shapeProperties: {
-				borderDashes: true
+				borderDashes: true,
 			},
 		},
 		//------------------------------
-		// black bordered blue ellipse 
+		// black bordered blue ellipse
 		group5: {
 			color: {
 				border: '#000000',
@@ -119,7 +110,7 @@ const samples = {
 			},
 		},
 		//------------------------------
-		// black bordered yellow ellipse 
+		// black bordered yellow ellipse
 		group6: {
 			color: {
 				border: '#000000',
@@ -130,7 +121,7 @@ const samples = {
 			},
 		},
 		//------------------------------
-		//  black large text only 
+		//  black large text only
 		group7: {
 			color: {
 				border: '#000000',
@@ -138,13 +129,13 @@ const samples = {
 			},
 			font: {
 				color: '#000000',
-				size: 20
+				size: 20,
 			},
 			labelHighlightBold: true,
 			shape: 'text',
 		},
 		//------------------------------
-		//  red text only 
+		//  red text only
 		group8: {
 			color: {
 				border: '#000000',
@@ -152,41 +143,41 @@ const samples = {
 			},
 			font: {
 				color: '#ff0000',
-				size: 20
+				size: 20,
 			},
 			shape: 'text',
-		}
+		},
 	}, // end of node samples
 	edges: {
 		base: {
 			arrows: {
 				to: {
 					enabled: true,
-					type: 'arrow'
+					type: 'arrow',
 				},
 				middle: {
-					enabled: false
+					enabled: false,
 				},
 				from: {
 					enabled: false,
-				}
+				},
 			},
 			color: {
 				color: '#000000',
 				highlight: '#000000',
 				hover: '#000000',
 				inherit: false,
-				opacity: 1.0
+				opacity: 1.0,
 			},
 			dashes: false,
 			font: {
-				size: 20
+				size: 20,
 			},
 			hoverWidth: 1,
 			label: '',
 			selectionWidth: 1,
 			width: 1,
-			groupLabel: ''
+			groupLabel: '',
 		},
 		// simple directed black link
 		edge0: {
@@ -223,7 +214,7 @@ const samples = {
 			color: {
 				color: '#e6b800',
 			},
-			width: 2
+			width: 2,
 		},
 		//  directed black dashed link
 		edge6: {
@@ -231,7 +222,7 @@ const samples = {
 				color: '#000000',
 			},
 			dashes: [10, 10],
-			width: 3
+			width: 3,
 		},
 		//  directed green dashed link
 		edge7: {
@@ -239,29 +230,27 @@ const samples = {
 				color: '#008000',
 			},
 			dashes: [10, 10],
-			width: 3
+			width: 3,
 		},
 		//  directed black link with middle arrow
 		edge8: {
 			arrows: {
 				middle: {
 					enabled: true,
-					type: 'arrow'
+					type: 'arrow',
 				},
 				to: {
 					enabled: true,
-					type: 'arrow'
+					type: 'arrow',
 				},
 			},
 			color: {
 				color: '#000000',
 			},
-		}
-	} // end of edges samples
-}
-export
-
-function setUpSamples() {
+		},
+	}, // end of edges samples
+};
+export function setUpSamples() {
 	// The samples are each a mini vis-network showing just one node or two nodes and a link
 	// create sample configurations
 	configSamples();
@@ -273,17 +262,23 @@ function setUpSamples() {
 		let sampleElement = sampleElements[i];
 		let sampleOptions = samples.nodes[groupId];
 		let groupLabel = samples.nodes[groupId].groupLabel;
-		let nodeDataSet = new DataSet([Object.assign({
-			id: '1',
-			label: (groupLabel == undefined ? '' : groupLabel),
-			value: 50
-		}, sampleOptions, {chosen: false})]);
+		let nodeDataSet = new DataSet([
+			Object.assign(
+				{
+					id: '1',
+					label: groupLabel == undefined ? '' : groupLabel,
+					value: 50,
+				},
+				sampleOptions,
+				{chosen: false}
+			),
+		]);
 		initSample(sampleElement, {
 			nodes: nodeDataSet,
-			edges: emptyDataSet
+			edges: emptyDataSet,
 		});
 		sampleElement.addEventListener('dblclick', () => {
-			editNodeSample(sampleElement, groupId)
+			editNodeSample(sampleElement, groupId);
 		});
 		sampleElement.groupNode = groupId;
 		sampleElement.dataSet = nodeDataSet;
@@ -294,22 +289,30 @@ function setUpSamples() {
 		let sampleElement = sampleElements[i];
 		let groupId = 'edge' + i;
 		let sampleOptions = samples.edges[groupId];
-		let edgeDataSet = new DataSet([Object.assign({
-			id: '1',
-			from: 1,
-			to: 2
-		}, sampleOptions)])
-		let nodesDataSet = new DataSet([{
-			id: 1
-		}, {
-			id: 2
-		}])
+		let edgeDataSet = new DataSet([
+			Object.assign(
+				{
+					id: '1',
+					from: 1,
+					to: 2,
+				},
+				sampleOptions
+			),
+		]);
+		let nodesDataSet = new DataSet([
+			{
+				id: 1,
+			},
+			{
+				id: 2,
+			},
+		]);
 		initSample(sampleElement, {
 			nodes: nodesDataSet,
-			edges: edgeDataSet
+			edges: edgeDataSet,
 		});
 		sampleElement.addEventListener('dblclick', () => {
-			editLinkSample(sampleElement, groupId)
+			editLinkSample(sampleElement, groupId);
 		});
 		sampleElement.groupLink = groupId;
 		sampleElement.dataSet = edgeDataSet;
@@ -343,23 +346,37 @@ function configSamples() {
 function editNodeSample(sampleElement, groupId) {
 	let drawer = document.getElementById('editNodeDrawer');
 	getNodeSampleEdit(sampleElement, samples.nodes[groupId]);
-	document.getElementById('sampleNodeEditorSubmitButton').addEventListener('click', () => {
-		saveNodeSampleEdit(sampleElement, samples, groupId)
-	}, {
-		once: true
-	});
-	document.getElementById('sampleNodeEditorCancelButton').addEventListener('click', () => {
-		cancelSampleEdit()
-	}, {
-		once: true
-	});
-	drawer.style.top = `${document.getElementById('panel').getBoundingClientRect().top}px`;
-	drawer.style.left = `${document.getElementById('panel').getBoundingClientRect().left - 300}px`;
+	document.getElementById('sampleNodeEditorSubmitButton').addEventListener(
+		'click',
+		() => {
+			saveNodeSampleEdit(sampleElement, samples, groupId);
+		},
+		{
+			once: true,
+		}
+	);
+	document.getElementById('sampleNodeEditorCancelButton').addEventListener(
+		'click',
+		() => {
+			cancelSampleEdit();
+		},
+		{
+			once: true,
+		}
+	);
+	drawer.style.top = `${
+		document.getElementById('panel').getBoundingClientRect().top
+	}px`;
+	drawer.style.left = `${
+		document.getElementById('panel').getBoundingClientRect().left - 300
+	}px`;
 	drawer.classList.remove('hideDrawer');
 }
 
 function getNodeSampleEdit(sampleElement, group) {
-	document.getElementsByName('nodeLabel')[0].value = sampleElement.dataSet.get('1').label;
+	document.getElementsByName(
+		'nodeLabel'
+	)[0].value = sampleElement.dataSet.get('1').label;
 	getColor('fillColor', group.color.background);
 	getColor('borderColor', group.color.border);
 	getColor('fontColor', group.font.color);
@@ -371,23 +388,37 @@ function getNodeSampleEdit(sampleElement, group) {
 function editLinkSample(sampleElement, groupId) {
 	let drawer = document.getElementById('editLinkDrawer');
 	getLinkSampleEdit(sampleElement, samples.edges[groupId]);
-	document.getElementById('sampleLinkEditorSubmitButton').addEventListener('click', () => {
-		saveLinkSampleEdit(sampleElement, samples, groupId)
-	}, {
-		once: true
-	});
-	document.getElementById('sampleLinkEditorCancelButton').addEventListener('click', () => {
-		cancelSampleEdit()
-	}, {
-		once: true
-	});
-	drawer.style.top = `${document.getElementById('panel').getBoundingClientRect().top}px`;
-	drawer.style.left = `${document.getElementById('panel').getBoundingClientRect().left - 300}px`;
+	document.getElementById('sampleLinkEditorSubmitButton').addEventListener(
+		'click',
+		() => {
+			saveLinkSampleEdit(sampleElement, samples, groupId);
+		},
+		{
+			once: true,
+		}
+	);
+	document.getElementById('sampleLinkEditorCancelButton').addEventListener(
+		'click',
+		() => {
+			cancelSampleEdit();
+		},
+		{
+			once: true,
+		}
+	);
+	drawer.style.top = `${
+		document.getElementById('panel').getBoundingClientRect().top
+	}px`;
+	drawer.style.left = `${
+		document.getElementById('panel').getBoundingClientRect().left - 300
+	}px`;
 	drawer.classList.remove('hideDrawer');
 }
 
 function getLinkSampleEdit(sampleElement, group) {
-	document.getElementsByName('edgeLabel')[0].value = sampleElement.dataSet.get('1').label;
+	document.getElementsByName(
+		'edgeLabel'
+	)[0].value = sampleElement.dataSet.get('1').label;
 	getColor('lineColor', group.color.color);
 	getSelection('width', group.width);
 	getSelection('dashes', group.dashes);
@@ -412,10 +443,10 @@ function saveNodeSampleEdit(sampleElement, samples, groupId) {
 	node = Object.assign(node, deepCopy(samples.nodes[groupId]));
 	let dataSet = sampleElement.dataSet;
 	dataSet.update(node);
-	reApplySampleToNodes(groupId)
+	reApplySampleToNodes(groupId);
 	window.ySamplesMap.set(groupId, {
 		node: samples.nodes[groupId],
-		clientID: window.clientId
+		clientID: window.clientId,
 	});
 	document.getElementById('editNodeDrawer').classList.add('hideDrawer');
 	window.network.redraw();
@@ -434,27 +465,27 @@ function saveLinkSampleEdit(sampleElement, samples, groupId) {
 	val = document.getElementsByName('arrows')[0].value;
 	if (val != '') {
 		group.arrows.from = {
-			enabled: false
+			enabled: false,
 		};
 		group.arrows.middle = {
-			enabled: false
+			enabled: false,
 		};
 		group.arrows.to = {
-			enabled: false
+			enabled: false,
 		};
 		switch (val) {
-		case 'none':
-			break;
-		case 'middle':
-			group.arrows.middle = {
-				enabled: true
-			};
-			break;
-		default:
-			group.arrows.to = {
-				enabled: true
-			};
-			break;
+			case 'none':
+				break;
+			case 'middle':
+				group.arrows.middle = {
+					enabled: true,
+				};
+				break;
+			default:
+				group.arrows.to = {
+					enabled: true,
+				};
+				break;
 		}
 	}
 	let edge = sampleElement.dataSet.get('1');
@@ -471,7 +502,7 @@ function saveLinkSampleEdit(sampleElement, samples, groupId) {
 	reApplySampleToLinks(groupId);
 	window.ySamplesMap.set(groupId, {
 		edge: samples.edges[groupId],
-		clientID: window.clientId
+		clientID: window.clientId,
 	});
 	document.getElementById('editLinkDrawer').classList.add('hideDrawer');
 	window.network.redraw();
@@ -481,26 +512,22 @@ function cancelSampleEdit() {
 	document.getElementById('editLinkDrawer').classList.add('hideDrawer');
 	document.getElementById('editNodeDrawer').classList.add('hideDrawer');
 }
-export
-
-function reApplySampleToNodes(groupId) {
+export function reApplySampleToNodes(groupId) {
 	let nodesToUpdate = window.data.nodes.get({
-		filter: item => {
-			return item.grp == groupId
-		}
+		filter: (item) => {
+			return item.grp == groupId;
+		},
 	});
 	for (let node of nodesToUpdate) {
 		node = Object.assign(node, deepCopy(samples.nodes[groupId]));
 	}
 	window.data.nodes.update(nodesToUpdate);
 }
-export
-
-function reApplySampleToLinks(groupId) {
+export function reApplySampleToLinks(groupId) {
 	let edgesToUpdate = window.data.edges.get({
-		filter: item => {
-			return item.grp == groupId
-		}
+		filter: (item) => {
+			return item.grp == groupId;
+		},
 	});
 	for (let edge of edgesToUpdate) {
 		edge = Object.assign(edge, deepCopy(samples.edges[groupId]));
@@ -542,29 +569,34 @@ function setBorderType(obj) {
 
 function deString(val) {
 	switch (val) {
-	case 'true':
-		return true;
-	case 'false':
-		return false;
-	case 'dashes':
-		return [10, 10];
-	case 'dots':
-		return [3, 3];
-	default:
-		return val;
+		case 'true':
+			return true;
+		case 'false':
+			return false;
+		case 'dashes':
+			return [10, 10];
+		case 'dots':
+			return [3, 3];
+		default:
+			return val;
 	}
 }
 
 function setFont(obj) {
 	obj.font = {};
 	obj.font.face = 'arial';
-	obj.font.color = document.getElementsByName('fontColor')[0].value
+	obj.font.color = document.getElementsByName('fontColor')[0].value;
 	let val = document.getElementsByName('fontSize')[0].value;
-	obj.font.size = (Number.isInteger(val) ? val : 14);
+	obj.font.size = Number.isInteger(val) ? val : 14;
 }
 
 function getSelection(name, prop) {
-	if (Array.from(document.getElementsByName(name)[0].options).map(opt => opt.value).includes(prop.toString())) document.getElementsByName(name)[0].value = prop;
+	if (
+		Array.from(document.getElementsByName(name)[0].options)
+			.map((opt) => opt.value)
+			.includes(prop.toString())
+	)
+		document.getElementsByName(name)[0].value = prop;
 	else document.getElementsByName(name)[0].selectedIndex = 0;
 }
 
@@ -581,7 +613,7 @@ function initSample(wrapper, sampleData) {
 			dragNodes: false,
 			dragView: false,
 			selectable: true,
-			zoomView: false
+			zoomView: false,
 		},
 		manipulation: {
 			enabled: false,
@@ -589,12 +621,12 @@ function initSample(wrapper, sampleData) {
 		layout: {
 			hierarchical: {
 				enabled: true,
-				direction: 'LR'
-			}
+				direction: 'LR',
+			},
 		},
 		edges: {
-			value: 10 // to make the links more visible at very small scale for the samples
-		}
+			value: 10, // to make the links more visible at very small scale for the samples
+		},
 	};
 	let net = new Network(wrapper, sampleData, options);
 	net.fit();
@@ -603,21 +635,33 @@ function initSample(wrapper, sampleData) {
 	return net;
 }
 
-var underlayContainer = document.getElementById('underlay')
+var underlayContainer = document.getElementById('underlay');
 var legendData = {nodes: new DataSet(), edges: new DataSet()};
-var underlayNetwork = new Network(underlayContainer, legendData, {physics: {enabled: false}});
+var underlayNetwork = new Network(underlayContainer, legendData, {
+	physics: {enabled: false},
+});
 const LEGENDSPACEING = 50;
 
 export function legend() {
 	clearLegend();
-	
+
 	let sampleNodeDivs = document.getElementsByClassName('sampleNode');
-	let nodes = Array.from(sampleNodeDivs).filter(elem => elem.dataSet.get('1').groupLabel != 'Sample')
+	let nodes = Array.from(sampleNodeDivs).filter(
+		(elem) => elem.dataSet.get('1').groupLabel != 'Sample'
+	);
 	let sampleEdgeDivs = document.getElementsByClassName('sampleLink');
-	let edges = Array.from(sampleEdgeDivs).filter(elem => 
-		!['Sample', ''].includes(elem.dataSet.get('1').groupLabel))
-	let height = underlayContainer.clientHeight - LEGENDSPACEING * (nodes.length + edges.length + 1);
-	
+	let edges = Array.from(sampleEdgeDivs).filter(
+		(elem) => !['Sample', ''].includes(elem.dataSet.get('1').groupLabel)
+	);
+	let nItems = nodes.length + edges.length;
+	if (nItems == 0) {
+		statusMsg('Nothing to include in the Legend - rename some styles first', 'warn');
+		return;
+	}
+	let height =
+		underlayContainer.clientHeight -
+		LEGENDSPACEING * (nItems + 1);
+
 	let title = document.createElement('p');
 	title.style.left = LEGENDSPACEING / 2 + 'px';
 	title.style.top = height + 'px';
@@ -626,12 +670,15 @@ export function legend() {
 	title.id = 'Legend';
 	title.appendChild(document.createTextNode('Legend'));
 	document.getElementById('main').appendChild(title);
-	
+
 	for (let i = 0; i < nodes.length; i++) {
 		height += LEGENDSPACEING;
 		let node = deepCopy(samples.nodes[nodes[i].groupNode]);
 		node.id = i + 10000;
-		let nodePos = underlayNetwork.DOMtoCanvas({x: LEGENDSPACEING, y: height});
+		let nodePos = underlayNetwork.DOMtoCanvas({
+			x: LEGENDSPACEING,
+			y: height,
+		});
 		node.x = nodePos.x;
 		node.y = nodePos.y;
 		node.label = node.groupLabel;
@@ -641,7 +688,10 @@ export function legend() {
 	for (let i = 0; i < edges.length; i++) {
 		height += LEGENDSPACEING;
 		let edge = deepCopy(samples.edges[edges[i].groupLink]);
-		let edgePos = underlayNetwork.DOMtoCanvas({x: LEGENDSPACEING, y: height});
+		let edgePos = underlayNetwork.DOMtoCanvas({
+			x: LEGENDSPACEING,
+			y: height,
+		});
 		edge.label = edge.groupLabel;
 		edge.id = i + 10000;
 		edge.from = i + 20000;
@@ -650,9 +700,23 @@ export function legend() {
 		edge.font = {size: 12, color: 'black', align: 'top', vadjust: -2};
 		edge.widthConstraint = 80;
 		let nodes = [
-			{id: edge.from, shape: 'dot', size: 5, x: edgePos.x - 20, y: edgePos.y, fixed: true}, 
-			{id: edge.to, shape: 'dot', size: 5, x: edgePos.x + 30, y: edgePos.y, fixed: true}
-			];
+			{
+				id: edge.from,
+				shape: 'dot',
+				size: 5,
+				x: edgePos.x - 20,
+				y: edgePos.y,
+				fixed: true,
+			},
+			{
+				id: edge.to,
+				shape: 'dot',
+				size: 5,
+				x: edgePos.x + 30,
+				y: edgePos.y,
+				fixed: true,
+			},
+		];
 		legendData.nodes.update(nodes);
 		legendData.edges.update(edge);
 	}

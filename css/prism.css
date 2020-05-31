@@ -33,13 +33,13 @@ body {
 	font-family: sans-serif;
 	box-sizing: border-box;
 	/* interface colours defined here */
-	--header-color: #3498DB;
+	--header-color: #3498db;
 	--header-hover-color: lightgrey;
 	--header-pressed-color: grey;
 	--header-disabled-color: #a8d3f0;
 	--panel-color: #404040;
 	--pop-up-color: #999;
-	--modal-header-color: #3498DB;
+	--modal-header-color: #3498db;
 	--tab-color: #dcdcdc;
 }
 .container {
@@ -92,7 +92,7 @@ footer {
 #zoomminus {
 	cursor: zoom-out;
 }
-input[type=range] {
+input[type='range'] {
 	vertical-align: middle;
 }
 /* Network pane and pop-up for new Factors */
@@ -138,7 +138,7 @@ input[type=range] {
 }
 /* Popup arrow */
 #popup::after {
-	content: "";
+	content: '';
 	position: absolute;
 	top: 50%;
 	left: 100%;
@@ -203,7 +203,7 @@ nav button .small-button {
 }
 
 nav button:hover {
-	border: 1px solid black;	
+	border: 1px solid black;
 }
 
 nav button:active {
@@ -311,7 +311,7 @@ nav button .pressed {
 	.strapline {
 		grid-column: 1;
 		grid-row: 1;
-		font-size: 20px
+		font-size: 20px;
 	}
 	.button-wrapper {
 		grid-column: 1;
@@ -404,18 +404,18 @@ nav button .pressed {
 	width: 80%;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 	animation-name: animatetop;
-	animation-duration: 0.4s
+	animation-duration: 0.4s;
 }
 /* Add Animation */
 
 @keyframes animatetop {
 	from {
 		top: -300px;
-		opacity: 0
+		opacity: 0;
 	}
 	to {
 		top: 0;
-		opacity: 1
+		opacity: 1;
 	}
 }
 /* The Close Button */
@@ -620,13 +620,13 @@ nav button .pressed {
 	box-sizing: border-box;
 }
 .onoffswitch-inner:before {
-	content: "ON";
+	content: 'ON';
 	padding-left: 10px;
 	background-color: white;
 	color: #000000;
 }
 .onoffswitch-inner:after {
-	content: "OFF";
+	content: 'OFF';
 	padding-right: 5px;
 	background-color: white;
 	color: #000000;
@@ -645,10 +645,10 @@ nav button .pressed {
 	border-radius: 11px;
 	transition: all 0.3s ease-in 0s;
 }
-.onoffswitch-checkbox:checked+.onoffswitch-label .onoffswitch-inner {
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
 	margin-left: 0;
 }
-.onoffswitch-checkbox:checked+.onoffswitch-label .onoffswitch-switch {
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
 	right: 0;
 }
 /*edit node sample panel */
@@ -687,7 +687,7 @@ nav button .pressed {
 	font-size: 12px;
 	border: 0;
 	border-radius: 4px;
-	padding: 4px
+	padding: 4px;
 }
 .sampleEditorSubmit {
 	grid-column: 3/4;
@@ -821,21 +821,21 @@ nav button .pressed {
 .message-box {
 	padding: 3px;
 	position: relative;
-	background: rgba(100, 170, 0, .2);
+	background: rgba(100, 170, 0, 0.2);
 	color: black;
 	font-size: 14px;
 }
 .message-box:after {
-	content: "";
+	content: '';
 	position: absolute;
 	border: 10px solid transparent;
-	border-top: 10px solid rgba(100, 170, 0, .2);
+	border-top: 10px solid rgba(100, 170, 0, 0.2);
 	border-right: none;
 	bottom: -20px;
 	right: 10px;
 }
 .message-partner {
-	background: rgba(0, 114, 135, .2);
+	background: rgba(0, 114, 135, 0.2);
 	align-self: flex-start;
 }
 .message-partner:after {
@@ -844,7 +844,7 @@ nav button .pressed {
 	top: -20px;
 	left: 9px;
 	border: 10px solid transparent;
-	border-bottom: 10px solid rgba(0, 114, 135, .2);
+	border-bottom: 10px solid rgba(0, 114, 135, 0.2);
 	border-left: none;
 }
 .chat-input-holder {
@@ -894,10 +894,10 @@ nav button .pressed {
 @keyframes blinking {
 	from {
 		background: var(--header-color);
-		}
+	}
 	to {
 		background: var(--header-hover-color);
-		}
+	}
 }
 .emoji {
 	border: 0;

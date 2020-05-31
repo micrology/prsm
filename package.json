@@ -26,7 +26,7 @@
     "start": "webpack-dev-server --open-page prism.html",
     "postinstall": "npm run dist",
     "lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
-    "pretty": "prettier --write prism.html "./js/*.js", ./css/prism.css,
+    "pretty": "prettier --write prism.html ./js/*.js ./css/prism.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "license": "GPL-3.0-or-later",
