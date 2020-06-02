@@ -1,6 +1,6 @@
 import {Network} from 'vis-network/peer/';
 import {DataSet} from 'vis-data/peer';
-import {deepCopy, standardize_color} from './utils.js';
+import {deepCopy, standardize_color, dragElement} from './utils.js';
 import {statusMsg} from './prism.js';
 export const samples = {
 	nodes: {
@@ -635,12 +635,10 @@ function initSample(wrapper, sampleData) {
 	return net;
 }
 
-var underlayContainer = document.getElementById('underlay');
 var legendData = {nodes: new DataSet(), edges: new DataSet()};
-var underlayNetwork = new Network(underlayContainer, legendData, {
-	physics: {enabled: false},
-});
-const LEGENDSPACEING = 50;
+var legendNetwork = null;
+const LEGENDSPACING = 50;
+const HALFLEGENDWIDTH = 40;
 
 export function legend() {
 	clearLegend();
@@ -658,38 +656,47 @@ export function legend() {
 		statusMsg('Nothing to include in the Legend - rename some styles first', 'warn');
 		return;
 	}
-	let height =
-		underlayContainer.clientHeight -
-		LEGENDSPACEING * (nItems + 1);
-
+	let legendBox = document.createElement('div');
+	legendBox.className = 'legend';
+	legendBox.id = 'legendBox';
+	document.getElementById('main').appendChild(legendBox);
 	let title = document.createElement('p');
-	title.style.left = LEGENDSPACEING / 2 + 'px';
-	title.style.top = height + 'px';
-	title.style.position = 'absolute';
-	title.style.fontWeight = 'bold';
 	title.id = 'Legend';
+	title.className = 'legendTitle';
 	title.appendChild(document.createTextNode('Legend'));
-	document.getElementById('main').appendChild(title);
+	legendBox.appendChild(title);
+	legendBox.style.height = (LEGENDSPACING * nItems + title.offsetHeight) + 'px';
+	legendBox.style.width = (HALFLEGENDWIDTH * 2) + 'px';
+	let canvas = document.createElement('div');
+	canvas.className = 'legendCanvas';
+	canvas.style.height = (LEGENDSPACING * nItems) + 'px';
+	legendBox.appendChild(canvas);
 
+	dragElement(legendBox, title);
+
+	legendNetwork = new Network(canvas, legendData, {physics: {enabled: false},}); 
+
+	let height = LEGENDSPACING / 2;
 	for (let i = 0; i < nodes.length; i++) {
-		height += LEGENDSPACEING;
 		let node = deepCopy(samples.nodes[nodes[i].groupNode]);
 		node.id = i + 10000;
-		let nodePos = underlayNetwork.DOMtoCanvas({
-			x: LEGENDSPACEING,
+		let nodePos = legendNetwork.DOMtoCanvas({
+			x: HALFLEGENDWIDTH,
 			y: height,
 		});
 		node.x = nodePos.x;
 		node.y = nodePos.y;
 		node.label = node.groupLabel;
 		node.fixed = true;
+		node.chosen = false;
+		node.widthConstraint = {maximum: HALFLEGENDWIDTH * 2};
 		legendData.nodes.update(node);
+		height += LEGENDSPACING;
 	}
 	for (let i = 0; i < edges.length; i++) {
-		height += LEGENDSPACEING;
 		let edge = deepCopy(samples.edges[edges[i].groupLink]);
-		let edgePos = underlayNetwork.DOMtoCanvas({
-			x: LEGENDSPACEING,
+		let edgePos = legendNetwork.DOMtoCanvas({
+			x: HALFLEGENDWIDTH,
 			y: height,
 		});
 		edge.label = edge.groupLabel;
@@ -704,7 +711,7 @@ export function legend() {
 				id: edge.from,
 				shape: 'dot',
 				size: 5,
-				x: edgePos.x - 20,
+				x: edgePos.x - 25,
 				y: edgePos.y,
 				fixed: true,
 			},
@@ -712,22 +719,24 @@ export function legend() {
 				id: edge.to,
 				shape: 'dot',
 				size: 5,
-				x: edgePos.x + 30,
+				x: edgePos.x + 25,
 				y: edgePos.y,
 				fixed: true,
 			},
 		];
 		legendData.nodes.update(nodes);
 		legendData.edges.update(edge);
+		height += LEGENDSPACING;
 	}
 }
 
 export function clearLegend() {
 	legendData.nodes.clear();
-	let titleElement = document.getElementById('Legend');
-	if (titleElement) titleElement.remove();
+	legendData.edges.clear();
+	if(legendNetwork) legendNetwork.destroy();
+	let legendBox = document.getElementById('legendBox');
+	if (legendBox) legendBox.remove();
 }
 
 window.legend = legend;
 window.legendData = legendData;
-window.underlayNetwork = underlayNetwork;

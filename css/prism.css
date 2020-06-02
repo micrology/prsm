@@ -38,7 +38,8 @@ body {
 	--header-pressed-color: grey;
 	--header-disabled-color: #a8d3f0;
 	--panel-color: #404040;
-	--pop-up-color: #999;
+	--pop-up-color: #f5f5f5;
+	--pop-up-shadow-color: #c9c9c9;
 	--modal-header-color: #3498db;
 	--tab-color: #dcdcdc;
 }
@@ -130,11 +131,13 @@ input[type='range'] {
 	position: absolute;
 	z-index: 299;
 	background-color: var(--pop-up-color);
-	color: white;
+	box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
+	color: black;
+	border: thin solid var(--pop-up-shadow-color);
 	border-radius: 6px;
 	padding: 6px;
 	line-height: 1.5;
-	font-size: 14px;
+	font-size: 16px;
 }
 /* Popup arrow */
 #popup::after {
@@ -142,13 +145,14 @@ input[type='range'] {
 	position: absolute;
 	top: 50%;
 	left: 100%;
-	margin-top: -5px;
-	border-width: 5px;
+	margin-top: -10px;
+	border-width: 10px;
 	border-style: solid;
-	border-color: transparent transparent transparent var(--pop-up-color);
+	border-color: transparent transparent transparent var(--pop-up-shadow-color);
 }
 #popup table {
 	width: 100%;
+	font-size: 14px;
 }
 #popup textarea {
 	width: 134px;
@@ -159,6 +163,18 @@ input[type='range'] {
 }
 input::placeholder {
 	color: var(--header-color);
+}
+#popup input[type="button"] {
+	background-color: white;
+	border-radius: 6px;
+	border: thin solid #c9c9c9;
+	outline: none;
+}
+#popup input[type="button"]:active {
+	box-shadow: inset 0px 0px 5px 0px var(--pop-up-shadow-color);
+}
+#popup select {
+	min-width: 70px;
 }
 /* ----- Top Navigation Bar ---------------------------------------------------------- */
 
@@ -904,4 +920,26 @@ nav button .pressed {
 	font-size: 18px;
 	background: white;
 	outline: none;
+}
+
+.legend {
+	position: fixed;
+	bottom: 80px;
+	left: 20px;
+	box-shadow: 2px 2px 14px 5px rgba(230,230,230,1);
+	border-radius: 4px;
+	margin: 0;
+	user-select: none;
+	z-index: 500;
+}
+.legendTitle {
+	font-weight: bold;
+	text-align: center;
+	padding: 3px;
+	user-select: none;
+}
+.legendCanvas {
+	background-color: transparent;
+	width: 100%;
+	height: 100%;
 }

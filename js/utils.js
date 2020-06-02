@@ -131,6 +131,7 @@ export function dragElement(elmnt, header) {
 	function elementDrag(e) {
 		e = e || window.event;
 		e.preventDefault();
+		e.target.style.cursor = 'move';
 		// calculate the new cursor position:
 		pos1 = pos3 - e.clientX;
 		pos2 = pos4 - e.clientY;
@@ -141,8 +142,9 @@ export function dragElement(elmnt, header) {
 		elmnt.style.left = elmnt.offsetLeft - pos1 + 'px';
 	}
 
-	function closeDragElement() {
+	function closeDragElement(e) {
 		// stop moving when mouse button is released:
+		e.target.style.cursor = 'pointer';
 		document.onmouseup = null;
 		document.onmousemove = null;
 	}
