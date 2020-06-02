@@ -14,7 +14,7 @@ export function getScaleFreeNetwork(nodeCount) {
 		nodes.push({
 			id: String(i),
 			label: String(i),
-			value: 1
+			value: 1,
 		});
 
 		connectionCount[i] = 0;
@@ -25,7 +25,7 @@ export function getScaleFreeNetwork(nodeCount) {
 			var to = 0;
 			edges.push({
 				from: from.toString(),
-				to: to.toString()
+				to: to.toString(),
 			});
 			connectionCount[from]++;
 			connectionCount[to]++;
@@ -43,7 +43,7 @@ export function getScaleFreeNetwork(nodeCount) {
 			to = j;
 			edges.push({
 				from: from.toString(),
-				to: to.toString()
+				to: to.toString(),
 			});
 			connectionCount[from]++;
 			connectionCount[to]++;
@@ -52,7 +52,7 @@ export function getScaleFreeNetwork(nodeCount) {
 
 	return {
 		nodes: nodes,
-		edges: edges
+		edges: edges,
 	};
 }
 
@@ -64,48 +64,51 @@ function seededRandom() {
 
 export function deepCopy(inObject) {
 	let outObject, value, key;
-	if (typeof inObject !== "object" || inObject === null) {
-		return inObject // Return the value if inObject is not an object
+	if (typeof inObject !== 'object' || inObject === null) {
+		return inObject; // Return the value if inObject is not an object
 	}
 	// Create an array or object to hold the values
-	outObject = Array.isArray(inObject) ? [] : {}
+	outObject = Array.isArray(inObject) ? [] : {};
 	for (key in inObject) {
-		value = inObject[key]
-			// Recursively (deep) copy for nested objects, including arrays
-		outObject[key] = (typeof value === "object" && value !== null) ? deepCopy(value) : value
+		value = inObject[key];
+		// Recursively (deep) copy for nested objects, including arrays
+		outObject[key] =
+			typeof value === 'object' && value !== null
+				? deepCopy(value)
+				: value;
 	}
-	return outObject
+	return outObject;
 }
 
 export function cleanArray(arr, propsToRemove) {
 	return arr.map((item) => {
-		return clean(item, propsToRemove)
-	})
+		return clean(item, propsToRemove);
+	});
 }
 
 export function clean(source, propsToRemove) {
 	// return a copy of an object, with the properties in the object propsToRemove removed
 	let out = {};
 	for (let key in source) {
-		if (!(key in propsToRemove)) out[key] = source[key]
+		if (!(key in propsToRemove)) out[key] = source[key];
 	}
-	return out
+	return out;
 }
 
 export function strip(obj, allowed) {
 	return Object.fromEntries(
-   Object.entries(obj).filter(
-      ([key, val])=>allowed.includes(key) // eslint-disable-line no-unused-vars
-   ))
+		Object.entries(obj).filter(
+			([key, val]) => allowed.includes(key) // eslint-disable-line no-unused-vars
+		)
+	);
 }
 
-// Performs intersection operation between called set and otherSet 
+// Performs intersection operation between called set and otherSet
 Set.prototype.intersection = function (otherSet) {
 	let intersectionSet = new Set();
-	for (var elem of otherSet)
-		if (this.has(elem)) intersectionSet.add(elem);
+	for (var elem of otherSet) if (this.has(elem)) intersectionSet.add(elem);
 	return intersectionSet;
-}
+};
 
 export function dragElement(elmnt, header) {
 	var pos1 = 0,
@@ -128,27 +131,27 @@ export function dragElement(elmnt, header) {
 	function elementDrag(e) {
 		e = e || window.event;
 		e.preventDefault();
+		e.target.style.cursor = 'move';
 		// calculate the new cursor position:
 		pos1 = pos3 - e.clientX;
 		pos2 = pos4 - e.clientY;
 		pos3 = e.clientX;
 		pos4 = e.clientY;
 		// set the element's new position:
-		elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-		elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+		elmnt.style.top = elmnt.offsetTop - pos2 + 'px';
+		elmnt.style.left = elmnt.offsetLeft - pos1 + 'px';
 	}
 
-	function closeDragElement() {
+	function closeDragElement(e) {
 		// stop moving when mouse button is released:
+		e.target.style.cursor = 'pointer';
 		document.onmouseup = null;
 		document.onmousemove = null;
 	}
 }
 
 export function standardize_color(str) {
-	let ctx = document.createElement("canvas").getContext("2d");
+	let ctx = document.createElement('canvas').getContext('2d');
 	ctx.fillStyle = str;
 	return ctx.fillStyle;
 }
-
-

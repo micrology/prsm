@@ -26,6 +26,7 @@
     "start": "webpack-dev-server --open-page prism.html",
     "postinstall": "npm run dist",
     "lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
+    "pretty": "prettier --write prism.html ./js/*.js ./css/prism.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "license": "GPL-3.0-or-later",
@@ -50,6 +51,7 @@
     "eslint": "^6.8.0",
     "mini-css-extract-plugin": "^0.9.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
+    "prettier": "2.0.5",
     "style-loader": "^1.1.3",
     "terser-webpack-plugin": "^2.3.5",
     "webpack": "^4.42.1",

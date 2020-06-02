@@ -21,46 +21,49 @@ Receive message from main thread, consisting of node and link objects, do calcul
 and return it to the main thread
  */
 
-onmessage = function(e) {
+onmessage = function (e) {
 	let graph = {
 		nodes: e.data[0], // array of node objects
-		edges: e.data[1]  // array of edge objects
+		edges: e.data[1], // array of edge objects
 	};
 	if (checkComplete(graph)) postMessage(betweenness(graph));
-}
+};
 
 function checkComplete(graph) {
-// sanity check: do all the edges connect existing nodes
-	graph.edges.forEach( (edge) => {
-		if (graph.nodes.find(node => (node.id == edge.from)) == null || 
-			graph.nodes.find(node => (node.id == edge.to)) == null) return false
-		});
-	return true
+	// sanity check: do all the edges connect existing nodes
+	graph.edges.forEach((edge) => {
+		if (
+			graph.nodes.find((node) => node.id == edge.from) == null ||
+			graph.nodes.find((node) => node.id == edge.to) == null
+		)
+			return false;
+	});
+	return true;
 }
 
 var betweennessCache = {
 	structure: [],
-	betweenness: undefined
+	betweenness: undefined,
 };
 
 function betweenness(graph) {
 	let struct = getIds(graph.nodes).concat(getIds(graph.edges));
 	if (struct.length == 0) return null;
-	// check whether the network structure has changed; 
+	// check whether the network structure has changed;
 	// if not, just return the previous result immediately
 	if (eqArray(struct, betweennessCache.structure))
-	return betweennessCache.betweenness;
+		return betweennessCache.betweenness;
 	betweennessCache = {
 		structure: struct,
-		betweenness: betweenness1(graph)
+		betweenness: betweenness1(graph),
 	};
 	return betweennessCache.betweenness;
 }
 
 // return an array of ids extracted from an array of node or link objects
 function getIds(arr) {
-	return arr.map(function(item) {
-		return item.id
+	return arr.map(function (item) {
+		return item.id;
 	});
 }
 
@@ -69,8 +72,7 @@ function eqArray(a, b) {
 	if (a.length != b.length) return false;
 	a = a.sort();
 	b = b.sort();
-	for (let i = 0; i < a.length; i++)
-		if (a[i] != b[i]) return false;
+	for (let i = 0; i < a.length; i++) if (a[i] != b[i]) return false;
 	return true;
 }
 
@@ -173,25 +175,24 @@ function betweenness1(graph) {
 				for (var i = 0; i < links.length; ++i) {
 					var link = links[i];
 					if (link.from === nodeId) {
-						callback(getNode(link.to), link)
+						callback(getNode(link.to), link);
 					}
 				}
 			}
 		}
 
-		// return all the link objects that start from the given node 
+		// return all the link objects that start from the given node
 		function linksFrom(nodeId) {
-			return graph.edges.filter(function(item) {
-				return (item.from == nodeId)
-			})
+			return graph.edges.filter(function (item) {
+				return item.from == nodeId;
+			});
 		}
 
 		// return the node object with the given Id
 		function getNode(nodeId) {
-			return graph.nodes.filter(function(item) {
-				return (item.id == nodeId)
-			})[0]
+			return graph.nodes.filter(function (item) {
+				return item.id == nodeId;
+			})[0];
 		}
-
 	}
 }

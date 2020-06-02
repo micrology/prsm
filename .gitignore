@@ -5,6 +5,8 @@ dist
 node_modules
 *.bbprojectd
 experiments
+.prettierrc
+.vscode
 
 # Compiled source #
 ###################
