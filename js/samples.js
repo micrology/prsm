@@ -440,7 +440,7 @@ function saveNodeSampleEdit(sampleElement, samples, groupId) {
 	setFont(group);
 	let node = sampleElement.dataSet.get('1');
 	node.label = group.groupLabel;
-	node = deepMerge(node, samples.nodes[groupId]);
+	node = deepMerge(node, samples.nodes[groupId], {chosen: false});
 	let dataSet = sampleElement.dataSet;
 	dataSet.update(node);
 	reApplySampleToNodes(groupId);
@@ -448,6 +448,7 @@ function saveNodeSampleEdit(sampleElement, samples, groupId) {
 		node: samples.nodes[groupId],
 		clientID: window.clientId,
 	});
+	sampleElement.net.unselectAll();
 	document.getElementById('editNodeDrawer').classList.add('hideDrawer');
 	if (legendNetwork) legend();
 	window.network.redraw();

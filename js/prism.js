@@ -1600,9 +1600,6 @@ function togglePanel() {
 /* ---------operations related to the side panel -------------------------------------*/
 // Panel
 
-// make panel dragable
-
-dragElement(document.getElementById('panel'), document.getElementById('tab'));
 var tabOpen = null;
 
 function openTab(tabId) {

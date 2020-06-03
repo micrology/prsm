@@ -60,7 +60,6 @@ header {
 }
 aside {
 	margin-right: 5px;
-	position: absolute;
 	z-index: 2;
 }
 footer {
