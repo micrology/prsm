@@ -1196,7 +1196,7 @@ function loadJSONfile(json) {
 	if (json.lastNodeSample) lastNodeSample = json.lastNodeSample;
 	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
 	if (json.buttons) setButtonStatus(json.buttons);
-	if ('source' in json.edges[0]) {
+	if (json.edges.length > 0 && 'source' in json.edges[0]) {
 		// the file is from Gephi and needs to be translated
 		let parsed = parseGephiNetwork(json, {
 			edges: {
