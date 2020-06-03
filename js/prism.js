@@ -7,7 +7,7 @@ import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
 import {
 	getScaleFreeNetwork,
-	deepCopy,
+	deepMerge,
 	clean,
 	strip,
 	cleanArray,
@@ -27,7 +27,7 @@ import {
 } from './samples.js';
 import 'vis-network/styles/vis-network.css';
 
-const version = '1.10';
+const version = '1.11';
 const LOGOURL = 'img/logo.png';
 const GRIDSPACING = 100;
 const NODEWIDTH = 10; // chars for label splitting
@@ -483,10 +483,7 @@ function draw() {
 			enabled: false,
 			addNode: function (item, callback) {
 				item.label = '';
-				item = Object.assign(
-					item,
-					deepCopy(samples.nodes[lastNodeSample])
-				);
+				item = deepMerge(item, samples.nodes[lastNodeSample]);
 				item.grp = lastNodeSample;
 				addLabel(item, clearPopUp, callback);
 				showPressed('addNode', 'remove');
@@ -513,10 +510,7 @@ function draw() {
 					callback(null);
 					return;
 				}
-				item = Object.assign(
-					item,
-					deepCopy(samples.edges[lastLinkSample])
-				);
+				item = deepMerge(item, samples.edges[lastLinkSample]);
 				item.grp = lastLinkSample;
 				showPressed('addLink', 'remove');
 				callback(item);
@@ -1160,11 +1154,7 @@ function loadFile(contents) {
 		)
 	);
 	// reassign the sample properties to the node
-	data.nodes.update(
-		data.nodes.map((n) =>
-			Object.assign({}, deepCopy(samples.nodes[n.grp]), n)
-		)
-	);
+	data.nodes.update(data.nodes.map((n) => deepMerge(samples.nodes[n.grp], n)));
 	// same for edges
 	data.edges.update(
 		data.edges.map(
@@ -1179,11 +1169,7 @@ function loadFile(contents) {
 			}
 		)
 	);
-	data.edges.update(
-		data.edges.map((e) =>
-			Object.assign({}, deepCopy(samples.edges[e.grp]), e)
-		)
-	);
+	data.edges.update(data.edges.map((e) => deepMerge(samples.edges[e.grp], e)));
 	if (!isJSONfile) adjustGravity(50000);
 	fit();
 }
@@ -1433,7 +1419,7 @@ function refreshSampleNodes() {
 	);
 	for (let i = 0; i < sampleElements.length; i++) {
 		let node = sampleElements[i].dataSet.get()[0];
-		node = Object.assign(node, samples.nodes['group' + i]);
+		node = deepMerge(node, samples.nodes['group' + i]);
 		node.label = node.groupLabel;
 		sampleElements[i].dataSet.update(node);
 	}
@@ -1445,7 +1431,7 @@ function refreshSampleLinks() {
 	);
 	for (let i = 0; i < sampleElements.length; i++) {
 		let edge = sampleElements[i].dataSet.get()[0];
-		edge = Object.assign(edge, samples.edges['edge' + i]);
+		edge = deepMerge(edge, samples.edges['edge' + i]);
 		edge.label = edge.groupLabel;
 		sampleElements[i].dataSet.update(edge);
 	}
@@ -1613,6 +1599,10 @@ function togglePanel() {
 }
 /* ---------operations related to the side panel -------------------------------------*/
 // Panel
+
+// make panel dragable
+
+dragElement(document.getElementById('panel'), document.getElementById('tab'));
 var tabOpen = null;
 
 function openTab(tabId) {
@@ -1697,7 +1687,7 @@ function applySampleToNode() {
 	let nodesToUpdate = [];
 	let sample = event.currentTarget.groupNode;
 	for (let node of data.nodes.get(selectedNodeIds)) {
-		node = Object.assign(node, deepCopy(samples.nodes[sample]));
+		node = deepMerge(node, samples.nodes[sample]);
 		node.grp = sample;
 		claim(node);
 		nodesToUpdate.push(node);
@@ -1713,7 +1703,7 @@ function applySampleToLink(event) {
 	if (selectedEdges.length == 0) return;
 	let edgesToUpdate = [];
 	for (let edge of data.edges.get(selectedEdges)) {
-		edge = Object.assign(edge, deepCopy(samples.edges[sample]));
+		edge = deepMerge(edge, samples.edges[sample]);
 		edge.grp = sample;
 		claim(edge);
 		edgesToUpdate.push(edge);

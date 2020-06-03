@@ -1,6 +1,6 @@
 import {Network} from 'vis-network/peer/';
 import {DataSet} from 'vis-data/peer';
-import {deepCopy, standardize_color, dragElement} from './utils.js';
+import {deepMerge, standardize_color, dragElement} from './utils.js';
 import {statusMsg} from './prism.js';
 export const samples = {
 	nodes: {
@@ -263,7 +263,7 @@ export function setUpSamples() {
 		let sampleOptions = samples.nodes[groupId];
 		let groupLabel = samples.nodes[groupId].groupLabel;
 		let nodeDataSet = new DataSet([
-			Object.assign(
+			deepMerge(
 				{
 					id: '1',
 					label: groupLabel == undefined ? '' : groupLabel,
@@ -290,7 +290,7 @@ export function setUpSamples() {
 		let groupId = 'edge' + i;
 		let sampleOptions = samples.edges[groupId];
 		let edgeDataSet = new DataSet([
-			Object.assign(
+			deepMerge(
 				{
 					id: '1',
 					from: 1,
@@ -323,7 +323,7 @@ function configSamples() {
 	// assemble configurations by merging the specifics into the default
 	let base = samples.nodes.base;
 	for (let prop in samples.nodes) {
-		let grp = Object.assign(deepCopy(base), samples.nodes[prop]);
+		let grp = deepMerge(base, samples.nodes[prop]);
 		// make the hover and highlight colors the same as the basic ones
 		grp.color.highlight = {};
 		grp.color.highlight.border = grp.color.border;
@@ -336,7 +336,7 @@ function configSamples() {
 	}
 	base = samples.edges.base;
 	for (let prop in samples.edges) {
-		let grp = Object.assign(deepCopy(base), samples.edges[prop]);
+		let grp = deepMerge(base, samples.edges[prop]);
 		grp.color.highlight = grp.color.color;
 		grp.color.hover = grp.color.color;
 		samples.edges[prop] = grp;
@@ -440,7 +440,7 @@ function saveNodeSampleEdit(sampleElement, samples, groupId) {
 	setFont(group);
 	let node = sampleElement.dataSet.get('1');
 	node.label = group.groupLabel;
-	node = Object.assign(node, deepCopy(samples.nodes[groupId]));
+	node = deepMerge(node, samples.nodes[groupId]);
 	let dataSet = sampleElement.dataSet;
 	dataSet.update(node);
 	reApplySampleToNodes(groupId);
@@ -449,6 +449,7 @@ function saveNodeSampleEdit(sampleElement, samples, groupId) {
 		clientID: window.clientId,
 	});
 	document.getElementById('editNodeDrawer').classList.add('hideDrawer');
+	if (legendNetwork) legend();
 	window.network.redraw();
 }
 
@@ -496,7 +497,7 @@ function saveLinkSampleEdit(sampleElement, samples, groupId) {
 		edge.font.size = 40;
 		edge.widthConstraint = 80;
 	}
-	edge = Object.assign(edge, deepCopy(samples.edges[groupId]));
+	edge = deepMerge(edge, samples.edges[groupId]);
 	let dataSet = sampleElement.dataSet;
 	dataSet.update(edge);
 	reApplySampleToLinks(groupId);
@@ -505,6 +506,7 @@ function saveLinkSampleEdit(sampleElement, samples, groupId) {
 		clientID: window.clientId,
 	});
 	document.getElementById('editLinkDrawer').classList.add('hideDrawer');
+	if (legendNetwork) legend();
 	window.network.redraw();
 }
 
@@ -518,10 +520,7 @@ export function reApplySampleToNodes(groupId) {
 			return item.grp == groupId;
 		},
 	});
-	for (let node of nodesToUpdate) {
-		node = Object.assign(node, deepCopy(samples.nodes[groupId]));
-	}
-	window.data.nodes.update(nodesToUpdate);
+	window.data.nodes.update(nodesToUpdate.map((node) => deepMerge(node, samples.nodes[groupId])));
 }
 export function reApplySampleToLinks(groupId) {
 	let edgesToUpdate = window.data.edges.get({
@@ -529,10 +528,7 @@ export function reApplySampleToLinks(groupId) {
 			return item.grp == groupId;
 		},
 	});
-	for (let edge of edgesToUpdate) {
-		edge = Object.assign(edge, deepCopy(samples.edges[groupId]));
-	}
-	window.data.edges.update(edgesToUpdate);
+	window.data.edges.update(edgesToUpdate.map((edge) => deepMerge(edge, samples.edges[groupId])));
 }
 
 function getColor(well, prop) {
@@ -678,7 +674,7 @@ export function legend() {
 
 	let height = LEGENDSPACING / 2;
 	for (let i = 0; i < nodes.length; i++) {
-		let node = deepCopy(samples.nodes[nodes[i].groupNode]);
+		let node = deepMerge(samples.nodes[nodes[i].groupNode]);
 		node.id = i + 10000;
 		let nodePos = legendNetwork.DOMtoCanvas({
 			x: HALFLEGENDWIDTH,
@@ -687,6 +683,7 @@ export function legend() {
 		node.x = nodePos.x;
 		node.y = nodePos.y;
 		node.label = node.groupLabel;
+		if (node.label.length > 10) node.font.size = 8;
 		node.fixed = true;
 		node.chosen = false;
 		node.widthConstraint = {maximum: HALFLEGENDWIDTH * 2};
@@ -694,7 +691,7 @@ export function legend() {
 		height += LEGENDSPACING;
 	}
 	for (let i = 0; i < edges.length; i++) {
-		let edge = deepCopy(samples.edges[edges[i].groupLink]);
+		let edge = deepMerge(samples.edges[edges[i].groupLink]);
 		let edgePos = legendNetwork.DOMtoCanvas({
 			x: HALFLEGENDWIDTH,
 			y: height,
