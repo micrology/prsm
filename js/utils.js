@@ -62,22 +62,38 @@ function seededRandom() {
 	return x - Math.floor(x);
 }
 
-export function deepCopy(inObject) {
-	let outObject, value, key;
-	if (typeof inObject !== 'object' || inObject === null) {
-		return inObject; // Return the value if inObject is not an object
+/*!
+ * Deep merge two or more objects together.
+ * (c) 2019 Chris Ferdinandi, MIT License, https://gomakethings.com
+ * @param   {Object}   objects  The objects to merge together
+ * @returns {Object}            A new, merged, object
+ */
+export function deepMerge() {
+
+	// Setup merged object
+	let newObj = {};
+
+	// Merge the object into the newObj object
+	function merge(obj) {
+		for (let prop in obj) {
+			if (Object.prototype.hasOwnProperty.call(obj, prop)) {
+				// If property is an object, merge properties
+				if (Object.prototype.toString.call(obj[prop]) === '[object Object]') {
+					newObj[prop] = deepMerge(newObj[prop], obj[prop]);
+				} else {
+					newObj[prop] = obj[prop];
+				}
+			}
+		}
 	}
-	// Create an array or object to hold the values
-	outObject = Array.isArray(inObject) ? [] : {};
-	for (key in inObject) {
-		value = inObject[key];
-		// Recursively (deep) copy for nested objects, including arrays
-		outObject[key] =
-			typeof value === 'object' && value !== null
-				? deepCopy(value)
-				: value;
+
+	// Loop through each object and conduct a merge
+	for (let i = 0; i < arguments.length; i++) {
+		merge(arguments[i]);
 	}
-	return outObject;
+
+	return newObj;
+
 }
 
 export function cleanArray(arr, propsToRemove) {
