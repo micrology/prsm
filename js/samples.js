@@ -381,7 +381,7 @@ function getNodeSampleEdit(sampleElement, group) {
 	getColor('borderColor', group.color.border);
 	getColor('fontColor', group.font.color);
 	getSelection('shape', group.shape);
-	getDashes('borderType', group.shapeProperties.borderDashes);
+	getDashes('borderType', group.shapeProperties.borderDashes, group.borderWidth);
 	getSelection('fontSize', group.font.size);
 }
 
@@ -552,16 +552,19 @@ function setShape(obj) {
 	if (val != '') obj.shape = val;
 }
 
-function getDashes(name, val) {
+function getDashes(name, val, bWidth) {
 	if (Array.isArray(val)) val = 'dots';
+	else if (bWidth == 0) val = 'none'; 
 	else val = val.toString();
 	document.getElementsByName(name)[0].value = val;
 }
 
 function setBorderType(obj) {
+	obj.borderWidth = 1;
 	let val = document.getElementsByName('borderType')[0].value;
 	if (obj.shapeProperties === undefined) obj.shapeProperties = {};
-	if (val != '') obj.shapeProperties.borderDashes = deString(val);
+	if (val == "none") obj.borderWidth = 0;
+	else if (val != '') obj.shapeProperties.borderDashes = deString(val);
 }
 
 function deString(val) {
@@ -583,7 +586,7 @@ function setFont(obj) {
 	obj.font = {};
 	obj.font.face = 'arial';
 	obj.font.color = document.getElementsByName('fontColor')[0].value;
-	let val = document.getElementsByName('fontSize')[0].value;
+	let val = parseInt(document.getElementsByName('fontSize')[0].value)
 	obj.font.size = Number.isInteger(val) ? val : 14;
 }
 

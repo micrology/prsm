@@ -88,6 +88,9 @@ footer {
 	padding: 3px 20px;
 	border-radius: 5px;
 }
+#zoomcontrol {
+	white-space: nowrap;
+}
 #zoomplus {
 	cursor: zoom-in;
 }
