@@ -31,6 +31,7 @@ const version = '1.11';
 const LOGOURL = 'img/logo.png';
 const GRIDSPACING = 100;
 const NODEWIDTH = 10; // chars for label splitting
+const SHORTLABELLEN = 30;
 var network;
 var room;
 var nodes;
@@ -209,7 +210,7 @@ function startY() {
 		localStorage.setItem('clientID', clientID);
 	}
 	console.log('My client ID: ' + clientID);
-	/* set up the undomanagers */
+	/* set up the undo managers */
 	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap]);
 	nodes = new DataSet();
 	edges = new DataSet();
@@ -800,7 +801,7 @@ function saveLabel(item, callback) {
 		}
 	}
 	claim(item);
-	network.manipulation.inMode = "addNode" // ensure still in Add mode, in case others have done smthg meanwhile
+	network.manipulation.inMode = "addNode" // ensure still in Add mode, in case others have done something meanwhile
 	callback(item);
 }
 
@@ -824,7 +825,7 @@ function saveNode(item, callback) {
 		document.getElementById('node-borderType').value
 	);
 	claim(item);
-	network.manipulation.inMode = "editNode"; // ensure still in Add mode, in case others have done smthg meanwhile
+	network.manipulation.inMode = "editNode"; // ensure still in Add mode, in case others have done something meanwhile
 	callback(item);
 }
 
@@ -842,7 +843,7 @@ function saveEdge(item, callback) {
 	item.width = document.getElementById('edge-width').value;
 	item.dashes = convertDashes(document.getElementById('edge-type').value);
 	claim(item);
-	network.manipulation.inMode = "editEdge"; // ensure still in edit mode, in case others have done smthg meanwhile
+	network.manipulation.inMode = "editEdge"; // ensure still in edit mode, in case others have done something meanwhile
 	callback(item);
 }
 
@@ -862,8 +863,11 @@ function convertDashes(val) {
 }
 
 function splitText(txt, width) {
-	// divide txt into lines with max length of width
+	// divide txt into lines to make it roughly square, with a 
+	// minimum width of width.
 	let words = txt.trim().split(/\s/);
+	let nChars = txt.trim().length;
+	if (nChars > 2 * width) width = Math.floor(Math.sqrt(nChars));
 	let lines = '';
 	for (let i = 0, linelength = 0; i < words.length; i++) {
 		lines += words[i];
@@ -967,12 +971,16 @@ function listFactors(factors) {
 	function lf(factors) {
 		// recursive fn to return a string of the node labels, separated by commas and 'and'
 		let n = factors.length;
-		let label = "'" + data.nodes.get(factors[0]).label + "'";
+		let label = "'" + shorten(data.nodes.get(factors[0]).label) + "'";
 		if (n == 1) return label;
 		factors.shift();
 		if (n == 2) return label.concat(' and ' + lf(factors));
 		return label.concat(', ' + lf(factors));
 	}
+}
+
+function shorten(label) {
+	return (label.length > SHORTLABELLEN ? label.substring(0, SHORTLABELLEN) + '...' : label);
 }
 
 function listLinks(links) {
@@ -1477,7 +1485,7 @@ function saveStr(str, extn) {
 		extn;
 	//detect whether the browser is IE/Edge or another browser
 	if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-		//To IE or Edge browser, using msSaveorOpenBlob method to download file.
+		// IE or Edge browser.
 		window.navigator.msSaveOrOpenBlob(blob, lastFileName);
 	} else {
 		//To another browser, create a tag to download file.
@@ -1520,7 +1528,7 @@ function exportGML() {
 		' on ' +
 		new Date(Date.now()).toLocaleString() +
 		'"\ngraph\n[\n\tdirected 1\n';
-	let nodeIds = data.nodes.map((n) => n.id); //use ints, not GUIDs for node ids
+	let nodeIds = data.nodes.map((n) => n.id); //use integers, not GUIDs for node ids
 	for (let node of data.nodes.get()) {
 		str += '\tnode\n\t[\n\t\tid ' + nodeIds.indexOf(node.id);
 		if (node.label) str += '\n\t\tlabel "' + node.label + '"';
@@ -1729,7 +1737,7 @@ function showNodeData() {
 		let node = data.nodes.get(nodeId);
 		document.getElementById('fixed').checked = node.fixed ? true : false;
 		document.getElementById('nodeLabel').innerHTML = node.label
-			? node.label
+			? shorten(node.label)
 			: '';
 		document.getElementById('nodeNotes').innerHTML =
 			'<textarea class="notesTA" id="nodesTA"</textarea>';
