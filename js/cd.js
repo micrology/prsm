@@ -27,11 +27,25 @@ window.selectedIcon = 'pencil'; //NG
 		isPdf: false,
 
 		set: function (shape) {
-			var cache = this;
-
-			cache.isLine = cache.isArrow = cache.isArc = cache.isDragLastPath = cache.isDragAllPaths = cache.isRectangle = cache.isQuadraticCurve = cache.isBezierCurve = cache.isPencil = cache.isMarker = cache.isEraser = cache.isText = cache.isImage = cache.isPdf = false;
-			cache['is' + shape] = true;
+			this.unset();
+			this['is' + shape] = true;
 		},
+		unset: function () {
+			this.isLine =
+				this.isArrow = 
+				this.isArc = 
+				this.isDragLastPath = 
+				this.isDragAllPaths = 
+				this.isRectangle = 
+				this.isQuadraticCurve = 
+				this.isBezierCurve = 
+				this.isPencil = 
+				this.isMarker = 
+				this.isEraser = 
+				this.isText = 
+				this.isImage =
+				this.isPdf = false;
+		}
 	};
 
 	function addEvent(element, eventType, callback) {
@@ -2218,87 +2232,63 @@ window.selectedIcon = 'pencil'; //NG
 			}
 		},
 	};
-
+/**
+ * record the mouse movement for the pencil tool
+ */
 	var pencilHandler = {
 		isMouseDown: false,
 		prevX: 0,
 		prevY: 0,
 		mousedown: function (e) {
-			var x = e.pageX - canvas.offsetLeft,
-				y = e.pageY - canvas.offsetTop;
+			let x = e.offsetX - canvas.offsetLeft,
+				y = e.offsetY - canvas.offsetTop;
 
-			var t = this;
-
-			t.prevX = x;
-			t.prevY = y;
-
-			t.isMouseDown = true;
+			this.prevX = x;
+			this.prevY = y;
+			this.isMouseDown = true;
 
 			// make sure that pencil is drawing shapes even
 			// if mouse is down but mouse isn't moving
-			tempContext.lineCap = 'round';
-			pencilDrawHelper.pencil(tempContext, [t.prevX, t.prevY, x, y]);
-
-			points[points.length] = [
-				'pencil',
-				[t.prevX, t.prevY, x, y],
-				pencilDrawHelper.getOptions(),
-				'start',
-			];
-
-			t.prevX = x;
-			t.prevY = y;
+			this.move(x, y, 'start');
 		},
 		mouseup: function (e) {
-			var x = e.pageX - canvas.offsetLeft,
-				y = e.pageY - canvas.offsetTop;
+			let x = e.offsetX - canvas.offsetLeft,
+				y = e.offsetY - canvas.offsetTop;
 
-			var t = this;
-
-			if (t.isMouseDown) {
-				tempContext.lineCap = 'round';
-				pencilDrawHelper.pencil(tempContext, [t.prevX, t.prevY, x, y]);
-
-				points[points.length] = [
-					'pencil',
-					[t.prevX, t.prevY, x, y],
-					pencilDrawHelper.getOptions(),
-					'end',
-				];
-
-				t.prevX = x;
-				t.prevY = y;
+			if (this.isMouseDown) {
+				this.move(x, y, 'end');
 			}
-
 			this.isMouseDown = false;
 		},
 		mousemove: function (e) {
-			var x = e.pageX - canvas.offsetLeft,
-				y = e.pageY - canvas.offsetTop;
+			let x = e.offsetX - canvas.offsetLeft,
+				y = e.offsetY - canvas.offsetTop;
 
-			var t = this;
-
-			if (t.isMouseDown) {
-				tempContext.lineCap = 'round';
-				pencilDrawHelper.pencil(tempContext, [t.prevX, t.prevY, x, y]);
-
-				points[points.length] = [
-					'pencil',
-					[t.prevX, t.prevY, x, y],
-					pencilDrawHelper.getOptions(),
-				];
-
-				t.prevX = x;
-				t.prevY = y;
+			if (this.isMouseDown) {
+				this.move(x, y)
 			}
 		},
+		move: function (x, y, state) {
+			tempContext.lineCap = 'round';
+			pencilDrawHelper.pencil(tempContext, [this.prevX, this.prevY, x, y]);
+
+			points[points.length] = [
+				'pencil',
+				[this.prevX, this.prevY, x, y],
+				pencilDrawHelper.getOptions(),
+				state
+			];
+
+			this.prevX = x;
+			this.prevY = y;
+		}
 	};
 
-	var pencilLineWidth = document.getElementById('pencil-stroke-style').value,
-		pencilStrokeStyle =
+	let pencilLineWidth = document.getElementById('pencil-stroke-style').value;
+	let	pencilStrokeStyle =
 			'#' + document.getElementById('pencil-fill-style').value;
 
-	var pencilDrawHelper = clone(drawHelper);
+	let pencilDrawHelper = clone(drawHelper);
 
 	pencilDrawHelper.getOptions = function () {
 		return [
@@ -2312,65 +2302,53 @@ window.selectedIcon = 'pencil'; //NG
 			font,
 		];
 	};
-
+/**
+ * record the mouse movement for the marker tool
+ */
 	var markerHandler = {
 		isMouseDown: false,
 		prevX: 0,
 		prevY: 0,
 		mousedown: function (e) {
-			var x = e.pageX - canvas.offsetLeft,
-				y = e.pageY - canvas.offsetTop;
+			let x = e.offsetX - canvas.offsetLeft,
+				y = e.offsetY - canvas.offsetTop;
 
-			var t = this;
+			this.prevX = x;
+			this.prevY = y;
+			this.isMouseDown = true;
 
-			t.prevX = x;
-			t.prevY = y;
-
-			t.isMouseDown = true;
-
-			// make sure that pencil is drawing shapes even
-			// if mouse is down but mouse isn't moving
-			tempContext.lineCap = 'round';
-			markerDrawHelper.line(tempContext, [t.prevX, t.prevY, x, y]);
-
-			points[points.length] = [
-				'line',
-				[t.prevX, t.prevY, x, y],
-				markerDrawHelper.getOptions(),
-			];
-
-			t.prevX = x;
-			t.prevY = y;
+			this.move(x, y);
 		},
 		mouseup: function () {
 			this.isMouseDown = false;
 		},
 		mousemove: function (e) {
-			var x = e.pageX - canvas.offsetLeft,
-				y = e.pageY - canvas.offsetTop;
+			let x = e.offsetX - canvas.offsetLeft,
+			y = e.offsetY - canvas.offsetTop;
 
-			var t = this;
-
-			if (t.isMouseDown) {
-				tempContext.lineCap = 'round';
-				markerDrawHelper.line(tempContext, [t.prevX, t.prevY, x, y]);
-
-				points[points.length] = [
-					'line',
-					[t.prevX, t.prevY, x, y],
-					markerDrawHelper.getOptions(),
-				];
-
-				t.prevX = x;
-				t.prevY = y;
+			if (this.isMouseDown) {
+				this.move(x, y)
 			}
 		},
+		move: function (x, y) {
+			tempContext.lineCap = 'round';
+			markerDrawHelper.line(tempContext, [this.prevX, this.prevY, x, y]);
+
+			points[points.length] = [
+				'line',
+				[this.prevX, this.prevY, x, y],
+				markerDrawHelper.getOptions()
+			];
+
+			this.prevX = x;
+			this.prevY = y;
+		}
 	};
 
-	var markerLineWidth = document.getElementById('marker-stroke-style').value,
-		markerStrokeStyle =
-			'#' + document.getElementById('marker-fill-style').value,
-		markerGlobalAlpha = 0.7;
+	let markerLineWidth = document.getElementById('marker-stroke-style').value;
+	let markerStrokeStyle =
+		'#' + document.getElementById('marker-fill-style').value;
+	let	markerGlobalAlpha = 0.9;
 
 	var markerDrawHelper = clone(drawHelper);
 
@@ -2386,57 +2364,47 @@ window.selectedIcon = 'pencil'; //NG
 			font,
 		];
 	};
-
+/**
+ * record the mouse movement for the eraser tool
+ */
 	var eraserHandler = {
 		isMouseDown: false,
 		prevX: 0,
 		prevY: 0,
 		mousedown: function (e) {
-			var x = e.pageX - canvas.offsetLeft,
-				y = e.pageY - canvas.offsetTop;
+			let x = e.offsetX - canvas.offsetLeft,
+				y = e.offsetY - canvas.offsetTop;
 
-			var t = this;
+			this.prevX = x;
+			this.prevY = y;
+			this.isMouseDown = true;
 
-			t.prevX = x;
-			t.prevY = y;
-
-			t.isMouseDown = true;
-
-			tempContext.lineCap = 'round';
-			drawHelper.line(tempContext, [t.prevX, t.prevY, x, y]);
-
-			points[points.length] = [
-				'line',
-				[t.prevX, t.prevY, x, y],
-				drawHelper.getOptions(),
-			];
-
-			t.prevX = x;
-			t.prevY = y;
+			this.move(x, y);
 		},
 		mouseup: function () {
 			this.isMouseDown = false;
 		},
 		mousemove: function (e) {
-			var x = e.pageX - canvas.offsetLeft,
-				y = e.pageY - canvas.offsetTop;
+			let x = e.offsetX - canvas.offsetLeft,
+			y = e.offsetY - canvas.offsetTop;
 
-			var t = this;
-
-			if (t.isMouseDown) {
-				tempContext.lineCap = 'round';
-				drawHelper.line(tempContext, [t.prevX, t.prevY, x, y]);
-
-				points[points.length] = [
-					'line',
-					[t.prevX, t.prevY, x, y],
-					drawHelper.getOptions(),
-				];
-
-				t.prevX = x;
-				t.prevY = y;
+			if (this.isMouseDown) {
+				this.move(x, y)
 			}
 		},
+		move: function (x, y) {
+			tempContext.lineCap = 'round';
+			drawHelper.line(tempContext, [this.prevX, this.prevY, x, y]);
+
+			points[points.length] = [
+				'line',
+				[this.prevX, this.prevY, x, y],
+				drawHelper.getOptions()
+			];
+
+			this.prevX = x;
+			this.prevY = y;
+		}
 	};
 
 	var textHandler = {
@@ -2896,17 +2864,28 @@ window.selectedIcon = 'pencil'; //NG
 			if (this.isMouseDown) {
 				points[points.length] = [
 					'line',
-					[this.prevX, this.prevY, e.offsetX - canvas.offsetLeft, e.offsetY - canvas.offsetTop],
+					[
+						this.prevX,
+						this.prevY,
+						e.offsetX - canvas.offsetLeft,
+						e.offsetY - canvas.offsetTop,
+					],
 					drawHelper.getOptions(),
 				];
 				this.isMouseDown = false;
+				unSetSelection();
 			}
 		},
 
 		mousemove: function (e) {
 			if (this.isMouseDown) {
 				tempContext.clearRect(0, 0, innerWidth, innerHeight);
-				drawHelper.line(tempContext, [this.prevX, this.prevY, e.offsetX - canvas.offsetLeft, e.offsetY - canvas.offsetTop]);
+				drawHelper.line(tempContext, [
+					this.prevX,
+					this.prevY,
+					e.offsetX - canvas.offsetLeft,
+					e.offsetY - canvas.offsetTop,
+				]);
 			}
 		},
 	};
@@ -3724,29 +3703,29 @@ window.selectedIcon = 'pencil'; //NG
 	if (tools.code === true) {
 		document.querySelector('.preview-panel').style.display = 'block';
 	}
-
+/**
+ * Note the drawing tool selection and mark it on the UI
+ * @param {object} element - the canvas of the newly selected tool
+ * @param {string} prop - the new tool
+ */
 	function setSelection(element, prop) {
-		endLastPath();
-		//  hideContainers();
 
+		unSetSelection();
 		is.set(prop);
-
-		var selected = document.getElementsByClassName('selected-shape')[0];
-		if (selected)
-			selected.className = selected.className.replace(
-				/selected-shape/g,
-				''
-			);
-
-		if (!element.className) {
-			element.className = '';
-		}
-
-		element.className += ' selected-shape';
+		element.classList.add('selected-shape');
+	}
+/**
+ * finish the current path and remove the tool selection
+ */
+	function unSetSelection() {
+		endLastPath();
+		is.unset();
+		let selected = document.getElementsByClassName('selected-shape')[0];
+		if (selected) selected.classList.remove('selected-shape');
 	}
 
-	/* Default: setting default selected shape!! */
-	is.set(window.selectedIcon);
+ 	/* Default: setting default selected shape!! */
+/*	is.set(window.selectedIcon);
 
 	function setDefaultSelectedIcon() {
 		var toolBox = document.getElementById('tool-box');
@@ -3772,7 +3751,7 @@ window.selectedIcon = 'pencil'; //NG
 
 	/* window.addEventListener('load', function() {
         setDefaultSelectedIcon();
-    }, false); */
+    }, false); */ 
 
 	(function () {
 		var cache = {};
@@ -3906,7 +3885,6 @@ window.selectedIcon = 'pencil'; //NG
 			});
 		}
 
-
 		function decorateDragLastPath() {
 			var context = getContext('drag-last-path');
 
@@ -3940,36 +3918,37 @@ window.selectedIcon = 'pencil'; //NG
 		if (tools.dragMultiple === true) {
 			document.getElementById('drag-all-paths').style.display = 'block';
 		}
-
+/**
+ * Render the toolbox icon and add event to create the option dialog for lines
+ */
 		function decorateLine() {
-			var context = getContext('line');
+			let context = getContext('line');
 
-			var image = new Image();
+			let image = new Image();
 			image.onload = function () {
 				context.drawImage(image, 4, 4, 32, 32);
 				bindEvent(context, 'Line');
 			};
-			image.src = data_uris.line;
+			image.src = data_uris.line; 
 
-			var lineWidthContainer = find('line-width-container'),
+			let lineWidthContainer = find('line-width-container'),
 				lineWidthText = find('line-width-text'),
 				btnLineWidthDone = find('line-width-done'),
 				canvas = context.canvas;
 
-			addEvent(canvas, 'click', function () {
-				hideContainers();
-
-				lineWidthContainer.style.display = 'block';
-				lineWidthContainer.style.top = canvas.offsetTop + 1 + 'px';
-				lineWidthContainer.style.left =
-					canvas.offsetLeft + canvas.clientWidth + 'px';
-
-				lineWidthText.focus();
-			});
-
-			addEvent(btnLineWidthDone, 'click', function () {
-				lineWidthContainer.style.display = 'none';
-				lineWidth = lineWidthText.value;
+			addEvent(canvas, 'click', function (e) {
+				if (e.offsetX > 30 && e.offsetY > 30) {
+					lineWidthContainer.style.display = 'block';
+					lineWidthContainer.style.top = (canvas.offsetParent.offsetTop + canvas.offsetTop) + 'px';
+					lineWidthContainer.style.left =
+						(canvas.offsetLeft + canvas.clientWidth + 10) + 'px';
+					lineWidthText.focus();
+					addEvent(btnLineWidthDone, 'click', function () {
+						lineWidthContainer.style.display = 'none';
+						lineWidth = lineWidthText.value;
+						hideContainers();
+					});
+				}
 			});
 		}
 
@@ -3977,22 +3956,21 @@ window.selectedIcon = 'pencil'; //NG
 			decorateLine();
 			document.getElementById('line').style.display = 'block';
 		}
-
+/**
+ * Render the toolbox icon for undo and add event to do the undo when the icon is clicked
+ */
 		function decorateUndo() {
-			var context = getContext('undo-shapes');
+			let context = getContext('undo-shapes');
 
-			var image = new Image();
+			let image = new Image();
 			image.onload = function () {
 				context.drawImage(image, 4, 4, 32, 32);
 
 				document.querySelector('#undo-shapes').onclick = function () {
-					if (points.length) {
+					if (points.length > 0) {
 						points.length = points.length - 1;
 						drawHelper.redraw();
 					}
-
-					// share to webrtc
-					syncPoints(true);
 				};
 			};
 			image.src = data_uris.undo;
@@ -4003,7 +3981,7 @@ window.selectedIcon = 'pencil'; //NG
 			document.getElementById('undo-shapes').style.display = 'block';
 		}
 
-		function decorateArrow() {
+/*		function decorateArrow() {
 			var context = getContext('arrow');
 
 			var image = new Image();
@@ -4054,7 +4032,10 @@ window.selectedIcon = 'pencil'; //NG
 			document.getElementById('zoom-up').style.display = 'block';
 			document.getElementById('zoom-down').style.display = 'block';
 		}
-
+*/
+/**
+ * Render the toolbox icon and add event to create the option dialog for the pencil
+ */
 		function decoratePencil() {
 			function hexToRGBA(h) {
 				return 'rgba(' + hexToRGB(h).join(',') + ',1)';

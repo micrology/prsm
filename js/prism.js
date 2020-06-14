@@ -1608,16 +1608,17 @@ function togglePanel() {
 	// Hide/unhide the side panel
 	if (container.panelHidden) {
 		panel.classList.remove('hide');
-		document.getElementById('panel').style.left = (document.getElementById('main').offsetWidth - 5 -document.getElementById('panel').offsetWidth) + 'px';
+		document.getElementById('panel').style.left =
+			document.getElementById('main').offsetWidth -
+			5 -
+			document.getElementById('panel').offsetWidth +
+			'px';
 	} else {
 		panel.classList.add('hide');
 	}
 	container.panelHidden = !container.panelHidden;
 }
-dragElement(
-	document.getElementById('panel'),
-	document.getElementById('tab')
-);
+dragElement(document.getElementById('panel'), document.getElementById('tab'));
 
 /* ---------operations related to the side panel -------------------------------------*/
 // Panel
@@ -1910,19 +1911,22 @@ function revealDrawingLayer() {
 	if (toolbox.style.display == 'block') {
 		document.getElementById('tool-box').style.display = 'none';
 		document.getElementById('underlay').style.zIndex = 0;
-		ul.style.backgroundColor = getComputedStyle(ul).backgroundColor.replace(', 0.2)', ')').replace('rgba', 'rgb');
+		ul.style.backgroundColor = getComputedStyle(ul)
+			.backgroundColor.replace(', 0.2)', ')')
+			.replace('rgba', 'rgb');
 		ul.classList.remove('active-animation');
 		document.getElementById('temp-canvas').style.zIndex = 0;
 		document.getElementById('main-canvas').style.zIndex = 0;
 		document.getElementById('chatbox-tab').classList.remove('chatbox-hide');
-	}
-	else {
+	} else {
 		document.getElementById('tool-box').style.display = 'block';
 		ul.style.zIndex = 1000;
 		document.getElementById('temp-canvas').style.zIndex = 1000;
 		document.getElementById('main-canvas').style.zIndex = 1000;
 		// make the underlay (which is now overlay) translucent
-		ul.style.backgroundColor = getComputedStyle(ul).backgroundColor.replace(')', ', 0.2)').replace('rgb', 'rgba');
+		ul.style.backgroundColor = getComputedStyle(ul)
+			.backgroundColor.replace(')', ', 0.2)')
+			.replace('rgb', 'rgba');
 		ul.classList.add('active-animation');
 		minimize();
 		document.getElementById('chatbox-tab').classList.add('chatbox-hide');

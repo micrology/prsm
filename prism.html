@@ -123,8 +123,7 @@
 					</tr>
 				</table>
 			</div>
-			<div id="net-pane">
-			</div>
+			<div id="net-pane"></div>
 			<div id="underlay">
 				<section class="design-surface">
 					<canvas id="temp-canvas"></canvas>
@@ -137,7 +136,12 @@
 						height="40"
 						title="Rectangle"
 					></canvas>
-					<canvas id="line" width="40" height="40" title="Line"></canvas>
+					<canvas
+						id="line"
+						width="40"
+						height="40"
+						title="Line"
+					></canvas>
 					<canvas
 						id="pencil-icon"
 						width="40"
@@ -156,7 +160,12 @@
 						height="40"
 						title="Eraser"
 					></canvas>
-					<canvas id="text-icon" width="40" height="40" title="Text"></canvas>
+					<canvas
+						id="text-icon"
+						width="40"
+						height="40"
+						title="Text"
+					></canvas>
 					<canvas
 						id="image-icon"
 						width="40"
@@ -199,7 +208,12 @@
 						height="40"
 						title="Zoom-Out"
 					></canvas>
-					<canvas id="arc" width="40" height="40" title="Arc"></canvas>
+					<canvas
+						id="arc"
+						width="40"
+						height="40"
+						title="Arc"
+					></canvas>
 					<canvas
 						id="quadratic-curve"
 						width="40"
@@ -237,20 +251,25 @@
 						title="Extra options"
 					></canvas>
 				</section>
-		
+
 				<!-- pdf -->
-		
+
 				<section id="pdf-page-container">
 					<img id="pdf-prev" src="#" alt="" />
 					<select id="pdf-pages-list"></select>
 					<img id="pdf-next" src="#" alt="" />
 					<img id="pdf-close" src="#" alt="" />
 				</section>
-		
+
 				<!-- arc -->
-		
+
 				<section id="arc-range-container" class="arc-range-container">
-					<input id="arc-range" class="arc-range" type="text" value="2" />
+					<input
+						id="arc-range"
+						class="arc-range"
+						type="text"
+						value="2"
+					/>
 					<input
 						type="checkbox"
 						id="is-clockwise"
@@ -258,35 +277,50 @@
 						class="allow-select"
 					/>
 					<label for="is-clockwise">Clockwise?</label>
-					<div class="arc-range-container-guide">Use arrow keys ↑↓</div>
+					<div class="arc-range-container-guide">
+						Use arrow keys ↑↓
+					</div>
 				</section>
-		
+
 				<!-- generated code -->
-		
+
 				<section class="code-container">
-					<textarea id="code-text" class="code-text allow-select"></textarea>
+					<textarea
+						id="code-text"
+						class="code-text allow-select"
+					></textarea>
 				</section>
-		
+
 				<section class="preview-panel" style="display: none;">
-					<div id="design-preview" class="preview-selected">Preview</div>
+					<div id="design-preview" class="preview-selected">
+						Preview
+					</div>
 					<div id="code-preview">Code</div>
 				</section>
-		
+
 				<!-- options -->
-		
+
 				<section id="options-container" class="options-container">
 					<div>
-						<input type="checkbox" id="is-absolute-points" checked="" />
+						<input
+							type="checkbox"
+							id="is-absolute-points"
+							checked=""
+						/>
 						<label for="is-absolute-points">Absolute Points</label>
 					</div>
 					<div>
-						<input type="checkbox" id="is-shorten-code" checked="" />
+						<input
+							type="checkbox"
+							id="is-shorten-code"
+							checked=""
+						/>
 						<label for="is-shorten-code">Shorten Code</label>
 					</div>
 				</section>
-		
+
 				<!-- line-width -->
-		
+
 				<section id="line-width-container" class="context-popup">
 					<label for="line-width-text">Line Width:</label>
 					<input
@@ -295,29 +329,35 @@
 						type="text"
 						value="2"
 					/>
-		
+
 					<div id="line-width-done" class="btn-007">Done</div>
 				</section>
-		
+
 				<!-- colors selector -->
-		
-				<section id="colors-container" class="context-popup colors-container">
+
+				<section
+					id="colors-container"
+					class="context-popup colors-container"
+				>
 					<div class="input-div">
 						<label for="stroke-style">Line Color:</label>
 						<input id="stroke-style" type="color" value="#6c96c8" />
 					</div>
-		
+
 					<div class="input-div">
 						<label for="fill-style">Fill Color:</label>
 						<input id="fill-style" type="color" value="#ffffff" />
 					</div>
-		
+
 					<div id="colors-done" class="btn-007">Done</div>
 				</section>
-		
+
 				<!-- marker selector -->
-		
-				<section id="marker-container" class="context-popup colors-container">
+
+				<section
+					id="marker-container"
+					class="context-popup colors-container"
+				>
 					<div class="input-div">
 						<label for="marker-stroke-style">Thickness:</label>
 						<select id="marker-stroke-style">
@@ -356,13 +396,16 @@
 							<table id="marker-colors-list"></table>
 						</div>
 					</div>
-		
+
 					<div id="marker-done" class="btn-007">Done</div>
 				</section>
-		
+
 				<!-- pencil selector -->
-		
-				<section id="pencil-container" class="context-popup colors-container">
+
+				<section
+					id="pencil-container"
+					class="context-popup colors-container"
+				>
 					<div class="input-div">
 						<label for="pencil-stroke-style">Thickness:</label>
 						<select id="pencil-stroke-style">
@@ -408,14 +451,14 @@
 							<table id="pencil-colors-list"></table>
 						</div>
 					</div>
-		
+
 					<div id="pencil-done" class="btn-007">Done</div>
 				</section>
-		
+
 				<!-- pencil selector -->
-		
+
 				<!-- copy paths -->
-		
+
 				<section id="copy-container" class="context-popup">
 					<div>
 						<input type="checkbox" id="copy-last" checked="" />
@@ -426,9 +469,9 @@
 						<label for="copy-all">Copy all paths</label>
 					</div>
 				</section>
-		
+
 				<!-- additional controls -->
-		
+
 				<section
 					id="additional-container"
 					class="context-popup additional-container"
@@ -441,7 +484,7 @@
 							<option>square</option>
 						</select>
 					</div>
-		
+
 					<div>
 						<label for="lineJoin-select">Line Join:</label>
 						<select id="lineJoin-select">
@@ -450,7 +493,7 @@
 							<option>miter</option>
 						</select>
 					</div>
-		
+
 					<div>
 						<label for="globalAlpha-select">globalAlpha:</label>
 						<select id="globalAlpha-select">
@@ -467,7 +510,7 @@
 							<option>0.0</option>
 						</select>
 					</div>
-		
+
 					<div>
 						<label for="globalCompositeOperation-select"
 							>globalCompositeOperation:</label
@@ -486,16 +529,16 @@
 							<option>xor</option>
 						</select>
 					</div>
-		
+
 					<div id="additional-close" class="btn-007">Done</div>
 				</section>
-		
+
 				<!-- fade -->
-		
+
 				<div id="fade"></div>
-		
+
 				<!-- text font/family/color -->
-		
+
 				<ul
 					class="fontSelectUl"
 					style="
@@ -516,7 +559,7 @@
 					<li>Trebuchet MS</li>
 					<li>Verdana</li>
 				</ul>
-		
+
 				<ul
 					class="fontSizeUl"
 					style="
@@ -631,10 +674,7 @@
 								class="onoffswitch-checkbox"
 								id="drawing"
 							/>
-							<label
-								class="onoffswitch-label"
-								for="drawing"
-							>
+							<label class="onoffswitch-label" for="drawing">
 								<span class="onoffswitch-inner"></span>
 								<span class="onoffswitch-switch"></span>
 							</label>
