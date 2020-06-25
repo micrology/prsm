@@ -1,0 +1,1311 @@
+{
+	"saved": "10/06/2020, 16:21:54",
+	"version": "1.11",
+	"room": "SIM-QLH-LIL-ZEV",
+	"lastNodeSample": "group2",
+	"lastLinkSample": "edge0",
+	"buttons": {
+		"autoLayout": false,
+		"gravity": "500000",
+		"snapToGrid": true,
+		"curve": "Straight",
+		"linkRadius": "All",
+		"stream": "All",
+		"showLabels": true,
+		"sizing": "Off"
+	},
+	"samples": {
+		"nodes": {
+			"base": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffffff",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffffff"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffffff"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group0": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#0000ff",
+					"background": "#ffffff",
+					"highlight": {
+						"border": "#0000ff",
+						"background": "#ffffff"
+					},
+					"hover": {
+						"border": "#0000ff",
+						"background": "#ffffff"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "box",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group1": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#d7e6f5",
+					"highlight": {
+						"border": "#000000",
+						"background": "#d7e6f5"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#d7e6f5"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group2": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffffff",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffffff"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffffff"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "box",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group3": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#f0c8dc",
+					"highlight": {
+						"border": "#000000",
+						"background": "#f0c8dc"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#f0c8dc"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "box",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group4": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#0000ff",
+					"background": "#ffffff",
+					"highlight": {
+						"border": "#0000ff",
+						"background": "#ffffff"
+					},
+					"hover": {
+						"border": "#0000ff",
+						"background": "#ffffff"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "box",
+				"shapeProperties": {
+					"borderDashes": true
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group5": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#1ec81e",
+					"background": "#ffffff",
+					"highlight": {
+						"border": "#1ec81e",
+						"background": "#ffffff"
+					},
+					"hover": {
+						"border": "#1ec81e",
+						"background": "#ffffff"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "box",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group6": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#e7d6f5",
+					"highlight": {
+						"border": "#000000",
+						"background": "#e7d6f5"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#e7d6f5"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "box",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group7": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#0000ff",
+					"size": 18
+				},
+				"labelHighlightBold": true,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group8": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#1ec81e",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			}
+		},
+		"edges": {
+			"base": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge0": {
+				"arrows": {
+					"to": {
+						"enabled": true
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": "Direct"
+			},
+			"edge1": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#00cc00",
+					"highlight": "#00cc00",
+					"hover": "#00cc00",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge2": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#ff0000",
+					"highlight": "#ff0000",
+					"hover": "#ff0000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge3": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#0000ff",
+					"highlight": "#0000ff",
+					"hover": "#0000ff",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge4": {
+				"arrows": {
+					"to": {
+						"enabled": true
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": [
+					3,
+					3
+				],
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": "Indirect influence"
+			},
+			"edge5": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#e6b800",
+					"highlight": "#e6b800",
+					"hover": "#e6b800",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 2,
+				"groupLabel": ""
+			},
+			"edge6": {
+				"arrows": {
+					"to": {
+						"enabled": false
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": [
+					10,
+					10
+				],
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 3,
+				"groupLabel": ""
+			},
+			"edge7": {
+				"arrows": {
+					"to": {
+						"enabled": true
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": [
+					3,
+					3
+				],
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge8": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			}
+		}
+	},
+	"nodes": [
+		{
+			"id": "6f738e91-bd6e-473b-97bf-95cd0aefee4e",
+			"x": -1296,
+			"y": -503,
+			"label": "HNIP Main Scheme provides\n£281m to increase\nteh volume of heat\nnetwork construction.\nHNIP incentivises\nTPHN to bring in at\nleast £80m of additional\ninvestment to increase\nthe volume of heat\nnetwork construction.",
+			"grp": "group2"
+		},
+		{
+			"id": "4ae1b5db-5d91-4937-99a4-eb58a669ab67",
+			"x": 474,
+			"y": 924,
+			"label": "Transition\nPoint 1:\nMarket Potential",
+			"grp": "group1"
+		},
+		{
+			"id": "9a1893d8-c361-416a-9430-45189399f6d5",
+			"x": 234,
+			"y": 1012,
+			"label": "TP1",
+			"grp": "group1"
+		},
+		{
+			"id": "be523186-dbfa-425b-b219-fb9ba067caf4",
+			"x": -100,
+			"y": -392,
+			"label": "Transition\nPoint 2:\nA growing\nmarket",
+			"grp": "group1"
+		},
+		{
+			"id": "adfec043-8b09-4b53-b9f0-d3e91912d35e",
+			"x": -92,
+			"y": 59,
+			"label": "TP2",
+			"grp": "group1"
+		},
+		{
+			"id": "47e377da-9f91-41f7-9f14-4ca76fa099d0",
+			"x": -977,
+			"y": -831,
+			"label": "TPHN standardises\ndocumentation\nto meet needs\nof third party\ninvestors for\neasier appraisal\nof opportunities.",
+			"grp": "group5"
+		},
+		{
+			"id": "42b90b49-d039-4437-a237-42638702ce64",
+			"x": 661,
+			"y": -269,
+			"label": "Transition\nPoint 3: A\n competitive,\n self-sustaining\n market",
+			"grp": "group1"
+		},
+		{
+			"id": "925a03ce-cdfb-4d6f-8691-0ba6d2795606",
+			"x": 666,
+			"y": 81,
+			"label": "TP3",
+			"grp": "group1"
+		},
+		{
+			"id": "eda59eca-fc30-4faa-b3d2-909cfbfcd1b3",
+			"x": 658,
+			"y": -914,
+			"label": "TP3",
+			"grp": "group1"
+		},
+		{
+			"id": "8be2ad02-1296-43c5-91ff-6122842a9c74",
+			"x": -104,
+			"y": -897,
+			"label": "TP2",
+			"grp": "group1"
+		},
+		{
+			"id": "0207c874-0b8c-4d07-ab4c-544f8a9733db",
+			"x": 707,
+			"y": 821,
+			"label": "TP1",
+			"grp": "group1"
+		},
+		{
+			"id": "60f6c711-745e-473b-bccd-8f5554eecdb0",
+			"x": -336,
+			"y": -1243,
+			"label": "Lower carbon\nheat sources",
+			"grp": "group7"
+		},
+		{
+			"id": "7db2f733-ce14-41fe-a5d4-f0c2cb0e221d",
+			"x": -567,
+			"y": 1032,
+			"label": "Wider\ncarbon\nreduction",
+			"grp": "group7"
+		},
+		{
+			"id": "8a146574-7855-49a3-935d-77cc0acb09db",
+			"x": -982,
+			"y": -699,
+			"label": "BDMs assist\napplicants\nwith applications\nfor funding\nby loans from\nthird parties",
+			"grp": "group5"
+		},
+		{
+			"id": "45864c39-45c7-45f7-a8d8-4169a6665b48",
+			"x": -975,
+			"y": -582,
+			"label": "TPHN deliverability\nassessment\nand other processes\nensure projects\nfunded are of\ngood quality",
+			"grp": "group5"
+		},
+		{
+			"id": "2c9d010a-1166-491b-bdf3-17f3b72386d9",
+			"x": -783,
+			"y": -892,
+			"label": "TP1",
+			"grp": "group1"
+		},
+		{
+			"id": "df270a2e-8d90-44b4-b5e8-58216c4779d0",
+			"x": -782,
+			"y": -398,
+			"label": "Transition\nPoint 1:\nMarket potential",
+			"grp": "group1"
+		},
+		{
+			"id": "69720c40-5fb1-4467-a833-c2efdd8bf514",
+			"x": -779,
+			"y": 47,
+			"label": "TP1",
+			"grp": "group1"
+		},
+		{
+			"id": "3f611fa8-7d0b-4e83-80e5-cced20e1810f",
+			"x": -584,
+			"y": -691,
+			"label": "BEIS and TPHN\nrun information\nactivities\ntargeting\npotential\ninvestors",
+			"grp": "group5"
+		},
+		{
+			"id": "2c1ed6a2-1131-4ac7-9ba4-717af978718f",
+			"x": -259,
+			"y": -692,
+			"label": "Transaction\ncosts\nreduce",
+			"grp": "group5"
+		},
+		{
+			"id": "7dd16c2a-3ccb-4963-bec8-eb407197e247",
+			"x": -582,
+			"y": -539,
+			"label": "HNIP increases\nthe volume\nof good quality\nheat networks\nconstructed",
+			"grp": "group0"
+		},
+		{
+			"id": "0289e8c3-07e7-480b-be27-1bd45093ba18",
+			"x": -580,
+			"y": -416,
+			"label": "Variety of projects\nfunded demonstrates\ndifferent commercial\nstructures,\nincluding private\nsector investment",
+			"grp": "group0"
+		},
+		{
+			"id": "52f3b26e-29b9-47c5-9370-f4fe7161f3ba",
+			"x": -580,
+			"y": -270,
+			"label": "Ongoing BEIS\nengagement activities\nwith investors,\nincluding on\nfunding panel,\nimproves confidence\nand capability",
+			"grp": "group0"
+		},
+		{
+			"id": "d0f6f1b1-7377-4463-8365-e9cb2ea7a7a6",
+			"x": -579,
+			"y": -81,
+			"label": "HNIP funding products (grants,\nloans) act as a positive\npolitical signal that heat\nnetworks will play a growing\npart in heat provision,\nand HNIP is an opportunity\nto investors as it absorbs\nsome of the initial investment\nrisk (c) ALTERNATIVELY\nGovernment involvement\nsignals to investors that\nHNs are not financially\nviable and short term funding\nsignals lack of long term\ncommitment",
+			"grp": "group0"
+		},
+		{
+			"id": "d71c4af5-7b5e-4bfc-84a0-14623879a961",
+			"x": -252,
+			"y": -541,
+			"label": "As HNIP funded projects\nprogress, TPHN\npublishes case\nstudies, data,\ninformation (b)\nso third party investors\nbetter understand\nrisk-return characteristics\nof HNs",
+			"grp": "group0"
+		},
+		{
+			"id": "63edcbe6-9fd4-41e0-bd69-a9f4a346a4f4",
+			"x": -257,
+			"y": -270,
+			"label": "Potential\ninvestors\nin HNs have\nincreased\nconfidence\nin HNs as an\nasset class",
+			"grp": "group0"
+		},
+		{
+			"id": "7408cfae-167f-4857-9905-d0d61fdd2d8b",
+			"x": 390,
+			"y": -39,
+			"label": "NOTES:  (a) Standardised due diligence\ndocuments, standardised Sales,\nOperations and Maintenance (SOMs)contract\ndocs for HN developers and operators\n (b) Expected to include information\naround the ability of projects\nto service debt, including metrics\nof interest to debt providers\nand credit rating agencies. (c)\nFor example, connection delay\nfeature in one loan product allows\na window of up to three years for\nrestructuring, with trigger\npoints before banking covenants\nso that debt service reserve accounts\nare not needed - acts as a mechanism\nto share risk with equity holders.",
+			"grp": "group2"
+		},
+		{
+			"id": "0a8bcfa4-67df-4298-9c20-1ed165ce1cb9",
+			"x": -1298,
+			"y": -752,
+			"label": "Cost reduction",
+			"grp": "group8"
+		},
+		{
+			"id": "393b8e8d-47ba-422a-9cf2-7bd1e13363f2",
+			"x": -1290,
+			"y": -218,
+			"label": "Demonstrator\neffects",
+			"grp": "group7"
+		},
+		{
+			"id": "11e7aa7e-1dd2-401e-b894-6bb2469dbb81",
+			"x": 46,
+			"y": -263,
+			"label": "Potential investors\nwilling to accept\nlower returns\nas perceptions\nof risk decrease",
+			"grp": "group0"
+		},
+		{
+			"id": "50421098-d509-494c-9387-2c02a878a2c1",
+			"x": 272,
+			"y": -268,
+			"label": "Heat network\nprojects become\nmore attractive\nto investors,\nnew investors\nenter market\nas 'funding gap'\nreduces",
+			"grp": "group0"
+		},
+		{
+			"id": "bb66e2c5-b51c-4765-ae42-e0af8438deff",
+			"x": 33,
+			"y": -692,
+			"label": "Returns\non HNs improve\nas costs\nfall",
+			"grp": "group5"
+		},
+		{
+			"id": "9d6f5220-63ac-4fa8-abda-ab681560a50f",
+			"x": 44,
+			"y": -70,
+			"label": "Developer,\ncustomer and\nconsumer perceptions\nof HNs improve\n(from customer\nand consumer\nmeso)",
+			"grp": "group6"
+		},
+		{
+			"id": "f6f5e372-47ec-459e-bd04-2711424ef4f6",
+			"x": 379,
+			"y": -741,
+			"label": "FACTORS INFLUENCING SUCCESS Cost effeectiveness\nof HNs against other heat options. A regulatory\nframework that protects consumers,\nreduces uncertainty and gives confidence\nin projected returns. ('Safeguard against\nrising prices' a mechanism found in the\nrealist synthesis) HNs are influenced\nby the general business climate such\nas allowances for capital investment,\nby business rates, by reliefs from certain\ntaxes or charges including for embedded\ngeneration. Detrimental changes in\nthese factors will negatively affect\nthe development of HNs. The effectiveness\nof the BDM role and the application scoring\nprocess to create good quality commercial\nstructures are likely to influence the\nsuccess of the HNIP projects. The emergence\nof standards in HN construction (system\ntechnical characteristics, legal agreements,\norganisational and commercial structures)\nwill facilitate teh emergence of increased\nvolumes of good quality HNs.",
+			"grp": "group2"
+		}
+	],
+	"edges": [
+		{
+			"from": "6f738e91-bd6e-473b-97bf-95cd0aefee4e",
+			"to": "e4c76865-9400-4ce6-ad57-ba101f8b016d",
+			"label": "",
+			"grp": "edge0",
+			"id": "921745a3-7592-42d0-8d68-742ff189f003"
+		},
+		{
+			"from": "6f738e91-bd6e-473b-97bf-95cd0aefee4e",
+			"to": "0ef04d75-909b-4a19-8cf7-b9fb07ba905c",
+			"label": "",
+			"grp": "edge0",
+			"id": "43a9a266-5084-47c1-89b5-f3c8f32c9fd8"
+		},
+		{
+			"from": "e4c76865-9400-4ce6-ad57-ba101f8b016d",
+			"to": "0ef04d75-909b-4a19-8cf7-b9fb07ba905c",
+			"label": "",
+			"grp": "edge0",
+			"id": "f2cf0fc6-7a35-4a0c-b193-343ffee7252c"
+		},
+		{
+			"from": "e4c76865-9400-4ce6-ad57-ba101f8b016d",
+			"to": "1e55b84a-b419-4eea-a398-5f1a0832ca34",
+			"label": "",
+			"grp": "edge0",
+			"id": "422bf3df-ce1b-406e-a7f3-19f9805eb5f4"
+		},
+		{
+			"from": "0ef04d75-909b-4a19-8cf7-b9fb07ba905c",
+			"to": "1e55b84a-b419-4eea-a398-5f1a0832ca34",
+			"label": "",
+			"grp": "edge0",
+			"id": "763d8f15-f5e4-41ea-8704-4952f290cf8c"
+		},
+		{
+			"from": "1e55b84a-b419-4eea-a398-5f1a0832ca34",
+			"to": "1df147d8-92d3-46f7-ae85-10284a0a7921",
+			"label": "",
+			"grp": "edge0",
+			"id": "61f471f8-f511-40fa-b56c-c8f0c89d530f"
+		},
+		{
+			"from": "1df147d8-92d3-46f7-ae85-10284a0a7921",
+			"to": "999c608e-780c-421a-886a-93a8a78ad86e",
+			"label": "",
+			"grp": "edge0",
+			"id": "58f18159-9b63-459a-b9c9-a5c5da97c724"
+		},
+		{
+			"from": "9a1893d8-c361-416a-9430-45189399f6d5",
+			"to": "4ae1b5db-5d91-4937-99a4-eb58a669ab67",
+			"label": "",
+			"grp": "edge6",
+			"id": "8a444b90-ba48-491d-b637-38e685eb1608"
+		},
+		{
+			"from": "1df147d8-92d3-46f7-ae85-10284a0a7921",
+			"to": "ffe5e18a-6738-4ee4-a48d-069701b9db03",
+			"label": "",
+			"grp": "edge0",
+			"id": "efa56270-4706-4d39-b46a-cb597effe673"
+		},
+		{
+			"from": "999c608e-780c-421a-886a-93a8a78ad86e",
+			"to": "539d1652-c555-4b84-95fc-674cacc57303",
+			"label": "",
+			"grp": "edge0",
+			"id": "606c6f84-0d11-4cc9-bf1b-90076f4fc5fc"
+		},
+		{
+			"from": "be523186-dbfa-425b-b219-fb9ba067caf4",
+			"to": "adfec043-8b09-4b53-b9f0-d3e91912d35e",
+			"label": "",
+			"grp": "edge6",
+			"id": "b4e4e4c8-bad0-47d2-9ba2-4a00130485bc"
+		},
+		{
+			"from": "539d1652-c555-4b84-95fc-674cacc57303",
+			"to": "47e377da-9f91-41f7-9f14-4ca76fa099d0",
+			"label": "",
+			"grp": "edge0",
+			"id": "4c4e9cbc-385d-43dd-adc2-8b0a4858bfd3"
+		},
+		{
+			"from": "539d1652-c555-4b84-95fc-674cacc57303",
+			"to": "0865c2c3-79b0-405b-bc64-6f1b9fcf30d0",
+			"label": "",
+			"grp": "edge0",
+			"id": "8ecf953a-4da4-402e-afff-23b022c13ba2"
+		},
+		{
+			"from": "47e377da-9f91-41f7-9f14-4ca76fa099d0",
+			"to": "63ef2041-f4fa-40b2-ac0d-4e0725df694a",
+			"label": "",
+			"grp": "edge0",
+			"id": "0417ee0e-21e4-47e3-b4b1-2df2447ea78f"
+		},
+		{
+			"from": "539d1652-c555-4b84-95fc-674cacc57303",
+			"to": "63ef2041-f4fa-40b2-ac0d-4e0725df694a",
+			"label": "",
+			"grp": "edge0",
+			"id": "d053ead2-ad5b-44ed-a07b-748fae652ee9"
+		},
+		{
+			"from": "925a03ce-cdfb-4d6f-8691-0ba6d2795606",
+			"to": "42b90b49-d039-4437-a237-42638702ce64",
+			"label": "",
+			"grp": "edge6",
+			"id": "105a173b-2a6c-4014-b0bd-6a47f81bceb0"
+		},
+		{
+			"from": "63ef2041-f4fa-40b2-ac0d-4e0725df694a",
+			"to": "42b90b49-d039-4437-a237-42638702ce64",
+			"label": "",
+			"grp": "edge0",
+			"id": "5f692c6d-d68e-48bd-b696-4af254ece228"
+		},
+		{
+			"from": "42b90b49-d039-4437-a237-42638702ce64",
+			"to": "eda59eca-fc30-4faa-b3d2-909cfbfcd1b3",
+			"label": "",
+			"grp": "edge6",
+			"id": "94f2488e-3ac0-4211-a186-e05f89730099"
+		},
+		{
+			"from": "be523186-dbfa-425b-b219-fb9ba067caf4",
+			"to": "8be2ad02-1296-43c5-91ff-6122842a9c74",
+			"label": "",
+			"grp": "edge6",
+			"id": "b815a4e2-d6b2-4948-a897-9758120ae8f0"
+		},
+		{
+			"from": "4ae1b5db-5d91-4937-99a4-eb58a669ab67",
+			"to": "0207c874-0b8c-4d07-ab4c-544f8a9733db",
+			"label": "",
+			"grp": "edge6",
+			"id": "9711346f-0035-4259-8b08-cc7fff3a0ee8"
+		},
+		{
+			"from": "6f738e91-bd6e-473b-97bf-95cd0aefee4e",
+			"to": "69a0690a-a896-4b55-bcd1-f330b31d6252",
+			"label": "",
+			"grp": "edge0",
+			"id": "76e5542b-dbc7-4c3e-983e-60c37902bc2a"
+		},
+		{
+			"from": "69a0690a-a896-4b55-bcd1-f330b31d6252",
+			"to": "94c765b5-2651-41da-b2d4-4f33ddc87481",
+			"label": "",
+			"grp": "edge0",
+			"id": "181b0e96-cdc3-4f23-a9e9-4c10c984b777"
+		},
+		{
+			"from": "94c765b5-2651-41da-b2d4-4f33ddc87481",
+			"to": "63a23b78-2165-4e8f-af87-09cf3dc52f5b",
+			"label": "",
+			"grp": "edge0",
+			"id": "90ebf5cd-4bc0-4e23-adc7-9af133d71697"
+		},
+		{
+			"from": "63a23b78-2165-4e8f-af87-09cf3dc52f5b",
+			"to": "707ae2c0-874d-419e-88ad-b06935697747",
+			"label": "",
+			"grp": "edge4",
+			"id": "7ebb3259-ca6e-4c53-99dc-c55b38d0f92a"
+		},
+		{
+			"from": "63ef2041-f4fa-40b2-ac0d-4e0725df694a",
+			"to": "707ae2c0-874d-419e-88ad-b06935697747",
+			"label": "",
+			"grp": "edge0",
+			"id": "25f91181-ddd3-4246-a90a-10961ec4874f"
+		},
+		{
+			"from": "ffe5e18a-6738-4ee4-a48d-069701b9db03",
+			"to": "707ae2c0-874d-419e-88ad-b06935697747",
+			"label": "",
+			"grp": "edge0",
+			"id": "682da831-f08e-4b6e-bf72-69bc0294754c"
+		},
+		{
+			"from": "ffe5e18a-6738-4ee4-a48d-069701b9db03",
+			"to": "42b90b49-d039-4437-a237-42638702ce64",
+			"label": "",
+			"grp": "edge0",
+			"id": "1189ff6e-7261-47f2-8169-d3ec9a2e8240"
+		},
+		{
+			"from": "707ae2c0-874d-419e-88ad-b06935697747",
+			"to": "42b90b49-d039-4437-a237-42638702ce64",
+			"label": "",
+			"grp": "edge0",
+			"id": "305fadd9-8a34-46f7-b4a6-2cef0e15a1d5"
+		},
+		{
+			"from": "2c9d010a-1166-491b-bdf3-17f3b72386d9",
+			"to": "df270a2e-8d90-44b4-b5e8-58216c4779d0",
+			"label": "",
+			"grp": "edge6",
+			"id": "9ed76841-5f72-4f00-b425-9082c32cac6c"
+		},
+		{
+			"from": "df270a2e-8d90-44b4-b5e8-58216c4779d0",
+			"to": "69720c40-5fb1-4467-a833-c2efdd8bf514",
+			"label": "",
+			"grp": "edge6",
+			"id": "7595346a-33fc-4993-938b-a27c61f50e03"
+		},
+		{
+			"from": "6f738e91-bd6e-473b-97bf-95cd0aefee4e",
+			"to": "47e377da-9f91-41f7-9f14-4ca76fa099d0",
+			"label": "",
+			"grp": "edge0",
+			"id": "a4022c79-fc54-46e6-a20d-c29a891c4676"
+		},
+		{
+			"from": "6f738e91-bd6e-473b-97bf-95cd0aefee4e",
+			"to": "45864c39-45c7-45f7-a8d8-4169a6665b48",
+			"label": "",
+			"grp": "edge0",
+			"id": "6275f578-0d75-424a-ad28-215e29fe528f"
+		},
+		{
+			"from": "6f738e91-bd6e-473b-97bf-95cd0aefee4e",
+			"to": "8a146574-7855-49a3-935d-77cc0acb09db",
+			"label": "",
+			"grp": "edge0",
+			"id": "73328e5a-3d92-4309-bb8b-d42a0e1de5fd"
+		},
+		{
+			"from": "47e377da-9f91-41f7-9f14-4ca76fa099d0",
+			"to": "3f611fa8-7d0b-4e83-80e5-cced20e1810f",
+			"label": "",
+			"grp": "edge0",
+			"id": "4d543ffa-1687-4479-a7f1-c4e01ab72794"
+		},
+		{
+			"from": "8a146574-7855-49a3-935d-77cc0acb09db",
+			"to": "3f611fa8-7d0b-4e83-80e5-cced20e1810f",
+			"label": "",
+			"grp": "edge0",
+			"id": "d61a0e17-dfd1-4cf2-bb31-35ad8dd141e7"
+		},
+		{
+			"from": "45864c39-45c7-45f7-a8d8-4169a6665b48",
+			"to": "3f611fa8-7d0b-4e83-80e5-cced20e1810f",
+			"label": "",
+			"grp": "edge0",
+			"id": "e17af37e-27fe-4fbe-960a-8b78884a3679"
+		},
+		{
+			"from": "3f611fa8-7d0b-4e83-80e5-cced20e1810f",
+			"to": "2c1ed6a2-1131-4ac7-9ba4-717af978718f",
+			"label": "",
+			"grp": "edge0",
+			"id": "50b94133-4432-4b6f-9a77-fd2df0dbe3f0"
+		},
+		{
+			"from": "6f738e91-bd6e-473b-97bf-95cd0aefee4e",
+			"to": "7dd16c2a-3ccb-4963-bec8-eb407197e247",
+			"label": "",
+			"grp": "edge0",
+			"id": "bf610dae-f652-428e-b728-3f9ac3a6eb55"
+		},
+		{
+			"from": "6f738e91-bd6e-473b-97bf-95cd0aefee4e",
+			"to": "0289e8c3-07e7-480b-be27-1bd45093ba18",
+			"label": "",
+			"grp": "edge0",
+			"id": "a8be50e9-f935-4f34-955f-fbd9a9244b32"
+		},
+		{
+			"from": "6f738e91-bd6e-473b-97bf-95cd0aefee4e",
+			"to": "52f3b26e-29b9-47c5-9370-f4fe7161f3ba",
+			"label": "",
+			"grp": "edge0",
+			"id": "62171643-9360-4d42-bc51-a84373b0499d"
+		},
+		{
+			"from": "6f738e91-bd6e-473b-97bf-95cd0aefee4e",
+			"to": "d0f6f1b1-7377-4463-8365-e9cb2ea7a7a6",
+			"label": "",
+			"grp": "edge0",
+			"id": "f363887b-714e-4629-ba78-4e3e657208c2"
+		},
+		{
+			"from": "7dd16c2a-3ccb-4963-bec8-eb407197e247",
+			"to": "d71c4af5-7b5e-4bfc-84a0-14623879a961",
+			"label": "",
+			"grp": "edge0",
+			"id": "139f42d1-50ea-46a9-847d-e6c5d416ea1a"
+		},
+		{
+			"from": "0289e8c3-07e7-480b-be27-1bd45093ba18",
+			"to": "d71c4af5-7b5e-4bfc-84a0-14623879a961",
+			"label": "",
+			"grp": "edge0",
+			"id": "6d6a87fe-b815-4bd0-a0c3-afa65295f4a7"
+		},
+		{
+			"from": "52f3b26e-29b9-47c5-9370-f4fe7161f3ba",
+			"to": "63edcbe6-9fd4-41e0-bd69-a9f4a346a4f4",
+			"label": "",
+			"grp": "edge0",
+			"id": "bc8147ee-e7c0-450c-9f7a-d43dacb75c73"
+		},
+		{
+			"from": "d0f6f1b1-7377-4463-8365-e9cb2ea7a7a6",
+			"to": "63edcbe6-9fd4-41e0-bd69-a9f4a346a4f4",
+			"label": "",
+			"grp": "edge0",
+			"id": "f9332137-b474-46b2-8013-9314936f3ee1"
+		},
+		{
+			"from": "d71c4af5-7b5e-4bfc-84a0-14623879a961",
+			"to": "63edcbe6-9fd4-41e0-bd69-a9f4a346a4f4",
+			"label": "",
+			"grp": "edge0",
+			"id": "241efc65-d410-4a34-8b21-e50064948841"
+		},
+		{
+			"from": "2c1ed6a2-1131-4ac7-9ba4-717af978718f",
+			"to": "bb66e2c5-b51c-4765-ae42-e0af8438deff",
+			"label": "",
+			"grp": "edge0",
+			"id": "613970da-d7b1-4fea-a125-0211db13ec48"
+		},
+		{
+			"from": "bb66e2c5-b51c-4765-ae42-e0af8438deff",
+			"to": "50421098-d509-494c-9387-2c02a878a2c1",
+			"label": "",
+			"grp": "edge0",
+			"id": "41688022-832d-4d1b-93f1-3b8952c8f3da"
+		},
+		{
+			"from": "2c1ed6a2-1131-4ac7-9ba4-717af978718f",
+			"to": "50421098-d509-494c-9387-2c02a878a2c1",
+			"label": "",
+			"grp": "edge0",
+			"id": "2e116a8c-b1cf-4bd8-baa5-fb2444f650b4"
+		},
+		{
+			"from": "63edcbe6-9fd4-41e0-bd69-a9f4a346a4f4",
+			"to": "11e7aa7e-1dd2-401e-b894-6bb2469dbb81",
+			"label": "",
+			"grp": "edge0",
+			"id": "bd843ca4-0e62-4d20-91db-934a0cccfe8a"
+		},
+		{
+			"from": "11e7aa7e-1dd2-401e-b894-6bb2469dbb81",
+			"to": "50421098-d509-494c-9387-2c02a878a2c1",
+			"label": "",
+			"grp": "edge0",
+			"id": "236f072b-4498-4cae-a633-9cb7b3d6a07c"
+		},
+		{
+			"from": "9d6f5220-63ac-4fa8-abda-ab681560a50f",
+			"to": "11e7aa7e-1dd2-401e-b894-6bb2469dbb81",
+			"label": "",
+			"grp": "edge0",
+			"id": "8df89f78-bf14-4f4c-9618-2d5d77668aea"
+		},
+		{
+			"from": "50421098-d509-494c-9387-2c02a878a2c1",
+			"to": "42b90b49-d039-4437-a237-42638702ce64",
+			"label": "",
+			"grp": "edge0",
+			"id": "2831768a-398b-460f-b1a9-e09d2a71106d"
+		}
+	]
+}
