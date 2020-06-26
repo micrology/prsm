@@ -205,6 +205,7 @@ nav img {
 }
 #version {
 	font-size: xx-small;
+	color: lightgray;
 }
 .button-wrapper {
 	margin: auto 50px auto auto;
@@ -605,6 +606,9 @@ but moving the panel out of sight works instead */
 	padding-top: 5px;
 	border-top: 1px solid white;
 }
+.panelRow.hidden {
+	display: none;
+}
 /* create the impression of a sliding on/off switch see https://proto.io/freebies/onoff/ */
 
 .onoffswitch {
@@ -982,15 +986,6 @@ but moving the panel out of sight works instead */
 }
 .tool:first-child {
 	border-top: thin solid black;
-}
-.triangle-bottomright {
-	position: absolute;
-	width: 0px;
-	height: 0px;
-	border-bottom: 10px solid #000;
-	border-left: 10px solid transparent;
-	bottom: 0;
-	right: 0;
 }
 .tool:hover {
 	outline: 4px solid gray;

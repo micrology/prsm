@@ -110,36 +110,27 @@ export function setUpToolbox() {
  * @param {object} event
  */
 function selectTool(event) {
+	// cleanup any remaining empty input box
+	let inpBox = document.getElementById('input');
+	if (inpBox) inpBox.remove();
 	let tool = event.currentTarget;
 	if (tool.id == 'undo') {
 		undoHandler.undo();
 		// previous tool remains selected
 		return;
 	}
-	//second click on selected tool
+	//second click on selected tool - unselect it
 	if (selectedTool === tool.id) {
-		if (event.target.className == 'triangle-bottomright') {
-			// display options dialog
-			toolHandler(selectedTool).optionsDialog();
-		} else {
-			// second click - unselect all tools
-			if (selectedTool) {
-				document
-					.getElementById(selectedTool)
-					.classList.remove('selected');
-			}
-			selectedTool = null;
-		}
-		return;
-	}
+		deselectTool();
+	   return;
+   }
 	// changing tool; unselect previous one
-	deselectTools();
+	deselectTool();
 	selectedTool = tool.id;
 	tool.classList.add('selected');
-	if (event.target.className == 'triangle-bottomright') {
-		// display options dialog
-		toolHandler(selectedTool).optionsDialog();
-	}
+	// display options dialog
+	toolHandler(selectedTool).optionsDialog();
+	// if tool is 'image', get image file from user
 	if (tool.id == 'image') {
 		let fileInput = document.createElement('input');
 		fileInput.id = 'fileInput';
@@ -154,7 +145,10 @@ function selectTool(event) {
 	}
 }
 
-export function deselectTools() {
+/**
+ * unmark the selected tool, close the option dialog and set tool to null
+ */
+export function deselectTool() {
 	if (selectedTool) {
 		document.getElementById(selectedTool).classList.remove('selected');
 	}
@@ -162,13 +156,11 @@ export function deselectTools() {
 	closeOptionsDialogs();
 }
 /**
- * close/hide any option dialog that is open
+ * remove any option dialog that is open
  */
 function closeOptionsDialogs() {
-	let dialogs = document.querySelectorAll('.options');
-	Array.from(dialogs).forEach((dialog) => {
-		dialog.style.display = 'none';
-	});
+	let box = document.getElementById('optionsBox');
+	if (box) box.remove();
 }
 /**
  * despatch to and perform tool actions
@@ -262,6 +254,7 @@ class ToolHandler {
 	optionsDialog(tool) {
 		let box = document.createElement('div');
 		box.className = 'options';
+		box.id = 'optionsBox';
 		box.style.top =
 			document.getElementById(tool).getBoundingClientRect().top -
 			underlay.getBoundingClientRect().top +
@@ -321,20 +314,23 @@ class LineHandler extends ToolHandler {
 		box.innerHTML = `
 	<div>Line width</div><div><input id="lineWidth" type="text" size="2"></div>
 	<div>Colour</div><div><input id="lineColour" type="color"></div>
-	<div>Axes</div><div><input type="checkbox" id="axes"></div>
-	<div></div><div class="right"><button id="lineDone">Done</button></div>`;
-		let widthInput = document.getElementById('lineWidth');
-		widthInput.value = this.lineWidth;
-		widthInput.focus();
-		document.getElementById('lineColour').value = this.strokeStyle;
-		document.getElementById('axes').checked = this.axes;
-		// listener for when Done button is pressed
-		document.getElementById('lineDone').addEventListener('click', () => {
-			this.lineWidth = parseInt(widthInput.value);
-			this.strokeStyle = document.getElementById('lineColour').value;
-			this.axes = document.getElementById('axes').checked;
-			underlay.removeChild(box);
-		});
+	<div>Axes</div><div><input type="checkbox" id="axes"></div>`;
+	let widthInput = document.getElementById('lineWidth');
+	widthInput.value = this.lineWidth;
+	widthInput.focus();
+	widthInput.addEventListener('change', () => {
+		this.lineWidth = parseInt(widthInput.value);
+	});
+	let lineColor = document.getElementById('lineColour');
+	lineColor.value = this.strokeStyle;
+	lineColor.addEventListener('blur', () => {
+		this.strokeStyle = lineColor.value;
+	});
+	let axes = document.getElementById('axes');
+	axes.checked = this.axes;
+	axes.addEventListener('change', () => {
+		this.axes = axes.checked;
+	});
 	}
 }
 let lineHandler = new LineHandler();
@@ -394,20 +390,27 @@ class RectHandler extends ToolHandler {
 	<div>Border width</div><div><input id="borderWidth" type="text" size="2"></div>
   <div>Border Colour</div><div><input id="borderColour" type="color"></div>
   <div>Fill Colour</div><div><input id="fillColour" type="color"></div>
-  <div>Rounded</div><input type="checkbox" id="rounded"></div>
-  <div></div><div class="right"><button id="rectDone">Done</button></div>`;
+  <div>Rounded</div><input type="checkbox" id="rounded"></div>`;
 		let widthInput = document.getElementById('borderWidth');
 		widthInput.value = this.lineWidth;
 		widthInput.focus();
-		document.getElementById('borderColour').value = this.strokeStyle;
-		document.getElementById('fillColour').value = this.fillStyle;
-		document.getElementById('rounded').checked = this.roundCorners;
-		document.getElementById('rectDone').addEventListener('click', () => {
+		widthInput.addEventListener('blur', () => {
 			this.lineWidth = parseInt(widthInput.value);
-			this.strokeStyle = document.getElementById('borderColour').value;
-			this.fillStyle = document.getElementById('fillColour').value;
-			this.roundCorners = document.getElementById('rounded').checked;
-			underlay.removeChild(box);
+		});
+		let borderColor = document.getElementById('borderColour');
+		borderColor.value = this.strokeStyle;
+		borderColor.addEventListener('blur', () => {
+			this.strokeStyle = borderColor.value;
+		});
+		let fillColor = document.getElementById('fillColour');
+		fillColor.value = this.fillStyle;
+		fillColor.addEventListener('blur', () => {
+			this.fillStyle = fillColor.value;
+		});
+		let rounded = document.getElementById('rounded');
+		rounded.checked = this.roundCorners;
+		rounded.addEventListener('change', () => {
+			this.roundCorners = rounded.checked;
 		});
 	}
 }
@@ -434,7 +437,7 @@ class TextHandler extends ToolHandler {
 		this.inp.style.color = this.fillStyle;
 		this.inp.style.position = 'absolute';
 		this.inp.style.left = this.startX + 'px';
-		this.inp.style.top = this.startY + 'px';
+		this.inp.style.top = (this.startY - this.inp.clientHeight) + 'px';
 		this.inp.style.zIndex = 1002;
 		this.inp.addEventListener(
 			'change',
@@ -448,17 +451,20 @@ class TextHandler extends ToolHandler {
 		this.inp.focus();
 	}
 	saveText() {
-		yPointsArray.push([
-			[
-				'text',
-				this.options(),
+		let text = this.inp.value;
+		if (text.length > 0) {
+			yPointsArray.push([
 				[
-					this.inp.value,
-					DOMtoCanvasX(this.startX),
-					DOMtoCanvasY(this.startY),
+					'text',
+					this.options(),
+					[
+						text,
+						DOMtoCanvasX(this.startX),
+						DOMtoCanvasY(this.startY  - this.inp.clientHeight),
+					],
 				],
-			],
-		]);
+			]);
+		}
 		this.writing = false;
 		underlay.removeChild(this.inp);
 		underlay.style.cursor = 'auto';
@@ -468,21 +474,22 @@ class TextHandler extends ToolHandler {
 		let box = super.optionsDialog('text');
 		box.innerHTML = `
 	<div>Size</div><div><input id="fontSize" type="text" size="2"></div>
-	<div>Colour</div><div><input id="fontColor" type="color"></div>
-	<div></div><div class="right"><button id="textDone">Done</button></div>`;
+	<div>Colour</div><div><input id="fontColor" type="color"></div>`;
 		let fontSizeInput = document.getElementById('fontSize');
 		fontSizeInput.value = parseInt(this.font);
 		fontSizeInput.focus();
-		document.getElementById('fontColor').value = this.fontColor;
-		document.getElementById('textDone').addEventListener('click', () => {
+		fontSizeInput.addEventListener('blur', () => {
 			this.font =
-				fontSizeInput.value + 'px ' + this.fontFamily(this.font);
-			this.fillStyle = document.getElementById('fontColor').value;
-			underlay.removeChild(box);
+			fontSizeInput.value + 'px ' + this.fontFamily(this.font);
+		});
+		let fontColor = document.getElementById('fontColor');
+		fontColor.value = this.fillStyle;
+		fontColor.addEventListener('blur', () => {
+			this.fillStyle = fontColor.value;
 		});
 	}
 	/**
-	 * returns the font-family from a CSS font definitio, e.g. "16px sans-serif"
+	 * returns the font-family from a CSS font definition, e.g. "16px sans-serif"
 	 * @param {string} str
 	 */
 	fontFamily(str) {
@@ -535,16 +542,17 @@ class PencilHandler extends ToolHandler {
 		let box = super.optionsDialog('pencil');
 		box.innerHTML = `
 		<div>Width</div><div><input id="pencilWidth" type="text" size="2"></div>
-		<div>Colour</div><div><input id="pencilColor" type="color"></div>
-		<div></div><div class="right"><button id="pencilDone">Done</button></div>`;
+		<div>Colour</div><div><input id="pencilColor" type="color"></div>`;
 		let widthInput = document.getElementById('pencilWidth');
 		widthInput.value = this.lineWidth;
 		widthInput.focus();
-		document.getElementById('pencilColor').value = this.strokeStyle;
-		document.getElementById('pencilDone').addEventListener('click', () => {
+		widthInput.addEventListener('blur', () => {
 			this.lineWidth = parseInt(widthInput.value);
-			this.strokeStyle = document.getElementById('pencilColor').value;
-			underlay.removeChild(box);
+		});
+		let pencilColor = document.getElementById('pencilColor');
+		pencilColor.value = this.strokeStyle;
+		pencilColor.addEventListener('blur', () => {
+			this.strokeStyle = pencilColor.value;
 		});
 	}
 }
@@ -598,16 +606,17 @@ class MarkerHandler extends ToolHandler {
 		let box = super.optionsDialog('marker');
 		box.innerHTML = `
 		<div>Width</div><div><input id="markerWidth" type="text" size="2"></div>
-		<div>Colour</div><div><input id="markerColor" type="color"></div>
-		<div></div><div class="right"><button id="markerDone">Done</button></div>`;
+		<div>Colour</div><div><input id="markerColor" type="color"></div>`;
 		let widthInput = document.getElementById('markerWidth');
 		widthInput.value = this.lineWidth;
 		widthInput.focus();
-		document.getElementById('markerColor').value = this.strokeStyle;
-		document.getElementById('markerDone').addEventListener('click', () => {
+		widthInput.addEventListener('blur', () => {
 			this.lineWidth = parseInt(widthInput.value);
-			this.strokeStyle = document.getElementById('markerColor').value;
-			underlay.removeChild(box);
+		});
+		let markerColor = document.getElementById('markerColor');
+		markerColor.value = this.strokeStyle;
+		markerColor.addEventListener('blur', () => {
+			this.strokeStyle = markerColor.value;
 		});
 	}
 }
@@ -685,14 +694,13 @@ class EraserHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('eraser');
 		box.innerHTML = `
-		<div>Width</div><div><input id="eraserWidth" type="text" size="2"></div>
-		<div></div><div class="right"><button id="eraserDone">Done</button></div>`;
+		<div>Width</div><div><input id="eraserWidth" type="text" size="2"></div>`;
 		let widthInput = document.getElementById('eraserWidth');
 		widthInput.value = this.lineWidth;
 		widthInput.focus();
-		document.getElementById('eraserDone').addEventListener('click', () => {
+		widthInput.addEventListener('blur', () => {
 			this.lineWidth = parseInt(widthInput.value);
-			underlay.removeChild(box);
+			if (this.lineWidth < 3) this.lineWidth = 4;
 		});
 	}
 }
@@ -782,7 +790,7 @@ class ImageHandler extends ToolHandler {
 			yPointsArray.push([
 				[
 					'image',
-					this.image,
+					this.image.src,
 					[
 						DOMtoCanvasX(wrap.offsetLeft),
 						DOMtoCanvasY(wrap.offsetTop),
@@ -798,7 +806,8 @@ class ImageHandler extends ToolHandler {
 			e.target.style.cursor =
 				e.target.id == 'resizer' ? 'nwse-resize' : 'move';
 		}
-	}
+	};
+	optionsDialog() { /* none */ }
 }
 
 /**
@@ -999,6 +1008,7 @@ let drawHelper = {
 	rect: function (ctx, options, [startX, startY, endX, endY]) {
 		ctx.beginPath();
 		applyOptions(ctx, options);
+		ctx.lineJoin = 'miter';
 		ctx.strokeRect(startX, startY, endX, endY);
 		// treat white as transparent
 		if (options.fillStyle !== '#ffffff')
@@ -1035,13 +1045,15 @@ let drawHelper = {
 		/* never called: eraser uses 'marker'*/
 	},
 	image: function (ctx, image, [x, y, w, h]) {
+		let img = new Image();
+		img.src = image;
 		ctx.beginPath();
 		ctx.drawImage(
-			image,
+			img,
 			0,
 			0,
-			image.naturalWidth,
-			image.naturalHeight,
+			img.naturalWidth,
+			img.naturalHeight,
 			x,
 			y,
 			w,

@@ -28,7 +28,7 @@ import {
 import {
 	setUpPaint,
 	setUpToolbox,
-	deselectTools,
+	deselectTool,
 	dragCanvas,
 	zoomCanvas,
 	redraw,
@@ -373,6 +373,9 @@ function startY() {
 						break;
 					case 'hideAndStream':
 						setHideAndStream(obj);
+						break;
+					case 'background':
+						setBackground(obj)
 						break;
 					default:
 						console.log('Bad key in yMapNet.observe');
@@ -1722,7 +1725,7 @@ function setButtonStatus(settings) {
 		document.getElementById('autolayoutswitch').checked =
 			settings.autoLayout;
 	}
-	if (document.getElementById('antiGravity').value != settings.gravity) {
+	if (document.getElementById('antiGravity').value != settings.gravity && settings.autoLayout) {
 		adjustGravity(settings.gravity);
 		document.getElementById('antiGravity').value = settings.gravity;
 	}
@@ -1857,6 +1860,7 @@ function displayStatistics(nodeId) {
 function autoLayoutSwitch(e) {
 	let switchOn = e.target.checked;
 	if (switchOn && snapToGridToggle) snapToGridOff(); // no snapping with auto layout.
+	document.getElementById('spacing').classList.toggle('hidden'); 
 	autoLayoutSet(switchOn);
 }
 
@@ -1871,7 +1875,10 @@ function autoLayoutSet(switchOn) {
 }
 
 function setGravity() {
-	adjustGravity(document.getElementById('antiGravity').value);
+	// only when autolayout is on
+	if (document.getElementById('autolayoutswitch').checked) {
+		adjustGravity(document.getElementById('antiGravity').value);
+	}
 }
 
 function adjustGravity(gravity) {
@@ -1936,22 +1943,37 @@ function setCurve(options) {
 }
 
 function updateNetBack(event) {
-	document.getElementById('underlay').style.backgroundColor =
-		event.target.value;
+	let ul = document.getElementById('underlay');
+	ul.style.backgroundColor = event.target.value;
+	// if in drawing mode, make the underlay translucent so that network shows through
+	if (document.getElementById('toolbox').style.display == 'block')
+		makeTranslucent(ul);
+	yNetMap.set('background', event.target.value);
 }
 
+function makeTranslucent(elem) {
+	elem.style.backgroundColor = getComputedStyle(elem)
+	.backgroundColor.replace(')', ', 0.2)')
+	.replace('rgb', 'rgba');
+}
+
+function makeSolid(elem) {
+	elem.style.backgroundColor = getComputedStyle(elem)
+	.backgroundColor.replace(', 0.2)', ')')
+	.replace('rgba', 'rgb');
+}
+function setBackground(color) {
+	document.getElementById('underlay').style.backgroundColor = color;
+}
 function revealDrawingLayer() {
 	let toolbox = document.getElementById('toolbox');
 	let ul = document.getElementById('underlay');
 	if (toolbox.style.display == 'block') {
 		// close drawing layer
-		deselectTools();
+		deselectTool();
 		document.getElementById('toolbox').style.display = 'none';
 		document.getElementById('underlay').style.zIndex = 0;
-		ul.style.backgroundColor = getComputedStyle(ul)
-			.backgroundColor.replace(', 0.2)', ')')
-			.replace('rgba', 'rgb');
-		//		ul.classList.remove('active-animation');
+		makeSolid(ul)
 		document.getElementById('temp-canvas').style.zIndex = 0;
 		document.getElementById('main-canvas').style.zIndex = 0;
 		document.getElementById('chatbox-tab').classList.remove('chatbox-hide');
@@ -1965,10 +1987,7 @@ function revealDrawingLayer() {
 		document.getElementById('temp-canvas').style.zIndex = 1000;
 		document.getElementById('main-canvas').style.zIndex = 1000;
 		// make the underlay (which is now overlay) translucent
-		ul.style.backgroundColor = getComputedStyle(ul)
-			.backgroundColor.replace(')', ', 0.2)')
-			.replace('rgb', 'rgba');
-		//		ul.classList.add('active-animation');
+		makeTranslucent(ul);
 		minimize();
 		document.getElementById('chatbox-tab').classList.add('chatbox-hide');
 		inAddMode = 'disabled';
