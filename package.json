@@ -1,6 +1,6 @@
 {
   "name": "participatory-system-mapper",
-  "version": "1.0.11",
+  "version": "1.2.0",
   "description": "Participatory System Mapper, browser app for collaboratively creating system maps",
   "keywords": [
     "social network",
@@ -49,6 +49,8 @@
   "devDependencies": {
     "css-loader": "^3.5.3",
     "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.11.0",
+    "jsdoc": "^3.6.4",
     "mini-css-extract-plugin": "^0.9.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "prettier": "2.0.5",

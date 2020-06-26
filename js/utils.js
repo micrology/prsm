@@ -69,7 +69,6 @@ function seededRandom() {
  * @returns {Object}            A new, merged, object
  */
 export function deepMerge() {
-
 	// Setup merged object
 	let newObj = {};
 
@@ -78,7 +77,10 @@ export function deepMerge() {
 		for (let prop in obj) {
 			if (Object.prototype.hasOwnProperty.call(obj, prop)) {
 				// If property is an object, merge properties
-				if (Object.prototype.toString.call(obj[prop]) === '[object Object]') {
+				if (
+					Object.prototype.toString.call(obj[prop]) ===
+					'[object Object]'
+				) {
 					newObj[prop] = deepMerge(newObj[prop], obj[prop]);
 				} else {
 					newObj[prop] = obj[prop];
@@ -93,7 +95,6 @@ export function deepMerge() {
 	}
 
 	return newObj;
-
 }
 
 export function cleanArray(arr, propsToRemove) {

@@ -5,7 +5,10 @@ module.exports = {
 	"amd": true,
 	"node": true
     },
-    "extends": "eslint:recommended",
+    "extends": [
+	"eslint:recommended",
+	"prettier"
+	],
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"

@@ -8,9 +8,11 @@
 			content="height=device-height, user-scalable=no"
 			name="viewport"
 		/>
+		<link rel="icon" href="img/prism-logo.ico">
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 		<link href="css/prism.css" rel="stylesheet" />
+		<link href="css/cd.css" rel="stylesheet" />
 		<link href="css/fa.min.css" rel="stylesheet" />
 		<link href="css/vis-network.min.css" rel="stylesheet" />
 		<script src="js/modernizr.js"></script>
@@ -123,9 +125,46 @@
 				</table>
 			</div>
 			<div id="net-pane"></div>
-			<div id="underlay"></div>
+			<div id="underlay">
+				<canvas class="drawing-canvas" id="main-canvas"></canvas>
+				<canvas class="drawing-canvas" id="temp-canvas"></canvas>
+				<div class="toolbox" id="toolbox">
+					<div class="tool" id="line">
+						<i class="fas fa-minus"></i>
+						<span class="tooltiptext">Line</span>
+					</div>
+					<div class="tool" id="rect">
+						<i class="fas fa-vector-square"></i>
+						<span class="tooltiptext">Rectangle</span>
+					</div>
+					<div class="tool" id="text">
+						<i class="fas fa-font"></i>
+						<span class="tooltiptext">Text</span>
+					</div>
+					<div class="tool" id="pencil">
+						<i class="fas fa-pencil-alt"></i>
+						<span class="tooltiptext">Pencil</span>
+					</div>
+					<div class="tool" id="marker">
+						<i class="fas fa-highlighter"></i>
+						<span class="tooltiptext">Marker</span>
+					</div>
+					<div class="tool" id="eraser">
+						<i class="fas fa-eraser"></i>
+						<span class="tooltiptext">Eraser</span>
+					</div>
+					<div class="tool" id="image">
+						<i class="fas fa-image"></i>
+						<span class="tooltiptext">Load image</span>
+					</div>
+					<div class="tool" id="undo">
+						<i class="fas fa-undo-alt"></i>
+						<span class="tooltiptext">Undo last shape</span>
+					</div>
+				</div>
+			</div>
 		</main>
-		<aside id="panel">
+		<aside class="hide" id="panel">
 			<!-- Tabs -->
 			<div class="tab" id="tab">
 				<button class="tablinks" id="networkButton">Network</button>
@@ -154,7 +193,7 @@
 							</label>
 						</div>
 					</div>
-					<div class="panelRow">
+					<div class="panelRow hidden" id="spacing">
 						<div>Spacing</div>
 						<div>
 							&nbsp;
@@ -202,6 +241,21 @@
 								value="#ffffff"
 								id="netBackColorWell"
 							/>
+						</div>
+					</div>
+					<div class="panelRow">
+						<div>Show drawing layer</div>
+						<div class="onoffswitch">
+							<input
+								type="checkbox"
+								name="onoffswitch"
+								class="onoffswitch-checkbox"
+								id="drawing"
+							/>
+							<label class="onoffswitch-label" for="drawing">
+								<span class="onoffswitch-inner"></span>
+								<span class="onoffswitch-switch"></span>
+							</label>
 						</div>
 					</div>
 					<div class="panelRow">
@@ -591,6 +645,7 @@
 				</div>
 			</div>
 		</div>
+
 		<script src="./js/browsertest.js"></script>
 		<script src="./dist/prism.bundle.js"></script>
 	</body>

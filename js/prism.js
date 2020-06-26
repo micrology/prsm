@@ -25,10 +25,17 @@ import {
 	legend,
 	clearLegend,
 } from './samples.js';
+import {
+	setUpPaint,
+	setUpToolbox,
+	deselectTool,
+	dragCanvas,
+	zoomCanvas,
+	redraw,
+} from './paint.js';
 import 'vis-network/styles/vis-network.css';
 
-const version = '1.11';
-const LOGOURL = 'img/logo.png';
+const version = '1.20';
 const GRIDSPACING = 100;
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30;
@@ -42,6 +49,7 @@ var yNodesMap;
 var yEdgesMap;
 var ySamplesMap;
 var yNetMap;
+export var yPointsArray;
 var yUndoManager;
 var yChatArray;
 var panel;
@@ -58,6 +66,8 @@ window.addEventListener('load', () => {
 	setUpPage();
 	startY();
 	setUpChat();
+	setUpPaint();
+	setUpToolbox();
 	draw();
 	setTimeout(fit, 500); // need to wait until the canvas draw has been completed
 });
@@ -106,6 +116,9 @@ function addEventListeners() {
 	document
 		.getElementById('netBackColorWell')
 		.addEventListener('input', updateNetBack);
+	document
+		.getElementById('drawing')
+		.addEventListener('click', revealDrawingLayer);
 	document
 		.getElementById('allFactors')
 		.addEventListener('click', selectAllFactors);
@@ -168,7 +181,6 @@ function setUpPage() {
 		showLabels: true,
 		sizing: 'Off',
 	};
-	displayLogo();
 }
 
 function startY() {
@@ -202,6 +214,8 @@ function startY() {
 	ySamplesMap = doc.getMap('samples');
 	yNetMap = doc.getMap('network');
 	yChatArray = doc.getArray('chat');
+	yPointsArray = doc.getArray('points');
+
 	// get an existing or generate a new clientID, used to identify nodes and edges created by this client
 	if (localStorage.getItem('clientID'))
 		clientID = localStorage.getItem('clientID');
@@ -230,6 +244,7 @@ function startY() {
 	window.yNetMap = yNetMap;
 	window.yUndoManager = yUndoManager;
 	window.yChatArray = yChatArray;
+	window.yPointsArray = yPointsArray;
 	window.samples = samples;
 	/* 
 	nodes.on listens for when local nodes or edges are changed (added, updated or removed).
@@ -359,10 +374,17 @@ function startY() {
 					case 'hideAndStream':
 						setHideAndStream(obj);
 						break;
+					case 'background':
+						setBackground(obj)
+						break;
 					default:
 						console.log('Bad key in yMapNet.observe');
 				}
 		}
+	});
+	yPointsArray.observe((event, trans) => {
+		if (window.debug) console.log(event, trans);
+		if (!trans.local) redraw();
 	});
 	yUndoManager.on('stack-item-added', (event) => {
 		if (window.debug) console.log(event);
@@ -376,14 +398,6 @@ function startY() {
 		undoButtonstatus();
 		redoButtonStatus();
 	});
-}
-async function displayLogo() {
-	let response = await fetch(LOGOURL);
-	if (response.ok) {
-		let img = document.createElement('img');
-		document.getElementById('underlay').appendChild(img);
-		img.src = LOGOURL;
-	}
 }
 
 function generateRoom() {
@@ -583,11 +597,23 @@ function draw() {
 		hideNotes();
 		clearStatusBar();
 	});
-	network.on('dragStart', function () {
+	let dragX = 0,
+		dragY = 0;
+	network.on('dragStart', function (event) {
+		dragX = event.pointer.DOM.x;
+		dragY = event.pointer.DOM.y;
 		hideNotes();
 		changeCursor('grabbing');
 	});
-	network.on('dragging', function () {
+	network.on('dragging', function (event) {
+		if (event.nodes.length == 0 && event.edges.length == 0) {
+			dragCanvas(
+				event.pointer.DOM.x - dragX,
+				event.pointer.DOM.y - dragY
+			);
+			dragX = event.pointer.DOM.x;
+			dragY = event.pointer.DOM.y;
+		}
 		changeCursor('grabbing');
 	});
 	network.on('dragEnd', function (event) {
@@ -612,8 +638,13 @@ function draw() {
 } // end draw()
 
 function fit() {
-	network.fit({animation: {duration: 1000, easingFunction: 'linear'}});
-	document.getElementById('zoom').value = network.getScale();
+	network.fit({
+		position: {x: 0, y: 0},
+		animation: {duration: 0, easingFunction: 'linear'},
+	});
+	let newScale = network.getScale();
+	document.getElementById('zoom').value = newScale;
+	zoomCanvas(newScale);
 	network.storePositions();
 }
 
@@ -801,7 +832,7 @@ function saveLabel(item, callback) {
 		}
 	}
 	claim(item);
-	network.manipulation.inMode = "addNode" // ensure still in Add mode, in case others have done something meanwhile
+	network.manipulation.inMode = 'addNode'; // ensure still in Add mode, in case others have done something meanwhile
 	callback(item);
 }
 
@@ -825,7 +856,7 @@ function saveNode(item, callback) {
 		document.getElementById('node-borderType').value
 	);
 	claim(item);
-	network.manipulation.inMode = "editNode"; // ensure still in Add mode, in case others have done something meanwhile
+	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
 	callback(item);
 }
 
@@ -843,7 +874,7 @@ function saveEdge(item, callback) {
 	item.width = document.getElementById('edge-width').value;
 	item.dashes = convertDashes(document.getElementById('edge-type').value);
 	claim(item);
-	network.manipulation.inMode = "editEdge"; // ensure still in edit mode, in case others have done something meanwhile
+	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
 	callback(item);
 }
 
@@ -863,7 +894,7 @@ function convertDashes(val) {
 }
 
 function splitText(txt, width) {
-	// divide txt into lines to make it roughly square, with a 
+	// divide txt into lines to make it roughly square, with a
 	// minimum width of width.
 	let words = txt.trim().split(/\s/);
 	let nChars = txt.trim().length;
@@ -980,7 +1011,9 @@ function listFactors(factors) {
 }
 
 function shorten(label) {
-	return (label.length > SHORTLABELLEN ? label.substring(0, SHORTLABELLEN) + '...' : label);
+	return label.length > SHORTLABELLEN
+		? label.substring(0, SHORTLABELLEN) + '...'
+		: label;
 }
 
 function listLinks(links) {
@@ -992,12 +1025,14 @@ function listLinks(links) {
 Network.prototype.zoom = function (scale) {
 	let newScale = scale === undefined ? 1 : scale;
 	const animationOptions = {
+		position: {x: 0, y: 0},
 		scale: newScale,
 		animation: {
-			duration: 1000,
+			duration: 0,
 		},
 	};
 	this.view.moveTo(animationOptions);
+	zoomCanvas(newScale);
 };
 
 function zoomnet() {
@@ -1016,6 +1051,8 @@ function zoomincr(incr) {
  */
 function plusNode() {
 	switch (inAddMode) {
+		case 'disabled':
+			return;
 		case 'addNode':
 			showPressed('addNode', 'remove');
 			stopEdit();
@@ -1034,6 +1071,8 @@ function plusNode() {
 
 function plusLink() {
 	switch (inAddMode) {
+		case 'disabled':
+			return;
 		case 'addLink':
 			showPressed('addLink', 'remove');
 			stopEdit();
@@ -1071,15 +1110,20 @@ function redo() {
 }
 
 function undoButtonstatus() {
-	if (yUndoManager.undoStack.length == 0)
-		document.getElementById('undo').classList.add('disabled');
-	else document.getElementById('undo').classList.remove('disabled');
+	setButtonDisabledStatus('undo', yUndoManager.undoStack.length === 0);
 }
 
 function redoButtonStatus() {
-	if (yUndoManager.redoStack.length == 0)
-		document.getElementById('redo').classList.add('disabled');
-	else document.getElementById('redo').classList.remove('disabled');
+	setButtonDisabledStatus('redo', yUndoManager.redoStack.length === 0);
+}
+/**
+ * Change the visible state of a button
+ * @param {String} id
+ * @param {Boolean} state - true to make the button disabled
+ */
+function setButtonDisabledStatus(id, state) {
+	if (state) document.getElementById(id).classList.add('disabled');
+	else document.getElementById(id).classList.remove('disabled');
 }
 
 function deleteNode() {
@@ -1162,7 +1206,9 @@ function loadFile(contents) {
 		)
 	);
 	// reassign the sample properties to the node
-	data.nodes.update(data.nodes.map((n) => deepMerge(samples.nodes[n.grp], n)));
+	data.nodes.update(
+		data.nodes.map((n) => deepMerge(samples.nodes[n.grp], n))
+	);
 	// same for edges
 	data.edges.update(
 		data.edges.map(
@@ -1177,7 +1223,9 @@ function loadFile(contents) {
 			}
 		)
 	);
-	data.edges.update(data.edges.map((e) => deepMerge(samples.edges[e.grp], e)));
+	data.edges.update(
+		data.edges.map((e) => deepMerge(samples.edges[e.grp], e))
+	);
 	if (!isJSONfile) adjustGravity(50000);
 	fit();
 }
@@ -1597,14 +1645,19 @@ document.getElementById('copy-text').addEventListener('click', function (e) {
 function togglePanel() {
 	// Hide/unhide the side panel
 	if (container.panelHidden) {
-		container.style.gridTemplateColumns = '5fr minmax(210px, 1fr)';
 		panel.classList.remove('hide');
+		document.getElementById('panel').style.left =
+			document.getElementById('main').offsetWidth -
+			5 -
+			document.getElementById('panel').offsetWidth +
+			'px';
 	} else {
 		panel.classList.add('hide');
-		container.style.gridTemplateColumns = '1fr 0px';
 	}
 	container.panelHidden = !container.panelHidden;
 }
+dragElement(document.getElementById('panel'), document.getElementById('tab'));
+
 /* ---------operations related to the side panel -------------------------------------*/
 // Panel
 
@@ -1672,7 +1725,7 @@ function setButtonStatus(settings) {
 		document.getElementById('autolayoutswitch').checked =
 			settings.autoLayout;
 	}
-	if (document.getElementById('antiGravity').value != settings.gravity) {
+	if (document.getElementById('antiGravity').value != settings.gravity && settings.autoLayout) {
 		adjustGravity(settings.gravity);
 		document.getElementById('antiGravity').value = settings.gravity;
 	}
@@ -1807,6 +1860,7 @@ function displayStatistics(nodeId) {
 function autoLayoutSwitch(e) {
 	let switchOn = e.target.checked;
 	if (switchOn && snapToGridToggle) snapToGridOff(); // no snapping with auto layout.
+	document.getElementById('spacing').classList.toggle('hidden'); 
 	autoLayoutSet(switchOn);
 }
 
@@ -1821,7 +1875,10 @@ function autoLayoutSet(switchOn) {
 }
 
 function setGravity() {
-	adjustGravity(document.getElementById('antiGravity').value);
+	// only when autolayout is on
+	if (document.getElementById('autolayoutswitch').checked) {
+		adjustGravity(document.getElementById('antiGravity').value);
+	}
 }
 
 function adjustGravity(gravity) {
@@ -1886,8 +1943,57 @@ function setCurve(options) {
 }
 
 function updateNetBack(event) {
-	document.getElementById('underlay').style.backgroundColor =
-		event.target.value;
+	let ul = document.getElementById('underlay');
+	ul.style.backgroundColor = event.target.value;
+	// if in drawing mode, make the underlay translucent so that network shows through
+	if (document.getElementById('toolbox').style.display == 'block')
+		makeTranslucent(ul);
+	yNetMap.set('background', event.target.value);
+}
+
+function makeTranslucent(elem) {
+	elem.style.backgroundColor = getComputedStyle(elem)
+	.backgroundColor.replace(')', ', 0.2)')
+	.replace('rgb', 'rgba');
+}
+
+function makeSolid(elem) {
+	elem.style.backgroundColor = getComputedStyle(elem)
+	.backgroundColor.replace(', 0.2)', ')')
+	.replace('rgba', 'rgb');
+}
+function setBackground(color) {
+	document.getElementById('underlay').style.backgroundColor = color;
+}
+function revealDrawingLayer() {
+	let toolbox = document.getElementById('toolbox');
+	let ul = document.getElementById('underlay');
+	if (toolbox.style.display == 'block') {
+		// close drawing layer
+		deselectTool();
+		document.getElementById('toolbox').style.display = 'none';
+		document.getElementById('underlay').style.zIndex = 0;
+		makeSolid(ul)
+		document.getElementById('temp-canvas').style.zIndex = 0;
+		document.getElementById('main-canvas').style.zIndex = 0;
+		document.getElementById('chatbox-tab').classList.remove('chatbox-hide');
+		inAddMode = false;
+		setButtonDisabledStatus('addNode', false);
+		setButtonDisabledStatus('addLink', false);
+	} else {
+		// expose drawing layer
+		document.getElementById('toolbox').style.display = 'block';
+		ul.style.zIndex = 1000;
+		document.getElementById('temp-canvas').style.zIndex = 1000;
+		document.getElementById('main-canvas').style.zIndex = 1000;
+		// make the underlay (which is now overlay) translucent
+		makeTranslucent(ul);
+		minimize();
+		document.getElementById('chatbox-tab').classList.add('chatbox-hide');
+		inAddMode = 'disabled';
+		setButtonDisabledStatus('addNode', true);
+		setButtonDisabledStatus('addLink', true);
+	}
 }
 
 function selectAllFactors() {

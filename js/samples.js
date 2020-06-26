@@ -381,7 +381,11 @@ function getNodeSampleEdit(sampleElement, group) {
 	getColor('borderColor', group.color.border);
 	getColor('fontColor', group.font.color);
 	getSelection('shape', group.shape);
-	getDashes('borderType', group.shapeProperties.borderDashes, group.borderWidth);
+	getDashes(
+		'borderType',
+		group.shapeProperties.borderDashes,
+		group.borderWidth
+	);
 	getSelection('fontSize', group.font.size);
 }
 
@@ -521,7 +525,9 @@ export function reApplySampleToNodes(groupId) {
 			return item.grp == groupId;
 		},
 	});
-	window.data.nodes.update(nodesToUpdate.map((node) => deepMerge(node, samples.nodes[groupId])));
+	window.data.nodes.update(
+		nodesToUpdate.map((node) => deepMerge(node, samples.nodes[groupId]))
+	);
 }
 export function reApplySampleToLinks(groupId) {
 	let edgesToUpdate = window.data.edges.get({
@@ -529,7 +535,9 @@ export function reApplySampleToLinks(groupId) {
 			return item.grp == groupId;
 		},
 	});
-	window.data.edges.update(edgesToUpdate.map((edge) => deepMerge(edge, samples.edges[groupId])));
+	window.data.edges.update(
+		edgesToUpdate.map((edge) => deepMerge(edge, samples.edges[groupId]))
+	);
 }
 
 function getColor(well, prop) {
@@ -554,7 +562,7 @@ function setShape(obj) {
 
 function getDashes(name, val, bWidth) {
 	if (Array.isArray(val)) val = 'dots';
-	else if (bWidth == 0) val = 'none'; 
+	else if (bWidth == 0) val = 'none';
 	else val = val.toString();
 	document.getElementsByName(name)[0].value = val;
 }
@@ -563,7 +571,7 @@ function setBorderType(obj) {
 	obj.borderWidth = 1;
 	let val = document.getElementsByName('borderType')[0].value;
 	if (obj.shapeProperties === undefined) obj.shapeProperties = {};
-	if (val == "none") obj.borderWidth = 0;
+	if (val == 'none') obj.borderWidth = 0;
 	else if (val != '') obj.shapeProperties.borderDashes = deString(val);
 }
 
@@ -586,7 +594,7 @@ function setFont(obj) {
 	obj.font = {};
 	obj.font.face = 'arial';
 	obj.font.color = document.getElementsByName('fontColor')[0].value;
-	let val = parseInt(document.getElementsByName('fontSize')[0].value)
+	let val = parseInt(document.getElementsByName('fontSize')[0].value);
 	obj.font.size = Number.isInteger(val) ? val : 14;
 }
 
@@ -653,7 +661,10 @@ export function legend() {
 	);
 	let nItems = nodes.length + edges.length;
 	if (nItems == 0) {
-		statusMsg('Nothing to include in the Legend - rename some styles first', 'warn');
+		statusMsg(
+			'Nothing to include in the Legend - rename some styles first',
+			'warn'
+		);
 		return;
 	}
 	let legendBox = document.createElement('div');
@@ -665,16 +676,18 @@ export function legend() {
 	title.className = 'legendTitle';
 	title.appendChild(document.createTextNode('Legend'));
 	legendBox.appendChild(title);
-	legendBox.style.height = (LEGENDSPACING * nItems + title.offsetHeight) + 'px';
-	legendBox.style.width = (HALFLEGENDWIDTH * 2) + 'px';
+	legendBox.style.height = LEGENDSPACING * nItems + title.offsetHeight + 'px';
+	legendBox.style.width = HALFLEGENDWIDTH * 2 + 'px';
 	let canvas = document.createElement('div');
 	canvas.className = 'legendCanvas';
-	canvas.style.height = (LEGENDSPACING * nItems) + 'px';
+	canvas.style.height = LEGENDSPACING * nItems + 'px';
 	legendBox.appendChild(canvas);
 
 	dragElement(legendBox, title);
 
-	legendNetwork = new Network(canvas, legendData, {physics: {enabled: false},}); 
+	legendNetwork = new Network(canvas, legendData, {
+		physics: {enabled: false},
+	});
 
 	let height = LEGENDSPACING / 2;
 	for (let i = 0; i < nodes.length; i++) {
@@ -734,7 +747,7 @@ export function legend() {
 export function clearLegend() {
 	legendData.nodes.clear();
 	legendData.edges.clear();
-	if(legendNetwork) legendNetwork.destroy();
+	if (legendNetwork) legendNetwork.destroy();
 	let legendBox = document.getElementById('legendBox');
 	if (legendBox) legendBox.remove();
 }
