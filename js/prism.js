@@ -1263,6 +1263,10 @@ function loadJSONfile(json) {
 			});
 		}
 	}
+	if (json.underlay) {
+		yPointsArray.delete(0, yPointsArray.length);
+		yPointsArray.insert(0, json.underlay);
+	}
 	return {
 		nodes: nodes,
 		edges: edges,
@@ -1496,6 +1500,7 @@ function saveJSONfile() {
 			edges: data.edges.map((e) =>
 				strip(e, ['id', 'label', 'grp', 'from', 'to'])
 			),
+			underlay: yPointsArray.toArray(),
 		},
 		null,
 		'\t'
@@ -1628,11 +1633,6 @@ function togglePanel() {
 	// Hide/unhide the side panel
 	if (container.panelHidden) {
 		panel.classList.remove('hide');
-		document.getElementById('panel').style.left =
-			document.getElementById('main').offsetWidth -
-			5 -
-			document.getElementById('panel').offsetWidth +
-			'px';
 	} else {
 		panel.classList.add('hide');
 	}

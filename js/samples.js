@@ -431,7 +431,10 @@ function getLinkSampleEdit(sampleElement, group) {
 
 function saveNodeSampleEdit(sampleElement, samples, groupId) {
 	let group = samples.nodes[groupId];
-	group.groupLabel = splitText(document.getElementsByName('nodeLabel')[0].value, 10);
+	group.groupLabel = splitText(
+		document.getElementsByName('nodeLabel')[0].value,
+		10
+	);
 	setColor('fillColor', group, 'color', 'background');
 	setColor3('fillColor', group, 'color', 'highlight', 'background');
 	setColor3('fillColor', group, 'color', 'hover', 'background');

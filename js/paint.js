@@ -240,7 +240,10 @@ class ToolHandler {
 		return {
 			strokeStyle: this.strokeStyle || defaultOptions.strokeStyle,
 			fillStyle: this.fillStyle || defaultOptions.fillStyle,
-			lineWidth: (this.lineWidth != undefined ? this.lineWidth : defaultOptions.lineWidth),
+			lineWidth:
+				this.lineWidth != undefined
+					? this.lineWidth
+					: defaultOptions.lineWidth,
 			font: this.font || defaultOptions.font,
 			globalAlpha: this.globalAlpha || defaultOptions.alpha,
 			globalCompositeOperation:
@@ -771,6 +774,8 @@ class ImageHandler extends ToolHandler {
 						'click',
 						imageHandler.mouseup.bind(imageHandler)
 					);
+					wrap.origWidth = image.width;
+					wrap.origHeight = image.height;
 					dragImage(wrap);
 				};
 			};
@@ -793,10 +798,13 @@ class ImageHandler extends ToolHandler {
 			yPointsArray.push([
 				[
 					'image',
-					this.image.src,
+					this.options(),
 					[
+						this.image.src,
 						DOMtoCanvasX(wrap.offsetLeft),
 						DOMtoCanvasY(wrap.offsetTop),
+						wrap.origWidth,
+						wrap.origHeight,
 						wrap.offsetWidth,
 						wrap.offsetHeight,
 					],
@@ -1049,21 +1057,14 @@ let drawHelper = {
 	eraser: {
 		/* never called: eraser uses 'marker'*/
 	},
-	image: function (ctx, image, [x, y, w, h]) {
+	image: function (ctx, options, [src, x, y, ow, oh, w, h]) {
 		let img = new Image();
-		img.src = image;
+		img.src = src;
 		ctx.beginPath();
-		ctx.drawImage(
-			img,
-			0,
-			0,
-			img.naturalWidth,
-			img.naturalHeight,
-			x,
-			y,
-			w,
-			h
-		);
+		applyOptions(ctx, options);
+		img.onload = function () {
+			ctx.drawImage(this, 0, 0, ow, oh, x, y, w, h);
+		};
 	},
 	undo: {
 		/* never called */
