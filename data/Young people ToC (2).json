@@ -1,0 +1,843 @@
+{
+	"saved": "27/06/2020, 11:01:35",
+	"version": "1.20",
+	"room": "FSP-JZT-KZQ-DHB",
+	"lastNodeSample": "group0",
+	"lastLinkSample": "edge0",
+	"buttons": {
+		"autoLayout": false,
+		"gravity": "500000",
+		"snapToGrid": true,
+		"curve": "Straight",
+		"linkRadius": "All",
+		"stream": "All",
+		"showLabels": true,
+		"sizing": "Off"
+	},
+	"samples": {
+		"nodes": {
+			"base": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffffff",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffffff"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffffff"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group0": {
+				"groupLabel": "Activity/Quality",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ff0000",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ff0000"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ff0000"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#ffffff",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "box",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group1": {
+				"groupLabel": "Change mechanisms / journey",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#e1804c",
+					"highlight": {
+						"border": "#000000",
+						"background": "#e1804c"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#e1804c"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "box",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group2": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#99e699",
+					"highlight": {
+						"border": "#000000",
+						"background": "#99e699"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#99e699"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group3": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffccdd",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffccdd"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffccdd"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group4": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffccdd",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffccdd"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffccdd"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": true
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group5": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#b3ccff",
+					"highlight": {
+						"border": "#000000",
+						"background": "#b3ccff"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#b3ccff"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group6": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group7": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group8": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "#ff0000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			}
+		},
+		"edges": {
+			"base": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge0": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge1": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#00cc00",
+					"highlight": "#00cc00",
+					"hover": "#00cc00",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge2": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#ff0000",
+					"highlight": "#ff0000",
+					"hover": "#ff0000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge3": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#0000ff",
+					"highlight": "#0000ff",
+					"hover": "#0000ff",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge4": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#808080",
+					"highlight": "#808080",
+					"hover": "#808080",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge5": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#e6b800",
+					"highlight": "#e6b800",
+					"hover": "#e6b800",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 2,
+				"groupLabel": ""
+			},
+			"edge6": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": [
+					10,
+					10
+				],
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 3,
+				"groupLabel": ""
+			},
+			"edge7": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#008000",
+					"highlight": "#008000",
+					"hover": "#008000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": [
+					10,
+					10
+				],
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 3,
+				"groupLabel": ""
+			},
+			"edge8": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			}
+		}
+	},
+	"nodes": [
+		{
+			"id": "c106bf79-21c2-40ba-8c2e-b16b3bdfc7dd",
+			"x": -1100,
+			"y": -450,
+			"label": "Drop-in space\nfor pupils\nfor support\nor just take\ntime out",
+			"grp": "group0"
+		},
+		{
+			"id": "400f9138-9698-4d68-b461-911dfae8f920",
+			"x": -950,
+			"y": -550,
+			"label": "- Safe space\n- Non-judgemental\n/ unpressured\n- Volunteers\nfrom the community",
+			"grp": "group0"
+		},
+		{
+			"id": "f20e6a20-7ac8-457d-acc4-21998c24ceff",
+			"x": -950,
+			"y": -450,
+			"label": "- 'Holistic'\napproach covering\nall aspects\nof their lives\n- Aim to identify\nand build on\nstrengths",
+			"grp": "group0"
+		},
+		{
+			"id": "cf13f186-4951-47a7-8f59-32cf3ec262dd",
+			"x": -950,
+			"y": -300,
+			"label": "Encourage young\npeople to use\ntheir 'voice'\nand contribute\nto what the support\nlooks like",
+			"grp": "group0"
+		},
+		{
+			"id": "2cb8a248-c53f-40dc-bab0-e8eec5e141e7",
+			"x": -750,
+			"y": -550,
+			"label": "- Feel listened\nto, respected,\ntreated as an\nindividual\n- Start to trust\nvolunteers",
+			"grp": "group1"
+		},
+		{
+			"id": "709ee631-e069-420b-a6f7-1445242d669b",
+			"x": -750,
+			"y": -450,
+			"label": "Be willing\nto talk about\ntheir lives\nand futures",
+			"grp": "group1"
+		},
+		{
+			"id": "4e6d2e06-29d0-40aa-9803-9fed81ee0db4",
+			"x": -750,
+			"y": -300,
+			"label": "Feel a sense\nof choice\n/ ownership",
+			"grp": "group1"
+		},
+		{
+			"id": "9d5569bf-19ad-4b3c-ac26-ad1fb01c0268",
+			"x": -750,
+			"y": -200,
+			"label": "Appreciate that\n - Their career\nand lives 'matter'\n/ are important\n- They have influence\n/ control over\ntheir future",
+			"grp": "group1"
+		},
+		{
+			"id": "9b8ea2f0-c21b-430d-a0b6-c928237e89f1",
+			"x": -750,
+			"y": -50,
+			"label": "Enjoy and\nengage positively\nin programme\nactivities",
+			"grp": "group1"
+		},
+		{
+			"id": "8c9e2122-c99b-43cb-9d0b-fe37a933b667",
+			"x": -950,
+			"y": -200,
+			"label": "Weekly 1-1 mentoring\nsessions with\na volunteer\nmentor. Focussed\non career options\nand training",
+			"grp": "group0"
+		}
+	],
+	"edges": [
+		{
+			"from": "c106bf79-21c2-40ba-8c2e-b16b3bdfc7dd",
+			"to": "400f9138-9698-4d68-b461-911dfae8f920",
+			"label": "",
+			"grp": "edge0",
+			"id": "2270c96d-03ed-4d2c-84ab-2880ac1bc8a6"
+		},
+		{
+			"from": "c106bf79-21c2-40ba-8c2e-b16b3bdfc7dd",
+			"to": "f20e6a20-7ac8-457d-acc4-21998c24ceff",
+			"label": "",
+			"grp": "edge0",
+			"id": "10eaa566-1c67-4a4f-83b0-184d8b01d0b3"
+		},
+		{
+			"from": "c106bf79-21c2-40ba-8c2e-b16b3bdfc7dd",
+			"to": "cf13f186-4951-47a7-8f59-32cf3ec262dd",
+			"label": "",
+			"grp": "edge0",
+			"id": "75cd5724-133a-4121-ad9e-51abaa7795f3"
+		},
+		{
+			"from": "400f9138-9698-4d68-b461-911dfae8f920",
+			"to": "2cb8a248-c53f-40dc-bab0-e8eec5e141e7",
+			"label": "",
+			"grp": "edge0",
+			"id": "aa17c4b5-7256-48c3-b992-7c9cf48dad00"
+		},
+		{
+			"from": "f20e6a20-7ac8-457d-acc4-21998c24ceff",
+			"to": "709ee631-e069-420b-a6f7-1445242d669b",
+			"label": "",
+			"grp": "edge0",
+			"id": "a59d787d-6fd8-4513-b376-b23196d5987a"
+		},
+		{
+			"from": "cf13f186-4951-47a7-8f59-32cf3ec262dd",
+			"to": "4e6d2e06-29d0-40aa-9803-9fed81ee0db4",
+			"label": "",
+			"grp": "edge0",
+			"id": "eb62d74c-ac1f-428b-9f95-bfca03243245"
+		},
+		{
+			"from": "2cb8a248-c53f-40dc-bab0-e8eec5e141e7",
+			"to": "709ee631-e069-420b-a6f7-1445242d669b",
+			"label": "",
+			"grp": "edge0",
+			"id": "176cfc3d-c359-4958-af51-8a8dab232d0b"
+		},
+		{
+			"from": "709ee631-e069-420b-a6f7-1445242d669b",
+			"to": "4e6d2e06-29d0-40aa-9803-9fed81ee0db4",
+			"label": "",
+			"grp": "edge0",
+			"id": "60fe679b-9ae5-4b26-aaea-f906c3652900"
+		},
+		{
+			"from": "4e6d2e06-29d0-40aa-9803-9fed81ee0db4",
+			"to": "9d5569bf-19ad-4b3c-ac26-ad1fb01c0268",
+			"label": "",
+			"grp": "edge0",
+			"id": "85799641-c3d7-49a5-b7c7-cc2e4e0a5ae2"
+		},
+		{
+			"from": "8c9e2122-c99b-43cb-9d0b-fe37a933b667",
+			"to": "9d5569bf-19ad-4b3c-ac26-ad1fb01c0268",
+			"label": "",
+			"grp": "edge0",
+			"id": "e9f8bdd4-2d38-4fb8-a614-886ab26cd9d9"
+		},
+		{
+			"from": "9d5569bf-19ad-4b3c-ac26-ad1fb01c0268",
+			"to": "9b8ea2f0-c21b-430d-a0b6-c928237e89f1",
+			"label": "",
+			"grp": "edge0",
+			"id": "4c066fa2-cc3d-4684-ad08-8ba751ae9a04"
+		}
+	]
+}

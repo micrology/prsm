@@ -112,7 +112,9 @@ export function setUpToolbox() {
 function selectTool(event) {
 	// cleanup any remaining empty input box
 	let inpBox = document.getElementById('input');
-	if (inpBox) inpBox.remove();
+	if (inpBox) {
+		textHandler.saveText();
+	}
 	let tool = event.currentTarget;
 	if (tool.id == 'undo') {
 		undoHandler.undo();
@@ -122,8 +124,8 @@ function selectTool(event) {
 	//second click on selected tool - unselect it
 	if (selectedTool === tool.id) {
 		deselectTool();
-	   return;
-   }
+		return;
+	}
 	// changing tool; unselect previous one
 	deselectTool();
 	selectedTool = tool.id;
@@ -238,7 +240,7 @@ class ToolHandler {
 		return {
 			strokeStyle: this.strokeStyle || defaultOptions.strokeStyle,
 			fillStyle: this.fillStyle || defaultOptions.fillStyle,
-			lineWidth: this.lineWidth || defaultOptions.lineWidth,
+			lineWidth: (this.lineWidth != undefined ? this.lineWidth : defaultOptions.lineWidth),
 			font: this.font || defaultOptions.font,
 			globalAlpha: this.globalAlpha || defaultOptions.alpha,
 			globalCompositeOperation:
@@ -315,22 +317,22 @@ class LineHandler extends ToolHandler {
 	<div>Line width</div><div><input id="lineWidth" type="text" size="2"></div>
 	<div>Colour</div><div><input id="lineColour" type="color"></div>
 	<div>Axes</div><div><input type="checkbox" id="axes"></div>`;
-	let widthInput = document.getElementById('lineWidth');
-	widthInput.value = this.lineWidth;
-	widthInput.focus();
-	widthInput.addEventListener('change', () => {
-		this.lineWidth = parseInt(widthInput.value);
-	});
-	let lineColor = document.getElementById('lineColour');
-	lineColor.value = this.strokeStyle;
-	lineColor.addEventListener('blur', () => {
-		this.strokeStyle = lineColor.value;
-	});
-	let axes = document.getElementById('axes');
-	axes.checked = this.axes;
-	axes.addEventListener('change', () => {
-		this.axes = axes.checked;
-	});
+		let widthInput = document.getElementById('lineWidth');
+		widthInput.value = this.lineWidth;
+		widthInput.focus();
+		widthInput.addEventListener('change', () => {
+			this.lineWidth = parseInt(widthInput.value);
+		});
+		let lineColor = document.getElementById('lineColour');
+		lineColor.value = this.strokeStyle;
+		lineColor.addEventListener('blur', () => {
+			this.strokeStyle = lineColor.value;
+		});
+		let axes = document.getElementById('axes');
+		axes.checked = this.axes;
+		axes.addEventListener('change', () => {
+			this.axes = axes.checked;
+		});
 	}
 }
 let lineHandler = new LineHandler();
@@ -341,6 +343,7 @@ class RectHandler extends ToolHandler {
 	constructor() {
 		super();
 		this.roundCorners = true;
+		this.globalAlpha = 0.5;
 	}
 	mousedown(e) {
 		super.mousedown(e);
@@ -437,7 +440,7 @@ class TextHandler extends ToolHandler {
 		this.inp.style.color = this.fillStyle;
 		this.inp.style.position = 'absolute';
 		this.inp.style.left = this.startX + 'px';
-		this.inp.style.top = (this.startY - this.inp.clientHeight) + 'px';
+		this.inp.style.top = this.startY - this.inp.clientHeight + 'px';
 		this.inp.style.zIndex = 1002;
 		this.inp.addEventListener(
 			'change',
@@ -460,7 +463,7 @@ class TextHandler extends ToolHandler {
 					[
 						text,
 						DOMtoCanvasX(this.startX),
-						DOMtoCanvasY(this.startY  - this.inp.clientHeight),
+						DOMtoCanvasY(this.startY - this.inp.clientHeight),
 					],
 				],
 			]);
@@ -480,7 +483,7 @@ class TextHandler extends ToolHandler {
 		fontSizeInput.focus();
 		fontSizeInput.addEventListener('blur', () => {
 			this.font =
-			fontSizeInput.value + 'px ' + this.fontFamily(this.font);
+				fontSizeInput.value + 'px ' + this.fontFamily(this.font);
 		});
 		let fontColor = document.getElementById('fontColor');
 		fontColor.value = this.fillStyle;
@@ -806,8 +809,10 @@ class ImageHandler extends ToolHandler {
 			e.target.style.cursor =
 				e.target.id == 'resizer' ? 'nwse-resize' : 'move';
 		}
-	};
-	optionsDialog() { /* none */ }
+	}
+	optionsDialog() {
+		/* none */
+	}
 }
 
 /**
@@ -1009,7 +1014,7 @@ let drawHelper = {
 		ctx.beginPath();
 		applyOptions(ctx, options);
 		ctx.lineJoin = 'miter';
-		ctx.strokeRect(startX, startY, endX, endY);
+		if (options.lineWidth > 0) ctx.strokeRect(startX, startY, endX, endY);
 		// treat white as transparent
 		if (options.fillStyle !== '#ffffff')
 			ctx.fillRect(startX, startY, endX, endY);
@@ -1018,7 +1023,7 @@ let drawHelper = {
 		ctx.beginPath();
 		applyOptions(ctx, options);
 		ctx.roundRect(startX, startY, endX, endY, 10);
-		ctx.stroke();
+		if (options.lineWidth > 0) ctx.stroke();
 		if (options.fillStyle !== '#ffffff') ctx.fill();
 	},
 	text: function (ctx, options, [text, startX, startY]) {
