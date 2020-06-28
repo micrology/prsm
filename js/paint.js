@@ -372,8 +372,14 @@ class RectHandler extends ToolHandler {
 	}
 	mouseup() {
 		if (this.isMouseDown) {
-			let width = this.endX - this.startX;
-			let height = this.endY - this.startY;
+			console.log(
+				this.startX,
+				this.startY,
+				DOMtoCanvasX(this.startX),
+				DOMtoCanvasY(this.startY)
+			);
+			let width = DOMtoCanvasX(this.endX) - DOMtoCanvasX(this.startX);
+			let height = DOMtoCanvasY(this.endY) - DOMtoCanvasY(this.startY);
 			yPointsArray.push([
 				[
 					this.roundCorners ? 'rrect' : 'rect',
@@ -441,6 +447,7 @@ class TextHandler extends ToolHandler {
 		this.inp.setAttribute('type', 'text');
 		this.inp.style.font = this.font;
 		this.inp.style.color = this.fillStyle;
+		this.inp.style.border = '10px solid lightgrey';
 		this.inp.style.position = 'absolute';
 		this.inp.style.left = this.startX + 'px';
 		this.inp.style.top = this.startY + 'px';
@@ -450,10 +457,11 @@ class TextHandler extends ToolHandler {
 		this.writing = true;
 		underlay.style.cursor = 'text';
 		this.inp.focus();
+		dragImage(this.inp);
 	}
 	unfocus(e) {
 		if (this.inp.value.length > 0 && this.writing) {
-				this.saveText(e);
+			this.saveText(e);
 		}
 	}
 	saveText(e) {
@@ -466,8 +474,12 @@ class TextHandler extends ToolHandler {
 						this.options(),
 						[
 							text,
-							DOMtoCanvasX(this.startX),
-							DOMtoCanvasY(this.startY),
+							DOMtoCanvasX(
+								this.inp.offsetLeft - tempCanvas.offsetLeft + 11
+							), // '11' allows for border and outline
+							DOMtoCanvasY(
+								this.inp.offsetTop - tempCanvas.offsetTop + 11
+							),
 						],
 					],
 				]);
@@ -945,6 +957,9 @@ export function redraw() {
 	});
 }
 
+/**
+ *  Like ctx.rect, but with rounded corners
+ */
 CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
 	if (w < 2 * r) r = w / 2;
 	if (h < 2 * r) r = h / 2;
@@ -959,17 +974,19 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
 };
 /* ==========================================drag and zoom =======================================*/
 /**
- * allow for the canvas being translated, returning a cordinate adjusted for
- * the current translation (stored in the trans object)
+ * allow for the canvas being translated, returning a coordinate adjusted for
+ * the current translation and zoom
+ *
  */
-let trans = {x: 0, y: 0};
 
 function DOMtoCanvasX(x) {
-	return x + trans.x;
+	let mat = mainctx.getTransform();
+	return (dpr * x - mat.e) / mat.a;
 }
 
 function DOMtoCanvasY(y) {
-	return y + trans.y;
+	let mat = mainctx.getTransform();
+	return (dpr * y - mat.f) / mat.d;
 }
 /**
  * move the canvas (translate) by x, y pixels
@@ -980,10 +997,6 @@ function DOMtoCanvasY(y) {
 export function dragCanvas(x, y) {
 	mainctx.translate(x, y);
 	redraw();
-	// store the translation in DOM coordinates
-	let mat = mainctx.getTransform();
-	trans.x = -mat.e / dpr;
-	trans.y = -mat.f / dpr;
 }
 /**
  * scale the canvas according to the zoom level, with the scaling origin at the middle of the canvas
@@ -1001,6 +1014,19 @@ export function zoomCanvas(scale) {
 	);
 	redraw();
 }
+
+/**
+ * set the origin of the drawing canvas to the centre of the network view
+ * @param {Object} {x, y} -  position returned by network.getViewPosition, the centre of the network
+ */
+export function positionCanvas({x, y}) {
+	let mat = mainctx.getTransform();
+	mat.e = -x * dpr;
+	mat.f = -y * dpr;
+	mainctx.setTransform(mat);
+	redraw();
+}
+
 /**
  * ================================methods to redraw the canvas, one for each tool========================
  */
@@ -1021,19 +1047,19 @@ let drawHelper = {
 		ctx.lineTo(endX, endY);
 		ctx.stroke();
 	},
-	rect: function (ctx, options, [startX, startY, endX, endY]) {
+	rect: function (ctx, options, [startX, startY, width, height]) {
 		ctx.beginPath();
 		applyOptions(ctx, options);
 		ctx.lineJoin = 'miter';
-		if (options.lineWidth > 0) ctx.strokeRect(startX, startY, endX, endY);
+		ctx.rect(startX, startY, width, height);
+		if (options.lineWidth > 0) ctx.stroke();
 		// treat white as transparent
-		if (options.fillStyle !== '#ffffff')
-			ctx.fillRect(startX, startY, endX, endY);
+		if (options.fillStyle !== '#ffffff') ctx.fill();
 	},
-	rrect: function (ctx, options, [startX, startY, endX, endY]) {
+	rrect: function (ctx, options, [startX, startY, width, height]) {
 		ctx.beginPath();
 		applyOptions(ctx, options);
-		ctx.roundRect(startX, startY, endX, endY, 10);
+		ctx.roundRect(startX, startY, width, height, 10);
 		if (options.lineWidth > 0) ctx.stroke();
 		if (options.fillStyle !== '#ffffff') ctx.fill();
 	},

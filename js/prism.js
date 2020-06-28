@@ -32,6 +32,7 @@ import {
 	deselectTool,
 	dragCanvas,
 	zoomCanvas,
+	positionCanvas,
 	redraw,
 } from './paint.js';
 import 'vis-network/styles/vis-network.css';
@@ -646,6 +647,7 @@ function fit() {
 	let newScale = network.getScale();
 	document.getElementById('zoom').value = newScale;
 	zoomCanvas(newScale);
+	positionCanvas(network.getViewPosition());
 	network.storePositions();
 }
 
