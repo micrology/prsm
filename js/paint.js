@@ -435,7 +435,7 @@ class TextHandler extends ToolHandler {
 		if (this.writing) return;
 		this.startX = e.offsetX - tempCanvas.offsetLeft;
 		this.startY = e.offsetY - tempCanvas.offsetTop;
-		this.inp = document.createElement('input');
+		this.inp = document.createElement('textarea');
 		underlay.appendChild(this.inp);
 		this.inp.setAttribute('id', 'input');
 		this.inp.setAttribute('type', 'text');
@@ -443,38 +443,41 @@ class TextHandler extends ToolHandler {
 		this.inp.style.color = this.fillStyle;
 		this.inp.style.position = 'absolute';
 		this.inp.style.left = this.startX + 'px';
-		this.inp.style.top = this.startY - this.inp.clientHeight + 'px';
+		this.inp.style.top = this.startY + 'px';
 		this.inp.style.zIndex = 1002;
-		this.inp.addEventListener(
-			'change',
-			(e) => {
-				this.saveText(e);
-			},
-			{once: true}
-		);
+		this.unfocusfn = this.unfocus.bind(this);
+		document.addEventListener('click', this.unfocusfn);
 		this.writing = true;
 		underlay.style.cursor = 'text';
 		this.inp.focus();
 	}
-	saveText() {
-		let text = this.inp.value;
-		if (text.length > 0) {
-			yPointsArray.push([
-				[
-					'text',
-					this.options(),
-					[
-						text,
-						DOMtoCanvasX(this.startX),
-						DOMtoCanvasY(this.startY - this.inp.clientHeight),
-					],
-				],
-			]);
+	unfocus(e) {
+		if (this.inp.value.length > 0 && this.writing) {
+				this.saveText(e);
 		}
-		this.writing = false;
-		underlay.removeChild(this.inp);
-		underlay.style.cursor = 'auto';
-		super.mouseup();
+	}
+	saveText(e) {
+		if (this.writing && e.target != this.inp) {
+			let text = this.inp.value;
+			if (text.length > 0) {
+				yPointsArray.push([
+					[
+						'text',
+						this.options(),
+						[
+							text,
+							DOMtoCanvasX(this.startX),
+							DOMtoCanvasY(this.startY),
+						],
+					],
+				]);
+			}
+			this.writing = false;
+			underlay.removeChild(this.inp);
+			document.removeEventListener('click', this.unfocusfn);
+			underlay.style.cursor = 'auto';
+			super.mouseup();
+		}
 	}
 	optionsDialog() {
 		let box = super.optionsDialog('text');
@@ -1034,11 +1037,17 @@ let drawHelper = {
 		if (options.lineWidth > 0) ctx.stroke();
 		if (options.fillStyle !== '#ffffff') ctx.fill();
 	},
-	text: function (ctx, options, [text, startX, startY]) {
+	text: function (ctx, options, [text, x, y]) {
 		ctx.beginPath();
 		ctx.textBaseline = 'top';
 		applyOptions(ctx, options);
-		ctx.fillText(text, startX, startY + 3);
+		//	ctx.fillText(text, startX, startY + 3);
+		let lineHeight = ctx.measureText('M').width * 1.2;
+		let lines = text.split('\n');
+		for (let i = 0; i < lines.length; ++i) {
+			ctx.fillText(lines[i], x, y);
+			y += lineHeight;
+		}
 	},
 	pencil: function (ctx, options, [startX, startY, endX, endY]) {
 		ctx.beginPath();
