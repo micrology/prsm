@@ -113,7 +113,7 @@ function selectTool(event) {
 	// cleanup any remaining empty input box
 	let inpBox = document.getElementById('input');
 	if (inpBox) {
-		textHandler.saveText();
+		textHandler.saveText(event);
 	}
 	let tool = event.currentTarget;
 	if (tool.id == 'undo') {
@@ -429,6 +429,8 @@ class RectHandler extends ToolHandler {
 let rectHandler = new RectHandler();
 
 /* ========================================================== text ================================================ */
+const border = 10;
+
 class TextHandler extends ToolHandler {
 	constructor() {
 		super();
@@ -447,10 +449,11 @@ class TextHandler extends ToolHandler {
 		this.inp.setAttribute('type', 'text');
 		this.inp.style.font = this.font;
 		this.inp.style.color = this.fillStyle;
-		this.inp.style.border = '10px solid lightgrey';
+		this.inp.style.border = border + 'px solid lightgrey';
 		this.inp.style.position = 'absolute';
-		this.inp.style.left = this.startX + 'px';
-		this.inp.style.top = this.startY + 'px';
+		this.inp.style.left = (this.startX - border) + 'px';
+		this.inp.style.top = (this.startY - border) + 'px';
+		this.inp.style.width = '300px';
 		this.inp.style.zIndex = 1002;
 		this.unfocusfn = this.unfocus.bind(this);
 		document.addEventListener('click', this.unfocusfn);
@@ -475,10 +478,10 @@ class TextHandler extends ToolHandler {
 						[
 							text,
 							DOMtoCanvasX(
-								this.inp.offsetLeft - tempCanvas.offsetLeft + 11
+								this.inp.offsetLeft - tempCanvas.offsetLeft + 12
 							), // '11' allows for border and outline
 							DOMtoCanvasY(
-								this.inp.offsetTop - tempCanvas.offsetTop + 11
+								this.inp.offsetTop - tempCanvas.offsetTop + 13
 							),
 						],
 					],

@@ -423,8 +423,10 @@ function getRandomData(nNodes) {
 // to handle iPad viewport sizing problem
 window.onresize = function () {
 	document.body.height = window.innerHeight;
+	/* zoomCanvas(network.getScale());
+	positionCanvas(network.getViewPosition()); */
 };
-window.onresize(); // called to initially set the height.
+
 const chatbox = document.getElementById('chatbox');
 const chatboxTab = document.getElementById('chatbox-tab');
 const chatNameBox = document.getElementById('chat-name');
