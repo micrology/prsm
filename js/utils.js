@@ -120,6 +120,25 @@ export function strip(obj, allowed) {
 	);
 }
 
+export function splitText(txt, width) {
+	// divide txt into lines to make it roughly square, with a
+	// minimum width of width.
+	let words = txt.trim().split(/\s/);
+	let nChars = txt.trim().length;
+	if (nChars > 2 * width) width = Math.floor(Math.sqrt(nChars));
+	let lines = '';
+	for (let i = 0, linelength = 0; i < words.length; i++) {
+		lines += words[i];
+		if (i == words.length - 1) break;
+		linelength += words[i].length;
+		if (linelength > width) {
+			lines += '\n';
+			linelength = 0;
+		} else lines += ' ';
+	}
+	return lines;
+}
+
 // Performs intersection operation between called set and otherSet
 Set.prototype.intersection = function (otherSet) {
 	let intersectionSet = new Set();

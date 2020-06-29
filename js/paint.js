@@ -112,7 +112,9 @@ export function setUpToolbox() {
 function selectTool(event) {
 	// cleanup any remaining empty input box
 	let inpBox = document.getElementById('input');
-	if (inpBox) inpBox.remove();
+	if (inpBox) {
+		textHandler.saveText();
+	}
 	let tool = event.currentTarget;
 	if (tool.id == 'undo') {
 		undoHandler.undo();
@@ -122,8 +124,8 @@ function selectTool(event) {
 	//second click on selected tool - unselect it
 	if (selectedTool === tool.id) {
 		deselectTool();
-	   return;
-   }
+		return;
+	}
 	// changing tool; unselect previous one
 	deselectTool();
 	selectedTool = tool.id;
@@ -238,7 +240,10 @@ class ToolHandler {
 		return {
 			strokeStyle: this.strokeStyle || defaultOptions.strokeStyle,
 			fillStyle: this.fillStyle || defaultOptions.fillStyle,
-			lineWidth: this.lineWidth || defaultOptions.lineWidth,
+			lineWidth:
+				this.lineWidth != undefined
+					? this.lineWidth
+					: defaultOptions.lineWidth,
 			font: this.font || defaultOptions.font,
 			globalAlpha: this.globalAlpha || defaultOptions.alpha,
 			globalCompositeOperation:
@@ -315,22 +320,22 @@ class LineHandler extends ToolHandler {
 	<div>Line width</div><div><input id="lineWidth" type="text" size="2"></div>
 	<div>Colour</div><div><input id="lineColour" type="color"></div>
 	<div>Axes</div><div><input type="checkbox" id="axes"></div>`;
-	let widthInput = document.getElementById('lineWidth');
-	widthInput.value = this.lineWidth;
-	widthInput.focus();
-	widthInput.addEventListener('change', () => {
-		this.lineWidth = parseInt(widthInput.value);
-	});
-	let lineColor = document.getElementById('lineColour');
-	lineColor.value = this.strokeStyle;
-	lineColor.addEventListener('blur', () => {
-		this.strokeStyle = lineColor.value;
-	});
-	let axes = document.getElementById('axes');
-	axes.checked = this.axes;
-	axes.addEventListener('change', () => {
-		this.axes = axes.checked;
-	});
+		let widthInput = document.getElementById('lineWidth');
+		widthInput.value = this.lineWidth;
+		widthInput.focus();
+		widthInput.addEventListener('change', () => {
+			this.lineWidth = parseInt(widthInput.value);
+		});
+		let lineColor = document.getElementById('lineColour');
+		lineColor.value = this.strokeStyle;
+		lineColor.addEventListener('blur', () => {
+			this.strokeStyle = lineColor.value;
+		});
+		let axes = document.getElementById('axes');
+		axes.checked = this.axes;
+		axes.addEventListener('change', () => {
+			this.axes = axes.checked;
+		});
 	}
 }
 let lineHandler = new LineHandler();
@@ -341,6 +346,7 @@ class RectHandler extends ToolHandler {
 	constructor() {
 		super();
 		this.roundCorners = true;
+		this.globalAlpha = 0.5;
 	}
 	mousedown(e) {
 		super.mousedown(e);
@@ -366,8 +372,14 @@ class RectHandler extends ToolHandler {
 	}
 	mouseup() {
 		if (this.isMouseDown) {
-			let width = this.endX - this.startX;
-			let height = this.endY - this.startY;
+			console.log(
+				this.startX,
+				this.startY,
+				DOMtoCanvasX(this.startX),
+				DOMtoCanvasY(this.startY)
+			);
+			let width = DOMtoCanvasX(this.endX) - DOMtoCanvasX(this.startX);
+			let height = DOMtoCanvasY(this.endY) - DOMtoCanvasY(this.startY);
 			yPointsArray.push([
 				[
 					this.roundCorners ? 'rrect' : 'rect',
@@ -429,46 +441,55 @@ class TextHandler extends ToolHandler {
 		if (this.writing) return;
 		this.startX = e.offsetX - tempCanvas.offsetLeft;
 		this.startY = e.offsetY - tempCanvas.offsetTop;
-		this.inp = document.createElement('input');
+		this.inp = document.createElement('textarea');
 		underlay.appendChild(this.inp);
 		this.inp.setAttribute('id', 'input');
 		this.inp.setAttribute('type', 'text');
 		this.inp.style.font = this.font;
 		this.inp.style.color = this.fillStyle;
+		this.inp.style.border = '10px solid lightgrey';
 		this.inp.style.position = 'absolute';
 		this.inp.style.left = this.startX + 'px';
-		this.inp.style.top = (this.startY - this.inp.clientHeight) + 'px';
+		this.inp.style.top = this.startY + 'px';
 		this.inp.style.zIndex = 1002;
-		this.inp.addEventListener(
-			'change',
-			(e) => {
-				this.saveText(e);
-			},
-			{once: true}
-		);
+		this.unfocusfn = this.unfocus.bind(this);
+		document.addEventListener('click', this.unfocusfn);
 		this.writing = true;
 		underlay.style.cursor = 'text';
 		this.inp.focus();
+		dragImage(this.inp);
 	}
-	saveText() {
-		let text = this.inp.value;
-		if (text.length > 0) {
-			yPointsArray.push([
-				[
-					'text',
-					this.options(),
-					[
-						text,
-						DOMtoCanvasX(this.startX),
-						DOMtoCanvasY(this.startY  - this.inp.clientHeight),
-					],
-				],
-			]);
+	unfocus(e) {
+		if (this.inp.value.length > 0 && this.writing) {
+			this.saveText(e);
 		}
-		this.writing = false;
-		underlay.removeChild(this.inp);
-		underlay.style.cursor = 'auto';
-		super.mouseup();
+	}
+	saveText(e) {
+		if (this.writing && e.target != this.inp) {
+			let text = this.inp.value;
+			if (text.length > 0) {
+				yPointsArray.push([
+					[
+						'text',
+						this.options(),
+						[
+							text,
+							DOMtoCanvasX(
+								this.inp.offsetLeft - tempCanvas.offsetLeft + 11
+							), // '11' allows for border and outline
+							DOMtoCanvasY(
+								this.inp.offsetTop - tempCanvas.offsetTop + 11
+							),
+						],
+					],
+				]);
+			}
+			this.writing = false;
+			underlay.removeChild(this.inp);
+			document.removeEventListener('click', this.unfocusfn);
+			underlay.style.cursor = 'auto';
+			super.mouseup();
+		}
 	}
 	optionsDialog() {
 		let box = super.optionsDialog('text');
@@ -480,7 +501,7 @@ class TextHandler extends ToolHandler {
 		fontSizeInput.focus();
 		fontSizeInput.addEventListener('blur', () => {
 			this.font =
-			fontSizeInput.value + 'px ' + this.fontFamily(this.font);
+				fontSizeInput.value + 'px ' + this.fontFamily(this.font);
 		});
 		let fontColor = document.getElementById('fontColor');
 		fontColor.value = this.fillStyle;
@@ -768,6 +789,8 @@ class ImageHandler extends ToolHandler {
 						'click',
 						imageHandler.mouseup.bind(imageHandler)
 					);
+					wrap.origWidth = image.width;
+					wrap.origHeight = image.height;
 					dragImage(wrap);
 				};
 			};
@@ -790,10 +813,13 @@ class ImageHandler extends ToolHandler {
 			yPointsArray.push([
 				[
 					'image',
-					this.image.src,
+					this.options(),
 					[
+						this.image.src,
 						DOMtoCanvasX(wrap.offsetLeft),
 						DOMtoCanvasY(wrap.offsetTop),
+						wrap.origWidth,
+						wrap.origHeight,
 						wrap.offsetWidth,
 						wrap.offsetHeight,
 					],
@@ -806,8 +832,10 @@ class ImageHandler extends ToolHandler {
 			e.target.style.cursor =
 				e.target.id == 'resizer' ? 'nwse-resize' : 'move';
 		}
-	};
-	optionsDialog() { /* none */ }
+	}
+	optionsDialog() {
+		/* none */
+	}
 }
 
 /**
@@ -929,6 +957,9 @@ export function redraw() {
 	});
 }
 
+/**
+ *  Like ctx.rect, but with rounded corners
+ */
 CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
 	if (w < 2 * r) r = w / 2;
 	if (h < 2 * r) r = h / 2;
@@ -943,17 +974,19 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
 };
 /* ==========================================drag and zoom =======================================*/
 /**
- * allow for the canvas being translated, returning a cordinate adjusted for
- * the current translation (stored in the trans object)
+ * allow for the canvas being translated, returning a coordinate adjusted for
+ * the current translation and zoom
+ *
  */
-let trans = {x: 0, y: 0};
 
 function DOMtoCanvasX(x) {
-	return x + trans.x;
+	let mat = mainctx.getTransform();
+	return (dpr * x - mat.e) / mat.a;
 }
 
 function DOMtoCanvasY(y) {
-	return y + trans.y;
+	let mat = mainctx.getTransform();
+	return (dpr * y - mat.f) / mat.d;
 }
 /**
  * move the canvas (translate) by x, y pixels
@@ -964,10 +997,6 @@ function DOMtoCanvasY(y) {
 export function dragCanvas(x, y) {
 	mainctx.translate(x, y);
 	redraw();
-	// store the translation in DOM coordinates
-	let mat = mainctx.getTransform();
-	trans.x = -mat.e / dpr;
-	trans.y = -mat.f / dpr;
 }
 /**
  * scale the canvas according to the zoom level, with the scaling origin at the middle of the canvas
@@ -985,6 +1014,19 @@ export function zoomCanvas(scale) {
 	);
 	redraw();
 }
+
+/**
+ * set the origin of the drawing canvas to the centre of the network view
+ * @param {Object} {x, y} -  position returned by network.getViewPosition, the centre of the network
+ */
+export function positionCanvas({x, y}) {
+	let mat = mainctx.getTransform();
+	mat.e = -x * dpr;
+	mat.f = -y * dpr;
+	mainctx.setTransform(mat);
+	redraw();
+}
+
 /**
  * ================================methods to redraw the canvas, one for each tool========================
  */
@@ -1005,27 +1047,33 @@ let drawHelper = {
 		ctx.lineTo(endX, endY);
 		ctx.stroke();
 	},
-	rect: function (ctx, options, [startX, startY, endX, endY]) {
+	rect: function (ctx, options, [startX, startY, width, height]) {
 		ctx.beginPath();
 		applyOptions(ctx, options);
 		ctx.lineJoin = 'miter';
-		ctx.strokeRect(startX, startY, endX, endY);
+		ctx.rect(startX, startY, width, height);
+		if (options.lineWidth > 0) ctx.stroke();
 		// treat white as transparent
-		if (options.fillStyle !== '#ffffff')
-			ctx.fillRect(startX, startY, endX, endY);
-	},
-	rrect: function (ctx, options, [startX, startY, endX, endY]) {
-		ctx.beginPath();
-		applyOptions(ctx, options);
-		ctx.roundRect(startX, startY, endX, endY, 10);
-		ctx.stroke();
 		if (options.fillStyle !== '#ffffff') ctx.fill();
 	},
-	text: function (ctx, options, [text, startX, startY]) {
+	rrect: function (ctx, options, [startX, startY, width, height]) {
+		ctx.beginPath();
+		applyOptions(ctx, options);
+		ctx.roundRect(startX, startY, width, height, 10);
+		if (options.lineWidth > 0) ctx.stroke();
+		if (options.fillStyle !== '#ffffff') ctx.fill();
+	},
+	text: function (ctx, options, [text, x, y]) {
 		ctx.beginPath();
 		ctx.textBaseline = 'top';
 		applyOptions(ctx, options);
-		ctx.fillText(text, startX, startY + 3);
+		//	ctx.fillText(text, startX, startY + 3);
+		let lineHeight = ctx.measureText('M').width * 1.2;
+		let lines = text.split('\n');
+		for (let i = 0; i < lines.length; ++i) {
+			ctx.fillText(lines[i], x, y);
+			y += lineHeight;
+		}
 	},
 	pencil: function (ctx, options, [startX, startY, endX, endY]) {
 		ctx.beginPath();
@@ -1044,21 +1092,14 @@ let drawHelper = {
 	eraser: {
 		/* never called: eraser uses 'marker'*/
 	},
-	image: function (ctx, image, [x, y, w, h]) {
+	image: function (ctx, options, [src, x, y, ow, oh, w, h]) {
 		let img = new Image();
-		img.src = image;
+		img.src = src;
 		ctx.beginPath();
-		ctx.drawImage(
-			img,
-			0,
-			0,
-			img.naturalWidth,
-			img.naturalHeight,
-			x,
-			y,
-			w,
-			h
-		);
+		applyOptions(ctx, options);
+		img.onload = function () {
+			ctx.drawImage(this, 0, 0, ow, oh, x, y, w, h);
+		};
 	},
 	undo: {
 		/* never called */

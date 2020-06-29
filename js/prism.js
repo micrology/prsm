@@ -10,6 +10,7 @@ import {
 	deepMerge,
 	clean,
 	strip,
+	splitText,
 	cleanArray,
 	dragElement,
 	standardize_color,
@@ -31,12 +32,13 @@ import {
 	deselectTool,
 	dragCanvas,
 	zoomCanvas,
+	positionCanvas,
 	redraw,
 } from './paint.js';
 import 'vis-network/styles/vis-network.css';
 
 const version = '1.20';
-const GRIDSPACING = 100;
+const GRIDSPACING = 50;
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30;
 var network;
@@ -375,7 +377,7 @@ function startY() {
 						setHideAndStream(obj);
 						break;
 					case 'background':
-						setBackground(obj)
+						setBackground(obj);
 						break;
 					default:
 						console.log('Bad key in yMapNet.observe');
@@ -645,6 +647,7 @@ function fit() {
 	let newScale = network.getScale();
 	document.getElementById('zoom').value = newScale;
 	zoomCanvas(newScale);
+	positionCanvas(network.getViewPosition());
 	network.storePositions();
 }
 
@@ -891,25 +894,6 @@ function convertDashes(val) {
 		default:
 			return val;
 	}
-}
-
-function splitText(txt, width) {
-	// divide txt into lines to make it roughly square, with a
-	// minimum width of width.
-	let words = txt.trim().split(/\s/);
-	let nChars = txt.trim().length;
-	if (nChars > 2 * width) width = Math.floor(Math.sqrt(nChars));
-	let lines = '';
-	for (let i = 0, linelength = 0; i < words.length; i++) {
-		lines += words[i];
-		if (i == words.length - 1) break;
-		linelength += words[i].length;
-		if (linelength > width) {
-			lines += '\n';
-			linelength = 0;
-		} else lines += ' ';
-	}
-	return lines;
 }
 
 function duplEdge(from, to) {
@@ -1281,6 +1265,10 @@ function loadJSONfile(json) {
 			});
 		}
 	}
+	if (json.underlay) {
+		yPointsArray.delete(0, yPointsArray.length);
+		yPointsArray.insert(0, json.underlay);
+	}
 	return {
 		nodes: nodes,
 		edges: edges,
@@ -1514,6 +1502,7 @@ function saveJSONfile() {
 			edges: data.edges.map((e) =>
 				strip(e, ['id', 'label', 'grp', 'from', 'to'])
 			),
+			underlay: yPointsArray.toArray(),
 		},
 		null,
 		'\t'
@@ -1646,11 +1635,6 @@ function togglePanel() {
 	// Hide/unhide the side panel
 	if (container.panelHidden) {
 		panel.classList.remove('hide');
-		document.getElementById('panel').style.left =
-			document.getElementById('main').offsetWidth -
-			5 -
-			document.getElementById('panel').offsetWidth +
-			'px';
 	} else {
 		panel.classList.add('hide');
 	}
@@ -1725,11 +1709,15 @@ function setButtonStatus(settings) {
 		document.getElementById('autolayoutswitch').checked =
 			settings.autoLayout;
 	}
-	if (document.getElementById('antiGravity').value != settings.gravity && settings.autoLayout) {
+	if (
+		document.getElementById('antiGravity').value != settings.gravity &&
+		settings.autoLayout
+	) {
 		adjustGravity(settings.gravity);
 		document.getElementById('antiGravity').value = settings.gravity;
 	}
 	document.getElementById('snaptogridswitch').checked = settings.snapToGrid;
+	if (settings.snapToGrid) doSnapToGrid();
 	document.getElementById('curveSelect').value = settings.curve;
 	selectCurve();
 	setRadioVal('hide', settings.linkRadius);
@@ -1860,7 +1848,7 @@ function displayStatistics(nodeId) {
 function autoLayoutSwitch(e) {
 	let switchOn = e.target.checked;
 	if (switchOn && snapToGridToggle) snapToGridOff(); // no snapping with auto layout.
-	document.getElementById('spacing').classList.toggle('hidden'); 
+	document.getElementById('spacing').classList.toggle('hidden');
 	autoLayoutSet(switchOn);
 }
 
@@ -1905,18 +1893,22 @@ function adjustGravity(gravity) {
 function snapToGridSwitch(e) {
 	snapToGridToggle = e.target.checked;
 	if (snapToGridToggle) {
-		autoLayoutSet(false);
-		let positions = network.getPositions();
-		data.nodes.update(
-			data.nodes.get().map((n) => {
-				n.x = positions[n.id].x;
-				n.y = positions[n.id].y;
-				snapToGrid(n);
-				claim(n);
-				return n;
-			})
-		);
+		doSnapToGrid();
 	}
+}
+
+function doSnapToGrid() {
+	autoLayoutSet(false);
+	let positions = network.getPositions();
+	data.nodes.update(
+		data.nodes.get().map((n) => {
+			n.x = positions[n.id].x;
+			n.y = positions[n.id].y;
+			snapToGrid(n);
+			claim(n);
+			return n;
+		})
+	);
 }
 
 function snapToGridOff() {
@@ -1953,14 +1945,14 @@ function updateNetBack(event) {
 
 function makeTranslucent(elem) {
 	elem.style.backgroundColor = getComputedStyle(elem)
-	.backgroundColor.replace(')', ', 0.2)')
-	.replace('rgb', 'rgba');
+		.backgroundColor.replace(')', ', 0.2)')
+		.replace('rgb', 'rgba');
 }
 
 function makeSolid(elem) {
 	elem.style.backgroundColor = getComputedStyle(elem)
-	.backgroundColor.replace(', 0.2)', ')')
-	.replace('rgba', 'rgb');
+		.backgroundColor.replace(', 0.2)', ')')
+		.replace('rgba', 'rgb');
 }
 function setBackground(color) {
 	document.getElementById('underlay').style.backgroundColor = color;
@@ -1973,7 +1965,7 @@ function revealDrawingLayer() {
 		deselectTool();
 		document.getElementById('toolbox').style.display = 'none';
 		document.getElementById('underlay').style.zIndex = 0;
-		makeSolid(ul)
+		makeSolid(ul);
 		document.getElementById('temp-canvas').style.zIndex = 0;
 		document.getElementById('main-canvas').style.zIndex = 0;
 		document.getElementById('chatbox-tab').classList.remove('chatbox-hide');

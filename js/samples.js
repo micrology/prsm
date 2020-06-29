@@ -1,6 +1,6 @@
 import {Network} from 'vis-network/peer/';
 import {DataSet} from 'vis-data/peer';
-import {deepMerge, standardize_color, dragElement} from './utils.js';
+import {deepMerge, standardize_color, dragElement, splitText} from './utils.js';
 import {statusMsg} from './prism.js';
 export const samples = {
 	nodes: {
@@ -431,7 +431,10 @@ function getLinkSampleEdit(sampleElement, group) {
 
 function saveNodeSampleEdit(sampleElement, samples, groupId) {
 	let group = samples.nodes[groupId];
-	group.groupLabel = document.getElementsByName('nodeLabel')[0].value;
+	group.groupLabel = splitText(
+		document.getElementsByName('nodeLabel')[0].value,
+		10
+	);
 	setColor('fillColor', group, 'color', 'background');
 	setColor3('fillColor', group, 'color', 'highlight', 'background');
 	setColor3('fillColor', group, 'color', 'hover', 'background');
