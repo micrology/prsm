@@ -953,6 +953,8 @@ function toolHandler(tool) {
  * redraw the main canvas, using the stored commands in yPointsArray[]
  */
 export function redraw() {
+	console.log(window.network.getViewPosition(), window.network.getScale());
+	console.log(mainctx.getTransform());
 	drawHelper.clear(tempctx);
 	drawHelper.clear(mainctx);
 	yPointsArray.forEach((point) => {
@@ -988,7 +990,7 @@ function DOMtoCanvasX(x) {
 }
 
 function DOMtoCanvasY(y) {
-	let mat = mainctx.getTransform();
+	let mat = mainctx.getTransform();/*  */
 	return (dpr * y - mat.f) / mat.d;
 }
 /**
@@ -998,7 +1000,8 @@ function DOMtoCanvasY(y) {
  * @param {Number} y
  */
 export function dragCanvas(x, y) {
-	mainctx.translate(x, y);
+	let mat = mainctx.getTransform();
+	mainctx.translate(dpr * x / mat.a, dpr * y / mat.d);
 	redraw();
 }
 /**
@@ -1007,13 +1010,16 @@ export function dragCanvas(x, y) {
  */
 
 export function zoomCanvas(scale) {
+	let mat = mainctx.getTransform();
 	mainctx.setTransform(
 		dpr * scale,
 		0,
 		0,
 		dpr * scale,
-		(-(scale - 1) * mainCanvas.width) / 2,
-		(-(scale - 1) * mainCanvas.height) / 2
+		// (-(scale - 1) * mainCanvas.width) / 2,
+		// (-(scale - 1) * mainCanvas.height) / 2
+		mat.e * dpr * scale / mat.a,
+		mat.f * dpr * scale / mat.d
 	);
 	redraw();
 }

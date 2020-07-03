@@ -197,6 +197,7 @@ function startY() {
 		'prism' + room,
 		doc
 	);
+	document.title = document.title + ' ' + room;
 	wsProvider.on('status', (event) => {
 		console.log(
 			new Date().toLocaleTimeString() +
@@ -641,7 +642,7 @@ function draw() {
 	data.edges.on('remove', recalculateStats);
 } // end draw()
 
-function fit() {
+/* function fit() {
 	network.fit({
 		position: {x: 0, y: 0},
 		animation: {duration: 0, easingFunction: 'linear'},
@@ -651,8 +652,21 @@ function fit() {
 	zoomCanvas(newScale);
 	positionCanvas(network.getViewPosition());
 	network.storePositions();
-}
+} */
 
+function fit() {
+	let oldPos = network.getViewPosition();
+	let oldScale = network.getScale();
+	network.fit();
+	let newScale = network.getScale();
+	document.getElementById('zoom').value = newScale;
+	let mainctx = document.getElementById('main-canvas').getContext('2d');
+	let pos = network.getViewPosition();
+	let mag = newScale / oldScale;
+	mainctx.scale(mag, mag);
+	mainctx.translate(-(pos.x - oldPos.x), -(pos.y - oldPos.y));
+	redraw();
+}
 function claim(item) {
 	// remove any existing clientID, to show that I now
 	// own this and can broadcast my changes to the item
@@ -1011,7 +1025,7 @@ function listLinks(links) {
 Network.prototype.zoom = function (scale) {
 	let newScale = scale === undefined ? 1 : scale;
 	const animationOptions = {
-		position: {x: 0, y: 0},
+//		position: {x: 0, y: 0},
 		scale: newScale,
 		animation: {
 			duration: 0,
@@ -1213,7 +1227,7 @@ function loadFile(contents) {
 		data.edges.map((e) => deepMerge(samples.edges[e.grp], e))
 	);
 	if (!isJSONfile) adjustGravity(50000);
-	fit();
+//fit();
 }
 
 function loadJSONfile(json) {
