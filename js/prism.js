@@ -29,7 +29,7 @@ import {
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 import 'vis-network/styles/vis-network.css';
 
-const version = '1.20';
+const version = '1.21';
 const GRIDSPACING = 50;
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30;
@@ -1477,10 +1477,10 @@ function saveJSONfile() {
 			buttons: buttonStatus,
 			samples: samples,
 			nodes: data.nodes.map((n) =>
-				strip(n, ['id', 'label', 'grp', 'x', 'y'])
+				strip(n, ['id', 'label', 'title', 'grp', 'x', 'y'])
 			),
 			edges: data.edges.map((e) =>
-				strip(e, ['id', 'label', 'grp', 'from', 'to'])
+				strip(e, ['id', 'label', 'title', 'grp', 'from', 'to'])
 			),
 			underlay: yPointsArray.toArray(),
 		},

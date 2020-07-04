@@ -553,10 +553,12 @@ class PencilHandler extends ToolHandler {
 		}
 	}
 	record() {
+		let opts = this.options();
+		opts.lineWidth = opts.lineWidth / network.body.view.scale;
 		yPointsArray.push([
 			[
 				'pencil',
-				this.options(),
+				opts,
 				[
 					DOMtoCanvasX(this.startX),
 					DOMtoCanvasY(this.startY),
@@ -590,20 +592,19 @@ let pencilHandler = new PencilHandler();
 class MarkerHandler extends ToolHandler {
 	constructor() {
 		super();
-		this.globalCompositeOperation = 'source-over';
-		this.strokeStyle = '#ffff00';
-		this.lineWidth = 30;
+		this.globalCompositeOperation = 'multiply';
+		this.fillStyle = '#ffff00';
+		this.markerWidth = 30;
 	}
 	mousemove(e) {
 		if (this.isMouseDown) {
 			this.endPosition(e);
+			this.record();
 			drawHelper.marker(tempctx, this.options(), [
 				this.startX,
 				this.startY,
-				this.endX,
-				this.endY,
+				this.markerWidth
 			]);
-			this.record();
 			this.startX = this.endX;
 			this.startY = this.endY;
 		}
@@ -623,8 +624,7 @@ class MarkerHandler extends ToolHandler {
 				[
 					DOMtoCanvasX(this.startX),
 					DOMtoCanvasY(this.startY),
-					DOMtoCanvasX(this.endX),
-					DOMtoCanvasY(this.endY),
+					this.markerWidth / network.body.view.scale,
 				],
 			],
 		]);
@@ -635,15 +635,15 @@ class MarkerHandler extends ToolHandler {
 		<div>Width</div><div><input id="markerWidth" type="text" size="2"></div>
 		<div>Colour</div><div><input id="markerColor" type="color"></div>`;
 		let widthInput = document.getElementById('markerWidth');
-		widthInput.value = this.lineWidth;
+		widthInput.value = this.markerWidth;
 		widthInput.focus();
 		widthInput.addEventListener('blur', () => {
-			this.lineWidth = parseInt(widthInput.value);
+			this.markerWidth = parseInt(widthInput.value);
 		});
 		let markerColor = document.getElementById('markerColor');
-		markerColor.value = this.strokeStyle;
+		markerColor.value = this.fillStyle;
 		markerColor.addEventListener('blur', () => {
-			this.strokeStyle = markerColor.value;
+			this.fillStyle = markerColor.value;
 		});
 	}
 }
@@ -653,7 +653,7 @@ let markerHandler = new MarkerHandler();
 /* the same as a marker, but with white ink and a special, bespoke cursor */
 
 class EraserHandler extends ToolHandler {
-	constructor() {
+/* 	constructor() {
 		super();
 		this.strokeStyle = '#ffffff';
 		this.lineWidth = 30;
@@ -683,7 +683,7 @@ class EraserHandler extends ToolHandler {
 	 * @param {string} color - as hex
 	 * @param {integer} width
 	 */
-	cursor(color, width) {
+	/* cursor(color, width) {
 		tempctx.beginPath();
 		tempctx.arc(
 			this.startX,
@@ -717,17 +717,79 @@ class EraserHandler extends ToolHandler {
 				],
 			],
 		]);
+	} */
+	constructor() {
+		super();
+		this.fillStyle = '#ffffff';
+		this.markerWidth = 30;
+	}
+	mousedown(e) {
+		super.mousedown(e);
+		underlay.style.cursor = 'none';
+	}
+	mousemove(e) {
+		if (this.isMouseDown) {
+			this.cursor('#ffffff', 1);
+			this.endPosition(e);
+			this.record();
+			drawHelper.marker(tempctx, this.options(), [
+				this.startX,
+				this.startY,
+				this.markerWidth
+			]);
+			this.startX = this.endX;
+			this.startY = this.endY;
+			this.cursor('#000000', 2);
+		}
+	}
+	mouseup(e) {
+		if (this.isMouseDown) {
+			this.endPosition(e);
+			this.record();
+			underlay.style.cursor = 'auto';
+			super.mouseup();
+		}
+	}
+	record() {
+		yPointsArray.push([
+			[
+				'marker',
+				this.options(),
+				[
+					DOMtoCanvasX(this.startX),
+					DOMtoCanvasY(this.startY),
+					this.markerWidth / network.body.view.scale,
+				],
+			],
+		]);
+	}
+	/**
+	 * draw a circle at the mouse to simulate a cursor
+	 * @param {string} color - as hex
+	 * @param {integer} width
+	 */
+	cursor(color, width) {
+		tempctx.beginPath();
+		tempctx.arc(
+			this.startX,
+			this.startY,
+			Math.round(this.markerWidth / 2 - width),
+			0,
+			2 * Math.PI
+		);
+		tempctx.strokeStyle = color;
+		tempctx.stroke();
 	}
 	optionsDialog() {
 		let box = super.optionsDialog('eraser');
 		box.innerHTML = `
 		<div>Width</div><div><input id="eraserWidth" type="text" size="2"></div>`;
 		let widthInput = document.getElementById('eraserWidth');
-		widthInput.value = this.lineWidth;
+		widthInput.value = this.markerWidth;
 		widthInput.focus();
 		widthInput.addEventListener('blur', () => {
-			this.lineWidth = parseInt(widthInput.value);
-			if (this.lineWidth < 3) this.lineWidth = 4;
+			this.markerWidth = parseInt(widthInput.value);
+			if (this.markerWidth < 3) this.markerWidth = 4;
 		});
 	}
 }
@@ -1041,17 +1103,19 @@ let drawHelper = {
 	},
 	pencil: function (ctx, options, [startX, startY, endX, endY]) {
 		applyOptions(ctx, options);
+		ctx.lineCap = 'butt';
+		ctx.lineJoin = 'round';
 		ctx.beginPath();
 		ctx.moveTo(startX, startY);
 		ctx.lineTo(endX, endY);
 		ctx.stroke();
 	},
-	marker: function (ctx, options, [startX, startY, endX, endY]) {
+	marker: function (ctx, options, [startX, startY, width]) {
 		applyOptions(ctx, options);
+		let halfWidth = Math.round(width / 2);
 		ctx.beginPath();
-		ctx.moveTo(startX, startY);
-		ctx.lineTo(endX, endY);
-		ctx.stroke();
+		ctx.roundRect(startX - halfWidth, startY - halfWidth, width, width, halfWidth);
+		ctx.fill();
 	},
 	eraser: {
 		/* never called: eraser uses 'marker'*/

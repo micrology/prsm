@@ -1,0 +1,1174 @@
+{
+	"saved": "01/07/2020, 09:37:28",
+	"version": "1.20",
+	"room": "SCZ-UYQ-XEM-BPQ",
+	"lastNodeSample": "group6",
+	"lastLinkSample": "edge3",
+	"buttons": {
+		"autoLayout": false,
+		"gravity": "500000",
+		"snapToGrid": false,
+		"curve": "",
+		"linkRadius": "All",
+		"stream": "All",
+		"showLabels": true,
+		"sizing": "Off"
+	},
+	"samples": {
+		"nodes": {
+			"base": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffffff",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffffff"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffffff"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group0": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#0000ff",
+					"background": "#ffffff",
+					"highlight": {
+						"border": "#0000ff",
+						"background": "#ffffff"
+					},
+					"hover": {
+						"border": "#0000ff",
+						"background": "#ffffff"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group1": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffffff",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffffff"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffffff"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group2": {
+				"groupLabel": "Output",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#6bae6b",
+					"highlight": {
+						"border": "#000000",
+						"background": "#6bae6b"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#6bae6b"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group3": {
+				"groupLabel": "Sample",
+				"borderWidth": 0,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#5c298e",
+					"highlight": {
+						"border": "#000000",
+						"background": "#5c298e"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#5c298e"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#ffffff",
+					"size": 18
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group4": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffccdd",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffccdd"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffccdd"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": true
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group5": {
+				"groupLabel": "External\nstakeholders",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#b3ccff",
+					"highlight": {
+						"border": "#000000",
+						"background": "#b3ccff"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#b3ccff"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group6": {
+				"groupLabel": "Influence chains",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group7": {
+				"groupLabel": "Note",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#fcfcfc",
+					"background": "#fbfbf9",
+					"highlight": {
+						"border": "#fcfcfc",
+						"background": "#fbfbf9"
+					},
+					"hover": {
+						"border": "#fcfcfc",
+						"background": "#fbfbf9"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group8": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "#ff0000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			}
+		},
+		"edges": {
+			"base": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge0": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge1": {
+				"arrows": {
+					"to": {
+						"enabled": true
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#a2a2b4",
+					"highlight": "#a2a2b4",
+					"hover": "#a2a2b4",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 2,
+				"groupLabel": "Note"
+			},
+			"edge2": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#ff0000",
+					"highlight": "#ff0000",
+					"hover": "#ff0000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge3": {
+				"arrows": {
+					"to": {
+						"enabled": true
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#29284d",
+					"highlight": "#29284d",
+					"hover": "#29284d",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 2,
+				"groupLabel": "Strong"
+			},
+			"edge4": {
+				"arrows": {
+					"to": {
+						"enabled": true
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#29284d",
+					"highlight": "#29284d",
+					"hover": "#29284d",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 2,
+				"groupLabel": "Strong"
+			},
+			"edge5": {
+				"arrows": {
+					"to": {
+						"enabled": true
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#29284d",
+					"highlight": "#29284d",
+					"hover": "#29284d",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 4,
+				"groupLabel": "Strong"
+			},
+			"edge6": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": [
+					10,
+					10
+				],
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 3,
+				"groupLabel": ""
+			},
+			"edge7": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#008000",
+					"highlight": "#008000",
+					"hover": "#008000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": [
+					10,
+					10
+				],
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 3,
+				"groupLabel": ""
+			},
+			"edge8": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			}
+		}
+	},
+	"nodes": [
+		{
+			"id": "b2a6c3d8-73fc-4efb-a192-6abda765869c",
+			"x": -9,
+			"y": -130,
+			"label": "Employees\naware, motivated\nand resourced\nto act",
+			"grp": "group2"
+		},
+		{
+			"id": "ccfba1f9-73eb-43d4-868e-a555b856fd19",
+			"x": -39,
+			"y": 21,
+			"label": "Employer\naware, motivated\nand resourced\nto act",
+			"grp": "group2"
+		},
+		{
+			"id": "e2797edc-d486-4404-828b-d5930f6efbfa",
+			"x": 512,
+			"y": -121,
+			"label": "GP aware,\nmotivated\nand resourced\nto act",
+			"grp": "group2"
+		},
+		{
+			"id": "a1062c18-b4e9-4eac-a6c2-c6bf30814ee6",
+			"x": 347,
+			"y": -322,
+			"label": "Media\nand role\nmodels",
+			"grp": "group5"
+		},
+		{
+			"id": "54f8fb0c-8b77-4f98-b531-c0d76e83ee0f",
+			"x": 518,
+			"y": 303,
+			"label": "Health sector\nbodies",
+			"grp": "group5"
+		},
+		{
+			"id": "0b04f76b-0a97-4844-8fc4-5c5bb62a9b0e",
+			"x": -330,
+			"y": -190,
+			"label": "Health\nbenefits\nproviders",
+			"grp": "group5"
+		},
+		{
+			"id": "87062b51-9861-43a9-80eb-1ccf2160bdfa",
+			"x": -404,
+			"y": -78,
+			"label": "Training\n& toolkit\nproviders",
+			"grp": "group5"
+		},
+		{
+			"id": "b2176e41-8cfb-4d42-b5e4-13ec23856805",
+			"x": -342,
+			"y": 83,
+			"label": "Business\nand commercial\ninfluencers",
+			"grp": "group5"
+		},
+		{
+			"id": "e90a18fa-4f70-4c47-a819-55692d4afcfa",
+			"x": -578,
+			"y": -35,
+			"label": "Sector\nor trade\ninfluencers",
+			"grp": "group5"
+		},
+		{
+			"id": "a41ad1f5-c15f-489f-a420-c915ccb9f061",
+			"x": -563,
+			"y": 331,
+			"label": "Communities\nof interest:\nUK and international",
+			"grp": "group5"
+		},
+		{
+			"id": "1327dc59-73f7-413c-8862-86db3bc7039b",
+			"x": -121,
+			"y": 316,
+			"label": "National\n& local government\npolicy, regulation\n& enforcement",
+			"grp": "group5"
+		},
+		{
+			"id": "584399b6-13dd-41eb-8302-719b40242630",
+			"x": -58,
+			"y": 159,
+			"label": "Scrutiny,\nrequirements\nand incentives",
+			"grp": "group2"
+		},
+		{
+			"id": "3f12829d-cb61-4011-a135-505b960d7cd1",
+			"x": -201,
+			"y": 151,
+			"label": "Business case",
+			"grp": "group2"
+		},
+		{
+			"id": "6e6a4618-a33e-4f70-9fcd-06119fd0ce64",
+			"x": -585,
+			"y": 123,
+			"label": "Awareness\nand best\npractice",
+			"grp": "group2"
+		},
+		{
+			"id": "9b8151e8-6dfa-4814-9dfa-a4569498ae9a",
+			"x": -338,
+			"y": -321,
+			"label": "Size and sector",
+			"grp": "group6"
+		},
+		{
+			"id": "38c8a303-42b8-4e33-b4eb-b90fb4e58e6d",
+			"x": -244,
+			"y": -263,
+			"label": "Culture\n(attitudes)\nin the workplace",
+			"grp": "group6"
+		},
+		{
+			"id": "ba2164bc-dd3a-4eab-abad-3049728a463d",
+			"x": -82,
+			"y": -311,
+			"label": "Pressures\nin the workplace",
+			"grp": "group6"
+		},
+		{
+			"id": "1f3330ea-4860-4002-9674-c3236c08f519",
+			"x": 216,
+			"y": -220,
+			"label": "Pressures\nout of\nwork",
+			"grp": "group6"
+		},
+		{
+			"id": "caebcf2f-ae80-470a-8185-5176c5f53dc3",
+			"x": 120,
+			"y": -301,
+			"label": "Culture\n(attitudes)\nin society",
+			"grp": "group6"
+		},
+		{
+			"id": "4e957854-490d-435c-b0a1-ed776f43fab9",
+			"x": 346,
+			"y": 273,
+			"label": "Return to\nwork as a\nclinical\noutcome",
+			"grp": "group2"
+		},
+		{
+			"id": "51654775-2c2e-4434-b7c3-19b62b38f815",
+			"x": -195,
+			"y": -135,
+			"label": "Policy & benefits",
+			"grp": "group2"
+		},
+		{
+			"id": "9e36da7f-36ee-4082-b750-928a3f8b9651",
+			"x": 169,
+			"y": -22,
+			"label": "Employees\nlook after\nown & others\nmental health",
+			"grp": "group3"
+		},
+		{
+			"id": "6dec13a9-9957-49f4-a2ea-d7d4b98d0f5c",
+			"x": 146,
+			"y": 149,
+			"label": "Employer\nacts to create\nmentally\nhealthy workplaces",
+			"grp": "group3"
+		},
+		{
+			"id": "66aa8418-2609-4670-9791-5b25d42d3192",
+			"x": 351,
+			"y": 68,
+			"label": "Healthier\nin the workplace\nfor longer",
+			"grp": "group3"
+		},
+		{
+			"id": "6dd8571f-2caa-4adc-83b9-5f727fc2b047",
+			"x": -238,
+			"y": -63,
+			"label": "Aware &\ncompetent\nline managers",
+			"grp": "group2"
+		},
+		{
+			"id": "fe28001a-659f-4f3e-821c-9a693de7c895",
+			"x": -529,
+			"y": -165,
+			"label": "Mental\nHealth\nmaturity",
+			"grp": "group6"
+		}
+	],
+	"edges": [
+		{
+			"from": "1f3330ea-4860-4002-9674-c3236c08f519",
+			"to": "b2a6c3d8-73fc-4efb-a192-6abda765869c",
+			"label": "",
+			"grp": "edge3",
+			"id": "744ae927-8b7b-4a4a-a993-df7dd08cc966"
+		},
+		{
+			"from": "caebcf2f-ae80-470a-8185-5176c5f53dc3",
+			"to": "b2a6c3d8-73fc-4efb-a192-6abda765869c",
+			"label": "",
+			"grp": "edge3",
+			"id": "7570501f-3ae3-422f-9526-6670a5595ddd"
+		},
+		{
+			"from": "caebcf2f-ae80-470a-8185-5176c5f53dc3",
+			"to": "1f3330ea-4860-4002-9674-c3236c08f519",
+			"label": "",
+			"grp": "edge3",
+			"id": "1d9e9d92-64a7-44c9-9c45-8f875961f3c4"
+		},
+		{
+			"from": "a1062c18-b4e9-4eac-a6c2-c6bf30814ee6",
+			"to": "caebcf2f-ae80-470a-8185-5176c5f53dc3",
+			"label": "",
+			"grp": "edge3",
+			"id": "7bb0a6c5-362c-40b5-b1ee-19eea688c25a"
+		},
+		{
+			"from": "ba2164bc-dd3a-4eab-abad-3049728a463d",
+			"to": "b2a6c3d8-73fc-4efb-a192-6abda765869c",
+			"label": "",
+			"grp": "edge3",
+			"id": "4a02c4e6-2337-4ff7-86a1-061ced8334ff"
+		},
+		{
+			"from": "38c8a303-42b8-4e33-b4eb-b90fb4e58e6d",
+			"to": "b2a6c3d8-73fc-4efb-a192-6abda765869c",
+			"label": "",
+			"grp": "edge3",
+			"id": "48c8f4b1-aff3-45ec-b254-88f011b795e8"
+		},
+		{
+			"from": "841c8c3b-f71b-4a38-a5c8-5056cbd5c2ec",
+			"to": "38c8a303-42b8-4e33-b4eb-b90fb4e58e6d",
+			"label": "",
+			"grp": "edge0",
+			"id": "18feb7a9-56a6-4b84-b7ac-7ef66752e98c"
+		},
+		{
+			"from": "38c8a303-42b8-4e33-b4eb-b90fb4e58e6d",
+			"to": "ba2164bc-dd3a-4eab-abad-3049728a463d",
+			"label": "",
+			"grp": "edge3",
+			"id": "1ead40ba-0a44-4677-b3f0-a3af8f3a0851"
+		},
+		{
+			"from": "87062b51-9861-43a9-80eb-1ccf2160bdfa",
+			"to": "6dd8571f-2caa-4adc-83b9-5f727fc2b047",
+			"label": "",
+			"grp": "edge3",
+			"id": "19b452e0-7abe-49b6-a0c6-eed3cbf7ba3a"
+		},
+		{
+			"from": "0b04f76b-0a97-4844-8fc4-5c5bb62a9b0e",
+			"to": "51654775-2c2e-4434-b7c3-19b62b38f815",
+			"label": "",
+			"grp": "edge3",
+			"id": "295b3be2-9aab-4404-80b5-fdff7546211e"
+		},
+		{
+			"from": "6e6a4618-a33e-4f70-9fcd-06119fd0ce64",
+			"to": "b2176e41-8cfb-4d42-b5e4-13ec23856805",
+			"label": "",
+			"grp": "edge3",
+			"id": "3cb83f1a-9b98-45fd-b4f8-a3922d8422cd"
+		},
+		{
+			"from": "a41ad1f5-c15f-489f-a420-c915ccb9f061",
+			"to": "6e6a4618-a33e-4f70-9fcd-06119fd0ce64",
+			"label": "",
+			"grp": "edge3",
+			"id": "a0bcf610-ac44-4ec7-9776-6629780b6eb8"
+		},
+		{
+			"from": "6e6a4618-a33e-4f70-9fcd-06119fd0ce64",
+			"to": "e90a18fa-4f70-4c47-a819-55692d4afcfa",
+			"label": "",
+			"grp": "edge3",
+			"id": "70ec0d59-91b9-40ee-9cbe-1bfbb664284e"
+		},
+		{
+			"from": "a41ad1f5-c15f-489f-a420-c915ccb9f061",
+			"to": "1327dc59-73f7-413c-8862-86db3bc7039b",
+			"label": "",
+			"grp": "edge3",
+			"id": "93d4844a-58ef-4f01-b1b8-e1a54463481b"
+		},
+		{
+			"from": "1327dc59-73f7-413c-8862-86db3bc7039b",
+			"to": "6e6a4618-a33e-4f70-9fcd-06119fd0ce64",
+			"label": "",
+			"grp": "edge3",
+			"id": "81898bc3-4a97-4941-ae42-2dee4400f37c"
+		},
+		{
+			"from": "b2176e41-8cfb-4d42-b5e4-13ec23856805",
+			"to": "ccfba1f9-73eb-43d4-868e-a555b856fd19",
+			"label": "",
+			"grp": "edge3",
+			"id": "7b07409d-cfb9-44c2-a2ce-15c0bbe4c5c0"
+		},
+		{
+			"from": "e90a18fa-4f70-4c47-a819-55692d4afcfa",
+			"to": "ccfba1f9-73eb-43d4-868e-a555b856fd19",
+			"label": "",
+			"grp": "edge3",
+			"id": "f963b3c1-b8a9-4cae-a297-0e74a85ece12"
+		},
+		{
+			"from": "1327dc59-73f7-413c-8862-86db3bc7039b",
+			"to": "3f12829d-cb61-4011-a135-505b960d7cd1",
+			"label": "",
+			"grp": "edge3",
+			"id": "a6887605-86ad-4a1b-9318-3bac6ea1736b"
+		},
+		{
+			"from": "b2176e41-8cfb-4d42-b5e4-13ec23856805",
+			"to": "3f12829d-cb61-4011-a135-505b960d7cd1",
+			"label": "",
+			"grp": "edge3",
+			"id": "297165b1-f3a7-4b42-8ac2-07d409d60f9d"
+		},
+		{
+			"from": "3f12829d-cb61-4011-a135-505b960d7cd1",
+			"to": "ccfba1f9-73eb-43d4-868e-a555b856fd19",
+			"label": "",
+			"grp": "edge3",
+			"id": "ceb44d69-48fb-4183-91f1-6bb90a814c37"
+		},
+		{
+			"from": "6dd8571f-2caa-4adc-83b9-5f727fc2b047",
+			"to": "ccfba1f9-73eb-43d4-868e-a555b856fd19",
+			"label": "",
+			"grp": "edge3",
+			"id": "ff88ca10-8b45-4225-a97e-b224be521b5b"
+		},
+		{
+			"from": "51654775-2c2e-4434-b7c3-19b62b38f815",
+			"to": "b2a6c3d8-73fc-4efb-a192-6abda765869c",
+			"label": "",
+			"grp": "edge3",
+			"id": "3b601016-9c49-411a-b9ac-37e7896946d4"
+		},
+		{
+			"from": "ccfba1f9-73eb-43d4-868e-a555b856fd19",
+			"to": "b2a6c3d8-73fc-4efb-a192-6abda765869c",
+			"label": "",
+			"grp": "edge3",
+			"id": "235db3f2-2218-42e9-9d07-54df7c0ffed3"
+		},
+		{
+			"from": "e2797edc-d486-4404-828b-d5930f6efbfa",
+			"to": "b2a6c3d8-73fc-4efb-a192-6abda765869c",
+			"label": "",
+			"grp": "edge3",
+			"id": "5f7de1c7-d535-42ea-ad31-11445b5aea87"
+		},
+		{
+			"from": "1327dc59-73f7-413c-8862-86db3bc7039b",
+			"to": "584399b6-13dd-41eb-8302-719b40242630",
+			"label": "",
+			"grp": "edge3",
+			"id": "be819309-4141-4794-86bc-c9c5bf873e9c"
+		},
+		{
+			"from": "584399b6-13dd-41eb-8302-719b40242630",
+			"to": "ccfba1f9-73eb-43d4-868e-a555b856fd19",
+			"label": "",
+			"grp": "edge3",
+			"id": "97ab399c-2013-4b51-a815-7e124fe7b3fa"
+		},
+		{
+			"from": "4e957854-490d-435c-b0a1-ed776f43fab9",
+			"to": "e2797edc-d486-4404-828b-d5930f6efbfa",
+			"label": "",
+			"grp": "edge3",
+			"id": "aced4bd1-c38e-464f-a997-443b4e70084d"
+		},
+		{
+			"from": "54f8fb0c-8b77-4f98-b531-c0d76e83ee0f",
+			"to": "4e957854-490d-435c-b0a1-ed776f43fab9",
+			"label": "",
+			"grp": "edge3",
+			"id": "075800fe-1fbc-40e7-b73b-0b29b98d4171"
+		},
+		{
+			"from": "e90a18fa-4f70-4c47-a819-55692d4afcfa",
+			"to": "841c8c3b-f71b-4a38-a5c8-5056cbd5c2ec",
+			"label": "",
+			"grp": "edge0",
+			"id": "bf7c3bd2-26e5-4d12-bd60-09484188a4c1"
+		},
+		{
+			"from": "1327dc59-73f7-413c-8862-86db3bc7039b",
+			"to": "4e957854-490d-435c-b0a1-ed776f43fab9",
+			"label": "",
+			"grp": "edge3",
+			"id": "51801682-8924-4cfe-9430-47f8ebd9ffb1"
+		},
+		{
+			"from": "b2a6c3d8-73fc-4efb-a192-6abda765869c",
+			"to": "9e36da7f-36ee-4082-b750-928a3f8b9651",
+			"label": "",
+			"grp": "edge3",
+			"id": "00c593cd-7d4b-4b4a-8612-4dad60613270"
+		},
+		{
+			"from": "ccfba1f9-73eb-43d4-868e-a555b856fd19",
+			"to": "6dec13a9-9957-49f4-a2ea-d7d4b98d0f5c",
+			"label": "",
+			"grp": "edge3",
+			"id": "dd72d878-268a-429b-96dd-1386be96347b"
+		},
+		{
+			"from": "9e36da7f-36ee-4082-b750-928a3f8b9651",
+			"to": "66aa8418-2609-4670-9791-5b25d42d3192",
+			"label": "",
+			"grp": "edge3",
+			"id": "728c84a9-6e3b-47bb-b5c3-df022e79b500"
+		},
+		{
+			"from": "6dec13a9-9957-49f4-a2ea-d7d4b98d0f5c",
+			"to": "66aa8418-2609-4670-9791-5b25d42d3192",
+			"label": "",
+			"grp": "edge3",
+			"id": "aaa85293-3455-4535-b0d9-93c82170d795"
+		},
+		{
+			"from": "caebcf2f-ae80-470a-8185-5176c5f53dc3",
+			"to": "ba2164bc-dd3a-4eab-abad-3049728a463d",
+			"label": "",
+			"grp": "edge3",
+			"id": "996cf7b6-a93b-474e-8754-8caac2c148e2"
+		},
+		{
+			"from": "a7bbe76a-7a25-4f02-8c0b-97a6c7d348a2",
+			"to": "841c8c3b-f71b-4a38-a5c8-5056cbd5c2ec",
+			"label": "",
+			"grp": "edge4",
+			"id": "8fcf4f18-e586-4645-86e9-47ca4302f35a"
+		},
+		{
+			"from": "9b8151e8-6dfa-4814-9dfa-a4569498ae9a",
+			"to": "38c8a303-42b8-4e33-b4eb-b90fb4e58e6d",
+			"label": "",
+			"grp": "edge3",
+			"id": "1a0969c8-b90b-4422-8af6-746a43e579e9"
+		},
+		{
+			"from": "fe28001a-659f-4f3e-821c-9a693de7c895",
+			"to": "38c8a303-42b8-4e33-b4eb-b90fb4e58e6d",
+			"label": "",
+			"grp": "edge3",
+			"id": "2d98f3d4-30c6-4be0-931a-79b8f504516b"
+		},
+		{
+			"from": "e90a18fa-4f70-4c47-a819-55692d4afcfa",
+			"to": "fe28001a-659f-4f3e-821c-9a693de7c895",
+			"label": "",
+			"grp": "edge3",
+			"id": "a1fe60cd-b823-4f62-8ca6-848b47ef0d74"
+		},
+		{
+			"from": "fe28001a-659f-4f3e-821c-9a693de7c895",
+			"to": "51654775-2c2e-4434-b7c3-19b62b38f815",
+			"label": "",
+			"grp": "edge3",
+			"id": "b6de0f89-8067-4953-bed3-d5ec104bdb0e"
+		}
+	],
+	"underlay": [
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		]
+	]
+}
