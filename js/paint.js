@@ -5,11 +5,11 @@
  * @date June 2020
  *
  * After setup, when user selects a tool from the toolbox, the mouse is used to paint on the temp canvas.
- * When the tool is finished, a set of painting commands is stored; then those commands are used to redraw the main canvas.
+ * When the tool is finished, a set of painting commands is stored; then those commands are used to redraw the network canvas.
  *
  */
 
-import {yPointsArray} from './prism.js';
+import {yPointsArray, network} from './prism.js';
 /**
  * Initialisation
  */
@@ -30,8 +30,6 @@ let selectedTool = null;
 
 /* globals */
 let underlay;
-let mainCanvas;
-let mainctx;
 let tempCanvas;
 let tempctx;
 let dpr = window.devicePixelRatio || 1;
@@ -40,12 +38,10 @@ window.yPointsArray = yPointsArray;
 
 /**
  * create the canvases and add listeners for mouse events
- * initialise the array holding darwing commands
+ * initialise the array holding drawing commands
  */
 export function setUpPaint() {
 	underlay = document.getElementById('underlay');
-	mainCanvas = setUpCanvas('main-canvas');
-	mainctx = getContext(mainCanvas);
 	tempCanvas = setUpCanvas('temp-canvas');
 	tempctx = getContext(tempCanvas);
 
@@ -100,6 +96,7 @@ export function setUpToolbox() {
  *
  * Toolbox
  */
+
 /**
  * event listener: when user clicks a tool icon
  * unselect previous tool, select this one
@@ -229,7 +226,7 @@ class ToolHandler {
 	mouseup() {
 		yPointsArray.push([['endShape']]);
 		this.isMouseDown = false;
-		redraw();
+		network.redraw();
 	}
 	/**
 	 * return an object with the current canvas drawing options, either those chosen by the user,
@@ -355,31 +352,38 @@ class RectHandler extends ToolHandler {
 	mousemove(e) {
 		if (this.isMouseDown) {
 			this.endPosition(e);
+			let startX = this.startX;
+			let startY = this.startY;
+			let endX = this.endX;
+			let endY = this.endY;
+			// ensure that the rect can be drawn from top left to bottom right, or vice versa
+			if (Math.abs(startX) > Math.abs(endX)) {
+				[startX, endX] = [endX, startX];
+			}
+			if (Math.abs(startY) > Math.abs(endY)) {
+				[startY, endY] = [endY, startY];
+			}
 			drawHelper.clear(tempctx);
-			let width = this.endX - this.startX;
-			let height = this.endY - this.startY;
+			let width = endX - startX;
+			let height = endY - startY;
 			drawHelper[this.roundCorners ? 'rrect' : 'rect'](
 				tempctx,
 				this.options(),
-				[
-					this.startX,
-					this.startY,
-					width > 0 ? width : -width,
-					height > 0 ? height : -height,
-				]
+				[startX, startY, width, height]
 			);
 		}
 	}
 	mouseup() {
 		if (this.isMouseDown) {
-			console.log(
-				this.startX,
-				this.startY,
-				DOMtoCanvasX(this.startX),
-				DOMtoCanvasY(this.startY)
-			);
+			if (Math.abs(this.startX) > Math.abs(this.endX)) {
+				[this.startX, this.endX] = [this.endX, this.startX];
+			}
+			if (Math.abs(this.startY) > Math.abs(this.endY)) {
+				[this.startY, this.endY] = [this.endY, this.startY];
+			}
 			let width = DOMtoCanvasX(this.endX) - DOMtoCanvasX(this.startX);
 			let height = DOMtoCanvasY(this.endY) - DOMtoCanvasY(this.startY);
+			if (width == 0 || height == 0) return;
 			yPointsArray.push([
 				[
 					this.roundCorners ? 'rrect' : 'rect',
@@ -387,8 +391,8 @@ class RectHandler extends ToolHandler {
 					[
 						DOMtoCanvasX(this.startX),
 						DOMtoCanvasY(this.startY),
-						width > 0 ? width : -width,
-						height > 0 ? height : -height,
+						width,
+						height,
 					],
 				],
 			]);
@@ -451,8 +455,8 @@ class TextHandler extends ToolHandler {
 		this.inp.style.color = this.fillStyle;
 		this.inp.style.border = border + 'px solid lightgrey';
 		this.inp.style.position = 'absolute';
-		this.inp.style.left = (this.startX - border) + 'px';
-		this.inp.style.top = (this.startY - border) + 'px';
+		this.inp.style.left = this.startX - border + 'px';
+		this.inp.style.top = this.startY - border + 'px';
 		this.inp.style.width = '300px';
 		this.inp.style.zIndex = 1002;
 		this.unfocusfn = this.unfocus.bind(this);
@@ -586,7 +590,6 @@ let pencilHandler = new PencilHandler();
 class MarkerHandler extends ToolHandler {
 	constructor() {
 		super();
-		this.globalAlpha = 0.2;
 		this.globalCompositeOperation = 'source-over';
 		this.strokeStyle = '#ffff00';
 		this.lineWidth = 30;
@@ -925,7 +928,7 @@ class UndoHandler extends ToolHandler {
 		let i;
 		for (i = len - 2; i > 0 && points[i][0] !== 'endShape'; i--);
 		yPointsArray.delete(i + 1, len - i - 1);
-		redraw();
+		network.redraw();
 	}
 }
 let undoHandler = new UndoHandler();
@@ -949,21 +952,37 @@ function toolHandler(tool) {
 	return toolToHandler[tool];
 }
 
+/* ==========================================drag and zoom =======================================*/
+/**
+ * allow for the canvas being translated, returning a coordinate adjusted for
+ * the current translation and zoom, so that it is relative to the origin at the centre
+ * with scale = 1.
+ */
+
+function DOMtoCanvasX(x) {
+	return (x - network.body.view.translation.x) / network.body.view.scale;
+}
+
+function DOMtoCanvasY(y) {
+	return (y - network.body.view.translation.y) / network.body.view.scale;
+}
+
+/**
+ * ================================methods to redraw the canvas, one for each tool========================
+ */
+
 /**
  * redraw the main canvas, using the stored commands in yPointsArray[]
  */
-export function redraw() {
-	console.log(window.network.getViewPosition(), window.network.getScale());
-	console.log(mainctx.getTransform());
+export function redraw(netctx) {
 	drawHelper.clear(tempctx);
-	drawHelper.clear(mainctx);
 	yPointsArray.forEach((point) => {
-		drawHelper[point[0]](mainctx, point[1], point[2]);
+		drawHelper[point[0]](netctx, point[1], point[2]);
 	});
 }
 
 /**
- *  Like ctx.rect, but with rounded corners
+ *  Like ctx.rect(), but with rounded corners
  */
 CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
 	if (w < 2 * r) r = w / 2;
@@ -977,88 +996,25 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
 	this.closePath();
 	return this;
 };
-/* ==========================================drag and zoom =======================================*/
-/**
- * allow for the canvas being translated, returning a coordinate adjusted for
- * the current translation and zoom
- *
- */
 
-function DOMtoCanvasX(x) {
-	let mat = mainctx.getTransform();
-	return (dpr * x - mat.e) / mat.a;
-}
+let imageCache = new Map();
 
-function DOMtoCanvasY(y) {
-	let mat = mainctx.getTransform();/*  */
-	return (dpr * y - mat.f) / mat.d;
-}
-/**
- * move the canvas (translate) by x, y pixels
- *
- * @param {Number} x
- * @param {Number} y
- */
-export function dragCanvas(x, y) {
-	let mat = mainctx.getTransform();
-	mainctx.translate(dpr * x / mat.a, dpr * y / mat.d);
-	redraw();
-}
-/**
- * scale the canvas according to the zoom level, with the scaling origin at the middle of the canvas
- * @param {Number} scale
- */
-
-export function zoomCanvas(scale) {
-	let mat = mainctx.getTransform();
-	mainctx.setTransform(
-		dpr * scale,
-		0,
-		0,
-		dpr * scale,
-		// (-(scale - 1) * mainCanvas.width) / 2,
-		// (-(scale - 1) * mainCanvas.height) / 2
-		mat.e * dpr * scale / mat.a,
-		mat.f * dpr * scale / mat.d
-	);
-	redraw();
-}
-
-/**
- * set the origin of the drawing canvas to the centre of the network view
- * @param {Object} {x, y} -  position returned by network.getViewPosition, the centre of the network
- */
-export function positionCanvas({x, y}) {
-	let mat = mainctx.getTransform();
-	mat.e = -x * dpr;
-	mat.f = -y * dpr;
-	mainctx.setTransform(mat);
-	redraw();
-}
-
-/**
- * ================================methods to redraw the canvas, one for each tool========================
- */
 let drawHelper = {
 	clear: function (ctx) {
-		ctx.save();
 		// Use the identity matrix while clearing the canvas
-		ctx.setTransform(1, 0, 0, 1, 0, 0);
+		ctx.setTransform(2, 0, 0, 2, 0, 0);
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-		// Restore the transform
-		ctx.restore();
-		ctx.beginPath();
 	},
 	line: function (ctx, options, [startX, startY, endX, endY]) {
-		ctx.beginPath();
 		applyOptions(ctx, options);
+		ctx.beginPath();
 		ctx.moveTo(startX, startY);
 		ctx.lineTo(endX, endY);
 		ctx.stroke();
 	},
 	rect: function (ctx, options, [startX, startY, width, height]) {
-		ctx.beginPath();
 		applyOptions(ctx, options);
+		ctx.beginPath();
 		ctx.lineJoin = 'miter';
 		ctx.rect(startX, startY, width, height);
 		if (options.lineWidth > 0) ctx.stroke();
@@ -1066,17 +1022,16 @@ let drawHelper = {
 		if (options.fillStyle !== '#ffffff') ctx.fill();
 	},
 	rrect: function (ctx, options, [startX, startY, width, height]) {
-		ctx.beginPath();
 		applyOptions(ctx, options);
+		ctx.beginPath();
 		ctx.roundRect(startX, startY, width, height, 10);
 		if (options.lineWidth > 0) ctx.stroke();
 		if (options.fillStyle !== '#ffffff') ctx.fill();
 	},
 	text: function (ctx, options, [text, x, y]) {
-		ctx.beginPath();
 		ctx.textBaseline = 'top';
 		applyOptions(ctx, options);
-		//	ctx.fillText(text, startX, startY + 3);
+		ctx.beginPath();
 		let lineHeight = ctx.measureText('M').width * 1.2;
 		let lines = text.split('\n');
 		for (let i = 0; i < lines.length; ++i) {
@@ -1085,15 +1040,15 @@ let drawHelper = {
 		}
 	},
 	pencil: function (ctx, options, [startX, startY, endX, endY]) {
-		ctx.beginPath();
 		applyOptions(ctx, options);
+		ctx.beginPath();
 		ctx.moveTo(startX, startY);
 		ctx.lineTo(endX, endY);
 		ctx.stroke();
 	},
 	marker: function (ctx, options, [startX, startY, endX, endY]) {
-		ctx.beginPath();
 		applyOptions(ctx, options);
+		ctx.beginPath();
 		ctx.moveTo(startX, startY);
 		ctx.lineTo(endX, endY);
 		ctx.stroke();
@@ -1102,13 +1057,37 @@ let drawHelper = {
 		/* never called: eraser uses 'marker'*/
 	},
 	image: function (ctx, options, [src, x, y, ow, oh, w, h]) {
-		let img = new Image();
-		img.src = src;
-		ctx.beginPath();
-		applyOptions(ctx, options);
-		img.onload = function () {
-			ctx.drawImage(this, 0, 0, ow, oh, x, y, w, h);
-		};
+		let img = imageCache.get(src);
+		if (img == undefined) {  // not yet cached, so create the Image
+			img = new Image();
+			img.src = src;
+			imageCache.set(src, img);
+			img.onload = function () {
+				ctx.drawImage(
+					this,
+					0,
+					0,
+					ow,
+					oh,
+					x + network.body.view.translation.x,
+					y + network.body.view.translation.y,
+					w,
+					h
+				);
+			};
+		}
+		else {
+			ctx.drawImage(
+			img,
+			0,
+			0,
+			ow,
+			oh,
+			x,
+			y,
+			w,
+			h
+		);}
 	},
 	undo: {
 		/* never called */
@@ -1127,6 +1106,3 @@ let drawHelper = {
 function applyOptions(ctx, options) {
 	for (let option in options) ctx[option] = options[option];
 }
-
-window.redraw = redraw;
-window.mainctx = mainctx;

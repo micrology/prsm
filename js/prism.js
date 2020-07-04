@@ -26,22 +26,14 @@ import {
 	legend,
 	clearLegend,
 } from './samples.js';
-import {
-	setUpPaint,
-	setUpToolbox,
-	deselectTool,
-	dragCanvas,
-	zoomCanvas,
-	positionCanvas,
-	redraw,
-} from './paint.js';
+import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 import 'vis-network/styles/vis-network.css';
 
 const version = '1.20';
 const GRIDSPACING = 50;
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30;
-var network;
+export var network;
 var room;
 var nodes;
 var edges;
@@ -387,7 +379,7 @@ function startY() {
 	});
 	yPointsArray.observe((event, trans) => {
 		if (window.debug) console.log(event, trans);
-		if (!trans.local) redraw();
+		if (!trans.local) network.redraw();
 	});
 	yUndoManager.on('stack-item-added', (event) => {
 		if (window.debug) console.log(event);
@@ -567,6 +559,7 @@ function draw() {
 	};
 	network = new Network(netPane, data, options);
 	window.network = network;
+	document.getElementById('zoom').value = network.getScale();
 	// start with factor tab open, but hidden
 	document.getElementById('nodesButton').click();
 	// listen for click events on the network pane
@@ -602,23 +595,8 @@ function draw() {
 		hideNotes();
 		clearStatusBar();
 	});
-	let dragX = 0,
-		dragY = 0;
-	network.on('dragStart', function (event) {
-		dragX = event.pointer.DOM.x;
-		dragY = event.pointer.DOM.y;
+	network.on('dragStart', function () {
 		hideNotes();
-		changeCursor('grabbing');
-	});
-	network.on('dragging', function (event) {
-		if (event.nodes.length == 0 && event.edges.length == 0) {
-			dragCanvas(
-				event.pointer.DOM.x - dragX,
-				event.pointer.DOM.y - dragY
-			);
-			dragX = event.pointer.DOM.x;
-			dragY = event.pointer.DOM.y;
-		}
 		changeCursor('grabbing');
 	});
 	network.on('dragEnd', function (event) {
@@ -632,7 +610,10 @@ function draw() {
 				return n;
 			})
 		);
-		changeCursor('grab');
+		changeCursor('auto');
+	});
+	network.on('beforeDrawing', function (ctx) {
+		redraw(ctx);
 	});
 	// listen for changes to the network structure
 	// and recalculate the network statistics when there is one
@@ -642,31 +623,16 @@ function draw() {
 	data.edges.on('remove', recalculateStats);
 } // end draw()
 
-/* function fit() {
+function fit() {
 	network.fit({
 		position: {x: 0, y: 0},
-		animation: {duration: 0, easingFunction: 'linear'},
+		animation: {duration: 200, easingFunction: 'linear'},
 	});
 	let newScale = network.getScale();
 	document.getElementById('zoom').value = newScale;
-	zoomCanvas(newScale);
-	positionCanvas(network.getViewPosition());
 	network.storePositions();
-} */
-
-function fit() {
-	let oldPos = network.getViewPosition();
-	let oldScale = network.getScale();
-	network.fit();
-	let newScale = network.getScale();
-	document.getElementById('zoom').value = newScale;
-	let mainctx = document.getElementById('main-canvas').getContext('2d');
-	let pos = network.getViewPosition();
-	let mag = newScale / oldScale;
-	mainctx.scale(mag, mag);
-	mainctx.translate(-(pos.x - oldPos.x), -(pos.y - oldPos.y));
-	redraw();
 }
+
 function claim(item) {
 	// remove any existing clientID, to show that I now
 	// own this and can broadcast my changes to the item
@@ -1025,14 +991,12 @@ function listLinks(links) {
 Network.prototype.zoom = function (scale) {
 	let newScale = scale === undefined ? 1 : scale;
 	const animationOptions = {
-//		position: {x: 0, y: 0},
 		scale: newScale,
 		animation: {
-			duration: 0,
+			duration: 200,
 		},
 	};
 	this.view.moveTo(animationOptions);
-	zoomCanvas(newScale);
 };
 
 function zoomnet() {
@@ -1227,7 +1191,7 @@ function loadFile(contents) {
 		data.edges.map((e) => deepMerge(samples.edges[e.grp], e))
 	);
 	if (!isJSONfile) adjustGravity(50000);
-//fit();
+	//fit();
 }
 
 function loadJSONfile(json) {
@@ -1983,7 +1947,6 @@ function revealDrawingLayer() {
 		document.getElementById('underlay').style.zIndex = 0;
 		makeSolid(ul);
 		document.getElementById('temp-canvas').style.zIndex = 0;
-		document.getElementById('main-canvas').style.zIndex = 0;
 		document.getElementById('chatbox-tab').classList.remove('chatbox-hide');
 		inAddMode = false;
 		setButtonDisabledStatus('addNode', false);
@@ -1993,7 +1956,6 @@ function revealDrawingLayer() {
 		document.getElementById('toolbox').style.display = 'block';
 		ul.style.zIndex = 1000;
 		document.getElementById('temp-canvas').style.zIndex = 1000;
-		document.getElementById('main-canvas').style.zIndex = 1000;
 		// make the underlay (which is now overlay) translucent
 		makeTranslucent(ul);
 		minimize();
