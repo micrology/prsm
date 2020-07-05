@@ -378,7 +378,7 @@ function startY() {
 		}
 	});
 	yPointsArray.observe((event, trans) => {
-		if (window.debug) console.log(event, trans);
+		if (window.debug) console.log(trans.local, yPointsArray.get(yPointsArray.length - 1));
 		if (!trans.local) network.redraw();
 	});
 	yUndoManager.on('stack-item-added', (event) => {
@@ -923,7 +923,7 @@ function recalculateStats() {
 	}, 200);
 }
 worker.onmessage = function (e) {
-	if (typeof e.data == 'string') statusMsg(e.data, 'error')
+	if (typeof e.data == 'string') statusMsg(e.data, 'error');
 	else bc = e.data;
 };
 /* 
@@ -1958,7 +1958,7 @@ function toggleDrawingLayer() {
 		// expose drawing layer
 		document.getElementById('toolbox').style.display = 'block';
 		ul.style.zIndex = 1000;
-		ul.style.cursor = "pointer";
+		ul.style.cursor = 'pointer';
 		document.getElementById('temp-canvas').style.zIndex = 1000;
 		// make the underlay (which is now overlay) translucent
 		makeTranslucent(ul);
