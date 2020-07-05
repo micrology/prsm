@@ -27,18 +27,23 @@ onmessage = function (e) {
 		edges: e.data[1], // array of edge objects
 	};
 	if (checkComplete(graph)) postMessage(betweenness(graph));
+	else postMessage('Corrupt network: links are connected to non-existent factors')
 };
 
 function checkComplete(graph) {
 	// sanity check: do all the edges connect existing nodes
+	let ok = true;
 	graph.edges.forEach((edge) => {
-		if (
-			graph.nodes.find((node) => node.id == edge.from) == null ||
-			graph.nodes.find((node) => node.id == edge.to) == null
-		)
-			return false;
+		if (graph.nodes.find((node) => node.id == edge.from) == null) {
+			console.log('Edge ' + edge.id + ' is missing a source node linked to it:' + edge.from);
+			ok = false;;
+		}
+		if (graph.nodes.find((node) => node.id == edge.to) == null) {
+			console.log('Edge ' + edge.id + ' is missing a destination node linked to it:' + edge.to);
+			ok = false;
+		}
 	});
-	return true;
+	return ok;
 }
 
 var betweennessCache = {
