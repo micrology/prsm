@@ -24,7 +24,7 @@ let defaultOptions = {
 	globalAlpha: 1.0,
 	globalCompositeOperation: 'source-over',
 	lineJoin: 'round',
-	lineCap: 'round'
+	lineCap: 'round',
 };
 
 let selectedTool = null;
@@ -64,7 +64,7 @@ function setUpCanvas(id) {
 	// Give the canvas pixel dimensions of their CSS size * the device pixel ratio.
 	canvas.width = rect.width * dpr;
 	canvas.height = rect.height * dpr;
-	canvas.tabIndex = 0;  // required to enable mouse click to generate blur event
+	canvas.tabIndex = 0; // required to enable mouse click to generate blur event
 	return canvas;
 }
 
@@ -250,9 +250,8 @@ class ToolHandler {
 			globalAlpha: this.globalAlpha,
 			globalCompositeOperation: this.globalCompositeOperation,
 			lineJoin: this.lineJoin,
-			lineCap: this.lineCap
-		}
-
+			lineCap: this.lineCap,
+		};
 	}
 	/**
 	 * create a dialog box to allow the user to choose options for the current shape
@@ -373,10 +372,12 @@ class RectHandler extends ToolHandler {
 			drawHelper.clear(tempctx);
 			let width = endX - startX;
 			let height = endY - startY;
-			drawHelper[this.roundCorners ? 'rrect' : 'rect'](
-				tempctx,
-				[startX, startY, width, height]
-			);
+			drawHelper[this.roundCorners ? 'rrect' : 'rect'](tempctx, [
+				startX,
+				startY,
+				width,
+				height,
+			]);
 		}
 	}
 	mouseup() {
@@ -389,18 +390,19 @@ class RectHandler extends ToolHandler {
 			}
 			let width = DOMtoCanvasX(this.endX) - DOMtoCanvasX(this.startX);
 			let height = DOMtoCanvasY(this.endY) - DOMtoCanvasY(this.startY);
-			if (width == 0 || height == 0) return;
-			yPointsArray.push([
-				[
-					this.roundCorners ? 'rrect' : 'rect',
+			if (width > 0 && height > 0) {
+				yPointsArray.push([
 					[
-						DOMtoCanvasX(this.startX),
-						DOMtoCanvasY(this.startY),
-						width,
-						height,
+						this.roundCorners ? 'rrect' : 'rect',
+						[
+							DOMtoCanvasX(this.startX),
+							DOMtoCanvasY(this.startY),
+							width,
+							height,
+						],
 					],
-				],
-			]);
+				]);
+			}
 			underlay.style.cursor = 'auto';
 			super.mouseup();
 		}
@@ -465,13 +467,15 @@ class TextHandler extends ToolHandler {
 		this.inp.style.top = this.startY - border + 'px';
 		this.inp.style.width = '300px';
 		this.inp.style.zIndex = 1002;
+		this.inp.style.resize = 'none';
 		this.unfocusfn = this.unfocus.bind(this);
 		document.addEventListener('click', this.unfocusfn);
 		this.writing = true;
 		underlay.style.cursor = 'text';
-		this.inp.focus();
+//		this.inp.tabIndex = 0;
 		dragElement(this.inp);
-		super.mousedown(e)
+		super.mousedown(e);
+		this.inp.focus();
 	}
 	unfocus(e) {
 		if (this.inp.value.length > 0 && this.writing) {
@@ -570,7 +574,7 @@ class PencilHandler extends ToolHandler {
 					DOMtoCanvasY(this.startY),
 					DOMtoCanvasX(this.endX),
 					DOMtoCanvasY(this.endY),
-					scaledLW
+					scaledLW,
 				],
 			],
 		]);
@@ -611,7 +615,7 @@ class MarkerHandler extends ToolHandler {
 			drawHelper.marker(tempctx, [
 				this.startX,
 				this.startY,
-				this.markerWidth
+				this.markerWidth,
 			]);
 			this.startX = this.endX;
 			this.startY = this.endY;
@@ -678,7 +682,7 @@ class EraserHandler extends ToolHandler {
 			drawHelper.marker(tempctx, [
 				this.startX,
 				this.startY,
-				this.markerWidth
+				this.markerWidth,
 			]);
 			this.startX = this.endX;
 			this.startY = this.endY;
@@ -771,6 +775,8 @@ class ImageHandler extends ToolHandler {
 					wrap.style.zIndex = 1000;
 					let image = e.target;
 					image.id = 'image';
+					wrap.origWidth = image.width;
+					wrap.origHeight = image.height;
 					underlay.appendChild(wrap);
 					wrap.appendChild(image);
 					// check that the image is smaller than the canvas - if not, rescale it so that it fits
@@ -800,8 +806,6 @@ class ImageHandler extends ToolHandler {
 						'click',
 						imageHandler.mouseup.bind(imageHandler)
 					);
-					wrap.origWidth = image.width;
-					wrap.origHeight = image.height;
 					dragElement(wrap);
 				};
 			};
@@ -819,7 +823,6 @@ class ImageHandler extends ToolHandler {
 			e.target.id != 'resizer' &&
 			e.target.id != 'wrap'
 		) {
-			e.target.style.cursor = 'auto';
 			let wrap = this.image.parentNode;
 			yPointsArray.push([
 				[
@@ -837,6 +840,7 @@ class ImageHandler extends ToolHandler {
 			]);
 			this.image.classList.remove('marching-ants');
 			underlay.removeChild(wrap);
+			underlay.style.cursor = 'auto';
 			super.mouseup();
 		} else {
 			e.target.style.cursor =
@@ -1054,15 +1058,24 @@ let drawHelper = {
 	marker: function (ctx, [startX, startY, width]) {
 		let halfWidth = Math.round(width / 2);
 		ctx.beginPath();
-		ctx.roundRect(startX - halfWidth, startY - halfWidth, width, width, halfWidth);
+		ctx.roundRect(
+			startX - halfWidth,
+			startY - halfWidth,
+			width,
+			width,
+			halfWidth
+		);
 		ctx.fill();
 	},
 	eraser: {
 		/* never called: eraser uses 'marker'*/
 	},
 	image: function (ctx, [src, x, y, ow, oh, w, h]) {
+		let xt = x + network.body.view.translation.x;
+		let yt = y + network.body.view.translation.y;
 		let img = imageCache.get(src);
-		if (img == undefined) {  // not yet cached, so create the Image
+		if (img == undefined) {
+			// not yet cached, so create the Image
 			img = new Image();
 			img.src = src;
 			imageCache.set(src, img);
@@ -1073,25 +1086,15 @@ let drawHelper = {
 					0,
 					ow,
 					oh,
-					x + network.body.view.translation.x,
-					y + network.body.view.translation.y,
+					xt,
+					yt,
 					w,
 					h
 				);
 			};
+		} else {
+			ctx.drawImage(img, 0, 0, ow, oh, x, y, w, h);
 		}
-		else {
-			ctx.drawImage(
-			img,
-			0,
-			0,
-			ow,
-			oh,
-			x,
-			y,
-			w,
-			h
-		);}
 	},
 	undo: {
 		/* never called */

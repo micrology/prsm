@@ -1,0 +1,6524 @@
+{
+	"saved": "05/07/2020, 22:18:13",
+	"version": "1.21",
+	"room": "MQW-KHL-MOW-LYU",
+	"lastNodeSample": "group0",
+	"lastLinkSample": "edge0",
+	"buttons": {
+		"autoLayout": false,
+		"gravity": "500000",
+		"snapToGrid": false,
+		"curve": "Curved",
+		"linkRadius": "All",
+		"stream": "All",
+		"showLabels": true,
+		"sizing": "Off"
+	},
+	"samples": {
+		"nodes": {
+			"base": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffffff",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffffff"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffffff"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group0": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#0000ff",
+					"background": "#ffffff",
+					"highlight": {
+						"border": "#0000ff",
+						"background": "#ffffff"
+					},
+					"hover": {
+						"border": "#0000ff",
+						"background": "#ffffff"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group1": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffffff",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffffff"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffffff"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group2": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#99e699",
+					"highlight": {
+						"border": "#000000",
+						"background": "#99e699"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#99e699"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group3": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffccdd",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffccdd"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffccdd"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group4": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffccdd",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffccdd"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffccdd"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": true
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group5": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#b3ccff",
+					"highlight": {
+						"border": "#000000",
+						"background": "#b3ccff"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#b3ccff"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group6": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group7": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group8": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"chosen": true,
+				"color": {
+					"border": "#000000",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"color": "#ff0000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			}
+		},
+		"edges": {
+			"base": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge0": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge1": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#00cc00",
+					"highlight": "#00cc00",
+					"hover": "#00cc00",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge2": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#ff0000",
+					"highlight": "#ff0000",
+					"hover": "#ff0000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge3": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#0000ff",
+					"highlight": "#0000ff",
+					"hover": "#0000ff",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge4": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#808080",
+					"highlight": "#808080",
+					"hover": "#808080",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			},
+			"edge5": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#e6b800",
+					"highlight": "#e6b800",
+					"hover": "#e6b800",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 2,
+				"groupLabel": ""
+			},
+			"edge6": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": [
+					10,
+					10
+				],
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 3,
+				"groupLabel": ""
+			},
+			"edge7": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#008000",
+					"highlight": "#008000",
+					"hover": "#008000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": [
+					10,
+					10
+				],
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 3,
+				"groupLabel": ""
+			},
+			"edge8": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"hoverWidth": 1,
+				"label": "",
+				"selectionWidth": 1,
+				"width": 1,
+				"groupLabel": ""
+			}
+		}
+	},
+	"nodes": [],
+	"edges": [],
+	"underlay": [
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#ec3636",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				-425,
+				-192,
+				-213,
+				-147
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#ec3636",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				-201.6433773941192,
+				-46.18478554086862,
+				10.263285675748591,
+				15.0930671702185
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"line",
+			[
+				60,
+				-257,
+				-212,
+				68
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				242,
+				-111,
+				264,
+				-160
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				-13,
+				72,
+				217,
+				74
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				39,
+				199,
+				351,
+				199
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				611,
+				-238,
+				601,
+				203
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#ec3636",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				-407,
+				101,
+				-73,
+				145
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				-22.337739411923383,
+				-89.04909630428917,
+				124.36687348260047,
+				81.5025627191799
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"line",
+			[
+				-440,
+				135,
+				-454,
+				288
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				-595,
+				87,
+				-328,
+				-94
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				554,
+				177,
+				554,
+				177
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				453,
+				200,
+				453,
+				200
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				373,
+				-253,
+				373,
+				-253
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				81,
+				-141,
+				81,
+				-141
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				-68,
+				-270,
+				-307,
+				-1
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				95,
+				-159,
+				-76,
+				-172
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				142,
+				-219,
+				49,
+				61
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				-54,
+				-15,
+				124,
+				-59
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				241,
+				-172,
+				314,
+				-14
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				708,
+				187,
+				-714,
+				120
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				398,
+				-344,
+				411,
+				286
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				695,
+				152,
+				-615,
+				100
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				-183,
+				-121,
+				-333,
+				206
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				140,
+				-266,
+				71,
+				295
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				272,
+				58,
+				262,
+				217
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				685,
+				317,
+				685,
+				317
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				627,
+				303,
+				627,
+				303
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				478,
+				298,
+				478,
+				298
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				225,
+				-62,
+				216,
+				349
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				2750.0000000000005,
+				160.00000000000003,
+				2880.0000000000005,
+				1850.0000000000005
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				-1740.0000000000005,
+				1370.0000000000002,
+				390.0000000000001,
+				-170.00000000000003
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				-255.71428571428572,
+				-354.28571428571433,
+				-472.8571428571429,
+				120.00000000000001
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#e12d2d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				275.7142857142857,
+				-404.28571428571433,
+				500.00000000000006,
+				294.2857142857143
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#e12d2d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				951.4285714285714,
+				404.28571428571433,
+				951.4285714285714,
+				404.28571428571433
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				857.1428571428572,
+				418.5714285714286,
+				857.1428571428572,
+				418.5714285714286
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				874.2857142857143,
+				418.5714285714286,
+				874.2857142857143,
+				418.5714285714286
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				894.2857142857143,
+				432.8571428571429,
+				894.2857142857143,
+				432.8571428571429
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				940.0000000000001,
+				451.42857142857144,
+				940.0000000000001,
+				451.42857142857144
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				995.7142857142858,
+				467.14285714285717,
+				995.7142857142858,
+				467.14285714285717
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				995.7142857142858,
+				467.14285714285717,
+				995.7142857142858,
+				467.14285714285717
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				995.7142857142858,
+				467.14285714285717,
+				995.7142857142858,
+				467.14285714285717
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 20,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				995.7142857142858,
+				467.14285714285717,
+				995.7142857142858,
+				467.14285714285717
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#e12d2d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#e12d2d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#e12d2d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#e12d2d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#e12d2d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#e12d2d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				-328,
+				-30,
+				192,
+				-20
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				192,
+				-56,
+				192,
+				-56
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				23,
+				-91,
+				-275,
+				-115
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"line",
+			[
+				-275,
+				-114,
+				-275,
+				-114
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#ef0101",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"marker",
+			[
+				-216.875,
+				40.625,
+				19
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"marker",
+			[
+				-216.875,
+				40.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-216.875,
+				40.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-216.25,
+				40.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-214.375,
+				40.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-212.5,
+				40.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-209.375,
+				40.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-206.875,
+				40.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-205,
+				40.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-203.125,
+				40.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-201.25,
+				41.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-198.75,
+				41.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-196.875,
+				41.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-191.875,
+				41.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-188.125,
+				41.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-185,
+				42.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-181.25,
+				43.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-176.875,
+				43.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-174.375,
+				43.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-171.25,
+				44.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-168.125,
+				44.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-165.625,
+				45,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-163.125,
+				45,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-160.625,
+				45,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-156.875,
+				45,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-153.75,
+				45,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-151.25,
+				45,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-148.75,
+				44.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-146.25,
+				43.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-142.5,
+				42.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-139.375,
+				41.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-135,
+				39.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-130.625,
+				36.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-126.25,
+				34.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-123.75,
+				32.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-119.375,
+				28.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-118.125,
+				25.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-116.875,
+				21.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-116.25,
+				16.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-116.25,
+				11.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-116.25,
+				7.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-118.75,
+				2.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-120.625,
+				0.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-125,
+				-1.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-128.75,
+				-2.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-135,
+				-2.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-143.75,
+				-1.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-155.625,
+				2.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-164.375,
+				7.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-172.5,
+				11.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-180,
+				16.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-185,
+				21.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-188.75,
+				25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-191.25,
+				28.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-194.375,
+				33.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-196.875,
+				37.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-199.375,
+				41.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-203.125,
+				47.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-204.375,
+				50,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-205.625,
+				53.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-206.875,
+				55,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-207.5,
+				56.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-208.125,
+				57.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-208.125,
+				57.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-208.125,
+				57.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-208.125,
+				57.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-205,
+				55,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-198.75,
+				48.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-189.375,
+				40,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-176.875,
+				30.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-164.375,
+				21.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-156.25,
+				16.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-146.875,
+				10.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-142.5,
+				8.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-140,
+				6.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-137.5,
+				5.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-136.875,
+				5.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-136.875,
+				5.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-136.875,
+				5.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-137.5,
+				5.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-138.75,
+				5.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-140,
+				6.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-143.125,
+				8.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-149.375,
+				13.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-153.75,
+				18.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-160,
+				26.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-165.625,
+				32.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-171.875,
+				38.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-178.125,
+				45.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-180.625,
+				48.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-183.125,
+				50.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-183.75,
+				51.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-185,
+				53.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-185,
+				53.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-185,
+				54.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-185,
+				55.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-185,
+				56.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-185.625,
+				58.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-185.625,
+				60.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-185.625,
+				61.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-186.25,
+				63.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-186.25,
+				63.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-186.25,
+				63.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-186.25,
+				63.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-186.875,
+				62.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-187.5,
+				61.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-187.5,
+				60.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-188.125,
+				60,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-188.75,
+				59.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-189.375,
+				58.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-191.25,
+				58.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-193.125,
+				58.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-196.25,
+				58.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-199.375,
+				58.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-203.125,
+				60,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-205.625,
+				61.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-208.125,
+				62.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-210.625,
+				63.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-211.875,
+				63.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-212.5,
+				64.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-213.125,
+				64.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-213.125,
+				65,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-213.125,
+				65,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-213.125,
+				65,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-213.125,
+				65,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-212.5,
+				65.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-212.5,
+				66.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-211.875,
+				67.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-211.25,
+				68.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-211.25,
+				69.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-210.625,
+				70,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-210.625,
+				71.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-210.625,
+				71.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-210.625,
+				71.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-210.625,
+				72.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-210.625,
+				71.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-210,
+				71.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-208.75,
+				68.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-205.625,
+				63.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-200.625,
+				56.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-189.375,
+				45,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-182.5,
+				38.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-176.875,
+				33.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-171.875,
+				28.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-168.125,
+				23.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-163.75,
+				18.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-157.5,
+				10,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-151.25,
+				0.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-147.5,
+				-6.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-141.875,
+				-16.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-137.5,
+				-25.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-131.875,
+				-36.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-128.75,
+				-42.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-124.375,
+				-51.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-121.875,
+				-54.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-115.625,
+				-63.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-110.625,
+				-68.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-105,
+				-73.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-102.5,
+				-76.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-99.375,
+				-79.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-96.875,
+				-81.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-95,
+				-83.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-93.75,
+				-85,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-93.125,
+				-86.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-92.5,
+				-87.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-92.5,
+				-87.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-92.5,
+				-87.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-93.75,
+				-87.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-102.5,
+				-78.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-110.625,
+				-68.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-121.875,
+				-53.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-132.5,
+				-39.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-142.5,
+				-26.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-155.625,
+				-7.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-161.25,
+				0,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-167.5,
+				8.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-171.875,
+				12.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-175,
+				16.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-176.875,
+				18.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-177.5,
+				19.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-177.5,
+				20,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-175.625,
+				18.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-171.875,
+				16.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-168.75,
+				15,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-165.625,
+				13.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-160.625,
+				11.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-157.5,
+				10.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-153.75,
+				8.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-149.375,
+				6.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-145,
+				3.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-141.25,
+				0.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-138.125,
+				-3.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-135,
+				-7.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-131.875,
+				-11.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-127.5,
+				-18.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-126.25,
+				-20.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-124.375,
+				-23.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-122.5,
+				-26.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-121.875,
+				-28.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-121.25,
+				-29.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-121.25,
+				-30.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-120.625,
+				-31.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-120.625,
+				-33.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-120,
+				-33.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-119.375,
+				-36.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-118.125,
+				-39.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-115.625,
+				-43.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-111.875,
+				-46.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-109.375,
+				-49.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-106.875,
+				-50.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-105.625,
+				-51.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-104.375,
+				-51.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-103.125,
+				-51.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-101.875,
+				-52.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-101.25,
+				-52.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-100,
+				-52.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-99.375,
+				-52.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-98.125,
+				-53.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-97.5,
+				-53.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-96.875,
+				-53.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-96.875,
+				-53.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-96.25,
+				-53.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-96.25,
+				-53.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-95.625,
+				-53.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-95,
+				-54.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-92.5,
+				-54.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-90,
+				-55.625,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-88.125,
+				-56.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-85.625,
+				-58.125,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-84.375,
+				-58.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-83.125,
+				-59.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-82.5,
+				-60,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-82.5,
+				-60,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-81.875,
+				-60,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-81.875,
+				-60,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-81.25,
+				-58.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-80.625,
+				-56.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-80,
+				-53.75,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-80,
+				-51.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-80,
+				-47.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-79.375,
+				-44.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-78.75,
+				-41.875,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-78.75,
+				-39.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-78.75,
+				-37.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-78.125,
+				-36.25,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-78.125,
+				-35,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-78.125,
+				-34.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-78.125,
+				-34.375,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-79.375,
+				-32.5,
+				19
+			]
+		],
+		[
+			"marker",
+			[
+				-80.625,
+				-31.875,
+				19
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"marker",
+			[
+				-649.9999999999994,
+				-139.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-649.9999999999994,
+				-139.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-639.9999999999994,
+				-139.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-629.9999999999994,
+				-139.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-609.9999999999994,
+				-129.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-579.9999999999994,
+				-109.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-559.9999999999995,
+				-109.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-539.9999999999995,
+				-99.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-519.9999999999995,
+				-89.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-509.99999999999955,
+				-89.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-499.99999999999955,
+				-79.99999999999993,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-479.9999999999996,
+				-69.99999999999994,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-469.9999999999996,
+				-69.99999999999994,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-459.9999999999996,
+				-59.99999999999995,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-449.9999999999996,
+				-49.99999999999996,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-439.9999999999996,
+				-49.99999999999996,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-419.9999999999996,
+				-39.999999999999964,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-409.99999999999966,
+				-29.999999999999975,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-399.99999999999966,
+				-29.999999999999975,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-369.99999999999966,
+				-19.999999999999982,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-349.9999999999997,
+				-9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-329.9999999999997,
+				-9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-319.9999999999997,
+				0,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-299.9999999999997,
+				9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-289.9999999999997,
+				9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-289.9999999999997,
+				9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-279.9999999999998,
+				9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-269.9999999999998,
+				9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-249.99999999999977,
+				19.999999999999982,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-239.9999999999998,
+				19.999999999999982,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-219.9999999999998,
+				29.999999999999975,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-189.99999999999983,
+				39.999999999999964,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-169.99999999999986,
+				49.99999999999996,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-129.9999999999999,
+				59.99999999999995,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-79.99999999999993,
+				69.99999999999994,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-29.999999999999975,
+				89.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				39.999999999999964,
+				99.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				119.9999999999999,
+				109.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				199.99999999999983,
+				129.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				269.9999999999998,
+				139.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				389.99999999999966,
+				159.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				449.9999999999996,
+				169.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				519.9999999999995,
+				169.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				579.9999999999994,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				649.9999999999994,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				709.9999999999993,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				769.9999999999993,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				819.9999999999993,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				859.9999999999992,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				889.9999999999992,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				919.9999999999992,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				949.9999999999992,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				949.9999999999992,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				959.9999999999992,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				959.9999999999992,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				949.9999999999992,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				909.9999999999992,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				859.9999999999992,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				789.9999999999993,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				649.9999999999994,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				529.9999999999995,
+				189.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				419.9999999999996,
+				229.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				279.9999999999998,
+				279.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				149.99999999999986,
+				339.9999999999997,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				29.999999999999975,
+				389.99999999999966,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-89.99999999999991,
+				449.9999999999996,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-209.9999999999998,
+				499.99999999999955,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-329.9999999999997,
+				529.9999999999995,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-439.9999999999996,
+				549.9999999999995,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-539.9999999999995,
+				559.9999999999995,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-619.9999999999994,
+				559.9999999999995,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-719.9999999999993,
+				559.9999999999995,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-769.9999999999993,
+				549.9999999999995,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-819.9999999999993,
+				519.9999999999995,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-869.9999999999992,
+				499.99999999999955,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-909.9999999999992,
+				489.99999999999955,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-939.9999999999992,
+				469.9999999999996,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-959.9999999999992,
+				459.9999999999996,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-969.9999999999991,
+				439.9999999999996,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-969.9999999999991,
+				429.9999999999996,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-969.9999999999991,
+				399.99999999999966,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-949.9999999999992,
+				359.99999999999966,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-859.9999999999992,
+				259.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-829.9999999999993,
+				229.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-719.9999999999993,
+				149.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-639.9999999999994,
+				109.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-589.9999999999994,
+				79.99999999999993,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-529.9999999999995,
+				59.99999999999995,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-489.99999999999955,
+				39.999999999999964,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-459.9999999999996,
+				19.999999999999982,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-419.9999999999996,
+				19.999999999999982,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-389.99999999999966,
+				9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-329.9999999999997,
+				9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-299.9999999999997,
+				9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-269.9999999999998,
+				9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-239.9999999999998,
+				9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-209.9999999999998,
+				9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-189.99999999999983,
+				9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-169.99999999999986,
+				9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-159.99999999999986,
+				19.999999999999982,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-149.99999999999986,
+				29.999999999999975,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-139.9999999999999,
+				49.99999999999996,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-139.9999999999999,
+				59.99999999999995,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-139.9999999999999,
+				89.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-159.99999999999986,
+				119.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-199.99999999999983,
+				149.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-259.9999999999998,
+				169.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-299.9999999999997,
+				179.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-349.9999999999997,
+				189.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-389.99999999999966,
+				199.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-419.9999999999996,
+				209.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-429.9999999999996,
+				209.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-439.9999999999996,
+				209.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-439.9999999999996,
+				219.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-439.9999999999996,
+				219.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-439.9999999999996,
+				219.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-439.9999999999996,
+				229.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-439.9999999999996,
+				239.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-439.9999999999996,
+				249.99999999999977,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-439.9999999999996,
+				259.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-439.9999999999996,
+				269.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-429.9999999999996,
+				269.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-409.99999999999966,
+				279.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-379.99999999999966,
+				289.9999999999997,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-339.9999999999997,
+				289.9999999999997,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-299.9999999999997,
+				299.9999999999997,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-249.99999999999977,
+				309.9999999999997,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-229.9999999999998,
+				309.9999999999997,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-209.9999999999998,
+				319.9999999999997,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-199.99999999999983,
+				319.9999999999997,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-189.99999999999983,
+				319.9999999999997,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-179.99999999999983,
+				319.9999999999997,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-179.99999999999983,
+				319.9999999999997,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-169.99999999999986,
+				319.9999999999997,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-169.99999999999986,
+				319.9999999999997,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-169.99999999999986,
+				319.9999999999997,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-149.99999999999986,
+				299.9999999999997,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-99.99999999999991,
+				239.9999999999998,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-59.99999999999995,
+				199.99999999999983,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-29.999999999999975,
+				159.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				29.999999999999975,
+				99.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				59.99999999999995,
+				69.99999999999994,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				99.99999999999991,
+				39.999999999999964,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				129.9999999999999,
+				9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				169.99999999999986,
+				-9.999999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				199.99999999999983,
+				-29.999999999999975,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				219.9999999999998,
+				-39.999999999999964,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				239.9999999999998,
+				-49.99999999999996,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				279.9999999999998,
+				-69.99999999999994,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				319.9999999999997,
+				-79.99999999999993,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				369.99999999999966,
+				-99.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				419.9999999999996,
+				-119.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				469.9999999999996,
+				-139.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				509.99999999999955,
+				-149.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				529.9999999999995,
+				-159.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				539.9999999999995,
+				-159.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				549.9999999999995,
+				-159.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				549.9999999999995,
+				-159.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				559.9999999999995,
+				-159.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				569.9999999999995,
+				-159.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				579.9999999999994,
+				-139.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				589.9999999999994,
+				-129.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				609.9999999999994,
+				-119.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				619.9999999999994,
+				-109.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				629.9999999999994,
+				-99.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				629.9999999999994,
+				-99.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				639.9999999999994,
+				-99.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				639.9999999999994,
+				-99.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				649.9999999999994,
+				-99.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				649.9999999999994,
+				-99.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				659.9999999999994,
+				-89.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				679.9999999999994,
+				-89.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				689.9999999999994,
+				-79.99999999999993,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				699.9999999999994,
+				-79.99999999999993,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				699.9999999999994,
+				-79.99999999999993,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				699.9999999999994,
+				-69.99999999999994,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				699.9999999999994,
+				-69.99999999999994,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				669.9999999999994,
+				-69.99999999999994,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				639.9999999999994,
+				-69.99999999999994,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				589.9999999999994,
+				-89.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				499.99999999999955,
+				-119.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				429.9999999999996,
+				-119.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				379.99999999999966,
+				-129.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				309.9999999999997,
+				-129.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				239.9999999999998,
+				-129.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				139.9999999999999,
+				-129.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				29.999999999999975,
+				-119.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-39.999999999999964,
+				-109.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-119.9999999999999,
+				-99.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-169.99999999999986,
+				-99.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-209.9999999999998,
+				-99.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-239.9999999999998,
+				-99.99999999999991,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-249.99999999999977,
+				-109.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-269.9999999999998,
+				-119.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-279.9999999999998,
+				-129.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-299.9999999999997,
+				-129.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-309.9999999999997,
+				-139.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-329.9999999999997,
+				-139.9999999999999,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-359.99999999999966,
+				-149.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-389.99999999999966,
+				-149.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-409.99999999999966,
+				-149.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-439.9999999999996,
+				-149.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-449.9999999999996,
+				-149.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-449.9999999999996,
+				-159.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-459.9999999999996,
+				-159.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-459.9999999999996,
+				-149.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-479.9999999999996,
+				-149.99999999999986,
+				300
+			]
+		],
+		[
+			"marker",
+			[
+				-489.99999999999955,
+				-139.9999999999999,
+				300
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#e12d2d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#e12d2d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#e12d2d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				-3429.999999999997,
+				-649.9999999999994,
+				1939.9999999999982,
+				1099.999999999999
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#30e12d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				-809.9999999999993,
+				-839.9999999999992,
+				2329.999999999998,
+				1619.9999999999986
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f70808",
+				"lineWidth": 2,
+				"fillStyle": "#30e12d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f70808",
+				"lineWidth": 2,
+				"fillStyle": "#30e12d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				-3049.9999999999973,
+				-1599.9999999999986,
+				879.9999999999991,
+				589.9999999999995
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#ef0101",
+				"font": "30px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				-4980.000000000001,
+				-130.00000000000003,
+				510,
+				660.0000000000001
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				1960.0000000000005,
+				-1780.0000000000005,
+				110,
+				2360.0000000000005
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				-1970.0000000000005,
+				-1780.0000000000005,
+				4040.000000000001,
+				1480.0000000000005
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				3130.000000000001,
+				-2760.0000000000005,
+				430,
+				1580.0000000000002
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				-1440.0000000000002,
+				2010.0000000000005,
+				450,
+				720
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				3770.000000000001,
+				890.0000000000002,
+				170,
+				1020.0000000000002
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f70808",
+				"lineWidth": 2,
+				"fillStyle": "#30e12d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				1710.0000000000005,
+				1360.0000000000002,
+				220,
+				690.0000000000002
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				490.0000000000001,
+				1590.0000000000005,
+				10,
+				730
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"rrect",
+			[
+				-4719.999999999995,
+				-1319.9999999999989,
+				1019.9999999999986,
+				409.99999999999966
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				-310.00000000000006,
+				1720.0000000000005,
+				1990.0000000000005,
+				40
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f70808",
+				"lineWidth": 2,
+				"fillStyle": "#30e12d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				-690.0000000000001,
+				1360.0000000000002,
+				10,
+				1520.0000000000002
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f70808",
+				"lineWidth": 2,
+				"fillStyle": "#30e12d",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"rrect",
+			[
+				-3659.999999999997,
+				-779.9999999999993,
+				1569.9999999999986,
+				1669.9999999999986
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"rrect",
+			[
+				870.0000000000002,
+				2770.0000000000005,
+				2160,
+				100
+			]
+		],
+		[
+			"endShape"
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#f33030",
+				"lineWidth": 2,
+				"fillStyle": "#ffffff",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 0.5,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"options",
+			{
+				"strokeStyle": "#000000",
+				"lineWidth": 2,
+				"fillStyle": "#000000",
+				"font": "16px sans-serif",
+				"fontColor": "#000000",
+				"globalAlpha": 1,
+				"globalCompositeOperation": "source-over",
+				"lineJoin": "round",
+				"lineCap": "round"
+			}
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		],
+		[
+			"endShape"
+		]
+	]
+}
