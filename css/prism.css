@@ -982,6 +982,7 @@ but moving the panel out of sight works instead */
 	border-left: thin solid black;
 	border-right: thin solid black;
 	border-bottom: thin solid black;
+	border-radius: 6px;
 	text-align: center;
 	line-height: 40px;
 	font-size: 26px;
@@ -990,8 +991,7 @@ but moving the panel out of sight works instead */
 	border-top: thin solid black;
 }
 .tool:hover {
-	outline: 4px solid gray;
-	outline-offset: -4px;
+	box-shadow: 0 0 0 4px grey inset;
 }
 .tool:active,
 .selected {

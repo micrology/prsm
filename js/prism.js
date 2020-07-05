@@ -112,7 +112,7 @@ function addEventListeners() {
 		.addEventListener('input', updateNetBack);
 	document
 		.getElementById('drawing')
-		.addEventListener('click', revealDrawingLayer);
+		.addEventListener('click', toggleDrawingLayer);
 	document
 		.getElementById('allFactors')
 		.addEventListener('click', selectAllFactors);
@@ -923,7 +923,8 @@ function recalculateStats() {
 	}, 200);
 }
 worker.onmessage = function (e) {
-	bc = e.data;
+	if (typeof e.data == 'string') statusMsg(e.data, 'error')
+	else bc = e.data;
 };
 /* 
   ----------- Status messages ---------------------------------------
@@ -1132,6 +1133,7 @@ function loadFile(contents) {
 		)
 			return;
 	unSelect();
+	ensureNotDrawing();
 	nodes.clear();
 	edges.clear();
 	network.destroy();
@@ -1937,7 +1939,7 @@ function makeSolid(elem) {
 function setBackground(color) {
 	document.getElementById('underlay').style.backgroundColor = color;
 }
-function revealDrawingLayer() {
+function toggleDrawingLayer() {
 	let toolbox = document.getElementById('toolbox');
 	let ul = document.getElementById('underlay');
 	if (toolbox.style.display == 'block') {
@@ -1951,10 +1953,12 @@ function revealDrawingLayer() {
 		inAddMode = false;
 		setButtonDisabledStatus('addNode', false);
 		setButtonDisabledStatus('addLink', false);
+		changeCursor('auto');
 	} else {
 		// expose drawing layer
 		document.getElementById('toolbox').style.display = 'block';
 		ul.style.zIndex = 1000;
+		ul.style.cursor = "pointer";
 		document.getElementById('temp-canvas').style.zIndex = 1000;
 		// make the underlay (which is now overlay) translucent
 		makeTranslucent(ul);
@@ -1964,6 +1968,12 @@ function revealDrawingLayer() {
 		setButtonDisabledStatus('addNode', true);
 		setButtonDisabledStatus('addLink', true);
 	}
+}
+function ensureNotDrawing() {
+	let toolbox = document.getElementById('toolbox');
+	if (toolbox.style.display != 'block') return;
+	toggleDrawingLayer();
+	document.getElementById('drawing').checked = false;
 }
 
 function selectAllFactors() {

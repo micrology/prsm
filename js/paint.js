@@ -21,9 +21,10 @@ let defaultOptions = {
 	fillStyle: '#ffffff',
 	font: '16px sans-serif',
 	fontColor: '#000000',
-	alpha: 1.0,
-	composite: 'source-over',
-	roundCorners: true,
+	globalAlpha: 1.0,
+	globalCompositeOperation: 'source-over',
+	lineJoin: 'round',
+	lineCap: 'round'
 };
 
 let selectedTool = null;
@@ -63,6 +64,7 @@ function setUpCanvas(id) {
 	// Give the canvas pixel dimensions of their CSS size * the device pixel ratio.
 	canvas.width = rect.width * dpr;
 	canvas.height = rect.height * dpr;
+	canvas.tabIndex = 0;  // required to enable mouse click to generate blur event
 	return canvas;
 }
 
@@ -192,21 +194,27 @@ class ToolHandler {
 		this.endX = 0;
 		this.endY = 0;
 		this.strokeStyle = defaultOptions.strokeStyle;
-		this.fillStyle = defaultOptions.fillStyle;
 		this.lineWidth = defaultOptions.lineWidth;
+		this.fillStyle = defaultOptions.fillStyle;
 		this.font = defaultOptions.font;
-		this.globalAlpha = defaultOptions.alpha;
-		this.globalCompositeOperation = defaultOptions.composite;
+		this.fontColor = defaultOptions.fontColor;
+		this.globalAlpha = defaultOptions.globalAlpha;
+		this.globalCompositeOperation = defaultOptions.globalCompositeOperation;
+		this.lineJoin = defaultOptions.lineJoin;
+		this.lineCap = defaultOptions.lineCap;
 	}
 	/**
-	 * mouse has been pressed - note the starting mouse position
+	 * mouse has been pressed - note the starting mouse position and options
 	 * @param {event} e
 	 */
 	mousedown(e) {
+		tempCanvas.focus();
 		this.endPosition(e);
 		this.startX = this.endX;
 		this.startY = this.endY;
 		this.isMouseDown = true;
+		applyOptions(tempctx, this.options());
+		yPointsArray.push([['options', this.options()]]);
 	}
 	/**
 	 * note the mouse coordinates relative to the canvas
@@ -229,23 +237,22 @@ class ToolHandler {
 		network.redraw();
 	}
 	/**
-	 * return an object with the current canvas drawing options, either those chosen by the user,
-	 * or the defaults
+	 * return an object with the current canvas drawing options
 	 * @returns {object}
 	 */
 	options() {
 		return {
-			strokeStyle: this.strokeStyle || defaultOptions.strokeStyle,
-			fillStyle: this.fillStyle || defaultOptions.fillStyle,
-			lineWidth:
-				this.lineWidth != undefined
-					? this.lineWidth
-					: defaultOptions.lineWidth,
-			font: this.font || defaultOptions.font,
-			globalAlpha: this.globalAlpha || defaultOptions.alpha,
-			globalCompositeOperation:
-				this.globalCompositeOperation || defaultOptions.composite,
-		};
+			strokeStyle: this.strokeStyle,
+			lineWidth: this.lineWidth,
+			fillStyle: this.fillStyle,
+			font: this.font,
+			fontColor: this.fontColor,
+			globalAlpha: this.globalAlpha,
+			globalCompositeOperation: this.globalCompositeOperation,
+			lineJoin: this.lineJoin,
+			lineCap: this.lineCap
+		}
+
 	}
 	/**
 	 * create a dialog box to allow the user to choose options for the current shape
@@ -286,7 +293,7 @@ class LineHandler extends ToolHandler {
 				else this.endX = this.startX;
 			}
 			drawHelper.clear(tempctx);
-			drawHelper.line(tempctx, this.options(), [
+			drawHelper.line(tempctx, [
 				this.startX,
 				this.startY,
 				this.endX,
@@ -299,7 +306,6 @@ class LineHandler extends ToolHandler {
 			yPointsArray.push([
 				[
 					'line',
-					this.options(),
 					[
 						DOMtoCanvasX(this.startX),
 						DOMtoCanvasY(this.startY),
@@ -322,6 +328,7 @@ class LineHandler extends ToolHandler {
 		widthInput.focus();
 		widthInput.addEventListener('change', () => {
 			this.lineWidth = parseInt(widthInput.value);
+			if (this.lineWidth > 99) this.lineWidth = 99;
 		});
 		let lineColor = document.getElementById('lineColour');
 		lineColor.value = this.strokeStyle;
@@ -368,7 +375,6 @@ class RectHandler extends ToolHandler {
 			let height = endY - startY;
 			drawHelper[this.roundCorners ? 'rrect' : 'rect'](
 				tempctx,
-				this.options(),
 				[startX, startY, width, height]
 			);
 		}
@@ -387,7 +393,6 @@ class RectHandler extends ToolHandler {
 			yPointsArray.push([
 				[
 					this.roundCorners ? 'rrect' : 'rect',
-					this.options(),
 					[
 						DOMtoCanvasX(this.startX),
 						DOMtoCanvasY(this.startY),
@@ -412,6 +417,7 @@ class RectHandler extends ToolHandler {
 		widthInput.focus();
 		widthInput.addEventListener('blur', () => {
 			this.lineWidth = parseInt(widthInput.value);
+			if (this.lineWidth > 99) this.lineWidth = 99;
 		});
 		let borderColor = document.getElementById('borderColour');
 		borderColor.value = this.strokeStyle;
@@ -464,7 +470,8 @@ class TextHandler extends ToolHandler {
 		this.writing = true;
 		underlay.style.cursor = 'text';
 		this.inp.focus();
-		dragImage(this.inp);
+		dragElement(this.inp);
+		super.mousedown(e)
 	}
 	unfocus(e) {
 		if (this.inp.value.length > 0 && this.writing) {
@@ -478,7 +485,6 @@ class TextHandler extends ToolHandler {
 				yPointsArray.push([
 					[
 						'text',
-						this.options(),
 						[
 							text,
 							DOMtoCanvasX(
@@ -530,11 +536,13 @@ let textHandler = new TextHandler();
 class PencilHandler extends ToolHandler {
 	constructor() {
 		super();
+		this.lineCap = 'butt';
+		this.lineJoin = 'round';
 	}
 	mousemove(e) {
 		if (this.isMouseDown) {
 			this.endPosition(e);
-			drawHelper.pencil(tempctx, this.options(), [
+			drawHelper.pencil(tempctx, [
 				this.startX,
 				this.startY,
 				this.endX,
@@ -553,17 +561,16 @@ class PencilHandler extends ToolHandler {
 		}
 	}
 	record() {
-		let opts = this.options();
-		opts.lineWidth = opts.lineWidth / network.body.view.scale;
+		let scaledLW = Math.round(this.lineWidth / network.body.view.scale);
 		yPointsArray.push([
 			[
 				'pencil',
-				opts,
 				[
 					DOMtoCanvasX(this.startX),
 					DOMtoCanvasY(this.startY),
 					DOMtoCanvasX(this.endX),
 					DOMtoCanvasY(this.endY),
+					scaledLW
 				],
 			],
 		]);
@@ -578,6 +585,7 @@ class PencilHandler extends ToolHandler {
 		widthInput.focus();
 		widthInput.addEventListener('blur', () => {
 			this.lineWidth = parseInt(widthInput.value);
+			if (this.lineWidth > 99) this.lineWidth = 99;
 		});
 		let pencilColor = document.getElementById('pencilColor');
 		pencilColor.value = this.strokeStyle;
@@ -600,7 +608,7 @@ class MarkerHandler extends ToolHandler {
 		if (this.isMouseDown) {
 			this.endPosition(e);
 			this.record();
-			drawHelper.marker(tempctx, this.options(), [
+			drawHelper.marker(tempctx, [
 				this.startX,
 				this.startY,
 				this.markerWidth
@@ -620,11 +628,10 @@ class MarkerHandler extends ToolHandler {
 		yPointsArray.push([
 			[
 				'marker',
-				this.options(),
 				[
 					DOMtoCanvasX(this.startX),
 					DOMtoCanvasY(this.startY),
-					this.markerWidth / network.body.view.scale,
+					Math.round(this.markerWidth / network.body.view.scale),
 				],
 			],
 		]);
@@ -639,6 +646,7 @@ class MarkerHandler extends ToolHandler {
 		widthInput.focus();
 		widthInput.addEventListener('blur', () => {
 			this.markerWidth = parseInt(widthInput.value);
+			if (this.markerWidth > 99) this.markerWidth = 99;
 		});
 		let markerColor = document.getElementById('markerColor');
 		markerColor.value = this.fillStyle;
@@ -653,71 +661,6 @@ let markerHandler = new MarkerHandler();
 /* the same as a marker, but with white ink and a special, bespoke cursor */
 
 class EraserHandler extends ToolHandler {
-/* 	constructor() {
-		super();
-		this.strokeStyle = '#ffffff';
-		this.lineWidth = 30;
-	}
-	mousedown(e) {
-		super.mousedown(e);
-		underlay.style.cursor = 'none';
-	}
-	mousemove(e) {
-		if (this.isMouseDown) {
-			this.cursor('#ffffff', 1);
-			this.endPosition(e);
-			drawHelper.marker(tempctx, this.options(), [
-				this.startX,
-				this.startY,
-				this.endX,
-				this.endY,
-			]);
-			this.record();
-			this.startX = this.endX;
-			this.startY = this.endY;
-			this.cursor('#000000', 2);
-		}
-	}
-	/**
-	 * draw a circle at the mouse to simulate a cursor
-	 * @param {string} color - as hex
-	 * @param {integer} width
-	 */
-	/* cursor(color, width) {
-		tempctx.beginPath();
-		tempctx.arc(
-			this.startX,
-			this.startY,
-			Math.round(this.lineWidth / 2 - width),
-			0,
-			2 * Math.PI
-		);
-		tempctx.strokeStyle = color;
-		tempctx.lineWidth = width;
-		tempctx.stroke();
-	}
-	mouseup(e) {
-		if (this.isMouseDown) {
-			this.endPosition(e);
-			this.record();
-			super.mouseup();
-			underlay.style.cursor = 'auto';
-		}
-	}
-	record() {
-		yPointsArray.push([
-			[
-				'marker',
-				this.options(),
-				[
-					DOMtoCanvasX(this.startX),
-					DOMtoCanvasY(this.startY),
-					DOMtoCanvasX(this.endX),
-					DOMtoCanvasY(this.endY),
-				],
-			],
-		]);
-	} */
 	constructor() {
 		super();
 		this.fillStyle = '#ffffff';
@@ -732,7 +675,7 @@ class EraserHandler extends ToolHandler {
 			this.cursor('#ffffff', 1);
 			this.endPosition(e);
 			this.record();
-			drawHelper.marker(tempctx, this.options(), [
+			drawHelper.marker(tempctx, [
 				this.startX,
 				this.startY,
 				this.markerWidth
@@ -754,11 +697,10 @@ class EraserHandler extends ToolHandler {
 		yPointsArray.push([
 			[
 				'marker',
-				this.options(),
 				[
 					DOMtoCanvasX(this.startX),
 					DOMtoCanvasY(this.startY),
-					this.markerWidth / network.body.view.scale,
+					Math.round(this.markerWidth / network.body.view.scale),
 				],
 			],
 		]);
@@ -790,6 +732,7 @@ class EraserHandler extends ToolHandler {
 		widthInput.addEventListener('blur', () => {
 			this.markerWidth = parseInt(widthInput.value);
 			if (this.markerWidth < 3) this.markerWidth = 4;
+			if (this.markerWidth > 99) this.markerWidth = 99;
 		});
 	}
 }
@@ -859,7 +802,7 @@ class ImageHandler extends ToolHandler {
 					);
 					wrap.origWidth = image.width;
 					wrap.origHeight = image.height;
-					dragImage(wrap);
+					dragElement(wrap);
 				};
 			};
 		}
@@ -881,7 +824,6 @@ class ImageHandler extends ToolHandler {
 			yPointsArray.push([
 				[
 					'image',
-					this.options(),
 					[
 						this.image.src,
 						DOMtoCanvasX(wrap.offsetLeft),
@@ -907,10 +849,10 @@ class ImageHandler extends ToolHandler {
 }
 
 /**
- * allow user to move and resize the image
- * @param {element} wrap
+ * allow user to move and resize the DIV
+ * @param {element} elem
  */
-function dragImage(wrap) {
+function dragElement(elem) {
 	let pos1 = 0,
 		pos2 = 0,
 		pos3 = 0,
@@ -919,21 +861,21 @@ function dragImage(wrap) {
 		height,
 		resizing;
 
-	wrap.onmousedown = dragMouseDown;
+	elem.onmousedown = dragMouseDown;
 
 	function dragMouseDown(e) {
 		e = e || window.event;
 		e.preventDefault();
 		// find the startimg width and height of the image
-		let rect = wrap.getBoundingClientRect();
+		let rect = elem.getBoundingClientRect();
 		width = rect.width;
 		height = rect.height;
 		// get the mouse cursor position at startup:
 		pos3 = e.clientX;
 		pos4 = e.clientY;
-		wrap.onmouseup = closeDragElement;
+		elem.onmouseup = closeDragElement;
 		// call a function whenever the cursor moves:
-		wrap.onmousemove = elementDrag;
+		elem.onmousemove = elementDrag;
 		// note whether the user is moving or resizing (i.e. has the pointer over the resize handle)
 		resizing = e.target.id == 'resizer';
 	}
@@ -942,15 +884,15 @@ function dragImage(wrap) {
 		e = e || window.event;
 		e.preventDefault();
 		if (resizing) {
-			wrap.style.cursor = 'nwse-resize';
+			elem.style.cursor = 'nwse-resize';
 			// constrain the resizing to keep the original image proportions
 			let hScale = (width + (e.clientX - pos3)) / width;
 			let vScale = (height + (e.clientY - pos4)) / height;
 			let scale = Math.max(hScale, vScale);
 			let newWidth = Math.round(width * scale);
 			let newHeight = Math.round(height * scale);
-			wrap.firstChild.style.width = `${newWidth}px`;
-			wrap.firstChild.style.height = `${newHeight}px`;
+			elem.firstChild.style.width = `${newWidth}px`;
+			elem.firstChild.style.height = `${newHeight}px`;
 		} else {
 			// move
 			e.target.style.cursor = 'move';
@@ -960,16 +902,16 @@ function dragImage(wrap) {
 			pos3 = e.clientX;
 			pos4 = e.clientY;
 			// set the element's new position:
-			wrap.style.top = wrap.offsetTop - pos2 + 'px';
-			wrap.style.left = wrap.offsetLeft - pos1 + 'px';
+			elem.style.top = elem.offsetTop - pos2 + 'px';
+			elem.style.left = elem.offsetLeft - pos1 + 'px';
 		}
 	}
 
 	function closeDragElement() {
 		// stop moving and resizing when mouse button is released:
 		resizing = false;
-		wrap.onmouseup = null;
-		wrap.onmousemove = null;
+		elem.onmouseup = null;
+		elem.onmousemove = null;
 	}
 }
 let imageHandler = new ImageHandler();
@@ -1038,9 +980,11 @@ function DOMtoCanvasY(y) {
  */
 export function redraw(netctx) {
 	drawHelper.clear(tempctx);
+	netctx.save();
 	yPointsArray.forEach((point) => {
 		drawHelper[point[0]](netctx, point[1], point[2]);
 	});
+	netctx.restore();
 }
 
 /**
@@ -1067,32 +1011,31 @@ let drawHelper = {
 		ctx.setTransform(2, 0, 0, 2, 0, 0);
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 	},
-	line: function (ctx, options, [startX, startY, endX, endY]) {
+	options: function (ctx, options) {
 		applyOptions(ctx, options);
+	},
+	line: function (ctx, [startX, startY, endX, endY]) {
 		ctx.beginPath();
 		ctx.moveTo(startX, startY);
 		ctx.lineTo(endX, endY);
 		ctx.stroke();
 	},
-	rect: function (ctx, options, [startX, startY, width, height]) {
-		applyOptions(ctx, options);
+	rect: function (ctx, [startX, startY, width, height]) {
 		ctx.beginPath();
 		ctx.lineJoin = 'miter';
 		ctx.rect(startX, startY, width, height);
-		if (options.lineWidth > 0) ctx.stroke();
+		if (ctx.lineWidth > 0) ctx.stroke();
 		// treat white as transparent
-		if (options.fillStyle !== '#ffffff') ctx.fill();
+		if (ctx.fillStyle !== '#ffffff') ctx.fill();
 	},
-	rrect: function (ctx, options, [startX, startY, width, height]) {
-		applyOptions(ctx, options);
+	rrect: function (ctx, [startX, startY, width, height]) {
 		ctx.beginPath();
 		ctx.roundRect(startX, startY, width, height, 10);
-		if (options.lineWidth > 0) ctx.stroke();
-		if (options.fillStyle !== '#ffffff') ctx.fill();
+		if (ctx.lineWidth > 0) ctx.stroke();
+		if (ctx.fillStyle !== '#ffffff') ctx.fill();
 	},
-	text: function (ctx, options, [text, x, y]) {
+	text: function (ctx, [text, x, y]) {
 		ctx.textBaseline = 'top';
-		applyOptions(ctx, options);
 		ctx.beginPath();
 		let lineHeight = ctx.measureText('M').width * 1.2;
 		let lines = text.split('\n');
@@ -1101,17 +1044,14 @@ let drawHelper = {
 			y += lineHeight;
 		}
 	},
-	pencil: function (ctx, options, [startX, startY, endX, endY]) {
-		applyOptions(ctx, options);
-		ctx.lineCap = 'butt';
-		ctx.lineJoin = 'round';
+	pencil: function (ctx, [startX, startY, endX, endY, width]) {
+		ctx.lineWidth = width;
 		ctx.beginPath();
 		ctx.moveTo(startX, startY);
 		ctx.lineTo(endX, endY);
 		ctx.stroke();
 	},
-	marker: function (ctx, options, [startX, startY, width]) {
-		applyOptions(ctx, options);
+	marker: function (ctx, [startX, startY, width]) {
 		let halfWidth = Math.round(width / 2);
 		ctx.beginPath();
 		ctx.roundRect(startX - halfWidth, startY - halfWidth, width, width, halfWidth);
@@ -1120,7 +1060,7 @@ let drawHelper = {
 	eraser: {
 		/* never called: eraser uses 'marker'*/
 	},
-	image: function (ctx, options, [src, x, y, ow, oh, w, h]) {
+	image: function (ctx, [src, x, y, ow, oh, w, h]) {
 		let img = imageCache.get(src);
 		if (img == undefined) {  // not yet cached, so create the Image
 			img = new Image();
