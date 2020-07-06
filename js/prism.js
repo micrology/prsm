@@ -29,7 +29,7 @@ import {
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 import 'vis-network/styles/vis-network.css';
 
-const version = '1.21';
+const version = '1.22';
 const GRIDSPACING = 50;
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30;
@@ -1095,6 +1095,8 @@ function deleteNode() {
 	network.deleteSelected();
 }
 var lastFileName = 'network.json'; // the name of the file last read in
+let msg = '';
+
 function readSingleFile(e) {
 	var file = e.target.files[0];
 	if (!file) {
@@ -1103,12 +1105,13 @@ function readSingleFile(e) {
 	let fileName = file.name;
 	lastFileName = fileName;
 	statusMsg("Reading '" + fileName + "'");
+	msg = '';
 	e.target.value = '';
 	var reader = new FileReader();
 	reader.onloadend = function (e) {
 		try {
 			loadFile(e.target.result);
-			statusMsg("Read '" + fileName + "'");
+			if (!msg) statusMsg("Read '" + fileName + "'");
 		} catch (err) {
 			statusMsg(
 				"Error reading '" + fileName + "': " + err.message,
@@ -1139,12 +1142,13 @@ function loadFile(contents) {
 	network.destroy();
 	draw();
 	let isJSONfile = false;
-	if (lastFileName.substr(-3).toLowerCase() == 'csv')
+	let suffix = lastFileName.substr(-3).toLowerCase();
+	if (suffix == 'csv')
 		data = parseCSV(contents);
 	else {
-		if (contents.search('graphml') >= 0) data = parseGraphML(contents);
+		if (suffix == 'graphml' && contents.search('graphml') >= 0) data = parseGraphML(contents);
 		else {
-			if (contents.search('graph') >= 0) data = parseGML(contents);
+			if (suffix == 'gml' && contents.search('graph') >= 0) data = parseGML(contents);
 			else {
 				data = loadJSONfile(contents);
 				isJSONfile = true;
@@ -1193,13 +1197,13 @@ function loadFile(contents) {
 		data.edges.map((e) => deepMerge(samples.edges[e.grp], e))
 	);
 	if (!isJSONfile) adjustGravity(50000);
-	//fit();
 }
 
 function loadJSONfile(json) {
 	json = JSON.parse(json);
-	if (json.version && version > json.version) {
+	if (json.version && version.substring(0, 3) > json.version.substring(0, 3)) {
 		statusMsg('Warning: file was created in an earlier version', 'warn');
+		msg = 'old version';
 	}
 	if (json.lastNodeSample) lastNodeSample = json.lastNodeSample;
 	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
