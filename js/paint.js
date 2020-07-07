@@ -475,11 +475,11 @@ class TextHandler extends ToolHandler {
 		this.inp.style.width = '100%';
 		this.inp.style.height = '100%';
 		this.inp.style.resize = 'none';
-							//  create a small square box at the bottom right to use as the resizing handle
-							let resize = document.createElement('div');
-							resize.classList.add('resize');
-							resize.id = 'resizer';
-							this.div.appendChild(resize);
+		//  create a small square box at the bottom right to use as the resizing handle
+		let resize = document.createElement('div');
+		resize.classList.add('resize');
+		resize.id = 'resizer';
+		this.div.appendChild(resize);
 		this.unfocusfn = this.unfocus.bind(this);
 		document.addEventListener('click', this.unfocusfn);
 		this.writing = true;
@@ -798,9 +798,10 @@ class ImageHandler extends ToolHandler {
 						image.offsetHeight / (underlay.offsetHeight - 100)
 					);
 					let scale = 1;
-					if (hScale > 1.0 || vScale > 1.0) scale = Math.max(hScale, vScale);
+					if (hScale > 1.0 || vScale > 1.0)
+						scale = Math.max(hScale, vScale);
 					wrap.style.width = `${Math.round(
-							image.offsetWidth / scale
+						image.offsetWidth / scale
 					)}px`;
 					wrap.style.height = `${Math.round(
 						image.offsetHeight / scale
@@ -810,8 +811,8 @@ class ImageHandler extends ToolHandler {
 					wrap.style.top =
 						(underlay.offsetHeight - wrap.offsetHeight) / 2 + 'px';
 					image.style.boxSizing = 'border-box';
-					image.style.width = "100%";
-				//  create a small square box at the bottom right to use as the resizing handle
+					image.style.width = '100%';
+					//  create a small square box at the bottom right to use as the resizing handle
 					let resize = document.createElement('div');
 					resize.classList.add('resize');
 					resize.id = 'resizer';
@@ -1039,7 +1040,7 @@ function drawGrid(netctx) {
 	let cell = GRIDSPACING * scale;
 
 	netctx.save();
-	netctx.strokeStyle = 'rgba(211, 211, 211, 0.5)';  //'lightgrey';
+	netctx.strokeStyle = 'rgba(211, 211, 211, 0.5)'; //'lightgrey';
 	netctx.beginPath();
 	for (let x = -(width / 2 + cell); x <= width / 2 + cell; x += cell) {
 		// vertical grid lines
