@@ -1978,7 +1978,7 @@ function toggleDrawingLayer() {
 		setButtonDisabledStatus('addNode', true);
 		setButtonDisabledStatus('addLink', true);
 	}
-	drawingSwitch = !drawingSwitch; console.log(drawingSwitch);
+	drawingSwitch = !drawingSwitch;
 	network.redraw();
 }
 function ensureNotDrawing() {

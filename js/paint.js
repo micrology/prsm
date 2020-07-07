@@ -455,25 +455,36 @@ class TextHandler extends ToolHandler {
 		if (this.writing) return;
 		this.startX = e.offsetX - tempCanvas.offsetLeft;
 		this.startY = e.offsetY - tempCanvas.offsetTop;
+		this.div = document.createElement('div');
+		underlay.appendChild(this.div);
+		this.div.style.position = 'absolute';
+		this.div.style.zIndex = 1002;
+		this.div.style.border = border + 'px solid lightgrey';
+		this.div.style.left = this.startX - border + 'px';
+		this.div.style.top = this.startY - border + 'px';
+		this.div.style.width = '300px';
+		this.div.style.height = '50px';
 		this.inp = document.createElement('textarea');
-		underlay.appendChild(this.inp);
+		this.div.appendChild(this.inp);
 		this.inp.setAttribute('id', 'input');
 		this.inp.setAttribute('type', 'text');
 		this.inp.style.font = this.font;
 		this.inp.style.color = this.fillStyle;
-		this.inp.style.border = border + 'px solid lightgrey';
 		this.inp.style.position = 'absolute';
-		this.inp.style.left = this.startX - border + 'px';
-		this.inp.style.top = this.startY - border + 'px';
-		this.inp.style.width = '300px';
-		this.inp.style.zIndex = 1002;
+		this.inp.style.boxSizing = 'border-box';
+		this.inp.style.width = '100%';
+		this.inp.style.height = '100%';
 		this.inp.style.resize = 'none';
+							//  create a small square box at the bottom right to use as the resizing handle
+							let resize = document.createElement('div');
+							resize.classList.add('resize');
+							resize.id = 'resizer';
+							this.div.appendChild(resize);
 		this.unfocusfn = this.unfocus.bind(this);
 		document.addEventListener('click', this.unfocusfn);
 		this.writing = true;
 		underlay.style.cursor = 'text';
-		//		this.inp.tabIndex = 0;
-		dragElement(this.inp);
+		dragElement(this.div, false);
 		super.mousedown(e);
 		this.inp.focus();
 	}
@@ -492,17 +503,17 @@ class TextHandler extends ToolHandler {
 						[
 							text,
 							DOMtoCanvasX(
-								this.inp.offsetLeft - tempCanvas.offsetLeft + 12
+								this.div.offsetLeft - tempCanvas.offsetLeft + 12
 							), // '11' allows for border and outline
 							DOMtoCanvasY(
-								this.inp.offsetTop - tempCanvas.offsetTop + 13
+								this.div.offsetTop - tempCanvas.offsetTop + 13
 							),
 						],
 					],
 				]);
 			}
 			this.writing = false;
-			underlay.removeChild(this.inp);
+			underlay.removeChild(this.div);
 			document.removeEventListener('click', this.unfocusfn);
 			underlay.style.cursor = 'auto';
 			super.mouseup();
@@ -786,17 +797,21 @@ class ImageHandler extends ToolHandler {
 					let vScale = Math.ceil(
 						image.offsetHeight / (underlay.offsetHeight - 100)
 					);
-					if (hScale > 1.0 || vScale > 1.0) {
-						let scale = Math.max(hScale, vScale);
-						image.style.width = `${Math.round(
+					let scale = 1;
+					if (hScale > 1.0 || vScale > 1.0) scale = Math.max(hScale, vScale);
+					wrap.style.width = `${Math.round(
 							image.offsetWidth / scale
-						)}px`;
-					}
+					)}px`;
+					wrap.style.height = `${Math.round(
+						image.offsetHeight / scale
+					)}px`;
 					wrap.style.left =
-						(underlay.offsetWidth - image.offsetWidth) / 2 + 'px';
+						(underlay.offsetWidth - wrap.offsetWidth) / 2 + 'px';
 					wrap.style.top =
-						(underlay.offsetHeight - image.offsetHeight) / 2 + 'px';
-					//  create a small square box at the bottom right to use as the resizing handle
+						(underlay.offsetHeight - wrap.offsetHeight) / 2 + 'px';
+					image.style.boxSizing = 'border-box';
+					image.style.width = "100%";
+				//  create a small square box at the bottom right to use as the resizing handle
 					let resize = document.createElement('div');
 					resize.classList.add('resize');
 					resize.id = 'resizer';
@@ -856,7 +871,7 @@ class ImageHandler extends ToolHandler {
  * allow user to move and resize the DIV
  * @param {element} elem
  */
-function dragElement(elem) {
+function dragElement(elem, constrain = true) {
 	let pos1 = 0,
 		pos2 = 0,
 		pos3 = 0,
@@ -870,7 +885,7 @@ function dragElement(elem) {
 	function dragMouseDown(e) {
 		e = e || window.event;
 		e.preventDefault();
-		// find the startimg width and height of the image
+		// find the startimg width and height of the element
 		let rect = elem.getBoundingClientRect();
 		width = rect.width;
 		height = rect.height;
@@ -892,11 +907,15 @@ function dragElement(elem) {
 			// constrain the resizing to keep the original image proportions
 			let hScale = (width + (e.clientX - pos3)) / width;
 			let vScale = (height + (e.clientY - pos4)) / height;
-			let scale = Math.max(hScale, vScale);
-			let newWidth = Math.round(width * scale);
-			let newHeight = Math.round(height * scale);
-			elem.firstChild.style.width = `${newWidth}px`;
-			elem.firstChild.style.height = `${newHeight}px`;
+			if (constrain) {
+				let scale = Math.max(hScale, vScale);
+				hScale = scale;
+				vScale = scale;
+			}
+			let newWidth = Math.round(width * hScale);
+			let newHeight = Math.round(height * vScale);
+			elem.style.width = `${newWidth}px`;
+			elem.style.height = `${newHeight}px`;
 		} else {
 			// move
 			e.target.style.cursor = 'move';
@@ -1018,7 +1037,7 @@ function drawGrid(netctx) {
 	let width = network.body.container.clientWidth * scale;
 	let height = network.body.container.clientHeight * scale;
 	let cell = GRIDSPACING * scale;
-	
+
 	netctx.save();
 	netctx.strokeStyle = 'rgba(211, 211, 211, 0.5)';  //'lightgrey';
 	netctx.beginPath();
