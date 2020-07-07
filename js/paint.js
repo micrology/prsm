@@ -9,7 +9,7 @@
  *
  */
 
-import {yPointsArray, network} from './prism.js';
+import {yPointsArray, network, drawingSwitch} from './prism.js';
 /**
  * Initialisation
  */
@@ -37,6 +37,8 @@ let dpr = window.devicePixelRatio || 1;
 
 window.yPointsArray = yPointsArray;
 
+const GRIDSPACING = 50;
+
 /**
  * create the canvases and add listeners for mouse events
  * initialise the array holding drawing commands
@@ -49,8 +51,6 @@ export function setUpPaint() {
 	tempCanvas.addEventListener('mousedown', mouseDespatch);
 	tempCanvas.addEventListener('mousemove', mouseDespatch);
 	tempCanvas.addEventListener('mouseup', mouseDespatch);
-
-	yPointsArray.push([['endShape']]);
 }
 /**
  * set up and return the canvas at the id
@@ -472,7 +472,7 @@ class TextHandler extends ToolHandler {
 		document.addEventListener('click', this.unfocusfn);
 		this.writing = true;
 		underlay.style.cursor = 'text';
-//		this.inp.tabIndex = 0;
+		//		this.inp.tabIndex = 0;
 		dragElement(this.inp);
 		super.mousedown(e);
 		this.inp.focus();
@@ -911,8 +911,9 @@ function dragElement(elem) {
 		}
 	}
 
-	function closeDragElement() {
+	function closeDragElement(e) {
 		// stop moving and resizing when mouse button is released:
+		e.target.style.cursor = 'auto';
 		resizing = false;
 		elem.onmouseup = null;
 		elem.onmousemove = null;
@@ -932,9 +933,9 @@ class UndoHandler extends ToolHandler {
 	undo() {
 		let len = yPointsArray.length;
 		let points = yPointsArray.toArray();
-		if (len == 1) return;
+		if (len == 0) return;
 		let i;
-		for (i = len - 2; i > 0 && points[i][0] !== 'endShape'; i--);
+		for (i = len - 2; i >= 0 && points[i][0] !== 'endShape'; i--);
 		yPointsArray.delete(i + 1, len - i - 1);
 		network.redraw();
 	}
@@ -985,6 +986,7 @@ function DOMtoCanvasY(y) {
 export function redraw(netctx) {
 	drawHelper.clear(tempctx);
 	netctx.save();
+	if (drawingSwitch) drawGrid(netctx);
 	yPointsArray.forEach((point) => {
 		drawHelper[point[0]](netctx, point[1], point[2]);
 	});
@@ -1006,6 +1008,33 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
 	this.closePath();
 	return this;
 };
+/**
+ * draw a faint evenly spaced grid over the drawing area
+ * @param {CanvasContext} ctx
+ */
+
+function drawGrid(netctx) {
+	let scale = network.body.view.scale;
+	let width = network.body.container.clientWidth * scale;
+	let height = network.body.container.clientHeight * scale;
+	let cell = GRIDSPACING * scale;
+	
+	netctx.save();
+	netctx.strokeStyle = 'rgba(211, 211, 211, 0.5)';  //'lightgrey';
+	netctx.beginPath();
+	for (let x = -(width / 2 + cell); x <= width / 2 + cell; x += cell) {
+		// vertical grid lines
+		netctx.moveTo(x, -(height / 2 + cell));
+		netctx.lineTo(x, height / 2 + cell);
+	}
+	for (let y = -(height / 2 + cell); y <= height / 2 + cell; y += cell) {
+		// horizontal grid lines
+		netctx.moveTo(-(width / 2 + cell), y);
+		netctx.lineTo(width / 2 + cell, y);
+	}
+	netctx.stroke();
+	netctx.restore();
+}
 
 let imageCache = new Map();
 
@@ -1028,6 +1057,7 @@ let drawHelper = {
 		ctx.beginPath();
 		ctx.lineJoin = 'miter';
 		ctx.rect(startX, startY, width, height);
+		console.log(startX, startY);
 		if (ctx.lineWidth > 0) ctx.stroke();
 		// treat white as transparent
 		if (ctx.fillStyle !== '#ffffff') ctx.fill();
@@ -1073,24 +1103,14 @@ let drawHelper = {
 	image: function (ctx, [src, x, y, ow, oh, w, h]) {
 		let xt = x + network.body.view.translation.x;
 		let yt = y + network.body.view.translation.y;
-		let img = imageCache.get(src);
+		let img = imageCache.get(src.substring(0, 100));
 		if (img == undefined) {
 			// not yet cached, so create the Image
 			img = new Image();
 			img.src = src;
-			imageCache.set(src, img);
+			imageCache.set(src.substring(0, 100), img);
 			img.onload = function () {
-				ctx.drawImage(
-					this,
-					0,
-					0,
-					ow,
-					oh,
-					xt,
-					yt,
-					w,
-					h
-				);
+				ctx.drawImage(this, 0, 0, ow, oh, xt, yt, w, h);
 			};
 		} else {
 			ctx.drawImage(img, 0, 0, ow, oh, x, y, w, h);
