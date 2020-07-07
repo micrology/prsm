@@ -29,7 +29,7 @@ import {
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 import 'vis-network/styles/vis-network.css';
 
-const version = '1.22';
+const version = '1.23';
 const GRIDSPACING = 50;
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30;
@@ -55,6 +55,7 @@ var lastNodeSample = 'group0';
 var lastLinkSample = 'edge0';
 var inAddMode = false; // true when adding a new Factor to the network; used to choose cursor pointer
 var snapToGridToggle = false;
+export var drawingSwitch = false;
 window.addEventListener('load', () => {
 	addEventListeners();
 	setUpPage();
@@ -378,7 +379,8 @@ function startY() {
 		}
 	});
 	yPointsArray.observe((event, trans) => {
-		if (window.debug) console.log(trans.local, yPointsArray.get(yPointsArray.length - 1));
+		if (window.debug)
+			console.log(trans.local, yPointsArray.get(yPointsArray.length - 1));
 		if (!trans.local) network.redraw();
 	});
 	yUndoManager.on('stack-item-added', (event) => {
@@ -1143,12 +1145,13 @@ function loadFile(contents) {
 	draw();
 	let isJSONfile = false;
 	let suffix = lastFileName.substr(-3).toLowerCase();
-	if (suffix == 'csv')
-		data = parseCSV(contents);
+	if (suffix == 'csv') data = parseCSV(contents);
 	else {
-		if (suffix == 'graphml' && contents.search('graphml') >= 0) data = parseGraphML(contents);
+		if (suffix == 'graphml' && contents.search('graphml') >= 0)
+			data = parseGraphML(contents);
 		else {
-			if (suffix == 'gml' && contents.search('graph') >= 0) data = parseGML(contents);
+			if (suffix == 'gml' && contents.search('graph') >= 0)
+				data = parseGML(contents);
 			else {
 				data = loadJSONfile(contents);
 				isJSONfile = true;
@@ -1197,11 +1200,15 @@ function loadFile(contents) {
 		data.edges.map((e) => deepMerge(samples.edges[e.grp], e))
 	);
 	if (!isJSONfile) adjustGravity(50000);
+	network.fit();
 }
 
 function loadJSONfile(json) {
 	json = JSON.parse(json);
-	if (json.version && version.substring(0, 3) > json.version.substring(0, 3)) {
+	if (
+		json.version &&
+		version.substring(0, 3) > json.version.substring(0, 3)
+	) {
 		statusMsg('Warning: file was created in an earlier version', 'warn');
 		msg = 'old version';
 	}
@@ -1944,9 +1951,9 @@ function setBackground(color) {
 	document.getElementById('underlay').style.backgroundColor = color;
 }
 function toggleDrawingLayer() {
-	let toolbox = document.getElementById('toolbox');
+	drawingSwitch = document.getElementById('toolbox').style.display == 'block';
 	let ul = document.getElementById('underlay');
-	if (toolbox.style.display == 'block') {
+	if (drawingSwitch) {
 		// close drawing layer
 		deselectTool();
 		document.getElementById('toolbox').style.display = 'none';
@@ -1972,10 +1979,11 @@ function toggleDrawingLayer() {
 		setButtonDisabledStatus('addNode', true);
 		setButtonDisabledStatus('addLink', true);
 	}
+	drawingSwitch = !drawingSwitch;
+	network.redraw();
 }
 function ensureNotDrawing() {
-	let toolbox = document.getElementById('toolbox');
-	if (toolbox.style.display != 'block') return;
+	if (!drawingSwitch) return;
 	toggleDrawingLayer();
 	document.getElementById('drawing').checked = false;
 }
