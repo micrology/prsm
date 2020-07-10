@@ -441,6 +441,13 @@ class RectHandler extends ToolHandler {
 let rectHandler = new RectHandler();
 
 /* ========================================================== text ================================================ */
+String.prototype.splice = function (index, count, add) {
+	if (index < 0) {
+		index = this.length;
+	}
+	return this.slice(0, index) + (add || '') + this.slice(index + count);
+};
+
 const border = 10;
 
 class TextHandler extends ToolHandler {
@@ -475,6 +482,9 @@ class TextHandler extends ToolHandler {
 		this.inp.style.width = '100%';
 		this.inp.style.height = '100%';
 		this.inp.style.resize = 'none';
+		this.inp.wrap = 'off';
+		this.inp.addEventListener('keyup', this.insertNewlines.bind(this));
+		this.inp.style.overflow = 'hidden';
 		//  create a small square box at the bottom right to use as the resizing handle
 		let resize = document.createElement('div');
 		resize.classList.add('resize');
@@ -487,6 +497,13 @@ class TextHandler extends ToolHandler {
 		dragElement(this.div, false);
 		super.mousedown(e);
 		this.inp.focus();
+	}
+	insertNewlines() {
+		// If the width of the chars in textarea are greater than its width then insert newline
+		if (this.inp.scrollWidth > this.inp.clientWidth) {
+			let lastSpace = this.inp.value.lastIndexOf(' ');
+			this.inp.value = this.inp.value.splice(lastSpace, 1, '\n');
+		}
 	}
 	unfocus(e) {
 		if (this.inp.value.length > 0 && this.writing) {
@@ -885,7 +902,6 @@ function dragElement(elem, constrain = true) {
 
 	function dragMouseDown(e) {
 		e = e || window.event;
-		e.preventDefault();
 		// find the startimg width and height of the element
 		let rect = elem.getBoundingClientRect();
 		width = rect.width;
@@ -902,7 +918,6 @@ function dragElement(elem, constrain = true) {
 
 	function elementDrag(e) {
 		e = e || window.event;
-		e.preventDefault();
 		if (resizing) {
 			elem.style.cursor = 'nwse-resize';
 			// constrain the resizing to keep the original image proportions
