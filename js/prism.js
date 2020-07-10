@@ -3,6 +3,7 @@ The main entry point for PRISM.
  */
 import * as Y from 'yjs';
 import {WebsocketProvider} from 'y-websocket';
+import {IndexeddbPersistence} from 'y-indexeddb';
 import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
 import {
@@ -29,7 +30,7 @@ import {
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 import 'vis-network/styles/vis-network.css';
 
-const version = '1.23';
+const version = '1.24';
 const GRIDSPACING = 50;
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30;
@@ -48,6 +49,7 @@ var yUndoManager;
 var yChatArray;
 var panel;
 var container;
+var netPane;
 var buttonStatus;
 var initialButtonStatus;
 var myName;
@@ -159,6 +161,7 @@ function addEventListeners() {
 
 function setUpPage() {
 	container = document.getElementById('container');
+	netPane = document.getElementById('net-pane');
 	panel = document.getElementById('panel');
 	panel.classList.add('hide');
 	container.panelHidden = true;
@@ -190,6 +193,12 @@ function startY() {
 		'prism' + room,
 		doc
 	);
+	const indexeddbProvider = new IndexeddbPersistence('prism' + room, doc);
+	indexeddbProvider.whenSynced.then(() => {
+		console.log(
+			new Date().toLocaleTimeString() + 'Loaded data from indexed db'
+		);
+	});
 	document.title = document.title + ' ' + room;
 	wsProvider.on('status', (event) => {
 		console.log(
@@ -1143,6 +1152,8 @@ function loadFile(contents) {
 	edges.clear();
 	network.destroy();
 	draw();
+	netPane.style.display = 'none';
+
 	let isJSONfile = false;
 	let suffix = lastFileName.substr(-3).toLowerCase();
 	if (suffix == 'csv') data = parseCSV(contents);
@@ -1201,6 +1212,7 @@ function loadFile(contents) {
 	);
 	if (!isJSONfile) adjustGravity(50000);
 	network.fit();
+	netPane.style.display = 'block';
 }
 
 function loadJSONfile(json) {
