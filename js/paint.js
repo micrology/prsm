@@ -1050,12 +1050,12 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
 
 function drawGrid(netctx) {
 	let scale = network.body.view.scale;
-	let width = network.body.container.clientWidth * scale;
-	let height = network.body.container.clientHeight * scale;
+	let width = network.body.container.clientWidth / scale;
+	let height = network.body.container.clientHeight / scale;
 	let cell = GRIDSPACING * scale;
 
 	netctx.save();
-	netctx.strokeStyle = 'rgba(211, 211, 211, 0.5)'; //'lightgrey';
+	netctx.strokeStyle = 'rgba(211, 211, 211, 0.7)'; //'lightgrey';
 	netctx.beginPath();
 	for (let x = -(width / 2 + cell); x <= width / 2 + cell; x += cell) {
 		// vertical grid lines

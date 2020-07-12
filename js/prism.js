@@ -49,7 +49,6 @@ var yUndoManager;
 var yChatArray;
 var panel;
 var container;
-var netPane;
 var buttonStatus;
 var initialButtonStatus;
 var myName;
@@ -66,7 +65,6 @@ window.addEventListener('load', () => {
 	setUpPaint();
 	setUpToolbox();
 	draw();
-	setTimeout(fit, 500); // need to wait until the canvas draw has been completed
 });
 
 function addEventListeners() {
@@ -161,7 +159,6 @@ function addEventListeners() {
 
 function setUpPage() {
 	container = document.getElementById('container');
-	netPane = document.getElementById('net-pane');
 	panel = document.getElementById('panel');
 	panel.classList.add('hide');
 	container.panelHidden = true;
@@ -196,7 +193,7 @@ function startY() {
 	const indexeddbProvider = new IndexeddbPersistence('prism' + room, doc);
 	indexeddbProvider.whenSynced.then(() => {
 		console.log(
-			new Date().toLocaleTimeString() + 'Loaded data from indexed db'
+			new Date().toLocaleTimeString() + ': ' + 'Loaded data from indexed db'
 		);
 	});
 	document.title = document.title + ' ' + room;
@@ -1152,7 +1149,6 @@ function loadFile(contents) {
 	edges.clear();
 	network.destroy();
 	draw();
-	netPane.style.display = 'none';
 
 	let isJSONfile = false;
 	let suffix = lastFileName.substr(-3).toLowerCase();
@@ -1212,7 +1208,6 @@ function loadFile(contents) {
 	);
 	if (!isJSONfile) adjustGravity(50000);
 	network.fit();
-	netPane.style.display = 'block';
 }
 
 function loadJSONfile(json) {
