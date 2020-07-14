@@ -486,10 +486,10 @@ class TextHandler extends ToolHandler {
 		this.inp.addEventListener('keyup', this.insertNewlines.bind(this));
 		this.inp.style.overflow = 'hidden';
 		//  create a small square box at the bottom right to use as the resizing handle
-		let resize = document.createElement('div');
-		resize.classList.add('resize');
-		resize.id = 'resizer';
-		this.div.appendChild(resize);
+		this.resizer = document.createElement('div');
+		this.resizer.classList.add('resize');
+		this.resizer.id = 'resizer';
+		this.div.appendChild(this.resizer);
 		this.unfocusfn = this.unfocus.bind(this);
 		document.addEventListener('click', this.unfocusfn);
 		this.writing = true;
@@ -511,7 +511,12 @@ class TextHandler extends ToolHandler {
 		}
 	}
 	saveText(e) {
-		if (this.writing && e.target != this.inp) {
+		if (
+			this.writing &&
+			e.target != this.inp &&
+			e.target != this.div &&
+			e.target != this.resizer
+		) {
 			let text = this.inp.value;
 			if (text.length > 0) {
 				yPointsArray.push([
@@ -534,7 +539,7 @@ class TextHandler extends ToolHandler {
 			document.removeEventListener('click', this.unfocusfn);
 			underlay.style.cursor = 'auto';
 			super.mouseup();
-		}
+		} else e.target.style.cursor = 'auto';
 	}
 	optionsDialog() {
 		let box = super.optionsDialog('text');
@@ -1050,12 +1055,12 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
 
 function drawGrid(netctx) {
 	let scale = network.body.view.scale;
-	let width = network.body.container.clientWidth * scale;
-	let height = network.body.container.clientHeight * scale;
+	let width = network.body.container.clientWidth / scale;
+	let height = network.body.container.clientHeight / scale;
 	let cell = GRIDSPACING * scale;
 
 	netctx.save();
-	netctx.strokeStyle = 'rgba(211, 211, 211, 0.5)'; //'lightgrey';
+	netctx.strokeStyle = 'rgba(211, 211, 211, 0.7)'; //'lightgrey';
 	netctx.beginPath();
 	for (let x = -(width / 2 + cell); x <= width / 2 + cell; x += cell) {
 		// vertical grid lines

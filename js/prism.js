@@ -28,12 +28,13 @@ import {
 	clearLegend,
 } from './samples.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
-import 'vis-network/styles/vis-network.css';
+// even though we don't use this, vis-network won't work without it
+import 'vis-network/styles/vis-network.min.css';
 
-const version = '1.24';
-const GRIDSPACING = 50;
+const version = '1.25';
+const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
-const SHORTLABELLEN = 30;
+const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
 export var network;
 var room;
 var nodes;
@@ -44,20 +45,20 @@ var yNodesMap;
 var yEdgesMap;
 var ySamplesMap;
 var yNetMap;
-export var yPointsArray;
+export var yPointsArray; // stores the background drawing commands
 var yUndoManager;
 var yChatArray;
-var panel;
-var container;
-var netPane;
-var buttonStatus;
+var container; //the DOM body elemnt
+var panel; // the DOM right side panel element
+var buttonStatus; // the status of thebuttons in the panel
 var initialButtonStatus;
-var myName;
+var myName; // the user's name
 var lastNodeSample = 'group0';
 var lastLinkSample = 'edge0';
 var inAddMode = false; // true when adding a new Factor to the network; used to choose cursor pointer
 var snapToGridToggle = false;
 export var drawingSwitch = false;
+
 window.addEventListener('load', () => {
 	addEventListeners();
 	setUpPage();
@@ -66,102 +67,82 @@ window.addEventListener('load', () => {
 	setUpPaint();
 	setUpToolbox();
 	draw();
-	setTimeout(fit, 500); // need to wait until the canvas draw has been completed
 });
 
+/**
+ * attach an event listener
+ *
+ * @param {string} elem - id of the element on which to hand the event listener
+ * @param {string} event
+ * @param {function} callback
+ */
+function listen(elem, event, callback) {
+	document.getElementById(elem).addEventListener(event, callback);
+}
+
+/**
+ * Set up all the permanet event listeners
+ */
 function addEventListeners() {
-	document.getElementById('addNode').addEventListener('click', plusNode);
-	document.getElementById('addLink').addEventListener('click', plusLink);
-	document.getElementById('deleteNode').addEventListener('click', deleteNode);
-	document.getElementById('undo').addEventListener('click', undo);
-	document.getElementById('redo').addEventListener('click', redo);
-	document
-		.getElementById('fileInput')
-		.addEventListener('change', readSingleFile);
-	document.getElementById('openFile').addEventListener('click', openFile);
-	document.getElementById('saveFile').addEventListener('click', saveJSONfile);
-	document.getElementById('exportCVS').addEventListener('click', exportCVS);
-	document.getElementById('exportGML').addEventListener('click', exportGML);
-	document
-		.getElementById('panelToggle')
-		.addEventListener('click', togglePanel);
-	document.getElementById('zoom').addEventListener('change', zoomnet);
-	document.getElementById('zoomminus').addEventListener('click', () => {
+	listen('addNode', 'click', plusNode);
+	listen('addLink', 'click', plusLink);
+	listen('deleteNode', 'click', deleteNode);
+	listen('undo', 'click', undo);
+	listen('redo', 'click', redo);
+	listen('fileInput', 'change', readSingleFile);
+	listen('openFile', 'click', openFile);
+	listen('saveFile', 'click', saveJSONfile);
+	listen('exportCVS', 'click', exportCVS);
+	listen('exportGML', 'click', exportGML);
+	listen('panelToggle', 'click', togglePanel);
+	listen('zoom', 'change', zoomnet);
+	listen('zoomminus', 'click', () => {
 		zoomincr(-0.1);
 	});
-	document.getElementById('zoomplus').addEventListener('click', () => {
+	listen('zoomplus', 'click', () => {
 		zoomincr(0.1);
 	});
-	document.getElementById('nodesButton').addEventListener('click', () => {
+	listen('nodesButton', 'click', () => {
 		openTab('nodesTab');
 	});
-	document.getElementById('linksButton').addEventListener('click', () => {
+	listen('linksButton', 'click', () => {
 		openTab('linksTab');
 	});
-	document.getElementById('networkButton').addEventListener('click', () => {
+	listen('networkButton', 'click', () => {
 		openTab('networkTab');
 	});
-	document
-		.getElementById('autolayoutswitch')
-		.addEventListener('click', autoLayoutSwitch);
-	document
-		.getElementById('antiGravity')
-		.addEventListener('change', setGravity);
-	document
-		.getElementById('snaptogridswitch')
-		.addEventListener('click', snapToGridSwitch);
-	document
-		.getElementById('netBackColorWell')
-		.addEventListener('input', updateNetBack);
-	document
-		.getElementById('drawing')
-		.addEventListener('click', toggleDrawingLayer);
-	document
-		.getElementById('allFactors')
-		.addEventListener('click', selectAllFactors);
-	document
-		.getElementById('allEdges')
-		.addEventListener('click', selectAllEdges);
-	document
-		.getElementById('showLabelSwitch')
-		.addEventListener('click', labelSwitch);
-	document
-		.getElementById('showLegendSwitch')
-		.addEventListener('click', legendSwitch);
-	document
-		.getElementById('curveSelect')
-		.addEventListener('change', selectCurve);
-	document.getElementById('fixed').addEventListener('click', setFixed);
+	listen('autolayoutswitch', 'click', autoLayoutSwitch);
+	listen('antiGravity', 'change', setGravity);
+	listen('snaptogridswitch', 'click', snapToGridSwitch);
+	listen('netBackColorWell', 'input', updateNetBack);
+	listen('drawing', 'click', toggleDrawingLayer);
+	listen('allFactors', 'click', selectAllFactors);
+	listen('allEdges', 'click', selectAllEdges);
+	listen('showLabelSwitch', 'click', labelSwitch);
+	listen('showLegendSwitch', 'click', legendSwitch);
+	listen('curveSelect', 'change', selectCurve);
+	listen('fixed', 'click', setFixed);
 	Array.from(document.getElementsByName('hide')).forEach((elem) => {
 		elem.addEventListener('change', hideDistantOrStreamNodes);
 	});
 	Array.from(document.getElementsByName('stream')).forEach((elem) => {
 		elem.addEventListener('change', hideDistantOrStreamNodes);
 	});
-	document.getElementById('sizing').addEventListener('change', sizing);
+	listen('sizing', 'change', sizing);
 	Array.from(document.getElementsByClassName('sampleNode')).forEach((elem) =>
-		elem.addEventListener(
-			'click',
-			(event) => {
-				applySampleToNode(event);
-			},
-			false
-		)
+		elem.addEventListener('click', (event) => {
+			applySampleToNode(event);
+		})
 	);
 	Array.from(document.getElementsByClassName('sampleLink')).forEach((elem) =>
-		elem.addEventListener(
-			'click',
-			(event) => {
-				applySampleToLink(event);
-			},
-			false
-		)
+		elem.addEventListener('click', (event) => {
+			applySampleToLink(event);
+		})
 	);
 }
 
 function setUpPage() {
 	container = document.getElementById('container');
-	netPane = document.getElementById('net-pane');
 	panel = document.getElementById('panel');
 	panel.classList.add('hide');
 	container.panelHidden = true;
@@ -181,8 +162,10 @@ function setUpPage() {
 	};
 }
 
+/**
+ * create a new shared document and start the WebSocket provider
+ */
 function startY() {
-	// create a new shared document and start the WebSocket provider
 	// get the room number from the URL, or if none, generate a new one
 	let url = new URL(document.location);
 	room = url.searchParams.get('room');
@@ -196,7 +179,7 @@ function startY() {
 	const indexeddbProvider = new IndexeddbPersistence('prism' + room, doc);
 	indexeddbProvider.whenSynced.then(() => {
 		console.log(
-			new Date().toLocaleTimeString() + 'Loaded data from indexed db'
+			new Date().toLocaleTimeString() + ': ' + 'indexed db set up'
 		);
 	});
 	document.title = document.title + ' ' + room;
@@ -406,6 +389,9 @@ function startY() {
 	});
 }
 
+/**
+ * create a random string of the form AAA-BBB-CCC-DDD
+ */
 function generateRoom() {
 	let room = '';
 	for (let i = 0; i < 4; i++) {
@@ -417,8 +403,11 @@ function generateRoom() {
 	return room;
 }
 
+/**
+ * randomly create some nodes and edges as a binary tree, mainy used for testing
+ * @param {Integer} nNodes
+ */
 function getRandomData(nNodes) {
-	// randomly create some nodes and edges
 	let SFNdata = getScaleFreeNetwork(nNodes);
 	nodes.add(SFNdata.nodes);
 	edges.add(SFNdata.edges);
@@ -427,8 +416,6 @@ function getRandomData(nNodes) {
 // to handle iPad viewport sizing problem
 window.onresize = function () {
 	document.body.height = window.innerHeight;
-	/* zoomCanvas(network.getScale());
-	positionCanvas(network.getViewPosition()); */
 };
 
 const chatbox = document.getElementById('chatbox');
@@ -452,7 +439,7 @@ function setUpChat() {
 		blinkChatboxTab();
 	});
 	chatboxTab.addEventListener('click', maximize);
-	document.getElementById('minimize').addEventListener('click', minimize);
+	listen('minimize', 'click', minimize);
 	chatNameBox.addEventListener('keyup', (e) => {
 		if (e.key == 'Enter') {
 			myName = chatNameBox.value;
@@ -477,6 +464,9 @@ function setUpChat() {
 	});
 }
 
+/**
+ * draw the network, after settingthe vis-network options
+ */
 function draw() {
 	// for testing, you can append ?t=XXX to the URL of the page, where XXX is the number
 	// of factors to include in a random network
@@ -550,6 +540,9 @@ function draw() {
 					callback(null);
 					return;
 				}
+				clearStatusBar();
+				// delete also all the edges that link to the nodes being deleted
+				// added by deleteMsg()
 				callback(item);
 			},
 			deleteEdge: function (item, callback) {
@@ -574,6 +567,7 @@ function draw() {
 	// start with factor tab open, but hidden
 	document.getElementById('nodesButton').click();
 	// listen for click events on the network pane
+	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
 		if (params.nodes.length === 1) {
 			network.editNode();
@@ -634,6 +628,9 @@ function draw() {
 	data.edges.on('remove', recalculateStats);
 } // end draw()
 
+/**
+ * rescale and redraw the network dso that it fits the pane
+ */
 function fit() {
 	network.fit({
 		position: {x: 0, y: 0},
@@ -644,27 +641,43 @@ function fit() {
 	network.storePositions();
 }
 
+/**
+ *  remove any existing clientID, to show that I now
+	own this and can broadcast my changes to the item
+ * @param {object} item 
+ */
 function claim(item) {
-	// remove any existing clientID, to show that I now
-	// own this and can broadcast my changes to the item
 	item.clientID = undefined;
 }
 
+/**
+ * boroadcast current node positions to all clients
+ */
 function broadcast() {
 	/* there are situations where vis does not update node positions
 (and therefore does not call nodes.on) such as auto layout, 
 and therefore other clients don't get to see the changes.
-This function forces a broadcast of all modes.  We only deal with
+This function forces a broadcast of all nodes.  We only deal with
 nodes because the edges follow */
 	network.storePositions();
 	data.nodes.forEach((n) => yNodesMap.set(n.id, n));
 }
 
+/**
+ * Move the node to the nearest spot that it on the grid
+ * @param {object} node
+ */
 function snapToGrid(node) {
 	node.x = GRIDSPACING * Math.round(node.x / GRIDSPACING);
 	node.y = GRIDSPACING * Math.round(node.y / GRIDSPACING);
 }
 
+/**
+ * the item is being created:  get its label from the user
+ * @param {Object} item
+ * @param {Function} cancelAction
+ * @param {Function} callback
+ */
 function addLabel(item, cancelAction, callback) {
 	initPopUp('Add Factor', item, cancelAction, saveLabel, callback);
 	positionPopUp();
@@ -825,6 +838,7 @@ function saveLabel(item, callback) {
 		else {
 			statusMsg('No label: cancelled', 'warn');
 			callback(null);
+			return;
 		}
 	}
 	claim(item);
@@ -900,6 +914,12 @@ function duplEdge(from, to) {
 
 function deleteMsg(item) {
 	//constructs a nice string to tell the user what nodes and links are being deleted.
+	// also delete edges connected to these nodes
+	item.nodes.forEach((nId) => {
+		network.getConnectedEdges(nId).forEach((eId) => {
+			if (item.edges.indexOf(eId) === -1) item.edges.push(eId);
+		});
+	});
 	let nNodes = item.nodes.length;
 	let nEdges = item.edges.length;
 	let msg = 'Delete ';
@@ -1152,7 +1172,6 @@ function loadFile(contents) {
 	edges.clear();
 	network.destroy();
 	draw();
-	netPane.style.display = 'none';
 
 	let isJSONfile = false;
 	let suffix = lastFileName.substr(-3).toLowerCase();
@@ -1212,7 +1231,6 @@ function loadFile(contents) {
 	);
 	if (!isJSONfile) adjustGravity(50000);
 	network.fit();
-	netPane.style.display = 'block';
 }
 
 function loadJSONfile(json) {
