@@ -651,7 +651,7 @@ var legendNetwork = null;
 const LEGENDSPACING = 50;
 const HALFLEGENDWIDTH = 40;
 
-export function legend() {
+export function legend(warn = true) {
 	clearLegend();
 
 	let sampleNodeDivs = document.getElementsByClassName('sampleNode');
@@ -664,10 +664,11 @@ export function legend() {
 	);
 	let nItems = nodes.length + edges.length;
 	if (nItems == 0) {
-		statusMsg(
+		if (warn) statusMsg(
 			'Nothing to include in the Legend - rename some styles first',
 			'warn'
 		);
+		document.getElementById('showLegendSwitch').checked = false;
 		return;
 	}
 	let legendBox = document.createElement('div');
