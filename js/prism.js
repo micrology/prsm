@@ -67,6 +67,10 @@ window.addEventListener('load', () => {
 	setUpPaint();
 	setUpToolbox();
 	draw();
+	setTimeout( () => {
+		fit(0);
+		legend(false);
+	}, 500);
 });
 
 /**
@@ -158,6 +162,7 @@ function setUpPage() {
 		linkRadius: 'All',
 		stream: 'All',
 		showLabels: true,
+		legend: true,
 		sizing: 'Off',
 	};
 }
@@ -631,10 +636,10 @@ function draw() {
 /**
  * rescale and redraw the network dso that it fits the pane
  */
-function fit() {
+function fit(duration = 200) {
 	network.fit({
 		position: {x: 0, y: 0},
-		animation: {duration: 200, easingFunction: 'linear'},
+		animation: {duration: duration, easingFunction: 'linear'},
 	});
 	let newScale = network.getScale();
 	document.getElementById('zoom').value = newScale;
@@ -1230,7 +1235,7 @@ function loadFile(contents) {
 		data.edges.map((e) => deepMerge(samples.edges[e.grp], e))
 	);
 	if (!isJSONfile) adjustGravity(50000);
-	network.fit();
+	network.fit(0);
 }
 
 function loadJSONfile(json) {
@@ -1699,6 +1704,7 @@ function storeButtonStatus() {
 		linkRadius: getRadioVal('hide'),
 		stream: getRadioVal('stream'),
 		showLabels: document.getElementById('showLabelSwitch').checked,
+		legend: document.getElementById('showLegendSwitch').checked,
 		sizing: document.getElementById('sizing').value,
 	};
 }
