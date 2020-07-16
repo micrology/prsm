@@ -208,6 +208,7 @@ class ToolHandler {
 	 * @param {event} e
 	 */
 	mousedown(e) {
+		if (this.isMouseDown) return;
 		tempCanvas.focus();
 		this.endPosition(e);
 		this.startX = this.endX;
@@ -222,7 +223,11 @@ class ToolHandler {
 	 */
 	endPosition(e) {
 		this.endX = e.offsetX - tempCanvas.offsetLeft;
+		if (this.endX < 0) this.endX = 0;
+		if (this.endX > tempCanvas.offsetWidth) this.endX = tempCanvas.offsetWidth;
 		this.endY = e.offsetY - tempCanvas.offsetTop;
+		if (this.endY < 0) this.endY = 0;
+		if (this.endY > tempCanvas.offsetHeight) this.endY = tempCanvas.offsetHeight;
 	}
 	/**
 	 * do something as the mouse moves
