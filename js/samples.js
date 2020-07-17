@@ -522,24 +522,26 @@ function cancelSampleEdit() {
 	document.getElementById('editLinkDrawer').classList.add('hideDrawer');
 	document.getElementById('editNodeDrawer').classList.add('hideDrawer');
 }
-export function reApplySampleToNodes(groupId) {
+
+export function reApplySampleToNodes(groupIds) {
+	
 	let nodesToUpdate = window.data.nodes.get({
 		filter: (item) => {
-			return item.grp == groupId;
+			return groupIds.includes(item.grp);
 		},
 	});
 	window.data.nodes.update(
-		nodesToUpdate.map((node) => deepMerge(node, samples.nodes[groupId]))
+		nodesToUpdate.map((node) => deepMerge(node, samples.nodes[node.grp]))
 	);
 }
-export function reApplySampleToLinks(groupId) {
+export function reApplySampleToLinks(groupIds) {
 	let edgesToUpdate = window.data.edges.get({
 		filter: (item) => {
-			return item.grp == groupId;
+			return groupIds.includes(item.grp);
 		},
 	});
 	window.data.edges.update(
-		edgesToUpdate.map((edge) => deepMerge(edge, samples.edges[groupId]))
+		edgesToUpdate.map((edge) => deepMerge(edge, samples.edges[edge.grp]))
 	);
 }
 
