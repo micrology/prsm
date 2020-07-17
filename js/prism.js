@@ -66,11 +66,7 @@ window.addEventListener('load', () => {
 	setUpChat();
 	setUpPaint();
 	setUpToolbox();
-	draw();
-	setTimeout( () => {
-		fit(0);
-		legend(false);
-	}, 500);
+	draw(); 
 });
 
 /**
@@ -85,7 +81,7 @@ function listen(elem, event, callback) {
 }
 
 /**
- * Set up all the permanet event listeners
+ * Set up all the permanent event listeners
  */
 function addEventListeners() {
 	listen('addNode', 'click', plusNode);
@@ -176,18 +172,31 @@ function startY() {
 	room = url.searchParams.get('room');
 	if (room == null || room == '') room = generateRoom();
 	const doc = new Y.Doc();
+	// wait for an update from another peer; only then will 
+	// drawing etc. finished and so we can then fit the  network to the window.
+	doc.on('afterTransaction', initialFit);
+	function initialFit(trans, doc) {
+		if (window.debug) console.log(trans, performance.now());
+		if (!trans.local && trans.changed.size > 0) {
+			setTimeout(() => {
+				fit(0);
+				legend(false);
+				doc.off('afterTransaction', initialFit);
+			}, 0);
+		}
+}
 	const wsProvider = new WebsocketProvider(
 		'wss://cress.soc.surrey.ac.uk:1234',
 		'prism' + room,
 		doc
 	);
-	const indexeddbProvider = new IndexeddbPersistence('prism' + room, doc);
+/* 	const indexeddbProvider = new IndexeddbPersistence('prism' + room, doc);
 	indexeddbProvider.whenSynced.then(() => {
 		console.log(
 			new Date().toLocaleTimeString() + ': ' + 'indexed db set up'
 		);
 	});
-	document.title = document.title + ' ' + room;
+ */	document.title = document.title + ' ' + room;
 	wsProvider.on('status', (event) => {
 		console.log(
 			new Date().toLocaleTimeString() +
@@ -239,6 +248,7 @@ function startY() {
 	window.yChatArray = yChatArray;
 	window.yPointsArray = yPointsArray;
 	window.samples = samples;
+	
 	/* 
 	nodes.on listens for when local nodes or edges are changed (added, updated or removed).
 	If a local node is removed, the yMap is updated to broadcast to other clients that the node 
@@ -285,15 +295,17 @@ function startY() {
 	 */
 	yNodesMap.observe((event) => {
 		if (window.debug) console.log(event);
+		let nodesToUpdate = [];
 		for (let key of event.keysChanged) {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key);
 				let origin = event.transaction.origin;
 				if (obj.clientID != clientID || origin != null) {
-					nodes.update(obj, origin);
+					nodesToUpdate.push(obj);
 				}
 			} else nodes.remove(key);
 		}
+		if(nodesToUpdate) nodes.update(nodesToUpdate, origin);
 	});
 	/* 
 	See comments above about nodes
@@ -322,32 +334,43 @@ function startY() {
 	});
 	yEdgesMap.observe((event) => {
 		if (window.debug) console.log(event);
+		let edgesToUpdate = [];
 		for (let key of event.keysChanged) {
 			if (yEdgesMap.has(key)) {
 				let obj = yEdgesMap.get(key);
 				let origin = event.transaction.origin;
 				if (obj.clientID != clientID || origin != null) {
-					edges.update(obj, origin);
+					edgesToUpdate.push(obj);
 				}
 			} else edges.remove(key);
-		}
+		};
+		edges.update(edgesToUpdate, origin);
 	});
+
 	ySamplesMap.observe((event) => {
 		if (window.debug) console.log(event);
+		let origin = event.transaction.origin;
+		let nodesToUpdate = [];
+		let edgesToUpdate = [];
 		for (let key of event.keysChanged) {
 			let sample = ySamplesMap.get(key);
-			let origin = event.transaction.origin;
 			if (sample.clientID != clientID || origin != null) {
 				if (sample.node != undefined) {
 					samples.nodes[key] = sample.node;
-					refreshSampleNodes();
-					reApplySampleToNodes(key);
+					nodesToUpdate.push(key);
 				} else {
 					samples.edges[key] = sample.edge;
-					refreshSampleLinks();
-					reApplySampleToLinks(key);
+					edgesToUpdate.push(key);
 				}
 			}
+		}
+		if (nodesToUpdate) {
+			refreshSampleNodes();
+			reApplySampleToNodes(nodesToUpdate)
+		};
+		if (edgesToUpdate) {
+			refreshSampleLinks();
+			reApplySampleToLinks(edgesToUpdate)
 		}
 	});
 	yNetMap.observe((event) => {
@@ -371,9 +394,9 @@ function startY() {
 						setBackground(obj);
 						break;
 					default:
-						console.log('Bad key in yMapNet.observe');
+						console.log('Bad key in yMapNet.observe: ', key);
 				}
-		}
+			}
 	});
 	yPointsArray.observe((event, trans) => {
 		if (window.debug)
@@ -1213,7 +1236,7 @@ function loadFile(contents) {
 			}
 		)
 	);
-	// reassign the sample properties to the node
+	// reassign the sample properties to the nodes
 	data.nodes.update(
 		data.nodes.map((n) => deepMerge(samples.nodes[n.grp], n))
 	);
@@ -1231,6 +1254,7 @@ function loadFile(contents) {
 			}
 		)
 	);
+	legend(false);
 	data.edges.update(
 		data.edges.map((e) => deepMerge(samples.edges[e.grp], e))
 	);
@@ -1293,10 +1317,9 @@ function loadJSONfile(json) {
 			});
 		}
 	}
-	if (json.underlay) {
-		yPointsArray.delete(0, yPointsArray.length);
-		yPointsArray.insert(0, json.underlay);
-	}
+	yPointsArray.delete(0, yPointsArray.length);
+	if (json.underlay) yPointsArray.insert(0, json.underlay);
+
 	return {
 		nodes: nodes,
 		edges: edges,
