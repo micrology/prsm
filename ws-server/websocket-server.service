@@ -5,13 +5,12 @@ Description=websocket-server
 ExecStart=/data/cress/prism/node_modules/.bin/y-websocket-server
 Restart=always
 RestartSec=10
-User=ec2-user
-Group=ec2-user
-Environment=PATH=/home/ec2-user/.nvm/versions/node/v13.1.0/bin
+User=root
+Group=root
+Environment='PATH=/home/ec2-user/.nvm/versions/node/v14.4.0/bin' 'YPERSISTENCE=/data/cress/prism/dbDir'
 # Output to syslog
 StandardOutput=syslog
 StandardError=syslog
-#Change this to find app logs in /var/log/syslog
 SyslogIdentifier=websocket-server
 
 [Install]
