@@ -1,0 +1,18 @@
+# cache web fonts
+<filesMatch ".(eot|ttf|woff|woff2)$">
+Header set Cache-Control "max-age=2592000, public"
+</filesMatch>
+# compress text files
+<IfModule mod_mime.c>
+	AddType application/x-javascript .js
+	AddType text/css .css
+</IfModule>
+<IfModule mod_deflate.c>
+	AddOutputFilterByType DEFLATE text/css application/x-javascript text/x-component text/html text/plain text/xml application/javascript
+	<IfModule mod_setenvif.c>
+		BrowserMatch ^Mozilla/4 gzip-only-text/html
+		BrowserMatch ^Mozilla/4.0[678] no-gzip
+		BrowserMatch bMSIE !no-gzip !gzip-only-text/html
+	</IfModule>
+</IfModule>
+Header append Vary User-Agent env=!dont-vary
