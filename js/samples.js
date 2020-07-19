@@ -524,7 +524,6 @@ function cancelSampleEdit() {
 }
 
 export function reApplySampleToNodes(groupIds) {
-	
 	let nodesToUpdate = window.data.nodes.get({
 		filter: (item) => {
 			return groupIds.includes(item.grp);
@@ -666,10 +665,11 @@ export function legend(warn = true) {
 	);
 	let nItems = nodes.length + edges.length;
 	if (nItems == 0) {
-		if (warn) statusMsg(
-			'Nothing to include in the Legend - rename some styles first',
-			'warn'
-		);
+		if (warn)
+			statusMsg(
+				'Nothing to include in the Legend - rename some styles first',
+				'warn'
+			);
 		document.getElementById('showLegendSwitch').checked = false;
 		return;
 	}

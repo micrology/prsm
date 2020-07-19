@@ -3,7 +3,7 @@ The main entry point for PRISM.
  */
 import * as Y from 'yjs';
 import {WebsocketProvider} from 'y-websocket';
-import {IndexeddbPersistence} from 'y-indexeddb';
+// import {IndexeddbPersistence} from 'y-indexeddb';
 import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
 import {
@@ -15,6 +15,7 @@ import {
 	cleanArray,
 	dragElement,
 	standardize_color,
+	object_equals,
 } from './utils.js';
 import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
@@ -66,7 +67,7 @@ window.addEventListener('load', () => {
 	setUpChat();
 	setUpPaint();
 	setUpToolbox();
-	draw(); 
+	draw();
 });
 
 /**
@@ -172,31 +173,30 @@ function startY() {
 	room = url.searchParams.get('room');
 	if (room == null || room == '') room = generateRoom();
 	const doc = new Y.Doc();
-	// wait for an update from another peer; only then will 
+	// wait for an update from another peer; only then will
 	// drawing etc. finished and so we can then fit the  network to the window.
 	doc.on('afterTransaction', initialFit);
 	function initialFit(trans, doc) {
 		if (window.debug) console.log(trans, performance.now());
 		if (!trans.local && trans.changed.size > 0) {
-			setTimeout(() => {
-				fit(0);
-				legend(false);
-				doc.off('afterTransaction', initialFit);
-			}, 0);
+			fit(0);
+			legend(false);
+			doc.off('afterTransaction', initialFit);
 		}
-}
+	}
 	const wsProvider = new WebsocketProvider(
 		'wss://cress.soc.surrey.ac.uk:1234',
 		'prism' + room,
 		doc
 	);
-/* 	const indexeddbProvider = new IndexeddbPersistence('prism' + room, doc);
+	/* 	const indexeddbProvider = new IndexeddbPersistence('prism' + room, doc);
 	indexeddbProvider.whenSynced.then(() => {
 		console.log(
 			new Date().toLocaleTimeString() + ': ' + 'indexed db set up'
 		);
 	});
- */	document.title = document.title + ' ' + room;
+ */
+	document.title = document.title + ' ' + room;
 	wsProvider.on('status', (event) => {
 		console.log(
 			new Date().toLocaleTimeString() +
@@ -248,7 +248,7 @@ function startY() {
 	window.yChatArray = yChatArray;
 	window.yPointsArray = yPointsArray;
 	window.samples = samples;
-	
+
 	/* 
 	nodes.on listens for when local nodes or edges are changed (added, updated or removed).
 	If a local node is removed, the yMap is updated to broadcast to other clients that the node 
@@ -274,7 +274,8 @@ function startY() {
 				} else {
 					let obj = nodes.get(id);
 					if (obj.clientID == undefined) obj.clientID = clientID;
-					if (obj.clientID == clientID) {
+					// only broadcast my changes and only if the node has actually changed
+					if (obj.clientID === clientID && !object_equals(obj, yNodesMap.get(obj.id))) {
 						yNodesMap.set(id.toString(), obj);
 						if (window.debug)
 							console.log(
@@ -305,7 +306,7 @@ function startY() {
 				}
 			} else nodes.remove(key);
 		}
-		if(nodesToUpdate) nodes.update(nodesToUpdate, origin);
+		if (nodesToUpdate) nodes.update(nodesToUpdate, origin);
 	});
 	/* 
 	See comments above about nodes
@@ -326,7 +327,7 @@ function startY() {
 				else {
 					let obj = edges.get(id);
 					if (obj.clientID == undefined) obj.clientID = clientID;
-					if (obj.clientID == clientID)
+					if (obj.clientID === clientID && !object_equals(obj, yEdgesMap.get(obj.id)))
 						yEdgesMap.set(id.toString(), obj);
 				}
 			}
@@ -343,7 +344,7 @@ function startY() {
 					edgesToUpdate.push(obj);
 				}
 			} else edges.remove(key);
-		};
+		}
 		edges.update(edgesToUpdate, origin);
 	});
 
@@ -366,11 +367,11 @@ function startY() {
 		}
 		if (nodesToUpdate) {
 			refreshSampleNodes();
-			reApplySampleToNodes(nodesToUpdate)
-		};
+			reApplySampleToNodes(nodesToUpdate);
+		}
 		if (edgesToUpdate) {
 			refreshSampleLinks();
-			reApplySampleToLinks(edgesToUpdate)
+			reApplySampleToLinks(edgesToUpdate);
 		}
 	});
 	yNetMap.observe((event) => {
@@ -396,7 +397,7 @@ function startY() {
 					default:
 						console.log('Bad key in yMapNet.observe: ', key);
 				}
-			}
+		}
 	});
 	yPointsArray.observe((event, trans) => {
 		if (window.debug)
@@ -1317,6 +1318,7 @@ function loadJSONfile(json) {
 			});
 		}
 	}
+	legend(false);
 	yPointsArray.delete(0, yPointsArray.length);
 	if (json.underlay) yPointsArray.insert(0, json.underlay);
 
@@ -1772,6 +1774,8 @@ function setButtonStatus(settings) {
 	if (settings.snapToGrid) doSnapToGrid();
 	document.getElementById('curveSelect').value = settings.curve;
 	selectCurve();
+	document.getElementById('showLegendSwitch').checked = settings.legend;
+	legendSwitch(false);
 	setRadioVal('hide', settings.linkRadius);
 	setRadioVal('stream', settings.stream);
 	document.getElementById('showLabelSwitch').checked = settings.showLabels;
@@ -2066,8 +2070,8 @@ function labelSwitch() {
 	}
 }
 
-function legendSwitch() {
-	if (document.getElementById('showLegendSwitch').checked) legend();
+function legendSwitch(warn) {
+	if (document.getElementById('showLegendSwitch').checked) legend(warn);
 	else clearLegend();
 }
 
