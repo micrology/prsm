@@ -38,6 +38,7 @@ const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
 export var network;
 var room;
+var viewOnly;	// when true, user can only view, not modify, the network
 var nodes;
 var edges;
 var data;
@@ -143,6 +144,8 @@ function addEventListeners() {
 }
 
 function setUpPage() {
+	viewOnly = new URL(document.location).searchParams.get('viewing');
+	if (viewOnly) document.getElementById('buttons').style.display = 'none';
 	container = document.getElementById('container');
 	panel = document.getElementById('panel');
 	panel.classList.add('hide');
@@ -590,6 +593,7 @@ function draw() {
 			},
 		},
 	};
+	if (viewOnly) options.interaction = { dragNodes: false, hover: false, selectable: false };
 	network = new Network(netPane, data, options);
 	window.network = network;
 	document.getElementById('zoom').value = network.getScale();
