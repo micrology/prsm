@@ -44,27 +44,19 @@ const GRIDSPACING = 50;
  * create the canvases and add listeners for mouse events
  * initialise the array holding drawing commands
  */
-/* export function setUpPaint() {
-	underlay = document.getElementById('underlay');
-	tempCanvas = setUpCanvas('temp-canvas');
-	tempctx = getContext(tempCanvas);
-
-	tempCanvas.addEventListener('mousedown', mouseDespatch);
-	tempCanvas.addEventListener('mousemove', mouseDespatch);
-	tempCanvas.addEventListener('mouseup', mouseDespatch);
-} */
 
 export function setUpPaint() {
 	underlay = document.getElementById('underlay');
 	tempCanvas = setUpCanvas('temp-canvas');
 	tempctx = getContext(tempCanvas);
 
-	var mc = new Hammer(tempCanvas);
-	mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-	mc.on('pan', function(ev) {
-		console.log(ev);
-		});
-
+	let mc = new Hammer.Manager(tempCanvas, {
+		recognizers: [
+			[Hammer.Tap],
+			[Hammer.Pan, { direction: Hammer.DIRECTION_ALL, threshold: 1 }]
+		]
+	});
+	mc.on('tap', mouseDespatch)
 	mc.on('panstart', mouseDespatch)
 	mc.on('panmove', mouseDespatch)
 	mc.on('panend', mouseDespatch)
@@ -190,7 +182,7 @@ function closeOptionsDialogs() {
  */
 function mouseDespatch(event) {
 	event.preventDefault();
-	if (!selectedTool) return;
+	if (!selectedTool) return; 
 	let type = 'mousedown';
 	if (event.type == 'panmove') type = 'mousemove';
 	else if (event.type == 'panend') type = 'mouseup';

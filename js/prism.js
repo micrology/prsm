@@ -2040,7 +2040,7 @@ function toggleDrawingLayer() {
 		// expose drawing layer
 		document.getElementById('toolbox').style.display = 'block';
 		ul.style.zIndex = 1000;
-		ul.style.cursor = 'pointer';
+		ul.style.cursor = 'default';
 		document.getElementById('temp-canvas').style.zIndex = 1000;
 		// make the underlay (which is now overlay) translucent
 		makeTranslucent(ul);
