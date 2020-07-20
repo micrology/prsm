@@ -445,8 +445,12 @@ function getRandomData(nNodes) {
 	edges.add(SFNdata.edges);
 	recalculateStats();
 }
-// to handle iPad viewport sizing problem
+// to handle iPad viewport sizing problem when tab bar appears
+document.body.height = window.innerHeight;
 window.onresize = function () {
+	document.body.height = window.innerHeight;
+};
+window.onorientationchange = function () {
 	document.body.height = window.innerHeight;
 };
 

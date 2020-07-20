@@ -9,7 +9,8 @@
  *
  */
 
-import {yPointsArray, network, drawingSwitch} from './prism.js';
+import { yPointsArray, network, drawingSwitch } from './prism.js';
+import * as Hammer from 'hammerjs';
 /**
  * Initialisation
  */
@@ -43,7 +44,7 @@ const GRIDSPACING = 50;
  * create the canvases and add listeners for mouse events
  * initialise the array holding drawing commands
  */
-export function setUpPaint() {
+/* export function setUpPaint() {
 	underlay = document.getElementById('underlay');
 	tempCanvas = setUpCanvas('temp-canvas');
 	tempctx = getContext(tempCanvas);
@@ -51,6 +52,22 @@ export function setUpPaint() {
 	tempCanvas.addEventListener('mousedown', mouseDespatch);
 	tempCanvas.addEventListener('mousemove', mouseDespatch);
 	tempCanvas.addEventListener('mouseup', mouseDespatch);
+} */
+
+export function setUpPaint() {
+	underlay = document.getElementById('underlay');
+	tempCanvas = setUpCanvas('temp-canvas');
+	tempctx = getContext(tempCanvas);
+
+	var mc = new Hammer(tempCanvas);
+	mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+	mc.on('pan', function(ev) {
+		console.log(ev);
+		});
+
+	mc.on('panstart', mouseDespatch)
+	mc.on('panmove', mouseDespatch)
+	mc.on('panend', mouseDespatch)
 }
 /**
  * set up and return the canvas at the id
@@ -174,7 +191,10 @@ function closeOptionsDialogs() {
 function mouseDespatch(event) {
 	event.preventDefault();
 	if (!selectedTool) return;
-	toolHandler(selectedTool)[event.type](event);
+	let type = 'mousedown';
+	if (event.type == 'panmove') type = 'mousemove';
+	else if (event.type == 'panend') type = 'mouseup';
+	toolHandler(selectedTool)[type](event.srcEvent);
 }
 
 /**
