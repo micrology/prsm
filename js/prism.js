@@ -187,8 +187,13 @@ function startY() {
 			doc.off('afterTransaction', initialFit);
 		}
 	}
-	const wsProvider = new WebsocketProvider(
+	/* const wsProvider = new WebsocketProvider(
 		'wss://cress.soc.surrey.ac.uk:1234',
+		'prism' + room,
+		doc
+	); */
+	const wsProvider = new WebsocketProvider(
+		'wss://cress.soc.surrey.ac.uk/wss',
 		'prism' + room,
 		doc
 	);
