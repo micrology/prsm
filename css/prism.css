@@ -32,26 +32,6 @@ p {
 body {
 	font-family: sans-serif;
 	box-sizing: border-box;
-	/* interface colours defined here: blue theme */
-	/* 	--header-color: #3498db;
-	--header-hover-color: lightgrey;
-	--header-pressed-color: grey;
-	--header-disabled-color: #a8d3f0;
-	--panel-color: #404040;
-	--pop-up-color: #f5f5f5;
-	--pop-up-shadow-color: #c9c9c9;
-	--modal-header-color: #3498db;
-	--tab-color: #dcdcdc; */
-	/* interface colours defined here magenta theme
-	--header-color: #b71c1c;
-	--header-hover-color: lightgrey;
-	--header-pressed-color: grey;
-	--header-disabled-color: #e53935;
-	--panel-color: #404040;
-	--pop-up-color: #f5f5f5;
-	--pop-up-shadow-color: #c9c9c9;
-	--modal-header-color: #b71c1c;
-	--tab-color: #dcdcdc;*/
 	/* interface colours defined here: dark blue theme */
 	--header-color: #1565c0;
 	--header-hover-color: lightgrey;
@@ -287,9 +267,15 @@ nav button .pressed {
 }
 /* for iPads etc in landscape: nav buttons go under title */
 
-@media screen and (min-width: 481px) and (max-width: 1024px) {
+@media screen and (min-width: 481px) and (max-width: 1112px) {
+	html,
+	body {
+		height: 100%;
+		overflow-x: hidden;
+		max-width: 100%;
+	}
 	main {
-		height: calc(100vh - 140px);
+		height: calc(100% - 140px);
 	}
 	header {
 		height: 100px;
@@ -325,8 +311,14 @@ nav button .pressed {
 /* for iPads etc in portrait and smart phones: nav buttons go under title and font is smaller */
 
 @media screen and (max-width: 480px) {
+	html,
+	body {
+		height: 100%;
+		overflow-x: hidden;
+		max-width: 100%;
+	}
 	main {
-		height: calc(100vh - 130px);
+		height: calc(100% - 130px);
 	}
 	header {
 		height: 92px;

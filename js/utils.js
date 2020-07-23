@@ -107,8 +107,8 @@ export function cleanArray(arr, propsToRemove) {
  * compare two objects for deep equality
  * fast but doesn't cater for obscure cases
  * adapted from https://stackoverflow.com/questions/1068834/object-comparison-in-javascript
- * @param {Object} x 
- * @param {Object} y 
+ * @param {Object} x
+ * @param {Object} y
  */
 export function object_equals(x, y) {
 	if (x === y) return true;

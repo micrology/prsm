@@ -10,6 +10,7 @@
  */
 
 import {yPointsArray, network, drawingSwitch} from './prism.js';
+import * as Hammer from 'hammerjs';
 /**
  * Initialisation
  */
@@ -43,14 +44,22 @@ const GRIDSPACING = 50;
  * create the canvases and add listeners for mouse events
  * initialise the array holding drawing commands
  */
+
 export function setUpPaint() {
 	underlay = document.getElementById('underlay');
 	tempCanvas = setUpCanvas('temp-canvas');
 	tempctx = getContext(tempCanvas);
 
-	tempCanvas.addEventListener('mousedown', mouseDespatch);
-	tempCanvas.addEventListener('mousemove', mouseDespatch);
-	tempCanvas.addEventListener('mouseup', mouseDespatch);
+	let mc = new Hammer.Manager(tempCanvas, {
+		recognizers: [
+			[Hammer.Tap],
+			[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 1}],
+		],
+	});
+	mc.on('tap', mouseDespatch);
+	mc.on('panstart', mouseDespatch);
+	mc.on('panmove', mouseDespatch);
+	mc.on('panend', mouseDespatch);
 }
 /**
  * set up and return the canvas at the id
@@ -174,7 +183,10 @@ function closeOptionsDialogs() {
 function mouseDespatch(event) {
 	event.preventDefault();
 	if (!selectedTool) return;
-	toolHandler(selectedTool)[event.type](event);
+	let type = 'mousedown';
+	if (event.type == 'panmove') type = 'mousemove';
+	else if (event.type == 'panend') type = 'mouseup';
+	toolHandler(selectedTool)[type](event.srcEvent);
 }
 
 /**
@@ -909,11 +921,21 @@ function dragElement(elem, constrain = true) {
 		width,
 		height,
 		resizing;
+	let mc = new Hammer.Manager(elem, {
+		recognizers: [
+			[Hammer.Tap],
+			[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}],
+		],
+	});
+//	mc.on('tap', dragMouseDown);
+	mc.on('panstart', dragMouseDown);
+	mc.on('panmove', elementDrag);
+	mc.on('panend', closeDragElement);
 
-	elem.onmousedown = dragMouseDown;
+	//	elem.onmousedown = dragMouseDown;
 
 	function dragMouseDown(e) {
-		e = e || window.event;
+		e = e.srcEvent;
 		// find the startimg width and height of the element
 		let rect = elem.getBoundingClientRect();
 		width = rect.width;
@@ -921,15 +943,17 @@ function dragElement(elem, constrain = true) {
 		// get the mouse cursor position at startup:
 		pos3 = e.clientX;
 		pos4 = e.clientY;
-		elem.onmouseup = closeDragElement;
+		//		elem.onmouseup = closeDragElement;
 		// call a function whenever the cursor moves:
-		elem.onmousemove = elementDrag;
+		//		elem.onmousemove = elementDrag;
 		// note whether the user is moving or resizing (i.e. has the pointer over the resize handle)
 		resizing = e.target.id == 'resizer';
+		elem.style.cursor = (resizing ? 'nwse-resize' : 'move');
+//		console.log('dragMouseDown');
 	}
 
 	function elementDrag(e) {
-		e = e || window.event;
+		e = e.srcEvent;
 		if (resizing) {
 			elem.style.cursor = 'nwse-resize';
 			// constrain the resizing to keep the original image proportions
@@ -955,6 +979,8 @@ function dragElement(elem, constrain = true) {
 			// set the element's new position:
 			elem.style.top = elem.offsetTop - pos2 + 'px';
 			elem.style.left = elem.offsetLeft - pos1 + 'px';
+//			console.log(pos1, pos2, pos3, pos4, elem.style.top, elem.style.left);
+//			console.log(e.clientX, e.clientY)
 		}
 	}
 
@@ -962,8 +988,10 @@ function dragElement(elem, constrain = true) {
 		// stop moving and resizing when mouse button is released:
 		e.target.style.cursor = 'auto';
 		resizing = false;
-		elem.onmouseup = null;
-		elem.onmousemove = null;
+		//		elem.onmouseup = null;
+		//		elem.onmousemove = null;
+		mc.off('panmove', elementDrag);
+		mc.off('panend', closeDragElement);
 	}
 }
 let imageHandler = new ImageHandler();

@@ -32,12 +32,13 @@ import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 // even though we don't use this, vis-network won't work without it
 import 'vis-network/styles/vis-network.min.css';
 
-const version = '1.25';
+const version = '1.26';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
 export var network;
 var room;
+var viewOnly; // when true, user can only view, not modify, the network
 var nodes;
 var edges;
 var data;
@@ -143,6 +144,8 @@ function addEventListeners() {
 }
 
 function setUpPage() {
+	viewOnly = new URL(document.location).searchParams.get('viewing');
+	if (viewOnly) document.getElementById('buttons').style.display = 'none';
 	container = document.getElementById('container');
 	panel = document.getElementById('panel');
 	panel.classList.add('hide');
@@ -184,8 +187,13 @@ function startY() {
 			doc.off('afterTransaction', initialFit);
 		}
 	}
-	const wsProvider = new WebsocketProvider(
+	/* const wsProvider = new WebsocketProvider(
 		'wss://cress.soc.surrey.ac.uk:1234',
+		'prism' + room,
+		doc
+	); */
+	const wsProvider = new WebsocketProvider(
+		'wss://cress.soc.surrey.ac.uk/wss',
 		'prism' + room,
 		doc
 	);
@@ -275,7 +283,10 @@ function startY() {
 					let obj = nodes.get(id);
 					if (obj.clientID == undefined) obj.clientID = clientID;
 					// only broadcast my changes and only if the node has actually changed
-					if (obj.clientID === clientID && !object_equals(obj, yNodesMap.get(obj.id))) {
+					if (
+						obj.clientID === clientID &&
+						!object_equals(obj, yNodesMap.get(obj.id))
+					) {
 						yNodesMap.set(id.toString(), obj);
 						if (window.debug)
 							console.log(
@@ -327,7 +338,10 @@ function startY() {
 				else {
 					let obj = edges.get(id);
 					if (obj.clientID == undefined) obj.clientID = clientID;
-					if (obj.clientID === clientID && !object_equals(obj, yEdgesMap.get(obj.id)))
+					if (
+						obj.clientID === clientID &&
+						!object_equals(obj, yEdgesMap.get(obj.id))
+					)
 						yEdgesMap.set(id.toString(), obj);
 				}
 			}
@@ -442,8 +456,12 @@ function getRandomData(nNodes) {
 	edges.add(SFNdata.edges);
 	recalculateStats();
 }
-// to handle iPad viewport sizing problem
+// to handle iPad viewport sizing problem when tab bar appears
+document.body.height = window.innerHeight;
 window.onresize = function () {
+	document.body.height = window.innerHeight;
+};
+window.onorientationchange = function () {
 	document.body.height = window.innerHeight;
 };
 
@@ -590,6 +608,12 @@ function draw() {
 			},
 		},
 	};
+	if (viewOnly)
+		options.interaction = {
+			dragNodes: false,
+			hover: false,
+			selectable: false,
+		};
 	network = new Network(netPane, data, options);
 	window.network = network;
 	document.getElementById('zoom').value = network.getScale();
@@ -2032,7 +2056,7 @@ function toggleDrawingLayer() {
 		// expose drawing layer
 		document.getElementById('toolbox').style.display = 'block';
 		ul.style.zIndex = 1000;
-		ul.style.cursor = 'pointer';
+		ul.style.cursor = 'default';
 		document.getElementById('temp-canvas').style.zIndex = 1000;
 		// make the underlay (which is now overlay) translucent
 		makeTranslucent(ul);
