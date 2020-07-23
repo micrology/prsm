@@ -268,7 +268,8 @@ nav button .pressed {
 /* for iPads etc in landscape: nav buttons go under title */
 
 @media screen and (min-width: 481px) and (max-width: 1112px) {
-	html, body {
+	html,
+	body {
 		height: 100%;
 		overflow-x: hidden;
 		max-width: 100%;
@@ -310,10 +311,11 @@ nav button .pressed {
 /* for iPads etc in portrait and smart phones: nav buttons go under title and font is smaller */
 
 @media screen and (max-width: 480px) {
-	html, body {
+	html,
+	body {
 		height: 100%;
 		overflow-x: hidden;
-    	max-width: 100%;
+		max-width: 100%;
 	}
 	main {
 		height: calc(100% - 130px);

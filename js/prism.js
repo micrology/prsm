@@ -38,7 +38,7 @@ const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
 export var network;
 var room;
-var viewOnly;	// when true, user can only view, not modify, the network
+var viewOnly; // when true, user can only view, not modify, the network
 var nodes;
 var edges;
 var data;
@@ -283,7 +283,10 @@ function startY() {
 					let obj = nodes.get(id);
 					if (obj.clientID == undefined) obj.clientID = clientID;
 					// only broadcast my changes and only if the node has actually changed
-					if (obj.clientID === clientID && !object_equals(obj, yNodesMap.get(obj.id))) {
+					if (
+						obj.clientID === clientID &&
+						!object_equals(obj, yNodesMap.get(obj.id))
+					) {
 						yNodesMap.set(id.toString(), obj);
 						if (window.debug)
 							console.log(
@@ -335,7 +338,10 @@ function startY() {
 				else {
 					let obj = edges.get(id);
 					if (obj.clientID == undefined) obj.clientID = clientID;
-					if (obj.clientID === clientID && !object_equals(obj, yEdgesMap.get(obj.id)))
+					if (
+						obj.clientID === clientID &&
+						!object_equals(obj, yEdgesMap.get(obj.id))
+					)
 						yEdgesMap.set(id.toString(), obj);
 				}
 			}
@@ -602,7 +608,12 @@ function draw() {
 			},
 		},
 	};
-	if (viewOnly) options.interaction = { dragNodes: false, hover: false, selectable: false };
+	if (viewOnly)
+		options.interaction = {
+			dragNodes: false,
+			hover: false,
+			selectable: false,
+		};
 	network = new Network(netPane, data, options);
 	window.network = network;
 	document.getElementById('zoom').value = network.getScale();
