@@ -32,7 +32,7 @@ import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 // even though we don't use this, vis-network won't work without it
 import 'vis-network/styles/vis-network.min.css';
 
-const version = '1.25';
+const version = '1.26';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
