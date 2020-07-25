@@ -485,11 +485,12 @@ class TextHandler extends ToolHandler {
 		underlay.appendChild(this.div);
 		this.div.style.position = 'absolute';
 		this.div.style.zIndex = 1002;
+		this.div.style.boxSizing = 'border-box';
 		this.div.style.border = border + 'px solid lightgrey';
 		this.div.style.left = this.startX - border + 'px';
 		this.div.style.top = this.startY - border + 'px';
 		this.div.style.width = '300px';
-		this.div.style.height = '50px';
+		this.div.style.height = 2 * border + 50 + 'px';
 		this.inp = document.createElement('textarea');
 		this.div.appendChild(this.inp);
 		this.inp.setAttribute('id', 'input');
@@ -824,7 +825,7 @@ class ImageHandler extends ToolHandler {
 					let wrap = document.createElement('div');
 					wrap.id = 'wrap';
 					wrap.style.position = 'absolute';
-					wrap.style.zIndex = 1000;
+					wrap.style.zIndex = 1005;
 					let image = e.target;
 					image.id = 'image';
 					wrap.origWidth = image.width;
@@ -851,8 +852,11 @@ class ImageHandler extends ToolHandler {
 						(underlay.offsetWidth - wrap.offsetWidth) / 2 + 'px';
 					wrap.style.top =
 						(underlay.offsetHeight - wrap.offsetHeight) / 2 + 'px';
+					wrap.style.backgroundColor = 'red';
 					image.style.boxSizing = 'border-box';
 					image.style.width = '100%';
+					image.style.position = 'absolute';
+					image.style.zIndex = 1000;
 					//  create a small square box at the bottom right to use as the resizing handle
 					let resize = document.createElement('div');
 					resize.classList.add('resize');
@@ -863,7 +867,7 @@ class ImageHandler extends ToolHandler {
 						'click',
 						imageHandler.mouseup.bind(imageHandler)
 					);
-					dragElement(wrap);
+					dragElement(image);
 				};
 			};
 		}
@@ -914,51 +918,35 @@ class ImageHandler extends ToolHandler {
  * @param {element} elem
  */
 function dragElement(elem, constrain = true) {
-	let pos1 = 0,
-		pos2 = 0,
-		pos3 = 0,
-		pos4 = 0,
-		width,
-		height,
-		resizing;
-	let mc = new Hammer.Manager(elem, {
-		recognizers: [
-			[Hammer.Tap],
-			[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}],
-		],
-	});
-//	mc.on('tap', dragMouseDown);
-	mc.on('panstart', dragMouseDown);
-	mc.on('panmove', elementDrag);
-	mc.on('panend', closeDragElement);
+	let resizing = false;
+	let lastPosX = 0;
+	let lastPosY = 0
+	let width = 0;
+	let height = 0;
+	let isDragging = false;
 
-	//	elem.onmousedown = dragMouseDown;
+	let mc = new Hammer(elem);
+	mc.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL, threshold: 0 }));
+	mc.on("pan", handleDrag);
 
-	function dragMouseDown(e) {
-		e = e.srcEvent;
-		// find the startimg width and height of the element
-		let rect = elem.getBoundingClientRect();
-		width = rect.width;
-		height = rect.height;
-		// get the mouse cursor position at startup:
-		pos3 = e.clientX;
-		pos4 = e.clientY;
-		//		elem.onmouseup = closeDragElement;
-		// call a function whenever the cursor moves:
-		//		elem.onmousemove = elementDrag;
-		// note whether the user is moving or resizing (i.e. has the pointer over the resize handle)
-		resizing = e.target.id == 'resizer';
-		elem.style.cursor = (resizing ? 'nwse-resize' : 'move');
-//		console.log('dragMouseDown');
-	}
+	function handleDrag(e) {
+		let target = e.target;
 
-	function elementDrag(e) {
-		e = e.srcEvent;
+		if (!isDragging) {
+			isDragging = true;
+			lastPosX = elem.offsetLeft;
+			lastPosY = elem.offsetTop;
+			let rect = elem.getBoundingClientRect();
+			width = rect.width;
+			height = rect.height;		
+			resizing = target.id == 'resizer';
+			elem.style.cursor = (resizing ? 'nwse-resize' : 'move');
+		}
 		if (resizing) {
 			elem.style.cursor = 'nwse-resize';
 			// constrain the resizing to keep the original image proportions
-			let hScale = (width + (e.clientX - pos3)) / width;
-			let vScale = (height + (e.clientY - pos4)) / height;
+			let hScale = (width + e.deltaX) / width;
+			let vScale = (height + e.deltaY) / height;
 			if (constrain) {
 				let scale = Math.max(hScale, vScale);
 				hScale = scale;
@@ -968,30 +956,25 @@ function dragElement(elem, constrain = true) {
 			let newHeight = Math.round(height * vScale);
 			elem.style.width = `${newWidth}px`;
 			elem.style.height = `${newHeight}px`;
+			console.log(width, newWidth, e.deltaX)
 		} else {
 			// move
-			e.target.style.cursor = 'move';
-			// calculate the new cursor position:
-			pos1 = pos3 - e.clientX;
-			pos2 = pos4 - e.clientY;
-			pos3 = e.clientX;
-			pos4 = e.clientY;
-			// set the element's new position:
-			elem.style.top = elem.offsetTop - pos2 + 'px';
-			elem.style.left = elem.offsetLeft - pos1 + 'px';
-//			console.log(pos1, pos2, pos3, pos4, elem.style.top, elem.style.left);
-//			console.log(e.clientX, e.clientY)
+			elem.style.cursor = 'move';
+			let posX = e.deltaX + lastPosX;
+			let posY = e.deltaY + lastPosY;
+			elem.style.left = posX + "px";
+			elem.style.top = posY + "px";
+			console.log('move', 'wrap', e.deltaX, lastPosX, posX, elem.style.left)
+			elem.firstChild.style.left = 0; //posX + "px";
+			elem.firstChild.style.top = 0; //posY + "px";
+			console.log('image', elem.firstChild.offsetLeft, elem.firstChild.style.left, elem.firstChild.offsetTop)
 		}
-	}
-
-	function closeDragElement(e) {
-		// stop moving and resizing when mouse button is released:
-		e.target.style.cursor = 'auto';
-		resizing = false;
-		//		elem.onmouseup = null;
-		//		elem.onmousemove = null;
-		mc.off('panmove', elementDrag);
-		mc.off('panend', closeDragElement);
+		if (e.isFinal) {
+			isDragging = false;
+			elem.style.cursor = 'auto';
+			resizing = false;
+			console.log(e.isFinal)
+		}
 	}
 }
 let imageHandler = new ImageHandler();
