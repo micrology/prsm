@@ -491,6 +491,7 @@ class TextHandler extends ToolHandler {
 		this.div.style.top = this.startY - border + 'px';
 		this.div.style.width = '300px';
 		this.div.style.height = 2 * border + 50 + 'px';
+		this.div.style.cursor = 'move';
 		this.inp = document.createElement('textarea');
 		this.div.appendChild(this.inp);
 		this.inp.setAttribute('id', 'input');
@@ -510,11 +511,11 @@ class TextHandler extends ToolHandler {
 		this.resizer.classList.add('resize');
 		this.resizer.id = 'resizer';
 		this.div.appendChild(this.resizer);
+		this.resizer.cursor = 'nwse-resize';
 		this.unfocusfn = this.unfocus.bind(this);
 		document.addEventListener('click', this.unfocusfn);
 		this.writing = true;
-		underlay.style.cursor = 'text';
-		dragElement(this.div, false);
+		this.dragElement(this.div);
 		super.mousedown(e);
 		this.inp.focus();
 	}
@@ -548,7 +549,7 @@ class TextHandler extends ToolHandler {
 								this.div.offsetLeft - tempCanvas.offsetLeft + 12
 							), // '11' allows for border and outline
 							DOMtoCanvasY(
-								this.div.offsetTop - tempCanvas.offsetTop + 13
+								this.div.offsetTop - tempCanvas.offsetTop + 14
 							),
 						],
 					],
@@ -559,7 +560,7 @@ class TextHandler extends ToolHandler {
 			document.removeEventListener('click', this.unfocusfn);
 			underlay.style.cursor = 'auto';
 			super.mouseup();
-		} else e.target.style.cursor = 'auto';
+		}
 	}
 	optionsDialog() {
 		let box = super.optionsDialog('text');
@@ -586,6 +587,51 @@ class TextHandler extends ToolHandler {
 	fontFamily(str) {
 		return str.substring(str.indexOf(' ') + 1);
 	}
+	/**
+ * allow user to move and resize the DIV
+ * @param {element} elem
+ */
+dragElement(elem) {
+	let resizing = false;
+	let lastPosX = 0;
+	let lastPosY = 0
+	let width = 0;
+	let height = 0;
+	let isDragging = false;
+
+	let mc = new Hammer(elem);
+	mc.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL, threshold: 0 }));
+	mc.on("pan", handleDrag);
+
+	function handleDrag(e) {
+		let target = e.target;
+		if (!isDragging) {
+			isDragging = true;
+			lastPosX = elem.offsetLeft;
+			lastPosY = elem.offsetTop;
+			let rect = elem.getBoundingClientRect();
+			width = rect.width;
+			height = rect.height;	
+			resizing = (target.id == 'resizer');
+		}
+		if (resizing) {
+			let newWidth = width + e.deltaX;
+			let newHeight = height + e.deltaY;
+			elem.style.width = `${newWidth}px`;
+			elem.style.height = `${newHeight}px`;
+		} else {
+			// move
+			let posX = e.deltaX + lastPosX;
+			let posY = e.deltaY + lastPosY;
+			elem.style.left = posX + "px";
+			elem.style.top = posY + "px";
+		}
+		if (e.isFinal) {
+			isDragging = false;
+			resizing = false;
+		}
+	}
+}
 }
 let textHandler = new TextHandler();
 
@@ -821,17 +867,14 @@ class ImageHandler extends ToolHandler {
 				imageHandler.image = image;
 				image.src = e.target.result;
 				image.onload = function (e) {
-					// wrap the image in a div so that the rsize box can be position relative to that div
-					let wrap = document.createElement('div');
-					wrap.id = 'wrap';
-					wrap.style.position = 'absolute';
-					wrap.style.zIndex = 1005;
 					let image = e.target;
 					image.id = 'image';
-					wrap.origWidth = image.width;
-					wrap.origHeight = image.height;
+					image.origWidth = image.width;
+					image.origHeight = image.height;
+					let wrap = document.createElement('div');
+					image.wrap = wrap;
 					underlay.appendChild(wrap);
-					wrap.appendChild(image);
+					underlay.appendChild(image);
 					// check that the image is smaller than the canvas - if not, rescale it so that it fits
 					let hScale = Math.ceil(
 						image.offsetWidth / (underlay.offsetWidth - 100)
@@ -842,26 +885,32 @@ class ImageHandler extends ToolHandler {
 					let scale = 1;
 					if (hScale > 1.0 || vScale > 1.0)
 						scale = Math.max(hScale, vScale);
-					wrap.style.width = `${Math.round(
+					image.style.width = `${Math.round(
 						image.offsetWidth / scale
 					)}px`;
-					wrap.style.height = `${Math.round(
+					image.style.height = `${Math.round(
 						image.offsetHeight / scale
 					)}px`;
-					wrap.style.left =
-						(underlay.offsetWidth - wrap.offsetWidth) / 2 + 'px';
-					wrap.style.top =
-						(underlay.offsetHeight - wrap.offsetHeight) / 2 + 'px';
-					wrap.style.backgroundColor = 'red';
+					image.style.left =
+						(underlay.offsetWidth - image.offsetWidth) / 2 + 'px';
+					image.style.top =
+						(underlay.offsetHeight - image.offsetHeight) / 2 + 'px';
 					image.style.boxSizing = 'border-box';
-					image.style.width = '100%';
 					image.style.position = 'absolute';
 					image.style.zIndex = 1000;
+					wrap.id = 'wrap';
+					wrap.style.position = 'absolute';
+					wrap.style.left = image.style.left;
+					wrap.style.top = image.style.top;
+					wrap.style.width = image.style.width;
+					wrap.style.height = image.style.height;
+					wrap.style.backgroundColor = 'red';
 					//  create a small square box at the bottom right to use as the resizing handle
 					let resize = document.createElement('div');
 					resize.classList.add('resize');
 					resize.id = 'resizer';
 					wrap.appendChild(resize);
+					resize.style.zIndex = 1005;
 					image.classList.add('marching-ants');
 					underlay.addEventListener(
 						'click',
@@ -878,29 +927,29 @@ class ImageHandler extends ToolHandler {
 	 * @param {event} e
 	 */
 	mouseup(e) {
+		console.log('mouseup', e.target.id)
 		if (
 			this.isMouseDown &&
 			e.target.id != 'image' &&
-			e.target.id != 'resizer' &&
-			e.target.id != 'wrap'
+			e.target.id != 'resizer' 
 		) {
-			let wrap = this.image.parentNode;
 			yPointsArray.push([
 				[
 					'image',
 					[
 						this.image.src,
-						DOMtoCanvasX(wrap.offsetLeft),
-						DOMtoCanvasY(wrap.offsetTop),
-						wrap.origWidth,
-						wrap.origHeight,
-						wrap.offsetWidth,
-						wrap.offsetHeight,
+						DOMtoCanvasX(this.image.offsetLeft),
+						DOMtoCanvasY(this.image.offsetTop),
+						this.image.origWidth,
+						this.image.origHeight,
+						this.image.offsetWidth,
+						this.image.offsetHeight,
 					],
 				],
 			]);
 			this.image.classList.remove('marching-ants');
-			underlay.removeChild(wrap);
+			underlay.removeChild(this.image.wrap);
+			underlay.removeChild(this.image);
 			underlay.style.cursor = 'auto';
 			super.mouseup();
 		} else {
@@ -924,22 +973,28 @@ function dragElement(elem, constrain = true) {
 	let width = 0;
 	let height = 0;
 	let isDragging = false;
+	let wrap = document.getElementById('wrap');
 
 	let mc = new Hammer(elem);
 	mc.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL, threshold: 0 }));
 	mc.on("pan", handleDrag);
 
+/* let rs = new Hammer(document.getElementById('resizer'));
+	rs.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL, threshold: 0 }));
+	rs.on("pan", handleDrag);  */
+
 	function handleDrag(e) {
 		let target = e.target;
-
+		console.log(target);
 		if (!isDragging) {
 			isDragging = true;
 			lastPosX = elem.offsetLeft;
 			lastPosY = elem.offsetTop;
 			let rect = elem.getBoundingClientRect();
 			width = rect.width;
-			height = rect.height;		
-			resizing = target.id == 'resizer';
+			height = rect.height;	
+			console.log(target.id);
+			resizing = (target.id == 'resizer'  || (e.center.x > rect.right - 20  && e.center.y > rect.bottom - 20));
 			elem.style.cursor = (resizing ? 'nwse-resize' : 'move');
 		}
 		if (resizing) {
@@ -956,7 +1011,11 @@ function dragElement(elem, constrain = true) {
 			let newHeight = Math.round(height * vScale);
 			elem.style.width = `${newWidth}px`;
 			elem.style.height = `${newHeight}px`;
-			console.log(width, newWidth, e.deltaX)
+			if (wrap) {
+				wrap.style.width = elem.style.width;
+				wrap.style.height = elem.style.height;
+			}
+			console.log('resizing', width, newWidth, e.deltaX)
 		} else {
 			// move
 			elem.style.cursor = 'move';
@@ -965,9 +1024,10 @@ function dragElement(elem, constrain = true) {
 			elem.style.left = posX + "px";
 			elem.style.top = posY + "px";
 			console.log('move', 'wrap', e.deltaX, lastPosX, posX, elem.style.left)
-			elem.firstChild.style.left = 0; //posX + "px";
-			elem.firstChild.style.top = 0; //posY + "px";
-			console.log('image', elem.firstChild.offsetLeft, elem.firstChild.style.left, elem.firstChild.offsetTop)
+			if (wrap) {
+				wrap.style.left = elem.style.left;
+				wrap.style.top = elem.style.top;
+			}
 		}
 		if (e.isFinal) {
 			isDragging = false;
