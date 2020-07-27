@@ -148,10 +148,10 @@ function selectTool(event) {
 		fileInput.setAttribute('accept', 'image/*');
 		fileInput.addEventListener('change', imageHandler.loadImage);
 		fileInput.click();
-		if (fileInput.files.length == 0) {
+		/* if (fileInput.files.length == 0) {
 			document.getElementById('image').classList.remove('selected');
-			selectedTool = null;
-		}
+			selectedTool = null; 
+		}*/
 	}
 }
 
@@ -182,10 +182,13 @@ function closeOptionsDialogs() {
  */
 function mouseDespatch(event) {
 	event.preventDefault();
+//	console.log('hammer type=', event.type);
 	if (!selectedTool) return;
 	let type = 'mousedown';
 	if (event.type == 'panmove') type = 'mousemove';
 	else if (event.type == 'panend') type = 'mouseup';
+	else if (event.type == 'tap') type = 'mouseup';
+//	console.log(selectedTool, type);
 	toolHandler(selectedTool)[type](event.srcEvent);
 }
 
@@ -242,6 +245,7 @@ class ToolHandler {
 		if (this.endY < 0) this.endY = 0;
 		if (this.endY > tempCanvas.offsetHeight)
 			this.endY = tempCanvas.offsetHeight;
+//		console.log('endPosition', 'start', this.startX, this.startY, 'end', this.endX, this.endY)
 	}
 	/**
 	 * do something as the mouse moves
@@ -588,50 +592,50 @@ class TextHandler extends ToolHandler {
 		return str.substring(str.indexOf(' ') + 1);
 	}
 	/**
- * allow user to move and resize the DIV
- * @param {element} elem
- */
-dragElement(elem) {
-	let resizing = false;
-	let lastPosX = 0;
-	let lastPosY = 0
-	let width = 0;
-	let height = 0;
-	let isDragging = false;
+	 * allow user to move and resize the DIV
+	 * @param {element} elem
+	 */
+	dragElement(elem) {
+		let resizing = false;
+		let lastPosX = 0;
+		let lastPosY = 0;
+		let width = 0;
+		let height = 0;
+		let isDragging = false;
 
-	let mc = new Hammer(elem);
-	mc.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL, threshold: 0 }));
-	mc.on("pan", handleDrag);
+		let mc = new Hammer(elem);
+		mc.add(new Hammer.Pan({direction: Hammer.DIRECTION_ALL, threshold: 0}));
+		mc.on('pan', handleDrag);
 
-	function handleDrag(e) {
-		let target = e.target;
-		if (!isDragging) {
-			isDragging = true;
-			lastPosX = elem.offsetLeft;
-			lastPosY = elem.offsetTop;
-			let rect = elem.getBoundingClientRect();
-			width = rect.width;
-			height = rect.height;	
-			resizing = (target.id == 'resizer');
-		}
-		if (resizing) {
-			let newWidth = width + e.deltaX;
-			let newHeight = height + e.deltaY;
-			elem.style.width = `${newWidth}px`;
-			elem.style.height = `${newHeight}px`;
-		} else {
-			// move
-			let posX = e.deltaX + lastPosX;
-			let posY = e.deltaY + lastPosY;
-			elem.style.left = posX + "px";
-			elem.style.top = posY + "px";
-		}
-		if (e.isFinal) {
-			isDragging = false;
-			resizing = false;
+		function handleDrag(e) {
+			let target = e.target;
+			if (!isDragging) {
+				isDragging = true;
+				lastPosX = elem.offsetLeft;
+				lastPosY = elem.offsetTop;
+				let rect = elem.getBoundingClientRect();
+				width = rect.width;
+				height = rect.height;
+				resizing = target.id == 'resizer';
+			}
+			if (resizing) {
+				let newWidth = width + e.deltaX;
+				let newHeight = height + e.deltaY;
+				elem.style.width = `${newWidth}px`;
+				elem.style.height = `${newHeight}px`;
+			} else {
+				// move
+				let posX = e.deltaX + lastPosX;
+				let posY = e.deltaY + lastPosY;
+				elem.style.left = posX + 'px';
+				elem.style.top = posY + 'px';
+			}
+			if (e.isFinal) {
+				isDragging = false;
+				resizing = false;
+			}
 		}
 	}
-}
 }
 let textHandler = new TextHandler();
 
@@ -854,10 +858,10 @@ class ImageHandler extends ToolHandler {
 	constructor() {
 		super();
 		this.image = null;
+		this.resizing = false;
 	}
 	loadImage(e) {
 		if (e.target.files) {
-			imageHandler.isMouseDown = true;
 			let file = e.target.files[0];
 			let reader = new FileReader();
 			reader.readAsDataURL(file);
@@ -868,100 +872,180 @@ class ImageHandler extends ToolHandler {
 				image.src = e.target.result;
 				image.onload = function (e) {
 					let image = e.target;
-					image.id = 'image';
 					image.origWidth = image.width;
 					image.origHeight = image.height;
-					let wrap = document.createElement('div');
-					image.wrap = wrap;
-					underlay.appendChild(wrap);
 					underlay.appendChild(image);
 					// check that the image is smaller than the canvas - if not, rescale it so that it fits
 					let hScale = Math.ceil(
-						image.offsetWidth / (underlay.offsetWidth - 100)
+						image.origWidth / (underlay.offsetWidth - 100)
 					);
 					let vScale = Math.ceil(
-						image.offsetHeight / (underlay.offsetHeight - 100)
+						image.origHeight / (underlay.offsetHeight - 100)
 					);
 					let scale = 1;
 					if (hScale > 1.0 || vScale > 1.0)
 						scale = Math.max(hScale, vScale);
-					image.style.width = `${Math.round(
-						image.offsetWidth / scale
-					)}px`;
-					image.style.height = `${Math.round(
-						image.offsetHeight / scale
-					)}px`;
-					image.style.left =
-						(underlay.offsetWidth - image.offsetWidth) / 2 + 'px';
-					image.style.top =
-						(underlay.offsetHeight - image.offsetHeight) / 2 + 'px';
+					image.width = Math.round(
+						image.origWidth / scale);
+					image.startWidth = image.width;
+					image.style.width = image.width + 'px';
+					image.height = Math.round(
+						image.origHeight / scale);
+					image.startHeight = image.height;
+					image.style.height = image.height + 'px';
+					image.left = (underlay.offsetWidth - image.width) / 2;
+					image.style.left = image.left + 'px';
+					image.top =
+						(underlay.offsetHeight - image.height) / 2;
+					image.style.top = image.top + 'px';
 					image.style.boxSizing = 'border-box';
 					image.style.position = 'absolute';
-					image.style.zIndex = 1000;
-					wrap.id = 'wrap';
-					wrap.style.position = 'absolute';
-					wrap.style.left = image.style.left;
-					wrap.style.top = image.style.top;
-					wrap.style.width = image.style.width;
-					wrap.style.height = image.style.height;
-					wrap.style.backgroundColor = 'red';
-					//  create a small square box at the bottom right to use as the resizing handle
-					let resize = document.createElement('div');
-					resize.classList.add('resize');
-					resize.id = 'resizer';
-					wrap.appendChild(resize);
-					resize.style.zIndex = 1005;
-					image.classList.add('marching-ants');
-					underlay.addEventListener(
-						'click',
-						imageHandler.mouseup.bind(imageHandler)
+					imageHandler.paintImage(
+						image,
+						image.origWidth,
+						image.origHeight,
+						image.left,
+						image.top,
+						image.width,
+						image.height
 					);
-					dragElement(image);
+					imageHandler.image = image;
+					underlay.removeChild(image);
 				};
 			};
 		}
 	}
+	paintImage(image, ow, oh, left, top, width, height) {
+		tempctx.drawImage(image, 0, 0, ow, oh, left, top, width, height);
+		//  create a small square box at the bottom right to use as the resizing handle
+		tempctx.fillStyle = 'black';
+		tempctx.fillRect(left + width - 10, top + height - 10, 10, 10);
+		antMarch(left, top, width, height);
+	}
+	mousedown(e) {
+		super.mousedown(e);
+		console.log('startX', this.startX, 'left', this.image.left, 'width', this.image.width);
+		const resizingBlock = 20;
+		this.resizing = (this.startX >= this.image.left + this.image.width - resizingBlock && this.startX <= this.image.left + this.image.width &&
+			this.startY >= this.image.top + this.image.height - resizingBlock && this.startY <= this.image.top + this.image.height);
+		underlay.style.cursor = (this.resizing ? 'nwse-resize' : 'move');
+		console.log(underlay.style.cursor);
+	}
+	mousemove(e) {
+		if (this.isMouseDown) {
+			this.endPosition(e);
+			drawHelper.clear(tempctx);
+			if (this.resizing) {
+				let hScale = (this.image.startWidth + this.endX - this.startX) / this.image.startWidth;
+				let vScale = (this.image.startHeight + this.endY - this.startY) / this.image.startHeight;
+				console.log('scale', hScale, vScale, this.image.left);
+				let scale = Math.max(hScale, vScale);
+				hScale = scale;
+				vScale = scale;
+				this.image.width = Math.max(20, Math.round(this.image.startWidth * hScale));
+				this.image.height = Math.max(20, Math.round(this.image.startHeight * vScale));
+				this.paintImage(
+					this.image,
+					this.image.origWidth,
+					this.image.origHeight,
+					this.image.left,
+					this.image.top,
+					this.image.width,
+					this.image.height
+				);
+			}
+			else {
+				this.paintImage(
+					this.image,
+					this.image.origWidth,
+					this.image.origHeight,
+					this.image.left + this.endX - this.startX,
+					this.image.top + this.endY - this.startY,
+					this.image.width,
+					this.image.height
+				);
+			}
+		}
+	}
+
 	/**
 	 * if the user clicks anywhere outside the image, stop moving and resizing and copy the image to
 	 * the canvas
 	 * @param {event} e
 	 */
 	mouseup(e) {
-		console.log('mouseup', e.target.id)
-		if (
-			this.isMouseDown &&
-			e.target.id != 'image' &&
-			e.target.id != 'resizer' 
+		console.log('mouseup', e.target.id);
+		let x = e.offsetX - tempCanvas.offsetLeft;
+		let y = e.offsetY - tempCanvas.offsetTop;
+		let left = this.image.left + this.endX - this.startX;
+		let top = this.image.top + this.endY - this.startY;
+		console.log('x , y, this.image.left, this.image.top', x, y, this.image.left, this.image.top, 'startX endX', this.startX, this.endX);
+		if (!(
+				x >= left &&
+				x <= left + this.image.width &&
+				y >= top &&
+				y <= top + this.image.height
+			)
 		) {
+			console.log('pushing image to yPointsArray');
 			yPointsArray.push([
 				[
 					'image',
 					[
 						this.image.src,
-						DOMtoCanvasX(this.image.offsetLeft),
-						DOMtoCanvasY(this.image.offsetTop),
+						DOMtoCanvasX(this.image.left),
+						DOMtoCanvasY(this.image.top),
 						this.image.origWidth,
 						this.image.origHeight,
-						this.image.offsetWidth,
-						this.image.offsetHeight,
+						this.image.width,
+						this.image.height,
 					],
 				],
 			]);
-			this.image.classList.remove('marching-ants');
-			underlay.removeChild(this.image.wrap);
-			underlay.removeChild(this.image);
+			//			this.image.classList.remove('marching-ants');
 			underlay.style.cursor = 'auto';
+			if (timer) clearTimeout(timer);
 			super.mouseup();
+			deselectTool();
 		} else {
-			e.target.style.cursor =
-				e.target.id == 'resizer' ? 'nwse-resize' : 'move';
+			console.log('no push', 'resizing = ', this.resizing);
+			this.isMouseDown = false;
+			if (this.resizing) {
+				this.resizing = false;
+				this.image.startWidth = this.image.width;
+				this.image.startHeight = this.image.height;
+			}
+			else {
+				this.image.left = left;
+				this.image.top = top;
+			}
 		}
 	}
 	optionsDialog() {
 		/* none */
 	}
 }
+let ant = 0;
+let timer = null;
+function antMarch(left, top, width, height) {
+	if (timer) clearTimeout(timer);
+	march();
 
+	function march() {
+		ant++;
+		if (ant > 16) ant = 0;
+		drawAnts();
+		timer = setTimeout(march, 100);
+	}
+	function drawAnts() {
+		tempctx.strokeStyle = 'white';
+		tempctx.strokeRect(left, top, width, height);
+		tempctx.strokeStyle = 'rgba(176, 190, 197, 0.8)';
+		tempctx.setLineDash([2, 4]);
+		tempctx.lineDashOffset = -ant;
+		tempctx.strokeRect(left, top, width, height);
+	}
+}
 /**
  * allow user to move and resize the DIV
  * @param {element} elem
@@ -969,17 +1053,17 @@ class ImageHandler extends ToolHandler {
 function dragElement(elem, constrain = true) {
 	let resizing = false;
 	let lastPosX = 0;
-	let lastPosY = 0
+	let lastPosY = 0;
 	let width = 0;
 	let height = 0;
 	let isDragging = false;
 	let wrap = document.getElementById('wrap');
 
 	let mc = new Hammer(elem);
-	mc.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL, threshold: 0 }));
-	mc.on("pan", handleDrag);
+	mc.add(new Hammer.Pan({direction: Hammer.DIRECTION_ALL, threshold: 0}));
+	mc.on('pan', handleDrag);
 
-/* let rs = new Hammer(document.getElementById('resizer'));
+	/* let rs = new Hammer(document.getElementById('resizer'));
 	rs.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL, threshold: 0 }));
 	rs.on("pan", handleDrag);  */
 
@@ -992,10 +1076,12 @@ function dragElement(elem, constrain = true) {
 			lastPosY = elem.offsetTop;
 			let rect = elem.getBoundingClientRect();
 			width = rect.width;
-			height = rect.height;	
+			height = rect.height;
 			console.log(target.id);
-			resizing = (target.id == 'resizer'  || (e.center.x > rect.right - 20  && e.center.y > rect.bottom - 20));
-			elem.style.cursor = (resizing ? 'nwse-resize' : 'move');
+			resizing =
+				target.id == 'resizer' ||
+				(e.center.x > rect.right - 20 && e.center.y > rect.bottom - 20);
+			elem.style.cursor = resizing ? 'nwse-resize' : 'move';
 		}
 		if (resizing) {
 			elem.style.cursor = 'nwse-resize';
@@ -1015,15 +1101,22 @@ function dragElement(elem, constrain = true) {
 				wrap.style.width = elem.style.width;
 				wrap.style.height = elem.style.height;
 			}
-			console.log('resizing', width, newWidth, e.deltaX)
+			console.log('resizing', width, newWidth, e.deltaX);
 		} else {
 			// move
 			elem.style.cursor = 'move';
 			let posX = e.deltaX + lastPosX;
 			let posY = e.deltaY + lastPosY;
-			elem.style.left = posX + "px";
-			elem.style.top = posY + "px";
-			console.log('move', 'wrap', e.deltaX, lastPosX, posX, elem.style.left)
+			elem.style.left = posX + 'px';
+			elem.style.top = posY + 'px';
+			console.log(
+				'move',
+				'wrap',
+				e.deltaX,
+				lastPosX,
+				posX,
+				elem.style.left
+			);
 			if (wrap) {
 				wrap.style.left = elem.style.left;
 				wrap.style.top = elem.style.top;
@@ -1033,7 +1126,7 @@ function dragElement(elem, constrain = true) {
 			isDragging = false;
 			elem.style.cursor = 'auto';
 			resizing = false;
-			console.log(e.isFinal)
+			console.log(e.isFinal);
 		}
 	}
 }
@@ -1055,6 +1148,7 @@ class UndoHandler extends ToolHandler {
 		let i;
 		for (i = len - 2; i >= 0 && points[i][0] !== 'endShape'; i--);
 		yPointsArray.delete(i + 1, len - i - 1);
+		deselectTool();
 		network.redraw();
 	}
 }
@@ -1175,7 +1269,6 @@ let drawHelper = {
 		ctx.beginPath();
 		ctx.lineJoin = 'miter';
 		ctx.rect(startX, startY, width, height);
-		console.log(startX, startY);
 		if (ctx.lineWidth > 0) ctx.stroke();
 		// treat white as transparent
 		if (ctx.fillStyle !== '#ffffff') ctx.fill();
@@ -1231,6 +1324,7 @@ let drawHelper = {
 				ctx.drawImage(this, 0, 0, ow, oh, xt, yt, w, h);
 			};
 		} else {
+			console.log('cached immage')
 			ctx.drawImage(img, 0, 0, ow, oh, x, y, w, h);
 		}
 	},
