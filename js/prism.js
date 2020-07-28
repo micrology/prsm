@@ -32,7 +32,7 @@ import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 // even though we don't use this, vis-network won't work without it
 import 'vis-network/styles/vis-network.min.css';
 
-const version = '1.26';
+const version = '1.27';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
@@ -187,11 +187,6 @@ function startY() {
 			doc.off('afterTransaction', initialFit);
 		}
 	}
-	/* const wsProvider = new WebsocketProvider(
-		'wss://cress.soc.surrey.ac.uk:1234',
-		'prism' + room,
-		doc
-	); */
 	const wsProvider = new WebsocketProvider(
 		'wss://cress.soc.surrey.ac.uk/wss',
 		'prism' + room,
