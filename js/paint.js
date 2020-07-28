@@ -41,7 +41,7 @@ window.yPointsArray = yPointsArray;
 const GRIDSPACING = 50;
 
 /**
- * create the canvases and add listeners for mouse events
+ * create the canvases and add listeners for mouse and touch events
  * initialise the array holding drawing commands
  */
 
@@ -148,10 +148,6 @@ function selectTool(event) {
 		fileInput.setAttribute('accept', 'image/*');
 		fileInput.addEventListener('change', imageHandler.loadImage);
 		fileInput.click();
-		/* if (fileInput.files.length == 0) {
-			document.getElementById('image').classList.remove('selected');
-			selectedTool = null; 
-		}*/
 	}
 }
 
@@ -177,18 +173,14 @@ function closeOptionsDialogs() {
  */
 
 /**
- * all mouse events are handled here - despatch to the selected tool
+ * all mouse and touch events for the canvas are handled here - despatch to the selected tool
  * @param {object} event
  */
 function mouseDespatch(event) {
 	event.preventDefault();
-//	console.log('hammer type=', event.type);
 	if (!selectedTool) return;
-	let type = 'mousedown';
-	if (event.type == 'panmove') type = 'mousemove';
-	else if (event.type == 'panend') type = 'mouseup';
-	else if (event.type == 'tap') type = 'mouseup';
-//	console.log(selectedTool, type);
+	let type = event.type;
+	if (type == 'tap') type = 'panend';
 	toolHandler(selectedTool)[type](event.srcEvent);
 }
 
@@ -203,7 +195,7 @@ function mouseDespatch(event) {
  */
 class ToolHandler {
 	constructor() {
-		this.isMouseDown = false;
+		this.isPanstart = false;
 		this.startX = 0;
 		this.startY = 0;
 		this.endX = 0;
@@ -222,13 +214,13 @@ class ToolHandler {
 	 * mouse has been pressed - note the starting mouse position and options
 	 * @param {event} e
 	 */
-	mousedown(e) {
-		if (this.isMouseDown) return;
+	panstart(e) {
+		if (this.isPanstart) return;
 		tempCanvas.focus();
 		this.endPosition(e);
 		this.startX = this.endX;
 		this.startY = this.endY;
-		this.isMouseDown = true;
+		this.isPanstart = true;
 		applyOptions(tempctx, this.options());
 		yPointsArray.push([['options', this.options()]]);
 	}
@@ -245,18 +237,17 @@ class ToolHandler {
 		if (this.endY < 0) this.endY = 0;
 		if (this.endY > tempCanvas.offsetHeight)
 			this.endY = tempCanvas.offsetHeight;
-//		console.log('endPosition', 'start', this.startX, this.startY, 'end', this.endX, this.endY)
 	}
 	/**
 	 * do something as the mouse moves
 	 */
-	mousemove() {}
+	panmove() {}
 	/**
-	 * mouseup means the shape has been completed - add a marker to record that
+	 * panend means the shape has been completed - add a marker to record that
 	 */
-	mouseup() {
+	panend() {
 		yPointsArray.push([['endShape']]);
-		this.isMouseDown = false;
+		this.isPanstart = false;
 		network.redraw();
 	}
 	/**
@@ -306,8 +297,8 @@ class LineHandler extends ToolHandler {
 		super();
 		this.axes = false;
 	}
-	mousemove(e) {
-		if (this.isMouseDown) {
+	panmove(e) {
+		if (this.isPanstart) {
 			this.endPosition(e);
 			if (this.axes) {
 				if (this.endX - this.startX > this.endY - this.startY)
@@ -323,8 +314,8 @@ class LineHandler extends ToolHandler {
 			]);
 		}
 	}
-	mouseup() {
-		if (this.isMouseDown) {
+	panend() {
+		if (this.isPanstart) {
 			yPointsArray.push([
 				[
 					'line',
@@ -336,7 +327,7 @@ class LineHandler extends ToolHandler {
 					],
 				],
 			]);
-			super.mouseup();
+			super.panend();
 		}
 	}
 	optionsDialog() {
@@ -374,12 +365,12 @@ class RectHandler extends ToolHandler {
 		this.roundCorners = true;
 		this.globalAlpha = 0.5;
 	}
-	mousedown(e) {
-		super.mousedown(e);
+	panstart(e) {
+		super.panstart(e);
 		underlay.style.cursor = 'crosshair';
 	}
-	mousemove(e) {
-		if (this.isMouseDown) {
+	panmove(e) {
+		if (this.isPanstart) {
 			this.endPosition(e);
 			let startX = this.startX;
 			let startY = this.startY;
@@ -403,8 +394,8 @@ class RectHandler extends ToolHandler {
 			]);
 		}
 	}
-	mouseup() {
-		if (this.isMouseDown) {
+	panend() {
+		if (this.isPanstart) {
 			if (Math.abs(this.startX) > Math.abs(this.endX)) {
 				[this.startX, this.endX] = [this.endX, this.startX];
 			}
@@ -427,7 +418,7 @@ class RectHandler extends ToolHandler {
 				]);
 			}
 			underlay.style.cursor = 'auto';
-			super.mouseup();
+			super.panend();
 		}
 	}
 	optionsDialog() {
@@ -481,7 +472,7 @@ class TextHandler extends ToolHandler {
 		this.font = defaultOptions.font;
 		this.fillStyle = defaultOptions.fontColor;
 	}
-	mousedown(e) {
+	panstart(e) {
 		if (this.writing) return;
 		this.startX = e.offsetX - tempCanvas.offsetLeft;
 		this.startY = e.offsetY - tempCanvas.offsetTop;
@@ -520,8 +511,12 @@ class TextHandler extends ToolHandler {
 		document.addEventListener('click', this.unfocusfn);
 		this.writing = true;
 		this.dragElement(this.div);
-		super.mousedown(e);
+		super.panstart(e);
 		this.inp.focus();
+	}
+	// tap to start a text box
+	panend(e) {
+		this.panstart(e);
 	}
 	insertNewlines() {
 		// If the width of the chars in textarea are greater than its width then insert newline
@@ -563,7 +558,7 @@ class TextHandler extends ToolHandler {
 			underlay.removeChild(this.div);
 			document.removeEventListener('click', this.unfocusfn);
 			underlay.style.cursor = 'auto';
-			super.mouseup();
+			super.panend();
 		}
 	}
 	optionsDialog() {
@@ -646,8 +641,8 @@ class PencilHandler extends ToolHandler {
 		this.lineCap = 'butt';
 		this.lineJoin = 'round';
 	}
-	mousemove(e) {
-		if (this.isMouseDown) {
+	panmove(e) {
+		if (this.isPanstart) {
 			this.endPosition(e);
 			drawHelper.pencil(tempctx, [
 				this.startX,
@@ -660,11 +655,11 @@ class PencilHandler extends ToolHandler {
 			this.startY = this.endY;
 		}
 	}
-	mouseup(e) {
-		if (this.isMouseDown) {
+	panend(e) {
+		if (this.isPanstart) {
 			this.endPosition(e);
 			this.record();
-			super.mouseup();
+			super.panend();
 		}
 	}
 	record() {
@@ -711,8 +706,8 @@ class MarkerHandler extends ToolHandler {
 		this.fillStyle = '#ffff00';
 		this.markerWidth = 30;
 	}
-	mousemove(e) {
-		if (this.isMouseDown) {
+	panmove(e) {
+		if (this.isPanstart) {
 			this.endPosition(e);
 			this.record();
 			drawHelper.marker(tempctx, [
@@ -724,11 +719,11 @@ class MarkerHandler extends ToolHandler {
 			this.startY = this.endY;
 		}
 	}
-	mouseup(e) {
-		if (this.isMouseDown) {
+	panend(e) {
+		if (this.isPanstart) {
 			this.endPosition(e);
 			this.record();
-			super.mouseup();
+			super.panend();
 		}
 	}
 	record() {
@@ -773,12 +768,12 @@ class EraserHandler extends ToolHandler {
 		this.fillStyle = '#ffffff';
 		this.markerWidth = 30;
 	}
-	mousedown(e) {
-		super.mousedown(e);
+	panstart(e) {
+		super.panstart(e);
 		underlay.style.cursor = 'none';
 	}
-	mousemove(e) {
-		if (this.isMouseDown) {
+	panmove(e) {
+		if (this.isPanstart) {
 			this.cursor('#ffffff', 1);
 			this.endPosition(e);
 			this.record();
@@ -792,12 +787,12 @@ class EraserHandler extends ToolHandler {
 			this.cursor('#000000', 2);
 		}
 	}
-	mouseup(e) {
-		if (this.isMouseDown) {
+	panend(e) {
+		if (this.isPanstart) {
 			this.endPosition(e);
 			this.record();
 			underlay.style.cursor = 'auto';
-			super.mouseup();
+			super.panend();
 		}
 	}
 	record() {
@@ -847,9 +842,8 @@ let eraserHandler = new EraserHandler();
 
 /* ========================================================== image ================================================ */
 /**
- * ImageHandler works differently.  The image is read from a file and put into a <img> element as a dataURI.  This DOM
- * element can them be easily moved and/or resized.  When the user is satisfied, indicated by clicking outside the <img>,
- * it is drawn on the main canvas.
+ * ImageHandler works differently.  The image is read from a file and put into a <img> element as a dataURI.
+ *  When the user is satisfied, indicated by clicking outside the image, it is drawn on the main canvas.
  *
  * Selecting the file is handled within the selectTool fn, not here, because of the restriction that file dialogs can
  * only be opended from direct user action.
@@ -885,20 +879,17 @@ class ImageHandler extends ToolHandler {
 					let scale = 1;
 					if (hScale > 1.0 || vScale > 1.0)
 						scale = Math.max(hScale, vScale);
-					image.width = Math.round(
-						image.origWidth / scale);
+					image.width = Math.round(image.origWidth / scale);
 					image.startWidth = image.width;
 					image.style.width = image.width + 'px';
-					image.height = Math.round(
-						image.origHeight / scale);
+					image.height = Math.round(image.origHeight / scale);
 					image.startHeight = image.height;
 					image.style.height = image.height + 'px';
 					image.left = (underlay.offsetWidth - image.width) / 2;
 					image.style.left = image.left + 'px';
-					image.top =
-						(underlay.offsetHeight - image.height) / 2;
+					image.top = (underlay.offsetHeight - image.height) / 2;
 					image.style.top = image.top + 'px';
-					image.style.boxSizing = 'border-box';
+					//					image.style.boxSizing = 'border-box';
 					image.style.position = 'absolute';
 					imageHandler.paintImage(
 						image,
@@ -920,30 +911,49 @@ class ImageHandler extends ToolHandler {
 		//  create a small square box at the bottom right to use as the resizing handle
 		tempctx.fillStyle = 'black';
 		tempctx.fillRect(left + width - 10, top + height - 10, 10, 10);
+		// add marching ants
 		antMarch(left, top, width, height);
 	}
-	mousedown(e) {
-		super.mousedown(e);
-		console.log('startX', this.startX, 'left', this.image.left, 'width', this.image.width);
+	/**
+	 * startX and startY are mouse location at the start of the drag
+	 * endX and endY are the locatiuon of the mouse pointer duringthe drag
+	 * origWidth and origHeight are the size of the image when first loaded
+	 * startWidth and startHeight are the width and height at the start of resizing
+	 * image.left, image.top, image.width and image.height are the values during dragging and resizing that change as the mouse moves
+	 *
+	 */
+	panstart(e) {
+		super.panstart(e);
 		const resizingBlock = 20;
-		this.resizing = (this.startX >= this.image.left + this.image.width - resizingBlock && this.startX <= this.image.left + this.image.width &&
-			this.startY >= this.image.top + this.image.height - resizingBlock && this.startY <= this.image.top + this.image.height);
-		underlay.style.cursor = (this.resizing ? 'nwse-resize' : 'move');
-		console.log(underlay.style.cursor);
+		this.resizing =
+			this.startX >= this.image.left + this.image.width - resizingBlock &&
+			this.startX <= this.image.left + this.image.width &&
+			this.startY >= this.image.top + this.image.height - resizingBlock &&
+			this.startY <= this.image.top + this.image.height;
+		underlay.style.cursor = this.resizing ? 'nwse-resize' : 'move';
 	}
-	mousemove(e) {
-		if (this.isMouseDown) {
+	panmove(e) {
+		if (this.isPanstart) {
 			this.endPosition(e);
 			drawHelper.clear(tempctx);
 			if (this.resizing) {
-				let hScale = (this.image.startWidth + this.endX - this.startX) / this.image.startWidth;
-				let vScale = (this.image.startHeight + this.endY - this.startY) / this.image.startHeight;
-				console.log('scale', hScale, vScale, this.image.left);
+				let hScale =
+					(this.image.startWidth + this.endX - this.startX) /
+					this.image.startWidth;
+				let vScale =
+					(this.image.startHeight + this.endY - this.startY) /
+					this.image.startHeight;
 				let scale = Math.max(hScale, vScale);
 				hScale = scale;
 				vScale = scale;
-				this.image.width = Math.max(20, Math.round(this.image.startWidth * hScale));
-				this.image.height = Math.max(20, Math.round(this.image.startHeight * vScale));
+				this.image.width = Math.max(
+					20,
+					Math.round(this.image.startWidth * hScale)
+				);
+				this.image.height = Math.max(
+					20,
+					Math.round(this.image.startHeight * vScale)
+				);
 				this.paintImage(
 					this.image,
 					this.image.origWidth,
@@ -953,8 +963,7 @@ class ImageHandler extends ToolHandler {
 					this.image.width,
 					this.image.height
 				);
-			}
-			else {
+			} else {
 				this.paintImage(
 					this.image,
 					this.image.origWidth,
@@ -967,27 +976,22 @@ class ImageHandler extends ToolHandler {
 			}
 		}
 	}
-
 	/**
 	 * if the user clicks anywhere outside the image, stop moving and resizing and copy the image to
 	 * the canvas
 	 * @param {event} e
 	 */
-	mouseup(e) {
-		console.log('mouseup', e.target.id);
+	panend(e) {
 		let x = e.offsetX - tempCanvas.offsetLeft;
 		let y = e.offsetY - tempCanvas.offsetTop;
-		let left = this.image.left + this.endX - this.startX;
-		let top = this.image.top + this.endY - this.startY;
-		console.log('x , y, this.image.left, this.image.top', x, y, this.image.left, this.image.top, 'startX endX', this.startX, this.endX);
-		if (!(
-				x >= left &&
-				x <= left + this.image.width &&
-				y >= top &&
-				y <= top + this.image.height
+		if (
+			!(
+				x >= this.image.left &&
+				x <= this.image.left + this.image.width &&
+				y >= this.image.top &&
+				y <= this.image.top + this.image.height
 			)
 		) {
-			console.log('pushing image to yPointsArray');
 			yPointsArray.push([
 				[
 					'image',
@@ -1002,22 +1006,19 @@ class ImageHandler extends ToolHandler {
 					],
 				],
 			]);
-			//			this.image.classList.remove('marching-ants');
 			underlay.style.cursor = 'auto';
 			if (timer) clearTimeout(timer);
-			super.mouseup();
+			super.panend();
 			deselectTool();
 		} else {
-			console.log('no push', 'resizing = ', this.resizing);
-			this.isMouseDown = false;
+			this.isPanstart = false;
 			if (this.resizing) {
 				this.resizing = false;
 				this.image.startWidth = this.image.width;
 				this.image.startHeight = this.image.height;
-			}
-			else {
-				this.image.left = left;
-				this.image.top = top;
+			} else {
+				this.image.left = this.image.left + this.endX - this.startX;
+				this.image.top = this.image.top + this.endY - this.startY;
 			}
 		}
 	}
@@ -1026,7 +1027,14 @@ class ImageHandler extends ToolHandler {
 	}
 }
 let ant = 0;
-let timer = null;
+let timer = null; // timer to advance ants.  To cancel ants, clear this timer
+/**
+ * draw 'marching ants' around a rectangle
+ * @param {Number} left
+ * @param {Number} top
+ * @param {Number} width
+ * @param {Number} height
+ */
 function antMarch(left, top, width, height) {
 	if (timer) clearTimeout(timer);
 	march();
@@ -1044,90 +1052,6 @@ function antMarch(left, top, width, height) {
 		tempctx.setLineDash([2, 4]);
 		tempctx.lineDashOffset = -ant;
 		tempctx.strokeRect(left, top, width, height);
-	}
-}
-/**
- * allow user to move and resize the DIV
- * @param {element} elem
- */
-function dragElement(elem, constrain = true) {
-	let resizing = false;
-	let lastPosX = 0;
-	let lastPosY = 0;
-	let width = 0;
-	let height = 0;
-	let isDragging = false;
-	let wrap = document.getElementById('wrap');
-
-	let mc = new Hammer(elem);
-	mc.add(new Hammer.Pan({direction: Hammer.DIRECTION_ALL, threshold: 0}));
-	mc.on('pan', handleDrag);
-
-	/* let rs = new Hammer(document.getElementById('resizer'));
-	rs.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL, threshold: 0 }));
-	rs.on("pan", handleDrag);  */
-
-	function handleDrag(e) {
-		let target = e.target;
-		console.log(target);
-		if (!isDragging) {
-			isDragging = true;
-			lastPosX = elem.offsetLeft;
-			lastPosY = elem.offsetTop;
-			let rect = elem.getBoundingClientRect();
-			width = rect.width;
-			height = rect.height;
-			console.log(target.id);
-			resizing =
-				target.id == 'resizer' ||
-				(e.center.x > rect.right - 20 && e.center.y > rect.bottom - 20);
-			elem.style.cursor = resizing ? 'nwse-resize' : 'move';
-		}
-		if (resizing) {
-			elem.style.cursor = 'nwse-resize';
-			// constrain the resizing to keep the original image proportions
-			let hScale = (width + e.deltaX) / width;
-			let vScale = (height + e.deltaY) / height;
-			if (constrain) {
-				let scale = Math.max(hScale, vScale);
-				hScale = scale;
-				vScale = scale;
-			}
-			let newWidth = Math.round(width * hScale);
-			let newHeight = Math.round(height * vScale);
-			elem.style.width = `${newWidth}px`;
-			elem.style.height = `${newHeight}px`;
-			if (wrap) {
-				wrap.style.width = elem.style.width;
-				wrap.style.height = elem.style.height;
-			}
-			console.log('resizing', width, newWidth, e.deltaX);
-		} else {
-			// move
-			elem.style.cursor = 'move';
-			let posX = e.deltaX + lastPosX;
-			let posY = e.deltaY + lastPosY;
-			elem.style.left = posX + 'px';
-			elem.style.top = posY + 'px';
-			console.log(
-				'move',
-				'wrap',
-				e.deltaX,
-				lastPosX,
-				posX,
-				elem.style.left
-			);
-			if (wrap) {
-				wrap.style.left = elem.style.left;
-				wrap.style.top = elem.style.top;
-			}
-		}
-		if (e.isFinal) {
-			isDragging = false;
-			elem.style.cursor = 'auto';
-			resizing = false;
-			console.log(e.isFinal);
-		}
 	}
 }
 let imageHandler = new ImageHandler();
@@ -1324,7 +1248,6 @@ let drawHelper = {
 				ctx.drawImage(this, 0, 0, ow, oh, xt, yt, w, h);
 			};
 		} else {
-			console.log('cached immage')
 			ctx.drawImage(img, 0, 0, ow, oh, x, y, w, h);
 		}
 	},
