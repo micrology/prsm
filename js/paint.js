@@ -851,6 +851,9 @@ let eraserHandler = new EraserHandler();
  * Selecting the file is handled within the selectTool fn, not here, because of the restriction that file dialogs can
  * only be opended from direct user action.
  */
+
+const resizeBox = 10; // size in pixels of small square that is the resizing handle
+
 class ImageHandler extends ToolHandler {
 	constructor() {
 		super();
@@ -913,21 +916,30 @@ class ImageHandler extends ToolHandler {
 		tempctx.drawImage(image, 0, 0, ow, oh, left, top, width, height);
 		//  create a small square box at the bottom right to use as the resizing handle
 		tempctx.fillStyle = 'black';
-		tempctx.fillRect(left + width - 10, top + height - 10, 10, 10);
+		tempctx.fillRect(
+			left + width - resizeBox,
+			top + height - resizeBox,
+			resizeBox,
+			resizeBox
+		);
 		// add marching ants
 		antMarch(left, top, width, height);
 	}
 	/**
-	 * startX and startY are mouse location at the start of the drag
-	 * endX and endY are the locatiuon of the mouse pointer duringthe drag
+	 * startX and startY are mouse locations at the start of the drag
+	 * endX and endY are the locations of the mouse pointer during the drag
+	 * endX - startX, endY - startY are thus the drag vector
 	 * origWidth and origHeight are the size of the image when first loaded
 	 * startWidth and startHeight are the width and height at the start of resizing
+	 * startLeft and startTop are the position of the top left of the image at the start of dragging
 	 * image.left, image.top, image.width and image.height are the values during dragging and resizing that change as the mouse moves
 	 *
 	 */
 	panstart(e) {
 		super.panstart(e);
-		const resizingBlock = 20;
+		this.image.startLeft = this.image.left;
+		this.image.startTop = this.image.top;
+		const resizingBlock = 2 * resizeBox; // give a little leeway for pointer
 		this.resizing =
 			this.startX >= this.image.left + this.image.width - resizingBlock &&
 			this.startX <= this.image.left + this.image.width &&
@@ -967,12 +979,15 @@ class ImageHandler extends ToolHandler {
 					this.image.height
 				);
 			} else {
+				this.image.left =
+					this.image.startLeft + this.endX - this.startX;
+				this.image.top = this.image.startTop + this.endY - this.startY;
 				this.paintImage(
 					this.image,
 					this.image.origWidth,
 					this.image.origHeight,
-					this.image.left + this.endX - this.startX,
-					this.image.top + this.endY - this.startY,
+					this.image.left,
+					this.image.top,
 					this.image.width,
 					this.image.height
 				);
@@ -985,14 +1000,14 @@ class ImageHandler extends ToolHandler {
 	 * @param {event} e
 	 */
 	panend(e) {
-		let x = e.offsetX - tempCanvas.offsetLeft;
-		let y = e.offsetY - tempCanvas.offsetTop;
+		this.isPanstart = false;
+		this.endPosition(e);
 		if (
 			!(
-				x >= this.image.left &&
-				x <= this.image.left + this.image.width &&
-				y >= this.image.top &&
-				y <= this.image.top + this.image.height
+				this.endX >= this.image.left &&
+				this.endX <= this.image.left + this.image.width &&
+				this.endY >= this.image.top &&
+				this.endY <= this.image.top + this.image.height
 			)
 		) {
 			yPointsArray.push([
@@ -1014,14 +1029,14 @@ class ImageHandler extends ToolHandler {
 			super.panend();
 			deselectTool();
 		} else {
-			this.isPanstart = false;
 			if (this.resizing) {
 				this.resizing = false;
 				this.image.startWidth = this.image.width;
 				this.image.startHeight = this.image.height;
 			} else {
-				this.image.left = this.image.left + this.endX - this.startX;
-				this.image.top = this.image.top + this.endY - this.startY;
+				this.image.left =
+					this.image.startLeft + this.endX - this.startX;
+				this.image.top = this.image.startTop + this.endY - this.startY;
 			}
 		}
 	}
@@ -1049,12 +1064,14 @@ function antMarch(left, top, width, height) {
 		timer = setTimeout(march, 100);
 	}
 	function drawAnts() {
+		tempctx.save();
 		tempctx.strokeStyle = 'white';
 		tempctx.strokeRect(left, top, width, height);
 		tempctx.strokeStyle = 'rgba(176, 190, 197, 0.8)';
 		tempctx.setLineDash([2, 4]);
 		tempctx.lineDashOffset = -ant;
 		tempctx.strokeRect(left, top, width, height);
+		tempctx.restore();
 	}
 }
 let imageHandler = new ImageHandler();
