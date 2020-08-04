@@ -187,8 +187,13 @@ function startY() {
 			doc.off('afterTransaction', initialFit);
 		}
 	}
-	const wsProvider = new WebsocketProvider(
+	/* 	const wsProvider = new WebsocketProvider(
 		'wss://cress.soc.surrey.ac.uk/wss',
+		'prism' + room,
+		doc
+	); */
+	const wsProvider = new WebsocketProvider(
+		'ws://cress.soc.surrey.ac.uk:1233',
 		'prism' + room,
 		doc
 	);
@@ -455,6 +460,7 @@ function getRandomData(nNodes) {
 document.body.height = window.innerHeight;
 window.onresize = function () {
 	document.body.height = window.innerHeight;
+	keepPanelInWindow();
 };
 window.onorientationchange = function () {
 	document.body.height = window.innerHeight;
@@ -1718,6 +1724,32 @@ dragElement(document.getElementById('panel'), document.getElementById('tab'));
 // Panel
 
 var tabOpen = null;
+/**
+ * when the window is resized, make sure that the panel is still visible
+ */
+function keepPanelInWindow() {
+	if (
+		panel.offsetLeft + panel.offsetWidth >
+		container.offsetLeft + container.offsetWidth
+	) {
+		panel.style.left =
+			container.offsetLeft +
+			container.offsetWidth -
+			panel.offsetWidth +
+			'px';
+	}
+	if (
+		panel.offsetTop + panel.offsetHeight >
+		container.offsetTop + container.offsetHeight
+	) {
+		panel.style.top =
+			container.offsetTop +
+			container.offsetHeight -
+			panel.offsetHeight -
+			document.querySelector('footer').offsetHeight +
+			'px';
+	}
+}
 
 function openTab(tabId) {
 	let i, tabcontent, tablinks;

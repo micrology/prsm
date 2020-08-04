@@ -60,16 +60,19 @@ export function setUpPaint() {
 	mc.on('panstart', mouseDespatch);
 	mc.on('panmove', mouseDespatch);
 	mc.on('panend', mouseDespatch);
+	/* 	window.onorientationchange = function () {
+		tempCanvas = setUpCanvas('temp-canvas');
+	}; */
 }
 /**
- * set up and return the canvas at the id
+ * set up the dimensions of and return the canvas at the id
  * @param {string} id - canvas id
  * @returns {element}
  */
 function setUpCanvas(id) {
 	const canvas = document.getElementById(id);
 	// Get the size of the canvas in CSS pixels.
-	let rect = canvas.getBoundingClientRect();
+	let rect = canvas.parentNode.getBoundingClientRect();
 	// Give the canvas pixel dimensions of their CSS size * the device pixel ratio.
 	canvas.width = rect.width * dpr;
 	canvas.height = rect.height * dpr;
@@ -229,11 +232,13 @@ class ToolHandler {
 	 * @param {event} e
 	 */
 	endPosition(e) {
-		this.endX = e.offsetX - tempCanvas.offsetLeft;
+		this.endX =
+			(e.offsetX * tempCanvas.width) / (dpr * tempCanvas.clientWidth);
 		if (this.endX < 0) this.endX = 0;
 		if (this.endX > tempCanvas.offsetWidth)
 			this.endX = tempCanvas.offsetWidth;
-		this.endY = e.offsetY - tempCanvas.offsetTop;
+		this.endY =
+			(e.offsetY * tempCanvas.height) / (dpr * tempCanvas.clientHeight);
 		if (this.endY < 0) this.endY = 0;
 		if (this.endY > tempCanvas.offsetHeight)
 			this.endY = tempCanvas.offsetHeight;
@@ -338,7 +343,6 @@ class LineHandler extends ToolHandler {
 	<div>Axes</div><div><input type="checkbox" id="axes"></div>`;
 		let widthInput = document.getElementById('lineWidth');
 		widthInput.value = this.lineWidth;
-		widthInput.focus();
 		widthInput.addEventListener('change', () => {
 			this.lineWidth = parseInt(widthInput.value);
 			if (this.lineWidth > 99) this.lineWidth = 99;
@@ -430,7 +434,6 @@ class RectHandler extends ToolHandler {
   <div>Rounded</div><input type="checkbox" id="rounded"></div>`;
 		let widthInput = document.getElementById('borderWidth');
 		widthInput.value = this.lineWidth;
-		widthInput.focus();
 		widthInput.addEventListener('blur', () => {
 			this.lineWidth = parseInt(widthInput.value);
 			if (this.lineWidth > 99) this.lineWidth = 99;
@@ -474,8 +477,8 @@ class TextHandler extends ToolHandler {
 	}
 	panstart(e) {
 		if (this.writing) return;
-		this.startX = e.offsetX - tempCanvas.offsetLeft;
-		this.startY = e.offsetY - tempCanvas.offsetTop;
+		this.startX = e.offsetX;
+		this.startY = e.offsetY;
 		this.div = document.createElement('div');
 		underlay.appendChild(this.div);
 		this.div.style.position = 'absolute';
@@ -545,10 +548,14 @@ class TextHandler extends ToolHandler {
 						[
 							text,
 							DOMtoCanvasX(
-								this.div.offsetLeft - tempCanvas.offsetLeft + 12
-							), // '11' allows for border and outline
+								((this.div.offsetLeft + 12) *
+									tempCanvas.width) /
+									(dpr * tempCanvas.clientWidth)
+							), // '12' allows for border and outline
 							DOMtoCanvasY(
-								this.div.offsetTop - tempCanvas.offsetTop + 14
+								((this.div.offsetTop + 14) *
+									tempCanvas.height) /
+									(dpr * tempCanvas.clientHeight)
 							),
 						],
 					],
@@ -568,7 +575,6 @@ class TextHandler extends ToolHandler {
 	<div>Colour</div><div><input id="fontColor" type="color"></div>`;
 		let fontSizeInput = document.getElementById('fontSize');
 		fontSizeInput.value = parseInt(this.font);
-		fontSizeInput.focus();
 		fontSizeInput.addEventListener('blur', () => {
 			this.font =
 				fontSizeInput.value + 'px ' + this.fontFamily(this.font);
@@ -684,7 +690,6 @@ class PencilHandler extends ToolHandler {
 		<div>Colour</div><div><input id="pencilColor" type="color"></div>`;
 		let widthInput = document.getElementById('pencilWidth');
 		widthInput.value = this.lineWidth;
-		widthInput.focus();
 		widthInput.addEventListener('blur', () => {
 			this.lineWidth = parseInt(widthInput.value);
 			if (this.lineWidth > 99) this.lineWidth = 99;
@@ -745,7 +750,6 @@ class MarkerHandler extends ToolHandler {
 		<div>Colour</div><div><input id="markerColor" type="color"></div>`;
 		let widthInput = document.getElementById('markerWidth');
 		widthInput.value = this.markerWidth;
-		widthInput.focus();
 		widthInput.addEventListener('blur', () => {
 			this.markerWidth = parseInt(widthInput.value);
 			if (this.markerWidth > 99) this.markerWidth = 99;
@@ -830,7 +834,6 @@ class EraserHandler extends ToolHandler {
 		<div>Width</div><div><input id="eraserWidth" type="text" size="2"></div>`;
 		let widthInput = document.getElementById('eraserWidth');
 		widthInput.value = this.markerWidth;
-		widthInput.focus();
 		widthInput.addEventListener('blur', () => {
 			this.markerWidth = parseInt(widthInput.value);
 			if (this.markerWidth < 3) this.markerWidth = 4;
@@ -1105,11 +1108,19 @@ function toolHandler(tool) {
  */
 
 function DOMtoCanvasX(x) {
-	return (x - network.body.view.translation.x) / network.body.view.scale;
+	return (
+		((dpr * tempCanvas.clientWidth * x) / tempCanvas.width -
+			network.body.view.translation.x) /
+		network.body.view.scale
+	);
 }
 
 function DOMtoCanvasY(y) {
-	return (y - network.body.view.translation.y) / network.body.view.scale;
+	return (
+		((dpr * tempCanvas.clientHeight * y) / tempCanvas.height -
+			network.body.view.translation.y) /
+		network.body.view.scale
+	);
 }
 
 /**
