@@ -1182,7 +1182,7 @@ function drawGrid(netctx) {
 	let width = network.body.container.clientWidth / scale;
 	let height = network.body.container.clientHeight / scale;
 	let cell = GRIDSPACING * scale;
-
+	if (cell < 30) cell = 30;
 	netctx.save();
 	netctx.strokeStyle = 'rgba(211, 211, 211, 0.7)'; //'lightgrey';
 	netctx.beginPath();
