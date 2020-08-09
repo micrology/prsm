@@ -32,7 +32,7 @@ import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 // even though we don't use this, vis-network won't work without it
 import 'vis-network/styles/vis-network.min.css';
 
-const version = '1.27';
+const version = '1.28';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
@@ -51,8 +51,9 @@ export var yPointsArray; // stores the background drawing commands
 var yUndoManager;
 var yChatArray;
 var container; //the DOM body elemnt
+var netPane;
 var panel; // the DOM right side panel element
-var buttonStatus; // the status of thebuttons in the panel
+var buttonStatus; // the status of the buttons in the panel
 var initialButtonStatus;
 var myName; // the user's name
 var lastNodeSample = 'group0';
@@ -175,9 +176,10 @@ function startY() {
 	let url = new URL(document.location);
 	room = url.searchParams.get('room');
 	if (room == null || room == '') room = generateRoom();
+	else room = room.toUpperCase();
 	const doc = new Y.Doc();
 	// wait for an update from another peer; only then will
-	// drawing etc. finished and so we can then fit the  network to the window.
+	// drawing etc. be finished and so we can then fit the  network to the window.
 	doc.on('afterTransaction', initialFit);
 	function initialFit(trans, doc) {
 		if (window.debug) console.log(trans, performance.now());
@@ -187,17 +189,18 @@ function startY() {
 			doc.off('afterTransaction', initialFit);
 		}
 	}
-		const wsProvider = new WebsocketProvider(
+	const wsProvider = new WebsocketProvider(
 		'wss://cress.soc.surrey.ac.uk/wss',
 		'prism' + room,
 		doc
 	);
-	/* const wsProvider = new WebsocketProvider(
+	/* 	const wsProvider = new WebsocketProvider(
 		'ws://cress.soc.surrey.ac.uk:1233',
 		'prism' + room,
 		doc
-	); */
-	/* 	const indexeddbProvider = new IndexeddbPersistence('prism' + room, doc);
+	);  */
+	/*
+	const indexeddbProvider = new IndexeddbPersistence('prism' + room, doc);
 	indexeddbProvider.whenSynced.then(() => {
 		console.log(
 			new Date().toLocaleTimeString() + ': ' + 'indexed db set up'
@@ -447,7 +450,7 @@ function generateRoom() {
 }
 
 /**
- * randomly create some nodes and edges as a binary tree, mainy used for testing
+ * randomly create some nodes and edges as a binary tree, mainly used for testing
  * @param {Integer} nNodes
  */
 function getRandomData(nNodes) {
@@ -522,7 +525,7 @@ function draw() {
 	let nNodes = url.searchParams.get('t');
 	if (nNodes) getRandomData(nNodes);
 	// create a network
-	var netPane = document.getElementById('net-pane');
+	netPane = document.getElementById('net-pane');
 	var options = {
 		edges: {
 			smooth: {
@@ -683,7 +686,7 @@ function draw() {
 } // end draw()
 
 /**
- * rescale and redraw the network dso that it fits the pane
+ * rescale and redraw the network so that it fits the pane
  */
 function fit(duration = 200) {
 	network.fit({
@@ -985,7 +988,7 @@ function deleteMsg(item) {
 
 function changeCursor(newCursorStyle) {
 	if (inAddMode) return;
-	document.getElementById('net-pane').style.cursor = newCursorStyle;
+	netPane.style.cursor = newCursorStyle;
 	document.getElementById('navbar').style.cursor = newCursorStyle;
 }
 

@@ -1178,28 +1178,31 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
  */
 
 function drawGrid(netctx) {
-	let scale = network.body.view.scale;
-	let width = network.body.container.clientWidth / scale;
-	let height = network.body.container.clientHeight / scale;
-	let cell = GRIDSPACING * scale;
-
+	let netPane = document.getElementById('net-pane');
 	netctx.save();
-	netctx.strokeStyle = 'rgba(211, 211, 211, 0.7)'; //'lightgrey';
+	netctx.strokeStyle = 'rgba(211, 211, 211, 0.8)'; //'lightgrey';
 	netctx.beginPath();
-	for (let x = -(width / 2 + cell); x <= width / 2 + cell; x += cell) {
+	for (
+		let x = DOMtoCanvasX(0);
+		x <= DOMtoCanvasX(2 * netPane.offsetWidth);
+		x += GRIDSPACING
+	) {
 		// vertical grid lines
-		netctx.moveTo(x, -(height / 2 + cell));
-		netctx.lineTo(x, height / 2 + cell);
+		netctx.moveTo(x, DOMtoCanvasY(0));
+		netctx.lineTo(x, DOMtoCanvasY(2 * netPane.offsetHeight));
 	}
-	for (let y = -(height / 2 + cell); y <= height / 2 + cell; y += cell) {
+	for (
+		let y = DOMtoCanvasY(0);
+		y <= DOMtoCanvasY(2 * netPane.offsetHeight);
+		y += GRIDSPACING
+	) {
 		// horizontal grid lines
-		netctx.moveTo(-(width / 2 + cell), y);
-		netctx.lineTo(width / 2 + cell, y);
+		netctx.moveTo(DOMtoCanvasX(0), y);
+		netctx.lineTo(DOMtoCanvasX(2 * netPane.offsetWidth), y);
 	}
 	netctx.stroke();
 	netctx.restore();
 }
-
 let imageCache = new Map();
 
 let drawHelper = {
