@@ -36,7 +36,7 @@ This what they do:
 * **New factor (or node)**.  Click on the cross and then click on the blank area below to create anode for the network.  A msall dialog box will open for you to type in a lable for the node.
 * **New link** (or edge). Click on the line icon and then drag from one node to another to link them.
 * **Undo**. Reverses the last action (e.g. if you have just created a new node, it will be removed).
-* **Redo**. Redes the last action (e.g. if you have just undone the creation of a node, this will return the node to the network).
+* **Redo**. Redo the last action (e.g. if you have just undone the creation of a node, this will return the node to the network).
 * **Bin**. First, slect a node or a link by clicking on it.  Note that the node or link is listed in the status bar at the bottom of the window. Then click on the bin icon.  the node or link is deleted.  Undo will restire it if you click on that next.
 * **Share**. Shows a dialog box with a web link that you can copy and send to soneone else.  If they then acces that link, they will see your network and can edit and add to it.
 * **Open file**. Read in a file containing a network from your computer drive.  See below for supported file formats.  The contents of the file replaces the network in the browser.
