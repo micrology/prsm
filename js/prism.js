@@ -1231,7 +1231,7 @@ function loadFile(contents) {
 	draw();
 
 	let isJSONfile = false;
-	let suffix = lastFileName.substr(-3).toLowerCase();
+	let suffix = lastFileName.split('.').pop().toLowerCase();
 	if (suffix == 'csv') data = parseCSV(contents);
 	else {
 		if (suffix == 'graphml' && contents.search('graphml') >= 0)
@@ -1543,10 +1543,13 @@ function refreshSampleNodes() {
 		document.getElementsByClassName('sampleNode')
 	);
 	for (let i = 0; i < sampleElements.length; i++) {
-		let node = sampleElements[i].dataSet.get()[0];
-		node = deepMerge(node, samples.nodes['group' + i]);
+		let sampleElement = sampleElements[i];
+		let node = sampleElement.dataSet.get()[0];
+		node = deepMerge(node, samples.nodes['group' + i], { value: samples.nodes['base'].scaling.max });
 		node.label = node.groupLabel;
-		sampleElements[i].dataSet.update(node);
+		sampleElement.dataSet.remove(node.id);
+		sampleElement.dataSet.update(node);
+		sampleElement.net.fit();
 	}
 }
 
@@ -1555,10 +1558,13 @@ function refreshSampleLinks() {
 		document.getElementsByClassName('sampleLink')
 	);
 	for (let i = 0; i < sampleElements.length; i++) {
-		let edge = sampleElements[i].dataSet.get()[0];
+		let sampleElement = sampleElements[i];
+		let edge = sampleElement.dataSet.get()[0];
 		edge = deepMerge(edge, samples.edges['edge' + i]);
 		edge.label = edge.groupLabel;
-		sampleElements[i].dataSet.update(edge);
+		sampleElement.dataSet.remove(edge.id);
+		sampleElement.dataSet.update(edge);
+		sampleElement.net.fit();
 	}
 }
 /* 

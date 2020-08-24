@@ -29,13 +29,19 @@ The app is designed to enable groups of people, each using their own computer (o
 When you start the app in your browser, a 'room' is created for you in which to draw your network.  Then you can add other users to this room to share the work.  Only those with access to the room can see what is being created.
 
 ## Examples
+
 These are a few examples of what you can do with the app:
 
+The first is a theory of change adapted from an [NPC report](https://www.thinknpc.org/resource-hub/ten-steps/).
 ![NCP Example](./doc/images/NPCexample.png)
 
+The second is a system map about the enviromental impact of goods transport developed by a small grup of experts working together using the app.
 ![SCandL Example](./doc/images/SCandLexample.png)
 
+The third is a large network of 736 nodes and about 9000 links representing the team members playing in the 2019 football World Cup.
 ![World Cup 2019 Example](./doc/images/WorldCup2019example.png)
+
+All the examples can be opened in the app using the files [here](./doc/examples/).
 
 ## How do you install it?
 
@@ -126,14 +132,30 @@ If you select just one factor, a small panel appears below the styles.  This sho
 
 ### Links tab
 
-the Links tab is very similar to the Factors tab, except of course it relates to the links.  There are 9 link styles and each of these can be changed by double clicking the link style. There are options to change the colour of the link, whether it has an arrow at the end, whether it is solid, dashed or dotted, and to add a  link label.
+The Links tab is very similar to the Factors tab, except of course it relates to the links.  There are 9 link styles and each of these can be changed by double clicking the link style. There are options to change the colour of the link, whether it has an arrow at the end, whether it is solid, dashed or dotted, and to add a  link label.
 
 ![LinksPanel](./doc/images/LinksPanel.png)
 
 ## Network tab
 
+The network tab enables you to change many aspects of the network visualisation.
 
 ![NetworkPanel](./doc/images/NetworkPanel.png)
 
+From top to bottom, there are controls for:
+
+* **Auto Layout** If this switch is set to ON, the app attempts to mov e the factors and links to create a neat layout with a minimum number of crossing links. It is bets to switch this on, wait for the factors to move to their calculated positions,  switch it off and then manually adjust the factors to a pleasing layout.
+  * **Spacing**
+* **Snap to grid**  When on, factors can onky be placed at the intersection of invisible grid lines.  This makes it much easier to line up factors neatly.
+* **Link** Links can either be drawn using a curved line or a stright line.  This control swaps between thes two styles.
+* **Background** Changes the colour of the background of the network pane.  Click on the color well to display possible colours.  The default is whte, but a black background can also be effective.
+* **Show drawing layer** Puts the network pane into drawing mode, so that background shapes, images and text can be added.  See [Drawing Mode](#drawing-mode) for more details.
+* **Show labels** If switched off, the Factors are shown without thier labels.
+* **Show legend** If the Factor and Link styles are given names (other than 'Sample'), the styles and their names will be shown in a panel at the left bottom of the network pane headed 'Legend', if this switch is on.  See the description of the [Factors tab](#factors-tab).
+* **Show only neigbouring Factors** If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 1, 2, or 3 links away from the selected Factor(s).  This is useful when one wants to focus on one part of a large network.
+* **Show only up or downstrean Factors**  If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 'downstream (i.e. linked to the selected Factor(s) by following links directed away from those Factor(s)), or those 'upstream' (i.e. linked to the selected Factor(s) by following links directed towards from those Factor(s)).
+* **Adjust size of Factors** The size of the Factor as shown in the network is made proportional to one of a set of metrics: the number of inputs (the in-degree), the number of outputs (the out-degree), the leverage (ratio of inputs to outputs), or the [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality).  Note that the Factors are always drawn large enough to accommodate their labels, and so the size may not be exactly proportional to the metric.
+
+## Drawing Mode
 
 ## Bug reports and feature requests
