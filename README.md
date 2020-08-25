@@ -35,7 +35,7 @@ These are a few examples of what you can do with the app:
 The first is a theory of change adapted from an [NPC report](https://www.thinknpc.org/resource-hub/ten-steps/).
 ![NCP Example](./doc/images/NPCexample.png)
 
-The second is a system map about the enviromental impact of goods transport developed by a small grup of experts working together using the app.
+The second is a system map about the environmental impact of goods transport developed by a small group of experts working together using the app.
 ![SCandL Example](./doc/images/SCandLexample.png)
 
 The third is a large network of 736 nodes and about 9000 links representing the team members playing in the 2019 football World Cup.
@@ -110,6 +110,8 @@ The only way to join the room and see the network is by using the randomly gener
 
 The view you see when you first open the app is intentionally very simple, but hidden away are many more features.  To access these, click on the last, Settings, button on the top bar: ![Chat Window Button](./doc/images/SettingsButton.png).  This will reveal a set of three tabs: Network, Factors and Links, with the Factors tab open.
 
+The panel showing the tabs can moved across the network pane: just drag any of the three tabs and they and the panel below will move.  This can be useful if the panel gets in the way of seeing the network.
+
 ### Factors tab
 
 ![FactorsWindow](./doc/images/FactorsPanel.png)
@@ -122,9 +124,11 @@ Double clicking on any of the 9 styles opens a dialog box with which you can cha
 
 There are options to change the colour of the background (the 'fill'), the border and the font of the label, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted, and to change the font size of the label.
 
-You can also change the name of the style.  If you do so, this name will appear on the network pane as one item in the legend'.  So, for example, if you had some factors that are Actions, some that are Outputs and some that are Outcomes, you could give three of the styles these names, colour their fills red, green and blue, and the apply these styles to the appropriate factors in the network.  The result would be that a legend can be automatically displayed on the network pane, thus:
+You can also change the name of the style.  If you do so, this name will appear on the network pane as one item in the 'legend'.  So, for example, if you had some factors that are Actions, some that are Outputs and some that are Outcomes, you could give three of the styles these names, colour their fills red, green and blue, and the apply these styles to the appropriate factors in the network.  The result would be that a legend can be automatically displayed on the network pane, thus:
 
 ![Legend](./doc/images/Legend.png)
+
+The legend can be moved by dragging the top of the Legend pane.
 
 If you select just one factor, a small panel appears below the styles.  This shows the factor label, some network statistics about the factor, and an area where you can type in further information about the factor as a note.  If you hover the pointer above the factor, the note will be shown.  There is also a check box, Fix - if this is checked, the factor will be locked into place on the network pane and cannot be dragged elsewhere.
 
@@ -146,16 +150,37 @@ From top to bottom, there are controls for:
 
 * **Auto Layout** If this switch is set to ON, the app attempts to mov e the factors and links to create a neat layout with a minimum number of crossing links. It is bets to switch this on, wait for the factors to move to their calculated positions,  switch it off and then manually adjust the factors to a pleasing layout.
   * **Spacing**
-* **Snap to grid**  When on, factors can onky be placed at the intersection of invisible grid lines.  This makes it much easier to line up factors neatly.
-* **Link** Links can either be drawn using a curved line or a stright line.  This control swaps between thes two styles.
-* **Background** Changes the colour of the background of the network pane.  Click on the color well to display possible colours.  The default is whte, but a black background can also be effective.
+* **Snap to grid**  When on, factors can only be placed at the intersection of invisible grid lines.  This makes it much easier to line up factors neatly.
+* **Link** Links can either be drawn using a curved line or a straight line.  This control swaps between these two styles.
+* **Background** Changes the colour of the background of the network pane.  Click on the colour well to display possible colours.  The default is white, but a black background can also be effective.
 * **Show drawing layer** Puts the network pane into drawing mode, so that background shapes, images and text can be added.  See [Drawing Mode](#drawing-mode) for more details.
-* **Show labels** If switched off, the Factors are shown without thier labels.
+* **Show labels** If switched off, the Factors are shown without their labels.
 * **Show legend** If the Factor and Link styles are given names (other than 'Sample'), the styles and their names will be shown in a panel at the left bottom of the network pane headed 'Legend', if this switch is on.  See the description of the [Factors tab](#factors-tab).
-* **Show only neigbouring Factors** If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 1, 2, or 3 links away from the selected Factor(s).  This is useful when one wants to focus on one part of a large network.
-* **Show only up or downstrean Factors**  If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 'downstream (i.e. linked to the selected Factor(s) by following links directed away from those Factor(s)), or those 'upstream' (i.e. linked to the selected Factor(s) by following links directed towards from those Factor(s)).
+* **Show only neighbouring Factors** If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 1, 2, or 3 links away from the selected Factor(s).  This is useful when one wants to focus on one part of a large network.
+* **Show only up or downstream Factors**  If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 'downstream (i.e. linked to the selected Factor(s) by following links directed away from those Factor(s)), or those 'upstream' (i.e. linked to the selected Factor(s) by following links directed towards from those Factor(s)).
 * **Adjust size of Factors** The size of the Factor as shown in the network is made proportional to one of a set of metrics: the number of inputs (the in-degree), the number of outputs (the out-degree), the leverage (ratio of inputs to outputs), or the [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality).  Note that the Factors are always drawn large enough to accommodate their labels, and so the size may not be exactly proportional to the metric.
 
 ## Drawing Mode
 
+Switching 'Show drawing layer' on reveals a group of buttons on the left that enable you to draw shapes, write text, and import images on to the network background.  
+![Drawing layer](./doc/images/drawingLayer.png)
+In drawing mode, the background has a faint square grid to help line up your drawing.  When you draw, you are 'painting' on the background, which means that the shapes and text you apply can only be moved by erasing them and redrawing.
+
+When you click on a drawing button, a small dialog box appears that can be used to adjust the drawing tool - for instance, the Line tool, which draws straight lines, has options for the line thickness and line colour.
+
+To stop using a tool, either click on another one, or click a second time on that tool's button.
+
+The drawing tools are, in order from top to bottom:
+
+* **Line** draws straight lines.  There are options for the line width, the colour of the line, and whether the line must be along the axes, i.e. either horizontal or vertical.  To use the tool, click on the background at the desired line start position, and drag across to the line end and lift the mouse pointer.
+* **Rectangle** The options are the width of the border around the rectangle and its colour, the colour of the inside of the rectangle (the 'fill' colour) and whether it should have rounded or sharp corners.  To draw a rectangle, click where one corner should be, and then drag out to where the opposite corner should be and lift the pointer.
+* **Text**  Use this tool to add fixed text to the background. The options are the colour and size of the text.  Click on the background to show a text box into which you can type.  You can move the box by dragging on the grey border and expand it by dragging the black square at the bottom right corner.  Click anywhere outside the box to finish.
+* **Pencil** draws freehand lines.
+* **Marker** draws lines like a marker or highlighter pen.
+* **Eraser** removes everything it passes over.
+* **Image** Clicking on this tool gives you a file chooser to select an image file (picture) from your computer - jpeg, png and gif formats are accepted. When the image has bene placed on the background, you can drag it to where you want it, and resize it by dragging on the small black square at the bottom right.  Click anywhere outside the image to fix it to the background.
+* **Undo** This tool will undo the effect of the last drawing (e.g. if you have just placed an image on the background, it will remove the image, or if you have drawn a line with the pencil, it will undo that line.)  Each click of the Undo button removes the previous drawing.
+
 ## Bug reports and feature requests
+
+Please report problems, suggestions and praise to [n.gilbert@surrey.ac.uk](mailto:n.gilbert@surrey.ac.uk)

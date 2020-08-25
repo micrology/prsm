@@ -1192,6 +1192,7 @@ function readSingleFile(e) {
 	}
 	let fileName = file.name;
 	lastFileName = fileName;
+	document.body.style.cursor = 'wait';
 	statusMsg("Reading '" + fileName + "'");
 	msg = '';
 	e.target.value = '';
@@ -1207,6 +1208,7 @@ function readSingleFile(e) {
 			);
 			return;
 		}
+		document.body.style.cursor = 'auto';
 	};
 	reader.readAsText(file);
 }
