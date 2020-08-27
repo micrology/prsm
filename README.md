@@ -79,6 +79,7 @@ This what they do, from left to right:
 * **Share**. Shows a dialog box with a web link that you can copy and send to someone else.  If they then access that link, they will see your network and can edit and add to it.
 * **Open file**. Read in a file containing a network from your computer drive.  See [below](#file-formats) for supported file formats.  The content of the file replaces the network in the browser.
 * **Save file**.  Save the network in a file on your computer. The file is saved in the app's own format, or if you click on the small triangle next to the button, you can choose to save in GML (Graph Markup Language) or CSV (Comma Separated Values) formats.
+* **Help** Display this help page in a separate window.
 * **Settings**. Opens a panel that allows much more customisation and exploration of the network (see [Advanced features](#advanced-features) below).
 
 To select a factor or a link, click on it. To select more than one, click on one factor or link and then hold down the pointer over the other.  At the bottom of the window is the status bar, which will show which factors and links have been selected.
@@ -90,7 +91,9 @@ Each node can be moved across the network pane by selecting it and dragging.  Th
 ### Sharing
 
 If you use the link above to start the app, a new room is created for you.  When you click on the share icon, a dialog box is shown that includes the name of the room in the link that is displayed:
+
 ![Sharing box](./doc/images/prism-share.png)
+
 Click the button to copy the web link to the clipboard, and then paste the link into an email, or a text message or just tell other participants the name of the room (which is a randomly generated set of 4 groups of three capital letters separated by hyphens).  When they access the link, they will see whatever is in your app window.
 
 ### Formatting factors and links

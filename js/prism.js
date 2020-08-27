@@ -97,6 +97,7 @@ function addEventListeners() {
 	listen('saveFile', 'click', saveJSONfile);
 	listen('exportCVS', 'click', exportCVS);
 	listen('exportGML', 'click', exportGML);
+	listen('help', 'click', displayHelp)
 	listen('panelToggle', 'click', togglePanel);
 	listen('zoom', 'change', zoomnet);
 	listen('zoomminus', 'click', () => {
@@ -1235,11 +1236,14 @@ function loadFile(contents) {
 
 	let isJSONfile = false;
 	switch (lastFileName.split('.').pop().toLowerCase()) {
-		case 'csv': data = parseCSV(contents);
+		case 'csv':
+			data = parseCSV(contents);
 			break;
-		case 'graphml': data = parseGraphML(contents);
+		case 'graphml':
+			data = parseGraphML(contents);
 			break;
-		case 'gml': data = parseGML(contents);
+		case 'gml':
+			data = parseGML(contents);
 			break;
 		case 'json':
 		case 'prsm':
@@ -1247,22 +1251,8 @@ function loadFile(contents) {
 			isJSONfile = true;
 			break;
 		default:
-			throw { message: 'Unrecognised file name suffix' };
+			throw {message: 'Unrecognised file name suffix'};
 	}
-	/* let suffix = lastFileName.split('.').pop().toLowerCase();
-	if (suffix == 'csv') data = parseCSV(contents);
-	else {
-		if (suffix == 'graphml' && contents.search('graphml') >= 0)
-			data = parseGraphML(contents);
-		else {
-			if (suffix == 'gml' && contents.search('graph') >= 0)
-				data = parseGML(contents);
-			else {
-				data = loadJSONfile(contents);
-				isJSONfile = true;
-			}
-		}
-	} */
 	network.setOptions({
 		interaction: {
 			hideEdgesOnDrag: data.nodes.length > 100,
@@ -1425,8 +1415,7 @@ function parseGraphML(graphML) {
 }
 
 function parseGML(gml) {
-	if (gml.search('graph') < 0)
-		throw { message: 'invalid GML format' };
+	if (gml.search('graph') < 0) throw {message: 'invalid GML format'};
 	let tokens = gml.match(/"[^"]+"|[\w]+|\[|\]/g);
 	let node;
 	let edge;
@@ -1565,7 +1554,9 @@ function refreshSampleNodes() {
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i];
 		let node = sampleElement.dataSet.get()[0];
-		node = deepMerge(node, samples.nodes['group' + i], { value: samples.nodes['base'].scaling.max });
+		node = deepMerge(node, samples.nodes['group' + i], {
+			value: samples.nodes['base'].scaling.max,
+		});
 		node.label = node.groupLabel;
 		sampleElement.dataSet.remove(node.id);
 		sampleElement.dataSet.update(node);
@@ -1737,6 +1728,10 @@ document.getElementById('copy-text').addEventListener('click', function (e) {
 		copiedText.style.display = 'inline-block';
 	}
 });
+
+function displayHelp() {
+	window.open("help.html")
+}
 
 function togglePanel() {
 	// Hide/unhide the side panel
