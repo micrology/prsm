@@ -298,8 +298,13 @@ export function setUpSamples() {
 				},
 				sampleOptions,
 				{
-					font: {size: 24, color: 'black', align: 'top', vadjust: -40},
-					widthConstraint: 80
+					font: {
+						size: 24,
+						color: 'black',
+						align: 'top',
+						vadjust: -40,
+					},
+					widthConstraint: 80,
 				}
 			),
 		]);
@@ -665,7 +670,8 @@ export function legend(warn = true) {
 	);
 	let sampleEdgeDivs = document.getElementsByClassName('sampleLink');
 	let edges = Array.from(sampleEdgeDivs).filter(
-		(elem) => !['Sample', '', ' '].includes(elem.dataSet.get('1').groupLabel)
+		(elem) =>
+			!['Sample', '', ' '].includes(elem.dataSet.get('1').groupLabel)
 	);
 	let nItems = nodes.length + edges.length;
 	if (nItems == 0) {
@@ -763,7 +769,7 @@ export function clearLegend() {
 }
 
 function updateLegend() {
-	if (document.getElementById('showLegendSwitch').checked) legend(false)
+	if (document.getElementById('showLegendSwitch').checked) legend(false);
 }
 
 window.legend = legend;

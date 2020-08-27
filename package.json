@@ -27,7 +27,8 @@
     "postinstall": "npm run dist",
     "lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
     "pretty": "prettier --write prism.html ./js/*.js ./css/prism.css",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "help":"pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -s --toc -o help.html"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {
