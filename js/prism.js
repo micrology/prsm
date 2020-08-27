@@ -32,7 +32,7 @@ import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 // even though we don't use this, vis-network won't work without it
 import 'vis-network/styles/vis-network.min.css';
 
-const version = '1.28';
+const version = '1.29';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
@@ -1026,6 +1026,7 @@ export function statusMsg(msg, status) {
 			break;
 		case 'error':
 			elem.style.backgroundColor = 'red';
+			elem.style.color = 'white';
 			break;
 		default:
 			elem.style.backgroundColor = 'white';
@@ -1233,7 +1234,22 @@ function loadFile(contents) {
 	draw();
 
 	let isJSONfile = false;
-	let suffix = lastFileName.split('.').pop().toLowerCase();
+	switch (lastFileName.split('.').pop().toLowerCase()) {
+		case 'csv': data = parseCSV(contents);
+			break;
+		case 'graphml': data = parseGraphML(contents);
+			break;
+		case 'gml': data = parseGML(contents);
+			break;
+		case 'json':
+		case 'prsm':
+			data = loadJSONfile(contents);
+			isJSONfile = true;
+			break;
+		default:
+			throw { message: 'Unrecognised file name suffix' };
+	}
+	/* let suffix = lastFileName.split('.').pop().toLowerCase();
 	if (suffix == 'csv') data = parseCSV(contents);
 	else {
 		if (suffix == 'graphml' && contents.search('graphml') >= 0)
@@ -1246,7 +1262,7 @@ function loadFile(contents) {
 				isJSONfile = true;
 			}
 		}
-	}
+	} */
 	network.setOptions({
 		interaction: {
 			hideEdgesOnDrag: data.nodes.length > 100,
@@ -1409,6 +1425,8 @@ function parseGraphML(graphML) {
 }
 
 function parseGML(gml) {
+	if (gml.search('graph') < 0)
+		throw { message: 'invalid GML format' };
 	let tokens = gml.match(/"[^"]+"|[\w]+|\[|\]/g);
 	let node;
 	let edge;
@@ -1596,7 +1614,7 @@ function saveJSONfile() {
 		null,
 		'\t'
 	);
-	saveStr(json, 'json');
+	saveStr(json, 'prsm');
 }
 
 function saveStr(str, extn) {
@@ -1609,12 +1627,12 @@ function saveStr(str, extn) {
 		lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) +
 		'.' +
 		extn;
-	//detect whether the browser is IE/Edge or another browser
+	// detect whether the browser is IE/Edge or another browser
 	if (window.navigator && window.navigator.msSaveOrOpenBlob) {
 		// IE or Edge browser.
 		window.navigator.msSaveOrOpenBlob(blob, lastFileName);
 	} else {
-		//To another browser, create a tag to download file.
+		// Another browser, create a tag to download file.
 		const url = window.URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		document.body.appendChild(a);
