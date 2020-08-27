@@ -32,11 +32,11 @@ export const samples = {
 			},
 			scaling: {
 				min: 10,
-				max: 20,
+				max: 100,
 				label: {
 					enabled: true,
 					min: 10,
-					max: 20,
+					max: 100,
 				},
 			},
 		},
@@ -267,7 +267,7 @@ export function setUpSamples() {
 				{
 					id: '1',
 					label: groupLabel == undefined ? '' : groupLabel,
-					value: 50,
+					value: samples.nodes['base'].scaling.max,
 				},
 				sampleOptions,
 				{chosen: false}
@@ -296,7 +296,11 @@ export function setUpSamples() {
 					from: 1,
 					to: 2,
 				},
-				sampleOptions
+				sampleOptions,
+				{
+					font: {size: 24, color: 'black', align: 'top', vadjust: -40},
+					widthConstraint: 80
+				}
 			),
 		]);
 		let nodesDataSet = new DataSet([
@@ -457,7 +461,7 @@ function saveNodeSampleEdit(sampleElement, samples, groupId) {
 	});
 	sampleElement.net.unselectAll();
 	document.getElementById('editNodeDrawer').classList.add('hideDrawer');
-	if (legendNetwork) legend();
+	updateLegend();
 	window.network.redraw();
 }
 
@@ -514,7 +518,7 @@ function saveLinkSampleEdit(sampleElement, samples, groupId) {
 		clientID: window.clientId,
 	});
 	document.getElementById('editLinkDrawer').classList.add('hideDrawer');
-	if (legendNetwork) legend();
+	updateLegend();
 	window.network.redraw();
 }
 
@@ -661,7 +665,7 @@ export function legend(warn = true) {
 	);
 	let sampleEdgeDivs = document.getElementsByClassName('sampleLink');
 	let edges = Array.from(sampleEdgeDivs).filter(
-		(elem) => !['Sample', ''].includes(elem.dataSet.get('1').groupLabel)
+		(elem) => !['Sample', '', ' '].includes(elem.dataSet.get('1').groupLabel)
 	);
 	let nItems = nodes.length + edges.length;
 	if (nItems == 0) {
@@ -724,7 +728,7 @@ export function legend(warn = true) {
 		edge.from = i + 20000;
 		edge.to = i + 30000;
 		edge.smooth = 'horizontal';
-		edge.font = {size: 12, color: 'black', align: 'top', vadjust: -2};
+		edge.font = {size: 12, color: 'black', align: 'top', vadjust: -10};
 		edge.widthConstraint = 80;
 		let nodes = [
 			{
@@ -756,6 +760,10 @@ export function clearLegend() {
 	if (legendNetwork) legendNetwork.destroy();
 	let legendBox = document.getElementById('legendBox');
 	if (legendBox) legendBox.remove();
+}
+
+function updateLegend() {
+	if (document.getElementById('showLegendSwitch').checked) legend(false)
 }
 
 window.legend = legend;

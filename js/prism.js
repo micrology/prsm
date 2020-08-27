@@ -32,7 +32,7 @@ import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 // even though we don't use this, vis-network won't work without it
 import 'vis-network/styles/vis-network.min.css';
 
-const version = '1.28';
+const version = '1.29';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
@@ -1026,6 +1026,7 @@ export function statusMsg(msg, status) {
 			break;
 		case 'error':
 			elem.style.backgroundColor = 'red';
+			elem.style.color = 'white';
 			break;
 		default:
 			elem.style.backgroundColor = 'white';
@@ -1192,6 +1193,7 @@ function readSingleFile(e) {
 	}
 	let fileName = file.name;
 	lastFileName = fileName;
+	document.body.style.cursor = 'wait';
 	statusMsg("Reading '" + fileName + "'");
 	msg = '';
 	e.target.value = '';
@@ -1207,6 +1209,7 @@ function readSingleFile(e) {
 			);
 			return;
 		}
+		document.body.style.cursor = 'auto';
 	};
 	reader.readAsText(file);
 }
@@ -1231,7 +1234,22 @@ function loadFile(contents) {
 	draw();
 
 	let isJSONfile = false;
-	let suffix = lastFileName.substr(-3).toLowerCase();
+	switch (lastFileName.split('.').pop().toLowerCase()) {
+		case 'csv': data = parseCSV(contents);
+			break;
+		case 'graphml': data = parseGraphML(contents);
+			break;
+		case 'gml': data = parseGML(contents);
+			break;
+		case 'json':
+		case 'prsm':
+			data = loadJSONfile(contents);
+			isJSONfile = true;
+			break;
+		default:
+			throw { message: 'Unrecognised file name suffix' };
+	}
+	/* let suffix = lastFileName.split('.').pop().toLowerCase();
 	if (suffix == 'csv') data = parseCSV(contents);
 	else {
 		if (suffix == 'graphml' && contents.search('graphml') >= 0)
@@ -1244,7 +1262,7 @@ function loadFile(contents) {
 				isJSONfile = true;
 			}
 		}
-	}
+	} */
 	network.setOptions({
 		interaction: {
 			hideEdgesOnDrag: data.nodes.length > 100,
@@ -1407,6 +1425,8 @@ function parseGraphML(graphML) {
 }
 
 function parseGML(gml) {
+	if (gml.search('graph') < 0)
+		throw { message: 'invalid GML format' };
 	let tokens = gml.match(/"[^"]+"|[\w]+|\[|\]/g);
 	let node;
 	let edge;
@@ -1543,10 +1563,13 @@ function refreshSampleNodes() {
 		document.getElementsByClassName('sampleNode')
 	);
 	for (let i = 0; i < sampleElements.length; i++) {
-		let node = sampleElements[i].dataSet.get()[0];
-		node = deepMerge(node, samples.nodes['group' + i]);
+		let sampleElement = sampleElements[i];
+		let node = sampleElement.dataSet.get()[0];
+		node = deepMerge(node, samples.nodes['group' + i], { value: samples.nodes['base'].scaling.max });
 		node.label = node.groupLabel;
-		sampleElements[i].dataSet.update(node);
+		sampleElement.dataSet.remove(node.id);
+		sampleElement.dataSet.update(node);
+		sampleElement.net.fit();
 	}
 }
 
@@ -1555,10 +1578,13 @@ function refreshSampleLinks() {
 		document.getElementsByClassName('sampleLink')
 	);
 	for (let i = 0; i < sampleElements.length; i++) {
-		let edge = sampleElements[i].dataSet.get()[0];
+		let sampleElement = sampleElements[i];
+		let edge = sampleElement.dataSet.get()[0];
 		edge = deepMerge(edge, samples.edges['edge' + i]);
 		edge.label = edge.groupLabel;
-		sampleElements[i].dataSet.update(edge);
+		sampleElement.dataSet.remove(edge.id);
+		sampleElement.dataSet.update(edge);
+		sampleElement.net.fit();
 	}
 }
 /* 
@@ -1588,7 +1614,7 @@ function saveJSONfile() {
 		null,
 		'\t'
 	);
-	saveStr(json, 'json');
+	saveStr(json, 'prsm');
 }
 
 function saveStr(str, extn) {
@@ -1601,12 +1627,12 @@ function saveStr(str, extn) {
 		lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) +
 		'.' +
 		extn;
-	//detect whether the browser is IE/Edge or another browser
+	// detect whether the browser is IE/Edge or another browser
 	if (window.navigator && window.navigator.msSaveOrOpenBlob) {
 		// IE or Edge browser.
 		window.navigator.msSaveOrOpenBlob(blob, lastFileName);
 	} else {
-		//To another browser, create a tag to download file.
+		// Another browser, create a tag to download file.
 		const url = window.URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		document.body.appendChild(a);
