@@ -97,7 +97,7 @@ function addEventListeners() {
 	listen('saveFile', 'click', saveJSONfile);
 	listen('exportCVS', 'click', exportCVS);
 	listen('exportGML', 'click', exportGML);
-	listen('help', 'click', displayHelp)
+	listen('help', 'click', displayHelp);
 	listen('panelToggle', 'click', togglePanel);
 	listen('zoom', 'change', zoomnet);
 	listen('zoomminus', 'click', () => {
@@ -1730,7 +1730,7 @@ document.getElementById('copy-text').addEventListener('click', function (e) {
 });
 
 function displayHelp() {
-	window.open("help.html")
+	window.open('help.html', 'helpWindow');
 }
 
 function togglePanel() {
