@@ -1,67 +1,68 @@
 {
-  "name": "participatory-system-mapper",
-  "version": "1.2.0",
-  "description": "Participatory System Mapper, browser app for collaboratively creating system maps",
-  "keywords": [
-    "social network",
-    "participatory",
-    "stakeholder",
-    "policy analysis"
-  ],
-  "bugs": {
-    "email": "n.gilbert@surrey.ac.uk"
-  },
-  "author": "Nigel Gilbert",
-  "browser": "prism.html",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/micrology/prism"
-  },
-  "sideEffects": [
-    "*.css"
-  ],
-  "scripts": {
-    "dist": "webpack --mode=development",
-    "build": "webpack --config webpack.prod.js",
-    "start": "webpack-dev-server --open-page prism.html",
-    "postinstall": "npm run dist",
-    "lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
-    "pretty": "prettier --write prism.html ./js/*.js ./css/prism.css",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "help":"pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -s --toc -o help.html"
-  },
-  "license": "GPL-3.0-or-later",
-  "dependencies": {
-    "@egjs/hammerjs": "^2.0.17",
-    "@joeattardi/emoji-button": "^2.12.1",
-    "component-emitter": "^1.3.0",
-    "fast-xml-parser": "^3.17.4",
-    "hammerjs": "^2.0.8",
-    "keycharm": "^0.3.1",
-    "modernizr": "^3.11.3",
-    "moment": "^2.27.0",
-    "timsort": "^0.3.0",
-    "uuid": "^7.0.3",
-    "vis-data": "^6.6.1",
-    "vis-network": "^7.10.2",
-    "vis-util": "^4.3.3",
-    "y-indexeddb": "^9.0.5",
-    "y-websocket": "^1.3.1",
-    "yjs": "^13.3.0"
-  },
-  "devDependencies": {
-    "css-loader": "^3.6.0",
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.11.0",
-    "jsdoc": "^3.6.5",
-    "mini-css-extract-plugin": "^0.9.0",
-    "optimize-css-assets-webpack-plugin": "^5.0.3",
-    "prettier": "2.0.5",
-    "style-loader": "^1.2.1",
-    "terser-webpack-plugin": "^2.3.7",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0"
-  },
-  "private": true
+	"name": "participatory-system-mapper",
+	"version": "1.2.0",
+	"description": "Participatory System Mapper, browser app for collaboratively creating system maps",
+	"keywords": [
+		"social network",
+		"participatory",
+		"stakeholder",
+		"policy analysis"
+	],
+	"bugs": {
+		"email": "n.gilbert@surrey.ac.uk"
+	},
+	"author": "Nigel Gilbert",
+	"browser": "prism.html",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/micrology/prism"
+	},
+	"sideEffects": [
+		"*.css"
+	],
+	"scripts": {
+		"dist": "webpack --mode=development",
+		"build": "webpack --config webpack.prod.js",
+		"start": "webpack-dev-server --open-page prism.html",
+		"postinstall": "npm run build",
+		"lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
+		"pretty": "prettier --write prism.html ./js/*.js ./css/prism.css package.json",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"help": "pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -H doc/meta.html -s --toc -o help.html",
+		"check": "npm run --silent pretty && npm run --silent lint && npm run --silent help"
+	},
+	"license": "GPL-3.0-or-later",
+	"dependencies": {
+		"@egjs/hammerjs": "^2.0.17",
+		"@joeattardi/emoji-button": "^2.12.1",
+		"component-emitter": "^1.3.0",
+		"fast-xml-parser": "^3.17.4",
+		"hammerjs": "^2.0.8",
+		"keycharm": "^0.3.1",
+		"modernizr": "^3.11.3",
+		"moment": "^2.27.0",
+		"timsort": "^0.3.0",
+		"uuid": "^7.0.3",
+		"vis-data": "^6.6.1",
+		"vis-network": "^7.10.2",
+		"vis-util": "^4.3.3",
+		"y-indexeddb": "^9.0.5",
+		"y-websocket": "^1.3.1",
+		"yjs": "^13.3.0"
+	},
+	"devDependencies": {
+		"css-loader": "^3.6.0",
+		"eslint": "^6.8.0",
+		"eslint-config-prettier": "^6.11.0",
+		"jsdoc": "^3.6.5",
+		"mini-css-extract-plugin": "^0.9.0",
+		"optimize-css-assets-webpack-plugin": "^5.0.3",
+		"prettier": "2.0.5",
+		"style-loader": "^1.2.1",
+		"terser-webpack-plugin": "^2.3.7",
+		"webpack": "^4.44.1",
+		"webpack-cli": "^3.3.12",
+		"webpack-dev-server": "^3.11.0"
+	},
+	"private": true
 }
