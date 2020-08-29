@@ -16,7 +16,7 @@
 					<key>page0 - file:///Users/scs1ng/Sites/psm/prism/</key>
 					<dict>
 						<key>CreationDate</key>
-						<date>2020-08-28T15:58:58Z</date>
+						<date>2020-08-29T20:00:49Z</date>
 						<key>DigestAlgorithm</key>
 						<string>MD5</string>
 						<key>PageDigests</key>
@@ -25,11 +25,11 @@
 							<dict>
 								<key>Digest</key>
 								<data>
-								TpKem1SF1qrE
-								Yrf5PGMwjA==
+								k3a0+JFg0Ya8
+								xAOUklbFrQ==
 								</data>
 								<key>Size</key>
-								<integer>7299</integer>
+								<integer>6961</integer>
 							</dict>
 						</dict>
 						<key>PageID</key>
@@ -144,7 +144,7 @@
 					<key>rw:theme:Climate - file:///Users/scs1ng/Sites/psm/prism/</key>
 					<dict>
 						<key>CreationDate</key>
-						<date>2020-08-27T22:34:04Z</date>
+						<date>2020-08-29T14:23:22Z</date>
 						<key>DigestAlgorithm</key>
 						<string>MD5</string>
 						<key>PageDigests</key>
@@ -153,11 +153,11 @@
 							<dict>
 								<key>Digest</key>
 								<data>
-								8maOzv77g/I+
-								gze6DCGv7A==
+								i/w1rl8Ke6H/
+								JOzlfeDQRQ==
 								</data>
 								<key>Size</key>
-								<integer>179111</integer>
+								<integer>179109</integer>
 							</dict>
 							<key>images/banners/default.jpg</key>
 							<dict>
@@ -256,7 +256,7 @@
 				gACAD4ALgAqADYAMXxAkQjk2NzBBQkQtRTFFNi00NTU3
 				LThBNjUtNjI2Qjc4NTVGRUFCXnByaXNtLWxvZ28ucG5n
 				XxAkRENDOEUzODQtMTAzMy00ODM0LTg4RTYtQTY5NkFG
-				QkEyQjFB0ksPTE1XTlMudGltZSNBwnywoZCc/oAO0iYn
+				QkEyQjFB0ksPTE1XTlMudGltZSNBwn11uSu5hIAO0iYn
 				T1BWTlNEYXRlok8r0w0OD1JUVqFTgBChVYARgBJfECVm
 				aWxlOi8vL1VzZXJzL3NjczFuZy9TaXRlcy9wc20vcHJp
 				c20vCNImJ1pbXxATTlNNdXRhYmxlRGljdGlvbmFyeaNa
@@ -267,7 +267,7 @@
 				gACAGoAXgBaAGYAYXxAkM0VFQ0Y1OUQtN0IzQy00RUQ3
 				LTg3RDktOTcwMTgyNjJDMjk0XxAXV29ybGRDdXAyMDE5
 				ZXhhbXBsZS5wbmdfECRENDI3QzNENy1BQzNDLTRCMDMt
-				QTlFMy1GNjNERjgyN0VFNDfSSw9xTSNBwnywoZCdUoAO
+				QTlFMy1GNjNERjgyN0VFNDfSSw9xTSNBwn11uSu58YAO
 				0w0OD3R2VqF1gBuhVYARgBJfECVmaWxlOi8vL1VzZXJz
 				L3NjczFuZy9TaXRlcy9wc20vcHJpc20vXxBAL1VzZXJz
 				L3NjczFuZy9TaXRlcy9wc20vcHJpc20vZG9jL2ltYWdl
@@ -276,7 +276,7 @@
 				ECRGRDM1OTUzRC0wMURELTQ5NzgtOTAxQS1BNkI2NjFD
 				QjY3MUZeTlBDZXhhbXBsZS5wbmdfECQxOUM0MTBCOS1C
 				RTE4LTQyQTctQkJENS03MUIzRkMwMDVDQzLSSw+KTSNB
-				wnywoZCdc4AO0w0OD42PVqGOgCOhVYARgBJfECVmaWxl
+				wn11uSu6CoAO0w0OD42PVqGOgCOhVYARgBJfECVmaWxl
 				Oi8vL1VzZXJzL3NjczFuZy9TaXRlcy9wc20vcHJpc20v
 				XxA3L1VzZXJzL3NjczFuZy9TaXRlcy9wc20vcHJpc20v
 				ZG9jL2ltYWdlcy9OUENleGFtcGxlLnBuZ9o1Ng83ODkX
@@ -284,7 +284,7 @@
 				ECQ3OUZDNzkwQy03QTI0LTQzOTEtODU3NS1ENEVGQUNF
 				NUE4MzhfEBFTQ2FuZExleGFtcGxlLnBuZ18QJDUyNjgx
 				NTRDLTAxQjEtNDNBNS04NTVBLTE5Q0U3MkU3QkVBQdJL
-				D6NNI0HCfLChkJ2EgA7TDQ4PpqhWoaeAK6FVgBGAEl8Q
+				D6NNI0HCfXW5K7ojgA7TDQ4PpqhWoaeAK6FVgBGAEl8Q
 				JWZpbGU6Ly8vVXNlcnMvc2NzMW5nL1NpdGVzL3BzbS9w
 				cmlzbS9fEDovVXNlcnMvc2NzMW5nL1NpdGVzL3BzbS9w
 				cmlzbS9kb2MvaW1hZ2VzL1NDYW5kTGV4YW1wbGUucG5n
@@ -297,8 +297,8 @@
 				PWpwZyZjcm9wPWVudHJvcHkmY3M9dGlueXNyZ2Imdz0x
 				MDgwJmZpdD1tYXgmaXhpZD1leUpoY0hCZmFXUWlPakV6
 				TWpRNWZR07wPvUC/t1dOUy5iYXNlW05TLnJlbGF0aXZl
-				gACAMoAw0iYnwsNVTlNVUkyiwivSSw/FTSNBwnywoZCd
-				nYAO0w0OD8jKVqHJgDWhVYARgBJfECVmaWxlOi8vL1Vz
+				gACAMoAw0iYnwsNVTlNVUkyiwivSSw/FTSNBwn11uSu6
+				PYAO0w0OD8jKVqHJgDWhVYARgBJfECVmaWxlOi8vL1Vz
 				ZXJzL3NjczFuZy9TaXRlcy9wc20vcHJpc20v0iYnz9Bc
 				UldTaXRlRm9sZGVyotErXFJXU2l0ZUZvbGRlctImJ1zT
 				olwrAAgAEQAaACQAKQAyADcASQBMAFEAUwCOAJQAmwCj
@@ -325,7 +325,7 @@
 					<key>BannerIdentifier</key>
 					<string>ECA54C2B-8707-41C9-A8DE-028E747F2E3B</string>
 					<key>BaseURL</key>
-					<string>http://cress.soc.surrey.ac.uk/</string>
+					<string>https://cress.soc.surrey.ac.uk/prism/</string>
 					<key>ConsolidateCSSFiles</key>
 					<true/>
 					<key>ConsolidateCommonFilesMode</key>
@@ -471,7 +471,7 @@
 					<key>ThemeName</key>
 					<string>Climate</string>
 					<key>TitleText</key>
-					<string>Participatory System Mapper</string>
+					<string>PRSM: a Participatory System Mapper</string>
 					<key>TitleTextUsed</key>
 					<true/>
 					<key>UniqueBackupName</key>
@@ -480,16 +480,26 @@
 					<true/>
 					<key>autoStartWebServer</key>
 					<false/>
+					<key>globalBody</key>
+					<string></string>
+					<key>globalCSS</key>
+					<string></string>
+					<key>globalHeader</key>
+					<string></string>
+					<key>globalJavascript</key>
+					<string></string>
+					<key>globalPrefix</key>
+					<string></string>
 					<key>hasChangedGlobalBody</key>
-					<false/>
+					<true/>
 					<key>hasChangedGlobalCSS</key>
 					<false/>
 					<key>hasChangedGlobalHeader</key>
-					<false/>
+					<true/>
 					<key>hasChangedGlobalJavascript</key>
 					<false/>
 					<key>hasChangedGlobalPrefix</key>
-					<false/>
+					<true/>
 					<key>iconPackage</key>
 					<data>
 					YnBsaXN0MDDUAQIDBAUGBwpYJHZlcnNpb25Z
@@ -505,7 +515,7 @@
 					<key>useDocumentPortability</key>
 					<true/>
 					<key>useSocialTags</key>
-					<true/>
+					<false/>
 				</dict>
 			</dict>
 			<key>Files</key>
