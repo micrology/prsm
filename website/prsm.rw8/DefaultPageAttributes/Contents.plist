@@ -12,7 +12,12 @@
 				<key>ColourStyles</key>
 				<dict>
 					<key>Climate</key>
-					<dict/>
+					<dict>
+						<key>%colour_banner_overlay%</key>
+						<string>rgba(102,102,102,0.58)</string>
+						<key>%colour_primary%</key>
+						<string>rgba(253,128,8,1.00)</string>
+					</dict>
 				</dict>
 				<key>CreditRapidWeaver</key>
 				<true/>
@@ -28,6 +33,23 @@
 				<string>High</string>
 				<key>IndexFilename</key>
 				<string></string>
+				<key>MetaDescription</key>
+				<string>PRSM, the Participatory System Mapper, is an app that runs in a web browser that to make easy for a group of people working together to draw networks (or 'maps') of systems.</string>
+				<key>MetaTags</key>
+				<array>
+					<dict>
+						<key>Content</key>
+						<string>PRSM, the Participatory System Mapper, is an app that runs in a web browser that to make easy for a group of people working together to draw networks (or 'maps') of systems.</string>
+						<key>Name</key>
+						<string>description</string>
+					</dict>
+					<dict>
+						<key>Content</key>
+						<string>Z1gmTbrzyFPw6foCL2vPikIKLdB03Ns3VHrBew-b3yQ</string>
+						<key>Name</key>
+						<string>google-site-verification</string>
+					</dict>
+				</array>
 				<key>OutputXMLDeclaration</key>
 				<false/>
 				<key>RobotsShouldFollowLinks</key>
@@ -55,6 +77,8 @@
 				</dict>
 				<key>Variables</key>
 				<dict>
+					<key>%banner_filter_amount%</key>
+					<string>0</string>
 					<key>%content_width%</key>
 					<string>12</string>
 				</dict>
