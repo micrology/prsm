@@ -1,14 +1,15 @@
-# cache web fonts
-<filesMatch ".(eot|ttf|woff|woff2)$">
-Header set Cache-Control "max-age=2592000, public"
+# cache css and js
+<filesMatch ".(js|css|ico)$">
+Header set Cache-Control "max-age=31536000, public"
 </filesMatch>
 # compress text files
 <IfModule mod_mime.c>
 	AddType application/x-javascript .js
+	AddType text/javascript .js .mjs
 	AddType text/css .css
 </IfModule>
 <IfModule mod_deflate.c>
-	AddOutputFilterByType DEFLATE text/css application/x-javascript text/x-component text/html text/plain text/xml application/javascript
+	AddOutputFilterByType DEFLATE text/css text/javascript application/x-javascript text/x-component text/html text/plain text/xml application/javascript
 	<IfModule mod_setenvif.c>
 		BrowserMatch ^Mozilla/4 gzip-only-text/html
 		BrowserMatch ^Mozilla/4.0[678] no-gzip
@@ -16,3 +17,9 @@ Header set Cache-Control "max-age=2592000, public"
 	</IfModule>
 </IfModule>
 Header append Vary User-Agent env=!dont-vary
+RewriteEngine  on
+#RewriteBase "/~scs1ng/psm/prism"
+#RewriteRule    "^prism\.html$" "dist/prism.html" [PT]
+RewriteCond %{REQUEST_URI} !/dist/
+RewriteRule 	"^(.*)$"	"dist/$1" [PT]
+#Redirect "/~scs1ng/psm/prism/prism\.html" "/~scs1ng/psm/prism/dist/prism.html"

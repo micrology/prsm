@@ -1,5 +1,5 @@
 /* 
-The main entry point for PRISM.  
+The main entry point for PRSM.  
  */
 import * as Y from 'yjs';
 import {WebsocketProvider} from 'y-websocket';
@@ -29,8 +29,6 @@ import {
 	clearLegend,
 } from './samples.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
-// even though we don't use this, vis-network won't work without it
-import 'vis-network/styles/vis-network.min.css';
 
 const version = '1.29';
 const GRIDSPACING = 50; // for snap to grid
@@ -1003,7 +1001,7 @@ function unSelect() {
 */
 // set  up a web worker to calculate network statistics in parallel with whatever
 // the user is doing
-var worker = new Worker('./js/betweenness.js');
+var worker = new Worker('betweenness.js');
 var bc; //caches the betweenness centralities
 function recalculateStats() {
 	// wait 200 mSecs for things to settle down before recalculating
@@ -1730,7 +1728,7 @@ document.getElementById('copy-text').addEventListener('click', function (e) {
 });
 
 function displayHelp() {
-	window.open('help.html', 'helpWindow');
+	window.open('./html/help.html', 'helpWindow');
 }
 
 function togglePanel() {

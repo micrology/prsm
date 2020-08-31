@@ -9,6 +9,7 @@ experiments
 .vscode
 dbDir
 data
+.cache
 
 # Compiled source #
 ###################
@@ -40,6 +41,7 @@ data
 
 # OS generated files #
 ######################
+.DS_Store
 .DS_Store
 .DS_Store?
 ._*
