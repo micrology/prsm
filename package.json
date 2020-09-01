@@ -19,9 +19,9 @@
 	},
 	"scripts": {
 		"lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
-		"pretty": "prettier --write ./html/*.html ./js/*.js ./css/prism.css package.json",
+		"pretty": "prettier --write ./html/*.html ./js/*.js ./css/prism.css doc/**/*.{html,css} package.json",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"build-help": "pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -H doc/meta.html -s --toc -o ./html/help.html",
+		"build-help": "pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -H doc/meta.html -s --toc -o ./help.html",
 		"check": "npm run --silent pretty && npm run --silent lint && npm run --silent build-help",
 		"dev": "parcel ./html/prism.html",
 		"build": "rm -rf dist/* && parcel build ./html/prism.html --public-url . ",

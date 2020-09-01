@@ -1,9 +1,8 @@
-
 body {
 	padding: 40px;
 	font-family: Arial, Helvetica, sans-serif;
 	line-height: 1.5;
-	max-width: 44em; 
+	max-width: 44em;
 }
 figcaption {
 	display: none;

@@ -1728,7 +1728,7 @@ document.getElementById('copy-text').addEventListener('click', function (e) {
 });
 
 function displayHelp() {
-	window.open('./html/help.html', 'helpWindow');
+	window.open('./help.html', 'helpWindow');
 }
 
 function togglePanel() {

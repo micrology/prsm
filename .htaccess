@@ -17,9 +17,17 @@ Header set Cache-Control "max-age=31536000, public"
 	</IfModule>
 </IfModule>
 Header append Vary User-Agent env=!dont-vary
+
+# Allow Parcel to put files in /dist
 RewriteEngine  on
-#RewriteBase "/~scs1ng/psm/prism"
-#RewriteRule    "^prism\.html$" "dist/prism.html" [PT]
-RewriteCond %{REQUEST_URI} !/dist/
+# use the dist version of the entry code
+RewriteRule    "^prism\.html$" "dist/prism.html" [PT]
+# make all references in the code link to the dist directory
+RewriteCond %{HTTP_REFERER} prism.html$ [NC,OR]
+# also links to maps from e.g. DevTools
+RewriteCond %{REQUEST_URI} "\.map$" [NC]
+# but not if they are already linked to that directory
+RewriteCond %{REQUEST_URI} !/dist/ [NC]
+# and not the help page
+RewriteCond %{REQUEST_URI} !help\.html$
 RewriteRule 	"^(.*)$"	"dist/$1" [PT]
-#Redirect "/~scs1ng/psm/prism/prism\.html" "/~scs1ng/psm/prism/dist/prism.html"
