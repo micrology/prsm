@@ -1036,13 +1036,13 @@ but moving the panel out of sight works instead */
 .options .right {
 	text-align: right;
 }
-/* image tool */
+/* image tool 
 .marching-ants {
 	border: 1px solid rgba(0, 0, 0, 0.01);
 	border-image-source: url('../img/ants.gif');
 	border-image-slice: 1;
 	border-image-repeat: repeat repeat;
-}
+}*/
 div.resize {
 	cursor: nwse-resize;
 	position: absolute;

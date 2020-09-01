@@ -1,14 +1,15 @@
-# cache web fonts
-<filesMatch ".(eot|ttf|woff|woff2)$">
-Header set Cache-Control "max-age=2592000, public"
+# cache css and js
+<filesMatch ".(js|css|ico)$">
+Header set Cache-Control "max-age=31536000, public"
 </filesMatch>
 # compress text files
 <IfModule mod_mime.c>
 	AddType application/x-javascript .js
+	AddType text/javascript .js .mjs
 	AddType text/css .css
 </IfModule>
 <IfModule mod_deflate.c>
-	AddOutputFilterByType DEFLATE text/css application/x-javascript text/x-component text/html text/plain text/xml application/javascript
+	AddOutputFilterByType DEFLATE text/css text/javascript application/x-javascript text/x-component text/html text/plain text/xml application/javascript
 	<IfModule mod_setenvif.c>
 		BrowserMatch ^Mozilla/4 gzip-only-text/html
 		BrowserMatch ^Mozilla/4.0[678] no-gzip
@@ -16,3 +17,17 @@ Header set Cache-Control "max-age=2592000, public"
 	</IfModule>
 </IfModule>
 Header append Vary User-Agent env=!dont-vary
+
+# Allow Parcel to put files in /dist
+RewriteEngine  on
+# use the dist version of the entry code
+RewriteRule    "^prism\.html$" "dist/prism.html" [PT]
+# make all references in the code link to the dist directory
+RewriteCond %{HTTP_REFERER} prism.html$ [NC,OR]
+# also links to maps from e.g. DevTools
+RewriteCond %{REQUEST_URI} "\.map$" [NC]
+# but not if they are already linked to that directory
+RewriteCond %{REQUEST_URI} !/dist/ [NC]
+# and not the help page
+RewriteCond %{REQUEST_URI} !help\.html$
+RewriteRule 	"^(.*)$"	"dist/$1" [PT]
