@@ -116,7 +116,7 @@ If someone has sent you a message but your chat window is closed, the ![Chat Win
 
 ### File formats
 
-The app can read files in its native format (files with the suffix '.prsm'), [GRAPHML](http://graphml.graphdrawing.org/) format (.graphml), [GML](https://en.wikipedia.org/wiki/Graph_Modelling_Language) (.gml) or [Comma Separated Values](https://en.wikipedia.org/wiki/Comma-separated_values) (.csv).  A CSV file must contain a two columns of values.  Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to.  This very simple format is designed to allow straightforward imports from other software.
+The app can read files in its native format (files with the suffix '.prsm'), [GRAPHML](http://graphml.graphdrawing.org/) format (.graphml), [GML](https://en.wikipedia.org/wiki/Graph_Modelling_Language) (.gml) or [Comma Separated Values](https://en.wikipedia.org/wiki/Comma-separated_values) (.csv).  A CSV file must contain a two columns of values.  Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to.  This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottm right as shown on the [Factors tab](#factors-tab)).  The fifth column may contain the style number for the link.
 
 The app can create output files in the app's own native format, as a GML file or as a CSV file.
 

@@ -1499,11 +1499,53 @@ function parseGML(gml) {
 		edges: edges,
 	};
 }
-
+/**
+ * Reads a comma separated values file consisting of 'From' label and 'to' label, on each row,
+     with a header row (ignored) 
+	optional, cols 3 and 4 can include the groups (styles) of the from and to nodes,
+	column 5 can include the style of the edge.  All these must be integers between 1 and 9
+ * @param {string} csv 
+ */
 function parseCSV(csv) {
+	let lines = csv.split('\n');
+	let labels = new Map();
+	let links = [];
+	for (let i = 1; i < lines.length; i++) {
+		if (lines[i].length <= 2) continue; // empty line
+		let line = lines[i].split(',');
+		let from = node(line[0], line[2]);
+		let to = node(line[1], line[3]);
+		let grp = line[4];
+		if (grp) grp = 'edge' + (grp.trim() - 1);
+		links.push({
+			id: i.toString(),
+			from: from,
+			to: to,
+			grp: grp
+		});
+	}
+	nodes.add(Array.from(labels.values()));
+	edges.add(links);
+	return {
+		nodes: nodes,
+		edges: edges,
+	};
+
+	function node(label, grp) {
+		label = label.trim();
+		if (grp) grp = 'group' + (grp.trim() - 1);
+		if (labels.get(label) == undefined) {
+			labels.set(label, { id: label.toString(), label: label, grp: grp });
+			;
+		}
+		return labels.get(label).id;
+	}
+}
+
+/* function parseCSV(csv) {
 	/* comma separated values file consisting of 'From' label and 'to' label, on each row,
   with a header row (ignored) 
-  optional, cols 3 and 4 can include the groups of the from and to nodes */
+  optional, cols 3 and 4 can include the groups of the from and to nodes
 	let lines = csv.split('\n'); console.log(lines);
 	let labels = [];
 	for (let i = 1; i < lines.length; i++) {
@@ -1543,7 +1585,7 @@ function parseCSV(csv) {
 		}
 		return labels.indexOf(label).toString();
 	}
-}
+} */
 
 function refreshSampleNodes() {
 	let sampleElements = Array.from(
