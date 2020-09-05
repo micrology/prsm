@@ -1504,11 +1504,11 @@ function parseCSV(csv) {
 	/* comma separated values file consisting of 'From' label and 'to' label, on each row,
   with a header row (ignored) 
   optional, cols 3 and 4 can include the groups of the from and to nodes */
-	let lines = csv.split('\n');
+	let lines = csv.split('\n'); console.log(lines);
 	let labels = [];
 	for (let i = 1; i < lines.length; i++) {
 		if (lines[i].length <= 2) continue; // empty line
-		let line = lines[i].split(',');
+		let line = lines[i].split(','); console.log(line);
 		let from = node(line[0]);
 		let to = node(line[1]);
 		edges.add({

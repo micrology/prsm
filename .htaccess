@@ -23,7 +23,7 @@ RewriteEngine  on
 # use the dist version of the entry code
 RewriteRule    "^prism\.html$" "dist/prism.html" [PT]
 # make all references in the code link to the dist directory
-RewriteCond %{HTTP_REFERER} prism.html$ [NC,OR]
+RewriteCond %{HTTP_REFERER} prism.html [NC,OR]
 # also links to maps from e.g. DevTools
 RewriteCond %{REQUEST_URI} "\.map$" [NC]
 # but not if they are already linked to that directory
