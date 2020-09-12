@@ -17,8 +17,7 @@
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
-  
-  <link rel="icon" href="img/prism-logo.ico" />
+  <link rel="icon" href="img/prsm-logo.ico" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 </head>
@@ -92,13 +91,13 @@
 <p>All the examples can be opened in the app using the files <a href="./doc/examples/">here</a>.</p>
 <h2 id="how-do-you-install-it">How do you install it?</h2>
 <p>No installation on users' computers is needed. The software is a web app, which means that it can be accessed using a web browser by pasting this link into the address bar:</p>
-<p><a href="https://cress.soc.surrey.ac.uk/prism/prism.html">https://cress.soc.surrey.ac.uk/prism/prism.html</a></p>
+<p><a href="https://cress.soc.surrey.ac.uk/prsm/prsm.html">https://cress.soc.surrey.ac.uk/prsm/prsm.html</a></p>
 <p>You need a modern web browser such as Chrome, Firefox, Microsoft Edge or Safari. It will not work with Internet Explorer.</p>
 <p>The software is free and available under an <a href="https://choosealicense.com/licenses/mit/">MIT</a> license.</p>
 <p>The program code is available on <a href="https://github.com/micrology/prsm">GitHub</a>.</p>
 <h2 id="how-do-you-use-it">How do you use it?</h2>
-<p>Click <a href="https://cress.soc.surrey.ac.uk/prism/prism.html">here</a> to load the app into your browser. At the top of the screen are a row of buttons:</p>
-<p><img src="./doc/images/prism-nav-icons.png" alt="Nav Bar icons" /></p>
+<p>Click <a href="https://cress.soc.surrey.ac.uk/prsm/prsm.html">here</a> to load the app into your browser. At the top of the screen are a row of buttons:</p>
+<p><img src="./doc/images/prsm-nav-icons.png" alt="Nav Bar icons" /></p>
 <p>This what they do, from left to right:</p>
 <ul>
 <li><strong>New factor</strong> (or node). Click on the cross and then click on the blank area below (the 'network pane') to create a node for the network. A small dialog box will open for you to type in a label for the factor.</li>
@@ -120,7 +119,7 @@
 <p>Each node can be moved across the network pane by selecting it and dragging. The whole network can be moved by dragging the background.</p>
 <h3 id="sharing">Sharing</h3>
 <p>If you use the link above to start the app, a new room is created for you. When you click on the share icon, a dialog box is shown that includes the name of the room in the link that is displayed:</p>
-<p><img src="./doc/images/prism-share.png" alt="Sharing box" /></p>
+<p><img src="./doc/images/prsm-share.png" alt="Sharing box" /></p>
 <p>Click the button to copy the web link to the clipboard, and then paste the link into an email, or a text message or just tell other participants the name of the room (which is a randomly generated set of 4 groups of three capital letters separated by hyphens). When they access the link, they will see whatever is in your app window.</p>
 <h3 id="formatting-factors-and-links">Formatting factors and links</h3>
 <p>Double clicking on a factor or a link will bring up a small dialog that enables you to change the design of the factor or link - its colour, shape or the label.</p>
@@ -132,7 +131,7 @@
 <p>Your name at the top is initially randomly generated, but if you click on it, you can substitute your own name. You can write messages in the box at the bottom and send them by clicking the paper plane button. Use the <strong>X</strong> to close the chat window.</p>
 <p>If someone has sent you a message but your chat window is closed, the <img src="./doc/images/ChatWindowButton.png" alt="Chat Window Button" /> button will gently pulse to remind you to open the chat window.</p>
 <h3 id="file-formats">File formats</h3>
-<p>The app can read files in its native format (files with the suffix '.prsm'), <a href="http://graphml.graphdrawing.org/">GRAPHML</a> format (.graphml), <a href="https://en.wikipedia.org/wiki/Graph_Modelling_Language">GML</a> (.gml) or <a href="https://en.wikipedia.org/wiki/Comma-separated_values">Comma Separated Values</a> (.csv). A CSV file must contain a two columns of values. Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to. This very simple format is designed to allow straightforward imports from other software.</p>
+<p>The app can read files in its native format (files with the suffix '.prsm'), <a href="http://graphml.graphdrawing.org/">GRAPHML</a> format (.graphml), <a href="https://en.wikipedia.org/wiki/Graph_Modelling_Language">GML</a> (.gml) or <a href="https://en.wikipedia.org/wiki/Comma-separated_values">Comma Separated Values</a> (.csv). A CSV file must contain a two columns of values. Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to. This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottm right as shown on the <a href="#factors-tab">Factors tab</a>). The fifth column may contain the style number for the link.</p>
 <p>The app can create output files in the app's own native format, as a GML file or as a CSV file.</p>
 <h3 id="privacy-and-security">Privacy and security</h3>
 <p>The only way to join the room and see the network is by using the randomly generated room name, and the chances of finding that name by trial and error is very, very small. The network is not stored on any server (there is a central server, but this is only used to broadcast encoded messages from one participant in a room to another). The server is located in Europe.</p>

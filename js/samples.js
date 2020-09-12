@@ -1,7 +1,7 @@
 import {Network} from 'vis-network/peer/';
 import {DataSet} from 'vis-data/peer';
 import {deepMerge, standardize_color, dragElement, splitText} from './utils.js';
-import {statusMsg} from './prism.js';
+import {statusMsg} from './prsm.js';
 export const samples = {
 	nodes: {
 		base: {

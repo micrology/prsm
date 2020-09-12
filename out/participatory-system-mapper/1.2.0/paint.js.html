@@ -1,4 +1,32 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: paint.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: paint.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * Underlay drawing for Participatory System Mapper
  * @author Nigel Gilbert
  * @email n.gilbert@surrey.ac.uk
@@ -234,12 +262,12 @@ class ToolHandler {
 	endPosition(e) {
 		this.endX =
 			(e.offsetX * tempCanvas.width) / (dpr * tempCanvas.clientWidth);
-		if (this.endX < 0) this.endX = 0;
+		if (this.endX &lt; 0) this.endX = 0;
 		if (this.endX > tempCanvas.offsetWidth)
 			this.endX = tempCanvas.offsetWidth;
 		this.endY =
 			(e.offsetY * tempCanvas.height) / (dpr * tempCanvas.clientHeight);
-		if (this.endY < 0) this.endY = 0;
+		if (this.endY &lt; 0) this.endY = 0;
 		if (this.endY > tempCanvas.offsetHeight)
 			this.endY = tempCanvas.offsetHeight;
 	}
@@ -338,9 +366,9 @@ class LineHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('line');
 		box.innerHTML = `
-	<div>Line width</div><div><input id="lineWidth" type="text" size="2"></div>
-	<div>Colour</div><div><input id="lineColour" type="color"></div>
-	<div>Axes</div><div><input type="checkbox" id="axes"></div>`;
+	&lt;div>Line width&lt;/div>&lt;div>&lt;input id="lineWidth" type="text" size="2">&lt;/div>
+	&lt;div>Colour&lt;/div>&lt;div>&lt;input id="lineColour" type="color">&lt;/div>
+	&lt;div>Axes&lt;/div>&lt;div>&lt;input type="checkbox" id="axes">&lt;/div>`;
 		let widthInput = document.getElementById('lineWidth');
 		widthInput.value = this.lineWidth;
 		widthInput.addEventListener('change', () => {
@@ -408,7 +436,7 @@ class RectHandler extends ToolHandler {
 			}
 			let width = DOMtoCanvasX(this.endX) - DOMtoCanvasX(this.startX);
 			let height = DOMtoCanvasY(this.endY) - DOMtoCanvasY(this.startY);
-			if (width > 0 && height > 0) {
+			if (width > 0 &amp;&amp; height > 0) {
 				yPointsArray.push([
 					[
 						this.roundCorners ? 'rrect' : 'rect',
@@ -428,10 +456,10 @@ class RectHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('rect');
 		box.innerHTML = `
-	<div>Border width</div><div><input id="borderWidth" type="text" size="2"></div>
-  <div>Border Colour</div><div><input id="borderColour" type="color"></div>
-  <div>Fill Colour</div><div><input id="fillColour" type="color"></div>
-  <div>Rounded</div><input type="checkbox" id="rounded"></div>`;
+	&lt;div>Border width&lt;/div>&lt;div>&lt;input id="borderWidth" type="text" size="2">&lt;/div>
+  &lt;div>Border Colour&lt;/div>&lt;div>&lt;input id="borderColour" type="color">&lt;/div>
+  &lt;div>Fill Colour&lt;/div>&lt;div>&lt;input id="fillColour" type="color">&lt;/div>
+  &lt;div>Rounded&lt;/div>&lt;input type="checkbox" id="rounded">&lt;/div>`;
 		let widthInput = document.getElementById('borderWidth');
 		widthInput.value = this.lineWidth;
 		widthInput.addEventListener('blur', () => {
@@ -459,7 +487,7 @@ let rectHandler = new RectHandler();
 
 /* ========================================================== text ================================================ */
 String.prototype.splice = function (index, count, add) {
-	if (index < 0) {
+	if (index &lt; 0) {
 		index = this.length;
 	}
 	return this.slice(0, index) + (add || '') + this.slice(index + count);
@@ -529,15 +557,15 @@ class TextHandler extends ToolHandler {
 		}
 	}
 	unfocus(e) {
-		if (this.inp.value.length > 0 && this.writing) {
+		if (this.inp.value.length > 0 &amp;&amp; this.writing) {
 			this.saveText(e);
 		}
 	}
 	saveText(e) {
 		if (
-			this.writing &&
-			e.target != this.inp &&
-			e.target != this.div &&
+			this.writing &amp;&amp;
+			e.target != this.inp &amp;&amp;
+			e.target != this.div &amp;&amp;
 			e.target != this.resizer
 		) {
 			let text = this.inp.value;
@@ -571,8 +599,8 @@ class TextHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('text');
 		box.innerHTML = `
-	<div>Size</div><div><input id="fontSize" type="text" size="2"></div>
-	<div>Colour</div><div><input id="fontColor" type="color"></div>`;
+	&lt;div>Size&lt;/div>&lt;div>&lt;input id="fontSize" type="text" size="2">&lt;/div>
+	&lt;div>Colour&lt;/div>&lt;div>&lt;input id="fontColor" type="color">&lt;/div>`;
 		let fontSizeInput = document.getElementById('fontSize');
 		fontSizeInput.value = parseInt(this.font);
 		fontSizeInput.addEventListener('blur', () => {
@@ -686,8 +714,8 @@ class PencilHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('pencil');
 		box.innerHTML = `
-		<div>Width</div><div><input id="pencilWidth" type="text" size="2"></div>
-		<div>Colour</div><div><input id="pencilColor" type="color"></div>`;
+		&lt;div>Width&lt;/div>&lt;div>&lt;input id="pencilWidth" type="text" size="2">&lt;/div>
+		&lt;div>Colour&lt;/div>&lt;div>&lt;input id="pencilColor" type="color">&lt;/div>`;
 		let widthInput = document.getElementById('pencilWidth');
 		widthInput.value = this.lineWidth;
 		widthInput.addEventListener('blur', () => {
@@ -746,8 +774,8 @@ class MarkerHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('marker');
 		box.innerHTML = `
-		<div>Width</div><div><input id="markerWidth" type="text" size="2"></div>
-		<div>Colour</div><div><input id="markerColor" type="color"></div>`;
+		&lt;div>Width&lt;/div>&lt;div>&lt;input id="markerWidth" type="text" size="2">&lt;/div>
+		&lt;div>Colour&lt;/div>&lt;div>&lt;input id="markerColor" type="color">&lt;/div>`;
 		let widthInput = document.getElementById('markerWidth');
 		widthInput.value = this.markerWidth;
 		widthInput.addEventListener('blur', () => {
@@ -831,12 +859,12 @@ class EraserHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('eraser');
 		box.innerHTML = `
-		<div>Width</div><div><input id="eraserWidth" type="text" size="2"></div>`;
+		&lt;div>Width&lt;/div>&lt;div>&lt;input id="eraserWidth" type="text" size="2">&lt;/div>`;
 		let widthInput = document.getElementById('eraserWidth');
 		widthInput.value = this.markerWidth;
 		widthInput.addEventListener('blur', () => {
 			this.markerWidth = parseInt(widthInput.value);
-			if (this.markerWidth < 3) this.markerWidth = 4;
+			if (this.markerWidth &lt; 3) this.markerWidth = 4;
 			if (this.markerWidth > 99) this.markerWidth = 99;
 		});
 	}
@@ -845,7 +873,7 @@ let eraserHandler = new EraserHandler();
 
 /* ========================================================== image ================================================ */
 /**
- * ImageHandler works differently.  The image is read from a file and put into a <img> element as a dataURI.
+ * ImageHandler works differently.  The image is read from a file and put into a &lt;img> element as a dataURI.
  *  When the user is satisfied, indicated by clicking outside the image, it is drawn on the main canvas.
  *
  * Selecting the file is handled within the selectTool fn, not here, because of the restriction that file dialogs can
@@ -941,10 +969,10 @@ class ImageHandler extends ToolHandler {
 		this.image.startTop = this.image.top;
 		const resizingBlock = 2 * resizeBox; // give a little leeway for pointer
 		this.resizing =
-			this.startX >= this.image.left + this.image.width - resizingBlock &&
-			this.startX <= this.image.left + this.image.width &&
-			this.startY >= this.image.top + this.image.height - resizingBlock &&
-			this.startY <= this.image.top + this.image.height;
+			this.startX >= this.image.left + this.image.width - resizingBlock &amp;&amp;
+			this.startX &lt;= this.image.left + this.image.width &amp;&amp;
+			this.startY >= this.image.top + this.image.height - resizingBlock &amp;&amp;
+			this.startY &lt;= this.image.top + this.image.height;
 		underlay.style.cursor = this.resizing ? 'nwse-resize' : 'move';
 	}
 	panmove(e) {
@@ -1004,10 +1032,10 @@ class ImageHandler extends ToolHandler {
 		this.endPosition(e);
 		if (
 			!(
-				this.endX >= this.image.left &&
-				this.endX <= this.image.left + this.image.width &&
-				this.endY >= this.image.top &&
-				this.endY <= this.image.top + this.image.height
+				this.endX >= this.image.left &amp;&amp;
+				this.endX &lt;= this.image.left + this.image.width &amp;&amp;
+				this.endY >= this.image.top &amp;&amp;
+				this.endY &lt;= this.image.top + this.image.height
 			)
 		) {
 			yPointsArray.push([
@@ -1090,7 +1118,7 @@ class UndoHandler extends ToolHandler {
 		let points = yPointsArray.toArray();
 		if (len == 0) return;
 		let i;
-		for (i = len - 2; i >= 0 && points[i][0] !== 'endShape'; i--);
+		for (i = len - 2; i >= 0 &amp;&amp; points[i][0] !== 'endShape'; i--);
 		yPointsArray.delete(i + 1, len - i - 1);
 		deselectTool();
 		network.redraw();
@@ -1161,8 +1189,8 @@ export function redraw(netctx) {
  *  Like ctx.rect(), but with rounded corners
  */
 CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
-	if (w < 2 * r) r = w / 2;
-	if (h < 2 * r) r = h / 2;
+	if (w &lt; 2 * r) r = w / 2;
+	if (h &lt; 2 * r) r = h / 2;
 	this.beginPath();
 	this.moveTo(x + r, y);
 	this.arcTo(x + w, y, x + w, y + h, r);
@@ -1184,7 +1212,7 @@ function drawGrid(netctx) {
 	netctx.beginPath();
 	for (
 		let x = DOMtoCanvasX(0);
-		x <= DOMtoCanvasX(2 * netPane.offsetWidth);
+		x &lt;= DOMtoCanvasX(2 * netPane.offsetWidth);
 		x += GRIDSPACING
 	) {
 		// vertical grid lines
@@ -1193,7 +1221,7 @@ function drawGrid(netctx) {
 	}
 	for (
 		let y = DOMtoCanvasY(0);
-		y <= DOMtoCanvasY(2 * netPane.offsetHeight);
+		y &lt;= DOMtoCanvasY(2 * netPane.offsetHeight);
 		y += GRIDSPACING
 	) {
 		// horizontal grid lines
@@ -1239,7 +1267,7 @@ let drawHelper = {
 		ctx.beginPath();
 		let lineHeight = ctx.measureText('M').width * 1.2;
 		let lines = text.split('\n');
-		for (let i = 0; i < lines.length; ++i) {
+		for (let i = 0; i &lt; lines.length; ++i) {
 			ctx.fillText(lines[i], x, y);
 			y += lineHeight;
 		}
@@ -1299,3 +1327,26 @@ let drawHelper = {
 function applyOptions(ctx, options) {
 	for (let option in options) ctx[option] = options[option];
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ToolHandler.html">ToolHandler</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addEventListeners">addEventListeners</a></li><li><a href="global.html#addLabel">addLabel</a></li><li><a href="global.html#antMarch">antMarch</a></li><li><a href="global.html#applyOptions">applyOptions</a></li><li><a href="global.html#broadcast">broadcast</a></li><li><a href="global.html#claim">claim</a></li><li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li><li><a href="global.html#deselectTool">deselectTool</a></li><li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawGrid">drawGrid</a></li><li><a href="global.html#fit">fit</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#getRandomData">getRandomData</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#keepPanelInWindow">keepPanelInWindow</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#mouseDespatch">mouseDespatch</a></li><li><a href="global.html#object_equals">object_equals</a></li><li><a href="global.html#parseCSV">parseCSV</a></li><li><a href="global.html#redraw">redraw</a></li><li><a href="global.html#resizeBox">resizeBox</a></li><li><a href="global.html#selectTool">selectTool</a></li><li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li><li><a href="global.html#setUpCanvas">setUpCanvas</a></li><li><a href="global.html#setUpPaint">setUpPaint</a></li><li><a href="global.html#setUpToolbox">setUpToolbox</a></li><li><a href="global.html#snapToGrid">snapToGrid</a></li><li><a href="global.html#startY">startY</a></li><li><a href="global.html#toolHandler">toolHandler</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Sat Sep 12 2020 22:08:54 GMT+0100 (British Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

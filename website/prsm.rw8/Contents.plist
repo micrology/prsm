@@ -13,7 +13,7 @@
 				<string>8.1</string>
 				<key>PublishingManifests</key>
 				<dict>
-					<key>page0 - file:///Users/scs1ng/Sites/psm/prism/</key>
+					<key>page0 - file:///Users/scs1ng/Sites/psm/prsm/</key>
 					<dict>
 						<key>CreationDate</key>
 						<date>2020-08-29T20:00:49Z</date>
@@ -39,7 +39,7 @@
 						<key>Version</key>
 						<integer>3</integer>
 					</dict>
-					<key>rw:document:extrafiles - file:///Users/scs1ng/Sites/psm/prism/</key>
+					<key>rw:document:extrafiles - file:///Users/scs1ng/Sites/psm/prsm/</key>
 					<dict>
 						<key>CreationDate</key>
 						<date>2020-08-27T22:34:04Z</date>
@@ -47,7 +47,7 @@
 						<string>MD5</string>
 						<key>PageDigests</key>
 						<dict>
-							<key>rw_common/images/prism-logo.png</key>
+							<key>rw_common/images/prsm-logo.png</key>
 							<dict>
 								<key>Digest</key>
 								<data>
@@ -85,7 +85,7 @@
 						<key>Version</key>
 						<integer>3</integer>
 					</dict>
-					<key>rw:document:resources - file:///Users/scs1ng/Sites/psm/prism/</key>
+					<key>rw:document:resources - file:///Users/scs1ng/Sites/psm/prsm/</key>
 					<dict>
 						<key>CreationDate</key>
 						<date>2020-08-27T22:34:04Z</date>
@@ -123,7 +123,7 @@
 								<key>Size</key>
 								<integer>1710612</integer>
 							</dict>
-							<key>prism-logo.png</key>
+							<key>prsm-logo.png</key>
 							<dict>
 								<key>Digest</key>
 								<data>
@@ -141,7 +141,7 @@
 						<key>Version</key>
 						<integer>3</integer>
 					</dict>
-					<key>rw:theme:Climate - file:///Users/scs1ng/Sites/psm/prism/</key>
+					<key>rw:theme:Climate - file:///Users/scs1ng/Sites/psm/prsm/</key>
 					<dict>
 						<key>CreationDate</key>
 						<date>2020-08-29T14:23:22Z</date>
@@ -226,11 +226,11 @@
 					<key>DCC8E384-1033-4834-88E6-A696AFBA2B1A</key>
 					<dict>
 						<key>fileName</key>
-						<string>prism-logo.png</string>
+						<string>prsm-logo.png</string>
 						<key>identifier</key>
 						<string>DCC8E384-1033-4834-88E6-A696AFBA2B1A</string>
 						<key>lastResolvablePath</key>
-						<string>/var/folders/gh/tn_s0fyn4p3bnx5kn2pz6px80000gn/T/com.realmacsoftware.rapidweaver8/com.realmacsoftware.rapidweaver8-97374/CPISLa/prism-logo.png</string>
+						<string>/var/folders/gh/tn_s0fyn4p3bnx5kn2pz6px80000gn/T/com.realmacsoftware.rapidweaver8/com.realmacsoftware.rapidweaver8-97374/CPISLa/prsm-logo.png</string>
 						<key>storedInsideDocument</key>
 						<true/>
 					</dict>
@@ -325,7 +325,7 @@
 					<key>BannerIdentifier</key>
 					<string>ECA54C2B-8707-41C9-A8DE-028E747F2E3B</string>
 					<key>BaseURL</key>
-					<string>https://cress.soc.surrey.ac.uk/prism/</string>
+					<string>https://cress.soc.surrey.ac.uk/prsm/</string>
 					<key>ConsolidateCSSFiles</key>
 					<true/>
 					<key>ConsolidateCommonFilesMode</key>
@@ -443,7 +443,7 @@
 							<key>user</key>
 							<string></string>
 							<key>websiteAddress</key>
-							<string>http://127.0.0.1/~scs1ng/psm/prism/</string>
+							<string>http://127.0.0.1/~scs1ng/psm/prsm/</string>
 						</dict>
 					</array>
 					<key>PublishingSettingsConfigured</key>

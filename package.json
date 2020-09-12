@@ -12,19 +12,19 @@
 		"email": "n.gilbert@surrey.ac.uk"
 	},
 	"author": "Nigel Gilbert",
-	"browser": "prism.html",
+	"browser": "prsm.html",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/micrology/prsm"
 	},
 	"scripts": {
 		"lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
-		"pretty": "prettier --write ./html/*.html ./js/*.js ./css/prism.css doc/**/*.{html,css} package.json",
+		"pretty": "prettier --write ./html/*.html ./js/*.js ./css/prsm.css doc/**/*.{html,css} package.json",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"build-help": "pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -H doc/meta.html -s --toc -o ./help.html",
 		"check": "npm run --silent pretty && npm run --silent lint && npm run --silent build-help",
-		"dev": "parcel ./html/prism.html",
-		"build": "rm -rf dist/* && parcel build ./html/prism.html --public-url . ",
+		"dev": "parcel ./html/prsm.html",
+		"build": "rm -rf dist/* && parcel build ./html/prsm.html --public-url . ",
 		"doc": "npx jsdoc -r ./js -R README.md -P ./package.json",
 		"clean": "rm -rf dist/* out/*"
 	},
