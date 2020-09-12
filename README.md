@@ -51,20 +51,20 @@ All the examples can be opened in the app using the files [here](./doc/examples/
 
 No installation on users' computers is needed.  The software is a web app, which means that it can be accessed using a web browser by pasting this link into the address bar:
 
-<https://cress.soc.surrey.ac.uk/prism/prism.html>
+<https://cress.soc.surrey.ac.uk/prsm/prsm.html>
 
 You need a modern web browser such as Chrome, Firefox, Microsoft Edge or Safari.  It will not work with Internet Explorer.
 
 The software is free and available under an [MIT](https://choosealicense.com/licenses/mit/) license.
 
-The program code is available on [GitHub](https://github.com/micrology/prism).
+The program code is available on [GitHub](https://github.com/micrology/prsm).
 
 ## How do you use it?
 
-Click [here](https://cress.soc.surrey.ac.uk/prism/prism.html) to load the app into your browser.
+Click [here](https://cress.soc.surrey.ac.uk/prsm/prsm.html) to load the app into your browser.
 At the top of the screen are a row of buttons:
 
-![Nav Bar icons](./doc/images/prism-nav-icons.png)
+![Nav Bar icons](./doc/images/prsm-nav-icons.png)
 
 This what they do, from left to right:
 
@@ -92,7 +92,7 @@ Each node can be moved across the network pane by selecting it and dragging.  Th
 
 If you use the link above to start the app, a new room is created for you.  When you click on the share icon, a dialog box is shown that includes the name of the room in the link that is displayed:
 
-![Sharing box](./doc/images/prism-share.png)
+![Sharing box](./doc/images/prsm-share.png)
 
 Click the button to copy the web link to the clipboard, and then paste the link into an email, or a text message or just tell other participants the name of the room (which is a randomly generated set of 4 groups of three capital letters separated by hyphens).  When they access the link, they will see whatever is in your app window.
 
@@ -116,7 +116,7 @@ If someone has sent you a message but your chat window is closed, the ![Chat Win
 
 ### File formats
 
-The app can read files in its native format (files with the suffix '.prsm'), [GRAPHML](http://graphml.graphdrawing.org/) format (.graphml), [GML](https://en.wikipedia.org/wiki/Graph_Modelling_Language) (.gml) or [Comma Separated Values](https://en.wikipedia.org/wiki/Comma-separated_values) (.csv).  A CSV file must contain a two columns of values.  Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to.  This very simple format is designed to allow straightforward imports from other software.
+The app can read files in its native format (files with the suffix '.prsm'), [GRAPHML](http://graphml.graphdrawing.org/) format (.graphml), [GML](https://en.wikipedia.org/wiki/Graph_Modelling_Language) (.gml) or [Comma Separated Values](https://en.wikipedia.org/wiki/Comma-separated_values) (.csv).  A CSV file must contain a two columns of values.  Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to.  This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottm right as shown on the [Factors tab](#factors-tab)).  The fifth column may contain the style number for the link.
 
 The app can create output files in the app's own native format, as a GML file or as a CSV file.
 

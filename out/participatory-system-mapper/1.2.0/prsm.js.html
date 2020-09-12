@@ -1,4 +1,32 @@
-/* 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: prsm.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: prsm.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* 
 The main entry point for PRSM.  
  */
 import * as Y from 'yjs';
@@ -177,35 +205,18 @@ function startY() {
 	if (room == null || room == '') room = generateRoom();
 	else room = room.toUpperCase();
 	const doc = new Y.Doc();
-	// wait for an update from another peer; only then will
-	// drawing etc. be finished and so we can then fit the  network to the window.
-	doc.on('afterTransaction', initialFit);
-	function initialFit(trans, doc) {
-		if (window.debug) console.log(trans, performance.now());
-		if (!trans.local && trans.changed.size > 0) {
-			fit(0);
-			legend(false);
-			doc.off('afterTransaction', initialFit);
-		}
-	}
 	const wsProvider = new WebsocketProvider(
 		'wss://cress.soc.surrey.ac.uk/wss',
-		'prism' + room,
+		'prsm' + room,
 		doc
 	);
-	/* 	const wsProvider = new WebsocketProvider(
-		'ws://cress.soc.surrey.ac.uk:1233',
-		'prism' + room,
-		doc
-	);  */
-	/*
-	const indexeddbProvider = new IndexeddbPersistence('prism' + room, doc);
-	indexeddbProvider.whenSynced.then(() => {
-		console.log(
-			new Date().toLocaleTimeString() + ': ' + 'indexed db set up'
-		);
+	// wait for an update from another peer; only then will
+	// drawing etc. be finished and so we can then fit the  network to the window.
+	wsProvider.on('sync', () => {
+		console.log('sync');
+		fit(0);
+		legend(false);
 	});
- */
 	document.title = document.title + ' ' + room;
 	wsProvider.on('status', (event) => {
 		console.log(
@@ -286,7 +297,7 @@ function startY() {
 					if (obj.clientID == undefined) obj.clientID = clientID;
 					// only broadcast my changes and only if the node has actually changed
 					if (
-						obj.clientID === clientID &&
+						obj.clientID === clientID &amp;&amp;
 						!object_equals(obj, yNodesMap.get(obj.id))
 					) {
 						yNodesMap.set(id.toString(), obj);
@@ -341,7 +352,7 @@ function startY() {
 					let obj = edges.get(id);
 					if (obj.clientID == undefined) obj.clientID = clientID;
 					if (
-						obj.clientID === clientID &&
+						obj.clientID === clientID &amp;&amp;
 						!object_equals(obj, yEdgesMap.get(obj.id))
 					)
 						yEdgesMap.set(id.toString(), obj);
@@ -439,11 +450,11 @@ function startY() {
  */
 function generateRoom() {
 	let room = '';
-	for (let i = 0; i < 4; i++) {
-		for (let j = 0; j < 3; j++) {
+	for (let i = 0; i &lt; 4; i++) {
+		for (let j = 0; j &lt; 3; j++) {
 			room += String.fromCharCode(65 + Math.floor(Math.random() * 26));
 		}
-		if (i < 3) room += '-';
+		if (i &lt; 3) room += '-';
 	}
 	return room;
 }
@@ -745,34 +756,34 @@ function editNode(item, cancelAction, callback) {
 	document.getElementById('popup-label').insertAdjacentHTML(
 		'afterend',
 		`	
-	<table id="popup-table">
-		<tr>
-			<td>
+	&lt;table id="popup-table">
+		&lt;tr>
+			&lt;td>
 				Border
-			</td>
-			<td>
+			&lt;/td>
+			&lt;td>
 				Font
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<input type="color" id="node-borderColor" />
-			</td>
-			<td>
-				<input type="color" id="node-fontColor" />
-			</td>
-		</tr>
-		<tr>
-			<td colspan="2">
-				<select id="node-borderType">
-					<option value="">Type...</option>
-					<option value="false">Solid</option>
-					<option value="true">Dashed</option>
-					<option value="dots">Dotted</option>
-				</select>
-			</td>
-		</tr>
-	</table>`
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td>
+				&lt;input type="color" id="node-borderColor" />
+			&lt;/td>
+			&lt;td>
+				&lt;input type="color" id="node-fontColor" />
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td colspan="2">
+				&lt;select id="node-borderType">
+					&lt;option value="">Type...&lt;/option>
+					&lt;option value="false">Solid&lt;/option>
+					&lt;option value="true">Dashed&lt;/option>
+					&lt;option value="dots">Dotted&lt;/option>
+				&lt;/select>
+			&lt;/td>
+		&lt;/tr>
+	&lt;/table>`
 	);
 	document.getElementById('node-borderColor').value = standardize_color(
 		item.color.border
@@ -796,39 +807,39 @@ function editEdge(item, cancelAction, callback) {
 	document.getElementById('popup-label').insertAdjacentHTML(
 		'afterend',
 		` 
-		<table id="popup-table">
-		<tr>
-			<td>
+		&lt;table id="popup-table">
+		&lt;tr>
+			&lt;td>
 				Width
-			</td>
-			<td>
+			&lt;/td>
+			&lt;td>
 				Colour
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<select id="edge-width">
-					<option value="">Width...</option>
-					<option value="1">Width: 1</option>
-					<option value="2">Width: 2</option>
-					<option value="4">Width: 4</option>
-				</select>
-			</td>
-			<td>
-				<input type="color" id="edge-color" />
-			</td>
-		</tr>
-		<tr>
-			<td colspan="2">
-				<select id="edge-type">
-					<option value="">Type...</option>
-					<option value="false">Solid</option>
-					<option value="true">Dashed</option>
-					<option value="dots">Dotted</option>
-				</select>
-			</td>
-		</tr>
-	</table>`
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td>
+				&lt;select id="edge-width">
+					&lt;option value="">Width...&lt;/option>
+					&lt;option value="1">Width: 1&lt;/option>
+					&lt;option value="2">Width: 2&lt;/option>
+					&lt;option value="4">Width: 4&lt;/option>
+				&lt;/select>
+			&lt;/td>
+			&lt;td>
+				&lt;input type="color" id="edge-color" />
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td colspan="2">
+				&lt;select id="edge-type">
+					&lt;option value="">Type...&lt;/option>
+					&lt;option value="false">Solid&lt;/option>
+					&lt;option value="true">Dashed&lt;/option>
+					&lt;option value="dots">Dotted&lt;/option>
+				&lt;/select>
+			&lt;/td>
+		&lt;/tr>
+	&lt;/table>`
 	);
 	document.getElementById('edge-width').value = item.width;
 	document.getElementById('edge-color').value = standardize_color(
@@ -866,7 +877,7 @@ function positionPopUp() {
 		event.clientY - popUp.offsetHeight / 2 - popUp.offsetParent.offsetTop
 	}px`;
 	let left = event.clientX - popUp.offsetWidth - 3;
-	popUp.style.left = `${left < 0 ? 0 : left}px`;
+	popUp.style.left = `${left &lt; 0 ? 0 : left}px`;
 }
 
 // Callback passed as parameter is ignored
@@ -963,7 +974,7 @@ function duplEdge(from, to) {
 	// if there is already a link from the 'from' node to the 'to' node, return it
 	return data.edges.get({
 		filter: function (item) {
-			return item.from == from && item.to == to;
+			return item.from == from &amp;&amp; item.to == to;
 		},
 	});
 }
@@ -980,7 +991,7 @@ function deleteMsg(item) {
 	let nEdges = item.edges.length;
 	let msg = 'Delete ';
 	if (nNodes > 0) msg = msg + nNodes + ' Factor' + (nNodes == 1 ? '' : 's');
-	if (nNodes > 0 && nEdges > 0) msg = msg + ' and ';
+	if (nNodes > 0 &amp;&amp; nEdges > 0) msg = msg + ' and ';
 	if (nEdges > 0) msg = msg + nEdges + ' Link' + (nEdges == 1 ? '' : 's');
 	return msg + '?';
 }
@@ -1036,11 +1047,11 @@ export function statusMsg(msg, status) {
 
 function htmlEntities(str) {
 	return String(str)
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&quot;');
+		.replace(/&amp;/g, '&amp;amp;')
+		.replace(/&lt;/g, '&amp;lt;')
+		.replace(/>/g, '&amp;gt;')
+		.replace(/"/g, '&amp;quot;')
+		.replace(/'/g, '&amp;quot;');
 }
 
 function clearStatusBar() {
@@ -1095,7 +1106,7 @@ function zoomnet() {
 function zoomincr(incr) {
 	let newScale = Number(document.getElementById('zoom').value) + incr;
 	if (newScale > 4) newScale = 4;
-	if (newScale <= 0) newScale = 0.1;
+	if (newScale &lt;= 0) newScale = 0.1;
 	document.getElementById('zoom').value = newScale;
 	network.zoom(newScale);
 }
@@ -1300,7 +1311,7 @@ function loadFile(contents) {
 function loadJSONfile(json) {
 	json = JSON.parse(json);
 	if (
-		json.version &&
+		json.version &amp;&amp;
 		version.substring(0, 3) > json.version.substring(0, 3)
 	) {
 		statusMsg('Warning: file was created in an earlier version', 'warn');
@@ -1309,7 +1320,7 @@ function loadJSONfile(json) {
 	if (json.lastNodeSample) lastNodeSample = json.lastNodeSample;
 	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
 	if (json.buttons) setButtonStatus(json.buttons);
-	if (json.edges.length > 0 && 'source' in json.edges[0]) {
+	if (json.edges.length > 0 &amp;&amp; 'source' in json.edges[0]) {
 		// the file is from Gephi and needs to be translated
 		let parsed = parseGephiNetwork(json, {
 			edges: {
@@ -1413,7 +1424,7 @@ function parseGraphML(graphML) {
 }
 
 function parseGML(gml) {
-	if (gml.search('graph') < 0) throw {message: 'invalid GML format'};
+	if (gml.search('graph') &lt; 0) throw {message: 'invalid GML format'};
 	let tokens = gml.match(/"[^"]+"|[\w]+|\[|\]/g);
 	let node;
 	let edge;
@@ -1499,16 +1510,57 @@ function parseGML(gml) {
 		edges: edges,
 	};
 }
-
+/**
+ * Reads a comma separated values file consisting of 'From' label and 'to' label, on each row,
+     with a header row (ignored) 
+	optional, cols 3 and 4 can include the groups (styles) of the from and to nodes,
+	column 5 can include the style of the edge.  All these must be integers between 1 and 9
+ * @param {string} csv 
+ */
 function parseCSV(csv) {
+	let lines = csv.split('\n');
+	let labels = new Map();
+	let links = [];
+	for (let i = 1; i &lt; lines.length; i++) {
+		if (lines[i].length &lt;= 2) continue; // empty line
+		let line = lines[i].split(',');
+		let from = node(line[0], line[2]);
+		let to = node(line[1], line[3]);
+		let grp = line[4];
+		if (grp) grp = 'edge' + (grp.trim() - 1);
+		links.push({
+			id: i.toString(),
+			from: from,
+			to: to,
+			grp: grp,
+		});
+	}
+	nodes.add(Array.from(labels.values()));
+	edges.add(links);
+	return {
+		nodes: nodes,
+		edges: edges,
+	};
+
+	function node(label, grp) {
+		label = label.trim();
+		if (grp) grp = 'group' + (grp.trim() - 1);
+		if (labels.get(label) == undefined) {
+			labels.set(label, {id: label.toString(), label: label, grp: grp});
+		}
+		return labels.get(label).id;
+	}
+}
+
+/* function parseCSV(csv) {
 	/* comma separated values file consisting of 'From' label and 'to' label, on each row,
   with a header row (ignored) 
-  optional, cols 3 and 4 can include the groups of the from and to nodes */
-	let lines = csv.split('\n');
+  optional, cols 3 and 4 can include the groups of the from and to nodes
+	let lines = csv.split('\n'); console.log(lines);
 	let labels = [];
-	for (let i = 1; i < lines.length; i++) {
-		if (lines[i].length <= 2) continue; // empty line
-		let line = lines[i].split(',');
+	for (let i = 1; i &lt; lines.length; i++) {
+		if (lines[i].length &lt;= 2) continue; // empty line
+		let line = lines[i].split(','); console.log(line);
 		let from = node(line[0]);
 		let to = node(line[1]);
 		edges.add({
@@ -1543,13 +1595,13 @@ function parseCSV(csv) {
 		}
 		return labels.indexOf(label).toString();
 	}
-}
+} */
 
 function refreshSampleNodes() {
 	let sampleElements = Array.from(
 		document.getElementsByClassName('sampleNode')
 	);
-	for (let i = 0; i < sampleElements.length; i++) {
+	for (let i = 0; i &lt; sampleElements.length; i++) {
 		let sampleElement = sampleElements[i];
 		let node = sampleElement.dataSet.get()[0];
 		node = deepMerge(node, samples.nodes['group' + i], {
@@ -1566,7 +1618,7 @@ function refreshSampleLinks() {
 	let sampleElements = Array.from(
 		document.getElementsByClassName('sampleLink')
 	);
-	for (let i = 0; i < sampleElements.length; i++) {
+	for (let i = 0; i &lt; sampleElements.length; i++) {
 		let sampleElement = sampleElements[i];
 		let edge = sampleElement.dataSet.get()[0];
 		edge = deepMerge(edge, samples.edges['edge' + i]);
@@ -1613,11 +1665,11 @@ function saveStr(str, extn) {
 	});
 	let pos = lastFileName.indexOf('.');
 	lastFileName =
-		lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) +
+		lastFileName.substr(0, pos &lt; 0 ? lastFileName.length : pos) +
 		'.' +
 		extn;
 	// detect whether the browser is IE/Edge or another browser
-	if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+	if (window.navigator &amp;&amp; window.navigator.msSaveOrOpenBlob) {
 		// IE or Edge browser.
 		window.navigator.msSaveOrOpenBlob(blob, lastFileName);
 	} else {
@@ -1656,7 +1708,7 @@ function exportCVS() {
 
 function exportGML() {
 	let str =
-		'Creator "PRISM ' +
+		'Creator "prsm ' +
 		version +
 		' on ' +
 		new Date(Date.now()).toLocaleString() +
@@ -1700,7 +1752,7 @@ btn.onclick = function () {
 	inputElem.select();
 	network.storePositions();
 };
-// When the user clicks on <span> (x), close the modal
+// When the user clicks on &lt;span> (x), close the modal
 span.onclick = function () {
 	modal.style.display = 'none';
 };
@@ -1777,12 +1829,12 @@ function openTab(tabId) {
 	let i, tabcontent, tablinks;
 	// Get all elements with class="tabcontent" and hide them by moving them off screen
 	tabcontent = document.getElementsByClassName('tabcontent');
-	for (i = 0; i < tabcontent.length; i++) {
+	for (i = 0; i &lt; tabcontent.length; i++) {
 		tabcontent[i].classList.add('hide');
 	}
 	// Get all elements with class="tablinks" and remove the class "active"
 	tablinks = document.getElementsByClassName('tablinks');
-	for (i = 0; i < tablinks.length; i++) {
+	for (i = 0; i &lt; tablinks.length; i++) {
 		tablinks[i].className = tablinks[i].className.replace(' active', '');
 	}
 	// Show the current tab, and add an "active" class to the button that opened the tab
@@ -1837,7 +1889,7 @@ function setButtonStatus(settings) {
 			settings.autoLayout;
 	}
 	if (
-		document.getElementById('antiGravity').value != settings.gravity &&
+		document.getElementById('antiGravity').value != settings.gravity &amp;&amp;
 		settings.autoLayout
 	) {
 		adjustGravity(settings.gravity);
@@ -1902,7 +1954,7 @@ function setFixed() {
 function showNodeData() {
 	let panel = document.getElementById('nodeDataPanel');
 	let selectedNodes = network.getSelectedNodes();
-	if (tabOpen == 'nodesTab' && selectedNodes.length == 1) {
+	if (tabOpen == 'nodesTab' &amp;&amp; selectedNodes.length == 1) {
 		let nodeId = selectedNodes[0];
 		let node = data.nodes.get(nodeId);
 		document.getElementById('fixed').checked = node.fixed ? true : false;
@@ -1910,10 +1962,10 @@ function showNodeData() {
 			? shorten(node.label)
 			: '';
 		document.getElementById('nodeNotes').innerHTML =
-			'<textarea class="notesTA" id="nodesTA"</textarea>';
+			'&lt;textarea class="notesTA" id="nodesTA"&lt;/textarea>';
 		let textarea = document.getElementById('nodesTA');
 		let title = node.title ? node.title : '';
-		textarea.innerHTML = title.replace(/<\/br>/g, '\n');
+		textarea.innerHTML = title.replace(/&lt;\/br>/g, '\n');
 		textarea.addEventListener('blur', updateNodeNotes);
 		panel.classList.remove('hide');
 		displayStatistics(nodeId);
@@ -1925,7 +1977,7 @@ function showNodeData() {
 function updateNodeNotes() {
 	data.nodes.update({
 		id: network.getSelectedNodes()[0],
-		title: document.getElementById('nodesTA').value.replace(/\n/g, '</br>'),
+		title: document.getElementById('nodesTA').value.replace(/\n/g, '&lt;/br>'),
 		clientID: undefined,
 	});
 }
@@ -1933,17 +1985,17 @@ function updateNodeNotes() {
 function showEdgeData() {
 	let panel = document.getElementById('edgeDataPanel');
 	let selectedEdges = network.getSelectedEdges();
-	if (tabOpen == 'linksTab' && selectedEdges.length == 1) {
+	if (tabOpen == 'linksTab' &amp;&amp; selectedEdges.length == 1) {
 		let edgeId = selectedEdges[0];
 		let edge = data.edges.get(edgeId);
 		document.getElementById('edgeLabel').innerHTML = edge.label
 			? edge.label
 			: '';
 		document.getElementById('edgeNotes').innerHTML =
-			'<textarea class="notesTA" id="edgesTA"</textarea>';
+			'&lt;textarea class="notesTA" id="edgesTA"&lt;/textarea>';
 		let textarea = document.getElementById('edgesTA');
 		let title = edge.title ? edge.title : '';
-		textarea.innerHTML = title.replace(/<\/br>/g, '\n');
+		textarea.innerHTML = title.replace(/&lt;\/br>/g, '\n');
 		textarea.addEventListener('blur', updateEdgeNotes);
 		panel.classList.remove('hide');
 	} else {
@@ -1954,7 +2006,7 @@ function showEdgeData() {
 function updateEdgeNotes() {
 	data.edges.update({
 		id: network.getSelectedEdges()[0],
-		title: document.getElementById('edgesTA').value.replace(/\n/g, '</br>'),
+		title: document.getElementById('edgesTA').value.replace(/\n/g, '&lt;/br>'),
 		clientID: undefined,
 	});
 }
@@ -1976,7 +2028,7 @@ function displayStatistics(nodeId) {
 // Network tab
 function autoLayoutSwitch(e) {
 	let switchOn = e.target.checked;
-	if (switchOn && snapToGridToggle) snapToGridOff(); // no snapping with auto layout.
+	if (switchOn &amp;&amp; snapToGridToggle) snapToGridOff(); // no snapping with auto layout.
 	document.getElementById('spacing').classList.toggle('hidden');
 	autoLayoutSet(switchOn);
 }
@@ -2189,7 +2241,7 @@ function getRadioVal(name) {
 	// get list of radio buttons with specified name
 	let radios = document.getElementsByName(name);
 	// loop through list of radio buttons
-	for (let i = 0, len = radios.length; i < len; i++) {
+	for (let i = 0, len = radios.length; i &lt; len; i++) {
 		if (radios[i].checked) return radios[i].value;
 	}
 }
@@ -2198,7 +2250,7 @@ function setRadioVal(name, value) {
 	// get list of radio buttons with specified name
 	let radios = document.getElementsByName(name);
 	// loop through list of radio buttons and set the check on the one with the value
-	for (let i = 0, len = radios.length; i < len; i++) {
+	for (let i = 0, len = radios.length; i &lt; len; i++) {
 		radios[i].checked = radios[i].value == value;
 	}
 }
@@ -2209,7 +2261,7 @@ function hideDistantOrStreamNodes() {
 	let radius = getRadioVal('hide');
 	let stream = getRadioVal('stream');
 	broadcastHideAndStream(radius, stream);
-	if (radius == 'All' && stream == 'All') {
+	if (radius == 'All' &amp;&amp; stream == 'All') {
 		showAll();
 		return;
 	}
@@ -2260,11 +2312,11 @@ function hideDistantOrStreamNodes() {
 	function inSet(nodeIds, radius) {
 		// recursive function to collect nodes within radius links from any
 		// of the nodes listed in nodeIds
-		if (radius < 0) return;
+		if (radius &lt; 0) return;
 		nodeIds.forEach(function (nId) {
 			nodeIdsInRadiusSet.add(nId);
 			let links = network.getConnectedEdges(nId);
-			if (links && radius >= 0)
+			if (links &amp;&amp; radius >= 0)
 				links.forEach(function (lId) {
 					linkIdsInRadiusSet.add(lId);
 				});
@@ -2278,7 +2330,7 @@ function hideDistantOrStreamNodes() {
 		q.forEach((nId) => nodeMap.set(nId, distance));
 		while (q.length > 0) {
 			let nId = q.shift();
-			if (nodeMap.get(nId) < radius) {
+			if (nodeMap.get(nId) &lt; radius) {
 				let links = data.edges.get({
 					filter: function (item) {
 						return item.to == nId;
@@ -2300,7 +2352,7 @@ function hideDistantOrStreamNodes() {
 		data.edges
 			.get({
 				filter: function (edge) {
-					return nodeMap.has(edge.from) && nodeMap.has(edge.to);
+					return nodeMap.has(edge.from) &amp;&amp; nodeMap.has(edge.to);
 				},
 			})
 			.forEach((edge) => linkIdsInStreamSet.add(edge.id));
@@ -2311,7 +2363,7 @@ function hideDistantOrStreamNodes() {
 		q.forEach((nId) => nodeMap.set(nId, distance));
 		while (q.length > 0) {
 			let nId = q.shift();
-			if (nodeMap.get(nId) < radius) {
+			if (nodeMap.get(nId) &lt; radius) {
 				let links = data.edges.get({
 					filter: function (item) {
 						return item.from == nId;
@@ -2411,7 +2463,7 @@ function blinkChatboxTab() {
 }
 
 function sendMsg() {
-	let inputMsg = chatInput.value.replace(/\n/g, '</br>');
+	let inputMsg = chatInput.value.replace(/\n/g, '&lt;/br>');
 	let clock = new Date().toLocaleTimeString();
 	yChatArray.push([
 		{
@@ -2429,7 +2481,7 @@ function displayLastMsg() {
 
 function displayAllMsgs() {
 	chatMessages.innerHTML = '';
-	for (let m = 0; m < yChatArray.length; m++) {
+	for (let m = 0; m &lt; yChatArray.length; m++) {
 		displayMsg(yChatArray.get(m));
 	}
 	chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -2439,20 +2491,20 @@ function displayMsg(msg) {
 	if (msg == undefined) return;
 	if (msg.client == clientID) {
 		/* my own message */
-		chatMessages.innerHTML += `<div class="message-box-holder">
-			<div class="message-box">
+		chatMessages.innerHTML += `&lt;div class="message-box-holder">
+			&lt;div class="message-box">
 				${msg.msg}
-			</div>
-		</div>`;
+			&lt;/div>
+		&lt;/div>`;
 	} else {
-		chatMessages.innerHTML += `<div class="message-box-holder">
-			<div class="message-sender">
+		chatMessages.innerHTML += `&lt;div class="message-box-holder">
+			&lt;div class="message-sender">
 				${msg.time} ${msg.author}
-			</div>
-			<div class="message-box message-partner">
+			&lt;/div>
+			&lt;div class="message-box message-partner">
 				${msg.msg}
-			</div>
-		</div>`;
+			&lt;/div>
+		&lt;/div>`;
 	}
 	chatMessages.scrollTop = chatMessages.scrollHeight;
 	chatInput.value = '';
@@ -2466,3 +2518,26 @@ dragElement(
 	document.getElementById('chatbox-holder'),
 	document.getElementById('chatbox-top')
 );
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ToolHandler.html">ToolHandler</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addEventListeners">addEventListeners</a></li><li><a href="global.html#addLabel">addLabel</a></li><li><a href="global.html#antMarch">antMarch</a></li><li><a href="global.html#applyOptions">applyOptions</a></li><li><a href="global.html#broadcast">broadcast</a></li><li><a href="global.html#claim">claim</a></li><li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li><li><a href="global.html#deselectTool">deselectTool</a></li><li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawGrid">drawGrid</a></li><li><a href="global.html#fit">fit</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#getRandomData">getRandomData</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#keepPanelInWindow">keepPanelInWindow</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#mouseDespatch">mouseDespatch</a></li><li><a href="global.html#object_equals">object_equals</a></li><li><a href="global.html#parseCSV">parseCSV</a></li><li><a href="global.html#redraw">redraw</a></li><li><a href="global.html#resizeBox">resizeBox</a></li><li><a href="global.html#selectTool">selectTool</a></li><li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li><li><a href="global.html#setUpCanvas">setUpCanvas</a></li><li><a href="global.html#setUpPaint">setUpPaint</a></li><li><a href="global.html#setUpToolbox">setUpToolbox</a></li><li><a href="global.html#snapToGrid">snapToGrid</a></li><li><a href="global.html#startY">startY</a></li><li><a href="global.html#toolHandler">toolHandler</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Sat Sep 12 2020 22:08:54 GMT+0100 (British Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
