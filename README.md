@@ -57,7 +57,7 @@ You need a modern web browser such as Chrome, Firefox, Microsoft Edge or Safari.
 
 The software is free and available under an [MIT](https://choosealicense.com/licenses/mit/) license.
 
-The program code is available on [GitHub](https://github.com/micrology/prism).
+The program code is available on [GitHub](https://github.com/micrology/prsm).
 
 ## How do you use it?
 

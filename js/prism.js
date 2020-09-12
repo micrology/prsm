@@ -177,35 +177,17 @@ function startY() {
 	if (room == null || room == '') room = generateRoom();
 	else room = room.toUpperCase();
 	const doc = new Y.Doc();
-	// wait for an update from another peer; only then will
-	// drawing etc. be finished and so we can then fit the  network to the window.
-	doc.on('afterTransaction', initialFit);
-	function initialFit(trans, doc) {
-		if (window.debug) console.log(trans, performance.now());
-		if (!trans.local && trans.changed.size > 0) {
-			fit(0);
-			legend(false);
-			doc.off('afterTransaction', initialFit);
-		}
-	}
 	const wsProvider = new WebsocketProvider(
 		'wss://cress.soc.surrey.ac.uk/wss',
 		'prism' + room,
 		doc
 	);
-	/* 	const wsProvider = new WebsocketProvider(
-		'ws://cress.soc.surrey.ac.uk:1233',
-		'prism' + room,
-		doc
-	);  */
-	/*
-	const indexeddbProvider = new IndexeddbPersistence('prism' + room, doc);
-	indexeddbProvider.whenSynced.then(() => {
-		console.log(
-			new Date().toLocaleTimeString() + ': ' + 'indexed db set up'
-		);
-	});
- */
+	// wait for an update from another peer; only then will
+	// drawing etc. be finished and so we can then fit the  network to the window.
+	wsProvider.on('sync', () => {
+		console.log('sync'); fit(0);
+		legend(false);
+	})
 	document.title = document.title + ' ' + room;
 	wsProvider.on('status', (event) => {
 		console.log(
