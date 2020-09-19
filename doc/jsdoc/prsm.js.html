@@ -31,7 +31,6 @@ The main entry point for PRSM.
  */
 import * as Y from 'yjs';
 import {WebsocketProvider} from 'y-websocket';
-// import {IndexeddbPersistence} from 'y-indexeddb';
 import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
 import {
@@ -58,36 +57,39 @@ import {
 } from './samples.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.29';
+const version = '1.30';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
 export var network;
 var room;
 var viewOnly; // when true, user can only view, not modify, the network
-var nodes;
-var edges;
-var data;
-var clientID;
-var yNodesMap;
-var yEdgesMap;
-var ySamplesMap;
-var yNetMap;
-export var yPointsArray; // stores the background drawing commands
-var yUndoManager;
-var yChatArray;
-var container; //the DOM body elemnt
-var netPane;
+var nodes;  // a dataset of nodes
+var edges;  // a dataset of edges
+var data; // an object with the nodes and edges datasets as properties
+var clientID; // unitue ID for this browser
+var yNodesMap; // shared map of nodes
+var yEdgesMap; // shared map of edges
+var ySamplesMap; // shared map of styles
+var yNetMap; // shared map of global network settings
+export var yPointsArray; // shared array of the background drawing commands
+var yUndoManager; // shared list of commands for undo
+var yChatArray; // shared array of messages in the chat window
+var container; //the DOM body elemnet
+var netPane; // the DOM pane showing the network
 var panel; // the DOM right side panel element
 var buttonStatus; // the status of the buttons in the panel
-var initialButtonStatus;
+var initialButtonStatus; // the network panel's sttings at initialisation
 var myName; // the user's name
-var lastNodeSample = 'group0';
-var lastLinkSample = 'edge0';
+var lastNodeSample = 'group0'; // the last used node style
+var lastLinkSample = 'edge0'; // the last used edge style
 var inAddMode = false; // true when adding a new Factor to the network; used to choose cursor pointer
-var snapToGridToggle = false;
-export var drawingSwitch = false;
+var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
+export var drawingSwitch = false; // true when the drawing layer is uppermost
 
+/** 
+ * top level function to initialise everything 
+ */
 window.addEventListener('load', () => {
 	addEventListeners();
 	setUpPage();
@@ -171,6 +173,9 @@ function addEventListeners() {
 	);
 }
 
+/**
+ * create all the DOM elemts on the web page
+ */
 function setUpPage() {
 	viewOnly = new URL(document.location).searchParams.get('viewing');
 	if (viewOnly) document.getElementById('buttons').style.display = 'none';
@@ -226,7 +231,7 @@ function startY() {
 				(event.status == 'connected' ? ' to' : ' from') +
 				' room ' +
 				room
-		); // logs "connected" or "disconnected"
+		); // logs when websocket is "connected" or "disconnected"
 	});
 	/* 
 	create a yMap for the nodes and one for the edges (we need two because there is no 
@@ -258,7 +263,7 @@ function startY() {
 	/* 
 	for convenience when debugging
 	 */
-	window.debug = false;
+	window.debug = false;  // if true, all yjs sharing interactions are logged to the console
 	window.data = data;
 	window.clientID = clientID;
 	window.yNodesMap = yNodesMap;
@@ -443,7 +448,7 @@ function startY() {
 		undoButtonstatus();
 		redoButtonStatus();
 	});
-}
+}  // end startY()
 
 /**
  * create a random string of the form AAA-BBB-CCC-DDD
@@ -491,6 +496,9 @@ const emojiPicker = new EmojiButton({
 	zIndex: 1000,
 });
 
+/**
+ * create DOM elements for the chat box
+ */
 function setUpChat() {
 	if (localStorage.getItem('myName')) myName = localStorage.getItem('myName');
 	else myName = 'User' + clientID;
@@ -697,6 +705,7 @@ function draw() {
 
 /**
  * rescale and redraw the network so that it fits the pane
+ * @param {Integer} duration speed of zoom to fit
  */
 function fit(duration = 200) {
 	network.fit({
@@ -750,7 +759,12 @@ function addLabel(item, cancelAction, callback) {
 	positionPopUp();
 	document.getElementById('popup-label').focus();
 }
-
+/**
+ * Draw a dialog box for user to edit a node
+ * @param {Object} item the node
+ * @param {Function} cancelAction what to do if the edit is cancelled
+ * @param {Function} callback what to do if the edit is saved
+ */
 function editNode(item, cancelAction, callback) {
 	initPopUp('Edit Factor', item, cancelAction, saveNode, callback);
 	document.getElementById('popup-label').insertAdjacentHTML(
@@ -797,11 +811,20 @@ function editNode(item, cancelAction, callback) {
 	positionPopUp();
 	document.getElementById('popup-label').focus();
 }
-
+/**
+ * Convert CSS description of line type to menu option format
+ * true, false, [3 3] => "true", "false", "dots"
+ * @param {Array|Boolean} val 
+ */
 function getDashes(val) {
 	return Array.isArray(val) ? 'dots' : val.toString();
 }
-
+/**
+* Draw a dialog box for user to edit an edge
+ * @param {Object} item the edge
+ * @param {Function} cancelAction what to do if the edit is cancelled
+ * @param {Function} callback what to do if the edit is saved
+ */
 function editEdge(item, cancelAction, callback) {
 	initPopUp('Edit Link', item, cancelAction, saveEdge, callback);
 	document.getElementById('popup-label').insertAdjacentHTML(
@@ -849,7 +872,14 @@ function editEdge(item, cancelAction, callback) {
 	positionPopUp();
 	document.getElementById('popup-label').focus();
 }
-
+/**
+ * 
+ * @param {String} popUpTitle 
+ * @param {Object} item 
+ * @param {Function} cancelAction 
+ * @param {Function} saveAction 
+ * @param {Function} callback 
+ */
 function initPopUp(popUpTitle, item, cancelAction, saveAction, callback) {
 	inAddMode = false;
 	changeCursor('auto');
@@ -868,7 +898,10 @@ function initPopUp(popUpTitle, item, cancelAction, saveAction, callback) {
 	let table = document.getElementById('popup-table');
 	if (table) table.remove();
 }
-
+/**
+ * Position the editng dialog box so that it is to the left of the item being edited,
+ * but not outside the window
+ */
 function positionPopUp() {
 	let popUp = document.getElementById('popup');
 	popUp.style.display = 'block';
@@ -880,18 +913,27 @@ function positionPopUp() {
 	popUp.style.left = `${left &lt; 0 ? 0 : left}px`;
 }
 
-// Callback passed as parameter is ignored
+/**
+ * Hide the editing dialog box
+ */
 function clearPopUp() {
 	document.getElementById('popup-saveButton').onclick = null;
 	document.getElementById('popup-cancelButton').onclick = null;
 	document.getElementById('popup').style.display = 'none';
 }
-
+/**
+ * User has pressed 'cancel' - abandon the edit and hide the dialog
+ * @param {Function} callback 
+ */
 function cancelEdit(callback) {
 	clearPopUp();
 	callback(null);
 }
-
+/**
+ * called when a node or edge has been added.  Save the label provided 
+ * @param {Object} item the item that has been added
+ * @param {Function} callback 
+ */
 function saveLabel(item, callback) {
 	item.label = splitText(
 		document.getElementById('popup-label').value,
@@ -912,7 +954,11 @@ function saveLabel(item, callback) {
 	network.manipulation.inMode = 'addNode'; // ensure still in Add mode, in case others have done something meanwhile
 	callback(item);
 }
-
+/**
+ * save the node format details that have been edited
+ * @param {Object} item the node that has been edited
+ * @param {Function} callback 
+ */
 function saveNode(item, callback) {
 	item.label = splitText(
 		document.getElementById('popup-label').value,
@@ -936,7 +982,11 @@ function saveNode(item, callback) {
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
 	callback(item);
 }
-
+/**
+ * save the edge format details that have been edited
+ * @param {Object} item the edge that has been edited
+ * @param {Function} callback 
+ */
 function saveEdge(item, callback) {
 	item.label = splitText(
 		document.getElementById('popup-label').value,
@@ -954,7 +1004,10 @@ function saveEdge(item, callback) {
 	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
 	callback(item);
 }
-
+/**
+ * Convert from the menu selection to the CSS format of the edge 
+ * @param {String} val 
+ */
 function convertDashes(val) {
 	switch (val) {
 		case 'true':
@@ -969,9 +1022,12 @@ function convertDashes(val) {
 			return val;
 	}
 }
-
+/**
+ * if there is already a link from the 'from' node to the 'to' node, return it
+ * @param {Object} from A node
+ * @param {Object} to Another node
+ */
 function duplEdge(from, to) {
-	// if there is already a link from the 'from' node to the 'to' node, return it
 	return data.edges.get({
 		filter: function (item) {
 			return item.from == from &amp;&amp; item.to == to;
@@ -2528,13 +2584,13 @@ dragElement(
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ToolHandler.html">ToolHandler</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addEventListeners">addEventListeners</a></li><li><a href="global.html#addLabel">addLabel</a></li><li><a href="global.html#antMarch">antMarch</a></li><li><a href="global.html#applyOptions">applyOptions</a></li><li><a href="global.html#broadcast">broadcast</a></li><li><a href="global.html#claim">claim</a></li><li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li><li><a href="global.html#deselectTool">deselectTool</a></li><li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawGrid">drawGrid</a></li><li><a href="global.html#fit">fit</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#getRandomData">getRandomData</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#keepPanelInWindow">keepPanelInWindow</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#mouseDespatch">mouseDespatch</a></li><li><a href="global.html#object_equals">object_equals</a></li><li><a href="global.html#parseCSV">parseCSV</a></li><li><a href="global.html#redraw">redraw</a></li><li><a href="global.html#resizeBox">resizeBox</a></li><li><a href="global.html#selectTool">selectTool</a></li><li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li><li><a href="global.html#setUpCanvas">setUpCanvas</a></li><li><a href="global.html#setUpPaint">setUpPaint</a></li><li><a href="global.html#setUpToolbox">setUpToolbox</a></li><li><a href="global.html#snapToGrid">snapToGrid</a></li><li><a href="global.html#startY">startY</a></li><li><a href="global.html#toolHandler">toolHandler</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ToolHandler.html">ToolHandler</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addEventListeners">addEventListeners</a></li><li><a href="global.html#addLabel">addLabel</a></li><li><a href="global.html#antMarch">antMarch</a></li><li><a href="global.html#applyOptions">applyOptions</a></li><li><a href="global.html#broadcast">broadcast</a></li><li><a href="global.html#cancelEdit">cancelEdit</a></li><li><a href="global.html#claim">claim</a></li><li><a href="global.html#clearPopUp">clearPopUp</a></li><li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li><li><a href="global.html#convertDashes">convertDashes</a></li><li><a href="global.html#deselectTool">deselectTool</a></li><li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawGrid">drawGrid</a></li><li><a href="global.html#duplEdge">duplEdge</a></li><li><a href="global.html#editEdge">editEdge</a></li><li><a href="global.html#editNode">editNode</a></li><li><a href="global.html#fit">fit</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#getDashes">getDashes</a></li><li><a href="global.html#getRandomData">getRandomData</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#initPopUp">initPopUp</a></li><li><a href="global.html#keepPanelInWindow">keepPanelInWindow</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#mouseDespatch">mouseDespatch</a></li><li><a href="global.html#object_equals">object_equals</a></li><li><a href="global.html#parseCSV">parseCSV</a></li><li><a href="global.html#positionPopUp">positionPopUp</a></li><li><a href="global.html#redraw">redraw</a></li><li><a href="global.html#resizeBox">resizeBox</a></li><li><a href="global.html#saveEdge">saveEdge</a></li><li><a href="global.html#saveLabel">saveLabel</a></li><li><a href="global.html#saveNode">saveNode</a></li><li><a href="global.html#selectTool">selectTool</a></li><li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li><li><a href="global.html#setUpCanvas">setUpCanvas</a></li><li><a href="global.html#setUpChat">setUpChat</a></li><li><a href="global.html#setUpPage">setUpPage</a></li><li><a href="global.html#setUpPaint">setUpPaint</a></li><li><a href="global.html#setUpToolbox">setUpToolbox</a></li><li><a href="global.html#snapToGrid">snapToGrid</a></li><li><a href="global.html#startY">startY</a></li><li><a href="global.html#toolHandler">toolHandler</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Sat Sep 12 2020 22:08:54 GMT+0100 (British Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Sun Sep 13 2020 16:59:19 GMT+0100 (British Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>
