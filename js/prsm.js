@@ -26,7 +26,7 @@ import {
 	reApplySampleToLinks,
 	legend,
 	clearLegend,
-} from './samples.js';
+} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
 const version = '1.30';
@@ -36,8 +36,8 @@ const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this n
 export var network;
 var room;
 var viewOnly; // when true, user can only view, not modify, the network
-var nodes;  // a dataset of nodes
-var edges;  // a dataset of edges
+var nodes; // a dataset of nodes
+var edges; // a dataset of edges
 var data; // an object with the nodes and edges datasets as properties
 var clientID; // unitue ID for this browser
 var yNodesMap; // shared map of nodes
@@ -59,8 +59,8 @@ var inAddMode = false; // true when adding a new Factor to the network; used to 
 var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
 
-/** 
- * top level function to initialise everything 
+/**
+ * top level function to initialise everything
  */
 window.addEventListener('load', () => {
 	addEventListeners();
@@ -235,7 +235,7 @@ function startY() {
 	/* 
 	for convenience when debugging
 	 */
-	window.debug = false;  // if true, all yjs sharing interactions are logged to the console
+	window.debug = false; // if true, all yjs sharing interactions are logged to the console
 	window.data = data;
 	window.clientID = clientID;
 	window.yNodesMap = yNodesMap;
@@ -420,7 +420,7 @@ function startY() {
 		undoButtonstatus();
 		redoButtonStatus();
 	});
-}  // end startY()
+} // end startY()
 
 /**
  * create a random string of the form AAA-BBB-CCC-DDD
@@ -699,7 +699,7 @@ function claim(item) {
 }
 
 /**
- * boroadcast current node positions to all clients
+ * broadcast current node positions to all clients
  */
 function broadcast() {
 	/* there are situations where vis does not update node positions
@@ -786,13 +786,13 @@ function editNode(item, cancelAction, callback) {
 /**
  * Convert CSS description of line type to menu option format
  * true, false, [3 3] => "true", "false", "dots"
- * @param {Array|Boolean} val 
+ * @param {Array|Boolean} val
  */
 function getDashes(val) {
 	return Array.isArray(val) ? 'dots' : val.toString();
 }
 /**
-* Draw a dialog box for user to edit an edge
+ * Draw a dialog box for user to edit an edge
  * @param {Object} item the edge
  * @param {Function} cancelAction what to do if the edit is cancelled
  * @param {Function} callback what to do if the edit is saved
@@ -845,12 +845,12 @@ function editEdge(item, cancelAction, callback) {
 	document.getElementById('popup-label').focus();
 }
 /**
- * 
- * @param {String} popUpTitle 
- * @param {Object} item 
- * @param {Function} cancelAction 
- * @param {Function} saveAction 
- * @param {Function} callback 
+ *
+ * @param {String} popUpTitle
+ * @param {Object} item
+ * @param {Function} cancelAction
+ * @param {Function} saveAction
+ * @param {Function} callback
  */
 function initPopUp(popUpTitle, item, cancelAction, saveAction, callback) {
 	inAddMode = false;
@@ -895,16 +895,16 @@ function clearPopUp() {
 }
 /**
  * User has pressed 'cancel' - abandon the edit and hide the dialog
- * @param {Function} callback 
+ * @param {Function} callback
  */
 function cancelEdit(callback) {
 	clearPopUp();
 	callback(null);
 }
 /**
- * called when a node or edge has been added.  Save the label provided 
+ * called when a node or edge has been added.  Save the label provided
  * @param {Object} item the item that has been added
- * @param {Function} callback 
+ * @param {Function} callback
  */
 function saveLabel(item, callback) {
 	item.label = splitText(
@@ -929,7 +929,7 @@ function saveLabel(item, callback) {
 /**
  * save the node format details that have been edited
  * @param {Object} item the node that has been edited
- * @param {Function} callback 
+ * @param {Function} callback
  */
 function saveNode(item, callback) {
 	item.label = splitText(
@@ -957,7 +957,7 @@ function saveNode(item, callback) {
 /**
  * save the edge format details that have been edited
  * @param {Object} item the edge that has been edited
- * @param {Function} callback 
+ * @param {Function} callback
  */
 function saveEdge(item, callback) {
 	item.label = splitText(
@@ -977,8 +977,8 @@ function saveEdge(item, callback) {
 	callback(item);
 }
 /**
- * Convert from the menu selection to the CSS format of the edge 
- * @param {String} val 
+ * Convert from the menu selection to the CSS format of the edge
+ * @param {String} val
  */
 function convertDashes(val) {
 	switch (val) {
@@ -1027,7 +1027,7 @@ function deleteMsg(item) {
 }
 /**
  * Change the cursor style for the net pane and nav bar
- * @param {Cursor} newCursorStyle 
+ * @param {Cursor} newCursorStyle
  */
 function changeCursor(newCursorStyle) {
 	if (inAddMode) return;
@@ -1065,7 +1065,7 @@ worker.onmessage = function (e) {
   ----------- Status messages ---------------------------------------
 */
 /**
- * show status messages at the bottom of the window 
+ * show status messages at the bottom of the window
  * @param {string} msg
  * @param {string} status type of msg - warning, error or other
  */
@@ -1087,7 +1087,7 @@ export function statusMsg(msg, status) {
 }
 /**
  * replace special characters with their HTML entity codes
- * @param {string} str 
+ * @param {string} str
  */
 function htmlEntities(str) {
 	return String(str)
@@ -1125,7 +1125,7 @@ function listFactors(factors) {
 }
 /**
  * shortern the label if necessary and add an ellipsis
-* @param {string} label 
+ * @param {string} label
  */
 function shorten(label) {
 	return label.length > SHORTLABELLEN
@@ -1159,7 +1159,7 @@ function zoomnet() {
 }
 /**
  * zoom by the given amount (+ve or -ve)
- * @param {Number} incr 
+ * @param {Number} incr
  */
 function zoomincr(incr) {
 	let newScale = Number(document.getElementById('zoom').value) + incr;
@@ -1173,9 +1173,9 @@ function zoomincr(incr) {
  */
 /**
  * react to the user pressing the Add node button
- * handles cases when the button is disbled; has previously been pressed; and the Add link 
+ * handles cases when the button is disbled; has previously been pressed; and the Add link
  * button is active, as well as the normal case
- * 
+ *
  */
 function plusNode() {
 	switch (inAddMode) {
@@ -1198,8 +1198,8 @@ function plusNode() {
 }
 /**
  * react to the user pressing the Add Link button
- * handles cases when the button is disbled; has previously been pressed; and the Add Node 
- * button is active, as well as the normal case 
+ * handles cases when the button is disbled; has previously been pressed; and the Add Node
+ * button is active, as well as the normal case
  */
 function plusLink() {
 	switch (inAddMode) {
@@ -1231,8 +1231,8 @@ function stopEdit() {
 /**
  * Add or remove the CSS style showing that the button has been pressed
  * @param {string} elem the Id of the button
- * @param {*} action whether to add or remove the style 
- * 
+ * @param {*} action whether to add or remove the style
+ *
  */
 function showPressed(elem, action) {
 	document.getElementById(elem).children.item(0).classList[action]('pressed');

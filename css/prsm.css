@@ -306,6 +306,7 @@ nav button .pressed {
 	}
 	nav button {
 		margin: auto 5px;
+		font-size: 18px;
 	}
 }
 /* for iPads etc in portrait and smart phones: nav buttons go under title and font is smaller */

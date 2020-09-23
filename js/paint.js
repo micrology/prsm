@@ -60,9 +60,6 @@ export function setUpPaint() {
 	mc.on('panstart', mouseDespatch);
 	mc.on('panmove', mouseDespatch);
 	mc.on('panend', mouseDespatch);
-	/* 	window.onorientationchange = function () {
-		tempCanvas = setUpCanvas('temp-canvas');
-	}; */
 }
 /**
  * set up the dimensions of and return the canvas at the id
