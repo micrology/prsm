@@ -601,8 +601,11 @@ class TextHandler extends ToolHandler {
 		let height = 0;
 		let isDragging = false;
 
-		let mc = new Hammer(elem);
-		mc.add(new Hammer.Pan({direction: Hammer.DIRECTION_ALL, threshold: 0}));
+		let mc = new Hammer.Manager(elem, {
+			recognizers: [
+				[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}],
+			],
+		});
 		mc.on('pan', handleDrag);
 
 		function handleDrag(e) {
