@@ -57,7 +57,7 @@ You need a modern web browser such as Chrome, Firefox, Microsoft Edge or Safari.
 
 The software is free and available under an [MIT](https://choosealicense.com/licenses/mit/) license.
 
-The program code is available on [GitHub](https://github.com/micrology/prsm).
+The program code is available on [GitHub](https://github.com/micrology/prsm). See also [Code Guide](#code-guide).
 
 ## How do you use it?
 
@@ -200,6 +200,30 @@ The drawing tools are, in order from top to bottom:
 * **Eraser** removes everything it passes over.
 * **Image** Clicking on this tool gives you a file chooser to select an image file (picture) from your computer - JPG, PNG and GIF formats are accepted. When the image has been placed on the background, you can drag it to where you want it, and resize it by dragging on the small black square at the bottom right.  Click anywhere outside the image to fix it to the background.
 * **Undo** This tool will undo the effect of the last drawing (e.g. if you have just placed an image on the background, it will remove the image, or if you have drawn a line with the pencil, it will undo that line).  Each click of the Undo button removes the previous drawing.
+
+## Code Guide
+
+The javascript (ES6) code in sub-directory ```js``` is divided into four modules: one that handles the main network pane (```prsm.js```), one that manages the background painting functions (```paint.js```), one that creates and edits the styles (```styles.js```) and one that includes common utility functions (```utils.js```).  The HTML file that displays in the browser is in the ```html``` directory.
+
+PRSM uses two important packages: [```yjs```](https://github.com/yjs/yjs) and [```vis-network```](https://visjs.org/).  The former handles the sharing between participants' browsers and the latter draws the network. A few other packages are used for dealing with touch input ([```Hammer```](https://hammerjs.github.io/)), drawing emojis, and parsing XML file input.  
+
+These components are assembled using [```parcel```](https://parceljs.org/) and the bundled file is placed in the ```dist``` directory.  So that users have an easy URL to access (i.e. not needing to include ```dist``` in the link), there is an ```.htaccess``` file that rewrites URLs from what the user puts into their browser to the correct location.
+
+To install the code, use ```git``` to clone the [repo](https://github.com/micrology/prsm) to your local disk and change to the cloned directory.  Then install the required packages with
+
+```bash
+npm install
+```
+
+and build the distribution with
+
+```bash
+npm run build
+```
+
+Documentation can be found in the ```doc``` directory.
+
+See ```package.json``` for other npm commands.
 
 ## Acknowledgements
 

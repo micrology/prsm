@@ -60,9 +60,6 @@ export function setUpPaint() {
 	mc.on('panstart', mouseDespatch);
 	mc.on('panmove', mouseDespatch);
 	mc.on('panend', mouseDespatch);
-	/* 	window.onorientationchange = function () {
-		tempCanvas = setUpCanvas('temp-canvas');
-	}; */
 }
 /**
  * set up the dimensions of and return the canvas at the id
@@ -604,8 +601,11 @@ class TextHandler extends ToolHandler {
 		let height = 0;
 		let isDragging = false;
 
-		let mc = new Hammer(elem);
-		mc.add(new Hammer.Pan({direction: Hammer.DIRECTION_ALL, threshold: 0}));
+		let mc = new Hammer.Manager(elem, {
+			recognizers: [
+				[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}],
+			],
+		});
 		mc.on('pan', handleDrag);
 
 		function handleDrag(e) {

@@ -3,7 +3,6 @@ The main entry point for PRSM.
  */
 import * as Y from 'yjs';
 import {WebsocketProvider} from 'y-websocket';
-// import {IndexeddbPersistence} from 'y-indexeddb';
 import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
 import {
@@ -27,39 +26,42 @@ import {
 	reApplySampleToLinks,
 	legend,
 	clearLegend,
-} from './samples.js';
+} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.29';
+const version = '1.30';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
 export var network;
 var room;
 var viewOnly; // when true, user can only view, not modify, the network
-var nodes;
-var edges;
-var data;
-var clientID;
-var yNodesMap;
-var yEdgesMap;
-var ySamplesMap;
-var yNetMap;
-export var yPointsArray; // stores the background drawing commands
-var yUndoManager;
-var yChatArray;
-var container; //the DOM body elemnt
-var netPane;
+var nodes; // a dataset of nodes
+var edges; // a dataset of edges
+var data; // an object with the nodes and edges datasets as properties
+var clientID; // unitue ID for this browser
+var yNodesMap; // shared map of nodes
+var yEdgesMap; // shared map of edges
+var ySamplesMap; // shared map of styles
+var yNetMap; // shared map of global network settings
+export var yPointsArray; // shared array of the background drawing commands
+var yUndoManager; // shared list of commands for undo
+var yChatArray; // shared array of messages in the chat window
+var container; //the DOM body elemnet
+var netPane; // the DOM pane showing the network
 var panel; // the DOM right side panel element
 var buttonStatus; // the status of the buttons in the panel
-var initialButtonStatus;
+var initialButtonStatus; // the network panel's sttings at initialisation
 var myName; // the user's name
-var lastNodeSample = 'group0';
-var lastLinkSample = 'edge0';
+var lastNodeSample = 'group0'; // the last used node style
+var lastLinkSample = 'edge0'; // the last used edge style
 var inAddMode = false; // true when adding a new Factor to the network; used to choose cursor pointer
-var snapToGridToggle = false;
-export var drawingSwitch = false;
+var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
+export var drawingSwitch = false; // true when the drawing layer is uppermost
 
+/**
+ * top level function to initialise everything
+ */
 window.addEventListener('load', () => {
 	addEventListeners();
 	setUpPage();
@@ -143,6 +145,9 @@ function addEventListeners() {
 	);
 }
 
+/**
+ * create all the DOM elemts on the web page
+ */
 function setUpPage() {
 	viewOnly = new URL(document.location).searchParams.get('viewing');
 	if (viewOnly) document.getElementById('buttons').style.display = 'none';
@@ -198,7 +203,7 @@ function startY() {
 				(event.status == 'connected' ? ' to' : ' from') +
 				' room ' +
 				room
-		); // logs "connected" or "disconnected"
+		); // logs when websocket is "connected" or "disconnected"
 	});
 	/* 
 	create a yMap for the nodes and one for the edges (we need two because there is no 
@@ -230,7 +235,7 @@ function startY() {
 	/* 
 	for convenience when debugging
 	 */
-	window.debug = false;
+	window.debug = false; // if true, all yjs sharing interactions are logged to the console
 	window.data = data;
 	window.clientID = clientID;
 	window.yNodesMap = yNodesMap;
@@ -415,7 +420,7 @@ function startY() {
 		undoButtonstatus();
 		redoButtonStatus();
 	});
-}
+} // end startY()
 
 /**
  * create a random string of the form AAA-BBB-CCC-DDD
@@ -463,6 +468,9 @@ const emojiPicker = new EmojiButton({
 	zIndex: 1000,
 });
 
+/**
+ * create DOM elements for the chat box
+ */
 function setUpChat() {
 	if (localStorage.getItem('myName')) myName = localStorage.getItem('myName');
 	else myName = 'User' + clientID;
@@ -669,6 +677,7 @@ function draw() {
 
 /**
  * rescale and redraw the network so that it fits the pane
+ * @param {Integer} duration speed of zoom to fit
  */
 function fit(duration = 200) {
 	network.fit({
@@ -690,7 +699,7 @@ function claim(item) {
 }
 
 /**
- * boroadcast current node positions to all clients
+ * broadcast current node positions to all clients
  */
 function broadcast() {
 	/* there are situations where vis does not update node positions
@@ -722,7 +731,12 @@ function addLabel(item, cancelAction, callback) {
 	positionPopUp();
 	document.getElementById('popup-label').focus();
 }
-
+/**
+ * Draw a dialog box for user to edit a node
+ * @param {Object} item the node
+ * @param {Function} cancelAction what to do if the edit is cancelled
+ * @param {Function} callback what to do if the edit is saved
+ */
 function editNode(item, cancelAction, callback) {
 	initPopUp('Edit Factor', item, cancelAction, saveNode, callback);
 	document.getElementById('popup-label').insertAdjacentHTML(
@@ -769,11 +783,20 @@ function editNode(item, cancelAction, callback) {
 	positionPopUp();
 	document.getElementById('popup-label').focus();
 }
-
+/**
+ * Convert CSS description of line type to menu option format
+ * true, false, [3 3] => "true", "false", "dots"
+ * @param {Array|Boolean} val
+ */
 function getDashes(val) {
 	return Array.isArray(val) ? 'dots' : val.toString();
 }
-
+/**
+ * Draw a dialog box for user to edit an edge
+ * @param {Object} item the edge
+ * @param {Function} cancelAction what to do if the edit is cancelled
+ * @param {Function} callback what to do if the edit is saved
+ */
 function editEdge(item, cancelAction, callback) {
 	initPopUp('Edit Link', item, cancelAction, saveEdge, callback);
 	document.getElementById('popup-label').insertAdjacentHTML(
@@ -821,7 +844,14 @@ function editEdge(item, cancelAction, callback) {
 	positionPopUp();
 	document.getElementById('popup-label').focus();
 }
-
+/**
+ *
+ * @param {String} popUpTitle
+ * @param {Object} item
+ * @param {Function} cancelAction
+ * @param {Function} saveAction
+ * @param {Function} callback
+ */
 function initPopUp(popUpTitle, item, cancelAction, saveAction, callback) {
 	inAddMode = false;
 	changeCursor('auto');
@@ -840,7 +870,10 @@ function initPopUp(popUpTitle, item, cancelAction, saveAction, callback) {
 	let table = document.getElementById('popup-table');
 	if (table) table.remove();
 }
-
+/**
+ * Position the editng dialog box so that it is to the left of the item being edited,
+ * but not outside the window
+ */
 function positionPopUp() {
 	let popUp = document.getElementById('popup');
 	popUp.style.display = 'block';
@@ -852,18 +885,27 @@ function positionPopUp() {
 	popUp.style.left = `${left < 0 ? 0 : left}px`;
 }
 
-// Callback passed as parameter is ignored
+/**
+ * Hide the editing dialog box
+ */
 function clearPopUp() {
 	document.getElementById('popup-saveButton').onclick = null;
 	document.getElementById('popup-cancelButton').onclick = null;
 	document.getElementById('popup').style.display = 'none';
 }
-
+/**
+ * User has pressed 'cancel' - abandon the edit and hide the dialog
+ * @param {Function} callback
+ */
 function cancelEdit(callback) {
 	clearPopUp();
 	callback(null);
 }
-
+/**
+ * called when a node or edge has been added.  Save the label provided
+ * @param {Object} item the item that has been added
+ * @param {Function} callback
+ */
 function saveLabel(item, callback) {
 	item.label = splitText(
 		document.getElementById('popup-label').value,
@@ -884,7 +926,11 @@ function saveLabel(item, callback) {
 	network.manipulation.inMode = 'addNode'; // ensure still in Add mode, in case others have done something meanwhile
 	callback(item);
 }
-
+/**
+ * save the node format details that have been edited
+ * @param {Object} item the node that has been edited
+ * @param {Function} callback
+ */
 function saveNode(item, callback) {
 	item.label = splitText(
 		document.getElementById('popup-label').value,
@@ -908,7 +954,11 @@ function saveNode(item, callback) {
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
 	callback(item);
 }
-
+/**
+ * save the edge format details that have been edited
+ * @param {Object} item the edge that has been edited
+ * @param {Function} callback
+ */
 function saveEdge(item, callback) {
 	item.label = splitText(
 		document.getElementById('popup-label').value,
@@ -926,7 +976,10 @@ function saveEdge(item, callback) {
 	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
 	callback(item);
 }
-
+/**
+ * Convert from the menu selection to the CSS format of the edge
+ * @param {String} val
+ */
 function convertDashes(val) {
 	switch (val) {
 		case 'true':
@@ -941,19 +994,24 @@ function convertDashes(val) {
 			return val;
 	}
 }
-
+/**
+ * if there is already a link from the 'from' node to the 'to' node, return it
+ * @param {Object} from A node
+ * @param {Object} to Another node
+ */
 function duplEdge(from, to) {
-	// if there is already a link from the 'from' node to the 'to' node, return it
 	return data.edges.get({
 		filter: function (item) {
 			return item.from == from && item.to == to;
 		},
 	});
 }
-
+/**
+ * Constructs a nice string to tell the user what nodes and links are being deleted.
+	 Includes links connected to deleted nodes in the count. 
+ * @param {Array} item List of nodes to be deleted
+ */
 function deleteMsg(item) {
-	//constructs a nice string to tell the user what nodes and links are being deleted.
-	// also delete edges connected to these nodes
 	item.nodes.forEach((nId) => {
 		network.getConnectedEdges(nId).forEach((eId) => {
 			if (item.edges.indexOf(eId) === -1) item.edges.push(eId);
@@ -967,15 +1025,19 @@ function deleteMsg(item) {
 	if (nEdges > 0) msg = msg + nEdges + ' Link' + (nEdges == 1 ? '' : 's');
 	return msg + '?';
 }
-
+/**
+ * Change the cursor style for the net pane and nav bar
+ * @param {Cursor} newCursorStyle
+ */
 function changeCursor(newCursorStyle) {
 	if (inAddMode) return;
 	netPane.style.cursor = newCursorStyle;
 	document.getElementById('navbar').style.cursor = newCursorStyle;
 }
-
+/**
+ * unselect all nodes and edges
+ */
 function unSelect() {
-	/* unselect all nodes and edges */
 	hideNotes();
 	network.unselectAll();
 }
@@ -986,6 +1048,9 @@ function unSelect() {
 // the user is doing
 var worker = new Worker('betweenness.js');
 var bc; //caches the betweenness centralities
+/**
+ * Ask the web worker to recalculate network statistics
+ */
 function recalculateStats() {
 	// wait 200 mSecs for things to settle down before recalculating
 	setTimeout(() => {
@@ -999,7 +1064,11 @@ worker.onmessage = function (e) {
 /* 
   ----------- Status messages ---------------------------------------
 */
-/* show status messages at the bottom of the window */
+/**
+ * show status messages at the bottom of the window
+ * @param {string} msg
+ * @param {string} status type of msg - warning, error or other
+ */
 export function statusMsg(msg, status) {
 	let elem = document.getElementById('statusBar');
 	switch (status) {
@@ -1016,7 +1085,10 @@ export function statusMsg(msg, status) {
 	}
 	elem.innerHTML = htmlEntities(msg);
 }
-
+/**
+ * replace special characters with their HTML entity codes
+ * @param {string} str
+ */
 function htmlEntities(str) {
 	return String(str)
 		.replace(/&/g, '&amp;')
@@ -1025,13 +1097,17 @@ function htmlEntities(str) {
 		.replace(/"/g, '&quot;')
 		.replace(/'/g, '&quot;');
 }
-
+/**
+ * remove any previous message from the status bar
+ */
 function clearStatusBar() {
 	statusMsg(' ');
 }
-
+/**
+ * return a string listing the labels of the given nodes, with nice connecting words
+ * @param {Array} factors List of factcors
+ */
 function listFactors(factors) {
-	// return a string listing the labels of the given nodes
 	if (factors.length > 5) return factors.length + ' factors';
 	let str = 'Factor';
 	if (factors.length > 1) str = str + 's';
@@ -1047,15 +1123,20 @@ function listFactors(factors) {
 		return label.concat(', ' + lf(factors));
 	}
 }
-
+/**
+ * shortern the label if necessary and add an ellipsis
+ * @param {string} label
+ */
 function shorten(label) {
 	return label.length > SHORTLABELLEN
 		? label.substring(0, SHORTLABELLEN) + '...'
 		: label;
 }
-
+/**
+ * return a string listing the number of Links
+ * @param {Array} links
+ */
 function listLinks(links) {
-	// return a string listing the number of Links
 	if (links.length > 1) return links.length + ' links';
 	return '1 link';
 }
@@ -1070,11 +1151,16 @@ Network.prototype.zoom = function (scale) {
 	};
 	this.view.moveTo(animationOptions);
 };
-
+/**
+ * expand/reduce the network view using the value in the zoom slider
+ */
 function zoomnet() {
 	network.zoom(Number(document.getElementById('zoom').value));
 }
-
+/**
+ * zoom by the given amount (+ve or -ve)
+ * @param {Number} incr
+ */
 function zoomincr(incr) {
 	let newScale = Number(document.getElementById('zoom').value) + incr;
 	if (newScale > 4) newScale = 4;
@@ -1084,6 +1170,12 @@ function zoomincr(incr) {
 }
 /* 
   -----------Operations related to the top button bar (not the side panel)-------------
+ */
+/**
+ * react to the user pressing the Add node button
+ * handles cases when the button is disbled; has previously been pressed; and the Add link
+ * button is active, as well as the normal case
+ *
  */
 function plusNode() {
 	switch (inAddMode) {
@@ -1104,7 +1196,11 @@ function plusNode() {
 			network.addNodeMode();
 	}
 }
-
+/**
+ * react to the user pressing the Add Link button
+ * handles cases when the button is disbled; has previously been pressed; and the Add Node
+ * button is active, as well as the normal case
+ */
 function plusLink() {
 	switch (inAddMode) {
 		case 'disabled':
@@ -1124,13 +1220,20 @@ function plusLink() {
 			network.addEdgeMode();
 	}
 }
-
+/**
+ * cancel adding node and links
+ */
 function stopEdit() {
 	inAddMode = false;
 	network.disableEditMode();
 	changeCursor('auto');
 }
-
+/**
+ * Add or remove the CSS style showing that the button has been pressed
+ * @param {string} elem the Id of the button
+ * @param {*} action whether to add or remove the style
+ *
+ */
 function showPressed(elem, action) {
 	document.getElementById(elem).children.item(0).classList[action]('pressed');
 }

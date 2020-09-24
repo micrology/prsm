@@ -1,3 +1,5 @@
+import * as Hammer from 'hammerjs';
+
 /**
  * Create a random scale free network, used only for testing and demoing
  * Taken from the vis-network distribution
@@ -192,6 +194,56 @@ Set.prototype.intersection = function (otherSet) {
 	return intersectionSet;
 };
 
+export function dragElement(elem, header) {
+	let mc = new Hammer.Manager(header, {
+		recognizers: [
+			[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}],
+		],
+	});
+	// tie in the handler that will be called
+	mc.on('pan', handleDrag);
+
+	// poor choice here, but to keep it simple
+	// setting up a few vars to keep track of things.
+	// at issue is these values need to be encapsulated
+	// in some scope other than global.
+	let lastPosX = 0;
+	let lastPosY = 0;
+	let isDragging = false;
+
+	function handleDrag(ev) {
+		// DRAG STARTED
+		// here, let's snag the current position
+		// and keep track of the fact that we're dragging
+		if (!isDragging) {
+			isDragging = true;
+			lastPosX = elem.offsetLeft;
+			lastPosY = elem.offsetTop;
+		}
+
+		// we simply need to determine where the x,y of this
+		// object is relative to where it's "last" known position is
+		// NOTE:
+		//    deltaX and deltaY are cumulative
+		// Thus we need to always calculate 'real x and y' relative
+		// to the "lastPosX/Y"
+		elem.style.cursor = 'move';
+		let posX = ev.deltaX + lastPosX;
+		let posY = ev.deltaY + lastPosY;
+
+		// move our element to that position
+		elem.style.left = posX + 'px';
+		elem.style.top = posY + 'px';
+
+		// DRAG ENDED
+		// this is where we simply forget we are dragging
+		if (ev.isFinal) {
+			isDragging = false;
+			elem.style.cursor = 'pointer';
+		}
+	}
+}
+/* 
 export function dragElement(elmnt, header) {
 	var pos1 = 0,
 		pos2 = 0,
@@ -230,7 +282,7 @@ export function dragElement(elmnt, header) {
 		document.onmouseup = null;
 		document.onmousemove = null;
 	}
-}
+} */
 
 export function standardize_color(str) {
 	let ctx = document.createElement('canvas').getContext('2d');

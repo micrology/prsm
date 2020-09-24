@@ -1,6 +1,6 @@
 {
 	"name": "participatory-system-mapper",
-	"version": "1.2.0",
+	"version": "1.3.0",
 	"description": "Participatory System Mapper, browser app for collaboratively creating system maps",
 	"keywords": [
 		"social network",
@@ -19,13 +19,13 @@
 	},
 	"scripts": {
 		"lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
-		"pretty": "prettier --write ./html/*.html ./js/*.js ./css/prsm.css doc/**/*.{html,css} package.json",
+		"pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/prsm.css doc/**/*.{html,css} package.json",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"build-help": "pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -H doc/meta.html -s --toc -o ./help.html",
-		"check": "npm run --silent pretty && npm run --silent lint && npm run --silent build-help",
+		"check": "npm run --silent lint && npm run --silent build-help && npm run --silent pretty",
 		"dev": "parcel ./html/prsm.html",
 		"build": "rm -rf dist/* && parcel build ./html/prsm.html --public-url . ",
-		"doc": "npx jsdoc -r ./js -R README.md -P ./package.json",
+		"jsdoc": "npx jsdoc -r ./js -d ./doc/jsdoc",
 		"clean": "rm -rf dist/* out/*"
 	},
 	"license": "GPL-3.0-or-later",
@@ -34,6 +34,7 @@
 		"@joeattardi/emoji-button": "^2.12.1",
 		"component-emitter": "^1.3.0",
 		"fast-xml-parser": "^3.17.4",
+		"foodoc": "0.0.9",
 		"hammerjs": "^2.0.8",
 		"keycharm": "^0.3.1",
 		"moment": "^2.27.0",
