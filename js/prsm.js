@@ -450,7 +450,8 @@ function getRandomData(nNodes) {
 document.body.height = window.innerHeight;
 window.onresize = function () {
 	document.body.height = window.innerHeight;
-	keepPanelInWindow();
+	keepPaneInWindow(panel);
+	keepPaneInWindow(document.getElementById('chatbox-holder'));
 };
 window.onorientationchange = function () {
 	document.body.height = window.innerHeight;
@@ -1874,27 +1875,28 @@ dragElement(document.getElementById('panel'), document.getElementById('tab'));
 
 var tabOpen = null;
 /**
- * when the window is resized, make sure that the panel is still visible
+ * when the window is resized, make sure that the pane is still visible
+ * @param {HTMLelement} pane
  */
-function keepPanelInWindow() {
+function keepPaneInWindow(pane) {
 	if (
-		panel.offsetLeft + panel.offsetWidth >
+		pane.offsetLeft + pane.offsetWidth >
 		container.offsetLeft + container.offsetWidth
 	) {
-		panel.style.left =
+		pane.style.left =
 			container.offsetLeft +
 			container.offsetWidth -
-			panel.offsetWidth +
+			pane.offsetWidth +
 			'px';
 	}
 	if (
-		panel.offsetTop + panel.offsetHeight >
+		pane.offsetTop + pane.offsetHeight >
 		container.offsetTop + container.offsetHeight
 	) {
-		panel.style.top =
+		pane.style.top =
 			container.offsetTop +
 			container.offsetHeight -
-			panel.offsetHeight -
+			pane.offsetHeight -
 			document.querySelector('footer').offsetHeight +
 			'px';
 	}
