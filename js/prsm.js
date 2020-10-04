@@ -187,6 +187,11 @@ function startY() {
 		'prsm' + room,
 		doc
 	);
+	/* const wsProvider = new WebsocketProvider(
+		'ws://localhost:1234',
+		'prsm' + room,
+		doc
+	); */
 	// wait for an update from another peer; only then will
 	// drawing etc. be finished and so we can then fit the  network to the window.
 	wsProvider.on('sync', () => {
