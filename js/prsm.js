@@ -725,15 +725,16 @@ function snapToGrid(node) {
 	node.x = GRIDSPACING * Math.round(node.x / GRIDSPACING);
 	node.y = GRIDSPACING * Math.round(node.y / GRIDSPACING);
 }
+/* ----------------- dialogs for creating and editing nodes and links ----------------*/
 
 /**
- * the item is being created:  get its label from the user
- * @param {Object} item
+ * A factor is being created:  get its label from the user
+ * @param {Object} item - the node
  * @param {Function} cancelAction
  * @param {Function} callback
  */
 function addLabel(item, cancelAction, callback) {
-	initPopUp('Add Factor', item, cancelAction, saveLabel, callback);
+	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback);
 	positionPopUp();
 	document.getElementById('popup-label').focus();
 }
@@ -744,9 +745,9 @@ function addLabel(item, cancelAction, callback) {
  * @param {Function} callback what to do if the edit is saved
  */
 function editNode(item, cancelAction, callback) {
-	initPopUp('Edit Factor', item, cancelAction, saveNode, callback);
-	document.getElementById('popup-label').insertAdjacentHTML(
-		'afterend',
+	initPopUp('Edit Factor', 150, item, cancelAction, saveNode, callback);
+	document.getElementById('popup').insertAdjacentHTML(
+		'beforeend',
 		`	
 	<table id="popup-table">
 		<tr>
@@ -759,10 +760,14 @@ function editNode(item, cancelAction, callback) {
 		</tr>
 		<tr>
 			<td>
-				<input type="color" id="node-borderColor" />
+			<div class="input-color-container">
+			<input type="color" class="input-color" id="node-borderColor" />
+			</div>
 			</td>
 			<td>
-				<input type="color" id="node-fontColor" />
+			<div class="input-color-container">
+			<input type="color" class="input-color" id="node-fontColor" />
+			</div>
 			</td>
 		</tr>
 		<tr>
@@ -804,9 +809,9 @@ function getDashes(val) {
  * @param {Function} callback what to do if the edit is saved
  */
 function editEdge(item, cancelAction, callback) {
-	initPopUp('Edit Link', item, cancelAction, saveEdge, callback);
-	document.getElementById('popup-label').insertAdjacentHTML(
-		'afterend',
+	initPopUp('Edit Link', 140, item, cancelAction, saveEdge, callback);
+	document.getElementById('popup').insertAdjacentHTML(
+		'beforeend',
 		` 
 		<table id="popup-table">
 		<tr>
@@ -827,7 +832,9 @@ function editEdge(item, cancelAction, callback) {
 				</select>
 			</td>
 			<td>
-				<input type="color" id="edge-color" />
+			<div class="input-color-container">
+			<input type="color" class="input-color" id="edge-color" />
+			</div>
 			</td>
 		</tr>
 		<tr>
@@ -858,23 +865,54 @@ function editEdge(item, cancelAction, callback) {
  * @param {Function} saveAction
  * @param {Function} callback
  */
-function initPopUp(popUpTitle, item, cancelAction, saveAction, callback) {
+function initPopUp(
+	popUpTitle,
+	height,
+	item,
+	cancelAction,
+	saveAction,
+	callback
+) {
 	inAddMode = false;
 	changeCursor('auto');
+	document.getElementById('popup').style.height = height + 'px';
 	document.getElementById('popup-operation').innerHTML = popUpTitle;
-	document.getElementById('popup-cancelButton').onclick = cancelAction.bind(
-		this,
-		callback
-	);
 	document.getElementById('popup-saveButton').onclick = saveAction.bind(
 		this,
 		item,
 		callback
 	);
-	document.getElementById('popup-label').value =
-		item.label === undefined ? '' : item.label;
+	document.getElementById('popup-cancelButton').onclick = cancelAction.bind(
+		this,
+		callback
+	);
+	let popupLabel = document.getElementById('popup-label');
+	popupLabel.addEventListener('keyup', squashInputOnKeyUp);
+	popupLabel.style.fontSize = '20px';
+	popupLabel.innerText =
+		item.label === undefined ? '' : item.label.replace(/\n/g, ' ');
 	let table = document.getElementById('popup-table');
 	if (table) table.remove();
+}
+
+/**
+ * when the height of the text threatens to exceed the height of the window, reduce the font size to make it fit
+ * @param {event} e
+ */
+function squashInputOnKeyUp(e) {
+	squashInput(e.target)
+}
+
+function squashInput(elem) {
+	if (elem.scrollHeight > elem.clientHeight) {
+		let shrink = elem.clientHeight / elem.scrollHeight;
+		elem.style.fontSize =
+			Math.floor(
+				parseFloat(
+					window.getComputedStyle(elem).getPropertyValue('font-size')
+				) * shrink
+			) + 'px';
+	}
 }
 /**
  * Position the editng dialog box so that it is to the left of the item being edited,
@@ -889,6 +927,7 @@ function positionPopUp() {
 	}px`;
 	let left = event.clientX - popUp.offsetWidth - 3;
 	popUp.style.left = `${left < 0 ? 0 : left}px`;
+	squashInput(document.getElementById('popup-label'));
 }
 
 /**
@@ -897,6 +936,7 @@ function positionPopUp() {
 function clearPopUp() {
 	document.getElementById('popup-saveButton').onclick = null;
 	document.getElementById('popup-cancelButton').onclick = null;
+	document.getElementById('popup-label').onkeyup = null;
 	document.getElementById('popup').style.display = 'none';
 }
 /**
@@ -914,7 +954,7 @@ function cancelEdit(callback) {
  */
 function saveLabel(item, callback) {
 	item.label = splitText(
-		document.getElementById('popup-label').value,
+		document.getElementById('popup-label').innerText,
 		NODEWIDTH
 	);
 	clearPopUp();
@@ -939,7 +979,7 @@ function saveLabel(item, callback) {
  */
 function saveNode(item, callback) {
 	item.label = splitText(
-		document.getElementById('popup-label').value,
+		document.getElementById('popup-label').innerText,
 		NODEWIDTH
 	);
 	clearPopUp();
@@ -967,7 +1007,7 @@ function saveNode(item, callback) {
  */
 function saveEdge(item, callback) {
 	item.label = splitText(
-		document.getElementById('popup-label').value,
+		document.getElementById('popup-label').innerText,
 		NODEWIDTH
 	);
 	clearPopUp();
@@ -1000,6 +1040,9 @@ function convertDashes(val) {
 			return val;
 	}
 }
+
+/* ----------------- end of node and edge creation and editing dialog -----------------*/
+
 /**
  * if there is already a link from the 'from' node to the 'to' node, return it
  * @param {Object} from A node

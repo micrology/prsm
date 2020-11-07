@@ -2,6 +2,17 @@
 <html lang="en">
 	<head>
 		<title>Participatory System Mapper</title>
+		<meta
+			name="Description"
+			content="PRSM enables groups of people, each using their own computer (or tablet) 
+		to collaborate in the drawing of a map. They may be sitting around a table, discussing the map as it is 
+		created face to face, or working remotely, using video conferencing or the chat feature that is built 
+		into the app. Everyone can participate because every edit (creating nodes and links, arranging them 
+		and so on) is broadcast to all the other participants as the changes are made (just as Google Docs 
+		does for text, for example). When you start PRSM in your browser, a 'room' is created for you in which 
+		to draw your network. You can add other users to this room to share the work. Only those with access 
+		to the room can see what is being created."
+		/>
 		<meta charset="utf-8" />
 		<meta content="IE=edge" http-equiv="X-UA-Compatible" />
 		<meta name="viewport" content="width=device-width,initial-scale=1.0" />
@@ -38,7 +49,10 @@
 						</div>
 						<div class="tooltip right-border">
 							<button id="addLink">
-								<i class="fas fa-wave-square"></i></button
+								<!-- <i class="fas fa-wave-square"></i> -->
+								<i
+									class="fas fa-long-arrow-alt-right"
+								></i></button
 							><span class="tooltiptext">Add link</span>
 						</div>
 						<div class="tooltip">
@@ -116,6 +130,18 @@
 		</header>
 		<main id="main">
 			<div id="popup">
+				<div id="popup-operation">Factor</div>
+				<div>
+					<div
+						id="popup-label"
+						contenteditable="true"
+						spellcheck="true"
+					></div>
+				</div>
+				<div id="popup-cancelButton"></div>
+				<input type="button" value="save" id="popup-saveButton" />
+			</div>
+			<!-- 	 		<div id="popup">
 				<span id="popup-operation">Edit factor</span>
 				<textarea id="popup-label" placeholder="Label"></textarea>
 				<table>
@@ -136,7 +162,7 @@
 						</td>
 					</tr>
 				</table>
-			</div>
+			</div> -->
 			<div id="net-pane"></div>
 			<div id="underlay">
 				<canvas class="drawing-canvas" id="temp-canvas"></canvas>

@@ -12,10 +12,18 @@
 		"email": "n.gilbert@surrey.ac.uk"
 	},
 	"author": "Nigel Gilbert",
-	"browser": "prsm.html",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/micrology/prsm"
+	},
+	"targets": {
+		"default": {
+			"engines": {
+				"browsers": "defaults"
+			},
+			"distDir": "dist",
+			"publicUrl": "."
+		}
 	},
 	"scripts": {
 		"lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
@@ -24,7 +32,7 @@
 		"build-help": "pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -H doc/meta.html -s --toc -o ./help.html",
 		"check": "npm run --silent lint && npm run --silent build-help && npm run --silent pretty",
 		"dev": "parcel ./html/prsm.html",
-		"build": "rm -rf dist/* && parcel build ./html/prsm.html --public-url . ",
+		"build": "rm -rf dist/* && parcel build ./html/prsm.html",
 		"jsdoc": "npx jsdoc -r ./js -d ./doc/jsdoc",
 		"clean": "rm -rf dist/* out/*"
 	},
@@ -37,21 +45,21 @@
 		"foodoc": "0.0.9",
 		"hammerjs": "^2.0.8",
 		"keycharm": "^0.3.1",
-		"moment": "^2.29.0",
+		"moment": "^2.29.1",
 		"timsort": "^0.3.0",
 		"uuid": "^7.0.3",
 		"vis-data": "^6.6.1",
 		"vis-network": "^7.10.2",
 		"vis-util": "^4.3.4",
 		"y-indexeddb": "^9.0.5",
-		"y-websocket": "^1.3.3",
-		"yjs": "^13.4.0"
+		"y-websocket": "^1.3.6",
+		"yjs": "^13.4.2"
 	},
 	"devDependencies": {
 		"eslint": "^6.8.0",
-		"eslint-config-prettier": "^6.12.0",
+		"eslint-config-prettier": "^6.15.0",
 		"jsdoc": "^3.6.6",
-		"parcel-bundler": "^1.12.4",
+		"parcel": "^2.0.0-nightly.438",
 		"prettier": "2.0.5"
 	},
 	"private": true
