@@ -7,6 +7,7 @@ import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
 import {
 	getScaleFreeNetwork,
+	uuidv4,
 	deepMerge,
 	clean,
 	strip,
@@ -88,6 +89,7 @@ function listen(elem, event, callback) {
  */
 function addEventListeners() {
 	listen('addNode', 'click', plusNode);
+	listen('net-pane', 'contextmenu', ctlClickAddNode);
 	listen('addLink', 'click', plusLink);
 	listen('deleteNode', 'click', deleteNode);
 	listen('undo', 'click', undo);
@@ -545,7 +547,7 @@ function draw() {
 				item.label = '';
 				item = deepMerge(item, samples.nodes[lastNodeSample]);
 				item.grp = lastNodeSample;
-				addLabel(item, clearPopUp, callback);
+				addLabel(item, cancelEdit, callback);
 				showPressed('addNode', 'remove');
 			},
 			editNode: function (item, callback) {
@@ -737,6 +739,16 @@ function addLabel(item, cancelAction, callback) {
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback);
 	positionPopUp();
 	document.getElementById('popup-label').focus();
+}
+function ctlClickAddNode(event) {
+	event.preventDefault();
+	let pos = network.DOMtoCanvas({ x: event.offsetX, y: event.offsetY });
+	let item = { id: uuidv4(), label: "", x: pos.x, y: pos.y};
+	item = deepMerge(item, samples.nodes[lastNodeSample]);
+	item.grp = lastNodeSample;
+	addLabel(item, clearPopUp, function (newItem) {
+		if (newItem !== null) data.nodes.add(newItem)
+	});
 }
 /**
  * Draw a dialog box for user to edit a node
@@ -946,6 +958,7 @@ function clearPopUp() {
 function cancelEdit(callback) {
 	clearPopUp();
 	callback(null);
+	stopEdit();
 }
 /**
  * called when a node or edge has been added.  Save the label provided

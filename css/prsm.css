@@ -154,13 +154,30 @@ input[type='range'] {
 
 #popup-saveButton {
 	position: absolute;
-	bottom: 3px;
-	right: 5px;
+	bottom: 7px;
+	right: 7px;
 	font-size: 12px;
 	background-color: black;
 	color: white;
 	border-radius: 20%;
 	padding: 3px;
+}
+#popup-saveButton:hover {
+	text-decoration: none;
+	  cursor: pointer;
+	background-color: gray;
+  }
+#popup-cancelButton {
+	color: black;
+	position: absolute;
+  top: 0px;
+  right: 5px;
+	font-size: 20px;
+}
+#popup-cancelButton:hover {
+	color: gray;
+	text-decoration: none;
+	cursor: pointer;
 }
 #popup table {
 	width: 160px;
@@ -185,7 +202,7 @@ input[type='range'] {
 	height: 56px;
 	border: none;
   }
-  
+
 /*
 #popup {
 	display: none;
