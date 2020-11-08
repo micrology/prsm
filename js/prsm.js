@@ -30,7 +30,7 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.30';
+const version = '1.4.0';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
@@ -753,6 +753,7 @@ function addLabel(item, cancelAction, callback) {
 	document.getElementById('popup-label').focus();
 }
 function ctlClickAddNode(event) {
+	if (network.getNodeAt({ x: event.offsetX, y: event.offsetY }) !== undefined) return;
 	event.preventDefault();
 	let pos = network.DOMtoCanvas({ x: event.offsetX, y: event.offsetY });
 	let item = { id: uuidv4(), label: "", x: pos.x, y: pos.y};
