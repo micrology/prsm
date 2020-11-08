@@ -575,6 +575,7 @@ function draw() {
 				item = deepMerge(item, samples.edges[lastLinkSample]);
 				item.grp = lastLinkSample;
 				showPressed('addLink', 'remove');
+				clearStatusBar();
 				callback(item);
 			},
 			editEdge: {
@@ -632,10 +633,21 @@ function draw() {
 			fit();
 		}
 	});
-	network.on('selectNode', function () {
-		if (network.getSelectedNodes().length > 1) hideDistantOrStreamNodes();
-		statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
-		showNodeData();
+	network.on('selectNode', function (params) {
+		let selectedNodes = network.getSelectedNodes();
+		if (selectedNodes.length > 1) hideDistantOrStreamNodes();
+		// if shiftkey is down, start linking to another node
+		if (params.event.pointers[0].shiftKey) {
+			// start linking from this node, but only if  one node is selected, else source node is not clear
+			if (selectedNodes.length == 1) {
+				statusMsg('Linking from ' + listFactors(selectedNodes));
+				plusLink();
+			}
+		}
+		else {
+			statusMsg(listFactors(selectedNodes) + ' selected');
+			showNodeData();	
+		}
 	});
 	network.on('deselectNode', function () {
 		hideNotes();

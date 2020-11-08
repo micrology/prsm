@@ -164,14 +164,14 @@ input[type='range'] {
 }
 #popup-saveButton:hover {
 	text-decoration: none;
-	  cursor: pointer;
+	cursor: pointer;
 	background-color: gray;
-  }
+}
 #popup-cancelButton {
 	color: black;
 	position: absolute;
-  top: 0px;
-  right: 5px;
+	top: 0px;
+	right: 5px;
 	font-size: 20px;
 }
 #popup-cancelButton:hover {
@@ -192,16 +192,16 @@ input[type='range'] {
 	height: 30px;
 	border: solid 2px #ddd;
 	border-radius: 30px;
-  }
-  
-  .input-color {
+}
+
+.input-color {
 	position: absolute;
 	right: -8px;
 	top: -8px;
 	width: 56px;
 	height: 56px;
 	border: none;
-  }
+}
 
 /*
 #popup {
