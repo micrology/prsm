@@ -643,10 +643,9 @@ function draw() {
 				statusMsg('Linking from ' + listFactors(selectedNodes));
 				plusLink();
 			}
-		}
-		else {
+		} else {
 			statusMsg(listFactors(selectedNodes) + ' selected');
-			showNodeData();	
+			showNodeData();
 		}
 	});
 	network.on('deselectNode', function () {
@@ -752,15 +751,22 @@ function addLabel(item, cancelAction, callback) {
 	positionPopUp();
 	document.getElementById('popup-label').focus();
 }
+/**
+ * if user Control-clicks the canvas, use this as a shortcut equivalent to pressing the Add Node button
+ * @param {mouseEvent} event
+ */
 function ctlClickAddNode(event) {
-	if (network.getNodeAt({ x: event.offsetX, y: event.offsetY }) !== undefined) return;
+	// do nothing if clicking on a node
+	if (network.getNodeAt({x: event.offsetX, y: event.offsetY}) !== undefined)
+		return;
+	// cancel default context menu
 	event.preventDefault();
-	let pos = network.DOMtoCanvas({ x: event.offsetX, y: event.offsetY });
-	let item = { id: uuidv4(), label: "", x: pos.x, y: pos.y};
+	let pos = network.DOMtoCanvas({x: event.offsetX, y: event.offsetY});
+	let item = {id: uuidv4(), label: '', x: pos.x, y: pos.y};
 	item = deepMerge(item, samples.nodes[lastNodeSample]);
 	item.grp = lastNodeSample;
 	addLabel(item, clearPopUp, function (newItem) {
-		if (newItem !== null) data.nodes.add(newItem)
+		if (newItem !== null) data.nodes.add(newItem);
 	});
 }
 /**
@@ -919,15 +925,17 @@ function initPopUp(
 	let table = document.getElementById('popup-table');
 	if (table) table.remove();
 }
-
 /**
  * when the height of the text threatens to exceed the height of the window, reduce the font size to make it fit
  * @param {event} e
  */
 function squashInputOnKeyUp(e) {
-	squashInput(e.target)
+	squashInput(e.target);
 }
-
+/**
+ * Reduce font size of element to make text fit it
+ * @param {HTMLElement} elem
+ */
 function squashInput(elem) {
 	if (elem.scrollHeight > elem.clientHeight) {
 		let shrink = elem.clientHeight / elem.scrollHeight;
