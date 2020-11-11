@@ -88,6 +88,10 @@ function listen(elem, event, callback) {
  * Set up all the permanent event listeners
  */
 function addEventListeners() {
+	listen('maptitle', 'keyup', mapTitle);
+	listen('maptitle', 'click', (e) => {
+		if (e.target.innerText == "Untitled map") window.getSelection().selectAllChildren(e.target);
+	});
 	listen('addNode', 'click', plusNode);
 	listen('net-pane', 'contextmenu', ctlClickAddNode);
 	listen('addLink', 'click', plusLink);
@@ -404,6 +408,9 @@ function startY() {
 						break;
 					case 'background':
 						setBackground(obj);
+						break;
+					case 'maptitle':
+						setMapTitle(obj);
 						break;
 					default:
 						console.log('Bad key in yMapNet.observe: ', key);
@@ -1116,6 +1123,31 @@ function changeCursor(newCursorStyle) {
 	if (inAddMode) return;
 	netPane.style.cursor = newCursorStyle;
 	document.getElementById('navbar').style.cursor = newCursorStyle;
+}
+/**
+ * User has set or changed the map title: update the UI and broadcast the new title
+ * @param {event} e 
+ */
+function mapTitle(e) {
+	let title = e.target.innerText;
+	title = setMapTitle(title);
+	yNetMap.set('maptitle', title);
+}
+/**
+ * Format the map title
+ * @param {string} title 
+ */
+function setMapTitle(title) {
+	let div = document.getElementById('maptitle');
+	if (title == "") {
+		title = "Untitled map";
+	}
+	div.style.color = (title == "Untitled map" ? "lightgrey": "white");
+	if (title !== "Untitled map") {
+		lastFileName = title.replace(/\s+/g, '').toLowerCase();
+	}
+	if (title !== div.innerText) div.innerText = title;
+	return title;
 }
 /**
  * unselect all nodes and edges
