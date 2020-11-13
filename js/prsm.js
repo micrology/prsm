@@ -28,7 +28,8 @@ import {
 	legend,
 	clearLegend,
 } from './styles.js';
-import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
+import { setUpPaint, setUpToolbox, deselectTool, redraw } from './paint.js';
+import introJs from 'intro.js/intro.js';
 
 const version = '1.4.0';
 const GRIDSPACING = 50; // for snap to grid
@@ -59,6 +60,7 @@ var lastLinkSample = 'edge0'; // the last used edge style
 var inAddMode = false; // true when adding a new Factor to the network; used to choose cursor pointer
 var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
+var intro = introJs(); // object driving the tutorial tooltip
 
 /**
  * top level function to initialise everything
@@ -176,6 +178,8 @@ function setUpPage() {
 		legend: true,
 		sizing: 'Off',
 	};
+	intro.setOptions({hidePrev: true, hideNext: true, exitOnOverlayClick: false, showStepNumbers: false, overlayOpacity: 0.3})
+	intro.start();
 }
 
 /**

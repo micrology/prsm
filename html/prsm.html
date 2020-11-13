@@ -25,6 +25,9 @@
 			crossorigin="anonymous"
 		></script>
 		<link href="../css/vis-network.min.css" rel="stylesheet" />
+		<!-- Add IntroJs styles -->
+		<link href="../node_modules/intro.js/minified/introjs.min.css" rel="stylesheet">
+		<link href="../node_modules/intro.js/themes/introjs-modern.css" rel="stylesheet">
 		<script>
 			if (window.document.documentMode) {
 				alert(
@@ -39,16 +42,16 @@
 			<nav id="navbar">
 				<div>
 				<div class="strapline">Participatory System Mapper<span id="version">1.2.0</span></div>
-				<div class="maptitle" id="maptitle" contenteditable="true">Untitled map</div>
+				<div class="maptitle" id="maptitle" contenteditable="true" data-intro='Click here to create a factor' data-step='1' data-position="bottom">Untitled map</div>
 			</div>
 				<div class="button-wrapper">
 					<div class="buttons" id="buttons">
-						<div class="tooltip">
+						<div class="tooltip" data-intro='Click here to create a factor' data-step='2' data-position="bottom">
 							<button id="addNode">
 								<i class="fas fa-plus"></i></button
 							><span class="tooltiptext">Add factor</span>
 						</div>
-						<div class="tooltip right-border">
+						<div class="tooltip right-border" data-intro='Click here to create a factor' data-step='3' data-position="bottom">
 							<button id="addLink">
 								<!-- <i class="fas fa-wave-square"></i> -->
 								<i
@@ -66,7 +69,7 @@
 								<i class="fas fa-redo small-button"></i></button
 							><span class="tooltiptext">Redo</span>
 						</div>
-						<div class="tooltip right-border">
+						<div class="tooltip right-border" data-intro='Click here to create a factor' data-step='4' data-position="bottom">
 							<button id="deleteNode">
 								<i
 									class="fas fa-trash-alt small-button"
@@ -85,7 +88,7 @@
 								></i></button
 							><span class="tooltiptext">Open network</span>
 						</div>
-						<div class="tooltip">
+						<div class="tooltip" data-intro='Click here to create a factor' data-step='5' data-position="left">
 							<button id="saveFile">
 								<i class="fas fa-save small-button"></i></button
 							><span class="tooltiptext">Save network</span>
@@ -109,7 +112,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="tooltip left-border">
+						<div class="tooltip left-border" data-intro='Click here to create a factor' data-step='6' data-position="left">
 							<button id="help">
 								<i class="fas fa-question"></i>
 							</button>
@@ -117,7 +120,7 @@
 								>Show help in a new window</span
 							>
 						</div>
-						<div class="tooltip">
+						<div class="tooltip" data-intro='Click here to create a factor' data-step='7' data-position="left">
 							<button id="panelToggle">
 								<i class="fas fa-sliders-h"></i>
 							</button>
@@ -474,11 +477,11 @@
 				</div>
 			</div>
 		</aside>
-		<footer>
+		<footer data-intro='Click here to create a factor' data-step='8' data-position="top">
 			<div id="statusBar">
 				<br />
 			</div>
-			<div id="zoomcontrol">
+			<div id="zoomcontrol" data-intro='Click here to create a factor' data-step='9' data-position="top">
 				Zoom <span id="zoomminus">&ndash;</span>
 				<input
 					type="range"
@@ -614,7 +617,7 @@
 		<!-- Open file dialog -->
 		<input type="file" id="fileInput" style="display: none;" />
 		<!-- Chat window -->
-		<div class="chatbox-tab" id="chatbox-tab">
+		<div class="chatbox-tab" id="chatbox-tab" data-intro='Click here to create a factor' data-step='10' data-position="top">
 			<div class="tooltip">
 				<i class="fas fa-comments"></i>
 				<span class="tooltiptext" style="margin-left: -120px;"
@@ -664,8 +667,6 @@
 				</div>
 			</div>
 		</div>
-
-		<!-- <script src="./js/browsertest.js"></script> -->
 		<script src="../js/prsm.js"></script>
 	</body>
 </html>
