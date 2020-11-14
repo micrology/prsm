@@ -26,8 +26,14 @@
 		></script>
 		<link href="../css/vis-network.min.css" rel="stylesheet" />
 		<!-- Add IntroJs styles -->
-		<link href="../node_modules/intro.js/minified/introjs.min.css" rel="stylesheet">
-		<link href="../node_modules/intro.js/themes/introjs-modern.css" rel="stylesheet">
+		<link
+			href="../node_modules/intro.js/minified/introjs.min.css"
+			rel="stylesheet"
+		/>
+		<link
+			href="../node_modules/intro.js/themes/introjs-modern.css"
+			rel="stylesheet"
+		/>
 		<script>
 			if (window.document.documentMode) {
 				alert(
@@ -41,17 +47,40 @@
 		<header>
 			<nav id="navbar">
 				<div>
-				<div class="strapline">Participatory System Mapper<span id="version">1.2.0</span></div>
-				<div class="maptitle" id="maptitle" contenteditable="true" data-intro='Click here to create a factor' data-step='1' data-position="bottom">Untitled map</div>
-			</div>
+					<div class="strapline">
+						Participatory System Mapper<span id="version"
+							>1.2.0</span
+						>
+					</div>
+					<div
+						class="maptitle"
+						id="maptitle"
+						contenteditable="true"
+						data-intro="Click here to name the map"
+						data-step="1"
+						data-position="bottom"
+					>
+						Untitled map
+					</div>
+				</div>
 				<div class="button-wrapper">
 					<div class="buttons" id="buttons">
-						<div class="tooltip" data-intro='Click here to create a factor' data-step='2' data-position="bottom">
+						<div
+							class="tooltip"
+							data-intro="Click the plus to create a factor"
+							data-step="2"
+							data-position="bottom"
+						>
 							<button id="addNode">
 								<i class="fas fa-plus"></i></button
 							><span class="tooltiptext">Add factor</span>
 						</div>
-						<div class="tooltip right-border" data-intro='Click here to create a factor' data-step='3' data-position="bottom">
+						<div
+							class="tooltip right-border"
+							data-intro="Click the arrow to create a link"
+							data-step="3"
+							data-position="bottom"
+						>
 							<button id="addLink">
 								<!-- <i class="fas fa-wave-square"></i> -->
 								<i
@@ -69,7 +98,12 @@
 								<i class="fas fa-redo small-button"></i></button
 							><span class="tooltiptext">Redo</span>
 						</div>
-						<div class="tooltip right-border" data-intro='Click here to create a factor' data-step='4' data-position="bottom">
+						<div
+							class="tooltip right-border"
+							data-intro="Select a factor or link and then click here to delete it"
+							data-step="4"
+							data-position="bottom"
+						>
 							<button id="deleteNode">
 								<i
 									class="fas fa-trash-alt small-button"
@@ -88,7 +122,12 @@
 								></i></button
 							><span class="tooltiptext">Open network</span>
 						</div>
-						<div class="tooltip" data-intro='Click here to create a factor' data-step='5' data-position="left">
+						<div
+							class="tooltip"
+							data-intro="Click here to save the map to your disk"
+							data-step="5"
+							data-position="left"
+						>
 							<button id="saveFile">
 								<i class="fas fa-save small-button"></i></button
 							><span class="tooltiptext">Save network</span>
@@ -112,7 +151,12 @@
 								</div>
 							</div>
 						</div>
-						<div class="tooltip left-border" data-intro='Click here to create a factor' data-step='6' data-position="left">
+						<div
+							class="tooltip left-border"
+							data-intro="Click here for more help"
+							data-step="6"
+							data-position="left"
+						>
 							<button id="help">
 								<i class="fas fa-question"></i>
 							</button>
@@ -120,7 +164,12 @@
 								>Show help in a new window</span
 							>
 						</div>
-						<div class="tooltip" data-intro='Click here to create a factor' data-step='7' data-position="left">
+						<div
+							class="tooltip"
+							data-intro="Click here for more options"
+							data-step="7"
+							data-position="left"
+						>
 							<button id="panelToggle">
 								<i class="fas fa-sliders-h"></i>
 							</button>
@@ -132,7 +181,14 @@
 				</div>
 			</nav>
 		</header>
-		<main id="main">
+		<main
+			id="main"
+			data-intro="<div>
+			<b>That's the end of the tour.<p>Press Done and then click <br>
+				on the + button above to add your first factor.</div>"
+			data-step="12"
+			data-tooltipClass="splash"
+		>
 			<div id="popup">
 				<div id="popup-operation">Factor</div>
 				<div id="popup-cancelButton">&times;</div>
@@ -145,7 +201,14 @@
 				</div>
 				<input type="button" value="save" id="popup-saveButton" />
 			</div>
-			<div id="net-pane"></div>
+			<div
+				id="net-pane"
+				data-intro="<div>
+				<b>Welcome to PRSM</b><p>For a quick tour, press Next,<br>
+					or to start immediately, press Skip.</div>"
+				data-step="1"
+				data-tooltipClass="splash"
+			></div>
 			<div id="underlay">
 				<canvas class="drawing-canvas" id="temp-canvas"></canvas>
 				<div class="toolbox" id="toolbox">
@@ -477,11 +540,20 @@
 				</div>
 			</div>
 		</aside>
-		<footer data-intro='Click here to create a factor' data-step='8' data-position="top">
+		<footer
+			data-intro="Hints and messages appear here"
+			data-step="8"
+			data-position="top"
+		>
 			<div id="statusBar">
 				<br />
 			</div>
-			<div id="zoomcontrol" data-intro='Click here to create a factor' data-step='9' data-position="top">
+			<div
+				id="zoomcontrol"
+				data-intro="Zoom in for detail or out for an overview"
+				data-step="9"
+				data-position="top"
+			>
 				Zoom <span id="zoomminus">&ndash;</span>
 				<input
 					type="range"
@@ -617,7 +689,7 @@
 		<!-- Open file dialog -->
 		<input type="file" id="fileInput" style="display: none;" />
 		<!-- Chat window -->
-		<div class="chatbox-tab" id="chatbox-tab" data-intro='Click here to create a factor' data-step='10' data-position="top">
+		<div class="chatbox-tab" id="chatbox-tab">
 			<div class="tooltip">
 				<i class="fas fa-comments"></i>
 				<span class="tooltiptext" style="margin-left: -120px;"
@@ -626,11 +698,16 @@
 			</div>
 		</div>
 		<div class="chatbox-holder" id="chatbox-holder">
-			<div class="chatbox chatbox-hide" id="chatbox">
+			<div class="chatbox" id="chatbox">
 				<div class="chatbox-top" id="chatbox-top">
 					<div class="chat-name">
 						My name:
-						<div class="tooltip">
+						<div
+							class="tooltip"
+							data-intro="Enter your name here"
+							data-step="10"
+							data-position="top"
+						>
 							<input type="text" id="chat-name" />
 							<span class="tooltiptext"
 								>Click to change your nickname</span
@@ -638,7 +715,12 @@
 						</div>
 					</div>
 					<div class="chatbox-icons">
-						<div class="tooltip">
+						<div
+							class="tooltip"
+							data-intro="Click here to minimise the chat"
+							data-step="11"
+							data-position="top"
+						>
 							<span id="minimize"
 								><i class="fas fa-times"></i
 							></span>

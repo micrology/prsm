@@ -2,7 +2,8 @@
 The main entry point for PRSM.  
  */
 import * as Y from 'yjs';
-import {WebsocketProvider} from 'y-websocket';
+import { WebsocketProvider } from 'y-websocket';
+import * as awarenessProtocol from 'y-protocols/awareness.js';
 import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
 import {
@@ -28,7 +29,7 @@ import {
 	legend,
 	clearLegend,
 } from './styles.js';
-import { setUpPaint, setUpToolbox, deselectTool, redraw } from './paint.js';
+import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 import introJs from 'intro.js/intro.js';
 
 const version = '1.4.0';
@@ -92,7 +93,8 @@ function listen(elem, event, callback) {
 function addEventListeners() {
 	listen('maptitle', 'keyup', mapTitle);
 	listen('maptitle', 'click', (e) => {
-		if (e.target.innerText == "Untitled map") window.getSelection().selectAllChildren(e.target);
+		if (e.target.innerText == 'Untitled map')
+			window.getSelection().selectAllChildren(e.target);
 	});
 	listen('addNode', 'click', plusNode);
 	listen('net-pane', 'contextmenu', ctlClickAddNode);
@@ -178,8 +180,19 @@ function setUpPage() {
 		legend: true,
 		sizing: 'Off',
 	};
-	intro.setOptions({hidePrev: true, hideNext: true, exitOnOverlayClick: false, showStepNumbers: false, overlayOpacity: 0.3})
-	intro.start();
+	if (!localStorage.getItem('doneIntro')) {
+		intro.setOptions({
+			hidePrev: true,
+			hideNext: true,
+			exitOnOverlayClick: false,
+			showStepNumbers: false,
+			overlayOpacity: 0.3,
+		});
+		intro.onexit(function () {
+			localStorage.setItem('doneIntro', true);
+		});
+		intro.start();
+	}
 }
 
 /**
@@ -247,6 +260,13 @@ function startY() {
 		nodes: nodes,
 		edges: edges,
 	};
+	const awareness = new awarenessProtocol.Awareness(doc);
+	awareness.setLocalState({ id: clientID });
+	/* awareness.on('update', function () {
+		console.log(awareness.getStates());
+	}); */
+	
+	
 	/* 
 	for convenience when debugging
 	 */
@@ -1130,7 +1150,7 @@ function changeCursor(newCursorStyle) {
 }
 /**
  * User has set or changed the map title: update the UI and broadcast the new title
- * @param {event} e 
+ * @param {event} e
  */
 function mapTitle(e) {
 	let title = e.target.innerText;
@@ -1139,15 +1159,15 @@ function mapTitle(e) {
 }
 /**
  * Format the map title
- * @param {string} title 
+ * @param {string} title
  */
 function setMapTitle(title) {
 	let div = document.getElementById('maptitle');
-	if (title == "") {
-		title = "Untitled map";
+	if (title == '') {
+		title = 'Untitled map';
 	}
-	div.style.color = (title == "Untitled map" ? "lightgrey": "white");
-	if (title !== "Untitled map") {
+	div.style.color = title == 'Untitled map' ? 'lightgrey' : 'white';
+	if (title !== 'Untitled map') {
 		lastFileName = title.replace(/\s+/g, '').toLowerCase();
 	}
 	if (title !== div.innerText) div.innerText = title;

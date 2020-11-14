@@ -115,6 +115,10 @@ input[type='range'] {
 	vertical-align: middle;
 	width: 80px;
 }
+.splash {
+	text-align: center;
+	line-height: 150%;
+}
 /* Add factor dialog */
 
 #popup {
@@ -222,8 +226,8 @@ nav {
 	color: lightgray;
 	margin-left: 10px;
 }
-.maptitle{
-	font-size:20px;
+.maptitle {
+	font-size: 20px;
 	margin: 15px 0 0 10px;
 	color: lightgrey;
 	text-align: left;
@@ -372,7 +376,7 @@ nav button .pressed {
 		grid-row: 1;
 		font-size: 20px;
 	}
-	.maptitle{
+	.maptitle {
 		text-align: center;
 		font-size: 16px;
 		margin-top: 5px;
