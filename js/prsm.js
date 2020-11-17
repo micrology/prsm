@@ -2,8 +2,8 @@
 The main entry point for PRSM.  
  */
 import * as Y from 'yjs';
-import { WebsocketProvider } from 'y-websocket';
-import * as awarenessProtocol from 'y-protocols/awareness.js';
+import {WebsocketProvider} from 'y-websocket';
+//import * as awareness from 'y-protocols/awareness.js';
 import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
 import {
@@ -17,6 +17,7 @@ import {
 	dragElement,
 	standardize_color,
 	object_equals,
+	generateName,
 } from './utils.js';
 import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
@@ -50,6 +51,7 @@ var yNetMap; // shared map of global network settings
 export var yPointsArray; // shared array of the background drawing commands
 var yUndoManager; // shared list of commands for undo
 var yChatArray; // shared array of messages in the chat window
+var yAwareness; // awareness channel
 var container; //the DOM body elemnet
 var netPane; // the DOM pane showing the network
 var panel; // the DOM right side panel element
@@ -190,6 +192,7 @@ function setUpPage() {
 		});
 		intro.onexit(function () {
 			localStorage.setItem('doneIntro', true);
+			minimize();
 		});
 		intro.start();
 	}
@@ -244,13 +247,13 @@ function startY() {
 	yChatArray = doc.getArray('chat');
 	yPointsArray = doc.getArray('points');
 
-	// get an existing or generate a new clientID, used to identify nodes and edges created by this client
+	/* // get an existing or generate a new clientID, used to identify nodes and edges created by this client
 	if (localStorage.getItem('clientID'))
 		clientID = localStorage.getItem('clientID');
-	else {
-		clientID = doc.clientID;
-		localStorage.setItem('clientID', clientID);
-	}
+	else { */
+	clientID = doc.clientID;
+	localStorage.setItem('clientID', clientID);
+	/* } */
 	console.log('My client ID: ' + clientID);
 	/* set up the undo managers */
 	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap]);
@@ -260,13 +263,12 @@ function startY() {
 		nodes: nodes,
 		edges: edges,
 	};
-	const awareness = new awarenessProtocol.Awareness(doc);
-	awareness.setLocalState({ id: clientID });
-	/* awareness.on('update', function () {
-		console.log(awareness.getStates());
-	}); */
-	
-	
+	yAwareness = wsProvider.awareness;
+	yAwareness.on('change', function () {
+		console.log(yAwareness.getStates());
+		showOtherUsers();
+	});
+
 	/* 
 	for convenience when debugging
 	 */
@@ -281,7 +283,7 @@ function startY() {
 	window.yChatArray = yChatArray;
 	window.yPointsArray = yPointsArray;
 	window.samples = samples;
-
+	window.yAwareness = yAwareness;
 	/* 
 	nodes.on listens for when local nodes or edges are changed (added, updated or removed).
 	If a local node is removed, the yMap is updated to broadcast to other clients that the node 
@@ -511,9 +513,13 @@ const emojiPicker = new EmojiButton({
  * create DOM elements for the chat box
  */
 function setUpChat() {
-	if (localStorage.getItem('myName')) myName = localStorage.getItem('myName');
-	else myName = 'User' + clientID;
-	console.log('My name: ' + myName);
+	myName = localStorage.getItem('myName');
+	// sanity check
+	if (!(typeof myName === 'object' && 'name' in myName))
+		myName = generateName();
+	console.log('My name: ' + myName.name);
+	displayUserName();
+	yAwareness.setLocalState({name: myName});
 	yChatArray.observe(() => {
 		displayLastMsg();
 		blinkChatboxTab();
@@ -521,17 +527,20 @@ function setUpChat() {
 	chatboxTab.addEventListener('click', maximize);
 	listen('minimize', 'click', minimize);
 	chatNameBox.addEventListener('keyup', (e) => {
-		if (e.key == 'Enter') {
-			myName = chatNameBox.value;
-			localStorage.setItem('myName', myName);
-			chatInput.focus();
-		}
+		if (myName.anon) chatNameBox.style.fontStyle = 'normal';
+		if (e.key == 'Enter') chatboxSaveName();
 	});
-	chatNameBox.addEventListener('blur', () => {
-		myName = chatNameBox.value;
+	function chatboxSaveName() {
+		myName.name = chatNameBox.value;
+		myName.anon = false;
 		localStorage.setItem('myName', myName);
+		yAwareness.setLocalState({name: myName});
+	}
+	chatNameBox.addEventListener('blur', () => {
+		chatboxSaveName();
 	});
 	chatNameBox.addEventListener('click', () => {
+		if (myName.anon) chatNameBox.value = '';
 		chatNameBox.focus();
 		chatNameBox.select();
 	});
@@ -2683,7 +2692,7 @@ function sendMsg() {
 	yChatArray.push([
 		{
 			client: clientID,
-			author: myName,
+			author: myName.name,
 			time: clock,
 			msg: inputMsg,
 		},
@@ -2726,7 +2735,32 @@ function displayMsg(msg) {
 }
 
 function displayUserName() {
-	chatNameBox.value = myName;
+	chatNameBox.style.fontStyle = myName.anon ? 'italic' : 'normal';
+	chatNameBox.value = myName.name;
+}
+
+/**
+ * Place a circle at the top left of the net pane to represent each user who is online
+ */
+function showOtherUsers() {
+	let avatars = document.getElementById('avatars');
+	while (avatars.firstChild) {
+		avatars.removeChild(avatars.firstChild);
+	}
+	yAwareness.getStates().forEach((state) => {
+		let n = state.name;
+		if (n != myName) {
+			let ava = document.createElement('div');
+			ava.classList.add('hoverme');
+			ava.dataset.tooltip = n.name;
+			let circle = document.createElement('div');
+			circle.classList.add('round');
+			circle.style.backgroundColor = n.color;
+			circle.innerText = n.name[0];
+			ava.appendChild(circle);
+			avatars.appendChild(ava);
+		}
+	});
 }
 
 dragElement(

@@ -30,7 +30,8 @@
 		"pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/prsm.css doc/**/*.{html,css} package.json",
 		"build-help": "pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -H doc/meta.html -s --toc -o ./help.html",
 		"check": "npm run --silent lint && npm run --silent build-help && npm run --silent pretty",
-		"dev": "parcel ./html/prsm.html",
+		"serve": "parcel ./html/prsm.html",
+		"dev": "rm -rf dist/* && parcel build ./html/prsm.html --no-minify --no-scope-hoist",
 		"build": "rm -rf dist/* && parcel build ./html/prsm.html",
 		"jsdoc": "npx jsdoc -r ./js -d ./doc/jsdoc",
 		"clean": "rm -rf dist/* out/*"
@@ -40,6 +41,7 @@
 		"@egjs/hammerjs": "^2.0.17",
 		"@joeattardi/emoji-button": "^2.12.1",
 		"component-emitter": "^1.3.0",
+		"do_username": "0.0.2",
 		"fast-xml-parser": "^3.17.4",
 		"hammerjs": "^2.0.8",
 		"intro.js": "^3.0.1",

@@ -301,3 +301,84 @@ export function standardize_color(str) {
 	ctx.fillStyle = str;
 	return ctx.fillStyle;
 }
+
+const SEA_CREATURES = Object.freeze([
+	'walrus',
+	'seal',
+	'fish',
+	'shark',
+	'clam',
+	'coral',
+	'whale',
+	'crab',
+	'lobster',
+	'starfish',
+	'eel',
+	'dolphin',
+	'squid',
+	'jellyfish',
+	'ray',
+	'shrimp',
+	'mantaRay',
+	'angler',
+	'snorkler',
+	'scubaDiver',
+	'urchin',
+	'anemone',
+	'morel',
+	'axolotl',
+]);
+
+const ADJECTIVES = Object.freeze([
+	'cute',
+	'adorable',
+	'lovable',
+	'happy',
+	'sandy',
+	'bubbly',
+	'friendly',
+	'floating',
+	'drifting',
+	'large',
+	'big',
+	'small',
+	'giant',
+	'massive',
+	'tiny',
+	'little',
+]);
+
+const COLORS = Object.freeze([
+	'silver',
+	'hotpink',
+	'red',
+	'lightblue',
+	'fuchsia',
+	'green',
+	'lime',
+	'olive',
+	'yellow',
+	'darkorange',
+	'chartreuse',
+	'teal',
+	'aqua',
+	'orange',
+	'beige',
+	'gainsboro',
+	'cadetblue',
+	'coral',
+	'gold',
+]);
+
+const random = (items) => items[(Math.random() * items.length) | 0];
+
+const capitalize = (string) => string[0].toUpperCase() + string.slice(1);
+
+export function generateName() {
+	return {
+		color: random(COLORS),
+		name:
+			capitalize(random(ADJECTIVES)) + capitalize(random(SEA_CREATURES)),
+		anon: true,
+	};
+}

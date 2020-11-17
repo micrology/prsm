@@ -1080,13 +1080,6 @@ but moving the panel out of sight works instead */
 .options .right {
 	text-align: right;
 }
-/* image tool 
-.marching-ants {
-	border: 1px solid rgba(0, 0, 0, 0.01);
-	border-image-source: url('../img/ants.gif');
-	border-image-slice: 1;
-	border-image-repeat: repeat repeat;
-}*/
 div.resize {
 	cursor: nwse-resize;
 	position: absolute;
@@ -1095,4 +1088,84 @@ div.resize {
 	height: 10px;
 	bottom: 0px;
 	right: 0px;
+}
+/* avatars */
+.avatars {
+	display: flex;
+}
+.round {
+	border-radius: 50%;
+	width: 40px;
+	height: 40px;
+	text-align: center;
+	line-height: 40px;
+	font-family: sans-serif;
+	font-weight: bold;
+	font-size: 24px;
+	opacity: 0.7;
+	border: 1px solid black;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.hoverme {
+	display: inline;
+	position: relative;
+	padding: 8px;
+	z-index: 10;
+}
+.hoverme:hover::after {
+	content: attr(data-tooltip);
+	max-height: 24px;
+	width: max-content;
+	padding: 8px;
+	border-radius: 4px;
+	background: #232f34;
+	color: #fff;
+	position: absolute;
+	text-align: center;
+	/* top: 70px;
+	left: -15px;*/
+	font-size: 12px;
+	white-space: pre;
+	display: inline-block;
+	animation: showf 100ms linear;
+}
+@keyframes showf {
+	0% {
+		transform: scale(0.5);
+		opacity: 0.5;
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+.hoverme + .hoverme:hover::after {
+	content: attr(data-tooltip);
+	max-height: 24px;
+	width: max-content;
+	padding: 8px;
+	font-family: 'Work Sans', sans-serif;
+	border-radius: 4px;
+	background: #232f34;
+	color: #fff;
+	position: absolute;
+	text-align: center;
+	left: 50%;
+	top: 30px;
+	font-size: 12px;
+	white-space: pre;
+	display: inline-block;
+	margin: 0 auto;
+	transform: translateX(-50%);
+	animation: show 100ms linear;
+}
+@keyframes show {
+	0% {
+		left: 50%;
+		transform: translateX(-50%) scale(0.5);
+		opacity: 0.2;
+	}
+	100% {
+		left: 50%;
+		transform: translateX(-50%) scale(1);
+	}
 }
