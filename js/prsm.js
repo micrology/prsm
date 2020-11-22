@@ -264,10 +264,7 @@ function startY() {
 		edges: edges,
 	};
 	yAwareness = wsProvider.awareness;
-	yAwareness.on('change', function () {
-		console.log(yAwareness.getStates());
-		showOtherUsers();
-	});
+	yAwareness.on('change', showOtherUsers);
 
 	/* 
 	for convenience when debugging
@@ -531,8 +528,14 @@ function setUpChat() {
 		if (e.key == 'Enter') chatboxSaveName();
 	});
 	function chatboxSaveName() {
-		myName.name = chatNameBox.value;
-		myName.anon = false;
+		if (chatNameBox.value.length == 0) {
+			myName = generateName();
+			chatNameBox.value = myName.name
+		}
+		else {
+			myName.name = chatNameBox.value;
+			myName.anon = false;
+		}
 		localStorage.setItem('myName', myName);
 		yAwareness.setLocalState({name: myName});
 	}
@@ -1774,51 +1777,6 @@ function parseCSV(csv) {
 		return labels.get(label).id;
 	}
 }
-
-/* function parseCSV(csv) {
-	/* comma separated values file consisting of 'From' label and 'to' label, on each row,
-  with a header row (ignored) 
-  optional, cols 3 and 4 can include the groups of the from and to nodes
-	let lines = csv.split('\n'); console.log(lines);
-	let labels = [];
-	for (let i = 1; i < lines.length; i++) {
-		if (lines[i].length <= 2) continue; // empty line
-		let line = lines[i].split(','); console.log(line);
-		let from = node(line[0]);
-		let to = node(line[1]);
-		edges.add({
-			id: i,
-			from: from,
-			to: to,
-		});
-		if (line[2])
-			nodes.update({
-				id: from,
-				grp: line[2].trim(),
-			});
-		if (line[3])
-			nodes.update({
-				id: to,
-				grp: line[3].trim(),
-			});
-	}
-	return {
-		nodes: nodes,
-		edges: edges,
-	};
-
-	function node(label) {
-		label = label.trim();
-		if (labels.indexOf(label) == -1) {
-			labels.push(label);
-			nodes.add({
-				id: labels.indexOf(label).toString(),
-				label: label,
-			});
-		}
-		return labels.indexOf(label).toString();
-	}
-} */
 
 function refreshSampleNodes() {
 	let sampleElements = Array.from(

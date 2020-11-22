@@ -250,8 +250,10 @@ export const samples = {
 		},
 	}, // end of edges samples
 };
+/**
+ * The samples are each a mini vis-network showing just one node or two nodes and a link
+ */
 export function setUpSamples() {
-	// The samples are each a mini vis-network showing just one node or two nodes and a link
 	// create sample configurations
 	configSamples();
 	// Get all elements with class='sampleNode' and add listener and canvas
@@ -327,9 +329,10 @@ export function setUpSamples() {
 		sampleElement.dataSet = edgeDataSet;
 	}
 }
-
-function configSamples() {
-	// assemble configurations by merging the specifics into the default
+/**
+ * assemble configurations by merging the specifics into the default
+ */
+function configSamples() { 
 	let base = samples.nodes.base;
 	for (let prop in samples.nodes) {
 		let grp = deepMerge(base, samples.nodes[prop]);
@@ -351,7 +354,11 @@ function configSamples() {
 		samples.edges[prop] = grp;
 	}
 }
-
+/**
+ * Display the editing palette for a sample node
+ * @param {*} sampleElement 
+ * @param {Integer} groupId 
+ */
 function editNodeSample(sampleElement, groupId) {
 	let drawer = document.getElementById('editNodeDrawer');
 	getNodeSampleEdit(sampleElement, samples.nodes[groupId]);
@@ -381,7 +388,11 @@ function editNodeSample(sampleElement, groupId) {
 	}px`;
 	drawer.classList.remove('hideDrawer');
 }
-
+/**
+ * fill the node editing palette with the current style features
+ * @param {DOMelement} sampleElement 
+ * @param {Integer} group 
+ */
 function getNodeSampleEdit(sampleElement, group) {
 	document.getElementsByName(
 		'nodeLabel'
