@@ -3,7 +3,7 @@ The main entry point for PRSM.
  */
 import * as Y from 'yjs';
 import {WebsocketProvider} from 'y-websocket';
-//import * as awareness from 'y-protocols/awareness.js';
+import { IndexeddbPersistence } from 'y-indexeddb';
 import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
 import {
@@ -218,6 +218,8 @@ function startY() {
 		'prsm' + room,
 		doc
 	); */
+	const persistence = new IndexeddbPersistence(room, doc);
+	persistence.once('synced', () => { console.log('initial content loaded') });
 	// wait for an update from another peer; only then will
 	// drawing etc. be finished and so we can then fit the  network to the window.
 	wsProvider.on('sync', () => {
