@@ -3,7 +3,7 @@ The main entry point for PRSM.
  */
 import * as Y from 'yjs';
 import {WebsocketProvider} from 'y-websocket';
-import { IndexeddbPersistence } from 'y-indexeddb';
+import {IndexeddbPersistence} from 'y-indexeddb';
 import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
 import {
@@ -19,11 +19,11 @@ import {
 	object_equals,
 	generateName,
 } from './utils.js';
+import {samples} from './samples.js';
 import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
 import EmojiButton from '@joeattardi/emoji-button';
 import {
-	samples,
 	setUpSamples,
 	reApplySampleToNodes,
 	reApplySampleToLinks,
@@ -37,6 +37,8 @@ const version = '1.4.0';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
+const timeToSleep = 1 * 60 * 1000;   // if no mouse movement for this time, user is assumed to have left or is sleeping
+
 export var network;
 var room;
 var viewOnly; // when true, user can only view, not modify, the network
@@ -57,7 +59,7 @@ var netPane; // the DOM pane showing the network
 var panel; // the DOM right side panel element
 var buttonStatus; // the status of the buttons in the panel
 var initialButtonStatus; // the network panel's sttings at initialisation
-var myName; // the user's name
+var myNameRec; // the user's name record {actual name, type, etc.}
 var lastNodeSample = 'group0'; // the last used node style
 var lastLinkSample = 'edge0'; // the last used edge style
 var inAddMode = false; // true when adding a new Factor to the network; used to choose cursor pointer
@@ -73,6 +75,8 @@ window.addEventListener('load', () => {
 	setUpPage();
 	startY();
 	setUpChat();
+	setUpIntro();
+	setUpAwareness();
 	setUpPaint();
 	setUpToolbox();
 	draw();
@@ -182,20 +186,6 @@ function setUpPage() {
 		legend: true,
 		sizing: 'Off',
 	};
-	if (!localStorage.getItem('doneIntro')) {
-		intro.setOptions({
-			hidePrev: true,
-			hideNext: true,
-			exitOnOverlayClick: false,
-			showStepNumbers: false,
-			overlayOpacity: 0.3,
-		});
-		intro.onexit(function () {
-			localStorage.setItem('doneIntro', true);
-			minimize();
-		});
-		intro.start();
-	}
 }
 
 /**
@@ -208,18 +198,20 @@ function startY() {
 	if (room == null || room == '') room = generateRoom();
 	else room = room.toUpperCase();
 	const doc = new Y.Doc();
-	const wsProvider = new WebsocketProvider(
+	/* const wsProvider = new WebsocketProvider(
 		'wss://cress.soc.surrey.ac.uk/wss',
 		'prsm' + room,
 		doc
-	);
-	/* const wsProvider = new WebsocketProvider(
+	); */
+	const wsProvider = new WebsocketProvider(
 		'ws://localhost:1234',
 		'prsm' + room,
 		doc
-	); */
+	);
 	const persistence = new IndexeddbPersistence(room, doc);
-	persistence.once('synced', () => { console.log('initial content loaded') });
+	persistence.once('synced', () => {
+		console.log('initial content loaded');
+	});
 	// wait for an update from another peer; only then will
 	// drawing etc. be finished and so we can then fit the  network to the window.
 	wsProvider.on('sync', () => {
@@ -248,15 +240,11 @@ function startY() {
 	yNetMap = doc.getMap('network');
 	yChatArray = doc.getArray('chat');
 	yPointsArray = doc.getArray('points');
+	yAwareness = wsProvider.awareness;
 
-	/* // get an existing or generate a new clientID, used to identify nodes and edges created by this client
-	if (localStorage.getItem('clientID'))
-		clientID = localStorage.getItem('clientID');
-	else { */
 	clientID = doc.clientID;
-	localStorage.setItem('clientID', clientID);
-	/* } */
 	console.log('My client ID: ' + clientID);
+
 	/* set up the undo managers */
 	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap]);
 	nodes = new DataSet();
@@ -265,8 +253,6 @@ function startY() {
 		nodes: nodes,
 		edges: edges,
 	};
-	yAwareness = wsProvider.awareness;
-	yAwareness.on('change', showOtherUsers);
 
 	/* 
 	for convenience when debugging
@@ -512,13 +498,16 @@ const emojiPicker = new EmojiButton({
  * create DOM elements for the chat box
  */
 function setUpChat() {
-	myName = localStorage.getItem('myName');
+	myNameRec = JSON.parse(localStorage.getItem('myName'));
 	// sanity check
-	if (!(typeof myName === 'object' && 'name' in myName))
-		myName = generateName();
-	console.log('My name: ' + myName.name);
+	if (!( myNameRec != null && myNameRec.name)) {
+		myNameRec = generateName();
+		localStorage.setItem('myName', JSON.stringify(myNameRec));
+	}
+
+	console.log('My name: ' + myNameRec.name);
 	displayUserName();
-	yAwareness.setLocalState({name: myName});
+	yAwareness.setLocalState({name: myNameRec});
 	yChatArray.observe(() => {
 		displayLastMsg();
 		blinkChatboxTab();
@@ -526,26 +515,25 @@ function setUpChat() {
 	chatboxTab.addEventListener('click', maximize);
 	listen('minimize', 'click', minimize);
 	chatNameBox.addEventListener('keyup', (e) => {
-		if (myName.anon) chatNameBox.style.fontStyle = 'normal';
+		if (myNameRec.anon) chatNameBox.style.fontStyle = 'normal';
 		if (e.key == 'Enter') chatboxSaveName();
 	});
 	function chatboxSaveName() {
 		if (chatNameBox.value.length == 0) {
-			myName = generateName();
-			chatNameBox.value = myName.name
+			myNameRec = generateName();
+			chatNameBox.value = myNameRec.name;
+		} else {
+			myNameRec.name = chatNameBox.value;
+			myNameRec.anon = false;
 		}
-		else {
-			myName.name = chatNameBox.value;
-			myName.anon = false;
-		}
-		localStorage.setItem('myName', myName);
-		yAwareness.setLocalState({name: myName});
+		localStorage.setItem('myName', JSON.stringify(myNameRec));
+		yAwareness.setLocalState({name: myNameRec});
 	}
 	chatNameBox.addEventListener('blur', () => {
 		chatboxSaveName();
 	});
 	chatNameBox.addEventListener('click', () => {
-		if (myName.anon) chatNameBox.value = '';
+		if (myNameRec.anon) chatNameBox.value = '';
 		chatNameBox.focus();
 		chatNameBox.select();
 	});
@@ -556,6 +544,49 @@ function setUpChat() {
 	emojiButton.addEventListener('click', () => {
 		emojiPicker.togglePicker(emojiButton);
 	});
+}
+/**
+ * if this is the user's first time, show them how the user interface works
+ */
+function setUpIntro() {
+	if (localStorage.getItem('doneIntro') != "true") {
+		intro.setOptions({
+			hidePrev: true,
+			hideNext: true,
+			exitOnOverlayClick: false,
+			showStepNumbers: false,
+			overlayOpacity: 0.3,
+		});
+		intro.onexit(function () {
+			localStorage.setItem('doneIntro', "true");
+			minimize();
+		});
+		maximize();
+		intro.start();
+	}
+}
+/**
+ *  set up user monitoring (awareness)
+ */
+function setUpAwareness() {
+		
+		yAwareness.on('change', (event) => {
+			console.log(event);
+			showOtherUsers();
+		});
+		// fade out avatar when there has been no movement of the mouse for 15 minutes
+		var sleepTimer = setTimeout(() => asleep(true), timeToSleep);
+		window.addEventListener('mousemove',
+			() => { clearTimeout(sleepTimer); asleep(false); sleepTimer = setTimeout(asleep, timeToSleep) });
+		
+}
+/**
+ * Set the awareness local state to show whether this client is sleeping (no mouse movement for 15 minutes)
+ * @param {Boolean} isSleeping 
+ */
+function asleep(isSleeping) {
+	myNameRec.asleep = isSleeping;
+	yAwareness.setLocalState({name: myNameRec});
 }
 
 /**
@@ -2652,7 +2683,7 @@ function sendMsg() {
 	yChatArray.push([
 		{
 			client: clientID,
-			author: myName.name,
+			author: myNameRec.name,
 			time: clock,
 			msg: inputMsg,
 		},
@@ -2695,28 +2726,44 @@ function displayMsg(msg) {
 }
 
 function displayUserName() {
-	chatNameBox.style.fontStyle = myName.anon ? 'italic' : 'normal';
-	chatNameBox.value = myName.name;
+	chatNameBox.style.fontStyle = myNameRec.anon ? 'italic' : 'normal';
+	chatNameBox.value = myNameRec.name;
 }
 
 /**
  * Place a circle at the top left of the net pane to represent each user who is online
  */
+
 function showOtherUsers() {
+	let names = Array.from(yAwareness.getStates())
+		.map(([name, value]) => {
+			name;
+			return value.name;
+		})
+		.sort((a, b) => (a.name > b.name ? 1 : -1));
+	console.log(new Date().toLocaleTimeString() + '.' + new Date().getMilliseconds(), yAwareness.getStates());
+
 	let avatars = document.getElementById('avatars');
 	while (avatars.firstChild) {
 		avatars.removeChild(avatars.firstChild);
 	}
-	yAwareness.getStates().forEach((state) => {
-		let n = state.name;
-		if (n != myName) {
+
+	names.forEach((nameRec) => {
+		if (nameRec != myNameRec) {
+			// skip myself
 			let ava = document.createElement('div');
 			ava.classList.add('hoverme');
-			ava.dataset.tooltip = n.name;
+			ava.dataset.tooltip = nameRec.name;
 			let circle = document.createElement('div');
 			circle.classList.add('round');
-			circle.style.backgroundColor = n.color;
-			circle.innerText = n.name[0];
+			circle.style.backgroundColor = nameRec.color;
+			if (nameRec.anon) {
+				circle.style.color = 'white';
+				circle.style.textShadow = '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;';
+				circle.style.fontWeight = 'normal';
+			}
+			circle.innerText = nameRec.name[0];
+			circle.style.opacity = (nameRec.asleep ? 0.2 : 1.0);
 			ava.appendChild(circle);
 			avatars.appendChild(ava);
 		}

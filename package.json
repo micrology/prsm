@@ -40,10 +40,7 @@
 	"dependencies": {
 		"@egjs/hammerjs": "^2.0.17",
 		"@joeattardi/emoji-button": "^2.12.1",
-		"component-emitter": "^1.3.0",
-		"do_username": "0.0.2",
 		"fast-xml-parser": "^3.17.4",
-		"hammerjs": "^2.0.8",
 		"intro.js": "^3.0.1",
 		"keycharm": "^0.3.1",
 		"moment": "^2.29.1",
@@ -62,8 +59,10 @@
 		"eslint": "^6.8.0",
 		"eslint-config-prettier": "^6.15.0",
 		"foodoc": "0.0.9",
+		"install": "^0.13.0",
 		"jsdoc": "^3.6.6",
-		"parcel": "^2.0.0-nightly.438",
+		"npm": "^6.14.9",
+		"parcel": "^2.0.0-nightly.462",
 		"prettier": "2.0.5"
 	},
 	"private": true

@@ -1,4 +1,4 @@
-import * as Hammer from 'hammerjs';
+import * as Hammer from '@egjs/hammerjs';
 
 /**
  * Create a random scale free network, used only for testing and demoing
@@ -308,7 +308,7 @@ const ADJECTIVES = Object.freeze([
 	'odd',
 	'perfect',
 	'rude',
-	'wonderful'
+	'wonderful',
 ]);
 
 const COLORS = Object.freeze([
@@ -343,5 +343,6 @@ export function generateName() {
 		name:
 			capitalize(random(ADJECTIVES)) + capitalize(random(SEA_CREATURES)),
 		anon: true,
+		asleep: false
 	};
 }
