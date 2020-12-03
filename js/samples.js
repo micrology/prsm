@@ -1,4 +1,4 @@
-export const samples = {
+export const styles = {
 	nodes: {
 		base: {
 			groupLabel: 'Sample',

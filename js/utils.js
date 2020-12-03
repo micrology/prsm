@@ -1,6 +1,21 @@
 import * as Hammer from '@egjs/hammerjs';
 
 /**
+ * attach an event listener
+ *
+ * @param {string} elem - id of the element on which to hand the event listener
+ * @param {string} event
+ * @param {function} callback
+ */
+export function listen(id, event, callback) {
+	elem(id).addEventListener(event, callback);
+}
+
+export function elem(id) {
+	return document.getElementById(id);
+}
+
+/**
  * Create a random scale free network, used only for testing and demoing
  * Taken from the vis-network distribution
  *
@@ -109,6 +124,24 @@ export function deepMerge() {
 	}
 
 	return newObj;
+}
+
+export function deepCopy(obj) {
+	if (typeof obj !== 'object' || obj === null) {
+		return obj;
+	}
+	if (obj instanceof Array) {
+		return obj.reduce((arr, item, i) => {
+			arr[i] = deepCopy(item);
+			return arr;
+		}, []);
+	}
+	if (obj instanceof Object) {
+		return Object.keys(obj).reduce((newObj, key) => {
+			newObj[key] = deepCopy(obj[key]);
+			return newObj;
+		}, {});
+	}
 }
 
 export function cleanArray(arr, propsToRemove) {
@@ -343,6 +376,6 @@ export function generateName() {
 		name:
 			capitalize(random(ADJECTIVES)) + capitalize(random(SEA_CREATURES)),
 		anon: true,
-		asleep: false
+		asleep: false,
 	};
 }

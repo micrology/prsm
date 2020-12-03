@@ -56,7 +56,7 @@
 						class="maptitle"
 						id="maptitle"
 						contenteditable="true"
-						data-intro="Click here to name the map"
+						data-intro="You can name the map here"
 						data-step="1"
 						data-position="bottom"
 					>
@@ -67,7 +67,7 @@
 					<div class="buttons" id="buttons">
 						<div
 							class="tooltip"
-							data-intro="Click the plus to create a factor"
+							data-intro="Clicking the plus creates a new factor"
 							data-step="2"
 							data-position="bottom"
 						>
@@ -77,7 +77,7 @@
 						</div>
 						<div
 							class="tooltip right-border"
-							data-intro="Click the arrow to create a link"
+							data-intro="Clicking the arrow creates a link"
 							data-step="3"
 							data-position="bottom"
 						>
@@ -100,7 +100,7 @@
 						</div>
 						<div
 							class="tooltip right-border"
-							data-intro="Select a factor or link and then click here to delete it"
+							data-intro="Selecting a factor or link and then clicking here deletes it"
 							data-step="4"
 							data-position="bottom"
 						>
@@ -124,7 +124,7 @@
 						</div>
 						<div
 							class="tooltip"
-							data-intro="Click here to save the map to your disk"
+							data-intro="Clicking here saves the map to your disk"
 							data-step="5"
 							data-position="left"
 						>
@@ -153,7 +153,7 @@
 						</div>
 						<div
 							class="tooltip left-border"
-							data-intro="Click here for more help"
+							data-intro="Clicking here opens a new window with more help"
 							data-step="6"
 							data-position="left"
 						>
@@ -166,7 +166,7 @@
 						</div>
 						<div
 							class="tooltip"
-							data-intro="Click here for more options"
+							data-intro="Clicking here shows more options"
 							data-step="7"
 							data-position="left"
 						>
@@ -565,29 +565,48 @@
 				/><span id="zoomplus">+</span>
 			</div>
 		</footer>
-		<!-- sample node edit panel -->
-		<div id="editNodeDrawer" class="drawerContent hideDrawer">
-			<div class="sampleEditorPanel">
-				<div class="nodeHeader">Edit factor style</div>
-				<div class="sampleTitleInput">
+		<!-- Node Style Editor -->
+		<div
+			id="nodeStyleEditorContainer"
+			class="styleEditorContainer hideEditor"
+		>
+			<div class="styleEditor">
+				<div class="header">Edit factor style</div>
+				<div class="x-button" id="nodeEditCancel">&times;</div>
+				<div class="title">
 					Name of style:
-					<input name="nodeLabel" />
+					<input name="nodeEditName" id="nodeEditName" />
 				</div>
 				<div>fill</div>
 				<div>border</div>
 				<div>font</div>
-				<div>
-					<input type="color" name="fillColor" />
+				<div class="input-color-container">
+					<input
+						type="color"
+						class="input-color"
+						name="nodeEditFillColor"
+						id="nodeEditFillColor"
+					/>
+				</div>
+				<div class="input-color-container">
+					<input
+						type="color"
+						class="input-color"
+						name="nodeEditBorderColor"
+						id="nodeEditBorderColor"
+					/>
+				</div>
+				<div class="input-color-container">
+					<input
+						type="color"
+						class="input-color"
+						name="nodeEditFontColor"
+						id="nodeEditFontColor"
+					/>
 				</div>
 				<div>
-					<input type="color" name="borderColor" />
-				</div>
-				<div>
-					<input type="color" name="fontColor" />
-				</div>
-				<div>
-					<select name="shape">
-						<option value="">Shape...</option>
+					<select name="nodeEditShape" id="nodeEditShape">
+						<option value="box">Shape...</option>
 						<option value="ellipse">Ellipse</option>
 						<option value="circle">Circle</option>
 						<option value="box">Rect</option>
@@ -595,8 +614,8 @@
 					</select>
 				</div>
 				<div>
-					<select name="borderType">
-						<option value="">Type...</option>
+					<select name="nodeEditBorder" id="nodeEditBorder">
+						<option value="false">Type...</option>
 						<option value="false">Solid</option>
 						<option value="true">Dashed</option>
 						<option value="dots">Dotted</option>
@@ -604,63 +623,76 @@
 					</select>
 				</div>
 				<div>
-					<select name="fontSize">
-						<option value="">Size...</option>
+					<select name="nodeEditFontSize" id="nodeEditFontSize">
+						<option value="14">Size...</option>
 						<option value="18">Large</option>
 						<option value="14">Normal</option>
 						<option value="10">Small</option>
 					</select>
 				</div>
-				<div class="sampleEditorCancel">
-					<button id="sampleNodeEditorCancelButton">Cancel</button>
-				</div>
-				<div class="sampleEditorSubmit">
-					<button id="sampleNodeEditorSubmitButton">Save</button>
-				</div>
+				<input
+					type="button"
+					value="save"
+					id="nodeEditSubmit"
+					class="save-button submit"
+				/>
 			</div>
 		</div>
-		<!-- sample link edit panel -->
-		<div id="editLinkDrawer" class="drawerContent hideDrawer">
-			<div class="linkEditorPanel">
-				<div class="linkHeader">Edit link style</div>
-				<div class="linkTitleInput">
+		<!-- Link Style Editor -->
+		<div
+			id="linkStyleEditorContainer"
+			class="styleEditorContainer hideEditor"
+			style="top: 200px;"
+		>
+			<div class="styleEditor">
+				<div class="header">Edit link style</div>
+				<div class="x-button" id="linkEditCancel">&times;</div>
+				<div class="title">
 					Name of style:
-					<input name="edgeLabel" />
+					<input name="linkEditName" id="linkEditName" />
 				</div>
-				<div>Link colour</div>
-				<div>
-					<input type="color" name="lineColor" />
+				<div>colour</div>
+				<div></div>
+				<div></div>
+				<div class="input-color-container">
+					<input
+						type="color"
+						class="input-color"
+						name="linkEditLineColor"
+						id="linkEditLineColor"
+					/>
 				</div>
 				<div>
-					<select name="width">
-						<option value="">Width...</option>
+					<select name="linkEditWidth" id="linkEditWidth">
+						<option value="1">Width...</option>
 						<option value="1">Width: 1</option>
 						<option value="2">Width: 2</option>
 						<option value="4">Width: 4</option>
 					</select>
 				</div>
+				<div></div>
 				<div>
-					<select name="dashes">
-						<option value="">Dashes...</option>
+					<select name="linkEditDashes" id="linkEditDashes">
+						<option value="false">Dashes...</option>
 						<option value="false">Solid</option>
 						<option value="dashes">Dashed</option>
 						<option value="dots">Dotted</option>
 					</select>
 				</div>
 				<div>
-					<select name="arrows">
-						<option value="">Arrows...</option>
-						<option value="to">End arrow</option>
-						<option value="middle">Middle arrow</option>
-						<option value="none">No arrow</option>
+					<select name="linkEditArrows" id="linkEditArrows">
+						<option value="to">Arrows...</option>
+						<option value="to">End</option>
+						<option value="middle">Middle</option>
+						<option value="none">None</option>
 					</select>
 				</div>
-				<div class="linkEditorCancel">
-					<button id="sampleLinkEditorCancelButton">Cancel</button>
-				</div>
-				<div class="linkEditorSubmit">
-					<button id="sampleLinkEditorSubmitButton">Save</button>
-				</div>
+				<input
+					type="button"
+					value="save"
+					id="linkEditSubmit"
+					class="save-button submit"
+				/>
 			</div>
 		</div>
 		<!-- Share model dialog -->
@@ -705,7 +737,7 @@
 						My name:
 						<div
 							class="tooltip"
-							data-intro="Enter your name here"
+							data-intro="You will be able to enter your name here if you want to show others that you are online"
 							data-step="10"
 							data-position="top"
 						>
@@ -718,7 +750,7 @@
 					<div class="chatbox-icons">
 						<div
 							class="tooltip"
-							data-intro="Click here to minimise the chat"
+							data-intro="Clicking here minimises the chat pane"
 							data-step="11"
 							data-position="top"
 						>

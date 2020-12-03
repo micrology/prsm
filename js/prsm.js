@@ -7,6 +7,7 @@ import {IndexeddbPersistence} from 'y-indexeddb';
 import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
 import {
+	listen,
 	getScaleFreeNetwork,
 	uuidv4,
 	deepMerge,
@@ -19,7 +20,7 @@ import {
 	object_equals,
 	generateName,
 } from './utils.js';
-import {samples} from './samples.js';
+import {styles} from './samples.js';
 import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
 import EmojiButton from '@joeattardi/emoji-button';
@@ -37,7 +38,7 @@ const version = '1.4.0';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
-const timeToSleep = 1 * 60 * 1000;   // if no mouse movement for this time, user is assumed to have left or is sleeping
+const timeToSleep = 1 * 60 * 1000; // if no mouse movement for this time, user is assumed to have left or is sleeping
 
 export var network;
 var room;
@@ -81,17 +82,6 @@ window.addEventListener('load', () => {
 	setUpToolbox();
 	draw();
 });
-
-/**
- * attach an event listener
- *
- * @param {string} elem - id of the element on which to hand the event listener
- * @param {string} event
- * @param {function} callback
- */
-function listen(elem, event, callback) {
-	document.getElementById(elem).addEventListener(event, callback);
-}
 
 /**
  * Set up all the permanent event listeners
@@ -198,16 +188,16 @@ function startY() {
 	if (room == null || room == '') room = generateRoom();
 	else room = room.toUpperCase();
 	const doc = new Y.Doc();
-	/* const wsProvider = new WebsocketProvider(
+	const wsProvider = new WebsocketProvider(
 		'wss://cress.soc.surrey.ac.uk/wss',
 		'prsm' + room,
 		doc
-	); */
-	const wsProvider = new WebsocketProvider(
+	);
+/* 	const wsProvider = new WebsocketProvider(
 		'ws://localhost:1234',
 		'prsm' + room,
 		doc
-	);
+	); */
 	const persistence = new IndexeddbPersistence(room, doc);
 	persistence.once('synced', () => {
 		console.log('initial content loaded');
@@ -267,7 +257,7 @@ function startY() {
 	window.yUndoManager = yUndoManager;
 	window.yChatArray = yChatArray;
 	window.yPointsArray = yPointsArray;
-	window.samples = samples;
+	window.styles = styles;
 	window.yAwareness = yAwareness;
 	/* 
 	nodes.on listens for when local nodes or edges are changed (added, updated or removed).
@@ -383,10 +373,10 @@ function startY() {
 			let sample = ySamplesMap.get(key);
 			if (sample.clientID != clientID || origin != null) {
 				if (sample.node != undefined) {
-					samples.nodes[key] = sample.node;
+					styles.nodes[key] = sample.node;
 					nodesToUpdate.push(key);
 				} else {
-					samples.edges[key] = sample.edge;
+					styles.edges[key] = sample.edge;
 					edgesToUpdate.push(key);
 				}
 			}
@@ -500,7 +490,7 @@ const emojiPicker = new EmojiButton({
 function setUpChat() {
 	myNameRec = JSON.parse(localStorage.getItem('myName'));
 	// sanity check
-	if (!( myNameRec != null && myNameRec.name)) {
+	if (!(myNameRec != null && myNameRec.name)) {
 		myNameRec = generateName();
 		localStorage.setItem('myName', JSON.stringify(myNameRec));
 	}
@@ -549,7 +539,7 @@ function setUpChat() {
  * if this is the user's first time, show them how the user interface works
  */
 function setUpIntro() {
-	if (localStorage.getItem('doneIntro') != "true") {
+	if (localStorage.getItem('doneIntro') != 'true') {
 		intro.setOptions({
 			hidePrev: true,
 			hideNext: true,
@@ -558,7 +548,7 @@ function setUpIntro() {
 			overlayOpacity: 0.3,
 		});
 		intro.onexit(function () {
-			localStorage.setItem('doneIntro', "true");
+			localStorage.setItem('doneIntro', 'true');
 			minimize();
 		});
 		maximize();
@@ -569,20 +559,21 @@ function setUpIntro() {
  *  set up user monitoring (awareness)
  */
 function setUpAwareness() {
-		
-		yAwareness.on('change', (event) => {
-			console.log(event);
-			showOtherUsers();
-		});
-		// fade out avatar when there has been no movement of the mouse for 15 minutes
-		var sleepTimer = setTimeout(() => asleep(true), timeToSleep);
-		window.addEventListener('mousemove',
-			() => { clearTimeout(sleepTimer); asleep(false); sleepTimer = setTimeout(asleep, timeToSleep) });
-		
+	yAwareness.on('change', (event) => {
+		console.log(event);
+		showOtherUsers();
+	});
+	// fade out avatar when there has been no movement of the mouse for 15 minutes
+	var sleepTimer = setTimeout(() => asleep(true), timeToSleep);
+	window.addEventListener('mousemove', () => {
+		clearTimeout(sleepTimer);
+		asleep(false);
+		sleepTimer = setTimeout(asleep, timeToSleep);
+	});
 }
 /**
  * Set the awareness local state to show whether this client is sleeping (no mouse movement for 15 minutes)
- * @param {Boolean} isSleeping 
+ * @param {Boolean} isSleeping
  */
 function asleep(isSleeping) {
 	myNameRec.asleep = isSleeping;
@@ -621,7 +612,7 @@ function draw() {
 			enabled: false,
 			addNode: function (item, callback) {
 				item.label = '';
-				item = deepMerge(item, samples.nodes[lastNodeSample]);
+				item = deepMerge(item, styles.nodes[lastNodeSample]);
 				item.grp = lastNodeSample;
 				addLabel(item, cancelEdit, callback);
 				showPressed('addNode', 'remove');
@@ -648,7 +639,7 @@ function draw() {
 					callback(null);
 					return;
 				}
-				item = deepMerge(item, samples.edges[lastLinkSample]);
+				item = deepMerge(item, styles.edges[lastLinkSample]);
 				item.grp = lastLinkSample;
 				showPressed('addLink', 'remove');
 				clearStatusBar();
@@ -832,14 +823,23 @@ function addLabel(item, cancelAction, callback) {
  * @param {mouseEvent} event
  */
 function ctlClickAddNode(event) {
-	// do nothing if clicking on a node
-	if (network.getNodeAt({x: event.offsetX, y: event.offsetY}) !== undefined)
-		return;
 	// cancel default context menu
 	event.preventDefault();
-	let pos = network.DOMtoCanvas({x: event.offsetX, y: event.offsetY});
+	let domPos = { x: event.offsetX, y: event.offsetY };
+	// if clicking on a node or edge, report it to console for debugging
+	let target = network.getNodeAt(domPos);
+	if (target !== undefined) {
+		console.log(data.nodes.get(target));
+		return;
+	}
+	target = network.getEdgeAt(domPos);
+	if (target !== undefined) {
+		console.log(data.edges.get(target));
+		return;
+	}
+	let pos = network.DOMtoCanvas(domPos);
 	let item = {id: uuidv4(), label: '', x: pos.x, y: pos.y};
-	item = deepMerge(item, samples.nodes[lastNodeSample]);
+	item = deepMerge(item, styles.nodes[lastNodeSample]);
 	item.grp = lastNodeSample;
 	addLabel(item, clearPopUp, function (newItem) {
 		if (newItem !== null) data.nodes.add(newItem);
@@ -956,7 +956,7 @@ function editEdge(item, cancelAction, callback) {
 		</tr>
 	</table>`
 	);
-	document.getElementById('edge-width').value = item.width;
+	document.getElementById('edge-width').value = parseInt(item.width);
 	document.getElementById('edge-color').value = standardize_color(
 		item.color.color
 	);
@@ -1126,7 +1126,7 @@ function saveEdge(item, callback) {
 	item.color.color = color;
 	item.color.hover = color;
 	item.color.highlight = color;
-	item.width = document.getElementById('edge-width').value;
+	item.width = parseInt(document.getElementById('edge-width').value);
 	item.dashes = convertDashes(document.getElementById('edge-type').value);
 	claim(item);
 	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
@@ -1543,7 +1543,7 @@ function loadFile(contents) {
 	);
 	// reassign the sample properties to the nodes
 	data.nodes.update(
-		data.nodes.map((n) => deepMerge(samples.nodes[n.grp], n))
+		data.nodes.map((n) => deepMerge(styles.nodes[n.grp], n))
 	);
 	// same for edges
 	data.edges.update(
@@ -1561,7 +1561,7 @@ function loadFile(contents) {
 	);
 	legend(false);
 	data.edges.update(
-		data.edges.map((e) => deepMerge(samples.edges[e.grp], e))
+		data.edges.map((e) => deepMerge(styles.edges[e.grp], e))
 	);
 	if (!isJSONfile) adjustGravity(50000);
 	network.fit(0);
@@ -1604,20 +1604,21 @@ function loadJSONfile(json) {
 			})
 		);
 	}
-	if (json.samples) {
-		samples.nodes = json.samples.nodes;
-		samples.edges = json.samples.edges;
+	if (json.samples) json.styles = json.samples;
+	if (json.styles) {
+		styles.nodes = json.styles.nodes;
+		styles.edges = json.styles.edges;
 		refreshSampleNodes();
 		refreshSampleLinks();
-		for (let groupId in samples.nodes) {
+		for (let groupId in styles.nodes) {
 			ySamplesMap.set(groupId, {
-				node: samples.nodes[groupId],
+				node: styles.nodes[groupId],
 				clientID: clientID,
 			});
 		}
-		for (let edgeId in samples.edges) {
+		for (let edgeId in styles.edges) {
 			ySamplesMap.set(edgeId, {
-				edge: samples.edges[edgeId],
+				edge: styles.edges[edgeId],
 				clientID: clientID,
 			});
 		}
@@ -1818,8 +1819,8 @@ function refreshSampleNodes() {
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i];
 		let node = sampleElement.dataSet.get()[0];
-		node = deepMerge(node, samples.nodes['group' + i], {
-			value: samples.nodes['base'].scaling.max,
+		node = deepMerge(node, styles.nodes['group' + i], {
+			value: styles.nodes['base'].scaling.max,
 		});
 		node.label = node.groupLabel;
 		sampleElement.dataSet.remove(node.id);
@@ -1835,7 +1836,7 @@ function refreshSampleLinks() {
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i];
 		let edge = sampleElement.dataSet.get()[0];
-		edge = deepMerge(edge, samples.edges['edge' + i]);
+		edge = deepMerge(edge, styles.edges['edge' + i]);
 		edge.label = edge.groupLabel;
 		sampleElement.dataSet.remove(edge.id);
 		sampleElement.dataSet.update(edge);
@@ -1857,7 +1858,7 @@ function saveJSONfile() {
 			lastNodeSample: lastNodeSample,
 			lastLinkSample: lastLinkSample,
 			buttons: buttonStatus,
-			samples: samples,
+			styles: styles,
 			nodes: data.nodes.map((n) =>
 				strip(n, ['id', 'label', 'title', 'grp', 'x', 'y'])
 			),
@@ -1932,7 +1933,7 @@ function exportGML() {
 		str += '\tnode\n\t[\n\t\tid ' + nodeIds.indexOf(node.id);
 		if (node.label) str += '\n\t\tlabel "' + node.label + '"';
 		let color =
-			node.color.background || samples.nodes.group0.color.background;
+			node.color.background || styles.nodes.group0.color.background;
 		str += '\n\t\tcolor "' + color + '"';
 		str += '\n\t]\n';
 	}
@@ -1940,7 +1941,7 @@ function exportGML() {
 		str += '\tedge\n\t[\n\t\tsource ' + nodeIds.indexOf(edge.from);
 		str += '\n\t\ttarget ' + nodeIds.indexOf(edge.to);
 		if (edge.label) str += '\n\t\tlabel "' + edge.label + '"';
-		let color = edge.color.color || samples.edges.edge0.color.color;
+		let color = edge.color.color || styles.edges.edge0.color.color;
 		str += '\n\t\tcolor "' + color + '"';
 		str += '\n\t]\n';
 	}
@@ -2129,7 +2130,7 @@ function applySampleToNode() {
 	let nodesToUpdate = [];
 	let sample = event.currentTarget.groupNode;
 	for (let node of data.nodes.get(selectedNodeIds)) {
-		node = deepMerge(node, samples.nodes[sample]);
+		node = deepMerge(node, styles.nodes[sample]);
 		node.grp = sample;
 		claim(node);
 		nodesToUpdate.push(node);
@@ -2145,7 +2146,7 @@ function applySampleToLink(event) {
 	if (selectedEdges.length == 0) return;
 	let edgesToUpdate = [];
 	for (let edge of data.edges.get(selectedEdges)) {
-		edge = deepMerge(edge, samples.edges[sample]);
+		edge = deepMerge(edge, styles.edges[sample]);
 		edge.grp = sample;
 		claim(edge);
 		edgesToUpdate.push(edge);
@@ -2741,7 +2742,10 @@ function showOtherUsers() {
 			return value.name;
 		})
 		.sort((a, b) => (a.name > b.name ? 1 : -1));
-	console.log(new Date().toLocaleTimeString() + '.' + new Date().getMilliseconds(), yAwareness.getStates());
+	console.log(
+		new Date().toLocaleTimeString() + '.' + new Date().getMilliseconds(),
+		yAwareness.getStates()
+	);
 
 	let avatars = document.getElementById('avatars');
 	while (avatars.firstChild) {
@@ -2759,11 +2763,12 @@ function showOtherUsers() {
 			circle.style.backgroundColor = nameRec.color;
 			if (nameRec.anon) {
 				circle.style.color = 'white';
-				circle.style.textShadow = '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;';
+				circle.style.textShadow =
+					'-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;';
 				circle.style.fontWeight = 'normal';
 			}
 			circle.innerText = nameRec.name[0];
-			circle.style.opacity = (nameRec.asleep ? 0.2 : 1.0);
+			circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
 			ava.appendChild(circle);
 			avatars.appendChild(ava);
 		}

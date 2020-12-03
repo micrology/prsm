@@ -1,8 +1,18 @@
 import {Network} from 'vis-network/peer/';
 import {DataSet} from 'vis-data/peer';
-import {deepMerge, standardize_color, dragElement, splitText} from './utils.js';
+import {
+	listen,
+	elem,
+	splitText,
+	deepMerge,
+	deepCopy,
+	standardize_color,
+	dragElement,
+} from './utils.js';
 import {statusMsg} from './prsm.js';
-import {samples} from './samples.js';
+import {styles} from './samples.js';
+
+const NODESTYLEWIDTH = 10; // chars for label splitting
 
 /**
  * The samples are each a mini vis-network showing just one node or two nodes and a link
@@ -16,14 +26,14 @@ export function setUpSamples() {
 	for (let i = 0; i < sampleElements.length; i++) {
 		let groupId = 'group' + i;
 		let sampleElement = sampleElements[i];
-		let sampleOptions = samples.nodes[groupId];
-		let groupLabel = samples.nodes[groupId].groupLabel;
+		let sampleOptions = styles.nodes[groupId];
+		let groupLabel = styles.nodes[groupId].groupLabel;
 		let nodeDataSet = new DataSet([
 			deepMerge(
 				{
 					id: '1',
 					label: groupLabel == undefined ? '' : groupLabel,
-					value: samples.nodes['base'].scaling.max,
+					value: styles.nodes['base'].scaling.max,
 				},
 				sampleOptions,
 				{chosen: false}
@@ -34,7 +44,7 @@ export function setUpSamples() {
 			edges: emptyDataSet,
 		});
 		sampleElement.addEventListener('dblclick', () => {
-			editNodeSample(sampleElement, groupId);
+			editNodeStyle(sampleElement, groupId);
 		});
 		sampleElement.groupNode = groupId;
 		sampleElement.dataSet = nodeDataSet;
@@ -44,7 +54,7 @@ export function setUpSamples() {
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i];
 		let groupId = 'edge' + i;
-		let sampleOptions = samples.edges[groupId];
+		let sampleOptions = styles.edges[groupId];
 		let edgeDataSet = new DataSet([
 			deepMerge(
 				{
@@ -77,7 +87,7 @@ export function setUpSamples() {
 			edges: edgeDataSet,
 		});
 		sampleElement.addEventListener('dblclick', () => {
-			editLinkSample(sampleElement, groupId);
+			editLinkStyle(sampleElement, groupId);
 		});
 		sampleElement.groupLink = groupId;
 		sampleElement.dataSet = edgeDataSet;
@@ -87,9 +97,9 @@ export function setUpSamples() {
  * assemble configurations by merging the specifics into the default
  */
 function configSamples() {
-	let base = samples.nodes.base;
-	for (let prop in samples.nodes) {
-		let grp = deepMerge(base, samples.nodes[prop]);
+	let base = styles.nodes.base;
+	for (let prop in styles.nodes) {
+		let grp = deepMerge(base, styles.nodes[prop]);
 		// make the hover and highlight colors the same as the basic ones
 		grp.color.highlight = {};
 		grp.color.highlight.border = grp.color.border;
@@ -98,14 +108,14 @@ function configSamples() {
 		grp.color.hover.border = grp.color.border;
 		grp.color.hover.background = grp.color.background;
 		grp.font.size = base.font.size;
-		samples.nodes[prop] = grp;
+		styles.nodes[prop] = grp;
 	}
-	base = samples.edges.base;
-	for (let prop in samples.edges) {
-		let grp = deepMerge(base, samples.edges[prop]);
+	base = styles.edges.base;
+	for (let prop in styles.edges) {
+		let grp = deepMerge(base, styles.edges[prop]);
 		grp.color.highlight = grp.color.color;
 		grp.color.hover = grp.color.color;
-		samples.edges[prop] = grp;
+		styles.edges[prop] = grp;
 	}
 }
 
@@ -137,193 +147,111 @@ function initSample(wrapper, sampleData) {
 	return net;
 }
 
-/**
- * Display the editing palette for a sample node
- * @param {*} sampleElement
- * @param {Integer} groupId
- */
-function editNodeSample(sampleElement, groupId) {
-	let drawer = document.getElementById('editNodeDrawer');
-	getNodeSampleEdit(sampleElement, samples.nodes[groupId]);
-	document.getElementById('sampleNodeEditorSubmitButton').addEventListener(
-		'click',
-		() => {
-			saveNodeSampleEdit(sampleElement, samples, groupId);
-		},
-		{
-			once: true,
-		}
-	);
-	document.getElementById('sampleNodeEditorCancelButton').addEventListener(
-		'click',
-		() => {
-			cancelSampleEdit();
-		},
-		{
-			once: true,
-		}
-	);
-	drawer.style.top = `${
-		document.getElementById('panel').getBoundingClientRect().top
-	}px`;
-	drawer.style.left = `${
-		document.getElementById('panel').getBoundingClientRect().left - 300
-	}px`;
-	drawer.classList.remove('hideDrawer');
+listen('nodeEditCancel', 'click', nodeEditCancel);
+listen('nodeEditName', 'keyup', nodeEditSave);
+listen('nodeEditFillColor', 'input', nodeEditSave);
+listen('nodeEditBorderColor', 'input', nodeEditSave);
+listen('nodeEditFontColor', 'input', nodeEditSave);
+listen('nodeEditShape', 'change', nodeEditSave);
+listen('nodeEditBorder', 'change', nodeEditSave);
+listen('nodeEditFontSize', 'change', nodeEditSave);
+listen('nodeEditSubmit', 'click', nodeEditSubmit);
+
+function editNodeStyle(styleElement, groupId) {
+	styleElement.net.unselectAll();
+	let container = elem('nodeStyleEditorContainer');
+	container.styleElement = styleElement;
+	container.groupId = groupId;
+	// save the current style format (so that there can be a revert in case of cancelling the edit)
+	container.origGroup = deepCopy(styles.nodes[groupId]);
+	// save the div in which the style is displayed
+	container.styleElement = styleElement;
+	// set the style dialog widgets with the current values for the group style
+	updateNodeEditor(groupId);
+	// display the style dialog
+	nodeEditorShow(styleElement);
 }
-/**
- * fill the node editing palette with the current style features
- * @param {DOMelement} sampleElement
- * @param {Integer} group
- */
-function getNodeSampleEdit(sampleElement, group) {
-	document.getElementsByName(
-		'nodeLabel'
-	)[0].value = sampleElement.dataSet.get('1').label;
-	getColor('fillColor', group.color.background);
-	getColor('borderColor', group.color.border);
-	getColor('fontColor', group.font.color);
-	getSelection('shape', group.shape);
-	getDashes(
-		'borderType',
+
+function updateNodeEditor(groupId) {
+	let group = styles.nodes[groupId];
+	elem('nodeEditName').value = group.groupLabel;
+	elem('nodeEditFillColor').value = standardize_color(group.color.background);
+	elem('nodeEditBorderColor').value = standardize_color(group.color.border);
+	elem('nodeEditFontColor').value = standardize_color(group.font.color);
+	elem('nodeEditShape').value = group.shape;
+	elem('nodeEditBorder').value = getDashes(
 		group.shapeProperties.borderDashes,
 		group.borderWidth
 	);
-	getSelection('fontSize', group.font.size);
+	elem('nodeEditFontSize').value = group.font.size;
 }
 
-function editLinkSample(sampleElement, groupId) {
-	let drawer = document.getElementById('editLinkDrawer');
-	getLinkSampleEdit(sampleElement, samples.edges[groupId]);
-	document.getElementById('sampleLinkEditorSubmitButton').addEventListener(
-		'click',
-		() => {
-			saveLinkSampleEdit(sampleElement, samples, groupId);
-		},
-		{
-			once: true,
-		}
-	);
-	document.getElementById('sampleLinkEditorCancelButton').addEventListener(
-		'click',
-		() => {
-			cancelSampleEdit();
-		},
-		{
-			once: true,
-		}
-	);
-	drawer.style.top = `${
-		document.getElementById('panel').getBoundingClientRect().top
-	}px`;
-	drawer.style.left = `${
-		document.getElementById('panel').getBoundingClientRect().left - 300
-	}px`;
-	drawer.classList.remove('hideDrawer');
+function nodeEditSave() {
+	let groupId = elem('nodeStyleEditorContainer').groupId;
+	let group = styles.nodes[groupId];
+	group.groupLabel = splitText(elem('nodeEditName').value, NODESTYLEWIDTH);
+	if (group.groupLabel === '') group.groupLabel = 'Sample';
+	group.color.background = elem('nodeEditFillColor').value;
+	group.color.border = elem('nodeEditBorderColor').value;
+	group.color.highlight.background = group.color.background;
+	group.color.highlight.border = group.color.border;
+	group.color.hover.background = group.color.background;
+	group.color.hover.border = group.color.border;
+	group.font.color = elem('nodeEditFontColor').value;
+	group.shape = elem('nodeEditShape').value;
+	let border = elem('nodeEditBorder').value;
+	group.shapeProperties.borderDashes = groupDashes(border);
+	group.borderWidth = border == 'none' ? 0 : 1;
+	group.font.size = parseInt(elem('nodeEditFontSize').value);
+	nodeEditUpdateStyleSample(group);
 }
 
-function getLinkSampleEdit(sampleElement, group) {
-	document.getElementsByName(
-		'edgeLabel'
-	)[0].value = sampleElement.dataSet.get('1').label;
-	getColor('lineColor', group.color.color);
-	getSelection('width', group.width);
-	getSelection('dashes', group.dashes);
-	getArrows('arrows', group.arrows);
-}
-
-function saveNodeSampleEdit(sampleElement, samples, groupId) {
-	let group = samples.nodes[groupId];
-	group.groupLabel = splitText(
-		document.getElementsByName('nodeLabel')[0].value,
-		8
-	);
-	setColor('fillColor', group, 'color', 'background');
-	setColor3('fillColor', group, 'color', 'highlight', 'background');
-	setColor3('fillColor', group, 'color', 'hover', 'background');
-	setColor('borderColor', group, 'color', 'border');
-	setColor3('borderColor', group, 'color', 'highlight', 'border');
-	setColor3('borderColor', group, 'color', 'hover', 'border');
-	setColor('fontColor', group, 'font', 'color');
-	setShape(group);
-	setBorderType(group);
-	setFont(group);
-	let node = sampleElement.dataSet.get('1');
+function nodeEditUpdateStyleSample(group) {
+	// update the style node to show changes to style
+	let groupId = elem('nodeStyleEditorContainer').groupId;
+	let styleElement = elem('nodeStyleEditorContainer').styleElement;
+	let node = styleElement.dataSet.get('1');
 	node.label = group.groupLabel;
-	node = deepMerge(node, samples.nodes[groupId], {chosen: false});
-	let dataSet = sampleElement.dataSet;
+	node = deepMerge(node, styles.nodes[groupId], {chosen: false});
+	let dataSet = styleElement.dataSet;
 	dataSet.update(node);
-	reApplySampleToNodes(groupId);
-	window.ySamplesMap.set(groupId, {
-		node: samples.nodes[groupId],
-		clientID: window.clientId,
-	});
-	sampleElement.net.unselectAll();
-	document.getElementById('editNodeDrawer').classList.add('hideDrawer');
-	updateLegend();
-	window.network.redraw();
 }
 
-function saveLinkSampleEdit(sampleElement, samples, groupId) {
-	let group = samples.edges[groupId];
-	group.groupLabel = document.getElementsByName('edgeLabel')[0].value;
-	setColor('lineColor', group, 'color', 'color');
-	setColor('lineColor', group, 'color', 'highlight');
-	setColor('lineColor', group, 'color', 'hover');
-	let val = document.getElementsByName('width')[0].value;
-	if (val != '') group.width = parseInt(val, 10);
-	val = document.getElementsByName('dashes')[0].value;
-	if (val != '') group.dashes = deString(val);
-	val = document.getElementsByName('arrows')[0].value;
-	if (val != '') {
-		group.arrows.from = {
-			enabled: false,
-		};
-		group.arrows.middle = {
-			enabled: false,
-		};
-		group.arrows.to = {
-			enabled: false,
-		};
-		switch (val) {
-			case 'none':
-				break;
-			case 'middle':
-				group.arrows.middle = {
-					enabled: true,
-				};
-				break;
-			default:
-				group.arrows.to = {
-					enabled: true,
-				};
-				break;
-		}
-	}
-	let edge = sampleElement.dataSet.get('1');
-	edge.label = group.groupLabel;
-	if (edge.label) {
-		edge.font.align = 'top';
-		edge.font.vadjust = -20;
-		edge.font.size = 40;
-		edge.widthConstraint = 80;
-	}
-	edge = deepMerge(edge, samples.edges[groupId]);
-	let dataSet = sampleElement.dataSet;
-	dataSet.update(edge);
-	reApplySampleToLinks(groupId);
-	window.ySamplesMap.set(groupId, {
-		edge: samples.edges[groupId],
-		clientID: window.clientId,
-	});
-	document.getElementById('editLinkDrawer').classList.add('hideDrawer');
-	updateLegend();
-	window.network.redraw();
+function nodeEditCancel() {
+	// restore saved group format
+	let groupId = elem('nodeStyleEditorContainer').groupId;
+	styles.nodes[groupId] = elem('nodeStyleEditorContainer').origGroup;
+	nodeEditUpdateStyleSample(styles.nodes[groupId]);
+	console.log('Cancelled');
+	console.log(styles.nodes[groupId]);
+	// hide the dialog
+	nodeEditorHide();
 }
 
-function cancelSampleEdit() {
-	document.getElementById('editLinkDrawer').classList.add('hideDrawer');
-	document.getElementById('editNodeDrawer').classList.add('hideDrawer');
+function nodeEditorHide() {
+	elem('nodeStyleEditorContainer').classList.add('hideEditor');
+}
+
+function nodeEditorShow() {
+	let panelRect = elem('panel').getBoundingClientRect();
+	let container = elem('nodeStyleEditorContainer');
+	container.style.top = `${panelRect.top}px`;
+	container.style.left = `${panelRect.left - 300}px`;
+	container.classList.remove('hideEditor');
+}
+
+function nodeEditSubmit() {
+	nodeEditSave();
+	nodeEditorHide();
+	// apply updated style to all nodes having that style
+	let groupId = elem('nodeStyleEditorContainer').groupId;
+	reApplySampleToNodes([groupId]);
+	window.ySamplesMap.set(groupId, {
+		node: styles.nodes[groupId],
+		clientID: window.clientId,
+	});
+	updateLegend();
+	window.network.redraw();
 }
 
 export function reApplySampleToNodes(groupIds) {
@@ -333,8 +261,121 @@ export function reApplySampleToNodes(groupIds) {
 		},
 	});
 	window.data.nodes.update(
-		nodesToUpdate.map((node) => deepMerge(node, samples.nodes[node.grp]))
+		nodesToUpdate.map((node) => deepMerge(node, styles.nodes[node.grp]))
 	);
+}
+
+listen('linkEditCancel', 'click', linkEditCancel);
+listen('linkEditName', 'keyup', linkEditSave);
+listen('linkEditLineColor', 'input', linkEditSave);
+listen('linkEditWidth', 'input', linkEditSave);
+listen('linkEditDashes', 'input', linkEditSave);
+listen('linkEditArrows', 'change', linkEditSave);
+listen('linkEditSubmit', 'click', linkEditSubmit);
+
+function editLinkStyle(styleElement, groupId) {
+	let container = elem('linkStyleEditorContainer');
+	container.styleElement = styleElement;
+	container.groupId = groupId;
+	// save the current style format (so that there can be a revert in case of cancelling the edit)
+	container.origGroup = deepCopy(styles.edges[groupId]);
+	// set the style dialog widgets with the current values for the group style
+	updateLinkEditor(groupId);
+	// display the style dialog
+	linkEditorShow(styleElement);
+}
+
+function updateLinkEditor(groupId) {
+	let group = styles.edges[groupId];
+	elem('linkEditName').value = group.groupLabel;
+	elem('linkEditLineColor').value = standardize_color(group.color.color);
+	elem('linkEditWidth').value = group.width;
+	elem('linkEditDashes').value = getDashes(group.dashes, 1);
+	elem('linkEditArrows').value = getArrows(group.arrows);
+}
+function linkEditSave() {
+	let groupId = elem('linkStyleEditorContainer').groupId;
+	let group = styles.edges[groupId];
+	group.groupLabel = elem('linkEditName').value;
+	if (group.groupLabel === '') group.groupLabel = 'Sample';
+	group.color.color = elem('linkEditLineColor').value;
+	group.color.highlight = group.color.color;
+	group.color.hover = group.color.color;
+	group.width = parseInt(elem('linkEditWidth').value);
+	group.dashes = groupDashes(elem('linkEditDashes').value);
+	groupArrows(elem('linkEditArrows').value);
+	linkEditUpdateStyleSample(group);
+
+	function groupArrows(val) {
+		if (val != '') {
+			group.arrows.from.enabled = false;
+			group.arrows.middle.enabled = false;
+			group.arrows.to.enabled = false;
+			switch (val) {
+				case 'none':
+					break;
+				case 'middle':
+					group.arrows.middle.enabled = true;
+					break;
+				default:
+					group.arrows.to.enabled = true;
+					break;
+			}
+		}
+	}
+}
+
+function linkEditUpdateStyleSample(group) {
+	// update the style edge to show changes to style
+	let groupId = elem('linkStyleEditorContainer').groupId;
+	let styleElement = elem('linkStyleEditorContainer').styleElement;
+	let edge = styleElement.dataSet.get('1');
+	edge.label = group.groupLabel;
+	edge = deepMerge(edge, styles.edges[groupId], {chosen: false});
+	let dataSet = styleElement.dataSet;
+	dataSet.update(edge);
+}
+
+function linkEditCancel() {
+	// restore saved group format
+	let groupId = elem('linkStyleEditorContainer').groupId;
+	styles.edges[groupId] = elem('linkStyleEditorContainer').origGroup;
+	console.log('Cancelled');
+	console.log(styles.edges[groupId]);
+	//hide the dialog
+	linkEditorHide();
+}
+function linkEditorHide() {
+	elem('linkStyleEditorContainer').classList.add('hideEditor');
+}
+function linkEditorShow() {
+	let panelRect = elem('panel').getBoundingClientRect();
+	let container = elem('linkStyleEditorContainer');
+	container.style.top = `${panelRect.top}px`;
+	container.style.left = `${panelRect.left - 300}px`;
+	container.classList.remove('hideEditor');
+}
+
+function linkEditSubmit() {
+	linkEditSave();
+	linkEditorHide();
+	/* let edge = sampleElement.dataSet.get('1');
+	edge.label = group.groupLabel;
+	if (edge.label) {
+		edge.font.align = 'top';
+		edge.font.vadjust = -20;
+		edge.font.size = 40;
+		edge.widthConstraint = 80;
+	} */
+	// apply updated style to all edges having that style
+	let groupId = elem('linkStyleEditorContainer').groupId;
+	reApplySampleToLinks([groupId]);
+	window.ySamplesMap.set(groupId, {
+		edge: styles.edges[groupId],
+		clientID: window.clientId,
+	});
+	updateLegend();
+	window.network.redraw();
 }
 export function reApplySampleToLinks(groupIds) {
 	let edgesToUpdate = window.data.edges.get({
@@ -343,83 +384,42 @@ export function reApplySampleToLinks(groupIds) {
 		},
 	});
 	window.data.edges.update(
-		edgesToUpdate.map((edge) => deepMerge(edge, samples.edges[edge.grp]))
+		edgesToUpdate.map((edge) => deepMerge(edge, styles.edges[edge.grp]))
 	);
 }
 
-function getColor(well, prop) {
-	document.getElementsByName(well)[0].value = standardize_color(prop);
-}
-
-function setColor(well, obj, prop1, prop2) {
-	if (obj[prop1] === undefined) obj[prop1] = {};
-	obj[prop1][prop2] = document.getElementsByName(well)[0].value;
-}
-
-function setColor3(well, obj, prop1, prop2, prop3) {
-	if (obj[prop1] === undefined) obj[prop1] = {};
-	if (obj[prop1][prop2] === undefined) obj[prop1][prop2] = {};
-	obj[prop1][prop2][prop3] = document.getElementsByName(well)[0].value;
-}
-
-function setShape(obj) {
-	let val = document.getElementsByName('shape')[0].value;
-	if (val != '') obj.shape = val;
-}
-
-function getDashes(name, val, bWidth) {
-	if (Array.isArray(val)) val = 'dots';
+function getDashes(bDashes, bWidth) {
+	let val = bDashes.toString();
+	if (Array.isArray(bDashes)) {
+		if (bDashes[0] == 10) val = 'dashes';
+		else val = 'dots';
+	}
 	else if (bWidth == 0) val = 'none';
-	else val = val.toString();
-	document.getElementsByName(name)[0].value = val;
+	return val;
 }
 
-function setBorderType(obj) {
-	obj.borderWidth = 1;
-	let val = document.getElementsByName('borderType')[0].value;
-	if (obj.shapeProperties === undefined) obj.shapeProperties = {};
-	if (val == 'none') obj.borderWidth = 0;
-	else if (val != '') obj.shapeProperties.borderDashes = deString(val);
-}
-
-function deString(val) {
+function groupDashes(val) {
 	switch (val) {
-		case 'true':
+		case 'true': // dashes [5,15] for node borders
 			return true;
-		case 'false':
-			return false;
-		case 'dashes':
+		case 'dashes': // dashes for links
 			return [10, 10];
+		case 'false': // solid
+			return false;
+		case 'none': //solid, zero width
+			return false;
 		case 'dots':
 			return [3, 3];
 		default:
-			return val;
+			return false;
 	}
 }
 
-function setFont(obj) {
-	obj.font = {};
-	obj.font.face = 'arial';
-	obj.font.color = document.getElementsByName('fontColor')[0].value;
-	let val = parseInt(document.getElementsByName('fontSize')[0].value);
-	obj.font.size = Number.isInteger(val) ? val : 14;
-}
-
-function getSelection(name, prop) {
-	if (
-		Array.from(document.getElementsByName(name)[0].options)
-			.map((opt) => opt.value)
-			.includes(prop.toString())
-	)
-		document.getElementsByName(name)[0].value = prop;
-	else document.getElementsByName(name)[0].selectedIndex = 0;
-}
-
-function getArrows(name, prop) {
+function getArrows(prop) {
 	let val = 'none';
 	if (prop.middle && prop.middle.enabled) val = 'middle';
 	else if (prop.to && prop.to.enabled) val = 'to';
-	document.getElementsByName(name)[0].value = val;
+	return val;
 }
 
 /*  ------------display the map legend (includes all styles with a groupLable that is neither blank or 'Sample') */
@@ -475,7 +475,7 @@ export function legend(warn = true) {
 
 	let height = LEGENDSPACING / 2;
 	for (let i = 0; i < nodes.length; i++) {
-		let node = deepMerge(samples.nodes[nodes[i].groupNode]);
+		let node = deepMerge(styles.nodes[nodes[i].groupNode]);
 		node.id = i + 10000;
 		let nodePos = legendNetwork.DOMtoCanvas({
 			x: HALFLEGENDWIDTH,
@@ -492,7 +492,7 @@ export function legend(warn = true) {
 		height += LEGENDSPACING;
 	}
 	for (let i = 0; i < edges.length; i++) {
-		let edge = deepMerge(samples.edges[edges[i].groupLink]);
+		let edge = deepMerge(styles.edges[edges[i].groupLink]);
 		let edgePos = legendNetwork.DOMtoCanvas({
 			x: HALFLEGENDWIDTH,
 			y: height,
