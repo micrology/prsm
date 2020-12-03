@@ -37,6 +37,7 @@ import introJs from 'intro.js/intro.js';
 const version = '1.4.0';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
+const NOTEWIDTH = 30; // chars for totle (node/edge tooltip) splitting
 const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
 const timeToSleep = 1 * 60 * 1000; // if no mouse movement for this time, user is assumed to have left or is sleeping
 
@@ -193,7 +194,7 @@ function startY() {
 		'prsm' + room,
 		doc
 	);
-/* 	const wsProvider = new WebsocketProvider(
+	/* 	const wsProvider = new WebsocketProvider(
 		'ws://localhost:1234',
 		'prsm' + room,
 		doc
@@ -825,7 +826,7 @@ function addLabel(item, cancelAction, callback) {
 function ctlClickAddNode(event) {
 	// cancel default context menu
 	event.preventDefault();
-	let domPos = { x: event.offsetX, y: event.offsetY };
+	let domPos = {x: event.offsetX, y: event.offsetY};
 	// if clicking on a node or edge, report it to console for debugging
 	let target = network.getNodeAt(domPos);
 	if (target !== undefined) {
@@ -1542,9 +1543,7 @@ function loadFile(contents) {
 		)
 	);
 	// reassign the sample properties to the nodes
-	data.nodes.update(
-		data.nodes.map((n) => deepMerge(styles.nodes[n.grp], n))
-	);
+	data.nodes.update(data.nodes.map((n) => deepMerge(styles.nodes[n.grp], n)));
 	// same for edges
 	data.edges.update(
 		data.edges.map(
@@ -1560,9 +1559,7 @@ function loadFile(contents) {
 		)
 	);
 	legend(false);
-	data.edges.update(
-		data.edges.map((e) => deepMerge(styles.edges[e.grp], e))
-	);
+	data.edges.update(data.edges.map((e) => deepMerge(styles.edges[e.grp], e)));
 	if (!isJSONfile) adjustGravity(50000);
 	network.fit(0);
 }
@@ -2193,7 +2190,10 @@ function showNodeData() {
 function updateNodeNotes() {
 	data.nodes.update({
 		id: network.getSelectedNodes()[0],
-		title: document.getElementById('nodesTA').value.replace(/\n/g, '</br>'),
+		title: splitText(
+			document.getElementById('nodesTA').value,
+			NOTEWIDTH
+		).replace(/\n/g, '</br>'),
 		clientID: undefined,
 	});
 }
@@ -2222,7 +2222,10 @@ function showEdgeData() {
 function updateEdgeNotes() {
 	data.edges.update({
 		id: network.getSelectedEdges()[0],
-		title: document.getElementById('edgesTA').value.replace(/\n/g, '</br>'),
+		title: splitText(
+			document.getElementById('edgesTA').value,
+			NOTEWIDTH
+		).replace(/\n/g, '</br>'),
 		clientID: undefined,
 	});
 }

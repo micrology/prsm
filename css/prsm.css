@@ -551,11 +551,23 @@ nav button .pressed {
 /* Style the tab content */
 
 .tabcontent {
+	border: 0;
+}
+.samples,
+.itemData,
+.networkStyles {
 	padding: 6px;
 	background-color: var(--panel-color);
 	color: white;
 	font-size: 11px;
+	border-radius: 4px;
+}
+.samples,
+.networkStyles {
 	border-radius: 0 0 4px 4px;
+}
+.thickDivider {
+	height: 30px;
 }
 
 /* Using display:none to hide tabs other than the one on display: 

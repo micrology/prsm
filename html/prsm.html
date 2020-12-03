@@ -258,236 +258,247 @@
 			<!-- Tab content -->
 			<!-- Network tab -->
 			<div class="tabcontent hide" id="networkTab">
-				<div class="networkGrid">
-					<div class="panelRow">
-						<div>Auto. layout</div>
-						<div class="onoffswitch">
-							<input
-								type="checkbox"
-								name="onoffswitch"
-								class="onoffswitch-checkbox"
-								id="autolayoutswitch"
-							/>
-							<label
-								class="onoffswitch-label"
-								for="autolayoutswitch"
-							>
-								<span class="onoffswitch-inner"></span>
-								<span class="onoffswitch-switch"></span>
-							</label>
+				<div class="networkStyles">
+					<div class="networkGrid">
+						<div class="panelRow">
+							<div>Auto. layout</div>
+							<div class="onoffswitch">
+								<input
+									type="checkbox"
+									name="onoffswitch"
+									class="onoffswitch-checkbox"
+									id="autolayoutswitch"
+								/>
+								<label
+									class="onoffswitch-label"
+									for="autolayoutswitch"
+								>
+									<span class="onoffswitch-inner"></span>
+									<span class="onoffswitch-switch"></span>
+								</label>
+							</div>
 						</div>
-					</div>
-					<div class="panelRow hidden" id="spacing">
-						<div>Spacing</div>
-						<div>
-							&nbsp;
-							<input
-								type="range"
-								id="antiGravity"
-								min="0"
-								max="1000000"
-								step="10000"
-							/>
+						<div class="panelRow hidden" id="spacing">
+							<div>Spacing</div>
+							<div>
+								&nbsp;
+								<input
+									type="range"
+									id="antiGravity"
+									min="0"
+									max="1000000"
+									step="10000"
+								/>
+							</div>
 						</div>
-					</div>
-					<div class="panelRow">
-						<div>Snap to grid</div>
-						<div class="onoffswitch">
-							<input
-								type="checkbox"
-								name="onoffswitch"
-								class="onoffswitch-checkbox"
-								id="snaptogridswitch"
-							/>
-							<label
-								class="onoffswitch-label"
-								for="snaptogridswitch"
-							>
-								<span class="onoffswitch-inner"></span>
-								<span class="onoffswitch-switch"></span>
-							</label>
+						<div class="panelRow">
+							<div>Snap to grid</div>
+							<div class="onoffswitch">
+								<input
+									type="checkbox"
+									name="onoffswitch"
+									class="onoffswitch-checkbox"
+									id="snaptogridswitch"
+								/>
+								<label
+									class="onoffswitch-label"
+									for="snaptogridswitch"
+								>
+									<span class="onoffswitch-inner"></span>
+									<span class="onoffswitch-switch"></span>
+								</label>
+							</div>
 						</div>
-					</div>
-					<div class="panelRow">
-						<div>Link:</div>
-						<div>
-							<select id="curveSelect">
-								<option value="Curved" selected>Curved</option>
-								<option value="Straight">Straight</option>
-							</select>
+						<div class="panelRow">
+							<div>Link:</div>
+							<div>
+								<select id="curveSelect">
+									<option value="Curved" selected
+										>Curved</option
+									>
+									<option value="Straight">Straight</option>
+								</select>
+							</div>
 						</div>
-					</div>
-					<div class="panelRow">
-						<div>Background:</div>
-						<div class="input-color-container">
-							<input
-								type="color"
-								class="input-color"
-								value="#ffffff"
-								id="netBackColorWell"
-							/>
+						<div class="panelRow">
+							<div>Background:</div>
+							<div class="input-color-container">
+								<input
+									type="color"
+									class="input-color"
+									value="#ffffff"
+									id="netBackColorWell"
+								/>
+							</div>
 						</div>
-					</div>
-					<div class="panelRow">
-						<div>Show drawing layer</div>
-						<div class="onoffswitch">
-							<input
-								type="checkbox"
-								name="onoffswitch"
-								class="onoffswitch-checkbox"
-								id="drawing"
-							/>
-							<label class="onoffswitch-label" for="drawing">
-								<span class="onoffswitch-inner"></span>
-								<span class="onoffswitch-switch"></span>
-							</label>
+						<div class="panelRow">
+							<div>Show drawing layer</div>
+							<div class="onoffswitch">
+								<input
+									type="checkbox"
+									name="onoffswitch"
+									class="onoffswitch-checkbox"
+									id="drawing"
+								/>
+								<label class="onoffswitch-label" for="drawing">
+									<span class="onoffswitch-inner"></span>
+									<span class="onoffswitch-switch"></span>
+								</label>
+							</div>
 						</div>
-					</div>
-					<div class="panelRow">
-						<div>Show labels</div>
-						<div class="onoffswitch">
+						<div class="panelRow">
+							<div>Show labels</div>
+							<div class="onoffswitch">
+								<input
+									type="checkbox"
+									name="onoffswitch"
+									class="onoffswitch-checkbox"
+									id="showLabelSwitch"
+									checked
+								/>
+								<label
+									class="onoffswitch-label"
+									for="showLabelSwitch"
+								>
+									<span class="onoffswitch-inner"></span>
+									<span class="onoffswitch-switch"></span>
+								</label>
+							</div>
+						</div>
+						<div class="panelRow">
+							<div>Show legend</div>
+							<div class="onoffswitch">
+								<input
+									type="checkbox"
+									name="onoffswitch"
+									class="onoffswitch-checkbox"
+									id="showLegendSwitch"
+									checked
+								/>
+								<label
+									class="onoffswitch-label"
+									for="showLegendSwitch"
+								>
+									<span class="onoffswitch-inner"></span>
+									<span class="onoffswitch-switch"></span>
+								</label>
+							</div>
+						</div>
+						<div class="panelRow divider">
+							<label for="hideAll">Show all</label>
 							<input
-								type="checkbox"
-								name="onoffswitch"
-								class="onoffswitch-checkbox"
-								id="showLabelSwitch"
+								type="radio"
+								id="hideAll"
+								name="hide"
+								value="All"
 								checked
 							/>
-							<label
-								class="onoffswitch-label"
-								for="showLabelSwitch"
-							>
-								<span class="onoffswitch-inner"></span>
-								<span class="onoffswitch-switch"></span>
-							</label>
 						</div>
-					</div>
-					<div class="panelRow">
-						<div>Show legend</div>
-						<div class="onoffswitch">
+						<div class="panelRow">
+							<label for="oneLink"
+								>Show only Factors 1 link away</label
+							>
 							<input
-								type="checkbox"
-								name="onoffswitch"
-								class="onoffswitch-checkbox"
-								id="showLegendSwitch"
+								type="radio"
+								id="oneLink"
+								name="hide"
+								value="1"
+							/>
+						</div>
+						<div class="panelRow">
+							<label for="oneLink"
+								>Show only Factors 2 links away</label
+							>
+							<input
+								type="radio"
+								id="twoLinks"
+								name="hide"
+								value="2"
+							/>
+						</div>
+						<div class="panelRow">
+							<label for="threeLinks"
+								>Show only Factors 3 links away</label
+							>
+							<input
+								type="radio"
+								id="threeLinks"
+								name="hide"
+								value="3"
+							/>
+						</div>
+						<div class="panelRow divider">
+							<label for="streamAll">Show all</label>
+							<input
+								type="radio"
+								id="streamAll"
+								name="stream"
+								value="All"
 								checked
 							/>
-							<label
-								class="onoffswitch-label"
-								for="showLegendSwitch"
-							>
-								<span class="onoffswitch-inner"></span>
-								<span class="onoffswitch-switch"></span>
-							</label>
 						</div>
-					</div>
-					<div class="panelRow divider">
-						<label for="hideAll">Show all</label>
-						<input
-							type="radio"
-							id="hideAll"
-							name="hide"
-							value="All"
-							checked
-						/>
-					</div>
-					<div class="panelRow">
-						<label for="oneLink"
-							>Show only Factors 1 link away</label
-						>
-						<input
-							type="radio"
-							id="oneLink"
-							name="hide"
-							value="1"
-						/>
-					</div>
-					<div class="panelRow">
-						<label for="oneLink"
-							>Show only Factors 2 links away</label
-						>
-						<input
-							type="radio"
-							id="twoLinks"
-							name="hide"
-							value="2"
-						/>
-					</div>
-					<div class="panelRow">
-						<label for="threeLinks"
-							>Show only Factors 3 links away</label
-						>
-						<input
-							type="radio"
-							id="threeLinks"
-							name="hide"
-							value="3"
-						/>
-					</div>
-					<div class="panelRow divider">
-						<label for="streamAll">Show all</label>
-						<input
-							type="radio"
-							id="streamAll"
-							name="stream"
-							value="All"
-							checked
-						/>
-					</div>
-					<div class="panelRow">
-						<label for="upstream">Show only Factors upstream</label>
-						<input
-							type="radio"
-							id="upstream"
-							name="stream"
-							value="upstream"
-						/>
-					</div>
-					<div class="panelRow">
-						<label for="downstream"
-							>Show only Factors downstream</label
-						>
-						<input
-							type="radio"
-							id="downstream"
-							name="stream"
-							value="downstream"
-						/>
-					</div>
-					<div class="panelRow divider">
-						<div>Size Factors to:</div>
-						<div>
-							<select id="sizing">
-								<option value="Off" selected>---</option>
-								<option value="Inputs">Inputs</option>
-								<option value="Outputs">Outputs</option>
-								<option value="Leverage">Leverage</option>
-								<option value="Centrality">Centrality</option>
-							</select>
+						<div class="panelRow">
+							<label for="upstream"
+								>Show only Factors upstream</label
+							>
+							<input
+								type="radio"
+								id="upstream"
+								name="stream"
+								value="upstream"
+							/>
+						</div>
+						<div class="panelRow">
+							<label for="downstream"
+								>Show only Factors downstream</label
+							>
+							<input
+								type="radio"
+								id="downstream"
+								name="stream"
+								value="downstream"
+							/>
+						</div>
+						<div class="panelRow divider">
+							<div>Size Factors to:</div>
+							<div>
+								<select id="sizing">
+									<option value="Off" selected>---</option>
+									<option value="Inputs">Inputs</option>
+									<option value="Outputs">Outputs</option>
+									<option value="Leverage">Leverage</option>
+									<option value="Centrality"
+										>Centrality</option
+									>
+								</select>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 			<!-- Factor tab -->
 			<div class="tabcontent hide" id="nodesTab">
-				<div class="sampleGrid">
-					<div class="sampleNode" id="nodeSample1"></div>
-					<div class="sampleNode" id="nodeSample2"></div>
-					<div class="sampleNode" id="nodeSample3"></div>
-					<div class="sampleNode" id="nodeSample4"></div>
-					<div class="sampleNode" id="nodeSample5"></div>
-					<div class="sampleNode" id="nodeSample6"></div>
-					<div class="sampleNode" id="nodeSample7"></div>
-					<div class="sampleNode" id="nodeSample8"></div>
-					<div class="sampleNode" id="nodeSample9"></div>
+				<div class="samples">
+					<div class="sampleGrid">
+						<div class="sampleNode" id="nodeSample1"></div>
+						<div class="sampleNode" id="nodeSample2"></div>
+						<div class="sampleNode" id="nodeSample3"></div>
+						<div class="sampleNode" id="nodeSample4"></div>
+						<div class="sampleNode" id="nodeSample5"></div>
+						<div class="sampleNode" id="nodeSample6"></div>
+						<div class="sampleNode" id="nodeSample7"></div>
+						<div class="sampleNode" id="nodeSample8"></div>
+						<div class="sampleNode" id="nodeSample9"></div>
+					</div>
+					<div class="panelRow centered">
+						<button type="button" class="btn" id="allFactors">
+							Select all factors
+						</button>
+					</div>
 				</div>
-				<div class="panelRow centered">
-					<button type="button" class="btn" id="allFactors">
-						Select all factors
-					</button>
-				</div>
-				<div id="nodeDataPanel">
-					<div class="panelRow divider">
+				<div class="thickDivider"></div>
+				<div class="itemData" id="nodeDataPanel">
+					<div class="panelRow">
 						<div>
 							<span class="nodeLabel" id="nodeLabel"></span>
 						</div>
@@ -512,24 +523,27 @@
 			</div>
 			<!-- Links Tab -->
 			<div class="tabcontent hide" id="linksTab">
-				<div class="sampleGrid">
-					<div class="sampleLink" id="linkSample1"></div>
-					<div class="sampleLink" id="linkSample2"></div>
-					<div class="sampleLink" id="linkSample3"></div>
-					<div class="sampleLink" id="linkSample4"></div>
-					<div class="sampleLink" id="linkSample5"></div>
-					<div class="sampleLink" id="linkSample6"></div>
-					<div class="sampleLink" id="linkSample7"></div>
-					<div class="sampleLink" id="linkSample8"></div>
-					<div class="sampleLink" id="linkSample9"></div>
+				<div class="samples">
+					<div class="sampleGrid">
+						<div class="sampleLink" id="linkSample1"></div>
+						<div class="sampleLink" id="linkSample2"></div>
+						<div class="sampleLink" id="linkSample3"></div>
+						<div class="sampleLink" id="linkSample4"></div>
+						<div class="sampleLink" id="linkSample5"></div>
+						<div class="sampleLink" id="linkSample6"></div>
+						<div class="sampleLink" id="linkSample7"></div>
+						<div class="sampleLink" id="linkSample8"></div>
+						<div class="sampleLink" id="linkSample9"></div>
+					</div>
+					<div class="panelRow centered">
+						<button type="button" class="btn" id="allEdges">
+							Select all links
+						</button>
+					</div>
 				</div>
-				<div class="panelRow centered">
-					<button type="button" class="btn" id="allEdges">
-						Select all links
-					</button>
-				</div>
-				<div id="edgeDataPanel">
-					<div class="panelRow centered divider">
+				<div class="thickDivider"></div>
+				<div class="itemData" id="edgeDataPanel">
+					<div class="panelRow centered">
 						<div>
 							<b><span id="edgeLabel"></span></b>
 						</div>

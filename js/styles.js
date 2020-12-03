@@ -393,8 +393,7 @@ function getDashes(bDashes, bWidth) {
 	if (Array.isArray(bDashes)) {
 		if (bDashes[0] == 10) val = 'dashes';
 		else val = 'dots';
-	}
-	else if (bWidth == 0) val = 'none';
+	} else if (bWidth == 0) val = 'none';
 	return val;
 }
 
