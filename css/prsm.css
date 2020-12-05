@@ -625,6 +625,7 @@ but moving the panel out of sight works instead */
 	color: black;
 	background-color: white;
 	font-family: sans-serif;
+	resize: none;
 }
 .notes {
 	width: 100%;

@@ -81,6 +81,7 @@ window.addEventListener('load', () => {
 	setUpAwareness();
 	setUpPaint();
 	setUpToolbox();
+	setUpShareDialog();
 	draw();
 });
 
@@ -561,7 +562,7 @@ function setUpIntro() {
  */
 function setUpAwareness() {
 	yAwareness.on('change', (event) => {
-		console.log(event);
+		if (window.debug) console.log(event);
 		showOtherUsers();
 	});
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
@@ -881,7 +882,7 @@ function editNode(item, cancelAction, callback) {
 		<tr>
 			<td colspan="2">
 				<select id="node-borderType">
-					<option value="">Type...</option>
+					<option value="false">Type...</option>
 					<option value="false">Solid</option>
 					<option value="true">Dashed</option>
 					<option value="dots">Dotted</option>
@@ -948,7 +949,7 @@ function editEdge(item, cancelAction, callback) {
 		<tr>
 			<td colspan="2">
 				<select id="edge-type">
-					<option value="">Type...</option>
+					<option value="false">Type...</option>
 					<option value="false">Solid</option>
 					<option value="true">Dashed</option>
 					<option value="dots">Dotted</option>
@@ -966,7 +967,7 @@ function editEdge(item, cancelAction, callback) {
 	document.getElementById('popup-label').focus();
 }
 /**
- *
+ * Initialise the dialog for creating nodes/edges
  * @param {String} popUpTitle
  * @param {Object} item
  * @param {Function} cancelAction
@@ -1128,6 +1129,7 @@ function saveEdge(item, callback) {
 	item.color.hover = color;
 	item.color.highlight = color;
 	item.width = parseInt(document.getElementById('edge-width').value);
+	if (!item.width) item.width = 1;
 	item.dashes = convertDashes(document.getElementById('edge-type').value);
 	claim(item);
 	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
@@ -1455,7 +1457,10 @@ function deleteNode() {
 }
 var lastFileName = 'network.json'; // the name of the file last read in
 let msg = '';
-
+/**
+ * Get the name of a map file to read and load it
+ * @param {event} e
+ */
 function readSingleFile(e) {
 	var file = e.target.files[0];
 	if (!file) {
@@ -1487,7 +1492,10 @@ function readSingleFile(e) {
 function openFile() {
 	document.getElementById('fileInput').click();
 }
-
+/**
+ * determine what kind fo file it is, parse it and reaplce any current map with the one read from the file
+ * @param {string} contents
+ */
 function loadFile(contents) {
 	if (data.nodes.length > 0)
 		if (
@@ -1563,7 +1571,10 @@ function loadFile(contents) {
 	if (!isJSONfile) adjustGravity(50000);
 	network.fit(0);
 }
-
+/**
+ * Parse and load a PRSM map file, or a JSON file exported from Gephi
+ * @param {string} json
+ */
 function loadJSONfile(json) {
 	json = JSON.parse(json);
 	if (
@@ -1601,6 +1612,7 @@ function loadJSONfile(json) {
 			})
 		);
 	}
+	// before v1.4, the style array was called samples
 	if (json.samples) json.styles = json.samples;
 	if (json.styles) {
 		styles.nodes = json.styles.nodes;
@@ -1629,7 +1641,10 @@ function loadJSONfile(json) {
 		edges: edges,
 	};
 }
-
+/**
+ * parse and load a graphML file
+ * @param {string} graphML
+ */
 function parseGraphML(graphML) {
 	let options = {
 		attributeNamePrefix: '',
@@ -1679,7 +1694,10 @@ function parseGraphML(graphML) {
 		}
 	}
 }
-
+/**
+ * Parse and load a GML file
+ * @param {string} gml
+ */
 function parseGML(gml) {
 	if (gml.search('graph') < 0) throw {message: 'invalid GML format'};
 	let tokens = gml.match(/"[^"]+"|[\w]+|\[|\]/g);
@@ -1768,7 +1786,7 @@ function parseGML(gml) {
 	};
 }
 /**
- * Reads a comma separated values file consisting of 'From' label and 'to' label, on each row,
+ * Read a comma separated values file consisting of 'From' label and 'to' label, on each row,
      with a header row (ignored) 
 	optional, cols 3 and 4 can include the groups (styles) of the from and to nodes,
 	column 5 can include the style of the edge.  All these must be integers between 1 and 9
@@ -1808,7 +1826,9 @@ function parseCSV(csv) {
 		return labels.get(label).id;
 	}
 }
-
+/**
+ * ensure that the styles displayed in the node styles panel display the styles defined in the styles array
+ */
 function refreshSampleNodes() {
 	let sampleElements = Array.from(
 		document.getElementsByClassName('sampleNode')
@@ -1825,7 +1845,9 @@ function refreshSampleNodes() {
 		sampleElement.net.fit();
 	}
 }
-
+/**
+ * ensure that the styles displayed in the link styles panel display the styles defined in the styles array
+ */
 function refreshSampleLinks() {
 	let sampleElements = Array.from(
 		document.getElementsByClassName('sampleLink')
@@ -1840,10 +1862,9 @@ function refreshSampleLinks() {
 		sampleElement.net.fit();
 	}
 }
-/* 
-Browser will only ask for name and location of the file to be saved if
-it has a user setting to do so.  Otherwise, it is saved at a default
-download location with a default name.
+
+/**
+ * save the current map as a PRSM file
  */
 function saveJSONfile() {
 	network.storePositions();
@@ -1869,9 +1890,16 @@ function saveJSONfile() {
 	);
 	saveStr(json, 'prsm');
 }
-
+/**
+ * Save the string to a local file
+ * @param {string} str file contents
+ * @param {strng} extn file extension
+ *
+ * Browser will only ask for name and location of the file to be saved if
+ * it has a user setting to do so.  Otherwise, it is saved at a default
+ * download location with a default name.
+ */
 function saveStr(str, extn) {
-	/* download str to a local file */
 	let blob = new Blob([str], {
 		type: 'text/plain',
 	});
@@ -1894,10 +1922,12 @@ function saveStr(str, extn) {
 		a.download = lastFileName;
 		a.click();
 		a.remove();
-		//		window.URL.revokeObjectURL(url); generates Failed - Network error in Chrome
 	}
 }
-
+/**
+ * Save the map as CSV files, one for nodes and one for edges
+ * Only node and edge labels are saved
+ */
 function exportCVS() {
 	let str = 'Id,Label\n';
 	for (let node of data.nodes.get()) {
@@ -1917,7 +1947,9 @@ function exportCVS() {
 	}
 	saveStr(str, 'edges.csv');
 }
-
+/**
+ * Save the map as a GML file
+ */
 function exportGML() {
 	let str =
 		'Creator "prsm ' +
@@ -1945,56 +1977,61 @@ function exportGML() {
 	str += '\n]';
 	saveStr(str, 'gml');
 }
+/**
+ * set up the modal dialog that opens when the user clicks the Share icon in the nav bar
+ */
+function setUpShareDialog() {
+	let modal = document.getElementById('shareModal');
+	let inputElem = document.getElementById('text-to-copy');
+	let copiedText = document.getElementById('copied-text');
 
-/* Share modal dialog */
-var modal = document.getElementById('shareModal');
-var btn = document.getElementById('share');
-var span = document.getElementsByClassName('close')[0];
-var inputElem = document.getElementById('text-to-copy');
-var copiedText = document.getElementById('copied-text');
-
-// When the user clicks the button, open the modal
-btn.onclick = function () {
-	let linkToShare =
-		window.location.origin + window.location.pathname + '?room=' + room;
-	copiedText.style.display = 'none';
-	modal.style.display = 'block';
-	inputElem.setAttribute('size', linkToShare.length);
-	inputElem.value = linkToShare;
-	inputElem.select();
-	network.storePositions();
-};
-// When the user clicks on <span> (x), close the modal
-span.onclick = function () {
-	modal.style.display = 'none';
-};
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function (event) {
-	if (event.target == modal) {
+	// When the user clicks the button, open the modal
+	listen('share', 'click', () => {
+		let linkToShare =
+			window.location.origin + window.location.pathname + '?room=' + room;
+		copiedText.style.display = 'none';
+		modal.style.display = 'block';
+		inputElem.setAttribute('size', linkToShare.length);
+		inputElem.value = linkToShare;
+		inputElem.select();
+		network.storePositions();
+	});
+	// When the user clicks on <span> (x), close the modal
+	listen('modal-close', 'click', () => {
 		modal.style.display = 'none';
-	}
-};
-document.getElementById('copy-text').addEventListener('click', function (e) {
-	e.preventDefault();
-	// Select the text
-	inputElem.select();
-	let copied;
-	try {
-		// Copy the text
-		copied = document.execCommand('copy');
-	} catch (ex) {
-		copied = false;
-	}
-	if (copied) {
-		// Display the copied text message
-		copiedText.style.display = 'inline-block';
-	}
-});
-
+	});
+	// When the user clicks anywhere outside of the modal, close it
+	window.onclick = function (event) {
+		if (event.target == modal) {
+			modal.style.display = 'none';
+		}
+	};
+	listen('copy-text', 'click', (e) => {
+		e.preventDefault();
+		// Select the text
+		inputElem.select();
+		let copied;
+		try {
+			// Copy the text
+			copied = document.execCommand('copy');
+		} catch (ex) {
+			copied = false;
+		}
+		if (copied) {
+			// Display the copied text message
+			copiedText.style.display = 'inline-block';
+		}
+	});
+}
+/**
+ * dislay help page in a separate window
+ */
 function displayHelp() {
 	window.open('./help.html', 'helpWindow');
 }
-
+/**
+ * show or hide the side panel
+ */
 function togglePanel() {
 	// Hide/unhide the side panel
 	if (container.panelHidden) {
@@ -2007,7 +2044,6 @@ function togglePanel() {
 dragElement(document.getElementById('panel'), document.getElementById('tab'));
 
 /* ---------operations related to the side panel -------------------------------------*/
-// Panel
 
 var tabOpen = null;
 /**
@@ -2178,7 +2214,7 @@ function showNodeData() {
 			'<textarea class="notesTA" id="nodesTA"</textarea>';
 		let textarea = document.getElementById('nodesTA');
 		let title = node.title ? node.title : '';
-		textarea.innerHTML = title.replace(/<\/br>/g, '\n');
+		textarea.innerHTML = title.replace(/<br>/g, '\n');
 		textarea.addEventListener('blur', updateNodeNotes);
 		panel.classList.remove('hide');
 		displayStatistics(nodeId);
@@ -2193,7 +2229,7 @@ function updateNodeNotes() {
 		title: splitText(
 			document.getElementById('nodesTA').value,
 			NOTEWIDTH
-		).replace(/\n/g, '</br>'),
+		).replace(/\n/g, '<br>'),
 		clientID: undefined,
 	});
 }
@@ -2745,10 +2781,6 @@ function showOtherUsers() {
 			return value.name;
 		})
 		.sort((a, b) => (a.name > b.name ? 1 : -1));
-	console.log(
-		new Date().toLocaleTimeString() + '.' + new Date().getMilliseconds(),
-		yAwareness.getStates()
-	);
 
 	let avatars = document.getElementById('avatars');
 	while (avatars.firstChild) {

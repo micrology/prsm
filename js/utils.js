@@ -215,20 +215,25 @@ export function strip(obj, allowed) {
 
 export function splitText(txt, width) {
 	// divide txt into lines to make it roughly square, with a
-	// minimum width of width.
-	let words = txt.trim().split(/\s/);
-	let nChars = txt.trim().length;
-	if (nChars > 2 * width) width = Math.floor(Math.sqrt(nChars));
+	// minimum width of width, respecting embedded line breaks (\n).
 	let lines = '';
-	for (let i = 0, linelength = 0; i < words.length; i++) {
-		lines += words[i];
-		if (i == words.length - 1) break;
-		linelength += words[i].length;
-		if (linelength > width) {
-			lines += '\n';
-			linelength = 0;
-		} else lines += ' ';
-	}
+	let chunks = txt.trim().split('\n');
+	chunks.forEach((chunk) => {
+		let words = chunk.trim().split(/\s/);
+		let nChars = chunk.trim().length;
+		if (nChars > 2 * width) width = Math.floor(Math.sqrt(nChars));
+
+		for (let i = 0, linelength = 0; i < words.length; i++) {
+			lines += words[i];
+			if (i == words.length - 1) break;
+			linelength += words[i].length;
+			if (linelength > width) {
+				lines += '\n';
+				linelength = 0;
+			} else lines += ' ';
+		}
+		lines += '\n';
+	});
 	return lines;
 }
 

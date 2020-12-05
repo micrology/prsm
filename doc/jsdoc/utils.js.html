@@ -1,33 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>JSDoc: Source: utils.js</title>
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: utils.js</title>
 
-		<script src="scripts/prettify/prettify.js"></script>
-		<script src="scripts/prettify/lang-css.js"></script>
-		<!--[if lt IE 9]>
-			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-		<![endif]-->
-		<link
-			type="text/css"
-			rel="stylesheet"
-			href="styles/prettify-tomorrow.css"
-		/>
-		<link
-			type="text/css"
-			rel="stylesheet"
-			href="styles/jsdoc-default.css"
-		/>
-	</head>
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
 
-	<body>
-		<div id="main">
-			<h1 class="page-title">Source: utils.js</h1>
+<body>
 
-			<section>
-				<article>
-					<pre class="prettyprint source linenums"><code>/**
+<div id="main">
+
+    <h1 class="page-title">Source: utils.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import * as Hammer from '@egjs/hammerjs';
+
+/**
+ * attach an event listener
+ *
+ * @param {string} elem - id of the element on which to hand the event listener
+ * @param {string} event
+ * @param {function} callback
+ */
+export function listen(id, event, callback) {
+	elem(id).addEventListener(event, callback);
+}
+
+export function elem(id) {
+	return document.getElementById(id);
+}
+
+/**
  * Create a random scale free network, used only for testing and demoing
  * Taken from the vis-network distribution
  *
@@ -91,6 +107,18 @@ function seededRandom() {
 	return x - Math.floor(x);
 }
 
+/**
+ * return a GUID
+ */
+export function uuidv4() {
+	return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
+		(
+			c ^
+			(crypto.getRandomValues(new Uint8Array(1))[0] &amp; (15 >> (c / 4)))
+		).toString(16)
+	);
+}
+
 /*!
  * Deep merge two or more objects together.
  * (c) 2019 Chris Ferdinandi, MIT License, https://gomakethings.com
@@ -124,6 +152,24 @@ export function deepMerge() {
 	}
 
 	return newObj;
+}
+
+export function deepCopy(obj) {
+	if (typeof obj !== 'object' || obj === null) {
+		return obj;
+	}
+	if (obj instanceof Array) {
+		return obj.reduce((arr, item, i) => {
+			arr[i] = deepCopy(item);
+			return arr;
+		}, []);
+	}
+	if (obj instanceof Object) {
+		return Object.keys(obj).reduce((newObj, key) => {
+			newObj[key] = deepCopy(obj[key]);
+			return newObj;
+		}, {});
+	}
 }
 
 export function cleanArray(arr, propsToRemove) {
@@ -197,20 +243,25 @@ export function strip(obj, allowed) {
 
 export function splitText(txt, width) {
 	// divide txt into lines to make it roughly square, with a
-	// minimum width of width.
-	let words = txt.trim().split(/\s/);
-	let nChars = txt.trim().length;
-	if (nChars > 2 * width) width = Math.floor(Math.sqrt(nChars));
+	// minimum width of width, respecting embedded line breaks (\n).
 	let lines = '';
-	for (let i = 0, linelength = 0; i &lt; words.length; i++) {
-		lines += words[i];
-		if (i == words.length - 1) break;
-		linelength += words[i].length;
-		if (linelength > width) {
-			lines += '\n';
-			linelength = 0;
-		} else lines += ' ';
-	}
+	let chunks = txt.trim().split('\n');
+	chunks.forEach((chunk) => {
+		let words = chunk.trim().split(/\s/);
+		let nChars = chunk.trim().length;
+		if (nChars > 2 * width) width = Math.floor(Math.sqrt(nChars));
+
+		for (let i = 0, linelength = 0; i &lt; words.length; i++) {
+			lines += words[i];
+			if (i == words.length - 1) break;
+			linelength += words[i].length;
+			if (linelength > width) {
+				lines += '\n';
+				linelength = 0;
+			} else lines += ' ';
+		}
+		lines += '\n';
+	});
 	return lines;
 }
 
@@ -221,43 +272,53 @@ Set.prototype.intersection = function (otherSet) {
 	return intersectionSet;
 };
 
-export function dragElement(elmnt, header) {
-	var pos1 = 0,
-		pos2 = 0,
-		pos3 = 0,
-		pos4 = 0;
-	header.onmousedown = dragMouseDown;
+export function dragElement(elem, header) {
+	let mc = new Hammer.Manager(header, {
+		recognizers: [
+			[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}],
+		],
+	});
+	// tie in the handler that will be called
+	mc.on('pan', handleDrag);
 
-	function dragMouseDown(e) {
-		e = e || window.event;
-		e.preventDefault();
-		// get the mouse cursor position at startup:
-		pos3 = e.clientX;
-		pos4 = e.clientY;
-		document.onmouseup = closeDragElement;
-		// call a function whenever the cursor moves:
-		document.onmousemove = elementDrag;
-	}
+	// poor choice here, but to keep it simple
+	// setting up a few vars to keep track of things.
+	// at issue is these values need to be encapsulated
+	// in some scope other than global.
+	let lastPosX = 0;
+	let lastPosY = 0;
+	let isDragging = false;
 
-	function elementDrag(e) {
-		e = e || window.event;
-		e.preventDefault();
-		e.target.style.cursor = 'move';
-		// calculate the new cursor position:
-		pos1 = pos3 - e.clientX;
-		pos2 = pos4 - e.clientY;
-		pos3 = e.clientX;
-		pos4 = e.clientY;
-		// set the element's new position:
-		elmnt.style.top = elmnt.offsetTop - pos2 + 'px';
-		elmnt.style.left = elmnt.offsetLeft - pos1 + 'px';
-	}
+	function handleDrag(ev) {
+		// DRAG STARTED
+		// here, let's snag the current position
+		// and keep track of the fact that we're dragging
+		if (!isDragging) {
+			isDragging = true;
+			lastPosX = elem.offsetLeft;
+			lastPosY = elem.offsetTop;
+		}
 
-	function closeDragElement(e) {
-		// stop moving when mouse button is released:
-		e.target.style.cursor = 'pointer';
-		document.onmouseup = null;
-		document.onmousemove = null;
+		// we simply need to determine where the x,y of this
+		// object is relative to where it's "last" known position is
+		// NOTE:
+		//    deltaX and deltaY are cumulative
+		// Thus we need to always calculate 'real x and y' relative
+		// to the "lastPosX/Y"
+		elem.style.cursor = 'move';
+		let posX = ev.deltaX + lastPosX;
+		let posY = ev.deltaY + lastPosY;
+
+		// move our element to that position
+		elem.style.left = posX + 'px';
+		elem.style.top = posY + 'px';
+
+		// DRAG ENDED
+		// this is where we simply forget we are dragging
+		if (ev.isFinal) {
+			isDragging = false;
+			elem.style.cursor = 'pointer';
+		}
 	}
 }
 
@@ -266,98 +327,111 @@ export function standardize_color(str) {
 	ctx.fillStyle = str;
 	return ctx.fillStyle;
 }
+
+const SEA_CREATURES = Object.freeze([
+	'walrus',
+	'seal',
+	'fish',
+	'shark',
+	'clam',
+	'coral',
+	'whale',
+	'crab',
+	'lobster',
+	'starfish',
+	'eel',
+	'dolphin',
+	'squid',
+	'jellyfish',
+	'ray',
+	'shrimp',
+	'mantaRay',
+	'angler',
+	'snorkler',
+	'scubaDiver',
+	'urchin',
+	'anemone',
+	'morel',
+	'axolotl',
+]);
+
+const ADJECTIVES = Object.freeze([
+	'cute',
+	'adorable',
+	'lovable',
+	'happy',
+	'sandy',
+	'bubbly',
+	'friendly',
+	'drifting',
+	'huge',
+	'big',
+	'small',
+	'giant',
+	'massive',
+	'tiny',
+	'nippy',
+	'odd',
+	'perfect',
+	'rude',
+	'wonderful',
+]);
+
+const COLORS = Object.freeze([
+	'silver',
+	'hotpink',
+	'red',
+	'lightblue',
+	'fuchsia',
+	'green',
+	'lime',
+	'olive',
+	'yellow',
+	'darkorange',
+	'chartreuse',
+	'teal',
+	'aqua',
+	'orange',
+	'beige',
+	'gainsboro',
+	'cadetblue',
+	'coral',
+	'gold',
+]);
+
+const random = (items) => items[(Math.random() * items.length) | 0];
+
+const capitalize = (string) => string[0].toUpperCase() + string.slice(1);
+
+export function generateName() {
+	return {
+		color: random(COLORS),
+		name:
+			capitalize(random(ADJECTIVES)) + capitalize(random(SEA_CREATURES)),
+		anon: true,
+		asleep: false,
+	};
+}
 </code></pre>
-				</article>
-			</section>
-		</div>
+        </article>
+    </section>
 
-		<nav>
-			<h2><a href="index.html">Home</a></h2>
-			<h3>Classes</h3>
-			<ul>
-				<li><a href="ToolHandler.html">ToolHandler</a></li>
-			</ul>
-			<h3>Global</h3>
-			<ul>
-				<li>
-					<a href="global.html#addEventListeners"
-						>addEventListeners</a
-					>
-				</li>
-				<li><a href="global.html#addLabel">addLabel</a></li>
-				<li><a href="global.html#antMarch">antMarch</a></li>
-				<li><a href="global.html#applyOptions">applyOptions</a></li>
-				<li><a href="global.html#broadcast">broadcast</a></li>
-				<li><a href="global.html#cancelEdit">cancelEdit</a></li>
-				<li><a href="global.html#claim">claim</a></li>
-				<li><a href="global.html#clearPopUp">clearPopUp</a></li>
-				<li>
-					<a href="global.html#closeOptionsDialogs"
-						>closeOptionsDialogs</a
-					>
-				</li>
-				<li><a href="global.html#convertDashes">convertDashes</a></li>
-				<li><a href="global.html#deselectTool">deselectTool</a></li>
-				<li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li>
-				<li><a href="global.html#draw">draw</a></li>
-				<li><a href="global.html#drawGrid">drawGrid</a></li>
-				<li><a href="global.html#duplEdge">duplEdge</a></li>
-				<li><a href="global.html#editEdge">editEdge</a></li>
-				<li><a href="global.html#editNode">editNode</a></li>
-				<li><a href="global.html#fit">fit</a></li>
-				<li><a href="global.html#generateRoom">generateRoom</a></li>
-				<li><a href="global.html#getContext">getContext</a></li>
-				<li><a href="global.html#getDashes">getDashes</a></li>
-				<li><a href="global.html#getRandomData">getRandomData</a></li>
-				<li>
-					<a href="global.html#getScaleFreeNetwork"
-						>getScaleFreeNetwork</a
-					>
-				</li>
-				<li><a href="global.html#initPopUp">initPopUp</a></li>
-				<li>
-					<a href="global.html#keepPanelInWindow"
-						>keepPanelInWindow</a
-					>
-				</li>
-				<li><a href="global.html#listen">listen</a></li>
-				<li><a href="global.html#mouseDespatch">mouseDespatch</a></li>
-				<li><a href="global.html#object_equals">object_equals</a></li>
-				<li><a href="global.html#parseCSV">parseCSV</a></li>
-				<li><a href="global.html#positionPopUp">positionPopUp</a></li>
-				<li><a href="global.html#redraw">redraw</a></li>
-				<li><a href="global.html#resizeBox">resizeBox</a></li>
-				<li><a href="global.html#saveEdge">saveEdge</a></li>
-				<li><a href="global.html#saveLabel">saveLabel</a></li>
-				<li><a href="global.html#saveNode">saveNode</a></li>
-				<li><a href="global.html#selectTool">selectTool</a></li>
-				<li>
-					<a href="global.html#setButtonDisabledStatus"
-						>setButtonDisabledStatus</a
-					>
-				</li>
-				<li><a href="global.html#setUpCanvas">setUpCanvas</a></li>
-				<li><a href="global.html#setUpChat">setUpChat</a></li>
-				<li><a href="global.html#setUpPage">setUpPage</a></li>
-				<li><a href="global.html#setUpPaint">setUpPaint</a></li>
-				<li><a href="global.html#setUpToolbox">setUpToolbox</a></li>
-				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
-				<li><a href="global.html#startY">startY</a></li>
-				<li><a href="global.html#toolHandler">toolHandler</a></li>
-			</ul>
-		</nav>
 
-		<br class="clear" />
 
-		<footer>
-			Documentation generated by
-			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Sun Sep
-			13 2020 16:59:19 GMT+0100 (British Summer Time)
-		</footer>
 
-		<script>
-			prettyPrint();
-		</script>
-		<script src="scripts/linenumber.js"></script>
-	</body>
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ToolHandler.html">ToolHandler</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addEventListeners">addEventListeners</a></li><li><a href="global.html#addLabel">addLabel</a></li><li><a href="global.html#antMarch">antMarch</a></li><li><a href="global.html#applyOptions">applyOptions</a></li><li><a href="global.html#asleep">asleep</a></li><li><a href="global.html#broadcast">broadcast</a></li><li><a href="global.html#cancelEdit">cancelEdit</a></li><li><a href="global.html#changeCursor">changeCursor</a></li><li><a href="global.html#claim">claim</a></li><li><a href="global.html#clearLegend">clearLegend</a></li><li><a href="global.html#clearPopUp">clearPopUp</a></li><li><a href="global.html#clearStatusBar">clearStatusBar</a></li><li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li><li><a href="global.html#configSamples">configSamples</a></li><li><a href="global.html#convertDashes">convertDashes</a></li><li><a href="global.html#ctlClickAddNode">ctlClickAddNode</a></li><li><a href="global.html#deleteMsg">deleteMsg</a></li><li><a href="global.html#deselectTool">deselectTool</a></li><li><a href="global.html#displayHelp">displayHelp</a></li><li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawGrid">drawGrid</a></li><li><a href="global.html#duplEdge">duplEdge</a></li><li><a href="global.html#editEdge">editEdge</a></li><li><a href="global.html#editLinkStyle">editLinkStyle</a></li><li><a href="global.html#editNode">editNode</a></li><li><a href="global.html#editNodeStyle">editNodeStyle</a></li><li><a href="global.html#exportCVS">exportCVS</a></li><li><a href="global.html#exportGML">exportGML</a></li><li><a href="global.html#fit">fit</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#getArrows">getArrows</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#getDashes">getDashes</a></li><li><a href="global.html#getRandomData">getRandomData</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#groupDashes">groupDashes</a></li><li><a href="global.html#htmlEntities">htmlEntities</a></li><li><a href="global.html#initPopUp">initPopUp</a></li><li><a href="global.html#initSample">initSample</a></li><li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li><li><a href="global.html#legend">legend</a></li><li><a href="global.html#linkEditCancel">linkEditCancel</a></li><li><a href="global.html#linkEditorHide">linkEditorHide</a></li><li><a href="global.html#linkEditorShow">linkEditorShow</a></li><li><a href="global.html#linkEditSave">linkEditSave</a></li><li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li><li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#listFactors">listFactors</a></li><li><a href="global.html#listLinks">listLinks</a></li><li><a href="global.html#loadFile">loadFile</a></li><li><a href="global.html#loadJSONfile">loadJSONfile</a></li><li><a href="global.html#mapTitle">mapTitle</a></li><li><a href="global.html#mouseDespatch">mouseDespatch</a></li><li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li><li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li><li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li><li><a href="global.html#nodeEditSave">nodeEditSave</a></li><li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li><li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li><li><a href="global.html#object_equals">object_equals</a></li><li><a href="global.html#parseCSV">parseCSV</a></li><li><a href="global.html#parseGML">parseGML</a></li><li><a href="global.html#parseGraphML">parseGraphML</a></li><li><a href="global.html#plusLink">plusLink</a></li><li><a href="global.html#plusNode">plusNode</a></li><li><a href="global.html#positionPopUp">positionPopUp</a></li><li><a href="global.html#readSingleFile">readSingleFile</a></li><li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li><li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li><li><a href="global.html#recalculateStats">recalculateStats</a></li><li><a href="global.html#redraw">redraw</a></li><li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li><li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li><li><a href="global.html#resizeBox">resizeBox</a></li><li><a href="global.html#saveEdge">saveEdge</a></li><li><a href="global.html#saveJSONfile">saveJSONfile</a></li><li><a href="global.html#saveLabel">saveLabel</a></li><li><a href="global.html#saveNode">saveNode</a></li><li><a href="global.html#saveStr">saveStr</a></li><li><a href="global.html#selectTool">selectTool</a></li><li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li><li><a href="global.html#setMapTitle">setMapTitle</a></li><li><a href="global.html#setUpAwareness">setUpAwareness</a></li><li><a href="global.html#setUpCanvas">setUpCanvas</a></li><li><a href="global.html#setUpChat">setUpChat</a></li><li><a href="global.html#setUpIntro">setUpIntro</a></li><li><a href="global.html#setUpPage">setUpPage</a></li><li><a href="global.html#setUpPaint">setUpPaint</a></li><li><a href="global.html#setUpSamples">setUpSamples</a></li><li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li><li><a href="global.html#setUpToolbox">setUpToolbox</a></li><li><a href="global.html#shorten">shorten</a></li><li><a href="global.html#showOtherUsers">showOtherUsers</a></li><li><a href="global.html#showPressed">showPressed</a></li><li><a href="global.html#snapToGrid">snapToGrid</a></li><li><a href="global.html#squashInput">squashInput</a></li><li><a href="global.html#squashInputOnKeyUp">squashInputOnKeyUp</a></li><li><a href="global.html#startY">startY</a></li><li><a href="global.html#statusMsg">statusMsg</a></li><li><a href="global.html#stopEdit">stopEdit</a></li><li><a href="global.html#togglePanel">togglePanel</a></li><li><a href="global.html#toolHandler">toolHandler</a></li><li><a href="global.html#unSelect">unSelect</a></li><li><a href="global.html#updateLegend">updateLegend</a></li><li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li><li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li><li><a href="global.html#uuidv4">uuidv4</a></li><li><a href="global.html#zoomincr">zoomincr</a></li><li><a href="global.html#zoomnet">zoomnet</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sat Dec 05 2020 22:34:19 GMT+0000 (Greenwich Mean Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
 </html>
