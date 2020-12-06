@@ -105,14 +105,14 @@ export const styles = {
 			groupLabel: 'Sample',
 			color: {
 				border: '#000000',
-				background: '#ff0000',
+				background: '#773232',
 				highlight: {
 					border: '#000000',
-					background: '#ff0000',
+					background: '#773232',
 				},
 				hover: {
 					border: '#000000',
-					background: '#ff0000',
+					background: '#773232',
 				},
 			},
 			font: {
@@ -121,7 +121,7 @@ export const styles = {
 			},
 			shape: 'ellipse',
 			shapeProperties: {
-				borderDashes: true,
+				borderDashes: false,
 			},
 		},
 		group5: {
@@ -171,7 +171,7 @@ export const styles = {
 				},
 			},
 			font: {
-				color: '#fa0000',
+				color: '#1c5f1b',
 				size: 14,
 			},
 			shape: 'text',

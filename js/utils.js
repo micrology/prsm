@@ -11,6 +11,10 @@ export function listen(id, event, callback) {
 	elem(id).addEventListener(event, callback);
 }
 
+/**
+ * return the HTML element with the id
+ * @param {string} id
+ */
 export function elem(id) {
 	return document.getElementById(id);
 }
@@ -126,6 +130,10 @@ export function deepMerge() {
 	return newObj;
 }
 
+/**
+ * returns a deep copy of the object
+ * @param {Object} obj
+ */
 export function deepCopy(obj) {
 	if (typeof obj !== 'object' || obj === null) {
 		return obj;
@@ -142,12 +150,6 @@ export function deepCopy(obj) {
 			return newObj;
 		}, {});
 	}
-}
-
-export function cleanArray(arr, propsToRemove) {
-	return arr.map((item) => {
-		return clean(item, propsToRemove);
-	});
 }
 
 /**
@@ -195,16 +197,33 @@ export function object_equals(x, y) {
 
 	return true;
 }
-
+/**
+ * return a copy of an object, with the properties in the object propsToRemove removed
+ * @param {Object} source
+ * @param {Object} propsToRemove
+ */
 export function clean(source, propsToRemove) {
-	// return a copy of an object, with the properties in the object propsToRemove removed
 	let out = {};
 	for (let key in source) {
 		if (!(key in propsToRemove)) out[key] = source[key];
 	}
 	return out;
 }
-
+/**
+ * remove the given properties from all the object in the array
+ * @param {Array} arr array of objects
+ * @param {string} propsToRemove
+ */
+export function cleanArray(arr, propsToRemove) {
+	return arr.map((item) => {
+		return clean(item, propsToRemove);
+	});
+}
+/**
+ * return a copy of an object that only includes the properties that are in allowed
+ * @param {Object} obj the object to copy
+ * @param {Object} allowed the object with allowed properties
+ */
 export function strip(obj, allowed) {
 	return Object.fromEntries(
 		Object.entries(obj).filter(
@@ -212,10 +231,13 @@ export function strip(obj, allowed) {
 		)
 	);
 }
-
+/**
+ * divide txt into lines to make it roughly square, with a
+ * minimum width of width, respecting embedded line breaks (\n).
+ * @param {string} txt
+ * @param {integer} width
+ */
 export function splitText(txt, width) {
-	// divide txt into lines to make it roughly square, with a
-	// minimum width of width, respecting embedded line breaks (\n).
 	let lines = '';
 	let chunks = txt.trim().split('\n');
 	chunks.forEach((chunk) => {
@@ -234,16 +256,21 @@ export function splitText(txt, width) {
 		}
 		lines += '\n';
 	});
-	return lines;
+	return lines.trim();
 }
-
-// Performs intersection operation between called set and otherSet
+/**
+ * Performs intersection operation between called set and otherSet
+ */
 Set.prototype.intersection = function (otherSet) {
 	let intersectionSet = new Set();
 	for (var elem of otherSet) if (this.has(elem)) intersectionSet.add(elem);
 	return intersectionSet;
 };
-
+/**
+ * allow user to drag the elem that has a headerelement that acts as the handle
+ * @param {HTMLelement} elem
+ * @param {HTMLelement} header
+ */
 export function dragElement(elem, header) {
 	let mc = new Hammer.Manager(header, {
 		recognizers: [
@@ -293,7 +320,11 @@ export function dragElement(elem, header) {
 		}
 	}
 }
-
+/**
+ * return the hex value for the CSS color in str (which may be a color name, e.g. white, or a hex number
+ * or any other legal CSS color value)
+ * @param {string} str
+ */
 export function standardize_color(str) {
 	let ctx = document.createElement('canvas').getContext('2d');
 	ctx.fillStyle = str;
@@ -374,7 +405,9 @@ const COLORS = Object.freeze([
 const random = (items) => items[(Math.random() * items.length) | 0];
 
 const capitalize = (string) => string[0].toUpperCase() + string.slice(1);
-
+/**
+ * return a random fancy name for an avatar, with a random colour
+ */
 export function generateName() {
 	return {
 		color: random(COLORS),

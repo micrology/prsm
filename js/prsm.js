@@ -2211,7 +2211,7 @@ function showNodeData() {
 			? shorten(node.label)
 			: '';
 		document.getElementById('nodeNotes').innerHTML =
-			'<textarea class="notesTA" id="nodesTA"</textarea>';
+			'<textarea class="notesTA" id="nodesTA"></textarea>';
 		let textarea = document.getElementById('nodesTA');
 		let title = node.title ? node.title : '';
 		textarea.innerHTML = title.replace(/<br>/g, '\n');
