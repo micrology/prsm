@@ -34,6 +34,11 @@
 			href="../node_modules/intro.js/themes/introjs-modern.css"
 			rel="stylesheet"
 		/>
+		<style>
+			.introjs-skipbutton {
+				color: white;
+			}
+		</style>
 		<script>
 			if (window.document.documentMode) {
 				alert(
@@ -206,7 +211,7 @@
 				id="net-pane"
 				data-intro="<div>
 				<b>Welcome to PRSM</b><p>For a quick tour, press Next,<br>
-					or to start immediately, press Skip.</div>"
+					or to start immediately, press the ESC key.</div>"
 				data-step="1"
 				data-tooltipClass="splash"
 			></div>
@@ -753,7 +758,7 @@
 							class="tooltip"
 							data-intro="You will be able to enter your name here if you want to show others that you are online"
 							data-step="10"
-							data-position="top"
+							data-position="left"
 						>
 							<input type="text" id="chat-name" />
 							<span class="tooltiptext"
