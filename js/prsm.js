@@ -490,7 +490,12 @@ const emojiPicker = new EmojiButton({
  * create DOM elements for the chat box
  */
 function setUpChat() {
-	myNameRec = JSON.parse(localStorage.getItem('myName'));
+	try {
+		myNameRec = JSON.parse(localStorage.getItem('myName'));
+	} 
+	catch (err) {
+		myNameRec = null
+	}
 	// sanity check
 	if (!(myNameRec != null && myNameRec.name)) {
 		myNameRec = generateName();
@@ -542,11 +547,11 @@ function setUpChat() {
  */
 function setUpIntro() {
 	if (localStorage.getItem('doneIntro') != 'true') {
-		intro.setOptions({
-			hidePrev: true,
-			hideNext: true,
+		intro.setOptions({			
+			showBullets: false,
 			exitOnOverlayClick: false,
 			showStepNumbers: false,
+			disableInteractions: true,
 			overlayOpacity: 0.3,
 		});
 		intro.onexit(function () {
