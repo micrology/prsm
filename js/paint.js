@@ -10,7 +10,7 @@
  */
 
 import {yPointsArray, network, drawingSwitch} from './prsm.js';
-import * as Hammer from 'hammerjs';
+import * as Hammer from '@egjs/hammerjs';
 /**
  * Initialisation
  */

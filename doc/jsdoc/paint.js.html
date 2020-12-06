@@ -39,7 +39,7 @@
  */
 
 import {yPointsArray, network, drawingSwitch} from './prsm.js';
-import * as Hammer from 'hammerjs';
+import * as Hammer from '@egjs/hammerjs';
 /**
  * Initialisation
  */
@@ -89,9 +89,6 @@ export function setUpPaint() {
 	mc.on('panstart', mouseDespatch);
 	mc.on('panmove', mouseDespatch);
 	mc.on('panend', mouseDespatch);
-	/* 	window.onorientationchange = function () {
-		tempCanvas = setUpCanvas('temp-canvas');
-	}; */
 }
 /**
  * set up the dimensions of and return the canvas at the id
@@ -633,8 +630,11 @@ class TextHandler extends ToolHandler {
 		let height = 0;
 		let isDragging = false;
 
-		let mc = new Hammer(elem);
-		mc.add(new Hammer.Pan({direction: Hammer.DIRECTION_ALL, threshold: 0}));
+		let mc = new Hammer.Manager(elem, {
+			recognizers: [
+				[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}],
+			],
+		});
 		mc.on('pan', handleDrag);
 
 		function handleDrag(e) {
@@ -1349,25 +1349,46 @@ function applyOptions(ctx, options) {
 				<li><a href="global.html#addLabel">addLabel</a></li>
 				<li><a href="global.html#antMarch">antMarch</a></li>
 				<li><a href="global.html#applyOptions">applyOptions</a></li>
+				<li><a href="global.html#asleep">asleep</a></li>
 				<li><a href="global.html#broadcast">broadcast</a></li>
 				<li><a href="global.html#cancelEdit">cancelEdit</a></li>
+				<li><a href="global.html#changeCursor">changeCursor</a></li>
 				<li><a href="global.html#claim">claim</a></li>
+				<li><a href="global.html#clean">clean</a></li>
+				<li><a href="global.html#cleanArray">cleanArray</a></li>
+				<li><a href="global.html#clearLegend">clearLegend</a></li>
 				<li><a href="global.html#clearPopUp">clearPopUp</a></li>
+				<li><a href="global.html#clearStatusBar">clearStatusBar</a></li>
 				<li>
 					<a href="global.html#closeOptionsDialogs"
 						>closeOptionsDialogs</a
 					>
 				</li>
+				<li><a href="global.html#configSamples">configSamples</a></li>
 				<li><a href="global.html#convertDashes">convertDashes</a></li>
+				<li>
+					<a href="global.html#ctlClickAddNode">ctlClickAddNode</a>
+				</li>
+				<li><a href="global.html#deepCopy">deepCopy</a></li>
+				<li><a href="global.html#deleteMsg">deleteMsg</a></li>
 				<li><a href="global.html#deselectTool">deselectTool</a></li>
+				<li><a href="global.html#displayHelp">displayHelp</a></li>
 				<li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li>
+				<li><a href="global.html#dragElement">dragElement</a></li>
 				<li><a href="global.html#draw">draw</a></li>
 				<li><a href="global.html#drawGrid">drawGrid</a></li>
 				<li><a href="global.html#duplEdge">duplEdge</a></li>
 				<li><a href="global.html#editEdge">editEdge</a></li>
+				<li><a href="global.html#editLinkStyle">editLinkStyle</a></li>
 				<li><a href="global.html#editNode">editNode</a></li>
+				<li><a href="global.html#editNodeStyle">editNodeStyle</a></li>
+				<li><a href="global.html#elem">elem</a></li>
+				<li><a href="global.html#exportCVS">exportCVS</a></li>
+				<li><a href="global.html#exportGML">exportGML</a></li>
 				<li><a href="global.html#fit">fit</a></li>
+				<li><a href="global.html#generateName">generateName</a></li>
 				<li><a href="global.html#generateRoom">generateRoom</a></li>
+				<li><a href="global.html#getArrows">getArrows</a></li>
 				<li><a href="global.html#getContext">getContext</a></li>
 				<li><a href="global.html#getDashes">getDashes</a></li>
 				<li><a href="global.html#getRandomData">getRandomData</a></li>
@@ -1376,36 +1397,130 @@ function applyOptions(ctx, options) {
 						>getScaleFreeNetwork</a
 					>
 				</li>
+				<li><a href="global.html#groupDashes">groupDashes</a></li>
+				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
 				<li><a href="global.html#initPopUp">initPopUp</a></li>
+				<li><a href="global.html#initSample">initSample</a></li>
 				<li>
-					<a href="global.html#keepPanelInWindow"
-						>keepPanelInWindow</a
+					<a href="global.html#keepPaneInWindow">keepPaneInWindow</a>
+				</li>
+				<li><a href="global.html#legend">legend</a></li>
+				<li><a href="global.html#linkEditCancel">linkEditCancel</a></li>
+				<li><a href="global.html#linkEditorHide">linkEditorHide</a></li>
+				<li><a href="global.html#linkEditorShow">linkEditorShow</a></li>
+				<li><a href="global.html#linkEditSave">linkEditSave</a></li>
+				<li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li>
+				<li>
+					<a href="global.html#linkEditUpdateStyleSample"
+						>linkEditUpdateStyleSample</a
 					>
 				</li>
 				<li><a href="global.html#listen">listen</a></li>
+				<li><a href="global.html#listFactors">listFactors</a></li>
+				<li><a href="global.html#listLinks">listLinks</a></li>
+				<li><a href="global.html#loadFile">loadFile</a></li>
+				<li><a href="global.html#loadJSONfile">loadJSONfile</a></li>
+				<li><a href="global.html#mapTitle">mapTitle</a></li>
 				<li><a href="global.html#mouseDespatch">mouseDespatch</a></li>
+				<li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li>
+				<li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li>
+				<li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li>
+				<li><a href="global.html#nodeEditSave">nodeEditSave</a></li>
+				<li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li>
+				<li>
+					<a href="global.html#nodeEditUpdateStyleSample"
+						>nodeEditUpdateStyleSample</a
+					>
+				</li>
 				<li><a href="global.html#object_equals">object_equals</a></li>
 				<li><a href="global.html#parseCSV">parseCSV</a></li>
+				<li><a href="global.html#parseGML">parseGML</a></li>
+				<li><a href="global.html#parseGraphML">parseGraphML</a></li>
+				<li><a href="global.html#plusLink">plusLink</a></li>
+				<li><a href="global.html#plusNode">plusNode</a></li>
 				<li><a href="global.html#positionPopUp">positionPopUp</a></li>
+				<li><a href="global.html#readSingleFile">readSingleFile</a></li>
+				<li>
+					<a href="global.html#reApplySampleToLinks"
+						>reApplySampleToLinks</a
+					>
+				</li>
+				<li>
+					<a href="global.html#reApplySampleToNodes"
+						>reApplySampleToNodes</a
+					>
+				</li>
+				<li>
+					<a href="global.html#recalculateStats">recalculateStats</a>
+				</li>
 				<li><a href="global.html#redraw">redraw</a></li>
+				<li>
+					<a href="global.html#refreshSampleLinks"
+						>refreshSampleLinks</a
+					>
+				</li>
+				<li>
+					<a href="global.html#refreshSampleNodes"
+						>refreshSampleNodes</a
+					>
+				</li>
 				<li><a href="global.html#resizeBox">resizeBox</a></li>
 				<li><a href="global.html#saveEdge">saveEdge</a></li>
+				<li><a href="global.html#saveJSONfile">saveJSONfile</a></li>
 				<li><a href="global.html#saveLabel">saveLabel</a></li>
 				<li><a href="global.html#saveNode">saveNode</a></li>
+				<li><a href="global.html#saveStr">saveStr</a></li>
 				<li><a href="global.html#selectTool">selectTool</a></li>
 				<li>
 					<a href="global.html#setButtonDisabledStatus"
 						>setButtonDisabledStatus</a
 					>
 				</li>
+				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
+				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
 				<li><a href="global.html#setUpCanvas">setUpCanvas</a></li>
 				<li><a href="global.html#setUpChat">setUpChat</a></li>
+				<li><a href="global.html#setUpIntro">setUpIntro</a></li>
 				<li><a href="global.html#setUpPage">setUpPage</a></li>
 				<li><a href="global.html#setUpPaint">setUpPaint</a></li>
+				<li><a href="global.html#setUpSamples">setUpSamples</a></li>
+				<li>
+					<a href="global.html#setUpShareDialog">setUpShareDialog</a>
+				</li>
 				<li><a href="global.html#setUpToolbox">setUpToolbox</a></li>
+				<li><a href="global.html#shorten">shorten</a></li>
+				<li><a href="global.html#showOtherUsers">showOtherUsers</a></li>
+				<li><a href="global.html#showPressed">showPressed</a></li>
 				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
+				<li><a href="global.html#splitText">splitText</a></li>
+				<li><a href="global.html#squashInput">squashInput</a></li>
+				<li>
+					<a href="global.html#squashInputOnKeyUp"
+						>squashInputOnKeyUp</a
+					>
+				</li>
+				<li>
+					<a href="global.html#standardize_color"
+						>standardize_color</a
+					>
+				</li>
 				<li><a href="global.html#startY">startY</a></li>
+				<li><a href="global.html#statusMsg">statusMsg</a></li>
+				<li><a href="global.html#stopEdit">stopEdit</a></li>
+				<li><a href="global.html#strip">strip</a></li>
+				<li><a href="global.html#togglePanel">togglePanel</a></li>
 				<li><a href="global.html#toolHandler">toolHandler</a></li>
+				<li><a href="global.html#unSelect">unSelect</a></li>
+				<li><a href="global.html#updateLegend">updateLegend</a></li>
+				<li>
+					<a href="global.html#updateLinkEditor">updateLinkEditor</a>
+				</li>
+				<li>
+					<a href="global.html#updateNodeEditor">updateNodeEditor</a>
+				</li>
+				<li><a href="global.html#uuidv4">uuidv4</a></li>
+				<li><a href="global.html#zoomincr">zoomincr</a></li>
+				<li><a href="global.html#zoomnet">zoomnet</a></li>
 			</ul>
 		</nav>
 
@@ -1413,8 +1528,8 @@ function applyOptions(ctx, options) {
 
 		<footer>
 			Documentation generated by
-			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Sun Sep
-			13 2020 16:59:19 GMT+0100 (British Summer Time)
+			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sat Dec
+			05 2020 22:51:39 GMT+0000 (Greenwich Mean Time)
 		</footer>
 
 		<script>

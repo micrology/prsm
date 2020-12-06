@@ -2,6 +2,17 @@
 <html lang="en">
 	<head>
 		<title>Participatory System Mapper</title>
+		<meta
+			name="Description"
+			content="PRSM enables groups of people, each using their own computer (or tablet) 
+		to collaborate in the drawing of a map. They may be sitting around a table, discussing the map as it is 
+		created face to face, or working remotely, using video conferencing or the chat feature that is built 
+		into the app. Everyone can participate because every edit (creating nodes and links, arranging them 
+		and so on) is broadcast to all the other participants as the changes are made (just as Google Docs 
+		does for text, for example). When you start PRSM in your browser, a 'room' is created for you in which 
+		to draw your network. You can add other users to this room to share the work. Only those with access 
+		to the room can see what is being created."
+		/>
 		<meta charset="utf-8" />
 		<meta content="IE=edge" http-equiv="X-UA-Compatible" />
 		<meta name="viewport" content="width=device-width,initial-scale=1.0" />
@@ -14,6 +25,15 @@
 			crossorigin="anonymous"
 		></script>
 		<link href="../css/vis-network.min.css" rel="stylesheet" />
+		<!-- Add IntroJs styles -->
+		<link
+			href="../node_modules/intro.js/minified/introjs.min.css"
+			rel="stylesheet"
+		/>
+		<link
+			href="../node_modules/intro.js/themes/introjs-modern.css"
+			rel="stylesheet"
+		/>
 		<script>
 			if (window.document.documentMode) {
 				alert(
@@ -26,19 +46,46 @@
 	<body class="container" id="container">
 		<header>
 			<nav id="navbar">
-				<!-- <img src="img/prsm-logo.png" alt="prsm"> -->
-				<div class="strapline">Participatory System Mapper</div>
-				<div id="version"></div>
+				<div>
+					<div class="strapline">
+						Participatory System Mapper<span id="version"
+							>1.2.0</span
+						>
+					</div>
+					<div
+						class="maptitle"
+						id="maptitle"
+						contenteditable="true"
+						data-intro="You can name the map here"
+						data-step="1"
+						data-position="bottom"
+					>
+						Untitled map
+					</div>
+				</div>
 				<div class="button-wrapper">
 					<div class="buttons" id="buttons">
-						<div class="tooltip">
+						<div
+							class="tooltip"
+							data-intro="Clicking the plus creates a new factor"
+							data-step="2"
+							data-position="bottom"
+						>
 							<button id="addNode">
 								<i class="fas fa-plus"></i></button
 							><span class="tooltiptext">Add factor</span>
 						</div>
-						<div class="tooltip right-border">
+						<div
+							class="tooltip right-border"
+							data-intro="Clicking the arrow creates a link"
+							data-step="3"
+							data-position="bottom"
+						>
 							<button id="addLink">
-								<i class="fas fa-wave-square"></i></button
+								<!-- <i class="fas fa-wave-square"></i> -->
+								<i
+									class="fas fa-long-arrow-alt-right"
+								></i></button
 							><span class="tooltiptext">Add link</span>
 						</div>
 						<div class="tooltip">
@@ -51,7 +98,12 @@
 								<i class="fas fa-redo small-button"></i></button
 							><span class="tooltiptext">Redo</span>
 						</div>
-						<div class="tooltip right-border">
+						<div
+							class="tooltip right-border"
+							data-intro="Selecting a factor or link and then clicking here deletes it"
+							data-step="4"
+							data-position="bottom"
+						>
 							<button id="deleteNode">
 								<i
 									class="fas fa-trash-alt small-button"
@@ -70,7 +122,12 @@
 								></i></button
 							><span class="tooltiptext">Open network</span>
 						</div>
-						<div class="tooltip">
+						<div
+							class="tooltip"
+							data-intro="Clicking here saves the map to your disk"
+							data-step="5"
+							data-position="left"
+						>
 							<button id="saveFile">
 								<i class="fas fa-save small-button"></i></button
 							><span class="tooltiptext">Save network</span>
@@ -94,7 +151,12 @@
 								</div>
 							</div>
 						</div>
-						<div class="tooltip left-border">
+						<div
+							class="tooltip left-border"
+							data-intro="Clicking here opens a new window with more help"
+							data-step="6"
+							data-position="left"
+						>
 							<button id="help">
 								<i class="fas fa-question"></i>
 							</button>
@@ -102,7 +164,12 @@
 								>Show help in a new window</span
 							>
 						</div>
-						<div class="tooltip">
+						<div
+							class="tooltip"
+							data-intro="Clicking here shows more options"
+							data-step="7"
+							data-position="left"
+						>
 							<button id="panelToggle">
 								<i class="fas fa-sliders-h"></i>
 							</button>
@@ -114,30 +181,35 @@
 				</div>
 			</nav>
 		</header>
-		<main id="main">
+		<main
+			id="main"
+			data-intro="<div>
+			<b>That's the end of the tour.<p>Press Done and then click <br>
+				on the + button above to add your first factor.</div>"
+			data-step="12"
+			data-tooltipClass="splash"
+		>
+			<div class="avatars" id="avatars"></div>
 			<div id="popup">
-				<span id="popup-operation">Edit factor</span>
-				<textarea id="popup-label" placeholder="Label"></textarea>
-				<table>
-					<tr>
-						<td>
-							<input
-								type="button"
-								value="cancel"
-								id="popup-cancelButton"
-							/>
-						</td>
-						<td class="right">
-							<input
-								type="button"
-								value="save"
-								id="popup-saveButton"
-							/>
-						</td>
-					</tr>
-				</table>
+				<div id="popup-operation">Factor</div>
+				<div id="popup-cancelButton">&times;</div>
+				<div>
+					<div
+						id="popup-label"
+						contenteditable="true"
+						spellcheck="true"
+					></div>
+				</div>
+				<input type="button" value="save" id="popup-saveButton" />
 			</div>
-			<div id="net-pane"></div>
+			<div
+				id="net-pane"
+				data-intro="<div>
+				<b>Welcome to PRSM</b><p>For a quick tour, press Next,<br>
+					or to start immediately, press Skip.</div>"
+				data-step="1"
+				data-tooltipClass="splash"
+			></div>
 			<div id="underlay">
 				<canvas class="drawing-canvas" id="temp-canvas"></canvas>
 				<div class="toolbox" id="toolbox">
@@ -186,235 +258,247 @@
 			<!-- Tab content -->
 			<!-- Network tab -->
 			<div class="tabcontent hide" id="networkTab">
-				<div class="networkGrid">
-					<div class="panelRow">
-						<div>Auto. layout</div>
-						<div class="onoffswitch">
-							<input
-								type="checkbox"
-								name="onoffswitch"
-								class="onoffswitch-checkbox"
-								id="autolayoutswitch"
-							/>
-							<label
-								class="onoffswitch-label"
-								for="autolayoutswitch"
-							>
-								<span class="onoffswitch-inner"></span>
-								<span class="onoffswitch-switch"></span>
-							</label>
+				<div class="networkStyles">
+					<div class="networkGrid">
+						<div class="panelRow">
+							<div>Auto. layout</div>
+							<div class="onoffswitch">
+								<input
+									type="checkbox"
+									name="onoffswitch"
+									class="onoffswitch-checkbox"
+									id="autolayoutswitch"
+								/>
+								<label
+									class="onoffswitch-label"
+									for="autolayoutswitch"
+								>
+									<span class="onoffswitch-inner"></span>
+									<span class="onoffswitch-switch"></span>
+								</label>
+							</div>
 						</div>
-					</div>
-					<div class="panelRow hidden" id="spacing">
-						<div>Spacing</div>
-						<div>
-							&nbsp;
-							<input
-								type="range"
-								id="antiGravity"
-								min="0"
-								max="1000000"
-								step="10000"
-							/>
+						<div class="panelRow hidden" id="spacing">
+							<div>Spacing</div>
+							<div>
+								&nbsp;
+								<input
+									type="range"
+									id="antiGravity"
+									min="0"
+									max="1000000"
+									step="10000"
+								/>
+							</div>
 						</div>
-					</div>
-					<div class="panelRow">
-						<div>Snap to grid</div>
-						<div class="onoffswitch">
-							<input
-								type="checkbox"
-								name="onoffswitch"
-								class="onoffswitch-checkbox"
-								id="snaptogridswitch"
-							/>
-							<label
-								class="onoffswitch-label"
-								for="snaptogridswitch"
-							>
-								<span class="onoffswitch-inner"></span>
-								<span class="onoffswitch-switch"></span>
-							</label>
+						<div class="panelRow">
+							<div>Snap to grid</div>
+							<div class="onoffswitch">
+								<input
+									type="checkbox"
+									name="onoffswitch"
+									class="onoffswitch-checkbox"
+									id="snaptogridswitch"
+								/>
+								<label
+									class="onoffswitch-label"
+									for="snaptogridswitch"
+								>
+									<span class="onoffswitch-inner"></span>
+									<span class="onoffswitch-switch"></span>
+								</label>
+							</div>
 						</div>
-					</div>
-					<div class="panelRow">
-						<div>Link:</div>
-						<div>
-							<select id="curveSelect">
-								<option value="Curved" selected>Curved</option>
-								<option value="Straight">Straight</option>
-							</select>
+						<div class="panelRow">
+							<div>Link:</div>
+							<div>
+								<select id="curveSelect">
+									<option value="Curved" selected
+										>Curved</option
+									>
+									<option value="Straight">Straight</option>
+								</select>
+							</div>
 						</div>
-					</div>
-					<div class="panelRow">
-						<div>Background:</div>
-						<div>
-							<input
-								type="color"
-								value="#ffffff"
-								id="netBackColorWell"
-							/>
+						<div class="panelRow">
+							<div>Background:</div>
+							<div class="input-color-container">
+								<input
+									type="color"
+									class="input-color"
+									value="#ffffff"
+									id="netBackColorWell"
+								/>
+							</div>
 						</div>
-					</div>
-					<div class="panelRow">
-						<div>Show drawing layer</div>
-						<div class="onoffswitch">
-							<input
-								type="checkbox"
-								name="onoffswitch"
-								class="onoffswitch-checkbox"
-								id="drawing"
-							/>
-							<label class="onoffswitch-label" for="drawing">
-								<span class="onoffswitch-inner"></span>
-								<span class="onoffswitch-switch"></span>
-							</label>
+						<div class="panelRow">
+							<div>Show drawing layer</div>
+							<div class="onoffswitch">
+								<input
+									type="checkbox"
+									name="onoffswitch"
+									class="onoffswitch-checkbox"
+									id="drawing"
+								/>
+								<label class="onoffswitch-label" for="drawing">
+									<span class="onoffswitch-inner"></span>
+									<span class="onoffswitch-switch"></span>
+								</label>
+							</div>
 						</div>
-					</div>
-					<div class="panelRow">
-						<div>Show labels</div>
-						<div class="onoffswitch">
+						<div class="panelRow">
+							<div>Show labels</div>
+							<div class="onoffswitch">
+								<input
+									type="checkbox"
+									name="onoffswitch"
+									class="onoffswitch-checkbox"
+									id="showLabelSwitch"
+									checked
+								/>
+								<label
+									class="onoffswitch-label"
+									for="showLabelSwitch"
+								>
+									<span class="onoffswitch-inner"></span>
+									<span class="onoffswitch-switch"></span>
+								</label>
+							</div>
+						</div>
+						<div class="panelRow">
+							<div>Show legend</div>
+							<div class="onoffswitch">
+								<input
+									type="checkbox"
+									name="onoffswitch"
+									class="onoffswitch-checkbox"
+									id="showLegendSwitch"
+									checked
+								/>
+								<label
+									class="onoffswitch-label"
+									for="showLegendSwitch"
+								>
+									<span class="onoffswitch-inner"></span>
+									<span class="onoffswitch-switch"></span>
+								</label>
+							</div>
+						</div>
+						<div class="panelRow divider">
+							<label for="hideAll">Show all</label>
 							<input
-								type="checkbox"
-								name="onoffswitch"
-								class="onoffswitch-checkbox"
-								id="showLabelSwitch"
+								type="radio"
+								id="hideAll"
+								name="hide"
+								value="All"
 								checked
 							/>
-							<label
-								class="onoffswitch-label"
-								for="showLabelSwitch"
-							>
-								<span class="onoffswitch-inner"></span>
-								<span class="onoffswitch-switch"></span>
-							</label>
 						</div>
-					</div>
-					<div class="panelRow">
-						<div>Show legend</div>
-						<div class="onoffswitch">
+						<div class="panelRow">
+							<label for="oneLink"
+								>Show only Factors 1 link away</label
+							>
 							<input
-								type="checkbox"
-								name="onoffswitch"
-								class="onoffswitch-checkbox"
-								id="showLegendSwitch"
+								type="radio"
+								id="oneLink"
+								name="hide"
+								value="1"
+							/>
+						</div>
+						<div class="panelRow">
+							<label for="oneLink"
+								>Show only Factors 2 links away</label
+							>
+							<input
+								type="radio"
+								id="twoLinks"
+								name="hide"
+								value="2"
+							/>
+						</div>
+						<div class="panelRow">
+							<label for="threeLinks"
+								>Show only Factors 3 links away</label
+							>
+							<input
+								type="radio"
+								id="threeLinks"
+								name="hide"
+								value="3"
+							/>
+						</div>
+						<div class="panelRow divider">
+							<label for="streamAll">Show all</label>
+							<input
+								type="radio"
+								id="streamAll"
+								name="stream"
+								value="All"
 								checked
 							/>
-							<label
-								class="onoffswitch-label"
-								for="showLegendSwitch"
-							>
-								<span class="onoffswitch-inner"></span>
-								<span class="onoffswitch-switch"></span>
-							</label>
 						</div>
-					</div>
-					<div class="panelRow divider">
-						<label for="hideAll">Show all</label>
-						<input
-							type="radio"
-							id="hideAll"
-							name="hide"
-							value="All"
-							checked
-						/>
-					</div>
-					<div class="panelRow">
-						<label for="oneLink"
-							>Show only Factors 1 link away</label
-						>
-						<input
-							type="radio"
-							id="oneLink"
-							name="hide"
-							value="1"
-						/>
-					</div>
-					<div class="panelRow">
-						<label for="oneLink"
-							>Show only Factors 2 links away</label
-						>
-						<input
-							type="radio"
-							id="twoLinks"
-							name="hide"
-							value="2"
-						/>
-					</div>
-					<div class="panelRow">
-						<label for="threeLinks"
-							>Show only Factors 3 links away</label
-						>
-						<input
-							type="radio"
-							id="threeLinks"
-							name="hide"
-							value="3"
-						/>
-					</div>
-					<div class="panelRow divider">
-						<label for="streamAll">Show all</label>
-						<input
-							type="radio"
-							id="streamAll"
-							name="stream"
-							value="All"
-							checked
-						/>
-					</div>
-					<div class="panelRow">
-						<label for="upstream">Show only Factors upstream</label>
-						<input
-							type="radio"
-							id="upstream"
-							name="stream"
-							value="upstream"
-						/>
-					</div>
-					<div class="panelRow">
-						<label for="downstream"
-							>Show only Factors downstream</label
-						>
-						<input
-							type="radio"
-							id="downstream"
-							name="stream"
-							value="downstream"
-						/>
-					</div>
-					<div class="panelRow divider">
-						<div>Size Factors to:</div>
-						<div>
-							<select id="sizing">
-								<option value="Off" selected>---</option>
-								<option value="Inputs">Inputs</option>
-								<option value="Outputs">Outputs</option>
-								<option value="Leverage">Leverage</option>
-								<option value="Centrality">Centrality</option>
-							</select>
+						<div class="panelRow">
+							<label for="upstream"
+								>Show only Factors upstream</label
+							>
+							<input
+								type="radio"
+								id="upstream"
+								name="stream"
+								value="upstream"
+							/>
+						</div>
+						<div class="panelRow">
+							<label for="downstream"
+								>Show only Factors downstream</label
+							>
+							<input
+								type="radio"
+								id="downstream"
+								name="stream"
+								value="downstream"
+							/>
+						</div>
+						<div class="panelRow divider">
+							<div>Size Factors to:</div>
+							<div>
+								<select id="sizing">
+									<option value="Off" selected>---</option>
+									<option value="Inputs">Inputs</option>
+									<option value="Outputs">Outputs</option>
+									<option value="Leverage">Leverage</option>
+									<option value="Centrality"
+										>Centrality</option
+									>
+								</select>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 			<!-- Factor tab -->
 			<div class="tabcontent hide" id="nodesTab">
-				<div class="sampleGrid">
-					<div class="sampleNode" id="nodeSample1"></div>
-					<div class="sampleNode" id="nodeSample2"></div>
-					<div class="sampleNode" id="nodeSample3"></div>
-					<div class="sampleNode" id="nodeSample4"></div>
-					<div class="sampleNode" id="nodeSample5"></div>
-					<div class="sampleNode" id="nodeSample6"></div>
-					<div class="sampleNode" id="nodeSample7"></div>
-					<div class="sampleNode" id="nodeSample8"></div>
-					<div class="sampleNode" id="nodeSample9"></div>
+				<div class="samples">
+					<div class="sampleGrid">
+						<div class="sampleNode" id="nodeSample1"></div>
+						<div class="sampleNode" id="nodeSample2"></div>
+						<div class="sampleNode" id="nodeSample3"></div>
+						<div class="sampleNode" id="nodeSample4"></div>
+						<div class="sampleNode" id="nodeSample5"></div>
+						<div class="sampleNode" id="nodeSample6"></div>
+						<div class="sampleNode" id="nodeSample7"></div>
+						<div class="sampleNode" id="nodeSample8"></div>
+						<div class="sampleNode" id="nodeSample9"></div>
+					</div>
+					<div class="panelRow centered">
+						<button type="button" class="btn" id="allFactors">
+							Select all factors
+						</button>
+					</div>
 				</div>
-				<div class="panelRow centered">
-					<button type="button" class="btn" id="allFactors">
-						Select all factors
-					</button>
-				</div>
-				<div id="nodeDataPanel">
-					<div class="panelRow divider">
+				<div class="thickDivider"></div>
+				<div class="itemData" id="nodeDataPanel">
+					<div class="panelRow">
 						<div>
 							<span class="nodeLabel" id="nodeLabel"></span>
 						</div>
@@ -439,40 +523,52 @@
 			</div>
 			<!-- Links Tab -->
 			<div class="tabcontent hide" id="linksTab">
-				<div class="sampleGrid">
-					<div class="sampleLink" id="linkSample1"></div>
-					<div class="sampleLink" id="linkSample2"></div>
-					<div class="sampleLink" id="linkSample3"></div>
-					<div class="sampleLink" id="linkSample4"></div>
-					<div class="sampleLink" id="linkSample5"></div>
-					<div class="sampleLink" id="linkSample6"></div>
-					<div class="sampleLink" id="linkSample7"></div>
-					<div class="sampleLink" id="linkSample8"></div>
-					<div class="sampleLink" id="linkSample9"></div>
+				<div class="samples">
+					<div class="sampleGrid">
+						<div class="sampleLink" id="linkSample1"></div>
+						<div class="sampleLink" id="linkSample2"></div>
+						<div class="sampleLink" id="linkSample3"></div>
+						<div class="sampleLink" id="linkSample4"></div>
+						<div class="sampleLink" id="linkSample5"></div>
+						<div class="sampleLink" id="linkSample6"></div>
+						<div class="sampleLink" id="linkSample7"></div>
+						<div class="sampleLink" id="linkSample8"></div>
+						<div class="sampleLink" id="linkSample9"></div>
+					</div>
+					<div class="panelRow centered">
+						<button type="button" class="btn" id="allEdges">
+							Select all links
+						</button>
+					</div>
 				</div>
-				<div class="panelRow centered">
-					<button type="button" class="btn" id="allEdges">
-						Select all links
-					</button>
-				</div>
-				<div id="edgeDataPanel">
-					<div class="panelRow centered divider">
+				<div class="thickDivider"></div>
+				<div class="itemData" id="edgeDataPanel">
+					<div class="panelRow centered">
 						<div>
 							<b><span id="edgeLabel"></span></b>
 						</div>
 					</div>
-					<div class="notesWrapper">
+					<div class="notesWrapper" contenteditable="true">
 						<u>Notes</u>
 						<div class="notes" id="edgeNotes"></div>
 					</div>
 				</div>
 			</div>
 		</aside>
-		<footer>
+		<footer
+			data-intro="Hints and messages appear here"
+			data-step="8"
+			data-position="top"
+		>
 			<div id="statusBar">
 				<br />
 			</div>
-			<div id="zoomcontrol">
+			<div
+				id="zoomcontrol"
+				data-intro="Zoom in for detail or out for an overview"
+				data-step="9"
+				data-position="top"
+			>
 				Zoom <span id="zoomminus">&ndash;</span>
 				<input
 					type="range"
@@ -483,29 +579,48 @@
 				/><span id="zoomplus">+</span>
 			</div>
 		</footer>
-		<!-- sample node edit panel -->
-		<div id="editNodeDrawer" class="drawerContent hideDrawer">
-			<div class="sampleEditorPanel">
-				<div class="nodeHeader">Edit factor style</div>
-				<div class="sampleTitleInput">
+		<!-- Node Style Editor -->
+		<div
+			id="nodeStyleEditorContainer"
+			class="styleEditorContainer hideEditor"
+		>
+			<div class="styleEditor">
+				<div class="header">Edit factor style</div>
+				<div class="x-button" id="nodeEditCancel">&times;</div>
+				<div class="title">
 					Name of style:
-					<input name="nodeLabel" />
+					<input name="nodeEditName" id="nodeEditName" />
 				</div>
 				<div>fill</div>
 				<div>border</div>
 				<div>font</div>
-				<div>
-					<input type="color" name="fillColor" />
+				<div class="input-color-container">
+					<input
+						type="color"
+						class="input-color"
+						name="nodeEditFillColor"
+						id="nodeEditFillColor"
+					/>
+				</div>
+				<div class="input-color-container">
+					<input
+						type="color"
+						class="input-color"
+						name="nodeEditBorderColor"
+						id="nodeEditBorderColor"
+					/>
+				</div>
+				<div class="input-color-container">
+					<input
+						type="color"
+						class="input-color"
+						name="nodeEditFontColor"
+						id="nodeEditFontColor"
+					/>
 				</div>
 				<div>
-					<input type="color" name="borderColor" />
-				</div>
-				<div>
-					<input type="color" name="fontColor" />
-				</div>
-				<div>
-					<select name="shape">
-						<option value="">Shape...</option>
+					<select name="nodeEditShape" id="nodeEditShape">
+						<option value="box">Shape...</option>
 						<option value="ellipse">Ellipse</option>
 						<option value="circle">Circle</option>
 						<option value="box">Rect</option>
@@ -513,8 +628,8 @@
 					</select>
 				</div>
 				<div>
-					<select name="borderType">
-						<option value="">Type...</option>
+					<select name="nodeEditBorder" id="nodeEditBorder">
+						<option value="false">Type...</option>
 						<option value="false">Solid</option>
 						<option value="true">Dashed</option>
 						<option value="dots">Dotted</option>
@@ -522,70 +637,83 @@
 					</select>
 				</div>
 				<div>
-					<select name="fontSize">
-						<option value="">Size...</option>
+					<select name="nodeEditFontSize" id="nodeEditFontSize">
+						<option value="14">Size...</option>
 						<option value="18">Large</option>
 						<option value="14">Normal</option>
 						<option value="10">Small</option>
 					</select>
 				</div>
-				<div class="sampleEditorCancel">
-					<button id="sampleNodeEditorCancelButton">Cancel</button>
-				</div>
-				<div class="sampleEditorSubmit">
-					<button id="sampleNodeEditorSubmitButton">Save</button>
-				</div>
+				<input
+					type="button"
+					value="save"
+					id="nodeEditSubmit"
+					class="save-button submit"
+				/>
 			</div>
 		</div>
-		<!-- sample link edit panel -->
-		<div id="editLinkDrawer" class="drawerContent hideDrawer">
-			<div class="linkEditorPanel">
-				<div class="linkHeader">Edit link style</div>
-				<div class="linkTitleInput">
+		<!-- Link Style Editor -->
+		<div
+			id="linkStyleEditorContainer"
+			class="styleEditorContainer hideEditor"
+			style="top: 200px;"
+		>
+			<div class="styleEditor">
+				<div class="header">Edit link style</div>
+				<div class="x-button" id="linkEditCancel">&times;</div>
+				<div class="title">
 					Name of style:
-					<input name="edgeLabel" />
+					<input name="linkEditName" id="linkEditName" />
 				</div>
-				<div>Link colour</div>
-				<div>
-					<input type="color" name="lineColor" />
+				<div>colour</div>
+				<div></div>
+				<div></div>
+				<div class="input-color-container">
+					<input
+						type="color"
+						class="input-color"
+						name="linkEditLineColor"
+						id="linkEditLineColor"
+					/>
 				</div>
 				<div>
-					<select name="width">
-						<option value="">Width...</option>
+					<select name="linkEditWidth" id="linkEditWidth">
+						<option value="1">Width...</option>
 						<option value="1">Width: 1</option>
 						<option value="2">Width: 2</option>
 						<option value="4">Width: 4</option>
 					</select>
 				</div>
+				<div></div>
 				<div>
-					<select name="dashes">
-						<option value="">Dashes...</option>
+					<select name="linkEditDashes" id="linkEditDashes">
+						<option value="false">Dashes...</option>
 						<option value="false">Solid</option>
 						<option value="dashes">Dashed</option>
 						<option value="dots">Dotted</option>
 					</select>
 				</div>
 				<div>
-					<select name="arrows">
-						<option value="">Arrows...</option>
-						<option value="to">End arrow</option>
-						<option value="middle">Middle arrow</option>
-						<option value="none">No arrow</option>
+					<select name="linkEditArrows" id="linkEditArrows">
+						<option value="to">Arrows...</option>
+						<option value="to">End</option>
+						<option value="middle">Middle</option>
+						<option value="none">None</option>
 					</select>
 				</div>
-				<div class="linkEditorCancel">
-					<button id="sampleLinkEditorCancelButton">Cancel</button>
-				</div>
-				<div class="linkEditorSubmit">
-					<button id="sampleLinkEditorSubmitButton">Save</button>
-				</div>
+				<input
+					type="button"
+					value="save"
+					id="linkEditSubmit"
+					class="save-button submit"
+				/>
 			</div>
 		</div>
 		<!-- Share model dialog -->
 		<div id="shareModal" class="modal">
 			<div class="modal-content">
 				<div class="modal-header">
-					<span class="close">&times;</span>
+					<span class="close" id="modal-close">&times;</span>
 					<h2>Share the network with other participants</h2>
 				</div>
 				<div class="modal-body">
@@ -621,7 +749,12 @@
 				<div class="chatbox-top" id="chatbox-top">
 					<div class="chat-name">
 						My name:
-						<div class="tooltip">
+						<div
+							class="tooltip"
+							data-intro="You will be able to enter your name here if you want to show others that you are online"
+							data-step="10"
+							data-position="top"
+						>
 							<input type="text" id="chat-name" />
 							<span class="tooltiptext"
 								>Click to change your nickname</span
@@ -629,7 +762,12 @@
 						</div>
 					</div>
 					<div class="chatbox-icons">
-						<div class="tooltip">
+						<div
+							class="tooltip"
+							data-intro="Clicking here minimises the chat pane"
+							data-step="11"
+							data-position="top"
+						>
 							<span id="minimize"
 								><i class="fas fa-times"></i
 							></span>
@@ -658,8 +796,6 @@
 				</div>
 			</div>
 		</div>
-
-		<!-- <script src="./js/browsertest.js"></script> -->
 		<script src="../js/prsm.js"></script>
 	</body>
 </html>

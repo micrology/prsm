@@ -115,57 +115,96 @@ input[type='range'] {
 	vertical-align: middle;
 	width: 80px;
 }
+.splash {
+	text-align: center;
+	line-height: 150%;
+}
+/* Add factor dialog */
 
 #popup {
 	display: none;
-	width: 150px;
+	width: 180px;
+	height: 60px;
 	position: absolute;
 	z-index: 50;
-	background-color: var(--pop-up-color);
+	background-color: white;
 	box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
-	color: black;
 	border: thin solid var(--pop-up-shadow-color);
-	border-radius: 6px;
-	padding: 6px;
-	line-height: 1.5;
-	font-size: 16px;
+	border-radius: 10%;
+	padding: 30px 10px 10px 10px;
 }
-/* Popup arrow */
-#popup::after {
-	content: '';
+#popup-label {
+	text-align: center;
 	position: absolute;
-	top: 50%;
-	left: 100%;
-	margin-top: -10px;
-	border-width: 10px;
-	border-style: solid;
-	border-color: transparent transparent transparent var(--pop-up-shadow-color);
+	top: 60px;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 20px;
+	overflow: hidden;
+	outline: none;
+	color: black;
+	min-width: 160px;
+	min-height: 50px;
+	max-height: 60px;
+}
+#popup-operation {
+	position: absolute;
+	top: 3px;
+	left: 5px;
+	font-size: 16px;
+	font-weight: bold;
+	padding: 3px;
+}
+
+#popup-saveButton {
+	position: absolute;
+	bottom: 7px;
+	right: 7px;
+	font-size: 12px;
+	background-color: black;
+	color: white;
+	border-radius: 20%;
+	padding: 3px;
+}
+#popup-saveButton:hover {
+	text-decoration: none;
+	cursor: pointer;
+	background-color: gray;
+}
+#popup-cancelButton {
+	color: black;
+	position: absolute;
+	top: 0px;
+	right: 5px;
+	font-size: 20px;
+}
+#popup-cancelButton:hover {
+	color: gray;
+	text-decoration: none;
+	cursor: pointer;
 }
 #popup table {
-	width: 100%;
+	width: 160px;
 	font-size: 14px;
+	position: absolute;
+	top: 90px;
 }
-#popup textarea {
-	width: 134px;
-	margin: 0 6px 0 6px;
+.input-color-container {
+	position: relative;
+	overflow: hidden;
+	width: 30px;
+	height: 30px;
+	border: solid 2px #ddd;
+	border-radius: 30px;
 }
-.right {
-	text-align: right;
-}
-input::placeholder {
-	color: var(--header-color);
-}
-#popup input[type='button'] {
-	background-color: white;
-	border-radius: 6px;
-	border: thin solid #c9c9c9;
-	outline: none;
-}
-#popup input[type='button']:active {
-	box-shadow: inset 0px 0px 5px 0px var(--pop-up-shadow-color);
-}
-#popup select {
-	min-width: 70px;
+
+.input-color {
+	position: absolute;
+	right: -8px;
+	top: -8px;
+	width: 56px;
+	height: 56px;
+	border: none;
 }
 /* ----- Top Navigation Bar ---------------------------------------------------------- */
 
@@ -177,17 +216,21 @@ nav {
 	height: 70px;
 	padding: 10px 0 0 20px;
 }
-nav img {
-	height: 60px;
-}
 .strapline {
-	font-size: 24px;
-	margin: auto 0;
+	font-size: 16px;
+	margin: 3px 0 0 10px;
 	color: white;
 }
 #version {
 	font-size: xx-small;
 	color: lightgray;
+	margin-left: 10px;
+}
+.maptitle {
+	font-size: 20px;
+	margin: 15px 0 0 10px;
+	color: lightgrey;
+	text-align: left;
 }
 .button-wrapper {
 	margin: auto 50px auto auto;
@@ -286,19 +329,14 @@ nav button .pressed {
 	nav {
 		display: grid;
 		height: 90px;
-		grid-template-columns: 80px 1fr;
-	}
-	nav img {
-		grid-column: 1;
-		grid-row: 1 / 3;
-		align-self: center;
+		grid-template-columns: 160px 1fr;
 	}
 	.strapline {
-		grid-column: 2;
+		grid-column: 1;
 	}
 	.button-wrapper {
-		grid-column: 2 / 3;
-		grid-row: 2;
+		grid-column: 2;
+		grid-row: 1;
 		width: 100%;
 	}
 	.buttons {
@@ -337,6 +375,11 @@ nav button .pressed {
 		grid-column: 1;
 		grid-row: 1;
 		font-size: 20px;
+	}
+	.maptitle {
+		text-align: center;
+		font-size: 16px;
+		margin-top: 5px;
 	}
 	.button-wrapper {
 		grid-column: 1;
@@ -508,11 +551,23 @@ nav button .pressed {
 /* Style the tab content */
 
 .tabcontent {
+	border: 0;
+}
+.samples,
+.itemData,
+.networkStyles {
 	padding: 6px;
 	background-color: var(--panel-color);
 	color: white;
 	font-size: 11px;
+	border-radius: 4px;
+}
+.samples,
+.networkStyles {
 	border-radius: 0 0 4px 4px;
+}
+.thickDivider {
+	height: 30px;
 }
 
 /* Using display:none to hide tabs other than the one on display: 
@@ -570,6 +625,7 @@ but moving the panel out of sight works instead */
 	color: black;
 	background-color: white;
 	font-family: sans-serif;
+	resize: none;
 }
 .notes {
 	width: 100%;
@@ -672,16 +728,9 @@ but moving the panel out of sight works instead */
 .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
 	right: 0;
 }
-/*edit node sample panel */
 
-.hideDrawer {
-	display: none;
-}
-.drawerContent {
-	position: absolute;
-	z-index: 10;
-}
-.sampleEditorPanel {
+/*  style editors */
+.styleEditor {
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
 	justify-items: center;
@@ -695,78 +744,60 @@ but moving the panel out of sight works instead */
 	font-size: 12px;
 	padding: 10px;
 }
-.nodeHeader {
+.hideEditor {
+	display: none;
+}
+.styleEditorContainer {
+	position: absolute;
+	z-index: 10;
+}
+.styleEditor .header {
 	grid-column: 1/3;
 	justify-self: start;
 	font-weight: bold;
 	font-size: 14px;
 	color: black;
 }
-.sampleTitleInput {
+.styleEditor .title {
 	grid-column: 1/4;
 }
-.sampleTitleInput input {
+.styleEditor .title input {
 	font-family: sans-serif;
 	font-size: 12px;
-	border: 0;
+	border: 1px solid black;
 	border-radius: 4px;
 	padding: 4px;
 }
-.sampleEditorSubmit {
+.styleEditor .x-button {
+	color: black;
+	position: absolute;
+	top: 3px;
+	right: 5px;
+	font-size: 20px;
+}
+.styleEditor .x-button:hover {
+	color: gray;
+	text-decoration: none;
+	cursor: pointer;
+}
+.styleEditor .save-button {
+	font-size: 12px;
+	background-color: black;
+	color: white;
+	border-radius: 20%;
+	padding: 3px;
+}
+.styleEditor .save-button:hover {
+	text-decoration: none;
+	cursor: pointer;
+	background-color: gray;
+}
+.styleEditor .submit {
 	grid-column: 3/4;
 	justify-self: end;
-	padding-top: 20px;
 }
-.sampleEditorCancel {
-	grid-column: 1/2;
-	justify-self: start;
-	padding-top: 20px;
-}
-/* Link editor panel */
 
-.linkEditorPanel {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	justify-items: start;
-	grid-gap: 5px;
-	border-radius: 6px;
-	width: 230px;
-	background-color: var(--pop-up-color);
-	box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
-	color: black;
-	font-family: sans-serif;
-	font-size: 12px;
-	padding: 10px;
-}
-.linkTitleInput {
-	grid-column: 1/3;
-}
-.linkHeader {
-	grid-column: 1/3;
-	justify-self: start;
-	font-weight: bold;
-	font-size: 14px;
-	color: black;
-}
-.linkTitleInput input {
-	font-family: sans-serif;
-	font-size: 12px;
-	border: 0;
-	border-radius: 4px;
-	padding: 4px;
-}
-.linkEditorSubmit {
-	grid-column: 2/3;
-	justify-self: end;
-	padding-top: 20px;
-}
-.linkEditorCancel {
-	grid-column: 1/2;
-	justify-self: start;
-	padding-top: 20px;
-}
 /* chat window */
-
 /* based on https://codepen.io/kh-mamun/pen/jBgGwa */
 
 .chatbox-holder {
@@ -890,8 +921,8 @@ but moving the panel out of sight works instead */
 	outline: none;
 }
 .message-send {
-	background: var(--header-color);
-	color: white;
+	background: white;
+	color: black;
 	font-size: 24px;
 	padding: 0 10px;
 	border: none;
@@ -1037,13 +1068,6 @@ but moving the panel out of sight works instead */
 .options .right {
 	text-align: right;
 }
-/* image tool 
-.marching-ants {
-	border: 1px solid rgba(0, 0, 0, 0.01);
-	border-image-source: url('../img/ants.gif');
-	border-image-slice: 1;
-	border-image-repeat: repeat repeat;
-}*/
 div.resize {
 	cursor: nwse-resize;
 	position: absolute;
@@ -1052,4 +1076,84 @@ div.resize {
 	height: 10px;
 	bottom: 0px;
 	right: 0px;
+}
+/* avatars */
+.avatars {
+	display: flex;
+}
+.round {
+	border-radius: 50%;
+	width: 40px;
+	height: 40px;
+	text-align: center;
+	line-height: 40px;
+	font-family: sans-serif;
+	font-weight: bold;
+	font-size: 24px;
+	opacity: 0.7;
+	border: 1px solid black;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.hoverme {
+	display: inline;
+	position: relative;
+	padding: 8px;
+	z-index: 10;
+}
+.hoverme:hover::after {
+	content: attr(data-tooltip);
+	max-height: 24px;
+	width: max-content;
+	padding: 8px;
+	border-radius: 4px;
+	background: #232f34;
+	color: #fff;
+	position: absolute;
+	text-align: center;
+	/* top: 70px;
+	left: -15px;*/
+	font-size: 12px;
+	white-space: pre;
+	display: inline-block;
+	animation: showf 100ms linear;
+}
+@keyframes showf {
+	0% {
+		transform: scale(0.5);
+		opacity: 0.5;
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+.hoverme + .hoverme:hover::after {
+	content: attr(data-tooltip);
+	max-height: 24px;
+	width: max-content;
+	padding: 8px;
+	font-family: 'Work Sans', sans-serif;
+	border-radius: 4px;
+	background: #232f34;
+	color: #fff;
+	position: absolute;
+	text-align: center;
+	left: 50%;
+	top: 30px;
+	font-size: 12px;
+	white-space: pre;
+	display: inline-block;
+	margin: 0 auto;
+	transform: translateX(-50%);
+	animation: show 100ms linear;
+}
+@keyframes show {
+	0% {
+		left: 50%;
+		transform: translateX(-50%) scale(0.5);
+		opacity: 0.2;
+	}
+	100% {
+		left: 50%;
+		transform: translateX(-50%) scale(1);
+	}
 }

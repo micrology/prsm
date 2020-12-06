@@ -1,4 +1,23 @@
-import * as Hammer from 'hammerjs';
+import * as Hammer from '@egjs/hammerjs';
+
+/**
+ * attach an event listener
+ *
+ * @param {string} elem - id of the element on which to hand the event listener
+ * @param {string} event
+ * @param {function} callback
+ */
+export function listen(id, event, callback) {
+	elem(id).addEventListener(event, callback);
+}
+
+/**
+ * return the HTML element with the id
+ * @param {string} id
+ */
+export function elem(id) {
+	return document.getElementById(id);
+}
 
 /**
  * Create a random scale free network, used only for testing and demoing
@@ -64,6 +83,18 @@ function seededRandom() {
 	return x - Math.floor(x);
 }
 
+/**
+ * return a GUID
+ */
+export function uuidv4() {
+	return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
+		(
+			c ^
+			(crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
+		).toString(16)
+	);
+}
+
 /*!
  * Deep merge two or more objects together.
  * (c) 2019 Chris Ferdinandi, MIT License, https://gomakethings.com
@@ -99,10 +130,26 @@ export function deepMerge() {
 	return newObj;
 }
 
-export function cleanArray(arr, propsToRemove) {
-	return arr.map((item) => {
-		return clean(item, propsToRemove);
-	});
+/**
+ * returns a deep copy of the object
+ * @param {Object} obj
+ */
+export function deepCopy(obj) {
+	if (typeof obj !== 'object' || obj === null) {
+		return obj;
+	}
+	if (obj instanceof Array) {
+		return obj.reduce((arr, item, i) => {
+			arr[i] = deepCopy(item);
+			return arr;
+		}, []);
+	}
+	if (obj instanceof Object) {
+		return Object.keys(obj).reduce((newObj, key) => {
+			newObj[key] = deepCopy(obj[key]);
+			return newObj;
+		}, {});
+	}
 }
 
 /**
@@ -150,16 +197,33 @@ export function object_equals(x, y) {
 
 	return true;
 }
-
+/**
+ * return a copy of an object, with the properties in the object propsToRemove removed
+ * @param {Object} source
+ * @param {Object} propsToRemove
+ */
 export function clean(source, propsToRemove) {
-	// return a copy of an object, with the properties in the object propsToRemove removed
 	let out = {};
 	for (let key in source) {
 		if (!(key in propsToRemove)) out[key] = source[key];
 	}
 	return out;
 }
-
+/**
+ * remove the given properties from all the object in the array
+ * @param {Array} arr array of objects
+ * @param {string} propsToRemove
+ */
+export function cleanArray(arr, propsToRemove) {
+	return arr.map((item) => {
+		return clean(item, propsToRemove);
+	});
+}
+/**
+ * return a copy of an object that only includes the properties that are in allowed
+ * @param {Object} obj the object to copy
+ * @param {Object} allowed the object with allowed properties
+ */
 export function strip(obj, allowed) {
 	return Object.fromEntries(
 		Object.entries(obj).filter(
@@ -167,33 +231,46 @@ export function strip(obj, allowed) {
 		)
 	);
 }
-
+/**
+ * divide txt into lines to make it roughly square, with a
+ * minimum width of width, respecting embedded line breaks (\n).
+ * @param {string} txt
+ * @param {integer} width
+ */
 export function splitText(txt, width) {
-	// divide txt into lines to make it roughly square, with a
-	// minimum width of width.
-	let words = txt.trim().split(/\s/);
-	let nChars = txt.trim().length;
-	if (nChars > 2 * width) width = Math.floor(Math.sqrt(nChars));
 	let lines = '';
-	for (let i = 0, linelength = 0; i < words.length; i++) {
-		lines += words[i];
-		if (i == words.length - 1) break;
-		linelength += words[i].length;
-		if (linelength > width) {
-			lines += '\n';
-			linelength = 0;
-		} else lines += ' ';
-	}
-	return lines;
-}
+	let chunks = txt.trim().split('\n');
+	chunks.forEach((chunk) => {
+		let words = chunk.trim().split(/\s/);
+		let nChars = chunk.trim().length;
+		if (nChars > 2 * width) width = Math.floor(Math.sqrt(nChars));
 
-// Performs intersection operation between called set and otherSet
+		for (let i = 0, linelength = 0; i < words.length; i++) {
+			lines += words[i];
+			if (i == words.length - 1) break;
+			linelength += words[i].length;
+			if (linelength > width) {
+				lines += '\n';
+				linelength = 0;
+			} else lines += ' ';
+		}
+		lines += '\n';
+	});
+	return lines.trim();
+}
+/**
+ * Performs intersection operation between called set and otherSet
+ */
 Set.prototype.intersection = function (otherSet) {
 	let intersectionSet = new Set();
 	for (var elem of otherSet) if (this.has(elem)) intersectionSet.add(elem);
 	return intersectionSet;
 };
-
+/**
+ * allow user to drag the elem that has a headerelement that acts as the handle
+ * @param {HTMLelement} elem
+ * @param {HTMLelement} header
+ */
 export function dragElement(elem, header) {
 	let mc = new Hammer.Manager(header, {
 		recognizers: [
@@ -243,49 +320,100 @@ export function dragElement(elem, header) {
 		}
 	}
 }
-/* 
-export function dragElement(elmnt, header) {
-	var pos1 = 0,
-		pos2 = 0,
-		pos3 = 0,
-		pos4 = 0;
-	header.onmousedown = dragMouseDown;
-
-	function dragMouseDown(e) {
-		e = e || window.event;
-		e.preventDefault();
-		// get the mouse cursor position at startup:
-		pos3 = e.clientX;
-		pos4 = e.clientY;
-		document.onmouseup = closeDragElement;
-		// call a function whenever the cursor moves:
-		document.onmousemove = elementDrag;
-	}
-
-	function elementDrag(e) {
-		e = e || window.event;
-		e.preventDefault();
-		e.target.style.cursor = 'move';
-		// calculate the new cursor position:
-		pos1 = pos3 - e.clientX;
-		pos2 = pos4 - e.clientY;
-		pos3 = e.clientX;
-		pos4 = e.clientY;
-		// set the element's new position:
-		elmnt.style.top = elmnt.offsetTop - pos2 + 'px';
-		elmnt.style.left = elmnt.offsetLeft - pos1 + 'px';
-	}
-
-	function closeDragElement(e) {
-		// stop moving when mouse button is released:
-		e.target.style.cursor = 'pointer';
-		document.onmouseup = null;
-		document.onmousemove = null;
-	}
-} */
-
+/**
+ * return the hex value for the CSS color in str (which may be a color name, e.g. white, or a hex number
+ * or any other legal CSS color value)
+ * @param {string} str
+ */
 export function standardize_color(str) {
 	let ctx = document.createElement('canvas').getContext('2d');
 	ctx.fillStyle = str;
 	return ctx.fillStyle;
+}
+
+const SEA_CREATURES = Object.freeze([
+	'walrus',
+	'seal',
+	'fish',
+	'shark',
+	'clam',
+	'coral',
+	'whale',
+	'crab',
+	'lobster',
+	'starfish',
+	'eel',
+	'dolphin',
+	'squid',
+	'jellyfish',
+	'ray',
+	'shrimp',
+	'mantaRay',
+	'angler',
+	'snorkler',
+	'scubaDiver',
+	'urchin',
+	'anemone',
+	'morel',
+	'axolotl',
+]);
+
+const ADJECTIVES = Object.freeze([
+	'cute',
+	'adorable',
+	'lovable',
+	'happy',
+	'sandy',
+	'bubbly',
+	'friendly',
+	'drifting',
+	'huge',
+	'big',
+	'small',
+	'giant',
+	'massive',
+	'tiny',
+	'nippy',
+	'odd',
+	'perfect',
+	'rude',
+	'wonderful',
+]);
+
+const COLORS = Object.freeze([
+	'silver',
+	'hotpink',
+	'red',
+	'lightblue',
+	'fuchsia',
+	'green',
+	'lime',
+	'olive',
+	'yellow',
+	'darkorange',
+	'chartreuse',
+	'teal',
+	'aqua',
+	'orange',
+	'beige',
+	'gainsboro',
+	'cadetblue',
+	'coral',
+	'gold',
+]);
+
+const random = (items) => items[(Math.random() * items.length) | 0];
+
+const capitalize = (string) => string[0].toUpperCase() + string.slice(1);
+/**
+ * return a random fancy name for an avatar, with a random colour
+ */
+export function generateName() {
+	return {
+		color: random(COLORS),
+		name:
+			capitalize(random(ADJECTIVES)) + capitalize(random(SEA_CREATURES)),
+		anon: true,
+		asleep: false,
+	};
 }
