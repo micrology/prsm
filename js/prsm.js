@@ -551,7 +551,7 @@ function setUpIntro() {
 			showBullets: false,
 			exitOnOverlayClick: false,
 			showStepNumbers: false,
-			disableInteractions: true,
+			disableInteraction: true,
 			overlayOpacity: 0.3,
 		});
 		intro.onexit(function () {
