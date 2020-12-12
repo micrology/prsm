@@ -19,6 +19,7 @@ import {
 	standardize_color,
 	object_equals,
 	generateName,
+	divWithPlaceHolder
 } from './utils.js';
 import {styles} from './samples.js';
 import * as parser from 'fast-xml-parser';
@@ -164,6 +165,8 @@ function setUpPage() {
 	panel.classList.add('hide');
 	container.panelHidden = true;
 	setUpSamples();
+	divWithPlaceHolder('#node-notes');
+	divWithPlaceHolder('#edge-notes');
 	hideNotes();
 	document.getElementById('version').innerHTML = version;
 	storeButtonStatus();
@@ -202,6 +205,8 @@ function startY() {
 	); */
 	const persistence = new IndexeddbPersistence(room, doc);
 	persistence.once('synced', () => {
+		fit(0);
+		legend(false);
 		console.log('initial content loaded');
 	});
 	// wait for an update from another peer; only then will
@@ -719,7 +724,7 @@ function draw() {
 			}
 		} else {
 			statusMsg(listFactors(selectedNodes) + ' selected');
-			showNodeData();
+			showNodeOrEdgeData();
 		}
 	});
 	network.on('deselectNode', function () {
@@ -734,7 +739,7 @@ function draw() {
 	});
 	network.on('selectEdge', function () {
 		statusMsg(listLinks(network.getSelectedEdges()) + ' selected');
-		showEdgeData();
+		showNodeOrEdgeData();
 	});
 	network.on('deselectEdge', function () {
 		hideNotes();
@@ -2095,8 +2100,7 @@ function openTab(tabId) {
 	document.getElementById(tabId).classList.remove('hide');
 	event.currentTarget.className += ' active';
 	tabOpen = tabId;
-	if (tabOpen == 'nodesTab') showNodeData();
-	if (tabOpen == 'linksTab') showEdgeData();
+	if (tabOpen == 'nodesTab' || tabOpen == 'linksTab') showNodeOrEdgeData();
 }
 
 function storeButtonStatus() {
@@ -2205,22 +2209,27 @@ function setFixed() {
 	}
 }
 // Notes
+function showNodeOrEdgeData() {
+	if (tabOpen == 'nodesTab' || tabOpen == 'linksTab') {
+		if (network.getSelectedNodes().length == 1) showNodeData();
+		if (network.getSelectedEdges().length == 1) showEdgeData();
+	}
+}
 function showNodeData() {
 	let panel = document.getElementById('nodeDataPanel');
 	let selectedNodes = network.getSelectedNodes();
-	if (tabOpen == 'nodesTab' && selectedNodes.length == 1) {
+	if ((tabOpen == 'nodesTab' ||  tabOpen == 'linksTab') && selectedNodes.length == 1) {
 		let nodeId = selectedNodes[0];
 		let node = data.nodes.get(nodeId);
 		document.getElementById('fixed').checked = node.fixed ? true : false;
 		document.getElementById('nodeLabel').innerHTML = node.label
 			? shorten(node.label)
 			: '';
-		document.getElementById('nodeNotes').innerHTML =
-			'<textarea class="notesTA" id="nodesTA"></textarea>';
-		let textarea = document.getElementById('nodesTA');
-		let title = node.title ? node.title : '';
-		textarea.innerHTML = title.replace(/<br>/g, '\n');
-		textarea.addEventListener('blur', updateNodeNotes);
+		let notes = document.getElementById('node-notes');
+		notes.innerHTML = node.title ? node.title : '';
+		notes.addEventListener('keyup', (e) => updateNodeNotes(e));
+		let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
+		if (notes.innerText.length == 0) notes.innerHTML = placeholder;
 		panel.classList.remove('hide');
 		displayStatistics(nodeId);
 	} else {
@@ -2228,49 +2237,48 @@ function showNodeData() {
 	}
 }
 
-function updateNodeNotes() {
+function updateNodeNotes(e) {
+	let text = e.target.innerText;
 	data.nodes.update({
 		id: network.getSelectedNodes()[0],
 		title: splitText(
-			document.getElementById('nodesTA').value,
+			(text == e.target.dataset.placeholder ? "" : text),
 			NOTEWIDTH
 		).replace(/\n/g, '<br>'),
 		clientID: undefined,
 	});
 }
-
 function showEdgeData() {
 	let panel = document.getElementById('edgeDataPanel');
 	let selectedEdges = network.getSelectedEdges();
-	if (tabOpen == 'linksTab' && selectedEdges.length == 1) {
+	if ((tabOpen == 'nodesTab' ||  tabOpen == 'linksTab') && selectedEdges.length == 1) {
 		let edgeId = selectedEdges[0];
 		let edge = data.edges.get(edgeId);
 		document.getElementById('edgeLabel').innerHTML = edge.label
-			? edge.label
+			? shorten(edge.label)
 			: '';
-		document.getElementById('edgeNotes').innerHTML =
-			'<textarea class="notesTA" id="edgesTA"</textarea>';
-		let textarea = document.getElementById('edgesTA');
-		let title = edge.title ? edge.title : '';
-		textarea.innerHTML = title.replace(/<\/br>/g, '\n');
-		textarea.addEventListener('blur', updateEdgeNotes);
+		let notes = document.getElementById('edge-notes');
+		notes.innerHTML = edge.title ? edge.title : '';
+		notes.addEventListener('keyup', (e) => updateEdgeNotes(e));
+		let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
+		if (notes.innerText.length == 0) notes.innerHTML = placeholder;
 		panel.classList.remove('hide');
 	} else {
 		panel.classList.add('hide');
 	}
 }
 
-function updateEdgeNotes() {
+function updateEdgeNotes(e) {
+	let text = e.target.innerText;
 	data.edges.update({
 		id: network.getSelectedEdges()[0],
 		title: splitText(
-			document.getElementById('edgesTA').value,
+			(text == e.target.dataset.placeholder ? "" : text),
 			NOTEWIDTH
-		).replace(/\n/g, '</br>'),
+		).replace(/\n/g, '<br>'),
 		clientID: undefined,
 	});
 }
-
 function hideNotes() {
 	document.getElementById('nodeDataPanel').classList.add('hide');
 	document.getElementById('edgeDataPanel').classList.add('hide');

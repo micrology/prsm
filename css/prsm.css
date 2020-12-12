@@ -556,7 +556,7 @@ nav button .pressed {
 .samples,
 .itemData,
 .networkStyles {
-	padding: 6px;
+	padding: 4px;
 	background-color: var(--panel-color);
 	color: white;
 	font-size: 11px;
@@ -607,38 +607,28 @@ but moving the panel out of sight works instead */
 	border-radius: 5px;
 	background-color: white;
 }
-/* the panel area that only appears for the Factor tab if one Factor is selected */
+/* the panel area that only appears for the Factor tab if one Factor is selected or likewise for an Link */
 
 #oneNodeSelected {
 	margin-top: 10px;
 	border-top: 1px solid whitesmoke;
 	padding-top: 10px;
 }
-.nodeLabel {
+.nodeLabel, .edgeLabel {
 	font-weight: bold;
 	text-decoration: underline;
 }
-.notesWrapper {
-	margin: 10px 0 0 0;
-	padding: 2px 0 0 2px;
-	border-radius: 5px;
-	color: black;
+  .notes {
+	padding: 4px;
 	background-color: white;
-	font-family: sans-serif;
-	resize: none;
-}
-.notes {
+	color: black;
 	width: 100%;
-	max-height: 100px;
-	height: 70px;
-	overflow: auto;
-}
-.notesTA {
-	border: 0;
+	min-height: 40px;
 	outline: none;
-	width: 100%;
-	height: 100%;
-}
+  }
+  .placeholder {
+	opacity: 0.5;
+  }
 .networkGrid {
 	display: grid;
 	grid-template-columns: 1fr;
@@ -647,7 +637,6 @@ but moving the panel out of sight works instead */
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-start;
-	padding: 3px;
 }
 .panelRow.centered {
 	justify-content: center;
@@ -659,6 +648,9 @@ but moving the panel out of sight works instead */
 }
 .panelRow.hidden {
 	display: none;
+}
+.networkGrid .panelRow {
+padding: 4px;
 }
 /* create the impression of a sliding on/off switch see https://proto.io/freebies/onoff/ */
 

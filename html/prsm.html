@@ -520,9 +520,9 @@
 						<div>Betweenness centrality</div>
 						<div id="bc"></div>
 					</div>
-					<div class="notesWrapper">
-						<u>Notes</u>
-						<div class="notes" id="nodeNotes"></div>
+					<div class="panelRow">
+						<div contenteditable="true" class="notes" id="node-notes" data-placeholder="Notes">
+					</div>
 					</div>
 				</div>
 			</div>
@@ -550,12 +550,10 @@
 				<div class="itemData" id="edgeDataPanel">
 					<div class="panelRow centered">
 						<div>
-							<b><span id="edgeLabel"></span></b>
+							<b><span class="edgeLabel" id="edgeLabel"></span></b>
 						</div>
 					</div>
-					<div class="notesWrapper" contenteditable="true">
-						<u>Notes</u>
-						<div class="notes" id="edgeNotes"></div>
+					<div contenteditable="true" class="notes" id="edge-notes" data-placeholder="Notes">
 					</div>
 				</div>
 			</div>
