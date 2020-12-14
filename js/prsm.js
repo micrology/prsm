@@ -8,6 +8,7 @@ import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
 import {
 	listen,
+	elem,
 	getScaleFreeNetwork,
 	uuidv4,
 	deepMerge,
@@ -35,11 +36,11 @@ import {
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 import introJs from 'intro.js/intro.js';
 
-const version = '1.4.0';
+const version = '1.4.1';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
-const NOTEWIDTH = 30; // chars for totle (node/edge tooltip) splitting
-const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
+const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
+const SHORTLABELLEN = 25; // when listing node labels, use ellipsis after this number of chars
 const timeToSleep = 1 * 60 * 1000; // if no mouse movement for this time, user is assumed to have left or is sleeping
 
 export var network;
@@ -205,16 +206,12 @@ function startY() {
 	); */
 	const persistence = new IndexeddbPersistence(room, doc);
 	persistence.once('synced', () => {
-		fit(0);
-		legend(false);
-		console.log('initial content loaded');
+		displayNetPane('local content loaded')
 	});
 	// wait for an update from another peer; only then will
 	// drawing etc. be finished and so we can then fit the  network to the window.
 	wsProvider.on('sync', () => {
-		console.log('sync');
-		fit(0);
-		legend(false);
+		displayNetPane('remote content loaded')
 	});
 	document.title = document.title + ' ' + room;
 	wsProvider.on('status', (event) => {
@@ -467,6 +464,17 @@ function getRandomData(nNodes) {
 	nodes.add(SFNdata.nodes);
 	edges.add(SFNdata.edges);
 	recalculateStats();
+}
+/**
+ * Once any existing map has been loaded, fit it to the pane and reveal it
+ * @param {string} msg message for console
+ */
+function displayNetPane(msg) {
+	fit(0);
+	legend(false);
+	console.log(msg);
+	let netPane = elem('net-pane');
+	if (netPane.style.visibility == 'hidden'  || netPane.style.visibility == '') netPane.style.visibility = 'visible';
 }
 // to handle iPad viewport sizing problem when tab bar appears
 document.body.height = window.innerHeight;
