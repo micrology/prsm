@@ -552,6 +552,7 @@ nav button .pressed {
 
 .tabcontent {
 	border: 0;
+	position: relative;
 }
 .samples,
 .itemData,
@@ -566,8 +567,11 @@ nav button .pressed {
 .networkStyles {
 	border-radius: 0 0 4px 4px;
 }
-.thickDivider {
-	height: 30px;
+.itemData {
+	position: absolute;
+	top: 285px;
+	left: 0px;
+	width: 192px;
 }
 
 /* Using display:none to hide tabs other than the one on display: 
@@ -614,21 +618,23 @@ but moving the panel out of sight works instead */
 	border-top: 1px solid whitesmoke;
 	padding-top: 10px;
 }
-.nodeLabel, .edgeLabel {
+.nodeLabel,
+.edgeLabel {
 	font-weight: bold;
 	text-decoration: underline;
+	line-height: 2;
 }
-  .notes {
+.notes {
 	padding: 4px;
 	background-color: white;
 	color: black;
 	width: 100%;
 	min-height: 40px;
 	outline: none;
-  }
-  .placeholder {
+}
+.placeholder {
 	opacity: 0.5;
-  }
+}
 .networkGrid {
 	display: grid;
 	grid-template-columns: 1fr;
@@ -650,7 +656,7 @@ but moving the panel out of sight works instead */
 	display: none;
 }
 .networkGrid .panelRow {
-padding: 4px;
+	padding: 4px;
 }
 /* create the impression of a sliding on/off switch see https://proto.io/freebies/onoff/ */
 

@@ -501,31 +501,35 @@
 						</button>
 					</div>
 				</div>
-				<div class="thickDivider"></div>
-				<div class="itemData" id="nodeDataPanel">
-					<div class="panelRow">
-						<div>
-							<span class="nodeLabel" id="nodeLabel"></span>
-						</div>
-						<div>
-							<label for="fixed">Fix:</label>
-							<input type="checkbox" id="fixed" />
-						</div>
+			</div>
+			<div class="itemData" id="nodeDataPanel">
+				<div class="panelRow">
+					<div>
+						<span class="nodeLabel" id="nodeLabel"></span>
 					</div>
-					<div class="panelRow">
-						<div>Leverage</div>
-						<div id="leverage"></div>
-					</div>
-					<div class="panelRow">
-						<div>Betweenness centrality</div>
-						<div id="bc"></div>
-					</div>
-					<div class="panelRow">
-						<div contenteditable="true" class="notes" id="node-notes" data-placeholder="Notes">
-					</div>
+					<div>
+						<label for="fixed">Fix:</label>
+						<input type="checkbox" id="fixed" />
 					</div>
 				</div>
+				<div class="panelRow">
+					<div>Leverage</div>
+					<div id="leverage"></div>
+				</div>
+				<div class="panelRow">
+					<div>Betweenness centrality</div>
+					<div id="bc"></div>
+				</div>
+				<div class="panelRow">
+					<div
+						contenteditable="true"
+						class="notes"
+						id="node-notes"
+						data-placeholder="Notes"
+					></div>
+				</div>
 			</div>
+
 			<!-- Links Tab -->
 			<div class="tabcontent hide" id="linksTab">
 				<div class="samples">
@@ -546,15 +550,18 @@
 						</button>
 					</div>
 				</div>
-				<div class="thickDivider"></div>
-				<div class="itemData" id="edgeDataPanel">
-					<div class="panelRow centered">
-						<div>
-							<b><span class="edgeLabel" id="edgeLabel"></span></b>
-						</div>
-					</div>
-					<div contenteditable="true" class="notes" id="edge-notes" data-placeholder="Notes">
-					</div>
+			</div>
+			<div class="itemData" id="edgeDataPanel">
+				<div class="panelRow">
+					<span class="edgeLabel" id="edgeLabel"></span>
+				</div>
+				<div class="panelRow">
+					<div
+						contenteditable="true"
+						class="notes"
+						id="edge-notes"
+						data-placeholder="Notes"
+					></div>
 				</div>
 			</div>
 		</aside>

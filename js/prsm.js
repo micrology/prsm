@@ -19,7 +19,7 @@ import {
 	standardize_color,
 	object_equals,
 	generateName,
-	divWithPlaceHolder
+	divWithPlaceHolder,
 } from './utils.js';
 import {styles} from './samples.js';
 import * as parser from 'fast-xml-parser';
@@ -497,9 +497,8 @@ const emojiPicker = new EmojiButton({
 function setUpChat() {
 	try {
 		myNameRec = JSON.parse(localStorage.getItem('myName'));
-	} 
-	catch (err) {
-		myNameRec = null
+	} catch (err) {
+		myNameRec = null;
 	}
 	// sanity check
 	if (!(myNameRec != null && myNameRec.name)) {
@@ -552,7 +551,7 @@ function setUpChat() {
  */
 function setUpIntro() {
 	if (localStorage.getItem('doneIntro') != 'true') {
-		intro.setOptions({			
+		intro.setOptions({
 			showBullets: false,
 			exitOnOverlayClick: false,
 			showStepNumbers: false,
@@ -2101,6 +2100,7 @@ function openTab(tabId) {
 	event.currentTarget.className += ' active';
 	tabOpen = tabId;
 	if (tabOpen == 'nodesTab' || tabOpen == 'linksTab') showNodeOrEdgeData();
+	else hideNotes();
 }
 
 function storeButtonStatus() {
@@ -2210,16 +2210,15 @@ function setFixed() {
 }
 // Notes
 function showNodeOrEdgeData() {
+	hideNotes();
 	if (tabOpen == 'nodesTab' || tabOpen == 'linksTab') {
 		if (network.getSelectedNodes().length == 1) showNodeData();
-		if (network.getSelectedEdges().length == 1) showEdgeData();
+		else if (network.getSelectedEdges().length == 1) showEdgeData();
 	}
 }
 function showNodeData() {
 	let panel = document.getElementById('nodeDataPanel');
-	let selectedNodes = network.getSelectedNodes();
-	if ((tabOpen == 'nodesTab' ||  tabOpen == 'linksTab') && selectedNodes.length == 1) {
-		let nodeId = selectedNodes[0];
+		let nodeId = network.getSelectedNodes()[0];
 		let node = data.nodes.get(nodeId);
 		document.getElementById('fixed').checked = node.fixed ? true : false;
 		document.getElementById('nodeLabel').innerHTML = node.label
@@ -2232,9 +2231,6 @@ function showNodeData() {
 		if (notes.innerText.length == 0) notes.innerHTML = placeholder;
 		panel.classList.remove('hide');
 		displayStatistics(nodeId);
-	} else {
-		panel.classList.add('hide');
-	}
 }
 
 function updateNodeNotes(e) {
@@ -2242,7 +2238,7 @@ function updateNodeNotes(e) {
 	data.nodes.update({
 		id: network.getSelectedNodes()[0],
 		title: splitText(
-			(text == e.target.dataset.placeholder ? "" : text),
+			text == e.target.dataset.placeholder ? '' : text,
 			NOTEWIDTH
 		).replace(/\n/g, '<br>'),
 		clientID: undefined,
@@ -2250,9 +2246,7 @@ function updateNodeNotes(e) {
 }
 function showEdgeData() {
 	let panel = document.getElementById('edgeDataPanel');
-	let selectedEdges = network.getSelectedEdges();
-	if ((tabOpen == 'nodesTab' ||  tabOpen == 'linksTab') && selectedEdges.length == 1) {
-		let edgeId = selectedEdges[0];
+		let edgeId = network.getSelectedEdges()[0];
 		let edge = data.edges.get(edgeId);
 		document.getElementById('edgeLabel').innerHTML = edge.label
 			? shorten(edge.label)
@@ -2263,9 +2257,6 @@ function showEdgeData() {
 		let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
 		if (notes.innerText.length == 0) notes.innerHTML = placeholder;
 		panel.classList.remove('hide');
-	} else {
-		panel.classList.add('hide');
-	}
 }
 
 function updateEdgeNotes(e) {
@@ -2273,7 +2264,7 @@ function updateEdgeNotes(e) {
 	data.edges.update({
 		id: network.getSelectedEdges()[0],
 		title: splitText(
-			(text == e.target.dataset.placeholder ? "" : text),
+			text == e.target.dataset.placeholder ? '' : text,
 			NOTEWIDTH
 		).replace(/\n/g, '<br>'),
 		clientID: undefined,

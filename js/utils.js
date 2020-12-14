@@ -419,20 +419,20 @@ export function generateName() {
 }
 /**
  * Set up a contenteditable <div> to have a placeholder that disappears when text is written into it
- * @param {CSSselector} selector 
+ * @param {CSSselector} selector
  */
 export function divWithPlaceHolder(selector) {
 	const editable = document.querySelector(selector);
 	const placeholder = `<span class="placeholder">${editable.dataset.placeholder}</span>`;
 	// add placeholder on load
 	editable.innerHTML = placeholder;
-	editable.addEventListener("keyup", () => {
-	  if (editable.innerText.length == 0) editable.innerHTML = placeholder;
-	});
-	  editable.addEventListener("keydown", () => {
-	  if (editable.innerHTML == placeholder) editable.innerHTML = "";
-	});
-	editable.addEventListener("focus", () => {
+	editable.addEventListener('keyup', () => {
 		if (editable.innerText.length == 0) editable.innerHTML = placeholder;
 	});
-  }
+	editable.addEventListener('keydown', () => {
+		if (editable.innerHTML == placeholder) editable.innerHTML = '';
+	});
+	editable.addEventListener('focus', () => {
+		if (editable.innerText.length == 0) editable.innerHTML = placeholder;
+	});
+}
