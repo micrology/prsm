@@ -19,7 +19,7 @@
 	"targets": {
 		"default": {
 			"engines": {
-				"browsers": "defaults"
+				"browserslist": "defaults"
 			},
 			"distDir": "dist",
 			"publicUrl": "."

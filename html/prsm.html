@@ -40,7 +40,10 @@
 			}
 		</style>
 		<script>
-			if (window.document.documentMode) {
+			/*
+			 * reject Internet Explorer and Legacy Edge (the latter doesn't support the destructuring operator)
+			 */
+			if (window.document.documentMode || window.navigator.userAgent.indexOf("Edge/") > -1) {
 				alert(
 					'Your browser does not support all the features required.  Try an up-to-date copy of Edge, Chrome, Firefox or Safari'
 				);
