@@ -19,6 +19,15 @@
 		<link rel="icon" href="../img/prsm-logo.ico" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<style>
+			@font-face {
+				font-family: 'oxygenregular';
+				src: url('../fonts/oxygen-regular-webfont.woff2')
+					format('woff2');
+				font-weight: normal;
+				font-style: normal;
+			}
+		</style>
 		<link href="../css/prsm.css" rel="stylesheet" />
 		<script
 			src="https://kit.fontawesome.com/dcbad58dab.js"
@@ -43,7 +52,10 @@
 			/*
 			 * reject Internet Explorer and Legacy Edge (the latter doesn't support the destructuring operator)
 			 */
-			if (window.document.documentMode || window.navigator.userAgent.indexOf("Edge/") > -1) {
+			if (
+				window.document.documentMode ||
+				window.navigator.userAgent.indexOf('Edge/') > -1
+			) {
 				alert(
 					'Your browser does not support all the features required.  Try an up-to-date copy of Edge, Chrome, Firefox or Safari'
 				);
@@ -57,7 +69,7 @@
 				<div>
 					<div class="strapline">
 						Participatory System Mapper<span id="version"
-							>1.2.0</span
+							>1.4.0</span
 						>
 					</div>
 					<div

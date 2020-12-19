@@ -36,7 +36,7 @@ import {
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 import introJs from 'intro.js/intro.js';
 
-const version = '1.4.1';
+const version = '1.4.2';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
@@ -206,12 +206,12 @@ function startY() {
 	); */
 	const persistence = new IndexeddbPersistence(room, doc);
 	persistence.once('synced', () => {
-		displayNetPane('local content loaded')
+		displayNetPane('local content loaded');
 	});
 	// wait for an update from another peer; only then will
 	// drawing etc. be finished and so we can then fit the  network to the window.
 	wsProvider.on('sync', () => {
-		displayNetPane('remote content loaded')
+		displayNetPane('remote content loaded');
 	});
 	document.title = document.title + ' ' + room;
 	wsProvider.on('status', (event) => {
@@ -474,7 +474,8 @@ function displayNetPane(msg) {
 	legend(false);
 	console.log(msg);
 	let netPane = elem('net-pane');
-	if (netPane.style.visibility == 'hidden'  || netPane.style.visibility == '') netPane.style.visibility = 'visible';
+	if (netPane.style.visibility == 'hidden' || netPane.style.visibility == '')
+		netPane.style.visibility = 'visible';
 }
 // to handle iPad viewport sizing problem when tab bar appears
 document.body.height = window.innerHeight;
@@ -1231,7 +1232,8 @@ function setMapTitle(title) {
 	if (title == '') {
 		title = 'Untitled map';
 	}
-	div.style.color = title == 'Untitled map' ? 'lightgrey' : 'white';
+	if (title == 'Untitled map') div.classList.add('unsetmaptitle');
+	else div.classList.remove('unsetmaptitle');
 	if (title !== 'Untitled map') {
 		lastFileName = title.replace(/\s+/g, '').toLowerCase();
 	}
@@ -2226,19 +2228,19 @@ function showNodeOrEdgeData() {
 }
 function showNodeData() {
 	let panel = document.getElementById('nodeDataPanel');
-		let nodeId = network.getSelectedNodes()[0];
-		let node = data.nodes.get(nodeId);
-		document.getElementById('fixed').checked = node.fixed ? true : false;
-		document.getElementById('nodeLabel').innerHTML = node.label
-			? shorten(node.label)
-			: '';
-		let notes = document.getElementById('node-notes');
-		notes.innerHTML = node.title ? node.title : '';
-		notes.addEventListener('keyup', (e) => updateNodeNotes(e));
-		let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
-		if (notes.innerText.length == 0) notes.innerHTML = placeholder;
-		panel.classList.remove('hide');
-		displayStatistics(nodeId);
+	let nodeId = network.getSelectedNodes()[0];
+	let node = data.nodes.get(nodeId);
+	document.getElementById('fixed').checked = node.fixed ? true : false;
+	document.getElementById('nodeLabel').innerHTML = node.label
+		? shorten(node.label)
+		: '';
+	let notes = document.getElementById('node-notes');
+	notes.innerHTML = node.title ? node.title : '';
+	notes.addEventListener('keyup', (e) => updateNodeNotes(e));
+	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
+	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
+	panel.classList.remove('hide');
+	displayStatistics(nodeId);
 }
 
 function updateNodeNotes(e) {
@@ -2254,17 +2256,17 @@ function updateNodeNotes(e) {
 }
 function showEdgeData() {
 	let panel = document.getElementById('edgeDataPanel');
-		let edgeId = network.getSelectedEdges()[0];
-		let edge = data.edges.get(edgeId);
-		document.getElementById('edgeLabel').innerHTML = edge.label
-			? shorten(edge.label)
-			: '';
-		let notes = document.getElementById('edge-notes');
-		notes.innerHTML = edge.title ? edge.title : '';
-		notes.addEventListener('keyup', (e) => updateEdgeNotes(e));
-		let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
-		if (notes.innerText.length == 0) notes.innerHTML = placeholder;
-		panel.classList.remove('hide');
+	let edgeId = network.getSelectedEdges()[0];
+	let edge = data.edges.get(edgeId);
+	document.getElementById('edgeLabel').innerHTML = edge.label
+		? shorten(edge.label)
+		: '';
+	let notes = document.getElementById('edge-notes');
+	notes.innerHTML = edge.title ? edge.title : '';
+	notes.addEventListener('keyup', (e) => updateEdgeNotes(e));
+	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
+	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
+	panel.classList.remove('hide');
 }
 
 function updateEdgeNotes(e) {

@@ -18,10 +18,12 @@ export const styles = {
 				},
 			},
 			font: {
+				face: 'oxygenregular',
 				color: '#000000',
 				size: 14,
 			},
 			labelHighlightBold: true,
+			margin: 20,
 			shape: 'ellipse',
 			shapeProperties: {
 				borderDashes: false,
@@ -37,162 +39,82 @@ export const styles = {
 			},
 		},
 		group0: {
+			borderWidth: 0,
 			color: {
-				border: '#0000ff',
-				background: '#ffffff',
-				highlight: {
-					border: '#0000ff',
-					background: '#ffffff',
-				},
-				hover: {
-					border: '#0000ff',
-					background: '#ffffff',
-				},
+				border: '#9ADBB4',
+				background: '#9ADBB4',
 			},
 			shape: 'box',
 		},
 		group1: {
+			borderWidth: 0,
 			color: {
-				border: '#000000',
-				background: '#fa0000',
-				highlight: {
-					border: '#000000',
-					background: '#fa0000',
-				},
-				hover: {
-					border: '#000000',
-					background: '#fa0000',
-				},
-			},
-			font: {
-				color: '#ffffff',
-				size: 14,
+				border: '#CADB5C',
+				background: '#CADB5C',
 			},
 			shape: 'box',
 		},
 		group2: {
 			borderWidth: 0,
 			color: {
-				border: '#000000',
-				background: '#99e699',
-				highlight: {
-					border: '#000000',
-					background: '#99e699',
-				},
-				hover: {
-					border: '#000000',
-					background: '#99e699',
-				},
+				border: '#DBA542',
+				background: '#DBA542',
 			},
 			shape: 'box',
 		},
 		group3: {
+			borderWidth: 0,
 			color: {
-				border: '#000000',
-				background: '#ffccdd',
-				highlight: {
-					border: '#000000',
-					background: '#ffccdd',
-				},
-				hover: {
-					border: '#000000',
-					background: '#ffccdd',
-				},
-			},
-			shape: 'ellipse',
-		},
-		group4: {
-			groupLabel: 'Sample',
-			color: {
-				border: '#000000',
-				background: '#773232',
-				highlight: {
-					border: '#000000',
-					background: '#773232',
-				},
-				hover: {
-					border: '#000000',
-					background: '#773232',
-				},
+				border: '#DB6E67',
+				background: '#DB6E67',
 			},
 			font: {
-				color: '#defb04',
-				size: 14,
+				color: '#ffffff',
 			},
-			shape: 'ellipse',
-			shapeProperties: {
-				borderDashes: false,
+			shape: 'box',
+		},
+		group4: {
+			borderWidth: 0,
+			color: {
+				border: '#8371B7',
+				background: '#8371B7',
 			},
+			font: {
+				color: '#ffffff',
+			},
+			shape: 'box',
 		},
 		group5: {
 			color: {
 				border: '#000000',
 				background: '#b3ccff',
-				highlight: {
-					border: '#000000',
-					background: '#b3ccff',
-				},
-				hover: {
-					border: '#000000',
-					background: '#b3ccff',
-				},
 			},
 			shape: 'ellipse',
 		},
 		group6: {
+			font: {
+				color: '#1c5f1b',
+			},
+			shape: 'text',
+		},
+		group7: {
 			color: {
 				border: '#000000',
 				background: '#ffff99',
-				highlight: {
-					border: '#000000',
-					background: '#ffff99',
-				},
-				hover: {
-					border: '#000000',
-					background: '#ffff99',
-				},
 			},
 			shape: 'circle',
 			shapeProperties: {
 				borderDashes: [3, 3],
 			},
 		},
-		group7: {
-			color: {
-				border: '#000000',
-				background: '#ffffff',
-				highlight: {
-					border: '#000000',
-					background: '#ffffff',
-				},
-				hover: {
-					border: '#000000',
-					background: '#ffffff',
-				},
-			},
-			font: {
-				color: '#1c5f1b',
-				size: 14,
-			},
-			shape: 'text',
-		},
 		group8: {
 			borderWidth: 0,
 			color: {
-				border: '#000000',
-				background: '#0011ff',
-				highlight: {
-					border: '#000000',
-					background: '#0011ff',
-				},
-				hover: {
-					border: '#000000',
-					background: '#0011ff',
-				},
+				border: '#7A7A7A',
+				background: '#7A7A7A',
 			},
 			font: {
 				color: '#ffffff',
-				size: 14,
 			},
 			shape: 'circle',
 		},
@@ -230,74 +152,42 @@ export const styles = {
 		edge0: {
 			color: {
 				color: '#000000',
-				highlight: '#000000',
-				hover: '#000000',
-				inherit: false,
-				opacity: 1,
 			},
 		},
 		edge1: {
 			color: {
 				color: '#00cc00',
-				highlight: '#00cc00',
-				hover: '#00cc00',
-				inherit: false,
-				opacity: 1,
 			},
 		},
 		edge2: {
 			color: {
 				color: '#ff0000',
-				highlight: '#ff0000',
-				hover: '#ff0000',
-				inherit: false,
-				opacity: 1,
 			},
 		},
 		edge3: {
 			color: {
 				color: '#0000ff',
-				highlight: '#0000ff',
-				hover: '#0000ff',
-				inherit: false,
-				opacity: 1,
 			},
 		},
 		edge4: {
 			color: {
 				color: '#808080',
-				highlight: '#808080',
-				hover: '#808080',
-				inherit: false,
-				opacity: 1,
 			},
 		},
 		edge5: {
 			color: {
 				color: '#e6b800',
-				highlight: '#e6b800',
-				hover: '#e6b800',
-				inherit: false,
-				opacity: 1,
 			},
 		},
 		edge6: {
 			color: {
 				color: '#000000',
-				highlight: '#000000',
-				hover: '#000000',
-				inherit: false,
-				opacity: 1,
 			},
 			dashes: [3, 3],
 		},
 		edge7: {
 			color: {
 				color: '#008000',
-				highlight: '#008000',
-				hover: '#008000',
-				inherit: false,
-				opacity: 1,
 			},
 			dashes: [10, 10],
 			width: 3,
@@ -311,16 +201,9 @@ export const styles = {
 					enabled: true,
 					type: 'arrow',
 				},
-				from: {
-					enabled: false,
-				},
 			},
 			color: {
 				color: '#000000',
-				highlight: '#000000',
-				hover: '#000000',
-				inherit: false,
-				opacity: 1,
 			},
 		},
 	},

@@ -30,9 +30,20 @@ p {
 	vertical-align: baseline;
 }
 body {
-	font-family: sans-serif;
+	font-family: oxygenregular, sans-serif;
 	box-sizing: border-box;
-	/* interface colours defined here: dark blue theme */
+	/* interface colours defined here: CECAN theme */
+	--header-color: #0d2644;
+	--header-hover-color: lightgrey;
+	--header-pressed-color: grey;
+	--header-disabled-color: #a8d3f0;
+	--panel-color: #404040;
+	--pop-up-color: #f5f5f5;
+	--pop-up-shadow-color: #c9c9c9;
+	--modal-header-color: #0d2644;
+	--tab-color: #dcdcdc;
+}
+/* interface colours defined here: dark blue theme 
 	--header-color: #1565c0;
 	--header-hover-color: lightgrey;
 	--header-pressed-color: grey;
@@ -41,7 +52,10 @@ body {
 	--pop-up-color: #f5f5f5;
 	--pop-up-shadow-color: #c9c9c9;
 	--modal-header-color: #1565c0;
-	--tab-color: #dcdcdc;
+	--tab-color: #dcdcdc;}*/
+button,
+input {
+	font-family: oxygenregular, sans-serif;
 }
 .container {
 	position: relative;
@@ -218,7 +232,7 @@ nav {
 	padding: 10px 0 0 20px;
 }
 .strapline {
-	font-size: 16px;
+	font-size: 20px;
 	margin: 3px 0 0 10px;
 	color: white;
 }
@@ -229,9 +243,12 @@ nav {
 }
 .maptitle {
 	font-size: 20px;
-	margin: 15px 0 0 10px;
-	color: lightgrey;
+	margin: 5px 0 0 10px;
+	color: #ffc107;
 	text-align: left;
+}
+.unsetmaptitle {
+	color: lightgrey;
 }
 .button-wrapper {
 	margin: auto 50px auto auto;
