@@ -80,7 +80,7 @@
 					<div class="buttons" id="buttons">
 						<div
 							class="tooltip"
-							data-intro="Clicking the plus creates a new factor"
+							data-intro="Clicking the + creates a new factor"
 							data-step="2"
 							data-position="bottom"
 						>
@@ -95,7 +95,6 @@
 							data-position="bottom"
 						>
 							<button id="addLink">
-								<!-- <i class="fas fa-wave-square"></i> -->
 								<i
 									class="fas fa-long-arrow-alt-right"
 								></i></button
@@ -199,7 +198,7 @@
 			data-intro="<div>
 			<b>That's the end of the tour.<p>Press Done and then click <br>
 				on the + button above to add your first factor.</div>"
-			data-step="12"
+			data-step="11"
 			data-tooltipClass="splash"
 		>
 			<div class="avatars" id="avatars"></div>
@@ -218,8 +217,8 @@
 			<div
 				id="net-pane"
 				data-intro="<div>
-				<b>Welcome to PRSM</b><p>For a quick tour, press Next,<br>
-					or to start immediately, press the ESC key.</div>"
+				<b>Welcome to PRSM</b><p>For a quick tour, press Next,<br/>
+					or to skip it, click the <span style='font-size: 150%'>&times;</span></div>"
 				data-step="1"
 				data-tooltipClass="splash"
 			></div>
@@ -585,7 +584,7 @@
 				id="zoomcontrol"
 				data-intro="Zoom in for detail or out for an overview"
 				data-step="9"
-				data-position="top"
+				data-position="left"
 			>
 				Zoom <span id="zoomminus">&ndash;</span>
 				<input
@@ -772,6 +771,7 @@
 							data-intro="You will be able to enter your name here if you want to show others that you are online"
 							data-step="10"
 							data-position="left"
+							data-disable-interaction="false"
 						>
 							<input type="text" id="chat-name" />
 							<span class="tooltiptext"
@@ -782,9 +782,6 @@
 					<div class="chatbox-icons">
 						<div
 							class="tooltip"
-							data-intro="Clicking the &times; minimises the chat pane"
-							data-step="11"
-							data-position="left"
 						>
 							<span id="minimize"
 								><i class="fas fa-times"></i

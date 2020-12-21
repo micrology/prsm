@@ -98,7 +98,7 @@ aside {
 }
 footer {
 	position: fixed;
-	bottom: 3px;
+	bottom: 0;
 	left: 0;
 	width: 100%;
 	z-index: 1000;
@@ -880,7 +880,7 @@ but moving the panel out of sight works instead */
 .chatbox-holder {
 	position: fixed;
 	right: 0;
-	bottom: 40px;
+	bottom: 37px;
 	display: flex;
 	align-items: flex-end;
 	height: 0;
@@ -999,7 +999,7 @@ but moving the panel out of sight works instead */
 }
 .message-send {
 	background: white;
-	color: black;
+	color: var(--header-color);
 	font-size: 24px;
 	padding: 0 10px;
 	border: none;
@@ -1015,7 +1015,7 @@ but moving the panel out of sight works instead */
 	padding: 14px;
 	position: fixed;
 	right: 0;
-	bottom: 40px;
+	bottom: 35px;
 	z-index: 40;
 }
 .chatbox-blink {

@@ -20,7 +20,7 @@ let defaultOptions = {
 	lineWidth: 2,
 	strokeStyle: '#000000',
 	fillStyle: '#ffffff',
-	font: '16px sans-serif',
+	font: '16px oxygenregular',
 	fontColor: '#000000',
 	globalAlpha: 1.0,
 	globalCompositeOperation: 'source-over',
@@ -895,7 +895,6 @@ class ImageHandler extends ToolHandler {
 					image.style.left = image.left + 'px';
 					image.top = (underlay.offsetHeight - image.height) / 2;
 					image.style.top = image.top + 'px';
-					//					image.style.boxSizing = 'border-box';
 					image.style.position = 'absolute';
 					imageHandler.paintImage(
 						image,
