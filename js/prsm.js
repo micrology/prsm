@@ -566,6 +566,7 @@ function setUpIntro() {
 			showStepNumbers: false,
 			disableInteraction: true,
 			overlayOpacity: 0.3,
+			hidePrev: true,
 		});
 		intro.onexit(function () {
 			localStorage.setItem('doneIntro', 'true');
@@ -879,6 +880,9 @@ function editNode(item, cancelAction, callback) {
 	<table id="popup-table">
 		<tr>
 			<td>
+				Back
+			</td>
+			<td>
 				Border
 			</td>
 			<td>
@@ -886,7 +890,12 @@ function editNode(item, cancelAction, callback) {
 			</td>
 		</tr>
 		<tr>
-			<td>
+		<td>
+		<div class="input-color-container">
+		<input type="color" class="input-color" id="node-backgroundColor" />
+		</div>
+		</td>
+		<td>
 			<div class="input-color-container">
 			<input type="color" class="input-color" id="node-borderColor" />
 			</div>
@@ -898,6 +907,7 @@ function editNode(item, cancelAction, callback) {
 			</td>
 		</tr>
 		<tr>
+		<td>Border:</td>
 			<td colspan="2">
 				<select id="node-borderType">
 					<option value="false">Type...</option>
@@ -908,6 +918,9 @@ function editNode(item, cancelAction, callback) {
 			</td>
 		</tr>
 	</table>`
+	);
+	document.getElementById('node-backgroundColor').value = standardize_color(
+		item.color.background
 	);
 	document.getElementById('node-borderColor').value = standardize_color(
 		item.color.border
@@ -1118,7 +1131,11 @@ function saveNode(item, callback) {
 		statusMsg('No label: cancelled', 'warn');
 		callback(null);
 	}
-	let color = document.getElementById('node-borderColor').value;
+	let color = document.getElementById('node-backgroundColor').value;
+	item.color.background = color;
+	item.color.highlight.background = color;
+	item.color.hover.background = color;
+	color = document.getElementById('node-borderColor').value;
 	item.color.border = color;
 	item.color.highlight.border = color;
 	item.color.hover.border = color;
@@ -2016,15 +2033,14 @@ function setUpShareDialog() {
 		network.storePositions();
 	});
 	// When the user clicks on <span> (x), close the modal
-	listen('modal-close', 'click', () => {
-		modal.style.display = 'none';
-	});
-	// When the user clicks anywhere outside of the modal, close it
-	window.onclick = function (event) {
-		if (event.target == modal) {
-			modal.style.display = 'none';
-		}
-	};
+	listen('modal-close', 'click', closeShareDialog);
+	// When the user clicks anywhere on the background, close it
+	listen('shareModal', 'click', closeShareDialog);
+	
+	function closeShareDialog() {
+		let modal = elem('shareModal');
+		if (event.target == modal) modal.style.display = 'none';
+	}
 	listen('copy-text', 'click', (e) => {
 		e.preventDefault();
 		// Select the text
@@ -2783,6 +2799,7 @@ function displayUserName() {
 	chatNameBox.style.fontStyle = myNameRec.anon ? 'italic' : 'normal';
 	chatNameBox.value = myNameRec.name;
 }
+/* --------------------------------------- avatars --------------------------------*/
 
 /**
  * Place a circle at the top left of the net pane to represent each user who is online

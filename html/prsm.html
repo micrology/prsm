@@ -15,7 +15,8 @@
 		/>
 		<meta charset="utf-8" />
 		<meta content="IE=edge" http-equiv="X-UA-Compatible" />
-		<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+		<!-- <meta name="viewport" content="width=device-width,initial-scale=1.0" /> -->
+		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no" />
 		<link rel="icon" href="../img/prsm-logo.ico" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
@@ -39,15 +40,7 @@
 			href="../node_modules/intro.js/minified/introjs.min.css"
 			rel="stylesheet"
 		/>
-		<link
-			href="../node_modules/intro.js/themes/introjs-modern.css"
-			rel="stylesheet"
-		/>
-		<style>
-			.introjs-skipbutton {
-				color: white;
-			}
-		</style>
+		<link href="../css/introjs-theme.css" rel="stylesheet" />
 		<script>
 			/*
 			 * reject Internet Explorer and Legacy Edge (the latter doesn't support the destructuring operator)
@@ -789,9 +782,9 @@
 					<div class="chatbox-icons">
 						<div
 							class="tooltip"
-							data-intro="Clicking here minimises the chat pane"
+							data-intro="Clicking the &times; minimises the chat pane"
 							data-step="11"
-							data-position="top"
+							data-position="left"
 						>
 							<span id="minimize"
 								><i class="fas fa-times"></i

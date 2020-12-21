@@ -1,6 +1,6 @@
 {
 	"name": "participatory-system-mapper",
-	"version": "1.4.0",
+	"version": "1.4.2",
 	"description": "Participatory System Mapper, browser app for collaboratively creating system maps",
 	"keywords": [
 		"social network",
@@ -27,7 +27,7 @@
 	},
 	"scripts": {
 		"lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
-		"pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/prsm.css doc/**/*.{html,css} package.json",
+		"pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/*.css doc/**/*.{html,css} package.json",
 		"build-help": "pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -H doc/meta.html -s --toc -o ./help.html",
 		"check": "npm run --silent lint && npm run --silent build-help && npm run --silent pretty",
 		"serve": "parcel ./html/prsm.html",

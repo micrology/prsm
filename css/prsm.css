@@ -32,6 +32,7 @@ p {
 body {
 	font-family: oxygenregular, sans-serif;
 	box-sizing: border-box;
+	touch-action: none;
 	/* interface colours defined here: CECAN theme */
 	--header-color: #0d2644;
 	--header-hover-color: lightgrey;
@@ -56,6 +57,9 @@ body {
 button,
 input {
 	font-family: oxygenregular, sans-serif;
+}
+select {
+	border-color: lightgrey;
 }
 .container {
 	position: relative;
@@ -93,6 +97,11 @@ aside {
 	z-index: 2000;
 }
 footer {
+	position: fixed;
+	bottom: 3px;
+	left: 0;
+	width: 100%;
+	z-index: 1000;
 	display: flex;
 	justify-content: space-between;
 	padding: 5px;
@@ -118,6 +127,7 @@ footer {
 	border-radius: 5px;
 }
 #zoomcontrol {
+	padding-right: 20px;
 	white-space: nowrap;
 }
 #zoomplus {
@@ -200,9 +210,13 @@ input[type='range'] {
 }
 #popup table {
 	width: 160px;
+	table-layout: fixed;
 	font-size: 14px;
 	position: absolute;
 	top: 90px;
+}
+#popup table td {
+	width: 33%;
 }
 .input-color-container {
 	position: relative;
@@ -329,17 +343,18 @@ nav button .pressed {
 /* for iPads etc in landscape: nav buttons go under title */
 
 @media screen and (min-width: 481px) and (max-width: 1112px) {
-	html,
+/* 	html,
 	body {
-		height: 100%;
+		max-height: 100%;
 		overflow-x: hidden;
 		max-width: 100%;
 	}
 	main {
-		height: calc(100% - 140px);
+		height: calc(100vh - 140px);
 	}
 	header {
 		height: 100px;
+		background-color: red;
 	}
 	aside {
 		top: 110px;
@@ -363,6 +378,52 @@ nav button .pressed {
 	nav button {
 		margin: auto 5px;
 		font-size: 18px;
+	} */
+	html,
+	body {
+		height: 100%;
+		overflow-x: hidden;
+		max-width: 100%;
+	}
+	main {
+		height: calc(100vh - 130px);
+	}
+	header {
+		height: 90px;
+	}
+	nav {
+		display: grid;
+		height: 90px;
+		grid-template-columns: 1fr;
+		padding: 0;
+	}
+	nav img {
+		display: none;
+	}
+	.strapline {
+		grid-column: 1;
+		grid-row: 1;
+		font-size: 20px;
+	}
+	.maptitle {
+		text-align: center;
+		font-size: 16px;
+		margin-top: 5px;
+	}
+	.button-wrapper {
+		grid-column: 1;
+		grid-row: 2;
+		width: 100%;
+	}
+	.buttons {
+		justify-content: center;
+	}
+	nav button {
+		margin: auto 0;
+		font-size: 12px;
+	}
+	input[type='range'] {
+		width: 40px;
 	}
 }
 /* for iPads etc in portrait and smart phones: nav buttons go under title and font is smaller */
@@ -375,10 +436,10 @@ nav button .pressed {
 		max-width: 100%;
 	}
 	main {
-		height: calc(100% - 130px);
+		height: calc(100vh - 130px);
 	}
 	header {
-		height: 92px;
+		height: 90px;
 	}
 	nav {
 		display: grid;
