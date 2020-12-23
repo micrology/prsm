@@ -728,6 +728,11 @@ function draw() {
 	});
 	network.on('selectNode', function (params) {
 		let selectedNodes = network.getSelectedNodes();
+		selectedNodes.forEach((nodeId) => {
+			let node = data.nodes.get(nodeId);
+			node.shadow = true;
+			data.nodes.update(node);
+		});
 		if (selectedNodes.length > 1) hideDistantOrStreamNodes();
 		// if shiftkey is down, start linking to another node
 		if (params.event.pointers[0].shiftKey) {
@@ -742,6 +747,11 @@ function draw() {
 		}
 	});
 	network.on('deselectNode', function () {
+		let nodes = data.nodes.get();
+		nodes.forEach((node) => {
+			node.shadow = false;
+		});
+		data.nodes.update(nodes);
 		hideNotes();
 		clearStatusBar();
 	});
@@ -2468,6 +2478,12 @@ function ensureNotDrawing() {
 
 function selectAllFactors() {
 	network.selectNodes(network.body.nodeIndices);
+	let selectedNodes = network.getSelectedNodes();
+		selectedNodes.forEach((nodeId) => {
+			let node = data.nodes.get(nodeId);
+			node.shadow = true;
+			data.nodes.update(node);
+		});
 }
 
 function selectAllEdges() {
@@ -2696,6 +2712,7 @@ function broadcastHideAndStream(hideSetting, streamSetting) {
 }
 
 function setHideAndStream(obj) {
+	if (!obj) return;
 	network.selectNodes(obj.selected);
 	statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
 	setRadioVal('hide', obj.hideSetting);
