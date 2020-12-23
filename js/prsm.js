@@ -90,8 +90,9 @@ window.addEventListener('load', () => {
  * Set up all the permanent event listeners
  */
 function addEventListeners() {
-	listen('maptitle', 'keydown', (e) => {  //disallow Enter key
-		if (e.key === "Enter") {
+	listen('maptitle', 'keydown', (e) => {
+		//disallow Enter key
+		if (e.key === 'Enter') {
 			e.preventDefault();
 		}
 	});
@@ -163,8 +164,12 @@ function addEventListeners() {
  * create all the DOM elemts on the web page
  */
 function setUpPage() {
+	// don't allow user to change anything if URL includes ?viewing
 	viewOnly = new URL(document.location).searchParams.get('viewing');
 	if (viewOnly) document.getElementById('buttons').style.display = 'none';
+	// treat user as first time user if URL includes ?new=true
+	let newUser = new URL(document.location).searchParams.get('new');
+	if (newUser) localStorage.setItem('doneIntro', 'false');
 	container = document.getElementById('container');
 	panel = document.getElementById('panel');
 	panel.classList.add('hide');
@@ -480,8 +485,8 @@ function displayNetPane(msg) {
 	let netPane = elem('net-pane');
 	if (netPane.style.visibility == 'hidden' || netPane.style.visibility == '')
 		netPane.style.visibility = 'visible';
-		setUpIntro();
-	}
+//	setUpIntro();
+}
 // to handle iPad viewport sizing problem when tab bar appears
 document.body.height = window.innerHeight;
 window.onresize = function () {
@@ -2051,7 +2056,7 @@ function setUpShareDialog() {
 	listen('modal-close', 'click', closeShareDialog);
 	// When the user clicks anywhere on the background, close it
 	listen('shareModal', 'click', closeShareDialog);
-	
+
 	function closeShareDialog() {
 		let modal = elem('shareModal');
 		if (event.target == modal) modal.style.display = 'none';
@@ -2479,11 +2484,11 @@ function ensureNotDrawing() {
 function selectAllFactors() {
 	network.selectNodes(network.body.nodeIndices);
 	let selectedNodes = network.getSelectedNodes();
-		selectedNodes.forEach((nodeId) => {
-			let node = data.nodes.get(nodeId);
-			node.shadow = true;
-			data.nodes.update(node);
-		});
+	selectedNodes.forEach((nodeId) => {
+		let node = data.nodes.get(nodeId);
+		node.shadow = true;
+		data.nodes.update(node);
+	});
 }
 
 function selectAllEdges() {
