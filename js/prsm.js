@@ -79,7 +79,6 @@ window.addEventListener('load', () => {
 	setUpPage();
 	startY();
 	setUpChat();
-	setUpIntro();
 	setUpAwareness();
 	setUpPaint();
 	setUpToolbox();
@@ -91,6 +90,11 @@ window.addEventListener('load', () => {
  * Set up all the permanent event listeners
  */
 function addEventListeners() {
+	listen('maptitle', 'keydown', (e) => {  //disallow Enter key
+		if (e.key === "Enter") {
+			e.preventDefault();
+		}
+	});
 	listen('maptitle', 'keyup', mapTitle);
 	listen('maptitle', 'click', (e) => {
 		if (e.target.innerText == 'Untitled map')
@@ -398,8 +402,7 @@ function startY() {
 		if (window.debug) console.log(event);
 		for (let key of event.keysChanged) {
 			let obj = yNetMap.get(key);
-			let origin = event.transaction.origin;
-			if (obj.clientID != clientID || origin != null)
+			if (!event.transaction.local)
 				switch (key) {
 					case 'edges':
 						setCurve(
@@ -410,6 +413,7 @@ function startY() {
 						break;
 					case 'hideAndStream':
 						setHideAndStream(obj);
+						hideDistantOrStreamNodes(false);
 						break;
 					case 'background':
 						setBackground(obj);
@@ -476,7 +480,8 @@ function displayNetPane(msg) {
 	let netPane = elem('net-pane');
 	if (netPane.style.visibility == 'hidden' || netPane.style.visibility == '')
 		netPane.style.visibility = 'visible';
-}
+		setUpIntro();
+	}
 // to handle iPad viewport sizing problem when tab bar appears
 document.body.height = window.innerHeight;
 window.onresize = function () {
@@ -2540,12 +2545,12 @@ function setRadioVal(name, value) {
 	}
 }
 
-function hideDistantOrStreamNodes() {
+function hideDistantOrStreamNodes(broadcast = true) {
 	// get the intersection of the nodes (and links) in radius and up or downstream,
 	// and then hide everything not in that intersection
 	let radius = getRadioVal('hide');
 	let stream = getRadioVal('stream');
-	broadcastHideAndStream(radius, stream);
+	if (broadcast) broadcastHideAndStream(radius, stream);
 	if (radius == 'All' && stream == 'All') {
 		showAll();
 		return;
@@ -2556,7 +2561,7 @@ function hideDistantOrStreamNodes() {
 		// unhide everything
 		document.getElementById('hideAll').checked = true;
 		document.getElementById('streamAll').checked = true;
-		broadcastHideAndStream('All', 'All');
+		if (broadcast) broadcastHideAndStream('All', 'All');
 		showAll();
 		return;
 	}
