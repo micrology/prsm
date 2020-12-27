@@ -30,7 +30,7 @@ p {
 	vertical-align: baseline;
 }
 body {
-	font-family: oxygenregular, sans-serif;
+	font-family: Oxygen, sans-serif;
 	box-sizing: border-box;
 	touch-action: none;
 	/* interface colours defined here: CECAN theme */
@@ -56,7 +56,7 @@ body {
 	--tab-color: #dcdcdc;}*/
 button,
 input {
-	font-family: oxygenregular, sans-serif;
+	font-family: Oxygen, sans-serif;
 }
 select {
 	border-color: lightgrey;

@@ -2718,7 +2718,7 @@ function broadcastHideAndStream(hideSetting, streamSetting) {
 
 function setHideAndStream(obj) {
 	if (!obj) return;
-	network.selectNodes(obj.selected);
+	network.selectNodes([obj.selected]);
 	statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
 	setRadioVal('hide', obj.hideSetting);
 	setRadioVal('stream', obj.streamSetting);

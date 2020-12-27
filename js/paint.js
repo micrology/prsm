@@ -20,7 +20,7 @@ let defaultOptions = {
 	lineWidth: 2,
 	strokeStyle: '#000000',
 	fillStyle: '#ffffff',
-	font: '16px oxygenregular',
+	font: '16px Oxygen',
 	fontColor: '#000000',
 	globalAlpha: 1.0,
 	globalCompositeOperation: 'source-over',
@@ -124,7 +124,7 @@ function selectTool(event) {
 		textHandler.saveText(event);
 	}
 	let tool = event.currentTarget;
-	if (tool.id == 'undo') {
+	if (tool.id == 'undotool') {
 		undoHandler.undo();
 		// previous tool remains selected
 		return;

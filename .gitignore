@@ -4,6 +4,7 @@ prsm-demo
 dist
 node_modules
 *.bbprojectd
+*.code-workspace
 experiments
 .prettierrc
 .vscode

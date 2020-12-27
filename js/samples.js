@@ -18,7 +18,7 @@ export const styles = {
 				},
 			},
 			font: {
-				face: 'oxygenregular',
+				face: 'Oxygen',
 				color: '#000000',
 				size: 14,
 			},
