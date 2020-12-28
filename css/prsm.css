@@ -817,7 +817,7 @@ but moving the panel out of sight works instead */
 	background-color: var(--pop-up-color);
 	box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
 	color: black;
-	font-family: sans-serif;
+	font-family: Oxygen, sans-serif;
 	font-size: 12px;
 	padding: 10px;
 }
@@ -1233,4 +1233,132 @@ div.resize {
 		left: 50%;
 		transform: translateX(-50%) scale(1);
 	}
+}
+/* ---------------------------- Tutorial --------------------------------*/
+.tutorial-dialog {
+	position: fixed;
+	z-index: 5000;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-template-rows: 20px 1fr 20px;
+	justify-items: center;
+	border-radius: 6px;
+	width: 230px;
+	background-color: var(--pop-up-color);
+	box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
+	color: black;
+	font-family: Oxygen, sans-serif;
+	font-size: 16px;
+	padding: 5px;
+}
+.tutorial-dialog.splash {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+.tutorial-dialog .text {
+	grid-column: 1 / span 2;
+	grid-row: 2;
+	padding: 10px;
+	text-align: center;
+}
+.tutorial-dialog .x-button {
+	position: absolute;
+	top: 0px;
+	right: 3px;
+	color: black;
+	/* grid-column: 2;
+	grid-row: 1/1;
+	justify-self: end; */
+	font-size: 20px;
+}
+.tutorial-dialog .x-button:hover {
+	color: gray;
+	text-decoration: none;
+	cursor: pointer;
+}
+.tutorial-dialog .tutorial-button {
+	font-size: 12px;
+	background-color: black;
+	color: white;
+	border-radius: 20%;
+	padding: 3px;
+}
+.tutorial-dialog .tutorial-button:hover {
+	text-decoration: none;
+	cursor: pointer;
+	background-color: gray;
+}
+.tutorial-dialog .next {
+	grid-column: 2;
+	grid-row: 3;
+	justify-self: end;
+}
+.tutorial-dialog .prev {
+	grid-column: 1;
+	grid-row: 3;
+	justify-self: start;
+}
+.tutorial-arrow {
+	border: 10px solid red;
+	position: absolute;
+}
+.tutorial-arrow.below,
+.tutorial-arrow.below-middle,
+.tutorial-arrow.below-right {
+	border-color: transparent transparent red transparent;
+	top: -20px;
+	left: 20px;
+}
+.tutorial-arrow.above,
+.tutorial-arrow.above-middle,
+.tutorial-arrow.above-right {
+	border-color: red transparent transparent transparent;
+	bottom: -20px;
+	left: 20px;
+}
+.tutorial-arrow.below-right,
+.tutorial-arrow.above-right {
+	right: 20px;
+	left: auto;
+}
+.tutorial-arrow.below-middle,
+.tutorial-arrow.above-middle {
+	right: auto;
+	left: auto;
+}
+.tutorial-arrow.left,
+.tutorial-arrow.left-top,
+.tutorial-arrow.right,
+.tutorial-arrow.right-top {
+	top: 0px;
+}
+.tutorial-arrow.left-bottom,
+.tutorial-arrow.right-bottom {
+	bottom: 20px;
+}
+
+.tutorial-arrow.right,
+.tutorial-arrow.right-middle,
+.tutorial-arrow.right-bottom {
+	left: -20px;
+	border-color: transparent red transparent transparent;
+}
+.tutorial-arrow.left,
+.tutorial-arrow.left-middle,
+.tutorial-arrow.left-bottom {
+	right: -20px;
+	border-color: transparent transparent transparent red;
+}
+.tutorial-arrow.right-middle,
+.tutorial-arrow.left-middle {
+	top: 50%;
+}
+.tutorial-arrow.splash {
+	border: none;
+}
+.tutorial-border {
+	position: fixed;
+	border: 3px solid red;
 }

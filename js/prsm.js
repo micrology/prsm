@@ -22,6 +22,7 @@ import {
 	generateName,
 	divWithPlaceHolder,
 } from './utils.js';
+import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
 import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
@@ -34,7 +35,6 @@ import {
 	clearLegend,
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
-import introJs from 'intro.js/intro.js';
 
 const version = '1.4.2';
 const GRIDSPACING = 50; // for snap to grid
@@ -69,7 +69,7 @@ var lastLinkSample = 'edge0'; // the last used edge style
 var inAddMode = false; // true when adding a new Factor to the network; used to choose cursor pointer
 var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
-var intro = introJs(); // object driving the tutorial tooltip
+var tutorial = new Tutorial(); // object driving the tutorial
 
 /**
  * top level function to initialise everything
@@ -167,8 +167,8 @@ function setUpPage() {
 	// don't allow user to change anything if URL includes ?viewing
 	viewOnly = new URL(document.location).searchParams.get('viewing');
 	if (viewOnly) document.getElementById('buttons').style.display = 'none';
-	// treat user as first time user if URL includes ?new=true
-	let newUser = new URL(document.location).searchParams.get('new');
+	// treat user as first time user if URL includes ?start=true
+	let newUser = new URL(document.location).searchParams.get('start');
 	if (newUser) localStorage.setItem('doneIntro', 'false');
 	container = document.getElementById('container');
 	panel = document.getElementById('panel');
@@ -483,9 +483,10 @@ function displayNetPane(msg) {
 	legend(false);
 	console.log(msg);
 	let netPane = elem('net-pane');
-	if (netPane.style.visibility == 'hidden' || netPane.style.visibility == '')
+	if (netPane.style.visibility == 'hidden' || netPane.style.visibility == '') {
 		netPane.style.visibility = 'visible';
-//	setUpIntro();
+		setUpTutorial();
+	}
 }
 // to handle iPad viewport sizing problem when tab bar appears
 document.body.height = window.innerHeight;
@@ -568,22 +569,12 @@ function setUpChat() {
 /**
  * if this is the user's first time, show them how the user interface works
  */
-function setUpIntro() {
+function setUpTutorial() {
 	if (localStorage.getItem('doneIntro') != 'true') {
-		intro.setOptions({
-			showBullets: false,
-			exitOnOverlayClick: false,
-			showStepNumbers: false,
-			disableInteraction: true,
-			overlayOpacity: 0.3,
-			hidePrev: true,
-		});
-		intro.onexit(function () {
+		tutorial.onexit(function () {
 			localStorage.setItem('doneIntro', 'true');
-			minimize();
 		});
-		maximize();
-		intro.start();
+		tutorial.start();
 	}
 }
 /**

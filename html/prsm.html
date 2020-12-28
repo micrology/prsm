@@ -33,8 +33,7 @@
 			}
 			@font-face {
 				font-family: 'Oxygen';
-				src: url('../fonts/oxygen-bold-webfont.woff2')
-					format('woff2');
+				src: url('../fonts/oxygen-bold-webfont.woff2') format('woff2');
 				font-weight: 700;
 				font-style: normal;
 			}
@@ -79,9 +78,9 @@
 						class="maptitle"
 						id="maptitle"
 						contenteditable="true"
-						data-intro="You can name the map here"
+						data-tutorial="You can name the map here"
 						data-step="1"
-						data-position="bottom"
+						data-position="below"
 					>
 						Untitled map
 					</div>
@@ -90,9 +89,9 @@
 					<div class="buttons" id="buttons">
 						<div
 							class="tooltip"
-							data-intro="Clicking the + creates a new factor"
+							data-tutorial="Clicking the + creates a new factor"
 							data-step="2"
-							data-position="bottom"
+							data-position="below"
 						>
 							<button id="addNode">
 								<i class="fas fa-plus"></i></button
@@ -100,9 +99,9 @@
 						</div>
 						<div
 							class="tooltip right-border"
-							data-intro="Clicking the arrow creates a link"
+							data-tutorial="Clicking the arrow creates a link"
 							data-step="3"
-							data-position="bottom"
+							data-position="below"
 						>
 							<button id="addLink">
 								<i
@@ -122,9 +121,9 @@
 						</div>
 						<div
 							class="tooltip right-border"
-							data-intro="Selecting a factor or link and then clicking here deletes it"
+							data-tutorial="Selecting a factor or link and then clicking here deletes it"
 							data-step="4"
-							data-position="bottom"
+							data-position="below"
 						>
 							<button id="deleteNode">
 								<i
@@ -146,7 +145,7 @@
 						</div>
 						<div
 							class="tooltip"
-							data-intro="Clicking here saves the map to your disk"
+							data-tutorial="Clicking here saves the map to your disk"
 							data-step="5"
 							data-position="left"
 						>
@@ -175,7 +174,7 @@
 						</div>
 						<div
 							class="tooltip left-border"
-							data-intro="Clicking here opens a new window with more help"
+							data-tutorial="Clicking here opens a new window with more help"
 							data-step="6"
 							data-position="left"
 						>
@@ -188,7 +187,7 @@
 						</div>
 						<div
 							class="tooltip"
-							data-intro="Clicking here shows more options"
+							data-tutorial="Clicking here shows more options"
 							data-step="7"
 							data-position="left"
 						>
@@ -205,11 +204,6 @@
 		</header>
 		<main
 			id="main"
-			data-intro="<div>
-			<b>That's the end of the tour.<p>Press Done and then click <br>
-				on the + button above to add your first factor.</div>"
-			data-step="11"
-			data-tooltipClass="splash"
 		>
 			<div class="avatars" id="avatars"></div>
 			<div id="popup">
@@ -226,13 +220,18 @@
 			</div>
 			<div
 				id="net-pane"
-				data-intro="<div>
+				data-tutorial="
 				<b>Welcome to PRSM</b><p>For a quick tour, press Next,<br/>
-					or to skip it, click the <span style='font-size: 150%'>&times;</span></div>"
-				data-step="1"
-				data-tooltipClass="splash"
+					or to skip it, click the <span style='font-size: 150%'>&times;</span>"
+				data-step="0"
+				data-position="splash"
 			></div>
-			<div id="underlay">
+			<div id="underlay"
+			data-tutorial="
+			<b>That's the end of the tour.</b><p>Press Done and then click <br>
+				on the + button above to add your first factor.</p>"
+			data-step="11"
+			data-position="splash">
 				<canvas class="drawing-canvas" id="temp-canvas"></canvas>
 				<div class="toolbox" id="toolbox">
 					<div class="tool" id="line">
@@ -583,18 +582,18 @@
 			</div>
 		</aside>
 		<footer
-			data-intro="Hints and messages appear here"
+			data-tutorial="Hints and messages appear here"
 			data-step="8"
-			data-position="top"
+			data-position="above"
 		>
 			<div id="statusBar">
 				<br />
 			</div>
 			<div
 				id="zoomcontrol"
-				data-intro="Zoom in for detail or out for an overview"
+				data-tutorial="Zoom in for detail or out for an overview"
 				data-step="9"
-				data-position="left"
+				data-position="left-bottom"
 			>
 				Zoom <span id="zoomminus">&ndash;</span>
 				<input
@@ -764,7 +763,10 @@
 		<input type="file" id="fileInput" style="display: none;" />
 		<!-- Chat window -->
 		<div class="chatbox-tab" id="chatbox-tab">
-			<div class="tooltip">
+			<div class="tooltip"
+				data-tutorial="Clicking here opens a chat window.  (If  it is pulsating, that means there is a message waiting for you)."
+							data-step="10"
+							data-position="left-middle">
 				<i class="fas fa-comments"></i>
 				<span class="tooltiptext" style="margin-left: -120px;"
 					>Open chat window</span
@@ -778,10 +780,6 @@
 						My name:
 						<div
 							class="tooltip"
-							data-intro="You will be able to enter your name here if you want to show others that you are online"
-							data-step="10"
-							data-position="left"
-							data-disable-interaction="false"
 						>
 							<input type="text" id="chat-name" />
 							<span class="tooltiptext"
