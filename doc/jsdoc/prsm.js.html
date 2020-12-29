@@ -1,33 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>JSDoc: Source: prsm.js</title>
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: prsm.js</title>
 
-		<script src="scripts/prettify/prettify.js"></script>
-		<script src="scripts/prettify/lang-css.js"></script>
-		<!--[if lt IE 9]>
-			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-		<![endif]-->
-		<link
-			type="text/css"
-			rel="stylesheet"
-			href="styles/prettify-tomorrow.css"
-		/>
-		<link
-			type="text/css"
-			rel="stylesheet"
-			href="styles/jsdoc-default.css"
-		/>
-	</head>
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
 
-	<body>
-		<div id="main">
-			<h1 class="page-title">Source: prsm.js</h1>
+<body>
 
-			<section>
-				<article>
-					<pre class="prettyprint source linenums"><code>/* 
+<div id="main">
+
+    <h1 class="page-title">Source: prsm.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* 
 The main entry point for PRSM.  
  */
 import * as Y from 'yjs';
@@ -37,6 +36,7 @@ import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
 import {
 	listen,
+	elem,
 	getScaleFreeNetwork,
 	uuidv4,
 	deepMerge,
@@ -48,7 +48,9 @@ import {
 	standardize_color,
 	object_equals,
 	generateName,
+	divWithPlaceHolder,
 } from './utils.js';
+import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
 import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
@@ -61,13 +63,12 @@ import {
 	clearLegend,
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
-import introJs from 'intro.js/intro.js';
 
-const version = '1.4.0';
+const version = '1.4.2';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
-const NOTEWIDTH = 30; // chars for totle (node/edge tooltip) splitting
-const SHORTLABELLEN = 30; // when listing node labels, use ellipsis after this number of chars
+const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
+const SHORTLABELLEN = 25; // when listing node labels, use ellipsis after this number of chars
 const timeToSleep = 1 * 60 * 1000; // if no mouse movement for this time, user is assumed to have left or is sleeping
 
 export var network;
@@ -96,7 +97,7 @@ var lastLinkSample = 'edge0'; // the last used edge style
 var inAddMode = false; // true when adding a new Factor to the network; used to choose cursor pointer
 var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
-var intro = introJs(); // object driving the tutorial tooltip
+var tutorial = new Tutorial(); // object driving the tutorial
 
 /**
  * top level function to initialise everything
@@ -106,7 +107,6 @@ window.addEventListener('load', () => {
 	setUpPage();
 	startY();
 	setUpChat();
-	setUpIntro();
 	setUpAwareness();
 	setUpPaint();
 	setUpToolbox();
@@ -118,6 +118,12 @@ window.addEventListener('load', () => {
  * Set up all the permanent event listeners
  */
 function addEventListeners() {
+	listen('maptitle', 'keydown', (e) => {
+		//disallow Enter key
+		if (e.key === 'Enter') {
+			e.preventDefault();
+		}
+	});
 	listen('maptitle', 'keyup', mapTitle);
 	listen('maptitle', 'click', (e) => {
 		if (e.target.innerText == 'Untitled map')
@@ -186,13 +192,19 @@ function addEventListeners() {
  * create all the DOM elemts on the web page
  */
 function setUpPage() {
+	// don't allow user to change anything if URL includes ?viewing
 	viewOnly = new URL(document.location).searchParams.get('viewing');
 	if (viewOnly) document.getElementById('buttons').style.display = 'none';
+	// treat user as first time user if URL includes ?start=true
+	let newUser = new URL(document.location).searchParams.get('start');
+	if (newUser) localStorage.setItem('doneIntro', 'false');
 	container = document.getElementById('container');
 	panel = document.getElementById('panel');
 	panel.classList.add('hide');
 	container.panelHidden = true;
 	setUpSamples();
+	divWithPlaceHolder('#node-notes');
+	divWithPlaceHolder('#edge-notes');
 	hideNotes();
 	document.getElementById('version').innerHTML = version;
 	storeButtonStatus();
@@ -231,14 +243,12 @@ function startY() {
 	); */
 	const persistence = new IndexeddbPersistence(room, doc);
 	persistence.once('synced', () => {
-		console.log('initial content loaded');
+		displayNetPane('local content loaded');
 	});
 	// wait for an update from another peer; only then will
 	// drawing etc. be finished and so we can then fit the  network to the window.
 	wsProvider.on('sync', () => {
-		console.log('sync');
-		fit(0);
-		legend(false);
+		displayNetPane('remote content loaded');
 	});
 	document.title = document.title + ' ' + room;
 	wsProvider.on('status', (event) => {
@@ -425,8 +435,7 @@ function startY() {
 		if (window.debug) console.log(event);
 		for (let key of event.keysChanged) {
 			let obj = yNetMap.get(key);
-			let origin = event.transaction.origin;
-			if (obj.clientID != clientID || origin != null)
+			if (!event.transaction.local)
 				switch (key) {
 					case 'edges':
 						setCurve(
@@ -437,6 +446,7 @@ function startY() {
 						break;
 					case 'hideAndStream':
 						setHideAndStream(obj);
+						hideDistantOrStreamNodes(false);
 						break;
 					case 'background':
 						setBackground(obj);
@@ -492,6 +502,23 @@ function getRandomData(nNodes) {
 	edges.add(SFNdata.edges);
 	recalculateStats();
 }
+/**
+ * Once any existing map has been loaded, fit it to the pane and reveal it
+ * @param {string} msg message for console
+ */
+function displayNetPane(msg) {
+	fit(0);
+	legend(false);
+	console.log(msg);
+	let netPane = elem('net-pane');
+	if (
+		netPane.style.visibility == 'hidden' ||
+		netPane.style.visibility == ''
+	) {
+		netPane.style.visibility = 'visible';
+		setUpTutorial();
+	}
+}
 // to handle iPad viewport sizing problem when tab bar appears
 document.body.height = window.innerHeight;
 window.onresize = function () {
@@ -519,7 +546,11 @@ const emojiPicker = new EmojiButton({
  * create DOM elements for the chat box
  */
 function setUpChat() {
-	myNameRec = JSON.parse(localStorage.getItem('myName'));
+	try {
+		myNameRec = JSON.parse(localStorage.getItem('myName'));
+	} catch (err) {
+		myNameRec = null;
+	}
 	// sanity check
 	if (!(myNameRec != null &amp;&amp; myNameRec.name)) {
 		myNameRec = generateName();
@@ -537,21 +568,10 @@ function setUpChat() {
 	listen('minimize', 'click', minimize);
 	chatNameBox.addEventListener('keyup', (e) => {
 		if (myNameRec.anon) chatNameBox.style.fontStyle = 'normal';
-		if (e.key == 'Enter') chatboxSaveName();
+		if (e.key == 'Enter') saveUserName(chatNameBox.value);
 	});
-	function chatboxSaveName() {
-		if (chatNameBox.value.length == 0) {
-			myNameRec = generateName();
-			chatNameBox.value = myNameRec.name;
-		} else {
-			myNameRec.name = chatNameBox.value;
-			myNameRec.anon = false;
-		}
-		localStorage.setItem('myName', JSON.stringify(myNameRec));
-		yAwareness.setLocalState({name: myNameRec});
-	}
 	chatNameBox.addEventListener('blur', () => {
-		chatboxSaveName();
+		saveUserName(chatNameBox.value);
 	});
 	chatNameBox.addEventListener('click', () => {
 		if (myNameRec.anon) chatNameBox.value = '';
@@ -566,24 +586,33 @@ function setUpChat() {
 		emojiPicker.togglePicker(emojiButton);
 	});
 }
+function saveUserName(name) {
+	if (name.length == 0) {
+		myNameRec = generateName();
+		chatNameBox.value = myNameRec.name;
+	} else {
+		myNameRec.name = name;
+		myNameRec.anon = false;
+	}
+	localStorage.setItem('myName', JSON.stringify(myNameRec));
+	yAwareness.setLocalState({name: myNameRec});
+}
 /**
  * if this is the user's first time, show them how the user interface works
  */
-function setUpIntro() {
+function setUpTutorial() {
 	if (localStorage.getItem('doneIntro') != 'true') {
-		intro.setOptions({
-			hidePrev: true,
-			hideNext: true,
-			exitOnOverlayClick: false,
-			showStepNumbers: false,
-			overlayOpacity: 0.3,
-		});
-		intro.onexit(function () {
+		tutorial.onexit(function () {
 			localStorage.setItem('doneIntro', 'true');
-			minimize();
 		});
-		maximize();
-		intro.start();
+		tutorial.onstep(0, () => {
+			let splashNameBox = elem('splashNameBox');
+			splashNameBox.addEventListener('blur', () => {
+				saveUserName(splashNameBox.value);
+				displayUserName();
+			});
+		});
+		tutorial.start();
 	}
 }
 /**
@@ -733,6 +762,11 @@ function draw() {
 	});
 	network.on('selectNode', function (params) {
 		let selectedNodes = network.getSelectedNodes();
+		selectedNodes.forEach((nodeId) => {
+			let node = data.nodes.get(nodeId);
+			node.shadow = true;
+			data.nodes.update(node);
+		});
 		if (selectedNodes.length > 1) hideDistantOrStreamNodes();
 		// if shiftkey is down, start linking to another node
 		if (params.event.pointers[0].shiftKey) {
@@ -743,10 +777,15 @@ function draw() {
 			}
 		} else {
 			statusMsg(listFactors(selectedNodes) + ' selected');
-			showNodeData();
+			showNodeOrEdgeData();
 		}
 	});
 	network.on('deselectNode', function () {
+		let nodes = data.nodes.get();
+		nodes.forEach((node) => {
+			node.shadow = false;
+		});
+		data.nodes.update(nodes);
 		hideNotes();
 		clearStatusBar();
 	});
@@ -758,7 +797,7 @@ function draw() {
 	});
 	network.on('selectEdge', function () {
 		statusMsg(listLinks(network.getSelectedEdges()) + ' selected');
-		showEdgeData();
+		showNodeOrEdgeData();
 	});
 	network.on('deselectEdge', function () {
 		hideNotes();
@@ -890,6 +929,9 @@ function editNode(item, cancelAction, callback) {
 	&lt;table id="popup-table">
 		&lt;tr>
 			&lt;td>
+				Back
+			&lt;/td>
+			&lt;td>
 				Border
 			&lt;/td>
 			&lt;td>
@@ -897,7 +939,12 @@ function editNode(item, cancelAction, callback) {
 			&lt;/td>
 		&lt;/tr>
 		&lt;tr>
-			&lt;td>
+		&lt;td>
+		&lt;div class="input-color-container">
+		&lt;input type="color" class="input-color" id="node-backgroundColor" />
+		&lt;/div>
+		&lt;/td>
+		&lt;td>
 			&lt;div class="input-color-container">
 			&lt;input type="color" class="input-color" id="node-borderColor" />
 			&lt;/div>
@@ -909,6 +956,7 @@ function editNode(item, cancelAction, callback) {
 			&lt;/td>
 		&lt;/tr>
 		&lt;tr>
+		&lt;td>Border:&lt;/td>
 			&lt;td colspan="2">
 				&lt;select id="node-borderType">
 					&lt;option value="false">Type...&lt;/option>
@@ -919,6 +967,9 @@ function editNode(item, cancelAction, callback) {
 			&lt;/td>
 		&lt;/tr>
 	&lt;/table>`
+	);
+	document.getElementById('node-backgroundColor').value = standardize_color(
+		item.color.background
 	);
 	document.getElementById('node-borderColor').value = standardize_color(
 		item.color.border
@@ -1129,7 +1180,11 @@ function saveNode(item, callback) {
 		statusMsg('No label: cancelled', 'warn');
 		callback(null);
 	}
-	let color = document.getElementById('node-borderColor').value;
+	let color = document.getElementById('node-backgroundColor').value;
+	item.color.background = color;
+	item.color.highlight.background = color;
+	item.color.hover.background = color;
+	color = document.getElementById('node-borderColor').value;
 	item.color.border = color;
 	item.color.highlight.border = color;
 	item.color.hover.border = color;
@@ -1243,7 +1298,8 @@ function setMapTitle(title) {
 	if (title == '') {
 		title = 'Untitled map';
 	}
-	div.style.color = title == 'Untitled map' ? 'lightgrey' : 'white';
+	if (title == 'Untitled map') div.classList.add('unsetmaptitle');
+	else div.classList.remove('unsetmaptitle');
 	if (title !== 'Untitled map') {
 		lastFileName = title.replace(/\s+/g, '').toLowerCase();
 	}
@@ -2026,15 +2082,14 @@ function setUpShareDialog() {
 		network.storePositions();
 	});
 	// When the user clicks on &lt;span> (x), close the modal
-	listen('modal-close', 'click', () => {
-		modal.style.display = 'none';
-	});
-	// When the user clicks anywhere outside of the modal, close it
-	window.onclick = function (event) {
-		if (event.target == modal) {
-			modal.style.display = 'none';
-		}
-	};
+	listen('modal-close', 'click', closeShareDialog);
+	// When the user clicks anywhere on the background, close it
+	listen('shareModal', 'click', closeShareDialog);
+
+	function closeShareDialog() {
+		let modal = elem('shareModal');
+		if (event.target == modal) modal.style.display = 'none';
+	}
 	listen('copy-text', 'click', (e) => {
 		e.preventDefault();
 		// Select the text
@@ -2119,8 +2174,8 @@ function openTab(tabId) {
 	document.getElementById(tabId).classList.remove('hide');
 	event.currentTarget.className += ' active';
 	tabOpen = tabId;
-	if (tabOpen == 'nodesTab') showNodeData();
-	if (tabOpen == 'linksTab') showEdgeData();
+	if (tabOpen == 'nodesTab' || tabOpen == 'linksTab') showNodeOrEdgeData();
+	else hideNotes();
 }
 
 function storeButtonStatus() {
@@ -2229,72 +2284,67 @@ function setFixed() {
 	}
 }
 // Notes
-function showNodeData() {
-	let panel = document.getElementById('nodeDataPanel');
-	let selectedNodes = network.getSelectedNodes();
-	if (tabOpen == 'nodesTab' &amp;&amp; selectedNodes.length == 1) {
-		let nodeId = selectedNodes[0];
-		let node = data.nodes.get(nodeId);
-		document.getElementById('fixed').checked = node.fixed ? true : false;
-		document.getElementById('nodeLabel').innerHTML = node.label
-			? shorten(node.label)
-			: '';
-		document.getElementById('nodeNotes').innerHTML =
-			'&lt;textarea class="notesTA" id="nodesTA"&lt;/textarea>';
-		let textarea = document.getElementById('nodesTA');
-		let title = node.title ? node.title : '';
-		textarea.innerHTML = title.replace(/&lt;br>/g, '\n');
-		textarea.addEventListener('blur', updateNodeNotes);
-		panel.classList.remove('hide');
-		displayStatistics(nodeId);
-	} else {
-		panel.classList.add('hide');
+function showNodeOrEdgeData() {
+	hideNotes();
+	if (tabOpen == 'nodesTab' || tabOpen == 'linksTab') {
+		if (network.getSelectedNodes().length == 1) showNodeData();
+		else if (network.getSelectedEdges().length == 1) showEdgeData();
 	}
 }
+function showNodeData() {
+	let panel = document.getElementById('nodeDataPanel');
+	let nodeId = network.getSelectedNodes()[0];
+	let node = data.nodes.get(nodeId);
+	document.getElementById('fixed').checked = node.fixed ? true : false;
+	document.getElementById('nodeLabel').innerHTML = node.label
+		? shorten(node.label)
+		: '';
+	let notes = document.getElementById('node-notes');
+	notes.innerHTML = node.title ? node.title : '';
+	notes.addEventListener('keyup', (e) => updateNodeNotes(e));
+	let placeholder = `&lt;span class="placeholder">${notes.dataset.placeholder}&lt;/span>`;
+	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
+	panel.classList.remove('hide');
+	displayStatistics(nodeId);
+}
 
-function updateNodeNotes() {
+function updateNodeNotes(e) {
+	let text = e.target.innerText;
 	data.nodes.update({
 		id: network.getSelectedNodes()[0],
 		title: splitText(
-			document.getElementById('nodesTA').value,
+			text == e.target.dataset.placeholder ? '' : text,
 			NOTEWIDTH
 		).replace(/\n/g, '&lt;br>'),
 		clientID: undefined,
 	});
 }
-
 function showEdgeData() {
 	let panel = document.getElementById('edgeDataPanel');
-	let selectedEdges = network.getSelectedEdges();
-	if (tabOpen == 'linksTab' &amp;&amp; selectedEdges.length == 1) {
-		let edgeId = selectedEdges[0];
-		let edge = data.edges.get(edgeId);
-		document.getElementById('edgeLabel').innerHTML = edge.label
-			? edge.label
-			: '';
-		document.getElementById('edgeNotes').innerHTML =
-			'&lt;textarea class="notesTA" id="edgesTA"&lt;/textarea>';
-		let textarea = document.getElementById('edgesTA');
-		let title = edge.title ? edge.title : '';
-		textarea.innerHTML = title.replace(/&lt;\/br>/g, '\n');
-		textarea.addEventListener('blur', updateEdgeNotes);
-		panel.classList.remove('hide');
-	} else {
-		panel.classList.add('hide');
-	}
+	let edgeId = network.getSelectedEdges()[0];
+	let edge = data.edges.get(edgeId);
+	document.getElementById('edgeLabel').innerHTML = edge.label
+		? shorten(edge.label)
+		: '';
+	let notes = document.getElementById('edge-notes');
+	notes.innerHTML = edge.title ? edge.title : '';
+	notes.addEventListener('keyup', (e) => updateEdgeNotes(e));
+	let placeholder = `&lt;span class="placeholder">${notes.dataset.placeholder}&lt;/span>`;
+	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
+	panel.classList.remove('hide');
 }
 
-function updateEdgeNotes() {
+function updateEdgeNotes(e) {
+	let text = e.target.innerText;
 	data.edges.update({
 		id: network.getSelectedEdges()[0],
 		title: splitText(
-			document.getElementById('edgesTA').value,
+			text == e.target.dataset.placeholder ? '' : text,
 			NOTEWIDTH
-		).replace(/\n/g, '&lt;/br>'),
+		).replace(/\n/g, '&lt;br>'),
 		clientID: undefined,
 	});
 }
-
 function hideNotes() {
 	document.getElementById('nodeDataPanel').classList.add('hide');
 	document.getElementById('edgeDataPanel').classList.add('hide');
@@ -2462,6 +2512,12 @@ function ensureNotDrawing() {
 
 function selectAllFactors() {
 	network.selectNodes(network.body.nodeIndices);
+	let selectedNodes = network.getSelectedNodes();
+	selectedNodes.forEach((nodeId) => {
+		let node = data.nodes.get(nodeId);
+		node.shadow = true;
+		data.nodes.update(node);
+	});
 }
 
 function selectAllEdges() {
@@ -2539,12 +2595,12 @@ function setRadioVal(name, value) {
 	}
 }
 
-function hideDistantOrStreamNodes() {
+function hideDistantOrStreamNodes(broadcast = true) {
 	// get the intersection of the nodes (and links) in radius and up or downstream,
 	// and then hide everything not in that intersection
 	let radius = getRadioVal('hide');
 	let stream = getRadioVal('stream');
-	broadcastHideAndStream(radius, stream);
+	if (broadcast) broadcastHideAndStream(radius, stream);
 	if (radius == 'All' &amp;&amp; stream == 'All') {
 		showAll();
 		return;
@@ -2555,7 +2611,7 @@ function hideDistantOrStreamNodes() {
 		// unhide everything
 		document.getElementById('hideAll').checked = true;
 		document.getElementById('streamAll').checked = true;
-		broadcastHideAndStream('All', 'All');
+		if (broadcast) broadcastHideAndStream('All', 'All');
 		showAll();
 		return;
 	}
@@ -2690,7 +2746,8 @@ function broadcastHideAndStream(hideSetting, streamSetting) {
 }
 
 function setHideAndStream(obj) {
-	network.selectNodes(obj.selected);
+	if (!obj) return;
+	network.selectNodes([obj.selected]);
 	statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
 	setRadioVal('hide', obj.hideSetting);
 	setRadioVal('stream', obj.streamSetting);
@@ -2798,6 +2855,7 @@ function displayUserName() {
 	chatNameBox.style.fontStyle = myNameRec.anon ? 'italic' : 'normal';
 	chatNameBox.value = myNameRec.name;
 }
+/* --------------------------------------- avatars --------------------------------*/
 
 /**
  * Place a circle at the top left of the net pane to represent each user who is online
@@ -2844,212 +2902,25 @@ dragElement(
 	document.getElementById('chatbox-top')
 );
 </code></pre>
-				</article>
-			</section>
-		</div>
+        </article>
+    </section>
 
-		<nav>
-			<h2><a href="index.html">Home</a></h2>
-			<h3>Classes</h3>
-			<ul>
-				<li><a href="ToolHandler.html">ToolHandler</a></li>
-			</ul>
-			<h3>Global</h3>
-			<ul>
-				<li>
-					<a href="global.html#addEventListeners"
-						>addEventListeners</a
-					>
-				</li>
-				<li><a href="global.html#addLabel">addLabel</a></li>
-				<li><a href="global.html#antMarch">antMarch</a></li>
-				<li><a href="global.html#applyOptions">applyOptions</a></li>
-				<li><a href="global.html#asleep">asleep</a></li>
-				<li><a href="global.html#broadcast">broadcast</a></li>
-				<li><a href="global.html#cancelEdit">cancelEdit</a></li>
-				<li><a href="global.html#changeCursor">changeCursor</a></li>
-				<li><a href="global.html#claim">claim</a></li>
-				<li><a href="global.html#clean">clean</a></li>
-				<li><a href="global.html#cleanArray">cleanArray</a></li>
-				<li><a href="global.html#clearLegend">clearLegend</a></li>
-				<li><a href="global.html#clearPopUp">clearPopUp</a></li>
-				<li><a href="global.html#clearStatusBar">clearStatusBar</a></li>
-				<li>
-					<a href="global.html#closeOptionsDialogs"
-						>closeOptionsDialogs</a
-					>
-				</li>
-				<li><a href="global.html#configSamples">configSamples</a></li>
-				<li><a href="global.html#convertDashes">convertDashes</a></li>
-				<li>
-					<a href="global.html#ctlClickAddNode">ctlClickAddNode</a>
-				</li>
-				<li><a href="global.html#deepCopy">deepCopy</a></li>
-				<li><a href="global.html#deleteMsg">deleteMsg</a></li>
-				<li><a href="global.html#deselectTool">deselectTool</a></li>
-				<li><a href="global.html#displayHelp">displayHelp</a></li>
-				<li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li>
-				<li><a href="global.html#dragElement">dragElement</a></li>
-				<li><a href="global.html#draw">draw</a></li>
-				<li><a href="global.html#drawGrid">drawGrid</a></li>
-				<li><a href="global.html#duplEdge">duplEdge</a></li>
-				<li><a href="global.html#editEdge">editEdge</a></li>
-				<li><a href="global.html#editLinkStyle">editLinkStyle</a></li>
-				<li><a href="global.html#editNode">editNode</a></li>
-				<li><a href="global.html#editNodeStyle">editNodeStyle</a></li>
-				<li><a href="global.html#elem">elem</a></li>
-				<li><a href="global.html#exportCVS">exportCVS</a></li>
-				<li><a href="global.html#exportGML">exportGML</a></li>
-				<li><a href="global.html#fit">fit</a></li>
-				<li><a href="global.html#generateName">generateName</a></li>
-				<li><a href="global.html#generateRoom">generateRoom</a></li>
-				<li><a href="global.html#getArrows">getArrows</a></li>
-				<li><a href="global.html#getContext">getContext</a></li>
-				<li><a href="global.html#getDashes">getDashes</a></li>
-				<li><a href="global.html#getRandomData">getRandomData</a></li>
-				<li>
-					<a href="global.html#getScaleFreeNetwork"
-						>getScaleFreeNetwork</a
-					>
-				</li>
-				<li><a href="global.html#groupDashes">groupDashes</a></li>
-				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
-				<li><a href="global.html#initPopUp">initPopUp</a></li>
-				<li><a href="global.html#initSample">initSample</a></li>
-				<li>
-					<a href="global.html#keepPaneInWindow">keepPaneInWindow</a>
-				</li>
-				<li><a href="global.html#legend">legend</a></li>
-				<li><a href="global.html#linkEditCancel">linkEditCancel</a></li>
-				<li><a href="global.html#linkEditorHide">linkEditorHide</a></li>
-				<li><a href="global.html#linkEditorShow">linkEditorShow</a></li>
-				<li><a href="global.html#linkEditSave">linkEditSave</a></li>
-				<li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li>
-				<li>
-					<a href="global.html#linkEditUpdateStyleSample"
-						>linkEditUpdateStyleSample</a
-					>
-				</li>
-				<li><a href="global.html#listen">listen</a></li>
-				<li><a href="global.html#listFactors">listFactors</a></li>
-				<li><a href="global.html#listLinks">listLinks</a></li>
-				<li><a href="global.html#loadFile">loadFile</a></li>
-				<li><a href="global.html#loadJSONfile">loadJSONfile</a></li>
-				<li><a href="global.html#mapTitle">mapTitle</a></li>
-				<li><a href="global.html#mouseDespatch">mouseDespatch</a></li>
-				<li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li>
-				<li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li>
-				<li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li>
-				<li><a href="global.html#nodeEditSave">nodeEditSave</a></li>
-				<li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li>
-				<li>
-					<a href="global.html#nodeEditUpdateStyleSample"
-						>nodeEditUpdateStyleSample</a
-					>
-				</li>
-				<li><a href="global.html#object_equals">object_equals</a></li>
-				<li><a href="global.html#parseCSV">parseCSV</a></li>
-				<li><a href="global.html#parseGML">parseGML</a></li>
-				<li><a href="global.html#parseGraphML">parseGraphML</a></li>
-				<li><a href="global.html#plusLink">plusLink</a></li>
-				<li><a href="global.html#plusNode">plusNode</a></li>
-				<li><a href="global.html#positionPopUp">positionPopUp</a></li>
-				<li><a href="global.html#readSingleFile">readSingleFile</a></li>
-				<li>
-					<a href="global.html#reApplySampleToLinks"
-						>reApplySampleToLinks</a
-					>
-				</li>
-				<li>
-					<a href="global.html#reApplySampleToNodes"
-						>reApplySampleToNodes</a
-					>
-				</li>
-				<li>
-					<a href="global.html#recalculateStats">recalculateStats</a>
-				</li>
-				<li><a href="global.html#redraw">redraw</a></li>
-				<li>
-					<a href="global.html#refreshSampleLinks"
-						>refreshSampleLinks</a
-					>
-				</li>
-				<li>
-					<a href="global.html#refreshSampleNodes"
-						>refreshSampleNodes</a
-					>
-				</li>
-				<li><a href="global.html#resizeBox">resizeBox</a></li>
-				<li><a href="global.html#saveEdge">saveEdge</a></li>
-				<li><a href="global.html#saveJSONfile">saveJSONfile</a></li>
-				<li><a href="global.html#saveLabel">saveLabel</a></li>
-				<li><a href="global.html#saveNode">saveNode</a></li>
-				<li><a href="global.html#saveStr">saveStr</a></li>
-				<li><a href="global.html#selectTool">selectTool</a></li>
-				<li>
-					<a href="global.html#setButtonDisabledStatus"
-						>setButtonDisabledStatus</a
-					>
-				</li>
-				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
-				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
-				<li><a href="global.html#setUpCanvas">setUpCanvas</a></li>
-				<li><a href="global.html#setUpChat">setUpChat</a></li>
-				<li><a href="global.html#setUpIntro">setUpIntro</a></li>
-				<li><a href="global.html#setUpPage">setUpPage</a></li>
-				<li><a href="global.html#setUpPaint">setUpPaint</a></li>
-				<li><a href="global.html#setUpSamples">setUpSamples</a></li>
-				<li>
-					<a href="global.html#setUpShareDialog">setUpShareDialog</a>
-				</li>
-				<li><a href="global.html#setUpToolbox">setUpToolbox</a></li>
-				<li><a href="global.html#shorten">shorten</a></li>
-				<li><a href="global.html#showOtherUsers">showOtherUsers</a></li>
-				<li><a href="global.html#showPressed">showPressed</a></li>
-				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
-				<li><a href="global.html#splitText">splitText</a></li>
-				<li><a href="global.html#squashInput">squashInput</a></li>
-				<li>
-					<a href="global.html#squashInputOnKeyUp"
-						>squashInputOnKeyUp</a
-					>
-				</li>
-				<li>
-					<a href="global.html#standardize_color"
-						>standardize_color</a
-					>
-				</li>
-				<li><a href="global.html#startY">startY</a></li>
-				<li><a href="global.html#statusMsg">statusMsg</a></li>
-				<li><a href="global.html#stopEdit">stopEdit</a></li>
-				<li><a href="global.html#strip">strip</a></li>
-				<li><a href="global.html#togglePanel">togglePanel</a></li>
-				<li><a href="global.html#toolHandler">toolHandler</a></li>
-				<li><a href="global.html#unSelect">unSelect</a></li>
-				<li><a href="global.html#updateLegend">updateLegend</a></li>
-				<li>
-					<a href="global.html#updateLinkEditor">updateLinkEditor</a>
-				</li>
-				<li>
-					<a href="global.html#updateNodeEditor">updateNodeEditor</a>
-				</li>
-				<li><a href="global.html#uuidv4">uuidv4</a></li>
-				<li><a href="global.html#zoomincr">zoomincr</a></li>
-				<li><a href="global.html#zoomnet">zoomnet</a></li>
-			</ul>
-		</nav>
 
-		<br class="clear" />
 
-		<footer>
-			Documentation generated by
-			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sat Dec
-			05 2020 22:51:39 GMT+0000 (Greenwich Mean Time)
-		</footer>
 
-		<script>
-			prettyPrint();
-		</script>
-		<script src="scripts/linenumber.js"></script>
-	</body>
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="ToolHandler.html">ToolHandler</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addEventListeners">addEventListeners</a></li><li><a href="global.html#addLabel">addLabel</a></li><li><a href="global.html#antMarch">antMarch</a></li><li><a href="global.html#applyOptions">applyOptions</a></li><li><a href="global.html#asleep">asleep</a></li><li><a href="global.html#broadcast">broadcast</a></li><li><a href="global.html#cancelEdit">cancelEdit</a></li><li><a href="global.html#changeCursor">changeCursor</a></li><li><a href="global.html#claim">claim</a></li><li><a href="global.html#clean">clean</a></li><li><a href="global.html#cleanArray">cleanArray</a></li><li><a href="global.html#clearLegend">clearLegend</a></li><li><a href="global.html#clearPopUp">clearPopUp</a></li><li><a href="global.html#clearStatusBar">clearStatusBar</a></li><li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li><li><a href="global.html#configSamples">configSamples</a></li><li><a href="global.html#convertDashes">convertDashes</a></li><li><a href="global.html#ctlClickAddNode">ctlClickAddNode</a></li><li><a href="global.html#deepCopy">deepCopy</a></li><li><a href="global.html#deleteMsg">deleteMsg</a></li><li><a href="global.html#deselectTool">deselectTool</a></li><li><a href="global.html#displayHelp">displayHelp</a></li><li><a href="global.html#displayNetPane">displayNetPane</a></li><li><a href="global.html#divWithPlaceHolder">divWithPlaceHolder</a></li><li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li><li><a href="global.html#dragElement">dragElement</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawGrid">drawGrid</a></li><li><a href="global.html#duplEdge">duplEdge</a></li><li><a href="global.html#editEdge">editEdge</a></li><li><a href="global.html#editLinkStyle">editLinkStyle</a></li><li><a href="global.html#editNode">editNode</a></li><li><a href="global.html#editNodeStyle">editNodeStyle</a></li><li><a href="global.html#elem">elem</a></li><li><a href="global.html#exportCVS">exportCVS</a></li><li><a href="global.html#exportGML">exportGML</a></li><li><a href="global.html#fit">fit</a></li><li><a href="global.html#generateName">generateName</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#getArrows">getArrows</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#getDashes">getDashes</a></li><li><a href="global.html#getRandomData">getRandomData</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#groupDashes">groupDashes</a></li><li><a href="global.html#htmlEntities">htmlEntities</a></li><li><a href="global.html#initPopUp">initPopUp</a></li><li><a href="global.html#initSample">initSample</a></li><li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li><li><a href="global.html#legend">legend</a></li><li><a href="global.html#linkEditCancel">linkEditCancel</a></li><li><a href="global.html#linkEditorHide">linkEditorHide</a></li><li><a href="global.html#linkEditorShow">linkEditorShow</a></li><li><a href="global.html#linkEditSave">linkEditSave</a></li><li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li><li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#listFactors">listFactors</a></li><li><a href="global.html#listLinks">listLinks</a></li><li><a href="global.html#loadFile">loadFile</a></li><li><a href="global.html#loadJSONfile">loadJSONfile</a></li><li><a href="global.html#mapTitle">mapTitle</a></li><li><a href="global.html#mouseDespatch">mouseDespatch</a></li><li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li><li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li><li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li><li><a href="global.html#nodeEditSave">nodeEditSave</a></li><li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li><li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li><li><a href="global.html#object_equals">object_equals</a></li><li><a href="global.html#onexit">onexit</a></li><li><a href="global.html#parseCSV">parseCSV</a></li><li><a href="global.html#parseGML">parseGML</a></li><li><a href="global.html#parseGraphML">parseGraphML</a></li><li><a href="global.html#plusLink">plusLink</a></li><li><a href="global.html#plusNode">plusNode</a></li><li><a href="global.html#positionPopUp">positionPopUp</a></li><li><a href="global.html#readSingleFile">readSingleFile</a></li><li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li><li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li><li><a href="global.html#recalculateStats">recalculateStats</a></li><li><a href="global.html#redraw">redraw</a></li><li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li><li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li><li><a href="global.html#resizeBox">resizeBox</a></li><li><a href="global.html#saveEdge">saveEdge</a></li><li><a href="global.html#saveJSONfile">saveJSONfile</a></li><li><a href="global.html#saveLabel">saveLabel</a></li><li><a href="global.html#saveNode">saveNode</a></li><li><a href="global.html#saveStr">saveStr</a></li><li><a href="global.html#selectTool">selectTool</a></li><li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li><li><a href="global.html#setMapTitle">setMapTitle</a></li><li><a href="global.html#setUpAwareness">setUpAwareness</a></li><li><a href="global.html#setUpCanvas">setUpCanvas</a></li><li><a href="global.html#setUpChat">setUpChat</a></li><li><a href="global.html#setUpPage">setUpPage</a></li><li><a href="global.html#setUpPaint">setUpPaint</a></li><li><a href="global.html#setUpSamples">setUpSamples</a></li><li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li><li><a href="global.html#setUpToolbox">setUpToolbox</a></li><li><a href="global.html#setUpTutorial">setUpTutorial</a></li><li><a href="global.html#shorten">shorten</a></li><li><a href="global.html#showOtherUsers">showOtherUsers</a></li><li><a href="global.html#showPressed">showPressed</a></li><li><a href="global.html#snapToGrid">snapToGrid</a></li><li><a href="global.html#splitText">splitText</a></li><li><a href="global.html#squashInput">squashInput</a></li><li><a href="global.html#squashInputOnKeyUp">squashInputOnKeyUp</a></li><li><a href="global.html#standardize_color">standardize_color</a></li><li><a href="global.html#start">start</a></li><li><a href="global.html#startY">startY</a></li><li><a href="global.html#statusMsg">statusMsg</a></li><li><a href="global.html#stepFinish">stepFinish</a></li><li><a href="global.html#stepsEnd">stepsEnd</a></li><li><a href="global.html#stepStart">stepStart</a></li><li><a href="global.html#stopEdit">stopEdit</a></li><li><a href="global.html#strip">strip</a></li><li><a href="global.html#togglePanel">togglePanel</a></li><li><a href="global.html#toolHandler">toolHandler</a></li><li><a href="global.html#unSelect">unSelect</a></li><li><a href="global.html#updateLegend">updateLegend</a></li><li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li><li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li><li><a href="global.html#uuidv4">uuidv4</a></li><li><a href="global.html#zoomincr">zoomincr</a></li><li><a href="global.html#zoomnet">zoomnet</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Tue Dec 29 2020 22:08:04 GMT+0000 (Greenwich Mean Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
 </html>

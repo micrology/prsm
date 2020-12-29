@@ -43,6 +43,7 @@ body {
 	--pop-up-shadow-color: #c9c9c9;
 	--modal-header-color: #0d2644;
 	--tab-color: #dcdcdc;
+	--tutorial-highlight-color: #d32f2f;
 }
 /* interface colours defined here: dark blue theme 
 	--header-color: #1565c0;
@@ -1265,16 +1266,13 @@ div.resize {
 }
 .tutorial-dialog .x-button {
 	position: absolute;
-	top: 0px;
+	top: -6px;
 	right: 3px;
-	color: black;
-	/* grid-column: 2;
-	grid-row: 1/1;
-	justify-self: end; */
+	color: grey;
 	font-size: 20px;
 }
 .tutorial-dialog .x-button:hover {
-	color: gray;
+	color: black;
 	text-decoration: none;
 	cursor: pointer;
 }
@@ -1283,7 +1281,6 @@ div.resize {
 	background-color: black;
 	color: white;
 	border-radius: 20%;
-	padding: 3px;
 }
 .tutorial-dialog .tutorial-button:hover {
 	text-decoration: none;
@@ -1301,20 +1298,22 @@ div.resize {
 	justify-self: start;
 }
 .tutorial-arrow {
-	border: 10px solid red;
+	border: 10px solid var(--tutorial-highlight-color);
 	position: absolute;
 }
 .tutorial-arrow.below,
 .tutorial-arrow.below-middle,
 .tutorial-arrow.below-right {
-	border-color: transparent transparent red transparent;
+	border-color: transparent transparent var(--tutorial-highlight-color)
+		transparent;
 	top: -20px;
 	left: 20px;
 }
 .tutorial-arrow.above,
 .tutorial-arrow.above-middle,
 .tutorial-arrow.above-right {
-	border-color: red transparent transparent transparent;
+	border-color: var(--tutorial-highlight-color) transparent transparent
+		transparent;
 	bottom: -20px;
 	left: 20px;
 }
@@ -1343,13 +1342,15 @@ div.resize {
 .tutorial-arrow.right-middle,
 .tutorial-arrow.right-bottom {
 	left: -20px;
-	border-color: transparent red transparent transparent;
+	border-color: transparent var(--tutorial-highlight-color) transparent
+		transparent;
 }
 .tutorial-arrow.left,
 .tutorial-arrow.left-middle,
 .tutorial-arrow.left-bottom {
 	right: -20px;
-	border-color: transparent transparent transparent red;
+	border-color: transparent transparent transparent
+		var(--tutorial-highlight-color);
 }
 .tutorial-arrow.right-middle,
 .tutorial-arrow.left-middle {
@@ -1360,5 +1361,9 @@ div.resize {
 }
 .tutorial-border {
 	position: fixed;
-	border: 3px solid red;
+	border: 3px solid var(--tutorial-highlight-color);
+	z-index: 4999;
+}
+.tutorial-note {
+	font-size: smaller;
 }

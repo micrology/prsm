@@ -41,7 +41,6 @@
 		"@egjs/hammerjs": "^2.0.17",
 		"@joeattardi/emoji-button": "^2.12.1",
 		"fast-xml-parser": "^3.17.5",
-		"intro.js": "^3.2.1",
 		"keycharm": "^0.3.1",
 		"moment": "^2.29.1",
 		"timsort": "^0.3.0",

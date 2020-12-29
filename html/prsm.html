@@ -78,7 +78,7 @@
 						class="maptitle"
 						id="maptitle"
 						contenteditable="true"
-						data-tutorial="You can name the map here"
+						data-tutorial="You can name your map here"
 						data-step="1"
 						data-position="below"
 					>
@@ -89,7 +89,7 @@
 					<div class="buttons" id="buttons">
 						<div
 							class="tooltip"
-							data-tutorial="Clicking the + creates a new factor"
+							data-tutorial="Clicking the <b>+</b> creates a new factor"
 							data-step="2"
 							data-position="below"
 						>
@@ -202,9 +202,7 @@
 				</div>
 			</nav>
 		</header>
-		<main
-			id="main"
-		>
+		<main id="main">
 			<div class="avatars" id="avatars"></div>
 			<div id="popup">
 				<div id="popup-operation">Factor</div>
@@ -221,17 +219,20 @@
 			<div
 				id="net-pane"
 				data-tutorial="
-				<b>Welcome to PRSM</b><p>For a quick tour, press Next,<br/>
-					or to skip it, click the <span style='font-size: 150%'>&times;</span>"
+				<b>Welcome to PRSM</b><p class='tutorial-note'>Optionally, type your name here to show others that you are online:<br>
+					<input id='splashNameBox' type ='text'></input></p>For a quick tour, press <b>Next</b>,<br/>
+					or to skip it, press <b>Skip</b>"
 				data-step="0"
 				data-position="splash"
 			></div>
-			<div id="underlay"
-			data-tutorial="
-			<b>That's the end of the tour.</b><p>Press Done and then click <br>
-				on the + button above to add your first factor.</p>"
-			data-step="11"
-			data-position="splash">
+			<div
+				id="underlay"
+				data-tutorial="
+			<b>That's the end of the tour.</b><p>Press <b>Done</b> and then click <br>
+				on the <b>+</b> button above to add your first factor.</p>"
+				data-step="11"
+				data-position="splash"
+			>
 				<canvas class="drawing-canvas" id="temp-canvas"></canvas>
 				<div class="toolbox" id="toolbox">
 					<div class="tool" id="line">
@@ -762,11 +763,14 @@
 		<!-- Open file dialog -->
 		<input type="file" id="fileInput" style="display: none;" />
 		<!-- Chat window -->
-		<div class="chatbox-tab" id="chatbox-tab">
-			<div class="tooltip"
-				data-tutorial="Clicking here opens a chat window.  (If  it is pulsating, that means there is a message waiting for you)."
-							data-step="10"
-							data-position="left-middle">
+		<div
+			class="chatbox-tab"
+			id="chatbox-tab"
+			data-tutorial="Clicking here opens a chat window.  (If  it is pulsating, that means there is a message waiting for you)."
+			data-step="10"
+			data-position="left-middle"
+		>
+			<div class="tooltip">
 				<i class="fas fa-comments"></i>
 				<span class="tooltiptext" style="margin-left: -120px;"
 					>Open chat window</span
@@ -778,9 +782,7 @@
 				<div class="chatbox-top" id="chatbox-top">
 					<div class="chat-name">
 						My name:
-						<div
-							class="tooltip"
-						>
+						<div class="tooltip">
 							<input type="text" id="chat-name" />
 							<span class="tooltiptext"
 								>Click to change your nickname</span

@@ -1,3 +1,20 @@
+/**
+ * Class to display help messages in sequence as a user guide
+ *
+ * Each HTML element that should have a tutorial message should incude the attributes:
+ * data-step {number} specifies the order of the sequence of messages
+ * data-tutorial: the message (can include HTML tags)
+ * data-position: the location of the message relative to the element, one of
+ * above, above-left, above-middle, above-right, left, right and below and their variants
+ * or splash (which positions the message in the middle of the viewport)
+ * To initialise:
+ *  tutorial = new Tutorial()
+ *  tutorial.start()
+ *
+ *  tutorial.onstep(Array of step numbers or a step number, callback) Evaluate call back
+ *       after dispkaying tutorial message
+ *  tutorial.onexit(callback) Evaluate callback when user finsihes or skips the tutorial
+ */
 export default class Tutorial {
 	constructor() {
 		this.step = 0;
@@ -7,18 +24,24 @@ export default class Tutorial {
 			}
 		);
 	}
+	/**
+	 * initialise the step counter and display the first step
+	 * @param {integer} start optional step to start at (if not provided, start at the lowest numbered step)
+	 */
 	start(start) {
-		// initialise the step counter and display the first step
 		if (start !== undefined) this.step = start;
 		this.stepStart();
 	}
+	/**
+	 * create a tutorial element and position it
+	 */
 	stepStart() {
-		// create dialog
 		let elem = this.steps[this.step];
 		let text = elem.dataset.tutorial;
 		let position = elem.dataset.position;
 		let prevLegend = 'Prev';
 		let nextLegend = 'Next';
+		// first and last have special buttons
 		if (this.step == 0) prevLegend = 'Skip';
 		if (this.step == this.steps.length - 1) nextLegend = 'Done';
 		let dialog = document.createElement('div');
@@ -26,7 +49,7 @@ export default class Tutorial {
 		dialog.id = 'tutorial';
 		dialog.innerHTML = `
 <div class="tutorial-arrow ${position}"></div>
-<div class="x-button" id="tutorial-cancel"><span>&times;</span></div>
+<div class="x-button" id="tutorial-cancel">&times;</div>
 <div class="text">
     ${text}
 </div>
@@ -45,7 +68,7 @@ export default class Tutorial {
 </div>`;
 		dialog.style.visibility = 'hidden';
 		document.querySelector('body').appendChild(dialog);
-
+		// position the tutorial item and the border around the item being explained
 		let dialogBR = dialog.getBoundingClientRect();
 		let elemBR = elem.getBoundingClientRect();
 		let top = elemBR.top;
@@ -89,6 +112,7 @@ export default class Tutorial {
 					);
 					break;
 			}
+			// ensure the dialog is in the viewport
 			if (top < 0) top = 0;
 			if (top > window.innerHeight - dialogBR.height)
 				top = window.innerHeight - dialogBR.height;
@@ -100,7 +124,8 @@ export default class Tutorial {
 		}
 		dialog.style.visibility = '';
 
-		// add event listeners to buttons to  increment/decrement step, destroy this dialog and call step to display next one
+		// add event listeners to buttons to increment/decrement step,
+		// destroy this dialog and then call step() to display next one
 		document.querySelector('#next').addEventListener('click', () => {
 			this.step += 1;
 			this.stepFinish();
@@ -116,9 +141,23 @@ export default class Tutorial {
 				this.step = this.steps.length;
 				this.stepFinish();
 			});
+		// call onsstepstart function if to run now
+		this.runStepStart();
 	}
+	runStepStart() {
+		if (this.onstep == undefined) return;
+		if (Array.isArray(this.onstep)) {
+			if (this.onstep.indexOf(this.step) == -1) return;
+		} else {
+			if (this.onstep != this.step) return;
+		}
+		if (typeof this.onstepfn === 'function') this.onstepfn();
+	}
+	/**
+	 * destroy the tutorial dialog, remove the border around the item being explained, and
+	 * and call stepStart() to display the next one
+	 */
 	stepFinish() {
-		// destroy the dialog and call stepStart to display the next one
 		let dialog = document.querySelector('#tutorial');
 		if (dialog) dialog.remove();
 		let border = document.querySelector('#tutorial-border');
@@ -126,10 +165,21 @@ export default class Tutorial {
 		if (this.step < this.steps.length) this.stepStart();
 		else this.stepsEnd();
 	}
+	/**
+	 * called on exit
+	 */
 	stepsEnd() {
 		if (typeof this.onexitfn === 'function') this.onexitfn();
 	}
+	/**
+	 * store the cleanup function until needed
+	 * @param {function} callback
+	 */
 	onexit(callback) {
 		this.onexitfn = callback;
+	}
+	onstep(step, callback) {
+		this.onstep = step;
+		this.onstepfn = callback;
 	}
 }

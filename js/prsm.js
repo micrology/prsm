@@ -483,7 +483,10 @@ function displayNetPane(msg) {
 	legend(false);
 	console.log(msg);
 	let netPane = elem('net-pane');
-	if (netPane.style.visibility == 'hidden' || netPane.style.visibility == '') {
+	if (
+		netPane.style.visibility == 'hidden' ||
+		netPane.style.visibility == ''
+	) {
 		netPane.style.visibility = 'visible';
 		setUpTutorial();
 	}
@@ -537,21 +540,10 @@ function setUpChat() {
 	listen('minimize', 'click', minimize);
 	chatNameBox.addEventListener('keyup', (e) => {
 		if (myNameRec.anon) chatNameBox.style.fontStyle = 'normal';
-		if (e.key == 'Enter') chatboxSaveName();
+		if (e.key == 'Enter') saveUserName(chatNameBox.value);
 	});
-	function chatboxSaveName() {
-		if (chatNameBox.value.length == 0) {
-			myNameRec = generateName();
-			chatNameBox.value = myNameRec.name;
-		} else {
-			myNameRec.name = chatNameBox.value;
-			myNameRec.anon = false;
-		}
-		localStorage.setItem('myName', JSON.stringify(myNameRec));
-		yAwareness.setLocalState({name: myNameRec});
-	}
 	chatNameBox.addEventListener('blur', () => {
-		chatboxSaveName();
+		saveUserName(chatNameBox.value);
 	});
 	chatNameBox.addEventListener('click', () => {
 		if (myNameRec.anon) chatNameBox.value = '';
@@ -566,6 +558,17 @@ function setUpChat() {
 		emojiPicker.togglePicker(emojiButton);
 	});
 }
+function saveUserName(name) {
+	if (name.length == 0) {
+		myNameRec = generateName();
+		chatNameBox.value = myNameRec.name;
+	} else {
+		myNameRec.name = name;
+		myNameRec.anon = false;
+	}
+	localStorage.setItem('myName', JSON.stringify(myNameRec));
+	yAwareness.setLocalState({name: myNameRec});
+}
 /**
  * if this is the user's first time, show them how the user interface works
  */
@@ -573,6 +576,13 @@ function setUpTutorial() {
 	if (localStorage.getItem('doneIntro') != 'true') {
 		tutorial.onexit(function () {
 			localStorage.setItem('doneIntro', 'true');
+		});
+		tutorial.onstep(0, () => {
+			let splashNameBox = elem('splashNameBox');
+			splashNameBox.addEventListener('blur', () => {
+				saveUserName(splashNameBox.value);
+				displayUserName();
+			});
 		});
 		tutorial.start();
 	}
