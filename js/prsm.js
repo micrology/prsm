@@ -613,7 +613,7 @@ function asleep(isSleeping) {
 }
 
 /**
- * draw the network, after settingthe vis-network options
+ * draw the network, after setting the vis-network options
  */
 function draw() {
 	// for testing, you can append ?t=XXX to the URL of the page, where XXX is the number
@@ -2060,7 +2060,7 @@ function setUpShareDialog() {
 
 	function closeShareDialog() {
 		let modal = elem('shareModal');
-		if (event.target == modal) modal.style.display = 'none';
+		if (event.target == modal || event.target == elem('modal-close')) modal.style.display = 'none';
 	}
 	listen('copy-text', 'click', (e) => {
 		e.preventDefault();
