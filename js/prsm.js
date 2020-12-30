@@ -407,7 +407,6 @@ function startY() {
 		if (window.debug) console.log(event);
 		for (let key of event.keysChanged) {
 			let obj = yNetMap.get(key);
-			if (!event.transaction.local)
 				switch (key) {
 					case 'edges':
 						setCurve(
@@ -1275,7 +1274,7 @@ function setMapTitle(title) {
 	if (title !== 'Untitled map') {
 		lastFileName = title.replace(/\s+/g, '').toLowerCase();
 	}
-	if (title !== div.innerText) div.innerText = title;
+	if (title !== div.innerText.trim()) div.innerText = title;
 	return title;
 }
 /**
