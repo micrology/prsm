@@ -2082,7 +2082,7 @@ function setUpShareDialog() {
  * dislay help page in a separate window
  */
 function displayHelp() {
-	window.open('./help.html', 'helpWindow');
+	window.open('./help.html#contents', 'helpWindow');
 }
 /**
  * show or hide the side panel

@@ -21,7 +21,7 @@ The network or map can be anything that has items (or 'factors' or 'nodes') conn
 
 ### Systems
 
-The software is aimed at people who are interested in understanding whole systems.  A system is [a group of interacting or interrelated entities that form a unified whole](https://en.wikipedia.org/wiki/System).
+The software is aimed at people who are interested in understanding whole systems.  Wikipedia defines a system as [a group of interacting or interrelated entities that form a unified whole](https://en.wikipedia.org/wiki/System).
 
 ### Participatory system mapping
 
@@ -47,7 +47,7 @@ The third is a large network of 736 nodes and about 9000 links representing the 
 
 All the examples can be opened in the app using the files [here](./doc/examples/).
 
-## How do you install it?
+## Installation
 
 No installation on users' computers is needed.  The software is a web app, which means that it can be accessed using a web browser by pasting this link into the address bar:
 
@@ -57,11 +57,10 @@ You need a modern web browser such as Chrome, Firefox, Microsoft Edge or Safari.
 
 The software is free and available under an [MIT](https://choosealicense.com/licenses/mit/) license.
 
-The program code is available on [GitHub](https://github.com/micrology/prsm). See also [Code Guide](#code-guide).
+## Basic use
 
-## How do you use it?
+When the app is started for the first time in your browser, there is an option to type in your name and then to follow a brief tutorial that shows you the main items on the web page.  
 
-Click [here](https://cress.soc.surrey.ac.uk/prsm/prsm.html) to load the app into your browser.
 At the top of the screen are a row of buttons:
 
 ![Nav Bar icons](./doc/images/prsm-nav-icons.png)
@@ -124,7 +123,7 @@ The app can create output files in the app's own native format, as a GML file or
 
 The only way to join the room and see the network is by using the randomly generated room name, and the chances of finding that name by trial and error is very, very small.  The network is not stored on any server (there is a central server, but this is only used to broadcast encoded messages from one participant in a room to another).  The server is located in Europe.
 
-## Advanced features
+## Styling the map
 
 The view you see when you first open the app is intentionally very simple, but hidden away are many more features.  To access these, click on the last, Settings, button on the top bar: ![Chat Window Button](./doc/images/SettingsButton.png).  This will reveal a set of three tabs: Network, Factors and Links, with the Factors tab open.
 
@@ -158,7 +157,7 @@ The Links tab is very similar to the Factors tab, except that it relates to the 
 
 ![LinksPanel](./doc/images/LinksPanel.png)
 
-## Network tab
+### Network tab
 
 The network tab enables you to change many aspects of the network visualisation.
 
@@ -201,7 +200,9 @@ The drawing tools are, in order from top to bottom:
 * **Image** Clicking on this tool gives you a file chooser to select an image file (picture) from your computer - JPG, PNG and GIF formats are accepted. When the image has been placed on the background, you can drag it to where you want it, and resize it by dragging on the small black square at the bottom right.  Click anywhere outside the image to fix it to the background.
 * **Undo** This tool will undo the effect of the last drawing (e.g. if you have just placed an image on the background, it will remove the image, or if you have drawn a line with the pencil, it will undo that line).  Each click of the Undo button removes the previous drawing.
 
-## Code Guide
+## Source Code
+
+The program code is available on [GitHub](https://github.com/micrology/prsm).
 
 The javascript (ES6) code in sub-directory ```js``` is divided into four modules: one that handles the main network pane (```prsm.js```), one that manages the background painting functions (```paint.js```), one that creates and edits the styles (```styles.js```) and one that includes common utility functions (```utils.js```).  The HTML file that displays in the browser is in the ```html``` directory.
 

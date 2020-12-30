@@ -28,7 +28,7 @@
 	"scripts": {
 		"lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
 		"pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/*.css doc/**/*.{html,css} package.json",
-		"build-help": "pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -H doc/meta.html -s --toc -o ./help.html",
+		"build-help": "pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -s -A doc/scrollNav.html -B  doc/scrollNavHead.html -o ./help.html",
 		"check": "npm run --silent lint && npm run --silent build-help && npm run --silent pretty",
 		"serve": "parcel ./html/prsm.html",
 		"dev": "rm -rf dist/* && parcel build ./html/prsm.html --no-minify --no-scope-hoist",
@@ -43,6 +43,7 @@
 		"fast-xml-parser": "^3.17.5",
 		"keycharm": "^0.3.1",
 		"moment": "^2.29.1",
+		"scrollnav": "^3.0.2",
 		"timsort": "^0.3.0",
 		"uuid": "^7.0.3",
 		"vis-data": "^6.6.1",
