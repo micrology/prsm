@@ -68,9 +68,9 @@ At the top of the screen are a row of buttons:
 This what they do, from left to right:
 
 * **New factor** (or node).  Click on the cross and then click on the blank area below (the 'network pane') to create a node for the network.  A small dialog box will open for you to type in a label for the factor.
-* **New link** (or edge). Click on the zigzag button and then drag from one factor to another to link them. If you wish, you can have two links between a pair of factors: one for each direction.
+* **New link** (or edge). Click on the arrow button and then drag from one factor to another to link them. If you wish, you can have two links between a pair of factors: one for each direction.
 
-![Creating and linking two nodes](./doc/images/ezgif.com-optimize.gif)
+![Creating and linking two nodes](./doc/images/create-link-nodes.gif)
 
 * **Undo**. Reverses the last action (e.g. if you have just created a new factor, it will be removed).
 * **Redo**. Redo the last action (e.g. if you have just undone the creation of a nodfactore, this will return the factor to the network).
@@ -79,9 +79,9 @@ This what they do, from left to right:
 * **Open file**. Read in a file containing a network from your computer drive.  See [below](#file-formats) for supported file formats.  The content of the file replaces the network in the browser.
 * **Save file**.  Save the network in a file on your computer. The file is saved in the app's own format, or if you click on the small triangle next to the button, you can choose to save in GML (Graph Markup Language) or CSV (Comma Separated Values) formats.
 * **Help** Display this help page in a separate window.
-* **Settings**. Opens a panel that allows much more customisation and exploration of the network (see [Advanced features](#advanced-features) below).
+* **Settings**. Opens a panel that allows much more customisation and exploration of the network (see [Styling the map](#styling-the-map) below).
 
-To select a factor or a link, click on it. To select more than one, click on one factor or link and then hold down the pointer over the other.  At the bottom of the window is the status bar, which will show which factors and links have been selected.
+To select a factor or a link, click on it. To select more than one, click on one factor or link and then *hold down* the pointer over the other.  At the bottom of the window is the status bar, which will show which factors and links have been selected.
 
 Also at the bottom of the window on the right is a slider that will adjust the magnification: slide to the right to make the factors and links larger and to the left to make them smaller (or click on the + and - signs).  To return the network to a size that will fit neatly in the window, double click anywhere on the network background.
 
@@ -99,19 +99,23 @@ Click the button to copy the web link to the clipboard, and then paste the link 
 
 Double clicking on a factor or a link will bring up a small dialog that enables you to change the design of the factor or link - its colour, shape or the label.
 
-![Editing a node](./doc/images/Editingnode.png)
+<!-- ![Editing a node](./doc/images/Editingnode.png) -->
+<img src="./doc/images/Editingnode.png" width="400">
 
-See [Advanced features](#advanced-features) for more on changing the look of factors and links.
+See [Styling the map](#styling-the-map) for more on changing the look of factors and links.
 
 ### The chat window
 
-Clicking on the small blue square at the bottom right: ![Chat Window Button](./doc/images/ChatWindowButton.png) opens up a chat window that you can use to type messages to other participants in your room.
+Clicking on the speech ballons at the bottom right opens up a chat window that you can use to type messages to other participants in your room.
 
-![Chat window](./doc/images/ChatWindow.png)
+<!-- ![Chat window](./doc/images/ChatWindow.png) -->
+<img src="./doc/images/ChatWindow.png" width="400">
 
-Your name at the top is initially randomly generated, but if you click on it, you can substitute your own name.  You can write messages in the box at the bottom and send them by clicking the paper plane button.  Use the **X** to close the chat window.
+If you haven't provided your real name, the  name at the top is initially randomly generated, but if you click on it, you can substitute your own.  You can write messages in the box at the bottom and send them by clicking the paper plane button.  Use the **X** to close the chat window.
 
-If someone has sent you a message but your chat window is closed, the ![Chat Window Button](./doc/images/ChatWindowButton.png) button will gently pulse to remind you to open the chat window.
+If someone has sent you a message but your chat window is closed, the button will gently pulse to remind you to open the chat window:
+
+![Chat Window Button](./doc/images/ChatWindowButton.gif)
 
 ### File formats
 

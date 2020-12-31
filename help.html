@@ -105,7 +105,7 @@
 <li>and so on.</li>
 </ul>
 <h3 id="systems">Systems</h3>
-<p>The software is aimed at people who are interested in understanding whole systems. A system is <a href="https://en.wikipedia.org/wiki/System">a group of interacting or interrelated entities that form a unified whole</a>.</p>
+<p>The software is aimed at people who are interested in understanding whole systems. Wikipedia defines a system as <a href="https://en.wikipedia.org/wiki/System">a group of interacting or interrelated entities that form a unified whole</a>.</p>
 <h3 id="participatory-system-mapping">Participatory system mapping</h3>
 <p>The app is designed to enable groups of people, each using their own computer (or tablet) to collaborate in the drawing of a map. They may be sitting around a table, discussing the map as it is created face to face, or working remotely, using video conferencing or the chat feature that is built into the app. Everyone can participate because every edit (creating nodes and links, arranging them and so on) is broadcast to all the other participants as the changes are made (just as Google Docs does for text, for example).</p>
 <p>When you start the app in your browser, a 'room' is created for you in which to draw your network. You can add other users to this room to share the work. Only those with access to the room can see what is being created.</p>
@@ -130,9 +130,9 @@
 <p>This what they do, from left to right:</p>
 <ul>
 <li><strong>New factor</strong> (or node). Click on the cross and then click on the blank area below (the 'network pane') to create a node for the network. A small dialog box will open for you to type in a label for the factor.</li>
-<li><strong>New link</strong> (or edge). Click on the zigzag button and then drag from one factor to another to link them. If you wish, you can have two links between a pair of factors: one for each direction.</li>
+<li><strong>New link</strong> (or edge). Click on the arrow button and then drag from one factor to another to link them. If you wish, you can have two links between a pair of factors: one for each direction.</li>
 </ul>
-<p><img src="./doc/images/ezgif.com-optimize.gif" alt="Creating and linking two nodes" /></p>
+<p><img src="./doc/images/ezgif.com-gif-maker.gif" alt="Creating and linking two nodes" /></p>
 <ul>
 <li><strong>Undo</strong>. Reverses the last action (e.g. if you have just created a new factor, it will be removed).</li>
 <li><strong>Redo</strong>. Redo the last action (e.g. if you have just undone the creation of a nodfactore, this will return the factor to the network).</li>
@@ -141,9 +141,9 @@
 <li><strong>Open file</strong>. Read in a file containing a network from your computer drive. See <a href="#file-formats">below</a> for supported file formats. The content of the file replaces the network in the browser.</li>
 <li><strong>Save file</strong>. Save the network in a file on your computer. The file is saved in the app's own format, or if you click on the small triangle next to the button, you can choose to save in GML (Graph Markup Language) or CSV (Comma Separated Values) formats.</li>
 <li><strong>Help</strong> Display this help page in a separate window.</li>
-<li><strong>Settings</strong>. Opens a panel that allows much more customisation and exploration of the network (see <a href="#advanced-features">Advanced features</a> below).</li>
+<li><strong>Settings</strong>. Opens a panel that allows much more customisation and exploration of the network (see <a href="#styling-the-map">Styling the map</a> below).</li>
 </ul>
-<p>To select a factor or a link, click on it. To select more than one, click on one factor or link and then hold down the pointer over the other. At the bottom of the window is the status bar, which will show which factors and links have been selected.</p>
+<p>To select a factor or a link, click on it. To select more than one, click on one factor or link and then <em>hold down</em> the pointer over the other. At the bottom of the window is the status bar, which will show which factors and links have been selected.</p>
 <p>Also at the bottom of the window on the right is a slider that will adjust the magnification: slide to the right to make the factors and links larger and to the left to make them smaller (or click on the + and - signs). To return the network to a size that will fit neatly in the window, double click anywhere on the network background.</p>
 <p>Each node can be moved across the network pane by selecting it and dragging. The whole network can be moved by dragging the background.</p>
 <h3 id="sharing">Sharing</h3>
@@ -152,13 +152,20 @@
 <p>Click the button to copy the web link to the clipboard, and then paste the link into an email, or a text message or just tell other participants the name of the room (which is a randomly generated set of 4 groups of three capital letters separated by hyphens). When they access the link, they will see whatever is in your app window.</p>
 <h3 id="formatting-factors-and-links">Formatting factors and links</h3>
 <p>Double clicking on a factor or a link will bring up a small dialog that enables you to change the design of the factor or link - its colour, shape or the label.</p>
-<p><img src="./doc/images/Editingnode.png" alt="Editing a node" /></p>
-<p>See <a href="#advanced-features">Advanced features</a> for more on changing the look of factors and links.</p>
+<!-- ![Editing a node](./doc/images/Editingnode.png) -->
+
+<img src="./doc/images/Editingnode.png" width="400">
+
+<p>See <a href="#styling-the-map">Styling the map</a> for more on changing the look of factors and links.</p>
 <h3 id="the-chat-window">The chat window</h3>
-<p>Clicking on the small blue square at the bottom right: <img src="./doc/images/ChatWindowButton.png" alt="Chat Window Button" /> opens up a chat window that you can use to type messages to other participants in your room.</p>
-<p><img src="./doc/images/ChatWindow.png" alt="Chat window" /></p>
-<p>Your name at the top is initially randomly generated, but if you click on it, you can substitute your own name. You can write messages in the box at the bottom and send them by clicking the paper plane button. Use the <strong>X</strong> to close the chat window.</p>
-<p>If someone has sent you a message but your chat window is closed, the <img src="./doc/images/ChatWindowButton.png" alt="Chat Window Button" /> button will gently pulse to remind you to open the chat window.</p>
+<p>Clicking on the speech ballons at the bottom right opens up a chat window that you can use to type messages to other participants in your room.</p>
+<!-- ![Chat window](./doc/images/ChatWindow.png) -->
+
+<img src="./doc/images/ChatWindow.png" width="400">
+
+<p>If you haven't provided your real name, the name at the top is initially randomly generated, but if you click on it, you can substitute your own. You can write messages in the box at the bottom and send them by clicking the paper plane button. Use the <strong>X</strong> to close the chat window.</p>
+<p>If someone has sent you a message but your chat window is closed, the button will gently pulse to remind you to open the chat window:</p>
+<p><img src="./doc/images/ChatWindowButton.gif" alt="Chat Window Button" /></p>
 <h3 id="file-formats">File formats</h3>
 <p>The app can read files in its native format (files with the suffix '.prsm'), <a href="http://graphml.graphdrawing.org/">GRAPHML</a> format (.graphml), <a href="https://en.wikipedia.org/wiki/Graph_Modelling_Language">GML</a> (.gml) or <a href="https://en.wikipedia.org/wiki/Comma-separated_values">Comma Separated Values</a> (.csv). A CSV file must contain a two columns of values. Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to. This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottm right as shown on the <a href="#factors-tab">Factors tab</a>). The fifth column may contain the style number for the link.</p>
 <p>The app can create output files in the app's own native format, as a GML file or as a CSV file.</p>

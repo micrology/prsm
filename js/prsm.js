@@ -1274,7 +1274,7 @@ function setMapTitle(title) {
 	if (title !== 'Untitled map') {
 		lastFileName = title.replace(/\s+/g, '').toLowerCase();
 	}
-	if (title !== div.innerText.trim()) div.innerText = title;
+	if (title !== div.innerText) div.innerText = title;
 	return title;
 }
 /**
@@ -1592,11 +1592,11 @@ function loadFile(contents) {
 			hideEdgesOnZoom: data.nodes.length > 100,
 		},
 	});
-	// ensure that all nodes have a grp property
+	// ensure that all nodes have a grp property (converting 'group' property for old format files)
 	data.nodes.update(
 		data.nodes.map(
 			(n) => {
-				n.grp = n.group || 'group0';
+				n.grp = n.group ? 'group' + (n.group % 9)  : 'group0';
 				return n;
 			},
 			{

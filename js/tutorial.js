@@ -132,7 +132,6 @@ export default class Tutorial {
 		});
 		document.querySelector('#prev').addEventListener('click', () => {
 			this.step -= 1;
-			if (this.step < 0) this.stepFinish();
 			this.stepFinish();
 		});
 		document
@@ -162,8 +161,8 @@ export default class Tutorial {
 		if (dialog) dialog.remove();
 		let border = document.querySelector('#tutorial-border');
 		if (border) border.remove();
-		if (this.step < this.steps.length) this.stepStart();
-		else this.stepsEnd();
+		if (this.step < 0  || this.step >= this.steps.length) this.stepsEnd();
+		else this.stepStart();
 	}
 	/**
 	 * called on exit

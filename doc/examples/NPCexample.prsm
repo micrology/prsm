@@ -1,7 +1,7 @@
 {
-	"saved": "07/07/2020, 16:48:02",
-	"version": "1.22",
-	"room": "KMM-ITT-NEQ-WTX",
+	"saved": "31/12/2020, 21:24:25",
+	"version": "1.4.2",
+	"room": "IIP-BPQ-AGS-QQA",
 	"lastNodeSample": "group3",
 	"lastLinkSample": "edge0",
 	"buttons": {
@@ -12,9 +12,10 @@
 		"linkRadius": "All",
 		"stream": "All",
 		"showLabels": true,
+		"legend": false,
 		"sizing": "Off"
 	},
-	"samples": {
+	"styles": {
 		"nodes": {
 			"base": {
 				"groupLabel": "Sample",
