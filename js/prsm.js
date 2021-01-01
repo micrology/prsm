@@ -558,13 +558,12 @@ function setUpChat() {
 	});
 }
 function saveUserName(name) {
-	if (name.length == 0) {
-		myNameRec = generateName();
-		chatNameBox.value = myNameRec.name;
-	} else {
+	if (name.length > 0) {
 		myNameRec.name = name;
 		myNameRec.anon = false;
 	}
+	else myNameRec = generateName();
+	chatNameBox.value = myNameRec.name;
 	localStorage.setItem('myName', JSON.stringify(myNameRec));
 	yAwareness.setLocalState({name: myNameRec});
 }
@@ -934,6 +933,7 @@ function editNode(item, cancelAction, callback) {
 					<option value="false">Solid</option>
 					<option value="true">Dashed</option>
 					<option value="dots">Dotted</option>
+					<option value="none">None</option>
 				</select>
 			</td>
 		</tr>
@@ -1090,6 +1090,7 @@ function positionPopUp() {
 	let left = event.clientX - popUp.offsetWidth - 3;
 	popUp.style.left = `${left < 0 ? 0 : left}px`;
 	squashInput(document.getElementById('popup-label'));
+	dragElement(popUp, popUp);
 }
 
 /**
@@ -1160,9 +1161,9 @@ function saveNode(item, callback) {
 	item.color.highlight.border = color;
 	item.color.hover.border = color;
 	item.font.color = document.getElementById('node-fontColor').value;
-	item.shapeProperties.borderDashes = convertDashes(
-		document.getElementById('node-borderType').value
-	);
+	let borderType = document.getElementById('node-borderType').value;
+	item.borderWidth = (borderType == 'none' ? 0 : 1);
+	item.shapeProperties.borderDashes = convertDashes(borderType);
 	claim(item);
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
 	callback(item);
@@ -1282,7 +1283,13 @@ function setMapTitle(title) {
  */
 function unSelect() {
 	hideNotes();
+	let nodes = data.nodes.get(network.getSelectedNodes());
+		nodes.forEach((node) => {
+			node.shadow = false;
+		});
+	data.nodes.update(nodes);
 	network.unselectAll();
+	clearStatusBar()
 }
 /* 
   ----------- Calculate statistics in the background -------------
@@ -1416,7 +1423,7 @@ function zoomincr(incr) {
  */
 /**
  * react to the user pressing the Add node button
- * handles cases when the button is disbled; has previously been pressed; and the Add link
+ * handles cases when the button is disabled; has previously been pressed; and the Add link
  * button is active, as well as the normal case
  *
  */
@@ -1433,15 +1440,17 @@ function plusNode() {
 			stopEdit(); // falls through
 		default:
 			// false
+			network.unselectAll();
 			changeCursor('cell');
 			inAddMode = 'addNode';
 			showPressed('addNode', 'add');
+			unSelect();
 			network.addNodeMode();
 	}
 }
 /**
  * react to the user pressing the Add Link button
- * handles cases when the button is disbled; has previously been pressed; and the Add Node
+ * handles cases when the button is disabled; has previously been pressed; and the Add Node
  * button is active, as well as the normal case
  */
 function plusLink() {
@@ -1460,6 +1469,7 @@ function plusLink() {
 			changeCursor('crosshair');
 			inAddMode = 'addLink';
 			showPressed('addLink', 'add');
+			unSelect();
 			network.addEdgeMode();
 	}
 }

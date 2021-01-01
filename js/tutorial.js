@@ -39,7 +39,7 @@ export default class Tutorial {
 		let elem = this.steps[this.step];
 		let text = elem.dataset.tutorial;
 		let position = elem.dataset.position;
-		let prevLegend = 'Prev';
+		let prevLegend = 'Back';
 		let nextLegend = 'Next';
 		// first and last have special buttons
 		if (this.step == 0) prevLegend = 'Skip';
