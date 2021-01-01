@@ -2271,16 +2271,24 @@ function showNodeData() {
 		? shorten(node.label)
 		: '';
 	let notes = document.getElementById('node-notes');
-	notes.innerHTML = node.title ? node.title : '';
+	notes.innerHTML = node.title ? node.title.replace(/<br>/g, ' ') : '';
 	notes.addEventListener('keyup', (e) => updateNodeNotes(e));
 	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
 	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
 	panel.classList.remove('hide');
 	displayStatistics(nodeId);
 }
-
+/**
+ * update the title property of the node with the text of the note. 
+ * returns (\n) inserted by the user are replaced by <p> and
+ * \n inserted by the split text fn are replaced by <br>.
+ * 
+ * When the Note is redisplayed in the Note box, <br> is stripped out and 
+ * <p> replaced by \n to preserve user formatting.
+ * @param {event} e 
+ */
 function updateNodeNotes(e) {
-	let text = e.target.innerText;
+	let text = e.target.innerText.replace(/\n/g, '<p>');
 	data.nodes.update({
 		id: network.getSelectedNodes()[0],
 		title: splitText(
@@ -2298,7 +2306,7 @@ function showEdgeData() {
 		? shorten(edge.label)
 		: '';
 	let notes = document.getElementById('edge-notes');
-	notes.innerHTML = edge.title ? edge.title : '';
+	notes.innerHTML = edge.title ? edge.title.replace(/<br>/g, ' ') : '';
 	notes.addEventListener('keyup', (e) => updateEdgeNotes(e));
 	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
 	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
@@ -2306,7 +2314,7 @@ function showEdgeData() {
 }
 
 function updateEdgeNotes(e) {
-	let text = e.target.innerText;
+	let text = e.target.innerText.replace(/\n/g, '<p>');
 	data.edges.update({
 		id: network.getSelectedEdges()[0],
 		title: splitText(
@@ -2718,7 +2726,7 @@ function broadcastHideAndStream(hideSetting, streamSetting) {
 
 function setHideAndStream(obj) {
 	if (!obj) return;
-	network.selectNodes([obj.selected]);
+	network.selectNodes([].concat(obj.selected)); // ensure that obj.selected is an array
 	statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
 	setRadioVal('hide', obj.hideSetting);
 	setRadioVal('stream', obj.streamSetting);
