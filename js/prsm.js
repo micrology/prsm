@@ -164,21 +164,21 @@ function addEventListeners() {
  * create all the DOM elemts on the web page
  */
 function setUpPage() {
+	let searchParams = new URL(document.location).searchParams;
 	// don't allow user to change anything if URL includes ?viewing
-	viewOnly = new URL(document.location).searchParams.get('viewing');
-	if (viewOnly) document.getElementById('buttons').style.display = 'none';
+	viewOnly = searchParams.has('viewing');
+	if (viewOnly) elem('buttons').style.display = 'none';
 	// treat user as first time user if URL includes ?start=true
-	let newUser = new URL(document.location).searchParams.get('start');
-	if (newUser) localStorage.setItem('doneIntro', 'false');
-	container = document.getElementById('container');
-	panel = document.getElementById('panel');
+	if (searchParams.has('start')) localStorage.setItem('doneIntro', 'false');
+	container = elem('container');
+	panel = elem('panel');
 	panel.classList.add('hide');
 	container.panelHidden = true;
 	setUpSamples();
 	divWithPlaceHolder('#node-notes');
 	divWithPlaceHolder('#edge-notes');
 	hideNotes();
-	document.getElementById('version').innerHTML = version;
+	elem('version').innerHTML = version;
 	storeButtonStatus();
 	initialButtonStatus = {
 		autoLayout: false,
@@ -495,18 +495,18 @@ document.body.height = window.innerHeight;
 window.onresize = function () {
 	document.body.height = window.innerHeight;
 	keepPaneInWindow(panel);
-	keepPaneInWindow(document.getElementById('chatbox-holder'));
+	keepPaneInWindow(elem('chatbox-holder'));
 };
 window.onorientationchange = function () {
 	document.body.height = window.innerHeight;
 };
 
-const chatbox = document.getElementById('chatbox');
-const chatboxTab = document.getElementById('chatbox-tab');
-const chatNameBox = document.getElementById('chat-name');
-const chatInput = document.getElementById('chat-input');
-const chatSend = document.getElementById('send-button');
-const chatMessages = document.getElementById('chat-messages');
+const chatbox = elem('chatbox');
+const chatboxTab = elem('chatbox-tab');
+const chatNameBox = elem('chat-name');
+const chatInput = elem('chat-input');
+const chatSend = elem('send-button');
+const chatMessages = elem('chat-messages');
 const emojiButton = document.querySelector('#emoji-button');
 const emojiPicker = new EmojiButton({
 	rootElement: chatbox,
@@ -571,7 +571,7 @@ function saveUserName(name) {
  * if this is the user's first time, show them how the user interface works
  */
 function setUpTutorial() {
-	if (localStorage.getItem('doneIntro') != 'true') {
+	if (localStorage.getItem('doneIntro') !== 'true' && viewOnly === false) {
 		tutorial.onexit(function () {
 			localStorage.setItem('doneIntro', 'true');
 		});
@@ -620,7 +620,7 @@ function draw() {
 	let nNodes = url.searchParams.get('t');
 	if (nNodes) getRandomData(nNodes);
 	// create a network
-	netPane = document.getElementById('net-pane');
+	netPane = elem('net-pane');
 	var options = {
 		edges: {
 			smooth: {
@@ -716,9 +716,9 @@ function draw() {
 		};
 	network = new Network(netPane, data, options);
 	window.network = network;
-	document.getElementById('zoom').value = network.getScale();
+	elem('zoom').value = network.getScale();
 	// start with factor tab open, but hidden
-	document.getElementById('nodesButton').click();
+	elem('nodesButton').click();
 	// listen for click events on the network pane
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
@@ -811,7 +811,7 @@ function fit(duration = 200) {
 		animation: {duration: duration, easingFunction: 'linear'},
 	});
 	let newScale = network.getScale();
-	document.getElementById('zoom').value = newScale;
+	elem('zoom').value = newScale;
 	network.storePositions();
 }
 
@@ -856,7 +856,7 @@ function snapToGrid(node) {
 function addLabel(item, cancelAction, callback) {
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback);
 	positionPopUp();
-	document.getElementById('popup-label').focus();
+	elem('popup-label').focus();
 }
 /**
  * if user Control-clicks the canvas, use this as a shortcut equivalent to pressing the Add Node button
@@ -893,7 +893,7 @@ function ctlClickAddNode(event) {
  */
 function editNode(item, cancelAction, callback) {
 	initPopUp('Edit Factor', 150, item, cancelAction, saveNode, callback);
-	document.getElementById('popup').insertAdjacentHTML(
+	elem('popup').insertAdjacentHTML(
 		'beforeend',
 		`	
 	<table id="popup-table">
@@ -939,20 +939,20 @@ function editNode(item, cancelAction, callback) {
 		</tr>
 	</table>`
 	);
-	document.getElementById('node-backgroundColor').value = standardize_color(
+	elem('node-backgroundColor').value = standardize_color(
 		item.color.background
 	);
-	document.getElementById('node-borderColor').value = standardize_color(
+	elem('node-borderColor').value = standardize_color(
 		item.color.border
 	);
-	document.getElementById('node-fontColor').value = standardize_color(
+	elem('node-fontColor').value = standardize_color(
 		item.font.color
 	);
-	document.getElementById('node-borderType').value = getDashes(
+	elem('node-borderType').value = getDashes(
 		item.shapeProperties.borderDashes
 	);
 	positionPopUp();
-	document.getElementById('popup-label').focus();
+	elem('popup-label').focus();
 }
 /**
  * Convert CSS description of line type to menu option format
@@ -970,7 +970,7 @@ function getDashes(val) {
  */
 function editEdge(item, cancelAction, callback) {
 	initPopUp('Edit Link', 140, item, cancelAction, saveEdge, callback);
-	document.getElementById('popup').insertAdjacentHTML(
+	elem('popup').insertAdjacentHTML(
 		'beforeend',
 		` 
 		<table id="popup-table">
@@ -1009,13 +1009,13 @@ function editEdge(item, cancelAction, callback) {
 		</tr>
 	</table>`
 	);
-	document.getElementById('edge-width').value = parseInt(item.width);
-	document.getElementById('edge-color').value = standardize_color(
+	elem('edge-width').value = parseInt(item.width);
+	elem('edge-color').value = standardize_color(
 		item.color.color
 	);
-	document.getElementById('edge-type').value = getDashes(item.dashes);
+	elem('edge-type').value = getDashes(item.dashes);
 	positionPopUp();
-	document.getElementById('popup-label').focus();
+	elem('popup-label').focus();
 }
 /**
  * Initialise the dialog for creating nodes/edges
@@ -1035,23 +1035,23 @@ function initPopUp(
 ) {
 	inAddMode = false;
 	changeCursor('auto');
-	document.getElementById('popup').style.height = height + 'px';
-	document.getElementById('popup-operation').innerHTML = popUpTitle;
-	document.getElementById('popup-saveButton').onclick = saveAction.bind(
+	elem('popup').style.height = height + 'px';
+	elem('popup-operation').innerHTML = popUpTitle;
+	elem('popup-saveButton').onclick = saveAction.bind(
 		this,
 		item,
 		callback
 	);
-	document.getElementById('popup-cancelButton').onclick = cancelAction.bind(
+	elem('popup-cancelButton').onclick = cancelAction.bind(
 		this,
 		callback
 	);
-	let popupLabel = document.getElementById('popup-label');
+	let popupLabel = elem('popup-label');
 	popupLabel.addEventListener('keyup', squashInputOnKeyUp);
 	popupLabel.style.fontSize = '20px';
 	popupLabel.innerText =
 		item.label === undefined ? '' : item.label.replace(/\n/g, ' ');
-	let table = document.getElementById('popup-table');
+	let table = elem('popup-table');
 	if (table) table.remove();
 }
 /**
@@ -1081,7 +1081,7 @@ function squashInput(elem) {
  * but not outside the window
  */
 function positionPopUp() {
-	let popUp = document.getElementById('popup');
+	let popUp = elem('popup');
 	popUp.style.display = 'block';
 	// popup appears to the left of the mouse pointer
 	popUp.style.top = `${
@@ -1089,7 +1089,7 @@ function positionPopUp() {
 	}px`;
 	let left = event.clientX - popUp.offsetWidth - 3;
 	popUp.style.left = `${left < 0 ? 0 : left}px`;
-	squashInput(document.getElementById('popup-label'));
+	squashInput(elem('popup-label'));
 	dragElement(popUp, popUp);
 }
 
@@ -1097,10 +1097,10 @@ function positionPopUp() {
  * Hide the editing dialog box
  */
 function clearPopUp() {
-	document.getElementById('popup-saveButton').onclick = null;
-	document.getElementById('popup-cancelButton').onclick = null;
-	document.getElementById('popup-label').onkeyup = null;
-	document.getElementById('popup').style.display = 'none';
+	elem('popup-saveButton').onclick = null;
+	elem('popup-cancelButton').onclick = null;
+	elem('popup-label').onkeyup = null;
+	elem('popup').style.display = 'none';
 }
 /**
  * User has pressed 'cancel' - abandon the edit and hide the dialog
@@ -1118,7 +1118,7 @@ function cancelEdit(callback) {
  */
 function saveLabel(item, callback) {
 	item.label = splitText(
-		document.getElementById('popup-label').innerText,
+		elem('popup-label').innerText,
 		NODEWIDTH
 	);
 	clearPopUp();
@@ -1143,7 +1143,7 @@ function saveLabel(item, callback) {
  */
 function saveNode(item, callback) {
 	item.label = splitText(
-		document.getElementById('popup-label').innerText,
+		elem('popup-label').innerText,
 		NODEWIDTH
 	);
 	clearPopUp();
@@ -1152,16 +1152,16 @@ function saveNode(item, callback) {
 		statusMsg('No label: cancelled', 'warn');
 		callback(null);
 	}
-	let color = document.getElementById('node-backgroundColor').value;
+	let color = elem('node-backgroundColor').value;
 	item.color.background = color;
 	item.color.highlight.background = color;
 	item.color.hover.background = color;
-	color = document.getElementById('node-borderColor').value;
+	color = elem('node-borderColor').value;
 	item.color.border = color;
 	item.color.highlight.border = color;
 	item.color.hover.border = color;
-	item.font.color = document.getElementById('node-fontColor').value;
-	let borderType = document.getElementById('node-borderType').value;
+	item.font.color = elem('node-fontColor').value;
+	let borderType = elem('node-borderType').value;
 	item.borderWidth = (borderType == 'none' ? 0 : 1);
 	item.shapeProperties.borderDashes = convertDashes(borderType);
 	claim(item);
@@ -1175,18 +1175,18 @@ function saveNode(item, callback) {
  */
 function saveEdge(item, callback) {
 	item.label = splitText(
-		document.getElementById('popup-label').innerText,
+		elem('popup-label').innerText,
 		NODEWIDTH
 	);
 	clearPopUp();
 	if (item.label === '') item.label = ' ';
-	let color = document.getElementById('edge-color').value;
+	let color = elem('edge-color').value;
 	item.color.color = color;
 	item.color.hover = color;
 	item.color.highlight = color;
-	item.width = parseInt(document.getElementById('edge-width').value);
+	item.width = parseInt(elem('edge-width').value);
 	if (!item.width) item.width = 1;
-	item.dashes = convertDashes(document.getElementById('edge-type').value);
+	item.dashes = convertDashes(elem('edge-type').value);
 	claim(item);
 	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
 	callback(item);
@@ -1250,7 +1250,7 @@ function deleteMsg(item) {
 function changeCursor(newCursorStyle) {
 	if (inAddMode) return;
 	netPane.style.cursor = newCursorStyle;
-	document.getElementById('navbar').style.cursor = newCursorStyle;
+	elem('navbar').style.cursor = newCursorStyle;
 }
 /**
  * User has set or changed the map title: update the UI and broadcast the new title
@@ -1266,7 +1266,7 @@ function mapTitle(e) {
  * @param {string} title
  */
 function setMapTitle(title) {
-	let div = document.getElementById('maptitle');
+	let div = elem('maptitle');
 	if (title == '') {
 		title = 'Untitled map';
 	}
@@ -1320,20 +1320,20 @@ worker.onmessage = function (e) {
  * @param {string} status type of msg - warning, error or other
  */
 export function statusMsg(msg, status) {
-	let elem = document.getElementById('statusBar');
+	let el = elem('statusBar');
 	switch (status) {
 		case 'warn':
-			elem.style.backgroundColor = 'yellow';
+			el.style.backgroundColor = 'yellow';
 			break;
 		case 'error':
-			elem.style.backgroundColor = 'red';
-			elem.style.color = 'white';
+			el.style.backgroundColor = 'red';
+			el.style.color = 'white';
 			break;
 		default:
-			elem.style.backgroundColor = 'white';
+			el.style.backgroundColor = 'white';
 			break;
 	}
-	elem.innerHTML = htmlEntities(msg);
+	el.innerHTML = htmlEntities(msg);
 }
 /**
  * replace special characters with their HTML entity codes
@@ -1405,17 +1405,17 @@ Network.prototype.zoom = function (scale) {
  * expand/reduce the network view using the value in the zoom slider
  */
 function zoomnet() {
-	network.zoom(Number(document.getElementById('zoom').value));
+	network.zoom(Number(elem('zoom').value));
 }
 /**
  * zoom by the given amount (+ve or -ve)
  * @param {Number} incr
  */
 function zoomincr(incr) {
-	let newScale = Number(document.getElementById('zoom').value) + incr;
+	let newScale = Number(elem('zoom').value) + incr;
 	if (newScale > 4) newScale = 4;
 	if (newScale <= 0) newScale = 0.1;
-	document.getElementById('zoom').value = newScale;
+	elem('zoom').value = newScale;
 	network.zoom(newScale);
 }
 /* 
@@ -1488,7 +1488,7 @@ function stopEdit() {
  *
  */
 function showPressed(elem, action) {
-	document.getElementById(elem).children.item(0).classList[action]('pressed');
+	elem(elem).children.item(0).classList[action]('pressed');
 }
 
 function undo() {
@@ -1514,8 +1514,8 @@ function redoButtonStatus() {
  * @param {Boolean} state - true to make the button disabled
  */
 function setButtonDisabledStatus(id, state) {
-	if (state) document.getElementById(id).classList.add('disabled');
-	else document.getElementById(id).classList.remove('disabled');
+	if (state) elem(id).classList.add('disabled');
+	else elem(id).classList.remove('disabled');
 }
 
 function deleteNode() {
@@ -1556,7 +1556,7 @@ function readSingleFile(e) {
 }
 
 function openFile() {
-	document.getElementById('fileInput').click();
+	elem('fileInput').click();
 }
 /**
  * determine what kind fo file it is, parse it and reaplce any current map with the one read from the file
@@ -2047,9 +2047,9 @@ function exportGML() {
  * set up the modal dialog that opens when the user clicks the Share icon in the nav bar
  */
 function setUpShareDialog() {
-	let modal = document.getElementById('shareModal');
-	let inputElem = document.getElementById('text-to-copy');
-	let copiedText = document.getElementById('copied-text');
+	let modal = elem('shareModal');
+	let inputElem = elem('text-to-copy');
+	let copiedText = elem('copied-text');
 
 	// When the user clicks the button, open the modal
 	listen('share', 'click', () => {
@@ -2106,7 +2106,7 @@ function togglePanel() {
 	}
 	container.panelHidden = !container.panelHidden;
 }
-dragElement(document.getElementById('panel'), document.getElementById('tab'));
+dragElement(elem('panel'), elem('tab'));
 
 /* ---------operations related to the side panel -------------------------------------*/
 
@@ -2152,7 +2152,7 @@ function openTab(tabId) {
 		tablinks[i].className = tablinks[i].className.replace(' active', '');
 	}
 	// Show the current tab, and add an "active" class to the button that opened the tab
-	document.getElementById(tabId).classList.remove('hide');
+	elem(tabId).classList.remove('hide');
 	event.currentTarget.className += ' active';
 	tabOpen = tabId;
 	if (tabOpen == 'nodesTab' || tabOpen == 'linksTab') showNodeOrEdgeData();
@@ -2161,15 +2161,15 @@ function openTab(tabId) {
 
 function storeButtonStatus() {
 	buttonStatus = {
-		autoLayout: document.getElementById('autolayoutswitch').checked,
-		gravity: document.getElementById('antiGravity').value,
-		snapToGrid: document.getElementById('snaptogridswitch').checked,
-		curve: document.getElementById('curveSelect').value,
+		autoLayout: elem('autolayoutswitch').checked,
+		gravity: elem('antiGravity').value,
+		snapToGrid: elem('snaptogridswitch').checked,
+		curve: elem('curveSelect').value,
 		linkRadius: getRadioVal('hide'),
 		stream: getRadioVal('stream'),
-		showLabels: document.getElementById('showLabelSwitch').checked,
-		legend: document.getElementById('showLegendSwitch').checked,
-		sizing: document.getElementById('sizing').value,
+		showLabels: elem('showLabelSwitch').checked,
+		legend: elem('showLegendSwitch').checked,
+		sizing: elem('sizing').value,
 	};
 }
 
@@ -2195,30 +2195,30 @@ function undoRedoButtons(event) {
 
 function setButtonStatus(settings) {
 	if (
-		document.getElementById('autolayoutswitch').checked !=
+		elem('autolayoutswitch').checked !=
 		settings.autoLayout
 	) {
 		autoLayoutSet(settings.autoLayout);
-		document.getElementById('autolayoutswitch').checked =
+		elem('autolayoutswitch').checked =
 			settings.autoLayout;
 	}
 	if (
-		document.getElementById('antiGravity').value != settings.gravity &&
+		elem('antiGravity').value != settings.gravity &&
 		settings.autoLayout
 	) {
 		adjustGravity(settings.gravity);
-		document.getElementById('antiGravity').value = settings.gravity;
+		elem('antiGravity').value = settings.gravity;
 	}
-	document.getElementById('snaptogridswitch').checked = settings.snapToGrid;
+	elem('snaptogridswitch').checked = settings.snapToGrid;
 	if (settings.snapToGrid) doSnapToGrid();
-	document.getElementById('curveSelect').value = settings.curve;
+	elem('curveSelect').value = settings.curve;
 	selectCurve();
-	document.getElementById('showLegendSwitch').checked = settings.legend;
+	elem('showLegendSwitch').checked = settings.legend;
 	legendSwitch(false);
 	setRadioVal('hide', settings.linkRadius);
 	setRadioVal('stream', settings.stream);
-	document.getElementById('showLabelSwitch').checked = settings.showLabels;
-	document.getElementById('sizing').value = settings.sizing;
+	elem('showLabelSwitch').checked = settings.showLabels;
+	elem('sizing').value = settings.sizing;
 }
 // Factors and Links Tabs
 function applySampleToNode() {
@@ -2254,7 +2254,7 @@ function applySampleToLink(event) {
 }
 
 function setFixed() {
-	let checkbox = document.getElementById('fixed');
+	let checkbox = elem('fixed');
 	let node = data.nodes.get(network.getSelectedNodes()[0]);
 	if (checkbox.checked == true) {
 		node.fixed = true;
@@ -2273,14 +2273,14 @@ function showNodeOrEdgeData() {
 	}
 }
 function showNodeData() {
-	let panel = document.getElementById('nodeDataPanel');
+	let panel = elem('nodeDataPanel');
 	let nodeId = network.getSelectedNodes()[0];
 	let node = data.nodes.get(nodeId);
-	document.getElementById('fixed').checked = node.fixed ? true : false;
-	document.getElementById('nodeLabel').innerHTML = node.label
+	elem('fixed').checked = node.fixed ? true : false;
+	elem('nodeLabel').innerHTML = node.label
 		? shorten(node.label)
 		: '';
-	let notes = document.getElementById('node-notes');
+	let notes = elem('node-notes');
 	notes.innerHTML = node.title ? node.title.replace(/<br>/g, ' ') : '';
 	notes.addEventListener('keyup', (e) => updateNodeNotes(e));
 	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
@@ -2309,13 +2309,13 @@ function updateNodeNotes(e) {
 	});
 }
 function showEdgeData() {
-	let panel = document.getElementById('edgeDataPanel');
+	let panel = elem('edgeDataPanel');
 	let edgeId = network.getSelectedEdges()[0];
 	let edge = data.edges.get(edgeId);
-	document.getElementById('edgeLabel').innerHTML = edge.label
+	elem('edgeLabel').innerHTML = edge.label
 		? shorten(edge.label)
 		: '';
-	let notes = document.getElementById('edge-notes');
+	let notes = elem('edge-notes');
 	notes.innerHTML = edge.title ? edge.title.replace(/<br>/g, ' ') : '';
 	notes.addEventListener('keyup', (e) => updateEdgeNotes(e));
 	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
@@ -2335,8 +2335,8 @@ function updateEdgeNotes(e) {
 	});
 }
 function hideNotes() {
-	document.getElementById('nodeDataPanel').classList.add('hide');
-	document.getElementById('edgeDataPanel').classList.add('hide');
+	elem('nodeDataPanel').classList.add('hide');
+	elem('edgeDataPanel').classList.add('hide');
 }
 // Statistics specific to a node
 function displayStatistics(nodeId) {
@@ -2344,15 +2344,15 @@ function displayStatistics(nodeId) {
 	let inDegree = network.getConnectedNodes(nodeId, 'from').length;
 	let outDegree = network.getConnectedNodes(nodeId, 'to').length;
 	let leverage = inDegree == 0 ? '--' : (outDegree / inDegree).toPrecision(3);
-	document.getElementById('leverage').textContent = leverage;
-	document.getElementById('bc').textContent =
+	elem('leverage').textContent = leverage;
+	elem('bc').textContent =
 		bc[nodeId] >= 0 ? bc[nodeId].toPrecision(3) : '--';
 }
 // Network tab
 function autoLayoutSwitch(e) {
 	let switchOn = e.target.checked;
 	if (switchOn && snapToGridToggle) snapToGridOff(); // no snapping with auto layout.
-	document.getElementById('spacing').classList.toggle('hidden');
+	elem('spacing').classList.toggle('hidden');
 	autoLayoutSet(switchOn);
 }
 
@@ -2368,8 +2368,8 @@ function autoLayoutSet(switchOn) {
 
 function setGravity() {
 	// only when autolayout is on
-	if (document.getElementById('autolayoutswitch').checked) {
-		adjustGravity(document.getElementById('antiGravity').value);
+	if (elem('autolayoutswitch').checked) {
+		adjustGravity(elem('antiGravity').value);
 	}
 }
 
@@ -2416,14 +2416,14 @@ function doSnapToGrid() {
 }
 
 function snapToGridOff() {
-	document.getElementById('snaptogridswitch').checked = false;
+	elem('snaptogridswitch').checked = false;
 	snapToGridToggle = false;
 }
 
 function selectCurve() {
 	let options = {
 		edges: {
-			smooth: document.getElementById('curveSelect').value === 'Curved',
+			smooth: elem('curveSelect').value === 'Curved',
 		},
 	};
 	network.setOptions(options);
@@ -2432,17 +2432,17 @@ function selectCurve() {
 }
 
 function setCurve(options) {
-	document.getElementById('curveSelect').value = options.edges.smooth
+	elem('curveSelect').value = options.edges.smooth
 		? 'Curved'
 		: 'Straight';
 	network.setOptions(options);
 }
 
 function updateNetBack(event) {
-	let ul = document.getElementById('underlay');
+	let ul = elem('underlay');
 	ul.style.backgroundColor = event.target.value;
 	// if in drawing mode, make the underlay translucent so that network shows through
-	if (document.getElementById('toolbox').style.display == 'block')
+	if (elem('toolbox').style.display == 'block')
 		makeTranslucent(ul);
 	yNetMap.set('background', event.target.value);
 }
@@ -2459,33 +2459,33 @@ function makeSolid(elem) {
 		.replace('rgba', 'rgb');
 }
 function setBackground(color) {
-	document.getElementById('underlay').style.backgroundColor = color;
+	elem('underlay').style.backgroundColor = color;
 }
 function toggleDrawingLayer() {
-	drawingSwitch = document.getElementById('toolbox').style.display == 'block';
-	let ul = document.getElementById('underlay');
+	drawingSwitch = elem('toolbox').style.display == 'block';
+	let ul = elem('underlay');
 	if (drawingSwitch) {
 		// close drawing layer
 		deselectTool();
-		document.getElementById('toolbox').style.display = 'none';
-		document.getElementById('underlay').style.zIndex = 0;
+		elem('toolbox').style.display = 'none';
+		elem('underlay').style.zIndex = 0;
 		makeSolid(ul);
-		document.getElementById('temp-canvas').style.zIndex = 0;
-		document.getElementById('chatbox-tab').classList.remove('chatbox-hide');
+		elem('temp-canvas').style.zIndex = 0;
+		elem('chatbox-tab').classList.remove('chatbox-hide');
 		inAddMode = false;
 		setButtonDisabledStatus('addNode', false);
 		setButtonDisabledStatus('addLink', false);
 		changeCursor('auto');
 	} else {
 		// expose drawing layer
-		document.getElementById('toolbox').style.display = 'block';
+		elem('toolbox').style.display = 'block';
 		ul.style.zIndex = 1000;
 		ul.style.cursor = 'default';
-		document.getElementById('temp-canvas').style.zIndex = 1000;
+		elem('temp-canvas').style.zIndex = 1000;
 		// make the underlay (which is now overlay) translucent
 		makeTranslucent(ul);
 		minimize();
-		document.getElementById('chatbox-tab').classList.add('chatbox-hide');
+		elem('chatbox-tab').classList.add('chatbox-hide');
 		inAddMode = 'disabled';
 		setButtonDisabledStatus('addNode', true);
 		setButtonDisabledStatus('addLink', true);
@@ -2496,7 +2496,7 @@ function toggleDrawingLayer() {
 function ensureNotDrawing() {
 	if (!drawingSwitch) return;
 	toggleDrawingLayer();
-	document.getElementById('drawing').checked = false;
+	elem('drawing').checked = false;
 }
 
 function selectAllFactors() {
@@ -2525,7 +2525,7 @@ function labelSwitch() {
 }
 
 function legendSwitch(warn) {
-	if (document.getElementById('showLegendSwitch').checked) legend(warn);
+	if (elem('showLegendSwitch').checked) legend(warn);
 	else clearLegend();
 }
 
@@ -2598,8 +2598,8 @@ function hideDistantOrStreamNodes(broadcast = true) {
 	if (selectedNodes.length == 0) {
 		statusMsg('Select a Factor first', 'error');
 		// unhide everything
-		document.getElementById('hideAll').checked = true;
-		document.getElementById('streamAll').checked = true;
+		elem('hideAll').checked = true;
+		elem('streamAll').checked = true;
 		if (broadcast) broadcastHideAndStream('All', 'All');
 		showAll();
 		return;
@@ -2736,8 +2736,11 @@ function broadcastHideAndStream(hideSetting, streamSetting) {
 
 function setHideAndStream(obj) {
 	if (!obj) return;
-	network.selectNodes([].concat(obj.selected)); // ensure that obj.selected is an array
-	statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
+	let selectedNodes = [].concat(obj.selected); // ensure that obj.selected is an array
+	if (selectedNodes.length > 0) {
+		network.selectNodes(selectedNodes); // in viewing  only mode, this does nothing
+		if (!viewOnly) statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
+	}
 	setRadioVal('hide', obj.hideSetting);
 	setRadioVal('stream', obj.streamSetting);
 }
@@ -2745,7 +2748,7 @@ function setHideAndStream(obj) {
 function sizing() {
 	// set the size of the nodes proportional to the selected metric
 	//  none, in degree out degree or betweenness centrality
-	let metric = document.getElementById('sizing').value;
+	let metric = elem('sizing').value;
 	data.nodes.forEach((node) => {
 		switch (metric) {
 			case 'Off':
@@ -2771,7 +2774,7 @@ function sizing() {
 		data.nodes.update(node);
 	});
 	network.fit();
-	document.getElementById('zoom').value = network.getScale();
+	elem('zoom').value = network.getScale();
 }
 /* ---------------------------------------chat window --------------------------------*/
 function minimize() {
@@ -2858,7 +2861,7 @@ function showOtherUsers() {
 		})
 		.sort((a, b) => (a.name > b.name ? 1 : -1));
 
-	let avatars = document.getElementById('avatars');
+	let avatars = elem('avatars');
 	while (avatars.firstChild) {
 		avatars.removeChild(avatars.firstChild);
 	}
@@ -2887,6 +2890,6 @@ function showOtherUsers() {
 }
 
 dragElement(
-	document.getElementById('chatbox-holder'),
-	document.getElementById('chatbox-top')
+	elem('chatbox-holder'),
+	elem('chatbox-top')
 );

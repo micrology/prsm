@@ -33,6 +33,9 @@ img {
  .contents a {
 	 color: black;
  }
+ code {
+	 font-size: x-large;
+ }
 .scroll-nav {
 	background-color: #f8f9fa;
 	border: 1px solid #a2a9b1;

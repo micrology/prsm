@@ -151,11 +151,13 @@
 <p>If you use the link above to start the app, a new room is created for you. When you click on the share icon, a dialog box is shown that includes the name of the room in the link that is displayed:</p>
 <p><img src="./doc/images/prsm-share.png" alt="Sharing box" /></p>
 <p>Click the button to copy the web link to the clipboard, and then paste the link into an email or a text message. or just tell other participants the name of the room (which is a randomly generated set of 4 groups of three capital letters separated by hyphens). When they access the link, they will see whatever is in your app window.</p>
-<p>When there are others in the room, the initial letter of their name appears in a circle at the top left - their avatar. If you hover the mouse pointer over the circle, their full name is shown (thier real name or the name they have been given by the app). If they don't do anything for 15 minutes, the avatar fades and, if they close thier browser window, it disappears.</p>
+<p>When there are others in the room, the initial letter of their name appears in a circle at the top left - their avatar. If you hover the mouse pointer over the circle, their full name is shown (their real name or the name they have been given by the app). If they don't do anything for 15 minutes, the avatar fades and, if they close thier browser window, it disappears.</p>
 <!-- ![Avatars](./doc/images/avatars.png) -->
 
 <img src="./doc/images/avatars.png" width="400">
 
+<p>If you wnat to show someone a map, but don't want them to alter it in any way, send them the link with <code>&amp;viewing</code> appended, for instance:</p>
+<p><a href="https://cress.soc.surrey.ac.uk/prsm/prsm.html?room=CPC-AJH-UQP-ZWP&amp;viewing">https://cress.soc.surrey.ac.uk/prsm/prsm.html?room=CPC-AJH-UQP-ZWP&amp;viewing</a></p>
 <h3 id="formatting-factors-and-links">Formatting factors and links</h3>
 <p>Double clicking on a factor or a link will bring up a small dialog that enables you to change the design of the factor or link - its colour, shape or the label.</p>
 <!-- ![Editing a node](./doc/images/Editingnode.png) -->
@@ -185,14 +187,14 @@
 
 <img src="./doc/images/FactorsPanel.png" width="300">
 
-<p>Here there are 9 sample styles for how factors can look. If you select a factor from the network, and then click on one of the 9 styles, the factor will change to resemble the style. As a short cut, if you click on the 'Select all factors' button at the bottom, and then click on a style, all the factors will change to the chosen style.</p>
+<p>Here there are 9 sample styles for how factors can look. If you select a factor from the network and then click on one of the 9 styles, the factor will change to resemble the style. As a short cut, if you click on the 'Select all factors' button at the bottom, and then click on a style, all the factors will change to the chosen style.</p>
 <p>Double clicking on any of the 9 styles opens a dialog box to change the style:</p>
 <!-- ![FactorStyleDialog](./doc/images/FactorStyle.png) -->
 
 <img src="./doc/images/FactorsStyle.png" width="600">
 
-<p>There are options to change the colour of the background (the 'fill'), the border and the font of the label, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted, and to change the font size of the label.</p>
-<p>You can also change the name of the style. If you do so, this name will appear on the network pane as one item in the 'legend'. So, for example, if you had some factors that are Actions, some that are Outputs and some that are Outcomes, you could give three of the styles these names, colour their fills red, green and blue, and the apply these styles to the appropriate factors in the network. The legend will be automatically displayed on the network pane, thus:</p>
+<p>There are options to change the colour of the background (the 'fill'), the border and the font of the label, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted or none, and to change the font size of the label.</p>
+<p>You can also change the name of the style. If you do so, this name will appear on the network pane as one item in the 'legend'. So, for example, if you had some factors that are Inputs, some that are Actions, some Outputs and some Outcomes, you could give four of the styles these names, colour their fills green, yellow, orange and red, and then apply these styles to the appropriate factors in the network. The legend will be automatically displayed on the network pane, thus:</p>
 <p><img src="./doc/images/Legend.png" alt="Legend" /></p>
 <p>The legend can be moved by dragging the top of the Legend pane.</p>
 <p>If you select just one factor, a small panel appears below the styles. This shows the factor label, some network statistics about the factor, and an area where you can type in further information about the factor as a note. If you hover the pointer above the factor, the note will be shown. There is also a check box, Fix - if this is checked, the factor will be locked into place on the network pane and cannot be dragged elsewhere.</p>
@@ -214,9 +216,9 @@
 
 <p>From top to bottom, there are controls for:</p>
 <ul>
-<li><strong>Auto Layout</strong> If this switch is set to ON, the app attempts to move the factors and links to create a neat layout with a minimum number of crossing links. It is best to switch this on, wait for the factors to move to their calculated positions, switch it off and then manually adjust the factors to a pleasing layout.
+<li><strong>Auto Layout</strong> If this switch is set to ON, the app attempts to move the factors and links to create a neat layout with a minimum number of crossing links. It is best to switch this ON, wait for the factors to move to their calculated positions, switch it OFF and then manually adjust the factors to a pleasing layout.
 <ul>
-<li><strong>Spacing</strong> This slider only appears when Auto Layout is on. With it, you can adjust the space between the factors and the length of the links.</li>
+<li><strong>Spacing</strong> This slider only appears when Auto Layout is ON. With it, you can adjust the space between the factors and the length of the links.</li>
 </ul></li>
 <li><strong>Snap to grid</strong> When ON, factors can only be placed at the intersection of invisible grid lines. This makes it much easier to line up factors neatly.</li>
 <li><strong>Link</strong> Links can either be drawn using a curved line or a straight line. This control swaps between these two styles.</li>
@@ -225,8 +227,8 @@
 <li><strong>Show labels</strong> If switched OFF, the factors are shown without their labels.</li>
 <li><strong>Show legend</strong> If the factor and link styles are given names (other than 'Sample'), the styles and their names will be shown in a panel at the left bottom of the network pane headed 'Legend', when this switch is ON. See the description of the <a href="#factors-tab">Factors tab</a>.</li>
 <li><strong>Show only neighbouring Factors</strong> If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 1, 2, or 3 links away from the selected Factor(s). This is useful when one wants to focus on one part of a large network.</li>
-<li><strong>Show only up or downstream Factors</strong> If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 'downstream (i.e. linked to the selected Factor(s) by following links directed away from those Factor(s)), or those 'upstream' (i.e. linked to the selected Factor(s) by following links directed towards from those Factor(s)).</li>
-<li><strong>Adjust size of Factors</strong> THis is used to change the size of the Factors to be proportional to one of a set of metrics: the number of inputs (the 'in-degree'), the number of outputs (the 'out-degree'), the leverage (ratio of inputs to outputs), or the <a href="https://en.wikipedia.org/wiki/Betweenness_centrality">betweenness centrality</a>. Note that the Factors are always drawn large enough to accommodate their labels, and so the size may not be exactly proportional to the metric.</li>
+<li><strong>Show only up or downstream Factors</strong> If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 'downstream (i.e. linked to the selected Factor(s) by following links directed away from those Factor(s)), or those 'upstream' (i.e. linked to the selected Factor(s) by following links directed towards those Factor(s)).</li>
+<li><strong>Adjust size of Factors</strong> This is used to change the size of the Factors to be proportional to one of a set of metrics: the number of inputs (the 'in-degree'), the number of outputs (the 'out-degree'), the leverage (ratio of inputs to outputs), or the <a href="https://en.wikipedia.org/wiki/Betweenness_centrality">betweenness centrality</a>. Note that the Factors are always drawn large enough to accommodate their labels, and so the size may not be exactly proportional to the metric.</li>
 </ul>
 <h2 id="drawing-mode">Drawing Mode</h2>
 <p>Switching 'Show drawing layer' ON reveals a group of buttons on the left that enable you to draw shapes, write text, and import images on to the network background.</p>
@@ -247,7 +249,7 @@
 </ul>
 <h2 id="source-code">Source Code</h2>
 <p>The program code is available on <a href="https://github.com/micrology/prsm">GitHub</a>.</p>
-<p>The javascript (ES6) code in sub-directory <code>js</code> is divided into four modules: one that handles the main network pane (<code>prsm.js</code>), one that manages the background painting functions (<code>paint.js</code>), one that creates and edits the styles (<code>styles.js</code>) and one that includes common utility functions (<code>utils.js</code>). The HTML file that displays in the browser is in the <code>html</code> directory.</p>
+<p>The javascript (ES6) code in sub-directory <code>js</code> is divided into five modules: one that handles the main network pane (<code>prsm.js</code>), one that manages the background painting functions (<code>paint.js</code>), one that creates and edits the styles (<code>styles.js</code>) (the default styles are in <code>samples.js</code>), one that handles the tour (<code>tutorial.js</code>) and one that includes common utility functions (<code>utils.js</code>). The HTML file that displays in the browser is in the <code>html</code> directory.</p>
 <p>PRSM uses two important packages: <a href="https://github.com/yjs/yjs"><code>yjs</code></a> and <a href="https://visjs.org/"><code>vis-network</code></a>. The former handles the sharing between participants' browsers and the latter draws the network. A few other packages are used for dealing with touch input (<a href="https://hammerjs.github.io/"><code>Hammer</code></a>), drawing emojis, and parsing XML file input.</p>
 <p>These components are assembled using <a href="https://parceljs.org/"><code>parcel</code></a> and the bundled file is placed in the <code>dist</code> directory. So that users have an easy URL to access (i.e. not needing to include <code>dist</code> in the link), there is an <code>.htaccess</code> file that rewrites URLs from what the user puts into their browser to the correct location.</p>
 <p>To install the code, use <code>git</code> to clone the <a href="https://github.com/micrology/prsm">repo</a> to your local disk and change to the cloned directory. Then install the required packages with</p>

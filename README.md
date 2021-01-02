@@ -97,10 +97,14 @@ If you use the link above to start the app, a new room is created for you.  When
 
 Click the button to copy the web link to the clipboard, and then paste the link into an email or a text message. or just tell other participants the name of the room (which is a randomly generated set of 4 groups of three capital letters separated by hyphens).  When they access the link, they will see whatever is in your app window.
 
-When there are others in the room, the initial letter of their name appears in a circle at the top left - their avatar.  If you hover the mouse pointer over the circle, their full name is shown (thier real name or the name they have been given by the app).  If they don't do anything for 15 minutes, the avatar fades and, if they close thier browser window, it disappears.
+When there are others in the room, the initial letter of their name appears in a circle at the top left - their avatar.  If you hover the mouse pointer over the circle, their full name is shown (their real name or the name they have been given by the app).  If they don't do anything for 15 minutes, the avatar fades and, if they close thier browser window, it disappears.
 
 <!-- ![Avatars](./doc/images/avatars.png) -->
 <img src="./doc/images/avatars.png" width="400">
+
+If you wnat to show someone a map, but don't want them to alter it in any way, send them the link with ```&viewing``` appended, for instance:
+
+<https://cress.soc.surrey.ac.uk/prsm/prsm.html?room=CPC-AJH-UQP-ZWP&viewing>
 
 ### Formatting factors and links
 
