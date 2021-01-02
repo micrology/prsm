@@ -36,7 +36,7 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.4.2';
+const version = '1.4.3';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
@@ -407,27 +407,27 @@ function startY() {
 		if (window.debug) console.log(event);
 		for (let key of event.keysChanged) {
 			let obj = yNetMap.get(key);
-				switch (key) {
-					case 'edges':
-						setCurve(
-							clean(obj, {
-								clientID: null,
-							})
-						);
-						break;
-					case 'hideAndStream':
-						setHideAndStream(obj);
-						hideDistantOrStreamNodes(false);
-						break;
-					case 'background':
-						setBackground(obj);
-						break;
-					case 'maptitle':
-						setMapTitle(obj);
-						break;
-					default:
-						console.log('Bad key in yMapNet.observe: ', key);
-				}
+			switch (key) {
+				case 'edges':
+					setCurve(
+						clean(obj, {
+							clientID: null,
+						})
+					);
+					break;
+				case 'hideAndStream':
+					setHideAndStream(obj);
+					hideDistantOrStreamNodes(false);
+					break;
+				case 'background':
+					setBackground(obj);
+					break;
+				case 'maptitle':
+					setMapTitle(obj);
+					break;
+				default:
+					console.log('Bad key in yMapNet.observe: ', key);
+			}
 		}
 	});
 	yPointsArray.observe((event, trans) => {
@@ -561,8 +561,7 @@ function saveUserName(name) {
 	if (name.length > 0) {
 		myNameRec.name = name;
 		myNameRec.anon = false;
-	}
-	else myNameRec = generateName();
+	} else myNameRec = generateName();
 	chatNameBox.value = myNameRec.name;
 	localStorage.setItem('myName', JSON.stringify(myNameRec));
 	yAwareness.setLocalState({name: myNameRec});
@@ -942,12 +941,8 @@ function editNode(item, cancelAction, callback) {
 	elem('node-backgroundColor').value = standardize_color(
 		item.color.background
 	);
-	elem('node-borderColor').value = standardize_color(
-		item.color.border
-	);
-	elem('node-fontColor').value = standardize_color(
-		item.font.color
-	);
+	elem('node-borderColor').value = standardize_color(item.color.border);
+	elem('node-fontColor').value = standardize_color(item.font.color);
 	elem('node-borderType').value = getDashes(
 		item.shapeProperties.borderDashes
 	);
@@ -1010,9 +1005,7 @@ function editEdge(item, cancelAction, callback) {
 	</table>`
 	);
 	elem('edge-width').value = parseInt(item.width);
-	elem('edge-color').value = standardize_color(
-		item.color.color
-	);
+	elem('edge-color').value = standardize_color(item.color.color);
 	elem('edge-type').value = getDashes(item.dashes);
 	positionPopUp();
 	elem('popup-label').focus();
@@ -1037,15 +1030,8 @@ function initPopUp(
 	changeCursor('auto');
 	elem('popup').style.height = height + 'px';
 	elem('popup-operation').innerHTML = popUpTitle;
-	elem('popup-saveButton').onclick = saveAction.bind(
-		this,
-		item,
-		callback
-	);
-	elem('popup-cancelButton').onclick = cancelAction.bind(
-		this,
-		callback
-	);
+	elem('popup-saveButton').onclick = saveAction.bind(this, item, callback);
+	elem('popup-cancelButton').onclick = cancelAction.bind(this, callback);
 	let popupLabel = elem('popup-label');
 	popupLabel.addEventListener('keyup', squashInputOnKeyUp);
 	popupLabel.style.fontSize = '20px';
@@ -1090,7 +1076,7 @@ function positionPopUp() {
 	let left = event.clientX - popUp.offsetWidth - 3;
 	popUp.style.left = `${left < 0 ? 0 : left}px`;
 	squashInput(elem('popup-label'));
-	dragElement(popUp, popUp);
+	dragElement(popUp, elem('popup-top'));
 }
 
 /**
@@ -1117,10 +1103,7 @@ function cancelEdit(callback) {
  * @param {Function} callback
  */
 function saveLabel(item, callback) {
-	item.label = splitText(
-		elem('popup-label').innerText,
-		NODEWIDTH
-	);
+	item.label = splitText(elem('popup-label').innerText, NODEWIDTH);
 	clearPopUp();
 	if (item.label === '') {
 		// if there is no label and it is an edge, blank the label, else cancel
@@ -1142,10 +1125,7 @@ function saveLabel(item, callback) {
  * @param {Function} callback
  */
 function saveNode(item, callback) {
-	item.label = splitText(
-		elem('popup-label').innerText,
-		NODEWIDTH
-	);
+	item.label = splitText(elem('popup-label').innerText, NODEWIDTH);
 	clearPopUp();
 	if (item.label === '') {
 		// if there is no label, cancel (nodes must have a label)
@@ -1162,7 +1142,7 @@ function saveNode(item, callback) {
 	item.color.hover.border = color;
 	item.font.color = elem('node-fontColor').value;
 	let borderType = elem('node-borderType').value;
-	item.borderWidth = (borderType == 'none' ? 0 : 1);
+	item.borderWidth = borderType == 'none' ? 0 : 1;
 	item.shapeProperties.borderDashes = convertDashes(borderType);
 	claim(item);
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
@@ -1174,10 +1154,7 @@ function saveNode(item, callback) {
  * @param {Function} callback
  */
 function saveEdge(item, callback) {
-	item.label = splitText(
-		elem('popup-label').innerText,
-		NODEWIDTH
-	);
+	item.label = splitText(elem('popup-label').innerText, NODEWIDTH);
 	clearPopUp();
 	if (item.label === '') item.label = ' ';
 	let color = elem('edge-color').value;
@@ -1284,12 +1261,12 @@ function setMapTitle(title) {
 function unSelect() {
 	hideNotes();
 	let nodes = data.nodes.get(network.getSelectedNodes());
-		nodes.forEach((node) => {
-			node.shadow = false;
-		});
+	nodes.forEach((node) => {
+		node.shadow = false;
+	});
 	data.nodes.update(nodes);
 	network.unselectAll();
-	clearStatusBar()
+	clearStatusBar();
 }
 /* 
   ----------- Calculate statistics in the background -------------
@@ -1487,8 +1464,8 @@ function stopEdit() {
  * @param {*} action whether to add or remove the style
  *
  */
-function showPressed(elem, action) {
-	elem(elem).children.item(0).classList[action]('pressed');
+function showPressed(el, action) {
+	elem(el).children.item(0).classList[action]('pressed');
 }
 
 function undo() {
@@ -1606,7 +1583,7 @@ function loadFile(contents) {
 	data.nodes.update(
 		data.nodes.map(
 			(n) => {
-				n.grp = n.group ? 'group' + (n.group % 9)  : 'group0';
+				n.grp = n.group ? 'group' + (n.group % 9) : 'group0';
 				return n;
 			},
 			{
@@ -2069,7 +2046,8 @@ function setUpShareDialog() {
 
 	function closeShareDialog() {
 		let modal = elem('shareModal');
-		if (event.target == modal || event.target == elem('modal-close')) modal.style.display = 'none';
+		if (event.target == modal || event.target == elem('modal-close'))
+			modal.style.display = 'none';
 	}
 	listen('copy-text', 'click', (e) => {
 		e.preventDefault();
@@ -2194,18 +2172,11 @@ function undoRedoButtons(event) {
 }
 
 function setButtonStatus(settings) {
-	if (
-		elem('autolayoutswitch').checked !=
-		settings.autoLayout
-	) {
+	if (elem('autolayoutswitch').checked != settings.autoLayout) {
 		autoLayoutSet(settings.autoLayout);
-		elem('autolayoutswitch').checked =
-			settings.autoLayout;
+		elem('autolayoutswitch').checked = settings.autoLayout;
 	}
-	if (
-		elem('antiGravity').value != settings.gravity &&
-		settings.autoLayout
-	) {
+	if (elem('antiGravity').value != settings.gravity && settings.autoLayout) {
 		adjustGravity(settings.gravity);
 		elem('antiGravity').value = settings.gravity;
 	}
@@ -2277,9 +2248,7 @@ function showNodeData() {
 	let nodeId = network.getSelectedNodes()[0];
 	let node = data.nodes.get(nodeId);
 	elem('fixed').checked = node.fixed ? true : false;
-	elem('nodeLabel').innerHTML = node.label
-		? shorten(node.label)
-		: '';
+	elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : '';
 	let notes = elem('node-notes');
 	notes.innerHTML = node.title ? node.title.replace(/<br>/g, ' ') : '';
 	notes.addEventListener('keyup', (e) => updateNodeNotes(e));
@@ -2289,13 +2258,13 @@ function showNodeData() {
 	displayStatistics(nodeId);
 }
 /**
- * update the title property of the node with the text of the note. 
+ * update the title property of the node with the text of the note.
  * returns (\n) inserted by the user are replaced by <p> and
  * \n inserted by the split text fn are replaced by <br>.
- * 
- * When the Note is redisplayed in the Note box, <br> is stripped out and 
+ *
+ * When the Note is redisplayed in the Note box, <br> is stripped out and
  * <p> replaced by \n to preserve user formatting.
- * @param {event} e 
+ * @param {event} e
  */
 function updateNodeNotes(e) {
 	let text = e.target.innerText.replace(/\n/g, '<p>');
@@ -2312,9 +2281,7 @@ function showEdgeData() {
 	let panel = elem('edgeDataPanel');
 	let edgeId = network.getSelectedEdges()[0];
 	let edge = data.edges.get(edgeId);
-	elem('edgeLabel').innerHTML = edge.label
-		? shorten(edge.label)
-		: '';
+	elem('edgeLabel').innerHTML = edge.label ? shorten(edge.label) : '';
 	let notes = elem('edge-notes');
 	notes.innerHTML = edge.title ? edge.title.replace(/<br>/g, ' ') : '';
 	notes.addEventListener('keyup', (e) => updateEdgeNotes(e));
@@ -2345,8 +2312,7 @@ function displayStatistics(nodeId) {
 	let outDegree = network.getConnectedNodes(nodeId, 'to').length;
 	let leverage = inDegree == 0 ? '--' : (outDegree / inDegree).toPrecision(3);
 	elem('leverage').textContent = leverage;
-	elem('bc').textContent =
-		bc[nodeId] >= 0 ? bc[nodeId].toPrecision(3) : '--';
+	elem('bc').textContent = bc[nodeId] >= 0 ? bc[nodeId].toPrecision(3) : '--';
 }
 // Network tab
 function autoLayoutSwitch(e) {
@@ -2432,9 +2398,7 @@ function selectCurve() {
 }
 
 function setCurve(options) {
-	elem('curveSelect').value = options.edges.smooth
-		? 'Curved'
-		: 'Straight';
+	elem('curveSelect').value = options.edges.smooth ? 'Curved' : 'Straight';
 	network.setOptions(options);
 }
 
@@ -2442,19 +2406,18 @@ function updateNetBack(event) {
 	let ul = elem('underlay');
 	ul.style.backgroundColor = event.target.value;
 	// if in drawing mode, make the underlay translucent so that network shows through
-	if (elem('toolbox').style.display == 'block')
-		makeTranslucent(ul);
+	if (elem('toolbox').style.display == 'block') makeTranslucent(ul);
 	yNetMap.set('background', event.target.value);
 }
 
-function makeTranslucent(elem) {
-	elem.style.backgroundColor = getComputedStyle(elem)
+function makeTranslucent(el) {
+	el.style.backgroundColor = getComputedStyle(el)
 		.backgroundColor.replace(')', ', 0.2)')
 		.replace('rgb', 'rgba');
 }
 
-function makeSolid(elem) {
-	elem.style.backgroundColor = getComputedStyle(elem)
+function makeSolid(el) {
+	el.style.backgroundColor = getComputedStyle(el)
 		.backgroundColor.replace(', 0.2)', ')')
 		.replace('rgba', 'rgb');
 }
@@ -2739,7 +2702,8 @@ function setHideAndStream(obj) {
 	let selectedNodes = [].concat(obj.selected); // ensure that obj.selected is an array
 	if (selectedNodes.length > 0) {
 		network.selectNodes(selectedNodes); // in viewing  only mode, this does nothing
-		if (!viewOnly) statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
+		if (!viewOnly)
+			statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
 	}
 	setRadioVal('hide', obj.hideSetting);
 	setRadioVal('stream', obj.streamSetting);
@@ -2889,7 +2853,4 @@ function showOtherUsers() {
 	});
 }
 
-dragElement(
-	elem('chatbox-holder'),
-	elem('chatbox-top')
-);
+dragElement(elem('chatbox-holder'), elem('chatbox-top'));

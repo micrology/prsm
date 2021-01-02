@@ -1,7 +1,6 @@
 @font-face {
 	font-family: 'Oxygen';
-	src: url('../fonts/oxygen-regular-webfont.woff2')
-		format('woff2');
+	src: url('../fonts/oxygen-regular-webfont.woff2') format('woff2');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -29,13 +28,13 @@ img {
 .contents {
 	padding: 20px;
 	margin-left: 230px;
- }
- .contents a {
-	 color: black;
- }
- code {
-	 font-size: x-large;
- }
+}
+.contents a {
+	color: black;
+}
+code {
+	font-size: x-large;
+}
 .scroll-nav {
 	background-color: #f8f9fa;
 	border: 1px solid #a2a9b1;
@@ -43,41 +42,42 @@ img {
 	position: sticky;
 	top: 10px;
 	width: 200px;
-  }
-  @media screen and (max-width: 1000px) {
+}
+@media screen and (max-width: 1000px) {
 	.contents {
 		margin-left: 170px;
 	}
 	.scroll-nav {
 		width: 150px;
 	}
-  }
-  @media screen and (max-width: 700px) {
+}
+@media screen and (max-width: 700px) {
 	.contents {
 		margin-left: 0;
 	}
 	.scroll-nav {
-	  display: none;
+		display: none;
 	}
-	img {max-width: 600px;
+	img {
+		max-width: 600px;
 	}
-  }
-  .scroll-nav__list {
+}
+.scroll-nav__list {
 	margin: 0;
 	padding-left: 1.4em;
 	list-style-type: none;
-  }
-  
-  .scroll-nav__item {
+}
+
+.scroll-nav__item {
 	margin-bottom: 5px;
-  }
-  
-  .scroll-nav__item--active {
+}
+
+.scroll-nav__item--active {
 	font-weight: 600;
 	position: relative;
-  }
-  .scroll-nav__item--active:before {
-	content: "";
+}
+.scroll-nav__item--active:before {
+	content: '';
 	display: block;
 	width: 14px;
 	height: 14px;
@@ -85,10 +85,10 @@ img {
 	position: absolute;
 	left: -20px;
 	top: 2px;
-  }
-  
-  .scroll-nav__link {
+}
+
+.scroll-nav__link {
 	color: #0645ad;
 	text-decoration: none;
 	overflow-wrap: break-word;
-  }
+}
