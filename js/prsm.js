@@ -41,7 +41,7 @@ const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
 const SHORTLABELLEN = 25; // when listing node labels, use ellipsis after this number of chars
-const timeToSleep = 1 * 60 * 1000; // if no mouse movement for this time, user is assumed to have left or is sleeping
+const timeToSleep = 15 * 60 * 1000; // if no mouse movement for this time, user is assumed to have left or is sleeping
 
 export var network;
 var room;
@@ -597,7 +597,7 @@ function setUpAwareness() {
 	window.addEventListener('mousemove', () => {
 		clearTimeout(sleepTimer);
 		asleep(false);
-		sleepTimer = setTimeout(asleep, timeToSleep);
+		sleepTimer = setTimeout(asleep(true), timeToSleep);
 	});
 }
 /**

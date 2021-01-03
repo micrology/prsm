@@ -117,7 +117,7 @@ export default class Tutorial {
 			if (top > window.innerHeight - dialogBR.height)
 				top = window.innerHeight - dialogBR.height;
 			if (left < 0) left = 0;
-			if (top > window.innerWidth - dialogBR.width)
+			if (left > window.innerWidth - dialogBR.width)
 				left = window.innerWidth - dialogBR.width;
 			dialog.style.top = top + 'px';
 			dialog.style.left = left + 'px';
