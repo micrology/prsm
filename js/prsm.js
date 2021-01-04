@@ -330,7 +330,12 @@ function startY() {
 				if (obj.clientID != clientID || origin != null) {
 					nodesToUpdate.push(obj);
 				}
-			} else nodes.remove(key);
+			} else {
+				network
+					.getConnectedEdges(key)
+					.forEach((edge) => edges.remove(edge));
+				nodes.remove(key);
+			}
 		}
 		if (nodesToUpdate) nodes.update(nodesToUpdate, origin);
 	});
@@ -593,11 +598,12 @@ function setUpAwareness() {
 		showOtherUsers();
 	});
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
+	asleep(false);
 	var sleepTimer = setTimeout(() => asleep(true), timeToSleep);
 	window.addEventListener('mousemove', () => {
 		clearTimeout(sleepTimer);
 		asleep(false);
-		sleepTimer = setTimeout(asleep(true), timeToSleep);
+		sleepTimer = setTimeout(() => asleep(true), timeToSleep);
 	});
 }
 /**

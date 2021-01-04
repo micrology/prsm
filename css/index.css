@@ -53,6 +53,13 @@ ul li::before {
 	width: 1em;
 	margin-left: -1em;
 }
+.logo {
+	height: 120px;
+	margin: 20px;
+}
+.float-right {
+	float: right;
+}
 @media only screen {
 	a:link,
 	a:visited {
@@ -107,9 +114,8 @@ ul li::before {
 	.footer a:active,
 	.footer a:hover,
 	.footer a:link,
-	.footer a:visited,
-	.footer-content {
-		color: rgba(194, 194, 194, 1) !important;
+	.footer a:visited {
+		color: rgba(253, 128, 8, 1) !important;
 	}
 	.sidebar {
 		display: none !important;
@@ -1002,9 +1008,8 @@ body {
 .footer a:active,
 .footer a:hover,
 .footer a:link,
-.footer a:visited,
-.footer-content {
-	color: rgba(194, 194, 194, 1) !important;
+.footer a:visited {
+	color: rgba(253, 128, 8, 1) !important;
 }
 .sidebar {
 	display: none !important;

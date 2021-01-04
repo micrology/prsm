@@ -1165,7 +1165,7 @@ div.resize {
 	height: 40px;
 	text-align: center;
 	line-height: 40px;
-	font-family: sans-serif;
+	font-family: Oxygen, sans-serif;
 	font-weight: bold;
 	font-size: 24px;
 	opacity: 0.7;
@@ -1188,8 +1188,6 @@ div.resize {
 	color: #fff;
 	position: absolute;
 	text-align: center;
-	/* top: 70px;
-	left: -15px;*/
 	font-size: 12px;
 	white-space: pre;
 	display: inline-block;
@@ -1209,7 +1207,7 @@ div.resize {
 	max-height: 24px;
 	width: max-content;
 	padding: 8px;
-	font-family: 'Work Sans', sans-serif;
+	font-family: Oxygen, sans-serif;
 	border-radius: 4px;
 	background: #232f34;
 	color: #fff;
