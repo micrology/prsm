@@ -45,7 +45,7 @@ export default class Tutorial {
 		if (this.step == 0) prevLegend = 'Skip';
 		if (this.step == this.steps.length - 1) nextLegend = 'Done';
 		let dialog = document.createElement('div');
-		dialog.className = 'tutorial-dialog';
+		dialog.className = `tutorial-dialog ${position}`;
 		dialog.id = 'tutorial';
 		dialog.innerHTML = `
 <div class="tutorial-arrow ${position}"></div>
