@@ -287,7 +287,7 @@ export function reApplySampleToNodes(groupIds) {
 		},
 	});
 	window.data.nodes.update(
-		nodesToUpdate.map((node) => deepMerge(node, styles.nodes[node.grp]))
+		nodesToUpdate.map((node) => deepMerge(styles.nodes[node.grp], node))
 	);
 }
 
@@ -430,7 +430,7 @@ export function reApplySampleToLinks(groupIds) {
 		},
 	});
 	window.data.edges.update(
-		edgesToUpdate.map((edge) => deepMerge(edge, styles.edges[edge.grp]))
+		edgesToUpdate.map((edge) => deepMerge(styles.edges[edge.grp], edge))
 	);
 }
 /**

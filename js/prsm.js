@@ -36,7 +36,7 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.4.3';
+const version = '1.4.4';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
@@ -1636,6 +1636,7 @@ function loadJSONfile(json) {
 	if (json.lastNodeSample) lastNodeSample = json.lastNodeSample;
 	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
 	if (json.buttons) setButtonStatus(json.buttons);
+	if (json.mapTitle) yNetMap.set('maptitle', setMapTitle(json.mapTitle));
 	if (json.edges.length > 0 && 'source' in json.edges[0]) {
 		// the file is from Gephi and needs to be translated
 		let parsed = parseGephiNetwork(json, {
@@ -1922,15 +1923,16 @@ function saveJSONfile() {
 			saved: new Date(Date.now()).toLocaleString(),
 			version: version,
 			room: room,
+			mapTitle: elem('maptitle').innerText,
 			lastNodeSample: lastNodeSample,
 			lastLinkSample: lastLinkSample,
 			buttons: buttonStatus,
 			styles: styles,
 			nodes: data.nodes.map((n) =>
-				strip(n, ['id', 'label', 'title', 'grp', 'x', 'y'])
+				strip(n, ['id', 'label', 'title', 'grp', 'x', 'y', 'color', 'font', 'borderWidth', 'shapeProperties'])
 			),
 			edges: data.edges.map((e) =>
-				strip(e, ['id', 'label', 'title', 'grp', 'from', 'to'])
+				strip(e, ['id', 'label', 'title', 'grp', 'from', 'to', 'color', 'width', 'dashes'])
 			),
 			underlay: yPointsArray.toArray(),
 		},
@@ -1972,6 +1974,7 @@ function saveStr(str, extn) {
 		a.click();
 		a.remove();
 	}
+	statusMsg(`'${lastFileName}' saved`);
 }
 /**
  * Save the map as CSV files, one for nodes and one for edges
