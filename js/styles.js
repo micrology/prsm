@@ -268,7 +268,7 @@ function nodeEditSubmit() {
 	nodeEditorHide();
 	// apply updated style to all nodes having that style
 	let groupId = elem('nodeStyleEditorContainer').groupId;
-	reApplySampleToNodes([groupId]);
+	reApplySampleToNodes([groupId], true);
 	window.ySamplesMap.set(groupId, {
 		node: styles.nodes[groupId],
 		clientID: window.clientId,
@@ -279,15 +279,16 @@ function nodeEditSubmit() {
 /**
  * update all nodes in the map with this style to the current style features
  * @param {IntegerArray} groupIds
+ * @param {Boolean} force override any existing individual node styling
  */
-export function reApplySampleToNodes(groupIds) {
+export function reApplySampleToNodes(groupIds, force) {
 	let nodesToUpdate = window.data.nodes.get({
 		filter: (item) => {
 			return groupIds.includes(item.grp);
 		},
 	});
 	window.data.nodes.update(
-		nodesToUpdate.map((node) => deepMerge(styles.nodes[node.grp], node))
+		nodesToUpdate.map((node) => { return (force ? deepMerge(node, styles.nodes[node.grp]) : deepMerge(styles.nodes[node.grp], node)) })
 	);
 }
 
@@ -411,7 +412,7 @@ function linkEditSubmit() {
 	linkEditorHide();
 	// apply updated style to all edges having that style
 	let groupId = elem('linkStyleEditorContainer').groupId;
-	reApplySampleToLinks([groupId]);
+	reApplySampleToLinks([groupId], true);
 	window.ySamplesMap.set(groupId, {
 		edge: styles.edges[groupId],
 		clientID: window.clientId,
@@ -422,15 +423,16 @@ function linkEditSubmit() {
 /**
  * update all links in the map with this style to the current style features
  * @param {IntegerArray} groupIds
- */
-export function reApplySampleToLinks(groupIds) {
+ * @param {Boolean} force override any existing individual edge styling
+*/
+export function reApplySampleToLinks(groupIds, force) {
 	let edgesToUpdate = window.data.edges.get({
 		filter: (item) => {
 			return groupIds.includes(item.grp);
 		},
 	});
 	window.data.edges.update(
-		edgesToUpdate.map((edge) => deepMerge(styles.edges[edge.grp], edge))
+		edgesToUpdate.map((edge) => { return (force ? deepMerge(edge, styles.edges[edge.grp]) : deepMerge(styles.edges[edge.grp], edge)) })
 	);
 }
 /**

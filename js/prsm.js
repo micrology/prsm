@@ -401,11 +401,11 @@ function startY() {
 		}
 		if (nodesToUpdate) {
 			refreshSampleNodes();
-			reApplySampleToNodes(nodesToUpdate);
+			reApplySampleToNodes(nodesToUpdate, false);
 		}
 		if (edgesToUpdate) {
 			refreshSampleLinks();
-			reApplySampleToLinks(edgesToUpdate);
+			reApplySampleToLinks(edgesToUpdate, false);
 		}
 	});
 	yNetMap.observe((event) => {
