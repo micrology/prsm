@@ -41,8 +41,8 @@ const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
 const SHORTLABELLEN = 25; // when listing node labels, use ellipsis after this number of chars
-const timeToSleep = 15 * 60 * 1000; // if no mouse movement for this time, user is assumed to have left or is sleeping
-
+const TIMETOSLEEP = 15 * 60 * 1000; // if no mouse movement for this time, user is assumed to have left or is sleeping
+const TIMETOEDIT = 5 * 60 * 1000; // if node/edge edit dialog is not saved after tis time, the edit is cancelled
 export var network;
 var room;
 var debug = false; // if true, all yjs sharing interactions are logged to the console
@@ -68,6 +68,7 @@ var myNameRec; // the user's name record {actual name, type, etc.}
 var lastNodeSample = 'group0'; // the last used node style
 var lastLinkSample = 'edge0'; // the last used edge style
 var inAddMode = false; // true when adding a new Factor to the network; used to choose cursor pointer
+var inEditMode = false; //true when node or edge is being edited (dialog is open)
 var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
 var tutorial = new Tutorial(); // object driving the tutorial
@@ -603,11 +604,11 @@ function setUpAwareness() {
 	});
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false);
-	var sleepTimer = setTimeout(() => asleep(true), timeToSleep);
+	var sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
 	window.addEventListener('mousemove', () => {
 		clearTimeout(sleepTimer);
 		asleep(false);
-		sleepTimer = setTimeout(() => asleep(true), timeToSleep);
+		sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
 	});
 }
 /**
@@ -746,9 +747,9 @@ function draw() {
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
 		if (params.nodes.length === 1) {
-			network.editNode();
+			if (!inEditMode) network.editNode();
 		} else if (params.edges.length === 1) {
-			network.editEdgeMode();
+			if (!inEditMode) network.editEdgeMode();
 		} else {
 			fit();
 		}
@@ -972,6 +973,10 @@ function editNode(item, cancelAction, callback) {
 	);
 	positionPopUp();
 	elem('popup-label').focus();
+	setTimeout(() => {  //ensure that the node cannot be locked out for ever
+		cancelEdit(item, callback);
+		statusMsg('Edit timed out', 'warn')
+	}, TIMETOEDIT);
 	lockNode(item);
 }
 /**
@@ -1034,6 +1039,11 @@ function editEdge(item, cancelAction, callback) {
 	elem('edge-type').value = getDashes(item.dashes);
 	positionPopUp();
 	elem('popup-label').focus();
+	setTimeout(() => {  //ensure that the edge cannot be locked out for ever
+		cancelEdit(item, callback);
+		statusMsg('Edit timed out', 'warn')
+	}, TIMETOEDIT);
+	lockEdge(item);
 }
 /**
  * Initialise the dialog for creating nodes/edges
@@ -1052,6 +1062,7 @@ function initPopUp(
 	callback
 ) {
 	inAddMode = false;
+	inEditMode = true;
 	changeCursor('auto');
 	elem('popup').style.height = height + 'px';
 	elem('popup-operation').innerHTML = popUpTitle;
@@ -1116,6 +1127,7 @@ function clearPopUp() {
 	elem('popup-cancelButton').onclick = null;
 	elem('popup-label').onkeyup = null;
 	elem('popup').style.display = 'none';
+	inEditMode = false;
 }
 /**
  * User has pressed 'cancel' - abandon the edit and hide the dialog
@@ -1133,7 +1145,7 @@ function cancelAdd(item, callback) {
 function cancelEdit(item, callback) {
 	clearPopUp();
 	item.label = item.oldLabel;
-	unlockNode(item);
+	if (item.from) unlockEdge(item); else unlockNode(item);
 	callback(null);
 	stopEdit();
 }
@@ -1198,7 +1210,7 @@ function lockNode(item) {
 	item.font.color = 'rgba(0,0,0,0.3)';
 	item.opacity = 0.1;
 	item.oldLabel = item.label;
-	item.label = 'Locked by ' + myNameRec.name;
+	item.label = 'Being edited by ' + myNameRec.name;
 	item.wasFixed = item.fixed;
 	item.fixed = true;
 	item.chosen = false;
@@ -1234,6 +1246,7 @@ function saveEdge(item, callback) {
 	item.dashes = convertDashes(elem('edge-type').value);
 	claim(item);
 	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
+	unlockEdge(item);
 	callback(item);
 }
 /**
@@ -1254,7 +1267,26 @@ function convertDashes(val) {
 			return val;
 	}
 }
-
+function lockEdge(item) {
+	item.locked = true;
+	item.font.color = 'rgba(0,0,0,0.3)';
+	item.opacity = 0.1;
+	item.oldLabel = item.label  || ' ';
+	item.label = 'Being edited by ' + myNameRec.name;
+	item.chosen = false;
+	data.edges.update(item);
+}
+/**
+ * User has finished editing the node.  Unlock it.
+ * @param {Node} item
+ */
+function unlockEdge(item) {
+	item.locked = false;
+	item.opacity = 1;
+	item.oldLabel = undefined;
+	item.chosen = true;
+	data.edges.update(item);
+}
 /* ----------------- end of node and edge creation and editing dialog -----------------*/
 
 /**
