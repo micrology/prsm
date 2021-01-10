@@ -36,7 +36,7 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.4.4';
+const version = '1.4.5';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
