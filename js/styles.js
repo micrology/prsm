@@ -288,7 +288,11 @@ export function reApplySampleToNodes(groupIds, force) {
 		},
 	});
 	window.data.nodes.update(
-		nodesToUpdate.map((node) => { return (force ? deepMerge(node, styles.nodes[node.grp]) : deepMerge(styles.nodes[node.grp], node)) })
+		nodesToUpdate.map((node) => {
+			return force
+				? deepMerge(node, styles.nodes[node.grp])
+				: deepMerge(styles.nodes[node.grp], node);
+		})
 	);
 }
 
@@ -424,7 +428,7 @@ function linkEditSubmit() {
  * update all links in the map with this style to the current style features
  * @param {IntegerArray} groupIds
  * @param {Boolean} force override any existing individual edge styling
-*/
+ */
 export function reApplySampleToLinks(groupIds, force) {
 	let edgesToUpdate = window.data.edges.get({
 		filter: (item) => {
@@ -432,7 +436,11 @@ export function reApplySampleToLinks(groupIds, force) {
 		},
 	});
 	window.data.edges.update(
-		edgesToUpdate.map((edge) => { return (force ? deepMerge(edge, styles.edges[edge.grp]) : deepMerge(styles.edges[edge.grp], edge)) })
+		edgesToUpdate.map((edge) => {
+			return force
+				? deepMerge(edge, styles.edges[edge.grp])
+				: deepMerge(styles.edges[edge.grp], edge);
+		})
 	);
 }
 /**

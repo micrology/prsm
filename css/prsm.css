@@ -1267,11 +1267,11 @@ div.resize {
 .tutorial-dialog.above-middle,
 .tutorial-dialog.above-right {
 	border-bottom: var(--tutorial-highlight-color) 4px solid;
-} 
+}
 .tutorial-dialog.right,
 .tutorial-dialog.right-top,
 .tutorial-dialog.right-middle,
-.tutorial-dialog.right-bottom{
+.tutorial-dialog.right-bottom {
 	border-left: var(--tutorial-highlight-color) 4px solid;
 }
 .tutorial-dialog.splash {

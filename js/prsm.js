@@ -45,6 +45,7 @@ const timeToSleep = 15 * 60 * 1000; // if no mouse movement for this time, user 
 
 export var network;
 var room;
+var debug = false; // if true, all yjs sharing interactions are logged to the console
 var viewOnly; // when true, user can only view, not modify, the network
 var nodes; // a dataset of nodes
 var edges; // a dataset of edges
@@ -164,7 +165,9 @@ function addEventListeners() {
  * create all the DOM elemts on the web page
  */
 function setUpPage() {
+	// check options set on URL: ?debug&viewing&start
 	let searchParams = new URL(document.location).searchParams;
+	debug = debug || searchParams.has('debug');
 	// don't allow user to change anything if URL includes ?viewing
 	viewOnly = searchParams.has('viewing');
 	if (viewOnly) elem('buttons').style.display = 'none';
@@ -260,7 +263,7 @@ function startY() {
 	/* 
 	for convenience when debugging
 	 */
-	window.debug = false; // if true, all yjs sharing interactions are logged to the console
+	window.debug = debug;
 	window.data = data;
 	window.clientID = clientID;
 	window.yNodesMap = yNodesMap;
@@ -331,9 +334,10 @@ function startY() {
 					nodesToUpdate.push(obj);
 				}
 			} else {
-				network
-					.getConnectedEdges(key)
-					.forEach((edge) => edges.remove(edge));
+				if (data.nodes.get(key))
+					network
+						.getConnectedEdges(key)
+						.forEach((edge) => edges.remove(edge));
 				nodes.remove(key);
 			}
 		}
@@ -649,7 +653,7 @@ function draw() {
 				item.label = '';
 				item = deepMerge(item, styles.nodes[lastNodeSample]);
 				item.grp = lastNodeSample;
-				addLabel(item, cancelEdit, callback);
+				addLabel(item, cancelAdd, callback);
 				showPressed('addNode', 'remove');
 			},
 			editNode: function (item, callback) {
@@ -687,6 +691,20 @@ function draw() {
 				},
 			},
 			deleteNode: function (item, callback) {
+				let locked = false;
+				item.nodes.forEach((nId) => {
+					let n = data.nodes.get(nId);
+					if (n.locked) {
+						locked = true;
+						statusMsg(
+							`Factor '${n.oldLabel}' can't be deleted because it is locked`,
+							'warn'
+						);
+						callback(null);
+						return;
+					}
+				});
+				if (locked) return;
 				let r = confirm(deleteMsg(item));
 				if (r != true) {
 					callback(null);
@@ -694,7 +712,7 @@ function draw() {
 				}
 				clearStatusBar();
 				// delete also all the edges that link to the nodes being deleted
-				// added by deleteMsg()
+				// there edges are added to 'item' by deleteMsg()
 				callback(item);
 			},
 			deleteEdge: function (item, callback) {
@@ -954,6 +972,7 @@ function editNode(item, cancelAction, callback) {
 	);
 	positionPopUp();
 	elem('popup-label').focus();
+	lockNode(item);
 }
 /**
  * Convert CSS description of line type to menu option format
@@ -1037,7 +1056,11 @@ function initPopUp(
 	elem('popup').style.height = height + 'px';
 	elem('popup-operation').innerHTML = popUpTitle;
 	elem('popup-saveButton').onclick = saveAction.bind(this, item, callback);
-	elem('popup-cancelButton').onclick = cancelAction.bind(this, callback);
+	elem('popup-cancelButton').onclick = cancelAction.bind(
+		this,
+		item,
+		callback
+	);
 	let popupLabel = elem('popup-label');
 	popupLabel.addEventListener('keyup', squashInputOnKeyUp);
 	popupLabel.style.fontSize = '20px';
@@ -1098,8 +1121,19 @@ function clearPopUp() {
  * User has pressed 'cancel' - abandon the edit and hide the dialog
  * @param {Function} callback
  */
-function cancelEdit(callback) {
+function cancelAdd(item, callback) {
 	clearPopUp();
+	callback(null);
+	stopEdit();
+}
+/**
+ * User has pressed 'cancel' - abandon the edit and hide the dialog
+ * @param {Function} callback
+ */
+function cancelEdit(item, callback) {
+	clearPopUp();
+	item.label = item.oldLabel;
+	unlockNode(item);
 	callback(null);
 	stopEdit();
 }
@@ -1152,7 +1186,35 @@ function saveNode(item, callback) {
 	item.shapeProperties.borderDashes = convertDashes(borderType);
 	claim(item);
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
+	unlockNode(item);
 	callback(item);
+}
+/**
+ * User is about to edit the node.  Make sure that no one else can edit it simulataneously
+ * @param {Node} item
+ */
+function lockNode(item) {
+	item.locked = true;
+	item.font.color = 'rgba(0,0,0,0.3)';
+	item.opacity = 0.1;
+	item.oldLabel = item.label;
+	item.label = 'Locked by ' + myNameRec.name;
+	item.wasFixed = item.fixed;
+	item.fixed = true;
+	item.chosen = false;
+	data.nodes.update(item);
+}
+/**
+ * User has finished editing the node.  Unlock it.
+ * @param {Node} item
+ */
+function unlockNode(item) {
+	item.locked = false;
+	item.opacity = 1;
+	item.fixed = item.wasFixed;
+	item.oldLabel = undefined;
+	item.chosen = true;
+	data.nodes.update(item);
 }
 /**
  * save the edge format details that have been edited
@@ -1929,10 +1991,31 @@ function saveJSONfile() {
 			buttons: buttonStatus,
 			styles: styles,
 			nodes: data.nodes.map((n) =>
-				strip(n, ['id', 'label', 'title', 'grp', 'x', 'y', 'color', 'font', 'borderWidth', 'shapeProperties'])
+				strip(n, [
+					'id',
+					'label',
+					'title',
+					'grp',
+					'x',
+					'y',
+					'color',
+					'font',
+					'borderWidth',
+					'shapeProperties',
+				])
 			),
 			edges: data.edges.map((e) =>
-				strip(e, ['id', 'label', 'title', 'grp', 'from', 'to', 'color', 'width', 'dashes'])
+				strip(e, [
+					'id',
+					'label',
+					'title',
+					'grp',
+					'from',
+					'to',
+					'color',
+					'width',
+					'dashes',
+				])
 			),
 			underlay: yPointsArray.toArray(),
 		},
