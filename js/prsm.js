@@ -36,13 +36,13 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.4.5';
+const version = '1.4.6';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
 const SHORTLABELLEN = 25; // when listing node labels, use ellipsis after this number of chars
 const TIMETOSLEEP = 15 * 60 * 1000; // if no mouse movement for this time, user is assumed to have left or is sleeping
-const TIMETOEDIT = 5 * 60 * 1000; // if node/edge edit dialog is not saved after tis time, the edit is cancelled
+const TIMETOEDIT = 5 * 60 * 1000; // if node/edge edit dialog is not saved after this time, the edit is cancelled
 export var network;
 var room;
 var debug = false; // if true, all yjs sharing interactions are logged to the console
@@ -698,7 +698,7 @@ function draw() {
 					if (n.locked) {
 						locked = true;
 						statusMsg(
-							`Factor '${n.oldLabel}' can't be deleted because it is locked`,
+							`Factor '${shorten(n.oldLabel)}' can't be deleted because it is locked`,
 							'warn'
 						);
 						callback(null);
@@ -712,6 +712,7 @@ function draw() {
 					return;
 				}
 				clearStatusBar();
+				hideNotes();
 				// delete also all the edges that link to the nodes being deleted
 				// there edges are added to 'item' by deleteMsg()
 				callback(item);
@@ -973,7 +974,7 @@ function editNode(item, cancelAction, callback) {
 	);
 	positionPopUp();
 	elem('popup-label').focus();
-	setTimeout(() => {  //ensure that the node cannot be locked out for ever
+	elem('popup').timer = setTimeout(() => {  //ensure that the node cannot be locked out for ever
 		cancelEdit(item, callback);
 		statusMsg('Edit timed out', 'warn')
 	}, TIMETOEDIT);
@@ -1001,10 +1002,10 @@ function editEdge(item, cancelAction, callback) {
 		<table id="popup-table">
 		<tr>
 			<td>
-				Width
+				Line
 			</td>
 			<td>
-				Colour
+				Font
 			</td>
 		</tr>
 		<tr>
@@ -1023,12 +1024,20 @@ function editEdge(item, cancelAction, callback) {
 			</td>
 		</tr>
 		<tr>
-			<td colspan="2">
+			<td>
 				<select id="edge-type">
 					<option value="false">Type...</option>
 					<option value="false">Solid</option>
 					<option value="true">Dashed</option>
 					<option value="dots">Dotted</option>
+				</select>
+			</td>
+			<td>
+				<select id="edge-font-size">
+					<option value="14">Size</option>
+					<option value="18">Large</option>
+					<option value="14">Normal</option>
+					<option value="10">Small</option>
 				</select>
 			</td>
 		</tr>
@@ -1037,9 +1046,10 @@ function editEdge(item, cancelAction, callback) {
 	elem('edge-width').value = parseInt(item.width);
 	elem('edge-color').value = standardize_color(item.color.color);
 	elem('edge-type').value = getDashes(item.dashes);
+	elem('edge-font-size').value = parseInt(item.font.size);
 	positionPopUp();
 	elem('popup-label').focus();
-	setTimeout(() => {  //ensure that the edge cannot be locked out for ever
+	elem('popup').timer = setTimeout(() => {  //ensure that the edge cannot be locked out for ever
 		cancelEdit(item, callback);
 		statusMsg('Edit timed out', 'warn')
 	}, TIMETOEDIT);
@@ -1048,6 +1058,7 @@ function editEdge(item, cancelAction, callback) {
 /**
  * Initialise the dialog for creating nodes/edges
  * @param {String} popUpTitle
+ * @param {Integer} height
  * @param {Object} item
  * @param {Function} cancelAction
  * @param {Function} saveAction
@@ -1127,6 +1138,10 @@ function clearPopUp() {
 	elem('popup-cancelButton').onclick = null;
 	elem('popup-label').onkeyup = null;
 	elem('popup').style.display = 'none';
+	if (elem('popup').timer) {
+		clearTimeout(elem('popup').timer);
+		elem('popup').timer = undefined;
+	}
 	inEditMode = false;
 }
 /**
@@ -1244,6 +1259,7 @@ function saveEdge(item, callback) {
 	item.width = parseInt(elem('edge-width').value);
 	if (!item.width) item.width = 1;
 	item.dashes = convertDashes(elem('edge-type').value);
+	item.font.size = parseInt(elem('edge-font-size').value);
 	claim(item);
 	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
 	unlockEdge(item);
@@ -1282,6 +1298,7 @@ function lockEdge(item) {
  */
 function unlockEdge(item) {
 	item.locked = false;
+	item.font.color = 'rgba(0,0,0,1)';
 	item.opacity = 1;
 	item.oldLabel = undefined;
 	item.chosen = true;

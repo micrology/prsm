@@ -142,7 +142,7 @@ export const styles = {
 			},
 			dashes: false,
 			font: {
-				size: 20,
+				size: 14,
 			},
 			groupLabel: 'Sample',
 			hoverWidth: 1,
