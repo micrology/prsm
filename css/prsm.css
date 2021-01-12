@@ -738,6 +738,9 @@ but moving the panel out of sight works instead */
 .networkGrid .panelRow {
 	padding: 4px;
 }
+.padlock-hide {
+	display: none;
+} 
 /* create the impression of a sliding on/off switch see https://proto.io/freebies/onoff/ */
 
 .onoffswitch {

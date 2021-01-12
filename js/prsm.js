@@ -799,7 +799,7 @@ function draw() {
 		clearStatusBar();
 	});
 	network.on('dragStart', function () {
-		hideNotes();
+//		hideNotes();
 		changeCursor('grabbing');
 	});
 	network.on('dragEnd', function (event) {
@@ -2364,17 +2364,20 @@ function applySampleToLink(event) {
 	data.edges.update(edgesToUpdate);
 	lastLinkSample = sample;
 }
-
+/**
+ * User has clicked the padlock.  Toggle padlock state and fix the location of the node
+ */
 function setFixed() {
-	let checkbox = elem('fixed');
+	let unlocked = elem('fixed').firstChild.className.includes("open");
 	let node = data.nodes.get(network.getSelectedNodes()[0]);
-	if (checkbox.checked == true) {
-		node.fixed = true;
-		data.nodes.update(node);
+	if (unlocked) {
+		elem('fixed').firstChild.className = "fas fa-lock"
 	} else {
-		node.fixed = false;
-		data.nodes.update(node);
+		elem('fixed').firstChild.className = "fas fa-lock-open"
 	}
+	node.fixed = unlocked;
+	data.nodes.update(node);
+
 }
 // Notes
 function showNodeOrEdgeData() {
@@ -2388,7 +2391,7 @@ function showNodeData() {
 	let panel = elem('nodeDataPanel');
 	let nodeId = network.getSelectedNodes()[0];
 	let node = data.nodes.get(nodeId);
-	elem('fixed').checked = node.fixed ? true : false;
+	elem('fixed').firstChild.className = node.fixed ? "fas fa-lock" : "fas fa-lock-open";
 	elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : '';
 	let notes = elem('node-notes');
 	notes.innerHTML = node.title ? node.title.replace(/<br>/g, ' ') : '';
