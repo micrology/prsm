@@ -45,7 +45,7 @@ const TIMETOSLEEP = 15 * 60 * 1000; // if no mouse movement for this time, user 
 const TIMETOEDIT = 5 * 60 * 1000; // if node/edge edit dialog is not saved after this time, the edit is cancelled
 export var network;
 var room;
-var debug = false; // if true, all yjs sharing interactions are logged to the console
+var debug = []; // if includes 'yjs', all yjs sharing interactions are logged to the console; if 'gui' mouse events are reported
 var viewOnly; // when true, user can only view, not modify, the network
 var nodes; // a dataset of nodes
 var edges; // a dataset of edges
@@ -166,9 +166,9 @@ function addEventListeners() {
  * create all the DOM elemts on the web page
  */
 function setUpPage() {
-	// check options set on URL: ?debug&viewing&start
+	// check options set on URL: ?debug='yjs'|'gui'&viewing&start
 	let searchParams = new URL(document.location).searchParams;
-	debug = debug || searchParams.has('debug');
+	if (searchParams.has('debug')) debug = [searchParams.get('debug')];
 	// don't allow user to change anything if URL includes ?viewing
 	viewOnly = searchParams.has('viewing');
 	if (viewOnly) elem('buttons').style.display = 'none';
@@ -285,7 +285,7 @@ function startY() {
 	feedback loop, with each client re-broadcasting everything it received)
 	 */
 	nodes.on('*', (event, properties, origin) => {
-		if (window.debug)
+		if (window.debug.includes('yjs'))
 			console.log(
 				new Date().toLocaleTimeString() +
 					': nodes.on: ' +
@@ -307,7 +307,7 @@ function startY() {
 						!object_equals(obj, yNodesMap.get(obj.id))
 					) {
 						yNodesMap.set(id.toString(), obj);
-						if (window.debug)
+						if (window.debug.includes('yjs'))
 							console.log(
 								new Date().toLocaleTimeString() +
 									': added to YMapNodes: ' +
@@ -325,7 +325,7 @@ function startY() {
 	includes adding a new node if it does not already exist locally).
 	 */
 	yNodesMap.observe((event) => {
-		if (window.debug) console.log(event);
+		if (window.debug.includes('yjs')) console.log(event);
 		let nodesToUpdate = [];
 		for (let key of event.keysChanged) {
 			if (yNodesMap.has(key)) {
@@ -348,7 +348,7 @@ function startY() {
 	See comments above about nodes
 	 */
 	edges.on('*', (event, properties, origin) => {
-		if (window.debug)
+		if (window.debug.includes('yjs'))
 			console.log(
 				new Date().toLocaleTimeString() +
 					': edges.on: ' +
@@ -373,7 +373,7 @@ function startY() {
 		});
 	});
 	yEdgesMap.observe((event) => {
-		if (window.debug) console.log(event);
+		if (window.debug.includes('yjs')) console.log(event);
 		let edgesToUpdate = [];
 		for (let key of event.keysChanged) {
 			if (yEdgesMap.has(key)) {
@@ -388,7 +388,7 @@ function startY() {
 	});
 
 	ySamplesMap.observe((event) => {
-		if (window.debug) console.log(event);
+		if (window.debug.includes('yjs')) console.log(event);
 		let origin = event.transaction.origin;
 		let nodesToUpdate = [];
 		let edgesToUpdate = [];
@@ -414,7 +414,7 @@ function startY() {
 		}
 	});
 	yNetMap.observe((event) => {
-		if (window.debug) console.log(event);
+		if (window.debug.includes('yjs')) console.log(event);
 		for (let key of event.keysChanged) {
 			let obj = yNetMap.get(key);
 			switch (key) {
@@ -441,18 +441,18 @@ function startY() {
 		}
 	});
 	yPointsArray.observe((event, trans) => {
-		if (window.debug)
+		if (window.debug.includes('yjs'))
 			console.log(trans.local, yPointsArray.get(yPointsArray.length - 1));
 		if (!trans.local) network.redraw();
 	});
 	yUndoManager.on('stack-item-added', (event) => {
-		if (window.debug) console.log(event);
+		if (window.debug.includes('yjs')) console.log(event);
 		saveButtonStatus(event);
 		undoButtonstatus();
 		redoButtonStatus();
 	});
 	yUndoManager.on('stack-item-popped', (event) => {
-		if (window.debug) console.log(event);
+		if (window.debug.includes('yjs')) console.log(event);
 		undoRedoButtons(event);
 		undoButtonstatus();
 		redoButtonStatus();
@@ -599,7 +599,7 @@ function setUpTutorial() {
  */
 function setUpAwareness() {
 	yAwareness.on('change', (event) => {
-		if (window.debug) console.log(event);
+		if (window.debug.includes('yjs')) console.log(event);
 		showOtherUsers();
 	});
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
@@ -644,7 +644,8 @@ function draw() {
 		interaction: {
 			multiselect: true,
 			selectConnectedEdges: false,
-			hover: true,
+			hover: false,
+			hoverConnectedEdges: false,
 			zoomView: false,
 			tooltipDelay: 0,
 		},
@@ -747,6 +748,7 @@ function draw() {
 	// listen for click events on the network pane
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
+		if (window.debug.includes('gui')) console.log('doubleClick');
 		if (params.nodes.length === 1) {
 			if (!inEditMode) network.editNode();
 		} else if (params.edges.length === 1) {
@@ -756,16 +758,16 @@ function draw() {
 		}
 	});
 	network.on('selectNode', function (params) {
+		if (window.debug.includes('gui')) console.log('selectNode');
 		let selectedNodes = network.getSelectedNodes();
 		selectedNodes.forEach((nodeId) => {
 			let node = data.nodes.get(nodeId);
 			node.shadow = true;
 			data.nodes.update(node);
 		});
-		if (selectedNodes.length > 1) hideDistantOrStreamNodes();
 		// if shiftkey is down, start linking to another node
 		if (params.event.pointers[0].shiftKey) {
-			// start linking from this node, but only if  one node is selected, else source node is not clear
+			// start linking from this node, but only if only one node is selected, else source node is not clear
 			if (selectedNodes.length == 1) {
 				statusMsg('Linking from ' + listFactors(selectedNodes));
 				plusLink();
@@ -776,11 +778,15 @@ function draw() {
 		}
 	});
 	network.on('deselectNode', function () {
-		let nodes = data.nodes.get();
-		nodes.forEach((node) => {
-			node.shadow = false;
+		if (window.debug.includes('gui')) console.log('deselectNode');
+		let nodesToUpdate = [];
+		data.nodes.get().forEach((node) => {
+			if (node.shadow) {
+				node.shadow = false;
+				nodesToUpdate.push(node)
+			}
 		});
-		data.nodes.update(nodes);
+		data.nodes.update(nodesToUpdate);
 		hideNotes();
 		clearStatusBar();
 	});
@@ -791,18 +797,22 @@ function draw() {
 		changeCursor('default');
 	});
 	network.on('selectEdge', function () {
+		if (window.debug.includes('gui')) console.log('selectEdge');
 		statusMsg(listLinks(network.getSelectedEdges()) + ' selected');
 		showNodeOrEdgeData();
 	});
 	network.on('deselectEdge', function () {
+		if (window.debug.includes('gui')) console.log('deselectEdge');
 		hideNotes();
 		clearStatusBar();
 	});
 	network.on('dragStart', function () {
+		if (window.debug.includes('gui')) console.log('dragStart');
 //		hideNotes();
 		changeCursor('grabbing');
 	});
 	network.on('dragEnd', function (event) {
+		if (window.debug.includes('gui')) console.log('dragEnd');
 		let newPositions = network.getPositions(event.nodes);
 		data.nodes.update(
 			data.nodes.get(event.nodes).map((n) => {
