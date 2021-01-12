@@ -146,7 +146,7 @@ export const styles = {
 			},
 			groupLabel: 'Sample',
 			hoverWidth: 1,
-			selectionWidth: 1,
+			selectionWidth: 0,
 			width: 1,
 		},
 		edge0: {

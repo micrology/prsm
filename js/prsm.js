@@ -798,11 +798,25 @@ function draw() {
 	});
 	network.on('selectEdge', function () {
 		if (window.debug.includes('gui')) console.log('selectEdge');
-		statusMsg(listLinks(network.getSelectedEdges()) + ' selected');
+		let selectedEdges = network.getSelectedEdges();
+		selectedEdges.forEach((edgeId) => {
+			let edge = data.edges.get(edgeId);
+			edge.shadow = true;
+			data.edges.update(edge);
+		});
+		statusMsg(listLinks(selectedEdges) + ' selected');
 		showNodeOrEdgeData();
 	});
 	network.on('deselectEdge', function () {
 		if (window.debug.includes('gui')) console.log('deselectEdge');
+		let edgesToUpdate = [];
+		data.edges.get().forEach((edge) => {
+			if (edge.shadow) {
+				edge.shadow = false;
+				edgesToUpdate.push(edge)
+			}
+		});
+		data.edges.update(edgesToUpdate);
 		hideNotes();
 		clearStatusBar();
 	});
@@ -1273,6 +1287,7 @@ function saveEdge(item, callback) {
 	claim(item);
 	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
 	unlockEdge(item);
+	network.selectEdges([item.id]);  // hack as edge gets unslected when ebing  edited.
 	callback(item);
 }
 /**
