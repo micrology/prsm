@@ -166,7 +166,7 @@ input[type='range'] {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	font-size: 20px;
-	overflow: hidden;
+	overflow: scroll;
 	outline: none;
 	color: black;
 	min-width: 160px;

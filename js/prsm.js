@@ -745,14 +745,17 @@ function draw() {
 	network = new Network(netPane, data, options);
 	window.network = network;
 	elem('zoom').value = network.getScale();
+
 	// start with factor tab open, but hidden
 	elem('nodesButton').click();
+
 	// listen for click events on the network pane
+
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
 		if (window.debug.includes('gui')) console.log('doubleClick');
 		if (params.nodes.length === 1) {
-			if (!inEditMode) network.editNode();
+			if (!inEditMode && !data.nodes.get(params.nodes[0]).locked) network.editNode();
 		} else if (params.edges.length === 1) {
 			if (!inEditMode) network.editEdgeMode();
 		} else {
@@ -764,8 +767,10 @@ function draw() {
 		let selectedNodes = network.getSelectedNodes();
 		selectedNodes.forEach((nodeId) => {
 			let node = data.nodes.get(nodeId);
-			node.shadow = true;
-			data.nodes.update(node);
+			if (!node.locked) {
+				node.shadow = true;
+				data.nodes.update(node);
+			}
 		});
 		// if shiftkey is down, start linking to another node
 		if (params.event.pointers[0].shiftKey) {
@@ -1112,35 +1117,13 @@ function initPopUp(
 		callback
 	);
 	let popupLabel = elem('popup-label');
-	popupLabel.addEventListener('keyup', squashInputOnKeyUp);
-	popupLabel.style.fontSize = '20px';
+	popupLabel.style.fontSize = '12px';
 	popupLabel.innerText =
 		item.label === undefined ? '' : item.label.replace(/\n/g, ' ');
 	let table = elem('popup-table');
 	if (table) table.remove();
 }
-/**
- * when the height of the text threatens to exceed the height of the window, reduce the font size to make it fit
- * @param {event} e
- */
-function squashInputOnKeyUp(e) {
-	squashInput(e.target);
-}
-/**
- * Reduce font size of element to make text fit it
- * @param {HTMLElement} elem
- */
-function squashInput(elem) {
-	if (elem.scrollHeight > elem.clientHeight) {
-		let shrink = elem.clientHeight / elem.scrollHeight;
-		elem.style.fontSize =
-			Math.floor(
-				parseFloat(
-					window.getComputedStyle(elem).getPropertyValue('font-size')
-				) * shrink
-			) + 'px';
-	}
-}
+
 /**
  * Position the editng dialog box so that it is to the left of the item being edited,
  * but not outside the window
@@ -1154,7 +1137,6 @@ function positionPopUp() {
 	}px`;
 	let left = event.clientX - popUp.offsetWidth - 3;
 	popUp.style.left = `${left < 0 ? 0 : left}px`;
-	squashInput(elem('popup-label'));
 	dragElement(popUp, elem('popup-top'));
 }
 
