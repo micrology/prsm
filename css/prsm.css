@@ -740,7 +740,7 @@ but moving the panel out of sight works instead */
 }
 .padlock-hide {
 	display: none;
-} 
+}
 /* create the impression of a sliding on/off switch see https://proto.io/freebies/onoff/ */
 
 .onoffswitch {

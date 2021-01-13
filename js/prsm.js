@@ -36,7 +36,7 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.4.6';
+const version = '1.4.7';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
@@ -699,7 +699,9 @@ function draw() {
 					if (n.locked) {
 						locked = true;
 						statusMsg(
-							`Factor '${shorten(n.oldLabel)}' can't be deleted because it is locked`,
+							`Factor '${shorten(
+								n.oldLabel
+							)}' can't be deleted because it is locked`,
 							'warn'
 						);
 						callback(null);
@@ -783,7 +785,7 @@ function draw() {
 		data.nodes.get().forEach((node) => {
 			if (node.shadow) {
 				node.shadow = false;
-				nodesToUpdate.push(node)
+				nodesToUpdate.push(node);
 			}
 		});
 		data.nodes.update(nodesToUpdate);
@@ -813,7 +815,7 @@ function draw() {
 		data.edges.get().forEach((edge) => {
 			if (edge.shadow) {
 				edge.shadow = false;
-				edgesToUpdate.push(edge)
+				edgesToUpdate.push(edge);
 			}
 		});
 		data.edges.update(edgesToUpdate);
@@ -822,7 +824,7 @@ function draw() {
 	});
 	network.on('dragStart', function () {
 		if (window.debug.includes('gui')) console.log('dragStart');
-//		hideNotes();
+		//		hideNotes();
 		changeCursor('grabbing');
 	});
 	network.on('dragEnd', function (event) {
@@ -998,9 +1000,10 @@ function editNode(item, cancelAction, callback) {
 	);
 	positionPopUp();
 	elem('popup-label').focus();
-	elem('popup').timer = setTimeout(() => {  //ensure that the node cannot be locked out for ever
+	elem('popup').timer = setTimeout(() => {
+		//ensure that the node cannot be locked out for ever
 		cancelEdit(item, callback);
-		statusMsg('Edit timed out', 'warn')
+		statusMsg('Edit timed out', 'warn');
 	}, TIMETOEDIT);
 	lockNode(item);
 }
@@ -1073,9 +1076,10 @@ function editEdge(item, cancelAction, callback) {
 	elem('edge-font-size').value = parseInt(item.font.size);
 	positionPopUp();
 	elem('popup-label').focus();
-	elem('popup').timer = setTimeout(() => {  //ensure that the edge cannot be locked out for ever
+	elem('popup').timer = setTimeout(() => {
+		//ensure that the edge cannot be locked out for ever
 		cancelEdit(item, callback);
-		statusMsg('Edit timed out', 'warn')
+		statusMsg('Edit timed out', 'warn');
 	}, TIMETOEDIT);
 	lockEdge(item);
 }
@@ -1184,7 +1188,8 @@ function cancelAdd(item, callback) {
 function cancelEdit(item, callback) {
 	clearPopUp();
 	item.label = item.oldLabel;
-	if (item.from) unlockEdge(item); else unlockNode(item);
+	if (item.from) unlockEdge(item);
+	else unlockNode(item);
 	callback(null);
 	stopEdit();
 }
@@ -1241,16 +1246,17 @@ function saveNode(item, callback) {
 	callback(item);
 }
 /**
- * User is about to edit the node.  Make sure that no one else can edit it simulataneously
+ * User is about to edit the node.  Make sure that no one else can edit it simultaneously
  * @param {Node} item
  */
 function lockNode(item) {
 	item.locked = true;
+	item.oldFontColor = item.font.color;
 	item.font.color = 'rgba(0,0,0,0.3)';
 	item.opacity = 0.1;
 	item.oldLabel = item.label;
 	item.label = 'Being edited by ' + myNameRec.name;
-	item.wasFixed = item.fixed;
+	item.wasFixed = Boolean(item.fixed);
 	item.fixed = true;
 	item.chosen = false;
 	data.nodes.update(item);
@@ -1261,6 +1267,7 @@ function lockNode(item) {
  */
 function unlockNode(item) {
 	item.locked = false;
+	item.font.color = item.oldFontColor;
 	item.opacity = 1;
 	item.fixed = item.wasFixed;
 	item.oldLabel = undefined;
@@ -1287,7 +1294,9 @@ function saveEdge(item, callback) {
 	claim(item);
 	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
 	unlockEdge(item);
-	network.selectEdges([item.id]);  // hack as edge gets unslected when ebing  edited.
+	// vis-network silently deselects all edges in the callback (why?).  So we have to mark this edge as unselected in preparation
+	item.shadow = false;
+	clearStatusBar();
 	callback(item);
 }
 /**
@@ -1312,7 +1321,7 @@ function lockEdge(item) {
 	item.locked = true;
 	item.font.color = 'rgba(0,0,0,0.3)';
 	item.opacity = 0.1;
-	item.oldLabel = item.label  || ' ';
+	item.oldLabel = item.label || ' ';
 	item.label = 'Being edited by ' + myNameRec.name;
 	item.chosen = false;
 	data.edges.update(item);
@@ -2393,16 +2402,15 @@ function applySampleToLink(event) {
  * User has clicked the padlock.  Toggle padlock state and fix the location of the node
  */
 function setFixed() {
-	let unlocked = elem('fixed').firstChild.className.includes("open");
+	let unlocked = elem('fixed').firstChild.className.includes('open');
 	let node = data.nodes.get(network.getSelectedNodes()[0]);
 	if (unlocked) {
-		elem('fixed').firstChild.className = "fas fa-lock"
+		elem('fixed').firstChild.className = 'fas fa-lock';
 	} else {
-		elem('fixed').firstChild.className = "fas fa-lock-open"
+		elem('fixed').firstChild.className = 'fas fa-lock-open';
 	}
 	node.fixed = unlocked;
 	data.nodes.update(node);
-
 }
 // Notes
 function showNodeOrEdgeData() {
@@ -2416,7 +2424,9 @@ function showNodeData() {
 	let panel = elem('nodeDataPanel');
 	let nodeId = network.getSelectedNodes()[0];
 	let node = data.nodes.get(nodeId);
-	elem('fixed').firstChild.className = node.fixed ? "fas fa-lock" : "fas fa-lock-open";
+	elem('fixed').firstChild.className = node.fixed
+		? 'fas fa-lock'
+		: 'fas fa-lock-open';
 	elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : '';
 	let notes = elem('node-notes');
 	notes.innerHTML = node.title ? node.title.replace(/<br>/g, ' ') : '';
