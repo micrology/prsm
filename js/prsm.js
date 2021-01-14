@@ -1307,6 +1307,7 @@ function lockEdge(item) {
 	item.oldLabel = item.label || ' ';
 	item.label = 'Being edited by ' + myNameRec.name;
 	item.chosen = false;
+	claim(item);
 	data.edges.update(item);
 }
 /**
