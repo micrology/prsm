@@ -1241,6 +1241,7 @@ function lockNode(item) {
 	item.wasFixed = Boolean(item.fixed);
 	item.fixed = true;
 	item.chosen = false;
+	claim(item);
 	data.nodes.update(item);
 }
 /**
