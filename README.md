@@ -1,4 +1,4 @@
-<!-- markdownlint-disable-file MD026 -->
+<!-- markdownlint-disable-file MD026 MD033-->
 # Participatory System Mapper
 
 ## What is it?
@@ -105,6 +105,18 @@ When there are others in the room, the initial letter of their name appears in a
 If you wnat to show someone a map, but don't want them to alter it in any way, send them the link with ```&viewing``` appended, for instance:
 
 <https://cress.soc.surrey.ac.uk/prsm/prsm.html?room=CPC-AJH-UQP-ZWP&viewing>
+
+### Using the mouse and touch
+
+You can use the following mouse actions (or finger or pencil gestures on a tablet):
+
+* a *click* on a factor or a link will select it (the factor or link gains a shadow to show it has been selected, and a message appears in the status bar).  Selected factors can be moved by dragging them (hold down and then move the mouse ) and can be deleted (click on the dustbin icon in the navigation bar).
+* a *long click* on a factor or link extends the selection: that factor or link is added to those already selected.
+* a *control-click* (hold down the control key and click with the mouse) on a factor or link also extends the selection.
+* a *double-click* on a factor or link opens an editing dialog so that you can edit its label, change colors and border widths etc. (see [Formatting factors and links](#formatting-factors-and-links)).
+* a *click* on the background de-selects all factors and links.
+* *dragging* the background moves the whole map.
+* a *double-click* on the background zooms the whole map in or out so that it neatly fits the window.
 
 ### Formatting factors and links
 

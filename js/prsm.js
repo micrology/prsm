@@ -36,7 +36,7 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.4.7';
+const version = '1.4.8';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
@@ -1170,6 +1170,7 @@ function cancelAdd(item, callback) {
 function cancelEdit(item, callback) {
 	clearPopUp();
 	item.label = item.oldLabel;
+	item.font.color = item.oldFontColor
 	if (item.from) unlockEdge(item);
 	else unlockNode(item);
 	callback(null);
@@ -1234,10 +1235,10 @@ function saveNode(item, callback) {
 function lockNode(item) {
 	item.locked = true;
 	item.oldFontColor = item.font.color;
-	item.font.color = 'rgba(0,0,0,0.3)';
-	item.opacity = 0.1;
+	item.font.color = item.font.color + '80';
+	item.opacity = 0.3;
 	item.oldLabel = item.label;
-	item.label = 'Being edited by ' + myNameRec.name;
+	item.label = item.label + "\n\n" + '[Being edited by ' + myNameRec.name +  "]";
 	item.wasFixed = Boolean(item.fixed);
 	item.fixed = true;
 	item.chosen = false;
@@ -1250,7 +1251,6 @@ function lockNode(item) {
  */
 function unlockNode(item) {
 	item.locked = false;
-	item.font.color = item.oldFontColor;
 	item.opacity = 1;
 	item.fixed = item.wasFixed;
 	item.oldLabel = undefined;
@@ -3002,13 +3002,8 @@ function showOtherUsers() {
 			let circle = document.createElement('div');
 			circle.classList.add('round');
 			circle.style.backgroundColor = nameRec.color;
-			if (nameRec.anon) {
-				circle.style.color = 'white';
-				circle.style.textShadow =
-					'-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;';
-				circle.style.fontWeight = 'normal';
-			}
-			circle.innerText = nameRec.name[0];
+			if (nameRec.anon) circle.style.borderColor = 'white';
+			circle.innerText = nameRec.name.match(/(^\S\S?|\b\S)?/g).join("").match(/(^\S|\S$)?/g).join("").toUpperCase();
 			circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
 			ava.appendChild(circle);
 			avatars.appendChild(ava);

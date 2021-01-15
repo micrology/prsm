@@ -348,10 +348,10 @@ const SEA_CREATURES = Object.freeze([
 	'jellyfish',
 	'ray',
 	'shrimp',
-	'mantaRay',
+	'herring',
 	'angler',
-	'snorkler',
-	'scubaDiver',
+	'mackerel',
+	'salmon',
 	'urchin',
 	'anemone',
 	'morel',
@@ -381,7 +381,6 @@ const ADJECTIVES = Object.freeze([
 ]);
 
 const COLORS = Object.freeze([
-	'silver',
 	'hotpink',
 	'red',
 	'lightblue',
@@ -389,7 +388,6 @@ const COLORS = Object.freeze([
 	'green',
 	'lime',
 	'olive',
-	'yellow',
 	'darkorange',
 	'chartreuse',
 	'teal',
@@ -412,7 +410,7 @@ export function generateName() {
 	return {
 		color: random(COLORS),
 		name:
-			capitalize(random(ADJECTIVES)) + capitalize(random(SEA_CREATURES)),
+			capitalize(random(ADJECTIVES)) + " " + capitalize(random(SEA_CREATURES)),
 		anon: true,
 		asleep: false,
 	};
