@@ -114,15 +114,6 @@ footer {
 	border-top: 1px solid lightgrey;
 	user-select: none;
 }
-@media print {
-	header,
-	aside,
-	footer,
-	.chatbox-tab,
-	.chatbox {
-		display: none;
-	}
-}
 #statusBar {
 	padding: 3px 20px;
 	border-radius: 5px;
@@ -1391,4 +1382,18 @@ div.resize {
 }
 .tutorial-note {
 	font-size: smaller;
+}
+@media print {
+	header,
+	aside,
+	footer,
+	.chatbox-tab,
+	.chatbox, 
+	.avatars {
+		display: none;
+	}
+	.legend {
+		box-shadow: none;
+		border: 1px lightgrey solid;
+	}
 }
