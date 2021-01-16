@@ -87,6 +87,10 @@ window.addEventListener('load', () => {
 	setUpShareDialog();
 	draw();
 });
+/**
+ * Clean up before user departs
+ */
+window.addEventListener('beforeunload', unlockAll);
 
 /**
  * Set up all the permanent event listeners
@@ -1258,6 +1262,14 @@ function unlockNode(item) {
 	item.oldLabel = undefined;
 	item.chosen = true;
 	data.nodes.update(item);
+}
+/**
+ * ensure that all factors and links are unlocked (called only when user leaves the page, to clear up for others)
+ */
+function unlockAll()
+{
+	data.nodes.forEach((node) => { if (node.locked) cancelEdit(node) });
+	data.edges.forEach((edge) => { if (edge.locked) cancelEdit(edge) });
 }
 /**
  * save the edge format details that have been edited
