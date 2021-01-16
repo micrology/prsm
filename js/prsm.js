@@ -415,28 +415,30 @@ function startY() {
 	});
 	yNetMap.observe((event) => {
 		if (window.debug.includes('yjs')) console.log(event);
-		for (let key of event.keysChanged) {
-			let obj = yNetMap.get(key);
-			switch (key) {
-				case 'edges':
-					setCurve(
-						clean(obj, {
-							clientID: null,
-						})
-					);
-					break;
-				case 'hideAndStream':
-					setHideAndStream(obj);
-					hideDistantOrStreamNodes(false);
-					break;
-				case 'background':
-					setBackground(obj);
-					break;
-				case 'maptitle':
-					setMapTitle(obj);
-					break;
-				default:
-					console.log('Bad key in yMapNet.observe: ', key);
+		if (event.transaction.origin) {
+			for (let key of event.keysChanged) {
+				let obj = yNetMap.get(key);
+				switch (key) {
+					case 'edges':
+						setCurve(
+							clean(obj, {
+								clientID: null,
+							})
+						);
+						break;
+					case 'hideAndStream':
+						setHideAndStream(obj);
+						hideDistantOrStreamNodes(false);
+						break;
+					case 'background':
+						setBackground(obj);
+						break;
+					case 'maptitle':
+						setMapTitle(obj);
+						break;
+					default:
+						console.log('Bad key in yMapNet.observe: ', key);
+				}
 			}
 		}
 	});
@@ -2586,6 +2588,8 @@ function makeSolid(el) {
 }
 function setBackground(color) {
 	elem('underlay').style.backgroundColor = color;
+	if (elem('toolbox').style.display == 'block') makeTranslucent(elem('underlay'));
+	elem('netBackColorWell').value = color;
 }
 function toggleDrawingLayer() {
 	drawingSwitch = elem('toolbox').style.display == 'block';
