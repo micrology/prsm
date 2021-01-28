@@ -233,7 +233,8 @@ export function strip(obj, allowed) {
 }
 /**
  * divide txt into lines to make it roughly square, with a
- * minimum width of width, respecting embedded line breaks (\n).
+ * maximum width of width characters, but nt breaking words and 
+ * respecting embedded line breaks (\n).
  * @param {string} txt
  * @param {integer} width
  */

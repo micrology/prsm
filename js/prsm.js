@@ -50,6 +50,7 @@ var viewOnly; // when true, user can only view, not modify, the network
 var nodes; // a dataset of nodes
 var edges; // a dataset of edges
 var data; // an object with the nodes and edges datasets as properties
+var websocket = 'wss://cress.soc.surrey.ac.uk/wss'; // web socket server URL
 var clientID; // unitue ID for this browser
 var yNodesMap; // shared map of nodes
 var yEdgesMap; // shared map of edges
@@ -212,7 +213,7 @@ function startY() {
 	else room = room.toUpperCase();
 	const doc = new Y.Doc();
 	const wsProvider = new WebsocketProvider(
-		'wss://cress.soc.surrey.ac.uk/wss',
+		websocket,
 		'prsm' + room,
 		doc
 	);
@@ -2239,8 +2240,23 @@ function setUpShareDialog() {
 		}
 	});
 }
+/** 
+ * clone the map, i.e copy everyting into a new room
+ * 
+ */
+function clone() {
+	let state = Y.encodeStateAsUpdate(yNetMap.doc); console.log(Array.apply([], state).join(","))
+	let clonedRoom = generateRoom();
+	let clonedDoc = new Y.Doc();
+	let ws = new WebsocketProvider(websocket, clonedRoom, clonedDoc)
+	ws.on('sync', () => {
+		Y.applyUpdate(clonedDoc, state)
+		console.log(window.location.origin + window.location.pathname + '?room=' + clonedRoom + ' at ' + JSON.stringify(ws));
+	});
+}
+window.clone = clone;
 /**
- * dislay help page in a separate window
+ * display help page in a separate window
  */
 function displayHelp() {
 	window.open('./help.html#contents', 'helpWindow');

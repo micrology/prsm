@@ -492,7 +492,7 @@ function getArrows(prop) {
 var legendData = {nodes: new DataSet(), edges: new DataSet()};
 var legendNetwork = null;
 const LEGENDSPACING = 50;
-const HALFLEGENDWIDTH = 40;
+const HALFLEGENDWIDTH = 50;
 /**
  * display a legend on the map (but only if the styles have been given names)
  * @param {Boolean} warn true if user is switching display legend on, but there is nothing to show
@@ -538,9 +538,10 @@ export function legend(warn = true) {
 	dragElement(legendBox, title);
 
 	legendNetwork = new Network(canvas, legendData, {
-		physics: {enabled: false},
+		physics: { enabled: false },
+		interaction: { zoomView: false }
 	});
-
+	legendNetwork.moveTo({ scale: 0.8 });
 	let height = LEGENDSPACING / 2;
 	for (let i = 0; i < nodes.length; i++) {
 		let node = deepMerge(styles.nodes[nodes[i].groupNode]);
@@ -551,11 +552,10 @@ export function legend(warn = true) {
 		});
 		node.x = nodePos.x;
 		node.y = nodePos.y;
-		node.label = node.groupLabel;
-		if (node.label.length > 10) node.font.size = 8;
+		node.label = splitText(node.groupLabel, 12);
 		node.fixed = true;
 		node.chosen = false;
-		node.widthConstraint = {maximum: HALFLEGENDWIDTH * 2};
+		node.margin = 3;
 		legendData.nodes.update(node);
 		height += LEGENDSPACING;
 	}
@@ -594,6 +594,7 @@ export function legend(warn = true) {
 		legendData.edges.update(edge);
 		height += LEGENDSPACING;
 	}
+	legendNetwork.fit({});
 }
 /**
  * remove the legend from the map
