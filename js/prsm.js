@@ -50,6 +50,7 @@ var viewOnly; // when true, user can only view, not modify, the network
 var nodes; // a dataset of nodes
 var edges; // a dataset of edges
 var data; // an object with the nodes and edges datasets as properties
+const doc = new Y.Doc();
 var websocket = 'wss://cress.soc.surrey.ac.uk/wss'; // web socket server URL
 var clientID; // unitue ID for this browser
 var yNodesMap; // shared map of nodes
@@ -211,7 +212,6 @@ function startY() {
 	room = url.searchParams.get('room');
 	if (room == null || room == '') room = generateRoom();
 	else room = room.toUpperCase();
-	const doc = new Y.Doc();
 	const wsProvider = new WebsocketProvider(
 		websocket,
 		'prsm' + room,
@@ -2241,20 +2241,19 @@ function setUpShareDialog() {
 	});
 }
 /** 
- * clone the map, i.e copy everyting into a new room
- * 
+ * clone the map, i.e copy everything into a new room
+ * @return {string} name of new room
  */
 function clone() {
-	let state = Y.encodeStateAsUpdate(yNetMap.doc); console.log(Array.apply([], state).join(","))
 	let clonedRoom = generateRoom();
 	let clonedDoc = new Y.Doc();
-	let ws = new WebsocketProvider(websocket, clonedRoom, clonedDoc)
+	let ws = new WebsocketProvider(websocket, 'prsm' + clonedRoom, clonedDoc)
 	ws.on('sync', () => {
+		let state = Y.encodeStateAsUpdate(doc);
 		Y.applyUpdate(clonedDoc, state)
-		console.log(window.location.origin + window.location.pathname + '?room=' + clonedRoom + ' at ' + JSON.stringify(ws));
 	});
+	return clonedRoom;
 }
-window.clone = clone;
 /**
  * display help page in a separate window
  */
@@ -2265,7 +2264,6 @@ function displayHelp() {
  * show or hide the side panel
  */
 function togglePanel() {
-	// Hide/unhide the side panel
 	if (container.panelHidden) {
 		panel.classList.remove('hide');
 	} else {
