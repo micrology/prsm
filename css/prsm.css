@@ -310,6 +310,7 @@ nav button .pressed {
 	display: inline-block;
 	padding-right: 5px;
 	color: white;
+	z-index: 2001;
 }
 .dropdown-content {
 	display: none;
@@ -495,7 +496,7 @@ nav button .pressed {
 	border-radius: 6px;
 	font-size: 12px;
 	position: absolute;
-	z-index: 5;
+	z-index: 2005;
 	opacity: 0;
 	transition: opacity 1s;
 }

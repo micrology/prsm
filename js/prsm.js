@@ -118,6 +118,7 @@ function addEventListeners() {
 	listen('fileInput', 'change', readSingleFile);
 	listen('openFile', 'click', openFile);
 	listen('saveFile', 'click', saveJSONfile);
+	listen('exportPRSM', 'click', saveJSONfile);
 	listen('exportCVS', 'click', exportCVS);
 	listen('exportGML', 'click', exportGML);
 	listen('help', 'click', displayHelp);
@@ -293,7 +294,7 @@ function startY() {
 					event +
 					JSON.stringify(properties.items) +
 					' origin: ' +
-					(origin != null ? origin.constructor.name : origin)
+					 origin
 			);
 		properties.items.forEach((id) => {
 			if (origin == null) {
@@ -356,7 +357,7 @@ function startY() {
 					event +
 					JSON.stringify(properties.items) +
 					' origin: ' +
-					(origin != null ? origin.constructor.name : origin)
+					origin
 			);
 		properties.items.forEach((id) => {
 			if (origin == null) {
@@ -2903,18 +2904,10 @@ function hideDistantOrStreamNodes(broadcast = true) {
 	}
 
 	function showAll() {
-		data.nodes.update(
-			data.nodes.map((node) => {
-				node.hidden = false;
-				return node;
-			})
-		);
-		data.edges.update(
-			data.edges.map((edge) => {
-				edge.hidden = false;
-				return edge;
-			})
-		);
+		let nodes = data.nodes.get({filter: function(node) {let h = node.hidden; if (h) node.hidden = false; return h}});
+		data.nodes.update(nodes);
+		let edges = data.edges.get({filter: function(edge) {let h = edge.hidden; if (h) edge.hidden = false; return h}});
+		data.edges.update(edges);
 	}
 }
 
