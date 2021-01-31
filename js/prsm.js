@@ -494,6 +494,7 @@ function getRandomData(nNodes) {
 function displayNetPane(msg) {
 	fit(0);
 	legend(false);
+	setMapTitle(yNetMap.get('maptitle'));
 	console.log(msg);
 	let netPane = elem('net-pane');
 	if (
@@ -1396,7 +1397,7 @@ function mapTitle(e) {
  */
 function setMapTitle(title) {
 	let div = elem('maptitle');
-	if (title == '') {
+	if (!title) {
 		title = 'Untitled map';
 	}
 	if (title == 'Untitled map') div.classList.add('unsetmaptitle');
