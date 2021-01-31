@@ -35,6 +35,8 @@ let underlay;
 let tempCanvas;
 let tempctx;
 let dpr = window.devicePixelRatio || 1;
+let antTimer = null; // timer to advance ants.  To cancel ants, clear this timer
+
 
 window.yPointsArray = yPointsArray;
 
@@ -159,6 +161,7 @@ export function deselectTool() {
 		document.getElementById(selectedTool).classList.remove('selected');
 	}
 	selectedTool = null;
+	if (antTimer) clearTimeout(antTimer);
 	closeOptionsDialogs();
 }
 /**
@@ -1024,7 +1027,6 @@ class ImageHandler extends ToolHandler {
 				],
 			]);
 			underlay.style.cursor = 'auto';
-			if (timer) clearTimeout(timer);
 			super.panend();
 			deselectTool();
 		} else {
@@ -1044,7 +1046,6 @@ class ImageHandler extends ToolHandler {
 	}
 }
 let ant = 0;
-let timer = null; // timer to advance ants.  To cancel ants, clear this timer
 /**
  * draw 'marching ants' around a rectangle
  * @param {Number} left
@@ -1053,14 +1054,14 @@ let timer = null; // timer to advance ants.  To cancel ants, clear this timer
  * @param {Number} height
  */
 function antMarch(left, top, width, height) {
-	if (timer) clearTimeout(timer);
+	if (antTimer) clearTimeout(antTimer);
 	march();
 
 	function march() {
 		ant++;
 		if (ant > 16) ant = 0;
 		drawAnts();
-		timer = setTimeout(march, 100);
+		antTimer = setTimeout(march, 100);
 	}
 	function drawAnts() {
 		tempctx.save();
