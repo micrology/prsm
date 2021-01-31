@@ -233,7 +233,7 @@ export function strip(obj, allowed) {
 }
 /**
  * divide txt into lines to make it roughly square, with a
- * maximum width of width characters, but nt breaking words and 
+ * maximum width of width characters, but nt breaking words and
  * respecting embedded line breaks (\n).
  * @param {string} txt
  * @param {integer} width
@@ -411,7 +411,9 @@ export function generateName() {
 	return {
 		color: random(COLORS),
 		name:
-			capitalize(random(ADJECTIVES)) + " " + capitalize(random(SEA_CREATURES)),
+			capitalize(random(ADJECTIVES)) +
+			' ' +
+			capitalize(random(SEA_CREATURES)),
 		anon: true,
 		asleep: false,
 	};

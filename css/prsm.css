@@ -524,9 +524,7 @@ nav button .pressed {
 	overflow: auto;
 	background-color: rgba(0, 0, 0, 0.4);
 }
-
-.modal-content,
-.confirm-content {
+.modal-content {
 	position: relative;
 	background-color: #fefefe;
 	margin: auto;
@@ -537,7 +535,6 @@ nav button .pressed {
 	animation-name: animatetop;
 	animation-duration: 0.4s;
 }
-
 @keyframes animatetop {
 	from {
 		top: -300px;
@@ -548,33 +545,78 @@ nav button .pressed {
 		opacity: 1;
 	}
 }
-/* The Close Button */
-.close {
-	color: white;
-	float: right;
-	font-size: 28px;
-	font-weight: bold;
-}
-.close:hover,
-.close:focus {
-	color: #000;
-	text-decoration: none;
-	cursor: pointer;
-}
 .modal-header {
 	padding: 16px;
 	background-color: var(--modal-header-color);
 	color: white;
 }
+.modal-header .close {
+	color: white;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+}
+.modal-header .close:hover,
+.modal-header .close:focus {
+	color: grey;
+	text-decoration: none;
+	cursor: pointer;
+}
 .modal-body {
+	display: grid;
+	grid-template-columns: 60% 20% auto;
+	gap: 20px;
 	padding: 16px;
 	font-size: 16px;
 	line-height: 2;
 }
-.modal-copied-text {
+.modal-body .invite {
+	grid-column: 1;
+	grid-row: 1;
+}
+.modal-body .clone {
+	grid-column: 2;
+	grid-row: 1;
+	line-height: 1;
+	justify-self: start;
+}
+.modal-body .clone-check {
+	grid-column: 3;
+	grid-row: 1;
+	justify-self: start;
+	align-self: center;
+}
+.modal-body .view {
+	grid-column: 2;
+	grid-row: 2 / span 2;
+	line-height: 1;
+	justify-self: start;
+}
+.modal-body .view-check {
+	grid-column: 3;
+	grid-row: 2;
+	justify-self: start;
+	align-self: center;
+}
+.modal-body .small {
+	font-size: small;
+}
+.modal-body .text-to-copy {
+	grid-column: 1;
+	grid-row: 2;
+	align-self: start;
+	justify-self: start;
+	max-width: 100%;
+}
+.modal-body .copy-text-container {
+	grid-column: 1;
+	grid-row: 3;
+}
+.modal-body .copied-text {
 	display: none;
 	font-size: 12px;
 }
+
 /* ---- Styles for the right hand side panel ------------------------------------------------- */
 
 /* Style the tab */
@@ -1388,7 +1430,7 @@ div.resize {
 	aside,
 	footer,
 	.chatbox-tab,
-	.chatbox, 
+	.chatbox,
 	.avatars {
 		display: none;
 	}

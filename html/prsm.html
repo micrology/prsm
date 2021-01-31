@@ -740,19 +740,40 @@
 					<h2>Share the network with other participants</h2>
 				</div>
 				<div class="modal-body">
-					<p>
+					<div class="invite">
 						To invite others to participate in developing this map,
 						send them this link:
-					</p>
-					<p>
-						<input type="text" id="text-to-copy" />
-					</p>
-					<p>
+					</div>
+					<label class="clone" for="clone-check">
+						Clone map<br /><span class="small"
+							>(users will be able to modify the map,<br />but
+							their changes won't change this one)</span
+						>
+					</label>
+					<input
+						class="clone-check"
+						type="checkbox"
+						id="clone-check"
+					/>
+					<label class="view" for="view-check">
+						View only<br /><span class="small"
+							>(users will be able to see the map, but will
+							<br />not able to modify it)</span
+						>
+					</label>
+					<input class="view-check" type="checkbox" id="view-check" />
+					<textarea
+						class="text-to-copy"
+						rows="1"
+						readonly
+						id="text-to-copy"
+					></textarea>
+					<div class="copy-text-container">
 						<button id="copy-text">Copy to clipboard</button>
-						<span class="modal-copied-text" id="copied-text"
+						<span class="copied-text" id="copied-text"
 							>Copied!</span
 						>
-					</p>
+					</div>
 				</div>
 			</div>
 		</div>

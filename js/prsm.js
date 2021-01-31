@@ -36,7 +36,7 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.4.8';
+const version = '1.4.9';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
@@ -212,11 +212,7 @@ function startY() {
 	room = url.searchParams.get('room');
 	if (room == null || room == '') room = generateRoom();
 	else room = room.toUpperCase();
-	const wsProvider = new WebsocketProvider(
-		websocket,
-		'prsm' + room,
-		doc
-	);
+	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
 	/* 	const wsProvider = new WebsocketProvider(
 		'ws://localhost:1234',
 		'prsm' + room,
@@ -762,7 +758,8 @@ function draw() {
 	network.on('doubleClick', function (params) {
 		if (window.debug.includes('gui')) console.log('doubleClick');
 		if (params.nodes.length === 1) {
-			if (!inEditMode && !data.nodes.get(params.nodes[0]).locked) network.editNode();
+			if (!inEditMode && !data.nodes.get(params.nodes[0]).locked)
+				network.editNode();
 		} else if (params.edges.length === 1) {
 			if (!inEditMode) network.editEdgeMode();
 		} else {
@@ -1177,7 +1174,7 @@ function cancelAdd(item, callback) {
 function cancelEdit(item, callback) {
 	clearPopUp();
 	item.label = item.oldLabel;
-	item.font.color = item.oldFontColor
+	item.font.color = item.oldFontColor;
 	if (item.from) unlockEdge(item);
 	else unlockNode(item);
 	callback(null);
@@ -1245,7 +1242,8 @@ function lockNode(item) {
 	item.font.color = item.font.color + '80';
 	item.opacity = 0.3;
 	item.oldLabel = item.label;
-	item.label = item.label + "\n\n" + '[Being edited by ' + myNameRec.name +  "]";
+	item.label =
+		item.label + '\n\n' + '[Being edited by ' + myNameRec.name + ']';
 	item.wasFixed = Boolean(item.fixed);
 	item.fixed = true;
 	item.chosen = false;
@@ -1267,10 +1265,13 @@ function unlockNode(item) {
 /**
  * ensure that all factors and links are unlocked (called only when user leaves the page, to clear up for others)
  */
-function unlockAll()
-{
-	data.nodes.forEach((node) => { if (node.locked) cancelEdit(node) });
-	data.edges.forEach((edge) => { if (edge.locked) cancelEdit(edge) });
+function unlockAll() {
+	data.nodes.forEach((node) => {
+		if (node.locked) cancelEdit(node);
+	});
+	data.edges.forEach((edge) => {
+		if (edge.locked) cancelEdit(edge);
+	});
 }
 /**
  * save the edge format details that have been edited
@@ -2204,15 +2205,44 @@ function setUpShareDialog() {
 
 	// When the user clicks the button, open the modal
 	listen('share', 'click', () => {
+		setLink('share');
+	});
+	listen('clone-check', 'click', () =>
+		setLink(elem('clone-check').checked ? 'clone' : 'share')
+	);
+	listen('view-check', 'click', () =>
+		setLink(elem('view-check').checked ? 'view' : 'share')
+	);
+	function setLink(type) {
+		let newRoom;
+		switch (type) {
+			case 'share':
+				newRoom = room;
+				break;
+			case 'clone':
+				newRoom = clone();
+				elem('view-check').checked = false;
+				break;
+			case 'view':
+				newRoom = room + '&viewing';
+				elem('clone-check').checked = false;
+				break;
+			default:
+				console.log('Bad case in setLink()');
+				break;
+		}
 		let linkToShare =
-			window.location.origin + window.location.pathname + '?room=' + room;
-		copiedText.style.display = 'none';
+			window.location.origin +
+			window.location.pathname +
+			'?room=' +
+			newRoom;
 		modal.style.display = 'block';
-		inputElem.setAttribute('size', linkToShare.length);
+		inputElem.cols = linkToShare.length.toString();
 		inputElem.value = linkToShare;
+		inputElem.style.height = inputElem.scrollHeight - 3 + 'px';
 		inputElem.select();
 		network.storePositions();
-	});
+	}
 	// When the user clicks on <span> (x), close the modal
 	listen('modal-close', 'click', closeShareDialog);
 	// When the user clicks anywhere on the background, close it
@@ -2220,8 +2250,12 @@ function setUpShareDialog() {
 
 	function closeShareDialog() {
 		let modal = elem('shareModal');
-		if (event.target == modal || event.target == elem('modal-close'))
+		if (event.target == modal || event.target == elem('modal-close')) {
 			modal.style.display = 'none';
+			elem('clone-check').checked = false;
+			elem('view-check').checked = false;
+			copiedText.style.display = 'none';
+		}
 	}
 	listen('copy-text', 'click', (e) => {
 		e.preventDefault();
@@ -2240,17 +2274,18 @@ function setUpShareDialog() {
 		}
 	});
 }
-/** 
+
+/**
  * clone the map, i.e copy everything into a new room
  * @return {string} name of new room
  */
 function clone() {
 	let clonedRoom = generateRoom();
 	let clonedDoc = new Y.Doc();
-	let ws = new WebsocketProvider(websocket, 'prsm' + clonedRoom, clonedDoc)
+	let ws = new WebsocketProvider(websocket, 'prsm' + clonedRoom, clonedDoc);
 	ws.on('sync', () => {
 		let state = Y.encodeStateAsUpdate(doc);
-		Y.applyUpdate(clonedDoc, state)
+		Y.applyUpdate(clonedDoc, state);
 	});
 	return clonedRoom;
 }
@@ -2614,7 +2649,8 @@ function makeSolid(el) {
 }
 function setBackground(color) {
 	elem('underlay').style.backgroundColor = color;
-	if (elem('toolbox').style.display == 'block') makeTranslucent(elem('underlay'));
+	if (elem('toolbox').style.display == 'block')
+		makeTranslucent(elem('underlay'));
 	elem('netBackColorWell').value = color;
 }
 function toggleDrawingLayer() {
@@ -3033,7 +3069,12 @@ function showOtherUsers() {
 			circle.classList.add('round');
 			circle.style.backgroundColor = nameRec.color;
 			if (nameRec.anon) circle.style.borderColor = 'white';
-			circle.innerText = nameRec.name.match(/(^\S\S?|\b\S)?/g).join("").match(/(^\S|\S$)?/g).join("").toUpperCase();
+			circle.innerText = nameRec.name
+				.match(/(^\S\S?|\b\S)?/g)
+				.join('')
+				.match(/(^\S|\S$)?/g)
+				.join('')
+				.toUpperCase();
 			circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
 			ava.appendChild(circle);
 			avatars.appendChild(ava);

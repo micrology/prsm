@@ -538,10 +538,10 @@ export function legend(warn = true) {
 	dragElement(legendBox, title);
 
 	legendNetwork = new Network(canvas, legendData, {
-		physics: { enabled: false },
-		interaction: { zoomView: false }
+		physics: {enabled: false},
+		interaction: {zoomView: false},
 	});
-	legendNetwork.moveTo({ scale: 0.8 });
+	legendNetwork.moveTo({scale: 0.8});
 	let height = LEGENDSPACING / 2;
 	for (let i = 0; i < nodes.length; i++) {
 		let node = deepMerge(styles.nodes[nodes[i].groupNode]);
