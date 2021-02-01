@@ -63,10 +63,11 @@ When the app is started for the first time in your browser, there is an option t
 
 ![Nav Bar icons](./doc/images/start-screen.png)
 
-At the top of the screen are a row of buttons:
+This introductory tour is only shown the very first time you use PRSM.  If you want to view the tour again, click <button onclick="localStorage.setItem('doneIntro', 'false'); return false">here</button>.
 
-![Nav Bar icons](./doc/images/prsm-nav-icons.png)
-
+At the top of the screen are a row of buttons.
+<!-- ![Nav Bar icons](./doc/images/prsm-nav-icons.png)
+<img src="./doc/images/prsm-nav-icons.png" width="400"> -->
 This what they do, from left to right:
 
 * **New factor** (or node).  Click on the cross and then click on the blank area below (the 'network pane') to create a node for the network.  A small dialog box will open for you to type in a label for the factor.

@@ -23,6 +23,7 @@ export default class Tutorial {
 				return parseInt(a.dataset.step) - parseInt(b.dataset.step);
 			}
 		);
+		this.back = null;
 	}
 	/**
 	 * initialise the step counter and display the first step
@@ -73,7 +74,14 @@ export default class Tutorial {
 		let elemBR = elem.getBoundingClientRect();
 		let top = elemBR.top;
 		let left = elemBR.left;
-		if (position == 'splash') dialog.classList.add('splash');
+		if (position == 'splash') {
+			if (!this.back) {
+				this.back = document.createElement('div');
+				this.back.classList.add('tutorial-background');
+				elem.insertAdjacentElement('afterend', this.back);
+			}
+			dialog.classList.add('splash');
+		}
 		else {
 			let border = document.createElement('div');
 			border.className = 'tutorial-border';
@@ -168,6 +176,10 @@ export default class Tutorial {
 	 * called on exit
 	 */
 	stepsEnd() {
+		if (this.back) {
+			this.back.remove();
+			this.back = null;
+		}
 		if (typeof this.onexitfn === 'function') this.onexitfn();
 	}
 	/**

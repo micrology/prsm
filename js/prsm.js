@@ -591,9 +591,13 @@ function setUpTutorial() {
 		});
 		tutorial.onstep(0, () => {
 			let splashNameBox = elem('splashNameBox');
+			splashNameBox.focus();
 			splashNameBox.addEventListener('blur', () => {
 				saveUserName(splashNameBox.value);
 				displayUserName();
+			});
+			splashNameBox.addEventListener('keyup', (e) => {
+				if (e.key == 'Enter') splashNameBox.blur();
 			});
 		});
 		tutorial.start();
