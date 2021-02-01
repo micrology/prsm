@@ -1276,7 +1276,7 @@ div.resize {
 	z-index: 5000;
 	display: grid;
 	grid-template-columns: 1fr 1fr;
-	grid-template-rows: 20px 1fr 20px;
+	grid-template-rows: 20px 1fr 25px;
 	justify-items: center;
 	border-radius: 6px;
 	width: 230px;
