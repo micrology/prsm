@@ -294,7 +294,7 @@ function startY() {
 					event +
 					JSON.stringify(properties.items) +
 					' origin: ' +
-					 origin
+					origin
 			);
 		properties.items.forEach((id) => {
 			if (origin == null) {
@@ -2909,9 +2909,21 @@ function hideDistantOrStreamNodes(broadcast = true) {
 	}
 
 	function showAll() {
-		let nodes = data.nodes.get({filter: function(node) {let h = node.hidden; if (h) node.hidden = false; return h}});
+		let nodes = data.nodes.get({
+			filter: function (node) {
+				let h = node.hidden;
+				if (h) node.hidden = false;
+				return h;
+			},
+		});
 		data.nodes.update(nodes);
-		let edges = data.edges.get({filter: function(edge) {let h = edge.hidden; if (h) edge.hidden = false; return h}});
+		let edges = data.edges.get({
+			filter: function (edge) {
+				let h = edge.hidden;
+				if (h) edge.hidden = false;
+				return h;
+			},
+		});
 		data.edges.update(edges);
 	}
 }

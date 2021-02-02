@@ -37,7 +37,6 @@ let tempctx;
 let dpr = window.devicePixelRatio || 1;
 let antTimer = null; // timer to advance ants.  To cancel ants, clear this timer
 
-
 window.yPointsArray = yPointsArray;
 
 const GRIDSPACING = 50;

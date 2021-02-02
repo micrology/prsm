@@ -81,8 +81,7 @@ export default class Tutorial {
 				elem.insertAdjacentElement('afterend', this.back);
 			}
 			dialog.classList.add('splash');
-		}
-		else {
+		} else {
 			let border = document.createElement('div');
 			border.className = 'tutorial-border';
 			border.id = 'tutorial-border';
