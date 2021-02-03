@@ -24,6 +24,7 @@ import {
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
+import {trophic} from './trophic.js';
 import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
 import EmojiButton from '@joeattardi/emoji-button';
@@ -36,7 +37,7 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.4.9';
+const version = '1.4.9t';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
@@ -139,8 +140,7 @@ function addEventListeners() {
 	listen('networkButton', 'click', () => {
 		openTab('networkTab');
 	});
-	listen('autolayoutswitch', 'click', autoLayoutSwitch);
-	listen('antiGravity', 'change', setGravity);
+	listen('trophicButton', 'click', autoLayoutSwitch);
 	listen('snaptogridswitch', 'click', snapToGridSwitch);
 	listen('netBackColorWell', 'input', updateNetBack);
 	listen('drawing', 'click', toggleDrawingLayer);
@@ -1711,8 +1711,7 @@ function loadFile(contents) {
 	network.destroy();
 	draw();
 
-	let isJSONfile = false;
-	switch (lastFileName.split('.').pop().toLowerCase()) {
+		switch (lastFileName.split('.').pop().toLowerCase()) {
 		case 'csv':
 			data = parseCSV(contents);
 			break;
@@ -1725,7 +1724,6 @@ function loadFile(contents) {
 		case 'json':
 		case 'prsm':
 			data = loadJSONfile(contents);
-			isJSONfile = true;
 			break;
 		default:
 			throw {message: 'Unrecognised file name suffix'};
@@ -1768,7 +1766,6 @@ function loadFile(contents) {
 	);
 	legend(false);
 	data.edges.update(data.edges.map((e) => deepMerge(styles.edges[e.grp], e)));
-	if (!isJSONfile) adjustGravity(50000);
 	network.fit(0);
 }
 /**
@@ -2367,8 +2364,6 @@ function openTab(tabId) {
 
 function storeButtonStatus() {
 	buttonStatus = {
-		autoLayout: elem('autolayoutswitch').checked,
-		gravity: elem('antiGravity').value,
 		snapToGrid: elem('snaptogridswitch').checked,
 		curve: elem('curveSelect').value,
 		linkRadius: getRadioVal('hide'),
@@ -2400,14 +2395,6 @@ function undoRedoButtons(event) {
 }
 
 function setButtonStatus(settings) {
-	if (elem('autolayoutswitch').checked != settings.autoLayout) {
-		autoLayoutSet(settings.autoLayout);
-		elem('autolayoutswitch').checked = settings.autoLayout;
-	}
-	if (elem('antiGravity').value != settings.gravity && settings.autoLayout) {
-		adjustGravity(settings.gravity);
-		elem('antiGravity').value = settings.gravity;
-	}
 	elem('snaptogridswitch').checked = settings.snapToGrid;
 	if (settings.snapToGrid) doSnapToGrid();
 	elem('curveSelect').value = settings.curve;
@@ -2547,49 +2534,11 @@ function displayStatistics(nodeId) {
 	elem('bc').textContent = bc[nodeId] >= 0 ? bc[nodeId].toPrecision(3) : '--';
 }
 // Network tab
-function autoLayoutSwitch(e) {
-	let switchOn = e.target.checked;
-	if (switchOn && snapToGridToggle) snapToGridOff(); // no snapping with auto layout.
-	elem('spacing').classList.toggle('hidden');
-	autoLayoutSet(switchOn);
-}
 
-function autoLayoutSet(switchOn) {
+function autoLayoutSwitch() {
 	network.storePositions(); // record current positions so it can be undone
-	network.setOptions({
-		physics: {
-			enabled: switchOn,
-		},
-	});
-	network.once('stabilized', broadcast);
-}
-
-function setGravity() {
-	// only when autolayout is on
-	if (elem('autolayoutswitch').checked) {
-		adjustGravity(elem('antiGravity').value);
-	}
-}
-
-function adjustGravity(gravity) {
-	network.storePositions(); // record current positions so it can be undone
-	network.setOptions({
-		physics: {
-			barnesHut: {
-				gravitationalConstant: -Number(gravity),
-				centralGravity: 3.5,
-			},
-		},
-	});
-	network.once('stabilized', () => {
-		network.setOptions({
-			physics: {
-				enabled: false,
-				stabilization: false,
-			},
-		});
-		broadcast();
-	});
+	data.nodes.update(trophic(data));
+	broadcast();
 }
 
 function snapToGridSwitch(e) {
@@ -2600,7 +2549,6 @@ function snapToGridSwitch(e) {
 }
 
 function doSnapToGrid() {
-	autoLayoutSet(false);
 	let positions = network.getPositions();
 	data.nodes.update(
 		data.nodes.get().map((n) => {
@@ -2611,11 +2559,6 @@ function doSnapToGrid() {
 			return n;
 		})
 	);
-}
-
-function snapToGridOff() {
-	elem('snaptogridswitch').checked = false;
-	snapToGridToggle = false;
 }
 
 function selectCurve() {
