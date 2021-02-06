@@ -285,21 +285,29 @@ function get_trophic_levels(a) {
 }
 /**
  * convert a vector of objects, each an edge referencing from and to nodes
- * to an adjacency matrix
- * @param {vector} v
+ * to an adjacency matrix.  nodes is a list of nodes that acts as the index for the adj. matrix.
+ * @param {vector} v list of edges
+ * @param {vector} nodes list of node Ids
  * @returns matrix
  */
-function edgeListToAdjMatrix(v) {
-	let nodes = new Array();
-	for (let i = 0; i < v.length; i++) {
-		if (nodes.indexOf(v[i].from) == -1) nodes.push(v[i].from);
-		if (nodes.indexOf(v[i].to) == -1) nodes.push(v[i].to);
-	}
-	let a = zero(nodes.length);
+function edgeListToAdjMatrix(v, nodes) {
+ 	let a = zero(nodes.length);
 	for (let i = 0; i < v.length; i++) {
 		a[nodes.indexOf(v[i].from)][nodes.indexOf(v[i].to)] = 1;
 	}
 	return a;
+}
+/**
+ * returns a list of the node Ids mentioned in a vector of edges
+ * @param {vector} v edges
+ */
+function nodeList(v) {
+	let nodes = new Array();
+	for (let i = 0; i < v.length; i++) {
+		if (nodes.indexOf(v[i].from) == -1) nodes.push(v[i].from);
+		if (nodes.indexOf(v[i].to) == -1) nodes.push(v[i].to);
+    }
+    return nodes
 }
 /**
  * given a complete set of edges, returns a list of lists of edges, each list being the edges of a connected component
@@ -351,33 +359,30 @@ function connectedComponents(data) {
 export function trophic(data) {
 	// get a list of lists of connected components,each being  pairs of to and from nodes/
 	// process each connected component individually
-	let nodes = new Array();
-	connectedComponents(data).forEach((edges) => {
+	let updatedNodes = [];
+    connectedComponents(data).forEach((edges) => {
+        let nodeIds = nodeList(edges);
+        let nodes = data.nodes.get(nodeIds);
 		// save min and max x coordinates of nodes
+		let minX = Math.min(...nodes.map((n) => n.x));
+		let maxX = Math.max(...nodes.map((n) => n.x));
 		// convert to an adjacency matrix
-		let adj = edgeListToAdjMatrix(edges);
+		let adj = edgeListToAdjMatrix(edges, nodeIds);
 		// get trophic levels
 		let levels = get_trophic_levels(adj);
-		// rescale levels to match original max and min
-		let minX = Math.min(...data.nodes.map((n) => n.x));
-		let maxX = Math.max(...data.nodes.map((n) => n.x));
-		let scale = (maxX - minX) / (Math.max(...levels) - Math.min(...levels));
+        // rescale levels to match original max and min
+        let range = (Math.max(...levels) - Math.min(...levels));
+        // if all nodes are at same trophic height (range == 0, so scale would be infinity), line them up
+		let scale = (range > 0.000001 ? (maxX - minX) / range : 0);
 		for (let i = 0; i < levels.length; i++) {
 			levels[i] = levels[i] * scale + minX;
 		}
-		// get a list of nodes in the adjacency matrix order
-		let nodeIds = new Array();
-		for (let i = 0; i < edges.length; i++) {
-			if (nodeIds.indexOf(edges[i].from) == -1)
-				nodeIds.push(edges[i].from);
-			if (nodeIds.indexOf(edges[i].to) == -1) nodeIds.push(edges[i].to);
-		}
-		// move nodes to new positions
-		for (let i = 0; i < nodeIds.length; i++) {
-			let node = data.nodes.get(nodeIds[i]);
+        // move nodes to new positions
+  		for (let i = 0; i < nodeIds.length; i++) {
+			let node = nodes[i];
 			node.x = levels[i];
-			nodes.push(node);
+			updatedNodes.push(node);
 		}
 	});
-	return nodes;
+	return updatedNodes;
 }
