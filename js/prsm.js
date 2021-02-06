@@ -37,7 +37,7 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.4.9t';
+const version = '1.4.91t';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
@@ -1711,7 +1711,7 @@ function loadFile(contents) {
 	network.destroy();
 	draw();
 
-		switch (lastFileName.split('.').pop().toLowerCase()) {
+	switch (lastFileName.split('.').pop().toLowerCase()) {
 		case 'csv':
 			data = parseCSV(contents);
 			break;
@@ -2286,6 +2286,7 @@ function clone() {
 	let clonedRoom = generateRoom();
 	let clonedDoc = new Y.Doc();
 	let ws = new WebsocketProvider(websocket, 'prsm' + clonedRoom, clonedDoc);
+	ws.awareness.destroy();
 	ws.on('sync', () => {
 		let state = Y.encodeStateAsUpdate(doc);
 		Y.applyUpdate(clonedDoc, state);
@@ -2537,7 +2538,11 @@ function displayStatistics(nodeId) {
 
 function autoLayoutSwitch() {
 	network.storePositions(); // record current positions so it can be undone
-	data.nodes.update(trophic(data));
+	try {
+		data.nodes.update(trophic(data));
+	} catch (e) {
+		statusMsg(`Trophic layout: ${e.message}`, 'error');
+	}
 	broadcast();
 }
 
@@ -2943,7 +2948,12 @@ function blinkChatboxTab() {
 
 function sendMsg() {
 	let inputMsg = chatInput.value.replace(/\n/g, '</br>');
-	let clock = new Date().toLocaleTimeString();
+	let clock = new Date().toLocaleString('en-GB', {
+		day: '2-digit',
+		month: 'short',
+		hour: '2-digit',
+		minute: '2-digit',
+	});
 	yChatArray.push([
 		{
 			client: clientID,

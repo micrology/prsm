@@ -149,10 +149,7 @@ function mergeTranspose(a) {
 function zero(n) {
 	let b = new Array(n);
 	for (let i = 0; i < n; i++) {
-		b[i] = new Array(n);
-		for (let j = 0; j < n; j++) {
-			b[i][j] = 0;
-		}
+		b[i] = new Array(n).fill(0);
 	}
 	return b;
 }
@@ -274,8 +271,7 @@ function get_trophic_levels(a) {
 		// do linear solve
 		let h = solve(L, v);
 		if (!h) {
-			console.log('Singular matrix');
-			return null;
+			throw new Error('Singular matrix');
 		}
 		// base to zero
 		h = rebase(h);
@@ -284,8 +280,7 @@ function get_trophic_levels(a) {
 		// return tropic heights
 		return h;
 	} else {
-		console.log('Network must be weakly connected');
-		return null;
+		throw new Error('Network must be weakly connected');
 	}
 }
 /**
@@ -306,34 +301,83 @@ function edgeListToAdjMatrix(v) {
 	}
 	return a;
 }
-
-export function trophic(data) {
-    // get a list of all edges as pairs of to and from nodes
-    let edges = data.edges.get();
-    // save min and max x coordinates of nodes
-     // convert to an adjacency matrix
-    let adj = edgeListToAdjMatrix(edges);
-    // get trophic levels
-    let levels = get_trophic_levels(adj);
-    // rescale levels to match original max and min
-    let minX = Math.min(...data.nodes.map((n) => n.x));
-    let maxX = Math.max(...data.nodes.map((n) => n.x));
-    let scale = (maxX - minX) / (Math.max(...levels) - Math.min(...levels));
-    for (let i = 0; i < levels.length; i++) {
-        levels[i] = levels[i] * scale + minX
-    }
-    // get a list of nodes in the adjacency matrix order
-    let nodeIds = new Array();
-    for (let i = 0; i < edges.length; i++) {
-		if (nodeIds.indexOf(edges[i].from) == -1) nodeIds.push(edges[i].from);
-		if (nodeIds.indexOf(edges[i].to) == -1) nodeIds.push(edges[i].to);
+/**
+ * given a complete set of edges, returns a list of lists of edges, each list being the edges of a connected component
+ * @param {dataSet} data
+ */
+function connectedComponents(data) {
+	let edges = data.edges.get();
+	let cc = [];
+	let added = [];
+	let component = [];
+	// starting from each edge...
+	edges.forEach((e) => {
+		if (!added.includes(e)) {
+			component = [];
+			//do a depth first search for connected edges
+			dfs(e);
+			cc.push(component);
+		}
+	});
+	/**
+	 * depth first search for edges connected to 'to' or 'from' nodes of this edge
+	 * adds edges found to component array
+	 * @param {edge} e
+	 */
+	function dfs(e) {
+		added.push(e);
+		component.push(e);
+		edges
+			.filter((next) => {
+				return (
+					e !== next &&
+					(next.from === e.to ||
+						next.to === e.from ||
+						next.from == -e.from ||
+						next.to === e.to)
+				);
+			})
+			.forEach((next) => {
+				if (!added.includes(next)) dfs(next);
+			});
 	}
-    // move nodes to new positions
-    let nodes = new Array;
-    for (let i = 0; i < nodeIds.length; i++) {
-        let node = data.nodes.get(nodeIds[i]);
-        node.x = levels[i];
-        nodes.push(node);
-    }
-    return nodes;
+	return cc;
+}
+/**
+ * shift the posutions of nodes according to the trophic 'height' (actually, here, the x coordinate)
+ * @param {dataSet} data
+ * @returns list nodes whose positions have been altered
+ */
+export function trophic(data) {
+	// get a list of lists of connected components,each being  pairs of to and from nodes/
+	// process each connected component individually
+	let nodes = new Array();
+	connectedComponents(data).forEach((edges) => {
+		// save min and max x coordinates of nodes
+		// convert to an adjacency matrix
+		let adj = edgeListToAdjMatrix(edges);
+		// get trophic levels
+		let levels = get_trophic_levels(adj);
+		// rescale levels to match original max and min
+		let minX = Math.min(...data.nodes.map((n) => n.x));
+		let maxX = Math.max(...data.nodes.map((n) => n.x));
+		let scale = (maxX - minX) / (Math.max(...levels) - Math.min(...levels));
+		for (let i = 0; i < levels.length; i++) {
+			levels[i] = levels[i] * scale + minX;
+		}
+		// get a list of nodes in the adjacency matrix order
+		let nodeIds = new Array();
+		for (let i = 0; i < edges.length; i++) {
+			if (nodeIds.indexOf(edges[i].from) == -1)
+				nodeIds.push(edges[i].from);
+			if (nodeIds.indexOf(edges[i].to) == -1) nodeIds.push(edges[i].to);
+		}
+		// move nodes to new positions
+		for (let i = 0; i < nodeIds.length; i++) {
+			let node = data.nodes.get(nodeIds[i]);
+			node.x = levels[i];
+			nodes.push(node);
+		}
+	});
+	return nodes;
 }

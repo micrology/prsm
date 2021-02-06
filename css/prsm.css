@@ -787,14 +787,14 @@ but moving the panel out of sight works instead */
 	color: black;
 	outline: none;
 	transition: All 250ms ease;
-  }
-  .pushbutton:active {
+}
+.pushbutton:active {
 	background-color: grey;
 	border: 1px solid black;
 	border-top: 1px solid grey;
 	color: white;
 	transition: All 250ms ease;
-  }
+}
 /* create the impression of a sliding on/off switch see https://proto.io/freebies/onoff/ */
 
 .onoffswitch {
