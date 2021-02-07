@@ -2948,17 +2948,11 @@ function blinkChatboxTab() {
 
 function sendMsg() {
 	let inputMsg = chatInput.value.replace(/\n/g, '</br>');
-	let clock = new Date().toLocaleString('en-GB', {
-		day: '2-digit',
-		month: 'short',
-		hour: '2-digit',
-		minute: '2-digit',
-	});
 	yChatArray.push([
 		{
 			client: clientID,
 			author: myNameRec.name,
-			time: clock,
+			time: Date.now(),
 			msg: inputMsg,
 		},
 	]);
@@ -2978,11 +2972,25 @@ function displayAllMsgs() {
 
 function displayMsg(msg) {
 	if (msg == undefined) return;
+	let clock = '';
+	if (Number.isInteger(msg.time)) {
+		let time = new Date();
+		time.setTime(msg.time);
+		if (time.toDateString() == new Date().toDateString()) {
+			clock = 'Today, ' + time.toLocaleString('en-GB', { hour: '2-digit', minute: '2-digit' });
+		}
+		else clock = time.toLocaleString('en-GB', {
+			day: '2-digit',
+			month: 'short',
+			hour: '2-digit',
+			minute: '2-digit',
+		});
+	}
 	if (msg.client == clientID) {
 		/* my own message */
 		chatMessages.innerHTML += `<div class="message-box-holder">
 			<div class="message-header">
-				<span class="message-time">${msg.time}</span>
+				<span class="message-time">${clock}</span>
 			</div>
 			<div class="message-box">
 				${msg.msg}
@@ -2991,7 +2999,7 @@ function displayMsg(msg) {
 	} else {
 		chatMessages.innerHTML += `<div class="message-box-holder">
 			<div class="message-header">
-				<span class="message-author">${msg.author}</span><span class="message-time">${msg.time}</span> 
+				<span class="message-author">${msg.author}</span><span class="message-time">${clock}</span> 
 			</div>
 			<div class="message-box message-received">
 				${msg.msg}
