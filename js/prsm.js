@@ -2981,16 +2981,19 @@ function displayMsg(msg) {
 	if (msg.client == clientID) {
 		/* my own message */
 		chatMessages.innerHTML += `<div class="message-box-holder">
+			<div class="message-header">
+				<span class="message-time">${msg.time}</span>
+			</div>
 			<div class="message-box">
 				${msg.msg}
 			</div>
 		</div>`;
 	} else {
 		chatMessages.innerHTML += `<div class="message-box-holder">
-			<div class="message-sender">
-				${msg.time} ${msg.author}
+			<div class="message-header">
+				<span class="message-author">${msg.author}</span><span class="message-time">${msg.time}</span> 
 			</div>
-			<div class="message-box message-partner">
+			<div class="message-box message-received">
 				${msg.msg}
 			</div>
 		</div>`;

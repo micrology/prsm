@@ -44,6 +44,7 @@ body {
 	--modal-header-color: #0d2644;
 	--tab-color: #dcdcdc;
 	--tutorial-highlight-color: #d32f2f;
+	--chat-message-header-color: #a2a2a2;
 }
 /* interface colours defined here: dark blue theme 
 	--header-color: #1565c0;
@@ -998,45 +999,32 @@ but moving the panel out of sight works instead */
 }
 .message-box-holder {
 	width: 100%;
-	margin: 0 0 15px;
+/* 	margin: 0 0 15px; */
 	display: flex;
 	flex-flow: column;
 	align-items: flex-end;
+	border-top: 1px solid lightgrey;
 }
-.message-sender {
+.message-header {
 	font-size: 12px;
-	margin: 0 0 15px;
-	color: #30649c;
-	align-self: flex-start;
+	font-weight: bold;
+	color: var(--chat-message-header-color);
+	width: 100%;
+}
+.message-author {
+	float: left;;
+}
+.message-time {
+	float: right;
 }
 .message-box {
-	padding: 3px;
+	padding: 7px;
 	position: relative;
-	background: rgba(100, 170, 0, 0.2);
-	color: black;
+ 	color: black;
 	font-size: 14px;
 }
-.message-box:after {
-	content: '';
-	position: absolute;
-	border: 10px solid transparent;
-	border-top: 10px solid rgba(100, 170, 0, 0.2);
-	border-right: none;
-	bottom: -20px;
-	right: 10px;
-}
-.message-partner {
-	background: rgba(0, 114, 135, 0.2);
+.message-received {
 	align-self: flex-start;
-}
-.message-partner:after {
-	right: auto;
-	bottom: auto;
-	top: -20px;
-	left: 9px;
-	border: 10px solid transparent;
-	border-bottom: 10px solid rgba(0, 114, 135, 0.2);
-	border-left: none;
 }
 .chat-input-holder {
 	display: flex;
