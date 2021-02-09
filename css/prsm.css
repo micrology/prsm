@@ -999,7 +999,6 @@ but moving the panel out of sight works instead */
 }
 .message-box-holder {
 	width: 100%;
-/* 	margin: 0 0 15px; */
 	display: flex;
 	flex-flow: column;
 	align-items: flex-end;
@@ -1037,6 +1036,7 @@ but moving the panel out of sight works instead */
 	padding: 5px 10px;
 	height: 40px;
 	font-size: 12px;
+	font-family: Oxygen, sans-serif;
 	color: black;
 	flex: 1;
 	border: none;
@@ -1084,7 +1084,9 @@ but moving the panel out of sight works instead */
 	background: white;
 	outline: none;
 }
-
+.emoji-icon {
+	font-size: larger;
+}
 .legend {
 	position: fixed;
 	bottom: 80px;

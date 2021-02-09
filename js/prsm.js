@@ -27,7 +27,7 @@ import {styles} from './samples.js';
 import {trophic} from './trophic.js';
 import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
-import EmojiButton from '@joeattardi/emoji-button';
+import { EmojiButton } from '@joeattardi/emoji-button';
 import {
 	setUpSamples,
 	reApplySampleToNodes,
@@ -565,8 +565,8 @@ function setUpChat() {
 		chatNameBox.select();
 	});
 	chatSend.addEventListener('click', sendMsg);
-	emojiPicker.on('emoji', (emoji) => {
-		document.querySelector('#chat-input').value += emoji;
+	emojiPicker.on('emoji', (selection) => {
+		document.querySelector('#chat-input').value += selection.emoji;
 	});
 	emojiButton.addEventListener('click', () => {
 		emojiPicker.togglePicker(emojiButton);
