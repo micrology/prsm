@@ -37,7 +37,9 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.4.91t';
+const version = '1.5.0';
+const appName = 'Participatory System Mapper';
+const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
 const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
@@ -1402,9 +1404,13 @@ function setMapTitle(title) {
 	if (!title) {
 		title = 'Untitled map';
 	}
-	if (title == 'Untitled map') div.classList.add('unsetmaptitle');
-	else div.classList.remove('unsetmaptitle');
-	if (title !== 'Untitled map') {
+	if (title == 'Untitled map') {
+		div.classList.add('unsetmaptitle');
+		document.title = `${appName} ${room}`;
+	}
+	else {
+		div.classList.remove('unsetmaptitle');
+		document.title = `${title}: ${shortAppName} map`;
 		lastFileName = title.replace(/\s+/g, '').toLowerCase();
 	}
 	if (title !== div.innerText) div.innerText = title;
