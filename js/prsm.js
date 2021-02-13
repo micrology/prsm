@@ -791,7 +791,7 @@ function draw() {
 				plusLink();
 			}
 		} else {
-			statusMsg(listFactors(selectedNodes) + ' selected');
+			showSelected();
 			showNodeOrEdgeData();
 		}
 	});
@@ -822,7 +822,7 @@ function draw() {
 			edge.shadow = true;
 			data.edges.update(edge);
 		});
-		statusMsg(listLinks(selectedEdges) + ' selected');
+		showSelected();
 		showNodeOrEdgeData();
 	});
 	network.on('deselectEdge', function () {
@@ -1516,7 +1516,7 @@ function listFactors(factors) {
 	}
 }
 /**
- * shortern the label if necessary and add an ellipsis
+ * shorten the label if necessary and add an ellipsis
  * @param {string} label
  */
 function shorten(label) {
@@ -1531,6 +1531,18 @@ function shorten(label) {
 function listLinks(links) {
 	if (links.length > 1) return links.length + ' links';
 	return '1 link';
+}
+/**
+ * show the nodes and links selected in the status bar
+ */
+function showSelected() {
+	let selectedNodes = network.getSelectedNodes();
+	let selectedEdges = network.getSelectedEdges();
+	let msg = '';
+	if (selectedNodes.length > 0) msg = listFactors(selectedNodes);
+	if (selectedNodes.length > 0 && selectedEdges.length > 0) msg += ' and ';
+	if (selectedEdges.length > 0) msg += listLinks(selectedEdges);
+	statusMsg(msg + ' selected');
 }
 /* zoom slider */
 Network.prototype.zoom = function (scale) {
@@ -2463,6 +2475,9 @@ function setFixed() {
 	data.nodes.update(node);
 }
 // Notes
+/**
+ * Display a panel to show info about the selected edge or node
+ */
 function showNodeOrEdgeData() {
 	hideNotes();
 	if (tabOpen == 'nodesTab' || tabOpen == 'linksTab') {
@@ -2470,6 +2485,9 @@ function showNodeOrEdgeData() {
 		else if (network.getSelectedEdges().length == 1) showEdgeData();
 	}
 }
+/**
+ * Show the notes box, the fixed node check box and the node statistics
+ */
 function showNodeData() {
 	let panel = elem('nodeDataPanel');
 	let nodeId = network.getSelectedNodes()[0];
@@ -2479,7 +2497,8 @@ function showNodeData() {
 		: 'fas fa-lock-open';
 	elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : '';
 	let notes = elem('node-notes');
-	notes.innerHTML = node.title ? node.title.replace(/<br>/g, ' ') : '';
+	// When the Note is redisplayed in the Note box, \n is replaced by <br> to preserve user formatting.
+	notes.innerHTML = node.title ? node.title.replace(/\n/g, '<br>') : '';
 	notes.addEventListener('keyup', (e) => updateNodeNotes(e));
 	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
 	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
@@ -2488,21 +2507,17 @@ function showNodeData() {
 }
 /**
  * update the title property of the node with the text of the note.
- * returns (\n) inserted by the user are replaced by <p> and
- * \n inserted by the split text fn are replaced by <br>.
  *
- * When the Note is redisplayed in the Note box, <br> is stripped out and
- * <p> replaced by \n to preserve user formatting.
  * @param {event} e
  */
 function updateNodeNotes(e) {
-	let text = e.target.innerText.replace(/\n/g, '<p>');
+	let text = e.target.innerText.replace(/\n\n/g, '\n');
 	data.nodes.update({
 		id: network.getSelectedNodes()[0],
 		title: splitText(
 			text == e.target.dataset.placeholder ? '' : text,
 			NOTEWIDTH
-		).replace(/\n/g, '<br>'),
+		),
 		clientID: undefined,
 	});
 }
@@ -2512,7 +2527,7 @@ function showEdgeData() {
 	let edge = data.edges.get(edgeId);
 	elem('edgeLabel').innerHTML = edge.label ? shorten(edge.label) : '';
 	let notes = elem('edge-notes');
-	notes.innerHTML = edge.title ? edge.title.replace(/<br>/g, ' ') : '';
+	notes.innerHTML = edge.title ? edge.title.replace(/\n/g, '<br>') : '';
 	notes.addEventListener('keyup', (e) => updateEdgeNotes(e));
 	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
 	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
@@ -2520,13 +2535,13 @@ function showEdgeData() {
 }
 
 function updateEdgeNotes(e) {
-	let text = e.target.innerText.replace(/\n/g, '<p>');
+	let text = e.target.innerText.replace(/\n\n/g, '\n');
 	data.edges.update({
 		id: network.getSelectedEdges()[0],
 		title: splitText(
 			text == e.target.dataset.placeholder ? '' : text,
 			NOTEWIDTH
-		).replace(/\n/g, '<br>'),
+		),
 		clientID: undefined,
 	});
 }
