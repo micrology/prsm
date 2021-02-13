@@ -676,6 +676,7 @@ function draw() {
 			},
 			addEdge: function (item, callback) {
 				inAddMode = false;
+				network.setOptions({ interaction: { dragView: true } });
 				changeCursor('auto');
 				if (item.from == item.to) {
 					showPressed('addLink', 'remove');
@@ -839,7 +840,6 @@ function draw() {
 	});
 	network.on('dragStart', function () {
 		if (window.debug.includes('gui')) console.log('dragStart');
-		//		hideNotes();
 		changeCursor('grabbing');
 	});
 	network.on('dragEnd', function (event) {
@@ -1333,8 +1333,8 @@ function lockEdge(item) {
 	data.edges.update(item);
 }
 /**
- * User has finished editing the node.  Unlock it.
- * @param {Node} item
+ * User has finished editing the edge.  Unlock it.
+ * @param {edge} item
  */
 function unlockEdge(item) {
 	item.locked = false;
@@ -1612,6 +1612,7 @@ function plusLink() {
 			inAddMode = 'addLink';
 			showPressed('addLink', 'add');
 			unSelect();
+			network.setOptions({ interaction: { dragView: false } });
 			network.addEdgeMode();
 	}
 }
