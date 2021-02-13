@@ -27,7 +27,7 @@ import {styles} from './samples.js';
 import {trophic} from './trophic.js';
 import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
-import { EmojiButton } from '@joeattardi/emoji-button';
+import {EmojiButton} from '@joeattardi/emoji-button';
 import {
 	setUpSamples,
 	reApplySampleToNodes,
@@ -1401,14 +1401,18 @@ function mapTitle(e) {
  */
 function setMapTitle(title) {
 	let div = elem('maptitle');
+	clearStatusBar();
 	if (!title) {
 		title = 'Untitled map';
 	}
 	if (title == 'Untitled map') {
 		div.classList.add('unsetmaptitle');
 		document.title = `${appName} ${room}`;
-	}
-	else {
+	} else {
+		if (title.length > 50) {
+			title = title.slice(0, 50);
+			statusMsg('Map title is too long: truncated', 'warn');
+		}
 		div.classList.remove('unsetmaptitle');
 		document.title = `${title}: ${shortAppName} map`;
 		lastFileName = title.replace(/\s+/g, '').toLowerCase();
@@ -2933,14 +2937,19 @@ function displayMsg(msg) {
 		let time = new Date();
 		time.setTime(msg.time);
 		if (time.toDateString() == new Date().toDateString()) {
-			clock = 'Today, ' + time.toLocaleString('en-GB', { hour: '2-digit', minute: '2-digit' });
-		}
-		else clock = time.toLocaleString('en-GB', {
-			day: '2-digit',
-			month: 'short',
-			hour: '2-digit',
-			minute: '2-digit',
-		});
+			clock =
+				'Today, ' +
+				time.toLocaleString('en-GB', {
+					hour: '2-digit',
+					minute: '2-digit',
+				});
+		} else
+			clock = time.toLocaleString('en-GB', {
+				day: '2-digit',
+				month: 'short',
+				hour: '2-digit',
+				minute: '2-digit',
+			});
 	}
 	if (msg.client == clientID) {
 		/* my own message */
@@ -2982,6 +2991,7 @@ function showOtherUsers() {
 			name;
 			return value.name;
 		})
+		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates
 		.sort((a, b) => (a.name > b.name ? 1 : -1));
 
 	let avatars = elem('avatars');
@@ -2990,30 +3000,26 @@ function showOtherUsers() {
 	}
 
 	names.forEach((nameRec) => {
-		if (nameRec != myNameRec) {
-			// skip myself
-			let ava = document.createElement('div');
-			ava.classList.add('hoverme');
-			ava.dataset.tooltip = nameRec.name;
-			let circle = document.createElement('div');
-			circle.classList.add('round');
-			circle.style.backgroundColor = nameRec.color;
-			if (nameRec.anon) circle.style.borderColor = 'white';
-			circle.innerText = nameRec.name
-				.match(/(^\S\S?|\b\S)?/g)
-				.join('')
-				.match(/(^\S|\S$)?/g)
-				.join('')
-				.toUpperCase();
-			circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
-			ava.appendChild(circle);
-			avatars.appendChild(ava);
-		}
+		let ava = document.createElement('div');
+		ava.classList.add('hoverme');
+		ava.dataset.tooltip = nameRec.name;
+		let circle = document.createElement('div');
+		circle.classList.add('round');
+		circle.style.backgroundColor = nameRec.color;
+		if (nameRec.anon) circle.style.borderColor = 'white';
+		circle.innerText = nameRec.name
+			.match(/(^\S\S?|\b\S)?/g)
+			.join('')
+			.match(/(^\S|\S$)?/g)
+			.join('')
+			.toUpperCase();
+		circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
+		ava.appendChild(circle);
+		avatars.appendChild(ava);
 	});
 }
 
 dragElement(elem('chatbox-holder'), elem('chatbox-top'));
-
 
 /* --------------------------------- Merge maps ----------------------------- */
 /* to get the data in, open inspect windows for both maps.  in one window, eval data.nodes.get() and copy the result (not including any initial and trailing quote marks).
@@ -3022,26 +3028,36 @@ In the other window. evaluate n = <pasted list>.  Repeat for data.edges.get() an
 
 function mergeMaps(nodeList, edgeList) {
 	nodeList.forEach((newNode) => {
-		let oldNode = data.nodes.get(newNode.id)
+		let oldNode = data.nodes.get(newNode.id);
 		if (oldNode) {
-			if (oldNode.label != newNode.label) console.log(`Existing factor label: \n${oldNode.label} \ndoes not match new label: \n${newNode.label}`);
-			else if (oldNode.grp != newNode.grp) console.log(`Existing factor style: ${oldNode.grp} does not match new style ${newNode.grp} for ${oldNode.label}`);
-		}
-		else {
+			if (oldNode.label != newNode.label)
+				console.log(
+					`Existing factor label: \n${oldNode.label} \ndoes not match new label: \n${newNode.label}`
+				);
+			else if (oldNode.grp != newNode.grp)
+				console.log(
+					`Existing factor style: ${oldNode.grp} does not match new style ${newNode.grp} for ${oldNode.label}`
+				);
+		} else {
 			data.nodes.add(newNode);
-			console.log(`Added ${newNode.label}`)
+			console.log(`Added ${newNode.label}`);
 		}
-	})
+	});
 	edgeList.forEach((newEdge) => {
-		let oldEdge = data.edges.get(newEdge.id)
+		let oldEdge = data.edges.get(newEdge.id);
 		if (oldEdge) {
-			if (oldEdge.label != newEdge.label) console.log(`Existing label: \n${oldEdge.label} \ndoes not match new label: \n${newEdge.label}`);
-			else if (oldEdge.grp != newEdge.grp) console.log(`Existing style: ${oldEdge.grp} does not match new style ${newEdge.grp} for edge ${oldEdge.id}`);
-		}
-		else {
+			if (oldEdge.label != newEdge.label)
+				console.log(
+					`Existing label: \n${oldEdge.label} \ndoes not match new label: \n${newEdge.label}`
+				);
+			else if (oldEdge.grp != newEdge.grp)
+				console.log(
+					`Existing style: ${oldEdge.grp} does not match new style ${newEdge.grp} for edge ${oldEdge.id}`
+				);
+		} else {
 			data.edges.add(newEdge);
-			console.log(`Added ${newEdge.id}`)
+			console.log(`Added ${newEdge.id}`);
 		}
-	})
+	});
 }
 window.mergeMaps = mergeMaps;

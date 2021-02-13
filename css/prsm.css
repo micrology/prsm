@@ -1014,7 +1014,7 @@ but moving the panel out of sight works instead */
 	width: 100%;
 }
 .message-author {
-	float: left;;
+	float: left;
 }
 .message-time {
 	float: right;
@@ -1022,7 +1022,7 @@ but moving the panel out of sight works instead */
 .message-box {
 	padding: 7px;
 	position: relative;
- 	color: black;
+	color: black;
 	font-size: 14px;
 }
 .message-received {
@@ -1264,7 +1264,7 @@ div.resize {
 	position: absolute;
 	text-align: center;
 	left: 50%;
-	top: 30px;
+	top: 50px;
 	font-size: 12px;
 	white-space: pre;
 	display: inline-block;

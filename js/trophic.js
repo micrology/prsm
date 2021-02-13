@@ -291,7 +291,7 @@ function get_trophic_levels(a) {
  * @returns matrix
  */
 function edgeListToAdjMatrix(v, nodes) {
- 	let a = zero(nodes.length);
+	let a = zero(nodes.length);
 	for (let i = 0; i < v.length; i++) {
 		a[nodes.indexOf(v[i].from)][nodes.indexOf(v[i].to)] = 1;
 	}
@@ -306,8 +306,8 @@ function nodeList(v) {
 	for (let i = 0; i < v.length; i++) {
 		if (nodes.indexOf(v[i].from) == -1) nodes.push(v[i].from);
 		if (nodes.indexOf(v[i].to) == -1) nodes.push(v[i].to);
-    }
-    return nodes
+	}
+	return nodes;
 }
 /**
  * given a complete set of edges, returns a list of lists of edges, each list being the edges of a connected component
@@ -360,9 +360,9 @@ export function trophic(data) {
 	// get a list of lists of connected components,each being  pairs of to and from nodes/
 	// process each connected component individually
 	let updatedNodes = [];
-    connectedComponents(data).forEach((edges) => {
-        let nodeIds = nodeList(edges);
-        let nodes = data.nodes.get(nodeIds);
+	connectedComponents(data).forEach((edges) => {
+		let nodeIds = nodeList(edges);
+		let nodes = data.nodes.get(nodeIds);
 		// save min and max x coordinates of nodes
 		let minX = Math.min(...nodes.map((n) => n.x));
 		let maxX = Math.max(...nodes.map((n) => n.x));
@@ -370,15 +370,15 @@ export function trophic(data) {
 		let adj = edgeListToAdjMatrix(edges, nodeIds);
 		// get trophic levels
 		let levels = get_trophic_levels(adj);
-        // rescale levels to match original max and min
-        let range = (Math.max(...levels) - Math.min(...levels));
-        // if all nodes are at same trophic height (range == 0, so scale would be infinity), line them up
-		let scale = (range > 0.000001 ? (maxX - minX) / range : 0);
+		// rescale levels to match original max and min
+		let range = Math.max(...levels) - Math.min(...levels);
+		// if all nodes are at same trophic height (range == 0, so scale would be infinity), line them up
+		let scale = range > 0.000001 ? (maxX - minX) / range : 0;
 		for (let i = 0; i < levels.length; i++) {
 			levels[i] = levels[i] * scale + minX;
 		}
-        // move nodes to new positions
-  		for (let i = 0; i < nodeIds.length; i++) {
+		// move nodes to new positions
+		for (let i = 0; i < nodeIds.length; i++) {
 			let node = nodes[i];
 			node.x = levels[i];
 			updatedNodes.push(node);
