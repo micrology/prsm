@@ -759,6 +759,9 @@ but moving the panel out of sight works instead */
 	justify-content: space-between;
 	align-items: flex-start;
 }
+.panelRow div {
+	margin: auto 0;
+}
 .panelRow.centered {
 	justify-content: center;
 }
@@ -779,7 +782,7 @@ but moving the panel out of sight works instead */
 
 /* create a push button */
 .pushbutton {
-	padding: 0 3px;
+	padding: 0 5px;
 	background-color: lightgrey;
 	border: 1px solid grey;
 	border-top: 1px solid white;

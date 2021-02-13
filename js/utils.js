@@ -210,7 +210,7 @@ export function clean(source, propsToRemove) {
 	return out;
 }
 /**
- * remove the given properties from all the object in the array
+ * remove the given properties from all the objects in the array
  * @param {Array} arr array of objects
  * @param {string} propsToRemove
  */
@@ -233,7 +233,7 @@ export function strip(obj, allowed) {
 }
 /**
  * divide txt into lines to make it roughly square, with a
- * maximum width of width characters, but nt breaking words and
+ * maximum width of width characters, but not breaking words and
  * respecting embedded line breaks (\n).
  * @param {string} txt
  * @param {integer} width
@@ -268,7 +268,7 @@ Set.prototype.intersection = function (otherSet) {
 	return intersectionSet;
 };
 /**
- * allow user to drag the elem that has a headerelement that acts as the handle
+ * allow user to drag the elem that has a header element that acts as the handle
  * @param {HTMLelement} elem
  * @param {HTMLelement} header
  */

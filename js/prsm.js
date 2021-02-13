@@ -146,7 +146,6 @@ function addEventListeners() {
 	listen('drawing', 'click', toggleDrawingLayer);
 	listen('allFactors', 'click', selectAllFactors);
 	listen('allEdges', 'click', selectAllEdges);
-	listen('showLabelSwitch', 'click', labelSwitch);
 	listen('showLegendSwitch', 'click', legendSwitch);
 	listen('curveSelect', 'change', selectCurve);
 	listen('fixed', 'click', setFixed);
@@ -198,7 +197,6 @@ function setUpPage() {
 		curve: 'Curved',
 		linkRadius: 'All',
 		stream: 'All',
-		showLabels: true,
 		legend: true,
 		sizing: 'Off',
 	};
@@ -2147,23 +2145,25 @@ function saveStr(str, extn) {
 }
 /**
  * Save the map as CSV files, one for nodes and one for edges
- * Only node and edge labels are saved
+ * Only node and edge labels and style ids are saved
  */
 function exportCVS() {
-	let str = 'Id,Label\n';
+	let str = 'Id,Label,Style\n';
 	for (let node of data.nodes.get()) {
 		str += node.id;
 		if (node.label) str += ',"' + node.label + '"';
+		str += ',' + node.grp;
 		str += '\n';
 	}
 	saveStr(str, 'nodes.csv');
-	str = 'Source,Target,Type,Id,Label\n';
+	str = 'Source,Target,Type,Id,Label,Style\n';
 	for (let edge of data.edges.get()) {
 		str += edge.from + ',';
 		str += edge.to + ',';
 		str += 'directed,';
 		str += edge.id + ',';
 		if (edge.label) str += edge.label + '"';
+		str += ',' + edge.grp;
 		str += '\n';
 	}
 	saveStr(str, 'edges.csv');
@@ -2369,7 +2369,6 @@ function storeButtonStatus() {
 		curve: elem('curveSelect').value,
 		linkRadius: getRadioVal('hide'),
 		stream: getRadioVal('stream'),
-		showLabels: elem('showLabelSwitch').checked,
 		legend: elem('showLegendSwitch').checked,
 		sizing: elem('sizing').value,
 	};
@@ -2404,7 +2403,6 @@ function setButtonStatus(settings) {
 	legendSwitch(false);
 	setRadioVal('hide', settings.linkRadius);
 	setRadioVal('stream', settings.stream);
-	elem('showLabelSwitch').checked = settings.showLabels;
 	elem('sizing').value = settings.sizing;
 }
 // Factors and Links Tabs
@@ -2658,58 +2656,10 @@ function selectAllFactors() {
 function selectAllEdges() {
 	network.selectEdges(network.body.edgeIndices);
 }
-var labelsShown = true;
-
-function labelSwitch() {
-	if (labelsShown) {
-		labelsShown = false;
-		hideLabels();
-	} else {
-		labelsShown = true;
-		unHideLabels();
-	}
-}
 
 function legendSwitch(warn) {
 	if (elem('showLegendSwitch').checked) legend(warn);
 	else clearLegend();
-}
-
-function hideLabels() {
-	// move the label to the hiddenLabel property and set the label to an empty string
-	let nodesToUpdate = [];
-	data.nodes.forEach(function (n) {
-		n.hiddenLabel = n.label;
-		n.label = '';
-		nodesToUpdate.push(n);
-	});
-	data.nodes.update(nodesToUpdate);
-	let edgesToUpdate = [];
-	data.edges.forEach(function (n) {
-		n.hiddenLabel = n.label;
-		n.label = '';
-		edgesToUpdate.push(n);
-	});
-	data.edges.remove(edgesToUpdate);
-	data.edges.add(edgesToUpdate);
-}
-
-function unHideLabels() {
-	let nodesToUpdate = [];
-	data.nodes.forEach(function (n) {
-		if (n.hiddenLabel) n.label = n.hiddenLabel;
-		n.hiddenLabel = undefined;
-		nodesToUpdate.push(n);
-	});
-	data.nodes.update(nodesToUpdate);
-	let edgesToUpdate = [];
-	data.edges.forEach(function (n) {
-		if (n.hiddenLabel) n.label = n.hiddenLabel;
-		n.hiddenLabel = undefined;
-		edgesToUpdate.push(n);
-	});
-	data.edges.remove(edgesToUpdate);
-	data.edges.add(edgesToUpdate);
 }
 
 function getRadioVal(name) {
@@ -3057,3 +3007,35 @@ function showOtherUsers() {
 }
 
 dragElement(elem('chatbox-holder'), elem('chatbox-top'));
+
+
+/* --------------------------------- Merge maps ----------------------------- */
+/* to get the data in, open inspect windows for both maps.  in one window, eval data.nodes.get() and copy the result (not including any initial and trailing quote marks).
+In the other window. evaluate n = <pasted list>.  Repeat for data.edges.get() and e = <pasted list>.  Then evaluate mergeMaps(n, e) in the other window.
+*/
+
+function mergeMaps(nodeList, edgeList) {
+	nodeList.forEach((newNode) => {
+		let oldNode = data.nodes.get(newNode.id)
+		if (oldNode) {
+			if (oldNode.label != newNode.label) console.log(`Existing factor label: \n${oldNode.label} \ndoes not match new label: \n${newNode.label}`);
+			else if (oldNode.grp != newNode.grp) console.log(`Existing factor style: ${oldNode.grp} does not match new style ${newNode.grp} for ${oldNode.label}`);
+		}
+		else {
+			data.nodes.add(newNode);
+			console.log(`Added ${newNode.label}`)
+		}
+	})
+	edgeList.forEach((newEdge) => {
+		let oldEdge = data.edges.get(newEdge.id)
+		if (oldEdge) {
+			if (oldEdge.label != newEdge.label) console.log(`Existing label: \n${oldEdge.label} \ndoes not match new label: \n${newEdge.label}`);
+			else if (oldEdge.grp != newEdge.grp) console.log(`Existing style: ${oldEdge.grp} does not match new style ${newEdge.grp} for edge ${oldEdge.id}`);
+		}
+		else {
+			data.edges.add(newEdge);
+			console.log(`Added ${newEdge.id}`)
+		}
+	})
+}
+window.mergeMaps = mergeMaps;
