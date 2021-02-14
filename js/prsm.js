@@ -610,9 +610,10 @@ function setUpTutorial() {
  *  set up user monitoring (awareness)
  */
 function setUpAwareness() {
+	showAvatars();
 	yAwareness.on('change', (event) => {
 		if (window.debug.includes('yjs')) console.log(event);
-		showOtherUsers();
+		showAvatars();
 	});
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false);
@@ -680,9 +681,8 @@ function draw() {
 			addEdge: function (item, callback) {
 				inAddMode = false;
 				network.setOptions({ interaction: { dragView: true, selectable: true } });
-				changeCursor('auto');
+				showPressed('addLink', 'remove');
 				if (item.from == item.to) {
-					showPressed('addLink', 'remove');
 					callback(null);
 					return;
 				}
@@ -695,7 +695,6 @@ function draw() {
 				}
 				item = deepMerge(item, styles.edges[lastLinkSample]);
 				item.grp = lastLinkSample;
-				showPressed('addLink', 'remove');
 				clearStatusBar();
 				callback(item);
 			},
@@ -858,6 +857,14 @@ function draw() {
 			})
 		);
 		changeCursor('auto');
+	});
+	network.on('controlNodeDragging', function () {
+		if (window.debug.includes('gui')) console.log('controlNodeDragging');
+		changeCursor('crosshair')
+	});
+	network.on('controlNodeDragEnd', function (event) {
+		if (window.debug.includes('gui')) console.log('controlNodeDragEnd');
+		if (event.controlEdge.from != event.controlEdge.to) changeCursor('auto')
 	});
 	network.on('beforeDrawing', function (ctx) {
 		redraw(ctx);
@@ -1130,7 +1137,7 @@ function initPopUp(
 		callback
 	);
 	let popupLabel = elem('popup-label');
-	popupLabel.style.fontSize = '12px';
+	popupLabel.style.fontSize = '14px';
 	popupLabel.innerText =
 		item.label === undefined ? '' : item.label.replace(/\n/g, ' ');
 	let table = elem('popup-table');
@@ -3026,7 +3033,7 @@ function displayUserName() {
  * Place a circle at the top left of the net pane to represent each user who is online
  */
 
-function showOtherUsers() {
+function showAvatars() {
 	let names = Array.from(yAwareness.getStates())
 		.map(([name, value]) => {
 			name;
