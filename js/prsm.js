@@ -2336,7 +2336,7 @@ function togglePanel() {
 	}
 	container.panelHidden = !container.panelHidden;
 }
-dragElement(elem('panel'), elem('panel'));
+dragElement(elem('panel'), elem('panelHeader'));
 
 /* ---------operations related to the side panel -------------------------------------*/
 

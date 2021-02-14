@@ -621,45 +621,49 @@ nav button .pressed {
 
 /* ---- Styles for the right hand side panel ------------------------------------------------- */
 
+.panelHeader {
+	width: 100%;
+	background-color: var(--panel-color);
+	height: 8px;
+	border-radius: 4px 4px 0 0;
+}
 /* Style the tab */
 
 .tab {
 	display: flex;
 	justify-content: space-between;
 	overflow: hidden;
+	background-color: var(--panel-color);
+	padding: 0 2px;
 }
 /* Style the buttons that are used to open the tab content */
 
-.tab button {
+.tab .tablinks {
 	flex: 1;
 	font-size: 14px;
 	background-color: var(--tab-color);
 	float: left;
-	border: 0;
+	border-top: 1px solid white;
+	border-right: 1px solid white;
+	border-radius: 4px 4px 0 0;
+	width: 66px;
+	text-align: center;
 	outline: none;
 	cursor: pointer;
-	padding: 5px 10px;
 	margin: 0;
 	transition: 0.3s;
-	border-radius: 4px 4px 0 0;
 }
-.tab > button:not(:first-child) {
-	border-top-left-radius: 0;
-	border-bottom-left-radius: 0;
-}
-.tab > button:not(:last-child) {
-	border-top-right-radius: 0;
-	border-bottom-right-radius: 0;
-	border-right: 1px solid white;
+.tab .tablinks:first-child {
+	border-left: 1px solid white;
 }
 /* Change background color of buttons on hover */
 
-.tab button:hover {
+.tab .tablinks:hover {
 	background-color: #e9e9e9;
 }
 /* Create an active/current tablink class */
 
-.tab button.active {
+.tab .tablinks.active {
 	background-color: var(--panel-color);
 	color: white;
 }
