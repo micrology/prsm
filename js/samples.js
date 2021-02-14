@@ -124,7 +124,7 @@ export const styles = {
 			arrows: {
 				to: {
 					enabled: true,
-					type: 'arrow',
+					type: 'vee',
 				},
 				middle: {
 					enabled: false,

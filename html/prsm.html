@@ -274,11 +274,12 @@
 			</div>
 		</main>
 		<aside class="hide" id="panel">
+			<div class="panelHeader" id="panelHeader"></div>
 			<!-- Tabs -->
 			<div class="tab" id="tab">
-				<button class="tablinks" id="networkButton">Network</button>
-				<button class="tablinks" id="nodesButton">Factors</button>
-				<button class="tablinks" id="linksButton">Links</button>
+				<div class="tablinks" id="networkButton">Network</div>
+				<div class="tablinks" id="nodesButton">Factors</div>
+				<div class="tablinks" id="linksButton">Links</div>
 			</div>
 			<!-- Tab content -->
 			<!-- Network tab -->
@@ -286,35 +287,10 @@
 				<div class="networkStyles">
 					<div class="networkGrid">
 						<div class="panelRow">
-							<div>Auto. layout</div>
-							<div class="onoffswitch">
-								<input
-									type="checkbox"
-									name="onoffswitch"
-									class="onoffswitch-checkbox"
-									id="autolayoutswitch"
-								/>
-								<label
-									class="onoffswitch-label"
-									for="autolayoutswitch"
-								>
-									<span class="onoffswitch-inner"></span>
-									<span class="onoffswitch-switch"></span>
-								</label>
-							</div>
-						</div>
-						<div class="panelRow hidden" id="spacing">
-							<div>Spacing</div>
-							<div>
-								&nbsp;
-								<input
-									type="range"
-									id="antiGravity"
-									min="0"
-									max="1000000"
-									step="10000"
-								/>
-							</div>
+							<div>Apply</div>
+							<button class="pushbutton" id="trophicButton">
+								Trophic layout
+							</button>
 						</div>
 						<div class="panelRow">
 							<div>Snap to grid</div>
@@ -338,9 +314,9 @@
 							<div>Link:</div>
 							<div>
 								<select id="curveSelect">
-									<option value="Curved" selected
-										>Curved</option
-									>
+									<option value="Curved" selected>
+										Curved
+									</option>
 									<option value="Straight">Straight</option>
 								</select>
 							</div>
@@ -366,25 +342,6 @@
 									id="drawing"
 								/>
 								<label class="onoffswitch-label" for="drawing">
-									<span class="onoffswitch-inner"></span>
-									<span class="onoffswitch-switch"></span>
-								</label>
-							</div>
-						</div>
-						<div class="panelRow">
-							<div>Show labels</div>
-							<div class="onoffswitch">
-								<input
-									type="checkbox"
-									name="onoffswitch"
-									class="onoffswitch-checkbox"
-									id="showLabelSwitch"
-									checked
-								/>
-								<label
-									class="onoffswitch-label"
-									for="showLabelSwitch"
-								>
 									<span class="onoffswitch-inner"></span>
 									<span class="onoffswitch-switch"></span>
 								</label>
@@ -492,9 +449,9 @@
 									<option value="Inputs">Inputs</option>
 									<option value="Outputs">Outputs</option>
 									<option value="Leverage">Leverage</option>
-									<option value="Centrality"
-										>Centrality</option
-									>
+									<option value="Centrality">
+										Centrality
+									</option>
 								</select>
 							</div>
 						</div>
@@ -685,7 +642,7 @@
 		<div
 			id="linkStyleEditorContainer"
 			class="styleEditorContainer hideEditor"
-			style="top: 200px;"
+			style="top: 200px"
 		>
 			<div class="styleEditor">
 				<div class="header">Edit link style</div>
@@ -784,7 +741,7 @@
 			</div>
 		</div>
 		<!-- Open file dialog -->
-		<input type="file" id="fileInput" style="display: none;" />
+		<input type="file" id="fileInput" style="display: none" />
 		<!-- Chat window -->
 		<div
 			class="chatbox-tab"
@@ -797,7 +754,7 @@
 				<i class="fas fa-comments"></i>
 				<span
 					class="tooltiptext"
-					style="margin-top: -50px; margin-left: -160px;"
+					style="margin-top: -50px; margin-left: -160px"
 					>Open chat window</span
 				>
 			</div>
@@ -821,7 +778,7 @@
 							></span>
 							<span
 								class="tooltiptext"
-								style="margin-left: -100px;"
+								style="margin-left: -100px"
 								>Close chat window</span
 							>
 						</div>

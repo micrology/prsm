@@ -24,9 +24,10 @@ import {
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
+import {trophic} from './trophic.js';
 import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
-import EmojiButton from '@joeattardi/emoji-button';
+import {EmojiButton} from '@joeattardi/emoji-button';
 import {
 	setUpSamples,
 	reApplySampleToNodes,
@@ -36,10 +37,12 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.4.9';
+const version = '1.5.0';
+const appName = 'Participatory System Mapper';
+const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
-const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
+const NOTEWIDTH = 50; // chars for title (node/edge tooltip) splitting
 const SHORTLABELLEN = 25; // when listing node labels, use ellipsis after this number of chars
 const TIMETOSLEEP = 15 * 60 * 1000; // if no mouse movement for this time, user is assumed to have left or is sleeping
 const TIMETOEDIT = 5 * 60 * 1000; // if node/edge edit dialog is not saved after this time, the edit is cancelled
@@ -139,14 +142,12 @@ function addEventListeners() {
 	listen('networkButton', 'click', () => {
 		openTab('networkTab');
 	});
-	listen('autolayoutswitch', 'click', autoLayoutSwitch);
-	listen('antiGravity', 'change', setGravity);
+	listen('trophicButton', 'click', autoLayoutSwitch);
 	listen('snaptogridswitch', 'click', snapToGridSwitch);
 	listen('netBackColorWell', 'input', updateNetBack);
 	listen('drawing', 'click', toggleDrawingLayer);
 	listen('allFactors', 'click', selectAllFactors);
 	listen('allEdges', 'click', selectAllEdges);
-	listen('showLabelSwitch', 'click', labelSwitch);
 	listen('showLegendSwitch', 'click', legendSwitch);
 	listen('curveSelect', 'change', selectCurve);
 	listen('fixed', 'click', setFixed);
@@ -198,7 +199,6 @@ function setUpPage() {
 		curve: 'Curved',
 		linkRadius: 'All',
 		stream: 'All',
-		showLabels: true,
 		legend: true,
 		sizing: 'Off',
 	};
@@ -294,7 +294,7 @@ function startY() {
 					event +
 					JSON.stringify(properties.items) +
 					' origin: ' +
-					 origin
+					origin
 			);
 		properties.items.forEach((id) => {
 			if (origin == null) {
@@ -438,6 +438,9 @@ function startY() {
 					case 'maptitle':
 						setMapTitle(obj);
 						break;
+					case 'legend':
+						setLegend(obj)
+						break;
 					default:
 						console.log('Bad key in yMapNet.observe: ', key);
 				}
@@ -565,8 +568,8 @@ function setUpChat() {
 		chatNameBox.select();
 	});
 	chatSend.addEventListener('click', sendMsg);
-	emojiPicker.on('emoji', (emoji) => {
-		document.querySelector('#chat-input').value += emoji;
+	emojiPicker.on('emoji', (selection) => {
+		document.querySelector('#chat-input').value += selection.emoji;
 	});
 	emojiButton.addEventListener('click', () => {
 		emojiPicker.togglePicker(emojiButton);
@@ -607,9 +610,10 @@ function setUpTutorial() {
  *  set up user monitoring (awareness)
  */
 function setUpAwareness() {
+	showAvatars();
 	yAwareness.on('change', (event) => {
 		if (window.debug.includes('yjs')) console.log(event);
-		showOtherUsers();
+		showAvatars();
 	});
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false);
@@ -676,9 +680,9 @@ function draw() {
 			},
 			addEdge: function (item, callback) {
 				inAddMode = false;
-				changeCursor('auto');
+				network.setOptions({ interaction: { dragView: true, selectable: true } });
+				showPressed('addLink', 'remove');
 				if (item.from == item.to) {
-					showPressed('addLink', 'remove');
 					callback(null);
 					return;
 				}
@@ -691,7 +695,6 @@ function draw() {
 				}
 				item = deepMerge(item, styles.edges[lastLinkSample]);
 				item.grp = lastLinkSample;
-				showPressed('addLink', 'remove');
 				clearStatusBar();
 				callback(item);
 			},
@@ -790,7 +793,7 @@ function draw() {
 				plusLink();
 			}
 		} else {
-			statusMsg(listFactors(selectedNodes) + ' selected');
+			showSelected();
 			showNodeOrEdgeData();
 		}
 	});
@@ -821,7 +824,7 @@ function draw() {
 			edge.shadow = true;
 			data.edges.update(edge);
 		});
-		statusMsg(listLinks(selectedEdges) + ' selected');
+		showSelected();
 		showNodeOrEdgeData();
 	});
 	network.on('deselectEdge', function () {
@@ -839,7 +842,6 @@ function draw() {
 	});
 	network.on('dragStart', function () {
 		if (window.debug.includes('gui')) console.log('dragStart');
-		//		hideNotes();
 		changeCursor('grabbing');
 	});
 	network.on('dragEnd', function (event) {
@@ -855,6 +857,14 @@ function draw() {
 			})
 		);
 		changeCursor('auto');
+	});
+	network.on('controlNodeDragging', function () {
+		if (window.debug.includes('gui')) console.log('controlNodeDragging');
+		changeCursor('crosshair')
+	});
+	network.on('controlNodeDragEnd', function (event) {
+		if (window.debug.includes('gui')) console.log('controlNodeDragEnd');
+		if (event.controlEdge.from != event.controlEdge.to) changeCursor('auto')
 	});
 	network.on('beforeDrawing', function (ctx) {
 		redraw(ctx);
@@ -1127,7 +1137,7 @@ function initPopUp(
 		callback
 	);
 	let popupLabel = elem('popup-label');
-	popupLabel.style.fontSize = '12px';
+	popupLabel.style.fontSize = '14px';
 	popupLabel.innerText =
 		item.label === undefined ? '' : item.label.replace(/\n/g, ' ');
 	let table = elem('popup-table');
@@ -1333,8 +1343,8 @@ function lockEdge(item) {
 	data.edges.update(item);
 }
 /**
- * User has finished editing the node.  Unlock it.
- * @param {Node} item
+ * User has finished editing the edge.  Unlock it.
+ * @param {edge} item
  */
 function unlockEdge(item) {
 	item.locked = false;
@@ -1401,12 +1411,20 @@ function mapTitle(e) {
  */
 function setMapTitle(title) {
 	let div = elem('maptitle');
+	clearStatusBar();
 	if (!title) {
 		title = 'Untitled map';
 	}
-	if (title == 'Untitled map') div.classList.add('unsetmaptitle');
-	else div.classList.remove('unsetmaptitle');
-	if (title !== 'Untitled map') {
+	if (title == 'Untitled map') {
+		div.classList.add('unsetmaptitle');
+		document.title = `${appName} ${room}`;
+	} else {
+		if (title.length > 50) {
+			title = title.slice(0, 50);
+			statusMsg('Map title is too long: truncated', 'warn');
+		}
+		div.classList.remove('unsetmaptitle');
+		document.title = `${title}: ${shortAppName} map`;
 		lastFileName = title.replace(/\s+/g, '').toLowerCase();
 	}
 	if (title !== div.innerText) div.innerText = title;
@@ -1508,7 +1526,7 @@ function listFactors(factors) {
 	}
 }
 /**
- * shortern the label if necessary and add an ellipsis
+ * shorten the label if necessary and add an ellipsis
  * @param {string} label
  */
 function shorten(label) {
@@ -1523,6 +1541,18 @@ function shorten(label) {
 function listLinks(links) {
 	if (links.length > 1) return links.length + ' links';
 	return '1 link';
+}
+/**
+ * show the nodes and links selected in the status bar
+ */
+function showSelected() {
+	let selectedNodes = network.getSelectedNodes();
+	let selectedEdges = network.getSelectedEdges();
+	let msg = '';
+	if (selectedNodes.length > 0) msg = listFactors(selectedNodes);
+	if (selectedNodes.length > 0 && selectedEdges.length > 0) msg += ' and ';
+	if (selectedEdges.length > 0) msg += listLinks(selectedEdges);
+	statusMsg(msg + ' selected');
 }
 /* zoom slider */
 Network.prototype.zoom = function (scale) {
@@ -1604,6 +1634,7 @@ function plusLink() {
 			inAddMode = 'addLink';
 			showPressed('addLink', 'add');
 			unSelect();
+			network.setOptions({ interaction: { dragView: false, selectable: false } });
 			network.addEdgeMode();
 	}
 }
@@ -1711,7 +1742,6 @@ function loadFile(contents) {
 	network.destroy();
 	draw();
 
-	let isJSONfile = false;
 	switch (lastFileName.split('.').pop().toLowerCase()) {
 		case 'csv':
 			data = parseCSV(contents);
@@ -1725,7 +1755,6 @@ function loadFile(contents) {
 		case 'json':
 		case 'prsm':
 			data = loadJSONfile(contents);
-			isJSONfile = true;
 			break;
 		default:
 			throw {message: 'Unrecognised file name suffix'};
@@ -1768,7 +1797,6 @@ function loadFile(contents) {
 	);
 	legend(false);
 	data.edges.update(data.edges.map((e) => deepMerge(styles.edges[e.grp], e)));
-	if (!isJSONfile) adjustGravity(50000);
 	network.fit(0);
 }
 /**
@@ -2150,23 +2178,25 @@ function saveStr(str, extn) {
 }
 /**
  * Save the map as CSV files, one for nodes and one for edges
- * Only node and edge labels are saved
+ * Only node and edge labels and style ids are saved
  */
 function exportCVS() {
-	let str = 'Id,Label\n';
+	let str = 'Id,Label,Style\n';
 	for (let node of data.nodes.get()) {
 		str += node.id;
 		if (node.label) str += ',"' + node.label + '"';
+		str += ',' + node.grp;
 		str += '\n';
 	}
 	saveStr(str, 'nodes.csv');
-	str = 'Source,Target,Type,Id,Label\n';
+	str = 'Source,Target,Type,Id,Label,Style\n';
 	for (let edge of data.edges.get()) {
 		str += edge.from + ',';
 		str += edge.to + ',';
 		str += 'directed,';
 		str += edge.id + ',';
 		if (edge.label) str += edge.label + '"';
+		str += ',' + edge.grp;
 		str += '\n';
 	}
 	saveStr(str, 'edges.csv');
@@ -2289,6 +2319,7 @@ function clone() {
 	let clonedRoom = generateRoom();
 	let clonedDoc = new Y.Doc();
 	let ws = new WebsocketProvider(websocket, 'prsm' + clonedRoom, clonedDoc);
+	ws.awareness.destroy();
 	ws.on('sync', () => {
 		let state = Y.encodeStateAsUpdate(doc);
 		Y.applyUpdate(clonedDoc, state);
@@ -2312,7 +2343,7 @@ function togglePanel() {
 	}
 	container.panelHidden = !container.panelHidden;
 }
-dragElement(elem('panel'), elem('tab'));
+dragElement(elem('panel'), elem('panelHeader'));
 
 /* ---------operations related to the side panel -------------------------------------*/
 
@@ -2367,13 +2398,10 @@ function openTab(tabId) {
 
 function storeButtonStatus() {
 	buttonStatus = {
-		autoLayout: elem('autolayoutswitch').checked,
-		gravity: elem('antiGravity').value,
 		snapToGrid: elem('snaptogridswitch').checked,
 		curve: elem('curveSelect').value,
 		linkRadius: getRadioVal('hide'),
 		stream: getRadioVal('stream'),
-		showLabels: elem('showLabelSwitch').checked,
 		legend: elem('showLegendSwitch').checked,
 		sizing: elem('sizing').value,
 	};
@@ -2400,14 +2428,6 @@ function undoRedoButtons(event) {
 }
 
 function setButtonStatus(settings) {
-	if (elem('autolayoutswitch').checked != settings.autoLayout) {
-		autoLayoutSet(settings.autoLayout);
-		elem('autolayoutswitch').checked = settings.autoLayout;
-	}
-	if (elem('antiGravity').value != settings.gravity && settings.autoLayout) {
-		adjustGravity(settings.gravity);
-		elem('antiGravity').value = settings.gravity;
-	}
 	elem('snaptogridswitch').checked = settings.snapToGrid;
 	if (settings.snapToGrid) doSnapToGrid();
 	elem('curveSelect').value = settings.curve;
@@ -2416,7 +2436,6 @@ function setButtonStatus(settings) {
 	legendSwitch(false);
 	setRadioVal('hide', settings.linkRadius);
 	setRadioVal('stream', settings.stream);
-	elem('showLabelSwitch').checked = settings.showLabels;
 	elem('sizing').value = settings.sizing;
 }
 // Factors and Links Tabs
@@ -2452,6 +2471,15 @@ function applySampleToLink(event) {
 	lastLinkSample = sample;
 }
 /**
+ * Remember the last style sample that the user clicked and use this for future factors/links
+ * @param {Integer} nodeId 
+ * @param {Integer} linkId 
+ */
+export function updateLastSamples(nodeId, linkId) {
+	if (nodeId) lastNodeSample = nodeId;
+	if (linkId) lastLinkSample = linkId;
+}
+/**
  * User has clicked the padlock.  Toggle padlock state and fix the location of the node
  */
 function setFixed() {
@@ -2466,6 +2494,9 @@ function setFixed() {
 	data.nodes.update(node);
 }
 // Notes
+/**
+ * Display a panel to show info about the selected edge or node
+ */
 function showNodeOrEdgeData() {
 	hideNotes();
 	if (tabOpen == 'nodesTab' || tabOpen == 'linksTab') {
@@ -2473,6 +2504,9 @@ function showNodeOrEdgeData() {
 		else if (network.getSelectedEdges().length == 1) showEdgeData();
 	}
 }
+/**
+ * Show the notes box, the fixed node check box and the node statistics
+ */
 function showNodeData() {
 	let panel = elem('nodeDataPanel');
 	let nodeId = network.getSelectedNodes()[0];
@@ -2482,7 +2516,8 @@ function showNodeData() {
 		: 'fas fa-lock-open';
 	elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : '';
 	let notes = elem('node-notes');
-	notes.innerHTML = node.title ? node.title.replace(/<br>/g, ' ') : '';
+	// When the Note is redisplayed in the Note box, \n is replaced by <br> to preserve user formatting.
+	notes.innerHTML = node.title ? node.title.replace(/\n/g, '<br>') : '';
 	notes.addEventListener('keyup', (e) => updateNodeNotes(e));
 	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
 	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
@@ -2491,21 +2526,17 @@ function showNodeData() {
 }
 /**
  * update the title property of the node with the text of the note.
- * returns (\n) inserted by the user are replaced by <p> and
- * \n inserted by the split text fn are replaced by <br>.
  *
- * When the Note is redisplayed in the Note box, <br> is stripped out and
- * <p> replaced by \n to preserve user formatting.
  * @param {event} e
  */
 function updateNodeNotes(e) {
-	let text = e.target.innerText.replace(/\n/g, '<p>');
+	let text = e.target.innerText.replace(/\n\n/g, '\n');
 	data.nodes.update({
 		id: network.getSelectedNodes()[0],
 		title: splitText(
 			text == e.target.dataset.placeholder ? '' : text,
 			NOTEWIDTH
-		).replace(/\n/g, '<br>'),
+		),
 		clientID: undefined,
 	});
 }
@@ -2515,7 +2546,7 @@ function showEdgeData() {
 	let edge = data.edges.get(edgeId);
 	elem('edgeLabel').innerHTML = edge.label ? shorten(edge.label) : '';
 	let notes = elem('edge-notes');
-	notes.innerHTML = edge.title ? edge.title.replace(/<br>/g, ' ') : '';
+	notes.innerHTML = edge.title ? edge.title.replace(/\n/g, '<br>') : '';
 	notes.addEventListener('keyup', (e) => updateEdgeNotes(e));
 	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
 	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
@@ -2523,13 +2554,13 @@ function showEdgeData() {
 }
 
 function updateEdgeNotes(e) {
-	let text = e.target.innerText.replace(/\n/g, '<p>');
+	let text = e.target.innerText.replace(/\n\n/g, '\n');
 	data.edges.update({
 		id: network.getSelectedEdges()[0],
 		title: splitText(
 			text == e.target.dataset.placeholder ? '' : text,
 			NOTEWIDTH
-		).replace(/\n/g, '<br>'),
+		),
 		clientID: undefined,
 	});
 }
@@ -2547,49 +2578,15 @@ function displayStatistics(nodeId) {
 	elem('bc').textContent = bc[nodeId] >= 0 ? bc[nodeId].toPrecision(3) : '--';
 }
 // Network tab
-function autoLayoutSwitch(e) {
-	let switchOn = e.target.checked;
-	if (switchOn && snapToGridToggle) snapToGridOff(); // no snapping with auto layout.
-	elem('spacing').classList.toggle('hidden');
-	autoLayoutSet(switchOn);
-}
 
-function autoLayoutSet(switchOn) {
+function autoLayoutSwitch() {
 	network.storePositions(); // record current positions so it can be undone
-	network.setOptions({
-		physics: {
-			enabled: switchOn,
-		},
-	});
-	network.once('stabilized', broadcast);
-}
-
-function setGravity() {
-	// only when autolayout is on
-	if (elem('autolayoutswitch').checked) {
-		adjustGravity(elem('antiGravity').value);
+	try {
+		data.nodes.update(trophic(data));
+	} catch (e) {
+		statusMsg(`Trophic layout: ${e.message}`, 'error');
 	}
-}
-
-function adjustGravity(gravity) {
-	network.storePositions(); // record current positions so it can be undone
-	network.setOptions({
-		physics: {
-			barnesHut: {
-				gravitationalConstant: -Number(gravity),
-				centralGravity: 3.5,
-			},
-		},
-	});
-	network.once('stabilized', () => {
-		network.setOptions({
-			physics: {
-				enabled: false,
-				stabilization: false,
-			},
-		});
-		broadcast();
-	});
+	broadcast();
 }
 
 function snapToGridSwitch(e) {
@@ -2600,7 +2597,6 @@ function snapToGridSwitch(e) {
 }
 
 function doSnapToGrid() {
-	autoLayoutSet(false);
 	let positions = network.getPositions();
 	data.nodes.update(
 		data.nodes.get().map((n) => {
@@ -2611,11 +2607,6 @@ function doSnapToGrid() {
 			return n;
 		})
 	);
-}
-
-function snapToGridOff() {
-	elem('snaptogridswitch').checked = false;
-	snapToGridToggle = false;
 }
 
 function selectCurve() {
@@ -2709,59 +2700,24 @@ function selectAllFactors() {
 
 function selectAllEdges() {
 	network.selectEdges(network.body.edgeIndices);
-}
-var labelsShown = true;
-
-function labelSwitch() {
-	if (labelsShown) {
-		labelsShown = false;
-		hideLabels();
-	} else {
-		labelsShown = true;
-		unHideLabels();
-	}
+	let selectedEdges = network.getSelectedEdges();
+	selectedEdges.forEach((edgeId) => {
+		let edge = data.edges.get(edgeId);
+		edge.shadow = true;
+		data.edges.update(edge);
+	});
 }
 
 function legendSwitch(warn) {
-	if (elem('showLegendSwitch').checked) legend(warn);
+	let checked = elem('showLegendSwitch').checked;
+	if (checked) legend(warn);
 	else clearLegend();
+	yNetMap.set('legend', !checked);
 }
-
-function hideLabels() {
-	// move the label to the hiddenLabel property and set the label to an empty string
-	let nodesToUpdate = [];
-	data.nodes.forEach(function (n) {
-		n.hiddenLabel = n.label;
-		n.label = '';
-		nodesToUpdate.push(n);
-	});
-	data.nodes.update(nodesToUpdate);
-	let edgesToUpdate = [];
-	data.edges.forEach(function (n) {
-		n.hiddenLabel = n.label;
-		n.label = '';
-		edgesToUpdate.push(n);
-	});
-	data.edges.remove(edgesToUpdate);
-	data.edges.add(edgesToUpdate);
-}
-
-function unHideLabels() {
-	let nodesToUpdate = [];
-	data.nodes.forEach(function (n) {
-		if (n.hiddenLabel) n.label = n.hiddenLabel;
-		n.hiddenLabel = undefined;
-		nodesToUpdate.push(n);
-	});
-	data.nodes.update(nodesToUpdate);
-	let edgesToUpdate = [];
-	data.edges.forEach(function (n) {
-		if (n.hiddenLabel) n.label = n.hiddenLabel;
-		n.hiddenLabel = undefined;
-		edgesToUpdate.push(n);
-	});
-	data.edges.remove(edgesToUpdate);
-	data.edges.add(edgesToUpdate);
+function setLegend(on) {
+	elem('showLegendSwitch').checked = !on;
+	if (!on)legend();
+	else clearLegend();
 }
 
 function getRadioVal(name) {
@@ -2909,9 +2865,21 @@ function hideDistantOrStreamNodes(broadcast = true) {
 	}
 
 	function showAll() {
-		let nodes = data.nodes.get({filter: function(node) {let h = node.hidden; if (h) node.hidden = false; return h}});
+		let nodes = data.nodes.get({
+			filter: function (node) {
+				let h = node.hidden;
+				if (h) node.hidden = false;
+				return h;
+			},
+		});
 		data.nodes.update(nodes);
-		let edges = data.edges.get({filter: function(edge) {let h = edge.hidden; if (h) edge.hidden = false; return h}});
+		let edges = data.edges.get({
+			filter: function (edge) {
+				let h = edge.hidden;
+				if (h) edge.hidden = false;
+				return h;
+			},
+		});
 		data.edges.update(edges);
 	}
 }
@@ -2988,12 +2956,11 @@ function blinkChatboxTab() {
 
 function sendMsg() {
 	let inputMsg = chatInput.value.replace(/\n/g, '</br>');
-	let clock = new Date().toLocaleTimeString();
 	yChatArray.push([
 		{
 			client: clientID,
 			author: myNameRec.name,
-			time: clock,
+			time: Date.now(),
 			msg: inputMsg,
 		},
 	]);
@@ -3013,19 +2980,41 @@ function displayAllMsgs() {
 
 function displayMsg(msg) {
 	if (msg == undefined) return;
+	let clock = '';
+	if (Number.isInteger(msg.time)) {
+		let time = new Date();
+		time.setTime(msg.time);
+		if (time.toDateString() == new Date().toDateString()) {
+			clock =
+				'Today, ' +
+				time.toLocaleString('en-GB', {
+					hour: '2-digit',
+					minute: '2-digit',
+				});
+		} else
+			clock = time.toLocaleString('en-GB', {
+				day: '2-digit',
+				month: 'short',
+				hour: '2-digit',
+				minute: '2-digit',
+			});
+	}
 	if (msg.client == clientID) {
 		/* my own message */
 		chatMessages.innerHTML += `<div class="message-box-holder">
+			<div class="message-header">
+				<span class="message-time">${clock}</span>
+			</div>
 			<div class="message-box">
 				${msg.msg}
 			</div>
 		</div>`;
 	} else {
 		chatMessages.innerHTML += `<div class="message-box-holder">
-			<div class="message-sender">
-				${msg.time} ${msg.author}
+			<div class="message-header">
+				<span class="message-author">${msg.author}</span><span class="message-time">${clock}</span> 
 			</div>
-			<div class="message-box message-partner">
+			<div class="message-box message-received">
 				${msg.msg}
 			</div>
 		</div>`;
@@ -3044,12 +3033,13 @@ function displayUserName() {
  * Place a circle at the top left of the net pane to represent each user who is online
  */
 
-function showOtherUsers() {
+function showAvatars() {
 	let names = Array.from(yAwareness.getStates())
 		.map(([name, value]) => {
 			name;
 			return value.name;
 		})
+		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates
 		.sort((a, b) => (a.name > b.name ? 1 : -1));
 
 	let avatars = elem('avatars');
@@ -3058,26 +3048,64 @@ function showOtherUsers() {
 	}
 
 	names.forEach((nameRec) => {
-		if (nameRec != myNameRec) {
-			// skip myself
-			let ava = document.createElement('div');
-			ava.classList.add('hoverme');
-			ava.dataset.tooltip = nameRec.name;
-			let circle = document.createElement('div');
-			circle.classList.add('round');
-			circle.style.backgroundColor = nameRec.color;
-			if (nameRec.anon) circle.style.borderColor = 'white';
-			circle.innerText = nameRec.name
-				.match(/(^\S\S?|\b\S)?/g)
-				.join('')
-				.match(/(^\S|\S$)?/g)
-				.join('')
-				.toUpperCase();
-			circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
-			ava.appendChild(circle);
-			avatars.appendChild(ava);
-		}
+		let ava = document.createElement('div');
+		ava.classList.add('hoverme');
+		ava.dataset.tooltip = nameRec.name;
+		let circle = document.createElement('div');
+		circle.classList.add('round');
+		circle.style.backgroundColor = nameRec.color;
+		if (nameRec.anon) circle.style.borderColor = 'white';
+		circle.innerText = nameRec.name
+			.match(/(^\S\S?|\b\S)?/g)
+			.join('')
+			.match(/(^\S|\S$)?/g)
+			.join('')
+			.toUpperCase();
+		circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
+		ava.appendChild(circle);
+		avatars.appendChild(ava);
 	});
 }
 
 dragElement(elem('chatbox-holder'), elem('chatbox-top'));
+
+/* --------------------------------- Merge maps ----------------------------- */
+/* to get the data in, open inspect windows for both maps.  in one window, eval data.nodes.get() and copy the result (not including any initial and trailing quote marks).
+In the other window. evaluate n = <pasted list>.  Repeat for data.edges.get() and e = <pasted list>.  Then evaluate mergeMaps(n, e) in the other window.
+*/
+
+function mergeMaps(nodeList, edgeList) {
+	nodeList.forEach((newNode) => {
+		let oldNode = data.nodes.get(newNode.id);
+		if (oldNode) {
+			if (oldNode.label != newNode.label)
+				console.log(
+					`Existing factor label: \n${oldNode.label} \ndoes not match new label: \n${newNode.label}`
+				);
+			else if (oldNode.grp != newNode.grp)
+				console.log(
+					`Existing factor style: ${oldNode.grp} does not match new style ${newNode.grp} for ${oldNode.label}`
+				);
+		} else {
+			data.nodes.add(newNode);
+			console.log(`Added ${newNode.label}`);
+		}
+	});
+	edgeList.forEach((newEdge) => {
+		let oldEdge = data.edges.get(newEdge.id);
+		if (oldEdge) {
+			if (oldEdge.label != newEdge.label)
+				console.log(
+					`Existing label: \n${oldEdge.label} \ndoes not match new label: \n${newEdge.label}`
+				);
+			else if (oldEdge.grp != newEdge.grp)
+				console.log(
+					`Existing style: ${oldEdge.grp} does not match new style ${newEdge.grp} for edge ${oldEdge.id}`
+				);
+		} else {
+			data.edges.add(newEdge);
+			console.log(`Added ${newEdge.id}`);
+		}
+	});
+}
+window.mergeMaps = mergeMaps;
