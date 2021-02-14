@@ -273,6 +273,9 @@ Set.prototype.intersection = function (otherSet) {
  * @param {HTMLelement} header
  */
 export function dragElement(elem, header) {
+	header.addEventListener('mouseenter', () =>  header.style.cursor = "move");
+	header.addEventListener('mouseout', () =>  header.style.cursor = "auto");
+
 	let mc = new Hammer.Manager(header, {
 		recognizers: [
 			[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}],
@@ -281,10 +284,6 @@ export function dragElement(elem, header) {
 	// tie in the handler that will be called
 	mc.on('pan', handleDrag);
 
-	// poor choice here, but to keep it simple
-	// setting up a few vars to keep track of things.
-	// at issue is these values need to be encapsulated
-	// in some scope other than global.
 	let lastPosX = 0;
 	let lastPosY = 0;
 	let isDragging = false;
@@ -317,7 +316,7 @@ export function dragElement(elem, header) {
 		// this is where we simply forget we are dragging
 		if (ev.isFinal) {
 			isDragging = false;
-			elem.style.cursor = 'pointer';
+			elem.style.cursor = 'auto';
 		}
 	}
 }

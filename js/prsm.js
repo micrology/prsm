@@ -42,7 +42,7 @@ const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
-const NOTEWIDTH = 30; // chars for title (node/edge tooltip) splitting
+const NOTEWIDTH = 50; // chars for title (node/edge tooltip) splitting
 const SHORTLABELLEN = 25; // when listing node labels, use ellipsis after this number of chars
 const TIMETOSLEEP = 15 * 60 * 1000; // if no mouse movement for this time, user is assumed to have left or is sleeping
 const TIMETOEDIT = 5 * 60 * 1000; // if node/edge edit dialog is not saved after this time, the edit is cancelled
@@ -438,6 +438,9 @@ function startY() {
 					case 'maptitle':
 						setMapTitle(obj);
 						break;
+					case 'legend':
+						setLegend(obj)
+						break;
 					default:
 						console.log('Bad key in yMapNet.observe: ', key);
 				}
@@ -676,7 +679,7 @@ function draw() {
 			},
 			addEdge: function (item, callback) {
 				inAddMode = false;
-				network.setOptions({ interaction: { dragView: true } });
+				network.setOptions({ interaction: { dragView: true, selectable: true } });
 				changeCursor('auto');
 				if (item.from == item.to) {
 					showPressed('addLink', 'remove');
@@ -1624,7 +1627,7 @@ function plusLink() {
 			inAddMode = 'addLink';
 			showPressed('addLink', 'add');
 			unSelect();
-			network.setOptions({ interaction: { dragView: false } });
+			network.setOptions({ interaction: { dragView: false, selectable: false } });
 			network.addEdgeMode();
 	}
 }
@@ -2333,7 +2336,7 @@ function togglePanel() {
 	}
 	container.panelHidden = !container.panelHidden;
 }
-dragElement(elem('panel'), elem('tab'));
+dragElement(elem('panel'), elem('panel'));
 
 /* ---------operations related to the side panel -------------------------------------*/
 
@@ -2459,6 +2462,15 @@ function applySampleToLink(event) {
 	}
 	data.edges.update(edgesToUpdate);
 	lastLinkSample = sample;
+}
+/**
+ * Remember the last style sample that the user clicked and use this for future factors/links
+ * @param {Integer} nodeId 
+ * @param {Integer} linkId 
+ */
+export function updateLastSamples(nodeId, linkId) {
+	if (nodeId) lastNodeSample = nodeId;
+	if (linkId) lastLinkSample = linkId;
 }
 /**
  * User has clicked the padlock.  Toggle padlock state and fix the location of the node
@@ -2681,10 +2693,23 @@ function selectAllFactors() {
 
 function selectAllEdges() {
 	network.selectEdges(network.body.edgeIndices);
+	let selectedEdges = network.getSelectedEdges();
+	selectedEdges.forEach((edgeId) => {
+		let edge = data.edges.get(edgeId);
+		edge.shadow = true;
+		data.edges.update(edge);
+	});
 }
 
 function legendSwitch(warn) {
-	if (elem('showLegendSwitch').checked) legend(warn);
+	let checked = elem('showLegendSwitch').checked;
+	if (checked) legend(warn);
+	else clearLegend();
+	yNetMap.set('legend', !checked);
+}
+function setLegend(on) {
+	elem('showLegendSwitch').checked = !on;
+	if (!on)legend();
 	else clearLegend();
 }
 

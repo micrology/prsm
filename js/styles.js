@@ -9,7 +9,7 @@ import {
 	standardize_color,
 	dragElement,
 } from './utils.js';
-import {statusMsg} from './prsm.js';
+import {statusMsg, updateLastSamples} from './prsm.js';
 import {styles} from './samples.js';
 
 const NODESTYLEWIDTH = 10; // chars for label splitting
@@ -45,6 +45,9 @@ export function setUpSamples() {
 		});
 		sampleElement.addEventListener('dblclick', () => {
 			editNodeStyle(sampleElement, groupId);
+		});
+		sampleElement.addEventListener('click', () => {
+			updateLastSamples(groupId, null);
 		});
 		sampleElement.groupNode = groupId;
 		sampleElement.dataSet = nodeDataSet;
@@ -90,6 +93,9 @@ export function setUpSamples() {
 		});
 		sampleElement.addEventListener('dblclick', () => {
 			editLinkStyle(sampleElement, groupId);
+		});
+		sampleElement.addEventListener('click', () => {
+			updateLastSamples(null, groupId);
 		});
 		sampleElement.groupLink = groupId;
 		sampleElement.dataSet = edgeDataSet;
@@ -539,7 +545,7 @@ export function legend(warn = true) {
 
 	legendNetwork = new Network(canvas, legendData, {
 		physics: {enabled: false},
-		interaction: {zoomView: false},
+		interaction: {zoomView: false, dragView: false},
 	});
 	legendNetwork.moveTo({scale: 0.8});
 	let height = LEGENDSPACING / 2;
@@ -607,7 +613,7 @@ export function clearLegend() {
 	if (legendBox) legendBox.remove();
 }
 /**
- * redraw thelegend (to show updated styles)
+ * redraw the legend (to show updated styles)
  */
 function updateLegend() {
 	if (document.getElementById('showLegendSwitch').checked) legend(false);
