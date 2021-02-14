@@ -18,6 +18,7 @@ const fs = require('fs')
 const wss = new WebSocket.Server({ noServer: true })
 const setupWSConnection = require('./utils.js').setupWSConnection
 
+const host = process.env.HOST || 'localhost'
 const port = process.env.PORT || 1234
 const certDir = process.env.CERTDIR;
 let server = null;
@@ -59,6 +60,6 @@ server.on('upgrade', (request, socket, head) => {
   wss.handleUpgrade(request, socket, head, handleAuth)
 })
 
-server.listen(port)
+server.listen({ host, port })
 
-console.log(serverProtocol, 'running on port', port)
+console.log(`${serverProtocol} running at '${host} on port ${port}`)
