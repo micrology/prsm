@@ -7,7 +7,7 @@ Restart=always
 RestartSec=10
 User=root
 Group=root
-Environment='PATH=/home/ec2-user/.nvm/versions/node/v14.4.0/bin' 'YPERSISTENCE=/data/cress/prsm/dbDir' 'CERTDIR=/etc/letsencrypt/live/cress.soc.surrey.ac.uk'
+Environment='PATH=/home/ec2-user/.nvm/versions/node/v14.15.5/bin' 'YPERSISTENCE=/data/cress/prsm/dbDir' 'CERTDIR=/etc/letsencrypt/live/cress.soc.surrey.ac.uk'
 # Output to syslog
 StandardOutput=syslog
 StandardError=syslog
