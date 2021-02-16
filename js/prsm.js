@@ -880,8 +880,8 @@ function draw() {
 function drawBadges() {
 	data.nodes.get().filter(node => node.title).forEach(node => {
 		let box = network.getBoundingBox(node.id);
-		let topRight = network.canvasToDom({ x: box.right, y: box.top });
-		if (node.badge) {
+		let topRight = network.canvasToDOM({ x: box.right, y: box.top });
+		if (node.badge instanceof Element) {
 			node.badge.style.top = `${topRight.y}px`;
 			node.badge.style.left = `${topRight.x}px`;
 		}
@@ -892,6 +892,7 @@ function drawBadges() {
 			badge.style.left = `${topRight.x}px`;
 			badge.addEventListener('click', (e) => console.log('Clicked ', e.target));
 			node.badge = badge;
+			elem('main').appendChild(badge);
 		}
 	})
 }
