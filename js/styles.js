@@ -222,7 +222,7 @@ function nodeEditSave() {
 	group.shape = elem('nodeEditShape').value;
 	let border = elem('nodeEditBorder').value;
 	group.shapeProperties.borderDashes = groupDashes(border);
-	group.borderWidth = border == 'none' ? 0 : 1;
+	group.borderWidth = border == 'none' ? 0 : 4;
 	group.font.size = parseInt(elem('nodeEditFontSize').value);
 	nodeEditUpdateStyleSample(group);
 }

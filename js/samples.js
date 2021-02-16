@@ -2,8 +2,8 @@ export const styles = {
 	nodes: {
 		base: {
 			groupLabel: 'Sample',
-			borderWidth: 1,
-			borderWidthSelected: 1,
+			borderWidth: 4,
+			borderWidthSelected: 4,
 			chosen: true,
 			color: {
 				border: '#000000',

@@ -754,6 +754,12 @@ but moving the panel out of sight works instead */
 .placeholder {
 	opacity: 0.5;
 }
+.badge {
+	position: absolute;
+	background-color: yellow;
+	width: 30px;
+	height: 30px;
+}
 .networkGrid {
 	display: grid;
 	grid-template-columns: 1fr;
@@ -1068,7 +1074,7 @@ but moving the panel out of sight works instead */
 	padding: 14px;
 	position: fixed;
 	right: 0;
-	bottom: 35px;
+	bottom: 40px;
 	z-index: 40;
 }
 .chatbox-blink {

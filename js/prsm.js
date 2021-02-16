@@ -12,6 +12,7 @@ import {
 	getScaleFreeNetwork,
 	uuidv4,
 	deepMerge,
+	deepCopy,
 	clean,
 	strip,
 	splitText,
@@ -214,11 +215,6 @@ function startY() {
 	if (room == null || room == '') room = generateRoom();
 	else room = room.toUpperCase();
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
-	/* 	const wsProvider = new WebsocketProvider(
-		'ws://localhost:1234',
-		'prsm' + room,
-		doc
-	); */
 	const persistence = new IndexeddbPersistence(room, doc);
 	persistence.once('synced', () => {
 		displayNetPane('local content loaded');
@@ -582,7 +578,8 @@ function saveUserName(name) {
 	} else myNameRec = generateName();
 	chatNameBox.value = myNameRec.name;
 	localStorage.setItem('myName', JSON.stringify(myNameRec));
-	yAwareness.setLocalState({name: myNameRec});
+	yAwareness.setLocalState({ name: myNameRec });
+	showAvatars();
 }
 /**
  * if this is the user's first time, show them how the user interface works
@@ -630,7 +627,8 @@ function setUpAwareness() {
  */
 function asleep(isSleeping) {
 	myNameRec.asleep = isSleeping;
-	yAwareness.setLocalState({name: myNameRec});
+	yAwareness.setLocalState({ name: myNameRec });
+	showAvatars();
 }
 
 /**
@@ -869,6 +867,8 @@ function draw() {
 	network.on('beforeDrawing', function (ctx) {
 		redraw(ctx);
 	});
+	network.on('afterDrawing', drawBadges);
+
 	// listen for changes to the network structure
 	// and recalculate the network statistics when there is one
 	data.nodes.on('add', recalculateStats);
@@ -877,6 +877,24 @@ function draw() {
 	data.edges.on('remove', recalculateStats);
 } // end draw()
 
+function drawBadges() {
+	data.nodes.get().filter(node => node.title).forEach(node => {
+		let box = network.getBoundingBox(node.id);
+		let topRight = network.canvasToDom({ x: box.right, y: box.top });
+		if (node.badge) {
+			node.badge.style.top = `${topRight.y}px`;
+			node.badge.style.left = `${topRight.x}px`;
+		}
+		else {
+			let badge = document.createElement('div');
+			badge.classList.add('badge');
+			badge.style.top = `${topRight.y}px`;
+			badge.style.left = `${topRight.x}px`;
+			badge.addEventListener('click', (e) => console.log('Clicked ', e.target));
+			node.badge = badge;
+		}
+	})
+}
 /**
  * rescale and redraw the network so that it fits the pane
  * @param {Integer} duration speed of zoom to fit
@@ -1241,7 +1259,7 @@ function saveNode(item, callback) {
 	item.color.hover.border = color;
 	item.font.color = elem('node-fontColor').value;
 	let borderType = elem('node-borderType').value;
-	item.borderWidth = borderType == 'none' ? 0 : 1;
+	item.borderWidth = borderType == 'none' ? 0 : 4;
 	item.shapeProperties.borderDashes = convertDashes(borderType);
 	claim(item);
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
@@ -2552,7 +2570,6 @@ function showEdgeData() {
 	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
 	panel.classList.remove('hide');
 }
-
 function updateEdgeNotes(e) {
 	let text = e.target.innerText.replace(/\n\n/g, '\n');
 	data.edges.update({
@@ -3074,37 +3091,102 @@ dragElement(elem('chatbox-holder'), elem('chatbox-top'));
 In the other window. evaluate n = <pasted list>.  Repeat for data.edges.get() and e = <pasted list>.  Then evaluate mergeMaps(n, e) in the other window.
 */
 
-function mergeMaps(nodeList, edgeList) {
-	nodeList.forEach((newNode) => {
-		let oldNode = data.nodes.get(newNode.id);
-		if (oldNode) {
-			if (oldNode.label != newNode.label)
+function openOtherDoc(room) {
+	let bDoc = new Y.Doc();
+	new WebsocketProvider(websocket, 'prsm' + room, bDoc);
+	let bNodesMap = bDoc.getMap('nodes');
+	let bEdgesMap = bDoc.getMap('edges');
+	let bNodes = new DataSet();
+	let bEdges = new DataSet();
+	let data = {
+		nodes: bNodes,
+		edges: bEdges,
+	};
+	bNodesMap.observe((event) => {
+		let nodesToUpdate = [];
+		for (let key of event.keysChanged) {
+			if (bNodesMap.has(key)) {
+				let obj = bNodesMap.get(key);
+					nodesToUpdate.push(obj);
+			} 
+		}
+		if (nodesToUpdate) bNodes.update(nodesToUpdate);
+	});
+	bEdgesMap.observe((event) => {
+		let edgesToUpdate = [];
+		for (let key of event.keysChanged) {
+			if (bEdgesMap.has(key)) {
+				let obj = bEdgesMap.get(key);
+				edgesToUpdate.push(obj);
+			}
+		}
+		bEdges.update(edgesToUpdate, origin);
+	});
+	return data;
+}
+window.openOtherDoc = openOtherDoc;
+
+function mergeMaps(nodeList, edgeList) {  // lists of edges from the map to be merged (B) into this one (A)
+	let newNodes = new Map();;
+	nodeList.forEach((BNode) => {
+		let ANode = data.nodes.get(BNode.id);
+		if (ANode) {
+			if (ANode.label != BNode.label) {
+				console.log(`Existing factor label: \n${ANode.label} \ndoes not match new label: \n${BNode.label}`);
+				// generate a new id for BNode.  change border to dashed.  add it to the map
+				let newNode = deepCopy(BNode);
+				newNode.id = uuidv4();
+				newNode.shapeProperties.borderDashes = true;
+				newNode.borderWidth = 4;
+				newNode.borderWidthSelected = 4;
+				newNode.color.border = '#ff0000';
+				newNode.color.highlight.border = '#ff0000';
+				newNode.x = ANode.x + 30;
+				newNode.y = ANode.y + 30;
+				data.nodes.add(newNode);
+				newNodes.set(BNode.id, newNode.id);
+			}
+			else if (ANode.grp != BNode.grp)
 				console.log(
-					`Existing factor label: \n${oldNode.label} \ndoes not match new label: \n${newNode.label}`
-				);
-			else if (oldNode.grp != newNode.grp)
-				console.log(
-					`Existing factor style: ${oldNode.grp} does not match new style ${newNode.grp} for ${oldNode.label}`
+					`Existing factor style: ${ANode.grp} does not match new style ${BNode.grp} for ${ANode.label}`
 				);
 		} else {
-			data.nodes.add(newNode);
-			console.log(`Added ${newNode.label}`);
+			data.nodes.add(BNode);
+			console.log(`Added ${BNode.label}`);
 		}
 	});
-	edgeList.forEach((newEdge) => {
-		let oldEdge = data.edges.get(newEdge.id);
-		if (oldEdge) {
-			if (oldEdge.label != newEdge.label)
+	
+	edgeList.forEach((BEdge) => {
+	/* some edges on the B map may have been going to/from nodes that have been given a new id.  Edit these edges
+	to give them the new from or to node ids and make them dashed. */
+		let newEdge = null;
+		if (newNodes.has(BEdge.from)) {
+			newEdge = deepCopy(BEdge);
+			newEdge.from = newNodes.get(BEdge.from);
+			if (newNodes.has(newEdge.to)) newEdge.to = newNodes.get(newEdge.to);
+		}
+		else if (newNodes.has(BEdge.to)) {
+			newEdge = deepCopy(BEdge);
+			newEdge.to = newNodes.get(BEdge.to);
+		}
+		if (newEdge) {
+			newEdge.dashes = true;
+			data.edges.add(newEdge);
+			console.log(`Added link for new factor(s): ${data.nodes.get(newEdge.from).label} to ${data.nodes.get(newEdge.to).label}`);
+		}
+		let AEdge = data.edges.get(BEdge.id);
+		if (AEdge) {
+			if (AEdge.label != BEdge.label)
 				console.log(
-					`Existing label: \n${oldEdge.label} \ndoes not match new label: \n${newEdge.label}`
+					`Existing label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}`
 				);
-			else if (oldEdge.grp != newEdge.grp)
+			else if (AEdge.grp != BEdge.grp)
 				console.log(
-					`Existing style: ${oldEdge.grp} does not match new style ${newEdge.grp} for edge ${oldEdge.id}`
+					`Existing style: ${AEdge.grp} does not match new style ${BEdge.grp} for edge ${AEdge.id}`
 				);
 		} else {
-			data.edges.add(newEdge);
-			console.log(`Added ${newEdge.id}`);
+			data.edges.add(BEdge);
+			console.log(`Added ${BEdge.id}`);
 		}
 	});
 }
