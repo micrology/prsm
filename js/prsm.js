@@ -880,12 +880,23 @@ function draw() {
 function drawBadges(ctx) {
 	data.nodes.get().filter(node => node.title).forEach(node => {
 		let box = network.getBoundingBox(node.id);
-		ctx.beginPath();
-		ctx.fillStyle = 'green';
-//		ctx.fillRect(box.right, box.top, 20, 20);
-		ctx.arc(box.right, box.top, 10, 0, 2 * Math.PI)
-		ctx.fill();
-	})
+		drawBadge(ctx, box.right, box.top, 'green');
+	});
+	data.edges.get().filter(edge => edge.title).forEach(edge => {
+		let fromPos = network.getPosition(edge.from);
+		let toPos = network.getPosition(edge.to);
+		drawBadge(ctx,
+			(fromPos.x > toPos.x ? (fromPos.x - toPos.x) / 2 + toPos.x : (toPos.x - fromPos.x) / 2 + fromPos.x),
+			(fromPos.y > toPos.y ? (fromPos.y - toPos.y) / 2 + toPos.y : (toPos.y - fromPos.y) / 2 + fromPos.y),
+		'cornflowerblue');
+	});
+}
+function drawBadge(ctx, x, y, color) {
+	ctx.beginPath();
+	ctx.fillStyle = color;
+	//		ctx.fillRect(x, y, 20, 20);
+	ctx.arc(x, y, 10, 0, 2 * Math.PI)
+	ctx.fill();
 }
 /**
  * rescale and redraw the network so that it fits the pane
