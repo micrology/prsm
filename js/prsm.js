@@ -867,7 +867,7 @@ function draw() {
 	network.on('beforeDrawing', function (ctx) {
 		redraw(ctx);
 	});
-	network.on('afterDrawing', drawBadges);
+	network.on('afterDrawing', (ctx) => drawBadges(ctx));
 
 	// listen for changes to the network structure
 	// and recalculate the network statistics when there is one
@@ -877,23 +877,14 @@ function draw() {
 	data.edges.on('remove', recalculateStats);
 } // end draw()
 
-function drawBadges() {
+function drawBadges(ctx) {
 	data.nodes.get().filter(node => node.title).forEach(node => {
 		let box = network.getBoundingBox(node.id);
-		let topRight = network.canvasToDOM({ x: box.right, y: box.top });
-		if (node.badge instanceof Element) {
-			node.badge.style.top = `${topRight.y}px`;
-			node.badge.style.left = `${topRight.x}px`;
-		}
-		else {
-			let badge = document.createElement('div');
-			badge.classList.add('badge');
-			badge.style.top = `${topRight.y}px`;
-			badge.style.left = `${topRight.x}px`;
-			badge.addEventListener('click', (e) => console.log('Clicked ', e.target));
-			node.badge = badge;
-			elem('main').appendChild(badge);
-		}
+		ctx.beginPath();
+		ctx.fillStyle = 'green';
+//		ctx.fillRect(box.right, box.top, 20, 20);
+		ctx.arc(box.right, box.top, 10, 0, 2 * Math.PI)
+		ctx.fill();
 	})
 }
 /**

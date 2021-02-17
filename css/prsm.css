@@ -754,13 +754,6 @@ but moving the panel out of sight works instead */
 .placeholder {
 	opacity: 0.5;
 }
-.badge {
-	position: absolute;
-	background-color: yellow;
-	width: 30px;
-	height: 30px;
-	z-index: 2;
-}
 .networkGrid {
 	display: grid;
 	grid-template-columns: 1fr;
