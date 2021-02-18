@@ -504,8 +504,7 @@
 		</aside>
 		<!-- Notes panels -->
 		<div class="itemData hide" id="nodeDataPanel">
-			<div class="panelHeader" id="nodeDataHeader"></div>
-			<div class="panelRow">
+			<div class="row" id="nodeDataHeader">
 				<div>
 					<span class="nodeLabel" id="nodeLabel"></span>
 				</div>
@@ -513,35 +512,42 @@
 					<span id="fixed"><i class="fas fa-lock-open"></i></span>
 				</div>
 			</div>
-			<div class="panelRow">
+			<div class="row">
 				<div>Leverage</div>
 				<div id="leverage"></div>
 			</div>
-			<div class="panelRow">
+			<div class="row">
 				<div>Betweenness centrality</div>
 				<div id="bc"></div>
 			</div>
-			<div class="panelRow">
-				<div
-					contenteditable="true"
-					class="notes"
-					id="node-notes"
-					data-placeholder="Notes"
-				></div>
+			<div class="row divider" id="nodeCreation">
+				<div>Created:</div>
+				<div id="nodeCreated"></div>
+			</div>
+			<div class="row" id="nodeModification">
+				<div>Modified:</div>
+				<div id="nodeModified"></div>
+			</div>
+			<div class="row">
+				<div contenteditable="true" class="notes" id="node-notes" data-placeholder="Notes"></div>
 			</div>
 		</div>
 		<div class="itemData hide" id="edgeDataPanel">
-			<div class="panelHeader" id="edgeDataHeader"></div>
-			<div class="panelRow">
-				<span class="edgeLabel" id="edgeLabel"></span>
+			<div class="row"  id="edgeDataHeader">
+				<div>
+					<span class="edgeLabel" id="edgeLabel"></span>
+				</div>
 			</div>
-			<div class="panelRow">
-				<div
-					contenteditable="true"
-					class="notes"
-					id="edge-notes"
-					data-placeholder="Notes"
-				></div>
+			<div class="row divider" id="edgeCreation">
+				<div>Created:</div>
+				<div id="edgeCreated"></div>
+			</div>
+			<div class="row" id="edgeModification">
+				<div>Modified:</div>
+				<div id="edgeModified"></div>
+			</div>
+			<div class="row">
+				<div contenteditable="true" class="notes" id="edge-notes" data-placeholder="Notes"></div>
 			</div>
 		</div>
 		<footer

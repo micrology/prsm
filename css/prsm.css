@@ -674,7 +674,6 @@ nav button .pressed {
 	position: relative;
 }
 .samples,
-.itemData,
 .networkStyles {
 	padding: 4px;
 	background-color: var(--panel-color);
@@ -686,12 +685,31 @@ nav button .pressed {
 .networkStyles {
 	border-radius: 0 0 4px 4px;
 }
-.itemData {
-	position: fixed;
-	bottom: 70px;
-	right: 5px;
-	width: 192px;
-	z-Index: 2000;
+.networkGrid {
+	display: grid;
+	grid-template-columns: 1fr;
+}
+.panelRow {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+}
+.panelRow div {
+	margin: auto 0;
+}
+.panelRow.centered {
+	justify-content: center;
+}
+.panelRow.divider {
+	margin-top: 5px;
+	padding-top: 5px;
+	border-top: 1px solid white;
+}
+.panelRow.hidden {
+	display: none;
+}
+.networkGrid .panelRow {
+	padding: 4px;
 }
 
 /* Using display:none to hide tabs other than the one on display: 
@@ -731,18 +749,21 @@ but moving the panel out of sight works instead */
 	border-radius: 5px;
 	background-color: white;
 }
-/* the panel area that only appears for the Factor tab if one Factor is selected or likewise for an Link */
 
-#oneNodeSelected {
-	margin-top: 10px;
-	border-top: 1px solid whitesmoke;
-	padding-top: 10px;
-}
-.nodeLabel,
-.edgeLabel {
-	font-weight: bold;
-	text-decoration: underline;
-	line-height: 2;
+/* the data and notes area that appears if a node or link is selected */
+
+.itemData {
+	display: grid;
+	grid-template-columns: 192px;
+	padding: 4px;
+	background-color: var(--panel-color);
+	color: white;
+	font-size: 11px;
+	border-radius: 4px;
+	position: fixed;
+	top: calc(100% - 380px);
+	left: calc(100% - 205px);
+	z-index: 2000;
 }
 .notes {
 	padding: 4px;
@@ -757,31 +778,30 @@ but moving the panel out of sight works instead */
 .placeholder {
 	opacity: 0.5;
 }
-.networkGrid {
-	display: grid;
-	grid-template-columns: 1fr;
-}
-.panelRow {
+.itemData .row {
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-start;
 }
-.panelRow div {
+.itemData .row div {
 	margin: auto 0;
 }
-.panelRow.centered {
+.itemData .row .centered {
 	justify-content: center;
 }
-.panelRow.divider {
+.itemData .row.divider {
 	margin-top: 5px;
 	padding-top: 5px;
-	border-top: 1px solid white;
+	border-top: 1px solid lightgrey;
 }
-.panelRow.hidden {
+.itemData .row .hidden {
 	display: none;
 }
-.networkGrid .panelRow {
-	padding: 4px;
+.nodeLabel,
+.edgeLabel {
+	font-weight: bold;
+	text-decoration: underline;
+	line-height: 2;
 }
 .padlock-hide {
 	display: none;

@@ -881,11 +881,11 @@ function draw() {
 function drawBadges(ctx) {
 	data.nodes.get().filter(node => node.note  && node.note != "Notes").forEach(node => {
 		let box = network.getBoundingBox(node.id);
-		drawBadge(ctx, box.right, box.top);
+		drawBadge(ctx, box.right-20, box.top);
 	});
 	let changedEdges = [];
 	data.edges.get().forEach(edge => {
-		if (edge.note && edge.note != "Notes" && !edge.arrows.middle.enabled) {
+		if (edge.note && edge.note != "Notes" && edge.arrows && edge.arrows.middle && !edge.arrows.middle.enabled) {
 			// there is a note, but the badge is not shown
 			changedEdges.push(edge);
 			edge.arrows.middle.enabled = true;
@@ -2147,6 +2147,7 @@ function saveJSONfile() {
 					'grp',
 					'x',
 					'y',
+					'arrows',
 					'color',
 					'font',
 					'borderWidth',
@@ -2541,6 +2542,16 @@ function showNodeData() {
 		? 'fas fa-lock'
 		: 'fas fa-lock-open';
 	elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : '';
+	if (node.created) {
+		elem('nodeCreated').innerHTML = node.created;
+		elem('nodeCreation').style.display = 'flex';
+	}
+	else elem('nodeCreation').style.display = 'none';
+	if (node.modified) {
+		elem('nodeModified').innerHTML = node.modified;
+		elem('nodeModification').style.display = 'flex';
+	}
+	else elem('nodeModification').style.display = 'none';
 	let notes = elem('node-notes');
 	let text = node.note || '';
 	notes.innerHTML = text.replace(/\n/g, '<br>');
@@ -2559,7 +2570,7 @@ function updateNodeNotes(e) {
 	let text = e.target.innerText;
 	data.nodes.update({
 		id: network.getSelectedNodes()[0],
-		note: text,
+		note: (text == "Notes" ? '' : text),
 		clientID: undefined,
 	});
 }
@@ -2567,7 +2578,17 @@ function showEdgeData() {
 	let panel = elem('edgeDataPanel');
 	let edgeId = network.getSelectedEdges()[0];
 	let edge = data.edges.get(edgeId);
-	elem('edgeLabel').innerHTML = edge.label ? shorten(edge.label) : '';
+	elem('edgeLabel').innerHTML = edge.label ? shorten(edge.label) : 'Link';
+	if (edge.created) {
+		elem('edgeCreated').innerHTML = edge.created;
+		elem('edgeCreation').style.display = 'flex';
+	}
+	else elem('edgeCreation').style.display = 'none';
+	if (edge.modified) {
+		elem('edgeModified').innerHTML = edge.modified;
+		elem('edgeModification').style.display = 'flex';
+	}
+	else elem('edgeModification').style.display = 'none';
 	let notes = elem('edge-notes');
 	let text = edge.note || '';
 	notes.innerHTML = text.replace(/\n/g, '<br>');
@@ -2580,7 +2601,7 @@ function updateEdgeNotes(e) {
 	let text = e.target.innerText;
 	data.edges.update({
 		id: network.getSelectedEdges()[0],
-		note: text,
+		note: (text == "Notes" ? '' : text),
 		clientID: undefined,
 	});
 }
@@ -3000,25 +3021,7 @@ function displayAllMsgs() {
 
 function displayMsg(msg) {
 	if (msg == undefined) return;
-	let clock = '';
-	if (Number.isInteger(msg.time)) {
-		let time = new Date();
-		time.setTime(msg.time);
-		if (time.toDateString() == new Date().toDateString()) {
-			clock =
-				'Today, ' +
-				time.toLocaleString('en-GB', {
-					hour: '2-digit',
-					minute: '2-digit',
-				});
-		} else
-			clock = time.toLocaleString('en-GB', {
-				day: '2-digit',
-				month: 'short',
-				hour: '2-digit',
-				minute: '2-digit',
-			});
-	}
+	let clock = (Number.isInteger(msg.time)) ? timeAndDate(msg.time) : '';
 	if (msg.client == clientID) {
 		/* my own message */
 		chatMessages.innerHTML += `<div class="message-box-holder">
@@ -3042,7 +3045,28 @@ function displayMsg(msg) {
 	chatMessages.scrollTop = chatMessages.scrollHeight;
 	chatInput.value = '';
 }
-
+/**
+ * Returns a nicely formatted Date (or time if the date is today), given a Time value (from Date() )
+ * @param {Integer} utc 
+ */
+function timeAndDate(utc) {
+	let time = new Date().setTime(utc);
+	if (time.toDateString() == new Date().toDateString()) {
+		return 'Today, ' +
+			time.toLocaleString('en-GB', {
+				hour: '2-digit',
+				minute: '2-digit'
+			})
+	}
+	else {
+		return time.toLocaleString('en-GB', {
+			day: '2-digit',
+			month: 'short',
+			hour: '2-digit',
+			minute: '2-digit'
+		});
+	}
+}
 function displayUserName() {
 	chatNameBox.style.fontStyle = myNameRec.anon ? 'italic' : 'normal';
 	chatNameBox.value = myNameRec.name;

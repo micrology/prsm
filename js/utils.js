@@ -434,5 +434,6 @@ export function divWithPlaceHolder(selector) {
 	});
 	editable.addEventListener('focus', () => {
 		if (editable.innerText.length == 0) editable.innerHTML = placeholder;
+		if (editable.innerHTML == placeholder) editable.innerHTML = '';
 	});
 }
