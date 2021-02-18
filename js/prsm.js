@@ -38,12 +38,11 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.5.0';
+const version = '1.5.1';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
-const NOTEWIDTH = 50; // chars for title (node/edge tooltip) splitting
 const SHORTLABELLEN = 25; // when listing node labels, use ellipsis after this number of chars
 const TIMETOSLEEP = 15 * 60 * 1000; // if no mouse movement for this time, user is assumed to have left or is sleeping
 const TIMETOEDIT = 5 * 60 * 1000; // if node/edge edit dialog is not saved after this time, the edit is cancelled
@@ -189,7 +188,9 @@ function setUpPage() {
 	container.panelHidden = true;
 	setUpSamples();
 	divWithPlaceHolder('#node-notes');
+	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'));
 	divWithPlaceHolder('#edge-notes');
+	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'));
 	hideNotes();
 	elem('version').innerHTML = version;
 	storeButtonStatus();
@@ -878,25 +879,23 @@ function draw() {
 } // end draw()
 
 function drawBadges(ctx) {
-	data.nodes.get().filter(node => node.title).forEach(node => {
+	data.nodes.get().filter(node => node.note).forEach(node => {
 		let box = network.getBoundingBox(node.id);
-		drawBadge(ctx, box.right, box.top, 'green');
+		drawBadge(ctx, box.right, box.top);
 	});
-	data.edges.get().filter(edge => edge.title).forEach(edge => {
+	data.edges.get().filter(edge => edge.note).forEach(edge => {
 		let fromPos = network.getPosition(edge.from);
 		let toPos = network.getPosition(edge.to);
 		drawBadge(ctx,
 			(fromPos.x > toPos.x ? (fromPos.x - toPos.x) / 2 + toPos.x : (toPos.x - fromPos.x) / 2 + fromPos.x),
-			(fromPos.y > toPos.y ? (fromPos.y - toPos.y) / 2 + toPos.y : (toPos.y - fromPos.y) / 2 + fromPos.y),
-		'cornflowerblue');
+			(fromPos.y > toPos.y ? (fromPos.y - toPos.y) / 2 + toPos.y : (toPos.y - fromPos.y) / 2 + fromPos.y));
 	});
 }
-function drawBadge(ctx, x, y, color) {
+const badge = elem('badge');
+
+function drawBadge(ctx, x, y) {
 	ctx.beginPath();
-	ctx.fillStyle = color;
-	//		ctx.fillRect(x, y, 20, 20);
-	ctx.arc(x, y, 10, 0, 2 * Math.PI)
-	ctx.fill();
+	ctx.drawImage(badge, Math.floor(x), Math.floor(y));
 }
 /**
  * rescale and redraw the network so that it fits the pane
@@ -1745,7 +1744,7 @@ function openFile() {
 	elem('fileInput').click();
 }
 /**
- * determine what kind fo file it is, parse it and reaplce any current map with the one read from the file
+ * determine what kind of file it is, parse it and reaplce any current map with the one read from the file
  * @param {string} contents
  */
 function loadFile(contents) {
@@ -1758,9 +1757,9 @@ function loadFile(contents) {
 			return;
 	unSelect();
 	ensureNotDrawing();
+	network.destroy();
 	nodes.clear();
 	edges.clear();
-	network.destroy();
 	draw();
 
 	switch (lastFileName.split('.').pop().toLowerCase()) {
@@ -1851,11 +1850,14 @@ function loadJSONfile(json) {
 		nodes.add(parsed.nodes);
 		edges.add(parsed.edges);
 	} else {
+		// at version 1.5, the title: property was renamed to :note:
+		json.nodes.forEach(n => { if (!n.note && n.title) n.note = n.title; delete n.title });
 		nodes.add(
 			cleanArray(json.nodes, {
 				clientID: null,
 			})
 		);
+		json.edges.forEach(e => { if (!e.note && e.title) e.note = e.title; delete e.title });
 		edges.add(
 			cleanArray(json.edges, {
 				clientID: null,
@@ -2132,7 +2134,7 @@ function saveJSONfile() {
 				strip(n, [
 					'id',
 					'label',
-					'title',
+					'note',
 					'grp',
 					'x',
 					'y',
@@ -2146,7 +2148,7 @@ function saveJSONfile() {
 				strip(e, [
 					'id',
 					'label',
-					'title',
+					'note',
 					'grp',
 					'from',
 					'to',
@@ -2368,7 +2370,6 @@ dragElement(elem('panel'), elem('panelHeader'));
 
 /* ---------operations related to the side panel -------------------------------------*/
 
-var tabOpen = null;
 /**
  * when the window is resized, make sure that the pane is still visible
  * @param {HTMLelement} pane
@@ -2412,9 +2413,6 @@ function openTab(tabId) {
 	// Show the current tab, and add an "active" class to the button that opened the tab
 	elem(tabId).classList.remove('hide');
 	event.currentTarget.className += ' active';
-	tabOpen = tabId;
-	if (tabOpen == 'nodesTab' || tabOpen == 'linksTab') showNodeOrEdgeData();
-	else hideNotes();
 }
 
 function storeButtonStatus() {
@@ -2520,10 +2518,8 @@ function setFixed() {
  */
 function showNodeOrEdgeData() {
 	hideNotes();
-	if (tabOpen == 'nodesTab' || tabOpen == 'linksTab') {
 		if (network.getSelectedNodes().length == 1) showNodeData();
 		else if (network.getSelectedEdges().length == 1) showEdgeData();
-	}
 }
 /**
  * Show the notes box, the fixed node check box and the node statistics
@@ -2537,8 +2533,8 @@ function showNodeData() {
 		: 'fas fa-lock-open';
 	elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : '';
 	let notes = elem('node-notes');
-	// When the Note is redisplayed in the Note box, \n is replaced by <br> to preserve user formatting.
-	notes.innerHTML = node.title ? node.title.replace(/\n/g, '<br>') : '';
+	let text = node.note || '';
+	notes.innerHTML = text.replace(/\n/g, '<br>');
 	notes.addEventListener('keyup', (e) => updateNodeNotes(e));
 	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
 	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
@@ -2546,18 +2542,15 @@ function showNodeData() {
 	displayStatistics(nodeId);
 }
 /**
- * update the title property of the node with the text of the note.
+ * update the note property of the node with the text of the note.
  *
  * @param {event} e
  */
 function updateNodeNotes(e) {
-	let text = e.target.innerText.replace(/\n\n/g, '\n');
+	let text = e.target.innerText;
 	data.nodes.update({
 		id: network.getSelectedNodes()[0],
-		title: splitText(
-			text == e.target.dataset.placeholder ? '' : text,
-			NOTEWIDTH
-		),
+		note: text,
 		clientID: undefined,
 	});
 }
@@ -2567,20 +2560,18 @@ function showEdgeData() {
 	let edge = data.edges.get(edgeId);
 	elem('edgeLabel').innerHTML = edge.label ? shorten(edge.label) : '';
 	let notes = elem('edge-notes');
-	notes.innerHTML = edge.title ? edge.title.replace(/\n/g, '<br>') : '';
+	let text = edge.note || '';
+	notes.innerHTML = text.replace(/\n/g, '<br>');
 	notes.addEventListener('keyup', (e) => updateEdgeNotes(e));
 	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
 	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
 	panel.classList.remove('hide');
 }
 function updateEdgeNotes(e) {
-	let text = e.target.innerText.replace(/\n\n/g, '\n');
+	let text = e.target.innerText;
 	data.edges.update({
 		id: network.getSelectedEdges()[0],
-		title: splitText(
-			text == e.target.dataset.placeholder ? '' : text,
-			NOTEWIDTH
-		),
+		note: text,
 		clientID: undefined,
 	});
 }

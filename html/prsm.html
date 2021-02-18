@@ -64,7 +64,7 @@
 				<div>
 					<div class="strapline">
 						Participatory System Mapper<span id="version"
-							>1.4.0</span
+							>1.5.0</span
 						>
 					</div>
 					<div
@@ -479,32 +479,6 @@
 					</div>
 				</div>
 			</div>
-			<div class="itemData" id="nodeDataPanel">
-				<div class="panelRow">
-					<div>
-						<span class="nodeLabel" id="nodeLabel"></span>
-					</div>
-					<div>
-						<span id="fixed"><i class="fas fa-lock-open"></i></span>
-					</div>
-				</div>
-				<div class="panelRow">
-					<div>Leverage</div>
-					<div id="leverage"></div>
-				</div>
-				<div class="panelRow">
-					<div>Betweenness centrality</div>
-					<div id="bc"></div>
-				</div>
-				<div class="panelRow">
-					<div
-						contenteditable="true"
-						class="notes"
-						id="node-notes"
-						data-placeholder="Notes"
-					></div>
-				</div>
-			</div>
 
 			<!-- Links Tab -->
 			<div class="tabcontent hide" id="linksTab">
@@ -527,20 +501,49 @@
 					</div>
 				</div>
 			</div>
-			<div class="itemData" id="edgeDataPanel">
-				<div class="panelRow">
-					<span class="edgeLabel" id="edgeLabel"></span>
+		</aside>
+		<!-- Notes panels -->
+		<div class="itemData hide" id="nodeDataPanel">
+			<div class="panelHeader" id="nodeDataHeader"></div>
+			<div class="panelRow">
+				<div>
+					<span class="nodeLabel" id="nodeLabel"></span>
 				</div>
-				<div class="panelRow">
-					<div
-						contenteditable="true"
-						class="notes"
-						id="edge-notes"
-						data-placeholder="Notes"
-					></div>
+				<div>
+					<span id="fixed"><i class="fas fa-lock-open"></i></span>
 				</div>
 			</div>
-		</aside>
+			<div class="panelRow">
+				<div>Leverage</div>
+				<div id="leverage"></div>
+			</div>
+			<div class="panelRow">
+				<div>Betweenness centrality</div>
+				<div id="bc"></div>
+			</div>
+			<div class="panelRow">
+				<div
+					contenteditable="true"
+					class="notes"
+					id="node-notes"
+					data-placeholder="Notes"
+				></div>
+			</div>
+		</div>
+		<div class="itemData hide" id="edgeDataPanel">
+			<div class="panelHeader" id="edgeDataHeader"></div>
+			<div class="panelRow">
+				<span class="edgeLabel" id="edgeLabel"></span>
+			</div>
+			<div class="panelRow">
+				<div
+					contenteditable="true"
+					class="notes"
+					id="edge-notes"
+					data-placeholder="Notes"
+				></div>
+			</div>
+		</div>
 		<footer
 			data-tutorial="Hints and messages appear here"
 			data-step="8"
@@ -805,6 +808,7 @@
 				</div>
 			</div>
 		</div>
+		<img id="badge" style="display:none" src="../img/Letter-Open-icon.png">
 		<script src="../js/prsm.js"></script>
 	</body>
 </html>

@@ -687,10 +687,11 @@ nav button .pressed {
 	border-radius: 0 0 4px 4px;
 }
 .itemData {
-	position: absolute;
-	top: 285px;
-	left: 0px;
+	position: fixed;
+	bottom: 70px;
+	right: 5px;
 	width: 192px;
+	z-Index: 2000;
 }
 
 /* Using display:none to hide tabs other than the one on display: 
@@ -749,6 +750,8 @@ but moving the panel out of sight works instead */
 	color: black;
 	width: 100%;
 	min-height: 40px;
+	max-height: 150px;
+	overflow: scroll;
 	outline: none;
 }
 .placeholder {
