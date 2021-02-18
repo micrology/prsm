@@ -879,17 +879,26 @@ function draw() {
 } // end draw()
 
 function drawBadges(ctx) {
-	data.nodes.get().filter(node => node.note).forEach(node => {
+	data.nodes.get().filter(node => node.note  && node.note != "Notes").forEach(node => {
 		let box = network.getBoundingBox(node.id);
 		drawBadge(ctx, box.right, box.top);
 	});
-	data.edges.get().filter(edge => edge.note).forEach(edge => {
-		let fromPos = network.getPosition(edge.from);
-		let toPos = network.getPosition(edge.to);
-		drawBadge(ctx,
-			(fromPos.x > toPos.x ? (fromPos.x - toPos.x) / 2 + toPos.x : (toPos.x - fromPos.x) / 2 + fromPos.x),
-			(fromPos.y > toPos.y ? (fromPos.y - toPos.y) / 2 + toPos.y : (toPos.y - fromPos.y) / 2 + fromPos.y));
+	let changedEdges = [];
+	data.edges.get().forEach(edge => {
+		if (edge.note && edge.note != "Notes" && !edge.arrows.middle.enabled) {
+			// there is a note, but the badge is not shown
+			changedEdges.push(edge);
+			edge.arrows.middle.enabled = true;
+			edge.arrows.middle.type = 'image';
+			edge.arrows.middle.src = elem('badge').src;
+		}
+		else if (edge.note && edge.note == "Notes" && edge.arrows.middle.enabled) {
+			// there is not a note, but the badge is shown
+			changedEdges.push(edge);
+			edge.arrows.middle.enabled = false;
+		}
 	});
+	data.edges.update(changedEdges);
 }
 const badge = elem('badge');
 
