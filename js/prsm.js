@@ -331,6 +331,7 @@ function startY() {
 				let obj = yNodesMap.get(key);
 				let origin = event.transaction.origin;
 				if (obj.clientID != clientID || origin != null) {
+					delete obj.shadow;
 					nodesToUpdate.push(obj);
 				}
 			} else {
@@ -379,6 +380,7 @@ function startY() {
 				let obj = yEdgesMap.get(key);
 				let origin = event.transaction.origin;
 				if (obj.clientID != clientID || origin != null) {
+					delete obj.shadow;
 					edgesToUpdate.push(obj);
 				}
 			} else edges.remove(key);
@@ -667,6 +669,7 @@ function draw() {
 				item.label = '';
 				item = deepMerge(item, styles.nodes[lastNodeSample]);
 				item.grp = lastNodeSample;
+				item.created = timestamp();
 				addLabel(item, cancelAdd, callback);
 				showPressed('addNode', 'remove');
 			},
@@ -675,6 +678,7 @@ function draw() {
 				// node properties before calling this fn, which we don't want.  So we
 				// revert to using the original node properties before continuing.
 				item = data.nodes.get(item.id);
+				item.modified = timestamp();
 				editNode(item, cancelEdit, callback);
 			},
 			addEdge: function (item, callback) {
@@ -694,12 +698,14 @@ function draw() {
 				}
 				item = deepMerge(item, styles.edges[lastLinkSample]);
 				item.grp = lastLinkSample;
+				item.created = timestamp();
 				clearStatusBar();
 				callback(item);
 			},
 			editEdge: {
 				editWithoutDrag: function (item, callback) {
 					item = data.edges.get(item.id);
+					item.modified = timestamp();
 					editEdge(item, cancelEdit, callback);
 				},
 			},
@@ -878,6 +884,12 @@ function draw() {
 	data.edges.on('remove', recalculateStats);
 } // end draw()
 
+/**
+ * return an object with the current time as a date an integer and the currnet user's initials
+ */
+function timestamp() {
+	return {time: Date.now(), user: initials(myNameRec.name)}
+}
 function drawBadges(ctx) {
 	data.nodes.get().filter(node => node.note  && node.note != "Notes").forEach(node => {
 		let box = network.getBoundingBox(node.id);
@@ -1086,7 +1098,9 @@ function editEdge(item, cancelAction, callback) {
 				Line
 			</td>
 			<td>
-				Font
+			<div class="input-color-container">
+			<input type="color" class="input-color" id="edge-color" />
+			</div>
 			</td>
 		</tr>
 		<tr>
@@ -1099,9 +1113,7 @@ function editEdge(item, cancelAction, callback) {
 				</select>
 			</td>
 			<td>
-			<div class="input-color-container">
-			<input type="color" class="input-color" id="edge-color" />
-			</div>
+			Font
 			</td>
 		</tr>
 		<tr>
@@ -1222,7 +1234,7 @@ function cancelEdit(item, callback) {
 	item.font.color = item.oldFontColor;
 	if (item.from) unlockEdge(item);
 	else unlockNode(item);
-	callback(null);
+	if (callback) callback(null);
 	stopEdit();
 }
 /**
@@ -1306,16 +1318,17 @@ function unlockNode(item) {
 	item.oldLabel = undefined;
 	item.chosen = true;
 	data.nodes.update(item);
+	showNodeOrEdgeData();
 }
 /**
  * ensure that all factors and links are unlocked (called only when user leaves the page, to clear up for others)
  */
 function unlockAll() {
 	data.nodes.forEach((node) => {
-		if (node.locked) cancelEdit(node);
+		if (node.locked) cancelEdit(deepCopy(node));
 	});
 	data.edges.forEach((edge) => {
-		if (edge.locked) cancelEdit(edge);
+		if (edge.locked) cancelEdit(deepCopy(edge));
 	});
 }
 /**
@@ -1356,7 +1369,7 @@ function convertDashes(val) {
 		case 'dashes':
 			return [10, 10];
 		case 'dots':
-			return [3, 3];
+			return [2, 8];
 		default:
 			return val;
 	}
@@ -1382,6 +1395,7 @@ function unlockEdge(item) {
 	item.oldLabel = undefined;
 	item.chosen = true;
 	data.edges.update(item);
+	showNodeOrEdgeData();
 }
 /* ----------------- end of node and edge creation and editing dialog -----------------*/
 
@@ -2543,12 +2557,12 @@ function showNodeData() {
 		: 'fas fa-lock-open';
 	elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : '';
 	if (node.created) {
-		elem('nodeCreated').innerHTML = node.created;
+		elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${node.created.user}`;
 		elem('nodeCreation').style.display = 'flex';
 	}
 	else elem('nodeCreation').style.display = 'none';
 	if (node.modified) {
-		elem('nodeModified').innerHTML = node.modified;
+		elem('nodeModified').innerHTML = `${timeAndDate(node.modified.time)} by ${node.modified.user}`;
 		elem('nodeModification').style.display = 'flex';
 	}
 	else elem('nodeModification').style.display = 'none';
@@ -2556,6 +2570,7 @@ function showNodeData() {
 	let text = node.note || '';
 	notes.innerHTML = text.replace(/\n/g, '<br>');
 	notes.addEventListener('keyup', (e) => updateNodeNotes(e));
+	notes.addEventListener('mouseleave', () => showNodeData());
 	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
 	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
 	panel.classList.remove('hide');
@@ -2572,6 +2587,7 @@ function updateNodeNotes(e) {
 		id: network.getSelectedNodes()[0],
 		note: (text == "Notes" ? '' : text),
 		clientID: undefined,
+		modified: timestamp()
 	});
 }
 function showEdgeData() {
@@ -2580,12 +2596,12 @@ function showEdgeData() {
 	let edge = data.edges.get(edgeId);
 	elem('edgeLabel').innerHTML = edge.label ? shorten(edge.label) : 'Link';
 	if (edge.created) {
-		elem('edgeCreated').innerHTML = edge.created;
+		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${edge.created.user}`;
 		elem('edgeCreation').style.display = 'flex';
 	}
 	else elem('edgeCreation').style.display = 'none';
 	if (edge.modified) {
-		elem('edgeModified').innerHTML = edge.modified;
+		elem('edgeModified').innerHTML = `${timeAndDate(edge.modified.time)} by ${edge.modified.user}`;
 		elem('edgeModification').style.display = 'flex';
 	}
 	else elem('edgeModification').style.display = 'none';
@@ -2593,6 +2609,7 @@ function showEdgeData() {
 	let text = edge.note || '';
 	notes.innerHTML = text.replace(/\n/g, '<br>');
 	notes.addEventListener('keyup', (e) => updateEdgeNotes(e));
+	notes.addEventListener('mouseleave', () => showEdgeData());
 	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
 	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
 	panel.classList.remove('hide');
@@ -2603,6 +2620,7 @@ function updateEdgeNotes(e) {
 		id: network.getSelectedEdges()[0],
 		note: (text == "Notes" ? '' : text),
 		clientID: undefined,
+		modified: timestamp()
 	});
 }
 function hideNotes() {
@@ -3050,7 +3068,8 @@ function displayMsg(msg) {
  * @param {Integer} utc 
  */
 function timeAndDate(utc) {
-	let time = new Date().setTime(utc);
+	let time = new Date();
+	time.setTime(utc);
 	if (time.toDateString() == new Date().toDateString()) {
 		return 'Today, ' +
 			time.toLocaleString('en-GB', {
@@ -3099,16 +3118,22 @@ function showAvatars() {
 		circle.classList.add('round');
 		circle.style.backgroundColor = nameRec.color;
 		if (nameRec.anon) circle.style.borderColor = 'white';
-		circle.innerText = nameRec.name
-			.match(/(^\S\S?|\b\S)?/g)
-			.join('')
-			.match(/(^\S|\S$)?/g)
-			.join('')
-			.toUpperCase();
+		circle.innerText = initials(nameRec.name);
 		circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
 		ava.appendChild(circle);
 		avatars.appendChild(ava);
 	});
+}
+/**
+ * return the initials of the given name as a string: Nigel Gilbert -> NG
+ * @param {string} name 
+ */
+function initials(name) {
+	return name.match(/(^\S\S?|\b\S)?/g)
+	.join('')
+	.match(/(^\S|\S$)?/g)
+	.join('')
+	.toUpperCase();
 }
 
 dragElement(elem('chatbox-holder'), elem('chatbox-top'));

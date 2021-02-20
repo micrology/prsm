@@ -202,7 +202,7 @@ input[type='range'] {
 	cursor: pointer;
 }
 #popup table {
-	width: 160px;
+	width: 145px;
 	table-layout: fixed;
 	font-size: 14px;
 	position: absolute;
@@ -210,6 +210,7 @@ input[type='range'] {
 }
 #popup table td {
 	width: 33%;
+	text-align: center;
 }
 .input-color-container {
 	position: relative;
@@ -218,6 +219,7 @@ input[type='range'] {
 	height: 30px;
 	border: solid 2px #ddd;
 	border-radius: 30px;
+	margin: auto;
 }
 
 .input-color {
@@ -782,6 +784,7 @@ but moving the panel out of sight works instead */
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-start;
+	font-size: 10px;
 }
 .itemData .row div {
 	margin: auto 0;
@@ -791,7 +794,6 @@ but moving the panel out of sight works instead */
 }
 .itemData .row.divider {
 	margin-top: 5px;
-	padding-top: 5px;
 	border-top: 1px solid lightgrey;
 }
 .itemData .row .hidden {
@@ -801,6 +803,7 @@ but moving the panel out of sight works instead */
 .edgeLabel {
 	font-weight: bold;
 	text-decoration: underline;
+	font-size: 12px;
 	line-height: 2;
 }
 .padlock-hide {
