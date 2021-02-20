@@ -175,8 +175,21 @@
 						</div>
 						<div
 							class="tooltip left-border"
-							data-tutorial="Clicking here opens a new window with more help"
+							data-tutorial="Search for factors"
 							data-step="6"
+							data-position="left"
+						>
+							<button id="search">
+								<i class="fas fa-search"></i>
+							</button>
+							<span class="tooltiptext"
+								>Search for factors by name</span
+							>
+						</div>
+						<div
+							class="tooltip"
+							data-tutorial="Clicking here opens a new window with more help"
+							data-step="7"
 							data-position="left"
 						>
 							<button id="help">
@@ -189,7 +202,7 @@
 						<div
 							class="tooltip"
 							data-tutorial="Clicking here shows more options"
-							data-step="7"
+							data-step="8"
 							data-position="left"
 						>
 							<button id="panelToggle">
@@ -202,6 +215,9 @@
 					</div>
 				</div>
 			</nav>
+			<input class="search-bar" id="search-bar" placeholder="Search..." />
+			<span class="search-icon fas fa-search" id="search-icon"></span>
+			<div id="suggestion-list"></div>
 		</header>
 		<main id="main">
 			<div class="avatars" id="avatars"></div>
@@ -233,7 +249,7 @@
 				data-tutorial="
 			<b>That's the end of the tour.</b><p>Press <b>Done</b> and then click <br>
 				on the <b>+</b> button above to add your first factor.</p>"
-				data-step="11"
+				data-step="12"
 				data-position="splash"
 			>
 				<canvas class="drawing-canvas" id="temp-canvas"></canvas>
@@ -529,11 +545,16 @@
 				<div id="nodeModified"></div>
 			</div>
 			<div class="row">
-				<div contenteditable="true" class="notes" id="node-notes" data-placeholder="Notes"></div>
+				<div
+					contenteditable="true"
+					class="notes"
+					id="node-notes"
+					data-placeholder="Notes"
+				></div>
 			</div>
 		</div>
 		<div class="itemData hide" id="edgeDataPanel">
-			<div class="row"  id="edgeDataHeader">
+			<div class="row" id="edgeDataHeader">
 				<div>
 					<span class="edgeLabel" id="edgeLabel"></span>
 				</div>
@@ -547,12 +568,17 @@
 				<div id="edgeModified"></div>
 			</div>
 			<div class="row">
-				<div contenteditable="true" class="notes" id="edge-notes" data-placeholder="Notes"></div>
+				<div
+					contenteditable="true"
+					class="notes"
+					id="edge-notes"
+					data-placeholder="Notes"
+				></div>
 			</div>
 		</div>
 		<footer
 			data-tutorial="Hints and messages appear here"
-			data-step="8"
+			data-step="9"
 			data-position="above"
 		>
 			<div id="statusBar">
@@ -561,7 +587,7 @@
 			<div
 				id="zoomcontrol"
 				data-tutorial="Zoom in for detail or out for an overview"
-				data-step="9"
+				data-step="10"
 				data-position="left-bottom"
 			>
 				Zoom <span id="zoomminus">&ndash;</span>
@@ -756,7 +782,7 @@
 			class="chatbox-tab"
 			id="chatbox-tab"
 			data-tutorial="Clicking here opens a chat window.  (If  it is pulsating, that means there is a message waiting for you)."
-			data-step="10"
+			data-step="11"
 			data-position="left-middle"
 		>
 			<div class="tooltip">
@@ -814,7 +840,11 @@
 				</div>
 			</div>
 		</div>
-		<img id="badge" style="display:none" src="../img/Letter-Open-icon.png">
+		<img
+			id="badge"
+			style="display: none"
+			src="../img/Letter-Open-icon.png"
+		/>
 		<script src="../js/prsm.js"></script>
 	</body>
 </html>

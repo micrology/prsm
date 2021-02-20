@@ -273,8 +273,8 @@ Set.prototype.intersection = function (otherSet) {
  * @param {HTMLelement} header
  */
 export function dragElement(elem, header) {
-	header.addEventListener('mouseenter', () =>  header.style.cursor = "move");
-	header.addEventListener('mouseout', () =>  header.style.cursor = "auto");
+	header.addEventListener('mouseenter', () => (header.style.cursor = 'move'));
+	header.addEventListener('mouseout', () => (header.style.cursor = 'auto'));
 
 	let mc = new Hammer.Manager(header, {
 		recognizers: [

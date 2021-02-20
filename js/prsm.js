@@ -124,6 +124,7 @@ function addEventListeners() {
 	listen('exportPRSM', 'click', saveJSONfile);
 	listen('exportCVS', 'click', exportCVS);
 	listen('exportGML', 'click', exportGML);
+	listen('search', 'click', search);
 	listen('help', 'click', displayHelp);
 	listen('panelToggle', 'click', togglePanel);
 	listen('zoom', 'change', zoomnet);
@@ -438,7 +439,7 @@ function startY() {
 						setMapTitle(obj);
 						break;
 					case 'legend':
-						setLegend(obj)
+						setLegend(obj);
 						break;
 					default:
 						console.log('Bad key in yMapNet.observe: ', key);
@@ -581,7 +582,7 @@ function saveUserName(name) {
 	} else myNameRec = generateName();
 	chatNameBox.value = myNameRec.name;
 	localStorage.setItem('myName', JSON.stringify(myNameRec));
-	yAwareness.setLocalState({ name: myNameRec });
+	yAwareness.setLocalState({name: myNameRec});
 	showAvatars();
 }
 /**
@@ -630,7 +631,7 @@ function setUpAwareness() {
  */
 function asleep(isSleeping) {
 	myNameRec.asleep = isSleeping;
-	yAwareness.setLocalState({ name: myNameRec });
+	yAwareness.setLocalState({name: myNameRec});
 	showAvatars();
 }
 
@@ -683,7 +684,9 @@ function draw() {
 			},
 			addEdge: function (item, callback) {
 				inAddMode = false;
-				network.setOptions({ interaction: { dragView: true, selectable: true } });
+				network.setOptions({
+					interaction: {dragView: true, selectable: true},
+				});
 				showPressed('addLink', 'remove');
 				if (item.from == item.to) {
 					callback(null);
@@ -865,11 +868,12 @@ function draw() {
 	});
 	network.on('controlNodeDragging', function () {
 		if (window.debug.includes('gui')) console.log('controlNodeDragging');
-		changeCursor('crosshair')
+		changeCursor('crosshair');
 	});
 	network.on('controlNodeDragEnd', function (event) {
 		if (window.debug.includes('gui')) console.log('controlNodeDragEnd');
-		if (event.controlEdge.from != event.controlEdge.to) changeCursor('auto')
+		if (event.controlEdge.from != event.controlEdge.to)
+			changeCursor('auto');
 	});
 	network.on('beforeDrawing', function (ctx) {
 		redraw(ctx);
@@ -888,23 +892,35 @@ function draw() {
  * return an object with the current time as a date an integer and the currnet user's initials
  */
 function timestamp() {
-	return {time: Date.now(), user: initials(myNameRec.name)}
+	return {time: Date.now(), user: initials(myNameRec.name)};
 }
 function drawBadges(ctx) {
-	data.nodes.get().filter(node => node.note  && node.note != "Notes").forEach(node => {
-		let box = network.getBoundingBox(node.id);
-		drawBadge(ctx, box.right-20, box.top);
-	});
+	data.nodes
+		.get()
+		.filter((node) => node.note && node.note != 'Notes')
+		.forEach((node) => {
+			let box = network.getBoundingBox(node.id);
+			drawBadge(ctx, box.right - 20, box.top);
+		});
 	let changedEdges = [];
-	data.edges.get().forEach(edge => {
-		if (edge.note && edge.note != "Notes" && edge.arrows && edge.arrows.middle && !edge.arrows.middle.enabled) {
+	data.edges.get().forEach((edge) => {
+		if (
+			edge.note &&
+			edge.note != 'Notes' &&
+			edge.arrows &&
+			edge.arrows.middle &&
+			!edge.arrows.middle.enabled
+		) {
 			// there is a note, but the badge is not shown
 			changedEdges.push(edge);
 			edge.arrows.middle.enabled = true;
 			edge.arrows.middle.type = 'image';
 			edge.arrows.middle.src = elem('badge').src;
-		}
-		else if (edge.note && edge.note == "Notes" && edge.arrows.middle.enabled) {
+		} else if (
+			edge.note &&
+			edge.note == 'Notes' &&
+			edge.arrows.middle.enabled
+		) {
 			// there is not a note, but the badge is shown
 			changedEdges.push(edge);
 			edge.arrows.middle.enabled = false;
@@ -1677,7 +1693,9 @@ function plusLink() {
 			inAddMode = 'addLink';
 			showPressed('addLink', 'add');
 			unSelect();
-			network.setOptions({ interaction: { dragView: false, selectable: false } });
+			network.setOptions({
+				interaction: {dragView: false, selectable: false},
+			});
 			network.addEdgeMode();
 	}
 }
@@ -1874,13 +1892,19 @@ function loadJSONfile(json) {
 		edges.add(parsed.edges);
 	} else {
 		// at version 1.5, the title: property was renamed to :note:
-		json.nodes.forEach(n => { if (!n.note && n.title) n.note = n.title; delete n.title });
+		json.nodes.forEach((n) => {
+			if (!n.note && n.title) n.note = n.title;
+			delete n.title;
+		});
 		nodes.add(
 			cleanArray(json.nodes, {
 				clientID: null,
 			})
 		);
-		json.edges.forEach(e => { if (!e.note && e.title) e.note = e.title; delete e.title });
+		json.edges.forEach((e) => {
+			if (!e.note && e.title) e.note = e.title;
+			delete e.title;
+		});
 		edges.add(
 			cleanArray(json.edges, {
 				clientID: null,
@@ -2373,6 +2397,77 @@ function clone() {
 	});
 	return clonedRoom;
 }
+
+/* Search */
+/**
+ * Open an input for user to type label of node to search for and generate suggestions when user starts typing
+ */
+function search() {
+	let searchBar = elem('search-bar');
+	searchBar.style.display = 'block';
+	elem('search-icon').style.display = 'block';
+	searchBar.focus();
+	listen('search-bar', 'keyup', searchTargets);
+	listen('search-bar', 'keydown', (e) => {
+		if (e.key === 'Enter') doSearch();
+	});
+	listen('search-icon', 'click', doSearch);
+}
+
+/**
+ * generate and sisplay a set of suggestons - nodes with labels that include thesubstring that the user has typed
+ */
+function searchTargets() {
+	let str = elem('search-bar').value;
+	if (!str || str == ' ') return;
+	let targets = elem('targets');
+	if (targets) targets.remove();
+	targets = document.createElement('ul');
+	targets.id = 'targets';
+	targets.classList.add('search-ul');
+	str = str.toLowerCase();
+	window.data.nodes
+		.get()
+		.filter((n) => n.label.toLowerCase().includes(str))
+		.slice(0, 8)
+		.forEach((n) => {
+			let li = document.createElement('li');
+			li.classList.add('search-suggestion');
+			let div = document.createElement('div');
+			div.classList.add('search-suggestion-text');
+			div.innerText = n.label.replace(/\n/g, ' ');
+			div.dataset.id = n.id;
+			div.addEventListener('click', (event) => fillSearchBar(event));
+			li.appendChild(div);
+			targets.appendChild(li);
+		});
+	elem('suggestion-list').appendChild(targets);
+}
+/**
+ * user has clicked on a suggestion: fill the search bar with it
+ * @param {event} e
+ */
+function fillSearchBar(e) {
+	console.log(e.target);
+	let searchBar = elem('search-bar');
+	searchBar.value = e.target.innerText;
+	searchBar.dataset.id = e.target.dataset.id;
+	searchBar.focus();
+}
+/**
+ * do the search using the string in the search bar and, when found, focus on that node
+ */
+function doSearch() {
+	let nodeId = elem('search-bar').dataset.id;
+	if (nodeId) {
+		window.network.focus(nodeId);
+		if (elem('targets')) elem('targets').remove();
+		elem('search-bar').value = '';
+		elem('search-bar').style.display = 'none';
+		elem('search-icon').style.display = 'none';
+	}
+}
+
 /**
  * display help page in a separate window
  */
@@ -2515,8 +2610,8 @@ function applySampleToLink(event) {
 }
 /**
  * Remember the last style sample that the user clicked and use this for future factors/links
- * @param {Integer} nodeId 
- * @param {Integer} linkId 
+ * @param {Integer} nodeId
+ * @param {Integer} linkId
  */
 export function updateLastSamples(nodeId, linkId) {
 	if (nodeId) lastNodeSample = nodeId;
@@ -2542,8 +2637,8 @@ function setFixed() {
  */
 function showNodeOrEdgeData() {
 	hideNotes();
-		if (network.getSelectedNodes().length == 1) showNodeData();
-		else if (network.getSelectedEdges().length == 1) showEdgeData();
+	if (network.getSelectedNodes().length == 1) showNodeData();
+	else if (network.getSelectedEdges().length == 1) showEdgeData();
 }
 /**
  * Show the notes box, the fixed node check box and the node statistics
@@ -2557,15 +2652,17 @@ function showNodeData() {
 		: 'fas fa-lock-open';
 	elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : '';
 	if (node.created) {
-		elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${node.created.user}`;
+		elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${
+			node.created.user
+		}`;
 		elem('nodeCreation').style.display = 'flex';
-	}
-	else elem('nodeCreation').style.display = 'none';
+	} else elem('nodeCreation').style.display = 'none';
 	if (node.modified) {
-		elem('nodeModified').innerHTML = `${timeAndDate(node.modified.time)} by ${node.modified.user}`;
+		elem('nodeModified').innerHTML = `${timeAndDate(
+			node.modified.time
+		)} by ${node.modified.user}`;
 		elem('nodeModification').style.display = 'flex';
-	}
-	else elem('nodeModification').style.display = 'none';
+	} else elem('nodeModification').style.display = 'none';
 	let notes = elem('node-notes');
 	let text = node.note || '';
 	notes.innerHTML = text.replace(/\n/g, '<br>');
@@ -2585,9 +2682,9 @@ function updateNodeNotes(e) {
 	let text = e.target.innerText;
 	data.nodes.update({
 		id: network.getSelectedNodes()[0],
-		note: (text == "Notes" ? '' : text),
+		note: text == 'Notes' ? '' : text,
 		clientID: undefined,
-		modified: timestamp()
+		modified: timestamp(),
 	});
 }
 function showEdgeData() {
@@ -2596,15 +2693,17 @@ function showEdgeData() {
 	let edge = data.edges.get(edgeId);
 	elem('edgeLabel').innerHTML = edge.label ? shorten(edge.label) : 'Link';
 	if (edge.created) {
-		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${edge.created.user}`;
+		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${
+			edge.created.user
+		}`;
 		elem('edgeCreation').style.display = 'flex';
-	}
-	else elem('edgeCreation').style.display = 'none';
+	} else elem('edgeCreation').style.display = 'none';
 	if (edge.modified) {
-		elem('edgeModified').innerHTML = `${timeAndDate(edge.modified.time)} by ${edge.modified.user}`;
+		elem('edgeModified').innerHTML = `${timeAndDate(
+			edge.modified.time
+		)} by ${edge.modified.user}`;
 		elem('edgeModification').style.display = 'flex';
-	}
-	else elem('edgeModification').style.display = 'none';
+	} else elem('edgeModification').style.display = 'none';
 	let notes = elem('edge-notes');
 	let text = edge.note || '';
 	notes.innerHTML = text.replace(/\n/g, '<br>');
@@ -2618,9 +2717,9 @@ function updateEdgeNotes(e) {
 	let text = e.target.innerText;
 	data.edges.update({
 		id: network.getSelectedEdges()[0],
-		note: (text == "Notes" ? '' : text),
+		note: text == 'Notes' ? '' : text,
 		clientID: undefined,
-		modified: timestamp()
+		modified: timestamp(),
 	});
 }
 function hideNotes() {
@@ -2775,7 +2874,7 @@ function legendSwitch(warn) {
 }
 function setLegend(on) {
 	elem('showLegendSwitch').checked = !on;
-	if (!on)legend();
+	if (!on) legend();
 	else clearLegend();
 }
 
@@ -3039,7 +3138,7 @@ function displayAllMsgs() {
 
 function displayMsg(msg) {
 	if (msg == undefined) return;
-	let clock = (Number.isInteger(msg.time)) ? timeAndDate(msg.time) : '';
+	let clock = Number.isInteger(msg.time) ? timeAndDate(msg.time) : '';
 	if (msg.client == clientID) {
 		/* my own message */
 		chatMessages.innerHTML += `<div class="message-box-holder">
@@ -3065,24 +3164,25 @@ function displayMsg(msg) {
 }
 /**
  * Returns a nicely formatted Date (or time if the date is today), given a Time value (from Date() )
- * @param {Integer} utc 
+ * @param {Integer} utc
  */
 function timeAndDate(utc) {
 	let time = new Date();
 	time.setTime(utc);
 	if (time.toDateString() == new Date().toDateString()) {
-		return 'Today, ' +
+		return (
+			'Today, ' +
 			time.toLocaleString('en-GB', {
 				hour: '2-digit',
-				minute: '2-digit'
+				minute: '2-digit',
 			})
-	}
-	else {
+		);
+	} else {
 		return time.toLocaleString('en-GB', {
 			day: '2-digit',
 			month: 'short',
 			hour: '2-digit',
-			minute: '2-digit'
+			minute: '2-digit',
 		});
 	}
 }
@@ -3090,6 +3190,9 @@ function displayUserName() {
 	chatNameBox.style.fontStyle = myNameRec.anon ? 'italic' : 'normal';
 	chatNameBox.value = myNameRec.name;
 }
+
+dragElement(elem('chatbox-holder'), elem('chatbox-top'));
+
 /* --------------------------------------- avatars --------------------------------*/
 
 /**
@@ -3126,17 +3229,16 @@ function showAvatars() {
 }
 /**
  * return the initials of the given name as a string: Nigel Gilbert -> NG
- * @param {string} name 
+ * @param {string} name
  */
 function initials(name) {
-	return name.match(/(^\S\S?|\b\S)?/g)
-	.join('')
-	.match(/(^\S|\S$)?/g)
-	.join('')
-	.toUpperCase();
+	return name
+		.match(/(^\S\S?|\b\S)?/g)
+		.join('')
+		.match(/(^\S|\S$)?/g)
+		.join('')
+		.toUpperCase();
 }
-
-dragElement(elem('chatbox-holder'), elem('chatbox-top'));
 
 /* --------------------------------- Merge maps ----------------------------- */
 /* to get the data in, open inspect windows for both maps.  in one window, eval data.nodes.get() and copy the result (not including any initial and trailing quote marks).
@@ -3159,8 +3261,8 @@ function openOtherDoc(room) {
 		for (let key of event.keysChanged) {
 			if (bNodesMap.has(key)) {
 				let obj = bNodesMap.get(key);
-					nodesToUpdate.push(obj);
-			} 
+				nodesToUpdate.push(obj);
+			}
 		}
 		if (nodesToUpdate) bNodes.update(nodesToUpdate);
 	});
@@ -3178,13 +3280,16 @@ function openOtherDoc(room) {
 }
 window.openOtherDoc = openOtherDoc;
 
-function mergeMaps(nodeList, edgeList) {  // lists of edges from the map to be merged (B) into this one (A)
-	let newNodes = new Map();;
+function mergeMaps(nodeList, edgeList) {
+	// lists of edges from the map to be merged (B) into this one (A)
+	let newNodes = new Map();
 	nodeList.forEach((BNode) => {
 		let ANode = data.nodes.get(BNode.id);
 		if (ANode) {
 			if (ANode.label != BNode.label) {
-				console.log(`Existing factor label: \n${ANode.label} \ndoes not match new label: \n${BNode.label}`);
+				console.log(
+					`Existing factor label: \n${ANode.label} \ndoes not match new label: \n${BNode.label}`
+				);
 				// generate a new id for BNode.  change border to dashed.  add it to the map
 				let newNode = deepCopy(BNode);
 				newNode.id = uuidv4();
@@ -3197,8 +3302,7 @@ function mergeMaps(nodeList, edgeList) {  // lists of edges from the map to be m
 				newNode.y = ANode.y + 30;
 				data.nodes.add(newNode);
 				newNodes.set(BNode.id, newNode.id);
-			}
-			else if (ANode.grp != BNode.grp)
+			} else if (ANode.grp != BNode.grp)
 				console.log(
 					`Existing factor style: ${ANode.grp} does not match new style ${BNode.grp} for ${ANode.label}`
 				);
@@ -3207,24 +3311,27 @@ function mergeMaps(nodeList, edgeList) {  // lists of edges from the map to be m
 			console.log(`Added ${BNode.label}`);
 		}
 	});
-	
+
 	edgeList.forEach((BEdge) => {
-	/* some edges on the B map may have been going to/from nodes that have been given a new id.  Edit these edges
+		/* some edges on the B map may have been going to/from nodes that have been given a new id.  Edit these edges
 	to give them the new from or to node ids and make them dashed. */
 		let newEdge = null;
 		if (newNodes.has(BEdge.from)) {
 			newEdge = deepCopy(BEdge);
 			newEdge.from = newNodes.get(BEdge.from);
 			if (newNodes.has(newEdge.to)) newEdge.to = newNodes.get(newEdge.to);
-		}
-		else if (newNodes.has(BEdge.to)) {
+		} else if (newNodes.has(BEdge.to)) {
 			newEdge = deepCopy(BEdge);
 			newEdge.to = newNodes.get(BEdge.to);
 		}
 		if (newEdge) {
 			newEdge.dashes = true;
 			data.edges.add(newEdge);
-			console.log(`Added link for new factor(s): ${data.nodes.get(newEdge.from).label} to ${data.nodes.get(newEdge.to).label}`);
+			console.log(
+				`Added link for new factor(s): ${
+					data.nodes.get(newEdge.from).label
+				} to ${data.nodes.get(newEdge.to).label}`
+			);
 		}
 		let AEdge = data.edges.get(BEdge.id);
 		if (AEdge) {

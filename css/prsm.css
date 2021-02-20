@@ -336,6 +336,43 @@ nav button .pressed {
 	top: 0;
 	left: -70px;
 }
+.search-bar {
+	display: none;
+	width: 200px;
+	height: 2em;
+	position: absolute;
+	right: 5px;
+	z-index: 50;
+	font-size: 12px;
+}
+.search-icon {
+	display: none; 
+	float: right;
+	margin-right: 12px;
+	margin-top: 8px;
+	position: relative;
+	z-index: 52;
+}
+.search-ul {
+	width: 195px;
+	position: absolute;
+	right: 5px;
+	top: 100px;
+	z-index: 50;
+}
+.search-suggestion {
+	list-style-type: none;
+}
+.search-suggestion-text {
+	font-size: 12px;
+	text-align: left;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	border: 1px solid lightgrey;
+	padding: 2px;
+}
+
 /* for iPads etc in landscape: nav buttons go under title */
 
 @media screen and (min-width: 481px) and (max-width: 1112px) {
