@@ -64,6 +64,7 @@ export var yPointsArray; // shared array of the background drawing commands
 var yUndoManager; // shared list of commands for undo
 var yChatArray; // shared array of messages in the chat window
 var yAwareness; // awareness channel
+var yHistory; // log of actions
 var container; //the DOM body elemnet
 var netPane; // the DOM pane showing the network
 var panel; // the DOM right side panel element
@@ -90,6 +91,7 @@ window.addEventListener('load', () => {
 	setUpPaint();
 	setUpToolbox();
 	setUpShareDialog();
+	setUpHistory();
 	draw();
 });
 /**
@@ -247,6 +249,7 @@ function startY() {
 	yNetMap = doc.getMap('network');
 	yChatArray = doc.getArray('chat');
 	yPointsArray = doc.getArray('points');
+	yHistory = doc.getArray('history');
 	yAwareness = wsProvider.awareness;
 
 	clientID = doc.clientID;
@@ -273,6 +276,7 @@ function startY() {
 	window.yNetMap = yNetMap;
 	window.yUndoManager = yUndoManager;
 	window.yChatArray = yChatArray;
+	window.yHistory = yHistory;
 	window.yPointsArray = yPointsArray;
 	window.styles = styles;
 	window.yAwareness = yAwareness;
@@ -634,6 +638,9 @@ function asleep(isSleeping) {
 	yAwareness.setLocalState({name: myNameRec});
 	showAvatars();
 }
+function setUpHistory() {
+
+}
 
 /**
  * draw the network, after setting the vis-network options
@@ -704,6 +711,7 @@ function draw() {
 				item.created = timestamp();
 				clearStatusBar();
 				callback(item);
+				logHistory(`Added link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}}`)
 			},
 			editEdge: {
 				editWithoutDrag: function (item, callback) {
@@ -737,7 +745,13 @@ function draw() {
 				clearStatusBar();
 				hideNotes();
 				// delete also all the edges that link to the nodes being deleted
-				// there edges are added to 'item' by deleteMsg()
+				// the edges are added to 'item' by deleteMsg()
+				item.edges.forEach((edgeId) => {
+					logHistory(`Deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${data.nodes.get(data.edges.get(edgeId).to).label}`)
+				});
+				item.nodes.forEach((nodeId) => {
+					logHistory(`Deleted factor: ${data.nodes.get(nodeId).label}`)
+				})
 				callback(item);
 			},
 			deleteEdge: function (item, callback) {
@@ -746,6 +760,9 @@ function draw() {
 					callback(null);
 					return;
 				}
+				item.edges.forEach((edgeId) => {
+					logHistory(`Deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${data.nodes.get(data.edges.get(edgeId).to).label}`)
+				});
 				callback(item);
 			},
 			controlNodeStyle: {
@@ -894,6 +911,14 @@ function draw() {
 function timestamp() {
 	return {time: Date.now(), user: initials(myNameRec.name)};
 }
+/**
+ * push a record that action has been taken on to the end of the history log
+ * @param {String} action 
+ */
+function logHistory(action) {
+	yHistory.push([{action: action, time: Date.now(), user: myNameRec.name}])
+}
+
 function drawBadges(ctx) {
 	data.nodes
 		.get()
@@ -1202,7 +1227,7 @@ function initPopUp(
 }
 
 /**
- * Position the editng dialog box so that it is to the left of the item being edited,
+ * Position the editing dialog box so that it is to the left of the item being edited,
  * but not outside the window
  */
 function positionPopUp() {
@@ -1254,26 +1279,22 @@ function cancelEdit(item, callback) {
 	stopEdit();
 }
 /**
- * called when a node or edge has been added.  Save the label provided
- * @param {Object} item the item that has been added
+ * called when a node has been added.  Save the label provided
+ * @param {Object} node the item that has been added
  * @param {Function} callback
  */
-function saveLabel(item, callback) {
-	item.label = splitText(elem('popup-label').innerText, NODEWIDTH);
+function saveLabel(node, callback) {
+	node.label = splitText(elem('popup-label').innerText, NODEWIDTH);
 	clearPopUp();
-	if (item.label === '') {
-		// if there is no label and it is an edge, blank the label, else cancel
-		// (nodes must have a label)
-		if ('from' in item) item.label = ' ';
-		else {
+	if (node.label === '') {
 			statusMsg('No label: cancelled', 'warn');
 			callback(null);
 			return;
 		}
-	}
-	claim(item);
+	claim(node);
 	network.manipulation.inMode = 'addNode'; // ensure still in Add mode, in case others have done something meanwhile
-	callback(item);
+	callback(node);
+	logHistory(`Added factor ${node.label}`);
 }
 /**
  * save the node format details that have been edited
@@ -1302,6 +1323,8 @@ function saveNode(item, callback) {
 	item.shapeProperties.borderDashes = convertDashes(borderType);
 	claim(item);
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
+	if (item.label == item.oldLabel) logHistory(`Edited factor : ${item.label}`)
+		else logHistory(`Edited factor, changing label from ${item.oldLabel} to ${item.label}`);
 	unlockNode(item);
 	callback(item);
 }
@@ -1371,6 +1394,7 @@ function saveEdge(item, callback) {
 	item.shadow = false;
 	clearStatusBar();
 	callback(item);
+	logHistory(`Edited link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`);
 }
 /**
  * Convert from the menu selection to the CSS format of the edge
