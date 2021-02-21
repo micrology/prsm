@@ -2419,7 +2419,10 @@ function search() {
  */
 function searchTargets() {
 	let str = elem('search-bar').value;
-	if (!str || str == ' ') return;
+	if (!str || str == ' ') {
+		if (elem('targets')) elem('targets').remove();
+		return;
+	}
 	let targets = elem('targets');
 	if (targets) targets.remove();
 	targets = document.createElement('ul');
@@ -2458,12 +2461,15 @@ function fillSearchBar(e) {
  * do the search using the string in the search bar and, when found, focus on that node
  */
 function doSearch() {
-	let nodeId = elem('search-bar').dataset.id;
+	let searchBar = elem('search-bar');
+	let nodeId = searchBar.dataset.id;
 	if (nodeId) {
-		window.network.focus(nodeId);
+		window.network.focus(nodeId, { scale: 2, animation: true });
+		elem('zoom').value = 2;
 		if (elem('targets')) elem('targets').remove();
-		elem('search-bar').value = '';
-		elem('search-bar').style.display = 'none';
+		searchBar.value = '';
+		delete searchBar.dataset.id;
+		searchBar.style.display = 'none';
 		elem('search-icon').style.display = 'none';
 	}
 }
