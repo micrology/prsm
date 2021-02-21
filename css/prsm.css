@@ -1173,6 +1173,47 @@ but moving the panel out of sight works instead */
 .emoji-icon {
 	font-size: larger;
 }
+/* History window */
+.history-window {
+	display: none;
+	position: absolute;
+	top: 100px;
+	left: calc(100% - 420px);
+	width: 400px;
+	z-index: 2200;
+}
+.history-header {
+	background-color: black;
+	border-radius: 4px 4px 0 0;
+	text-align: center;
+	color: white;
+}
+.history-log {
+	display: table;
+	table-layout: fixed;
+	width: 388px;
+	max-height: 500px;
+	overflow-y: scroll;
+	font-size: 12px;
+	border: 2px solid black;
+	border-radius: 0 0 4px 4px;
+	padding: 4px;
+	background-color: #fffde7;
+}
+.history-row {
+	display: table-row;
+}
+.history-time {
+display: table-cell;
+width: 75px;
+}
+.history-action {
+	display: table-cell;
+	overflow: scroll;
+	white-space: nowrap;
+}
+
+/* Legend */
 .legend {
 	position: fixed;
 	bottom: 80px;

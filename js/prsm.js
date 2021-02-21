@@ -711,7 +711,7 @@ function draw() {
 				item.created = timestamp();
 				clearStatusBar();
 				callback(item);
-				logHistory(`Added link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}}`)
+				logHistory(`added link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`)
 			},
 			editEdge: {
 				editWithoutDrag: function (item, callback) {
@@ -747,10 +747,10 @@ function draw() {
 				// delete also all the edges that link to the nodes being deleted
 				// the edges are added to 'item' by deleteMsg()
 				item.edges.forEach((edgeId) => {
-					logHistory(`Deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${data.nodes.get(data.edges.get(edgeId).to).label}`)
+					logHistory(`deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${data.nodes.get(data.edges.get(edgeId).to).label}`)
 				});
 				item.nodes.forEach((nodeId) => {
-					logHistory(`Deleted factor: ${data.nodes.get(nodeId).label}`)
+					logHistory(`deleted factor: ${data.nodes.get(nodeId).label}`)
 				})
 				callback(item);
 			},
@@ -761,7 +761,7 @@ function draw() {
 					return;
 				}
 				item.edges.forEach((edgeId) => {
-					logHistory(`Deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${data.nodes.get(data.edges.get(edgeId).to).label}`)
+					logHistory(`deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${data.nodes.get(data.edges.get(edgeId).to).label}`)
 				});
 				callback(item);
 			},
@@ -1294,7 +1294,7 @@ function saveLabel(node, callback) {
 	claim(node);
 	network.manipulation.inMode = 'addNode'; // ensure still in Add mode, in case others have done something meanwhile
 	callback(node);
-	logHistory(`Added factor ${node.label}`);
+	logHistory(`added factor ${node.label}`);
 }
 /**
  * save the node format details that have been edited
@@ -1324,7 +1324,7 @@ function saveNode(item, callback) {
 	claim(item);
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
 	if (item.label == item.oldLabel) logHistory(`Edited factor : ${item.label}`)
-		else logHistory(`Edited factor, changing label from ${item.oldLabel} to ${item.label}`);
+		else logHistory(`edited factor, changing label from ${item.oldLabel} to ${item.label}`);
 	unlockNode(item);
 	callback(item);
 }
@@ -1394,7 +1394,7 @@ function saveEdge(item, callback) {
 	item.shadow = false;
 	clearStatusBar();
 	callback(item);
-	logHistory(`Edited link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`);
+	logHistory(`edited link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`);
 }
 /**
  * Convert from the menu selection to the CSS format of the edge
@@ -3219,6 +3219,23 @@ function displayUserName() {
 
 dragElement(elem('chatbox-holder'), elem('chatbox-top'));
 
+/* ---------------------------------------history window --------------------------------*/
+
+function showHistory() {
+	elem('history-window').style.display = 'block';
+	let log = elem('history-log');
+	log.innerHTML = yHistory.toArray().map((rec) => formatLogRec(rec)).join(' ');
+	log.scrollTop = log.scrollHeight;
+}
+function formatLogRec(rec) {
+	return `<div class="history-row">
+				<div class="history-time">${timeAndDate(rec.time)}: </div>
+				<div class="history-action">${rec.user} ${rec.action}</div>
+			</div>`
+}
+
+dragElement(elem('history-window'), elem('history-header'));
+window.showHistory = showHistory;
 /* --------------------------------------- avatars --------------------------------*/
 
 /**
