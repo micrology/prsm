@@ -380,6 +380,10 @@ nav button .pressed {
 	margin-top: 2px;
 	cursor: default;
 }
+.and-more {
+	text-align: center;
+	color: grey;
+}
 
 /* for iPads etc in landscape: nav buttons go under title */
 

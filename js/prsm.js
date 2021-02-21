@@ -38,7 +38,7 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.5.1';
+const version = '1.5.2';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
@@ -1958,6 +1958,8 @@ function loadJSONfile(json) {
 	legend(false);
 	yPointsArray.delete(0, yPointsArray.length);
 	if (json.underlay) yPointsArray.insert(0, json.underlay);
+	yHistory.delete(0, yHistory.length);
+	if (json.history) yHistory.insert(0, json.history);
 
 	return {
 		nodes: nodes,
@@ -2230,6 +2232,7 @@ function saveJSONfile() {
 				])
 			),
 			underlay: yPointsArray.toArray(),
+			history: yHistory.toArray(),
 		},
 		null,
 		'\t'
@@ -2432,12 +2435,7 @@ function search() {
 	elem('search-icon').style.display = 'block';
 	searchBar.focus();
 	listen('search-bar', 'keyup', searchTargets);
-	listen('search-bar', 'keydown', (e) => {
-		if (e.key === 'Enter') doSearch();
-	});
-	listen('search-icon', 'click', doSearch);
 }
-
 /**
  * generate and sisplay a set of suggestons - nodes with labels that include thesubstring that the user has typed
  */
@@ -2453,9 +2451,10 @@ function searchTargets() {
 	targets.id = 'targets';
 	targets.classList.add('search-ul');
 	str = str.toLowerCase();
-	window.data.nodes
+	let suggestions = window.data.nodes
 		.get()
-		.filter((n) => n.label.toLowerCase().includes(str))
+		.filter((n) => n.label.toLowerCase().includes(str));
+	suggestions
 		.slice(0, 8)
 		.forEach((n) => {
 			let li = document.createElement('li');
@@ -2464,35 +2463,32 @@ function searchTargets() {
 			div.classList.add('search-suggestion-text');
 			div.innerText = n.label.replace(/\n/g, ' ');
 			div.dataset.id = n.id;
-			div.addEventListener('click', (event) => fillSearchBar(event));
+			div.addEventListener('click', (event) => doSearch(event));
 			li.appendChild(div);
 			targets.appendChild(li);
 		});
+	if (suggestions.length > 8) {
+		let li = document.createElement('li');
+		li.classList.add('search-suggestion');
+		let div = document.createElement('div');
+		div.className = 'search-suggestion-text and-more';
+		div.innerText = 'and more ...';
+		li.appendChild(div);
+		targets.appendChild(li);
+	}
 	elem('suggestion-list').appendChild(targets);
-}
-/**
- * user has clicked on a suggestion: fill the search bar with it
- * @param {event} e
- */
-function fillSearchBar(e) {
-	console.log(e.target);
-	let searchBar = elem('search-bar');
-	searchBar.value = e.target.innerText;
-	searchBar.dataset.id = e.target.dataset.id;
-	searchBar.focus();
 }
 /**
  * do the search using the string in the search bar and, when found, focus on that node
  */
-function doSearch() {
+function doSearch(event) {
 	let searchBar = elem('search-bar');
-	let nodeId = searchBar.dataset.id;
+	let nodeId = event.target.dataset.id;
 	if (nodeId) {
 		window.network.focus(nodeId, { scale: 2, animation: true });
 		elem('zoom').value = 2;
 		if (elem('targets')) elem('targets').remove();
 		searchBar.value = '';
-		delete searchBar.dataset.id;
 		searchBar.style.display = 'none';
 		elem('search-icon').style.display = 'none';
 	}
