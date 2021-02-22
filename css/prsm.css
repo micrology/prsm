@@ -1188,10 +1188,14 @@ but moving the panel out of sight works instead */
 	text-align: center;
 	color: white;
 }
+.history-close {
+	padding-right: 10px;
+	float: right;
+}
 .history-log {
 	display: table;
 	table-layout: fixed;
-	width: 388px;
+	width: 389px;
 	max-height: 500px;
 	overflow-y: scroll;
 	font-size: 12px;

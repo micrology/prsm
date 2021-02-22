@@ -152,6 +152,7 @@ function addEventListeners() {
 	listen('allFactors', 'click', selectAllFactors);
 	listen('allEdges', 'click', selectAllEdges);
 	listen('showLegendSwitch', 'click', legendSwitch);
+	listen('showHistorySwitch', 'click', showHistorySwitch);
 	listen('curveSelect', 'change', selectCurve);
 	listen('fixed', 'click', setFixed);
 	Array.from(document.getElementsByName('hide')).forEach((elem) => {
@@ -2903,7 +2904,6 @@ function setLegend(on) {
 	if (!on) legend();
 	else clearLegend();
 }
-
 function getRadioVal(name) {
 	// get list of radio buttons with specified name
 	let radios = document.getElementsByName(name);
@@ -3220,20 +3220,34 @@ function displayUserName() {
 dragElement(elem('chatbox-holder'), elem('chatbox-top'));
 
 /* ---------------------------------------history window --------------------------------*/
-
+/**
+ * display the history log in a window
+ */
 function showHistory() {
 	elem('history-window').style.display = 'block';
 	let log = elem('history-log');
 	log.innerHTML = yHistory.toArray().map((rec) => formatLogRec(rec)).join(' ');
 	log.scrollTop = log.scrollHeight;
 }
+/**
+ * return a DOM element with the data in rec formatted
+ * @param {Object} rec 
+ */
 function formatLogRec(rec) {
 	return `<div class="history-row">
 				<div class="history-time">${timeAndDate(rec.time)}: </div>
 				<div class="history-action">${rec.user} ${rec.action}</div>
 			</div>`
 }
-
+function showHistorySwitch() {
+	if (elem('showHistorySwitch').checked) showHistory()
+	else elem('history-window').style.display = 'none';
+}
+listen('history-close', 'click', historyClose);
+function historyClose() {
+	elem('history-window').style.display = 'none';
+	(elem('showHistorySwitch')).checked = false;
+}
 dragElement(elem('history-window'), elem('history-header'));
 window.showHistory = showHistory;
 /* --------------------------------------- avatars --------------------------------*/

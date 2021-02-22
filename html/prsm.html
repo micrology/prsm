@@ -382,6 +382,24 @@
 								</label>
 							</div>
 						</div>
+						<div class="panelRow">
+							<div>Show history</div>
+							<div class="onoffswitch">
+								<input
+									type="checkbox"
+									name="onoffswitch"
+									class="onoffswitch-checkbox"
+									id="showHistorySwitch"
+								/>
+								<label
+									class="onoffswitch-label"
+									for="showHistorySwitch"
+								>
+									<span class="onoffswitch-inner"></span>
+									<span class="onoffswitch-switch"></span>
+								</label>
+							</div>
+						</div>
 						<div class="panelRow divider">
 							<label for="hideAll">Show all</label>
 							<input
@@ -841,7 +859,9 @@
 			</div>
 		</div>
 		<div class="history-window" id="history-window">
-			<div class="history-header" id="history-header">Log</div>
+			<div class="history-header" id="history-header">Log<span class="history-close" id="history-close"
+				><i class="fas fa-times"></i
+			></span></div>
 			<div class="history-log" id="history-log"></div>
 		</div>
 		<img
