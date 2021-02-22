@@ -1192,8 +1192,11 @@ but moving the panel out of sight works instead */
 	padding-right: 10px;
 	float: right;
 }
+.history-close:hover {
+	color: var(--header-hover-color);
+}
 .history-log {
-	display: table;
+	display: block;
 	table-layout: fixed;
 	width: 389px;
 	max-height: 500px;
@@ -1213,8 +1216,6 @@ width: 75px;
 }
 .history-action {
 	display: table-cell;
-	overflow: scroll;
-	white-space: nowrap;
 }
 
 /* Legend */

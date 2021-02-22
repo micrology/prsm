@@ -457,6 +457,11 @@ function startY() {
 			console.log(trans.local, yPointsArray.get(yPointsArray.length - 1));
 		if (!trans.local) network.redraw();
 	});
+	yHistory.observe((event, trans) => {
+		if (window.debug.includes('yjs'))
+			console.log(trans.local, yHistory.get(yHistory.length - 1));
+		if (elem('showHistorySwitch').checked) showHistory();
+	});
 	yUndoManager.on('stack-item-added', (event) => {
 		if (window.debug.includes('yjs')) console.log(event);
 		saveButtonStatus(event);
@@ -943,8 +948,10 @@ function drawBadges(ctx) {
 			edge.arrows.middle.type = 'image';
 			edge.arrows.middle.src = elem('badge').src;
 		} else if (
-			edge.note &&
-			edge.note == 'Notes' &&
+			(!edge.note ||(edge.note &&
+				edge.note == 'Notes')) &&
+				edge.arrows &&
+				edge.arrows.middle &&
 			edge.arrows.middle.enabled
 		) {
 			// there is not a note, but the badge is shown
@@ -2426,19 +2433,22 @@ function clone() {
 	return clonedRoom;
 }
 
-/* Search */
+/* ----------------------------------------------------------- Search ------------------------------------------------------*/
 /**
  * Open an input for user to type label of node to search for and generate suggestions when user starts typing
  */
 function search() {
 	let searchBar = elem('search-bar');
-	searchBar.style.display = 'block';
-	elem('search-icon').style.display = 'block';
-	searchBar.focus();
-	listen('search-bar', 'keyup', searchTargets);
+	if (searchBar.style.display == 'block') hideSearchBar()
+	else {
+		searchBar.style.display = 'block';
+		elem('search-icon').style.display = 'block';
+		searchBar.focus();
+		listen('search-bar', 'keyup', searchTargets);
+	}
 }
 /**
- * generate and sisplay a set of suggestons - nodes with labels that include thesubstring that the user has typed
+ * generate and display a set of suggestions - nodes with labels that include the substring that the user has typed
  */
 function searchTargets() {
 	let str = elem('search-bar').value;
@@ -2483,16 +2493,19 @@ function searchTargets() {
  * do the search using the string in the search bar and, when found, focus on that node
  */
 function doSearch(event) {
-	let searchBar = elem('search-bar');
 	let nodeId = event.target.dataset.id;
 	if (nodeId) {
 		window.network.focus(nodeId, { scale: 2, animation: true });
 		elem('zoom').value = 2;
-		if (elem('targets')) elem('targets').remove();
-		searchBar.value = '';
-		searchBar.style.display = 'none';
-		elem('search-icon').style.display = 'none';
+		hideSearchBar();
 	}
+}
+function hideSearchBar() {
+	let searchBar = elem('search-bar');
+	if (elem('targets')) elem('targets').remove();
+	searchBar.value = '';
+	searchBar.style.display = 'none';
+	elem('search-icon').style.display = 'none';
 }
 
 /**
@@ -2514,7 +2527,7 @@ function togglePanel() {
 }
 dragElement(elem('panel'), elem('panelHeader'));
 
-/* ---------operations related to the side panel -------------------------------------*/
+/* ------------------------------------------------operations related to the side panel -------------------------------------*/
 
 /**
  * when the window is resized, make sure that the pane is still visible
@@ -3248,6 +3261,7 @@ function historyClose() {
 	elem('history-window').style.display = 'none';
 	(elem('showHistorySwitch')).checked = false;
 }
+
 dragElement(elem('history-window'), elem('history-header'));
 window.showHistory = showHistory;
 /* --------------------------------------- avatars --------------------------------*/
