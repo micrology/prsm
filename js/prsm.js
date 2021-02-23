@@ -1923,9 +1923,9 @@ function loadJSONfile(json) {
 		nodes.add(parsed.nodes);
 		edges.add(parsed.edges);
 	} else {
-		// at version 1.5, the title: property was renamed to :note:
+		// at version 1.5, the title: property was renamed to note:
 		json.nodes.forEach((n) => {
-			if (!n.note && n.title) n.note = n.title;
+			if (!n.note && n.title) n.note = n.title.replace(/<br>|<p>/g, '\n');
 			delete n.title;
 		});
 		nodes.add(
@@ -1934,7 +1934,7 @@ function loadJSONfile(json) {
 			})
 		);
 		json.edges.forEach((e) => {
-			if (!e.note && e.title) e.note = e.title;
+			if (!e.note && e.title) e.note = e.title.replace(/<br>|<p>/g, '\n');
 			delete e.title;
 		});
 		edges.add(
@@ -2713,7 +2713,10 @@ function showNodeData() {
 		placeholder: 'Notes',
 		theme: 'bubble'
 	});
-	editor.setContents(node.note);
+	if (node.note) {
+		if (node.note instanceof Object) editor.setContents(node.note)
+		else editor.setText(node.note);
+	}
 	editor.on('text-change', () => {
 		data.nodes.update({
 			id: nodeId,
@@ -2752,7 +2755,10 @@ function showEdgeData() {
 		placeholder: 'Notes',
 		theme: 'bubble'
 	});
-	editor.setContents(edge.note);
+	if (edge.note) {
+		if (edge.note instanceof Object) editor.setContents(edge.note)
+		else editor.setText(edge.note);
+	}
 	editor.on('text-change', () => {
 		data.edges.update({
 			id: edgeId,
