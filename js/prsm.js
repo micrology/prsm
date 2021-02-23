@@ -1963,7 +1963,6 @@ function loadJSONfile(json) {
 			});
 		}
 	}
-	legend(false);
 	yPointsArray.delete(0, yPointsArray.length);
 	if (json.underlay) yPointsArray.insert(0, json.underlay);
 	yHistory.delete(0, yHistory.length);
@@ -2611,7 +2610,8 @@ function setButtonStatus(settings) {
 	elem('curveSelect').value = settings.curve;
 	selectCurve();
 	elem('showLegendSwitch').checked = settings.legend;
-	legendSwitch(false);
+	if (settings.legend) legend(false)
+	else clearLegend();
 	setRadioVal('hide', settings.linkRadius);
 	setRadioVal('stream', settings.stream);
 	elem('sizing').value = settings.sizing;

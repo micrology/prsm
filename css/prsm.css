@@ -798,7 +798,7 @@ but moving the panel out of sight works instead */
 .sampleNode,
 .sampleLink {
 	width: 60px;
-	height: 260px;
+	height: 60px;
 	justify-self: center;
 	border: 0;
 	border-radius: 5px;
