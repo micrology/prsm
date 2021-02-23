@@ -37,12 +37,13 @@
 				font-style: normal;
 			}
 		</style>
-		<link href="../css/prsm.css" rel="stylesheet" />
 		<script
 			src="https://kit.fontawesome.com/dcbad58dab.js"
 			crossorigin="anonymous"
 		></script>
 		<link href="../css/vis-network.min.css" rel="stylesheet" />
+		<link href="../node_modules/quill/dist/quill.bubble.css" rel="stylesheet" />
+		<link href="../css/prsm.css" rel="stylesheet" />
 		<script>
 			/*
 			 * reject Internet Explorer and Legacy Edge (the latter doesn't support the destructuring operator)
@@ -564,10 +565,8 @@
 			</div>
 			<div class="row">
 				<div
-					contenteditable="true"
 					class="notes"
 					id="node-notes"
-					data-placeholder="Notes"
 				></div>
 			</div>
 		</div>
@@ -587,10 +586,8 @@
 			</div>
 			<div class="row">
 				<div
-					contenteditable="true"
 					class="notes"
 					id="edge-notes"
-					data-placeholder="Notes"
 				></div>
 			</div>
 		</div>

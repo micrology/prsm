@@ -798,7 +798,7 @@ but moving the panel out of sight works instead */
 .sampleNode,
 .sampleLink {
 	width: 60px;
-	height: 60px;
+	height: 260px;
 	justify-self: center;
 	border: 0;
 	border-radius: 5px;
@@ -809,7 +809,7 @@ but moving the panel out of sight works instead */
 
 .itemData {
 	display: grid;
-	grid-template-columns: 192px;
+	grid-template-columns: 252px;
 	padding: 4px;
 	background-color: var(--panel-color);
 	color: white;
@@ -817,7 +817,7 @@ but moving the panel out of sight works instead */
 	border-radius: 4px;
 	position: fixed;
 	top: calc(100% - 380px);
-	left: calc(100% - 205px);
+	left: calc(100% - 265px);
 	z-index: 2000;
 }
 .notes {
@@ -825,13 +825,13 @@ but moving the panel out of sight works instead */
 	background-color: white;
 	color: black;
 	width: 100%;
-	min-height: 40px;
-	max-height: 150px;
-	overflow: scroll;
+	min-height: 100px;
+	max-height: 350px;
 	outline: none;
+	font-family: Oxygen, sans-serif;
 }
-.placeholder {
-	opacity: 0.5;
+.ql-editor {
+	padding: 3px;
 }
 .itemData .row {
 	display: flex;

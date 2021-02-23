@@ -21,14 +21,14 @@ import {
 	standardize_color,
 	object_equals,
 	generateName,
-	divWithPlaceHolder,
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
 import {trophic} from './trophic.js';
 import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
-import {EmojiButton} from '@joeattardi/emoji-button';
+import { EmojiButton } from '@joeattardi/emoji-button';
+import Quill from 'quill';
 import {
 	setUpSamples,
 	reApplySampleToNodes,
@@ -191,9 +191,9 @@ function setUpPage() {
 	panel.classList.add('hide');
 	container.panelHidden = true;
 	setUpSamples();
-	divWithPlaceHolder('#node-notes');
+	// divWithPlaceHolder('#node-notes');
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'));
-	divWithPlaceHolder('#edge-notes');
+	// divWithPlaceHolder('#edge-notes');
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'));
 	hideNotes();
 	elem('version').innerHTML = version;
@@ -2694,7 +2694,7 @@ function showNodeData() {
 	if (node.created) {
 		elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${
 			node.created.user
-		}`;
+			}`;
 		elem('nodeCreation').style.display = 'flex';
 	} else elem('nodeCreation').style.display = 'none';
 	if (node.modified) {
@@ -2703,29 +2703,27 @@ function showNodeData() {
 		)} by ${node.modified.user}`;
 		elem('nodeModification').style.display = 'flex';
 	} else elem('nodeModification').style.display = 'none';
-	let notes = elem('node-notes');
-	let text = node.note || '';
-	notes.innerHTML = text.replace(/\n/g, '<br>');
-	notes.addEventListener('keyup', (e) => updateNodeNotes(e));
-	notes.addEventListener('mouseleave', () => showNodeData());
-	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
-	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
+	let editor = new Quill('#node-notes', {
+		modules: {
+			toolbar: [
+				[{ header: [1, 2, false] }],
+				['bold', 'italic', 'underline']
+			]
+		},
+		placeholder: 'Notes',
+		theme: 'bubble'
+	});
+	editor.setContents(node.note);
+	editor.on('text-change', () => {
+		data.nodes.update({
+			id: nodeId,
+			note: editor.getContents(),
+			clientID: undefined,
+			modified: timestamp(),
+		})
+	});
 	panel.classList.remove('hide');
 	displayStatistics(nodeId);
-}
-/**
- * update the note property of the node with the text of the note.
- *
- * @param {event} e
- */
-function updateNodeNotes(e) {
-	let text = e.target.innerText;
-	data.nodes.update({
-		id: network.getSelectedNodes()[0],
-		note: text == 'Notes' ? '' : text,
-		clientID: undefined,
-		modified: timestamp(),
-	});
 }
 function showEdgeData() {
 	let panel = elem('edgeDataPanel');
@@ -2744,23 +2742,26 @@ function showEdgeData() {
 		)} by ${edge.modified.user}`;
 		elem('edgeModification').style.display = 'flex';
 	} else elem('edgeModification').style.display = 'none';
-	let notes = elem('edge-notes');
-	let text = edge.note || '';
-	notes.innerHTML = text.replace(/\n/g, '<br>');
-	notes.addEventListener('keyup', (e) => updateEdgeNotes(e));
-	notes.addEventListener('mouseleave', () => showEdgeData());
-	let placeholder = `<span class="placeholder">${notes.dataset.placeholder}</span>`;
-	if (notes.innerText.length == 0) notes.innerHTML = placeholder;
-	panel.classList.remove('hide');
-}
-function updateEdgeNotes(e) {
-	let text = e.target.innerText;
-	data.edges.update({
-		id: network.getSelectedEdges()[0],
-		note: text == 'Notes' ? '' : text,
-		clientID: undefined,
-		modified: timestamp(),
+	let editor = new Quill('#edge-notes', {
+		modules: {
+			toolbar: [
+				[{ header: [1, 2, false] }],
+				['bold', 'italic', 'underline']
+			]
+		},
+		placeholder: 'Notes',
+		theme: 'bubble'
 	});
+	editor.setContents(edge.note);
+	editor.on('text-change', () => {
+		data.edges.update({
+			id: edgeId,
+			note: editor.getContents(),
+			clientID: undefined,
+			modified: timestamp(),
+		})
+	});
+	panel.classList.remove('hide');
 }
 function hideNotes() {
 	elem('nodeDataPanel').classList.add('hide');
