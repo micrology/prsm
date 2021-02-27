@@ -413,11 +413,11 @@ function startY() {
 		}
 		if (nodesToUpdate) {
 			refreshSampleNodes();
-			reApplySampleToNodes(nodesToUpdate, false);
+			reApplySampleToNodes(nodesToUpdate, true);
 		}
 		if (edgesToUpdate) {
 			refreshSampleLinks();
-			reApplySampleToLinks(edgesToUpdate, false);
+			reApplySampleToLinks(edgesToUpdate, true);
 		}
 	});
 	yNetMap.observe((event) => {
@@ -1377,6 +1377,7 @@ function unlockAll() {
 	data.edges.forEach((edge) => {
 		if (edge.locked) cancelEdit(deepCopy(edge));
 	});
+	removeEventListener('beforeunload', unlockAll);
 }
 /**
  * save the edge format details that have been edited
@@ -1539,7 +1540,7 @@ function unSelect() {
 */
 // set  up a web worker to calculate network statistics in parallel with whatever
 // the user is doing
-var worker = new Worker('betweenness.js');
+var worker = new Worker(new URL('betweenness.js', import.meta.url));
 var bc; //caches the betweenness centralities
 /**
  * Ask the web worker to recalculate network statistics
