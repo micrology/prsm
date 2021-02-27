@@ -538,7 +538,7 @@ const chatMessages = elem('chat-messages');
 const emojiButton = document.querySelector('#emoji-button');
 const emojiPicker = new EmojiButton({
 	rootElement: chatbox,
-	zIndex: 1000,
+	zIndex: 1000
 });
 
 /**

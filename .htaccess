@@ -1,5 +1,5 @@
 # cache css and js
-<filesMatch ".(js|css|ico)$">
+<filesMatch ".(js|css|ico|woff2|png)$">
 Header set Cache-Control "max-age=31536000, public"
 </filesMatch>
 # compress text files
