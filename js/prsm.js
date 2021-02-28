@@ -13,10 +13,8 @@ import {
 	uuidv4,
 	deepMerge,
 	deepCopy,
-	clean,
 	strip,
 	splitText,
-	cleanArray,
 	dragElement,
 	standardize_color,
 	object_equals,
@@ -55,7 +53,7 @@ var edges; // a dataset of edges
 var data; // an object with the nodes and edges datasets as properties
 const doc = new Y.Doc();
 var websocket = 'wss://cress.soc.surrey.ac.uk/wss'; // web socket server URL
-var clientID; // unitue ID for this browser
+var clientID; // unique ID for this browser
 var yNodesMap; // shared map of nodes
 var yEdgesMap; // shared map of edges
 var ySamplesMap; // shared map of styles
@@ -219,7 +217,7 @@ function startY() {
 	room = url.searchParams.get('room');
 	if (room == null || room == '') room = generateRoom();
 	else room = room.toUpperCase();
-	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
+	document.title = document.title + ' ' + room;
 	const persistence = new IndexeddbPersistence(room, doc);
 	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
@@ -227,10 +225,10 @@ function startY() {
 			new Date().toLocaleTimeString() + ' local content loaded'
 		);
 	});
+	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
 	wsProvider.on('sync', () => {
 		console.log(new Date().toLocaleTimeString() + ' remote content loaded');
 	});
-	document.title = document.title + ' ' + room;
 	wsProvider.on('status', (event) => {
 		console.log(
 			new Date().toLocaleTimeString() +
@@ -291,34 +289,16 @@ function startY() {
 	feedback loop, with each client re-broadcasting everything it received)
 	 */
 	nodes.on('*', (event, properties, origin) => {
-		if (window.debug.includes('yjs'))
-			console.log(
-				new Date().toLocaleTimeString() +
-					': nodes.on: ' +
-					event +
-					JSON.stringify(properties.items) +
-					' origin: ' +
-					origin
-			);
+		yjsTrace('nodes.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`)
 		properties.items.forEach((id) => {
-			if (origin == null) {
+			if (origin === null) {  // this is a local change
 				if (event == 'remove') {
 					yNodesMap.delete(id.toString());
 				} else {
 					let obj = nodes.get(id);
-					if (obj.clientID == undefined) obj.clientID = clientID;
-					// only broadcast my changes and only if the node has actually changed
-					if (
-						obj.clientID === clientID &&
-						!object_equals(obj, yNodesMap.get(obj.id))
-					) {
+					// broadcast my changes but only if the node has actually changed
+					if (!object_equals(obj, yNodesMap.get(obj.id))) {
 						yNodesMap.set(id.toString(), obj);
-						if (window.debug.includes('yjs'))
-							console.log(
-								new Date().toLocaleTimeString() +
-									': added to YMapNodes: ' +
-									JSON.stringify(obj)
-							);
 					}
 				}
 			}
@@ -331,13 +311,12 @@ function startY() {
 	includes adding a new node if it does not already exist locally).
 	 */
 	yNodesMap.observe((event) => {
-		if (window.debug.includes('yjs')) console.log(event);
+		yjsTrace('yNodesMap.observe', event);
 		let nodesToUpdate = [];
 		for (let key of event.keysChanged) {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key);
-				let origin = event.transaction.origin;
-				if (obj.clientID != clientID || origin != null) {
+				if (event.transaction.local === false) {
 					delete obj.shadow;
 					nodesToUpdate.push(obj);
 				}
@@ -345,65 +324,51 @@ function startY() {
 				if (data.nodes.get(key))
 					network
 						.getConnectedEdges(key)
-						.forEach((edge) => edges.remove(edge));
-				nodes.remove(key);
+						.forEach((edge) => edges.remove(edge, 'remote'));
+				nodes.remove(key, 'remote');
 			}
 		}
-		if (nodesToUpdate) nodes.update(nodesToUpdate, origin);
+		if (nodesToUpdate) nodes.update(nodesToUpdate, 'remote');
 	});
 	/* 
 	See comments above about nodes
 	 */
 	edges.on('*', (event, properties, origin) => {
-		if (window.debug.includes('yjs'))
-			console.log(
-				new Date().toLocaleTimeString() +
-					': edges.on: ' +
-					event +
-					JSON.stringify(properties.items) +
-					' origin: ' +
-					origin
-			);
+		yjsTrace('edges.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`)
 		properties.items.forEach((id) => {
-			if (origin == null) {
+			if (origin === null) {
 				if (event == 'remove') yEdgesMap.delete(id.toString());
 				else {
 					let obj = edges.get(id);
-					if (obj.clientID == undefined) obj.clientID = clientID;
-					if (
-						obj.clientID === clientID &&
-						!object_equals(obj, yEdgesMap.get(obj.id))
-					)
+					if (!object_equals(obj, yEdgesMap.get(obj.id)))
 						yEdgesMap.set(id.toString(), obj);
 				}
 			}
 		});
 	});
 	yEdgesMap.observe((event) => {
-		if (window.debug.includes('yjs')) console.log(event);
+		yjsTrace('yEdgesMap.observe', event);
 		let edgesToUpdate = [];
 		for (let key of event.keysChanged) {
 			if (yEdgesMap.has(key)) {
 				let obj = yEdgesMap.get(key);
-				let origin = event.transaction.origin;
-				if (obj.clientID != clientID || origin != null) {
+				if (event.transaction.local === false) {
 					delete obj.shadow;
 					edgesToUpdate.push(obj);
 				}
-			} else edges.remove(key);
+			} else edges.remove(key, 'remote');
 		}
-		edges.update(edgesToUpdate, origin);
+		edges.update(edgesToUpdate, 'remote');
 	});
 
 	ySamplesMap.observe((event) => {
-		if (window.debug.includes('yjs')) console.log(event);
-		let origin = event.transaction.origin;
+		yjsTrace('ySamplesMap.observe', event);
 		let nodesToUpdate = [];
 		let edgesToUpdate = [];
 		for (let key of event.keysChanged) {
 			let sample = ySamplesMap.get(key);
-			if (sample.clientID != clientID || origin != null) {
-				if (sample.node != undefined) {
+			if (event.transaction.local === false) {
+				if (sample.node !== undefined) {
 					styles.nodes[key] = sample.node;
 					nodesToUpdate.push(key);
 				} else {
@@ -422,17 +387,13 @@ function startY() {
 		}
 	});
 	yNetMap.observe((event) => {
-		if (window.debug.includes('yjs')) console.log(event);
-		if (event.transaction.origin) {
+		yjsTrace('YNetMap.observe', event);
+		if (event.transaction.local === false) {
 			for (let key of event.keysChanged) {
 				let obj = yNetMap.get(key);
 				switch (key) {
 					case 'edges':
-						setCurve(
-							clean(obj, {
-								clientID: null,
-							})
-						);
+						setCurve(obj)
 						break;
 					case 'hideAndStream':
 						setHideAndStream(obj);
@@ -453,30 +414,34 @@ function startY() {
 			}
 		}
 	});
-	yPointsArray.observe((event, trans) => {
-		if (window.debug.includes('yjs'))
-			console.log(trans.local, yPointsArray.get(yPointsArray.length - 1));
-		if (!trans.local) network.redraw();
+	yPointsArray.observe((event) => {
+		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1))
+		if (event.transaction.local === false) network.redraw();
 	});
-	yHistory.observe((event, trans) => {
-		if (window.debug.includes('yjs'))
-			console.log(trans.local, yHistory.get(yHistory.length - 1));
+	yHistory.observe(() => {
+		yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1))
 		if (elem('showHistorySwitch').checked) showHistory();
 	});
 	yUndoManager.on('stack-item-added', (event) => {
-		if (window.debug.includes('yjs')) console.log(event);
+		yjsTrace('yUndoManager.on', event);
 		saveButtonStatus(event);
 		undoButtonstatus();
 		redoButtonStatus();
 	});
 	yUndoManager.on('stack-item-popped', (event) => {
-		if (window.debug.includes('yjs')) console.log(event);
+		yjsTrace('yUndoManager.on', event);
 		undoRedoButtons(event);
 		undoButtonstatus();
 		redoButtonStatus();
 	});
 } // end startY()
 
+function yjsTrace(where, what) { 
+	if (window.debug.includes('yjs')) {
+		let d = new Date();
+		console.log(`${d.toLocaleTimeString()}:${d.getMilliseconds()} `, where, what)
+	}
+}
 /**
  * create a random string of the form AAA-BBB-CCC-DDD
  */
@@ -613,7 +578,7 @@ function setUpTutorial() {
 function setUpAwareness() {
 	showAvatars();
 	yAwareness.on('change', (event) => {
-		if (window.debug.includes('yjs')) console.log(event);
+		yjsTrace('yAwareness.on', event);
 		showAvatars();
 	});
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
@@ -885,7 +850,6 @@ function draw() {
 				n.x = newPositions[n.id].x;
 				n.y = newPositions[n.id].y;
 				if (snapToGridToggle) snapToGrid(n);
-				claim(n);
 				return n;
 			})
 		);
@@ -980,15 +944,6 @@ function fit(duration = 200) {
 	let newScale = network.getScale();
 	elem('zoom').value = newScale;
 	network.storePositions();
-}
-
-/**
- *  remove any existing clientID, to show that I now
-	own this and can broadcast my changes to the item
- * @param {object} item 
- */
-function claim(item) {
-	item.clientID = undefined;
 }
 
 /**
@@ -1300,7 +1255,6 @@ function saveLabel(node, callback) {
 		callback(null);
 		return;
 	}
-	claim(node);
 	network.manipulation.inMode = 'addNode'; // ensure still in Add mode, in case others have done something meanwhile
 	callback(node);
 	logHistory(`added factor ${node.label}`);
@@ -1330,7 +1284,6 @@ function saveNode(item, callback) {
 	let borderType = elem('node-borderType').value;
 	item.borderWidth = borderType == 'none' ? 0 : 4;
 	item.shapeProperties.borderDashes = convertDashes(borderType);
-	claim(item);
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
 	if (item.label == item.oldLabel)
 		logHistory(`Edited factor : ${item.label}`);
@@ -1356,7 +1309,6 @@ function lockNode(item) {
 	item.wasFixed = Boolean(item.fixed);
 	item.fixed = true;
 	item.chosen = false;
-	claim(item);
 	data.nodes.update(item);
 }
 /**
@@ -1401,7 +1353,6 @@ function saveEdge(item, callback) {
 	if (!item.width) item.width = 1;
 	item.dashes = convertDashes(elem('edge-type').value);
 	item.font.size = parseInt(elem('edge-font-size').value);
-	claim(item);
 	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
 	unlockEdge(item);
 	// vis-network silently deselects all edges in the callback (why?).  So we have to mark this edge as unselected in preparation
@@ -1439,7 +1390,6 @@ function lockEdge(item) {
 	item.oldLabel = item.label || ' ';
 	item.label = 'Being edited by ' + myNameRec.name;
 	item.chosen = false;
-	claim(item);
 	data.edges.update(item);
 }
 /**
@@ -1938,20 +1888,12 @@ function loadJSONfile(json) {
 			if (!n.note && n.title) n.note = n.title.replace(/<br>|<p>/g, '\n');
 			delete n.title;
 		});
-		nodes.add(
-			cleanArray(json.nodes, {
-				clientID: null,
-			})
-		);
+		nodes.add(json.nodes);
 		json.edges.forEach((e) => {
 			if (!e.note && e.title) e.note = e.title.replace(/<br>|<p>/g, '\n');
 			delete e.title;
 		});
-		edges.add(
-			cleanArray(json.edges, {
-				clientID: null,
-			})
-		);
+		edges.add(json.edges);
 	}
 	// before v1.4, the style array was called samples
 	if (json.samples) json.styles = json.samples;
@@ -1963,13 +1905,11 @@ function loadJSONfile(json) {
 		for (let groupId in styles.nodes) {
 			ySamplesMap.set(groupId, {
 				node: styles.nodes[groupId],
-				clientID: clientID,
 			});
 		}
 		for (let edgeId in styles.edges) {
 			ySamplesMap.set(edgeId, {
 				edge: styles.edges[edgeId],
-				clientID: clientID,
 			});
 		}
 	}
@@ -2634,7 +2574,6 @@ function applySampleToNode() {
 	for (let node of data.nodes.get(selectedNodeIds)) {
 		node = deepMerge(node, styles.nodes[sample]);
 		node.grp = sample;
-		claim(node);
 		nodesToUpdate.push(node);
 	}
 	data.nodes.update(nodesToUpdate);
@@ -2650,7 +2589,6 @@ function applySampleToLink(event) {
 	for (let edge of data.edges.get(selectedEdges)) {
 		edge = deepMerge(edge, styles.edges[sample]);
 		edge.grp = sample;
-		claim(edge);
 		edgesToUpdate.push(edge);
 	}
 	data.edges.update(edgesToUpdate);
@@ -2729,7 +2667,6 @@ function showNodeData() {
 		data.nodes.update({
 			id: nodeId,
 			note: editor.getContents(),
-			clientID: undefined,
 			modified: timestamp(),
 		});
 	});
@@ -2771,7 +2708,6 @@ function showEdgeData() {
 		data.edges.update({
 			id: edgeId,
 			note: editor.getContents(),
-			clientID: undefined,
 			modified: timestamp(),
 		});
 	});
@@ -2816,7 +2752,6 @@ function doSnapToGrid() {
 			n.x = positions[n.id].x;
 			n.y = positions[n.id].y;
 			snapToGrid(n);
-			claim(n);
 			return n;
 		})
 	);
@@ -2829,7 +2764,6 @@ function selectCurve() {
 		},
 	};
 	network.setOptions(options);
-	options.clientID = clientID;
 	yNetMap.set('edges', options);
 }
 
