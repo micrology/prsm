@@ -27,7 +27,7 @@ import {styles} from './samples.js';
 import {trophic} from './trophic.js';
 import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
-import { EmojiButton } from '@joeattardi/emoji-button';
+import {EmojiButton} from '@joeattardi/emoji-button';
 import Quill from 'quill';
 import {
 	setUpSamples,
@@ -221,13 +221,14 @@ function startY() {
 	else room = room.toUpperCase();
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
 	const persistence = new IndexeddbPersistence(room, doc);
+	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
-		displayNetPane('local content loaded');
+		displayNetPane(
+			new Date().toLocaleTimeString() + ' local content loaded'
+		);
 	});
-	// wait for an update from another peer; only then will
-	// drawing etc. be finished and so we can then fit the  network to the window.
 	wsProvider.on('sync', () => {
-		displayNetPane('remote content loaded');
+		console.log(new Date().toLocaleTimeString() + ' remote content loaded');
 	});
 	document.title = document.title + ' ' + room;
 	wsProvider.on('status', (event) => {
@@ -535,11 +536,6 @@ const chatNameBox = elem('chat-name');
 const chatInput = elem('chat-input');
 const chatSend = elem('send-button');
 const chatMessages = elem('chat-messages');
-const emojiButton = document.querySelector('#emoji-button');
-const emojiPicker = new EmojiButton({
-	rootElement: chatbox,
-	zIndex: 1000
-});
 
 /**
  * create DOM elements for the chat box
@@ -558,7 +554,7 @@ function setUpChat() {
 
 	console.log('My name: ' + myNameRec.name);
 	displayUserName();
-	yAwareness.setLocalState({name: myNameRec});
+	yAwareness.setLocalState({ name: myNameRec });
 	yChatArray.observe(() => {
 		displayLastMsg();
 		blinkChatboxTab();
@@ -578,12 +574,6 @@ function setUpChat() {
 		chatNameBox.select();
 	});
 	chatSend.addEventListener('click', sendMsg);
-	emojiPicker.on('emoji', (selection) => {
-		document.querySelector('#chat-input').value += selection.emoji;
-	});
-	emojiButton.addEventListener('click', () => {
-		emojiPicker.togglePicker(emojiButton);
-	});
 }
 function saveUserName(name) {
 	if (name.length > 0) {
@@ -644,9 +634,7 @@ function asleep(isSleeping) {
 	yAwareness.setLocalState({name: myNameRec});
 	showAvatars();
 }
-function setUpHistory() {
-
-}
+function setUpHistory() {}
 
 /**
  * draw the network, after setting the vis-network options
@@ -717,7 +705,11 @@ function draw() {
 				item.created = timestamp();
 				clearStatusBar();
 				callback(item);
-				logHistory(`added link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`)
+				logHistory(
+					`added link from ${data.nodes.get(item.from).label} to ${
+						data.nodes.get(item.to).label
+					}`
+				);
 			},
 			editEdge: {
 				editWithoutDrag: function (item, callback) {
@@ -753,11 +745,17 @@ function draw() {
 				// delete also all the edges that link to the nodes being deleted
 				// the edges are added to 'item' by deleteMsg()
 				item.edges.forEach((edgeId) => {
-					logHistory(`deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${data.nodes.get(data.edges.get(edgeId).to).label}`)
+					logHistory(
+						`deleted link from ${
+							data.nodes.get(data.edges.get(edgeId).from).label
+						} to ${data.nodes.get(data.edges.get(edgeId).to).label}`
+					);
 				});
 				item.nodes.forEach((nodeId) => {
-					logHistory(`deleted factor: ${data.nodes.get(nodeId).label}`)
-				})
+					logHistory(
+						`deleted factor: ${data.nodes.get(nodeId).label}`
+					);
+				});
 				callback(item);
 			},
 			deleteEdge: function (item, callback) {
@@ -767,7 +765,11 @@ function draw() {
 					return;
 				}
 				item.edges.forEach((edgeId) => {
-					logHistory(`deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${data.nodes.get(data.edges.get(edgeId).to).label}`)
+					logHistory(
+						`deleted link from ${
+							data.nodes.get(data.edges.get(edgeId).from).label
+						} to ${data.nodes.get(data.edges.get(edgeId).to).label}`
+					);
 				});
 				callback(item);
 			},
@@ -919,10 +921,10 @@ function timestamp() {
 }
 /**
  * push a record that action has been taken on to the end of the history log
- * @param {String} action 
+ * @param {String} action
  */
 function logHistory(action) {
-	yHistory.push([{action: action, time: Date.now(), user: myNameRec.name}])
+	yHistory.push([{action: action, time: Date.now(), user: myNameRec.name}]);
 }
 
 function drawBadges(ctx) {
@@ -948,10 +950,9 @@ function drawBadges(ctx) {
 			edge.arrows.middle.type = 'image';
 			edge.arrows.middle.src = elem('badge').src;
 		} else if (
-			(!edge.note ||(edge.note &&
-				edge.note == 'Notes')) &&
-				edge.arrows &&
-				edge.arrows.middle &&
+			(!edge.note || (edge.note && edge.note == 'Notes')) &&
+			edge.arrows &&
+			edge.arrows.middle &&
 			edge.arrows.middle.enabled
 		) {
 			// there is not a note, but the badge is shown
@@ -1295,10 +1296,10 @@ function saveLabel(node, callback) {
 	node.label = splitText(elem('popup-label').innerText, NODEWIDTH);
 	clearPopUp();
 	if (node.label === '') {
-			statusMsg('No label: cancelled', 'warn');
-			callback(null);
-			return;
-		}
+		statusMsg('No label: cancelled', 'warn');
+		callback(null);
+		return;
+	}
 	claim(node);
 	network.manipulation.inMode = 'addNode'; // ensure still in Add mode, in case others have done something meanwhile
 	callback(node);
@@ -1331,8 +1332,12 @@ function saveNode(item, callback) {
 	item.shapeProperties.borderDashes = convertDashes(borderType);
 	claim(item);
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
-	if (item.label == item.oldLabel) logHistory(`Edited factor : ${item.label}`)
-		else logHistory(`edited factor, changing label from ${item.oldLabel} to ${item.label}`);
+	if (item.label == item.oldLabel)
+		logHistory(`Edited factor : ${item.label}`);
+	else
+		logHistory(
+			`edited factor, changing label from ${item.oldLabel} to ${item.label}`
+		);
 	unlockNode(item);
 	callback(item);
 }
@@ -1403,7 +1408,11 @@ function saveEdge(item, callback) {
 	item.shadow = false;
 	clearStatusBar();
 	callback(item);
-	logHistory(`edited link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`);
+	logHistory(
+		`edited link from ${data.nodes.get(item.from).label} to ${
+			data.nodes.get(item.to).label
+		}`
+	);
 }
 /**
  * Convert from the menu selection to the CSS format of the edge
@@ -2439,7 +2448,7 @@ function clone() {
  */
 function search() {
 	let searchBar = elem('search-bar');
-	if (searchBar.style.display == 'block') hideSearchBar()
+	if (searchBar.style.display == 'block') hideSearchBar();
 	else {
 		searchBar.style.display = 'block';
 		elem('search-icon').style.display = 'block';
@@ -2465,19 +2474,17 @@ function searchTargets() {
 	let suggestions = window.data.nodes
 		.get()
 		.filter((n) => n.label.toLowerCase().includes(str));
-	suggestions
-		.slice(0, 8)
-		.forEach((n) => {
-			let li = document.createElement('li');
-			li.classList.add('search-suggestion');
-			let div = document.createElement('div');
-			div.classList.add('search-suggestion-text');
-			div.innerText = n.label.replace(/\n/g, ' ');
-			div.dataset.id = n.id;
-			div.addEventListener('click', (event) => doSearch(event));
-			li.appendChild(div);
-			targets.appendChild(li);
-		});
+	suggestions.slice(0, 8).forEach((n) => {
+		let li = document.createElement('li');
+		li.classList.add('search-suggestion');
+		let div = document.createElement('div');
+		div.classList.add('search-suggestion-text');
+		div.innerText = n.label.replace(/\n/g, ' ');
+		div.dataset.id = n.id;
+		div.addEventListener('click', (event) => doSearch(event));
+		li.appendChild(div);
+		targets.appendChild(li);
+	});
 	if (suggestions.length > 8) {
 		let li = document.createElement('li');
 		li.classList.add('search-suggestion');
@@ -2495,7 +2502,7 @@ function searchTargets() {
 function doSearch(event) {
 	let nodeId = event.target.dataset.id;
 	if (nodeId) {
-		window.network.focus(nodeId, { scale: 2, animation: true });
+		window.network.focus(nodeId, {scale: 2, animation: true});
 		elem('zoom').value = 2;
 		hideSearchBar();
 	}
@@ -2611,7 +2618,7 @@ function setButtonStatus(settings) {
 	elem('curveSelect').value = settings.curve;
 	selectCurve();
 	elem('showLegendSwitch').checked = settings.legend;
-	if (settings.legend) legend(false)
+	if (settings.legend) legend(false);
 	else clearLegend();
 	setRadioVal('hide', settings.linkRadius);
 	setRadioVal('stream', settings.stream);
@@ -2695,7 +2702,7 @@ function showNodeData() {
 	if (node.created) {
 		elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${
 			node.created.user
-			}`;
+		}`;
 		elem('nodeCreation').style.display = 'flex';
 	} else elem('nodeCreation').style.display = 'none';
 	if (node.modified) {
@@ -2707,15 +2714,15 @@ function showNodeData() {
 	let editor = new Quill('#node-notes', {
 		modules: {
 			toolbar: [
-				[{ header: [1, 2, false] }],
-				['bold', 'italic', 'underline']
-			]
+				[{header: [1, 2, false]}],
+				['bold', 'italic', 'underline'],
+			],
 		},
 		placeholder: 'Notes',
-		theme: 'bubble'
+		theme: 'bubble',
 	});
 	if (node.note) {
-		if (node.note instanceof Object) editor.setContents(node.note)
+		if (node.note instanceof Object) editor.setContents(node.note);
 		else editor.setText(node.note);
 	}
 	editor.on('text-change', () => {
@@ -2724,7 +2731,7 @@ function showNodeData() {
 			note: editor.getContents(),
 			clientID: undefined,
 			modified: timestamp(),
-		})
+		});
 	});
 	panel.classList.remove('hide');
 	displayStatistics(nodeId);
@@ -2749,15 +2756,15 @@ function showEdgeData() {
 	let editor = new Quill('#edge-notes', {
 		modules: {
 			toolbar: [
-				[{ header: [1, 2, false] }],
-				['bold', 'italic', 'underline']
-			]
+				[{header: [1, 2, false]}],
+				['bold', 'italic', 'underline'],
+			],
 		},
 		placeholder: 'Notes',
-		theme: 'bubble'
+		theme: 'bubble',
 	});
 	if (edge.note) {
-		if (edge.note instanceof Object) editor.setContents(edge.note)
+		if (edge.note instanceof Object) editor.setContents(edge.note);
 		else editor.setText(edge.note);
 	}
 	editor.on('text-change', () => {
@@ -2766,7 +2773,7 @@ function showEdgeData() {
 			note: editor.getContents(),
 			clientID: undefined,
 			modified: timestamp(),
-		})
+		});
 	});
 	panel.classList.remove('hide');
 }
@@ -3141,7 +3148,11 @@ function sizing() {
 	elem('zoom').value = network.getScale();
 }
 /* ---------------------------------------chat window --------------------------------*/
+
+var emojiPicker = null;
+
 function minimize() {
+	if (emojiPicker) emojiPicker.destroyPicker();
 	chatbox.classList.add('chatbox-hide');
 	chatboxTab.classList.remove('chatbox-hide');
 	chatboxTab.classList.remove('chatbox-blink');
@@ -3151,6 +3162,17 @@ function maximize() {
 	chatboxTab.classList.add('chatbox-hide');
 	chatboxTab.classList.remove('chatbox-blink');
 	chatbox.classList.remove('chatbox-hide');
+	const emojiButton = document.querySelector('#emoji-button');
+	emojiPicker = new EmojiButton({
+	rootElement: chatbox,
+	zIndex: 1000,
+});
+emojiPicker.on('emoji', (selection) => {
+	document.querySelector('#chat-input').value += selection.emoji;
+});
+emojiButton.addEventListener('click', () => {
+	emojiPicker.togglePicker(emojiButton);
+});
 	displayUserName();
 	displayAllMsgs();
 }
@@ -3247,27 +3269,30 @@ dragElement(elem('chatbox-holder'), elem('chatbox-top'));
 function showHistory() {
 	elem('history-window').style.display = 'block';
 	let log = elem('history-log');
-	log.innerHTML = yHistory.toArray().map((rec) => formatLogRec(rec)).join(' ');
+	log.innerHTML = yHistory
+		.toArray()
+		.map((rec) => formatLogRec(rec))
+		.join(' ');
 	log.scrollTop = log.scrollHeight;
 }
 /**
  * return a DOM element with the data in rec formatted
- * @param {Object} rec 
+ * @param {Object} rec
  */
 function formatLogRec(rec) {
 	return `<div class="history-row">
 				<div class="history-time">${timeAndDate(rec.time)}: </div>
 				<div class="history-action">${rec.user} ${rec.action}</div>
-			</div>`
+			</div>`;
 }
 function showHistorySwitch() {
-	if (elem('showHistorySwitch').checked) showHistory()
+	if (elem('showHistorySwitch').checked) showHistory();
 	else elem('history-window').style.display = 'none';
 }
 listen('history-close', 'click', historyClose);
 function historyClose() {
 	elem('history-window').style.display = 'none';
-	(elem('showHistorySwitch')).checked = false;
+	elem('showHistorySwitch').checked = false;
 }
 
 dragElement(elem('history-window'), elem('history-header'));

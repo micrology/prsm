@@ -352,7 +352,7 @@ nav button .pressed {
 	background-color: white;
 }
 .search-icon {
-	display: none; 
+	display: none;
 	float: right;
 	margin-right: 12px;
 	margin-top: 8px;
@@ -1059,16 +1059,15 @@ but moving the panel out of sight works instead */
 	display: flex;
 	position: relative;
 }
-.chatbox-icons .fas {
+.chatbox-close {
 	background: var(--panel-color);
 	padding: 3px 5px;
 	margin: 0 0 0 3px;
 	color: white;
 	border-radius: 0 5px 0 5px;
 }
-.chatbox-icons .fas:hover {
-	border-radius: 5px 0 5px 0;
-	background: var(--header-hover-color);
+.chatbox-close:hover {
+	color: var(--header-hover-color);
 }
 .chat-name {
 	flex: 1;
@@ -1213,8 +1212,8 @@ but moving the panel out of sight works instead */
 	display: table-row;
 }
 .history-time {
-display: table-cell;
-width: 75px;
+	display: table-cell;
+	width: 75px;
 }
 .history-action {
 	display: table-cell;
