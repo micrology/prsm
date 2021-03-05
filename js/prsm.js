@@ -36,7 +36,7 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.5.2';
+const version = '1.6.0';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
@@ -66,8 +66,6 @@ var yHistory; // log of actions
 var container; //the DOM body elemnet
 var netPane; // the DOM pane showing the network
 var panel; // the DOM right side panel element
-var buttonStatus; // the status of the buttons in the panel
-var initialButtonStatus; // the network panel's sttings at initialisation
 var myNameRec; // the user's name record {actual name, type, etc.}
 var lastNodeSample = 'group0'; // the last used node style
 var lastLinkSample = 'edge0'; // the last used edge style
@@ -159,7 +157,7 @@ function addEventListeners() {
 	Array.from(document.getElementsByName('stream')).forEach((elem) => {
 		elem.addEventListener('change', hideDistantOrStreamNodes);
 	});
-	listen('sizing', 'change', sizing);
+	listen('sizing', 'change', sizingSwitch);
 	Array.from(document.getElementsByClassName('sampleNode')).forEach((elem) =>
 		elem.addEventListener('click', (event) => {
 			applySampleToNode(event);
@@ -195,17 +193,6 @@ function setUpPage() {
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'));
 	hideNotes();
 	elem('version').innerHTML = version;
-	storeButtonStatus();
-	initialButtonStatus = {
-		autoLayout: false,
-		gravity: '50000',
-		snapToGrid: false,
-		curve: 'Curved',
-		linkRadius: 'All',
-		stream: 'All',
-		legend: true,
-		sizing: 'Off',
-	};
 }
 
 /**
@@ -221,18 +208,15 @@ function startY() {
 	const persistence = new IndexeddbPersistence(room, doc);
 	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
-		displayNetPane(
-			new Date().toLocaleTimeString() + ' local content loaded'
-		);
+		displayNetPane(exactTime() + ' local content loaded');
 	});
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
 	wsProvider.on('sync', () => {
-		console.log(new Date().toLocaleTimeString() + ' remote content loaded');
+		console.log(exactTime() + ' remote content loaded');
 	});
 	wsProvider.on('status', (event) => {
 		console.log(
-			new Date().toLocaleTimeString() +
-				': ' +
+			exactTime() +
 				event.status +
 				(event.status == 'connected' ? ' to' : ' from') +
 				' room ' +
@@ -264,6 +248,19 @@ function startY() {
 		edges: edges,
 	};
 
+	/* initialise yNetMap */
+	yNetMap.set('mapTitle', '');
+	yNetMap.set('snapToGrid', false);
+	yNetMap.set('curve', 'Curved');
+	yNetMap.set('background', '#ffffff');
+	yNetMap.set('legend', false);
+	yNetMap.set('hideAndStream', {
+		hideSetting: 'All',
+		streamSetting: 'All',
+		selected: [],
+	});
+	yNetMap.set('sizing', 'Off');
+
 	/* 
 	for convenience when debugging
 	 */
@@ -283,32 +280,29 @@ function startY() {
 	/* 
 	nodes.on listens for when local nodes or edges are changed (added, updated or removed).
 	If a local node is removed, the yMap is updated to broadcast to other clients that the node 
-	has been deleted. If a local node is added or updated, that is also broadcast, with a 
-	copy of the node, augmented with this client's ID, so that the originator can be identified.
-	Nodes that are not originated locally are not broadcast (if they were, there would be a 
-	feedback loop, with each client re-broadcasting everything it received)
+	has been deleted. If a local node is added or updated, that is also broadcast.
 	 */
 	nodes.on('*', (event, properties, origin) => {
-		yjsTrace('nodes.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`)
+		yjsTrace(
+			'nodes.on',
+			`${event}  ${JSON.stringify(properties.items)} origin: ${origin}`
+		);
 		properties.items.forEach((id) => {
-			if (origin === null) {  // this is a local change
+			if (origin === null) {
+				// this is a local change
 				if (event == 'remove') {
 					yNodesMap.delete(id.toString());
 				} else {
-					let obj = nodes.get(id);
-					// broadcast my changes but only if the node has actually changed
-					if (!object_equals(obj, yNodesMap.get(obj.id))) {
-						yNodesMap.set(id.toString(), obj);
-					}
+					yNodesMap.set(id.toString(), deepCopy(nodes.get(id)));
 				}
 			}
 		});
 	});
 	/* 
 	yNodesMap.observe listens for changes in the yMap, receiving a set of the keys that have
-	had changed values.  If the change was to delete an entry, the corresponding node is
-	removed from the local nodes dataSet. Otherwise, the local node dataSet is updated (which 
-	includes adding a new node if it does not already exist locally).
+	had changed values.  If the change was to delete an entry, the corresponding node and all links to/from it are
+	removed from the local nodes dataSet. Otherwise, if the received node differs from the local one, 
+	the local node dataSet is updated (which includes adding a new node if it does not already exist locally).
 	 */
 	yNodesMap.observe((event) => {
 		yjsTrace('yNodesMap.observe', event);
@@ -316,11 +310,12 @@ function startY() {
 		for (let key of event.keysChanged) {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key);
-				if (event.transaction.local === false) {
+				if (!object_equals(obj, data.nodes.get(key))) {
 					delete obj.shadow;
 					nodesToUpdate.push(obj);
 				}
 			} else {
+				hideNotes();
 				if (data.nodes.get(key))
 					network
 						.getConnectedEdges(key)
@@ -334,14 +329,15 @@ function startY() {
 	See comments above about nodes
 	 */
 	edges.on('*', (event, properties, origin) => {
-		yjsTrace('edges.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`)
+		yjsTrace(
+			'edges.on',
+			`${event}  ${JSON.stringify(properties.items)} origin: ${origin}`
+		);
 		properties.items.forEach((id) => {
 			if (origin === null) {
 				if (event == 'remove') yEdgesMap.delete(id.toString());
 				else {
-					let obj = edges.get(id);
-					if (!object_equals(obj, yEdgesMap.get(obj.id)))
-						yEdgesMap.set(id.toString(), obj);
+					yEdgesMap.set(id.toString(), deepCopy(edges.get(id)));
 				}
 			}
 		});
@@ -352,11 +348,14 @@ function startY() {
 		for (let key of event.keysChanged) {
 			if (yEdgesMap.has(key)) {
 				let obj = yEdgesMap.get(key);
-				if (event.transaction.local === false) {
+				if (!object_equals(obj, data.edges.get(key))) {
 					delete obj.shadow;
 					edgesToUpdate.push(obj);
 				}
-			} else edges.remove(key, 'remote');
+			} else {
+				hideNotes();
+				edges.remove(key, 'remote');
+			}
 		}
 		edges.update(edgesToUpdate, 'remote');
 	});
@@ -386,27 +385,48 @@ function startY() {
 			reApplySampleToLinks(edgesToUpdate, true);
 		}
 	});
+	/*
+	Map control are of three kinds:
+	1. Those that affect only the local map and are not pomulgated to other users
+	e.g zoom, show drawing layer, show history
+	2. Those where the contral status (e.g. wheher a switch is on or off) is promulgated,
+	but the effect of the switch is handled by yNodesMap and yEdgesMap (e.g. Show Factors
+		x links away; Size Factors to)
+	3. Those whose effects are promulgated and switches controlled here by yNetMap (e.g
+		Background)
+	For cases 2 and 3, the functiosn called here must not invoke yNetMap.set() to avoid looops
+	*/
 	yNetMap.observe((event) => {
 		yjsTrace('YNetMap.observe', event);
-		if (event.transaction.local === false) {
+		if (
+			event.transaction.local === false ||
+			(event.transaction.origin &&
+				event.transaction.origin.constructor.name == 'UndoManager')
+		) {
 			for (let key of event.keysChanged) {
 				let obj = yNetMap.get(key);
 				switch (key) {
-					case 'edges':
-						setCurve(obj)
+					case 'mapTitle':
+						setMapTitle(obj);
+						break;
+					case 'snapToGrid':
+						doSnapToGrid(obj);
+						break;
+					case 'curve':
+						setCurve(obj);
+						break;
+					case 'background':
+						setBackground(obj);
+						break;
+					case 'legend':
+						setLegend(obj);
 						break;
 					case 'hideAndStream':
 						setHideAndStream(obj);
 						hideDistantOrStreamNodes(false);
 						break;
-					case 'background':
-						setBackground(obj);
-						break;
-					case 'maptitle':
-						setMapTitle(obj);
-						break;
-					case 'legend':
-						setLegend(obj);
+					case 'sizing':
+						sizing(obj);
 						break;
 					default:
 						console.log('Bad key in yMapNet.observe: ', key);
@@ -415,32 +435,34 @@ function startY() {
 		}
 	});
 	yPointsArray.observe((event) => {
-		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1))
+		yjsTrace(
+			'yPointsArray.observe',
+			yPointsArray.get(yPointsArray.length - 1)
+		);
 		if (event.transaction.local === false) network.redraw();
 	});
 	yHistory.observe(() => {
-		yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1))
+		yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1));
 		if (elem('showHistorySwitch').checked) showHistory();
 	});
 	yUndoManager.on('stack-item-added', (event) => {
-		yjsTrace('yUndoManager.on', event);
-		saveButtonStatus(event);
-		undoButtonstatus();
-		redoButtonStatus();
+		yjsTrace('yUndoManager.on stack-item-added', event);
+		undoRedoButtonStatus();
 	});
 	yUndoManager.on('stack-item-popped', (event) => {
-		yjsTrace('yUndoManager.on', event);
-		undoRedoButtons(event);
-		undoButtonstatus();
-		redoButtonStatus();
+		yjsTrace('yUndoManager.on stack-item-popped', event);
+		undoRedoButtonStatus();
 	});
 } // end startY()
 
-function yjsTrace(where, what) { 
+function yjsTrace(where, what) {
 	if (window.debug.includes('yjs')) {
-		let d = new Date();
-		console.log(`${d.toLocaleTimeString()}:${d.getMilliseconds()} `, where, what)
+		console.log(exactTime(), where, what);
 	}
+}
+function exactTime() {
+	let d = new Date();
+	return `${d.toLocaleTimeString()}:${d.getMilliseconds()} `;
 }
 /**
  * create a random string of the form AAA-BBB-CCC-DDD
@@ -473,7 +495,7 @@ function getRandomData(nNodes) {
 function displayNetPane(msg) {
 	fit(0);
 	legend(false);
-	setMapTitle(yNetMap.get('maptitle'));
+	setMapTitle(yNetMap.get('mapTitle'));
 	console.log(msg);
 	let netPane = elem('net-pane');
 	if (
@@ -519,7 +541,7 @@ function setUpChat() {
 
 	console.log('My name: ' + myNameRec.name);
 	displayUserName();
-	yAwareness.setLocalState({ name: myNameRec });
+	yAwareness.setLocalState({name: myNameRec});
 	yChatArray.observe(() => {
 		displayLastMsg();
 		blinkChatboxTab();
@@ -578,7 +600,7 @@ function setUpTutorial() {
 function setUpAwareness() {
 	showAvatars();
 	yAwareness.on('change', (event) => {
-		yjsTrace('yAwareness.on', event);
+		//**** 		yjsTrace('yAwareness.on', event);
 		showAvatars();
 	});
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
@@ -780,7 +802,7 @@ function draw() {
 			let node = data.nodes.get(nodeId);
 			if (!node.locked) {
 				node.shadow = true;
-				data.nodes.update(node);
+				data.nodes.update(node, 'dontBroadcast');
 			}
 		});
 		// if shiftkey is down, start linking to another node
@@ -804,7 +826,7 @@ function draw() {
 				nodesToUpdate.push(node);
 			}
 		});
-		data.nodes.update(nodesToUpdate);
+		data.nodes.update(nodesToUpdate, 'dontBroadcast');
 		hideNotes();
 		clearStatusBar();
 	});
@@ -820,7 +842,7 @@ function draw() {
 		selectedEdges.forEach((edgeId) => {
 			let edge = data.edges.get(edgeId);
 			edge.shadow = true;
-			data.edges.update(edge);
+			data.edges.update(edge, 'dontBroadcast');
 		});
 		showSelected();
 		showNodeOrEdgeData();
@@ -834,7 +856,7 @@ function draw() {
 				edgesToUpdate.push(edge);
 			}
 		});
-		data.edges.update(edgesToUpdate);
+		data.edges.update(edgesToUpdate, 'dontBroadcast');
 		hideNotes();
 		clearStatusBar();
 	});
@@ -1454,7 +1476,7 @@ function changeCursor(newCursorStyle) {
 function mapTitle(e) {
 	let title = e.target.innerText;
 	title = setMapTitle(title);
-	yNetMap.set('maptitle', title);
+	yNetMap.set('mapTitle', title);
 }
 /**
  * Format the map title
@@ -1490,7 +1512,12 @@ function unSelect() {
 	nodes.forEach((node) => {
 		node.shadow = false;
 	});
-	data.nodes.update(nodes);
+	data.nodes.update(nodes, 'dontBroadcast');
+	let edges = data.nodes.get(network.getSelectedEdges());
+	edges.forEach((edge) => {
+		edge.shadow = false;
+	});
+	data.edges.update(edges, 'dontBroadcast');
 	network.unselectAll();
 	clearStatusBar();
 }
@@ -1719,13 +1746,11 @@ function redo() {
 	yUndoManager.redo();
 }
 
-function undoButtonstatus() {
+function undoRedoButtonStatus() {
 	setButtonDisabledStatus('undo', yUndoManager.undoStack.length === 0);
-}
-
-function redoButtonStatus() {
 	setButtonDisabledStatus('redo', yUndoManager.redoStack.length === 0);
 }
+
 /**
  * Change the visible state of a button
  * @param {String} id
@@ -1738,6 +1763,7 @@ function setButtonDisabledStatus(id, state) {
 
 function deleteNode() {
 	network.deleteSelected();
+	clearStatusBar();
 }
 var lastFileName = 'network.json'; // the name of the file last read in
 let msg = '';
@@ -1851,6 +1877,8 @@ function loadFile(contents) {
 	legend(false);
 	data.edges.update(data.edges.map((e) => deepMerge(styles.edges[e.grp], e)));
 	network.fit(0);
+	yUndoManager.clear();
+	undoRedoButtonStatus();
 }
 /**
  * Parse and load a PRSM map file, or a JSON file exported from Gephi
@@ -1868,7 +1896,7 @@ function loadJSONfile(json) {
 	if (json.lastNodeSample) lastNodeSample = json.lastNodeSample;
 	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
 	if (json.buttons) setButtonStatus(json.buttons);
-	if (json.mapTitle) yNetMap.set('maptitle', setMapTitle(json.mapTitle));
+	if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle));
 	if (json.edges.length > 0 && 'source' in json.edges[0]) {
 		// the file is from Gephi and needs to be translated
 		let parsed = parseGephiNetwork(json, {
@@ -1917,7 +1945,6 @@ function loadJSONfile(json) {
 	if (json.underlay) yPointsArray.insert(0, json.underlay);
 	yHistory.delete(0, yHistory.length);
 	if (json.history) yHistory.insert(0, json.history);
-
 	return {
 		nodes: nodes,
 		edges: edges,
@@ -2158,7 +2185,7 @@ function saveJSONfile() {
 			mapTitle: elem('maptitle').innerText,
 			lastNodeSample: lastNodeSample,
 			lastLinkSample: lastLinkSample,
-			buttons: buttonStatus,
+			buttons: getButtonStatus(),
 			styles: styles,
 			nodes: data.nodes.map((n) =>
 				strip(n, [
@@ -2521,47 +2548,29 @@ function openTab(tabId) {
 	event.currentTarget.className += ' active';
 }
 
-function storeButtonStatus() {
-	buttonStatus = {
+/**
+ * @return an object with the Network panel settings
+ */
+function getButtonStatus() {
+	return {
 		snapToGrid: elem('snaptogridswitch').checked,
 		curve: elem('curveSelect').value,
-		linkRadius: getRadioVal('hide'),
-		stream: getRadioVal('stream'),
+		background: elem('netBackColorWell').value,
 		legend: elem('showLegendSwitch').checked,
 		sizing: elem('sizing').value,
 	};
 }
-
-function saveButtonStatus(event) {
-	event.stackItem.meta.set('buttons', buttonStatus);
-	storeButtonStatus();
-}
-
-function undoRedoButtons(event) {
-	let settings;
-	if (event.type == 'undo')
-		if (yUndoManager.undoStack.length == 0) {
-			settings = initialButtonStatus;
-		} else {
-			settings = yUndoManager.undoStack[
-				yUndoManager.undoStack.length - 1
-			].meta.get('buttons');
-		}
-	// event.type == "redo"
-	else settings = event.stackItem.meta.get('buttons');
-	setButtonStatus(settings);
-}
-
+/**
+ * Set the Network panel buttons to their values loaded from a file
+ * @param {Object} settings
+ */
 function setButtonStatus(settings) {
-	elem('snaptogridswitch').checked = settings.snapToGrid;
-	if (settings.snapToGrid) doSnapToGrid();
-	elem('curveSelect').value = settings.curve;
-	selectCurve();
-	elem('showLegendSwitch').checked = settings.legend;
-	if (settings.legend) legend(false);
-	else clearLegend();
-	setRadioVal('hide', settings.linkRadius);
-	setRadioVal('stream', settings.stream);
+	doSnapToGrid(settings.snapToGrid);
+	setCurve(settings.curve);
+	setBackground(settings.background);
+	setLegend(settings.legend, false);
+	setRadioVal('hide', 'All');
+	setRadioVal('stream', 'All');
 	elem('sizing').value = settings.sizing;
 }
 // Factors and Links Tabs
@@ -2649,6 +2658,7 @@ function showNodeData() {
 		)} by ${node.modified.user}`;
 		elem('nodeModification').style.display = 'flex';
 	} else elem('nodeModification').style.display = 'none';
+	elem('node-notes').className = 'notes';
 	let editor = new Quill('#node-notes', {
 		modules: {
 			toolbar: [
@@ -2662,7 +2672,7 @@ function showNodeData() {
 	if (node.note) {
 		if (node.note instanceof Object) editor.setContents(node.note);
 		else editor.setText(node.note);
-	}
+	} else editor.setText('');
 	editor.on('text-change', () => {
 		data.nodes.update({
 			id: nodeId,
@@ -2703,7 +2713,7 @@ function showEdgeData() {
 	if (edge.note) {
 		if (edge.note instanceof Object) editor.setContents(edge.note);
 		else editor.setText(edge.note);
-	}
+	} else editor.setText('');
 	editor.on('text-change', () => {
 		data.edges.update({
 			id: edgeId,
@@ -2740,36 +2750,38 @@ function autoLayoutSwitch() {
 
 function snapToGridSwitch(e) {
 	snapToGridToggle = e.target.checked;
-	if (snapToGridToggle) {
-		doSnapToGrid();
+	doSnapToGrid(snapToGridToggle);
+	yNetMap.set('snapToGrid', snapToGridToggle);
+}
+
+function doSnapToGrid(toggle) {
+	elem('snaptogridswitch').checked = toggle;
+	if (toggle) {
+		let positions = network.getPositions();
+		data.nodes.update(
+			data.nodes.get().map((n) => {
+				n.x = positions[n.id].x;
+				n.y = positions[n.id].y;
+				snapToGrid(n);
+				return n;
+			})
+		);
 	}
 }
 
-function doSnapToGrid() {
-	let positions = network.getPositions();
-	data.nodes.update(
-		data.nodes.get().map((n) => {
-			n.x = positions[n.id].x;
-			n.y = positions[n.id].y;
-			snapToGrid(n);
-			return n;
-		})
-	);
+function selectCurve(e) {
+	let option = e.target.value;
+	setCurve(option);
+	yNetMap.set('curve', option);
 }
 
-function selectCurve() {
-	let options = {
+function setCurve(option) {
+	elem('curveSelect').value = option;
+	network.setOptions({
 		edges: {
-			smooth: elem('curveSelect').value === 'Curved',
+			smooth: option === 'Curved',
 		},
-	};
-	network.setOptions(options);
-	yNetMap.set('edges', options);
-}
-
-function setCurve(options) {
-	elem('curveSelect').value = options.edges.smooth ? 'Curved' : 'Straight';
-	network.setOptions(options);
+	});
 }
 
 function updateNetBack(event) {
@@ -2841,7 +2853,7 @@ function selectAllFactors() {
 	selectedNodes.forEach((nodeId) => {
 		let node = data.nodes.get(nodeId);
 		node.shadow = true;
-		data.nodes.update(node);
+		data.nodes.update(node, 'dontBroadcast');
 	});
 }
 
@@ -2851,21 +2863,21 @@ function selectAllEdges() {
 	selectedEdges.forEach((edgeId) => {
 		let edge = data.edges.get(edgeId);
 		edge.shadow = true;
-		data.edges.update(edge);
+		data.edges.update(edge, 'dontBroadcast');
 	});
 }
 
-function legendSwitch(warn) {
-	let checked = elem('showLegendSwitch').checked;
-	if (checked) legend(warn);
-	else clearLegend();
-	yNetMap.set('legend', !checked);
+function legendSwitch(e) {
+	let on = e.target.checked;
+	setLegend(on);
+	yNetMap.set('legend', on);
 }
-function setLegend(on) {
-	elem('showLegendSwitch').checked = !on;
-	if (!on) legend();
+function setLegend(on, warn) {
+	elem('showLegendSwitch').checked = on;
+	if (on) legend(warn);
 	else clearLegend();
 }
+
 function getRadioVal(name) {
 	// get list of radio buttons with specified name
 	let radios = document.getElementsByName(name);
@@ -3050,14 +3062,22 @@ function setHideAndStream(obj) {
 	setRadioVal('stream', obj.streamSetting);
 }
 
-function sizing() {
-	// set the size of the nodes proportional to the selected metric
-	//  none, in degree out degree or betweenness centrality
-	let metric = elem('sizing').value;
+function sizingSwitch(e) {
+	let metric = e.target.value;
+	sizing(metric);
+	yNetMap.set('sizing', metric);
+}
+/**
+ * set the size of the nodes proportional to the selected metric
+	none, in degree out degree or betweenness centrality
+ */
+function sizing(metric) {
+	let nodesToUpdate = [];
 	data.nodes.forEach((node) => {
+		node.scaling.label.enabled = true;
 		switch (metric) {
 			case 'Off':
-				node.value = 0;
+				node.scaling.label.enabled = false;
 				break;
 			case 'Inputs':
 				node.value = network.getConnectedNodes(node.id, 'from').length;
@@ -3076,8 +3096,10 @@ function sizing() {
 				node.value = bc[node.id];
 				break;
 		}
-		data.nodes.update(node);
+		nodesToUpdate.push(node);
 	});
+	data.nodes.update(nodesToUpdate);
+	elem('sizing').value = metric;
 	network.fit();
 	elem('zoom').value = network.getScale();
 }
@@ -3098,15 +3120,15 @@ function maximize() {
 	chatbox.classList.remove('chatbox-hide');
 	const emojiButton = document.querySelector('#emoji-button');
 	emojiPicker = new EmojiButton({
-	rootElement: chatbox,
-	zIndex: 1000,
-});
-emojiPicker.on('emoji', (selection) => {
-	document.querySelector('#chat-input').value += selection.emoji;
-});
-emojiButton.addEventListener('click', () => {
-	emojiPicker.togglePicker(emojiButton);
-});
+		rootElement: chatbox,
+		zIndex: 1000,
+	});
+	emojiPicker.on('emoji', (selection) => {
+		document.querySelector('#chat-input').value += selection.emoji;
+	});
+	emojiButton.addEventListener('click', () => {
+		emojiPicker.togglePicker(emojiButton);
+	});
 	displayUserName();
 	displayAllMsgs();
 }

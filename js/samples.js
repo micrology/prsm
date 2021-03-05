@@ -30,11 +30,11 @@ export const styles = {
 			},
 			scaling: {
 				min: 10,
-				max: 100,
+				max: 40,
 				label: {
 					enabled: true,
 					min: 10,
-					max: 100,
+					max: 40,
 				},
 			},
 		},

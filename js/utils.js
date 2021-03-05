@@ -151,7 +151,7 @@ export function deepCopy(obj) {
 		}, {});
 	}
 }
-
+window.deepCopy = deepCopy;
 /**
  * compare two objects for deep equality
  * fast but doesn't cater for obscure cases
@@ -168,9 +168,9 @@ export function object_equals(x, y) {
 
 	if (x.constructor !== y.constructor) return false;
 	// they must have the exact same prototype chain, the closest we can do is
-	// test there constructor.
+	// test their constructor.
 
-	for (var p in x) {
+	for (let p in x) {
 		if (!Object.prototype.hasOwnProperty.call(x, p)) continue;
 		// other properties were tested using x.constructor === y.constructor
 
@@ -187,7 +187,7 @@ export function object_equals(x, y) {
 		// Objects and Arrays must be tested recursively
 	}
 
-	for (p in y)
+	for (let p in y)
 		if (
 			Object.prototype.hasOwnProperty.call(y, p) &&
 			!Object.prototype.hasOwnProperty.call(x, p)

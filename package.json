@@ -69,7 +69,8 @@
 		"jsdoc": "^3.6.6",
 		"parcel": "^2.0.0-beta.1",
 		"postcss": "^8.2.6",
-		"prettier": "^2.2.1"
+		"prettier": "^2.2.1",
+		"recursive-diff": "^1.0.8"
 	},
 	"private": true
 }
