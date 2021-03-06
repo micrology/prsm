@@ -600,7 +600,7 @@ function setUpTutorial() {
 function setUpAwareness() {
 	showAvatars();
 	yAwareness.on('change', (event) => {
-		//**** 		yjsTrace('yAwareness.on', event);
+		yjsTrace('yAwareness.on', event);
 		showAvatars();
 	});
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
@@ -617,6 +617,7 @@ function setUpAwareness() {
  * @param {Boolean} isSleeping
  */
 function asleep(isSleeping) {
+	if (myNameRec.asleep === isSleeping) return;
 	myNameRec.asleep = isSleeping;
 	yAwareness.setLocalState({name: myNameRec});
 	showAvatars();
@@ -1638,7 +1639,7 @@ Network.prototype.zoom = function (scale) {
 	const animationOptions = {
 		scale: newScale,
 		animation: {
-			duration: 200,
+			duration: 0, //200,
 		},
 	};
 	this.view.moveTo(animationOptions);
@@ -1836,7 +1837,7 @@ function loadFile(contents) {
 			data = loadJSONfile(contents);
 			break;
 		default:
-			throw {message: 'Unrecognised file name suffix'};
+			throw { message: 'Unrecognised file name suffix' };
 	}
 	network.setOptions({
 		interaction: {
@@ -1844,41 +1845,34 @@ function loadFile(contents) {
 			hideEdgesOnZoom: data.nodes.length > 100,
 		},
 	});
+	let nodesToUpdate = []
+	data.nodes.get().forEach((n) => {
 	// ensure that all nodes have a grp property (converting 'group' property for old format files)
-	data.nodes.update(
-		data.nodes.map(
-			(n) => {
-				n.grp = n.group ? 'group' + (n.group % 9) : 'group0';
-				return n;
-			},
-			{
-				filter: function (n) {
-					return n.grp == undefined;
-				},
-			}
-		)
-	);
+	if (!n.grp) n.grp = n.group ? 'group' + (n.group % 9) : 'group0';
 	// reassign the sample properties to the nodes
-	data.nodes.update(data.nodes.map((n) => deepMerge(styles.nodes[n.grp], n)));
+	n = deepMerge(styles.nodes[n.grp], n);
+		// version 1.6 made changes to label scaling
+		n.scaling = { label: { enabled: false, max: 40, min: 10 }, max: 100, min: 10 }
+		nodesToUpdate.push(n);
+	});
+	data.nodes.update(nodesToUpdate);
+
 	// same for edges
-	data.edges.update(
-		data.edges.map(
-			(e) => {
-				e.grp = 'edge0';
-				return e;
-			},
-			{
-				filter: function (e) {
-					return e.grp == undefined;
-				},
-			}
-		)
-	);
+	let edgesToUpdate = []
+	data.edges.get().forEach((e) => {
+	// ensure that all edges have a grp property (converting 'group' property for old format files)
+	if (!e.grp) e.grp = e.group ? 'edge' + (e.group % 9) : 'edge0';
+	// reassign the sample properties to the edges
+	e = deepMerge(styles.edges[e.grp], e);
+		edgesToUpdate.push(e);
+	});
+	data.edges.update(edgesToUpdate);
+
 	legend(false);
-	data.edges.update(data.edges.map((e) => deepMerge(styles.edges[e.grp], e)));
 	network.fit(0);
 	yUndoManager.clear();
 	undoRedoButtonStatus();
+	logHistory('loaded &lt;' + lastFileName + '&gt;');
 }
 /**
  * Parse and load a PRSM map file, or a JSON file exported from Gephi
@@ -1911,11 +1905,11 @@ function loadJSONfile(json) {
 		nodes.add(parsed.nodes);
 		edges.add(parsed.edges);
 	} else {
-		// at version 1.5, the title: property was renamed to note:
 		json.nodes.forEach((n) => {
-			if (!n.note && n.title) n.note = n.title.replace(/<br>|<p>/g, '\n');
+		// at version 1.5, the title: property was renamed to note:
+		if (!n.note && n.title) n.note = n.title.replace(/<br>|<p>/g, '\n');
 			delete n.title;
-		});
+	});
 		nodes.add(json.nodes);
 		json.edges.forEach((e) => {
 			if (!e.note && e.title) e.note = e.title.replace(/<br>|<p>/g, '\n');
@@ -2567,7 +2561,7 @@ function getButtonStatus() {
 function setButtonStatus(settings) {
 	doSnapToGrid(settings.snapToGrid);
 	setCurve(settings.curve);
-	setBackground(settings.background);
+	setBackground(settings.background || '#ffffff');
 	setLegend(settings.legend, false);
 	setRadioVal('hide', 'All');
 	setRadioVal('stream', 'All');
@@ -3260,13 +3254,16 @@ window.showHistory = showHistory;
  */
 
 function showAvatars() {
-	let names = Array.from(yAwareness.getStates())
+	let recs = Array.from(yAwareness.getStates());
+	let me = recs.splice(recs.findIndex(a => a[0] === clientID), 1); // remove myself
+	let names = recs
 		.map(([name, value]) => {
 			name;
 			return value.name;
 		})
 		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates
-		.sort((a, b) => (a.name > b.name ? 1 : -1));
+		.sort((a, b) => (a.name > b.name ? 1 : -1)); // sort names
+	names.unshift(me[0][1].name); // push myself on to the front
 
 	let avatars = elem('avatars');
 	while (avatars.firstChild) {
@@ -3293,6 +3290,8 @@ function showAvatars() {
  */
 function initials(name) {
 	return name
+		.replace(/[^A-Za-z0-9À-ÿ ]/ig, '')
+		.replace(/ +/ig, ' ')
 		.match(/(^\S\S?|\b\S)?/g)
 		.join('')
 		.match(/(^\S|\S$)?/g)
