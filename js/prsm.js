@@ -297,7 +297,7 @@ function startY() {
 						yNodesMap.set(id.toString(), deepCopy(nodes.get(id)));
 					}
 				}
-			})
+			});
 		});
 	});
 	/* 
@@ -343,7 +343,7 @@ function startY() {
 						yEdgesMap.set(id.toString(), deepCopy(edges.get(id)));
 					}
 				}
-			})
+			});
 		});
 	});
 	yEdgesMap.observe((event) => {
@@ -880,7 +880,7 @@ function draw() {
 				return n;
 			})
 		);
-		changeCursor('auto');
+		changeCursor('default');
 	});
 	network.on('controlNodeDragging', function () {
 		if (window.debug.includes('gui')) console.log('controlNodeDragging');
@@ -889,7 +889,7 @@ function draw() {
 	network.on('controlNodeDragEnd', function (event) {
 		if (window.debug.includes('gui')) console.log('controlNodeDragEnd');
 		if (event.controlEdge.from != event.controlEdge.to)
-			changeCursor('auto');
+			changeCursor('default');
 	});
 	network.on('beforeDrawing', function (ctx) {
 		redraw(ctx);
@@ -902,6 +902,45 @@ function draw() {
 	data.nodes.on('remove', recalculateStats);
 	data.edges.on('add', recalculateStats);
 	data.edges.on('remove', recalculateStats);
+
+	/* set up the magnifer */
+	let dpr = window.devicePixelRatio || 1;
+	let main = elem('main');
+	let mainRect = main.getBoundingClientRect();
+	let magnifier = document.createElement('canvas');
+	magnifier.width = 200;
+	magnifier.height = 200;
+	magnifier.className = 'magnifier';
+	let magnifierCtx = magnifier.getContext('2d');
+	magnifierCtx.fillStyle = 'white';
+	main.appendChild(magnifier);
+	let netCanvas = elem('net-pane').firstElementChild.firstElementChild;
+	main.addEventListener('mousemove', function (e) {
+		if (!e.shiftKey) return;
+		e.preventDefault();
+		main.focus();
+		main.style.cursor = 'none';
+		magnifierCtx.fillRect(0, 0, magnifier.width, magnifier.height);
+		magnifierCtx.drawImage(
+			netCanvas,
+			e.x * dpr,
+			e.y * dpr,
+			100,
+			100,
+			0,
+			0,
+			200,
+			200
+		);
+		magnifier.style.top = e.clientY - mainRect.y - 100 + 'px';
+		magnifier.style.left = e.clientX - mainRect.x - 100 + 'px';
+		magnifier.style.display = 'block';
+	});
+	main.addEventListener('keyup', function (e) {
+		if (e.key != 'Shift') return;
+		main.style.cursor = 'default';
+		magnifier.style.display = 'none';
+	});
 } // end draw()
 
 /**
@@ -1200,7 +1239,7 @@ function initPopUp(
 ) {
 	inAddMode = false;
 	inEditMode = true;
-	changeCursor('auto');
+	changeCursor('default');
 	elem('popup').style.height = height + 'px';
 	elem('popup-operation').innerHTML = popUpTitle;
 	elem('popup-saveButton').onclick = saveAction.bind(this, item, callback);
@@ -1729,7 +1768,7 @@ function plusLink() {
 function stopEdit() {
 	inAddMode = false;
 	network.disableEditMode();
-	changeCursor('auto');
+	changeCursor('default');
 }
 /**
  * Add or remove the CSS style showing that the button has been pressed
@@ -1799,7 +1838,7 @@ function readSingleFile(e) {
 			);
 			return;
 		}
-		document.body.style.cursor = 'auto';
+		document.body.style.cursor = 'default';
 	};
 	reader.readAsText(file);
 }
@@ -1943,8 +1982,8 @@ function loadJSONfile(json) {
 					edge: styles.edges[edgeId],
 				});
 			}
-		})
-	};
+		});
+	}
 	yPointsArray.delete(0, yPointsArray.length);
 	if (json.underlay) yPointsArray.insert(0, json.underlay);
 	yHistory.delete(0, yHistory.length);
@@ -2827,7 +2866,7 @@ function toggleDrawingLayer() {
 		inAddMode = false;
 		setButtonDisabledStatus('addNode', false);
 		setButtonDisabledStatus('addLink', false);
-		changeCursor('auto');
+		changeCursor('default');
 	} else {
 		// expose drawing layer
 		elem('toolbox').style.display = 'block';

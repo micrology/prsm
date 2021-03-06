@@ -75,6 +75,7 @@ header {
 main {
 	height: calc(100vh - 119px);
 	position: relative;
+	cursor: default;
 }
 #net-pane {
 	width: 100%;
@@ -1577,6 +1578,21 @@ div.resize {
 	z-index: 3000;
 	background-color: rgba(0, 0, 0, 0.4);
 }
+/* magnifier */
+.magnifier {
+	display: none;
+	position: absolute;
+	width: 200px;
+	height: 200px;
+	top: 0;
+	left: 0;
+	border: 1px black solid;
+	box-shadow: 5px 5px 10px #1e1e1e;
+	border-radius: 50%;
+	z-index: 5000;
+}
+
+/* print media */
 @media print {
 	header,
 	aside,
