@@ -287,15 +287,17 @@ function startY() {
 			'nodes.on',
 			`${event}  ${JSON.stringify(properties.items)} origin: ${origin}`
 		);
-		properties.items.forEach((id) => {
-			if (origin === null) {
-				// this is a local change
-				if (event == 'remove') {
-					yNodesMap.delete(id.toString());
-				} else {
-					yNodesMap.set(id.toString(), deepCopy(nodes.get(id)));
+		doc.transact(() => {
+			properties.items.forEach((id) => {
+				if (origin === null) {
+					// this is a local change
+					if (event == 'remove') {
+						yNodesMap.delete(id.toString());
+					} else {
+						yNodesMap.set(id.toString(), deepCopy(nodes.get(id)));
+					}
 				}
-			}
+			})
 		});
 	});
 	/* 
@@ -333,13 +335,15 @@ function startY() {
 			'edges.on',
 			`${event}  ${JSON.stringify(properties.items)} origin: ${origin}`
 		);
-		properties.items.forEach((id) => {
-			if (origin === null) {
-				if (event == 'remove') yEdgesMap.delete(id.toString());
-				else {
-					yEdgesMap.set(id.toString(), deepCopy(edges.get(id)));
+		doc.transact(() => {
+			properties.items.forEach((id) => {
+				if (origin === null) {
+					if (event == 'remove') yEdgesMap.delete(id.toString());
+					else {
+						yEdgesMap.set(id.toString(), deepCopy(edges.get(id)));
+					}
 				}
-			}
+			})
 		});
 	});
 	yEdgesMap.observe((event) => {
@@ -1639,7 +1643,7 @@ Network.prototype.zoom = function (scale) {
 	const animationOptions = {
 		scale: newScale,
 		animation: {
-			duration: 0, //200,
+			duration: 0,
 		},
 	};
 	this.view.moveTo(animationOptions);
@@ -1837,7 +1841,7 @@ function loadFile(contents) {
 			data = loadJSONfile(contents);
 			break;
 		default:
-			throw { message: 'Unrecognised file name suffix' };
+			throw {message: 'Unrecognised file name suffix'};
 	}
 	network.setOptions({
 		interaction: {
@@ -1845,25 +1849,29 @@ function loadFile(contents) {
 			hideEdgesOnZoom: data.nodes.length > 100,
 		},
 	});
-	let nodesToUpdate = []
+	let nodesToUpdate = [];
 	data.nodes.get().forEach((n) => {
-	// ensure that all nodes have a grp property (converting 'group' property for old format files)
-	if (!n.grp) n.grp = n.group ? 'group' + (n.group % 9) : 'group0';
-	// reassign the sample properties to the nodes
-	n = deepMerge(styles.nodes[n.grp], n);
+		// ensure that all nodes have a grp property (converting 'group' property for old format files)
+		if (!n.grp) n.grp = n.group ? 'group' + (n.group % 9) : 'group0';
+		// reassign the sample properties to the nodes
+		n = deepMerge(styles.nodes[n.grp], n);
 		// version 1.6 made changes to label scaling
-		n.scaling = { label: { enabled: false, max: 40, min: 10 }, max: 100, min: 10 }
+		n.scaling = {
+			label: {enabled: false, max: 40, min: 10},
+			max: 100,
+			min: 10,
+		};
 		nodesToUpdate.push(n);
 	});
 	data.nodes.update(nodesToUpdate);
 
 	// same for edges
-	let edgesToUpdate = []
+	let edgesToUpdate = [];
 	data.edges.get().forEach((e) => {
-	// ensure that all edges have a grp property (converting 'group' property for old format files)
-	if (!e.grp) e.grp = e.group ? 'edge' + (e.group % 9) : 'edge0';
-	// reassign the sample properties to the edges
-	e = deepMerge(styles.edges[e.grp], e);
+		// ensure that all edges have a grp property (converting 'group' property for old format files)
+		if (!e.grp) e.grp = e.group ? 'edge' + (e.group % 9) : 'edge0';
+		// reassign the sample properties to the edges
+		e = deepMerge(styles.edges[e.grp], e);
 		edgesToUpdate.push(e);
 	});
 	data.edges.update(edgesToUpdate);
@@ -1906,10 +1914,10 @@ function loadJSONfile(json) {
 		edges.add(parsed.edges);
 	} else {
 		json.nodes.forEach((n) => {
-		// at version 1.5, the title: property was renamed to note:
-		if (!n.note && n.title) n.note = n.title.replace(/<br>|<p>/g, '\n');
+			// at version 1.5, the title: property was renamed to note:
+			if (!n.note && n.title) n.note = n.title.replace(/<br>|<p>/g, '\n');
 			delete n.title;
-	});
+		});
 		nodes.add(json.nodes);
 		json.edges.forEach((e) => {
 			if (!e.note && e.title) e.note = e.title.replace(/<br>|<p>/g, '\n');
@@ -1924,17 +1932,19 @@ function loadJSONfile(json) {
 		styles.edges = json.styles.edges;
 		refreshSampleNodes();
 		refreshSampleLinks();
-		for (let groupId in styles.nodes) {
-			ySamplesMap.set(groupId, {
-				node: styles.nodes[groupId],
-			});
-		}
-		for (let edgeId in styles.edges) {
-			ySamplesMap.set(edgeId, {
-				edge: styles.edges[edgeId],
-			});
-		}
-	}
+		doc.transact(() => {
+			for (let groupId in styles.nodes) {
+				ySamplesMap.set(groupId, {
+					node: styles.nodes[groupId],
+				});
+			}
+			for (let edgeId in styles.edges) {
+				ySamplesMap.set(edgeId, {
+					edge: styles.edges[edgeId],
+				});
+			}
+		})
+	};
 	yPointsArray.delete(0, yPointsArray.length);
 	if (json.underlay) yPointsArray.insert(0, json.underlay);
 	yHistory.delete(0, yHistory.length);
@@ -3255,7 +3265,10 @@ window.showHistory = showHistory;
 
 function showAvatars() {
 	let recs = Array.from(yAwareness.getStates());
-	let me = recs.splice(recs.findIndex(a => a[0] === clientID), 1); // remove myself
+	let me = recs.splice(
+		recs.findIndex((a) => a[0] === clientID),
+		1
+	); // remove myself
 	let names = recs
 		.map(([name, value]) => {
 			name;
@@ -3290,8 +3303,8 @@ function showAvatars() {
  */
 function initials(name) {
 	return name
-		.replace(/[^A-Za-z0-9À-ÿ ]/ig, '')
-		.replace(/ +/ig, ' ')
+		.replace(/[^A-Za-z0-9À-ÿ ]/gi, '')
+		.replace(/ +/gi, ' ')
 		.match(/(^\S\S?|\b\S)?/g)
 		.join('')
 		.match(/(^\S|\S$)?/g)
