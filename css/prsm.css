@@ -1582,10 +1582,10 @@ div.resize {
 .magnifier {
 	display: none;
 	position: absolute;
-	width: 200px;
+	/* width: 200px;
 	height: 200px;
 	top: 0;
-	left: 0;
+	left: 0; */
 	border: 1px black solid;
 	box-shadow: 5px 5px 10px #1e1e1e;
 	border-radius: 50%;

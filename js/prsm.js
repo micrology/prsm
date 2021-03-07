@@ -904,12 +904,14 @@ function draw() {
 	data.edges.on('remove', recalculateStats);
 
 	/* set up the magnifer */
+	const magSize = 300; // diameter of loupe
+	const magnification = 3; // magnification
 	let dpr = window.devicePixelRatio || 1;
 	let main = elem('main');
 	let mainRect = main.getBoundingClientRect();
 	let magnifier = document.createElement('canvas');
-	magnifier.width = 200;
-	magnifier.height = 200;
+	magnifier.width = magSize;
+	magnifier.height = magSize;
 	magnifier.className = 'magnifier';
 	let magnifierCtx = magnifier.getContext('2d');
 	magnifierCtx.fillStyle = 'white';
@@ -920,20 +922,20 @@ function draw() {
 		e.preventDefault();
 		main.focus();
 		main.style.cursor = 'none';
-		magnifierCtx.fillRect(0, 0, magnifier.width, magnifier.height);
+		magnifierCtx.fillRect(0, 0, magSize, magSize);
 		magnifierCtx.drawImage(
 			netCanvas,
-			e.x * dpr,
-			e.y * dpr,
-			100,
-			100,
+			(e.x - mainRect.x) * dpr,
+			(e.y - mainRect.y) * dpr,
+			magSize / magnification,
+			magSize / magnification,
 			0,
 			0,
-			200,
-			200
+			magSize,
+			magSize
 		);
-		magnifier.style.top = e.clientY - mainRect.y - 100 + 'px';
-		magnifier.style.left = e.clientX - mainRect.x - 100 + 'px';
+		magnifier.style.top = e.clientY - mainRect.y - (magSize / 2) + 'px';
+		magnifier.style.left = e.clientX - mainRect.x - (magSize / 2) + 'px';
 		magnifier.style.display = 'block';
 	});
 	main.addEventListener('keyup', function (e) {
