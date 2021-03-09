@@ -905,8 +905,7 @@ function draw() {
 
 	/* set up the magnifer */
 	const magSize = 300; // diameter of loupe
-	const magnification = 3; // magnification
-	let dpr = window.devicePixelRatio || 1;
+	const magnification = 2; // magnification
 	let main = elem('main');
 	let mainRect = main.getBoundingClientRect();
 	let magnifier = document.createElement('canvas');
@@ -916,32 +915,65 @@ function draw() {
 	let magnifierCtx = magnifier.getContext('2d');
 	magnifierCtx.fillStyle = 'white';
 	main.appendChild(magnifier);
-	let netCanvas = elem('net-pane').firstElementChild.firstElementChild;
-	main.addEventListener('mousemove', function (e) {
-		if (!e.shiftKey) return;
+	let bigNetPane = null;
+	let bigNetwork = null;
+	let bigNetCanvas = null;
+
+	window.addEventListener('mousemove', (e) => {
+		if (e.shiftKey) showMagnifier(e);
+	});
+	function showMagnifier(e) {
 		e.preventDefault();
-		main.focus();
-		main.style.cursor = 'none';
+		if (bigNetCanvas == null) createMagnifier(e);
 		magnifierCtx.fillRect(0, 0, magSize, magSize);
 		magnifierCtx.drawImage(
-			netCanvas,
-			(e.x - mainRect.x) * dpr,
-			(e.y - mainRect.y) * dpr,
-			magSize / magnification,
-			magSize / magnification,
+			bigNetCanvas,
+			(e.x - mainRect.x) * magnification * magnification,
+			(e.y - mainRect.y) * magnification * magnification,
+			magSize,
+			magSize,
 			0,
 			0,
 			magSize,
 			magSize
 		);
-		magnifier.style.top = e.clientY - mainRect.y - (magSize / 2) + 'px';
-		magnifier.style.left = e.clientX - mainRect.x - (magSize / 2) + 'px';
+		magnifier.style.top = e.clientY - mainRect.y - magSize / 2 + 'px';
+		magnifier.style.left = e.clientX - mainRect.x - magSize / 2 + 'px';
 		magnifier.style.display = 'block';
+	}
+	window.addEventListener('keydown', (e) => {
+		if (e.shiftKey) createMagnifier();
 	});
-	main.addEventListener('keyup', function (e) {
+	function createMagnifier() {
+		bigNetPane = document.createElement('div');
+		bigNetPane.id = 'big-net-pane';
+		bigNetPane.style.position = 'absolute';
+		bigNetPane.style.top = '-9999px';
+		bigNetPane.style.left = '-9999px';
+		bigNetPane.style.width = `${netPane.offsetWidth * magnification}px`;
+		bigNetPane.style.height = `${netPane.offsetHeight * magnification}px`;
+		main.appendChild(bigNetPane);
+		bigNetwork = new Network(bigNetPane, data, options);
+		bigNetCanvas = bigNetPane.firstElementChild.firstElementChild;
+		bigNetwork.moveTo({
+			position: network.getViewPosition(),
+			scale: magnification * network.getScale(),
+		});
+//		console.log('big', JSON.stringify(bigNetwork.getViewPosition()), bigNetwork.getScale());
+//		console.log('net', JSON.stringify(network.getViewPosition()), network.getScale());
+//		main.style.cursor = 'none';
+		magnifier.style.display = 'none';
+	}
+
+	window.addEventListener('keyup', function (e) {
 		if (e.key != 'Shift') return;
+		if (bigNetPane) {
+			bigNetwork.destroy();
+			bigNetPane.remove();
+		}
 		main.style.cursor = 'default';
 		magnifier.style.display = 'none';
+//		console.log('bignet destroyed')
 	});
 } // end draw()
 
