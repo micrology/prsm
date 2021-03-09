@@ -903,9 +903,9 @@ function draw() {
 	data.edges.on('add', recalculateStats);
 	data.edges.on('remove', recalculateStats);
 
-	/* set up the magnifer */
+	/* --------------------------------------------set up the magnifer --------------------------------------------*/
 	const magSize = 300; // diameter of loupe
-	const magnification = 2; // magnification
+	const magnification = 3; // magnification
 	let main = elem('main');
 	let mainRect = main.getBoundingClientRect();
 	let magnifier = document.createElement('canvas');
@@ -918,18 +918,26 @@ function draw() {
 	let bigNetPane = null;
 	let bigNetwork = null;
 	let bigNetCanvas = null;
+	const magicNumber = 1.92;
 
+	window.addEventListener('keydown', (e) => {
+		if (e.shiftKey) createMagnifier();
+	});
 	window.addEventListener('mousemove', (e) => {
 		if (e.shiftKey) showMagnifier(e);
 	});
+	window.addEventListener('keyup', (e) => {
+		if (e.key == 'Shift') closeMagnifier();
+	});
+
 	function showMagnifier(e) {
 		e.preventDefault();
 		if (bigNetCanvas == null) createMagnifier(e);
 		magnifierCtx.fillRect(0, 0, magSize, magSize);
 		magnifierCtx.drawImage(
 			bigNetCanvas,
-			(e.x - mainRect.x) * magnification * magnification,
-			(e.y - mainRect.y) * magnification * magnification,
+			(e.x - mainRect.x) * magicNumber * magnification,
+			(e.y - mainRect.y) * magicNumber * magnification,
 			magSize,
 			magSize,
 			0,
@@ -941,10 +949,12 @@ function draw() {
 		magnifier.style.left = e.clientX - mainRect.x - magSize / 2 + 'px';
 		magnifier.style.display = 'block';
 	}
-	window.addEventListener('keydown', (e) => {
-		if (e.shiftKey) createMagnifier();
-	});
+
 	function createMagnifier() {
+		if (bigNetPane) {
+			bigNetwork.destroy();
+			bigNetPane.remove();
+		}
 		bigNetPane = document.createElement('div');
 		bigNetPane.id = 'big-net-pane';
 		bigNetPane.style.position = 'absolute';
@@ -959,22 +969,17 @@ function draw() {
 			position: network.getViewPosition(),
 			scale: magnification * network.getScale(),
 		});
-//		console.log('big', JSON.stringify(bigNetwork.getViewPosition()), bigNetwork.getScale());
-//		console.log('net', JSON.stringify(network.getViewPosition()), network.getScale());
-//		main.style.cursor = 'none';
+		main.style.cursor = 'none';
 		magnifier.style.display = 'none';
 	}
-
-	window.addEventListener('keyup', function (e) {
-		if (e.key != 'Shift') return;
+	function closeMagnifier() {
 		if (bigNetPane) {
 			bigNetwork.destroy();
 			bigNetPane.remove();
 		}
 		main.style.cursor = 'default';
 		magnifier.style.display = 'none';
-//		console.log('bignet destroyed')
-	});
+	}
 } // end draw()
 
 /**
