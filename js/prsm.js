@@ -810,17 +810,17 @@ function draw() {
 				data.nodes.update(node, 'dontBroadcast');
 			}
 		});
-		// if shiftkey is down, start linking to another node
+/* 		// if shiftkey is down, start linking to another node
 		if (params.event.pointers[0].shiftKey) {
 			// start linking from this node, but only if only one node is selected, else source node is not clear
 			if (selectedNodes.length == 1) {
 				statusMsg('Linking from ' + listFactors(selectedNodes));
 				plusLink();
 			}
-		} else {
+		} else { */
 			showSelected();
 			showNodeOrEdgeData();
-		}
+	//	}
 	});
 	network.on('deselectNode', function () {
 		if (window.debug.includes('gui')) console.log('deselectNode');
