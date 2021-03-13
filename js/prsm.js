@@ -89,7 +89,6 @@ window.addEventListener('load', () => {
 	setUpPaint();
 	setUpToolbox();
 	setUpShareDialog();
-	setUpHistory();
 	draw();
 });
 /**
@@ -545,10 +544,11 @@ function setUpChat() {
 		myNameRec = generateName();
 		localStorage.setItem('myName', JSON.stringify(myNameRec));
 	}
+	myNameRec.id = clientID;
 
 	console.log('My name: ' + myNameRec.name);
 	displayUserName();
-	yAwareness.setLocalState({name: myNameRec});
+	yAwareness.setLocalState({user: myNameRec});
 	yChatArray.observe(() => {
 		displayLastMsg();
 		blinkChatboxTab();
@@ -574,9 +574,10 @@ function saveUserName(name) {
 		myNameRec.name = name;
 		myNameRec.anon = false;
 	} else myNameRec = generateName();
+	myNameRec.id = clientID;
 	chatNameBox.value = myNameRec.name;
 	localStorage.setItem('myName', JSON.stringify(myNameRec));
-	yAwareness.setLocalState({name: myNameRec});
+	yAwareness.setLocalState({user: myNameRec});
 	showAvatars();
 }
 /**
@@ -609,14 +610,17 @@ function setUpAwareness() {
 	yAwareness.on('change', (event) => {
 		yjsTrace('yAwareness.on', event);
 		showAvatars();
+		if (elem('showCursorSwitch').checked) showMice();
 	});
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false);
 	var sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
-	window.addEventListener('mousemove', () => {
+	window.addEventListener('mousemove', (e) => {
 		clearTimeout(sleepTimer);
 		asleep(false);
 		sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
+//		console.log({ x: e.x, y: e.y });
+		yAwareness.setLocalStateField('cursor', { x: e.x, y: e.y });
 	});
 }
 /**
@@ -629,7 +633,18 @@ function asleep(isSleeping) {
 	yAwareness.setLocalState({name: myNameRec});
 	showAvatars();
 }
-function setUpHistory() {}
+function showMice() {
+//	console.log(yAwareness.getStates());
+	let recs = Array.from(yAwareness.getStates());
+	recs.forEach(([key, value]) => {
+		if (key != clientID && value.cursor) {
+			let cursorDiv = elem(key.toString());
+			cursorDiv.style.top = `${value.cursor.y}px`;
+			cursorDiv.style.left = `${value.cursor.x}px`;
+			cursorDiv.style.display = 'block';
+		}
+	});
+}
 
 /**
  * draw the network, after setting the vis-network options
@@ -3347,13 +3362,14 @@ function showAvatars() {
 		1
 	); // remove myself
 	let names = recs
-		.map(([name, value]) => {
-			name;
-			return value.name;
+		// eslint-disable-next-line no-unused-vars
+		.map(([key, value]) => {
+			if (value.user) return value.user;
 		})
+		.filter(e => e) // remobved any recs without a user record
 		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates
 		.sort((a, b) => (a.name > b.name ? 1 : -1)); // sort names
-	names.unshift(me[0][1].name); // push myself on to the front
+	names.unshift(me[0][1].user); // push myself on to the front
 
 	let avatars = elem('avatars');
 	while (avatars.firstChild) {
@@ -3372,6 +3388,16 @@ function showAvatars() {
 		circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
 		ava.appendChild(circle);
 		avatars.appendChild(ava);
+
+		if (elem(nameRec.id) == null) {
+			let cursor = document.createElement('div');
+			cursor.className = 'shared-cursor';
+			cursor.id = nameRec.id;
+			cursor.style.backgroundColor = nameRec.color;
+			cursor.innerText = initials(nameRec.name);
+			cursor.style.display = 'none';
+			container.appendChild(cursor);
+		}
 	});
 }
 /**
@@ -3388,6 +3414,10 @@ function initials(name) {
 		.join('')
 		.toUpperCase();
 }
+
+/* --------------------------------- shared cursors ----------------------------- */
+
+
 
 /* --------------------------------- Merge maps ----------------------------- */
 /* to get the data in, open inspect windows for both maps.  in one window, eval data.nodes.get() and copy the result (not including any initial and trailing quote marks).

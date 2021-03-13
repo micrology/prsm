@@ -1587,6 +1587,17 @@ div.resize {
 	border-radius: 50%;
 	z-index: 5000;
 }
+.shared-cursor {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 1.2em;
+	border-radius: 10px;
+	padding: 5px;
+	text-align: center;
+	border: 1px solid black;
+	z-index: 6000;
+}
 
 /* print media */
 @media print {
