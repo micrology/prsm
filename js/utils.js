@@ -417,3 +417,44 @@ export function generateName() {
 		asleep: false,
 	};
 }
+/*----------- Status messages ---------------------------------------
+*/
+/**
+ * show status messages at the bottom of the window
+ * @param {string} msg
+ * @param {string} status type of msg - warning, error or other
+ */
+export function statusMsg(msg, status) {
+	let el = elem('statusBar');
+	switch (status) {
+		case 'warn':
+			el.style.backgroundColor = 'yellow';
+			break;
+		case 'error':
+			el.style.backgroundColor = 'red';
+			el.style.color = 'white';
+			break;
+		default:
+			el.style.backgroundColor = 'white';
+			break;
+	}
+	el.innerHTML = htmlEntities(msg);
+}
+/**
+ * replace special characters with their HTML entity codes
+ * @param {string} str
+ */
+function htmlEntities(str) {
+	return String(str)
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&quot;');
+}
+/**
+ * remove any previous message from the status bar
+ */
+export function clearStatusBar() {
+	statusMsg(' ');
+}

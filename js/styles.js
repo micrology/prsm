@@ -8,8 +8,10 @@ import {
 	deepCopy,
 	standardize_color,
 	dragElement,
+	statusMsg,
+	clearStatusBar
 } from './utils.js';
-import {statusMsg, updateLastSamples} from './prsm.js';
+import {updateLastSamples} from './prsm.js';
 import {styles} from './samples.js';
 
 const NODESTYLEWIDTH = 10; // chars for label splitting
@@ -618,7 +620,10 @@ export function clearLegend() {
  * redraw the legend (to show updated styles)
  */
 function updateLegend() {
-	if (document.getElementById('showLegendSwitch').checked) legend(false);
+	if (document.getElementById('showLegendSwitch').checked) {
+		legend(false);
+		clearStatusBar()
+	}
 }
 // to aid debugging
 window.legend = legend;

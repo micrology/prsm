@@ -19,6 +19,8 @@ import {
 	standardize_color,
 	object_equals,
 	generateName,
+	statusMsg,
+	clearStatusBar
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
@@ -811,17 +813,17 @@ function draw() {
 				data.nodes.update(node, 'dontBroadcast');
 			}
 		});
-		/* 		// if shiftkey is down, start linking to another node
-		if (params.event.pointers[0].shiftKey) {
+				// if control key is down, start linking to another node
+		if (params.event.pointers[0].ctrlKey) {
 			// start linking from this node, but only if only one node is selected, else source node is not clear
 			if (selectedNodes.length == 1) {
 				statusMsg('Linking from ' + listFactors(selectedNodes));
 				plusLink();
 			}
-		} else { */
+		} else {
 		showSelected();
 		showNodeOrEdgeData();
-		//	}
+		}
 	});
 	network.on('deselectNode', function () {
 		if (window.debug.includes('gui')) console.log('deselectNode');
@@ -1000,14 +1002,14 @@ function logHistory(action) {
 function drawBadges(ctx) {
 	data.nodes
 		.get()
-		.filter((node) => node.note && node.note != 'Notes')
+		.filter((node) => !node.hidden && node.note && node.note != 'Notes')
 		.forEach((node) => {
 			let box = network.getBoundingBox(node.id);
 			drawBadge(ctx, box.right - 20, box.top);
 		});
 	let changedEdges = [];
 	data.edges.get().forEach((edge) => {
-		if (
+		if (!edge.hidden &&
 			edge.note &&
 			edge.note != 'Notes' &&
 			edge.arrows &&
@@ -1628,45 +1630,6 @@ worker.onmessage = function (e) {
 /* 
   ----------- Status messages ---------------------------------------
 */
-/**
- * show status messages at the bottom of the window
- * @param {string} msg
- * @param {string} status type of msg - warning, error or other
- */
-export function statusMsg(msg, status) {
-	let el = elem('statusBar');
-	switch (status) {
-		case 'warn':
-			el.style.backgroundColor = 'yellow';
-			break;
-		case 'error':
-			el.style.backgroundColor = 'red';
-			el.style.color = 'white';
-			break;
-		default:
-			el.style.backgroundColor = 'white';
-			break;
-	}
-	el.innerHTML = htmlEntities(msg);
-}
-/**
- * replace special characters with their HTML entity codes
- * @param {string} str
- */
-function htmlEntities(str) {
-	return String(str)
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&quot;');
-}
-/**
- * remove any previous message from the status bar
- */
-function clearStatusBar() {
-	statusMsg(' ');
-}
 /**
  * return a string listing the labels of the given nodes, with nice connecting words
  * @param {Array} factors List of factcors
@@ -2367,25 +2330,39 @@ function setFileName(extn) {
  * Only node and edge labels and style ids are saved
  */
 function exportCVS() {
-	let str = 'Id,Label,Style\n';
+	let dummyDiv = document.createElement('div');
+	dummyDiv.id = 'dummy-div';
+	dummyDiv.style.display = 'none';
+	container.appendChild(dummyDiv);
+	let qed = new Quill('#dummy-div');
+	let str = 'Id,Label,Style,Note\n';
 	for (let node of data.nodes.get()) {
-		str += node.id;
-		if (node.label) str += ',"' + node.label + '"';
-		str += ',' + node.grp;
+		str += node.id + ',';
+		if (node.label) str += '"' + node.label.replaceAll('\n', ' ') + '"';
+		str += ',' + node.grp + ',';
+		if (node.note) {
+			qed.setContents(node.note);
+			str += '"' + qed.getText(0).replaceAll('\n', ' ') + '"';
+		}
 		str += '\n';
 	}
 	saveStr(str, 'nodes.csv');
-	str = 'Source,Target,Type,Id,Label,Style\n';
+	str = 'Source,Target,Type,Id,Label,Style,Note\n';
 	for (let edge of data.edges.get()) {
 		str += edge.from + ',';
 		str += edge.to + ',';
 		str += 'directed,';
 		str += edge.id + ',';
-		if (edge.label) str += edge.label + '"';
-		str += ',' + edge.grp;
+		if (edge.label) str += edge.label.replaceAll('\n', ' ') + '"';
+		str += ',' + edge.grp + ',';
+		if (edge.note) {
+			qed.setContents(edge.note);
+			str += '"' + qed.getText(0).replaceAll('\n', ' ') + '"';
+		}
 		str += '\n';
 	}
 	saveStr(str, 'edges.csv');
+	dummyDiv.remove();
 }
 /**
  * Save the map as a GML file
