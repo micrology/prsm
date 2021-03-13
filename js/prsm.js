@@ -120,6 +120,7 @@ function addEventListeners() {
 	listen('openFile', 'click', openFile);
 	listen('saveFile', 'click', saveJSONfile);
 	listen('exportPRSM', 'click', saveJSONfile);
+	listen('exportImage', 'click', exportPNGfile);
 	listen('exportCVS', 'click', exportCVS);
 	listen('exportGML', 'click', exportGML);
 	listen('search', 'click', search);
@@ -810,7 +811,7 @@ function draw() {
 				data.nodes.update(node, 'dontBroadcast');
 			}
 		});
-/* 		// if shiftkey is down, start linking to another node
+		/* 		// if shiftkey is down, start linking to another node
 		if (params.event.pointers[0].shiftKey) {
 			// start linking from this node, but only if only one node is selected, else source node is not clear
 			if (selectedNodes.length == 1) {
@@ -818,9 +819,9 @@ function draw() {
 				plusLink();
 			}
 		} else { */
-			showSelected();
-			showNodeOrEdgeData();
-	//	}
+		showSelected();
+		showNodeOrEdgeData();
+		//	}
 	});
 	network.on('deselectNode', function () {
 		if (window.debug.includes('gui')) console.log('deselectNode');
@@ -2318,11 +2319,7 @@ function saveStr(str, extn) {
 	let blob = new Blob([str], {
 		type: 'text/plain',
 	});
-	let pos = lastFileName.indexOf('.');
-	lastFileName =
-		lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) +
-		'.' +
-		extn;
+	setFileName(extn);
 	// detect whether the browser is IE/Edge or another browser
 	if (window.navigator && window.navigator.msSaveOrOpenBlob) {
 		// IE or Edge browser.
@@ -2339,6 +2336,31 @@ function saveStr(str, extn) {
 		a.remove();
 	}
 	statusMsg(`'${lastFileName}' saved`);
+}
+/**
+ * save the map as a PNG image file
+ */
+function exportPNGfile() {
+	setFileName('png');
+	const a = document.createElement('a');
+	document.body.appendChild(a);
+	a.setAttribute('style', 'display: none');
+	a.href = network.canvas.frame.firstChild.toDataURL('image/png');
+	a.download = lastFileName;
+	a.click();
+	a.remove();
+	statusMsg(`'${lastFileName}' saved`);
+}
+/**
+ * resets lastFileName to have supplied extension
+ * @param {string} extn filename extnsion to apply
+ */
+function setFileName(extn) {
+	let pos = lastFileName.indexOf('.');
+	lastFileName =
+		lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) +
+		'.' +
+		extn;
 }
 /**
  * Save the map as CSV files, one for nodes and one for edges
