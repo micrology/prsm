@@ -356,6 +356,24 @@ const SEA_CREATURES = Object.freeze([
 	'anemone',
 	'morel',
 	'axolotl',
+	'blobfish',
+	'tubeworm',
+	'seabream',
+	'seaweed',
+	'anchovy',
+	'cod',
+	'barramundi',
+	'carp',
+	'crayfish',
+	'haddock',
+	'hake',
+	'octopus',
+	'plaice',
+	'sardine',
+	'skate',
+	'sturgeon',
+	'swordfish',
+	'whelk'
 ]);
 
 const ADJECTIVES = Object.freeze([
@@ -398,6 +416,27 @@ const COLORS = Object.freeze([
 	'cadetblue',
 	'coral',
 	'gold',
+	'aquamarine',
+	'blueviolet',
+	'chocolate',
+	'cornflowerblue',
+	'crimson',
+	'cyan',
+	'darkorchid',
+	'darkseagreen',
+	'deepskyblue',
+	'deeppink',
+	'forestgreen',
+	'dodgerblue',
+	'greenyellow',
+	'goldenrod',
+	'indianred',
+	'lightblue',
+	'lawngreen',
+	'lightcoral',
+	'lightgreen',
+	'magenta',
+	'olive',	
 ]);
 
 const random = (items) => items[(Math.random() * items.length) | 0];
@@ -457,4 +496,18 @@ function htmlEntities(str) {
  */
 export function clearStatusBar() {
 	statusMsg(' ');
+}
+/**
+ * return the initials of the given name as a string: Nigel Gilbert -> NG
+ * @param {string} name
+ */
+export function initials(name) {
+	return name
+		.replace(/[^A-Za-z0-9À-ÿ ]/gi, '')
+		.replace(/ +/gi, ' ')
+		.match(/(^\S\S?|\b\S)?/g)
+		.join('')
+		.match(/(^\S|\S$)?/g)
+		.join('')
+		.toUpperCase();
 }

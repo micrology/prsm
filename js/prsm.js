@@ -20,7 +20,8 @@ import {
 	object_equals,
 	generateName,
 	statusMsg,
-	clearStatusBar
+	clearStatusBar,
+	initials,
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
@@ -94,7 +95,9 @@ window.addEventListener('load', () => {
 /**
  * Clean up before user departs
  */
-window.addEventListener('beforeunload', unlockAll);
+window.addEventListener('beforeunload', () => {
+	unlockAll();
+});
 
 /**
  * Set up all the permanent event listeners
@@ -150,6 +153,7 @@ function addEventListeners() {
 	listen('allFactors', 'click', selectAllFactors);
 	listen('allEdges', 'click', selectAllEdges);
 	listen('showLegendSwitch', 'click', legendSwitch);
+	listen('showCursorSwitch', 'click', showCursorSwitch);
 	listen('showHistorySwitch', 'click', showHistorySwitch);
 	listen('curveSelect', 'change', selectCurve);
 	listen('fixed', 'click', setFixed);
@@ -185,6 +189,7 @@ function setUpPage() {
 	// treat user as first time user if URL includes ?start=true
 	if (searchParams.has('start')) localStorage.setItem('doneIntro', 'false');
 	container = elem('container');
+	netPane = elem('net-pane');
 	panel = elem('panel');
 	panel.classList.add('hide');
 	container.panelHidden = true;
@@ -503,7 +508,6 @@ function displayNetPane(msg) {
 	legend(false);
 	setMapTitle(yNetMap.get('mapTitle'));
 	console.log(msg);
-	let netPane = elem('net-pane');
 	if (
 		netPane.style.visibility == 'hidden' ||
 		netPane.style.visibility == ''
@@ -573,9 +577,11 @@ function saveUserName(name) {
 	if (name.length > 0) {
 		myNameRec.name = name;
 		myNameRec.anon = false;
-	} else myNameRec = generateName();
+	} else {
+		myNameRec = generateName();
+		chatNameBox.value = myNameRec.name;
+	}
 	myNameRec.id = clientID;
-	chatNameBox.value = myNameRec.name;
 	localStorage.setItem('myName', JSON.stringify(myNameRec));
 	yAwareness.setLocalState({user: myNameRec});
 	showAvatars();
@@ -619,8 +625,15 @@ function setUpAwareness() {
 		clearTimeout(sleepTimer);
 		asleep(false);
 		sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
-//		console.log({ x: e.x, y: e.y });
-		yAwareness.setLocalStateField('cursor', { x: e.x, y: e.y });
+		// broadcast current position of mouse in canvas coordinates
+		let box = netPane.getBoundingClientRect();
+		yAwareness.setLocalStateField(
+			'cursor',
+			network.DOMtoCanvas({
+				x: e.clientX - box.left,
+				y: e.clientY - box.top,
+			})
+		);
 	});
 }
 /**
@@ -630,18 +643,30 @@ function setUpAwareness() {
 function asleep(isSleeping) {
 	if (myNameRec.asleep === isSleeping) return;
 	myNameRec.asleep = isSleeping;
-	yAwareness.setLocalState({name: myNameRec});
+	yAwareness.setLocalState({user: myNameRec});
 	showAvatars();
 }
+/**
+ * Dispaly the other users' mouse pointers (if they are inside the canvas)
+ */
 function showMice() {
-//	console.log(yAwareness.getStates());
 	let recs = Array.from(yAwareness.getStates());
+	let box = netPane.getBoundingClientRect();
 	recs.forEach(([key, value]) => {
 		if (key != clientID && value.cursor) {
 			let cursorDiv = elem(key.toString());
-			cursorDiv.style.top = `${value.cursor.y}px`;
-			cursorDiv.style.left = `${value.cursor.x}px`;
-			cursorDiv.style.display = 'block';
+			let p = network.canvasToDOM(value.cursor);
+			p.x += box.left;
+			p.y += box.top;
+			cursorDiv.style.top = `${p.y}px`;
+			cursorDiv.style.left = `${p.x}px`;
+			cursorDiv.style.display =
+				p.x < box.left ||
+				p.x > box.right ||
+				p.y > box.bottom ||
+				p.y < box.top
+					? 'none'
+					: 'block';
 		}
 	});
 }
@@ -656,7 +681,6 @@ function draw() {
 	let nNodes = url.searchParams.get('t');
 	if (nNodes) getRandomData(nNodes);
 	// create a network
-	netPane = elem('net-pane');
 	var options = {
 		edges: {
 			smooth: {
@@ -828,7 +852,7 @@ function draw() {
 				data.nodes.update(node, 'dontBroadcast');
 			}
 		});
-				// if control key is down, start linking to another node
+		// if control key is down, start linking to another node
 		if (params.event.pointers[0].ctrlKey) {
 			// start linking from this node, but only if only one node is selected, else source node is not clear
 			if (selectedNodes.length == 1) {
@@ -836,8 +860,8 @@ function draw() {
 				plusLink();
 			}
 		} else {
-		showSelected();
-		showNodeOrEdgeData();
+			showSelected();
+			showNodeOrEdgeData();
 		}
 	});
 	network.on('deselectNode', function () {
@@ -1024,7 +1048,8 @@ function drawBadges(ctx) {
 		});
 	let changedEdges = [];
 	data.edges.get().forEach((edge) => {
-		if (!edge.hidden &&
+		if (
+			!edge.hidden &&
 			edge.note &&
 			edge.note != 'Notes' &&
 			edge.arrows &&
@@ -1457,7 +1482,6 @@ function unlockAll() {
 	data.edges.forEach((edge) => {
 		if (edge.locked) cancelEdit(deepCopy(edge));
 	});
-	removeEventListener('beforeunload', unlockAll);
 }
 /**
  * save the edge format details that have been edited
@@ -3349,10 +3373,11 @@ function historyClose() {
 
 dragElement(elem('history-window'), elem('history-header'));
 window.showHistory = showHistory;
-/* --------------------------------------- avatars --------------------------------*/
+/* --------------------------------------- avatars and shared cursors--------------------------------*/
 
 /**
  * Place a circle at the top left of the net pane to represent each user who is online
+ * Also create a cursor (a div) for each of the users
  */
 
 function showAvatars() {
@@ -3366,59 +3391,71 @@ function showAvatars() {
 		.map(([key, value]) => {
 			if (value.user) return value.user;
 		})
-		.filter(e => e) // remobved any recs without a user record
+		.filter((e) => e) // remove any recs without a user record
 		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates
 		.sort((a, b) => (a.name > b.name ? 1 : -1)); // sort names
 	names.unshift(me[0][1].user); // push myself on to the front
 
 	let avatars = elem('avatars');
-	while (avatars.firstChild) {
-		avatars.removeChild(avatars.firstChild);
-	}
+	let currentAvatars = [];
 
 	names.forEach((nameRec) => {
-		let ava = document.createElement('div');
-		ava.classList.add('hoverme');
-		ava.dataset.tooltip = nameRec.name;
-		let circle = document.createElement('div');
-		circle.classList.add('round');
-		circle.style.backgroundColor = nameRec.color;
-		if (nameRec.anon) circle.style.borderColor = 'white';
-		circle.innerText = initials(nameRec.name);
-		circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
-		ava.appendChild(circle);
-		avatars.appendChild(ava);
+		let ava = elem('ava' + nameRec.id);
+		let shortName = initials(nameRec.name);
+		if (ava == null) {
+			ava = document.createElement('div');
+			ava.classList.add('hoverme');
+			ava.id = 'ava' + nameRec.id;
+			ava.dataset.tooltip = nameRec.name;
+			let circle = document.createElement('div');
+			circle.classList.add('round');
+			circle.style.backgroundColor = nameRec.color;
+			if (nameRec.anon) circle.style.borderColor = 'white';
+			circle.innerText = shortName;
+			circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
+			ava.appendChild(circle);
+			avatars.appendChild(ava);
+		} else {
+			ava.dataset.tooltip = nameRec.name;
+			let circle = ava.firstChild;
+			circle.style.backgroundColor = nameRec.color;
+			if (nameRec.anon) circle.style.borderColor = 'white';
+			circle.innerText = shortName;
+			circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
+		}
+		currentAvatars.push(ava);
 
-		if (elem(nameRec.id) == null) {
-			let cursor = document.createElement('div');
-			cursor.className = 'shared-cursor';
-			cursor.id = nameRec.id;
-			cursor.style.backgroundColor = nameRec.color;
-			cursor.innerText = initials(nameRec.name);
-			cursor.style.display = 'none';
-			container.appendChild(cursor);
+		if (nameRec.id != clientID) {
+			// don't create a cursor for myself
+			let cursorDiv = elem(nameRec.id);
+			if (cursorDiv == null) {
+				cursorDiv = document.createElement('div');
+				cursorDiv.className = 'shared-cursor';
+				cursorDiv.id = nameRec.id;
+				cursorDiv.style.backgroundColor = nameRec.color;
+				cursorDiv.innerText = shortName;
+				cursorDiv.style.display = 'none';
+				container.appendChild(cursorDiv);
+			} else {
+				if (nameRec.asleep) cursorDiv.style.display = 'none';
+				if (cursorDiv.innerText != shortName)
+					cursorDiv.innerText = shortName;
+			}
 		}
 	});
-}
-/**
- * return the initials of the given name as a string: Nigel Gilbert -> NG
- * @param {string} name
- */
-function initials(name) {
-	return name
-		.replace(/[^A-Za-z0-9À-ÿ ]/gi, '')
-		.replace(/ +/gi, ' ')
-		.match(/(^\S\S?|\b\S)?/g)
-		.join('')
-		.match(/(^\S|\S$)?/g)
-		.join('')
-		.toUpperCase();
+	// delete any avatars that remain from before
+	let avatarsToDelete = Array.from(avatars.children).filter(
+		(a) => !currentAvatars.includes(a)
+	);
+	avatarsToDelete.forEach((e) => e.remove());
 }
 
-/* --------------------------------- shared cursors ----------------------------- */
-
-
-
+function showCursorSwitch() {
+	let on = elem('showCursorSwitch').checked;
+	document.querySelectorAll('div.shared-cursor').forEach((node) => {
+		node.style.display = on ? 'block' : 'none';
+	});
+}
 /* --------------------------------- Merge maps ----------------------------- */
 /* to get the data in, open inspect windows for both maps.  in one window, eval data.nodes.get() and copy the result (not including any initial and trailing quote marks).
 In the other window. evaluate n = <pasted list>.  Repeat for data.edges.get() and e = <pasted list>.  Then evaluate mergeMaps(n, e) in the other window.

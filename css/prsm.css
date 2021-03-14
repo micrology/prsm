@@ -1595,6 +1595,7 @@ div.resize {
 	border-radius: 10px;
 	padding: 5px;
 	text-align: center;
+	font-size: 10px;
 	border: 1px solid black;
 	z-index: 6000;
 }
