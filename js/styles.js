@@ -507,7 +507,7 @@ const HALFLEGENDWIDTH = 50;
  * display a legend on the map (but only if the styles have been given names)
  * @param {Boolean} warn true if user is switching display legend on, but there is nothing to show
  */
-export function legend(warn = true) {
+export function legend(warn = false) {
 	clearLegend();
 
 	let sampleNodeDivs = document.getElementsByClassName('sampleNode');

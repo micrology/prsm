@@ -411,11 +411,7 @@ function startY() {
 	*/
 	yNetMap.observe((event) => {
 		yjsTrace('YNetMap.observe', event);
-		if (
-			event.transaction.local === false ||
-			(event.transaction.origin &&
-				event.transaction.origin.constructor.name == 'UndoManager')
-		) {
+		
 			for (let key of event.keysChanged) {
 				let obj = yNetMap.get(key);
 				switch (key) {
@@ -432,7 +428,7 @@ function startY() {
 						setBackground(obj);
 						break;
 					case 'legend':
-						setLegend(obj);
+						setLegend(obj, false);
 						break;
 					case 'hideAndStream':
 						setHideAndStream(obj);
@@ -445,7 +441,7 @@ function startY() {
 						console.log('Bad key in yMapNet.observe: ', key);
 				}
 			}
-		}
+		
 	});
 	yPointsArray.observe((event) => {
 		yjsTrace(
@@ -3007,7 +3003,7 @@ function selectAllEdges() {
 
 function legendSwitch(e) {
 	let on = e.target.checked;
-	setLegend(on);
+	setLegend(on, true);
 	yNetMap.set('legend', on);
 }
 function setLegend(on, warn) {
