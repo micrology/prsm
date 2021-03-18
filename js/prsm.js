@@ -179,7 +179,7 @@ function addEventListeners() {
 }
 
 /**
- * create all the DOM elemts on the web page
+ * create all the DOM elements on the web page
  */
 function setUpPage() {
 	// check options set on URL: ?debug='yjs'|'gui'&viewing&start
@@ -196,9 +196,7 @@ function setUpPage() {
 	panel.classList.add('hide');
 	container.panelHidden = true;
 	setUpSamples();
-	// divWithPlaceHolder('#node-notes');
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'));
-	// divWithPlaceHolder('#edge-notes');
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'));
 	hideNotes();
 	elem('version').innerHTML = version;
@@ -399,15 +397,15 @@ function startY() {
 		}
 	});
 	/*
-	Map control are of three kinds:
-	1. Those that affect only the local map and are not pomulgated to other users
+	Map controls (those on the Network tab) are of three kinds:
+	1. Those that affect only the local map and are not promulgated to other users
 	e.g zoom, show drawing layer, show history
-	2. Those where the contral status (e.g. wheher a switch is on or off) is promulgated,
+	2. Those where the control status (e.g. whether a switch is on or off) is promulgated,
 	but the effect of the switch is handled by yNodesMap and yEdgesMap (e.g. Show Factors
 		x links away; Size Factors to)
 	3. Those whose effects are promulgated and switches controlled here by yNetMap (e.g
 		Background)
-	For cases 2 and 3, the functiosn called here must not invoke yNetMap.set() to avoid looops
+	For cases 2 and 3, the functions called here must not invoke yNetMap.set() to avoid looops
 	*/
 	yNetMap.observe((event) => {
 		yjsTrace('YNetMap.observe', event);
