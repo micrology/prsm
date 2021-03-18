@@ -373,7 +373,7 @@ const SEA_CREATURES = Object.freeze([
 	'skate',
 	'sturgeon',
 	'swordfish',
-	'whelk'
+	'whelk',
 ]);
 
 const ADJECTIVES = Object.freeze([
@@ -436,7 +436,7 @@ const COLORS = Object.freeze([
 	'lightcoral',
 	'lightgreen',
 	'magenta',
-	'olive',	
+	'olive',
 ]);
 
 const random = (items) => items[(Math.random() * items.length) | 0];
@@ -457,7 +457,7 @@ export function generateName() {
 	};
 }
 /*----------- Status messages ---------------------------------------
-*/
+ */
 /**
  * show status messages at the bottom of the window
  * @param {string} msg

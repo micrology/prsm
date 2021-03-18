@@ -9,7 +9,7 @@ import {
 	standardize_color,
 	dragElement,
 	statusMsg,
-	clearStatusBar
+	clearStatusBar,
 } from './utils.js';
 import {updateLastSamples} from './prsm.js';
 import {styles} from './samples.js';
@@ -622,7 +622,7 @@ export function clearLegend() {
 function updateLegend() {
 	if (document.getElementById('showLegendSwitch').checked) {
 		legend(false);
-		clearStatusBar()
+		clearStatusBar();
 	}
 }
 // to aid debugging
