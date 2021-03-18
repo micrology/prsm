@@ -377,11 +377,13 @@ function startY() {
 		let edgesToUpdate = [];
 		for (let key of event.keysChanged) {
 			let sample = ySamplesMap.get(key);
-			if (event.transaction.local === false) {
-				if (sample.node !== undefined) {
+			if (sample.node !== undefined) {
+				if (!object_equals(styles.nodes[key], sample.node)) {
 					styles.nodes[key] = sample.node;
 					nodesToUpdate.push(key);
-				} else {
+				}
+			} else {
+				if (!object_equals(styles.edges[key], sample.edge)) {
 					styles.edges[key] = sample.edge;
 					edgesToUpdate.push(key);
 				}
