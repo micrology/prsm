@@ -411,37 +411,36 @@ function startY() {
 	*/
 	yNetMap.observe((event) => {
 		yjsTrace('YNetMap.observe', event);
-		
-			for (let key of event.keysChanged) {
-				let obj = yNetMap.get(key);
-				switch (key) {
-					case 'mapTitle':
-						setMapTitle(obj);
-						break;
-					case 'snapToGrid':
-						doSnapToGrid(obj);
-						break;
-					case 'curve':
-						setCurve(obj);
-						break;
-					case 'background':
-						setBackground(obj);
-						break;
-					case 'legend':
-						setLegend(obj, false);
-						break;
-					case 'hideAndStream':
-						setHideAndStream(obj);
-						hideDistantOrStreamNodes(false);
-						break;
-					case 'sizing':
-						sizing(obj);
-						break;
-					default:
-						console.log('Bad key in yMapNet.observe: ', key);
-				}
+
+		for (let key of event.keysChanged) {
+			let obj = yNetMap.get(key);
+			switch (key) {
+				case 'mapTitle':
+					setMapTitle(obj);
+					break;
+				case 'snapToGrid':
+					doSnapToGrid(obj);
+					break;
+				case 'curve':
+					setCurve(obj);
+					break;
+				case 'background':
+					setBackground(obj);
+					break;
+				case 'legend':
+					setLegend(obj, false);
+					break;
+				case 'hideAndStream':
+					setHideAndStream(obj);
+					hideDistantOrStreamNodes(false);
+					break;
+				case 'sizing':
+					sizing(obj);
+					break;
+				default:
+					console.log('Bad key in yMapNet.observe: ', key);
 			}
-		
+		}
 	});
 	yPointsArray.observe((event) => {
 		yjsTrace(
@@ -503,7 +502,6 @@ function getRandomData(nNodes) {
  */
 function displayNetPane(msg) {
 	fit(0);
-	legend(false);
 	setMapTitle(yNetMap.get('mapTitle'));
 	console.log(msg);
 	if (
@@ -1971,7 +1969,6 @@ function loadFile(contents) {
 	});
 	data.edges.update(edgesToUpdate);
 
-	legend(false);
 	network.fit(0);
 	yUndoManager.clear();
 	undoRedoButtonStatus();
@@ -2699,13 +2696,12 @@ function getButtonStatus() {
  * @param {Object} settings
  */
 function setButtonStatus(settings) {
-	doSnapToGrid(settings.snapToGrid);
-	setCurve(settings.curve);
-	setBackground(settings.background || '#ffffff');
-	setLegend(settings.legend, false);
-	setRadioVal('hide', 'All');
-	setRadioVal('stream', 'All');
-	elem('sizing').value = settings.sizing;
+	yNetMap.set('snapToGrid', settings.snapToGrid);
+	yNetMap.set('curve', settings.curve);
+	yNetMap.set('background', settings.background || '#ffffff');
+	yNetMap.set('legend', settings.legend);
+	yNetMap.set('stream', settings.stream);
+	yNetMap.set('sizing', settings.sizing);
 }
 // Factors and Links Tabs
 function applySampleToNode() {
