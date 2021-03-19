@@ -151,7 +151,7 @@ export function deepCopy(obj) {
 		}, {});
 	}
 }
-
+window.deepCopy = deepCopy;
 /**
  * compare two objects for deep equality
  * fast but doesn't cater for obscure cases
@@ -168,9 +168,9 @@ export function object_equals(x, y) {
 
 	if (x.constructor !== y.constructor) return false;
 	// they must have the exact same prototype chain, the closest we can do is
-	// test there constructor.
+	// test their constructor.
 
-	for (var p in x) {
+	for (let p in x) {
 		if (!Object.prototype.hasOwnProperty.call(x, p)) continue;
 		// other properties were tested using x.constructor === y.constructor
 
@@ -187,7 +187,7 @@ export function object_equals(x, y) {
 		// Objects and Arrays must be tested recursively
 	}
 
-	for (p in y)
+	for (let p in y)
 		if (
 			Object.prototype.hasOwnProperty.call(y, p) &&
 			!Object.prototype.hasOwnProperty.call(x, p)
@@ -273,8 +273,8 @@ Set.prototype.intersection = function (otherSet) {
  * @param {HTMLelement} header
  */
 export function dragElement(elem, header) {
-	header.addEventListener('mouseenter', () =>  header.style.cursor = "move");
-	header.addEventListener('mouseout', () =>  header.style.cursor = "auto");
+	header.addEventListener('mouseenter', () => (header.style.cursor = 'move'));
+	header.addEventListener('mouseout', () => (header.style.cursor = 'auto'));
 
 	let mc = new Hammer.Manager(header, {
 		recognizers: [
@@ -356,6 +356,24 @@ const SEA_CREATURES = Object.freeze([
 	'anemone',
 	'morel',
 	'axolotl',
+	'blobfish',
+	'tubeworm',
+	'seabream',
+	'seaweed',
+	'anchovy',
+	'cod',
+	'barramundi',
+	'carp',
+	'crayfish',
+	'haddock',
+	'hake',
+	'octopus',
+	'plaice',
+	'sardine',
+	'skate',
+	'sturgeon',
+	'swordfish',
+	'whelk',
 ]);
 
 const ADJECTIVES = Object.freeze([
@@ -398,6 +416,27 @@ const COLORS = Object.freeze([
 	'cadetblue',
 	'coral',
 	'gold',
+	'aquamarine',
+	'blueviolet',
+	'chocolate',
+	'cornflowerblue',
+	'crimson',
+	'cyan',
+	'darkorchid',
+	'darkseagreen',
+	'deepskyblue',
+	'deeppink',
+	'forestgreen',
+	'dodgerblue',
+	'greenyellow',
+	'goldenrod',
+	'indianred',
+	'lightblue',
+	'lawngreen',
+	'lightcoral',
+	'lightgreen',
+	'magenta',
+	'olive',
 ]);
 
 const random = (items) => items[(Math.random() * items.length) | 0];
@@ -417,22 +456,58 @@ export function generateName() {
 		asleep: false,
 	};
 }
-/**
- * Set up a contenteditable <div> to have a placeholder that disappears when text is written into it
- * @param {CSSselector} selector
+/*----------- Status messages ---------------------------------------
  */
-export function divWithPlaceHolder(selector) {
-	const editable = document.querySelector(selector);
-	const placeholder = `<span class="placeholder">${editable.dataset.placeholder}</span>`;
-	// add placeholder on load
-	editable.innerHTML = placeholder;
-	editable.addEventListener('keyup', () => {
-		if (editable.innerText.length == 0) editable.innerHTML = placeholder;
-	});
-	editable.addEventListener('keydown', () => {
-		if (editable.innerHTML == placeholder) editable.innerHTML = '';
-	});
-	editable.addEventListener('focus', () => {
-		if (editable.innerText.length == 0) editable.innerHTML = placeholder;
-	});
+/**
+ * show status messages at the bottom of the window
+ * @param {string} msg
+ * @param {string} status type of msg - warning, error or other
+ */
+export function statusMsg(msg, status) {
+	let el = elem('statusBar');
+	switch (status) {
+		case 'warn':
+			el.style.backgroundColor = 'yellow';
+			break;
+		case 'error':
+			el.style.backgroundColor = 'red';
+			el.style.color = 'white';
+			break;
+		default:
+			el.style.backgroundColor = 'white';
+			break;
+	}
+	el.innerHTML = htmlEntities(msg);
+}
+/**
+ * replace special characters with their HTML entity codes
+ * @param {string} str
+ */
+function htmlEntities(str) {
+	return String(str)
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&quot;');
+}
+/**
+ * remove any previous message from the status bar
+ */
+export function clearStatusBar() {
+	statusMsg(' ');
+}
+/**
+ * return the initials of the given name as a string: Nigel Gilbert -> NG
+ * @param {string} name
+ */
+export function initials(name) {
+	return name
+		.replace(/[^A-Za-z0-9À-ÿ ]/gi, '')
+		.replace(/ +/gi, ' ')
+		.match(/(^\S\S?|\b\S)?/g)
+		.join('')
+		.match(/(^\S|\S$)?/g)
+		.join('')
+		.toUpperCase();
 }

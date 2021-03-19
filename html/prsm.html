@@ -29,20 +29,30 @@
 					format('woff2');
 				font-weight: normal;
 				font-style: normal;
+				font-display: swap;
 			}
 			@font-face {
 				font-family: 'Oxygen';
 				src: url('../fonts/oxygen-bold-webfont.woff2') format('woff2');
 				font-weight: 700;
 				font-style: normal;
+				font-display: swap;
 			}
 		</style>
-		<link href="../css/prsm.css" rel="stylesheet" />
 		<script
-			src="https://kit.fontawesome.com/dcbad58dab.js"
-			crossorigin="anonymous"
+			defer
+			src="../node_modules/@fortawesome/fontawesome-free/js/solid.js"
+		></script>
+		<script
+			defer
+			src="../node_modules/@fortawesome/fontawesome-free/js/fontawesome.js"
 		></script>
 		<link href="../css/vis-network.min.css" rel="stylesheet" />
+		<link
+			href="../node_modules/quill/dist/quill.bubble.css"
+			rel="stylesheet"
+		/>
+		<link href="../css/prsm.css" rel="stylesheet" />
 		<script>
 			/*
 			 * reject Internet Explorer and Legacy Edge (the latter doesn't support the destructuring operator)
@@ -64,7 +74,7 @@
 				<div>
 					<div class="strapline">
 						Participatory System Mapper<span id="version"
-							>1.4.0</span
+							>1.6.0</span
 						>
 					</div>
 					<div
@@ -160,6 +170,12 @@
 									>
 								</div>
 								<div class="tooltip">
+									<button id="exportImage">Image</button>
+									<span class="tooltiptext"
+										>Save as a PNG image file</span
+									>
+								</div>
+								<div class="tooltip">
 									<button id="exportCVS">CSV</button>
 									<span class="tooltiptext"
 										>Save as CSV files</span
@@ -175,8 +191,21 @@
 						</div>
 						<div
 							class="tooltip left-border"
-							data-tutorial="Clicking here opens a new window with more help"
+							data-tutorial="Search for factors"
 							data-step="6"
+							data-position="left"
+						>
+							<button id="search">
+								<i class="fas fa-search"></i>
+							</button>
+							<span class="tooltiptext searchtip"
+								>Search for factors by name</span
+							>
+						</div>
+						<div
+							class="tooltip"
+							data-tutorial="Clicking here opens a new window with more help"
+							data-step="7"
 							data-position="left"
 						>
 							<button id="help">
@@ -189,7 +218,7 @@
 						<div
 							class="tooltip"
 							data-tutorial="Clicking here shows more options"
-							data-step="7"
+							data-step="8"
 							data-position="left"
 						>
 							<button id="panelToggle">
@@ -202,8 +231,15 @@
 					</div>
 				</div>
 			</nav>
+			<input class="search-bar" id="search-bar" placeholder="Search..." />
+			<span
+				class="search-icon fas fa-search"
+				style="display: none"
+				id="search-icon"
+			></span>
+			<div id="suggestion-list"></div>
 		</header>
-		<main id="main">
+		<main id="main" tabindex="0">
 			<div class="avatars" id="avatars"></div>
 			<div id="popup">
 				<div id="popup-top">
@@ -233,7 +269,7 @@
 				data-tutorial="
 			<b>That's the end of the tour.</b><p>Press <b>Done</b> and then click <br>
 				on the <b>+</b> button above to add your first factor.</p>"
-				data-step="11"
+				data-step="12"
 				data-position="splash"
 			>
 				<canvas class="drawing-canvas" id="temp-canvas"></canvas>
@@ -333,6 +369,25 @@
 							</div>
 						</div>
 						<div class="panelRow">
+							<div>Show legend</div>
+							<div class="onoffswitch">
+								<input
+									type="checkbox"
+									name="onoffswitch"
+									class="onoffswitch-checkbox"
+									id="showLegendSwitch"
+									checked
+								/>
+								<label
+									class="onoffswitch-label"
+									for="showLegendSwitch"
+								>
+									<span class="onoffswitch-inner"></span>
+									<span class="onoffswitch-switch"></span>
+								</label>
+							</div>
+						</div>
+						<div class="panelRow">
 							<div>Show drawing layer</div>
 							<div class="onoffswitch">
 								<input
@@ -348,18 +403,36 @@
 							</div>
 						</div>
 						<div class="panelRow">
-							<div>Show legend</div>
+							<div>Show cursors</div>
 							<div class="onoffswitch">
 								<input
 									type="checkbox"
 									name="onoffswitch"
 									class="onoffswitch-checkbox"
-									id="showLegendSwitch"
+									id="showCursorSwitch"
 									checked
 								/>
 								<label
 									class="onoffswitch-label"
-									for="showLegendSwitch"
+									for="showCursorSwitch"
+								>
+									<span class="onoffswitch-inner"></span>
+									<span class="onoffswitch-switch"></span>
+								</label>
+							</div>
+						</div>
+						<div class="panelRow">
+							<div>Show history</div>
+							<div class="onoffswitch">
+								<input
+									type="checkbox"
+									name="onoffswitch"
+									class="onoffswitch-checkbox"
+									id="showHistorySwitch"
+								/>
+								<label
+									class="onoffswitch-label"
+									for="showHistorySwitch"
 								>
 									<span class="onoffswitch-inner"></span>
 									<span class="onoffswitch-switch"></span>
@@ -479,32 +552,6 @@
 					</div>
 				</div>
 			</div>
-			<div class="itemData" id="nodeDataPanel">
-				<div class="panelRow">
-					<div>
-						<span class="nodeLabel" id="nodeLabel"></span>
-					</div>
-					<div>
-						<span id="fixed"><i class="fas fa-lock-open"></i></span>
-					</div>
-				</div>
-				<div class="panelRow">
-					<div>Leverage</div>
-					<div id="leverage"></div>
-				</div>
-				<div class="panelRow">
-					<div>Betweenness centrality</div>
-					<div id="bc"></div>
-				</div>
-				<div class="panelRow">
-					<div
-						contenteditable="true"
-						class="notes"
-						id="node-notes"
-						data-placeholder="Notes"
-					></div>
-				</div>
-			</div>
 
 			<!-- Links Tab -->
 			<div class="tabcontent hide" id="linksTab">
@@ -527,23 +574,58 @@
 					</div>
 				</div>
 			</div>
-			<div class="itemData" id="edgeDataPanel">
-				<div class="panelRow">
-					<span class="edgeLabel" id="edgeLabel"></span>
+		</aside>
+		<!-- Notes panels -->
+		<div class="itemData hide" id="nodeDataPanel">
+			<div class="row" id="nodeDataHeader">
+				<div>
+					<span class="nodeLabel" id="nodeLabel"></span>
 				</div>
-				<div class="panelRow">
-					<div
-						contenteditable="true"
-						class="notes"
-						id="edge-notes"
-						data-placeholder="Notes"
-					></div>
+				<div>
+					<span id="fixed"><i class="fas fa-lock-open"></i></span>
 				</div>
 			</div>
-		</aside>
+			<div class="row">
+				<div>Leverage</div>
+				<div id="leverage"></div>
+			</div>
+			<div class="row">
+				<div>Betweenness centrality</div>
+				<div id="bc"></div>
+			</div>
+			<div class="row divider" id="nodeCreation">
+				<div>Created:</div>
+				<div id="nodeCreated"></div>
+			</div>
+			<div class="row" id="nodeModification">
+				<div>Modified:</div>
+				<div id="nodeModified"></div>
+			</div>
+			<div class="row">
+				<div class="notes" id="node-notes"></div>
+			</div>
+		</div>
+		<div class="itemData hide" id="edgeDataPanel">
+			<div class="row" id="edgeDataHeader">
+				<div>
+					<span class="edgeLabel" id="edgeLabel"></span>
+				</div>
+			</div>
+			<div class="row divider" id="edgeCreation">
+				<div>Created:</div>
+				<div id="edgeCreated"></div>
+			</div>
+			<div class="row" id="edgeModification">
+				<div>Modified:</div>
+				<div id="edgeModified"></div>
+			</div>
+			<div class="row">
+				<div class="notes" id="edge-notes"></div>
+			</div>
+		</div>
 		<footer
 			data-tutorial="Hints and messages appear here"
-			data-step="8"
+			data-step="9"
 			data-position="above"
 		>
 			<div id="statusBar">
@@ -552,7 +634,7 @@
 			<div
 				id="zoomcontrol"
 				data-tutorial="Zoom in for detail or out for an overview"
-				data-step="9"
+				data-step="10"
 				data-position="left-bottom"
 			>
 				Zoom <span id="zoomminus">&ndash;</span>
@@ -682,8 +764,8 @@
 				<div>
 					<select name="linkEditArrows" id="linkEditArrows">
 						<option value="to">Arrows...</option>
-						<option value="to">End</option>
-						<option value="middle">Middle</option>
+						<option value="sharp">Sharp</option>
+						<option value="circle">Circle</option>
 						<option value="none">None</option>
 					</select>
 				</div>
@@ -747,7 +829,7 @@
 			class="chatbox-tab"
 			id="chatbox-tab"
 			data-tutorial="Clicking here opens a chat window.  (If  it is pulsating, that means there is a message waiting for you)."
-			data-step="10"
+			data-step="11"
 			data-position="left-middle"
 		>
 			<div class="tooltip">
@@ -773,7 +855,7 @@
 					</div>
 					<div class="chatbox-icons">
 						<div class="tooltip">
-							<span id="minimize"
+							<span class="chatbox-close" id="minimize"
 								><i class="fas fa-times"></i
 							></span>
 							<span
@@ -805,6 +887,21 @@
 				</div>
 			</div>
 		</div>
+		<div class="history-window" id="history-window">
+			<div class="history-header" id="history-header">
+				Log<span class="history-close" id="history-close"
+					><i class="fas fa-times"></i
+				></span>
+			</div>
+			<div class="history-log" id="history-log"></div>
+		</div>
+		<img
+			id="badge"
+			style="display: none"
+			src="../img/Letter-Open-icon.png"
+			width="24"
+			height="24"
+		/>
 		<script src="../js/prsm.js"></script>
 	</body>
 </html>

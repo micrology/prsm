@@ -8,8 +8,10 @@ import {
 	deepCopy,
 	standardize_color,
 	dragElement,
+	statusMsg,
+	clearStatusBar,
 } from './utils.js';
-import {statusMsg, updateLastSamples} from './prsm.js';
+import {updateLastSamples} from './prsm.js';
 import {styles} from './samples.js';
 
 const NODESTYLEWIDTH = 10; // chars for label splitting
@@ -222,7 +224,7 @@ function nodeEditSave() {
 	group.shape = elem('nodeEditShape').value;
 	let border = elem('nodeEditBorder').value;
 	group.shapeProperties.borderDashes = groupDashes(border);
-	group.borderWidth = border == 'none' ? 0 : 1;
+	group.borderWidth = border == 'none' ? 0 : 4;
 	group.font.size = parseInt(elem('nodeEditFontSize').value);
 	nodeEditUpdateStyleSample(group);
 }
@@ -364,11 +366,13 @@ function linkEditSave() {
 			switch (val) {
 				case 'none':
 					break;
-				case 'middle':
-					group.arrows.middle.enabled = true;
+				case 'circle':
+					group.arrows.to.enabled = true;
+					group.arrows.to.type = 'circle';
 					break;
 				default:
 					group.arrows.to.enabled = true;
+					group.arrows.to.type = 'vee';
 					break;
 			}
 		}
@@ -477,7 +481,7 @@ function groupDashes(val) {
 		case 'none': //solid, zero width
 			return false;
 		case 'dots':
-			return [3, 3];
+			return [2, 8];
 		default:
 			return false;
 	}
@@ -488,7 +492,7 @@ function groupDashes(val) {
  */
 function getArrows(prop) {
 	let val = 'none';
-	if (prop.middle && prop.middle.enabled) val = 'middle';
+	if (prop.to && prop.to.enabled && prop.to.type == 'circle') val = 'circle';
 	else if (prop.to && prop.to.enabled) val = 'to';
 	return val;
 }
@@ -503,7 +507,7 @@ const HALFLEGENDWIDTH = 50;
  * display a legend on the map (but only if the styles have been given names)
  * @param {Boolean} warn true if user is switching display legend on, but there is nothing to show
  */
-export function legend(warn = true) {
+export function legend(warn = false) {
 	clearLegend();
 
 	let sampleNodeDivs = document.getElementsByClassName('sampleNode');
@@ -616,7 +620,10 @@ export function clearLegend() {
  * redraw the legend (to show updated styles)
  */
 function updateLegend() {
-	if (document.getElementById('showLegendSwitch').checked) legend(false);
+	if (document.getElementById('showLegendSwitch').checked) {
+		legend(false);
+		clearStatusBar();
+	}
 }
 // to aid debugging
 window.legend = legend;

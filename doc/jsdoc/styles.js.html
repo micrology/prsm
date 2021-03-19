@@ -40,7 +40,7 @@ import {
 	standardize_color,
 	dragElement,
 } from './utils.js';
-import {statusMsg} from './prsm.js';
+import {statusMsg, updateLastSamples} from './prsm.js';
 import {styles} from './samples.js';
 
 const NODESTYLEWIDTH = 10; // chars for label splitting
@@ -76,6 +76,9 @@ export function setUpSamples() {
 		});
 		sampleElement.addEventListener('dblclick', () => {
 			editNodeStyle(sampleElement, groupId);
+		});
+		sampleElement.addEventListener('click', () => {
+			updateLastSamples(groupId, null);
 		});
 		sampleElement.groupNode = groupId;
 		sampleElement.dataSet = nodeDataSet;
@@ -121,6 +124,9 @@ export function setUpSamples() {
 		});
 		sampleElement.addEventListener('dblclick', () => {
 			editLinkStyle(sampleElement, groupId);
+		});
+		sampleElement.addEventListener('click', () => {
+			updateLastSamples(null, groupId);
 		});
 		sampleElement.groupLink = groupId;
 		sampleElement.dataSet = edgeDataSet;
@@ -247,7 +253,7 @@ function nodeEditSave() {
 	group.shape = elem('nodeEditShape').value;
 	let border = elem('nodeEditBorder').value;
 	group.shapeProperties.borderDashes = groupDashes(border);
-	group.borderWidth = border == 'none' ? 0 : 1;
+	group.borderWidth = border == 'none' ? 0 : 4;
 	group.font.size = parseInt(elem('nodeEditFontSize').value);
 	nodeEditUpdateStyleSample(group);
 }
@@ -299,7 +305,7 @@ function nodeEditSubmit() {
 	nodeEditorHide();
 	// apply updated style to all nodes having that style
 	let groupId = elem('nodeStyleEditorContainer').groupId;
-	reApplySampleToNodes([groupId]);
+	reApplySampleToNodes([groupId], true);
 	window.ySamplesMap.set(groupId, {
 		node: styles.nodes[groupId],
 		clientID: window.clientId,
@@ -310,15 +316,20 @@ function nodeEditSubmit() {
 /**
  * update all nodes in the map with this style to the current style features
  * @param {IntegerArray} groupIds
+ * @param {Boolean} force override any existing individual node styling
  */
-export function reApplySampleToNodes(groupIds) {
+export function reApplySampleToNodes(groupIds, force) {
 	let nodesToUpdate = window.data.nodes.get({
 		filter: (item) => {
 			return groupIds.includes(item.grp);
 		},
 	});
 	window.data.nodes.update(
-		nodesToUpdate.map((node) => deepMerge(node, styles.nodes[node.grp]))
+		nodesToUpdate.map((node) => {
+			return force
+				? deepMerge(node, styles.nodes[node.grp])
+				: deepMerge(styles.nodes[node.grp], node);
+		})
 	);
 }
 
@@ -384,11 +395,13 @@ function linkEditSave() {
 			switch (val) {
 				case 'none':
 					break;
-				case 'middle':
-					group.arrows.middle.enabled = true;
+				case 'circle':
+					group.arrows.to.enabled = true;
+					group.arrows.to.type = 'circle';
 					break;
 				default:
 					group.arrows.to.enabled = true;
+					group.arrows.to.type = 'vee';
 					break;
 			}
 		}
@@ -442,7 +455,7 @@ function linkEditSubmit() {
 	linkEditorHide();
 	// apply updated style to all edges having that style
 	let groupId = elem('linkStyleEditorContainer').groupId;
-	reApplySampleToLinks([groupId]);
+	reApplySampleToLinks([groupId], true);
 	window.ySamplesMap.set(groupId, {
 		edge: styles.edges[groupId],
 		clientID: window.clientId,
@@ -453,15 +466,20 @@ function linkEditSubmit() {
 /**
  * update all links in the map with this style to the current style features
  * @param {IntegerArray} groupIds
+ * @param {Boolean} force override any existing individual edge styling
  */
-export function reApplySampleToLinks(groupIds) {
+export function reApplySampleToLinks(groupIds, force) {
 	let edgesToUpdate = window.data.edges.get({
 		filter: (item) => {
 			return groupIds.includes(item.grp);
 		},
 	});
 	window.data.edges.update(
-		edgesToUpdate.map((edge) => deepMerge(edge, styles.edges[edge.grp]))
+		edgesToUpdate.map((edge) => {
+			return force
+				? deepMerge(edge, styles.edges[edge.grp])
+				: deepMerge(styles.edges[edge.grp], edge);
+		})
 	);
 }
 /**
@@ -492,7 +510,7 @@ function groupDashes(val) {
 		case 'none': //solid, zero width
 			return false;
 		case 'dots':
-			return [3, 3];
+			return [2, 8];
 		default:
 			return false;
 	}
@@ -503,7 +521,7 @@ function groupDashes(val) {
  */
 function getArrows(prop) {
 	let val = 'none';
-	if (prop.middle &amp;&amp; prop.middle.enabled) val = 'middle';
+	if (prop.to &amp;&amp; prop.to.enabled &amp;&amp; prop.to.type == 'circle') val = 'circle';
 	else if (prop.to &amp;&amp; prop.to.enabled) val = 'to';
 	return val;
 }
@@ -513,7 +531,7 @@ function getArrows(prop) {
 var legendData = {nodes: new DataSet(), edges: new DataSet()};
 var legendNetwork = null;
 const LEGENDSPACING = 50;
-const HALFLEGENDWIDTH = 40;
+const HALFLEGENDWIDTH = 50;
 /**
  * display a legend on the map (but only if the styles have been given names)
  * @param {Boolean} warn true if user is switching display legend on, but there is nothing to show
@@ -560,8 +578,9 @@ export function legend(warn = true) {
 
 	legendNetwork = new Network(canvas, legendData, {
 		physics: {enabled: false},
+		interaction: {zoomView: false, dragView: false},
 	});
-
+	legendNetwork.moveTo({scale: 0.8});
 	let height = LEGENDSPACING / 2;
 	for (let i = 0; i &lt; nodes.length; i++) {
 		let node = deepMerge(styles.nodes[nodes[i].groupNode]);
@@ -572,11 +591,10 @@ export function legend(warn = true) {
 		});
 		node.x = nodePos.x;
 		node.y = nodePos.y;
-		node.label = node.groupLabel;
-		if (node.label.length > 10) node.font.size = 8;
+		node.label = splitText(node.groupLabel, 12);
 		node.fixed = true;
 		node.chosen = false;
-		node.widthConstraint = {maximum: HALFLEGENDWIDTH * 2};
+		node.margin = 3;
 		legendData.nodes.update(node);
 		height += LEGENDSPACING;
 	}
@@ -615,6 +633,7 @@ export function legend(warn = true) {
 		legendData.edges.update(edge);
 		height += LEGENDSPACING;
 	}
+	legendNetwork.fit({});
 }
 /**
  * remove the legend from the map
@@ -627,7 +646,7 @@ export function clearLegend() {
 	if (legendBox) legendBox.remove();
 }
 /**
- * redraw thelegend (to show updated styles)
+ * redraw the legend (to show updated styles)
  */
 function updateLegend() {
 	if (document.getElementById('showLegendSwitch').checked) legend(false);
@@ -655,24 +674,32 @@ window.legendData = legendData;
 					>
 				</li>
 				<li><a href="global.html#addLabel">addLabel</a></li>
+				<li><a href="global.html#addVec">addVec</a></li>
 				<li><a href="global.html#antMarch">antMarch</a></li>
 				<li><a href="global.html#applyOptions">applyOptions</a></li>
 				<li><a href="global.html#asleep">asleep</a></li>
 				<li><a href="global.html#broadcast">broadcast</a></li>
+				<li><a href="global.html#cancelAdd">cancelAdd</a></li>
 				<li><a href="global.html#cancelEdit">cancelEdit</a></li>
 				<li><a href="global.html#changeCursor">changeCursor</a></li>
-				<li><a href="global.html#claim">claim</a></li>
 				<li><a href="global.html#clean">clean</a></li>
 				<li><a href="global.html#cleanArray">cleanArray</a></li>
 				<li><a href="global.html#clearLegend">clearLegend</a></li>
 				<li><a href="global.html#clearPopUp">clearPopUp</a></li>
 				<li><a href="global.html#clearStatusBar">clearStatusBar</a></li>
+				<li><a href="global.html#clone">clone</a></li>
 				<li>
 					<a href="global.html#closeOptionsDialogs"
 						>closeOptionsDialogs</a
 					>
 				</li>
 				<li><a href="global.html#configSamples">configSamples</a></li>
+				<li><a href="global.html#connected">connected</a></li>
+				<li>
+					<a href="global.html#connectedComponents"
+						>connectedComponents</a
+					>
+				</li>
 				<li><a href="global.html#convertDashes">convertDashes</a></li>
 				<li>
 					<a href="global.html#ctlClickAddNode">ctlClickAddNode</a>
@@ -680,18 +707,20 @@ window.legendData = legendData;
 				<li><a href="global.html#deepCopy">deepCopy</a></li>
 				<li><a href="global.html#deleteMsg">deleteMsg</a></li>
 				<li><a href="global.html#deselectTool">deselectTool</a></li>
+				<li><a href="global.html#diag">diag</a></li>
 				<li><a href="global.html#displayHelp">displayHelp</a></li>
 				<li><a href="global.html#displayNetPane">displayNetPane</a></li>
-				<li>
-					<a href="global.html#divWithPlaceHolder"
-						>divWithPlaceHolder</a
-					>
-				</li>
 				<li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li>
+				<li><a href="global.html#doSearch">doSearch</a></li>
 				<li><a href="global.html#dragElement">dragElement</a></li>
 				<li><a href="global.html#draw">draw</a></li>
 				<li><a href="global.html#drawGrid">drawGrid</a></li>
 				<li><a href="global.html#duplEdge">duplEdge</a></li>
+				<li>
+					<a href="global.html#edgeListToAdjMatrix"
+						>edgeListToAdjMatrix</a
+					>
+				</li>
 				<li><a href="global.html#editEdge">editEdge</a></li>
 				<li><a href="global.html#editLinkStyle">editLinkStyle</a></li>
 				<li><a href="global.html#editNode">editNode</a></li>
@@ -700,9 +729,18 @@ window.legendData = legendData;
 				<li><a href="global.html#exportCVS">exportCVS</a></li>
 				<li><a href="global.html#exportGML">exportGML</a></li>
 				<li><a href="global.html#fit">fit</a></li>
+				<li><a href="global.html#formatLogRec">formatLogRec</a></li>
 				<li><a href="global.html#generateName">generateName</a></li>
 				<li><a href="global.html#generateRoom">generateRoom</a></li>
+				<li>
+					<a href="global.html#get_trophic_levels"
+						>get_trophic_levels</a
+					>
+				</li>
 				<li><a href="global.html#getArrows">getArrows</a></li>
+				<li>
+					<a href="global.html#getButtonStatus">getButtonStatus</a>
+				</li>
 				<li><a href="global.html#getContext">getContext</a></li>
 				<li><a href="global.html#getDashes">getDashes</a></li>
 				<li><a href="global.html#getRandomData">getRandomData</a></li>
@@ -713,6 +751,8 @@ window.legendData = legendData;
 				</li>
 				<li><a href="global.html#groupDashes">groupDashes</a></li>
 				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
+				<li><a href="global.html#in_degree">in_degree</a></li>
+				<li><a href="global.html#initials">initials</a></li>
 				<li><a href="global.html#initPopUp">initPopUp</a></li>
 				<li><a href="global.html#initSample">initSample</a></li>
 				<li>
@@ -734,7 +774,10 @@ window.legendData = legendData;
 				<li><a href="global.html#listLinks">listLinks</a></li>
 				<li><a href="global.html#loadFile">loadFile</a></li>
 				<li><a href="global.html#loadJSONfile">loadJSONfile</a></li>
+				<li><a href="global.html#lockNode">lockNode</a></li>
+				<li><a href="global.html#logHistory">logHistory</a></li>
 				<li><a href="global.html#mapTitle">mapTitle</a></li>
+				<li><a href="global.html#mergeTranspose">mergeTranspose</a></li>
 				<li><a href="global.html#mouseDespatch">mouseDespatch</a></li>
 				<li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li>
 				<li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li>
@@ -746,8 +789,10 @@ window.legendData = legendData;
 						>nodeEditUpdateStyleSample</a
 					>
 				</li>
+				<li><a href="global.html#nodeList">nodeList</a></li>
 				<li><a href="global.html#object_equals">object_equals</a></li>
 				<li><a href="global.html#onexit">onexit</a></li>
+				<li><a href="global.html#out_degree">out_degree</a></li>
 				<li><a href="global.html#parseCSV">parseCSV</a></li>
 				<li><a href="global.html#parseGML">parseGML</a></li>
 				<li><a href="global.html#parseGraphML">parseGraphML</a></li>
@@ -765,6 +810,7 @@ window.legendData = legendData;
 						>reApplySampleToNodes</a
 					>
 				</li>
+				<li><a href="global.html#rebase">rebase</a></li>
 				<li>
 					<a href="global.html#recalculateStats">recalculateStats</a>
 				</li>
@@ -780,17 +826,24 @@ window.legendData = legendData;
 					>
 				</li>
 				<li><a href="global.html#resizeBox">resizeBox</a></li>
+				<li><a href="global.html#round">round</a></li>
 				<li><a href="global.html#saveEdge">saveEdge</a></li>
 				<li><a href="global.html#saveJSONfile">saveJSONfile</a></li>
 				<li><a href="global.html#saveLabel">saveLabel</a></li>
 				<li><a href="global.html#saveNode">saveNode</a></li>
 				<li><a href="global.html#saveStr">saveStr</a></li>
+				<li><a href="global.html#search">search</a></li>
+				<li><a href="global.html#searchTargets">searchTargets</a></li>
 				<li><a href="global.html#selectTool">selectTool</a></li>
 				<li>
 					<a href="global.html#setButtonDisabledStatus"
 						>setButtonDisabledStatus</a
 					>
 				</li>
+				<li>
+					<a href="global.html#setButtonStatus">setButtonStatus</a>
+				</li>
+				<li><a href="global.html#setFixed">setFixed</a></li>
 				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
 				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
 				<li><a href="global.html#setUpCanvas">setUpCanvas</a></li>
@@ -804,16 +857,20 @@ window.legendData = legendData;
 				<li><a href="global.html#setUpToolbox">setUpToolbox</a></li>
 				<li><a href="global.html#setUpTutorial">setUpTutorial</a></li>
 				<li><a href="global.html#shorten">shorten</a></li>
-				<li><a href="global.html#showOtherUsers">showOtherUsers</a></li>
-				<li><a href="global.html#showPressed">showPressed</a></li>
-				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
-				<li><a href="global.html#splitText">splitText</a></li>
-				<li><a href="global.html#squashInput">squashInput</a></li>
+				<li><a href="global.html#showAvatars">showAvatars</a></li>
+				<li><a href="global.html#showHistory">showHistory</a></li>
+				<li><a href="global.html#showNodeData">showNodeData</a></li>
 				<li>
-					<a href="global.html#squashInputOnKeyUp"
-						>squashInputOnKeyUp</a
+					<a href="global.html#showNodeOrEdgeData"
+						>showNodeOrEdgeData</a
 					>
 				</li>
+				<li><a href="global.html#showPressed">showPressed</a></li>
+				<li><a href="global.html#showSelected">showSelected</a></li>
+				<li><a href="global.html#sizing">sizing</a></li>
+				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
+				<li><a href="global.html#solve">solve</a></li>
+				<li><a href="global.html#splitText">splitText</a></li>
 				<li>
 					<a href="global.html#standardize_color"
 						>standardize_color</a
@@ -827,9 +884,25 @@ window.legendData = legendData;
 				<li><a href="global.html#stepStart">stepStart</a></li>
 				<li><a href="global.html#stopEdit">stopEdit</a></li>
 				<li><a href="global.html#strip">strip</a></li>
+				<li><a href="global.html#subtract">subtract</a></li>
+				<li><a href="global.html#subVec">subVec</a></li>
+				<li><a href="global.html#sumVec">sumVec</a></li>
+				<li><a href="global.html#timeAndDate">timeAndDate</a></li>
+				<li><a href="global.html#timestamp">timestamp</a></li>
 				<li><a href="global.html#togglePanel">togglePanel</a></li>
 				<li><a href="global.html#toolHandler">toolHandler</a></li>
+				<li><a href="global.html#transpose">transpose</a></li>
+				<li><a href="global.html#trophic">trophic</a></li>
+				<li><a href="global.html#undirected">undirected</a></li>
+				<li><a href="global.html#unlockAll">unlockAll</a></li>
+				<li><a href="global.html#unlockEdge">unlockEdge</a></li>
+				<li><a href="global.html#unlockNode">unlockNode</a></li>
 				<li><a href="global.html#unSelect">unSelect</a></li>
+				<li>
+					<a href="global.html#updateLastSamples"
+						>updateLastSamples</a
+					>
+				</li>
 				<li><a href="global.html#updateLegend">updateLegend</a></li>
 				<li>
 					<a href="global.html#updateLinkEditor">updateLinkEditor</a>
@@ -837,10 +910,8 @@ window.legendData = legendData;
 				<li>
 					<a href="global.html#updateNodeEditor">updateNodeEditor</a>
 				</li>
-				<li>
-					<a href="global.html#updateNodeNotes">updateNodeNotes</a>
-				</li>
 				<li><a href="global.html#uuidv4">uuidv4</a></li>
+				<li><a href="global.html#zero">zero</a></li>
 				<li><a href="global.html#zoomincr">zoomincr</a></li>
 				<li><a href="global.html#zoomnet">zoomnet</a></li>
 			</ul>
@@ -850,8 +921,8 @@ window.legendData = legendData;
 
 		<footer>
 			Documentation generated by
-			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon Jan
-			04 2021 23:30:40 GMT+0000 (Greenwich Mean Time)
+			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Fri Mar
+			05 2021 22:01:31 GMT+0000 (Greenwich Mean Time)
 		</footer>
 
 		<script>
