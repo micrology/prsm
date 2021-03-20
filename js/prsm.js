@@ -588,9 +588,9 @@ function saveUserName(name) {
  * if this is the user's first time, show them how the user interface works
  */
 function setUpTutorial() {
-	if (localStorage.getItem('doneIntro') !== 'true' && viewOnly === false) {
+	if (localStorage.getItem('doneIntro') !== 'done' && viewOnly === false) {
 		tutorial.onexit(function () {
-			localStorage.setItem('doneIntro', 'true');
+			localStorage.setItem('doneIntro', 'done');
 		});
 		tutorial.onstep(0, () => {
 			let splashNameBox = elem('splashNameBox');
@@ -2631,6 +2631,7 @@ function hideSearchBar() {
 function displayHelp() {
 	window.open('./help.html#contents', 'helpWindow');
 }
+
 /**
  * show or hide the side panel
  */

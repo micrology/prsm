@@ -55,7 +55,7 @@ ul li::before {
 }
 .logo {
 	height: 120px;
-	margin: 20px;
+	margin: 20px 0;
 }
 .float-right {
 	float: right;
@@ -871,7 +871,7 @@ img {
 }
 .footer {
 	background: #fcf8f0;
-	padding: 6rem 2rem;
+	padding: 0 2rem;
 }
 .footer hr {
 	margin: 4rem 0;
