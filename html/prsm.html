@@ -148,7 +148,7 @@
 						</div>
 						<div
 							class="tooltip"
-							data-tutorial="Clicking here saves the map to your disk"
+							data-tutorial="Save the map to your disk"
 							data-step="5"
 							data-position="left"
 						>
@@ -204,7 +204,7 @@
 						</div>
 						<div
 							class="tooltip"
-							data-tutorial="Clicking here opens a new window with more help"
+							data-tutorial="Open a new window with more help"
 							data-step="7"
 							data-position="left"
 						>
@@ -217,7 +217,7 @@
 						</div>
 						<div
 							class="tooltip"
-							data-tutorial="Clicking here shows more options"
+							data-tutorial="Show more options"
 							data-step="8"
 							data-position="left"
 						>
@@ -258,10 +258,25 @@
 			<div
 				id="net-pane"
 				data-tutorial="
-				<b>Welcome to PRSM</b><p class='tutorial-note'>Optionally, type your name here to show others that you are online:<br>
-					<input id='splashNameBox' type ='text'></input></p>For a quick tour, press <b>Next</b>,<br/>
-					or to skip it, press <b>Skip</b>"
+				<b>Welcome to PRSM</b><p class='tutorial-note'>You can type your name here to show others that you are online:<br>
+					<input id='splashNameBox' type ='text'></input></p>
+					<p class='tutorial-note'> <a href='privacy-notice.html' target='_blank'>Privacy notice</a></p>
+					<p>For a quick tour, press <b>Next</b>,<br/>
+					or to skip it, press <b>Skip</b></p>"
 				data-step="0"
+				data-position="splash"
+			></div>
+			<div
+				data-tutorialclass="wide"
+				data-tutorial="
+					<p><b>And finally, some shortcuts:</b></p>
+					<p><i>Click</i> on a factor or link to select it.<br>
+					A <i>long click</i> or a <i>control-click</i> on a factor or link adds it to the selection.<br>
+					A <i>click</i> on the background cancels the selection.<br>
+					<i>Drag</i> on the background to move the map.<br>
+					<i>Double-click</i> on the background to zoom the map so that it all fits in the window.<br>
+					<i>Double-click</i> on a factor or link to edit it.</p>"
+				data-step="12"
 				data-position="splash"
 			></div>
 			<div
@@ -269,7 +284,7 @@
 				data-tutorial="
 			<b>That's the end of the tour.</b><p>Press <b>Done</b> and then click <br>
 				on the <b>+</b> button above to add your first factor.</p>"
-				data-step="12"
+				data-step="13"
 				data-position="splash"
 			>
 				<canvas class="drawing-canvas" id="temp-canvas"></canvas>
@@ -828,7 +843,7 @@
 		<div
 			class="chatbox-tab"
 			id="chatbox-tab"
-			data-tutorial="Clicking here opens a chat window.  (If  it is pulsating, that means there is a message waiting for you)."
+			data-tutorial="This opens a chat window.  (If  it is pulsating, that means there is a message waiting for you)."
 			data-step="11"
 			data-position="left-middle"
 		>
@@ -889,7 +904,7 @@
 		</div>
 		<div class="history-window" id="history-window">
 			<div class="history-header" id="history-header">
-				Log<span class="history-close" id="history-close"
+				History<span class="history-close" id="history-close"
 					><i class="fas fa-times"></i
 				></span>
 			</div>
@@ -899,6 +914,7 @@
 			id="badge"
 			style="display: none"
 			src="../img/Letter-Open-icon.png"
+			alt="Notes icon"
 			width="24"
 			height="24"
 		/>

@@ -28,7 +28,7 @@
 	"scripts": {
 		"lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
 		"pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/*.css doc/**/*.{html,css} package.json",
-		"build-help": "pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -s -A doc/scrollNav.html -B  doc/scrollNavHead.html -o ./help.html",
+		"build-help": "pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -s -A doc/scrollNav.html -H doc/meta.html -B  doc/scrollNavHead.html -o ./help.html",
 		"check": "npm run --silent lint && npm run --silent build-help && npm run --silent pretty",
 		"serve": "parcel ./html/prsm.html",
 		"dev": "rm -rf dist/* && parcel build ./html/prsm.html --no-optimize --no-scope-hoist --detailed-report 1",
@@ -61,7 +61,6 @@
 		"@parcel/transformer-html": "^2.0.0-nightly.608",
 		"@parcel/transformer-postcss": "^2.0.0-nightly.608",
 		"@parcel/transformer-posthtml": "^2.0.0-nightly.608",
-		"@types/intro.js": "^3.0.0",
 		"eslint": "^7.19.0",
 		"eslint-config-prettier": "^7.2.0",
 		"foodoc": "0.0.9",
@@ -69,8 +68,7 @@
 		"jsdoc": "^3.6.6",
 		"parcel": "^2.0.0-beta.1",
 		"postcss": "^8.2.6",
-		"prettier": "^2.2.1",
-		"recursive-diff": "^1.0.8"
+		"prettier": "^2.2.1"
 	},
 	"private": true
 }

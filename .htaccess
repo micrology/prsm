@@ -1,4 +1,4 @@
-# cache css and js
+# cache css, fonts and js
 <filesMatch ".(js|css|ico|woff2|png)$">
 Header set Cache-Control "max-age=31536000, public"
 </filesMatch>

@@ -40,6 +40,7 @@ export default class Tutorial {
 		let elem = this.steps[this.step];
 		let text = elem.dataset.tutorial;
 		let position = elem.dataset.position;
+		let classToAdd = elem.dataset.tutorialclass;
 		let prevLegend = 'Back';
 		let nextLegend = 'Next';
 		// first and last have special buttons
@@ -47,6 +48,7 @@ export default class Tutorial {
 		if (this.step == this.steps.length - 1) nextLegend = 'Done';
 		let dialog = document.createElement('div');
 		dialog.className = `tutorial-dialog ${position}`;
+		if (classToAdd) dialog.classList.add(classToAdd);
 		dialog.id = 'tutorial';
 		dialog.innerHTML = `
 <div class="tutorial-arrow ${position}"></div>
