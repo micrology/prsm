@@ -39,7 +39,7 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.6.0';
+const version = '1.6.1';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
@@ -112,6 +112,7 @@ function addEventListeners() {
 		}
 	});
 	listen('maptitle', 'keyup', mapTitle);
+	listen('maptitle', 'paste', pasteMapTitle);
 	listen('maptitle', 'click', (e) => {
 		if (e.target.innerText == 'Untitled map')
 			window.getSelection().selectAllChildren(e.target);
@@ -416,6 +417,7 @@ function startY() {
 			let obj = yNetMap.get(key);
 			switch (key) {
 				case 'mapTitle':
+				case 'maptitle':
 					setMapTitle(obj);
 					break;
 				case 'snapToGrid':
@@ -643,7 +645,7 @@ function asleep(isSleeping) {
 	showAvatars();
 }
 /**
- * Dispaly the other users' mouse pointers (if they are inside the canvas)
+ * Display the other users' mouse pointers (if they are inside the canvas)
  */
 function showMice() {
 	let recs = Array.from(yAwareness.getStates());
@@ -1614,6 +1616,16 @@ function mapTitle(e) {
 	let title = e.target.innerText;
 	title = setMapTitle(title);
 	yNetMap.set('mapTitle', title);
+}
+function pasteMapTitle(e) {
+	e.preventDefault();
+	let paste = (e.clipboardData || window.clipboardData).getData('text/plain');
+	if (paste instanceof HTMLElement) paste = paste.textContent;
+	const selection = window.getSelection();
+	if (!selection.rangeCount) return false;
+	selection.deleteFromDocument();
+	selection.getRangeAt(0).insertNode(document.createTextNode(paste));
+	setMapTitle(elem('maptitle').innerText);
 }
 /**
  * Format the map title
@@ -3277,6 +3289,7 @@ function sendMsg() {
 			msg: inputMsg,
 		},
 	]);
+	chatInput.value = '';
 }
 
 function displayLastMsg() {
@@ -3315,7 +3328,6 @@ function displayMsg(msg) {
 		</div>`;
 	}
 	chatMessages.scrollTop = chatMessages.scrollHeight;
-	chatInput.value = '';
 }
 /**
  * Returns a nicely formatted Date (or time if the date is today), given a Time value (from Date() )

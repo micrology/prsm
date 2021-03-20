@@ -1459,6 +1459,10 @@ div.resize {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+	border: green 4px solid;
+}
+.tutorial-dialog.wide {
+	width: 500px;
 }
 .tutorial-dialog .text {
 	grid-column: 1 / span 2;
@@ -1576,7 +1580,7 @@ div.resize {
 	top: 0;
 	left: 0;
 	z-index: 3000;
-	background-color: rgba(0, 0, 0, 0.4);
+	background-color: rgba(0, 0, 0, 0.3);
 }
 /* magnifier */
 .magnifier {
