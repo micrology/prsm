@@ -39,7 +39,7 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.6.1';
+const version = '1.6.2';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
@@ -257,7 +257,7 @@ function startY() {
 	};
 
 	/* initialise yNetMap */
-	yNetMap.set('mapTitle', '');
+	/* yNetMap.set('mapTitle', '');
 	yNetMap.set('snapToGrid', false);
 	yNetMap.set('curve', 'Curved');
 	yNetMap.set('background', '#ffffff');
@@ -267,7 +267,7 @@ function startY() {
 		streamSetting: 'All',
 		selected: [],
 	});
-	yNetMap.set('sizing', 'Off');
+	yNetMap.set('sizing', 'Off'); */
 
 	/* 
 	for convenience when debugging
@@ -767,15 +767,19 @@ function draw() {
 					}
 				});
 				if (locked) return;
-				let r = confirm(deleteMsg(item));
+				/* let r = confirm(deleteMsg(item));
 				if (r != true) {
 					callback(null);
 					return;
-				}
+				} */
 				clearStatusBar();
 				hideNotes();
 				// delete also all the edges that link to the nodes being deleted
-				// the edges are added to 'item' by deleteMsg()
+				item.nodes.forEach((nId) => {
+					network.getConnectedEdges(nId).forEach((eId) => {
+						if (item.edges.indexOf(eId) === -1) item.edges.push(eId);
+					});
+				});
 				item.edges.forEach((edgeId) => {
 					logHistory(
 						`deleted link from ${
@@ -791,11 +795,11 @@ function draw() {
 				callback(item);
 			},
 			deleteEdge: function (item, callback) {
-				let r = confirm(deleteMsg(item));
+				/* let r = confirm(deleteMsg(item));
 				if (r != true) {
 					callback(null);
 					return;
-				}
+				} */
 				item.edges.forEach((edgeId) => {
 					logHistory(
 						`deleted link from ${
@@ -1383,7 +1387,7 @@ function clearPopUp() {
 	inEditMode = false;
 }
 /**
- * User has pressed 'cancel' - abandon the edit and hide the dialog
+ * User has pressed 'cancel' - abandon adding a node and hide the dialog
  * @param {Function} callback
  */
 function cancelAdd(item, callback) {
@@ -1585,7 +1589,7 @@ function duplEdge(from, to) {
 	 Includes links connected to deleted nodes in the count. 
  * @param {Array} item List of nodes to be deleted
  */
-function deleteMsg(item) {
+/* function deleteMsg(item) {
 	item.nodes.forEach((nId) => {
 		network.getConnectedEdges(nId).forEach((eId) => {
 			if (item.edges.indexOf(eId) === -1) item.edges.push(eId);
@@ -1598,7 +1602,7 @@ function deleteMsg(item) {
 	if (nNodes > 0 && nEdges > 0) msg = msg + ' and ';
 	if (nEdges > 0) msg = msg + nEdges + ' Link' + (nEdges == 1 ? '' : 's');
 	return msg + '?';
-}
+} */
 /**
  * Change the cursor style for the net pane and nav bar
  * @param {Cursor} newCursorStyle
@@ -1913,7 +1917,7 @@ function openFile() {
 	elem('fileInput').click();
 }
 /**
- * determine what kind of file it is, parse it and reaplce any current map with the one read from the file
+ * determine what kind of file it is, parse it and replace any current map with the one read from the file
  * @param {string} contents
  */
 function loadFile(contents) {
