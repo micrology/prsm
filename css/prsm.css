@@ -16,6 +16,8 @@
 	--tab-color: #dcdcdc;
 	--tutorial-highlight-color: #d32f2f;
 	--chat-message-header-color: #a2a2a2;
+	--history-log-color: #fffde7;
+	--map-title-color: #ffc107;
 }
 html,
 body,
@@ -46,16 +48,6 @@ p {
 	font: inherit;
 	vertical-align: baseline;
 }
-/* interface colours defined here: dark blue theme 
-	--header-color: #1565c0;
-	--header-hover-color: lightgrey;
-	--header-pressed-color: grey;
-	--header-disabled-color: #a8d3f0;
-	--panel-color: #404040;
-	--pop-up-color: #f5f5f5;
-	--pop-up-shadow-color: #c9c9c9;
-	--modal-header-color: #1565c0;
-	--tab-color: #dcdcdc;}*/
 button,
 input,
 select {
@@ -256,7 +248,7 @@ nav {
 .maptitle {
 	font-size: 20px;
 	margin: 5px 0 0 10px;
-	color: #ffc107;
+	color: var(--map-title-color);
 	text-align: left;
 }
 .unsetmaptitle {
@@ -586,10 +578,10 @@ nav button .pressed {
 }
 .modal-content {
 	position: relative;
-	background-color: #fefefe;
+	background-color: white;
 	margin: auto;
 	padding: 0;
-	border: 1px solid #888;
+	border: 1px solid gray;
 	width: 80%;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 	animation-name: animatetop;
@@ -714,11 +706,7 @@ nav button .pressed {
 .tab .tablinks:first-child {
 	border-left: 1px solid white;
 }
-/* Change background color of buttons on hover */
 
-.tab .tablinks:hover {
-	background-color: #e9e9e9;
-}
 /* Create an active/current tablink class */
 
 .tab .tablinks.active {
@@ -899,7 +887,7 @@ but moving the panel out of sight works instead */
 	display: block;
 	overflow: hidden;
 	cursor: pointer;
-	border: 0 solid #999999;
+	border: 0 solid gray;
 	border-radius: 11px;
 }
 .onoffswitch-inner {
@@ -925,25 +913,25 @@ but moving the panel out of sight works instead */
 	content: 'ON';
 	padding-left: 10px;
 	background-color: white;
-	color: #000000;
+	color: black;
 }
 .onoffswitch-inner:after {
 	content: 'OFF';
 	padding-right: 5px;
 	background-color: white;
-	color: #000000;
+	color: black;
 	text-align: right;
 }
 .onoffswitch-switch {
 	display: block;
 	width: 18px;
 	margin: -1px;
-	background: #000000;
+	background: black;
 	position: absolute;
 	top: 0;
 	bottom: 0;
 	right: 32px;
-	border: 2px solid #999999;
+	border: 2px solid gray;
 	border-radius: 11px;
 	transition: all 0.3s ease-in 0s;
 }
@@ -1207,7 +1195,7 @@ but moving the panel out of sight works instead */
 	border: 2px solid black;
 	border-radius: 0 0 4px 4px;
 	padding: 4px;
-	background-color: #fffde7;
+	background-color: var(--history-log-color);
 }
 .history-row {
 	display: table-row;
@@ -1364,8 +1352,8 @@ div.resize {
 	width: max-content;
 	padding: 8px;
 	border-radius: 4px;
-	background: #232f34;
-	color: #fff;
+	background: var(--header-color);
+	color: white;
 	position: absolute;
 	text-align: center;
 	font-size: 12px;
@@ -1389,8 +1377,8 @@ div.resize {
 	padding: 8px;
 	font-family: Oxygen, sans-serif;
 	border-radius: 4px;
-	background: #232f34;
-	color: #fff;
+	background: var(--header-color);
+	color: white;
 	position: absolute;
 	text-align: center;
 	left: 50%;
