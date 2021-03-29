@@ -1,0 +1,13 @@
+{
+  "name": "prsm-landing-page",
+  "version": "1.0.0",
+  "description": "PRSM Landing Page",
+  "main": "index.html",
+  "scripts": {
+    "start": "parcel serve ./src/index.html",
+    "build": "parcel build ./src/index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nigel Gilbert",
+  "license": "MIT"
+}
