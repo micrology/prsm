@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="" />
+		<meta name="author" content="" />
+		<link rel="icon" href="../img/prsm-logo.ico" />
+
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+			integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
+			crossorigin="anonymous"
+		/>
+		<link href="../css/web.css" rel="stylesheet" />
+
+		<title>PRSM: Participatory System Mapper</title>
+		<meta
+			name="Description"
+			content="PRSM enables groups of people, each using their own computer (or tablet) 
+		to collaborate in the drawing of a map. They may be sitting around a table, discussing the map as it is 
+		created face to face, or working remotely, using video conferencing or the chat feature that is built 
+		into the app. Everyone can participate because every edit (creating nodes and links, arranging them 
+		and so on) is broadcast to all the other participants as the changes are made (just as Google Docs 
+		does for text, for example). When you start PRSM in your browser, a 'room' is created for you in which 
+		to draw your network. You can add other users to this room to share the work. Only those with access 
+		to the room can see what is being created."
+		/>
+		<script
+			src="https://kit.fontawesome.com/dcbad58dab.js"
+			crossorigin="anonymous"
+		></script>
+	</head>
+	<body>
+		<div>
+			<!-- Fixed navbar -->
+			<nav
+				class="navbar navbar-expand-md navbar-light text-black bg-white"
+			>
+				<a class="navbar-brand" href="#"
+					><img src="../img/prsm-logo.png" alt="PRSM logo" />
+					<span class="d-none d-md-inline"
+						>&nbsp;Participatory System Mapper</span
+					></a
+				>
+				<button
+					class="navbar-toggler"
+					type="button"
+					data-toggle="collapse"
+					data-target="#main-navigation"
+				>
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="main-navigation">
+					<ul class="navbar-nav">
+						<li class="nav-item">
+							<a class="nav-link" href="#about">About</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#examples">Examples</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="contact.html">Support</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#licence">Licence</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="privacy-notice.html"
+								target="_blank">Privacy</a
+							>
+						</li>
+					</ul>
+				</div>
+			</nav>
+
+			<div class="container">
+				<div class="row p-3">
+					<div class="col-xs-12 text-center">
+						<h1>
+							PRSM is a <i>free</i> app for drawing and
+							understanding systems collaboratively
+						</h1>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12 mx-auto">
+						<button type="button" class="btn btn-danger btn-lg">
+							Start now<br /><small>It's free!</small>
+						</button>
+					</div>
+				</div>
+
+				<div class="row g-5 py-5" id="about">
+					<div class="feature col-md-4">
+						<h4>
+							The Participatory System Mapper (PRSM) is an app
+							that makes it easy to draw networks (or 'maps') of
+							systems
+						</h4>
+						<p>
+							It runs in a web browser on a desktop PC or a
+							tablet.
+						</p>
+
+						<p>
+							When you start PRSM in your browser, a 'room' is
+							created for you in which to draw your network. You
+							can add other users to this room to share the work.
+							Only those with access to the room can see what is
+							being created.
+						</p>
+					</div>
+					<div class="feature col-md-4">
+						<h4>What can you map?</h4>
+
+						<p>
+							The network or map can be anything that has items
+							(or 'factors' or 'nodes') connected by links (or
+							‘edges').
+						</p>
+						<ul style="font-size: smaller; padding-left: 1rem">
+							<li>
+								People (the nodes) connected by knowing each
+								other
+							</li>
+							<li>
+								Factors or variables causing (the links) changes
+								in other factors
+							</li>
+							<li>Switches connected by wires</li>
+							<li>Computers connected by network links</li>
+							<li>
+								Theories expressed as variables and
+								relationships between them
+							</li>
+							<li>
+								Company boards of directors (the nodes) and the
+								directors that sit on more than one board (the
+								links)
+							</li>
+							<li>
+								Twitter hashtags (the nodes) included together
+								on posts (the links)
+							</li>
+							<li>
+								Scientists (the nodes) co-authoring papers (the
+								links)
+							</li>
+							<li>
+								&hellip; and anything else that has items and
+								links between the items
+							</li>
+						</ul>
+					</div>
+					<div class="feature col-md-4">
+						<h4>
+							Groups of people, each using their own computer (or
+							tablet) to collaborate in the drawing of a map using
+							PRSM
+						</h4>
+						<p>
+							They may be sitting around a table, discussing the
+							map as it is created face to face, or working
+							remotely, using video conferencing or the chat
+							feature that is built into the app.
+						</p>
+						<p>
+							Everyone can participate because every edit
+							(creating nodes and links, arranging them,
+							annotating them, and so on) is broadcast to all the
+							other participants as the changes are made.
+						</p>
+					</div>
+				</div>
+
+				<div class="row g-5" id="examples">
+					<div class="col-sm-8 mx-auto">
+						<div
+							id="carouselExamples"
+							class="carousel slide"
+							data-ride="carousel"
+						>
+							<ol class="carousel-indicators">
+								<li
+									data-target="#carouselExamples"
+									data-slide-to="0"
+									class="active"
+								></li>
+								<li
+									data-target="#carouselExamples"
+									data-slide-to="1"
+								></li>
+								<li
+									data-target="#carouselExamples"
+									data-slide-to="2"
+								></li>
+							</ol>
+							<div class="carousel-inner">
+								<div class="carousel-item active">
+									<img
+										class="d-block"
+										src="../img/NPCexample.png"
+										alt="First slide"
+									/>
+								</div>
+								<div class="carousel-item">
+									<img
+										class="d-block"
+										src="../img/SCandLexample.png"
+										alt="Second slide"
+									/>
+								</div>
+								<div class="carousel-item">
+									<img
+										class="d-block"
+										src="../img/WorldCup2019example.png"
+										alt="Third slide"
+									/>
+								</div>
+							</div>
+							<a
+								class="carousel-control-prev"
+								href="#carouselExamples"
+								role="button"
+								data-slide="prev"
+							>
+								<span
+									class="carousel-control-prev-icon"
+									aria-hidden="true"
+								></span>
+								<span class="sr-only">Previous</span>
+							</a>
+							<a
+								class="carousel-control-next"
+								href="#carouselExamples"
+								role="button"
+								data-slide="next"
+							>
+								<span
+									class="carousel-control-next-icon"
+									aria-hidden="true"
+								></span>
+								<span class="sr-only">Next</span>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row py-5 mt-5">
+				<div class="col-sm-8 text-center mx-auto">
+					<h4>
+						To use <b>PRSM</b>, all you need is a modern web browser
+						such as Chrome, Firefox, Microsoft Edge or Safari
+						running on a desktop, tablet or phone.
+					</h4>
+					<p style="font-size: small">
+						It will not work with Internet Explorer.
+					</p>
+					<h4>
+						The software is free,
+						<a
+							href="https://github.com/micrology/prsm"
+							target="_blank"
+							>open source</a
+						>
+						and available under an
+						<a
+							href="https://opensource.org/licenses/MIT"
+							target="_blank"
+							id="licence"
+							>MIT</a
+						>
+						license.
+					</h4>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12 mx-auto">
+					<button type="button" class="btn btn-danger btn-lg">
+						Start now
+					</button>
+				</div>
+			</div>
+
+			<div class="row p-3">
+				<div class="col-sm-8 mx-auto">
+					<hr />
+					<p>
+						<b>PRSM</b> is secure &mdash; the only way to gain
+						access to a map is if you have the web address of the
+						shared &lsquo;room&rsquo;, a random string of 12
+						letters.
+					</p>
+					<p>
+						Encoded data is transmitted between users using a server
+						located in Ireland, and so does not leave the
+						jurisdiction of the GDPR. You can save maps to your
+						local computer in PRSM&rsquo;s own format, save an image
+						of the network, or export maps in one of several
+						standard network formats.
+					</p>
+					<p>
+						<b>PRSM</b> is GDPR compliant: for details see our
+						<a href="privacy-notice.html" target="_blank"
+							>privacy notice</a
+						>.
+					</p>
+					<hr />
+				</div>
+			</div>
+			<div class="row p-3">
+				<div class="col-sm-4">
+					<img
+						src="../img/cress+esrc.png"
+						width="300"
+						class="float-right"
+					/>
+				</div>
+				<div class="col-sm-4 text-center">
+					<p>
+						PRSM has been developed by the<br />
+						Centre for Research in Social Simulation and the<br />
+						Centre for the Evaluation of Complexity Across the Nexus
+						(CECAN)<br />
+						at the University of Surrey, UK<br />
+						2019 – 2021<br />
+						with support from the<br />
+						Economic and Social Research Council<br />
+						and the University of Surrey
+					</p>
+
+					<p>PRSM was designed and written by Nigel Gilbert.</p>
+				</div>
+				<div class="col-sm-4">
+					<img
+						src="../img/cecan+surrey.png"
+						width="300"
+						class="float-left"
+					/>
+				</div>
+			</div>
+		</div>
+
+		<div class="row p-3">
+			<div class="col-sm-8 mx-auto border">
+				<p>
+					With thanks to all who helped inspire, suggest features for
+					and test PRSM, including Paul Brand, Brian Castellani, Robin
+					Gilbert, Kevin Jahns, Robert MacKay, Kavin Narasimhan, Alex
+					Penn, Bazil Sansom, Helen Wilkinson, and many others.
+				</p>
+			</div>
+		</div>
+
+		<footer class="navbar navbar-expand-md bg-dark text-white">
+			<ul class="navbar-nav">
+				<li class="nav-item">
+					<a class="nav-link" href="contact.html">Contact us</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="privacy-notice.html" target="_blank">Privacy</a>
+				</li>
+			</ul>
+			<ul class="navbar-nav ml-auto">
+				<li class="nav-item">
+					<a class="nav-link" href=""
+						><i class="fab fa-linkedin-in"></i
+					></a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href=""
+						><i class="fa fa-twitter"></i
+					></a>
+				</li>
+			</ul>
+		</footer>
+		<!-- cookie query -->
+		<div class="cookie-overlay p-4 d-none">
+			<div class="d-flex">
+				<div class="mr-3">
+					In order to provide you with the best experience,<br>
+					this website uses cookies. By using our website,<br>
+					you agree to our use of cookies. 
+					<a href="privacy-notice.html" target="_blank"
+						>More Info.</a
+					>
+				</div>
+				<span class="close-cookies"><i class="fas fa-times"></i></span>
+			</div>
+			<button class="btn btn-primary mt-3 accept-cookies">OK</button>
+		</div>
+		<script
+			src="https://code.jquery.com/jquery-3.5.1.min.js"
+			integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+			crossorigin="anonymous"
+		></script>
+		<script
+			src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js"
+			integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s"
+			crossorigin="anonymous"
+		></script>
+		<script>
+			// cookie policy
+			$(function () {
+ 				if (document.cookie.indexOf('accepted_cookies=') < 0) {
+					$('.cookie-overlay')
+						.removeClass('d-none')
+						.addClass('d-block');
+				}
+
+				$('.accept-cookies').on('click', function () {
+					document.cookie = 'accepted_cookies=yes;';
+					$('.cookie-overlay')
+						.removeClass('d-block')
+						.addClass('d-none');
+				});
+
+				// expand depending on your needs
+				$('.close-cookies').on('click', function () {
+					$('.cookie-overlay')
+						.removeClass('d-block')
+						.addClass('d-none');
+				});
+			});
+		</script>
+	</body>
+</html>
