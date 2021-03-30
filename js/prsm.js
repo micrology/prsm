@@ -39,7 +39,7 @@ import {
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.6.2';
+const version = '1.6.3';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
@@ -2823,13 +2823,18 @@ function showNodeData() {
 	editor.on('text-change', () => {
 		data.nodes.update({
 			id: nodeId,
-			note: editor.getContents(),
+			note: (isQuillEmpty(editor) ? '' : editor.getContents()),
 			modified: timestamp(),
 		});
 	});
 	panel.classList.remove('hide');
 	displayStatistics(nodeId);
 }
+function isQuillEmpty(quill) {
+	if ((quill.getContents()['ops'] || []).length !== 1) { return false }
+	return quill.getText().trim().length === 0
+}
+  
 function showEdgeData() {
 	let panel = elem('edgeDataPanel');
 	let edgeId = network.getSelectedEdges()[0];
@@ -2864,7 +2869,7 @@ function showEdgeData() {
 	editor.on('text-change', () => {
 		data.edges.update({
 			id: edgeId,
-			note: editor.getContents(),
+			note: (isQuillEmpty(editor) ? '' : editor.getContents()),
 			modified: timestamp(),
 		});
 	});
@@ -3425,6 +3430,7 @@ function showAvatars() {
 
 	let avatars = elem('avatars');
 	let currentAvatars = [];
+	let currentCursors = [];
 
 	names.forEach((nameRec) => {
 		let ava = elem('ava' + nameRec.id);
@@ -3468,13 +3474,19 @@ function showAvatars() {
 				if (cursorDiv.innerText != shortName)
 					cursorDiv.innerText = shortName;
 			}
+			currentCursors.push(cursorDiv);
 		}
 	});
-	// delete any avatars that remain from before
+	// delete any avatars and cursors that remain from before
 	let avatarsToDelete = Array.from(avatars.children).filter(
 		(a) => !currentAvatars.includes(a)
 	);
 	avatarsToDelete.forEach((e) => e.remove());
+	let cursorsToDelete = Array.from(document.querySelectorAll('.shared-cursor')).filter(
+		(a) => !currentCursors.includes(a)
+	);
+	cursorsToDelete.forEach((e) => e.remove());
+	
 }
 
 function showCursorSwitch() {
