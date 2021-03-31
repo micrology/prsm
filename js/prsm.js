@@ -777,7 +777,8 @@ function draw() {
 				// delete also all the edges that link to the nodes being deleted
 				item.nodes.forEach((nId) => {
 					network.getConnectedEdges(nId).forEach((eId) => {
-						if (item.edges.indexOf(eId) === -1) item.edges.push(eId);
+						if (item.edges.indexOf(eId) === -1)
+							item.edges.push(eId);
 					});
 				});
 				item.edges.forEach((edgeId) => {
@@ -2823,7 +2824,7 @@ function showNodeData() {
 	editor.on('text-change', () => {
 		data.nodes.update({
 			id: nodeId,
-			note: (isQuillEmpty(editor) ? '' : editor.getContents()),
+			note: isQuillEmpty(editor) ? '' : editor.getContents(),
 			modified: timestamp(),
 		});
 	});
@@ -2831,10 +2832,12 @@ function showNodeData() {
 	displayStatistics(nodeId);
 }
 function isQuillEmpty(quill) {
-	if ((quill.getContents()['ops'] || []).length !== 1) { return false }
-	return quill.getText().trim().length === 0
+	if ((quill.getContents()['ops'] || []).length !== 1) {
+		return false;
+	}
+	return quill.getText().trim().length === 0;
 }
-  
+
 function showEdgeData() {
 	let panel = elem('edgeDataPanel');
 	let edgeId = network.getSelectedEdges()[0];
@@ -2869,7 +2872,7 @@ function showEdgeData() {
 	editor.on('text-change', () => {
 		data.edges.update({
 			id: edgeId,
-			note: (isQuillEmpty(editor) ? '' : editor.getContents()),
+			note: isQuillEmpty(editor) ? '' : editor.getContents(),
 			modified: timestamp(),
 		});
 	});
@@ -3482,11 +3485,10 @@ function showAvatars() {
 		(a) => !currentAvatars.includes(a)
 	);
 	avatarsToDelete.forEach((e) => e.remove());
-	let cursorsToDelete = Array.from(document.querySelectorAll('.shared-cursor')).filter(
-		(a) => !currentCursors.includes(a)
-	);
+	let cursorsToDelete = Array.from(
+		document.querySelectorAll('.shared-cursor')
+	).filter((a) => !currentCursors.includes(a));
 	cursorsToDelete.forEach((e) => e.remove());
-	
 }
 
 function showCursorSwitch() {

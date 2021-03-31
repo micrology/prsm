@@ -1,6 +1,6 @@
 {
 	"name": "participatory-system-mapper",
-	"version": "1.6.2",
+	"version": "1.6.3",
 	"description": "Participatory System Mapper, browser app for collaboratively creating system maps",
 	"keywords": [
 		"social network",
@@ -31,7 +31,7 @@
 		"build-help": "pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -s -A doc/scrollNav.html -H doc/meta.html -B  doc/scrollNavHead.html -o ./help.html",
 		"check": "npm run --silent lint && npm run --silent build-help && npm run --silent pretty",
 		"serve": "parcel ./html/prsm.html",
-		"dev": "rm -rf dist/* && parcel build ./html/prsm.html --no-optimize --no-scope-hoist --detailed-report 1",
+		"dev": "rm -rf dist/* && parcel build ./html/*.html --no-optimize --no-scope-hoist --detailed-report 1",
 		"build": "rm -rf dist/* && parcel build ./html/prsm.html",
 		"jsdoc": "npx jsdoc -r ./js -d ./doc/jsdoc",
 		"clean": "rm -rf dist/* out/*"

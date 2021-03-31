@@ -17,13 +17,16 @@ Header set Cache-Control "max-age=31536000, public"
 	</IfModule>
 </IfModule>
 Header append Vary User-Agent env=!dont-vary
-
+DirectoryIndex index.html
+Options -Indexes
 # Allow Parcel to put files in /dist
 RewriteEngine  on
 # use the dist version of the entry code
 RewriteRule    "^prsm\.html$" "dist/prsm.html" [PT]
+RewriteRule    "^index\.html$" "dist/index.html" [PT]
+RewriteRule    "^/$" "dist/index.html" [PT]
 # make all references in the code link to the dist directory
-RewriteCond %{HTTP_REFERER} prsm.html [NC,OR]
+RewriteCond %{HTTP_REFERER} \.html [NC,OR]
 # also links to maps from e.g. DevTools
 RewriteCond %{REQUEST_URI} "\.map$" [NC]
 # but not if they are already linked to that directory
