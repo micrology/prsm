@@ -28,13 +28,12 @@
 	"scripts": {
 		"lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
 		"pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/*.css doc/**/*.{html,css} package.json",
-		"build-help": "pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -s -A doc/scrollNav.html -H doc/meta.html -B  doc/scrollNavHead.html -o ./help.html",
+		"build-help": "pandoc doc/help.md --metadata title='PRSM Help' -f gfm -t html5 -c /doc/help.css -s -A doc/scrollNav.html -H doc/meta.html -B  doc/scrollNavHead.html -o html/help.html",
 		"check": "npm run --silent lint && npm run --silent build-help && npm run --silent pretty",
-		"serve": "parcel ./html/prsm.html",
-		"dev": "rm -rf dist/* && parcel build ./html/*.html --no-optimize --no-scope-hoist --detailed-report 1",
-		"build": "rm -rf dist/* && parcel build ./html/prsm.html",
+		"dev": "rm -rf dist/* && parcel build './html/*.html' --no-optimize --no-scope-hoist --detailed-report 1",
+		"build": "rm -rf dist/* && parcel build './html/*.html'",
 		"jsdoc": "npx jsdoc -r ./js -d ./doc/jsdoc",
-		"clean": "rm -rf dist/* out/*"
+		"clean": "rm -rf dist/*"
 	},
 	"license": "GPL-3.0-or-later",
 	"dependencies": {
