@@ -78,12 +78,12 @@ This what they do, from left to right:
 * **Bin**. First, select a factor or a link by clicking on it.  Note that the selected factor or link gains a shadow and is listed in the status bar at the bottom of the window. Then click on the Bin button - the factor or link is deleted.  The Undo button will restore it if you deleted it by mistake.
 * **Share**. Shows a dialog box with a web link that you can copy and send to someone else.  If they then access that link, they will see your network and can edit and add to it. See [Sharing](#sharing) below.
 * **Open file**. Read in a file containing a network from your computer drive.  See [below](#file-formats) for supported file formats.  The content of the file replaces the network in the browser.
-* **Save file**.  Save the network in a file on your computer. The file is saved in the app's own format, or if you click on the small triangle next to the button, you can choose to save in GML (Graph Markup Language) or CSV (Comma Separated Values) formats.
+* **Save file**.  Save the network in a file on your computer. The file is saved in the app's own format, or if you click on the small triangle next to the button, you can choose to save an image of the map as an a .PNG file, or the map data in GML (Graph Markup Language) or CSV (Comma Separated Values) formats.
 * **Search**. Search for factors by name.
 * **Help** Display this help page in a separate window.
 * **Settings**. Opens a panel that allows much more customisation and exploration of the network (see [Styling the map](#styling-the-map) below).
 
-To select a factor or a link, click on it. To select more than one, click on one factor or link and then *hold down* the pointer over the other.  At the bottom of the window is the status bar, which will show which factors and links have been selected. Clicking anywhere on the background will deselect the factors and links.
+To select a factor or a link, click on it. To select more than one, click on one factor or link and then *hold down* the pointer over the other.  Or you can hold down the control (CTRL) key and click  to add to the selection. At the bottom of the window is the status bar, which will show which factors and links have been selected. Clicking anywhere on the background will deselect the factors and links.
 
 Also at the bottom of the window on the right is a slider that will adjust the magnification: slide to the right to make the factors and links larger and to the left to make them smaller (or click on the + and - signs).  To return the network to a size that will fit neatly in the window, double click anywhere on the network background.
 
@@ -99,13 +99,13 @@ If you use the link above to start the app, a new room is created for you.  When
 
 Click the button to copy the web link to the clipboard, and then paste the link into an email or a text message. or just tell other participants the name of the room (which is a randomly generated set of 4 groups of three capital letters separated by hyphens).  When they access the link, they will see whatever is in your app window.
 
-There are two options for the sharing link.  If you check the Clone map box, the link will be to the map in a new room - any changes made to this new map will *not* happen in the original room.  If you click the View only box, the recipient of the link will not be able to make any changes to the map.
+There are two options for the sharing link.  If you check the 'Clone map' box, the link will be to the map in a new room - any changes made to this new map will *not* happen in the original room.  If you click the 'View only' box, the recipient of the link will not be able to make any changes to the map.
 
 ### Avatars and pointers
 
-When there are others in the room, the initial letters of their name appear in a circle at the top left - their avatar.  If you hover the mouse pointer over the circle, their full name is shown (their real name or the name they have been given by the app).  If they don't do anything for 15 minutes, the avatar fades and, if they close their browser window, it disappears.
+When there are others in the room, the initial letters of their name appear in a circle at the top left - their *avatar*.  If you hover the mouse pointer over the circle, their full name is shown (their real name or the name they have been given by the app).  If they don't do anything for 15 minutes, the avatar fades and, if they close their browser window, it disappears.
 
-The other users' mouse pointers are shown on the map.  As they move their mice, a small disc containing thier initials moves on every users' map correspondingly.  If you are taling with other users by audio or video link, you can use your mouse to point to things of interest, and the other users can see what you are pointing at.
+The other users' mouse pointers are shown on the map.  As you move your mouse pointer (or finger on a touchscreen), a small disc containing your initials moves on every other users' map correspondingly.  If you are talking with other users by audio or video link, you can use your mouse to point to things of interest, and the other users can see what you are pointing at.
 
 <!-- ![Avatars](/doc/images/avatars.png) -->
 <img src="/doc/images/avatars.png" width="400">
@@ -121,6 +121,9 @@ You can use the following mouse actions (or finger or pencil gestures on a table
 * a *click* on the background de-selects all factors and links.
 * *dragging* the background moves the whole map.
 * a *double-click* on the background zooms the whole map in or out so that it neatly fits the window.
+* holding down the *shift* key and moving the mouse shws a loupe or magnifying glass to see small details of the map.
+* holding down the *option* or ALT key and clicking on the background is a shortcut for adding a new factor
+* holding down the *option* or ALT key and clicking on a factor is a shortcut for adding a link - the pointer will becoem a cross and you can then drag from the factor to another factor to create the link.
 
 ### Formatting factors and links
 
@@ -148,7 +151,7 @@ If someone has sent you a message but your chat window is closed, the button wil
 
 The app can read files in its native format (files with the suffix '.prsm'), or in [GRAPHML](http://graphml.graphdrawing.org/) (.graphml), [GML](https://en.wikipedia.org/wiki/Graph_Modelling_Language) (.gml) or [Comma Separated Values](https://en.wikipedia.org/wiki/Comma-separated_values) (.csv) formats.  A CSV file must contain a two columns of values.  Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to.  This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottm right as shown on the [Factors tab](#factors-tab)).  The fifth column may contain the style number for the link.
 
-The app can create output files in the app's own native format, as a GML file or as a CSV file.
+The app can create output files in the app's own native format, as a GML file or as a CSV file.  You can also save an image of the map as a Portable Network Graphics (.png) file.  The image shows the same view of the map as you see on the screen (so, for example, it will not show factors that have been moved out of the app window).
 
 ### Privacy and security
 
@@ -156,16 +159,16 @@ The only way to join the room and see the network is by using the randomly gener
 
 ## Styling the map
 
-The view you see when you first open the app is intentionally very simple, but hidden away are many more features.  To access these, click on the last, Settings, button on the top bar: <!-- ![Settings Button](/doc/images/SettingsButton.png) --><img src="/doc/images/SettingsButton.png" width="20">.  This will reveal a set of three tabs: Network, Factors and Links, with the Factors tab open.
+The view you see when you first open the app is intentionally very simple, but hidden away are many more features.  To access these, click on the last, Settings, button on the top bar: <!-- ![Settings Button](/doc/images/SettingsButton.png) --><img src="/doc/images/SettingsButton.png" style="display: inline" width="20">.  This will reveal a set of three tabs: Network, Factors and Links, with the Factors tab open.
 
-The panel showing the tabs can moved across the network pane: just drag any of the three tabs and they and the panel below will move.  This can be useful if the panel gets in the way of seeing the network.
+The panel showing the tabs can moved across the network pane: drag it using the thin black strip at the top of the panel.  This can be useful if the panel gets in the way of seeing the network.
 
 ### Factors tab
 
 <!-- ![FactorsWindow](/doc/images/FactorsPanel.png) -->
-<img src="/doc/images/FactorsPanel.png" width="300">
+<img src="/doc/images/FactorsPanel.png" width="250">
 
-Here there are 9 sample styles for how factors can look.  If you select a factor from the network and then click on one of the 9 styles, the factor will change to resemble the style.  As a short cut, if you click on the 'Select all factors' button at the bottom, and then click on a style, all the factors will change to the chosen style.
+There are 9 sample styles for how factors can look.  If you select a factor from the network and then click on one of the 9 styles, the factor will change to resemble the style.  As a short cut, if you click on the 'Select all factors' button at the bottom, and then click on a style, all the factors will change to the chosen style.
 
 Double clicking on any of the 9 styles opens a dialog box to change the style:
 
@@ -174,7 +177,7 @@ Double clicking on any of the 9 styles opens a dialog box to change the style:
 
 There are options to change the colour of the background (the 'fill'), the border and the font of the label, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted or none, and to change the font size of the label.
 
-You can also change the name of the style.  If you do so, this name will appear on the network pane as one item in the 'legend'.  So, for example, if you had some factors that are Inputs, some that are Actions, some Outputs and some Outcomes, you could give four of the styles these names, colour their fills green, yellow, orange and red, and then apply these styles to the appropriate factors in the network.  The legend will be automatically displayed on the network pane, thus:
+You can also change the name of the style.  If you do so, this name will appear on the network pane as one item in the 'legend'.  So, for example, if you had some factors that are Inputs, some that are Actions, some Outputs and some Outcomes, you could give four of the styles these names, colour their fills green, yellow, orange and red, and then apply these styles to the appropriate factors in the network.  The legend will be automatically displayed on the network pane:
 
 ![Legend](/doc/images/Legend.png)
 
@@ -194,7 +197,7 @@ The Links tab is very similar to the Factors tab, except that it relates to the 
 
 ### Network tab
 
-The network tab enables you to change many aspects of the network visualisation.
+The Network tab enables you to change many aspects of the network visualisation.
 
 <!-- ![NetworkPanel](/doc/images/NetworkPanel.png) -->
 <img src="/doc/images/NetworkPanel.png" width="300">

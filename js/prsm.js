@@ -3477,6 +3477,8 @@ function showAvatars() {
 				if (nameRec.asleep) cursorDiv.style.display = 'none';
 				if (cursorDiv.innerText != shortName)
 					cursorDiv.innerText = shortName;
+				if (cursorDiv.style.backgroundColor != nameRec.color)
+				cursorDiv.style.backgroundColor = nameRec.color
 			}
 			currentCursors.push(cursorDiv);
 		}
