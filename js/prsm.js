@@ -713,7 +713,8 @@ function draw() {
 				// revert to using the original node properties before continuing.
 				item = data.nodes.get(item.id);
 				item.modified = timestamp();
-				editNode(item, cancelEdit, callback);
+				let point = {x: event.offsetX, y: event.offsetY};
+				editNode(item, point, cancelEdit, callback);
 			},
 			addEdge: function (item, callback) {
 				inAddMode = false;
@@ -747,7 +748,8 @@ function draw() {
 				editWithoutDrag: function (item, callback) {
 					item = data.edges.get(item.id);
 					item.modified = timestamp();
-					editEdge(item, cancelEdit, callback);
+					let point = {x: event.offsetX, y: event.offsetY};
+					editEdge(item, point, cancelEdit, callback);
 				},
 			},
 			deleteNode: function (item, callback) {
@@ -767,11 +769,6 @@ function draw() {
 					}
 				});
 				if (locked) return;
-				/* let r = confirm(deleteMsg(item));
-				if (r != true) {
-					callback(null);
-					return;
-				} */
 				clearStatusBar();
 				hideNotes();
 				// delete also all the edges that link to the nodes being deleted
@@ -796,11 +793,6 @@ function draw() {
 				callback(item);
 			},
 			deleteEdge: function (item, callback) {
-				/* let r = confirm(deleteMsg(item));
-				if (r != true) {
-					callback(null);
-					return;
-				} */
 				item.edges.forEach((edgeId) => {
 					logHistory(
 						`deleted link from ${
@@ -881,7 +873,7 @@ function draw() {
 			fit();
 		}
 	});
-	network.on('selectNode', function (params) {
+	network.on('selectNode', function () {
 		if (window.debug.includes('gui')) console.log('selectNode');
 		let selectedNodes = network.getSelectedNodes();
 		selectedNodes.forEach((nodeId) => {
@@ -891,18 +883,8 @@ function draw() {
 				data.nodes.update(node, 'dontBroadcast');
 			}
 		});
-		/* // if control key is down, start linking to another node
-		if (params.event.pointers[0].ctrlKey) {
-			// start linking from this node, but only if only one node is selected, else source node is not clear
-			if (selectedNodes.length == 1) {
-				statusMsg('Linking from ' + listFactors(selectedNodes));
-				plusLink();
-			}
-		} else { */
 		showSelected();
 		showNodeOrEdgeData();
-		/* 		}
-		 */
 	});
 	network.on('deselectNode', function () {
 		if (window.debug.includes('gui')) console.log('deselectNode');
@@ -1182,48 +1164,24 @@ function snapToGrid(node) {
 /**
  * A factor is being created:  get its label from the user
  * @param {Object} item - the node
+ * @param {Object} point  where the mouse clicked
  * @param {Function} cancelAction
  * @param {Function} callback
  */
 function addLabel(item, cancelAction, callback) {
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback);
-	positionPopUp();
+	positionPopUp({x: event.offsetX, y: event.offsetY});
 	elem('popup-label').focus();
 }
-/**
- * if user Control-clicks the canvas, use this as a shortcut equivalent to pressing the Add Node button
- * @param {mouseEvent} event
- */
-function ctlClickAddNode(event) {
-	// cancel default context menu
-	event.preventDefault();
-	let domPos = {x: event.offsetX, y: event.offsetY};
-	// if clicking on a node or edge, report it to console for debugging
-	let target = network.getNodeAt(domPos);
-	if (target !== undefined) {
-		console.log(data.nodes.get(target));
-		return;
-	}
-	target = network.getEdgeAt(domPos);
-	if (target !== undefined) {
-		console.log(data.edges.get(target));
-		return;
-	}
-	let pos = network.DOMtoCanvas(domPos);
-	let item = {id: uuidv4(), label: '', x: pos.x, y: pos.y};
-	item = deepMerge(item, styles.nodes[lastNodeSample]);
-	item.grp = lastNodeSample;
-	addLabel(item, clearPopUp, function (newItem) {
-		if (newItem !== null) data.nodes.add(newItem);
-	});
-}
+
 /**
  * Draw a dialog box for user to edit a node
  * @param {Object} item the node
+ * @param {Object} point the centre of the node
  * @param {Function} cancelAction what to do if the edit is cancelled
  * @param {Function} callback what to do if the edit is saved
  */
-function editNode(item, cancelAction, callback) {
+function editNode(item, point, cancelAction, callback) {
 	initPopUp('Edit Factor', 150, item, cancelAction, saveNode, callback);
 	elem('popup').insertAdjacentHTML(
 		'beforeend',
@@ -1279,7 +1237,7 @@ function editNode(item, cancelAction, callback) {
 	elem('node-borderType').value = getDashes(
 		item.shapeProperties.borderDashes
 	);
-	positionPopUp();
+	positionPopUp(point);
 	elem('popup-label').focus();
 	elem('popup').timer = setTimeout(() => {
 		//ensure that the node cannot be locked out for ever
@@ -1299,10 +1257,11 @@ function getDashes(val) {
 /**
  * Draw a dialog box for user to edit an edge
  * @param {Object} item the edge
+ * @param {Object} point the centre of the edge
  * @param {Function} cancelAction what to do if the edit is cancelled
  * @param {Function} callback what to do if the edit is saved
  */
-function editEdge(item, cancelAction, callback) {
+function editEdge(item, point, cancelAction, callback) {
 	initPopUp('Edit Link', 150, item, cancelAction, saveEdge, callback);
 	elem('popup').insertAdjacentHTML(
 		'beforeend',
@@ -1355,7 +1314,7 @@ function editEdge(item, cancelAction, callback) {
 	elem('edge-color').value = standardize_color(item.color.color);
 	elem('edge-type').value = getDashes(item.dashes);
 	elem('edge-font-size').value = parseInt(item.font.size);
-	positionPopUp();
+	positionPopUp(point);
 	elem('popup-label').focus();
 	elem('popup').timer = setTimeout(() => {
 		//ensure that the edge cannot be locked out for ever
@@ -1403,15 +1362,14 @@ function initPopUp(
 /**
  * Position the editing dialog box so that it is to the left of the item being edited,
  * but not outside the window
+ * @param {Object} point
  */
-function positionPopUp() {
+function positionPopUp(point) {
 	let popUp = elem('popup');
 	popUp.style.display = 'block';
-	// popup appears to the left of the mouse pointer
-	popUp.style.top = `${
-		event.clientY - popUp.offsetHeight / 2 - popUp.offsetParent.offsetTop
-	}px`;
-	let left = event.clientX - popUp.offsetWidth - 3;
+	// popup appears to the left of the given point
+	popUp.style.top = `${point.y - popUp.offsetHeight / 2}px`;
+	let left = point.x - popUp.offsetWidth - 3;
 	popUp.style.left = `${left < 0 ? 0 : left}px`;
 	dragElement(popUp, elem('popup-top'));
 }
