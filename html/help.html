@@ -1,952 +1,290 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="generator" content="pandoc" />
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1.0, user-scalable=yes"
-		/>
-		<title>PRSM Help</title>
-		<style>
-			code {
-				white-space: pre-wrap;
-			}
-			span.smallcaps {
-				font-variant: small-caps;
-			}
-			span.underline {
-				text-decoration: underline;
-			}
-			div.column {
-				display: inline-block;
-				vertical-align: top;
-				width: 50%;
-			}
-			div.hanging-indent {
-				margin-left: 1.5em;
-				text-indent: -1.5em;
-			}
-			ul.task-list {
-				list-style: none;
-			}
-			pre > code.sourceCode {
-				white-space: pre;
-				position: relative;
-			}
-			pre > code.sourceCode > span {
-				display: inline-block;
-				line-height: 1.25;
-			}
-			pre > code.sourceCode > span:empty {
-				height: 1.2em;
-			}
-			code.sourceCode > span {
-				color: inherit;
-				text-decoration: inherit;
-			}
-			div.sourceCode {
-				margin: 1em 0;
-			}
-			pre.sourceCode {
-				margin: 0;
-			}
-			@media screen {
-				div.sourceCode {
-					overflow: auto;
-				}
-			}
-			@media print {
-				pre > code.sourceCode {
-					white-space: pre-wrap;
-				}
-				pre > code.sourceCode > span {
-					text-indent: -5em;
-					padding-left: 5em;
-				}
-			}
-			pre.numberSource code {
-				counter-reset: source-line 0;
-			}
-			pre.numberSource code > span {
-				position: relative;
-				left: -4em;
-				counter-increment: source-line;
-			}
-			pre.numberSource code > span > a:first-child::before {
-				content: counter(source-line);
-				position: relative;
-				left: -1em;
-				text-align: right;
-				vertical-align: baseline;
-				border: none;
-				display: inline-block;
-				-webkit-touch-callout: none;
-				-webkit-user-select: none;
-				-khtml-user-select: none;
-				-moz-user-select: none;
-				-ms-user-select: none;
-				user-select: none;
-				padding: 0 4px;
-				width: 4em;
-				color: #aaaaaa;
-			}
-			pre.numberSource {
-				margin-left: 3em;
-				border-left: 1px solid #aaaaaa;
-				padding-left: 4px;
-			}
-			div.sourceCode {
-			}
-			@media screen {
-				pre > code.sourceCode > span > a:first-child::before {
-					text-decoration: underline;
-				}
-			}
-			code span.al {
-				color: #ff0000;
-				font-weight: bold;
-			} /* Alert */
-			code span.an {
-				color: #60a0b0;
-				font-weight: bold;
-				font-style: italic;
-			} /* Annotation */
-			code span.at {
-				color: #7d9029;
-			} /* Attribute */
-			code span.bn {
-				color: #40a070;
-			} /* BaseN */
-			code span.bu {
-			} /* BuiltIn */
-			code span.cf {
-				color: #007020;
-				font-weight: bold;
-			} /* ControlFlow */
-			code span.ch {
-				color: #4070a0;
-			} /* Char */
-			code span.cn {
-				color: #880000;
-			} /* Constant */
-			code span.co {
-				color: #60a0b0;
-				font-style: italic;
-			} /* Comment */
-			code span.cv {
-				color: #60a0b0;
-				font-weight: bold;
-				font-style: italic;
-			} /* CommentVar */
-			code span.do {
-				color: #ba2121;
-				font-style: italic;
-			} /* Documentation */
-			code span.dt {
-				color: #902000;
-			} /* DataType */
-			code span.dv {
-				color: #40a070;
-			} /* DecVal */
-			code span.er {
-				color: #ff0000;
-				font-weight: bold;
-			} /* Error */
-			code span.ex {
-			} /* Extension */
-			code span.fl {
-				color: #40a070;
-			} /* Float */
-			code span.fu {
-				color: #06287e;
-			} /* Function */
-			code span.im {
-			} /* Import */
-			code span.in {
-				color: #60a0b0;
-				font-weight: bold;
-				font-style: italic;
-			} /* Information */
-			code span.kw {
-				color: #007020;
-				font-weight: bold;
-			} /* Keyword */
-			code span.op {
-				color: #666666;
-			} /* Operator */
-			code span.ot {
-				color: #007020;
-			} /* Other */
-			code span.pp {
-				color: #bc7a00;
-			} /* Preprocessor */
-			code span.sc {
-				color: #4070a0;
-			} /* SpecialChar */
-			code span.ss {
-				color: #bb6688;
-			} /* SpecialString */
-			code span.st {
-				color: #4070a0;
-			} /* String */
-			code span.va {
-				color: #19177c;
-			} /* Variable */
-			code span.vs {
-				color: #4070a0;
-			} /* VerbatimString */
-			code span.wa {
-				color: #60a0b0;
-				font-weight: bold;
-				font-style: italic;
-			} /* Warning */
-			.display.math {
-				display: block;
-				text-align: center;
-				margin: 0.5rem auto;
-			}
-		</style>
-		<link rel="stylesheet" href="/doc/help.css" />
-		<!--[if lt IE 9]>
-			<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-		<![endif]-->
-		<link rel="icon" href="/img/prsm-logo.ico" />
-		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
-	</head>
-	<body>
-		<div class="contents" id="contents">
-			<header id="title-block-header">
-				<h1 class="title">PRSM Help</h1>
-			</header>
-			<!-- markdownlint-disable-file MD026 MD033-->
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>PRSM Help</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="/doc/help.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+  <link rel="icon" href="/img/prsm-logo.ico" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+</head>
+<body>
+<div class="contents" id="contents">
+<header id="title-block-header">
+<h1 class="title">PRSM Help</h1>
+</header>
+<!-- markdownlint-disable-file MD026 MD033-->
 
-			<h1 id="participatory-system-mapper">
-				Participatory System Mapper
-			</h1>
-			<h2 id="what-is-it">What is it?</h2>
-			<p>
-				The Participatory System Mapper (PRSM for short) is an app that
-				runs in a web browser that makes it easy for a group of people
-				working together to draw networks (or 'maps') of systems.
-			</p>
-			<h3 id="maps">Maps</h3>
-			<p>
-				The network or map can be anything that has items (or 'factors'
-				or 'nodes') connected by links (or 'edges'). Here are some
-				examples:
-			</p>
-			<ul>
-				<li>People (the nodes) connected by knowing each other</li>
-				<li>
-					Factors or variables causing (the links) changes in other
-					factors
-				</li>
-				<li>Switches connected by wires</li>
-				<li>Computers connected by network links</li>
-				<li>
-					Theories expressed as variables and relationships between
-					them
-				</li>
-				<li>
-					Company boards of directors (the nodes) and the directors
-					that sit on more than one board (the links)
-				</li>
-				<li>
-					Twitter hashtags (the nodes) included together on posts (the
-					links)
-				</li>
-				<li>Scientists (the nodes) co-authoring papers (the links)</li>
-				<li>and so on.</li>
-			</ul>
-			<h3 id="systems">Systems</h3>
-			<p>
-				The software is aimed at people who are interested in
-				understanding whole systems. Wikipedia defines a system as
-				<a href="https://en.wikipedia.org/wiki/System"
-					>a group of interacting or interrelated entities that form a
-					unified whole</a
-				>.
-			</p>
-			<h3 id="participatory-system-mapping">
-				Participatory system mapping
-			</h3>
-			<p>
-				The app is designed to enable groups of people, each using their
-				own computer (or tablet) to collaborate in the drawing of a map.
-				They may be sitting around a table, discussing the map as it is
-				created face to face, or working remotely, using video
-				conferencing or the chat feature that is built into the app.
-				Everyone can participate because every edit (creating nodes and
-				links, arranging them and so on) is broadcast to all the other
-				participants as the changes are made (just as Google Docs does
-				for text, for example).
-			</p>
-			<p>
-				When you start the app in your browser, a 'room' is created for
-				you in which to draw your network. You can add other users to
-				this room to share the work. Only those with access to the room
-				can see what is being created.
-			</p>
-			<h2 id="examples">Examples</h2>
-			<p>Here are a few examples of what you can do with the app:</p>
-			<p>
-				The first is a theory of change adapted from an
-				<a href="https://www.thinknpc.org/resource-hub/ten-steps/"
-					>NPC report</a
-				>.
-			</p>
-			<p><img src="/doc/images/NPCexample.png" alt="NCP Example" /></p>
-			<p>
-				The second is a system map about the environmental impact of
-				goods transport developed by a small group of experts working
-				together using the app.
-			</p>
-			<p>
-				<img src="/doc/images/SCandLexample.png" alt="SCandL Example" />
-			</p>
-			<p>
-				The third is a large network of 736 nodes and about 9000 links
-				representing the team members playing in the 2019 football World
-				Cup.
-			</p>
-			<p>
-				<img
-					src="/doc/images/WorldCup2019example.png"
-					alt="World Cup 2019 Example"
-				/>
-			</p>
-			<h2 id="installation">Installation</h2>
-			<p>
-				No installation on your computer is needed. The software is a
-				web app, which means that it can be accessed using a web browser
-				by pasting this link into the address bar:
-			</p>
-			<p>
-				<a href="https://cress.soc.surrey.ac.uk/prsm/prsm.html"
-					>https://cress.soc.surrey.ac.uk/prsm/prsm.html</a
-				>
-			</p>
-			<p>
-				You need a modern web browser such as Chrome, Firefox, Microsoft
-				Edge or Safari. It will not work with Internet Explorer.
-			</p>
-			<p>
-				The software is free and available under an
-				<a href="https://choosealicense.com/licenses/mit/">MIT</a>
-				license.
-			</p>
-			<h2 id="basic-use">Basic use</h2>
-			<p>
-				When the app is started for the first time in your browser,
-				there is an option to type in your name and then to follow a
-				brief tour that shows you the main items on the web page.
-			</p>
-			<p>
-				<img src="/doc/images/start-screen.png" alt="Nav Bar icons" />
-			</p>
-			<p>
-				This introductory tour is only shown the very first time you use
-				PRSM. If you want to view the tour again, click
-				<button
-					onclick="localStorage.setItem('doneIntro', 'false'); return false"
-				>
-					here</button
-				>.
-			</p>
-			<p>At the top of the screen are a row of buttons.</p>
-			<!-- ![Nav Bar icons](/doc/images/prsm-nav-icons.png)
+<h1 id="participatory-system-mapper">Participatory System Mapper</h1>
+<h2 id="what-is-it">What is it?</h2>
+<p>The Participatory System Mapper (PRSM for short) is an app that runs in a web browser that makes it easy for a group of people working together to draw networks (or 'maps') of systems.</p>
+<h3 id="maps">Maps</h3>
+<p>The network or map can be anything that has items (or 'factors' or 'nodes') connected by links (or 'edges'). Here are some examples:</p>
+<ul>
+<li>People (the nodes) connected by knowing each other</li>
+<li>Factors or variables causing (the links) changes in other factors</li>
+<li>Switches connected by wires</li>
+<li>Computers connected by network links</li>
+<li>Theories expressed as variables and relationships between them</li>
+<li>Company boards of directors (the nodes) and the directors that sit on more than one board (the links)</li>
+<li>Twitter hashtags (the nodes) included together on posts (the links)</li>
+<li>Scientists (the nodes) co-authoring papers (the links)</li>
+<li>and so on.</li>
+</ul>
+<h3 id="systems">Systems</h3>
+<p>The software is aimed at people who are interested in understanding whole systems. Wikipedia defines a system as <a href="https://en.wikipedia.org/wiki/System">a group of interacting or interrelated entities that form a unified whole</a>.</p>
+<h3 id="participatory-system-mapping">Participatory system mapping</h3>
+<p>The app is designed to enable groups of people, each using their own computer (or tablet) to collaborate in the drawing of a map. They may be sitting around a table, discussing the map as it is created face to face, or working remotely, using video conferencing or the chat feature that is built into the app. Everyone can participate because every edit (creating nodes and links, arranging them and so on) is broadcast to all the other participants as the changes are made (just as Google Docs does for text, for example).</p>
+<p>When you start the app in your browser, a 'room' is created for you in which to draw your network. You can add other users to this room to share the work. Only those with access to the room can see what is being created.</p>
+<h2 id="examples">Examples</h2>
+<p>Here are a few examples of what you can do with the app:</p>
+<p>The first is a theory of change adapted from an <a href="https://www.thinknpc.org/resource-hub/ten-steps/">NPC report</a>.</p>
+<p><img src="/doc/images/NPCexample.png" alt="NCP Example" /></p>
+<p>The second is a system map about the environmental impact of goods transport developed by a small group of experts working together using the app.</p>
+<p><img src="/doc/images/SCandLexample.png" alt="SCandL Example" /></p>
+<p>The third is a large network of 736 nodes and about 9000 links representing the team members playing in the 2019 football World Cup.</p>
+<p><img src="/doc/images/WorldCup2019example.png" alt="World Cup 2019 Example" /></p>
+<h2 id="installation">Installation</h2>
+<p>No installation on your computer is needed. The software is a web app, which means that it can be accessed using a web browser by pasting this link into the address bar:</p>
+<p><a href="https://cress.soc.surrey.ac.uk/prsm/prsm.html">https://cress.soc.surrey.ac.uk/prsm/prsm.html</a></p>
+<p>You need a modern web browser such as Chrome, Firefox, Microsoft Edge or Safari. It will not work with Internet Explorer.</p>
+<p>The software is free and available under an <a href="https://choosealicense.com/licenses/mit/">MIT</a> license.</p>
+<h2 id="basic-use">Basic use</h2>
+<p>When the app is started for the first time in your browser, there is an option to type in your name and then to follow a brief tour that shows you the main items on the web page.</p>
+<p><img src="/doc/images/start-screen.png" alt="Nav Bar icons" /></p>
+<p>This introductory tour is only shown the very first time you use PRSM. If you want to view the tour again, click <button onclick="localStorage.setItem('doneIntro', 'false'); return false">here</button>.</p>
+<p>At the top of the screen are a row of buttons.</p>
+<!-- ![Nav Bar icons](/doc/images/prsm-nav-icons.png)
 <img src="/doc/images/prsm-nav-icons.png" width="400"> -->
 
-			<p>This what they do, from left to right:</p>
-			<ul>
-				<li>
-					<strong>New factor</strong> (or node). Click on the cross
-					and then click on the blank area below (the 'network pane')
-					to create a node for the network. A small dialog box will
-					open for you to type in a label for the factor.
-				</li>
-				<li>
-					<strong>New link</strong> (or edge). Click on the arrow
-					button and then drag from one factor to another to link
-					them. If you wish, you can have two links between a pair of
-					factors: one for each direction.
-				</li>
-			</ul>
-			<p>
-				<img
-					src="/doc/images/create-link-nodes.gif"
-					alt="Creating and linking two nodes"
-				/>
-			</p>
-			<ul>
-				<li>
-					<strong>Undo</strong>. Reverses the last action (e.g. if you
-					have just created a new factor, it will be removed).
-				</li>
-				<li>
-					<strong>Redo</strong>. Redo the last action (e.g. if you
-					have just undone the creation of a factor, this will return
-					the factor to the network).
-				</li>
-				<li>
-					<strong>Bin</strong>. First, select a factor or a link by
-					clicking on it. Note that the selected factor or link gains
-					a shadow and is listed in the status bar at the bottom of
-					the window. Then click on the Bin button - the factor or
-					link is deleted. The Undo button will restore it if you
-					deleted it by mistake.
-				</li>
-				<li>
-					<strong>Share</strong>. Shows a dialog box with a web link
-					that you can copy and send to someone else. If they then
-					access that link, they will see your network and can edit
-					and add to it. See <a href="#sharing">Sharing</a> below.
-				</li>
-				<li>
-					<strong>Open file</strong>. Read in a file containing a
-					network from your computer drive. See
-					<a href="#file-formats">below</a> for supported file
-					formats. The content of the file replaces the network in the
-					browser.
-				</li>
-				<li>
-					<strong>Save file</strong>. Save the network in a file on
-					your computer. The file is saved in the app's own format, or
-					if you click on the small triangle next to the button, you
-					can choose to save in GML (Graph Markup Language) or CSV
-					(Comma Separated Values) formats.
-				</li>
-				<li>
-					<strong>Help</strong> Display this help page in a separate
-					window.
-				</li>
-				<li>
-					<strong>Settings</strong>. Opens a panel that allows much
-					more customisation and exploration of the network (see
-					<a href="#styling-the-map">Styling the map</a> below).
-				</li>
-			</ul>
-			<p>
-				To select a factor or a link, click on it. To select more than
-				one, click on one factor or link and then <em>hold down</em> the
-				pointer over the other. At the bottom of the window is the
-				status bar, which will show which factors and links have been
-				selected.
-			</p>
-			<p>
-				Also at the bottom of the window on the right is a slider that
-				will adjust the magnification: slide to the right to make the
-				factors and links larger and to the left to make them smaller
-				(or click on the + and - signs). To return the network to a size
-				that will fit neatly in the window, double click anywhere on the
-				network background.
-			</p>
-			<p>
-				Each node can be moved across the network pane by selecting it
-				and dragging. The whole network can be moved by dragging the
-				background.
-			</p>
-			<h3 id="sharing">Sharing</h3>
-			<p>
-				If you use the link above to start the app, a new room is
-				created for you. When you click on the share icon, a dialog box
-				is shown that includes the name of the room in the link that is
-				displayed:
-			</p>
-			<p><img src="/doc/images/prsm-share.png" alt="Sharing box" /></p>
-			<p>
-				Click the button to copy the web link to the clipboard, and then
-				paste the link into an email or a text message. or just tell
-				other participants the name of the room (which is a randomly
-				generated set of 4 groups of three capital letters separated by
-				hyphens). When they access the link, they will see whatever is
-				in your app window.
-			</p>
-			<p>
-				When there are others in the room, the initial letter of their
-				name appears in a circle at the top left - their avatar. If you
-				hover the mouse pointer over the circle, their full name is
-				shown (their real name or the name they have been given by the
-				app). If they don't do anything for 15 minutes, the avatar fades
-				and, if they close thier browser window, it disappears.
-			</p>
-			<!-- ![Avatars](/doc/images/avatars.png) -->
+<p>This what they do, from left to right:</p>
+<ul>
+<li><strong>New factor</strong> (or node). Click on the cross and then click on the blank area below (the 'network pane') to create a node for the network. A small dialog box will open for you to type in a label for the factor.</li>
+<li><strong>New link</strong> (or edge). Click on the arrow button and then drag from one factor to another to link them. If you wish, you can have two links between a pair of factors: one for each direction.</li>
+</ul>
+<p><img src="/doc/images/create-link-nodes.gif" alt="Creating and linking two nodes" /></p>
+<ul>
+<li><strong>Undo</strong>. Reverses the last action (e.g. if you have just created a new factor, it will be removed).</li>
+<li><strong>Redo</strong>. Redo the last action (e.g. if you have just undone the creation of a factor, this will return the factor to the network).</li>
+<li><strong>Bin</strong>. First, select a factor or a link by clicking on it. Note that the selected factor or link gains a shadow and is listed in the status bar at the bottom of the window. Then click on the Bin button - the factor or link is deleted. The Undo button will restore it if you deleted it by mistake.</li>
+<li><strong>Share</strong>. Shows a dialog box with a web link that you can copy and send to someone else. If they then access that link, they will see your network and can edit and add to it. See <a href="#sharing">Sharing</a> below.</li>
+<li><strong>Open file</strong>. Read in a file containing a network from your computer drive. See <a href="#file-formats">below</a> for supported file formats. The content of the file replaces the network in the browser.</li>
+<li><strong>Save file</strong>. Save the network in a file on your computer. The file is saved in the app's own format, or if you click on the small triangle next to the button, you can choose to save in GML (Graph Markup Language) or CSV (Comma Separated Values) formats.</li>
+<li><strong>Help</strong> Display this help page in a separate window.</li>
+<li><strong>Settings</strong>. Opens a panel that allows much more customisation and exploration of the network (see <a href="#styling-the-map">Styling the map</a> below).</li>
+</ul>
+<p>To select a factor or a link, click on it. To select more than one, click on one factor or link and then <em>hold down</em> the pointer over the other. At the bottom of the window is the status bar, which will show which factors and links have been selected.</p>
+<p>Also at the bottom of the window on the right is a slider that will adjust the magnification: slide to the right to make the factors and links larger and to the left to make them smaller (or click on the + and - signs). To return the network to a size that will fit neatly in the window, double click anywhere on the network background.</p>
+<p>Each node can be moved across the network pane by selecting it and dragging. The whole network can be moved by dragging the background.</p>
+<h3 id="sharing">Sharing</h3>
+<p>If you use the link above to start the app, a new room is created for you. When you click on the share icon, a dialog box is shown that includes the name of the room in the link that is displayed:</p>
+<p><img src="/doc/images/prsm-share.png" alt="Sharing box" /></p>
+<p>Click the button to copy the web link to the clipboard, and then paste the link into an email or a text message. or just tell other participants the name of the room (which is a randomly generated set of 4 groups of three capital letters separated by hyphens). When they access the link, they will see whatever is in your app window.</p>
+<p>When there are others in the room, the initial letter of their name appears in a circle at the top left - their avatar. If you hover the mouse pointer over the circle, their full name is shown (their real name or the name they have been given by the app). If they don't do anything for 15 minutes, the avatar fades and, if they close thier browser window, it disappears.</p>
+<!-- ![Avatars](/doc/images/avatars.png) -->
 
-			<img src="/doc/images/avatars.png" width="400" />
+<img src="/doc/images/avatars.png" width="400">
 
-			<p>
-				If you wnat to show someone a map, but don't want them to alter
-				it in any way, send them the link with
-				<code>&amp;viewing</code> appended, for instance:
-			</p>
-			<p>
-				<a
-					href="https://cress.soc.surrey.ac.uk/prsm/prsm.html?room=CPC-AJH-UQP-ZWP&amp;viewing"
-					>https://cress.soc.surrey.ac.uk/prsm/prsm.html?room=CPC-AJH-UQP-ZWP&amp;viewing</a
-				>
-			</p>
-			<h3 id="using-the-mouse-and-touch">Using the mouse and touch</h3>
-			<p>
-				You can use the following mouse actions (or finger or pencil
-				gestures on a tablet):
-			</p>
-			<ul>
-				<li>
-					a <em>click</em> on a factor or a link will select it (the
-					factor or link gains a shadow to show it has been selected,
-					and a message appears in the status bar). Selected factors
-					can be moved by dragging them (hold down and then move the
-					mouse ) and can be deleted (click on the dustbin icon in the
-					navigation bar).
-				</li>
-				<li>
-					a <em>long click</em> on a factor or link extends the
-					selection: that factor or link is added to those already
-					selected.
-				</li>
-				<li>
-					a <em>control-click</em> (hold down the control key and
-					click with the mouse) on a factor or link also extends the
-					selection.
-				</li>
-				<li>
-					a <em>double-click</em> on a factor or link opens an editing
-					dialog so that you can edit its label, change colors and
-					border widths etc. (see
-					<a href="#formatting-factors-and-links"
-						>Formatting factors and links</a
-					>).
-				</li>
-				<li>
-					a <em>click</em> on the background de-selects all factors
-					and links.
-				</li>
-				<li><em>dragging</em> the background moves the whole map.</li>
-				<li>
-					a <em>double-click</em> on the background zooms the whole
-					map in or out so that it neatly fits the window.
-				</li>
-			</ul>
-			<h3 id="formatting-factors-and-links">
-				Formatting factors and links
-			</h3>
-			<p>
-				Double clicking on a factor or a link will bring up a small
-				dialog that enables you to change the design of the factor or
-				link - its colour, shape or the label.
-			</p>
-			<!-- ![Editing a node](/doc/images/Editingnode.png) -->
+<p>If you wnat to show someone a map, but don't want them to alter it in any way, send them the link with <code>&amp;viewing</code> appended, for instance:</p>
+<p><a href="https://cress.soc.surrey.ac.uk/prsm/prsm.html?room=CPC-AJH-UQP-ZWP&amp;viewing">https://cress.soc.surrey.ac.uk/prsm/prsm.html?room=CPC-AJH-UQP-ZWP&amp;viewing</a></p>
+<h3 id="using-the-mouse-and-touch">Using the mouse and touch</h3>
+<p>You can use the following mouse actions (or finger or pencil gestures on a tablet):</p>
+<ul>
+<li>a <em>click</em> on a factor or a link will select it (the factor or link gains a shadow to show it has been selected, and a message appears in the status bar). Selected factors can be moved by dragging them (hold down and then move the mouse ) and can be deleted (click on the dustbin icon in the navigation bar).</li>
+<li>a <em>long click</em> on a factor or link extends the selection: that factor or link is added to those already selected.</li>
+<li>a <em>control-click</em> (hold down the control key and click with the mouse) on a factor or link also extends the selection.</li>
+<li>a <em>double-click</em> on a factor or link opens an editing dialog so that you can edit its label, change colors and border widths etc. (see <a href="#formatting-factors-and-links">Formatting factors and links</a>).</li>
+<li>a <em>click</em> on the background de-selects all factors and links.</li>
+<li><em>dragging</em> the background moves the whole map.</li>
+<li>a <em>double-click</em> on the background zooms the whole map in or out so that it neatly fits the window.</li>
+</ul>
+<h3 id="formatting-factors-and-links">Formatting factors and links</h3>
+<p>Double clicking on a factor or a link will bring up a small dialog that enables you to change the design of the factor or link - its colour, shape or the label.</p>
+<!-- ![Editing a node](/doc/images/Editingnode.png) -->
 
-			<img src="/doc/images/Editingnode.png" width="400" />
+<img src="/doc/images/Editingnode.png" width="400">
 
-			<p>
-				See <a href="#styling-the-map">Styling the map</a> for more on
-				changing the look of factors and links.
-			</p>
-			<h3 id="the-chat-window">The chat window</h3>
-			<p>
-				Clicking on the speech ballons at the bottom right opens up a
-				chat window that you can use to type messages to other
-				participants in your room.
-			</p>
-			<!-- ![Chat window](/doc/images/ChatWindow.png) -->
+<p>See <a href="#styling-the-map">Styling the map</a> for more on changing the look of factors and links.</p>
+<h3 id="the-chat-window">The chat window</h3>
+<p>Clicking on the speech ballons at the bottom right opens up a chat window that you can use to type messages to other participants in your room.</p>
+<!-- ![Chat window](/doc/images/ChatWindow.png) -->
 
-			<img src="/doc/images/ChatWindow.png" width="400" />
+<img src="/doc/images/ChatWindow.png" width="400">
 
-			<p>
-				If you haven't provided your real name, the name at the top is
-				initially randomly generated, but if you click on it, you can
-				substitute your own. You can write messages in the box at the
-				bottom and send them by clicking the paper plane button. Use the
-				<strong>X</strong> to close the chat window.
-			</p>
-			<p>
-				If someone has sent you a message but your chat window is
-				closed, the button will gently pulse to remind you to open it:
-			</p>
-			<p>
-				<img
-					src="/doc/images/ChatWindowButton.gif"
-					alt="Chat Window Button"
-				/>
-			</p>
-			<h3 id="file-formats">File formats</h3>
-			<p>
-				The app can read files in its native format (files with the
-				suffix '.prsm'), or in
-				<a href="http://graphml.graphdrawing.org/">GRAPHML</a>
-				(.graphml),
-				<a href="https://en.wikipedia.org/wiki/Graph_Modelling_Language"
-					>GML</a
-				>
-				(.gml) or
-				<a href="https://en.wikipedia.org/wiki/Comma-separated_values"
-					>Comma Separated Values</a
-				>
-				(.csv) formats. A CSV file must contain a two columns of values.
-				Each row represents a link. In the first column is the label of
-				the factor from which the link points, and in the second column
-				is the label of the factor the link is pointing to. This very
-				simple format is designed to allow straightforward imports from
-				other software. Optionally, the third and fourth columns may
-				contain an integer between 1 and 9 - if they do, the factor is
-				styled with that style (styles are numbered from top left to
-				bottm right as shown on the
-				<a href="#factors-tab">Factors tab</a>). The fifth column may
-				contain the style number for the link.
-			</p>
-			<p>
-				The app can create output files in the app's own native format,
-				as a GML file or as a CSV file.
-			</p>
-			<h3 id="privacy-and-security">Privacy and security</h3>
-			<p>
-				The only way to join the room and see the network is by using
-				the randomly generated room name, and the chances of finding
-				that name by trial and error is very, very small. The network is
-				not stored on any server (there is a central server, but this is
-				only used to broadcast encoded messages from one participant in
-				a room to another). The server is located in Europe.
-			</p>
-			<h2 id="styling-the-map">Styling the map</h2>
-			<p>
-				The view you see when you first open the app is intentionally
-				very simple, but hidden away are many more features. To access
-				these, click on the last, Settings, button on the top bar:
-				<!-- ![Settings Button](/doc/images/SettingsButton.png) --><img
-					src="/doc/images/SettingsButton.png"
-					width="20"
-				/>. This will reveal a set of three tabs: Network, Factors and
-				Links, with the Factors tab open.
-			</p>
-			<p>
-				The panel showing the tabs can moved across the network pane:
-				just drag any of the three tabs and they and the panel below
-				will move. This can be useful if the panel gets in the way of
-				seeing the network.
-			</p>
-			<h3 id="factors-tab">Factors tab</h3>
-			<!-- ![FactorsWindow](/doc/images/FactorsPanel.png) -->
+<p>If you haven't provided your real name, the name at the top is initially randomly generated, but if you click on it, you can substitute your own. You can write messages in the box at the bottom and send them by clicking the paper plane button. Use the <strong>X</strong> to close the chat window.</p>
+<p>If someone has sent you a message but your chat window is closed, the button will gently pulse to remind you to open it:</p>
+<p><img src="/doc/images/ChatWindowButton.gif" alt="Chat Window Button" /></p>
+<h3 id="file-formats">File formats</h3>
+<p>The app can read files in its native format (files with the suffix '.prsm'), or in <a href="http://graphml.graphdrawing.org/">GRAPHML</a> (.graphml), <a href="https://en.wikipedia.org/wiki/Graph_Modelling_Language">GML</a> (.gml) or <a href="https://en.wikipedia.org/wiki/Comma-separated_values">Comma Separated Values</a> (.csv) formats. A CSV file must contain a two columns of values. Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to. This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottm right as shown on the <a href="#factors-tab">Factors tab</a>). The fifth column may contain the style number for the link.</p>
+<p>The app can create output files in the app's own native format, as a GML file or as a CSV file.</p>
+<h3 id="privacy-and-security">Privacy and security</h3>
+<p>The only way to join the room and see the network is by using the randomly generated room name, and the chances of finding that name by trial and error is very, very small. The network is not stored on any server (there is a central server, but this is only used to broadcast encoded messages from one participant in a room to another). The server is located in Europe.</p>
+<h2 id="styling-the-map">Styling the map</h2>
+<p>The view you see when you first open the app is intentionally very simple, but hidden away are many more features. To access these, click on the last, Settings, button on the top bar: <!-- ![Settings Button](/doc/images/SettingsButton.png) --><img src="/doc/images/SettingsButton.png" width="20">. This will reveal a set of three tabs: Network, Factors and Links, with the Factors tab open.</p>
+<p>The panel showing the tabs can moved across the network pane: just drag any of the three tabs and they and the panel below will move. This can be useful if the panel gets in the way of seeing the network.</p>
+<h3 id="factors-tab">Factors tab</h3>
+<!-- ![FactorsWindow](/doc/images/FactorsPanel.png) -->
 
-			<img src="/doc/images/FactorsPanel.png" width="300" />
+<img src="/doc/images/FactorsPanel.png" width="300">
 
-			<p>
-				Here there are 9 sample styles for how factors can look. If you
-				select a factor from the network and then click on one of the 9
-				styles, the factor will change to resemble the style. As a short
-				cut, if you click on the 'Select all factors' button at the
-				bottom, and then click on a style, all the factors will change
-				to the chosen style.
-			</p>
-			<p>
-				Double clicking on any of the 9 styles opens a dialog box to
-				change the style:
-			</p>
-			<!-- ![FactorStyleDialog](/doc/images/FactorStyle.png) -->
+<p>Here there are 9 sample styles for how factors can look. If you select a factor from the network and then click on one of the 9 styles, the factor will change to resemble the style. As a short cut, if you click on the 'Select all factors' button at the bottom, and then click on a style, all the factors will change to the chosen style.</p>
+<p>Double clicking on any of the 9 styles opens a dialog box to change the style:</p>
+<!-- ![FactorStyleDialog](/doc/images/FactorStyle.png) -->
 
-			<img src="/doc/images/FactorsStyle.png" width="600" />
+<img src="/doc/images/FactorsStyle.png" width="600">
 
-			<p>
-				There are options to change the colour of the background (the
-				'fill'), the border and the font of the label, to change the
-				shape, for example to a rectangle or a circle, to change the
-				border from solid to dashed or dotted or none, and to change the
-				font size of the label.
-			</p>
-			<p>
-				You can also change the name of the style. If you do so, this
-				name will appear on the network pane as one item in the
-				'legend'. So, for example, if you had some factors that are
-				Inputs, some that are Actions, some Outputs and some Outcomes,
-				you could give four of the styles these names, colour their
-				fills green, yellow, orange and red, and then apply these styles
-				to the appropriate factors in the network. The legend will be
-				automatically displayed on the network pane, thus:
-			</p>
-			<p><img src="/doc/images/Legend.png" alt="Legend" /></p>
-			<p>
-				The legend can be moved by dragging the top of the Legend pane.
-			</p>
-			<p>
-				If you select just one factor, a small panel appears below the
-				styles. This shows the factor label, some network statistics
-				about the factor, and an area where you can type in further
-				information about the factor as a note. If you hover the pointer
-				above the factor, the note will be shown. There is also a check
-				box, Fix - if this is checked, the factor will be locked into
-				place on the network pane and cannot be dragged elsewhere.
-			</p>
-			<!-- ![FactorsPanelWithNote](/doc/images/FactorsPanelWithNote.png) -->
+<p>There are options to change the colour of the background (the 'fill'), the border and the font of the label, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted or none, and to change the font size of the label.</p>
+<p>You can also change the name of the style. If you do so, this name will appear on the network pane as one item in the 'legend'. So, for example, if you had some factors that are Inputs, some that are Actions, some Outputs and some Outcomes, you could give four of the styles these names, colour their fills green, yellow, orange and red, and then apply these styles to the appropriate factors in the network. The legend will be automatically displayed on the network pane, thus:</p>
+<p><img src="/doc/images/Legend.png" alt="Legend" /></p>
+<p>The legend can be moved by dragging the top of the Legend pane.</p>
+<p>If you select just one factor, a small panel appears below the styles. This shows the factor label, some network statistics about the factor, and an area where you can type in further information about the factor as a note. If you hover the pointer above the factor, the note will be shown. There is also a check box, Fix - if this is checked, the factor will be locked into place on the network pane and cannot be dragged elsewhere.</p>
+<!-- ![FactorsPanelWithNote](/doc/images/FactorsPanelWithNote.png) -->
 
-			<img src="/doc/images/FactorsPanelWithNote.png" width="600" />
+<img src="/doc/images/FactorsPanelWithNote.png" width="600">
 
-			<h3 id="links-tab">Links tab</h3>
-			<p>
-				The Links tab is very similar to the Factors tab, except that it
-				relates to the links. There are 9 link styles and each of these
-				can be changed by double clicking the link style. There are
-				options to change the colour of the link, whether it has an
-				arrow at the end, whether it is solid, dashed or dotted, and to
-				add a link label.
-			</p>
-			<!-- ![LinksPanel](/doc/images/LinksPanel.png) -->
+<h3 id="links-tab">Links tab</h3>
+<p>The Links tab is very similar to the Factors tab, except that it relates to the links. There are 9 link styles and each of these can be changed by double clicking the link style. There are options to change the colour of the link, whether it has an arrow at the end, whether it is solid, dashed or dotted, and to add a link label.</p>
+<!-- ![LinksPanel](/doc/images/LinksPanel.png) -->
 
-			<img src="/doc/images/LinksPanel.png" width="300" />
+<img src="/doc/images/LinksPanel.png" width="300">
 
-			<h3 id="network-tab">Network tab</h3>
-			<p>
-				The network tab enables you to change many aspects of the
-				network visualisation.
-			</p>
-			<!-- ![NetworkPanel](/doc/images/NetworkPanel.png) -->
+<h3 id="network-tab">Network tab</h3>
+<p>The network tab enables you to change many aspects of the network visualisation.</p>
+<!-- ![NetworkPanel](/doc/images/NetworkPanel.png) -->
 
-			<img src="/doc/images/NetworkPanel.png" width="300" />
+<img src="/doc/images/NetworkPanel.png" width="300">
 
-			<p>From top to bottom, there are controls for:</p>
-			<ul>
-				<li>
-					<strong>Auto Layout</strong> If this switch is set to ON,
-					the app attempts to move the factors and links to create a
-					neat layout with a minimum number of crossing links. It is
-					best to switch this ON, wait for the factors to move to
-					their calculated positions, switch it OFF and then manually
-					adjust the factors to a pleasing layout.
-					<ul>
-						<li>
-							<strong>Spacing</strong> This slider only appears
-							when Auto Layout is ON. With it, you can adjust the
-							space between the factors and the length of the
-							links.
-						</li>
-					</ul>
-				</li>
-				<li>
-					<strong>Snap to grid</strong> When ON, factors can only be
-					placed at the intersection of invisible grid lines. This
-					makes it much easier to line up factors neatly.
-				</li>
-				<li>
-					<strong>Link</strong> Links can either be drawn using a
-					curved line or a straight line. This control swaps between
-					these two styles.
-				</li>
-				<li>
-					<strong>Background</strong> Changes the colour of the
-					background of the network pane. Click on the colour well to
-					display possible colours. The default is white, but a black
-					background can also be effective.
-				</li>
-				<li>
-					<strong>Show drawing layer</strong> Puts the network pane
-					into drawing mode, so that background shapes, images and
-					text can be added. See
-					<a href="#drawing-mode">Drawing Mode</a> for more details.
-				</li>
-				<li>
-					<strong>Show labels</strong> If switched OFF, the factors
-					are shown without their labels.
-				</li>
-				<li>
-					<strong>Show legend</strong> If the factor and link styles
-					are given names (other than 'Sample'), the styles and their
-					names will be shown in a panel at the left bottom of the
-					network pane headed 'Legend', when this switch is ON. See
-					the description of the
-					<a href="#factors-tab">Factors tab</a>.
-				</li>
-				<li>
-					<strong>Show only neighbouring Factors</strong> If you first
-					select a Factor, (or several Factors) and then one of these
-					buttons, all Factors in the network will be hidden, except
-					for those 1, 2, or 3 links away from the selected Factor(s).
-					This is useful when one wants to focus on one part of a
-					large network.
-				</li>
-				<li>
-					<strong>Show only up or downstream Factors</strong> If you
-					first select a Factor, (or several Factors) and then one of
-					these buttons, all Factors in the network will be hidden,
-					except for those 'downstream (i.e. linked to the selected
-					Factor(s) by following links directed away from those
-					Factor(s)), or those 'upstream' (i.e. linked to the selected
-					Factor(s) by following links directed towards those
-					Factor(s)).
-				</li>
-				<li>
-					<strong>Adjust size of Factors</strong> This is used to
-					change the size of the Factors to be proportional to one of
-					a set of metrics: the number of inputs (the 'in-degree'),
-					the number of outputs (the 'out-degree'), the leverage
-					(ratio of inputs to outputs), or the
-					<a
-						href="https://en.wikipedia.org/wiki/Betweenness_centrality"
-						>betweenness centrality</a
-					>. Note that the Factors are always drawn large enough to
-					accommodate their labels, and so the size may not be exactly
-					proportional to the metric.
-				</li>
-			</ul>
-			<h2 id="drawing-mode">Drawing Mode</h2>
-			<p>
-				Switching 'Show drawing layer' ON reveals a group of buttons on
-				the left that enable you to draw shapes, write text, and import
-				images on to the network background.
-			</p>
-			<p>
-				<img src="/doc/images/drawingLayer.png" alt="Drawing layer" />
-			</p>
-			<p>
-				In drawing mode, the background has a faint square grid to help
-				line up your drawing. When you draw, you are 'painting' on the
-				background, which means that the shapes and text you apply can
-				only be moved by erasing them and redrawing.
-			</p>
-			<p>
-				When you click on a drawing button, a small dialog box appears
-				that can be used to adjust the drawing tool. For instance, the
-				Line tool, which draws straight lines, has options for the line
-				thickness and line colour.
-			</p>
-			<p>
-				To stop using a tool, either click on another one, or click a
-				second time on that tool's button.
-			</p>
-			<p>The drawing tools are, in order from top to bottom:</p>
-			<ul>
-				<li>
-					<strong>Line</strong> draws straight lines. There are
-					options for the line width, the colour of the line, and
-					whether the line must be along the axes, i.e. either
-					horizontal or vertical. To use the tool, click on the
-					background at the desired start position, drag across to the
-					line end and lift the mouse pointer.
-				</li>
-				<li>
-					<strong>Rectangle</strong> The options are the width of the
-					border around the rectangle and its colour, the colour of
-					the inside of the rectangle (the 'fill' colour) and whether
-					it should have rounded or sharp corners. To draw a
-					rectangle, click where one corner should be, then drag out
-					to where the opposite corner should be and lift the pointer.
-				</li>
-				<li>
-					<strong>Text</strong> Use this tool to add fixed text to the
-					background. The options are the colour and size of the text.
-					Click on the background to show a text box into which you
-					can type. You can move the box by dragging on the grey
-					border and expand it by dragging the black square at the
-					bottom right corner. Click anywhere outside the box to
-					finish.
-				</li>
-				<li><strong>Pencil</strong> draws freehand lines.</li>
-				<li>
-					<strong>Marker</strong> draws lines like a marker or
-					highlighter pen.
-				</li>
-				<li>
-					<strong>Eraser</strong> removes everything it passes over.
-				</li>
-				<li>
-					<strong>Image</strong> Clicking on this tool gives you a
-					file chooser to select an image file (picture) from your
-					computer - JPG, PNG and GIF formats are accepted. When the
-					image has been placed on the background, you can drag it to
-					where you want it, and resize it by dragging on the small
-					black square at the bottom right. Click anywhere outside the
-					image to fix it to the background.
-				</li>
-				<li>
-					<strong>Undo</strong> This tool will undo the effect of the
-					last drawing (e.g. if you have just placed an image on the
-					background, it will remove the image, or if you have drawn a
-					line with the pencil, it will undo that line). Each click of
-					the Undo button removes the previous drawing.
-				</li>
-			</ul>
-			<h2 id="source-code">Source Code</h2>
-			<p>
-				The program code is available on
-				<a href="https://github.com/micrology/prsm">GitHub</a>.
-			</p>
-			<p>
-				The javascript (ES6) code in sub-directory <code>js</code> is
-				divided into five modules: one that handles the main network
-				pane (<code>prsm.js</code>), one that manages the background
-				painting functions (<code>paint.js</code>), one that creates and
-				edits the styles (<code>styles.js</code>) (the default styles
-				are in <code>samples.js</code>), one that handles the tour
-				(<code>tutorial.js</code>) and one that includes common utility
-				functions (<code>utils.js</code>). The HTML file that displays
-				in the browser is in the <code>html</code> directory.
-			</p>
-			<p>
-				PRSM uses two important packages:
-				<a href="https://github.com/yjs/yjs"><code>yjs</code></a> and
-				<a href="https://visjs.org/"><code>vis-network</code></a
-				>. The former handles the sharing between participants' browsers
-				and the latter draws the network. A few other packages are used
-				for dealing with touch input (<a
-					href="https://hammerjs.github.io/"
-					><code>Hammer</code></a
-				>), drawing emojis, and parsing XML file input.
-			</p>
-			<p>
-				These components are assembled using
-				<a href="https://parceljs.org/"><code>parcel</code></a> and the
-				bundled file is placed in the <code>dist</code> directory. So
-				that users have an easy URL to access (i.e. not needing to
-				include <code>dist</code> in the link), there is an
-				<code>.htaccess</code> file that rewrites URLs from what the
-				user puts into their browser to the correct location.
-			</p>
-			<p>
-				To install the code, use <code>git</code> to clone the
-				<a href="https://github.com/micrology/prsm">repo</a> to your
-				local disk and change to the cloned directory. Then install the
-				required packages with
-			</p>
-			<div class="sourceCode" id="cb1">
-				<pre
-					class="sourceCode bash"
-				><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ex">npm</span> install</span></code></pre>
-			</div>
-			<p>and build the distribution with</p>
-			<div class="sourceCode" id="cb2">
-				<pre
-					class="sourceCode bash"
-				><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="ex">npm</span> run build</span></code></pre>
-			</div>
-			<p>Documentation can be found in the <code>doc</code> directory.</p>
-			<p>See <code>package.json</code> for other npm commands.</p>
-			<h2 id="acknowledgements">Acknowledgements</h2>
-			<p>
-				With thanks to all who helped inspire, suggest features for,
-				comment on, and test PRSM, including the members of
-				<a href="https://www.cecan.ac.uk/">CECAN</a>,
-				<a href="https://cress.soc.surrey.ac.uk/">CRESS</a>,
-				<a href="https://www.risksol.co.uk/">Risk Solutions</a>, and
-				Robin Gilbert.
-			</p>
-			<h2 id="bug-reports-and-feature-requests">
-				Bug reports and feature requests
-			</h2>
-			<p>
-				Please report problems, suggestions and praise to
-				<a href="mailto:n.gilbert@surrey.ac.uk"
-					><a href="mailto:n.gilbert@surrey.ac.uk"
-						>n.gilbert@surrey.ac.uk</a
-					></a
-				>
-			</p>
-		</div>
-		<script src="https://unpkg.com/scrollnav@3.0.2/dist/scrollnav.min.umd.js"></script>
-		<script>
-			window.addEventListener('load', () => {
-				const content = document.querySelector('#contents');
-				scrollnav.init(content);
-			});
-		</script>
-	</body>
+<p>From top to bottom, there are controls for:</p>
+<ul>
+<li><strong>Auto Layout</strong> If this switch is set to ON, the app attempts to move the factors and links to create a neat layout with a minimum number of crossing links. It is best to switch this ON, wait for the factors to move to their calculated positions, switch it OFF and then manually adjust the factors to a pleasing layout.
+<ul>
+<li><strong>Spacing</strong> This slider only appears when Auto Layout is ON. With it, you can adjust the space between the factors and the length of the links.</li>
+</ul></li>
+<li><strong>Snap to grid</strong> When ON, factors can only be placed at the intersection of invisible grid lines. This makes it much easier to line up factors neatly.</li>
+<li><strong>Link</strong> Links can either be drawn using a curved line or a straight line. This control swaps between these two styles.</li>
+<li><strong>Background</strong> Changes the colour of the background of the network pane. Click on the colour well to display possible colours. The default is white, but a black background can also be effective.</li>
+<li><strong>Show drawing layer</strong> Puts the network pane into drawing mode, so that background shapes, images and text can be added. See <a href="#drawing-mode">Drawing Mode</a> for more details.</li>
+<li><strong>Show labels</strong> If switched OFF, the factors are shown without their labels.</li>
+<li><strong>Show legend</strong> If the factor and link styles are given names (other than 'Sample'), the styles and their names will be shown in a panel at the left bottom of the network pane headed 'Legend', when this switch is ON. See the description of the <a href="#factors-tab">Factors tab</a>.</li>
+<li><strong>Show only neighbouring Factors</strong> If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 1, 2, or 3 links away from the selected Factor(s). This is useful when one wants to focus on one part of a large network.</li>
+<li><strong>Show only up or downstream Factors</strong> If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 'downstream (i.e. linked to the selected Factor(s) by following links directed away from those Factor(s)), or those 'upstream' (i.e. linked to the selected Factor(s) by following links directed towards those Factor(s)).</li>
+<li><strong>Adjust size of Factors</strong> This is used to change the size of the Factors to be proportional to one of a set of metrics: the number of inputs (the 'in-degree'), the number of outputs (the 'out-degree'), the leverage (ratio of inputs to outputs), or the <a href="https://en.wikipedia.org/wiki/Betweenness_centrality">betweenness centrality</a>. Note that the Factors are always drawn large enough to accommodate their labels, and so the size may not be exactly proportional to the metric.</li>
+</ul>
+<h2 id="drawing-mode">Drawing Mode</h2>
+<p>Switching 'Show drawing layer' ON reveals a group of buttons on the left that enable you to draw shapes, write text, and import images on to the network background.</p>
+<p><img src="/doc/images/drawingLayer.png" alt="Drawing layer" /></p>
+<p>In drawing mode, the background has a faint square grid to help line up your drawing. When you draw, you are 'painting' on the background, which means that the shapes and text you apply can only be moved by erasing them and redrawing.</p>
+<p>When you click on a drawing button, a small dialog box appears that can be used to adjust the drawing tool. For instance, the Line tool, which draws straight lines, has options for the line thickness and line colour.</p>
+<p>To stop using a tool, either click on another one, or click a second time on that tool's button.</p>
+<p>The drawing tools are, in order from top to bottom:</p>
+<ul>
+<li><strong>Line</strong> draws straight lines. There are options for the line width, the colour of the line, and whether the line must be along the axes, i.e. either horizontal or vertical. To use the tool, click on the background at the desired start position, drag across to the line end and lift the mouse pointer.</li>
+<li><strong>Rectangle</strong> The options are the width of the border around the rectangle and its colour, the colour of the inside of the rectangle (the 'fill' colour) and whether it should have rounded or sharp corners. To draw a rectangle, click where one corner should be, then drag out to where the opposite corner should be and lift the pointer.</li>
+<li><strong>Text</strong> Use this tool to add fixed text to the background. The options are the colour and size of the text. Click on the background to show a text box into which you can type. You can move the box by dragging on the grey border and expand it by dragging the black square at the bottom right corner. Click anywhere outside the box to finish.</li>
+<li><strong>Pencil</strong> draws freehand lines.</li>
+<li><strong>Marker</strong> draws lines like a marker or highlighter pen.</li>
+<li><strong>Eraser</strong> removes everything it passes over.</li>
+<li><strong>Image</strong> Clicking on this tool gives you a file chooser to select an image file (picture) from your computer - JPG, PNG and GIF formats are accepted. When the image has been placed on the background, you can drag it to where you want it, and resize it by dragging on the small black square at the bottom right. Click anywhere outside the image to fix it to the background.</li>
+<li><strong>Undo</strong> This tool will undo the effect of the last drawing (e.g. if you have just placed an image on the background, it will remove the image, or if you have drawn a line with the pencil, it will undo that line). Each click of the Undo button removes the previous drawing.</li>
+</ul>
+<h2 id="source-code">Source Code</h2>
+<p>The program code is available on <a href="https://github.com/micrology/prsm">GitHub</a>.</p>
+<p>The javascript (ES6) code in sub-directory <code>js</code> is divided into five modules: one that handles the main network pane (<code>prsm.js</code>), one that manages the background painting functions (<code>paint.js</code>), one that creates and edits the styles (<code>styles.js</code>) (the default styles are in <code>samples.js</code>), one that handles the tour (<code>tutorial.js</code>) and one that includes common utility functions (<code>utils.js</code>). The HTML file that displays in the browser is in the <code>html</code> directory.</p>
+<p>PRSM uses two important packages: <a href="https://github.com/yjs/yjs"><code>yjs</code></a> and <a href="https://visjs.org/"><code>vis-network</code></a>. The former handles the sharing between participants' browsers and the latter draws the network. A few other packages are used for dealing with touch input (<a href="https://hammerjs.github.io/"><code>Hammer</code></a>), drawing emojis, and parsing XML file input.</p>
+<p>These components are assembled using <a href="https://parceljs.org/"><code>parcel</code></a> and the bundled file is placed in the <code>dist</code> directory. So that users have an easy URL to access (i.e. not needing to include <code>dist</code> in the link), there is an <code>.htaccess</code> file that rewrites URLs from what the user puts into their browser to the correct location.</p>
+<p>To install the code, use <code>git</code> to clone the <a href="https://github.com/micrology/prsm">repo</a> to your local disk and change to the cloned directory. Then install the required packages with</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ex">npm</span> install</span></code></pre></div>
+<p>and build the distribution with</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="ex">npm</span> run build</span></code></pre></div>
+<p>Documentation can be found in the <code>doc</code> directory.</p>
+<p>See <code>package.json</code> for other npm commands.</p>
+<h2 id="acknowledgements">Acknowledgements</h2>
+<p>With thanks to all who helped inspire, suggest features for, comment on, and test PRSM, including the members of <a href="https://www.cecan.ac.uk/">CECAN</a>, <a href="https://cress.soc.surrey.ac.uk/">CRESS</a>, <a href="https://www.risksol.co.uk/">Risk Solutions</a>, and Robin Gilbert.</p>
+<h2 id="bug-reports-and-feature-requests">Bug reports and feature requests</h2>
+<p>Please report problems, suggestions and praise to <a href="mailto:n.gilbert@surrey.ac.uk"><a href="mailto:n.gilbert@surrey.ac.uk">n.gilbert@surrey.ac.uk</a></a></p>
+</div>
+<script src="https://unpkg.com/scrollnav@3.0.2/dist/scrollnav.min.umd.js"></script>
+<script>
+window.addEventListener('load', () => {
+    const content = document.querySelector('#contents');
+    scrollnav.init(content);
+});
+</script>
+</body>
 </html>

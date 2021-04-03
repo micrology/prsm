@@ -49,7 +49,7 @@ The third is a large network of 736 nodes and about 9000 links representing the 
 
 No installation on your computer is needed.  The software is a web app, which means that it can be accessed using a web browser by pasting this link into the address bar:
 
-<https://cress.soc.surrey.ac.uk/prsm/prsm.html>
+<https://prsm.uk/prsm.html>
 
 You need a modern web browser such as Chrome, Firefox, Microsoft Edge or Safari.  It will not work with Internet Explorer.
 
@@ -79,12 +79,15 @@ This what they do, from left to right:
 * **Share**. Shows a dialog box with a web link that you can copy and send to someone else.  If they then access that link, they will see your network and can edit and add to it. See [Sharing](#sharing) below.
 * **Open file**. Read in a file containing a network from your computer drive.  See [below](#file-formats) for supported file formats.  The content of the file replaces the network in the browser.
 * **Save file**.  Save the network in a file on your computer. The file is saved in the app's own format, or if you click on the small triangle next to the button, you can choose to save in GML (Graph Markup Language) or CSV (Comma Separated Values) formats.
+* **Search**. Search for factors by name.
 * **Help** Display this help page in a separate window.
 * **Settings**. Opens a panel that allows much more customisation and exploration of the network (see [Styling the map](#styling-the-map) below).
 
-To select a factor or a link, click on it. To select more than one, click on one factor or link and then *hold down* the pointer over the other.  At the bottom of the window is the status bar, which will show which factors and links have been selected.
+To select a factor or a link, click on it. To select more than one, click on one factor or link and then *hold down* the pointer over the other.  At the bottom of the window is the status bar, which will show which factors and links have been selected. Clicking anywhere on the background will deselect the factors and links.
 
 Also at the bottom of the window on the right is a slider that will adjust the magnification: slide to the right to make the factors and links larger and to the left to make them smaller (or click on the + and - signs).  To return the network to a size that will fit neatly in the window, double click anywhere on the network background.
+
+Holding down the Shift key and then moving the mouse pointer will show a 'magnifying glass' with an enlarged view of the part of the map under the pointer.  You need to be using a keyboard for this.
 
 Each node can be moved across the network pane by selecting it and dragging.  The whole network can be moved by dragging the background.
 
@@ -96,14 +99,16 @@ If you use the link above to start the app, a new room is created for you.  When
 
 Click the button to copy the web link to the clipboard, and then paste the link into an email or a text message. or just tell other participants the name of the room (which is a randomly generated set of 4 groups of three capital letters separated by hyphens).  When they access the link, they will see whatever is in your app window.
 
-When there are others in the room, the initial letter of their name appears in a circle at the top left - their avatar.  If you hover the mouse pointer over the circle, their full name is shown (their real name or the name they have been given by the app).  If they don't do anything for 15 minutes, the avatar fades and, if they close thier browser window, it disappears.
+There are two options for the sharing link.  If you check the Clone map box, the link will be to the map in a new room - any changes made to this new map will *not* happen in the original room.  If you click the View only box, the recipient of the link will not be able to make any changes to the map.
+
+### Avatars and pointers
+
+When there are others in the room, the initial letters of their name appear in a circle at the top left - their avatar.  If you hover the mouse pointer over the circle, their full name is shown (their real name or the name they have been given by the app).  If they don't do anything for 15 minutes, the avatar fades and, if they close their browser window, it disappears.
+
+The other users' mouse pointers are shown on the map.  As they move their mice, a small disc containing thier initials moves on every users' map correspondingly.  If you are taling with other users by audio or video link, you can use your mouse to point to things of interest, and the other users can see what you are pointing at.
 
 <!-- ![Avatars](/doc/images/avatars.png) -->
 <img src="/doc/images/avatars.png" width="400">
-
-If you wnat to show someone a map, but don't want them to alter it in any way, send them the link with ```&viewing``` appended, for instance:
-
-<https://cress.soc.surrey.ac.uk/prsm/prsm.html?room=CPC-AJH-UQP-ZWP&viewing>
 
 ### Using the mouse and touch
 

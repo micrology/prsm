@@ -118,7 +118,7 @@ function addEventListeners() {
 			window.getSelection().selectAllChildren(e.target);
 	});
 	listen('addNode', 'click', plusNode);
-	listen('net-pane', 'contextmenu', ctlClickAddNode);
+	listen('net-pane', 'contextmenu', contextMenu);
 	listen('addLink', 'click', plusLink);
 	listen('deleteNode', 'click', deleteNode);
 	listen('undo', 'click', undo);
@@ -832,7 +832,43 @@ function draw() {
 	elem('nodesButton').click();
 
 	// listen for click events on the network pane
-
+	network.on('click', function (params) {
+		if (window.debug.includes('gui')) console.log('click');
+		let keys = params.event.pointers[0];
+		if (keys.metaKey) {
+			// if the Command key (on a Mac)   is down, and the click is on a node/edge, log it to the console
+			if (params.nodes.length == 1) {
+				let node = data.nodes.get(params.nodes[0]);
+				console.log('node = ', node);
+				window.node = node;
+			}
+			if (params.edges.length == 1) {
+				let edge = data.edges.get(params.edges[0]);
+				console.log('edge = ', edge);
+				window.edge = edge;
+			}
+			return;
+		}
+		if (keys.altKey) {
+			// if the Option/ALT key is down, add a node if on the background, or a link if on a node
+			if (params.nodes.length == 0 && params.edges.length == 0) {
+				let pos = params.pointer.canvas;
+				let item = {id: uuidv4(), label: '', x: pos.x, y: pos.y};
+				item = deepMerge(item, styles.nodes[lastNodeSample]);
+				item.grp = lastNodeSample;
+				addLabel(item, clearPopUp, function (newItem) {
+					if (newItem !== null) data.nodes.add(newItem);
+				});
+			}
+			if (params.nodes.length == 1) {
+				plusLink();
+			}
+			return;
+		}
+		if (keys.shiftKey) {
+			if (!inEditMode) showMagnifier(keys);
+		}
+	});
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
 		if (window.debug.includes('gui')) console.log('doubleClick');
@@ -855,17 +891,18 @@ function draw() {
 				data.nodes.update(node, 'dontBroadcast');
 			}
 		});
-		// if control key is down, start linking to another node
+		/* // if control key is down, start linking to another node
 		if (params.event.pointers[0].ctrlKey) {
 			// start linking from this node, but only if only one node is selected, else source node is not clear
 			if (selectedNodes.length == 1) {
 				statusMsg('Linking from ' + listFactors(selectedNodes));
 				plusLink();
 			}
-		} else {
-			showSelected();
-			showNodeOrEdgeData();
-		}
+		} else { */
+		showSelected();
+		showNodeOrEdgeData();
+		/* 		}
+		 */
 	});
 	network.on('deselectNode', function () {
 		if (window.debug.includes('gui')) console.log('deselectNode');
@@ -910,8 +947,11 @@ function draw() {
 		hideNotes();
 		clearStatusBar();
 	});
-	network.on('dragStart', function () {
+	network.on('dragStart', function (params) {
 		if (window.debug.includes('gui')) console.log('dragStart');
+		if (params.event.pointers[0].altKey && params.nodes.length == 1) {
+			plusLink();
+		}
 		changeCursor('grabbing');
 	});
 	network.on('dragEnd', function (event) {
@@ -965,7 +1005,7 @@ function draw() {
 	let netPaneRect = null;
 
 	window.addEventListener('keydown', (e) => {
-		if (e.shiftKey) createMagnifier();
+		if (!inEditMode && e.shiftKey) createMagnifier();
 	});
 	window.addEventListener('mousemove', (e) => {
 		if (e.shiftKey) showMagnifier(e);
@@ -1043,8 +1083,11 @@ function draw() {
 	}
 } // end draw()
 
+function contextMenu(event) {
+	event.preventDefault();
+}
 /**
- * return an object with the current time as a date an integer and the currnet user's initials
+ * return an object with the current time as a date an integer and the current user's initials
  */
 function timestamp() {
 	return {time: Date.now(), user: initials(myNameRec.name)};
@@ -1260,7 +1303,7 @@ function getDashes(val) {
  * @param {Function} callback what to do if the edit is saved
  */
 function editEdge(item, cancelAction, callback) {
-	initPopUp('Edit Link', 140, item, cancelAction, saveEdge, callback);
+	initPopUp('Edit Link', 150, item, cancelAction, saveEdge, callback);
 	elem('popup').insertAdjacentHTML(
 		'beforeend',
 		` 
