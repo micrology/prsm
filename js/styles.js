@@ -619,7 +619,7 @@ export function clearLegend() {
 /**
  * redraw the legend (to show updated styles)
  */
-function updateLegend() {
+export function updateLegend() {
 	if (document.getElementById('showLegendSwitch').checked) {
 		legend(false);
 		clearStatusBar();

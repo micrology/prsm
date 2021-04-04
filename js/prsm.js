@@ -36,10 +36,11 @@ import {
 	reApplySampleToLinks,
 	legend,
 	clearLegend,
+	updateLegend
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.6.3';
+const version = '1.6.4';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
@@ -1990,6 +1991,7 @@ function loadFile(contents) {
 	network.fit(0);
 	yUndoManager.clear();
 	undoRedoButtonStatus();
+	updateLegend();
 	logHistory('loaded &lt;' + lastFileName + '&gt;');
 }
 /**

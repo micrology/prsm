@@ -1,4 +1,4 @@
-<!-- markdownlint-disable-file MD026 MD033-->
+<!-- markdownlint-disable-file MD026 MD033 MD036-->
 # Participatory System Mapper
 
 ## What is it?
@@ -91,6 +91,14 @@ Holding down the Shift key and then moving the mouse pointer will show a 'magnif
 
 Each node can be moved across the network pane by selecting it and dragging.  The whole network can be moved by dragging the background.
 
+### Notes
+
+If you select just one factor or one link, a small panel appears.  This shows the factor or link label (if it has one), the time and date  when the factor or link was created, and when it was last modifed if it has been changed since it was created, some network statistics about the factor, and an area where you can type a note to show further information about the factor or link.  For factors, there is also n aopen or closed padlock symbol. If this is shown closed, the factor will be locked into place on the network pane and cannot be dragged elsewhere.
+
+If a factor or link has a note, a small 'scroll' icon is shown next to it.
+
+<img src="/doc/images/FactorWithNote.png" width="400">
+
 ### Sharing
 
 If you use the link above to start the app, a new room is created for you.  When you click on the share icon, a dialog box is shown that includes the name of the room in the link that is displayed:
@@ -177,48 +185,45 @@ Double clicking on any of the 9 styles opens a dialog box to change the style:
 
 There are options to change the colour of the background (the 'fill'), the border and the font of the label, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted or none, and to change the font size of the label.
 
-You can also change the name of the style.  If you do so, this name will appear on the network pane as one item in the 'legend'.  So, for example, if you had some factors that are Inputs, some that are Actions, some Outputs and some Outcomes, you could give four of the styles these names, colour their fills green, yellow, orange and red, and then apply these styles to the appropriate factors in the network.  The legend will be automatically displayed on the network pane:
+#### Legend
+
+You can also change the name of the style.  If you do so, this name will appear on the network pane as one item in the 'legend'.  So, for example, if you had some factors that are Activities, some that are Change mechanisms, some Outcomes and some Impacts, you could give four of the styles these names, colour their fills red, orange, yellow and blue, and then apply these styles to the appropriate factors in the network.  The legend will be automatically displayed on the network pane:
 
 ![Legend](/doc/images/Legend.png)
 
 The legend can be moved by dragging the top of the Legend pane.
-
-If you select just one factor, a small panel appears below the styles.  This shows the factor label, some network statistics about the factor, and an area where you can type in further information about the factor as a note.  If you hover the pointer above the factor, the note will be shown.  There is also a check box, Fix - if this is checked, the factor will be locked into place on the network pane and cannot be dragged elsewhere.
-
-<!-- ![FactorsPanelWithNote](/doc/images/FactorsPanelWithNote.png) -->
-<img src="/doc/images/FactorsPanelWithNote.png" width="600">
 
 ### Links tab
 
 The Links tab is very similar to the Factors tab, except that it relates to the links.  There are 9 link styles and each of these can be changed by double clicking the link style. There are options to change the colour of the link, whether it has an arrow at the end, whether it is solid, dashed or dotted, and to add a  link label.
 
 <!-- ![LinksPanel](/doc/images/LinksPanel.png) -->
-<img src="/doc/images/LinksPanel.png" width="300">
+<img src="/doc/images/LinksPanel.png" width="250">
 
 ### Network tab
 
 The Network tab enables you to change many aspects of the network visualisation.
 
 <!-- ![NetworkPanel](/doc/images/NetworkPanel.png) -->
-<img src="/doc/images/NetworkPanel.png" width="300">
+<img src="/doc/images/NetworkPanel.png" width="250">
 
 From top to bottom, there are controls for:
 
-* **Auto Layout** If this switch is set to ON, the app attempts to move the factors and links to create a neat layout with a minimum number of crossing links. It is best to switch this ON, wait for the factors to move to their calculated positions,  switch it OFF and then manually adjust the factors to a pleasing layout.
-  * **Spacing** This slider only appears when Auto Layout is ON.  With it, you can adjust the space between the factors and the length of the links.
-* **Snap to grid**  When ON, factors can only be placed at the intersection of invisible grid lines.  This makes it much easier to line up factors neatly.
+* **Trophic Layout** If this switch is set to ON, the app moves the factors and links to create a layout such that all the links point from left to right and are arranged accoriding to [trophic level](https://en.wikipedia.org/wiki/Trophic_level). Clicking the Trophic Layout button will re-arrange the factors, and you can then adjust the map manually to a neat and pleasing layout.  If you don't like the result, the Undo button on the top bar will revert the map to its original layout.
+* **Snap to grid**  When ON, factors shift to be at the intersection of invisible grid lines.  This makes it much easier to line up factors neatly.
 * **Link** Links can either be drawn using a curved line or a straight line.  This control swaps between these two styles.
 * **Background** Changes the colour of the background of the network pane.  Click on the colour well to display possible colours.  The default is white, but a black background can also be effective.
-* **Show drawing layer** Puts the network pane into drawing mode, so that background shapes, images and text can be added.  See [Drawing Mode](#drawing-mode) for more details.
-* **Show labels** If switched OFF, the factors are shown without their labels.
 * **Show legend** If the factor and link styles are given names (other than 'Sample'), the styles and their names will be shown in a panel at the left bottom of the network pane headed 'Legend', when this switch is ON.  See the description of the [Factors tab](#factors-tab).
+* **Show drawing layer** Puts the network pane into drawing mode, so that background shapes, images and text can be added.  See [Drawing Mode](#drawing-mode) for more details.
+* **Show pointers** When ON, the positions of other users' mouse pointers are shown in real time.  
+* **Show history** When ON, a panel displaying every change to a factor or link (adding a factor or link, editing it or deleting it) is shown.
 * **Show only neighbouring Factors** If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 1, 2, or 3 links away from the selected Factor(s).  This is useful when one wants to focus on one part of a large network.
-* **Show only up or downstream Factors**  If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 'downstream (i.e. linked to the selected Factor(s) by following links directed away from those Factor(s)), or those 'upstream' (i.e. linked to the selected Factor(s) by following links directed towards those Factor(s)).
-* **Adjust size of Factors** This is used to change the size of the Factors to be proportional to one of a set of metrics: the number of inputs (the 'in-degree'), the number of outputs (the 'out-degree'), the leverage (ratio of inputs to outputs), or the [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality).  Note that the Factors are always drawn large enough to accommodate their labels, and so the size may not be exactly proportional to the metric.
+* **Show only up or downstream Factors**  If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 'downstream' (i.e. linked to the selected Factor(s) by following links directed away from those Factor(s)), or those 'upstream' (i.e. linked to the selected Factor(s) by following links directed towards those Factor(s)).
+* **Size Factors to** This is used to change the size of the Factors to be proportional to one of a set of metrics: the number of inputs (the 'in-degree'), the number of outputs (the 'out-degree'), the leverage (ratio of inputs to outputs), or the [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality).  Note that the Factors are always drawn large enough to accommodate their labels, and so the size may not be exactly proportional to the metric.
 
 ## Drawing Mode
 
-Switching 'Show drawing layer' ON reveals a group of buttons on the left that enable you to draw shapes, write text, and import images on to the network background.  
+Switching 'Show drawing layer' ON reveals a group of buttons on the left that enable you to draw shapes, write text, and import images onto the network background.  
 
 ![Drawing layer](/doc/images/drawingLayer.png)
 
@@ -241,7 +246,9 @@ The drawing tools are, in order from top to bottom:
 
 ## Source Code
 
-The program code is available on [GitHub](https://github.com/micrology/prsm).
+*(The following is intended for developers who want to extend PRSM)*
+
+The program code is available on [GitHub](https://github.com/micrology/prsm).  
 
 The javascript (ES6) code in sub-directory ```js``` is divided into five modules: one that handles the main network pane (```prsm.js```), one that manages the background painting functions (```paint.js```), one that creates and edits the styles (```styles.js```) (the default styles are in ```samples.js```), one that handles the tour (```tutorial.js```) and one that includes common utility functions (```utils.js```).  The HTML file that displays in the browser is in the ```html``` directory.
 
@@ -271,4 +278,4 @@ With thanks to all who helped inspire, suggest features for, comment on, and tes
 
 ## Bug reports and feature requests
 
-Please report problems, suggestions and praise to [n.gilbert@surrey.ac.uk](mailto:n.gilbert@surrey.ac.uk)
+Please report problems, suggestions and praise to [nigel@prsm.uk](mailto:nigel@prsm.uk)
