@@ -39,6 +39,7 @@
 	"dependencies": {
 		"@egjs/hammerjs": "^2.0.17",
 		"@fortawesome/fontawesome-free": "^5.15.2",
+		"@jaames/iro": "^5.5.0",
 		"@joeattardi/emoji-button": "^4.6.0",
 		"@types/quill": "^2.0.6",
 		"fast-xml-parser": "^3.17.6",
