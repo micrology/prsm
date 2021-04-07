@@ -11,7 +11,7 @@ import {
 	statusMsg,
 	clearStatusBar,
 } from './utils.js';
-import {updateLastSamples} from './prsm.js';
+import {updateLastSamples, cp} from './prsm.js';
 import {styles} from './samples.js';
 
 const NODESTYLEWIDTH = 10; // chars for label splitting
@@ -102,6 +102,26 @@ export function setUpSamples() {
 		sampleElement.groupLink = groupId;
 		sampleElement.dataSet = edgeDataSet;
 	}
+	// set up color pickers
+	cp.createColorPicker('nodeEditFillColor', '#ffffff', nodeEditSave);
+	cp.createColorPicker('nodeEditBorderColor', '#ffffff', nodeEditSave);
+	cp.createColorPicker('nodeEditFontColor', '#ffffff', nodeEditSave);
+	cp.createColorPicker('linkEditLineColor', '#ffffff', linkEditSave);
+
+	// set up listeners
+	listen('nodeEditCancel', 'click', nodeEditCancel);
+	listen('nodeEditName', 'keyup', nodeEditSave);
+	listen('nodeEditShape', 'change', nodeEditSave);
+	listen('nodeEditBorder', 'change', nodeEditSave);
+	listen('nodeEditFontSize', 'change', nodeEditSave);
+	listen('nodeEditSubmit', 'click', nodeEditSubmit);
+
+	listen('linkEditCancel', 'click', linkEditCancel);
+	listen('linkEditName', 'keyup', linkEditSave);
+	listen('linkEditWidth', 'input', linkEditSave);
+	listen('linkEditDashes', 'input', linkEditSave);
+	listen('linkEditArrows', 'change', linkEditSave);
+	listen('linkEditSubmit', 'click', linkEditSubmit);
 }
 /**
  * assemble configurations by merging the specifics into the default
@@ -161,15 +181,6 @@ function initSample(wrapper, sampleData) {
 	return net;
 }
 
-listen('nodeEditCancel', 'click', nodeEditCancel);
-listen('nodeEditName', 'keyup', nodeEditSave);
-listen('nodeEditFillColor', 'input', nodeEditSave);
-listen('nodeEditBorderColor', 'input', nodeEditSave);
-listen('nodeEditFontColor', 'input', nodeEditSave);
-listen('nodeEditShape', 'change', nodeEditSave);
-listen('nodeEditBorder', 'change', nodeEditSave);
-listen('nodeEditFontSize', 'change', nodeEditSave);
-listen('nodeEditSubmit', 'click', nodeEditSubmit);
 /**
  * open the dialog to edit a node style
  * @param {HTMLelement} styleElement
@@ -196,9 +207,15 @@ function editNodeStyle(styleElement, groupId) {
 function updateNodeEditor(groupId) {
 	let group = styles.nodes[groupId];
 	elem('nodeEditName').value = group.groupLabel;
-	elem('nodeEditFillColor').value = standardize_color(group.color.background);
-	elem('nodeEditBorderColor').value = standardize_color(group.color.border);
-	elem('nodeEditFontColor').value = standardize_color(group.font.color);
+	elem('nodeEditFillColor').style.backgroundColor = standardize_color(
+		group.color.background
+	);
+	elem('nodeEditBorderColor').style.backgroundColor = standardize_color(
+		group.color.border
+	);
+	elem('nodeEditFontColor').style.backgroundColor = standardize_color(
+		group.font.color
+	);
 	elem('nodeEditShape').value = group.shape;
 	elem('nodeEditBorder').value = getDashes(
 		group.shapeProperties.borderDashes,
@@ -214,13 +231,13 @@ function nodeEditSave() {
 	let group = styles.nodes[groupId];
 	group.groupLabel = splitText(elem('nodeEditName').value, NODESTYLEWIDTH);
 	if (group.groupLabel === '') group.groupLabel = 'Sample';
-	group.color.background = elem('nodeEditFillColor').value;
-	group.color.border = elem('nodeEditBorderColor').value;
+	group.color.background = elem('nodeEditFillColor').style.backgroundColor;
+	group.color.border = elem('nodeEditBorderColor').style.backgroundColor;
 	group.color.highlight.background = group.color.background;
 	group.color.highlight.border = group.color.border;
 	group.color.hover.background = group.color.background;
 	group.color.hover.border = group.color.border;
-	group.font.color = elem('nodeEditFontColor').value;
+	group.font.color = elem('nodeEditFontColor').style.backgroundColor;
 	group.shape = elem('nodeEditShape').value;
 	let border = elem('nodeEditBorder').value;
 	group.shapeProperties.borderDashes = groupDashes(border);
@@ -304,13 +321,6 @@ export function reApplySampleToNodes(groupIds, force) {
 	);
 }
 
-listen('linkEditCancel', 'click', linkEditCancel);
-listen('linkEditName', 'keyup', linkEditSave);
-listen('linkEditLineColor', 'input', linkEditSave);
-listen('linkEditWidth', 'input', linkEditSave);
-listen('linkEditDashes', 'input', linkEditSave);
-listen('linkEditArrows', 'change', linkEditSave);
-listen('linkEditSubmit', 'click', linkEditSubmit);
 /**
  * open the dialog to edit a link style
  * @param {HTMLelement} styleElement
@@ -334,7 +344,7 @@ function editLinkStyle(styleElement, groupId) {
 function updateLinkEditor(groupId) {
 	let group = styles.edges[groupId];
 	elem('linkEditName').value = group.groupLabel;
-	elem('linkEditLineColor').value = standardize_color(group.color.color);
+	elem('linkEditLineColor').style.backgroundColor = standardize_color(group.color.color);
 	elem('linkEditWidth').value = group.width;
 	elem('linkEditDashes').value = getDashes(group.dashes, 1);
 	elem('linkEditArrows').value = getArrows(group.arrows);
@@ -347,7 +357,7 @@ function linkEditSave() {
 	let group = styles.edges[groupId];
 	group.groupLabel = elem('linkEditName').value;
 	if (group.groupLabel === '') group.groupLabel = 'Sample';
-	group.color.color = elem('linkEditLineColor').value;
+	group.color.color = elem('linkEditLineColor').style.backgroundColor;
 	group.color.highlight = group.color.color;
 	group.color.hover = group.color.color;
 	group.width = parseInt(elem('linkEditWidth').value);

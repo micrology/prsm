@@ -528,79 +528,110 @@ class CircularArray extends Array {
 	}
 }
 
-// see https://iro.js.org/guide.html#getting-started
-var colorPicker = new iro.ColorPicker('.colorPicker', {
-	width: 160,
-	color: 'rgb(255, 255, 255)',
-	borderWidth: 1,
-	borderColor: '#fff',
-	margin: 0,
-});
+export class CP {
+	constructor() {
+		this.container = document.createElement('div');
+		this.container.className = 'color-picker-container';
+		this.container.id = 'colorPicker';
+		let controls = document.createElement('div');
+		controls.id = 'colorPickerControls';
+		this.container.appendChild(controls);
+		document
+			.querySelector('body')
+			.insertAdjacentElement('beforeend', this.container);
 
-// set up a grid of sqaures to hold last 8 selected colors
-var cachedColors = new CircularArray(8);
-var colorCache = document.createElement('div');
-colorCache.id = 'colorCache';
-colorCache.className = 'colorCache';
-for (let i = 0; i < 8; i++) {
-	let c = document.createElement('div');
-	c.id = 'color' + i;
-	c.className = 'cachedColor';
-	c.addEventListener('click', (e) => {
-		let color = e.target.style.backgroundColor;
-		if (color.search('rgb') != -1)
-			colorPicker.color.rgbString = e.target.style.backgroundColor;
-	});
-	colorCache.appendChild(c);
-}
-elem('colorPickerControls').insertAdjacentElement('afterend', colorCache);
-/**
- * attach a color picker to an element to recolor the background to that element
- * @param {string} wellId the id of the DOM element to attach the color picker to
- * @param {*} initialColor
- */
-function createColorPicker(wellId, initialColor) {
-	let well = elem(wellId);
-	well.style.backgroundColor = initialColor;
-	colorPicker.color.hexString = initialColor;
-
-	well.addEventListener('click', function (event) {
-		let cpContainer = elem('colorPicker');
-		cpContainer.style.display = 'block';
-		cpContainer.style.top = `${event.clientY}px`;
-		cpContainer.style.left = `${event.clientX}px`;
-		cpContainer.well = this;
-		colorPicker.color.rgbString = this.style.backgroundColor;
-
-		// close colour picker and report chosen colour when user clicks outside of picker 9and well)
-		document.addEventListener('click', closeColorPicker);
-
-		function closeColorPicker(event) {
-			if (
-				!(
-					cpContainer.contains(event.target) ||
-					cpContainer.well.contains(event.target)
-				)
-			) {
-				cpContainer.style.display = 'none';
-				document.removeEventListener('click', closeColorPicker);
-				let color = cpContainer.well.style.backgroundColor;
-				// save the chosen color for future selection
-				cachedColors.push(color);
-				for (let i = 0; i < 8; i++) {
-					let col = cachedColors[i];
-					if (col != undefined)
-						document.getElementById(
-							'color' + i
-						).style.backgroundColor = col;
-				}
-			}
-		}
-
-		// update well as color is changed
-		colorPicker.on(['color:init', 'color:change'], function (color) {
-			document.getElementById('colorPicker').well.style.backgroundColor =
-				color.rgbString;
+		// see https://iro.js.org/guide.html#getting-started
+		this.colorPicker = new iro.ColorPicker('#colorPickerControls', {
+			width: 160,
+			color: 'rgb(255, 255, 255)',
+			borderWidth: 1,
+			borderColor: '#fff',
+			margin: 0,
 		});
-	});
+
+		// set up a grid of squares to hold last 8 selected colors
+		this.container.cachedColors = new CircularArray(8);
+		this.colorCache = document.createElement('div');
+		this.colorCache.id = 'colorCache';
+		this.colorCache.className = 'color-cache';
+		for (let i = 0; i < 8; i++) {
+			let c = document.createElement('div');
+			c.id = 'color' + i;
+			c.className = 'cached-color';
+			c.addEventListener('click', (e) => {
+				let color = e.target.style.backgroundColor;
+				if (color.search('rgb') != -1)
+					this.colorPicker.color.rgbString =
+						e.target.style.backgroundColor;
+			});
+			this.colorCache.appendChild(c);
+		}
+		document
+			.getElementById('colorPickerControls')
+			.insertAdjacentElement('afterend', this.colorCache);
+	}
+
+	/**
+	 * attach a color picker to an element to recolor the background to that element
+	 * @param {string} wellId the id of the DOM element to attach the color picker to
+	 * @param {string} initialColor
+	 */
+	createColorPicker(wellId, initialColor, callback) {
+		let well = elem(wellId);
+		well.style.backgroundColor = initialColor;
+		this.colorPicker.color.hexString = initialColor;
+		// add listener to display picker when well clicked
+		well.addEventListener('click', (event) => {
+			this.container.style.display = 'block';
+			let netPane = elem('net-pane').getBoundingClientRect();
+			let top = event.clientY + well.offsetHeight + 10;
+			if (top > netPane.bottom - this.container.offsetHeight)
+				top = netPane.bottom - this.container.offsetHeight - 10;
+			if (top < netPane.top) top = netPane.top + 10;
+			let left = event.clientX;
+			if (left < netPane.left) left = netPane.left + 10;
+			if (left > netPane.right - this.container.offsetWidth)
+				left = netPane.right - this.container.offsetWidth - 10;
+			this.container.style.top = `${top}px`;
+			this.container.style.left = `${left}px`;
+			this.container.well = well;
+			this.container.callback = callback;
+			this.colorPicker.color.rgbString = well.style.backgroundColor;
+			// close colour picker and report chosen colour when user clicks outside of picker 9and well)
+			this.onclose = this.closeColorPicker.bind(this);
+			document.addEventListener('click', this.onclose, true);
+
+			// update well as color is changed
+			this.colorPicker.on(['color:change'], function (color) {
+				elem('colorPicker').well.style.backgroundColor =
+					color.rgbString;
+			});
+		});
+	}
+	/**
+	 * Hide the picker and save the colour choice in the previously selected colour grid
+	 * @param {event} event
+	 */
+	closeColorPicker(event) {
+		if (
+			!(
+				this.container.contains(event.target) ||
+				this.container.well.contains(event.target)
+			)
+		) {
+			this.container.style.display = 'none';
+			document.removeEventListener('click', this.onclose, true);
+			let color = this.container.well.style.backgroundColor;
+			// save the chosen color for future selection
+			this.container.cachedColors.push(color);
+			for (let i = 0; i < 8; i++) {
+				let col = this.container.cachedColors[i];
+				if (col != undefined)
+					document.getElementById(
+						'color' + i
+					).style.backgroundColor = col;
+			}
+			this.container.callback(color)
+		}
+	}
 }

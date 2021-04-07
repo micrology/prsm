@@ -22,6 +22,7 @@ import {
 	statusMsg,
 	clearStatusBar,
 	initials,
+	CP,
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
@@ -36,7 +37,7 @@ import {
 	reApplySampleToLinks,
 	legend,
 	clearLegend,
-	updateLegend
+	updateLegend,
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
@@ -80,6 +81,7 @@ var inEditMode = false; //true when node or edge is being edited (dialog is open
 var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
 var tutorial = new Tutorial(); // object driving the tutorial
+export var cp; // color picker
 
 /**
  * top level function to initialise everything
@@ -152,7 +154,6 @@ function addEventListeners() {
 	});
 	listen('trophicButton', 'click', autoLayoutSwitch);
 	listen('snaptogridswitch', 'click', snapToGridSwitch);
-	listen('netBackColorWell', 'input', updateNetBack);
 	listen('drawing', 'click', toggleDrawingLayer);
 	listen('allFactors', 'click', selectAllFactors);
 	listen('allEdges', 'click', selectAllEdges);
@@ -184,6 +185,7 @@ function addEventListeners() {
  * create all the DOM elements on the web page
  */
 function setUpPage() {
+	elem('version').innerHTML = version;
 	// check options set on URL: ?debug='yjs'|'gui'&viewing&start
 	let searchParams = new URL(document.location).searchParams;
 	if (searchParams.has('debug')) debug = [searchParams.get('debug')];
@@ -197,11 +199,12 @@ function setUpPage() {
 	panel = elem('panel');
 	panel.classList.add('hide');
 	container.panelHidden = true;
+	cp = new CP();
+	cp.createColorPicker('netBackColorWell', '#ffffff', updateNetBack);
 	setUpSamples();
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'));
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'));
 	hideNotes();
-	elem('version').innerHTML = version;
 }
 
 /**
@@ -256,19 +259,6 @@ function startY() {
 		nodes: nodes,
 		edges: edges,
 	};
-
-	/* initialise yNetMap */
-	/* yNetMap.set('mapTitle', '');
-	yNetMap.set('snapToGrid', false);
-	yNetMap.set('curve', 'Curved');
-	yNetMap.set('background', '#ffffff');
-	yNetMap.set('legend', false);
-	yNetMap.set('hideAndStream', {
-		hideSetting: 'All',
-		streamSetting: 'All',
-		selected: [],
-	});
-	yNetMap.set('sizing', 'Off'); */
 
 	/* 
 	for convenience when debugging
@@ -2942,12 +2932,12 @@ function setCurve(option) {
 	});
 }
 
-function updateNetBack(event) {
+function updateNetBack(color) {
 	let ul = elem('underlay');
-	ul.style.backgroundColor = event.target.value;
+	ul.style.backgroundColor = color;
 	// if in drawing mode, make the underlay translucent so that network shows through
 	if (elem('toolbox').style.display == 'block') makeTranslucent(ul);
-	yNetMap.set('background', event.target.value);
+	yNetMap.set('background', color);
 }
 
 function makeTranslucent(el) {
@@ -2965,8 +2955,9 @@ function setBackground(color) {
 	elem('underlay').style.backgroundColor = color;
 	if (elem('toolbox').style.display == 'block')
 		makeTranslucent(elem('underlay'));
-	elem('netBackColorWell').value = color;
+	elem('netBackColorWell').style.backgroundColor = color;
 }
+
 function toggleDrawingLayer() {
 	drawingSwitch = elem('toolbox').style.display == 'block';
 	let ul = elem('underlay');
@@ -3480,7 +3471,7 @@ function showAvatars() {
 				if (cursorDiv.innerText != shortName)
 					cursorDiv.innerText = shortName;
 				if (cursorDiv.style.backgroundColor != nameRec.color)
-				cursorDiv.style.backgroundColor = nameRec.color
+					cursorDiv.style.backgroundColor = nameRec.color;
 			}
 			currentCursors.push(cursorDiv);
 		}

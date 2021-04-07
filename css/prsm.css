@@ -207,23 +207,43 @@ input[type='range'] {
 	width: 33%;
 	text-align: center;
 }
-.input-color-container {
+ .input-color-container {
 	position: relative;
 	overflow: hidden;
 	width: 30px;
 	height: 30px;
-	border: solid 2px #ddd;
+	border: solid 2px lightgrey;
 	border-radius: 30px;
 	margin: auto;
 }
 
-.input-color {
+/* ----------- colour picker ----------*/
+.color-cache {
+	display: flex;
+	margin: 3px 0;
+	width: 160px;
+	border-top: 1px solid grey;
+	border-bottom: 1px solid grey;
+	border-right: 1px solid grey;
+}
+.cached-color {
+	width: 20px;
+	height: 20px;
+	border-left: 1px solid grey;
+}
+.color-well {
+	position: relative;
+	overflow: hidden;
+	width: 30px;
+	height: 30px;
+	border-radius: 30px;
+	margin: auto;
+	background-color: white;
+}
+.color-picker-container {
+	display: none;
 	position: absolute;
-	right: -8px;
-	top: -8px;
-	width: 56px;
-	height: 56px;
-	border: none;
+	z-index: 5000;
 }
 /* ----- Top Navigation Bar ---------------------------------------------------------- */
 
