@@ -103,10 +103,10 @@ export function setUpSamples() {
 		sampleElement.dataSet = edgeDataSet;
 	}
 	// set up color pickers
-	cp.createColorPicker('nodeEditFillColor', '#ffffff', nodeEditSave);
-	cp.createColorPicker('nodeEditBorderColor', '#ffffff', nodeEditSave);
-	cp.createColorPicker('nodeEditFontColor', '#ffffff', nodeEditSave);
-	cp.createColorPicker('linkEditLineColor', '#ffffff', linkEditSave);
+	cp.createColorPicker('nodeEditFillColor', nodeEditSave);
+	cp.createColorPicker('nodeEditBorderColor', nodeEditSave);
+	cp.createColorPicker('nodeEditFontColor', nodeEditSave);
+	cp.createColorPicker('linkEditLineColor', linkEditSave);
 
 	// set up listeners
 	listen('nodeEditCancel', 'click', nodeEditCancel);
@@ -344,7 +344,9 @@ function editLinkStyle(styleElement, groupId) {
 function updateLinkEditor(groupId) {
 	let group = styles.edges[groupId];
 	elem('linkEditName').value = group.groupLabel;
-	elem('linkEditLineColor').style.backgroundColor = standardize_color(group.color.color);
+	elem('linkEditLineColor').style.backgroundColor = standardize_color(
+		group.color.color
+	);
 	elem('linkEditWidth').value = group.width;
 	elem('linkEditDashes').value = getDashes(group.dashes, 1);
 	elem('linkEditArrows').value = getArrows(group.arrows);

@@ -200,7 +200,7 @@ function setUpPage() {
 	panel.classList.add('hide');
 	container.panelHidden = true;
 	cp = new CP();
-	cp.createColorPicker('netBackColorWell', '#ffffff', updateNetBack);
+	cp.createColorPicker('netBackColorWell', updateNetBack);
 	setUpSamples();
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'));
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'));
@@ -1192,17 +1192,17 @@ function editNode(item, point, cancelAction, callback) {
 		<tr>
 		<td>
 		<div class="input-color-container">
-		<input type="color" class="input-color" id="node-backgroundColor" />
+		<div class="color-well" id="node-backgroundColor" </div>
 		</div>
 		</td>
 		<td>
 			<div class="input-color-container">
-			<input type="color" class="input-color" id="node-borderColor" />
+			<div class="color-well" id="node-borderColor" </div>
 			</div>
 			</td>
 			<td>
 			<div class="input-color-container">
-			<input type="color" class="input-color" id="node-fontColor" />
+			<div class="color-well" id="node-fontColor" </div>
 			</div>
 			</td>
 		</tr>
@@ -1220,11 +1220,18 @@ function editNode(item, point, cancelAction, callback) {
 		</tr>
 	</table>`
 	);
-	elem('node-backgroundColor').value = standardize_color(
+	cp.createColorPicker('node-backgroundColor');
+	elem('node-backgroundColor').style.backgroundColor = standardize_color(
 		item.color.background
 	);
-	elem('node-borderColor').value = standardize_color(item.color.border);
-	elem('node-fontColor').value = standardize_color(item.font.color);
+	cp.createColorPicker('node-borderColor');
+	elem('node-borderColor').style.backgroundColor = standardize_color(
+		item.color.border
+	);
+	cp.createColorPicker('node-fontColor');
+	elem('node-fontColor').style.backgroundColor = standardize_color(
+		item.font.color
+	);
 	elem('node-borderType').value = getDashes(
 		item.shapeProperties.borderDashes
 	);
@@ -1260,11 +1267,11 @@ function editEdge(item, point, cancelAction, callback) {
 		<table id="popup-table">
 		<tr>
 			<td>
-				Line
+				<i>Line</i>
 			</td>
 			<td>
 			<div class="input-color-container">
-			<input type="color" class="input-color" id="edge-color" />
+			<div class="color-well"  id="edge-color" </div>
 			</div>
 			</td>
 		</tr>
@@ -1278,19 +1285,19 @@ function editEdge(item, point, cancelAction, callback) {
 				</select>
 			</td>
 			<td>
-			Font
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<select id="edge-type">
+			<select id="edge-type">
 					<option value="false">Type...</option>
 					<option value="false">Solid</option>
 					<option value="true">Dashed</option>
 					<option value="dots">Dotted</option>
 				</select>
 			</td>
-			<td>
+		</tr>
+		<tr>
+			<td style="text-align: right; padding-top: 5px">
+			<i>Font</i>	
+			</td>
+			<td style="padding-top: 5px">
 				<select id="edge-font-size">
 					<option value="14">Size</option>
 					<option value="18">Large</option>
@@ -1302,7 +1309,10 @@ function editEdge(item, point, cancelAction, callback) {
 	</table>`
 	);
 	elem('edge-width').value = parseInt(item.width);
-	elem('edge-color').value = standardize_color(item.color.color);
+	cp.createColorPicker('edge-color');
+	elem('edge-color').style.backgroundColor = standardize_color(
+		item.color.color
+	);
 	elem('edge-type').value = getDashes(item.dashes);
 	elem('edge-font-size').value = parseInt(item.font.size);
 	positionPopUp(point);
@@ -1431,15 +1441,15 @@ function saveNode(item, callback) {
 		statusMsg('No label: cancelled', 'warn');
 		callback(null);
 	}
-	let color = elem('node-backgroundColor').value;
+	let color = elem('node-backgroundColor').style.backgroundColor;
 	item.color.background = color;
 	item.color.highlight.background = color;
 	item.color.hover.background = color;
-	color = elem('node-borderColor').value;
+	color = elem('node-borderColor').style.backgroundColor;
 	item.color.border = color;
 	item.color.highlight.border = color;
 	item.color.hover.border = color;
-	item.font.color = elem('node-fontColor').value;
+	item.font.color = elem('node-fontColor').style.backgroundColor;
 	let borderType = elem('node-borderType').value;
 	item.borderWidth = borderType == 'none' ? 0 : 4;
 	item.shapeProperties.borderDashes = convertDashes(borderType);
@@ -1503,7 +1513,7 @@ function saveEdge(item, callback) {
 	item.label = splitText(elem('popup-label').innerText, NODEWIDTH);
 	clearPopUp();
 	if (item.label === '') item.label = ' ';
-	let color = elem('edge-color').value;
+	let color = elem('edge-color').style.backgroundColor;
 	item.color.color = color;
 	item.color.hover = color;
 	item.color.highlight = color;

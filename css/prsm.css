@@ -207,7 +207,7 @@ input[type='range'] {
 	width: 33%;
 	text-align: center;
 }
- .input-color-container {
+.input-color-container {
 	position: relative;
 	overflow: hidden;
 	width: 30px;

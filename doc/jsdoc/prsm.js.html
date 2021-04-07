@@ -51,6 +51,7 @@ import {
 	statusMsg,
 	clearStatusBar,
 	initials,
+	CP,
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
@@ -65,10 +66,11 @@ import {
 	reApplySampleToLinks,
 	legend,
 	clearLegend,
+	updateLegend,
 } from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.6.3';
+const version = '1.6.4';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
@@ -108,6 +110,7 @@ var inEditMode = false; //true when node or edge is being edited (dialog is open
 var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
 var tutorial = new Tutorial(); // object driving the tutorial
+export var cp; // color picker
 
 /**
  * top level function to initialise everything
@@ -147,7 +150,7 @@ function addEventListeners() {
 			window.getSelection().selectAllChildren(e.target);
 	});
 	listen('addNode', 'click', plusNode);
-	listen('net-pane', 'contextmenu', ctlClickAddNode);
+	listen('net-pane', 'contextmenu', contextMenu);
 	listen('addLink', 'click', plusLink);
 	listen('deleteNode', 'click', deleteNode);
 	listen('undo', 'click', undo);
@@ -180,7 +183,6 @@ function addEventListeners() {
 	});
 	listen('trophicButton', 'click', autoLayoutSwitch);
 	listen('snaptogridswitch', 'click', snapToGridSwitch);
-	listen('netBackColorWell', 'input', updateNetBack);
 	listen('drawing', 'click', toggleDrawingLayer);
 	listen('allFactors', 'click', selectAllFactors);
 	listen('allEdges', 'click', selectAllEdges);
@@ -212,6 +214,7 @@ function addEventListeners() {
  * create all the DOM elements on the web page
  */
 function setUpPage() {
+	elem('version').innerHTML = version;
 	// check options set on URL: ?debug='yjs'|'gui'&amp;viewing&amp;start
 	let searchParams = new URL(document.location).searchParams;
 	if (searchParams.has('debug')) debug = [searchParams.get('debug')];
@@ -225,11 +228,12 @@ function setUpPage() {
 	panel = elem('panel');
 	panel.classList.add('hide');
 	container.panelHidden = true;
+	cp = new CP();
+	cp.createColorPicker('netBackColorWell', updateNetBack);
 	setUpSamples();
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'));
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'));
 	hideNotes();
-	elem('version').innerHTML = version;
 }
 
 /**
@@ -284,19 +288,6 @@ function startY() {
 		nodes: nodes,
 		edges: edges,
 	};
-
-	/* initialise yNetMap */
-	/* yNetMap.set('mapTitle', '');
-	yNetMap.set('snapToGrid', false);
-	yNetMap.set('curve', 'Curved');
-	yNetMap.set('background', '#ffffff');
-	yNetMap.set('legend', false);
-	yNetMap.set('hideAndStream', {
-		hideSetting: 'All',
-		streamSetting: 'All',
-		selected: [],
-	});
-	yNetMap.set('sizing', 'Off'); */
 
 	/* 
 	for convenience when debugging
@@ -742,7 +733,8 @@ function draw() {
 				// revert to using the original node properties before continuing.
 				item = data.nodes.get(item.id);
 				item.modified = timestamp();
-				editNode(item, cancelEdit, callback);
+				let point = {x: event.offsetX, y: event.offsetY};
+				editNode(item, point, cancelEdit, callback);
 			},
 			addEdge: function (item, callback) {
 				inAddMode = false;
@@ -776,7 +768,8 @@ function draw() {
 				editWithoutDrag: function (item, callback) {
 					item = data.edges.get(item.id);
 					item.modified = timestamp();
-					editEdge(item, cancelEdit, callback);
+					let point = {x: event.offsetX, y: event.offsetY};
+					editEdge(item, point, cancelEdit, callback);
 				},
 			},
 			deleteNode: function (item, callback) {
@@ -796,11 +789,6 @@ function draw() {
 					}
 				});
 				if (locked) return;
-				/* let r = confirm(deleteMsg(item));
-				if (r != true) {
-					callback(null);
-					return;
-				} */
 				clearStatusBar();
 				hideNotes();
 				// delete also all the edges that link to the nodes being deleted
@@ -825,11 +813,6 @@ function draw() {
 				callback(item);
 			},
 			deleteEdge: function (item, callback) {
-				/* let r = confirm(deleteMsg(item));
-				if (r != true) {
-					callback(null);
-					return;
-				} */
 				item.edges.forEach((edgeId) => {
 					logHistory(
 						`deleted link from ${
@@ -861,7 +844,43 @@ function draw() {
 	elem('nodesButton').click();
 
 	// listen for click events on the network pane
-
+	network.on('click', function (params) {
+		if (window.debug.includes('gui')) console.log('click');
+		let keys = params.event.pointers[0];
+		if (keys.metaKey) {
+			// if the Command key (on a Mac)   is down, and the click is on a node/edge, log it to the console
+			if (params.nodes.length == 1) {
+				let node = data.nodes.get(params.nodes[0]);
+				console.log('node = ', node);
+				window.node = node;
+			}
+			if (params.edges.length == 1) {
+				let edge = data.edges.get(params.edges[0]);
+				console.log('edge = ', edge);
+				window.edge = edge;
+			}
+			return;
+		}
+		if (keys.altKey) {
+			// if the Option/ALT key is down, add a node if on the background, or a link if on a node
+			if (params.nodes.length == 0 &amp;&amp; params.edges.length == 0) {
+				let pos = params.pointer.canvas;
+				let item = {id: uuidv4(), label: '', x: pos.x, y: pos.y};
+				item = deepMerge(item, styles.nodes[lastNodeSample]);
+				item.grp = lastNodeSample;
+				addLabel(item, clearPopUp, function (newItem) {
+					if (newItem !== null) data.nodes.add(newItem);
+				});
+			}
+			if (params.nodes.length == 1) {
+				plusLink();
+			}
+			return;
+		}
+		if (keys.shiftKey) {
+			if (!inEditMode) showMagnifier(keys);
+		}
+	});
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
 		if (window.debug.includes('gui')) console.log('doubleClick');
@@ -874,7 +893,7 @@ function draw() {
 			fit();
 		}
 	});
-	network.on('selectNode', function (params) {
+	network.on('selectNode', function () {
 		if (window.debug.includes('gui')) console.log('selectNode');
 		let selectedNodes = network.getSelectedNodes();
 		selectedNodes.forEach((nodeId) => {
@@ -884,17 +903,8 @@ function draw() {
 				data.nodes.update(node, 'dontBroadcast');
 			}
 		});
-		// if control key is down, start linking to another node
-		if (params.event.pointers[0].ctrlKey) {
-			// start linking from this node, but only if only one node is selected, else source node is not clear
-			if (selectedNodes.length == 1) {
-				statusMsg('Linking from ' + listFactors(selectedNodes));
-				plusLink();
-			}
-		} else {
-			showSelected();
-			showNodeOrEdgeData();
-		}
+		showSelected();
+		showNodeOrEdgeData();
 	});
 	network.on('deselectNode', function () {
 		if (window.debug.includes('gui')) console.log('deselectNode');
@@ -939,8 +949,11 @@ function draw() {
 		hideNotes();
 		clearStatusBar();
 	});
-	network.on('dragStart', function () {
+	network.on('dragStart', function (params) {
 		if (window.debug.includes('gui')) console.log('dragStart');
+		if (params.event.pointers[0].altKey &amp;&amp; params.nodes.length == 1) {
+			plusLink();
+		}
 		changeCursor('grabbing');
 	});
 	network.on('dragEnd', function (event) {
@@ -994,7 +1007,7 @@ function draw() {
 	let netPaneRect = null;
 
 	window.addEventListener('keydown', (e) => {
-		if (e.shiftKey) createMagnifier();
+		if (!inEditMode &amp;&amp; e.shiftKey) createMagnifier();
 	});
 	window.addEventListener('mousemove', (e) => {
 		if (e.shiftKey) showMagnifier(e);
@@ -1072,8 +1085,11 @@ function draw() {
 	}
 } // end draw()
 
+function contextMenu(event) {
+	event.preventDefault();
+}
 /**
- * return an object with the current time as a date an integer and the currnet user's initials
+ * return an object with the current time as a date an integer and the current user's initials
  */
 function timestamp() {
 	return {time: Date.now(), user: initials(myNameRec.name)};
@@ -1168,48 +1184,24 @@ function snapToGrid(node) {
 /**
  * A factor is being created:  get its label from the user
  * @param {Object} item - the node
+ * @param {Object} point  where the mouse clicked
  * @param {Function} cancelAction
  * @param {Function} callback
  */
 function addLabel(item, cancelAction, callback) {
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback);
-	positionPopUp();
+	positionPopUp({x: event.offsetX, y: event.offsetY});
 	elem('popup-label').focus();
 }
-/**
- * if user Control-clicks the canvas, use this as a shortcut equivalent to pressing the Add Node button
- * @param {mouseEvent} event
- */
-function ctlClickAddNode(event) {
-	// cancel default context menu
-	event.preventDefault();
-	let domPos = {x: event.offsetX, y: event.offsetY};
-	// if clicking on a node or edge, report it to console for debugging
-	let target = network.getNodeAt(domPos);
-	if (target !== undefined) {
-		console.log(data.nodes.get(target));
-		return;
-	}
-	target = network.getEdgeAt(domPos);
-	if (target !== undefined) {
-		console.log(data.edges.get(target));
-		return;
-	}
-	let pos = network.DOMtoCanvas(domPos);
-	let item = {id: uuidv4(), label: '', x: pos.x, y: pos.y};
-	item = deepMerge(item, styles.nodes[lastNodeSample]);
-	item.grp = lastNodeSample;
-	addLabel(item, clearPopUp, function (newItem) {
-		if (newItem !== null) data.nodes.add(newItem);
-	});
-}
+
 /**
  * Draw a dialog box for user to edit a node
  * @param {Object} item the node
+ * @param {Object} point the centre of the node
  * @param {Function} cancelAction what to do if the edit is cancelled
  * @param {Function} callback what to do if the edit is saved
  */
-function editNode(item, cancelAction, callback) {
+function editNode(item, point, cancelAction, callback) {
 	initPopUp('Edit Factor', 150, item, cancelAction, saveNode, callback);
 	elem('popup').insertAdjacentHTML(
 		'beforeend',
@@ -1229,17 +1221,17 @@ function editNode(item, cancelAction, callback) {
 		&lt;tr>
 		&lt;td>
 		&lt;div class="input-color-container">
-		&lt;input type="color" class="input-color" id="node-backgroundColor" />
+		&lt;div class="color-well" id="node-backgroundColor" &lt;/div>
 		&lt;/div>
 		&lt;/td>
 		&lt;td>
 			&lt;div class="input-color-container">
-			&lt;input type="color" class="input-color" id="node-borderColor" />
+			&lt;div class="color-well" id="node-borderColor" &lt;/div>
 			&lt;/div>
 			&lt;/td>
 			&lt;td>
 			&lt;div class="input-color-container">
-			&lt;input type="color" class="input-color" id="node-fontColor" />
+			&lt;div class="color-well" id="node-fontColor" &lt;/div>
 			&lt;/div>
 			&lt;/td>
 		&lt;/tr>
@@ -1257,15 +1249,22 @@ function editNode(item, cancelAction, callback) {
 		&lt;/tr>
 	&lt;/table>`
 	);
-	elem('node-backgroundColor').value = standardize_color(
+	cp.createColorPicker('node-backgroundColor');
+	elem('node-backgroundColor').style.backgroundColor = standardize_color(
 		item.color.background
 	);
-	elem('node-borderColor').value = standardize_color(item.color.border);
-	elem('node-fontColor').value = standardize_color(item.font.color);
+	cp.createColorPicker('node-borderColor');
+	elem('node-borderColor').style.backgroundColor = standardize_color(
+		item.color.border
+	);
+	cp.createColorPicker('node-fontColor');
+	elem('node-fontColor').style.backgroundColor = standardize_color(
+		item.font.color
+	);
 	elem('node-borderType').value = getDashes(
 		item.shapeProperties.borderDashes
 	);
-	positionPopUp();
+	positionPopUp(point);
 	elem('popup-label').focus();
 	elem('popup').timer = setTimeout(() => {
 		//ensure that the node cannot be locked out for ever
@@ -1285,22 +1284,23 @@ function getDashes(val) {
 /**
  * Draw a dialog box for user to edit an edge
  * @param {Object} item the edge
+ * @param {Object} point the centre of the edge
  * @param {Function} cancelAction what to do if the edit is cancelled
  * @param {Function} callback what to do if the edit is saved
  */
-function editEdge(item, cancelAction, callback) {
-	initPopUp('Edit Link', 140, item, cancelAction, saveEdge, callback);
+function editEdge(item, point, cancelAction, callback) {
+	initPopUp('Edit Link', 150, item, cancelAction, saveEdge, callback);
 	elem('popup').insertAdjacentHTML(
 		'beforeend',
 		` 
 		&lt;table id="popup-table">
 		&lt;tr>
 			&lt;td>
-				Line
+				&lt;i>Line&lt;/i>
 			&lt;/td>
 			&lt;td>
 			&lt;div class="input-color-container">
-			&lt;input type="color" class="input-color" id="edge-color" />
+			&lt;div class="color-well"  id="edge-color" &lt;/div>
 			&lt;/div>
 			&lt;/td>
 		&lt;/tr>
@@ -1314,19 +1314,19 @@ function editEdge(item, cancelAction, callback) {
 				&lt;/select>
 			&lt;/td>
 			&lt;td>
-			Font
-			&lt;/td>
-		&lt;/tr>
-		&lt;tr>
-			&lt;td>
-				&lt;select id="edge-type">
+			&lt;select id="edge-type">
 					&lt;option value="false">Type...&lt;/option>
 					&lt;option value="false">Solid&lt;/option>
 					&lt;option value="true">Dashed&lt;/option>
 					&lt;option value="dots">Dotted&lt;/option>
 				&lt;/select>
 			&lt;/td>
-			&lt;td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style="text-align: right; padding-top: 5px">
+			&lt;i>Font&lt;/i>	
+			&lt;/td>
+			&lt;td style="padding-top: 5px">
 				&lt;select id="edge-font-size">
 					&lt;option value="14">Size&lt;/option>
 					&lt;option value="18">Large&lt;/option>
@@ -1338,10 +1338,13 @@ function editEdge(item, cancelAction, callback) {
 	&lt;/table>`
 	);
 	elem('edge-width').value = parseInt(item.width);
-	elem('edge-color').value = standardize_color(item.color.color);
+	cp.createColorPicker('edge-color');
+	elem('edge-color').style.backgroundColor = standardize_color(
+		item.color.color
+	);
 	elem('edge-type').value = getDashes(item.dashes);
 	elem('edge-font-size').value = parseInt(item.font.size);
-	positionPopUp();
+	positionPopUp(point);
 	elem('popup-label').focus();
 	elem('popup').timer = setTimeout(() => {
 		//ensure that the edge cannot be locked out for ever
@@ -1389,15 +1392,14 @@ function initPopUp(
 /**
  * Position the editing dialog box so that it is to the left of the item being edited,
  * but not outside the window
+ * @param {Object} point
  */
-function positionPopUp() {
+function positionPopUp(point) {
 	let popUp = elem('popup');
 	popUp.style.display = 'block';
-	// popup appears to the left of the mouse pointer
-	popUp.style.top = `${
-		event.clientY - popUp.offsetHeight / 2 - popUp.offsetParent.offsetTop
-	}px`;
-	let left = event.clientX - popUp.offsetWidth - 3;
+	// popup appears to the left of the given point
+	popUp.style.top = `${point.y - popUp.offsetHeight / 2}px`;
+	let left = point.x - popUp.offsetWidth - 3;
 	popUp.style.left = `${left &lt; 0 ? 0 : left}px`;
 	dragElement(popUp, elem('popup-top'));
 }
@@ -1468,15 +1470,15 @@ function saveNode(item, callback) {
 		statusMsg('No label: cancelled', 'warn');
 		callback(null);
 	}
-	let color = elem('node-backgroundColor').value;
+	let color = elem('node-backgroundColor').style.backgroundColor;
 	item.color.background = color;
 	item.color.highlight.background = color;
 	item.color.hover.background = color;
-	color = elem('node-borderColor').value;
+	color = elem('node-borderColor').style.backgroundColor;
 	item.color.border = color;
 	item.color.highlight.border = color;
 	item.color.hover.border = color;
-	item.font.color = elem('node-fontColor').value;
+	item.font.color = elem('node-fontColor').style.backgroundColor;
 	let borderType = elem('node-borderType').value;
 	item.borderWidth = borderType == 'none' ? 0 : 4;
 	item.shapeProperties.borderDashes = convertDashes(borderType);
@@ -1540,7 +1542,7 @@ function saveEdge(item, callback) {
 	item.label = splitText(elem('popup-label').innerText, NODEWIDTH);
 	clearPopUp();
 	if (item.label === '') item.label = ' ';
-	let color = elem('edge-color').value;
+	let color = elem('edge-color').style.backgroundColor;
 	item.color.color = color;
 	item.color.hover = color;
 	item.color.highlight = color;
@@ -2018,6 +2020,7 @@ function loadFile(contents) {
 	network.fit(0);
 	yUndoManager.clear();
 	undoRedoButtonStatus();
+	updateLegend();
 	logHistory('loaded &amp;lt;' + lastFileName + '&amp;gt;');
 }
 /**
@@ -2968,12 +2971,12 @@ function setCurve(option) {
 	});
 }
 
-function updateNetBack(event) {
+function updateNetBack(color) {
 	let ul = elem('underlay');
-	ul.style.backgroundColor = event.target.value;
+	ul.style.backgroundColor = color;
 	// if in drawing mode, make the underlay translucent so that network shows through
 	if (elem('toolbox').style.display == 'block') makeTranslucent(ul);
-	yNetMap.set('background', event.target.value);
+	yNetMap.set('background', color);
 }
 
 function makeTranslucent(el) {
@@ -2991,8 +2994,9 @@ function setBackground(color) {
 	elem('underlay').style.backgroundColor = color;
 	if (elem('toolbox').style.display == 'block')
 		makeTranslucent(elem('underlay'));
-	elem('netBackColorWell').value = color;
+	elem('netBackColorWell').style.backgroundColor = color;
 }
+
 function toggleDrawingLayer() {
 	drawingSwitch = elem('toolbox').style.display == 'block';
 	let ul = elem('underlay');
@@ -3505,6 +3509,8 @@ function showAvatars() {
 				if (nameRec.asleep) cursorDiv.style.display = 'none';
 				if (cursorDiv.innerText != shortName)
 					cursorDiv.innerText = shortName;
+				if (cursorDiv.style.backgroundColor != nameRec.color)
+					cursorDiv.style.backgroundColor = nameRec.color;
 			}
 			currentCursors.push(cursorDiv);
 		}
@@ -3683,9 +3689,6 @@ window.mergeMaps = mergeMaps;
 					>
 				</li>
 				<li><a href="global.html#convertDashes">convertDashes</a></li>
-				<li>
-					<a href="global.html#ctlClickAddNode">ctlClickAddNode</a>
-				</li>
 				<li><a href="global.html#deepCopy">deepCopy</a></li>
 				<li><a href="global.html#deselectTool">deselectTool</a></li>
 				<li><a href="global.html#diag">diag</a></li>
@@ -3905,8 +3908,8 @@ window.mergeMaps = mergeMaps;
 
 		<footer>
 			Documentation generated by
-			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Fri Apr
-			02 2021 08:42:08 GMT+0100 (British Summer Time)
+			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Wed Apr
+			07 2021 21:13:10 GMT+0100 (British Summer Time)
 		</footer>
 
 		<script>

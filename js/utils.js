@@ -576,10 +576,9 @@ export class CP {
 	 * @param {string} wellId the id of the DOM element to attach the color picker to
 	 * @param {string} initialColor
 	 */
-	createColorPicker(wellId, initialColor, callback) {
+	createColorPicker(wellId, callback) {
 		let well = elem(wellId);
-		well.style.backgroundColor = initialColor;
-		this.colorPicker.color.hexString = initialColor;
+		well.style.backgroundColor = '#ffffff';
 		// add listener to display picker when well clicked
 		well.addEventListener('click', (event) => {
 			this.container.style.display = 'block';
@@ -597,7 +596,7 @@ export class CP {
 			this.container.well = well;
 			this.container.callback = callback;
 			this.colorPicker.color.rgbString = well.style.backgroundColor;
-			// close colour picker and report chosen colour when user clicks outside of picker 9and well)
+			// close colour picker and report chosen colour when user clicks outside of picker (and well)
 			this.onclose = this.closeColorPicker.bind(this);
 			document.addEventListener('click', this.onclose, true);
 
@@ -631,7 +630,8 @@ export class CP {
 						'color' + i
 					).style.backgroundColor = col;
 			}
-			this.container.callback(color)
+			let callback = this.container.callback;
+			if (callback) callback(color);
 		}
 	}
 }

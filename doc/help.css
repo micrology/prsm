@@ -17,7 +17,6 @@ body {
 	max-width: 1200px;
 	display: grid;
 	grid-template-columns: 230px 1fr;
-
 }
 figcaption {
 	display: none;
@@ -69,7 +68,8 @@ code {
 		max-width: 600px;
 	}
 }
-.scroll-nav__list, .scroll-nav__sub-list {
+.scroll-nav__list,
+.scroll-nav__sub-list {
 	margin: 0;
 	padding-left: 1.4em;
 	list-style-type: none;
@@ -98,7 +98,8 @@ code {
 	top: 2px;
 } */
 
-.scroll-nav__link, .scroll-nav__sub-link {
+.scroll-nav__link,
+.scroll-nav__sub-link {
 	color: #0645ad;
 	text-decoration: none;
 	overflow-wrap: break-word;
