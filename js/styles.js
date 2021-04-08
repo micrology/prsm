@@ -374,19 +374,9 @@ function linkEditSave() {
 		if (val != '') {
 			group.arrows.from.enabled = false;
 			group.arrows.middle.enabled = false;
-			group.arrows.to.enabled = false;
-			switch (val) {
-				case 'none':
-					break;
-				case 'circle':
-					group.arrows.to.enabled = true;
-					group.arrows.to.type = 'circle';
-					break;
-				default:
-					group.arrows.to.enabled = true;
-					group.arrows.to.type = 'vee';
-					break;
-			}
+			group.arrows.to.enabled = true;
+			if (val === 'none') group.arrows.to.enabled = false;
+			else group.arrows.to.type = val;
 		}
 	}
 }
@@ -504,8 +494,7 @@ function groupDashes(val) {
  */
 function getArrows(prop) {
 	let val = 'none';
-	if (prop.to && prop.to.enabled && prop.to.type == 'circle') val = 'circle';
-	else if (prop.to && prop.to.enabled) val = 'to';
+	if (prop.to && prop.to.enabled && prop.to.type) val = prop.to.type;
 	return val;
 }
 

@@ -1180,13 +1180,13 @@ function editNode(item, point, cancelAction, callback) {
 	<table id="popup-table">
 		<tr>
 			<td>
-				Back
+				<i>Back</i>
 			</td>
 			<td>
-				Border
+			<i>Border</i>
 			</td>
 			<td>
-				Font
+			<i>Font</i>
 			</td>
 		</tr>
 		<tr>
@@ -1207,7 +1207,7 @@ function editNode(item, point, cancelAction, callback) {
 			</td>
 		</tr>
 		<tr>
-		<td>Border:</td>
+		<td><i>Border:</i></td>
 			<td colspan="2">
 				<select id="node-borderType">
 					<option value="false">Type...</option>
@@ -1267,16 +1267,6 @@ function editEdge(item, point, cancelAction, callback) {
 		<table id="popup-table">
 		<tr>
 			<td>
-				<i>Line</i>
-			</td>
-			<td>
-			<div class="input-color-container">
-			<div class="color-well"  id="edge-color" </div>
-			</div>
-			</td>
-		</tr>
-		<tr>
-			<td>
 				<select id="edge-width">
 					<option value="">Width...</option>
 					<option value="1">Width: 1</option>
@@ -1285,8 +1275,8 @@ function editEdge(item, point, cancelAction, callback) {
 				</select>
 			</td>
 			<td>
-			<select id="edge-type">
-					<option value="false">Type...</option>
+				<select id="edge-type">
+					<option value="false">Line...</option>
 					<option value="false">Solid</option>
 					<option value="true">Dashed</option>
 					<option value="dots">Dotted</option>
@@ -1294,8 +1284,26 @@ function editEdge(item, point, cancelAction, callback) {
 			</td>
 		</tr>
 		<tr>
+			<td>
+				<select id="edge-arrow">
+					<option value="vee">Arrows...</option>
+					<option value="vee">Sharp</option>
+					<option value="bar">Bar</option>
+					<option value="circle">Circle</option>
+					<option value="box">Box</option>
+					<option value="diamond">Diamond</option>
+					<option value="none">None</option>
+				</select>
+			</td>
+			<td>
+				<div class="input-color-container">
+					<div class="color-well"  id="edge-color" </div>
+				</div>
+			</td>
+		</tr>
+		<tr>
 			<td style="text-align: right; padding-top: 5px">
-			<i>Font</i>	
+				<i>Font</i>	
 			</td>
 			<td style="padding-top: 5px">
 				<select id="edge-font-size">
@@ -1314,6 +1322,7 @@ function editEdge(item, point, cancelAction, callback) {
 		item.color.color
 	);
 	elem('edge-type').value = getDashes(item.dashes);
+	elem('edge-arrow').value = (item.arrows.to.enabled ? item.arrows.to.type : 'none');
 	elem('edge-font-size').value = parseInt(item.font.size);
 	positionPopUp(point);
 	elem('popup-label').focus();
@@ -1520,6 +1529,7 @@ function saveEdge(item, callback) {
 	item.width = parseInt(elem('edge-width').value);
 	if (!item.width) item.width = 1;
 	item.dashes = convertDashes(elem('edge-type').value);
+	item.arrows.to = { enabled: elem('edge-arrow').value !== 'none', type: elem('edge-arrow').value };
 	item.font.size = parseInt(elem('edge-font-size').value);
 	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
 	unlockEdge(item);
