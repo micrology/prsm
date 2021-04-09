@@ -132,6 +132,16 @@ input[type='range'] {
 	text-align: center;
 	line-height: 150%;
 }
+.selectionBox {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+	z-index: 100;
+	background-color: rgba(0, 0, 250, 0.1);
+	border: 1px blue dotted;
+}
 /* Add factor dialog */
 
 #popup {
@@ -1518,16 +1528,14 @@ div.resize {
 .tutorial-arrow.below,
 .tutorial-arrow.below-middle,
 .tutorial-arrow.below-right {
-	border-color: transparent transparent var(--tutorial-highlight-color)
-		transparent;
+	border-color: transparent transparent var(--tutorial-highlight-color) transparent;
 	top: -20px;
 	left: 20px;
 }
 .tutorial-arrow.above,
 .tutorial-arrow.above-middle,
 .tutorial-arrow.above-right {
-	border-color: var(--tutorial-highlight-color) transparent transparent
-		transparent;
+	border-color: var(--tutorial-highlight-color) transparent transparent transparent;
 	bottom: -20px;
 	left: 20px;
 }
@@ -1556,15 +1564,13 @@ div.resize {
 .tutorial-arrow.right-middle,
 .tutorial-arrow.right-bottom {
 	left: -20px;
-	border-color: transparent var(--tutorial-highlight-color) transparent
-		transparent;
+	border-color: transparent var(--tutorial-highlight-color) transparent transparent;
 }
 .tutorial-arrow.left,
 .tutorial-arrow.left-middle,
 .tutorial-arrow.left-bottom {
 	right: -20px;
-	border-color: transparent transparent transparent
-		var(--tutorial-highlight-color);
+	border-color: transparent transparent transparent var(--tutorial-highlight-color);
 }
 .tutorial-arrow.right-middle,
 .tutorial-arrow.left-middle {

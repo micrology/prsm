@@ -558,6 +558,8 @@ export class CP {
 			let c = document.createElement('div');
 			c.id = 'color' + i;
 			c.className = 'cached-color';
+			if (i == 0) c.style.backgroundColor = '#ffffff';
+			if (i == 1) c.style.backgroundColor = '#000000';
 			c.addEventListener('click', (e) => {
 				let color = e.target.style.backgroundColor;
 				if (color.search('rgb') != -1)

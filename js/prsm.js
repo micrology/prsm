@@ -31,14 +31,7 @@ import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
 import {EmojiButton} from '@joeattardi/emoji-button';
 import Quill from 'quill';
-import {
-	setUpSamples,
-	reApplySampleToNodes,
-	reApplySampleToLinks,
-	legend,
-	clearLegend,
-	updateLegend,
-} from './styles.js';
+import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
 const version = '1.6.4';
@@ -117,8 +110,7 @@ function addEventListeners() {
 	listen('maptitle', 'keyup', mapTitle);
 	listen('maptitle', 'paste', pasteMapTitle);
 	listen('maptitle', 'click', (e) => {
-		if (e.target.innerText == 'Untitled map')
-			window.getSelection().selectAllChildren(e.target);
+		if (e.target.innerText == 'Untitled map') window.getSelection().selectAllChildren(e.target);
 	});
 	listen('addNode', 'click', plusNode);
 	listen('net-pane', 'contextmenu', contextMenu);
@@ -227,13 +219,7 @@ function startY() {
 		console.log(exactTime() + ' remote content loaded');
 	});
 	wsProvider.on('status', (event) => {
-		console.log(
-			exactTime() +
-				event.status +
-				(event.status == 'connected' ? ' to' : ' from') +
-				' room ' +
-				room
-		); // logs when websocket is "connected" or "disconnected"
+		console.log(exactTime() + event.status + (event.status == 'connected' ? ' to' : ' from') + ' room ' + room); // logs when websocket is "connected" or "disconnected"
 	});
 	/* 
 	create a yMap for the nodes and one for the edges (we need two because there is no 
@@ -282,10 +268,7 @@ function startY() {
 	has been deleted. If a local node is added or updated, that is also broadcast.
 	 */
 	nodes.on('*', (event, properties, origin) => {
-		yjsTrace(
-			'nodes.on',
-			`${event}  ${JSON.stringify(properties.items)} origin: ${origin}`
-		);
+		yjsTrace('nodes.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`);
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
@@ -317,10 +300,7 @@ function startY() {
 				}
 			} else {
 				hideNotes();
-				if (data.nodes.get(key))
-					network
-						.getConnectedEdges(key)
-						.forEach((edge) => edges.remove(edge, 'remote'));
+				if (data.nodes.get(key)) network.getConnectedEdges(key).forEach((edge) => edges.remove(edge, 'remote'));
 				nodes.remove(key, 'remote');
 			}
 		}
@@ -330,10 +310,7 @@ function startY() {
 	See comments above about nodes
 	 */
 	edges.on('*', (event, properties, origin) => {
-		yjsTrace(
-			'edges.on',
-			`${event}  ${JSON.stringify(properties.items)} origin: ${origin}`
-		);
+		yjsTrace('edges.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`);
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
@@ -436,10 +413,7 @@ function startY() {
 		}
 	});
 	yPointsArray.observe((event) => {
-		yjsTrace(
-			'yPointsArray.observe',
-			yPointsArray.get(yPointsArray.length - 1)
-		);
+		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1));
 		if (event.transaction.local === false) network.redraw();
 	});
 	yHistory.observe(() => {
@@ -497,10 +471,7 @@ function displayNetPane(msg) {
 	fit(0);
 	setMapTitle(yNetMap.get('mapTitle'));
 	console.log(msg);
-	if (
-		netPane.style.visibility == 'hidden' ||
-		netPane.style.visibility == ''
-	) {
+	if (netPane.style.visibility == 'hidden' || netPane.style.visibility == '') {
 		netPane.style.visibility = 'visible';
 		setUpTutorial();
 	}
@@ -650,12 +621,7 @@ function showMice() {
 			cursorDiv.style.top = `${p.y}px`;
 			cursorDiv.style.left = `${p.x}px`;
 			cursorDiv.style.display =
-				p.x < box.left ||
-				p.x > box.right ||
-				p.y > box.bottom ||
-				p.y < box.top
-					? 'none'
-					: 'block';
+				p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top ? 'none' : 'block';
 		}
 	});
 }
@@ -718,9 +684,7 @@ function draw() {
 					return;
 				}
 				if (duplEdge(item.from, item.to).length > 0) {
-					alert(
-						'There is already a link from this Factor to the other.'
-					);
+					alert('There is already a link from this Factor to the other.');
 					callback(null);
 					return;
 				}
@@ -729,11 +693,7 @@ function draw() {
 				item.created = timestamp();
 				clearStatusBar();
 				callback(item);
-				logHistory(
-					`added link from ${data.nodes.get(item.from).label} to ${
-						data.nodes.get(item.to).label
-					}`
-				);
+				logHistory(`added link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`);
 			},
 			editEdge: {
 				editWithoutDrag: function (item, callback) {
@@ -749,12 +709,7 @@ function draw() {
 					let n = data.nodes.get(nId);
 					if (n.locked) {
 						locked = true;
-						statusMsg(
-							`Factor '${shorten(
-								n.oldLabel
-							)}' can't be deleted because it is locked`,
-							'warn'
-						);
+						statusMsg(`Factor '${shorten(n.oldLabel)}' can't be deleted because it is locked`, 'warn');
 						callback(null);
 						return;
 					}
@@ -765,30 +720,27 @@ function draw() {
 				// delete also all the edges that link to the nodes being deleted
 				item.nodes.forEach((nId) => {
 					network.getConnectedEdges(nId).forEach((eId) => {
-						if (item.edges.indexOf(eId) === -1)
-							item.edges.push(eId);
+						if (item.edges.indexOf(eId) === -1) item.edges.push(eId);
 					});
 				});
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from ${
-							data.nodes.get(data.edges.get(edgeId).from).label
-						} to ${data.nodes.get(data.edges.get(edgeId).to).label}`
+						`deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${
+							data.nodes.get(data.edges.get(edgeId).to).label
+						}`
 					);
 				});
 				item.nodes.forEach((nodeId) => {
-					logHistory(
-						`deleted factor: ${data.nodes.get(nodeId).label}`
-					);
+					logHistory(`deleted factor: ${data.nodes.get(nodeId).label}`);
 				});
 				callback(item);
 			},
 			deleteEdge: function (item, callback) {
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from ${
-							data.nodes.get(data.edges.get(edgeId).from).label
-						} to ${data.nodes.get(data.edges.get(edgeId).to).label}`
+						`deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${
+							data.nodes.get(data.edges.get(edgeId).to).label
+						}`
 					);
 				});
 				callback(item);
@@ -844,7 +796,7 @@ function draw() {
 				});
 			}
 			if (params.nodes.length == 1) {
-				plusLink();
+				elem('addLink').click();
 			}
 			return;
 		}
@@ -856,8 +808,7 @@ function draw() {
 	network.on('doubleClick', function (params) {
 		if (window.debug.includes('gui')) console.log('doubleClick');
 		if (params.nodes.length === 1) {
-			if (!inEditMode && !data.nodes.get(params.nodes[0]).locked)
-				network.editNode();
+			if (!inEditMode && !data.nodes.get(params.nodes[0]).locked) network.editNode();
 		} else if (params.edges.length === 1) {
 			if (!inEditMode) network.editEdgeMode();
 		} else {
@@ -920,18 +871,64 @@ function draw() {
 		hideNotes();
 		clearStatusBar();
 	});
+
+	let selectionStart = {};
+	let selectionArea = document.createElement('div');
+	selectionArea.className = "selectionBox";
+	selectionArea.style.display = 'none';
+	elem('main').appendChild(selectionArea);
+
 	network.on('dragStart', function (params) {
 		if (window.debug.includes('gui')) console.log('dragStart');
-		if (params.event.pointers[0].altKey && params.nodes.length == 1) {
-			plusLink();
+		let e = params.event.pointers[0];
+		// start drawing a selection rectangle if the CTRL key is down and click is on the background
+		if (e.ctrlKey && params.nodes.length == 0 && params.edges.length == 0) {
+			network.setOptions({ interaction: { dragView: false } });
+			listen('net-pane', 'mousemove', showAreaSelection);
+			selectionStart = params.pointer.canvas;
+			selectionArea.style.left = `${e.offsetX}px`;
+			selectionArea.style.top = `${e.offsetY}px`
+			selectionArea.style.display = 'block';;
+			return;
 		}
 		changeCursor('grabbing');
 	});
-	network.on('dragEnd', function (event) {
+	/**
+	 * update the selection rectangle as the mouse moves
+	 * @param {Event} event 
+	 */
+	function showAreaSelection(event) {
+		selectionArea.style.width = `${Math.abs(event.offsetX - selectionArea.offsetLeft)}px`;
+		selectionArea.style.height = `${Math.abs(event.offsetY - selectionArea.offsetTop)}px`;
+		if (event.offsetX < selectionArea.offsetLeft) {
+			selectionArea.style.left= `${event.offsetX}px`;
+		}
+		if (event.offsetY < selectionArea.offsetTop) {
+			selectionArea.style.top= `${event.offsetY}px`;
+		}
+	}
+	network.on('dragEnd', function (params) {
 		if (window.debug.includes('gui')) console.log('dragEnd');
-		let newPositions = network.getPositions(event.nodes);
+		let e = params.event.pointers[0];
+		if (e.ctrlKey && params.nodes.length == 0 && params.edges.length == 0) {
+				network.setOptions({ interaction: { dragView: true } });
+			elem('net-pane').removeEventListener('mousemove', showAreaSelection);
+			network.storePositions();
+			let selectionEnd = params.pointer.canvas;
+			let selectedNodes = data.nodes.get({
+				filter: function (node) {
+				return (node.x >= selectionStart.x && node.x <= selectionEnd.x && node.y >= selectionStart.y && node.y <= selectionEnd.y)
+				}
+			})
+			network.setSelection({ nodes: selectedNodes.map((n) => n.id) })
+			selectionArea.style.display = 'none';
+			showSelected();
+			return;
+		}
+
+		let newPositions = network.getPositions(params.nodes);
 		data.nodes.update(
-			data.nodes.get(event.nodes).map((n) => {
+			data.nodes.get(params.nodes).map((n) => {
 				n.x = newPositions[n.id].x;
 				n.y = newPositions[n.id].y;
 				if (snapToGridToggle) snapToGrid(n);
@@ -946,14 +943,14 @@ function draw() {
 	});
 	network.on('controlNodeDragEnd', function (event) {
 		if (window.debug.includes('gui')) console.log('controlNodeDragEnd');
-		if (event.controlEdge.from != event.controlEdge.to)
-			changeCursor('default');
+		if (event.controlEdge.from != event.controlEdge.to) changeCursor('default');
 	});
 	network.on('beforeDrawing', function (ctx) {
 		redraw(ctx);
 	});
 	network.on('afterDrawing', (ctx) => drawBadges(ctx));
 
+	
 	// listen for changes to the network structure
 	// and recalculate the network statistics when there is one
 	data.nodes.on('add', recalculateStats);
@@ -1026,12 +1023,8 @@ function draw() {
 		magnifierCtx.fillRect(0, 0, magSize, magSize);
 		magnifierCtx.drawImage(
 			bigNetCanvas,
-			((e.clientX - netPaneRect.x) * bigNetCanvas.width) /
-				netPaneCanvas.clientWidth -
-				halfMagSize,
-			((e.clientY - netPaneRect.y) * bigNetCanvas.height) /
-				netPaneCanvas.clientHeight -
-				halfMagSize,
+			((e.clientX - netPaneRect.x) * bigNetCanvas.width) / netPaneCanvas.clientWidth - halfMagSize,
+			((e.clientY - netPaneRect.y) * bigNetCanvas.height) / netPaneCanvas.clientHeight - halfMagSize,
 			magSize,
 			magSize,
 			0,
@@ -1221,20 +1214,12 @@ function editNode(item, point, cancelAction, callback) {
 	</table>`
 	);
 	cp.createColorPicker('node-backgroundColor');
-	elem('node-backgroundColor').style.backgroundColor = standardize_color(
-		item.color.background
-	);
+	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background);
 	cp.createColorPicker('node-borderColor');
-	elem('node-borderColor').style.backgroundColor = standardize_color(
-		item.color.border
-	);
+	elem('node-borderColor').style.backgroundColor = standardize_color(item.color.border);
 	cp.createColorPicker('node-fontColor');
-	elem('node-fontColor').style.backgroundColor = standardize_color(
-		item.font.color
-	);
-	elem('node-borderType').value = getDashes(
-		item.shapeProperties.borderDashes
-	);
+	elem('node-fontColor').style.backgroundColor = standardize_color(item.font.color);
+	elem('node-borderType').value = getDashes(item.shapeProperties.borderDashes);
 	positionPopUp(point);
 	elem('popup-label').focus();
 	elem('popup').timer = setTimeout(() => {
@@ -1318,11 +1303,9 @@ function editEdge(item, point, cancelAction, callback) {
 	);
 	elem('edge-width').value = parseInt(item.width);
 	cp.createColorPicker('edge-color');
-	elem('edge-color').style.backgroundColor = standardize_color(
-		item.color.color
-	);
+	elem('edge-color').style.backgroundColor = standardize_color(item.color.color);
 	elem('edge-type').value = getDashes(item.dashes);
-	elem('edge-arrow').value = (item.arrows.to.enabled ? item.arrows.to.type : 'none');
+	elem('edge-arrow').value = item.arrows.to.enabled ? item.arrows.to.type : 'none';
 	elem('edge-font-size').value = parseInt(item.font.size);
 	positionPopUp(point);
 	elem('popup-label').focus();
@@ -1342,29 +1325,17 @@ function editEdge(item, point, cancelAction, callback) {
  * @param {Function} saveAction
  * @param {Function} callback
  */
-function initPopUp(
-	popUpTitle,
-	height,
-	item,
-	cancelAction,
-	saveAction,
-	callback
-) {
+function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback) {
 	inAddMode = false;
 	inEditMode = true;
 	changeCursor('default');
 	elem('popup').style.height = height + 'px';
 	elem('popup-operation').innerHTML = popUpTitle;
 	elem('popup-saveButton').onclick = saveAction.bind(this, item, callback);
-	elem('popup-cancelButton').onclick = cancelAction.bind(
-		this,
-		item,
-		callback
-	);
+	elem('popup-cancelButton').onclick = cancelAction.bind(this, item, callback);
 	let popupLabel = elem('popup-label');
 	popupLabel.style.fontSize = '14px';
-	popupLabel.innerText =
-		item.label === undefined ? '' : item.label.replace(/\n/g, ' ');
+	popupLabel.innerText = item.label === undefined ? '' : item.label.replace(/\n/g, ' ');
 	let table = elem('popup-table');
 	if (table) table.remove();
 }
@@ -1463,12 +1434,8 @@ function saveNode(item, callback) {
 	item.borderWidth = borderType == 'none' ? 0 : 4;
 	item.shapeProperties.borderDashes = convertDashes(borderType);
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
-	if (item.label == item.oldLabel)
-		logHistory(`Edited factor : ${item.label}`);
-	else
-		logHistory(
-			`edited factor, changing label from ${item.oldLabel} to ${item.label}`
-		);
+	if (item.label == item.oldLabel) logHistory(`Edited factor : ${item.label}`);
+	else logHistory(`edited factor, changing label from ${item.oldLabel} to ${item.label}`);
 	unlockNode(item);
 	callback(item);
 }
@@ -1482,8 +1449,7 @@ function lockNode(item) {
 	item.font.color = item.font.color + '80';
 	item.opacity = 0.3;
 	item.oldLabel = item.label;
-	item.label =
-		item.label + '\n\n' + '[Being edited by ' + myNameRec.name + ']';
+	item.label = item.label + '\n\n' + '[Being edited by ' + myNameRec.name + ']';
 	item.wasFixed = Boolean(item.fixed);
 	item.fixed = true;
 	item.chosen = false;
@@ -1529,7 +1495,10 @@ function saveEdge(item, callback) {
 	item.width = parseInt(elem('edge-width').value);
 	if (!item.width) item.width = 1;
 	item.dashes = convertDashes(elem('edge-type').value);
-	item.arrows.to = { enabled: elem('edge-arrow').value !== 'none', type: elem('edge-arrow').value };
+	item.arrows.to = {
+		enabled: elem('edge-arrow').value !== 'none',
+		type: elem('edge-arrow').value,
+	};
 	item.font.size = parseInt(elem('edge-font-size').value);
 	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
 	unlockEdge(item);
@@ -1537,11 +1506,7 @@ function saveEdge(item, callback) {
 	item.shadow = false;
 	clearStatusBar();
 	callback(item);
-	logHistory(
-		`edited link from ${data.nodes.get(item.from).label} to ${
-			data.nodes.get(item.to).label
-		}`
-	);
+	logHistory(`edited link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`);
 }
 /**
  * Convert from the menu selection to the CSS format of the edge
@@ -1735,9 +1700,7 @@ function listFactors(factors) {
  * @param {string} label
  */
 function shorten(label) {
-	return label.length > SHORTLABELLEN
-		? label.substring(0, SHORTLABELLEN) + '...'
-		: label;
+	return label.length > SHORTLABELLEN ? label.substring(0, SHORTLABELLEN) + '...' : label;
 }
 /**
  * return a string listing the number of Links
@@ -1915,10 +1878,7 @@ function readSingleFile(e) {
 			loadFile(e.target.result);
 			if (!msg) statusMsg("Read '" + fileName + "'");
 		} catch (err) {
-			statusMsg(
-				"Error reading '" + fileName + "': " + err.message,
-				'error'
-			);
+			statusMsg("Error reading '" + fileName + "': " + err.message, 'error');
 			return;
 		}
 		document.body.style.cursor = 'default';
@@ -1935,12 +1895,7 @@ function openFile() {
  */
 function loadFile(contents) {
 	if (data.nodes.length > 0)
-		if (
-			!confirm(
-				'Loading a file will delete the current network.  Are you sure you want to replace it?'
-			)
-		)
-			return;
+		if (!confirm('Loading a file will delete the current network.  Are you sure you want to replace it?')) return;
 	unSelect();
 	ensureNotDrawing();
 	network.destroy();
@@ -2010,10 +1965,7 @@ function loadFile(contents) {
  */
 function loadJSONfile(json) {
 	json = JSON.parse(json);
-	if (
-		json.version &&
-		version.substring(0, 3) > json.version.substring(0, 3)
-	) {
+	if (json.version && version.substring(0, 3) > json.version.substring(0, 3)) {
 		statusMsg('Warning: file was created in an earlier version', 'warn');
 		msg = 'old version';
 	}
@@ -2154,17 +2106,12 @@ function parseGML(gml) {
 							node.id = tokens.shift().toString();
 							break;
 						case 'label':
-							node.label = splitText(
-								tokens.shift().replace(/"/g, ''),
-								NODEWIDTH
-							);
+							node.label = splitText(tokens.shift().replace(/"/g, ''), NODEWIDTH);
 							break;
 						case 'color':
 						case 'colour':
 							node.color = {};
-							node.color.background = tokens
-								.shift()
-								.replace(/"/g, '');
+							node.color.background = tokens.shift().replace(/"/g, '');
 							break;
 						case '[': // skip embedded groups
 							while (tok != ']') tok = tokens.shift();
@@ -2265,9 +2212,7 @@ function parseCSV(csv) {
  * ensure that the styles displayed in the node styles panel display the styles defined in the styles array
  */
 function refreshSampleNodes() {
-	let sampleElements = Array.from(
-		document.getElementsByClassName('sampleNode')
-	);
+	let sampleElements = Array.from(document.getElementsByClassName('sampleNode'));
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i];
 		let node = sampleElement.dataSet.get()[0];
@@ -2284,9 +2229,7 @@ function refreshSampleNodes() {
  * ensure that the styles displayed in the link styles panel display the styles defined in the styles array
  */
 function refreshSampleLinks() {
-	let sampleElements = Array.from(
-		document.getElementsByClassName('sampleLink')
-	);
+	let sampleElements = Array.from(document.getElementsByClassName('sampleLink'));
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i];
 		let edge = sampleElement.dataSet.get()[0];
@@ -2329,17 +2272,7 @@ function saveJSONfile() {
 				])
 			),
 			edges: data.edges.map((e) =>
-				strip(e, [
-					'id',
-					'label',
-					'note',
-					'grp',
-					'from',
-					'to',
-					'color',
-					'width',
-					'dashes',
-				])
+				strip(e, ['id', 'label', 'note', 'grp', 'from', 'to', 'color', 'width', 'dashes'])
 			),
 			underlay: yPointsArray.toArray(),
 			history: yHistory.toArray(),
@@ -2400,10 +2333,7 @@ function exportPNGfile() {
  */
 function setFileName(extn) {
 	let pos = lastFileName.indexOf('.');
-	lastFileName =
-		lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) +
-		'.' +
-		extn;
+	lastFileName = lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) + '.' + extn;
 }
 /**
  * Save the map as CSV files, one for nodes and one for edges
@@ -2449,17 +2379,12 @@ function exportCVS() {
  */
 function exportGML() {
 	let str =
-		'Creator "prsm ' +
-		version +
-		' on ' +
-		new Date(Date.now()).toLocaleString() +
-		'"\ngraph\n[\n\tdirected 1\n';
+		'Creator "prsm ' + version + ' on ' + new Date(Date.now()).toLocaleString() + '"\ngraph\n[\n\tdirected 1\n';
 	let nodeIds = data.nodes.map((n) => n.id); //use integers, not GUIDs for node ids
 	for (let node of data.nodes.get()) {
 		str += '\tnode\n\t[\n\t\tid ' + nodeIds.indexOf(node.id);
 		if (node.label) str += '\n\t\tlabel "' + node.label + '"';
-		let color =
-			node.color.background || styles.nodes.group0.color.background;
+		let color = node.color.background || styles.nodes.group0.color.background;
 		str += '\n\t\tcolor "' + color + '"';
 		str += '\n\t]\n';
 	}
@@ -2486,12 +2411,8 @@ function setUpShareDialog() {
 	listen('share', 'click', () => {
 		setLink('share');
 	});
-	listen('clone-check', 'click', () =>
-		setLink(elem('clone-check').checked ? 'clone' : 'share')
-	);
-	listen('view-check', 'click', () =>
-		setLink(elem('view-check').checked ? 'view' : 'share')
-	);
+	listen('clone-check', 'click', () => setLink(elem('clone-check').checked ? 'clone' : 'share'));
+	listen('view-check', 'click', () => setLink(elem('view-check').checked ? 'view' : 'share'));
 	function setLink(type) {
 		let newRoom;
 		switch (type) {
@@ -2510,11 +2431,7 @@ function setUpShareDialog() {
 				console.log('Bad case in setLink()');
 				break;
 		}
-		let linkToShare =
-			window.location.origin +
-			window.location.pathname +
-			'?room=' +
-			newRoom;
+		let linkToShare = window.location.origin + window.location.pathname + '?room=' + newRoom;
 		modal.style.display = 'block';
 		inputElem.cols = linkToShare.length.toString();
 		inputElem.value = linkToShare;
@@ -2599,9 +2516,7 @@ function searchTargets() {
 	targets.id = 'targets';
 	targets.classList.add('search-ul');
 	str = str.toLowerCase();
-	let suggestions = window.data.nodes
-		.get()
-		.filter((n) => n.label.toLowerCase().includes(str));
+	let suggestions = window.data.nodes.get().filter((n) => n.label.toLowerCase().includes(str));
 	suggestions.slice(0, 8).forEach((n) => {
 		let li = document.createElement('li');
 		li.classList.add('search-suggestion');
@@ -2670,20 +2585,10 @@ dragElement(elem('panel'), elem('panelHeader'));
  * @param {HTMLelement} pane
  */
 function keepPaneInWindow(pane) {
-	if (
-		pane.offsetLeft + pane.offsetWidth >
-		container.offsetLeft + container.offsetWidth
-	) {
-		pane.style.left =
-			container.offsetLeft +
-			container.offsetWidth -
-			pane.offsetWidth +
-			'px';
+	if (pane.offsetLeft + pane.offsetWidth > container.offsetLeft + container.offsetWidth) {
+		pane.style.left = container.offsetLeft + container.offsetWidth - pane.offsetWidth + 'px';
 	}
-	if (
-		pane.offsetTop + pane.offsetHeight >
-		container.offsetTop + container.offsetHeight
-	) {
+	if (pane.offsetTop + pane.offsetHeight > container.offsetTop + container.offsetHeight) {
 		pane.style.top =
 			container.offsetTop +
 			container.offsetHeight -
@@ -2803,29 +2708,20 @@ function showNodeData() {
 	let panel = elem('nodeDataPanel');
 	let nodeId = network.getSelectedNodes()[0];
 	let node = data.nodes.get(nodeId);
-	elem('fixed').firstChild.className = node.fixed
-		? 'fas fa-lock'
-		: 'fas fa-lock-open';
+	elem('fixed').firstChild.className = node.fixed ? 'fas fa-lock' : 'fas fa-lock-open';
 	elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : '';
 	if (node.created) {
-		elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${
-			node.created.user
-		}`;
+		elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${node.created.user}`;
 		elem('nodeCreation').style.display = 'flex';
 	} else elem('nodeCreation').style.display = 'none';
 	if (node.modified) {
-		elem('nodeModified').innerHTML = `${timeAndDate(
-			node.modified.time
-		)} by ${node.modified.user}`;
+		elem('nodeModified').innerHTML = `${timeAndDate(node.modified.time)} by ${node.modified.user}`;
 		elem('nodeModification').style.display = 'flex';
 	} else elem('nodeModification').style.display = 'none';
 	elem('node-notes').className = 'notes';
 	let editor = new Quill('#node-notes', {
 		modules: {
-			toolbar: [
-				[{header: [1, 2, false]}],
-				['bold', 'italic', 'underline'],
-			],
+			toolbar: [[{header: [1, 2, false]}], ['bold', 'italic', 'underline']],
 		},
 		placeholder: 'Notes',
 		theme: 'bubble',
@@ -2857,23 +2753,16 @@ function showEdgeData() {
 	let edge = data.edges.get(edgeId);
 	elem('edgeLabel').innerHTML = edge.label ? shorten(edge.label) : 'Link';
 	if (edge.created) {
-		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${
-			edge.created.user
-		}`;
+		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${edge.created.user}`;
 		elem('edgeCreation').style.display = 'flex';
 	} else elem('edgeCreation').style.display = 'none';
 	if (edge.modified) {
-		elem('edgeModified').innerHTML = `${timeAndDate(
-			edge.modified.time
-		)} by ${edge.modified.user}`;
+		elem('edgeModified').innerHTML = `${timeAndDate(edge.modified.time)} by ${edge.modified.user}`;
 		elem('edgeModification').style.display = 'flex';
 	} else elem('edgeModification').style.display = 'none';
 	let editor = new Quill('#edge-notes', {
 		modules: {
-			toolbar: [
-				[{header: [1, 2, false]}],
-				['bold', 'italic', 'underline'],
-			],
+			toolbar: [[{header: [1, 2, false]}], ['bold', 'italic', 'underline']],
 		},
 		placeholder: 'Notes',
 		theme: 'bubble',
@@ -2961,20 +2850,15 @@ function updateNetBack(color) {
 }
 
 function makeTranslucent(el) {
-	el.style.backgroundColor = getComputedStyle(el)
-		.backgroundColor.replace(')', ', 0.2)')
-		.replace('rgb', 'rgba');
+	el.style.backgroundColor = getComputedStyle(el).backgroundColor.replace(')', ', 0.2)').replace('rgb', 'rgba');
 }
 
 function makeSolid(el) {
-	el.style.backgroundColor = getComputedStyle(el)
-		.backgroundColor.replace(', 0.2)', ')')
-		.replace('rgba', 'rgb');
+	el.style.backgroundColor = getComputedStyle(el).backgroundColor.replace(', 0.2)', ')').replace('rgba', 'rgb');
 }
 function setBackground(color) {
 	elem('underlay').style.backgroundColor = color;
-	if (elem('toolbox').style.display == 'block')
-		makeTranslucent(elem('underlay'));
+	if (elem('toolbox').style.display == 'block') makeTranslucent(elem('underlay'));
 	elem('netBackColorWell').style.backgroundColor = color;
 }
 
@@ -3224,8 +3108,7 @@ function setHideAndStream(obj) {
 	let selectedNodes = [].concat(obj.selected); // ensure that obj.selected is an array
 	if (selectedNodes.length > 0) {
 		network.selectNodes(selectedNodes); // in viewing  only mode, this does nothing
-		if (!viewOnly)
-			statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
+		if (!viewOnly) statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
 	}
 	setRadioVal('hide', obj.hideSetting);
 	setRadioVal('stream', obj.streamSetting);
@@ -3255,8 +3138,7 @@ function sizing(metric) {
 				node.value = network.getConnectedNodes(node.id, 'to').length;
 				break;
 			case 'Leverage': {
-				let inDegree = network.getConnectedNodes(node.id, 'from')
-					.length;
+				let inDegree = network.getConnectedNodes(node.id, 'from').length;
 				let outDegree = network.getConnectedNodes(node.id, 'to').length;
 				node.value = inDegree == 0 ? 0 : outDegree / inDegree;
 				break;
@@ -3488,22 +3370,18 @@ function showAvatars() {
 				container.appendChild(cursorDiv);
 			} else {
 				if (nameRec.asleep) cursorDiv.style.display = 'none';
-				if (cursorDiv.innerText != shortName)
-					cursorDiv.innerText = shortName;
-				if (cursorDiv.style.backgroundColor != nameRec.color)
-					cursorDiv.style.backgroundColor = nameRec.color;
+				if (cursorDiv.innerText != shortName) cursorDiv.innerText = shortName;
+				if (cursorDiv.style.backgroundColor != nameRec.color) cursorDiv.style.backgroundColor = nameRec.color;
 			}
 			currentCursors.push(cursorDiv);
 		}
 	});
 	// delete any avatars and cursors that remain from before
-	let avatarsToDelete = Array.from(avatars.children).filter(
-		(a) => !currentAvatars.includes(a)
-	);
+	let avatarsToDelete = Array.from(avatars.children).filter((a) => !currentAvatars.includes(a));
 	avatarsToDelete.forEach((e) => e.remove());
-	let cursorsToDelete = Array.from(
-		document.querySelectorAll('.shared-cursor')
-	).filter((a) => !currentCursors.includes(a));
+	let cursorsToDelete = Array.from(document.querySelectorAll('.shared-cursor')).filter(
+		(a) => !currentCursors.includes(a)
+	);
 	cursorsToDelete.forEach((e) => e.remove());
 }
 
@@ -3560,9 +3438,7 @@ function mergeMaps(nodeList, edgeList) {
 		let ANode = data.nodes.get(BNode.id);
 		if (ANode) {
 			if (ANode.label != BNode.label) {
-				console.log(
-					`Existing factor label: \n${ANode.label} \ndoes not match new label: \n${BNode.label}`
-				);
+				console.log(`Existing factor label: \n${ANode.label} \ndoes not match new label: \n${BNode.label}`);
 				// generate a new id for BNode.  change border to dashed.  add it to the map
 				let newNode = deepCopy(BNode);
 				newNode.id = uuidv4();
@@ -3601,21 +3477,17 @@ function mergeMaps(nodeList, edgeList) {
 			newEdge.dashes = true;
 			data.edges.add(newEdge);
 			console.log(
-				`Added link for new factor(s): ${
-					data.nodes.get(newEdge.from).label
-				} to ${data.nodes.get(newEdge.to).label}`
+				`Added link for new factor(s): ${data.nodes.get(newEdge.from).label} to ${
+					data.nodes.get(newEdge.to).label
+				}`
 			);
 		}
 		let AEdge = data.edges.get(BEdge.id);
 		if (AEdge) {
 			if (AEdge.label != BEdge.label)
-				console.log(
-					`Existing label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}`
-				);
+				console.log(`Existing label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}`);
 			else if (AEdge.grp != BEdge.grp)
-				console.log(
-					`Existing style: ${AEdge.grp} does not match new style ${BEdge.grp} for edge ${AEdge.id}`
-				);
+				console.log(`Existing style: ${AEdge.grp} does not match new style ${BEdge.grp} for edge ${AEdge.id}`);
 		} else {
 			data.edges.add(BEdge);
 			console.log(`Added ${BEdge.id}`);
