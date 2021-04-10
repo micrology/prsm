@@ -872,9 +872,10 @@ function draw() {
 		clearStatusBar();
 	});
 
+	let selectionCanvasStart = {};
 	let selectionStart = {};
 	let selectionArea = document.createElement('div');
-	selectionArea.className = "selectionBox";
+	selectionArea.className = 'selectionBox';
 	selectionArea.style.display = 'none';
 	elem('main').appendChild(selectionArea);
 
@@ -883,45 +884,55 @@ function draw() {
 		let e = params.event.pointers[0];
 		// start drawing a selection rectangle if the CTRL key is down and click is on the background
 		if (e.ctrlKey && params.nodes.length == 0 && params.edges.length == 0) {
-			network.setOptions({ interaction: { dragView: false } });
+			network.setOptions({interaction: {dragView: false}});
 			listen('net-pane', 'mousemove', showAreaSelection);
-			selectionStart = params.pointer.canvas;
+			selectionStart = {x: e.offsetX, y: e.offsetY};
+			selectionCanvasStart = params.pointer.canvas;
 			selectionArea.style.left = `${e.offsetX}px`;
-			selectionArea.style.top = `${e.offsetY}px`
-			selectionArea.style.display = 'block';;
+			selectionArea.style.top = `${e.offsetY}px`;
+			selectionArea.style.width = '0px';
+			selectionArea.style.height = '0px';
+			selectionArea.style.display = 'block';
 			return;
 		}
 		changeCursor('grabbing');
 	});
 	/**
 	 * update the selection rectangle as the mouse moves
-	 * @param {Event} event 
+	 * @param {Event} event
 	 */
 	function showAreaSelection(event) {
-		selectionArea.style.width = `${Math.abs(event.offsetX - selectionArea.offsetLeft)}px`;
-		selectionArea.style.height = `${Math.abs(event.offsetY - selectionArea.offsetTop)}px`;
-		if (event.offsetX < selectionArea.offsetLeft) {
-			selectionArea.style.left= `${event.offsetX}px`;
-		}
-		if (event.offsetY < selectionArea.offsetTop) {
-			selectionArea.style.top= `${event.offsetY}px`;
-		}
+		selectionArea.style.left = `${Math.min(selectionStart.x, event.offsetX)}px`;
+		selectionArea.style.top = `${Math.min(selectionStart.y, event.offsetY)}px`;
+		selectionArea.style.width = `${
+			Math.max(selectionStart.x, event.offsetX) - Math.min(selectionStart.x, event.offsetX)
+		}px`;
+		selectionArea.style.height = `${
+			Math.max(selectionStart.y, event.offsetY) - Math.min(selectionStart.y, event.offsetY)
+		}px`;
 	}
 	network.on('dragEnd', function (params) {
 		if (window.debug.includes('gui')) console.log('dragEnd');
+		if (selectionArea.style.display == 'block') {
+			selectionArea.style.display = 'none';
+			network.setOptions({interaction: {dragView: true}});
+			elem('net-pane').removeEventListener('mousemove', showAreaSelection);
+		}
 		let e = params.event.pointers[0];
 		if (e.ctrlKey && params.nodes.length == 0 && params.edges.length == 0) {
-				network.setOptions({ interaction: { dragView: true } });
-			elem('net-pane').removeEventListener('mousemove', showAreaSelection);
 			network.storePositions();
 			let selectionEnd = params.pointer.canvas;
 			let selectedNodes = data.nodes.get({
 				filter: function (node) {
-				return (node.x >= selectionStart.x && node.x <= selectionEnd.x && node.y >= selectionStart.y && node.y <= selectionEnd.y)
-				}
-			})
-			network.setSelection({ nodes: selectedNodes.map((n) => n.id) })
-			selectionArea.style.display = 'none';
+					return (
+						node.x >= selectionCanvasStart.x &&
+						node.x <= selectionEnd.x &&
+						node.y >= selectionCanvasStart.y &&
+						node.y <= selectionEnd.y
+					);
+				},
+			});
+			network.setSelection({nodes: selectedNodes.map((n) => n.id)});
 			showSelected();
 			return;
 		}
@@ -950,7 +961,6 @@ function draw() {
 	});
 	network.on('afterDrawing', (ctx) => drawBadges(ctx));
 
-	
 	// listen for changes to the network structure
 	// and recalculate the network statistics when there is one
 	data.nodes.on('add', recalculateStats);
@@ -1720,7 +1730,7 @@ function showSelected() {
 	if (selectedNodes.length > 0) msg = listFactors(selectedNodes);
 	if (selectedNodes.length > 0 && selectedEdges.length > 0) msg += ' and ';
 	if (selectedEdges.length > 0) msg += listLinks(selectedEdges);
-	statusMsg(msg + ' selected');
+	if (msg.length > 0) statusMsg(msg + ' selected');
 }
 /* zoom slider */
 Network.prototype.zoom = function (scale) {
