@@ -558,8 +558,8 @@ export class CP {
 			let c = document.createElement('div');
 			c.id = 'color' + i;
 			c.className = 'cached-color';
-			if (i == 0) c.style.backgroundColor = '#ffffff';
-			if (i == 1) c.style.backgroundColor = '#000000';
+			// prefill with standard colours
+			c.style.backgroundColor = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ffffff', '#000000', '#9ADBB4', '#DB6E67'][i];
 			c.addEventListener('click', (e) => {
 				let color = e.target.style.backgroundColor;
 				if (color.search('rgb') != -1)
@@ -637,3 +637,4 @@ export class CP {
 		}
 	}
 }
+

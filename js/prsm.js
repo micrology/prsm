@@ -932,7 +932,7 @@ function draw() {
 					);
 				},
 			});
-			network.setSelection({nodes: selectedNodes.map((n) => n.id)});
+			network.setSelection({nodes: selectedNodes.map((n) => n.id).concat(network.getSelectedNodes())});
 			showSelected();
 			return;
 		}
