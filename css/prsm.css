@@ -1001,6 +1001,18 @@ but moving the panel out of sight works instead */
 	border-bottom: 1px solid black;
 	border-right: 1px solid black;
 }
+.chat-users-menu {
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-between;
+	border-left: 1px solid black;
+	border-right: 1px solid black;
+	font-size: 12px;
+	padding: 4px;
+}
+.chat-users {
+	outline: none;
+}
 .chat-input {
 	resize: none;
 	padding: 5px 10px;
@@ -1056,6 +1068,10 @@ but moving the panel out of sight works instead */
 }
 .emoji-icon {
 	font-size: larger;
+}
+.tooltiptext.emojitip {
+	margin-left: -130px;
+	top: 0;
 }
 /* History window */
 .history-window {

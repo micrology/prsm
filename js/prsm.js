@@ -3204,6 +3204,7 @@ function sendMsg() {
 		{
 			client: clientID,
 			author: myNameRec.name,
+			recipient: elem('chat-users').value,
 			time: Date.now(),
 			msg: inputMsg,
 		},
@@ -3227,7 +3228,7 @@ function displayMsg(msg) {
 	if (msg == undefined) return;
 	let clock = Number.isInteger(msg.time) ? timeAndDate(msg.time) : '';
 	if (msg.client == clientID) {
-		/* my own message */
+		// my own message
 		chatMessages.innerHTML += `<div class="message-box-holder">
 			<div class="message-header">
 				<span class="message-time">${clock}</span>
@@ -3237,7 +3238,9 @@ function displayMsg(msg) {
 			</div>
 		</div>`;
 	} else {
-		chatMessages.innerHTML += `<div class="message-box-holder">
+		// show only messages with no recipient (as from an old version), everyone or me
+		if (msg.recipient == undefined || msg.recipient == '' || msg.recipient == myNameRec.name.replace(/\s+/g, '').toLowerCase()) {
+			chatMessages.innerHTML += `<div class="message-box-holder">
 			<div class="message-header">
 				<span class="message-author">${msg.author}</span><span class="message-time">${clock}</span> 
 			</div>
@@ -3245,6 +3248,7 @@ function displayMsg(msg) {
 				${msg.msg}
 			</div>
 		</div>`;
+		}
 	}
 	chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -3277,7 +3281,20 @@ function displayUserName() {
 	chatNameBox.value = myNameRec.name;
 }
 
+/**
+ * Create a set of options for the select menu of the currently online users
+ * @param {Array} names - array of name records from yAwareness (see showAvatars)
+ */
+function populateChatUserMenu(names) {
+	let options = '<option value="">Everyone</option>';
+	names.forEach((nRec) => {
+		options += `<option value=${nRec.name.replace(/\s+/g, '').toLowerCase()}>${nRec.name}</option>`
+	});
+	elem('chat-users').innerHTML=	options
+}
+
 dragElement(elem('chatbox-holder'), elem('chatbox-top'));
+
 
 /* ---------------------------------------history window --------------------------------*/
 /**
@@ -3335,6 +3352,7 @@ function showAvatars() {
 		.filter((e) => e) // remove any recs without a user record
 		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates
 		.sort((a, b) => (a.name > b.name ? 1 : -1)); // sort names
+	populateChatUserMenu(Array.from(names));
 	names.unshift(me[0][1].user); // push myself on to the front
 
 	let avatars = elem('avatars');
