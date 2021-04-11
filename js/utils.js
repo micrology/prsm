@@ -514,20 +514,6 @@ export function initials(name) {
 }
 /* --------------------color picker -----------------------------*/
 
-class CircularArray extends Array {
-	constructor(maxLength) {
-		super();
-		this.maxLength = maxLength;
-	}
-	push(element) {
-		if (this.indexOf(element) != -1) return;
-		super.push(element);
-		while (this.length > this.maxLength) {
-			this.shift();
-		}
-	}
-}
-
 export class CP {
 	constructor() {
 		this.container = document.createElement('div');
@@ -550,7 +536,6 @@ export class CP {
 		});
 
 		// set up a grid of squares to hold last 8 selected colors
-		this.container.cachedColors = new CircularArray(8);
 		this.colorCache = document.createElement('div');
 		this.colorCache.id = 'colorCache';
 		this.colorCache.className = 'color-cache';
@@ -585,6 +570,7 @@ export class CP {
 		well.addEventListener('click', (event) => {
 			this.container.style.display = 'block';
 			let netPane = elem('net-pane').getBoundingClientRect();
+			// locate picker so it does not go outside netPane
 			let top = event.clientY + well.offsetHeight + 10;
 			if (top > netPane.bottom - this.container.offsetHeight)
 				top = netPane.bottom - this.container.offsetHeight - 10;
@@ -598,7 +584,6 @@ export class CP {
 			this.container.well = well;
 			this.container.callback = callback;
 			this.colorPicker.color.rgbString = well.style.backgroundColor;
-			// close colour picker and report chosen colour when user clicks outside of picker (and well)
 			this.onclose = this.closeColorPicker.bind(this);
 			document.addEventListener('click', this.onclose, true);
 
@@ -610,6 +595,7 @@ export class CP {
 		});
 	}
 	/**
+	 * Report chosen colour when user clicks outside of picker (and well)
 	 * Hide the picker and save the colour choice in the previously selected colour grid
 	 * @param {event} event
 	 */
@@ -623,18 +609,35 @@ export class CP {
 			this.container.style.display = 'none';
 			document.removeEventListener('click', this.onclose, true);
 			let color = this.container.well.style.backgroundColor;
-			// save the chosen color for future selection
-			this.container.cachedColors.push(color);
-			for (let i = 0; i < 8; i++) {
-				let col = this.container.cachedColors[i];
-				if (col != undefined)
-					document.getElementById(
-						'color' + i
-					).style.backgroundColor = col;
-			}
+			// save the chosen color for future selection if it is not already there
+			this.saveColor(color);
+
 			let callback = this.container.callback;
 			if (callback) callback(color);
 		}
 	}
+	/**
+	 * Save the color in the previously selected colour grid, if not already saved
+	 * into a fee slot, or if there isn't one shift the current colours to the left
+	 * and save the new at the right end
+	 * @param {color} color 
+	 */
+	saveColor(color) {
+		let saveds = this.colorCache.children;
+		for (let i = 0; i < 8; i++) {
+			if (saveds[i].style.backgroundColor == color) return;
+		}
+		for (let i = 0; i < 8; i++) {
+			if (saveds[i].style.backgroundColor == "") {
+				saveds[i].style.backgroundColor = color;
+				return;
+			}
+		}
+		for (let i = 0, j = 1; j < 8; i++, j++) {
+			saveds[i].style.backgroundColor = saveds[j].style.backgroundColor
+		}
+		saveds[7].style.backgroundColor = color;
+		}
 }
+
 
