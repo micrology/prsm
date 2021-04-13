@@ -209,13 +209,14 @@ function startY() {
 	if (room == null || room == '') room = generateRoom();
 	else room = room.toUpperCase();
 	document.title = document.title + ' ' + room;
-	const persistence = new IndexeddbPersistence(room, doc);
+	/* const persistence = new IndexeddbPersistence(room, doc);
 	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
 		displayNetPane(exactTime() + ' local content loaded');
-	});
+	}); */
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
 	wsProvider.on('sync', () => {
+		displayNetPane(exactTime());
 		console.log(exactTime() + ' remote content loaded');
 	});
 	wsProvider.on('status', (event) => {
@@ -400,7 +401,7 @@ function startY() {
 				case 'legend':
 					setLegend(obj, false);
 					break;
-				case 'hideAndStream':
+				case 'stream':
 					setHideAndStream(obj);
 					hideDistantOrStreamNodes(false);
 					break;
@@ -1444,7 +1445,7 @@ function saveNode(item, callback) {
 	item.borderWidth = borderType == 'none' ? 0 : 4;
 	item.shapeProperties.borderDashes = convertDashes(borderType);
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
-	if (item.label == item.oldLabel) logHistory(`Edited factor : ${item.label}`);
+	if (item.label == item.oldLabel) logHistory(`edited factor : ${item.label}`);
 	else logHistory(`edited factor, changing label from ${item.oldLabel} to ${item.label}`);
 	unlockNode(item);
 	callback(item);

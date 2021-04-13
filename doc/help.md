@@ -152,6 +152,8 @@ Clicking on the speech ballons at the bottom right opens up a chat window that y
 
 If you haven't provided your real name, the  name at the top is initially randomly generated, but if you click on it, you can substitute your own.  You can write messages in the box at the bottom and send them by clicking the paper plane button.  Use the **X** to close the chat window.
 
+You can choose to send your messages either to everyone or to one selected person (from among those online).
+
 If someone has sent you a message but your chat window is closed, the button will gently pulse to remind you to open it:
 
 ![Chat Window Button](/doc/images/ChatWindowButton.gif)

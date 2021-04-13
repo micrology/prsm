@@ -58,6 +58,10 @@ code {
 	}
 }
 @media screen and (max-width: 700px) {
+	/* no room for Toc on a small screen */
+	body {
+		grid-template-columns: 0px 1fr;
+	}
 	.contents {
 		margin-left: 0;
 	}
@@ -87,16 +91,6 @@ code {
 	font-weight: 600;
 	position: relative;
 }
-/* .scroll-nav__item--active:before {
-	content: '';
-	display: block;
-	width: 14px;
-	height: 14px;
-	background: black;
-	position: absolute;
-	left: -20px;
-	top: 2px;
-} */
 
 .scroll-nav__link,
 .scroll-nav__sub-link {

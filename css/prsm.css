@@ -163,7 +163,8 @@ input[type='range'] {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	font-size: 20px;
-	overflow: scroll;
+	overflow-y: auto;
+	overflow-x: hidden;
 	outline: none;
 	color: black;
 	min-width: 160px;
@@ -1577,11 +1578,11 @@ div.resize {
 	.strapline {
 		grid-column: 1;
 		grid-row: 1;
-		font-size: 20px;
+		font-size: 14px;
 	}
 	.maptitle {
 		text-align: center;
-		font-size: 16px;
+		font-size: 14px;
 		margin-top: 5px;
 	}
 	.button-wrapper {
@@ -1590,11 +1591,12 @@ div.resize {
 		width: 100%;
 	}
 	.buttons {
-		justify-content: center;
+		justify-content: space-around;
+		flex-wrap: wrap;
 	}
 	nav button {
 		margin: auto 0;
-		font-size: 12px;
+		font-size: 9px;
 	}
 	input[type='range'] {
 		width: 40px;
