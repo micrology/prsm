@@ -14,7 +14,6 @@
 		to the room can see what is being created."
 		/>
 		<meta charset="utf-8" />
-		<meta content="IE=edge" http-equiv="X-UA-Compatible" />
 		<meta
 			name="viewport"
 			content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
@@ -25,8 +24,7 @@
 		<style>
 			@font-face {
 				font-family: 'Oxygen';
-				src: url('../fonts/oxygen-regular-webfont.woff2')
-					format('woff2');
+				src: url('../fonts/oxygen-regular-webfont.woff2') format('woff2');
 				font-weight: normal;
 				font-style: normal;
 				font-display: swap;
@@ -39,28 +37,16 @@
 				font-display: swap;
 			}
 		</style>
-		<script
-			defer
-			src="../node_modules/@fortawesome/fontawesome-free/js/solid.js"
-		></script>
-		<script
-			defer
-			src="../node_modules/@fortawesome/fontawesome-free/js/fontawesome.js"
-		></script>
+		<script defer src="../node_modules/@fortawesome/fontawesome-free/js/solid.js"></script>
+		<script defer src="../node_modules/@fortawesome/fontawesome-free/js/fontawesome.js"></script>
 		<link href="../css/vis-network.min.css" rel="stylesheet" />
-		<link
-			href="../node_modules/quill/dist/quill.bubble.css"
-			rel="stylesheet"
-		/>
+		<link href="../node_modules/quill/dist/quill.bubble.css" rel="stylesheet" />
 		<link href="../css/prsm.css" rel="stylesheet" />
 		<script>
 			/*
 			 * reject Internet Explorer and Legacy Edge (the latter doesn't support the destructuring operator)
 			 */
-			if (
-				window.document.documentMode ||
-				window.navigator.userAgent.indexOf('Edge/') > -1
-			) {
+			if (window.document.documentMode || window.navigator.userAgent.indexOf('Edge/') > -1) {
 				alert(
 					'Your browser does not support all the features required.  Try an up-to-date copy of Edge, Chrome, Firefox or Safari'
 				);
@@ -72,11 +58,7 @@
 		<header>
 			<nav id="navbar">
 				<div>
-					<div class="strapline">
-						Participatory System Mapper<span id="version"
-							>1.6.0</span
-						>
-					</div>
+					<div class="strapline">Participatory System Mapper<span id="version">1.6.0</span></div>
 					<div
 						class="maptitle unsetmaptitle"
 						id="maptitle"
@@ -107,9 +89,7 @@
 							data-position="below"
 						>
 							<button id="addLink">
-								<i
-									class="fas fa-long-arrow-alt-right"
-								></i></button
+								<i class="fas fa-long-arrow-alt-right"></i></button
 							><span class="tooltiptext">Add link</span>
 						</div>
 						<div class="tooltip">
@@ -129,9 +109,7 @@
 							data-position="below"
 						>
 							<button id="deleteNode">
-								<i
-									class="fas fa-trash-alt small-button"
-								></i></button
+								<i class="fas fa-trash-alt small-button"></i></button
 							><span class="tooltiptext">Delete selected</span>
 						</div>
 						<div class="tooltip">
@@ -141,9 +119,7 @@
 						</div>
 						<div class="tooltip">
 							<button id="openFile">
-								<i
-									class="fas fa-folder-open small-button"
-								></i></button
+								<i class="fas fa-folder-open small-button"></i></button
 							><span class="tooltiptext">Open network</span>
 						</div>
 						<div
@@ -153,39 +129,27 @@
 							data-position="left"
 						>
 							<button id="saveFile">
-								<i
-									class="fas fa-download small-button"
-								></i></button
+								<i class="fas fa-download small-button"></i></button
 							><span class="tooltiptext">Save network</span>
 						</div>
 						<div class="dropdown-wrapper">
-							<span id="save-dropdown">
-								<i class="fa fa-caret-down small-button"></i
-							></span>
+							<span id="save-dropdown"> <i class="fa fa-caret-down small-button"></i></span>
 							<div class="dropdown-content">
 								<div class="tooltip">
 									<button id="exportPRSM">PRSM</button>
-									<span class="tooltiptext"
-										>Save as a PRSM file</span
-									>
+									<span class="tooltiptext">Save as a PRSM file</span>
 								</div>
 								<div class="tooltip">
 									<button id="exportImage">Image</button>
-									<span class="tooltiptext"
-										>Save as a PNG image file</span
-									>
+									<span class="tooltiptext">Save as a PNG image file</span>
 								</div>
 								<div class="tooltip">
 									<button id="exportCVS">CSV</button>
-									<span class="tooltiptext"
-										>Save as CSV files</span
-									>
+									<span class="tooltiptext">Save as CSV files</span>
 								</div>
 								<div class="tooltip">
 									<button id="exportGML">GML</button>
-									<span class="tooltiptext"
-										>Save as a GML file</span
-									>
+									<span class="tooltiptext">Save as a GML file</span>
 								</div>
 							</div>
 						</div>
@@ -198,9 +162,7 @@
 							<button id="search">
 								<i class="fas fa-search"></i>
 							</button>
-							<span class="tooltiptext searchtip"
-								>Search for factors by name</span
-							>
+							<span class="tooltiptext searchtip">Search for factors by name</span>
 						</div>
 						<div
 							class="tooltip"
@@ -211,32 +173,19 @@
 							<button id="help">
 								<i class="fas fa-question"></i>
 							</button>
-							<span class="tooltiptext"
-								>Show help in a new window</span
-							>
+							<span class="tooltiptext">Show help in a new window</span>
 						</div>
-						<div
-							class="tooltip"
-							data-tutorial="Show more options"
-							data-step="8"
-							data-position="left"
-						>
+						<div class="tooltip" data-tutorial="Show more options" data-step="8" data-position="left">
 							<button id="panelToggle">
 								<i class="fas fa-sliders-h"></i>
 							</button>
-							<span class="tooltiptext"
-								>Show or hide settings</span
-							>
+							<span class="tooltiptext">Show or hide settings</span>
 						</div>
 					</div>
 				</div>
 			</nav>
 			<input class="search-bar" id="search-bar" placeholder="Search..." />
-			<span
-				class="search-icon fas fa-search"
-				style="display: none"
-				id="search-icon"
-			></span>
+			<span class="search-icon fas fa-search" style="display: none" id="search-icon"></span>
 			<div id="suggestion-list"></div>
 		</header>
 		<main id="main" tabindex="0">
@@ -247,11 +196,7 @@
 					<div id="popup-cancelButton">&times;</div>
 				</div>
 				<div>
-					<div
-						id="popup-label"
-						contenteditable="true"
-						spellcheck="true"
-					></div>
+					<div id="popup-label" contenteditable="true" spellcheck="true"></div>
 				</div>
 				<input type="button" value="save" id="popup-saveButton" />
 			</div>
@@ -339,9 +284,7 @@
 					<div class="networkGrid">
 						<div class="panelRow">
 							<div>Apply</div>
-							<button class="pushbutton" id="trophicButton">
-								Trophic layout
-							</button>
+							<button class="pushbutton" id="trophicButton">Trophic layout</button>
 						</div>
 						<div class="panelRow">
 							<div>Snap to grid</div>
@@ -352,10 +295,7 @@
 									class="onoffswitch-checkbox"
 									id="snaptogridswitch"
 								/>
-								<label
-									class="onoffswitch-label"
-									for="snaptogridswitch"
-								>
+								<label class="onoffswitch-label" for="snaptogridswitch">
 									<span class="onoffswitch-inner"></span>
 									<span class="onoffswitch-switch"></span>
 								</label>
@@ -365,9 +305,7 @@
 							<div>Link:</div>
 							<div>
 								<select id="curveSelect">
-									<option value="Curved" selected>
-										Curved
-									</option>
+									<option value="Curved" selected>Curved</option>
 									<option value="Straight">Straight</option>
 								</select>
 							</div>
@@ -375,12 +313,7 @@
 						<div class="panelRow">
 							<div>Background:</div>
 							<div class="input-color-container">
-								<input
-									type="color"
-									class="input-color"
-									value="#ffffff"
-									id="netBackColorWell"
-								/>
+								<div class="color-well" id="netBackColorWell"></div>
 							</div>
 						</div>
 						<div class="panelRow">
@@ -393,10 +326,7 @@
 									id="showLegendSwitch"
 									checked
 								/>
-								<label
-									class="onoffswitch-label"
-									for="showLegendSwitch"
-								>
+								<label class="onoffswitch-label" for="showLegendSwitch">
 									<span class="onoffswitch-inner"></span>
 									<span class="onoffswitch-switch"></span>
 								</label>
@@ -405,12 +335,7 @@
 						<div class="panelRow">
 							<div>Show drawing layer</div>
 							<div class="onoffswitch">
-								<input
-									type="checkbox"
-									name="onoffswitch"
-									class="onoffswitch-checkbox"
-									id="drawing"
-								/>
+								<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="drawing" />
 								<label class="onoffswitch-label" for="drawing">
 									<span class="onoffswitch-inner"></span>
 									<span class="onoffswitch-switch"></span>
@@ -418,7 +343,7 @@
 							</div>
 						</div>
 						<div class="panelRow">
-							<div>Show cursors</div>
+							<div>Show pointers</div>
 							<div class="onoffswitch">
 								<input
 									type="checkbox"
@@ -427,10 +352,7 @@
 									id="showCursorSwitch"
 									checked
 								/>
-								<label
-									class="onoffswitch-label"
-									for="showCursorSwitch"
-								>
+								<label class="onoffswitch-label" for="showCursorSwitch">
 									<span class="onoffswitch-inner"></span>
 									<span class="onoffswitch-switch"></span>
 								</label>
@@ -445,10 +367,7 @@
 									class="onoffswitch-checkbox"
 									id="showHistorySwitch"
 								/>
-								<label
-									class="onoffswitch-label"
-									for="showHistorySwitch"
-								>
+								<label class="onoffswitch-label" for="showHistorySwitch">
 									<span class="onoffswitch-inner"></span>
 									<span class="onoffswitch-switch"></span>
 								</label>
@@ -456,78 +375,31 @@
 						</div>
 						<div class="panelRow divider">
 							<label for="hideAll">Show all</label>
-							<input
-								type="radio"
-								id="hideAll"
-								name="hide"
-								value="All"
-								checked
-							/>
+							<input type="radio" id="hideAll" name="hide" value="All" checked />
 						</div>
 						<div class="panelRow">
-							<label for="oneLink"
-								>Show only Factors 1 link away</label
-							>
-							<input
-								type="radio"
-								id="oneLink"
-								name="hide"
-								value="1"
-							/>
+							<label for="oneLink">Show only Factors 1 link away</label>
+							<input type="radio" id="oneLink" name="hide" value="1" />
 						</div>
 						<div class="panelRow">
-							<label for="oneLink"
-								>Show only Factors 2 links away</label
-							>
-							<input
-								type="radio"
-								id="twoLinks"
-								name="hide"
-								value="2"
-							/>
+							<label for="oneLink">Show only Factors 2 links away</label>
+							<input type="radio" id="twoLinks" name="hide" value="2" />
 						</div>
 						<div class="panelRow">
-							<label for="threeLinks"
-								>Show only Factors 3 links away</label
-							>
-							<input
-								type="radio"
-								id="threeLinks"
-								name="hide"
-								value="3"
-							/>
+							<label for="threeLinks">Show only Factors 3 links away</label>
+							<input type="radio" id="threeLinks" name="hide" value="3" />
 						</div>
 						<div class="panelRow divider">
 							<label for="streamAll">Show all</label>
-							<input
-								type="radio"
-								id="streamAll"
-								name="stream"
-								value="All"
-								checked
-							/>
+							<input type="radio" id="streamAll" name="stream" value="All" checked />
 						</div>
 						<div class="panelRow">
-							<label for="upstream"
-								>Show only Factors upstream</label
-							>
-							<input
-								type="radio"
-								id="upstream"
-								name="stream"
-								value="upstream"
-							/>
+							<label for="upstream">Show only Factors upstream</label>
+							<input type="radio" id="upstream" name="stream" value="upstream" />
 						</div>
 						<div class="panelRow">
-							<label for="downstream"
-								>Show only Factors downstream</label
-							>
-							<input
-								type="radio"
-								id="downstream"
-								name="stream"
-								value="downstream"
-							/>
+							<label for="downstream">Show only Factors downstream</label>
+							<input type="radio" id="downstream" name="stream" value="downstream" />
 						</div>
 						<div class="panelRow divider">
 							<div>Size Factors to:</div>
@@ -537,9 +409,7 @@
 									<option value="Inputs">Inputs</option>
 									<option value="Outputs">Outputs</option>
 									<option value="Leverage">Leverage</option>
-									<option value="Centrality">
-										Centrality
-									</option>
+									<option value="Centrality">Centrality</option>
 								</select>
 							</div>
 						</div>
@@ -561,9 +431,7 @@
 						<div class="sampleNode" id="nodeSample9"></div>
 					</div>
 					<div class="panelRow centered">
-						<button type="button" class="btn" id="allFactors">
-							Select all factors
-						</button>
+						<button type="button" class="btn" id="allFactors">Select all factors</button>
 					</div>
 				</div>
 			</div>
@@ -583,9 +451,7 @@
 						<div class="sampleLink" id="linkSample9"></div>
 					</div>
 					<div class="panelRow centered">
-						<button type="button" class="btn" id="allEdges">
-							Select all links
-						</button>
+						<button type="button" class="btn" id="allEdges">Select all links</button>
 					</div>
 				</div>
 			</div>
@@ -638,11 +504,7 @@
 				<div class="notes" id="edge-notes"></div>
 			</div>
 		</div>
-		<footer
-			data-tutorial="Hints and messages appear here"
-			data-step="9"
-			data-position="above"
-		>
+		<footer data-tutorial="Hints and messages appear here" data-step="9" data-position="above">
 			<div id="statusBar">
 				<br />
 			</div>
@@ -653,20 +515,11 @@
 				data-position="left-bottom"
 			>
 				Zoom <span id="zoomminus">&ndash;</span>
-				<input
-					type="range"
-					id="zoom"
-					min="0.1"
-					max="4"
-					step="0.1"
-				/><span id="zoomplus">+</span>
+				<input type="range" id="zoom" min="0.1" max="4" step="0.1" /><span id="zoomplus">+</span>
 			</div>
 		</footer>
 		<!-- Node Style Editor -->
-		<div
-			id="nodeStyleEditorContainer"
-			class="styleEditorContainer hideEditor"
-		>
+		<div id="nodeStyleEditorContainer" class="styleEditorContainer hideEditor">
 			<div class="styleEditor">
 				<div class="header">Edit factor style</div>
 				<div class="x-button" id="nodeEditCancel">&times;</div>
@@ -678,28 +531,13 @@
 				<div>border</div>
 				<div>font</div>
 				<div class="input-color-container">
-					<input
-						type="color"
-						class="input-color"
-						name="nodeEditFillColor"
-						id="nodeEditFillColor"
-					/>
+					<div class="color-well" name="nodeEditFillColor" id="nodeEditFillColor"></div>
 				</div>
 				<div class="input-color-container">
-					<input
-						type="color"
-						class="input-color"
-						name="nodeEditBorderColor"
-						id="nodeEditBorderColor"
-					/>
+					<div class="color-well" name="nodeEditBorderColor" id="nodeEditBorderColor"></div>
 				</div>
 				<div class="input-color-container">
-					<input
-						type="color"
-						class="input-color"
-						name="nodeEditFontColor"
-						id="nodeEditFontColor"
-					/>
+					<div class="color-well" name="nodeEditFontColor" id="nodeEditFontColor"></div>
 				</div>
 				<div>
 					<select name="nodeEditShape" id="nodeEditShape">
@@ -727,20 +565,11 @@
 						<option value="10">Small</option>
 					</select>
 				</div>
-				<input
-					type="button"
-					value="save"
-					id="nodeEditSubmit"
-					class="save-button submit"
-				/>
+				<input type="button" value="save" id="nodeEditSubmit" class="save-button submit" />
 			</div>
 		</div>
 		<!-- Link Style Editor -->
-		<div
-			id="linkStyleEditorContainer"
-			class="styleEditorContainer hideEditor"
-			style="top: 200px"
-		>
+		<div id="linkStyleEditorContainer" class="styleEditorContainer hideEditor" style="top: 200px">
 			<div class="styleEditor">
 				<div class="header">Edit link style</div>
 				<div class="x-button" id="linkEditCancel">&times;</div>
@@ -752,12 +581,7 @@
 				<div></div>
 				<div></div>
 				<div class="input-color-container">
-					<input
-						type="color"
-						class="input-color"
-						name="linkEditLineColor"
-						id="linkEditLineColor"
-					/>
+					<div class="color-well" name="linkEditLineColor" id="linkEditLineColor"></div>
 				</div>
 				<div>
 					<select name="linkEditWidth" id="linkEditWidth">
@@ -778,18 +602,16 @@
 				</div>
 				<div>
 					<select name="linkEditArrows" id="linkEditArrows">
-						<option value="to">Arrows...</option>
-						<option value="sharp">Sharp</option>
+						<option value="vee">Arrows...</option>
+						<option value="vee">Sharp</option>
+						<option value="bar">Bar</option>
 						<option value="circle">Circle</option>
+						<option value="box">Box</option>
+						<option value="diamond">Diamond</option>
 						<option value="none">None</option>
 					</select>
 				</div>
-				<input
-					type="button"
-					value="save"
-					id="linkEditSubmit"
-					class="save-button submit"
-				/>
+				<input type="button" value="save" id="linkEditSubmit" class="save-button submit" />
 			</div>
 		</div>
 		<!-- Share model dialog -->
@@ -801,38 +623,24 @@
 				</div>
 				<div class="modal-body">
 					<div class="invite">
-						To invite others to participate in developing this map,
-						send them this link:
+						To invite others to participate in developing this map, send them this link:
 					</div>
 					<label class="clone" for="clone-check">
 						Clone map<br /><span class="small"
-							>(users will be able to modify the map,<br />but
-							their changes won't change this one)</span
+							>(users will be able to modify the map,<br />but their changes won't change this one)</span
 						>
 					</label>
-					<input
-						class="clone-check"
-						type="checkbox"
-						id="clone-check"
-					/>
+					<input class="clone-check" type="checkbox" id="clone-check" />
 					<label class="view" for="view-check">
 						View only<br /><span class="small"
-							>(users will be able to see the map, but will
-							<br />not able to modify it)</span
+							>(users will be able to see the map, but will <br />not able to modify it)</span
 						>
 					</label>
 					<input class="view-check" type="checkbox" id="view-check" />
-					<textarea
-						class="text-to-copy"
-						rows="1"
-						readonly
-						id="text-to-copy"
-					></textarea>
+					<textarea class="text-to-copy" rows="1" readonly id="text-to-copy"></textarea>
 					<div class="copy-text-container">
 						<button id="copy-text">Copy to clipboard</button>
-						<span class="copied-text" id="copied-text"
-							>Copied!</span
-						>
+						<span class="copied-text" id="copied-text">Copied!</span>
 					</div>
 				</div>
 			</div>
@@ -849,11 +657,7 @@
 		>
 			<div class="tooltip">
 				<i class="fas fa-comments"></i>
-				<span
-					class="tooltiptext"
-					style="margin-top: -50px; margin-left: -160px"
-					>Open chat window</span
-				>
+				<span class="tooltiptext" style="margin-top: -50px; margin-left: -160px">Open chat window</span>
 			</div>
 		</div>
 		<div class="chatbox-holder" id="chatbox-holder">
@@ -863,39 +667,32 @@
 						My name:
 						<div class="tooltip">
 							<input type="text" id="chat-name" />
-							<span class="tooltiptext"
-								>Click to change your nickname</span
-							>
+							<span class="tooltiptext">Click to change your nickname</span>
 						</div>
 					</div>
 					<div class="chatbox-icons">
 						<div class="tooltip">
-							<span class="chatbox-close" id="minimize"
-								><i class="fas fa-times"></i
-							></span>
-							<span
-								class="tooltiptext"
-								style="margin-left: -100px"
-								>Close chat window</span
-							>
+							<span class="chatbox-close" id="minimize"><i class="fas fa-times"></i></span>
+							<span class="tooltiptext" style="margin-left: -100px">Close chat window</span>
 						</div>
 					</div>
 				</div>
 				<div class="chat-messages" id="chat-messages">
 					<!-- Messages stream appears here -->
 				</div>
-				<div class="chat-input-holder">
-					<div class="tooltip">
-						<button class="emoji" id="emoji-button">
-							&#128512;
-						</button>
-						<span class="tooltiptext">Add an emoji</span>
+				<div class="chat-users-menu">
+					<div>To:&nbsp;
+					<select class="chat-users" id="chat-users">
+						<option value="">Everyone</option>
+					</select>
 					</div>
-					<textarea
-						class="chat-input"
-						id="chat-input"
-						placeholder="Your message here..."
-					></textarea>
+					<div class="tooltip">
+						<button class="emoji" id="emoji-button">&#128512;</button>
+						<span class="tooltiptext emojitip">Add an emoji</span>
+					</div>
+				</div>
+				<div class="chat-input-holder">
+					<textarea class="chat-input" id="chat-input" placeholder="Your message here..."></textarea>
 					<button class="message-send" id="send-button">
 						<i class="fas fa-paper-plane"></i>
 					</button>
@@ -904,9 +701,7 @@
 		</div>
 		<div class="history-window" id="history-window">
 			<div class="history-header" id="history-header">
-				History<span class="history-close" id="history-close"
-					><i class="fas fa-times"></i
-				></span>
+				History<span class="history-close" id="history-close"><i class="fas fa-times"></i></span>
 			</div>
 			<div class="history-log" id="history-log"></div>
 		</div>

@@ -39,8 +39,10 @@ import {
 	deepCopy,
 	standardize_color,
 	dragElement,
+	statusMsg,
+	clearStatusBar,
 } from './utils.js';
-import {statusMsg, updateLastSamples} from './prsm.js';
+import {updateLastSamples, cp} from './prsm.js';
 import {styles} from './samples.js';
 
 const NODESTYLEWIDTH = 10; // chars for label splitting
@@ -131,6 +133,26 @@ export function setUpSamples() {
 		sampleElement.groupLink = groupId;
 		sampleElement.dataSet = edgeDataSet;
 	}
+	// set up color pickers
+	cp.createColorPicker('nodeEditFillColor', nodeEditSave);
+	cp.createColorPicker('nodeEditBorderColor', nodeEditSave);
+	cp.createColorPicker('nodeEditFontColor', nodeEditSave);
+	cp.createColorPicker('linkEditLineColor', linkEditSave);
+
+	// set up listeners
+	listen('nodeEditCancel', 'click', nodeEditCancel);
+	listen('nodeEditName', 'keyup', nodeEditSave);
+	listen('nodeEditShape', 'change', nodeEditSave);
+	listen('nodeEditBorder', 'change', nodeEditSave);
+	listen('nodeEditFontSize', 'change', nodeEditSave);
+	listen('nodeEditSubmit', 'click', nodeEditSubmit);
+
+	listen('linkEditCancel', 'click', linkEditCancel);
+	listen('linkEditName', 'keyup', linkEditSave);
+	listen('linkEditWidth', 'input', linkEditSave);
+	listen('linkEditDashes', 'input', linkEditSave);
+	listen('linkEditArrows', 'change', linkEditSave);
+	listen('linkEditSubmit', 'click', linkEditSubmit);
 }
 /**
  * assemble configurations by merging the specifics into the default
@@ -190,15 +212,6 @@ function initSample(wrapper, sampleData) {
 	return net;
 }
 
-listen('nodeEditCancel', 'click', nodeEditCancel);
-listen('nodeEditName', 'keyup', nodeEditSave);
-listen('nodeEditFillColor', 'input', nodeEditSave);
-listen('nodeEditBorderColor', 'input', nodeEditSave);
-listen('nodeEditFontColor', 'input', nodeEditSave);
-listen('nodeEditShape', 'change', nodeEditSave);
-listen('nodeEditBorder', 'change', nodeEditSave);
-listen('nodeEditFontSize', 'change', nodeEditSave);
-listen('nodeEditSubmit', 'click', nodeEditSubmit);
 /**
  * open the dialog to edit a node style
  * @param {HTMLelement} styleElement
@@ -225,9 +238,15 @@ function editNodeStyle(styleElement, groupId) {
 function updateNodeEditor(groupId) {
 	let group = styles.nodes[groupId];
 	elem('nodeEditName').value = group.groupLabel;
-	elem('nodeEditFillColor').value = standardize_color(group.color.background);
-	elem('nodeEditBorderColor').value = standardize_color(group.color.border);
-	elem('nodeEditFontColor').value = standardize_color(group.font.color);
+	elem('nodeEditFillColor').style.backgroundColor = standardize_color(
+		group.color.background
+	);
+	elem('nodeEditBorderColor').style.backgroundColor = standardize_color(
+		group.color.border
+	);
+	elem('nodeEditFontColor').style.backgroundColor = standardize_color(
+		group.font.color
+	);
 	elem('nodeEditShape').value = group.shape;
 	elem('nodeEditBorder').value = getDashes(
 		group.shapeProperties.borderDashes,
@@ -243,13 +262,13 @@ function nodeEditSave() {
 	let group = styles.nodes[groupId];
 	group.groupLabel = splitText(elem('nodeEditName').value, NODESTYLEWIDTH);
 	if (group.groupLabel === '') group.groupLabel = 'Sample';
-	group.color.background = elem('nodeEditFillColor').value;
-	group.color.border = elem('nodeEditBorderColor').value;
+	group.color.background = elem('nodeEditFillColor').style.backgroundColor;
+	group.color.border = elem('nodeEditBorderColor').style.backgroundColor;
 	group.color.highlight.background = group.color.background;
 	group.color.highlight.border = group.color.border;
 	group.color.hover.background = group.color.background;
 	group.color.hover.border = group.color.border;
-	group.font.color = elem('nodeEditFontColor').value;
+	group.font.color = elem('nodeEditFontColor').style.backgroundColor;
 	group.shape = elem('nodeEditShape').value;
 	let border = elem('nodeEditBorder').value;
 	group.shapeProperties.borderDashes = groupDashes(border);
@@ -333,13 +352,6 @@ export function reApplySampleToNodes(groupIds, force) {
 	);
 }
 
-listen('linkEditCancel', 'click', linkEditCancel);
-listen('linkEditName', 'keyup', linkEditSave);
-listen('linkEditLineColor', 'input', linkEditSave);
-listen('linkEditWidth', 'input', linkEditSave);
-listen('linkEditDashes', 'input', linkEditSave);
-listen('linkEditArrows', 'change', linkEditSave);
-listen('linkEditSubmit', 'click', linkEditSubmit);
 /**
  * open the dialog to edit a link style
  * @param {HTMLelement} styleElement
@@ -363,7 +375,7 @@ function editLinkStyle(styleElement, groupId) {
 function updateLinkEditor(groupId) {
 	let group = styles.edges[groupId];
 	elem('linkEditName').value = group.groupLabel;
-	elem('linkEditLineColor').value = standardize_color(group.color.color);
+	elem('linkEditLineColor').style.backgroundColor = standardize_color(group.color.color);
 	elem('linkEditWidth').value = group.width;
 	elem('linkEditDashes').value = getDashes(group.dashes, 1);
 	elem('linkEditArrows').value = getArrows(group.arrows);
@@ -376,7 +388,7 @@ function linkEditSave() {
 	let group = styles.edges[groupId];
 	group.groupLabel = elem('linkEditName').value;
 	if (group.groupLabel === '') group.groupLabel = 'Sample';
-	group.color.color = elem('linkEditLineColor').value;
+	group.color.color = elem('linkEditLineColor').style.backgroundColor;
 	group.color.highlight = group.color.color;
 	group.color.hover = group.color.color;
 	group.width = parseInt(elem('linkEditWidth').value);
@@ -536,7 +548,7 @@ const HALFLEGENDWIDTH = 50;
  * display a legend on the map (but only if the styles have been given names)
  * @param {Boolean} warn true if user is switching display legend on, but there is nothing to show
  */
-export function legend(warn = true) {
+export function legend(warn = false) {
 	clearLegend();
 
 	let sampleNodeDivs = document.getElementsByClassName('sampleNode');
@@ -648,8 +660,11 @@ export function clearLegend() {
 /**
  * redraw the legend (to show updated styles)
  */
-function updateLegend() {
-	if (document.getElementById('showLegendSwitch').checked) legend(false);
+export function updateLegend() {
+	if (document.getElementById('showLegendSwitch').checked) {
+		legend(false);
+		clearStatusBar();
+	}
 }
 // to aid debugging
 window.legend = legend;
@@ -701,11 +716,7 @@ window.legendData = legendData;
 					>
 				</li>
 				<li><a href="global.html#convertDashes">convertDashes</a></li>
-				<li>
-					<a href="global.html#ctlClickAddNode">ctlClickAddNode</a>
-				</li>
 				<li><a href="global.html#deepCopy">deepCopy</a></li>
-				<li><a href="global.html#deleteMsg">deleteMsg</a></li>
 				<li><a href="global.html#deselectTool">deselectTool</a></li>
 				<li><a href="global.html#diag">diag</a></li>
 				<li><a href="global.html#displayHelp">displayHelp</a></li>
@@ -728,6 +739,7 @@ window.legendData = legendData;
 				<li><a href="global.html#elem">elem</a></li>
 				<li><a href="global.html#exportCVS">exportCVS</a></li>
 				<li><a href="global.html#exportGML">exportGML</a></li>
+				<li><a href="global.html#exportPNGfile">exportPNGfile</a></li>
 				<li><a href="global.html#fit">fit</a></li>
 				<li><a href="global.html#formatLogRec">formatLogRec</a></li>
 				<li><a href="global.html#generateName">generateName</a></li>
@@ -843,6 +855,7 @@ window.legendData = legendData;
 				<li>
 					<a href="global.html#setButtonStatus">setButtonStatus</a>
 				</li>
+				<li><a href="global.html#setFileName">setFileName</a></li>
 				<li><a href="global.html#setFixed">setFixed</a></li>
 				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
 				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
@@ -859,6 +872,7 @@ window.legendData = legendData;
 				<li><a href="global.html#shorten">shorten</a></li>
 				<li><a href="global.html#showAvatars">showAvatars</a></li>
 				<li><a href="global.html#showHistory">showHistory</a></li>
+				<li><a href="global.html#showMice">showMice</a></li>
 				<li><a href="global.html#showNodeData">showNodeData</a></li>
 				<li>
 					<a href="global.html#showNodeOrEdgeData"
@@ -921,8 +935,8 @@ window.legendData = legendData;
 
 		<footer>
 			Documentation generated by
-			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Fri Mar
-			05 2021 22:01:31 GMT+0000 (Greenwich Mean Time)
+			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Wed Apr
+			07 2021 21:13:10 GMT+0100 (British Summer Time)
 		</footer>
 
 		<script>

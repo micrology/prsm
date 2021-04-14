@@ -21,13 +21,6 @@ Header append Vary User-Agent env=!dont-vary
 # Allow Parcel to put files in /dist
 RewriteEngine  on
 # use the dist version of the entry code
-RewriteRule    "^prsm\.html$" "dist/prsm.html" [PT]
-# make all references in the code link to the dist directory
-RewriteCond %{HTTP_REFERER} prsm.html [NC,OR]
-# also links to maps from e.g. DevTools
-RewriteCond %{REQUEST_URI} "\.map$" [NC]
 # but not if they are already linked to that directory
 RewriteCond %{REQUEST_URI} !/dist/ [NC]
-# and not the help page
-RewriteCond %{REQUEST_URI} !help\.html$
 RewriteRule 	"^(.*)$"	"dist/$1" [PT]

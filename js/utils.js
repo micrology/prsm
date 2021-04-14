@@ -1,4 +1,5 @@
 import * as Hammer from '@egjs/hammerjs';
+import iro from '@jaames/iro';
 
 /**
  * attach an event listener
@@ -511,3 +512,132 @@ export function initials(name) {
 		.join('')
 		.toUpperCase();
 }
+/* --------------------color picker -----------------------------*/
+
+export class CP {
+	constructor() {
+		this.container = document.createElement('div');
+		this.container.className = 'color-picker-container';
+		this.container.id = 'colorPicker';
+		let controls = document.createElement('div');
+		controls.id = 'colorPickerControls';
+		this.container.appendChild(controls);
+		document
+			.querySelector('body')
+			.insertAdjacentElement('beforeend', this.container);
+
+		// see https://iro.js.org/guide.html#getting-started
+		this.colorPicker = new iro.ColorPicker('#colorPickerControls', {
+			width: 160,
+			color: 'rgb(255, 255, 255)',
+			borderWidth: 1,
+			borderColor: '#fff',
+			margin: 0,
+		});
+
+		// set up a grid of squares to hold last 8 selected colors
+		this.colorCache = document.createElement('div');
+		this.colorCache.id = 'colorCache';
+		this.colorCache.className = 'color-cache';
+		for (let i = 0; i < 8; i++) {
+			let c = document.createElement('div');
+			c.id = 'color' + i;
+			c.className = 'cached-color';
+			// prefill with standard colours
+			c.style.backgroundColor = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ffffff', '#000000', '#9ADBB4', '#DB6E67'][i];
+			c.addEventListener('click', (e) => {
+				let color = e.target.style.backgroundColor;
+				if (color.search('rgb') != -1)
+					this.colorPicker.color.rgbString =
+						e.target.style.backgroundColor;
+			});
+			this.colorCache.appendChild(c);
+		}
+		document
+			.getElementById('colorPickerControls')
+			.insertAdjacentElement('afterend', this.colorCache);
+	}
+
+	/**
+	 * attach a color picker to an element to recolor the background to that element
+	 * @param {string} wellId the id of the DOM element to attach the color picker to
+	 * @param {string} initialColor
+	 */
+	createColorPicker(wellId, callback) {
+		let well = elem(wellId);
+		well.style.backgroundColor = '#ffffff';
+		// add listener to display picker when well clicked
+		well.addEventListener('click', (event) => {
+			this.container.style.display = 'block';
+			let netPane = elem('net-pane').getBoundingClientRect();
+			// locate picker so it does not go outside netPane
+			let top = event.clientY + well.offsetHeight + 10;
+			if (top > netPane.bottom - this.container.offsetHeight)
+				top = netPane.bottom - this.container.offsetHeight - 10;
+			if (top < netPane.top) top = netPane.top + 10;
+			let left = event.clientX;
+			if (left < netPane.left) left = netPane.left + 10;
+			if (left > netPane.right - this.container.offsetWidth)
+				left = netPane.right - this.container.offsetWidth - 10;
+			this.container.style.top = `${top}px`;
+			this.container.style.left = `${left}px`;
+			this.container.well = well;
+			this.container.callback = callback;
+			this.colorPicker.color.rgbString = well.style.backgroundColor;
+			this.onclose = this.closeColorPicker.bind(this);
+			document.addEventListener('click', this.onclose, true);
+
+			// update well as color is changed
+			this.colorPicker.on(['color:change'], function (color) {
+				elem('colorPicker').well.style.backgroundColor =
+					color.rgbString;
+			});
+		});
+	}
+	/**
+	 * Report chosen colour when user clicks outside of picker (and well)
+	 * Hide the picker and save the colour choice in the previously selected colour grid
+	 * @param {event} event
+	 */
+	closeColorPicker(event) {
+		if (
+			!(
+				this.container.contains(event.target) ||
+				this.container.well.contains(event.target)
+			)
+		) {
+			this.container.style.display = 'none';
+			document.removeEventListener('click', this.onclose, true);
+			let color = this.container.well.style.backgroundColor;
+			// save the chosen color for future selection if it is not already there
+			this.saveColor(color);
+
+			let callback = this.container.callback;
+			if (callback) callback(color);
+		}
+	}
+	/**
+	 * Save the color in the previously selected colour grid, if not already saved
+	 * into a fee slot, or if there isn't one shift the current colours to the left
+	 * and save the new at the right end
+	 * @param {color} color 
+	 */
+	saveColor(color) {
+		let saveds = this.colorCache.children;
+		for (let i = 0; i < 8; i++) {
+			if (saveds[i].style.backgroundColor == color) return;
+		}
+		for (let i = 0; i < 8; i++) {
+			if (saveds[i].style.backgroundColor == "") {
+				saveds[i].style.backgroundColor = color;
+				return;
+			}
+		}
+		for (let i = 0, j = 1; j < 8; i++, j++) {
+			saveds[i].style.backgroundColor = saveds[j].style.backgroundColor
+		}
+		saveds[7].style.backgroundColor = color;
+		}
+}
+
+

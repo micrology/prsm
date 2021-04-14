@@ -88,7 +88,7 @@ main {
 }
 aside {
 	position: fixed;
-	top: 90px;
+	top: 110px;
 	right: 5px;
 	width: 200px;
 	z-index: 2000;
@@ -132,11 +132,21 @@ input[type='range'] {
 	text-align: center;
 	line-height: 150%;
 }
+.selectionBox {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+	z-index: 100;
+	background-color: rgba(0, 0, 250, 0.1);
+	border: 1px blue dotted;
+}
 /* Add factor dialog */
 
 #popup {
 	display: none;
-	width: 180px;
+	width: 190px;
 	height: 60px;
 	position: absolute;
 	z-index: 50;
@@ -153,7 +163,8 @@ input[type='range'] {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	font-size: 20px;
-	overflow: scroll;
+	overflow-y: auto;
+	overflow-x: hidden;
 	outline: none;
 	color: black;
 	min-width: 160px;
@@ -212,18 +223,38 @@ input[type='range'] {
 	overflow: hidden;
 	width: 30px;
 	height: 30px;
-	border: solid 2px #ddd;
+	border: solid 2px lightgrey;
 	border-radius: 30px;
 	margin: auto;
 }
 
-.input-color {
+/* ----------- colour picker ----------*/
+.color-cache {
+	display: flex;
+	margin: 3px 0;
+	width: 160px;
+	border-top: 1px solid grey;
+	border-bottom: 1px solid grey;
+	border-right: 1px solid grey;
+}
+.cached-color {
+	width: 20px;
+	height: 20px;
+	border-left: 1px solid grey;
+}
+.color-well {
+	position: relative;
+	overflow: hidden;
+	width: 30px;
+	height: 30px;
+	border-radius: 30px;
+	margin: auto;
+	background-color: white;
+}
+.color-picker-container {
+	display: none;
 	position: absolute;
-	right: -8px;
-	top: -8px;
-	width: 56px;
-	height: 56px;
-	border: none;
+	z-index: 5000;
 }
 /* ----- Top Navigation Bar ---------------------------------------------------------- */
 
@@ -380,142 +411,6 @@ nav button .pressed {
 	color: grey;
 }
 
-/* for iPads etc in landscape: nav buttons go under title */
-
-@media screen and (min-width: 481px) and (max-width: 1112px) {
-	/* 	html,
-	body {
-		max-height: 100%;
-		overflow-x: hidden;
-		max-width: 100%;
-	}
-	main {
-		height: calc(100vh - 140px);
-	}
-	header {
-		height: 100px;
-		background-color: red;
-	}
-	aside {
-		top: 110px;
-	}
-	nav {
-		display: grid;
-		height: 90px;
-		grid-template-columns: 160px 1fr;
-	}
-	.strapline {
-		grid-column: 1;
-	}
-	.button-wrapper {
-		grid-column: 2;
-		grid-row: 1;
-		width: 100%;
-	}
-	.buttons {
-		justify-content: center;
-	}
-	nav button {
-		margin: auto 5px;
-		font-size: 18px;
-	} */
-	html,
-	body {
-		height: 100%;
-		overflow-x: hidden;
-		max-width: 100%;
-	}
-	main {
-		height: calc(100vh - 130px);
-	}
-	header {
-		height: 90px;
-	}
-	nav {
-		display: grid;
-		height: 90px;
-		grid-template-columns: 1fr;
-		padding: 0;
-	}
-	nav img {
-		display: none;
-	}
-	.strapline {
-		grid-column: 1;
-		grid-row: 1;
-		font-size: 20px;
-	}
-	.maptitle {
-		text-align: center;
-		font-size: 16px;
-		margin-top: 5px;
-	}
-	.button-wrapper {
-		grid-column: 1;
-		grid-row: 2;
-		width: 100%;
-	}
-	.buttons {
-		justify-content: center;
-	}
-	nav button {
-		margin: auto 0;
-		font-size: 12px;
-	}
-	input[type='range'] {
-		width: 40px;
-	}
-}
-/* for iPads etc in portrait and smart phones: nav buttons go under title and font is smaller */
-
-@media screen and (max-width: 480px) {
-	html,
-	body {
-		height: 100%;
-		overflow-x: hidden;
-		max-width: 100%;
-	}
-	main {
-		height: calc(100vh - 130px);
-	}
-	header {
-		height: 90px;
-	}
-	nav {
-		display: grid;
-		height: 90px;
-		grid-template-columns: 1fr;
-		padding: 0;
-	}
-	nav img {
-		display: none;
-	}
-	.strapline {
-		grid-column: 1;
-		grid-row: 1;
-		font-size: 20px;
-	}
-	.maptitle {
-		text-align: center;
-		font-size: 16px;
-		margin-top: 5px;
-	}
-	.button-wrapper {
-		grid-column: 1;
-		grid-row: 2;
-		width: 100%;
-	}
-	.buttons {
-		justify-content: center;
-	}
-	nav button {
-		margin: auto 0;
-		font-size: 12px;
-	}
-	input[type='range'] {
-		width: 40px;
-	}
-}
 #download {
 	width: 0;
 	height: 0;
@@ -1107,6 +1002,18 @@ but moving the panel out of sight works instead */
 	border-bottom: 1px solid black;
 	border-right: 1px solid black;
 }
+.chat-users-menu {
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-between;
+	border-left: 1px solid black;
+	border-right: 1px solid black;
+	font-size: 12px;
+	padding: 4px;
+}
+.chat-users {
+	outline: none;
+}
 .chat-input {
 	resize: none;
 	padding: 5px 10px;
@@ -1162,6 +1069,10 @@ but moving the panel out of sight works instead */
 }
 .emoji-icon {
 	font-size: larger;
+}
+.tooltiptext.emojitip {
+	margin-left: -130px;
+	top: 0;
 }
 /* History window */
 .history-window {
@@ -1498,16 +1409,14 @@ div.resize {
 .tutorial-arrow.below,
 .tutorial-arrow.below-middle,
 .tutorial-arrow.below-right {
-	border-color: transparent transparent var(--tutorial-highlight-color)
-		transparent;
+	border-color: transparent transparent var(--tutorial-highlight-color) transparent;
 	top: -20px;
 	left: 20px;
 }
 .tutorial-arrow.above,
 .tutorial-arrow.above-middle,
 .tutorial-arrow.above-right {
-	border-color: var(--tutorial-highlight-color) transparent transparent
-		transparent;
+	border-color: var(--tutorial-highlight-color) transparent transparent transparent;
 	bottom: -20px;
 	left: 20px;
 }
@@ -1536,15 +1445,13 @@ div.resize {
 .tutorial-arrow.right-middle,
 .tutorial-arrow.right-bottom {
 	left: -20px;
-	border-color: transparent var(--tutorial-highlight-color) transparent
-		transparent;
+	border-color: transparent var(--tutorial-highlight-color) transparent transparent;
 }
 .tutorial-arrow.left,
 .tutorial-arrow.left-middle,
 .tutorial-arrow.left-bottom {
 	right: -20px;
-	border-color: transparent transparent transparent
-		var(--tutorial-highlight-color);
+	border-color: transparent transparent transparent var(--tutorial-highlight-color);
 }
 .tutorial-arrow.right-middle,
 .tutorial-arrow.left-middle {
@@ -1589,6 +1496,115 @@ div.resize {
 	text-align: center;
 	font-size: 10px;
 	z-index: 6000;
+}
+/* for iPads etc in landscape: nav buttons go under title */
+
+@media screen and (min-width: 481px) and (max-width: 1112px) {
+	html,
+	body {
+		height: 100%;
+		overflow-x: hidden;
+		max-width: 100%;
+	}
+	main {
+		height: calc(100vh - 130px);
+	}
+	header {
+		height: 90px;
+	}
+	nav {
+		display: grid;
+		height: 90px;
+		grid-template-columns: 1fr;
+		padding: 0;
+	}
+	nav img {
+		display: none;
+	}
+	.strapline {
+		grid-column: 1;
+		grid-row: 1;
+		font-size: 20px;
+	}
+	.maptitle {
+		text-align: center;
+		font-size: 16px;
+		margin-top: 5px;
+	}
+	.button-wrapper {
+		grid-column: 1;
+		grid-row: 2;
+		width: 100%;
+	}
+	.buttons {
+		justify-content: center;
+	}
+	nav button {
+		margin: auto 0;
+		font-size: 12px;
+	}
+	input[type='range'] {
+		width: 40px;
+	}
+	.tooltiptext.searchtip {
+		top: 100%;
+		left: 50%;
+	}
+}
+/* for iPads etc in portrait and smart phones: nav buttons go under title and font is smaller */
+
+@media screen and (max-width: 480px) {
+	html,
+	body {
+		height: 100%;
+		overflow-x: hidden;
+		max-width: 100%;
+	}
+	main {
+		height: calc(100vh - 130px);
+	}
+	header {
+		height: 90px;
+	}
+	nav {
+		display: grid;
+		height: 90px;
+		grid-template-columns: 1fr;
+		padding: 0;
+	}
+	nav img {
+		display: none;
+	}
+	.strapline {
+		grid-column: 1;
+		grid-row: 1;
+		font-size: 14px;
+	}
+	.maptitle {
+		text-align: center;
+		font-size: 14px;
+		margin-top: 5px;
+	}
+	.button-wrapper {
+		grid-column: 1;
+		grid-row: 2;
+		width: 100%;
+	}
+	.buttons {
+		justify-content: space-around;
+		flex-wrap: wrap;
+	}
+	nav button {
+		margin: auto 0;
+		font-size: 9px;
+	}
+	input[type='range'] {
+		width: 40px;
+	}
+	.tooltiptext.searchtip {
+		top: 100%;
+		left: 50%;
+	}
 }
 
 /* print media */

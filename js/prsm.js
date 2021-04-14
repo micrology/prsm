@@ -22,6 +22,7 @@ import {
 	statusMsg,
 	clearStatusBar,
 	initials,
+	CP,
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
@@ -30,16 +31,10 @@ import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
 import {EmojiButton} from '@joeattardi/emoji-button';
 import Quill from 'quill';
-import {
-	setUpSamples,
-	reApplySampleToNodes,
-	reApplySampleToLinks,
-	legend,
-	clearLegend,
-} from './styles.js';
+import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.6.3';
+const version = '1.6.5';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
@@ -79,6 +74,7 @@ var inEditMode = false; //true when node or edge is being edited (dialog is open
 var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
 var tutorial = new Tutorial(); // object driving the tutorial
+export var cp; // color picker
 
 /**
  * top level function to initialise everything
@@ -114,11 +110,10 @@ function addEventListeners() {
 	listen('maptitle', 'keyup', mapTitle);
 	listen('maptitle', 'paste', pasteMapTitle);
 	listen('maptitle', 'click', (e) => {
-		if (e.target.innerText == 'Untitled map')
-			window.getSelection().selectAllChildren(e.target);
+		if (e.target.innerText == 'Untitled map') window.getSelection().selectAllChildren(e.target);
 	});
 	listen('addNode', 'click', plusNode);
-	listen('net-pane', 'contextmenu', ctlClickAddNode);
+	listen('net-pane', 'contextmenu', contextMenu);
 	listen('addLink', 'click', plusLink);
 	listen('deleteNode', 'click', deleteNode);
 	listen('undo', 'click', undo);
@@ -151,7 +146,6 @@ function addEventListeners() {
 	});
 	listen('trophicButton', 'click', autoLayoutSwitch);
 	listen('snaptogridswitch', 'click', snapToGridSwitch);
-	listen('netBackColorWell', 'input', updateNetBack);
 	listen('drawing', 'click', toggleDrawingLayer);
 	listen('allFactors', 'click', selectAllFactors);
 	listen('allEdges', 'click', selectAllEdges);
@@ -183,6 +177,7 @@ function addEventListeners() {
  * create all the DOM elements on the web page
  */
 function setUpPage() {
+	elem('version').innerHTML = version;
 	// check options set on URL: ?debug='yjs'|'gui'&viewing&start
 	let searchParams = new URL(document.location).searchParams;
 	if (searchParams.has('debug')) debug = [searchParams.get('debug')];
@@ -196,11 +191,12 @@ function setUpPage() {
 	panel = elem('panel');
 	panel.classList.add('hide');
 	container.panelHidden = true;
+	cp = new CP();
+	cp.createColorPicker('netBackColorWell', updateNetBack);
 	setUpSamples();
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'));
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'));
 	hideNotes();
-	elem('version').innerHTML = version;
 }
 
 /**
@@ -213,23 +209,18 @@ function startY() {
 	if (room == null || room == '') room = generateRoom();
 	else room = room.toUpperCase();
 	document.title = document.title + ' ' + room;
-	const persistence = new IndexeddbPersistence(room, doc);
+	/* const persistence = new IndexeddbPersistence(room, doc);
 	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
 		displayNetPane(exactTime() + ' local content loaded');
-	});
+	}); */
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
 	wsProvider.on('sync', () => {
+		displayNetPane(exactTime());
 		console.log(exactTime() + ' remote content loaded');
 	});
 	wsProvider.on('status', (event) => {
-		console.log(
-			exactTime() +
-				event.status +
-				(event.status == 'connected' ? ' to' : ' from') +
-				' room ' +
-				room
-		); // logs when websocket is "connected" or "disconnected"
+		console.log(exactTime() + event.status + (event.status == 'connected' ? ' to' : ' from') + ' room ' + room); // logs when websocket is "connected" or "disconnected"
 	});
 	/* 
 	create a yMap for the nodes and one for the edges (we need two because there is no 
@@ -256,19 +247,6 @@ function startY() {
 		edges: edges,
 	};
 
-	/* initialise yNetMap */
-	/* yNetMap.set('mapTitle', '');
-	yNetMap.set('snapToGrid', false);
-	yNetMap.set('curve', 'Curved');
-	yNetMap.set('background', '#ffffff');
-	yNetMap.set('legend', false);
-	yNetMap.set('hideAndStream', {
-		hideSetting: 'All',
-		streamSetting: 'All',
-		selected: [],
-	});
-	yNetMap.set('sizing', 'Off'); */
-
 	/* 
 	for convenience when debugging
 	 */
@@ -291,10 +269,7 @@ function startY() {
 	has been deleted. If a local node is added or updated, that is also broadcast.
 	 */
 	nodes.on('*', (event, properties, origin) => {
-		yjsTrace(
-			'nodes.on',
-			`${event}  ${JSON.stringify(properties.items)} origin: ${origin}`
-		);
+		yjsTrace('nodes.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`);
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
@@ -326,10 +301,7 @@ function startY() {
 				}
 			} else {
 				hideNotes();
-				if (data.nodes.get(key))
-					network
-						.getConnectedEdges(key)
-						.forEach((edge) => edges.remove(edge, 'remote'));
+				if (data.nodes.get(key)) network.getConnectedEdges(key).forEach((edge) => edges.remove(edge, 'remote'));
 				nodes.remove(key, 'remote');
 			}
 		}
@@ -339,10 +311,7 @@ function startY() {
 	See comments above about nodes
 	 */
 	edges.on('*', (event, properties, origin) => {
-		yjsTrace(
-			'edges.on',
-			`${event}  ${JSON.stringify(properties.items)} origin: ${origin}`
-		);
+		yjsTrace('edges.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`);
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
@@ -432,7 +401,7 @@ function startY() {
 				case 'legend':
 					setLegend(obj, false);
 					break;
-				case 'hideAndStream':
+				case 'stream':
 					setHideAndStream(obj);
 					hideDistantOrStreamNodes(false);
 					break;
@@ -445,10 +414,7 @@ function startY() {
 		}
 	});
 	yPointsArray.observe((event) => {
-		yjsTrace(
-			'yPointsArray.observe',
-			yPointsArray.get(yPointsArray.length - 1)
-		);
+		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1));
 		if (event.transaction.local === false) network.redraw();
 	});
 	yHistory.observe(() => {
@@ -506,10 +472,7 @@ function displayNetPane(msg) {
 	fit(0);
 	setMapTitle(yNetMap.get('mapTitle'));
 	console.log(msg);
-	if (
-		netPane.style.visibility == 'hidden' ||
-		netPane.style.visibility == ''
-	) {
+	if (netPane.style.visibility == 'hidden' || netPane.style.visibility == '') {
 		netPane.style.visibility = 'visible';
 		setUpTutorial();
 	}
@@ -659,12 +622,7 @@ function showMice() {
 			cursorDiv.style.top = `${p.y}px`;
 			cursorDiv.style.left = `${p.x}px`;
 			cursorDiv.style.display =
-				p.x < box.left ||
-				p.x > box.right ||
-				p.y > box.bottom ||
-				p.y < box.top
-					? 'none'
-					: 'block';
+				p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top ? 'none' : 'block';
 		}
 	});
 }
@@ -713,7 +671,8 @@ function draw() {
 				// revert to using the original node properties before continuing.
 				item = data.nodes.get(item.id);
 				item.modified = timestamp();
-				editNode(item, cancelEdit, callback);
+				let point = {x: event.offsetX, y: event.offsetY};
+				editNode(item, point, cancelEdit, callback);
 			},
 			addEdge: function (item, callback) {
 				inAddMode = false;
@@ -726,9 +685,7 @@ function draw() {
 					return;
 				}
 				if (duplEdge(item.from, item.to).length > 0) {
-					alert(
-						'There is already a link from this Factor to the other.'
-					);
+					alert('There is already a link from this Factor to the other.');
 					callback(null);
 					return;
 				}
@@ -737,17 +694,14 @@ function draw() {
 				item.created = timestamp();
 				clearStatusBar();
 				callback(item);
-				logHistory(
-					`added link from ${data.nodes.get(item.from).label} to ${
-						data.nodes.get(item.to).label
-					}`
-				);
+				logHistory(`added link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`);
 			},
 			editEdge: {
 				editWithoutDrag: function (item, callback) {
 					item = data.edges.get(item.id);
 					item.modified = timestamp();
-					editEdge(item, cancelEdit, callback);
+					let point = {x: event.offsetX, y: event.offsetY};
+					editEdge(item, point, cancelEdit, callback);
 				},
 			},
 			deleteNode: function (item, callback) {
@@ -756,22 +710,12 @@ function draw() {
 					let n = data.nodes.get(nId);
 					if (n.locked) {
 						locked = true;
-						statusMsg(
-							`Factor '${shorten(
-								n.oldLabel
-							)}' can't be deleted because it is locked`,
-							'warn'
-						);
+						statusMsg(`Factor '${shorten(n.oldLabel)}' can't be deleted because it is locked`, 'warn');
 						callback(null);
 						return;
 					}
 				});
 				if (locked) return;
-				/* let r = confirm(deleteMsg(item));
-				if (r != true) {
-					callback(null);
-					return;
-				} */
 				clearStatusBar();
 				hideNotes();
 				// delete also all the edges that link to the nodes being deleted
@@ -782,29 +726,22 @@ function draw() {
 				});
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from ${
-							data.nodes.get(data.edges.get(edgeId).from).label
-						} to ${data.nodes.get(data.edges.get(edgeId).to).label}`
+						`deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${
+							data.nodes.get(data.edges.get(edgeId).to).label
+						}`
 					);
 				});
 				item.nodes.forEach((nodeId) => {
-					logHistory(
-						`deleted factor: ${data.nodes.get(nodeId).label}`
-					);
+					logHistory(`deleted factor: ${data.nodes.get(nodeId).label}`);
 				});
 				callback(item);
 			},
 			deleteEdge: function (item, callback) {
-				/* let r = confirm(deleteMsg(item));
-				if (r != true) {
-					callback(null);
-					return;
-				} */
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from ${
-							data.nodes.get(data.edges.get(edgeId).from).label
-						} to ${data.nodes.get(data.edges.get(edgeId).to).label}`
+						`deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${
+							data.nodes.get(data.edges.get(edgeId).to).label
+						}`
 					);
 				});
 				callback(item);
@@ -831,20 +768,55 @@ function draw() {
 	elem('nodesButton').click();
 
 	// listen for click events on the network pane
-
+	network.on('click', function (params) {
+		if (window.debug.includes('gui')) console.log('click');
+		let keys = params.event.pointers[0];
+		if (keys.metaKey) {
+			// if the Command key (on a Mac)   is down, and the click is on a node/edge, log it to the console
+			if (params.nodes.length == 1) {
+				let node = data.nodes.get(params.nodes[0]);
+				console.log('node = ', node);
+				window.node = node;
+			}
+			if (params.edges.length == 1) {
+				let edge = data.edges.get(params.edges[0]);
+				console.log('edge = ', edge);
+				window.edge = edge;
+			}
+			return;
+		}
+		if (keys.altKey) {
+			// if the Option/ALT key is down, add a node if on the background, or a link if on a node
+			if (params.nodes.length == 0 && params.edges.length == 0) {
+				let pos = params.pointer.canvas;
+				let item = {id: uuidv4(), label: '', x: pos.x, y: pos.y};
+				item = deepMerge(item, styles.nodes[lastNodeSample]);
+				item.grp = lastNodeSample;
+				addLabel(item, clearPopUp, function (newItem) {
+					if (newItem !== null) data.nodes.add(newItem);
+				});
+			}
+			if (params.nodes.length == 1) {
+				elem('addLink').click();
+			}
+			return;
+		}
+		if (keys.shiftKey) {
+			if (!inEditMode) showMagnifier(keys);
+		}
+	});
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
 		if (window.debug.includes('gui')) console.log('doubleClick');
 		if (params.nodes.length === 1) {
-			if (!inEditMode && !data.nodes.get(params.nodes[0]).locked)
-				network.editNode();
+			if (!inEditMode && !data.nodes.get(params.nodes[0]).locked) network.editNode();
 		} else if (params.edges.length === 1) {
 			if (!inEditMode) network.editEdgeMode();
 		} else {
 			fit();
 		}
 	});
-	network.on('selectNode', function (params) {
+	network.on('selectNode', function () {
 		if (window.debug.includes('gui')) console.log('selectNode');
 		let selectedNodes = network.getSelectedNodes();
 		selectedNodes.forEach((nodeId) => {
@@ -854,17 +826,8 @@ function draw() {
 				data.nodes.update(node, 'dontBroadcast');
 			}
 		});
-		// if control key is down, start linking to another node
-		if (params.event.pointers[0].ctrlKey) {
-			// start linking from this node, but only if only one node is selected, else source node is not clear
-			if (selectedNodes.length == 1) {
-				statusMsg('Linking from ' + listFactors(selectedNodes));
-				plusLink();
-			}
-		} else {
-			showSelected();
-			showNodeOrEdgeData();
-		}
+		showSelected();
+		showNodeOrEdgeData();
 	});
 	network.on('deselectNode', function () {
 		if (window.debug.includes('gui')) console.log('deselectNode');
@@ -909,15 +872,75 @@ function draw() {
 		hideNotes();
 		clearStatusBar();
 	});
-	network.on('dragStart', function () {
+
+	let selectionCanvasStart = {};
+	let selectionStart = {};
+	let selectionArea = document.createElement('div');
+	selectionArea.className = 'selectionBox';
+	selectionArea.style.display = 'none';
+	elem('main').appendChild(selectionArea);
+
+	network.on('dragStart', function (params) {
 		if (window.debug.includes('gui')) console.log('dragStart');
+		let e = params.event.pointers[0];
+		// start drawing a selection rectangle if the CTRL key is down and click is on the background
+		if (e.ctrlKey && params.nodes.length == 0 && params.edges.length == 0) {
+			network.setOptions({interaction: {dragView: false}});
+			listen('net-pane', 'mousemove', showAreaSelection);
+			selectionStart = {x: e.offsetX, y: e.offsetY};
+			selectionCanvasStart = params.pointer.canvas;
+			selectionArea.style.left = `${e.offsetX}px`;
+			selectionArea.style.top = `${e.offsetY}px`;
+			selectionArea.style.width = '0px';
+			selectionArea.style.height = '0px';
+			selectionArea.style.display = 'block';
+			return;
+		}
 		changeCursor('grabbing');
 	});
-	network.on('dragEnd', function (event) {
+	/**
+	 * update the selection rectangle as the mouse moves
+	 * @param {Event} event
+	 */
+	function showAreaSelection(event) {
+		selectionArea.style.left = `${Math.min(selectionStart.x, event.offsetX)}px`;
+		selectionArea.style.top = `${Math.min(selectionStart.y, event.offsetY)}px`;
+		selectionArea.style.width = `${
+			Math.max(selectionStart.x, event.offsetX) - Math.min(selectionStart.x, event.offsetX)
+		}px`;
+		selectionArea.style.height = `${
+			Math.max(selectionStart.y, event.offsetY) - Math.min(selectionStart.y, event.offsetY)
+		}px`;
+	}
+	network.on('dragEnd', function (params) {
 		if (window.debug.includes('gui')) console.log('dragEnd');
-		let newPositions = network.getPositions(event.nodes);
+		if (selectionArea.style.display == 'block') {
+			selectionArea.style.display = 'none';
+			network.setOptions({interaction: {dragView: true}});
+			elem('net-pane').removeEventListener('mousemove', showAreaSelection);
+		}
+		let e = params.event.pointers[0];
+		if (e.ctrlKey && params.nodes.length == 0 && params.edges.length == 0) {
+			network.storePositions();
+			let selectionEnd = params.pointer.canvas;
+			let selectedNodes = data.nodes.get({
+				filter: function (node) {
+					return (
+						node.x >= selectionCanvasStart.x &&
+						node.x <= selectionEnd.x &&
+						node.y >= selectionCanvasStart.y &&
+						node.y <= selectionEnd.y
+					);
+				},
+			});
+			network.setSelection({nodes: selectedNodes.map((n) => n.id).concat(network.getSelectedNodes())});
+			showSelected();
+			return;
+		}
+
+		let newPositions = network.getPositions(params.nodes);
 		data.nodes.update(
-			data.nodes.get(event.nodes).map((n) => {
+			data.nodes.get(params.nodes).map((n) => {
 				n.x = newPositions[n.id].x;
 				n.y = newPositions[n.id].y;
 				if (snapToGridToggle) snapToGrid(n);
@@ -932,8 +955,7 @@ function draw() {
 	});
 	network.on('controlNodeDragEnd', function (event) {
 		if (window.debug.includes('gui')) console.log('controlNodeDragEnd');
-		if (event.controlEdge.from != event.controlEdge.to)
-			changeCursor('default');
+		if (event.controlEdge.from != event.controlEdge.to) changeCursor('default');
 	});
 	network.on('beforeDrawing', function (ctx) {
 		redraw(ctx);
@@ -964,7 +986,7 @@ function draw() {
 	let netPaneRect = null;
 
 	window.addEventListener('keydown', (e) => {
-		if (e.shiftKey) createMagnifier();
+		if (!inEditMode && e.shiftKey) createMagnifier();
 	});
 	window.addEventListener('mousemove', (e) => {
 		if (e.shiftKey) showMagnifier(e);
@@ -1012,12 +1034,8 @@ function draw() {
 		magnifierCtx.fillRect(0, 0, magSize, magSize);
 		magnifierCtx.drawImage(
 			bigNetCanvas,
-			((e.clientX - netPaneRect.x) * bigNetCanvas.width) /
-				netPaneCanvas.clientWidth -
-				halfMagSize,
-			((e.clientY - netPaneRect.y) * bigNetCanvas.height) /
-				netPaneCanvas.clientHeight -
-				halfMagSize,
+			((e.clientX - netPaneRect.x) * bigNetCanvas.width) / netPaneCanvas.clientWidth - halfMagSize,
+			((e.clientY - netPaneRect.y) * bigNetCanvas.height) / netPaneCanvas.clientHeight - halfMagSize,
 			magSize,
 			magSize,
 			0,
@@ -1042,8 +1060,11 @@ function draw() {
 	}
 } // end draw()
 
+function contextMenu(event) {
+	event.preventDefault();
+}
 /**
- * return an object with the current time as a date an integer and the currnet user's initials
+ * return an object with the current time as a date an integer and the current user's initials
  */
 function timestamp() {
 	return {time: Date.now(), user: initials(myNameRec.name)};
@@ -1138,48 +1159,24 @@ function snapToGrid(node) {
 /**
  * A factor is being created:  get its label from the user
  * @param {Object} item - the node
+ * @param {Object} point  where the mouse clicked
  * @param {Function} cancelAction
  * @param {Function} callback
  */
 function addLabel(item, cancelAction, callback) {
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback);
-	positionPopUp();
+	positionPopUp({x: event.offsetX, y: event.offsetY});
 	elem('popup-label').focus();
 }
-/**
- * if user Control-clicks the canvas, use this as a shortcut equivalent to pressing the Add Node button
- * @param {mouseEvent} event
- */
-function ctlClickAddNode(event) {
-	// cancel default context menu
-	event.preventDefault();
-	let domPos = {x: event.offsetX, y: event.offsetY};
-	// if clicking on a node or edge, report it to console for debugging
-	let target = network.getNodeAt(domPos);
-	if (target !== undefined) {
-		console.log(data.nodes.get(target));
-		return;
-	}
-	target = network.getEdgeAt(domPos);
-	if (target !== undefined) {
-		console.log(data.edges.get(target));
-		return;
-	}
-	let pos = network.DOMtoCanvas(domPos);
-	let item = {id: uuidv4(), label: '', x: pos.x, y: pos.y};
-	item = deepMerge(item, styles.nodes[lastNodeSample]);
-	item.grp = lastNodeSample;
-	addLabel(item, clearPopUp, function (newItem) {
-		if (newItem !== null) data.nodes.add(newItem);
-	});
-}
+
 /**
  * Draw a dialog box for user to edit a node
  * @param {Object} item the node
+ * @param {Object} point the centre of the node
  * @param {Function} cancelAction what to do if the edit is cancelled
  * @param {Function} callback what to do if the edit is saved
  */
-function editNode(item, cancelAction, callback) {
+function editNode(item, point, cancelAction, callback) {
 	initPopUp('Edit Factor', 150, item, cancelAction, saveNode, callback);
 	elem('popup').insertAdjacentHTML(
 		'beforeend',
@@ -1187,34 +1184,34 @@ function editNode(item, cancelAction, callback) {
 	<table id="popup-table">
 		<tr>
 			<td>
-				Back
+				<i>Back</i>
 			</td>
 			<td>
-				Border
+			<i>Border</i>
 			</td>
 			<td>
-				Font
+			<i>Font</i>
 			</td>
 		</tr>
 		<tr>
 		<td>
 		<div class="input-color-container">
-		<input type="color" class="input-color" id="node-backgroundColor" />
+		<div class="color-well" id="node-backgroundColor" </div>
 		</div>
 		</td>
 		<td>
 			<div class="input-color-container">
-			<input type="color" class="input-color" id="node-borderColor" />
+			<div class="color-well" id="node-borderColor" </div>
 			</div>
 			</td>
 			<td>
 			<div class="input-color-container">
-			<input type="color" class="input-color" id="node-fontColor" />
+			<div class="color-well" id="node-fontColor" </div>
 			</div>
 			</td>
 		</tr>
 		<tr>
-		<td>Border:</td>
+		<td><i>Border:</i></td>
 			<td colspan="2">
 				<select id="node-borderType">
 					<option value="false">Type...</option>
@@ -1227,15 +1224,14 @@ function editNode(item, cancelAction, callback) {
 		</tr>
 	</table>`
 	);
-	elem('node-backgroundColor').value = standardize_color(
-		item.color.background
-	);
-	elem('node-borderColor').value = standardize_color(item.color.border);
-	elem('node-fontColor').value = standardize_color(item.font.color);
-	elem('node-borderType').value = getDashes(
-		item.shapeProperties.borderDashes
-	);
-	positionPopUp();
+	cp.createColorPicker('node-backgroundColor');
+	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background);
+	cp.createColorPicker('node-borderColor');
+	elem('node-borderColor').style.backgroundColor = standardize_color(item.color.border);
+	cp.createColorPicker('node-fontColor');
+	elem('node-fontColor').style.backgroundColor = standardize_color(item.font.color);
+	elem('node-borderType').value = getDashes(item.shapeProperties.borderDashes);
+	positionPopUp(point);
 	elem('popup-label').focus();
 	elem('popup').timer = setTimeout(() => {
 		//ensure that the node cannot be locked out for ever
@@ -1255,25 +1251,16 @@ function getDashes(val) {
 /**
  * Draw a dialog box for user to edit an edge
  * @param {Object} item the edge
+ * @param {Object} point the centre of the edge
  * @param {Function} cancelAction what to do if the edit is cancelled
  * @param {Function} callback what to do if the edit is saved
  */
-function editEdge(item, cancelAction, callback) {
-	initPopUp('Edit Link', 140, item, cancelAction, saveEdge, callback);
+function editEdge(item, point, cancelAction, callback) {
+	initPopUp('Edit Link', 150, item, cancelAction, saveEdge, callback);
 	elem('popup').insertAdjacentHTML(
 		'beforeend',
 		` 
 		<table id="popup-table">
-		<tr>
-			<td>
-				Line
-			</td>
-			<td>
-			<div class="input-color-container">
-			<input type="color" class="input-color" id="edge-color" />
-			</div>
-			</td>
-		</tr>
 		<tr>
 			<td>
 				<select id="edge-width">
@@ -1284,19 +1271,37 @@ function editEdge(item, cancelAction, callback) {
 				</select>
 			</td>
 			<td>
-			Font
-			</td>
-		</tr>
-		<tr>
-			<td>
 				<select id="edge-type">
-					<option value="false">Type...</option>
+					<option value="false">Line...</option>
 					<option value="false">Solid</option>
 					<option value="true">Dashed</option>
 					<option value="dots">Dotted</option>
 				</select>
 			</td>
+		</tr>
+		<tr>
 			<td>
+				<select id="edge-arrow">
+					<option value="vee">Arrows...</option>
+					<option value="vee">Sharp</option>
+					<option value="bar">Bar</option>
+					<option value="circle">Circle</option>
+					<option value="box">Box</option>
+					<option value="diamond">Diamond</option>
+					<option value="none">None</option>
+				</select>
+			</td>
+			<td>
+				<div class="input-color-container">
+					<div class="color-well"  id="edge-color" </div>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td style="text-align: right; padding-top: 5px">
+				<i>Font</i>	
+			</td>
+			<td style="padding-top: 5px">
 				<select id="edge-font-size">
 					<option value="14">Size</option>
 					<option value="18">Large</option>
@@ -1308,10 +1313,12 @@ function editEdge(item, cancelAction, callback) {
 	</table>`
 	);
 	elem('edge-width').value = parseInt(item.width);
-	elem('edge-color').value = standardize_color(item.color.color);
+	cp.createColorPicker('edge-color');
+	elem('edge-color').style.backgroundColor = standardize_color(item.color.color);
 	elem('edge-type').value = getDashes(item.dashes);
+	elem('edge-arrow').value = item.arrows.to.enabled ? item.arrows.to.type : 'none';
 	elem('edge-font-size').value = parseInt(item.font.size);
-	positionPopUp();
+	positionPopUp(point);
 	elem('popup-label').focus();
 	elem('popup').timer = setTimeout(() => {
 		//ensure that the edge cannot be locked out for ever
@@ -1329,29 +1336,17 @@ function editEdge(item, cancelAction, callback) {
  * @param {Function} saveAction
  * @param {Function} callback
  */
-function initPopUp(
-	popUpTitle,
-	height,
-	item,
-	cancelAction,
-	saveAction,
-	callback
-) {
+function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback) {
 	inAddMode = false;
 	inEditMode = true;
 	changeCursor('default');
 	elem('popup').style.height = height + 'px';
 	elem('popup-operation').innerHTML = popUpTitle;
 	elem('popup-saveButton').onclick = saveAction.bind(this, item, callback);
-	elem('popup-cancelButton').onclick = cancelAction.bind(
-		this,
-		item,
-		callback
-	);
+	elem('popup-cancelButton').onclick = cancelAction.bind(this, item, callback);
 	let popupLabel = elem('popup-label');
 	popupLabel.style.fontSize = '14px';
-	popupLabel.innerText =
-		item.label === undefined ? '' : item.label.replace(/\n/g, ' ');
+	popupLabel.innerText = item.label === undefined ? '' : item.label.replace(/\n/g, ' ');
 	let table = elem('popup-table');
 	if (table) table.remove();
 }
@@ -1359,15 +1354,14 @@ function initPopUp(
 /**
  * Position the editing dialog box so that it is to the left of the item being edited,
  * but not outside the window
+ * @param {Object} point
  */
-function positionPopUp() {
+function positionPopUp(point) {
 	let popUp = elem('popup');
 	popUp.style.display = 'block';
-	// popup appears to the left of the mouse pointer
-	popUp.style.top = `${
-		event.clientY - popUp.offsetHeight / 2 - popUp.offsetParent.offsetTop
-	}px`;
-	let left = event.clientX - popUp.offsetWidth - 3;
+	// popup appears to the left of the given point
+	popUp.style.top = `${point.y - popUp.offsetHeight / 2}px`;
+	let left = point.x - popUp.offsetWidth - 3;
 	popUp.style.left = `${left < 0 ? 0 : left}px`;
 	dragElement(popUp, elem('popup-top'));
 }
@@ -1438,25 +1432,21 @@ function saveNode(item, callback) {
 		statusMsg('No label: cancelled', 'warn');
 		callback(null);
 	}
-	let color = elem('node-backgroundColor').value;
+	let color = elem('node-backgroundColor').style.backgroundColor;
 	item.color.background = color;
 	item.color.highlight.background = color;
 	item.color.hover.background = color;
-	color = elem('node-borderColor').value;
+	color = elem('node-borderColor').style.backgroundColor;
 	item.color.border = color;
 	item.color.highlight.border = color;
 	item.color.hover.border = color;
-	item.font.color = elem('node-fontColor').value;
+	item.font.color = elem('node-fontColor').style.backgroundColor;
 	let borderType = elem('node-borderType').value;
 	item.borderWidth = borderType == 'none' ? 0 : 4;
 	item.shapeProperties.borderDashes = convertDashes(borderType);
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
-	if (item.label == item.oldLabel)
-		logHistory(`Edited factor : ${item.label}`);
-	else
-		logHistory(
-			`edited factor, changing label from ${item.oldLabel} to ${item.label}`
-		);
+	if (item.label == item.oldLabel) logHistory(`edited factor : ${item.label}`);
+	else logHistory(`edited factor, changing label from ${item.oldLabel} to ${item.label}`);
 	unlockNode(item);
 	callback(item);
 }
@@ -1470,8 +1460,7 @@ function lockNode(item) {
 	item.font.color = item.font.color + '80';
 	item.opacity = 0.3;
 	item.oldLabel = item.label;
-	item.label =
-		item.label + '\n\n' + '[Being edited by ' + myNameRec.name + ']';
+	item.label = item.label + '\n\n' + '[Being edited by ' + myNameRec.name + ']';
 	item.wasFixed = Boolean(item.fixed);
 	item.fixed = true;
 	item.chosen = false;
@@ -1510,13 +1499,17 @@ function saveEdge(item, callback) {
 	item.label = splitText(elem('popup-label').innerText, NODEWIDTH);
 	clearPopUp();
 	if (item.label === '') item.label = ' ';
-	let color = elem('edge-color').value;
+	let color = elem('edge-color').style.backgroundColor;
 	item.color.color = color;
 	item.color.hover = color;
 	item.color.highlight = color;
 	item.width = parseInt(elem('edge-width').value);
 	if (!item.width) item.width = 1;
 	item.dashes = convertDashes(elem('edge-type').value);
+	item.arrows.to = {
+		enabled: elem('edge-arrow').value !== 'none',
+		type: elem('edge-arrow').value,
+	};
 	item.font.size = parseInt(elem('edge-font-size').value);
 	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
 	unlockEdge(item);
@@ -1524,11 +1517,7 @@ function saveEdge(item, callback) {
 	item.shadow = false;
 	clearStatusBar();
 	callback(item);
-	logHistory(
-		`edited link from ${data.nodes.get(item.from).label} to ${
-			data.nodes.get(item.to).label
-		}`
-	);
+	logHistory(`edited link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`);
 }
 /**
  * Convert from the menu selection to the CSS format of the edge
@@ -1722,9 +1711,7 @@ function listFactors(factors) {
  * @param {string} label
  */
 function shorten(label) {
-	return label.length > SHORTLABELLEN
-		? label.substring(0, SHORTLABELLEN) + '...'
-		: label;
+	return label.length > SHORTLABELLEN ? label.substring(0, SHORTLABELLEN) + '...' : label;
 }
 /**
  * return a string listing the number of Links
@@ -1744,7 +1731,7 @@ function showSelected() {
 	if (selectedNodes.length > 0) msg = listFactors(selectedNodes);
 	if (selectedNodes.length > 0 && selectedEdges.length > 0) msg += ' and ';
 	if (selectedEdges.length > 0) msg += listLinks(selectedEdges);
-	statusMsg(msg + ' selected');
+	if (msg.length > 0) statusMsg(msg + ' selected');
 }
 /* zoom slider */
 Network.prototype.zoom = function (scale) {
@@ -1902,10 +1889,7 @@ function readSingleFile(e) {
 			loadFile(e.target.result);
 			if (!msg) statusMsg("Read '" + fileName + "'");
 		} catch (err) {
-			statusMsg(
-				"Error reading '" + fileName + "': " + err.message,
-				'error'
-			);
+			statusMsg("Error reading '" + fileName + "': " + err.message, 'error');
 			return;
 		}
 		document.body.style.cursor = 'default';
@@ -1922,12 +1906,7 @@ function openFile() {
  */
 function loadFile(contents) {
 	if (data.nodes.length > 0)
-		if (
-			!confirm(
-				'Loading a file will delete the current network.  Are you sure you want to replace it?'
-			)
-		)
-			return;
+		if (!confirm('Loading a file will delete the current network.  Are you sure you want to replace it?')) return;
 	unSelect();
 	ensureNotDrawing();
 	network.destroy();
@@ -1988,6 +1967,7 @@ function loadFile(contents) {
 	network.fit(0);
 	yUndoManager.clear();
 	undoRedoButtonStatus();
+	updateLegend();
 	logHistory('loaded &lt;' + lastFileName + '&gt;');
 }
 /**
@@ -1996,10 +1976,7 @@ function loadFile(contents) {
  */
 function loadJSONfile(json) {
 	json = JSON.parse(json);
-	if (
-		json.version &&
-		version.substring(0, 3) > json.version.substring(0, 3)
-	) {
+	if (json.version && version.substring(0, 3) > json.version.substring(0, 3)) {
 		statusMsg('Warning: file was created in an earlier version', 'warn');
 		msg = 'old version';
 	}
@@ -2140,17 +2117,12 @@ function parseGML(gml) {
 							node.id = tokens.shift().toString();
 							break;
 						case 'label':
-							node.label = splitText(
-								tokens.shift().replace(/"/g, ''),
-								NODEWIDTH
-							);
+							node.label = splitText(tokens.shift().replace(/"/g, ''), NODEWIDTH);
 							break;
 						case 'color':
 						case 'colour':
 							node.color = {};
-							node.color.background = tokens
-								.shift()
-								.replace(/"/g, '');
+							node.color.background = tokens.shift().replace(/"/g, '');
 							break;
 						case '[': // skip embedded groups
 							while (tok != ']') tok = tokens.shift();
@@ -2251,9 +2223,7 @@ function parseCSV(csv) {
  * ensure that the styles displayed in the node styles panel display the styles defined in the styles array
  */
 function refreshSampleNodes() {
-	let sampleElements = Array.from(
-		document.getElementsByClassName('sampleNode')
-	);
+	let sampleElements = Array.from(document.getElementsByClassName('sampleNode'));
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i];
 		let node = sampleElement.dataSet.get()[0];
@@ -2270,9 +2240,7 @@ function refreshSampleNodes() {
  * ensure that the styles displayed in the link styles panel display the styles defined in the styles array
  */
 function refreshSampleLinks() {
-	let sampleElements = Array.from(
-		document.getElementsByClassName('sampleLink')
-	);
+	let sampleElements = Array.from(document.getElementsByClassName('sampleLink'));
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i];
 		let edge = sampleElement.dataSet.get()[0];
@@ -2315,17 +2283,7 @@ function saveJSONfile() {
 				])
 			),
 			edges: data.edges.map((e) =>
-				strip(e, [
-					'id',
-					'label',
-					'note',
-					'grp',
-					'from',
-					'to',
-					'color',
-					'width',
-					'dashes',
-				])
+				strip(e, ['id', 'label', 'note', 'grp', 'from', 'to', 'color', 'width', 'dashes'])
 			),
 			underlay: yPointsArray.toArray(),
 			history: yHistory.toArray(),
@@ -2386,10 +2344,7 @@ function exportPNGfile() {
  */
 function setFileName(extn) {
 	let pos = lastFileName.indexOf('.');
-	lastFileName =
-		lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) +
-		'.' +
-		extn;
+	lastFileName = lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) + '.' + extn;
 }
 /**
  * Save the map as CSV files, one for nodes and one for edges
@@ -2435,17 +2390,12 @@ function exportCVS() {
  */
 function exportGML() {
 	let str =
-		'Creator "prsm ' +
-		version +
-		' on ' +
-		new Date(Date.now()).toLocaleString() +
-		'"\ngraph\n[\n\tdirected 1\n';
+		'Creator "prsm ' + version + ' on ' + new Date(Date.now()).toLocaleString() + '"\ngraph\n[\n\tdirected 1\n';
 	let nodeIds = data.nodes.map((n) => n.id); //use integers, not GUIDs for node ids
 	for (let node of data.nodes.get()) {
 		str += '\tnode\n\t[\n\t\tid ' + nodeIds.indexOf(node.id);
 		if (node.label) str += '\n\t\tlabel "' + node.label + '"';
-		let color =
-			node.color.background || styles.nodes.group0.color.background;
+		let color = node.color.background || styles.nodes.group0.color.background;
 		str += '\n\t\tcolor "' + color + '"';
 		str += '\n\t]\n';
 	}
@@ -2472,12 +2422,8 @@ function setUpShareDialog() {
 	listen('share', 'click', () => {
 		setLink('share');
 	});
-	listen('clone-check', 'click', () =>
-		setLink(elem('clone-check').checked ? 'clone' : 'share')
-	);
-	listen('view-check', 'click', () =>
-		setLink(elem('view-check').checked ? 'view' : 'share')
-	);
+	listen('clone-check', 'click', () => setLink(elem('clone-check').checked ? 'clone' : 'share'));
+	listen('view-check', 'click', () => setLink(elem('view-check').checked ? 'view' : 'share'));
 	function setLink(type) {
 		let newRoom;
 		switch (type) {
@@ -2496,11 +2442,7 @@ function setUpShareDialog() {
 				console.log('Bad case in setLink()');
 				break;
 		}
-		let linkToShare =
-			window.location.origin +
-			window.location.pathname +
-			'?room=' +
-			newRoom;
+		let linkToShare = window.location.origin + window.location.pathname + '?room=' + newRoom;
 		modal.style.display = 'block';
 		inputElem.cols = linkToShare.length.toString();
 		inputElem.value = linkToShare;
@@ -2585,9 +2527,7 @@ function searchTargets() {
 	targets.id = 'targets';
 	targets.classList.add('search-ul');
 	str = str.toLowerCase();
-	let suggestions = window.data.nodes
-		.get()
-		.filter((n) => n.label.toLowerCase().includes(str));
+	let suggestions = window.data.nodes.get().filter((n) => n.label.toLowerCase().includes(str));
 	suggestions.slice(0, 8).forEach((n) => {
 		let li = document.createElement('li');
 		li.classList.add('search-suggestion');
@@ -2656,20 +2596,10 @@ dragElement(elem('panel'), elem('panelHeader'));
  * @param {HTMLelement} pane
  */
 function keepPaneInWindow(pane) {
-	if (
-		pane.offsetLeft + pane.offsetWidth >
-		container.offsetLeft + container.offsetWidth
-	) {
-		pane.style.left =
-			container.offsetLeft +
-			container.offsetWidth -
-			pane.offsetWidth +
-			'px';
+	if (pane.offsetLeft + pane.offsetWidth > container.offsetLeft + container.offsetWidth) {
+		pane.style.left = container.offsetLeft + container.offsetWidth - pane.offsetWidth + 'px';
 	}
-	if (
-		pane.offsetTop + pane.offsetHeight >
-		container.offsetTop + container.offsetHeight
-	) {
+	if (pane.offsetTop + pane.offsetHeight > container.offsetTop + container.offsetHeight) {
 		pane.style.top =
 			container.offsetTop +
 			container.offsetHeight -
@@ -2789,29 +2719,20 @@ function showNodeData() {
 	let panel = elem('nodeDataPanel');
 	let nodeId = network.getSelectedNodes()[0];
 	let node = data.nodes.get(nodeId);
-	elem('fixed').firstChild.className = node.fixed
-		? 'fas fa-lock'
-		: 'fas fa-lock-open';
+	elem('fixed').firstChild.className = node.fixed ? 'fas fa-lock' : 'fas fa-lock-open';
 	elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : '';
 	if (node.created) {
-		elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${
-			node.created.user
-		}`;
+		elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${node.created.user}`;
 		elem('nodeCreation').style.display = 'flex';
 	} else elem('nodeCreation').style.display = 'none';
 	if (node.modified) {
-		elem('nodeModified').innerHTML = `${timeAndDate(
-			node.modified.time
-		)} by ${node.modified.user}`;
+		elem('nodeModified').innerHTML = `${timeAndDate(node.modified.time)} by ${node.modified.user}`;
 		elem('nodeModification').style.display = 'flex';
 	} else elem('nodeModification').style.display = 'none';
 	elem('node-notes').className = 'notes';
 	let editor = new Quill('#node-notes', {
 		modules: {
-			toolbar: [
-				[{header: [1, 2, false]}],
-				['bold', 'italic', 'underline'],
-			],
+			toolbar: [[{header: [1, 2, false]}], ['bold', 'italic', 'underline']],
 		},
 		placeholder: 'Notes',
 		theme: 'bubble',
@@ -2823,7 +2744,7 @@ function showNodeData() {
 	editor.on('text-change', () => {
 		data.nodes.update({
 			id: nodeId,
-			note: (isQuillEmpty(editor) ? '' : editor.getContents()),
+			note: isQuillEmpty(editor) ? '' : editor.getContents(),
 			modified: timestamp(),
 		});
 	});
@@ -2831,33 +2752,28 @@ function showNodeData() {
 	displayStatistics(nodeId);
 }
 function isQuillEmpty(quill) {
-	if ((quill.getContents()['ops'] || []).length !== 1) { return false }
-	return quill.getText().trim().length === 0
+	if ((quill.getContents()['ops'] || []).length !== 1) {
+		return false;
+	}
+	return quill.getText().trim().length === 0;
 }
-  
+
 function showEdgeData() {
 	let panel = elem('edgeDataPanel');
 	let edgeId = network.getSelectedEdges()[0];
 	let edge = data.edges.get(edgeId);
 	elem('edgeLabel').innerHTML = edge.label ? shorten(edge.label) : 'Link';
 	if (edge.created) {
-		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${
-			edge.created.user
-		}`;
+		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${edge.created.user}`;
 		elem('edgeCreation').style.display = 'flex';
 	} else elem('edgeCreation').style.display = 'none';
 	if (edge.modified) {
-		elem('edgeModified').innerHTML = `${timeAndDate(
-			edge.modified.time
-		)} by ${edge.modified.user}`;
+		elem('edgeModified').innerHTML = `${timeAndDate(edge.modified.time)} by ${edge.modified.user}`;
 		elem('edgeModification').style.display = 'flex';
 	} else elem('edgeModification').style.display = 'none';
 	let editor = new Quill('#edge-notes', {
 		modules: {
-			toolbar: [
-				[{header: [1, 2, false]}],
-				['bold', 'italic', 'underline'],
-			],
+			toolbar: [[{header: [1, 2, false]}], ['bold', 'italic', 'underline']],
 		},
 		placeholder: 'Notes',
 		theme: 'bubble',
@@ -2869,7 +2785,7 @@ function showEdgeData() {
 	editor.on('text-change', () => {
 		data.edges.update({
 			id: edgeId,
-			note: (isQuillEmpty(editor) ? '' : editor.getContents()),
+			note: isQuillEmpty(editor) ? '' : editor.getContents(),
 			modified: timestamp(),
 		});
 	});
@@ -2936,31 +2852,27 @@ function setCurve(option) {
 	});
 }
 
-function updateNetBack(event) {
+function updateNetBack(color) {
 	let ul = elem('underlay');
-	ul.style.backgroundColor = event.target.value;
+	ul.style.backgroundColor = color;
 	// if in drawing mode, make the underlay translucent so that network shows through
 	if (elem('toolbox').style.display == 'block') makeTranslucent(ul);
-	yNetMap.set('background', event.target.value);
+	yNetMap.set('background', color);
 }
 
 function makeTranslucent(el) {
-	el.style.backgroundColor = getComputedStyle(el)
-		.backgroundColor.replace(')', ', 0.2)')
-		.replace('rgb', 'rgba');
+	el.style.backgroundColor = getComputedStyle(el).backgroundColor.replace(')', ', 0.2)').replace('rgb', 'rgba');
 }
 
 function makeSolid(el) {
-	el.style.backgroundColor = getComputedStyle(el)
-		.backgroundColor.replace(', 0.2)', ')')
-		.replace('rgba', 'rgb');
+	el.style.backgroundColor = getComputedStyle(el).backgroundColor.replace(', 0.2)', ')').replace('rgba', 'rgb');
 }
 function setBackground(color) {
 	elem('underlay').style.backgroundColor = color;
-	if (elem('toolbox').style.display == 'block')
-		makeTranslucent(elem('underlay'));
-	elem('netBackColorWell').value = color;
+	if (elem('toolbox').style.display == 'block') makeTranslucent(elem('underlay'));
+	elem('netBackColorWell').style.backgroundColor = color;
 }
+
 function toggleDrawingLayer() {
 	drawingSwitch = elem('toolbox').style.display == 'block';
 	let ul = elem('underlay');
@@ -3207,8 +3119,7 @@ function setHideAndStream(obj) {
 	let selectedNodes = [].concat(obj.selected); // ensure that obj.selected is an array
 	if (selectedNodes.length > 0) {
 		network.selectNodes(selectedNodes); // in viewing  only mode, this does nothing
-		if (!viewOnly)
-			statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
+		if (!viewOnly) statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
 	}
 	setRadioVal('hide', obj.hideSetting);
 	setRadioVal('stream', obj.streamSetting);
@@ -3238,8 +3149,7 @@ function sizing(metric) {
 				node.value = network.getConnectedNodes(node.id, 'to').length;
 				break;
 			case 'Leverage': {
-				let inDegree = network.getConnectedNodes(node.id, 'from')
-					.length;
+				let inDegree = network.getConnectedNodes(node.id, 'from').length;
 				let outDegree = network.getConnectedNodes(node.id, 'to').length;
 				node.value = inDegree == 0 ? 0 : outDegree / inDegree;
 				break;
@@ -3295,6 +3205,7 @@ function sendMsg() {
 		{
 			client: clientID,
 			author: myNameRec.name,
+			recipient: elem('chat-users').value,
 			time: Date.now(),
 			msg: inputMsg,
 		},
@@ -3318,7 +3229,7 @@ function displayMsg(msg) {
 	if (msg == undefined) return;
 	let clock = Number.isInteger(msg.time) ? timeAndDate(msg.time) : '';
 	if (msg.client == clientID) {
-		/* my own message */
+		// my own message
 		chatMessages.innerHTML += `<div class="message-box-holder">
 			<div class="message-header">
 				<span class="message-time">${clock}</span>
@@ -3328,7 +3239,9 @@ function displayMsg(msg) {
 			</div>
 		</div>`;
 	} else {
-		chatMessages.innerHTML += `<div class="message-box-holder">
+		// show only messages with no recipient (as from an old version), everyone or me
+		if (msg.recipient == undefined || msg.recipient == '' || msg.recipient == myNameRec.name.replace(/\s+/g, '').toLowerCase()) {
+			chatMessages.innerHTML += `<div class="message-box-holder">
 			<div class="message-header">
 				<span class="message-author">${msg.author}</span><span class="message-time">${clock}</span> 
 			</div>
@@ -3336,6 +3249,7 @@ function displayMsg(msg) {
 				${msg.msg}
 			</div>
 		</div>`;
+		}
 	}
 	chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -3368,7 +3282,20 @@ function displayUserName() {
 	chatNameBox.value = myNameRec.name;
 }
 
+/**
+ * Create a set of options for the select menu of the currently online users
+ * @param {Array} names - array of name records from yAwareness (see showAvatars)
+ */
+function populateChatUserMenu(names) {
+	let options = '<option value="">Everyone</option>';
+	names.forEach((nRec) => {
+		options += `<option value=${nRec.name.replace(/\s+/g, '').toLowerCase()}>${nRec.name}</option>`
+	});
+	elem('chat-users').innerHTML=	options
+}
+
 dragElement(elem('chatbox-holder'), elem('chatbox-top'));
+
 
 /* ---------------------------------------history window --------------------------------*/
 /**
@@ -3426,6 +3353,7 @@ function showAvatars() {
 		.filter((e) => e) // remove any recs without a user record
 		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates
 		.sort((a, b) => (a.name > b.name ? 1 : -1)); // sort names
+	populateChatUserMenu(Array.from(names));
 	names.unshift(me[0][1].user); // push myself on to the front
 
 	let avatars = elem('avatars');
@@ -3471,22 +3399,19 @@ function showAvatars() {
 				container.appendChild(cursorDiv);
 			} else {
 				if (nameRec.asleep) cursorDiv.style.display = 'none';
-				if (cursorDiv.innerText != shortName)
-					cursorDiv.innerText = shortName;
+				if (cursorDiv.innerText != shortName) cursorDiv.innerText = shortName;
+				if (cursorDiv.style.backgroundColor != nameRec.color) cursorDiv.style.backgroundColor = nameRec.color;
 			}
 			currentCursors.push(cursorDiv);
 		}
 	});
 	// delete any avatars and cursors that remain from before
-	let avatarsToDelete = Array.from(avatars.children).filter(
-		(a) => !currentAvatars.includes(a)
-	);
+	let avatarsToDelete = Array.from(avatars.children).filter((a) => !currentAvatars.includes(a));
 	avatarsToDelete.forEach((e) => e.remove());
 	let cursorsToDelete = Array.from(document.querySelectorAll('.shared-cursor')).filter(
 		(a) => !currentCursors.includes(a)
 	);
 	cursorsToDelete.forEach((e) => e.remove());
-	
 }
 
 function showCursorSwitch() {
@@ -3542,9 +3467,7 @@ function mergeMaps(nodeList, edgeList) {
 		let ANode = data.nodes.get(BNode.id);
 		if (ANode) {
 			if (ANode.label != BNode.label) {
-				console.log(
-					`Existing factor label: \n${ANode.label} \ndoes not match new label: \n${BNode.label}`
-				);
+				console.log(`Existing factor label: \n${ANode.label} \ndoes not match new label: \n${BNode.label}`);
 				// generate a new id for BNode.  change border to dashed.  add it to the map
 				let newNode = deepCopy(BNode);
 				newNode.id = uuidv4();
@@ -3583,21 +3506,17 @@ function mergeMaps(nodeList, edgeList) {
 			newEdge.dashes = true;
 			data.edges.add(newEdge);
 			console.log(
-				`Added link for new factor(s): ${
-					data.nodes.get(newEdge.from).label
-				} to ${data.nodes.get(newEdge.to).label}`
+				`Added link for new factor(s): ${data.nodes.get(newEdge.from).label} to ${
+					data.nodes.get(newEdge.to).label
+				}`
 			);
 		}
 		let AEdge = data.edges.get(BEdge.id);
 		if (AEdge) {
 			if (AEdge.label != BEdge.label)
-				console.log(
-					`Existing label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}`
-				);
+				console.log(`Existing label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}`);
 			else if (AEdge.grp != BEdge.grp)
-				console.log(
-					`Existing style: ${AEdge.grp} does not match new style ${BEdge.grp} for edge ${AEdge.id}`
-				);
+				console.log(`Existing style: ${AEdge.grp} does not match new style ${BEdge.grp} for edge ${AEdge.id}`);
 		} else {
 			data.edges.add(BEdge);
 			console.log(`Added ${BEdge.id}`);
