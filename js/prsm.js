@@ -401,12 +401,16 @@ function startY() {
 				case 'legend':
 					setLegend(obj, false);
 					break;
-				case 'stream':
+				case 'hideAndStream':
 					setHideAndStream(obj);
 					hideDistantOrStreamNodes(false);
 					break;
 				case 'sizing':
 					sizing(obj);
+					break;
+				case 'stream':
+				case 'linkRadius':
+					// old settings (before v1.6) - ignore
 					break;
 				default:
 					console.log('Bad key in yMapNet.observe: ', key);
@@ -2627,6 +2631,8 @@ function openTab(tabId) {
 }
 
 /**
+ * return an object with the current Network panel setting for saving
+ * settings for link radius and up/down stream are not saved
  * @return an object with the Network panel settings
  */
 function getButtonStatus() {
@@ -2647,7 +2653,6 @@ function setButtonStatus(settings) {
 	yNetMap.set('curve', settings.curve);
 	yNetMap.set('background', settings.background || '#ffffff');
 	yNetMap.set('legend', settings.legend);
-	yNetMap.set('stream', settings.stream);
 	yNetMap.set('sizing', settings.sizing);
 }
 // Factors and Links Tabs
@@ -3113,7 +3118,9 @@ function broadcastHideAndStream(hideSetting, streamSetting) {
 		selected: network.getSelectedNodes(),
 	});
 }
-
+/* note: this fails when the app is first opened with a room that has nodes hidden, because
+this is evaluated before the map nodes have been read in.  TODO: delay evaluation until the 
+nodes and edges are there */
 function setHideAndStream(obj) {
 	if (!obj) return;
 	let selectedNodes = [].concat(obj.selected); // ensure that obj.selected is an array
