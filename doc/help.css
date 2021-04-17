@@ -39,6 +39,19 @@ img {
 code {
 	font-size: large;
 }
+.analysis td {
+	padding: 5px;
+}
+.header {
+	background-color: rgb(56, 161, 241);
+	color:white;
+}
+.odd {
+	background-color: rgb(227,240,250);
+}
+.even{
+	background-color: rgb(171, 219, 248);
+}
 .scroll-nav {
 	grid-column: 1;
 	align-self: start;

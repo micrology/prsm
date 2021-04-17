@@ -270,6 +270,7 @@ nav {
 	font-size: 20px;
 	margin: 3px 0 0 10px;
 	color: white;
+	white-space: nowrap;
 }
 #version {
 	font-size: xx-small;
