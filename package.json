@@ -28,7 +28,7 @@
 	"scripts": {
 		"lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
 		"pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/*.css doc/**/*.{html,css} package.json",
-		"build-help": "pandoc doc/help.md --metadata title='PRSM Help' -f gfm -t html5 -c /doc/help.css -s -A doc/scrollNav.html -H doc/meta.html -B  doc/scrollNavHead.html -o html/help.html && npm run dev",
+		"build-help": "pandoc doc/help.md --metadata title='PRSM Help' -f markdown-markdown_in_html_blocks+raw_html -t html5 -c /doc/help.css -s -A doc/scrollNav.html -H doc/meta.html -B  doc/scrollNavHead.html -o html/help.html && npm run dev",
 		"check": "npm run --silent lint && npm run --silent build-help && npm run --silent pretty",
 		"dev": "rm -rf dist/* && parcel build './html/*.html' --no-optimize --no-scope-hoist --detailed-report 1",
 		"build": "rm -rf dist/* && parcel build './html/*.html'",
