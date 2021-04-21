@@ -360,11 +360,11 @@ function startY() {
 		}
 		if (nodesToUpdate) {
 			refreshSampleNodes();
-			reApplySampleToNodes(nodesToUpdate, true);
+			reApplySampleToNodes(nodesToUpdate);
 		}
 		if (edgesToUpdate) {
 			refreshSampleLinks();
-			reApplySampleToLinks(edgesToUpdate, true);
+			reApplySampleToLinks(edgesToUpdate);
 		}
 	});
 	/*
