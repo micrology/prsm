@@ -34,7 +34,7 @@ import Quill from 'quill';
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.6.5';
+const version = '1.6.7';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
@@ -75,7 +75,8 @@ var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
 var tutorial = new Tutorial(); // object driving the tutorial
 export var cp; // color picker
-
+var checkMapSaved = false; // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
+var dirty = false; // map has been changed by suser and may need saving
 /**
  * top level function to initialise everything
  */
@@ -93,10 +94,12 @@ window.addEventListener('load', () => {
 /**
  * Clean up before user departs
  */
-window.addEventListener('beforeunload', () => {
-	unlockAll();
-});
 
+window.onbeforeunload = function () {
+	unlockAll();
+	// get confirmation from user before exiting if there are unsaved changes
+	return checkMapSaved && dirty;
+ }
 /**
  * Set up all the permanent event listeners
  */
@@ -206,18 +209,20 @@ function startY() {
 	// get the room number from the URL, or if none, generate a new one
 	let url = new URL(document.location);
 	room = url.searchParams.get('room');
-	if (room == null || room == '') room = generateRoom();
+	if (room == null || room == '') {
+		room = generateRoom();
+		checkMapSaved = true;
+	}
 	else room = room.toUpperCase();
 	document.title = document.title + ' ' + room;
-	/* const persistence = new IndexeddbPersistence(room, doc);
+	const persistence = new IndexeddbPersistence(room, doc);
 	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
 		displayNetPane(exactTime() + ' local content loaded');
-	}); */
+	});
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
 	wsProvider.on('sync', () => {
-		displayNetPane(exactTime());
-		console.log(exactTime() + ' remote content loaded');
+		displayNetPane(exactTime() + ' remote content loaded');
 	});
 	wsProvider.on('status', (event) => {
 		console.log(exactTime() + event.status + (event.status == 'connected' ? ' to' : ' from') + ' room ' + room); // logs when websocket is "connected" or "disconnected"
@@ -361,11 +366,11 @@ function startY() {
 		}
 		if (nodesToUpdate) {
 			refreshSampleNodes();
-			reApplySampleToNodes(nodesToUpdate, true);
+			reApplySampleToNodes(nodesToUpdate);
 		}
 		if (edgesToUpdate) {
 			refreshSampleLinks();
-			reApplySampleToLinks(edgesToUpdate, true);
+			reApplySampleToLinks(edgesToUpdate);
 		}
 	});
 	/*
@@ -1075,10 +1080,12 @@ function timestamp() {
 }
 /**
  * push a record that action has been taken on to the end of the history log
+ *  and note changes have been made to the map
  * @param {String} action
  */
-function logHistory(action) {
-	yHistory.push([{action: action, time: Date.now(), user: myNameRec.name}]);
+function logHistory(action, actor) {
+	yHistory.push([{ action: action, time: Date.now(), user: (actor ? actor : myNameRec.name) }]);
+	dirty = true;
 }
 
 function drawBadges(ctx) {
@@ -1914,6 +1921,7 @@ function loadFile(contents) {
 	unSelect();
 	ensureNotDrawing();
 	network.destroy();
+	checkMapSaved = true;
 	nodes.clear();
 	edges.clear();
 	draw();
@@ -2327,6 +2335,8 @@ function saveStr(str, extn) {
 		a.remove();
 	}
 	statusMsg(`'${lastFileName}' saved`);
+	checkMapSaved = false;
+	dirty = false;
 }
 /**
  * save the map as a PNG image file
@@ -3247,7 +3257,11 @@ function displayMsg(msg) {
 		</div>`;
 	} else {
 		// show only messages with no recipient (as from an old version), everyone or me
-		if (msg.recipient == undefined || msg.recipient == '' || msg.recipient == myNameRec.name.replace(/\s+/g, '').toLowerCase()) {
+		if (
+			msg.recipient == undefined ||
+			msg.recipient == '' ||
+			msg.recipient == myNameRec.name.replace(/\s+/g, '').toLowerCase()
+		) {
 			chatMessages.innerHTML += `<div class="message-box-holder">
 			<div class="message-header">
 				<span class="message-author">${msg.author}</span><span class="message-time">${clock}</span> 
@@ -3296,13 +3310,12 @@ function displayUserName() {
 function populateChatUserMenu(names) {
 	let options = '<option value="">Everyone</option>';
 	names.forEach((nRec) => {
-		options += `<option value=${nRec.name.replace(/\s+/g, '').toLowerCase()}>${nRec.name}</option>`
+		options += `<option value=${nRec.name.replace(/\s+/g, '').toLowerCase()}>${nRec.name}</option>`;
 	});
-	elem('chat-users').innerHTML=	options
+	elem('chat-users').innerHTML = options;
 }
 
 dragElement(elem('chatbox-holder'), elem('chatbox-top'));
-
 
 /* ---------------------------------------history window --------------------------------*/
 /**
@@ -3428,18 +3441,27 @@ function showCursorSwitch() {
 	});
 }
 /* --------------------------------- Merge maps ----------------------------- */
-/* to get the data in, open inspect windows for both maps.  in one window, eval data.nodes.get() and copy the result (not including any initial and trailing quote marks).
-In the other window. evaluate n = <pasted list>.  Repeat for data.edges.get() and e = <pasted list>.  Then evaluate mergeMaps(n, e) in the other window.
-*/
+/* Manual (old) way:
+ * to get the data in, open inspect windows for both maps.  in one window, eval data.nodes.get() and copy the result
+ * (not including any initial and trailing quote marks).
+ * In the other window. evaluate n = <pasted list>.  Repeat for data.edges.get() and e = <pasted list>.
+ * Then evaluate mergeMaps(n, e) in the other window.
+ *
+ * Programmatic way:
+ * Evaluate mergeRoom(string: room code) e.g. mergeRoom('WBI-CRD-ROB-XDK')
+ */
+
+var bwsp; //  websocket to other room
+var bdata; // other room's node and edge data
 
 function openOtherDoc(room) {
 	let bDoc = new Y.Doc();
-	new WebsocketProvider(websocket, 'prsm' + room, bDoc);
+	bwsp = new WebsocketProvider(websocket, 'prsm' + room, bDoc);
 	let bNodesMap = bDoc.getMap('nodes');
 	let bEdgesMap = bDoc.getMap('edges');
 	let bNodes = new DataSet();
 	let bEdges = new DataSet();
-	let data = {
+	bdata = {
 		nodes: bNodes,
 		edges: bEdges,
 	};
@@ -3463,7 +3485,6 @@ function openOtherDoc(room) {
 		}
 		bEdges.update(edgesToUpdate, origin);
 	});
-	return data;
 }
 window.openOtherDoc = openOtherDoc;
 
@@ -3471,11 +3492,14 @@ function mergeMaps(nodeList, edgeList) {
 	// lists of edges from the map to be merged (B) into this one (A)
 	let newNodes = new Map();
 	nodeList.forEach((BNode) => {
-		let ANode = data.nodes.get(BNode.id);
+		// for each node in the other map
+		let ANode = data.nodes.get(BNode.id); // see whether there is a node in this map with the same id
 		if (ANode) {
+			// if there is, check whether the label is the same
 			if (ANode.label != BNode.label) {
-				console.log(`Existing factor label: \n${ANode.label} \ndoes not match new label: \n${BNode.label}`);
-				// generate a new id for BNode.  change border to dashed.  add it to the map
+				// if not, make a clone of the other node with a new id
+				logHistory(`Existing Factor label: ${ANode.label} does not match new label: ${BNode.label}. Factor with new label added.`, 'Merge');
+				// generate a new id for BNode.  change border to dashed red.  Add it to the map
 				let newNode = deepCopy(BNode);
 				newNode.id = uuidv4();
 				newNode.shapeProperties.borderDashes = true;
@@ -3485,49 +3509,72 @@ function mergeMaps(nodeList, edgeList) {
 				newNode.color.highlight.border = '#ff0000';
 				newNode.x = ANode.x + 30;
 				newNode.y = ANode.y + 30;
+				// add it to this map
 				data.nodes.add(newNode);
+				// add to lookup table of existing node id to clone node id
 				newNodes.set(BNode.id, newNode.id);
 			} else if (ANode.grp != BNode.grp)
-				console.log(
-					`Existing factor style: ${ANode.grp} does not match new style ${BNode.grp} for ${ANode.label}`
+				// label is the same, but style is not - just report this
+				logHistory(
+					`Existing style: ${ANode.grp} does not match new style: ${BNode.grp} for Factor: ${ANode.label}. Existing style retained.`, 'Merge'
 				);
 		} else {
+			// the node is on the other map, but not on this one - add it.
 			data.nodes.add(BNode);
-			console.log(`Added ${BNode.label}`);
+			logHistory(`Added new Factor: ${BNode.label}`, 'Merge');
 		}
 	});
 
 	edgeList.forEach((BEdge) => {
-		/* some edges on the B map may have been going to/from nodes that have been given a new id.  Edit these edges
-	to give them the new from or to node ids and make them dashed. */
+		// Some edges on the other map may have been going to/from nodes that have been cloned and given a new id.
+		// Clone these edges, giving them the new from: or to: node ids and make them dashed.
 		let newEdge = null;
 		if (newNodes.has(BEdge.from)) {
+			// this edge goes from a node that has been cloned - adjust the from: id
 			newEdge = deepCopy(BEdge);
 			newEdge.from = newNodes.get(BEdge.from);
+			// it might also go to a cloned node -if so, adjust the to: id
 			if (newNodes.has(newEdge.to)) newEdge.to = newNodes.get(newEdge.to);
 		} else if (newNodes.has(BEdge.to)) {
+			// this edge goes to a cloned node
 			newEdge = deepCopy(BEdge);
 			newEdge.to = newNodes.get(BEdge.to);
 		}
 		if (newEdge) {
+			// give the cloned edge a new id
+			newEdge.id = uuidv4();
+			// make the edge dashed
 			newEdge.dashes = true;
 			data.edges.add(newEdge);
-			console.log(
-				`Added link for new factor(s): ${data.nodes.get(newEdge.from).label} to ${
+			logHistory(
+				`Added Link between new Factor(s): ${data.nodes.get(newEdge.from).label} to ${
 					data.nodes.get(newEdge.to).label
-				}`
+				}`, 'Merge'
 			);
 		}
+		// now deal with the other map's edge
 		let AEdge = data.edges.get(BEdge.id);
+		let edgeName = BEdge.label || `from ${bdata.nodes.get(BEdge.from).label} to ${bdata.nodes.get(BEdge.to).label}`;
 		if (AEdge) {
 			if (AEdge.label != BEdge.label)
-				console.log(`Existing label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}`);
+				logHistory(`Existing Link label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}.  Existing label retained.`, 'Merge');
 			else if (AEdge.grp != BEdge.grp)
-				console.log(`Existing style: ${AEdge.grp} does not match new style ${BEdge.grp} for edge ${AEdge.id}`);
+				logHistory(
+					`Existing Link style: ${AEdge.grp} does not match new style: ${BEdge.grp} for edge ${edgeName}. Existing style retained.`, 'Merge'
+				);
 		} else {
 			data.edges.add(BEdge);
-			console.log(`Added ${BEdge.id}`);
+			logHistory(`Added new Link: ${edgeName}`, 'Merge');
 		}
 	});
 }
 window.mergeMaps = mergeMaps;
+
+function mergeRoom(room) {
+	openOtherDoc(room);
+	bwsp.on('sync', () => {
+		mergeMaps(bdata.nodes.get(), bdata.edges.get());
+	});
+}
+window.mergeRoom = mergeRoom;
+window.bdata = bdata;
