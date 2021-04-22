@@ -34,7 +34,7 @@ import Quill from 'quill';
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.6.6';
+const version = '1.6.7';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
@@ -75,7 +75,8 @@ var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
 var tutorial = new Tutorial(); // object driving the tutorial
 export var cp; // color picker
-
+var checkMapSaved = false; // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
+var dirty = false; // map has been changed by suser and may need saving
 /**
  * top level function to initialise everything
  */
@@ -93,10 +94,12 @@ window.addEventListener('load', () => {
 /**
  * Clean up before user departs
  */
-window.addEventListener('beforeunload', () => {
-	unlockAll();
-});
 
+window.onbeforeunload = function () {
+	unlockAll();
+	// get confirmation from user before exiting if there are unsaved changes
+	return checkMapSaved && dirty;
+ }
 /**
  * Set up all the permanent event listeners
  */
@@ -206,7 +209,10 @@ function startY() {
 	// get the room number from the URL, or if none, generate a new one
 	let url = new URL(document.location);
 	room = url.searchParams.get('room');
-	if (room == null || room == '') room = generateRoom();
+	if (room == null || room == '') {
+		room = generateRoom();
+		checkMapSaved = true;
+	}
 	else room = room.toUpperCase();
 	document.title = document.title + ' ' + room;
 	const persistence = new IndexeddbPersistence(room, doc);
@@ -1074,10 +1080,12 @@ function timestamp() {
 }
 /**
  * push a record that action has been taken on to the end of the history log
+ *  and note changes have been made to the map
  * @param {String} action
  */
 function logHistory(action, actor) {
-	yHistory.push([{action: action, time: Date.now(), user: ( actor ? actor : myNameRec.name)}]);
+	yHistory.push([{ action: action, time: Date.now(), user: (actor ? actor : myNameRec.name) }]);
+	dirty = true;
 }
 
 function drawBadges(ctx) {
@@ -1913,6 +1921,7 @@ function loadFile(contents) {
 	unSelect();
 	ensureNotDrawing();
 	network.destroy();
+	checkMapSaved = true;
 	nodes.clear();
 	edges.clear();
 	draw();
@@ -2326,6 +2335,8 @@ function saveStr(str, extn) {
 		a.remove();
 	}
 	statusMsg(`'${lastFileName}' saved`);
+	checkMapSaved = false;
+	dirty = false;
 }
 /**
  * save the map as a PNG image file
