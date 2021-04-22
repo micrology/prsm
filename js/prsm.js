@@ -95,10 +95,13 @@ window.addEventListener('load', () => {
  * Clean up before user departs
  */
 
-window.onbeforeunload = function () {
+window.onbeforeunload = function (event) {
 	unlockAll();
 	// get confirmation from user before exiting if there are unsaved changes
-	return checkMapSaved && dirty;
+	if (checkMapSaved && dirty) {
+		event.preventDefault();
+		event.returnValue = ' ';
+	};
  }
 /**
  * Set up all the permanent event listeners
@@ -625,13 +628,15 @@ function showMice() {
 	recs.forEach(([key, value]) => {
 		if (key != clientID && value.cursor) {
 			let cursorDiv = elem(key.toString());
-			let p = network.canvasToDOM(value.cursor);
-			p.x += box.left;
-			p.y += box.top;
-			cursorDiv.style.top = `${p.y}px`;
-			cursorDiv.style.left = `${p.x}px`;
-			cursorDiv.style.display =
-				p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top ? 'none' : 'block';
+			if (cursorDiv) {
+				let p = network.canvasToDOM(value.cursor);
+				p.x += box.left;
+				p.y += box.top;
+				cursorDiv.style.top = `${p.y}px`;
+				cursorDiv.style.left = `${p.x}px`;
+				cursorDiv.style.display =
+					p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top ? 'none' : 'block';
+			}
 		}
 	});
 }
@@ -3397,12 +3402,16 @@ function showAvatars() {
 			ava.appendChild(circle);
 			avatars.appendChild(ava);
 		} else {
-			ava.dataset.tooltip = nameRec.name;
+			// to avoid flashes, don't touch anything that is already correct
+			if (ava.dataset.tooltip != nameRec.name) ava.dataset.tooltip = nameRec.name;
 			let circle = ava.firstChild;
-			circle.style.backgroundColor = nameRec.color;
-			if (nameRec.anon) circle.style.borderColor = 'white';
-			circle.innerText = shortName;
-			circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
+			if (circle.style.backgroundColor != nameRec.color) circle.style.backgroundColor = nameRec.color;
+			if (nameRec.anon) {
+				if (circle.style.borderColor != 'white') circle.style.borderColor = 'white';
+			}
+			if (circle.innerText != shortName) circle.innerText = shortName;
+			let opacity = nameRec.asleep ? 0.2 : 1.0;
+			if (circle.style.opacity != opacity) circle.style.opacity = opacity;
 		}
 		currentAvatars.push(ava);
 
