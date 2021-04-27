@@ -696,7 +696,6 @@ but moving the panel out of sight works instead */
 
 .itemData {
 	display: grid;
-	grid-template-columns: 252px;
 	padding: 4px;
 	background-color: var(--panel-color);
 	color: white;
@@ -713,12 +712,20 @@ but moving the panel out of sight works instead */
 	color: black;
 	width: 100%;
 	min-height: 100px;
-	max-height: 250px;
 	outline: none;
 	font-family: Oxygen, sans-serif;
 }
+.edit-container {
+	width: 100%;
+	background-color: white;
+	resize: both;
+	overflow: auto;
+}
 .ql-editor {
 	padding: 3px;
+}
+.ql-toolbar.ql-snow .ql-formats {
+	margin-right: 0;
 }
 .itemData .row {
 	display: flex;

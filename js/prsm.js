@@ -1078,10 +1078,10 @@ function contextMenu(event) {
 	event.preventDefault();
 }
 /**
- * return an object with the current time as a date an integer and the current user's initials
+ * return an object with the current time as a date an integer and the current user's name
  */
 function timestamp() {
-	return {time: Date.now(), user: initials(myNameRec.name)};
+	return {time: Date.now(), user: myNameRec.name};
 }
 /**
  * push a record that action has been taken on to the end of the history log
@@ -2752,10 +2752,15 @@ function showNodeData() {
 	elem('node-notes').className = 'notes';
 	let editor = new Quill('#node-notes', {
 		modules: {
-			toolbar: [[{header: [1, 2, false]}], ['bold', 'italic', 'underline'], ['link']],
+			toolbar: [
+				'bold', 'italic', 'underline',
+				'link',
+				{list: 'ordered'}, {list: 'bullet'},
+				{indent: '-1'}, {indent: '+1'},
+			],
 		},
 		placeholder: 'Notes',
-		theme: 'bubble',
+		theme: 'snow',
 		readOnly: viewOnly,
 	});
 	if (node.note) {
@@ -2816,6 +2821,7 @@ function showEdgeData() {
 function hideNotes() {
 	elem('nodeDataPanel').classList.add('hide');
 	elem('edgeDataPanel').classList.add('hide');
+	document.querySelectorAll('.ql-toolbar').forEach((e) => e.remove());
 }
 // Statistics specific to a node
 function displayStatistics(nodeId) {
