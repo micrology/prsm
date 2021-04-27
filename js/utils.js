@@ -1,6 +1,6 @@
 import * as Hammer from '@egjs/hammerjs';
 import iro from '@jaames/iro';
-
+import uniqolor from 'uniqolor';
 /**
  * attach an event listener
  *
@@ -397,47 +397,76 @@ const ADJECTIVES = Object.freeze([
 	'perfect',
 	'rude',
 	'wonderful',
-]);
-
-const COLORS = Object.freeze([
-	'hotpink',
-	'red',
-	'lightblue',
-	'fuchsia',
-	'green',
-	'lime',
-	'olive',
-	'darkorange',
-	'chartreuse',
-	'teal',
-	'aqua',
-	'orange',
-	'beige',
-	'gainsboro',
-	'cadetblue',
-	'coral',
-	'gold',
-	'aquamarine',
-	'blueviolet',
-	'chocolate',
-	'cornflowerblue',
-	'crimson',
-	'cyan',
-	'darkorchid',
-	'darkseagreen',
-	'deepskyblue',
-	'deeppink',
-	'forestgreen',
-	'dodgerblue',
-	'greenyellow',
-	'goldenrod',
-	'indianred',
-	'lightblue',
-	'lawngreen',
-	'lightcoral',
-	'lightgreen',
-	'magenta',
-	'olive',
+	'agile',
+	'beautiful',
+	'bossy',
+	'candid',
+	'carnivorous',
+	'clever',
+	'cold',
+	'cold-blooded',
+	'colorful',
+	'cuddly',
+	'curious',
+	'cute',
+	'dangerous',
+	'deadly',
+	'domestic',
+	'dominant',
+	'energetic',
+	'fast',
+	'feisty',
+	'ferocious',
+	'fierce',
+	'fluffy',
+	'friendly',
+	'furry',
+	'fuzzy',
+	'grumpy',
+	'hairy',
+	'heavy',
+	'herbivorous',
+	'jealous',
+	'large',
+	'lazy',
+	'loud',
+	'lovable',
+	'loving',
+	'malicious',
+	'maternal',
+	'mean',
+	'messy',
+	'nocturnal',
+	'noisy',
+	'nosy',
+	'picky',
+	'playful',
+	'poisonous',
+	'quick',
+	'rough',
+	'sassy',
+	'scaly',
+	'short',
+	'shy',
+	'slimy',
+	'slow',
+	'small',
+	'smart',
+	'smelly',
+	'soft',
+	'spikey',
+	'stinky',
+	'strong',
+	'stubborn',
+	'submissive',
+	'tall',
+	'tame',
+	'tenacious',
+	'territorial',
+	'tiny',
+	'vicious',
+	'warm',
+	'wild',  
 ]);
 
 const random = (items) => items[(Math.random() * items.length) | 0];
@@ -447,12 +476,13 @@ const capitalize = (string) => string[0].toUpperCase() + string.slice(1);
  * return a random fancy name for an avatar, with a random colour
  */
 export function generateName() {
+	let name = capitalize(random(ADJECTIVES)) +
+	' ' +
+	capitalize(random(SEA_CREATURES));
+
 	return {
-		color: random(COLORS),
-		name:
-			capitalize(random(ADJECTIVES)) +
-			' ' +
-			capitalize(random(SEA_CREATURES)),
+		... uniqolor(name , { saturation: 95, lightness: 60 }),
+		name: name,
 		anon: true,
 		asleep: false,
 	};
@@ -618,7 +648,7 @@ export class CP {
 	}
 	/**
 	 * Save the color in the previously selected colour grid, if not already saved
-	 * into a fee slot, or if there isn't one shift the current colours to the left
+	 * into a free slot, or if there isn't one shift the current colours to the left
 	 * and save the new at the right end
 	 * @param {color} color 
 	 */

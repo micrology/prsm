@@ -15,6 +15,7 @@
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
     div.sourceCode { margin: 1em 0; }
     pre.sourceCode { margin: 0; }
@@ -233,10 +234,11 @@
 <!-- ![LinksPanel](/doc/images/LinksPanel.png) -->
 <p><img src="/doc/images/LinksPanel.png" width="250"></p>
 <h3 id="network-tab">Network tab</h3>
-<p>The Network tab enables you to change many aspects of the network visualisation.</p>
+<p>The Network tab enables you to change many aspects of the network visualisation, including where the Factors are placed and which are visible.</p>
+<p>It is sometimes useful to get PSRM to layout Factors using an automatic procedure and then adjust their positions manually to achieve the desired placement. PRSM has the <em>trophic</em> algorithm built in. The trophic layout helps to reveal <a href="https://royalsocietypublishing.org/doi/10.1098/rsos.201138">the causal structure of the map</a>. With the trophic layout, the factors are arranged along the horizontal axis according to their positions (their trophic levels) in the overall causal flow within the system, making it easier to identify upstream and downstream factors; the linked chains of influence that connect them; and where policies act on the system within this overall causal structure (which may be upstream or downstream).</p>
+<p>On the Network tab, there are controls for:</p>
 <!-- ![NetworkPanel](/doc/images/NetworkPanel.png) -->
 <p><img src="/doc/images/NetworkPanel.png" width="250"></p>
-<p>From top to bottom, there are controls for:</p>
 <ul>
 <li><strong>Trophic Layout</strong> If this switch is set to ON, the app moves the factors and links to create a layout such that all the links point from left to right and are arranged accoriding to <a href="https://en.wikipedia.org/wiki/Trophic_level">trophic level</a>. Clicking the Trophic Layout button will re-arrange the factors, and you can then adjust the map manually to a neat and pleasing layout. If you don’t like the result, the Undo button on the top bar will revert the map to its original layout.</li>
 <li><strong>Snap to grid</strong> When ON, factors shift to be at the intersection of invisible grid lines. This makes it much easier to line up factors neatly.</li>
@@ -320,7 +322,7 @@
 <tr class="odd">
 <td>Union or intersection of upstream nodes and edges</td>
 <td>What factors influence multiple outcomes? Identify potential levers in the system, co-benefits, synergies, or risks.</td>
-<td>Select all the outcome nodes and chose ‘Show only Factors upstream’</td>
+<td>Select all the outcome nodes and choose ‘Show only Factors upstream’</td>
 </tr>
 <tr class="even">
 <td rowspan="2">Vulnerable to change factors</td>
@@ -355,13 +357,13 @@
 <td>Influenced (i.e. many incoming connections)</td>
 <td>Upstream nodes and edges</td>
 <td>What is influencing this highly influenced factor? Buffered or buffeted?</td>
-<td>First, set ‘Size Factors to: Inputs’ to see which factors have many incoming connections. Then select a factor and choose ‘Show only Factors upstream.</td>
+<td>First, set ‘Size Factors to: Inputs’ to see which factors have many incoming connections. Then select a factor and choose ‘Show only Factors upstream'.</td>
 </tr>
 <tr class="even">
 <td>Unusual network property</td>
 <td>Any of the above</td>
 <td>Does this factor play an important but counter-intuitive role in the system? </td>
-<td>set ‘Size Factors to: Leverage’ to see which factors have either many incoming but few outgoing connections or few outgoing but many incoming connections.</td>
+<td>Set ‘Size Factors to: Leverage’ to see which factors have either many incoming but few outgoing connections or few outgoing but many incoming connections.</td>
 </tr>
 </tbody>
 </table>
@@ -373,9 +375,9 @@
 <p>PRSM uses two important packages: <a href="https://github.com/yjs/yjs"><code>yjs</code></a> and <a href="https://visjs.org/"><code>vis-network</code></a>. The former handles the sharing between participants’ browsers and the latter draws the network. A few other packages are used for dealing with touch input (<a href="https://hammerjs.github.io/"><code>Hammer</code></a>), drawing emojis, and parsing XML file input.</p>
 <p>These components are assembled using <a href="https://parceljs.org/"><code>parcel</code></a> and the bundled file is placed in the <code>dist</code> directory. So that users have an easy URL to access (i.e. not needing to include <code>dist</code> in the link), there is an <code>.htaccess</code> file that rewrites URLs from what the user puts into their browser to the correct location.</p>
 <p>To install the code, use <code>git</code> to clone the <a href="https://github.com/micrology/prsm">repo</a> to your local disk and change to the cloned directory. Then install the required packages with</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ex">npm</span> install</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install</span></code></pre></div>
 <p>and build the distribution with</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="ex">npm</span> run build</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run build</span></code></pre></div>
 <p>Documentation can be found in the <code>doc</code> directory.</p>
 <p>See <code>package.json</code> for other npm commands.</p>
 <h2 id="acknowledgements">Acknowledgements</h2>
@@ -387,7 +389,7 @@
 <script>
 window.addEventListener('load', () => {
     const content = document.querySelector('#contents');
-    scrollnav.init(content, {subSections: 'h3'});
+    scrollnav.init(content, {subSections: 'h3', animated: false});
 });
 </script>
 </body>

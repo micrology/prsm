@@ -23,4 +23,5 @@ RewriteEngine  on
 # use the dist version of the entry code
 # but not if they are already linked to that directory
 RewriteCond %{REQUEST_URI} !/dist/ [NC]
+RewriteCond %{REQUEST_URI} !/experiments/ [NC]
 RewriteRule 	"^(.*)$"	"dist/$1" [PT]

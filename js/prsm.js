@@ -2752,7 +2752,7 @@ function showNodeData() {
 	elem('node-notes').className = 'notes';
 	let editor = new Quill('#node-notes', {
 		modules: {
-			toolbar: [[{header: [1, 2, false]}], ['bold', 'italic', 'underline']],
+			toolbar: [[{header: [1, 2, false]}], ['bold', 'italic', 'underline'], ['link']],
 		},
 		placeholder: 'Notes',
 		theme: 'bubble',
@@ -3406,9 +3406,8 @@ function showAvatars() {
 			if (ava.dataset.tooltip != nameRec.name) ava.dataset.tooltip = nameRec.name;
 			let circle = ava.firstChild;
 			if (circle.style.backgroundColor != nameRec.color) circle.style.backgroundColor = nameRec.color;
-			if (nameRec.anon) {
-				if (circle.style.borderColor != 'white') circle.style.borderColor = 'white';
-			}
+			let circleBorderColor = nameRec.anon ? 'white' : 'black';
+			if (circle.style.borderColor != circleBorderColor) circle.style.borderColor = circleBorderColor;
 			if (circle.innerText != shortName) circle.innerText = shortName;
 			let opacity = nameRec.asleep ? 0.2 : 1.0;
 			if (circle.style.opacity != opacity) circle.style.opacity = opacity;
