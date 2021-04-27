@@ -101,8 +101,8 @@ window.onbeforeunload = function (event) {
 	if (checkMapSaved && dirty) {
 		event.preventDefault();
 		event.returnValue = ' ';
-	};
- }
+	}
+};
 /**
  * Set up all the permanent event listeners
  */
@@ -215,8 +215,7 @@ function startY() {
 	if (room == null || room == '') {
 		room = generateRoom();
 		checkMapSaved = true;
-	}
-	else room = room.toUpperCase();
+	} else room = room.toUpperCase();
 	document.title = document.title + ' ' + room;
 	const persistence = new IndexeddbPersistence(room, doc);
 	// once the map is loaded, it can be displayed
@@ -772,7 +771,6 @@ function draw() {
 		options.interaction = {
 			dragNodes: false,
 			hover: false,
-			selectable: false,
 		};
 	network = new Network(netPane, data, options);
 	window.network = network;
@@ -822,10 +820,12 @@ function draw() {
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
 		if (window.debug.includes('gui')) console.log('doubleClick');
-		if (params.nodes.length === 1) {
-			if (!inEditMode && !data.nodes.get(params.nodes[0]).locked) network.editNode();
-		} else if (params.edges.length === 1) {
-			if (!inEditMode) network.editEdgeMode();
+		if (!viewOnly) {
+			if (params.nodes.length === 1) {
+				if (!inEditMode && !data.nodes.get(params.nodes[0]).locked) network.editNode();
+			} else if (params.edges.length === 1) {
+				if (!inEditMode) network.editEdgeMode();
+			}
 		} else {
 			fit();
 		}
@@ -1089,7 +1089,7 @@ function timestamp() {
  * @param {String} action
  */
 function logHistory(action, actor) {
-	yHistory.push([{ action: action, time: Date.now(), user: (actor ? actor : myNameRec.name) }]);
+	yHistory.push([{action: action, time: Date.now(), user: actor ? actor : myNameRec.name}]);
 	dirty = true;
 }
 
@@ -2756,6 +2756,7 @@ function showNodeData() {
 		},
 		placeholder: 'Notes',
 		theme: 'bubble',
+		readOnly: viewOnly,
 	});
 	if (node.note) {
 		if (node.note instanceof Object) editor.setContents(node.note);
@@ -2797,6 +2798,7 @@ function showEdgeData() {
 		},
 		placeholder: 'Notes',
 		theme: 'bubble',
+		readOnly: viewOnly,
 	});
 	if (edge.note) {
 		if (edge.note instanceof Object) editor.setContents(edge.note);
@@ -3506,7 +3508,10 @@ function mergeMaps(nodeList, edgeList) {
 			// if there is, check whether the label is the same
 			if (ANode.label != BNode.label) {
 				// if not, make a clone of the other node with a new id
-				logHistory(`Existing Factor label: ${ANode.label} does not match new label: ${BNode.label}. Factor with new label added.`, 'Merge');
+				logHistory(
+					`Existing Factor label: ${ANode.label} does not match new label: ${BNode.label}. Factor with new label added.`,
+					'Merge'
+				);
 				// generate a new id for BNode.  change border to dashed red.  Add it to the map
 				let newNode = deepCopy(BNode);
 				newNode.id = uuidv4();
@@ -3524,7 +3529,8 @@ function mergeMaps(nodeList, edgeList) {
 			} else if (ANode.grp != BNode.grp)
 				// label is the same, but style is not - just report this
 				logHistory(
-					`Existing style: ${ANode.grp} does not match new style: ${BNode.grp} for Factor: ${ANode.label}. Existing style retained.`, 'Merge'
+					`Existing style: ${ANode.grp} does not match new style: ${BNode.grp} for Factor: ${ANode.label}. Existing style retained.`,
+					'Merge'
 				);
 		} else {
 			// the node is on the other map, but not on this one - add it.
@@ -3557,7 +3563,8 @@ function mergeMaps(nodeList, edgeList) {
 			logHistory(
 				`Added Link between new Factor(s): ${data.nodes.get(newEdge.from).label} to ${
 					data.nodes.get(newEdge.to).label
-				}`, 'Merge'
+				}`,
+				'Merge'
 			);
 		}
 		// now deal with the other map's edge
@@ -3565,10 +3572,14 @@ function mergeMaps(nodeList, edgeList) {
 		let edgeName = BEdge.label || `from ${bdata.nodes.get(BEdge.from).label} to ${bdata.nodes.get(BEdge.to).label}`;
 		if (AEdge) {
 			if (AEdge.label != BEdge.label)
-				logHistory(`Existing Link label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}.  Existing label retained.`, 'Merge');
+				logHistory(
+					`Existing Link label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}.  Existing label retained.`,
+					'Merge'
+				);
 			else if (AEdge.grp != BEdge.grp)
 				logHistory(
-					`Existing Link style: ${AEdge.grp} does not match new style: ${BEdge.grp} for edge ${edgeName}. Existing style retained.`, 'Merge'
+					`Existing Link style: ${AEdge.grp} does not match new style: ${BEdge.grp} for edge ${edgeName}. Existing style retained.`,
+					'Merge'
 				);
 		} else {
 			data.edges.add(BEdge);
