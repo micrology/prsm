@@ -34,7 +34,7 @@ import Quill from 'quill';
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.6.7';
+const version = '1.6.8';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
@@ -50,7 +50,7 @@ var debug = []; // if includes 'yjs', all yjs sharing interactions are logged to
 var viewOnly; // when true, user can only view, not modify, the network
 var nodes; // a dataset of nodes
 var edges; // a dataset of edges
-var data; // an object with the nodes and edges datasets as properties
+export var data; // an object with the nodes and edges datasets as properties
 const doc = new Y.Doc();
 var websocket = 'wss://cress.soc.surrey.ac.uk/wss'; // web socket server URL
 var clientID; // unique ID for this browser
@@ -95,11 +95,14 @@ window.addEventListener('load', () => {
  * Clean up before user departs
  */
 
-window.onbeforeunload = function () {
+window.onbeforeunload = function (event) {
 	unlockAll();
 	// get confirmation from user before exiting if there are unsaved changes
-	return checkMapSaved && dirty;
- }
+	if (checkMapSaved && dirty) {
+		event.preventDefault();
+		event.returnValue = ' ';
+	}
+};
 /**
  * Set up all the permanent event listeners
  */
@@ -151,7 +154,7 @@ function addEventListeners() {
 	listen('snaptogridswitch', 'click', snapToGridSwitch);
 	listen('drawing', 'click', toggleDrawingLayer);
 	listen('allFactors', 'click', selectAllFactors);
-	listen('allEdges', 'click', selectAllEdges);
+	listen('allLinks', 'click', selectAllLinks);
 	listen('showLegendSwitch', 'click', legendSwitch);
 	listen('showCursorSwitch', 'click', showCursorSwitch);
 	listen('showHistorySwitch', 'click', showHistorySwitch);
@@ -212,8 +215,7 @@ function startY() {
 	if (room == null || room == '') {
 		room = generateRoom();
 		checkMapSaved = true;
-	}
-	else room = room.toUpperCase();
+	} else room = room.toUpperCase();
 	document.title = document.title + ' ' + room;
 	const persistence = new IndexeddbPersistence(room, doc);
 	// once the map is loaded, it can be displayed
@@ -625,13 +627,15 @@ function showMice() {
 	recs.forEach(([key, value]) => {
 		if (key != clientID && value.cursor) {
 			let cursorDiv = elem(key.toString());
-			let p = network.canvasToDOM(value.cursor);
-			p.x += box.left;
-			p.y += box.top;
-			cursorDiv.style.top = `${p.y}px`;
-			cursorDiv.style.left = `${p.x}px`;
-			cursorDiv.style.display =
-				p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top ? 'none' : 'block';
+			if (cursorDiv) {
+				let p = network.canvasToDOM(value.cursor);
+				p.x += box.left;
+				p.y += box.top;
+				cursorDiv.style.top = `${p.y}px`;
+				cursorDiv.style.left = `${p.x}px`;
+				cursorDiv.style.display =
+					p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top ? 'none' : 'block';
+			}
 		}
 	});
 }
@@ -767,7 +771,6 @@ function draw() {
 		options.interaction = {
 			dragNodes: false,
 			hover: false,
-			selectable: false,
 		};
 	network = new Network(netPane, data, options);
 	window.network = network;
@@ -818,9 +821,9 @@ function draw() {
 	network.on('doubleClick', function (params) {
 		if (window.debug.includes('gui')) console.log('doubleClick');
 		if (params.nodes.length === 1) {
-			if (!inEditMode && !data.nodes.get(params.nodes[0]).locked) network.editNode();
+			if (!viewOnly && !inEditMode && !data.nodes.get(params.nodes[0]).locked) network.editNode();
 		} else if (params.edges.length === 1) {
-			if (!inEditMode) network.editEdgeMode();
+			if (!viewOnly && !inEditMode) network.editEdgeMode();
 		} else {
 			fit();
 		}
@@ -1073,10 +1076,10 @@ function contextMenu(event) {
 	event.preventDefault();
 }
 /**
- * return an object with the current time as a date an integer and the current user's initials
+ * return an object with the current time as a date an integer and the current user's name
  */
 function timestamp() {
-	return {time: Date.now(), user: initials(myNameRec.name)};
+	return {time: Date.now(), user: myNameRec.name};
 }
 /**
  * push a record that action has been taken on to the end of the history log
@@ -1084,7 +1087,7 @@ function timestamp() {
  * @param {String} action
  */
 function logHistory(action, actor) {
-	yHistory.push([{ action: action, time: Date.now(), user: (actor ? actor : myNameRec.name) }]);
+	yHistory.push([{action: action, time: Date.now(), user: actor ? actor : myNameRec.name}]);
 	dirty = true;
 }
 
@@ -2747,10 +2750,20 @@ function showNodeData() {
 	elem('node-notes').className = 'notes';
 	let editor = new Quill('#node-notes', {
 		modules: {
-			toolbar: [[{header: [1, 2, false]}], ['bold', 'italic', 'underline']],
+			toolbar: [
+				'bold',
+				'italic',
+				'underline',
+				'link',
+				{list: 'ordered'},
+				{list: 'bullet'},
+				{indent: '-1'},
+				{indent: '+1'},
+			],
 		},
 		placeholder: 'Notes',
-		theme: 'bubble',
+		theme: 'snow',
+		readOnly: viewOnly,
 	});
 	if (node.note) {
 		if (node.note instanceof Object) editor.setContents(node.note);
@@ -2788,10 +2801,20 @@ function showEdgeData() {
 	} else elem('edgeModification').style.display = 'none';
 	let editor = new Quill('#edge-notes', {
 		modules: {
-			toolbar: [[{header: [1, 2, false]}], ['bold', 'italic', 'underline']],
+			toolbar: [
+				'bold',
+				'italic',
+				'underline',
+				'link',
+				{list: 'ordered'},
+				{list: 'bullet'},
+				{indent: '-1'},
+				{indent: '+1'},
+			],
 		},
 		placeholder: 'Notes',
-		theme: 'bubble',
+		theme: 'snow',
+		readOnly: viewOnly,
 	});
 	if (edge.note) {
 		if (edge.note instanceof Object) editor.setContents(edge.note);
@@ -2809,6 +2832,7 @@ function showEdgeData() {
 function hideNotes() {
 	elem('nodeDataPanel').classList.add('hide');
 	elem('edgeDataPanel').classList.add('hide');
+	document.querySelectorAll('.ql-toolbar').forEach((e) => e.remove());
 }
 // Statistics specific to a node
 function displayStatistics(nodeId) {
@@ -2927,19 +2951,25 @@ function ensureNotDrawing() {
 }
 
 function selectAllFactors() {
-	network.selectNodes(network.body.nodeIndices);
-	let selectedNodes = network.getSelectedNodes();
-	selectedNodes.forEach((nodeId) => {
+	selectFactors(data.nodes.getIds());
+}
+
+export function selectFactors(nodeIds) {
+	network.selectNodes(nodeIds);
+	nodeIds.forEach((nodeId) => {
 		let node = data.nodes.get(nodeId);
 		node.shadow = true;
 		data.nodes.update(node, 'dontBroadcast');
 	});
 }
 
-function selectAllEdges() {
-	network.selectEdges(network.body.edgeIndices);
-	let selectedEdges = network.getSelectedEdges();
-	selectedEdges.forEach((edgeId) => {
+function selectAllLinks() {
+	selectLinks(data.edges.getIds());
+}
+
+export function selectLinks(edgeIds) {
+	network.selectEdges(edgeIds);
+	edgeIds.forEach((edgeId) => {
 		let edge = data.edges.get(edgeId);
 		edge.shadow = true;
 		data.edges.update(edge, 'dontBroadcast');
@@ -3397,12 +3427,15 @@ function showAvatars() {
 			ava.appendChild(circle);
 			avatars.appendChild(ava);
 		} else {
-			ava.dataset.tooltip = nameRec.name;
+			// to avoid flashes, don't touch anything that is already correct
+			if (ava.dataset.tooltip != nameRec.name) ava.dataset.tooltip = nameRec.name;
 			let circle = ava.firstChild;
-			circle.style.backgroundColor = nameRec.color;
-			if (nameRec.anon) circle.style.borderColor = 'white';
-			circle.innerText = shortName;
-			circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
+			if (circle.style.backgroundColor != nameRec.color) circle.style.backgroundColor = nameRec.color;
+			let circleBorderColor = nameRec.anon ? 'white' : 'black';
+			if (circle.style.borderColor != circleBorderColor) circle.style.borderColor = circleBorderColor;
+			if (circle.innerText != shortName) circle.innerText = shortName;
+			let opacity = nameRec.asleep ? 0.2 : 1.0;
+			if (circle.style.opacity != opacity) circle.style.opacity = opacity;
 		}
 		currentAvatars.push(ava);
 
@@ -3498,7 +3531,10 @@ function mergeMaps(nodeList, edgeList) {
 			// if there is, check whether the label is the same
 			if (ANode.label != BNode.label) {
 				// if not, make a clone of the other node with a new id
-				logHistory(`Existing Factor label: ${ANode.label} does not match new label: ${BNode.label}. Factor with new label added.`, 'Merge');
+				logHistory(
+					`Existing Factor label: ${ANode.label} does not match new label: ${BNode.label}. Factor with new label added.`,
+					'Merge'
+				);
 				// generate a new id for BNode.  change border to dashed red.  Add it to the map
 				let newNode = deepCopy(BNode);
 				newNode.id = uuidv4();
@@ -3516,7 +3552,8 @@ function mergeMaps(nodeList, edgeList) {
 			} else if (ANode.grp != BNode.grp)
 				// label is the same, but style is not - just report this
 				logHistory(
-					`Existing style: ${ANode.grp} does not match new style: ${BNode.grp} for Factor: ${ANode.label}. Existing style retained.`, 'Merge'
+					`Existing style: ${ANode.grp} does not match new style: ${BNode.grp} for Factor: ${ANode.label}. Existing style retained.`,
+					'Merge'
 				);
 		} else {
 			// the node is on the other map, but not on this one - add it.
@@ -3549,7 +3586,8 @@ function mergeMaps(nodeList, edgeList) {
 			logHistory(
 				`Added Link between new Factor(s): ${data.nodes.get(newEdge.from).label} to ${
 					data.nodes.get(newEdge.to).label
-				}`, 'Merge'
+				}`,
+				'Merge'
 			);
 		}
 		// now deal with the other map's edge
@@ -3557,10 +3595,14 @@ function mergeMaps(nodeList, edgeList) {
 		let edgeName = BEdge.label || `from ${bdata.nodes.get(BEdge.from).label} to ${bdata.nodes.get(BEdge.to).label}`;
 		if (AEdge) {
 			if (AEdge.label != BEdge.label)
-				logHistory(`Existing Link label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}.  Existing label retained.`, 'Merge');
+				logHistory(
+					`Existing Link label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}.  Existing label retained.`,
+					'Merge'
+				);
 			else if (AEdge.grp != BEdge.grp)
 				logHistory(
-					`Existing Link style: ${AEdge.grp} does not match new style: ${BEdge.grp} for edge ${edgeName}. Existing style retained.`, 'Merge'
+					`Existing Link style: ${AEdge.grp} does not match new style: ${BEdge.grp} for edge ${edgeName}. Existing style retained.`,
+					'Merge'
 				);
 		} else {
 			data.edges.add(BEdge);

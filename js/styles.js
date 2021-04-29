@@ -11,7 +11,7 @@ import {
 	statusMsg,
 	clearStatusBar,
 } from './utils.js';
-import {updateLastSamples, cp} from './prsm.js';
+import {network, data, selectFactors, selectLinks, updateLastSamples, cp} from './prsm.js';
 import {styles} from './samples.js';
 
 const NODESTYLEWIDTH = 10; // chars for label splitting
@@ -50,6 +50,9 @@ export function setUpSamples() {
 		});
 		sampleElement.addEventListener('click', () => {
 			updateLastSamples(groupId, null);
+		});
+		sampleElement.addEventListener('contextmenu', (event) => {
+			styleNodeContextMenu(event, sampleElement, groupId);
 		});
 		sampleElement.groupNode = groupId;
 		sampleElement.dataSet = nodeDataSet;
@@ -99,6 +102,9 @@ export function setUpSamples() {
 		sampleElement.addEventListener('click', () => {
 			updateLastSamples(null, groupId);
 		});
+		sampleElement.addEventListener('contextmenu', (event) => {
+			styleEdgeContextMenu(event, sampleElement, groupId);
+		});
 		sampleElement.groupLink = groupId;
 		sampleElement.dataSet = edgeDataSet;
 	}
@@ -122,6 +128,95 @@ export function setUpSamples() {
 	listen('linkEditDashes', 'input', linkEditSave);
 	listen('linkEditArrows', 'change', linkEditSave);
 	listen('linkEditSubmit', 'click', linkEditSubmit);
+}
+
+function styleNodeContextMenu(event, sampleElement, groupId) {
+	let menu = elem('styleNodeContextMenu');
+	event.preventDefault();
+	showMenu(event.pageX, event.pageY);
+	document.addEventListener('click', onClick, false);
+
+	function onClick(event) {
+		hideMenu();
+		document.removeEventListener('click', onClick);
+		switch (event.target.dataset.option) {
+			case 'select':
+				selectFactorsWithStyle(groupId);
+				break;
+			case 'hide':
+				hideFactorsWithStyle(groupId, true);
+				event.target.innerText = 'Unhide Factors';
+				event.target.dataset.option = 'unhide';
+				sampleElement.style.opacity = 0.6;
+				break;
+			case 'unhide':
+				hideFactorsWithStyle(groupId, false);
+				event.target.innerText = 'Hide Factors';
+				event.target.dataset.option = 'hide';
+				sampleElement.style.opacity = 1.0;
+				break;
+			default:
+				console.log('Bad option in styleContextMenu');
+		}
+	}
+	function showMenu(x, y) {
+		menu.style.left = x + 'px';
+		menu.style.top = y + 'px';
+		menu.classList.add('show-menu');
+	}
+	function hideMenu() {
+		menu.classList.remove('show-menu');
+	}
+	function selectFactorsWithStyle(groupId) {
+		selectFactors(data.nodes.getIds({filter: (node) => node.grp == groupId}));
+	}
+	function hideFactorsWithStyle(groupId, toggle) {
+		let nodes = data.nodes.get({filter: (node) => node.grp == groupId});
+		nodes.forEach((node) => {
+			node.hidden = toggle;
+		});
+		data.nodes.update(nodes);
+		let edges = [];
+		nodes.forEach((node) => {
+			let connectedEdges = network.getConnectedEdges(node.id);
+			connectedEdges.forEach((edgeId) => {
+				edges.push(data.edges.get(edgeId));
+			});
+			edges.forEach((edge) => {
+				edge.hidden = toggle;
+			});
+			data.edges.update(edges);
+		});
+	}
+}
+function styleEdgeContextMenu(event, sampleElement, groupId) {
+	let menu = elem('styleEdgeContextMenu');
+	event.preventDefault();
+	showMenu(event.pageX, event.pageY);
+	document.addEventListener('click', onClick, false);
+
+	function onClick(event) {
+		hideMenu();
+		document.removeEventListener('click', onClick);
+		switch (event.target.dataset.option) {
+			case 'select':
+				selectLinksWithStyle(groupId);
+				break;
+			default:
+				console.log('Bad option in styleContextMenu');
+		}
+	}
+	function showMenu(x, y) {
+		menu.style.left = x + 'px';
+		menu.style.top = y + 'px';
+		menu.classList.add('show-menu');
+	}
+	function hideMenu() {
+		menu.classList.remove('show-menu');
+	}
+	function selectLinksWithStyle(groupId) {
+		selectLinks(data.edges.getIds({filter: (edge) => edge.grp == groupId}));
+	}
 }
 /**
  * assemble configurations by merging the specifics into the default
@@ -207,20 +302,11 @@ function editNodeStyle(styleElement, groupId) {
 function updateNodeEditor(groupId) {
 	let group = styles.nodes[groupId];
 	elem('nodeEditName').value = group.groupLabel;
-	elem('nodeEditFillColor').style.backgroundColor = standardize_color(
-		group.color.background
-	);
-	elem('nodeEditBorderColor').style.backgroundColor = standardize_color(
-		group.color.border
-	);
-	elem('nodeEditFontColor').style.backgroundColor = standardize_color(
-		group.font.color
-	);
+	elem('nodeEditFillColor').style.backgroundColor = standardize_color(group.color.background);
+	elem('nodeEditBorderColor').style.backgroundColor = standardize_color(group.color.border);
+	elem('nodeEditFontColor').style.backgroundColor = standardize_color(group.font.color);
 	elem('nodeEditShape').value = group.shape;
-	elem('nodeEditBorder').value = getDashes(
-		group.shapeProperties.borderDashes,
-		group.borderWidth
-	);
+	elem('nodeEditBorder').value = getDashes(group.shapeProperties.borderDashes, group.borderWidth);
 	elem('nodeEditFontSize').value = group.font.size;
 }
 /**
@@ -299,7 +385,7 @@ function nodeEditSubmit() {
 		clientID: window.clientId,
 	});
 	updateLegend();
-	window.network.redraw();
+	network.redraw();
 }
 /**
  * update all nodes in the map with this style to the current style features
@@ -307,16 +393,14 @@ function nodeEditSubmit() {
  * @param {Boolean} force override any existing individual node styling
  */
 export function reApplySampleToNodes(groupIds, force) {
-	let nodesToUpdate = window.data.nodes.get({
+	let nodesToUpdate = data.nodes.get({
 		filter: (item) => {
 			return groupIds.includes(item.grp);
 		},
 	});
-	window.data.nodes.update(
+	data.nodes.update(
 		nodesToUpdate.map((node) => {
-			return force
-				? deepMerge(node, styles.nodes[node.grp])
-				: deepMerge(styles.nodes[node.grp], node);
+			return force ? deepMerge(node, styles.nodes[node.grp]) : deepMerge(styles.nodes[node.grp], node);
 		})
 	);
 }
@@ -344,9 +428,7 @@ function editLinkStyle(styleElement, groupId) {
 function updateLinkEditor(groupId) {
 	let group = styles.edges[groupId];
 	elem('linkEditName').value = group.groupLabel;
-	elem('linkEditLineColor').style.backgroundColor = standardize_color(
-		group.color.color
-	);
+	elem('linkEditLineColor').style.backgroundColor = standardize_color(group.color.color);
 	elem('linkEditWidth').value = group.width;
 	elem('linkEditDashes').value = getDashes(group.dashes, 1);
 	elem('linkEditArrows').value = getArrows(group.arrows);
@@ -434,7 +516,7 @@ function linkEditSubmit() {
 		clientID: window.clientId,
 	});
 	updateLegend();
-	window.network.redraw();
+	network.redraw();
 }
 /**
  * update all links in the map with this style to the current style features
@@ -442,16 +524,14 @@ function linkEditSubmit() {
  * @param {Boolean} force override any existing individual edge styling
  */
 export function reApplySampleToLinks(groupIds, force) {
-	let edgesToUpdate = window.data.edges.get({
+	let edgesToUpdate = data.edges.get({
 		filter: (item) => {
 			return groupIds.includes(item.grp);
 		},
 	});
-	window.data.edges.update(
+	data.edges.update(
 		edgesToUpdate.map((edge) => {
-			return force
-				? deepMerge(edge, styles.edges[edge.grp])
-				: deepMerge(styles.edges[edge.grp], edge);
+			return force ? deepMerge(edge, styles.edges[edge.grp]) : deepMerge(styles.edges[edge.grp], edge);
 		})
 	);
 }
@@ -512,21 +592,14 @@ export function legend(warn = false) {
 	clearLegend();
 
 	let sampleNodeDivs = document.getElementsByClassName('sampleNode');
-	let nodes = Array.from(sampleNodeDivs).filter(
-		(elem) => elem.dataSet.get('1').groupLabel != 'Sample'
-	);
+	let nodes = Array.from(sampleNodeDivs).filter((elem) => elem.dataSet.get('1').groupLabel != 'Sample');
 	let sampleEdgeDivs = document.getElementsByClassName('sampleLink');
 	let edges = Array.from(sampleEdgeDivs).filter(
-		(elem) =>
-			!['Sample', '', ' '].includes(elem.dataSet.get('1').groupLabel)
+		(elem) => !['Sample', '', ' '].includes(elem.dataSet.get('1').groupLabel)
 	);
 	let nItems = nodes.length + edges.length;
 	if (nItems == 0) {
-		if (warn)
-			statusMsg(
-				'Nothing to include in the Legend - rename some styles first',
-				'warn'
-			);
+		if (warn) statusMsg('Nothing to include in the Legend - rename some styles first', 'warn');
 		document.getElementById('showLegendSwitch').checked = false;
 		return;
 	}
