@@ -11,7 +11,7 @@ import {
 	statusMsg,
 	clearStatusBar,
 } from './utils.js';
-import {network, data, selectFactors, selectLinks, updateLastSamples, cp} from './prsm.js';
+import {network, data, ySamplesMap, clientId, selectFactors, selectLinks, updateLastSamples, cp} from './prsm.js';
 import {styles} from './samples.js';
 
 const NODESTYLEWIDTH = 10; // chars for label splitting
@@ -139,27 +139,23 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 	function onClick(event) {
 		hideMenu();
 		document.removeEventListener('click', onClick);
-		switch (event.target.dataset.option) {
-			case 'select':
-				selectFactorsWithStyle(groupId);
-				break;
-			case 'hide':
+		if (event.target.id == 'styleNodeContextMenuSelect') {
+			selectFactorsWithStyle(groupId);
+		} else if (event.target.id == 'styleNodeContextMenuHide') {
+			if (sampleElement.dataset.hide != 'hidden') {
 				hideFactorsWithStyle(groupId, true);
-				event.target.innerText = 'Unhide Factors';
-				event.target.dataset.option = 'unhide';
+				sampleElement.dataset.hide = 'hidden';
 				sampleElement.style.opacity = 0.6;
-				break;
-			case 'unhide':
+			} else {
 				hideFactorsWithStyle(groupId, false);
-				event.target.innerText = 'Hide Factors';
-				event.target.dataset.option = 'hide';
+				sampleElement.dataset.hide = 'visible';
 				sampleElement.style.opacity = 1.0;
-				break;
-			default:
-				console.log('Bad option in styleContextMenu');
-		}
+			}
+		} else console.log('Bad option in styleContextMenu',event.target.id );
 	}
 	function showMenu(x, y) {
+		elem('styleNodeContextMenuHide').innerText =
+			sampleElement.dataset.hide == 'hidden' ? 'Unhide Factors' : 'Hide Factors';
 		menu.style.left = x + 'px';
 		menu.style.top = y + 'px';
 		menu.classList.add('show-menu');
@@ -198,13 +194,10 @@ function styleEdgeContextMenu(event, sampleElement, groupId) {
 	function onClick(event) {
 		hideMenu();
 		document.removeEventListener('click', onClick);
-		switch (event.target.dataset.option) {
-			case 'select':
-				selectLinksWithStyle(groupId);
-				break;
-			default:
-				console.log('Bad option in styleContextMenu');
+		if (event.target.id == "styleEdgeContextMenuSelect") {
+			selectLinksWithStyle(groupId);
 		}
+		else console.log('Bad option in styleContextMenu', event.target.id);
 	}
 	function showMenu(x, y) {
 		menu.style.left = x + 'px';
@@ -380,9 +373,9 @@ function nodeEditSubmit() {
 	// apply updated style to all nodes having that style
 	let groupId = elem('nodeStyleEditorContainer').groupId;
 	reApplySampleToNodes([groupId], true);
-	window.ySamplesMap.set(groupId, {
+	ySamplesMap.set(groupId, {
 		node: styles.nodes[groupId],
-		clientID: window.clientId,
+		clientID: clientId,
 	});
 	updateLegend();
 	network.redraw();
@@ -511,9 +504,9 @@ function linkEditSubmit() {
 	// apply updated style to all edges having that style
 	let groupId = elem('linkStyleEditorContainer').groupId;
 	reApplySampleToLinks([groupId], true);
-	window.ySamplesMap.set(groupId, {
+	ySamplesMap.set(groupId, {
 		edge: styles.edges[groupId],
-		clientID: window.clientId,
+		clientID: clientId,
 	});
 	updateLegend();
 	network.redraw();
@@ -699,6 +692,3 @@ export function updateLegend() {
 		clearStatusBar();
 	}
 }
-// to aid debugging
-window.legend = legend;
-window.legendData = legendData;

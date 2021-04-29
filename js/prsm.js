@@ -53,10 +53,10 @@ var edges; // a dataset of edges
 export var data; // an object with the nodes and edges datasets as properties
 const doc = new Y.Doc();
 var websocket = 'wss://cress.soc.surrey.ac.uk/wss'; // web socket server URL
-var clientID; // unique ID for this browser
+export var clientID; // unique ID for this browser
 var yNodesMap; // shared map of nodes
 var yEdgesMap; // shared map of edges
-var ySamplesMap; // shared map of styles
+export  var ySamplesMap; // shared map of styles
 var yNetMap; // shared map of global network settings
 export var yPointsArray; // shared array of the background drawing commands
 var yUndoManager; // shared list of commands for undo
@@ -2955,12 +2955,13 @@ function selectAllFactors() {
 }
 
 export function selectFactors(nodeIds) {
-	network.selectNodes(nodeIds);
+	network.selectNodes(nodeIds, false);
 	nodeIds.forEach((nodeId) => {
 		let node = data.nodes.get(nodeId);
 		node.shadow = true;
 		data.nodes.update(node, 'dontBroadcast');
 	});
+	showSelected();
 }
 
 function selectAllLinks() {
@@ -2974,6 +2975,7 @@ export function selectLinks(edgeIds) {
 		edge.shadow = true;
 		data.edges.update(edge, 'dontBroadcast');
 	});
+	showSelected();
 }
 
 function legendSwitch(e) {
