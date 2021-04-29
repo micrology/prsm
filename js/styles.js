@@ -52,7 +52,7 @@ export function setUpSamples() {
 			updateLastSamples(groupId, null);
 		});
 		sampleElement.addEventListener('contextmenu', (event) => {
-			styleContextMenu(event, sampleElement, groupId);
+			styleNodeContextMenu(event, sampleElement, groupId);
 		});
 		sampleElement.groupNode = groupId;
 		sampleElement.dataSet = nodeDataSet;
@@ -102,6 +102,9 @@ export function setUpSamples() {
 		sampleElement.addEventListener('click', () => {
 			updateLastSamples(null, groupId);
 		});
+		sampleElement.addEventListener('contextmenu', (event) => {
+			styleEdgeContextMenu(event, sampleElement, groupId);
+		});
 		sampleElement.groupLink = groupId;
 		sampleElement.dataSet = edgeDataSet;
 	}
@@ -127,8 +130,8 @@ export function setUpSamples() {
 	listen('linkEditSubmit', 'click', linkEditSubmit);
 }
 
-function styleContextMenu(event, sampleElement, groupId) {
-	let menu = elem('styleContextMenu');
+function styleNodeContextMenu(event, sampleElement, groupId) {
+	let menu = elem('styleNodeContextMenu');
 	event.preventDefault();
 	showMenu(event.pageX, event.pageY);
 	document.addEventListener('click', onClick, false);
@@ -168,18 +171,51 @@ function styleContextMenu(event, sampleElement, groupId) {
 		selectFactors(data.nodes.getIds({filter: (node) => node.grp == groupId}));
 	}
 	function hideFactorsWithStyle(groupId, toggle) {
-		let nodes = data.nodes.get({ filter: (node) => node.grp == groupId });
-		nodes.forEach((node) => { node.hidden = toggle });
+		let nodes = data.nodes.get({filter: (node) => node.grp == groupId});
+		nodes.forEach((node) => {
+			node.hidden = toggle;
+		});
 		data.nodes.update(nodes);
 		let edges = [];
 		nodes.forEach((node) => {
 			let connectedEdges = network.getConnectedEdges(node.id);
-			connectedEdges.forEach((edgeId) => { edges.push(data.edges.get(edgeId)) })
-			edges.forEach((edge) => { edge.hidden = toggle });
-			data.edges.update(edges)
-		}
-)
+			connectedEdges.forEach((edgeId) => {
+				edges.push(data.edges.get(edgeId));
+			});
+			edges.forEach((edge) => {
+				edge.hidden = toggle;
+			});
+			data.edges.update(edges);
+		});
+	}
+}
+function styleEdgeContextMenu(event, sampleElement, groupId) {
+	let menu = elem('styleEdgeContextMenu');
+	event.preventDefault();
+	showMenu(event.pageX, event.pageY);
+	document.addEventListener('click', onClick, false);
 
+	function onClick(event) {
+		hideMenu();
+		document.removeEventListener('click', onClick);
+		switch (event.target.dataset.option) {
+			case 'select':
+				selectLinksWithStyle(groupId);
+				break;
+			default:
+				console.log('Bad option in styleContextMenu');
+		}
+	}
+	function showMenu(x, y) {
+		menu.style.left = x + 'px';
+		menu.style.top = y + 'px';
+		menu.classList.add('show-menu');
+	}
+	function hideMenu() {
+		menu.classList.remove('show-menu');
+	}
+	function selectLinksWithStyle(groupId) {
+		selectLinks(data.edges.getIds({filter: (edge) => edge.grp == groupId}));
 	}
 }
 /**

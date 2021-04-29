@@ -34,7 +34,7 @@ import Quill from 'quill';
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.6.7';
+const version = '1.6.8';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
