@@ -451,7 +451,7 @@
 						<div class="sampleLink" id="linkSample9"></div>
 					</div>
 					<div class="panelRow centered">
-						<button type="button" class="btn" id="allEdges">Select all links</button>
+						<button type="button" class="btn" id="allLinks">Select all links</button>
 					</div>
 				</div>
 			</div>
@@ -484,8 +484,8 @@
 			</div>
 			<div class="row">
 				<div class="edit-container">
-				<div class="notes" id="node-notes"></div>
-			</div>
+					<div class="notes" id="node-notes"></div>
+				</div>
 			</div>
 		</div>
 		<div class="itemData hide" id="edgeDataPanel">
@@ -503,7 +503,9 @@
 				<div id="edgeModified"></div>
 			</div>
 			<div class="row">
-				<div class="notes" id="edge-notes"></div>
+				<div class="edit-container">
+					<div class="notes" id="edge-notes"></div>
+				</div>
 			</div>
 		</div>
 		<footer data-tutorial="Hints and messages appear here" data-step="9" data-position="above">
@@ -683,10 +685,11 @@
 					<!-- Messages stream appears here -->
 				</div>
 				<div class="chat-users-menu">
-					<div>To:&nbsp;
-					<select class="chat-users" id="chat-users">
-						<option value="">Everyone</option>
-					</select>
+					<div>
+						To:&nbsp;
+						<select class="chat-users" id="chat-users">
+							<option value="">Everyone</option>
+						</select>
 					</div>
 					<div class="tooltip">
 						<button class="emoji" id="emoji-button">&#128512;</button>
@@ -715,6 +718,14 @@
 			width="24"
 			height="24"
 		/>
+		<ol class="contextmenu" id="styleContextMenu">
+			<li class="menu-item">
+			  <button type="button" class="menu-btn"> <span class="menu-text" data-option="select">Select Factors</span> </button>
+			</li>
+			<li class="menu-item">
+				<button type="button" class="menu-btn"> <span class="menu-text" data-option="hide">Hide Factors</span> </button>
+			  </li>
+			</ol>
 		<script src="../js/prsm.js"></script>
 	</body>
 </html>

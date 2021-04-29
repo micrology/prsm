@@ -50,7 +50,7 @@ var debug = []; // if includes 'yjs', all yjs sharing interactions are logged to
 var viewOnly; // when true, user can only view, not modify, the network
 var nodes; // a dataset of nodes
 var edges; // a dataset of edges
-var data; // an object with the nodes and edges datasets as properties
+export var data; // an object with the nodes and edges datasets as properties
 const doc = new Y.Doc();
 var websocket = 'wss://cress.soc.surrey.ac.uk/wss'; // web socket server URL
 var clientID; // unique ID for this browser
@@ -154,7 +154,7 @@ function addEventListeners() {
 	listen('snaptogridswitch', 'click', snapToGridSwitch);
 	listen('drawing', 'click', toggleDrawingLayer);
 	listen('allFactors', 'click', selectAllFactors);
-	listen('allEdges', 'click', selectAllEdges);
+	listen('allLinks', 'click', selectAllLinks);
 	listen('showLegendSwitch', 'click', legendSwitch);
 	listen('showCursorSwitch', 'click', showCursorSwitch);
 	listen('showHistorySwitch', 'click', showHistorySwitch);
@@ -820,12 +820,10 @@ function draw() {
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
 		if (window.debug.includes('gui')) console.log('doubleClick');
-		if (!viewOnly) {
-			if (params.nodes.length === 1) {
-				if (!inEditMode && !data.nodes.get(params.nodes[0]).locked) network.editNode();
-			} else if (params.edges.length === 1) {
-				if (!inEditMode) network.editEdgeMode();
-			}
+		if (params.nodes.length === 1) {
+			if (!viewOnly && !inEditMode && !data.nodes.get(params.nodes[0]).locked) network.editNode();
+		} else if (params.edges.length === 1) {
+			if (!viewOnly && !inEditMode) network.editEdgeMode();
 		} else {
 			fit();
 		}
@@ -2753,10 +2751,14 @@ function showNodeData() {
 	let editor = new Quill('#node-notes', {
 		modules: {
 			toolbar: [
-				'bold', 'italic', 'underline',
+				'bold',
+				'italic',
+				'underline',
 				'link',
-				{list: 'ordered'}, {list: 'bullet'},
-				{indent: '-1'}, {indent: '+1'},
+				{list: 'ordered'},
+				{list: 'bullet'},
+				{indent: '-1'},
+				{indent: '+1'},
 			],
 		},
 		placeholder: 'Notes',
@@ -2799,10 +2801,19 @@ function showEdgeData() {
 	} else elem('edgeModification').style.display = 'none';
 	let editor = new Quill('#edge-notes', {
 		modules: {
-			toolbar: [[{header: [1, 2, false]}], ['bold', 'italic', 'underline']],
+			toolbar: [
+				'bold',
+				'italic',
+				'underline',
+				'link',
+				{list: 'ordered'},
+				{list: 'bullet'},
+				{indent: '-1'},
+				{indent: '+1'},
+			],
 		},
 		placeholder: 'Notes',
-		theme: 'bubble',
+		theme: 'snow',
 		readOnly: viewOnly,
 	});
 	if (edge.note) {
@@ -2940,19 +2951,25 @@ function ensureNotDrawing() {
 }
 
 function selectAllFactors() {
-	network.selectNodes(network.body.nodeIndices);
-	let selectedNodes = network.getSelectedNodes();
-	selectedNodes.forEach((nodeId) => {
+	selectFactors(data.nodes.getIds());
+}
+
+export function selectFactors(nodeIds) {
+	network.selectNodes(nodeIds);
+	nodeIds.forEach((nodeId) => {
 		let node = data.nodes.get(nodeId);
 		node.shadow = true;
 		data.nodes.update(node, 'dontBroadcast');
 	});
 }
 
-function selectAllEdges() {
-	network.selectEdges(network.body.edgeIndices);
-	let selectedEdges = network.getSelectedEdges();
-	selectedEdges.forEach((edgeId) => {
+function selectAllLinks() {
+	selectLinks(data.edges.getIds());
+}
+
+export function selectLinks(edgeIds) {
+	network.selectEdges(edgeIds);
+	edgeIds.forEach((edgeId) => {
 		let edge = data.edges.get(edgeId);
 		edge.shadow = true;
 		data.edges.update(edge, 'dontBroadcast');
