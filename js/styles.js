@@ -11,7 +11,17 @@ import {
 	statusMsg,
 	clearStatusBar,
 } from './utils.js';
-import {network, data, ySamplesMap, yNetMap, clientId, selectFactors, selectLinks, updateLastSamples, cp} from './prsm.js';
+import {
+	network,
+	data,
+	ySamplesMap,
+	yNetMap,
+	clientID,
+	selectFactors,
+	selectLinks,
+	updateLastSamples,
+	cp,
+} from './prsm.js';
 import {styles} from './samples.js';
 
 const NODESTYLEWIDTH = 10; // chars for label splitting
@@ -131,6 +141,12 @@ export function setUpSamples() {
 }
 
 var factorsHiddenByStyle = {};
+listen('nodesTab', 'contextmenu', (e) => {
+	e.preventDefault();
+});
+listen('linksTab', 'contextmenu', (e) => {
+	e.preventDefault();
+});
 
 function styleNodeContextMenu(event, sampleElement, groupId) {
 	let menu = elem('styleNodeContextMenu');
@@ -153,7 +169,7 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 				sampleElement.dataset.hide = 'visible';
 				sampleElement.style.opacity = 1.0;
 			}
-		} else console.log('Bad option in styleContextMenu',event.target.id );
+		} else console.log('Bad option in styleContextMenu', event.target.id);
 	}
 	function showMenu(x, y) {
 		elem('styleNodeContextMenuHide').innerText =
@@ -198,10 +214,9 @@ function styleEdgeContextMenu(event, sampleElement, groupId) {
 	function onClick(event) {
 		hideMenu();
 		document.removeEventListener('click', onClick);
-		if (event.target.id == "styleEdgeContextMenuSelect") {
+		if (event.target.id == 'styleEdgeContextMenuSelect') {
 			selectLinksWithStyle(groupId);
-		}
-		else console.log('Bad option in styleContextMenu', event.target.id);
+		} else console.log('Bad option in styleContextMenu', event.target.id);
 	}
 	function showMenu(x, y) {
 		menu.style.left = x + 'px';
@@ -379,7 +394,7 @@ function nodeEditSubmit() {
 	reApplySampleToNodes([groupId], true);
 	ySamplesMap.set(groupId, {
 		node: styles.nodes[groupId],
-		clientID: clientId,
+		clientID: clientID,
 	});
 	updateLegend();
 	network.redraw();
@@ -510,7 +525,7 @@ function linkEditSubmit() {
 	reApplySampleToLinks([groupId], true);
 	ySamplesMap.set(groupId, {
 		edge: styles.edges[groupId],
-		clientID: clientId,
+		clientID: clientID,
 	});
 	updateLegend();
 	network.redraw();
