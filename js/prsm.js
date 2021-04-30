@@ -56,8 +56,8 @@ var websocket = 'wss://cress.soc.surrey.ac.uk/wss'; // web socket server URL
 export var clientID; // unique ID for this browser
 var yNodesMap; // shared map of nodes
 var yEdgesMap; // shared map of edges
-export  var ySamplesMap; // shared map of styles
-var yNetMap; // shared map of global network settings
+export var ySamplesMap; // shared map of styles
+export var yNetMap; // shared map of global network settings
 export var yPointsArray; // shared array of the background drawing commands
 var yUndoManager; // shared list of commands for undo
 var yChatArray; // shared array of messages in the chat window
@@ -418,6 +418,9 @@ function startY() {
 				case 'stream':
 				case 'linkRadius':
 					// old settings (before v1.6) - ignore
+					break;
+				case 'factorsHiddenByStyle':
+					updateFactorsHiddenByStyle(obj);
 					break;
 				default:
 					console.log('Bad key in yMapNet.observe: ', key);
@@ -2764,6 +2767,7 @@ function showNodeData() {
 		placeholder: 'Notes',
 		theme: 'snow',
 		readOnly: viewOnly,
+		bounds: elem('nodeDataPanel'),
 	});
 	if (node.note) {
 		if (node.note instanceof Object) editor.setContents(node.note);
@@ -2815,6 +2819,7 @@ function showEdgeData() {
 		placeholder: 'Notes',
 		theme: 'snow',
 		readOnly: viewOnly,
+		bounds: elem('edgeDataPanel'),
 	});
 	if (edge.note) {
 		if (edge.note instanceof Object) editor.setContents(edge.note);
@@ -3172,6 +3177,15 @@ function setHideAndStream(obj) {
 	}
 	setRadioVal('hide', obj.hideSetting);
 	setRadioVal('stream', obj.streamSetting);
+}
+
+function updateFactorsHiddenByStyle(obj) {
+	for (const sampleElementId in obj) {
+		let sampleElement = elem(sampleElementId);
+		let state = obj[sampleElementId];
+		sampleElement.dataset.hide = (state ? 'hidden' : 'visible');
+		sampleElement.style.opacity = (state ? 0.6 : 1.0);
+	}
 }
 
 function sizingSwitch(e) {

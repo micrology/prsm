@@ -11,7 +11,7 @@ import {
 	statusMsg,
 	clearStatusBar,
 } from './utils.js';
-import {network, data, ySamplesMap, clientId, selectFactors, selectLinks, updateLastSamples, cp} from './prsm.js';
+import {network, data, ySamplesMap, yNetMap, clientId, selectFactors, selectLinks, updateLastSamples, cp} from './prsm.js';
 import {styles} from './samples.js';
 
 const NODESTYLEWIDTH = 10; // chars for label splitting
@@ -130,6 +130,8 @@ export function setUpSamples() {
 	listen('linkEditSubmit', 'click', linkEditSubmit);
 }
 
+var factorsHiddenByStyle = {};
+
 function styleNodeContextMenu(event, sampleElement, groupId) {
 	let menu = elem('styleNodeContextMenu');
 	event.preventDefault();
@@ -183,6 +185,8 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 			});
 			data.edges.update(edges);
 		});
+		factorsHiddenByStyle[sampleElement.id] = toggle;
+		yNetMap.set('factorsHiddenByStyle', factorsHiddenByStyle);
 	}
 }
 function styleEdgeContextMenu(event, sampleElement, groupId) {
