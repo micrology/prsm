@@ -422,6 +422,8 @@ function startY() {
 				case 'factorsHiddenByStyle':
 					updateFactorsHiddenByStyle(obj);
 					break;
+				case 'attributeTitles':
+					break;
 				default:
 					console.log('Bad key in yMapNet.observe: ', key);
 			}
@@ -2002,6 +2004,8 @@ function loadJSONfile(json) {
 	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
 	if (json.buttons) setButtonStatus(json.buttons);
 	if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle));
+	if (json.attributeTitles) yNetMap.set('attributeTitles', json.attributeTitles);
+	else yNetMap.set('attributeTitles', {});
 	if (json.edges.length > 0 && 'source' in json.edges[0]) {
 		// the file is from Gephi and needs to be translated
 		let parsed = parseGephiNetwork(json, {
@@ -2284,6 +2288,7 @@ function saveJSONfile() {
 			lastNodeSample: lastNodeSample,
 			lastLinkSample: lastLinkSample,
 			buttons: getButtonStatus(),
+			attributeTitles: yNetMap.get('attributeTitles'),
 			styles: styles,
 			nodes: data.nodes.map((n) =>
 				strip(n, [
@@ -2794,7 +2799,7 @@ function showEdgeData() {
 	let panel = elem('edgeDataPanel');
 	let edgeId = network.getSelectedEdges()[0];
 	let edge = data.edges.get(edgeId);
-	elem('edgeLabel').innerHTML = edge.label.trim() ? shorten(edge.label) : 'Link';
+	elem('edgeLabel').innerHTML = edge.label && edge.label.trim() ? shorten(edge.label) : 'Link';
 	if (edge.created) {
 		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${edge.created.user}`;
 		elem('edgeCreation').style.display = 'flex';
