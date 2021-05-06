@@ -1921,74 +1921,77 @@ function openFile() {
 }
 /**
  * determine what kind of file it is, parse it and replace any current map with the one read from the file
- * @param {string} contents
+ * @param {string} contents - what is in the file
  */
 function loadFile(contents) {
 	if (data.nodes.length > 0)
 		if (!confirm('Loading a file will delete the current network.  Are you sure you want to replace it?')) return;
-	unSelect();
-	ensureNotDrawing();
-	network.destroy();
-	checkMapSaved = true;
-	nodes.clear();
-	edges.clear();
-	draw();
+	// load the file as one single yjs transaction to reduce server traffic
+	doc.transact(() => {
+		unSelect();
+		ensureNotDrawing();
+		network.destroy();
+		checkMapSaved = true;
+		nodes.clear();
+		edges.clear();
+		draw();
 
-	switch (lastFileName.split('.').pop().toLowerCase()) {
-		case 'csv':
-			data = parseCSV(contents);
-			break;
-		case 'graphml':
-			data = parseGraphML(contents);
-			break;
-		case 'gml':
-			data = parseGML(contents);
-			break;
-		case 'json':
-		case 'prsm':
-			data = loadJSONfile(contents);
-			break;
-		default:
-			throw {message: 'Unrecognised file name suffix'};
-	}
-	network.setOptions({
-		interaction: {
-			hideEdgesOnDrag: data.nodes.length > 100,
-			hideEdgesOnZoom: data.nodes.length > 100,
-		},
-	});
-	let nodesToUpdate = [];
-	data.nodes.get().forEach((n) => {
-		// ensure that all nodes have a grp property (converting 'group' property for old format files)
-		if (!n.grp) n.grp = n.group ? 'group' + (n.group % 9) : 'group0';
-		// reassign the sample properties to the nodes
-		n = deepMerge(styles.nodes[n.grp], n);
-		// version 1.6 made changes to label scaling
-		n.scaling = {
-			label: {enabled: false, max: 40, min: 10},
-			max: 100,
-			min: 10,
-		};
-		nodesToUpdate.push(n);
-	});
-	data.nodes.update(nodesToUpdate);
+		switch (lastFileName.split('.').pop().toLowerCase()) {
+			case 'csv':
+				data = parseCSV(contents);
+				break;
+			case 'graphml':
+				data = parseGraphML(contents);
+				break;
+			case 'gml':
+				data = parseGML(contents);
+				break;
+			case 'json':
+			case 'prsm':
+				data = loadJSONfile(contents);
+				break;
+			default:
+				throw { message: 'Unrecognised file name suffix' };
+		}
+		network.setOptions({
+			interaction: {
+				hideEdgesOnDrag: data.nodes.length > 100,
+				hideEdgesOnZoom: data.nodes.length > 100,
+			},
+		});
+		let nodesToUpdate = [];
+		data.nodes.get().forEach((n) => {
+			// ensure that all nodes have a grp property (converting 'group' property for old format files)
+			if (!n.grp) n.grp = n.group ? 'group' + (n.group % 9) : 'group0';
+			// reassign the sample properties to the nodes
+			n = deepMerge(styles.nodes[n.grp], n);
+			// version 1.6 made changes to label scaling
+			n.scaling = {
+				label: { enabled: false, max: 40, min: 10 },
+				max: 100,
+				min: 10,
+			};
+			nodesToUpdate.push(n);
+		});
+		data.nodes.update(nodesToUpdate);
 
-	// same for edges
-	let edgesToUpdate = [];
-	data.edges.get().forEach((e) => {
-		// ensure that all edges have a grp property (converting 'group' property for old format files)
-		if (!e.grp) e.grp = e.group ? 'edge' + (e.group % 9) : 'edge0';
-		// reassign the sample properties to the edges
-		e = deepMerge(styles.edges[e.grp], e);
-		edgesToUpdate.push(e);
-	});
-	data.edges.update(edgesToUpdate);
+		// same for edges
+		let edgesToUpdate = [];
+		data.edges.get().forEach((e) => {
+			// ensure that all edges have a grp property (converting 'group' property for old format files)
+			if (!e.grp) e.grp = e.group ? 'edge' + (e.group % 9) : 'edge0';
+			// reassign the sample properties to the edges
+			e = deepMerge(styles.edges[e.grp], e);
+			edgesToUpdate.push(e);
+		});
+		data.edges.update(edgesToUpdate);
 
-	network.fit(0);
-	yUndoManager.clear();
-	undoRedoButtonStatus();
-	updateLegend();
-	logHistory('loaded &lt;' + lastFileName + '&gt;');
+		network.fit(0);
+		yUndoManager.clear();
+		undoRedoButtonStatus();
+		updateLegend();
+		logHistory('loaded &lt;' + lastFileName + '&gt;');
+	})
 }
 /**
  * Parse and load a PRSM map file, or a JSON file exported from Gephi
@@ -2039,7 +2042,6 @@ function loadJSONfile(json) {
 		styles.edges = json.styles.edges;
 		refreshSampleNodes();
 		refreshSampleLinks();
-		doc.transact(() => {
 			for (let groupId in styles.nodes) {
 				ySamplesMap.set(groupId, {
 					node: styles.nodes[groupId],
@@ -2050,7 +2052,6 @@ function loadJSONfile(json) {
 					edge: styles.edges[edgeId],
 				});
 			}
-		});
 	}
 	yPointsArray.delete(0, yPointsArray.length);
 	if (json.underlay) yPointsArray.insert(0, json.underlay);
