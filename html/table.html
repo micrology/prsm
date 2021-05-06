@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>PRSM: Table</title>
+		<meta
+			name="Description"
+			content="PRSM enables groups of people, each using their own computer (or tablet) 
+		to collaborate in the drawing of a map. They may be sitting around a table, discussing the map as it is 
+		created face to face, or working remotely, using video conferencing or the chat feature that is built 
+		into the app. Everyone can participate because every edit (creating nodes and links, arranging them 
+		and so on) is broadcast to all the other participants as the changes are made (just as Google Docs 
+		does for text, for example). When you start PRSM in your browser, a 'room' is created for you in which 
+		to draw your network. You can add other users to this room to share the work. Only those with access 
+		to the room can see what is being created."
+		/>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
+		/>
+		<link rel="icon" href="../img/prsm-logo.ico" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<style>
+			@font-face {
+				font-family: 'Oxygen';
+				src: url('../fonts/oxygen-regular-webfont.woff2') format('woff2');
+				font-weight: normal;
+				font-style: normal;
+				font-display: swap;
+			}
+			@font-face {
+				font-family: 'Oxygen';
+				src: url('../fonts/oxygen-bold-webfont.woff2') format('woff2');
+				font-weight: 700;
+				font-style: normal;
+				font-display: swap;
+			}
+		</style>
+		<script defer src="../node_modules/@fortawesome/fontawesome-free/js/solid.js"></script>
+		<script defer src="../node_modules/@fortawesome/fontawesome-free/js/fontawesome.js"></script>
+		<link href="../css/prsm.css" rel="stylesheet" />
+		<link
+			href="../node_modules/tabulator-tables/dist/css/semantic-ui/tabulator_semantic-ui.min.css"
+			rel="stylesheet"
+		/>
+		<style>
+			.table-tabs {
+				background-color: #f1f1f1;
+				padding: 0 8px;
+				margin-top: 4px;
+			}
+			.table-tabs button {
+				background-color: inherit;
+				float: left;
+				border: none;
+				outline: none;
+				cursor: pointer;
+				padding: 14px 36px;
+				border-bottom: 2px solid#f1f1f1;
+			}
+			.table-tabs button.active {
+				background-color: #ccc;
+				border-bottom: 2px solid black;
+			}
+			.table {
+				height: 100%;
+				background-color: white;
+			}
+			.tabulator-row {
+				background-color: white;
+			}
+			.grey {
+				font-weight: normal;
+				color: grey;
+			}
+		</style>
+	</head>
+
+	<body class="container" id="container">
+		<header>
+			<nav id="navbar">
+				<div>
+					<div class="strapline">Participatory System Mapper<span id="version">1.6.0</span></div>
+					<div class="maptitle unsetmaptitle" id="maptitle">Untitled map</div>
+				</div>
+				<div class="button-wrapper">
+					<div class="buttons" id="buttons">
+						<div class="tooltip">
+							<button id="col-insert">
+								<i class="fas fa-plus-square"></i></button
+							><span class="tooltiptext">Add an attrbute column</span>
+						</div>
+						<div class="tooltip">
+							<button id="undo" class="disabled">
+								<i class="fas fa-undo small-button"></i></button
+							><span class="tooltiptext">Undo</span>
+						</div>
+						<div class="tooltip">
+							<button id="redo" class="disabled">
+								<i class="fas fa-redo small-button"></i></button
+							><span class="tooltiptext">Redo</span>
+						</div>
+						<div
+							class="tooltip left-border"
+							data-tutorial="Search for factors"
+							data-step="6"
+							data-position="left"
+						>
+							<button id="search">
+								<i class="fas fa-search"></i>
+							</button>
+							<span class="tooltiptext searchtip">Search for factors by name</span>
+						</div>
+						<div
+							class="tooltip"
+							data-tutorial="Open a new window with more help"
+							data-step="7"
+							data-position="left"
+						>
+							<button id="help">
+								<i class="fas fa-question"></i>
+							</button>
+							<span class="tooltiptext">Show help in a new window</span>
+						</div>
+					</div>
+				</div>
+			</nav>
+			<input class="search-bar" id="search-bar" placeholder="Search..." />
+			<span class="search-icon fas fa-search" style="display: none" id="search-icon"></span>
+			<div id="suggestion-list"></div>
+		</header>
+		<div class="table-tabs">
+			<button class="table-tab" id="factors-table-tab" data-table="factors-table">Factors</button>
+			<button class="table-tab" id="links-table-tab" data-table="links-table">Links</button>
+		</div>
+		<div class="table" id="factors-table"></div>
+		<div class="table" id="links-table"></div>
+		<script src="../js/table.js" type="module"></script>
+	</body>
+</html>
