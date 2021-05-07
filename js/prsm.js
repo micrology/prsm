@@ -246,7 +246,9 @@ function startY() {
 	console.log('My client ID: ' + clientID);
 
 	/* set up the undo managers */
-	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap]);
+	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap], {
+		trackedOrigins: new Set([null])
+	  });
 	nodes = new DataSet();
 	edges = new DataSet();
 	data = {
@@ -277,6 +279,14 @@ function startY() {
 	 */
 	nodes.on('*', (event, properties, origin) => {
 		yjsTrace('nodes.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`);
+		let dontUndo = null;
+		properties.items.forEach((id) => {
+			let node = nodes.get(id);
+			if (node && node.edited) {
+				dontUndo = 'locked';
+				node.edited = false;
+			}
+		})
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
@@ -288,7 +298,8 @@ function startY() {
 					}
 				}
 			});
-		});
+		}, dontUndo);
+		console.log('dontUndo: ', dontUndo);
 	});
 	/* 
 	yNodesMap.observe listens for changes in the yMap, receiving a set of the keys that have
@@ -700,11 +711,13 @@ function draw() {
 				showPressed('addLink', 'remove');
 				if (item.from == item.to) {
 					callback(null);
+					stopEdit();
 					return;
 				}
 				if (duplEdge(item.from, item.to).length > 0) {
 					alert('There is already a link from this Factor to the other.');
 					callback(null);
+					stopEdit();
 					return;
 				}
 				item = deepMerge(item, styles.edges[lastLinkSample]);
@@ -1495,7 +1508,8 @@ function unlockNode(item) {
 	item.fixed = item.wasFixed;
 	item.oldLabel = undefined;
 	item.chosen = true;
-	data.nodes.update(item);
+	item.edited = true;
+//	data.nodes.update(item);
 	showNodeOrEdgeData();
 }
 /**

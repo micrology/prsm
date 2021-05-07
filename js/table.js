@@ -17,6 +17,7 @@ var yNodesMap; // shared map of nodes
 var yEdgesMap; // shared map of edges
 var ySamplesMap; // shared map of styles
 var yNetMap; // shared map of network state
+var yUndoManager; // shared list of commands for undo
 var factorsTable; // the factors table
 var linksTable; //the links table
 var initialising = true; // true until the tables have been loaded
@@ -88,6 +89,7 @@ function startY() {
 	yEdgesMap = doc.getMap('edges');
 	ySamplesMap = doc.getMap('samples');
 	yNetMap = doc.getMap('network');
+	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap]);
 
 	clientID = doc.clientID;
 	console.log('My client ID: ' + clientID);
@@ -204,6 +206,14 @@ function startY() {
 					break;
 			}
 		}
+	});
+	yUndoManager.on('stack-item-added', (event) => {
+		yjsTrace('yUndoManager.on stack-item-added', true, event);
+		undoRedoButtonStatus();
+	});
+	yUndoManager.on('stack-item-popped', (event) => {
+		yjsTrace('yUndoManager.on stack-item-popped', true, event);
+		undoRedoButtonStatus();
 	});
 } // end startY()
 
@@ -600,4 +610,30 @@ function deleteColumn(e, column) {
 	attributeTitles[column.getField()] = '*deleted*';
 	yNetMap.set('attributeTitles', attributeTitles);
 	column.delete();
+}
+
+listen('undo', 'click', undo);
+listen('redo', 'click', redo);
+
+function undo() {
+	yUndoManager.undo();
+}
+
+function redo() {
+	yUndoManager.redo();
+}
+
+function undoRedoButtonStatus() {
+	setButtonDisabledStatus('undo', yUndoManager.undoStack.length === 0);
+	setButtonDisabledStatus('redo', yUndoManager.redoStack.length === 0);
+}
+
+/**
+ * Change the visible state of a button
+ * @param {String} id
+ * @param {Boolean} state - true to make the button disabled
+ */
+function setButtonDisabledStatus(id, state) {
+	if (state) elem(id).classList.add('disabled');
+	else elem(id).classList.remove('disabled');
 }
