@@ -255,6 +255,10 @@ input[type='range'] {
 	display: none;
 	position: absolute;
 	z-index: 5000;
+	border: 1px solid grey;
+	background-color: lightgrey;
+	border-radius: 4px;
+	box-shadow: 2px 2px 5px 0 lighthrey;
 }
 /* ----- Top Navigation Bar ---------------------------------------------------------- */
 

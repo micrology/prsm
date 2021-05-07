@@ -60,6 +60,7 @@ export var ySamplesMap; // shared map of styles
 export var yNetMap; // shared map of global network settings
 export var yPointsArray; // shared array of the background drawing commands
 var yUndoManager; // shared list of commands for undo
+var dontUndo; // when non-null, don't add an item to the undo stack
 var yChatArray; // shared array of messages in the chat window
 var yAwareness; // awareness channel
 var yHistory; // log of actions
@@ -247,8 +248,10 @@ function startY() {
 
 	/* set up the undo managers */
 	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap], {
-		trackedOrigins: new Set([null])
-	  });
+		trackedOrigins: new Set([null])  // add undo items to the stack by default
+	});
+	dontUndo = null;
+
 	nodes = new DataSet();
 	edges = new DataSet();
 	data = {
@@ -279,14 +282,6 @@ function startY() {
 	 */
 	nodes.on('*', (event, properties, origin) => {
 		yjsTrace('nodes.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`);
-		let dontUndo = null;
-		properties.items.forEach((id) => {
-			let node = nodes.get(id);
-			if (node && node.edited) {
-				dontUndo = 'locked';
-				node.edited = false;
-			}
-		})
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
@@ -299,7 +294,7 @@ function startY() {
 				}
 			});
 		}, dontUndo);
-		console.log('dontUndo: ', dontUndo);
+		dontUndo = null;
 	});
 	/* 
 	yNodesMap.observe listens for changes in the yMap, receiving a set of the keys that have
@@ -315,7 +310,7 @@ function startY() {
 				let obj = yNodesMap.get(key);
 				if (!object_equals(obj, data.nodes.get(key))) {
 					delete obj.shadow;
-					nodesToUpdate.push(obj);
+					nodesToUpdate.push(deepCopy(obj));
 				}
 			} else {
 				hideNotes();
@@ -339,7 +334,8 @@ function startY() {
 					}
 				}
 			});
-		});
+		}, dontUndo);
+		dontUndo = null;
 	});
 	yEdgesMap.observe((event) => {
 		yjsTrace('yEdgesMap.observe', event);
@@ -349,7 +345,7 @@ function startY() {
 				let obj = yEdgesMap.get(key);
 				if (!object_equals(obj, data.edges.get(key))) {
 					delete obj.shadow;
-					edgesToUpdate.push(obj);
+					edgesToUpdate.push(deepCopy(obj));
 				}
 			} else {
 				hideNotes();
@@ -602,7 +598,7 @@ function setUpTutorial() {
 function setUpAwareness() {
 	showAvatars();
 	yAwareness.on('change', (event) => {
-		yjsTrace('yAwareness.on', event);
+//		yjsTrace('yAwareness.on', event);
 		showAvatars();
 		if (elem('showCursorSwitch').checked) showMice();
 	});
@@ -1262,7 +1258,7 @@ function editNode(item, point, cancelAction, callback) {
 	elem('node-borderColor').style.backgroundColor = standardize_color(item.color.border);
 	cp.createColorPicker('node-fontColor');
 	elem('node-fontColor').style.backgroundColor = standardize_color(item.font.color);
-	elem('node-borderType').value = getDashes(item.shapeProperties.borderDashes);
+	elem('node-borderType').value = getDashes(item.shapeProperties.borderDashes, item.borderWidth);
 	positionPopUp(point);
 	elem('popup-label').focus();
 	elem('popup').timer = setTimeout(() => {
@@ -1274,11 +1270,14 @@ function editNode(item, point, cancelAction, callback) {
 }
 /**
  * Convert CSS description of line type to menu option format
- * true, false, [3 3] => "true", "false", "dots"
+ * true, false, [3 3] => "true", "false", "dots", "none"
  * @param {Array|Boolean} val
+ * @param {Integer} width
  */
-function getDashes(val) {
-	return Array.isArray(val) ? 'dots' : val.toString();
+function getDashes(val, width) {
+	if (Array.isArray(val)) return 'dots';
+	if (width == 0) return 'none';
+	return val.toString();
 }
 /**
  * Draw a dialog box for user to edit an edge
@@ -1347,7 +1346,7 @@ function editEdge(item, point, cancelAction, callback) {
 	elem('edge-width').value = parseInt(item.width);
 	cp.createColorPicker('edge-color');
 	elem('edge-color').style.backgroundColor = standardize_color(item.color.color);
-	elem('edge-type').value = getDashes(item.dashes);
+	elem('edge-type').value = getDashes(item.dashes, null);
 	elem('edge-arrow').value = item.arrows.to.enabled ? item.arrows.to.type : 'none';
 	elem('edge-font-size').value = parseInt(item.font.size);
 	positionPopUp(point);
@@ -1429,8 +1428,14 @@ function cancelEdit(item, callback) {
 	clearPopUp();
 	item.label = item.oldLabel;
 	item.font.color = item.oldFontColor;
-	if (item.from) unlockEdge(item);
-	else unlockNode(item);
+	if (item.from) {
+		unlockEdge(item);
+		data.edges.update(item);
+	}
+	else {
+		unlockNode(item);
+		data.nodes.update(item);
+	}
 	if (callback) callback(null);
 	stopEdit();
 }
@@ -1508,8 +1513,7 @@ function unlockNode(item) {
 	item.fixed = item.wasFixed;
 	item.oldLabel = undefined;
 	item.chosen = true;
-	item.edited = true;
-//	data.nodes.update(item);
+	dontUndo = 'unlocked';
 	showNodeOrEdgeData();
 }
 /**
@@ -1566,6 +1570,8 @@ function convertDashes(val) {
 			return [10, 10];
 		case 'dots':
 			return [2, 8];
+		case 'none':
+			return false;
 		default:
 			return val;
 	}
@@ -1589,7 +1595,7 @@ function unlockEdge(item) {
 	item.opacity = 1;
 	item.oldLabel = undefined;
 	item.chosen = true;
-	data.edges.update(item);
+	dontUndo = 'unlocked';
 	showNodeOrEdgeData();
 }
 /* ----------------- end of node and edge creation and editing dialog -----------------*/
