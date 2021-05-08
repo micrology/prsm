@@ -53,7 +53,7 @@ function setUpTabs() {
 				tabcontent[i].style.display = 'none';
 			}
 			elem(e.currentTarget.dataset.table).style.display = 'block';
-			if (e.currentTarget.dataset.table == 'factors-table') initialiseFactorTable()
+			if (e.currentTarget.dataset.table == 'factors-table') initialiseFactorTable();
 			else initialiseLinkTable();
 		});
 	}
@@ -106,7 +106,7 @@ function startY() {
 
 	yNodesMap.observe((event) => {
 		yjsTrace('yNodesMap.observe', event.transaction.local, event);
-		if (!event.transaction.local && !initialising) {
+		if (event.transaction.origin && !initialising) {
 			let adds = [],
 				updates = [],
 				deletes = [];
@@ -132,7 +132,7 @@ function startY() {
 	});
 	yEdgesMap.observe((event) => {
 		yjsTrace('yEdgesMap.observe', event.transaction.local, event);
-		if (!event.transaction.local && !initialising) {
+		if (event.transaction.origin && !initialising) {
 			let adds = [],
 				updates = [],
 				deletes = [];
@@ -257,7 +257,7 @@ function initialiseFactorTable() {
 	});
 	factorsTable = new Tabulator('#factors-table', {
 		data: tabledata, //assign data to table
-		layout: "fitDataTable",
+		layout: 'fitDataTable',
 		height: window.innerHeight - 130,
 		clipboard: true,
 		dataLoaded: () => {
@@ -385,7 +385,7 @@ function convertNode(node) {
  */
 function updateNodeCellData(cell) {
 	// get the old value of the node
-	let node = yNodesMap.get(cell.getRow().getData().id);
+	let node = deepCopy(yNodesMap.get(cell.getRow().getData().id));
 	// update it with the cell's new value
 	node[cell.getField()] = cell.getValue();
 	// sync it
@@ -405,7 +405,7 @@ function initialiseLinkTable() {
 	linksTable = new Tabulator('#links-table', {
 		data: tabledata, //assign data to table
 		clipboard: true,
-		layout: "fitDataTable",
+		layout: 'fitDataTable',
 		height: window.innerHeight - 130,
 		dataLoaded: () => {
 			initialising = false;
@@ -517,7 +517,7 @@ function convertEdge(edge) {
  * @param {Array} nodes - array of updated nodes
  */
 function updateFromAndToLabels(nodes) {
-	console.log('start updateFromAndToLabels', exactTime())
+	console.log('start updateFromAndToLabels', exactTime());
 	let linksToUpdate = [];
 	nodes.forEach((node) => {
 		linksToUpdate = linksToUpdate.concat(
@@ -525,7 +525,7 @@ function updateFromAndToLabels(nodes) {
 		);
 	});
 	linksTable.updateOrAddData(linksToUpdate.map((e) => convertEdge(e)));
-	console.log('end updateFromAndToLabels', exactTime())
+	console.log('end updateFromAndToLabels', exactTime());
 }
 
 /**
@@ -534,7 +534,7 @@ function updateFromAndToLabels(nodes) {
  */
 function updateEdgeCellData(cell) {
 	// get the old value of the edge
-	let edge = yEdgesMap.get(cell.getRow().getData().id);
+	let edge = deepCopy(yEdgesMap.get(cell.getRow().getData().id));
 	// update it with the cell's new value
 	edge[cell.getField()] = cell.getValue();
 	// sync it
