@@ -637,3 +637,43 @@ function setButtonDisabledStatus(id, state) {
 	if (state) elem(id).classList.add('disabled');
 	else elem(id).classList.remove('disabled');
 }
+
+listen('search', 'click', setUpFilter);
+
+var filterDisplayed = false;
+
+function setUpFilter() {
+	let filterDiv = elem('filter');
+	if (filterDisplayed) {
+		filterDiv.innerHTML = '';
+		filterDisplayed = false;
+		return;
+	}
+	filterDisplayed = true;
+	let select = document.createElement('select');
+	select.id = 'filter-field';
+	factorsTable.getColumns().forEach((c, i) => {
+		let def = c.getDefinition();
+		select[i] = new Option(def.title, def.field);
+	});
+	filterDiv.appendChild(select);
+	filterDiv.insertAdjacentHTML(
+		'afterbegin', "Filter: ")
+	filterDiv.insertAdjacentHTML(
+		'beforeend',
+		`
+	<select id="filter-type">
+		<option value="=">=</option>
+		<option value="<"><</option>
+		<option value="<="><=</option>
+		<option value=">">></option>
+		<option value=">=">>=</option>
+		<option value="!=">!=</option>
+		<option value="=">matches</option>
+		<option value="like">contains</option>
+		<option value="starts">starts with</option>
+		<option value="ends">ends with</option>
+  	</select>
+  	<input id="filter-value" type="text">`
+	);
+}
