@@ -309,7 +309,6 @@ function startY() {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key);
 				if (!object_equals(obj, data.nodes.get(key))) {
-					delete obj.shadow;
 					nodesToUpdate.push(deepCopy(obj));
 				}
 			} else {
@@ -344,7 +343,6 @@ function startY() {
 			if (yEdgesMap.has(key)) {
 				let obj = yEdgesMap.get(key);
 				if (!object_equals(obj, data.edges.get(key))) {
-					delete obj.shadow;
 					edgesToUpdate.push(deepCopy(obj));
 				}
 			} else {
@@ -597,6 +595,7 @@ function setUpTutorial() {
  */
 function setUpAwareness() {
 	showAvatars();
+// eslint-disable-next-line no-unused-vars
 	yAwareness.on('change', (event) => {
 //		yjsTrace('yAwareness.on', event);
 		showAvatars();
@@ -663,7 +662,19 @@ function draw() {
 	if (nNodes) getRandomData(nNodes);
 	// create a network
 	var options = {
+		nodes: {
+			chosen: {
+				node: function (values, id, selected) {
+					if (selected) values.shadow = true;
+				}
+			}
+		},
 		edges: {
+			chosen: {
+				edge: function (values, id, selected) {
+					if (selected) values.shadow = true;
+				}
+			},
 			smooth: {
 				type: 'straightCross',
 			},
@@ -844,27 +855,11 @@ function draw() {
 	});
 	network.on('selectNode', function () {
 		if (window.debug.includes('gui')) console.log('selectNode');
-		let selectedNodes = network.getSelectedNodes();
-		selectedNodes.forEach((nodeId) => {
-			let node = data.nodes.get(nodeId);
-			if (!node.locked) {
-				node.shadow = true;
-				data.nodes.update(node, 'dontBroadcast');
-			}
-		});
 		showSelected();
 		showNodeOrEdgeData();
 	});
 	network.on('deselectNode', function () {
 		if (window.debug.includes('gui')) console.log('deselectNode');
-		let nodesToUpdate = [];
-		data.nodes.get().forEach((node) => {
-			if (node.shadow) {
-				node.shadow = false;
-				nodesToUpdate.push(node);
-			}
-		});
-		data.nodes.update(nodesToUpdate, 'dontBroadcast');
 		hideNotes();
 		clearStatusBar();
 	});
@@ -876,25 +871,11 @@ function draw() {
 	});
 	network.on('selectEdge', function () {
 		if (window.debug.includes('gui')) console.log('selectEdge');
-		let selectedEdges = network.getSelectedEdges();
-		selectedEdges.forEach((edgeId) => {
-			let edge = data.edges.get(edgeId);
-			edge.shadow = true;
-			data.edges.update(edge, 'dontBroadcast');
-		});
 		showSelected();
 		showNodeOrEdgeData();
 	});
 	network.on('deselectEdge', function () {
 		if (window.debug.includes('gui')) console.log('deselectEdge');
-		let edgesToUpdate = [];
-		data.edges.get().forEach((edge) => {
-			if (edge.shadow) {
-				edge.shadow = false;
-				edgesToUpdate.push(edge);
-			}
-		});
-		data.edges.update(edgesToUpdate, 'dontBroadcast');
 		hideNotes();
 		clearStatusBar();
 	});
@@ -1500,7 +1481,6 @@ function lockNode(item) {
 	item.label = item.label + '\n\n' + '[Being edited by ' + myNameRec.name + ']';
 	item.wasFixed = Boolean(item.fixed);
 	item.fixed = true;
-	item.chosen = false;
 	data.nodes.update(item);
 }
 /**
@@ -1512,7 +1492,6 @@ function unlockNode(item) {
 	item.opacity = 1;
 	item.fixed = item.wasFixed;
 	item.oldLabel = undefined;
-	item.chosen = true;
 	dontUndo = 'unlocked';
 	showNodeOrEdgeData();
 }
@@ -1551,7 +1530,6 @@ function saveEdge(item, callback) {
 	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
 	unlockEdge(item);
 	// vis-network silently deselects all edges in the callback (why?).  So we have to mark this edge as unselected in preparation
-	item.shadow = false;
 	clearStatusBar();
 	callback(item);
 	logHistory(`edited link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`);
@@ -1582,7 +1560,6 @@ function lockEdge(item) {
 	item.opacity = 0.1;
 	item.oldLabel = item.label || ' ';
 	item.label = 'Being edited by ' + myNameRec.name;
-	item.chosen = false;
 	data.edges.update(item);
 }
 /**
@@ -1594,7 +1571,6 @@ function unlockEdge(item) {
 	item.font.color = 'rgba(0,0,0,1)';
 	item.opacity = 1;
 	item.oldLabel = undefined;
-	item.chosen = true;
 	dontUndo = 'unlocked';
 	showNodeOrEdgeData();
 }
@@ -1689,16 +1665,6 @@ function setMapTitle(title) {
  */
 function unSelect() {
 	hideNotes();
-	let nodes = data.nodes.get(network.getSelectedNodes());
-	nodes.forEach((node) => {
-		node.shadow = false;
-	});
-	data.nodes.update(nodes, 'dontBroadcast');
-	let edges = data.nodes.get(network.getSelectedEdges());
-	edges.forEach((edge) => {
-		edge.shadow = false;
-	});
-	data.edges.update(edges, 'dontBroadcast');
 	network.unselectAll();
 	clearStatusBar();
 }
@@ -2059,7 +2025,9 @@ function loadJSONfile(json) {
 	if (json.samples) json.styles = json.samples;
 	if (json.styles) {
 		styles.nodes = json.styles.nodes;
+		for (let n in styles.nodes) { delete styles.nodes[n].chosen };
 		styles.edges = json.styles.edges;
+		for (let e in styles.edges) { delete styles.edges[e].chosen };
 		refreshSampleNodes();
 		refreshSampleLinks();
 			for (let groupId in styles.nodes) {
@@ -2987,11 +2955,6 @@ function selectAllFactors() {
 
 export function selectFactors(nodeIds) {
 	network.selectNodes(nodeIds, false);
-	nodeIds.forEach((nodeId) => {
-		let node = data.nodes.get(nodeId);
-		node.shadow = true;
-		data.nodes.update(node, 'dontBroadcast');
-	});
 	showSelected();
 }
 
@@ -3001,11 +2964,6 @@ function selectAllLinks() {
 
 export function selectLinks(edgeIds) {
 	network.selectEdges(edgeIds);
-	edgeIds.forEach((edgeId) => {
-		let edge = data.edges.get(edgeId);
-		edge.shadow = true;
-		data.edges.update(edge, 'dontBroadcast');
-	});
 	showSelected();
 }
 

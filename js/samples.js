@@ -4,7 +4,6 @@ export const styles = {
 			groupLabel: 'Sample',
 			borderWidth: 4,
 			borderWidthSelected: 4,
-			chosen: true,
 			color: {
 				border: '#000000',
 				background: '#ffffff',
