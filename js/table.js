@@ -20,6 +20,7 @@ var yNetMap; // shared map of network state
 var yUndoManager; // shared list of commands for undo
 var factorsTable; // the factors table
 var linksTable; //the links table
+var openTable; // the table that is currently on view
 var initialising = true; // true until the tables have been loaded
 var styleMap; // conversion from style name to style id
 var nAttributes = 0; // number of attributes
@@ -53,8 +54,9 @@ function setUpTabs() {
 				tabcontent[i].style.display = 'none';
 			}
 			elem(e.currentTarget.dataset.table).style.display = 'block';
-			if (e.currentTarget.dataset.table == 'factors-table') initialiseFactorTable();
-			else initialiseLinkTable();
+			openTable =
+				e.currentTarget.dataset.table == 'factors-table' ? initialiseFactorTable() : initialiseLinkTable();
+			if (filterDisplayed) closeFilter();
 		});
 	}
 }
@@ -70,11 +72,11 @@ function startY() {
 	debug = [url.searchParams.get('debug')];
 	document.title = document.title + ' ' + room;
 	const persistence = new IndexeddbPersistence(room, doc);
-	// when the connectio has been made, start building the table
+	// when the connection has been made, start building the table
 	persistence.once('synced', () => {
 		console.log(exactTime() + ' local content loaded');
 		buildStyleMap();
-		initialiseFactorTable();
+		openTable = initialiseFactorTable();
 		initialiseLinkTable();
 	});
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
@@ -249,6 +251,7 @@ var headerContextMenu = [
 
 /**
  * define the Factor table
+ * @return {Tabulate} the table
  */
 function initialiseFactorTable() {
 	console.log('start initialiseFactorTable', exactTime());
@@ -356,6 +359,7 @@ function initialiseFactorTable() {
 	}
 	window.factorsTable = factorsTable;
 	console.log('end initialiseFactorTable', exactTime());
+	return factorsTable;
 }
 
 /**
@@ -395,6 +399,7 @@ function updateNodeCellData(cell) {
 
 /**
  * define the Link table
+ * @return {Tabulate} the table
  */
 function initialiseLinkTable() {
 	console.log('start initialiseLinkTable', exactTime());
@@ -485,6 +490,7 @@ function initialiseLinkTable() {
 	});
 	window.linksTable = linksTable;
 	console.log('end initialiseLinkTable', exactTime());
+	return linksTable;
 }
 
 /**
@@ -638,42 +644,64 @@ function setButtonDisabledStatus(id, state) {
 	else elem(id).classList.remove('disabled');
 }
 
-listen('search', 'click', setUpFilter);
+listen('filter', 'click', setUpFilter);
 
 var filterDisplayed = false;
 
 function setUpFilter() {
-	let filterDiv = elem('filter');
+	let filterDiv = elem('filter-dialog');
 	if (filterDisplayed) {
-		filterDiv.innerHTML = '';
-		filterDisplayed = false;
+		closeFilter();
 		return;
 	}
 	filterDisplayed = true;
 	let select = document.createElement('select');
 	select.id = 'filter-field';
-	factorsTable.getColumns().forEach((c, i) => {
-		let def = c.getDefinition();
-		select[i] = new Option(def.title, def.field);
+	let i = 0;
+	openTable.getColumns().forEach((colComp) => {
+		let def = colComp.getDefinition();
+		if (def.formatter != 'color')
+			// cannot sort by color
+			select[i++] = new Option(def.title, def.field);
 	});
 	filterDiv.appendChild(select);
-	filterDiv.insertAdjacentHTML(
-		'afterbegin', "Filter: ")
+	filterDiv.insertAdjacentHTML('afterbegin', 'Filter: ');
 	filterDiv.insertAdjacentHTML(
 		'beforeend',
 		`
 	<select id="filter-type">
+		<option value="like">contains</option>
+		<option value="=">matches</option>
+		<option value="starts">starts with</option>
+		<option value="ends">ends with</option>
 		<option value="=">=</option>
 		<option value="<"><</option>
 		<option value="<="><=</option>
 		<option value=">">></option>
 		<option value=">=">>=</option>
 		<option value="!=">!=</option>
-		<option value="=">matches</option>
-		<option value="like">contains</option>
-		<option value="starts">starts with</option>
-		<option value="ends">ends with</option>
   	</select>
-  	<input id="filter-value" type="text">`
+	  <input id="filter-value" type="text">
+	  <button id= "filter-close"><i class="fas fa-times"></i></button>`
 	);
+	listen('filter-field', 'change', updateFilter);
+	listen('filter-type', 'change', updateFilter);
+	listen('filter-value', 'keyup', updateFilter);
+	listen('filter-close', 'click', closeFilter);
+}
+
+function updateFilter() {
+	let select = elem('filter-field'),
+		type = elem('filter-type');
+	let filterVal = select.options[select.selectedIndex].value;
+	var typeVal = type.options[type.selectedIndex].value;
+	if (filterVal) {
+		openTable.setFilter(filterVal, typeVal, elem('filter-value').value);
+	}
+}
+
+function closeFilter() {
+	elem('filter-dialog').innerHTML = '';
+	openTable.clearFilter();
+	filterDisplayed = false;
 }
