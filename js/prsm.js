@@ -23,6 +23,7 @@ import {
 	clearStatusBar,
 	initials,
 	CP,
+	timeAndDate
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
@@ -34,7 +35,7 @@ import Quill from 'quill';
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 
-const version = '1.6.8';
+const version = '1.6.9';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
@@ -2438,25 +2439,34 @@ function setUpShareDialog() {
 	});
 	listen('clone-check', 'click', () => setLink(elem('clone-check').checked ? 'clone' : 'share'));
 	listen('view-check', 'click', () => setLink(elem('view-check').checked ? 'view' : 'share'));
+	listen('table-check', 'click', () => setLink(elem('table-check').checked ? 'table' : 'share'));
+
 	function setLink(type) {
-		let newRoom;
+		let path;
 		switch (type) {
 			case 'share':
-				newRoom = room;
+				path = window.location.pathname + '?room=' + room;
 				break;
 			case 'clone':
-				newRoom = clone();
+				path = window.location.pathname + '?room=' + clone();
 				elem('view-check').checked = false;
+				elem('table-check').checked = false;
 				break;
 			case 'view':
-				newRoom = room + '&viewing';
+				path = window.location.pathname + '?room=' + room + '&viewing';
 				elem('clone-check').checked = false;
+				elem('table-check').checked = false;
+				break;
+			case 'table':
+				path = window.location.pathname.replace('prsm.html', 'table.html') + '?room=' + room;
+				elem('clone-check').checked = false;
+				elem('view-check').checked = false;
 				break;
 			default:
 				console.log('Bad case in setLink()');
 				break;
 		}
-		let linkToShare = window.location.origin + window.location.pathname + '?room=' + newRoom;
+		let linkToShare = window.location.origin + path;
 		modal.style.display = 'block';
 		inputElem.cols = linkToShare.length.toString();
 		inputElem.value = linkToShare;
@@ -3304,30 +3314,7 @@ function displayMsg(msg) {
 	}
 	chatMessages.scrollTop = chatMessages.scrollHeight;
 }
-/**
- * Returns a nicely formatted Date (or time if the date is today), given a Time value (from Date() )
- * @param {Integer} utc
- */
-function timeAndDate(utc) {
-	let time = new Date();
-	time.setTime(utc);
-	if (time.toDateString() == new Date().toDateString()) {
-		return (
-			'Today, ' +
-			time.toLocaleString('en-GB', {
-				hour: '2-digit',
-				minute: '2-digit',
-			})
-		);
-	} else {
-		return time.toLocaleString('en-GB', {
-			day: '2-digit',
-			month: 'short',
-			hour: '2-digit',
-			minute: '2-digit',
-		});
-	}
-}
+
 function displayUserName() {
 	chatNameBox.style.fontStyle = myNameRec.anon ? 'italic' : 'normal';
 	chatNameBox.value = myNameRec.name;

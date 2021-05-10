@@ -516,7 +516,7 @@ nav button .pressed {
 }
 .modal-body {
 	display: grid;
-	grid-template-columns: 60% 20% auto;
+	grid-template-columns: 60% auto 20px;
 	gap: 20px;
 	padding: 16px;
 	font-size: 16px;
@@ -540,13 +540,25 @@ nav button .pressed {
 }
 .modal-body .view {
 	grid-column: 2;
-	grid-row: 2 / span 2;
+	grid-row: 2;
 	line-height: 1;
 	justify-self: start;
 }
 .modal-body .view-check {
 	grid-column: 3;
 	grid-row: 2;
+	justify-self: start;
+	align-self: center;
+}
+.modal-body .table {
+	grid-column: 2;
+	grid-row: 3;
+	line-height: 1;
+	justify-self: start;
+}
+.modal-body .table-check {
+	grid-column: 3;
+	grid-row: 3;
 	justify-self: start;
 	align-self: center;
 }

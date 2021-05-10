@@ -591,7 +591,7 @@ export class CP {
 	/**
 	 * attach a color picker to an element to recolor the background to that element
 	 * @param {string} wellId the id of the DOM element to attach the color picker to
-	 * @param {string} initialColor
+	 * @param {string} callback - function to call when the color has been chosen, with that color as argument
 	 */
 	createColorPicker(wellId, callback) {
 		let well = elem(wellId);
@@ -670,4 +670,27 @@ export class CP {
 		}
 }
 
-
+/**
+ * Returns a nicely formatted Date (or time if the date is today), given a Time value (from Date() )
+ * @param {Integer} utc
+ */
+export function timeAndDate(utc) {
+	let time = new Date();
+	time.setTime(utc);
+	if (time.toDateString() == new Date().toDateString()) {
+		return (
+			'Today, ' +
+			time.toLocaleString('en-GB', {
+				hour: '2-digit',
+				minute: '2-digit',
+			})
+		);
+	} else {
+		return time.toLocaleString('en-GB', {
+			day: '2-digit',
+			month: 'short',
+			hour: '2-digit',
+			minute: '2-digit',
+		});
+	}
+}

@@ -1,7 +1,7 @@
 import * as Y from 'yjs';
 import {WebsocketProvider} from 'y-websocket';
 import {IndexeddbPersistence} from 'y-indexeddb';
-import {listen, elem, deepCopy} from './utils.js';
+import {listen, elem, deepCopy, timeAndDate} from './utils.js';
 import Tabulator from 'tabulator-tables';
 
 const shortAppName = 'PRSM';
@@ -15,16 +15,15 @@ var websocket = 'wss://cress.soc.surrey.ac.uk/wss'; // web socket server URL
 var clientID; // unique ID for this browser
 var yNodesMap; // shared map of nodes
 var yEdgesMap; // shared map of edges
-var ySamplesMap; // shared map of styles
 var yNetMap; // shared map of network state
 var yUndoManager; // shared list of commands for undo
 var factorsTable; // the factors table
 var linksTable; //the links table
 var openTable; // the table that is currently on view
 var initialising = true; // true until the tables have been loaded
-var styleMap; // conversion from style name to style id
 var nAttributes = 0; // number of attributes
 var attributeTitles = {}; // titles of each of the attributes
+var myNameRec; // my name etc.
 
 window.addEventListener('load', () => {
 	elem('version').innerHTML = version;
@@ -75,7 +74,6 @@ function startY() {
 	// when the connection has been made, start building the table
 	persistence.once('synced', () => {
 		console.log(exactTime() + ' local content loaded');
-		buildStyleMap();
 		openTable = initialiseFactorTable();
 		initialiseLinkTable();
 	});
@@ -89,7 +87,6 @@ function startY() {
 
 	yNodesMap = doc.getMap('nodes');
 	yEdgesMap = doc.getMap('edges');
-	ySamplesMap = doc.getMap('samples');
 	yNetMap = doc.getMap('network');
 	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap]);
 
@@ -217,6 +214,9 @@ function startY() {
 		yjsTrace('yUndoManager.on stack-item-popped', true, event);
 		undoRedoButtonStatus();
 	});
+	myNameRec = JSON.parse(localStorage.getItem('myName'));
+	myNameRec.id = clientID;
+	console.log('My name: ' + myNameRec.name);
 } // end startY()
 
 function yjsTrace(where, source, what) {
@@ -227,17 +227,6 @@ function yjsTrace(where, source, what) {
 function exactTime() {
 	let d = new Date();
 	return `${d.toLocaleTimeString()}:${d.getMilliseconds()} `;
-}
-
-/**
- * create a map with a key for each style label and a value of its style id - helper for
- * building the Style table column
- */
-function buildStyleMap() {
-	styleMap = new Map();
-	ySamplesMap.forEach((styleObj, styleId) => {
-		styleMap.set(styleObj.groupLabel, styleId);
-	});
 }
 
 var headerContextMenu = [
@@ -254,7 +243,6 @@ var headerContextMenu = [
  * @return {Tabulate} the table
  */
 function initialiseFactorTable() {
-	console.log('start initialiseFactorTable', exactTime());
 	let tabledata = Array.from(yNodesMap.values()).map((n) => {
 		return convertNode(n);
 	});
@@ -276,12 +264,14 @@ function initialiseFactorTable() {
 		columnHeaderVertAlign: 'bottom',
 		columns: [
 			{title: 'Label', field: 'label', editor: 'textarea', frozen: true, maxWidth: 300},
+			{title: 'Modified', field: 'modifiedTime', cssClass: 'grey'},
 			{
 				title: 'Format',
 				columns: [
 					{
 						title: 'Style',
 						field: 'groupLabel',
+						cssClass: 'grey',
 					},
 					{
 						title: 'Shape',
@@ -295,7 +285,7 @@ function initialiseFactorTable() {
 						formatter: 'color',
 						width: 15,
 						headerVertical: true,
-						cssClass: 'grey',
+						editor: colorEditor,
 					},
 					{
 						title: 'Border width',
@@ -314,14 +304,14 @@ function initialiseFactorTable() {
 						formatter: 'color',
 						width: 15,
 						headerVertical: true,
-						cssClass: 'grey',
-					},
+						editor: colorEditor,
+				},
 					{
 						title: 'Border Style',
-						field: 'shapeProperties',
-						mutator: convertBorderStyle,
+						field: 'borderStyle',
 						headerVertical: true,
-						cssClass: 'grey',
+						editor: 'select',
+						editorParams: {values: ['Solid', 'Dashed', 'Dotted', 'None']},
 					},
 					{
 						title: 'Font colour',
@@ -329,14 +319,18 @@ function initialiseFactorTable() {
 						formatter: 'color',
 						width: 15,
 						headerVertical: true,
-						cssClass: 'grey',
+						editor: colorEditor,
 					},
 					{
 						title: 'Font size',
 						field: 'fontSize',
 						width: 15,
 						headerVertical: true,
-						cssClass: 'grey',
+						editor: 'number',
+						editorParams: {
+							min: 10,
+							max: 30,
+						},
 					},
 				],
 			},
@@ -358,13 +352,12 @@ function initialiseFactorTable() {
 		}
 	}
 	window.factorsTable = factorsTable;
-	console.log('end initialiseFactorTable', exactTime());
 	return factorsTable;
 }
 
 /**
  * spread some deep values to the top level to suit the requirements of the Tabulator package better
- * NB: any such converted values cannotthen be edited without special attentyion (in updateEdgeCellData)
+ * NB: any such converted values cannot then be edited without special attention (in updateEdgeCellData)
  * @param {Object} node
  * @returns {object} the node augmented with new properties
  */
@@ -380,6 +373,16 @@ function convertNode(node) {
 	for (let prop in conversions) {
 		n[prop] = n[conversions[prop][0]][conversions[prop][1]];
 	}
+	if (n.groupLabel == 'Sample') n.groupLabel = '--';
+	n.borderStyle = n.shapeProperties.borderDashes;
+	if (n.borderWidth == 0) n.borderStyle = 'None';
+	else {
+		if (Array.isArray(n.borderStyle)) n.borderStyle = 'Dotted';
+		else n.borderStyle = n.borderStyle ? 'Dashed' : 'Solid';
+	}
+	if (n.modified) n.modifiedTime = timeAndDate(n.modified.time);
+	else if (n.created) n.modifiedTime = timeAndDate(n.created.time);
+	else n.modifiedTime = '--';
 	return n;
 }
 
@@ -391,10 +394,56 @@ function updateNodeCellData(cell) {
 	// get the old value of the node
 	let node = deepCopy(yNodesMap.get(cell.getRow().getData().id));
 	// update it with the cell's new value
-	node[cell.getField()] = cell.getValue();
+	node = convertNodeBack(node, cell.getField(), cell.getValue());
+	node.modified = {time: Date.now(), user: myNameRec.name};
+	cell.getTable().updateData([{id: node.id, modifiedTime: timeAndDate(node.modified.time)}]);
 	// sync it
 	yNodesMap.set(node.id, node);
 	updateFromAndToLabels([node]);
+}
+
+/**
+ * Convert the properties of the node back into the format required by vis-network
+ * @param {Object} node 
+ * @param {String} field 
+ * @param {Any} value 
+ */
+function convertNodeBack(node, field, value) {
+	switch (field) {
+		case 'borderStyle':
+			if (node.borderWidth == 0) node.borderWidth = 4;
+			switch (value) {
+				case 'None':
+					node.borderWidth = 0;
+					node.shapeProperties.borderDashes = false;
+					break;
+				case 'Dotted':
+					node.shapeProperties.borderDashes = false;
+					break;
+				case 'Dashed':
+					node.shapeProperties.borderDashes = true;
+					break;
+				case 'Solid':
+					node.shapeProperties.borderDashes = false;
+					break;
+			}
+			break;
+		case 'backgroundColor':
+			node.color.background = value;
+			break;
+		case 'borderColor':
+			node.color.border = value;
+			break;
+		case 'fontColor':
+			node.font.color = value;
+			break;
+		case 'fontSize':
+			node.font.size = value;
+			break;
+		default:
+			break;
+	}
+	return node;
 }
 
 /**
@@ -402,7 +451,6 @@ function updateNodeCellData(cell) {
  * @return {Tabulate} the table
  */
 function initialiseLinkTable() {
-	console.log('start initialiseLinkTable', exactTime());
 	let tabledata = Array.from(yEdgesMap.values()).map((n) => {
 		return convertEdge(n);
 	});
@@ -423,6 +471,7 @@ function initialiseLinkTable() {
 		columns: [
 			{title: 'From', field: 'fromLabel', width: 300, cssClass: 'grey'},
 			{title: 'To', field: 'toLabel', width: 300, cssClass: 'grey'},
+			{title: 'Modified', field: 'modifiedTime', cssClass: 'grey'},
 			{
 				title: 'Format',
 				columns: [
@@ -455,7 +504,7 @@ function initialiseLinkTable() {
 						formatter: 'color',
 						width: 15,
 						headerVertical: true,
-						cssClass: 'grey',
+						editor: colorEditor,
 					},
 					{
 						title: 'Width',
@@ -469,10 +518,13 @@ function initialiseLinkTable() {
 						headerVertical: true,
 					},
 					{
-						title: 'Style',
+						title: 'Line Style',
 						field: 'lineStyle',
+						editor: 'select',
+						editorParams: {
+							values: ['Solid', 'Dashed', 'Dotted'],
+						},
 						headerVertical: true,
-						cssClass: 'grey',
 					},
 					{
 						title: 'Font size',
@@ -489,7 +541,6 @@ function initialiseLinkTable() {
 		],
 	});
 	window.linksTable = linksTable;
-	console.log('end initialiseLinkTable', exactTime());
 	return linksTable;
 }
 
@@ -504,17 +555,20 @@ function convertEdge(edge) {
 	e.fromLabel = yNodesMap.get(e.from).label;
 	e.toLabel = yNodesMap.get(e.to).label;
 	e.arrowShape = e.arrows.to.type;
-	if (Array.isArray(e.dashes)) e.lineStyle = 'Dots';
-	else if (e.dashes) e.lineStyle = 'Dashes';
+	if (e.groupLabel == 'Sample') e.groupLabel = '--';
+	if (Array.isArray(e.dashes)) e.lineStyle = 'Dotted';
+	else if (e.dashes) e.lineStyle = 'Dashed';
 	else e.lineStyle = 'Solid';
 	let conversions = {
 		arrowColor: ['color', 'color'],
-		fontColor: ['font', 'color'],
 		fontSize: ['font', 'size'],
 	};
 	for (let prop in conversions) {
 		e[prop] = e[conversions[prop][0]][conversions[prop][1]];
 	}
+	if (e.modified) e.modifiedTime = timeAndDate(e.modified.time);
+	else if (e.created) e.modifiedTime = timeAndDate(e.created.time);
+	else e.modifiedTime = '--';
 	return e;
 }
 /**
@@ -523,7 +577,6 @@ function convertEdge(edge) {
  * @param {Array} nodes - array of updated nodes
  */
 function updateFromAndToLabels(nodes) {
-	console.log('start updateFromAndToLabels', exactTime());
 	let linksToUpdate = [];
 	nodes.forEach((node) => {
 		linksToUpdate = linksToUpdate.concat(
@@ -531,7 +584,6 @@ function updateFromAndToLabels(nodes) {
 		);
 	});
 	linksTable.updateOrAddData(linksToUpdate.map((e) => convertEdge(e)));
-	console.log('end updateFromAndToLabels', exactTime());
 }
 
 /**
@@ -543,10 +595,47 @@ function updateEdgeCellData(cell) {
 	let edge = deepCopy(yEdgesMap.get(cell.getRow().getData().id));
 	// update it with the cell's new value
 	edge[cell.getField()] = cell.getValue();
+	edge = convertEdgeBack(edge, cell.getField(), cell.getValue());
+	edge.modified = {time: Date.now(), user: myNameRec.name};
+	cell.getTable().updateData([{id: edge.id, modifiedTime: timeAndDate(edge.modified.time)}]);
 	// sync it
-	edge.arrows.to.type = edge.arrowShape;
-	edge.font.size = edge.fontSize;
 	yEdgesMap.set(edge.id, edge);
+}
+/**
+ * Convert the properties of the edge back into the format required by vis-network
+ * @param {Object} edge 
+ * @param {String} field 
+ * @param {Any} value 
+ */
+function convertEdgeBack(edge, field, value) {
+	switch (field) {
+		case 'arrowShape':
+			edge.arrows.to.type = edge.arrowShape;
+			break;
+		case 'fontSize':
+			edge.font.size = edge.fontSize;
+			break;
+		case 'lineStyle':
+			switch (value) {
+				case 'Solid':
+					edge.dashes = false;
+					break;
+				case 'Dashed':
+					edge.dashes = [10, 10];
+					break;
+				case 'Dotted':
+					edge.dashes = [2, 8];
+					break;
+				default:
+					edge.dashes = value;
+					break;
+			}
+			break;
+		case 'arrowColor':
+			edge.color.color = edge.arrowColor;
+			break
+	}
+	return edge;
 }
 
 /**
@@ -559,16 +648,6 @@ function updateColumnTitle(column) {
 	column.updateDefinition({width: getWidthOfTitle(newTitle)});
 	attributeTitles[column.getField()] = newTitle;
 	yNetMap.set('attributeTitles', attributeTitles);
-}
-
-/**
- * Convert the network format of a border style to a human readable one
- * @param {Array|true|undefned} value
- */
-function convertBorderStyle(value) {
-	let style = value.borderDashes;
-	if (Array.isArray(style)) return 'Dotted';
-	return style ? 'Dashed' : 'Solid';
 }
 
 /**
@@ -587,6 +666,38 @@ function getWidthOfTitle(text, fontname = 'Oxygen', fontsize = 13.33) {
 	if (getWidthOfTitle.ctx.font !== fontspec) getWidthOfTitle.ctx.font = fontspec;
 	return getWidthOfTitle.ctx.measureText(text + '  ').width + 90;
 }
+/**
+ * Use the browser standard color picker to edit the cell colour
+ * @param {CellComponent} cell - the cell component for the editable cell
+ * @param {Function} onRendered - function to call when the editor has been rendered
+ * @param {Function} success function to call to pass the successfuly updated value to Tabulator
+ * @return {DOMElement} the editor element
+ */
+function colorEditor(cell, onRendered, success) {
+	let editor = document.createElement('input');
+	editor.setAttribute('type', 'color');
+	editor.style.width = '100%';
+	editor.style.padding = '0px';
+	editor.style.boxSizing = 'border-box';
+
+	editor.value = cell.getValue();
+
+	//set focus on the select box when the editor is selected (timeout allows for editor to be added to DOM)
+	onRendered(function () {
+		editor.focus();
+		editor.style.css = '100%';
+	});
+
+	//when the value has been set, trigger the cell to update
+	function successFunc() {
+		success(editor.value);
+	}
+
+	editor.addEventListener('change', successFunc);
+	editor.addEventListener('blur', successFunc);
+
+	return editor;
+}
 
 listen('col-insert', 'click', addColumn);
 
@@ -604,7 +715,6 @@ function addColumn() {
 		headerContextMenu: headerContextMenu,
 	});
 	attributeTitles['att' + nAttributes] = 'Att ' + nAttributes;
-	console.log('addColumn', attributeTitles);
 	yNetMap.set('attributeTitles', attributeTitles);
 }
 
@@ -648,6 +758,9 @@ listen('filter', 'click', setUpFilter);
 
 var filterDisplayed = false;
 
+/**
+ * Display a dialog box to get the filter parameters
+ */
 function setUpFilter() {
 	let filterDiv = elem('filter-dialog');
 	if (filterDisplayed) {
@@ -690,6 +803,9 @@ function setUpFilter() {
 	listen('filter-close', 'click', closeFilter);
 }
 
+/**
+ * Update the table to show only the rows that pass the filter
+ */
 function updateFilter() {
 	let select = elem('filter-field'),
 		type = elem('filter-type');
