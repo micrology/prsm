@@ -69,7 +69,7 @@
 		"install": "^0.13.0",
 		"jsdoc": "^3.6.6",
 		"parcel": "^2.0.0-beta.1",
-		"postcss": "^8.2.6",
+		"postcss": "^8.2.10",
 		"prettier": "^2.2.1"
 	},
 	"private": true
