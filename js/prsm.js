@@ -205,6 +205,7 @@ function setUpPage() {
 	cp.createColorPicker('netBackColorWell', updateNetBack);
 	hammer = new Hammer(netPane);
 	hammer.get('pinch').set({ enable: true });
+	hammer.on('pinchstart', (() => { zoomstart() }));
 	hammer.on('pinch', ((e) => { zoomset(e.scale) }));
 	setUpSamples();
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'));
@@ -1417,11 +1418,9 @@ function cancelEdit(item, callback) {
 	item.font.color = item.oldFontColor;
 	if (item.from) {
 		unlockEdge(item);
-		data.edges.update(item);
 	}
 	else {
 		unlockNode(item);
-		data.nodes.update(item);
 	}
 	if (callback) callback(null);
 	stopEdit();
@@ -1499,6 +1498,7 @@ function unlockNode(item) {
 	item.fixed = item.wasFixed;
 	item.oldLabel = undefined;
 	dontUndo = 'unlocked';
+	data.nodes.update(item);
 	showNodeOrEdgeData();
 }
 /**
@@ -1578,6 +1578,7 @@ function unlockEdge(item) {
 	item.opacity = 1;
 	item.oldLabel = undefined;
 	dontUndo = 'unlocked';
+	data.edges.update(item);
 	showNodeOrEdgeData();
 }
 /* ----------------- end of node and edge creation and editing dialog -----------------*/
@@ -1768,19 +1769,27 @@ function zoomnet() {
 function zoomincr(incr) {
 	let newScale = Number(elem('zoom').value) + incr;
 	if (newScale > 4) newScale = 4;
-	if (newScale <= 0) newScale = 0.1;
+	if (newScale <= 0.1) newScale = 0.1;
 	elem('zoom').value = newScale;
 	network.zoom(newScale);
 }
 /**
- * zoom to the given amount 
+ * note the starting point for a touch action pinch/zoom 
+ */
+var startzoom = 1;
+function zoomstart() {
+	startzoom = Number(elem('zoom').value)
+}
+/**
+ * zoom by the given amount 
  * @param {Number} newScale
  */
 function zoomset(newScale) {
-	if (newScale > 4) newScale = 4;
-	if (newScale <= 0) newScale = 0.1;
-	elem('zoom').value = newScale;
-	network.zoom(newScale);
+	let newZoom = startzoom * newScale;
+	if (newZoom > 4) newZoom = 4;
+	if (newZoom <= 0.1) newZoom = 0.1;
+	elem('zoom').value = newZoom;
+	network.zoom(newZoom);
 }
 /* 
   -----------Operations related to the top button bar (not the side panel)-------------
