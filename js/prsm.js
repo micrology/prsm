@@ -505,7 +505,13 @@ function displayNetPane(msg) {
 		setUpTutorial();
 	}
 }
-// to handle iPad viewport sizing problem when tab bar appears
+// to handle iOS weidness in fixing the vh unit (see https://css-tricks.com/the-trick-to-viewport-units-on-mobile/)
+// First we get the viewport height and we multiple it by 1% to get a value for a vh unit
+let vh = window.innerHeight * 0.01;
+// Then we set the value in the --vh custom property to the root of the document
+document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+// to handle iPad viewport sizing problem when tab bar appears and to keep panels on screen
 document.body.height = window.innerHeight;
 window.onresize = function () {
 	document.body.height = window.innerHeight;

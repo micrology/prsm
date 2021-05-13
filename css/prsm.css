@@ -59,15 +59,25 @@ select {
 }
 .container {
 	position: relative;
+	height: 100vh;
+	height: calc(var(--vh, 1vh) * 100);
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: auto 1fr auto;
+	grid-template-areas: 
+	  'header'
+	  'main'
+	  'footer';
 }
 header {
 	text-align: center;
 	height: 80px;
+	grid-area: header;
 }
 main {
-	height: calc(100vh - 119px);
 	position: relative;
 	cursor: default;
+	grid-area: main;
 }
 #net-pane {
 	width: 100%;

@@ -5,7 +5,7 @@ import {listen, elem, deepCopy, timeAndDate} from './utils.js';
 import Tabulator from 'tabulator-tables';
 
 const shortAppName = 'PRSM';
-const version = '1.6.8';
+const version = '1.6.9';
 
 var debug = [];
 window.debug = debug;
