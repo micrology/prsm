@@ -1309,6 +1309,7 @@ function editEdge(item, point, cancelAction, callback) {
 				<select id="edge-arrow">
 					<option value="vee">Arrows...</option>
 					<option value="vee">Sharp</option>
+					<option value="arrow">Triangle</option>
 					<option value="bar">Bar</option>
 					<option value="circle">Circle</option>
 					<option value="box">Box</option>

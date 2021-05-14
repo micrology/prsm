@@ -251,6 +251,14 @@ function initialiseFactorTable() {
 		layout: 'fitDataTable',
 		height: window.innerHeight - 130,
 		clipboard: true,
+		clipboardCopyConfig:{ 
+			columnHeaders: true, //do not include column headers in clipboard output
+			columnGroups: false, //do not include column groups in column headers for printed table
+			rowGroups: false, //do not include row groups in clipboard output
+			columnCalcs: false, //do not include column calculation rows in clipboard output
+			dataTree: false, //do not include data tree in printed table
+			formatCells: false, //show raw cell values without formatter
+		},
 		dataLoaded: () => {
 			initialising = false;
 		},
@@ -458,6 +466,14 @@ function initialiseLinkTable() {
 	linksTable = new Tabulator('#links-table', {
 		data: tabledata, //assign data to table
 		clipboard: true,
+		clipboardCopyConfig:{
+			columnHeaders: true, //do not include column headers in clipboard output
+			columnGroups: false, //do not include column groups in column headers for printed table
+			rowGroups: false, //do not include row groups in clipboard output
+			columnCalcs: false, //do not include column calculation rows in clipboard output
+			dataTree: false, //do not include data tree in printed table
+			formatCells: false, //show raw cell values without formatter
+		},
 		layout: 'fitDataTable',
 		height: window.innerHeight - 130,
 		dataLoaded: () => {
@@ -487,15 +503,7 @@ function initialiseLinkTable() {
 						headerVertical: true,
 						editor: 'select',
 						editorParams: {
-							values: ['vee', 'bar', 'circle', 'box', 'diamond', 'none'],
-							/* 							values: {
-								vee: 'Sharp',
-								bar: 'Bar',
-								circle: 'Circle',
-								box: 'Box',
-								diamond: 'Diamond',
-								none: 'None',
-							},*/
+							values: ['vee', 'arrow','bar', 'circle', 'box', 'diamond', 'none'],
 						},
 					},
 					{
@@ -820,4 +828,10 @@ function closeFilter() {
 	elem('filter-dialog').innerHTML = '';
 	openTable.clearFilter();
 	filterDisplayed = false;
+}
+
+listen('copy', 'click', copyTable);
+
+function copyTable() {
+	openTable.copyToClipboard("all")
 }
