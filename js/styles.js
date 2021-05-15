@@ -651,7 +651,7 @@ export function legend(warn = false) {
 		node.label = splitText(node.groupLabel, 12);
 		node.fixed = true;
 		node.chosen = false;
-		node.margin = 3;
+		node.margin = 10;
 		legendData.nodes.update(node);
 		height += LEGENDSPACING;
 	}

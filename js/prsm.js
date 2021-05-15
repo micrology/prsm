@@ -145,6 +145,7 @@ function addEventListeners() {
 	listen('zoomplus', 'click', () => {
 		zoomincr(0.1);
 	});
+	listen('net-pane', 'wheel', zoomscroll);
 	listen('nodesButton', 'click', () => {
 		openTab('nodesTab');
 	});
@@ -1770,7 +1771,7 @@ function zoomnet() {
 	network.zoom(Number(elem('zoom').value));
 }
 /**
- * zoom by the given amount (+ve or -ve)
+ * zoom by the given amount (+ve or -ve); used by the + and - add the ends of the zoom slider
  * @param {Number} incr
  */
 function zoomincr(incr) {
@@ -1781,7 +1782,8 @@ function zoomincr(incr) {
 	network.zoom(newScale);
 }
 /**
- * note the starting point for a touch action pinch/zoom 
+ * zoom using a pinch/zoom gesture on a tablet
+ * note the starting point  
  */
 var startzoom = 1;
 function zoomstart() {
@@ -1798,8 +1800,18 @@ function zoomset(newScale) {
 	elem('zoom').value = newZoom;
 	network.zoom(newZoom);
 }
-/* 
-  -----------Operations related to the top button bar (not the side panel)-------------
+/**
+ * Zoom using a trackpad (with a mousewheel or two fingers)
+ * TODO: throttle the scrolling
+ * @param {Event} event 
+ */
+
+function zoomscroll(event) {
+	event.preventDefault();
+	zoomincr(event.deltaY * 0.05)
+}
+
+ /* -----------Operations related to the top button bar (not the side panel)-------------
  */
 /**
  * react to the user pressing the Add node button
