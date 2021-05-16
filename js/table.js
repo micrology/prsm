@@ -3,9 +3,9 @@ import {WebsocketProvider} from 'y-websocket';
 import {IndexeddbPersistence} from 'y-indexeddb';
 import {listen, elem, deepCopy, timeAndDate} from './utils.js';
 import Tabulator from 'tabulator-tables';
+import { version } from '../package.json';
 
 const shortAppName = 'PRSM';
-const version = '1.6.9';
 
 var debug = [];
 window.debug = debug;

@@ -34,9 +34,9 @@ import {EmojiButton} from '@joeattardi/emoji-button';
 import Quill from 'quill';
 import * as Hammer from '@egjs/hammerjs';
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
-import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
+import { setUpPaint, setUpToolbox, deselectTool, redraw } from './paint.js';
+import { version } from '../package.json';
 
-const version = '1.6.9';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
