@@ -23,7 +23,7 @@ import {
 	clearStatusBar,
 	initials,
 	CP,
-	timeAndDate
+	timeAndDate,
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
@@ -205,9 +205,13 @@ function setUpPage() {
 	cp = new CP();
 	cp.createColorPicker('netBackColorWell', updateNetBack);
 	hammer = new Hammer(netPane);
-	hammer.get('pinch').set({ enable: true });
-	hammer.on('pinchstart', (() => { zoomstart() }));
-	hammer.on('pinch', ((e) => { zoomset(e.scale) }));
+	hammer.get('pinch').set({enable: true});
+	hammer.on('pinchstart', () => {
+		zoomstart();
+	});
+	hammer.on('pinch', (e) => {
+		zoomset(e.scale);
+	});
 	setUpSamples();
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'));
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'));
@@ -256,7 +260,7 @@ function startY() {
 
 	/* set up the undo managers */
 	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap], {
-		trackedOrigins: new Set([null])  // add undo items to the stack by default
+		trackedOrigins: new Set([null]), // add undo items to the stack by default
 	});
 	dontUndo = null;
 
@@ -609,9 +613,9 @@ function setUpTutorial() {
  */
 function setUpAwareness() {
 	showAvatars();
-// eslint-disable-next-line no-unused-vars
+	// eslint-disable-next-line no-unused-vars
 	yAwareness.on('change', (event) => {
-//		yjsTrace('yAwareness.on', event);
+		//		yjsTrace('yAwareness.on', event);
 		showAvatars();
 		if (elem('showCursorSwitch').checked) showMice();
 	});
@@ -680,14 +684,14 @@ function draw() {
 			chosen: {
 				node: function (values, id, selected) {
 					if (selected) values.shadow = true;
-				}
-			}
+				},
+			},
 		},
 		edges: {
 			chosen: {
 				edge: function (values, id, selected) {
 					if (selected) values.shadow = true;
-				}
+				},
 			},
 			smooth: {
 				type: 'straightCross',
@@ -1426,8 +1430,7 @@ function cancelEdit(item, callback) {
 	item.font.color = item.oldFontColor;
 	if (item.from) {
 		unlockEdge(item);
-	}
-	else {
+	} else {
 		unlockNode(item);
 	}
 	if (callback) callback(null);
@@ -1775,7 +1778,8 @@ function zoomnet() {
  * @param {Number} incr
  */
 function zoomincr(incr) {
-	let newScale = Number(elem('zoom').value) + incr;
+	let newScale = Number(elem('zoom').value);
+	newScale += incr;
 	if (newScale > 4) newScale = 4;
 	if (newScale <= 0.1) newScale = 0.1;
 	elem('zoom').value = newScale;
@@ -1783,14 +1787,14 @@ function zoomincr(incr) {
 }
 /**
  * zoom using a pinch/zoom gesture on a tablet
- * note the starting point  
+ * note the starting point
  */
 var startzoom = 1;
 function zoomstart() {
-	startzoom = Number(elem('zoom').value)
+	startzoom = Number(elem('zoom').value);
 }
 /**
- * zoom by the given amount 
+ * zoom by the given amount
  * @param {Number} newScale
  */
 function zoomset(newScale) {
@@ -1800,18 +1804,31 @@ function zoomset(newScale) {
 	elem('zoom').value = newZoom;
 	network.zoom(newZoom);
 }
+
+var clicks = 0; // accumulate 'mousewheel' clikcs sent while display is updating
+var ticking = false; // if true, we are waiting for an Animationframe
+// see https://www.html5rocks.com/en/tutorials/speed/animations/
+
 /**
  * Zoom using a trackpad (with a mousewheel or two fingers)
- * TODO: throttle the scrolling
- * @param {Event} event 
+ * @param {Event} event
  */
-
 function zoomscroll(event) {
 	event.preventDefault();
-	zoomincr(event.deltaY * 0.05)
+	clicks += event.deltaY;
+	requestZoom();
+}
+function requestZoom() {
+	if (!ticking) requestAnimationFrame(zoomUpdate);
+	ticking = true;
+}
+function zoomUpdate() {
+	zoomincr(clicks * 0.05);
+	ticking = false;
+	clicks = 0;
 }
 
- /* -----------Operations related to the top button bar (not the side panel)-------------
+/* -----------Operations related to the top button bar (not the side panel)-------------
  */
 /**
  * react to the user pressing the Add node button
@@ -1981,7 +1998,7 @@ function loadFile(contents) {
 				data = loadJSONfile(contents);
 				break;
 			default:
-				throw { message: 'Unrecognised file name suffix' };
+				throw {message: 'Unrecognised file name suffix'};
 		}
 		network.setOptions({
 			interaction: {
@@ -1997,7 +2014,7 @@ function loadFile(contents) {
 			n = deepMerge(styles.nodes[n.grp], n);
 			// version 1.6 made changes to label scaling
 			n.scaling = {
-				label: { enabled: false, max: 40, min: 10 },
+				label: {enabled: false, max: 40, min: 10},
 				max: 100,
 				min: 10,
 			};
@@ -2021,7 +2038,7 @@ function loadFile(contents) {
 		undoRedoButtonStatus();
 		updateLegend();
 		logHistory('loaded &lt;' + lastFileName + '&gt;');
-	})
+	});
 }
 /**
  * Parse and load a PRSM map file, or a JSON file exported from Gephi
@@ -2069,21 +2086,25 @@ function loadJSONfile(json) {
 	if (json.samples) json.styles = json.samples;
 	if (json.styles) {
 		styles.nodes = json.styles.nodes;
-		for (let n in styles.nodes) { delete styles.nodes[n].chosen };
+		for (let n in styles.nodes) {
+			delete styles.nodes[n].chosen;
+		}
 		styles.edges = json.styles.edges;
-		for (let e in styles.edges) { delete styles.edges[e].chosen };
+		for (let e in styles.edges) {
+			delete styles.edges[e].chosen;
+		}
 		refreshSampleNodes();
 		refreshSampleLinks();
-			for (let groupId in styles.nodes) {
-				ySamplesMap.set(groupId, {
-					node: styles.nodes[groupId],
-				});
-			}
-			for (let edgeId in styles.edges) {
-				ySamplesMap.set(edgeId, {
-					edge: styles.edges[edgeId],
-				});
-			}
+		for (let groupId in styles.nodes) {
+			ySamplesMap.set(groupId, {
+				node: styles.nodes[groupId],
+			});
+		}
+		for (let edgeId in styles.edges) {
+			ySamplesMap.set(edgeId, {
+				edge: styles.edges[edgeId],
+			});
+		}
 	}
 	yPointsArray.delete(0, yPointsArray.length);
 	if (json.underlay) yPointsArray.insert(0, json.underlay);
@@ -3220,8 +3241,8 @@ function updateFactorsHiddenByStyle(obj) {
 	for (const sampleElementId in obj) {
 		let sampleElement = elem(sampleElementId);
 		let state = obj[sampleElementId];
-		sampleElement.dataset.hide = (state ? 'hidden' : 'visible');
-		sampleElement.style.opacity = (state ? 0.6 : 1.0);
+		sampleElement.dataset.hide = state ? 'hidden' : 'visible';
+		sampleElement.style.opacity = state ? 0.6 : 1.0;
 	}
 }
 
