@@ -206,14 +206,14 @@ function setUpPage() {
 	container.panelHidden = true;
 	cp = new CP();
 	cp.createColorPicker('netBackColorWell', updateNetBack);
-	hammer = new Hammer(netPane);
+	/* hammer = new Hammer(netPane);
 	hammer.get('pinch').set({enable: true});
 	hammer.on('pinchstart', () => {
 		zoomstart();
 	});
 	hammer.on('pinch', (e) => {
 		zoomset(e.scale);
-	});
+	}); */
 	setUpSamples();
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'));
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'));
