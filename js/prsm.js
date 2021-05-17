@@ -2065,7 +2065,8 @@ function loadFile(contents) {
 		nodes.clear();
 		edges.clear();
 		draw();
-
+	});
+	doc.transact(() => {
 		switch (lastFileName.split('.').pop().toLowerCase()) {
 			case 'csv':
 				data = parseCSV(contents);
@@ -2117,11 +2118,11 @@ function loadFile(contents) {
 		data.edges.update(edgesToUpdate);
 
 		network.fit(0);
-		yUndoManager.clear();
-		undoRedoButtonStatus();
 		updateLegend();
 		logHistory('loaded &lt;' + lastFileName + '&gt;');
 	});
+	yUndoManager.clear();
+	undoRedoButtonStatus();
 }
 /**
  * Parse and load a PRSM map file, or a JSON file exported from Gephi
