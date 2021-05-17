@@ -32,7 +32,7 @@ import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
 import {EmojiButton} from '@joeattardi/emoji-button';
 import Quill from 'quill';
-import * as Hammer from '@egjs/hammerjs';
+import Hammer from '@egjs/hammerjs';
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 import {version} from '../package.json';
@@ -80,7 +80,7 @@ var tutorial = new Tutorial(); // object driving the tutorial
 export var cp; // color picker
 var checkMapSaved = false; // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
 var dirty = false; // map has been changed by user and may need saving
-var hammer; // HAmmer pinch recogniser instance
+var hammer; // Hammer pinch recogniser instance
 /**
  * top level function to initialise everything
  */
@@ -206,14 +206,14 @@ function setUpPage() {
 	container.panelHidden = true;
 	cp = new CP();
 	cp.createColorPicker('netBackColorWell', updateNetBack);
-	/* hammer = new Hammer(netPane);
+	hammer = new Hammer(netPane);
 	hammer.get('pinch').set({enable: true});
 	hammer.on('pinchstart', () => {
 		zoomstart();
 	});
 	hammer.on('pinch', (e) => {
 		zoomset(e.scale);
-	}); */
+	});
 	setUpSamples();
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'));
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'));
