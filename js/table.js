@@ -342,6 +342,14 @@ function initialiseFactorTable() {
 					},
 				],
 			},
+			{
+				title: 'Statistics',
+				columns: [
+					{ title: 'In-degree', field: 'indegree', headerVertical: true, cssClass: 'grey' },
+					{ title: 'Out-degree', field: 'outdegree', headerVertical: true, cssClass: 'grey' },
+					{ title: 'Total degree', field: 'degree', headerVertical: true, cssClass: 'grey' },
+				]
+			}
 		],
 	});
 	// add all the user defined attribute columns
@@ -391,8 +399,15 @@ function convertNode(node) {
 	if (n.modified) n.modifiedTime = timeAndDate(n.modified.time);
 	else if (n.created) n.modifiedTime = timeAndDate(n.created.time);
 	else n.modifiedTime = '--';
+	n.indegree = 0;
+	n.outdegree = 0;
+	Array.from(yEdgesMap.values()).forEach((e) => {
+		if (n.id == e.from) n.outdegree++;
+		if (n.id == e.to) n.indegree++;
+	});
+	n.degree = n.outdegree + n.indegree;
 	return n;
-}
+}	
 
 /**
  * store the user's edit to the cell value

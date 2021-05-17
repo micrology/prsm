@@ -668,6 +668,7 @@ export function legend(warn = false) {
 		edge.smooth = 'horizontal';
 		edge.font = {size: 12, color: 'black', align: 'top', vadjust: -10};
 		edge.widthConstraint = 80;
+		edge.chosen = false;
 		let nodes = [
 			{
 				id: edge.from,
