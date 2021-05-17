@@ -34,8 +34,8 @@ import {EmojiButton} from '@joeattardi/emoji-button';
 import Quill from 'quill';
 import * as Hammer from '@egjs/hammerjs';
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
-import { setUpPaint, setUpToolbox, deselectTool, redraw } from './paint.js';
-import { version } from '../package.json';
+import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
+import {version} from '../package.json';
 
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
@@ -145,7 +145,7 @@ function addEventListeners() {
 	listen('zoomplus', 'click', () => {
 		zoomincr(0.1);
 	});
-	listen('net-pane', 'wheel', zoomscroll);
+	//listen('net-pane', 'wheel', zoomscroll);
 	listen('nodesButton', 'click', () => {
 		openTab('nodesTab');
 	});
@@ -182,6 +182,8 @@ function addEventListeners() {
 			applySampleToLink(event);
 		})
 	);
+	listen('container', 'copy', copyToClipboard);
+	listen('container', 'paste', pasteFromClipboard);
 }
 
 /**
@@ -1181,6 +1183,87 @@ function snapToGrid(node) {
 	node.x = GRIDSPACING * Math.round(node.x / GRIDSPACING);
 	node.y = GRIDSPACING * Math.round(node.y / GRIDSPACING);
 }
+/**
+ * Copy the selected nodes and links to the clipboard
+ * @param {Event} event
+ */
+function copyToClipboard() {
+	let nIds = network.getSelectedNodes();
+	let eIds = network.getSelectedEdges();
+	if (nIds.length + eIds.length == 0) {
+		statusMsg('Nothing selected to copy', 'warn');
+		return;
+	}
+	let nodes = [];
+	let edges = [];
+	nIds.forEach((nId) => {
+		nodes.push(data.nodes.get(nId));
+		let edgesFromNode = network.getConnectedEdges(nId);
+		edgesFromNode.forEach((eId) => {
+			let edge = data.edges.get(eId);
+			if (nIds.includes(edge.to) && nIds.includes(edge.from) && !edges.find((e) => e.id == eId)) edges.push(edge);
+		});
+	});
+	eIds.forEach((eId) => {
+		let edge = data.edges.get(eId);
+		if (!nodes.find((n) => n.id == edge.from)) nodes.push(data.nodes.get(edge.from));
+		if (!nodes.find((n) => n.id == edge.to)) nodes.push(data.nodes.get(edge.to));
+		if (!edges.find((e) => e.id == eId)) edges.push(data.edges.get(eId));
+	});
+	copyText(JSON.stringify({nodes: nodes, edges: edges}));
+}
+
+async function copyText(text) {
+	try {
+		await navigator.clipboard.writeText(text);
+		return true;
+	} catch (err) {
+		console.error('Failed to copy: ', err);
+		statusMsg('Copy failed', 'error');
+		return false;
+	}
+}
+
+async function pasteFromClipboard() {
+	unSelect();
+	let clip = await getClipboardContents();
+	let nodes, edges;
+	try {
+		({nodes, edges} = JSON.parse(clip));
+	} catch (err) {
+		// silently return if there is nothing relevant on the clipboard
+		return;
+	}
+	nodes.forEach((node) => {
+		let oldId = node.id;
+		node.id = uuidv4();
+		node.x += 40;
+		node.y += 40;
+		edges.forEach((edge) => {
+			if (edge.from == oldId) edge.from = node.id;
+			if (edge.to == oldId) edge.to = node.id;
+		});
+	});
+	edges.forEach((edge) => {
+		edge.id = uuidv4();
+	});
+	data.nodes.add(nodes);
+	data.edges.add(edges);
+	network.setSelection({nodes: nodes.map((n) => n.id), edges: edges.map((e) => e.id)});
+	showSelected();
+	copyToClipboard();
+}
+
+async function getClipboardContents() {
+	try {
+		return await navigator.clipboard.readText();
+	} catch (err) {
+		console.error('Failed to read clipboard contents: ', err);
+		statusMsg('Failed to paste', 'error');
+		return null;
+	}
+}
+
 /* ----------------- dialogs for creating and editing nodes and links ----------------*/
 
 /**
@@ -2556,17 +2639,9 @@ function setUpShareDialog() {
 		e.preventDefault();
 		// Select the text
 		inputElem.select();
-		let copied;
-		try {
-			// Copy the text
-			copied = document.execCommand('copy');
-		} catch (ex) {
-			copied = false;
-		}
-		if (copied) {
+		if (copyText(inputElem.value))
 			// Display the copied text message
 			copiedText.style.display = 'inline-block';
-		}
 	});
 }
 
