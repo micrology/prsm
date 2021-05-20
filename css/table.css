@@ -45,3 +45,6 @@
     float: right;
     padding: 4px;
 }
+.tabulator-col-group {
+    border-left: 1px black solid;
+}

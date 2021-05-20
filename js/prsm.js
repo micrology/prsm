@@ -1219,7 +1219,9 @@ async function copyText(text) {
 		return true;
 	} catch (err) {
 		console.error('Failed to copy: ', err);
-		statusMsg('Copy failed', 'error');
+		// weirdly, writeText fails on Safri, but manages to copy nevertheless!
+		// so we don't let the user have an error message.
+//		statusMsg('Copy failed', 'error');
 		return false;
 	}
 }

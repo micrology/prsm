@@ -348,6 +348,7 @@ function initialiseFactorTable() {
 					{ title: 'In-degree', field: 'indegree', headerVertical: true, cssClass: 'grey' },
 					{ title: 'Out-degree', field: 'outdegree', headerVertical: true, cssClass: 'grey' },
 					{ title: 'Total degree', field: 'degree', headerVertical: true, cssClass: 'grey' },
+					{title: 'Betweenness', field: 'bc', headerVertical: true, cssClass: 'grey' }
 				]
 			}
 		],
@@ -406,6 +407,7 @@ function convertNode(node) {
 		if (n.id == e.to) n.indegree++;
 	});
 	n.degree = n.outdegree + n.indegree;
+	
 	return n;
 }	
 
