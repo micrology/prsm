@@ -1221,7 +1221,7 @@ async function copyText(text) {
 		console.error('Failed to copy: ', err);
 		// weirdly, writeText fails on Safri, but manages to copy nevertheless!
 		// so we don't let the user have an error message.
-//		statusMsg('Copy failed', 'error');
+		//		statusMsg('Copy failed', 'error');
 		return false;
 	}
 }
@@ -2497,12 +2497,40 @@ function exportPNGfile() {
 	const a = document.createElement('a');
 	document.body.appendChild(a);
 	a.setAttribute('style', 'display: none');
-	a.href = network.canvas.frame.firstChild.toDataURL('image/png');
-	a.download = lastFileName;
-	a.click();
-	a.remove();
-	statusMsg(`'${lastFileName}' saved`);
+	// create a very large canvas, so we can download at high resolution
+	let bigNetPane = null;
+	let bigNetwork = null;
+	let bigNetCanvas = null;
+	network.storePositions();
+	bigNetPane = document.createElement('div');
+	bigNetPane.id = 'big-net-pane';
+	bigNetPane.style.position = 'absolute';
+	bigNetPane.style.top = '-9999px';
+	bigNetPane.style.left = '-9999px';
+	bigNetPane.style.width = `${netPane.offsetWidth * magnification}px`;
+	bigNetPane.style.height = `${netPane.offsetHeight * magnification}px`;
+	elem('main').appendChild(bigNetPane);
+	bigNetwork = new Network(bigNetPane, data, {
+		physics: {enabled: false},
+	});
+	bigNetCanvas = bigNetPane.firstElementChild.firstElementChild;
+	bigNetwork.moveTo({
+		position: network.getViewPosition(),
+		scale: network.getScale() * magnification,
+	});
+	bigNetwork.once('afterDrawing', () => {
+		a.href = bigNetCanvas.toDataURL('image/png');
+		a.download = lastFileName;
+		a.addEventListener('click', () => {
+		a.remove();
+		bigNetwork.destroy();
+		bigNetPane.remove();
+			statusMsg(`'${lastFileName}' saved`);
+		})
+		a.click();
+	});
 }
+
 /**
  * resets lastFileName to have supplied extension
  * @param {string} extn filename extnsion to apply
