@@ -1777,7 +1777,6 @@ function unSelect() {
 // set  up a web worker to calculate network statistics in parallel with whatever
 // the user is doing
 var worker = new Worker(new URL('betweenness.js', import.meta.url));
-var bc; //caches the betweenness centralities
 /**
  * Ask the web worker to recalculate network statistics
  */
@@ -1789,7 +1788,16 @@ function recalculateStats() {
 }
 worker.onmessage = function (e) {
 	if (typeof e.data == 'string') statusMsg(e.data, 'error');
-	else bc = e.data;
+	else {
+		let nodesToUpdate = [];
+		data.nodes.get().forEach((n) => {
+			if (n.bc != e.data[n.id]) {
+				n.bc = e.data[n.id].toPrecision(3);
+				nodesToUpdate.push(n)
+			}
+		})
+		if (nodesToUpdate) data.nodes.update(nodesToUpdate)
+	}
 };
 /* 
   ----------- Status messages ---------------------------------------
@@ -1890,15 +1898,15 @@ function zoomset(newScale) {
 	network.zoom(newZoom);
 }
 
-var clicks = 0; // accumulate 'mousewheel' clikcs sent while display is updating
-var ticking = false; // if true, we are waiting for an Animationframe
+/* var clicks = 0; // accumulate 'mousewheel' clikcs sent while display is updating
+var ticking = false; // if true, we are waiting for an Animationframe */
 // see https://www.html5rocks.com/en/tutorials/speed/animations/
 
 /**
  * Zoom using a trackpad (with a mousewheel or two fingers)
  * @param {Event} event
  */
-function zoomscroll(event) {
+/* function zoomscroll(event) {
 	event.preventDefault();
 	clicks += event.deltaY;
 	requestZoom();
@@ -1911,7 +1919,7 @@ function zoomUpdate() {
 	zoomincr(clicks * 0.05);
 	ticking = false;
 	clicks = 0;
-}
+} */
 
 /* -----------Operations related to the top button bar (not the side panel)-------------
  */
@@ -2492,6 +2500,9 @@ function saveStr(str, extn) {
 /**
  * save the map as a PNG image file
  */
+
+const upscaling = 4;  // how much bigger the image is than the displayed map
+
 function exportPNGfile() {
 	setFileName('png');
 	const a = document.createElement('a');
@@ -2507,8 +2518,8 @@ function exportPNGfile() {
 	bigNetPane.style.position = 'absolute';
 	bigNetPane.style.top = '-9999px';
 	bigNetPane.style.left = '-9999px';
-	bigNetPane.style.width = `${netPane.offsetWidth * magnification}px`;
-	bigNetPane.style.height = `${netPane.offsetHeight * magnification}px`;
+	bigNetPane.style.width = `${netPane.offsetWidth * upscaling}px`;
+	bigNetPane.style.height = `${netPane.offsetHeight * upscaling}px`;
 	elem('main').appendChild(bigNetPane);
 	bigNetwork = new Network(bigNetPane, data, {
 		physics: {enabled: false},
@@ -2516,7 +2527,7 @@ function exportPNGfile() {
 	bigNetCanvas = bigNetPane.firstElementChild.firstElementChild;
 	bigNetwork.moveTo({
 		position: network.getViewPosition(),
-		scale: network.getScale() * magnification,
+		scale: network.getScale() * upscaling,
 	});
 	bigNetwork.once('afterDrawing', () => {
 		a.href = bigNetCanvas.toDataURL('image/png');
@@ -3020,7 +3031,8 @@ function displayStatistics(nodeId) {
 	let outDegree = network.getConnectedNodes(nodeId, 'to').length;
 	let leverage = inDegree == 0 ? '--' : (outDegree / inDegree).toPrecision(3);
 	elem('leverage').textContent = leverage;
-	elem('bc').textContent = bc[nodeId] >= 0 ? bc[nodeId].toPrecision(3) : '--';
+	let node = data.nodes.get(nodeId);
+	elem('bc').textContent = node.bc >= 0 ? node.bc : '--';
 }
 // Network tab
 
@@ -3382,7 +3394,7 @@ function sizing(metric) {
 				break;
 			}
 			case 'Centrality':
-				node.value = bc[node.id];
+				node.value = node.bc;
 				break;
 		}
 		nodesToUpdate.push(node);
