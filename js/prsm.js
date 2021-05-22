@@ -1185,9 +1185,11 @@ function snapToGrid(node) {
 }
 /**
  * Copy the selected nodes and links to the clipboard
+ * NB this doesn't yet work in Firefox, as they haven't implemented the Clipboard API and Permissions yet.
  * @param {Event} event
  */
-function copyToClipboard() {
+function copyToClipboard(event) {
+	event.preventDefault();
 	let nIds = network.getSelectedNodes();
 	let eIds = network.getSelectedEdges();
 	if (nIds.length + eIds.length == 0) {
@@ -1219,14 +1221,13 @@ async function copyText(text) {
 		return true;
 	} catch (err) {
 		console.error('Failed to copy: ', err);
-		// weirdly, writeText fails on Safri, but manages to copy nevertheless!
-		// so we don't let the user have an error message.
-		//		statusMsg('Copy failed', 'error');
+		statusMsg('Copy failed', 'error');
 		return false;
 	}
 }
 
 async function pasteFromClipboard() {
+	event.preventDefault();
 	unSelect();
 	let clip = await getClipboardContents();
 	let nodes, edges;
@@ -1253,7 +1254,6 @@ async function pasteFromClipboard() {
 	data.edges.add(edges);
 	network.setSelection({nodes: nodes.map((n) => n.id), edges: edges.map((e) => e.id)});
 	showSelected();
-	copyToClipboard();
 }
 
 async function getClipboardContents() {
