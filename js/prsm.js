@@ -1792,11 +1792,11 @@ worker.onmessage = function (e) {
 		let nodesToUpdate = [];
 		data.nodes.get().forEach((n) => {
 			if (n.bc != e.data[n.id]) {
-				n.bc = e.data[n.id].toPrecision(3);
-				nodesToUpdate.push(n)
+				n.bc = e.data[n.id];
+				nodesToUpdate.push(n);
 			}
-		})
-		if (nodesToUpdate) data.nodes.update(nodesToUpdate)
+		});
+		if (nodesToUpdate) data.nodes.update(nodesToUpdate);
 	}
 };
 /* 
@@ -2501,7 +2501,7 @@ function saveStr(str, extn) {
  * save the map as a PNG image file
  */
 
-const upscaling = 4;  // how much bigger the image is than the displayed map
+const upscaling = 4; // how much bigger the image is than the displayed map
 
 function exportPNGfile() {
 	setFileName('png');
@@ -2530,16 +2530,24 @@ function exportPNGfile() {
 		scale: network.getScale() * upscaling,
 	});
 	bigNetwork.once('afterDrawing', () => {
-		a.href = bigNetCanvas.toDataURL('image/png');
+		a.href = setCanvasBackgroundColor(bigNetCanvas).toDataURL('image/png');
 		a.download = lastFileName;
 		a.addEventListener('click', () => {
-		a.remove();
-		bigNetwork.destroy();
-		bigNetPane.remove();
+			a.remove();
+			bigNetwork.destroy();
+			bigNetPane.remove();
 			statusMsg(`'${lastFileName}' saved`);
-		})
+		});
 		a.click();
 	});
+}
+function setCanvasBackgroundColor(canvas, color = '#ffffff') {
+	let context = canvas.getContext('2d');
+	context.setTransform();
+	context.globalCompositeOperation = 'destination-over';
+	context.fillStyle = color;
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	return canvas;
 }
 
 /**
