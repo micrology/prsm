@@ -54,7 +54,7 @@ var nodes; // a dataset of nodes
 var edges; // a dataset of edges
 export var data; // an object with the nodes and edges datasets as properties
 const doc = new Y.Doc();
-var websocket = 'wss://cress.soc.surrey.ac.uk/wss'; // web socket server URL
+var websocket = 'wss://www.prsm.uk/wss'; // web socket server URL
 export var clientID; // unique ID for this browser
 var yNodesMap; // shared map of nodes
 var yEdgesMap; // shared map of edges
