@@ -104,7 +104,7 @@ window.onbeforeunload = function (event) {
 	// get confirmation from user before exiting if there are unsaved changes
 	if (checkMapSaved && dirty) {
 		event.preventDefault();
-		event.returnValue = ' ';
+		event.returnValue = 'You have unsaved unchages.  Are you sure you want to leave?';
 	}
 };
 /**
@@ -164,7 +164,7 @@ function addEventListeners() {
 	listen('showCursorSwitch', 'click', showCursorSwitch);
 	listen('showHistorySwitch', 'click', showHistorySwitch);
 	listen('curveSelect', 'change', selectCurve);
-	listen('fixed', 'click', setFixed);
+	listen('lock', 'click', setFixed);
 	Array.from(document.getElementsByName('hide')).forEach((elem) => {
 		elem.addEventListener('change', hideDistantOrStreamNodes);
 	});
@@ -2907,14 +2907,11 @@ export function updateLastSamples(nodeId, linkId) {
  * User has clicked the padlock.  Toggle padlock state and fix the location of the node
  */
 function setFixed() {
-	let unlocked = elem('fixed').firstChild.className.includes('open');
+	let locked = elem('fixed').style.display == 'none';
 	let node = data.nodes.get(network.getSelectedNodes()[0]);
-	if (unlocked) {
-		elem('fixed').firstChild.className = 'fas fa-lock';
-	} else {
-		elem('fixed').firstChild.className = 'fas fa-lock-open';
-	}
-	node.fixed = unlocked;
+	node.fixed = locked;
+	elem('fixed').style.display = node.fixed ? 'inline' : 'none';
+	elem('unfixed').style.display = node.fixed ? 'none' : 'inline';
 	data.nodes.update(node);
 }
 // Notes
@@ -2933,7 +2930,8 @@ function showNodeData() {
 	let panel = elem('nodeDataPanel');
 	let nodeId = network.getSelectedNodes()[0];
 	let node = data.nodes.get(nodeId);
-	elem('fixed').firstChild.className = node.fixed ? 'fas fa-lock' : 'fas fa-lock-open';
+	elem('fixed').style.display = node.fixed ? 'inline' : 'none';
+	elem('unfixed').style.display = node.fixed ? 'none' : 'inline';
 	elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : '';
 	if (node.created) {
 		elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${node.created.user}`;
@@ -3581,6 +3579,7 @@ function showAvatars() {
 		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates
 		.sort((a, b) => (a.name > b.name ? 1 : -1)); // sort names
 	populateChatUserMenu(Array.from(names));
+	if (me.length == 0) return; // app is unloading
 	names.unshift(me[0][1].user); // push myself on to the front
 
 	let avatars = elem('avatars');

@@ -979,10 +979,7 @@ but moving the panel out of sight works instead */
 }
 .chatbox-close {
 	background: var(--panel-color);
-	padding: 3px 5px;
-	margin: 0 0 0 3px;
 	color: white;
-	border-radius: 0 5px 0 5px;
 }
 .chatbox-close:hover {
 	color: var(--header-hover-color);
@@ -1075,10 +1072,10 @@ but moving the panel out of sight works instead */
 	border-radius: 10px 0 0 0;
 	font-size: 28px;
 	color: white;
-	padding: 14px;
+	padding: 8px;
 	position: fixed;
 	right: 0;
-	bottom: 40px;
+	bottom: 36px;
 	z-index: 40;
 }
 .chatbox-blink {

@@ -37,9 +37,7 @@
 				font-display: swap;
 			}
 		</style>
-		<script defer src="../node_modules/@fortawesome/fontawesome-free/js/solid.js"></script>
-		<script defer src="../node_modules/@fortawesome/fontawesome-free/js/fontawesome.js"></script>
-		<link href="../css/vis-network.min.css" rel="stylesheet" />
+		<link rel="preload" href="../css/vis-network.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 		<link href="../node_modules/quill/dist/quill.snow.css" rel="stylesheet" />
 		<link href="../css/prsm.css" rel="stylesheet" />
 		<script>
@@ -79,7 +77,18 @@
 							data-position="below"
 						>
 							<button id="addNode">
-								<i class="fas fa-plus"></i></button
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-plus-lg"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"
+									/>
+								</svg></button
 							><span class="tooltiptext">Add factor</span>
 						</div>
 						<div
@@ -89,17 +98,59 @@
 							data-position="below"
 						>
 							<button id="addLink">
-								<i class="fas fa-long-arrow-alt-right"></i></button
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="28"
+									height="28"
+									fill="currentColor"
+									class="bi bi-arrow-right"
+									viewBox="0 0 16 16"
+								>
+									<path
+										fill-rule="evenodd"
+										d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"
+									/>
+								</svg></button
 							><span class="tooltiptext">Add link</span>
 						</div>
 						<div class="tooltip">
 							<button id="undo" class="disabled">
-								<i class="fas fa-undo small-button"></i></button
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-arrow-counterclockwise"
+									viewBox="0 0 16 16"
+								>
+									<path
+										fill-rule="evenodd"
+										d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"
+									/>
+									<path
+										d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"
+									/>
+								</svg></button
 							><span class="tooltiptext">Undo</span>
 						</div>
 						<div class="tooltip">
 							<button id="redo" class="disabled">
-								<i class="fas fa-redo small-button"></i></button
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-arrow-clockwise"
+									viewBox="0 0 16 16"
+								>
+									<path
+										fill-rule="evenodd"
+										d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"
+									/>
+									<path
+										d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"
+									/>
+								</svg></button
 							><span class="tooltiptext">Redo</span>
 						</div>
 						<div
@@ -109,17 +160,59 @@
 							data-position="below"
 						>
 							<button id="deleteNode">
-								<i class="fas fa-trash-alt small-button"></i></button
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-trash"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"
+									/>
+									<path
+										fill-rule="evenodd"
+										d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+									/>
+								</svg></button
 							><span class="tooltiptext">Delete selected</span>
 						</div>
 						<div class="tooltip">
 							<button id="share">
-								<i class="fas fa-user-friends"></i></button
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-people-fill"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"
+									/>
+									<path
+										fill-rule="evenodd"
+										d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"
+									/>
+									<path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" />
+								</svg></button
 							><span class="tooltiptext">Share</span>
 						</div>
 						<div class="tooltip">
 							<button id="openFile">
-								<i class="fas fa-folder-open small-button"></i></button
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-folder2-open"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v.64c.57.265.94.876.856 1.546l-.64 5.124A2.5 2.5 0 0 1 12.733 15H3.266a2.5 2.5 0 0 1-2.481-2.19l-.64-5.124A1.5 1.5 0 0 1 1 6.14V3.5zM2 6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3H2.5a.5.5 0 0 0-.5.5V6zm-.367 1a.5.5 0 0 0-.496.562l.64 5.124A1.5 1.5 0 0 0 3.266 14h9.468a1.5 1.5 0 0 0 1.489-1.314l.64-5.124A.5.5 0 0 0 14.367 7H1.633z"
+									/>
+								</svg></button
 							><span class="tooltiptext">Open network</span>
 						</div>
 						<div
@@ -129,11 +222,37 @@
 							data-position="left"
 						>
 							<button id="saveFile">
-								<i class="fas fa-download small-button"></i></button
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-download"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"
+									/>
+									<path
+										d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"
+									/>
+								</svg></button
 							><span class="tooltiptext">Save network</span>
 						</div>
 						<div class="dropdown-wrapper">
-							<span id="save-dropdown"> <i class="fa fa-caret-down small-button"></i></span>
+							<span id="save-dropdown">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="16"
+									height="16"
+									fill="currentColor"
+									class="bi bi-caret-down-fill"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"
+									/></svg
+							></span>
 							<div class="dropdown-content">
 								<div class="tooltip">
 									<button id="exportPRSM">PRSM</button>
@@ -160,7 +279,18 @@
 							data-position="left"
 						>
 							<button id="search">
-								<i class="fas fa-search"></i>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-search"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"
+									/>
+								</svg>
 							</button>
 							<span class="tooltiptext searchtip">Search for factors by name</span>
 						</div>
@@ -171,13 +301,36 @@
 							data-position="left"
 						>
 							<button id="help">
-								<i class="fas fa-question"></i>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-question-lg"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M3 4.075a.423.423 0 0 0 .43.44H4.9c.247 0 .442-.2.475-.445.159-1.17.962-2.022 2.393-2.022 1.222 0 2.342.611 2.342 2.082 0 1.132-.668 1.652-1.72 2.444-1.2.872-2.15 1.89-2.082 3.542l.005.386c.003.244.202.44.446.44h1.445c.247 0 .446-.2.446-.446v-.188c0-1.278.487-1.652 1.8-2.647 1.086-.826 2.217-1.743 2.217-3.667C12.667 1.301 10.393 0 7.903 0 5.645 0 3.17 1.053 3.001 4.075zm2.776 10.273c0 .95.758 1.652 1.8 1.652 1.085 0 1.832-.702 1.832-1.652 0-.985-.747-1.675-1.833-1.675-1.04 0-1.799.69-1.799 1.675z"
+									/>
+								</svg>
 							</button>
 							<span class="tooltiptext">Show help in a new window</span>
 						</div>
 						<div class="tooltip" data-tutorial="Show more options" data-step="8" data-position="left">
 							<button id="panelToggle">
-								<i class="fas fa-sliders-h"></i>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-sliders"
+									viewBox="0 0 16 16"
+								>
+									<path
+										fill-rule="evenodd"
+										d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3h9.05zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8h2.05zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1h9.05z"
+									/>
+								</svg>
 							</button>
 							<span class="tooltiptext">Show or hide settings</span>
 						</div>
@@ -185,7 +338,19 @@
 				</div>
 			</nav>
 			<input class="search-bar" id="search-bar" placeholder="Search..." />
-			<span class="search-icon fas fa-search" style="display: none" id="search-icon"></span>
+			<span class="search-icon" style="display: none" id="search-icon"
+				><svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					fill="currentColor"
+					class="bi bi-search"
+					viewBox="0 0 16 16"
+				>
+					<path
+						d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"
+					/></svg
+			></span>
 			<div id="suggestion-list"></div>
 		</header>
 		<main id="main" tabindex="0">
@@ -235,35 +400,128 @@
 				<canvas class="drawing-canvas" id="temp-canvas"></canvas>
 				<div class="toolbox" id="toolbox">
 					<div class="tool" id="line">
-						<i class="fas fa-minus"></i>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							fill="currentColor"
+							class="bi bi-border-width"
+							viewBox="0 0 16 16"
+						>
+							<path
+								d="M0 3.5A.5.5 0 0 1 .5 3h15a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H.5a.5.5 0 0 1-.5-.5v-2zm0 5A.5.5 0 0 1 .5 8h15a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H.5a.5.5 0 0 1-.5-.5v-1zm0 4a.5.5 0 0 1 .5-.5h15a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5z"
+							/>
+						</svg>
 						<span class="tooltiptext">Line</span>
 					</div>
 					<div class="tool" id="rect">
-						<i class="fas fa-vector-square"></i>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							fill="currentColor"
+							class="bi bi-bounding-box-circles"
+							viewBox="0 0 16 16"
+						>
+							<path
+								d="M2 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM0 2a2 2 0 0 1 3.937-.5h8.126A2 2 0 1 1 14.5 3.937v8.126a2 2 0 1 1-2.437 2.437H3.937A2 2 0 1 1 1.5 12.063V3.937A2 2 0 0 1 0 2zm2.5 1.937v8.126c.703.18 1.256.734 1.437 1.437h8.126a2.004 2.004 0 0 1 1.437-1.437V3.937A2.004 2.004 0 0 1 12.063 2.5H3.937A2.004 2.004 0 0 1 2.5 3.937zM14 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM2 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm12 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
+							/>
+						</svg>
 						<span class="tooltiptext">Rectangle</span>
 					</div>
 					<div class="tool" id="text">
-						<i class="fas fa-font"></i>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							fill="currentColor"
+							class="bi bi-type"
+							viewBox="0 0 16 16"
+						>
+							<path
+								d="m2.244 13.081.943-2.803H6.66l.944 2.803H8.86L5.54 3.75H4.322L1 13.081h1.244zm2.7-7.923L6.34 9.314H3.51l1.4-4.156h.034zm9.146 7.027h.035v.896h1.128V8.125c0-1.51-1.114-2.345-2.646-2.345-1.736 0-2.59.916-2.666 2.174h1.108c.068-.718.595-1.19 1.517-1.19.971 0 1.518.52 1.518 1.464v.731H12.19c-1.647.007-2.522.8-2.522 2.058 0 1.319.957 2.18 2.345 2.18 1.06 0 1.716-.43 2.078-1.011zm-1.763.035c-.752 0-1.456-.397-1.456-1.244 0-.65.424-1.115 1.408-1.115h1.805v.834c0 .896-.752 1.525-1.757 1.525z"
+							/>
+						</svg>
 						<span class="tooltiptext">Text</span>
 					</div>
 					<div class="tool" id="pencil">
-						<i class="fas fa-pencil-alt"></i>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							fill="currentColor"
+							class="bi bi-pencil-fill"
+							viewBox="0 0 16 16"
+						>
+							<path
+								d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"
+							/>
+						</svg>
 						<span class="tooltiptext">Pencil</span>
 					</div>
 					<div class="tool" id="marker">
-						<i class="fas fa-highlighter"></i>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							fill="currentColor"
+							class="bi bi-brush-fill"
+							viewBox="0 0 16 16"
+						>
+							<path
+								d="M15.825.12a.5.5 0 0 1 .132.584c-1.53 3.43-4.743 8.17-7.095 10.64a6.067 6.067 0 0 1-2.373 1.534c-.018.227-.06.538-.16.868-.201.659-.667 1.479-1.708 1.74a8.118 8.118 0 0 1-3.078.132 3.659 3.659 0 0 1-.562-.135 1.382 1.382 0 0 1-.466-.247.714.714 0 0 1-.204-.288.622.622 0 0 1 .004-.443c.095-.245.316-.38.461-.452.394-.197.625-.453.867-.826.095-.144.184-.297.287-.472l.117-.198c.151-.255.326-.54.546-.848.528-.739 1.201-.925 1.746-.896.126.007.243.025.348.048.062-.172.142-.38.238-.608.261-.619.658-1.419 1.187-2.069 2.176-2.67 6.18-6.206 9.117-8.104a.5.5 0 0 1 .596.04z"
+							/>
+						</svg>
 						<span class="tooltiptext">Marker</span>
 					</div>
 					<div class="tool" id="eraser">
-						<i class="fas fa-eraser"></i>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							fill="currentColor"
+							class="bi bi-eraser-fill"
+							viewBox="0 0 16 16"
+						>
+							<path
+								d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828l6.879-6.879zm.66 11.34L3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293l.16-.16z"
+							/>
+						</svg>
 						<span class="tooltiptext">Eraser</span>
 					</div>
 					<div class="tool" id="image">
-						<i class="fas fa-image"></i>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							fill="currentColor"
+							class="bi bi-image"
+							viewBox="0 0 16 16"
+						>
+							<path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+							<path
+								d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"
+							/>
+						</svg>
 						<span class="tooltiptext">Load image</span>
 					</div>
 					<div class="tool" id="undotool">
-						<i class="fas fa-undo-alt"></i>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							fill="currentColor"
+							class="bi bi-arrow-counterclockwise"
+							viewBox="0 0 16 16"
+						>
+							<path
+								fill-rule="evenodd"
+								d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"
+							/>
+							<path
+								d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"
+							/>
+						</svg>
 						<span class="tooltiptext">Undo last shape</span>
 					</div>
 				</div>
@@ -462,8 +720,24 @@
 				<div>
 					<span class="nodeLabel" id="nodeLabel"></span>
 				</div>
-				<div>
-					<span id="fixed"><i class="fas fa-lock-open"></i></span>
+				<div id="lock">
+					<span id="unfixed"
+						><svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							fill="currentColor"
+							class="bi bi-unlock-fill"
+							viewBox="0 0 16 16"
+						>
+							<path
+								d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2z"
+							/></svg
+					></span>
+					<span id="fixed"
+						><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill" viewBox="0 0 16 16">
+							<path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+						  </svg></span>
 				</div>
 			</div>
 			<div class="row">
@@ -667,7 +941,21 @@
 			data-position="left-middle"
 		>
 			<div class="tooltip">
-				<i class="fas fa-comments"></i>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="24"
+					height="24"
+					fill="currentColor"
+					class="bi bi-chat-left-text"
+					viewBox="0 0 16 16"
+				>
+					<path
+						d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"
+					/>
+					<path
+						d="M3 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3 6a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 6zm0 2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"
+					/>
+				</svg>
 				<span class="tooltiptext" style="margin-top: -50px; margin-left: -160px">Open chat window</span>
 			</div>
 		</div>
@@ -683,7 +971,19 @@
 					</div>
 					<div class="chatbox-icons">
 						<div class="tooltip">
-							<span class="chatbox-close" id="minimize"><i class="fas fa-times"></i></span>
+							<span class="chatbox-close" id="minimize"
+								><svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-x"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+									/></svg
+							></span>
 							<span class="tooltiptext" style="margin-left: -100px">Close chat window</span>
 						</div>
 					</div>
@@ -706,14 +1006,37 @@
 				<div class="chat-input-holder">
 					<textarea class="chat-input" id="chat-input" placeholder="Your message here..."></textarea>
 					<button class="message-send" id="send-button">
-						<i class="fas fa-paper-plane"></i>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							fill="currentColor"
+							class="bi bi-arrow-up-right-circle-fill"
+							viewBox="0 0 16 16"
+						>
+							<path
+								d="M0 8a8 8 0 1 0 16 0A8 8 0 0 0 0 8zm5.904 2.803a.5.5 0 1 1-.707-.707L9.293 6H6.525a.5.5 0 1 1 0-1H10.5a.5.5 0 0 1 .5.5v3.975a.5.5 0 0 1-1 0V6.707l-4.096 4.096z"
+							/>
+						</svg>
 					</button>
 				</div>
 			</div>
 		</div>
 		<div class="history-window" id="history-window">
 			<div class="history-header" id="history-header">
-				History<span class="history-close" id="history-close"><i class="fas fa-times"></i></span>
+				History<span class="history-close" id="history-close"
+					><svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="16"
+						height="16"
+						fill="currentColor"
+						class="bi bi-x"
+						viewBox="0 0 16 16"
+					>
+						<path
+							d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+						/></svg
+				></span>
 			</div>
 			<div class="history-log" id="history-log"></div>
 		</div>
