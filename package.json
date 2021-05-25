@@ -1,6 +1,6 @@
 {
 	"name": "participatory-system-mapper",
-	"version": "1.4.2",
+	"version": "1.6.9",
 	"description": "Participatory System Mapper, browser app for collaboratively creating system maps",
 	"keywords": [
 		"social network",
@@ -28,37 +28,41 @@
 	"scripts": {
 		"lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
 		"pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/*.css doc/**/*.{html,css} package.json",
-		"build-help": "pandoc README.md --metadata title='PRSM Help' -f gfm -t html5 -c doc/help.css -s -A doc/scrollNav.html -B  doc/scrollNavHead.html -o ./help.html",
+		"build-help": "pandoc doc/help.md --metadata title='PRSM Help' -f markdown-markdown_in_html_blocks+raw_html -t html5 -c /doc/help.css -s -A doc/scrollNav.html -H doc/meta.html -B  doc/scrollNavHead.html -o html/help.html && npm run dev",
 		"check": "npm run --silent lint && npm run --silent build-help && npm run --silent pretty",
-		"serve": "parcel ./html/prsm.html",
-		"dev": "rm -rf dist/* && parcel build ./html/prsm.html --no-optimize --no-scope-hoist --detailed-report 1",
-		"build": "rm -rf dist/* && parcel build ./html/prsm.html",
+		"dev": "rm -rf dist/* && parcel build './html/*.html' --no-optimize --no-scope-hoist --detailed-report 1",
+		"build": "rm -rf dist/* && parcel build './html/*.html'",
 		"jsdoc": "npx jsdoc -r ./js -d ./doc/jsdoc",
-		"clean": "rm -rf dist/* out/*"
+		"clean": "rm -rf dist/*"
 	},
 	"license": "GPL-3.0-or-later",
 	"dependencies": {
 		"@egjs/hammerjs": "^2.0.17",
+		"@fortawesome/fontawesome-free": "^5.15.3",
+		"@jaames/iro": "^5.5.1",
 		"@joeattardi/emoji-button": "^4.6.0",
-		"fast-xml-parser": "^3.17.6",
+		"@types/quill": "^2.0.7",
+		"fast-xml-parser": "^3.19.0",
+		"quill": "^1.3.7",
+		"tabulator-tables": "^4.9.3",
+		"uniqolor": "^1.0.1",
 		"uuid": "^8.3.2",
 		"vis-data": "^7.1.2",
-		"vis-network": "^9.0.2",
+		"vis-network": "^9.0.4",
 		"vis-util": "^5.0.2",
 		"y-indexeddb": "^9.0.6",
-		"y-protocols": "^1.0.4",
+		"y-protocols": "^1.0.5",
 		"y-websocket": "^1.3.11",
-		"yjs": "^13.5.0"
+		"yjs": "^13.5.6"
 	},
 	"devDependencies": {
-		"@types/intro.js": "^3.0.0",
-		"eslint": "^7.19.0",
-		"eslint-config-prettier": "^7.2.0",
+		"eslint": "^7.27.0",
+		"eslint-config-prettier": "^8.3.0",
 		"foodoc": "0.0.9",
-		"install": "^0.13.0",
-		"jsdoc": "^3.6.6",
-		"parcel": "^2.0.0-beta.1",
-		"prettier": "^2.2.1"
+		"jsdoc": "^3.6.7",
+		"npm-upgrade": "^3.0.0",
+		"parcel": "^2.0.0-beta.2",
+		"prettier": "^2.3.0"
 	},
 	"private": true
 }

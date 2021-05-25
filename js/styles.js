@@ -8,8 +8,20 @@ import {
 	deepCopy,
 	standardize_color,
 	dragElement,
+	statusMsg,
+	clearStatusBar,
 } from './utils.js';
-import {statusMsg, updateLastSamples} from './prsm.js';
+import {
+	network,
+	data,
+	ySamplesMap,
+	yNetMap,
+	clientID,
+	selectFactors,
+	selectLinks,
+	updateLastSamples,
+	cp,
+} from './prsm.js';
 import {styles} from './samples.js';
 
 const NODESTYLEWIDTH = 10; // chars for label splitting
@@ -48,6 +60,9 @@ export function setUpSamples() {
 		});
 		sampleElement.addEventListener('click', () => {
 			updateLastSamples(groupId, null);
+		});
+		sampleElement.addEventListener('contextmenu', (event) => {
+			styleNodeContextMenu(event, sampleElement, groupId);
 		});
 		sampleElement.groupNode = groupId;
 		sampleElement.dataSet = nodeDataSet;
@@ -97,8 +112,122 @@ export function setUpSamples() {
 		sampleElement.addEventListener('click', () => {
 			updateLastSamples(null, groupId);
 		});
+		sampleElement.addEventListener('contextmenu', (event) => {
+			styleEdgeContextMenu(event, sampleElement, groupId);
+		});
 		sampleElement.groupLink = groupId;
 		sampleElement.dataSet = edgeDataSet;
+	}
+	// set up color pickers
+	cp.createColorPicker('nodeEditFillColor', nodeEditSave);
+	cp.createColorPicker('nodeEditBorderColor', nodeEditSave);
+	cp.createColorPicker('nodeEditFontColor', nodeEditSave);
+	cp.createColorPicker('linkEditLineColor', linkEditSave);
+
+	// set up listeners
+	listen('nodeEditCancel', 'click', nodeEditCancel);
+	listen('nodeEditName', 'keyup', nodeEditSave);
+	listen('nodeEditShape', 'change', nodeEditSave);
+	listen('nodeEditBorder', 'change', nodeEditSave);
+	listen('nodeEditFontSize', 'change', nodeEditSave);
+	listen('nodeEditSubmit', 'click', nodeEditSubmit);
+
+	listen('linkEditCancel', 'click', linkEditCancel);
+	listen('linkEditName', 'keyup', linkEditSave);
+	listen('linkEditWidth', 'input', linkEditSave);
+	listen('linkEditDashes', 'input', linkEditSave);
+	listen('linkEditArrows', 'change', linkEditSave);
+	listen('linkEditSubmit', 'click', linkEditSubmit);
+}
+
+var factorsHiddenByStyle = {};
+listen('nodesTab', 'contextmenu', (e) => {
+	e.preventDefault();
+});
+listen('linksTab', 'contextmenu', (e) => {
+	e.preventDefault();
+});
+
+function styleNodeContextMenu(event, sampleElement, groupId) {
+	let menu = elem('styleNodeContextMenu');
+	event.preventDefault();
+	showMenu(event.pageX, event.pageY);
+	document.addEventListener('click', onClick, false);
+
+	function onClick(event) {
+		hideMenu();
+		document.removeEventListener('click', onClick);
+		if (event.target.id == 'styleNodeContextMenuSelect') {
+			selectFactorsWithStyle(groupId);
+		} else if (event.target.id == 'styleNodeContextMenuHide') {
+			if (sampleElement.dataset.hide != 'hidden') {
+				hideFactorsWithStyle(groupId, true);
+				sampleElement.dataset.hide = 'hidden';
+				sampleElement.style.opacity = 0.6;
+			} else {
+				hideFactorsWithStyle(groupId, false);
+				sampleElement.dataset.hide = 'visible';
+				sampleElement.style.opacity = 1.0;
+			}
+		} else console.log('Bad option in styleContextMenu', event.target.id);
+	}
+	function showMenu(x, y) {
+		elem('styleNodeContextMenuHide').innerText =
+			sampleElement.dataset.hide == 'hidden' ? 'Unhide Factors' : 'Hide Factors';
+		menu.style.left = x + 'px';
+		menu.style.top = y + 'px';
+		menu.classList.add('show-menu');
+	}
+	function hideMenu() {
+		menu.classList.remove('show-menu');
+	}
+	function selectFactorsWithStyle(groupId) {
+		selectFactors(data.nodes.getIds({filter: (node) => node.grp == groupId}));
+	}
+	function hideFactorsWithStyle(groupId, toggle) {
+		let nodes = data.nodes.get({filter: (node) => node.grp == groupId});
+		nodes.forEach((node) => {
+			node.hidden = toggle;
+		});
+		data.nodes.update(nodes);
+		let edges = [];
+		nodes.forEach((node) => {
+			let connectedEdges = network.getConnectedEdges(node.id);
+			connectedEdges.forEach((edgeId) => {
+				edges.push(data.edges.get(edgeId));
+			});
+			edges.forEach((edge) => {
+				edge.hidden = toggle;
+			});
+			data.edges.update(edges);
+		});
+		factorsHiddenByStyle[sampleElement.id] = toggle;
+		yNetMap.set('factorsHiddenByStyle', factorsHiddenByStyle);
+	}
+}
+function styleEdgeContextMenu(event, sampleElement, groupId) {
+	let menu = elem('styleEdgeContextMenu');
+	event.preventDefault();
+	showMenu(event.pageX, event.pageY);
+	document.addEventListener('click', onClick, false);
+
+	function onClick(event) {
+		hideMenu();
+		document.removeEventListener('click', onClick);
+		if (event.target.id == 'styleEdgeContextMenuSelect') {
+			selectLinksWithStyle(groupId);
+		} else console.log('Bad option in styleContextMenu', event.target.id);
+	}
+	function showMenu(x, y) {
+		menu.style.left = x + 'px';
+		menu.style.top = y + 'px';
+		menu.classList.add('show-menu');
+	}
+	function hideMenu() {
+		menu.classList.remove('show-menu');
+	}
+	function selectLinksWithStyle(groupId) {
+		selectLinks(data.edges.getIds({filter: (edge) => edge.grp == groupId}));
 	}
 }
 /**
@@ -159,15 +288,6 @@ function initSample(wrapper, sampleData) {
 	return net;
 }
 
-listen('nodeEditCancel', 'click', nodeEditCancel);
-listen('nodeEditName', 'keyup', nodeEditSave);
-listen('nodeEditFillColor', 'input', nodeEditSave);
-listen('nodeEditBorderColor', 'input', nodeEditSave);
-listen('nodeEditFontColor', 'input', nodeEditSave);
-listen('nodeEditShape', 'change', nodeEditSave);
-listen('nodeEditBorder', 'change', nodeEditSave);
-listen('nodeEditFontSize', 'change', nodeEditSave);
-listen('nodeEditSubmit', 'click', nodeEditSubmit);
 /**
  * open the dialog to edit a node style
  * @param {HTMLelement} styleElement
@@ -194,14 +314,11 @@ function editNodeStyle(styleElement, groupId) {
 function updateNodeEditor(groupId) {
 	let group = styles.nodes[groupId];
 	elem('nodeEditName').value = group.groupLabel;
-	elem('nodeEditFillColor').value = standardize_color(group.color.background);
-	elem('nodeEditBorderColor').value = standardize_color(group.color.border);
-	elem('nodeEditFontColor').value = standardize_color(group.font.color);
+	elem('nodeEditFillColor').style.backgroundColor = standardize_color(group.color.background);
+	elem('nodeEditBorderColor').style.backgroundColor = standardize_color(group.color.border);
+	elem('nodeEditFontColor').style.backgroundColor = standardize_color(group.font.color);
 	elem('nodeEditShape').value = group.shape;
-	elem('nodeEditBorder').value = getDashes(
-		group.shapeProperties.borderDashes,
-		group.borderWidth
-	);
+	elem('nodeEditBorder').value = getDashes(group.shapeProperties.borderDashes, group.borderWidth);
 	elem('nodeEditFontSize').value = group.font.size;
 }
 /**
@@ -212,17 +329,17 @@ function nodeEditSave() {
 	let group = styles.nodes[groupId];
 	group.groupLabel = splitText(elem('nodeEditName').value, NODESTYLEWIDTH);
 	if (group.groupLabel === '') group.groupLabel = 'Sample';
-	group.color.background = elem('nodeEditFillColor').value;
-	group.color.border = elem('nodeEditBorderColor').value;
+	group.color.background = elem('nodeEditFillColor').style.backgroundColor;
+	group.color.border = elem('nodeEditBorderColor').style.backgroundColor;
 	group.color.highlight.background = group.color.background;
 	group.color.highlight.border = group.color.border;
 	group.color.hover.background = group.color.background;
 	group.color.hover.border = group.color.border;
-	group.font.color = elem('nodeEditFontColor').value;
+	group.font.color = elem('nodeEditFontColor').style.backgroundColor;
 	group.shape = elem('nodeEditShape').value;
 	let border = elem('nodeEditBorder').value;
 	group.shapeProperties.borderDashes = groupDashes(border);
-	group.borderWidth = border == 'none' ? 0 : 1;
+	group.borderWidth = border == 'none' ? 0 : 4;
 	group.font.size = parseInt(elem('nodeEditFontSize').value);
 	nodeEditUpdateStyleSample(group);
 }
@@ -275,12 +392,12 @@ function nodeEditSubmit() {
 	// apply updated style to all nodes having that style
 	let groupId = elem('nodeStyleEditorContainer').groupId;
 	reApplySampleToNodes([groupId], true);
-	window.ySamplesMap.set(groupId, {
+	ySamplesMap.set(groupId, {
 		node: styles.nodes[groupId],
-		clientID: window.clientId,
+		clientID: clientID,
 	});
 	updateLegend();
-	window.network.redraw();
+	network.redraw();
 }
 /**
  * update all nodes in the map with this style to the current style features
@@ -288,27 +405,18 @@ function nodeEditSubmit() {
  * @param {Boolean} force override any existing individual node styling
  */
 export function reApplySampleToNodes(groupIds, force) {
-	let nodesToUpdate = window.data.nodes.get({
+	let nodesToUpdate = data.nodes.get({
 		filter: (item) => {
 			return groupIds.includes(item.grp);
 		},
 	});
-	window.data.nodes.update(
+	data.nodes.update(
 		nodesToUpdate.map((node) => {
-			return force
-				? deepMerge(node, styles.nodes[node.grp])
-				: deepMerge(styles.nodes[node.grp], node);
+			return force ? deepMerge(node, styles.nodes[node.grp]) : deepMerge(styles.nodes[node.grp], node);
 		})
 	);
 }
 
-listen('linkEditCancel', 'click', linkEditCancel);
-listen('linkEditName', 'keyup', linkEditSave);
-listen('linkEditLineColor', 'input', linkEditSave);
-listen('linkEditWidth', 'input', linkEditSave);
-listen('linkEditDashes', 'input', linkEditSave);
-listen('linkEditArrows', 'change', linkEditSave);
-listen('linkEditSubmit', 'click', linkEditSubmit);
 /**
  * open the dialog to edit a link style
  * @param {HTMLelement} styleElement
@@ -332,7 +440,7 @@ function editLinkStyle(styleElement, groupId) {
 function updateLinkEditor(groupId) {
 	let group = styles.edges[groupId];
 	elem('linkEditName').value = group.groupLabel;
-	elem('linkEditLineColor').value = standardize_color(group.color.color);
+	elem('linkEditLineColor').style.backgroundColor = standardize_color(group.color.color);
 	elem('linkEditWidth').value = group.width;
 	elem('linkEditDashes').value = getDashes(group.dashes, 1);
 	elem('linkEditArrows').value = getArrows(group.arrows);
@@ -345,7 +453,7 @@ function linkEditSave() {
 	let group = styles.edges[groupId];
 	group.groupLabel = elem('linkEditName').value;
 	if (group.groupLabel === '') group.groupLabel = 'Sample';
-	group.color.color = elem('linkEditLineColor').value;
+	group.color.color = elem('linkEditLineColor').style.backgroundColor;
 	group.color.highlight = group.color.color;
 	group.color.hover = group.color.color;
 	group.width = parseInt(elem('linkEditWidth').value);
@@ -360,17 +468,9 @@ function linkEditSave() {
 		if (val != '') {
 			group.arrows.from.enabled = false;
 			group.arrows.middle.enabled = false;
-			group.arrows.to.enabled = false;
-			switch (val) {
-				case 'none':
-					break;
-				case 'middle':
-					group.arrows.middle.enabled = true;
-					break;
-				default:
-					group.arrows.to.enabled = true;
-					break;
-			}
+			group.arrows.to.enabled = true;
+			if (val === 'none') group.arrows.to.enabled = false;
+			else group.arrows.to.type = val;
 		}
 	}
 }
@@ -423,12 +523,12 @@ function linkEditSubmit() {
 	// apply updated style to all edges having that style
 	let groupId = elem('linkStyleEditorContainer').groupId;
 	reApplySampleToLinks([groupId], true);
-	window.ySamplesMap.set(groupId, {
+	ySamplesMap.set(groupId, {
 		edge: styles.edges[groupId],
-		clientID: window.clientId,
+		clientID: clientID,
 	});
 	updateLegend();
-	window.network.redraw();
+	network.redraw();
 }
 /**
  * update all links in the map with this style to the current style features
@@ -436,16 +536,14 @@ function linkEditSubmit() {
  * @param {Boolean} force override any existing individual edge styling
  */
 export function reApplySampleToLinks(groupIds, force) {
-	let edgesToUpdate = window.data.edges.get({
+	let edgesToUpdate = data.edges.get({
 		filter: (item) => {
 			return groupIds.includes(item.grp);
 		},
 	});
-	window.data.edges.update(
+	data.edges.update(
 		edgesToUpdate.map((edge) => {
-			return force
-				? deepMerge(edge, styles.edges[edge.grp])
-				: deepMerge(styles.edges[edge.grp], edge);
+			return force ? deepMerge(edge, styles.edges[edge.grp]) : deepMerge(styles.edges[edge.grp], edge);
 		})
 	);
 }
@@ -477,7 +575,7 @@ function groupDashes(val) {
 		case 'none': //solid, zero width
 			return false;
 		case 'dots':
-			return [3, 3];
+			return [2, 8];
 		default:
 			return false;
 	}
@@ -488,8 +586,7 @@ function groupDashes(val) {
  */
 function getArrows(prop) {
 	let val = 'none';
-	if (prop.middle && prop.middle.enabled) val = 'middle';
-	else if (prop.to && prop.to.enabled) val = 'to';
+	if (prop.to && prop.to.enabled && prop.to.type) val = prop.to.type;
 	return val;
 }
 
@@ -503,25 +600,18 @@ const HALFLEGENDWIDTH = 50;
  * display a legend on the map (but only if the styles have been given names)
  * @param {Boolean} warn true if user is switching display legend on, but there is nothing to show
  */
-export function legend(warn = true) {
+export function legend(warn = false) {
 	clearLegend();
 
 	let sampleNodeDivs = document.getElementsByClassName('sampleNode');
-	let nodes = Array.from(sampleNodeDivs).filter(
-		(elem) => elem.dataSet.get('1').groupLabel != 'Sample'
-	);
+	let nodes = Array.from(sampleNodeDivs).filter((elem) => elem.dataSet.get('1').groupLabel != 'Sample');
 	let sampleEdgeDivs = document.getElementsByClassName('sampleLink');
 	let edges = Array.from(sampleEdgeDivs).filter(
-		(elem) =>
-			!['Sample', '', ' '].includes(elem.dataSet.get('1').groupLabel)
+		(elem) => !['Sample', '', ' '].includes(elem.dataSet.get('1').groupLabel)
 	);
 	let nItems = nodes.length + edges.length;
 	if (nItems == 0) {
-		if (warn)
-			statusMsg(
-				'Nothing to include in the Legend - rename some styles first',
-				'warn'
-			);
+		if (warn) statusMsg('Nothing to include in the Legend - rename some styles first', 'warn');
 		document.getElementById('showLegendSwitch').checked = false;
 		return;
 	}
@@ -561,7 +651,7 @@ export function legend(warn = true) {
 		node.label = splitText(node.groupLabel, 12);
 		node.fixed = true;
 		node.chosen = false;
-		node.margin = 3;
+		node.margin = 10;
 		legendData.nodes.update(node);
 		height += LEGENDSPACING;
 	}
@@ -578,6 +668,7 @@ export function legend(warn = true) {
 		edge.smooth = 'horizontal';
 		edge.font = {size: 12, color: 'black', align: 'top', vadjust: -10};
 		edge.widthConstraint = 80;
+		edge.chosen = false;
 		let nodes = [
 			{
 				id: edge.from,
@@ -586,6 +677,7 @@ export function legend(warn = true) {
 				x: edgePos.x - 25,
 				y: edgePos.y,
 				fixed: true,
+				chosen: false
 			},
 			{
 				id: edge.to,
@@ -594,6 +686,7 @@ export function legend(warn = true) {
 				x: edgePos.x + 25,
 				y: edgePos.y,
 				fixed: true,
+				chosen: false
 			},
 		];
 		legendData.nodes.update(nodes);
@@ -615,9 +708,9 @@ export function clearLegend() {
 /**
  * redraw the legend (to show updated styles)
  */
-function updateLegend() {
-	if (document.getElementById('showLegendSwitch').checked) legend(false);
+export function updateLegend() {
+	if (document.getElementById('showLegendSwitch').checked) {
+		legend(false);
+		clearStatusBar();
+	}
 }
-// to aid debugging
-window.legend = legend;
-window.legendData = legendData;

@@ -1,5 +1,24 @@
 /* Top level styles setting out the page elements */
 
+:root {
+	font-family: Oxygen, sans-serif;
+	box-sizing: border-box;
+	touch-action: none;
+	/* interface colours defined here: CECAN theme */
+	--header-color: #0d2644;
+	--header-hover-color: lightgrey;
+	--header-pressed-color: grey;
+	--header-disabled-color: #a8d3f0;
+	--panel-color: #404040;
+	--pop-up-color: #f5f5f5;
+	--pop-up-shadow-color: #c9c9c9;
+	--modal-header-color: #0d2644;
+	--tab-color: #dcdcdc;
+	--tutorial-highlight-color: #d32f2f;
+	--chat-message-header-color: #a2a2a2;
+	--history-log-color: #fffde7;
+	--map-title-color: #ffc107;
+}
 html,
 body,
 div,
@@ -29,50 +48,36 @@ p {
 	font: inherit;
 	vertical-align: baseline;
 }
-body {
-	font-family: Oxygen, sans-serif;
-	box-sizing: border-box;
-	touch-action: none;
-	/* interface colours defined here: CECAN theme */
-	--header-color: #0d2644;
-	--header-hover-color: lightgrey;
-	--header-pressed-color: grey;
-	--header-disabled-color: #a8d3f0;
-	--panel-color: #404040;
-	--pop-up-color: #f5f5f5;
-	--pop-up-shadow-color: #c9c9c9;
-	--modal-header-color: #0d2644;
-	--tab-color: #dcdcdc;
-	--tutorial-highlight-color: #d32f2f;
-	--chat-message-header-color: #a2a2a2;
-}
-/* interface colours defined here: dark blue theme 
-	--header-color: #1565c0;
-	--header-hover-color: lightgrey;
-	--header-pressed-color: grey;
-	--header-disabled-color: #a8d3f0;
-	--panel-color: #404040;
-	--pop-up-color: #f5f5f5;
-	--pop-up-shadow-color: #c9c9c9;
-	--modal-header-color: #1565c0;
-	--tab-color: #dcdcdc;}*/
 button,
-input {
+input,
+select {
 	font-family: Oxygen, sans-serif;
 }
 select {
 	border-color: lightgrey;
+	font-size: 12px;
 }
 .container {
 	position: relative;
+	height: 100vh;
+	height: calc(var(--vh, 1vh) * 100);
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: auto 1fr auto;
+	grid-template-areas: 
+	  'header'
+	  'main'
+	  'footer';
 }
 header {
 	text-align: center;
 	height: 80px;
+	grid-area: header;
 }
 main {
-	height: calc(100vh - 119px);
 	position: relative;
+	cursor: default;
+	grid-area: main;
 }
 #net-pane {
 	width: 100%;
@@ -93,7 +98,7 @@ main {
 }
 aside {
 	position: fixed;
-	top: 90px;
+	top: 110px;
 	right: 5px;
 	width: 200px;
 	z-index: 2000;
@@ -137,11 +142,21 @@ input[type='range'] {
 	text-align: center;
 	line-height: 150%;
 }
+.selectionBox {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+	z-index: 100;
+	background-color: rgba(0, 0, 250, 0.1);
+	border: 1px blue dotted;
+}
 /* Add factor dialog */
 
 #popup {
 	display: none;
-	width: 180px;
+	width: 190px;
 	height: 60px;
 	position: absolute;
 	z-index: 50;
@@ -158,7 +173,8 @@ input[type='range'] {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	font-size: 20px;
-	overflow: scroll;
+	overflow-y: auto;
+	overflow-x: hidden;
 	outline: none;
 	color: black;
 	min-width: 160px;
@@ -202,7 +218,7 @@ input[type='range'] {
 	cursor: pointer;
 }
 #popup table {
-	width: 160px;
+	width: 145px;
 	table-layout: fixed;
 	font-size: 14px;
 	position: absolute;
@@ -210,23 +226,49 @@ input[type='range'] {
 }
 #popup table td {
 	width: 33%;
+	text-align: center;
 }
 .input-color-container {
 	position: relative;
 	overflow: hidden;
 	width: 30px;
 	height: 30px;
-	border: solid 2px #ddd;
+	border: solid 2px lightgrey;
 	border-radius: 30px;
+	margin: auto;
 }
 
-.input-color {
+/* ----------- colour picker ----------*/
+.color-cache {
+	display: flex;
+	margin: 3px 0;
+	width: 160px;
+	border-top: 1px solid grey;
+	border-bottom: 1px solid grey;
+	border-right: 1px solid grey;
+}
+.cached-color {
+	width: 20px;
+	height: 20px;
+	border-left: 1px solid grey;
+}
+.color-well {
+	position: relative;
+	overflow: hidden;
+	width: 30px;
+	height: 30px;
+	border-radius: 30px;
+	margin: auto;
+	background-color: white;
+}
+.color-picker-container {
+	display: none;
 	position: absolute;
-	right: -8px;
-	top: -8px;
-	width: 56px;
-	height: 56px;
-	border: none;
+	z-index: 5000;
+	border: 1px solid grey;
+	background-color: lightgrey;
+	border-radius: 4px;
+	box-shadow: 2px 2px 5px 0 lighthrey;
 }
 /* ----- Top Navigation Bar ---------------------------------------------------------- */
 
@@ -242,6 +284,7 @@ nav {
 	font-size: 20px;
 	margin: 3px 0 0 10px;
 	color: white;
+	white-space: nowrap;
 }
 #version {
 	font-size: xx-small;
@@ -251,7 +294,7 @@ nav {
 .maptitle {
 	font-size: 20px;
 	margin: 5px 0 0 10px;
-	color: #ffc107;
+	color: var(--map-title-color);
 	text-align: left;
 }
 .unsetmaptitle {
@@ -334,142 +377,55 @@ nav button .pressed {
 	top: 0;
 	left: -70px;
 }
-/* for iPads etc in landscape: nav buttons go under title */
-
-@media screen and (min-width: 481px) and (max-width: 1112px) {
-	/* 	html,
-	body {
-		max-height: 100%;
-		overflow-x: hidden;
-		max-width: 100%;
-	}
-	main {
-		height: calc(100vh - 140px);
-	}
-	header {
-		height: 100px;
-		background-color: red;
-	}
-	aside {
-		top: 110px;
-	}
-	nav {
-		display: grid;
-		height: 90px;
-		grid-template-columns: 160px 1fr;
-	}
-	.strapline {
-		grid-column: 1;
-	}
-	.button-wrapper {
-		grid-column: 2;
-		grid-row: 1;
-		width: 100%;
-	}
-	.buttons {
-		justify-content: center;
-	}
-	nav button {
-		margin: auto 5px;
-		font-size: 18px;
-	} */
-	html,
-	body {
-		height: 100%;
-		overflow-x: hidden;
-		max-width: 100%;
-	}
-	main {
-		height: calc(100vh - 130px);
-	}
-	header {
-		height: 90px;
-	}
-	nav {
-		display: grid;
-		height: 90px;
-		grid-template-columns: 1fr;
-		padding: 0;
-	}
-	nav img {
-		display: none;
-	}
-	.strapline {
-		grid-column: 1;
-		grid-row: 1;
-		font-size: 20px;
-	}
-	.maptitle {
-		text-align: center;
-		font-size: 16px;
-		margin-top: 5px;
-	}
-	.button-wrapper {
-		grid-column: 1;
-		grid-row: 2;
-		width: 100%;
-	}
-	.buttons {
-		justify-content: center;
-	}
-	nav button {
-		margin: auto 0;
-		font-size: 12px;
-	}
-	input[type='range'] {
-		width: 40px;
-	}
+.search-bar {
+	display: none;
+	width: 200px;
+	height: 2em;
+	position: absolute;
+	right: 5px;
+	z-index: 2500;
+	font-size: 12px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	background-color: white;
 }
-/* for iPads etc in portrait and smart phones: nav buttons go under title and font is smaller */
-
-@media screen and (max-width: 480px) {
-	html,
-	body {
-		height: 100%;
-		overflow-x: hidden;
-		max-width: 100%;
-	}
-	main {
-		height: calc(100vh - 130px);
-	}
-	header {
-		height: 90px;
-	}
-	nav {
-		display: grid;
-		height: 90px;
-		grid-template-columns: 1fr;
-		padding: 0;
-	}
-	nav img {
-		display: none;
-	}
-	.strapline {
-		grid-column: 1;
-		grid-row: 1;
-		font-size: 20px;
-	}
-	.maptitle {
-		text-align: center;
-		font-size: 16px;
-		margin-top: 5px;
-	}
-	.button-wrapper {
-		grid-column: 1;
-		grid-row: 2;
-		width: 100%;
-	}
-	.buttons {
-		justify-content: center;
-	}
-	nav button {
-		margin: auto 0;
-		font-size: 12px;
-	}
-	input[type='range'] {
-		width: 40px;
-	}
+.search-icon {
+	display: none;
+	float: right;
+	margin-right: 12px;
+	margin-top: 8px;
+	position: relative;
+	z-index: 2502;
 }
+.search-ul {
+	width: 195px;
+	position: absolute;
+	right: 5px;
+	top: 100px;
+	z-index: 2500;
+}
+.search-suggestion {
+	list-style-type: none;
+}
+.search-suggestion-text {
+	font-size: 12px;
+	text-align: left;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	background-color: white;
+	border: 2px solid grey;
+	border-radius: 4px;
+	padding: 2px;
+	margin-top: 2px;
+	cursor: default;
+}
+.and-more {
+	text-align: center;
+	color: grey;
+}
+
 #download {
 	width: 0;
 	height: 0;
@@ -510,6 +466,10 @@ nav button .pressed {
 .tooltip:active .tooltiptext {
 	visibility: hidden;
 }
+.tooltiptext.searchtip {
+	top: 0;
+	left: -110%;
+}
 /* Share modal dialog */
 
 /* The Modal (background) */
@@ -528,10 +488,10 @@ nav button .pressed {
 }
 .modal-content {
 	position: relative;
-	background-color: #fefefe;
+	background-color: white;
 	margin: auto;
 	padding: 0;
-	border: 1px solid #888;
+	border: 1px solid gray;
 	width: 80%;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 	animation-name: animatetop;
@@ -566,7 +526,7 @@ nav button .pressed {
 }
 .modal-body {
 	display: grid;
-	grid-template-columns: 60% 20% auto;
+	grid-template-columns: 60% auto 20px;
 	gap: 20px;
 	padding: 16px;
 	font-size: 16px;
@@ -590,13 +550,25 @@ nav button .pressed {
 }
 .modal-body .view {
 	grid-column: 2;
-	grid-row: 2 / span 2;
+	grid-row: 2;
 	line-height: 1;
 	justify-self: start;
 }
 .modal-body .view-check {
 	grid-column: 3;
 	grid-row: 2;
+	justify-self: start;
+	align-self: center;
+}
+.modal-body .table {
+	grid-column: 2;
+	grid-row: 3;
+	line-height: 1;
+	justify-self: start;
+}
+.modal-body .table-check {
+	grid-column: 3;
+	grid-row: 3;
 	justify-self: start;
 	align-self: center;
 }
@@ -656,11 +628,7 @@ nav button .pressed {
 .tab .tablinks:first-child {
 	border-left: 1px solid white;
 }
-/* Change background color of buttons on hover */
 
-.tab .tablinks:hover {
-	background-color: #e9e9e9;
-}
 /* Create an active/current tablink class */
 
 .tab .tablinks.active {
@@ -674,7 +642,6 @@ nav button .pressed {
 	position: relative;
 }
 .samples,
-.itemData,
 .networkStyles {
 	padding: 4px;
 	background-color: var(--panel-color);
@@ -686,11 +653,31 @@ nav button .pressed {
 .networkStyles {
 	border-radius: 0 0 4px 4px;
 }
-.itemData {
-	position: absolute;
-	top: 285px;
-	left: 0px;
-	width: 192px;
+.networkGrid {
+	display: grid;
+	grid-template-columns: 1fr;
+}
+.panelRow {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+}
+.panelRow div {
+	margin: auto 0;
+}
+.panelRow.centered {
+	justify-content: center;
+}
+.panelRow.divider {
+	margin-top: 5px;
+	padding-top: 5px;
+	border-top: 1px solid white;
+}
+.panelRow.hidden {
+	display: none;
+}
+.networkGrid .panelRow {
+	padding: 4px;
 }
 
 /* Using display:none to hide tabs other than the one on display: 
@@ -730,55 +717,67 @@ but moving the panel out of sight works instead */
 	border-radius: 5px;
 	background-color: white;
 }
-/* the panel area that only appears for the Factor tab if one Factor is selected or likewise for an Link */
 
-#oneNodeSelected {
-	margin-top: 10px;
-	border-top: 1px solid whitesmoke;
-	padding-top: 10px;
-}
-.nodeLabel,
-.edgeLabel {
-	font-weight: bold;
-	text-decoration: underline;
-	line-height: 2;
+/* the data and notes area that appears if a node or link is selected */
+
+.itemData {
+	display: grid;
+	padding: 4px;
+	background-color: var(--panel-color);
+	color: white;
+	font-size: 11px;
+	border-radius: 4px;
+	position: fixed;
+	top: calc(100% - 380px);
+	left: calc(100% - 265px);
+	z-index: 2000;
 }
 .notes {
 	padding: 4px;
 	background-color: white;
 	color: black;
 	width: 100%;
-	min-height: 40px;
+	min-height: 100px;
 	outline: none;
+	font-family: Oxygen, sans-serif;
 }
-.placeholder {
-	opacity: 0.5;
+.edit-container {
+	width: 100%;
+	background-color: white;
+	resize: both;
+	overflow: auto;
 }
-.networkGrid {
-	display: grid;
-	grid-template-columns: 1fr;
+.ql-editor {
+	padding: 3px;
 }
-.panelRow {
+.ql-toolbar.ql-snow .ql-formats {
+	margin-right: 0;
+}
+.itemData .row {
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-start;
+	font-size: 10px;
 }
-.panelRow div {
+.itemData .row div {
 	margin: auto 0;
 }
-.panelRow.centered {
+.itemData .row .centered {
 	justify-content: center;
 }
-.panelRow.divider {
+.itemData .row.divider {
 	margin-top: 5px;
-	padding-top: 5px;
-	border-top: 1px solid white;
+	border-top: 1px solid lightgrey;
 }
-.panelRow.hidden {
+.itemData .row .hidden {
 	display: none;
 }
-.networkGrid .panelRow {
-	padding: 4px;
+.nodeLabel,
+.edgeLabel {
+	font-weight: bold;
+	text-decoration: underline;
+	font-size: 12px;
+	line-height: 2;
 }
 .padlock-hide {
 	display: none;
@@ -817,7 +816,7 @@ but moving the panel out of sight works instead */
 	display: block;
 	overflow: hidden;
 	cursor: pointer;
-	border: 0 solid #999999;
+	border: 0 solid gray;
 	border-radius: 11px;
 }
 .onoffswitch-inner {
@@ -843,25 +842,25 @@ but moving the panel out of sight works instead */
 	content: 'ON';
 	padding-left: 10px;
 	background-color: white;
-	color: #000000;
+	color: black;
 }
 .onoffswitch-inner:after {
 	content: 'OFF';
 	padding-right: 5px;
 	background-color: white;
-	color: #000000;
+	color: black;
 	text-align: right;
 }
 .onoffswitch-switch {
 	display: block;
 	width: 18px;
 	margin: -1px;
-	background: #000000;
+	background: black;
 	position: absolute;
 	top: 0;
 	bottom: 0;
 	right: 32px;
-	border: 2px solid #999999;
+	border: 2px solid gray;
 	border-radius: 11px;
 	transition: all 0.3s ease-in 0s;
 }
@@ -978,16 +977,12 @@ but moving the panel out of sight works instead */
 	display: flex;
 	position: relative;
 }
-.chatbox-icons .fas {
+.chatbox-close {
 	background: var(--panel-color);
-	padding: 3px 5px;
-	margin: 0 0 0 3px;
 	color: white;
-	border-radius: 0 5px 0 5px;
 }
-.chatbox-icons .fas:hover {
-	border-radius: 5px 0 5px 0;
-	background: var(--header-hover-color);
+.chatbox-close:hover {
+	color: var(--header-hover-color);
 }
 .chat-name {
 	flex: 1;
@@ -1038,6 +1033,18 @@ but moving the panel out of sight works instead */
 	border-bottom: 1px solid black;
 	border-right: 1px solid black;
 }
+.chat-users-menu {
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-between;
+	border-left: 1px solid black;
+	border-right: 1px solid black;
+	font-size: 12px;
+	padding: 4px;
+}
+.chat-users {
+	outline: none;
+}
 .chat-input {
 	resize: none;
 	padding: 5px 10px;
@@ -1065,10 +1072,10 @@ but moving the panel out of sight works instead */
 	border-radius: 10px 0 0 0;
 	font-size: 28px;
 	color: white;
-	padding: 14px;
+	padding: 8px;
 	position: fixed;
 	right: 0;
-	bottom: 35px;
+	bottom: 36px;
 	z-index: 40;
 }
 .chatbox-blink {
@@ -1094,6 +1101,56 @@ but moving the panel out of sight works instead */
 .emoji-icon {
 	font-size: larger;
 }
+.tooltiptext.emojitip {
+	margin-left: -130px;
+	top: 0;
+}
+/* History window */
+.history-window {
+	display: none;
+	position: absolute;
+	top: 100px;
+	left: calc(100% - 420px);
+	width: 400px;
+	z-index: 2200;
+}
+.history-header {
+	background-color: black;
+	border-radius: 4px 4px 0 0;
+	text-align: center;
+	color: white;
+}
+.history-close {
+	padding-right: 10px;
+	float: right;
+}
+.history-close:hover {
+	color: var(--header-hover-color);
+}
+.history-log {
+	display: block;
+	table-layout: fixed;
+	width: 389px;
+	max-height: 500px;
+	overflow-y: scroll;
+	font-size: 12px;
+	border: 2px solid black;
+	border-radius: 0 0 4px 4px;
+	padding: 4px;
+	background-color: var(--history-log-color);
+}
+.history-row {
+	display: table-row;
+}
+.history-time {
+	display: table-cell;
+	width: 75px;
+}
+.history-action {
+	display: table-cell;
+}
+
+/* Legend */
 .legend {
 	position: fixed;
 	bottom: 80px;
@@ -1237,8 +1294,8 @@ div.resize {
 	width: max-content;
 	padding: 8px;
 	border-radius: 4px;
-	background: #232f34;
-	color: #fff;
+	background: var(--header-color);
+	color: white;
 	position: absolute;
 	text-align: center;
 	font-size: 12px;
@@ -1262,8 +1319,8 @@ div.resize {
 	padding: 8px;
 	font-family: Oxygen, sans-serif;
 	border-radius: 4px;
-	background: #232f34;
-	color: #fff;
+	background: var(--header-color);
+	color: white;
 	position: absolute;
 	text-align: center;
 	left: 50%;
@@ -1332,6 +1389,10 @@ div.resize {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+	border: green 4px solid;
+}
+.tutorial-dialog.wide {
+	width: 500px;
 }
 .tutorial-dialog .text {
 	grid-column: 1 / span 2;
@@ -1379,16 +1440,14 @@ div.resize {
 .tutorial-arrow.below,
 .tutorial-arrow.below-middle,
 .tutorial-arrow.below-right {
-	border-color: transparent transparent var(--tutorial-highlight-color)
-		transparent;
+	border-color: transparent transparent var(--tutorial-highlight-color) transparent;
 	top: -20px;
 	left: 20px;
 }
 .tutorial-arrow.above,
 .tutorial-arrow.above-middle,
 .tutorial-arrow.above-right {
-	border-color: var(--tutorial-highlight-color) transparent transparent
-		transparent;
+	border-color: var(--tutorial-highlight-color) transparent transparent transparent;
 	bottom: -20px;
 	left: 20px;
 }
@@ -1417,15 +1476,13 @@ div.resize {
 .tutorial-arrow.right-middle,
 .tutorial-arrow.right-bottom {
 	left: -20px;
-	border-color: transparent var(--tutorial-highlight-color) transparent
-		transparent;
+	border-color: transparent var(--tutorial-highlight-color) transparent transparent;
 }
 .tutorial-arrow.left,
 .tutorial-arrow.left-middle,
 .tutorial-arrow.left-bottom {
 	right: -20px;
-	border-color: transparent transparent transparent
-		var(--tutorial-highlight-color);
+	border-color: transparent transparent transparent var(--tutorial-highlight-color);
 }
 .tutorial-arrow.right-middle,
 .tutorial-arrow.left-middle {
@@ -1449,8 +1506,207 @@ div.resize {
 	top: 0;
 	left: 0;
 	z-index: 3000;
-	background-color: rgba(0, 0, 0, 0.4);
+	background-color: rgba(0, 0, 0, 0.3);
 }
+/* magnifier */
+.magnifier {
+	display: none;
+	position: absolute;
+	border: 1px black solid;
+	box-shadow: 5px 5px 10px #1e1e1e;
+	border-radius: 50%;
+	z-index: 5000;
+}
+.shared-cursor {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 1.2em;
+	border-radius: 50%;
+	padding: 5px;
+	text-align: center;
+	font-size: 10px;
+	z-index: 6000;
+}
+/* for iPads etc in landscape: nav buttons go under title */
+
+@media screen and (min-width: 481px) and (max-width: 1112px) {
+	html,
+	body {
+		height: 100%;
+		overflow-x: hidden;
+		max-width: 100%;
+	}
+	main {
+		height: calc(100vh - 130px);
+	}
+	header {
+		height: 90px;
+	}
+	nav {
+		display: grid;
+		height: 90px;
+		grid-template-columns: 1fr;
+		padding: 0;
+	}
+	nav img {
+		display: none;
+	}
+	.strapline {
+		grid-column: 1;
+		grid-row: 1;
+		font-size: 20px;
+	}
+	.maptitle {
+		text-align: center;
+		font-size: 16px;
+		margin-top: 5px;
+	}
+	.button-wrapper {
+		grid-column: 1;
+		grid-row: 2;
+		width: 100%;
+	}
+	.buttons {
+		justify-content: center;
+	}
+	nav button {
+		margin: auto 0;
+		font-size: 12px;
+	}
+	input[type='range'] {
+		width: 40px;
+	}
+	.tooltiptext.searchtip {
+		top: 100%;
+		left: 50%;
+	}
+}
+/* for iPads etc in portrait and smart phones: nav buttons go under title and font is smaller */
+
+@media screen and (max-width: 480px) {
+	html,
+	body {
+		height: 100%;
+		overflow-x: hidden;
+		max-width: 100%;
+	}
+	main {
+		height: calc(100vh - 130px);
+	}
+	header {
+		height: 90px;
+	}
+	nav {
+		display: grid;
+		height: 90px;
+		grid-template-columns: 1fr;
+		padding: 0;
+	}
+	nav img {
+		display: none;
+	}
+	.strapline {
+		grid-column: 1;
+		grid-row: 1;
+		font-size: 14px;
+	}
+	.maptitle {
+		text-align: center;
+		font-size: 14px;
+		margin-top: 5px;
+	}
+	.button-wrapper {
+		grid-column: 1;
+		grid-row: 2;
+		width: 100%;
+	}
+	.buttons {
+		justify-content: space-around;
+		flex-wrap: wrap;
+	}
+	nav button {
+		margin: auto 0;
+		font-size: 9px;
+	}
+	input[type='range'] {
+		width: 40px;
+	}
+	.tooltiptext.searchtip {
+		top: 100%;
+		left: 50%;
+	}
+}
+/* style context menu */
+.contextmenu {
+	position: absolute;
+	padding: 0;
+	margin: 0;
+	border: 1px solid #bbb;
+	background: #eee;
+	z-index: 3000;
+	border-radius: 7px;
+	box-shadow: 1px 1px 4px rgba(0,0,0,.2);
+	opacity: 0;
+	transform: translate(0, 15px) scale(.95);
+	transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+	pointer-events: none;
+  }
+  .menu-item {
+	display: block;
+	position: relative;
+	margin: 0;
+	padding: 0;
+	white-space: nowrap;
+	border-bottom: 1px solid lightgrey;
+  }
+  .menu-item:last-child {
+	  border-bottom: none;
+  }
+  .menu-btn {
+	background: none;
+	line-height: normal;
+	overflow: visible;
+	display: block;
+	width: 100%;
+	color: #444;
+	font-size: 12px;
+	text-align: left;
+	cursor: pointer;
+	border: 1px solid transparent;
+	white-space: nowrap;
+	border-radius: 3px;
+  }
+
+  .menu-item:hover > .menu-btn {
+	color:white;
+	outline: none;
+	background-color: #2E3940;
+	border: 1px solid #2E3940;
+  }
+  .menu-item.disabled {
+	opacity: .5;
+	pointer-events: none;
+  }
+  .menu-item.disabled .menu-btn { cursor: default; }
+  .menu-separator {
+	display: block;
+	margin: 7px 5px;
+	height: 1px;
+	border-bottom: 1px solid #fff;
+	background-color: #aaa;
+  }
+  .show-menu, .menu-item:hover > .menu {
+	opacity: 0.95;
+	transform: translate(0, 0) scale(1);
+	pointer-events: auto;
+  }
+  .menu-item:hover > .menu {
+	-webkit-transition-delay: 100ms;
+	transition-delay: 300ms;
+  }
+
+/* print media */
 @media print {
 	header,
 	aside,

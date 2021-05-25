@@ -2,9 +2,8 @@ export const styles = {
 	nodes: {
 		base: {
 			groupLabel: 'Sample',
-			borderWidth: 1,
-			borderWidthSelected: 1,
-			chosen: true,
+			borderWidth: 4,
+			borderWidthSelected: 4,
 			color: {
 				border: '#000000',
 				background: '#ffffff',
@@ -30,11 +29,11 @@ export const styles = {
 			},
 			scaling: {
 				min: 10,
-				max: 100,
+				max: 40,
 				label: {
 					enabled: true,
 					min: 10,
-					max: 100,
+					max: 40,
 				},
 			},
 		},

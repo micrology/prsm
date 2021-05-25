@@ -15,7 +15,7 @@ NG 18 December 2020
 /**
  * convert a directed adjacency matrix to an undirected one
  * mirror the elements above the leading diagonal to below it
- * @param {square matrix} a
+ * @param {matrix} a
  * @returns {matrix} a copy of a
  */
 function undirected(a) {
@@ -40,7 +40,7 @@ function undirected(a) {
 /**
  * check that all nodes are connected to at least one other node
  * i.e. every row includes at least one 1
- * @param {square matrix} a
+ * @param {matrix} a
  */
 function connected(a) {
 	for (let i = 0; i < a.length; i++) {
@@ -143,7 +143,7 @@ function mergeTranspose(a) {
 	return b;
 }
 /**
- * create a new square matrix of size n, with all cells zero
+ * create a new matrix of size n, with all cells zero
  * @param {matrix} a
  */
 function zero(n) {

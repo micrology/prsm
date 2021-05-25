@@ -1,5 +1,6 @@
 import * as Hammer from '@egjs/hammerjs';
-
+import iro from '@jaames/iro';
+import uniqolor from 'uniqolor';
 /**
  * attach an event listener
  *
@@ -151,7 +152,7 @@ export function deepCopy(obj) {
 		}, {});
 	}
 }
-
+window.deepCopy = deepCopy;
 /**
  * compare two objects for deep equality
  * fast but doesn't cater for obscure cases
@@ -168,9 +169,9 @@ export function object_equals(x, y) {
 
 	if (x.constructor !== y.constructor) return false;
 	// they must have the exact same prototype chain, the closest we can do is
-	// test there constructor.
+	// test their constructor.
 
-	for (var p in x) {
+	for (let p in x) {
 		if (!Object.prototype.hasOwnProperty.call(x, p)) continue;
 		// other properties were tested using x.constructor === y.constructor
 
@@ -187,7 +188,7 @@ export function object_equals(x, y) {
 		// Objects and Arrays must be tested recursively
 	}
 
-	for (p in y)
+	for (let p in y)
 		if (
 			Object.prototype.hasOwnProperty.call(y, p) &&
 			!Object.prototype.hasOwnProperty.call(x, p)
@@ -273,8 +274,8 @@ Set.prototype.intersection = function (otherSet) {
  * @param {HTMLelement} header
  */
 export function dragElement(elem, header) {
-	header.addEventListener('mouseenter', () =>  header.style.cursor = "move");
-	header.addEventListener('mouseout', () =>  header.style.cursor = "auto");
+	header.addEventListener('mouseenter', () => (header.style.cursor = 'move'));
+	header.addEventListener('mouseout', () => (header.style.cursor = 'auto'));
 
 	let mc = new Hammer.Manager(header, {
 		recognizers: [
@@ -287,6 +288,7 @@ export function dragElement(elem, header) {
 	let lastPosX = 0;
 	let lastPosY = 0;
 	let isDragging = false;
+	let width = 0;
 
 	function handleDrag(ev) {
 		// DRAG STARTED
@@ -296,6 +298,7 @@ export function dragElement(elem, header) {
 			isDragging = true;
 			lastPosX = elem.offsetLeft;
 			lastPosY = elem.offsetTop;
+			width = elem.offsetWidth;
 		}
 
 		// we simply need to determine where the x,y of this
@@ -311,12 +314,14 @@ export function dragElement(elem, header) {
 		// move our element to that position
 		elem.style.left = posX + 'px';
 		elem.style.top = posY + 'px';
+		elem.style.width = width + 'px';
 
 		// DRAG ENDED
 		// this is where we simply forget we are dragging
 		if (ev.isFinal) {
 			isDragging = false;
 			elem.style.cursor = 'auto';
+			elem.style.width = '';
 		}
 	}
 }
@@ -356,6 +361,24 @@ const SEA_CREATURES = Object.freeze([
 	'anemone',
 	'morel',
 	'axolotl',
+	'blobfish',
+	'tubeworm',
+	'seabream',
+	'seaweed',
+	'anchovy',
+	'cod',
+	'barramundi',
+	'carp',
+	'crayfish',
+	'haddock',
+	'hake',
+	'octopus',
+	'plaice',
+	'sardine',
+	'skate',
+	'sturgeon',
+	'swordfish',
+	'whelk',
 ]);
 
 const ADJECTIVES = Object.freeze([
@@ -378,26 +401,76 @@ const ADJECTIVES = Object.freeze([
 	'perfect',
 	'rude',
 	'wonderful',
-]);
-
-const COLORS = Object.freeze([
-	'hotpink',
-	'red',
-	'lightblue',
-	'fuchsia',
-	'green',
-	'lime',
-	'olive',
-	'darkorange',
-	'chartreuse',
-	'teal',
-	'aqua',
-	'orange',
-	'beige',
-	'gainsboro',
-	'cadetblue',
-	'coral',
-	'gold',
+	'agile',
+	'beautiful',
+	'bossy',
+	'candid',
+	'carnivorous',
+	'clever',
+	'cold',
+	'cold-blooded',
+	'colorful',
+	'cuddly',
+	'curious',
+	'cute',
+	'dangerous',
+	'deadly',
+	'domestic',
+	'dominant',
+	'energetic',
+	'fast',
+	'feisty',
+	'ferocious',
+	'fierce',
+	'fluffy',
+	'friendly',
+	'furry',
+	'fuzzy',
+	'grumpy',
+	'hairy',
+	'heavy',
+	'herbivorous',
+	'jealous',
+	'large',
+	'lazy',
+	'loud',
+	'lovable',
+	'loving',
+	'malicious',
+	'maternal',
+	'mean',
+	'messy',
+	'nocturnal',
+	'noisy',
+	'nosy',
+	'picky',
+	'playful',
+	'poisonous',
+	'quick',
+	'rough',
+	'sassy',
+	'scaly',
+	'short',
+	'shy',
+	'slimy',
+	'slow',
+	'small',
+	'smart',
+	'smelly',
+	'soft',
+	'spikey',
+	'stinky',
+	'strong',
+	'stubborn',
+	'submissive',
+	'tall',
+	'tame',
+	'tenacious',
+	'territorial',
+	'tiny',
+	'vicious',
+	'warm',
+	'wild',  
 ]);
 
 const random = (items) => items[(Math.random() * items.length) | 0];
@@ -407,32 +480,221 @@ const capitalize = (string) => string[0].toUpperCase() + string.slice(1);
  * return a random fancy name for an avatar, with a random colour
  */
 export function generateName() {
+	let name = capitalize(random(ADJECTIVES)) +
+	' ' +
+	capitalize(random(SEA_CREATURES));
+
 	return {
-		color: random(COLORS),
-		name:
-			capitalize(random(ADJECTIVES)) +
-			' ' +
-			capitalize(random(SEA_CREATURES)),
+		... uniqolor(name , { saturation: 95, lightness: 60 }),
+		name: name,
 		anon: true,
 		asleep: false,
 	};
 }
-/**
- * Set up a contenteditable <div> to have a placeholder that disappears when text is written into it
- * @param {CSSselector} selector
+/*----------- Status messages ---------------------------------------
  */
-export function divWithPlaceHolder(selector) {
-	const editable = document.querySelector(selector);
-	const placeholder = `<span class="placeholder">${editable.dataset.placeholder}</span>`;
-	// add placeholder on load
-	editable.innerHTML = placeholder;
-	editable.addEventListener('keyup', () => {
-		if (editable.innerText.length == 0) editable.innerHTML = placeholder;
-	});
-	editable.addEventListener('keydown', () => {
-		if (editable.innerHTML == placeholder) editable.innerHTML = '';
-	});
-	editable.addEventListener('focus', () => {
-		if (editable.innerText.length == 0) editable.innerHTML = placeholder;
-	});
+/**
+ * show status messages at the bottom of the window
+ * @param {string} msg
+ * @param {string} status type of msg - warning, error or other
+ */
+export function statusMsg(msg, status) {
+	let el = elem('statusBar');
+	switch (status) {
+		case 'warn':
+			el.style.backgroundColor = 'yellow';
+			break;
+		case 'error':
+			el.style.backgroundColor = 'red';
+			el.style.color = 'white';
+			break;
+		default:
+			el.style.backgroundColor = 'white';
+			break;
+	}
+	el.innerHTML = htmlEntities(msg);
+}
+/**
+ * replace special characters with their HTML entity codes
+ * @param {string} str
+ */
+function htmlEntities(str) {
+	return String(str)
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&quot;');
+}
+/**
+ * remove any previous message from the status bar
+ */
+export function clearStatusBar() {
+	statusMsg(' ');
+}
+/**
+ * return the initials of the given name as a string: Nigel Gilbert -> NG
+ * @param {string} name
+ */
+export function initials(name) {
+	return name
+		.replace(/[^A-Za-z0-9À-ÿ ]/gi, '')
+		.replace(/ +/gi, ' ')
+		.match(/(^\S\S?|\b\S)?/g)
+		.join('')
+		.match(/(^\S|\S$)?/g)
+		.join('')
+		.toUpperCase();
+}
+/* --------------------color picker -----------------------------*/
+
+export class CP {
+	constructor() {
+		this.container = document.createElement('div');
+		this.container.className = 'color-picker-container';
+		this.container.id = 'colorPicker';
+		let controls = document.createElement('div');
+		controls.id = 'colorPickerControls';
+		this.container.appendChild(controls);
+		document
+			.querySelector('body')
+			.insertAdjacentElement('beforeend', this.container);
+
+		// see https://iro.js.org/guide.html#getting-started
+		this.colorPicker = new iro.ColorPicker('#colorPickerControls', {
+			width: 160,
+			color: 'rgb(255, 255, 255)',
+			borderWidth: 1,
+			borderColor: '#fff',
+			margin: 0,
+		});
+
+		// set up a grid of squares to hold last 8 selected colors
+		this.colorCache = document.createElement('div');
+		this.colorCache.id = 'colorCache';
+		this.colorCache.className = 'color-cache';
+		for (let i = 0; i < 8; i++) {
+			let c = document.createElement('div');
+			c.id = 'color' + i;
+			c.className = 'cached-color';
+			// prefill with standard colours
+			c.style.backgroundColor = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ffffff', '#000000', '#9ADBB4', '#DB6E67'][i];
+			c.addEventListener('click', (e) => {
+				let color = e.target.style.backgroundColor;
+				if (color.search('rgb') != -1)
+					this.colorPicker.color.rgbString =
+						e.target.style.backgroundColor;
+			});
+			this.colorCache.appendChild(c);
+		}
+		document
+			.getElementById('colorPickerControls')
+			.insertAdjacentElement('afterend', this.colorCache);
+	}
+
+	/**
+	 * attach a color picker to an element to recolor the background to that element
+	 * @param {string} wellId the id of the DOM element to attach the color picker to
+	 * @param {string} callback - function to call when the color has been chosen, with that color as argument
+	 */
+	createColorPicker(wellId, callback) {
+		let well = elem(wellId);
+		well.style.backgroundColor = '#ffffff';
+		// add listener to display picker when well clicked
+		well.addEventListener('click', (event) => {
+			this.container.style.display = 'block';
+			let netPane = elem('net-pane').getBoundingClientRect();
+			// locate picker so it does not go outside netPane
+			let top = event.clientY + well.offsetHeight + 10;
+			if (top > netPane.bottom - this.container.offsetHeight)
+				top = netPane.bottom - this.container.offsetHeight - 10;
+			if (top < netPane.top) top = netPane.top + 10;
+			let left = event.clientX;
+			if (left < netPane.left) left = netPane.left + 10;
+			if (left > netPane.right - this.container.offsetWidth)
+				left = netPane.right - this.container.offsetWidth - 10;
+			this.container.style.top = `${top}px`;
+			this.container.style.left = `${left}px`;
+			this.container.well = well;
+			this.container.callback = callback;
+			this.colorPicker.color.rgbString = well.style.backgroundColor;
+			this.onclose = this.closeColorPicker.bind(this);
+			document.addEventListener('click', this.onclose, true);
+
+			// update well as color is changed
+			this.colorPicker.on(['color:change'], function (color) {
+				elem('colorPicker').well.style.backgroundColor =
+					color.rgbString;
+			});
+		});
+	}
+	/**
+	 * Report chosen colour when user clicks outside of picker (and well)
+	 * Hide the picker and save the colour choice in the previously selected colour grid
+	 * @param {event} event
+	 */
+	closeColorPicker(event) {
+		if (
+			!(
+				this.container.contains(event.target) ||
+				this.container.well.contains(event.target)
+			)
+		) {
+			this.container.style.display = 'none';
+			document.removeEventListener('click', this.onclose, true);
+			let color = this.container.well.style.backgroundColor;
+			// save the chosen color for future selection if it is not already there
+			this.saveColor(color);
+
+			let callback = this.container.callback;
+			if (callback) callback(color);
+		}
+	}
+	/**
+	 * Save the color in the previously selected colour grid, if not already saved
+	 * into a free slot, or if there isn't one shift the current colours to the left
+	 * and save the new at the right end
+	 * @param {color} color 
+	 */
+	saveColor(color) {
+		let saveds = this.colorCache.children;
+		for (let i = 0; i < 8; i++) {
+			if (saveds[i].style.backgroundColor == color) return;
+		}
+		for (let i = 0; i < 8; i++) {
+			if (saveds[i].style.backgroundColor == "") {
+				saveds[i].style.backgroundColor = color;
+				return;
+			}
+		}
+		for (let i = 0, j = 1; j < 8; i++, j++) {
+			saveds[i].style.backgroundColor = saveds[j].style.backgroundColor
+		}
+		saveds[7].style.backgroundColor = color;
+		}
+}
+
+/**
+ * Returns a nicely formatted Date (or time if the date is today), given a Time value (from Date() )
+ * @param {Integer} utc
+ */
+export function timeAndDate(utc) {
+	let time = new Date();
+	time.setTime(utc);
+	if (time.toDateString() == new Date().toDateString()) {
+		return (
+			'Today, ' +
+			time.toLocaleString('en-GB', {
+				hour: '2-digit',
+				minute: '2-digit',
+			})
+		);
+	} else {
+		return time.toLocaleString('en-GB', {
+			day: '2-digit',
+			month: 'short',
+			hour: '2-digit',
+			minute: '2-digit',
+		});
+	}
 }

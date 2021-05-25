@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>PRSM: Table</title>
+		<meta
+			name="Description"
+			content="PRSM enables groups of people, each using their own computer (or tablet) 
+		to collaborate in the drawing of a map. They may be sitting around a table, discussing the map as it is 
+		created face to face, or working remotely, using video conferencing or the chat feature that is built 
+		into the app. Everyone can participate because every edit (creating nodes and links, arranging them 
+		and so on) is broadcast to all the other participants as the changes are made (just as Google Docs 
+		does for text, for example). When you start PRSM in your browser, a 'room' is created for you in which 
+		to draw your network. You can add other users to this room to share the work. Only those with access 
+		to the room can see what is being created."
+		/>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
+		/>
+		<link rel="icon" href="../img/prsm-logo.ico" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+		<link href="../css/prsm.css" rel="stylesheet" />
+		<link
+			href="../node_modules/tabulator-tables/dist/css/semantic-ui/tabulator_semantic-ui.min.css"
+			rel="stylesheet"
+		/>
+		<link href="../css/table.css" rel="stylesheet" />
+	</head>
+
+	<body class="container" id="container">
+		<header>
+			<nav id="navbar">
+				<div>
+					<div class="strapline">Participatory System Mapper<span id="version">1.6.0</span></div>
+					<div class="maptitle unsetmaptitle" id="maptitle">Untitled map</div>
+				</div>
+				<div class="button-wrapper">
+					<div class="buttons" id="buttons">
+						<div class="tooltip">
+							<button id="col-insert">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-plus-square"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"
+									/>
+									<path
+										d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"
+									/>
+								</svg></button
+							><span class="tooltiptext">Add an attrbute column</span>
+						</div>
+						<div class="tooltip">
+							<button id="undo" class="disabled">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-arrow-counterclockwise"
+									viewBox="0 0 16 16"
+								>
+									<path
+										fill-rule="evenodd"
+										d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"
+									/>
+									<path
+										d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"
+									/>
+								</svg></button
+							><span class="tooltiptext">Undo</span>
+						</div>
+						<div class="tooltip">
+							<button id="redo" class="disabled">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-arrow-clockwise"
+									viewBox="0 0 16 16"
+								>
+									<path
+										fill-rule="evenodd"
+										d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"
+									/>
+									<path
+										d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"
+									/>
+								</svg></button
+							><span class="tooltiptext">Redo</span>
+						</div>
+						<div class="tooltip">
+							<button id="copy">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-files"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"
+									/>
+								</svg>
+							</button>
+							<span class="tooltiptext">Copy the table</span>
+						</div>
+						<div class="tooltip">
+							<button id="filter">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-funnel-fill"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"
+									/>
+								</svg>
+							</button>
+							<span class="tooltiptext">Filter the table</span>
+						</div>
+						<div class="tooltip">
+							<button id="help">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-question-lg"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M3 4.075a.423.423 0 0 0 .43.44H4.9c.247 0 .442-.2.475-.445.159-1.17.962-2.022 2.393-2.022 1.222 0 2.342.611 2.342 2.082 0 1.132-.668 1.652-1.72 2.444-1.2.872-2.15 1.89-2.082 3.542l.005.386c.003.244.202.44.446.44h1.445c.247 0 .446-.2.446-.446v-.188c0-1.278.487-1.652 1.8-2.647 1.086-.826 2.217-1.743 2.217-3.667C12.667 1.301 10.393 0 7.903 0 5.645 0 3.17 1.053 3.001 4.075zm2.776 10.273c0 .95.758 1.652 1.8 1.652 1.085 0 1.832-.702 1.832-1.652 0-.985-.747-1.675-1.833-1.675-1.04 0-1.799.69-1.799 1.675z"
+									/>
+								</svg>
+							</button>
+							<span class="tooltiptext">Show help in a new window</span>
+						</div>
+					</div>
+				</div>
+			</nav>
+		</header>
+		<div class="table-tabs">
+			<button class="table-tab" id="factors-table-tab" data-table="factors-table">Factors</button>
+			<button class="table-tab" id="links-table-tab" data-table="links-table">Links</button>
+		</div>
+		<div id="filter-dialog"></div>
+		<div class="table" id="factors-table"></div>
+		<div class="table" id="links-table"></div>
+		<script src="../js/table.js" type="module"></script>
+	</body>
+</html>

@@ -15,27 +15,46 @@ body {
 	font-family: Oxygen, sans-serif;
 	line-height: 1.5;
 	max-width: 1200px;
+	display: grid;
+	grid-template-columns: 230px 1fr;
 }
 figcaption {
 	display: none;
 }
 img {
+	display: block;
 	max-width: 800px;
+	margin: 0 auto;
 }
 .title {
 	display: none;
 }
 .contents {
+	grid-column: 2;
 	padding: 20px;
-	margin-left: 230px;
 }
 .contents a {
 	color: black;
 }
 code {
-	font-size: x-large;
+	font-size: large;
+}
+.analysis td {
+	padding: 5px;
+}
+.header {
+	background-color: rgb(56, 161, 241);
+	color:white;
+}
+.odd {
+	background-color: rgb(227,240,250);
+}
+.even{
+	background-color: rgb(171, 219, 248);
 }
 .scroll-nav {
+	grid-column: 1;
+	align-self: start;
 	background-color: #f8f9fa;
 	border: 1px solid #a2a9b1;
 	padding: 15px 10px;
@@ -52,6 +71,10 @@ code {
 	}
 }
 @media screen and (max-width: 700px) {
+	/* no room for Toc on a small screen */
+	body {
+		grid-template-columns: 0px 1fr;
+	}
 	.contents {
 		margin-left: 0;
 	}
@@ -62,7 +85,8 @@ code {
 		max-width: 600px;
 	}
 }
-.scroll-nav__list {
+.scroll-nav__list,
+.scroll-nav__sub-list {
 	margin: 0;
 	padding-left: 1.4em;
 	list-style-type: none;
@@ -72,22 +96,17 @@ code {
 	margin-bottom: 5px;
 }
 
+.scroll-nav__sub-item {
+	font-size: smaller;
+}
+
 .scroll-nav__item--active {
 	font-weight: 600;
 	position: relative;
 }
-.scroll-nav__item--active:before {
-	content: '';
-	display: block;
-	width: 14px;
-	height: 14px;
-	background: black;
-	position: absolute;
-	left: -20px;
-	top: 2px;
-}
 
-.scroll-nav__link {
+.scroll-nav__link,
+.scroll-nav__sub-link {
 	color: #0645ad;
 	text-decoration: none;
 	overflow-wrap: break-word;

@@ -1,0 +1,50 @@
+@font-face {
+    font-family: 'Oxygen';
+    src: url('../fonts/oxygen-regular-webfont.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Oxygen';
+    src: url('../fonts/oxygen-bold-webfont.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+.table-tabs {
+    background-color: #f1f1f1;
+    padding: 0 8px;
+    margin-top: 4px;
+}
+.table-tabs button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 36px;
+    border-bottom: 2px solid#f1f1f1;
+}
+.table-tabs button.active {
+    background-color: #ccc;
+    border-bottom: 2px solid black;
+}
+.table {
+    height: 100%;
+    background-color: white;
+}
+.tabulator-row {
+    background-color: white;
+}
+.grey {
+    font-weight: normal;
+    color: grey;
+}
+#filter-dialog {
+    float: right;
+    padding: 4px;
+}
+.tabulator-col-group {
+    border-left: 1px black solid;
+}

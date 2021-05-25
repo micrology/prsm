@@ -4,7 +4,7 @@
  * typical usage:
  * PORT=1234 YPERSISTENCE=./dbDir CERTDIR=/etc/letsencrypt/live/example.com node ./node_modules/y-websocket/bin/server.js
  * (optional) PORT to listen on Port 1234 (default)
- * (optional) YPERSITENCE use dbDir as the persistence store
+ * (optional) YPERSISTENCE use dbDir as the persistence store
  * (optional) CERTDIR to use https:// and wss:// protocols, using the certificate and key in that directory
  *
  */
