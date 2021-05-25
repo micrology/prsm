@@ -288,6 +288,7 @@ export function dragElement(elem, header) {
 	let lastPosX = 0;
 	let lastPosY = 0;
 	let isDragging = false;
+	let width = 0;
 
 	function handleDrag(ev) {
 		// DRAG STARTED
@@ -297,6 +298,7 @@ export function dragElement(elem, header) {
 			isDragging = true;
 			lastPosX = elem.offsetLeft;
 			lastPosY = elem.offsetTop;
+			width = elem.offsetWidth;
 		}
 
 		// we simply need to determine where the x,y of this
@@ -312,12 +314,14 @@ export function dragElement(elem, header) {
 		// move our element to that position
 		elem.style.left = posX + 'px';
 		elem.style.top = posY + 'px';
+		elem.style.width = width + 'px';
 
 		// DRAG ENDED
 		// this is where we simply forget we are dragging
 		if (ev.isFinal) {
 			isDragging = false;
 			elem.style.cursor = 'auto';
+			elem.style.width = '';
 		}
 	}
 }

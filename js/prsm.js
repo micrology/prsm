@@ -1189,6 +1189,7 @@ function snapToGrid(node) {
  * @param {Event} event
  */
 function copyToClipboard(event) {
+	if (document.getSelection().toString()) return;  // only copy factors if there is no text selected (e.g. in Notes)
 	event.preventDefault();
 	let nIds = network.getSelectedNodes();
 	let eIds = network.getSelectedEdges();
@@ -1227,16 +1228,15 @@ async function copyText(text) {
 }
 
 async function pasteFromClipboard() {
-	event.preventDefault();
-	unSelect();
 	let clip = await getClipboardContents();
 	let nodes, edges;
 	try {
 		({nodes, edges} = JSON.parse(clip));
 	} catch (err) {
-		// silently return if there is nothing relevant on the clipboard
+		// silently return (i.e. use system paste) if there is nothing relevant on the clipboard
 		return;
 	}
+	unSelect();
 	nodes.forEach((node) => {
 		let oldId = node.id;
 		node.id = uuidv4();
@@ -3028,6 +3028,7 @@ function showEdgeData() {
 function hideNotes() {
 	elem('nodeDataPanel').classList.add('hide');
 	elem('edgeDataPanel').classList.add('hide');
+	document.getSelection().removeAllRanges();
 	document.querySelectorAll('.ql-toolbar').forEach((e) => e.remove());
 }
 // Statistics specific to a node
