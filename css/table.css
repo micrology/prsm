@@ -45,6 +45,12 @@
     float: right;
     padding: 4px;
 }
+#filter-close {
+    padding: 0;
+    border: 0;
+    background-color: white;
+    vertical-align: middle;
+}
 .tabulator-col-group {
     border-left: 1px black solid;
 }
