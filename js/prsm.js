@@ -3039,7 +3039,7 @@ function displayStatistics(nodeId) {
 	let leverage = inDegree == 0 ? '--' : (outDegree / inDegree).toPrecision(3);
 	elem('leverage').textContent = leverage;
 	let node = data.nodes.get(nodeId);
-	elem('bc').textContent = node.bc >= 0 ? node.bc : '--';
+	elem('bc').textContent = node.bc >= 0 ? parseFloat(node.bc).toPrecision(3) : '--';
 }
 // Network tab
 

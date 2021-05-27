@@ -3,7 +3,7 @@ import {WebsocketProvider} from 'y-websocket';
 import {IndexeddbPersistence} from 'y-indexeddb';
 import {listen, elem, deepCopy, timeAndDate} from './utils.js';
 import Tabulator from 'tabulator-tables';
-import { version } from '../package.json';
+import {version} from '../package.json';
 
 const shortAppName = 'PRSM';
 
@@ -251,7 +251,7 @@ function initialiseFactorTable() {
 		layout: 'fitDataTable',
 		height: window.innerHeight - 130,
 		clipboard: true,
-		clipboardCopyConfig:{ 
+		clipboardCopyConfig: {
 			columnHeaders: true, //do not include column headers in clipboard output
 			columnGroups: false, //do not include column groups in column headers for printed table
 			rowGroups: false, //do not include row groups in clipboard output
@@ -271,7 +271,24 @@ function initialiseFactorTable() {
 		},
 		columnHeaderVertAlign: 'bottom',
 		columns: [
-			{title: 'Label', field: 'label', editor: 'textarea', frozen: true, maxWidth: 300},
+			{
+				title: '<input id="select-all" type="checkbox"/>&nbsp;Select',
+				field: 'selection',
+				hozAlign: 'center',
+				formatter: 'tickCross',
+				formatterParams: {
+					allowTruthy: true,
+					tickElement: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+					<path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+				  </svg>`,
+					crossElement: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-app" viewBox="0 0 16 16">
+					<path d="M11 2a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3h6zM5 1a4 4 0 0 0-4 4v6a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4V5a4 4 0 0 0-4-4H5z"/>
+				  </svg>`,
+				},
+				cellClick: tickToggle,
+				headerVertical: true,
+			},
+			{title: 'Label', field: 'label', editor: 'textarea', maxWidth: 300},
 			{title: 'Modified', field: 'modifiedTime', cssClass: 'grey'},
 			{
 				title: 'Format',
@@ -286,6 +303,13 @@ function initialiseFactorTable() {
 						field: 'shape',
 						editor: 'select',
 						editorParams: {values: {box: 'box', ellipse: 'ellipse', circle: 'disk', text: 'none'}},
+					},
+					{
+						title: 'Relative Size',
+						field: 'size',
+						editor: 'number',
+						width: 60,
+						headerVertical: true,
 					},
 					{
 						title: 'Fill Colour',
@@ -313,7 +337,7 @@ function initialiseFactorTable() {
 						width: 15,
 						headerVertical: true,
 						editor: colorEditor,
-				},
+					},
 					{
 						title: 'Border Style',
 						field: 'borderStyle',
@@ -332,7 +356,7 @@ function initialiseFactorTable() {
 					{
 						title: 'Font size',
 						field: 'fontSize',
-						width: 15,
+						minWidth: 15,
 						headerVertical: true,
 						editor: 'number',
 						editorParams: {
@@ -345,12 +369,12 @@ function initialiseFactorTable() {
 			{
 				title: 'Statistics',
 				columns: [
-					{ title: 'In-degree', field: 'indegree', headerVertical: true, cssClass: 'grey' },
-					{ title: 'Out-degree', field: 'outdegree', headerVertical: true, cssClass: 'grey' },
-					{ title: 'Total degree', field: 'degree', headerVertical: true, cssClass: 'grey' },
-					{title: 'Betweenness', field: 'bc', headerVertical: true, cssClass: 'grey' }
-				]
-			}
+					{title: 'In-degree', field: 'indegree', headerVertical: true, cssClass: 'grey'},
+					{title: 'Out-degree', field: 'outdegree', headerVertical: true, cssClass: 'grey'},
+					{title: 'Total degree', field: 'degree', headerVertical: true, cssClass: 'grey'},
+					{title: 'Betweenness', field: 'bc', minWidth: 60, headerVertical: true, cssClass: 'grey'},
+				],
+			},
 		],
 	});
 	// add all the user defined attribute columns
@@ -369,7 +393,16 @@ function initialiseFactorTable() {
 		}
 	}
 	window.factorsTable = factorsTable;
+	listen('select-all', 'change', (e) => {
+		factorsTable.getRows('active').forEach((row) => {
+			row.update({selection: e.target.checked});
+		});
+	});
 	return factorsTable;
+}
+
+function tickToggle(e, cell) {
+	cell.setValue(!cell.getValue());
 }
 
 /**
@@ -390,6 +423,7 @@ function convertNode(node) {
 	for (let prop in conversions) {
 		n[prop] = n[conversions[prop][0]][conversions[prop][1]];
 	}
+	n.size = n.scaling.label.enabled ? parseFloat(n.value).toPrecision(3) : '--';
 	if (n.groupLabel == 'Sample') n.groupLabel = '--';
 	n.borderStyle = n.shapeProperties.borderDashes;
 	if (n.borderWidth == 0) n.borderStyle = 'None';
@@ -407,31 +441,45 @@ function convertNode(node) {
 		if (n.id == e.to) n.indegree++;
 	});
 	n.degree = n.outdegree + n.indegree;
-	
+	n.bc = parseFloat(n.bc);
+	n.bc = n.bc >= 0 ? n.bc.toPrecision(3) : '--';
+
 	return n;
-}	
+}
 
 /**
  * store the user's edit to the cell value
+ * (but if other rows are selected, put that new value in those rows too)
  * @param {cellComponent} cell
  */
 function updateNodeCellData(cell) {
-	// get the old value of the node
-	let node = deepCopy(yNodesMap.get(cell.getRow().getData().id));
-	// update it with the cell's new value
-	node = convertNodeBack(node, cell.getField(), cell.getValue());
-	node.modified = {time: Date.now(), user: myNameRec.name};
-	cell.getTable().updateData([{id: node.id, modifiedTime: timeAndDate(node.modified.time)}]);
-	// sync it
-	yNodesMap.set(node.id, node);
-	updateFromAndToLabels([node]);
+	let field = cell.getField();
+	// don't do anything with the selection column
+	if (field == 'selection') return;
+	let rows = factorsTable.getRows().filter((row) => row.getData().selection);
+	if (rows.length == 0) rows = [cell.getRow()]; // no rows selected, so process justthis cell
+	let value = cell.getValue();
+	rows.forEach((row) => {
+		// process all selected rows to update their field with cell value
+		// get the old value of the node
+		let node = deepCopy(yNodesMap.get(row.getData().id));
+		// update it with the cell's new value
+		node = convertNodeBack(node, field, value);
+		node.modified = {time: Date.now(), user: myNameRec.name};
+		let update = {id: node.id, modifiedTime: timeAndDate(node.modified.time)};
+		update[field] = value;
+		cell.getTable().updateData([update]);
+		// sync it
+		yNodesMap.set(node.id, node);
+		updateFromAndToLabels([node]);
+	});
 }
 
 /**
  * Convert the properties of the node back into the format required by vis-network
- * @param {Object} node 
- * @param {String} field 
- * @param {Any} value 
+ * @param {Object} node
+ * @param {String} field
+ * @param {Any} value
  */
 function convertNodeBack(node, field, value) {
 	switch (field) {
@@ -463,7 +511,15 @@ function convertNodeBack(node, field, value) {
 			node.font.color = value;
 			break;
 		case 'fontSize':
-			node.font.size = value;
+			node.font.size = parseFloat(value);
+			break;
+		case 'size':
+			if (value == '--')
+				node.scaling.label.enabled = false;
+			else {
+				node.scaling.label.enabled = true;
+				node.value = parseFloat(value);
+			}
 			break;
 		default:
 			break;
@@ -483,7 +539,7 @@ function initialiseLinkTable() {
 	linksTable = new Tabulator('#links-table', {
 		data: tabledata, //assign data to table
 		clipboard: true,
-		clipboardCopyConfig:{
+		clipboardCopyConfig: {
 			columnHeaders: true, //do not include column headers in clipboard output
 			columnGroups: false, //do not include column groups in column headers for printed table
 			rowGroups: false, //do not include row groups in clipboard output
@@ -520,7 +576,7 @@ function initialiseLinkTable() {
 						headerVertical: true,
 						editor: 'select',
 						editorParams: {
-							values: ['vee', 'arrow','bar', 'circle', 'box', 'diamond', 'none'],
+							values: ['vee', 'arrow', 'bar', 'circle', 'box', 'diamond', 'none'],
 						},
 					},
 					{
@@ -628,9 +684,9 @@ function updateEdgeCellData(cell) {
 }
 /**
  * Convert the properties of the edge back into the format required by vis-network
- * @param {Object} edge 
- * @param {String} field 
- * @param {Any} value 
+ * @param {Object} edge
+ * @param {String} field
+ * @param {Any} value
  */
 function convertEdgeBack(edge, field, value) {
 	switch (field) {
@@ -658,7 +714,7 @@ function convertEdgeBack(edge, field, value) {
 			break;
 		case 'arrowColor':
 			edge.color.color = edge.arrowColor;
-			break
+			break;
 	}
 	return edge;
 }
@@ -798,7 +854,7 @@ function setUpFilter() {
 	let i = 0;
 	openTable.getColumns().forEach((colComp) => {
 		let def = colComp.getDefinition();
-		if (def.formatter != 'color')
+		if (def.formatter != 'color'  && def.field != 'selection')
 			// cannot sort by color
 			select[i++] = new Option(def.title, def.field);
 	});
@@ -853,5 +909,5 @@ function closeFilter() {
 listen('copy', 'click', copyTable);
 
 function copyTable() {
-	openTable.copyToClipboard("all")
+	openTable.copyToClipboard('all');
 }
