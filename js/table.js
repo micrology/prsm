@@ -302,6 +302,7 @@ function initialiseFactorTable() {
 						title: `Hidden&nbsp;
 						<span  id="hide-all"><span class="checkbox-box-off">${svg('cross')}</span>
 						  <span class="checkbox-box-on">${svg('tick')}</span></span>`,
+						label: 'Hidden',
 						field: 'hidden',
 						hozAlign: 'center',
 						formatter: 'tickCross',
@@ -377,6 +378,7 @@ function initialiseFactorTable() {
 					{title: 'In-degree', field: 'indegree', headerVertical: true, cssClass: 'grey'},
 					{title: 'Out-degree', field: 'outdegree', headerVertical: true, cssClass: 'grey'},
 					{title: 'Total degree', field: 'degree', headerVertical: true, cssClass: 'grey'},
+					{title: 'Leverage', field: 'leverage', headerVertical: true, cssClass: 'grey'},
 					{title: 'Betweenness', field: 'bc', minWidth: 60, headerVertical: true, cssClass: 'grey'},
 				],
 			},
@@ -406,8 +408,9 @@ function initialiseFactorTable() {
 	});
 	listen('hide-all', 'click', (e) => {
 		let ticked = headerTickToggle(e, '#hide-all');
-		factorsTable.getRows('active').forEach((row) => {
-			row.update({hidden: !ticked});
+		factorsTable.getRows().forEach((row) => {
+			row.update({ hidden: !ticked });
+			updateNodeCellData(row.getCell('hidden'));
 		});
 	});
 	return factorsTable;
@@ -475,7 +478,7 @@ function convertNode(node) {
 	for (let prop in conversions) {
 		n[prop] = n[conversions[prop][0]][conversions[prop][1]];
 	}
-	n.size = n.scaling.label.enabled ? parseFloat(n.value).toPrecision(3) : '--';
+	n.size = n.scaling.label.enabled && n.value != undefined ? parseFloat(n.value).toPrecision(3) : '--';
 	if (n.groupLabel == 'Sample') n.groupLabel = '--';
 	n.borderStyle = n.shapeProperties.borderDashes;
 	if (n.borderWidth == 0) n.borderStyle = 'None';
@@ -493,8 +496,9 @@ function convertNode(node) {
 		if (n.id == e.to) n.indegree++;
 	});
 	n.degree = n.outdegree + n.indegree;
-	n.bc = parseFloat(n.bc);
-	n.bc = n.bc >= 0 ? n.bc.toPrecision(3) : '--';
+	n.leverage = n.indegree == 0 ? '--' : (n.outdegree / n.indegree).toPrecision(3);
+	if (n.bc == undefined) n.bc = '--';
+	else n.bc = parseFloat(n.bc).toPrecision(3)
 
 	return n;
 }
@@ -509,7 +513,7 @@ function updateNodeCellData(cell) {
 	// don't do anything with the selection column
 	if (field == 'selection') return;
 	let rows = factorsTable.getRows().filter((row) => row.getData().selection);
-	if (rows.length == 0) rows = [cell.getRow()]; // no rows selected, so process justthis cell
+	if (rows.length == 0) rows = [cell.getRow()]; // no rows selected, so process just this cell
 	let value = cell.getValue();
 	rows.forEach((row) => {
 		// process all selected rows to update their field with cell value
@@ -573,6 +577,7 @@ function convertNodeBack(node, field, value) {
 			}
 			break;
 		default:
+			node[field] = value;
 			break;
 	}
 	return node;
@@ -907,7 +912,7 @@ function setUpFilter() {
 		let def = colComp.getDefinition();
 		if (def.formatter != 'color' && def.field != 'selection')
 			// cannot sort by color
-			select[i++] = new Option(def.title, def.field);
+			select[i++] = new Option(def.label || def.title, def.field);
 	});
 	filterDiv.appendChild(select);
 	filterDiv.insertAdjacentHTML('afterbegin', 'Filter: ');
