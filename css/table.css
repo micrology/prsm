@@ -54,3 +54,6 @@
 .tabulator-col-group {
     border-left: 1px black solid;
 }
+.checkbox-box-on {
+    display: none;
+}
