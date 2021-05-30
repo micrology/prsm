@@ -1189,7 +1189,7 @@ function snapToGrid(node) {
  * @param {Event} event
  */
 function copyToClipboard(event) {
-	if (document.getSelection().toString()) return;  // only copy factors if there is no text selected (e.g. in Notes)
+	if (document.getSelection().toString()) return; // only copy factors if there is no text selected (e.g. in Notes)
 	event.preventDefault();
 	let nIds = network.getSelectedNodes();
 	let eIds = network.getSelectedEdges();
@@ -2795,6 +2795,7 @@ function displayHelp() {
 function togglePanel() {
 	if (container.panelHidden) {
 		panel.classList.remove('hide');
+		positionNotes();
 	} else {
 		panel.classList.add('hide');
 	}
@@ -2837,6 +2838,8 @@ function openTab(tabId) {
 	// Show the current tab, and add an "active" class to the button that opened the tab
 	elem(tabId).classList.remove('hide');
 	event.currentTarget.className += ' active';
+	// if a Notes panel is in the way, move it
+	positionNotes();
 }
 
 /**
@@ -2924,6 +2927,15 @@ function showNodeOrEdgeData() {
 	else if (network.getSelectedEdges().length == 1) showEdgeData();
 }
 /**
+ * Hide the Node or Edge Data panel
+ */
+function hideNotes() {
+	elem('nodeDataPanel').classList.add('hide');
+	elem('edgeDataPanel').classList.add('hide');
+	document.getSelection().removeAllRanges();
+	document.querySelectorAll('.ql-toolbar').forEach((e) => e.remove());
+}
+/**
  * Show the notes box, the fixed node check box and the node statistics
  */
 function showNodeData() {
@@ -2973,7 +2985,9 @@ function showNodeData() {
 	});
 	panel.classList.remove('hide');
 	displayStatistics(nodeId);
+	positionNotes();
 }
+
 function isQuillEmpty(quill) {
 	if ((quill.getContents()['ops'] || []).length !== 1) {
 		return false;
@@ -3024,13 +3038,9 @@ function showEdgeData() {
 		});
 	});
 	panel.classList.remove('hide');
+	positionNotes();
 }
-function hideNotes() {
-	elem('nodeDataPanel').classList.add('hide');
-	elem('edgeDataPanel').classList.add('hide');
-	document.getSelection().removeAllRanges();
-	document.querySelectorAll('.ql-toolbar').forEach((e) => e.remove());
-}
+
 // Statistics specific to a node
 function displayStatistics(nodeId) {
 	// leverage (outDegree / inDegree)
@@ -3040,6 +3050,23 @@ function displayStatistics(nodeId) {
 	elem('leverage').textContent = leverage;
 	let node = data.nodes.get(nodeId);
 	elem('bc').textContent = node.bc >= 0 ? parseFloat(node.bc).toPrecision(3) : '--';
+}
+
+/**
+ * ensure that the panel is not obscuring the Settings panel
+ * @param {HTMLElement} panel
+ */
+function positionNotes() {
+	let notesPanel;
+	if (!elem('nodeDataPanel').classList.contains('hide')) notesPanel = elem(('nodeDataPanel'));
+	if (!elem('edgeDataPanel').classList.contains('hide')) notesPanel = elem(('edgeDataPanel'));
+	if (!notesPanel) return;
+	let notesPanelRect = notesPanel.getBoundingClientRect();
+	let settingsRect = elem('panel').getBoundingClientRect();
+	if (notesPanelRect.right > settingsRect.left && notesPanelRect.top < settingsRect.bottom) {
+		notesPanel.style.left = settingsRect.left - notesPanelRect.width - 20 + 'px';
+		notesPanel.style.width = notesPanelRect.width + 'px';
+	}
 }
 // Network tab
 
@@ -3355,7 +3382,7 @@ function setHideAndStream(obj) {
 	if (!obj) return;
 	let selectedNodes = [].concat(obj.selected); // ensure that obj.selected is an array
 	if (selectedNodes.length > 0) {
-		network.selectNodes(selectedNodes); // in viewing  only mode, this does nothing
+		network.selectNodes(selectedNodes, false); // in viewing  only mode, this does nothing
 		if (!viewOnly) statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
 	}
 	setRadioVal('hide', obj.hideSetting);

@@ -229,6 +229,9 @@ function exactTime() {
 	return `${d.toLocaleTimeString()}:${d.getMilliseconds()} `;
 }
 
+/*
+The menu that appears on right clicking one of the additional user columns 
+*/
 var headerContextMenu = [
 	{
 		label: 'Delete Column',
@@ -415,14 +418,23 @@ function initialiseFactorTable() {
 	});
 	return factorsTable;
 }
-
+/**
+ * Toggle the value of a cell in a TickCross column
+ * @param {Event} e 
+ * @param {CellComponent} cell 
+ */
 function tickToggle(e, cell) {
 	cell.setValue(!cell.getValue());
 }
-function headerTickToggle(e, selector) {
+/**
+ * Toggle the displayed state of the checkboxin a TickCross column 
+ * @param {Event} e 
+ * @param {String} id id of checkbox in header of a tickCross column
+ */
+function headerTickToggle(e, id) {
 	e.stopPropagation();
-	let off = document.querySelector(selector + ' .checkbox-box-off');
-	let on = document.querySelector(selector + ' .checkbox-box-on');
+	let off = document.querySelector(id + ' .checkbox-box-off');
+	let on = document.querySelector(id + ' .checkbox-box-on');
 	let ticked = off.style.display == 'none';
 	if (ticked) {
 		off.style.display = 'inline';
@@ -442,6 +454,10 @@ function tickCrossFormatter() {
 	};
 }
 
+/**
+ * return the SVG code for the given icon (see Bootstrap Icons)
+ * @param {String} icon 
+ */
 function svg(icon) {
 	switch (icon) {
 		case 'tick':
@@ -771,6 +787,9 @@ function convertEdgeBack(edge, field, value) {
 		case 'arrowColor':
 			edge.color.color = edge.arrowColor;
 			break;
+		default:
+			edge[field] = value;
+			break;
 	}
 	return edge;
 }
@@ -864,7 +883,9 @@ function deleteColumn(e, column) {
 	yNetMap.set('attributeTitles', attributeTitles);
 	column.delete();
 }
-
+/**
+ * Undo/redo
+ */
 listen('undo', 'click', undo);
 listen('redo', 'click', redo);
 
@@ -952,7 +973,9 @@ function updateFilter() {
 		openTable.setFilter(filterVal, typeVal, elem('filter-value').value);
 	}
 }
-
+/**
+ * Close the filter dialog and remove the filter (i.e. display all rows)
+ */
 function closeFilter() {
 	elem('filter-dialog').innerHTML = '';
 	openTable.clearFilter();
@@ -960,7 +983,9 @@ function closeFilter() {
 }
 
 listen('copy', 'click', copyTable);
-
+/**
+ * Copy the whole table to the clipboard
+ */
 function copyTable() {
 	openTable.copyToClipboard('all');
 }
