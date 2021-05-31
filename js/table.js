@@ -76,6 +76,7 @@ function startY() {
 		console.log(exactTime() + ' local content loaded');
 		openTable = initialiseFactorTable();
 		initialiseLinkTable();
+		elem("links-table").style.display = 'none'
 	});
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
 	wsProvider.on('sync', () => {
@@ -252,7 +253,7 @@ function initialiseFactorTable() {
 	factorsTable = new Tabulator('#factors-table', {
 		data: tabledata, //assign data to table
 		layout: 'fitDataTable',
-		height: window.innerHeight - 130,
+		height: window.innerHeight - 180,
 		clipboard: true,
 		clipboardCopyConfig: {
 			columnHeaders: true, //do not include column headers in clipboard output
@@ -265,6 +266,7 @@ function initialiseFactorTable() {
 		dataLoaded: () => {
 			initialising = false;
 		},
+		placeholder: 'loading...',
 		index: 'id',
 		columnTitleChanged: function (column) {
 			updateColumnTitle(column);
@@ -285,7 +287,15 @@ function initialiseFactorTable() {
 				cellClick: tickToggle,
 				headerVertical: true,
 			},
-			{title: 'Label', field: 'label', editor: 'textarea', maxWidth: 300},
+			{
+				title: 'Label',
+				field: 'label',
+				editor: 'textarea',
+				maxWidth: 300,
+				bottomCalc: 'count',
+				bottomCalcFormatter: bottomCalcFormatter,
+				bottomCalcFormatterParams: {legend: 'Count:'},
+			},
 			{title: 'Modified', field: 'modifiedTime', cssClass: 'grey'},
 			{
 				title: 'Format',
@@ -305,13 +315,16 @@ function initialiseFactorTable() {
 						title: `Hidden&nbsp;
 						<span  id="hide-all"><span class="checkbox-box-off">${svg('cross')}</span>
 						  <span class="checkbox-box-on">${svg('tick')}</span></span>`,
-						label: 'Hidden',
+						titleClipboard: 'Hidden',
 						field: 'hidden',
 						hozAlign: 'center',
 						formatter: 'tickCross',
 						formatterParams: tickCrossFormatter(),
 						cellClick: tickToggle,
 						headerVertical: true,
+						bottomCalc: 'count',
+						bottomCalcFormatter: bottomCalcFormatter,
+						bottomCalcFormatterParams: {legend: 'Count:'},
 					},
 					{
 						title: 'Relative Size',
@@ -378,11 +391,49 @@ function initialiseFactorTable() {
 			{
 				title: 'Statistics',
 				columns: [
-					{title: 'In-degree', field: 'indegree', headerVertical: true, cssClass: 'grey'},
-					{title: 'Out-degree', field: 'outdegree', headerVertical: true, cssClass: 'grey'},
-					{title: 'Total degree', field: 'degree', headerVertical: true, cssClass: 'grey'},
-					{title: 'Leverage', field: 'leverage', headerVertical: true, cssClass: 'grey'},
-					{title: 'Betweenness', field: 'bc', minWidth: 60, headerVertical: true, cssClass: 'grey'},
+					{
+						title: 'In-degree',
+						field: 'indegree',
+						headerVertical: true,
+						cssClass: 'grey',
+						bottomCalc: 'avg',
+						bottomCalcFormatter: bottomCalcFormatter,
+						bottomCalcFormatterParams: {legend: 'Avg:', precision: 2},
+					},
+					{
+						title: 'Out-degree',
+						field: 'outdegree',
+						headerVertical: true,
+						cssClass: 'grey',
+						bottomCalc: 'avg',
+						bottomCalcFormatter: bottomCalcFormatter,
+						bottomCalcFormatterParams: {legend: 'Avg:', precision: 2},
+					},
+					{
+						title: 'Total degree',
+						field: 'degree',
+						headerVertical: true,
+						cssClass: 'grey',
+						bottomCalc: 'avg',
+						bottomCalcFormatter: bottomCalcFormatter,
+						bottomCalcFormatterParams: {legend: 'Avg:', precision: 2},
+					},
+					{
+						title: 'Leverage',
+						field: 'leverage',
+						headerVertical: true,
+						cssClass: 'grey',
+					},
+					{
+						title: 'Betweenness',
+						field: 'bc',
+						minWidth: 60,
+						headerVertical: true,
+						cssClass: 'grey',
+						bottomCalc: 'max',
+						bottomCalcFormatter: bottomCalcFormatter,
+						bottomCalcFormatterParams: {legend: 'Max:'},
+					},
 				],
 			},
 		],
@@ -412,7 +463,7 @@ function initialiseFactorTable() {
 	listen('hide-all', 'click', (e) => {
 		let ticked = headerTickToggle(e, '#hide-all');
 		factorsTable.getRows().forEach((row) => {
-			row.update({ hidden: !ticked });
+			row.update({hidden: !ticked});
 			updateNodeCellData(row.getCell('hidden'));
 		});
 	});
@@ -420,15 +471,15 @@ function initialiseFactorTable() {
 }
 /**
  * Toggle the value of a cell in a TickCross column
- * @param {Event} e 
- * @param {CellComponent} cell 
+ * @param {Event} e
+ * @param {CellComponent} cell
  */
 function tickToggle(e, cell) {
 	cell.setValue(!cell.getValue());
 }
 /**
- * Toggle the displayed state of the checkboxin a TickCross column 
- * @param {Event} e 
+ * Toggle the displayed state of the checkboxin a TickCross column
+ * @param {Event} e
  * @param {String} id id of checkbox in header of a tickCross column
  */
 function headerTickToggle(e, id) {
@@ -453,10 +504,12 @@ function tickCrossFormatter() {
 		crossElement: svg('cross'),
 	};
 }
-
+function bottomCalcFormatter(cell, params) {
+	return `${params.legend} ${cell.getValue()}`;
+}
 /**
  * return the SVG code for the given icon (see Bootstrap Icons)
- * @param {String} icon 
+ * @param {String} icon
  */
 function svg(icon) {
 	switch (icon) {
@@ -514,7 +567,7 @@ function convertNode(node) {
 	n.degree = n.outdegree + n.indegree;
 	n.leverage = n.indegree == 0 ? '--' : (n.outdegree / n.indegree).toPrecision(3);
 	if (n.bc == undefined) n.bc = '--';
-	else n.bc = parseFloat(n.bc).toPrecision(3)
+	else n.bc = parseFloat(n.bc).toPrecision(3);
 
 	return n;
 }
@@ -620,7 +673,7 @@ function initialiseLinkTable() {
 			formatCells: false, //show raw cell values without formatter
 		},
 		layout: 'fitDataTable',
-		height: window.innerHeight - 130,
+		height: window.innerHeight - 180,
 		dataLoaded: () => {
 			initialising = false;
 		},
@@ -630,7 +683,15 @@ function initialiseLinkTable() {
 		},
 		columnHeaderVertAlign: 'bottom',
 		columns: [
-			{title: 'From', field: 'fromLabel', width: 300, cssClass: 'grey'},
+			{
+				title: 'From',
+				field: 'fromLabel',
+				width: 300,
+				cssClass: 'grey',
+				bottomCalc: 'count',
+				bottomCalcFormatter: bottomCalcFormatter,
+				bottomCalcFormatterParams: {legend: 'Count:'},
+			},
 			{title: 'To', field: 'toLabel', width: 300, cssClass: 'grey'},
 			{title: 'Modified', field: 'modifiedTime', cssClass: 'grey'},
 			{
@@ -933,7 +994,7 @@ function setUpFilter() {
 		let def = colComp.getDefinition();
 		if (def.formatter != 'color' && def.field != 'selection')
 			// cannot sort by color
-			select[i++] = new Option(def.label || def.title, def.field);
+			select[i++] = new Option(def.titleClipboard || def.title, def.field);
 	});
 	filterDiv.appendChild(select);
 	filterDiv.insertAdjacentHTML('afterbegin', 'Filter: ');
