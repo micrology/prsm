@@ -266,7 +266,6 @@ function initialiseFactorTable() {
 		dataLoaded: () => {
 			initialising = false;
 		},
-		placeholder: 'loading...',
 		index: 'id',
 		columnTitleChanged: function (column) {
 			updateColumnTitle(column);
@@ -505,7 +504,7 @@ function tickCrossFormatter() {
 	};
 }
 function bottomCalcFormatter(cell, params) {
-	return `${params.legend} ${cell.getValue()}`;
+	return `<b>${params.legend} ${cell.getValue()}</b>`;
 }
 /**
  * return the SVG code for the given icon (see Bootstrap Icons)
@@ -703,6 +702,20 @@ function initialiseLinkTable() {
 						cssClass: 'grey',
 					},
 					{
+						title: `Hidden&nbsp;
+						<span  id="hide-all"><span class="checkbox-box-off">${svg('cross')}</span>
+						  <span class="checkbox-box-on">${svg('tick')}</span></span>`,
+						titleClipboard: 'Hidden',
+						field: 'hidden',
+						hozAlign: 'center',
+						formatter: 'tickCross',
+						formatterParams: tickCrossFormatter(),
+						cellClick: tickToggle,
+						headerVertical: true,
+						bottomCalc: 'count',
+						bottomCalcFormatter: bottomCalcFormatter,
+						bottomCalcFormatterParams: {legend: 'Count:'},
+					},					{
 						title: 'Arrow',
 						//						width: 100,
 						field: 'arrowShape',

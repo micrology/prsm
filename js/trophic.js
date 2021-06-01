@@ -352,12 +352,12 @@ function connectedComponents(data) {
 	return cc;
 }
 /**
- * shift the posutions of nodes according to the trophic 'height' (actually, here, the x coordinate)
+ * shift the positions of nodes according to the trophic 'height' (actually, here, the x coordinate)
  * @param {dataSet} data
- * @returns list nodes whose positions have been altered
+ * @returns list of nodes whose positions have been altered
  */
 export function trophic(data) {
-	// get a list of lists of connected components,each being  pairs of to and from nodes/
+	// get a list of lists of connected components, each list being pairs of to and from nodes
 	// process each connected component individually
 	let updatedNodes = [];
 	connectedComponents(data).forEach((edges) => {

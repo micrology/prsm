@@ -3176,7 +3176,7 @@ function ensureNotDrawing() {
 }
 
 function selectAllFactors() {
-	selectFactors(data.nodes.getIds());
+	selectFactors(data.nodes.getIds({filter: ((n) => !n.hidden)}));
 }
 
 export function selectFactors(nodeIds) {
@@ -3185,7 +3185,7 @@ export function selectFactors(nodeIds) {
 }
 
 function selectAllLinks() {
-	selectLinks(data.edges.getIds());
+	selectLinks(data.edges.getIds({filter: ((e) => !e.hidden)}));
 }
 
 export function selectLinks(edgeIds) {
