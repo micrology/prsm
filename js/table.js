@@ -76,7 +76,7 @@ function startY() {
 		console.log(exactTime() + ' local content loaded');
 		openTable = initialiseFactorTable();
 		initialiseLinkTable();
-		elem("links-table").style.display = 'none'
+		elem('links-table').style.display = 'none';
 	});
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
 	wsProvider.on('sync', () => {
@@ -312,7 +312,7 @@ function initialiseFactorTable() {
 					},
 					{
 						title: `Hidden&nbsp;
-						<span  id="hide-all"><span class="checkbox-box-off">${svg('cross')}</span>
+						<span  id="hide-all-factors"><span class="checkbox-box-off">${svg('cross')}</span>
 						  <span class="checkbox-box-on">${svg('tick')}</span></span>`,
 						titleClipboard: 'Hidden',
 						field: 'hidden',
@@ -459,11 +459,13 @@ function initialiseFactorTable() {
 			row.update({selection: !ticked});
 		});
 	});
-	listen('hide-all', 'click', (e) => {
-		let ticked = headerTickToggle(e, '#hide-all');
-		factorsTable.getRows().forEach((row) => {
-			row.update({hidden: !ticked});
-			updateNodeCellData(row.getCell('hidden'));
+	listen('hide-all-factors', 'click', (e) => {
+		let ticked = headerTickToggle(e, '#hide-all-factors');
+		doc.transact(() => {
+			factorsTable.getRows().forEach((row) => {
+				row.update({hidden: !ticked});
+				updateNodeCellData(row.getCell('hidden'));
+			});
 		});
 	});
 	return factorsTable;
@@ -477,7 +479,7 @@ function tickToggle(e, cell) {
 	cell.setValue(!cell.getValue());
 }
 /**
- * Toggle the displayed state of the checkboxin a TickCross column
+ * Toggle the displayed state of the checkbox in a TickCross column
  * @param {Event} e
  * @param {String} id id of checkbox in header of a tickCross column
  */
@@ -504,7 +506,7 @@ function tickCrossFormatter() {
 	};
 }
 function bottomCalcFormatter(cell, params) {
-	return `<b>${params.legend} ${cell.getValue()}</b>`;
+	return `<span class="col-calc">${params.legend} ${cell.getValue()}</span>`;
 }
 /**
  * return the SVG code for the given icon (see Bootstrap Icons)
@@ -703,7 +705,7 @@ function initialiseLinkTable() {
 					},
 					{
 						title: `Hidden&nbsp;
-						<span  id="hide-all"><span class="checkbox-box-off">${svg('cross')}</span>
+						<span  id="hide-all-links"><span class="checkbox-box-off">${svg('cross')}</span>
 						  <span class="checkbox-box-on">${svg('tick')}</span></span>`,
 						titleClipboard: 'Hidden',
 						field: 'hidden',
@@ -715,7 +717,8 @@ function initialiseLinkTable() {
 						bottomCalc: 'count',
 						bottomCalcFormatter: bottomCalcFormatter,
 						bottomCalcFormatterParams: {legend: 'Count:'},
-					},					{
+					},
+					{
 						title: 'Arrow',
 						//						width: 100,
 						field: 'arrowShape',
@@ -768,6 +771,15 @@ function initialiseLinkTable() {
 		],
 	});
 	window.linksTable = linksTable;
+	listen('hide-all-links', 'click', (e) => {
+		let ticked = headerTickToggle(e, '#hide-all-links');
+		doc.transact(() => {
+			linksTable.getRows().forEach((row) => {
+				row.update({hidden: !ticked});
+				updateEdgeCellData(row.getCell('hidden'));
+			});
+		});
+	});
 	return linksTable;
 }
 

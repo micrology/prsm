@@ -57,3 +57,7 @@
 .checkbox-box-on {
     display: none;
 }
+.col-calc {
+    font-weight: bold;
+    color: black;
+}
