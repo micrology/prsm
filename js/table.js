@@ -464,8 +464,9 @@ function initialiseFactorTable() {
 		doc.transact(() => {
 			factorsTable.getRows().forEach((row) => {
 				row.update({hidden: !ticked});
-				updateNodeCellData(row.getCell('hidden'));
-			});
+				let node = deepCopy(yNodesMap.get(row.getData().id));
+				node.hidden = !ticked;
+				yNodesMap.set(node.id, node);			});
 		});
 	});
 	return factorsTable;
@@ -775,8 +776,10 @@ function initialiseLinkTable() {
 		let ticked = headerTickToggle(e, '#hide-all-links');
 		doc.transact(() => {
 			linksTable.getRows().forEach((row) => {
-				row.update({hidden: !ticked});
-				updateEdgeCellData(row.getCell('hidden'));
+				row.update({ hidden: !ticked });
+				let edge = deepCopy(yEdgesMap.get(row.getData().id));
+				edge.hidden = !ticked;
+				yEdgesMap.set(edge.id, edge);
 			});
 		});
 	});
