@@ -512,22 +512,28 @@ function displayNetPane(msg) {
 		setUpTutorial();
 	}
 }
-// to handle iOS weidness in fixing the vh unit (see https://css-tricks.com/the-trick-to-viewport-units-on-mobile/)
-// First we get the viewport height and we multiple it by 1% to get a value for a vh unit
-let vh = window.innerHeight * 0.01;
-// Then we set the value in the --vh custom property to the root of the document
-document.documentElement.style.setProperty('--vh', `${vh}px`);
 
 // to handle iPad viewport sizing problem when tab bar appears and to keep panels on screen
-document.body.height = window.innerHeight;
+setvh();
+
 window.onresize = function () {
-	document.body.height = window.innerHeight;
+	setvh();
 	keepPaneInWindow(panel);
 	keepPaneInWindow(elem('chatbox-holder'));
 };
 window.onorientationchange = function () {
-	document.body.height = window.innerHeight;
+	setvh();
 };
+/**
+ * to handle iOS weirdness in fixing the vh unit (see https://css-tricks.com/the-trick-to-viewport-units-on-mobile/)
+ */
+function setvh() {
+	document.body.height = window.innerHeight;
+	// First we get the viewport height and we multiple it by 1% to get a value for a vh unit
+	let vh = window.innerHeight * 0.01;
+	// Then we set the value in the --vh custom property to the root of the document
+	document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
 
 const chatbox = elem('chatbox');
 const chatboxTab = elem('chatbox-tab');
@@ -3058,8 +3064,8 @@ function displayStatistics(nodeId) {
  */
 function positionNotes() {
 	let notesPanel;
-	if (!elem('nodeDataPanel').classList.contains('hide')) notesPanel = elem(('nodeDataPanel'));
-	if (!elem('edgeDataPanel').classList.contains('hide')) notesPanel = elem(('edgeDataPanel'));
+	if (!elem('nodeDataPanel').classList.contains('hide')) notesPanel = elem('nodeDataPanel');
+	if (!elem('edgeDataPanel').classList.contains('hide')) notesPanel = elem('edgeDataPanel');
 	if (!notesPanel) return;
 	let notesPanelRect = notesPanel.getBoundingClientRect();
 	let settingsRect = elem('panel').getBoundingClientRect();
@@ -3176,7 +3182,7 @@ function ensureNotDrawing() {
 }
 
 function selectAllFactors() {
-	selectFactors(data.nodes.getIds({filter: ((n) => !n.hidden)}));
+	selectFactors(data.nodes.getIds({filter: (n) => !n.hidden}));
 }
 
 export function selectFactors(nodeIds) {
@@ -3185,7 +3191,7 @@ export function selectFactors(nodeIds) {
 }
 
 function selectAllLinks() {
-	selectLinks(data.edges.getIds({filter: ((e) => !e.hidden)}));
+	selectLinks(data.edges.getIds({filter: (e) => !e.hidden}));
 }
 
 export function selectLinks(edgeIds) {

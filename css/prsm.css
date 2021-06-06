@@ -316,6 +316,7 @@ nav button {
 	font-size: 24px;
 	background-color: var(--header-color);
 	margin: auto 5px;
+	padding: 1px 6px;
 	outline: none;
 }
 nav button .small-button {
