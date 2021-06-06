@@ -563,7 +563,6 @@ function setUpChat() {
 	yAwareness.setLocalState({user: myNameRec});
 	yChatArray.observe(() => {
 		displayLastMsg();
-		blinkChatboxTab();
 	});
 	chatboxTab.addEventListener('click', maximize);
 	listen('minimize', 'click', minimize);
@@ -3524,6 +3523,7 @@ function displayMsg(msg) {
 			msg.recipient == '' ||
 			msg.recipient == myNameRec.name.replace(/\s+/g, '').toLowerCase()
 		) {
+			blinkChatboxTab();
 			chatMessages.innerHTML += `<div class="message-box-holder">
 			<div class="message-header">
 				<span class="message-author">${msg.author}</span><span class="message-time">${clock}</span> 
@@ -3546,10 +3546,15 @@ function displayUserName() {
  * Create a set of options for the select menu of the currently online users
  * @param {Array} names - array of name records from yAwareness (see showAvatars)
  */
+// cache menu to avoid expensive DOM operations
+let oldUserNames = [];
 function populateChatUserMenu(names) {
+	let userNames = names.map((nRec) => nRec.name);
+	if ((object_equals(oldUserNames, userNames))) return;
+	oldUserNames = userNames;
 	let options = '<option value="">Everyone</option>';
-	names.forEach((nRec) => {
-		options += `<option value=${nRec.name.replace(/\s+/g, '').toLowerCase()}>${nRec.name}</option>`;
+	userNames.forEach((name) => {
+		options += `<option value=${name.replace(/\s+/g, '').toLowerCase()}>${name}</option>`;
 	});
 	elem('chat-users').innerHTML = options;
 }
@@ -3597,13 +3602,12 @@ window.showHistory = showHistory;
  * Place a circle at the top left of the net pane to represent each user who is online
  * Also create a cursor (a div) for each of the users
  */
-
 function showAvatars() {
 	let recs = Array.from(yAwareness.getStates());
 	let me = recs.splice(
 		recs.findIndex((a) => a[0] === clientID),
 		1
-	); // remove myself
+	); // remove and save myself
 	let names = recs
 		// eslint-disable-next-line no-unused-vars
 		.map(([key, value]) => {
@@ -3612,7 +3616,9 @@ function showAvatars() {
 		.filter((e) => e) // remove any recs without a user record
 		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates
 		.sort((a, b) => (a.name > b.name ? 1 : -1)); // sort names
+
 	populateChatUserMenu(Array.from(names));
+
 	if (me.length == 0) return; // app is unloading
 	names.unshift(me[0][1].user); // push myself on to the front
 
