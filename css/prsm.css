@@ -1344,6 +1344,11 @@ div.resize {
 		transform: translateX(-50%) scale(1);
 	}
 }
+
+.followme {
+	box-shadow: inset 0px 0px 0px 4px red;
+	border-radius: 8px;
+}
 /* ---------------------------- Tutorial --------------------------------*/
 .tutorial-dialog {
 	position: fixed;

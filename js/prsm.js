@@ -81,6 +81,7 @@ export var cp; // color picker
 var checkMapSaved = false; // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
 var dirty = false; // map has been changed by user and may need saving
 var hammer; // Hammer pinch recogniser instance
+var followme;  // clientId of user's cursor to follow 
 /**
  * top level function to initialise everything
  */
@@ -124,6 +125,7 @@ function addEventListeners() {
 	});
 	listen('addNode', 'click', plusNode);
 	listen('net-pane', 'contextmenu', contextMenu);
+	listen('net-pane', 'click', unFollow);
 	listen('addLink', 'click', plusLink);
 	listen('deleteNode', 'click', deleteNode);
 	listen('undo', 'click', undo);
@@ -614,66 +616,6 @@ function setUpTutorial() {
 		});
 		tutorial.start();
 	}
-}
-/**
- *  set up user monitoring (awareness)
- */
-function setUpAwareness() {
-	showAvatars();
-	// eslint-disable-next-line no-unused-vars
-	yAwareness.on('change', (event) => {
-		//		yjsTrace('yAwareness.on', event);
-		showAvatars();
-		if (elem('showCursorSwitch').checked) showMice();
-	});
-	// fade out avatar when there has been no movement of the mouse for 15 minutes
-	asleep(false);
-	var sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
-	window.addEventListener('mousemove', (e) => {
-		clearTimeout(sleepTimer);
-		asleep(false);
-		sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
-		// broadcast current position of mouse in canvas coordinates
-		let box = netPane.getBoundingClientRect();
-		yAwareness.setLocalStateField(
-			'cursor',
-			network.DOMtoCanvas({
-				x: e.clientX - box.left,
-				y: e.clientY - box.top,
-			})
-		);
-	});
-}
-/**
- * Set the awareness local state to show whether this client is sleeping (no mouse movement for 15 minutes)
- * @param {Boolean} isSleeping
- */
-function asleep(isSleeping) {
-	if (myNameRec.asleep === isSleeping) return;
-	myNameRec.asleep = isSleeping;
-	yAwareness.setLocalState({user: myNameRec});
-	showAvatars();
-}
-/**
- * Display the other users' mouse pointers (if they are inside the canvas)
- */
-function showMice() {
-	let recs = Array.from(yAwareness.getStates());
-	let box = netPane.getBoundingClientRect();
-	recs.forEach(([key, value]) => {
-		if (key != clientID && value.cursor) {
-			let cursorDiv = elem(key.toString());
-			if (cursorDiv) {
-				let p = network.canvasToDOM(value.cursor);
-				p.x += box.left;
-				p.y += box.top;
-				cursorDiv.style.top = `${p.y}px`;
-				cursorDiv.style.left = `${p.x}px`;
-				cursorDiv.style.display =
-					p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top ? 'none' : 'block';
-			}
-		}
-	});
 }
 
 /**
@@ -3597,7 +3539,66 @@ function historyClose() {
 dragElement(elem('history-window'), elem('history-header'));
 window.showHistory = showHistory;
 /* --------------------------------------- avatars and shared cursors--------------------------------*/
-
+/**
+ *  set up user monitoring (awareness)
+ */
+function setUpAwareness() {
+	showAvatars();
+	// eslint-disable-next-line no-unused-vars
+	yAwareness.on('change', (event) => {
+		//		yjsTrace('yAwareness.on', event);
+		showAvatars();
+		if (elem('showCursorSwitch').checked) showMice();
+	});
+	// fade out avatar when there has been no movement of the mouse for 15 minutes
+	asleep(false);
+	var sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
+	window.addEventListener('mousemove', (e) => {
+		clearTimeout(sleepTimer);
+		asleep(false);
+		sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
+		// broadcast current position of mouse in canvas coordinates
+		let box = netPane.getBoundingClientRect();
+		yAwareness.setLocalStateField(
+			'cursor',
+			network.DOMtoCanvas({
+				x: e.clientX - box.left,
+				y: e.clientY - box.top,
+			})
+		);
+	});
+}
+/**
+ * Set the awareness local state to show whether this client is sleeping (no mouse movement for 15 minutes)
+ * @param {Boolean} isSleeping
+ */
+function asleep(isSleeping) {
+	if (myNameRec.asleep === isSleeping) return;
+	myNameRec.asleep = isSleeping;
+	yAwareness.setLocalState({user: myNameRec});
+	showAvatars();
+}
+/**
+ * Display the other users' mouse pointers (if they are inside the canvas)
+ */
+function showMice() {
+	let recs = Array.from(yAwareness.getStates());
+	let box = netPane.getBoundingClientRect();
+	recs.forEach(([key, value]) => {
+		if (key != clientID && value.cursor) {
+			let cursorDiv = elem(key.toString());
+			if (cursorDiv) {
+				let p = network.canvasToDOM(value.cursor);
+				p.x += box.left;
+				p.y += box.top;
+				cursorDiv.style.top = `${p.y}px`;
+				cursorDiv.style.left = `${p.x}px`;
+				cursorDiv.style.display =
+					p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top ? 'none' : 'block';
+			}
+		}
+	});
+}
 /**
  * Place a circle at the top left of the net pane to represent each user who is online
  * Also create a cursor (a div) for each of the users
@@ -3640,8 +3641,11 @@ function showAvatars() {
 			if (nameRec.anon) circle.style.borderColor = 'white';
 			circle.innerText = shortName;
 			circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
+			circle.dataset.client = nameRec.id;
 			ava.appendChild(circle);
 			avatars.appendChild(ava);
+			circle.addEventListener('click', follow);
+			console.log('creating ava for ', nameRec);
 		} else {
 			// to avoid flashes, don't touch anything that is already correct
 			if (ava.dataset.tooltip != nameRec.name) ava.dataset.tooltip = nameRec.name;
@@ -3681,6 +3685,7 @@ function showAvatars() {
 		(a) => !currentCursors.includes(a)
 	);
 	cursorsToDelete.forEach((e) => e.remove());
+	if (followme) followUser();
 }
 
 function showCursorSwitch() {
@@ -3689,6 +3694,40 @@ function showCursorSwitch() {
 		node.style.display = on ? 'block' : 'none';
 	});
 }
+/**
+ * User has clicked on an avatar.  Start following this avatar
+ * @param {event} event 
+ */
+function follow(event) {
+	if (followme) unFollow();
+	let user = parseInt(event.target.dataset.client, 10);
+	if (user == clientID) return;
+	followme = user;
+	elem('ava' + followme).classList.add('followme');
+	let userName = elem('ava' + user).dataset.tooltip;
+	statusMsg(`Following ${userName}`);
+}
+/**
+ * User was folowing another user, but has now clicked off the avatar, so stop following
+ */
+function unFollow() {
+	if (!followme) return;
+	elem('ava' + followme).classList.remove('followme');
+	followme = undefined;
+	clearStatusBar();
+}
+/**
+ * move the map so that the followed cursor is always in the centre of the pane
+ */
+function followUser() {
+	if (!followme) return; 
+	let userRec = yAwareness.getStates().get(followme);
+	if (!userRec) return;
+	if (userRec.user.asleep) unFollow();
+	let userPosition = userRec.cursor;
+	if (userPosition) network.moveTo({ position: userPosition });
+}
+
 /* --------------------------------- Merge maps ----------------------------- */
 /* Manual (old) way:
  * to get the data in, open inspect windows for both maps.  in one window, eval data.nodes.get() and copy the result
