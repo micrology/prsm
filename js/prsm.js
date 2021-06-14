@@ -66,7 +66,7 @@ var dontUndo; // when non-null, don't add an item to the undo stack
 var yChatArray; // shared array of messages in the chat window
 var yAwareness; // awareness channel
 var yHistory; // log of actions
-var container; //the DOM body elemnet
+var container; //the DOM body element
 var netPane; // the DOM pane showing the network
 var panel; // the DOM right side panel element
 var myNameRec; // the user's name record {actual name, type, etc.}
@@ -147,7 +147,6 @@ function addEventListeners() {
 	listen('zoomplus', 'click', () => {
 		zoomincr(0.1);
 	});
-	//listen('net-pane', 'wheel', zoomscroll);
 	listen('nodesButton', 'click', () => {
 		openTab('nodesTab');
 	});
@@ -405,7 +404,7 @@ function startY() {
 		x links away; Size Factors to)
 	3. Those whose effects are promulgated and switches controlled here by yNetMap (e.g
 		Background)
-	For cases 2 and 3, the functions called here must not invoke yNetMap.set() to avoid looops
+	For cases 2 and 3, the functions called here must not invoke yNetMap.set() to avoid loops
 	*/
 	yNetMap.observe((event) => {
 		yjsTrace('YNetMap.observe', event);
@@ -943,7 +942,7 @@ function draw() {
 	data.edges.on('add', recalculateStats);
 	data.edges.on('remove', recalculateStats);
 
-	/* --------------------------------------------set up the magnifer --------------------------------------------*/
+	/* --------------------------------------------set up the magnifier --------------------------------------------*/
 	const magSize = 300; // diameter of loupe
 	const halfMagSize = magSize / 2.0;
 	const netPaneCanvas = netPane.firstElementChild.firstElementChild;
@@ -1751,7 +1750,7 @@ worker.onmessage = function (e) {
 */
 /**
  * return a string listing the labels of the given nodes, with nice connecting words
- * @param {Array} factors List of factcors
+ * @param {Array} factors List of factors
  */
 function listFactors(factors) {
 	if (factors.length > 5) return factors.length + ' factors';
@@ -1845,8 +1844,8 @@ function zoomset(newScale) {
 	network.zoom(newZoom);
 }
 
-/* var clicks = 0; // accumulate 'mousewheel' clikcs sent while display is updating
-var ticking = false; // if true, we are waiting for an Animationframe */
+/* var clicks = 0; // accumulate 'mousewheel' clicks sent while display is updating
+var ticking = false; // if true, we are waiting for an AnimationFrame */
 // see https://www.html5rocks.com/en/tutorials/speed/animations/
 
 /**
@@ -2414,7 +2413,7 @@ function saveJSONfile() {
 /**
  * Save the string to a local file
  * @param {string} str file contents
- * @param {strng} extn file extension
+ * @param {string} extn file extension
  *
  * Browser will only ask for name and location of the file to be saved if
  * it has a user setting to do so.  Otherwise, it is saved at a default
@@ -2499,7 +2498,7 @@ function setCanvasBackgroundColor(canvas, color = '#ffffff') {
 
 /**
  * resets lastFileName to have supplied extension
- * @param {string} extn filename extnsion to apply
+ * @param {string} extn filename extension to apply
  */
 function setFileName(extn) {
 	let pos = lastFileName.indexOf('.');
@@ -3645,7 +3644,6 @@ function showAvatars() {
 			ava.appendChild(circle);
 			avatars.appendChild(ava);
 			circle.addEventListener('click', follow);
-			console.log('creating ava for ', nameRec);
 		} else {
 			// to avoid flashes, don't touch anything that is already correct
 			if (ava.dataset.tooltip != nameRec.name) ava.dataset.tooltip = nameRec.name;
@@ -3708,7 +3706,7 @@ function follow(event) {
 	statusMsg(`Following ${userName}`);
 }
 /**
- * User was folowing another user, but has now clicked off the avatar, so stop following
+ * User was following another user, but has now clicked off the avatar, so stop following
  */
 function unFollow() {
 	if (!followme) return;

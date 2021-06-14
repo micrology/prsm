@@ -5,7 +5,7 @@ NG 18 December 2020
 
 */
 
-/* simple minded adjacency matric manipulation functions.
+/* simple minded adjacency matrix manipulation functions.
  * They generally assume that the matrix is square (no checks are done
  * that they are).
  * Assumes all weights are unity (TODO: allow weighted edges)

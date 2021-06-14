@@ -85,19 +85,21 @@ This what they do, from left to right:
 
 To select a factor or a link, click on it. To select more than one, click on one factor or link and then *hold down* the pointer over the other.  Or you can hold down the control (CTRL) key and click  to add to the selection. At the bottom of the window is the status bar, which will show which factors and links have been selected. Clicking anywhere on the background will deselect the factors and links.
 
-Also at the bottom of the window on the right is a slider that will adjust the magnification: slide to the right to make the factors and links larger and to the left to make them smaller (or click on the + and - signs).  To return the network to a size that will fit neatly in the window, double click anywhere on the network background.
+Also at the bottom of the window on the right is a slider that will adjust the magnification: slide to the right to make the factors and links larger and to the left to make them smaller (or click on the + and - signs).  To return the network to a size that will fit neatly in the window, double click anywhere on the network background.  On a tablet or phone, you can zoom by using the 'pinch' gesture.
 
 Holding down the Shift key and then moving the mouse pointer will show a 'magnifying glass' with an enlarged view of the part of the map under the pointer.  You need to be using a keyboard for this.
 
-Each node can be moved across the network pane by selecting it and dragging.  The whole network can be moved by dragging the background.
+Each factor can be moved across the network pane by selecting it and dragging.  The whole network can be moved by dragging the background.
 
 ### Notes
 
-If you select just one factor or one link, a small panel appears.  This shows the factor or link label (if it has one), the time and date  when the factor or link was created, and when it was last modifed if it has been changed since it was created, some network statistics about the factor, and an area where you can type a note to show further information about the factor or link.  For factors, there is also n aopen or closed padlock symbol. If this is shown closed, the factor will be locked into place on the network pane and cannot be dragged elsewhere.
+If you select just one factor or one link, a small panel appears.  This shows the factor or link label (if it has one), the time and date  when the factor or link was created, when it was last modifed if it has been changed since it was created, some network statistics about the factor, and an area where you can type a note to show further information about the factor or link.  For factors, there is also an open or closed padlock symbol. If this is shown closed, the factor will be locked into place on the network pane and cannot be dragged elsewhere.
 
 If a factor or link has a note, a small 'scroll' icon is shown next to it.
 
 <img src="/doc/images/FactorWithNote.png" width="400">
+
+A basic editor is provided for writing the Notes.  You can format the text with **bold**, *italic* or <u>underline</u>, create bulletted or numbered lists, and add URLs to the text.
 
 ### Sharing
 
@@ -118,6 +120,8 @@ The other users' mouse pointers are shown on the map.  As you move your mouse po
 <!-- ![Avatars](/doc/images/avatars.png) -->
 <img src="/doc/images/avatars.png" width="400">
 
+You can 'follow' the mouse movements of another user by clicking on their avatar.  When you do that, if that user moves to another part of the map, your map moves too, following that user's mouse pointer.  This can be very helpful if the other user is showing you something on the map.  To stop following, just click anywhere on the map.
+
 ### Using the mouse and touch
 
 You can use the following mouse actions (or finger or pencil gestures on a tablet):
@@ -133,6 +137,14 @@ You can use the following mouse actions (or finger or pencil gestures on a table
 * holding down the *control* key and dragging shows a selection rectangle - when you release the mouse, all factors in the rectangle are selected.
 * holding down the *option* or ALT key and clicking on the background is a shortcut for adding a new factor
 * holding down the *option* or ALT key and clicking on a factor is a shortcut for adding a link - the pointer will becoem a cross and you can then drag from the factor to another factor to create the link.
+
+### Copy and paste
+
+You can copy selected factors to the clipboard and then paste them into either the same map (to duplicate them) or into another map in another browser window or tab.
+
+To copy, first select the factors that you want copied (a long press on the factors).  Then hold down the Command or CTRL key and type C.  If you copy more than one factor, all the links that go between the selected factors get copied too.
+
+If you want to copy these factors and links into a new map, open a new tab in your browser, go to [https://prsm.uk/prism.html](https://prsm.uk/prism.html), click on the map and type Command/CTRL P.  Or to duplicate the factors in the same map, just type Command/CTRL P.
 
 ### Formatting factors and links
 
@@ -160,7 +172,7 @@ If someone has sent you a message but your chat window is closed, the button wil
 
 ### File formats
 
-The app can read files in its native format (files with the suffix '.prsm'), or in [GRAPHML](http://graphml.graphdrawing.org/) (.graphml), [GML](https://en.wikipedia.org/wiki/Graph_Modelling_Language) (.gml) or [Comma Separated Values](https://en.wikipedia.org/wiki/Comma-separated_values) (.csv) formats.  A CSV file must contain a two columns of values.  Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to.  This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottm right as shown on the [Factors tab](#factors-tab)).  The fifth column may contain the style number for the link.
+The app can read files in its native format (files with the suffix '.prsm'), or in [GRAPHML](http://graphml.graphdrawing.org/) (.graphml), [GML](https://en.wikipedia.org/wiki/Graph_Modelling_Language) (.gml) or [Comma Separated Values](https://en.wikipedia.org/wiki/Comma-separated_values) (.csv) formats.  A CSV file must contain a two columns of values.  Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to.  This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottom right as shown on the [Factors tab](#factors-tab)).  The fifth column may contain the style number for the link.
 
 The app can create output files in the app's own native format, as a GML file or as a CSV file.  You can also save an image of the map as a Portable Network Graphics (.png) file.  The image shows the same view of the map as you see on the screen (so, for example, it will not show factors that have been moved out of the app window).
 
@@ -187,6 +199,8 @@ Double clicking on any of the 9 styles opens a dialog box to change the style:
 <img src="/doc/images/FactorsStyle.png" width="600">
 
 There are options to change the colour of the background (the 'fill'), the border and the font of the label, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted or none, and to change the font size of the label.
+
+If you right click on one of the style samples, there is a menu with which you can either select all the Factors that have that style, or hide all those Factors from view.
 
 #### Legend
 
@@ -220,7 +234,7 @@ On the Network tab, there are controls for:
 * **Background** Changes the colour of the background of the network pane.  Click on the colour well to display possible colours.  The default is white, but a black background can also be effective.
 * **Show legend** If the factor and link styles are given names (other than 'Sample'), the styles and their names will be shown in a panel at the left bottom of the network pane headed 'Legend', when this switch is ON.  See the description of the [Factors tab](#factors-tab).
 * **Show drawing layer** Puts the network pane into drawing mode, so that background shapes, images and text can be added.  See [Drawing Mode](#drawing-mode) for more details.
-* **Show pointers** When ON, the positions of other users' mouse pointers are shown in real time.  
+* **Show other users** When ON, the positions of other users' mouse pointers are shown in real time.  
 * **Show history** When ON, a panel displaying every change to a factor or link (adding a factor or link, editing it or deleting it) is shown.
 * **Show only neighbouring Factors** If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 1, 2, or 3 links away from the selected Factor(s).  This is useful when one wants to focus on one part of a large network.
 * **Show only up or downstream Factors**  If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 'downstream' (i.e. linked to the selected Factor(s) by following links directed away from those Factor(s)), or those 'upstream' (i.e. linked to the selected Factor(s) by following links directed towards those Factor(s)).
@@ -251,7 +265,7 @@ The drawing tools are, in order from top to bottom:
 
 ## Analysis
 
-Once you have a map, you may want to examine it for themes and patterns. This is esiest if one examines portions of the map, or 'sub-maps', one at a time.  As  Barbrook-Johnson and Penn explain ([Barbrook-Johnson, P., & Penn, A. (2021). Participatory systems mapping for complex energy policy evaluation. Evaluation, 27(1), 57–79.](https://doi.org/10.1177/1356389020976153)), network analysis can be combined with subjective information to answer a range of questions, as indicatd in the table below.
+Once you have a map, you may want to examine it for themes and patterns. This is easiest if you examine portions of the map, or 'sub-maps', one at a time.  As  Barbrook-Johnson and Penn explain ([Barbrook-Johnson, P., & Penn, A. (2021). Participatory systems mapping for complex energy policy evaluation. Evaluation, 27(1), 57–79.](https://doi.org/10.1177/1356389020976153)), network analysis can be combined with subjective information to answer a range of questions, as indicated in the table below.
 
 <table class="analysis">
 <thead>
@@ -267,28 +281,28 @@ Once you have a map, you may want to examine it for themes and patterns. This is
 <tr class="odd">
 <td rowspan="9"><strong>Stakeholder-suggested factors</strong></td>
 <td rowspan="3">Intervention or controllable factors</td>
-<td>Downstream nodes and edges</td>
+<td>Downstream factors and edges</td>
 <td>What is the intervention or controllable factor affecting? Unexpected indirect effects?</td>
 <td>Select the intervention factor and choose ‘Show only Factors downstream’</td>
 </tr>
 <tr class="even">
-<td>For multiple nodes create a union or intersection of multiple downstream submaps</td>
+<td>For multiple factors create a union or intersection of multiple downstream submaps</td>
 <td>How are multiple interventions complementing or clashing with each other?</td>
 <td>Select all the interventions and choose ‘Show only Factors downstream’</td>
 </tr>
 <tr class="odd">
-<td>Paths between intervention nodes and outcome nodes, including ego networks of nodes on paths</td>
+<td>Paths between intervention factors and outcome factors, including ego networks of factors on paths</td>
 <td>What does the intervention rely on to achieve its goals? What wider context might affect it?</td>
-<td>Select all the nodes on the path(s) between the intervention(s) and the outcomes(s), and choose ‘Show only Factors 1 link away’ (or 2 or 3 links away)</td>
+<td>Select all the factors on the path(s) between the intervention(s) and the outcomes(s), and choose ‘Show only Factors 1 link away’ (or 2 or 3 links away)</td>
 </tr>
 <tr class="even">
 <td rowspan="4">Important or outcome factors</td>
-<td>Upstream nodes and edges</td>
+<td>Upstream factors and edges</td>
 <td>What is influencing the thing we care about? Constraints? Control? Buffered or buffeted?</td>
 <td>Select the intervention factor and choose ‘Show only Factors upstream’</td>
 </tr>
 <tr class="odd">
-<td>For multiple nodes create a union or intersection of ego networks. Or, pull out paths between outcomes.</td>
+<td>For multiple factors create a union or intersection of ego networks. Or, pull out paths between outcomes.</td>
 <td>What trade-offs or synergies might there be between achieving the things we care about?</td>
 <td>Select all the interventions and choose ‘Show only Factors upstream’</td>
 </tr>
@@ -299,13 +313,13 @@ Once you have a map, you may want to examine it for themes and patterns. This is
 <td>Select the factor and choose ‘Show only Factors 1 link away’ (or 2 or 3 links away)</td>
 </tr>
 <tr class="odd">
-<td>Union or intersection of upstream nodes and edges</td>
+<td>Union or intersection of upstream factors and edges</td>
 <td>What factors influence multiple outcomes? Identify potential levers in the system, co-benefits, synergies, or risks.</td>
-<td>Select all the outcome nodes and choose ‘Show only Factors upstream’</td>
+<td>Select all the outcome factors and choose ‘Show only Factors upstream’</td>
 </tr>
 <tr class="even">
 <td rowspan="2">Vulnerable to change factors</td>
-<td>Up and/or downstream nodes and edges</td>
+<td>Up and/or downstream factors and edges</td>
 <td>What might mitigate change in this factor? What impact might change have?</td>
 <td>Select one or more factors and choose ‘Show only Factors 1 link away’ (or 2 or 3 links away)</td>
 </tr>
@@ -317,13 +331,13 @@ Once you have a map, you may want to examine it for themes and patterns. This is
 <tr class="even">
 <td rowspan="5"><strong>System-suggested factors</strong></td>
 <td>Influential (i.e. many outgoing connections)</td>
-<td>Downstream nodes and edges</td>
+<td>Downstream factors and edges</td>
 <td>What is this influential thing affecting? Vulnerability or lever?</td>
 <td>First, set ‘Size Factors to: Outputs’ to see which factors have many outgoing connections. Then select an influential factor and choose ‘Show only Factors downstream’.</td>
 </tr>
 <tr class="odd">
 <td rowspan="2">Central to the map (i.e. well-connected, or bridging)</td>
-<td>Downstream and/or upstream nodes and edges</td>
+<td>Downstream and/or upstream factors and edges</td>
 <td>What is influencing this central factor? What influence does it have? Bottleneck, bridge, transmitter?</td>
 <td>First, set ‘Size Factors to: Centrality’ to see which factors are central. Then select a central factor and choose ‘Show only Factors upstream’.</td>
 </tr>
@@ -334,7 +348,7 @@ Once you have a map, you may want to examine it for themes and patterns. This is
 </tr>
 <tr class="odd">
 <td>Influenced (i.e. many incoming connections)</td>
-<td>Upstream nodes and edges</td>
+<td>Upstream factors and edges</td>
 <td>What is influencing this highly influenced factor? Buffered or buffeted?</td>
 <td>First, set ‘Size Factors to: Inputs’ to see which factors have many incoming connections. Then select a factor and choose ‘Show only Factors upstream'.</td>
 </tr>
@@ -347,6 +361,8 @@ Once you have a map, you may want to examine it for themes and patterns. This is
 </tbody>
 </table>
 With thanks to Alex Penn and Pete Barbrook-Johnson for the original of this table.
+
+## Data View
 
 ## Source Code
 

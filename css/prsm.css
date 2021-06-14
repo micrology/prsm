@@ -61,6 +61,7 @@ select {
 	position: relative;
 	height: 100vh;
 	height: calc(var(--vh, 1vh) * 100);
+	overflow: hidden;
 	display: grid;
 	grid-template-columns: 1fr;
 	grid-template-rows: auto 1fr auto;
