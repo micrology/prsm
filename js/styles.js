@@ -561,7 +561,7 @@ function getDashes(bDashes, bWidth) {
 	return val;
 }
 /**
- * Convert from dashed menu selectio to style object properties
+ * Convert from dashed menu selection to style object properties
  * @param {string} val
  */
 function groupDashes(val) {
@@ -590,7 +590,7 @@ function getArrows(prop) {
 	return val;
 }
 
-/*  ------------display the map legend (includes all styles with a groupLable that is neither blank or 'Sample') */
+/*  ------------display the map legend (includes all styles with a group label that is neither blank or 'Sample') */
 
 var legendData = {nodes: new DataSet(), edges: new DataSet()};
 var legendNetwork = null;

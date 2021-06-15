@@ -1,7 +1,7 @@
 import * as Y from 'yjs';
 import {WebsocketProvider} from 'y-websocket';
 import {IndexeddbPersistence} from 'y-indexeddb';
-import {listen, elem, deepCopy, timeAndDate} from './utils.js';
+import {listen, elem, deepCopy, deepMerge, timeAndDate} from './utils.js';
 import Tabulator from 'tabulator-tables';
 import {version} from '../package.json';
 
@@ -16,6 +16,7 @@ var clientID; // unique ID for this browser
 var yNodesMap; // shared map of nodes
 var yEdgesMap; // shared map of edges
 var yNetMap; // shared map of network state
+var ySamplesMap; // shared map of styles
 var yUndoManager; // shared list of commands for undo
 var factorsTable; // the factors table
 var linksTable; //the links table
@@ -89,6 +90,7 @@ function startY() {
 	yNodesMap = doc.getMap('nodes');
 	yEdgesMap = doc.getMap('edges');
 	yNetMap = doc.getMap('network');
+	ySamplesMap = doc.getMap('samples');
 	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap]);
 
 	clientID = doc.clientID;
@@ -302,7 +304,8 @@ function initialiseFactorTable() {
 					{
 						title: 'Style',
 						field: 'groupLabel',
-						cssClass: 'grey',
+						editor: 'select',
+						editorParams: {values: styleNodeNames},
 					},
 					{
 						title: 'Shape',
@@ -466,7 +469,8 @@ function initialiseFactorTable() {
 				row.update({hidden: !ticked});
 				let node = deepCopy(yNodesMap.get(row.getData().id));
 				node.hidden = !ticked;
-				yNodesMap.set(node.id, node);			});
+				yNodesMap.set(node.id, node);
+			});
 		});
 	});
 	return factorsTable;
@@ -508,6 +512,12 @@ function tickCrossFormatter() {
 }
 function bottomCalcFormatter(cell, params) {
 	return `<span class="col-calc">${params.legend} ${cell.getValue()}</span>`;
+}
+function styleNodeNames() {
+	return Array.from(ySamplesMap.values())
+		.filter((s) => s.node)
+		.map((s) => s.node.groupLabel)
+		.filter((l) => l != 'Sample');
 }
 /**
  * return the SVG code for the given icon (see Bootstrap Icons)
@@ -592,6 +602,10 @@ function updateNodeCellData(cell) {
 		let node = deepCopy(yNodesMap.get(row.getData().id));
 		// update it with the cell's new value
 		node = convertNodeBack(node, field, value);
+		if (field == 'groupLabel') {
+			node = deepMerge(node, ySamplesMap.get(node.grp).node);
+			factorsTable.updateData([convertNode(node)]);
+		}
 		node.modified = {time: Date.now(), user: myNameRec.name};
 		let update = {id: node.id, modifiedTime: timeAndDate(node.modified.time)};
 		update[field] = value;
@@ -610,6 +624,9 @@ function updateNodeCellData(cell) {
  */
 function convertNodeBack(node, field, value) {
 	switch (field) {
+		case 'groupLabel':
+			node.grp = getGroupFromGroupLabel(value);
+			break;
 		case 'borderStyle':
 			if (node.borderWidth == 0) node.borderWidth = 4;
 			switch (value) {
@@ -654,6 +671,9 @@ function convertNodeBack(node, field, value) {
 	return node;
 }
 
+function getGroupFromGroupLabel(groupLabel) {
+	return Array.from(ySamplesMap.entries()).filter((a) => a[1].node && a[1].node.groupLabel == groupLabel)[0][0]
+}
 /**
  * define the Link table
  * @return {Tabulate} the table
@@ -776,7 +796,7 @@ function initialiseLinkTable() {
 		let ticked = headerTickToggle(e, '#hide-all-links');
 		doc.transact(() => {
 			linksTable.getRows().forEach((row) => {
-				row.update({ hidden: !ticked });
+				row.update({hidden: !ticked});
 				let edge = deepCopy(yEdgesMap.get(row.getData().id));
 				edge.hidden = !ticked;
 				yEdgesMap.set(edge.id, edge);
@@ -788,7 +808,7 @@ function initialiseLinkTable() {
 
 /**
  * spread some deep values to the top level to suit the requirements of the Tabulator package better
- * NB: any such converted values cannotthen be edited without special attentyion (in updateEdgeCellData)
+ * NB: any such converted values cannot then be edited without special attention (in updateEdgeCellData)
  * @param {Object} node
  * @returns {object} the node augmented with new properties
  */
@@ -915,7 +935,7 @@ function getWidthOfTitle(text, fontname = 'Oxygen', fontsize = 13.33) {
  * Use the browser standard color picker to edit the cell colour
  * @param {CellComponent} cell - the cell component for the editable cell
  * @param {Function} onRendered - function to call when the editor has been rendered
- * @param {Function} success function to call to pass the successfuly updated value to Tabulator
+ * @param {Function} success function to call to pass the successfully updated value to Tabulator
  * @return {DOMElement} the editor element
  */
 function colorEditor(cell, onRendered, success) {
