@@ -673,7 +673,10 @@ function convertNodeBack(node, field, value) {
 	}
 	return node;
 }
-
+/**
+ * Given a label for a style, return the style's group id.  Assumes that the style label is unique 
+ * @param {String} groupLabel 
+ */
 function getNodeGroupFromGroupLabel(groupLabel) {
 	return Array.from(ySamplesMap.entries()).filter((a) => a[1].node && a[1].node.groupLabel == groupLabel)[0][0]
 }

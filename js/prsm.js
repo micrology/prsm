@@ -76,12 +76,13 @@ var inAddMode = false; // true when adding a new Factor to the network; used to 
 var inEditMode = false; //true when node or edge is being edited (dialog is open)
 var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
+var hideAndStreamNodes; // if set, there are  nodes that need to be hidden when the map is drawn for the first time
 var tutorial = new Tutorial(); // object driving the tutorial
 export var cp; // color picker
 var checkMapSaved = false; // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
 var dirty = false; // map has been changed by user and may need saving
 var hammer; // Hammer pinch recogniser instance
-var followme;  // clientId of user's cursor to follow 
+var followme; // clientId of user's cursor to follow
 /**
  * top level function to initialise everything
  */
@@ -429,8 +430,7 @@ function startY() {
 					setLegend(obj, false);
 					break;
 				case 'hideAndStream':
-					setHideAndStream(obj);
-					hideDistantOrStreamNodes(false);
+					hideAndStreamNodes = obj;
 					break;
 				case 'sizing':
 					sizing(obj);
@@ -505,10 +505,14 @@ function getRandomData(nNodes) {
  * @param {string} msg message for console
  */
 function displayNetPane(msg) {
-	fit(0);
-	setMapTitle(yNetMap.get('mapTitle'));
 	console.log(msg);
 	if (netPane.style.visibility == 'hidden' || netPane.style.visibility == '') {
+		fit(0);
+		setMapTitle(yNetMap.get('mapTitle'));
+		if (hideAndStreamNodes) {
+			setHideAndStream(hideAndStreamNodes);
+			hideDistantOrStreamNodes(false);
+		}
 		netPane.style.visibility = 'visible';
 		setUpTutorial();
 	}
@@ -3321,9 +3325,7 @@ function broadcastHideAndStream(hideSetting, streamSetting) {
 		selected: network.getSelectedNodes(),
 	});
 }
-/* note: this fails when the app is first opened with a room that has nodes hidden, because
-this is evaluated before the map nodes have been read in.  TODO: delay evaluation until the 
-nodes and edges are there */
+
 function setHideAndStream(obj) {
 	if (!obj) return;
 	let selectedNodes = [].concat(obj.selected); // ensure that obj.selected is an array
@@ -3491,7 +3493,7 @@ function displayUserName() {
 let oldUserNames = [];
 function populateChatUserMenu(names) {
 	let userNames = names.map((nRec) => nRec.name);
-	if ((object_equals(oldUserNames, userNames))) return;
+	if (object_equals(oldUserNames, userNames)) return;
 	oldUserNames = userNames;
 	let options = '<option value="">Everyone</option>';
 	userNames.forEach((name) => {
@@ -3694,7 +3696,7 @@ function showCursorSwitch() {
 }
 /**
  * User has clicked on an avatar.  Start following this avatar
- * @param {event} event 
+ * @param {event} event
  */
 function follow(event) {
 	if (followme) unFollow();
@@ -3718,12 +3720,12 @@ function unFollow() {
  * move the map so that the followed cursor is always in the centre of the pane
  */
 function followUser() {
-	if (!followme) return; 
+	if (!followme) return;
 	let userRec = yAwareness.getStates().get(followme);
 	if (!userRec) return;
 	if (userRec.user.asleep) unFollow();
 	let userPosition = userRec.cursor;
-	if (userPosition) network.moveTo({ position: userPosition });
+	if (userPosition) network.moveTo({position: userPosition});
 }
 
 /* --------------------------------- Merge maps ----------------------------- */
