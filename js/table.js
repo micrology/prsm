@@ -513,6 +513,9 @@ function tickCrossFormatter() {
 function bottomCalcFormatter(cell, params) {
 	return `<span class="col-calc">${params.legend} ${cell.getValue()}</span>`;
 }
+/**
+ * @return list of Factor Style names (omitting those called the default, 'Sample')
+ */
 function styleNodeNames() {
 	return Array.from(ySamplesMap.values())
 		.filter((s) => s.node)
@@ -625,7 +628,7 @@ function updateNodeCellData(cell) {
 function convertNodeBack(node, field, value) {
 	switch (field) {
 		case 'groupLabel':
-			node.grp = getGroupFromGroupLabel(value);
+			node.grp = getNodeGroupFromGroupLabel(value);
 			break;
 		case 'borderStyle':
 			if (node.borderWidth == 0) node.borderWidth = 4;
@@ -671,7 +674,7 @@ function convertNodeBack(node, field, value) {
 	return node;
 }
 
-function getGroupFromGroupLabel(groupLabel) {
+function getNodeGroupFromGroupLabel(groupLabel) {
 	return Array.from(ySamplesMap.entries()).filter((a) => a[1].node && a[1].node.groupLabel == groupLabel)[0][0]
 }
 /**
@@ -722,7 +725,8 @@ function initialiseLinkTable() {
 					{
 						title: 'Style',
 						field: 'groupLabel',
-						cssClass: 'grey',
+						editor: 'select',
+						editorParams: {values: styleEdgeNames},
 					},
 					{
 						title: `Hidden&nbsp;
@@ -805,7 +809,15 @@ function initialiseLinkTable() {
 	});
 	return linksTable;
 }
-
+/**
+ * @return list of Factor Style names (omitting those called the default, 'Sample')
+ */
+function styleEdgeNames() {
+	return Array.from(ySamplesMap.values())
+		.filter((s) => s.edge)
+		.map((s) => s.edge.groupLabel)
+		.filter((l) => l != 'Sample');
+}
 /**
  * spread some deep values to the top level to suit the requirements of the Tabulator package better
  * NB: any such converted values cannot then be edited without special attention (in updateEdgeCellData)
@@ -856,8 +868,14 @@ function updateEdgeCellData(cell) {
 	// get the old value of the edge
 	let edge = deepCopy(yEdgesMap.get(cell.getRow().getData().id));
 	// update it with the cell's new value
-	edge[cell.getField()] = cell.getValue();
-	edge = convertEdgeBack(edge, cell.getField(), cell.getValue());
+	let field = cell.getField();
+	let value = cell.getValue();
+	edge[field] = value;
+	edge = convertEdgeBack(edge, field, value);
+	if (field == 'groupLabel') {
+		edge = deepMerge(edge, ySamplesMap.get(edge.grp).edge);
+		linksTable.updateData([convertEdge(edge)]);
+	}
 	edge.modified = {time: Date.now(), user: myNameRec.name};
 	cell.getTable().updateData([{id: edge.id, modifiedTime: timeAndDate(edge.modified.time)}]);
 	// sync it
@@ -871,6 +889,9 @@ function updateEdgeCellData(cell) {
  */
 function convertEdgeBack(edge, field, value) {
 	switch (field) {
+		case 'groupLabel':
+			edge.grp = getEdgeGroupFromGroupLabel(value);
+			break;
 		case 'arrowShape':
 			edge.arrows.to.type = edge.arrowShape;
 			break;
@@ -901,6 +922,10 @@ function convertEdgeBack(edge, field, value) {
 			break;
 	}
 	return edge;
+}
+
+function getEdgeGroupFromGroupLabel(groupLabel) {
+	return Array.from(ySamplesMap.entries()).filter((a) => a[1].edge && a[1].edge.groupLabel == groupLabel)[0][0]
 }
 
 /**
