@@ -99,6 +99,27 @@
 							><span class="tooltiptext">Redo</span>
 						</div>
 						<div class="tooltip">
+							<button type="button"  id="share">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="currentColor"
+									class="bi bi-people-fill"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"
+									/>
+									<path
+										fill-rule="evenodd"
+										d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"
+									/>
+									<path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" />
+								</svg></button
+							><span class="tooltiptext">Share</span>
+						</div>
+						<div class="tooltip">
 							<button type="button"  id="copy">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -160,6 +181,25 @@
 		<div id="filter-dialog"></div>
 		<div class="table" id="factors-table"></div>
 		<div class="table" id="links-table"></div>
+		<!-- Share model dialog -->
+		<div id="shareModal" class="modal">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="close" id="modal-close">&times;</span>
+					<h2>Share the network with other participants</h2>
+				</div>
+				<div class="modal-body">
+					<div class="invite">
+						To invite others to participate in developing this map, send them this link:
+					</div>
+					<textarea class="text-to-copy" rows="1" readonly id="text-to-copy"></textarea>
+					<div class="copy-text-container">
+						<button type="button"  id="copy-text">Copy to clipboard</button>
+						<span class="copied-text" id="copied-text">Copied!</span>
+					</div>
+				</div>
+			</div>
+		</div>
 		<script src="../js/table.js" type="module"></script>
 	</body>
 </html>

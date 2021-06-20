@@ -29,6 +29,7 @@ var myNameRec; // my name etc.
 window.addEventListener('load', () => {
 	elem('version').innerHTML = version;
 	setUpTabs();
+	setUpShareDialog();
 	startY();
 });
 
@@ -231,7 +232,66 @@ function exactTime() {
 	let d = new Date();
 	return `${d.toLocaleTimeString()}:${d.getMilliseconds()} `;
 }
+/**
+ * set up the modal dialog that opens when the user clicks the Share icon in the nav bar
+ */
+function setUpShareDialog() {
+	let modal = elem('shareModal');
+	let inputElem = elem('text-to-copy');
+	let copiedText = elem('copied-text');
 
+	// When the user clicks the button, open the modal
+	listen('share', 'click', () => {
+		setLink('share');
+	});
+
+	function setLink(type) {
+		let path;
+		switch (type) {
+			case 'share':
+				path = window.location.pathname.replace('table.html', 'prsm.html') + '?room=' + room;
+				break;
+			default:
+				console.log('Bad case in setLink()');
+				break;
+		}
+		let linkToShare = window.location.origin + path;
+		modal.style.display = 'block';
+		inputElem.cols = linkToShare.length.toString();
+		inputElem.value = linkToShare;
+		inputElem.style.height = inputElem.scrollHeight - 3 + 'px';
+		inputElem.select();
+	}
+	// When the user clicks on <span> (x), close the modal
+	listen('modal-close', 'click', closeShareDialog);
+	// When the user clicks anywhere on the background, close it
+	listen('shareModal', 'click', closeShareDialog);
+
+	function closeShareDialog() {
+		let modal = elem('shareModal');
+		if (event.target == modal || event.target == elem('modal-close')) {
+			modal.style.display = 'none';
+			copiedText.style.display = 'none';
+		}
+	}
+	listen('copy-text', 'click', (e) => {
+		e.preventDefault();
+		// Select the text
+		inputElem.select();
+		if (copyText(inputElem.value))
+			// Display the copied text message
+			copiedText.style.display = 'inline-block';
+	});
+}
+async function copyText(text) {
+	try {
+		await navigator.clipboard.writeText(text);
+		return true;
+	} catch (err) {
+		console.error('Failed to copy: ', err);
+		return false;
+	}
+}
 /*
 The menu that appears on right clicking one of the additional user columns 
 */
