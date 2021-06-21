@@ -1552,7 +1552,7 @@ div.resize {
 	}
 	nav {
 		display: grid;
-		height: 90px;
+		height: 95px;
 		grid-template-columns: 1fr;
 		padding: 0;
 	}
@@ -1635,6 +1635,7 @@ div.resize {
 	nav button {
 		margin: auto 0;
 		font-size: 9px;
+		padding: 3px;
 	}
 	input[type='range'] {
 		width: 40px;
