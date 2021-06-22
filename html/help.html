@@ -176,9 +176,9 @@
 <h3 id="avatars-and-pointers">Avatars and pointers</h3>
 <p>When there are others in the room, the initial letters of their name appear in a circle at the top left - their <em>avatar</em>. If you hover the mouse pointer over the circle, their full name is shown (their real name or the name they have been given by the app). If they don’t do anything for 15 minutes, the avatar fades and, if they close their browser window, it disappears.</p>
 <p>The other users’ mouse pointers are shown on the map. As you move your mouse pointer (or finger on a touchscreen), a small disc containing your initials moves on every other users’ map correspondingly. If you are talking with other users by audio or video link, you can use your mouse to point to things of interest, and the other users can see what you are pointing at.</p>
-<p>You can ‘follow’ the mouse movements of another user by clicking on their avatar. When you do that, if that user moves to another part of the map, your map moves too, following that user’s mouse pointer. This can be very helpful if the other user is showing you something on the map. To stop following, just click anywhere on the map.</p>
 <!-- ![Avatars](/doc/images/avatars.png) -->
 <p><img src="/doc/images/avatars.png" width="400"></p>
+<p>You can ‘follow’ the mouse movements of another user by clicking on their avatar. When you do that, if that user moves to another part of the map, your map moves too, following that user’s mouse pointer. This can be very helpful if the other user is showing you something on the map. To stop following, just click anywhere on the map.</p>
 <h3 id="using-the-mouse-and-touch">Using the mouse and touch</h3>
 <p>You can use the following mouse actions (or finger or pencil gestures on a tablet):</p>
 <ul>
@@ -195,9 +195,9 @@
 <li>holding down the <em>option</em> or ALT key and clicking on a factor is a shortcut for adding a link - the pointer will becoem a cross and you can then drag from the factor to another factor to create the link.</li>
 </ul>
 <h3 id="copy-and-paste">Copy and paste</h3>
-<p>You copy selected factors to the clipboard and then paste them into either the same map (to duplicate them)or into another map in another browser window or tab.</p>
-<p>To copy, first select the factors that you want copied (a long press on the factors or tabs). Then hold down the Command or CTRL key and type C. If you copy more than one factor, all the links that go between the selected factors get copied too.</p>
-<p>If you wnat to move copy these factors and links into a new map, open a new tab in your browser, go to <a href="https://prsm.uk/prism.html">https://prsm.uk/prism.html</a>, click on the map and type Command/CTRL P. Or to duplicate the factors in the same map, just type Command/CTRL P.</p>
+<p>You can copy selected factors to the clipboard and then paste them into either the same map (to duplicate them) or into another map in another browser window or tab.</p>
+<p>To copy, first select the factors that you want copied (a long press on the factors). Then hold down the Command ⌘ or CTRL ⌃key and type C. If you copy more than one factor, all the links that go between the selected factors get copied too.</p>
+<p>If you want to copy these factors and links into a new map, open a new tab in your browser, go to <a href="https://prsm.uk/prism.html">https://prsm.uk/prism.html</a>, click on the map and type ⌘P or ⌃P. Or to duplicate the factors in the same map, just type ⌘P or ⌃P.</p>
 <h3 id="formatting-factors-and-links">Formatting factors and links</h3>
 <p>Double clicking on a factor or a link will bring up a small dialog that enables you to change the design of the factor or link - its colour, shape or the label.</p>
 <!-- ![Editing a node](/doc/images/Editingnode.png) -->
@@ -253,7 +253,7 @@
 <li><strong>Background</strong> Changes the colour of the background of the network pane. Click on the colour well to display possible colours. The default is white, but a black background can also be effective.</li>
 <li><strong>Show legend</strong> If the factor and link styles are given names (other than ‘Sample’), the styles and their names will be shown in a panel at the left bottom of the network pane headed ‘Legend’, when this switch is ON. See the description of the <a href="#factors-tab">Factors tab</a>.</li>
 <li><strong>Show drawing layer</strong> Puts the network pane into drawing mode, so that background shapes, images and text can be added. See <a href="#drawing-mode">Drawing Mode</a> for more details.</li>
-<li><strong>Show pointers</strong> When ON, the positions of other users’ mouse pointers are shown in real time.<br />
+<li><strong>Show other users</strong> When ON, the positions of other users’ mouse pointers are shown in real time.<br />
 </li>
 <li><strong>Show history</strong> When ON, a panel displaying every change to a factor or link (adding a factor or link, editing it or deleting it) is shown.</li>
 <li><strong>Show only neighbouring Factors</strong> If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 1, 2, or 3 links away from the selected Factor(s). This is useful when one wants to focus on one part of a large network.</li>
@@ -280,7 +280,7 @@
 <li><strong>Undo</strong> This tool will undo the effect of the last drawing (e.g. if you have just placed an image on the background, it will remove the image, or if you have drawn a line with the pencil, it will undo that line). Each click of the Undo button removes the previous drawing.</li>
 </ul>
 <h2 id="analysis">Analysis</h2>
-<p>Once you have a map, you may want to examine it for themes and patterns. This is esiest if one examines portions of the map, or ‘sub-maps’, one at a time. As Barbrook-Johnson and Penn explain (<a href="https://doi.org/10.1177/1356389020976153">Barbrook-Johnson, P., &amp; Penn, A. (2021). Participatory systems mapping for complex energy policy evaluation. Evaluation, 27(1), 57–79.</a>), network analysis can be combined with subjective information to answer a range of questions, as indicated in the table below.</p>
+<p>Once you have a map, you may want to examine it for themes and patterns. This is easiest if you examine portions of the map, or ‘sub-maps’, one at a time. As Barbrook-Johnson and Penn explain (<a href="https://doi.org/10.1177/1356389020976153">Barbrook-Johnson, P., &amp; Penn, A. (2021). Participatory systems mapping for complex energy policy evaluation. Evaluation, 27(1), 57–79.</a>), network analysis can be combined with subjective information to answer a range of questions, as indicated in the table below.</p>
 <table class="analysis">
 <thead>
 <tr class="header">
@@ -375,6 +375,67 @@
 </tbody>
 </table>
 <p>With thanks to Alex Penn and Pete Barbrook-Johnson for the original of this table.</p>
+<h2 id="data-view">Data View</h2>
+<p>As well as the map view described above, PRSM also provides an alternative Data View. This shows the Factors and Links in tables like a spreadsheet. You can make changes in the Data View - changes to Factors and Links are passed over to the Map view. For some tasks, the Data View is more convenient than the Map, especially when one wants to summarise or make changes to lots of Factors or Links at the same time.</p>
+<p>To see a Data View, open a PRSM map, click on the Share button at the top, check the box labelled ‘Data View’ in the dialog that appears, and then click on the ‘Copy to clipboard’ button to copy the URL shown. Open a new tab in your browser and paste the URL into the address bar.</p>
+<figure>
+<img src="/doc/images/DataView.png" alt="Data View" /><figcaption aria-hidden="true">Data View</figcaption>
+</figure>
+<p>The main part of the Data View when opened shows a table with one row for each of the Factors in the map. On the left are the Factors’ labels. There is then a group of columns that show the format of the Factors, and then on the right, a group of columns with various statistics about the Factors. At the bottom of the table are summaries (counts of how many factors there are, the average betweenness centrality, and so on). If there are too many Factors to fit in the window, you can scroll the table to the top or bottom.</p>
+<p>Use the small triangles in the column headings to sort the table according to the values in that column - one click for ascending and two for descending.</p>
+<p>Some columns need further explanation:</p>
+<ul>
+<li><strong>Select</strong> If you edit a value in a row that has a check mark (tick) in the Select column, the same edit will be made in all the other rows that are checked. For example, if you check three rows and change the value of the Shape column in any one of the three Selected rows to ‘ellipse’, the other two rows’ shape will also change to ‘ellipse’. This is a convenient way to change multiple Factors at once. Clicking the check box in the heading will Select all the Factors (or unselect them all if they are all selected).</li>
+<li><strong>Style</strong> The values in this column are the styles assigned in the Style panel in the Map view. ‘–’ is shown for Factors that use a style that has not been named.</li>
+<li><strong>Hidden</strong> A Factor with a check (tick) in this column is not displayed in the Map view. The Links to that Factor are also hidden. For instance, when you use the ‘Show only Factors upstream’ feature in the Network panel in the Map view, this hides the Factors that are downstream. However, using this column in the Data view is more flexible: you can hide any factor on the map. Clicking the check box in the heading will Hide all the Factors (so nothing will show in the Map view).</li>
+<li><strong>Relative size</strong> This column can be used to alter the size (width and height) of Factors on the map. Enter a number between 0 and 10 to control the size (e.g. a Factor with a relative size of 10 will be shown as much bigger on the map than a factor with relative size 1).</li>
+<li><strong>Fill colour</strong> Clicking on the cell will open a colour editor that you can use to change the background colour of the Factor.</li>
+</ul>
+<p>Above the table, there are tabs labelled ‘Factors’ and ‘Links’. Clicking the Links tab displays a similar table but with one row for each Link:</p>
+<figure>
+<img src="/doc/images/DataViewLinksTab.png" alt="Data View Links Tab" /><figcaption aria-hidden="true">Data View Links Tab</figcaption>
+</figure>
+<p>Most of the cells in the Format section of these tables are editable (columns with headings in <strong>bold</strong> have editable cells; those with headings in grey are not). To edit a cell, click it. Depending on the column, you can then edit the text (e.g. the Label), select from a drop down menu (e.g. Shape) or enter a number (e.g. Font size).</p>
+<p>At the top right is a row of buttons. These are:</p>
+<ul>
+<li><strong>Add column</strong> Clicking on this button will add an extra column on the right of the Factcor table. This can be used to add any ‘attribute’ you wish to the Factors. You can edit the heading to give the column an appropriate title, and then enter numbers or text into the cells. For example, you might use the extra column to record the importance of Factors. Right click the column heading to see a menu to delete the column.</li>
+</ul>
+<figure>
+<img src="/doc/images/Attribute.png" alt="Filter" /><figcaption aria-hidden="true">Filter</figcaption>
+</figure>
+<ul>
+<li><p><strong>Undo</strong> Restores the previous edit of a cell value.</p></li>
+<li><p><strong>Redo</strong> Retracts a previous ‘undo’.</p></li>
+<li><p><strong>Share</strong> Allows you to copy the web link you need to open a Map view.</p></li>
+<li><p><strong>Copy table</strong> Clicking on this button copies the whole table to the clipboard. You can then paste it into a spreadsheet such as Microsoft Excel for further analysis.</p></li>
+<li><p><strong>Filter</strong> This enables you to filter rows according to some condition - for example, you might filter out all the rows that have labels that do not have the word ‘climate’ in them. Clicking on the button reveals a dialog just above the table:</p>
+<p>The first drop down menu includes all the columns (except those that are for colours; you cannot filter by colour). The second drop down menu has a set of conditions to apply to the values in the filter column. To the right of this is a text box where you can complete the condition. For example, to filter out all but those Factors that have the word ‘climate’ in their label, you would use:</p></li>
+</ul>
+<figure>
+<img src="/doc/images/Filter.png" alt="Filter" /><figcaption aria-hidden="true">Filter</figcaption>
+</figure>
+<p>The rightmost ☒ is a button to dismiss the filter (or you can click the filter button again).</p>
+<ul>
+<li><strong>Help</strong> brings you to this documentation.</li>
+</ul>
+<h3 id="using-the-filter-and-select">Using the Filter and Select</h3>
+<p>The Filter and the Select column can be used in combination. For example, suppose you wanted to make all the Factors that influenced 2 or more other factors larger than the rest, to emphasise them in the Map view. This is what you could do:</p>
+<ol type="1">
+<li>Click on the Filter button. Set up a filter with Out-degree &gt;= 2</li>
+<li>Click on the Select all check box at the top of the first column</li>
+<li>Click on one of the cells in the Relative Size column. Edit the value to ‘5’</li>
+<li>Look at the Map view. Observe that all the Factors with 3 or more links pointing away from them are now larger than the rest.</li>
+</ol>
+<figure>
+<img src="/doc/images/OutDegreeFilter.png" alt="OutDegreeFilter" /><figcaption aria-hidden="true">OutDegreeFilter</figcaption>
+</figure>
+<p>Another, more complicated example: Show only those Factors in the map with a value of Betweenness Centrality greater than some threshold, together with the links that go between these Factors, and hide all other Factors and Links.</p>
+<ol type="1">
+<li>In the Data view, sort the Factors by Betweenness (click on the sorting triangle in the column header).</li>
+<li>Click the checkbox in the Hidden column header. This hides every Factor in the map (If you glance at the map now, you’ll find that it is apparently empty)</li>
+<li>Open the Filter (click on the Filter button at the top), and filter using ‘Betweenness’ ‘&gt;=’ ‘70’ (or whatever threshold value you choose).</li>
+<li>Uncheck the cells in the Hidden column in each of the rows that are now visible. This reveals the Factors on the Map that have a Betweenness Centrality greater than the threshold, and the Links between them.</li>
+</ol>
 <h2 id="source-code">Source Code</h2>
 <p><em>(The following is intended for developers who want to extend PRSM)</em></p>
 <p>The program code is available on <a href="https://github.com/micrology/prsm">GitHub</a>.</p>

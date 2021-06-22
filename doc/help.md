@@ -142,9 +142,10 @@ You can use the following mouse actions (or finger or pencil gestures on a table
 
 You can copy selected factors to the clipboard and then paste them into either the same map (to duplicate them) or into another map in another browser window or tab.
 
-To copy, first select the factors that you want copied (a long press on the factors).  Then hold down the Command or CTRL key and type C.  If you copy more than one factor, all the links that go between the selected factors get copied too.
+To copy, first select the factors that you want copied (a long press on the factors).  Then hold down the Command &#8984; or
+CTRL &#8963;key and type C.  If you copy more than one factor, all the links that go between the selected factors get copied too.
 
-If you want to copy these factors and links into a new map, open a new tab in your browser, go to [https://prsm.uk/prism.html](https://prsm.uk/prism.html), click on the map and type Command/CTRL P.  Or to duplicate the factors in the same map, just type Command/CTRL P.
+If you want to copy these factors and links into a new map, open a new tab in your browser, go to [https://prsm.uk/prism.html](https://prsm.uk/prism.html), click on the map and type &#8984;P or &#8963;P.  Or to duplicate the factors in the same map, just type &#8984;P or &#8963;P.
 
 ### Formatting factors and links
 
@@ -363,6 +364,68 @@ Once you have a map, you may want to examine it for themes and patterns. This is
 With thanks to Alex Penn and Pete Barbrook-Johnson for the original of this table.
 
 ## Data View
+
+As well as the map view described above, PRSM also provides an alternative Data View.  This shows the Factors and Links in tables like a spreadsheet.  You can make changes in the Data View - changes to Factors and Links are passed over to the Map view.  For some tasks, the Data View is more convenient than the Map, especially when one wants to summarise or make changes to lots of Factors or Links at the same time.
+
+To see a Data View, open a PRSM map, click on the Share button at the top, check the box labelled 'Data View' in the dialog that appears, and then click on the 'Copy to clipboard' button to copy the URL shown.  Open a new tab in your browser and paste the URL into the address bar.  
+
+![Data View](/doc/images/DataView.png)
+
+The main part of the Data View when opened shows a table with one row for each of the Factors in the map.  On the left are the Factors' labels.  There is then a group of columns that show the format of the Factors, and then on the right, a group of columns with various statistics about the Factors. At the bottom of the table are summaries (counts of how many factors there are, the average betweenness centrality, and so on).  If there are too many Factors to fit in the window, you can scroll the table to the top or bottom.
+
+Use the small triangles in the column headings to sort the table according to the values in that column - one click for ascending  and two for descending.
+
+Some columns need further explanation:
+
+* **Select** If  you edit a value in a row that has a check mark (tick) in the Select column, the same edit will be made in all the other rows that are checked.  For example, if you check three rows and change the value of the Shape column in any one of the three Selected rows to 'ellipse', the other two rows' shape will also change to 'ellipse'.  This is a convenient way to change multiple Factors at once. Clicking the check box in the heading will Select all the Factors (or unselect them all if they are all selected).
+* **Style** The values in this column are the styles assigned in the Style panel in the Map view.  '--' is shown for Factors that use a style that has not been named.
+* **Hidden** A Factor with a check (tick) in this column is not displayed in the Map view.  The Links to that Factor are also hidden.  For instance, when you use the 'Show only Factors upstream' feature in the Network panel in the Map view, this hides the Factors that are downstream. However, using  this column in the Data view is more flexible: you can hide any factor on the map. Clicking the check box in the heading will Hide all the Factors (so nothing will show in the Map view).
+* **Relative size** This column can be used to alter the size (width and height) of Factors on the map.  Enter a number between 0 and 10 to control the size (e.g. a Factor with a relative size of 10 will be shown as much bigger on the map than a factor with relative size 1).
+* **Fill colour** Clicking on the cell will open a colour editor that you can use to change the background colour of the Factor.
+
+Above the table, there are tabs labelled 'Factors' and 'Links'.  Clicking the Links tab displays a similar table but with one row for each Link:
+
+![Data View Links Tab](/doc/images/DataViewLinksTab.png)
+
+Most of the cells in the Format section of these tables are editable (columns with headings in **bold** have editable cells; those with headings in grey are not). To edit a cell, click it. Depending on the column, you can then edit the text (e.g. the Label), select from a drop down menu (e.g. Shape) or enter a number (e.g. Font size).
+
+At the top right is a row of buttons.  These are:
+
+* **Add column** Clicking on this button will add an extra column on the right of the Factcor table. This can be used to add any 'attribute' you wish to the Factors.  You can edit the heading to give the column an appropriate title, and then enter numbers or text into the cells.  For example, you might use the extra column to record the importance of Factors.  Right click the column heading to see a menu to delete the column.
+
+![Filter](/doc/images/Attribute.png)
+
+* **Undo** Restores the previous edit of a cell value.
+* **Redo** Retracts a previous 'undo'.
+* **Share** Allows you to copy the web link you need to open a Map view.
+* **Copy table** Clicking on this button copies the whole table to the clipboard.  You can then paste it into a spreadsheet such as Microsoft Excel for further analysis.
+* **Filter** This enables you to filter rows according to some condition - for example, you might filter out all the rows that have labels that do not have the word 'climate' in them.  Clicking on the button reveals a dialog just above the table:
+
+  The first drop down menu includes all the columns (except those that are for colours; you cannot filter by colour).  The second drop down menu has a set of conditions to apply to the values in the filter column.  To the right of this is a text box where you can complete the condition.  For example, to filter out all but those Factors that have the word 'climate' in their label, you would use:
+
+![Filter](/doc/images/Filter.png)
+
+  The rightmost &#9746; is a button to dismiss the filter (or you can click the filter button again).
+
+* **Help** brings you to this documentation.
+
+### Using the Filter and Select
+
+The Filter and the Select column can be used in combination.  For example, suppose you wanted to make all the Factors that influenced  2 or more other factors larger than the rest, to emphasise them in the Map view.  This is what you could do:
+
+1. Click on the Filter button. Set up a filter with Out-degree >= 2
+2. Click on the Select all check box at the top of the first column
+3. Click on one of the cells in the Relative Size column.  Edit the value to ‘5’
+4. Look at the Map view. Observe that all the Factors with 3 or more links pointing away from them are now larger than the rest.
+
+![OutDegreeFilter](/doc/images/OutDegreeFilter.png)
+
+Another, more complicated example: Show only those Factors in the map with a value of Betweenness Centrality greater than some threshold, together with the links that go between these Factors, and hide all other Factors and Links.
+
+1. In the Data view, sort the Factors by Betweenness (click on the sorting triangle in the column header).
+2. Click the checkbox in the Hidden column header.  This hides every Factor in the map (If you glance at the map now, you’ll find that it is apparently empty)
+3. Open the Filter (click on the Filter button at the top), and filter using ‘Betweenness’ ‘>=’ ‘70’   (or whatever threshold value you choose).
+4. Uncheck the cells in the Hidden column in each of the rows that are now visible.  This reveals the Factors on the Map that have a Betweenness Centrality greater than the threshold, and the Links between them.
 
 ## Source Code
 

@@ -392,6 +392,10 @@ function initialiseFactorTable() {
 						title: 'Relative Size',
 						field: 'size',
 						editor: 'number',
+						editorParams: {
+							min: 0,
+							max: 10,
+						},
 						width: 60,
 						headerVertical: true,
 					},
@@ -1185,4 +1189,13 @@ listen('copy', 'click', copyTable);
  */
 function copyTable() {
 	openTable.copyToClipboard('all');
+}
+
+listen('help', 'click', displayHelp);
+
+/**
+ * display help page in a separate window
+ */
+function displayHelp() {
+	window.open('./help.html#contents', 'helpWindow');
 }
