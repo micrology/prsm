@@ -64,14 +64,16 @@ When the app is started for the first time in your browser, there is an option t
 This introductory tour is only shown the very first time you use PRSM.  If you want to view the tour again, click <button onclick="localStorage.setItem('doneIntro', 'false'); return false">here</button>.
 
 At the top of the screen are a row of buttons.
-<!-- ![Nav Bar icons](/doc/images/prsm-nav-icons.png)
-<img src="/doc/images/prsm-nav-icons.png" width="400"> -->
+<!-- ![Nav Bar icons](/doc/images/prsm-nav-icons.png)-->
+<img src="/doc/images/buttons.png" width="400">
+
 This what they do, from left to right:
 
 * **New factor** (or node).  Click on the cross and then click on the blank area below (the 'network pane') to create a node for the network.  A small dialog box will open for you to type in a label for the factor.
 * **New link** (or edge). Click on the arrow button and then drag from one factor to another to link them. If you wish, you can have two links between a pair of factors: one for each direction.
 
-![Creating and linking two nodes](/doc/images/create-link-nodes.gif)
+<!-- ![Creating and linking two nodes](/doc/images/create-link-nodes.gif) -->
+<img src="/doc/images/create-link-nodes.gif" width="400">
 
 * **Undo**. Reverses the last action (e.g. if you have just created a new factor, it will be removed).
 * **Redo**. Redo the last action (e.g. if you have just undone the creation of a factor, this will return the factor to the network).
