@@ -65,7 +65,7 @@ This introductory tour is only shown the very first time you use PRSM.  If you w
 
 At the top of the screen are a row of buttons.
 <!-- ![Nav Bar icons](/doc/images/prsm-nav-icons.png)-->
-<img src="/doc/images/buttons.png" width="400">
+<img src="/doc/images/Buttons.png" width="400">
 
 This what they do, from left to right:
 
