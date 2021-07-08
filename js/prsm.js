@@ -119,6 +119,7 @@ function addEventListeners() {
 			e.preventDefault();
 		}
 	});
+	listen('recent-rooms-caret', 'click', createTitleDropDown);
 	listen('maptitle', 'keyup', mapTitle);
 	listen('maptitle', 'paste', pasteMapTitle);
 	listen('maptitle', 'click', (e) => {
@@ -127,6 +128,7 @@ function addEventListeners() {
 	listen('addNode', 'click', plusNode);
 	listen('net-pane', 'contextmenu', contextMenu);
 	listen('net-pane', 'click', unFollow);
+	listen('net-pane', 'click', removeTitleDropDown);
 	listen('addLink', 'click', plusLink);
 	listen('deleteNode', 'click', deleteNode);
 	listen('undo', 'click', undo);
@@ -225,10 +227,13 @@ function setUpPage() {
 /**
  * create a new shared document and start the WebSocket provider
  */
-function startY() {
-	// get the room number from the URL, or if none, generate a new one
-	let url = new URL(document.location);
-	room = url.searchParams.get('room');
+function startY(newRoom) {
+	if (newRoom) room = newRoom;
+	else {
+		// get the room number from the URL, or if none, generate a new one
+		let url = new URL(document.location);
+		room = url.searchParams.get('room');
+	}
 	if (room == null || room == '') {
 		room = generateRoom();
 		checkMapSaved = true;
@@ -1711,7 +1716,68 @@ function setMapTitle(title) {
 		lastFileName = title.replace(/\s+/g, '').toLowerCase();
 	}
 	if (title !== div.innerText) div.innerText = title;
+	titleDropDown(title);
 	return title;
+}
+/**
+ * Add this title to the local record of maps used
+ * @param {String} title 
+ */
+function titleDropDown(title) {
+	let recentMaps = localStorage.getItem('recents');
+	if (recentMaps) recentMaps = JSON.parse(recentMaps);
+	else recentMaps = {};
+	if (title != 'Untitled map') {
+		recentMaps[room] = title;
+		localStorage.setItem('recents', JSON.stringify(recentMaps));
+	}
+	// if there is more than 1, append a down arrow after the map title as a cue to there being a list
+	if (Object.keys(recentMaps).length > 1) elem('recent-rooms-caret').classList.remove('hidden');
+}
+/**
+ * Create a drop down list of previous maps used for user selection
+ */
+function createTitleDropDown() {
+	removeTitleDropDown();
+	let selectList = document.createElement('ul');
+	selectList.id = 'recent-rooms-select';
+	selectList.classList.add('room-titles');
+	elem('recent-rooms').appendChild(selectList);
+	let recentMaps = JSON.parse(localStorage.getItem('recents'));
+	// list is with most recent at the top, and no more than 20 items
+	let props = Object.keys(recentMaps).reverse().slice(0, 20);
+	props.forEach((prop) => {
+		let li = document.createElement('li');
+		li.classList.add('room-title');
+		let div = document.createElement('div');
+		div.classList.add('room-title-text');
+		div.innerText = recentMaps[prop];
+		div.dataset.room = prop;
+		div.addEventListener('click', (event) => changeRoom(event));
+		li.appendChild(div);
+		selectList.appendChild(li);
+	});
+}
+/**
+ * User has clicked one of the previous map titles - confirm and change to the web page for that room 
+ * @param {Event} event 
+ */
+function changeRoom(event) {
+	if (data.nodes.length > 0)
+		if (!confirm('Are you sure you want to move to a different map?')) return;
+	let newRoom = event.target.dataset.room;
+	removeTitleDropDown();
+	console.log(newRoom);
+	let url = new URL(document.location);
+	url.search = `?room=${newRoom}`;
+	window.location.replace(url);
+}
+/**
+ * Remove the drop down list of previous maps if user clicks on the net-pane or on a map title.
+ */
+function removeTitleDropDown() {
+	let oldSelect = elem('recent-rooms-select');
+	if (oldSelect) oldSelect.remove();
 }
 /**
  * unselect all nodes and edges

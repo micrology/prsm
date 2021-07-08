@@ -85,13 +85,15 @@ This what they do, from left to right:
 * **Help** Display this help page in a separate window.
 * **Settings**. Opens a panel that allows much more customisation and exploration of the network (see [Styling the map](#styling-the-map) below).
 
-To select a factor or a link, click on it. To select more than one, click on one factor or link and then *hold down* the pointer over the other.  Or you can hold down the control (CTRL) key and click  to add to the selection. At the bottom of the window is the status bar, which will show which factors and links have been selected. Clicking anywhere on the background will deselect the factors and links.
+To **select** a factor or a link, click on it. To select more than one, click on one factor or link and then *hold down* the pointer over the other.  Or you can hold down the control (CTRL) key and click to add to the selection. At the bottom of the window is the status bar, which will show which factors and links have been selected. Clicking anywhere on the background will deselect the factors and links.
 
-Also at the bottom of the window on the right is a slider that will adjust the magnification: slide to the right to make the factors and links larger and to the left to make them smaller (or click on the + and - signs).  To return the network to a size that will fit neatly in the window, double click anywhere on the network background.  On a tablet or phone, you can zoom by using the 'pinch' gesture.
+Each factor can be moved across the network pane by dragging it.  The whole network can be moved by dragging the background.
 
-Holding down the Shift key and then moving the mouse pointer will show a 'magnifying glass' with an enlarged view of the part of the map under the pointer.  You need to be using a keyboard for this.
+Also at the bottom of the window on the right is a slider that will adjust the **magnification**: slide to the right to make the factors and links larger and to the left to make them smaller (or click on the + and - signs).  To return the network to a size that will fit neatly in the window, double click anywhere on the network background.  On a tablet or phone, you can zoom by using the 'pinch' gesture.
 
-Each factor can be moved across the network pane by selecting it and dragging.  The whole network can be moved by dragging the background.
+At the top left, you can enter a **title** for the  map.  Click on 'Untitled map' and type in your title. If you have created or used several maps (and they have titles), a small downward triangle will appear to the right of the title.  Clicking on this shows a list of those previous maps, and clicking on one of those takes you away from the current map and loads the previous one (after you have confirmed that this is what you want to do).
+
+Holding down the Shift key and then moving the mouse pointer will show a **magnifying glass** with an enlarged view of the part of the map under the pointer.  You need to be using a keyboard for this.
 
 ### Notes
 

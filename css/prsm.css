@@ -287,10 +287,15 @@ nav {
 	color: white;
 	white-space: nowrap;
 }
-#version {
+.version {
 	font-size: xx-small;
 	color: lightgray;
 	margin-left: 10px;
+}
+.title {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
 }
 .maptitle {
 	font-size: 20px;
@@ -300,6 +305,36 @@ nav {
 }
 .unsetmaptitle {
 	color: lightgrey;
+}
+.recent-rooms-caret {
+	color: white;
+	padding: 10px 3px 0 3px;
+}
+.hidden {
+	visibility: hidden;
+}
+.room-titles {
+	width: 195px;
+	position: absolute;
+	left: 0px;
+	top: 65px;
+	z-index: 2500;	
+}
+.room-title {
+	list-style-type: none;
+}
+.room-title-text {
+	font-size: 12px;
+	text-align: left;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	background-color: var(--header-color);
+	color: white;
+	border-radius: 4px;
+	padding: 2px;
+	margin-top: 2px;
+	cursor: default;
 }
 .button-wrapper {
 	margin: auto 50px auto auto;
@@ -367,6 +402,9 @@ nav button .pressed {
 }
 .dropdown-wrapper:hover .dropdown-content {
 	display: block;
+}
+.dropdown-label:hover {
+	background-color: var(--header-hover-color);
 }
 #saveFile {
 	margin-right: 0;

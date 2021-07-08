@@ -37,7 +37,12 @@
 				font-display: swap;
 			}
 		</style>
-		<link rel="preload" href="../css/vis-network.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+		<link
+			rel="preload"
+			href="../css/vis-network.min.css"
+			as="style"
+			onload="this.onload=null;this.rel='stylesheet'"
+		/>
 		<link href="../node_modules/quill/dist/quill.snow.css" rel="stylesheet" />
 		<link href="../css/prsm.css" rel="stylesheet" />
 		<script>
@@ -56,16 +61,36 @@
 		<header>
 			<nav id="navbar">
 				<div>
-					<div class="strapline">Participatory System Mapper<span id="version">1.6.0</span></div>
-					<div
-						class="maptitle unsetmaptitle"
-						id="maptitle"
-						contenteditable="true"
-						data-tutorial="You can name your map here"
-						data-step="1"
-						data-position="below"
-					>
-						Untitled map
+					<div class="strap">
+						<span class="strapline">Participatory System Mapper</span>
+						<span class="version" id="version">1.7.0</span>
+					</div>
+					<div class="title">
+						<div
+							class="maptitle unsetmaptitle"
+							id="maptitle"
+							contenteditable="true"
+							data-tutorial="You can name your map here"
+							data-step="1"
+							data-position="below"
+						>
+							Untitled map
+						</div>
+						<div class="recent-rooms-caret hidden" id="recent-rooms-caret">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="16"
+								height="16"
+								fill="currentColor"
+								class="bi bi-caret-down-fill"
+								viewBox="0 0 16 16"
+							>
+								<path
+									d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"
+								/>
+							</svg>
+						</div>
+						<div id="recent-rooms"></div>
 					</div>
 				</div>
 				<div class="button-wrapper">
@@ -76,7 +101,7 @@
 							data-step="2"
 							data-position="below"
 						>
-							<button type="button"  id="addNode">
+							<button type="button" id="addNode">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -97,7 +122,7 @@
 							data-step="3"
 							data-position="below"
 						>
-							<button type="button"  id="addLink">
+							<button type="button" id="addLink">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="28"
@@ -114,7 +139,7 @@
 							><span class="tooltiptext">Add link</span>
 						</div>
 						<div class="tooltip">
-							<button type="button"  id="undo" class="disabled">
+							<button type="button" id="undo" class="disabled">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -134,7 +159,7 @@
 							><span class="tooltiptext">Undo</span>
 						</div>
 						<div class="tooltip">
-							<button type="button"  id="redo" class="disabled">
+							<button type="button" id="redo" class="disabled">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -159,7 +184,7 @@
 							data-step="4"
 							data-position="below"
 						>
-							<button type="button"  id="deleteNode">
+							<button type="button" id="deleteNode">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -179,7 +204,7 @@
 							><span class="tooltiptext">Delete selected</span>
 						</div>
 						<div class="tooltip">
-							<button type="button"  id="share">
+							<button type="button" id="share">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -200,7 +225,7 @@
 							><span class="tooltiptext">Share</span>
 						</div>
 						<div class="tooltip">
-							<button type="button"  id="openFile">
+							<button type="button" id="openFile">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -221,7 +246,7 @@
 							data-step="5"
 							data-position="left"
 						>
-							<button type="button"  id="saveFile">
+							<button type="button" id="saveFile">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -255,19 +280,19 @@
 							></span>
 							<div class="dropdown-content">
 								<div class="tooltip">
-									<button type="button"  id="exportPRSM">PRSM</button>
+									<button class="dropdown-label" type="button" id="exportPRSM">PRSM</button>
 									<span class="tooltiptext">Save as a PRSM file</span>
 								</div>
 								<div class="tooltip">
-									<button type="button"  id="exportImage">Image</button>
+									<button class="dropdown-label" type="button" id="exportImage">Image</button>
 									<span class="tooltiptext">Save as a PNG image file</span>
 								</div>
 								<div class="tooltip">
-									<button type="button"  id="exportCVS">CSV</button>
+									<button class="dropdown-label" type="button" id="exportCVS">CSV</button>
 									<span class="tooltiptext">Save as CSV files</span>
 								</div>
 								<div class="tooltip">
-									<button type="button"  id="exportGML">GML</button>
+									<button class="dropdown-label" type="button" id="exportGML">GML</button>
 									<span class="tooltiptext">Save as a GML file</span>
 								</div>
 							</div>
@@ -278,7 +303,7 @@
 							data-step="6"
 							data-position="left"
 						>
-							<button type="button"  id="search">
+							<button type="button" id="search">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -300,7 +325,7 @@
 							data-step="7"
 							data-position="left"
 						>
-							<button type="button"  id="help">
+							<button type="button" id="help">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -317,7 +342,7 @@
 							<span class="tooltiptext">Show help in a new window</span>
 						</div>
 						<div class="tooltip" data-tutorial="Show more options" data-step="8" data-position="left">
-							<button type="button"  id="panelToggle">
+							<button type="button" id="panelToggle">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -542,7 +567,7 @@
 					<div class="networkGrid">
 						<div class="panelRow">
 							<div>Apply</div>
-							<button type="button"  class="pushbutton" id="trophicButton">Trophic layout</button>
+							<button type="button" class="pushbutton" id="trophicButton">Trophic layout</button>
 						</div>
 						<div class="panelRow">
 							<div>Snap to grid</div>
@@ -735,9 +760,18 @@
 							/></svg
 					></span>
 					<span id="fixed"
-						><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill" viewBox="0 0 16 16">
-							<path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
-						  </svg></span>
+						><svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							fill="currentColor"
+							class="bi bi-lock-fill"
+							viewBox="0 0 16 16"
+						>
+							<path
+								d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"
+							/></svg
+					></span>
 				</div>
 			</div>
 			<div class="row">
@@ -917,14 +951,12 @@
 					</label>
 					<input class="view-check" type="checkbox" id="view-check" />
 					<label class="table" for="tablecheck">
-						Data view<br /><span class="small"
-							>(view Factors and Links in a data table)</span
-						>
+						Data view<br /><span class="small">(view Factors and Links in a data table)</span>
 					</label>
 					<input class="table-check" type="checkbox" id="table-check" />
 					<textarea class="text-to-copy" rows="1" readonly id="text-to-copy"></textarea>
 					<div class="copy-text-container">
-						<button type="button"  id="copy-text">Copy to clipboard</button>
+						<button type="button" id="copy-text">Copy to clipboard</button>
 						<span class="copied-text" id="copied-text">Copied!</span>
 					</div>
 				</div>
@@ -999,13 +1031,13 @@
 						</select>
 					</div>
 					<div class="tooltip">
-						<button type="button"  class="emoji" id="emoji-button">&#128512;</button>
+						<button type="button" class="emoji" id="emoji-button">&#128512;</button>
 						<span class="tooltiptext emojitip">Add an emoji</span>
 					</div>
 				</div>
 				<div class="chat-input-holder">
 					<textarea class="chat-input" id="chat-input" placeholder="Your message here..."></textarea>
-					<button type="button"  class="message-send" id="send-button">
+					<button type="button" class="message-send" id="send-button">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="24"
