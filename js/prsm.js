@@ -24,6 +24,7 @@ import {
 	initials,
 	CP,
 	timeAndDate,
+	setEndOfContenteditable
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
@@ -1716,6 +1717,7 @@ function setMapTitle(title) {
 		lastFileName = title.replace(/\s+/g, '').toLowerCase();
 	}
 	if (title !== div.innerText) div.innerText = title;
+	if (title.length >= 50) setEndOfContenteditable(div);
 	titleDropDown(title);
 	return title;
 }

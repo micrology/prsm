@@ -300,6 +300,7 @@ nav {
 .maptitle {
 	font-size: 20px;
 	margin: 5px 0 0 10px;
+	padding: 3px;
 	color: var(--map-title-color);
 	text-align: left;
 }
@@ -308,7 +309,7 @@ nav {
 }
 .recent-rooms-caret {
 	color: white;
-	padding: 10px 3px 0 3px;
+	padding: 7px 3px 0 3px;
 }
 .hidden {
 	visibility: hidden;

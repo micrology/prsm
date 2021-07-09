@@ -89,10 +89,7 @@ function seededRandom() {
  */
 export function uuidv4() {
 	return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
-		(
-			c ^
-			(crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
-		).toString(16)
+		(c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
 	);
 }
 
@@ -111,10 +108,7 @@ export function deepMerge() {
 		for (let prop in obj) {
 			if (Object.prototype.hasOwnProperty.call(obj, prop)) {
 				// If property is an object, merge properties
-				if (
-					Object.prototype.toString.call(obj[prop]) ===
-					'[object Object]'
-				) {
+				if (Object.prototype.toString.call(obj[prop]) === '[object Object]') {
 					newObj[prop] = deepMerge(newObj[prop], obj[prop]);
 				} else {
 					newObj[prop] = obj[prop];
@@ -189,11 +183,7 @@ export function object_equals(x, y) {
 	}
 
 	for (let p in y)
-		if (
-			Object.prototype.hasOwnProperty.call(y, p) &&
-			!Object.prototype.hasOwnProperty.call(x, p)
-		)
-			return false;
+		if (Object.prototype.hasOwnProperty.call(y, p) && !Object.prototype.hasOwnProperty.call(x, p)) return false;
 	// allows x[ p ] to be set to undefined
 
 	return true;
@@ -278,9 +268,7 @@ export function dragElement(elem, header) {
 	header.addEventListener('mouseout', () => (header.style.cursor = 'auto'));
 
 	let mc = new Hammer.Manager(header, {
-		recognizers: [
-			[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}],
-		],
+		recognizers: [[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}]],
 	});
 	// tie in the handler that will be called
 	mc.on('pan', handleDrag);
@@ -470,7 +458,7 @@ const ADJECTIVES = Object.freeze([
 	'tiny',
 	'vicious',
 	'warm',
-	'wild',  
+	'wild',
 ]);
 
 const random = (items) => items[(Math.random() * items.length) | 0];
@@ -480,12 +468,10 @@ const capitalize = (string) => string[0].toUpperCase() + string.slice(1);
  * return a random fancy name for an avatar, with a random colour
  */
 export function generateName() {
-	let name = capitalize(random(ADJECTIVES)) +
-	' ' +
-	capitalize(random(SEA_CREATURES));
+	let name = capitalize(random(ADJECTIVES)) + ' ' + capitalize(random(SEA_CREATURES));
 
 	return {
-		... uniqolor(name , { saturation: 95, lightness: 60 }),
+		...uniqolor(name, {saturation: 95, lightness: 60}),
 		name: name,
 		anon: true,
 		asleep: false,
@@ -556,9 +542,7 @@ export class CP {
 		let controls = document.createElement('div');
 		controls.id = 'colorPickerControls';
 		this.container.appendChild(controls);
-		document
-			.querySelector('body')
-			.insertAdjacentElement('beforeend', this.container);
+		document.querySelector('body').insertAdjacentElement('beforeend', this.container);
 
 		// see https://iro.js.org/guide.html#getting-started
 		this.colorPicker = new iro.ColorPicker('#colorPickerControls', {
@@ -578,18 +562,23 @@ export class CP {
 			c.id = 'color' + i;
 			c.className = 'cached-color';
 			// prefill with standard colours
-			c.style.backgroundColor = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ffffff', '#000000', '#9ADBB4', '#DB6E67'][i];
+			c.style.backgroundColor = [
+				'#ff0000',
+				'#00ff00',
+				'#0000ff',
+				'#ffff00',
+				'#ffffff',
+				'#000000',
+				'#9ADBB4',
+				'#DB6E67',
+			][i];
 			c.addEventListener('click', (e) => {
 				let color = e.target.style.backgroundColor;
-				if (color.search('rgb') != -1)
-					this.colorPicker.color.rgbString =
-						e.target.style.backgroundColor;
+				if (color.search('rgb') != -1) this.colorPicker.color.rgbString = e.target.style.backgroundColor;
 			});
 			this.colorCache.appendChild(c);
 		}
-		document
-			.getElementById('colorPickerControls')
-			.insertAdjacentElement('afterend', this.colorCache);
+		document.getElementById('colorPickerControls').insertAdjacentElement('afterend', this.colorCache);
 	}
 
 	/**
@@ -623,8 +612,7 @@ export class CP {
 
 			// update well as color is changed
 			this.colorPicker.on(['color:change'], function (color) {
-				elem('colorPicker').well.style.backgroundColor =
-					color.rgbString;
+				elem('colorPicker').well.style.backgroundColor = color.rgbString;
 			});
 		});
 	}
@@ -634,12 +622,7 @@ export class CP {
 	 * @param {event} event
 	 */
 	closeColorPicker(event) {
-		if (
-			!(
-				this.container.contains(event.target) ||
-				this.container.well.contains(event.target)
-			)
-		) {
+		if (!(this.container.contains(event.target) || this.container.well.contains(event.target))) {
 			this.container.style.display = 'none';
 			document.removeEventListener('click', this.onclose, true);
 			let color = this.container.well.style.backgroundColor;
@@ -654,7 +637,7 @@ export class CP {
 	 * Save the color in the previously selected colour grid, if not already saved
 	 * into a free slot, or if there isn't one shift the current colours to the left
 	 * and save the new at the right end
-	 * @param {color} color 
+	 * @param {color} color
 	 */
 	saveColor(color) {
 		let saveds = this.colorCache.children;
@@ -662,16 +645,16 @@ export class CP {
 			if (saveds[i].style.backgroundColor == color) return;
 		}
 		for (let i = 0; i < 8; i++) {
-			if (saveds[i].style.backgroundColor == "") {
+			if (saveds[i].style.backgroundColor == '') {
 				saveds[i].style.backgroundColor = color;
 				return;
 			}
 		}
 		for (let i = 0, j = 1; j < 8; i++, j++) {
-			saveds[i].style.backgroundColor = saveds[j].style.backgroundColor
+			saveds[i].style.backgroundColor = saveds[j].style.backgroundColor;
 		}
 		saveds[7].style.backgroundColor = color;
-		}
+	}
 }
 
 /**
@@ -697,4 +680,16 @@ export function timeAndDate(utc) {
 			minute: '2-digit',
 		});
 	}
+}
+/**
+ * positions the caret at the end of text in a contenteditable div
+ * @param {*} contentEditableElement
+ */
+export function setEndOfContenteditable(contentEditableElement) {
+	let range = document.createRange(); //Create a range (a range is a like the selection but invisible)
+	range.selectNodeContents(contentEditableElement); //Select the entire contents of the element with the range
+	range.collapse(false); //collapse the range to the end point. false means collapse to end rather than the start
+	let selection = window.getSelection(); //get the selection object (allows you to change selection)
+	selection.removeAllRanges(); //remove any selections already made
+	selection.addRange(range); //make the range you have just created the visible selection
 }
