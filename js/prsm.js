@@ -239,7 +239,6 @@ function startY(newRoom) {
 		room = generateRoom();
 		checkMapSaved = true;
 	} else room = room.toUpperCase();
-	document.title = document.title + ' ' + room;
 	const persistence = new IndexeddbPersistence(room, doc);
 	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
@@ -1706,7 +1705,7 @@ function setMapTitle(title) {
 	}
 	if (title == 'Untitled map') {
 		div.classList.add('unsetmaptitle');
-		document.title = `${appName} ${room}`;
+		document.title = appName;
 	} else {
 		if (title.length > 50) {
 			title = title.slice(0, 50);

@@ -24,5 +24,6 @@ RewriteEngine  on
 # but not if they are already linked to that directory
 RewriteCond %{REQUEST_URI} !/dist/ [NC]
 RewriteCond %{REQUEST_URI} !/experiments/ [NC]
+RewriteCond %{REQUEST_URI} !/newwebsite/ [NC]
 RewriteCond %{REQUEST_URI} !/acme-challenge/ [NC]
 RewriteRule 	"^(.*)$"	"dist/$1" [PT]

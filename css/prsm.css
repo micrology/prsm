@@ -6,7 +6,7 @@
 	touch-action: none;
 	/* interface colours defined here: CECAN theme */
 	--header-color: #0d2644;
-	--header-hover-color: lightgrey;
+	--header-hover-color: grey;
 	--header-pressed-color: grey;
 	--header-disabled-color: #a8d3f0;
 	--panel-color: #404040;
@@ -336,6 +336,9 @@ nav {
 	padding: 2px;
 	margin-top: 2px;
 	cursor: default;
+}
+.room-title-text:hover {
+	background-color: var(--header-hover-color);
 }
 .button-wrapper {
 	margin: auto 50px auto auto;

@@ -1,0 +1,57 @@
+body {
+	font-family: 'Oxygen', sans-serif;
+}
+h1,
+h2,
+h3,
+h4,
+.display-1,
+.display-2,
+.display-3 {
+	font-family: 'Playfair Display', serif;
+}
+a {
+	color: #0C6896;
+}
+.navbar-brand img {
+	width: 60px;
+}
+.dummy-navbar {
+	min-height: 80px;
+}
+.hero {
+	position: relative;
+}
+.hero > img {
+	filter: brightness(60%);
+}
+.text-responsive {
+	font-size: calc(1vw + 1vh);
+}
+.overlay-text {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: white;
+	font-size: x-large;
+}
+footer img {
+	width: 150px;
+	padding: 10px;
+}
+.social-icons a {
+	color: black;
+	font-size: larger;
+}
+.cookie-overlay {
+	position: fixed;
+	bottom: 1rem;
+	left: 1rem;
+	background: #fff;
+	z-index: 2051;
+	line-height: 20px;
+	font-size: 14px;
+	border-radius: 6px;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
