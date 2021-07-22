@@ -309,7 +309,7 @@ export function dragElement(elem, header) {
 		if (ev.isFinal) {
 			isDragging = false;
 			elem.style.cursor = 'auto';
-			elem.style.width = '';
+			elem.style.width = width + 'px';
 		}
 	}
 }
