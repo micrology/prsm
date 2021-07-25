@@ -21,7 +21,7 @@ The network or map can be anything that has items (or 'factors' or 'nodes') conn
 
 ### Systems
 
-The software is aimed at people who are interested in understanding whole systems.  Wikipedia defines a system as [a group of interacting or interrelated entities that form a unified whole](https://en.wikipedia.org/wiki/System).
+The software is aimed at people who are interested in understanding whole systems.  Wikipedia defines a system as [a group of interacting or interrelated entities that form a unified whole](https://en.wikipedia.org/wiki/System){target="_blank"}.
 
 ### Participatory system mapping
 
@@ -33,7 +33,7 @@ When you start the app in your browser, a 'room' is created for you in which to 
 
 Here are a few examples of what you can do with the app:
 
-The first is a theory of change adapted from an [NPC report](https://www.thinknpc.org/resource-hub/ten-steps/).
+The first is a theory of change adapted from an [NPC report](https://www.thinknpc.org/resource-hub/ten-steps/){target="_blank"}.
 
 ![NCP Example](/doc/images/NPCexample.png)
 
@@ -49,11 +49,11 @@ The third is a large network of 736 nodes and about 9000 links representing the 
 
 No installation on your computer is needed.  The software is a web app, which means that it can be accessed using a web browser by pasting this link into the address bar:
 
-<https://prsm.uk/prsm.html>
+[https://prsm.uk/prsm.html](https://prsm.uk/prsm.html){target="_blank"}
 
 You need a modern web browser such as Chrome, Firefox, Microsoft Edge or Safari.  It will not work with Internet Explorer.
 
-The software is free and available under an [MIT](https://choosealicense.com/licenses/mit/) license.
+The software is free and available under an [MIT](https://choosealicense.com/licenses/mit/){target="_blank"} license.
 
 ## Basic use
 
@@ -149,7 +149,7 @@ You can copy selected factors to the clipboard and then paste them into either t
 To copy, first select the factors that you want copied (a long press on the factors).  Then hold down the Command &#8984; or
 CTRL &#8963;key and type C.  If you copy more than one factor, all the links that go between the selected factors get copied too.
 
-If you want to copy these factors and links into a new map, open a new tab in your browser, go to [https://prsm.uk/prism.html](https://prsm.uk/prism.html), click on the map and type &#8984;P or &#8963;P.  Or to duplicate the factors in the same map, just type &#8984;P or &#8963;P.
+If you want to copy these factors and links into a new map, open a new tab in your browser, go to [https://prsm.uk/prism.html](https://prsm.uk/prism.html){target="_blank"}, click on the map and type &#8984;P or &#8963;P.  Or to duplicate the factors in the same map, just type &#8984;P or &#8963;P.
 
 ### Formatting factors and links
 
@@ -177,7 +177,7 @@ If someone has sent you a message but your chat window is closed, the button wil
 
 ### File formats
 
-The app can read files in its native format (files with the suffix '.prsm'), or in [GRAPHML](http://graphml.graphdrawing.org/) (.graphml), [GML](https://en.wikipedia.org/wiki/Graph_Modelling_Language) (.gml) or [Comma Separated Values](https://en.wikipedia.org/wiki/Comma-separated_values) (.csv) formats.  A CSV file must contain a two columns of values.  Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to.  This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottom right as shown on the [Factors tab](#factors-tab)).  The fifth column may contain the style number for the link.
+The app can read files in its native format (files with the suffix '.prsm'), or in [GRAPHML](http://graphml.graphdrawing.org/){target="_blank"} (.graphml), [GML](https://en.wikipedia.org/wiki/Graph_Modelling_Language){target="_blank"} (.gml) or [Comma Separated Values](https://en.wikipedia.org/wiki/Comma-separated_values){target="_blank"} (.csv) formats.  A CSV file must contain a two columns of values.  Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to.  This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottom right as shown on the [Factors tab](#factors-tab)).  The fifth column may contain the style number for the link.
 
 The app can create output files in the app's own native format, as a GML file or as a CSV file.  You can also save an image of the map as a Portable Network Graphics (.png) file.  The image shows the same view of the map as you see on the screen (so, for example, it will not show factors that have been moved out of the app window).
 
@@ -226,14 +226,14 @@ The Links tab is very similar to the Factors tab, except that it relates to the 
 
 The Network tab enables you to change many aspects of the network visualisation, including where the Factors are placed and which are visible.  
 
-It is sometimes useful to get PSRM to layout Factors using an automatic procedure and then adjust their positions manually to achieve the desired placement.  PRSM has the *trophic* algorithm built in. The trophic layout  helps to reveal [the causal structure of the map](https://royalsocietypublishing.org/doi/10.1098/rsos.201138). With the trophic layout, the factors are arranged along the horizontal axis according to their positions (their trophic levels) in the overall causal flow within the system, making it easier to identify upstream and downstream factors; the linked chains of influence that connect them; and where policies act on the system within this overall causal structure (which may be upstream or downstream).
+It is sometimes useful to get PSRM to layout Factors using an automatic procedure and then adjust their positions manually to achieve the desired placement.  PRSM has the *trophic* algorithm built in. The trophic layout  helps to reveal [the causal structure of the map](https://royalsocietypublishing.org/doi/10.1098/rsos.201138){target="_blank"}. With the trophic layout, the factors are arranged along the horizontal axis according to their positions (their trophic levels) in the overall causal flow within the system, making it easier to identify upstream and downstream factors; the linked chains of influence that connect them; and where policies act on the system within this overall causal structure (which may be upstream or downstream).
 
 On the Network tab, there are controls for:
 
 <!-- ![NetworkPanel](/doc/images/NetworkPanel.png) -->
 <img src="/doc/images/NetworkPanel.png" width="250">
 
-* **Trophic Layout** If this switch is set to ON, the app moves the factors and links to create a layout such that all the links point from left to right and are arranged accoriding to [trophic level](https://en.wikipedia.org/wiki/Trophic_level). Clicking the Trophic Layout button will re-arrange the factors, and you can then adjust the map manually to a neat and pleasing layout.  If you don't like the result, the Undo button on the top bar will revert the map to its original layout.
+* **Trophic Layout** If this switch is set to ON, the app moves the factors and links to create a layout such that all the links point from left to right and are arranged accoriding to [trophic level](https://en.wikipedia.org/wiki/Trophic_level){target="_blank"}. Clicking the Trophic Layout button will re-arrange the factors, and you can then adjust the map manually to a neat and pleasing layout.  If you don't like the result, the Undo button on the top bar will revert the map to its original layout.
 * **Snap to grid**  When ON, factors shift to be at the intersection of invisible grid lines.  This makes it much easier to line up factors neatly.
 * **Link** Links can either be drawn using a curved line or a straight line.  This control swaps between these two styles.
 * **Background** Changes the colour of the background of the network pane.  Click on the colour well to display possible colours.  The default is white, but a black background can also be effective.
@@ -243,7 +243,7 @@ On the Network tab, there are controls for:
 * **Show history** When ON, a panel displaying every change to a factor or link (adding a factor or link, editing it or deleting it) is shown.
 * **Show only neighbouring Factors** If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 1, 2, or 3 links away from the selected Factor(s).  This is useful when one wants to focus on one part of a large network.
 * **Show only up or downstream Factors**  If you first select a Factor, (or several Factors) and then one of these buttons, all Factors in the network will be hidden, except for those 'downstream' (i.e. linked to the selected Factor(s) by following links directed away from those Factor(s)), or those 'upstream' (i.e. linked to the selected Factor(s) by following links directed towards those Factor(s)).
-* **Size Factors to** This is used to change the size of the Factors to be proportional to one of a set of metrics: the number of inputs (the 'in-degree'), the number of outputs (the 'out-degree'), the leverage (ratio of inputs to outputs), or the [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality).  Note that the Factors are always drawn large enough to accommodate their labels, and so the size may not be exactly proportional to the metric.
+* **Size Factors to** This is used to change the size of the Factors to be proportional to one of a set of metrics: the number of inputs (the 'in-degree'), the number of outputs (the 'out-degree'), the leverage (ratio of inputs to outputs), or the [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality){target="_blank"}.  Note that the Factors are always drawn large enough to accommodate their labels, and so the size may not be exactly proportional to the metric.
 
 ## Drawing Mode
 
@@ -270,7 +270,7 @@ The drawing tools are, in order from top to bottom:
 
 ## Analysis
 
-Once you have a map, you may want to examine it for themes and patterns. This is easiest if you examine portions of the map, or 'sub-maps', one at a time.  As  Barbrook-Johnson and Penn explain ([Barbrook-Johnson, P., & Penn, A. (2021). Participatory systems mapping for complex energy policy evaluation. Evaluation, 27(1), 57–79.](https://doi.org/10.1177/1356389020976153)), network analysis can be combined with subjective information to answer a range of questions, as indicated in the table below.
+Once you have a map, you may want to examine it for themes and patterns. This is easiest if you examine portions of the map, or 'sub-maps', one at a time.  As  Barbrook-Johnson and Penn explain ([Barbrook-Johnson, P., & Penn, A. (2021). Participatory systems mapping for complex energy policy evaluation. Evaluation, 27(1), 57–79.](https://doi.org/10.1177/1356389020976153){target="_blank"}), network analysis can be combined with subjective information to answer a range of questions, as indicated in the table below.
 
 <table class="analysis">
 <thead>
@@ -435,15 +435,15 @@ Another, more complicated example: Show only those Factors in the map with a val
 
 *(The following is intended for developers who want to extend PRSM)*
 
-The program code is available on [GitHub](https://github.com/micrology/prsm).  
+The program code is available on [GitHub](https://github.com/micrology/prsm){target="_blank"}.  
 
 The javascript (ES6) code in sub-directory ```js``` is divided into five modules: one that handles the main network pane (```prsm.js```), one that manages the background painting functions (```paint.js```), one that creates and edits the styles (```styles.js```) (the default styles are in ```samples.js```), one that handles the tour (```tutorial.js```) and one that includes common utility functions (```utils.js```).  The HTML file that displays in the browser is in the ```html``` directory.
 
-PRSM uses two important packages: [```yjs```](https://github.com/yjs/yjs) and [```vis-network```](https://visjs.org/).  The former handles the sharing between participants' browsers and the latter draws the network. A few other packages are used for dealing with touch input ([```Hammer```](https://hammerjs.github.io/)), drawing emojis, and parsing XML file input.  
+PRSM uses two important packages: [```yjs```](https://github.com/yjs/yjs){target="_blank"} and [```vis-network```](https://visjs.org/){target="_blank"}.  The former handles the sharing between participants' browsers and the latter draws the network. A few other packages are used for dealing with touch input ([```Hammer```](https://hammerjs.github.io/){target="_blank"}), drawing emojis, and parsing XML file input.  
 
-These components are assembled using [```parcel```](https://parceljs.org/) and the bundled file is placed in the ```dist``` directory.  So that users have an easy URL to access (i.e. not needing to include ```dist``` in the link), there is an ```.htaccess``` file that rewrites URLs from what the user puts into their browser to the correct location.
+These components are assembled using [```parcel```](https://parceljs.org/){target="_blank"} and the bundled file is placed in the ```dist``` directory.  So that users have an easy URL to access (i.e. not needing to include ```dist``` in the link), there is an ```.htaccess``` file that rewrites URLs from what the user puts into their browser to the correct location.
 
-To install the code, use ```git``` to clone the [repo](https://github.com/micrology/prsm) to your local disk and change to the cloned directory.  Then install the required packages with
+To install the code, use ```git``` to clone the [repo](https://github.com/micrology/prsm){target="_blank"} to your local disk and change to the cloned directory.  Then install the required packages with
 
 ```bash
 npm install
@@ -461,7 +461,7 @@ See ```package.json``` for other npm commands.
 
 ## Acknowledgements
 
-With thanks to all who helped inspire, suggest features for, comment on, and test PRSM, including the members of [CECAN](https://www.cecan.ac.uk/), [CRESS](https://cress.soc.surrey.ac.uk/), [Risk Solutions](https://www.risksol.co.uk/), and Robin Gilbert.
+With thanks to all who helped inspire, suggest features for, comment on, and test PRSM, including the members of [CECAN](https://www.cecan.ac.uk/){target="_blank"}, [CRESS](https://cress.soc.surrey.ac.uk/){target="_blank"}, [Risk Solutions](https://www.risksol.co.uk/){target="_blank"}, and Robin Gilbert.
 
 ## Bug reports and feature requests
 
