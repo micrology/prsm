@@ -43,7 +43,7 @@ The second is a system map about the environmental impact of goods transport dev
 
 The third is a large network of 736 nodes and about 9000 links representing the team members playing in the 2019 football World Cup.
 
-![World Cup 2019 Example](/doc/images/WorldCup2019example.png)
+![World Cup 2019 Example](/doc/images/WorldCup2019example_iyusqh_c_scale_w_1400.png)
 
 ## Installation
 
