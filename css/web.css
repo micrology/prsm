@@ -1,7 +1,7 @@
 body {
 	font-family: 'Oxygen', sans-serif;
 }
-h1,
+/* h1,
 h2,
 h3,
 h4,
@@ -10,7 +10,7 @@ h5,
 .display-2,
 .display-3 {
 	font-family: 'Playfair Display', serif;
-}
+} */
 a {
 	color: #0C6896;
 }
@@ -37,6 +37,9 @@ a {
 	color: white;
 	font-size: x-large;
 }
+.shaded {
+	background-color: #f4f4f4;
+}
 footer img {
 	width: 150px;
 	padding: 10px;
@@ -44,6 +47,7 @@ footer img {
 .social-icons a {
 	color: black;
 	font-size: larger;
+	text-decoration: none;
 }
 .cookie-overlay {
 	position: fixed;
