@@ -1,6 +1,8 @@
 <!-- markdownlint-disable-file MD026 MD033-->
 # Participatory System Mapper
 
+[![Join the chat at https://gitter.im/PRSM-community/community](https://badges.gitter.im/PRSM-community/community.svg)](https://gitter.im/PRSM-community/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## What is it?
 
 The Participatory System Mapper (PRSM for short) is an app that runs in a web browser that makes it easy for a group of people working together to draw networks (or 'maps') of systems.  
