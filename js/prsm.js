@@ -242,7 +242,7 @@ function startY(newRoom) {
 	const persistence = new IndexeddbPersistence(room, doc);
 	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
-		displayNetPane(exactTime() + ' local content loaded');
+		if (data.nodes.length > 0) displayNetPane(exactTime() + ' local content loaded');
 	});
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
 	wsProvider.on('sync', () => {
