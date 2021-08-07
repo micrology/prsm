@@ -1530,8 +1530,6 @@ function saveNode(item, callback) {
  */
 function lockNode(item) {
 	item.locked = true;
-	item.oldFontColor = item.font.color;
-	item.font.color = item.font.color + '80';
 	item.opacity = 0.3;
 	item.oldLabel = item.label;
 	item.label = item.label + '\n\n' + '[Being edited by ' + myNameRec.name + ']';
@@ -1613,7 +1611,7 @@ function convertDashes(val) {
 }
 function lockEdge(item) {
 	item.locked = true;
-	item.font.color = 'rgba(0,0,0,0.3)';
+	item.font.color = 'rgba(0,0,0,0.5)';
 	item.opacity = 0.1;
 	item.oldLabel = item.label || ' ';
 	item.label = 'Being edited by ' + myNameRec.name;
@@ -1646,25 +1644,7 @@ function duplEdge(from, to) {
 		},
 	});
 }
-/**
- * Constructs a nice string to tell the user what nodes and links are being deleted.
-	 Includes links connected to deleted nodes in the count. 
- * @param {Array} item List of nodes to be deleted
- */
-/* function deleteMsg(item) {
-	item.nodes.forEach((nId) => {
-		network.getConnectedEdges(nId).forEach((eId) => {
-			if (item.edges.indexOf(eId) === -1) item.edges.push(eId);
-		});
-	});
-	let nNodes = item.nodes.length;
-	let nEdges = item.edges.length;
-	let msg = 'Delete ';
-	if (nNodes > 0) msg = msg + nNodes + ' Factor' + (nNodes == 1 ? '' : 's');
-	if (nNodes > 0 && nEdges > 0) msg = msg + ' and ';
-	if (nEdges > 0) msg = msg + nEdges + ' Link' + (nEdges == 1 ? '' : 's');
-	return msg + '?';
-} */
+
 /**
  * Change the cursor style for the net pane and nav bar
  * @param {Cursor} newCursorStyle

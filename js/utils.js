@@ -286,7 +286,7 @@ export function dragElement(elem, header) {
 			isDragging = true;
 			lastPosX = elem.offsetLeft;
 			lastPosY = elem.offsetTop;
-			width = elem.offsetWidth;
+			width = elem.style.width;
 		}
 
 		// we simply need to determine where the x,y of this
