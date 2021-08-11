@@ -255,15 +255,15 @@ export function splitText(txt, width) {
  */
 Set.prototype.intersection = function (otherSet) {
 	let intersectionSet = new Set();
-	for (var elem of otherSet) if (this.has(elem)) intersectionSet.add(elem);
+	for (var el of otherSet) if (this.has(el)) intersectionSet.add(el);
 	return intersectionSet;
 };
 /**
- * allow user to drag the elem that has a header element that acts as the handle
- * @param {HTMLelement} elem
+ * allow user to drag the element that has a header element that acts as the handle
+ * @param {HTMLelement} el
  * @param {HTMLelement} header
  */
-export function dragElement(elem, header) {
+export function dragElement(el, header) {
 	header.addEventListener('mouseenter', () => (header.style.cursor = 'move'));
 	header.addEventListener('mouseout', () => (header.style.cursor = 'auto'));
 
@@ -284,9 +284,9 @@ export function dragElement(elem, header) {
 		// and keep track of the fact that we're dragging
 		if (!isDragging) {
 			isDragging = true;
-			lastPosX = elem.offsetLeft;
-			lastPosY = elem.offsetTop;
-			width = elem.style.width;
+			lastPosX = el.offsetLeft;
+			lastPosY = el.offsetTop;
+			width = el.style.width;
 		}
 
 		// we simply need to determine where the x,y of this
@@ -295,21 +295,21 @@ export function dragElement(elem, header) {
 		//    deltaX and deltaY are cumulative
 		// Thus we need to always calculate 'real x and y' relative
 		// to the "lastPosX/Y"
-		elem.style.cursor = 'move';
+		el.style.cursor = 'move';
 		let posX = ev.deltaX + lastPosX;
 		let posY = ev.deltaY + lastPosY;
 
 		// move our element to that position
-		elem.style.left = posX + 'px';
-		elem.style.top = posY + 'px';
-		elem.style.width = width + 'px';
+		el.style.left = posX + 'px';
+		el.style.top = posY + 'px';
+		el.style.width = width + 'px';
 
 		// DRAG ENDED
 		// this is where we simply forget we are dragging
 		if (ev.isFinal) {
 			isDragging = false;
-			elem.style.cursor = 'auto';
-			elem.style.width = width + 'px';
+			el.style.cursor = 'auto';
+			el.style.width = width + 'px';
 		}
 	}
 }

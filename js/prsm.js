@@ -1784,7 +1784,7 @@ function recalculateStats() {
 	}, 200);
 }
 worker.onmessage = function (e) {
-	if (typeof e.data == 'string') statusMsg(e.data, 'error');
+	if (typeof e.data == 'string') console.log(e.data); // don't frighten the horses: statusMsg(e.data, 'error');
 	else {
 		let nodesToUpdate = [];
 		data.nodes.get().forEach((n) => {
