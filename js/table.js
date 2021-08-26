@@ -1002,7 +1002,6 @@ function getEdgeGroupFromGroupLabel(groupLabel) {
 
 function updateColumnTitle(column) {
 	let newTitle = column.getDefinition().title;
-	column.updateDefinition({width: getWidthOfTitle(newTitle)});
 	attributeTitles[column.getField()] = newTitle;
 	yNetMap.set('attributeTitles', attributeTitles);
 }
