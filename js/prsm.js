@@ -24,7 +24,7 @@ import {
 	initials,
 	CP,
 	timeAndDate,
-	setEndOfContenteditable
+	setEndOfContenteditable,
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
@@ -1232,8 +1232,21 @@ async function getClipboardContents() {
  */
 function addLabel(item, cancelAction, callback) {
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback);
-	positionPopUp({x: event.offsetX, y: event.offsetY});
+	let pos = {x: event.offsetX, y: event.offsetY};
+	positionPopUp(pos);
+	ghostFactor(pos);
 	elem('popup-label').focus();
+}
+/**
+ * broadcast to other users that a new factor is being added here
+ * @param {Object} pos offset coordinates of Add Factor dialog
+ */
+function ghostFactor(pos) {
+	yAwareness.setLocalStateField('addingFactor', network.DOMtoCanvas(pos));
+	elem('popup').timer = setTimeout(() => {
+		// close it after a time if the user has gone away
+		yAwareness.setLocalStateField('addingFactor', 'done'); console.log('Ghost timeout');
+	}, TIMETOEDIT);
 }
 
 /**
@@ -1449,6 +1462,7 @@ function clearPopUp() {
 		clearTimeout(elem('popup').timer);
 		elem('popup').timer = undefined;
 	}
+	yAwareness.setLocalStateField('addingFactor', 'done');
 	inEditMode = false;
 }
 /**
@@ -1702,7 +1716,7 @@ function setMapTitle(title) {
 }
 /**
  * Add this title to the local record of maps used
- * @param {String} title 
+ * @param {String} title
  */
 function titleDropDown(title) {
 	let recentMaps = localStorage.getItem('recents');
@@ -1740,12 +1754,11 @@ function createTitleDropDown() {
 	});
 }
 /**
- * User has clicked one of the previous map titles - confirm and change to the web page for that room 
- * @param {Event} event 
+ * User has clicked one of the previous map titles - confirm and change to the web page for that room
+ * @param {Event} event
  */
 function changeRoom(event) {
-	if (data.nodes.length > 0)
-		if (!confirm('Are you sure you want to move to a different map?')) return;
+	if (data.nodes.length > 0) if (!confirm('Are you sure you want to move to a different map?')) return;
 	let newRoom = event.target.dataset.room;
 	removeTitleDropDown();
 	console.log(newRoom);
@@ -1784,7 +1797,8 @@ function recalculateStats() {
 	}, 200);
 }
 worker.onmessage = function (e) {
-	if (typeof e.data == 'string') console.log(e.data); // don't frighten the horses: statusMsg(e.data, 'error');
+	if (typeof e.data == 'string') console.log(e.data);
+	// don't frighten the horses: statusMsg(e.data, 'error');
 	else {
 		let nodesToUpdate = [];
 		data.nodes.get().forEach((n) => {
@@ -3596,6 +3610,7 @@ function setUpAwareness() {
 	yAwareness.on('change', (event) => {
 		//		yjsTrace('yAwareness.on', event);
 		showAvatars();
+		showGhostFactor();
 		if (elem('showCursorSwitch').checked) showMice();
 	});
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
@@ -3773,6 +3788,48 @@ function followUser() {
 	if (userRec.user.asleep) unFollow();
 	let userPosition = userRec.cursor;
 	if (userPosition) network.moveTo({position: userPosition});
+}
+/**
+ * show a ghost box where another user is adding a factor
+ * addingFactor can be: a position (of the Add Factor dialog); 'done' to indicate
+ * that the ghost box should be removed; or false - do nothing
+ *
+ */
+function showGhostFactor() {
+	let recs = Array.from(yAwareness.getStates());
+	recs.forEach(([key, value]) => {
+		if (key != clientID && value.addingFactor) {
+			let id = `ghost-factor${key}`;
+			switch (value.addingFactor) {
+				case 'done':
+					{
+						let ghostDiv = elem(id);
+						if (ghostDiv) ghostDiv.remove();
+						value.addingFactor = false;
+					}
+					break;
+				case false:
+					break;
+				default: {
+					if (!elem(id)) {
+						let ghostDiv = document.createElement('div');
+						ghostDiv.className = 'ghost-factor';
+						ghostDiv.id = `ghost-factor${key}`;
+						ghostDiv.innerText = `[New factor\nbeing added by\n${value.user.name}]`;
+						let p = network.canvasToDOM(value.addingFactor);
+						let box = container.getBoundingClientRect();
+						p.x += box.left;
+						p.y += box.top;
+						ghostDiv.style.top = `${p.y - 50}px`;
+						ghostDiv.style.left = `${p.x - 187}px`;
+						ghostDiv.style.display =
+							p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top ? 'none' : 'block';
+						netPane.appendChild(ghostDiv);
+					}
+				}
+			}
+		}
+	});
 }
 
 /* --------------------------------- Merge maps ----------------------------- */

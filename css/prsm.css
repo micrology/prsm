@@ -1577,6 +1577,18 @@ div.resize {
 	font-size: 10px;
 	z-index: 6000;
 }
+.ghost-factor {
+	position: absolute;
+	z-index: 50;
+	width: 190px;
+	height: 100px;
+	color: grey;
+	background-color: rgb(235, 232, 232);
+	border: thin solid var(--pop-up-shadow-color);
+	border-radius: 5px;
+	text-align: center;
+	padding: 5px;
+}
 /* for iPads etc in landscape: nav buttons go under title */
 
 @media screen and (min-width: 481px) and (max-width: 1112px) {
