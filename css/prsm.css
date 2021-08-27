@@ -1581,7 +1581,7 @@ div.resize {
 	position: absolute;
 	z-index: 50;
 	width: 190px;
-	height: 100px;
+	height: 75px;
 	color: grey;
 	background-color: rgb(235, 232, 232);
 	border: thin solid var(--pop-up-shadow-color);

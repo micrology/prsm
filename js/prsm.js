@@ -104,6 +104,7 @@ window.addEventListener('load', () => {
 
 window.onbeforeunload = function (event) {
 	unlockAll();
+	yAwareness.setLocalStateField('addingFactor', 'done');
 	// get confirmation from user before exiting if there are unsaved changes
 	if (checkMapSaved && dirty) {
 		event.preventDefault();
@@ -1245,7 +1246,7 @@ function ghostFactor(pos) {
 	yAwareness.setLocalStateField('addingFactor', network.DOMtoCanvas(pos));
 	elem('popup').timer = setTimeout(() => {
 		// close it after a time if the user has gone away
-		yAwareness.setLocalStateField('addingFactor', 'done'); console.log('Ghost timeout');
+		yAwareness.setLocalStateField('addingFactor', 'done');
 	}, TIMETOEDIT);
 }
 
@@ -3833,14 +3834,13 @@ function showGhostFactor() {
 }
 
 /* --------------------------------- Merge maps ----------------------------- */
-/* Manual (old) way:
- * to get the data in, open inspect windows for both maps.  in one window, eval data.nodes.get() and copy the result
- * (not including any initial and trailing quote marks).
- * In the other window. evaluate n = <pasted list>.  Repeat for data.edges.get() and e = <pasted list>.
- * Then evaluate mergeMaps(n, e) in the other window.
- *
- * Programmatic way:
+/* 
  * Evaluate mergeRoom(string: room code) e.g. mergeRoom('WBI-CRD-ROB-XDK')
+ *   adds all factors and links in the 'other' map to this one
+ *   if a factor occurs in both maps and is identical in both, nothing is added
+ *   if a factor is in both maps, but the label is different, a new factor is added
+ *     that is a clone of the 'other' factor, but with a dashed red border and with
+ *     cloned links that are dashed.  
  */
 
 var bwsp; //  websocket to other room
