@@ -18,11 +18,9 @@
 export default class Tutorial {
 	constructor() {
 		this.step = 0;
-		this.steps = Array.from(document.querySelectorAll('[data-step]')).sort(
-			(a, b) => {
-				return parseInt(a.dataset.step) - parseInt(b.dataset.step);
-			}
-		);
+		this.steps = Array.from(document.querySelectorAll('[data-step]')).sort((a, b) => {
+			return parseInt(a.dataset.step) - parseInt(b.dataset.step);
+		});
 		this.back = null;
 	}
 	/**
@@ -116,18 +114,14 @@ export default class Tutorial {
 					left = elemBR.left - dialogBR.width - 15;
 					break;
 				default:
-					console.log(
-						`Tutorial: Unknown data-position at step ${this.step}`
-					);
+					console.log(`Tutorial: Unknown data-position at step ${this.step}`);
 					break;
 			}
 			// ensure the dialog is in the viewport
 			if (top < 0) top = 0;
-			if (top > window.innerHeight - dialogBR.height)
-				top = window.innerHeight - dialogBR.height;
+			if (top > window.innerHeight - dialogBR.height) top = window.innerHeight - dialogBR.height;
 			if (left < 0) left = 0;
-			if (left > window.innerWidth - dialogBR.width)
-				left = window.innerWidth - dialogBR.width;
+			if (left > window.innerWidth - dialogBR.width) left = window.innerWidth - dialogBR.width;
 			dialog.style.top = top + 'px';
 			dialog.style.left = left + 'px';
 		}
@@ -143,12 +137,10 @@ export default class Tutorial {
 			this.step -= 1;
 			this.stepFinish();
 		});
-		document
-			.querySelector('#tutorial-cancel')
-			.addEventListener('click', () => {
-				this.step = this.steps.length;
-				this.stepFinish();
-			});
+		document.querySelector('#tutorial-cancel').addEventListener('click', () => {
+			this.step = this.steps.length;
+			this.stepFinish();
+		});
 		// call onsstepstart function if to run now
 		this.runStepStart();
 	}

@@ -1,66 +1,66 @@
 @font-face {
-    font-family: 'Oxygen';
-    src: url('../fonts/oxygen-regular-webfont.woff2') format('woff2');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
+	font-family: 'Oxygen';
+	src: url('../fonts/oxygen-regular-webfont.woff2') format('woff2');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
 }
 @font-face {
-    font-family: 'Oxygen';
-    src: url('../fonts/oxygen-bold-webfont.woff2') format('woff2');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
+	font-family: 'Oxygen';
+	src: url('../fonts/oxygen-bold-webfont.woff2') format('woff2');
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
 }
 .table-tabs {
-    background-color: #f1f1f1;
-    padding: 0 8px;
-    margin-top: 4px;
+	background-color: #f1f1f1;
+	padding: 0 8px;
+	margin-top: 4px;
 }
 .table-tabs button {
-    background-color: inherit;
-    float: left;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    padding: 14px 36px;
-    border-bottom: 2px solid#f1f1f1;
-    border-radius: 4px 4px 0 0;
-    width: 8em;
-    height: 58px;
+	background-color: inherit;
+	float: left;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	padding: 14px 36px;
+	border-bottom: 2px solid#f1f1f1;
+	border-radius: 4px 4px 0 0;
+	width: 8em;
+	height: 58px;
 }
 .table-tabs button.active {
-    background-color: #ccc;
-    border-bottom: 2px solid black;
+	background-color: #ccc;
+	border-bottom: 2px solid black;
 }
 .table {
-    height: 100%;
-    background-color: white;
+	height: 100%;
+	background-color: white;
 }
 .tabulator-row {
-    background-color: white;
+	background-color: white;
 }
 .grey {
-    font-weight: normal;
-    color: grey;
+	font-weight: normal;
+	color: grey;
 }
 #filter-dialog {
-    float: right;
-    padding: 4px;
+	float: right;
+	padding: 4px;
 }
 #filter-close {
-    padding: 0;
-    border: 0;
-    background-color: white;
-    vertical-align: middle;
+	padding: 0;
+	border: 0;
+	background-color: white;
+	vertical-align: middle;
 }
 .tabulator-col-group {
-    border-left: 1px black solid;
+	border-left: 1px black solid;
 }
 .checkbox-box-on {
-    display: none;
+	display: none;
 }
 .col-calc {
-    font-weight: bold;
-    color: black;
+	font-weight: bold;
+	color: black;
 }

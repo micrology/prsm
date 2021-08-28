@@ -84,6 +84,7 @@ var checkMapSaved = false; // if the map is new (no 'room' in URL), or has been 
 var dirty = false; // map has been changed by user and may need saving
 var hammer; // Hammer pinch recogniser instance
 var followme; // clientId of user's cursor to follow
+var editor = null; // Quill editor
 /**
  * top level function to initialise everything
  */
@@ -332,6 +333,8 @@ function startY(newRoom) {
 				let obj = yNodesMap.get(key);
 				if (!object_equals(obj, data.nodes.get(key))) {
 					nodesToUpdate.push(deepCopy(obj));
+					// if a note on a node is being remotely edited and is on display here, update the local note
+					if (editor && editor.id == key && event.transaction.local === false) editor.setContents(obj.note);
 				}
 			} else {
 				hideNotes();
@@ -366,6 +369,7 @@ function startY(newRoom) {
 				let obj = yEdgesMap.get(key);
 				if (!object_equals(obj, data.edges.get(key))) {
 					edgesToUpdate.push(deepCopy(obj));
+					if (editor && editor.id == key && event.transaction.local === false) editor.setContents(obj.note);
 				}
 			} else {
 				hideNotes();
@@ -2946,6 +2950,7 @@ function hideNotes() {
 	elem('edgeDataPanel').classList.add('hide');
 	document.getSelection().removeAllRanges();
 	document.querySelectorAll('.ql-toolbar').forEach((e) => e.remove());
+	editor = null;
 }
 /**
  * Show the notes box, the fixed node check box and the node statistics
@@ -2966,7 +2971,7 @@ function showNodeData() {
 		elem('nodeModification').style.display = 'flex';
 	} else elem('nodeModification').style.display = 'none';
 	elem('node-notes').className = 'notes';
-	let editor = new Quill('#node-notes', {
+	editor = new Quill('#node-notes', {
 		modules: {
 			toolbar: [
 				'bold',
@@ -2984,16 +2989,18 @@ function showNodeData() {
 		readOnly: viewOnly,
 		bounds: elem('nodeDataPanel'),
 	});
+	editor.id = node.id;
 	if (node.note) {
 		if (node.note instanceof Object) editor.setContents(node.note);
 		else editor.setText(node.note);
 	} else editor.setText('');
-	editor.on('text-change', () => {
-		data.nodes.update({
-			id: nodeId,
-			note: isQuillEmpty(editor) ? '' : editor.getContents(),
-			modified: timestamp(),
-		});
+	editor.on('text-change', (delta, oldDelta, source) => {
+		if (source == 'user')
+			data.nodes.update({
+				id: nodeId,
+				note: isQuillEmpty(editor) ? '' : editor.getContents(),
+				modified: timestamp(),
+			});
 	});
 	panel.classList.remove('hide');
 	displayStatistics(nodeId);
@@ -3020,7 +3027,7 @@ function showEdgeData() {
 		elem('edgeModified').innerHTML = `${timeAndDate(edge.modified.time)} by ${edge.modified.user}`;
 		elem('edgeModification').style.display = 'flex';
 	} else elem('edgeModification').style.display = 'none';
-	let editor = new Quill('#edge-notes', {
+	editor = new Quill('#edge-notes', {
 		modules: {
 			toolbar: [
 				'bold',
@@ -3038,16 +3045,18 @@ function showEdgeData() {
 		readOnly: viewOnly,
 		bounds: elem('edgeDataPanel'),
 	});
+	editor.id = edge.id;
 	if (edge.note) {
 		if (edge.note instanceof Object) editor.setContents(edge.note);
 		else editor.setText(edge.note);
 	} else editor.setText('');
-	editor.on('text-change', () => {
-		data.edges.update({
-			id: edgeId,
-			note: isQuillEmpty(editor) ? '' : editor.getContents(),
-			modified: timestamp(),
-		});
+	editor.on('text-change', (delta, oldDelta, source) => {
+		if (source == 'user')
+			data.edges.update({
+				id: edgeId,
+				note: isQuillEmpty(editor) ? '' : editor.getContents(),
+				modified: timestamp(),
+			});
 	});
 	panel.classList.remove('hide');
 	positionNotes();
@@ -3834,13 +3843,13 @@ function showGhostFactor() {
 }
 
 /* --------------------------------- Merge maps ----------------------------- */
-/* 
+/*
  * Evaluate mergeRoom(string: room code) e.g. mergeRoom('WBI-CRD-ROB-XDK')
  *   adds all factors and links in the 'other' map to this one
  *   if a factor occurs in both maps and is identical in both, nothing is added
  *   if a factor is in both maps, but the label is different, a new factor is added
  *     that is a clone of the 'other' factor, but with a dashed red border and with
- *     cloned links that are dashed.  
+ *     cloned links that are dashed.
  */
 
 var bwsp; //  websocket to other room

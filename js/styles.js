@@ -677,7 +677,7 @@ export function legend(warn = false) {
 				x: edgePos.x - 25,
 				y: edgePos.y,
 				fixed: true,
-				chosen: false
+				chosen: false,
 			},
 			{
 				id: edge.to,
@@ -686,7 +686,7 @@ export function legend(warn = false) {
 				x: edgePos.x + 25,
 				y: edgePos.y,
 				fixed: true,
-				chosen: false
+				chosen: false,
 			},
 		];
 		legendData.nodes.update(nodes);

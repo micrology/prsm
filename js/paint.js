@@ -52,10 +52,7 @@ export function setUpPaint() {
 	tempctx = getContext(tempCanvas);
 
 	let mc = new Hammer.Manager(tempCanvas, {
-		recognizers: [
-			[Hammer.Tap],
-			[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 1}],
-		],
+		recognizers: [[Hammer.Tap], [Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 1}]],
 	});
 	mc.on('tap', mouseDespatch);
 	mc.on('panstart', mouseDespatch);
@@ -231,16 +228,12 @@ class ToolHandler {
 	 * @param {event} e
 	 */
 	endPosition(e) {
-		this.endX =
-			(e.offsetX * tempCanvas.width) / (dpr * tempCanvas.clientWidth);
+		this.endX = (e.offsetX * tempCanvas.width) / (dpr * tempCanvas.clientWidth);
 		if (this.endX < 0) this.endX = 0;
-		if (this.endX > tempCanvas.offsetWidth)
-			this.endX = tempCanvas.offsetWidth;
-		this.endY =
-			(e.offsetY * tempCanvas.height) / (dpr * tempCanvas.clientHeight);
+		if (this.endX > tempCanvas.offsetWidth) this.endX = tempCanvas.offsetWidth;
+		this.endY = (e.offsetY * tempCanvas.height) / (dpr * tempCanvas.clientHeight);
 		if (this.endY < 0) this.endY = 0;
-		if (this.endY > tempCanvas.offsetHeight)
-			this.endY = tempCanvas.offsetHeight;
+		if (this.endY > tempCanvas.offsetHeight) this.endY = tempCanvas.offsetHeight;
 	}
 	/**
 	 * do something as the mouse moves
@@ -282,13 +275,8 @@ class ToolHandler {
 		box.className = 'options';
 		box.id = 'optionsBox';
 		box.style.top =
-			document.getElementById(tool).getBoundingClientRect().top -
-			underlay.getBoundingClientRect().top +
-			'px';
-		box.style.left =
-			document.getElementById(tool).getBoundingClientRect().right +
-			10 +
-			'px';
+			document.getElementById(tool).getBoundingClientRect().top - underlay.getBoundingClientRect().top + 'px';
+		box.style.left = document.getElementById(tool).getBoundingClientRect().right + 10 + 'px';
 		underlay.appendChild(box);
 		return box;
 	}
@@ -305,17 +293,11 @@ class LineHandler extends ToolHandler {
 		if (this.isPanstart) {
 			this.endPosition(e);
 			if (this.axes) {
-				if (this.endX - this.startX > this.endY - this.startY)
-					this.endY = this.startY;
+				if (this.endX - this.startX > this.endY - this.startY) this.endY = this.startY;
 				else this.endX = this.startX;
 			}
 			drawHelper.clear(tempctx);
-			drawHelper.line(tempctx, [
-				this.startX,
-				this.startY,
-				this.endX,
-				this.endY,
-			]);
+			drawHelper.line(tempctx, [this.startX, this.startY, this.endX, this.endY]);
 		}
 	}
 	panend() {
@@ -389,12 +371,7 @@ class RectHandler extends ToolHandler {
 			drawHelper.clear(tempctx);
 			let width = endX - startX;
 			let height = endY - startY;
-			drawHelper[this.roundCorners ? 'rrect' : 'rect'](tempctx, [
-				startX,
-				startY,
-				width,
-				height,
-			]);
+			drawHelper[this.roundCorners ? 'rrect' : 'rect'](tempctx, [startX, startY, width, height]);
 		}
 	}
 	panend() {
@@ -411,12 +388,7 @@ class RectHandler extends ToolHandler {
 				yPointsArray.push([
 					[
 						this.roundCorners ? 'rrect' : 'rect',
-						[
-							DOMtoCanvasX(this.startX),
-							DOMtoCanvasY(this.startY),
-							width,
-							height,
-						],
+						[DOMtoCanvasX(this.startX), DOMtoCanvasY(this.startY), width, height],
 					],
 				]);
 			}
@@ -533,12 +505,7 @@ class TextHandler extends ToolHandler {
 		}
 	}
 	saveText(e) {
-		if (
-			this.writing &&
-			e.target != this.inp &&
-			e.target != this.div &&
-			e.target != this.resizer
-		) {
+		if (this.writing && e.target != this.inp && e.target != this.div && e.target != this.resizer) {
 			let text = this.inp.value;
 			if (text.length > 0) {
 				yPointsArray.push([
@@ -547,14 +514,10 @@ class TextHandler extends ToolHandler {
 						[
 							text,
 							DOMtoCanvasX(
-								((this.div.offsetLeft + 12) *
-									tempCanvas.width) /
-									(dpr * tempCanvas.clientWidth)
+								((this.div.offsetLeft + 12) * tempCanvas.width) / (dpr * tempCanvas.clientWidth)
 							), // '12' allows for border and outline
 							DOMtoCanvasY(
-								((this.div.offsetTop + 14) *
-									tempCanvas.height) /
-									(dpr * tempCanvas.clientHeight)
+								((this.div.offsetTop + 14) * tempCanvas.height) / (dpr * tempCanvas.clientHeight)
 							),
 						],
 					],
@@ -575,8 +538,7 @@ class TextHandler extends ToolHandler {
 		let fontSizeInput = document.getElementById('fontSize');
 		fontSizeInput.value = parseInt(this.font);
 		fontSizeInput.addEventListener('blur', () => {
-			this.font =
-				fontSizeInput.value + 'px ' + this.fontFamily(this.font);
+			this.font = fontSizeInput.value + 'px ' + this.fontFamily(this.font);
 		});
 		let fontColor = document.getElementById('fontColor');
 		fontColor.value = this.fillStyle;
@@ -604,9 +566,7 @@ class TextHandler extends ToolHandler {
 		let isDragging = false;
 
 		let mc = new Hammer.Manager(elem, {
-			recognizers: [
-				[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}],
-			],
+			recognizers: [[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}]],
 		});
 		mc.on('pan', handleDrag);
 
@@ -652,12 +612,7 @@ class PencilHandler extends ToolHandler {
 	panmove(e) {
 		if (this.isPanstart) {
 			this.endPosition(e);
-			drawHelper.pencil(tempctx, [
-				this.startX,
-				this.startY,
-				this.endX,
-				this.endY,
-			]);
+			drawHelper.pencil(tempctx, [this.startX, this.startY, this.endX, this.endY]);
 			this.record();
 			this.startX = this.endX;
 			this.startY = this.endY;
@@ -717,11 +672,7 @@ class MarkerHandler extends ToolHandler {
 		if (this.isPanstart) {
 			this.endPosition(e);
 			this.record();
-			drawHelper.marker(tempctx, [
-				this.startX,
-				this.startY,
-				this.markerWidth,
-			]);
+			drawHelper.marker(tempctx, [this.startX, this.startY, this.markerWidth]);
 			this.startX = this.endX;
 			this.startY = this.endY;
 		}
@@ -783,11 +734,7 @@ class EraserHandler extends ToolHandler {
 			this.cursor('#ffffff', 1);
 			this.endPosition(e);
 			this.record();
-			drawHelper.marker(tempctx, [
-				this.startX,
-				this.startY,
-				this.markerWidth,
-			]);
+			drawHelper.marker(tempctx, [this.startX, this.startY, this.markerWidth]);
 			this.startX = this.endX;
 			this.startY = this.endY;
 			this.cursor('#000000', 2);
@@ -820,13 +767,7 @@ class EraserHandler extends ToolHandler {
 	 */
 	cursor(color, width) {
 		tempctx.beginPath();
-		tempctx.arc(
-			this.startX,
-			this.startY,
-			Math.round(this.markerWidth / 2 - width),
-			0,
-			2 * Math.PI
-		);
+		tempctx.arc(this.startX, this.startY, Math.round(this.markerWidth / 2 - width), 0, 2 * Math.PI);
 		tempctx.strokeStyle = color;
 		tempctx.stroke();
 	}
@@ -878,15 +819,10 @@ class ImageHandler extends ToolHandler {
 					image.origHeight = image.height;
 					underlay.appendChild(image);
 					// check that the image is smaller than the canvas - if not, rescale it so that it fits
-					let hScale = Math.ceil(
-						image.origWidth / (underlay.offsetWidth - 100)
-					);
-					let vScale = Math.ceil(
-						image.origHeight / (underlay.offsetHeight - 100)
-					);
+					let hScale = Math.ceil(image.origWidth / (underlay.offsetWidth - 100));
+					let vScale = Math.ceil(image.origHeight / (underlay.offsetHeight - 100));
 					let scale = 1;
-					if (hScale > 1.0 || vScale > 1.0)
-						scale = Math.max(hScale, vScale);
+					if (hScale > 1.0 || vScale > 1.0) scale = Math.max(hScale, vScale);
 					image.width = Math.round(image.origWidth / scale);
 					image.startWidth = image.width;
 					image.style.width = image.width + 'px';
@@ -917,12 +853,7 @@ class ImageHandler extends ToolHandler {
 		tempctx.drawImage(image, 0, 0, ow, oh, left, top, width, height);
 		//  create a small square box at the bottom right to use as the resizing handle
 		tempctx.fillStyle = 'black';
-		tempctx.fillRect(
-			left + width - resizeBox,
-			top + height - resizeBox,
-			resizeBox,
-			resizeBox
-		);
+		tempctx.fillRect(left + width - resizeBox, top + height - resizeBox, resizeBox, resizeBox);
 		// add marching ants
 		antMarch(left, top, width, height);
 	}
@@ -953,23 +884,13 @@ class ImageHandler extends ToolHandler {
 			this.endPosition(e);
 			drawHelper.clear(tempctx);
 			if (this.resizing) {
-				let hScale =
-					(this.image.startWidth + this.endX - this.startX) /
-					this.image.startWidth;
-				let vScale =
-					(this.image.startHeight + this.endY - this.startY) /
-					this.image.startHeight;
+				let hScale = (this.image.startWidth + this.endX - this.startX) / this.image.startWidth;
+				let vScale = (this.image.startHeight + this.endY - this.startY) / this.image.startHeight;
 				let scale = Math.max(hScale, vScale);
 				hScale = scale;
 				vScale = scale;
-				this.image.width = Math.max(
-					20,
-					Math.round(this.image.startWidth * hScale)
-				);
-				this.image.height = Math.max(
-					20,
-					Math.round(this.image.startHeight * vScale)
-				);
+				this.image.width = Math.max(20, Math.round(this.image.startWidth * hScale));
+				this.image.height = Math.max(20, Math.round(this.image.startHeight * vScale));
 				this.paintImage(
 					this.image,
 					this.image.origWidth,
@@ -980,8 +901,7 @@ class ImageHandler extends ToolHandler {
 					this.image.height
 				);
 			} else {
-				this.image.left =
-					this.image.startLeft + this.endX - this.startX;
+				this.image.left = this.image.startLeft + this.endX - this.startX;
 				this.image.top = this.image.startTop + this.endY - this.startY;
 				this.paintImage(
 					this.image,
@@ -1034,8 +954,7 @@ class ImageHandler extends ToolHandler {
 				this.image.startWidth = this.image.width;
 				this.image.startHeight = this.image.height;
 			} else {
-				this.image.left =
-					this.image.startLeft + this.endX - this.startX;
+				this.image.left = this.image.startLeft + this.endX - this.startX;
 				this.image.top = this.image.startTop + this.endY - this.startY;
 			}
 		}
@@ -1125,16 +1044,14 @@ function toolHandler(tool) {
 
 function DOMtoCanvasX(x) {
 	return (
-		((dpr * tempCanvas.clientWidth * x) / tempCanvas.width -
-			network.body.view.translation.x) /
+		((dpr * tempCanvas.clientWidth * x) / tempCanvas.width - network.body.view.translation.x) /
 		network.body.view.scale
 	);
 }
 
 function DOMtoCanvasY(y) {
 	return (
-		((dpr * tempCanvas.clientHeight * y) / tempCanvas.height -
-			network.body.view.translation.y) /
+		((dpr * tempCanvas.clientHeight * y) / tempCanvas.height - network.body.view.translation.y) /
 		network.body.view.scale
 	);
 }
@@ -1181,20 +1098,12 @@ function drawGrid(netctx) {
 	netctx.save();
 	netctx.strokeStyle = 'rgba(211, 211, 211, 0.8)'; //'lightgrey';
 	netctx.beginPath();
-	for (
-		let x = DOMtoCanvasX(0);
-		x <= DOMtoCanvasX(2 * netPane.offsetWidth);
-		x += GRIDSPACING
-	) {
+	for (let x = DOMtoCanvasX(0); x <= DOMtoCanvasX(2 * netPane.offsetWidth); x += GRIDSPACING) {
 		// vertical grid lines
 		netctx.moveTo(x, DOMtoCanvasY(0));
 		netctx.lineTo(x, DOMtoCanvasY(2 * netPane.offsetHeight));
 	}
-	for (
-		let y = DOMtoCanvasY(0);
-		y <= DOMtoCanvasY(2 * netPane.offsetHeight);
-		y += GRIDSPACING
-	) {
+	for (let y = DOMtoCanvasY(0); y <= DOMtoCanvasY(2 * netPane.offsetHeight); y += GRIDSPACING) {
 		// horizontal grid lines
 		netctx.moveTo(DOMtoCanvasX(0), y);
 		netctx.lineTo(DOMtoCanvasX(2 * netPane.offsetWidth), y);
@@ -1253,13 +1162,7 @@ let drawHelper = {
 	marker: function (ctx, [startX, startY, width]) {
 		let halfWidth = Math.round(width / 2);
 		ctx.beginPath();
-		ctx.roundRect(
-			startX - halfWidth,
-			startY - halfWidth,
-			width,
-			width,
-			halfWidth
-		);
+		ctx.roundRect(startX - halfWidth, startY - halfWidth, width, width, halfWidth);
 		ctx.fill();
 	},
 	eraser: {

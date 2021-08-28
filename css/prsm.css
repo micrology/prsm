@@ -65,10 +65,10 @@ select {
 	display: grid;
 	grid-template-columns: 1fr;
 	grid-template-rows: auto 1fr auto;
-	grid-template-areas: 
-	  'header'
-	  'main'
-	  'footer';
+	grid-template-areas:
+		'header'
+		'main'
+		'footer';
 }
 header {
 	text-align: center;
@@ -319,7 +319,7 @@ nav {
 	position: absolute;
 	left: 0px;
 	top: 65px;
-	z-index: 2500;	
+	z-index: 2500;
 }
 .room-title {
 	list-style-type: none;
@@ -1708,24 +1708,24 @@ div.resize {
 	background: #eee;
 	z-index: 3000;
 	border-radius: 7px;
-	box-shadow: 1px 1px 4px rgba(0,0,0,.2);
+	box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
 	opacity: 0;
-	transform: translate(0, 15px) scale(.95);
+	transform: translate(0, 15px) scale(0.95);
 	transition: transform 0.1s ease-out, opacity 0.1s ease-out;
 	pointer-events: none;
-  }
-  .menu-item {
+}
+.menu-item {
 	display: block;
 	position: relative;
 	margin: 0;
 	padding: 0;
 	white-space: nowrap;
 	border-bottom: 1px solid lightgrey;
-  }
-  .menu-item:last-child {
-	  border-bottom: none;
-  }
-  .menu-btn {
+}
+.menu-item:last-child {
+	border-bottom: none;
+}
+.menu-btn {
 	background: none;
 	line-height: normal;
 	overflow: visible;
@@ -1738,35 +1738,38 @@ div.resize {
 	border: 1px solid transparent;
 	white-space: nowrap;
 	border-radius: 3px;
-  }
+}
 
-  .menu-item:hover > .menu-btn {
-	color:white;
+.menu-item:hover > .menu-btn {
+	color: white;
 	outline: none;
-	background-color: #2E3940;
-	border: 1px solid #2E3940;
-  }
-  .menu-item.disabled {
-	opacity: .5;
+	background-color: #2e3940;
+	border: 1px solid #2e3940;
+}
+.menu-item.disabled {
+	opacity: 0.5;
 	pointer-events: none;
-  }
-  .menu-item.disabled .menu-btn { cursor: default; }
-  .menu-separator {
+}
+.menu-item.disabled .menu-btn {
+	cursor: default;
+}
+.menu-separator {
 	display: block;
 	margin: 7px 5px;
 	height: 1px;
 	border-bottom: 1px solid #fff;
 	background-color: #aaa;
-  }
-  .show-menu, .menu-item:hover > .menu {
+}
+.show-menu,
+.menu-item:hover > .menu {
 	opacity: 0.95;
 	transform: translate(0, 0) scale(1);
 	pointer-events: auto;
-  }
-  .menu-item:hover > .menu {
+}
+.menu-item:hover > .menu {
 	-webkit-transition-delay: 100ms;
 	transition-delay: 300ms;
-  }
+}
 
 /* print media */
 @media print {

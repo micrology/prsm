@@ -9,16 +9,8 @@
 		<!--[if lt IE 9]>
 			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
-		<link
-			type="text/css"
-			rel="stylesheet"
-			href="styles/prettify-tomorrow.css"
-		/>
-		<link
-			type="text/css"
-			rel="stylesheet"
-			href="styles/jsdoc-default.css"
-		/>
+		<link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css" />
+		<link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css" />
 	</head>
 
 	<body>
@@ -52,6 +44,8 @@ import {
 	clearStatusBar,
 	initials,
 	CP,
+	timeAndDate,
+	setEndOfContenteditable,
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
@@ -60,17 +54,11 @@ import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
 import {EmojiButton} from '@joeattardi/emoji-button';
 import Quill from 'quill';
-import {
-	setUpSamples,
-	reApplySampleToNodes,
-	reApplySampleToLinks,
-	legend,
-	clearLegend,
-	updateLegend,
-} from './styles.js';
+import Hammer from '@egjs/hammerjs';
+import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
+import {version} from '../package.json';
 
-const version = '1.6.4';
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
@@ -86,20 +74,21 @@ var debug = []; // if includes 'yjs', all yjs sharing interactions are logged to
 var viewOnly; // when true, user can only view, not modify, the network
 var nodes; // a dataset of nodes
 var edges; // a dataset of edges
-var data; // an object with the nodes and edges datasets as properties
+export var data; // an object with the nodes and edges datasets as properties
 const doc = new Y.Doc();
-var websocket = 'wss://cress.soc.surrey.ac.uk/wss'; // web socket server URL
-var clientID; // unique ID for this browser
+var websocket = 'wss://www.prsm.uk/wss'; // web socket server URL
+export var clientID; // unique ID for this browser
 var yNodesMap; // shared map of nodes
 var yEdgesMap; // shared map of edges
-var ySamplesMap; // shared map of styles
-var yNetMap; // shared map of global network settings
+export var ySamplesMap; // shared map of styles
+export var yNetMap; // shared map of global network settings
 export var yPointsArray; // shared array of the background drawing commands
 var yUndoManager; // shared list of commands for undo
+var dontUndo; // when non-null, don't add an item to the undo stack
 var yChatArray; // shared array of messages in the chat window
 var yAwareness; // awareness channel
 var yHistory; // log of actions
-var container; //the DOM body elemnet
+var container; //the DOM body element
 var netPane; // the DOM pane showing the network
 var panel; // the DOM right side panel element
 var myNameRec; // the user's name record {actual name, type, etc.}
@@ -109,9 +98,13 @@ var inAddMode = false; // true when adding a new Factor to the network; used to 
 var inEditMode = false; //true when node or edge is being edited (dialog is open)
 var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
+var hideAndStreamNodes; // if set, there are  nodes that need to be hidden when the map is drawn for the first time
 var tutorial = new Tutorial(); // object driving the tutorial
 export var cp; // color picker
-
+var checkMapSaved = false; // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
+var dirty = false; // map has been changed by user and may need saving
+var hammer; // Hammer pinch recogniser instance
+var followme; // clientId of user's cursor to follow
 /**
  * top level function to initialise everything
  */
@@ -129,10 +122,16 @@ window.addEventListener('load', () => {
 /**
  * Clean up before user departs
  */
-window.addEventListener('beforeunload', () => {
-	unlockAll();
-});
 
+window.onbeforeunload = function (event) {
+	unlockAll();
+	yAwareness.setLocalStateField('addingFactor', 'done');
+	// get confirmation from user before exiting if there are unsaved changes
+	if (checkMapSaved &amp;&amp; dirty) {
+		event.preventDefault();
+		event.returnValue = 'You have unsaved unchages.  Are you sure you want to leave?';
+	}
+};
 /**
  * Set up all the permanent event listeners
  */
@@ -143,14 +142,16 @@ function addEventListeners() {
 			e.preventDefault();
 		}
 	});
+	listen('recent-rooms-caret', 'click', createTitleDropDown);
 	listen('maptitle', 'keyup', mapTitle);
 	listen('maptitle', 'paste', pasteMapTitle);
 	listen('maptitle', 'click', (e) => {
-		if (e.target.innerText == 'Untitled map')
-			window.getSelection().selectAllChildren(e.target);
+		if (e.target.innerText == 'Untitled map') window.getSelection().selectAllChildren(e.target);
 	});
 	listen('addNode', 'click', plusNode);
 	listen('net-pane', 'contextmenu', contextMenu);
+	listen('net-pane', 'click', unFollow);
+	listen('net-pane', 'click', removeTitleDropDown);
 	listen('addLink', 'click', plusLink);
 	listen('deleteNode', 'click', deleteNode);
 	listen('undo', 'click', undo);
@@ -185,12 +186,12 @@ function addEventListeners() {
 	listen('snaptogridswitch', 'click', snapToGridSwitch);
 	listen('drawing', 'click', toggleDrawingLayer);
 	listen('allFactors', 'click', selectAllFactors);
-	listen('allEdges', 'click', selectAllEdges);
+	listen('allLinks', 'click', selectAllLinks);
 	listen('showLegendSwitch', 'click', legendSwitch);
 	listen('showCursorSwitch', 'click', showCursorSwitch);
 	listen('showHistorySwitch', 'click', showHistorySwitch);
 	listen('curveSelect', 'change', selectCurve);
-	listen('fixed', 'click', setFixed);
+	listen('lock', 'click', setFixed);
 	Array.from(document.getElementsByName('hide')).forEach((elem) => {
 		elem.addEventListener('change', hideDistantOrStreamNodes);
 	});
@@ -208,6 +209,8 @@ function addEventListeners() {
 			applySampleToLink(event);
 		})
 	);
+	listen('container', 'copy', copyToClipboard);
+	listen('container', 'paste', pasteFromClipboard);
 }
 
 /**
@@ -230,6 +233,14 @@ function setUpPage() {
 	container.panelHidden = true;
 	cp = new CP();
 	cp.createColorPicker('netBackColorWell', updateNetBack);
+	hammer = new Hammer(netPane);
+	hammer.get('pinch').set({enable: true});
+	hammer.on('pinchstart', () => {
+		zoomstart();
+	});
+	hammer.on('pinch', (e) => {
+		zoomset(e.scale);
+	});
 	setUpSamples();
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'));
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'));
@@ -239,30 +250,28 @@ function setUpPage() {
 /**
  * create a new shared document and start the WebSocket provider
  */
-function startY() {
-	// get the room number from the URL, or if none, generate a new one
-	let url = new URL(document.location);
-	room = url.searchParams.get('room');
-	if (room == null || room == '') room = generateRoom();
-	else room = room.toUpperCase();
-	document.title = document.title + ' ' + room;
+function startY(newRoom) {
+	if (newRoom) room = newRoom;
+	else {
+		// get the room number from the URL, or if none, generate a new one
+		let url = new URL(document.location);
+		room = url.searchParams.get('room');
+	}
+	if (room == null || room == '') {
+		room = generateRoom();
+		checkMapSaved = true;
+	} else room = room.toUpperCase();
 	const persistence = new IndexeddbPersistence(room, doc);
 	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
-		displayNetPane(exactTime() + ' local content loaded');
+		if (data.nodes.length > 0) displayNetPane(exactTime() + ' local content loaded');
 	});
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
 	wsProvider.on('sync', () => {
-		console.log(exactTime() + ' remote content loaded');
+		displayNetPane(exactTime() + ' remote content loaded');
 	});
 	wsProvider.on('status', (event) => {
-		console.log(
-			exactTime() +
-				event.status +
-				(event.status == 'connected' ? ' to' : ' from') +
-				' room ' +
-				room
-		); // logs when websocket is "connected" or "disconnected"
+		console.log(exactTime() + event.status + (event.status == 'connected' ? ' to' : ' from') + ' room ' + room); // logs when websocket is "connected" or "disconnected"
 	});
 	/* 
 	create a yMap for the nodes and one for the edges (we need two because there is no 
@@ -281,7 +290,11 @@ function startY() {
 	console.log('My client ID: ' + clientID);
 
 	/* set up the undo managers */
-	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap]);
+	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap], {
+		trackedOrigins: new Set([null]), // add undo items to the stack by default
+	});
+	dontUndo = null;
+
 	nodes = new DataSet();
 	edges = new DataSet();
 	data = {
@@ -311,10 +324,7 @@ function startY() {
 	has been deleted. If a local node is added or updated, that is also broadcast.
 	 */
 	nodes.on('*', (event, properties, origin) => {
-		yjsTrace(
-			'nodes.on',
-			`${event}  ${JSON.stringify(properties.items)} origin: ${origin}`
-		);
+		yjsTrace('nodes.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`);
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
@@ -326,7 +336,8 @@ function startY() {
 					}
 				}
 			});
-		});
+		}, dontUndo);
+		dontUndo = null;
 	});
 	/* 
 	yNodesMap.observe listens for changes in the yMap, receiving a set of the keys that have
@@ -341,15 +352,11 @@ function startY() {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key);
 				if (!object_equals(obj, data.nodes.get(key))) {
-					delete obj.shadow;
-					nodesToUpdate.push(obj);
+					nodesToUpdate.push(deepCopy(obj));
 				}
 			} else {
 				hideNotes();
-				if (data.nodes.get(key))
-					network
-						.getConnectedEdges(key)
-						.forEach((edge) => edges.remove(edge, 'remote'));
+				if (data.nodes.get(key)) network.getConnectedEdges(key).forEach((edge) => edges.remove(edge, 'remote'));
 				nodes.remove(key, 'remote');
 			}
 		}
@@ -359,10 +366,7 @@ function startY() {
 	See comments above about nodes
 	 */
 	edges.on('*', (event, properties, origin) => {
-		yjsTrace(
-			'edges.on',
-			`${event}  ${JSON.stringify(properties.items)} origin: ${origin}`
-		);
+		yjsTrace('edges.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`);
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
@@ -372,7 +376,8 @@ function startY() {
 					}
 				}
 			});
-		});
+		}, dontUndo);
+		dontUndo = null;
 	});
 	yEdgesMap.observe((event) => {
 		yjsTrace('yEdgesMap.observe', event);
@@ -381,8 +386,7 @@ function startY() {
 			if (yEdgesMap.has(key)) {
 				let obj = yEdgesMap.get(key);
 				if (!object_equals(obj, data.edges.get(key))) {
-					delete obj.shadow;
-					edgesToUpdate.push(obj);
+					edgesToUpdate.push(deepCopy(obj));
 				}
 			} else {
 				hideNotes();
@@ -412,11 +416,11 @@ function startY() {
 		}
 		if (nodesToUpdate) {
 			refreshSampleNodes();
-			reApplySampleToNodes(nodesToUpdate, true);
+			reApplySampleToNodes(nodesToUpdate);
 		}
 		if (edgesToUpdate) {
 			refreshSampleLinks();
-			reApplySampleToLinks(edgesToUpdate, true);
+			reApplySampleToLinks(edgesToUpdate);
 		}
 	});
 	/*
@@ -428,7 +432,7 @@ function startY() {
 		x links away; Size Factors to)
 	3. Those whose effects are promulgated and switches controlled here by yNetMap (e.g
 		Background)
-	For cases 2 and 3, the functions called here must not invoke yNetMap.set() to avoid looops
+	For cases 2 and 3, the functions called here must not invoke yNetMap.set() to avoid loops
 	*/
 	yNetMap.observe((event) => {
 		yjsTrace('YNetMap.observe', event);
@@ -453,11 +457,19 @@ function startY() {
 					setLegend(obj, false);
 					break;
 				case 'hideAndStream':
-					setHideAndStream(obj);
-					hideDistantOrStreamNodes(false);
+					hideAndStreamNodes = obj;
 					break;
 				case 'sizing':
 					sizing(obj);
+					break;
+				case 'stream':
+				case 'linkRadius':
+					// old settings (before v1.6) - ignore
+					break;
+				case 'factorsHiddenByStyle':
+					updateFactorsHiddenByStyle(obj);
+					break;
+				case 'attributeTitles':
 					break;
 				default:
 					console.log('Bad key in yMapNet.observe: ', key);
@@ -465,10 +477,7 @@ function startY() {
 		}
 	});
 	yPointsArray.observe((event) => {
-		yjsTrace(
-			'yPointsArray.observe',
-			yPointsArray.get(yPointsArray.length - 1)
-		);
+		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1));
 		if (event.transaction.local === false) network.redraw();
 	});
 	yHistory.observe(() => {
@@ -523,27 +532,40 @@ function getRandomData(nNodes) {
  * @param {string} msg message for console
  */
 function displayNetPane(msg) {
-	fit(0);
-	setMapTitle(yNetMap.get('mapTitle'));
 	console.log(msg);
-	if (
-		netPane.style.visibility == 'hidden' ||
-		netPane.style.visibility == ''
-	) {
+	if (netPane.style.visibility == 'hidden' || netPane.style.visibility == '') {
+		fit(0);
+		setMapTitle(yNetMap.get('mapTitle'));
+		if (hideAndStreamNodes) {
+			setHideAndStream(hideAndStreamNodes);
+			hideDistantOrStreamNodes(false);
+		}
 		netPane.style.visibility = 'visible';
 		setUpTutorial();
 	}
 }
-// to handle iPad viewport sizing problem when tab bar appears
-document.body.height = window.innerHeight;
+
+// to handle iPad viewport sizing problem when tab bar appears and to keep panels on screen
+setvh();
+
 window.onresize = function () {
-	document.body.height = window.innerHeight;
+	setvh();
 	keepPaneInWindow(panel);
 	keepPaneInWindow(elem('chatbox-holder'));
 };
 window.onorientationchange = function () {
-	document.body.height = window.innerHeight;
+	setvh();
 };
+/**
+ * to handle iOS weirdness in fixing the vh unit (see https://css-tricks.com/the-trick-to-viewport-units-on-mobile/)
+ */
+function setvh() {
+	document.body.height = window.innerHeight;
+	// First we get the viewport height and we multiple it by 1% to get a value for a vh unit
+	let vh = window.innerHeight * 0.01;
+	// Then we set the value in the --vh custom property to the root of the document
+	document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
 
 const chatbox = elem('chatbox');
 const chatboxTab = elem('chatbox-tab');
@@ -573,7 +595,6 @@ function setUpChat() {
 	yAwareness.setLocalState({user: myNameRec});
 	yChatArray.observe(() => {
 		displayLastMsg();
-		blinkChatboxTab();
 	});
 	chatboxTab.addEventListener('click', maximize);
 	listen('minimize', 'click', minimize);
@@ -626,68 +647,6 @@ function setUpTutorial() {
 		tutorial.start();
 	}
 }
-/**
- *  set up user monitoring (awareness)
- */
-function setUpAwareness() {
-	showAvatars();
-	yAwareness.on('change', (event) => {
-		yjsTrace('yAwareness.on', event);
-		showAvatars();
-		if (elem('showCursorSwitch').checked) showMice();
-	});
-	// fade out avatar when there has been no movement of the mouse for 15 minutes
-	asleep(false);
-	var sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
-	window.addEventListener('mousemove', (e) => {
-		clearTimeout(sleepTimer);
-		asleep(false);
-		sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
-		// broadcast current position of mouse in canvas coordinates
-		let box = netPane.getBoundingClientRect();
-		yAwareness.setLocalStateField(
-			'cursor',
-			network.DOMtoCanvas({
-				x: e.clientX - box.left,
-				y: e.clientY - box.top,
-			})
-		);
-	});
-}
-/**
- * Set the awareness local state to show whether this client is sleeping (no mouse movement for 15 minutes)
- * @param {Boolean} isSleeping
- */
-function asleep(isSleeping) {
-	if (myNameRec.asleep === isSleeping) return;
-	myNameRec.asleep = isSleeping;
-	yAwareness.setLocalState({user: myNameRec});
-	showAvatars();
-}
-/**
- * Display the other users' mouse pointers (if they are inside the canvas)
- */
-function showMice() {
-	let recs = Array.from(yAwareness.getStates());
-	let box = netPane.getBoundingClientRect();
-	recs.forEach(([key, value]) => {
-		if (key != clientID &amp;&amp; value.cursor) {
-			let cursorDiv = elem(key.toString());
-			let p = network.canvasToDOM(value.cursor);
-			p.x += box.left;
-			p.y += box.top;
-			cursorDiv.style.top = `${p.y}px`;
-			cursorDiv.style.left = `${p.x}px`;
-			cursorDiv.style.display =
-				p.x &lt; box.left ||
-				p.x > box.right ||
-				p.y > box.bottom ||
-				p.y &lt; box.top
-					? 'none'
-					: 'block';
-		}
-	});
-}
 
 /**
  * draw the network, after setting the vis-network options
@@ -700,7 +659,19 @@ function draw() {
 	if (nNodes) getRandomData(nNodes);
 	// create a network
 	var options = {
+		nodes: {
+			chosen: {
+				node: function (values, id, selected) {
+					if (selected) values.shadow = true;
+				},
+			},
+		},
 		edges: {
+			chosen: {
+				edge: function (values, id, selected) {
+					if (selected) values.shadow = true;
+				},
+			},
 			smooth: {
 				type: 'straightCross',
 			},
@@ -744,13 +715,13 @@ function draw() {
 				showPressed('addLink', 'remove');
 				if (item.from == item.to) {
 					callback(null);
+					stopEdit();
 					return;
 				}
 				if (duplEdge(item.from, item.to).length > 0) {
-					alert(
-						'There is already a link from this Factor to the other.'
-					);
+					alert('There is already a link from this Factor to the other.');
 					callback(null);
+					stopEdit();
 					return;
 				}
 				item = deepMerge(item, styles.edges[lastLinkSample]);
@@ -758,11 +729,7 @@ function draw() {
 				item.created = timestamp();
 				clearStatusBar();
 				callback(item);
-				logHistory(
-					`added link from ${data.nodes.get(item.from).label} to ${
-						data.nodes.get(item.to).label
-					}`
-				);
+				logHistory(`added link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`);
 			},
 			editEdge: {
 				editWithoutDrag: function (item, callback) {
@@ -778,12 +745,7 @@ function draw() {
 					let n = data.nodes.get(nId);
 					if (n.locked) {
 						locked = true;
-						statusMsg(
-							`Factor '${shorten(
-								n.oldLabel
-							)}' can't be deleted because it is locked`,
-							'warn'
-						);
+						statusMsg(`Factor '${shorten(n.oldLabel)}' can't be deleted because it is locked`, 'warn');
 						callback(null);
 						return;
 					}
@@ -794,30 +756,27 @@ function draw() {
 				// delete also all the edges that link to the nodes being deleted
 				item.nodes.forEach((nId) => {
 					network.getConnectedEdges(nId).forEach((eId) => {
-						if (item.edges.indexOf(eId) === -1)
-							item.edges.push(eId);
+						if (item.edges.indexOf(eId) === -1) item.edges.push(eId);
 					});
 				});
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from ${
-							data.nodes.get(data.edges.get(edgeId).from).label
-						} to ${data.nodes.get(data.edges.get(edgeId).to).label}`
+						`deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${
+							data.nodes.get(data.edges.get(edgeId).to).label
+						}`
 					);
 				});
 				item.nodes.forEach((nodeId) => {
-					logHistory(
-						`deleted factor: ${data.nodes.get(nodeId).label}`
-					);
+					logHistory(`deleted factor: ${data.nodes.get(nodeId).label}`);
 				});
 				callback(item);
 			},
 			deleteEdge: function (item, callback) {
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from ${
-							data.nodes.get(data.edges.get(edgeId).from).label
-						} to ${data.nodes.get(data.edges.get(edgeId).to).label}`
+						`deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${
+							data.nodes.get(data.edges.get(edgeId).to).label
+						}`
 					);
 				});
 				callback(item);
@@ -834,7 +793,6 @@ function draw() {
 		options.interaction = {
 			dragNodes: false,
 			hover: false,
-			selectable: false,
 		};
 	network = new Network(netPane, data, options);
 	window.network = network;
@@ -873,7 +831,7 @@ function draw() {
 				});
 			}
 			if (params.nodes.length == 1) {
-				plusLink();
+				elem('addLink').click();
 			}
 			return;
 		}
@@ -885,37 +843,20 @@ function draw() {
 	network.on('doubleClick', function (params) {
 		if (window.debug.includes('gui')) console.log('doubleClick');
 		if (params.nodes.length === 1) {
-			if (!inEditMode &amp;&amp; !data.nodes.get(params.nodes[0]).locked)
-				network.editNode();
+			if (!viewOnly &amp;&amp; !inEditMode &amp;&amp; !data.nodes.get(params.nodes[0]).locked) network.editNode();
 		} else if (params.edges.length === 1) {
-			if (!inEditMode) network.editEdgeMode();
+			if (!viewOnly &amp;&amp; !inEditMode) network.editEdgeMode();
 		} else {
 			fit();
 		}
 	});
 	network.on('selectNode', function () {
 		if (window.debug.includes('gui')) console.log('selectNode');
-		let selectedNodes = network.getSelectedNodes();
-		selectedNodes.forEach((nodeId) => {
-			let node = data.nodes.get(nodeId);
-			if (!node.locked) {
-				node.shadow = true;
-				data.nodes.update(node, 'dontBroadcast');
-			}
-		});
 		showSelected();
 		showNodeOrEdgeData();
 	});
 	network.on('deselectNode', function () {
 		if (window.debug.includes('gui')) console.log('deselectNode');
-		let nodesToUpdate = [];
-		data.nodes.get().forEach((node) => {
-			if (node.shadow) {
-				node.shadow = false;
-				nodesToUpdate.push(node);
-			}
-		});
-		data.nodes.update(nodesToUpdate, 'dontBroadcast');
 		hideNotes();
 		clearStatusBar();
 	});
@@ -927,40 +868,83 @@ function draw() {
 	});
 	network.on('selectEdge', function () {
 		if (window.debug.includes('gui')) console.log('selectEdge');
-		let selectedEdges = network.getSelectedEdges();
-		selectedEdges.forEach((edgeId) => {
-			let edge = data.edges.get(edgeId);
-			edge.shadow = true;
-			data.edges.update(edge, 'dontBroadcast');
-		});
 		showSelected();
 		showNodeOrEdgeData();
 	});
 	network.on('deselectEdge', function () {
 		if (window.debug.includes('gui')) console.log('deselectEdge');
-		let edgesToUpdate = [];
-		data.edges.get().forEach((edge) => {
-			if (edge.shadow) {
-				edge.shadow = false;
-				edgesToUpdate.push(edge);
-			}
-		});
-		data.edges.update(edgesToUpdate, 'dontBroadcast');
 		hideNotes();
 		clearStatusBar();
 	});
+
+	let selectionCanvasStart = {};
+	let selectionStart = {};
+	let selectionArea = document.createElement('div');
+	selectionArea.className = 'selectionBox';
+	selectionArea.style.display = 'none';
+	elem('main').appendChild(selectionArea);
+
 	network.on('dragStart', function (params) {
 		if (window.debug.includes('gui')) console.log('dragStart');
-		if (params.event.pointers[0].altKey &amp;&amp; params.nodes.length == 1) {
-			plusLink();
+		let e = params.event.pointers[0];
+		// start drawing a selection rectangle if the CTRL key is down and click is on the background
+		if (e.ctrlKey &amp;&amp; params.nodes.length == 0 &amp;&amp; params.edges.length == 0) {
+			network.setOptions({interaction: {dragView: false}});
+			listen('net-pane', 'mousemove', showAreaSelection);
+			selectionStart = {x: e.offsetX, y: e.offsetY};
+			selectionCanvasStart = params.pointer.canvas;
+			selectionArea.style.left = `${e.offsetX}px`;
+			selectionArea.style.top = `${e.offsetY}px`;
+			selectionArea.style.width = '0px';
+			selectionArea.style.height = '0px';
+			selectionArea.style.display = 'block';
+			return;
 		}
 		changeCursor('grabbing');
 	});
-	network.on('dragEnd', function (event) {
+	/**
+	 * update the selection rectangle as the mouse moves
+	 * @param {Event} event
+	 */
+	function showAreaSelection(event) {
+		selectionArea.style.left = `${Math.min(selectionStart.x, event.offsetX)}px`;
+		selectionArea.style.top = `${Math.min(selectionStart.y, event.offsetY)}px`;
+		selectionArea.style.width = `${
+			Math.max(selectionStart.x, event.offsetX) - Math.min(selectionStart.x, event.offsetX)
+		}px`;
+		selectionArea.style.height = `${
+			Math.max(selectionStart.y, event.offsetY) - Math.min(selectionStart.y, event.offsetY)
+		}px`;
+	}
+	network.on('dragEnd', function (params) {
 		if (window.debug.includes('gui')) console.log('dragEnd');
-		let newPositions = network.getPositions(event.nodes);
+		if (selectionArea.style.display == 'block') {
+			selectionArea.style.display = 'none';
+			network.setOptions({interaction: {dragView: true}});
+			elem('net-pane').removeEventListener('mousemove', showAreaSelection);
+		}
+		let e = params.event.pointers[0];
+		if (e.ctrlKey &amp;&amp; params.nodes.length == 0 &amp;&amp; params.edges.length == 0) {
+			network.storePositions();
+			let selectionEnd = params.pointer.canvas;
+			let selectedNodes = data.nodes.get({
+				filter: function (node) {
+					return (
+						node.x >= selectionCanvasStart.x &amp;&amp;
+						node.x &lt;= selectionEnd.x &amp;&amp;
+						node.y >= selectionCanvasStart.y &amp;&amp;
+						node.y &lt;= selectionEnd.y
+					);
+				},
+			});
+			network.setSelection({nodes: selectedNodes.map((n) => n.id).concat(network.getSelectedNodes())});
+			showSelected();
+			return;
+		}
+
+		let newPositions = network.getPositions(params.nodes);
 		data.nodes.update(
-			data.nodes.get(event.nodes).map((n) => {
+			data.nodes.get(params.nodes).map((n) => {
 				n.x = newPositions[n.id].x;
 				n.y = newPositions[n.id].y;
 				if (snapToGridToggle) snapToGrid(n);
@@ -975,8 +959,7 @@ function draw() {
 	});
 	network.on('controlNodeDragEnd', function (event) {
 		if (window.debug.includes('gui')) console.log('controlNodeDragEnd');
-		if (event.controlEdge.from != event.controlEdge.to)
-			changeCursor('default');
+		if (event.controlEdge.from != event.controlEdge.to) changeCursor('default');
 	});
 	network.on('beforeDrawing', function (ctx) {
 		redraw(ctx);
@@ -990,7 +973,7 @@ function draw() {
 	data.edges.on('add', recalculateStats);
 	data.edges.on('remove', recalculateStats);
 
-	/* --------------------------------------------set up the magnifer --------------------------------------------*/
+	/* --------------------------------------------set up the magnifier --------------------------------------------*/
 	const magSize = 300; // diameter of loupe
 	const halfMagSize = magSize / 2.0;
 	const netPaneCanvas = netPane.firstElementChild.firstElementChild;
@@ -1055,12 +1038,8 @@ function draw() {
 		magnifierCtx.fillRect(0, 0, magSize, magSize);
 		magnifierCtx.drawImage(
 			bigNetCanvas,
-			((e.clientX - netPaneRect.x) * bigNetCanvas.width) /
-				netPaneCanvas.clientWidth -
-				halfMagSize,
-			((e.clientY - netPaneRect.y) * bigNetCanvas.height) /
-				netPaneCanvas.clientHeight -
-				halfMagSize,
+			((e.clientX - netPaneRect.x) * bigNetCanvas.width) / netPaneCanvas.clientWidth - halfMagSize,
+			((e.clientY - netPaneRect.y) * bigNetCanvas.height) / netPaneCanvas.clientHeight - halfMagSize,
 			magSize,
 			magSize,
 			0,
@@ -1089,17 +1068,19 @@ function contextMenu(event) {
 	event.preventDefault();
 }
 /**
- * return an object with the current time as a date an integer and the current user's initials
+ * return an object with the current time as a date an integer and the current user's name
  */
 function timestamp() {
-	return {time: Date.now(), user: initials(myNameRec.name)};
+	return {time: Date.now(), user: myNameRec.name};
 }
 /**
  * push a record that action has been taken on to the end of the history log
+ *  and note changes have been made to the map
  * @param {String} action
  */
-function logHistory(action) {
-	yHistory.push([{action: action, time: Date.now(), user: myNameRec.name}]);
+function logHistory(action, actor) {
+	yHistory.push([{action: action, time: Date.now(), user: actor ? actor : myNameRec.name}]);
+	dirty = true;
 }
 
 function drawBadges(ctx) {
@@ -1179,6 +1160,89 @@ function snapToGrid(node) {
 	node.x = GRIDSPACING * Math.round(node.x / GRIDSPACING);
 	node.y = GRIDSPACING * Math.round(node.y / GRIDSPACING);
 }
+/**
+ * Copy the selected nodes and links to the clipboard
+ * NB this doesn't yet work in Firefox, as they haven't implemented the Clipboard API and Permissions yet.
+ * @param {Event} event
+ */
+function copyToClipboard(event) {
+	if (document.getSelection().toString()) return; // only copy factors if there is no text selected (e.g. in Notes)
+	event.preventDefault();
+	let nIds = network.getSelectedNodes();
+	let eIds = network.getSelectedEdges();
+	if (nIds.length + eIds.length == 0) {
+		statusMsg('Nothing selected to copy', 'warn');
+		return;
+	}
+	let nodes = [];
+	let edges = [];
+	nIds.forEach((nId) => {
+		nodes.push(data.nodes.get(nId));
+		let edgesFromNode = network.getConnectedEdges(nId);
+		edgesFromNode.forEach((eId) => {
+			let edge = data.edges.get(eId);
+			if (nIds.includes(edge.to) &amp;&amp; nIds.includes(edge.from) &amp;&amp; !edges.find((e) => e.id == eId)) edges.push(edge);
+		});
+	});
+	eIds.forEach((eId) => {
+		let edge = data.edges.get(eId);
+		if (!nodes.find((n) => n.id == edge.from)) nodes.push(data.nodes.get(edge.from));
+		if (!nodes.find((n) => n.id == edge.to)) nodes.push(data.nodes.get(edge.to));
+		if (!edges.find((e) => e.id == eId)) edges.push(data.edges.get(eId));
+	});
+	copyText(JSON.stringify({nodes: nodes, edges: edges}));
+}
+
+async function copyText(text) {
+	try {
+		await navigator.clipboard.writeText(text);
+		return true;
+	} catch (err) {
+		console.error('Failed to copy: ', err);
+		statusMsg('Copy failed', 'error');
+		return false;
+	}
+}
+
+async function pasteFromClipboard() {
+	let clip = await getClipboardContents();
+	let nodes, edges;
+	try {
+		({nodes, edges} = JSON.parse(clip));
+	} catch (err) {
+		// silently return (i.e. use system paste) if there is nothing relevant on the clipboard
+		return;
+	}
+	unSelect();
+	nodes.forEach((node) => {
+		let oldId = node.id;
+		node.id = uuidv4();
+		node.x += 40;
+		node.y += 40;
+		edges.forEach((edge) => {
+			if (edge.from == oldId) edge.from = node.id;
+			if (edge.to == oldId) edge.to = node.id;
+		});
+	});
+	edges.forEach((edge) => {
+		edge.id = uuidv4();
+	});
+	data.nodes.add(nodes);
+	data.edges.add(edges);
+	network.setSelection({nodes: nodes.map((n) => n.id), edges: edges.map((e) => e.id)});
+	showSelected();
+}
+
+async function getClipboardContents() {
+	try {
+		return await navigator.clipboard.readText();
+	} catch (err) {
+		console.error('Failed to read clipboard contents: ', err);
+		statusMsg('Failed to paste', 'error');
+		return null;
+	}
+}
+
 /* ----------------- dialogs for creating and editing nodes and links ----------------*/
 
 /**
@@ -1190,8 +1254,21 @@ function snapToGrid(node) {
  */
 function addLabel(item, cancelAction, callback) {
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback);
-	positionPopUp({x: event.offsetX, y: event.offsetY});
+	let pos = {x: event.offsetX, y: event.offsetY};
+	positionPopUp(pos);
+	ghostFactor(pos);
 	elem('popup-label').focus();
+}
+/**
+ * broadcast to other users that a new factor is being added here
+ * @param {Object} pos offset coordinates of Add Factor dialog
+ */
+function ghostFactor(pos) {
+	yAwareness.setLocalStateField('addingFactor', network.DOMtoCanvas(pos));
+	elem('popup').timer = setTimeout(() => {
+		// close it after a time if the user has gone away
+		yAwareness.setLocalStateField('addingFactor', 'done');
+	}, TIMETOEDIT);
 }
 
 /**
@@ -1209,13 +1286,13 @@ function editNode(item, point, cancelAction, callback) {
 	&lt;table id="popup-table">
 		&lt;tr>
 			&lt;td>
-				Back
+				&lt;i>Back&lt;/i>
 			&lt;/td>
 			&lt;td>
-				Border
+			&lt;i>Border&lt;/i>
 			&lt;/td>
 			&lt;td>
-				Font
+			&lt;i>Font&lt;/i>
 			&lt;/td>
 		&lt;/tr>
 		&lt;tr>
@@ -1236,7 +1313,7 @@ function editNode(item, point, cancelAction, callback) {
 			&lt;/td>
 		&lt;/tr>
 		&lt;tr>
-		&lt;td>Border:&lt;/td>
+		&lt;td>&lt;i>Border:&lt;/i>&lt;/td>
 			&lt;td colspan="2">
 				&lt;select id="node-borderType">
 					&lt;option value="false">Type...&lt;/option>
@@ -1250,20 +1327,12 @@ function editNode(item, point, cancelAction, callback) {
 	&lt;/table>`
 	);
 	cp.createColorPicker('node-backgroundColor');
-	elem('node-backgroundColor').style.backgroundColor = standardize_color(
-		item.color.background
-	);
+	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background);
 	cp.createColorPicker('node-borderColor');
-	elem('node-borderColor').style.backgroundColor = standardize_color(
-		item.color.border
-	);
+	elem('node-borderColor').style.backgroundColor = standardize_color(item.color.border);
 	cp.createColorPicker('node-fontColor');
-	elem('node-fontColor').style.backgroundColor = standardize_color(
-		item.font.color
-	);
-	elem('node-borderType').value = getDashes(
-		item.shapeProperties.borderDashes
-	);
+	elem('node-fontColor').style.backgroundColor = standardize_color(item.font.color);
+	elem('node-borderType').value = getDashes(item.shapeProperties.borderDashes, item.borderWidth);
 	positionPopUp(point);
 	elem('popup-label').focus();
 	elem('popup').timer = setTimeout(() => {
@@ -1275,11 +1344,14 @@ function editNode(item, point, cancelAction, callback) {
 }
 /**
  * Convert CSS description of line type to menu option format
- * true, false, [3 3] => "true", "false", "dots"
+ * true, false, [3 3] => "true", "false", "dots", "none"
  * @param {Array|Boolean} val
+ * @param {Integer} width
  */
-function getDashes(val) {
-	return Array.isArray(val) ? 'dots' : val.toString();
+function getDashes(val, width) {
+	if (Array.isArray(val)) return 'dots';
+	if (width == 0) return 'none';
+	return val.toString();
 }
 /**
  * Draw a dialog box for user to edit an edge
@@ -1296,16 +1368,6 @@ function editEdge(item, point, cancelAction, callback) {
 		&lt;table id="popup-table">
 		&lt;tr>
 			&lt;td>
-				&lt;i>Line&lt;/i>
-			&lt;/td>
-			&lt;td>
-			&lt;div class="input-color-container">
-			&lt;div class="color-well"  id="edge-color" &lt;/div>
-			&lt;/div>
-			&lt;/td>
-		&lt;/tr>
-		&lt;tr>
-			&lt;td>
 				&lt;select id="edge-width">
 					&lt;option value="">Width...&lt;/option>
 					&lt;option value="1">Width: 1&lt;/option>
@@ -1314,8 +1376,8 @@ function editEdge(item, point, cancelAction, callback) {
 				&lt;/select>
 			&lt;/td>
 			&lt;td>
-			&lt;select id="edge-type">
-					&lt;option value="false">Type...&lt;/option>
+				&lt;select id="edge-type">
+					&lt;option value="false">Line...&lt;/option>
 					&lt;option value="false">Solid&lt;/option>
 					&lt;option value="true">Dashed&lt;/option>
 					&lt;option value="dots">Dotted&lt;/option>
@@ -1323,8 +1385,27 @@ function editEdge(item, point, cancelAction, callback) {
 			&lt;/td>
 		&lt;/tr>
 		&lt;tr>
+			&lt;td>
+				&lt;select id="edge-arrow">
+					&lt;option value="vee">Arrows...&lt;/option>
+					&lt;option value="vee">Sharp&lt;/option>
+					&lt;option value="arrow">Triangle&lt;/option>
+					&lt;option value="bar">Bar&lt;/option>
+					&lt;option value="circle">Circle&lt;/option>
+					&lt;option value="box">Box&lt;/option>
+					&lt;option value="diamond">Diamond&lt;/option>
+					&lt;option value="none">None&lt;/option>
+				&lt;/select>
+			&lt;/td>
+			&lt;td>
+				&lt;div class="input-color-container">
+					&lt;div class="color-well"  id="edge-color" &lt;/div>
+				&lt;/div>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
 			&lt;td style="text-align: right; padding-top: 5px">
-			&lt;i>Font&lt;/i>	
+				&lt;i>Font&lt;/i>	
 			&lt;/td>
 			&lt;td style="padding-top: 5px">
 				&lt;select id="edge-font-size">
@@ -1339,10 +1420,9 @@ function editEdge(item, point, cancelAction, callback) {
 	);
 	elem('edge-width').value = parseInt(item.width);
 	cp.createColorPicker('edge-color');
-	elem('edge-color').style.backgroundColor = standardize_color(
-		item.color.color
-	);
-	elem('edge-type').value = getDashes(item.dashes);
+	elem('edge-color').style.backgroundColor = standardize_color(item.color.color);
+	elem('edge-type').value = getDashes(item.dashes, null);
+	elem('edge-arrow').value = item.arrows.to.enabled ? item.arrows.to.type : 'none';
 	elem('edge-font-size').value = parseInt(item.font.size);
 	positionPopUp(point);
 	elem('popup-label').focus();
@@ -1362,29 +1442,17 @@ function editEdge(item, point, cancelAction, callback) {
  * @param {Function} saveAction
  * @param {Function} callback
  */
-function initPopUp(
-	popUpTitle,
-	height,
-	item,
-	cancelAction,
-	saveAction,
-	callback
-) {
+function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback) {
 	inAddMode = false;
 	inEditMode = true;
 	changeCursor('default');
 	elem('popup').style.height = height + 'px';
 	elem('popup-operation').innerHTML = popUpTitle;
 	elem('popup-saveButton').onclick = saveAction.bind(this, item, callback);
-	elem('popup-cancelButton').onclick = cancelAction.bind(
-		this,
-		item,
-		callback
-	);
+	elem('popup-cancelButton').onclick = cancelAction.bind(this, item, callback);
 	let popupLabel = elem('popup-label');
 	popupLabel.style.fontSize = '14px';
-	popupLabel.innerText =
-		item.label === undefined ? '' : item.label.replace(/\n/g, ' ');
+	popupLabel.innerText = item.label === undefined ? '' : item.label.replace(/\n/g, ' ');
 	let table = elem('popup-table');
 	if (table) table.remove();
 }
@@ -1416,6 +1484,7 @@ function clearPopUp() {
 		clearTimeout(elem('popup').timer);
 		elem('popup').timer = undefined;
 	}
+	yAwareness.setLocalStateField('addingFactor', 'done');
 	inEditMode = false;
 }
 /**
@@ -1435,8 +1504,11 @@ function cancelEdit(item, callback) {
 	clearPopUp();
 	item.label = item.oldLabel;
 	item.font.color = item.oldFontColor;
-	if (item.from) unlockEdge(item);
-	else unlockNode(item);
+	if (item.from) {
+		unlockEdge(item);
+	} else {
+		unlockNode(item);
+	}
 	if (callback) callback(null);
 	stopEdit();
 }
@@ -1483,12 +1555,8 @@ function saveNode(item, callback) {
 	item.borderWidth = borderType == 'none' ? 0 : 4;
 	item.shapeProperties.borderDashes = convertDashes(borderType);
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
-	if (item.label == item.oldLabel)
-		logHistory(`Edited factor : ${item.label}`);
-	else
-		logHistory(
-			`edited factor, changing label from ${item.oldLabel} to ${item.label}`
-		);
+	if (item.label == item.oldLabel) logHistory(`edited factor : ${item.label}`);
+	else logHistory(`edited factor, changing label from ${item.oldLabel} to ${item.label}`);
 	unlockNode(item);
 	callback(item);
 }
@@ -1498,15 +1566,11 @@ function saveNode(item, callback) {
  */
 function lockNode(item) {
 	item.locked = true;
-	item.oldFontColor = item.font.color;
-	item.font.color = item.font.color + '80';
 	item.opacity = 0.3;
 	item.oldLabel = item.label;
-	item.label =
-		item.label + '\n\n' + '[Being edited by ' + myNameRec.name + ']';
+	item.label = item.label + '\n\n' + '[Being edited by ' + myNameRec.name + ']';
 	item.wasFixed = Boolean(item.fixed);
 	item.fixed = true;
-	item.chosen = false;
 	data.nodes.update(item);
 }
 /**
@@ -1518,7 +1582,7 @@ function unlockNode(item) {
 	item.opacity = 1;
 	item.fixed = item.wasFixed;
 	item.oldLabel = undefined;
-	item.chosen = true;
+	dontUndo = 'unlocked';
 	data.nodes.update(item);
 	showNodeOrEdgeData();
 }
@@ -1549,18 +1613,17 @@ function saveEdge(item, callback) {
 	item.width = parseInt(elem('edge-width').value);
 	if (!item.width) item.width = 1;
 	item.dashes = convertDashes(elem('edge-type').value);
+	item.arrows.to = {
+		enabled: elem('edge-arrow').value !== 'none',
+		type: elem('edge-arrow').value,
+	};
 	item.font.size = parseInt(elem('edge-font-size').value);
 	network.manipulation.inMode = 'editEdge'; // ensure still in edit mode, in case others have done something meanwhile
 	unlockEdge(item);
 	// vis-network silently deselects all edges in the callback (why?).  So we have to mark this edge as unselected in preparation
-	item.shadow = false;
 	clearStatusBar();
 	callback(item);
-	logHistory(
-		`edited link from ${data.nodes.get(item.from).label} to ${
-			data.nodes.get(item.to).label
-		}`
-	);
+	logHistory(`edited link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`);
 }
 /**
  * Convert from the menu selection to the CSS format of the edge
@@ -1576,17 +1639,18 @@ function convertDashes(val) {
 			return [10, 10];
 		case 'dots':
 			return [2, 8];
+		case 'none':
+			return false;
 		default:
 			return val;
 	}
 }
 function lockEdge(item) {
 	item.locked = true;
-	item.font.color = 'rgba(0,0,0,0.3)';
+	item.font.color = 'rgba(0,0,0,0.5)';
 	item.opacity = 0.1;
 	item.oldLabel = item.label || ' ';
 	item.label = 'Being edited by ' + myNameRec.name;
-	item.chosen = false;
 	data.edges.update(item);
 }
 /**
@@ -1598,7 +1662,7 @@ function unlockEdge(item) {
 	item.font.color = 'rgba(0,0,0,1)';
 	item.opacity = 1;
 	item.oldLabel = undefined;
-	item.chosen = true;
+	dontUndo = 'unlocked';
 	data.edges.update(item);
 	showNodeOrEdgeData();
 }
@@ -1616,25 +1680,7 @@ function duplEdge(from, to) {
 		},
 	});
 }
-/**
- * Constructs a nice string to tell the user what nodes and links are being deleted.
-	 Includes links connected to deleted nodes in the count. 
- * @param {Array} item List of nodes to be deleted
- */
-/* function deleteMsg(item) {
-	item.nodes.forEach((nId) => {
-		network.getConnectedEdges(nId).forEach((eId) => {
-			if (item.edges.indexOf(eId) === -1) item.edges.push(eId);
-		});
-	});
-	let nNodes = item.nodes.length;
-	let nEdges = item.edges.length;
-	let msg = 'Delete ';
-	if (nNodes > 0) msg = msg + nNodes + ' Factor' + (nNodes == 1 ? '' : 's');
-	if (nNodes > 0 &amp;&amp; nEdges > 0) msg = msg + ' and ';
-	if (nEdges > 0) msg = msg + nEdges + ' Link' + (nEdges == 1 ? '' : 's');
-	return msg + '?';
-} */
+
 /**
  * Change the cursor style for the net pane and nav bar
  * @param {Cursor} newCursorStyle
@@ -1675,7 +1721,7 @@ function setMapTitle(title) {
 	}
 	if (title == 'Untitled map') {
 		div.classList.add('unsetmaptitle');
-		document.title = `${appName} ${room}`;
+		document.title = appName;
 	} else {
 		if (title.length > 50) {
 			title = title.slice(0, 50);
@@ -1686,23 +1732,74 @@ function setMapTitle(title) {
 		lastFileName = title.replace(/\s+/g, '').toLowerCase();
 	}
 	if (title !== div.innerText) div.innerText = title;
+	if (title.length >= 50) setEndOfContenteditable(div);
+	titleDropDown(title);
 	return title;
+}
+/**
+ * Add this title to the local record of maps used
+ * @param {String} title
+ */
+function titleDropDown(title) {
+	let recentMaps = localStorage.getItem('recents');
+	if (recentMaps) recentMaps = JSON.parse(recentMaps);
+	else recentMaps = {};
+	if (title != 'Untitled map') {
+		recentMaps[room] = title;
+		localStorage.setItem('recents', JSON.stringify(recentMaps));
+	}
+	// if there is more than 1, append a down arrow after the map title as a cue to there being a list
+	if (Object.keys(recentMaps).length > 1) elem('recent-rooms-caret').classList.remove('hidden');
+}
+/**
+ * Create a drop down list of previous maps used for user selection
+ */
+function createTitleDropDown() {
+	removeTitleDropDown();
+	let selectList = document.createElement('ul');
+	selectList.id = 'recent-rooms-select';
+	selectList.classList.add('room-titles');
+	elem('recent-rooms').appendChild(selectList);
+	let recentMaps = JSON.parse(localStorage.getItem('recents'));
+	// list is with most recent at the top, and no more than 20 items
+	let props = Object.keys(recentMaps).reverse().slice(0, 20);
+	props.forEach((prop) => {
+		let li = document.createElement('li');
+		li.classList.add('room-title');
+		let div = document.createElement('div');
+		div.classList.add('room-title-text');
+		div.innerText = recentMaps[prop];
+		div.dataset.room = prop;
+		div.addEventListener('click', (event) => changeRoom(event));
+		li.appendChild(div);
+		selectList.appendChild(li);
+	});
+}
+/**
+ * User has clicked one of the previous map titles - confirm and change to the web page for that room
+ * @param {Event} event
+ */
+function changeRoom(event) {
+	if (data.nodes.length > 0) if (!confirm('Are you sure you want to move to a different map?')) return;
+	let newRoom = event.target.dataset.room;
+	removeTitleDropDown();
+	console.log(newRoom);
+	let url = new URL(document.location);
+	url.search = `?room=${newRoom}`;
+	window.location.replace(url);
+}
+/**
+ * Remove the drop down list of previous maps if user clicks on the net-pane or on a map title.
+ */
+function removeTitleDropDown() {
+	let oldSelect = elem('recent-rooms-select');
+	if (oldSelect) oldSelect.remove();
 }
 /**
  * unselect all nodes and edges
  */
 function unSelect() {
 	hideNotes();
-	let nodes = data.nodes.get(network.getSelectedNodes());
-	nodes.forEach((node) => {
-		node.shadow = false;
-	});
-	data.nodes.update(nodes, 'dontBroadcast');
-	let edges = data.nodes.get(network.getSelectedEdges());
-	edges.forEach((edge) => {
-		edge.shadow = false;
-	});
-	data.edges.update(edges, 'dontBroadcast');
 	network.unselectAll();
 	clearStatusBar();
 }
@@ -1712,7 +1809,6 @@ function unSelect() {
 // set  up a web worker to calculate network statistics in parallel with whatever
 // the user is doing
 var worker = new Worker(new URL('betweenness.js', import.meta.url));
-var bc; //caches the betweenness centralities
 /**
  * Ask the web worker to recalculate network statistics
  */
@@ -1723,15 +1819,25 @@ function recalculateStats() {
 	}, 200);
 }
 worker.onmessage = function (e) {
-	if (typeof e.data == 'string') statusMsg(e.data, 'error');
-	else bc = e.data;
+	if (typeof e.data == 'string') console.log(e.data);
+	// don't frighten the horses: statusMsg(e.data, 'error');
+	else {
+		let nodesToUpdate = [];
+		data.nodes.get().forEach((n) => {
+			if (n.bc != e.data[n.id]) {
+				n.bc = e.data[n.id];
+				nodesToUpdate.push(n);
+			}
+		});
+		if (nodesToUpdate) data.nodes.update(nodesToUpdate);
+	}
 };
 /* 
   ----------- Status messages ---------------------------------------
 */
 /**
  * return a string listing the labels of the given nodes, with nice connecting words
- * @param {Array} factors List of factcors
+ * @param {Array} factors List of factors
  */
 function listFactors(factors) {
 	if (factors.length > 5) return factors.length + ' factors';
@@ -1754,9 +1860,7 @@ function listFactors(factors) {
  * @param {string} label
  */
 function shorten(label) {
-	return label.length > SHORTLABELLEN
-		? label.substring(0, SHORTLABELLEN) + '...'
-		: label;
+	return label.length > SHORTLABELLEN ? label.substring(0, SHORTLABELLEN) + '...' : label;
 }
 /**
  * return a string listing the number of Links
@@ -1776,7 +1880,7 @@ function showSelected() {
 	if (selectedNodes.length > 0) msg = listFactors(selectedNodes);
 	if (selectedNodes.length > 0 &amp;&amp; selectedEdges.length > 0) msg += ' and ';
 	if (selectedEdges.length > 0) msg += listLinks(selectedEdges);
-	statusMsg(msg + ' selected');
+	if (msg.length > 0) statusMsg(msg + ' selected');
 }
 /* zoom slider */
 Network.prototype.zoom = function (scale) {
@@ -1796,18 +1900,61 @@ function zoomnet() {
 	network.zoom(Number(elem('zoom').value));
 }
 /**
- * zoom by the given amount (+ve or -ve)
+ * zoom by the given amount (+ve or -ve); used by the + and - add the ends of the zoom slider
  * @param {Number} incr
  */
 function zoomincr(incr) {
-	let newScale = Number(elem('zoom').value) + incr;
+	let newScale = Number(elem('zoom').value);
+	newScale += incr;
 	if (newScale > 4) newScale = 4;
-	if (newScale &lt;= 0) newScale = 0.1;
+	if (newScale &lt;= 0.1) newScale = 0.1;
 	elem('zoom').value = newScale;
 	network.zoom(newScale);
 }
-/* 
-  -----------Operations related to the top button bar (not the side panel)-------------
+/**
+ * zoom using a pinch/zoom gesture on a tablet
+ * note the starting point
+ */
+var startzoom = 1;
+function zoomstart() {
+	startzoom = Number(elem('zoom').value);
+}
+/**
+ * zoom by the given amount
+ * @param {Number} newScale
+ */
+function zoomset(newScale) {
+	let newZoom = startzoom * newScale;
+	if (newZoom > 4) newZoom = 4;
+	if (newZoom &lt;= 0.1) newZoom = 0.1;
+	elem('zoom').value = newZoom;
+	network.zoom(newZoom);
+}
+
+/* var clicks = 0; // accumulate 'mousewheel' clicks sent while display is updating
+var ticking = false; // if true, we are waiting for an AnimationFrame */
+// see https://www.html5rocks.com/en/tutorials/speed/animations/
+
+/**
+ * Zoom using a trackpad (with a mousewheel or two fingers)
+ * @param {Event} event
+ */
+/* function zoomscroll(event) {
+	event.preventDefault();
+	clicks += event.deltaY;
+	requestZoom();
+}
+function requestZoom() {
+	if (!ticking) requestAnimationFrame(zoomUpdate);
+	ticking = true;
+}
+function zoomUpdate() {
+	zoomincr(clicks * 0.05);
+	ticking = false;
+	clicks = 0;
+} */
+
+/* -----------Operations related to the top button bar (not the side panel)-------------
  */
 /**
  * react to the user pressing the Add node button
@@ -1934,10 +2081,7 @@ function readSingleFile(e) {
 			loadFile(e.target.result);
 			if (!msg) statusMsg("Read '" + fileName + "'");
 		} catch (err) {
-			statusMsg(
-				"Error reading '" + fileName + "': " + err.message,
-				'error'
-			);
+			statusMsg("Error reading '" + fileName + "': " + err.message, 'error');
 			return;
 		}
 		document.body.style.cursor = 'default';
@@ -1950,78 +2094,78 @@ function openFile() {
 }
 /**
  * determine what kind of file it is, parse it and replace any current map with the one read from the file
- * @param {string} contents
+ * @param {string} contents - what is in the file
  */
 function loadFile(contents) {
 	if (data.nodes.length > 0)
-		if (
-			!confirm(
-				'Loading a file will delete the current network.  Are you sure you want to replace it?'
-			)
-		)
-			return;
-	unSelect();
-	ensureNotDrawing();
-	network.destroy();
-	nodes.clear();
-	edges.clear();
-	draw();
-
-	switch (lastFileName.split('.').pop().toLowerCase()) {
-		case 'csv':
-			data = parseCSV(contents);
-			break;
-		case 'graphml':
-			data = parseGraphML(contents);
-			break;
-		case 'gml':
-			data = parseGML(contents);
-			break;
-		case 'json':
-		case 'prsm':
-			data = loadJSONfile(contents);
-			break;
-		default:
-			throw {message: 'Unrecognised file name suffix'};
-	}
-	network.setOptions({
-		interaction: {
-			hideEdgesOnDrag: data.nodes.length > 100,
-			hideEdgesOnZoom: data.nodes.length > 100,
-		},
+		if (!confirm('Loading a file will delete the current network.  Are you sure you want to replace it?')) return;
+	// load the file as one single yjs transaction to reduce server traffic
+	doc.transact(() => {
+		unSelect();
+		ensureNotDrawing();
+		network.destroy();
+		checkMapSaved = true;
+		nodes.clear();
+		edges.clear();
+		draw();
 	});
-	let nodesToUpdate = [];
-	data.nodes.get().forEach((n) => {
-		// ensure that all nodes have a grp property (converting 'group' property for old format files)
-		if (!n.grp) n.grp = n.group ? 'group' + (n.group % 9) : 'group0';
-		// reassign the sample properties to the nodes
-		n = deepMerge(styles.nodes[n.grp], n);
-		// version 1.6 made changes to label scaling
-		n.scaling = {
-			label: {enabled: false, max: 40, min: 10},
-			max: 100,
-			min: 10,
-		};
-		nodesToUpdate.push(n);
-	});
-	data.nodes.update(nodesToUpdate);
+	doc.transact(() => {
+		switch (lastFileName.split('.').pop().toLowerCase()) {
+			case 'csv':
+				data = parseCSV(contents);
+				break;
+			case 'graphml':
+				data = parseGraphML(contents);
+				break;
+			case 'gml':
+				data = parseGML(contents);
+				break;
+			case 'json':
+			case 'prsm':
+				data = loadJSONfile(contents);
+				break;
+			default:
+				throw {message: 'Unrecognised file name suffix'};
+		}
+		network.setOptions({
+			interaction: {
+				hideEdgesOnDrag: data.nodes.length > 100,
+				hideEdgesOnZoom: data.nodes.length > 100,
+			},
+		});
+		let nodesToUpdate = [];
+		data.nodes.get().forEach((n) => {
+			// ensure that all nodes have a grp property (converting 'group' property for old format files)
+			if (!n.grp) n.grp = n.group ? 'group' + (n.group % 9) : 'group0';
+			// reassign the sample properties to the nodes
+			n = deepMerge(styles.nodes[n.grp], n);
+			// version 1.6 made changes to label scaling
+			n.scaling = {
+				label: {enabled: false, max: 40, min: 10},
+				max: 100,
+				min: 10,
+			};
+			nodesToUpdate.push(n);
+		});
+		data.nodes.update(nodesToUpdate);
 
-	// same for edges
-	let edgesToUpdate = [];
-	data.edges.get().forEach((e) => {
-		// ensure that all edges have a grp property (converting 'group' property for old format files)
-		if (!e.grp) e.grp = e.group ? 'edge' + (e.group % 9) : 'edge0';
-		// reassign the sample properties to the edges
-		e = deepMerge(styles.edges[e.grp], e);
-		edgesToUpdate.push(e);
-	});
-	data.edges.update(edgesToUpdate);
+		// same for edges
+		let edgesToUpdate = [];
+		data.edges.get().forEach((e) => {
+			// ensure that all edges have a grp property (converting 'group' property for old format files)
+			if (!e.grp) e.grp = e.group ? 'edge' + (e.group % 9) : 'edge0';
+			// reassign the sample properties to the edges
+			e = deepMerge(styles.edges[e.grp], e);
+			edgesToUpdate.push(e);
+		});
+		data.edges.update(edgesToUpdate);
 
-	network.fit(0);
+		network.fit(0);
+		updateLegend();
+		logHistory('loaded &amp;lt;' + lastFileName + '&amp;gt;');
+	});
 	yUndoManager.clear();
 	undoRedoButtonStatus();
-	updateLegend();
-	logHistory('loaded &amp;lt;' + lastFileName + '&amp;gt;');
 }
 /**
  * Parse and load a PRSM map file, or a JSON file exported from Gephi
@@ -2029,10 +2173,7 @@ function loadFile(contents) {
  */
 function loadJSONfile(json) {
 	json = JSON.parse(json);
-	if (
-		json.version &amp;&amp;
-		version.substring(0, 3) > json.version.substring(0, 3)
-	) {
+	if (json.version &amp;&amp; version.substring(0, 3) > json.version.substring(0, 3)) {
 		statusMsg('Warning: file was created in an earlier version', 'warn');
 		msg = 'old version';
 	}
@@ -2040,6 +2181,8 @@ function loadJSONfile(json) {
 	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
 	if (json.buttons) setButtonStatus(json.buttons);
 	if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle));
+	if (json.attributeTitles) yNetMap.set('attributeTitles', json.attributeTitles);
+	else yNetMap.set('attributeTitles', {});
 	if (json.edges.length > 0 &amp;&amp; 'source' in json.edges[0]) {
 		// the file is from Gephi and needs to be translated
 		let parsed = parseGephiNetwork(json, {
@@ -2070,21 +2213,25 @@ function loadJSONfile(json) {
 	if (json.samples) json.styles = json.samples;
 	if (json.styles) {
 		styles.nodes = json.styles.nodes;
+		for (let n in styles.nodes) {
+			delete styles.nodes[n].chosen;
+		}
 		styles.edges = json.styles.edges;
+		for (let e in styles.edges) {
+			delete styles.edges[e].chosen;
+		}
 		refreshSampleNodes();
 		refreshSampleLinks();
-		doc.transact(() => {
-			for (let groupId in styles.nodes) {
-				ySamplesMap.set(groupId, {
-					node: styles.nodes[groupId],
-				});
-			}
-			for (let edgeId in styles.edges) {
-				ySamplesMap.set(edgeId, {
-					edge: styles.edges[edgeId],
-				});
-			}
-		});
+		for (let groupId in styles.nodes) {
+			ySamplesMap.set(groupId, {
+				node: styles.nodes[groupId],
+			});
+		}
+		for (let edgeId in styles.edges) {
+			ySamplesMap.set(edgeId, {
+				edge: styles.edges[edgeId],
+			});
+		}
 	}
 	yPointsArray.delete(0, yPointsArray.length);
 	if (json.underlay) yPointsArray.insert(0, json.underlay);
@@ -2173,17 +2320,12 @@ function parseGML(gml) {
 							node.id = tokens.shift().toString();
 							break;
 						case 'label':
-							node.label = splitText(
-								tokens.shift().replace(/"/g, ''),
-								NODEWIDTH
-							);
+							node.label = splitText(tokens.shift().replace(/"/g, ''), NODEWIDTH);
 							break;
 						case 'color':
 						case 'colour':
 							node.color = {};
-							node.color.background = tokens
-								.shift()
-								.replace(/"/g, '');
+							node.color.background = tokens.shift().replace(/"/g, '');
 							break;
 						case '[': // skip embedded groups
 							while (tok != ']') tok = tokens.shift();
@@ -2284,9 +2426,7 @@ function parseCSV(csv) {
  * ensure that the styles displayed in the node styles panel display the styles defined in the styles array
  */
 function refreshSampleNodes() {
-	let sampleElements = Array.from(
-		document.getElementsByClassName('sampleNode')
-	);
+	let sampleElements = Array.from(document.getElementsByClassName('sampleNode'));
 	for (let i = 0; i &lt; sampleElements.length; i++) {
 		let sampleElement = sampleElements[i];
 		let node = sampleElement.dataSet.get()[0];
@@ -2303,9 +2443,7 @@ function refreshSampleNodes() {
  * ensure that the styles displayed in the link styles panel display the styles defined in the styles array
  */
 function refreshSampleLinks() {
-	let sampleElements = Array.from(
-		document.getElementsByClassName('sampleLink')
-	);
+	let sampleElements = Array.from(document.getElementsByClassName('sampleLink'));
 	for (let i = 0; i &lt; sampleElements.length; i++) {
 		let sampleElement = sampleElements[i];
 		let edge = sampleElement.dataSet.get()[0];
@@ -2331,6 +2469,7 @@ function saveJSONfile() {
 			lastNodeSample: lastNodeSample,
 			lastLinkSample: lastLinkSample,
 			buttons: getButtonStatus(),
+			attributeTitles: yNetMap.get('attributeTitles'),
 			styles: styles,
 			nodes: data.nodes.map((n) =>
 				strip(n, [
@@ -2348,17 +2487,7 @@ function saveJSONfile() {
 				])
 			),
 			edges: data.edges.map((e) =>
-				strip(e, [
-					'id',
-					'label',
-					'note',
-					'grp',
-					'from',
-					'to',
-					'color',
-					'width',
-					'dashes',
-				])
+				strip(e, ['id', 'label', 'note', 'grp', 'from', 'to', 'color', 'width', 'dashes'])
 			),
 			underlay: yPointsArray.toArray(),
 			history: yHistory.toArray(),
@@ -2371,7 +2500,7 @@ function saveJSONfile() {
 /**
  * Save the string to a local file
  * @param {string} str file contents
- * @param {strng} extn file extension
+ * @param {string} extn file extension
  *
  * Browser will only ask for name and location of the file to be saved if
  * it has a user setting to do so.  Otherwise, it is saved at a default
@@ -2398,31 +2527,69 @@ function saveStr(str, extn) {
 		a.remove();
 	}
 	statusMsg(`'${lastFileName}' saved`);
+	checkMapSaved = false;
+	dirty = false;
 }
 /**
  * save the map as a PNG image file
  */
+
+const upscaling = 4; // how much bigger the image is than the displayed map
+
 function exportPNGfile() {
 	setFileName('png');
 	const a = document.createElement('a');
 	document.body.appendChild(a);
 	a.setAttribute('style', 'display: none');
-	a.href = network.canvas.frame.firstChild.toDataURL('image/png');
-	a.download = lastFileName;
-	a.click();
-	a.remove();
-	statusMsg(`'${lastFileName}' saved`);
+	// create a very large canvas, so we can download at high resolution
+	let bigNetPane = null;
+	let bigNetwork = null;
+	let bigNetCanvas = null;
+	network.storePositions();
+	bigNetPane = document.createElement('div');
+	bigNetPane.id = 'big-net-pane';
+	bigNetPane.style.position = 'absolute';
+	bigNetPane.style.top = '-9999px';
+	bigNetPane.style.left = '-9999px';
+	bigNetPane.style.width = `${netPane.offsetWidth * upscaling}px`;
+	bigNetPane.style.height = `${netPane.offsetHeight * upscaling}px`;
+	elem('main').appendChild(bigNetPane);
+	bigNetwork = new Network(bigNetPane, data, {
+		physics: {enabled: false},
+	});
+	bigNetCanvas = bigNetPane.firstElementChild.firstElementChild;
+	bigNetwork.moveTo({
+		position: network.getViewPosition(),
+		scale: network.getScale() * upscaling,
+	});
+	bigNetwork.once('afterDrawing', () => {
+		a.href = setCanvasBackgroundColor(bigNetCanvas).toDataURL('image/png');
+		a.download = lastFileName;
+		a.addEventListener('click', () => {
+			a.remove();
+			bigNetwork.destroy();
+			bigNetPane.remove();
+			statusMsg(`'${lastFileName}' saved`);
+		});
+		a.click();
+	});
 }
+function setCanvasBackgroundColor(canvas, color = '#ffffff') {
+	let context = canvas.getContext('2d');
+	context.setTransform();
+	context.globalCompositeOperation = 'destination-over';
+	context.fillStyle = color;
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	return canvas;
+}
+
 /**
  * resets lastFileName to have supplied extension
- * @param {string} extn filename extnsion to apply
+ * @param {string} extn filename extension to apply
  */
 function setFileName(extn) {
 	let pos = lastFileName.indexOf('.');
-	lastFileName =
-		lastFileName.substr(0, pos &lt; 0 ? lastFileName.length : pos) +
-		'.' +
-		extn;
+	lastFileName = lastFileName.substr(0, pos &lt; 0 ? lastFileName.length : pos) + '.' + extn;
 }
 /**
  * Save the map as CSV files, one for nodes and one for edges
@@ -2468,17 +2635,12 @@ function exportCVS() {
  */
 function exportGML() {
 	let str =
-		'Creator "prsm ' +
-		version +
-		' on ' +
-		new Date(Date.now()).toLocaleString() +
-		'"\ngraph\n[\n\tdirected 1\n';
+		'Creator "prsm ' + version + ' on ' + new Date(Date.now()).toLocaleString() + '"\ngraph\n[\n\tdirected 1\n';
 	let nodeIds = data.nodes.map((n) => n.id); //use integers, not GUIDs for node ids
 	for (let node of data.nodes.get()) {
 		str += '\tnode\n\t[\n\t\tid ' + nodeIds.indexOf(node.id);
 		if (node.label) str += '\n\t\tlabel "' + node.label + '"';
-		let color =
-			node.color.background || styles.nodes.group0.color.background;
+		let color = node.color.background || styles.nodes.group0.color.background;
 		str += '\n\t\tcolor "' + color + '"';
 		str += '\n\t]\n';
 	}
@@ -2505,35 +2667,36 @@ function setUpShareDialog() {
 	listen('share', 'click', () => {
 		setLink('share');
 	});
-	listen('clone-check', 'click', () =>
-		setLink(elem('clone-check').checked ? 'clone' : 'share')
-	);
-	listen('view-check', 'click', () =>
-		setLink(elem('view-check').checked ? 'view' : 'share')
-	);
+	listen('clone-check', 'click', () => setLink(elem('clone-check').checked ? 'clone' : 'share'));
+	listen('view-check', 'click', () => setLink(elem('view-check').checked ? 'view' : 'share'));
+	listen('table-check', 'click', () => setLink(elem('table-check').checked ? 'table' : 'share'));
+
 	function setLink(type) {
-		let newRoom;
+		let path;
 		switch (type) {
 			case 'share':
-				newRoom = room;
+				path = window.location.pathname + '?room=' + room;
 				break;
 			case 'clone':
-				newRoom = clone();
+				path = window.location.pathname + '?room=' + clone();
 				elem('view-check').checked = false;
+				elem('table-check').checked = false;
 				break;
 			case 'view':
-				newRoom = room + '&amp;viewing';
+				path = window.location.pathname + '?room=' + room + '&amp;viewing';
 				elem('clone-check').checked = false;
+				elem('table-check').checked = false;
+				break;
+			case 'table':
+				path = window.location.pathname.replace('prsm.html', 'table.html') + '?room=' + room;
+				elem('clone-check').checked = false;
+				elem('view-check').checked = false;
 				break;
 			default:
 				console.log('Bad case in setLink()');
 				break;
 		}
-		let linkToShare =
-			window.location.origin +
-			window.location.pathname +
-			'?room=' +
-			newRoom;
+		let linkToShare = window.location.origin + path;
 		modal.style.display = 'block';
 		inputElem.cols = linkToShare.length.toString();
 		inputElem.value = linkToShare;
@@ -2559,17 +2722,9 @@ function setUpShareDialog() {
 		e.preventDefault();
 		// Select the text
 		inputElem.select();
-		let copied;
-		try {
-			// Copy the text
-			copied = document.execCommand('copy');
-		} catch (ex) {
-			copied = false;
-		}
-		if (copied) {
+		if (copyText(inputElem.value))
 			// Display the copied text message
 			copiedText.style.display = 'inline-block';
-		}
 	});
 }
 
@@ -2618,9 +2773,7 @@ function searchTargets() {
 	targets.id = 'targets';
 	targets.classList.add('search-ul');
 	str = str.toLowerCase();
-	let suggestions = window.data.nodes
-		.get()
-		.filter((n) => n.label.toLowerCase().includes(str));
+	let suggestions = window.data.nodes.get().filter((n) => n.label.toLowerCase().includes(str));
 	suggestions.slice(0, 8).forEach((n) => {
 		let li = document.createElement('li');
 		li.classList.add('search-suggestion');
@@ -2675,6 +2828,7 @@ function displayHelp() {
 function togglePanel() {
 	if (container.panelHidden) {
 		panel.classList.remove('hide');
+		positionNotes();
 	} else {
 		panel.classList.add('hide');
 	}
@@ -2689,20 +2843,10 @@ dragElement(elem('panel'), elem('panelHeader'));
  * @param {HTMLelement} pane
  */
 function keepPaneInWindow(pane) {
-	if (
-		pane.offsetLeft + pane.offsetWidth >
-		container.offsetLeft + container.offsetWidth
-	) {
-		pane.style.left =
-			container.offsetLeft +
-			container.offsetWidth -
-			pane.offsetWidth +
-			'px';
+	if (pane.offsetLeft + pane.offsetWidth > container.offsetLeft + container.offsetWidth) {
+		pane.style.left = container.offsetLeft + container.offsetWidth - pane.offsetWidth + 'px';
 	}
-	if (
-		pane.offsetTop + pane.offsetHeight >
-		container.offsetTop + container.offsetHeight
-	) {
+	if (pane.offsetTop + pane.offsetHeight > container.offsetTop + container.offsetHeight) {
 		pane.style.top =
 			container.offsetTop +
 			container.offsetHeight -
@@ -2727,9 +2871,13 @@ function openTab(tabId) {
 	// Show the current tab, and add an "active" class to the button that opened the tab
 	elem(tabId).classList.remove('hide');
 	event.currentTarget.className += ' active';
+	// if a Notes panel is in the way, move it
+	positionNotes();
 }
 
 /**
+ * return an object with the current Network panel setting for saving
+ * settings for link radius and up/down stream are not saved
  * @return an object with the Network panel settings
  */
 function getButtonStatus() {
@@ -2750,7 +2898,6 @@ function setButtonStatus(settings) {
 	yNetMap.set('curve', settings.curve);
 	yNetMap.set('background', settings.background || '#ffffff');
 	yNetMap.set('legend', settings.legend);
-	yNetMap.set('stream', settings.stream);
 	yNetMap.set('sizing', settings.sizing);
 }
 // Factors and Links Tabs
@@ -2796,14 +2943,11 @@ export function updateLastSamples(nodeId, linkId) {
  * User has clicked the padlock.  Toggle padlock state and fix the location of the node
  */
 function setFixed() {
-	let unlocked = elem('fixed').firstChild.className.includes('open');
+	let locked = elem('fixed').style.display == 'none';
 	let node = data.nodes.get(network.getSelectedNodes()[0]);
-	if (unlocked) {
-		elem('fixed').firstChild.className = 'fas fa-lock';
-	} else {
-		elem('fixed').firstChild.className = 'fas fa-lock-open';
-	}
-	node.fixed = unlocked;
+	node.fixed = locked;
+	elem('fixed').style.display = node.fixed ? 'inline' : 'none';
+	elem('unfixed').style.display = node.fixed ? 'none' : 'inline';
 	data.nodes.update(node);
 }
 // Notes
@@ -2816,38 +2960,50 @@ function showNodeOrEdgeData() {
 	else if (network.getSelectedEdges().length == 1) showEdgeData();
 }
 /**
+ * Hide the Node or Edge Data panel
+ */
+function hideNotes() {
+	elem('nodeDataPanel').classList.add('hide');
+	elem('edgeDataPanel').classList.add('hide');
+	document.getSelection().removeAllRanges();
+	document.querySelectorAll('.ql-toolbar').forEach((e) => e.remove());
+}
+/**
  * Show the notes box, the fixed node check box and the node statistics
  */
 function showNodeData() {
 	let panel = elem('nodeDataPanel');
 	let nodeId = network.getSelectedNodes()[0];
 	let node = data.nodes.get(nodeId);
-	elem('fixed').firstChild.className = node.fixed
-		? 'fas fa-lock'
-		: 'fas fa-lock-open';
+	elem('fixed').style.display = node.fixed ? 'inline' : 'none';
+	elem('unfixed').style.display = node.fixed ? 'none' : 'inline';
 	elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : '';
 	if (node.created) {
-		elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${
-			node.created.user
-		}`;
+		elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${node.created.user}`;
 		elem('nodeCreation').style.display = 'flex';
 	} else elem('nodeCreation').style.display = 'none';
 	if (node.modified) {
-		elem('nodeModified').innerHTML = `${timeAndDate(
-			node.modified.time
-		)} by ${node.modified.user}`;
+		elem('nodeModified').innerHTML = `${timeAndDate(node.modified.time)} by ${node.modified.user}`;
 		elem('nodeModification').style.display = 'flex';
 	} else elem('nodeModification').style.display = 'none';
 	elem('node-notes').className = 'notes';
 	let editor = new Quill('#node-notes', {
 		modules: {
 			toolbar: [
-				[{header: [1, 2, false]}],
-				['bold', 'italic', 'underline'],
+				'bold',
+				'italic',
+				'underline',
+				'link',
+				{list: 'ordered'},
+				{list: 'bullet'},
+				{indent: '-1'},
+				{indent: '+1'},
 			],
 		},
 		placeholder: 'Notes',
-		theme: 'bubble',
+		theme: 'snow',
+		readOnly: viewOnly,
+		bounds: elem('nodeDataPanel'),
 	});
 	if (node.note) {
 		if (node.note instanceof Object) editor.setContents(node.note);
@@ -2862,7 +3018,9 @@ function showNodeData() {
 	});
 	panel.classList.remove('hide');
 	displayStatistics(nodeId);
+	positionNotes();
 }
+
 function isQuillEmpty(quill) {
 	if ((quill.getContents()['ops'] || []).length !== 1) {
 		return false;
@@ -2874,28 +3032,32 @@ function showEdgeData() {
 	let panel = elem('edgeDataPanel');
 	let edgeId = network.getSelectedEdges()[0];
 	let edge = data.edges.get(edgeId);
-	elem('edgeLabel').innerHTML = edge.label ? shorten(edge.label) : 'Link';
+	elem('edgeLabel').innerHTML = edge.label &amp;&amp; edge.label.trim() ? shorten(edge.label) : 'Link';
 	if (edge.created) {
-		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${
-			edge.created.user
-		}`;
+		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${edge.created.user}`;
 		elem('edgeCreation').style.display = 'flex';
 	} else elem('edgeCreation').style.display = 'none';
 	if (edge.modified) {
-		elem('edgeModified').innerHTML = `${timeAndDate(
-			edge.modified.time
-		)} by ${edge.modified.user}`;
+		elem('edgeModified').innerHTML = `${timeAndDate(edge.modified.time)} by ${edge.modified.user}`;
 		elem('edgeModification').style.display = 'flex';
 	} else elem('edgeModification').style.display = 'none';
 	let editor = new Quill('#edge-notes', {
 		modules: {
 			toolbar: [
-				[{header: [1, 2, false]}],
-				['bold', 'italic', 'underline'],
+				'bold',
+				'italic',
+				'underline',
+				'link',
+				{list: 'ordered'},
+				{list: 'bullet'},
+				{indent: '-1'},
+				{indent: '+1'},
 			],
 		},
 		placeholder: 'Notes',
-		theme: 'bubble',
+		theme: 'snow',
+		readOnly: viewOnly,
+		bounds: elem('edgeDataPanel'),
 	});
 	if (edge.note) {
 		if (edge.note instanceof Object) editor.setContents(edge.note);
@@ -2909,11 +3071,9 @@ function showEdgeData() {
 		});
 	});
 	panel.classList.remove('hide');
+	positionNotes();
 }
-function hideNotes() {
-	elem('nodeDataPanel').classList.add('hide');
-	elem('edgeDataPanel').classList.add('hide');
-}
+
 // Statistics specific to a node
 function displayStatistics(nodeId) {
 	// leverage (outDegree / inDegree)
@@ -2921,7 +3081,25 @@ function displayStatistics(nodeId) {
 	let outDegree = network.getConnectedNodes(nodeId, 'to').length;
 	let leverage = inDegree == 0 ? '--' : (outDegree / inDegree).toPrecision(3);
 	elem('leverage').textContent = leverage;
-	elem('bc').textContent = bc[nodeId] >= 0 ? bc[nodeId].toPrecision(3) : '--';
+	let node = data.nodes.get(nodeId);
+	elem('bc').textContent = node.bc >= 0 ? parseFloat(node.bc).toPrecision(3) : '--';
+}
+
+/**
+ * ensure that the panel is not obscuring the Settings panel
+ * @param {HTMLElement} panel
+ */
+function positionNotes() {
+	let notesPanel;
+	if (!elem('nodeDataPanel').classList.contains('hide')) notesPanel = elem('nodeDataPanel');
+	if (!elem('edgeDataPanel').classList.contains('hide')) notesPanel = elem('edgeDataPanel');
+	if (!notesPanel) return;
+	let notesPanelRect = notesPanel.getBoundingClientRect();
+	let settingsRect = elem('panel').getBoundingClientRect();
+	if (notesPanelRect.right > settingsRect.left &amp;&amp; notesPanelRect.top &lt; settingsRect.bottom) {
+		notesPanel.style.left = settingsRect.left - notesPanelRect.width - 20 + 'px';
+		notesPanel.style.width = notesPanelRect.width + 'px';
+	}
 }
 // Network tab
 
@@ -2980,20 +3158,15 @@ function updateNetBack(color) {
 }
 
 function makeTranslucent(el) {
-	el.style.backgroundColor = getComputedStyle(el)
-		.backgroundColor.replace(')', ', 0.2)')
-		.replace('rgb', 'rgba');
+	el.style.backgroundColor = getComputedStyle(el).backgroundColor.replace(')', ', 0.2)').replace('rgb', 'rgba');
 }
 
 function makeSolid(el) {
-	el.style.backgroundColor = getComputedStyle(el)
-		.backgroundColor.replace(', 0.2)', ')')
-		.replace('rgba', 'rgb');
+	el.style.backgroundColor = getComputedStyle(el).backgroundColor.replace(', 0.2)', ')').replace('rgba', 'rgb');
 }
 function setBackground(color) {
 	elem('underlay').style.backgroundColor = color;
-	if (elem('toolbox').style.display == 'block')
-		makeTranslucent(elem('underlay'));
+	if (elem('toolbox').style.display == 'block') makeTranslucent(elem('underlay'));
 	elem('netBackColorWell').style.backgroundColor = color;
 }
 
@@ -3036,23 +3209,21 @@ function ensureNotDrawing() {
 }
 
 function selectAllFactors() {
-	network.selectNodes(network.body.nodeIndices);
-	let selectedNodes = network.getSelectedNodes();
-	selectedNodes.forEach((nodeId) => {
-		let node = data.nodes.get(nodeId);
-		node.shadow = true;
-		data.nodes.update(node, 'dontBroadcast');
-	});
+	selectFactors(data.nodes.getIds({filter: (n) => !n.hidden}));
 }
 
-function selectAllEdges() {
-	network.selectEdges(network.body.edgeIndices);
-	let selectedEdges = network.getSelectedEdges();
-	selectedEdges.forEach((edgeId) => {
-		let edge = data.edges.get(edgeId);
-		edge.shadow = true;
-		data.edges.update(edge, 'dontBroadcast');
-	});
+export function selectFactors(nodeIds) {
+	network.selectNodes(nodeIds, false);
+	showSelected();
+}
+
+function selectAllLinks() {
+	selectLinks(data.edges.getIds({filter: (e) => !e.hidden}));
+}
+
+export function selectLinks(edgeIds) {
+	network.selectEdges(edgeIds);
+	showSelected();
 }
 
 function legendSwitch(e) {
@@ -3242,12 +3413,20 @@ function setHideAndStream(obj) {
 	if (!obj) return;
 	let selectedNodes = [].concat(obj.selected); // ensure that obj.selected is an array
 	if (selectedNodes.length > 0) {
-		network.selectNodes(selectedNodes); // in viewing  only mode, this does nothing
-		if (!viewOnly)
-			statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
+		network.selectNodes(selectedNodes, false); // in viewing  only mode, this does nothing
+		if (!viewOnly) statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
 	}
 	setRadioVal('hide', obj.hideSetting);
 	setRadioVal('stream', obj.streamSetting);
+}
+
+function updateFactorsHiddenByStyle(obj) {
+	for (const sampleElementId in obj) {
+		let sampleElement = elem(sampleElementId);
+		let state = obj[sampleElementId];
+		sampleElement.dataset.hide = state ? 'hidden' : 'visible';
+		sampleElement.style.opacity = state ? 0.6 : 1.0;
+	}
 }
 
 function sizingSwitch(e) {
@@ -3274,14 +3453,13 @@ function sizing(metric) {
 				node.value = network.getConnectedNodes(node.id, 'to').length;
 				break;
 			case 'Leverage': {
-				let inDegree = network.getConnectedNodes(node.id, 'from')
-					.length;
+				let inDegree = network.getConnectedNodes(node.id, 'from').length;
 				let outDegree = network.getConnectedNodes(node.id, 'to').length;
 				node.value = inDegree == 0 ? 0 : outDegree / inDegree;
 				break;
 			}
 			case 'Centrality':
-				node.value = bc[node.id];
+				node.value = node.bc;
 				break;
 		}
 		nodesToUpdate.push(node);
@@ -3331,6 +3509,7 @@ function sendMsg() {
 		{
 			client: clientID,
 			author: myNameRec.name,
+			recipient: elem('chat-users').value,
 			time: Date.now(),
 			msg: inputMsg,
 		},
@@ -3354,7 +3533,7 @@ function displayMsg(msg) {
 	if (msg == undefined) return;
 	let clock = Number.isInteger(msg.time) ? timeAndDate(msg.time) : '';
 	if (msg.client == clientID) {
-		/* my own message */
+		// my own message
 		chatMessages.innerHTML += `&lt;div class="message-box-holder">
 			&lt;div class="message-header">
 				&lt;span class="message-time">${clock}&lt;/span>
@@ -3364,7 +3543,14 @@ function displayMsg(msg) {
 			&lt;/div>
 		&lt;/div>`;
 	} else {
-		chatMessages.innerHTML += `&lt;div class="message-box-holder">
+		// show only messages with no recipient (as from an old version), everyone or me
+		if (
+			msg.recipient == undefined ||
+			msg.recipient == '' ||
+			msg.recipient == myNameRec.name.replace(/\s+/g, '').toLowerCase()
+		) {
+			blinkChatboxTab();
+			chatMessages.innerHTML += `&lt;div class="message-box-holder">
 			&lt;div class="message-header">
 				&lt;span class="message-author">${msg.author}&lt;/span>&lt;span class="message-time">${clock}&lt;/span> 
 			&lt;/div>
@@ -3372,36 +3558,31 @@ function displayMsg(msg) {
 				${msg.msg}
 			&lt;/div>
 		&lt;/div>`;
+		}
 	}
 	chatMessages.scrollTop = chatMessages.scrollHeight;
 }
-/**
- * Returns a nicely formatted Date (or time if the date is today), given a Time value (from Date() )
- * @param {Integer} utc
- */
-function timeAndDate(utc) {
-	let time = new Date();
-	time.setTime(utc);
-	if (time.toDateString() == new Date().toDateString()) {
-		return (
-			'Today, ' +
-			time.toLocaleString('en-GB', {
-				hour: '2-digit',
-				minute: '2-digit',
-			})
-		);
-	} else {
-		return time.toLocaleString('en-GB', {
-			day: '2-digit',
-			month: 'short',
-			hour: '2-digit',
-			minute: '2-digit',
-		});
-	}
-}
+
 function displayUserName() {
 	chatNameBox.style.fontStyle = myNameRec.anon ? 'italic' : 'normal';
 	chatNameBox.value = myNameRec.name;
+}
+
+/**
+ * Create a set of options for the select menu of the currently online users
+ * @param {Array} names - array of name records from yAwareness (see showAvatars)
+ */
+// cache menu to avoid expensive DOM operations
+let oldUserNames = [];
+function populateChatUserMenu(names) {
+	let userNames = names.map((nRec) => nRec.name);
+	if (object_equals(oldUserNames, userNames)) return;
+	oldUserNames = userNames;
+	let options = '&lt;option value="">Everyone&lt;/option>';
+	userNames.forEach((name) => {
+		options += `&lt;option value=${name.replace(/\s+/g, '').toLowerCase()}>${name}&lt;/option>`;
+	});
+	elem('chat-users').innerHTML = options;
 }
 
 dragElement(elem('chatbox-holder'), elem('chatbox-top'));
@@ -3442,18 +3623,77 @@ function historyClose() {
 dragElement(elem('history-window'), elem('history-header'));
 window.showHistory = showHistory;
 /* --------------------------------------- avatars and shared cursors--------------------------------*/
-
+/**
+ *  set up user monitoring (awareness)
+ */
+function setUpAwareness() {
+	showAvatars();
+	// eslint-disable-next-line no-unused-vars
+	yAwareness.on('change', (event) => {
+		//		yjsTrace('yAwareness.on', event);
+		showAvatars();
+		showGhostFactor();
+		if (elem('showCursorSwitch').checked) showMice();
+	});
+	// fade out avatar when there has been no movement of the mouse for 15 minutes
+	asleep(false);
+	var sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
+	window.addEventListener('mousemove', (e) => {
+		clearTimeout(sleepTimer);
+		asleep(false);
+		sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
+		// broadcast current position of mouse in canvas coordinates
+		let box = netPane.getBoundingClientRect();
+		yAwareness.setLocalStateField(
+			'cursor',
+			network.DOMtoCanvas({
+				x: e.clientX - box.left,
+				y: e.clientY - box.top,
+			})
+		);
+	});
+}
+/**
+ * Set the awareness local state to show whether this client is sleeping (no mouse movement for 15 minutes)
+ * @param {Boolean} isSleeping
+ */
+function asleep(isSleeping) {
+	if (myNameRec.asleep === isSleeping) return;
+	myNameRec.asleep = isSleeping;
+	yAwareness.setLocalState({user: myNameRec});
+	showAvatars();
+}
+/**
+ * Display the other users' mouse pointers (if they are inside the canvas)
+ */
+function showMice() {
+	let recs = Array.from(yAwareness.getStates());
+	let box = netPane.getBoundingClientRect();
+	recs.forEach(([key, value]) => {
+		if (key != clientID &amp;&amp; value.cursor) {
+			let cursorDiv = elem(key.toString());
+			if (cursorDiv) {
+				let p = network.canvasToDOM(value.cursor);
+				p.x += box.left;
+				p.y += box.top;
+				cursorDiv.style.top = `${p.y}px`;
+				cursorDiv.style.left = `${p.x}px`;
+				cursorDiv.style.display =
+					p.x &lt; box.left || p.x > box.right || p.y > box.bottom || p.y &lt; box.top ? 'none' : 'block';
+			}
+		}
+	});
+}
 /**
  * Place a circle at the top left of the net pane to represent each user who is online
  * Also create a cursor (a div) for each of the users
  */
-
 function showAvatars() {
 	let recs = Array.from(yAwareness.getStates());
 	let me = recs.splice(
 		recs.findIndex((a) => a[0] === clientID),
 		1
-	); // remove myself
+	); // remove and save myself
 	let names = recs
 		// eslint-disable-next-line no-unused-vars
 		.map(([key, value]) => {
@@ -3462,6 +3702,10 @@ function showAvatars() {
 		.filter((e) => e) // remove any recs without a user record
 		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates
 		.sort((a, b) => (a.name > b.name ? 1 : -1)); // sort names
+
+	populateChatUserMenu(Array.from(names));
+
+	if (me.length == 0) return; // app is unloading
 	names.unshift(me[0][1].user); // push myself on to the front
 
 	let avatars = elem('avatars');
@@ -3482,15 +3726,20 @@ function showAvatars() {
 			if (nameRec.anon) circle.style.borderColor = 'white';
 			circle.innerText = shortName;
 			circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
+			circle.dataset.client = nameRec.id;
 			ava.appendChild(circle);
 			avatars.appendChild(ava);
+			circle.addEventListener('click', follow);
 		} else {
-			ava.dataset.tooltip = nameRec.name;
+			// to avoid flashes, don't touch anything that is already correct
+			if (ava.dataset.tooltip != nameRec.name) ava.dataset.tooltip = nameRec.name;
 			let circle = ava.firstChild;
-			circle.style.backgroundColor = nameRec.color;
-			if (nameRec.anon) circle.style.borderColor = 'white';
-			circle.innerText = shortName;
-			circle.style.opacity = nameRec.asleep ? 0.2 : 1.0;
+			if (circle.style.backgroundColor != nameRec.color) circle.style.backgroundColor = nameRec.color;
+			let circleBorderColor = nameRec.anon ? 'white' : 'black';
+			if (circle.style.borderColor != circleBorderColor) circle.style.borderColor = circleBorderColor;
+			if (circle.innerText != shortName) circle.innerText = shortName;
+			let opacity = nameRec.asleep ? 0.2 : 1.0;
+			if (circle.style.opacity != opacity) circle.style.opacity = opacity;
 		}
 		currentAvatars.push(ava);
 
@@ -3507,23 +3756,20 @@ function showAvatars() {
 				container.appendChild(cursorDiv);
 			} else {
 				if (nameRec.asleep) cursorDiv.style.display = 'none';
-				if (cursorDiv.innerText != shortName)
-					cursorDiv.innerText = shortName;
-				if (cursorDiv.style.backgroundColor != nameRec.color)
-					cursorDiv.style.backgroundColor = nameRec.color;
+				if (cursorDiv.innerText != shortName) cursorDiv.innerText = shortName;
+				if (cursorDiv.style.backgroundColor != nameRec.color) cursorDiv.style.backgroundColor = nameRec.color;
 			}
 			currentCursors.push(cursorDiv);
 		}
 	});
 	// delete any avatars and cursors that remain from before
-	let avatarsToDelete = Array.from(avatars.children).filter(
-		(a) => !currentAvatars.includes(a)
-	);
+	let avatarsToDelete = Array.from(avatars.children).filter((a) => !currentAvatars.includes(a));
 	avatarsToDelete.forEach((e) => e.remove());
-	let cursorsToDelete = Array.from(
-		document.querySelectorAll('.shared-cursor')
-	).filter((a) => !currentCursors.includes(a));
+	let cursorsToDelete = Array.from(document.querySelectorAll('.shared-cursor')).filter(
+		(a) => !currentCursors.includes(a)
+	);
 	cursorsToDelete.forEach((e) => e.remove());
+	if (followme) followUser();
 }
 
 function showCursorSwitch() {
@@ -3532,19 +3778,103 @@ function showCursorSwitch() {
 		node.style.display = on ? 'block' : 'none';
 	});
 }
+/**
+ * User has clicked on an avatar.  Start following this avatar
+ * @param {event} event
+ */
+function follow(event) {
+	if (followme) unFollow();
+	let user = parseInt(event.target.dataset.client, 10);
+	if (user == clientID) return;
+	followme = user;
+	elem('ava' + followme).classList.add('followme');
+	let userName = elem('ava' + user).dataset.tooltip;
+	statusMsg(`Following ${userName}`);
+}
+/**
+ * User was following another user, but has now clicked off the avatar, so stop following
+ */
+function unFollow() {
+	if (!followme) return;
+	elem('ava' + followme).classList.remove('followme');
+	followme = undefined;
+	clearStatusBar();
+}
+/**
+ * move the map so that the followed cursor is always in the centre of the pane
+ */
+function followUser() {
+	if (!followme) return;
+	let userRec = yAwareness.getStates().get(followme);
+	if (!userRec) return;
+	if (userRec.user.asleep) unFollow();
+	let userPosition = userRec.cursor;
+	if (userPosition) network.moveTo({position: userPosition});
+}
+/**
+ * show a ghost box where another user is adding a factor
+ * addingFactor can be: a position (of the Add Factor dialog); 'done' to indicate
+ * that the ghost box should be removed; or false - do nothing
+ *
+ */
+function showGhostFactor() {
+	let recs = Array.from(yAwareness.getStates());
+	recs.forEach(([key, value]) => {
+		if (key != clientID &amp;&amp; value.addingFactor) {
+			let id = `ghost-factor${key}`;
+			switch (value.addingFactor) {
+				case 'done':
+					{
+						let ghostDiv = elem(id);
+						if (ghostDiv) ghostDiv.remove();
+						value.addingFactor = false;
+					}
+					break;
+				case false:
+					break;
+				default: {
+					if (!elem(id)) {
+						let ghostDiv = document.createElement('div');
+						ghostDiv.className = 'ghost-factor';
+						ghostDiv.id = `ghost-factor${key}`;
+						ghostDiv.innerText = `[New factor\nbeing added by\n${value.user.name}]`;
+						let p = network.canvasToDOM(value.addingFactor);
+						let box = container.getBoundingClientRect();
+						p.x += box.left;
+						p.y += box.top;
+						ghostDiv.style.top = `${p.y - 50}px`;
+						ghostDiv.style.left = `${p.x - 187}px`;
+						ghostDiv.style.display =
+							p.x &lt; box.left || p.x > box.right || p.y > box.bottom || p.y &lt; box.top ? 'none' : 'block';
+						netPane.appendChild(ghostDiv);
+					}
+				}
+			}
+		}
+	});
+}
+
 /* --------------------------------- Merge maps ----------------------------- */
-/* to get the data in, open inspect windows for both maps.  in one window, eval data.nodes.get() and copy the result (not including any initial and trailing quote marks).
-In the other window. evaluate n = &lt;pasted list>.  Repeat for data.edges.get() and e = &lt;pasted list>.  Then evaluate mergeMaps(n, e) in the other window.
-*/
+/* 
+ * Evaluate mergeRoom(string: room code) e.g. mergeRoom('WBI-CRD-ROB-XDK')
+ *   adds all factors and links in the 'other' map to this one
+ *   if a factor occurs in both maps and is identical in both, nothing is added
+ *   if a factor is in both maps, but the label is different, a new factor is added
+ *     that is a clone of the 'other' factor, but with a dashed red border and with
+ *     cloned links that are dashed.  
+ */
+
+var bwsp; //  websocket to other room
+var bdata; // other room's node and edge data
 
 function openOtherDoc(room) {
 	let bDoc = new Y.Doc();
-	new WebsocketProvider(websocket, 'prsm' + room, bDoc);
+	bwsp = new WebsocketProvider(websocket, 'prsm' + room, bDoc);
 	let bNodesMap = bDoc.getMap('nodes');
 	let bEdgesMap = bDoc.getMap('edges');
 	let bNodes = new DataSet();
 	let bEdges = new DataSet();
-	let data = {
+	bdata = {
 		nodes: bNodes,
 		edges: bEdges,
 	};
@@ -3568,7 +3898,6 @@ function openOtherDoc(room) {
 		}
 		bEdges.update(edgesToUpdate, origin);
 	});
-	return data;
 }
 window.openOtherDoc = openOtherDoc;
 
@@ -3576,13 +3905,17 @@ function mergeMaps(nodeList, edgeList) {
 	// lists of edges from the map to be merged (B) into this one (A)
 	let newNodes = new Map();
 	nodeList.forEach((BNode) => {
-		let ANode = data.nodes.get(BNode.id);
+		// for each node in the other map
+		let ANode = data.nodes.get(BNode.id); // see whether there is a node in this map with the same id
 		if (ANode) {
+			// if there is, check whether the label is the same
 			if (ANode.label != BNode.label) {
-				console.log(
-					`Existing factor label: \n${ANode.label} \ndoes not match new label: \n${BNode.label}`
+				// if not, make a clone of the other node with a new id
+				logHistory(
+					`Existing Factor label: ${ANode.label} does not match new label: ${BNode.label}. Factor with new label added.`,
+					'Merge'
 				);
-				// generate a new id for BNode.  change border to dashed.  add it to the map
+				// generate a new id for BNode.  change border to dashed red.  Add it to the map
 				let newNode = deepCopy(BNode);
 				newNode.id = uuidv4();
 				newNode.shapeProperties.borderDashes = true;
@@ -3592,56 +3925,81 @@ function mergeMaps(nodeList, edgeList) {
 				newNode.color.highlight.border = '#ff0000';
 				newNode.x = ANode.x + 30;
 				newNode.y = ANode.y + 30;
+				// add it to this map
 				data.nodes.add(newNode);
+				// add to lookup table of existing node id to clone node id
 				newNodes.set(BNode.id, newNode.id);
 			} else if (ANode.grp != BNode.grp)
-				console.log(
-					`Existing factor style: ${ANode.grp} does not match new style ${BNode.grp} for ${ANode.label}`
+				// label is the same, but style is not - just report this
+				logHistory(
+					`Existing style: ${ANode.grp} does not match new style: ${BNode.grp} for Factor: ${ANode.label}. Existing style retained.`,
+					'Merge'
 				);
 		} else {
+			// the node is on the other map, but not on this one - add it.
 			data.nodes.add(BNode);
-			console.log(`Added ${BNode.label}`);
+			logHistory(`Added new Factor: ${BNode.label}`, 'Merge');
 		}
 	});
 
 	edgeList.forEach((BEdge) => {
-		/* some edges on the B map may have been going to/from nodes that have been given a new id.  Edit these edges
-	to give them the new from or to node ids and make them dashed. */
+		// Some edges on the other map may have been going to/from nodes that have been cloned and given a new id.
+		// Clone these edges, giving them the new from: or to: node ids and make them dashed.
 		let newEdge = null;
 		if (newNodes.has(BEdge.from)) {
+			// this edge goes from a node that has been cloned - adjust the from: id
 			newEdge = deepCopy(BEdge);
 			newEdge.from = newNodes.get(BEdge.from);
+			// it might also go to a cloned node -if so, adjust the to: id
 			if (newNodes.has(newEdge.to)) newEdge.to = newNodes.get(newEdge.to);
 		} else if (newNodes.has(BEdge.to)) {
+			// this edge goes to a cloned node
 			newEdge = deepCopy(BEdge);
 			newEdge.to = newNodes.get(BEdge.to);
 		}
 		if (newEdge) {
+			// give the cloned edge a new id
+			newEdge.id = uuidv4();
+			// make the edge dashed
 			newEdge.dashes = true;
 			data.edges.add(newEdge);
-			console.log(
-				`Added link for new factor(s): ${
-					data.nodes.get(newEdge.from).label
-				} to ${data.nodes.get(newEdge.to).label}`
+			logHistory(
+				`Added Link between new Factor(s): ${data.nodes.get(newEdge.from).label} to ${
+					data.nodes.get(newEdge.to).label
+				}`,
+				'Merge'
 			);
 		}
+		// now deal with the other map's edge
 		let AEdge = data.edges.get(BEdge.id);
+		let edgeName = BEdge.label || `from ${bdata.nodes.get(BEdge.from).label} to ${bdata.nodes.get(BEdge.to).label}`;
 		if (AEdge) {
 			if (AEdge.label != BEdge.label)
-				console.log(
-					`Existing label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}`
+				logHistory(
+					`Existing Link label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}.  Existing label retained.`,
+					'Merge'
 				);
 			else if (AEdge.grp != BEdge.grp)
-				console.log(
-					`Existing style: ${AEdge.grp} does not match new style ${BEdge.grp} for edge ${AEdge.id}`
+				logHistory(
+					`Existing Link style: ${AEdge.grp} does not match new style: ${BEdge.grp} for edge ${edgeName}. Existing style retained.`,
+					'Merge'
 				);
 		} else {
 			data.edges.add(BEdge);
-			console.log(`Added ${BEdge.id}`);
+			logHistory(`Added new Link: ${edgeName}`, 'Merge');
 		}
 	});
 }
 window.mergeMaps = mergeMaps;
+
+function mergeRoom(room) {
+	openOtherDoc(room);
+	bwsp.on('sync', () => {
+		mergeMaps(bdata.nodes.get(), bdata.edges.get());
+	});
+}
+window.mergeRoom = mergeRoom;
+window.bdata = bdata;
 </code></pre>
 				</article>
 			</section>
@@ -3656,11 +4014,8 @@ window.mergeMaps = mergeMaps;
 			</ul>
 			<h3>Global</h3>
 			<ul>
-				<li>
-					<a href="global.html#addEventListeners"
-						>addEventListeners</a
-					>
-				</li>
+				<li><a href="global.html#addColumn">addColumn</a></li>
+				<li><a href="global.html#addEventListeners">addEventListeners</a></li>
 				<li><a href="global.html#addLabel">addLabel</a></li>
 				<li><a href="global.html#addVec">addVec</a></li>
 				<li><a href="global.html#antMarch">antMarch</a></li>
@@ -3670,26 +4025,29 @@ window.mergeMaps = mergeMaps;
 				<li><a href="global.html#cancelAdd">cancelAdd</a></li>
 				<li><a href="global.html#cancelEdit">cancelEdit</a></li>
 				<li><a href="global.html#changeCursor">changeCursor</a></li>
+				<li><a href="global.html#changeRoom">changeRoom</a></li>
 				<li><a href="global.html#clean">clean</a></li>
 				<li><a href="global.html#cleanArray">cleanArray</a></li>
 				<li><a href="global.html#clearLegend">clearLegend</a></li>
 				<li><a href="global.html#clearPopUp">clearPopUp</a></li>
 				<li><a href="global.html#clearStatusBar">clearStatusBar</a></li>
 				<li><a href="global.html#clone">clone</a></li>
-				<li>
-					<a href="global.html#closeOptionsDialogs"
-						>closeOptionsDialogs</a
-					>
-				</li>
+				<li><a href="global.html#closeFilter">closeFilter</a></li>
+				<li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li>
+				<li><a href="global.html#colorEditor">colorEditor</a></li>
 				<li><a href="global.html#configSamples">configSamples</a></li>
 				<li><a href="global.html#connected">connected</a></li>
-				<li>
-					<a href="global.html#connectedComponents"
-						>connectedComponents</a
-					>
-				</li>
+				<li><a href="global.html#connectedComponents">connectedComponents</a></li>
 				<li><a href="global.html#convertDashes">convertDashes</a></li>
+				<li><a href="global.html#convertEdge">convertEdge</a></li>
+				<li><a href="global.html#convertEdgeBack">convertEdgeBack</a></li>
+				<li><a href="global.html#convertNode">convertNode</a></li>
+				<li><a href="global.html#convertNodeBack">convertNodeBack</a></li>
+				<li><a href="global.html#copyTable">copyTable</a></li>
+				<li><a href="global.html#copyToClipboard">copyToClipboard</a></li>
+				<li><a href="global.html#createTitleDropDown">createTitleDropDown</a></li>
 				<li><a href="global.html#deepCopy">deepCopy</a></li>
+				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
 				<li><a href="global.html#deselectTool">deselectTool</a></li>
 				<li><a href="global.html#diag">diag</a></li>
 				<li><a href="global.html#displayHelp">displayHelp</a></li>
@@ -3700,11 +4058,7 @@ window.mergeMaps = mergeMaps;
 				<li><a href="global.html#draw">draw</a></li>
 				<li><a href="global.html#drawGrid">drawGrid</a></li>
 				<li><a href="global.html#duplEdge">duplEdge</a></li>
-				<li>
-					<a href="global.html#edgeListToAdjMatrix"
-						>edgeListToAdjMatrix</a
-					>
-				</li>
+				<li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li>
 				<li><a href="global.html#editEdge">editEdge</a></li>
 				<li><a href="global.html#editLinkStyle">editLinkStyle</a></li>
 				<li><a href="global.html#editNode">editNode</a></li>
@@ -3712,48 +4066,40 @@ window.mergeMaps = mergeMaps;
 				<li><a href="global.html#elem">elem</a></li>
 				<li><a href="global.html#exportCVS">exportCVS</a></li>
 				<li><a href="global.html#exportGML">exportGML</a></li>
-				<li><a href="global.html#exportPNGfile">exportPNGfile</a></li>
 				<li><a href="global.html#fit">fit</a></li>
+				<li><a href="global.html#follow">follow</a></li>
+				<li><a href="global.html#followUser">followUser</a></li>
 				<li><a href="global.html#formatLogRec">formatLogRec</a></li>
 				<li><a href="global.html#generateName">generateName</a></li>
 				<li><a href="global.html#generateRoom">generateRoom</a></li>
-				<li>
-					<a href="global.html#get_trophic_levels"
-						>get_trophic_levels</a
-					>
-				</li>
+				<li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li>
 				<li><a href="global.html#getArrows">getArrows</a></li>
-				<li>
-					<a href="global.html#getButtonStatus">getButtonStatus</a>
-				</li>
+				<li><a href="global.html#getButtonStatus">getButtonStatus</a></li>
 				<li><a href="global.html#getContext">getContext</a></li>
 				<li><a href="global.html#getDashes">getDashes</a></li>
+				<li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li>
 				<li><a href="global.html#getRandomData">getRandomData</a></li>
-				<li>
-					<a href="global.html#getScaleFreeNetwork"
-						>getScaleFreeNetwork</a
-					>
-				</li>
+				<li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li>
+				<li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li>
+				<li><a href="global.html#ghostFactor">ghostFactor</a></li>
 				<li><a href="global.html#groupDashes">groupDashes</a></li>
+				<li><a href="global.html#headerTickToggle">headerTickToggle</a></li>
+				<li><a href="global.html#hideNotes">hideNotes</a></li>
 				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
 				<li><a href="global.html#in_degree">in_degree</a></li>
+				<li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li>
+				<li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li>
 				<li><a href="global.html#initials">initials</a></li>
 				<li><a href="global.html#initPopUp">initPopUp</a></li>
 				<li><a href="global.html#initSample">initSample</a></li>
-				<li>
-					<a href="global.html#keepPaneInWindow">keepPaneInWindow</a>
-				</li>
+				<li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li>
 				<li><a href="global.html#legend">legend</a></li>
 				<li><a href="global.html#linkEditCancel">linkEditCancel</a></li>
 				<li><a href="global.html#linkEditorHide">linkEditorHide</a></li>
 				<li><a href="global.html#linkEditorShow">linkEditorShow</a></li>
 				<li><a href="global.html#linkEditSave">linkEditSave</a></li>
 				<li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li>
-				<li>
-					<a href="global.html#linkEditUpdateStyleSample"
-						>linkEditUpdateStyleSample</a
-					>
-				</li>
+				<li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li>
 				<li><a href="global.html#listen">listen</a></li>
 				<li><a href="global.html#listFactors">listFactors</a></li>
 				<li><a href="global.html#listLinks">listLinks</a></li>
@@ -3769,13 +4115,10 @@ window.mergeMaps = mergeMaps;
 				<li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li>
 				<li><a href="global.html#nodeEditSave">nodeEditSave</a></li>
 				<li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li>
-				<li>
-					<a href="global.html#nodeEditUpdateStyleSample"
-						>nodeEditUpdateStyleSample</a
-					>
-				</li>
+				<li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li>
 				<li><a href="global.html#nodeList">nodeList</a></li>
 				<li><a href="global.html#object_equals">object_equals</a></li>
+				<li><a href="global.html#oldUserNames">oldUserNames</a></li>
 				<li><a href="global.html#onexit">onexit</a></li>
 				<li><a href="global.html#out_degree">out_degree</a></li>
 				<li><a href="global.html#parseCSV">parseCSV</a></li>
@@ -3783,33 +4126,17 @@ window.mergeMaps = mergeMaps;
 				<li><a href="global.html#parseGraphML">parseGraphML</a></li>
 				<li><a href="global.html#plusLink">plusLink</a></li>
 				<li><a href="global.html#plusNode">plusNode</a></li>
+				<li><a href="global.html#positionNotes">positionNotes</a></li>
 				<li><a href="global.html#positionPopUp">positionPopUp</a></li>
 				<li><a href="global.html#readSingleFile">readSingleFile</a></li>
-				<li>
-					<a href="global.html#reApplySampleToLinks"
-						>reApplySampleToLinks</a
-					>
-				</li>
-				<li>
-					<a href="global.html#reApplySampleToNodes"
-						>reApplySampleToNodes</a
-					>
-				</li>
+				<li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li>
+				<li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li>
 				<li><a href="global.html#rebase">rebase</a></li>
-				<li>
-					<a href="global.html#recalculateStats">recalculateStats</a>
-				</li>
+				<li><a href="global.html#recalculateStats">recalculateStats</a></li>
 				<li><a href="global.html#redraw">redraw</a></li>
-				<li>
-					<a href="global.html#refreshSampleLinks"
-						>refreshSampleLinks</a
-					>
-				</li>
-				<li>
-					<a href="global.html#refreshSampleNodes"
-						>refreshSampleNodes</a
-					>
-				</li>
+				<li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li>
+				<li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li>
+				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
 				<li><a href="global.html#resizeBox">resizeBox</a></li>
 				<li><a href="global.html#round">round</a></li>
 				<li><a href="global.html#saveEdge">saveEdge</a></li>
@@ -3820,87 +4147,82 @@ window.mergeMaps = mergeMaps;
 				<li><a href="global.html#search">search</a></li>
 				<li><a href="global.html#searchTargets">searchTargets</a></li>
 				<li><a href="global.html#selectTool">selectTool</a></li>
-				<li>
-					<a href="global.html#setButtonDisabledStatus"
-						>setButtonDisabledStatus</a
-					>
-				</li>
-				<li>
-					<a href="global.html#setButtonStatus">setButtonStatus</a>
-				</li>
+				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
+				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
+				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
 				<li><a href="global.html#setFileName">setFileName</a></li>
 				<li><a href="global.html#setFixed">setFixed</a></li>
 				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
 				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
 				<li><a href="global.html#setUpCanvas">setUpCanvas</a></li>
 				<li><a href="global.html#setUpChat">setUpChat</a></li>
+				<li><a href="global.html#setUpFilter">setUpFilter</a></li>
 				<li><a href="global.html#setUpPage">setUpPage</a></li>
 				<li><a href="global.html#setUpPaint">setUpPaint</a></li>
 				<li><a href="global.html#setUpSamples">setUpSamples</a></li>
-				<li>
-					<a href="global.html#setUpShareDialog">setUpShareDialog</a>
-				</li>
+				<li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li>
+				<li><a href="global.html#setUpTabs">setUpTabs</a></li>
 				<li><a href="global.html#setUpToolbox">setUpToolbox</a></li>
 				<li><a href="global.html#setUpTutorial">setUpTutorial</a></li>
+				<li><a href="global.html#setvh">setvh</a></li>
 				<li><a href="global.html#shorten">shorten</a></li>
 				<li><a href="global.html#showAvatars">showAvatars</a></li>
+				<li><a href="global.html#showGhostFactor">showGhostFactor</a></li>
 				<li><a href="global.html#showHistory">showHistory</a></li>
 				<li><a href="global.html#showMice">showMice</a></li>
 				<li><a href="global.html#showNodeData">showNodeData</a></li>
-				<li>
-					<a href="global.html#showNodeOrEdgeData"
-						>showNodeOrEdgeData</a
-					>
-				</li>
+				<li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li>
 				<li><a href="global.html#showPressed">showPressed</a></li>
 				<li><a href="global.html#showSelected">showSelected</a></li>
 				<li><a href="global.html#sizing">sizing</a></li>
 				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
 				<li><a href="global.html#solve">solve</a></li>
 				<li><a href="global.html#splitText">splitText</a></li>
-				<li>
-					<a href="global.html#standardize_color"
-						>standardize_color</a
-					>
-				</li>
+				<li><a href="global.html#standardize_color">standardize_color</a></li>
 				<li><a href="global.html#start">start</a></li>
 				<li><a href="global.html#startY">startY</a></li>
+				<li><a href="global.html#startzoom">startzoom</a></li>
 				<li><a href="global.html#statusMsg">statusMsg</a></li>
 				<li><a href="global.html#stepFinish">stepFinish</a></li>
 				<li><a href="global.html#stepsEnd">stepsEnd</a></li>
 				<li><a href="global.html#stepStart">stepStart</a></li>
 				<li><a href="global.html#stopEdit">stopEdit</a></li>
 				<li><a href="global.html#strip">strip</a></li>
+				<li><a href="global.html#styleEdgeNames">styleEdgeNames</a></li>
+				<li><a href="global.html#styleNodeNames">styleNodeNames</a></li>
 				<li><a href="global.html#subtract">subtract</a></li>
 				<li><a href="global.html#subVec">subVec</a></li>
 				<li><a href="global.html#sumVec">sumVec</a></li>
+				<li><a href="global.html#svg">svg</a></li>
+				<li><a href="global.html#tickToggle">tickToggle</a></li>
 				<li><a href="global.html#timeAndDate">timeAndDate</a></li>
 				<li><a href="global.html#timestamp">timestamp</a></li>
+				<li><a href="global.html#titleDropDown">titleDropDown</a></li>
 				<li><a href="global.html#togglePanel">togglePanel</a></li>
 				<li><a href="global.html#toolHandler">toolHandler</a></li>
 				<li><a href="global.html#transpose">transpose</a></li>
 				<li><a href="global.html#trophic">trophic</a></li>
 				<li><a href="global.html#undirected">undirected</a></li>
+				<li><a href="global.html#unFollow">unFollow</a></li>
 				<li><a href="global.html#unlockAll">unlockAll</a></li>
 				<li><a href="global.html#unlockEdge">unlockEdge</a></li>
 				<li><a href="global.html#unlockNode">unlockNode</a></li>
 				<li><a href="global.html#unSelect">unSelect</a></li>
-				<li>
-					<a href="global.html#updateLastSamples"
-						>updateLastSamples</a
-					>
-				</li>
+				<li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li>
+				<li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li>
+				<li><a href="global.html#updateFilter">updateFilter</a></li>
+				<li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li>
+				<li><a href="global.html#updateLastSamples">updateLastSamples</a></li>
 				<li><a href="global.html#updateLegend">updateLegend</a></li>
-				<li>
-					<a href="global.html#updateLinkEditor">updateLinkEditor</a>
-				</li>
-				<li>
-					<a href="global.html#updateNodeEditor">updateNodeEditor</a>
-				</li>
+				<li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li>
+				<li><a href="global.html#updateNodeCellData">updateNodeCellData</a></li>
+				<li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li>
+				<li><a href="global.html#upscaling">upscaling</a></li>
 				<li><a href="global.html#uuidv4">uuidv4</a></li>
 				<li><a href="global.html#zero">zero</a></li>
 				<li><a href="global.html#zoomincr">zoomincr</a></li>
 				<li><a href="global.html#zoomnet">zoomnet</a></li>
+				<li><a href="global.html#zoomset">zoomset</a></li>
 			</ul>
 		</nav>
 
@@ -3908,8 +4230,8 @@ window.mergeMaps = mergeMaps;
 
 		<footer>
 			Documentation generated by
-			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Wed Apr
-			07 2021 21:13:10 GMT+0100 (British Summer Time)
+			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a>
+			on Sat Aug 28 2021 09:21:33 GMT+0100 (British Summer Time)
 		</footer>
 
 		<script>

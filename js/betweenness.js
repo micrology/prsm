@@ -27,10 +27,7 @@ onmessage = function (e) {
 		edges: e.data[1], // array of edge objects
 	};
 	if (checkComplete(graph)) postMessage(betweenness(graph));
-	else
-		postMessage(
-			'Corrupt network: links are connected to non-existent factors'
-		);
+	else postMessage('Corrupt network: links are connected to non-existent factors');
 };
 
 function checkComplete(graph) {
@@ -38,21 +35,11 @@ function checkComplete(graph) {
 	let ok = true;
 	graph.edges.forEach((edge) => {
 		if (graph.nodes.find((node) => node.id == edge.from) == null) {
-			console.log(
-				'Edge ' +
-					edge.id +
-					' is missing a source node linked to it:' +
-					edge.from
-			);
+			console.log('Edge ' + edge.id + ' is missing a source node linked to it:' + edge.from);
 			ok = false;
 		}
 		if (graph.nodes.find((node) => node.id == edge.to) == null) {
-			console.log(
-				'Edge ' +
-					edge.id +
-					' is missing a destination node linked to it:' +
-					edge.to
-			);
+			console.log('Edge ' + edge.id + ' is missing a destination node linked to it:' + edge.to);
 			ok = false;
 		}
 	});
@@ -69,8 +56,7 @@ function betweenness(graph) {
 	if (struct.length == 0) return null;
 	// check whether the network structure has changed;
 	// if not, just return the previous result immediately
-	if (eqArray(struct, betweennessCache.structure))
-		return betweennessCache.betweenness;
+	if (eqArray(struct, betweennessCache.structure)) return betweennessCache.betweenness;
 	betweennessCache = {
 		structure: struct,
 		betweenness: betweenness1(graph),

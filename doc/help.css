@@ -44,12 +44,12 @@ code {
 }
 .header {
 	background-color: rgb(56, 161, 241);
-	color:white;
+	color: white;
 }
 .odd {
-	background-color: rgb(227,240,250);
+	background-color: rgb(227, 240, 250);
 }
-.even{
+.even {
 	background-color: rgb(171, 219, 248);
 }
 .scroll-nav {
