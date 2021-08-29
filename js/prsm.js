@@ -1732,7 +1732,7 @@ function titleDropDown(title) {
 		localStorage.setItem('recents', JSON.stringify(recentMaps));
 	}
 	// if there is more than 1, append a down arrow after the map title as a cue to there being a list
-	if (Object.keys(recentMaps).length > 1) elem('recent-rooms-caret').classList.remove('hidden');
+	/* if (Object.keys(recentMaps).length > 1)  */elem('recent-rooms-caret').classList.remove('hidden');
 }
 /**
  * Create a drop down list of previous maps used for user selection
@@ -1745,18 +1745,25 @@ function createTitleDropDown() {
 	elem('recent-rooms').appendChild(selectList);
 	let recentMaps = JSON.parse(localStorage.getItem('recents'));
 	// list is with most recent at the top, and no more than 20 items
-	let props = Object.keys(recentMaps).reverse().slice(0, 20);
-	props.forEach((prop) => {
+	if (recentMaps) {
+		let props = Object.keys(recentMaps).reverse().slice(0, 20);
+		props.forEach((prop) => {
+			makeTitleDropDownEntry(recentMaps[prop], prop)
+		});
+	}
+	makeTitleDropDownEntry('New map', '*new*')
+
+	function makeTitleDropDownEntry(name, room) {
 		let li = document.createElement('li');
 		li.classList.add('room-title');
 		let div = document.createElement('div');
 		div.classList.add('room-title-text');
-		div.innerText = recentMaps[prop];
-		div.dataset.room = prop;
+		div.innerText = name;
+		div.dataset.room = room;
 		div.addEventListener('click', (event) => changeRoom(event));
 		li.appendChild(div);
 		selectList.appendChild(li);
-	});
+	}
 }
 /**
  * User has clicked one of the previous map titles - confirm and change to the web page for that room
@@ -1768,7 +1775,7 @@ function changeRoom(event) {
 	removeTitleDropDown();
 	console.log(newRoom);
 	let url = new URL(document.location);
-	url.search = `?room=${newRoom}`;
+	url.search = (newRoom != '*new*') ? `?room=${newRoom}` : '';
 	window.location.replace(url);
 }
 /**
