@@ -1732,7 +1732,7 @@ function titleDropDown(title) {
 		localStorage.setItem('recents', JSON.stringify(recentMaps));
 	}
 	// if there is more than 1, append a down arrow after the map title as a cue to there being a list
-	/* if (Object.keys(recentMaps).length > 1)  */elem('recent-rooms-caret').classList.remove('hidden');
+	if (Object.keys(recentMaps).length > 1) elem('recent-rooms-caret').classList.remove('hidden');
 }
 /**
  * Create a drop down list of previous maps used for user selection
@@ -1750,8 +1750,8 @@ function createTitleDropDown() {
 		props.forEach((prop) => {
 			makeTitleDropDownEntry(recentMaps[prop], prop)
 		});
+		makeTitleDropDownEntry('New map', '*new*')
 	}
-	makeTitleDropDownEntry('New map', '*new*')
 
 	function makeTitleDropDownEntry(name, room) {
 		let li = document.createElement('li');
