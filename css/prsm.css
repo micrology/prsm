@@ -1576,6 +1576,8 @@ div.resize {
 	text-align: center;
 	font-size: 10px;
 	z-index: 6000;
+	cursor: default;
+	user-select: none;
 }
 .ghost-factor {
 	position: absolute;

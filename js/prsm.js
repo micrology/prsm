@@ -702,7 +702,7 @@ function draw() {
 					return;
 				}
 				if (duplEdge(item.from, item.to).length > 0) {
-					alert('There is already a link from this Factor to the other.');
+					statusMsg('There is already a link from this Factor to the other.', 'error');
 					callback(null);
 					stopEdit();
 					return;
@@ -1985,6 +1985,7 @@ function plusLink() {
 		case 'addLink':
 			showPressed('addLink', 'remove');
 			stopEdit();
+			clearStatusBar();
 			break;
 		case 'addNode':
 			showPressed('addNode', 'remove');
@@ -1995,6 +1996,7 @@ function plusLink() {
 			inAddMode = 'addLink';
 			showPressed('addLink', 'add');
 			unSelect();
+			statusMsg('Now drag from the middle of the Source factor to the middle of the Destination factor')
 			network.setOptions({
 				interaction: {dragView: false, selectable: false},
 			});
