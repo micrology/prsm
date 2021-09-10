@@ -2022,11 +2022,13 @@ function showPressed(el, action) {
 }
 
 function undo() {
+	if (buttonIsDisabled('undo')) return;
 	unSelect();
 	yUndoManager.undo();
 }
 
 function redo() {
+	if (buttonIsDisabled('redo')) return;
 	unSelect();
 	yUndoManager.redo();
 }
@@ -2035,7 +2037,14 @@ function undoRedoButtonStatus() {
 	setButtonDisabledStatus('undo', yUndoManager.undoStack.length === 0);
 	setButtonDisabledStatus('redo', yUndoManager.redoStack.length === 0);
 }
-
+/**
+ * Returns true if the button is not disabled
+ * @param {String} id 
+ * @returns Boolean
+ */
+function buttonIsDisabled(id) {
+	return elem(id).classList.contains('disabled')
+}
 /**
  * Change the visible state of a button
  * @param {String} id
@@ -3181,6 +3190,7 @@ function toggleDrawingLayer() {
 		inAddMode = false;
 		setButtonDisabledStatus('addNode', false);
 		setButtonDisabledStatus('addLink', false);
+		undoRedoButtonStatus();
 		changeCursor('default');
 	} else {
 		// expose drawing layer
@@ -3195,6 +3205,8 @@ function toggleDrawingLayer() {
 		inAddMode = 'disabled';
 		setButtonDisabledStatus('addNode', true);
 		setButtonDisabledStatus('addLink', true);
+		setButtonDisabledStatus('undo', true);
+		setButtonDisabledStatus('redo', true);
 	}
 	drawingSwitch = !drawingSwitch;
 	network.redraw();

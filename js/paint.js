@@ -321,7 +321,7 @@ class LineHandler extends ToolHandler {
 		box.innerHTML = `
 	<div>Line width</div><div><input id="lineWidth" type="text" size="2"></div>
 	<div>Colour</div><div><input id="lineColour" type="color"></div>
-	<div>Axes</div><div><input type="checkbox" id="axes"></div>`;
+	<div>Vert/Horiz</div><div><input type="checkbox" id="axes"></div>`;
 		let widthInput = document.getElementById('lineWidth');
 		widthInput.value = this.lineWidth;
 		widthInput.addEventListener('change', () => {
