@@ -188,6 +188,7 @@ export function object_equals(x, y) {
 
 	return true;
 }
+window.object_equals = object_equals;
 /**
  * return a copy of an object, with the properties in the object propsToRemove removed
  * @param {Object} source

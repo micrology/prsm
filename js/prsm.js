@@ -3907,6 +3907,7 @@ function openOtherDoc(room) {
 		}
 		bEdges.update(edgesToUpdate, origin);
 	});
+	return bdata;
 }
 window.openOtherDoc = openOtherDoc;
 
@@ -4009,3 +4010,60 @@ function mergeRoom(room) {
 }
 window.mergeRoom = mergeRoom;
 window.bdata = bdata;
+
+/**
+ * Print to console the differences between the given map and the current map
+ * @param {Dataset} nodeList 
+ * @param {DataSet} edgeList 
+ */
+function diffMaps(nodeList, edgeList) {
+	nodeList.forEach((BNode) => {
+		// for each node in the other map
+		let ANode = data.nodes.get(BNode.id); // see whether there is a node in this map with the same id
+		if (ANode) {
+			// if there is, check whether the label is the same
+			if (ANode.label != BNode.label) {
+				console.log(
+					`Existing Factor label: ${ANode.label} does not match new label: ${BNode.label}.`
+				);
+
+			} else if (ANode.grp != BNode.grp)
+				// label is the same, but style is not - just report this
+				console.log(
+					`Existing style: ${ANode.grp} does not match new style: ${BNode.grp} for Factor: ${ANode.label}. `
+				);
+		} else {
+			// the node is on the other map, but not on this one - add it.
+			console.log(`New Factor: ${BNode.label} not in existing map`);
+		}
+	});
+	// now check that all nodes in the existing map are also in the other map
+	data.nodes.forEach((ANode) => {
+		if (!nodeList.some((BNode) => BNode.id == ANode.id)) console.log(`Existing factor: ${ANode.label} not in other map`);
+	})
+
+		// now deal with the other map's edges
+		edgeList.forEach((BEdge) => {
+		let AEdge = data.edges.get(BEdge.id);
+		let edgeName = BEdge.label || `from ${bdata.nodes.get(BEdge.from).label} to ${bdata.nodes.get(BEdge.to).label}`;
+		if (AEdge) {
+			if (AEdge.label != BEdge.label)
+				console.log(
+					`Existing Link label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}.  `
+				);
+			else if (AEdge.grp != BEdge.grp)
+				logHistory(
+					`Existing Link style: ${AEdge.grp} does not match new style: ${BEdge.grp} for edge ${edgeName}. `
+				);
+		} else {
+			logHistory(`Existing map does not include Link: ${edgeName}`);
+		}
+	});
+}
+function diffRoom(room) {
+	openOtherDoc(room);
+	bwsp.on('sync', () => {
+		diffMaps(bdata.nodes.get(), bdata.edges.get());
+	});
+}
+window.diffRoom = diffRoom;
