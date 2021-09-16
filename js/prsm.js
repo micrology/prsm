@@ -712,7 +712,7 @@ function draw() {
 				item.created = timestamp();
 				clearStatusBar();
 				callback(item);
-				logHistory(`added link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`);
+				logHistory(`added link from '${data.nodes.get(item.from).label}' to '${data.nodes.get(item.to).label}'`);
 			},
 			editEdge: {
 				editWithoutDrag: function (item, callback) {
@@ -744,22 +744,22 @@ function draw() {
 				});
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${
+						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
 							data.nodes.get(data.edges.get(edgeId).to).label
-						}`
+						}'`
 					);
 				});
 				item.nodes.forEach((nodeId) => {
-					logHistory(`deleted factor: ${data.nodes.get(nodeId).label}`);
+					logHistory(`deleted factor: '${data.nodes.get(nodeId).label}'`);
 				});
 				callback(item);
 			},
 			deleteEdge: function (item, callback) {
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${
+						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
 							data.nodes.get(data.edges.get(edgeId).to).label
-						}`
+						}'`
 					);
 				});
 				callback(item);
@@ -1510,7 +1510,7 @@ function saveLabel(node, callback) {
 	}
 	network.manipulation.inMode = 'addNode'; // ensure still in Add mode, in case others have done something meanwhile
 	callback(node);
-	logHistory(`added factor ${node.label}`);
+	logHistory(`added factor '${node.label}'`);
 }
 /**
  * save the node format details that have been edited
@@ -1538,8 +1538,8 @@ function saveNode(item, callback) {
 	item.borderWidth = borderType == 'none' ? 0 : 4;
 	item.shapeProperties.borderDashes = convertDashes(borderType);
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
-	if (item.label == item.oldLabel) logHistory(`edited factor : ${item.label}`);
-	else logHistory(`edited factor, changing label from ${item.oldLabel} to ${item.label}`);
+	if (item.label == item.oldLabel) logHistory(`edited factor: '${item.label}'`);
+	else logHistory(`edited factor, changing label from '${item.oldLabel}' to '${item.label}`);
 	unlockNode(item);
 	callback(item);
 }
@@ -1606,7 +1606,7 @@ function saveEdge(item, callback) {
 	// vis-network silently deselects all edges in the callback (why?).  So we have to mark this edge as unselected in preparation
 	clearStatusBar();
 	callback(item);
-	logHistory(`edited link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`);
+	logHistory(`edited link from '${data.nodes.get(item.from).label}' to '${data.nodes.get(item.to).label}'`);
 }
 /**
  * Convert from the menu selection to the CSS format of the edge
@@ -1861,15 +1861,23 @@ function listLinks(links) {
 	return '1 link';
 }
 /**
- * show the nodes and links selected in the status bar
+ * returns string of currently selected labels of links and factors, nicely formatted
+ * @returns {String} string of labels of links and factors, nicely formatted
  */
-function showSelected() {
+function selectedLabels() {
 	let selectedNodes = network.getSelectedNodes();
 	let selectedEdges = network.getSelectedEdges();
 	let msg = '';
 	if (selectedNodes.length > 0) msg = listFactors(selectedNodes);
 	if (selectedNodes.length > 0 && selectedEdges.length > 0) msg += ' and ';
 	if (selectedEdges.length > 0) msg += listLinks(selectedEdges);
+	return msg;
+}
+/**
+ * show the nodes and links selected in the status bar
+ */
+function showSelected() {
+	let msg = selectedLabels();
 	if (msg.length > 0) statusMsg(msg + ' selected');
 }
 /* zoom slider */
@@ -2025,12 +2033,14 @@ function undo() {
 	if (buttonIsDisabled('undo')) return;
 	unSelect();
 	yUndoManager.undo();
+	logHistory('undid last action');
 }
 
 function redo() {
 	if (buttonIsDisabled('redo')) return;
 	unSelect();
 	yUndoManager.redo();
+	logHistory('redid last action');
 }
 
 function undoRedoButtonStatus() {
@@ -3607,7 +3617,12 @@ function showHistory() {
 		.toArray()
 		.map((rec) => formatLogRec(rec))
 		.join(' ');
-	log.scrollTop = log.scrollHeight;
+	let logWrapper = elem('history-log-wrapper');
+	logWrapper.scrollTo({
+        top: logWrapper.scrollHeight,
+        left: 0,
+        behavior: 'auto'
+    });
 }
 /**
  * return a DOM element with the data in rec formatted
@@ -3922,7 +3937,7 @@ function mergeMaps(nodeList, edgeList) {
 			if (ANode.label != BNode.label) {
 				// if not, make a clone of the other node with a new id
 				logHistory(
-					`Existing Factor label: ${ANode.label} does not match new label: ${BNode.label}. Factor with new label added.`,
+					`Existing Factor label: '${ANode.label}' does not match new label: '${BNode.label}'. Factor with new label added.`,
 					'Merge'
 				);
 				// generate a new id for BNode.  change border to dashed red.  Add it to the map
@@ -3942,13 +3957,13 @@ function mergeMaps(nodeList, edgeList) {
 			} else if (ANode.grp != BNode.grp)
 				// label is the same, but style is not - just report this
 				logHistory(
-					`Existing style: ${ANode.grp} does not match new style: ${BNode.grp} for Factor: ${ANode.label}. Existing style retained.`,
+					`Existing style: '${ANode.grp}' does not match new style: '${BNode.grp}' for Factor: '${ANode.label}. Existing style retained.`,
 					'Merge'
 				);
 		} else {
 			// the node is on the other map, but not on this one - add it.
 			data.nodes.add(BNode);
-			logHistory(`Added new Factor: ${BNode.label}`, 'Merge');
+			logHistory(`Added new Factor: '${BNode.label}'`, 'Merge');
 		}
 	});
 
@@ -3986,17 +4001,17 @@ function mergeMaps(nodeList, edgeList) {
 		if (AEdge) {
 			if (AEdge.label != BEdge.label)
 				logHistory(
-					`Existing Link label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}.  Existing label retained.`,
+					`Existing Link label: \n'${AEdge.label}' \ndoes not match new label: \n'${BEdge.label}'.  Existing label retained.`,
 					'Merge'
 				);
 			else if (AEdge.grp != BEdge.grp)
 				logHistory(
-					`Existing Link style: ${AEdge.grp} does not match new style: ${BEdge.grp} for edge ${edgeName}. Existing style retained.`,
+					`Existing Link style: '${AEdge.grp}' does not match new style: '${BEdge.grp}' for link '${edgeName}'. Existing style retained.`,
 					'Merge'
 				);
 		} else {
 			data.edges.add(BEdge);
-			logHistory(`Added new Link: ${edgeName}`, 'Merge');
+			logHistory(`Added new Link: '${edgeName}'`, 'Merge');
 		}
 	});
 }
@@ -4053,10 +4068,10 @@ function diffMaps(nodeList, edgeList) {
 				);
 			else if (AEdge.grp != BEdge.grp)
 				logHistory(
-					`Existing Link style: ${AEdge.grp} does not match new style: ${BEdge.grp} for edge ${edgeName}. `
+					`Existing Link style: '${AEdge.grp}' does not match new style: '${BEdge.grp}' for link '${edgeName}'. `
 				);
 		} else {
-			logHistory(`Existing map does not include Link: ${edgeName}`);
+			logHistory(`Existing map does not include Link: '${edgeName}'`);
 		}
 	});
 }
