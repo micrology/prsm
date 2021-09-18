@@ -116,6 +116,9 @@ window.onbeforeunload = function (event) {
  * Set up all the permanent event listeners
  */
 function addEventListeners() {
+  listen('maptitle', 'focus', function() { inEditMode = true; })
+  listen('maptitle', 'blur', function() { inEditMode = false; })
+
 	listen('maptitle', 'keydown', (e) => {
 		//disallow Enter key
 		if (e.key === 'Enter') {
@@ -191,6 +194,14 @@ function addEventListeners() {
 	);
 	listen('container', 'copy', copyToClipboard);
 	listen('container', 'paste', pasteFromClipboard);
+
+  // Hotkeys
+  window.addEventListener("keydown", (e) => {
+    if (!inEditMode ) {
+      if (e.key === 'n') plusNode();
+      if (e.key === 'e') plusLink(); // e is for 'edge'
+    }
+  });
 }
 
 /**
