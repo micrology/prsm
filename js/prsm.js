@@ -200,6 +200,7 @@ function addEventListeners() {
     if (!inEditMode ) {
       if (e.key === 'n') plusNode();
       if (e.key === 'e') plusLink(); // e is for 'edge'
+      if (e.key === 'l') plusLink(); // e is for 'link'
     }
   });
 }
