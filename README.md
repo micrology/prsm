@@ -61,6 +61,14 @@ and build the distribution with
 npm run build
 ```
 
+The Apache2 `headers` module must be enabled. If the installation isn't visible in your browser this is likely the cause.
+Enabling the module is simple on Debian/Ubuntu systems:
+
+```bash
+sudo a2enmod headers
+systemctl restart apache2
+```
+
 Documentation can be found in the ```doc``` directory.
 
 See ```package.json``` for other npm commands.
