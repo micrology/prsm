@@ -33,6 +33,7 @@ import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
 import {EmojiButton} from '@joeattardi/emoji-button';
 import Quill from 'quill';
+import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html';
 import Hammer from '@egjs/hammerjs';
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
@@ -2621,7 +2622,8 @@ function exportCVS() {
 		str += ',' + node.grp + ',';
 		if (node.note) {
 			qed.setContents(node.note);
-			str += '"' + qed.getText(0).replaceAll('\n', ' ') + '"';
+			// convert Quill formatted note to HTML, escaping all "
+			str += '"' + new QuillDeltaToHtmlConverter(qed.getContents().ops).convert().replaceAll('"', '""') + '"';
 		}
 		str += '\n';
 	}
