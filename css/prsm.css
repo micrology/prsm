@@ -1447,13 +1447,15 @@ div.resize {
 	border: green 4px solid;
 }
 .tutorial-dialog.wide {
-	width: 500px;
+	width: 50%;
+  min-width: 500px;
 }
 .tutorial-dialog .text {
 	grid-column: 1 / span 2;
 	grid-row: 2;
 	padding: 10px;
 	text-align: center;
+  width: 100%;
 }
 .tutorial-dialog .x-button {
 	position: absolute;
@@ -1563,7 +1565,33 @@ div.resize {
 	z-index: 3000;
 	background-color: rgba(0, 0, 0, 0.3);
 }
-/* magnifier */
+#shortcuts {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  grid-column-gap: 15px;
+  grid-row-gap: 3px;
+  padding: 0 15px;
+  margin-top: -20px;
+}
+#shortcuts .doublecol {
+  grid-column: 1/span 2;
+  margin-bottom: 10px;
+}
+#shortcuts div {
+  text-align: left;
+}
+#shortcuts div:nth-child(2n) {
+  font-weight: bold;
+}
+#shortcuts kbd {
+  border: 1px solid;
+  box-shadow: 0 1px 1px grey;
+  border-color: #ddd #aaa #aaa;
+  display: inline-block;
+  padding: 0 3px;
+  border-radius: 3px;
+}
+/* ---------------------------- Magnifier --------------------------------*/
 .magnifier {
 	display: none;
 	position: absolute;
