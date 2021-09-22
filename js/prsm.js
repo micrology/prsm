@@ -927,7 +927,7 @@ function draw() {
 			showSelected();
 			return;
 		}
-
+		console.log(params.nodes);
 		let newPositions = network.getPositions(params.nodes);
 		data.nodes.update(
 			data.nodes.get(params.nodes).map((n) => {
@@ -2623,7 +2623,7 @@ function exportCVS() {
 		if (node.note) {
 			qed.setContents(node.note);
 			// convert Quill formatted note to HTML, escaping all "
-			str += '"' + new QuillDeltaToHtmlConverter(qed.getContents().ops).convert().replaceAll('"', '""') + '"';
+			str += '"' + new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert().replaceAll('"', '""') + '"';
 		}
 		str += '\n';
 	}
@@ -2638,7 +2638,8 @@ function exportCVS() {
 		str += ',' + edge.grp + ',';
 		if (edge.note) {
 			qed.setContents(edge.note);
-			str += '"' + qed.getText(0).replaceAll('\n', ' ') + '"';
+			// convert Quill formatted note to HTML, escaping all "
+			str += '"' + new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert().replaceAll('"', '""') + '"';
 		}
 		str += '\n';
 	}
