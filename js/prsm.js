@@ -1242,6 +1242,11 @@ function addLabel(item, cancelAction, callback) {
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback);
 	let pos = {x: event.offsetX, y: event.offsetY};
 	positionPopUp(pos);
+	let factorCursor = elem('factor-cursor');
+	if (factorCursor) {
+		factorCursor.remove();
+		clearStatusBar();
+	}
 	ghostFactor(pos);
 	elem('popup-label').focus();
 }
@@ -1978,11 +1983,26 @@ function plusNode() {
 			// false
 			network.unselectAll();
 			changeCursor('cell');
+			ghostCursor();
 			inAddMode = 'addNode';
 			showPressed('addNode', 'add');
 			unSelect();
+			statusMsg('Click on the map to add a factor');
 			network.addNodeMode();
 	}
+}
+
+function ghostCursor() {
+	const box = document.createElement('div');
+	box.classList.add('ghost-factor', 'factor-cursor');
+	box.id = 'factor-cursor';
+	document.body.appendChild(box);
+	const boxWidth = box.offsetWidth;
+	const boxHalfHeight = box.offsetHeight / 2;
+	document.addEventListener("mousemove", (event) => {
+	  box.style.left = event.pageX - boxWidth +'px';
+	  box.style.top = event.pageY - boxHalfHeight + 'px';
+	});
 }
 /**
  * react to the user pressing the Add Link button
