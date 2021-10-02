@@ -1066,10 +1066,10 @@ function DOMtoCanvasY(y) {
 export function redraw(netctx) {
 	drawHelper.clear(tempctx);
 	netctx.save();
-	if (drawingSwitch) drawGrid(netctx);
 	yPointsArray.forEach((point) => {
 		drawHelper[point[0]](netctx, point[1], point[2]);
 	});
+	if (drawingSwitch) drawGrid(netctx);
 	netctx.restore();
 }
 
@@ -1096,6 +1096,7 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
 function drawGrid(netctx) {
 	let netPane = document.getElementById('net-pane');
 	netctx.save();
+	netctx.lineWidth = 1;
 	netctx.strokeStyle = 'rgba(211, 211, 211, 0.8)'; //'lightgrey';
 	netctx.beginPath();
 	for (let x = DOMtoCanvasX(0); x <= DOMtoCanvasX(2 * netPane.offsetWidth); x += GRIDSPACING) {

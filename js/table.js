@@ -4,6 +4,8 @@ import {IndexeddbPersistence} from 'y-indexeddb';
 import {listen, elem, deepCopy, deepMerge, timeAndDate} from './utils.js';
 import Tabulator from 'tabulator-tables';
 import {version} from '../package.json';
+import Quill from 'quill';
+import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html';
 
 const shortAppName = 'PRSM';
 
@@ -11,7 +13,7 @@ var debug = [];
 window.debug = debug;
 var room;
 const doc = new Y.Doc();
-var websocket = 'wss://cress.soc.surrey.ac.uk/wss'; // web socket server URL
+var websocket = 'wss://www.prsm.uk/wss'; // web socket server URL
 var clientID; // unique ID for this browser
 var yNodesMap; // shared map of nodes
 var yEdgesMap; // shared map of edges
@@ -25,9 +27,11 @@ var initialising = true; // true until the tables have been loaded
 var nAttributes = 0; // number of attributes
 var attributeTitles = {}; // titles of each of the attributes
 var myNameRec; // my name etc.
+var qed; // Quill editor
 
 window.addEventListener('load', () => {
 	elem('version').innerHTML = version;
+	qed = new Quill('#notes-div');
 	setUpTabs();
 	setUpShareDialog();
 	startY();
@@ -314,8 +318,10 @@ function initialiseFactorTable() {
 	});
 	factorsTable = new Tabulator('#factors-table', {
 		data: tabledata, //assign data to table
-		layout: 'fitDataTable',
+//		layout: 'fitDataTable',
+		layoutColumnsOnNewData:true,
 		height: window.innerHeight - 180,
+		virtualDomHoz:true,
 		clipboard: true,
 		clipboardCopyConfig: {
 			columnHeaders: true, //do not include column headers in clipboard output
@@ -371,7 +377,7 @@ function initialiseFactorTable() {
 						title: 'Shape',
 						field: 'shape',
 						editor: 'select',
-						editorParams: {values: {box: 'box', ellipse: 'ellipse', circle: 'disk', text: 'none'}},
+						editorParams: {values: {box: 'box', ellipse: 'ellipse', circle: 'circle', text: 'none'}},
 					},
 					{
 						title: `Hidden&nbsp;
@@ -502,6 +508,24 @@ function initialiseFactorTable() {
 					},
 				],
 			},
+			{
+				title: 'Notes',
+				columns: [
+				{
+					field: 'note',
+					minWidth: 200,
+					editor: quillEditor,
+					formatter: quillFormatter,
+					},
+				]
+			},
+			{
+				title: 'Other attributes',
+				columns: [{
+					title: 'xxx',
+					field: 'xxx'
+				}]
+			}
 		],
 	});
 	// add all the user defined attribute columns
@@ -608,6 +632,60 @@ function svg(icon) {
 	  </svg>`;
 	}
 }
+function quillFormatter(cell) {
+	let note = cell.getValue();
+	if (note) {
+		qed.setContents(note);
+		return new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert();
+	}
+	return '';
+}
+
+function quillEditor(cell, onRendered, success) {
+	let pane = document.createElement('div');
+	pane.className = 'quill-pane';
+	elem('container').appendChild(pane);
+	let element = document.createElement('div');
+	pane.appendChild(element);
+	let editor = new Quill(element, {
+		modules: {
+			toolbar: [
+				'bold',
+				'italic',
+				'underline',
+				'link',
+				{list: 'ordered'},
+				{list: 'bullet'},
+				{indent: '-1'},
+				{indent: '+1'},
+			],
+		},
+		placeholder: 'Notes',
+		theme: 'snow',
+		bounds: element
+	});
+	let note = cell.getValue();
+	if (note) {
+		if (note instanceof Object) editor.setContents(note);
+		else editor.setText(note);
+	} else editor.setText('');
+	editor.on('selection-change', range => {
+		if (!range) {
+			finish(cell);
+		}
+	})
+	editor.focus();
+	let placeholder = document.createElement('div');
+	placeholder.className = 'quill-placeholder';
+	return placeholder;
+
+	function finish(cell) {
+		factorsTable.modules.edit.currentCell = cell._cell;
+		success(editor.getContents());
+		pane.remove();
+	}
+}
+
 /**
  * spread some deep values to the top level to suit the requirements of the Tabulator package better
  * NB: any such converted values cannot then be edited without special attention (in updateEdgeCellData)
@@ -626,7 +704,7 @@ function convertNode(node) {
 	for (let prop in conversions) {
 		n[prop] = n[conversions[prop][0]][conversions[prop][1]];
 	}
-	n.size = n.scaling.label.enabled && n.value != undefined ? parseFloat(n.value).toPrecision(3) : '--';
+	n.size = n.scaling.label.enabled && n.value != undefined && !isNaN(n.value) ? parseFloat(n.value).toPrecision(3) : '--';
 	if (n.groupLabel == 'Sample') n.groupLabel = '--';
 	n.borderStyle = n.shapeProperties.borderDashes;
 	if (n.borderWidth == 0) n.borderStyle = 'None';
@@ -1126,6 +1204,7 @@ function setUpFilter() {
 		return;
 	}
 	filterDisplayed = true;
+	filterDiv.style.display = 'block';
 	let select = document.createElement('select');
 	select.id = 'filter-field';
 	let i = 0;
@@ -1180,6 +1259,7 @@ function closeFilter() {
 	elem('filter-dialog').innerHTML = '';
 	openTable.clearFilter();
 	filterDisplayed = false;
+	elem('filter-dialog').style.display = 'none';
 }
 
 listen('copy', 'click', copyTable);
