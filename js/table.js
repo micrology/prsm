@@ -519,13 +519,6 @@ function initialiseFactorTable() {
 					},
 				]
 			},
-			{
-				title: 'Other attributes',
-				columns: [{
-					title: 'xxx',
-					field: 'xxx'
-				}]
-			}
 		],
 	});
 	// add all the user defined attribute columns
@@ -937,6 +930,17 @@ function initialiseLinkTable() {
 						headerVertical: true,
 					},
 				],
+			},
+			{
+				title: 'Notes',
+				columns: [
+				{
+					field: 'note',
+					minWidth: 200,
+					editor: quillEditor,
+					formatter: quillFormatter,
+					},
+				]
 			},
 		],
 	});

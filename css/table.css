@@ -41,7 +41,9 @@
 	height: 58px;
 	font-weight: bold;
     font-size: 16px;
-    border: 1px solid #ccc;
+ 	border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
 }
 .table-tabs button.active {
 	background-color: #ccc;
