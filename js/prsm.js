@@ -1992,6 +1992,8 @@ function plusNode() {
  * show a box attached to the cursor to guide where the Factor will be placed when the user clicks.
  */
 function ghostCursor() {
+	// no ghost cursor if the hardware only supports touch
+	if (!window.matchMedia("(any-hover: hover)").matches) return;
 	const box = document.createElement('div');
 	box.classList.add('ghost-factor', 'factor-cursor');
 	box.id = 'factor-cursor';
@@ -2012,8 +2014,8 @@ function removeFactorCursor() {
 	let factorCursor = elem('factor-cursor');
 	if (factorCursor) {
 		factorCursor.remove();
-		clearStatusBar();
 	}
+	clearStatusBar();
 }
 /**
  * react to the user pressing the Add Link button
