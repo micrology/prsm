@@ -1242,11 +1242,7 @@ function addLabel(item, cancelAction, callback) {
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback);
 	let pos = {x: event.offsetX, y: event.offsetY};
 	positionPopUp(pos);
-	let factorCursor = elem('factor-cursor');
-	if (factorCursor) {
-		factorCursor.remove();
-		clearStatusBar();
-	}
+	removeFactorCursor();
 	ghostFactor(pos);
 	elem('popup-label').focus();
 }
@@ -1973,6 +1969,7 @@ function plusNode() {
 		case 'disabled':
 			return;
 		case 'addNode':
+			removeFactorCursor();
 			showPressed('addNode', 'remove');
 			stopEdit();
 			break;
@@ -1991,7 +1988,9 @@ function plusNode() {
 			network.addNodeMode();
 	}
 }
-
+/**
+ * show a box attached to the cursor to guide where the Factor will be placed when the user clicks.
+ */
 function ghostCursor() {
 	const box = document.createElement('div');
 	box.classList.add('ghost-factor', 'factor-cursor');
@@ -1999,10 +1998,22 @@ function ghostCursor() {
 	document.body.appendChild(box);
 	const boxWidth = box.offsetWidth;
 	const boxHalfHeight = box.offsetHeight / 2;
-	document.addEventListener("mousemove", (event) => {
-	  box.style.left = event.pageX - boxWidth +'px';
-	  box.style.top = event.pageY - boxHalfHeight + 'px';
+	box.style.left = event.pageX - boxWidth + 'px';
+	box.style.top = event.pageY - boxHalfHeight + 'px';
+	document.addEventListener('pointermove', (event) => {
+		box.style.left = event.pageX - boxWidth + 'px';
+		box.style.top = event.pageY - boxHalfHeight + 'px';
 	});
+}
+/**
+ * remove the factor cursor if it exists
+ */
+function removeFactorCursor() {
+	let factorCursor = elem('factor-cursor');
+	if (factorCursor) {
+		factorCursor.remove();
+		clearStatusBar();
+	}
 }
 /**
  * react to the user pressing the Add Link button
@@ -2643,7 +2654,12 @@ function exportCVS() {
 		if (node.note) {
 			qed.setContents(node.note);
 			// convert Quill formatted note to HTML, escaping all "
-			str += '"' + new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert().replaceAll('"', '""') + '"';
+			str +=
+				'"' +
+				new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true})
+					.convert()
+					.replaceAll('"', '""') +
+				'"';
 		}
 		str += '\n';
 	}
@@ -2659,7 +2675,12 @@ function exportCVS() {
 		if (edge.note) {
 			qed.setContents(edge.note);
 			// convert Quill formatted note to HTML, escaping all "
-			str += '"' + new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert().replaceAll('"', '""') + '"';
+			str +=
+				'"' +
+				new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true})
+					.convert()
+					.replaceAll('"', '""') +
+				'"';
 		}
 		str += '\n';
 	}

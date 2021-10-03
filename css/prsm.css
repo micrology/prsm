@@ -1614,14 +1614,14 @@ div.resize {
 		max-width: 100%;
 	}
 	main {
-		height: calc(100vh - 130px);
+		height: calc(100vh - 200px);
 	}
 	header {
-		height: 90px;
+		height: 101px;
 	}
 	nav {
 		display: grid;
-		height: 95px;
+		height: 100px;
 		grid-template-columns: 1fr;
 		padding: 0;
 	}
@@ -1704,7 +1704,7 @@ div.resize {
 	nav button {
 		margin: auto 0;
 		font-size: 9px;
-		padding: 3px;
+		padding: 0;
 	}
 	input[type='range'] {
 		width: 40px;

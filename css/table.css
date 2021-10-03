@@ -18,7 +18,7 @@
     overflow: hidden;
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 80px 64px 1fr;
+    grid-template-rows: 80px 48px 1fr;
     grid-template-areas:
         'header'
         'main'
@@ -38,7 +38,7 @@
 	padding: 14px 36px;
 	border-radius: 4px 4px 0 0;
 	width: 8em;
-	height: 58px;
+	height: 40px;
 	font-weight: bold;
     font-size: 16px;
  	border-top: 1px solid #ccc;
