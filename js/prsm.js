@@ -840,6 +840,7 @@ function draw() {
 		if (window.debug.includes('gui')) console.log('selectNode');
 		showSelected();
 		showNodeOrEdgeData();
+		if (getRadioVal('hide') !== 'All' || getRadioVal('stream') !== 'All') hideDistantOrStreamNodes();
 	});
 	network.on('deselectNode', function () {
 		if (window.debug.includes('gui')) console.log('deselectNode');
@@ -927,7 +928,6 @@ function draw() {
 			showSelected();
 			return;
 		}
-		console.log(params.nodes);
 		let newPositions = network.getPositions(params.nodes);
 		data.nodes.update(
 			data.nodes.get(params.nodes).map((n) => {
@@ -3186,11 +3186,8 @@ function snapToGridSwitch(e) {
 function doSnapToGrid(toggle) {
 	elem('snaptogridswitch').checked = toggle;
 	if (toggle) {
-		let positions = network.getPositions();
 		data.nodes.update(
 			data.nodes.get().map((n) => {
-				n.x = positions[n.id].x;
-				n.y = positions[n.id].y;
 				snapToGrid(n);
 				return n;
 			})
@@ -3334,7 +3331,7 @@ function hideDistantOrStreamNodes(broadcast = true) {
 	}
 	let selectedNodes = network.getSelectedNodes();
 	if (selectedNodes.length == 0) {
-		statusMsg('Select a Factor first', 'error');
+		statusMsg('A Factor needs to be selected', 'warning');
 		// unhide everything
 		elem('hideAll').checked = true;
 		elem('streamAll').checked = true;
@@ -3380,11 +3377,11 @@ function hideDistantOrStreamNodes(broadcast = true) {
 		// recursive function to collect nodes within radius links from any
 		// of the nodes listed in nodeIds
 		if (radius < 0) return;
-		nodeIds.forEach(function (nId) {
+		nodeIds.forEach((nId) => {
 			nodeIdsInRadiusSet.add(nId);
 			let links = network.getConnectedEdges(nId);
 			if (links && radius >= 0)
-				links.forEach(function (lId) {
+				links.forEach((lId) => {
 					linkIdsInRadiusSet.add(lId);
 				});
 			let linked = network.getConnectedNodes(nId);
@@ -3393,8 +3390,7 @@ function hideDistantOrStreamNodes(broadcast = true) {
 	}
 
 	function upstream(q, radius) {
-		let distance = 0;
-		q.forEach((nId) => nodeMap.set(nId, distance));
+		q.forEach((nId) => nodeMap.set(nId, 0));
 		while (q.length > 0) {
 			let nId = q.shift();
 			if (nodeMap.get(nId) < radius) {
@@ -3403,10 +3399,9 @@ function hideDistantOrStreamNodes(broadcast = true) {
 						return item.to == nId;
 					},
 				});
-				distance++;
 				links.forEach((link) => {
 					if (!nodeMap.has(link.from)) {
-						nodeMap.set(link.from, distance);
+						nodeMap.set(link.from, nodeMap.get(nId) + 1);
 						q.push(link.from);
 					}
 				});
@@ -3426,8 +3421,7 @@ function hideDistantOrStreamNodes(broadcast = true) {
 	}
 
 	function downstream(q, radius) {
-		let distance = 0;
-		q.forEach((nId) => nodeMap.set(nId, distance));
+		q.forEach((nId) => nodeMap.set(nId, 0));
 		while (q.length > 0) {
 			let nId = q.shift();
 			if (nodeMap.get(nId) < radius) {
@@ -3436,10 +3430,9 @@ function hideDistantOrStreamNodes(broadcast = true) {
 						return item.from == nId;
 					},
 				});
-				distance++;
 				links.forEach((link) => {
 					if (!nodeMap.has(link.to)) {
-						nodeMap.set(link.to, distance);
+						nodeMap.set(link.to, nodeMap.get(nId) + 1);
 						q.push(link.to);
 					}
 				});
@@ -3447,7 +3440,7 @@ function hideDistantOrStreamNodes(broadcast = true) {
 		}
 		addAllLinks();
 	}
-
+	
 	function showAll() {
 		let nodes = data.nodes.get({
 			filter: function (node) {
