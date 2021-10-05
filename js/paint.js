@@ -82,7 +82,7 @@ function setUpCanvas(id) {
  */
 function getContext(canvas) {
 	let ctx = canvas.getContext('2d');
-	ctx.scale(dpr, dpr);
+//	ctx.scale(dpr, dpr);
 	ctx.lineWidth = defaultOptions.lineWidth;
 	ctx.strokeStyle = defaultOptions.strokeStyle;
 	ctx.fillStyle = defaultOptions.fillstyle;
@@ -228,10 +228,10 @@ class ToolHandler {
 	 * @param {event} e
 	 */
 	endPosition(e) {
-		this.endX = (e.offsetX * tempCanvas.width) / (dpr * tempCanvas.clientWidth);
+		this.endX = (e.offsetX * tempCanvas.width) / (2 * tempCanvas.clientWidth);
 		if (this.endX < 0) this.endX = 0;
 		if (this.endX > tempCanvas.offsetWidth) this.endX = tempCanvas.offsetWidth;
-		this.endY = (e.offsetY * tempCanvas.height) / (dpr * tempCanvas.clientHeight);
+		this.endY = (e.offsetY * tempCanvas.height) / (2 * tempCanvas.clientHeight);
 		if (this.endY < 0) this.endY = 0;
 		if (this.endY > tempCanvas.offsetHeight) this.endY = tempCanvas.offsetHeight;
 	}
@@ -1044,14 +1044,14 @@ function toolHandler(tool) {
 
 function DOMtoCanvasX(x) {
 	return (
-		((dpr * tempCanvas.clientWidth * x) / tempCanvas.width - network.body.view.translation.x) /
+		((2 * tempCanvas.clientWidth * x) / tempCanvas.width - network.body.view.translation.x) /
 		network.body.view.scale
 	);
 }
 
 function DOMtoCanvasY(y) {
 	return (
-		((dpr * tempCanvas.clientHeight * y) / tempCanvas.height - network.body.view.translation.y) /
+		((2 * tempCanvas.clientHeight * y) / tempCanvas.height - network.body.view.translation.y) /
 		network.body.view.scale
 	);
 }
