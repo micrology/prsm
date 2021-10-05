@@ -228,10 +228,10 @@ class ToolHandler {
 	 * @param {event} e
 	 */
 	endPosition(e) {
-		this.endX = (e.offsetX * tempCanvas.width) / (2 * tempCanvas.clientWidth);
+		this.endX = (e.offsetX * tempCanvas.width) / (dpr * tempCanvas.clientWidth);
 		if (this.endX < 0) this.endX = 0;
 		if (this.endX > tempCanvas.offsetWidth) this.endX = tempCanvas.offsetWidth;
-		this.endY = (e.offsetY * tempCanvas.height) / (2 * tempCanvas.clientHeight);
+		this.endY = (e.offsetY * tempCanvas.height) / (dpr * tempCanvas.clientHeight);
 		if (this.endY < 0) this.endY = 0;
 		if (this.endY > tempCanvas.offsetHeight) this.endY = tempCanvas.offsetHeight;
 	}
@@ -1044,14 +1044,14 @@ function toolHandler(tool) {
 
 function DOMtoCanvasX(x) {
 	return (
-		((2 * tempCanvas.clientWidth * x) / tempCanvas.width - network.body.view.translation.x) /
+		((dpr * tempCanvas.clientWidth * x) / tempCanvas.width - network.body.view.translation.x) /
 		network.body.view.scale
 	);
 }
 
 function DOMtoCanvasY(y) {
 	return (
-		((2 * tempCanvas.clientHeight * y) / tempCanvas.height - network.body.view.translation.y) /
+		((dpr * tempCanvas.clientHeight * y) / tempCanvas.height - network.body.view.translation.y) /
 		network.body.view.scale
 	);
 }
@@ -1099,12 +1099,12 @@ function drawGrid(netctx) {
 	netctx.lineWidth = 1;
 	netctx.strokeStyle = 'rgba(211, 211, 211, 0.8)'; //'lightgrey';
 	netctx.beginPath();
-	for (let x = DOMtoCanvasX(0); x <= DOMtoCanvasX(2 * netPane.offsetWidth); x += GRIDSPACING) {
+	for (let x = DOMtoCanvasX(0); x <= DOMtoCanvasX(dpr * netPane.offsetWidth); x += GRIDSPACING) {
 		// vertical grid lines
 		netctx.moveTo(x, DOMtoCanvasY(0));
 		netctx.lineTo(x, DOMtoCanvasY(2 * netPane.offsetHeight));
 	}
-	for (let y = DOMtoCanvasY(0); y <= DOMtoCanvasY(2 * netPane.offsetHeight); y += GRIDSPACING) {
+	for (let y = DOMtoCanvasY(0); y <= DOMtoCanvasY(dpr * netPane.offsetHeight); y += GRIDSPACING) {
 		// horizontal grid lines
 		netctx.moveTo(DOMtoCanvasX(0), y);
 		netctx.lineTo(DOMtoCanvasX(2 * netPane.offsetWidth), y);
@@ -1117,7 +1117,7 @@ let imageCache = new Map();
 let drawHelper = {
 	clear: function (ctx) {
 		// Use the identity matrix while clearing the canvas
-		ctx.setTransform(2, 0, 0, 2, 0, 0);
+		ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 	},
 	options: function (ctx, options) {
