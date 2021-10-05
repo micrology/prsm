@@ -1158,6 +1158,7 @@ let drawHelper = {
 		ctx.beginPath();
 		ctx.moveTo(startX, startY);
 		ctx.lineTo(endX, endY);
+		ctx.closePath();
 		ctx.stroke();
 	},
 	marker: function (ctx, [startX, startY, width]) {
