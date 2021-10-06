@@ -319,7 +319,7 @@ class LineHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('line');
 		box.innerHTML = `
-	<div>Line width</div><div><input id="lineWidth" type="text" size="2"></div>
+	<div>Line width</div><div><input id="lineWidth" type="number" min="0" max="99" size="2"></div>
 	<div>Colour</div><div><input id="lineColour" type="color"></div>
 	<div>Vert/Horiz</div><div><input type="checkbox" id="axes"></div>`;
 		let widthInput = document.getElementById('lineWidth');
@@ -399,7 +399,7 @@ class RectHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('rect');
 		box.innerHTML = `
-	<div>Border width</div><div><input id="borderWidth" type="text" size="2"></div>
+	<div>Border width</div><div><input id="borderWidth"  type="number" min="0" max="99" size="2"></div>
   <div>Border Colour</div><div><input id="borderColour" type="color"></div>
   <div>Fill Colour</div><div><input id="fillColour" type="color"></div>
   <div>Rounded</div><input type="checkbox" id="rounded"></div>`;
@@ -533,7 +533,7 @@ class TextHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('text');
 		box.innerHTML = `
-	<div>Size</div><div><input id="fontSize" type="text" size="2"></div>
+	<div>Size</div><div><input id="fontSize"  type="number" min="0" max="99" size="2"></div>
 	<div>Colour</div><div><input id="fontColor" type="color"></div>`;
 		let fontSizeInput = document.getElementById('fontSize');
 		fontSizeInput.value = parseInt(this.font);
@@ -643,7 +643,7 @@ class PencilHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('pencil');
 		box.innerHTML = `
-		<div>Width</div><div><input id="pencilWidth" type="text" size="2"></div>
+		<div>Width</div><div><input id="pencilWidth"  type="number" min="0" max="99" size="2"></div>
 		<div>Colour</div><div><input id="pencilColor" type="color"></div>`;
 		let widthInput = document.getElementById('pencilWidth');
 		widthInput.value = this.lineWidth;
@@ -699,7 +699,7 @@ class MarkerHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('marker');
 		box.innerHTML = `
-		<div>Width</div><div><input id="markerWidth" type="text" size="2"></div>
+		<div>Width</div><div><input id="markerWidth"  type="number" min="0" max="99" size="2"></div>
 		<div>Colour</div><div><input id="markerColor" type="color"></div>`;
 		let widthInput = document.getElementById('markerWidth');
 		widthInput.value = this.markerWidth;
@@ -774,7 +774,7 @@ class EraserHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('eraser');
 		box.innerHTML = `
-		<div>Width</div><div><input id="eraserWidth" type="text" size="2"></div>`;
+		<div>Width</div><div><input id="eraserWidth"  type="number" min="0" max="99" size="2"></div>`;
 		let widthInput = document.getElementById('eraserWidth');
 		widthInput.value = this.markerWidth;
 		widthInput.addEventListener('blur', () => {

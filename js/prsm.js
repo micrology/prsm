@@ -3918,3 +3918,5 @@ function showGhostFactor() {
 		}
 	});
 }
+
+  
