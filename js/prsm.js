@@ -3919,4 +3919,34 @@ function showGhostFactor() {
 	});
 }
 
-  
+function clusterByColor() {
+	// collect all factor background colours in use
+	let colours = new Set();
+	data,nodes.get().forEach((node) => colours.add())
+	var colors = ["orange", "lime", "DarkViolet"];
+	var clusterOptionsByData;
+	for (var i = 0; i < colors.length; i++) {
+	  var color = colors[i];
+	  clusterOptionsByData = {
+		joinCondition: function (childOptions) {
+		  return childOptions.color.background == color; // the color is fully defined in the node.
+		},
+		processProperties: function (clusterOptions, childNodes, childEdges) {
+		  var totalMass = 0;
+		  for (var i = 0; i < childNodes.length; i++) {
+			totalMass += childNodes[i].mass;
+		  }
+		  clusterOptions.mass = totalMass;
+		  return clusterOptions;
+		},
+		clusterNodeProperties: {
+		  id: "cluster:" + color,
+		  borderWidth: 3,
+		  shape: "database",
+		  color: color,
+		  label: "color:" + color,
+		},
+	  };
+	  network.cluster(clusterOptionsByData);
+	}
+  }

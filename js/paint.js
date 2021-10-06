@@ -868,6 +868,11 @@ class ImageHandler extends ToolHandler {
 	 *
 	 */
 	panstart(e) {
+		if (this.image == null) {
+			deselectTool();
+			this.isPanstart = false;
+			return;
+		}
 		super.panstart(e);
 		this.image.startLeft = this.image.left;
 		this.image.startTop = this.image.top;
@@ -947,6 +952,7 @@ class ImageHandler extends ToolHandler {
 			]);
 			underlay.style.cursor = 'auto';
 			super.panend();
+			this.image = null;
 			deselectTool();
 		} else {
 			if (this.resizing) {
