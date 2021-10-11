@@ -117,6 +117,17 @@ export const styles = {
 			},
 			shape: 'circle',
 		},
+		cluster: {
+			borderWidth: 3,
+			color: {
+				border: '#000000',
+				background: '#DD2C00',
+			},
+			font: {
+				color: '#ffffff',
+			},
+			shape: 'database',
+		}
 	},
 	edges: {
 		base: {
@@ -205,5 +216,12 @@ export const styles = {
 				color: '#000000',
 			},
 		},
+		cluster: {
+			color: {
+				color: '#8D6E63',
+			},
+			width: 3,
+			
+		}
 	},
 };

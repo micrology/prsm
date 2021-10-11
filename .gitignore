@@ -13,6 +13,7 @@ data
 .cache
 .parcel-cache/
 htaccess.bare
+.history
 
 # Compiled source #
 ###################

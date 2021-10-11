@@ -38,6 +38,7 @@ import Hammer from '@egjs/hammerjs';
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 import {version} from '../package.json';
+//import { encodeHtml } from 'quill-delta-to-html/dist/commonjs/funcs-html';
 
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
@@ -862,6 +863,10 @@ function draw() {
 		if (window.debug.includes('gui')) console.log('deselectEdge');
 		hideNotes();
 		clearStatusBar();
+	});
+	network.on('oncontext', function (e) {
+		let nodeId = network.getNodeAt(e.pointer.DOM);
+		if (nodeId) openCluster(nodeId);
 	});
 
 	let selectionCanvasStart = {};
@@ -1993,7 +1998,7 @@ function plusNode() {
  */
 function ghostCursor() {
 	// no ghost cursor if the hardware only supports touch
-	if (!window.matchMedia("(any-hover: hover)").matches) return;
+	if (!window.matchMedia('(any-hover: hover)').matches) return;
 	const box = document.createElement('div');
 	box.classList.add('ghost-factor', 'factor-cursor');
 	box.id = 'factor-cursor';
@@ -2216,10 +2221,10 @@ function loadFile(contents) {
 }
 /**
  * Parse and load a PRSM map file, or a JSON file exported from Gephi
- * @param {string} json
+ * @param {string} str
  */
-function loadJSONfile(json) {
-	json = JSON.parse(json);
+function loadJSONfile(str) {
+	let json = JSON.parse(str);
 	if (json.version && version.substring(0, 3) > json.version.substring(0, 3)) {
 		statusMsg('Warning: file was created in an earlier version', 'warn');
 		msg = 'old version';
@@ -2259,11 +2264,11 @@ function loadJSONfile(json) {
 	// before v1.4, the style array was called samples
 	if (json.samples) json.styles = json.samples;
 	if (json.styles) {
-		styles.nodes = json.styles.nodes;
+		styles.nodes = deepMerge(styles.nodes, json.styles.nodes);
 		for (let n in styles.nodes) {
 			delete styles.nodes[n].chosen;
 		}
-		styles.edges = json.styles.edges;
+		styles.edges = deepMerge(styles.edges, json.styles.edges);
 		for (let e in styles.edges) {
 			delete styles.edges[e].chosen;
 		}
@@ -3440,7 +3445,7 @@ function hideDistantOrStreamNodes(broadcast = true) {
 		}
 		addAllLinks();
 	}
-	
+
 	function showAll() {
 		let nodes = data.nodes.get({
 			filter: function (node) {
@@ -3921,32 +3926,162 @@ function showGhostFactor() {
 
 function clusterByColor() {
 	// collect all factor background colours in use
-	let colours = new Set();
-	data,nodes.get().forEach((node) => colours.add())
-	var colors = ["orange", "lime", "DarkViolet"];
-	var clusterOptionsByData;
-	for (var i = 0; i < colors.length; i++) {
-	  var color = colors[i];
-	  clusterOptionsByData = {
-		joinCondition: function (childOptions) {
-		  return childOptions.color.background == color; // the color is fully defined in the node.
-		},
-		processProperties: function (clusterOptions, childNodes, childEdges) {
-		  var totalMass = 0;
-		  for (var i = 0; i < childNodes.length; i++) {
-			totalMass += childNodes[i].mass;
-		  }
-		  clusterOptions.mass = totalMass;
-		  return clusterOptions;
-		},
-		clusterNodeProperties: {
-		  id: "cluster:" + color,
-		  borderWidth: 3,
-		  shape: "database",
-		  color: color,
-		  label: "color:" + color,
-		},
-	  };
-	  network.cluster(clusterOptionsByData);
+	let colors = new Set();
+	data.nodes.get().forEach((node) => colors.add(node.color.background));
+	doc.transact(() => {
+		let clusterNumber = 0;
+		// for each cluster
+		for (const color of colors) {
+			// collect relevant nodes that are not already in a cluster
+			let nodesInCluster = data.nodes.get({ filter: (node) => node.color.background === color && !node.clusteredIn });
+			// clusters must have at least 2 nodes
+			if (nodesInCluster.length <= 1) break;
+			let sumx = 0;
+			let sumy = 0;
+			let nInCluster = 0;
+			let nodeIdsToCluster = new Set();
+			let nodeIdsFromCluster = new Set();
+			let clusterNode = data.nodes.get(`cluster-color-${color}`);
+			if (clusterNode === null) {
+				clusterNode = deepMerge(styles.nodes['cluster'], {
+					id: `cluster-color-${color}`,
+					isCluster: true,
+					label: `Colour ${++clusterNumber}`,
+					color: {background: color},
+				});
+			} else clusterNode.hidden = false;
+			for (let node of nodesInCluster) {
+				// for each factor that should be in the cluster
+				// skip nodes that are cluster nodes
+				if (node.isCluster) break;
+				node.clusteredIn = clusterNode.id;
+				node.hidden = true;
+				sumx += node.x;
+				sumy += node.y;
+				nInCluster++;
+				data.nodes.update(node);
+				// hide all edges going to and from this node
+				data.edges.get(network.getConnectedEdges(node.id)).forEach((edge) => {
+					edge.hidden = true;
+				});
+				// note all nodes that were connected to this node (other than those also in the cluster); they will be connected to the cluster node
+				network.getConnectedNodes(node.id, 'from').forEach((nId) => {
+					let connNode = data.nodes.get(nId);
+					if (connNode.clusteredIn !== clusterNode.id) nodeIdsToCluster.add(nId);
+				});
+				network.getConnectedNodes(node.id, 'to').forEach((nId) => {
+					let connNode = data.nodes.get(nId);
+					if (connNode.clusteredIn !== clusterNode.id ) nodeIdsToCluster.add(nId);
+				});
+			}
+			// locate the cluster node at the centroid of the constituent nodes
+			clusterNode.x = sumx / nInCluster;
+			clusterNode.y = sumy / nInCluster;
+			data.nodes.update(clusterNode);
+			// link all factors that aren't in a cluster that were connected to the constituent factors
+			// in this cluster to the cluster node
+			nodeIdsToCluster.forEach((nId) => {
+				makeClusterLink(nId, clusterNode.id);
+			});
+			nodeIdsFromCluster.forEach((nId) => {
+				makeClusterLink(clusterNode.id, nId);
+			});
+		}
+	});
+	/**
+	 * Reuse existing edge or create a new one
+	 * @param {string} fromId
+	 * @param {string} toId
+	 */
+	function makeClusterLink(fromId, toId) {
+		let edge = data.edges.get({filter: (e) => fromId == e.from && toId == e.to}).shift();
+		if (edge) {
+			edge.hidden = false;
+		} else
+			edge = deepMerge(styles.edges['cluster'], {
+				id: `cledge-${uuidv4()}`,
+				from: fromId,
+				to: toId,
+			});
+		data.edges.update(edge);
 	}
-  }
+}
+window.clusterByColor = clusterByColor;
+/**
+ * hide the cluster node and unhide the nodes it was clustering (and their edges)
+ * called by right clicking the cluster node
+ * @param {string} clusterNodeId 
+ */
+function openCluster(clusterNodeId) {
+	doc.transact(() => {
+		let clusterNode = data.nodes.get(clusterNodeId);
+		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id});
+		for (let node of nodesInCluster) {
+			node.hidden = false;
+			node.clusteredIn = null;
+			data.nodes.update(node);
+			// show the edges to and from these nodes
+			let eIds = network.getConnectedEdges(node.id);
+			for (let eId of eIds) {
+				let edge = data.edges.get(eId);
+				edge.hidden = false;
+				data.edges.update(edge);
+			}
+		}
+		// hide the cluster node
+		clusterNode.hidden = true;
+		// and the edges that link it
+		let eIds = network.getConnectedEdges(clusterNode.id);
+		for (let eId of eIds) {
+			data.edges.remove(eId);
+		}
+		data.nodes.update(clusterNode);
+	});
+}
+/**
+ * open transaction
+ * find all nodes with clusterNode.id as clusterIn
+ * for each node
+ * 	unhide it
+ *  get all connected edges
+ *  unhide them
+ * hide clusterNode
+ * get all connected edges
+ * 	hide them
+ *
+ */
+/*
+for colors, get list of used colors
+for all clustering attribute values {
+	open yjs transaction
+	for all nodes with that attribute value
+		sum x and y coordinates
+		add cluster: cluster-attribute-value
+		hide node
+		add node to this cluster list
+		for all links to this node
+			add from node to this cluster from list
+			hide link
+		for all links from this node
+			add node to this cluster to list
+			hide link
+	check whether a cluster node already exists
+		if not: create a cluster node
+		if so: unhide it if it is hidden
+	add attributes
+		id: cluster-attribute-value
+		label: Cluster attribute value (if color, just number sequentially)
+		cluster: true
+		shape: database
+	position cluster node at mean x and y
+	add links to cluster node from this cluster from list
+	add links to cluster node to this cluster to list
+	update data.nodes and data.links
+	close yjs transaction
+}
+in edit dialog, don't show shape choice for cluster nodes (cluster: true)
+on context: check whether over cluster node.  if so, hide node and unhide all nodes and links in that cluster
+
+
+}
+*/
