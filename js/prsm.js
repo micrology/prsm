@@ -709,6 +709,12 @@ function draw() {
 					stopEdit();
 					return;
 				}
+				if (data.nodes.get(item.from).isCluster || data.nodes.get(item.to).isCluster) {
+					statusMsg('Links cannot be made to or from a cluster', 'error');
+					callback(null);
+					stopEdit();
+					return;	
+				}
 				item = deepMerge(item, styles.edges[lastLinkSample]);
 				item.grp = lastLinkSample;
 				item.created = timestamp();
@@ -3929,6 +3935,7 @@ function clusterByColor() {
 	let colors = new Set();
 	data.nodes.get().forEach((node) => colors.add(node.color.background));
 	doc.transact(() => {
+		unSelect();
 		let clusterNumber = 0;
 		// for each cluster
 		for (const color of colors) {
@@ -3941,8 +3948,6 @@ function clusterByColor() {
 			let sumx = 0;
 			let sumy = 0;
 			let nInCluster = 0;
-			let nodeIdsToCluster = new Set();
-			let nodeIdsFromCluster = new Set();
 			let clusterNode = data.nodes.get(`cluster-color-${color}`);
 			if (clusterNode === null) {
 				clusterNode = deepMerge(styles.nodes['cluster'], {
@@ -3950,67 +3955,84 @@ function clusterByColor() {
 					isCluster: true,
 					label: `Colour ${++clusterNumber}`,
 					color: {background: color},
+					hidden: false,
 				});
 			} else clusterNode.hidden = false;
 			for (let node of nodesInCluster) {
 				// for each factor that should be in the cluster
-				console.log(node.label);
 				node.clusteredIn = clusterNode.id;
 				node.hidden = true;
 				sumx += node.x;
 				sumy += node.y;
 				nInCluster++;
 				data.nodes.update(node);
-				// hide all edges going to and from this node
-				data.edges.get(network.getConnectedEdges(node.id)).forEach((edge) => {
-					edge.hidden = true;
-				});
-				// note all nodes that were connected to this node (other than those also in the cluster);
-				//  they will be connected to the cluster node
-				network.getConnectedNodes(node.id, 'from').forEach((nId) => {
-					let connNode = data.nodes.get(nId);
-					if (connNode.clusteredIn !== clusterNode.id) nodeIdsToCluster.add(nId);
-				});
-				network.getConnectedNodes(node.id, 'to').forEach((nId) => {
-					let connNode = data.nodes.get(nId);
-					if (connNode.clusteredIn !== clusterNode.id) nodeIdsToCluster.add(nId);
-				});
 			}
 			// locate the cluster node at the centroid of the constituent nodes
 			clusterNode.x = sumx / nInCluster;
 			clusterNode.y = sumy / nInCluster;
 			data.nodes.update(clusterNode);
-			// link all nodes that were connected to the nodes now in this cluster to the cluster node
-			nodeIdsToCluster.forEach((nId) => {
-				makeClusterLink(nId, clusterNode.id);
-			});
-			nodeIdsFromCluster.forEach((nId) => {
-				makeClusterLink(clusterNode.id, nId);
-			});
 		}
+		showClusterLinks();
 	});
-	data.nodes.get().forEach((n) => { console.log([n.id, n.label, n.hidden ]) });
-	data.edges.get().forEach((e) => {console.log([e.id, data.nodes.get(e.from).label, data.nodes.get(e.to).label, e.hidden])})
+}
+
+window.clusterByColor = clusterByColor;
+
+/**
+ * Create links to cluster nodes and hide links that are now in clustered nodes
+ */
+function showClusterLinks() {
+	// hide all cluster links initially
+	data.edges.get().forEach((edge) => {
+		if (edge.isClusterEdge) edge.hidden = true;
+	});
+	for (let edge of data.edges.get()) {
+		if (edge.isClusterEdge) break;
+		// if edge is between two nodes neither of which are in a cluster, show it
+		// if edge is from and to nodes that are in the same cluster, hide it
+		// if edge is from a node not in a cluster, and to a node in a cluster, hide it and make a cluster edge for it
+		// and vice versa
+		// if edge is between two nodes both in (different) clusters, hide it and make a cluster edge for it
+		let fromNode = data.nodes.get(edge.from);
+		let toNode = data.nodes.get(edge.to);
+		edge.hidden = true;
+		if (!fromNode.clusteredIn && !toNode.clusteredIn) edge.hidden = false;
+		else if (fromNode.clusteredIn == toNode.clusteredIn) edge.hidden = true;
+		else if (!fromNode.clusteredIn && toNode.clusteredIn) makeClusterLink(edge.from, toNode.clusteredIn);
+		else if (fromNode.clusteredIn && !toNode.clusteredIn) makeClusterLink(fromNode.clusteredIn, edge.to);
+		else if (fromNode.clusteredIn && toNode.clusteredIn) makeClusterLink(fromNode.clusteredIn, toNode.clusteredIn);
+		else edge.hidden = false;  // shouldn't happen
+		data.edges.update(edge);
+	}
+	if (debug == 'cluster') {
+		console.log('Nodes');
+		data.nodes.get().forEach((n) => {
+			console.log([n.id, n.label, n.hidden, n.clusteredIn]);
+		});
+		console.log('Edges');
+		data.edges.get().forEach((e) => {
+			console.log([e.id, data.nodes.get(e.from).label, data.nodes.get(e.to).label, e.hidden]);
+		});
+	}
 	/**
 	 * Reuse existing edge or create a new one
 	 * @param {string} fromId
 	 * @param {string} toId
 	 */
 	function makeClusterLink(fromId, toId) {
-		console.log(`Making cluster link from ${data.nodes.get(fromId).label} to ${data.nodes.get(toId).label}`)
 		let edge = data.edges.get({filter: (e) => fromId == e.from && toId == e.to}).shift();
 		if (!edge) {
 			edge = deepMerge(styles.edges['cluster'], {
 				id: `cledge-${uuidv4()}`,
 				from: fromId,
 				to: toId,
+				isClusterEdge: true,
 			});
 		}
 		edge.hidden = false;
 		data.edges.update(edge);
 	}
 }
-window.clusterByColor = clusterByColor;
 /**
  * hide the cluster node and unhide the nodes it was clustering (and their edges)
  * called by right clicking the cluster node
@@ -4018,19 +4040,13 @@ window.clusterByColor = clusterByColor;
  */
 function openCluster(clusterNodeId) {
 	doc.transact(() => {
+		unSelect();
 		let clusterNode = data.nodes.get(clusterNodeId);
 		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id});
 		for (let node of nodesInCluster) {
 			node.hidden = false;
 			node.clusteredIn = null;
 			data.nodes.update(node);
-			// show the edges to and from these nodes
-			let eIds = network.getConnectedEdges(node.id);
-			for (let eId of eIds) {
-				let edge = data.edges.get(eId);
-				edge.hidden = false;
-				data.edges.update(edge);
-			}
 		}
 		// hide the cluster node
 		clusterNode.hidden = true;
@@ -4040,52 +4056,6 @@ function openCluster(clusterNodeId) {
 			data.edges.remove(eId);
 		}
 		data.nodes.update(clusterNode);
+		showClusterLinks();
 	});
 }
-/**
- * open transaction
- * find all nodes with clusterNode.id as clusterIn
- * for each node
- * 	unhide it
- *  get all connected edges
- *  unhide them
- * hide clusterNode
- * get all connected edges
- * 	hide them
- *
- */
-/*
-for colors, get list of used colors
-for all clustering attribute values {
-	open yjs transaction
-	for all nodes with that attribute value
-		sum x and y coordinates
-		add cluster: cluster-attribute-value
-		hide node
-		add node to this cluster list
-		for all links to this node
-			add from node to this cluster from list
-			hide link
-		for all links from this node
-			add node to this cluster to list
-			hide link
-	check whether a cluster node already exists
-		if not: create a cluster node
-		if so: unhide it if it is hidden
-	add attributes
-		id: cluster-attribute-value
-		label: Cluster attribute value (if color, just number sequentially)
-		cluster: true
-		shape: database
-	position cluster node at mean x and y
-	add links to cluster node from this cluster from list
-	add links to cluster node to this cluster to list
-	update data.nodes and data.links
-	close yjs transaction
-}
-in edit dialog, don't show shape choice for cluster nodes (cluster: true)
-on context: check whether over cluster node.  if so, hide node and unhide all nodes and links in that cluster
-
-
-}
-*/
