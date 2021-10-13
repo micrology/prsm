@@ -3932,8 +3932,10 @@ function clusterByColor() {
 		let clusterNumber = 0;
 		// for each cluster
 		for (const color of colors) {
-			// collect relevant nodes that are not already in a cluster
-			let nodesInCluster = data.nodes.get({ filter: (node) => node.color.background === color && !node.clusteredIn });
+			// collect relevant nodes that are not already in a cluster and are not cluster nodes
+			let nodesInCluster = data.nodes.get({
+				filter: (node) => node.color.background === color && !node.clusteredIn && !node.isCluster,
+			});
 			// clusters must have at least 2 nodes
 			if (nodesInCluster.length <= 1) break;
 			let sumx = 0;
@@ -3952,8 +3954,7 @@ function clusterByColor() {
 			} else clusterNode.hidden = false;
 			for (let node of nodesInCluster) {
 				// for each factor that should be in the cluster
-				// skip nodes that are cluster nodes
-				if (node.isCluster) break;
+				console.log(node.label);
 				node.clusteredIn = clusterNode.id;
 				node.hidden = true;
 				sumx += node.x;
@@ -3964,22 +3965,22 @@ function clusterByColor() {
 				data.edges.get(network.getConnectedEdges(node.id)).forEach((edge) => {
 					edge.hidden = true;
 				});
-				// note all nodes that were connected to this node (other than those also in the cluster); they will be connected to the cluster node
+				// note all nodes that were connected to this node (other than those also in the cluster);
+				//  they will be connected to the cluster node
 				network.getConnectedNodes(node.id, 'from').forEach((nId) => {
 					let connNode = data.nodes.get(nId);
 					if (connNode.clusteredIn !== clusterNode.id) nodeIdsToCluster.add(nId);
 				});
 				network.getConnectedNodes(node.id, 'to').forEach((nId) => {
 					let connNode = data.nodes.get(nId);
-					if (connNode.clusteredIn !== clusterNode.id ) nodeIdsToCluster.add(nId);
+					if (connNode.clusteredIn !== clusterNode.id) nodeIdsToCluster.add(nId);
 				});
 			}
 			// locate the cluster node at the centroid of the constituent nodes
 			clusterNode.x = sumx / nInCluster;
 			clusterNode.y = sumy / nInCluster;
 			data.nodes.update(clusterNode);
-			// link all factors that aren't in a cluster that were connected to the constituent factors
-			// in this cluster to the cluster node
+			// link all nodes that were connected to the nodes now in this cluster to the cluster node
 			nodeIdsToCluster.forEach((nId) => {
 				makeClusterLink(nId, clusterNode.id);
 			});
@@ -3988,21 +3989,24 @@ function clusterByColor() {
 			});
 		}
 	});
+	data.nodes.get().forEach((n) => { console.log([n.id, n.label, n.hidden ]) });
+	data.edges.get().forEach((e) => {console.log([e.id, data.nodes.get(e.from).label, data.nodes.get(e.to).label, e.hidden])})
 	/**
 	 * Reuse existing edge or create a new one
 	 * @param {string} fromId
 	 * @param {string} toId
 	 */
 	function makeClusterLink(fromId, toId) {
+		console.log(`Making cluster link from ${data.nodes.get(fromId).label} to ${data.nodes.get(toId).label}`)
 		let edge = data.edges.get({filter: (e) => fromId == e.from && toId == e.to}).shift();
-		if (edge) {
-			edge.hidden = false;
-		} else
+		if (!edge) {
 			edge = deepMerge(styles.edges['cluster'], {
 				id: `cledge-${uuidv4()}`,
 				from: fromId,
 				to: toId,
 			});
+		}
+		edge.hidden = false;
 		data.edges.update(edge);
 	}
 }
@@ -4010,7 +4014,7 @@ window.clusterByColor = clusterByColor;
 /**
  * hide the cluster node and unhide the nodes it was clustering (and their edges)
  * called by right clicking the cluster node
- * @param {string} clusterNodeId 
+ * @param {string} clusterNodeId
  */
 function openCluster(clusterNodeId) {
 	doc.transact(() => {
