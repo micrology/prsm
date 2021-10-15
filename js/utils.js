@@ -694,3 +694,75 @@ export function setEndOfContenteditable(contentEditableElement) {
 	selection.removeAllRanges(); //remove any selections already made
 	selection.addRange(range); //make the range you have just created the visible selection
 }
+
+/**
+ * closure to generate a sequence of colours (as rgb strings, e.g. 'rgb(246,121,16)')
+ * based on https://krazydad.com/tutorials/makecolors.php
+ */
+export const makeColor = (function () {
+	let counter = 0;
+	let freq = 0.3,
+		phase1 = 0,
+		phase2 = 2,
+		phase3 = 4,
+		center = 128,
+		width = 127;
+	return function () {
+		counter += 1;
+		let red = Math.sin(freq * counter + phase1) * width + center;
+		let grn = Math.sin(freq * counter + phase2) * width + center;
+		let blu = Math.sin(freq * counter + phase3) * width + center;
+		return 'rgb(' + Math.round(red) + ',' + Math.round(grn) + ',' + Math.round(blu) + ')';
+	};
+})();
+
+window.makeColor = makeColor;
+/**
+ * Determine whether a color is light or dark (so text in a contrasting color can be overlaid)
+ * from https://awik.io/determine-color-bright-dark-using-javascript/
+ * @param {CSS color string} color 
+ * @returns 'light' or 'dark'
+ */
+export function lightOrDark(color) {
+
+    // Variables for red, green, blue values
+    var r, g, b, hsp;
+    
+    // Check the format of the color, HEX or RGB?
+    if (color.match(/^rgb/)) {
+
+        // If RGB --> store the red, green, blue values in separate variables
+        color = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
+        
+        r = color[1];
+        g = color[2];
+        b = color[3];
+    } 
+    else {
+        
+        // If hex --> Convert it to RGB: http://gist.github.com/983661
+        color = +("0x" + color.slice(1).replace( 
+        color.length < 5 && /./g, '$&$&'));
+
+        r = color >> 16;
+        g = color >> 8 & 255;
+        b = color & 255;
+    }
+    
+    // HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
+    hsp = Math.sqrt(
+    0.299 * (r * r) +
+    0.587 * (g * g) +
+    0.114 * (b * b)
+    );
+
+    // Using the HSP value, determine whether the color is light or dark
+    if (hsp>127.5) {
+
+        return 'light';
+    } 
+    else {
+
+        return 'dark';
+    }
+}
