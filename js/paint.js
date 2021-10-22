@@ -82,7 +82,7 @@ function setUpCanvas(id) {
  */
 function getContext(canvas) {
 	let ctx = canvas.getContext('2d');
-	ctx.scale(dpr, dpr);
+//	ctx.scale(dpr, dpr);
 	ctx.lineWidth = defaultOptions.lineWidth;
 	ctx.strokeStyle = defaultOptions.strokeStyle;
 	ctx.fillStyle = defaultOptions.fillstyle;
@@ -1066,10 +1066,10 @@ function DOMtoCanvasY(y) {
 export function redraw(netctx) {
 	drawHelper.clear(tempctx);
 	netctx.save();
-	if (drawingSwitch) drawGrid(netctx);
 	yPointsArray.forEach((point) => {
 		drawHelper[point[0]](netctx, point[1], point[2]);
 	});
+	if (drawingSwitch) drawGrid(netctx);
 	netctx.restore();
 }
 
@@ -1096,14 +1096,15 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
 function drawGrid(netctx) {
 	let netPane = document.getElementById('net-pane');
 	netctx.save();
+	netctx.lineWidth = 1;
 	netctx.strokeStyle = 'rgba(211, 211, 211, 0.8)'; //'lightgrey';
 	netctx.beginPath();
-	for (let x = DOMtoCanvasX(0); x <= DOMtoCanvasX(2 * netPane.offsetWidth); x += GRIDSPACING) {
+	for (let x = DOMtoCanvasX(0); x <= DOMtoCanvasX(dpr * netPane.offsetWidth); x += GRIDSPACING) {
 		// vertical grid lines
 		netctx.moveTo(x, DOMtoCanvasY(0));
 		netctx.lineTo(x, DOMtoCanvasY(2 * netPane.offsetHeight));
 	}
-	for (let y = DOMtoCanvasY(0); y <= DOMtoCanvasY(2 * netPane.offsetHeight); y += GRIDSPACING) {
+	for (let y = DOMtoCanvasY(0); y <= DOMtoCanvasY(dpr * netPane.offsetHeight); y += GRIDSPACING) {
 		// horizontal grid lines
 		netctx.moveTo(DOMtoCanvasX(0), y);
 		netctx.lineTo(DOMtoCanvasX(2 * netPane.offsetWidth), y);
@@ -1116,7 +1117,7 @@ let imageCache = new Map();
 let drawHelper = {
 	clear: function (ctx) {
 		// Use the identity matrix while clearing the canvas
-		ctx.setTransform(2, 0, 0, 2, 0, 0);
+		ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 	},
 	options: function (ctx, options) {
@@ -1157,6 +1158,7 @@ let drawHelper = {
 		ctx.beginPath();
 		ctx.moveTo(startX, startY);
 		ctx.lineTo(endX, endY);
+		ctx.closePath();
 		ctx.stroke();
 	},
 	marker: function (ctx, [startX, startY, width]) {

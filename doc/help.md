@@ -140,7 +140,7 @@ You can use the following mouse actions (or finger or pencil gestures on a table
 * holding down the *shift* key and moving the mouse shows a loupe or magnifying glass to see small details of the map.
 * holding down the *control* key and dragging shows a selection rectangle - when you release the mouse, all factors in the rectangle are selected.
 * holding down the *option* or ALT key and clicking on the background is a shortcut for adding a new factor
-* holding down the *option* or ALT key and clicking on a factor is a shortcut for adding a link - the pointer will becoem a cross and you can then drag from the factor to another factor to create the link.
+* holding down the *option* or ALT key and clicking on a factor is a shortcut for adding a link - the pointer will become a cross and you can then drag from the factor to another factor to create the link.
 
 ### Copy and paste
 

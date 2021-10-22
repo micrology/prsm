@@ -4,6 +4,8 @@ import {IndexeddbPersistence} from 'y-indexeddb';
 import {listen, elem, deepCopy, deepMerge, timeAndDate} from './utils.js';
 import Tabulator from 'tabulator-tables';
 import {version} from '../package.json';
+import Quill from 'quill';
+import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html';
 
 const shortAppName = 'PRSM';
 
@@ -11,7 +13,7 @@ var debug = [];
 window.debug = debug;
 var room;
 const doc = new Y.Doc();
-var websocket = 'wss://cress.soc.surrey.ac.uk/wss'; // web socket server URL
+var websocket = 'wss://www.prsm.uk/wss'; // web socket server URL
 var clientID; // unique ID for this browser
 var yNodesMap; // shared map of nodes
 var yEdgesMap; // shared map of edges
@@ -25,9 +27,11 @@ var initialising = true; // true until the tables have been loaded
 var nAttributes = 0; // number of attributes
 var attributeTitles = {}; // titles of each of the attributes
 var myNameRec; // my name etc.
+var qed; // Quill editor
 
 window.addEventListener('load', () => {
 	elem('version').innerHTML = version;
+	qed = new Quill('#notes-div');
 	setUpTabs();
 	setUpShareDialog();
 	startY();
@@ -314,7 +318,8 @@ function initialiseFactorTable() {
 	});
 	factorsTable = new Tabulator('#factors-table', {
 		data: tabledata, //assign data to table
-		layout: 'fitDataTable',
+		layout: 'fitData',
+		layoutColumnsOnNewData: true,
 		height: window.innerHeight - 180,
 		clipboard: true,
 		clipboardCopyConfig: {
@@ -359,11 +364,13 @@ function initialiseFactorTable() {
 			},
 			{title: 'Modified', field: 'modifiedTime', cssClass: 'grey'},
 			{
-				title: 'Format',
+				title: groupTitle('Format'),
+				field: 'Format',
 				columns: [
 					{
 						title: 'Style',
 						field: 'groupLabel',
+						minWidth: 100,
 						editor: 'select',
 						editorParams: {values: styleNodeNames},
 					},
@@ -371,7 +378,7 @@ function initialiseFactorTable() {
 						title: 'Shape',
 						field: 'shape',
 						editor: 'select',
-						editorParams: {values: {box: 'box', ellipse: 'ellipse', circle: 'disk', text: 'none'}},
+						editorParams: {values: {box: 'box', ellipse: 'ellipse', circle: 'circle', text: 'none'}},
 					},
 					{
 						title: `Hidden&nbsp;
@@ -455,12 +462,15 @@ function initialiseFactorTable() {
 				],
 			},
 			{
-				title: 'Statistics',
+				title: groupTitle('Statistics'),
+				field: 'Statistics',
 				columns: [
 					{
 						title: 'In-degree',
 						field: 'indegree',
 						headerVertical: true,
+						minWidth: 100,
+						hozAlign:'center',
 						cssClass: 'grey',
 						bottomCalc: 'avg',
 						bottomCalcFormatter: bottomCalcFormatter,
@@ -470,6 +480,7 @@ function initialiseFactorTable() {
 						title: 'Out-degree',
 						field: 'outdegree',
 						headerVertical: true,
+						hozAlign:'center',
 						cssClass: 'grey',
 						bottomCalc: 'avg',
 						bottomCalcFormatter: bottomCalcFormatter,
@@ -479,6 +490,7 @@ function initialiseFactorTable() {
 						title: 'Total degree',
 						field: 'degree',
 						headerVertical: true,
+						hozAlign:'center',
 						cssClass: 'grey',
 						bottomCalc: 'avg',
 						bottomCalcFormatter: bottomCalcFormatter,
@@ -487,6 +499,7 @@ function initialiseFactorTable() {
 					{
 						title: 'Leverage',
 						field: 'leverage',
+						hozAlign:'center',
 						headerVertical: true,
 						cssClass: 'grey',
 					},
@@ -494,11 +507,24 @@ function initialiseFactorTable() {
 						title: 'Betweenness',
 						field: 'bc',
 						minWidth: 60,
+						hozAlign:'center',
 						headerVertical: true,
 						cssClass: 'grey',
 						bottomCalc: 'max',
 						bottomCalcFormatter: bottomCalcFormatter,
 						bottomCalcFormatterParams: {legend: 'Max:'},
+					},
+				],
+			},
+			{
+				title: 'Notes',
+				field: 'Notes',
+				columns: [
+					{
+						field: 'note',
+						minWidth: 200,
+						editor: quillEditor,
+						formatter: quillFormatter,
 					},
 				],
 			},
@@ -520,6 +546,7 @@ function initialiseFactorTable() {
 		}
 	}
 	window.factorsTable = factorsTable;
+
 	listen('select-all', 'click', (e) => {
 		let ticked = headerTickToggle(e, '#select-all');
 		factorsTable.getRows('active').forEach((row) => {
@@ -537,7 +564,53 @@ function initialiseFactorTable() {
 			});
 		});
 	});
+	listen('hideFormat', 'click', () => {
+		collapseColGroup(factorsTable, 'Format');
+	});
+	listen('hideStatistics', 'click', () => {
+		collapseColGroup(factorsTable, 'Statistics');
+	});
 	return factorsTable;
+}
+/**
+ * return HTML string for column group header, with embedded collapse/reveal icon
+ * @param {String} field field name of column group
+ * @param {Boolean} collapse which header 9and which collapse/reveal icon) to use
+ * @returns HTML string
+ */
+function groupTitle(field, collapse = true) {
+	if (collapse)
+		return `${field}<span style="float:right"><span id="hide${field}" data-collapsed="true" title="Collapse columns">${svg(
+			'collapse'
+		)}</span></span>`;
+	else
+		return `${field}<span style="float:right"><span id="hide${field}" data-collapsed="false" title="Reveal columns">${svg(
+			'uncollapse'
+		)}</span></span>`;
+}
+/**
+ * hides (or shows) all but the first column in the column group and replaces the column group header
+ * @param {Object} table table with this col group
+ * @param {String} field field name of column group
+ */
+function collapseColGroup(table, field) {
+	let first = true;
+	table.columnManager.columnsByIndex.forEach((col) => {
+		if (col.parent.field == field) {
+			if (first) {
+				first = false;
+				if (document.getElementById(`hide${field}`).dataset.collapsed == 'true')
+					col.parent.titleElement.innerHTML = groupTitle(field, false);
+				else col.parent.titleElement.innerHTML = groupTitle(field, true);
+				listen(`hide${field}`, 'click', () => {
+					collapseColGroup(table, field);
+				});
+			} else {
+				if (col.visible) col.hide();
+				else col.show();
+			}
+		}
+	});
 }
 /**
  * Toggle the value of a cell in a TickCross column
@@ -606,8 +679,83 @@ function svg(icon) {
 		<path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
 		<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
 	  </svg>`;
+		case 'collapse':
+			return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
+			<path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5zM10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5z"/>
+		  </svg>`;
+		case 'uncollapse':
+			return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-right" viewBox="0 0 16 16">
+			<path fill-rule="evenodd" d="M6 8a.5.5 0 0 0 .5.5h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L12.293 7.5H6.5A.5.5 0 0 0 6 8zm-2.5 7a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5z"/>
+		  </svg>`;
+		default:
+			console.log('Bad request for svg');
 	}
 }
+/**
+ * returns the note for this factor in HTML format
+ * @param {CellComponent} cell 
+ * @returns HTML string
+*/
+function quillFormatter(cell) {
+	let note = cell.getValue();
+	if (note) {
+		qed.setContents(note);
+		return new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert();
+	}
+	return '';
+}
+/**
+ * start up a Quill editor for the note in this cell
+ * @param {cell Component} cell 
+ * @param {callback} onRendered not used
+ * @param {callback} success function to call when user has finished editing
+ * @returns HTMLElement placeholder for the cell while it is being edited elsewhere
+ */
+function quillEditor(cell, onRendered, success) {
+	let pane = document.createElement('div');
+	pane.className = 'quill-pane';
+	elem('container').appendChild(pane);
+	let element = document.createElement('div');
+	pane.appendChild(element);
+	let editor = new Quill(element, {
+		modules: {
+			toolbar: [
+				'bold',
+				'italic',
+				'underline',
+				'link',
+				{list: 'ordered'},
+				{list: 'bullet'},
+				{indent: '-1'},
+				{indent: '+1'},
+			],
+		},
+		placeholder: 'Notes',
+		theme: 'snow',
+		bounds: element,
+	});
+	let note = cell.getValue();
+	if (note) {
+		if (note instanceof Object) editor.setContents(note);
+		else editor.setText(note);
+	} else editor.setText('');
+	editor.on('selection-change', (range) => {
+		if (!range) {
+			finish(cell);
+		}
+	});
+	editor.focus();
+	let placeholder = document.createElement('div');
+	placeholder.className = 'quill-placeholder';
+	return placeholder;
+
+	function finish(cell) {
+		factorsTable.modules.edit.currentCell = cell._cell;
+		success(editor.getContents());
+		pane.remove();
+	}
+}
+
 /**
  * spread some deep values to the top level to suit the requirements of the Tabulator package better
  * NB: any such converted values cannot then be edited without special attention (in updateEdgeCellData)
@@ -626,7 +774,8 @@ function convertNode(node) {
 	for (let prop in conversions) {
 		n[prop] = n[conversions[prop][0]][conversions[prop][1]];
 	}
-	n.size = n.scaling.label.enabled && n.value != undefined ? parseFloat(n.value).toPrecision(3) : '--';
+	n.size =
+		n.scaling.label.enabled && n.value != undefined && !isNaN(n.value) ? parseFloat(n.value).toPrecision(3) : '--';
 	if (n.groupLabel == 'Sample') n.groupLabel = '--';
 	n.borderStyle = n.shapeProperties.borderDashes;
 	if (n.borderWidth == 0) n.borderStyle = 'None';
@@ -764,7 +913,7 @@ function initialiseLinkTable() {
 			dataTree: false, //do not include data tree in printed table
 			formatCells: false, //show raw cell values without formatter
 		},
-		layout: 'fitDataTable',
+		layout: 'fitData',
 		height: window.innerHeight - 180,
 		dataLoaded: () => {
 			initialising = false;
@@ -787,7 +936,8 @@ function initialiseLinkTable() {
 			{title: 'To', field: 'toLabel', width: 300, cssClass: 'grey'},
 			{title: 'Modified', field: 'modifiedTime', cssClass: 'grey'},
 			{
-				title: 'Format',
+				title: groupTitle('Style'),
+				field: 'Style',
 				columns: [
 					{
 						title: 'Style',
@@ -860,6 +1010,17 @@ function initialiseLinkTable() {
 					},
 				],
 			},
+			{
+				title: 'Notes',
+				columns: [
+					{
+						field: 'note',
+						minWidth: 200,
+						editor: quillEditor,
+						formatter: quillFormatter,
+					},
+				],
+			},
 		],
 	});
 	window.linksTable = linksTable;
@@ -874,6 +1035,10 @@ function initialiseLinkTable() {
 			});
 		});
 	});
+	listen('hideStyle', 'click', () => {
+		collapseColGroup(linksTable,'Style');
+	});
+
 	return linksTable;
 }
 /**
@@ -1126,6 +1291,7 @@ function setUpFilter() {
 		return;
 	}
 	filterDisplayed = true;
+	filterDiv.style.display = 'block';
 	let select = document.createElement('select');
 	select.id = 'filter-field';
 	let i = 0;
@@ -1180,6 +1346,7 @@ function closeFilter() {
 	elem('filter-dialog').innerHTML = '';
 	openTable.clearFilter();
 	filterDisplayed = false;
+	elem('filter-dialog').style.display = 'none';
 }
 
 listen('copy', 'click', copyTable);

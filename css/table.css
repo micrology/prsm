@@ -12,26 +12,49 @@
 	font-style: normal;
 	font-display: swap;
 }
+.container {
+	position: relative;
+    height: calc(var(--vh, 1vh) * 100);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 80px 48px 1fr;
+    grid-template-areas:
+        'header'
+        'main'
+'footer';
+}
 .table-tabs {
-	background-color: #f1f1f1;
 	padding: 0 8px;
-	margin-top: 4px;
+	align-self: end;
+	width: fit-content;
 }
 .table-tabs button {
-	background-color: inherit;
+	background-color: #f1f1f1;
 	float: left;
 	border: none;
 	outline: none;
 	cursor: pointer;
 	padding: 14px 36px;
-	border-bottom: 2px solid#f1f1f1;
 	border-radius: 4px 4px 0 0;
 	width: 8em;
-	height: 58px;
+	height: 40px;
+	font-weight: bold;
+    font-size: 16px;
+ 	border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
 }
 .table-tabs button.active {
 	background-color: #ccc;
-	border-bottom: 2px solid black;
+}
+.tabulator {
+	margin: 0;
+	border-top: 4px solid #ccc;
+	border-radius: 0;
+}
+.tabulator-col.tabulator-col-group:last-of-type {
+border-right: 1px solid black;
 }
 .table {
 	height: 100%;
@@ -45,6 +68,7 @@
 	color: grey;
 }
 #filter-dialog {
+	display: none;
 	float: right;
 	padding: 4px;
 }
@@ -63,4 +87,28 @@
 .col-calc {
 	font-weight: bold;
 	color: black;
+}
+.hide {
+	display: none;
+}
+.quill-pane {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 500px;
+	box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
+    border: thin solid black;
+    border-radius: 2px;
+	background-color: white;
+	z-index: 1000;
+}
+.quill-placeholder {
+	width: 100%;
+	height: 100%;
+	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnPgogIDxyZWN0IHdpZHRoPSc4JyBoZWlnaHQ9JzgnIGZpbGw9JyNmZmYnLz4KICA8cGF0aCBkPSdNMCAwTDggOFpNOCAwTDAgOFonIHN0cm9rZS13aWR0aD0nMC41JyBzdHJva2U9JyNhYWEnLz4KPC9zdmc+Cg==');
+	background-repeat: repeat;
+}
+.tabulator-cell[tabulator-field="note"] {
+	overflow-x: scroll;
 }

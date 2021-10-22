@@ -33,6 +33,7 @@ import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
 import {EmojiButton} from '@joeattardi/emoji-button';
 import Quill from 'quill';
+import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html';
 import Hammer from '@egjs/hammerjs';
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
@@ -851,6 +852,7 @@ function draw() {
 		if (window.debug.includes('gui')) console.log('selectNode');
 		showSelected();
 		showNodeOrEdgeData();
+		if (getRadioVal('hide') !== 'All' || getRadioVal('stream') !== 'All') hideDistantOrStreamNodes();
 	});
 	network.on('deselectNode', function () {
 		if (window.debug.includes('gui')) console.log('deselectNode');
@@ -938,7 +940,6 @@ function draw() {
 			showSelected();
 			return;
 		}
-
 		let newPositions = network.getPositions(params.nodes);
 		data.nodes.update(
 			data.nodes.get(params.nodes).map((n) => {
@@ -1253,6 +1254,7 @@ function addLabel(item, cancelAction, callback) {
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback);
 	let pos = {x: event.offsetX, y: event.offsetY};
 	positionPopUp(pos);
+	removeFactorCursor();
 	ghostFactor(pos);
 	elem('popup-label').focus();
 }
@@ -1979,6 +1981,7 @@ function plusNode() {
 		case 'disabled':
 			return;
 		case 'addNode':
+			removeFactorCursor();
 			showPressed('addNode', 'remove');
 			stopEdit();
 			break;
@@ -1989,11 +1992,42 @@ function plusNode() {
 			// false
 			network.unselectAll();
 			changeCursor('cell');
+			ghostCursor();
 			inAddMode = 'addNode';
 			showPressed('addNode', 'add');
 			unSelect();
+			statusMsg('Click on the map to add a factor');
 			network.addNodeMode();
 	}
+}
+/**
+ * show a box attached to the cursor to guide where the Factor will be placed when the user clicks.
+ */
+function ghostCursor() {
+	// no ghost cursor if the hardware only supports touch
+	if (!window.matchMedia("(any-hover: hover)").matches) return;
+	const box = document.createElement('div');
+	box.classList.add('ghost-factor', 'factor-cursor');
+	box.id = 'factor-cursor';
+	document.body.appendChild(box);
+	const boxWidth = box.offsetWidth;
+	const boxHalfHeight = box.offsetHeight / 2;
+	box.style.left = event.pageX - boxWidth + 'px';
+	box.style.top = event.pageY - boxHalfHeight + 'px';
+	document.addEventListener('pointermove', (event) => {
+		box.style.left = event.pageX - boxWidth + 'px';
+		box.style.top = event.pageY - boxHalfHeight + 'px';
+	});
+}
+/**
+ * remove the factor cursor if it exists
+ */
+function removeFactorCursor() {
+	let factorCursor = elem('factor-cursor');
+	if (factorCursor) {
+		factorCursor.remove();
+	}
+	clearStatusBar();
 }
 /**
  * react to the user pressing the Add Link button
@@ -2633,7 +2667,13 @@ function exportCVS() {
 		str += ',' + node.grp + ',';
 		if (node.note) {
 			qed.setContents(node.note);
-			str += '"' + qed.getText(0).replaceAll('\n', ' ') + '"';
+			// convert Quill formatted note to HTML, escaping all "
+			str +=
+				'"' +
+				new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true})
+					.convert()
+					.replaceAll('"', '""') +
+				'"';
 		}
 		str += '\n';
 	}
@@ -2648,7 +2688,13 @@ function exportCVS() {
 		str += ',' + edge.grp + ',';
 		if (edge.note) {
 			qed.setContents(edge.note);
-			str += '"' + qed.getText(0).replaceAll('\n', ' ') + '"';
+			// convert Quill formatted note to HTML, escaping all "
+			str +=
+				'"' +
+				new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true})
+					.convert()
+					.replaceAll('"', '""') +
+				'"';
 		}
 		str += '\n';
 	}
@@ -3152,11 +3198,8 @@ function snapToGridSwitch(e) {
 function doSnapToGrid(toggle) {
 	elem('snaptogridswitch').checked = toggle;
 	if (toggle) {
-		let positions = network.getPositions();
 		data.nodes.update(
 			data.nodes.get().map((n) => {
-				n.x = positions[n.id].x;
-				n.y = positions[n.id].y;
 				snapToGrid(n);
 				return n;
 			})
@@ -3300,7 +3343,7 @@ function hideDistantOrStreamNodes(broadcast = true) {
 	}
 	let selectedNodes = network.getSelectedNodes();
 	if (selectedNodes.length == 0) {
-		statusMsg('Select a Factor first', 'error');
+		statusMsg('A Factor needs to be selected', 'warning');
 		// unhide everything
 		elem('hideAll').checked = true;
 		elem('streamAll').checked = true;
@@ -3346,11 +3389,11 @@ function hideDistantOrStreamNodes(broadcast = true) {
 		// recursive function to collect nodes within radius links from any
 		// of the nodes listed in nodeIds
 		if (radius < 0) return;
-		nodeIds.forEach(function (nId) {
+		nodeIds.forEach((nId) => {
 			nodeIdsInRadiusSet.add(nId);
 			let links = network.getConnectedEdges(nId);
 			if (links && radius >= 0)
-				links.forEach(function (lId) {
+				links.forEach((lId) => {
 					linkIdsInRadiusSet.add(lId);
 				});
 			let linked = network.getConnectedNodes(nId);
@@ -3359,8 +3402,7 @@ function hideDistantOrStreamNodes(broadcast = true) {
 	}
 
 	function upstream(q, radius) {
-		let distance = 0;
-		q.forEach((nId) => nodeMap.set(nId, distance));
+		q.forEach((nId) => nodeMap.set(nId, 0));
 		while (q.length > 0) {
 			let nId = q.shift();
 			if (nodeMap.get(nId) < radius) {
@@ -3369,10 +3411,9 @@ function hideDistantOrStreamNodes(broadcast = true) {
 						return item.to == nId;
 					},
 				});
-				distance++;
 				links.forEach((link) => {
 					if (!nodeMap.has(link.from)) {
-						nodeMap.set(link.from, distance);
+						nodeMap.set(link.from, nodeMap.get(nId) + 1);
 						q.push(link.from);
 					}
 				});
@@ -3392,8 +3433,7 @@ function hideDistantOrStreamNodes(broadcast = true) {
 	}
 
 	function downstream(q, radius) {
-		let distance = 0;
-		q.forEach((nId) => nodeMap.set(nId, distance));
+		q.forEach((nId) => nodeMap.set(nId, 0));
 		while (q.length > 0) {
 			let nId = q.shift();
 			if (nodeMap.get(nId) < radius) {
@@ -3402,10 +3442,9 @@ function hideDistantOrStreamNodes(broadcast = true) {
 						return item.from == nId;
 					},
 				});
-				distance++;
 				links.forEach((link) => {
 					if (!nodeMap.has(link.to)) {
-						nodeMap.set(link.to, distance);
+						nodeMap.set(link.to, nodeMap.get(nId) + 1);
 						q.push(link.to);
 					}
 				});
@@ -3413,7 +3452,7 @@ function hideDistantOrStreamNodes(broadcast = true) {
 		}
 		addAllLinks();
 	}
-
+	
 	function showAll() {
 		let nodes = data.nodes.get({
 			filter: function (node) {
