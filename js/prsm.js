@@ -26,7 +26,7 @@ import {
 	timeAndDate,
 	setEndOfContenteditable,
 	makeColor,
-	lightOrDark
+	lightOrDark,
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
@@ -3931,6 +3931,23 @@ function showGhostFactor() {
 		}
 	});
 }
+/******************************************* Clustering ************************************************************ */
+
+function cluster(attribute) {
+	unCluster();
+	switch (attribute) {
+		case 'color':
+			clusterByColor();
+			break;
+		case 'style':
+			clusterByStyle();
+			break;
+		case 'attribute':
+			clusterByAttribute(attribute);
+			break;
+	}
+}
+window.cluster = cluster;
 /**
  *
  * @param {String} attribute
@@ -3938,7 +3955,9 @@ function showGhostFactor() {
 function clusterByAttribute(attribute) {
 	// collect all different values of the attribute that are in use
 	let attValues = new Set();
-	data.nodes.get().forEach((node) => { if (!node.isCluster) attValues.add(node[attribute]) });
+	data.nodes.get().forEach((node) => {
+		if (!node.isCluster) attValues.add(node[attribute]);
+	});
 	doc.transact(() => {
 		unSelect();
 		let clusterNumber = 0;
@@ -3955,11 +3974,13 @@ function clusterByAttribute(attribute) {
 			let nInCluster = 0;
 			let clusterNode = data.nodes.get(`cluster-${attribute}-${value}`);
 			if (clusterNode === null) {
+				let color = makeColor();
 				clusterNode = deepMerge(styles.nodes['cluster'], {
 					id: `cluster-${attribute}-${value}`,
 					isCluster: true,
 					label: `${attribute} ${++clusterNumber}`,
-					color: makeColor(), //'black', //attribute == '{background: color}' ? {background: value} : makeColor(),
+					color: { background: color },
+					font: {color: lightOrDark(color) == 'light' ? 'black' : 'white'},
 					hidden: false,
 				});
 			} else clusterNode.hidden = false;
@@ -3981,12 +4002,12 @@ function clusterByAttribute(attribute) {
 	});
 }
 
-window.clusterByAttribute = clusterByAttribute;
-
 function clusterByColor() {
 	// collect all different values of the attribute that are in use
 	let colors = new Set();
-	data.nodes.get().forEach((node) => { if (!node.isCluster) colors.add(node.color.background) });
+	data.nodes.get().forEach((node) => {
+		if (!node.isCluster) colors.add(node.color.background);
+	});
 	doc.transact(() => {
 		unSelect();
 		let clusterNumber = 0;
@@ -4007,8 +4028,8 @@ function clusterByColor() {
 					id: `cluster-color-${color}`,
 					isCluster: true,
 					label: `Cluster ${++clusterNumber}`,
-					color: color,
-					font: { color: lightOrDark(color) == 'light' ? 'black' : 'white' },
+					color: { background: color },
+					font: {color: lightOrDark(color) == 'light' ? 'black' : 'white'},
 					hidden: false,
 				});
 			} else clusterNode.hidden = false;
@@ -4029,33 +4050,34 @@ function clusterByColor() {
 		showClusterLinks();
 	});
 }
-window.clusterByColor = clusterByColor;
 
 function clusterByStyle() {
-	// collect all different values of the attribute that are in use
+	// collect all different values of the style that are in use
 	let stylesInUse = new Set();
-	data.nodes.get().forEach((node) => { if (!node.isCluster) stylesInUse.add(node.grp) });
+	data.nodes.get().forEach((node) => {
+		if (!node.isCluster && node.groupLabel != 'Sample') stylesInUse.add(node.grp);
+	});
 	doc.transact(() => {
 		unSelect();
-		let clusterNumber = 0;
 		// for each cluster
-		for (const color of stylesInUse) {
+		for (const style of stylesInUse) {
 			// collect relevant nodes that are not already in a cluster and are not cluster nodes
 			let nodesInCluster = data.nodes.get({
-				filter: (node) => node.color.background === color && !node.clusteredIn && !node.isCluster,
+				filter: (node) => node.grp === style && !node.clusteredIn && !node.isCluster,
 			});
 			// clusters must have at least 2 nodes
 			if (nodesInCluster.length <= 1) continue;
 			let sumx = 0;
 			let sumy = 0;
 			let nInCluster = 0;
-			let clusterNode = data.nodes.get(`cluster-color-${color}`);
+			let clusterNode = data.nodes.get(`cluster-style-${style}`);
 			if (clusterNode === null) {
 				clusterNode = deepMerge(styles.nodes['cluster'], {
-					id: `cluster-color-${color}`,
+					id: `cluster-style-${style}`,
 					isCluster: true,
-					label: `Cluster ${++clusterNumber}`,
-					color: color,
+					label: `${styles.nodes[style].groupLabel} cluster`,
+					color: { background: styles.nodes[style].color.background },
+					font: {color: styles.nodes[style].font.color},
 					hidden: false,
 				});
 			} else clusterNode.hidden = false;
@@ -4076,7 +4098,6 @@ function clusterByStyle() {
 		showClusterLinks();
 	});
 }
-window.clusterByStyle = clusterByStyle;
 /**
  * Create links to cluster nodes and hide links that are now in clustered nodes
  */
@@ -4160,3 +4181,25 @@ function openCluster(clusterNodeId) {
 		showClusterLinks();
 	});
 }
+
+function unCluster() {
+	doc.transact(() => {
+		data.nodes.get({filter: (node) => node.isCluster}).forEach((clusterNode) => {
+			let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id});
+			for (let node of nodesInCluster) {
+				node.hidden = false;
+				node.clusteredIn = null;
+				data.nodes.update(node);
+			}
+			clusterNode.hidden = true;
+			// and the edges that link it
+			let eIds = network.getConnectedEdges(clusterNode.id);
+			for (let eId of eIds) {
+				data.edges.remove(eId);
+			}
+			data.nodes.update(clusterNode);
+			showClusterLinks();	
+		});
+	});
+}
+window.unCluster = unCluster;
