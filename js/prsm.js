@@ -168,13 +168,14 @@ function addEventListeners() {
 	});
 	listen('trophicButton', 'click', autoLayoutSwitch);
 	listen('snaptogridswitch', 'click', snapToGridSwitch);
+	listen('curveSelect', 'change', selectCurve);
 	listen('drawing', 'click', toggleDrawingLayer);
 	listen('allFactors', 'click', selectAllFactors);
 	listen('allLinks', 'click', selectAllLinks);
 	listen('showLegendSwitch', 'click', legendSwitch);
 	listen('showCursorSwitch', 'click', showCursorSwitch);
 	listen('showHistorySwitch', 'click', showHistorySwitch);
-	listen('curveSelect', 'change', selectCurve);
+	listen('clustering', 'change', selectClustering);
 	listen('lock', 'click', setFixed);
 	Array.from(document.getElementsByName('hide')).forEach((elem) => {
 		elem.addEventListener('change', hideDistantOrStreamNodes);
@@ -202,7 +203,7 @@ function addEventListeners() {
  */
 function setUpPage() {
 	elem('version').innerHTML = version;
-	// check options set on URL: ?debug='yjs'|'gui'&viewing&start
+	// check options set on URL: ?debug=yjs|gui|cluster&viewing&start
 	let searchParams = new URL(document.location).searchParams;
 	if (searchParams.has('debug')) debug = [searchParams.get('debug')];
 	// don't allow user to change anything if URL includes ?viewing
@@ -458,6 +459,9 @@ function startY(newRoom) {
 					break;
 				case 'attributeTitles':
 					break;
+				case 'cluster':
+					setCluster(obj);
+					break;
 				default:
 					console.log('Bad key in yMapNet.observe: ', key);
 			}
@@ -482,7 +486,7 @@ function startY(newRoom) {
 } // end startY()
 
 function yjsTrace(where, what) {
-	if (window.debug.includes('yjs')) {
+	if (/yjs/.test(debug)) {
 		console.log(exactTime(), where, what);
 	}
 }
@@ -521,6 +525,7 @@ function getRandomData(nNodes) {
 function displayNetPane(msg) {
 	console.log(msg);
 	if (netPane.style.visibility == 'hidden' || netPane.style.visibility == '') {
+		elem('loading').style.display = 'none';
 		fit(0);
 		setMapTitle(yNetMap.get('mapTitle'));
 		if (hideAndStreamNodes) {
@@ -798,7 +803,7 @@ function draw() {
 
 	// listen for click events on the network pane
 	network.on('click', function (params) {
-		if (window.debug.includes('gui')) console.log('click');
+		if (/gui/.test(debug)) console.log('click');
 		let keys = params.event.pointers[0];
 		if (keys.metaKey) {
 			// if the Command key (on a Mac)   is down, and the click is on a node/edge, log it to the console
@@ -836,7 +841,7 @@ function draw() {
 	});
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
-		if (window.debug.includes('gui')) console.log('doubleClick');
+		if (/gui/.test(debug)) console.log('doubleClick');
 		if (params.nodes.length === 1) {
 			if (!viewOnly && !inEditMode && !data.nodes.get(params.nodes[0]).locked) network.editNode();
 		} else if (params.edges.length === 1) {
@@ -846,13 +851,13 @@ function draw() {
 		}
 	});
 	network.on('selectNode', function () {
-		if (window.debug.includes('gui')) console.log('selectNode');
+		if (/gui/.test(debug)) console.log('selectNode');
 		showSelected();
 		showNodeOrEdgeData();
 		if (getRadioVal('hide') !== 'All' || getRadioVal('stream') !== 'All') hideDistantOrStreamNodes();
 	});
 	network.on('deselectNode', function () {
-		if (window.debug.includes('gui')) console.log('deselectNode');
+		if (/gui/.test(debug)) console.log('deselectNode');
 		hideNotes();
 		clearStatusBar();
 	});
@@ -863,12 +868,12 @@ function draw() {
 		changeCursor('default');
 	});
 	network.on('selectEdge', function () {
-		if (window.debug.includes('gui')) console.log('selectEdge');
+		if (/gui/.test(debug)) console.log('selectEdge');
 		showSelected();
 		showNodeOrEdgeData();
 	});
 	network.on('deselectEdge', function () {
-		if (window.debug.includes('gui')) console.log('deselectEdge');
+		if (/gui/.test(debug)) console.log('deselectEdge');
 		hideNotes();
 		clearStatusBar();
 	});
@@ -885,7 +890,7 @@ function draw() {
 	elem('main').appendChild(selectionArea);
 
 	network.on('dragStart', function (params) {
-		if (window.debug.includes('gui')) console.log('dragStart');
+		if (/gui/.test(debug)) console.log('dragStart');
 		let e = params.event.pointers[0];
 		// start drawing a selection rectangle if the CTRL key is down and click is on the background
 		if (e.ctrlKey && params.nodes.length == 0 && params.edges.length == 0) {
@@ -917,7 +922,7 @@ function draw() {
 		}px`;
 	}
 	network.on('dragEnd', function (params) {
-		if (window.debug.includes('gui')) console.log('dragEnd');
+		if (/gui/.test(debug)) console.log('dragEnd');
 		if (selectionArea.style.display == 'block') {
 			selectionArea.style.display = 'none';
 			network.setOptions({interaction: {dragView: true}});
@@ -953,11 +958,11 @@ function draw() {
 		changeCursor('default');
 	});
 	network.on('controlNodeDragging', function () {
-		if (window.debug.includes('gui')) console.log('controlNodeDragging');
+		if (/gui/.test(debug)) console.log('controlNodeDragging');
 		changeCursor('crosshair');
 	});
 	network.on('controlNodeDragEnd', function (event) {
-		if (window.debug.includes('gui')) console.log('controlNodeDragEnd');
+		if (/gui/.test(debug)) console.log('controlNodeDragEnd');
 		if (event.controlEdge.from != event.controlEdge.to) changeCursor('default');
 	});
 	network.on('beforeDrawing', function (ctx) {
@@ -3933,9 +3938,19 @@ function showGhostFactor() {
 }
 /******************************************* Clustering ************************************************************ */
 
+function selectClustering(e) {
+	let option = e.target.value;
+	cluster(option);
+	yNetMap.set('cluster', option);
+}
+function setCluster(option) {
+	elem('clustering').value = option;
+	cluster(option);
+}
 function cluster(attribute) {
 	unCluster();
 	switch (attribute) {
+		case 'none': return;
 		case 'color':
 			clusterByColor();
 			break;
@@ -4124,7 +4139,7 @@ function showClusterLinks() {
 		else edge.hidden = false; // shouldn't happen
 		data.edges.update(edge);
 	}
-	if (debug == 'cluster') {
+	if ((/cluster/.test(debug))) {
 		console.log('Nodes');
 		data.nodes.get().forEach((n) => {
 			console.log([n.id, n.label, n.hidden, n.clusteredIn]);

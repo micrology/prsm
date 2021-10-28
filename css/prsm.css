@@ -56,6 +56,7 @@ select {
 select {
 	border-color: lightgrey;
 	font-size: 12px;
+	outline: none;
 }
 .container {
 	position: relative;

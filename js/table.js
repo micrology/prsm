@@ -313,7 +313,7 @@ var headerContextMenu = [
  * @return {Tabulate} the table
  */
 function initialiseFactorTable() {
-	let tabledata = Array.from(yNodesMap.values()).map((n) => {
+	let tabledata = Array.from(yNodesMap.values()).filter((n) => !n.isCluster).map((n) => {
 		return convertNode(n);
 	});
 	factorsTable = new Tabulator('#factors-table', {

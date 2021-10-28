@@ -127,6 +127,7 @@ export const styles = {
 				color: '#ffffff',
 			},
 			shape: 'database',
+			margin: {top: 40}
 		}
 	},
 	edges: {
