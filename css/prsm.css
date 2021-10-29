@@ -91,13 +91,14 @@ main {
 	visibility: hidden;
 }
 #loading {
+	display: none;
 	width: 100%;
 	height: 100%;
 	position: absolute;
 	top: 0;
 	left: 0;
 }
-/* loading ... animation */
+/* loading ... animation See https://codepen.io/AsLittleDesign/pen/ZbVVwa */
 .loader {
 	height: 20px;
 	width: 250px;

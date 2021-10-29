@@ -89,10 +89,12 @@ var dirty = false; // map has been changed by user and may need saving
 var hammer; // Hammer pinch recogniser instance
 var followme; // clientId of user's cursor to follow
 var editor = null; // Quill editor
+var loadingDelayTimer; // timer to delay the start of the loading animation for few moments
 /**
  * top level function to initialise everything
  */
 window.addEventListener('load', () => {
+	loadingDelayTimer = setTimeout(() => { elem('loading').style.display = 'block'}, 600);
 	addEventListeners();
 	setUpPage();
 	startY();
@@ -142,8 +144,8 @@ function addEventListeners() {
 	listen('redo', 'click', redo);
 	listen('fileInput', 'change', readSingleFile);
 	listen('openFile', 'click', openFile);
-	listen('saveFile', 'click', saveJSONfile);
-	listen('exportPRSM', 'click', saveJSONfile);
+	listen('saveFile', 'click', savePRSMfile);
+	listen('exportPRSM', 'click', savePRSMfile);
 	listen('exportImage', 'click', exportPNGfile);
 	listen('exportCVS', 'click', exportCVS);
 	listen('exportGML', 'click', exportGML);
@@ -533,6 +535,7 @@ function displayNetPane(msg) {
 			hideDistantOrStreamNodes(false);
 		}
 		netPane.style.visibility = 'visible';
+		clearTimeout(loadingDelayTimer)
 		setUpTutorial();
 	}
 }
@@ -2521,9 +2524,9 @@ function refreshSampleLinks() {
 }
 
 /**
- * save the current map as a PRSM file
+ * save the current map as a PRSM file (in JSON format)
  */
-function saveJSONfile() {
+function savePRSMfile() {
 	network.storePositions();
 	let json = JSON.stringify(
 		{
@@ -3462,7 +3465,7 @@ function hideDistantOrStreamNodes(broadcast = true) {
 	function showAll() {
 		let nodes = data.nodes.get({
 			filter: function (node) {
-				let h = node.hidden;
+				let h = node.hidden && !node.isCluster;
 				if (h) node.hidden = false;
 				return h;
 			},
@@ -3948,19 +3951,22 @@ function setCluster(option) {
 	cluster(option);
 }
 function cluster(attribute) {
-	unCluster();
-	switch (attribute) {
-		case 'none': return;
-		case 'color':
-			clusterByColor();
-			break;
-		case 'style':
-			clusterByStyle();
-			break;
-		case 'attribute':
-			clusterByAttribute(attribute);
-			break;
-	}
+	doc.transact(() => {
+		unCluster();
+		switch (attribute) {
+			case 'none':
+				return;
+			case 'color':
+				clusterByColor();
+				break;
+			case 'style':
+				clusterByStyle();
+				break;
+			case 'attribute':
+				clusterByAttribute(attribute);
+				break;
+		}
+	});
 }
 window.cluster = cluster;
 /**
@@ -3973,48 +3979,46 @@ function clusterByAttribute(attribute) {
 	data.nodes.get().forEach((node) => {
 		if (!node.isCluster) attValues.add(node[attribute]);
 	});
-	doc.transact(() => {
-		unSelect();
-		let clusterNumber = 0;
-		// for each cluster
-		for (const value of attValues) {
-			// collect relevant nodes that are not already in a cluster and are not cluster nodes
-			let nodesInCluster = data.nodes.get({
-				filter: (node) => node[attribute] === value && !node.clusteredIn && !node.isCluster,
+	unSelect();
+	let clusterNumber = 0;
+	// for each cluster
+	for (const value of attValues) {
+		// collect relevant nodes that are not already in a cluster and are not cluster nodes
+		let nodesInCluster = data.nodes.get({
+			filter: (node) => node[attribute] === value && !node.clusteredIn && !node.isCluster,
+		});
+		// clusters must have at least 2 nodes
+		if (nodesInCluster.length <= 1) continue;
+		let sumx = 0;
+		let sumy = 0;
+		let nInCluster = 0;
+		let clusterNode = data.nodes.get(`cluster-${attribute}-${value}`);
+		if (clusterNode === null) {
+			let color = makeColor();
+			clusterNode = deepMerge(styles.nodes['cluster'], {
+				id: `cluster-${attribute}-${value}`,
+				isCluster: true,
+				label: `${attribute} ${++clusterNumber}`,
+				color: {background: color},
+				font: {color: lightOrDark(color) == 'light' ? 'black' : 'white'},
+				hidden: false,
 			});
-			// clusters must have at least 2 nodes
-			if (nodesInCluster.length <= 1) continue;
-			let sumx = 0;
-			let sumy = 0;
-			let nInCluster = 0;
-			let clusterNode = data.nodes.get(`cluster-${attribute}-${value}`);
-			if (clusterNode === null) {
-				let color = makeColor();
-				clusterNode = deepMerge(styles.nodes['cluster'], {
-					id: `cluster-${attribute}-${value}`,
-					isCluster: true,
-					label: `${attribute} ${++clusterNumber}`,
-					color: { background: color },
-					font: {color: lightOrDark(color) == 'light' ? 'black' : 'white'},
-					hidden: false,
-				});
-			} else clusterNode.hidden = false;
-			for (let node of nodesInCluster) {
-				// for each factor that should be in the cluster
-				node.clusteredIn = clusterNode.id;
-				node.hidden = true;
-				sumx += node.x;
-				sumy += node.y;
-				nInCluster++;
-				data.nodes.update(node);
-			}
-			// locate the cluster node at the centroid of the constituent nodes
-			clusterNode.x = sumx / nInCluster;
-			clusterNode.y = sumy / nInCluster;
-			data.nodes.update(clusterNode);
+		} else clusterNode.hidden = false;
+		for (let node of nodesInCluster) {
+			// for each factor that should be in the cluster
+			node.clusteredIn = clusterNode.id;
+			node.hidden = true;
+			sumx += node.x;
+			sumy += node.y;
+			nInCluster++;
+			data.nodes.update(node);
 		}
-		showClusterLinks();
-	});
+		// locate the cluster node at the centroid of the constituent nodes
+		clusterNode.x = sumx / nInCluster;
+		clusterNode.y = sumy / nInCluster;
+		data.nodes.update(clusterNode);
+	}
+	showClusterLinks();
 }
 
 function clusterByColor() {
@@ -4023,47 +4027,45 @@ function clusterByColor() {
 	data.nodes.get().forEach((node) => {
 		if (!node.isCluster) colors.add(node.color.background);
 	});
-	doc.transact(() => {
-		unSelect();
-		let clusterNumber = 0;
-		// for each cluster
-		for (const color of colors) {
-			// collect relevant nodes that are not already in a cluster and are not cluster nodes
-			let nodesInCluster = data.nodes.get({
-				filter: (node) => node.color.background === color && !node.clusteredIn && !node.isCluster,
+	unSelect();
+	let clusterNumber = 0;
+	// for each cluster
+	for (const color of colors) {
+		// collect relevant nodes that are not already in a cluster and are not cluster nodes
+		let nodesInCluster = data.nodes.get({
+			filter: (node) => node.color.background === color && !node.clusteredIn && !node.isCluster,
+		});
+		// clusters must have at least 2 nodes
+		if (nodesInCluster.length <= 1) continue;
+		let sumx = 0;
+		let sumy = 0;
+		let nInCluster = 0;
+		let clusterNode = data.nodes.get(`cluster-color-${color}`);
+		if (clusterNode === null) {
+			clusterNode = deepMerge(styles.nodes['cluster'], {
+				id: `cluster-color-${color}`,
+				isCluster: true,
+				label: `Cluster ${++clusterNumber}`,
+				color: {background: color},
+				font: {color: lightOrDark(color) == 'light' ? 'black' : 'white'},
+				hidden: false,
 			});
-			// clusters must have at least 2 nodes
-			if (nodesInCluster.length <= 1) continue;
-			let sumx = 0;
-			let sumy = 0;
-			let nInCluster = 0;
-			let clusterNode = data.nodes.get(`cluster-color-${color}`);
-			if (clusterNode === null) {
-				clusterNode = deepMerge(styles.nodes['cluster'], {
-					id: `cluster-color-${color}`,
-					isCluster: true,
-					label: `Cluster ${++clusterNumber}`,
-					color: { background: color },
-					font: {color: lightOrDark(color) == 'light' ? 'black' : 'white'},
-					hidden: false,
-				});
-			} else clusterNode.hidden = false;
-			for (let node of nodesInCluster) {
-				// for each factor that should be in the cluster
-				node.clusteredIn = clusterNode.id;
-				node.hidden = true;
-				sumx += node.x;
-				sumy += node.y;
-				nInCluster++;
-				data.nodes.update(node);
-			}
-			// locate the cluster node at the centroid of the constituent nodes
-			clusterNode.x = sumx / nInCluster;
-			clusterNode.y = sumy / nInCluster;
-			data.nodes.update(clusterNode);
+		} else clusterNode.hidden = false;
+		for (let node of nodesInCluster) {
+			// for each factor that should be in the cluster
+			node.clusteredIn = clusterNode.id;
+			node.hidden = true;
+			sumx += node.x;
+			sumy += node.y;
+			nInCluster++;
+			data.nodes.update(node);
 		}
-		showClusterLinks();
-	});
+		// locate the cluster node at the centroid of the constituent nodes
+		clusterNode.x = sumx / nInCluster;
+		clusterNode.y = sumy / nInCluster;
+		data.nodes.update(clusterNode);
+	}
+	showClusterLinks();
 }
 
 function clusterByStyle() {
@@ -4072,57 +4074,56 @@ function clusterByStyle() {
 	data.nodes.get().forEach((node) => {
 		if (!node.isCluster && node.groupLabel != 'Sample') stylesInUse.add(node.grp);
 	});
-	doc.transact(() => {
-		unSelect();
-		// for each cluster
-		for (const style of stylesInUse) {
-			// collect relevant nodes that are not already in a cluster and are not cluster nodes
-			let nodesInCluster = data.nodes.get({
-				filter: (node) => node.grp === style && !node.clusteredIn && !node.isCluster,
+	unSelect();
+	// for each cluster
+	for (const style of stylesInUse) {
+		// collect relevant nodes that are not already in a cluster and are not cluster nodes
+		let nodesInCluster = data.nodes.get({
+			filter: (node) => node.grp === style && !node.clusteredIn && !node.isCluster,
+		});
+		// clusters must have at least 2 nodes
+		if (nodesInCluster.length <= 1) continue;
+		let sumx = 0;
+		let sumy = 0;
+		let nInCluster = 0;
+		// retrieve or create the cluster node (cluster nodes are re-used if they already exist)
+		let clusterNode = data.nodes.get(`cluster-style-${style}`);
+		if (clusterNode === null) {
+			clusterNode = deepMerge(styles.nodes['cluster'], {
+				id: `cluster-style-${style}`,
+				isCluster: true,
+				label: `${styles.nodes[style].groupLabel} cluster`,
+				color: {background: styles.nodes[style].color.background},
+				font: {color: styles.nodes[style].font.color},
+				hidden: false,
 			});
-			// clusters must have at least 2 nodes
-			if (nodesInCluster.length <= 1) continue;
-			let sumx = 0;
-			let sumy = 0;
-			let nInCluster = 0;
-			let clusterNode = data.nodes.get(`cluster-style-${style}`);
-			if (clusterNode === null) {
-				clusterNode = deepMerge(styles.nodes['cluster'], {
-					id: `cluster-style-${style}`,
-					isCluster: true,
-					label: `${styles.nodes[style].groupLabel} cluster`,
-					color: { background: styles.nodes[style].color.background },
-					font: {color: styles.nodes[style].font.color},
-					hidden: false,
-				});
-			} else clusterNode.hidden = false;
-			for (let node of nodesInCluster) {
-				// for each factor that should be in the cluster
-				node.clusteredIn = clusterNode.id;
-				node.hidden = true;
-				sumx += node.x;
-				sumy += node.y;
-				nInCluster++;
-				data.nodes.update(node);
-			}
-			// locate the cluster node at the centroid of the constituent nodes
-			clusterNode.x = sumx / nInCluster;
-			clusterNode.y = sumy / nInCluster;
-			data.nodes.update(clusterNode);
+		} else clusterNode.hidden = false;
+		for (let node of nodesInCluster) {
+			// for each factor that should be in the cluster
+			node.clusteredIn = clusterNode.id;
+			node.hidden = true;
+			sumx += node.x;
+			sumy += node.y;
+			nInCluster++;
+			data.nodes.update(node);
 		}
-		showClusterLinks();
-	});
+		// locate the cluster node at the centroid of the constituent nodes
+		clusterNode.x = sumx / nInCluster;
+		clusterNode.y = sumy / nInCluster;
+		data.nodes.update(clusterNode);
+	}
+	showClusterLinks();
 }
 /**
- * Create links to cluster nodes and hide links that are now in clustered nodes
+ * Create links to cluster nodes and hide links that are now inside clustered nodes
  */
 function showClusterLinks() {
-	// hide all cluster links initially
+	// hide all links between clusters initially
 	data.edges.get().forEach((edge) => {
 		if (edge.isClusterEdge) edge.hidden = true;
 	});
 	for (let edge of data.edges.get()) {
-		if (edge.isClusterEdge) break;
+		if (edge.isClusterEdge) continue;
 		// if edge is between two nodes neither of which are in a cluster, show it
 		// if edge is from and to nodes that are in the same cluster, hide it
 		// if edge is from a node not in a cluster, and to a node in a cluster, hide it and make a cluster edge for it
@@ -4139,7 +4140,7 @@ function showClusterLinks() {
 		else edge.hidden = false; // shouldn't happen
 		data.edges.update(edge);
 	}
-	if ((/cluster/.test(debug))) {
+	if (/cluster/.test(debug)) {
 		console.log('Nodes');
 		data.nodes.get().forEach((n) => {
 			console.log([n.id, n.label, n.hidden, n.clusteredIn]);
@@ -4169,7 +4170,7 @@ function showClusterLinks() {
 	}
 }
 /**
- * hide the cluster node and unhide the nodes it was clustering (and their edges)
+ * Hide the cluster node and unhide the nodes it was clustering (and their edges)
  * called by right clicking the cluster node
  * @param {string} clusterNodeId
  */
@@ -4198,23 +4199,21 @@ function openCluster(clusterNodeId) {
 }
 
 function unCluster() {
-	doc.transact(() => {
-		data.nodes.get({filter: (node) => node.isCluster}).forEach((clusterNode) => {
-			let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id});
-			for (let node of nodesInCluster) {
-				node.hidden = false;
-				node.clusteredIn = null;
-				data.nodes.update(node);
-			}
-			clusterNode.hidden = true;
-			// and the edges that link it
-			let eIds = network.getConnectedEdges(clusterNode.id);
-			for (let eId of eIds) {
-				data.edges.remove(eId);
-			}
-			data.nodes.update(clusterNode);
-			showClusterLinks();	
-		});
+	data.nodes.get({filter: (node) => node.isCluster}).forEach((clusterNode) => {
+		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id});
+		for (let node of nodesInCluster) {
+			node.hidden = false;
+			node.clusteredIn = null;
+			data.nodes.update(node);
+		}
+		clusterNode.hidden = true;
+		// and the edges that link it
+		let eIds = network.getConnectedEdges(clusterNode.id);
+		for (let eId of eIds) {
+			data.edges.remove(eId);
+		}
+		data.nodes.update(clusterNode);
 	});
+	showClusterLinks();
 }
 window.unCluster = unCluster;
