@@ -158,6 +158,11 @@ main {
 		transform: translateX(0);
 	}
 }
+/* apply a waiting cursor to the whole window */
+.wait,
+.wait * {
+	cursor: wait !important;
+}
 #underlay {
 	width: 100%;
 	height: 100%;

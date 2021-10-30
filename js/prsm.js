@@ -13,7 +13,6 @@ import {
 	uuidv4,
 	deepMerge,
 	deepCopy,
-	strip,
 	splitText,
 	dragElement,
 	standardize_color,
@@ -94,7 +93,9 @@ var loadingDelayTimer; // timer to delay the start of the loading animation for 
  * top level function to initialise everything
  */
 window.addEventListener('load', () => {
-	loadingDelayTimer = setTimeout(() => { elem('loading').style.display = 'block'}, 600);
+	loadingDelayTimer = setTimeout(() => {
+		elem('loading').style.display = 'block';
+	}, 600);
 	addEventListeners();
 	setUpPage();
 	startY();
@@ -535,7 +536,7 @@ function displayNetPane(msg) {
 			hideDistantOrStreamNodes(false);
 		}
 		netPane.style.visibility = 'visible';
-		clearTimeout(loadingDelayTimer)
+		clearTimeout(loadingDelayTimer);
 		setUpTutorial();
 	}
 }
@@ -2539,8 +2540,8 @@ function savePRSMfile() {
 			buttons: getButtonStatus(),
 			attributeTitles: yNetMap.get('attributeTitles'),
 			styles: styles,
-			nodes: data.nodes.map((n) =>
-				strip(n, [
+			nodes: data.nodes.get({
+				fields: [
 					'id',
 					'label',
 					'note',
@@ -2552,10 +2553,14 @@ function savePRSMfile() {
 					'font',
 					'borderWidth',
 					'shapeProperties',
-				])
-			),
-			edges: data.edges.map((e) =>
-				strip(e, ['id', 'label', 'note', 'grp', 'from', 'to', 'color', 'width', 'dashes'])
+				],
+				filter: (n) => !n.isCluster,
+			}),
+			edges: data.edges.get({
+				fields:
+					['id', 'label', 'note', 'grp', 'from', 'to', 'color', 'width', 'dashes'],
+				filter: (e) => ! e.isClusterEdge
+			}
 			),
 			underlay: yPointsArray.toArray(),
 			history: yHistory.toArray(),
@@ -3948,14 +3953,16 @@ function selectClustering(e) {
 }
 function setCluster(option) {
 	elem('clustering').value = option;
-	cluster(option);
 }
 function cluster(attribute) {
+	container.classList.add('wait');
+	console.log(exactTime(), 'start unclustering');
 	doc.transact(() => {
 		unCluster();
+		console.log(exactTime(), 'start clustering');
 		switch (attribute) {
 			case 'none':
-				return;
+				break;
 			case 'color':
 				clusterByColor();
 				break;
@@ -3967,8 +3974,9 @@ function cluster(attribute) {
 				break;
 		}
 	});
+	console.log(exactTime(), 'stop clustering');
+	container.classList.remove('wait');
 }
-window.cluster = cluster;
 /**
  *
  * @param {String} attribute
@@ -3981,6 +3989,7 @@ function clusterByAttribute(attribute) {
 	});
 	unSelect();
 	let clusterNumber = 0;
+	let nodesToUpdate = [];
 	// for each cluster
 	for (const value of attValues) {
 		// collect relevant nodes that are not already in a cluster and are not cluster nodes
@@ -4011,13 +4020,14 @@ function clusterByAttribute(attribute) {
 			sumx += node.x;
 			sumy += node.y;
 			nInCluster++;
-			data.nodes.update(node);
+			nodesToUpdate.push(node);
 		}
 		// locate the cluster node at the centroid of the constituent nodes
 		clusterNode.x = sumx / nInCluster;
 		clusterNode.y = sumy / nInCluster;
-		data.nodes.update(clusterNode);
+		nodesToUpdate.push(clusterNode);
 	}
+	data.nodes.update(nodesToUpdate);
 	showClusterLinks();
 }
 
@@ -4029,6 +4039,7 @@ function clusterByColor() {
 	});
 	unSelect();
 	let clusterNumber = 0;
+	let nodesToUpdate = [];
 	// for each cluster
 	for (const color of colors) {
 		// collect relevant nodes that are not already in a cluster and are not cluster nodes
@@ -4058,13 +4069,14 @@ function clusterByColor() {
 			sumx += node.x;
 			sumy += node.y;
 			nInCluster++;
-			data.nodes.update(node);
+			nodesToUpdate.push(node);
 		}
 		// locate the cluster node at the centroid of the constituent nodes
 		clusterNode.x = sumx / nInCluster;
 		clusterNode.y = sumy / nInCluster;
-		data.nodes.update(clusterNode);
+		nodesToUpdate.push(clusterNode);
 	}
+	data.nodes.update(nodesToUpdate);
 	showClusterLinks();
 }
 
@@ -4075,6 +4087,7 @@ function clusterByStyle() {
 		if (!node.isCluster && node.groupLabel != 'Sample') stylesInUse.add(node.grp);
 	});
 	unSelect();
+	let nodesToUpdate = [];
 	// for each cluster
 	for (const style of stylesInUse) {
 		// collect relevant nodes that are not already in a cluster and are not cluster nodes
@@ -4105,20 +4118,24 @@ function clusterByStyle() {
 			sumx += node.x;
 			sumy += node.y;
 			nInCluster++;
-			data.nodes.update(node);
+			nodesToUpdate.push(node);
 		}
 		// locate the cluster node at the centroid of the constituent nodes
 		clusterNode.x = sumx / nInCluster;
 		clusterNode.y = sumy / nInCluster;
-		data.nodes.update(clusterNode);
+		nodesToUpdate.push(clusterNode);
 	}
+	data.nodes.update(nodesToUpdate);
 	showClusterLinks();
 }
+
 /**
  * Create links to cluster nodes and hide links that are now inside clustered nodes
  */
 function showClusterLinks() {
+	console.log(exactTime(), 'start showClusterLinks');
 	// hide all links between clusters initially
+	let edgesToUpdate = [];
 	data.edges.get().forEach((edge) => {
 		if (edge.isClusterEdge) edge.hidden = true;
 	});
@@ -4138,8 +4155,9 @@ function showClusterLinks() {
 		else if (fromNode.clusteredIn && !toNode.clusteredIn) makeClusterLink(fromNode.clusteredIn, edge.to);
 		else if (fromNode.clusteredIn && toNode.clusteredIn) makeClusterLink(fromNode.clusteredIn, toNode.clusteredIn);
 		else edge.hidden = false; // shouldn't happen
-		data.edges.update(edge);
+		edgesToUpdate.push(edge);
 	}
+	data.edges.update(edgesToUpdate);
 	if (/cluster/.test(debug)) {
 		console.log('Nodes');
 		data.nodes.get().forEach((n) => {
@@ -4166,8 +4184,9 @@ function showClusterLinks() {
 			});
 		}
 		edge.hidden = false;
-		data.edges.update(edge);
+		edgesToUpdate.push(edge);
 	}
+	console.log(exactTime(), 'stop showClusterLinks');
 }
 /**
  * Hide the cluster node and unhide the nodes it was clustering (and their edges)
@@ -4180,11 +4199,12 @@ function openCluster(clusterNodeId) {
 	if (!clusterNode.isCluster) return;
 	doc.transact(() => {
 		unSelect();
+		let nodesToUpdate = [];
 		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id});
 		for (let node of nodesInCluster) {
 			node.hidden = false;
 			node.clusteredIn = null;
-			data.nodes.update(node);
+			nodesToUpdate.push(node);
 		}
 		// hide the cluster node
 		clusterNode.hidden = true;
@@ -4193,18 +4213,20 @@ function openCluster(clusterNodeId) {
 		for (let eId of eIds) {
 			data.edges.remove(eId);
 		}
-		data.nodes.update(clusterNode);
+		nodesToUpdate.push(clusterNode);
+		data.nodes.update(nodesToUpdate);
 		showClusterLinks();
 	});
 }
 
 function unCluster() {
+	let nodesToUpdate = [];
 	data.nodes.get({filter: (node) => node.isCluster}).forEach((clusterNode) => {
 		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id});
 		for (let node of nodesInCluster) {
 			node.hidden = false;
 			node.clusteredIn = null;
-			data.nodes.update(node);
+			nodesToUpdate.push(node);
 		}
 		clusterNode.hidden = true;
 		// and the edges that link it
@@ -4212,8 +4234,9 @@ function unCluster() {
 		for (let eId of eIds) {
 			data.edges.remove(eId);
 		}
-		data.nodes.update(clusterNode);
+		nodesToUpdate.push(clusterNode);
 	});
+	data.nodes.update(nodesToUpdate);
 	showClusterLinks();
 }
-window.unCluster = unCluster;
+
