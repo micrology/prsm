@@ -24,12 +24,12 @@ import {
 	CP,
 	timeAndDate,
 	setEndOfContenteditable,
-	exactTime
+	exactTime,
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
-import { trophic } from './trophic.js';
-import { cluster, openCluster } from './cluster.js';
+import {trophic} from './trophic.js';
+import {cluster, openCluster} from './cluster.js';
 import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
 import {EmojiButton} from '@joeattardi/emoji-button';
@@ -461,6 +461,7 @@ function startY(newRoom) {
 					updateFactorsHiddenByStyle(obj);
 					break;
 				case 'attributeTitles':
+					recreateClusteringMenu(obj);
 					break;
 				case 'cluster':
 					setCluster(obj);
@@ -2553,11 +2554,9 @@ function savePRSMfile() {
 				filter: (n) => !n.isCluster,
 			}),
 			edges: data.edges.get({
-				fields:
-					['id', 'label', 'note', 'grp', 'from', 'to', 'color', 'width', 'dashes'],
-				filter: (e) => ! e.isClusterEdge
-			}
-			),
+				fields: ['id', 'label', 'note', 'grp', 'from', 'to', 'color', 'width', 'dashes'],
+				filter: (e) => !e.isClusterEdge,
+			}),
 			underlay: yPointsArray.toArray(),
 			history: yHistory.toArray(),
 		},
@@ -3553,15 +3552,30 @@ function sizing(metric) {
 }
 /**
  * User has chosen a clustering option
- * @param {Event} e 
+ * @param {Event} e
  */
 function selectClustering(e) {
 	let option = e.target.value;
 	cluster(option);
+	fit(0);
 	yNetMap.set('cluster', option);
 }
 function setCluster(option) {
 	elem('clustering').value = option;
+}
+function recreateClusteringMenu(obj) {
+	// remove any old select items, other than the standard ones (which are the first 3: None, Style, Color)
+	let select = elem('clustering');
+	for (let i = 3, len = select.options.length; i < len; i++) {
+		select.remove(3);
+	}
+	// append the ones provided
+	for (const property in obj) {
+		let opt = document.createElement('option');
+		opt.value = property;
+		opt.text = obj[property];
+		select.add(opt, null);
+	}
 }
 /* ---------------------------------------chat window --------------------------------*/
 

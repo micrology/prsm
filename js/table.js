@@ -522,7 +522,8 @@ function initialiseFactorTable() {
 				columns: [
 					{
 						field: 'note',
-						minWidth: 200,
+						minWidth: 50,
+						maxWidth: 200,
 						editor: quillEditor,
 						formatter: quillFormatter,
 					},
@@ -564,6 +565,8 @@ function initialiseFactorTable() {
 			});
 		});
 	});
+	collapseColGroup(factorsTable, 'Format');
+	collapseColGroup(factorsTable, 'Statistics');
 	listen('hideFormat', 'click', () => {
 		collapseColGroup(factorsTable, 'Format');
 	});
