@@ -82,7 +82,7 @@ function setUpCanvas(id) {
  */
 function getContext(canvas) {
 	let ctx = canvas.getContext('2d');
-//	ctx.scale(dpr, dpr);
+	//	ctx.scale(dpr, dpr);
 	ctx.lineWidth = defaultOptions.lineWidth;
 	ctx.strokeStyle = defaultOptions.strokeStyle;
 	ctx.fillStyle = defaultOptions.fillstyle;

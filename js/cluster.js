@@ -1,30 +1,38 @@
 /******************************************* Clustering ************************************************************ */
 
-import { elem, uuidv4, deepMerge, makeColor, lightOrDark } from './utils.js';
+import {elem, uuidv4, deepMerge, makeColor, lightOrDark} from './utils.js';
 import {styles} from './samples.js';
 import {network, data, doc, yNetMap, unSelect, debug} from './prsm.js';
 
 export function cluster(attribute) {
-	let container = elem('container');
-	container.classList.add('wait');
-	doc.transact(() => {
-		unCluster();
-		switch (attribute) {
-			case 'none':
-				break;
-			case 'color':
-				clusterByColor();
-				break;
-			case 'style':
-				clusterByStyle();
-				break;
-			default:
-				clusterByAttribute(attribute);
-				break;
-		}
-	});
-	container.classList.remove('wait');
+		doc.transact(() => {
+			unCluster();
+			switch (attribute) {
+				case 'none':
+					break;
+				case 'color':
+					clusterByColor();
+					break;
+				case 'style':
+					clusterByStyle();
+					break;
+				default:
+					clusterByAttribute(attribute);
+					break;
+			}
+		});
 }
+
+/**
+ * superimpose 'wait' animation over the net pane(or remove it)
+ * @param {Boolean} on
+ 
+function displayWaitAnimation(on) {
+	let loading = elem('loading');
+	loading.style.display = on ? 'block' : 'none';
+	loading.style.zIndex = on ? 1000 : 0;
+	loading.style.backgroundColor = 'red';
+}*/
 /**
  *
  * @param {String} attribute
@@ -246,6 +254,7 @@ export function openCluster(clusterNodeId) {
 	doc.transact(() => {
 		unSelect();
 		let nodesToUpdate = [];
+		let edgesToRemove = [];
 		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id});
 		for (let node of nodesInCluster) {
 			node.hidden = false;
@@ -257,16 +266,22 @@ export function openCluster(clusterNodeId) {
 		// and the edges that link it
 		let eIds = network.getConnectedEdges(clusterNode.id);
 		for (let eId of eIds) {
-			data.edges.remove(eId);
+			edgesToRemove.push(eId);
 		}
 		nodesToUpdate.push(clusterNode);
 		data.nodes.update(nodesToUpdate);
+		data.edges.remove(edgesToRemove)
 		showClusterLinks();
 	});
+	if (data.nodes.get({filter: (n) => n.isCluster && !n.hidden}).length === 0) {
+		// all clusters have been opened; reset the cluster select to None
+		elem('clustering').value = 'none';
+	}
 }
 
 function unCluster() {
 	let nodesToUpdate = [];
+	let edgesToRemove = [];
 	data.nodes.get({filter: (node) => node.isCluster}).forEach((clusterNode) => {
 		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id});
 		for (let node of nodesInCluster) {
@@ -278,10 +293,11 @@ function unCluster() {
 		// and the edges that link it
 		let eIds = network.getConnectedEdges(clusterNode.id);
 		for (let eId of eIds) {
-			data.edges.remove(eId);
+			edgesToRemove.push(eId);
 		}
 		nodesToUpdate.push(clusterNode);
 	});
 	data.nodes.update(nodesToUpdate);
+	data.edges.remove(edgesToRemove)
 	showClusterLinks();
 }

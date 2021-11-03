@@ -20,6 +20,7 @@ import {
 	generateName,
 	statusMsg,
 	clearStatusBar,
+	shorten,
 	initials,
 	CP,
 	timeAndDate,
@@ -45,7 +46,6 @@ const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
-const SHORTLABELLEN = 25; // when listing node labels, use ellipsis after this number of chars
 const TIMETOSLEEP = 15 * 60 * 1000; // if no mouse movement for this time, user is assumed to have left or is sleeping
 const TIMETOEDIT = 5 * 60 * 1000; // if node/edge edit dialog is not saved after this time, the edit is cancelled
 const magnification = 3; // magnification of the loupe (magnifier 'glass')
@@ -93,9 +93,9 @@ var loadingDelayTimer; // timer to delay the start of the loading animation for 
  * top level function to initialise everything
  */
 window.addEventListener('load', () => {
-	loadingDelayTimer = setTimeout(() => {
+loadingDelayTimer = setTimeout(() => {
 		elem('loading').style.display = 'block';
-	}, 600);
+	}, 100); 
 	addEventListeners();
 	setUpPage();
 	startY();
@@ -336,6 +336,7 @@ function startY(newRoom) {
 	yNodesMap.observe((event) => {
 		yjsTrace('yNodesMap.observe', event);
 		let nodesToUpdate = [];
+		let nodesToRemove = [];
 		for (let key of event.keysChanged) {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key);
@@ -346,11 +347,12 @@ function startY(newRoom) {
 				}
 			} else {
 				hideNotes();
-				if (data.nodes.get(key)) network.getConnectedEdges(key).forEach((edge) => edges.remove(edge, 'remote'));
-				nodes.remove(key, 'remote');
+				if (data.nodes.get(key)) network.getConnectedEdges(key).forEach((edge) => nodesToRemove.push(edge));
+				nodesToRemove.push(key);
 			}
 		}
-		if (nodesToUpdate) nodes.update(nodesToUpdate, 'remote');
+		nodes.update(nodesToUpdate, 'remote');
+		nodes.remove(nodesToRemove, 'remote');
 	});
 	/* 
 	See comments above about nodes
@@ -372,6 +374,7 @@ function startY(newRoom) {
 	yEdgesMap.observe((event) => {
 		yjsTrace('yEdgesMap.observe', event);
 		let edgesToUpdate = [];
+		let edgesToRemove = [];
 		for (let key of event.keysChanged) {
 			if (yEdgesMap.has(key)) {
 				let obj = yEdgesMap.get(key);
@@ -381,10 +384,11 @@ function startY(newRoom) {
 				}
 			} else {
 				hideNotes();
-				edges.remove(key, 'remote');
+				edgesToRemove.push(key);
 			}
 		}
 		edges.update(edgesToUpdate, 'remote');
+		edges.remove(edgesToRemove, 'remote');
 	});
 
 	ySamplesMap.observe((event) => {
@@ -1868,13 +1872,7 @@ function listFactors(factors) {
 		return label.concat(', ' + lf(factors));
 	}
 }
-/**
- * shorten the label if necessary and add an ellipsis
- * @param {string} label
- */
-function shorten(label) {
-	return label.length > SHORTLABELLEN ? label.substring(0, SHORTLABELLEN) + '...' : label;
-}
+
 /**
  * return a string listing the number of Links
  * @param {Array} links

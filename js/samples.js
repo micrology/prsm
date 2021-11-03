@@ -127,8 +127,8 @@ export const styles = {
 				color: '#ffffff',
 			},
 			shape: 'database',
-			margin: {top: 40}
-		}
+			margin: {top: 40},
+		},
 	},
 	edges: {
 		base: {
@@ -222,7 +222,6 @@ export const styles = {
 				color: '#8D6E63',
 			},
 			width: 3,
-			
-		}
+		},
 	},
 };

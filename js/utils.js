@@ -520,6 +520,16 @@ export function clearStatusBar() {
 	statusMsg(' ');
 }
 /**
+ * shorten the label if necessary and add an ellipsis
+ * @param {string} label text to shorten
+ * @param {Integer} maxLength if longer than this, cut the excess
+ */
+const SHORTLABELLEN = 25; // when listing node labels, use ellipsis after this number of chars
+
+export function shorten(label, maxLength = SHORTLABELLEN) {
+	return label.length > maxLength ? label.substring(0, maxLength) + '...' : label;
+}
+/**
  * return the initials of the given name as a string: Nigel Gilbert -> NG
  * @param {string} name
  */
@@ -720,51 +730,39 @@ window.makeColor = makeColor;
 /**
  * Determine whether a color is light or dark (so text in a contrasting color can be overlaid)
  * from https://awik.io/determine-color-bright-dark-using-javascript/
- * @param {CSS color string} color 
+ * @param {CSS color string} color
  * @returns 'light' or 'dark'
  */
 export function lightOrDark(color) {
+	// Variables for red, green, blue values
+	var r, g, b, hsp;
 
-    // Variables for red, green, blue values
-    var r, g, b, hsp;
-    
-    // Check the format of the color, HEX or RGB?
-    if (color.match(/^rgb/)) {
+	// Check the format of the color, HEX or RGB?
+	if (color.match(/^rgb/)) {
+		// If RGB --> store the red, green, blue values in separate variables
+		color = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
 
-        // If RGB --> store the red, green, blue values in separate variables
-        color = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
-        
-        r = color[1];
-        g = color[2];
-        b = color[3];
-    } 
-    else {
-        
-        // If hex --> Convert it to RGB: http://gist.github.com/983661
-        color = +("0x" + color.slice(1).replace( 
-        color.length < 5 && /./g, '$&$&'));
+		r = color[1];
+		g = color[2];
+		b = color[3];
+	} else {
+		// If hex --> Convert it to RGB: http://gist.github.com/983661
+		color = +('0x' + color.slice(1).replace(color.length < 5 && /./g, '$&$&'));
 
-        r = color >> 16;
-        g = color >> 8 & 255;
-        b = color & 255;
-    }
-    
-    // HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
-    hsp = Math.sqrt(
-    0.299 * (r * r) +
-    0.587 * (g * g) +
-    0.114 * (b * b)
-    );
+		r = color >> 16;
+		g = (color >> 8) & 255;
+		b = color & 255;
+	}
 
-    // Using the HSP value, determine whether the color is light or dark
-    if (hsp>127.5) {
+	// HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
+	hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
 
-        return 'light';
-    } 
-    else {
-
-        return 'dark';
-    }
+	// Using the HSP value, determine whether the color is light or dark
+	if (hsp > 127.5) {
+		return 'light';
+	} else {
+		return 'dark';
+	}
 }
 /**
  * @returns a string with current time to the nearest millisecond

@@ -1,7 +1,7 @@
 import * as Y from 'yjs';
 import {WebsocketProvider} from 'y-websocket';
 import {IndexeddbPersistence} from 'y-indexeddb';
-import {listen, elem, deepCopy, deepMerge, timeAndDate} from './utils.js';
+import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten} from './utils.js';
 import Tabulator from 'tabulator-tables';
 import {version} from '../package.json';
 import Quill from 'quill';
@@ -313,9 +313,11 @@ var headerContextMenu = [
  * @return {Tabulate} the table
  */
 function initialiseFactorTable() {
-	let tabledata = Array.from(yNodesMap.values()).filter((n) => !n.isCluster).map((n) => {
-		return convertNode(n);
-	});
+	let tabledata = Array.from(yNodesMap.values())
+		.filter((n) => !n.isCluster)
+		.map((n) => {
+			return convertNode(n);
+		});
 	factorsTable = new Tabulator('#factors-table', {
 		data: tabledata, //assign data to table
 		layout: 'fitData',
@@ -470,7 +472,7 @@ function initialiseFactorTable() {
 						field: 'indegree',
 						headerVertical: true,
 						minWidth: 100,
-						hozAlign:'center',
+						hozAlign: 'center',
 						cssClass: 'grey',
 						bottomCalc: 'avg',
 						bottomCalcFormatter: bottomCalcFormatter,
@@ -480,7 +482,7 @@ function initialiseFactorTable() {
 						title: 'Out-degree',
 						field: 'outdegree',
 						headerVertical: true,
-						hozAlign:'center',
+						hozAlign: 'center',
 						cssClass: 'grey',
 						bottomCalc: 'avg',
 						bottomCalcFormatter: bottomCalcFormatter,
@@ -490,7 +492,7 @@ function initialiseFactorTable() {
 						title: 'Total degree',
 						field: 'degree',
 						headerVertical: true,
-						hozAlign:'center',
+						hozAlign: 'center',
 						cssClass: 'grey',
 						bottomCalc: 'avg',
 						bottomCalcFormatter: bottomCalcFormatter,
@@ -499,7 +501,7 @@ function initialiseFactorTable() {
 					{
 						title: 'Leverage',
 						field: 'leverage',
-						hozAlign:'center',
+						hozAlign: 'center',
 						headerVertical: true,
 						cssClass: 'grey',
 					},
@@ -507,7 +509,7 @@ function initialiseFactorTable() {
 						title: 'Betweenness',
 						field: 'bc',
 						minWidth: 60,
-						hozAlign:'center',
+						hozAlign: 'center',
 						headerVertical: true,
 						cssClass: 'grey',
 						bottomCalc: 'max',
@@ -517,15 +519,15 @@ function initialiseFactorTable() {
 				],
 			},
 			{
-				title: 'Notes',
+				title: groupTitle('Notes'),
 				field: 'Notes',
 				columns: [
 					{
 						field: 'note',
-						minWidth: 50,
-						maxWidth: 200,
 						editor: quillEditor,
 						formatter: quillFormatter,
+						maxWidth: 600,
+						variableHeight: true,
 					},
 				],
 			},
@@ -565,14 +567,11 @@ function initialiseFactorTable() {
 			});
 		});
 	});
+	// start with column groups collapsed
 	collapseColGroup(factorsTable, 'Format');
 	collapseColGroup(factorsTable, 'Statistics');
-	listen('hideFormat', 'click', () => {
-		collapseColGroup(factorsTable, 'Format');
-	});
-	listen('hideStatistics', 'click', () => {
-		collapseColGroup(factorsTable, 'Statistics');
-	});
+	collapseNotes(factorsTable);
+
 	return factorsTable;
 }
 /**
@@ -615,6 +614,27 @@ function collapseColGroup(table, field) {
 		}
 	});
 }
+/**
+ * reduce (and shorten the notes text) or expand the width of the Notes column 
+ * @param {table} table 
+ * @param {String} field 
+ */
+function collapseNotes(table, field = 'Notes') {
+	let col = table.columnManager.columnsByIndex.filter((c) => c.field == 'note')[0];
+	if (document.getElementById(`hide${field}`).dataset.collapsed == 'true') {
+		col.parent.titleElement.innerHTML = groupTitle(field, false);
+		col.setWidth(200);
+	} else {
+		col.parent.titleElement.innerHTML = groupTitle(field, true);
+		col.setWidth(600);
+	}
+	// rewrite the values, so that the Notes formatter can shorten or expand the displayed text
+	col.getCells().forEach((cell) => cell.setValue(cell.getValue()));
+	listen(`hide${field}`, 'click', () => {
+		collapseNotes(table, field);
+	});
+}
+
 /**
  * Toggle the value of a cell in a TickCross column
  * @param {Event} e
@@ -695,21 +715,23 @@ function svg(icon) {
 	}
 }
 /**
- * returns the note for this factor in HTML format
- * @param {CellComponent} cell 
+ * returns the note for this factor in HTML format, shortening it with ellipses if the column is collapsed
+ * @param {CellComponent} cell
  * @returns HTML string
-*/
+ */
 function quillFormatter(cell) {
 	let note = cell.getValue();
 	if (note) {
 		qed.setContents(note);
-		return new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert();
+		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert();
+		if (elem(`hide${cell.getColumn().getParentColumn().getField()}`).dataset.collapsed == 'false') return shorten(html, 50);
+		else return html;
 	}
 	return '';
 }
 /**
  * start up a Quill editor for the note in this cell
- * @param {cell Component} cell 
+ * @param {cell Component} cell
  * @param {callback} onRendered not used
  * @param {callback} success function to call when user has finished editing
  * @returns HTMLElement placeholder for the cell while it is being edited elsewhere
@@ -753,7 +775,7 @@ function quillEditor(cell, onRendered, success) {
 	return placeholder;
 
 	function finish(cell) {
-		factorsTable.modules.edit.currentCell = cell._cell;
+		cell.getTable().modules.edit.currentCell = cell._cell;
 		success(editor.getContents());
 		pane.remove();
 	}
@@ -1014,16 +1036,18 @@ function initialiseLinkTable() {
 				],
 			},
 			{
-				title: 'Notes',
+				title: groupTitle('LinkNotes'),
+				field: 'LinkNotes',
 				columns: [
 					{
 						field: 'note',
-						minWidth: 200,
 						editor: quillEditor,
 						formatter: quillFormatter,
+						maxWidth: 600,
+						variableHeight: true,
 					},
 				],
-			},
+			}, 
 		],
 	});
 	window.linksTable = linksTable;
@@ -1038,9 +1062,8 @@ function initialiseLinkTable() {
 			});
 		});
 	});
-	listen('hideStyle', 'click', () => {
-		collapseColGroup(linksTable,'Style');
-	});
+	collapseColGroup(linksTable, 'Style');
+	collapseNotes(linksTable, 'LinkNotes');
 
 	return linksTable;
 }
