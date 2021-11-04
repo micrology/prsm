@@ -615,9 +615,9 @@ function collapseColGroup(table, field) {
 	});
 }
 /**
- * reduce (and shorten the notes text) or expand the width of the Notes column 
- * @param {table} table 
- * @param {String} field 
+ * reduce (and shorten the notes text) or expand the width of the Notes column
+ * @param {table} table
+ * @param {String} field
  */
 function collapseNotes(table, field = 'Notes') {
 	let col = table.columnManager.columnsByIndex.filter((c) => c.field == 'note')[0];
@@ -724,7 +724,8 @@ function quillFormatter(cell) {
 	if (note) {
 		qed.setContents(note);
 		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert();
-		if (elem(`hide${cell.getColumn().getParentColumn().getField()}`).dataset.collapsed == 'false') return shorten(html, 50);
+		if (elem(`hide${cell.getColumn().getParentColumn().getField()}`).dataset.collapsed == 'false')
+			return shorten(html, 50);
 		else return html;
 	}
 	return '';
@@ -1047,7 +1048,7 @@ function initialiseLinkTable() {
 						variableHeight: true,
 					},
 				],
-			}, 
+			},
 		],
 	});
 	window.linksTable = linksTable;

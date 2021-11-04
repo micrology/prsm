@@ -93,9 +93,9 @@ var loadingDelayTimer; // timer to delay the start of the loading animation for 
  * top level function to initialise everything
  */
 window.addEventListener('load', () => {
-loadingDelayTimer = setTimeout(() => {
+	loadingDelayTimer = setTimeout(() => {
 		elem('loading').style.display = 'block';
-	}, 100); 
+	}, 100);
 	addEventListeners();
 	setUpPage();
 	startY();
@@ -3463,7 +3463,7 @@ function hideDistantOrStreamNodes(broadcast = true) {
 	function showAll() {
 		let nodes = data.nodes.get({
 			filter: function (node) {
-				let h = node.hidden && !node.isCluster;
+				let h = node.hidden && !node.isCluster && !node.clusteredIn;
 				if (h) node.hidden = false;
 				return h;
 			},

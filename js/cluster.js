@@ -5,22 +5,22 @@ import {styles} from './samples.js';
 import {network, data, doc, yNetMap, unSelect, debug} from './prsm.js';
 
 export function cluster(attribute) {
-		doc.transact(() => {
-			unCluster();
-			switch (attribute) {
-				case 'none':
-					break;
-				case 'color':
-					clusterByColor();
-					break;
-				case 'style':
-					clusterByStyle();
-					break;
-				default:
-					clusterByAttribute(attribute);
-					break;
-			}
-		});
+	doc.transact(() => {
+		unCluster();
+		switch (attribute) {
+			case 'none':
+				break;
+			case 'color':
+				clusterByColor();
+				break;
+			case 'style':
+				clusterByStyle();
+				break;
+			default:
+				clusterByAttribute(attribute);
+				break;
+		}
+	});
 }
 
 /**
@@ -270,7 +270,7 @@ export function openCluster(clusterNodeId) {
 		}
 		nodesToUpdate.push(clusterNode);
 		data.nodes.update(nodesToUpdate);
-		data.edges.remove(edgesToRemove)
+		data.edges.remove(edgesToRemove);
 		showClusterLinks();
 	});
 	if (data.nodes.get({filter: (n) => n.isCluster && !n.hidden}).length === 0) {
@@ -298,6 +298,6 @@ function unCluster() {
 		nodesToUpdate.push(clusterNode);
 	});
 	data.nodes.update(nodesToUpdate);
-	data.edges.remove(edgesToRemove)
+	data.edges.remove(edgesToRemove);
 	showClusterLinks();
 }
