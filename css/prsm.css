@@ -1681,6 +1681,7 @@ div.resize {
 	background-color: transparent;
 	box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
 	cursor: cell;
+	pointer-events: none;
 }
 /* for iPads etc in landscape: nav buttons go under title */
 

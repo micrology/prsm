@@ -1478,7 +1478,7 @@ function positionPopUp(point) {
 	popUp.style.display = 'block';
 	// popup appears to the left of the given point
 	popUp.style.top = `${point.y - popUp.offsetHeight / 2}px`;
-	let left = point.x - popUp.offsetWidth - 3;
+	let left = point.x - popUp.offsetWidth /2 - 3;
 	popUp.style.left = `${left < 0 ? 0 : left}px`;
 	dragElement(popUp, elem('popup-top'));
 }
@@ -2016,14 +2016,19 @@ function ghostCursor() {
 	box.classList.add('ghost-factor', 'factor-cursor');
 	box.id = 'factor-cursor';
 	document.body.appendChild(box);
-	const boxWidth = box.offsetWidth;
-	const boxHalfHeight = box.offsetHeight / 2;
-	box.style.left = event.pageX - boxWidth + 'px';
-	box.style.top = event.pageY - boxHalfHeight + 'px';
-	document.addEventListener('pointermove', (event) => {
-		box.style.left = event.pageX - boxWidth + 'px';
-		box.style.top = event.pageY - boxHalfHeight + 'px';
+	const netPaneRect = netPane.getBoundingClientRect();
+	keepInWindow(box, netPaneRect);
+	document.addEventListener('pointermove', () => {
+		keepInWindow(box, netPaneRect)
 	});
+	function keepInWindow(box, netPaneRect) {
+		const boxHalfWidth = box.offsetWidth / 2;
+		const boxHalfHeight = box.offsetHeight / 2;
+		let left = window.event.pageX - boxHalfWidth; 
+		box.style.left = (left <= netPaneRect.left ? netPaneRect.left : (left >= netPaneRect.right - box.offsetWidth ? netPaneRect.right - box.offsetWidth : left )) + 'px';
+		let top = window.event.pageY - boxHalfHeight; 
+		box.style.top = (top <= netPaneRect.top ? netPaneRect.top : (top >= netPaneRect.bottom - box.offsetHeight ? netPaneRect.bottom - box.offsetHeight : top )) + 'px';
+	}
 }
 /**
  * remove the factor cursor if it exists
