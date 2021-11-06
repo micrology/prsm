@@ -306,6 +306,7 @@ function startY(newRoom) {
 	window.yPointsArray = yPointsArray;
 	window.styles = styles;
 	window.yAwareness = yAwareness;
+
 	/* 
 	nodes.on listens for when local nodes or edges are changed (added, updated or removed).
 	If a local node is removed, the yMap is updated to broadcast to other clients that the node 
@@ -811,7 +812,7 @@ function draw() {
 		if (/gui/.test(debug)) console.log('click');
 		let keys = params.event.pointers[0];
 		if (keys.metaKey) {
-			// if the Command key (on a Mac)   is down, and the click is on a node/edge, log it to the console
+			// if the Command key (on a Mac) is down, and the click is on a node/edge, log it to the console
 			if (params.nodes.length == 1) {
 				let node = data.nodes.get(params.nodes[0]);
 				console.log('node = ', node);

@@ -177,6 +177,7 @@ aside {
 	top: 110px;
 	right: 5px;
 	width: 200px;
+	user-select: none;
 	z-index: 2000;
 }
 footer {
@@ -1271,7 +1272,7 @@ but moving the panel out of sight works instead */
 }
 .history-time {
 	display: table-cell;
-	width: 75px;
+	width: 80px;
 }
 .history-action {
 	display: table-cell;
