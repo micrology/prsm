@@ -3747,7 +3747,7 @@ function setUpAwareness() {
 	showAvatars();
 	// eslint-disable-next-line no-unused-vars
 	yAwareness.on('change', (event) => {
-		//		yjsTrace('yAwareness.on', event);
+		if (/aware/.test(debug)) yjsTrace('yAwareness.on', traceUsers(event));
 		showAvatars();
 		showGhostFactor();
 		if (elem('showCursorSwitch').checked) showMice();
@@ -3755,6 +3755,7 @@ function setUpAwareness() {
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false);
 	var sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
+	var intervalTimer = setInterval(() => yAwareness.setLocalState(yAwareness.getLocalState()), 25000);
 	window.addEventListener('mousemove', (e) => {
 		clearTimeout(sleepTimer);
 		asleep(false);
@@ -3779,6 +3780,17 @@ function asleep(isSleeping) {
 	myNameRec.asleep = isSleeping;
 	yAwareness.setLocalState({user: myNameRec});
 	showAvatars();
+}
+function traceUsers(event) {
+	let msg = '';
+	event.added.forEach((id) => { msg += `Added ${user(id)} (${id}) ` });
+	event.updated.forEach((id) => { msg += `Updated ${user(id)} (${id}) ` });
+	event.removed.forEach((id) => { msg += `Removed (${id}) ` });
+	return msg;
+
+	function user(id) {
+		return yAwareness.getStates().get(id).user.name
+	}
 }
 /**
  * Display the other users' mouse pointers (if they are inside the canvas)
