@@ -398,6 +398,18 @@ function initialiseFactorTable() {
 						bottomCalcFormatterParams: {legend: 'Count:'},
 					},
 					{
+						title: 'Locked',
+						field: 'fixed',
+						hozAlign: 'center',
+						formatter: 'tickCross',
+						formatterParams: tickCrossFormatter(),
+						cellClick: tickToggle,
+						headerVertical: true,
+						bottomCalc: 'count',
+						bottomCalcFormatter: bottomCalcFormatter,
+						bottomCalcFormatterParams: {legend: 'Count:'},
+					},
+					{
 						title: 'Relative Size',
 						field: 'size',
 						editor: 'number',

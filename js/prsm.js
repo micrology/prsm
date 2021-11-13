@@ -40,7 +40,7 @@ import Hammer from '@egjs/hammerjs';
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 import {version} from '../package.json';
-//import { encodeHtml } from 'quill-delta-to-html/dist/commonjs/funcs-html';
+import diff from 'microdiff';
 
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
@@ -352,8 +352,9 @@ function startY(newRoom) {
 				nodesToRemove.push(key);
 			}
 		}
-		nodes.update(nodesToUpdate, 'remote');
-		nodes.remove(nodesToRemove, 'remote');
+		if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote');
+		if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote');
+		if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.lngth > 0)) showChange(event, yNodesMap);
 	});
 	/* 
 	See comments above about nodes
@@ -388,10 +389,34 @@ function startY(newRoom) {
 				edgesToRemove.push(key);
 			}
 		}
-		edges.update(edgesToUpdate, 'remote');
-		edges.remove(edgesToRemove, 'remote');
+		if (edgesToUpdate.length > 0) edges.update(edgesToUpdate, 'remote');
+		if (edgesToRemove.length > 0) edges.remove(edgesToRemove, 'remote');
+		if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0)) showChange(event, yEdgesMap);
 	});
-
+	/**
+	 * utility trace function that prints the change in the value of a YMap property to the console
+	 * @param {YEvent} event 
+	 * @param {YMap} ymap 
+	 */
+	function showChange(event, ymap) {
+		event.changes.keys.forEach((change, key) => {
+			if (change.action === 'add') {
+				console.log(`Property "${key}" was added. 
+				Initial value: `, ymap.get(key));
+			} else if (change.action === 'update') {
+				console.log(
+					`Property "${key}" was updated. 
+					New value: "`, ymap.get(key), `. 
+					Previous value: `, change.oldValue,
+					`. 
+					Difference: ` , diff(change.oldValue, ymap.get(key))
+				);
+			} else if (change.action === 'delete') {
+				console.log(`Property "${key}" was deleted. 
+				Previous value: `, change.oldValue);
+			}
+		});
+	}
 	ySamplesMap.observe((event) => {
 		yjsTrace('ySamplesMap.observe', event);
 		let nodesToUpdate = [];
@@ -539,6 +564,8 @@ function displayNetPane(msg) {
 		}
 		netPane.style.visibility = 'visible';
 		clearTimeout(loadingDelayTimer);
+		yUndoManager.clear();
+		undoRedoButtonStatus();
 		setUpTutorial();
 	}
 }
@@ -1478,7 +1505,7 @@ function positionPopUp(point) {
 	popUp.style.display = 'block';
 	// popup appears to the left of the given point
 	popUp.style.top = `${point.y - popUp.offsetHeight / 2}px`;
-	let left = point.x - popUp.offsetWidth /2 - 3;
+	let left = point.x - popUp.offsetWidth / 2 - 3;
 	popUp.style.left = `${left < 0 ? 0 : left}px`;
 	dragElement(popUp, elem('popup-top'));
 }
@@ -1847,7 +1874,10 @@ worker.onmessage = function (e) {
 				nodesToUpdate.push(n);
 			}
 		});
-		if (nodesToUpdate) data.nodes.update(nodesToUpdate);
+		if (nodesToUpdate) {
+			dontUndo = 'newBC';
+			data.nodes.update(nodesToUpdate);
+		}
 	}
 };
 /* 
@@ -2019,15 +2049,25 @@ function ghostCursor() {
 	const netPaneRect = netPane.getBoundingClientRect();
 	keepInWindow(box, netPaneRect);
 	document.addEventListener('pointermove', () => {
-		keepInWindow(box, netPaneRect)
+		keepInWindow(box, netPaneRect);
 	});
 	function keepInWindow(box, netPaneRect) {
 		const boxHalfWidth = box.offsetWidth / 2;
 		const boxHalfHeight = box.offsetHeight / 2;
-		let left = window.event.pageX - boxHalfWidth; 
-		box.style.left = (left <= netPaneRect.left ? netPaneRect.left : (left >= netPaneRect.right - box.offsetWidth ? netPaneRect.right - box.offsetWidth : left )) + 'px';
-		let top = window.event.pageY - boxHalfHeight; 
-		box.style.top = (top <= netPaneRect.top ? netPaneRect.top : (top >= netPaneRect.bottom - box.offsetHeight ? netPaneRect.bottom - box.offsetHeight : top )) + 'px';
+		let left = window.event.pageX - boxHalfWidth;
+		box.style.left =
+			(left <= netPaneRect.left
+				? netPaneRect.left
+				: left >= netPaneRect.right - box.offsetWidth
+				? netPaneRect.right - box.offsetWidth
+				: left) + 'px';
+		let top = window.event.pageY - boxHalfHeight;
+		box.style.top =
+			(top <= netPaneRect.top
+				? netPaneRect.top
+				: top >= netPaneRect.bottom - box.offsetHeight
+				? netPaneRect.bottom - box.offsetHeight
+				: top) + 'px';
 	}
 }
 /**
@@ -2093,6 +2133,7 @@ function undo() {
 	unSelect();
 	yUndoManager.undo();
 	logHistory('undid last action');
+	undoRedoButtonStatus();
 }
 
 function redo() {
@@ -2100,6 +2141,7 @@ function redo() {
 	unSelect();
 	yUndoManager.redo();
 	logHistory('redid last action');
+	undoRedoButtonStatus();
 }
 
 function undoRedoButtonStatus() {
@@ -3755,7 +3797,7 @@ function setUpAwareness() {
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false);
 	var sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
-	var intervalTimer = setInterval(() => yAwareness.setLocalState(yAwareness.getLocalState()), 25000);
+	setInterval(() => yAwareness.setLocalState(yAwareness.getLocalState()), 25000);
 	window.addEventListener('mousemove', (e) => {
 		clearTimeout(sleepTimer);
 		asleep(false);
@@ -3783,13 +3825,19 @@ function asleep(isSleeping) {
 }
 function traceUsers(event) {
 	let msg = '';
-	event.added.forEach((id) => { msg += `Added ${user(id)} (${id}) ` });
-	event.updated.forEach((id) => { msg += `Updated ${user(id)} (${id}) ` });
-	event.removed.forEach((id) => { msg += `Removed (${id}) ` });
+	event.added.forEach((id) => {
+		msg += `Added ${user(id)} (${id}) `;
+	});
+	event.updated.forEach((id) => {
+		msg += `Updated ${user(id)} (${id}) `;
+	});
+	event.removed.forEach((id) => {
+		msg += `Removed (${id}) `;
+	});
 	return msg;
 
 	function user(id) {
-		return yAwareness.getStates().get(id).user.name
+		return yAwareness.getStates().get(id).user.name;
 	}
 }
 /**
