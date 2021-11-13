@@ -176,7 +176,7 @@ function addEventListeners() {
 	listen('allFactors', 'click', selectAllFactors);
 	listen('allLinks', 'click', selectAllLinks);
 	listen('showLegendSwitch', 'click', legendSwitch);
-	listen('showCursorSwitch', 'click', showCursorSwitch);
+	listen('showUsersSwitch', 'click', showUsersSwitch);
 	listen('showHistorySwitch', 'click', showHistorySwitch);
 	listen('clustering', 'change', selectClustering);
 	listen('lock', 'click', setFixed);
@@ -3792,7 +3792,7 @@ function setUpAwareness() {
 		if (/aware/.test(debug)) yjsTrace('yAwareness.on', traceUsers(event));
 		showAvatars();
 		showGhostFactor();
-		if (elem('showCursorSwitch').checked) showMice();
+		if (elem('showUsersSwitch').checked) showMice();
 	});
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false);
@@ -3866,6 +3866,7 @@ function showMice() {
  * Also create a cursor (a div) for each of the users
  */
 function showAvatars() {
+	if (!elem('showUsersSwitch').checked) return;
 	let recs = Array.from(yAwareness.getStates());
 	let me = recs.splice(
 		recs.findIndex((a) => a[0] === clientID),
@@ -3949,11 +3950,12 @@ function showAvatars() {
 	if (followme) followUser();
 }
 
-function showCursorSwitch() {
-	let on = elem('showCursorSwitch').checked;
+function showUsersSwitch() {
+	let on = elem('showUsersSwitch').checked;
 	document.querySelectorAll('div.shared-cursor').forEach((node) => {
 		node.style.display = on ? 'block' : 'none';
 	});
+	elem('avatars').style.display = on ? 'flex' : 'none';
 }
 /**
  * User has clicked on an avatar.  Start following this avatar
