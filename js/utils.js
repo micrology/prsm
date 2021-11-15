@@ -92,8 +92,16 @@ export function uuidv4() {
 		(c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
 	);
 }
-
-/*!
+/**
+ * return true if obj has no properties, i.e. is {}
+ * @param {Object} obj 
+ * @returns true or false
+ */
+export function isEmpty(obj) {
+	for (let p in obj) return false;
+	return true;
+}
+/*
  * Deep merge two or more objects together.
  * (c) 2019 Chris Ferdinandi, MIT License, https://gomakethings.com
  * @param   {Object}   objects  The objects to merge together

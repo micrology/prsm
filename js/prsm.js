@@ -11,6 +11,7 @@ import {
 	elem,
 	getScaleFreeNetwork,
 	uuidv4,
+	isEmpty,
 	deepMerge,
 	deepCopy,
 	splitText,
@@ -3789,7 +3790,7 @@ function setUpAwareness() {
 	showAvatars();
 	// eslint-disable-next-line no-unused-vars
 	yAwareness.on('change', (event) => {
-		if (/aware/.test(debug)) yjsTrace('yAwareness.on', traceUsers(event));
+		if (/aware/.test(debug)) traceUsers(event);
 		showAvatars();
 		showGhostFactor();
 		if (elem('showUsersSwitch').checked) showMice();
@@ -3797,7 +3798,6 @@ function setUpAwareness() {
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false);
 	var sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP);
-	setInterval(() => yAwareness.setLocalState(yAwareness.getLocalState()), 25000);
 	window.addEventListener('mousemove', (e) => {
 		clearTimeout(sleepTimer);
 		asleep(false);
@@ -3834,10 +3834,11 @@ function traceUsers(event) {
 	event.removed.forEach((id) => {
 		msg += `Removed (${id}) `;
 	});
-	return msg;
+	console.log('yAwareness', exactTime(), msg);
 
 	function user(id) {
-		return yAwareness.getStates().get(id).user.name;
+		let userRec = yAwareness.getStates().get(id);
+		return isEmpty(userRec.user) ? id : userRec.user.name;
 	}
 }
 /**
@@ -3868,17 +3869,18 @@ function showMice() {
 function showAvatars() {
 	if (!elem('showUsersSwitch').checked) return;
 	let recs = Array.from(yAwareness.getStates());
+	// remove and save myself (using clientID as the id, not name)
 	let me = recs.splice(
 		recs.findIndex((a) => a[0] === clientID),
 		1
-	); // remove and save myself
+	); 
 	let names = recs
 		// eslint-disable-next-line no-unused-vars
 		.map(([key, value]) => {
 			if (value.user) return value.user;
 		})
 		.filter((e) => e) // remove any recs without a user record
-		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates
+		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates, by name
 		.sort((a, b) => (a.name > b.name ? 1 : -1)); // sort names
 
 	populateChatUserMenu(Array.from(names));

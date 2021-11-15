@@ -1398,6 +1398,7 @@ div.resize {
 /* avatars */
 .avatars {
 	display: flex;
+	flex-wrap: wrap;
 }
 .round {
 	border-radius: 50%;
