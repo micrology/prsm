@@ -3881,7 +3881,7 @@ function showAvatars() {
 		})
 		.filter((e) => e) // remove any recs without a user record
 		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates, by name
-		.sort((a, b) => (a.name > b.name ? 1 : -1)); // sort names
+		.sort((a, b) => (a.name.charAt(0).toUpperCase() > b.name.charAt(0).toUpperCase() ? 1 : -1)); // sort names
 
 	populateChatUserMenu(Array.from(names));
 
@@ -3889,8 +3889,10 @@ function showAvatars() {
 	names.unshift(me[0][1].user); // push myself on to the front
 
 	let avatars = elem('avatars');
-	let currentAvatars = [];
 	let currentCursors = [];
+
+	// clear out all avatars from the display
+	Array.from(avatars.children).forEach((e) => e.remove());
 
 	names.forEach((nameRec) => {
 		let ava = elem('ava' + nameRec.id);
@@ -3920,8 +3922,8 @@ function showAvatars() {
 			if (circle.innerText != shortName) circle.innerText = shortName;
 			let opacity = nameRec.asleep ? 0.2 : 1.0;
 			if (circle.style.opacity != opacity) circle.style.opacity = opacity;
+			avatars.appendChild(ava);
 		}
-		currentAvatars.push(ava);
 
 		if (nameRec.id != clientID) {
 			// don't create a cursor for myself
@@ -3942,9 +3944,7 @@ function showAvatars() {
 			currentCursors.push(cursorDiv);
 		}
 	});
-	// delete any avatars and cursors that remain from before
-	let avatarsToDelete = Array.from(avatars.children).filter((a) => !currentAvatars.includes(a));
-	avatarsToDelete.forEach((e) => e.remove());
+	// delete any cursors that remain from before
 	let cursorsToDelete = Array.from(document.querySelectorAll('.shared-cursor')).filter(
 		(a) => !currentCursors.includes(a)
 	);
