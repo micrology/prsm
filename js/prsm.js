@@ -355,7 +355,8 @@ function startY(newRoom) {
 		}
 		if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote');
 		if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote');
-		if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.lngth > 0)) showChange(event, yNodesMap);
+		if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.lngth > 0))
+			showChange(event, yNodesMap);
 	});
 	/* 
 	See comments above about nodes
@@ -392,29 +393,40 @@ function startY(newRoom) {
 		}
 		if (edgesToUpdate.length > 0) edges.update(edgesToUpdate, 'remote');
 		if (edgesToRemove.length > 0) edges.remove(edgesToRemove, 'remote');
-		if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0)) showChange(event, yEdgesMap);
+		if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0))
+			showChange(event, yEdgesMap);
 	});
 	/**
 	 * utility trace function that prints the change in the value of a YMap property to the console
-	 * @param {YEvent} event 
-	 * @param {YMap} ymap 
+	 * @param {YEvent} event
+	 * @param {YMap} ymap
 	 */
 	function showChange(event, ymap) {
 		event.changes.keys.forEach((change, key) => {
 			if (change.action === 'add') {
-				console.log(`Property "${key}" was added. 
-				Initial value: `, ymap.get(key));
+				console.log(
+					`Property "${key}" was added. 
+				Initial value: `,
+					ymap.get(key)
+				);
 			} else if (change.action === 'update') {
 				console.log(
 					`Property "${key}" was updated. 
-					New value: "`, ymap.get(key), `. 
-					Previous value: `, change.oldValue,
+					New value: "`,
+					ymap.get(key),
 					`. 
-					Difference: ` , diff(change.oldValue, ymap.get(key))
+					Previous value: `,
+					change.oldValue,
+					`. 
+					Difference: `,
+					diff(change.oldValue, ymap.get(key))
 				);
 			} else if (change.action === 'delete') {
-				console.log(`Property "${key}" was deleted. 
-				Previous value: `, change.oldValue);
+				console.log(
+					`Property "${key}" was deleted. 
+				Previous value: `,
+					change.oldValue
+				);
 			}
 		});
 	}
@@ -661,9 +673,11 @@ function setUpTutorial() {
 		});
 		tutorial.onstep(0, () => {
 			let splashNameBox = elem('splashNameBox');
+			let anonName = myNameRec.name || generateName().name;
+			splashNameBox.placeholder = anonName;
 			splashNameBox.focus();
 			splashNameBox.addEventListener('blur', () => {
-				saveUserName(splashNameBox.value);
+				saveUserName(splashNameBox.value || anonName);
 				displayUserName();
 			});
 			splashNameBox.addEventListener('keyup', (e) => {
@@ -1595,7 +1609,7 @@ function saveNode(item, callback) {
 	item.shapeProperties.borderDashes = convertDashes(borderType);
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
 	if (item.label == item.oldLabel) logHistory(`edited factor: '${item.label}'`);
-	else logHistory(`edited factor, changing label from '${item.oldLabel}' to '${item.label}`);
+	else logHistory(`edited factor, changing label from '${item.oldLabel}' to '${item.label}'`);
 	unlockNode(item);
 	callback(item);
 }
@@ -2597,11 +2611,13 @@ function savePRSMfile() {
 					'font',
 					'borderWidth',
 					'shapeProperties',
+					'created',
+					'modified',
 				],
 				filter: (n) => !n.isCluster,
 			}),
 			edges: data.edges.get({
-				fields: ['id', 'label', 'note', 'grp', 'from', 'to', 'color', 'width', 'dashes'],
+				fields: ['id', 'label', 'note', 'grp', 'from', 'to', 'color', 'width', 'dashes', 'created', 'modified'],
 				filter: (e) => !e.isClusterEdge,
 			}),
 			underlay: yPointsArray.toArray(),
@@ -3873,7 +3889,7 @@ function showAvatars() {
 	let me = recs.splice(
 		recs.findIndex((a) => a[0] === clientID),
 		1
-	); 
+	);
 	let names = recs
 		// eslint-disable-next-line no-unused-vars
 		.map(([key, value]) => {
