@@ -286,6 +286,7 @@ export function dragElement(el, header) {
 	let lastPosY = 0;
 	let isDragging = false;
 	let width = 0;
+	let height = 0;
 
 	function handleDrag(ev) {
 		// DRAG STARTED
@@ -295,7 +296,8 @@ export function dragElement(el, header) {
 			isDragging = true;
 			lastPosX = el.offsetLeft;
 			lastPosY = el.offsetTop;
-			width = el.style.width;
+			width = el.offsetWidth;
+			height = el.offsetHeight;
 		}
 
 		// we simply need to determine where the x,y of this
@@ -306,7 +308,11 @@ export function dragElement(el, header) {
 		// to the "lastPosX/Y"
 		el.style.cursor = 'move';
 		let posX = ev.deltaX + lastPosX;
+		if (posX < 0) posX = 0;
+		if (posX > window.innerWidth - width) posX = window.innerWidth - width;
 		let posY = ev.deltaY + lastPosY;
+		if (posY < 0) posY = 0;
+		if (posY > window.innerHeight - height) posY = window.innerHeight - height;
 
 		// move our element to that position
 		el.style.left = posX + 'px';
