@@ -81,6 +81,7 @@ var inAddMode = false; // true when adding a new Factor to the network; used to 
 var inEditMode = false; //true when node or edge is being edited (dialog is open)
 var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
+var showNotesToggle = true; // show notes when factors and links are selected
 var hideAndStreamNodes; // if set, there are  nodes that need to be hidden when the map is drawn for the first time
 var tutorial = new Tutorial(); // object driving the tutorial
 export var cp; // color picker
@@ -179,6 +180,7 @@ function addEventListeners() {
 	listen('showLegendSwitch', 'click', legendSwitch);
 	listen('showUsersSwitch', 'click', showUsersSwitch);
 	listen('showHistorySwitch', 'click', showHistorySwitch);
+	listen('showNotesSwitch', 'click',showNotesSwitch)
 	listen('clustering', 'change', selectClustering);
 	listen('lock', 'click', setFixed);
 	Array.from(document.getElementsByName('hide')).forEach((elem) => {
@@ -489,6 +491,9 @@ function startY(newRoom) {
 					break;
 				case 'legend':
 					setLegend(obj, false);
+					break;
+				case 'showNotes':
+					doShowNotes(obj);
 					break;
 				case 'hideAndStream':
 					hideAndStreamNodes = obj;
@@ -3082,6 +3087,22 @@ export function updateLastSamples(nodeId, linkId) {
 	if (nodeId) lastNodeSample = nodeId;
 	if (linkId) lastLinkSample = linkId;
 }
+
+/********************************************************Notes********************************************** */
+/**
+ * Globally either display or don't display notes when a factor or link is selected
+ * @param {Event} e 
+ */
+function showNotesSwitch(e) {
+	showNotesToggle = e.target.checked;
+	doShowNotes(showNotesToggle);
+	yNetMap.set('showNotes', showNotesToggle);
+}
+function doShowNotes(toggle) {
+	elem('showNotesSwitch').checked = toggle;
+	showNotesToggle = toggle;
+	showNodeOrEdgeData();
+}
 /**
  * User has clicked the padlock.  Toggle padlock state and fix the location of the node
  */
@@ -3093,12 +3114,12 @@ function setFixed() {
 	elem('unfixed').style.display = node.fixed ? 'none' : 'inline';
 	data.nodes.update(node);
 }
-// Notes
 /**
  * Display a panel to show info about the selected edge or node
  */
 function showNodeOrEdgeData() {
 	hideNotes();
+	if (!showNotesToggle) return;
 	if (network.getSelectedNodes().length == 1) showNodeData();
 	else if (network.getSelectedEdges().length == 1) showEdgeData();
 }
