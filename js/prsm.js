@@ -3168,7 +3168,7 @@ function showNodeData() {
 		placeholder: 'Notes',
 		theme: 'snow',
 		readOnly: viewOnly,
-		bounds: elem('nodeDataPanel'),
+		bounds: elem('edit-container'),
 	});
 	editor.id = node.id;
 	if (node.note) {
@@ -3224,7 +3224,7 @@ function showEdgeData() {
 		placeholder: 'Notes',
 		theme: 'snow',
 		readOnly: viewOnly,
-		bounds: elem('edgeDataPanel'),
+		bounds: elem('edit-container'),
 	});
 	editor.id = edge.id;
 	if (edge.note) {
@@ -3255,7 +3255,7 @@ function displayStatistics(nodeId) {
 }
 
 /**
- * ensure that the panel is not obscuring the Settings panel
+ * ensure that the panel is not outside the net pane, nor obscuring the Settings panel
  * @param {HTMLElement} panel
  */
 function positionNotes() {
@@ -3265,10 +3265,14 @@ function positionNotes() {
 	if (!notesPanel) return;
 	let notesPanelRect = notesPanel.getBoundingClientRect();
 	let settingsRect = elem('panel').getBoundingClientRect();
+	let netPaneRect = netPane.getBoundingClientRect();
 	if (notesPanelRect.right > settingsRect.left && notesPanelRect.top < settingsRect.bottom) {
 		notesPanel.style.left = settingsRect.left - notesPanelRect.width - 20 + 'px';
-		notesPanel.style.width = notesPanelRect.width + 'px';
 	}
+	if (notesPanelRect.left < netPaneRect.left) notesPanel.style.left = netPaneRect.left + 20 + 'px';
+	if (notesPanelRect.right > netPaneRect.right) notesPanel.style.left = netPaneRect.right - notesPanelRect.width - 20 + 'px';
+	if (notesPanelRect.top < netPaneRect.top) notesPanel.style.top = netPaneRect.top + 20 + 'px';
+	if (notesPanelRect.bottom > netPaneRect.bottom) notesPanel.style.top = Math.max(netPaneRect.bottom - notesPanelRect.height, netPaneRect.top) + 20 + 'px';
 }
 // Network tab
 

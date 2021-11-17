@@ -317,14 +317,12 @@ export function dragElement(el, header) {
 		// move our element to that position
 		el.style.left = posX + 'px';
 		el.style.top = posY + 'px';
-		el.style.width = width + 'px';
 
 		// DRAG ENDED
 		// this is where we simply forget we are dragging
 		if (ev.isFinal) {
 			isDragging = false;
 			el.style.cursor = 'auto';
-			el.style.width = width + 'px';
 		}
 	}
 }

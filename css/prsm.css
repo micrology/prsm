@@ -576,7 +576,8 @@ nav button .pressed {
 	position: absolute;
 	z-index: 2005;
 	opacity: 0;
-	transition: opacity 1s;
+	transition-property: opacity;
+	transition-delay: 2s;
 }
 /* Show the tooltip text when you mouse over the tooltip container */
 
@@ -864,9 +865,10 @@ but moving the panel out of sight works instead */
 }
 .edit-container {
 	width: 100%;
+	max-width: 500px;
 	background-color: white;
 	resize: both;
-	overflow: auto;
+	overflow: hidden;
 }
 .ql-editor {
 	padding: 3px;
