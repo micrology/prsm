@@ -180,7 +180,7 @@ function addEventListeners() {
 	listen('showLegendSwitch', 'click', legendSwitch);
 	listen('showUsersSwitch', 'click', showUsersSwitch);
 	listen('showHistorySwitch', 'click', showHistorySwitch);
-	listen('showNotesSwitch', 'click',showNotesSwitch)
+	listen('showNotesSwitch', 'click', showNotesSwitch);
 	listen('clustering', 'change', selectClustering);
 	listen('lock', 'click', setFixed);
 	Array.from(document.getElementsByName('hide')).forEach((elem) => {
@@ -316,7 +316,7 @@ function startY(newRoom) {
 	has been deleted. If a local node is added or updated, that is also broadcast.
 	 */
 	nodes.on('*', (event, properties, origin) => {
-		yjsTrace('nodes.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`);
+		yjsTrace('nodes.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`);
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
@@ -529,10 +529,18 @@ function startY(newRoom) {
 	});
 	yUndoManager.on('stack-item-added', (event) => {
 		yjsTrace('yUndoManager.on stack-item-added', event);
+		if (/changes/.test(debug))
+			event.changedParentTypes.forEach((v) => {
+				showChange(v[0], v[0].target);
+			});
 		undoRedoButtonStatus();
 	});
 	yUndoManager.on('stack-item-popped', (event) => {
 		yjsTrace('yUndoManager.on stack-item-popped', event);
+		if (/changes/.test(debug))
+			event.changedParentTypes.forEach((v) => {
+				showChange(v[0], v[0].target);
+			});
 		undoRedoButtonStatus();
 	});
 } // end startY()
@@ -1895,7 +1903,6 @@ worker.onmessage = function (e) {
 			}
 		});
 		if (nodesToUpdate) {
-			dontUndo = 'newBC';
 			data.nodes.update(nodesToUpdate);
 		}
 	}
@@ -2119,6 +2126,7 @@ function plusLink() {
 			stopEdit(); // falls through
 		default:
 			// false
+			removeFactorCursor();
 			changeCursor('crosshair');
 			inAddMode = 'addLink';
 			showPressed('addLink', 'add');
@@ -3091,7 +3099,7 @@ export function updateLastSamples(nodeId, linkId) {
 /********************************************************Notes********************************************** */
 /**
  * Globally either display or don't display notes when a factor or link is selected
- * @param {Event} e 
+ * @param {Event} e
  */
 function showNotesSwitch(e) {
 	showNotesToggle = e.target.checked;
@@ -3270,9 +3278,11 @@ function positionNotes() {
 		notesPanel.style.left = settingsRect.left - notesPanelRect.width - 20 + 'px';
 	}
 	if (notesPanelRect.left < netPaneRect.left) notesPanel.style.left = netPaneRect.left + 20 + 'px';
-	if (notesPanelRect.right > netPaneRect.right) notesPanel.style.left = netPaneRect.right - notesPanelRect.width - 20 + 'px';
+	if (notesPanelRect.right > netPaneRect.right)
+		notesPanel.style.left = netPaneRect.right - notesPanelRect.width - 20 + 'px';
 	if (notesPanelRect.top < netPaneRect.top) notesPanel.style.top = netPaneRect.top + 20 + 'px';
-	if (notesPanelRect.bottom > netPaneRect.bottom) notesPanel.style.top = Math.max(netPaneRect.bottom - notesPanelRect.height, netPaneRect.top) + 20 + 'px';
+	if (notesPanelRect.bottom > netPaneRect.bottom)
+		notesPanel.style.top = Math.max(netPaneRect.bottom - notesPanelRect.height, netPaneRect.top) + 20 + 'px';
 }
 // Network tab
 
