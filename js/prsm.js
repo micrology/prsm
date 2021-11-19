@@ -82,7 +82,7 @@ var inEditMode = false; //true when node or edge is being edited (dialog is open
 var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
 var showNotesToggle = true; // show notes when factors and links are selected
-var hideAndStreamNodes; // if set, there are  nodes that need to be hidden when the map is drawn for the first time
+var hideAndStreamNodes; // if set, there are  nodes that need to be hidden when the map is drawn for the first time 
 var tutorial = new Tutorial(); // object driving the tutorial
 export var cp; // color picker
 var checkMapSaved = false; // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
@@ -171,6 +171,9 @@ function addEventListeners() {
 	listen('networkButton', 'click', () => {
 		openTab('networkTab');
 	});
+	listen('analysisButton', 'click', () => {
+		openTab('analysisTab');
+	});
 	listen('trophicButton', 'click', autoLayoutSwitch);
 	listen('snaptogridswitch', 'click', snapToGridSwitch);
 	listen('curveSelect', 'change', selectCurve);
@@ -188,6 +191,9 @@ function addEventListeners() {
 	});
 	Array.from(document.getElementsByName('stream')).forEach((elem) => {
 		elem.addEventListener('change', hideDistantOrStreamNodes);
+	});
+	Array.from(document.getElementsByName('paths')).forEach((elem) => {
+		elem.addEventListener('change', showPaths);
 	});
 	listen('sizing', 'change', sizingSwitch);
 	Array.from(document.getElementsByClassName('sampleNode')).forEach((elem) =>
@@ -1149,6 +1155,7 @@ export function logHistory(action, actor) {
 }
 
 function drawBadges(ctx) {
+	if (!showNotesToggle) return;
 	data.nodes
 		.get()
 		.filter((node) => !node.hidden && node.note && node.note != 'Notes')
@@ -3109,6 +3116,7 @@ function showNotesSwitch(e) {
 function doShowNotes(toggle) {
 	elem('showNotesSwitch').checked = toggle;
 	showNotesToggle = toggle;
+	network.redraw();
 	showNodeOrEdgeData();
 }
 /**
@@ -3599,6 +3607,9 @@ function setHideAndStream(obj) {
 	setRadioVal('stream', obj.streamSetting);
 }
 
+function showPaths() {
+	console.log(getRadioVal('paths'));
+}
 function updateFactorsHiddenByStyle(obj) {
 	for (const sampleElementId in obj) {
 		let sampleElement = elem(sampleElementId);

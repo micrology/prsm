@@ -579,11 +579,50 @@
 			<div class="panelHeader" id="panelHeader"></div>
 			<!-- Tabs -->
 			<div class="tab" id="tab">
-				<div class="tablinks" id="networkButton">Network</div>
 				<div class="tablinks" id="nodesButton">Factors</div>
 				<div class="tablinks" id="linksButton">Links</div>
+				<div class="tablinks" id="networkButton">Network</div>
+				<div class="tablinks" id="analysisButton">Analysis</div>
 			</div>
 			<!-- Tab content -->
+			<!-- Factor tab -->
+			<div class="tabcontent hide" id="nodesTab">
+				<div class="samples">
+					<div class="sampleGrid">
+						<div class="sampleNode" id="nodeSample1"></div>
+						<div class="sampleNode" id="nodeSample2"></div>
+						<div class="sampleNode" id="nodeSample3"></div>
+						<div class="sampleNode" id="nodeSample4"></div>
+						<div class="sampleNode" id="nodeSample5"></div>
+						<div class="sampleNode" id="nodeSample6"></div>
+						<div class="sampleNode" id="nodeSample7"></div>
+						<div class="sampleNode" id="nodeSample8"></div>
+						<div class="sampleNode" id="nodeSample9"></div>
+					</div>
+					<div class="panelRow centered">
+						<button type="button" class="btn" id="allFactors">Select all factors</button>
+					</div>
+				</div>
+			</div>
+			<!-- Links Tab -->
+			<div class="tabcontent hide" id="linksTab">
+				<div class="samples">
+					<div class="sampleGrid">
+						<div class="sampleLink" id="linkSample1"></div>
+						<div class="sampleLink" id="linkSample2"></div>
+						<div class="sampleLink" id="linkSample3"></div>
+						<div class="sampleLink" id="linkSample4"></div>
+						<div class="sampleLink" id="linkSample5"></div>
+						<div class="sampleLink" id="linkSample6"></div>
+						<div class="sampleLink" id="linkSample7"></div>
+						<div class="sampleLink" id="linkSample8"></div>
+						<div class="sampleLink" id="linkSample9"></div>
+					</div>
+					<div class="panelRow centered">
+						<button type="button" class="btn" id="allLinks">Select all links</button>
+					</div>
+				</div>
+			</div>
 			<!-- Network tab -->
 			<div class="tabcontent hide" id="networkTab">
 				<div class="networkStyles">
@@ -695,7 +734,15 @@
 								</label>
 							</div>
 						</div>
-						<div class="panelRow divider">
+
+					</div>
+				</div>
+			</div>
+			<!-- Analysis tab -->
+			<div class="tabcontent hide" id="analysisTab">
+				<div class="networkStyles">
+					<div class="networkGrid">
+						<div class="panelRow">
 							<label for="hideAll">Show all</label>
 							<input type="radio" id="hideAll" name="hide" value="All" checked />
 						</div>
@@ -724,6 +771,18 @@
 							<input type="radio" id="downstream" name="stream" value="downstream" />
 						</div>
 						<div class="panelRow divider">
+							<label for="pathsAll">Show all</label>
+							<input type="radio" id="pathsAll" name="paths" value="All" checked />
+						</div>
+						<div class="panelRow">
+							<label for="paths">Show all paths between</label>
+							<input type="radio" id="allPaths" name="paths" value="allPaths" />
+						</div>
+						<div class="panelRow">
+							<label for="shortestPath">Show shortest path between</label>
+							<input type="radio" id="shortestPath" name="paths" value="shortestPath" />
+						</div>												
+						<div class="panelRow divider">
 							<div>Size Factors to:</div>
 							<div>
 								<select id="sizing">
@@ -745,45 +804,6 @@
 								</select>
 							</div>
 						</div>
-					</div>
-				</div>
-			</div>
-			<!-- Factor tab -->
-			<div class="tabcontent hide" id="nodesTab">
-				<div class="samples">
-					<div class="sampleGrid">
-						<div class="sampleNode" id="nodeSample1"></div>
-						<div class="sampleNode" id="nodeSample2"></div>
-						<div class="sampleNode" id="nodeSample3"></div>
-						<div class="sampleNode" id="nodeSample4"></div>
-						<div class="sampleNode" id="nodeSample5"></div>
-						<div class="sampleNode" id="nodeSample6"></div>
-						<div class="sampleNode" id="nodeSample7"></div>
-						<div class="sampleNode" id="nodeSample8"></div>
-						<div class="sampleNode" id="nodeSample9"></div>
-					</div>
-					<div class="panelRow centered">
-						<button type="button" class="btn" id="allFactors">Select all factors</button>
-					</div>
-				</div>
-			</div>
-
-			<!-- Links Tab -->
-			<div class="tabcontent hide" id="linksTab">
-				<div class="samples">
-					<div class="sampleGrid">
-						<div class="sampleLink" id="linkSample1"></div>
-						<div class="sampleLink" id="linkSample2"></div>
-						<div class="sampleLink" id="linkSample3"></div>
-						<div class="sampleLink" id="linkSample4"></div>
-						<div class="sampleLink" id="linkSample5"></div>
-						<div class="sampleLink" id="linkSample6"></div>
-						<div class="sampleLink" id="linkSample7"></div>
-						<div class="sampleLink" id="linkSample8"></div>
-						<div class="sampleLink" id="linkSample9"></div>
-					</div>
-					<div class="panelRow centered">
-						<button type="button" class="btn" id="allLinks">Select all links</button>
 					</div>
 				</div>
 			</div>

@@ -734,11 +734,10 @@ nav button .pressed {
 
 .tab .tablinks {
 	flex: 1;
-	font-size: 14px;
+	font-size: 11px;
 	background-color: var(--tab-color);
 	float: left;
-	border-top: 1px solid white;
-	border-right: 1px solid white;
+	border-right: 1px solid black;
 	border-radius: 4px 4px 0 0;
 	width: 66px;
 	text-align: center;
@@ -755,6 +754,7 @@ nav button .pressed {
 
 .tab .tablinks.active {
 	background-color: var(--panel-color);
+	border-top: 1px solid var(--tab-color);
 	color: white;
 }
 /* Style the tab content */
@@ -909,7 +909,7 @@ but moving the panel out of sight works instead */
 /* create a push button */
 .pushbutton {
 	padding: 0 5px;
-	background-color: lightgrey;
+	background-color: white;
 	border: 1px solid grey;
 	border-top: 1px solid white;
 	border-radius: 8px;
