@@ -3842,9 +3842,11 @@ function setUpAwareness() {
 	// eslint-disable-next-line no-unused-vars
 	yAwareness.on('change', (event) => {
 		if (/aware/.test(debug)) traceUsers(event);
-		showAvatars();
 		showGhostFactor();
-		if (elem('showUsersSwitch').checked) showMice();
+		if (elem('showUsersSwitch').checked) {
+			showMice();
+			showAvatars();
+		}
 	});
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false);
@@ -3917,8 +3919,8 @@ function showMice() {
  * Place a circle at the top left of the net pane to represent each user who is online
  * Also create a cursor (a div) for each of the users
  */
+let previousNames = [];
 function showAvatars() {
-	if (!elem('showUsersSwitch').checked) return;
 	let recs = Array.from(yAwareness.getStates());
 	// remove and save myself (using clientID as the id, not name)
 	let me = recs.splice(
@@ -3933,11 +3935,15 @@ function showAvatars() {
 		.filter((e) => e) // remove any recs without a user record
 		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates, by name
 		.sort((a, b) => (a.name.charAt(0).toUpperCase() > b.name.charAt(0).toUpperCase() ? 1 : -1)); // sort names
-
+	
 	populateChatUserMenu(Array.from(names));
 
 	if (me.length == 0) return; // app is unloading
 	names.unshift(me[0][1].user); // push myself on to the front
+
+	// nothing has changed, just return
+	if (object_equals(previousNames, names)) return;
+	previousNames = [...names];
 
 	let avatars = elem('avatars');
 	let currentCursors = [];
