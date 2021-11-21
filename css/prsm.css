@@ -18,6 +18,7 @@
 	--chat-message-header-color: #a2a2a2;
 	--history-log-color: #fffde7;
 	--map-title-color: #ffc107;
+	--sample-selected-color: lightblue;
 }
 html,
 body,
@@ -838,6 +839,9 @@ but moving the panel out of sight works instead */
 	border: 0;
 	border-radius: 5px;
 	background-color: white;
+}
+.sampleSelected {
+	box-shadow: 0 0 0 2px var(--sample-selected-color);
 }
 
 /* the data and notes area that appears if a node or link is selected */
