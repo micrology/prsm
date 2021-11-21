@@ -36,6 +36,7 @@ export function getScaleFreeNetwork(nodeCount) {
 		nodes.push({
 			id: String(i),
 			label: String(i),
+			grp: "group0", 
 			value: 1,
 		});
 
@@ -48,6 +49,7 @@ export function getScaleFreeNetwork(nodeCount) {
 			edges.push({
 				from: from.toString(),
 				to: to.toString(),
+				grp: 'edge0',
 			});
 			connectionCount[from]++;
 			connectionCount[to]++;
@@ -66,6 +68,7 @@ export function getScaleFreeNetwork(nodeCount) {
 			edges.push({
 				from: from.toString(),
 				to: to.toString(),
+				grp: 'edge0',
 			});
 			connectionCount[from]++;
 			connectionCount[to]++;

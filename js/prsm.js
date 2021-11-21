@@ -82,7 +82,7 @@ var inEditMode = false; //true when node or edge is being edited (dialog is open
 var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
 var showNotesToggle = true; // show notes when factors and links are selected
-var hideAndStreamNodes; // if set, there are  nodes that need to be hidden when the map is drawn for the first time 
+var hideAndStreamNodes; // if set, there are  nodes that need to be hidden when the map is drawn for the first time
 var tutorial = new Tutorial(); // object driving the tutorial
 export var cp; // color picker
 var checkMapSaved = false; // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
@@ -578,6 +578,8 @@ function getRandomData(nNodes) {
 	let SFNdata = getScaleFreeNetwork(nNodes);
 	nodes.add(SFNdata.nodes);
 	edges.add(SFNdata.edges);
+	reApplySampleToNodes(['group0']);
+	reApplySampleToLinks(['edge0']);
 	recalculateStats();
 }
 /**
@@ -2229,6 +2231,7 @@ function readSingleFile(e) {
 			if (!msg) statusMsg("Read '" + fileName + "'");
 		} catch (err) {
 			statusMsg("Error reading '" + fileName + "': " + err.message, 'error');
+			console.log(err);
 			return;
 		}
 		document.body.style.cursor = 'default';
@@ -3610,6 +3613,83 @@ function setHideAndStream(obj) {
 function showPaths() {
 	console.log(getRadioVal('paths'));
 }
+
+/* function allPaths() {
+	let visited = new Map();
+	let onPath = new Map();
+	let selectedNodes = network.getSelectedNodes();
+	let combos = selectedNodes.flatMap((v, i) => selectedNodes.slice(i + 1).map((w) => [v, w]));
+	combos.forEach((c) => {
+		getAllPaths(c[0], c[1], visited, [c[0]]);
+	});
+	console.log('visited', visited)
+//	visited.forEach((k, v) => { if (v) console.log(nodeNames([k])) });
+	function getAllPaths(source, dest, visited, pathList) {
+		console.log(`Source = ${nodeNames([source])} Dest = ${nodeNames([dest])}`, visited, pathList);
+		let paths = [];
+		// have we reached the destination?
+		visited.set(source, true);
+		if (source === dest) {
+			paths.forEach((n) => onPath.set(n, true));
+			return;
+		}
+		let connectedNodes = network.getConnectedNodes(source, 'to');
+		if (connectedNodes.length === 0) {
+console.log('got to dead end')
+			visited.set(source, false)
+			return;
+		}
+		connectedNodes.forEach((n) => {
+			if (!visited.get(n)) {
+				getAllPaths(n, dest, visited, pathList);
+			}
+		});
+	}
+} */
+
+function allPaths() {
+	let selectedNodes = network.getSelectedNodes();
+	let visited = new Map();
+	let combos = selectedNodes.flatMap((v, i) => selectedNodes.slice(i + 1).map((w) => [v, w]));
+	combos.forEach((c) => {
+		visited.clear();
+		let ret = getAllPaths(c[0], c[1]);
+		console.log(`combos for ${c[0]} -> ${c[1]} = ${nodeNames(ret)}`)
+	});
+//	getAllPaths(selectedNodes[0], selectedNodes[1]);
+
+	function getAllPaths(source, dest) {
+		console.log(nodeNames([source, dest]));
+		if (source === dest) return [source];
+		if (visited.get(source)) return [];
+		visited.set(source, true);
+		let path = [source];
+		let connectedNodes = network.getConnectedNodes(source, 'to');
+		if (connectedNodes.length === 0) {
+			console.log('got to dead end');
+			console.log('return []')
+			return [];
+		}
+		connectedNodes.forEach((n) => {
+				let p = getAllPaths(n, dest);
+				console.log(p, path)
+				path = path.concat(p);
+		});
+		if (path.length == 1) path = [];
+		visited.set(source, false);
+		console.log(`${source} -${dest} returns ${nodeNames(path)}`);
+		return path;
+	}
+}
+
+function nodeNames(idDArray) {
+	return idDArray.map((nId) => data.nodes.get(nId).label);
+}
+window.allPaths = allPaths;
+/**
+ * Hide or reveal all the Factors with the given style
+ * @param {Object} obj {sample: state}
+ */
 function updateFactorsHiddenByStyle(obj) {
 	for (const sampleElementId in obj) {
 		let sampleElement = elem(sampleElementId);
@@ -3946,7 +4026,7 @@ function showAvatars() {
 		.filter((e) => e) // remove any recs without a user record
 		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates, by name
 		.sort((a, b) => (a.name.charAt(0).toUpperCase() > b.name.charAt(0).toUpperCase() ? 1 : -1)); // sort names
-	
+
 	populateChatUserMenu(Array.from(names));
 
 	if (me.length == 0) return; // app is unloading
