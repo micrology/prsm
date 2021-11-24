@@ -3612,6 +3612,52 @@ function setHideAndStream(obj) {
 
 function showPaths() {
 	console.log(getRadioVal('paths'));
+	let radio = getRadioVal('paths');
+	let selectedNodes = network.getSelectedNodes();
+	if (radio !== 'All' && selectedNodes.length < 2) {
+		statusMsg('Select at least 2 factors to show paths between them', 'warn');
+		elem('pathsAll').checked = true;
+		return;
+	}
+	let linksToUpdate = [];
+	switch (radio) {
+		case 'All':
+			data.edges.get().forEach((edge) => {
+				if (edge.hidden) {
+					edge.hidden = false;
+					linksToUpdate.push(edge);
+				}
+			});
+			break;
+		case 'allPaths':
+		case 'shortestPath':
+			{
+				let paths = shortestPaths(radio === 'allPaths');
+				if (paths.length == 0) {
+					statusMsg('No path between the selected Factors', 'warn')
+					return
+				}
+				// hide every link, before unhiding those that make up the paths
+				data.edges.get({filter: (e) => !e.hidden}).forEach((e) => {
+					e.hidden = true;
+					linksToUpdate.push(e);
+				});
+					paths.forEach((links) => { console.log(links)
+					links.forEach((link) => { console.log(link)
+						let edge = data.edges.get({filter: (e) => e.to === link.to && e.from === link.from})[0];
+						if (!edge) console.log(`Link ${link} not found`);
+						else {
+							edge.hidden = false;
+							linksToUpdate.push(edge);
+						}
+					});
+				});
+			}
+			break;
+		default:
+			console.log('Bad selector in showPaths()');
+	} console.log(linksToUpdate)
+	data.edges.update(linksToUpdate);
 }
 
 function allPaths() {
@@ -3755,13 +3801,13 @@ function shortestPaths(all) {
 		if (links.length > 0) allPaths.push(links);
 	});
 	return allPaths;
-/**
- * find the paths (as a list of links) that connect the source and destination
- * @param {String} source 
- * @param {String} dest 
- * @param {Boolean} all true of all paths between Source and Destination are wanted; false if just the shortest path
- * @returns an array of lists of links that connect the paths
- */
+	/**
+	 * find the paths (as a list of links) that connect the source and destination
+	 * @param {String} source
+	 * @param {String} dest
+	 * @param {Boolean} all true of all paths between Source and Destination are wanted; false if just the shortest path
+	 * @returns an array of lists of links that connect the paths
+	 */
 	function pathList(source, dest, all) {
 		visited.clear();
 		let links = [];
@@ -3775,13 +3821,13 @@ function shortestPaths(all) {
 			}
 		}
 		return links;
-/**
- * recursively explore the map starting from source until destination is reached.
- * stop if a factor has already been visited, or at a dead end (zero out-degree)
- * @param {String} source 
- * @param {String} dest 
- * @returns an array of factors, the path so far followed
- */
+		/**
+		 * recursively explore the map starting from source until destination is reached.
+		 * stop if a factor has already been visited, or at a dead end (zero out-degree)
+		 * @param {String} source
+		 * @param {String} dest
+		 * @returns an array of factors, the path so far followed
+		 */
 		function getPaths(source, dest) {
 			if (source === dest) {
 				return [dest];
