@@ -3614,51 +3614,17 @@ function showPaths() {
 	console.log(getRadioVal('paths'));
 }
 
-/* function allPaths() {
-	let visited = new Map();
-	let onPath = new Map();
-	let selectedNodes = network.getSelectedNodes();
-	let combos = selectedNodes.flatMap((v, i) => selectedNodes.slice(i + 1).map((w) => [v, w]));
-	combos.forEach((c) => {
-		getAllPaths(c[0], c[1], visited, [c[0]]);
-	});
-	console.log('visited', visited)
-//	visited.forEach((k, v) => { if (v) console.log(nodeNames([k])) });
-	function getAllPaths(source, dest, visited, pathList) {
-		console.log(`Source = ${nodeNames([source])} Dest = ${nodeNames([dest])}`, visited, pathList);
-		let paths = [];
-		// have we reached the destination?
-		visited.set(source, true);
-		if (source === dest) {
-			paths.forEach((n) => onPath.set(n, true));
-			return;
-		}
-		let connectedNodes = network.getConnectedNodes(source, 'to');
-		if (connectedNodes.length === 0) {
-console.log('got to dead end')
-			visited.set(source, false)
-			return;
-		}
-		connectedNodes.forEach((n) => {
-			if (!visited.get(n)) {
-				getAllPaths(n, dest, visited, pathList);
-			}
-		});
-	}
-} */
-
 function allPaths() {
 	let selectedNodes = network.getSelectedNodes();
 	let visited = new Map();
 	let combos = selectedNodes.flatMap((v, i) => selectedNodes.slice(i + 1).map((w) => [v, w]));
 	combos.forEach((c) => {
 		visited.clear();
-		let ret = getAllPaths(c[0], c[1]);
-		console.log(`combos for ${c[0]} -> ${c[1]} = ${nodeNames(ret)}`)
+		let ret = getPaths(c[0], c[1]);
+		console.log(`combos for ${c[0]} -> ${c[1]} = ${nodeNames(ret)}`);
 	});
-//	getAllPaths(selectedNodes[0], selectedNodes[1]);
 
-	function getAllPaths(source, dest) {
+	function getPaths(source, dest) {
 		console.log(nodeNames([source, dest]));
 		if (source === dest) return [source];
 		if (visited.get(source)) return [];
@@ -3667,13 +3633,13 @@ function allPaths() {
 		let connectedNodes = network.getConnectedNodes(source, 'to');
 		if (connectedNodes.length === 0) {
 			console.log('got to dead end');
-			console.log('return []')
+			console.log('return []');
 			return [];
 		}
 		connectedNodes.forEach((n) => {
-				let p = getAllPaths(n, dest);
-				console.log(p, path)
-				path = path.concat(p);
+			let p = getPaths(n, dest);
+			console.log(p, path);
+			path = path.concat(p);
 		});
 		if (path.length == 1) path = [];
 		visited.set(source, false);
@@ -3681,11 +3647,178 @@ function allPaths() {
 		return path;
 	}
 }
+/**
+ * Given two or more selected factors, return a list of all the links that are either on any path between them, or just the ones on the shortest paths between them
+ * @param {Boolean} all when true, find all the links that connect to the selected factors; when false, find the shortest paths between the selected factors
+ * @returns	Arrays of object with from: and to: properties for all the links (an empty array if there is no path between any of the selected factors)
+ */
+function shortestPathsWithLogging(all) {
+	let selectedNodes = network.getSelectedNodes();
+	let visited = new Map();
+	let allPaths = [];
+	// list of all pairs of the selected factors
+	let combos = selectedNodes.flatMap((v, i) => selectedNodes.slice(i + 1).map((w) => [v, w]));
+	// for each pair, find the paths in both directions and combine them
+	combos.forEach((combo) => {
+		let source = combo[0];
+		let dest = combo[1];
+		let path = pathList(source, dest, all);
+		if (path.length > 0) allPaths.push(path);
+		path = pathList(dest, source, all);
+		if (path.length > 0) allPaths.push(path);
 
-function nodeNames(idDArray) {
-	return idDArray.map((nId) => data.nodes.get(nId).label);
+		/* let paths = pathList(combo[0], combo[1]).concat( pathList(combo[1], combo[0]));
+		console.log(`combos for ${combo[0]} <-> ${combo[1]} = ${nodeNames(paths)}`)
+		if (paths.length > 0) allPaths.push([... new Set(paths)]); */
+	});
+	return allPaths;
+
+	function pathList(source, dest, all) {
+		visited.clear();
+		let links = [];
+		let paths = getPaths(source, dest);
+		// if no path found, getPaths return an array of length greater than the total number of factors in the map, or a string
+		if (!Array.isArray(paths) || paths.length === data.nodes.length + 1) paths = [];
+		console.log('paths', paths);
+		if (!all) {
+			for (let i = 0; i < paths.length - 1; i++) {
+				links.push({from: paths[i], to: paths[i + 1]});
+				console.log(i, links);
+			}
+		}
+		return links;
+
+		function getPaths(source, dest) {
+			console.log(`Entering getPaths with ${nodeNames([source, dest])}`);
+			if (source === dest) {
+				return [dest];
+			}
+			if (visited.get(source)) return 'visited';
+			visited.set(source, true);
+			let path = [source];
+			let connectedNodes = network.getConnectedNodes(source, 'to');
+			if (connectedNodes.length === 0) {
+				console.log('got to dead end');
+				return 'deadend';
+			}
+			if (all) {
+				connectedNodes.forEach((next) => {
+					let p = getPaths(next, dest);
+					if (Array.isArray(p) && p.length > 0) {
+						console.log(`mark path from ${nodeNames([source])} to ${nodeNames([p[0]])}`);
+						links.push({from: source, to: p[0]});
+						path = path.concat(p);
+					}
+					console.log(`p returned = ${p}, path now ${path}`);
+				});
+			} else {
+				let bestPath = new Array(data.nodes.length);
+				connectedNodes.forEach((next) => {
+					let p = getPaths(next, dest);
+					console.log('p', p, p.length, 'bestPath', bestPath, bestPath.length);
+					if (Array.isArray(p) && p.length > 0) {
+						if (p.length < bestPath.length) bestPath = p;
+					}
+				});
+				path = path.concat(bestPath);
+			}
+			if (path.length == 1) path = [];
+			visited.set(source, false);
+			console.log(`${source} -${dest} returns ${nodeNames(path)}`);
+			return path;
+		}
+	}
 }
-window.allPaths = allPaths;
+function nodeNames(idArray) {
+	//	console.log('idArray: ', idArray)
+	return Array.isArray(idArray) ? idArray.map((nId) => data.nodes.get(nId).label) : idArray;
+}
+
+/**
+ * Given two or more selected factors, return a list of all the links that are either on any path between them, or just the ones on the shortest paths between them
+ * @param {Boolean} all when true, find all the links that connect to the selected factors; when false, find the shortest paths between the selected factors
+ * @returns	Arrays of object with from: and to: properties for all the links (an empty array if there is no path between any of the selected factors)
+ */
+function shortestPaths(all) {
+	let selectedNodes = network.getSelectedNodes();
+	let visited = new Map();
+	let allPaths = [];
+	// list of all pairs of the selected factors
+	let combos = selectedNodes.flatMap((v, i) => selectedNodes.slice(i + 1).map((w) => [v, w]));
+	// for each pair, find the sequences of links in both directions and combine them
+	combos.forEach((combo) => {
+		let source = combo[0];
+		let dest = combo[1];
+		let links = pathList(source, dest, all);
+		if (links.length > 0) allPaths.push(links);
+		links = pathList(dest, source, all);
+		if (links.length > 0) allPaths.push(links);
+	});
+	return allPaths;
+/**
+ * find the paths (as a list of links) that connect the source and destination
+ * @param {String} source 
+ * @param {String} dest 
+ * @param {Boolean} all true of all paths between Source and Destination are wanted; false if just the shortest path
+ * @returns an array of lists of links that connect the paths
+ */
+	function pathList(source, dest, all) {
+		visited.clear();
+		let links = [];
+		let paths = getPaths(source, dest);
+		// if no path found, getPaths return an array of length greater than the total number of factors in the map, or a string
+		// in this case, return an empty list
+		if (!Array.isArray(paths) || paths.length === data.nodes.length + 1) paths = [];
+		if (!all) {
+			for (let i = 0; i < paths.length - 1; i++) {
+				links.push({from: paths[i], to: paths[i + 1]});
+			}
+		}
+		return links;
+/**
+ * recursively explore the map starting from source until destination is reached.
+ * stop if a factor has already been visited, or at a dead end (zero out-degree)
+ * @param {String} source 
+ * @param {String} dest 
+ * @returns an array of factors, the path so far followed
+ */
+		function getPaths(source, dest) {
+			if (source === dest) {
+				return [dest];
+			}
+			if (visited.get(source)) return 'visited';
+			visited.set(source, true);
+			let path = [source];
+			let connectedNodes = network.getConnectedNodes(source, 'to');
+			if (connectedNodes.length === 0) {
+				return 'deadend';
+			}
+			if (all) {
+				connectedNodes.forEach((next) => {
+					let p = getPaths(next, dest);
+					if (Array.isArray(p) && p.length > 0) {
+						links.push({from: source, to: p[0]});
+						path = path.concat(p);
+					}
+				});
+			} else {
+				let bestPath = new Array(data.nodes.length);
+				connectedNodes.forEach((next) => {
+					let p = getPaths(next, dest);
+					if (Array.isArray(p) && p.length > 0) {
+						if (p.length < bestPath.length) bestPath = p;
+					}
+				});
+				path = path.concat(bestPath);
+			}
+			// if no progress has been made (the path is just the initial source factor), return an empty path
+			if (path.length == 1) path = [];
+			visited.set(source, false);
+			return path;
+		}
+	}
+}
+window.shortestPaths = shortestPaths;
 /**
  * Hide or reveal all the Factors with the given style
  * @param {Object} obj {sample: state}
