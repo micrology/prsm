@@ -924,11 +924,14 @@ function draw() {
 		showSelected();
 		showNodeOrEdgeData();
 		if (getRadioVal('hide') !== 'All' || getRadioVal('stream') !== 'All') hideDistantOrStreamNodes();
+		if (getRadioVal('paths') !== 'All') showPaths();
 	});
 	network.on('deselectNode', function () {
 		if (/gui/.test(debug)) console.log('deselectNode');
 		hideNotes();
 		clearStatusBar();
+		if (getRadioVal('hide') !== 'All' || getRadioVal('stream') !== 'All') hideDistantOrStreamNodes();
+		if (getRadioVal('paths') !== 'All') showPaths();
 	});
 	network.on('hoverNode', function () {
 		changeCursor('grab');
@@ -3611,7 +3614,6 @@ function setHideAndStream(obj) {
 }
 
 function showPaths() {
-	console.log(getRadioVal('paths'));
 	let radio = getRadioVal('paths');
 	let selectedNodes = network.getSelectedNodes();
 	if (radio !== 'All' && selectedNodes.length < 2) {
@@ -3642,8 +3644,8 @@ function showPaths() {
 					e.hidden = true;
 					linksToUpdate.push(e);
 				});
-					paths.forEach((links) => { console.log(links)
-					links.forEach((link) => { console.log(link)
+					paths.forEach((links) => { 
+					links.forEach((link) => { 
 						let edge = data.edges.get({filter: (e) => e.to === link.to && e.from === link.from})[0];
 						if (!edge) console.log(`Link ${link} not found`);
 						else {
@@ -3656,128 +3658,8 @@ function showPaths() {
 			break;
 		default:
 			console.log('Bad selector in showPaths()');
-	} console.log(linksToUpdate)
+	}
 	data.edges.update(linksToUpdate);
-}
-
-function allPaths() {
-	let selectedNodes = network.getSelectedNodes();
-	let visited = new Map();
-	let combos = selectedNodes.flatMap((v, i) => selectedNodes.slice(i + 1).map((w) => [v, w]));
-	combos.forEach((c) => {
-		visited.clear();
-		let ret = getPaths(c[0], c[1]);
-		console.log(`combos for ${c[0]} -> ${c[1]} = ${nodeNames(ret)}`);
-	});
-
-	function getPaths(source, dest) {
-		console.log(nodeNames([source, dest]));
-		if (source === dest) return [source];
-		if (visited.get(source)) return [];
-		visited.set(source, true);
-		let path = [source];
-		let connectedNodes = network.getConnectedNodes(source, 'to');
-		if (connectedNodes.length === 0) {
-			console.log('got to dead end');
-			console.log('return []');
-			return [];
-		}
-		connectedNodes.forEach((n) => {
-			let p = getPaths(n, dest);
-			console.log(p, path);
-			path = path.concat(p);
-		});
-		if (path.length == 1) path = [];
-		visited.set(source, false);
-		console.log(`${source} -${dest} returns ${nodeNames(path)}`);
-		return path;
-	}
-}
-/**
- * Given two or more selected factors, return a list of all the links that are either on any path between them, or just the ones on the shortest paths between them
- * @param {Boolean} all when true, find all the links that connect to the selected factors; when false, find the shortest paths between the selected factors
- * @returns	Arrays of object with from: and to: properties for all the links (an empty array if there is no path between any of the selected factors)
- */
-function shortestPathsWithLogging(all) {
-	let selectedNodes = network.getSelectedNodes();
-	let visited = new Map();
-	let allPaths = [];
-	// list of all pairs of the selected factors
-	let combos = selectedNodes.flatMap((v, i) => selectedNodes.slice(i + 1).map((w) => [v, w]));
-	// for each pair, find the paths in both directions and combine them
-	combos.forEach((combo) => {
-		let source = combo[0];
-		let dest = combo[1];
-		let path = pathList(source, dest, all);
-		if (path.length > 0) allPaths.push(path);
-		path = pathList(dest, source, all);
-		if (path.length > 0) allPaths.push(path);
-
-		/* let paths = pathList(combo[0], combo[1]).concat( pathList(combo[1], combo[0]));
-		console.log(`combos for ${combo[0]} <-> ${combo[1]} = ${nodeNames(paths)}`)
-		if (paths.length > 0) allPaths.push([... new Set(paths)]); */
-	});
-	return allPaths;
-
-	function pathList(source, dest, all) {
-		visited.clear();
-		let links = [];
-		let paths = getPaths(source, dest);
-		// if no path found, getPaths return an array of length greater than the total number of factors in the map, or a string
-		if (!Array.isArray(paths) || paths.length === data.nodes.length + 1) paths = [];
-		console.log('paths', paths);
-		if (!all) {
-			for (let i = 0; i < paths.length - 1; i++) {
-				links.push({from: paths[i], to: paths[i + 1]});
-				console.log(i, links);
-			}
-		}
-		return links;
-
-		function getPaths(source, dest) {
-			console.log(`Entering getPaths with ${nodeNames([source, dest])}`);
-			if (source === dest) {
-				return [dest];
-			}
-			if (visited.get(source)) return 'visited';
-			visited.set(source, true);
-			let path = [source];
-			let connectedNodes = network.getConnectedNodes(source, 'to');
-			if (connectedNodes.length === 0) {
-				console.log('got to dead end');
-				return 'deadend';
-			}
-			if (all) {
-				connectedNodes.forEach((next) => {
-					let p = getPaths(next, dest);
-					if (Array.isArray(p) && p.length > 0) {
-						console.log(`mark path from ${nodeNames([source])} to ${nodeNames([p[0]])}`);
-						links.push({from: source, to: p[0]});
-						path = path.concat(p);
-					}
-					console.log(`p returned = ${p}, path now ${path}`);
-				});
-			} else {
-				let bestPath = new Array(data.nodes.length);
-				connectedNodes.forEach((next) => {
-					let p = getPaths(next, dest);
-					console.log('p', p, p.length, 'bestPath', bestPath, bestPath.length);
-					if (Array.isArray(p) && p.length > 0) {
-						if (p.length < bestPath.length) bestPath = p;
-					}
-				});
-				path = path.concat(bestPath);
-			}
-			if (path.length == 1) path = [];
-			visited.set(source, false);
-			console.log(`${source} -${dest} returns ${nodeNames(path)}`);
-			return path;
-		}
-	}
-}
-function nodeNames(idArray) {
-	//	console.log('idArray: ', idArray)
-	return Array.isArray(idArray) ? idArray.map((nId) => data.nodes.get(nId).label) : idArray;
 }
 
 /**
@@ -4116,6 +3998,7 @@ function setUpAwareness() {
 		if (elem('showUsersSwitch').checked) {
 			showMice();
 			showAvatars();
+			followUser();
 		}
 	});
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
@@ -4227,6 +4110,7 @@ function showAvatars() {
 		if (ava == null) {
 			ava = document.createElement('div');
 			ava.classList.add('hoverme');
+			if (followme === nameRec.id) ava.classList.add('followme');
 			ava.id = 'ava' + nameRec.id;
 			ava.dataset.tooltip = nameRec.name;
 			let circle = document.createElement('div');
@@ -4276,7 +4160,6 @@ function showAvatars() {
 		(a) => !currentCursors.includes(a)
 	);
 	cursorsToDelete.forEach((e) => e.remove());
-	if (followme) followUser();
 }
 
 function showUsersSwitch() {
