@@ -9,6 +9,7 @@ import {DataSet} from 'vis-data/peer';
 import {
 	listen,
 	elem,
+	pushnew,
 	getScaleFreeNetwork,
 	uuidv4,
 	isEmpty,
@@ -82,7 +83,8 @@ var inEditMode = false; //true when node or edge is being edited (dialog is open
 var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
 var showNotesToggle = true; // show notes when factors and links are selected
-var hideAndStreamNodes; // if set, there are  nodes that need to be hidden when the map is drawn for the first time
+// if set, there are  nodes that need to be hidden when the map is drawn for the first time
+var hiddenNodes = {radiusSetting: null, streamSetting: null, pathsSetting: null, selected: null}; 
 var tutorial = new Tutorial(); // object driving the tutorial
 export var cp; // color picker
 var checkMapSaved = false; // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
@@ -91,6 +93,7 @@ var hammer; // Hammer pinch recogniser instance
 var followme; // clientId of user's cursor to follow
 var editor = null; // Quill editor
 var loadingDelayTimer; // timer to delay the start of the loading animation for few moments
+var netLoaded = false; // becomes true when map is fully displayed
 /**
  * top level function to initialise everything
  */
@@ -186,11 +189,11 @@ function addEventListeners() {
 	listen('showNotesSwitch', 'click', showNotesSwitch);
 	listen('clustering', 'change', selectClustering);
 	listen('lock', 'click', setFixed);
-	Array.from(document.getElementsByName('hide')).forEach((elem) => {
-		elem.addEventListener('change', hideDistantOrStreamNodes);
+	Array.from(document.getElementsByName('radius')).forEach((elem) => {
+		elem.addEventListener('change', hideDistantNodes);
 	});
 	Array.from(document.getElementsByName('stream')).forEach((elem) => {
-		elem.addEventListener('change', hideDistantOrStreamNodes);
+		elem.addEventListener('change', hideStreamNodes);
 	});
 	Array.from(document.getElementsByName('paths')).forEach((elem) => {
 		elem.addEventListener('change', showPaths);
@@ -501,13 +504,25 @@ function startY(newRoom) {
 				case 'showNotes':
 					doShowNotes(obj);
 					break;
-				case 'hideAndStream':
-					hideAndStreamNodes = obj;
+				case 'radius':
+					hiddenNodes.radiusSetting = obj.radiusSetting;
+					hiddenNodes.selected = obj.selected;
+					setAnalysisButtons()
+					break;
+				case 'stream':
+					hiddenNodes.streamSetting = obj.streamSetting;
+					hiddenNodes.selected = obj.selected;
+					setAnalysisButtons()
+					break;
+				case 'paths':
+					hiddenNodes.pathsSetting = obj.pathsSetting;
+					hiddenNodes.selected = obj.selected;
+					setAnalysisButtons()
 					break;
 				case 'sizing':
 					sizing(obj);
 					break;
-				case 'stream':
+				case 'hideAndStream':
 				case 'linkRadius':
 					// old settings (before v1.6) - ignore
 					break;
@@ -592,15 +607,13 @@ function displayNetPane(msg) {
 		elem('loading').style.display = 'none';
 		fit(0);
 		setMapTitle(yNetMap.get('mapTitle'));
-		if (hideAndStreamNodes) {
-			setHideAndStream(hideAndStreamNodes);
-			hideDistantOrStreamNodes(false);
-		}
 		netPane.style.visibility = 'visible';
 		clearTimeout(loadingDelayTimer);
 		yUndoManager.clear();
 		undoRedoButtonStatus();
 		setUpTutorial();
+		netLoaded = true;
+		setAnalysisButtons();
 	}
 }
 
@@ -923,14 +936,16 @@ function draw() {
 		if (/gui/.test(debug)) console.log('selectNode');
 		showSelected();
 		showNodeOrEdgeData();
-		if (getRadioVal('hide') !== 'All' || getRadioVal('stream') !== 'All') hideDistantOrStreamNodes();
+		if (getRadioVal('radio') !== 'All') hideDistantNodes();
+		if (getRadioVal('stream') !== 'All') hideStreamNodes();
 		if (getRadioVal('paths') !== 'All') showPaths();
 	});
 	network.on('deselectNode', function () {
 		if (/gui/.test(debug)) console.log('deselectNode');
 		hideNotes();
 		clearStatusBar();
-		if (getRadioVal('hide') !== 'All' || getRadioVal('stream') !== 'All') hideDistantOrStreamNodes();
+		if (getRadioVal('radio') !== 'All') hideDistantNodes();
+		if (getRadioVal('stream') !== 'All') hideStreamNodes();
 		if (getRadioVal('paths') !== 'All') showPaths();
 	});
 	network.on('hoverNode', function () {
@@ -3452,59 +3467,60 @@ function setRadioVal(name, value) {
 	}
 }
 
-function hideDistantOrStreamNodes(broadcast = true) {
-	// get the intersection of the nodes (and links) in radius and up or downstream,
-	// and then hide everything not in that intersection
-	let radius = getRadioVal('hide');
-	let stream = getRadioVal('stream');
-	if (broadcast) broadcastHideAndStream(radius, stream);
-	if (radius == 'All' && stream == 'All') {
-		showAll();
-		return;
-	}
+function unHideAll(reason) {
+	let nodes = data.nodes.get({
+		filter: function (node) {
+			let h = node.hidden && node.whyHidden?.includes(reason);
+			if (h) {
+				node.whyHidden = node.whyHidden.filter((item) => item !== reason);
+				node.hidden = node.whyHidden.length > 0;
+			}
+			return h;
+		},
+	});
+	if (nodes) data.nodes.update(nodes);
+	let edges = data.edges.get({
+		filter: function (edge) {
+			let h = edge.hidden && edge.whyHidden?.includes(reason);
+			if (h) {
+				edge.whyHidden = edge.whyHidden.filter((item) => item !== reason);
+				edge.hidden = edge.whyHidden.length > 0;
+			}
+			return h;
+		},
+	});
+	if (edges) data.edges.update(edges);
+}
+
+function hideDistantNodes(broadcast = true) {
+	// get the nodes (and links) in radius of the selected nodes,
+	// and then hide everything not in that radius
+	let radius = getRadioVal('radius');
+	unHideAll('radius');
 	let selectedNodes = network.getSelectedNodes();
 	if (selectedNodes.length == 0) {
-		statusMsg('A Factor needs to be selected', 'warning');
-		// unhide everything
-		elem('hideAll').checked = true;
-		elem('streamAll').checked = true;
-		if (broadcast) broadcastHideAndStream('All', 'All');
-		showAll();
+		statusMsg('A Factor needs to be selected', 'warn');
+		elem('radiusAll').checked = true;
+		if (broadcast)
+			yNetMap.set('radius', {
+				radiusSetting: 'All',
+				selected: selectedNodes,
+			});
 		return;
 	}
+	if (broadcast)
+		yNetMap.set('radius', {
+			radiusSetting: radius,
+			selected: selectedNodes,
+		});
+	if (radius == 'All') return;
 
 	let nodeIdsInRadiusSet = new Set();
 	let linkIdsInRadiusSet = new Set();
-	let nodeMap = new Map();
-	let linkIdsInStreamSet = new Set();
-	let nodesToShow, linksToShow;
+	inSet(selectedNodes, radius);
 
-	if (stream == 'All') {
-		// filter by radius only
-		inSet(selectedNodes, radius);
-		nodesToShow = nodeIdsInRadiusSet;
-		linksToShow = linkIdsInRadiusSet;
-	} else {
-		// get nodes up or down stream
-		if (radius == 'All') radius = data.nodes.length;
-		if (stream == 'upstream') upstream(selectedNodes, radius);
-		else downstream(selectedNodes, radius);
-		nodesToShow = nodeMap;
-		linksToShow = linkIdsInStreamSet;
-	}
 	// update the network
-	data.nodes.update(
-		data.nodes.map((node) => {
-			node.hidden = !nodesToShow.has(node.id);
-			return node;
-		})
-	);
-	data.edges.update(
-		data.edges.map((edge) => {
-			edge.hidden = !linksToShow.has(edge.id);
-			return edge;
-		})
-	);
+	hideNodesAndEdgesInSet(nodeIdsInRadiusSet, linkIdsInRadiusSet, 'radius');
 
 	function inSet(nodeIds, radius) {
 		// recursive function to collect nodes within radius links from any
@@ -3521,135 +3537,164 @@ function hideDistantOrStreamNodes(broadcast = true) {
 			if (linked) inSet(linked, radius - 1);
 		});
 	}
-
-	function upstream(q, radius) {
-		q.forEach((nId) => nodeMap.set(nId, 0));
-		while (q.length > 0) {
-			let nId = q.shift();
-			if (nodeMap.get(nId) < radius) {
-				let links = data.edges.get({
-					filter: function (item) {
-						return item.to == nId;
-					},
-				});
-				links.forEach((link) => {
-					if (!nodeMap.has(link.from)) {
-						nodeMap.set(link.from, nodeMap.get(nId) + 1);
-						q.push(link.from);
-					}
-				});
+}
+function hideNodesAndEdgesInSet(nodeSet, edgeSet, reason) {
+	data.nodes.update(
+		data.nodes.map((node) => {
+			if (!nodeSet.has(node.id)) {
+				node.hidden = true;
+				node.whyHidden = pushnew(node.whyHidden, reason);
 			}
-		}
-		addAllLinks();
+			return node;
+		})
+	);
+	data.edges.update(
+		data.edges.map((edge) => {
+			if (!edgeSet.has(edge.id)) {
+				edge.hidden = true;
+				edge.whyHidden = pushnew(edge.whyHidden, reason);
+			}
+			return edge;
+		})
+	);
+}
+
+function hideStreamNodes(broadcast = true) {
+	// get the nodes (and links) up or downstream of selected nodes,
+	// and then hide everything else
+	let stream = getRadioVal('stream');
+	unHideAll('stream');
+	let selectedNodes = network.getSelectedNodes();
+	if (selectedNodes.length == 0) {
+		statusMsg('A Factor needs to be selected', 'warn');
+		// unhide everything
+		elem('streamAll').checked = true;
+		if (broadcast)
+			yNetMap.set('stream', {
+				streamSetting: 'All',
+				selected: selectedNodes,
+			});
+		return;
+	}
+	if (broadcast)
+		yNetMap.set('stream', {
+			streamSetting: stream,
+			selected: selectedNodes,
+		});
+	if (stream == 'All') return;
+
+	let nodeIdsInStreamSet = new Set();
+	let linkIdsInStreamSet = new Set();
+
+	if (stream == 'upstream') upstream(selectedNodes);
+	else downstream(selectedNodes);
+	addAllLinks();
+
+	// update the network
+	hideNodesAndEdgesInSet(nodeIdsInStreamSet, linkIdsInStreamSet, 'stream');
+
+	function upstream(nodeIds) {
+		nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId));
+		nodeIds.forEach((nId) => {
+			let links = data.edges.get({
+				filter: function (item) {
+					return item.to == nId;
+				},
+			});
+			links.forEach((link) => {
+				if (!nodeIdsInStreamSet.has(link.from)) {
+					upstream([link.from]);
+				}
+			});
+		});
 	}
 
 	function addAllLinks() {
 		data.edges
 			.get({
 				filter: function (edge) {
-					return nodeMap.has(edge.from) && nodeMap.has(edge.to);
+					return nodeIdsInStreamSet.has(edge.from) && nodeIdsInStreamSet.has(edge.to);
 				},
 			})
 			.forEach((edge) => linkIdsInStreamSet.add(edge.id));
 	}
 
-	function downstream(q, radius) {
-		q.forEach((nId) => nodeMap.set(nId, 0));
-		while (q.length > 0) {
-			let nId = q.shift();
-			if (nodeMap.get(nId) < radius) {
-				let links = data.edges.get({
-					filter: function (item) {
-						return item.from == nId;
-					},
-				});
-				links.forEach((link) => {
-					if (!nodeMap.has(link.to)) {
-						nodeMap.set(link.to, nodeMap.get(nId) + 1);
-						q.push(link.to);
-					}
-				});
-			}
+	function downstream(nodeIds) {
+		nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId));
+		nodeIds.forEach((nId) => {
+			let links = data.edges.get({
+				filter: function (item) {
+					return item.from == nId;
+				},
+			});
+			links.forEach((link) => {
+				if (!nodeIdsInStreamSet.has(link.to)) {
+					downstream([link.to]);
+				}
+			});
+		});
+	}
+}
+/**
+ * Sets the Analysis radio buttons and Factor selection according to values in obj
+ * @param {Object} obj 
+ */
+function setAnalysisButtons() {
+	if (netLoaded) {
+		let selectedNodes = [].concat(hiddenNodes.selected); // ensure that hiddenNodes.selected is an array
+		if (selectedNodes.length > 0) {
+			network.selectNodes(selectedNodes, false); // in viewing  only mode, this does nothing
+			if (!viewOnly) statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
 		}
-		addAllLinks();
-	}
-
-	function showAll() {
-		let nodes = data.nodes.get({
-			filter: function (node) {
-				let h = node.hidden && !node.isCluster && !node.clusteredIn;
-				if (h) node.hidden = false;
-				return h;
-			},
-		});
-		data.nodes.update(nodes);
-		let edges = data.edges.get({
-			filter: function (edge) {
-				let h = edge.hidden;
-				if (h) edge.hidden = false;
-				return h;
-			},
-		});
-		data.edges.update(edges);
+		if (hiddenNodes.radiusSetting) setRadioVal('radius', hiddenNodes.radiusSetting);
+		if (hiddenNodes.streamSetting) setRadioVal('stream', hiddenNodes.streamSetting);
+		if (hiddenNodes.pathsSetting) setRadioVal('paths', hiddenNodes.pathsSetting);
 	}
 }
 
-function broadcastHideAndStream(hideSetting, streamSetting) {
-	yNetMap.set('hideAndStream', {
-		hideSetting: hideSetting,
-		streamSetting: streamSetting,
-		selected: network.getSelectedNodes(),
-	});
-}
-
-function setHideAndStream(obj) {
-	if (!obj) return;
-	let selectedNodes = [].concat(obj.selected); // ensure that obj.selected is an array
-	if (selectedNodes.length > 0) {
-		network.selectNodes(selectedNodes, false); // in viewing  only mode, this does nothing
-		if (!viewOnly) statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
-	}
-	setRadioVal('hide', obj.hideSetting);
-	setRadioVal('stream', obj.streamSetting);
-}
-
-function showPaths() {
+function showPaths(broadcast = true) {
 	let radio = getRadioVal('paths');
 	let selectedNodes = network.getSelectedNodes();
 	if (radio !== 'All' && selectedNodes.length < 2) {
 		statusMsg('Select at least 2 factors to show paths between them', 'warn');
 		elem('pathsAll').checked = true;
+		if (broadcast)
+		yNetMap.set('paths', {
+			pathsSetting: 'All',
+			selected: selectedNodes,
+		});
 		return;
 	}
+	yNetMap.set('paths', {
+		pathsSetting: radio,
+		selected: selectedNodes,
+	});
 	let linksToUpdate = [];
 	switch (radio) {
 		case 'All':
-			data.edges.get().forEach((edge) => {
-				if (edge.hidden) {
-					edge.hidden = false;
-					linksToUpdate.push(edge);
-				}
-			});
-			break;
+			unHideAll('paths')
+			return;
 		case 'allPaths':
 		case 'shortestPath':
 			{
 				let paths = shortestPaths(radio === 'allPaths');
 				if (paths.length == 0) {
-					statusMsg('No path between the selected Factors', 'warn')
-					return
+					statusMsg('No path between the selected Factors', 'warn');
+					return;
 				}
 				// hide every link, before unhiding those that make up the paths
-				data.edges.get({filter: (e) => !e.hidden}).forEach((e) => {
-					e.hidden = true;
-					linksToUpdate.push(e);
+				data.edges.get({filter: (e) => !e.hidden}).forEach((edge) => {
+					edge.hidden = true;
+					edge.whyHidden = pushnew(edge.whyHidden, 'paths');
+					linksToUpdate.push(edge);
 				});
-					paths.forEach((links) => { 
-					links.forEach((link) => { 
+				paths.forEach((links) => {
+					links.forEach((link) => {
 						let edge = data.edges.get({filter: (e) => e.to === link.to && e.from === link.from})[0];
 						if (!edge) console.log(`Link ${link} not found`);
 						else {
-							edge.hidden = false;
+							edge.whyHidden = edge.whyHidden.filter((item) => item !== 'paths');
+							edge.hidden = edge.whyHidden.length > 0;
 							linksToUpdate.push(edge);
 						}
 					});
@@ -3746,7 +3791,6 @@ function shortestPaths(all) {
 		}
 	}
 }
-window.shortestPaths = shortestPaths;
 /**
  * Hide or reveal all the Factors with the given style
  * @param {Object} obj {sample: state}

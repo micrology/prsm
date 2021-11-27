@@ -20,6 +20,16 @@ export function elem(id) {
 	return document.getElementById(id);
 }
 
+export function pushnew(array, item) {
+	if (array) {
+		if (!array.includes(item)) array.push(item)
+	}
+	else array = [item]
+	return array
+}
+
+
+
 /**
  * Create a random scale free network, used only for testing and demoing
  * Taken from the vis-network distribution
