@@ -6,6 +6,7 @@ import {WebsocketProvider} from 'y-websocket';
 import {IndexeddbPersistence} from 'y-indexeddb';
 import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
+import diff from 'microdiff';
 import {
 	listen,
 	elem,
@@ -42,7 +43,6 @@ import Hammer from '@egjs/hammerjs';
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
 import {version} from '../package.json';
-import diff from 'microdiff';
 
 const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
@@ -84,7 +84,7 @@ var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
 var showNotesToggle = true; // show notes when factors and links are selected
 // if set, there are  nodes that need to be hidden when the map is drawn for the first time
-var hiddenNodes = {radiusSetting: null, streamSetting: null, pathsSetting: null, selected: null}; 
+var hiddenNodes = {radiusSetting: null, streamSetting: null, pathsSetting: null, selected: []};
 var tutorial = new Tutorial(); // object driving the tutorial
 export var cp; // color picker
 var checkMapSaved = false; // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
@@ -507,17 +507,17 @@ function startY(newRoom) {
 				case 'radius':
 					hiddenNodes.radiusSetting = obj.radiusSetting;
 					hiddenNodes.selected = obj.selected;
-					setAnalysisButtons()
+					setAnalysisButtons();
 					break;
 				case 'stream':
 					hiddenNodes.streamSetting = obj.streamSetting;
 					hiddenNodes.selected = obj.selected;
-					setAnalysisButtons()
+					setAnalysisButtons();
 					break;
 				case 'paths':
 					hiddenNodes.pathsSetting = obj.pathsSetting;
 					hiddenNodes.selected = obj.selected;
-					setAnalysisButtons()
+					setAnalysisButtons();
 					break;
 				case 'sizing':
 					sizing(obj);
@@ -3448,7 +3448,13 @@ function setLegend(on, warn) {
 	if (on) legend(warn);
 	else clearLegend();
 }
+/************************************************************** Analysis tab ************************************************* */
 
+/**
+ *
+ * @param {String} name of Radio button group
+ * @returns value of the button that is checked
+ */
 function getRadioVal(name) {
 	// get list of radio buttons with specified name
 	let radios = document.getElementsByName(name);
@@ -3457,7 +3463,11 @@ function getRadioVal(name) {
 		if (radios[i].checked) return radios[i].value;
 	}
 }
-
+/**
+ *
+ * @param {String} name of the radio button group
+ * @param {*} value check the button with this value
+ */
 function setRadioVal(name, value) {
 	// get list of radio buttons with specified name
 	let radios = document.getElementsByName(name);
@@ -3467,6 +3477,12 @@ function setRadioVal(name, value) {
 	}
 }
 
+/**
+ * For all Factors and Links, test whether they are hidden and if so, whether they are hidden for
+ * the given reason.  If so, remove that reason and if there are no more remaining reason for them to
+ * be hidden, unhide them
+ * @param {String} reason
+ */
 function unHideAll(reason) {
 	let nodes = data.nodes.get({
 		filter: function (node) {
@@ -3491,8 +3507,10 @@ function unHideAll(reason) {
 	});
 	if (edges) data.edges.update(edges);
 }
-
-function hideDistantNodes(broadcast = true) {
+/**
+ * Hide all factors that are more than x links away from the selected Factors
+ */
+function hideDistantNodes() {
 	// get the nodes (and links) in radius of the selected nodes,
 	// and then hide everything not in that radius
 	let radius = getRadioVal('radius');
@@ -3501,19 +3519,20 @@ function hideDistantNodes(broadcast = true) {
 	if (selectedNodes.length == 0) {
 		statusMsg('A Factor needs to be selected', 'warn');
 		elem('radiusAll').checked = true;
-		if (broadcast)
-			yNetMap.set('radius', {
-				radiusSetting: 'All',
-				selected: selectedNodes,
-			});
-		return;
-	}
-	if (broadcast)
 		yNetMap.set('radius', {
-			radiusSetting: radius,
+			radiusSetting: 'All',
 			selected: selectedNodes,
 		});
-	if (radius == 'All') return;
+		return;
+	}
+	yNetMap.set('radius', {
+		radiusSetting: radius,
+		selected: selectedNodes,
+	});
+	if (radius == 'All') {
+		showSelected();
+		return;
+	}
 
 	let nodeIdsInRadiusSet = new Set();
 	let linkIdsInRadiusSet = new Set();
@@ -3521,10 +3540,16 @@ function hideDistantNodes(broadcast = true) {
 
 	// update the network
 	hideNodesAndEdgesInSet(nodeIdsInRadiusSet, linkIdsInRadiusSet, 'radius');
+	statusMsg(`Showing Factors ${radius} link${radius > 1 ? 's' : ''} away from ${selectedLabels()}`);
 
+	/**
+	 * recursive function to collect Factors and Links within radius links from any of the nodes listed in nodeIds
+	 * Factor ids are collected in nodeIdsInRadiusSet and links in linkIdsInRadiusSet
+	 * @param {Array of String} nodeIds
+	 * @param {Integer} radius
+	 */
 	function inSet(nodeIds, radius) {
-		// recursive function to collect nodes within radius links from any
-		// of the nodes listed in nodeIds
+		//
 		if (radius < 0) return;
 		nodeIds.forEach((nId) => {
 			nodeIdsInRadiusSet.add(nId);
@@ -3538,6 +3563,13 @@ function hideDistantNodes(broadcast = true) {
 		});
 	}
 }
+
+/**
+ * Hide all the Factors and Links in the given Sets and add the reason why they are hidden
+ * @param {Set of nodeIds} nodeSet
+ * @param {Set of edge Ids} edgeSet
+ * @param {String} reason
+ */
 function hideNodesAndEdgesInSet(nodeSet, edgeSet, reason) {
 	data.nodes.update(
 		data.nodes.map((node) => {
@@ -3558,8 +3590,10 @@ function hideNodesAndEdgesInSet(nodeSet, edgeSet, reason) {
 		})
 	);
 }
-
-function hideStreamNodes(broadcast = true) {
+/**
+ * Hide all the factors that are upstream or downstream of the selected factors
+ */
+function hideStreamNodes() {
 	// get the nodes (and links) up or downstream of selected nodes,
 	// and then hide everything else
 	let stream = getRadioVal('stream');
@@ -3569,20 +3603,20 @@ function hideStreamNodes(broadcast = true) {
 		statusMsg('A Factor needs to be selected', 'warn');
 		// unhide everything
 		elem('streamAll').checked = true;
-		if (broadcast)
-			yNetMap.set('stream', {
-				streamSetting: 'All',
-				selected: selectedNodes,
-			});
-		return;
-	}
-	if (broadcast)
 		yNetMap.set('stream', {
-			streamSetting: stream,
+			streamSetting: 'All',
 			selected: selectedNodes,
 		});
-	if (stream == 'All') return;
-
+		return;
+	}
+	yNetMap.set('stream', {
+		streamSetting: stream,
+		selected: selectedNodes,
+	});
+	if (stream == 'All') {
+		showSelected();
+		return;
+	}
 	let nodeIdsInStreamSet = new Set();
 	let linkIdsInStreamSet = new Set();
 
@@ -3592,7 +3626,12 @@ function hideStreamNodes(broadcast = true) {
 
 	// update the network
 	hideNodesAndEdgesInSet(nodeIdsInStreamSet, linkIdsInStreamSet, 'stream');
+	statusMsg(`Showing Factors ${stream} from ${selectedLabels()}`);
 
+	/**
+	 * Recursive function to collect into nodeIdsInStreamSet the factors that are upstream of the given nodeIds
+	 * @param {Array of nodeIds} nodeIds
+	 */
 	function upstream(nodeIds) {
 		nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId));
 		nodeIds.forEach((nId) => {
@@ -3609,16 +3648,10 @@ function hideStreamNodes(broadcast = true) {
 		});
 	}
 
-	function addAllLinks() {
-		data.edges
-			.get({
-				filter: function (edge) {
-					return nodeIdsInStreamSet.has(edge.from) && nodeIdsInStreamSet.has(edge.to);
-				},
-			})
-			.forEach((edge) => linkIdsInStreamSet.add(edge.id));
-	}
-
+	/**
+	 * Recursive function to collect into nodeIdsInStreamSet the factors that are downstream of the given nodeIds
+	 * @param {Array of nodeIds} nodeIds
+	 */
 	function downstream(nodeIds) {
 		nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId));
 		nodeIds.forEach((nId) => {
@@ -3634,10 +3667,24 @@ function hideStreamNodes(broadcast = true) {
 			});
 		});
 	}
+
+	/**
+	 * Collect the links that go both to and from factors that are included in nodeIdsInStreamSet
+	 * into linkIdsInStreamSet
+	 */
+	function addAllLinks() {
+		data.edges
+			.get({
+				filter: function (edge) {
+					return nodeIdsInStreamSet.has(edge.from) && nodeIdsInStreamSet.has(edge.to);
+				},
+			})
+			.forEach((edge) => linkIdsInStreamSet.add(edge.id));
+	}
 }
 /**
  * Sets the Analysis radio buttons and Factor selection according to values in obj
- * @param {Object} obj 
+ * @param {Object} obj
  */
 function setAnalysisButtons() {
 	if (netLoaded) {
@@ -3652,17 +3699,20 @@ function setAnalysisButtons() {
 	}
 }
 
-function showPaths(broadcast = true) {
+/**
+ * hide all links except those between the selected factors (either those on all the paths or the shortest path)
+ */
+function showPaths() {
 	let radio = getRadioVal('paths');
 	let selectedNodes = network.getSelectedNodes();
 	if (radio !== 'All' && selectedNodes.length < 2) {
 		statusMsg('Select at least 2 factors to show paths between them', 'warn');
 		elem('pathsAll').checked = true;
-		if (broadcast)
 		yNetMap.set('paths', {
 			pathsSetting: 'All',
 			selected: selectedNodes,
 		});
+		unHideAll('paths');
 		return;
 	}
 	yNetMap.set('paths', {
@@ -3672,7 +3722,8 @@ function showPaths(broadcast = true) {
 	let linksToUpdate = [];
 	switch (radio) {
 		case 'All':
-			unHideAll('paths')
+			unHideAll('paths');
+			showSelected();
 			return;
 		case 'allPaths':
 		case 'shortestPath':
@@ -3705,6 +3756,7 @@ function showPaths(broadcast = true) {
 			console.log('Bad selector in showPaths()');
 	}
 	data.edges.update(linksToUpdate);
+	statusMsg(`Showing ${radio == 'allPaths' ? 'all paths' : 'the shortest path'} between ${selectedLabels()}`);
 }
 
 /**
@@ -3728,6 +3780,7 @@ function shortestPaths(all) {
 		if (links.length > 0) allPaths.push(links);
 	});
 	return allPaths;
+
 	/**
 	 * find the paths (as a list of links) that connect the source and destination
 	 * @param {String} source
@@ -3756,37 +3809,40 @@ function shortestPaths(all) {
 		 * @returns an array of factors, the path so far followed
 		 */
 		function getPaths(source, dest) {
-			if (source === dest) {
-				return [dest];
-			}
-			if (visited.get(source)) return 'visited';
+			if (source === dest) return [dest];
 			visited.set(source, true);
 			let path = [source];
 			let connectedNodes = network.getConnectedNodes(source, 'to');
-			if (connectedNodes.length === 0) {
-				return 'deadend';
-			}
+			if (connectedNodes.length === 0) return 'deadend';
 			if (all) {
 				connectedNodes.forEach((next) => {
-					let p = getPaths(next, dest);
-					if (Array.isArray(p) && p.length > 0) {
-						links.push({from: source, to: p[0]});
-						path = path.concat(p);
+					let vis = visited.get(next);
+					if (vis === 'onpath') {
+						links.push({from: source, to: next});
+						path = path.concat([next]);
+					} else if (!vis) {
+						let p = getPaths(next, dest);
+						if (Array.isArray(p) && p.length > 0) {
+							links.push({from: source, to: next});
+							visited.set(next, 'onpath');
+							path = path.concat(p);
+						}
 					}
 				});
 			} else {
 				let bestPath = new Array(data.nodes.length);
 				connectedNodes.forEach((next) => {
-					let p = getPaths(next, dest);
-					if (Array.isArray(p) && p.length > 0) {
-						if (p.length < bestPath.length) bestPath = p;
+					if (!visited.get(next)) {
+						let p = getPaths(next, dest);
+						if (Array.isArray(p) && p.length > 0) {
+							if (p.length < bestPath.length) bestPath = p;
+						}
 					}
 				});
 				path = path.concat(bestPath);
 			}
 			// if no progress has been made (the path is just the initial source factor), return an empty path
 			if (path.length == 1) path = [];
-			visited.set(source, false);
 			return path;
 		}
 	}
@@ -3809,9 +3865,10 @@ function sizingSwitch(e) {
 	sizing(metric);
 	yNetMap.set('sizing', metric);
 }
+
 /**
  * set the size of the nodes proportional to the selected metric
-	none, in degree out degree or betweenness centrality
+ * @param {String} metric none, in degree out degree or betweenness centrality
  */
 function sizing(metric) {
 	let nodesToUpdate = [];
@@ -3857,6 +3914,10 @@ function selectClustering(e) {
 function setCluster(option) {
 	elem('clustering').value = option;
 }
+/**
+ * recreate the Clustering drop down menu to include user attributes as clustering options
+ * @param {Objet} obj {menu value, menu text}
+ */
 function recreateClusteringMenu(obj) {
 	// remove any old select items, other than the standard ones (which are the first 3: None, Style, Color)
 	let select = elem('clustering');

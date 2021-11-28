@@ -6,7 +6,7 @@
 import * as Y from 'yjs';
 import {WebsocketProvider} from 'y-websocket';
 import {DataSet} from 'vis-data/peer';
-import {websocket, data, logHistory} from '.prsm.js';
+import {websocket, data, logHistory} from './prsm.js';
 import {uuidv4, deepCopy} from './utils.js';
 /* --------------------------------- Merge maps ----------------------------- */
 /*
@@ -208,3 +208,10 @@ function diffRoom(room) {
 	});
 }
 window.diffRoom = diffRoom;
+
+export function nodeIdToLabel(id) {
+	if (!id) return id;
+	let node = data.nodes.get(id);
+	if (!node) return 'node not found';
+	return node.label
+}
