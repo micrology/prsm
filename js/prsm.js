@@ -242,6 +242,7 @@ function setUpPage() {
 		zoomset(e.scale);
 	});
 	setUpSamples();
+	updateLastSamples(lastNodeSample, lastLinkSample);
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'));
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'));
 	hideNotes();
@@ -2347,6 +2348,7 @@ function loadJSONfile(str) {
 	}
 	if (json.lastNodeSample) lastNodeSample = json.lastNodeSample;
 	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
+	updateLastSamples(lastNodeSample, lastLinkSample);
 	if (json.buttons) setButtonStatus(json.buttons);
 	if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle));
 	if (json.attributeTitles) yNetMap.set('attributeTitles', json.attributeTitles);
@@ -3116,12 +3118,25 @@ function applySampleToLink(event) {
 }
 /**
  * Remember the last style sample that the user clicked and use this for future factors/links
+ * Mark the sample with a light blue border
  * @param {Integer} nodeId
  * @param {Integer} linkId
  */
 export function updateLastSamples(nodeId, linkId) {
-	if (nodeId) lastNodeSample = nodeId;
-	if (linkId) lastLinkSample = linkId;
+	if (nodeId) {
+		lastNodeSample = nodeId;
+		let sampleNodes = Array.from(document.getElementsByClassName('sampleNode'));
+		let node = sampleNodes.filter((e) => e.groupNode === nodeId)[0];
+		sampleNodes.forEach((n) => n.classList.remove('sampleSelected'));
+		node.classList.add('sampleSelected');
+	}
+	if (linkId) {
+		lastLinkSample = linkId;
+		let sampleLinks = Array.from(document.getElementsByClassName('sampleLink'));
+		let link = sampleLinks.filter((e) => e.groupLink === linkId)[0];
+		sampleLinks.forEach((n) => n.classList.remove('sampleSelected'));
+		link.classList.add('sampleSelected');
+	}
 }
 
 /********************************************************Notes********************************************** */
