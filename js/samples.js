@@ -31,7 +31,7 @@ export const styles = {
 				min: 10,
 				max: 40,
 				label: {
-					enabled: true,
+					enabled: false,
 					min: 10,
 					max: 40,
 				},

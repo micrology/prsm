@@ -3,6 +3,7 @@ import {DataSet} from 'vis-data/peer';
 import {
 	listen,
 	elem,
+	pushnew,
 	splitText,
 	deepMerge,
 	deepCopy,
@@ -187,7 +188,14 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 	function hideFactorsWithStyle(groupId, toggle) {
 		let nodes = data.nodes.get({filter: (node) => node.grp == groupId});
 		nodes.forEach((node) => {
-			node.hidden = toggle;
+			if (toggle) {
+				node.hidden = true;
+				node.whyHidden = pushnew(node.whyHidden, 'style');
+			}
+			else {
+				node.whyHidden = node.whyHidden.filter((item) => item !== 'style');
+				node.hidden = node.whyHidden.length > 0;
+			}
 		});
 		data.nodes.update(nodes);
 		let edges = [];
@@ -197,8 +205,15 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 				edges.push(data.edges.get(edgeId));
 			});
 			edges.forEach((edge) => {
-				edge.hidden = toggle;
-			});
+				if (toggle) {
+					edge.hidden = true;
+					edge.whyHidden = pushnew(edge.whyHidden, 'style');
+				}
+				else {
+					edge.whyHidden = edge.whyHidden.filter((item) => item !== 'style');
+					edge.hidden = edge.whyHidden.length > 0;
+				}
+				});
 			data.edges.update(edges);
 		});
 		factorsHiddenByStyle[sampleElement.id] = toggle;

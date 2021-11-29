@@ -3516,7 +3516,7 @@ function hideDistantNodes() {
 	let radius = getRadioVal('radius');
 	unHideAll('radius');
 	let selectedNodes = network.getSelectedNodes();
-	if (selectedNodes.length == 0) {
+	if (selectedNodes.length === 0 && radius !== 'All') {
 		statusMsg('A Factor needs to be selected', 'warn');
 		elem('radiusAll').checked = true;
 		yNetMap.set('radius', {
@@ -3599,7 +3599,7 @@ function hideStreamNodes() {
 	let stream = getRadioVal('stream');
 	unHideAll('stream');
 	let selectedNodes = network.getSelectedNodes();
-	if (selectedNodes.length == 0) {
+	if (selectedNodes.length === 0 && stream !== 'All') {
 		statusMsg('A Factor needs to be selected', 'warn');
 		// unhide everything
 		elem('streamAll').checked = true;
@@ -3877,6 +3877,7 @@ function sizing(metric) {
 		switch (metric) {
 			case 'Off':
 				node.scaling.label.enabled = false;
+				node.value = 0
 				break;
 			case 'Inputs':
 				node.value = network.getConnectedNodes(node.id, 'from').length;

@@ -379,6 +379,7 @@ function initialiseFactorTable() {
 					{
 						title: 'Shape',
 						field: 'shape',
+						minWidth: 100,
 						editor: 'select',
 						editorParams: {values: {box: 'box', ellipse: 'ellipse', circle: 'circle', text: 'none'}},
 					},
@@ -980,6 +981,7 @@ function initialiseLinkTable() {
 					{
 						title: 'Style',
 						field: 'groupLabel',
+						minWidth: 100,
 						editor: 'select',
 						editorParams: {values: styleEdgeNames},
 					},
