@@ -224,4 +224,4 @@ export const styles = {
 			width: 3,
 		},
 	},
-};
+}

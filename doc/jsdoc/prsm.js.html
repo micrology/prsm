@@ -27,14 +27,16 @@ import {WebsocketProvider} from 'y-websocket';
 import {IndexeddbPersistence} from 'y-indexeddb';
 import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
+import diff from 'microdiff';
 import {
 	listen,
 	elem,
+	pushnew,
 	getScaleFreeNetwork,
 	uuidv4,
+	isEmpty,
 	deepMerge,
 	deepCopy,
-	strip,
 	splitText,
 	dragElement,
 	standardize_color,
@@ -42,18 +44,22 @@ import {
 	generateName,
 	statusMsg,
 	clearStatusBar,
+	shorten,
 	initials,
 	CP,
 	timeAndDate,
 	setEndOfContenteditable,
+	exactTime,
 } from './utils.js';
 import Tutorial from './tutorial.js';
 import {styles} from './samples.js';
 import {trophic} from './trophic.js';
+import {cluster, openCluster} from './cluster.js';
 import * as parser from 'fast-xml-parser';
 // see https://github.com/joeattardi/emoji-button
 import {EmojiButton} from '@joeattardi/emoji-button';
 import Quill from 'quill';
+import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html';
 import Hammer from '@egjs/hammerjs';
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js';
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js';
@@ -63,20 +69,19 @@ const appName = 'Participatory System Mapper';
 const shortAppName = 'PRSM';
 const GRIDSPACING = 50; // for snap to grid
 const NODEWIDTH = 10; // chars for label splitting
-const SHORTLABELLEN = 25; // when listing node labels, use ellipsis after this number of chars
 const TIMETOSLEEP = 15 * 60 * 1000; // if no mouse movement for this time, user is assumed to have left or is sleeping
 const TIMETOEDIT = 5 * 60 * 1000; // if node/edge edit dialog is not saved after this time, the edit is cancelled
 const magnification = 3; // magnification of the loupe (magnifier 'glass')
 
 export var network;
 var room;
-var debug = []; // if includes 'yjs', all yjs sharing interactions are logged to the console; if 'gui' mouse events are reported
+export var debug = ''; // if includes 'yjs', all yjs sharing interactions are logged to the console; if 'gui' mouse events are reported
 var viewOnly; // when true, user can only view, not modify, the network
 var nodes; // a dataset of nodes
 var edges; // a dataset of edges
 export var data; // an object with the nodes and edges datasets as properties
-const doc = new Y.Doc();
-var websocket = 'wss://www.prsm.uk/wss'; // web socket server URL
+export const doc = new Y.Doc();
+export var websocket = 'wss://www.prsm.uk/wss'; // web socket server URL
 export var clientID; // unique ID for this browser
 var yNodesMap; // shared map of nodes
 var yEdgesMap; // shared map of edges
@@ -88,7 +93,7 @@ var dontUndo; // when non-null, don't add an item to the undo stack
 var yChatArray; // shared array of messages in the chat window
 var yAwareness; // awareness channel
 var yHistory; // log of actions
-var container; //the DOM body element
+export var container; //the DOM body element
 var netPane; // the DOM pane showing the network
 var panel; // the DOM right side panel element
 var myNameRec; // the user's name record {actual name, type, etc.}
@@ -98,17 +103,25 @@ var inAddMode = false; // true when adding a new Factor to the network; used to 
 var inEditMode = false; //true when node or edge is being edited (dialog is open)
 var snapToGridToggle = false; // true when snapping nodes to the (unseen) grid
 export var drawingSwitch = false; // true when the drawing layer is uppermost
-var hideAndStreamNodes; // if set, there are  nodes that need to be hidden when the map is drawn for the first time
+var showNotesToggle = true; // show notes when factors and links are selected
+// if set, there are  nodes that need to be hidden when the map is drawn for the first time
+var hiddenNodes = {radiusSetting: null, streamSetting: null, pathsSetting: null, selected: []};
 var tutorial = new Tutorial(); // object driving the tutorial
 export var cp; // color picker
 var checkMapSaved = false; // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
 var dirty = false; // map has been changed by user and may need saving
 var hammer; // Hammer pinch recogniser instance
 var followme; // clientId of user's cursor to follow
+var editor = null; // Quill editor
+var loadingDelayTimer; // timer to delay the start of the loading animation for few moments
+var netLoaded = false; // becomes true when map is fully displayed
 /**
  * top level function to initialise everything
  */
 window.addEventListener('load', () => {
+	loadingDelayTimer = setTimeout(() => {
+		elem('loading').style.display = 'block';
+	}, 100);
 	addEventListeners();
 	setUpPage();
 	startY();
@@ -158,8 +171,8 @@ function addEventListeners() {
 	listen('redo', 'click', redo);
 	listen('fileInput', 'change', readSingleFile);
 	listen('openFile', 'click', openFile);
-	listen('saveFile', 'click', saveJSONfile);
-	listen('exportPRSM', 'click', saveJSONfile);
+	listen('saveFile', 'click', savePRSMfile);
+	listen('exportPRSM', 'click', savePRSMfile);
 	listen('exportImage', 'click', exportPNGfile);
 	listen('exportCVS', 'click', exportCVS);
 	listen('exportGML', 'click', exportGML);
@@ -182,21 +195,29 @@ function addEventListeners() {
 	listen('networkButton', 'click', () => {
 		openTab('networkTab');
 	});
+	listen('analysisButton', 'click', () => {
+		openTab('analysisTab');
+	});
 	listen('trophicButton', 'click', autoLayoutSwitch);
 	listen('snaptogridswitch', 'click', snapToGridSwitch);
+	listen('curveSelect', 'change', selectCurve);
 	listen('drawing', 'click', toggleDrawingLayer);
 	listen('allFactors', 'click', selectAllFactors);
 	listen('allLinks', 'click', selectAllLinks);
 	listen('showLegendSwitch', 'click', legendSwitch);
-	listen('showCursorSwitch', 'click', showCursorSwitch);
+	listen('showUsersSwitch', 'click', showUsersSwitch);
 	listen('showHistorySwitch', 'click', showHistorySwitch);
-	listen('curveSelect', 'change', selectCurve);
+	listen('showNotesSwitch', 'click', showNotesSwitch);
+	listen('clustering', 'change', selectClustering);
 	listen('lock', 'click', setFixed);
-	Array.from(document.getElementsByName('hide')).forEach((elem) => {
-		elem.addEventListener('change', hideDistantOrStreamNodes);
+	Array.from(document.getElementsByName('radius')).forEach((elem) => {
+		elem.addEventListener('change', hideDistantNodes);
 	});
 	Array.from(document.getElementsByName('stream')).forEach((elem) => {
-		elem.addEventListener('change', hideDistantOrStreamNodes);
+		elem.addEventListener('change', hideStreamNodes);
+	});
+	Array.from(document.getElementsByName('paths')).forEach((elem) => {
+		elem.addEventListener('change', showPaths);
 	});
 	listen('sizing', 'change', sizingSwitch);
 	Array.from(document.getElementsByClassName('sampleNode')).forEach((elem) =>
@@ -218,7 +239,7 @@ function addEventListeners() {
  */
 function setUpPage() {
 	elem('version').innerHTML = version;
-	// check options set on URL: ?debug='yjs'|'gui'&amp;viewing&amp;start
+	// check options set on URL: ?debug=yjs|gui|cluster&amp;viewing&amp;start
 	let searchParams = new URL(document.location).searchParams;
 	if (searchParams.has('debug')) debug = [searchParams.get('debug')];
 	// don't allow user to change anything if URL includes ?viewing
@@ -242,6 +263,7 @@ function setUpPage() {
 		zoomset(e.scale);
 	});
 	setUpSamples();
+	updateLastSamples(lastNodeSample, lastLinkSample);
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'));
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'));
 	hideNotes();
@@ -318,13 +340,14 @@ function startY(newRoom) {
 	window.yPointsArray = yPointsArray;
 	window.styles = styles;
 	window.yAwareness = yAwareness;
+
 	/* 
 	nodes.on listens for when local nodes or edges are changed (added, updated or removed).
 	If a local node is removed, the yMap is updated to broadcast to other clients that the node 
 	has been deleted. If a local node is added or updated, that is also broadcast.
 	 */
 	nodes.on('*', (event, properties, origin) => {
-		yjsTrace('nodes.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`);
+		yjsTrace('nodes.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`);
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
@@ -348,19 +371,25 @@ function startY(newRoom) {
 	yNodesMap.observe((event) => {
 		yjsTrace('yNodesMap.observe', event);
 		let nodesToUpdate = [];
+		let nodesToRemove = [];
 		for (let key of event.keysChanged) {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key);
 				if (!object_equals(obj, data.nodes.get(key))) {
 					nodesToUpdate.push(deepCopy(obj));
+					// if a note on a node is being remotely edited and is on display here, update the local note
+					if (editor &amp;&amp; editor.id == key &amp;&amp; event.transaction.local === false) editor.setContents(obj.note);
 				}
 			} else {
 				hideNotes();
-				if (data.nodes.get(key)) network.getConnectedEdges(key).forEach((edge) => edges.remove(edge, 'remote'));
-				nodes.remove(key, 'remote');
+				if (data.nodes.get(key)) network.getConnectedEdges(key).forEach((edge) => nodesToRemove.push(edge));
+				nodesToRemove.push(key);
 			}
 		}
-		if (nodesToUpdate) nodes.update(nodesToUpdate, 'remote');
+		if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote');
+		if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote');
+		if (/changes/.test(debug) &amp;&amp; (nodesToUpdate.length > 0 || nodesToRemove.lngth > 0))
+			showChange(event, yNodesMap);
 	});
 	/* 
 	See comments above about nodes
@@ -382,20 +411,58 @@ function startY(newRoom) {
 	yEdgesMap.observe((event) => {
 		yjsTrace('yEdgesMap.observe', event);
 		let edgesToUpdate = [];
+		let edgesToRemove = [];
 		for (let key of event.keysChanged) {
 			if (yEdgesMap.has(key)) {
 				let obj = yEdgesMap.get(key);
 				if (!object_equals(obj, data.edges.get(key))) {
 					edgesToUpdate.push(deepCopy(obj));
+					if (editor &amp;&amp; editor.id == key &amp;&amp; event.transaction.local === false) editor.setContents(obj.note);
 				}
 			} else {
 				hideNotes();
-				edges.remove(key, 'remote');
+				edgesToRemove.push(key);
 			}
 		}
-		edges.update(edgesToUpdate, 'remote');
+		if (edgesToUpdate.length > 0) edges.update(edgesToUpdate, 'remote');
+		if (edgesToRemove.length > 0) edges.remove(edgesToRemove, 'remote');
+		if (/changes/.test(debug) &amp;&amp; (edgesToUpdate.length > 0 || edgesToRemove.length > 0))
+			showChange(event, yEdgesMap);
 	});
-
+	/**
+	 * utility trace function that prints the change in the value of a YMap property to the console
+	 * @param {YEvent} event
+	 * @param {YMap} ymap
+	 */
+	function showChange(event, ymap) {
+		event.changes.keys.forEach((change, key) => {
+			if (change.action === 'add') {
+				console.log(
+					`Property "${key}" was added. 
+				Initial value: `,
+					ymap.get(key)
+				);
+			} else if (change.action === 'update') {
+				console.log(
+					`Property "${key}" was updated. 
+					New value: "`,
+					ymap.get(key),
+					`. 
+					Previous value: `,
+					change.oldValue,
+					`. 
+					Difference: `,
+					diff(change.oldValue, ymap.get(key))
+				);
+			} else if (change.action === 'delete') {
+				console.log(
+					`Property "${key}" was deleted. 
+				Previous value: `,
+					change.oldValue
+				);
+			}
+		});
+	}
 	ySamplesMap.observe((event) => {
 		yjsTrace('ySamplesMap.observe', event);
 		let nodesToUpdate = [];
@@ -456,13 +523,28 @@ function startY(newRoom) {
 				case 'legend':
 					setLegend(obj, false);
 					break;
-				case 'hideAndStream':
-					hideAndStreamNodes = obj;
+				case 'showNotes':
+					doShowNotes(obj);
+					break;
+				case 'radius':
+					hiddenNodes.radiusSetting = obj.radiusSetting;
+					hiddenNodes.selected = obj.selected;
+					setAnalysisButtons();
+					break;
+				case 'stream':
+					hiddenNodes.streamSetting = obj.streamSetting;
+					hiddenNodes.selected = obj.selected;
+					setAnalysisButtons();
+					break;
+				case 'paths':
+					hiddenNodes.pathsSetting = obj.pathsSetting;
+					hiddenNodes.selected = obj.selected;
+					setAnalysisButtons();
 					break;
 				case 'sizing':
 					sizing(obj);
 					break;
-				case 'stream':
+				case 'hideAndStream':
 				case 'linkRadius':
 					// old settings (before v1.6) - ignore
 					break;
@@ -470,6 +552,10 @@ function startY(newRoom) {
 					updateFactorsHiddenByStyle(obj);
 					break;
 				case 'attributeTitles':
+					recreateClusteringMenu(obj);
+					break;
+				case 'cluster':
+					setCluster(obj);
 					break;
 				default:
 					console.log('Bad key in yMapNet.observe: ', key);
@@ -486,22 +572,26 @@ function startY(newRoom) {
 	});
 	yUndoManager.on('stack-item-added', (event) => {
 		yjsTrace('yUndoManager.on stack-item-added', event);
+		if (/changes/.test(debug))
+			event.changedParentTypes.forEach((v) => {
+				showChange(v[0], v[0].target);
+			});
 		undoRedoButtonStatus();
 	});
 	yUndoManager.on('stack-item-popped', (event) => {
 		yjsTrace('yUndoManager.on stack-item-popped', event);
+		if (/changes/.test(debug))
+			event.changedParentTypes.forEach((v) => {
+				showChange(v[0], v[0].target);
+			});
 		undoRedoButtonStatus();
 	});
 } // end startY()
 
 function yjsTrace(where, what) {
-	if (window.debug.includes('yjs')) {
+	if (/yjs/.test(debug)) {
 		console.log(exactTime(), where, what);
 	}
-}
-function exactTime() {
-	let d = new Date();
-	return `${d.toLocaleTimeString()}:${d.getMilliseconds()} `;
 }
 /**
  * create a random string of the form AAA-BBB-CCC-DDD
@@ -525,6 +615,8 @@ function getRandomData(nNodes) {
 	let SFNdata = getScaleFreeNetwork(nNodes);
 	nodes.add(SFNdata.nodes);
 	edges.add(SFNdata.edges);
+	reApplySampleToNodes(['group0']);
+	reApplySampleToLinks(['edge0']);
 	recalculateStats();
 }
 /**
@@ -534,14 +626,16 @@ function getRandomData(nNodes) {
 function displayNetPane(msg) {
 	console.log(msg);
 	if (netPane.style.visibility == 'hidden' || netPane.style.visibility == '') {
+		elem('loading').style.display = 'none';
 		fit(0);
 		setMapTitle(yNetMap.get('mapTitle'));
-		if (hideAndStreamNodes) {
-			setHideAndStream(hideAndStreamNodes);
-			hideDistantOrStreamNodes(false);
-		}
 		netPane.style.visibility = 'visible';
+		clearTimeout(loadingDelayTimer);
+		yUndoManager.clear();
+		undoRedoButtonStatus();
 		setUpTutorial();
+		netLoaded = true;
+		setAnalysisButtons();
 	}
 }
 
@@ -635,9 +729,11 @@ function setUpTutorial() {
 		});
 		tutorial.onstep(0, () => {
 			let splashNameBox = elem('splashNameBox');
+			let anonName = myNameRec.name || generateName().name;
+			splashNameBox.placeholder = anonName;
 			splashNameBox.focus();
 			splashNameBox.addEventListener('blur', () => {
-				saveUserName(splashNameBox.value);
+				saveUserName(splashNameBox.value || anonName);
 				displayUserName();
 			});
 			splashNameBox.addEventListener('keyup', (e) => {
@@ -719,7 +815,13 @@ function draw() {
 					return;
 				}
 				if (duplEdge(item.from, item.to).length > 0) {
-					alert('There is already a link from this Factor to the other.');
+					statusMsg('There is already a link from this Factor to the other.', 'error');
+					callback(null);
+					stopEdit();
+					return;
+				}
+				if (data.nodes.get(item.from).isCluster || data.nodes.get(item.to).isCluster) {
+					statusMsg('Links cannot be made to or from a cluster', 'error');
 					callback(null);
 					stopEdit();
 					return;
@@ -729,7 +831,9 @@ function draw() {
 				item.created = timestamp();
 				clearStatusBar();
 				callback(item);
-				logHistory(`added link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`);
+				logHistory(
+					`added link from '${data.nodes.get(item.from).label}' to '${data.nodes.get(item.to).label}'`
+				);
 			},
 			editEdge: {
 				editWithoutDrag: function (item, callback) {
@@ -761,22 +865,22 @@ function draw() {
 				});
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${
+						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
 							data.nodes.get(data.edges.get(edgeId).to).label
-						}`
+						}'`
 					);
 				});
 				item.nodes.forEach((nodeId) => {
-					logHistory(`deleted factor: ${data.nodes.get(nodeId).label}`);
+					logHistory(`deleted factor: '${data.nodes.get(nodeId).label}'`);
 				});
 				callback(item);
 			},
 			deleteEdge: function (item, callback) {
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from ${data.nodes.get(data.edges.get(edgeId).from).label} to ${
+						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
 							data.nodes.get(data.edges.get(edgeId).to).label
-						}`
+						}'`
 					);
 				});
 				callback(item);
@@ -803,10 +907,10 @@ function draw() {
 
 	// listen for click events on the network pane
 	network.on('click', function (params) {
-		if (window.debug.includes('gui')) console.log('click');
+		if (/gui/.test(debug)) console.log('click');
 		let keys = params.event.pointers[0];
 		if (keys.metaKey) {
-			// if the Command key (on a Mac)   is down, and the click is on a node/edge, log it to the console
+			// if the Command key (on a Mac) is down, and the click is on a node/edge, log it to the console
 			if (params.nodes.length == 1) {
 				let node = data.nodes.get(params.nodes[0]);
 				console.log('node = ', node);
@@ -841,7 +945,7 @@ function draw() {
 	});
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
-		if (window.debug.includes('gui')) console.log('doubleClick');
+		if (/gui/.test(debug)) console.log('doubleClick');
 		if (params.nodes.length === 1) {
 			if (!viewOnly &amp;&amp; !inEditMode &amp;&amp; !data.nodes.get(params.nodes[0]).locked) network.editNode();
 		} else if (params.edges.length === 1) {
@@ -851,14 +955,20 @@ function draw() {
 		}
 	});
 	network.on('selectNode', function () {
-		if (window.debug.includes('gui')) console.log('selectNode');
+		if (/gui/.test(debug)) console.log('selectNode');
 		showSelected();
 		showNodeOrEdgeData();
+		if (getRadioVal('radio') !== 'All') hideDistantNodes();
+		if (getRadioVal('stream') !== 'All') hideStreamNodes();
+		if (getRadioVal('paths') !== 'All') showPaths();
 	});
 	network.on('deselectNode', function () {
-		if (window.debug.includes('gui')) console.log('deselectNode');
+		if (/gui/.test(debug)) console.log('deselectNode');
 		hideNotes();
 		clearStatusBar();
+		if (getRadioVal('radio') !== 'All') hideDistantNodes();
+		if (getRadioVal('stream') !== 'All') hideStreamNodes();
+		if (getRadioVal('paths') !== 'All') showPaths();
 	});
 	network.on('hoverNode', function () {
 		changeCursor('grab');
@@ -867,14 +977,18 @@ function draw() {
 		changeCursor('default');
 	});
 	network.on('selectEdge', function () {
-		if (window.debug.includes('gui')) console.log('selectEdge');
+		if (/gui/.test(debug)) console.log('selectEdge');
 		showSelected();
 		showNodeOrEdgeData();
 	});
 	network.on('deselectEdge', function () {
-		if (window.debug.includes('gui')) console.log('deselectEdge');
+		if (/gui/.test(debug)) console.log('deselectEdge');
 		hideNotes();
 		clearStatusBar();
+	});
+	network.on('oncontext', function (e) {
+		let nodeId = network.getNodeAt(e.pointer.DOM);
+		if (nodeId) openCluster(nodeId);
 	});
 
 	let selectionCanvasStart = {};
@@ -885,7 +999,7 @@ function draw() {
 	elem('main').appendChild(selectionArea);
 
 	network.on('dragStart', function (params) {
-		if (window.debug.includes('gui')) console.log('dragStart');
+		if (/gui/.test(debug)) console.log('dragStart');
 		let e = params.event.pointers[0];
 		// start drawing a selection rectangle if the CTRL key is down and click is on the background
 		if (e.ctrlKey &amp;&amp; params.nodes.length == 0 &amp;&amp; params.edges.length == 0) {
@@ -917,7 +1031,7 @@ function draw() {
 		}px`;
 	}
 	network.on('dragEnd', function (params) {
-		if (window.debug.includes('gui')) console.log('dragEnd');
+		if (/gui/.test(debug)) console.log('dragEnd');
 		if (selectionArea.style.display == 'block') {
 			selectionArea.style.display = 'none';
 			network.setOptions({interaction: {dragView: true}});
@@ -941,7 +1055,6 @@ function draw() {
 			showSelected();
 			return;
 		}
-
 		let newPositions = network.getPositions(params.nodes);
 		data.nodes.update(
 			data.nodes.get(params.nodes).map((n) => {
@@ -954,11 +1067,11 @@ function draw() {
 		changeCursor('default');
 	});
 	network.on('controlNodeDragging', function () {
-		if (window.debug.includes('gui')) console.log('controlNodeDragging');
+		if (/gui/.test(debug)) console.log('controlNodeDragging');
 		changeCursor('crosshair');
 	});
 	network.on('controlNodeDragEnd', function (event) {
-		if (window.debug.includes('gui')) console.log('controlNodeDragEnd');
+		if (/gui/.test(debug)) console.log('controlNodeDragEnd');
 		if (event.controlEdge.from != event.controlEdge.to) changeCursor('default');
 	});
 	network.on('beforeDrawing', function (ctx) {
@@ -1078,12 +1191,13 @@ function timestamp() {
  *  and note changes have been made to the map
  * @param {String} action
  */
-function logHistory(action, actor) {
+export function logHistory(action, actor) {
 	yHistory.push([{action: action, time: Date.now(), user: actor ? actor : myNameRec.name}]);
 	dirty = true;
 }
 
 function drawBadges(ctx) {
+	if (!showNotesToggle) return;
 	data.nodes
 		.get()
 		.filter((node) => !node.hidden &amp;&amp; node.note &amp;&amp; node.note != 'Notes')
@@ -1256,6 +1370,7 @@ function addLabel(item, cancelAction, callback) {
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback);
 	let pos = {x: event.offsetX, y: event.offsetY};
 	positionPopUp(pos);
+	removeFactorCursor();
 	ghostFactor(pos);
 	elem('popup-label').focus();
 }
@@ -1467,7 +1582,7 @@ function positionPopUp(point) {
 	popUp.style.display = 'block';
 	// popup appears to the left of the given point
 	popUp.style.top = `${point.y - popUp.offsetHeight / 2}px`;
-	let left = point.x - popUp.offsetWidth - 3;
+	let left = point.x - popUp.offsetWidth / 2 - 3;
 	popUp.style.left = `${left &lt; 0 ? 0 : left}px`;
 	dragElement(popUp, elem('popup-top'));
 }
@@ -1527,7 +1642,7 @@ function saveLabel(node, callback) {
 	}
 	network.manipulation.inMode = 'addNode'; // ensure still in Add mode, in case others have done something meanwhile
 	callback(node);
-	logHistory(`added factor ${node.label}`);
+	logHistory(`added factor '${node.label}'`);
 }
 /**
  * save the node format details that have been edited
@@ -1555,8 +1670,8 @@ function saveNode(item, callback) {
 	item.borderWidth = borderType == 'none' ? 0 : 4;
 	item.shapeProperties.borderDashes = convertDashes(borderType);
 	network.manipulation.inMode = 'editNode'; // ensure still in Add mode, in case others have done something meanwhile
-	if (item.label == item.oldLabel) logHistory(`edited factor : ${item.label}`);
-	else logHistory(`edited factor, changing label from ${item.oldLabel} to ${item.label}`);
+	if (item.label == item.oldLabel) logHistory(`edited factor: '${item.label}'`);
+	else logHistory(`edited factor, changing label from '${item.oldLabel}' to '${item.label}'`);
 	unlockNode(item);
 	callback(item);
 }
@@ -1623,7 +1738,7 @@ function saveEdge(item, callback) {
 	// vis-network silently deselects all edges in the callback (why?).  So we have to mark this edge as unselected in preparation
 	clearStatusBar();
 	callback(item);
-	logHistory(`edited link from ${data.nodes.get(item.from).label} to ${data.nodes.get(item.to).label}`);
+	logHistory(`edited link from '${data.nodes.get(item.from).label}' to '${data.nodes.get(item.to).label}'`);
 }
 /**
  * Convert from the menu selection to the CSS format of the edge
@@ -1762,18 +1877,25 @@ function createTitleDropDown() {
 	elem('recent-rooms').appendChild(selectList);
 	let recentMaps = JSON.parse(localStorage.getItem('recents'));
 	// list is with most recent at the top, and no more than 20 items
-	let props = Object.keys(recentMaps).reverse().slice(0, 20);
-	props.forEach((prop) => {
+	if (recentMaps) {
+		let props = Object.keys(recentMaps).reverse().slice(0, 20);
+		props.forEach((prop) => {
+			makeTitleDropDownEntry(recentMaps[prop], prop);
+		});
+		makeTitleDropDownEntry('New map', '*new*');
+	}
+
+	function makeTitleDropDownEntry(name, room) {
 		let li = document.createElement('li');
 		li.classList.add('room-title');
 		let div = document.createElement('div');
 		div.classList.add('room-title-text');
-		div.innerText = recentMaps[prop];
-		div.dataset.room = prop;
+		div.innerText = name;
+		div.dataset.room = room;
 		div.addEventListener('click', (event) => changeRoom(event));
 		li.appendChild(div);
 		selectList.appendChild(li);
-	});
+	}
 }
 /**
  * User has clicked one of the previous map titles - confirm and change to the web page for that room
@@ -1785,7 +1907,7 @@ function changeRoom(event) {
 	removeTitleDropDown();
 	console.log(newRoom);
 	let url = new URL(document.location);
-	url.search = `?room=${newRoom}`;
+	url.search = newRoom != '*new*' ? `?room=${newRoom}` : '';
 	window.location.replace(url);
 }
 /**
@@ -1798,7 +1920,7 @@ function removeTitleDropDown() {
 /**
  * unselect all nodes and edges
  */
-function unSelect() {
+export function unSelect() {
 	hideNotes();
 	network.unselectAll();
 	clearStatusBar();
@@ -1829,7 +1951,9 @@ worker.onmessage = function (e) {
 				nodesToUpdate.push(n);
 			}
 		});
-		if (nodesToUpdate) data.nodes.update(nodesToUpdate);
+		if (nodesToUpdate) {
+			data.nodes.update(nodesToUpdate);
+		}
 	}
 };
 /* 
@@ -1855,13 +1979,7 @@ function listFactors(factors) {
 		return label.concat(', ' + lf(factors));
 	}
 }
-/**
- * shorten the label if necessary and add an ellipsis
- * @param {string} label
- */
-function shorten(label) {
-	return label.length > SHORTLABELLEN ? label.substring(0, SHORTLABELLEN) + '...' : label;
-}
+
 /**
  * return a string listing the number of Links
  * @param {Array} links
@@ -1871,15 +1989,23 @@ function listLinks(links) {
 	return '1 link';
 }
 /**
- * show the nodes and links selected in the status bar
+ * returns string of currently selected labels of links and factors, nicely formatted
+ * @returns {String} string of labels of links and factors, nicely formatted
  */
-function showSelected() {
+function selectedLabels() {
 	let selectedNodes = network.getSelectedNodes();
 	let selectedEdges = network.getSelectedEdges();
 	let msg = '';
 	if (selectedNodes.length > 0) msg = listFactors(selectedNodes);
 	if (selectedNodes.length > 0 &amp;&amp; selectedEdges.length > 0) msg += ' and ';
 	if (selectedEdges.length > 0) msg += listLinks(selectedEdges);
+	return msg;
+}
+/**
+ * show the nodes and links selected in the status bar
+ */
+function showSelected() {
+	let msg = selectedLabels();
 	if (msg.length > 0) statusMsg(msg + ' selected');
 }
 /* zoom slider */
@@ -1967,6 +2093,7 @@ function plusNode() {
 		case 'disabled':
 			return;
 		case 'addNode':
+			removeFactorCursor();
 			showPressed('addNode', 'remove');
 			stopEdit();
 			break;
@@ -1977,11 +2104,57 @@ function plusNode() {
 			// false
 			network.unselectAll();
 			changeCursor('cell');
+			ghostCursor();
 			inAddMode = 'addNode';
 			showPressed('addNode', 'add');
 			unSelect();
+			statusMsg('Click on the map to add a factor');
 			network.addNodeMode();
 	}
+}
+/**
+ * show a box attached to the cursor to guide where the Factor will be placed when the user clicks.
+ */
+function ghostCursor() {
+	// no ghost cursor if the hardware only supports touch
+	if (!window.matchMedia('(any-hover: hover)').matches) return;
+	const box = document.createElement('div');
+	box.classList.add('ghost-factor', 'factor-cursor');
+	box.id = 'factor-cursor';
+	document.body.appendChild(box);
+	const netPaneRect = netPane.getBoundingClientRect();
+	keepInWindow(box, netPaneRect);
+	document.addEventListener('pointermove', () => {
+		keepInWindow(box, netPaneRect);
+	});
+	function keepInWindow(box, netPaneRect) {
+		const boxHalfWidth = box.offsetWidth / 2;
+		const boxHalfHeight = box.offsetHeight / 2;
+		let left = window.event.pageX - boxHalfWidth;
+		box.style.left =
+			(left &lt;= netPaneRect.left
+				? netPaneRect.left
+				: left >= netPaneRect.right - box.offsetWidth
+				? netPaneRect.right - box.offsetWidth
+				: left) + 'px';
+		let top = window.event.pageY - boxHalfHeight;
+		box.style.top =
+			(top &lt;= netPaneRect.top
+				? netPaneRect.top
+				: top >= netPaneRect.bottom - box.offsetHeight
+				? netPaneRect.bottom - box.offsetHeight
+				: top) + 'px';
+	}
+}
+/**
+ * remove the factor cursor if it exists
+ */
+function removeFactorCursor() {
+	let factorCursor = elem('factor-cursor');
+	if (factorCursor) {
+		factorCursor.remove();
+	}
+	clearStatusBar();
 }
 /**
  * react to the user pressing the Add Link button
@@ -1995,16 +2168,19 @@ function plusLink() {
 		case 'addLink':
 			showPressed('addLink', 'remove');
 			stopEdit();
+			clearStatusBar();
 			break;
 		case 'addNode':
 			showPressed('addNode', 'remove');
 			stopEdit(); // falls through
 		default:
 			// false
+			removeFactorCursor();
 			changeCursor('crosshair');
 			inAddMode = 'addLink';
 			showPressed('addLink', 'add');
 			unSelect();
+			statusMsg('Now drag from the middle of the Source factor to the middle of the Destination factor');
 			network.setOptions({
 				interaction: {dragView: false, selectable: false},
 			});
@@ -2030,20 +2206,33 @@ function showPressed(el, action) {
 }
 
 function undo() {
+	if (buttonIsDisabled('undo')) return;
 	unSelect();
 	yUndoManager.undo();
+	logHistory('undid last action');
+	undoRedoButtonStatus();
 }
 
 function redo() {
+	if (buttonIsDisabled('redo')) return;
 	unSelect();
 	yUndoManager.redo();
+	logHistory('redid last action');
+	undoRedoButtonStatus();
 }
 
 function undoRedoButtonStatus() {
 	setButtonDisabledStatus('undo', yUndoManager.undoStack.length === 0);
 	setButtonDisabledStatus('redo', yUndoManager.redoStack.length === 0);
 }
-
+/**
+ * Returns true if the button is not disabled
+ * @param {String} id
+ * @returns Boolean
+ */
+function buttonIsDisabled(id) {
+	return elem(id).classList.contains('disabled');
+}
 /**
  * Change the visible state of a button
  * @param {String} id
@@ -2082,6 +2271,7 @@ function readSingleFile(e) {
 			if (!msg) statusMsg("Read '" + fileName + "'");
 		} catch (err) {
 			statusMsg("Error reading '" + fileName + "': " + err.message, 'error');
+			console.log(err);
 			return;
 		}
 		document.body.style.cursor = 'default';
@@ -2169,16 +2359,17 @@ function loadFile(contents) {
 }
 /**
  * Parse and load a PRSM map file, or a JSON file exported from Gephi
- * @param {string} json
+ * @param {string} str
  */
-function loadJSONfile(json) {
-	json = JSON.parse(json);
+function loadJSONfile(str) {
+	let json = JSON.parse(str);
 	if (json.version &amp;&amp; version.substring(0, 3) > json.version.substring(0, 3)) {
 		statusMsg('Warning: file was created in an earlier version', 'warn');
 		msg = 'old version';
 	}
 	if (json.lastNodeSample) lastNodeSample = json.lastNodeSample;
 	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample;
+	updateLastSamples(lastNodeSample, lastLinkSample);
 	if (json.buttons) setButtonStatus(json.buttons);
 	if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle));
 	if (json.attributeTitles) yNetMap.set('attributeTitles', json.attributeTitles);
@@ -2212,11 +2403,11 @@ function loadJSONfile(json) {
 	// before v1.4, the style array was called samples
 	if (json.samples) json.styles = json.samples;
 	if (json.styles) {
-		styles.nodes = json.styles.nodes;
+		styles.nodes = deepMerge(styles.nodes, json.styles.nodes);
 		for (let n in styles.nodes) {
 			delete styles.nodes[n].chosen;
 		}
-		styles.edges = json.styles.edges;
+		styles.edges = deepMerge(styles.edges, json.styles.edges);
 		for (let e in styles.edges) {
 			delete styles.edges[e].chosen;
 		}
@@ -2456,9 +2647,9 @@ function refreshSampleLinks() {
 }
 
 /**
- * save the current map as a PRSM file
+ * save the current map as a PRSM file (in JSON format)
  */
-function saveJSONfile() {
+function savePRSMfile() {
 	network.storePositions();
 	let json = JSON.stringify(
 		{
@@ -2471,8 +2662,8 @@ function saveJSONfile() {
 			buttons: getButtonStatus(),
 			attributeTitles: yNetMap.get('attributeTitles'),
 			styles: styles,
-			nodes: data.nodes.map((n) =>
-				strip(n, [
+			nodes: data.nodes.get({
+				fields: [
 					'id',
 					'label',
 					'note',
@@ -2484,11 +2675,15 @@ function saveJSONfile() {
 					'font',
 					'borderWidth',
 					'shapeProperties',
-				])
-			),
-			edges: data.edges.map((e) =>
-				strip(e, ['id', 'label', 'note', 'grp', 'from', 'to', 'color', 'width', 'dashes'])
-			),
+					'created',
+					'modified',
+				],
+				filter: (n) => !n.isCluster,
+			}),
+			edges: data.edges.get({
+				fields: ['id', 'label', 'note', 'grp', 'from', 'to', 'color', 'width', 'dashes', 'created', 'modified'],
+				filter: (e) => !e.isClusterEdge,
+			}),
 			underlay: yPointsArray.toArray(),
 			history: yHistory.toArray(),
 		},
@@ -2608,7 +2803,13 @@ function exportCVS() {
 		str += ',' + node.grp + ',';
 		if (node.note) {
 			qed.setContents(node.note);
-			str += '"' + qed.getText(0).replaceAll('\n', ' ') + '"';
+			// convert Quill formatted note to HTML, escaping all "
+			str +=
+				'"' +
+				new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true})
+					.convert()
+					.replaceAll('"', '""') +
+				'"';
 		}
 		str += '\n';
 	}
@@ -2623,7 +2824,13 @@ function exportCVS() {
 		str += ',' + edge.grp + ',';
 		if (edge.note) {
 			qed.setContents(edge.note);
-			str += '"' + qed.getText(0).replaceAll('\n', ' ') + '"';
+			// convert Quill formatted note to HTML, escaping all "
+			str +=
+				'"' +
+				new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true})
+					.convert()
+					.replaceAll('"', '""') +
+				'"';
 		}
 		str += '\n';
 	}
@@ -2932,12 +3139,42 @@ function applySampleToLink(event) {
 }
 /**
  * Remember the last style sample that the user clicked and use this for future factors/links
+ * Mark the sample with a light blue border
  * @param {Integer} nodeId
  * @param {Integer} linkId
  */
 export function updateLastSamples(nodeId, linkId) {
-	if (nodeId) lastNodeSample = nodeId;
-	if (linkId) lastLinkSample = linkId;
+	if (nodeId) {
+		lastNodeSample = nodeId;
+		let sampleNodes = Array.from(document.getElementsByClassName('sampleNode'));
+		let node = sampleNodes.filter((e) => e.groupNode === nodeId)[0];
+		sampleNodes.forEach((n) => n.classList.remove('sampleSelected'));
+		node.classList.add('sampleSelected');
+	}
+	if (linkId) {
+		lastLinkSample = linkId;
+		let sampleLinks = Array.from(document.getElementsByClassName('sampleLink'));
+		let link = sampleLinks.filter((e) => e.groupLink === linkId)[0];
+		sampleLinks.forEach((n) => n.classList.remove('sampleSelected'));
+		link.classList.add('sampleSelected');
+	}
+}
+
+/********************************************************Notes********************************************** */
+/**
+ * Globally either display or don't display notes when a factor or link is selected
+ * @param {Event} e
+ */
+function showNotesSwitch(e) {
+	showNotesToggle = e.target.checked;
+	doShowNotes(showNotesToggle);
+	yNetMap.set('showNotes', showNotesToggle);
+}
+function doShowNotes(toggle) {
+	elem('showNotesSwitch').checked = toggle;
+	showNotesToggle = toggle;
+	network.redraw();
+	showNodeOrEdgeData();
 }
 /**
  * User has clicked the padlock.  Toggle padlock state and fix the location of the node
@@ -2950,12 +3187,12 @@ function setFixed() {
 	elem('unfixed').style.display = node.fixed ? 'none' : 'inline';
 	data.nodes.update(node);
 }
-// Notes
 /**
  * Display a panel to show info about the selected edge or node
  */
 function showNodeOrEdgeData() {
 	hideNotes();
+	if (!showNotesToggle) return;
 	if (network.getSelectedNodes().length == 1) showNodeData();
 	else if (network.getSelectedEdges().length == 1) showEdgeData();
 }
@@ -2967,6 +3204,7 @@ function hideNotes() {
 	elem('edgeDataPanel').classList.add('hide');
 	document.getSelection().removeAllRanges();
 	document.querySelectorAll('.ql-toolbar').forEach((e) => e.remove());
+	editor = null;
 }
 /**
  * Show the notes box, the fixed node check box and the node statistics
@@ -2987,7 +3225,7 @@ function showNodeData() {
 		elem('nodeModification').style.display = 'flex';
 	} else elem('nodeModification').style.display = 'none';
 	elem('node-notes').className = 'notes';
-	let editor = new Quill('#node-notes', {
+	editor = new Quill('#node-notes', {
 		modules: {
 			toolbar: [
 				'bold',
@@ -3003,18 +3241,20 @@ function showNodeData() {
 		placeholder: 'Notes',
 		theme: 'snow',
 		readOnly: viewOnly,
-		bounds: elem('nodeDataPanel'),
+		bounds: elem('edit-container'),
 	});
+	editor.id = node.id;
 	if (node.note) {
 		if (node.note instanceof Object) editor.setContents(node.note);
 		else editor.setText(node.note);
 	} else editor.setText('');
-	editor.on('text-change', () => {
-		data.nodes.update({
-			id: nodeId,
-			note: isQuillEmpty(editor) ? '' : editor.getContents(),
-			modified: timestamp(),
-		});
+	editor.on('text-change', (delta, oldDelta, source) => {
+		if (source == 'user')
+			data.nodes.update({
+				id: nodeId,
+				note: isQuillEmpty(editor) ? '' : editor.getContents(),
+				modified: timestamp(),
+			});
 	});
 	panel.classList.remove('hide');
 	displayStatistics(nodeId);
@@ -3041,7 +3281,7 @@ function showEdgeData() {
 		elem('edgeModified').innerHTML = `${timeAndDate(edge.modified.time)} by ${edge.modified.user}`;
 		elem('edgeModification').style.display = 'flex';
 	} else elem('edgeModification').style.display = 'none';
-	let editor = new Quill('#edge-notes', {
+	editor = new Quill('#edge-notes', {
 		modules: {
 			toolbar: [
 				'bold',
@@ -3057,18 +3297,20 @@ function showEdgeData() {
 		placeholder: 'Notes',
 		theme: 'snow',
 		readOnly: viewOnly,
-		bounds: elem('edgeDataPanel'),
+		bounds: elem('edit-container'),
 	});
+	editor.id = edge.id;
 	if (edge.note) {
 		if (edge.note instanceof Object) editor.setContents(edge.note);
 		else editor.setText(edge.note);
 	} else editor.setText('');
-	editor.on('text-change', () => {
-		data.edges.update({
-			id: edgeId,
-			note: isQuillEmpty(editor) ? '' : editor.getContents(),
-			modified: timestamp(),
-		});
+	editor.on('text-change', (delta, oldDelta, source) => {
+		if (source == 'user')
+			data.edges.update({
+				id: edgeId,
+				note: isQuillEmpty(editor) ? '' : editor.getContents(),
+				modified: timestamp(),
+			});
 	});
 	panel.classList.remove('hide');
 	positionNotes();
@@ -3086,7 +3328,7 @@ function displayStatistics(nodeId) {
 }
 
 /**
- * ensure that the panel is not obscuring the Settings panel
+ * ensure that the panel is not outside the net pane, nor obscuring the Settings panel
  * @param {HTMLElement} panel
  */
 function positionNotes() {
@@ -3096,10 +3338,16 @@ function positionNotes() {
 	if (!notesPanel) return;
 	let notesPanelRect = notesPanel.getBoundingClientRect();
 	let settingsRect = elem('panel').getBoundingClientRect();
+	let netPaneRect = netPane.getBoundingClientRect();
 	if (notesPanelRect.right > settingsRect.left &amp;&amp; notesPanelRect.top &lt; settingsRect.bottom) {
 		notesPanel.style.left = settingsRect.left - notesPanelRect.width - 20 + 'px';
-		notesPanel.style.width = notesPanelRect.width + 'px';
 	}
+	if (notesPanelRect.left &lt; netPaneRect.left) notesPanel.style.left = netPaneRect.left + 20 + 'px';
+	if (notesPanelRect.right > netPaneRect.right)
+		notesPanel.style.left = netPaneRect.right - notesPanelRect.width - 20 + 'px';
+	if (notesPanelRect.top &lt; netPaneRect.top) notesPanel.style.top = netPaneRect.top + 20 + 'px';
+	if (notesPanelRect.bottom > netPaneRect.bottom)
+		notesPanel.style.top = Math.max(netPaneRect.bottom - notesPanelRect.height, netPaneRect.top) + 20 + 'px';
 }
 // Network tab
 
@@ -3122,11 +3370,8 @@ function snapToGridSwitch(e) {
 function doSnapToGrid(toggle) {
 	elem('snaptogridswitch').checked = toggle;
 	if (toggle) {
-		let positions = network.getPositions();
 		data.nodes.update(
 			data.nodes.get().map((n) => {
-				n.x = positions[n.id].x;
-				n.y = positions[n.id].y;
 				snapToGrid(n);
 				return n;
 			})
@@ -3184,6 +3429,7 @@ function toggleDrawingLayer() {
 		inAddMode = false;
 		setButtonDisabledStatus('addNode', false);
 		setButtonDisabledStatus('addLink', false);
+		undoRedoButtonStatus();
 		changeCursor('default');
 	} else {
 		// expose drawing layer
@@ -3198,6 +3444,8 @@ function toggleDrawingLayer() {
 		inAddMode = 'disabled';
 		setButtonDisabledStatus('addNode', true);
 		setButtonDisabledStatus('addLink', true);
+		setButtonDisabledStatus('undo', true);
+		setButtonDisabledStatus('redo', true);
 	}
 	drawingSwitch = !drawingSwitch;
 	network.redraw();
@@ -3236,7 +3484,13 @@ function setLegend(on, warn) {
 	if (on) legend(warn);
 	else clearLegend();
 }
+/************************************************************** Analysis tab ************************************************* */
 
+/**
+ *
+ * @param {String} name of Radio button group
+ * @returns value of the button that is checked
+ */
 function getRadioVal(name) {
 	// get list of radio buttons with specified name
 	let radios = document.getElementsByName(name);
@@ -3245,7 +3499,11 @@ function getRadioVal(name) {
 		if (radios[i].checked) return radios[i].value;
 	}
 }
-
+/**
+ *
+ * @param {String} name of the radio button group
+ * @param {*} value check the button with this value
+ */
 function setRadioVal(name, value) {
 	// get list of radio buttons with specified name
 	let radios = document.getElementsByName(name);
@@ -3255,171 +3513,380 @@ function setRadioVal(name, value) {
 	}
 }
 
-function hideDistantOrStreamNodes(broadcast = true) {
-	// get the intersection of the nodes (and links) in radius and up or downstream,
-	// and then hide everything not in that intersection
-	let radius = getRadioVal('hide');
-	let stream = getRadioVal('stream');
-	if (broadcast) broadcastHideAndStream(radius, stream);
-	if (radius == 'All' &amp;&amp; stream == 'All') {
-		showAll();
+/**
+ * For all Factors and Links, test whether they are hidden and if so, whether they are hidden for
+ * the given reason.  If so, remove that reason and if there are no more remaining reason for them to
+ * be hidden, unhide them
+ * @param {String} reason
+ */
+function unHideAll(reason) {
+	let nodes = data.nodes.get({
+		filter: function (node) {
+			let h = node.hidden &amp;&amp; node.whyHidden?.includes(reason);
+			if (h) {
+				node.whyHidden = node.whyHidden.filter((item) => item !== reason);
+				node.hidden = node.whyHidden.length > 0;
+			}
+			return h;
+		},
+	});
+	if (nodes) data.nodes.update(nodes);
+	let edges = data.edges.get({
+		filter: function (edge) {
+			let h = edge.hidden &amp;&amp; edge.whyHidden?.includes(reason);
+			if (h) {
+				edge.whyHidden = edge.whyHidden.filter((item) => item !== reason);
+				edge.hidden = edge.whyHidden.length > 0;
+			}
+			return h;
+		},
+	});
+	if (edges) data.edges.update(edges);
+}
+/**
+ * Hide all factors that are more than x links away from the selected Factors
+ */
+function hideDistantNodes() {
+	// get the nodes (and links) in radius of the selected nodes,
+	// and then hide everything not in that radius
+	let radius = getRadioVal('radius');
+	unHideAll('radius');
+	let selectedNodes = network.getSelectedNodes();
+	if (selectedNodes.length === 0 &amp;&amp; radius !== 'All') {
+		statusMsg('A Factor needs to be selected', 'warn');
+		elem('radiusAll').checked = true;
+		yNetMap.set('radius', {
+			radiusSetting: 'All',
+			selected: selectedNodes,
+		});
 		return;
 	}
-	let selectedNodes = network.getSelectedNodes();
-	if (selectedNodes.length == 0) {
-		statusMsg('Select a Factor first', 'error');
-		// unhide everything
-		elem('hideAll').checked = true;
-		elem('streamAll').checked = true;
-		if (broadcast) broadcastHideAndStream('All', 'All');
-		showAll();
+	yNetMap.set('radius', {
+		radiusSetting: radius,
+		selected: selectedNodes,
+	});
+	if (radius == 'All') {
+		showSelected();
 		return;
 	}
 
 	let nodeIdsInRadiusSet = new Set();
 	let linkIdsInRadiusSet = new Set();
-	let nodeMap = new Map();
-	let linkIdsInStreamSet = new Set();
-	let nodesToShow, linksToShow;
+	inSet(selectedNodes, radius);
 
-	if (stream == 'All') {
-		// filter by radius only
-		inSet(selectedNodes, radius);
-		nodesToShow = nodeIdsInRadiusSet;
-		linksToShow = linkIdsInRadiusSet;
-	} else {
-		// get nodes up or down stream
-		if (radius == 'All') radius = data.nodes.length;
-		if (stream == 'upstream') upstream(selectedNodes, radius);
-		else downstream(selectedNodes, radius);
-		nodesToShow = nodeMap;
-		linksToShow = linkIdsInStreamSet;
-	}
 	// update the network
-	data.nodes.update(
-		data.nodes.map((node) => {
-			node.hidden = !nodesToShow.has(node.id);
-			return node;
-		})
-	);
-	data.edges.update(
-		data.edges.map((edge) => {
-			edge.hidden = !linksToShow.has(edge.id);
-			return edge;
-		})
-	);
+	hideNodesAndEdgesInSet(nodeIdsInRadiusSet, linkIdsInRadiusSet, 'radius');
+	statusMsg(`Showing Factors ${radius} link${radius > 1 ? 's' : ''} away from ${selectedLabels()}`);
 
+	/**
+	 * recursive function to collect Factors and Links within radius links from any of the nodes listed in nodeIds
+	 * Factor ids are collected in nodeIdsInRadiusSet and links in linkIdsInRadiusSet
+	 * @param {Array of String} nodeIds
+	 * @param {Integer} radius
+	 */
 	function inSet(nodeIds, radius) {
-		// recursive function to collect nodes within radius links from any
-		// of the nodes listed in nodeIds
+		//
 		if (radius &lt; 0) return;
-		nodeIds.forEach(function (nId) {
+		nodeIds.forEach((nId) => {
 			nodeIdsInRadiusSet.add(nId);
 			let links = network.getConnectedEdges(nId);
 			if (links &amp;&amp; radius >= 0)
-				links.forEach(function (lId) {
+				links.forEach((lId) => {
 					linkIdsInRadiusSet.add(lId);
 				});
 			let linked = network.getConnectedNodes(nId);
 			if (linked) inSet(linked, radius - 1);
 		});
 	}
+}
 
-	function upstream(q, radius) {
-		let distance = 0;
-		q.forEach((nId) => nodeMap.set(nId, distance));
-		while (q.length > 0) {
-			let nId = q.shift();
-			if (nodeMap.get(nId) &lt; radius) {
-				let links = data.edges.get({
-					filter: function (item) {
-						return item.to == nId;
-					},
-				});
-				distance++;
-				links.forEach((link) => {
-					if (!nodeMap.has(link.from)) {
-						nodeMap.set(link.from, distance);
-						q.push(link.from);
-					}
-				});
+/**
+ * Hide all the Factors and Links in the given Sets and add the reason why they are hidden
+ * @param {Set of nodeIds} nodeSet
+ * @param {Set of edge Ids} edgeSet
+ * @param {String} reason
+ */
+function hideNodesAndEdgesInSet(nodeSet, edgeSet, reason) {
+	data.nodes.update(
+		data.nodes.map((node) => {
+			if (!nodeSet.has(node.id)) {
+				node.hidden = true;
+				node.whyHidden = pushnew(node.whyHidden, reason);
 			}
-		}
-		addAllLinks();
+			return node;
+		})
+	);
+	data.edges.update(
+		data.edges.map((edge) => {
+			if (!edgeSet.has(edge.id)) {
+				edge.hidden = true;
+				edge.whyHidden = pushnew(edge.whyHidden, reason);
+			}
+			return edge;
+		})
+	);
+}
+/**
+ * Hide all the factors that are upstream or downstream of the selected factors
+ */
+function hideStreamNodes() {
+	// get the nodes (and links) up or downstream of selected nodes,
+	// and then hide everything else
+	let stream = getRadioVal('stream');
+	unHideAll('stream');
+	let selectedNodes = network.getSelectedNodes();
+	if (selectedNodes.length === 0 &amp;&amp; stream !== 'All') {
+		statusMsg('A Factor needs to be selected', 'warn');
+		// unhide everything
+		elem('streamAll').checked = true;
+		yNetMap.set('stream', {
+			streamSetting: 'All',
+			selected: selectedNodes,
+		});
+		return;
+	}
+	yNetMap.set('stream', {
+		streamSetting: stream,
+		selected: selectedNodes,
+	});
+	if (stream == 'All') {
+		showSelected();
+		return;
+	}
+	let nodeIdsInStreamSet = new Set();
+	let linkIdsInStreamSet = new Set();
+
+	if (stream == 'upstream') upstream(selectedNodes);
+	else downstream(selectedNodes);
+	addAllLinks();
+
+	// update the network
+	hideNodesAndEdgesInSet(nodeIdsInStreamSet, linkIdsInStreamSet, 'stream');
+	statusMsg(`Showing Factors ${stream} from ${selectedLabels()}`);
+
+	/**
+	 * Recursive function to collect into nodeIdsInStreamSet the factors that are upstream of the given nodeIds
+	 * @param {Array of nodeIds} nodeIds
+	 */
+	function upstream(nodeIds) {
+		nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId));
+		nodeIds.forEach((nId) => {
+			let links = data.edges.get({
+				filter: function (item) {
+					return item.to == nId;
+				},
+			});
+			links.forEach((link) => {
+				if (!nodeIdsInStreamSet.has(link.from)) {
+					upstream([link.from]);
+				}
+			});
+		});
 	}
 
+	/**
+	 * Recursive function to collect into nodeIdsInStreamSet the factors that are downstream of the given nodeIds
+	 * @param {Array of nodeIds} nodeIds
+	 */
+	function downstream(nodeIds) {
+		nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId));
+		nodeIds.forEach((nId) => {
+			let links = data.edges.get({
+				filter: function (item) {
+					return item.from == nId;
+				},
+			});
+			links.forEach((link) => {
+				if (!nodeIdsInStreamSet.has(link.to)) {
+					downstream([link.to]);
+				}
+			});
+		});
+	}
+
+	/**
+	 * Collect the links that go both to and from factors that are included in nodeIdsInStreamSet
+	 * into linkIdsInStreamSet
+	 */
 	function addAllLinks() {
 		data.edges
 			.get({
 				filter: function (edge) {
-					return nodeMap.has(edge.from) &amp;&amp; nodeMap.has(edge.to);
+					return nodeIdsInStreamSet.has(edge.from) &amp;&amp; nodeIdsInStreamSet.has(edge.to);
 				},
 			})
 			.forEach((edge) => linkIdsInStreamSet.add(edge.id));
 	}
+}
+/**
+ * Sets the Analysis radio buttons and Factor selection according to values in obj
+ * @param {Object} obj
+ */
+function setAnalysisButtons() {
+	if (netLoaded) {
+		let selectedNodes = [].concat(hiddenNodes.selected); // ensure that hiddenNodes.selected is an array
+		if (selectedNodes.length > 0) {
+			network.selectNodes(selectedNodes, false); // in viewing  only mode, this does nothing
+			if (!viewOnly) statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
+		}
+		if (hiddenNodes.radiusSetting) setRadioVal('radius', hiddenNodes.radiusSetting);
+		if (hiddenNodes.streamSetting) setRadioVal('stream', hiddenNodes.streamSetting);
+		if (hiddenNodes.pathsSetting) setRadioVal('paths', hiddenNodes.pathsSetting);
+	}
+}
 
-	function downstream(q, radius) {
-		let distance = 0;
-		q.forEach((nId) => nodeMap.set(nId, distance));
-		while (q.length > 0) {
-			let nId = q.shift();
-			if (nodeMap.get(nId) &lt; radius) {
-				let links = data.edges.get({
-					filter: function (item) {
-						return item.from == nId;
-					},
+/**
+ * hide all links except those between the selected factors (either those on all the paths or the shortest path)
+ */
+function showPaths() {
+	let radio = getRadioVal('paths');
+	let selectedNodes = network.getSelectedNodes();
+	if (radio !== 'All' &amp;&amp; selectedNodes.length &lt; 2) {
+		statusMsg('Select at least 2 factors to show paths between them', 'warn');
+		elem('pathsAll').checked = true;
+		yNetMap.set('paths', {
+			pathsSetting: 'All',
+			selected: selectedNodes,
+		});
+		unHideAll('paths');
+		return;
+	}
+	yNetMap.set('paths', {
+		pathsSetting: radio,
+		selected: selectedNodes,
+	});
+	let linksToUpdate = [];
+	switch (radio) {
+		case 'All':
+			unHideAll('paths');
+			showSelected();
+			return;
+		case 'allPaths':
+		case 'shortestPath':
+			{
+				let paths = shortestPaths(radio === 'allPaths');
+				if (paths.length == 0) {
+					statusMsg('No path between the selected Factors', 'warn');
+					return;
+				}
+				// hide every link, before unhiding those that make up the paths
+				data.edges.get({filter: (e) => !e.hidden}).forEach((edge) => {
+					edge.hidden = true;
+					edge.whyHidden = pushnew(edge.whyHidden, 'paths');
+					linksToUpdate.push(edge);
 				});
-				distance++;
-				links.forEach((link) => {
-					if (!nodeMap.has(link.to)) {
-						nodeMap.set(link.to, distance);
-						q.push(link.to);
-					}
+				paths.forEach((links) => {
+					links.forEach((link) => {
+						let edge = data.edges.get({filter: (e) => e.to === link.to &amp;&amp; e.from === link.from})[0];
+						if (!edge) console.log(`Link ${link} not found`);
+						else {
+							edge.whyHidden = edge.whyHidden.filter((item) => item !== 'paths');
+							edge.hidden = edge.whyHidden.length > 0;
+							linksToUpdate.push(edge);
+						}
+					});
 				});
 			}
-		}
-		addAllLinks();
+			break;
+		default:
+			console.log('Bad selector in showPaths()');
 	}
-
-	function showAll() {
-		let nodes = data.nodes.get({
-			filter: function (node) {
-				let h = node.hidden;
-				if (h) node.hidden = false;
-				return h;
-			},
-		});
-		data.nodes.update(nodes);
-		let edges = data.edges.get({
-			filter: function (edge) {
-				let h = edge.hidden;
-				if (h) edge.hidden = false;
-				return h;
-			},
-		});
-		data.edges.update(edges);
-	}
+	data.edges.update(linksToUpdate);
+	statusMsg(`Showing ${radio == 'allPaths' ? 'all paths' : 'the shortest path'} between ${selectedLabels()}`);
 }
 
-function broadcastHideAndStream(hideSetting, streamSetting) {
-	yNetMap.set('hideAndStream', {
-		hideSetting: hideSetting,
-		streamSetting: streamSetting,
-		selected: network.getSelectedNodes(),
+/**
+ * Given two or more selected factors, return a list of all the links that are either on any path between them, or just the ones on the shortest paths between them
+ * @param {Boolean} all when true, find all the links that connect to the selected factors; when false, find the shortest paths between the selected factors
+ * @returns	Arrays of object with from: and to: properties for all the links (an empty array if there is no path between any of the selected factors)
+ */
+function shortestPaths(all) {
+	let selectedNodes = network.getSelectedNodes();
+	let visited = new Map();
+	let allPaths = [];
+	// list of all pairs of the selected factors
+	let combos = selectedNodes.flatMap((v, i) => selectedNodes.slice(i + 1).map((w) => [v, w]));
+	// for each pair, find the sequences of links in both directions and combine them
+	combos.forEach((combo) => {
+		let source = combo[0];
+		let dest = combo[1];
+		let links = pathList(source, dest, all);
+		if (links.length > 0) allPaths.push(links);
+		links = pathList(dest, source, all);
+		if (links.length > 0) allPaths.push(links);
 	});
-}
+	return allPaths;
 
-function setHideAndStream(obj) {
-	if (!obj) return;
-	let selectedNodes = [].concat(obj.selected); // ensure that obj.selected is an array
-	if (selectedNodes.length > 0) {
-		network.selectNodes(selectedNodes, false); // in viewing  only mode, this does nothing
-		if (!viewOnly) statusMsg(listFactors(network.getSelectedNodes()) + ' selected');
+	/**
+	 * find the paths (as a list of links) that connect the source and destination
+	 * @param {String} source
+	 * @param {String} dest
+	 * @param {Boolean} all true of all paths between Source and Destination are wanted; false if just the shortest path
+	 * @returns an array of lists of links that connect the paths
+	 */
+	function pathList(source, dest, all) {
+		visited.clear();
+		let links = [];
+		let paths = getPaths(source, dest);
+		// if no path found, getPaths return an array of length greater than the total number of factors in the map, or a string
+		// in this case, return an empty list
+		if (!Array.isArray(paths) || paths.length === data.nodes.length + 1) paths = [];
+		if (!all) {
+			for (let i = 0; i &lt; paths.length - 1; i++) {
+				links.push({from: paths[i], to: paths[i + 1]});
+			}
+		}
+		return links;
+		/**
+		 * recursively explore the map starting from source until destination is reached.
+		 * stop if a factor has already been visited, or at a dead end (zero out-degree)
+		 * @param {String} source
+		 * @param {String} dest
+		 * @returns an array of factors, the path so far followed
+		 */
+		function getPaths(source, dest) {
+			if (source === dest) return [dest];
+			visited.set(source, true);
+			let path = [source];
+			let connectedNodes = network.getConnectedNodes(source, 'to');
+			if (connectedNodes.length === 0) return 'deadend';
+			if (all) {
+				connectedNodes.forEach((next) => {
+					let vis = visited.get(next);
+					if (vis === 'onpath') {
+						links.push({from: source, to: next});
+						path = path.concat([next]);
+					} else if (!vis) {
+						let p = getPaths(next, dest);
+						if (Array.isArray(p) &amp;&amp; p.length > 0) {
+							links.push({from: source, to: next});
+							visited.set(next, 'onpath');
+							path = path.concat(p);
+						}
+					}
+				});
+			} else {
+				let bestPath = new Array(data.nodes.length);
+				connectedNodes.forEach((next) => {
+					if (!visited.get(next)) {
+						let p = getPaths(next, dest);
+						if (Array.isArray(p) &amp;&amp; p.length > 0) {
+							if (p.length &lt; bestPath.length) bestPath = p;
+						}
+					}
+				});
+				path = path.concat(bestPath);
+			}
+			// if no progress has been made (the path is just the initial source factor), return an empty path
+			if (path.length == 1) path = [];
+			return path;
+		}
 	}
-	setRadioVal('hide', obj.hideSetting);
-	setRadioVal('stream', obj.streamSetting);
 }
-
+/**
+ * Hide or reveal all the Factors with the given style
+ * @param {Object} obj {sample: state}
+ */
 function updateFactorsHiddenByStyle(obj) {
 	for (const sampleElementId in obj) {
 		let sampleElement = elem(sampleElementId);
@@ -3434,9 +3901,10 @@ function sizingSwitch(e) {
 	sizing(metric);
 	yNetMap.set('sizing', metric);
 }
+
 /**
  * set the size of the nodes proportional to the selected metric
-	none, in degree out degree or betweenness centrality
+ * @param {String} metric none, in degree out degree or betweenness centrality
  */
 function sizing(metric) {
 	let nodesToUpdate = [];
@@ -3445,6 +3913,7 @@ function sizing(metric) {
 		switch (metric) {
 			case 'Off':
 				node.scaling.label.enabled = false;
+				node.value = 0
 				break;
 			case 'Inputs':
 				node.value = network.getConnectedNodes(node.id, 'from').length;
@@ -3468,6 +3937,37 @@ function sizing(metric) {
 	elem('sizing').value = metric;
 	network.fit();
 	elem('zoom').value = network.getScale();
+}
+/**
+ * User has chosen a clustering option
+ * @param {Event} e
+ */
+function selectClustering(e) {
+	let option = e.target.value;
+	cluster(option);
+	fit(0);
+	yNetMap.set('cluster', option);
+}
+function setCluster(option) {
+	elem('clustering').value = option;
+}
+/**
+ * recreate the Clustering drop down menu to include user attributes as clustering options
+ * @param {Objet} obj {menu value, menu text}
+ */
+function recreateClusteringMenu(obj) {
+	// remove any old select items, other than the standard ones (which are the first 3: None, Style, Color)
+	let select = elem('clustering');
+	for (let i = 3, len = select.options.length; i &lt; len; i++) {
+		select.remove(3);
+	}
+	// append the ones provided
+	for (const property in obj) {
+		let opt = document.createElement('option');
+		opt.value = property;
+		opt.text = obj[property];
+		select.add(opt, null);
+	}
 }
 /* ---------------------------------------chat window --------------------------------*/
 
@@ -3598,7 +4098,12 @@ function showHistory() {
 		.toArray()
 		.map((rec) => formatLogRec(rec))
 		.join(' ');
-	log.scrollTop = log.scrollHeight;
+	let logWrapper = elem('history-log-wrapper');
+	logWrapper.scrollTo({
+		top: logWrapper.scrollHeight,
+		left: 0,
+		behavior: 'auto',
+	});
 }
 /**
  * return a DOM element with the data in rec formatted
@@ -3630,10 +4135,13 @@ function setUpAwareness() {
 	showAvatars();
 	// eslint-disable-next-line no-unused-vars
 	yAwareness.on('change', (event) => {
-		//		yjsTrace('yAwareness.on', event);
-		showAvatars();
+		if (/aware/.test(debug)) traceUsers(event);
 		showGhostFactor();
-		if (elem('showCursorSwitch').checked) showMice();
+		if (elem('showUsersSwitch').checked) {
+			showMice();
+			showAvatars();
+			followUser();
+		}
 	});
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false);
@@ -3663,6 +4171,24 @@ function asleep(isSleeping) {
 	yAwareness.setLocalState({user: myNameRec});
 	showAvatars();
 }
+function traceUsers(event) {
+	let msg = '';
+	event.added.forEach((id) => {
+		msg += `Added ${user(id)} (${id}) `;
+	});
+	event.updated.forEach((id) => {
+		msg += `Updated ${user(id)} (${id}) `;
+	});
+	event.removed.forEach((id) => {
+		msg += `Removed (${id}) `;
+	});
+	console.log('yAwareness', exactTime(), msg);
+
+	function user(id) {
+		let userRec = yAwareness.getStates().get(id);
+		return isEmpty(userRec.user) ? id : userRec.user.name;
+	}
+}
 /**
  * Display the other users' mouse pointers (if they are inside the canvas)
  */
@@ -3688,29 +4214,37 @@ function showMice() {
  * Place a circle at the top left of the net pane to represent each user who is online
  * Also create a cursor (a div) for each of the users
  */
+let previousNames = [];
 function showAvatars() {
 	let recs = Array.from(yAwareness.getStates());
+	// remove and save myself (using clientID as the id, not name)
 	let me = recs.splice(
 		recs.findIndex((a) => a[0] === clientID),
 		1
-	); // remove and save myself
+	);
 	let names = recs
 		// eslint-disable-next-line no-unused-vars
 		.map(([key, value]) => {
 			if (value.user) return value.user;
 		})
 		.filter((e) => e) // remove any recs without a user record
-		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates
-		.sort((a, b) => (a.name > b.name ? 1 : -1)); // sort names
+		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates, by name
+		.sort((a, b) => (a.name.charAt(0).toUpperCase() > b.name.charAt(0).toUpperCase() ? 1 : -1)); // sort names
 
 	populateChatUserMenu(Array.from(names));
 
 	if (me.length == 0) return; // app is unloading
 	names.unshift(me[0][1].user); // push myself on to the front
 
+	// nothing has changed, just return
+	if (object_equals(previousNames, names)) return;
+	previousNames = [...names];
+
 	let avatars = elem('avatars');
-	let currentAvatars = [];
 	let currentCursors = [];
+
+	// clear out all avatars from the display
+	Array.from(avatars.children).forEach((e) => e.remove());
 
 	names.forEach((nameRec) => {
 		let ava = elem('ava' + nameRec.id);
@@ -3718,6 +4252,7 @@ function showAvatars() {
 		if (ava == null) {
 			ava = document.createElement('div');
 			ava.classList.add('hoverme');
+			if (followme === nameRec.id) ava.classList.add('followme');
 			ava.id = 'ava' + nameRec.id;
 			ava.dataset.tooltip = nameRec.name;
 			let circle = document.createElement('div');
@@ -3740,8 +4275,8 @@ function showAvatars() {
 			if (circle.innerText != shortName) circle.innerText = shortName;
 			let opacity = nameRec.asleep ? 0.2 : 1.0;
 			if (circle.style.opacity != opacity) circle.style.opacity = opacity;
+			avatars.appendChild(ava);
 		}
-		currentAvatars.push(ava);
 
 		if (nameRec.id != clientID) {
 			// don't create a cursor for myself
@@ -3762,21 +4297,19 @@ function showAvatars() {
 			currentCursors.push(cursorDiv);
 		}
 	});
-	// delete any avatars and cursors that remain from before
-	let avatarsToDelete = Array.from(avatars.children).filter((a) => !currentAvatars.includes(a));
-	avatarsToDelete.forEach((e) => e.remove());
+	// delete any cursors that remain from before
 	let cursorsToDelete = Array.from(document.querySelectorAll('.shared-cursor')).filter(
 		(a) => !currentCursors.includes(a)
 	);
 	cursorsToDelete.forEach((e) => e.remove());
-	if (followme) followUser();
 }
 
-function showCursorSwitch() {
-	let on = elem('showCursorSwitch').checked;
+function showUsersSwitch() {
+	let on = elem('showUsersSwitch').checked;
 	document.querySelectorAll('div.shared-cursor').forEach((node) => {
 		node.style.display = on ? 'block' : 'none';
 	});
+	elem('avatars').style.display = on ? 'flex' : 'none';
 }
 /**
  * User has clicked on an avatar.  Start following this avatar
@@ -3853,153 +4386,6 @@ function showGhostFactor() {
 		}
 	});
 }
-
-/* --------------------------------- Merge maps ----------------------------- */
-/* 
- * Evaluate mergeRoom(string: room code) e.g. mergeRoom('WBI-CRD-ROB-XDK')
- *   adds all factors and links in the 'other' map to this one
- *   if a factor occurs in both maps and is identical in both, nothing is added
- *   if a factor is in both maps, but the label is different, a new factor is added
- *     that is a clone of the 'other' factor, but with a dashed red border and with
- *     cloned links that are dashed.  
- */
-
-var bwsp; //  websocket to other room
-var bdata; // other room's node and edge data
-
-function openOtherDoc(room) {
-	let bDoc = new Y.Doc();
-	bwsp = new WebsocketProvider(websocket, 'prsm' + room, bDoc);
-	let bNodesMap = bDoc.getMap('nodes');
-	let bEdgesMap = bDoc.getMap('edges');
-	let bNodes = new DataSet();
-	let bEdges = new DataSet();
-	bdata = {
-		nodes: bNodes,
-		edges: bEdges,
-	};
-	bNodesMap.observe((event) => {
-		let nodesToUpdate = [];
-		for (let key of event.keysChanged) {
-			if (bNodesMap.has(key)) {
-				let obj = bNodesMap.get(key);
-				nodesToUpdate.push(obj);
-			}
-		}
-		if (nodesToUpdate) bNodes.update(nodesToUpdate);
-	});
-	bEdgesMap.observe((event) => {
-		let edgesToUpdate = [];
-		for (let key of event.keysChanged) {
-			if (bEdgesMap.has(key)) {
-				let obj = bEdgesMap.get(key);
-				edgesToUpdate.push(obj);
-			}
-		}
-		bEdges.update(edgesToUpdate, origin);
-	});
-}
-window.openOtherDoc = openOtherDoc;
-
-function mergeMaps(nodeList, edgeList) {
-	// lists of edges from the map to be merged (B) into this one (A)
-	let newNodes = new Map();
-	nodeList.forEach((BNode) => {
-		// for each node in the other map
-		let ANode = data.nodes.get(BNode.id); // see whether there is a node in this map with the same id
-		if (ANode) {
-			// if there is, check whether the label is the same
-			if (ANode.label != BNode.label) {
-				// if not, make a clone of the other node with a new id
-				logHistory(
-					`Existing Factor label: ${ANode.label} does not match new label: ${BNode.label}. Factor with new label added.`,
-					'Merge'
-				);
-				// generate a new id for BNode.  change border to dashed red.  Add it to the map
-				let newNode = deepCopy(BNode);
-				newNode.id = uuidv4();
-				newNode.shapeProperties.borderDashes = true;
-				newNode.borderWidth = 4;
-				newNode.borderWidthSelected = 4;
-				newNode.color.border = '#ff0000';
-				newNode.color.highlight.border = '#ff0000';
-				newNode.x = ANode.x + 30;
-				newNode.y = ANode.y + 30;
-				// add it to this map
-				data.nodes.add(newNode);
-				// add to lookup table of existing node id to clone node id
-				newNodes.set(BNode.id, newNode.id);
-			} else if (ANode.grp != BNode.grp)
-				// label is the same, but style is not - just report this
-				logHistory(
-					`Existing style: ${ANode.grp} does not match new style: ${BNode.grp} for Factor: ${ANode.label}. Existing style retained.`,
-					'Merge'
-				);
-		} else {
-			// the node is on the other map, but not on this one - add it.
-			data.nodes.add(BNode);
-			logHistory(`Added new Factor: ${BNode.label}`, 'Merge');
-		}
-	});
-
-	edgeList.forEach((BEdge) => {
-		// Some edges on the other map may have been going to/from nodes that have been cloned and given a new id.
-		// Clone these edges, giving them the new from: or to: node ids and make them dashed.
-		let newEdge = null;
-		if (newNodes.has(BEdge.from)) {
-			// this edge goes from a node that has been cloned - adjust the from: id
-			newEdge = deepCopy(BEdge);
-			newEdge.from = newNodes.get(BEdge.from);
-			// it might also go to a cloned node -if so, adjust the to: id
-			if (newNodes.has(newEdge.to)) newEdge.to = newNodes.get(newEdge.to);
-		} else if (newNodes.has(BEdge.to)) {
-			// this edge goes to a cloned node
-			newEdge = deepCopy(BEdge);
-			newEdge.to = newNodes.get(BEdge.to);
-		}
-		if (newEdge) {
-			// give the cloned edge a new id
-			newEdge.id = uuidv4();
-			// make the edge dashed
-			newEdge.dashes = true;
-			data.edges.add(newEdge);
-			logHistory(
-				`Added Link between new Factor(s): ${data.nodes.get(newEdge.from).label} to ${
-					data.nodes.get(newEdge.to).label
-				}`,
-				'Merge'
-			);
-		}
-		// now deal with the other map's edge
-		let AEdge = data.edges.get(BEdge.id);
-		let edgeName = BEdge.label || `from ${bdata.nodes.get(BEdge.from).label} to ${bdata.nodes.get(BEdge.to).label}`;
-		if (AEdge) {
-			if (AEdge.label != BEdge.label)
-				logHistory(
-					`Existing Link label: \n${AEdge.label} \ndoes not match new label: \n${BEdge.label}.  Existing label retained.`,
-					'Merge'
-				);
-			else if (AEdge.grp != BEdge.grp)
-				logHistory(
-					`Existing Link style: ${AEdge.grp} does not match new style: ${BEdge.grp} for edge ${edgeName}. Existing style retained.`,
-					'Merge'
-				);
-		} else {
-			data.edges.add(BEdge);
-			logHistory(`Added new Link: ${edgeName}`, 'Merge');
-		}
-	});
-}
-window.mergeMaps = mergeMaps;
-
-function mergeRoom(room) {
-	openOtherDoc(room);
-	bwsp.on('sync', () => {
-		mergeMaps(bdata.nodes.get(), bdata.edges.get());
-	});
-}
-window.mergeRoom = mergeRoom;
-window.bdata = bdata;
 </code></pre>
 				</article>
 			</section>
@@ -4022,6 +4408,7 @@ window.bdata = bdata;
 				<li><a href="global.html#applyOptions">applyOptions</a></li>
 				<li><a href="global.html#asleep">asleep</a></li>
 				<li><a href="global.html#broadcast">broadcast</a></li>
+				<li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li>
 				<li><a href="global.html#cancelAdd">cancelAdd</a></li>
 				<li><a href="global.html#cancelEdit">cancelEdit</a></li>
 				<li><a href="global.html#changeCursor">changeCursor</a></li>
@@ -4034,6 +4421,9 @@ window.bdata = bdata;
 				<li><a href="global.html#clone">clone</a></li>
 				<li><a href="global.html#closeFilter">closeFilter</a></li>
 				<li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li>
+				<li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li>
+				<li><a href="global.html#collapseColGroup">collapseColGroup</a></li>
+				<li><a href="global.html#collapseNotes">collapseNotes</a></li>
 				<li><a href="global.html#colorEditor">colorEditor</a></li>
 				<li><a href="global.html#configSamples">configSamples</a></li>
 				<li><a href="global.html#connected">connected</a></li>
@@ -4050,6 +4440,7 @@ window.bdata = bdata;
 				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
 				<li><a href="global.html#deselectTool">deselectTool</a></li>
 				<li><a href="global.html#diag">diag</a></li>
+				<li><a href="global.html#diffMaps">diffMaps</a></li>
 				<li><a href="global.html#displayHelp">displayHelp</a></li>
 				<li><a href="global.html#displayNetPane">displayNetPane</a></li>
 				<li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li>
@@ -4064,6 +4455,7 @@ window.bdata = bdata;
 				<li><a href="global.html#editNode">editNode</a></li>
 				<li><a href="global.html#editNodeStyle">editNodeStyle</a></li>
 				<li><a href="global.html#elem">elem</a></li>
+				<li><a href="global.html#exactTime">exactTime</a></li>
 				<li><a href="global.html#exportCVS">exportCVS</a></li>
 				<li><a href="global.html#exportGML">exportGML</a></li>
 				<li><a href="global.html#fit">fit</a></li>
@@ -4078,13 +4470,19 @@ window.bdata = bdata;
 				<li><a href="global.html#getContext">getContext</a></li>
 				<li><a href="global.html#getDashes">getDashes</a></li>
 				<li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li>
+				<li><a href="global.html#getRadioVal">getRadioVal</a></li>
 				<li><a href="global.html#getRandomData">getRandomData</a></li>
 				<li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li>
 				<li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li>
+				<li><a href="global.html#ghostCursor">ghostCursor</a></li>
 				<li><a href="global.html#ghostFactor">ghostFactor</a></li>
 				<li><a href="global.html#groupDashes">groupDashes</a></li>
+				<li><a href="global.html#groupTitle">groupTitle</a></li>
 				<li><a href="global.html#headerTickToggle">headerTickToggle</a></li>
+				<li><a href="global.html#hideDistantNodes">hideDistantNodes</a></li>
+				<li><a href="global.html#hideNodesAndEdgesInSet">hideNodesAndEdgesInSet</a></li>
 				<li><a href="global.html#hideNotes">hideNotes</a></li>
+				<li><a href="global.html#hideStreamNodes">hideStreamNodes</a></li>
 				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
 				<li><a href="global.html#in_degree">in_degree</a></li>
 				<li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li>
@@ -4092,8 +4490,10 @@ window.bdata = bdata;
 				<li><a href="global.html#initials">initials</a></li>
 				<li><a href="global.html#initPopUp">initPopUp</a></li>
 				<li><a href="global.html#initSample">initSample</a></li>
+				<li><a href="global.html#isEmpty">isEmpty</a></li>
 				<li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li>
 				<li><a href="global.html#legend">legend</a></li>
+				<li><a href="global.html#lightOrDark">lightOrDark</a></li>
 				<li><a href="global.html#linkEditCancel">linkEditCancel</a></li>
 				<li><a href="global.html#linkEditorHide">linkEditorHide</a></li>
 				<li><a href="global.html#linkEditorShow">linkEditorShow</a></li>
@@ -4107,6 +4507,7 @@ window.bdata = bdata;
 				<li><a href="global.html#loadJSONfile">loadJSONfile</a></li>
 				<li><a href="global.html#lockNode">lockNode</a></li>
 				<li><a href="global.html#logHistory">logHistory</a></li>
+				<li><a href="global.html#makeColor">makeColor</a></li>
 				<li><a href="global.html#mapTitle">mapTitle</a></li>
 				<li><a href="global.html#mergeTranspose">mergeTranspose</a></li>
 				<li><a href="global.html#mouseDespatch">mouseDespatch</a></li>
@@ -4120,6 +4521,7 @@ window.bdata = bdata;
 				<li><a href="global.html#object_equals">object_equals</a></li>
 				<li><a href="global.html#oldUserNames">oldUserNames</a></li>
 				<li><a href="global.html#onexit">onexit</a></li>
+				<li><a href="global.html#openCluster">openCluster</a></li>
 				<li><a href="global.html#out_degree">out_degree</a></li>
 				<li><a href="global.html#parseCSV">parseCSV</a></li>
 				<li><a href="global.html#parseGML">parseGML</a></li>
@@ -4128,31 +4530,40 @@ window.bdata = bdata;
 				<li><a href="global.html#plusNode">plusNode</a></li>
 				<li><a href="global.html#positionNotes">positionNotes</a></li>
 				<li><a href="global.html#positionPopUp">positionPopUp</a></li>
+				<li><a href="global.html#previousNames">previousNames</a></li>
+				<li><a href="global.html#quillEditor">quillEditor</a></li>
+				<li><a href="global.html#quillFormatter">quillFormatter</a></li>
 				<li><a href="global.html#readSingleFile">readSingleFile</a></li>
 				<li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li>
 				<li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li>
 				<li><a href="global.html#rebase">rebase</a></li>
 				<li><a href="global.html#recalculateStats">recalculateStats</a></li>
+				<li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li>
 				<li><a href="global.html#redraw">redraw</a></li>
 				<li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li>
 				<li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li>
+				<li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li>
 				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
 				<li><a href="global.html#resizeBox">resizeBox</a></li>
 				<li><a href="global.html#round">round</a></li>
 				<li><a href="global.html#saveEdge">saveEdge</a></li>
-				<li><a href="global.html#saveJSONfile">saveJSONfile</a></li>
 				<li><a href="global.html#saveLabel">saveLabel</a></li>
 				<li><a href="global.html#saveNode">saveNode</a></li>
+				<li><a href="global.html#savePRSMfile">savePRSMfile</a></li>
 				<li><a href="global.html#saveStr">saveStr</a></li>
 				<li><a href="global.html#search">search</a></li>
 				<li><a href="global.html#searchTargets">searchTargets</a></li>
+				<li><a href="global.html#selectClustering">selectClustering</a></li>
+				<li><a href="global.html#selectedLabels">selectedLabels</a></li>
 				<li><a href="global.html#selectTool">selectTool</a></li>
+				<li><a href="global.html#setAnalysisButtons">setAnalysisButtons</a></li>
 				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
 				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
 				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
 				<li><a href="global.html#setFileName">setFileName</a></li>
 				<li><a href="global.html#setFixed">setFixed</a></li>
 				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
+				<li><a href="global.html#setRadioVal">setRadioVal</a></li>
 				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
 				<li><a href="global.html#setUpCanvas">setUpCanvas</a></li>
 				<li><a href="global.html#setUpChat">setUpChat</a></li>
@@ -4165,13 +4576,16 @@ window.bdata = bdata;
 				<li><a href="global.html#setUpToolbox">setUpToolbox</a></li>
 				<li><a href="global.html#setUpTutorial">setUpTutorial</a></li>
 				<li><a href="global.html#setvh">setvh</a></li>
-				<li><a href="global.html#shorten">shorten</a></li>
-				<li><a href="global.html#showAvatars">showAvatars</a></li>
+				<li><a href="global.html#shortestPaths">shortestPaths</a></li>
+				<li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li>
+				<li><a href="global.html#showClusterLinks">showClusterLinks</a></li>
 				<li><a href="global.html#showGhostFactor">showGhostFactor</a></li>
 				<li><a href="global.html#showHistory">showHistory</a></li>
 				<li><a href="global.html#showMice">showMice</a></li>
 				<li><a href="global.html#showNodeData">showNodeData</a></li>
 				<li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li>
+				<li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li>
+				<li><a href="global.html#showPaths">showPaths</a></li>
 				<li><a href="global.html#showPressed">showPressed</a></li>
 				<li><a href="global.html#showSelected">showSelected</a></li>
 				<li><a href="global.html#sizing">sizing</a></li>
@@ -4204,12 +4618,14 @@ window.bdata = bdata;
 				<li><a href="global.html#trophic">trophic</a></li>
 				<li><a href="global.html#undirected">undirected</a></li>
 				<li><a href="global.html#unFollow">unFollow</a></li>
+				<li><a href="global.html#unHideAll">unHideAll</a></li>
 				<li><a href="global.html#unlockAll">unlockAll</a></li>
 				<li><a href="global.html#unlockEdge">unlockEdge</a></li>
 				<li><a href="global.html#unlockNode">unlockNode</a></li>
 				<li><a href="global.html#unSelect">unSelect</a></li>
 				<li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li>
 				<li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li>
+				<li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li>
 				<li><a href="global.html#updateFilter">updateFilter</a></li>
 				<li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li>
 				<li><a href="global.html#updateLastSamples">updateLastSamples</a></li>
@@ -4231,11 +4647,11 @@ window.bdata = bdata;
 		<footer>
 			Documentation generated by
 			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a>
-			on Sat Aug 28 2021 09:21:33 GMT+0100 (British Summer Time)
+			on Mon Nov 29 2021 22:32:23 GMT+0000 (Greenwich Mean Time)
 		</footer>
 
 		<script>
-			prettyPrint();
+			prettyPrint()
 		</script>
 		<script src="scripts/linenumber.js"></script>
 	</body>

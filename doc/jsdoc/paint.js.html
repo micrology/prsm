@@ -73,10 +73,7 @@ export function setUpPaint() {
 	tempctx = getContext(tempCanvas);
 
 	let mc = new Hammer.Manager(tempCanvas, {
-		recognizers: [
-			[Hammer.Tap],
-			[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 1}],
-		],
+		recognizers: [[Hammer.Tap], [Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 1}]],
 	});
 	mc.on('tap', mouseDespatch);
 	mc.on('panstart', mouseDespatch);
@@ -106,7 +103,7 @@ function setUpCanvas(id) {
  */
 function getContext(canvas) {
 	let ctx = canvas.getContext('2d');
-	ctx.scale(dpr, dpr);
+	//	ctx.scale(dpr, dpr);
 	ctx.lineWidth = defaultOptions.lineWidth;
 	ctx.strokeStyle = defaultOptions.strokeStyle;
 	ctx.fillStyle = defaultOptions.fillstyle;
@@ -252,16 +249,12 @@ class ToolHandler {
 	 * @param {event} e
 	 */
 	endPosition(e) {
-		this.endX =
-			(e.offsetX * tempCanvas.width) / (dpr * tempCanvas.clientWidth);
+		this.endX = (e.offsetX * tempCanvas.width) / (dpr * tempCanvas.clientWidth);
 		if (this.endX &lt; 0) this.endX = 0;
-		if (this.endX > tempCanvas.offsetWidth)
-			this.endX = tempCanvas.offsetWidth;
-		this.endY =
-			(e.offsetY * tempCanvas.height) / (dpr * tempCanvas.clientHeight);
+		if (this.endX > tempCanvas.offsetWidth) this.endX = tempCanvas.offsetWidth;
+		this.endY = (e.offsetY * tempCanvas.height) / (dpr * tempCanvas.clientHeight);
 		if (this.endY &lt; 0) this.endY = 0;
-		if (this.endY > tempCanvas.offsetHeight)
-			this.endY = tempCanvas.offsetHeight;
+		if (this.endY > tempCanvas.offsetHeight) this.endY = tempCanvas.offsetHeight;
 	}
 	/**
 	 * do something as the mouse moves
@@ -303,13 +296,8 @@ class ToolHandler {
 		box.className = 'options';
 		box.id = 'optionsBox';
 		box.style.top =
-			document.getElementById(tool).getBoundingClientRect().top -
-			underlay.getBoundingClientRect().top +
-			'px';
-		box.style.left =
-			document.getElementById(tool).getBoundingClientRect().right +
-			10 +
-			'px';
+			document.getElementById(tool).getBoundingClientRect().top - underlay.getBoundingClientRect().top + 'px';
+		box.style.left = document.getElementById(tool).getBoundingClientRect().right + 10 + 'px';
 		underlay.appendChild(box);
 		return box;
 	}
@@ -326,17 +314,11 @@ class LineHandler extends ToolHandler {
 		if (this.isPanstart) {
 			this.endPosition(e);
 			if (this.axes) {
-				if (this.endX - this.startX > this.endY - this.startY)
-					this.endY = this.startY;
+				if (this.endX - this.startX > this.endY - this.startY) this.endY = this.startY;
 				else this.endX = this.startX;
 			}
 			drawHelper.clear(tempctx);
-			drawHelper.line(tempctx, [
-				this.startX,
-				this.startY,
-				this.endX,
-				this.endY,
-			]);
+			drawHelper.line(tempctx, [this.startX, this.startY, this.endX, this.endY]);
 		}
 	}
 	panend() {
@@ -358,9 +340,9 @@ class LineHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('line');
 		box.innerHTML = `
-	&lt;div>Line width&lt;/div>&lt;div>&lt;input id="lineWidth" type="text" size="2">&lt;/div>
+	&lt;div>Line width&lt;/div>&lt;div>&lt;input id="lineWidth" type="number" min="0" max="99" size="2">&lt;/div>
 	&lt;div>Colour&lt;/div>&lt;div>&lt;input id="lineColour" type="color">&lt;/div>
-	&lt;div>Axes&lt;/div>&lt;div>&lt;input type="checkbox" id="axes">&lt;/div>`;
+	&lt;div>Vert/Horiz&lt;/div>&lt;div>&lt;input type="checkbox" id="axes">&lt;/div>`;
 		let widthInput = document.getElementById('lineWidth');
 		widthInput.value = this.lineWidth;
 		widthInput.addEventListener('change', () => {
@@ -410,12 +392,7 @@ class RectHandler extends ToolHandler {
 			drawHelper.clear(tempctx);
 			let width = endX - startX;
 			let height = endY - startY;
-			drawHelper[this.roundCorners ? 'rrect' : 'rect'](tempctx, [
-				startX,
-				startY,
-				width,
-				height,
-			]);
+			drawHelper[this.roundCorners ? 'rrect' : 'rect'](tempctx, [startX, startY, width, height]);
 		}
 	}
 	panend() {
@@ -432,12 +409,7 @@ class RectHandler extends ToolHandler {
 				yPointsArray.push([
 					[
 						this.roundCorners ? 'rrect' : 'rect',
-						[
-							DOMtoCanvasX(this.startX),
-							DOMtoCanvasY(this.startY),
-							width,
-							height,
-						],
+						[DOMtoCanvasX(this.startX), DOMtoCanvasY(this.startY), width, height],
 					],
 				]);
 			}
@@ -448,7 +420,7 @@ class RectHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('rect');
 		box.innerHTML = `
-	&lt;div>Border width&lt;/div>&lt;div>&lt;input id="borderWidth" type="text" size="2">&lt;/div>
+	&lt;div>Border width&lt;/div>&lt;div>&lt;input id="borderWidth"  type="number" min="0" max="99" size="2">&lt;/div>
   &lt;div>Border Colour&lt;/div>&lt;div>&lt;input id="borderColour" type="color">&lt;/div>
   &lt;div>Fill Colour&lt;/div>&lt;div>&lt;input id="fillColour" type="color">&lt;/div>
   &lt;div>Rounded&lt;/div>&lt;input type="checkbox" id="rounded">&lt;/div>`;
@@ -554,12 +526,7 @@ class TextHandler extends ToolHandler {
 		}
 	}
 	saveText(e) {
-		if (
-			this.writing &amp;&amp;
-			e.target != this.inp &amp;&amp;
-			e.target != this.div &amp;&amp;
-			e.target != this.resizer
-		) {
+		if (this.writing &amp;&amp; e.target != this.inp &amp;&amp; e.target != this.div &amp;&amp; e.target != this.resizer) {
 			let text = this.inp.value;
 			if (text.length > 0) {
 				yPointsArray.push([
@@ -568,14 +535,10 @@ class TextHandler extends ToolHandler {
 						[
 							text,
 							DOMtoCanvasX(
-								((this.div.offsetLeft + 12) *
-									tempCanvas.width) /
-									(dpr * tempCanvas.clientWidth)
+								((this.div.offsetLeft + 12) * tempCanvas.width) / (dpr * tempCanvas.clientWidth)
 							), // '12' allows for border and outline
 							DOMtoCanvasY(
-								((this.div.offsetTop + 14) *
-									tempCanvas.height) /
-									(dpr * tempCanvas.clientHeight)
+								((this.div.offsetTop + 14) * tempCanvas.height) / (dpr * tempCanvas.clientHeight)
 							),
 						],
 					],
@@ -591,13 +554,12 @@ class TextHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('text');
 		box.innerHTML = `
-	&lt;div>Size&lt;/div>&lt;div>&lt;input id="fontSize" type="text" size="2">&lt;/div>
+	&lt;div>Size&lt;/div>&lt;div>&lt;input id="fontSize"  type="number" min="0" max="99" size="2">&lt;/div>
 	&lt;div>Colour&lt;/div>&lt;div>&lt;input id="fontColor" type="color">&lt;/div>`;
 		let fontSizeInput = document.getElementById('fontSize');
 		fontSizeInput.value = parseInt(this.font);
 		fontSizeInput.addEventListener('blur', () => {
-			this.font =
-				fontSizeInput.value + 'px ' + this.fontFamily(this.font);
+			this.font = fontSizeInput.value + 'px ' + this.fontFamily(this.font);
 		});
 		let fontColor = document.getElementById('fontColor');
 		fontColor.value = this.fillStyle;
@@ -625,9 +587,7 @@ class TextHandler extends ToolHandler {
 		let isDragging = false;
 
 		let mc = new Hammer.Manager(elem, {
-			recognizers: [
-				[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}],
-			],
+			recognizers: [[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}]],
 		});
 		mc.on('pan', handleDrag);
 
@@ -673,12 +633,7 @@ class PencilHandler extends ToolHandler {
 	panmove(e) {
 		if (this.isPanstart) {
 			this.endPosition(e);
-			drawHelper.pencil(tempctx, [
-				this.startX,
-				this.startY,
-				this.endX,
-				this.endY,
-			]);
+			drawHelper.pencil(tempctx, [this.startX, this.startY, this.endX, this.endY]);
 			this.record();
 			this.startX = this.endX;
 			this.startY = this.endY;
@@ -709,7 +664,7 @@ class PencilHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('pencil');
 		box.innerHTML = `
-		&lt;div>Width&lt;/div>&lt;div>&lt;input id="pencilWidth" type="text" size="2">&lt;/div>
+		&lt;div>Width&lt;/div>&lt;div>&lt;input id="pencilWidth"  type="number" min="0" max="99" size="2">&lt;/div>
 		&lt;div>Colour&lt;/div>&lt;div>&lt;input id="pencilColor" type="color">&lt;/div>`;
 		let widthInput = document.getElementById('pencilWidth');
 		widthInput.value = this.lineWidth;
@@ -738,11 +693,7 @@ class MarkerHandler extends ToolHandler {
 		if (this.isPanstart) {
 			this.endPosition(e);
 			this.record();
-			drawHelper.marker(tempctx, [
-				this.startX,
-				this.startY,
-				this.markerWidth,
-			]);
+			drawHelper.marker(tempctx, [this.startX, this.startY, this.markerWidth]);
 			this.startX = this.endX;
 			this.startY = this.endY;
 		}
@@ -769,7 +720,7 @@ class MarkerHandler extends ToolHandler {
 	optionsDialog() {
 		let box = super.optionsDialog('marker');
 		box.innerHTML = `
-		&lt;div>Width&lt;/div>&lt;div>&lt;input id="markerWidth" type="text" size="2">&lt;/div>
+		&lt;div>Width&lt;/div>&lt;div>&lt;input id="markerWidth"  type="number" min="0" max="99" size="2">&lt;/div>
 		&lt;div>Colour&lt;/div>&lt;div>&lt;input id="markerColor" type="color">&lt;/div>`;
 		let widthInput = document.getElementById('markerWidth');
 		widthInput.value = this.markerWidth;
@@ -804,11 +755,7 @@ class EraserHandler extends ToolHandler {
 			this.cursor('#ffffff', 1);
 			this.endPosition(e);
 			this.record();
-			drawHelper.marker(tempctx, [
-				this.startX,
-				this.startY,
-				this.markerWidth,
-			]);
+			drawHelper.marker(tempctx, [this.startX, this.startY, this.markerWidth]);
 			this.startX = this.endX;
 			this.startY = this.endY;
 			this.cursor('#000000', 2);
@@ -841,20 +788,14 @@ class EraserHandler extends ToolHandler {
 	 */
 	cursor(color, width) {
 		tempctx.beginPath();
-		tempctx.arc(
-			this.startX,
-			this.startY,
-			Math.round(this.markerWidth / 2 - width),
-			0,
-			2 * Math.PI
-		);
+		tempctx.arc(this.startX, this.startY, Math.round(this.markerWidth / 2 - width), 0, 2 * Math.PI);
 		tempctx.strokeStyle = color;
 		tempctx.stroke();
 	}
 	optionsDialog() {
 		let box = super.optionsDialog('eraser');
 		box.innerHTML = `
-		&lt;div>Width&lt;/div>&lt;div>&lt;input id="eraserWidth" type="text" size="2">&lt;/div>`;
+		&lt;div>Width&lt;/div>&lt;div>&lt;input id="eraserWidth"  type="number" min="0" max="99" size="2">&lt;/div>`;
 		let widthInput = document.getElementById('eraserWidth');
 		widthInput.value = this.markerWidth;
 		widthInput.addEventListener('blur', () => {
@@ -899,15 +840,10 @@ class ImageHandler extends ToolHandler {
 					image.origHeight = image.height;
 					underlay.appendChild(image);
 					// check that the image is smaller than the canvas - if not, rescale it so that it fits
-					let hScale = Math.ceil(
-						image.origWidth / (underlay.offsetWidth - 100)
-					);
-					let vScale = Math.ceil(
-						image.origHeight / (underlay.offsetHeight - 100)
-					);
+					let hScale = Math.ceil(image.origWidth / (underlay.offsetWidth - 100));
+					let vScale = Math.ceil(image.origHeight / (underlay.offsetHeight - 100));
 					let scale = 1;
-					if (hScale > 1.0 || vScale > 1.0)
-						scale = Math.max(hScale, vScale);
+					if (hScale > 1.0 || vScale > 1.0) scale = Math.max(hScale, vScale);
 					image.width = Math.round(image.origWidth / scale);
 					image.startWidth = image.width;
 					image.style.width = image.width + 'px';
@@ -938,12 +874,7 @@ class ImageHandler extends ToolHandler {
 		tempctx.drawImage(image, 0, 0, ow, oh, left, top, width, height);
 		//  create a small square box at the bottom right to use as the resizing handle
 		tempctx.fillStyle = 'black';
-		tempctx.fillRect(
-			left + width - resizeBox,
-			top + height - resizeBox,
-			resizeBox,
-			resizeBox
-		);
+		tempctx.fillRect(left + width - resizeBox, top + height - resizeBox, resizeBox, resizeBox);
 		// add marching ants
 		antMarch(left, top, width, height);
 	}
@@ -958,6 +889,11 @@ class ImageHandler extends ToolHandler {
 	 *
 	 */
 	panstart(e) {
+		if (this.image == null) {
+			deselectTool();
+			this.isPanstart = false;
+			return;
+		}
 		super.panstart(e);
 		this.image.startLeft = this.image.left;
 		this.image.startTop = this.image.top;
@@ -974,23 +910,13 @@ class ImageHandler extends ToolHandler {
 			this.endPosition(e);
 			drawHelper.clear(tempctx);
 			if (this.resizing) {
-				let hScale =
-					(this.image.startWidth + this.endX - this.startX) /
-					this.image.startWidth;
-				let vScale =
-					(this.image.startHeight + this.endY - this.startY) /
-					this.image.startHeight;
+				let hScale = (this.image.startWidth + this.endX - this.startX) / this.image.startWidth;
+				let vScale = (this.image.startHeight + this.endY - this.startY) / this.image.startHeight;
 				let scale = Math.max(hScale, vScale);
 				hScale = scale;
 				vScale = scale;
-				this.image.width = Math.max(
-					20,
-					Math.round(this.image.startWidth * hScale)
-				);
-				this.image.height = Math.max(
-					20,
-					Math.round(this.image.startHeight * vScale)
-				);
+				this.image.width = Math.max(20, Math.round(this.image.startWidth * hScale));
+				this.image.height = Math.max(20, Math.round(this.image.startHeight * vScale));
 				this.paintImage(
 					this.image,
 					this.image.origWidth,
@@ -1001,8 +927,7 @@ class ImageHandler extends ToolHandler {
 					this.image.height
 				);
 			} else {
-				this.image.left =
-					this.image.startLeft + this.endX - this.startX;
+				this.image.left = this.image.startLeft + this.endX - this.startX;
 				this.image.top = this.image.startTop + this.endY - this.startY;
 				this.paintImage(
 					this.image,
@@ -1048,6 +973,7 @@ class ImageHandler extends ToolHandler {
 			]);
 			underlay.style.cursor = 'auto';
 			super.panend();
+			this.image = null;
 			deselectTool();
 		} else {
 			if (this.resizing) {
@@ -1055,8 +981,7 @@ class ImageHandler extends ToolHandler {
 				this.image.startWidth = this.image.width;
 				this.image.startHeight = this.image.height;
 			} else {
-				this.image.left =
-					this.image.startLeft + this.endX - this.startX;
+				this.image.left = this.image.startLeft + this.endX - this.startX;
 				this.image.top = this.image.startTop + this.endY - this.startY;
 			}
 		}
@@ -1146,16 +1071,14 @@ function toolHandler(tool) {
 
 function DOMtoCanvasX(x) {
 	return (
-		((dpr * tempCanvas.clientWidth * x) / tempCanvas.width -
-			network.body.view.translation.x) /
+		((dpr * tempCanvas.clientWidth * x) / tempCanvas.width - network.body.view.translation.x) /
 		network.body.view.scale
 	);
 }
 
 function DOMtoCanvasY(y) {
 	return (
-		((dpr * tempCanvas.clientHeight * y) / tempCanvas.height -
-			network.body.view.translation.y) /
+		((dpr * tempCanvas.clientHeight * y) / tempCanvas.height - network.body.view.translation.y) /
 		network.body.view.scale
 	);
 }
@@ -1170,10 +1093,10 @@ function DOMtoCanvasY(y) {
 export function redraw(netctx) {
 	drawHelper.clear(tempctx);
 	netctx.save();
-	if (drawingSwitch) drawGrid(netctx);
 	yPointsArray.forEach((point) => {
 		drawHelper[point[0]](netctx, point[1], point[2]);
 	});
+	if (drawingSwitch) drawGrid(netctx);
 	netctx.restore();
 }
 
@@ -1200,22 +1123,15 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
 function drawGrid(netctx) {
 	let netPane = document.getElementById('net-pane');
 	netctx.save();
+	netctx.lineWidth = 1;
 	netctx.strokeStyle = 'rgba(211, 211, 211, 0.8)'; //'lightgrey';
 	netctx.beginPath();
-	for (
-		let x = DOMtoCanvasX(0);
-		x &lt;= DOMtoCanvasX(2 * netPane.offsetWidth);
-		x += GRIDSPACING
-	) {
+	for (let x = DOMtoCanvasX(0); x &lt;= DOMtoCanvasX(dpr * netPane.offsetWidth); x += GRIDSPACING) {
 		// vertical grid lines
 		netctx.moveTo(x, DOMtoCanvasY(0));
 		netctx.lineTo(x, DOMtoCanvasY(2 * netPane.offsetHeight));
 	}
-	for (
-		let y = DOMtoCanvasY(0);
-		y &lt;= DOMtoCanvasY(2 * netPane.offsetHeight);
-		y += GRIDSPACING
-	) {
+	for (let y = DOMtoCanvasY(0); y &lt;= DOMtoCanvasY(dpr * netPane.offsetHeight); y += GRIDSPACING) {
 		// horizontal grid lines
 		netctx.moveTo(DOMtoCanvasX(0), y);
 		netctx.lineTo(DOMtoCanvasX(2 * netPane.offsetWidth), y);
@@ -1228,7 +1144,7 @@ let imageCache = new Map();
 let drawHelper = {
 	clear: function (ctx) {
 		// Use the identity matrix while clearing the canvas
-		ctx.setTransform(2, 0, 0, 2, 0, 0);
+		ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 	},
 	options: function (ctx, options) {
@@ -1269,18 +1185,13 @@ let drawHelper = {
 		ctx.beginPath();
 		ctx.moveTo(startX, startY);
 		ctx.lineTo(endX, endY);
+		ctx.closePath();
 		ctx.stroke();
 	},
 	marker: function (ctx, [startX, startY, width]) {
 		let halfWidth = Math.round(width / 2);
 		ctx.beginPath();
-		ctx.roundRect(
-			startX - halfWidth,
-			startY - halfWidth,
-			width,
-			width,
-			halfWidth
-		);
+		ctx.roundRect(startX - halfWidth, startY - halfWidth, width, width, halfWidth);
 		ctx.fill();
 	},
 	eraser: {
@@ -1341,6 +1252,7 @@ function applyOptions(ctx, options) {
 				<li><a href="global.html#applyOptions">applyOptions</a></li>
 				<li><a href="global.html#asleep">asleep</a></li>
 				<li><a href="global.html#broadcast">broadcast</a></li>
+				<li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li>
 				<li><a href="global.html#cancelAdd">cancelAdd</a></li>
 				<li><a href="global.html#cancelEdit">cancelEdit</a></li>
 				<li><a href="global.html#changeCursor">changeCursor</a></li>
@@ -1353,6 +1265,9 @@ function applyOptions(ctx, options) {
 				<li><a href="global.html#clone">clone</a></li>
 				<li><a href="global.html#closeFilter">closeFilter</a></li>
 				<li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li>
+				<li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li>
+				<li><a href="global.html#collapseColGroup">collapseColGroup</a></li>
+				<li><a href="global.html#collapseNotes">collapseNotes</a></li>
 				<li><a href="global.html#colorEditor">colorEditor</a></li>
 				<li><a href="global.html#configSamples">configSamples</a></li>
 				<li><a href="global.html#connected">connected</a></li>
@@ -1369,6 +1284,7 @@ function applyOptions(ctx, options) {
 				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
 				<li><a href="global.html#deselectTool">deselectTool</a></li>
 				<li><a href="global.html#diag">diag</a></li>
+				<li><a href="global.html#diffMaps">diffMaps</a></li>
 				<li><a href="global.html#displayHelp">displayHelp</a></li>
 				<li><a href="global.html#displayNetPane">displayNetPane</a></li>
 				<li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li>
@@ -1383,6 +1299,7 @@ function applyOptions(ctx, options) {
 				<li><a href="global.html#editNode">editNode</a></li>
 				<li><a href="global.html#editNodeStyle">editNodeStyle</a></li>
 				<li><a href="global.html#elem">elem</a></li>
+				<li><a href="global.html#exactTime">exactTime</a></li>
 				<li><a href="global.html#exportCVS">exportCVS</a></li>
 				<li><a href="global.html#exportGML">exportGML</a></li>
 				<li><a href="global.html#fit">fit</a></li>
@@ -1397,13 +1314,19 @@ function applyOptions(ctx, options) {
 				<li><a href="global.html#getContext">getContext</a></li>
 				<li><a href="global.html#getDashes">getDashes</a></li>
 				<li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li>
+				<li><a href="global.html#getRadioVal">getRadioVal</a></li>
 				<li><a href="global.html#getRandomData">getRandomData</a></li>
 				<li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li>
 				<li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li>
+				<li><a href="global.html#ghostCursor">ghostCursor</a></li>
 				<li><a href="global.html#ghostFactor">ghostFactor</a></li>
 				<li><a href="global.html#groupDashes">groupDashes</a></li>
+				<li><a href="global.html#groupTitle">groupTitle</a></li>
 				<li><a href="global.html#headerTickToggle">headerTickToggle</a></li>
+				<li><a href="global.html#hideDistantNodes">hideDistantNodes</a></li>
+				<li><a href="global.html#hideNodesAndEdgesInSet">hideNodesAndEdgesInSet</a></li>
 				<li><a href="global.html#hideNotes">hideNotes</a></li>
+				<li><a href="global.html#hideStreamNodes">hideStreamNodes</a></li>
 				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
 				<li><a href="global.html#in_degree">in_degree</a></li>
 				<li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li>
@@ -1411,8 +1334,10 @@ function applyOptions(ctx, options) {
 				<li><a href="global.html#initials">initials</a></li>
 				<li><a href="global.html#initPopUp">initPopUp</a></li>
 				<li><a href="global.html#initSample">initSample</a></li>
+				<li><a href="global.html#isEmpty">isEmpty</a></li>
 				<li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li>
 				<li><a href="global.html#legend">legend</a></li>
+				<li><a href="global.html#lightOrDark">lightOrDark</a></li>
 				<li><a href="global.html#linkEditCancel">linkEditCancel</a></li>
 				<li><a href="global.html#linkEditorHide">linkEditorHide</a></li>
 				<li><a href="global.html#linkEditorShow">linkEditorShow</a></li>
@@ -1426,6 +1351,7 @@ function applyOptions(ctx, options) {
 				<li><a href="global.html#loadJSONfile">loadJSONfile</a></li>
 				<li><a href="global.html#lockNode">lockNode</a></li>
 				<li><a href="global.html#logHistory">logHistory</a></li>
+				<li><a href="global.html#makeColor">makeColor</a></li>
 				<li><a href="global.html#mapTitle">mapTitle</a></li>
 				<li><a href="global.html#mergeTranspose">mergeTranspose</a></li>
 				<li><a href="global.html#mouseDespatch">mouseDespatch</a></li>
@@ -1439,6 +1365,7 @@ function applyOptions(ctx, options) {
 				<li><a href="global.html#object_equals">object_equals</a></li>
 				<li><a href="global.html#oldUserNames">oldUserNames</a></li>
 				<li><a href="global.html#onexit">onexit</a></li>
+				<li><a href="global.html#openCluster">openCluster</a></li>
 				<li><a href="global.html#out_degree">out_degree</a></li>
 				<li><a href="global.html#parseCSV">parseCSV</a></li>
 				<li><a href="global.html#parseGML">parseGML</a></li>
@@ -1447,31 +1374,40 @@ function applyOptions(ctx, options) {
 				<li><a href="global.html#plusNode">plusNode</a></li>
 				<li><a href="global.html#positionNotes">positionNotes</a></li>
 				<li><a href="global.html#positionPopUp">positionPopUp</a></li>
+				<li><a href="global.html#previousNames">previousNames</a></li>
+				<li><a href="global.html#quillEditor">quillEditor</a></li>
+				<li><a href="global.html#quillFormatter">quillFormatter</a></li>
 				<li><a href="global.html#readSingleFile">readSingleFile</a></li>
 				<li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li>
 				<li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li>
 				<li><a href="global.html#rebase">rebase</a></li>
 				<li><a href="global.html#recalculateStats">recalculateStats</a></li>
+				<li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li>
 				<li><a href="global.html#redraw">redraw</a></li>
 				<li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li>
 				<li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li>
+				<li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li>
 				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
 				<li><a href="global.html#resizeBox">resizeBox</a></li>
 				<li><a href="global.html#round">round</a></li>
 				<li><a href="global.html#saveEdge">saveEdge</a></li>
-				<li><a href="global.html#saveJSONfile">saveJSONfile</a></li>
 				<li><a href="global.html#saveLabel">saveLabel</a></li>
 				<li><a href="global.html#saveNode">saveNode</a></li>
+				<li><a href="global.html#savePRSMfile">savePRSMfile</a></li>
 				<li><a href="global.html#saveStr">saveStr</a></li>
 				<li><a href="global.html#search">search</a></li>
 				<li><a href="global.html#searchTargets">searchTargets</a></li>
+				<li><a href="global.html#selectClustering">selectClustering</a></li>
+				<li><a href="global.html#selectedLabels">selectedLabels</a></li>
 				<li><a href="global.html#selectTool">selectTool</a></li>
+				<li><a href="global.html#setAnalysisButtons">setAnalysisButtons</a></li>
 				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
 				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
 				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
 				<li><a href="global.html#setFileName">setFileName</a></li>
 				<li><a href="global.html#setFixed">setFixed</a></li>
 				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
+				<li><a href="global.html#setRadioVal">setRadioVal</a></li>
 				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
 				<li><a href="global.html#setUpCanvas">setUpCanvas</a></li>
 				<li><a href="global.html#setUpChat">setUpChat</a></li>
@@ -1484,13 +1420,16 @@ function applyOptions(ctx, options) {
 				<li><a href="global.html#setUpToolbox">setUpToolbox</a></li>
 				<li><a href="global.html#setUpTutorial">setUpTutorial</a></li>
 				<li><a href="global.html#setvh">setvh</a></li>
-				<li><a href="global.html#shorten">shorten</a></li>
-				<li><a href="global.html#showAvatars">showAvatars</a></li>
+				<li><a href="global.html#shortestPaths">shortestPaths</a></li>
+				<li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li>
+				<li><a href="global.html#showClusterLinks">showClusterLinks</a></li>
 				<li><a href="global.html#showGhostFactor">showGhostFactor</a></li>
 				<li><a href="global.html#showHistory">showHistory</a></li>
 				<li><a href="global.html#showMice">showMice</a></li>
 				<li><a href="global.html#showNodeData">showNodeData</a></li>
 				<li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li>
+				<li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li>
+				<li><a href="global.html#showPaths">showPaths</a></li>
 				<li><a href="global.html#showPressed">showPressed</a></li>
 				<li><a href="global.html#showSelected">showSelected</a></li>
 				<li><a href="global.html#sizing">sizing</a></li>
@@ -1523,12 +1462,14 @@ function applyOptions(ctx, options) {
 				<li><a href="global.html#trophic">trophic</a></li>
 				<li><a href="global.html#undirected">undirected</a></li>
 				<li><a href="global.html#unFollow">unFollow</a></li>
+				<li><a href="global.html#unHideAll">unHideAll</a></li>
 				<li><a href="global.html#unlockAll">unlockAll</a></li>
 				<li><a href="global.html#unlockEdge">unlockEdge</a></li>
 				<li><a href="global.html#unlockNode">unlockNode</a></li>
 				<li><a href="global.html#unSelect">unSelect</a></li>
 				<li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li>
 				<li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li>
+				<li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li>
 				<li><a href="global.html#updateFilter">updateFilter</a></li>
 				<li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li>
 				<li><a href="global.html#updateLastSamples">updateLastSamples</a></li>
@@ -1550,11 +1491,11 @@ function applyOptions(ctx, options) {
 		<footer>
 			Documentation generated by
 			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a>
-			on Sat Aug 28 2021 09:21:33 GMT+0100 (British Summer Time)
+			on Mon Nov 29 2021 22:32:23 GMT+0000 (Greenwich Mean Time)
 		</footer>
 
 		<script>
-			prettyPrint();
+			prettyPrint()
 		</script>
 		<script src="scripts/linenumber.js"></script>
 	</body>

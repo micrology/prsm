@@ -57,13 +57,13 @@
 		<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=G-B7SNC520V8"></script>
 		<script>
-			window.dataLayer = window.dataLayer || [];
+			window.dataLayer = window.dataLayer || []
 			function gtag() {
-				dataLayer.push(arguments);
+				dataLayer.push(arguments)
 			}
-			gtag('js', new Date());
+			gtag('js', new Date())
 
-			gtag('config', 'G-B7SNC520V8');
+			gtag('config', 'G-B7SNC520V8')
 		</script>
 	</head>
 	<body>
@@ -500,23 +500,23 @@
 		<script>
 			// cookie policy
 			window.addEventListener('load', () => {
-				let cookieOverlay = document.querySelector('.cookie-overlay');
+				let cookieOverlay = document.querySelector('.cookie-overlay')
 				if (document.cookie.indexOf('accepted_cookies=') < 0) {
-					cookieOverlay.classList.remove('d-none');
-					cookieOverlay.classList.add('d-block');
+					cookieOverlay.classList.remove('d-none')
+					cookieOverlay.classList.add('d-block')
 				}
-				let acceptCookies = document.querySelector('.accept-cookies');
+				let acceptCookies = document.querySelector('.accept-cookies')
 				acceptCookies.addEventListener('click', function () {
-					document.cookie = 'accepted_cookies=yes;';
-					cookieOverlay.classList.remove('d-block');
-					cookieOverlay.classList.add('d-none');
-				});
-				let closeCookies = document.querySelector('.close-cookies');
+					document.cookie = 'accepted_cookies=yes;'
+					cookieOverlay.classList.remove('d-block')
+					cookieOverlay.classList.add('d-none')
+				})
+				let closeCookies = document.querySelector('.close-cookies')
 				closeCookies.addEventListener('click', function () {
-					cookieOverlay.classList.remove('d-block');
-					cookieOverlay.classList.add('d-none');
-				});
-			});
+					cookieOverlay.classList.remove('d-block')
+					cookieOverlay.classList.add('d-none')
+				})
+			})
 		</script>
 	</body>
 </html>
