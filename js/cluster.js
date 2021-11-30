@@ -1,6 +1,6 @@
 /******************************************* Clustering ************************************************************ */
 
-import {elem, pushnew, uuidv4, deepMerge, makeColor, lightOrDark} from './utils.js'
+import {elem, pushnew, uuidv4, deepMerge, standardize_color, makeColor, lightOrDark} from './utils.js'
 import {styles} from './samples.js'
 import {network, data, doc, yNetMap, unSelect, debug} from './prsm.js'
 
@@ -92,7 +92,7 @@ function clusterByColor() {
 	// collect all different values of the attribute that are in use
 	let colors = new Set()
 	data.nodes.get().forEach((node) => {
-		if (!node.isCluster) colors.add(node.color.background)
+		if (!node.isCluster) colors.add(standardize_color(node.color.background))
 	})
 	unSelect()
 	let clusterNumber = 0
@@ -101,7 +101,7 @@ function clusterByColor() {
 	for (const color of colors) {
 		// collect relevant nodes that are not already in a cluster and are not cluster nodes
 		let nodesInCluster = data.nodes.get({
-			filter: (node) => node.color.background === color && !node.clusteredIn && !node.isCluster,
+			filter: (node) => standardize_color(node.color.background) === color && !node.clusteredIn && !node.isCluster,
 		})
 		// clusters must have at least 2 nodes
 		if (nodesInCluster.length <= 1) continue

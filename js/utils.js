@@ -336,16 +336,6 @@ export function dragElement(el, header) {
 		}
 	}
 }
-/**
- * return the hex value for the CSS color in str (which may be a color name, e.g. white, or a hex number
- * or any other legal CSS color value)
- * @param {string} str
- */
-export function standardize_color(str) {
-	let ctx = document.createElement('canvas').getContext('2d')
-	ctx.fillStyle = str
-	return ctx.fillStyle
-}
 
 const SEA_CREATURES = Object.freeze([
 	'walrus',
@@ -565,6 +555,102 @@ export function initials(name) {
 		.join('')
 		.toUpperCase()
 }
+
+/**********************************************************colours ************************************************** */
+
+/**
+ * Convert #xxyyzz to rgb(aa,bb,cc)
+ * @param {String} hex 
+ * @returns String
+ */
+ /* function hex2rgb(hex) {
+	return (
+		'rgb(' + [('0x' + hex[1] + hex[2]) | 0, ('0x' + hex[3] + hex[4]) | 0, ('0x' + hex[5] + hex[6]) | 0].join() + ')'
+	)
+} */
+/**
+ * Convert rgb(aa,bb,cc) to #xxyyzz
+ * @param {String} str 
+ * @returns String
+ */
+function rgbToHex(str) {
+	if (~str.indexOf('#')) return str
+	str = str.replace(/[^\d,]/g, '').split(',')
+	return '#' + ((1 << 24) + (+str[0] << 16) + (+str[1] << 8) + +str[2]).toString(16).slice(1)
+}
+
+/**
+ * return the hex value for the CSS color in str (which may be a color name, e.g. white, or a hex number
+ * or any other legal CSS color value)
+ * @param {string} str
+ */
+ export function standardize_color(str) {
+	if (str.charAt(0) === '#') return str
+	let ctx = document.createElement('canvas').getContext('2d')
+	ctx.fillStyle = str
+	return ctx.fillStyle
+ }
+
+/**
+ * closure to generate a sequence of colours (as rgb strings, e.g. 'rgb(246,121,16)')
+ * based on https://krazydad.com/tutorials/makecolors.php
+ */
+export const makeColor = (function () {
+	let counter = 0
+	let freq = 0.3,
+		phase1 = 0,
+		phase2 = 2,
+		phase3 = 4,
+		center = 128,
+		width = 127
+	return function () {
+		counter += 1
+		let red = Math.sin(freq * counter + phase1) * width + center
+		let grn = Math.sin(freq * counter + phase2) * width + center
+		let blu = Math.sin(freq * counter + phase3) * width + center
+		return 'rgb(' + Math.round(red) + ',' + Math.round(grn) + ',' + Math.round(blu) + ')'
+	}
+})()
+
+window.makeColor = makeColor
+/**
+ * Determine whether a color is light or dark (so text in a contrasting color can be overlaid)
+ * from https://awik.io/determine-color-bright-dark-using-javascript/
+ * @param {CSS color string} color
+ * @returns 'light' or 'dark'
+ */
+export function lightOrDark(color) {
+	// Variables for red, green, blue values
+	let r, g, b, hsp
+
+	// Check the format of the color, HEX or RGB?
+	if (color.match(/^rgb/)) {
+		// If RGB --> store the red, green, blue values in separate variables
+		color = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/)
+
+		r = color[1]
+		g = color[2]
+		b = color[3]
+	} else {
+		// If hex --> Convert it to RGB: http://gist.github.com/983661
+		color = +('0x' + color.slice(1).replace(color.length < 5 && /./g, '$&$&'))
+
+		r = color >> 16
+		g = (color >> 8) & 255
+		b = color & 255
+	}
+
+	// HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
+	hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b))
+
+	// Using the HSP value, determine whether the color is light or dark
+	if (hsp > 127.5) {
+		return 'light'
+	} else {
+		return 'dark'
+	}
+}
+
 /* --------------------color picker -----------------------------*/
 
 export class CP {
@@ -580,9 +666,9 @@ export class CP {
 		// see https://iro.js.org/guide.html#getting-started
 		this.colorPicker = new iro.ColorPicker('#colorPickerControls', {
 			width: 160,
-			color: 'rgb(255, 255, 255)',
+			color: '#ffffff',
 			borderWidth: 1,
-			borderColor: '#fff',
+			borderColor: '#ffffff',
 			margin: 0,
 		})
 
@@ -607,7 +693,7 @@ export class CP {
 			][i]
 			c.addEventListener('click', (e) => {
 				let color = e.target.style.backgroundColor
-				if (color.search('rgb') != -1) this.colorPicker.color.rgbString = e.target.style.backgroundColor
+				if (color) this.colorPicker.color.hexString = rgbToHex(e.target.style.backgroundColor)
 			})
 			this.colorCache.appendChild(c)
 		}
@@ -639,13 +725,13 @@ export class CP {
 			this.container.style.left = `${left}px`
 			this.container.well = well
 			this.container.callback = callback
-			this.colorPicker.color.rgbString = well.style.backgroundColor
+			this.colorPicker.color.hexString = rgbToHex(well.style.backgroundColor)
 			this.onclose = this.closeColorPicker.bind(this)
 			document.addEventListener('click', this.onclose, true)
 
 			// update well as color is changed
 			this.colorPicker.on(['color:change'], function (color) {
-				elem('colorPicker').well.style.backgroundColor = color.rgbString
+				elem('colorPicker').well.style.backgroundColor = color.hexString
 			})
 		})
 	}
@@ -727,65 +813,6 @@ export function setEndOfContenteditable(contentEditableElement) {
 	selection.addRange(range) //make the range you have just created the visible selection
 }
 
-/**
- * closure to generate a sequence of colours (as rgb strings, e.g. 'rgb(246,121,16)')
- * based on https://krazydad.com/tutorials/makecolors.php
- */
-export const makeColor = (function () {
-	let counter = 0
-	let freq = 0.3,
-		phase1 = 0,
-		phase2 = 2,
-		phase3 = 4,
-		center = 128,
-		width = 127
-	return function () {
-		counter += 1
-		let red = Math.sin(freq * counter + phase1) * width + center
-		let grn = Math.sin(freq * counter + phase2) * width + center
-		let blu = Math.sin(freq * counter + phase3) * width + center
-		return 'rgb(' + Math.round(red) + ',' + Math.round(grn) + ',' + Math.round(blu) + ')'
-	}
-})()
-
-window.makeColor = makeColor
-/**
- * Determine whether a color is light or dark (so text in a contrasting color can be overlaid)
- * from https://awik.io/determine-color-bright-dark-using-javascript/
- * @param {CSS color string} color
- * @returns 'light' or 'dark'
- */
-export function lightOrDark(color) {
-	// Variables for red, green, blue values
-	var r, g, b, hsp
-
-	// Check the format of the color, HEX or RGB?
-	if (color.match(/^rgb/)) {
-		// If RGB --> store the red, green, blue values in separate variables
-		color = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/)
-
-		r = color[1]
-		g = color[2]
-		b = color[3]
-	} else {
-		// If hex --> Convert it to RGB: http://gist.github.com/983661
-		color = +('0x' + color.slice(1).replace(color.length < 5 && /./g, '$&$&'))
-
-		r = color >> 16
-		g = (color >> 8) & 255
-		b = color & 255
-	}
-
-	// HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
-	hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b))
-
-	// Using the HSP value, determine whether the color is light or dark
-	if (hsp > 127.5) {
-		return 'light'
-	} else {
-		return 'dark'
-	}
-}
 /**
  * @returns a string with current time to the nearest millisecond
  */

@@ -46,7 +46,6 @@ export function setUpSamples() {
 				{
 					id: '1',
 					label: groupLabel == undefined ? '' : groupLabel,
-					value: styles.nodes['base'].scaling.max,
 				},
 				sampleOptions,
 				{chosen: false}
@@ -404,6 +403,8 @@ function nodeEditSubmit() {
 	nodeEditorHide()
 	// apply updated style to all nodes having that style
 	let groupId = elem('nodeStyleEditorContainer').groupId
+	// somewhere - but I have no idea where or why, this is set to true, but it must be false
+	styles.nodes[groupId].scaling.label.enabled = false
 	reApplySampleToNodes([groupId], true)
 	ySamplesMap.set(groupId, {
 		node: styles.nodes[groupId],
