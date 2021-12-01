@@ -28,8 +28,12 @@ var nAttributes = 0 // number of attributes
 var attributeTitles = {} // titles of each of the attributes
 var myNameRec // my name etc.
 var qed // Quill editor
+var loadingDelayTimer // timer to delay the start of the loading animation for few moments
 
 window.addEventListener('load', () => {
+	loadingDelayTimer = setTimeout(() => {
+		elem('loading').style.display = 'block'
+	}, 100)
 	elem('version').innerHTML = version
 	qed = new Quill('#notes-div')
 	setUpTabs()
@@ -320,6 +324,7 @@ function initialiseFactorTable() {
 		})
 	factorsTable = new Tabulator('#factors-table', {
 		data: tabledata, //assign data to table
+		tableBuilt: cancelLoading,
 		layout: 'fitData',
 		layoutColumnsOnNewData: true,
 		height: window.innerHeight - 180,
@@ -587,6 +592,14 @@ function initialiseFactorTable() {
 
 	return factorsTable
 }
+/**
+ * After the Factor tab is loaded, cancel the Loading... dots
+ */
+function cancelLoading() {
+	elem('loading').style.display = 'none'
+	clearTimeout(loadingDelayTimer)
+}
+
 /**
  * return HTML string for column group header, with embedded collapse/reveal icon
  * @param {String} field field name of column group

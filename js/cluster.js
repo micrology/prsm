@@ -44,10 +44,9 @@ function clusterByAttribute(attribute) {
 		if (!node.isCluster) attValues.add(node[attribute])
 	})
 	unSelect()
-	let clusterNumber = 0
 	let nodesToUpdate = []
 	// for each cluster
-	for (const value of attValues) {
+	for (let value of attValues) {
 		// collect relevant nodes that are not already in a cluster and are not cluster nodes
 		let nodesInCluster = data.nodes.get({
 			filter: (node) => node[attribute] === value && !node.clusteredIn && !node.isCluster,
@@ -57,13 +56,14 @@ function clusterByAttribute(attribute) {
 		let sumx = 0
 		let sumy = 0
 		let nInCluster = 0
+		if (!value) value = '[none]'
 		let clusterNode = data.nodes.get(`cluster-${attribute}-${value}`)
 		if (clusterNode === null) {
 			let color = makeColor()
 			clusterNode = deepMerge(styles.nodes['cluster'], {
 				id: `cluster-${attribute}-${value}`,
 				isCluster: true,
-				label: `${yNetMap.get('attributeTitles')[attribute]} ${++clusterNumber}`,
+				label: `${yNetMap.get('attributeTitles')[attribute]} ${value}`,
 				color: {background: color},
 				font: {color: lightOrDark(color) == 'light' ? 'black' : 'white'},
 				hidden: false,
@@ -101,7 +101,8 @@ function clusterByColor() {
 	for (const color of colors) {
 		// collect relevant nodes that are not already in a cluster and are not cluster nodes
 		let nodesInCluster = data.nodes.get({
-			filter: (node) => standardize_color(node.color.background) === color && !node.clusteredIn && !node.isCluster,
+			filter: (node) =>
+				standardize_color(node.color.background) === color && !node.clusteredIn && !node.isCluster,
 		})
 		// clusters must have at least 2 nodes
 		if (nodesInCluster.length <= 1) continue

@@ -3939,10 +3939,12 @@ function recreateClusteringMenu(obj) {
 	}
 	// append the ones provided
 	for (const property in obj) {
-		let opt = document.createElement('option')
-		opt.value = property
-		opt.text = obj[property]
-		select.add(opt, null)
+		if (obj[property] !== '*deleted*') {
+			let opt = document.createElement('option')
+			opt.value = property
+			opt.text = obj[property]
+			select.add(opt, null)
+		}
 	}
 }
 /* ---------------------------------------chat window --------------------------------*/
