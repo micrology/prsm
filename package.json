@@ -40,7 +40,7 @@
 		"@egjs/hammerjs": "^2.0.17",
 		"@fortawesome/fontawesome-free": "^5.15.3",
 		"@jaames/iro": "^5.5.2",
-		"@joeattardi/emoji-button": "^4.6.0",
+		"@joeattardi/emoji-button": "^4.6.2",
 		"@types/quill": "^2.0.9",
 		"fast-xml-parser": "^3.19.0",
 		"quill": "^1.3.7",
