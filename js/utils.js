@@ -4,7 +4,7 @@ import uniqolor from 'uniqolor'
 /**
  * attach an event listener
  *
- * @param {string} elem - id of the element on which to hand the event listener
+ * @param {string} id - id of the element on which to hand the event listener
  * @param {string} event
  * @param {function} callback
  */
@@ -246,7 +246,7 @@ export function strip(obj, allowed) {
  * maximum width of width characters, but not breaking words and
  * respecting embedded line breaks (\n).
  * @param {string} txt
- * @param {integer} width
+ * @param {number} width
  */
 export function splitText(txt, width) {
 	let lines = ''
@@ -279,8 +279,8 @@ Set.prototype.intersection = function (otherSet) {
 }
 /**
  * allow user to drag the element that has a header element that acts as the handle
- * @param {HTMLelement} el
- * @param {HTMLelement} header
+ * @param {HTMLElement} el
+ * @param {HTMLElement} header
  */
 export function dragElement(el, header) {
 	header.addEventListener('mouseenter', () => (header.style.cursor = 'move'))
@@ -495,7 +495,7 @@ export function generateName() {
 /**
  * show status messages at the bottom of the window
  * @param {string} msg
- * @param {string} status type of msg - warning, error or other
+ * @param {string} [status] type of msg - warning, error or other
  */
 export function statusMsg(msg, status) {
 	let el = elem('statusBar')
@@ -534,7 +534,7 @@ export function clearStatusBar() {
 /**
  * shorten the label if necessary and add an ellipsis
  * @param {string} label text to shorten
- * @param {Integer} maxLength if longer than this, cut the excess
+ * @param {number} maxLength if longer than this, cut the excess
  */
 const SHORTLABELLEN = 25 // when listing node labels, use ellipsis after this number of chars
 
@@ -616,7 +616,7 @@ window.makeColor = makeColor
 /**
  * Determine whether a color is light or dark (so text in a contrasting color can be overlaid)
  * from https://awik.io/determine-color-bright-dark-using-javascript/
- * @param {CSS color string} color
+ * @param {string} color
  * @returns 'light' or 'dark'
  */
 export function lightOrDark(color) {
@@ -756,7 +756,7 @@ export class CP {
 	 * Save the color in the previously selected colour grid, if not already saved
 	 * into a free slot, or if there isn't one shift the current colours to the left
 	 * and save the new at the right end
-	 * @param {color} color
+	 * @param {string} color
 	 */
 	saveColor(color) {
 		let saveds = this.colorCache.children
@@ -778,7 +778,7 @@ export class CP {
 
 /**
  * Returns a nicely formatted Date (or time if the date is today), given a Time value (from Date() )
- * @param {Integer} utc
+ * @param {number} utc
  */
 export function timeAndDate(utc) {
 	let time = new Date()

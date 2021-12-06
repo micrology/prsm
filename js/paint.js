@@ -62,7 +62,7 @@ export function setUpPaint() {
 /**
  * set up the dimensions of and return the canvas at the id
  * @param {string} id - canvas id
- * @returns {element}
+ * @returns {HTMLCanvasElement}
  */
 function setUpCanvas(id) {
 	const canvas = document.getElementById(id)
@@ -77,8 +77,8 @@ function setUpCanvas(id) {
 
 /**
  * return the context for the provided canvas
- * @param {canvas} canvas
- * @returns {context}
+ * @param {HTMLCanvasElement} canvas
+ * @returns {CanvasRenderingContext2D}
  */
 function getContext(canvas) {
 	let ctx = canvas.getContext('2d')
@@ -173,7 +173,7 @@ function closeOptionsDialogs() {
 
 /**
  * all mouse and touch events for the canvas are handled here - despatch to the selected tool
- * @param {object} event
+ * @param {PointerEvent} event
  */
 function mouseDespatch(event) {
 	event.preventDefault()
@@ -268,7 +268,7 @@ class ToolHandler {
 	 * create a dialog box to allow the user to choose options for the current shape
 	 * sub classes fill the box with controls
 	 * @param {string} tool
-	 * @returns {element}
+	 * @returns {HTMLElement}
 	 */
 	optionsDialog(tool) {
 		let box = document.createElement('div')
@@ -496,6 +496,7 @@ class TextHandler extends ToolHandler {
 		// If the width of the chars in textarea are greater than its width then insert newline
 		if (this.inp.scrollWidth > this.inp.clientWidth) {
 			let lastSpace = this.inp.value.lastIndexOf(' ')
+			// TODO
 			this.inp.value = this.inp.value.splice(lastSpace, 1, '\n')
 		}
 	}
@@ -555,7 +556,7 @@ class TextHandler extends ToolHandler {
 	}
 	/**
 	 * allow user to move and resize the DIV
-	 * @param {element} elem
+	 * @param {HTMLElement} elem
 	 */
 	dragElement(elem) {
 		let resizing = false
@@ -763,7 +764,7 @@ class EraserHandler extends ToolHandler {
 	/**
 	 * draw a circle at the mouse to simulate a cursor
 	 * @param {string} color - as hex
-	 * @param {integer} width
+	 * @param {number} width
 	 */
 	cursor(color, width) {
 		tempctx.beginPath()
@@ -1035,7 +1036,7 @@ const toolToHandler = {
 /**
  * return the correct instance of toolHandler for the given tool
  * @param {string} tool
- * @returns {instance}
+ * @returns {object}
  */
 function toolHandler(tool) {
 	return toolToHandler[tool]
@@ -1096,7 +1097,7 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
 }
 /**
  * draw a faint evenly spaced grid over the drawing area
- * @param {CanvasContext} ctx
+ * @param {CanvasRenderingContext2D} netctx
  */
 
 function drawGrid(netctx) {
@@ -1202,7 +1203,7 @@ let drawHelper = {
 
 /**
  * apply the canvas options to the context
- * @param {context} ctx
+ * @param {CanvasRenderingContext2D } ctx
  * @param {object} options - object with options as properties
  */
 

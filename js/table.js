@@ -9,7 +9,7 @@ import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
 
 const shortAppName = 'PRSM'
 
-var debug = []
+var debug = ''
 window.debug = debug
 var room
 const doc = new Y.Doc()
@@ -314,7 +314,7 @@ var headerContextMenu = [
 
 /**
  * define the Factor table
- * @return {Tabulate} the table
+ * @return {Tabulator} the table
  */
 function initialiseFactorTable() {
 	let tabledata = Array.from(yNodesMap.values())
@@ -642,8 +642,8 @@ function collapseColGroup(table, field) {
 }
 /**
  * reduce (and shorten the notes text) or expand the width of the Notes column
- * @param {table} table
- * @param {String} field
+ * @param {Tabulator} table
+ * @param {string} field
  */
 function collapseNotes(table, field = 'Notes') {
 	let col = table.columnManager.columnsByIndex.filter((c) => c.field == 'note')[0]
@@ -663,8 +663,8 @@ function collapseNotes(table, field = 'Notes') {
 
 /**
  * Toggle the value of a cell in a TickCross column
- * @param {Event} e
- * @param {CellComponent} cell
+ * @param {event} e
+ * @param {object} cell
  */
 function tickToggle(e, cell) {
 	cell.setValue(!cell.getValue())
@@ -742,7 +742,7 @@ function svg(icon) {
 }
 /**
  * returns the note for this factor in HTML format, shortening it with ellipses if the column is collapsed
- * @param {CellComponent} cell
+ * @param {object} cell
  * @returns HTML string
  */
 function quillFormatter(cell) {
@@ -758,9 +758,9 @@ function quillFormatter(cell) {
 }
 /**
  * start up a Quill editor for the note in this cell
- * @param {cell Component} cell
- * @param {callback} onRendered not used
- * @param {callback} success function to call when user has finished editing
+ * @param {object} cell
+ * @param {function} onRendered not used
+ * @param {function} success function to call when user has finished editing
  * @returns HTMLElement placeholder for the cell while it is being edited elsewhere
  */
 function quillEditor(cell, onRendered, success) {
@@ -855,7 +855,7 @@ function convertNode(node) {
 /**
  * store the user's edit to the cell value
  * (but if other rows are selected, put that new value in those rows too)
- * @param {cellComponent} cell
+ * @param {object} cell
  */
 function updateNodeCellData(cell) {
 	let field = cell.getField()
@@ -886,9 +886,9 @@ function updateNodeCellData(cell) {
 
 /**
  * Convert the properties of the node back into the format required by vis-network
- * @param {Object} node
- * @param {String} field
- * @param {Any} value
+ * @param {object} node
+ * @param {string} field
+ * @param {any} value
  */
 function convertNodeBack(node, field, value) {
 	switch (field) {
@@ -947,7 +947,7 @@ function getNodeGroupFromGroupLabel(groupLabel) {
 }
 /**
  * define the Link table
- * @return {Tabulate} the table
+ * @return {Tabulator} the table
  */
 function initialiseLinkTable() {
 	let tabledata = Array.from(yEdgesMap.values()).map((n) => {
@@ -1107,7 +1107,7 @@ function styleEdgeNames() {
 /**
  * spread some deep values to the top level to suit the requirements of the Tabulator package better
  * NB: any such converted values cannot then be edited without special attention (in updateEdgeCellData)
- * @param {Object} node
+ * @param {object} edge
  * @returns {object} the node augmented with new properties
  */
 function convertEdge(edge) {
@@ -1148,7 +1148,7 @@ function updateFromAndToLabels(nodes) {
 
 /**
  * store the user's edit to the cell value
- * @param {cellComponent} cell
+ * @param {object} cell
  */
 function updateEdgeCellData(cell) {
 	// get the old value of the edge
@@ -1169,9 +1169,9 @@ function updateEdgeCellData(cell) {
 }
 /**
  * Convert the properties of the edge back into the format required by vis-network
- * @param {Object} edge
- * @param {String} field
- * @param {Any} value
+ * @param {object} edge
+ * @param {string} field
+ * @param {any} value
  */
 function convertEdgeBack(edge, field, value) {
 	switch (field) {
@@ -1216,7 +1216,7 @@ function getEdgeGroupFromGroupLabel(groupLabel) {
 
 /**
  * store the user's new title for the column
- * @param {ColComponent} column
+ * @param {object} column
  */
 
 function updateColumnTitle(column) {
@@ -1227,10 +1227,10 @@ function updateColumnTitle(column) {
 
 /**
  * return the length of the string in pixels when displayed using given font
- * @param {String} text
- * @param {String} fontname
- * @param {Number} fontsize
- * @return {Number} pixels
+ * @param {string} text
+ * @param {string} fontname
+ * @param {number} fontsize
+ * @return {number} pixels
  */
 function getWidthOfTitle(text, fontname = 'Oxygen', fontsize = 13.33) {
 	if (getWidthOfTitle.c === undefined) {
@@ -1243,10 +1243,10 @@ function getWidthOfTitle(text, fontname = 'Oxygen', fontsize = 13.33) {
 }
 /**
  * Use the browser standard color picker to edit the cell colour
- * @param {CellComponent} cell - the cell component for the editable cell
- * @param {Function} onRendered - function to call when the editor has been rendered
- * @param {Function} success function to call to pass the successfully updated value to Tabulator
- * @return {DOMElement} the editor element
+ * @param {object} cell - the cell component for the editable cell
+ * @param {function} onRendered - function to call when the editor has been rendered
+ * @param {function} success function to call to pass the successfully updated value to Tabulator
+ * @return {HTMLElement} the editor element
  */
 function colorEditor(cell, onRendered, success) {
 	let editor = document.createElement('input')
@@ -1295,7 +1295,7 @@ function addColumn() {
 
 /**
  * delete the column from the table and mark the data as deleted
- * @param {colComponent} column
+ * @param {object} column
  */
 function deleteColumn(e, column) {
 	attributeTitles[column.getField()] = '*deleted*'

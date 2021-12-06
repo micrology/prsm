@@ -15,8 +15,8 @@ NG 18 December 2020
 /**
  * convert a directed adjacency matrix to an undirected one
  * mirror the elements above the leading diagonal to below it
- * @param {matrix} a
- * @returns {matrix} a copy of a
+ * @param {array[]} a
+ * @returns {array[]} a copy of a
  */
 function undirected(a) {
 	let b = Array(a.length)
@@ -40,7 +40,7 @@ function undirected(a) {
 /**
  * check that all nodes are connected to at least one other node
  * i.e. every row includes at least one 1
- * @param {matrix} a
+ * @param {array[]} a
  */
 function connected(a) {
 	for (let i = 0; i < a.length; i++) {
@@ -57,8 +57,8 @@ function connected(a) {
 }
 /**
  * swap cell values across the leading diagonal
- * @param {matrix} a
- * @returns {matrix} a transposed copy of a
+ * @param {array[]} a
+ * @returns {array[]} a transposed copy of a
  */
 function transpose(a) {
 	let b = new Array(a.length)
@@ -70,8 +70,8 @@ function transpose(a) {
 }
 /**
  * return a vector of the number of edges out of a node
- * @param {matrix} a
- * @returns {vector}
+ * @param {array[]} a
+ * @returns {array}
  */
 function out_degree(a) {
 	let v = new Array(a.length)
@@ -80,16 +80,16 @@ function out_degree(a) {
 }
 /**
  * return a vector of the number of edges into a node
- * @param {matrix} a
- * @returns {vector}
+ * @param {array[]} a
+ * @returns {array}
  */
 function in_degree(a) {
 	return out_degree(transpose(a))
 }
 /**
  * returns the summation of the values in the vector
- * @param {vector} v
- * @returns {integer}
+ * @param {array} v
+ * @returns {number}
  */
 function sumVec(v) {
 	let sum = 0
@@ -98,9 +98,9 @@ function sumVec(v) {
 }
 /**
  * v1 - v2
- * @param {vector} v1
- * @param {vector} v2
- * @returns {vector}
+ * @param {array} v1
+ * @param {array} v2
+ * @returns {array}
  */
 function subVec(v1, v2) {
 	let res = new Array(v1.length)
@@ -109,9 +109,9 @@ function subVec(v1, v2) {
 }
 /**
  * v1 + v2
- * @param {vector} v1
- * @param {vector} v2
- * @returns {vector}
+ * @param {array} v1
+ * @param {array} v2
+ * @returns {array}
  */
 function addVec(v1, v2) {
 	let res = new Array(v1.length)
@@ -120,8 +120,8 @@ function addVec(v1, v2) {
 }
 /**
  * subtract matrix b from a
- * @param {matrix} a
- * @param {matrix} b
+ * @param {array[]} a
+ * @param {array[]} b
  */
 function subtract(a, b) {
 	let c = new Array(a.length)
@@ -132,8 +132,8 @@ function subtract(a, b) {
 }
 /**
  * Add matrix a to its transpose, but normalise the cell values resulting to 0/1
- * @param {matrix} a
- * @returns {matrix} a copy of the result
+ * @param {array[]} a
+ * @returns {array[]} a copy of the result
  */
 function mergeTranspose(a) {
 	let b = transpose(a)
@@ -144,7 +144,7 @@ function mergeTranspose(a) {
 }
 /**
  * create a new matrix of size n, with all cells zero
- * @param {matrix} a
+ * @param {number} n
  */
 function zero(n) {
 	let b = new Array(n)
@@ -155,8 +155,8 @@ function zero(n) {
 }
 /**
  * create a zero matrix with v as the leading diagonal
- * @param {vector} v
- * @returns {matrix}
+ * @param {array} v
+ * @returns {array[]}
  */
 function diag(v) {
 	let b = zero(v.length)
@@ -167,7 +167,7 @@ function diag(v) {
 }
 /**
  * subtract the minimum value of any cell from each cell of the vector
- * @param {vector} v
+ * @param {array} v
  */
 function rebase(v) {
 	let min = Math.min(...v)
@@ -178,8 +178,8 @@ function rebase(v) {
 /**
  * solve Ax=B by Gauss-Jordan elimination method
  * adapted from https://www.npmjs.com/package/linear-equation-system
- * @param {matrix} A
- * @param {vector} B
+ * @param {array[]} A
+ * @param {array} B
  */
 function solve(A, B) {
 	let system = A.slice()
@@ -237,8 +237,8 @@ function solve(A, B) {
 }
 /**
  * Round the cell values of v to the given number of decimal places
- * @param {vector} v
- * @param {integer} places
+ * @param {array} v
+ * @param {number} places
  */
 function round(v, places) {
 	for (let i = 0; i < v.length; i++) v[i] = v[i].toFixed(places)
@@ -249,8 +249,8 @@ function round(v, places) {
 /**
  * This is the Trophic Levels Algorithm
  *
- * @param {matrix} a square adjacency matrix
- * @returns {vector} levels (heights)
+ * @param {array[]} a square adjacency matrix
+ * @returns {array} levels (heights)
  */
 function get_trophic_levels(a) {
 	// get undirected matrix
@@ -285,8 +285,8 @@ function get_trophic_levels(a) {
 /**
  * convert a vector of objects, each an edge referencing from and to nodes
  * to an adjacency matrix.  nodes is a list of nodes that acts as the index for the adj. matrix.
- * @param {vector} v list of edges
- * @param {vector} nodes list of node Ids
+ * @param {array} v list of edges
+ * @param {array} nodes list of node Ids
  * @returns matrix
  */
 function edgeListToAdjMatrix(v, nodes) {
@@ -298,7 +298,7 @@ function edgeListToAdjMatrix(v, nodes) {
 }
 /**
  * returns a list of the node Ids mentioned in a vector of edges
- * @param {vector} v edges
+ * @param {array} v edges
  */
 function nodeList(v) {
 	let nodes = new Array()
@@ -310,7 +310,7 @@ function nodeList(v) {
 }
 /**
  * given a complete set of edges, returns a list of lists of edges, each list being the edges of a connected component
- * @param {dataSet} data
+ * @param {object} data
  */
 function connectedComponents(data) {
 	let edges = data.edges.get()
@@ -329,7 +329,7 @@ function connectedComponents(data) {
 	/**
 	 * depth first search for edges connected to 'to' or 'from' nodes of this edge
 	 * adds edges found to component array
-	 * @param {edge} e
+	 * @param {object} e
 	 */
 	function dfs(e) {
 		added.push(e)
@@ -348,7 +348,7 @@ function connectedComponents(data) {
 }
 /**
  * shift the positions of nodes according to the trophic 'height' (actually, here, the x coordinate)
- * @param {dataSet} data
+ * @param {object} data
  * @returns list of nodes whose positions have been altered
  */
 export function trophic(data) {

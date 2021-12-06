@@ -1,4 +1,4 @@
-import {Network} from 'vis-network/peer/'
+import { Network } from 'vis-network/peer/'
 import {DataSet} from 'vis-data/peer'
 import {
 	listen,
@@ -269,8 +269,8 @@ function configSamples() {
 }
 /**
  * create the sample network
- * @param {HTMLelement} wrapper
- * @param {dataset} sampleData
+ * @param {HTMLElement} wrapper
+ * @param {object} sampleData
  */
 function initSample(wrapper, sampleData) {
 	let options = {
@@ -302,8 +302,8 @@ function initSample(wrapper, sampleData) {
 
 /**
  * open the dialog to edit a node style
- * @param {HTMLelement} styleElement
- * @param {Integer} groupId
+ * @param {HTMLElement} styleElement
+ * @param {number} groupId
  */
 function editNodeStyle(styleElement, groupId) {
 	styleElement.net.unselectAll()
@@ -317,11 +317,11 @@ function editNodeStyle(styleElement, groupId) {
 	// set the style dialog widgets with the current values for the group style
 	updateNodeEditor(groupId)
 	// display the style dialog
-	nodeEditorShow(styleElement)
+	nodeEditorShow()
 }
 /**
  * ensure that the edit node style dialog shows the current state of the style
- * @param {Integer} groupId
+ * @param {string} groupId
  */
 function updateNodeEditor(groupId) {
 	let group = styles.nodes[groupId]
@@ -415,8 +415,8 @@ function nodeEditSubmit() {
 }
 /**
  * update all nodes in the map with this style to the current style features
- * @param {IntegerArray} groupIds
- * @param {Boolean} force override any existing individual node styling
+ * @param {number[]} groupIds
+ * @param {boolean} [force] override any existing individual node styling
  */
 export function reApplySampleToNodes(groupIds, force) {
 	let nodesToUpdate = data.nodes.get({
@@ -433,8 +433,8 @@ export function reApplySampleToNodes(groupIds, force) {
 
 /**
  * open the dialog to edit a link style
- * @param {HTMLelement} styleElement
- * @param {Integer} groupId
+ * @param {HTMLElement} styleElement
+ * @param {string} groupId
  */
 function editLinkStyle(styleElement, groupId) {
 	let container = elem('linkStyleEditorContainer')
@@ -445,11 +445,11 @@ function editLinkStyle(styleElement, groupId) {
 	// set the style dialog widgets with the current values for the group style
 	updateLinkEditor(groupId)
 	// display the style dialog
-	linkEditorShow(styleElement)
+	linkEditorShow()
 }
 /**
  * ensure that the edit link style dialog shows the current state of the style
- * @param {Integer} groupId
+ * @param {string} groupId
  */
 function updateLinkEditor(groupId) {
 	let group = styles.edges[groupId]
@@ -546,8 +546,8 @@ function linkEditSubmit() {
 }
 /**
  * update all links in the map with this style to the current style features
- * @param {IntegerArray} groupIds
- * @param {Boolean} force override any existing individual edge styling
+ * @param {number[]} groupIds
+ * @param {boolean} [force] override any existing individual edge styling
  */
 export function reApplySampleToLinks(groupIds, force) {
 	let edgesToUpdate = data.edges.get({
@@ -564,7 +564,7 @@ export function reApplySampleToLinks(groupIds, force) {
 /**
  * convert from style object properties to dashed border menu selection
  * @param {any} bDashes select menu value
- * @param {Integer} bWidth border width
+ * @param {number} bWidth border width
  */
 function getDashes(bDashes, bWidth) {
 	let val = bDashes.toString()

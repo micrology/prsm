@@ -24,16 +24,6 @@ export function cluster(attribute) {
 }
 
 /**
- * superimpose 'wait' animation over the net pane(or remove it)
- * @param {Boolean} on
- 
-function displayWaitAnimation(on) {
-	let loading = elem('loading');
-	loading.style.display = on ? 'block' : 'none';
-	loading.style.zIndex = on ? 1000 : 0;
-	loading.style.backgroundColor = 'red';
-}*/
-/**
  *
  * @param {String} attribute
  */

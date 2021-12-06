@@ -1,25 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>JSDoc: Source: trophic.js</title>
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: trophic.js</title>
 
-		<script src="scripts/prettify/prettify.js"></script>
-		<script src="scripts/prettify/lang-css.js"></script>
-		<!--[if lt IE 9]>
-			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-		<![endif]-->
-		<link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css" />
-		<link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css" />
-	</head>
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
 
-	<body>
-		<div id="main">
-			<h1 class="page-title">Source: trophic.js</h1>
+<body>
 
-			<section>
-				<article>
-					<pre class="prettyprint source linenums"><code>/*
+<div id="main">
+
+    <h1 class="page-title">Source: trophic.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
 translation of the Trophic Levels algorithm to javascript
 
 NG 18 December 2020
@@ -36,191 +43,191 @@ NG 18 December 2020
 /**
  * convert a directed adjacency matrix to an undirected one
  * mirror the elements above the leading diagonal to below it
- * @param {matrix} a
- * @returns {matrix} a copy of a
+ * @param {array[]} a
+ * @returns {array[]} a copy of a
  */
 function undirected(a) {
-	let b = Array(a.length);
+	let b = Array(a.length)
 	for (let i = 0; i &lt; a.length; i++) {
-		b[i] = new Array(a.length);
-		b[i][i] = a[i][i];
+		b[i] = new Array(a.length)
+		b[i][i] = a[i][i]
 	}
 	for (let i = 0; i &lt; a.length; i++) {
 		for (let j = i + 1; j &lt; a.length; j++) {
 			if (a[i][j] || a[j][i]) {
-				b[i][j] = 1;
-				b[j][i] = 1;
+				b[i][j] = 1
+				b[j][i] = 1
 			} else {
-				b[i][j] = 0;
-				b[j][i] = 0;
+				b[i][j] = 0
+				b[j][i] = 0
 			}
 		}
 	}
-	return b;
+	return b
 }
 /**
  * check that all nodes are connected to at least one other node
  * i.e. every row includes at least one 1
- * @param {matrix} a
+ * @param {array[]} a
  */
 function connected(a) {
 	for (let i = 0; i &lt; a.length; i++) {
-		let nonzero = false;
+		let nonzero = false
 		for (let j = 0; j &lt; a.length; j++) {
 			if (a[i][j] !== 0) {
-				nonzero = true;
-				break;
+				nonzero = true
+				break
 			}
 		}
-		if (!nonzero) return false;
+		if (!nonzero) return false
 	}
-	return true;
+	return true
 }
 /**
  * swap cell values across the leading diagonal
- * @param {matrix} a
- * @returns {matrix} a transposed copy of a
+ * @param {array[]} a
+ * @returns {array[]} a transposed copy of a
  */
 function transpose(a) {
-	let b = new Array(a.length);
+	let b = new Array(a.length)
 	for (let i = 0; i &lt; a.length; i++) {
-		b[i] = new Array(a.length);
-		for (let j = 0; j &lt; a.length; j++) b[i][j] = a[j][i];
+		b[i] = new Array(a.length)
+		for (let j = 0; j &lt; a.length; j++) b[i][j] = a[j][i]
 	}
-	return b;
+	return b
 }
 /**
  * return a vector of the number of edges out of a node
- * @param {matrix} a
- * @returns {vector}
+ * @param {array[]} a
+ * @returns {array}
  */
 function out_degree(a) {
-	let v = new Array(a.length);
-	for (let row = 0; row &lt; a.length; row++) v[row] = sumVec(a[row]);
-	return v;
+	let v = new Array(a.length)
+	for (let row = 0; row &lt; a.length; row++) v[row] = sumVec(a[row])
+	return v
 }
 /**
  * return a vector of the number of edges into a node
- * @param {matrix} a
- * @returns {vector}
+ * @param {array[]} a
+ * @returns {array}
  */
 function in_degree(a) {
-	return out_degree(transpose(a));
+	return out_degree(transpose(a))
 }
 /**
  * returns the summation of the values in the vector
- * @param {vector} v
- * @returns {integer}
+ * @param {array} v
+ * @returns {number}
  */
 function sumVec(v) {
-	let sum = 0;
-	for (let i = 0; i &lt; v.length; i++) sum += v[i];
-	return sum;
+	let sum = 0
+	for (let i = 0; i &lt; v.length; i++) sum += v[i]
+	return sum
 }
 /**
  * v1 - v2
- * @param {vector} v1
- * @param {vector} v2
- * @returns {vector}
+ * @param {array} v1
+ * @param {array} v2
+ * @returns {array}
  */
 function subVec(v1, v2) {
-	let res = new Array(v1.length);
-	for (let i = 0; i &lt; v1.length; i++) res[i] = v1[i] - v2[i];
-	return res;
+	let res = new Array(v1.length)
+	for (let i = 0; i &lt; v1.length; i++) res[i] = v1[i] - v2[i]
+	return res
 }
 /**
  * v1 + v2
- * @param {vector} v1
- * @param {vector} v2
- * @returns {vector}
+ * @param {array} v1
+ * @param {array} v2
+ * @returns {array}
  */
 function addVec(v1, v2) {
-	let res = new Array(v1.length);
-	for (let i = 0; i &lt; v1.length; i++) res[i] = v1[i] + v2[i];
-	return res;
+	let res = new Array(v1.length)
+	for (let i = 0; i &lt; v1.length; i++) res[i] = v1[i] + v2[i]
+	return res
 }
 /**
  * subtract matrix b from a
- * @param {matrix} a
- * @param {matrix} b
+ * @param {array[]} a
+ * @param {array[]} b
  */
 function subtract(a, b) {
-	let c = new Array(a.length);
+	let c = new Array(a.length)
 	for (let i = 0; i &lt; a.length; i++) {
-		c[i] = subVec(a[i], b[i]);
+		c[i] = subVec(a[i], b[i])
 	}
-	return c;
+	return c
 }
 /**
  * Add matrix a to its transpose, but normalise the cell values resulting to 0/1
- * @param {matrix} a
- * @returns {matrix} a copy of the result
+ * @param {array[]} a
+ * @returns {array[]} a copy of the result
  */
 function mergeTranspose(a) {
-	let b = transpose(a);
+	let b = transpose(a)
 	for (let i = 0; i &lt; a.length; i++) {
-		for (let j = 0; j &lt; a.length; j++) if (a[i][j] > 0) b[i][j] = 1;
+		for (let j = 0; j &lt; a.length; j++) if (a[i][j] > 0) b[i][j] = 1
 	}
-	return b;
+	return b
 }
 /**
  * create a new matrix of size n, with all cells zero
- * @param {matrix} a
+ * @param {number} n
  */
 function zero(n) {
-	let b = new Array(n);
+	let b = new Array(n)
 	for (let i = 0; i &lt; n; i++) {
-		b[i] = new Array(n).fill(0);
+		b[i] = new Array(n).fill(0)
 	}
-	return b;
+	return b
 }
 /**
  * create a zero matrix with v as the leading diagonal
- * @param {vector} v
- * @returns {matrix}
+ * @param {array} v
+ * @returns {array[]}
  */
 function diag(v) {
-	let b = zero(v.length);
+	let b = zero(v.length)
 	for (let i = 0; i &lt; v.length; i++) {
-		b[i][i] = v[i];
+		b[i][i] = v[i]
 	}
-	return b;
+	return b
 }
 /**
  * subtract the minimum value of any cell from each cell of the vector
- * @param {vector} v
+ * @param {array} v
  */
 function rebase(v) {
-	let min = Math.min(...v);
-	let res = new Array(v.length);
-	for (let i = 0; i &lt; v.length; i++) res[i] = v[i] - min;
-	return res;
+	let min = Math.min(...v)
+	let res = new Array(v.length)
+	for (let i = 0; i &lt; v.length; i++) res[i] = v[i] - min
+	return res
 }
 /**
  * solve Ax=B by Gauss-Jordan elimination method
  * adapted from https://www.npmjs.com/package/linear-equation-system
- * @param {matrix} A
- * @param {vector} B
+ * @param {array[]} A
+ * @param {array} B
  */
 function solve(A, B) {
-	let system = A.slice();
-	for (let i = 0; i &lt; B.length; i++) system[i].push(B[i]);
+	let system = A.slice()
+	for (let i = 0; i &lt; B.length; i++) system[i].push(B[i])
 
 	for (let i = 0; i &lt; system.length; i++) {
-		let pivotRow = findPivotRow(system, i);
-		if (!pivotRow) return false; //Singular system
-		if (pivotRow != i) system = swapRows(system, i, pivotRow);
-		let pivot = system[i][i];
+		let pivotRow = findPivotRow(system, i)
+		if (!pivotRow) return false //Singular system
+		if (pivotRow != i) system = swapRows(system, i, pivotRow)
+		let pivot = system[i][i]
 		for (let j = i; j &lt; system[i].length; j++) {
 			//divide row by pivot
-			system[i][j] = system[i][j] / pivot;
+			system[i][j] = system[i][j] / pivot
 		}
 		for (let j = i + 1; j &lt; system.length; j++) {
 			// Cancel below pivot
 			if (system[j][i] != 0) {
-				let operable = system[j][i];
+				let operable = system[j][i]
 				for (let k = i; k &lt; system[i].length; k++) {
-					system[j][k] -= operable * system[i][k];
+					system[j][k] -= operable * system[i][k]
 				}
 			}
 		}
@@ -229,446 +236,199 @@ function solve(A, B) {
 		// Back substitution
 		for (let j = i - 1; j >= 0; j--) {
 			if (system[j][i] != 0) {
-				let operable = system[j][i];
+				let operable = system[j][i]
 				for (let k = j; k &lt; system[j].length; k++) {
-					system[j][k] -= operable * system[i][k];
+					system[j][k] -= operable * system[i][k]
 				}
 			}
 		}
 	}
-	let answer = [];
+	let answer = []
 	for (let i = 0; i &lt; system.length; i++) {
-		answer.push(system[i].pop());
+		answer.push(system[i].pop())
 	}
-	return answer;
+	return answer
 
 	function findPivotRow(sys, index) {
-		let row = index;
-		for (let i = index; i &lt; sys.length; i++) if (Math.abs(sys[i][index]) > Math.abs(sys[row][index])) row = i;
-		if (sys[row][index] == 0) return false;
-		return row;
+		let row = index
+		for (let i = index; i &lt; sys.length; i++) if (Math.abs(sys[i][index]) > Math.abs(sys[row][index])) row = i
+		if (sys[row][index] == 0) return false
+		return row
 	}
 
 	function swapRows(sys, row1, row2) {
-		let cache = sys[row1];
-		sys[row1] = sys[row2];
-		sys[row2] = cache;
-		return sys;
+		let cache = sys[row1]
+		sys[row1] = sys[row2]
+		sys[row2] = cache
+		return sys
 	}
 }
 /**
  * Round the cell values of v to the given number of decimal places
- * @param {vector} v
- * @param {integer} places
+ * @param {array} v
+ * @param {number} places
  */
 function round(v, places) {
-	for (let i = 0; i &lt; v.length; i++) v[i] = v[i].toFixed(places);
-	return v;
+	for (let i = 0; i &lt; v.length; i++) v[i] = v[i].toFixed(places)
+	return v
 }
 
 /* --------------------------------------------------------------------*/
 /**
  * This is the Trophic Levels Algorithm
  *
- * @param {matrix} a square adjacency matrix
- * @returns {vector} levels (heights)
+ * @param {array[]} a square adjacency matrix
+ * @returns {array} levels (heights)
  */
 function get_trophic_levels(a) {
 	// get undirected matrix
-	let au = undirected(a);
+	let au = undirected(a)
 	// check connected
 	if (connected(au)) {
 		// get in degree vector
-		let in_deg = in_degree(a);
+		let in_deg = in_degree(a)
 		// get out degree vector
-		let out_deg = out_degree(a);
+		let out_deg = out_degree(a)
 		// get in - out
-		let v = subVec(in_deg, out_deg);
+		let v = subVec(in_deg, out_deg)
 		// get diagonal matrix, subtract (adj. matrix plus its transpose)
-		let L = subtract(diag(addVec(in_deg, out_deg)), mergeTranspose(a));
+		let L = subtract(diag(addVec(in_deg, out_deg)), mergeTranspose(a))
 		// set (0,0) to zero
-		L[0][0] = 0;
+		L[0][0] = 0
 		// do linear solve
-		let h = solve(L, v);
+		let h = solve(L, v)
 		if (!h) {
-			throw new Error('Singular matrix');
+			throw new Error('Singular matrix')
 		}
 		// base to zero
-		h = rebase(h);
+		h = rebase(h)
 		// round to 3 decimal places
-		h = round(h, 3);
+		h = round(h, 3)
 		// return tropic heights
-		return h;
+		return h
 	} else {
-		throw new Error('Network must be weakly connected');
+		throw new Error('Network must be weakly connected')
 	}
 }
 /**
  * convert a vector of objects, each an edge referencing from and to nodes
  * to an adjacency matrix.  nodes is a list of nodes that acts as the index for the adj. matrix.
- * @param {vector} v list of edges
- * @param {vector} nodes list of node Ids
+ * @param {array} v list of edges
+ * @param {array} nodes list of node Ids
  * @returns matrix
  */
 function edgeListToAdjMatrix(v, nodes) {
-	let a = zero(nodes.length);
+	let a = zero(nodes.length)
 	for (let i = 0; i &lt; v.length; i++) {
-		a[nodes.indexOf(v[i].from)][nodes.indexOf(v[i].to)] = 1;
+		a[nodes.indexOf(v[i].from)][nodes.indexOf(v[i].to)] = 1
 	}
-	return a;
+	return a
 }
 /**
  * returns a list of the node Ids mentioned in a vector of edges
- * @param {vector} v edges
+ * @param {array} v edges
  */
 function nodeList(v) {
-	let nodes = new Array();
+	let nodes = new Array()
 	for (let i = 0; i &lt; v.length; i++) {
-		if (nodes.indexOf(v[i].from) == -1) nodes.push(v[i].from);
-		if (nodes.indexOf(v[i].to) == -1) nodes.push(v[i].to);
+		if (nodes.indexOf(v[i].from) == -1) nodes.push(v[i].from)
+		if (nodes.indexOf(v[i].to) == -1) nodes.push(v[i].to)
 	}
-	return nodes;
+	return nodes
 }
 /**
  * given a complete set of edges, returns a list of lists of edges, each list being the edges of a connected component
- * @param {dataSet} data
+ * @param {object} data
  */
 function connectedComponents(data) {
-	let edges = data.edges.get();
-	let cc = [];
-	let added = [];
-	let component = [];
+	let edges = data.edges.get()
+	let cc = []
+	let added = []
+	let component = []
 	// starting from each edge...
 	edges.forEach((e) => {
 		if (!added.includes(e)) {
-			component = [];
+			component = []
 			//do a depth first search for connected edges
-			dfs(e);
-			cc.push(component);
+			dfs(e)
+			cc.push(component)
 		}
-	});
+	})
 	/**
 	 * depth first search for edges connected to 'to' or 'from' nodes of this edge
 	 * adds edges found to component array
-	 * @param {edge} e
+	 * @param {object} e
 	 */
 	function dfs(e) {
-		added.push(e);
-		component.push(e);
+		added.push(e)
+		component.push(e)
 		edges
 			.filter((next) => {
 				return (
 					e !== next &amp;&amp; (next.from === e.to || next.to === e.from || next.from == -e.from || next.to === e.to)
-				);
+				)
 			})
 			.forEach((next) => {
-				if (!added.includes(next)) dfs(next);
-			});
+				if (!added.includes(next)) dfs(next)
+			})
 	}
-	return cc;
+	return cc
 }
 /**
  * shift the positions of nodes according to the trophic 'height' (actually, here, the x coordinate)
- * @param {dataSet} data
+ * @param {object} data
  * @returns list of nodes whose positions have been altered
  */
 export function trophic(data) {
 	// get a list of lists of connected components, each list being pairs of to and from nodes
 	// process each connected component individually
-	let updatedNodes = [];
+	let updatedNodes = []
 	connectedComponents(data).forEach((edges) => {
-		let nodeIds = nodeList(edges);
-		let nodes = data.nodes.get(nodeIds);
+		let nodeIds = nodeList(edges)
+		let nodes = data.nodes.get(nodeIds)
 		// save min and max x coordinates of nodes
-		let minX = Math.min(...nodes.map((n) => n.x));
-		let maxX = Math.max(...nodes.map((n) => n.x));
+		let minX = Math.min(...nodes.map((n) => n.x))
+		let maxX = Math.max(...nodes.map((n) => n.x))
 		// convert to an adjacency matrix
-		let adj = edgeListToAdjMatrix(edges, nodeIds);
+		let adj = edgeListToAdjMatrix(edges, nodeIds)
 		// get trophic levels
-		let levels = get_trophic_levels(adj);
+		let levels = get_trophic_levels(adj)
 		// rescale levels to match original max and min
-		let range = Math.max(...levels) - Math.min(...levels);
+		let range = Math.max(...levels) - Math.min(...levels)
 		// if all nodes are at same trophic height (range == 0, so scale would be infinity), line them up
-		let scale = range > 0.000001 ? (maxX - minX) / range : 0;
+		let scale = range > 0.000001 ? (maxX - minX) / range : 0
 		for (let i = 0; i &lt; levels.length; i++) {
-			levels[i] = levels[i] * scale + minX;
+			levels[i] = levels[i] * scale + minX
 		}
 		// move nodes to new positions
 		for (let i = 0; i &lt; nodeIds.length; i++) {
-			let node = nodes[i];
-			node.x = levels[i];
-			updatedNodes.push(node);
+			let node = nodes[i]
+			node.x = levels[i]
+			updatedNodes.push(node)
 		}
-	});
-	return updatedNodes;
+	})
+	return updatedNodes
 }
 </code></pre>
-				</article>
-			</section>
-		</div>
+        </article>
+    </section>
 
-		<nav>
-			<h2><a href="index.html">Home</a></h2>
-			<h3>Classes</h3>
-			<ul>
-				<li><a href="module.exports.html">exports</a></li>
-				<li><a href="ToolHandler.html">ToolHandler</a></li>
-			</ul>
-			<h3>Global</h3>
-			<ul>
-				<li><a href="global.html#addColumn">addColumn</a></li>
-				<li><a href="global.html#addEventListeners">addEventListeners</a></li>
-				<li><a href="global.html#addLabel">addLabel</a></li>
-				<li><a href="global.html#addVec">addVec</a></li>
-				<li><a href="global.html#antMarch">antMarch</a></li>
-				<li><a href="global.html#applyOptions">applyOptions</a></li>
-				<li><a href="global.html#asleep">asleep</a></li>
-				<li><a href="global.html#broadcast">broadcast</a></li>
-				<li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li>
-				<li><a href="global.html#cancelAdd">cancelAdd</a></li>
-				<li><a href="global.html#cancelEdit">cancelEdit</a></li>
-				<li><a href="global.html#changeCursor">changeCursor</a></li>
-				<li><a href="global.html#changeRoom">changeRoom</a></li>
-				<li><a href="global.html#clean">clean</a></li>
-				<li><a href="global.html#cleanArray">cleanArray</a></li>
-				<li><a href="global.html#clearLegend">clearLegend</a></li>
-				<li><a href="global.html#clearPopUp">clearPopUp</a></li>
-				<li><a href="global.html#clearStatusBar">clearStatusBar</a></li>
-				<li><a href="global.html#clone">clone</a></li>
-				<li><a href="global.html#closeFilter">closeFilter</a></li>
-				<li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li>
-				<li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li>
-				<li><a href="global.html#collapseColGroup">collapseColGroup</a></li>
-				<li><a href="global.html#collapseNotes">collapseNotes</a></li>
-				<li><a href="global.html#colorEditor">colorEditor</a></li>
-				<li><a href="global.html#configSamples">configSamples</a></li>
-				<li><a href="global.html#connected">connected</a></li>
-				<li><a href="global.html#connectedComponents">connectedComponents</a></li>
-				<li><a href="global.html#convertDashes">convertDashes</a></li>
-				<li><a href="global.html#convertEdge">convertEdge</a></li>
-				<li><a href="global.html#convertEdgeBack">convertEdgeBack</a></li>
-				<li><a href="global.html#convertNode">convertNode</a></li>
-				<li><a href="global.html#convertNodeBack">convertNodeBack</a></li>
-				<li><a href="global.html#copyTable">copyTable</a></li>
-				<li><a href="global.html#copyToClipboard">copyToClipboard</a></li>
-				<li><a href="global.html#createTitleDropDown">createTitleDropDown</a></li>
-				<li><a href="global.html#deepCopy">deepCopy</a></li>
-				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
-				<li><a href="global.html#deselectTool">deselectTool</a></li>
-				<li><a href="global.html#diag">diag</a></li>
-				<li><a href="global.html#diffMaps">diffMaps</a></li>
-				<li><a href="global.html#displayHelp">displayHelp</a></li>
-				<li><a href="global.html#displayNetPane">displayNetPane</a></li>
-				<li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li>
-				<li><a href="global.html#doSearch">doSearch</a></li>
-				<li><a href="global.html#dragElement">dragElement</a></li>
-				<li><a href="global.html#draw">draw</a></li>
-				<li><a href="global.html#drawGrid">drawGrid</a></li>
-				<li><a href="global.html#duplEdge">duplEdge</a></li>
-				<li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li>
-				<li><a href="global.html#editEdge">editEdge</a></li>
-				<li><a href="global.html#editLinkStyle">editLinkStyle</a></li>
-				<li><a href="global.html#editNode">editNode</a></li>
-				<li><a href="global.html#editNodeStyle">editNodeStyle</a></li>
-				<li><a href="global.html#elem">elem</a></li>
-				<li><a href="global.html#exactTime">exactTime</a></li>
-				<li><a href="global.html#exportCVS">exportCVS</a></li>
-				<li><a href="global.html#exportGML">exportGML</a></li>
-				<li><a href="global.html#fit">fit</a></li>
-				<li><a href="global.html#follow">follow</a></li>
-				<li><a href="global.html#followUser">followUser</a></li>
-				<li><a href="global.html#formatLogRec">formatLogRec</a></li>
-				<li><a href="global.html#generateName">generateName</a></li>
-				<li><a href="global.html#generateRoom">generateRoom</a></li>
-				<li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li>
-				<li><a href="global.html#getArrows">getArrows</a></li>
-				<li><a href="global.html#getButtonStatus">getButtonStatus</a></li>
-				<li><a href="global.html#getContext">getContext</a></li>
-				<li><a href="global.html#getDashes">getDashes</a></li>
-				<li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li>
-				<li><a href="global.html#getRadioVal">getRadioVal</a></li>
-				<li><a href="global.html#getRandomData">getRandomData</a></li>
-				<li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li>
-				<li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li>
-				<li><a href="global.html#ghostCursor">ghostCursor</a></li>
-				<li><a href="global.html#ghostFactor">ghostFactor</a></li>
-				<li><a href="global.html#groupDashes">groupDashes</a></li>
-				<li><a href="global.html#groupTitle">groupTitle</a></li>
-				<li><a href="global.html#headerTickToggle">headerTickToggle</a></li>
-				<li><a href="global.html#hideDistantNodes">hideDistantNodes</a></li>
-				<li><a href="global.html#hideNodesAndEdgesInSet">hideNodesAndEdgesInSet</a></li>
-				<li><a href="global.html#hideNotes">hideNotes</a></li>
-				<li><a href="global.html#hideStreamNodes">hideStreamNodes</a></li>
-				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
-				<li><a href="global.html#in_degree">in_degree</a></li>
-				<li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li>
-				<li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li>
-				<li><a href="global.html#initials">initials</a></li>
-				<li><a href="global.html#initPopUp">initPopUp</a></li>
-				<li><a href="global.html#initSample">initSample</a></li>
-				<li><a href="global.html#isEmpty">isEmpty</a></li>
-				<li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li>
-				<li><a href="global.html#legend">legend</a></li>
-				<li><a href="global.html#lightOrDark">lightOrDark</a></li>
-				<li><a href="global.html#linkEditCancel">linkEditCancel</a></li>
-				<li><a href="global.html#linkEditorHide">linkEditorHide</a></li>
-				<li><a href="global.html#linkEditorShow">linkEditorShow</a></li>
-				<li><a href="global.html#linkEditSave">linkEditSave</a></li>
-				<li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li>
-				<li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li>
-				<li><a href="global.html#listen">listen</a></li>
-				<li><a href="global.html#listFactors">listFactors</a></li>
-				<li><a href="global.html#listLinks">listLinks</a></li>
-				<li><a href="global.html#loadFile">loadFile</a></li>
-				<li><a href="global.html#loadJSONfile">loadJSONfile</a></li>
-				<li><a href="global.html#lockNode">lockNode</a></li>
-				<li><a href="global.html#logHistory">logHistory</a></li>
-				<li><a href="global.html#makeColor">makeColor</a></li>
-				<li><a href="global.html#mapTitle">mapTitle</a></li>
-				<li><a href="global.html#mergeTranspose">mergeTranspose</a></li>
-				<li><a href="global.html#mouseDespatch">mouseDespatch</a></li>
-				<li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li>
-				<li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li>
-				<li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li>
-				<li><a href="global.html#nodeEditSave">nodeEditSave</a></li>
-				<li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li>
-				<li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li>
-				<li><a href="global.html#nodeList">nodeList</a></li>
-				<li><a href="global.html#object_equals">object_equals</a></li>
-				<li><a href="global.html#oldUserNames">oldUserNames</a></li>
-				<li><a href="global.html#onexit">onexit</a></li>
-				<li><a href="global.html#openCluster">openCluster</a></li>
-				<li><a href="global.html#out_degree">out_degree</a></li>
-				<li><a href="global.html#parseCSV">parseCSV</a></li>
-				<li><a href="global.html#parseGML">parseGML</a></li>
-				<li><a href="global.html#parseGraphML">parseGraphML</a></li>
-				<li><a href="global.html#plusLink">plusLink</a></li>
-				<li><a href="global.html#plusNode">plusNode</a></li>
-				<li><a href="global.html#positionNotes">positionNotes</a></li>
-				<li><a href="global.html#positionPopUp">positionPopUp</a></li>
-				<li><a href="global.html#previousNames">previousNames</a></li>
-				<li><a href="global.html#quillEditor">quillEditor</a></li>
-				<li><a href="global.html#quillFormatter">quillFormatter</a></li>
-				<li><a href="global.html#readSingleFile">readSingleFile</a></li>
-				<li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li>
-				<li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li>
-				<li><a href="global.html#rebase">rebase</a></li>
-				<li><a href="global.html#recalculateStats">recalculateStats</a></li>
-				<li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li>
-				<li><a href="global.html#redraw">redraw</a></li>
-				<li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li>
-				<li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li>
-				<li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li>
-				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
-				<li><a href="global.html#resizeBox">resizeBox</a></li>
-				<li><a href="global.html#round">round</a></li>
-				<li><a href="global.html#saveEdge">saveEdge</a></li>
-				<li><a href="global.html#saveLabel">saveLabel</a></li>
-				<li><a href="global.html#saveNode">saveNode</a></li>
-				<li><a href="global.html#savePRSMfile">savePRSMfile</a></li>
-				<li><a href="global.html#saveStr">saveStr</a></li>
-				<li><a href="global.html#search">search</a></li>
-				<li><a href="global.html#searchTargets">searchTargets</a></li>
-				<li><a href="global.html#selectClustering">selectClustering</a></li>
-				<li><a href="global.html#selectedLabels">selectedLabels</a></li>
-				<li><a href="global.html#selectTool">selectTool</a></li>
-				<li><a href="global.html#setAnalysisButtons">setAnalysisButtons</a></li>
-				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
-				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
-				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
-				<li><a href="global.html#setFileName">setFileName</a></li>
-				<li><a href="global.html#setFixed">setFixed</a></li>
-				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
-				<li><a href="global.html#setRadioVal">setRadioVal</a></li>
-				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
-				<li><a href="global.html#setUpCanvas">setUpCanvas</a></li>
-				<li><a href="global.html#setUpChat">setUpChat</a></li>
-				<li><a href="global.html#setUpFilter">setUpFilter</a></li>
-				<li><a href="global.html#setUpPage">setUpPage</a></li>
-				<li><a href="global.html#setUpPaint">setUpPaint</a></li>
-				<li><a href="global.html#setUpSamples">setUpSamples</a></li>
-				<li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li>
-				<li><a href="global.html#setUpTabs">setUpTabs</a></li>
-				<li><a href="global.html#setUpToolbox">setUpToolbox</a></li>
-				<li><a href="global.html#setUpTutorial">setUpTutorial</a></li>
-				<li><a href="global.html#setvh">setvh</a></li>
-				<li><a href="global.html#shortestPaths">shortestPaths</a></li>
-				<li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li>
-				<li><a href="global.html#showClusterLinks">showClusterLinks</a></li>
-				<li><a href="global.html#showGhostFactor">showGhostFactor</a></li>
-				<li><a href="global.html#showHistory">showHistory</a></li>
-				<li><a href="global.html#showMice">showMice</a></li>
-				<li><a href="global.html#showNodeData">showNodeData</a></li>
-				<li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li>
-				<li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li>
-				<li><a href="global.html#showPaths">showPaths</a></li>
-				<li><a href="global.html#showPressed">showPressed</a></li>
-				<li><a href="global.html#showSelected">showSelected</a></li>
-				<li><a href="global.html#sizing">sizing</a></li>
-				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
-				<li><a href="global.html#solve">solve</a></li>
-				<li><a href="global.html#splitText">splitText</a></li>
-				<li><a href="global.html#standardize_color">standardize_color</a></li>
-				<li><a href="global.html#start">start</a></li>
-				<li><a href="global.html#startY">startY</a></li>
-				<li><a href="global.html#startzoom">startzoom</a></li>
-				<li><a href="global.html#statusMsg">statusMsg</a></li>
-				<li><a href="global.html#stepFinish">stepFinish</a></li>
-				<li><a href="global.html#stepsEnd">stepsEnd</a></li>
-				<li><a href="global.html#stepStart">stepStart</a></li>
-				<li><a href="global.html#stopEdit">stopEdit</a></li>
-				<li><a href="global.html#strip">strip</a></li>
-				<li><a href="global.html#styleEdgeNames">styleEdgeNames</a></li>
-				<li><a href="global.html#styleNodeNames">styleNodeNames</a></li>
-				<li><a href="global.html#subtract">subtract</a></li>
-				<li><a href="global.html#subVec">subVec</a></li>
-				<li><a href="global.html#sumVec">sumVec</a></li>
-				<li><a href="global.html#svg">svg</a></li>
-				<li><a href="global.html#tickToggle">tickToggle</a></li>
-				<li><a href="global.html#timeAndDate">timeAndDate</a></li>
-				<li><a href="global.html#timestamp">timestamp</a></li>
-				<li><a href="global.html#titleDropDown">titleDropDown</a></li>
-				<li><a href="global.html#togglePanel">togglePanel</a></li>
-				<li><a href="global.html#toolHandler">toolHandler</a></li>
-				<li><a href="global.html#transpose">transpose</a></li>
-				<li><a href="global.html#trophic">trophic</a></li>
-				<li><a href="global.html#undirected">undirected</a></li>
-				<li><a href="global.html#unFollow">unFollow</a></li>
-				<li><a href="global.html#unHideAll">unHideAll</a></li>
-				<li><a href="global.html#unlockAll">unlockAll</a></li>
-				<li><a href="global.html#unlockEdge">unlockEdge</a></li>
-				<li><a href="global.html#unlockNode">unlockNode</a></li>
-				<li><a href="global.html#unSelect">unSelect</a></li>
-				<li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li>
-				<li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li>
-				<li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li>
-				<li><a href="global.html#updateFilter">updateFilter</a></li>
-				<li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li>
-				<li><a href="global.html#updateLastSamples">updateLastSamples</a></li>
-				<li><a href="global.html#updateLegend">updateLegend</a></li>
-				<li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li>
-				<li><a href="global.html#updateNodeCellData">updateNodeCellData</a></li>
-				<li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li>
-				<li><a href="global.html#upscaling">upscaling</a></li>
-				<li><a href="global.html#uuidv4">uuidv4</a></li>
-				<li><a href="global.html#zero">zero</a></li>
-				<li><a href="global.html#zoomincr">zoomincr</a></li>
-				<li><a href="global.html#zoomnet">zoomnet</a></li>
-				<li><a href="global.html#zoomset">zoomset</a></li>
-			</ul>
-		</nav>
 
-		<br class="clear" />
 
-		<footer>
-			Documentation generated by
-			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a>
-			on Mon Nov 29 2021 22:32:23 GMT+0000 (Greenwich Mean Time)
-		</footer>
 
-		<script>
-			prettyPrint()
-		</script>
-		<script src="scripts/linenumber.js"></script>
-	</body>
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="ToolHandler.html">ToolHandler</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addColumn">addColumn</a></li><li><a href="global.html#addEventListeners">addEventListeners</a></li><li><a href="global.html#addLabel">addLabel</a></li><li><a href="global.html#addVec">addVec</a></li><li><a href="global.html#antMarch">antMarch</a></li><li><a href="global.html#applyOptions">applyOptions</a></li><li><a href="global.html#asleep">asleep</a></li><li><a href="global.html#broadcast">broadcast</a></li><li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li><li><a href="global.html#cancelAdd">cancelAdd</a></li><li><a href="global.html#cancelEdit">cancelEdit</a></li><li><a href="global.html#cancelLoading">cancelLoading</a></li><li><a href="global.html#changeCursor">changeCursor</a></li><li><a href="global.html#changeRoom">changeRoom</a></li><li><a href="global.html#clean">clean</a></li><li><a href="global.html#cleanArray">cleanArray</a></li><li><a href="global.html#clearLegend">clearLegend</a></li><li><a href="global.html#clearPopUp">clearPopUp</a></li><li><a href="global.html#clearStatusBar">clearStatusBar</a></li><li><a href="global.html#clone">clone</a></li><li><a href="global.html#closeFilter">closeFilter</a></li><li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li><li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li><li><a href="global.html#collapseColGroup">collapseColGroup</a></li><li><a href="global.html#collapseNotes">collapseNotes</a></li><li><a href="global.html#colorEditor">colorEditor</a></li><li><a href="global.html#configSamples">configSamples</a></li><li><a href="global.html#connected">connected</a></li><li><a href="global.html#connectedComponents">connectedComponents</a></li><li><a href="global.html#convertDashes">convertDashes</a></li><li><a href="global.html#convertEdge">convertEdge</a></li><li><a href="global.html#convertEdgeBack">convertEdgeBack</a></li><li><a href="global.html#convertNode">convertNode</a></li><li><a href="global.html#convertNodeBack">convertNodeBack</a></li><li><a href="global.html#copyTable">copyTable</a></li><li><a href="global.html#copyToClipboard">copyToClipboard</a></li><li><a href="global.html#createTitleDropDown">createTitleDropDown</a></li><li><a href="global.html#deepCopy">deepCopy</a></li><li><a href="global.html#deleteColumn">deleteColumn</a></li><li><a href="global.html#deselectTool">deselectTool</a></li><li><a href="global.html#diag">diag</a></li><li><a href="global.html#diffMaps">diffMaps</a></li><li><a href="global.html#displayHelp">displayHelp</a></li><li><a href="global.html#displayNetPane">displayNetPane</a></li><li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li><li><a href="global.html#doSearch">doSearch</a></li><li><a href="global.html#dragElement">dragElement</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawGrid">drawGrid</a></li><li><a href="global.html#duplEdge">duplEdge</a></li><li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li><li><a href="global.html#editEdge">editEdge</a></li><li><a href="global.html#editLinkStyle">editLinkStyle</a></li><li><a href="global.html#editNode">editNode</a></li><li><a href="global.html#editNodeStyle">editNodeStyle</a></li><li><a href="global.html#elem">elem</a></li><li><a href="global.html#exactTime">exactTime</a></li><li><a href="global.html#exportCVS">exportCVS</a></li><li><a href="global.html#exportGML">exportGML</a></li><li><a href="global.html#fit">fit</a></li><li><a href="global.html#follow">follow</a></li><li><a href="global.html#followUser">followUser</a></li><li><a href="global.html#formatLogRec">formatLogRec</a></li><li><a href="global.html#generateName">generateName</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li><li><a href="global.html#getArrows">getArrows</a></li><li><a href="global.html#getButtonStatus">getButtonStatus</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#getDashes">getDashes</a></li><li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li><li><a href="global.html#getRadioVal">getRadioVal</a></li><li><a href="global.html#getRandomData">getRandomData</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li><li><a href="global.html#ghostCursor">ghostCursor</a></li><li><a href="global.html#ghostFactor">ghostFactor</a></li><li><a href="global.html#groupDashes">groupDashes</a></li><li><a href="global.html#groupTitle">groupTitle</a></li><li><a href="global.html#headerTickToggle">headerTickToggle</a></li><li><a href="global.html#hideDistantNodes">hideDistantNodes</a></li><li><a href="global.html#hideNodesAndEdgesInSet">hideNodesAndEdgesInSet</a></li><li><a href="global.html#hideNotes">hideNotes</a></li><li><a href="global.html#hideStreamNodes">hideStreamNodes</a></li><li><a href="global.html#htmlEntities">htmlEntities</a></li><li><a href="global.html#in_degree">in_degree</a></li><li><a href="global.html#inAddMode">inAddMode</a></li><li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li><li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li><li><a href="global.html#initials">initials</a></li><li><a href="global.html#initPopUp">initPopUp</a></li><li><a href="global.html#initSample">initSample</a></li><li><a href="global.html#isEmpty">isEmpty</a></li><li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li><li><a href="global.html#legend">legend</a></li><li><a href="global.html#lightOrDark">lightOrDark</a></li><li><a href="global.html#linkEditCancel">linkEditCancel</a></li><li><a href="global.html#linkEditorHide">linkEditorHide</a></li><li><a href="global.html#linkEditorShow">linkEditorShow</a></li><li><a href="global.html#linkEditSave">linkEditSave</a></li><li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li><li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#listFactors">listFactors</a></li><li><a href="global.html#listLinks">listLinks</a></li><li><a href="global.html#loadFile">loadFile</a></li><li><a href="global.html#loadJSONfile">loadJSONfile</a></li><li><a href="global.html#lockNode">lockNode</a></li><li><a href="global.html#logHistory">logHistory</a></li><li><a href="global.html#makeColor">makeColor</a></li><li><a href="global.html#mapTitle">mapTitle</a></li><li><a href="global.html#mergeTranspose">mergeTranspose</a></li><li><a href="global.html#mouseDespatch">mouseDespatch</a></li><li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li><li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li><li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li><li><a href="global.html#nodeEditSave">nodeEditSave</a></li><li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li><li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li><li><a href="global.html#nodeList">nodeList</a></li><li><a href="global.html#object_equals">object_equals</a></li><li><a href="global.html#oldUserNames">oldUserNames</a></li><li><a href="global.html#onexit">onexit</a></li><li><a href="global.html#openCluster">openCluster</a></li><li><a href="global.html#out_degree">out_degree</a></li><li><a href="global.html#parseCSV">parseCSV</a></li><li><a href="global.html#parseGML">parseGML</a></li><li><a href="global.html#parseGraphML">parseGraphML</a></li><li><a href="global.html#plusLink">plusLink</a></li><li><a href="global.html#plusNode">plusNode</a></li><li><a href="global.html#positionNotes">positionNotes</a></li><li><a href="global.html#positionPopUp">positionPopUp</a></li><li><a href="global.html#previousNames">previousNames</a></li><li><a href="global.html#quillEditor">quillEditor</a></li><li><a href="global.html#quillFormatter">quillFormatter</a></li><li><a href="global.html#readSingleFile">readSingleFile</a></li><li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li><li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li><li><a href="global.html#rebase">rebase</a></li><li><a href="global.html#recalculateStats">recalculateStats</a></li><li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li><li><a href="global.html#redraw">redraw</a></li><li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li><li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li><li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li><li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li><li><a href="global.html#resizeBox">resizeBox</a></li><li><a href="global.html#rgbToHex">rgbToHex</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveEdge">saveEdge</a></li><li><a href="global.html#saveLabel">saveLabel</a></li><li><a href="global.html#saveNode">saveNode</a></li><li><a href="global.html#savePRSMfile">savePRSMfile</a></li><li><a href="global.html#saveStr">saveStr</a></li><li><a href="global.html#search">search</a></li><li><a href="global.html#searchTargets">searchTargets</a></li><li><a href="global.html#selectClustering">selectClustering</a></li><li><a href="global.html#selectedLabels">selectedLabels</a></li><li><a href="global.html#selectTool">selectTool</a></li><li><a href="global.html#setAnalysisButtons">setAnalysisButtons</a></li><li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li><li><a href="global.html#setButtonStatus">setButtonStatus</a></li><li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li><li><a href="global.html#setFileName">setFileName</a></li><li><a href="global.html#setFixed">setFixed</a></li><li><a href="global.html#setMapTitle">setMapTitle</a></li><li><a href="global.html#setRadioVal">setRadioVal</a></li><li><a href="global.html#setUpAwareness">setUpAwareness</a></li><li><a href="global.html#setUpCanvas">setUpCanvas</a></li><li><a href="global.html#setUpChat">setUpChat</a></li><li><a href="global.html#setUpFilter">setUpFilter</a></li><li><a href="global.html#setUpPage">setUpPage</a></li><li><a href="global.html#setUpPaint">setUpPaint</a></li><li><a href="global.html#setUpSamples">setUpSamples</a></li><li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li><li><a href="global.html#setUpTabs">setUpTabs</a></li><li><a href="global.html#setUpToolbox">setUpToolbox</a></li><li><a href="global.html#setUpTutorial">setUpTutorial</a></li><li><a href="global.html#setvh">setvh</a></li><li><a href="global.html#shortestPaths">shortestPaths</a></li><li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li><li><a href="global.html#showClusterLinks">showClusterLinks</a></li><li><a href="global.html#showGhostFactor">showGhostFactor</a></li><li><a href="global.html#showHistory">showHistory</a></li><li><a href="global.html#showMice">showMice</a></li><li><a href="global.html#showNodeData">showNodeData</a></li><li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li><li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li><li><a href="global.html#showPaths">showPaths</a></li><li><a href="global.html#showPressed">showPressed</a></li><li><a href="global.html#showSelected">showSelected</a></li><li><a href="global.html#sizing">sizing</a></li><li><a href="global.html#snapToGrid">snapToGrid</a></li><li><a href="global.html#solve">solve</a></li><li><a href="global.html#splitText">splitText</a></li><li><a href="global.html#standardize_color">standardize_color</a></li><li><a href="global.html#start">start</a></li><li><a href="global.html#startY">startY</a></li><li><a href="global.html#startzoom">startzoom</a></li><li><a href="global.html#statusMsg">statusMsg</a></li><li><a href="global.html#stepFinish">stepFinish</a></li><li><a href="global.html#stepsEnd">stepsEnd</a></li><li><a href="global.html#stepStart">stepStart</a></li><li><a href="global.html#stopEdit">stopEdit</a></li><li><a href="global.html#strip">strip</a></li><li><a href="global.html#styleEdgeNames">styleEdgeNames</a></li><li><a href="global.html#styleNodeNames">styleNodeNames</a></li><li><a href="global.html#subtract">subtract</a></li><li><a href="global.html#subVec">subVec</a></li><li><a href="global.html#sumVec">sumVec</a></li><li><a href="global.html#svg">svg</a></li><li><a href="global.html#tickToggle">tickToggle</a></li><li><a href="global.html#timeAndDate">timeAndDate</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#titleDropDown">titleDropDown</a></li><li><a href="global.html#togglePanel">togglePanel</a></li><li><a href="global.html#toolHandler">toolHandler</a></li><li><a href="global.html#transpose">transpose</a></li><li><a href="global.html#trophic">trophic</a></li><li><a href="global.html#undirected">undirected</a></li><li><a href="global.html#unFollow">unFollow</a></li><li><a href="global.html#unHideAll">unHideAll</a></li><li><a href="global.html#unlockAll">unlockAll</a></li><li><a href="global.html#unlockEdge">unlockEdge</a></li><li><a href="global.html#unlockNode">unlockNode</a></li><li><a href="global.html#unSelect">unSelect</a></li><li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li><li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li><li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li><li><a href="global.html#updateFilter">updateFilter</a></li><li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li><li><a href="global.html#updateLastSamples">updateLastSamples</a></li><li><a href="global.html#updateLegend">updateLegend</a></li><li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li><li><a href="global.html#updateNodeCellData">updateNodeCellData</a></li><li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li><li><a href="global.html#upscaling">upscaling</a></li><li><a href="global.html#uuidv4">uuidv4</a></li><li><a href="global.html#zero">zero</a></li><li><a href="global.html#zoomincr">zoomincr</a></li><li><a href="global.html#zoomnet">zoomnet</a></li><li><a href="global.html#zoomset">zoomset</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Mon Dec 06 2021 15:43:23 GMT+0000 (Greenwich Mean Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
 </html>

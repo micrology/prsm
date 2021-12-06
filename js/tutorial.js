@@ -1,7 +1,7 @@
 /**
  * Class to display help messages in sequence as a user guide
  *
- * Each HTML element that should have a tutorial message should incude the attributes:
+ * Each HTML element that should have a tutorial message should include the attributes:
  * data-step {number} specifies the order of the sequence of messages
  * data-tutorial: the message (can include HTML tags)
  * data-position: the location of the message relative to the element, one of
@@ -12,8 +12,8 @@
  *  tutorial.start()
  *
  *  tutorial.onstep(Array of step numbers or a step number, callback) Evaluate call back
- *       after dispkaying tutorial message
- *  tutorial.onexit(callback) Evaluate callback when user finsihes or skips the tutorial
+ *       after displaying tutorial message
+ *  tutorial.onexit(callback) Evaluate callback when user finishes or skips the tutorial
  */
 export default class Tutorial {
 	constructor() {
@@ -25,7 +25,7 @@ export default class Tutorial {
 	}
 	/**
 	 * initialise the step counter and display the first step
-	 * @param {integer} start optional step to start at (if not provided, start at the lowest numbered step)
+	 * @param {number} start optional step to start at (if not provided, start at the lowest numbered step)
 	 */
 	start(start) {
 		if (start !== undefined) this.step = start

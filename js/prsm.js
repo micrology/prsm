@@ -1,6 +1,7 @@
 /* 
 The main entry point for PRSM.  
  */
+
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
 import {IndexeddbPersistence} from 'y-indexeddb'
@@ -78,6 +79,7 @@ var panel // the DOM right side panel element
 var myNameRec // the user's name record {actual name, type, etc.}
 var lastNodeSample = 'group0' // the last used node style
 var lastLinkSample = 'edge0' // the last used edge style
+/** @type {(string|boolean)} */
 var inAddMode = false // true when adding a new Factor to the network; used to choose cursor pointer
 var inEditMode = false //true when node or edge is being edited (dialog is open)
 var snapToGridToggle = false // true when snapping nodes to the (unseen) grid
@@ -220,7 +222,7 @@ function setUpPage() {
 	elem('version').innerHTML = version
 	// check options set on URL: ?debug=yjs|gui|cluster&viewing&start
 	let searchParams = new URL(document.location).searchParams
-	if (searchParams.has('debug')) debug = [searchParams.get('debug')]
+	if (searchParams.has('debug')) debug = searchParams.get('debug')
 	// don't allow user to change anything if URL includes ?viewing
 	viewOnly = searchParams.has('viewing')
 	if (viewOnly) elem('buttons').style.display = 'none'
@@ -367,7 +369,7 @@ function startY(newRoom) {
 		}
 		if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote')
 		if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
-		if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.lngth > 0)) showChange(event, yNodesMap)
+		if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0)) showChange(event, yNodesMap)
 	})
 	/* 
 	See comments above about nodes
@@ -410,7 +412,7 @@ function startY(newRoom) {
 	/**
 	 * utility trace function that prints the change in the value of a YMap property to the console
 	 * @param {YEvent} event
-	 * @param {YMap} ymap
+	 * @param {MapType} ymap
 	 */
 	function showChange(event, ymap) {
 		event.changes.keys.forEach((change, key) => {
@@ -587,7 +589,7 @@ function generateRoom() {
 
 /**
  * randomly create some nodes and edges as a binary tree, mainly used for testing
- * @param {Integer} nNodes
+ * @param {number} nNodes
  */
 function getRandomData(nNodes) {
 	let SFNdata = getScaleFreeNetwork(nNodes)
@@ -729,7 +731,7 @@ function draw() {
 	// for testing, you can append ?t=XXX to the URL of the page, where XXX is the number
 	// of factors to include in a random network
 	let url = new URL(document.location)
-	let nNodes = url.searchParams.get('t')
+	let nNodes = parseInt(url.searchParams.get('t'))
 	if (nNodes) getRandomData(nNodes)
 	// create a network
 	var options = {
@@ -1123,7 +1125,7 @@ function draw() {
 	 */
 	function showMagnifier(e) {
 		e.preventDefault()
-		if (bigNetCanvas == null) createMagnifier(e)
+		if (bigNetCanvas == null) createMagnifier()
 		magnifierCtx.fillRect(0, 0, magSize, magSize)
 		magnifierCtx.drawImage(
 			bigNetCanvas,
@@ -1217,7 +1219,7 @@ function drawBadge(ctx, x, y) {
 }
 /**
  * rescale and redraw the network so that it fits the pane
- * @param {Integer} duration speed of zoom to fit
+ * @param {number} duration speed of zoom to fit
  */
 function fit(duration = 200) {
 	network.fit({
@@ -1338,7 +1340,6 @@ async function getClipboardContents() {
 /**
  * A factor is being created:  get its label from the user
  * @param {Object} item - the node
- * @param {Object} point  where the mouse clicked
  * @param {Function} cancelAction
  * @param {Function} callback
  */
@@ -1436,8 +1437,8 @@ function editNode(item, point, cancelAction, callback) {
 /**
  * Convert CSS description of line type to menu option format
  * true, false, [3 3] => "true", "false", "dots", "none"
- * @param {Array|Boolean} val
- * @param {Integer} width
+ * @param {array|boolean} val
+ * @param {number} width
  */
 function getDashes(val, width) {
 	if (Array.isArray(val)) return 'dots'
@@ -1526,12 +1527,12 @@ function editEdge(item, point, cancelAction, callback) {
 }
 /**
  * Initialise the dialog for creating nodes/edges
- * @param {String} popUpTitle
- * @param {Integer} height
- * @param {Object} item
- * @param {Function} cancelAction
- * @param {Function} saveAction
- * @param {Function} callback
+ * @param {string} popUpTitle
+ * @param {number} height
+ * @param {object} item
+ * @param {function} cancelAction
+ * @param {function} saveAction
+ * @param {function} callback
  */
 function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback) {
 	inAddMode = false
@@ -1589,7 +1590,8 @@ function cancelAdd(item, callback) {
 }
 /**
  * User has pressed 'cancel' - abandon the edit and hide the dialog
- * @param {Function} callback
+ * @param {object} item
+ * @param {function} [callback]
  */
 function cancelEdit(item, callback) {
 	clearPopUp()
@@ -1746,7 +1748,7 @@ function lockEdge(item) {
 }
 /**
  * User has finished editing the edge.  Unlock it.
- * @param {edge} item
+ * @param {object} item
  */
 function unlockEdge(item) {
 	item.locked = false
@@ -1774,7 +1776,7 @@ function duplEdge(from, to) {
 
 /**
  * Change the cursor style for the net pane and nav bar
- * @param {Cursor} newCursorStyle
+ * @param {object} newCursorStyle
  */
 function changeCursor(newCursorStyle) {
 	if (inAddMode) return
@@ -2173,7 +2175,7 @@ function stopEdit() {
 }
 /**
  * Add or remove the CSS style showing that the button has been pressed
- * @param {string} elem the Id of the button
+ * @param {string} el the Id of the button
  * @param {*} action whether to add or remove the style
  *
  */
@@ -2565,7 +2567,7 @@ function parseCSV(csv) {
 		let from = node(line[0], line[2])
 		let to = node(line[1], line[3])
 		let grp = line[4]
-		if (grp) grp = 'edge' + (grp.trim() - 1)
+		if (grp) grp = 'edge' + (parseInt(grp.trim()) - 1)
 		links.push({
 			id: i.toString(),
 			from: from,
@@ -3084,7 +3086,7 @@ function setButtonStatus(settings) {
 	yNetMap.set('sizing', settings.sizing)
 }
 // Factors and Links Tabs
-function applySampleToNode() {
+function applySampleToNode(event) {
 	if (event.detail != 1) return // only process single clicks here
 	let selectedNodeIds = network.getSelectedNodes()
 	if (selectedNodeIds.length == 0) return
@@ -3116,8 +3118,8 @@ function applySampleToLink(event) {
 /**
  * Remember the last style sample that the user clicked and use this for future factors/links
  * Mark the sample with a light blue border
- * @param {Integer} nodeId
- * @param {Integer} linkId
+ * @param {number} nodeId
+ * @param {number} linkId
  */
 export function updateLastSamples(nodeId, linkId) {
 	if (nodeId) {
@@ -3557,8 +3559,8 @@ function hideDistantNodes() {
 	/**
 	 * recursive function to collect Factors and Links within radius links from any of the nodes listed in nodeIds
 	 * Factor ids are collected in nodeIdsInRadiusSet and links in linkIdsInRadiusSet
-	 * @param {Array of String} nodeIds
-	 * @param {Integer} radius
+	 * @param {string[]} nodeIds
+	 * @param {number} radius
 	 */
 	function inSet(nodeIds, radius) {
 		//
@@ -3578,9 +3580,9 @@ function hideDistantNodes() {
 
 /**
  * Hide all the Factors and Links in the given Sets and add the reason why they are hidden
- * @param {Set of nodeIds} nodeSet
- * @param {Set of edge Ids} edgeSet
- * @param {String} reason
+ * @param {Set} nodeSet
+ * @param {Set} edgeSet
+ * @param {string} reason
  */
 function hideNodesAndEdgesInSet(nodeSet, edgeSet, reason) {
 	data.nodes.update(
@@ -3642,7 +3644,7 @@ function hideStreamNodes() {
 
 	/**
 	 * Recursive function to collect into nodeIdsInStreamSet the factors that are upstream of the given nodeIds
-	 * @param {Array of nodeIds} nodeIds
+	 * @param {array[]} nodeIds
 	 */
 	function upstream(nodeIds) {
 		nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId))
@@ -3662,7 +3664,7 @@ function hideStreamNodes() {
 
 	/**
 	 * Recursive function to collect into nodeIdsInStreamSet the factors that are downstream of the given nodeIds
-	 * @param {Array of nodeIds} nodeIds
+	 * @param {array[]} nodeIds
 	 */
 	function downstream(nodeIds) {
 		nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId))
@@ -3929,7 +3931,7 @@ function setCluster(option) {
 }
 /**
  * recreate the Clustering drop down menu to include user attributes as clustering options
- * @param {Objet} obj {menu value, menu text}
+ * @param {object} obj {menu value, menu text}
  */
 function recreateClusteringMenu(obj) {
 	// remove any old select items, other than the standard ones (which are the first 3: None, Style, Color)

@@ -158,8 +158,8 @@ window.bdata = bdata
 
 /**
  * Print to console the differences between the given map and the current map
- * @param {Dataset} nodeList
- * @param {DataSet} edgeList
+ * @param {object} nodeList
+ * @param {object} edgeList
  */
 function diffMaps(nodeList, edgeList) {
 	nodeList.forEach((BNode) => {
