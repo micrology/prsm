@@ -1237,8 +1237,8 @@ but moving the panel out of sight works instead */
 .history-window {
 	display: none;
 	position: absolute;
-	top: 100px;
-	left: calc(100% - 420px);
+	top: 110px;
+	left: calc(100% - 630px);
 	width: 400px;
 	z-index: 2200;
 	background-color: black;
@@ -1260,6 +1260,7 @@ but moving the panel out of sight works instead */
 .history-log-wrapper {
 	max-height: 500px;
 	overflow-y: scroll;
+	overflow-x: clip;
 	width: 100%;
 	border: 2px solid black;
 	border-radius: 0 0 4px 4px;
@@ -1268,20 +1269,33 @@ but moving the panel out of sight works instead */
 .history-log {
 	display: table;
 	table-layout: fixed;
-	width: 389px;
+	width: 100%;
 	font-size: 12px;
 	padding: 4px;
 	background-color: var(--history-log-color);
 }
 .history-row {
 	display: table-row;
+	user-select: none;
 }
 .history-time {
 	display: table-cell;
 	width: 80px;
+	padding-left: 4px;
 }
 .history-action {
 	display: table-cell;
+}
+.history-rollback {
+	display: table-cell;
+	cursor: default;
+	padding: 0 7px 0 5px;
+	text-align: right;
+	width: 28px;
+}
+.history-rollback .tooltip .rollbacktip {
+	top: -50%;
+	margin-left: -130px;
 }
 
 /* Legend */

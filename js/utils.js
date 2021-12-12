@@ -779,11 +779,12 @@ export class CP {
 /**
  * Returns a nicely formatted Date (or time if the date is today), given a Time value (from Date() )
  * @param {number} utc
+ * @param {boolean} full - if true, don't use Today in date
  */
-export function timeAndDate(utc) {
+export function timeAndDate(utc, full = false) {
 	let time = new Date()
 	time.setTime(utc)
-	if (time.toDateString() == new Date().toDateString()) {
+	if (!full && time.toDateString() == new Date().toDateString()) {
 		return (
 			'Today, ' +
 			time.toLocaleString('en-GB', {

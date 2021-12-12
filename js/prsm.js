@@ -44,6 +44,7 @@ import Hammer from '@egjs/hammerjs'
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js'
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js'
 import {version} from '../package.json'
+import {compressToUTF16, decompressFromUTF16} from 'LZ-string'
 
 const appName = 'Participatory System Mapper'
 const shortAppName = 'PRSM'
@@ -96,6 +97,7 @@ var followme // clientId of user's cursor to follow
 var editor = null // Quill editor
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
 var netLoaded = false // becomes true when map is fully displayed
+var savedState = '' // the current sate of the map (nodes, edges, network settings) before current user action
 /**
  * top level function to initialise everything
  */
@@ -369,7 +371,8 @@ function startY(newRoom) {
 		}
 		if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote')
 		if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
-		if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0)) showChange(event, yNodesMap)
+		if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0))
+			showChange(event, yNodesMap)
 	})
 	/* 
 	See comments above about nodes
@@ -615,6 +618,9 @@ function displayNetPane(msg) {
 		undoRedoButtonStatus()
 		setUpTutorial()
 		netLoaded = true
+		savedState = compressToUTF16(
+			JSON.stringify({nodes: data.nodes.get(), edges: data.edges.get(), net: yNetMap.toJSON()})
+		)
 		setAnalysisButtons()
 	}
 }
@@ -1166,11 +1172,22 @@ function timestamp() {
 }
 /**
  * push a record that action has been taken on to the end of the history log
+ *  also record current state of the map for possible roll back
  *  and note changes have been made to the map
  * @param {String} action
  */
 export function logHistory(action, actor) {
-	yHistory.push([{action: action, time: Date.now(), user: actor ? actor : myNameRec.name}])
+	yHistory.push([
+		{
+			action: action,
+			time: Date.now(),
+			user: actor ? actor : myNameRec.name,
+			state: savedState,
+		},
+	])
+	savedState = compressToUTF16(
+		JSON.stringify({nodes: data.nodes.get(), edges: data.edges.get(), net: yNetMap.toJSON()})
+	)
 	dirty = true
 }
 
@@ -4078,6 +4095,9 @@ function showHistory() {
 		.toArray()
 		.map((rec) => formatLogRec(rec))
 		.join(' ')
+	document.querySelectorAll('div.history-rollback').forEach((e) => {
+		if (e.id) listen(e.id, 'click', rollback)
+	})
 	let logWrapper = elem('history-log-wrapper')
 	logWrapper.scrollTo({
 		top: logWrapper.scrollHeight,
@@ -4086,15 +4106,49 @@ function showHistory() {
 	})
 }
 /**
- * return a DOM element with the data in rec formatted
- * @param {Object} rec
+ * return a DOM element with the data in rec formatted and a button for rolling back if there is state data
+ * @param {Object} rec - history record (action, time, state)
  */
 function formatLogRec(rec) {
+	let rollbackButton = '<div class="history-rollback"></div>'
+	if (rec.state) {
+		rollbackButton = `<div class="history-rollback"  id="hist${rec.time}">
+			<div class="tooltip">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bootstrap-reboot" viewBox="0 0 16 16">
+				<path d="M1.161 8a6.84 6.84 0 1 0 6.842-6.84.58.58 0 1 1 0-1.16 8 8 0 1 1-6.556 3.412l-.663-.577a.58.58 0 0 1 .227-.997l2.52-.69a.58.58 0 0 1 .728.633l-.332 2.592a.58.58 0 0 1-.956.364l-.643-.56A6.812 6.812 0 0 0 1.16 8z"/>
+				<path d="M6.641 11.671V8.843h1.57l1.498 2.828h1.314L9.377 8.665c.897-.3 1.427-1.106 1.427-2.1 0-1.37-.943-2.246-2.456-2.246H5.5v7.352h1.141zm0-3.75V5.277h1.57c.881 0 1.416.499 1.416 1.32 0 .84-.504 1.324-1.386 1.324h-1.6z"/>
+				</svg>
+				<span class="tooltiptext rollbacktip">Rollback to before this action</span>
+			</div>
+		</div>`
+	}
 	return `<div class="history-row">
 				<div class="history-time">${timeAndDate(rec.time)}: </div>
 				<div class="history-action">${rec.user} ${rec.action}</div>
+				${rollbackButton}
 			</div>`
 }
+/**
+ *
+ * @param {Event} event
+ * @returns null if no rollback possible or cancelled
+ */
+function rollback(event) {
+	let rbTime = parseInt(event.currentTarget.id.substring(4))
+	let rb = yHistory.toArray().find((rec) => rec.time === rbTime)
+	if (!rb || !rb.state) return
+	if (!confirm(`Roll back the map to what it was before ${timeAndDate(rbTime)}?`)) return
+	let state = JSON.parse(decompressFromUTF16(rb.state))
+	data.nodes.clear()
+	data.edges.clear()
+	data.nodes.update(state.nodes)
+	data.edges.update(state.edges)
+	for (const k in state.net) {
+		yNetMap.set(k, state.net[k])
+	}
+	logHistory(`rolled back the map to what it was before ${timeAndDate(rbTime, true)}`)
+}
+
 function showHistorySwitch() {
 	if (elem('showHistorySwitch').checked) showHistory()
 	else elem('history-window').style.display = 'none'
@@ -4106,7 +4160,7 @@ function historyClose() {
 }
 
 dragElement(elem('history-window'), elem('history-header'))
-window.showHistory = showHistory
+
 /* --------------------------------------- avatars and shared cursors--------------------------------*/
 /**
  *  set up user monitoring (awareness)
