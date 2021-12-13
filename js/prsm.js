@@ -4098,12 +4098,7 @@ function showHistory() {
 	document.querySelectorAll('div.history-rollback').forEach((e) => {
 		if (e.id) listen(e.id, 'click', rollback)
 	})
-	let logWrapper = elem('history-log-wrapper')
-	logWrapper.scrollTo({
-		top: logWrapper.scrollHeight,
-		left: 0,
-		behavior: 'auto',
-	})
+	log.lastChild.scrollIntoView(false)
 }
 /**
  * return a DOM element with the data in rec formatted and a button for rolling back if there is state data
@@ -4122,11 +4117,9 @@ function formatLogRec(rec) {
 			</div>
 		</div>`
 	}
-	return `<div class="history-row">
-				<div class="history-time">${timeAndDate(rec.time)}: </div>
-				<div class="history-action">${rec.user} ${rec.action}</div>
-				${rollbackButton}
-			</div>`
+	return `<div class="history-time">${timeAndDate(rec.time)}: </div>
+			<div class="history-action">${rec.user} ${rec.action}</div>
+			${rollbackButton}`
 }
 /**
  *

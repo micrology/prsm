@@ -1256,6 +1256,7 @@ but moving the panel out of sight works instead */
 }
 .history-close:hover {
 	color: var(--header-hover-color);
+	font-weight: bold;
 }
 .history-log-wrapper {
 	max-height: 500px;
@@ -1267,31 +1268,25 @@ but moving the panel out of sight works instead */
 	box-sizing: border-box;
 }
 .history-log {
-	display: table;
-	table-layout: fixed;
+	display: grid;
+	grid-template-columns: 80px 1fr 28px;
 	width: 100%;
 	font-size: 12px;
-	padding: 4px;
 	background-color: var(--history-log-color);
-}
-.history-row {
-	display: table-row;
 	user-select: none;
+	padding-top: 4px;
 }
 .history-time {
-	display: table-cell;
-	width: 80px;
+	grid-column: 1;
 	padding-left: 4px;
 }
 .history-action {
-	display: table-cell;
+	grid-column: 2;
 }
 .history-rollback {
-	display: table-cell;
+	grid-column: 3;
 	cursor: default;
-	padding: 0 7px 0 5px;
-	text-align: right;
-	width: 28px;
+	justify-self: center;
 }
 .history-rollback .tooltip .rollbacktip {
 	top: -50%;
