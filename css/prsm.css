@@ -729,7 +729,6 @@ nav button .pressed {
 	justify-content: space-between;
 	overflow: hidden;
 	background-color: var(--panel-color);
-	padding: 0 2px;
 }
 /* Style the buttons that are used to open the tab content */
 
@@ -739,24 +738,21 @@ nav button .pressed {
 	background-color: var(--tab-color);
 	float: left;
 	border-right: 1px solid black;
-	border-radius: 4px 4px 0 0;
+	border-radius: 4px;
 	width: 66px;
 	text-align: center;
 	outline: none;
 	cursor: pointer;
-	margin: 0;
+	margin: 4px;
+	padding: 1px;
 	transition: 0.3s;
-}
-.tab .tablinks:first-child {
-	border-left: 1px solid white;
 }
 
 /* Create an active/current tablink class */
 
 .tab .tablinks.active {
-	background-color: var(--panel-color);
-	border-top: 1px solid var(--tab-color);
-	color: white;
+	background-color: white;
+	color: black;
 }
 /* Style the tab content */
 
