@@ -42,9 +42,9 @@ import Quill from 'quill'
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
 import Hammer from '@egjs/hammerjs'
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js'
-import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js'
+import { setUpPaint, setUpToolbox, deselectTool, redraw } from './paint.js'
 import {version} from '../package.json'
-import {compressToUTF16, decompressFromUTF16} from 'LZ-string'
+import {compressToUTF16, decompressFromUTF16} from 'lz-string'
 
 const appName = 'Participatory System Mapper'
 const shortAppName = 'PRSM'
@@ -3580,7 +3580,6 @@ function hideDistantNodes() {
 	 * @param {number} radius
 	 */
 	function inSet(nodeIds, radius) {
-		//
 		if (radius < 0) return
 		nodeIds.forEach((nId) => {
 			nodeIdsInRadiusSet.add(nId)
@@ -3751,9 +3750,10 @@ function showPaths() {
 		selected: selectedNodes,
 	})
 	let linksToUpdate = []
+	let nodesToUpdate = []
+	unHideAll('paths')
 	switch (radio) {
 		case 'All':
-			unHideAll('paths')
 			showSelected()
 			return
 		case 'allPaths':
@@ -3764,11 +3764,16 @@ function showPaths() {
 					statusMsg('No path between the selected Factors', 'warn')
 					return
 				}
-				// hide every link, before unhiding those that make up the paths
-				data.edges.get({filter: (e) => !e.hidden}).forEach((edge) => {
+				// hide every node and link, before unhiding those that make up the paths
+				data.edges.get().forEach((edge) => {
 					edge.hidden = true
 					edge.whyHidden = pushnew(edge.whyHidden, 'paths')
 					linksToUpdate.push(edge)
+				})
+				data.nodes.get().forEach((node) => {
+					node.hidden = true
+					node.whyHidden = pushnew(node.whyHidden, 'paths')
+					nodesToUpdate.push(node)
 				})
 				paths.forEach((links) => {
 					links.forEach((link) => {
@@ -3777,7 +3782,15 @@ function showPaths() {
 						else {
 							edge.whyHidden = edge.whyHidden.filter((item) => item !== 'paths')
 							edge.hidden = edge.whyHidden.length > 0
-							linksToUpdate.push(edge)
+							linksToUpdate= pushnew(linksToUpdate, edge)
+							let nodeTo = data.nodes.get(edge.to)
+							nodeTo.whyHidden = nodeTo.whyHidden.filter((item) => item !== 'paths')
+							nodeTo.hidden = nodeTo.whyHidden.length > 0
+							nodesToUpdate= pushnew(nodesToUpdate, nodeTo)
+							let nodeFrom = data.nodes.get(edge.from)
+							nodeFrom.whyHidden = nodeFrom.whyHidden.filter((item) => item !== 'paths')
+							nodeFrom.hidden = nodeFrom.whyHidden.length > 0
+							nodesToUpdate= pushnew(nodesToUpdate, nodeFrom)
 						}
 					})
 				})
@@ -3787,6 +3800,7 @@ function showPaths() {
 			console.log('Bad selector in showPaths()')
 	}
 	data.edges.update(linksToUpdate)
+	data.nodes.update(nodesToUpdate)
 	statusMsg(`Showing ${radio == 'allPaths' ? 'all paths' : 'the shortest path'} between ${selectedLabels()}`)
 }
 
@@ -3843,7 +3857,8 @@ function shortestPaths(all) {
 			if (source === dest) return [dest]
 			visited.set(source, true)
 			let path = [source]
-			let connectedNodes = network.getConnectedNodes(source, 'to')
+			// only consider nodes that are not hidden
+			let connectedNodes = network.getConnectedNodes(source, 'to').filter((n) => !data.nodes.get(n).hidden)
 			if (connectedNodes.length === 0) return 'deadend'
 			if (all) {
 				connectedNodes.forEach((next) => {
