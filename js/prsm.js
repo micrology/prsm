@@ -2654,6 +2654,7 @@ function savePRSMfile() {
 			mapTitle: elem('maptitle').innerText,
 			lastNodeSample: lastNodeSample,
 			lastLinkSample: lastLinkSample,
+			// clustering, and up/down, paths between and x links away settings are not saved (and hidden property is not saved)
 			buttons: getButtonStatus(),
 			attributeTitles: yNetMap.get('attributeTitles'),
 			styles: styles,
@@ -3101,6 +3102,11 @@ function setButtonStatus(settings) {
 	yNetMap.set('background', settings.background || '#ffffff')
 	yNetMap.set('legend', settings.legend)
 	yNetMap.set('sizing', settings.sizing)
+	yNetMap.set('radius', { radiusSetting: 'All', selected: [] })
+	yNetMap.set('stream', { streamSetting: 'All', selected: [] })
+	yNetMap.set('paths', { pathsSetting: 'All', selected: [] })
+	yNetMap.set('cluster', 'All')
+
 }
 // Factors and Links Tabs
 function applySampleToNode(event) {
@@ -3713,8 +3719,8 @@ function hideStreamNodes() {
 	}
 }
 /**
- * Sets the Analysis radio buttons and Factor selection according to values in obj
- * @param {Object} obj
+ * Sets the Analysis radio buttons and Factor selection according to values in global hiddenNodes 
+ *  (which is set when yNetMap is loaded, or when a file is read in)
  */
 function setAnalysisButtons() {
 	if (netLoaded) {

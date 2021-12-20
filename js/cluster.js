@@ -186,7 +186,10 @@ function showClusterLinks() {
 	// hide all links between clusters initially
 	let edgesToUpdate = []
 	data.edges.get().forEach((edge) => {
-		if (edge.isClusterEdge) edge.hidden = true
+		if (edge.isClusterEdge) {
+			edge.hidden = true
+			edge.label = ''
+		}
 	})
 	for (let edge of data.edges.get()) {
 		if (edge.isClusterEdge) continue
@@ -228,7 +231,7 @@ function showClusterLinks() {
 	 * @param {string} toId
 	 */
 	function makeClusterLink(fromId, toId) {
-		let edge = data.edges.get({filter: (e) => fromId == e.from && toId == e.to}).shift()
+		let edge = edgesToUpdate.filter((e) => fromId == e.from && toId == e.to).shift()
 		if (!edge) {
 			edge = deepMerge(styles.edges['cluster'], {
 				id: `cledge-${uuidv4()}`,
@@ -238,6 +241,7 @@ function showClusterLinks() {
 			})
 		}
 		edge.hidden = false
+		edge.label = edge.label ? (parseInt(edge.label) + 1).toString() : '1'
 		edgesToUpdate.push(edge)
 	}
 }
@@ -248,8 +252,13 @@ function showClusterLinks() {
  */
 export function openCluster(clusterNodeId) {
 	let clusterNode = data.nodes.get(clusterNodeId)
-	// if user has right clicked on a factor that is not a cluster, do nothing
-	if (!clusterNode.isCluster) return
+	// if user has right clicked on a factor that is not a cluster, and clustering is 
+	// set, re-cluster
+	if (!clusterNode.isCluster) {
+		let attribute = elem('clustering').value
+		if (attribute !== 'none') cluster(attribute)
+		return
+	}
 	doc.transact(() => {
 		unSelect()
 		let nodesToUpdate = []
