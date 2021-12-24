@@ -69,7 +69,7 @@ At the top of the screen are a row of buttons.
 
 This what they do, from left to right:
 
-* **New factor** (or node).  Click on the cross and then click on the blank area below (the 'network pane') to create a node for the network.  A small dialog box will open for you to type in a label for the factor.
+* **New factor** (or node).  Click on the cross and then click somewhere on the blank area below (the 'network pane') to create a node for the network.  A small dialog box will open for you to type in a label for the factor.
 * **New link** (or edge). Click on the arrow button and then drag from one factor to another to link them. If you wish, you can have two links between a pair of factors: one for each direction.
 
 <!-- ![Creating and linking two nodes](/doc/images/create-link-nodes.gif) -->
@@ -80,12 +80,12 @@ This what they do, from left to right:
 * **Bin**. First, select a factor or a link by clicking on it.  Note that the selected factor or link gains a shadow and is listed in the status bar at the bottom of the window. Then click on the Bin button - the factor or link is deleted.  The Undo button will restore it if you deleted it by mistake.
 * **Share**. Shows a dialog box with a web link that you can copy and send to someone else.  If they then access that link, they will see your network and can edit and add to it. See [Sharing](#sharing) below.
 * **Open file**. Read in a file containing a network from your computer drive.  See [below](#file-formats) for supported file formats.  The content of the file replaces the network in the browser.
-* **Save file**.  Save the network in a file on your computer. The file is saved in the app's own format, or if you click on the small triangle next to the button, you can choose to save an image of the map as an a .PNG file, or the map data in GML (Graph Markup Language) or CSV (Comma Separated Values) formats.
+* **Save file**.  Save the network in a file on your computer. The file is saved in the app's own format, or if you click on the small triangle next to the button, you can choose to save an image of the map as a high resolution image (a .PNG file), or the map data in GML (Graph Markup Language) or CSV (Comma Separated Values) formats.
 * **Search**. Search for factors by name.
 * **Help** Display this help page in a separate window.
-* **Settings**. Opens a panel that allows much more customisation and exploration of the network (see [Styling the map](#styling-the-map) below).
+* **Settings**. Opens a panel that allows much more customisation and exploration of the network (see [Styling the map](#styling-the-map) and [Analysing the map](#analysing-the-map) below).
 
-To **select** a factor or a link, click on it. To select more than one, click on one factor or link and then *hold down* the pointer over the other.  Or you can hold down the control (CTRL) key and click to add to the selection. At the bottom of the window is the status bar, which will show which factors and links have been selected. Clicking anywhere on the background will deselect the factors and links.
+To **select** a factor or a link, click on it. To select more than one, click on one factor or link and then *hold down* the pointer on the other.  Or you can hold down the control (CTRL) key and click to add to the selection. At the bottom of the window is the status bar that will show which factors and links have been selected. Clicking anywhere on the background will deselect all the factors and links.
 
 Each factor can be moved across the network pane by dragging it.  The whole network can be moved by dragging the background.
 

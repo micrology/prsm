@@ -266,11 +266,11 @@ function startY(newRoom) {
 		room = generateRoom()
 		checkMapSaved = true
 	} else room = room.toUpperCase()
-	const persistence = new IndexeddbPersistence(room, doc)
+/* 	const persistence = new IndexeddbPersistence(room, doc)
 	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
 		if (data.nodes.length > 0) displayNetPane(exactTime() + ' local content loaded')
-	})
+	}) */
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
 	wsProvider.on('sync', () => {
 		displayNetPane(exactTime() + ' remote content loaded')
@@ -3568,6 +3568,7 @@ function hideDistantNodes() {
 	})
 	if (radius == 'All') {
 		showSelected()
+		if (getRadioVal('paths') !== 'All') showPaths()
 		return
 	}
 
@@ -3577,6 +3578,10 @@ function hideDistantNodes() {
 
 	// update the network
 	hideNodesAndEdgesInSet(nodeIdsInRadiusSet, linkIdsInRadiusSet, 'radius')
+
+	// recalculate shortest paths if that is required, because the nodes to use may have changed
+	if (getRadioVal('paths') !== 'All') showPaths()
+
 	statusMsg(`Showing Factors ${radius} link${radius > 1 ? 's' : ''} away from ${selectedLabels()}`)
 
 	/**
@@ -3651,6 +3656,7 @@ function hideStreamNodes() {
 	})
 	if (stream == 'All') {
 		showSelected()
+		if (getRadioVal('paths') !== 'All') showPaths()
 		return
 	}
 	let nodeIdsInStreamSet = new Set()
@@ -3662,6 +3668,10 @@ function hideStreamNodes() {
 
 	// update the network
 	hideNodesAndEdgesInSet(nodeIdsInStreamSet, linkIdsInStreamSet, 'stream')
+
+	// recalculate shortest paths if that is required, because the nodes to use may have changed
+	if (getRadioVal('paths') !== 'All') showPaths()
+
 	statusMsg(`Showing Factors ${stream} from ${selectedLabels()}`)
 
 	/**
@@ -3768,6 +3778,7 @@ function showPaths() {
 				let paths = shortestPaths(radio === 'allPaths')
 				if (paths.length == 0) {
 					statusMsg('No path between the selected Factors', 'warn')
+					elem('pathsAll').checked = true
 					return
 				}
 				// hide every node and link, before unhiding those that make up the paths
