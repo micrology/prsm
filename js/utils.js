@@ -821,3 +821,7 @@ export function exactTime() {
 	let d = new Date()
 	return `${d.toLocaleTimeString()}:${d.getMilliseconds()} `
 }
+
+export function capitalizeFirstLetter(string) {
+	return string.charAt(0).toUpperCase() + string.slice(1);
+  }

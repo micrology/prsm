@@ -1,7 +1,7 @@
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
 import {IndexeddbPersistence} from 'y-indexeddb'
-import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten} from './utils.js'
+import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter} from './utils.js'
 import Tabulator from 'tabulator-tables'
 import {version} from '../package.json'
 import Quill from 'quill'
@@ -1353,7 +1353,7 @@ function setUpFilter() {
 		let def = colComp.getDefinition()
 		if (def.formatter != 'color' && def.field != 'selection')
 			// cannot sort by color
-			select[i++] = new Option(def.titleClipboard || def.title || def.field, def.field)
+			select[i++] = new Option(def.titleClipboard || def.title || capitalizeFirstLetter(def.field), def.field)
 	})
 	filterDiv.appendChild(select)
 	filterDiv.insertAdjacentHTML('afterbegin', 'Filter: ')
@@ -1386,12 +1386,39 @@ function setUpFilter() {
  */
 function updateFilter() {
 	let select = elem('filter-field'),
-		type = elem('filter-type')
+		type = elem('filter-type'),
+		value = elem('filter-value').value
 	let filterVal = select.options[select.selectedIndex].value
 	var typeVal = type.options[type.selectedIndex].value
 	if (filterVal) {
-		openTable.setFilter(filterVal, typeVal, elem('filter-value').value)
+		if (filterVal == 'note') openTable.setFilter(noteFilter, {type: typeVal, str: value})
+		else openTable.setFilter(filterVal, typeVal, value)
 	}
+}
+/**
+ * Custom filter for Notes -first converts Quill format to string and then checks the string
+ * @param {object} data - a row
+ * @param {object} params - {type of comparison, str: string to match}
+ * @returns Boolean
+ */
+function noteFilter(data, params) {
+	if (data.note) {
+		qed.setContents(data.note)
+		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert().replace(/(<([^>]+)>)/gi, "")
+		switch (params.type) {
+			case 'like':
+				return html.includes(params.str)
+			case '=':
+				return html == params.str
+			case 'starts':
+				return html.startsWith(params.str)
+			case 'ends':
+				return html.endsWith(params.str)
+			default:
+				return true
+		}
+	}
+	return false
 }
 /**
  * Close the filter dialog and remove the filter (i.e. display all rows)
