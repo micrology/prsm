@@ -1353,7 +1353,7 @@ function setUpFilter() {
 		let def = colComp.getDefinition()
 		if (def.formatter != 'color' && def.field != 'selection')
 			// cannot sort by color
-			select[i++] = new Option(def.titleClipboard || def.title, def.field)
+			select[i++] = new Option(def.titleClipboard || def.title || def.field, def.field)
 	})
 	filterDiv.appendChild(select)
 	filterDiv.insertAdjacentHTML('afterbegin', 'Filter: ')

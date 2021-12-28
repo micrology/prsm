@@ -1265,7 +1265,7 @@ but moving the panel out of sight works instead */
 }
 .history-log {
 	display: grid;
-	grid-template-columns: 80px 1fr 28px;
+	grid-template-columns: 85px 1fr 28px;
 	width: 100%;
 	font-size: 12px;
 	background-color: var(--history-log-color);

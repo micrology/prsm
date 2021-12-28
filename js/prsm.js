@@ -163,6 +163,7 @@ function addEventListeners() {
 	listen('help', 'click', displayHelp)
 	listen('panelToggle', 'click', togglePanel)
 	listen('zoom', 'change', zoomnet)
+	listen('navbar', 'dblclick', fit)
 	listen('zoomminus', 'click', () => {
 		zoomincr(-0.1)
 	})
@@ -890,8 +891,8 @@ function draw() {
 	elem('nodesButton').click()
 
 	// listen for click events on the network pane
-	network.on('click', function (params) {
-		if (/gui/.test(debug)) console.log('click')
+	network.on('click', (params) => { 
+		if (/gui/.test(debug)) console.log('**click**')
 		let keys = params.event.pointers[0]
 		if (keys.metaKey) {
 			// if the Command key (on a Mac) is down, and the click is on a node/edge, log it to the console
@@ -908,7 +909,7 @@ function draw() {
 			return
 		}
 		if (keys.altKey) {
-			// if the Option/ALT key is down, add a node if on the background, or a link if on a node
+			// if the Option/ALT key is down, add a node if on the background
 			if (params.nodes.length == 0 && params.edges.length == 0) {
 				let pos = params.pointer.canvas
 				let item = {id: uuidv4(), label: '', x: pos.x, y: pos.y}
@@ -918,18 +919,16 @@ function draw() {
 					if (newItem !== null) data.nodes.add(newItem)
 				})
 			}
-			if (params.nodes.length == 1) {
-				elem('addLink').click()
-			}
 			return
 		}
 		if (keys.shiftKey) {
 			if (!inEditMode) showMagnifier(keys)
 		}
 	})
+
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
-		if (/gui/.test(debug)) console.log('doubleClick')
+		if (/gui/.test(debug)) console.log('**doubleClick**')
 		if (params.nodes.length === 1) {
 			if (!viewOnly && !inEditMode && !data.nodes.get(params.nodes[0]).locked) network.editNode()
 		} else if (params.edges.length === 1) {
@@ -998,6 +997,20 @@ function draw() {
 			selectionArea.style.display = 'block'
 			return
 		}
+		if (e.altKey) {
+			if (!inAddMode) {
+				removeFactorCursor()
+				changeCursor('crosshair')
+				inAddMode = 'addLink'
+				showPressed('addLink', 'add')
+				statusMsg('Now drag to the middle of the Destination factor')
+				network.setOptions({
+					interaction: { dragView: false, selectable: false },
+				})
+				network.addEdgeMode()
+				return
+			}
+		}	
 		changeCursor('grabbing')
 	})
 	/**
