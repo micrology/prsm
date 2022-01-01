@@ -1,0 +1,1140 @@
+{
+	"saved": "01/01/2022, 14:45:49",
+	"version": "1.9.1",
+	"room": "INW-DYM-WMV-BOI",
+	"mapTitle": "Example map",
+	"lastNodeSample": "group5",
+	"lastLinkSample": "edge0",
+	"buttons": {
+		"snapToGrid": true,
+		"curve": "Curved",
+		"legend": true,
+		"sizing": "Off"
+	},
+	"attributeTitles": {
+		"att1": "bananas"
+	},
+	"styles": {
+		"nodes": {
+			"base": {
+				"groupLabel": "Sample",
+				"borderWidth": 4,
+				"borderWidthSelected": 4,
+				"color": {
+					"border": "#000000",
+					"background": "#ffffff",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffffff"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffffff"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 20,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 40,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 40
+					}
+				}
+			},
+			"group0": {
+				"groupLabel": "Nature",
+				"borderWidth": 0,
+				"borderWidthSelected": 4,
+				"color": {
+					"border": "rgb(154, 219, 180)",
+					"background": "rgb(154, 219, 180)",
+					"highlight": {
+						"border": "rgb(154, 219, 180)",
+						"background": "rgb(154, 219, 180)"
+					},
+					"hover": {
+						"border": "rgb(154, 219, 180)",
+						"background": "rgb(154, 219, 180)"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "rgb(0, 0, 0)",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 20,
+				"shape": "box",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 40,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 40
+					}
+				}
+			},
+			"group1": {
+				"groupLabel": "Sample",
+				"borderWidth": 0,
+				"borderWidthSelected": 4,
+				"color": {
+					"border": "#CADB5C",
+					"background": "#CADB5C",
+					"highlight": {
+						"border": "#CADB5C",
+						"background": "#CADB5C"
+					},
+					"hover": {
+						"border": "#CADB5C",
+						"background": "#CADB5C"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 20,
+				"shape": "box",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 40,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 40
+					}
+				}
+			},
+			"group2": {
+				"groupLabel": "Sample",
+				"borderWidth": 0,
+				"borderWidthSelected": 4,
+				"color": {
+					"border": "#DBA542",
+					"background": "#DBA542",
+					"highlight": {
+						"border": "#DBA542",
+						"background": "#DBA542"
+					},
+					"hover": {
+						"border": "#DBA542",
+						"background": "#DBA542"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 20,
+				"shape": "box",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 40,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 40
+					}
+				}
+			},
+			"group3": {
+				"groupLabel": "Events",
+				"borderWidth": 0,
+				"borderWidthSelected": 4,
+				"color": {
+					"border": "rgb(219, 110, 103)",
+					"background": "rgb(219, 110, 103)",
+					"highlight": {
+						"border": "rgb(219, 110, 103)",
+						"background": "rgb(219, 110, 103)"
+					},
+					"hover": {
+						"border": "rgb(219, 110, 103)",
+						"background": "rgb(219, 110, 103)"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "rgb(255, 255, 255)",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 20,
+				"shape": "box",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 40,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 40
+					}
+				}
+			},
+			"group4": {
+				"groupLabel": "Impact",
+				"borderWidth": 0,
+				"borderWidthSelected": 4,
+				"color": {
+					"border": "rgb(131, 113, 183)",
+					"background": "rgb(131, 113, 183)",
+					"highlight": {
+						"border": "rgb(131, 113, 183)",
+						"background": "rgb(131, 113, 183)"
+					},
+					"hover": {
+						"border": "rgb(131, 113, 183)",
+						"background": "rgb(131, 113, 183)"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "rgb(255, 255, 255)",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 20,
+				"shape": "box",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 40,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 40
+					}
+				}
+			},
+			"group5": {
+				"groupLabel": "Sample",
+				"borderWidth": 4,
+				"borderWidthSelected": 4,
+				"color": {
+					"border": "#000000",
+					"background": "#b3ccff",
+					"highlight": {
+						"border": "#000000",
+						"background": "#b3ccff"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#b3ccff"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 20,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 40,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 40
+					}
+				}
+			},
+			"group6": {
+				"groupLabel": "Sample",
+				"borderWidth": 4,
+				"borderWidthSelected": 4,
+				"color": {
+					"border": "#000000",
+					"background": "#ffffff",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffffff"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffffff"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "#1c5f1b",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 20,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 40,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 40
+					}
+				}
+			},
+			"group7": {
+				"groupLabel": "Sample",
+				"borderWidth": 4,
+				"borderWidthSelected": 4,
+				"color": {
+					"border": "#000000",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 20,
+				"shape": "circle",
+				"shapeProperties": {
+					"borderDashes": [
+						3,
+						3
+					]
+				},
+				"scaling": {
+					"min": 10,
+					"max": 40,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 40
+					}
+				}
+			},
+			"group8": {
+				"groupLabel": "Sample",
+				"borderWidth": 0,
+				"borderWidthSelected": 4,
+				"color": {
+					"border": "#7A7A7A",
+					"background": "#7A7A7A",
+					"highlight": {
+						"border": "#7A7A7A",
+						"background": "#7A7A7A"
+					},
+					"hover": {
+						"border": "#7A7A7A",
+						"background": "#7A7A7A"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "#ffffff",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 20,
+				"shape": "circle",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 40,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 40
+					}
+				}
+			},
+			"cluster": {
+				"groupLabel": "Sample",
+				"borderWidth": 3,
+				"borderWidthSelected": 4,
+				"color": {
+					"border": "#000000",
+					"background": "#DD2C00",
+					"highlight": {
+						"border": "#000000",
+						"background": "#DD2C00"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#DD2C00"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "#ffffff",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": {
+					"top": 40
+				},
+				"shape": "database",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 40,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 40
+					}
+				}
+			}
+		},
+		"edges": {
+			"base": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "vee"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 14
+				},
+				"groupLabel": "Sample",
+				"hoverWidth": 1,
+				"selectionWidth": 0,
+				"width": 1
+			},
+			"edge0": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "vee"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "rgb(0, 0, 0)",
+					"highlight": "rgb(0, 0, 0)",
+					"hover": "rgb(0, 0, 0)",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 14
+				},
+				"groupLabel": "+ve",
+				"hoverWidth": 1,
+				"selectionWidth": 0,
+				"width": 1
+			},
+			"edge1": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "vee"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#00cc00",
+					"highlight": "#00cc00",
+					"hover": "#00cc00",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 14
+				},
+				"groupLabel": "Sample",
+				"hoverWidth": 1,
+				"selectionWidth": 0,
+				"width": 1
+			},
+			"edge2": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "vee"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "rgb(255, 0, 0)",
+					"highlight": "rgb(255, 0, 0)",
+					"hover": "rgb(255, 0, 0)",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 14
+				},
+				"groupLabel": "-ve",
+				"hoverWidth": 1,
+				"selectionWidth": 0,
+				"width": 1
+			},
+			"edge3": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "vee"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#0000ff",
+					"highlight": "#0000ff",
+					"hover": "#0000ff",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 14
+				},
+				"groupLabel": "Sample",
+				"hoverWidth": 1,
+				"selectionWidth": 0,
+				"width": 1
+			},
+			"edge4": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "vee"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#808080",
+					"highlight": "#808080",
+					"hover": "#808080",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 14
+				},
+				"groupLabel": "Sample",
+				"hoverWidth": 1,
+				"selectionWidth": 0,
+				"width": 1
+			},
+			"edge5": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "vee"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#e6b800",
+					"highlight": "#e6b800",
+					"hover": "#e6b800",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 14
+				},
+				"groupLabel": "Sample",
+				"hoverWidth": 1,
+				"selectionWidth": 0,
+				"width": 1
+			},
+			"edge6": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "vee"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": [
+					3,
+					3
+				],
+				"font": {
+					"size": 14
+				},
+				"groupLabel": "Sample",
+				"hoverWidth": 1,
+				"selectionWidth": 0,
+				"width": 1
+			},
+			"edge7": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "vee"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#008000",
+					"highlight": "#008000",
+					"hover": "#008000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": [
+					10,
+					10
+				],
+				"font": {
+					"size": 14
+				},
+				"groupLabel": "Sample",
+				"hoverWidth": 1,
+				"selectionWidth": 0,
+				"width": 3
+			},
+			"edge8": {
+				"arrows": {
+					"to": {
+						"enabled": false,
+						"type": "vee"
+					},
+					"middle": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#000000",
+					"highlight": "#000000",
+					"hover": "#000000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 14
+				},
+				"groupLabel": "Sample",
+				"hoverWidth": 1,
+				"selectionWidth": 0,
+				"width": 1
+			},
+			"cluster": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "vee"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#8D6E63",
+					"highlight": "#8D6E63",
+					"hover": "#8D6E63",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 14
+				},
+				"groupLabel": "Sample",
+				"hoverWidth": 1,
+				"selectionWidth": 0,
+				"width": 3
+			}
+		}
+	},
+	"nodes": [
+		{
+			"id": "cca2679f-ffb7-4d94-a607-dd09de1b873e",
+			"label": "Climate change",
+			"grp": "group0",
+			"x": -250,
+			"y": -400,
+			"color": {
+				"border": "rgb(154, 219, 180)",
+				"background": "rgb(154, 219, 180)",
+				"highlight": {
+					"border": "rgb(154, 219, 180)",
+					"background": "rgb(154, 219, 180)"
+				},
+				"hover": {
+					"border": "rgb(154, 219, 180)",
+					"background": "rgb(154, 219, 180)"
+				}
+			},
+			"font": {
+				"face": "Oxygen",
+				"color": "rgb(0, 0, 0)",
+				"size": 14
+			},
+			"borderWidth": 0,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "6e4dad9c-0d12-465e-8d6a-c45c89a53d37",
+			"label": "Extreme\nweather\nevents",
+			"grp": "group0",
+			"x": -50,
+			"y": -250,
+			"color": {
+				"border": "rgb(154, 219, 180)",
+				"background": "rgb(154, 219, 180)",
+				"highlight": {
+					"border": "rgb(154, 219, 180)",
+					"background": "rgb(154, 219, 180)"
+				},
+				"hover": {
+					"border": "rgb(154, 219, 180)",
+					"background": "rgb(154, 219, 180)"
+				}
+			},
+			"font": {
+				"face": "Oxygen",
+				"color": "rgb(0, 0, 0)",
+				"size": 14
+			},
+			"borderWidth": 0,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "86033c0b-fdbd-4ee8-84ed-97655eaa89fc",
+			"label": "Drought",
+			"grp": "group3",
+			"x": 150,
+			"y": -150,
+			"color": {
+				"border": "rgb(219, 110, 103)",
+				"background": "rgb(219, 110, 103)",
+				"highlight": {
+					"border": "rgb(219, 110, 103)",
+					"background": "rgb(219, 110, 103)"
+				},
+				"hover": {
+					"border": "rgb(219, 110, 103)",
+					"background": "rgb(219, 110, 103)"
+				}
+			},
+			"font": {
+				"face": "Oxygen",
+				"color": "rgb(255, 255, 255)",
+				"size": 14
+			},
+			"borderWidth": 0,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "c2c4f34e-dc04-48b1-a2de-0e380cf52b33",
+			"label": "Flooding",
+			"grp": "group3",
+			"x": 150,
+			"y": -350,
+			"color": {
+				"border": "rgb(219, 110, 103)",
+				"background": "rgb(219, 110, 103)",
+				"highlight": {
+					"border": "rgb(219, 110, 103)",
+					"background": "rgb(219, 110, 103)"
+				},
+				"hover": {
+					"border": "rgb(219, 110, 103)",
+					"background": "rgb(219, 110, 103)"
+				}
+			},
+			"font": {
+				"face": "Oxygen",
+				"color": "rgb(255, 255, 255)",
+				"size": 14
+			},
+			"borderWidth": 0,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "cd81a51b-8ddd-4e39-bf22-9a79ccc479c4",
+			"label": "Loss of life",
+			"grp": "group4",
+			"x": 400,
+			"y": -350,
+			"color": {
+				"border": "rgb(131, 113, 183)",
+				"background": "rgb(131, 113, 183)",
+				"highlight": {
+					"border": "rgb(131, 113, 183)",
+					"background": "rgb(131, 113, 183)"
+				},
+				"hover": {
+					"border": "rgb(131, 113, 183)",
+					"background": "rgb(131, 113, 183)"
+				}
+			},
+			"font": {
+				"face": "Oxygen",
+				"color": "rgb(255, 255, 255)",
+				"size": 14
+			},
+			"borderWidth": 0,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "ed7bb699-138f-4aec-85ac-ae19bb5aa882",
+			"label": "Agricultural\nproductivity",
+			"note": {
+				"ops": [
+					{
+						"insert": "Farming is negatively affected by climate change when it results in increased likelihood of floods and droughts.\n"
+					}
+				]
+			},
+			"grp": "group4",
+			"x": 400,
+			"y": -150,
+			"color": {
+				"border": "rgb(131, 113, 183)",
+				"background": "rgb(131, 113, 183)",
+				"highlight": {
+					"border": "rgb(131, 113, 183)",
+					"background": "rgb(131, 113, 183)"
+				},
+				"hover": {
+					"border": "rgb(131, 113, 183)",
+					"background": "rgb(131, 113, 183)"
+				}
+			},
+			"font": {
+				"face": "Oxygen",
+				"color": "rgb(255, 255, 255)",
+				"size": 14
+			},
+			"borderWidth": 0,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		}
+	],
+	"edges": [
+		{
+			"id": "7b587f62-fc51-4130-a268-94ef9a8dd9ba",
+			"grp": "edge0",
+			"from": "cca2679f-ffb7-4d94-a607-dd09de1b873e",
+			"to": "6e4dad9c-0d12-465e-8d6a-c45c89a53d37",
+			"color": {
+				"color": "rgb(0, 0, 0)",
+				"highlight": "rgb(0, 0, 0)",
+				"hover": "rgb(0, 0, 0)",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		},
+		{
+			"id": "f325af3b-995e-459b-9225-a1c57c5ffb3d",
+			"grp": "edge0",
+			"from": "6e4dad9c-0d12-465e-8d6a-c45c89a53d37",
+			"to": "c2c4f34e-dc04-48b1-a2de-0e380cf52b33",
+			"color": {
+				"color": "rgb(0, 0, 0)",
+				"highlight": "rgb(0, 0, 0)",
+				"hover": "rgb(0, 0, 0)",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		},
+		{
+			"id": "735a769b-51e0-4fb5-8ba2-8516a6fabaa8",
+			"grp": "edge0",
+			"from": "6e4dad9c-0d12-465e-8d6a-c45c89a53d37",
+			"to": "86033c0b-fdbd-4ee8-84ed-97655eaa89fc",
+			"color": {
+				"color": "rgb(0, 0, 0)",
+				"highlight": "rgb(0, 0, 0)",
+				"hover": "rgb(0, 0, 0)",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		},
+		{
+			"id": "c4a88aa8-177f-48ca-adc9-8532640793b6",
+			"grp": "edge0",
+			"from": "c2c4f34e-dc04-48b1-a2de-0e380cf52b33",
+			"to": "cd81a51b-8ddd-4e39-bf22-9a79ccc479c4",
+			"color": {
+				"color": "rgb(0, 0, 0)",
+				"highlight": "rgb(0, 0, 0)",
+				"hover": "rgb(0, 0, 0)",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		},
+		{
+			"id": "62f32cfb-0058-41c8-9c21-7bf75cfc0c38",
+			"grp": "edge0",
+			"from": "86033c0b-fdbd-4ee8-84ed-97655eaa89fc",
+			"to": "cd81a51b-8ddd-4e39-bf22-9a79ccc479c4",
+			"color": {
+				"color": "rgb(0, 0, 0)",
+				"highlight": "rgb(0, 0, 0)",
+				"hover": "rgb(0, 0, 0)",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		},
+		{
+			"id": "845bb00f-bd01-41d1-9c04-4cb259fe0dc3",
+			"grp": "edge2",
+			"from": "c2c4f34e-dc04-48b1-a2de-0e380cf52b33",
+			"to": "ed7bb699-138f-4aec-85ac-ae19bb5aa882",
+			"color": {
+				"color": "rgb(255, 0, 0)",
+				"highlight": "rgb(255, 0, 0)",
+				"hover": "rgb(255, 0, 0)",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		},
+		{
+			"id": "a2db6952-d7c9-443a-b7ec-a9f38566b976",
+			"grp": "edge2",
+			"from": "86033c0b-fdbd-4ee8-84ed-97655eaa89fc",
+			"to": "ed7bb699-138f-4aec-85ac-ae19bb5aa882",
+			"color": {
+				"color": "rgb(255, 0, 0)",
+				"highlight": "rgb(255, 0, 0)",
+				"hover": "rgb(255, 0, 0)",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		}
+	],
+	"underlay": [],
+	"history": [
+		{
+			"action": "added factor Climate change",
+			"time": 1621868174252,
+			"user": "Nigel Gilbert"
+		},
+		{
+			"action": "added factor Extreme\nweather\nevents",
+			"time": 1621868187193,
+			"user": "Nigel Gilbert"
+		},
+		{
+			"action": "added link from Climate change to Extreme\nweather\nevents",
+			"time": 1621868197829,
+			"user": "Nigel Gilbert"
+		},
+		{
+			"action": "added factor Drought",
+			"time": 1621868215522,
+			"user": "Nigel Gilbert"
+		},
+		{
+			"action": "added factor Flooding",
+			"time": 1621868222397,
+			"user": "Nigel Gilbert"
+		},
+		{
+			"action": "added link from Extreme\nweather\nevents to Flooding",
+			"time": 1621868225420,
+			"user": "Nigel Gilbert"
+		},
+		{
+			"action": "added link from Extreme\nweather\nevents to Drought",
+			"time": 1621868228166,
+			"user": "Nigel Gilbert"
+		},
+		{
+			"action": "added factor Loss of life",
+			"time": 1621868272820,
+			"user": "Nigel Gilbert"
+		},
+		{
+			"action": "added factor Agricultural\nproductivity",
+			"time": 1621868342898,
+			"user": "Nigel Gilbert"
+		},
+		{
+			"action": "added link from Flooding to Loss of life",
+			"time": 1621868354034,
+			"user": "Nigel Gilbert"
+		},
+		{
+			"action": "added link from Drought to Loss of life",
+			"time": 1621868356881,
+			"user": "Nigel Gilbert"
+		},
+		{
+			"action": "added link from Flooding to Agricultural\nproductivity",
+			"time": 1621868359984,
+			"user": "Nigel Gilbert"
+		},
+		{
+			"action": "added link from Drought to Agricultural\nproductivity",
+			"time": 1621868364720,
+			"user": "Nigel Gilbert"
+		},
+		{
+			"action": "loaded &lt;examplemap&gt;",
+			"time": 1635499998366,
+			"user": "Hairy Barramundi"
+		},
+		{
+			"action": "added factor 'XXXX'",
+			"time": 1635500009112,
+			"user": "Hairy Barramundi"
+		},
+		{
+			"action": "loaded &lt;examplemap&gt;",
+			"time": 1635690388702,
+			"user": "Hairy Barramundi"
+		},
+		{
+			"action": "loaded &lt;examplemap&gt;",
+			"time": 1640993697185,
+			"user": "PRSM",
+			"state": "ᯡ࠽䈌ʀ匦㢠⸣㐫倭ђ䄆祍⚀急擐Ɯᔠ "
+		},
+		{
+			"action": "deleted factor: 'XXXX'",
+			"time": 1640993700995,
+			"user": "PRSM",
+			"state": "ᯡ࠽䈌ʀ匦㢠⸣㕠▴䤡䛸რጠ㘡氢㠣ᠫ⃂䁦ወ˥ೆ嘄…⍱⌌嘠⌽.ठ昸ဠ㑀礈揪怬ា䀶枠צ!ᬠ־ᠠ玉㨆¼<妌‥㧺疲#撪䂠⬷๠ਃ犂爤灁爰᭄⠽ٖସ䄡容栠ᑢ㽆ಡ䂨♧䨵ঐňẔ㲌U䧹昩䅫⚇㎓禥拲䕼壭ຌ㓰༉扠ॖⓌ୶❏ၴ⡑ា⯊畖ᝦ唚⚝录湸̚穀ᢄ粂㴋㫻ᤈⵌ竧Ⱅ丆盻⺓壝椠ᴼ䀴ЬĺჀԺ嚰删㳇䐴壠བԱ䒎ೀ₀掶㤼ڠÜ僁ঠެ䤠ᵣ׳౨ѮՑ汐!⻐㊌崺༥൩玠ɇ䇳᳤ȿᇠ〠㻇〠㉪ફ!攔札䖃೎ᬥᔢ删攵ح䐈䵼䅣៨)㽰ブ琠Ⴔ⓵梌本݁棲㑂ᢠᆉ穴ᫎ碑籆䆅ഴ敊䘩〲佁䂺憈匋懜䐸⌏㪰ℷ)桳ⳤ◀朰ⴟ捇₺ေ̡ㄐ噖բ烀℡ೢᄜᠵੂ䂨㰵ජㄜ汈䙣愜ऴŁၜ儌劰ťḧ☥僠=ᠠޑ䄔捙滙䃮ၢඇ夼痋伃䡳⨠ⰱ稜࣒ᴰ嵵৕漕嶖濃拕啾ଔ攙睞折素戹䙈ᓘ濒╨Ἵ揸㽖ᚘ翙玘炇猘ཏ急䙉枝傄愜㬶ण㾺惸ଝ墁怤䂨ᔸზؕボኬ䢪ᖣ匶Ꮹ䢎၅᧑Ꮁ峚哅哂ܔ砣ᚄ။ចˁฅ糎灠䊾Ĵ抩熐助垵૒哈檦囵㫞厬䠱冼暥傢㚽剠ຳ剬溧匔㢯勠य़儠灀㞕昨㏲ᆴㆬᚚ䳲䦪㍬⁁ㄔ▴Ⳮ慚㞫妱杌塈䜀ሤ䛠尽ǀ倽ʡ䰬ơ≇㊀熵̀␻㞌砾ؼᑖڽ䅨ȅ某愑㘣䅨ኤ䄐种焠⅂ˁ奃猂岺卥ࡰ䋭䔷°伵╣ᑼ漝ஂ晻₍䫔㍬೺བ櫬⮙ဝ䞑╛㭿晘末甲垂懛杨䦘桵೩王棉◀ᘤ傀ᒤ堻ࡥᲓ玺縿䎹儌ᰐ传䱅䊋睅扭ᄓ剳ᆅ朢䭲䩭䐄ʺ䡬婨µ劸㋠珁痱䟊὘⚑䇵㇙䱔牕何恵嗕牝咕仌⯡⹲ޓ㺇䥩幧䐒᩠⨪哨⺬瑌㞬᪂㈷兡㉌०婪嬊ⵌᥪ⛠џダስ⫀倾⾀䱈䏀䈧A〣ㆠ቉⛠ᐿ䁀琮⮊૨ 拱ᨣ䭇俏ᐇ令൷卑ඃ⪠䡃⨕∱䨎ᅟ⌳᷋␈洹殊柗㟇淽ⵝ丙攌ត┨儭ఈ撹榏ᷘ㼬㸅挨㜥槙栋⻞㴫⫛縔〺ㅀ昳䌀湡⟼㮇硐罃䌫愾䰘夹ዦ㴼䦸晩掌䎷挬点⦢咿ੱ犽乀ں䚔棩䅬斻樦勨獆䮼嫣ឿ珮⡹ா䩨㉏Ⴀὃᙡ䠴ᆺ敦ᑋᗘ⪳≵⚝㉪ᳬ䲚抴䡝ᑠ̡ざŠ⢢ࡱ愰仧恅╴ሬ䃈ຠ⠡Öइၼࠌ㨴愞榝ኢĀภతpƤ株Ŵ廆㱚ⓣ㇡ɂřᎴ橣ᦒᶂሰतჷ⅀崺島四僀௨抮⣝圆匀⚈䝂੅璴⠀咎㨗Ⲭ椃໱㯂ℕݨ䑛僥㒉䔗᪯圷໑㜷磣棤ᆹ䕸䊘㢴筭ڔ⽙瞦䒊幢⻝石㰠㬹擎ᰏ⎮⦂㉠名勎Ɲ憤 ቫℌᫀ䘨䢏⛆㍓᚞哪纁伜癫紼䁸峙䄶ᣓ剌㈡ဿ狡䄣䅴ǀ╺㉺娫⺄奤์泯ș䚣ፐ浐⋑挩ǰᴢၒ݁㤺ჴӠ砯⥛࿣⨧àⅡⲣ䪊儠⃬ឲ0⮀栻ƼṢ琲傉㬃墕䊠术咈ʐ样⁢๢⁞䊬Ჳ⥴ӡ〪ᒌ䖡Ǹⴂ峠఺堡䂓ϰᾲ偡砶䂿乐ఽƂ瘤栽߰〉〶ࢀ᮷㣠ᄶ琡䍊ᰤ㳚㑥婾瓸೉粿୔ۀ吺ȁ㐤焎ࣀᄅ< 倠惀ொ₼ ᵚ爜%榿Ґ䪁ଐ熶ᅞॕ⅊␔㋥ౢ梸䥣᣾睱ྥ㇦厃䗷⍀䵄柋ⅺ岩媺瓚䍺燆堕睠䔯䃧ᵩ嚨ᧈ礟⩕ᝳ爟⃤䃰፡塆ᄾ囇ޔ䓅犩ᘈዥ䊭≩䱑屹㇌䯩⩮䣄䉆啌ᦺ⚜㩷ዐჇઞ凿ᩐ哧玆᠌㒕ችၱ匰৪䚐嫔宴Ⓨ亶Ếǀण૬ᕵ削疢۬仓೩䢹ዡ䅸ኰ䐨䆈᪦ᬵàԥࡻ㐁樬⩘ᢽ堫ᦨຠݎ⦰ᗪ怠÷廻樊可橱栀䍴⸃䟣⇄䛇ǉ هр᳜㝹穸ရ㻷ƈϡ䂧篺冏㸠ḣ炡㪀㊰႗ᕝ䊢沝䜚窒∄ᵣ㴀ΰ㖧㹎⃃㒘壌㟑㲌䑉ࡃ恖䶋晳煂剻⏄矒☏⊴ἲ楞ᆱⵙỴ媯ª㙓殃ᮩᎎ哋᎞盿㊜擲㿵椛㑸ݪ⃈⚣塱∽妋槃忳ᆩⲦ≋嗜瓥ᱲ℉乪壍嚉Ⓤ爮᥌వඨ͌徧ࠪɀᛢ檞ऌ䰮⋘৹ࠥ⧐༉๎斀⪤紱洆〤وᶁ㑖ࠀㄧႊ׀ج惌໡ᰧ䃍徢ё斨⒡⩽ Ⱕⱕ䝸ඩ塻ড嬧㆖ྃ瘡戼ᇦᰳ䕘৅秇䴲磆ᄈ尽Ȯ琻摋䎮庨籯䒾ᷲ眭䈜妏⭙ᛈ㾶ᩢ(᮳㰴␡⁑碳࣫䢁㝸෠㸵㔢⚜ᗛ⹣纀ӄ᧦䠼惠⠡ᐃ匣Ꮤ⨈奎⻤睍壃磀㉦墽䧚‼:䚐ゕ巓㣐焵◀ぅ䏉䮓玏灘兀ս㏻ᦡ簹ƃ甫砮Ȱ氧灄੮妜㦂欣挂ⴝ欎嚝巋䛬泍䎮⶗娛႓݈玮─砫幖厄愆榍囫䆍建᷁Ûᜣ㬯㌖ᾇ盝㩑綘䗦碍沠泭僾䎧ཷᶜ䌓㺐䮌朥喏ず溆᛹淙߻ಶ㟧㎁➜睊縎䳭沠᷽穧巑䋧悏げ垓盩䥌‪⿛氬ৠ㴸悑䵢㘯៲๵኎戎溪⭗㉄㡩旱Ⲳ畿ຏࡠጓϰᅟ孢߹℣洋品൴⇉獭⁅䇳碚嗦㷌㈯ⱌ烶䶈䍺殼㬏ᾕ䃛㮰˪旋䬙⡵䕴嗪勋⫍⯵㜂㕪֊ᖑಊ癗ܓ⸮䃾ㅌ渋戹煽礐掘寀䜢•滍磐減෣廸ḟ媗រᢢ琾羋宺⯽ɝ沠៽侀཈↟䐍羍箖穧䑝ᇂḨ懧䢰ਅⴴ䍇夜扨羔硃孝ဂ䜥䮀䞅∪ဦ硭Ҡ␭奱ЀΡ囮ⅱƮᢠ愮⁬㤰ঢ়ᆢ漤墘౜ሃ䂁㪫䏑按ᜧㅛᙽ猅息㎛៸㇥瞑礀伤р⩈墰䷹摉↊ࣵ༠瑋䁆ɐ䈹㿏⍤檿儝㬋㔱宋僢ᎊ湳ւຌ怠孳㭿圝罍㝙΍䌢眂罧㢠Ԍဦ㬯秛䰢Ἃ羏㦀ࠣ榢ÿ宠⳽ေྟէ峔㈏¸䯧吽䠲tԚ崢咩䲘㪇儼怬䝼祵䂠椉瘢厤Ꮽ䰢❐墻ᇹ䭁′Ȯ׉∾瘶۳䎣甁ᾌ卯䃈ᐤ⩥я侔䰇⪈㋏姈ᰅᄌ଀弥纏ᄂવತᑅ℺ை㯝ᨽ僭窠ᮜصジᡉ勢䠎䣝䔸∵㘵㽃壿囔砉宇ۻ娜།㽏Ԙ≑‌㎏窛䡂྆⩟㣝停⼱࣌䨢ẼㄳĘ䚠Ģ⣡⚖凄⻤㄃㢬祟ᝃ礶ⱜӄྔ縢妐䈾徠Ƅ၆惵۹䰭䁚Иአ঍㙩Ш姝ᘩ㤪ᯔ⓸曡㙞ࠂ⻹ȳᜮ懫巹∸圩֯䚼倬奵䯌䊉滭好䯶ᚣ݋夳䧰അнⓝؕ䱄䧈庍䜸⭽慏ḵ❢㽼䪱唝䜼⓽✵ᴧҍ䈝ᤴ羛㪶䏢༺瞐䐤⠙漸ï䜠㘍※磳ᰜ㎣㚻࣏墢㟩स䄄䟕ઠ儎䣔箄㸳堶㓼ӎ口仠ᔏㅻᲽ摄恆h័ధ奜ɰ᷸縦嵚͏䗂氷ᓯⓂ㏂祭棾䟯䋈̲⪅第⇝氃攆簒ⶄᭌᔆʪ㾄ኼ㦜㭪⇜ᝃ傥⑑媁䧉哸᧊❲栀㤕╮㽳᠊羓䗍凣砍㣷ۼ㋳眼瞏Ӻ㨣䪈ᘧ⒤⻬愻峨䓲⨢䂱ÿ▢⤢䆲್╩䶒炽票摩᭑ຎ8ģ婐瘠5Р<⣖瀄ଣ撌Ԯᒣ⠲僮ঠ矇᪥㈟⭠䑎憧ᥱ┸恉扞ᄅ䌨桓䠭䆋ڠ朠Ἶીe㠡橎䇹௲ဦ峜䅴ู曱‪咑Әㅕ䞫૔๥䩏Õஈ嵌⪷Ւ¸删抲刡硤岀㉌繷ૐͥ㩍祟઺ࡅf዁ఔତ奈砮䆟᠒㟒彇䃤枀壠ᠶ䩜߀ݣ‽Ƽ࿀Ῡ榏೬呀⽃ᠳ䨰တ΢  "
+		}
+	]
+}

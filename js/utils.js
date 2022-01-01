@@ -114,7 +114,8 @@ export function isEmpty(obj) {
 /*
  * Deep merge two or more objects together.
  * (c) 2019 Chris Ferdinandi, MIT License, https://gomakethings.com
- * @param   {Object}   objects  The objects to merge together
+ * if two objects have the same property, the value of the second one is used
+ * @param   {Object[]}   objects  The objects to merge together
  * @returns {Object}            A new, merged, object
  */
 export function deepMerge() {

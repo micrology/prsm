@@ -1,0 +1,1673 @@
+{
+	"saved": "30/12/2021, 23:03:01",
+	"version": "1.9.1",
+	"room": "DKR-OCF-UTY-KFL",
+	"mapTitle": "Supply Chain and Logistics System",
+	"lastNodeSample": "group3",
+	"lastLinkSample": "edge4",
+	"buttons": {
+		"snapToGrid": false,
+		"curve": "Curved",
+		"legend": true,
+		"sizing": "Off"
+	},
+	"attributeTitles": {},
+	"styles": {
+		"nodes": {
+			"base": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"color": {
+					"border": "black",
+					"background": "white",
+					"highlight": {
+						"border": "black",
+						"background": "white"
+					},
+					"hover": {
+						"border": "black",
+						"background": "white"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 5,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group0": {
+				"groupLabel": "Intermediate\nfactors",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"color": {
+					"border": "#0000ff",
+					"background": "#ffffff",
+					"highlight": {
+						"border": "#0000ff",
+						"background": "#ffffff"
+					},
+					"hover": {
+						"border": "#0000ff",
+						"background": "#ffffff"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 5,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group1": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"color": {
+					"border": "black",
+					"background": "white",
+					"highlight": {
+						"border": "black",
+						"background": "white"
+					},
+					"hover": {
+						"border": "black",
+						"background": "white"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 5,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group2": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"color": {
+					"border": "black",
+					"background": "#99e699",
+					"highlight": {
+						"border": "black",
+						"background": "#99e699"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#99e699"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 5,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group3": {
+				"groupLabel": "Policy actions",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"color": {
+					"border": "#000000",
+					"background": "#ffccdd",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffccdd"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffccdd"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 5,
+				"shape": "box",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group4": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"color": {
+					"border": "black",
+					"background": "#ffccdd",
+					"highlight": {
+						"border": "black",
+						"background": "#ffccdd"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffccdd"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 5,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": true
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group5": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"color": {
+					"border": "black",
+					"background": "#b3ccff",
+					"highlight": {
+						"border": "black",
+						"background": "#b3ccff"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#b3ccff"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 5,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group6": {
+				"groupLabel": "Focal Factor",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"color": {
+					"border": "#000000",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "#000000",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"face": "arial",
+					"color": "#000000",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 5,
+				"shape": "ellipse",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group7": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"color": {
+					"border": "black",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "black",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "black",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 5,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"group8": {
+				"groupLabel": "Sample",
+				"borderWidth": 1,
+				"borderWidthSelected": 1,
+				"color": {
+					"border": "black",
+					"background": "#ffff99",
+					"highlight": {
+						"border": "black",
+						"background": "#ffff99"
+					},
+					"hover": {
+						"border": "black",
+						"background": "#ffff99"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "red",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 5,
+				"shape": "text",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 20,
+					"label": {
+						"enabled": true,
+						"min": 10,
+						"max": 20
+					}
+				}
+			},
+			"cluster": {
+				"groupLabel": "Sample",
+				"borderWidth": 3,
+				"borderWidthSelected": 4,
+				"color": {
+					"border": "#000000",
+					"background": "#DD2C00",
+					"highlight": {
+						"border": "#000000",
+						"background": "#DD2C00"
+					},
+					"hover": {
+						"border": "#000000",
+						"background": "#DD2C00"
+					}
+				},
+				"font": {
+					"face": "Oxygen",
+					"color": "#ffffff",
+					"size": 14
+				},
+				"labelHighlightBold": true,
+				"margin": 5,
+				"shape": "database",
+				"shapeProperties": {
+					"borderDashes": false
+				},
+				"scaling": {
+					"min": 10,
+					"max": 40,
+					"label": {
+						"enabled": false,
+						"min": 10,
+						"max": 40
+					}
+				}
+			}
+		},
+		"edges": {
+			"base": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"groupLabel": "",
+				"hoverWidth": 1,
+				"selectionWidth": 1,
+				"width": 1,
+				"label": "",
+				"smooth": {
+					"type": "straightCross"
+				}
+			},
+			"edge0": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"groupLabel": "",
+				"hoverWidth": 1,
+				"selectionWidth": 1,
+				"width": 1,
+				"label": "",
+				"smooth": {
+					"type": "straightCross"
+				}
+			},
+			"edge1": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "blue",
+					"highlight": "blue",
+					"hover": "blue",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"groupLabel": "",
+				"hoverWidth": 1,
+				"selectionWidth": 1,
+				"width": 1,
+				"label": "",
+				"smooth": {
+					"type": "straightCross"
+				}
+			},
+			"edge2": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#ff0000",
+					"highlight": "#ff0000",
+					"hover": "#ff0000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"groupLabel": "Negative influence",
+				"hoverWidth": 1,
+				"selectionWidth": 1,
+				"width": 1,
+				"label": "",
+				"smooth": {
+					"type": "straightCross"
+				}
+			},
+			"edge3": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "green",
+					"highlight": "green",
+					"hover": "green",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"groupLabel": "",
+				"hoverWidth": 1,
+				"selectionWidth": 1,
+				"width": 1,
+				"label": "",
+				"smooth": {
+					"type": "straightCross"
+				}
+			},
+			"edge4": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#808080",
+					"highlight": "#808080",
+					"hover": "#808080",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"groupLabel": "Reciprocal influence",
+				"hoverWidth": 1,
+				"selectionWidth": 1,
+				"width": 1,
+				"label": "",
+				"smooth": {
+					"type": "straightCross"
+				}
+			},
+			"edge5": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "gold",
+					"highlight": "gold",
+					"hover": "gold",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"groupLabel": "",
+				"hoverWidth": 1,
+				"selectionWidth": 1,
+				"width": 4,
+				"label": "",
+				"smooth": {
+					"type": "straightCross"
+				}
+			},
+			"edge6": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": [
+					10,
+					10
+				],
+				"font": {
+					"size": 20
+				},
+				"groupLabel": "",
+				"hoverWidth": 1,
+				"selectionWidth": 1,
+				"width": 5,
+				"label": "",
+				"smooth": {
+					"type": "straightCross"
+				}
+			},
+			"edge7": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#008000",
+					"highlight": "#008000",
+					"hover": "#008000",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"groupLabel": "Positive influence",
+				"hoverWidth": 1,
+				"selectionWidth": 1,
+				"width": 2,
+				"label": "",
+				"smooth": {
+					"type": "straightCross"
+				}
+			},
+			"edge8": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"middle": {
+						"enabled": true,
+						"type": "arrow"
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "black",
+					"highlight": "black",
+					"hover": "black",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 20
+				},
+				"groupLabel": "",
+				"hoverWidth": 1,
+				"selectionWidth": 1,
+				"width": 1,
+				"label": "",
+				"smooth": {
+					"type": "straightCross"
+				}
+			},
+			"cluster": {
+				"arrows": {
+					"to": {
+						"enabled": true,
+						"type": "vee"
+					},
+					"middle": {
+						"enabled": false
+					},
+					"from": {
+						"enabled": false
+					}
+				},
+				"color": {
+					"color": "#8D6E63",
+					"highlight": "#8D6E63",
+					"hover": "#8D6E63",
+					"inherit": false,
+					"opacity": 1
+				},
+				"dashes": false,
+				"font": {
+					"size": 14
+				},
+				"groupLabel": "Sample",
+				"hoverWidth": 1,
+				"selectionWidth": 0,
+				"width": 3
+			}
+		}
+	},
+	"nodes": [
+		{
+			"id": "c920c8c0-e20f-4b25-b660-131c67e87ecf",
+			"label": "Energy efficiency/\nintensity performance \nof SC&L",
+			"grp": "group6",
+			"x": -86,
+			"y": 47,
+			"color": {
+				"border": "#000000",
+				"background": "#ffff99",
+				"highlight": {
+					"border": "#000000",
+					"background": "#ffff99"
+				},
+				"hover": {
+					"border": "#000000",
+					"background": "#ffff99"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "d24bed61-1742-42b7-ae01-76c3201dddc5",
+			"label": "Staff engagement &\n amount of information provision",
+			"note": "Need to motivate the staff",
+			"grp": "group0",
+			"x": 318,
+			"y": 35,
+			"color": {
+				"border": "#0000ff",
+				"background": "#ffffff",
+				"highlight": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				},
+				"hover": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "8c80dd3f-d30a-4e79-a3f3-031652290522",
+			"label": "National & international regulations \nperformance focused on carbon/\nenergy efficiency/\nintensity ",
+			"grp": "group0",
+			"x": 635,
+			"y": 28,
+			"color": {
+				"border": "#0000ff",
+				"background": "#ffffff",
+				"highlight": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				},
+				"hover": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "32595f9f-0960-406a-889b-199e91836f2b",
+			"label": "Extent of SC&L\n being audited",
+			"note": "A note",
+			"grp": "group6",
+			"x": 563,
+			"y": -216,
+			"color": {
+				"border": "#000000",
+				"background": "#ffff99",
+				"highlight": {
+					"border": "#000000",
+					"background": "#ffff99"
+				},
+				"hover": {
+					"border": "#000000",
+					"background": "#ffff99"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "615e7cbf-2bc6-475a-ab5f-8f350187c3c7",
+			"label": "Business strategy &\n motivations focused on\n carbon energy efficiency/\nintensity",
+			"grp": "group0",
+			"x": 200,
+			"y": 400,
+			"color": {
+				"border": "#0000ff",
+				"background": "#ffffff",
+				"highlight": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				},
+				"hover": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "d8b890d2-8375-4d86-843a-e05d5277c871",
+			"label": "Distribution centre/\nWarehouse energy efficiency/\nintensity performance",
+			"grp": "group0",
+			"x": 200,
+			"y": 200,
+			"color": {
+				"border": "#0000ff",
+				"background": "#ffffff",
+				"highlight": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				},
+				"hover": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "0f22a2fd-3e0e-47ff-80f6-441695fecaba",
+			"label": "Goods & \nservice requirements",
+			"grp": "group0",
+			"x": -100,
+			"y": 400,
+			"color": {
+				"border": "#0000ff",
+				"background": "#ffffff",
+				"highlight": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				},
+				"hover": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "b66d19f1-6f9a-4e8d-a5d1-69884e05c3aa",
+			"label": "Consumer demand",
+			"grp": "group0",
+			"x": -84,
+			"y": 201,
+			"color": {
+				"border": "#0000ff",
+				"background": "#ffffff",
+				"highlight": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				},
+				"hover": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "2857f5d8-4df0-49f8-b483-35d80a9a824b",
+			"label": "SC&L Transportation \nperformance",
+			"note": "energy, carbon, serviced capacity",
+			"grp": "group6",
+			"x": 170,
+			"y": -258,
+			"color": {
+				"border": "#000000",
+				"background": "#ffff99",
+				"highlight": {
+					"border": "#000000",
+					"background": "#ffff99"
+				},
+				"hover": {
+					"border": "#000000",
+					"background": "#ffff99"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "ac51cebf-4f1f-4ebc-a2ee-affe9b2a3646",
+			"label": "Technology use &\n efficiency \n(SC&L focused)",
+			"note": "technology, policy and company systems",
+			"grp": "group0",
+			"x": -100,
+			"y": -200,
+			"color": {
+				"border": "#0000ff",
+				"background": "#ffffff",
+				"highlight": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				},
+				"hover": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "b1b6ffd8-fab8-48e7-9f7d-55e12d67809f",
+			"label": "Construction impacts",
+			"grp": "group0",
+			"x": 768,
+			"y": 250,
+			"color": {
+				"border": "#0000ff",
+				"background": "#ffffff",
+				"highlight": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				},
+				"hover": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "62dd7f83-cd51-45be-814d-5c82dced00c3",
+			"label": "Sites for renewable\n electricity generation",
+			"grp": "group0",
+			"x": 813,
+			"y": 389,
+			"color": {
+				"border": "#0000ff",
+				"background": "#ffffff",
+				"highlight": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				},
+				"hover": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "080069c9-1a79-4d6b-9663-052fc49c300f",
+			"label": "Warehouse \nindoor air quality",
+			"grp": "group0",
+			"x": 762,
+			"y": 153,
+			"color": {
+				"border": "#0000ff",
+				"background": "#ffffff",
+				"highlight": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				},
+				"hover": {
+					"border": "#0000ff",
+					"background": "#ffffff"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "7f8f2c25-618c-4060-8e03-0920aefea807",
+			"label": "Introduce\nrobots\nfor picking",
+			"grp": "group3",
+			"x": -261,
+			"y": -115,
+			"color": {
+				"border": "#000000",
+				"background": "#ffccdd",
+				"highlight": {
+					"border": "#000000",
+					"background": "#ffccdd"
+				},
+				"hover": {
+					"border": "#000000",
+					"background": "#ffccdd"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "3f94dddf-25fd-4eb4-8fbb-87d6d3bc0e88",
+			"label": "Institutional\ndemand (green\ncontracts)",
+			"grp": "group3",
+			"x": -255,
+			"y": 263,
+			"color": {
+				"border": "#000000",
+				"background": "#ffccdd",
+				"highlight": {
+					"border": "#000000",
+					"background": "#ffccdd"
+				},
+				"hover": {
+					"border": "#000000",
+					"background": "#ffccdd"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		},
+		{
+			"id": "01a28db8-5a34-4a56-a785-ed148e5e8de0",
+			"label": "Building performance \n(focused on carbon/\nenergy efficiency/\nintensity)",
+			"grp": "group6",
+			"x": 553,
+			"y": 304,
+			"color": {
+				"border": "#000000",
+				"background": "#ffff99",
+				"highlight": {
+					"border": "#000000",
+					"background": "#ffff99"
+				},
+				"hover": {
+					"border": "#000000",
+					"background": "#ffff99"
+				}
+			},
+			"font": {
+				"face": "arial",
+				"color": "#000000",
+				"size": 14
+			},
+			"borderWidth": 1,
+			"shapeProperties": {
+				"borderDashes": false
+			}
+		}
+	],
+	"edges": [
+		{
+			"id": "d79761c7-741b-45fd-b349-08eb8646dc5f",
+			"label": "",
+			"grp": "edge0",
+			"from": "01a28db8-5a34-4a56-a785-ed148e5e8de0",
+			"to": "615e7cbf-2bc6-475a-ab5f-8f350187c3c7",
+			"color": {
+				"color": "black",
+				"highlight": "black",
+				"hover": "black",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		},
+		{
+			"id": "fd8bf0fb-1119-4604-9e0e-b253a067c623",
+			"label": "",
+			"grp": "edge0",
+			"from": "615e7cbf-2bc6-475a-ab5f-8f350187c3c7",
+			"to": "01a28db8-5a34-4a56-a785-ed148e5e8de0",
+			"color": {
+				"color": "black",
+				"highlight": "black",
+				"hover": "black",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		},
+		{
+			"id": "47e220ed-9ceb-45ca-b28f-5387e52beb8e",
+			"label": "",
+			"grp": "edge7",
+			"from": "d24bed61-1742-42b7-ae01-76c3201dddc5",
+			"to": "c920c8c0-e20f-4b25-b660-131c67e87ecf",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "805326a1-c884-4349-aed2-a3e2a44e25b7",
+			"label": "",
+			"grp": "edge7",
+			"from": "d24bed61-1742-42b7-ae01-76c3201dddc5",
+			"to": "01a28db8-5a34-4a56-a785-ed148e5e8de0",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "e5d1a4fd-1ca5-4604-affe-b45b2670d1bd",
+			"label": "",
+			"grp": "edge7",
+			"from": "d24bed61-1742-42b7-ae01-76c3201dddc5",
+			"to": "2857f5d8-4df0-49f8-b483-35d80a9a824b",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "33a2a333-087f-49ad-8e28-36369de11884",
+			"label": "",
+			"grp": "edge0",
+			"from": "8c80dd3f-d30a-4e79-a3f3-031652290522",
+			"to": "01a28db8-5a34-4a56-a785-ed148e5e8de0",
+			"color": {
+				"color": "black",
+				"highlight": "black",
+				"hover": "black",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		},
+		{
+			"id": "ef673a2d-5380-47cb-abaa-12a72bb3dcc6",
+			"label": "",
+			"grp": "edge0",
+			"from": "01a28db8-5a34-4a56-a785-ed148e5e8de0",
+			"to": "8c80dd3f-d30a-4e79-a3f3-031652290522",
+			"color": {
+				"color": "black",
+				"highlight": "black",
+				"hover": "black",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		},
+		{
+			"id": "3094e10a-d320-45f4-a08b-098fbf5cc05b",
+			"label": "",
+			"grp": "edge0",
+			"from": "8c80dd3f-d30a-4e79-a3f3-031652290522",
+			"to": "32595f9f-0960-406a-889b-199e91836f2b",
+			"color": {
+				"color": "black",
+				"highlight": "black",
+				"hover": "black",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		},
+		{
+			"id": "5d7fafeb-b414-4de6-a747-6299588338df",
+			"label": "",
+			"grp": "edge7",
+			"from": "d8b890d2-8375-4d86-843a-e05d5277c871",
+			"to": "c920c8c0-e20f-4b25-b660-131c67e87ecf",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "8f581262-6893-43f1-90e8-b6399b942c21",
+			"label": "",
+			"grp": "edge7",
+			"from": "01a28db8-5a34-4a56-a785-ed148e5e8de0",
+			"to": "d8b890d2-8375-4d86-843a-e05d5277c871",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "fb9f003e-fee4-4a2f-98fe-0fce402a3fb0",
+			"label": "",
+			"grp": "edge7",
+			"from": "c920c8c0-e20f-4b25-b660-131c67e87ecf",
+			"to": "ac51cebf-4f1f-4ebc-a2ee-affe9b2a3646",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "d3118d4b-fa57-4817-8e91-da7192e321fe",
+			"label": "",
+			"grp": "edge0",
+			"from": "0f22a2fd-3e0e-47ff-80f6-441695fecaba",
+			"to": "615e7cbf-2bc6-475a-ab5f-8f350187c3c7",
+			"color": {
+				"color": "black",
+				"highlight": "black",
+				"hover": "black",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		},
+		{
+			"id": "81f999d1-9cec-4060-8a8f-cfe27a5b75b4",
+			"label": "",
+			"grp": "edge7",
+			"from": "b66d19f1-6f9a-4e8d-a5d1-69884e05c3aa",
+			"to": "0f22a2fd-3e0e-47ff-80f6-441695fecaba",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "a6456682-ee5c-431a-a16e-efedb638507b",
+			"label": "",
+			"grp": "edge7",
+			"from": "b66d19f1-6f9a-4e8d-a5d1-69884e05c3aa",
+			"to": "c920c8c0-e20f-4b25-b660-131c67e87ecf",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "d0d3df53-854f-4123-9224-2da19b88b8fc",
+			"label": "",
+			"grp": "edge4",
+			"from": "2857f5d8-4df0-49f8-b483-35d80a9a824b",
+			"to": "32595f9f-0960-406a-889b-199e91836f2b",
+			"color": {
+				"color": "#808080",
+				"highlight": "#808080",
+				"hover": "#808080",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		},
+		{
+			"id": "f8c88ef7-37af-4e91-b5fc-d60f568683b9",
+			"label": "",
+			"grp": "edge7",
+			"from": "01a28db8-5a34-4a56-a785-ed148e5e8de0",
+			"to": "b1b6ffd8-fab8-48e7-9f7d-55e12d67809f",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "86dd76c0-406b-4756-a1d6-0cefba642336",
+			"label": "",
+			"grp": "edge7",
+			"from": "01a28db8-5a34-4a56-a785-ed148e5e8de0",
+			"to": "62dd7f83-cd51-45be-814d-5c82dced00c3",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "32780067-4df4-451e-bb2d-7fecabc81ff2",
+			"label": "",
+			"grp": "edge7",
+			"from": "7f8f2c25-618c-4060-8e03-0920aefea807",
+			"to": "ac51cebf-4f1f-4ebc-a2ee-affe9b2a3646",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "d74d1562-d517-4ef4-b8ff-5d0669a23778",
+			"label": "",
+			"grp": "edge7",
+			"from": "3f94dddf-25fd-4eb4-8fbb-87d6d3bc0e88",
+			"to": "c920c8c0-e20f-4b25-b660-131c67e87ecf",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "4e2f2be5-438c-4dc9-a28d-2d6c94476acc",
+			"label": "",
+			"grp": "edge7",
+			"from": "32595f9f-0960-406a-889b-199e91836f2b",
+			"to": "c920c8c0-e20f-4b25-b660-131c67e87ecf",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "46cca812-fab7-4a1c-9a23-9cf11dd43ae1",
+			"label": "",
+			"grp": "edge7",
+			"from": "8c80dd3f-d30a-4e79-a3f3-031652290522",
+			"to": "2857f5d8-4df0-49f8-b483-35d80a9a824b",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "fd0922b0-e036-4717-b91d-33834f0208e7",
+			"label": "",
+			"note": "Reduced ventilation causing a detrimental effect?",
+			"grp": "edge2",
+			"from": "01a28db8-5a34-4a56-a785-ed148e5e8de0",
+			"to": "080069c9-1a79-4d6b-9663-052fc49c300f",
+			"color": {
+				"color": "#ff0000",
+				"highlight": "#ff0000",
+				"hover": "#ff0000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		},
+		{
+			"id": "9ef39798-8549-41f2-89a6-35794642186c",
+			"label": "",
+			"grp": "edge0",
+			"from": "32595f9f-0960-406a-889b-199e91836f2b",
+			"to": "8c80dd3f-d30a-4e79-a3f3-031652290522",
+			"color": {
+				"color": "black",
+				"highlight": "black",
+				"hover": "black",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		},
+		{
+			"id": "fb19f860-f3c3-44aa-b15c-4d46b9966a27",
+			"label": "",
+			"grp": "edge7",
+			"from": "2857f5d8-4df0-49f8-b483-35d80a9a824b",
+			"to": "c920c8c0-e20f-4b25-b660-131c67e87ecf",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "cee9464a-560d-4f13-b9d7-fc9b137723a0",
+			"label": "",
+			"grp": "edge7",
+			"from": "ac51cebf-4f1f-4ebc-a2ee-affe9b2a3646",
+			"to": "2857f5d8-4df0-49f8-b483-35d80a9a824b",
+			"color": {
+				"color": "#008000",
+				"highlight": "#008000",
+				"hover": "#008000",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 2,
+			"dashes": false
+		},
+		{
+			"id": "ba4d02c9-2906-46cb-9276-f2d0136c5a95",
+			"label": "",
+			"grp": "edge4",
+			"from": "32595f9f-0960-406a-889b-199e91836f2b",
+			"to": "2857f5d8-4df0-49f8-b483-35d80a9a824b",
+			"color": {
+				"color": "#808080",
+				"highlight": "#808080",
+				"hover": "#808080",
+				"inherit": false,
+				"opacity": 1
+			},
+			"width": 1,
+			"dashes": false
+		}
+	],
+	"underlay": [],
+	"history": [
+		{
+			"action": "loaded &lt;supplychainandlogisticssystem.prsm&gt;",
+			"time": 1640905229507,
+			"user": "PRSM",
+			"state": "ᯡ࠽䈌ʀ匦㢠⸣㕠▴䤡䘤〡䀻CǸʐ׀ӫ孻吢柸䂦樠牓ᬃ㡨͓॥ᛮ┳-Рෛㄸ㥸d¼ဠ᷉冠C䋾润.䱉ҕ絺ż嫱无嫓㜡殕䀷؋素⭛᱗彻滠ۗᦣ㳰Öᢝн寤ୀݗ⦉ㅓ䥺籔䠠ϩ൫䁇拨ŝ◬v╮Ȯⶄ䔦፺懴堠抜㽠烃䶡෫妢㄰⁝割á㙠Ɔ䝬ⷨ圷⦨目䱗⪏彐夦ຮ㗧Ᏻ娙䠠៩ㄠΓ淔侗篳␃槸抗嶘᫽眰ૣ૝␳إ䏑橔ᶢ勩墆嗀㫬棲ჇǀOᑑףᣠ䝽⌈Ċ౗䣒←夼ࣗピᠠÉ剓橸帪笲嵵ᶧ⚓ࠨ㧣̢捍#ᑳᑸ0ⶥ䔾㑗䕰Ȉeᶾੴ櫒㝏㝅₴䀹ⳁ䈅ᡄ捯䣅㤠Ł寍⮏$ᚊ⛾㪮憢撑ౝᏱ႕ⵞ䲅〽ॶ仡㖀㩵灱ᑊ㛤ơ䂪Ტ橡֐㟄ؔ䪨⬧栯爘くệ穥堢娧┈◵䟢䢴⸨⌃⢴Ⅎ䞏ᡰℽ幃ᢤ⸣彉䔌ఫ䚎棧㲚⪻⤚ᇝ䕂ቦ⑂摼࠸ൢӀ璬±䘁ପ忇೔畜ȁ廀丞䀣⭕掏ا壙᙭ๆ੍ॄ✱抑䷊੬䶱♑ⲓ献想⩲䝱惆䋳瘽䉨帣䘑سړ቟䪩晡䓐ᴭ䗑僎䯱ヽ⎦繫䍒ञ䞐ẇ䪥应ሒ฻䵤䙺‐ᢢ䭸䅽晤䅨⴪憘⡱ᄴ៧公⎩焢⑫帣⥫⦀惫᥶⟐㤤ҹ疕௫祝ᖸ䔬亐┻⭋敔࣋ᖕ⧋嚅⑐咪⣐䶔溊⵹ݙ洲ᔊ嵙༊㴼氋咟⵺၀戡業ᘸ 挵⎕䌹捋ᒸ協憺֘ⶸ綖ྺ୼汸ࡒ恴⭦䜰䫲澓歌੠朸ࡣ堹浣䠳Ϲ橩ൠ䲌ೡ桼ॣ㭦ೢ䱹䡲糌ࣘⷌ棰ࡦ䇐㓱〹㘁l⋯傱ଷ凲⫷ᄄ㺧改㳅籀⤧粀ᨣㇶ㏥紷೏࣢Я偐ઋ२ᕪ婆㺬ℌᎥ²ᠡぢฃ൉Ȯ㉀䠥̪హ₰䵨䁸ሽቱ㤱䍞ᇭ䊘积䋎㼸⦶⫨畖ᝎ祈九掐䗧抎え墾ع䙘唲㢈繗∡⌸፡ࢱլ㢷б㈲䔩岻␴畈▕⮸㓉㹁匹୍傔娠ᕹ冿籬湶㎁䖹ᐳ㖰嗕ε喼峞捴箺㓜窽㐳㷊❨恼૝㹾஫㑻ୣᓮ൑㉷嫲燑䭳ㄮ䵆⦿䬪敽⫪纁⣋උ⩠إ䇐⤪泓在⁸≒ᶸ㭾⇘⤧⢈Ⴋ⅓傦㖈Å⃄Ӿ䩠*ጠ䢽䝱氱矰唾࿺恃ᛱ榫泝妥䓅坭䚻༤ɺ〪浭㽲ᆩミ澜ᐋ校演呄侦Ꮱ砶׀䀱ว椋੃Ź݀姰㓄⎭᤾偢ዓௌ⃪卼⎻掘㮺Ꮴ⌌亢䷸䰙ࢯ竳ŗ儦㚂ᚆ戴⦥哢Θ䂨᧐ᐓ㡃ॉ䆤ᆅየ䇥梼㓅地旒䭻᮰㭿㋲㖎携柄嫯䢕卑痈刻㎓䩳㟒ൡ㙚伣窭摜䳳彗䩛㊦㭕䖖㝤䀾䈍㦯槝她焻扅ᰢݴ剬䧆๹┼竦Ჰࣉ⫄⪵ẩᙘ牑᫇ⲉ榐嗸䃘׋ᡛ㎀ᵢࡲƀ簥ø࿡ਿǈነ㼳䓠Ņ怸݀✊เࣘ,∘䝽ぢՐⵆ筨㺡幃ȱ୭ဳ掙永⎮崛堨ᦠẢ䁻რ䝈籦丱沴㲄⑀ⱌ秨ᰀ纕ʦ΃ڂ䮡烴凨ปῂ੔㩐罪㑡瀃硼毱ŋ䈐ᒋয়䮳㺶ഌ㔹亇縳ᮠ卆㌹妹ڈҬ砫೵䡘䦽᧸ޑ桘═⡻つ䪫⃫æᙁ䕋᚜Ề㛲䉣᪥奎䢠佄ァ╒嘷䡦潘†ƥ璦ᤲŃ〤ᑍᱧἫ怨撮傀̡㱀撍偧液媨徲í䎖椲ા愵Ʊ␂䕥和よ穵l傮泍ຒᬽ䧤堳䋊妉⫇㪒䰾䳀࿨⁢ɘ〨䂈ᦠ村ĕ℠偒䚀窫ℂ埸嶸䃢␷ᵂ↏Ꭱ┡眐城࢒ı䝣偲ʛ缭桿⶷䀿刦刢䢽槩僶紒Ꮖ搬औ吕呔㟡᾵䚼⿒⭎䲮㶄二栂䢴罝䢙搾ᥡ凓❋㉸䟵妲м悎䲃䳹玶ѩ䡌䩇̈́儳㶄㜼ᙁᄜ⚙౱⅘啣⫫猈⥗㗟擐禲̆眥ʳ滰嬪瀾ఔᄷᆊែ糖ᩛ㘱ދ猂ᙬ⺪⌰٦䋜䙥࿐粪Ⱞ棭◀ূ瓜ᵃ妧ԩ䐸粑ᣄ癊猻ⲕ║䰩哀ᚠ䕾㫰┢䀿඀瘩惽侠䈣奷ਡ㡐⒪吤๵ⱬိ৪ಕإ᧧刢⺬ᗯ⦧Ṅ䋾呲槫න໒ь䗷੗✔楥㼡䩍嚏㧿:偃᭮〤⒐ь滪ⴟ⸞㓳梄㓤 䴳㪬ႍ൦檍ሀ泭夡䅙喢‿ᮎ⣖㣩㝫㦋გ⋍⭣ⷺ⭣᫥猻㝻ՀᑘおȖ沥紥津ᜪ࣐ဧⴴ峙ыᙋຼ⢽㦽ᵡ⑫㉌ᕩ⩋䦟塅⬎檰瞼ⷽ凛垵䳟⋬⛑ཻ稸䪔墾⤠߸䋪嬃ͽ䃀֣࠰䊘䦣圾加尪⃤ྠిċ䮢Č冈㘃ᩘ➜㿣䤶࿁஠t曆惃ܑ癕呺緷梉嘔漮紊ࣜឦलṁ㱛ဴ澣溝ϋ㑿儔䴐潲愺║惸~ଐ窆䉨ᙊ㕳濁㛛戍㬛婦ඔ䩗㬘ᅦ᧯䍒⻧㻝䷘溩ᣥ൮劊ᇼ㒡㯛搑嬢㭃䜝⮬䣻淦姯熫䰳⮼ፗឣវ⠄䳕ᒵ壩䋗㳭ᗍ疄匦⋇㺟⳥፭ざ亖姆盾瀍伈᷆㼮⏓敌櫳⳸㘲洎ዙଖ䗲珪ἇ䇦䭣寬᥮䘎羸ᙠ宅惟杼帷ᜲ䆌☠媼捰⌥恩⺀堀䰌۠移ňᚡ㡍Ĩ㤤乪ˮ䋕ᢍ撪唸瑆ˠ博⎗≢硌⁴攭穥ႁ歳ᇸࠫ∩䊐綋↣㚕⏖橘㊬廒眨磔廪߆篽۪Ᾱ愕ݔ昿ಂḳ⸤⎌㽦懯ޠ㰆悚Ù屌ם綾爆䡼‐䉞嚯乧䕟⇪㠓⪛᧴狫䊎ᵢ繟榾汓⑼❆㉿⽀⍧㭉⧭剮撫姚㢓׶║ⳛ⺒䫷㏮ፇᴎ乱琒搇乺Ⲣ绞柊拐ޣ禝˰ጥ⯑㦀擙ᔯ囡吵㣕綢⠰䂨ℤၰ䨒朊␿䄰爸湧ᜢ瓧歸ỵ͍烰௘琄櫅ᅶ俀ڲ㓓Ⳡʘ嵷⠠ĉ稩न΀ᡁ妠籨8ᇍ䵄䡍ˤТⶁ璖Ȉᡘ弇ٷ⡟ह┮㭢椧䘅؆伦ᤓᤀⓥྐ橌䠍䒏⍈࣐㦭Ⲍ佮ӽ倍瓨ь栫࡬⊁ޑ㏱ቸㅩ፸㣜丅昄䜥ᮜ䬍٫⼬㡗嬼匡慲䦐凩⁣潬Ⱇ䑥唎惺㧮䒴੅὘僯喽橁嵺⭆ᮕೋ兾㠾唕ᰂ㵐宾䐡甭䭌烷᪠倢橚䇘圠◭沒Еɼ䈨ₗ棷୙␣ၼ⦀!ግ曩ئ⼢タ䜨ӠJٷ⛻㯛Ⱛ碚Հ㳻宸决杕ᷱ⵩㱠抆ᜒ䞶䌠ᠥ㚦ଐ䝬⑊婼Ѯ傐ⴢ編⃴࠯ₘㆡ䅁环ಉ⸶䃤ᩥ塑瘺ಀ添縱㇫က盩Ỷㅬ฀盧屰๢⛭ບ⑜ດর筒䭩狲㕏᪰呅Ⲋ࿍ڧ凹㼕熍ڻᮠĒᒤģ咴៾ઐྫ粽䎆⬯參䶌ᕢᗴ䘼緹昆圩秇搇⋪弨௏ᶯ⨶㙶狅恘Ӹ瘤䡇䒿涠伶〹㥅⮞朴►崊ƶ猄劆ൔ∠Ⲯ怮⌲⪸拑幖ê氡䊰崵槭☬玔䍜ങම漤౭称枰冬偪᧦ሊᒇ吥淆ኾ⸭ߜ抆಑ᖩ姞捳槑呣檎拸挾⵫䲚㶕ᓑᎪ柙捤䨮⤮岒㗟䞑挖ɹ㴄慾垭⏛恞ဪ澬㞨ᘞḀ䁭㓅㗬暁燲࿄ኇⶁڒ㦲瘌ዮѨ禲ሷ抩⺐揞璥懞汩ל㨑ᖠエ㕕瓀࿴娧ၚ峼⃩縠假䑍ߴ無址熐໠綐䓞䀠୉ࠡ头噁ᴻ^▂Т䛌䡱复廵種䠭単ፅϠ偐Є堉Ꮺ娻ᇹ຤坯㝍炭巃⽨岑࣠㦍榯欻½܈㥀ᒹ␽干挱ᢷ營༅欰㤃⑌㛳窶ൣ♺㄃峪㓄禝嬌⧂Ⴓ⒞㔂ʁ㣇╼ܾ⃜瓉ᢸ㙭੉⾕ѐ壩娴೽Ҡᑓ憺❧䛻ᐳ昻಺㯦㨲ᐌ獛؛ᕒ䥨䔇ғ䭒䰄敵禘⡌ַ䴍硥䇤甫乚䋐᩼ᐤ絀䒖ᢡ嬍ₒ犨ἠ☮奵㤨Ꮢ₄㪖Ρ妓儤ᓇ㫄䰐Մ٭傋ᨀ瀺媓牯᣽愥̸᫄ࠫ稥㨳ᚈ᧽⼏宁䖈ጬは楳寊〫⺷⍷姌䀼ྊ⊏木➣羂ഠ᜙㠫繹狠垨㌄种̇曇丫ਹೇ䞚㕢㑂䊺私ⴲ㨶洨⨃埂䕎潞椹䯜䏆㎒㯄傪Ⴜ⋱硆☲䴁⋅ࠧ൒洋⌄⟲䆪Ḵ拖ᔘ㜳䌏烆抰Ⴁ☫ㄾ取⹼⶧悖°Ꭱ搥恈Ǵᢡ堣⹼ƕ̱悲հ⬩འ庢穷ä䄙䖃灎␠ಿ‫㙥◚し⪟䏰⇊ᐢ㦻㛻᷈漤溸ॉⳡ瘣璘ࡀ猆泎⤮睨♊㇎⣸䠴㏤᫾⫃ׅ糃旑吪査˙㋁ⶦ弹乂ⅰⷡெᡎᔵ嘽⋑ዅ煉⮘樵ᡣᔸ⫪䞈寷ᔦお枘养庾䵊癊ߢ営ू礚᧲㺐䢐捵ᱝᅺ᛬婆獋㹽⩌䣙〼䂹拮ᖅᠭ堶䆀ㅅᠻ夝⦞㌢⠢㗸԰㣦剓姊林○㛹偍˾㔠ᰴಧ曉ὂ箿屆⦠ㄑⷪ斊⡠䖡ഴ璈Հዱ穞湶͠稒眻㔝ㆠ嚡ᝆ禖⿞੐ࠢ㇧嚜呔䋆ඤ朞⫤糅祦䴦琪ľ෩樜尅受䰱⤧ᑴ㇆Բ捤㑛湁վ䩢濇⯭๺െ矘繜ጚ௒⫃㡩擥⭇㸵䫆᥌檽ᑇ姉᧬炊男卙喹䶊箤埼咋瓤熪壋㻥䪸㘣殶抂ҵ᜵ៅ䂅栊᫗堤㡎ᆊ⺒扜䀣ⶼ㎒洽䁓ヲ溸䡔碚 傔੠渊ӻ㧉❆砶Ǡ廣ị቗歀孩況⥸㉴撕ǁฎ⾯ͱ䃂෱熸䪕ᇝ祛ਪ暗⇂П䯮搴௟ṑ⨜癔ṗ帵毊爵্ᕄ氬綗͈۸⢠ɠ⍗ശ㌤湋ߠᒌ澽ݗ䣋䵴⵱വ科㸳氓ݷ׎㵓棑㾤㗟|0㘣嬰ጘЀ㣉⮧吳Ⰰᐢ㬲䂲Հ㸙㠨⪽䱼㭆㥓řវӠੱ㛧⽗◚瓁溦ƣ᫺璛ᄲ烠姘挢挿⃐㦴′㱖ۗዂ⵽㤾爤僦绋₠ᦢ㋆们僀ṡ沖傊͌ご呮ᇎᵖ䱡䚔揑ፑᱡ種ᵓς㒧ฬᑇ൅⯦斖৏樌‬王䢓մᧁ渷炑䶴畺幊姊嗄⮁犆⣈㵼᤾伯棏䐈䠫₮埧ূ瀐咠怩₤ψ✣彰ቌ߀Ѧᐠ㕏抹北㋪奐ܸ亯琵Ⲫ䖠␤灦ê䐐◱痓㨐Ѝᙩ倫ₐÜޣ盝䠵ᅸℐ․Ⴣ愑考ῒ/᷻ą桳㛦狊Ꮑ线姽㞠ォ岀悖ᢉ೺廕㤀攻ⶠ愺⥩Ӛ㼐㮵㳜ᐩ礭䏌儘摭劜͚䰀琬㡆䙹浮弥ႈ䯟㞡五ҫᏙ盙↗ゐ䉋⾰䱚ઃ嶨灆嶉䪗猉⭁噛塣㦆斎熤᧓嵬檉匬॥䍖්䜭㪊䬓疘㤗㧿䍳溂噇ڐ姇偾䠡㬫䂊浼ྨफ䄝ₑ㥄㬭ⵔɾ䬀⒝扼۷Ź᪓ሖᰄᝇ䆃碑|䬓巖č护㤤ⲤᏘ㠗வ䂎䭩Ს以䦚᯼ත耆劖δ必岍浉䮷අ墻犋䮘Ṱ繖㹥໵瀔涗֍䌁ᇉ偄ዚ⮭ᲁ岆媟巐亿✮喃ᨊ宐曌ښ㷽⿬廍壐氃હ嬠ᨴመ݀ࠊ堩‽䜝⎇ॖ㖤Ì恩昳妚ᢑ扢⾹₈ʆ㐢䵧ቶ漸Ēᤨᴺ勵▴″თ䛺猅倨傴䋟㖡戯恖Ơ\"ᰡ䤐硠累毨㍅䕭४匿ᔻҾጕ劤ێ廤၄㳶᭫⓿䟄ี⟸㍬ࡥᙰ㏉⑞䈘௓涳㴕擬䏹㩽ཫ囲ĺཆ劻᜙♋㥳ᅿҦ⌂ಀ祣唉䈨巽ㄲ㜛奸そ㫏䊐窺寳൹暇䍚呃绿ㆅ憩ᥠ牫䵯䐶兀ᘥ瘩㤧Ɋ催ဳ⥷ټ䖩䀧᝹ᒙ寁䁓憼ʓ嬠㭰Ηড়⧐氬ɍހ⣢絫⶯нࠢ吼̟㙈Zò殠瞦䲋Ǭ㜰甧ᑘ✟丰禧⃙䇭ᛳㆧࡘ䗮฽ᳫゕ曾⚨瑾硊䫹๪㿫⩜ଉވ畻ၰㇳི๽ڸュ䎛僋䓭㛪㉵㷣䷳瓯㚥屃癵ᣜ稠ோါℾཀྵ⠣彉䈿䟅⬌帊ˬ慍㶠凫⹈ຠ尥ᥩ៭⻤ゞ痉䈞篎⋈⡲Ğ͘Т‪ðạద焮ΐឡ簨၄媨ᱡሦ䣽⦀ᇑ䶪沖拈某綠᱁悮ב㠮ᱩ据ᤁ凴⺿晇⪭⨀თᕦ佡ὔ咁ᾈӡ⁯䒀⊊䂦愴ᖯӢ፠寭⽻怓⦜়呪ᗃ戠寬捊全ᵐ巚䓒ຍ窧攐ᚠ⦄渪㎩䬐䬳ᮄ䗛⑱株⣗ې 㯐ແဆ⡅璷ᦡ氩┎¨᳷ᛝ綌妝涡ẚ擵帾ᶏ粅寥甍沠吠ᩣ峮玠㰣㵓弨ጎረ湹ƃ搱൬橶叕੧⣭橾剶ら䍠啑傒耏塞晀㿬䐾笰㢨㸌ਿ˲8㸒㧩焛ၤ㹅㙡䤗䮾㠳挿⼥䟾එ瓾唯䠕σ碾ᠥR㾃翇桊埄羈㺿ኈ柒㝓琌洓ਮ㼎ா拻敚䎀ᚋ喿橶愨Ꭱ䰫䂚υ徵≲᪷殰ઠ甡凮晋椑䜥⟘䎍梠ᬟ宦Őݾ➟垡Ȼ污䜓㮨ᡂ㧧乵㗴კ䗪⺒烟૘ᩛ⺚炻昫‮矄છ殁弖捴稛瘰嬤斀緣眠घ䊰ͧ槕㈞俢㺃懟⺝䨑/཈呓獌୞ᴚఇ⺤織秕⛆㆜旅៪历灹熂ዞ泠⧩柌䲦壞䔱ὰ䬳㔶䂞㱸ȀД戡ڤ怤嫲㪰Ăᡥ࿅ὼ徟瓆ͻ岞喘ɏ栣溍䂖ಋଡ⾗瀽睱惞炤ࠎ㖓ฦ㞭䒖၊䤂㎩⹅〣扏৒昑஠缱樨ध㹁፨⫤㘜৷䓾罀ᗟ䊟䁞堙ᤎ翇繨磱栟㩝/䁛ᑼ㵳眠ゾ䴚䨇䐬ƴ砷棷ᆜ䄀㩡侜攈焥ᴡ㱊⡭⾸Õ簘⟯Љ卶町⪏楱䖌ᾠⶑ玬⁆岣⍎湼ௌᶶⷤq綵焤Ρۂ撉㞯䓶窕ޏ㥄༒യ⽱傔焅䳾㹰դᕏ䓂召榞Ӵ㋀ሾ⩥⤿挷᭡垢琾ō纬ણ棡ㆢ【硭罰籟眯䰞’毣䰼㻖ܠᾆ຀怯ढÂ慼ௐ⟖紛⨌塦⩨؂ʠ䁢䂂ў厂䳋盠⛞尥氌䱑ć竤⊶ḡ爯⮼纆恂ፀ੐矰ᕩ⹝⁃禛䛠䛼ᰬ朻Ვ䢗灎֠Й✤㿅㣵憿惼㬜瞒度穂Ĉß෤៰㬥ᤧ瓚灺Кࠁ湀Ư杋紓ㄗ彡䂘縈羸°箬Ꮾⓣ䣦䱄(籎ஸ㡮䖤ᐄlĮׇ懐煰嬯汃惝䏼ঁᄁ␣ะ⯉愵禟斠储㠪穻侃畓䁺䅌׉ဋ忛か䈏淠㬠㍴⠳⸦烸࠘□擡ᘎ恾慀ŨᾂⲢ⹃㢱₮ƴ఑೰甥ɥ傉幠Ҡð印䴭庬⨩⣅℈⹴㪠ᕠ港⅊匲ု᥂徰ᱤヿ㷉ဗ嚱㽓椽␥䆱箟斀徹沪☱὏˧數㇡疧᰹ᇢ䗉䋏Ⴢ㦫叧悱ᄜઇ偁⥤ࢃᑭ䣷ߪᮐ扥⮢㾤繕㒀¨妠ᒥ玢紤屷牰Ѡ˴南庪ᨥ㰡ൔ⠱獦㴸ᕐ呍ު䛰瓈◤瑈ᤎ䎵⑈೾䯳គ䑽甈䝞䬚㙃ῃ扗穢⎸Ј⥐ƥ⍤ᢔㆴ䔞♐瑜昪䱅ᢶ⏳ࡸ䀞礙㌹摮ㇼ䕘ᑯᆃ娓㡂壪䴀࠴⑱⫦帣ⱹ㺕䓑䫯㓃ℯџ地Ø̊࢈䈠㰍ᜰ䁰̫曍ߢዱ᜼䤻楏₲媆ᠢᲑ冠䖶ᥟ؉䢭庭ࣧ桑ੜ㸔Ꮷ㽦㲟琷䗚ᖠᑹ紓ஶᙕ㗦牫ਁ㓓择䬬廸ȅ俸☂⒫擲ᤖ֦࿜㶸䟦Є䱸㹬䛬Ἐ没᦭;ᣁᶓ९䞱䋦㘴ʖ戈ⰄṸ纳ᖭ⍪Ҳ縜ࢴ⬠㎦〸䉭戞࣠௎Ҭ判噪>͉ሺ䊊ɣ㠫举儣⣈拃ᇃ壖兂擺ተ䵷Ჩ伙࿤ᨼ岇燮榞㘙浣御繇磗ྔ㞩ᣑ䨨ኂ⳩ㄕ࣠㾂ᦂ斧ᙩᐒ憲≑ᰛ䤱瞲䥨჉᪀汜⾩䱒悴㷌ࠠ⎱㍄಺ㇷጒቯ⦳恭ᙚᓾ双䢢厶⎧沺浓ǀ筙ᖐ塣⹮⅔㑂ǅ↊᩼敤堯江⤑㎨淠ܡ搣濢㡕㗆₪㙲፥䠃ᱬ⦙⠑ၴ籸䕩ौ唑ፊ䪲ⷶ倦犾ᝄ岒㯰಴箨㵦⮺⹕㡕拷ݼ㶓䌽㲋̕⓿棴冢熮㿩磶刹ග⇸噦Ѓ劇槝☞ၸ䀲♮䁄ӑ勠䥌㻜兦ီᑼ槐⑍Ⴄ勲䡨䖢㍒Ĵң偾爣搱ኩ㣓㫤⌜্撰嫿塌塎䦦੉ぇ䀋D曳᪭棕㳬䭱甾烯࠲ႏ䒠㳓㗥姗ॳƫ䫀俳匃絔縠㊵柘㠹疒㗪痎岸㇛橨嵲冨ᡌྃ䆺䢸㨑ᒇ媺䲚ᥬ劃ោ瞌⬬ᥟ碷ɦ䥆㽸抆঺⚄३䍡᪠糳灨㙅撶搜ᖀہ堣⒁囐帲ᣰӎᐙ吤㾨层Ɔ熑ἠ牑秃䡴燷⓱ṍⓕḖ噻䳙㑥睎⥺㴁Ъ囚媺椯梨哠絰ൢ㌭≦埮ᡄ⥳།ᫌ欓⩍ⳕ൲僭䇩ᶋ㍦ࡦⓡ箇ᆼ䱳妏䚕ᆸ栂䬪牞乕䌦乒⾱徆ο皇䅶②ᎄ䢒癭噒⣘ቐ৆㙱曦ወ㖮ⱈ䔑␂ᮁ插ᜮᄕ䷈਒だ喑㪥ࣜ庈طឰ䣒ድ䰬岹㕴༻䅺Ⱨᗇ⹺娣⩗᷍᫒㠦⽦㕌奤刀ޞ⸈㬯䁫砰䏋䔞ᆐ⟶ག泝ˍ䣄∞ߦ➰䱮り♒᳨婒婫Φ悾吖০㶙㲆㞰♾祤朏ሌ䇣䇭4Ჳ䌼俌㕑䛥㻇⚅惒᫿䧎┍匃瘺㭅ż⏟ᚠ⧉␡‹㡎寺ᡌ嘡䋨灕峡呛亻啺漄⛋湬檓⡍⠲ᄒ灌煻䕾ᕓ䈉ᅌ⛡ӂኸ䪯剩⟞➽曫䥒沥ጏु㥩㈵ᆲ࿃夺⒕ጿ⌓瑎繛೵爦䯁⎙懅塵憀凔☛ᾉ㖂䟩䅄紊㍃䷆▉࣐㈲॔服䍶⩀⩐෥灁⨶(ӄ側䩪㎤悌঱❮ᱼ䘉⡮壎➞ᘌ⾱㡪㸣ᱱኾᔅᖠຫ淮ൿ⋑咛䪺䓥ȇ䱺暞־ᘰ市礓ㆩ剀ጓ̇䧁↙࿧䉻副爚═匲䬪煎ŝ䋏䗦䴺⡙І硶䥸㥴摧ᑂ咒埭屋䕷炻ឿ䂰ㅰ㠣䒋1ࣈ攂ฉ挱纾㔭୸ಉ㔅䣓㺻‴屒琝ᣎၓ⬂ᭌಳⱁ䫦㆚泐⒀恔䙜篬惃ఉ檕ѵ⎕ൔ㛱刹ȶس٢㪐枠䞌嵂໭佘ጇ㎈⮖➅⸵癷ྯ娑ᑳ樤未᳌⁇䌉勥ය⇚᮵侵䥥秫❧Ფ儝ᶥ潹呚ëᑫΚ▪矋ɞᅗ劸Ԣ偊坫罃䃙揝౼⿱皦圸ಐㅪ匔ᦂ沽䄶⣼ᅨ䗂ᆕ乂瘠ቄ䢮亹㇄∂䷤幋ⱱ㋊⎶⵲⚵畇⡳䔫姈祏ტ䬓㉃⽟㋖⪮⡩㎵䭇⍳敥斜垳၊䔬ɍ὘ᄊ樎⯦僶繰䐤焿ẍ≐ũੲᎡ䫑ⲭ㖶剰Ԃ沦父㑬⥚呎ᗸ⭣咱⹖⩎䉣೼⸥䉨™ⓚ㤲桲╩ཱࣥ䣞䥦╈ڄ嚅㝷晱疑֦ٲ怂俊㏫竓⒭䯔中≅䘵≴㉡数զ巪䧪Ǯ᳄⡒㉉䰵⍅宴⸼ᅼ儯᠘⹑ӵൠ▧ᙿᏩြ°圱射ᨯ䦺牡敓ۊ婏ᩎ瓒>䨲㣉哐庱⪎⳵◠婹ΐ෤噺夾我に;䛨㱣⦋㈽禄ᦟ⵲友ཆ㪻㌪˅ㅑ彵⡼嶈▻ផỚ梊禪滒᪩劃⩩㮙ᒶ沼䂒㖸⥙ẜ厂拎廙ԅ沙䞰✵咂圡汄焍䁋乑サ⍧纮偿橡⤶⫥⦸汾榏ㄮᖫ䔂壘⹋瓚┡䫆ٕ哶啘ⶅ㖯¾ᄭஞ㓙䵥ဩ殏楽ソ㼭ლ㵺↗啍☤孪翊嚤ۋ哏揖ⲩⱕ梶奸ʛᗔ篱坦粊卫烁撵崤⣝㍕娇籊䉻l暐ஞ⃈ᢨ䑥塍ഈÔᱼඛ䮭纓ĭᔷᨪ溺⮧槁扣᪍ㅓ㻶獖Ⳳ痄烺㒠ɛ͡㚰仪㭃崘ޠ弲ត枪皹㈝恦㘻ⓊჁ哿઺侽⧭喵楿ṹ෋喌岪唺廭捖䛓䪗䶭⾕⏶祶அᦇ圪垒癫拈䖩㖆惻䴑Ạ䱆䚥丯⠴ȏ⅃ҡḗ屔缹᪯ӣѹە䞃煃瑍㓮曶納ᶌ䠻囫榚毋⩮ᥛᐿᏐ幪㨨᫇ᾀ᪑槨ᣙઌ游ⲵ䆤⥾޸淳杙哚妙㐢䟶嶄(ڰ 仛發序熻啈䴐ᑁ纍滐ᚮ୶槇㴅僕⹿慤ⶉ垼ሰ廻岍擕㌭㣕༝ጜ禐ⳳ樼橒械ێ㧼ጇာᤜ犋⧚⼎獶嬩㕩Ƕ喂ᗬ籥ष復櫸ற⿋㾾䛗䞁箔皌Ν凶䓚䯑痍㮂⬆ⰻↅ㱔➸玚ᴳ㛙厮䬋䔉۔亿᪈櫇㡍緵㥿➚洩嚍媚檋᥍淔⫱ઘ䠿䭍壒ⶏႋᦍ㗖Ǭ厝嶧圵奔䕈俫⭵獥㭸巉ኝ嚏❕ℋ㒵癄㫅哧⩥⳾埕᫰㞋ⶓ墻嗶猌Ĉ寋ڱ猌淗⦅磤噶檄渋᝭嬎攻漎凛泏㮶淸↭䏵᣸㹫෧朧庚筚戉擒瀦倸Ì䰎㨠ゾ᮸≃䏼᧸ᘘ狇࣭⹁⦾ⲛ㍝ᣇ⃾Ⲽൕ䦜咦䎅㹅⇅天䱐毋㋝綖➈㞌眍㑎栖䎛⯓痞䄶笂㈻㘹ᇗ憿㞕ᖫ咱刲瀜慈凋暭橝樿㼹檔ဳ睽ᷨရ壮唛楉俇㛈婙櫭㜁秈怠偿⤉搾ᾚ㜕喳朱縩඲扂☔㴇叹㩿畑▨暪䷜㉓䣰縴墴㏥⯐ɵ嬤▖巯矝嬞䶚‍緌滦箟溸思寧泷熈ͤ㞠㪬䂊ೋ⻖ș尚䴗ㄣ澔囶ὼ㔬省栾䪊ⴉߗș簖河啡焢㋩無╯偨ଂଁ翃倮峍෺䘲峘◛◻纍㔹恀嫝㈪᯴剧䖔વ⿾嬥␉灷Ƌβᢂ孃ᙋ尽担⍞ۤх⳹绖摔䝭煈盻ᚮ堦ᤈ䂞䪷㬹⼓ゝ䗗߼䥳◩᜾嫦倓ⴌⵂ懮㭎ֆ㧈⣠Ὠ准屛║ᓀ㘳秦๟啑櫄㑸夝㼯喾քᕚ柫䟌汊⃮᭜೬ᣭ爹㿩伄౾᫄檍≬嚂勴㍌寒㬋㯇⸻㚕咖ᑑ↑ൊෙ囁泻滭≥䫯抶櫈甅᪬㛴枘ⴥ摔㇦䢪ఌ棁殐䑂ტ㳙䯱࠽Ꭸ䁷珞䏲୪氧઴ㇹ㬷倨椥瘊偺࣮窛榀墝⸫ቪ㿗⻗宺殟㣽倖⑓罢ᷱ䞄㫡⹦ҏ撉⇢䙎ẗ㟝劭恞⤓ԯ๑嵱挻㔾俔懹穓⯠祑⊖六ⲗቕだ 㣌၀׀⻀㏠堤咫尿ᓍ 傤ী怤㱞࡬劶䛮ᘴ䑁+尲䦢֘ݳ㐣Ȣ㐷ⰺ䳪࢔♁冱‽垀Ⅵᆗ਩འ◧ࡑ发ψ䈠ᧇ⋦ࣛᒄǍᶰᣠ䢂帧甂悐͚㪉秇洓㇪樀⇐҉Ṅྣ嵘⡏偺õ䓈ຜ•温䡰⧦栜᫠掑Ռ潁₦᧏ʰడ䦾砽ᢚࢡטࠠ  "
+		}
+	]
+}
