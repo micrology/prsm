@@ -4,7 +4,7 @@ The main entry point for PRSM.
 
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
-import {IndexeddbPersistence} from 'y-indexeddb'
+// import {IndexeddbPersistence} from 'y-indexeddb'
 import {Network, parseGephiNetwork} from 'vis-network/peer'
 import {DataSet} from 'vis-data/peer'
 import diff from 'microdiff'
@@ -4307,10 +4307,9 @@ function showAvatars() {
 
 	if (me.length == 0) return // app is unloading
 	names.unshift(me[0][1].user) // push myself on to the front
-
-	// nothing has changed, just return
+	// if nothing has changed, just return
 	if (object_equals(previousNames, names)) return
-	previousNames = [...names]
+	previousNames = deepCopy(names)
 
 	let avatars = elem('avatars')
 	let currentCursors = []
