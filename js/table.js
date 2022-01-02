@@ -895,6 +895,9 @@ function convertNodeBack(node, field, value) {
 		case 'groupLabel':
 			node.grp = getNodeGroupFromGroupLabel(value)
 			break
+		case 'hidden':
+			hideNodeAndEdges(node, value)
+			break
 		case 'borderStyle':
 			if (node.borderWidth == 0) node.borderWidth = 4
 			switch (value) {
@@ -937,6 +940,20 @@ function convertNodeBack(node, field, value) {
 			break
 	}
 	return node
+}
+/**
+ * Set the node's hidden property to true, and hide all the connected edges (or the reverse if value is false)
+ * @param {object} node
+ * @param {boolean} value new value (hidden or not hidden)
+ */
+function hideNodeAndEdges(node, value) {
+	node.hidden = value
+	yEdgesMap.forEach((e) => {
+		if (e.from == node.id || e.to == node.id) {
+			e.hidden = value
+			yEdgesMap.set(e.id, e)
+		}
+	})
 }
 /**
  * Given a label for a style, return the style's group id.  Assumes that the style label is unique
@@ -1404,7 +1421,9 @@ function updateFilter() {
 function noteFilter(data, params) {
 	if (data.note) {
 		qed.setContents(data.note)
-		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert().replace(/(<([^>]+)>)/gi, "")
+		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true})
+			.convert()
+			.replace(/(<([^>]+)>)/gi, '')
 		switch (params.type) {
 			case 'like':
 				return html.includes(params.str)

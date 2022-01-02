@@ -138,6 +138,9 @@ function addEventListeners() {
 			e.preventDefault()
 		}
 	})
+	listen('net-pane', 'keydown', (e) => {
+		if (e.which == 8 || e.which == 46) deleteNode()
+	})
 	listen('recent-rooms-caret', 'click', createTitleDropDown)
 	listen('maptitle', 'keyup', mapTitle)
 	listen('maptitle', 'paste', pasteMapTitle)
