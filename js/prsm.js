@@ -42,7 +42,7 @@ import Quill from 'quill'
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
 import Hammer from '@egjs/hammerjs'
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js'
-import { setUpPaint, setUpToolbox, deselectTool, redraw } from './paint.js'
+import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js'
 import {version} from '../package.json'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
 
@@ -270,7 +270,7 @@ function startY(newRoom) {
 		room = generateRoom()
 		checkMapSaved = true
 	} else room = room.toUpperCase()
-/* 	const persistence = new IndexeddbPersistence(room, doc)
+	/* 	const persistence = new IndexeddbPersistence(room, doc)
 	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
 		if (data.nodes.length > 0) displayNetPane(exactTime() + ' local content loaded')
@@ -894,7 +894,7 @@ function draw() {
 	elem('nodesButton').click()
 
 	// listen for click events on the network pane
-	network.on('click', (params) => { 
+	network.on('click', (params) => {
 		if (/gui/.test(debug)) console.log('**click**')
 		let keys = params.event.pointers[0]
 		if (keys.metaKey) {
@@ -1008,12 +1008,12 @@ function draw() {
 				showPressed('addLink', 'add')
 				statusMsg('Now drag to the middle of the Destination factor')
 				network.setOptions({
-					interaction: { dragView: false, selectable: false },
+					interaction: {dragView: false, selectable: false},
 				})
 				network.addEdgeMode()
 				return
 			}
-		}	
+		}
 		changeCursor('grabbing')
 	})
 	/**
@@ -2763,6 +2763,12 @@ function exportPNGfile() {
 	elem('main').appendChild(bigNetPane)
 	bigNetwork = new Network(bigNetPane, data, {
 		physics: {enabled: false},
+		edges: {
+			smooth: {
+				enabled: elem('curveSelect').value === 'Curved',
+				type: 'straightCross'
+			},
+		},
 	})
 	bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
 	bigNetwork.moveTo({
@@ -3118,11 +3124,10 @@ function setButtonStatus(settings) {
 	yNetMap.set('background', settings.background || '#ffffff')
 	yNetMap.set('legend', settings.legend)
 	yNetMap.set('sizing', settings.sizing)
-	yNetMap.set('radius', { radiusSetting: 'All', selected: [] })
-	yNetMap.set('stream', { streamSetting: 'All', selected: [] })
-	yNetMap.set('paths', { pathsSetting: 'All', selected: [] })
+	yNetMap.set('radius', {radiusSetting: 'All', selected: []})
+	yNetMap.set('stream', {streamSetting: 'All', selected: []})
+	yNetMap.set('paths', {pathsSetting: 'All', selected: []})
 	yNetMap.set('cluster', 'All')
-
 }
 // Factors and Links Tabs
 function applySampleToNode(event) {
@@ -3590,7 +3595,8 @@ function hideDistantNodes() {
 
 	let nodeIdsInRadiusSet = new Set()
 	let linkIdsInRadiusSet = new Set()
-	inSet(selectedNodes, radius)
+	inSet(selectedNodes, radius, 'to')
+	inSet(selectedNodes, radius, 'from')
 
 	// update the network
 	hideNodesAndEdgesInSet(nodeIdsInRadiusSet, linkIdsInRadiusSet, 'radius')
@@ -3603,20 +3609,23 @@ function hideDistantNodes() {
 	/**
 	 * recursive function to collect Factors and Links within radius links from any of the nodes listed in nodeIds
 	 * Factor ids are collected in nodeIdsInRadiusSet and links in linkIdsInRadiusSet
+	 * Links are followed in a consistent direction, i.e. if 'to', only links directed away from the the nodes are followed
 	 * @param {string[]} nodeIds
 	 * @param {number} radius
+	 * @param {string} direction - either 'from' or 'to'
 	 */
-	function inSet(nodeIds, radius) {
+	function inSet(nodeIds, radius, direction) {
 		if (radius < 0) return
 		nodeIds.forEach((nId) => {
+			let linked = []
 			nodeIdsInRadiusSet.add(nId)
-			let links = network.getConnectedEdges(nId)
+			let links = network.getConnectedEdges(nId).filter((e) => data.edges.get(e)[direction] === nId)
 			if (links && radius >= 0)
 				links.forEach((lId) => {
 					linkIdsInRadiusSet.add(lId)
+					linked.push(data.edges.get(lId)[direction == 'to' ? 'from' : 'to'])
 				})
-			let linked = network.getConnectedNodes(nId)
-			if (linked) inSet(linked, radius - 1)
+			if (linked) inSet(linked, radius - 1, direction)
 		})
 	}
 }
@@ -3745,7 +3754,7 @@ function hideStreamNodes() {
 	}
 }
 /**
- * Sets the Analysis radio buttons and Factor selection according to values in global hiddenNodes 
+ * Sets the Analysis radio buttons and Factor selection according to values in global hiddenNodes
  *  (which is set when yNetMap is loaded, or when a file is read in)
  */
 function setAnalysisButtons() {
@@ -3815,15 +3824,15 @@ function showPaths() {
 						else {
 							edge.whyHidden = edge.whyHidden.filter((item) => item !== 'paths')
 							edge.hidden = edge.whyHidden.length > 0
-							linksToUpdate= pushnew(linksToUpdate, edge)
+							linksToUpdate = pushnew(linksToUpdate, edge)
 							let nodeTo = data.nodes.get(edge.to)
 							nodeTo.whyHidden = nodeTo.whyHidden.filter((item) => item !== 'paths')
 							nodeTo.hidden = nodeTo.whyHidden.length > 0
-							nodesToUpdate= pushnew(nodesToUpdate, nodeTo)
+							nodesToUpdate = pushnew(nodesToUpdate, nodeTo)
 							let nodeFrom = data.nodes.get(edge.from)
 							nodeFrom.whyHidden = nodeFrom.whyHidden.filter((item) => item !== 'paths')
 							nodeFrom.hidden = nodeFrom.whyHidden.length > 0
-							nodesToUpdate= pushnew(nodesToUpdate, nodeFrom)
+							nodesToUpdate = pushnew(nodesToUpdate, nodeFrom)
 						}
 					})
 				})
@@ -4218,6 +4227,8 @@ function setUpAwareness() {
 			followUser()
 		}
 	})
+	// regularly broadcast our own state, every 20 seconds
+	setInterval(() => yAwareness.setLocalState(yAwareness.getLocalState()), 20000)
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false)
 	var sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP)
