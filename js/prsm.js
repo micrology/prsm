@@ -1044,6 +1044,7 @@ function draw() {
 			let selectedNodes = data.nodes.get({
 				filter: function (node) {
 					return (
+						!node.hidden &&
 						node.x >= selectionCanvasStart.x &&
 						node.x <= selectionEnd.x &&
 						node.y >= selectionCanvasStart.y &&
@@ -2766,7 +2767,7 @@ function exportPNGfile() {
 		edges: {
 			smooth: {
 				enabled: elem('curveSelect').value === 'Curved',
-				type: 'straightCross'
+				type: 'straightCross',
 			},
 		},
 	})
@@ -3918,14 +3919,31 @@ function shortestPaths(all) {
 					}
 				})
 			} else {
-				let bestPath = new Array(data.nodes.length)
+				let bestPath = []
+				let bestPathLength = data.nodes.length
 				connectedNodes.forEach((next) => {
-					if (!visited.get(next)) {
-						let p = getPaths(next, dest)
-						if (Array.isArray(p) && p.length > 0) {
-							if (p.length < bestPath.length) bestPath = p
+//					console.log('checking ', nodeIdToLabel(source), ' next is ', nodeIdToLabel(next))
+					let p = visited.get(next)
+//					console.log('visited returns ', p)
+					if (!p) {
+						p = getPaths(next, dest)
+						visited.set(next, p)
+					}
+					if (Array.isArray(p) && p.length > 0) {
+//						console.log(
+//							'  path is ',
+//							p.map((nId) => nodeIdToLabel(nId))
+//						)
+						if (p.length < bestPathLength) {
+							bestPath = p
+							bestPathLength = p.length
 						}
 					}
+//					else console.log('  path is null: ', p)
+//					console.log(
+//						'   best path is ',
+//						bestPath.map((nId) => nodeIdToLabel(nId))
+//					)
 				})
 				path = path.concat(bestPath)
 			}
@@ -3935,6 +3953,12 @@ function shortestPaths(all) {
 		}
 	}
 }
+/* function nodeIdToLabel(id) {
+	if (!id) return id
+	let node = data.nodes.get(id)
+	if (!node) return 'node not found'
+	return node.label
+} */
 /**
  * Hide or reveal all the Factors with the given style
  * @param {Object} obj {sample: state}
