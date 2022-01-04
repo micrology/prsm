@@ -3,7 +3,7 @@ The main entry point for PRSM.
  */
 import * as Y from 'yjs';
 import {WebsocketProvider} from 'y-websocket';
-import {IndexeddbPersistence} from 'y-indexeddb';
+//import {IndexeddbPersistence} from 'y-indexeddb';
 import {Network, parseGephiNetwork} from 'vis-network/peer';
 import {DataSet} from 'vis-data/peer';
 import {
@@ -253,11 +253,11 @@ function startY(newRoom) {
 		room = generateRoom();
 		checkMapSaved = true;
 	} else room = room.toUpperCase();
-	const persistence = new IndexeddbPersistence(room, doc);
+	/* const persistence = new IndexeddbPersistence(room, doc);
 	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
 		if (data.nodes.length > 0) displayNetPane(exactTime() + ' local content loaded');
-	});
+	}); */
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
 	wsProvider.on('sync', () => {
 		displayNetPane(exactTime() + ' remote content loaded');
