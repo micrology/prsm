@@ -1,4 +1,4 @@
-import { Network } from 'vis-network/peer/'
+import {Network} from 'vis-network/peer/'
 import {DataSet} from 'vis-data/peer'
 import {
 	listen,
@@ -48,7 +48,7 @@ export function setUpSamples() {
 					label: groupLabel == undefined ? '' : groupLabel,
 				},
 				sampleOptions,
-				{chosen: false}
+				{ chosen: false, widthConstraint: 50, heightConstraint: 50, margin: 10, scaling: { label: { enabled: false } }}
 			),
 		])
 		initSample(sampleElement, {
@@ -90,17 +90,25 @@ export function setUpSamples() {
 						align: 'top',
 						vadjust: -40,
 					},
-					widthConstraint: 80,
+					widthConstraint: 100,
 				}
 			),
 		])
 		let nodesDataSet = new DataSet([
 			{
 				id: 1,
-			},
+				size: 5,
+				shape: 'dot',
+				fixed: true,
+				chosen: false,
+				},
 			{
 				id: 2,
-			},
+				size: 5,
+				shape: 'dot',
+				fixed: true,
+				chosen: false,
+				},
 		])
 		initSample(sampleElement, {
 			nodes: nodesDataSet,
@@ -289,6 +297,9 @@ function initSample(wrapper, sampleData) {
 				direction: 'LR',
 			},
 		},
+		nodes: {
+			widthConstraint: 50, heightConstraint: 50
+		},
 		edges: {
 			value: 10, // to make the links more visible at very small scale for the samples
 		},
@@ -339,7 +350,7 @@ function updateNodeEditor(groupId) {
 function nodeEditSave() {
 	let groupId = elem('nodeStyleEditorContainer').groupId
 	let group = styles.nodes[groupId]
-	group.groupLabel = splitText(elem('nodeEditName').value, NODESTYLEWIDTH)
+	group.groupLabel = elem('nodeEditName').value
 	if (group.groupLabel === '') group.groupLabel = 'Sample'
 	group.color.background = elem('nodeEditFillColor').style.backgroundColor
 	group.color.border = elem('nodeEditBorderColor').style.backgroundColor
@@ -608,8 +619,8 @@ function getArrows(prop) {
 
 var legendData = {nodes: new DataSet(), edges: new DataSet()}
 var legendNetwork = null
-const LEGENDSPACING = 50
-const HALFLEGENDWIDTH = 50
+const LEGENDSPACING = 60
+const HALFLEGENDWIDTH = 60
 /**
  * display a legend on the map (but only if the styles have been given names)
  * @param {Boolean} warn true if user is switching display legend on, but there is nothing to show
@@ -651,30 +662,28 @@ export function legend(warn = false) {
 		physics: {enabled: false},
 		interaction: {zoomView: false, dragView: false},
 	})
-	legendNetwork.moveTo({scale: 0.8})
-	let height = LEGENDSPACING / 2
+	let height = legendNetwork.DOMtoCanvas({x: 0, y: 0}).y
 	for (let i = 0; i < nodes.length; i++) {
 		let node = deepMerge(styles.nodes[nodes[i].groupNode])
 		node.id = i + 10000
-		let nodePos = legendNetwork.DOMtoCanvas({
-			x: HALFLEGENDWIDTH,
-			y: height,
-		})
-		node.x = nodePos.x
-		node.y = nodePos.y
-		node.label = splitText(node.groupLabel, 12)
+		node.label = node.groupLabel
 		node.fixed = true
 		node.chosen = false
 		node.margin = 10
+		node.x = 0
+		node.y = 0
+		node.widthConstraint = 40
+		node.heightConstraint = 40
+		node.font.size = 10
 		legendData.nodes.update(node)
-		height += LEGENDSPACING
+		let bbox = legendNetwork.getBoundingBox(node.id)
+		node.y = (bbox.bottom - bbox.top) / 2 + height
+		height += bbox.bottom - bbox.top
+		legendData.nodes.update(node)
 	}
+	height += 50
 	for (let i = 0; i < edges.length; i++) {
 		let edge = deepMerge(styles.edges[edges[i].groupLink])
-		let edgePos = legendNetwork.DOMtoCanvas({
-			x: HALFLEGENDWIDTH,
-			y: height,
-		})
 		edge.label = edge.groupLabel
 		edge.id = i + 10000
 		edge.from = i + 20000
@@ -686,10 +695,10 @@ export function legend(warn = false) {
 		let nodes = [
 			{
 				id: edge.from,
-				shape: 'dot',
 				size: 5,
-				x: edgePos.x - 25,
-				y: edgePos.y,
+				shape: 'dot',
+				x: -25,
+				y: height,
 				fixed: true,
 				chosen: false,
 			},
@@ -697,18 +706,19 @@ export function legend(warn = false) {
 				id: edge.to,
 				shape: 'dot',
 				size: 5,
-				x: edgePos.x + 25,
-				y: edgePos.y,
+				x: +25,
+				y: height,
 				fixed: true,
 				chosen: false,
 			},
 		]
 		legendData.nodes.update(nodes)
 		legendData.edges.update(edge)
-		height += LEGENDSPACING
+		height += 50
 	}
 	legendNetwork.fit({})
 }
+window.legendData = legendData
 /**
  * remove the legend from the map
  */

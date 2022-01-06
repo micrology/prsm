@@ -2633,9 +2633,7 @@ function refreshSampleNodes() {
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i]
 		let node = sampleElement.dataSet.get()[0]
-		node = deepMerge(node, styles.nodes['group' + i], {
-			value: styles.nodes['base'].scaling.max,
-		})
+		node = deepMerge(node, styles.nodes['group' + i])
 		node.label = node.groupLabel
 		sampleElement.dataSet.remove(node.id)
 		sampleElement.dataSet.update(node)
@@ -3980,7 +3978,7 @@ function sizingSwitch(e) {
 
 /**
  * set the size of the nodes proportional to the selected metric
- * @param {String} metric none, in degree out degree or betweenness centrality
+ * @param {String} metric none, in degree, out degree or betweenness centrality
  */
 function sizing(metric) {
 	let nodesToUpdate = []
