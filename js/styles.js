@@ -4,7 +4,6 @@ import {
 	listen,
 	elem,
 	pushnew,
-	splitText,
 	deepMerge,
 	deepCopy,
 	standardize_color,
@@ -24,8 +23,6 @@ import {
 	cp,
 } from './prsm.js'
 import {styles} from './samples.js'
-
-const NODESTYLEWIDTH = 10 // chars for label splitting
 
 /**
  * The samples are each a mini vis-network showing just one node or two nodes and a link
