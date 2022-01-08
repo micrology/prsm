@@ -44,14 +44,11 @@
 		"@types/quill": "^2.0.9",
 		"3d-force-graph": "^1.70.5",
 		"fast-xml-parser": "^3.19.0",
-		"js-base64": "^3.7.2",
 		"lz-string": "^1.4.4",
-		"parcel": "^2.0.0-nightly.961",
 		"quill": "^1.3.7",
 		"quill-delta-to-html": "^0.12.0",
 		"scrollnav": "^3.0.2",
 		"tabulator-tables": "^4.9.3",
-		"three-spritetext": "^1.6.3",
 		"uniqolor": "^1.0.1",
 		"uuid": "^8.3.2",
 		"vis-data": "^7.1.2",
@@ -63,13 +60,13 @@
 		"yjs": "^13.5.11"
 	},
 	"devDependencies": {
+		"parcel": "^2.0.0-nightly.961",
 		"@parcel/transformer-image": "latest",
 		"eslint": "^7.31.0",
 		"eslint-config-prettier": "^8.3.0",
 		"foodoc": "0.0.9",
 		"jsdoc": "^3.6.7",
 		"microdiff": "^1.1.3",
-		"npm-upgrade": "^3.0.0",
 		"prettier": "^2.3.2"
 	},
 	"private": true
