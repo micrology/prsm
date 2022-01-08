@@ -2205,6 +2205,7 @@ function plusLink() {
 function stopEdit() {
 	inAddMode = false
 	network.disableEditMode()
+	clearStatusBar()
 	changeCursor('default')
 }
 /**

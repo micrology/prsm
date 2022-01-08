@@ -495,24 +495,27 @@ export function generateName() {
  */
 /**
  * show status messages at the bottom of the window
+ * if status is warn or error, msg is displayed in a bubble that fades in and out
  * @param {string} msg
  * @param {string} [status] type of msg - warning, error or other
  */
 export function statusMsg(msg, status) {
-	let el = elem('statusBar')
-	switch (status) {
-		case 'warn':
-			el.style.backgroundColor = 'yellow'
-			break
-		case 'error':
-			el.style.backgroundColor = 'red'
-			el.style.color = 'white'
-			break
-		default:
-			el.style.backgroundColor = 'white'
-			break
+	if (!status) {
+		elem('statusBar').innerHTML = htmlEntities(msg)
+		return
 	}
-	el.innerHTML = htmlEntities(msg)
+	let errMsgElement = elem('errMsg')
+	if (status == 'warn') {
+		errMsgElement.style.backgroundColor = '#FFEB3B'
+		errMsgElement.style.color = 'black'
+	}
+	if (status == 'error') {
+		errMsgElement.style.backgroundColor = 'red'
+		errMsgElement.style.color = 'white'
+	}
+	errMsgElement.innerHTML = msg
+	listen('errMsg', "animationend", () => { elem('errMsg').classList.remove('fadeInAndOut') })
+	errMsgElement.classList.add('fadeInAndOut')
 }
 /**
  * replace special characters with their HTML entity codes

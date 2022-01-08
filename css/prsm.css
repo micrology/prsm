@@ -198,6 +198,34 @@ footer {
 	border-top: 1px solid lightgrey;
 	user-select: none;
 }
+#errMsg {
+	position: absolute;
+	bottom: 40px;
+	left: 10px;
+	color: white;
+	padding: 10px;
+	border-radius: 10px;
+	opacity: 0;
+}
+.fadeInAndOut {
+	animation-name: showErrMsg;
+	animation-duration: 10s;
+	animation-iteration-count: 1;
+}
+@keyframes showErrMsg {
+	from {
+		opacity: 0;
+	}
+	20% {
+		opacity: 1;
+	}
+	80% {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
 #statusBar {
 	padding: 3px 20px;
 	border-radius: 5px;
