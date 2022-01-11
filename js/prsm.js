@@ -11,7 +11,6 @@ import diff from 'microdiff'
 import {
 	listen,
 	elem,
-	pushnew,
 	getScaleFreeNetwork,
 	uuidv4,
 	isEmpty,
@@ -198,13 +197,13 @@ function addEventListeners() {
 	listen('clustering', 'change', selectClustering)
 	listen('lock', 'click', setFixed)
 	Array.from(document.getElementsByName('radius')).forEach((elem) => {
-		elem.addEventListener('change', hideDistantNodes)
+		elem.addEventListener('change', analyse)
 	})
 	Array.from(document.getElementsByName('stream')).forEach((elem) => {
-		elem.addEventListener('change', hideStreamNodes)
+		elem.addEventListener('change', analyse)
 	})
 	Array.from(document.getElementsByName('paths')).forEach((elem) => {
-		elem.addEventListener('change', showPaths)
+		elem.addEventListener('change', analyse)
 	})
 	listen('sizing', 'change', sizingSwitch)
 	Array.from(document.getElementsByClassName('sampleNode')).forEach((elem) =>
@@ -491,63 +490,64 @@ function startY(newRoom) {
 	yNetMap.observe((event) => {
 		yjsTrace('YNetMap.observe', event)
 
-		for (let key of event.keysChanged) {
-			let obj = yNetMap.get(key)
-			switch (key) {
-				case 'mapTitle':
-				case 'maptitle':
-					setMapTitle(obj)
-					break
-				case 'snapToGrid':
-					doSnapToGrid(obj)
-					break
-				case 'curve':
-					setCurve(obj)
-					break
-				case 'background':
-					setBackground(obj)
-					break
-				case 'legend':
-					setLegend(obj, false)
-					break
-				case 'showNotes':
-					doShowNotes(obj)
-					break
-				case 'radius':
-					hiddenNodes.radiusSetting = obj.radiusSetting
-					hiddenNodes.selected = obj.selected
-					setAnalysisButtons()
-					break
-				case 'stream':
-					hiddenNodes.streamSetting = obj.streamSetting
-					hiddenNodes.selected = obj.selected
-					setAnalysisButtons()
-					break
-				case 'paths':
-					hiddenNodes.pathsSetting = obj.pathsSetting
-					hiddenNodes.selected = obj.selected
-					setAnalysisButtons()
-					break
-				case 'sizing':
-					sizing(obj)
-					break
-				case 'hideAndStream':
-				case 'linkRadius':
-					// old settings (before v1.6) - ignore
-					break
-				case 'factorsHiddenByStyle':
-					updateFactorsHiddenByStyle(obj)
-					break
-				case 'attributeTitles':
-					recreateClusteringMenu(obj)
-					break
-				case 'cluster':
-					setCluster(obj)
-					break
-				default:
-					console.log('Bad key in yMapNet.observe: ', key)
+		if (event.transaction.local === false)
+			for (let key of event.keysChanged) {
+				let obj = yNetMap.get(key)
+				switch (key) {
+					case 'mapTitle':
+					case 'maptitle':
+						setMapTitle(obj)
+						break
+					case 'snapToGrid':
+						doSnapToGrid(obj)
+						break
+					case 'curve':
+						setCurve(obj)
+						break
+					case 'background':
+						setBackground(obj)
+						break
+					case 'legend':
+						setLegend(obj, false)
+						break
+					case 'showNotes':
+						doShowNotes(obj)
+						break
+					case 'radius':
+						hiddenNodes.radiusSetting = obj.radiusSetting
+						hiddenNodes.selected = obj.selected
+						setAnalysisButtonsFromRemote()
+						break
+					case 'stream':
+						hiddenNodes.streamSetting = obj.streamSetting
+						hiddenNodes.selected = obj.selected
+						setAnalysisButtonsFromRemote()
+						break
+					case 'paths':
+						hiddenNodes.pathsSetting = obj.pathsSetting
+						hiddenNodes.selected = obj.selected
+						setAnalysisButtonsFromRemote()
+						break
+					case 'sizing':
+						sizing(obj)
+						break
+					case 'hideAndStream':
+					case 'linkRadius':
+						// old settings (before v1.6) - ignore
+						break
+					case 'factorsHiddenByStyle':
+						updateFactorsHiddenByStyle(obj)
+						break
+					case 'attributeTitles':
+						recreateClusteringMenu(obj)
+						break
+					case 'cluster':
+						setCluster(obj)
+						break
+					default:
+						console.log('Bad key in yMapNet.observe: ', key)
+				}
 			}
-		}
 	})
 	yPointsArray.observe((event) => {
 		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1))
@@ -625,7 +625,8 @@ function displayNetPane(msg) {
 		savedState = compressToUTF16(
 			JSON.stringify({nodes: data.nodes.get(), edges: data.edges.get(), net: yNetMap.toJSON()})
 		)
-		setAnalysisButtons()
+		setAnalysisButtonsFromRemote()
+		setLegend(yNetMap.get('legend'), false)
 	}
 }
 
@@ -944,17 +945,17 @@ function draw() {
 		if (/gui/.test(debug)) console.log('selectNode')
 		showSelected()
 		showNodeOrEdgeData()
-		if (getRadioVal('radio') !== 'All') hideDistantNodes()
-		if (getRadioVal('stream') !== 'All') hideStreamNodes()
-		if (getRadioVal('paths') !== 'All') showPaths()
+		if (getRadioVal('radio') !== 'All') analyse()
+		if (getRadioVal('stream') !== 'All') analyse()
+		if (getRadioVal('paths') !== 'All') analyse()
 	})
 	network.on('deselectNode', function () {
 		if (/gui/.test(debug)) console.log('deselectNode')
-		hideNotes()
-		clearStatusBar()
-		if (getRadioVal('radio') !== 'All') hideDistantNodes()
-		if (getRadioVal('stream') !== 'All') hideStreamNodes()
-		if (getRadioVal('paths') !== 'All') showPaths()
+		showSelected()
+		showNodeOrEdgeData()
+		if (getRadioVal('radio') !== 'All') analyse()
+		if (getRadioVal('stream') !== 'All') analyse()
+		if (getRadioVal('paths') !== 'All') analyse()
 	})
 	network.on('hoverNode', function () {
 		changeCursor('grab')
@@ -2017,8 +2018,11 @@ function selectedLabels() {
  * show the nodes and links selected in the status bar
  */
 function showSelected() {
-	let msg = selectedLabels()
-	if (msg.length > 0) statusMsg(msg + ' selected')
+	if (network.getSelectedNodes().length == 0) clearStatusBar()
+	else {
+		let msg = selectedLabels()
+		if (msg.length > 0) statusMsg(msg + ' selected')
+	}
 }
 /* zoom slider */
 Network.prototype.zoom = function (scale) {
@@ -3182,6 +3186,19 @@ export function updateLastSamples(nodeId, linkId) {
 	}
 }
 
+/**
+ * Hide or reveal all the Factors with the given style
+ * @param {Object} obj {sample: state}
+ */
+function updateFactorsHiddenByStyle(obj) {
+	for (const sampleElementId in obj) {
+		let sampleElement = elem(sampleElementId)
+		let state = obj[sampleElementId]
+		sampleElement.dataset.hide = state ? 'hidden' : 'visible'
+		sampleElement.style.opacity = state ? 0.6 : 1.0
+	}
+}
+
 /********************************************************Notes********************************************** */
 /**
  * Globally either display or don't display notes when a factor or link is selected
@@ -3536,228 +3553,10 @@ function setRadioVal(name, value) {
 }
 
 /**
- * For all Factors and Links, test whether they are hidden and if so, whether they are hidden for
- * the given reason.  If so, remove that reason and if there are no more remaining reason for them to
- * be hidden, unhide them
- * @param {String} reason
- */
-function unHideAll(reason) {
-	let nodes = data.nodes.get({
-		filter: function (node) {
-			let h = node.hidden && node.whyHidden?.includes(reason)
-			if (h) {
-				node.whyHidden = node.whyHidden.filter((item) => item !== reason)
-				node.hidden = node.whyHidden.length > 0
-			}
-			return h
-		},
-	})
-	if (nodes) data.nodes.update(nodes)
-	let edges = data.edges.get({
-		filter: function (edge) {
-			let h = edge.hidden && edge.whyHidden?.includes(reason)
-			if (h) {
-				edge.whyHidden = edge.whyHidden.filter((item) => item !== reason)
-				edge.hidden = edge.whyHidden.length > 0
-			}
-			return h
-		},
-	})
-	if (edges) data.edges.update(edges)
-}
-/**
- * Hide all factors that are more than x links away from the selected Factors
- */
-function hideDistantNodes() {
-	// get the nodes (and links) in radius of the selected nodes,
-	// and then hide everything not in that radius
-	let radius = getRadioVal('radius')
-	unHideAll('radius')
-	let selectedNodes = network.getSelectedNodes()
-	if (selectedNodes.length === 0 && radius !== 'All') {
-		statusMsg('A Factor needs to be selected', 'warn')
-		elem('radiusAll').checked = true
-		yNetMap.set('radius', {
-			radiusSetting: 'All',
-			selected: selectedNodes,
-		})
-		return
-	}
-	yNetMap.set('radius', {
-		radiusSetting: radius,
-		selected: selectedNodes,
-	})
-	if (radius == 'All') {
-		showSelected()
-		if (getRadioVal('paths') !== 'All') showPaths()
-		return
-	}
-
-	let nodeIdsInRadiusSet = new Set()
-	let linkIdsInRadiusSet = new Set()
-	inSet(selectedNodes, radius, 'to')
-	inSet(selectedNodes, radius, 'from')
-
-	// update the network
-	hideNodesAndEdgesInSet(nodeIdsInRadiusSet, linkIdsInRadiusSet, 'radius')
-
-	// recalculate shortest paths if that is required, because the nodes to use may have changed
-	if (getRadioVal('paths') !== 'All') showPaths()
-
-	statusMsg(`Showing Factors ${radius} link${radius > 1 ? 's' : ''} away from ${selectedLabels()}`)
-
-	/**
-	 * recursive function to collect Factors and Links within radius links from any of the nodes listed in nodeIds
-	 * Factor ids are collected in nodeIdsInRadiusSet and links in linkIdsInRadiusSet
-	 * Links are followed in a consistent direction, i.e. if 'to', only links directed away from the the nodes are followed
-	 * @param {string[]} nodeIds
-	 * @param {number} radius
-	 * @param {string} direction - either 'from' or 'to'
-	 */
-	function inSet(nodeIds, radius, direction) {
-		if (radius < 0) return
-		nodeIds.forEach((nId) => {
-			let linked = []
-			nodeIdsInRadiusSet.add(nId)
-			let links = network.getConnectedEdges(nId).filter((e) => data.edges.get(e)[direction] === nId)
-			if (links && radius >= 0)
-				links.forEach((lId) => {
-					linkIdsInRadiusSet.add(lId)
-					linked.push(data.edges.get(lId)[direction == 'to' ? 'from' : 'to'])
-				})
-			if (linked) inSet(linked, radius - 1, direction)
-		})
-	}
-}
-
-/**
- * Hide all the Factors and Links in the given Sets and add the reason why they are hidden
- * @param {Set} nodeSet
- * @param {Set} edgeSet
- * @param {string} reason
- */
-function hideNodesAndEdgesInSet(nodeSet, edgeSet, reason) {
-	data.nodes.update(
-		data.nodes.map((node) => {
-			if (!nodeSet.has(node.id)) {
-				node.hidden = true
-				node.whyHidden = pushnew(node.whyHidden, reason)
-			}
-			return node
-		})
-	)
-	data.edges.update(
-		data.edges.map((edge) => {
-			if (!edgeSet.has(edge.id)) {
-				edge.hidden = true
-				edge.whyHidden = pushnew(edge.whyHidden, reason)
-			}
-			return edge
-		})
-	)
-}
-/**
- * Hide all the factors that are upstream or downstream of the selected factors
- */
-function hideStreamNodes() {
-	// get the nodes (and links) up or downstream of selected nodes,
-	// and then hide everything else
-	let stream = getRadioVal('stream')
-	unHideAll('stream')
-	let selectedNodes = network.getSelectedNodes()
-	if (selectedNodes.length === 0 && stream !== 'All') {
-		statusMsg('A Factor needs to be selected', 'warn')
-		// unhide everything
-		elem('streamAll').checked = true
-		yNetMap.set('stream', {
-			streamSetting: 'All',
-			selected: selectedNodes,
-		})
-		return
-	}
-	yNetMap.set('stream', {
-		streamSetting: stream,
-		selected: selectedNodes,
-	})
-	if (stream == 'All') {
-		showSelected()
-		if (getRadioVal('paths') !== 'All') showPaths()
-		return
-	}
-	let nodeIdsInStreamSet = new Set()
-	let linkIdsInStreamSet = new Set()
-
-	if (stream == 'upstream') upstream(selectedNodes)
-	else downstream(selectedNodes)
-	addAllLinks()
-
-	// update the network
-	hideNodesAndEdgesInSet(nodeIdsInStreamSet, linkIdsInStreamSet, 'stream')
-
-	// recalculate shortest paths if that is required, because the nodes to use may have changed
-	if (getRadioVal('paths') !== 'All') showPaths()
-
-	statusMsg(`Showing Factors ${stream} from ${selectedLabels()}`)
-
-	/**
-	 * Recursive function to collect into nodeIdsInStreamSet the factors that are upstream of the given nodeIds
-	 * @param {array[]} nodeIds
-	 */
-	function upstream(nodeIds) {
-		nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId))
-		nodeIds.forEach((nId) => {
-			let links = data.edges.get({
-				filter: function (item) {
-					return item.to == nId
-				},
-			})
-			links.forEach((link) => {
-				if (!nodeIdsInStreamSet.has(link.from)) {
-					upstream([link.from])
-				}
-			})
-		})
-	}
-
-	/**
-	 * Recursive function to collect into nodeIdsInStreamSet the factors that are downstream of the given nodeIds
-	 * @param {array[]} nodeIds
-	 */
-	function downstream(nodeIds) {
-		nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId))
-		nodeIds.forEach((nId) => {
-			let links = data.edges.get({
-				filter: function (item) {
-					return item.from == nId
-				},
-			})
-			links.forEach((link) => {
-				if (!nodeIdsInStreamSet.has(link.to)) {
-					downstream([link.to])
-				}
-			})
-		})
-	}
-
-	/**
-	 * Collect the links that go both to and from factors that are included in nodeIdsInStreamSet
-	 * into linkIdsInStreamSet
-	 */
-	function addAllLinks() {
-		data.edges
-			.get({
-				filter: function (edge) {
-					return nodeIdsInStreamSet.has(edge.from) && nodeIdsInStreamSet.has(edge.to)
-				},
-			})
-			.forEach((edge) => linkIdsInStreamSet.add(edge.id))
-	}
-}
-/**
  * Sets the Analysis radio buttons and Factor selection according to values in global hiddenNodes
  *  (which is set when yNetMap is loaded, or when a file is read in)
  */
-function setAnalysisButtons() {
+function setAnalysisButtonsFromRemote() {
 	if (netLoaded) {
 		let selectedNodes = [].concat(hiddenNodes.selected) // ensure that hiddenNodes.selected is an array
 		if (selectedNodes.length > 0) {
@@ -3770,204 +3569,331 @@ function setAnalysisButtons() {
 	}
 }
 
-/**
- * hide all links except those between the selected factors (either those on all the paths or the shortest path)
- */
-function showPaths() {
-	let radio = getRadioVal('paths')
+function setYMapAnalysisButtons() {
 	let selectedNodes = network.getSelectedNodes()
-	if (radio !== 'All' && selectedNodes.length < 2) {
-		statusMsg('Select at least 2 factors to show paths between them', 'warn')
-		elem('pathsAll').checked = true
-		yNetMap.set('paths', {
-			pathsSetting: 'All',
-			selected: selectedNodes,
-		})
-		unHideAll('paths')
-		return
-	}
-	yNetMap.set('paths', {
-		pathsSetting: radio,
+	yNetMap.set('radius', {
+		radiusSetting: getRadioVal('radius'),
 		selected: selectedNodes,
 	})
-	let linksToUpdate = []
-	let nodesToUpdate = []
-	unHideAll('paths')
-	switch (radio) {
-		case 'All':
-			showSelected()
-			return
-		case 'allPaths':
-		case 'shortestPath':
-			{
-				let paths = shortestPaths(radio === 'allPaths')
-				if (paths.length == 0) {
-					statusMsg('No path between the selected Factors', 'warn')
-					elem('pathsAll').checked = true
-					return
-				}
-				// hide every node and link, before unhiding those that make up the paths
-				data.edges.get().forEach((edge) => {
-					edge.hidden = true
-					edge.whyHidden = pushnew(edge.whyHidden, 'paths')
-					linksToUpdate.push(edge)
-				})
-				data.nodes.get().forEach((node) => {
-					node.hidden = true
-					node.whyHidden = pushnew(node.whyHidden, 'paths')
-					nodesToUpdate.push(node)
-				})
-				paths.forEach((links) => {
-					links.forEach((link) => {
-						let edge = data.edges.get({filter: (e) => e.to === link.to && e.from === link.from})[0]
-						if (!edge) console.log(`Link ${link} not found`)
-						else {
-							edge.whyHidden = edge.whyHidden.filter((item) => item !== 'paths')
-							edge.hidden = edge.whyHidden.length > 0
-							linksToUpdate = pushnew(linksToUpdate, edge)
-							let nodeTo = data.nodes.get(edge.to)
-							nodeTo.whyHidden = nodeTo.whyHidden.filter((item) => item !== 'paths')
-							nodeTo.hidden = nodeTo.whyHidden.length > 0
-							nodesToUpdate = pushnew(nodesToUpdate, nodeTo)
-							let nodeFrom = data.nodes.get(edge.from)
-							nodeFrom.whyHidden = nodeFrom.whyHidden.filter((item) => item !== 'paths')
-							nodeFrom.hidden = nodeFrom.whyHidden.length > 0
-							nodesToUpdate = pushnew(nodesToUpdate, nodeFrom)
-						}
-					})
-				})
-			}
-			break
-		default:
-			console.log('Bad selector in showPaths()')
-	}
-	data.edges.update(linksToUpdate)
-	data.nodes.update(nodesToUpdate)
-	statusMsg(`Showing ${radio == 'allPaths' ? 'all paths' : 'the shortest path'} between ${selectedLabels()}`)
-}
-
-/**
- * Given two or more selected factors, return a list of all the links that are either on any path between them, or just the ones on the shortest paths between them
- * @param {Boolean} all when true, find all the links that connect to the selected factors; when false, find the shortest paths between the selected factors
- * @returns	Arrays of object with from: and to: properties for all the links (an empty array if there is no path between any of the selected factors)
- */
-function shortestPaths(all) {
-	let selectedNodes = network.getSelectedNodes()
-	let visited = new Map()
-	let allPaths = []
-	// list of all pairs of the selected factors
-	let combos = selectedNodes.flatMap((v, i) => selectedNodes.slice(i + 1).map((w) => [v, w]))
-	// for each pair, find the sequences of links in both directions and combine them
-	combos.forEach((combo) => {
-		let source = combo[0]
-		let dest = combo[1]
-		let links = pathList(source, dest, all)
-		if (links.length > 0) allPaths.push(links)
-		links = pathList(dest, source, all)
-		if (links.length > 0) allPaths.push(links)
+	yNetMap.set('stream', {
+		streamSetting: getRadioVal('stream'),
+		selected: selectedNodes,
 	})
-	return allPaths
+	yNetMap.set('paths', {
+		pathsSetting: getRadioVal('paths'),
+		selected: selectedNodes,
+	})
+}
+/**
+ * Hide factors and links to show only those closest to the selected factors and/or
+ * those up/downstream and/or those on paths between the selected factors
+ */
+function analyse() {
+	let selectedNodes = network.getSelectedNodes()
+	setYMapAnalysisButtons()
+	// get all nodes and edges and unhide them before hiding those not wanted to be visible
+	let nodes = data.nodes
+		.get()
+		.filter((n) => !n.isCluster)
+		.map((n) => {
+			n.hidden = false
+			return n
+		})
+	let edges = data.edges
+		.get()
+		.filter((e) => !e.isClusterEdge)
+		.map((e) => {
+			e.hidden = false
+			return e
+		})
+	// if showing everything, we are done
+	if (getRadioVal('radius') == 'All' && getRadioVal('stream') == 'All' && getRadioVal('paths') == 'All') {
+		setYMapAnalysisButtons()
+		data.nodes.update(nodes)
+		data.edges.update(edges)
+		return
+	}
+
+	// check that at least one factor is selected
+	if (selectedNodes.length == 0) {
+		statusMsg('A Factor needs to be selected', 'warn')
+		setRadioVal('radius', 'All')
+		setRadioVal('stream', 'All')
+		setRadioVal('paths', 'All')
+		setYMapAnalysisButtons()
+		return
+	}
+	// but paths between factors needs at least two
+	if (getRadioVal('paths') !== 'All' && selectedNodes.length < 2) {
+		statusMsg('Select at least 2 factors to show paths between them', 'warn')
+		setRadioVal('paths', 'All')
+		setYMapAnalysisButtons()
+		return
+	}
+
+	//these operations are not commutative (at least for networks with loops), so do them all in order
+	if (getRadioVal('radius') !== 'All') hideNodesByRadius(selectedNodes, parseInt(getRadioVal('radius')))
+	if (getRadioVal('stream') !== 'All') hideNodesByStream(selectedNodes, getRadioVal('stream'))
+	if (getRadioVal('paths') !== 'All') hideNodesByPaths(selectedNodes, getRadioVal('paths'))
+
+	// finally display the map with its hidden factors and edges
+	data.nodes.update(nodes)
+	data.edges.update(edges)
 
 	/**
-	 * find the paths (as a list of links) that connect the source and destination
-	 * @param {String} source
-	 * @param {String} dest
-	 * @param {Boolean} all true of all paths between Source and Destination are wanted; false if just the shortest path
-	 * @returns an array of lists of links that connect the paths
+	 * Hide factors that are more than radius links distant from those selected
+	 * @param {string[]} selectedNodes
+	 * @param {Integer} radius
 	 */
-	function pathList(source, dest, all) {
-		visited.clear()
-		let links = []
-		let paths = getPaths(source, dest)
-		// if no path found, getPaths return an array of length greater than the total number of factors in the map, or a string
-		// in this case, return an empty list
-		if (!Array.isArray(paths) || paths.length === data.nodes.length + 1) paths = []
-		if (!all) {
-			for (let i = 0; i < paths.length - 1; i++) {
-				links.push({from: paths[i], to: paths[i + 1]})
-			}
-		}
-		return links
+	function hideNodesByRadius(selectedNodes, radius) {
+		let nodeIdsInRadiusSet = new Set()
+		let linkIdsInRadiusSet = new Set()
+
+		// put those factors and links within radius links into these sets
+		inSet(selectedNodes, radius, 'from')
+		inSet(selectedNodes, radius, 'to')
+
+		// hide all nodes and edges not in radius
+		nodes.forEach((n) => {
+			if (!nodeIdsInRadiusSet.has(n.id)) n.hidden = true
+		})
+		edges.forEach((e) => {
+			if (!linkIdsInRadiusSet.has(e.id)) e.hidden = true
+		})
+
 		/**
-		 * recursively explore the map starting from source until destination is reached.
-		 * stop if a factor has already been visited, or at a dead end (zero out-degree)
-		 * @param {String} source
-		 * @param {String} dest
-		 * @returns an array of factors, the path so far followed
+		 * recursive function to collect Factors and Links within radius links from any of the nodes listed in nodeIds
+		 * Factor ids are collected in nodeIdsInRadiusSet and links in linkIdsInRadiusSet
+		 * Links are followed in a consistent direction, i.e. if 'to', only links directed away from the the nodes are followed
+		 * @param {string[]} nodeIds
+		 * @param {number} radius
+		 * @param {string} direction - either 'from' or 'to'
 		 */
-		function getPaths(source, dest) {
-			if (source === dest) return [dest]
-			visited.set(source, true)
-			let path = [source]
-			// only consider nodes that are not hidden
-			let connectedNodes = network.getConnectedNodes(source, 'to').filter((n) => !data.nodes.get(n).hidden)
-			if (connectedNodes.length === 0) return 'deadend'
-			if (all) {
-				connectedNodes.forEach((next) => {
-					let vis = visited.get(next)
-					if (vis === 'onpath') {
-						links.push({from: source, to: next})
-						path = path.concat([next])
-					} else if (!vis) {
-						let p = getPaths(next, dest)
-						if (Array.isArray(p) && p.length > 0) {
-							links.push({from: source, to: next})
-							visited.set(next, 'onpath')
-							path = path.concat(p)
-						}
-					}
-				})
-			} else {
-				let bestPath = []
-				let bestPathLength = data.nodes.length
-				connectedNodes.forEach((next) => {
-//					console.log('checking ', nodeIdToLabel(source), ' next is ', nodeIdToLabel(next))
-					let p = visited.get(next)
-//					console.log('visited returns ', p)
-					if (!p) {
-						p = getPaths(next, dest)
-						visited.set(next, p)
-					}
-					if (Array.isArray(p) && p.length > 0) {
-//						console.log(
-//							'  path is ',
-//							p.map((nId) => nodeIdToLabel(nId))
-//						)
-						if (p.length < bestPathLength) {
-							bestPath = p
-							bestPathLength = p.length
-						}
-					}
-//					else console.log('  path is null: ', p)
-//					console.log(
-//						'   best path is ',
-//						bestPath.map((nId) => nodeIdToLabel(nId))
-//					)
-				})
-				path = path.concat(bestPath)
-			}
-			// if no progress has been made (the path is just the initial source factor), return an empty path
-			if (path.length == 1) path = []
-			return path
+		function inSet(nodeIds, radius, direction) {
+			if (radius < 0) return
+			nodeIds.forEach((nId) => {
+				let linked = []
+				nodeIdsInRadiusSet.add(nId)
+				let links = network.getConnectedEdges(nId).filter((e) => data.edges.get(e)[direction] === nId)
+				if (links && radius > 0)
+					links.forEach((lId) => {
+						linkIdsInRadiusSet.add(lId)
+						linked.push(data.edges.get(lId)[direction == 'to' ? 'from' : 'to'])
+					})
+				if (linked) inSet(linked, radius - 1, direction)
+			})
 		}
 	}
-}
-/* function nodeIdToLabel(id) {
-	if (!id) return id
-	let node = data.nodes.get(id)
-	if (!node) return 'node not found'
-	return node.label
-} */
-/**
- * Hide or reveal all the Factors with the given style
- * @param {Object} obj {sample: state}
- */
-function updateFactorsHiddenByStyle(obj) {
-	for (const sampleElementId in obj) {
-		let sampleElement = elem(sampleElementId)
-		let state = obj[sampleElementId]
-		sampleElement.dataset.hide = state ? 'hidden' : 'visible'
-		sampleElement.style.opacity = state ? 0.6 : 1.0
+	/**
+	 * Hide factors that are not up or downstream from the selected factors.
+	 * Does not include links or factors that are already hidden
+	 * @param {string[]} selectedNodes
+	 * @param {string} direction - 'upstream' or 'downstream'
+	 */
+	function hideNodesByStream(selectedNodes, direction) {
+		let nodeIdsInStreamSet = new Set()
+		let linkIdsInStreamSet = new Set()
+		let radiusVal = getRadioVal('radius')
+		let radius = Infinity
+		if (radiusVal !== 'All') {
+			radius = parseInt(radiusVal)
+		}
+
+		if (direction == 'upstream') upstream(selectedNodes, radius)
+		else downstream(selectedNodes, radius)
+
+		// hide all nodes and edges not up or down stream
+		nodes.forEach((n) => {
+			if (!nodeIdsInStreamSet.has(n.id)) n.hidden = true
+		})
+		edges.forEach((e) => {
+			if (!linkIdsInStreamSet.has(e.id)) e.hidden = true
+		})
+
+		/**
+		 * Recursive function to collect into nodeIdsInStreamSet the factors that are upstream of the given nodeIds
+		 * and the links into linkIdsInStreamSet
+		 * @param {array[]} nodeIds
+		 */
+		function upstream(nodeIds, radius) {
+			nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId))
+			nodeIds.forEach((nId) => {
+				let links = data.edges
+					.get({
+						filter: function (item) {
+							return item.to == nId
+						},
+					})
+					.filter((e) => !e.hidden)
+				if (radius == 0) return
+				links.forEach((link) => {
+					linkIdsInStreamSet.add(link.id)
+					if (!nodeIdsInStreamSet.has(link.from)) {
+						upstream([link.from], radius - 1)
+					}
+				})
+			})
+		}
+
+		/**
+		 * Recursive function to collect the factors and links that are downstream of the given nodeIds
+		 * @param {string[]} nodeIds
+		 */
+		function downstream(nodeIds, radius) {
+			nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId))
+			nodeIds.forEach((nId) => {
+				let links = data.edges
+					.get({
+						filter: function (item) {
+							return item.from == nId
+						},
+					})
+					.filter((e) => !e.hidden)
+				if (radius == 0) return
+				links.forEach((link) => {
+					linkIdsInStreamSet.add(link.id)
+					if (!nodeIdsInStreamSet.has(link.to)) {
+						downstream([link.to], radius - 1)
+					}
+				})
+			})
+		}
+	}
+	/**
+	 * Hide all factors and links that are not on the shortest path (or all paths) between the selected factors
+	 * Avoids factors or links that are hidden
+	 * @param {string[]} selectedNodes
+	 * @param {string} pathType - either 'allPaths' or 'shortestPath'
+	 */
+	function hideNodesByPaths(selectedNodes, pathType) {
+		// paths is an array of objects with from and to node ids, or an empty array of there is no path
+		let paths = shortestPaths(selectedNodes, pathType === 'allPaths')
+		if (paths.length == 0) {
+			statusMsg('No path between the selected Factors', 'warn')
+			setRadioVal('paths', 'All')
+			setYMapAnalysisButtons()
+			return
+		}
+		// hide nodes and links that are not included in paths
+		let nodeIdsInPathsSet = new Set()
+		let linkIdsInPathsSet = new Set()
+
+		paths.forEach((links) => {
+			links.forEach((link) => {
+				let edge = data.edges.get({filter: (e) => e.to === link.to && e.from === link.from})[0]
+				linkIdsInPathsSet.add(edge.id)
+				nodeIdsInPathsSet.add(edge.from)
+				nodeIdsInPathsSet.add(edge.to)
+			})
+		})
+		// hide all factors and links that are not in the set of paths
+		nodes.forEach((n) => {
+			if (!nodeIdsInPathsSet.has(n.id)) n.hidden = true
+		})
+		edges.forEach((e) => {
+			if (!linkIdsInPathsSet.has(e.id)) e.hidden = true
+		})
+
+		/**
+		 * Given two or more selected factors, return a list of all the links that are either on any path between them, or just the ones on the shortest paths between them
+		 * @param {Boolean} all when true, find all the links that connect to the selected factors; when false, find the shortest paths between the selected factors
+		 * @returns	Arrays of objects with from: and to: properties for all the links (an empty array if there is no path between any of the selected factors)
+		 */
+		function shortestPaths(selectedNodes, all) {
+			let visited = new Map()
+			let allPaths = []
+			// list of all pairs of the selected factors
+			let combos = selectedNodes.flatMap((v, i) => selectedNodes.slice(i + 1).map((w) => [v, w]))
+			// for each pair, find the sequences of links in both directions and combine them
+			combos.forEach((combo) => {
+				let source = combo[0]
+				let dest = combo[1]
+				let links = pathList(source, dest, all)
+				if (links.length > 0) allPaths.push(links)
+				links = pathList(dest, source, all)
+				if (links.length > 0) allPaths.push(links)
+			})
+			return allPaths
+
+			/**
+			 * find the paths (as a list of links) that connect the source and destination
+			 * @param {String} source
+			 * @param {String} dest
+			 * @param {Boolean} all true of all paths between Source and Destination are wanted; false if just the shortest path
+			 * @returns an array of lists of links that connect the paths
+			 */
+			function pathList(source, dest, all) {
+				visited.clear()
+				let links = []
+				let paths = getPaths(source, dest)
+				// if no path found, getPaths return an array of length greater than the total number of factors in the map, or a string
+				// in this case, return an empty list
+				if (!Array.isArray(paths) || paths.length === data.nodes.length + 1) paths = []
+				if (!all) {
+					for (let i = 0; i < paths.length - 1; i++) {
+						links.push({from: paths[i], to: paths[i + 1]})
+					}
+				}
+				return links
+				/**
+				 * recursively explore the map starting from source until destination is reached.
+				 * stop if a factor has already been visited, or at a dead end (zero out-degree)
+				 * @param {String} source
+				 * @param {String} dest
+				 * @returns an array of factors, the path so far followed
+				 */
+				function getPaths(source, dest) {
+					if (source === dest) return [dest]
+					visited.set(source, true)
+					let path = [source]
+					// only consider nodes and edges that are not hidden
+					let connectedNodes = network
+						.getConnectedEdges(source)
+						.filter((e) => {
+							let edge = data.edges.get(e)
+							return !edge.hidden && edge.from == source
+						})
+						.map((e) => data.edges.get(e).to)
+					if (connectedNodes.length === 0) return 'deadend'
+					if (all) {
+						connectedNodes.forEach((next) => {
+							let vis = visited.get(next)
+							if (vis === 'onpath') {
+								links.push({from: source, to: next})
+								path = path.concat([next])
+							} else if (!vis) {
+								let p = getPaths(next, dest)
+								if (Array.isArray(p) && p.length > 0) {
+									links.push({from: source, to: next})
+									visited.set(next, 'onpath')
+									path = path.concat(p)
+								}
+							}
+						})
+					} else {
+						let bestPath = []
+						let bestPathLength = data.nodes.length
+						connectedNodes.forEach((next) => {
+							let p = visited.get(next)
+							if (!p) {
+								p = getPaths(next, dest)
+								visited.set(next, p)
+							}
+							if (Array.isArray(p) && p.length > 0) {
+								if (p.length < bestPathLength) {
+									bestPath = p
+									bestPathLength = p.length
+								}
+							}
+						})
+						path = path.concat(bestPath)
+					}
+					// if no progress has been made (the path is just the initial source factor), return an empty path
+					if (path.length == 1) path = []
+					return path
+				}
+			}
+		}
 	}
 }
 
@@ -4013,12 +3939,33 @@ function sizing(metric) {
 	network.fit()
 	elem('zoom').value = network.getScale()
 }
+
+// Note: most of the clustering functionality is in cluster.js
 /**
  * User has chosen a clustering option
  * @param {Event} e
  */
 function selectClustering(e) {
 	let option = e.target.value
+	// it doesn't make much sense to cluster while the factors are hidden, so undo that
+	setRadioVal('radius', 'All')
+	setRadioVal('stream', 'All')
+	setRadioVal('paths', 'All')
+	setYMapAnalysisButtons()
+	doc.transact(() => {
+		data.nodes.update(
+			data.nodes.get().map((n) => {
+				n.hidden = false
+				return n
+			})
+		)
+		data.edges.update(
+			data.edges.get().map((e) => {
+				e.hidden = false
+				return e
+			})
+		)
+	})
 	cluster(option)
 	fit(0)
 	yNetMap.set('cluster', option)
@@ -4046,7 +3993,7 @@ function recreateClusteringMenu(obj) {
 		}
 	}
 }
-/* ---------------------------------------chat window --------------------------------*/
+/*****************************************************************chat window ******************************************************************/
 
 var emojiPicker = null
 

@@ -1,6 +1,6 @@
 /******************************************* Clustering ************************************************************ */
 
-import {elem, pushnew, uuidv4, deepMerge, standardize_color, makeColor, lightOrDark} from './utils.js'
+import {elem, uuidv4, deepMerge, standardize_color, makeColor, lightOrDark} from './utils.js'
 import {styles} from './samples.js'
 import {network, data, doc, yNetMap, unSelect, debug} from './prsm.js'
 
@@ -63,7 +63,6 @@ function clusterByAttribute(attribute) {
 			// for each factor that should be in the cluster
 			node.clusteredIn = clusterNode.id
 			node.hidden = true
-			node.whyHidden = pushnew(node.whyHidden, 'cluster')
 			sumx += node.x
 			sumy += node.y
 			nInCluster++
@@ -114,7 +113,6 @@ function clusterByColor() {
 			// for each factor that should be in the cluster
 			node.clusteredIn = clusterNode.id
 			node.hidden = true
-			node.whyHidden = pushnew(node.whyHidden, 'cluster')
 			sumx += node.x
 			sumy += node.y
 			nInCluster++
@@ -164,7 +162,6 @@ function clusterByStyle() {
 			// for each factor that should be in the cluster
 			node.clusteredIn = clusterNode.id
 			node.hidden = true
-			node.whyHidden = pushnew(node.whyHidden, 'cluster')
 			sumx += node.x
 			sumy += node.y
 			nInCluster++
@@ -201,13 +198,10 @@ function showClusterLinks() {
 		let fromNode = data.nodes.get(edge.from)
 		let toNode = data.nodes.get(edge.to)
 		edge.hidden = true
-		edge.whyHidden = pushnew(edge.whyHidden, 'cluster')
 		if (!fromNode.clusteredIn && !toNode.clusteredIn) {
-			edge.whyHidden = edge.whyHidden.filter((item) => item !== 'cluster')
-			edge.hidden = edge.whyHidden.length > 0
+			edge.hidden = false
 		} else if (fromNode.clusteredIn == toNode.clusteredIn) {
 			edge.hidden = true
-			edge.whyHidden = pushnew(edge.whyHidden, 'cluster')
 		} else if (!fromNode.clusteredIn && toNode.clusteredIn) makeClusterLink(edge.from, toNode.clusteredIn)
 		else if (fromNode.clusteredIn && !toNode.clusteredIn) makeClusterLink(fromNode.clusteredIn, edge.to)
 		else if (fromNode.clusteredIn && toNode.clusteredIn) makeClusterLink(fromNode.clusteredIn, toNode.clusteredIn)
@@ -265,14 +259,12 @@ export function openCluster(clusterNodeId) {
 		let edgesToRemove = []
 		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id})
 		for (let node of nodesInCluster) {
-			node.whyHidden = node.whyHidden.filter((item) => item !== 'cluster')
-			node.hidden = node.whyHidden.length > 0
+			node.hidden = false
 			node.clusteredIn = null
 			nodesToUpdate.push(node)
 		}
 		// hide the cluster node
 		clusterNode.hidden = true
-		clusterNode.whyHidden = ['cluster']
 		// and the edges that link it
 		let eIds = network.getConnectedEdges(clusterNode.id)
 		for (let eId of eIds) {
@@ -295,13 +287,11 @@ function unCluster() {
 	data.nodes.get({filter: (node) => node.isCluster}).forEach((clusterNode) => {
 		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id})
 		for (let node of nodesInCluster) {
-			node.whyHidden = node.whyHidden.filter((item) => item !== 'cluster')
-			node.hidden = node.whyHidden.length > 0
+			node.hidden = false
 			node.clusteredIn = null
 			nodesToUpdate.push(node)
 		}
 		clusterNode.hidden = true
-		clusterNode.whyHidden = ['cluster']
 		// and the edges that link it
 		let eIds = network.getConnectedEdges(clusterNode.id)
 		for (let eId of eIds) {
