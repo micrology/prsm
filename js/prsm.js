@@ -3725,7 +3725,7 @@ function analyse() {
 						},
 					})
 					.filter((e) => !e.hidden)
-				if (radius == 0) return
+				if (radius < 0) return
 				links.forEach((link) => {
 					linkIdsInStreamSet.add(link.id)
 					if (!nodeIdsInStreamSet.has(link.from)) {
@@ -3749,7 +3749,8 @@ function analyse() {
 						},
 					})
 					.filter((e) => !e.hidden)
-				if (radius == 0) return
+				console.log(radius, data.nodes.get(nodeIds).map((n) => n.label), links.map((l) => [data.nodes.get(l.from).label, data.nodes.get(l.to).label]))
+				if (radius < 0) return
 				links.forEach((link) => {
 					linkIdsInStreamSet.add(link.id)
 					if (!nodeIdsInStreamSet.has(link.to)) {
