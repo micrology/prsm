@@ -17,6 +17,9 @@ var yEdgesMap // shared map of edges
 var yNetMap // shared map of network state
 var myNameRec // my name etc.
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
+var graph // the 3D map
+var graphNodes
+var graphEdges
 
 window.addEventListener('load', () => {
 	loadingDelayTimer = setTimeout(() => {
@@ -66,6 +69,18 @@ function startY() {
 	window.yEdgesMap = yEdgesMap
 	window.yNetMap = yNetMap
 
+	yNodesMap.observe(() => {
+		if (graph) {
+			convertData()
+			graph.graphData({ nodes: graphNodes, links: graphEdges })
+		}
+	})
+	yEdgesMap.observe(() => {
+		if (graph) {
+			convertData()
+			graph.graphData({ nodes: graphNodes, links: graphEdges })
+		}
+	})
 	yNetMap.observe((event) => {
 		yjsTrace('YNetMap.observe', event.transaction.local, event)
 		for (let key of event.keysChanged) {
@@ -109,30 +124,33 @@ function cancelLoading() {
 }
 
 function convertNode(node) {
-	return {id: node.id, name: node.label, color: node.color.background}
+	return {id: node.id, name: node.label, color: node.color.background, val: 5*Math.log(2 +node.bc)}
 }
 
 function convertEdge(edge) {
 	return {source: edge.from, target: edge.to, color: (standardize_color(edge.color.color) === '#000000'? 'white': edge.color.color)}
 }
 
-function display() {
-	let nodes = Array.from(yNodesMap.values())
-		.filter((n) => !n.isCluster)
-		.map((n) => {
-			return convertNode(n)
-		})
-	console.log(nodes)
-	let edges = Array.from(yEdgesMap.values()).map((e) => {
-		return convertEdge(e)
+function convertData() {
+	graphNodes = Array.from(yNodesMap.values())
+	.filter((n) => !n.isCluster)
+	.map((n) => {
+		return convertNode(n)
 	})
-	console.log(edges)
+graphEdges = Array.from(yEdgesMap.values()).map((e) => {
+	return convertEdge(e)
+})
+}
+
+function display() {
+convertData()
 	cancelLoading()
-	ForceGraph3D()(elem('3d-graph'))
-		.graphData({nodes: nodes, links: edges})
+	graph = ForceGraph3D()(elem('3dgraph'))
+		.graphData({nodes: graphNodes, links: graphEdges})
 		.linkWidth(1)
         .linkDirectionalArrowLength(4)
         .linkDirectionalArrowRelPos(1.0)
-        .backgroundColor('black')
+		.backgroundColor('black')
+		.nodeOpacity(1.0)
     .linkDirectionalParticles(10)
 }

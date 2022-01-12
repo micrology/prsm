@@ -3660,6 +3660,10 @@ function analyse() {
 		edges.forEach((e) => {
 			if (!linkIdsInRadiusSet.has(e.id)) e.hidden = true
 		})
+		// add links between factors that are in radius set, to give an ego network
+		nodeIdsInRadiusSet.forEach((f) => {
+			network.getConnectedEdges(f).forEach((e) => (data.edges.get(e).hidden = false))
+		})
 
 		/**
 		 * recursive function to collect Factors and Links within radius links from any of the nodes listed in nodeIds
@@ -3710,6 +3714,11 @@ function analyse() {
 			if (!linkIdsInStreamSet.has(e.id)) e.hidden = true
 		})
 
+		// add links between factors that are in radius set, to give an ego network
+		nodeIdsInStreamSet.forEach((f) => {
+			network.getConnectedEdges(f).forEach((e) => (data.edges.get(e).hidden = false))
+		})
+
 		/**
 		 * Recursive function to collect into nodeIdsInStreamSet the factors that are upstream of the given nodeIds
 		 * and the links into linkIdsInStreamSet
@@ -3749,7 +3758,6 @@ function analyse() {
 						},
 					})
 					.filter((e) => !e.hidden)
-				console.log(radius, data.nodes.get(nodeIds).map((n) => n.label), links.map((l) => [data.nodes.get(l.from).label, data.nodes.get(l.to).label]))
 				if (radius < 0) return
 				links.forEach((link) => {
 					linkIdsInStreamSet.add(link.id)
@@ -3760,6 +3768,7 @@ function analyse() {
 			})
 		}
 	}
+
 	/**
 	 * Hide all factors and links that are not on the shortest path (or all paths) between the selected factors
 	 * Avoids factors or links that are hidden
