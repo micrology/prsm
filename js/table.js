@@ -1,6 +1,5 @@
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
-import {IndexeddbPersistence} from 'y-indexeddb'
 import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter} from './utils.js'
 import Tabulator from 'tabulator-tables'
 import {version} from '../package.json'
@@ -80,17 +79,12 @@ function startY() {
 	else room = room.toUpperCase()
 	debug = [url.searchParams.get('debug')]
 	document.title = document.title + ' ' + room
-	const persistence = new IndexeddbPersistence(room, doc)
-	// when the connection has been made, start building the table
-	persistence.once('synced', () => {
-		console.log(exactTime() + ' local content loaded')
-		openTable = initialiseFactorTable()
-		initialiseLinkTable()
-		elem('links-table').style.display = 'none'
-	})
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
 	wsProvider.on('sync', () => {
 		console.log(exactTime() + ' remote content loaded')
+		openTable = initialiseFactorTable()
+		initialiseLinkTable()
+		elem('links-table').style.display = 'none'
 	})
 	wsProvider.on('status', (event) => {
 		console.log(exactTime() + event.status + (event.status == 'connected' ? ' to' : ' from') + ' room ' + room) // logs when websocket is "connected" or "disconnected"

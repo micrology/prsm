@@ -184,7 +184,7 @@ function addEventListeners() {
 	listen('analysisButton', 'click', () => {
 		openTab('analysisTab')
 	})
-	listen('trophicButton', 'click', autoLayoutSwitch)
+	listen('layoutSelect', 'change', selectAutoLayout)
 	listen('snaptogridswitch', 'click', snapToGridSwitch)
 	listen('curveSelect', 'change', selectCurve)
 	listen('drawing', 'click', toggleDrawingLayer)
@@ -497,6 +497,9 @@ function startY(newRoom) {
 					case 'mapTitle':
 					case 'maptitle':
 						setMapTitle(obj)
+						break
+					case 'autoLayout':
+						autoLayout(obj)
 						break
 					case 'snapToGrid':
 						doSnapToGrid(obj)
@@ -3390,13 +3393,31 @@ function positionNotes() {
 }
 // Network tab
 
-function autoLayoutSwitch() {
+/**
+ * Choose and apply a layout algorithm
+ */
+
+function selectAutoLayout(e) {
+	let option = e.target.value
+	autoLayout(option)
+	yNetMap.set('autoLayout', option)
+}
+function autoLayout(option) {
+	elem('layoutSelect').value = option
 	network.storePositions() // record current positions so it can be undone
-	try {
-		data.nodes.update(trophic(data))
-	} catch (e) {
-		statusMsg(`Trophic layout: ${e.message}`, 'error')
+	if (option == 'trophic') {
+		try {
+			data.nodes.update(trophic(data))
+		} catch (e) {
+			statusMsg(`Trophic layout: ${e.message}`, 'error')
+		}
 	}
+	else if (option == 'off') {
+		network.setOptions({physics: {enabled: false}})
+	}
+	else {
+		network.setOptions({physics: {solver: option, stabilization: true}})
+		}
 	broadcast()
 }
 

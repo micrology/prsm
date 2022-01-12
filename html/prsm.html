@@ -628,8 +628,16 @@
 				<div class="networkStyles">
 					<div class="networkGrid">
 						<div class="panelRow">
-							<div>Apply</div>
-							<button type="button" class="pushbutton" id="trophicButton">Trophic layout</button>
+							<div>Auto layout:</div>
+							<div>
+								<select id="layoutSelect">
+									<option value="off" selected>Off</option>
+									<option value="trophic">Trophic</option>
+									<option value="barnesHut">Barnes Hut</option>
+									<option value="forceAtlas2Based">Force Atlas 2</option>
+									<option value="repulsion">Repulsion</option>
+								</select>
+							</div>
 						</div>
 						<div class="panelRow">
 							<div>Snap to grid</div>
