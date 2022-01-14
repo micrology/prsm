@@ -223,16 +223,23 @@ The Links tab is very similar to the Factors tab, except that it relates to the 
 
 ### Network tab
 
-The Network tab enables you to change many aspects of the network visualisation andwhat is shown in the window.  
+The Network tab enables you to change many aspects of the network visualisation and what is shown in the window.  
 
-It is sometimes useful to get PSRM to layout Factors using an automatic procedure and then adjust their positions manually to achieve the desired placement.  PRSM has the *trophic* algorithm built in. The trophic layout  helps to reveal [the causal structure of the map](https://royalsocietypublishing.org/doi/10.1098/rsos.201138){target="_blank" rel="noreferrer"}. With the trophic layout, the factors are arranged along the horizontal axis according to their positions (their trophic levels) in the overall causal flow within the system, making it easier to identify upstream and downstream factors; the linked chains of influence that connect them; and where policies act on the system within this overall causal structure (which may be upstream or downstream).
+It is sometimes useful to get PSRM to layout Factors using an automatic procedure and then adjust their positions manually to achieve the desired placement.  PRSM provides several layout algorithms:
+
+* The *trophic* algorithm helps to reveal [the causal structure of the map](https://royalsocietypublishing.org/doi/10.1098/rsos.201138){target="_blank" rel="noreferrer"}. With the trophic layout, the factors are arranged along the horizontal axis according to their positions (their trophic levels) in the overall causal flow within the system, making it easier to identify upstream and downstream factors; the linked chains of influence that connect them; and where factors act on the system within this overall causal structure (which may be upstream or downstream). It will re-arrange the factors and links to create a layout such that all the links point from left to right and are arranged according to [trophic level](https://en.wikipedia.org/wiki/Trophic_level){target="_blank" rel="noreferrer"}.
+* *Barnes Hut* This is a 'gravity' algorithm.  Each Factor is modelled as though it has a mass that repulses all other Factors with an inverse square, while the links are modelled as springs that pull the Factors together. The algorithm is iterative, i.e. it tries repeatedly to find the best arrangement of factors that balance the repulsive forces between the Factors and the attractive forces from the springs.
+* *Force Atlas 2* This is a variation of the Barnes Hut algorithm in which the repulsion between the Factors is linear rather than qudratric.
+* *Repulsion*  Another variation of Barnes Hut.
+
+There is no best layout algorithm that works for all networks; you need to see which one looks best for your map. If you don't like the effect of an algorithm, you can choose another one, or use the Undo button on the top bar to revert the map to its original layout.
 
 On the Network tab, there are controls for:
 
 <!-- ![NetworkPanel](/doc/images/NetworkPanel.png) -->
 <img src="/doc/images/NetworkPanel.png" width="250">
 
-* **Trophic Layout** Clicking the Trophic Layout button will re-arrange the factors and links to create a layout such that all the links point from left to right and are arranged accoriding to [trophic level](https://en.wikipedia.org/wiki/Trophic_level){target="_blank" rel="noreferrer"}. You can then adjust the map manually to a neat and pleasing layout.  If you don't like the result, the Undo button on the top bar will revert the map to its original layout.
+* **Auto Layout** Choose which layout algorithm to apply.  The algorithm will then adjust the positions of the Factors and links and, once complete, the selection will revert to 'Off'.
 * **Snap to grid**  When ON, factors shift to be at the intersection of invisible grid lines.  This makes it much easier to line up factors neatly.
 * **Link** Links can either be drawn using a curved line or a straight line.  This control swaps between the two.
 * **Background** This changes the colour of the background of the network pane.  Click on the colour well to display possible colours.  The default is white, but a black background can also be effective.

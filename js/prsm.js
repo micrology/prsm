@@ -184,7 +184,7 @@ function addEventListeners() {
 	listen('analysisButton', 'click', () => {
 		openTab('analysisTab')
 	})
-	listen('layoutSelect', 'change', selectAutoLayout)
+	listen('layoutSelect', 'change', autoLayout)
 	listen('snaptogridswitch', 'click', snapToGridSwitch)
 	listen('curveSelect', 'change', selectCurve)
 	listen('drawing', 'click', toggleDrawingLayer)
@@ -422,31 +422,30 @@ function startY(newRoom) {
 	 */
 	function showChange(event, ymap) {
 		event.changes.keys.forEach((change, key) => {
-			if (change.action === 'add') {
-				console.log(
-					`Property "${key}" was added. 
+				if (change.action === 'add') {
+					console.log(
+						`Property "${key}" was added. 
 				Initial value: `,
-					ymap.get(key)
-				)
-			} else if (change.action === 'update') {
-				console.log(
-					`Property "${key}" was updated. 
+						ymap.get(key)
+					)
+				} else if (change.action === 'update') {
+					console.log(
+						`Property "${key}" was updated. 
 					New value: "`,
-					ymap.get(key),
-					`. 
-					Previous value: `,
-					change.oldValue,
-					`. 
-					Difference: `,
-					diff(change.oldValue, ymap.get(key))
-				)
-			} else if (change.action === 'delete') {
-				console.log(
-					`Property "${key}" was deleted. 
+						ymap.get(key),
+						`"
+					Previous value: "`,
+						change.oldValue,
+						`" 
+					Difference: "`,
+						typeof change.oldValue === 'object' && typeof ymap.get(key) === 'object' ? diff(change.oldValue, ymap.get(key)) : (change.oldValue + ' ' + ymap.get(key)), `"`)	
+				} else if (change.action === 'delete') {
+					console.log(
+						`Property "${key}" was deleted. 
 				Previous value: `,
-					change.oldValue
-				)
-			}
+						change.oldValue
+					)
+				}
 		})
 	}
 	ySamplesMap.observe((event) => {
@@ -497,9 +496,6 @@ function startY(newRoom) {
 					case 'mapTitle':
 					case 'maptitle':
 						setMapTitle(obj)
-						break
-					case 'autoLayout':
-						autoLayout(obj)
 						break
 					case 'snapToGrid':
 						doSnapToGrid(obj)
@@ -1267,19 +1263,6 @@ function fit(duration = 200) {
 	let newScale = network.getScale()
 	elem('zoom').value = newScale
 	network.storePositions()
-}
-
-/**
- * broadcast current node positions to all clients
- */
-function broadcast() {
-	/* there are situations where vis does not update node positions
-(and therefore does not call nodes.on) such as auto layout, 
-and therefore other clients don't get to see the changes.
-This function forces a broadcast of all nodes.  We only deal with
-nodes because the edges follow */
-	network.storePositions()
-	data.nodes.forEach((n) => yNodesMap.set(n.id, n))
 }
 
 /**
@@ -3396,29 +3379,52 @@ function positionNotes() {
 /**
  * Choose and apply a layout algorithm
  */
-
-function selectAutoLayout(e) {
+function autoLayout(e) {
 	let option = e.target.value
-	autoLayout(option)
-	yNetMap.set('autoLayout', option)
-}
-function autoLayout(option) {
-	elem('layoutSelect').value = option
+	let selectElement = elem('layoutSelect')
+	selectElement.value = option
 	network.storePositions() // record current positions so it can be undone
-	if (option == 'trophic') {
-		try {
-			data.nodes.update(trophic(data))
-		} catch (e) {
-			statusMsg(`Trophic layout: ${e.message}`, 'error')
+	doc.transact(() => {
+		if (option == 'trophic') {
+			try {
+				data.nodes.update(trophic(data))
+				elem('layoutSelect').value = 'off'
+			} catch (e) {
+				statusMsg(`Trophic layout: ${e.message}`, 'error')
+			}
+		} else if (option == 'off') {
+			network.setOptions({ physics: { enabled: false } })
+		} else {
+			let options = { physics: { solver: option, stabilization: true } }
+			options.physics[option] = {}
+			options.physics[option].springLength = avEdgeLength()
+			network.setOptions(options)
 		}
+	})
+	// cancel the iterative algorithms as soon as they have stabilized
+	network.on('stabilized', () => {
+		network.setOptions({ physics: { enabled: false } })
+		network.storePositions()
+		elem('layoutSelect').value = 'off'
+		data.nodes.update(data.nodes.get())
 	}
-	else if (option == 'off') {
-		network.setOptions({physics: {enabled: false}})
+	)
+	logHistory(`applied ${selectElement.options[selectElement.selectedIndex].innerHTML} layout`)
+
+	/**
+	 * find the average length of all edges, as a guide to the layout spring length
+	 * so that map is roughly as spaced out as before layout
+	 * @returns average length (in canvas units)
+	 */
+	function avEdgeLength() {
+		let edgeSum = 0
+		data.edges.forEach((e) => {
+			let from = data.nodes.get(e.from)
+			let to = data.nodes.get(e.to)
+			edgeSum += Math.sqrt((from.x - to.x) ** 2 + (from.y - to.y) ** 2)
+		})
+		return edgeSum / data.edges.length
 	}
-	else {
-		network.setOptions({physics: {solver: option, stabilization: true}})
-		}
-	broadcast()
 }
 
 function snapToGridSwitch(e) {
