@@ -505,6 +505,10 @@ export function statusMsg(msg, status) {
 		return
 	}
 	let errMsgElement = elem('errMsg')
+	if (status == 'info') {
+		errMsgElement.style.backgroundColor = 'black'
+		errMsgElement.style.color = 'white'
+	}
 	if (status == 'warn') {
 		errMsgElement.style.backgroundColor = '#FFEB3B'
 		errMsgElement.style.color = 'black'

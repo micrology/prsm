@@ -239,7 +239,7 @@ On the Network tab, there are controls for:
 <!-- ![NetworkPanel](/doc/images/NetworkPanel.png) -->
 <img src="/doc/images/NetworkPanel.png" width="250">
 
-* **Auto Layout** Choose which layout algorithm to apply.  The algorithm will then adjust the positions of the Factors and links and, once complete, the selection will revert to 'Off'.
+* **Auto Layout** Choose which layout algorithm to apply.  The algorithm will then adjust the positions of the Factors and links and, once complete, the selection will revert to 'Off', leaving the Factors where the algorithm has placed them.
 * **Snap to grid**  When ON, factors shift to be at the intersection of invisible grid lines.  This makes it much easier to line up factors neatly.
 * **Link** Links can either be drawn using a curved line or a straight line.  This control swaps between the two.
 * **Background** This changes the colour of the background of the network pane.  Click on the colour well to display possible colours.  The default is white, but a black background can also be effective.
@@ -259,16 +259,20 @@ The panel is divided into five sections:
 
 * **Show only neighbouring Factors** If you first select a Factor (or several Factors) and then one of these options, all Factors in the network will be hidden, except for those 1, 2, or 3 links away from the selected Factor(s).  This is useful when you want to focus on just one part of a large network.
 * **Show only up or downstream Factors**  If you first select a Factor (or several Factors) and then one of these options, all Factors in the network will be hidden, except for those 'downstream' (i.e. linked to the selected Factor(s) by following links directed *away* from those Factor(s)), or those 'upstream' (i.e. linked to the selected Factor(s) by following links directed *towards* those Factor(s)).
-* **Show paths between** If you first select at least two Factors, and then the **Show all paths between** option, only those links that lie on a path between the selected Factors will be shown.  A 'path' is a set of links that, following the direction of the arrows, connects two Factors.  There may be several ways of getting from one Factor to another; if so, all the paths are shown.  All Factors that do not lie on the connecting paths are hidden. Selecting the **Show shortest path between** option displays only the path with the fewest links between the selected Factors. For both these options, all the selected Factors in turn are used as the starting point for the paths, and all other Factors are used as the end points.  For example, if Factors A, B and C are selected, paths from A to B, A, to C, B to A, B to C , C to A and C to B will be shown (if they exist).  This has the incidental use of identifying 'loops' that could indicate feedbacks.  If there is a path from A to B *and* a path from B to A, the effect of A on B will feedback on A.
+* **Show paths between** If you first select at least two Factors, and then
+  * **Show all paths between**, only those links that lie on a path between the selected Factors will be shown.  A 'path' is a set of links that, following the direction of the arrows, connects two Factors.  There may be several ways of getting from one Factor to another; if so, all the paths are shown.  All Factors that do not lie on the connecting paths are hidden.
+  * **Show shortest path between** displays only the path with the fewest links between the selected Factors (if there are two shortest paths with same number of links, only one, chosen arbitrarily, is shown).
+  
+  For both these options, all the selected Factors in turn are used as the starting point for the paths, and all other Factors are used as the end points.  For example, if Factors A, B and C are selected, paths from A to B, A, to C, B to A, B to C , C to A and C to B will be shown (if they exist).  This has the incidental use of identifying 'loops' that could indicate feedbacks.  If there is a path from A to B *and* a path from B to A, the effect of A on B will feedback on A.
 
 Here is an example.  The first is the original network.
 <img src="/doc/images/ShowAll.png" width="250">
-The second is the same network with Show all paths between Factors 1 and 7.
+The second is the same network with **Show all paths** between Factors 1 and 7.
 <img src="/doc/images/ShowAllPaths.png" width="250">
-The third is the same network with Show the shortest path between Factors 1 and 7.
+The third is the same network with **Show shortest path** between Factors 1 and 7.
 <img src="/doc/images/ShowShortestPath.png" width="250">
 
-The above three options can be combined.  For example, the shortest path between two Factors option may display two paths: one with a couple of links and another feedback path going in the reverse direction that winds around the map and includes many links.  Because it consists of many links, the latter path may not be of much interest.  Choosing both Shortest path and Show Factors only 2 links away will display just the direct path.
+The above three options can be combined.  For example, the shortest path between two Factors option may display two paths: one with a couple of links and another feedback path going in the reverse direction that winds around the map and includes many links.  Because it consists of many links, the latter path may not be of much interest.  Choosing both **Show Shortest path** and **Show only Factors 2 links away** will display just the direct path.
 
 * **Size Factors to** This is used to change the size of the Factors to be proportional to one of a set of metrics: the number of inputs (the 'in-degree'), the number of outputs (the 'out-degree'), the leverage (ratio of inputs to outputs), or the [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality){target="_blank" rel="noreferrer"}.  Note that the Factors are always drawn large enough to accommodate their labels, and so the size may not be exactly proportional to the metric.  The  values of these metrics for a Factor are shown in its Notes panel.
 * **Cluster** With large maps, it is sometimes useful to aggregate Factors into groups, thus displaying the map at a higher level of abstraction. For example, all the Factors relating to the effect of climate change might be replaced on the map by one 'Climate Change Cluster' Factor, and similarly, all the Factors concerned with transport replaced by one Transport Factor. Links that used to go to Factors outside the cluster are replaced by links that go to the new Cluster Factor (and likewise for links that go from the clustered Factors to Factors outside the cluster).

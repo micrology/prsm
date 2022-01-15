@@ -52,6 +52,7 @@ const NODEWIDTH = 10 // chars for label splitting
 const TIMETOSLEEP = 15 * 60 * 1000 // if no mouse movement for this time, user is assumed to have left or is sleeping
 const TIMETOEDIT = 5 * 60 * 1000 // if node/edge edit dialog is not saved after this time, the edit is cancelled
 const magnification = 3 // magnification of the loupe (magnifier 'glass')
+export const NLEVELS = 12 // max. number of levels for trophic layout
 
 export var network
 var room
@@ -422,30 +423,34 @@ function startY(newRoom) {
 	 */
 	function showChange(event, ymap) {
 		event.changes.keys.forEach((change, key) => {
-				if (change.action === 'add') {
-					console.log(
-						`Property "${key}" was added. 
+			if (change.action === 'add') {
+				console.log(
+					`Property "${key}" was added. 
 				Initial value: `,
-						ymap.get(key)
-					)
-				} else if (change.action === 'update') {
-					console.log(
-						`Property "${key}" was updated. 
+					ymap.get(key)
+				)
+			} else if (change.action === 'update') {
+				console.log(
+					`Property "${key}" was updated. 
 					New value: "`,
-						ymap.get(key),
-						`"
+					ymap.get(key),
+					`"
 					Previous value: "`,
-						change.oldValue,
-						`" 
+					change.oldValue,
+					`" 
 					Difference: "`,
-						typeof change.oldValue === 'object' && typeof ymap.get(key) === 'object' ? diff(change.oldValue, ymap.get(key)) : (change.oldValue + ' ' + ymap.get(key)), `"`)	
-				} else if (change.action === 'delete') {
-					console.log(
-						`Property "${key}" was deleted. 
+					typeof change.oldValue === 'object' && typeof ymap.get(key) === 'object'
+						? diff(change.oldValue, ymap.get(key))
+						: change.oldValue + ' ' + ymap.get(key),
+					`"`
+				)
+			} else if (change.action === 'delete') {
+				console.log(
+					`Property "${key}" was deleted. 
 				Previous value: `,
-						change.oldValue
-					)
-				}
+					change.oldValue
+				)
+			}
 		})
 	}
 	ySamplesMap.observe((event) => {
@@ -944,7 +949,7 @@ function draw() {
 		if (/gui/.test(debug)) console.log('selectNode')
 		showSelected()
 		showNodeOrEdgeData()
-		if (getRadioVal('radio') !== 'All') analyse()
+		if (getRadioVal('radius') !== 'All') analyse()
 		if (getRadioVal('stream') !== 'All') analyse()
 		if (getRadioVal('paths') !== 'All') analyse()
 	})
@@ -952,7 +957,7 @@ function draw() {
 		if (/gui/.test(debug)) console.log('deselectNode')
 		showSelected()
 		showNodeOrEdgeData()
-		if (getRadioVal('radio') !== 'All') analyse()
+		if (getRadioVal('radius') !== 'All') analyse()
 		if (getRadioVal('stream') !== 'All') analyse()
 		if (getRadioVal('paths') !== 'All') analyse()
 	})
@@ -1635,7 +1640,7 @@ function saveLabel(node, callback) {
 	node.label = splitText(elem('popup-label').innerText, NODEWIDTH)
 	clearPopUp()
 	if (node.label === '') {
-		statusMsg('No label: cancelled', 'warn')
+		statusMsg('No label: cancelled', 'error')
 		callback(null)
 		return
 	}
@@ -1653,7 +1658,7 @@ function saveNode(item, callback) {
 	clearPopUp()
 	if (item.label === '') {
 		// if there is no label, cancel (nodes must have a label)
-		statusMsg('No label: cancelled', 'warn')
+		statusMsg('No label: cancelled', 'error')
 		callback(null)
 	}
 	let color = elem('node-backgroundColor').style.backgroundColor
@@ -2271,7 +2276,7 @@ function readSingleFile(e) {
 	reader.onloadend = function (e) {
 		try {
 			loadFile(e.target.result)
-			if (!msg) statusMsg("Read '" + fileName + "'")
+			if (!msg) statusMsg("Read '" + fileName + "'", 'info')
 		} catch (err) {
 			statusMsg("Error reading '" + fileName + "': " + err.message, 'error')
 			console.log(err)
@@ -2723,7 +2728,7 @@ function saveStr(str, extn) {
 		a.click()
 		a.remove()
 	}
-	statusMsg(`'${lastFileName}' saved`)
+	statusMsg(`'${lastFileName}' saved`, 'info')
 	checkMapSaved = false
 	dirty = false
 }
@@ -2772,7 +2777,7 @@ function exportPNGfile() {
 			a.remove()
 			bigNetwork.destroy()
 			bigNetPane.remove()
-			statusMsg(`'${lastFileName}' saved`)
+			statusMsg(`'${lastFileName}' saved`, 'info')
 		})
 		a.click()
 	})
@@ -3387,15 +3392,17 @@ function autoLayout(e) {
 	doc.transact(() => {
 		if (option == 'trophic') {
 			try {
-				data.nodes.update(trophic(data))
+				trophic(data)
+				trophicDistribute()
+				data.nodes.update(data.nodes.get())
 				elem('layoutSelect').value = 'off'
 			} catch (e) {
 				statusMsg(`Trophic layout: ${e.message}`, 'error')
 			}
 		} else if (option == 'off') {
-			network.setOptions({ physics: { enabled: false } })
+			network.setOptions({physics: {enabled: false}})
 		} else {
-			let options = { physics: { solver: option, stabilization: true } }
+			let options = {physics: {solver: option, stabilization: true}}
 			options.physics[option] = {}
 			options.physics[option].springLength = avEdgeLength()
 			network.setOptions(options)
@@ -3403,12 +3410,11 @@ function autoLayout(e) {
 	})
 	// cancel the iterative algorithms as soon as they have stabilized
 	network.on('stabilized', () => {
-		network.setOptions({ physics: { enabled: false } })
+		network.setOptions({physics: {enabled: false}})
 		network.storePositions()
 		elem('layoutSelect').value = 'off'
 		data.nodes.update(data.nodes.get())
-	}
-	)
+	})
 	logHistory(`applied ${selectElement.options[selectElement.selectedIndex].innerHTML} layout`)
 
 	/**
@@ -3424,6 +3430,29 @@ function autoLayout(e) {
 			edgeSum += Math.sqrt((from.x - to.x) ** 2 + (from.y - to.y) ** 2)
 		})
 		return edgeSum / data.edges.length
+	}
+	/**
+	 * At each level for a trophic layout, distribute the Factors equally along the vertical axis,
+	 * avoiding overlaps
+	 */
+	function trophicDistribute() {
+		for (let level = 0; level <= NLEVELS; level++) {
+			let nodesOnLevel = data.nodes.get().filter((n) => n.level == level)
+			let ySpaceNeeded = nodesOnLevel
+				.map((n) => {
+					let box = network.getBoundingBox(n.id)
+					return box.bottom - box.top + 10
+				})
+				.reduce((a, b) => a + b, 0)
+			let gap = ySpaceNeeded / nodesOnLevel.length
+			let newY = -ySpaceNeeded / 2
+			nodesOnLevel
+				.sort((a, b) => a.y - b.y)
+				.forEach((n) => {
+					n.y = newY
+					newY += gap
+				})
+		}
 	}
 }
 
@@ -3642,8 +3671,8 @@ function analyse() {
 	}
 
 	// check that at least one factor is selected
-	if (selectedNodes.length == 0) {
-		statusMsg('A Factor needs to be selected', 'warn')
+	if (selectedNodes.length == 0 && getRadioVal('paths') == 'All') {
+		statusMsg('A Factor needs to be selected', 'error')
 		setRadioVal('radius', 'All')
 		setRadioVal('stream', 'All')
 		setRadioVal('paths', 'All')
@@ -3652,7 +3681,7 @@ function analyse() {
 	}
 	// but paths between factors needs at least two
 	if (getRadioVal('paths') !== 'All' && selectedNodes.length < 2) {
-		statusMsg('Select at least 2 factors to show paths between them', 'warn')
+		statusMsg('Select at least 2 factors to show paths between them', 'error')
 		setRadioVal('paths', 'All')
 		setYMapAnalysisButtons()
 		return
@@ -3806,7 +3835,7 @@ function analyse() {
 		// paths is an array of objects with from and to node ids, or an empty array of there is no path
 		let paths = shortestPaths(selectedNodes, pathType === 'allPaths')
 		if (paths.length == 0) {
-			statusMsg('No path between the selected Factors', 'warn')
+			statusMsg('No path between the selected Factors', 'info')
 			setRadioVal('paths', 'All')
 			setYMapAnalysisButtons()
 			return
@@ -3893,6 +3922,7 @@ function analyse() {
 						.map((e) => data.edges.get(e).to)
 					if (connectedNodes.length === 0) return 'deadend'
 					if (all) {
+						// all paths between the source and destination
 						connectedNodes.forEach((next) => {
 							let vis = visited.get(next)
 							if (vis === 'onpath') {
@@ -3908,6 +3938,7 @@ function analyse() {
 							}
 						})
 					} else {
+						// shortest path between the source and destination
 						let bestPath = []
 						let bestPathLength = data.nodes.length
 						connectedNodes.forEach((next) => {
@@ -4414,7 +4445,7 @@ function follow(event) {
 	followme = user
 	elem('ava' + followme).classList.add('followme')
 	let userName = elem('ava' + user).dataset.tooltip
-	statusMsg(`Following ${userName}`)
+	statusMsg(`Following ${userName}`, 'info')
 }
 /**
  * User was following another user, but has now clicked off the avatar, so stop following

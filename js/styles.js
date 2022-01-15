@@ -1,16 +1,6 @@
 import {Network} from 'vis-network/peer/'
 import {DataSet} from 'vis-data/peer'
-import {
-	listen,
-	elem,
-	pushnew,
-	deepMerge,
-	deepCopy,
-	standardize_color,
-	dragElement,
-	statusMsg,
-	clearStatusBar,
-} from './utils.js'
+import {listen, elem, deepMerge, deepCopy, standardize_color, dragElement, statusMsg, clearStatusBar} from './utils.js'
 import {
 	network,
 	data,
@@ -45,7 +35,13 @@ export function setUpSamples() {
 					label: groupLabel == undefined ? '' : groupLabel,
 				},
 				sampleOptions,
-				{ chosen: false, widthConstraint: 50, heightConstraint: 50, margin: 10, scaling: { label: { enabled: false } }}
+				{
+					chosen: false,
+					widthConstraint: 50,
+					heightConstraint: 50,
+					margin: 10,
+					scaling: {label: {enabled: false}},
+				}
 			),
 		])
 		initSample(sampleElement, {
@@ -98,14 +94,14 @@ export function setUpSamples() {
 				shape: 'dot',
 				fixed: true,
 				chosen: false,
-				},
+			},
 			{
 				id: 2,
 				size: 5,
 				shape: 'dot',
 				fixed: true,
 				chosen: false,
-				},
+			},
 		])
 		initSample(sampleElement, {
 			nodes: nodesDataSet,
@@ -192,13 +188,7 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 	function hideFactorsWithStyle(groupId, toggle) {
 		let nodes = data.nodes.get({filter: (node) => node.grp == groupId})
 		nodes.forEach((node) => {
-			if (toggle) {
-				node.hidden = true
-				node.whyHidden = pushnew(node.whyHidden, 'style')
-			} else {
-				node.whyHidden = node.whyHidden.filter((item) => item !== 'style')
-				node.hidden = node.whyHidden.length > 0
-			}
+			node.hidden = toggle
 		})
 		data.nodes.update(nodes)
 		let edges = []
@@ -207,17 +197,11 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 			connectedEdges.forEach((edgeId) => {
 				edges.push(data.edges.get(edgeId))
 			})
-			edges.forEach((edge) => {
-				if (toggle) {
-					edge.hidden = true
-					edge.whyHidden = pushnew(edge.whyHidden, 'style')
-				} else {
-					edge.whyHidden = edge.whyHidden.filter((item) => item !== 'style')
-					edge.hidden = edge.whyHidden.length > 0
-				}
-			})
-			data.edges.update(edges)
 		})
+		edges.forEach((edge) => {
+			edge.hidden = toggle
+		})
+		data.edges.update(edges)
 		factorsHiddenByStyle[sampleElement.id] = toggle
 		yNetMap.set('factorsHiddenByStyle', factorsHiddenByStyle)
 	}
@@ -295,7 +279,8 @@ function initSample(wrapper, sampleData) {
 			},
 		},
 		nodes: {
-			widthConstraint: 50, heightConstraint: 50
+			widthConstraint: 50,
+			heightConstraint: 50,
 		},
 		edges: {
 			value: 10, // to make the links more visible at very small scale for the samples

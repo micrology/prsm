@@ -12,6 +12,7 @@ NG 18 December 2020
  * Matrix data structure is just an array of arrays
  */
 
+import { NLEVELS } from './prsm.js'
 /**
  * convert a directed adjacency matrix to an undirected one
  * mirror the elements above the leading diagonal to below it
@@ -346,6 +347,7 @@ function connectedComponents(data) {
 	}
 	return cc
 }
+
 /**
  * shift the positions of nodes according to the trophic 'height' (actually, here, the x coordinate)
  * @param {object} data
@@ -354,30 +356,36 @@ function connectedComponents(data) {
 export function trophic(data) {
 	// get a list of lists of connected components, each list being pairs of to and from nodes
 	// process each connected component individually
+	// nodes that are not connected to anything (degree 0) moved to the base level
 	let updatedNodes = []
+	// nodes at the first level are always placed at minX
+	let minX = Math.min(...data.nodes.map((n) => n.x))
 	connectedComponents(data).forEach((edges) => {
 		let nodeIds = nodeList(edges)
 		let nodes = data.nodes.get(nodeIds)
 		// save min and max x coordinates of nodes
-		let minX = Math.min(...nodes.map((n) => n.x))
 		let maxX = Math.max(...nodes.map((n) => n.x))
 		// convert to an adjacency matrix
 		let adj = edgeListToAdjMatrix(edges, nodeIds)
 		// get trophic levels
 		let levels = get_trophic_levels(adj)
-		// rescale levels to match original max and min
+		// experimental: round levels to integers within the range 0 .. NLEVELS
 		let range = Math.max(...levels) - Math.min(...levels)
+		levels = levels.map((l) => Math.round((l * NLEVELS) / range))
+		// rescale x to match original max and min
+		range = Math.max(...levels) - Math.min(...levels)
 		// if all nodes are at same trophic height (range == 0, so scale would be infinity), line them up
 		let scale = range > 0.000001 ? (maxX - minX) / range : 0
-		for (let i = 0; i < levels.length; i++) {
-			levels[i] = levels[i] * scale + minX
-		}
 		// move nodes to new positions
 		for (let i = 0; i < nodeIds.length; i++) {
 			let node = nodes[i]
-			node.x = levels[i]
+			node.x = levels[i] * scale + minX
+			node.level = levels[i]
 			updatedNodes.push(node)
 		}
 	})
-	return updatedNodes
+	// move all the rest (i.e. unconnected nodes) to the base level
+	data.nodes.get().filter((n) => !updatedNodes.some((u) => n.id == u.id)).map((n) => { n.x = minX; n.level = 0 })
+
+	return data.nodes.get()
 }
