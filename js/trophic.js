@@ -358,13 +358,12 @@ export function trophic(data) {
 	// process each connected component individually
 	// nodes that are not connected to anything (degree 0) moved to the base level
 	let updatedNodes = []
-	// nodes at the first level are always placed at minX
+	// save min and max x coordinates of nodes
 	let minX = Math.min(...data.nodes.map((n) => n.x))
+	let maxX = Math.max(...data.nodes.map((n) => n.x))
 	connectedComponents(data).forEach((edges) => {
 		let nodeIds = nodeList(edges)
 		let nodes = data.nodes.get(nodeIds)
-		// save min and max x coordinates of nodes
-		let maxX = Math.max(...nodes.map((n) => n.x))
 		// convert to an adjacency matrix
 		let adj = edgeListToAdjMatrix(edges, nodeIds)
 		// get trophic levels

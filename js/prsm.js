@@ -52,7 +52,7 @@ const NODEWIDTH = 10 // chars for label splitting
 const TIMETOSLEEP = 15 * 60 * 1000 // if no mouse movement for this time, user is assumed to have left or is sleeping
 const TIMETOEDIT = 5 * 60 * 1000 // if node/edge edit dialog is not saved after this time, the edit is cancelled
 const magnification = 3 // magnification of the loupe (magnifier 'glass')
-export const NLEVELS = 12 // max. number of levels for trophic layout
+export const NLEVELS = 20 // max. number of levels for trophic layout
 
 export var network
 var room
