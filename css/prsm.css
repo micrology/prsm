@@ -1905,7 +1905,10 @@ div.resize {
 	-webkit-transition-delay: 100ms;
 	transition-delay: 300ms;
 }
-
+/* 3d graph display */
+.threeDGraph {
+	grid-area: main;
+}
 /* print media */
 @media print {
 	header,

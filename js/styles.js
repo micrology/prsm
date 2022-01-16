@@ -619,13 +619,13 @@ export function legend(warn = false) {
 	let nItems = nodes.length + edges.length
 	if (nItems == 0) {
 		if (warn) statusMsg('Nothing to include in the Legend - rename some styles first', 'warn')
-		document.getElementById('showLegendSwitch').checked = false
+		elem('showLegendSwitch').checked = false
 		return
 	}
 	let legendBox = document.createElement('div')
 	legendBox.className = 'legend'
 	legendBox.id = 'legendBox'
-	document.getElementById('main').appendChild(legendBox)
+	elem('main').appendChild(legendBox)
 	let title = document.createElement('p')
 	title.id = 'Legend'
 	title.className = 'legendTitle'
@@ -708,14 +708,14 @@ export function clearLegend() {
 	legendData.nodes.clear()
 	legendData.edges.clear()
 	if (legendNetwork) legendNetwork.destroy()
-	let legendBox = document.getElementById('legendBox')
+	let legendBox = elem('legendBox')
 	if (legendBox) legendBox.remove()
 }
 /**
  * redraw the legend (to show updated styles)
  */
 export function updateLegend() {
-	if (document.getElementById('showLegendSwitch').checked) {
+	if (elem('showLegendSwitch').checked) {
 		legend(false)
 		clearStatusBar()
 	}
