@@ -3677,6 +3677,8 @@ function analyse() {
 		setRadioVal('stream', 'All')
 		setRadioVal('paths', 'All')
 		setYMapAnalysisButtons()
+		data.nodes.update(nodes)
+		data.edges.update(edges)
 		return
 	}
 	// but paths between factors needs at least two
@@ -3684,10 +3686,12 @@ function analyse() {
 		statusMsg('Select at least 2 factors to show paths between them', 'error')
 		setRadioVal('paths', 'All')
 		setYMapAnalysisButtons()
+		data.nodes.update(nodes)
+		data.edges.update(edges)
 		return
 	}
 
-	//these operations are not commutative (at least for networks with loops), so do them all in order
+	// these operations are not commutative (at least for networks with loops), so do them all in order
 	if (getRadioVal('radius') !== 'All') hideNodesByRadius(selectedNodes, parseInt(getRadioVal('radius')))
 	if (getRadioVal('stream') !== 'All') hideNodesByStream(selectedNodes, getRadioVal('stream'))
 	if (getRadioVal('paths') !== 'All') hideNodesByPaths(selectedNodes, getRadioVal('paths'))
