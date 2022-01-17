@@ -953,8 +953,12 @@ function draw() {
 		if (getRadioVal('stream') !== 'All') analyse()
 		if (getRadioVal('paths') !== 'All') analyse()
 	})
-	network.on('deselectNode', function () {
+	network.on('deselectNode', function (props) {
 		if (/gui/.test(debug)) console.log('deselectNode')
+		// if any of the previously selected nodes were locked, reselect them
+		// this weird construction is required because the documentation for deselectNode is wrong
+		let fixedSelectedNodes = props.previousSelection.nodes.filter((n) => data.nodes.get(n.id).fixed)
+		network.setSelection({nodes: fixedSelectedNodes.map((n) => n.id)})
 		showSelected()
 		showNodeOrEdgeData()
 		if (getRadioVal('radius') !== 'All') analyse()
@@ -3390,7 +3394,9 @@ function autoLayout(e) {
 	selectElement.value = option
 	network.storePositions() // record current positions so it can be undone
 	doc.transact(() => {
-		if (option == 'trophic') {
+		if (option == 'off') {
+			network.setOptions({physics: {enabled: false}})
+		} else if (option == 'trophic') {
 			try {
 				trophic(data)
 				trophicDistribute()
@@ -3399,8 +3405,48 @@ function autoLayout(e) {
 			} catch (e) {
 				statusMsg(`Trophic layout: ${e.message}`, 'error')
 			}
-		} else if (option == 'off') {
-			network.setOptions({physics: {enabled: false}})
+		} else if (option == 'z-split') {
+			let nodes = data.nodes.get().filter((n) => !n.hidden)
+			nodes.forEach((n) => (n.level = undefined))
+			let selectedNodes = network.getSelectedNodes().map((nId) => data.nodes.get(nId))
+			if (selectedNodes.length == 0) {
+				statusMsg('At least one Factor needs to be selected', 'error')
+				elem('layoutSelect').value = 'off'
+				return
+			}
+			let minX = Math.min(...nodes.map((n) => n.x))
+			let maxX = Math.max(...nodes.map((n) => n.x))
+			selectedNodes.forEach((n) => {
+				setZLevel(n)
+			})
+			nodes.forEach((n) => {
+				if (n.level == undefined) n.level = 0
+			})
+			let maxLevel = Math.max(...nodes.map((n) => n.level))
+			let gap = (maxX - minX) / maxLevel
+			for (let l = 0; l <= maxLevel; l++) {
+				let x = l * gap + minX
+				let nodesOnLevel = nodes.filter((n) => n.level == l)
+				nodesOnLevel.forEach((n) => n.x = x)
+				console.log(nodesOnLevel.map(n => [l, n.label, n.x]))
+				let ySpaceNeeded = nodesOnLevel
+					.map((n) => {
+						let box = network.getBoundingBox(n.id)
+						return box.bottom - box.top + 10
+					})
+					.reduce((a, b) => a + b, 0)
+				let yGap = ySpaceNeeded / nodesOnLevel.length
+				let newY = -ySpaceNeeded / 2
+				nodesOnLevel
+					.sort((a, b) => a.y - b.y)
+					.forEach((n) => {
+						n.y = newY
+						newY += yGap
+					})
+			}
+			nodes.forEach((n) => console.log(n.label, n.x, n.y))
+			data.nodes.update(nodes)
+			elem('layoutSelect').value = 'off'
 		} else {
 			let options = {physics: {solver: option, stabilization: true}}
 			options.physics[option] = {}
@@ -3417,6 +3463,22 @@ function autoLayout(e) {
 	})
 	logHistory(`applied ${selectElement.options[selectElement.selectedIndex].innerHTML} layout`)
 
+	function setZLevel(node) {
+		let q = [node]
+		let level = 0
+		node.level = 0
+		while (q.length > 0) {
+			let currentNode = q.shift()
+			let connectedNodes = data.nodes
+				.get(network.getConnectedNodes(currentNode.id))
+				.filter((n) => !n.hidden && n.level == undefined)
+			level = level + 1
+			connectedNodes.forEach((n) => {
+				n.level = level
+			})
+			q = q.concat(connectedNodes)
+		}
+	}
 	/**
 	 * find the average length of all edges, as a guide to the layout spring length
 	 * so that map is roughly as spaced out as before layout
