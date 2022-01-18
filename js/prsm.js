@@ -945,10 +945,13 @@ function draw() {
 			fit()
 		}
 	})
-	network.on('selectNode', function () {
+	network.on('selectNode', function (props) {
 		if (/gui/.test(debug)) console.log('selectNode')
 		showSelected()
-		showNodeOrEdgeData()
+		if (showNotesToggle) {
+			hideNotes()
+			showNodeData(network.getNodeAt(props.pointer.DOM))
+		}
 		if (getRadioVal('radius') !== 'All') analyse()
 		if (getRadioVal('stream') !== 'All') analyse()
 		if (getRadioVal('paths') !== 'All') analyse()
@@ -956,9 +959,10 @@ function draw() {
 	network.on('deselectNode', function (props) {
 		if (/gui/.test(debug)) console.log('deselectNode')
 		// if any of the previously selected nodes were locked, reselect them
+		// and if the use clicked another node, select that too
 		// this weird construction is required because the documentation for deselectNode is wrong
 		let fixedSelectedNodes = props.previousSelection.nodes.filter((n) => data.nodes.get(n.id).fixed)
-		network.setSelection({nodes: fixedSelectedNodes.map((n) => n.id)})
+		network.setSelection({nodes: fixedSelectedNodes.map((n) => n.id).concat(props.nodes)})
 		showSelected()
 		showNodeOrEdgeData()
 		if (getRadioVal('radius') !== 'All') analyse()
@@ -3243,9 +3247,9 @@ function hideNotes() {
 /**
  * Show the notes box, the fixed node check box and the node statistics
  */
-function showNodeData() {
+function showNodeData(nodeId) {
 	let panel = elem('nodeDataPanel')
-	let nodeId = network.getSelectedNodes()[0]
+	nodeId = nodeId || network.getSelectedNodes()[0]
 	let node = data.nodes.get(nodeId)
 	elem('fixed').style.display = node.fixed ? 'inline' : 'none'
 	elem('unfixed').style.display = node.fixed ? 'none' : 'inline'
@@ -3394,75 +3398,89 @@ function autoLayout(e) {
 	selectElement.value = option
 	network.storePositions() // record current positions so it can be undone
 	doc.transact(() => {
-		if (option == 'off') {
-			network.setOptions({physics: {enabled: false}})
-		} else if (option == 'trophic') {
-			try {
-				trophic(data)
-				trophicDistribute()
-				data.nodes.update(data.nodes.get())
-				elem('layoutSelect').value = 'off'
-			} catch (e) {
-				statusMsg(`Trophic layout: ${e.message}`, 'error')
+		switch (option) {
+			case 'off': {
+				network.setOptions({physics: {enabled: false}})
+				break
 			}
-		} else if (option == 'z-split') {
-			let nodes = data.nodes.get().filter((n) => !n.hidden)
-			nodes.forEach((n) => (n.level = undefined))
-			let selectedNodes = network.getSelectedNodes().map((nId) => data.nodes.get(nId))
-			if (selectedNodes.length == 0) {
-				statusMsg('At least one Factor needs to be selected', 'error')
-				elem('layoutSelect').value = 'off'
-				return
+			case 'trophic': {
+				try {
+					trophic(data)
+					trophicDistribute()
+					data.nodes.update(data.nodes.get())
+					elem('layoutSelect').value = 'off'
+				} catch (e) {
+					statusMsg(`Trophic layout: ${e.message}`, 'error')
+				}
+				break
 			}
-			let minX = Math.min(...nodes.map((n) => n.x))
-			let maxX = Math.max(...nodes.map((n) => n.x))
-			selectedNodes.forEach((n) => {
-				setZLevel(n)
-			})
-			nodes.forEach((n) => {
-				if (n.level == undefined) n.level = 0
-			})
-			let maxLevel = Math.max(...nodes.map((n) => n.level))
-			let gap = (maxX - minX) / maxLevel
-			for (let l = 0; l <= maxLevel; l++) {
-				let x = l * gap + minX
-				let nodesOnLevel = nodes.filter((n) => n.level == l)
-				nodesOnLevel.forEach((n) => n.x = x)
-				console.log(nodesOnLevel.map(n => [l, n.label, n.x]))
-				let ySpaceNeeded = nodesOnLevel
-					.map((n) => {
-						let box = network.getBoundingBox(n.id)
-						return box.bottom - box.top + 10
+			case 'z-split':
+				{
+					let nodes = data.nodes.get().filter((n) => !n.hidden)
+					nodes.forEach((n) => (n.level = undefined))
+					let selectedNodes = network.getSelectedNodes().map((nId) => data.nodes.get(nId))
+					if (selectedNodes.length == 0) {
+						statusMsg('At least one Factor needs to be selected', 'error')
+						elem('layoutSelect').value = 'off'
+						return
+					}
+					let minX = Math.min(...nodes.map((n) => n.x))
+					let maxX = Math.max(...nodes.map((n) => n.x))
+					selectedNodes.forEach((n) => {
+						setZLevel(n)
 					})
-					.reduce((a, b) => a + b, 0)
-				let yGap = ySpaceNeeded / nodesOnLevel.length
-				let newY = -ySpaceNeeded / 2
-				nodesOnLevel
-					.sort((a, b) => a.y - b.y)
-					.forEach((n) => {
-						n.y = newY
-						newY += yGap
+					nodes.forEach((n) => {
+						if (n.level == undefined) n.level = 0
 					})
+					let maxLevel = Math.max(...nodes.map((n) => n.level))
+					let gap = (maxX - minX) / maxLevel
+					for (let l = 0; l <= maxLevel; l++) {
+						let x = l * gap + minX
+						let nodesOnLevel = nodes.filter((n) => n.level == l)
+						nodesOnLevel.forEach((n) => (n.x = x))
+						let ySpaceNeeded = nodesOnLevel
+							.map((n) => {
+								let box = network.getBoundingBox(n.id)
+								return box.bottom - box.top + 10
+							})
+							.reduce((a, b) => a + b, 0)
+						let yGap = ySpaceNeeded / nodesOnLevel.length
+						let newY = -ySpaceNeeded / 2
+						nodesOnLevel
+							.sort((a, b) => a.y - b.y)
+							.forEach((n) => {
+								n.y = newY
+								newY += yGap
+							})
+					}
+					nodes.forEach((n) => console.log(n.label, n.x, n.y))
+					data.nodes.update(nodes)
+					elem('layoutSelect').value = 'off'
+				}
+				break
+			default: {
+				let options = {physics: {solver: option, stabilization: true}}
+				options.physics[option] = {}
+				options.physics[option].springLength = avEdgeLength()
+				network.setOptions(options)
+				// cancel the iterative algorithms as soon as they have stabilized
+				network.on('stabilized', () => {
+					network.setOptions({physics: {enabled: false}})
+					network.storePositions()
+					elem('layoutSelect').value = 'off'
+					data.nodes.update(data.nodes.get())
+				})
+				break
 			}
-			nodes.forEach((n) => console.log(n.label, n.x, n.y))
-			data.nodes.update(nodes)
-			elem('layoutSelect').value = 'off'
-		} else {
-			let options = {physics: {solver: option, stabilization: true}}
-			options.physics[option] = {}
-			options.physics[option].springLength = avEdgeLength()
-			network.setOptions(options)
 		}
 	})
-	// cancel the iterative algorithms as soon as they have stabilized
-	network.on('stabilized', () => {
-		network.setOptions({physics: {enabled: false}})
-		network.storePositions()
-		elem('layoutSelect').value = 'off'
-		data.nodes.update(data.nodes.get())
-	})
+
 	logHistory(`applied ${selectElement.options[selectElement.selectedIndex].innerHTML} layout`)
 
+	/**
+	 * set the levels for z-split, using a breadth first search
+	 * @param {object} node root node
+	 */
 	function setZLevel(node) {
 		let q = [node]
 		let level = 0
