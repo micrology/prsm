@@ -3472,11 +3472,13 @@ function autoLayout(e) {
 			let connectedNodes = data.nodes
 				.get(network.getConnectedNodes(currentNode.id))
 				.filter((n) => !n.hidden && n.level == undefined)
-			level = level + 1
-			connectedNodes.forEach((n) => {
-				n.level = level
-			})
-			q = q.concat(connectedNodes)
+			if (connectedNodes.length > 0) {
+				level = level + 1
+				connectedNodes.forEach((n) => {
+					n.level = level
+				})
+				q = q.concat(connectedNodes)
+			}
 		}
 	}
 	/**
