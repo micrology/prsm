@@ -3424,6 +3424,18 @@ function autoLayout(e) {
 						elem('layoutSelect').value = 'off'
 						return
 					}
+					// if more links from the selected nodes are going upstream then downstream, put the selected nodes on the right, else on the left
+					let nUp = 0
+					let nDown = 0
+					selectedNodes.forEach((sl) => {
+						nUp += network
+							.getConnectedNodes(sl.id, 'to')
+							.filter((nId) => !data.nodes.get(nId).hidden).length
+						nDown += network
+							.getConnectedNodes(sl.id, 'from')
+							.filter((nId) => !data.nodes.get(nId).hidden).length
+					})
+					let direction = nUp > nDown ? 1 : -1
 					let minX = Math.min(...nodes.map((n) => n.x))
 					let maxX = Math.max(...nodes.map((n) => n.x))
 					selectedNodes.forEach((n) => {
@@ -3436,6 +3448,7 @@ function autoLayout(e) {
 					let gap = (maxX - minX) / maxLevel
 					for (let l = 0; l <= maxLevel; l++) {
 						let x = l * gap + minX
+						if (direction == -1) x = maxX - l * gap
 						let nodesOnLevel = nodes.filter((n) => n.level == l)
 						nodesOnLevel.forEach((n) => (n.x = x))
 						let ySpaceNeeded = nodesOnLevel
@@ -3453,7 +3466,6 @@ function autoLayout(e) {
 								newY += yGap
 							})
 					}
-					nodes.forEach((n) => console.log(n.label, n.x, n.y))
 					data.nodes.update(nodes)
 					elem('layoutSelect').value = 'off'
 				}
