@@ -3473,7 +3473,7 @@ function autoLayout(e) {
 				.get(network.getConnectedNodes(currentNode.id))
 				.filter((n) => !n.hidden && n.level == undefined)
 			if (connectedNodes.length > 0) {
-				level = level + 1
+				level = currentNode.level + 1
 				connectedNodes.forEach((n) => {
 					n.level = level
 				})
