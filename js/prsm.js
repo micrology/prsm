@@ -3219,7 +3219,7 @@ function doShowNotes(toggle) {
  */
 function setFixed() {
 	let locked = elem('fixed').style.display == 'none'
-	let node = data.nodes.get(network.getSelectedNodes()[0])
+	let node = data.nodes.get(editor.id)
 	node.fixed = locked
 	elem('fixed').style.display = node.fixed ? 'inline' : 'none'
 	elem('unfixed').style.display = node.fixed ? 'none' : 'inline'
@@ -3424,18 +3424,26 @@ function autoLayout(e) {
 						elem('layoutSelect').value = 'off'
 						return
 					}
-					// if more links from the selected nodes are going upstream then downstream, put the selected nodes on the right, else on the left
-					let nUp = 0
-					let nDown = 0
-					selectedNodes.forEach((sl) => {
-						nUp += network
-							.getConnectedNodes(sl.id, 'to')
-							.filter((nId) => !data.nodes.get(nId).hidden).length
-						nDown += network
-							.getConnectedNodes(sl.id, 'from')
-							.filter((nId) => !data.nodes.get(nId).hidden).length
-					})
-					let direction = nUp > nDown ? 1 : -1
+					// if Up or Down stream are selected, use those for the direction
+					let direction = 1
+					if (getRadioVal('stream') == 'downstream') direction = 1
+					else if (getRadioVal('stream') == 'upstream') direction = -1
+					else {
+						// if neither,
+						//  and more links from the selected nodes are going upstream then downstream, 
+						//  put the selected nodes on the right, else on the left
+						let nUp = 0
+						let nDown = 0
+						selectedNodes.forEach((sl) => {
+							nUp += network
+								.getConnectedNodes(sl.id, 'to')
+								.filter((nId) => !data.nodes.get(nId).hidden).length
+							nDown += network
+								.getConnectedNodes(sl.id, 'from')
+								.filter((nId) => !data.nodes.get(nId).hidden).length
+						})
+						direction = nUp > nDown ? 1 : -1
+					}
 					let minX = Math.min(...nodes.map((n) => n.x))
 					let maxX = Math.max(...nodes.map((n) => n.x))
 					selectedNodes.forEach((n) => {
