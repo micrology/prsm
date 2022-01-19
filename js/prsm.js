@@ -964,7 +964,11 @@ function draw() {
 		let fixedSelectedNodes = props.previousSelection.nodes.filter((n) => data.nodes.get(n.id).fixed)
 		network.setSelection({nodes: fixedSelectedNodes.map((n) => n.id).concat(props.nodes)})
 		showSelected()
-		showNodeOrEdgeData()
+		if (showNotesToggle) {
+			hideNotes()
+			let nodeAtPointer = network.getNodeAt(props.pointer.DOM)
+			if (nodeAtPointer) showNodeData(nodeAtPointer)
+		}
 		if (getRadioVal('radius') !== 'All') analyse()
 		if (getRadioVal('stream') !== 'All') analyse()
 		if (getRadioVal('paths') !== 'All') analyse()
@@ -3238,6 +3242,7 @@ function showNodeOrEdgeData() {
  * Hide the Node or Edge Data panel
  */
 function hideNotes() {
+	if (editor == null) return
 	elem('nodeDataPanel').classList.add('hide')
 	elem('edgeDataPanel').classList.add('hide')
 	document.getSelection().removeAllRanges()
@@ -3425,9 +3430,9 @@ function autoLayout(e) {
 						return
 					}
 					// if Up or Down stream are selected, use those for the direction
-					let direction = 1
-					if (getRadioVal('stream') == 'downstream') direction = 1
-					else if (getRadioVal('stream') == 'upstream') direction = -1
+					let direction = 'from'
+					if (getRadioVal('stream') == 'downstream') direction = 'to'
+					else if (getRadioVal('stream') == 'upstream') direction = 'from'
 					else {
 						// if neither,
 						//  and more links from the selected nodes are going upstream then downstream, 
@@ -3442,12 +3447,12 @@ function autoLayout(e) {
 								.getConnectedNodes(sl.id, 'from')
 								.filter((nId) => !data.nodes.get(nId).hidden).length
 						})
-						direction = nUp > nDown ? 1 : -1
+						direction = nUp > nDown ? 'to' : 'from'
 					}
 					let minX = Math.min(...nodes.map((n) => n.x))
 					let maxX = Math.max(...nodes.map((n) => n.x))
 					selectedNodes.forEach((n) => {
-						setZLevel(n)
+						setZLevel(n, direction)
 					})
 					nodes.forEach((n) => {
 						if (n.level == undefined) n.level = 0
@@ -3456,7 +3461,7 @@ function autoLayout(e) {
 					let gap = (maxX - minX) / maxLevel
 					for (let l = 0; l <= maxLevel; l++) {
 						let x = l * gap + minX
-						if (direction == -1) x = maxX - l * gap
+						if (direction == 'from') x = maxX - l * gap
 						let nodesOnLevel = nodes.filter((n) => n.level == l)
 						nodesOnLevel.forEach((n) => (n.x = x))
 						let ySpaceNeeded = nodesOnLevel
@@ -3500,20 +3505,21 @@ function autoLayout(e) {
 	/**
 	 * set the levels for z-split, using a breadth first search
 	 * @param {object} node root node
+	 * @param {string} direction either 'from' or 'to', depending on whether the links to use are point from or to the node
 	 */
-	function setZLevel(node) {
+	function setZLevel(node, direction) {
 		let q = [node]
 		let level = 0
 		node.level = 0
 		while (q.length > 0) {
 			let currentNode = q.shift()
 			let connectedNodes = data.nodes
-				.get(network.getConnectedNodes(currentNode.id))
+				.get(network.getConnectedNodes(currentNode.id, direction))
 				.filter((n) => !n.hidden && n.level == undefined)
 			if (connectedNodes.length > 0) {
 				level = currentNode.level + 1
 				connectedNodes.forEach((n) => {
-					n.level = level
+					n.level = level; console.table([currentNode.label, direction, level, n.label])
 				})
 				q = q.concat(connectedNodes)
 			}
@@ -3802,6 +3808,16 @@ function analyse() {
 	data.nodes.update(nodes)
 	data.edges.update(edges)
 
+	// announce what has been done
+	let streamMsg = ''
+	if (getRadioVal('stream') == 'upstream') streamMsg = 'upstream'
+	if (getRadioVal('stream') == 'downstream') streamMsg = 'downstream'
+	let radiusMsg = ''
+	if (getRadioVal('radius') == '1') radiusMsg = 'within one link'
+	if (getRadioVal('radius') == '2') radiusMsg = 'within two links'
+	if (getRadioVal('radius') == '3') radiusMsg = 'within three links'
+
+	statusMsg(`Factors ${streamMsg} ${ streamMsg && radiusMsg ? ' and ': ''} ${radiusMsg} of ${selectedLabels()}`)
 	/**
 	 * Hide factors that are more than radius links distant from those selected
 	 * @param {string[]} selectedNodes
@@ -3812,8 +3828,8 @@ function analyse() {
 		let linkIdsInRadiusSet = new Set()
 
 		// put those factors and links within radius links into these sets
-		inSet(selectedNodes, radius, 'from')
-		inSet(selectedNodes, radius, 'to')
+		if (getRadioVal('stream') == 'upstream' || getRadioVal('stream') == 'All') inSet(selectedNodes, radius, 'to')
+		if (getRadioVal('stream') == 'downstream' || getRadioVal('stream') == 'All') inSet(selectedNodes, radius, 'from')
 
 		// hide all nodes and edges not in radius
 		nodes.forEach((n) => {
