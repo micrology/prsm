@@ -3435,7 +3435,7 @@ function autoLayout(e) {
 					else if (getRadioVal('stream') == 'upstream') direction = 'from'
 					else {
 						// if neither,
-						//  and more links from the selected nodes are going upstream then downstream, 
+						//  and more links from the selected nodes are going upstream then downstream,
 						//  put the selected nodes on the right, else on the left
 						let nUp = 0
 						let nDown = 0
@@ -3519,7 +3519,8 @@ function autoLayout(e) {
 			if (connectedNodes.length > 0) {
 				level = currentNode.level + 1
 				connectedNodes.forEach((n) => {
-					n.level = level; console.table([currentNode.label, direction, level, n.label])
+					n.level = level
+					console.table([currentNode.label, direction, level, n.label])
 				})
 				q = q.concat(connectedNodes)
 			}
@@ -3775,6 +3776,7 @@ function analyse() {
 		setYMapAnalysisButtons()
 		data.nodes.update(nodes)
 		data.edges.update(edges)
+		clearStatusBar()
 		return
 	}
 
@@ -3816,8 +3818,22 @@ function analyse() {
 	if (getRadioVal('radius') == '1') radiusMsg = 'within one link'
 	if (getRadioVal('radius') == '2') radiusMsg = 'within two links'
 	if (getRadioVal('radius') == '3') radiusMsg = 'within three links'
+	let pathsMsg = ''
+	if (getRadioVal('paths') == 'allPaths') pathsMsg = ': showing all paths'
+	if (getRadioVal('paths') == 'shortestPath') pathsMsg = ': showing shortest paths'
+	if (getRadioVal('stream') == 'All' && getRadioVal('radius') == 'All')
+		statusMsg(
+			`Showing  ${
+				getRadioVal('paths') == 'allPaths' ? 'all paths' : 'shortest paths'
+			} between ${selectedLabels()}`
+		)
+	else
+		statusMsg(
+			`Factors ${streamMsg} ${
+				streamMsg && radiusMsg ? ' and ' : ''
+			} ${radiusMsg} of ${selectedLabels()}${pathsMsg}`
+		)
 
-	statusMsg(`Factors ${streamMsg} ${ streamMsg && radiusMsg ? ' and ': ''} ${radiusMsg} of ${selectedLabels()}`)
 	/**
 	 * Hide factors that are more than radius links distant from those selected
 	 * @param {string[]} selectedNodes
@@ -3829,7 +3845,8 @@ function analyse() {
 
 		// put those factors and links within radius links into these sets
 		if (getRadioVal('stream') == 'upstream' || getRadioVal('stream') == 'All') inSet(selectedNodes, radius, 'to')
-		if (getRadioVal('stream') == 'downstream' || getRadioVal('stream') == 'All') inSet(selectedNodes, radius, 'from')
+		if (getRadioVal('stream') == 'downstream' || getRadioVal('stream') == 'All')
+			inSet(selectedNodes, radius, 'from')
 
 		// hide all nodes and edges not in radius
 		nodes.forEach((n) => {
@@ -3872,17 +3889,41 @@ function analyse() {
 	 * @param {string[]} selectedNodes
 	 * @param {string} direction - 'upstream' or 'downstream'
 	 */
-	function hideNodesByStream(selectedNodes, direction) {
+	function hideNodesByStream(selectedNodes, upOrDown) {
 		let nodeIdsInStreamSet = new Set()
 		let linkIdsInStreamSet = new Set()
+
 		let radiusVal = getRadioVal('radius')
 		let radius = Infinity
 		if (radiusVal !== 'All') {
 			radius = parseInt(radiusVal)
 		}
+		let direction = 'to'
+		if (upOrDown == 'upstream') direction = 'from'
 
-		if (direction == 'upstream') upstream(selectedNodes, radius)
-		else downstream(selectedNodes, radius)
+		// breadth first search for all Factors that are downstream and less than or equal to radius links away
+		data.nodes.map((n) => (n.level = undefined))
+		selectedNodes.forEach((nodeId) => {
+			nodeIdsInStreamSet.add(nodeId)
+			let node = data.nodes.get(nodeId)
+			let q = [node]
+			let level = 0
+			node.level = 0
+			while (q.length > 0 && level <= radius) {
+				let currentNode = q.shift()
+				let connectedNodes = data.nodes
+					.get(network.getConnectedNodes(currentNode.id, direction))
+					.filter((n) => !n.hidden && !nodeIdsInStreamSet.has(n.id))
+				if (connectedNodes.length > 0) {
+					level = currentNode.level + 1
+					connectedNodes.forEach((n) => {
+						nodeIdsInStreamSet.add(n.id)
+						n.level = level
+					})
+					q = q.concat(connectedNodes)
+				}
+			}
+		})
 
 		// hide all nodes and edges not up or down stream
 		nodes.forEach((n) => {
@@ -3896,55 +3937,6 @@ function analyse() {
 		nodeIdsInStreamSet.forEach((f) => {
 			network.getConnectedEdges(f).forEach((e) => (data.edges.get(e).hidden = false))
 		})
-
-		/**
-		 * Recursive function to collect into nodeIdsInStreamSet the factors that are upstream of the given nodeIds
-		 * and the links into linkIdsInStreamSet
-		 * @param {array[]} nodeIds
-		 */
-		function upstream(nodeIds, radius) {
-			nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId))
-			nodeIds.forEach((nId) => {
-				let links = data.edges
-					.get({
-						filter: function (item) {
-							return item.to == nId
-						},
-					})
-					.filter((e) => !e.hidden)
-				if (radius < 0) return
-				links.forEach((link) => {
-					linkIdsInStreamSet.add(link.id)
-					if (!nodeIdsInStreamSet.has(link.from)) {
-						upstream([link.from], radius - 1)
-					}
-				})
-			})
-		}
-
-		/**
-		 * Recursive function to collect the factors and links that are downstream of the given nodeIds
-		 * @param {string[]} nodeIds
-		 */
-		function downstream(nodeIds, radius) {
-			nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId))
-			nodeIds.forEach((nId) => {
-				let links = data.edges
-					.get({
-						filter: function (item) {
-							return item.from == nId
-						},
-					})
-					.filter((e) => !e.hidden)
-				if (radius < 0) return
-				links.forEach((link) => {
-					linkIdsInStreamSet.add(link.id)
-					if (!nodeIdsInStreamSet.has(link.to)) {
-						downstream([link.to], radius - 1)
-					}
-				})
-			})
-		}
 	}
 
 	/**
