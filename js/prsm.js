@@ -793,7 +793,7 @@ function draw() {
 				// for some weird reason, vis-network copies the group properties into the
 				// node properties before calling this fn, which we don't want.  So we
 				// revert to using the original node properties before continuing.
-				item = data.nodes.get(item.id)
+				item = data.nodes.get(item.id); console.log(item.label)
 				item.modified = timestamp()
 				let point = {x: event.offsetX, y: event.offsetY}
 				editNode(item, point, cancelEdit, callback)
@@ -937,39 +937,28 @@ function draw() {
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
 		if (/gui/.test(debug)) console.log('**doubleClick**')
+		console.log(params, inEditMode, data.nodes.get(params.nodes[0]).label)
 		if (params.nodes.length === 1) {
-			if (!viewOnly && !inEditMode && !data.nodes.get(params.nodes[0]).locked) network.editNode()
+			if (!viewOnly && !inEditMode) network.editNode()
 		} else if (params.edges.length === 1) {
 			if (!viewOnly && !inEditMode) network.editEdgeMode()
 		} else {
 			fit()
 		}
 	})
-	network.on('selectNode', function (props) {
+	network.on('selectNode', function () {
 		if (/gui/.test(debug)) console.log('selectNode')
 		showSelected()
-		if (showNotesToggle) {
-			hideNotes()
-			showNodeData(network.getNodeAt(props.pointer.DOM))
-		}
-		if (getRadioVal('radius') !== 'All') analyse()
+		showNodeOrEdgeData()
+		if (getRadioVal('radio') !== 'All') analyse()
 		if (getRadioVal('stream') !== 'All') analyse()
 		if (getRadioVal('paths') !== 'All') analyse()
 	})
-	network.on('deselectNode', function (props) {
+	network.on('deselectNode', function () {
 		if (/gui/.test(debug)) console.log('deselectNode')
-		// if any of the previously selected nodes were locked, reselect them
-		// and if the use clicked another node, select that too
-		// this weird construction is required because the documentation for deselectNode is wrong
-		let fixedSelectedNodes = props.previousSelection.nodes.filter((n) => data.nodes.get(n.id).fixed)
-		network.setSelection({nodes: fixedSelectedNodes.map((n) => n.id).concat(props.nodes)})
 		showSelected()
-		if (showNotesToggle) {
-			hideNotes()
-			let nodeAtPointer = network.getNodeAt(props.pointer.DOM)
-			if (nodeAtPointer) showNodeData(nodeAtPointer)
-		}
-		if (getRadioVal('radius') !== 'All') analyse()
+		showNodeOrEdgeData()
+		if (getRadioVal('radio') !== 'All') analyse()
 		if (getRadioVal('stream') !== 'All') analyse()
 		if (getRadioVal('paths') !== 'All') analyse()
 	})
@@ -3419,7 +3408,7 @@ function autoLayout(e) {
 				}
 				break
 			}
-			case 'z-split':
+			case 'fan':
 				{
 					let nodes = data.nodes.get().filter((n) => !n.hidden)
 					nodes.forEach((n) => (n.level = undefined))
@@ -3503,7 +3492,7 @@ function autoLayout(e) {
 	logHistory(`applied ${selectElement.options[selectElement.selectedIndex].innerHTML} layout`)
 
 	/**
-	 * set the levels for z-split, using a breadth first search
+	 * set the levels for fan, using a breadth first search
 	 * @param {object} node root node
 	 * @param {string} direction either 'from' or 'to', depending on whether the links to use are point from or to the node
 	 */
