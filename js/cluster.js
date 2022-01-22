@@ -246,7 +246,7 @@ function showClusterLinks() {
  */
 export function openCluster(clusterNodeId) {
 	let clusterNode = data.nodes.get(clusterNodeId)
-	// if user has right clicked on a factor that is not a cluster, and clustering is 
+	// if user has right clicked on a factor that is not a cluster, and clustering is
 	// set, re-cluster
 	if (!clusterNode.isCluster) {
 		let attribute = elem('clustering').value

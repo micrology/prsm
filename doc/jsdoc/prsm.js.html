@@ -1,45 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>JSDoc: Source: prsm.js</title>
+	<head>
+		<meta charset="utf-8" />
+		<title>JSDoc: Source: prsm.js</title>
 
-    <script src="scripts/prettify/prettify.js"> </script>
-    <script src="scripts/prettify/lang-css.js"> </script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
-</head>
+		<script src="scripts/prettify/prettify.js"></script>
+		<script src="scripts/prettify/lang-css.js"></script>
+		<!--[if lt IE 9]>
+			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css" />
+		<link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css" />
+	</head>
 
-<body>
+	<body>
+		<div id="main">
+			<h1 class="page-title">Source: prsm.js</h1>
 
-<div id="main">
-
-    <h1 class="page-title">Source: prsm.js</h1>
-
-    
-
-
-
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/* 
+			<section>
+				<article>
+					<pre class="prettyprint source linenums"><code>/* 
 The main entry point for PRSM.  
  */
 
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
-import {IndexeddbPersistence} from 'y-indexeddb'
+// import {IndexeddbPersistence} from 'y-indexeddb'
 import {Network, parseGephiNetwork} from 'vis-network/peer'
 import {DataSet} from 'vis-data/peer'
 import diff from 'microdiff'
 import {
 	listen,
 	elem,
-	pushnew,
 	getScaleFreeNetwork,
 	uuidv4,
 	isEmpty,
@@ -72,6 +64,7 @@ import Hammer from '@egjs/hammerjs'
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js'
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js'
 import {version} from '../package.json'
+import {compressToUTF16, decompressFromUTF16} from 'lz-string'
 
 const appName = 'Participatory System Mapper'
 const shortAppName = 'PRSM'
@@ -80,6 +73,7 @@ const NODEWIDTH = 10 // chars for label splitting
 const TIMETOSLEEP = 15 * 60 * 1000 // if no mouse movement for this time, user is assumed to have left or is sleeping
 const TIMETOEDIT = 5 * 60 * 1000 // if node/edge edit dialog is not saved after this time, the edit is cancelled
 const magnification = 3 // magnification of the loupe (magnifier 'glass')
+export const NLEVELS = 20 // max. number of levels for trophic layout
 
 export var network
 var room
@@ -124,6 +118,7 @@ var followme // clientId of user's cursor to follow
 var editor = null // Quill editor
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
 var netLoaded = false // becomes true when map is fully displayed
+var savedState = '' // the current sate of the map (nodes, edges, network settings) before current user action
 /**
  * top level function to initialise everything
  */
@@ -164,6 +159,9 @@ function addEventListeners() {
 			e.preventDefault()
 		}
 	})
+	listen('net-pane', 'keydown', (e) => {
+		if (e.which == 8 || e.which == 46) deleteNode()
+	})
 	listen('recent-rooms-caret', 'click', createTitleDropDown)
 	listen('maptitle', 'keyup', mapTitle)
 	listen('maptitle', 'paste', pasteMapTitle)
@@ -189,6 +187,7 @@ function addEventListeners() {
 	listen('help', 'click', displayHelp)
 	listen('panelToggle', 'click', togglePanel)
 	listen('zoom', 'change', zoomnet)
+	listen('navbar', 'dblclick', fit)
 	listen('zoomminus', 'click', () => {
 		zoomincr(-0.1)
 	})
@@ -207,7 +206,7 @@ function addEventListeners() {
 	listen('analysisButton', 'click', () => {
 		openTab('analysisTab')
 	})
-	listen('trophicButton', 'click', autoLayoutSwitch)
+	listen('layoutSelect', 'change', autoLayout)
 	listen('snaptogridswitch', 'click', snapToGridSwitch)
 	listen('curveSelect', 'change', selectCurve)
 	listen('drawing', 'click', toggleDrawingLayer)
@@ -220,13 +219,13 @@ function addEventListeners() {
 	listen('clustering', 'change', selectClustering)
 	listen('lock', 'click', setFixed)
 	Array.from(document.getElementsByName('radius')).forEach((elem) => {
-		elem.addEventListener('change', hideDistantNodes)
+		elem.addEventListener('change', analyse)
 	})
 	Array.from(document.getElementsByName('stream')).forEach((elem) => {
-		elem.addEventListener('change', hideStreamNodes)
+		elem.addEventListener('change', analyse)
 	})
 	Array.from(document.getElementsByName('paths')).forEach((elem) => {
-		elem.addEventListener('change', showPaths)
+		elem.addEventListener('change', analyse)
 	})
 	listen('sizing', 'change', sizingSwitch)
 	Array.from(document.getElementsByClassName('sampleNode')).forEach((elem) =>
@@ -292,11 +291,11 @@ function startY(newRoom) {
 		room = generateRoom()
 		checkMapSaved = true
 	} else room = room.toUpperCase()
-	const persistence = new IndexeddbPersistence(room, doc)
+	/* 	const persistence = new IndexeddbPersistence(room, doc)
 	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
 		if (data.nodes.length > 0) displayNetPane(exactTime() + ' local content loaded')
-	})
+	}) */
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
 	wsProvider.on('sync', () => {
 		displayNetPane(exactTime() + ' remote content loaded')
@@ -397,7 +396,8 @@ function startY(newRoom) {
 		}
 		if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote')
 		if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
-		if (/changes/.test(debug) &amp;&amp; (nodesToUpdate.length > 0 || nodesToRemove.length > 0)) showChange(event, yNodesMap)
+		if (/changes/.test(debug) &amp;&amp; (nodesToUpdate.length > 0 || nodesToRemove.length > 0))
+			showChange(event, yNodesMap)
 	})
 	/* 
 	See comments above about nodes
@@ -455,12 +455,15 @@ function startY(newRoom) {
 					`Property "${key}" was updated. 
 					New value: "`,
 					ymap.get(key),
-					`. 
-					Previous value: `,
+					`"
+					Previous value: "`,
 					change.oldValue,
-					`. 
-					Difference: `,
-					diff(change.oldValue, ymap.get(key))
+					`" 
+					Difference: "`,
+					typeof change.oldValue === 'object' &amp;&amp; typeof ymap.get(key) === 'object'
+						? diff(change.oldValue, ymap.get(key))
+						: change.oldValue + ' ' + ymap.get(key),
+					`"`
 				)
 			} else if (change.action === 'delete') {
 				console.log(
@@ -512,63 +515,64 @@ function startY(newRoom) {
 	yNetMap.observe((event) => {
 		yjsTrace('YNetMap.observe', event)
 
-		for (let key of event.keysChanged) {
-			let obj = yNetMap.get(key)
-			switch (key) {
-				case 'mapTitle':
-				case 'maptitle':
-					setMapTitle(obj)
-					break
-				case 'snapToGrid':
-					doSnapToGrid(obj)
-					break
-				case 'curve':
-					setCurve(obj)
-					break
-				case 'background':
-					setBackground(obj)
-					break
-				case 'legend':
-					setLegend(obj, false)
-					break
-				case 'showNotes':
-					doShowNotes(obj)
-					break
-				case 'radius':
-					hiddenNodes.radiusSetting = obj.radiusSetting
-					hiddenNodes.selected = obj.selected
-					setAnalysisButtons()
-					break
-				case 'stream':
-					hiddenNodes.streamSetting = obj.streamSetting
-					hiddenNodes.selected = obj.selected
-					setAnalysisButtons()
-					break
-				case 'paths':
-					hiddenNodes.pathsSetting = obj.pathsSetting
-					hiddenNodes.selected = obj.selected
-					setAnalysisButtons()
-					break
-				case 'sizing':
-					sizing(obj)
-					break
-				case 'hideAndStream':
-				case 'linkRadius':
-					// old settings (before v1.6) - ignore
-					break
-				case 'factorsHiddenByStyle':
-					updateFactorsHiddenByStyle(obj)
-					break
-				case 'attributeTitles':
-					recreateClusteringMenu(obj)
-					break
-				case 'cluster':
-					setCluster(obj)
-					break
-				default:
-					console.log('Bad key in yMapNet.observe: ', key)
+		if (event.transaction.local === false)
+			for (let key of event.keysChanged) {
+				let obj = yNetMap.get(key)
+				switch (key) {
+					case 'mapTitle':
+					case 'maptitle':
+						setMapTitle(obj)
+						break
+					case 'snapToGrid':
+						doSnapToGrid(obj)
+						break
+					case 'curve':
+						setCurve(obj)
+						break
+					case 'background':
+						setBackground(obj)
+						break
+					case 'legend':
+						setLegend(obj, false)
+						break
+					case 'showNotes':
+						doShowNotes(obj)
+						break
+					case 'radius':
+						hiddenNodes.radiusSetting = obj.radiusSetting
+						hiddenNodes.selected = obj.selected
+						setAnalysisButtonsFromRemote()
+						break
+					case 'stream':
+						hiddenNodes.streamSetting = obj.streamSetting
+						hiddenNodes.selected = obj.selected
+						setAnalysisButtonsFromRemote()
+						break
+					case 'paths':
+						hiddenNodes.pathsSetting = obj.pathsSetting
+						hiddenNodes.selected = obj.selected
+						setAnalysisButtonsFromRemote()
+						break
+					case 'sizing':
+						sizing(obj)
+						break
+					case 'hideAndStream':
+					case 'linkRadius':
+						// old settings (before v1.6) - ignore
+						break
+					case 'factorsHiddenByStyle':
+						updateFactorsHiddenByStyle(obj)
+						break
+					case 'attributeTitles':
+						recreateClusteringMenu(obj)
+						break
+					case 'cluster':
+						setCluster(obj)
+						break
+					default:
+						console.log('Bad key in yMapNet.observe: ', key)
+				}
 			}
-		}
 	})
 	yPointsArray.observe((event) => {
 		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1))
@@ -643,7 +647,11 @@ function displayNetPane(msg) {
 		undoRedoButtonStatus()
 		setUpTutorial()
 		netLoaded = true
-		setAnalysisButtons()
+		savedState = compressToUTF16(
+			JSON.stringify({nodes: data.nodes.get(), edges: data.edges.get(), net: yNetMap.toJSON()})
+		)
+		setAnalysisButtonsFromRemote()
+		setLegend(yNetMap.get('legend'), false)
 	}
 }
 
@@ -807,6 +815,7 @@ function draw() {
 				// node properties before calling this fn, which we don't want.  So we
 				// revert to using the original node properties before continuing.
 				item = data.nodes.get(item.id)
+				console.log(item.label)
 				item.modified = timestamp()
 				let point = {x: event.offsetX, y: event.offsetY}
 				editNode(item, point, cancelEdit, callback)
@@ -912,9 +921,10 @@ function draw() {
 	elem('nodesButton').click()
 
 	// listen for click events on the network pane
-	network.on('click', function (params) {
-		if (/gui/.test(debug)) console.log('click')
+	network.on('click', (params) => {
+		if (/gui/.test(debug)) console.log('**click**')
 		let keys = params.event.pointers[0]
+		if (!keys) return
 		if (keys.metaKey) {
 			// if the Command key (on a Mac) is down, and the click is on a node/edge, log it to the console
 			if (params.nodes.length == 1) {
@@ -930,7 +940,7 @@ function draw() {
 			return
 		}
 		if (keys.altKey) {
-			// if the Option/ALT key is down, add a node if on the background, or a link if on a node
+			// if the Option/ALT key is down, add a node if on the background
 			if (params.nodes.length == 0 &amp;&amp; params.edges.length == 0) {
 				let pos = params.pointer.canvas
 				let item = {id: uuidv4(), label: '', x: pos.x, y: pos.y}
@@ -940,20 +950,19 @@ function draw() {
 					if (newItem !== null) data.nodes.add(newItem)
 				})
 			}
-			if (params.nodes.length == 1) {
-				elem('addLink').click()
-			}
 			return
 		}
 		if (keys.shiftKey) {
 			if (!inEditMode) showMagnifier(keys)
 		}
 	})
+
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
-		if (/gui/.test(debug)) console.log('doubleClick')
+		if (/gui/.test(debug)) console.log('**doubleClick**')
+		console.log(params, inEditMode, data.nodes.get(params.nodes[0]).label)
 		if (params.nodes.length === 1) {
-			if (!viewOnly &amp;&amp; !inEditMode &amp;&amp; !data.nodes.get(params.nodes[0]).locked) network.editNode()
+			if (!viewOnly &amp;&amp; !inEditMode) network.editNode()
 		} else if (params.edges.length === 1) {
 			if (!viewOnly &amp;&amp; !inEditMode) network.editEdgeMode()
 		} else {
@@ -964,17 +973,17 @@ function draw() {
 		if (/gui/.test(debug)) console.log('selectNode')
 		showSelected()
 		showNodeOrEdgeData()
-		if (getRadioVal('radio') !== 'All') hideDistantNodes()
-		if (getRadioVal('stream') !== 'All') hideStreamNodes()
-		if (getRadioVal('paths') !== 'All') showPaths()
+		if (getRadioVal('radio') !== 'All') analyse()
+		if (getRadioVal('stream') !== 'All') analyse()
+		if (getRadioVal('paths') !== 'All') analyse()
 	})
 	network.on('deselectNode', function () {
 		if (/gui/.test(debug)) console.log('deselectNode')
-		hideNotes()
-		clearStatusBar()
-		if (getRadioVal('radio') !== 'All') hideDistantNodes()
-		if (getRadioVal('stream') !== 'All') hideStreamNodes()
-		if (getRadioVal('paths') !== 'All') showPaths()
+		showSelected()
+		showNodeOrEdgeData()
+		if (getRadioVal('radio') !== 'All') analyse()
+		if (getRadioVal('stream') !== 'All') analyse()
+		if (getRadioVal('paths') !== 'All') analyse()
 	})
 	network.on('hoverNode', function () {
 		changeCursor('grab')
@@ -990,7 +999,7 @@ function draw() {
 	network.on('deselectEdge', function () {
 		if (/gui/.test(debug)) console.log('deselectEdge')
 		hideNotes()
-		clearStatusBar()
+		showSelected()
 	})
 	network.on('oncontext', function (e) {
 		let nodeId = network.getNodeAt(e.pointer.DOM)
@@ -1019,6 +1028,20 @@ function draw() {
 			selectionArea.style.height = '0px'
 			selectionArea.style.display = 'block'
 			return
+		}
+		if (e.altKey) {
+			if (!inAddMode) {
+				removeFactorCursor()
+				changeCursor('crosshair')
+				inAddMode = 'addLink'
+				showPressed('addLink', 'add')
+				statusMsg('Now drag to the middle of the Destination factor')
+				network.setOptions({
+					interaction: {dragView: false, selectable: false},
+				})
+				network.addEdgeMode()
+				return
+			}
 		}
 		changeCursor('grabbing')
 	})
@@ -1050,6 +1073,7 @@ function draw() {
 			let selectedNodes = data.nodes.get({
 				filter: function (node) {
 					return (
+						!node.hidden &amp;&amp;
 						node.x >= selectionCanvasStart.x &amp;&amp;
 						node.x &lt;= selectionEnd.x &amp;&amp;
 						node.y >= selectionCanvasStart.y &amp;&amp;
@@ -1194,22 +1218,45 @@ function timestamp() {
 }
 /**
  * push a record that action has been taken on to the end of the history log
+ *  also record current state of the map for possible roll back
  *  and note changes have been made to the map
  * @param {String} action
  */
 export function logHistory(action, actor) {
-	yHistory.push([{action: action, time: Date.now(), user: actor ? actor : myNameRec.name}])
+	yHistory.push([
+		{
+			action: action,
+			time: Date.now(),
+			user: actor ? actor : myNameRec.name,
+			state: savedState,
+		},
+	])
+	savedState = compressToUTF16(
+		JSON.stringify({nodes: data.nodes.get(), edges: data.edges.get(), net: yNetMap.toJSON()})
+	)
 	dirty = true
 }
-
+/**
+ * draw badges (icons) around Factors and Links
+ * @param {CanvasRenderingContext2D} ctx NetPane canvas context
+ */
 function drawBadges(ctx) {
+	// padlock for locked factors
+	data.nodes
+		.get()
+		.filter((node) => !node.hidden &amp;&amp; node.fixed)
+		.forEach((node) => {
+			let box = network.getBoundingBox(node.id)
+			drawLockBadge(ctx, box.left - 10, box.top)
+		})
 	if (!showNotesToggle) return
+	// note card for Factors and Links with Notes
 	data.nodes
 		.get()
 		.filter((node) => !node.hidden &amp;&amp; node.note &amp;&amp; node.note != 'Notes')
 		.forEach((node) => {
 			let box = network.getBoundingBox(node.id)
-			drawBadge(ctx, box.right - 20, box.top)
+			drawNoteBadge(ctx, box.right, box.top)
 		})
 	let changedEdges = []
 	data.edges.get().forEach((edge) => {
@@ -1225,7 +1272,7 @@ function drawBadges(ctx) {
 			changedEdges.push(edge)
 			edge.arrows.middle.enabled = true
 			edge.arrows.middle.type = 'image'
-			edge.arrows.middle.src = elem('badge').src
+			edge.arrows.middle.src = noteImage.src
 		} else if (
 			(!edge.note || (edge.note &amp;&amp; edge.note == 'Notes')) &amp;&amp;
 			edge.arrows &amp;&amp;
@@ -1239,12 +1286,23 @@ function drawBadges(ctx) {
 	})
 	data.edges.update(changedEdges)
 }
-const badge = elem('badge')
-
-function drawBadge(ctx, x, y) {
+function drawNoteBadge(ctx, x, y) {
 	ctx.beginPath()
-	ctx.drawImage(badge, Math.floor(x), Math.floor(y))
+	ctx.drawImage(noteImage, Math.floor(x), Math.floor(y))
 }
+
+var noteImage = new Image()
+noteImage.src =
+	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktY2FyZC10ZXh0IiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik0xNC41IDNhLjUuNSAwIDAgMSAuNS41djlhLjUuNSAwIDAgMS0uNS41aC0xM2EuNS41IDAgMCAxLS41LS41di05YS41LjUgMCAwIDEgLjUtLjVoMTN6bS0xMy0xQTEuNSAxLjUgMCAwIDAgMCAzLjV2OUExLjUgMS41IDAgMCAwIDEuNSAxNGgxM2ExLjUgMS41IDAgMCAwIDEuNS0xLjV2LTlBMS41IDEuNSAwIDAgMCAxNC41IDJoLTEzeiIvPgogIDxwYXRoIGQ9Ik0zIDUuNWEuNS41IDAgMCAxIC41LS41aDlhLjUuNSAwIDAgMSAwIDFoLTlhLjUuNSAwIDAgMS0uNS0uNXpNMyA4YS41LjUgMCAwIDEgLjUtLjVoOWEuNS41IDAgMCAxIDAgMWgtOUEuNS41IDAgMCAxIDMgOHptMCAyLjVhLjUuNSAwIDAgMSAuNS0uNWg2YS41LjUgMCAwIDEgMCAxaC02YS41LjUgMCAwIDEtLjUtLjV6Ii8+Cjwvc3ZnPg=='
+var lockImage = new Image()
+lockImage.src =
+	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktbG9jay1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik04IDFhMiAyIDAgMCAxIDIgMnY0SDZWM2EyIDIgMCAwIDEgMi0yem0zIDZWM2EzIDMgMCAwIDAtNiAwdjRhMiAyIDAgMCAwLTIgMnY1YTIgMiAwIDAgMCAyIDJoNmEyIDIgMCAwIDAgMi0yVjlhMiAyIDAgMCAwLTItMnoiLz4KPC9zdmc+'
+
+function drawLockBadge(ctx, x, y) {
+	ctx.beginPath()
+	ctx.drawImage(lockImage, Math.floor(x), Math.floor(y))
+}
+
 /**
  * rescale and redraw the network so that it fits the pane
  * @param {number} duration speed of zoom to fit
@@ -1257,19 +1315,6 @@ function fit(duration = 200) {
 	let newScale = network.getScale()
 	elem('zoom').value = newScale
 	network.storePositions()
-}
-
-/**
- * broadcast current node positions to all clients
- */
-function broadcast() {
-	/* there are situations where vis does not update node positions
-(and therefore does not call nodes.on) such as auto layout, 
-and therefore other clients don't get to see the changes.
-This function forces a broadcast of all nodes.  We only deal with
-nodes because the edges follow */
-	network.storePositions()
-	data.nodes.forEach((n) => yNodesMap.set(n.id, n))
 }
 
 /**
@@ -1642,7 +1687,7 @@ function saveLabel(node, callback) {
 	node.label = splitText(elem('popup-label').innerText, NODEWIDTH)
 	clearPopUp()
 	if (node.label === '') {
-		statusMsg('No label: cancelled', 'warn')
+		statusMsg('No label: cancelled', 'error')
 		callback(null)
 		return
 	}
@@ -1660,7 +1705,7 @@ function saveNode(item, callback) {
 	clearPopUp()
 	if (item.label === '') {
 		// if there is no label, cancel (nodes must have a label)
-		statusMsg('No label: cancelled', 'warn')
+		statusMsg('No label: cancelled', 'error')
 		callback(null)
 	}
 	let color = elem('node-backgroundColor').style.backgroundColor
@@ -1967,13 +2012,18 @@ worker.onmessage = function (e) {
 */
 /**
  * return a string listing the labels of the given nodes, with nice connecting words
- * @param {Array} factors List of factors
+ * @param {Array} factors List of node Ids
+ * @param {Boolean} suppressType If true, don't start string with 'Factors'
  */
-function listFactors(factors) {
+function listFactors(factors, suppressType) {
 	if (factors.length > 5) return factors.length + ' factors'
-	let str = 'Factor'
-	if (factors.length > 1) str = str + 's'
-	return str + ': ' + lf(factors)
+	let str = ''
+	if (!suppressType) {
+		str = 'Factor'
+		if (factors.length > 1) str = str + 's'
+		str = str + ': '
+	}
+	return str + lf(factors)
 
 	function lf(factors) {
 		// recursive fn to return a string of the node labels, separated by commas and 'and'
@@ -1999,7 +2049,7 @@ function listLinks(links) {
  * @returns {String} string of labels of links and factors, nicely formatted
  */
 function selectedLabels() {
-	let selectedNodes = network.getSelectedNodes()
+	let selectedNodes = getSelectedAndFixedNodes()
 	let selectedEdges = network.getSelectedEdges()
 	let msg = ''
 	if (selectedNodes.length > 0) msg = listFactors(selectedNodes)
@@ -2199,6 +2249,7 @@ function plusLink() {
 function stopEdit() {
 	inAddMode = false
 	network.disableEditMode()
+	clearStatusBar()
 	changeCursor('default')
 }
 /**
@@ -2274,7 +2325,7 @@ function readSingleFile(e) {
 	reader.onloadend = function (e) {
 		try {
 			loadFile(e.target.result)
-			if (!msg) statusMsg("Read '" + fileName + "'")
+			if (!msg) statusMsg("Read '" + fileName + "'", 'info')
 		} catch (err) {
 			statusMsg("Error reading '" + fileName + "': " + err.message, 'error')
 			console.log(err)
@@ -2627,9 +2678,7 @@ function refreshSampleNodes() {
 	for (let i = 0; i &lt; sampleElements.length; i++) {
 		let sampleElement = sampleElements[i]
 		let node = sampleElement.dataSet.get()[0]
-		node = deepMerge(node, styles.nodes['group' + i], {
-			value: styles.nodes['base'].scaling.max,
-		})
+		node = deepMerge(node, styles.nodes['group' + i])
 		node.label = node.groupLabel
 		sampleElement.dataSet.remove(node.id)
 		sampleElement.dataSet.update(node)
@@ -2665,6 +2714,7 @@ function savePRSMfile() {
 			mapTitle: elem('maptitle').innerText,
 			lastNodeSample: lastNodeSample,
 			lastLinkSample: lastLinkSample,
+			// clustering, and up/down, paths between and x links away settings are not saved (and hidden property is not saved)
 			buttons: getButtonStatus(),
 			attributeTitles: yNetMap.get('attributeTitles'),
 			styles: styles,
@@ -2727,7 +2777,7 @@ function saveStr(str, extn) {
 		a.click()
 		a.remove()
 	}
-	statusMsg(`'${lastFileName}' saved`)
+	statusMsg(`'${lastFileName}' saved`, 'info')
 	checkMapSaved = false
 	dirty = false
 }
@@ -2757,6 +2807,12 @@ function exportPNGfile() {
 	elem('main').appendChild(bigNetPane)
 	bigNetwork = new Network(bigNetPane, data, {
 		physics: {enabled: false},
+		edges: {
+			smooth: {
+				enabled: elem('curveSelect').value === 'Curved',
+				type: 'straightCross',
+			},
+		},
 	})
 	bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
 	bigNetwork.moveTo({
@@ -2770,7 +2826,7 @@ function exportPNGfile() {
 			a.remove()
 			bigNetwork.destroy()
 			bigNetPane.remove()
-			statusMsg(`'${lastFileName}' saved`)
+			statusMsg(`'${lastFileName}' saved`, 'info')
 		})
 		a.click()
 	})
@@ -3112,6 +3168,10 @@ function setButtonStatus(settings) {
 	yNetMap.set('background', settings.background || '#ffffff')
 	yNetMap.set('legend', settings.legend)
 	yNetMap.set('sizing', settings.sizing)
+	yNetMap.set('radius', {radiusSetting: 'All', selected: []})
+	yNetMap.set('stream', {streamSetting: 'All', selected: []})
+	yNetMap.set('paths', {pathsSetting: 'All', selected: []})
+	yNetMap.set('cluster', 'All')
 }
 // Factors and Links Tabs
 function applySampleToNode(event) {
@@ -3166,6 +3226,19 @@ export function updateLastSamples(nodeId, linkId) {
 	}
 }
 
+/**
+ * Hide or reveal all the Factors with the given style
+ * @param {Object} obj {sample: state}
+ */
+function updateFactorsHiddenByStyle(obj) {
+	for (const sampleElementId in obj) {
+		let sampleElement = elem(sampleElementId)
+		let state = obj[sampleElementId]
+		sampleElement.dataset.hide = state ? 'hidden' : 'visible'
+		sampleElement.style.opacity = state ? 0.6 : 1.0
+	}
+}
+
 /********************************************************Notes********************************************** */
 /**
  * Globally either display or don't display notes when a factor or link is selected
@@ -3187,8 +3260,9 @@ function doShowNotes(toggle) {
  */
 function setFixed() {
 	let locked = elem('fixed').style.display == 'none'
-	let node = data.nodes.get(network.getSelectedNodes()[0])
+	let node = data.nodes.get(editor.id)
 	node.fixed = locked
+	node.shadow = locked
 	elem('fixed').style.display = node.fixed ? 'inline' : 'none'
 	elem('unfixed').style.display = node.fixed ? 'none' : 'inline'
 	data.nodes.update(node)
@@ -3206,6 +3280,7 @@ function showNodeOrEdgeData() {
  * Hide the Node or Edge Data panel
  */
 function hideNotes() {
+	if (editor == null) return
 	elem('nodeDataPanel').classList.add('hide')
 	elem('edgeDataPanel').classList.add('hide')
 	document.getSelection().removeAllRanges()
@@ -3215,9 +3290,9 @@ function hideNotes() {
 /**
  * Show the notes box, the fixed node check box and the node statistics
  */
-function showNodeData() {
+function showNodeData(nodeId) {
 	let panel = elem('nodeDataPanel')
-	let nodeId = network.getSelectedNodes()[0]
+	nodeId = nodeId || network.getSelectedNodes()[0]
 	let node = data.nodes.get(nodeId)
 	elem('fixed').style.display = node.fixed ? 'inline' : 'none'
 	elem('unfixed').style.display = node.fixed ? 'none' : 'inline'
@@ -3357,14 +3432,175 @@ function positionNotes() {
 }
 // Network tab
 
-function autoLayoutSwitch() {
+/**
+ * Choose and apply a layout algorithm
+ */
+function autoLayout(e) {
+	let option = e.target.value
+	let selectElement = elem('layoutSelect')
+	selectElement.value = option
 	network.storePositions() // record current positions so it can be undone
-	try {
-		data.nodes.update(trophic(data))
-	} catch (e) {
-		statusMsg(`Trophic layout: ${e.message}`, 'error')
+	doc.transact(() => {
+		switch (option) {
+			case 'off': {
+				network.setOptions({physics: {enabled: false}})
+				break
+			}
+			case 'trophic': {
+				try {
+					trophic(data)
+					trophicDistribute()
+					data.nodes.update(data.nodes.get())
+					elem('layoutSelect').value = 'off'
+				} catch (e) {
+					statusMsg(`Trophic layout: ${e.message}`, 'error')
+				}
+				break
+			}
+			case 'fan':
+				{
+					let nodes = data.nodes.get().filter((n) => !n.hidden)
+					nodes.forEach((n) => (n.level = undefined))
+					let selectedNodes = getSelectedAndFixedNodes().map((nId) => data.nodes.get(nId))
+					if (selectedNodes.length == 0) {
+						statusMsg('At least one Factor needs to be selected', 'error')
+						elem('layoutSelect').value = 'off'
+						return
+					}
+					// if Up or Down stream are selected, use those for the direction
+					let direction = 'from'
+					if (getRadioVal('stream') == 'downstream') direction = 'to'
+					else if (getRadioVal('stream') == 'upstream') direction = 'from'
+					else {
+						// if neither,
+						//  and more links from the selected nodes are going upstream then downstream,
+						//  put the selected nodes on the right, else on the left
+						let nUp = 0
+						let nDown = 0
+						selectedNodes.forEach((sl) => {
+							nUp += network
+								.getConnectedNodes(sl.id, 'to')
+								.filter((nId) => !data.nodes.get(nId).hidden).length
+							nDown += network
+								.getConnectedNodes(sl.id, 'from')
+								.filter((nId) => !data.nodes.get(nId).hidden).length
+						})
+						direction = nUp > nDown ? 'to' : 'from'
+					}
+					let minX = Math.min(...nodes.map((n) => n.x))
+					let maxX = Math.max(...nodes.map((n) => n.x))
+					selectedNodes.forEach((n) => {
+						setZLevel(n, direction)
+					})
+					nodes.forEach((n) => {
+						if (n.level == undefined) n.level = 0
+					})
+					let maxLevel = Math.max(...nodes.map((n) => n.level))
+					let gap = (maxX - minX) / maxLevel
+					for (let l = 0; l &lt;= maxLevel; l++) {
+						let x = l * gap + minX
+						if (direction == 'from') x = maxX - l * gap
+						let nodesOnLevel = nodes.filter((n) => n.level == l)
+						nodesOnLevel.forEach((n) => (n.x = x))
+						let ySpaceNeeded = nodesOnLevel
+							.map((n) => {
+								let box = network.getBoundingBox(n.id)
+								return box.bottom - box.top + 10
+							})
+							.reduce((a, b) => a + b, 0)
+						let yGap = ySpaceNeeded / nodesOnLevel.length
+						let newY = -ySpaceNeeded / 2
+						nodesOnLevel
+							.sort((a, b) => a.y - b.y)
+							.forEach((n) => {
+								n.y = newY
+								newY += yGap
+							})
+					}
+					data.nodes.update(nodes)
+					elem('layoutSelect').value = 'off'
+				}
+				break
+			default: {
+				let options = {physics: {solver: option, stabilization: true}}
+				options.physics[option] = {}
+				options.physics[option].springLength = avEdgeLength()
+				network.setOptions(options)
+				// cancel the iterative algorithms as soon as they have stabilized
+				network.on('stabilized', () => {
+					network.setOptions({physics: {enabled: false}})
+					network.storePositions()
+					elem('layoutSelect').value = 'off'
+					data.nodes.update(data.nodes.get())
+				})
+				break
+			}
+		}
+	})
+
+	logHistory(`applied ${selectElement.options[selectElement.selectedIndex].innerHTML} layout`)
+
+	/**
+	 * set the levels for fan, using a breadth first search
+	 * @param {object} node root node
+	 * @param {string} direction either 'from' or 'to', depending on whether the links to use are point from or to the node
+	 */
+	function setZLevel(node, direction) {
+		let q = [node]
+		let level = 0
+		node.level = 0
+		while (q.length > 0) {
+			let currentNode = q.shift()
+			let connectedNodes = data.nodes
+				.get(network.getConnectedNodes(currentNode.id, direction))
+				.filter((n) => !n.hidden &amp;&amp; n.level == undefined)
+			if (connectedNodes.length > 0) {
+				level = currentNode.level + 1
+				connectedNodes.forEach((n) => {
+					n.level = level
+					console.table([currentNode.label, direction, level, n.label])
+				})
+				q = q.concat(connectedNodes)
+			}
+		}
 	}
-	broadcast()
+	/**
+	 * find the average length of all edges, as a guide to the layout spring length
+	 * so that map is roughly as spaced out as before layout
+	 * @returns average length (in canvas units)
+	 */
+	function avEdgeLength() {
+		let edgeSum = 0
+		data.edges.forEach((e) => {
+			let from = data.nodes.get(e.from)
+			let to = data.nodes.get(e.to)
+			edgeSum += Math.sqrt((from.x - to.x) ** 2 + (from.y - to.y) ** 2)
+		})
+		return edgeSum / data.edges.length
+	}
+	/**
+	 * At each level for a trophic layout, distribute the Factors equally along the vertical axis,
+	 * avoiding overlaps
+	 */
+	function trophicDistribute() {
+		for (let level = 0; level &lt;= NLEVELS; level++) {
+			let nodesOnLevel = data.nodes.get().filter((n) => n.level == level)
+			let ySpaceNeeded = nodesOnLevel
+				.map((n) => {
+					let box = network.getBoundingBox(n.id)
+					return box.bottom - box.top + 10
+				})
+				.reduce((a, b) => a + b, 0)
+			let gap = ySpaceNeeded / nodesOnLevel.length
+			let newY = -ySpaceNeeded / 2
+			nodesOnLevel
+				.sort((a, b) => a.y - b.y)
+				.forEach((n) => {
+					n.y = newY
+					newY += gap
+				})
+		}
+	}
 }
 
 function snapToGridSwitch(e) {
@@ -3518,222 +3754,33 @@ function setRadioVal(name, value) {
 		radios[i].checked = radios[i].value == value
 	}
 }
-
 /**
- * For all Factors and Links, test whether they are hidden and if so, whether they are hidden for
- * the given reason.  If so, remove that reason and if there are no more remaining reason for them to
- * be hidden, unhide them
- * @param {String} reason
+ * Return an array of the node Ids of Factors that are selected of are locked
+ * @returns Array
  */
-function unHideAll(reason) {
-	let nodes = data.nodes.get({
-		filter: function (node) {
-			let h = node.hidden &amp;&amp; node.whyHidden?.includes(reason)
-			if (h) {
-				node.whyHidden = node.whyHidden.filter((item) => item !== reason)
-				node.hidden = node.whyHidden.length > 0
-			}
-			return h
-		},
-	})
-	if (nodes) data.nodes.update(nodes)
-	let edges = data.edges.get({
-		filter: function (edge) {
-			let h = edge.hidden &amp;&amp; edge.whyHidden?.includes(reason)
-			if (h) {
-				edge.whyHidden = edge.whyHidden.filter((item) => item !== reason)
-				edge.hidden = edge.whyHidden.length > 0
-			}
-			return h
-		},
-	})
-	if (edges) data.edges.update(edges)
-}
-/**
- * Hide all factors that are more than x links away from the selected Factors
- */
-function hideDistantNodes() {
-	// get the nodes (and links) in radius of the selected nodes,
-	// and then hide everything not in that radius
-	let radius = getRadioVal('radius')
-	unHideAll('radius')
-	let selectedNodes = network.getSelectedNodes()
-	if (selectedNodes.length === 0 &amp;&amp; radius !== 'All') {
-		statusMsg('A Factor needs to be selected', 'warn')
-		elem('radiusAll').checked = true
-		yNetMap.set('radius', {
-			radiusSetting: 'All',
-			selected: selectedNodes,
-		})
-		return
-	}
-	yNetMap.set('radius', {
-		radiusSetting: radius,
-		selected: selectedNodes,
-	})
-	if (radius == 'All') {
-		showSelected()
-		return
-	}
-
-	let nodeIdsInRadiusSet = new Set()
-	let linkIdsInRadiusSet = new Set()
-	inSet(selectedNodes, radius)
-
-	// update the network
-	hideNodesAndEdgesInSet(nodeIdsInRadiusSet, linkIdsInRadiusSet, 'radius')
-	statusMsg(`Showing Factors ${radius} link${radius > 1 ? 's' : ''} away from ${selectedLabels()}`)
-
-	/**
-	 * recursive function to collect Factors and Links within radius links from any of the nodes listed in nodeIds
-	 * Factor ids are collected in nodeIdsInRadiusSet and links in linkIdsInRadiusSet
-	 * @param {string[]} nodeIds
-	 * @param {number} radius
-	 */
-	function inSet(nodeIds, radius) {
-		//
-		if (radius &lt; 0) return
-		nodeIds.forEach((nId) => {
-			nodeIdsInRadiusSet.add(nId)
-			let links = network.getConnectedEdges(nId)
-			if (links &amp;&amp; radius >= 0)
-				links.forEach((lId) => {
-					linkIdsInRadiusSet.add(lId)
-				})
-			let linked = network.getConnectedNodes(nId)
-			if (linked) inSet(linked, radius - 1)
-		})
-	}
+function getSelectedAndFixedNodes() {
+	return [
+		...new Set(
+			network.getSelectedNodes().concat(
+				data.nodes
+					.get()
+					.filter((n) => n.fixed)
+					.map((n) => n.id)
+			)
+		),
+	]
 }
 
 /**
- * Hide all the Factors and Links in the given Sets and add the reason why they are hidden
- * @param {Set} nodeSet
- * @param {Set} edgeSet
- * @param {string} reason
+ * Sets the Analysis radio buttons and Factor selection according to values in global hiddenNodes
+ *  (which is set when yNetMap is loaded, or when a file is read in)
  */
-function hideNodesAndEdgesInSet(nodeSet, edgeSet, reason) {
-	data.nodes.update(
-		data.nodes.map((node) => {
-			if (!nodeSet.has(node.id)) {
-				node.hidden = true
-				node.whyHidden = pushnew(node.whyHidden, reason)
-			}
-			return node
-		})
-	)
-	data.edges.update(
-		data.edges.map((edge) => {
-			if (!edgeSet.has(edge.id)) {
-				edge.hidden = true
-				edge.whyHidden = pushnew(edge.whyHidden, reason)
-			}
-			return edge
-		})
-	)
-}
-/**
- * Hide all the factors that are upstream or downstream of the selected factors
- */
-function hideStreamNodes() {
-	// get the nodes (and links) up or downstream of selected nodes,
-	// and then hide everything else
-	let stream = getRadioVal('stream')
-	unHideAll('stream')
-	let selectedNodes = network.getSelectedNodes()
-	if (selectedNodes.length === 0 &amp;&amp; stream !== 'All') {
-		statusMsg('A Factor needs to be selected', 'warn')
-		// unhide everything
-		elem('streamAll').checked = true
-		yNetMap.set('stream', {
-			streamSetting: 'All',
-			selected: selectedNodes,
-		})
-		return
-	}
-	yNetMap.set('stream', {
-		streamSetting: stream,
-		selected: selectedNodes,
-	})
-	if (stream == 'All') {
-		showSelected()
-		return
-	}
-	let nodeIdsInStreamSet = new Set()
-	let linkIdsInStreamSet = new Set()
-
-	if (stream == 'upstream') upstream(selectedNodes)
-	else downstream(selectedNodes)
-	addAllLinks()
-
-	// update the network
-	hideNodesAndEdgesInSet(nodeIdsInStreamSet, linkIdsInStreamSet, 'stream')
-	statusMsg(`Showing Factors ${stream} from ${selectedLabels()}`)
-
-	/**
-	 * Recursive function to collect into nodeIdsInStreamSet the factors that are upstream of the given nodeIds
-	 * @param {array[]} nodeIds
-	 */
-	function upstream(nodeIds) {
-		nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId))
-		nodeIds.forEach((nId) => {
-			let links = data.edges.get({
-				filter: function (item) {
-					return item.to == nId
-				},
-			})
-			links.forEach((link) => {
-				if (!nodeIdsInStreamSet.has(link.from)) {
-					upstream([link.from])
-				}
-			})
-		})
-	}
-
-	/**
-	 * Recursive function to collect into nodeIdsInStreamSet the factors that are downstream of the given nodeIds
-	 * @param {array[]} nodeIds
-	 */
-	function downstream(nodeIds) {
-		nodeIds.forEach((nId) => nodeIdsInStreamSet.add(nId))
-		nodeIds.forEach((nId) => {
-			let links = data.edges.get({
-				filter: function (item) {
-					return item.from == nId
-				},
-			})
-			links.forEach((link) => {
-				if (!nodeIdsInStreamSet.has(link.to)) {
-					downstream([link.to])
-				}
-			})
-		})
-	}
-
-	/**
-	 * Collect the links that go both to and from factors that are included in nodeIdsInStreamSet
-	 * into linkIdsInStreamSet
-	 */
-	function addAllLinks() {
-		data.edges
-			.get({
-				filter: function (edge) {
-					return nodeIdsInStreamSet.has(edge.from) &amp;&amp; nodeIdsInStreamSet.has(edge.to)
-				},
-			})
-			.forEach((edge) => linkIdsInStreamSet.add(edge.id))
-	}
-}
-/**
- * Sets the Analysis radio buttons and Factor selection according to values in obj
- * @param {Object} obj
- */
-function setAnalysisButtons() {
+function setAnalysisButtonsFromRemote() {
 	if (netLoaded) {
 		let selectedNodes = [].concat(hiddenNodes.selected) // ensure that hiddenNodes.selected is an array
 		if (selectedNodes.length > 0) {
 			network.selectNodes(selectedNodes, false) // in viewing  only mode, this does nothing
-			if (!viewOnly) statusMsg(listFactors(network.getSelectedNodes()) + ' selected')
+			if (!viewOnly) statusMsg(listFactors(getSelectedAndFixedNodes()) + ' selected')
 		}
 		if (hiddenNodes.radiusSetting) setRadioVal('radius', hiddenNodes.radiusSetting)
 		if (hiddenNodes.streamSetting) setRadioVal('stream', hiddenNodes.streamSetting)
@@ -3741,164 +3788,350 @@ function setAnalysisButtons() {
 	}
 }
 
-/**
- * hide all links except those between the selected factors (either those on all the paths or the shortest path)
- */
-function showPaths() {
-	let radio = getRadioVal('paths')
-	let selectedNodes = network.getSelectedNodes()
-	if (radio !== 'All' &amp;&amp; selectedNodes.length &lt; 2) {
-		statusMsg('Select at least 2 factors to show paths between them', 'warn')
-		elem('pathsAll').checked = true
-		yNetMap.set('paths', {
-			pathsSetting: 'All',
-			selected: selectedNodes,
-		})
-		unHideAll('paths')
-		return
-	}
-	yNetMap.set('paths', {
-		pathsSetting: radio,
+function setYMapAnalysisButtons() {
+	let selectedNodes = getSelectedAndFixedNodes()
+	yNetMap.set('radius', {
+		radiusSetting: getRadioVal('radius'),
 		selected: selectedNodes,
 	})
-	let linksToUpdate = []
-	switch (radio) {
-		case 'All':
-			unHideAll('paths')
-			showSelected()
-			return
-		case 'allPaths':
-		case 'shortestPath':
-			{
-				let paths = shortestPaths(radio === 'allPaths')
-				if (paths.length == 0) {
-					statusMsg('No path between the selected Factors', 'warn')
-					return
-				}
-				// hide every link, before unhiding those that make up the paths
-				data.edges.get({filter: (e) => !e.hidden}).forEach((edge) => {
-					edge.hidden = true
-					edge.whyHidden = pushnew(edge.whyHidden, 'paths')
-					linksToUpdate.push(edge)
-				})
-				paths.forEach((links) => {
-					links.forEach((link) => {
-						let edge = data.edges.get({filter: (e) => e.to === link.to &amp;&amp; e.from === link.from})[0]
-						if (!edge) console.log(`Link ${link} not found`)
-						else {
-							edge.whyHidden = edge.whyHidden.filter((item) => item !== 'paths')
-							edge.hidden = edge.whyHidden.length > 0
-							linksToUpdate.push(edge)
-						}
-					})
-				})
-			}
-			break
-		default:
-			console.log('Bad selector in showPaths()')
-	}
-	data.edges.update(linksToUpdate)
-	statusMsg(`Showing ${radio == 'allPaths' ? 'all paths' : 'the shortest path'} between ${selectedLabels()}`)
-}
-
-/**
- * Given two or more selected factors, return a list of all the links that are either on any path between them, or just the ones on the shortest paths between them
- * @param {Boolean} all when true, find all the links that connect to the selected factors; when false, find the shortest paths between the selected factors
- * @returns	Arrays of object with from: and to: properties for all the links (an empty array if there is no path between any of the selected factors)
- */
-function shortestPaths(all) {
-	let selectedNodes = network.getSelectedNodes()
-	let visited = new Map()
-	let allPaths = []
-	// list of all pairs of the selected factors
-	let combos = selectedNodes.flatMap((v, i) => selectedNodes.slice(i + 1).map((w) => [v, w]))
-	// for each pair, find the sequences of links in both directions and combine them
-	combos.forEach((combo) => {
-		let source = combo[0]
-		let dest = combo[1]
-		let links = pathList(source, dest, all)
-		if (links.length > 0) allPaths.push(links)
-		links = pathList(dest, source, all)
-		if (links.length > 0) allPaths.push(links)
+	yNetMap.set('stream', {
+		streamSetting: getRadioVal('stream'),
+		selected: selectedNodes,
 	})
-	return allPaths
+	yNetMap.set('paths', {
+		pathsSetting: getRadioVal('paths'),
+		selected: selectedNodes,
+	})
+}
+/**
+ * Hide factors and links to show only those closest to the selected factors and/or
+ * those up/downstream and/or those on paths between the selected factors
+ */
+function analyse() {
+	let selectedNodes = getSelectedAndFixedNodes()
+	setYMapAnalysisButtons()
+	// get all nodes and edges and unhide them before hiding those not wanted to be visible
+	let nodes = data.nodes
+		.get()
+		.filter((n) => !n.isCluster)
+		.map((n) => {
+			n.hidden = false
+			return n
+		})
+	let edges = data.edges
+		.get()
+		.filter((e) => !e.isClusterEdge)
+		.map((e) => {
+			e.hidden = false
+			return e
+		})
+	// if showing everything, we are done
+	if (getRadioVal('radius') == 'All' &amp;&amp; getRadioVal('stream') == 'All' &amp;&amp; getRadioVal('paths') == 'All') {
+		setYMapAnalysisButtons()
+		data.nodes.update(nodes)
+		data.edges.update(edges)
+		showSelected()
+		return
+	}
+
+	// check that at least one factor is selected
+	if (selectedNodes.length == 0 &amp;&amp; getRadioVal('paths') == 'All') {
+		statusMsg('A Factor needs to be selected', 'error')
+		setRadioVal('radius', 'All')
+		setRadioVal('stream', 'All')
+		setRadioVal('paths', 'All')
+		setYMapAnalysisButtons()
+		data.nodes.update(nodes)
+		data.edges.update(edges)
+		return
+	}
+	// but paths between factors needs at least two
+	if (getRadioVal('paths') !== 'All' &amp;&amp; selectedNodes.length &lt; 2) {
+		statusMsg('Select at least 2 factors to show paths between them', 'error')
+		setRadioVal('paths', 'All')
+		setYMapAnalysisButtons()
+		data.nodes.update(nodes)
+		data.edges.update(edges)
+		return
+	}
+
+	// these operations are not commutative (at least for networks with loops), so do them all in order
+	if (getRadioVal('radius') !== 'All') hideNodesByRadius(selectedNodes, parseInt(getRadioVal('radius')))
+	if (getRadioVal('stream') !== 'All') hideNodesByStream(selectedNodes, getRadioVal('stream'))
+	if (getRadioVal('paths') !== 'All') hideNodesByPaths(selectedNodes, getRadioVal('paths'))
+
+	// finally display the map with its hidden factors and edges
+	data.nodes.update(nodes)
+	data.edges.update(edges)
+
+	// announce what has been done
+	let streamMsg = ''
+	if (getRadioVal('stream') == 'upstream') streamMsg = 'upstream'
+	if (getRadioVal('stream') == 'downstream') streamMsg = 'downstream'
+	let radiusMsg = ''
+	if (getRadioVal('radius') == '1') radiusMsg = 'within one link'
+	if (getRadioVal('radius') == '2') radiusMsg = 'within two links'
+	if (getRadioVal('radius') == '3') radiusMsg = 'within three links'
+	let pathsMsg = ''
+	if (getRadioVal('paths') == 'allPaths') pathsMsg = ': showing all paths'
+	if (getRadioVal('paths') == 'shortestPath') pathsMsg = ': showing shortest paths'
+	if (getRadioVal('stream') == 'All' &amp;&amp; getRadioVal('radius') == 'All')
+		statusMsg(
+			`Showing  ${getRadioVal('paths') == 'allPaths' ? 'all paths' : 'shortest paths'} between ${listFactors(
+				getSelectedAndFixedNodes(),
+				true
+			)}`
+		)
+	else
+		statusMsg(
+			`Factors ${streamMsg} ${streamMsg &amp;&amp; radiusMsg ? ' and ' : ''} ${radiusMsg} of ${listFactors(
+				getSelectedAndFixedNodes(),
+				true
+			)}${pathsMsg}`
+		)
 
 	/**
-	 * find the paths (as a list of links) that connect the source and destination
-	 * @param {String} source
-	 * @param {String} dest
-	 * @param {Boolean} all true of all paths between Source and Destination are wanted; false if just the shortest path
-	 * @returns an array of lists of links that connect the paths
+	 * Hide factors that are more than radius links distant from those selected
+	 * @param {string[]} selectedNodes
+	 * @param {Integer} radius
 	 */
-	function pathList(source, dest, all) {
-		visited.clear()
-		let links = []
-		let paths = getPaths(source, dest)
-		// if no path found, getPaths return an array of length greater than the total number of factors in the map, or a string
-		// in this case, return an empty list
-		if (!Array.isArray(paths) || paths.length === data.nodes.length + 1) paths = []
-		if (!all) {
-			for (let i = 0; i &lt; paths.length - 1; i++) {
-				links.push({from: paths[i], to: paths[i + 1]})
-			}
-		}
-		return links
+	function hideNodesByRadius(selectedNodes, radius) {
+		let nodeIdsInRadiusSet = new Set()
+		let linkIdsInRadiusSet = new Set()
+
+		// put those factors and links within radius links into these sets
+		if (getRadioVal('stream') == 'upstream' || getRadioVal('stream') == 'All') inSet(selectedNodes, radius, 'to')
+		if (getRadioVal('stream') == 'downstream' || getRadioVal('stream') == 'All')
+			inSet(selectedNodes, radius, 'from')
+
+		// hide all nodes and edges not in radius
+		nodes.forEach((n) => {
+			if (!nodeIdsInRadiusSet.has(n.id)) n.hidden = true
+		})
+		edges.forEach((e) => {
+			if (!linkIdsInRadiusSet.has(e.id)) e.hidden = true
+		})
+		// add links between factors that are in radius set, to give an ego network
+		nodeIdsInRadiusSet.forEach((f) => {
+			network.getConnectedEdges(f).forEach((e) => (data.edges.get(e).hidden = false))
+		})
+
 		/**
-		 * recursively explore the map starting from source until destination is reached.
-		 * stop if a factor has already been visited, or at a dead end (zero out-degree)
-		 * @param {String} source
-		 * @param {String} dest
-		 * @returns an array of factors, the path so far followed
+		 * recursive function to collect Factors and Links within radius links from any of the nodes listed in nodeIds
+		 * Factor ids are collected in nodeIdsInRadiusSet and links in linkIdsInRadiusSet
+		 * Links are followed in a consistent direction, i.e. if 'to', only links directed away from the the nodes are followed
+		 * @param {string[]} nodeIds
+		 * @param {number} radius
+		 * @param {string} direction - either 'from' or 'to'
 		 */
-		function getPaths(source, dest) {
-			if (source === dest) return [dest]
-			visited.set(source, true)
-			let path = [source]
-			let connectedNodes = network.getConnectedNodes(source, 'to')
-			if (connectedNodes.length === 0) return 'deadend'
-			if (all) {
-				connectedNodes.forEach((next) => {
-					let vis = visited.get(next)
-					if (vis === 'onpath') {
-						links.push({from: source, to: next})
-						path = path.concat([next])
-					} else if (!vis) {
-						let p = getPaths(next, dest)
-						if (Array.isArray(p) &amp;&amp; p.length > 0) {
-							links.push({from: source, to: next})
-							visited.set(next, 'onpath')
-							path = path.concat(p)
-						}
-					}
-				})
-			} else {
-				let bestPath = new Array(data.nodes.length)
-				connectedNodes.forEach((next) => {
-					if (!visited.get(next)) {
-						let p = getPaths(next, dest)
-						if (Array.isArray(p) &amp;&amp; p.length > 0) {
-							if (p.length &lt; bestPath.length) bestPath = p
-						}
-					}
-				})
-				path = path.concat(bestPath)
-			}
-			// if no progress has been made (the path is just the initial source factor), return an empty path
-			if (path.length == 1) path = []
-			return path
+		function inSet(nodeIds, radius, direction) {
+			if (radius &lt; 0) return
+			nodeIds.forEach((nId) => {
+				let linked = []
+				nodeIdsInRadiusSet.add(nId)
+				let links = network.getConnectedEdges(nId).filter((e) => data.edges.get(e)[direction] === nId)
+				if (links &amp;&amp; radius > 0)
+					links.forEach((lId) => {
+						linkIdsInRadiusSet.add(lId)
+						linked.push(data.edges.get(lId)[direction == 'to' ? 'from' : 'to'])
+					})
+				if (linked) inSet(linked, radius - 1, direction)
+			})
 		}
 	}
-}
-/**
- * Hide or reveal all the Factors with the given style
- * @param {Object} obj {sample: state}
- */
-function updateFactorsHiddenByStyle(obj) {
-	for (const sampleElementId in obj) {
-		let sampleElement = elem(sampleElementId)
-		let state = obj[sampleElementId]
-		sampleElement.dataset.hide = state ? 'hidden' : 'visible'
-		sampleElement.style.opacity = state ? 0.6 : 1.0
+	/**
+	 * Hide factors that are not up or downstream from the selected factors.
+	 * Does not include links or factors that are already hidden
+	 * @param {string[]} selectedNodes
+	 * @param {string} direction - 'upstream' or 'downstream'
+	 */
+	function hideNodesByStream(selectedNodes, upOrDown) {
+		let nodeIdsInStreamSet = new Set()
+		let linkIdsInStreamSet = new Set()
+
+		let radiusVal = getRadioVal('radius')
+		let radius = Infinity
+		if (radiusVal !== 'All') {
+			radius = parseInt(radiusVal)
+		}
+		let direction = 'to'
+		if (upOrDown == 'upstream') direction = 'from'
+
+		// breadth first search for all Factors that are downstream and less than or equal to radius links away
+		data.nodes.map((n) => (n.level = undefined))
+		selectedNodes.forEach((nodeId) => {
+			nodeIdsInStreamSet.add(nodeId)
+			let node = data.nodes.get(nodeId)
+			let q = [node]
+			let level = 0
+			node.level = 0
+			while (q.length > 0 &amp;&amp; level &lt;= radius) {
+				let currentNode = q.shift()
+				let connectedNodes = data.nodes
+					.get(network.getConnectedNodes(currentNode.id, direction))
+					.filter((n) => !n.hidden &amp;&amp; !nodeIdsInStreamSet.has(n.id))
+				if (connectedNodes.length > 0) {
+					level = currentNode.level + 1
+					connectedNodes.forEach((n) => {
+						nodeIdsInStreamSet.add(n.id)
+						n.level = level
+					})
+					q = q.concat(connectedNodes)
+				}
+			}
+		})
+
+		// hide all nodes and edges not up or down stream
+		nodes.forEach((n) => {
+			if (!nodeIdsInStreamSet.has(n.id)) n.hidden = true
+		})
+		edges.forEach((e) => {
+			if (!linkIdsInStreamSet.has(e.id)) e.hidden = true
+		})
+
+		// add links between factors that are in radius set, to give an ego network
+		nodeIdsInStreamSet.forEach((f) => {
+			network.getConnectedEdges(f).forEach((e) => (data.edges.get(e).hidden = false))
+		})
+	}
+
+	/**
+	 * Hide all factors and links that are not on the shortest path (or all paths) between the selected factors
+	 * Avoids factors or links that are hidden
+	 * @param {string[]} selectedNodes
+	 * @param {string} pathType - either 'allPaths' or 'shortestPath'
+	 */
+	function hideNodesByPaths(selectedNodes, pathType) {
+		// paths is an array of objects with from and to node ids, or an empty array of there is no path
+		let paths = shortestPaths(selectedNodes, pathType === 'allPaths')
+		if (paths.length == 0) {
+			statusMsg('No path between the selected Factors', 'info')
+			setRadioVal('paths', 'All')
+			setYMapAnalysisButtons()
+			return
+		}
+		// hide nodes and links that are not included in paths
+		let nodeIdsInPathsSet = new Set()
+		let linkIdsInPathsSet = new Set()
+
+		paths.forEach((links) => {
+			links.forEach((link) => {
+				let edge = data.edges.get({filter: (e) => e.to === link.to &amp;&amp; e.from === link.from})[0]
+				linkIdsInPathsSet.add(edge.id)
+				nodeIdsInPathsSet.add(edge.from)
+				nodeIdsInPathsSet.add(edge.to)
+			})
+		})
+		// hide all factors and links that are not in the set of paths
+		nodes.forEach((n) => {
+			if (!nodeIdsInPathsSet.has(n.id)) n.hidden = true
+		})
+		edges.forEach((e) => {
+			if (!linkIdsInPathsSet.has(e.id)) e.hidden = true
+		})
+
+		/**
+		 * Given two or more selected factors, return a list of all the links that are either on any path between them, or just the ones on the shortest paths between them
+		 * @param {Boolean} all when true, find all the links that connect to the selected factors; when false, find the shortest paths between the selected factors
+		 * @returns	Arrays of objects with from: and to: properties for all the links (an empty array if there is no path between any of the selected factors)
+		 */
+		function shortestPaths(selectedNodes, all) {
+			let visited = new Map()
+			let allPaths = []
+			// list of all pairs of the selected factors
+			let combos = selectedNodes.flatMap((v, i) => selectedNodes.slice(i + 1).map((w) => [v, w]))
+			// for each pair, find the sequences of links in both directions and combine them
+			combos.forEach((combo) => {
+				let source = combo[0]
+				let dest = combo[1]
+				let links = pathList(source, dest, all)
+				if (links.length > 0) allPaths.push(links)
+				links = pathList(dest, source, all)
+				if (links.length > 0) allPaths.push(links)
+			})
+			return allPaths
+
+			/**
+			 * find the paths (as a list of links) that connect the source and destination
+			 * @param {String} source
+			 * @param {String} dest
+			 * @param {Boolean} all true of all paths between Source and Destination are wanted; false if just the shortest path
+			 * @returns an array of lists of links that connect the paths
+			 */
+			function pathList(source, dest, all) {
+				visited.clear()
+				let links = []
+				let paths = getPaths(source, dest)
+				// if no path found, getPaths return an array of length greater than the total number of factors in the map, or a string
+				// in this case, return an empty list
+				if (!Array.isArray(paths) || paths.length === data.nodes.length + 1) paths = []
+				if (!all) {
+					for (let i = 0; i &lt; paths.length - 1; i++) {
+						links.push({from: paths[i], to: paths[i + 1]})
+					}
+				}
+				return links
+				/**
+				 * recursively explore the map starting from source until destination is reached.
+				 * stop if a factor has already been visited, or at a dead end (zero out-degree)
+				 * @param {String} source
+				 * @param {String} dest
+				 * @returns an array of factors, the path so far followed
+				 */
+				function getPaths(source, dest) {
+					if (source === dest) return [dest]
+					visited.set(source, true)
+					let path = [source]
+					// only consider nodes and edges that are not hidden
+					let connectedNodes = network
+						.getConnectedEdges(source)
+						.filter((e) => {
+							let edge = data.edges.get(e)
+							return !edge.hidden &amp;&amp; edge.from == source
+						})
+						.map((e) => data.edges.get(e).to)
+					if (connectedNodes.length === 0) return 'deadend'
+					if (all) {
+						// all paths between the source and destination
+						connectedNodes.forEach((next) => {
+							let vis = visited.get(next)
+							if (vis === 'onpath') {
+								links.push({from: source, to: next})
+								path = path.concat([next])
+							} else if (!vis) {
+								let p = getPaths(next, dest)
+								if (Array.isArray(p) &amp;&amp; p.length > 0) {
+									links.push({from: source, to: next})
+									visited.set(next, 'onpath')
+									path = path.concat(p)
+								}
+							}
+						})
+					} else {
+						// shortest path between the source and destination
+						let bestPath = []
+						let bestPathLength = data.nodes.length
+						connectedNodes.forEach((next) => {
+							let p = visited.get(next)
+							if (!p) {
+								p = getPaths(next, dest)
+								visited.set(next, p)
+							}
+							if (Array.isArray(p) &amp;&amp; p.length > 0) {
+								if (p.length &lt; bestPathLength) {
+									bestPath = p
+									bestPathLength = p.length
+								}
+							}
+						})
+						path = path.concat(bestPath)
+					}
+					// if no progress has been made (the path is just the initial source factor), return an empty path
+					if (path.length == 1) path = []
+					return path
+				}
+			}
+		}
 	}
 }
 
@@ -3910,7 +4143,7 @@ function sizingSwitch(e) {
 
 /**
  * set the size of the nodes proportional to the selected metric
- * @param {String} metric none, in degree out degree or betweenness centrality
+ * @param {String} metric none, in degree, out degree or betweenness centrality
  */
 function sizing(metric) {
 	let nodesToUpdate = []
@@ -3944,12 +4177,33 @@ function sizing(metric) {
 	network.fit()
 	elem('zoom').value = network.getScale()
 }
+
+// Note: most of the clustering functionality is in cluster.js
 /**
  * User has chosen a clustering option
  * @param {Event} e
  */
 function selectClustering(e) {
 	let option = e.target.value
+	// it doesn't make much sense to cluster while the factors are hidden, so undo that
+	setRadioVal('radius', 'All')
+	setRadioVal('stream', 'All')
+	setRadioVal('paths', 'All')
+	setYMapAnalysisButtons()
+	doc.transact(() => {
+		data.nodes.update(
+			data.nodes.get().map((n) => {
+				n.hidden = false
+				return n
+			})
+		)
+		data.edges.update(
+			data.edges.get().map((e) => {
+				e.hidden = false
+				return e
+			})
+		)
+	})
 	cluster(option)
 	fit(0)
 	yNetMap.set('cluster', option)
@@ -3977,7 +4231,7 @@ function recreateClusteringMenu(obj) {
 		}
 	}
 }
-/* ---------------------------------------chat window --------------------------------*/
+/*****************************************************************chat window ******************************************************************/
 
 var emojiPicker = null
 
@@ -4106,23 +4360,53 @@ function showHistory() {
 		.toArray()
 		.map((rec) => formatLogRec(rec))
 		.join(' ')
-	let logWrapper = elem('history-log-wrapper')
-	logWrapper.scrollTo({
-		top: logWrapper.scrollHeight,
-		left: 0,
-		behavior: 'auto',
+	document.querySelectorAll('div.history-rollback').forEach((e) => {
+		if (e.id) listen(e.id, 'click', rollback)
 	})
+	log.lastChild.scrollIntoView(false)
 }
 /**
- * return a DOM element with the data in rec formatted
- * @param {Object} rec
+ * return a DOM element with the data in rec formatted and a button for rolling back if there is state data
+ * @param {Object} rec - history record (action, time, state)
  */
 function formatLogRec(rec) {
-	return `&lt;div class="history-row">
-				&lt;div class="history-time">${timeAndDate(rec.time)}: &lt;/div>
-				&lt;div class="history-action">${rec.user} ${rec.action}&lt;/div>
-			&lt;/div>`
+	let rollbackButton = '&lt;div class="history-rollback">&lt;/div>'
+	if (rec.state) {
+		rollbackButton = `&lt;div class="history-rollback"  id="hist${rec.time}">
+			&lt;div class="tooltip">
+				&lt;svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bootstrap-reboot" viewBox="0 0 16 16">
+				&lt;path d="M1.161 8a6.84 6.84 0 1 0 6.842-6.84.58.58 0 1 1 0-1.16 8 8 0 1 1-6.556 3.412l-.663-.577a.58.58 0 0 1 .227-.997l2.52-.69a.58.58 0 0 1 .728.633l-.332 2.592a.58.58 0 0 1-.956.364l-.643-.56A6.812 6.812 0 0 0 1.16 8z"/>
+				&lt;path d="M6.641 11.671V8.843h1.57l1.498 2.828h1.314L9.377 8.665c.897-.3 1.427-1.106 1.427-2.1 0-1.37-.943-2.246-2.456-2.246H5.5v7.352h1.141zm0-3.75V5.277h1.57c.881 0 1.416.499 1.416 1.32 0 .84-.504 1.324-1.386 1.324h-1.6z"/>
+				&lt;/svg>
+				&lt;span class="tooltiptext rollbacktip">Rollback to before this action&lt;/span>
+			&lt;/div>
+		&lt;/div>`
+	}
+	return `&lt;div class="history-time">${timeAndDate(rec.time)}: &lt;/div>
+			&lt;div class="history-action">${rec.user} ${rec.action}&lt;/div>
+			${rollbackButton}`
 }
+/**
+ *
+ * @param {Event} event
+ * @returns null if no rollback possible or cancelled
+ */
+function rollback(event) {
+	let rbTime = parseInt(event.currentTarget.id.substring(4))
+	let rb = yHistory.toArray().find((rec) => rec.time === rbTime)
+	if (!rb || !rb.state) return
+	if (!confirm(`Roll back the map to what it was before ${timeAndDate(rbTime)}?`)) return
+	let state = JSON.parse(decompressFromUTF16(rb.state))
+	data.nodes.clear()
+	data.edges.clear()
+	data.nodes.update(state.nodes)
+	data.edges.update(state.edges)
+	for (const k in state.net) {
+		yNetMap.set(k, state.net[k])
+	}
+	logHistory(`rolled back the map to what it was before ${timeAndDate(rbTime, true)}`)
+}
+
 function showHistorySwitch() {
 	if (elem('showHistorySwitch').checked) showHistory()
 	else elem('history-window').style.display = 'none'
@@ -4134,7 +4418,7 @@ function historyClose() {
 }
 
 dragElement(elem('history-window'), elem('history-header'))
-window.showHistory = showHistory
+
 /* --------------------------------------- avatars and shared cursors--------------------------------*/
 /**
  *  set up user monitoring (awareness)
@@ -4151,6 +4435,8 @@ function setUpAwareness() {
 			followUser()
 		}
 	})
+	// regularly broadcast our own state, every 20 seconds
+	setInterval(() => yAwareness.setLocalState(yAwareness.getLocalState()), 20000)
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false)
 	var sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP)
@@ -4243,10 +4529,9 @@ function showAvatars() {
 
 	if (me.length == 0) return // app is unloading
 	names.unshift(me[0][1].user) // push myself on to the front
-
-	// nothing has changed, just return
+	// if nothing has changed, just return
 	if (object_equals(previousNames, names)) return
-	previousNames = [...names]
+	previousNames = deepCopy(names)
 
 	let avatars = elem('avatars')
 	let currentCursors = []
@@ -4330,7 +4615,7 @@ function follow(event) {
 	followme = user
 	elem('ava' + followme).classList.add('followme')
 	let userName = elem('ava' + user).dataset.tooltip
-	statusMsg(`Following ${userName}`)
+	statusMsg(`Following ${userName}`, 'info')
 }
 /**
  * User was following another user, but has now clicked off the avatar, so stop following
@@ -4395,25 +4680,278 @@ function showGhostFactor() {
 	})
 }
 </code></pre>
-        </article>
-    </section>
+				</article>
+			</section>
+		</div>
 
+		<nav>
+			<h2><a href="index.html">Home</a></h2>
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="module.exports.html">exports</a></li>
+				<li><a href="ToolHandler.html">ToolHandler</a></li>
+			</ul>
+			<h3>Global</h3>
+			<ul>
+				<li><a href="global.html#addColumn">addColumn</a></li>
+				<li><a href="global.html#addEventListeners">addEventListeners</a></li>
+				<li><a href="global.html#addLabel">addLabel</a></li>
+				<li><a href="global.html#addVec">addVec</a></li>
+				<li><a href="global.html#analyse">analyse</a></li>
+				<li><a href="global.html#antMarch">antMarch</a></li>
+				<li><a href="global.html#applyOptions">applyOptions</a></li>
+				<li><a href="global.html#asleep">asleep</a></li>
+				<li><a href="global.html#autoLayout">autoLayout</a></li>
+				<li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li>
+				<li><a href="global.html#cancelAdd">cancelAdd</a></li>
+				<li><a href="global.html#cancelEdit">cancelEdit</a></li>
+				<li><a href="global.html#cancelLoading">cancelLoading</a></li>
+				<li><a href="global.html#changeCursor">changeCursor</a></li>
+				<li><a href="global.html#changeRoom">changeRoom</a></li>
+				<li><a href="global.html#clean">clean</a></li>
+				<li><a href="global.html#cleanArray">cleanArray</a></li>
+				<li><a href="global.html#clearLegend">clearLegend</a></li>
+				<li><a href="global.html#clearPopUp">clearPopUp</a></li>
+				<li><a href="global.html#clearStatusBar">clearStatusBar</a></li>
+				<li><a href="global.html#clone">clone</a></li>
+				<li><a href="global.html#closeFilter">closeFilter</a></li>
+				<li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li>
+				<li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li>
+				<li><a href="global.html#collapseColGroup">collapseColGroup</a></li>
+				<li><a href="global.html#collapseNotes">collapseNotes</a></li>
+				<li><a href="global.html#colorEditor">colorEditor</a></li>
+				<li><a href="global.html#configSamples">configSamples</a></li>
+				<li><a href="global.html#connected">connected</a></li>
+				<li><a href="global.html#connectedComponents">connectedComponents</a></li>
+				<li><a href="global.html#convertDashes">convertDashes</a></li>
+				<li><a href="global.html#convertData">convertData</a></li>
+				<li><a href="global.html#convertEdge">convertEdge</a></li>
+				<li><a href="global.html#convertEdgeBack">convertEdgeBack</a></li>
+				<li><a href="global.html#convertNode">convertNode</a></li>
+				<li><a href="global.html#convertNodeBack">convertNodeBack</a></li>
+				<li><a href="global.html#copyTable">copyTable</a></li>
+				<li><a href="global.html#copyToClipboard">copyToClipboard</a></li>
+				<li><a href="global.html#createTitleDropDown">createTitleDropDown</a></li>
+				<li><a href="global.html#deepCopy">deepCopy</a></li>
+				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
+				<li><a href="global.html#deselectTool">deselectTool</a></li>
+				<li><a href="global.html#diag">diag</a></li>
+				<li><a href="global.html#diffMaps">diffMaps</a></li>
+				<li><a href="global.html#display">display</a></li>
+				<li><a href="global.html#displayHelp">displayHelp</a></li>
+				<li><a href="global.html#displayNetPane">displayNetPane</a></li>
+				<li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li>
+				<li><a href="global.html#doSearch">doSearch</a></li>
+				<li><a href="global.html#dragElement">dragElement</a></li>
+				<li><a href="global.html#draw">draw</a></li>
+				<li><a href="global.html#drawBadges">drawBadges</a></li>
+				<li><a href="global.html#drawGrid">drawGrid</a></li>
+				<li><a href="global.html#duplEdge">duplEdge</a></li>
+				<li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li>
+				<li><a href="global.html#editEdge">editEdge</a></li>
+				<li><a href="global.html#editLinkStyle">editLinkStyle</a></li>
+				<li><a href="global.html#editNode">editNode</a></li>
+				<li><a href="global.html#editNodeStyle">editNodeStyle</a></li>
+				<li><a href="global.html#elem">elem</a></li>
+				<li><a href="global.html#exactTime">exactTime</a></li>
+				<li><a href="global.html#exportCVS">exportCVS</a></li>
+				<li><a href="global.html#exportGML">exportGML</a></li>
+				<li><a href="global.html#fit">fit</a></li>
+				<li><a href="global.html#follow">follow</a></li>
+				<li><a href="global.html#followUser">followUser</a></li>
+				<li><a href="global.html#formatLogRec">formatLogRec</a></li>
+				<li><a href="global.html#generateName">generateName</a></li>
+				<li><a href="global.html#generateRoom">generateRoom</a></li>
+				<li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li>
+				<li><a href="global.html#getArrows">getArrows</a></li>
+				<li><a href="global.html#getButtonStatus">getButtonStatus</a></li>
+				<li><a href="global.html#getContext">getContext</a></li>
+				<li><a href="global.html#getDashes">getDashes</a></li>
+				<li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li>
+				<li><a href="global.html#getRadioVal">getRadioVal</a></li>
+				<li><a href="global.html#getRandomData">getRandomData</a></li>
+				<li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li>
+				<li><a href="global.html#getSelectedAndFixedNodes">getSelectedAndFixedNodes</a></li>
+				<li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li>
+				<li><a href="global.html#ghostCursor">ghostCursor</a></li>
+				<li><a href="global.html#ghostFactor">ghostFactor</a></li>
+				<li><a href="global.html#groupDashes">groupDashes</a></li>
+				<li><a href="global.html#groupTitle">groupTitle</a></li>
+				<li><a href="global.html#headerTickToggle">headerTickToggle</a></li>
+				<li><a href="global.html#hideNodeAndEdges">hideNodeAndEdges</a></li>
+				<li><a href="global.html#hideNotes">hideNotes</a></li>
+				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
+				<li><a href="global.html#in_degree">in_degree</a></li>
+				<li><a href="global.html#inAddMode">inAddMode</a></li>
+				<li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li>
+				<li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li>
+				<li><a href="global.html#initials">initials</a></li>
+				<li><a href="global.html#initPopUp">initPopUp</a></li>
+				<li><a href="global.html#initSample">initSample</a></li>
+				<li><a href="global.html#isEmpty">isEmpty</a></li>
+				<li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li>
+				<li><a href="global.html#legend">legend</a></li>
+				<li><a href="global.html#legendData">legendData</a></li>
+				<li><a href="global.html#lightOrDark">lightOrDark</a></li>
+				<li><a href="global.html#linkEditCancel">linkEditCancel</a></li>
+				<li><a href="global.html#linkEditorHide">linkEditorHide</a></li>
+				<li><a href="global.html#linkEditorShow">linkEditorShow</a></li>
+				<li><a href="global.html#linkEditSave">linkEditSave</a></li>
+				<li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li>
+				<li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li>
+				<li><a href="global.html#listen">listen</a></li>
+				<li><a href="global.html#listFactors">listFactors</a></li>
+				<li><a href="global.html#listLinks">listLinks</a></li>
+				<li><a href="global.html#loadFile">loadFile</a></li>
+				<li><a href="global.html#loadJSONfile">loadJSONfile</a></li>
+				<li><a href="global.html#lockNode">lockNode</a></li>
+				<li><a href="global.html#logHistory">logHistory</a></li>
+				<li><a href="global.html#makeColor">makeColor</a></li>
+				<li><a href="global.html#mapTitle">mapTitle</a></li>
+				<li><a href="global.html#mergeTranspose">mergeTranspose</a></li>
+				<li><a href="global.html#mouseDespatch">mouseDespatch</a></li>
+				<li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li>
+				<li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li>
+				<li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li>
+				<li><a href="global.html#nodeEditSave">nodeEditSave</a></li>
+				<li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li>
+				<li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li>
+				<li><a href="global.html#nodeList">nodeList</a></li>
+				<li><a href="global.html#noteFilter">noteFilter</a></li>
+				<li><a href="global.html#object_equals">object_equals</a></li>
+				<li><a href="global.html#oldUserNames">oldUserNames</a></li>
+				<li><a href="global.html#onexit">onexit</a></li>
+				<li><a href="global.html#openCluster">openCluster</a></li>
+				<li><a href="global.html#out_degree">out_degree</a></li>
+				<li><a href="global.html#parseCSV">parseCSV</a></li>
+				<li><a href="global.html#parseGML">parseGML</a></li>
+				<li><a href="global.html#parseGraphML">parseGraphML</a></li>
+				<li><a href="global.html#plusLink">plusLink</a></li>
+				<li><a href="global.html#plusNode">plusNode</a></li>
+				<li><a href="global.html#positionNotes">positionNotes</a></li>
+				<li><a href="global.html#positionPopUp">positionPopUp</a></li>
+				<li><a href="global.html#previousNames">previousNames</a></li>
+				<li><a href="global.html#quillEditor">quillEditor</a></li>
+				<li><a href="global.html#quillFormatter">quillFormatter</a></li>
+				<li><a href="global.html#readSingleFile">readSingleFile</a></li>
+				<li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li>
+				<li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li>
+				<li><a href="global.html#rebase">rebase</a></li>
+				<li><a href="global.html#recalculateStats">recalculateStats</a></li>
+				<li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li>
+				<li><a href="global.html#redraw">redraw</a></li>
+				<li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li>
+				<li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li>
+				<li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li>
+				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
+				<li><a href="global.html#resizeBox">resizeBox</a></li>
+				<li><a href="global.html#rgbToHex">rgbToHex</a></li>
+				<li><a href="global.html#rollback">rollback</a></li>
+				<li><a href="global.html#round">round</a></li>
+				<li><a href="global.html#saveEdge">saveEdge</a></li>
+				<li><a href="global.html#saveLabel">saveLabel</a></li>
+				<li><a href="global.html#saveNode">saveNode</a></li>
+				<li><a href="global.html#savePRSMfile">savePRSMfile</a></li>
+				<li><a href="global.html#saveStr">saveStr</a></li>
+				<li><a href="global.html#search">search</a></li>
+				<li><a href="global.html#searchTargets">searchTargets</a></li>
+				<li><a href="global.html#selectClustering">selectClustering</a></li>
+				<li><a href="global.html#selectedLabels">selectedLabels</a></li>
+				<li><a href="global.html#selectTool">selectTool</a></li>
+				<li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li>
+				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
+				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
+				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
+				<li><a href="global.html#setFileName">setFileName</a></li>
+				<li><a href="global.html#setFixed">setFixed</a></li>
+				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
+				<li><a href="global.html#setRadioVal">setRadioVal</a></li>
+				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
+				<li><a href="global.html#setUpCanvas">setUpCanvas</a></li>
+				<li><a href="global.html#setUpChat">setUpChat</a></li>
+				<li><a href="global.html#setUpFilter">setUpFilter</a></li>
+				<li><a href="global.html#setUpPage">setUpPage</a></li>
+				<li><a href="global.html#setUpPaint">setUpPaint</a></li>
+				<li><a href="global.html#setUpSamples">setUpSamples</a></li>
+				<li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li>
+				<li><a href="global.html#setUpTabs">setUpTabs</a></li>
+				<li><a href="global.html#setUpToolbox">setUpToolbox</a></li>
+				<li><a href="global.html#setUpTutorial">setUpTutorial</a></li>
+				<li><a href="global.html#setvh">setvh</a></li>
+				<li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li>
+				<li><a href="global.html#showClusterLinks">showClusterLinks</a></li>
+				<li><a href="global.html#showGhostFactor">showGhostFactor</a></li>
+				<li><a href="global.html#showHistory">showHistory</a></li>
+				<li><a href="global.html#showMice">showMice</a></li>
+				<li><a href="global.html#showNodeData">showNodeData</a></li>
+				<li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li>
+				<li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li>
+				<li><a href="global.html#showPressed">showPressed</a></li>
+				<li><a href="global.html#showSelected">showSelected</a></li>
+				<li><a href="global.html#sizing">sizing</a></li>
+				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
+				<li><a href="global.html#solve">solve</a></li>
+				<li><a href="global.html#splitText">splitText</a></li>
+				<li><a href="global.html#standardize_color">standardize_color</a></li>
+				<li><a href="global.html#start">start</a></li>
+				<li><a href="global.html#startY">startY</a></li>
+				<li><a href="global.html#startzoom">startzoom</a></li>
+				<li><a href="global.html#statusMsg">statusMsg</a></li>
+				<li><a href="global.html#stepFinish">stepFinish</a></li>
+				<li><a href="global.html#stepsEnd">stepsEnd</a></li>
+				<li><a href="global.html#stepStart">stepStart</a></li>
+				<li><a href="global.html#stopEdit">stopEdit</a></li>
+				<li><a href="global.html#strip">strip</a></li>
+				<li><a href="global.html#styleEdgeNames">styleEdgeNames</a></li>
+				<li><a href="global.html#styleNodeNames">styleNodeNames</a></li>
+				<li><a href="global.html#subtract">subtract</a></li>
+				<li><a href="global.html#subVec">subVec</a></li>
+				<li><a href="global.html#sumVec">sumVec</a></li>
+				<li><a href="global.html#svg">svg</a></li>
+				<li><a href="global.html#tickToggle">tickToggle</a></li>
+				<li><a href="global.html#timeAndDate">timeAndDate</a></li>
+				<li><a href="global.html#timestamp">timestamp</a></li>
+				<li><a href="global.html#titleDropDown">titleDropDown</a></li>
+				<li><a href="global.html#togglePanel">togglePanel</a></li>
+				<li><a href="global.html#toolHandler">toolHandler</a></li>
+				<li><a href="global.html#transpose">transpose</a></li>
+				<li><a href="global.html#trophic">trophic</a></li>
+				<li><a href="global.html#undirected">undirected</a></li>
+				<li><a href="global.html#unFollow">unFollow</a></li>
+				<li><a href="global.html#unlockAll">unlockAll</a></li>
+				<li><a href="global.html#unlockEdge">unlockEdge</a></li>
+				<li><a href="global.html#unlockNode">unlockNode</a></li>
+				<li><a href="global.html#unSelect">unSelect</a></li>
+				<li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li>
+				<li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li>
+				<li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li>
+				<li><a href="global.html#updateFilter">updateFilter</a></li>
+				<li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li>
+				<li><a href="global.html#updateLastSamples">updateLastSamples</a></li>
+				<li><a href="global.html#updateLegend">updateLegend</a></li>
+				<li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li>
+				<li><a href="global.html#updateNodeCellData">updateNodeCellData</a></li>
+				<li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li>
+				<li><a href="global.html#upscaling">upscaling</a></li>
+				<li><a href="global.html#uuidv4">uuidv4</a></li>
+				<li><a href="global.html#zero">zero</a></li>
+				<li><a href="global.html#zoomincr">zoomincr</a></li>
+				<li><a href="global.html#zoomnet">zoomnet</a></li>
+				<li><a href="global.html#zoomset">zoomset</a></li>
+			</ul>
+		</nav>
 
+		<br class="clear" />
 
+		<footer>
+			Documentation generated by
+			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a>
+			on Sat Jan 22 2022 22:22:27 GMT+0000 (Greenwich Mean Time)
+		</footer>
 
-</div>
-
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="ToolHandler.html">ToolHandler</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addColumn">addColumn</a></li><li><a href="global.html#addEventListeners">addEventListeners</a></li><li><a href="global.html#addLabel">addLabel</a></li><li><a href="global.html#addVec">addVec</a></li><li><a href="global.html#antMarch">antMarch</a></li><li><a href="global.html#applyOptions">applyOptions</a></li><li><a href="global.html#asleep">asleep</a></li><li><a href="global.html#broadcast">broadcast</a></li><li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li><li><a href="global.html#cancelAdd">cancelAdd</a></li><li><a href="global.html#cancelEdit">cancelEdit</a></li><li><a href="global.html#cancelLoading">cancelLoading</a></li><li><a href="global.html#changeCursor">changeCursor</a></li><li><a href="global.html#changeRoom">changeRoom</a></li><li><a href="global.html#clean">clean</a></li><li><a href="global.html#cleanArray">cleanArray</a></li><li><a href="global.html#clearLegend">clearLegend</a></li><li><a href="global.html#clearPopUp">clearPopUp</a></li><li><a href="global.html#clearStatusBar">clearStatusBar</a></li><li><a href="global.html#clone">clone</a></li><li><a href="global.html#closeFilter">closeFilter</a></li><li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li><li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li><li><a href="global.html#collapseColGroup">collapseColGroup</a></li><li><a href="global.html#collapseNotes">collapseNotes</a></li><li><a href="global.html#colorEditor">colorEditor</a></li><li><a href="global.html#configSamples">configSamples</a></li><li><a href="global.html#connected">connected</a></li><li><a href="global.html#connectedComponents">connectedComponents</a></li><li><a href="global.html#convertDashes">convertDashes</a></li><li><a href="global.html#convertEdge">convertEdge</a></li><li><a href="global.html#convertEdgeBack">convertEdgeBack</a></li><li><a href="global.html#convertNode">convertNode</a></li><li><a href="global.html#convertNodeBack">convertNodeBack</a></li><li><a href="global.html#copyTable">copyTable</a></li><li><a href="global.html#copyToClipboard">copyToClipboard</a></li><li><a href="global.html#createTitleDropDown">createTitleDropDown</a></li><li><a href="global.html#deepCopy">deepCopy</a></li><li><a href="global.html#deleteColumn">deleteColumn</a></li><li><a href="global.html#deselectTool">deselectTool</a></li><li><a href="global.html#diag">diag</a></li><li><a href="global.html#diffMaps">diffMaps</a></li><li><a href="global.html#displayHelp">displayHelp</a></li><li><a href="global.html#displayNetPane">displayNetPane</a></li><li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li><li><a href="global.html#doSearch">doSearch</a></li><li><a href="global.html#dragElement">dragElement</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawGrid">drawGrid</a></li><li><a href="global.html#duplEdge">duplEdge</a></li><li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li><li><a href="global.html#editEdge">editEdge</a></li><li><a href="global.html#editLinkStyle">editLinkStyle</a></li><li><a href="global.html#editNode">editNode</a></li><li><a href="global.html#editNodeStyle">editNodeStyle</a></li><li><a href="global.html#elem">elem</a></li><li><a href="global.html#exactTime">exactTime</a></li><li><a href="global.html#exportCVS">exportCVS</a></li><li><a href="global.html#exportGML">exportGML</a></li><li><a href="global.html#fit">fit</a></li><li><a href="global.html#follow">follow</a></li><li><a href="global.html#followUser">followUser</a></li><li><a href="global.html#formatLogRec">formatLogRec</a></li><li><a href="global.html#generateName">generateName</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li><li><a href="global.html#getArrows">getArrows</a></li><li><a href="global.html#getButtonStatus">getButtonStatus</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#getDashes">getDashes</a></li><li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li><li><a href="global.html#getRadioVal">getRadioVal</a></li><li><a href="global.html#getRandomData">getRandomData</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li><li><a href="global.html#ghostCursor">ghostCursor</a></li><li><a href="global.html#ghostFactor">ghostFactor</a></li><li><a href="global.html#groupDashes">groupDashes</a></li><li><a href="global.html#groupTitle">groupTitle</a></li><li><a href="global.html#headerTickToggle">headerTickToggle</a></li><li><a href="global.html#hideDistantNodes">hideDistantNodes</a></li><li><a href="global.html#hideNodesAndEdgesInSet">hideNodesAndEdgesInSet</a></li><li><a href="global.html#hideNotes">hideNotes</a></li><li><a href="global.html#hideStreamNodes">hideStreamNodes</a></li><li><a href="global.html#htmlEntities">htmlEntities</a></li><li><a href="global.html#in_degree">in_degree</a></li><li><a href="global.html#inAddMode">inAddMode</a></li><li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li><li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li><li><a href="global.html#initials">initials</a></li><li><a href="global.html#initPopUp">initPopUp</a></li><li><a href="global.html#initSample">initSample</a></li><li><a href="global.html#isEmpty">isEmpty</a></li><li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li><li><a href="global.html#legend">legend</a></li><li><a href="global.html#lightOrDark">lightOrDark</a></li><li><a href="global.html#linkEditCancel">linkEditCancel</a></li><li><a href="global.html#linkEditorHide">linkEditorHide</a></li><li><a href="global.html#linkEditorShow">linkEditorShow</a></li><li><a href="global.html#linkEditSave">linkEditSave</a></li><li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li><li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#listFactors">listFactors</a></li><li><a href="global.html#listLinks">listLinks</a></li><li><a href="global.html#loadFile">loadFile</a></li><li><a href="global.html#loadJSONfile">loadJSONfile</a></li><li><a href="global.html#lockNode">lockNode</a></li><li><a href="global.html#logHistory">logHistory</a></li><li><a href="global.html#makeColor">makeColor</a></li><li><a href="global.html#mapTitle">mapTitle</a></li><li><a href="global.html#mergeTranspose">mergeTranspose</a></li><li><a href="global.html#mouseDespatch">mouseDespatch</a></li><li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li><li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li><li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li><li><a href="global.html#nodeEditSave">nodeEditSave</a></li><li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li><li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li><li><a href="global.html#nodeList">nodeList</a></li><li><a href="global.html#object_equals">object_equals</a></li><li><a href="global.html#oldUserNames">oldUserNames</a></li><li><a href="global.html#onexit">onexit</a></li><li><a href="global.html#openCluster">openCluster</a></li><li><a href="global.html#out_degree">out_degree</a></li><li><a href="global.html#parseCSV">parseCSV</a></li><li><a href="global.html#parseGML">parseGML</a></li><li><a href="global.html#parseGraphML">parseGraphML</a></li><li><a href="global.html#plusLink">plusLink</a></li><li><a href="global.html#plusNode">plusNode</a></li><li><a href="global.html#positionNotes">positionNotes</a></li><li><a href="global.html#positionPopUp">positionPopUp</a></li><li><a href="global.html#previousNames">previousNames</a></li><li><a href="global.html#quillEditor">quillEditor</a></li><li><a href="global.html#quillFormatter">quillFormatter</a></li><li><a href="global.html#readSingleFile">readSingleFile</a></li><li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li><li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li><li><a href="global.html#rebase">rebase</a></li><li><a href="global.html#recalculateStats">recalculateStats</a></li><li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li><li><a href="global.html#redraw">redraw</a></li><li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li><li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li><li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li><li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li><li><a href="global.html#resizeBox">resizeBox</a></li><li><a href="global.html#rgbToHex">rgbToHex</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveEdge">saveEdge</a></li><li><a href="global.html#saveLabel">saveLabel</a></li><li><a href="global.html#saveNode">saveNode</a></li><li><a href="global.html#savePRSMfile">savePRSMfile</a></li><li><a href="global.html#saveStr">saveStr</a></li><li><a href="global.html#search">search</a></li><li><a href="global.html#searchTargets">searchTargets</a></li><li><a href="global.html#selectClustering">selectClustering</a></li><li><a href="global.html#selectedLabels">selectedLabels</a></li><li><a href="global.html#selectTool">selectTool</a></li><li><a href="global.html#setAnalysisButtons">setAnalysisButtons</a></li><li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li><li><a href="global.html#setButtonStatus">setButtonStatus</a></li><li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li><li><a href="global.html#setFileName">setFileName</a></li><li><a href="global.html#setFixed">setFixed</a></li><li><a href="global.html#setMapTitle">setMapTitle</a></li><li><a href="global.html#setRadioVal">setRadioVal</a></li><li><a href="global.html#setUpAwareness">setUpAwareness</a></li><li><a href="global.html#setUpCanvas">setUpCanvas</a></li><li><a href="global.html#setUpChat">setUpChat</a></li><li><a href="global.html#setUpFilter">setUpFilter</a></li><li><a href="global.html#setUpPage">setUpPage</a></li><li><a href="global.html#setUpPaint">setUpPaint</a></li><li><a href="global.html#setUpSamples">setUpSamples</a></li><li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li><li><a href="global.html#setUpTabs">setUpTabs</a></li><li><a href="global.html#setUpToolbox">setUpToolbox</a></li><li><a href="global.html#setUpTutorial">setUpTutorial</a></li><li><a href="global.html#setvh">setvh</a></li><li><a href="global.html#shortestPaths">shortestPaths</a></li><li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li><li><a href="global.html#showClusterLinks">showClusterLinks</a></li><li><a href="global.html#showGhostFactor">showGhostFactor</a></li><li><a href="global.html#showHistory">showHistory</a></li><li><a href="global.html#showMice">showMice</a></li><li><a href="global.html#showNodeData">showNodeData</a></li><li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li><li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li><li><a href="global.html#showPaths">showPaths</a></li><li><a href="global.html#showPressed">showPressed</a></li><li><a href="global.html#showSelected">showSelected</a></li><li><a href="global.html#sizing">sizing</a></li><li><a href="global.html#snapToGrid">snapToGrid</a></li><li><a href="global.html#solve">solve</a></li><li><a href="global.html#splitText">splitText</a></li><li><a href="global.html#standardize_color">standardize_color</a></li><li><a href="global.html#start">start</a></li><li><a href="global.html#startY">startY</a></li><li><a href="global.html#startzoom">startzoom</a></li><li><a href="global.html#statusMsg">statusMsg</a></li><li><a href="global.html#stepFinish">stepFinish</a></li><li><a href="global.html#stepsEnd">stepsEnd</a></li><li><a href="global.html#stepStart">stepStart</a></li><li><a href="global.html#stopEdit">stopEdit</a></li><li><a href="global.html#strip">strip</a></li><li><a href="global.html#styleEdgeNames">styleEdgeNames</a></li><li><a href="global.html#styleNodeNames">styleNodeNames</a></li><li><a href="global.html#subtract">subtract</a></li><li><a href="global.html#subVec">subVec</a></li><li><a href="global.html#sumVec">sumVec</a></li><li><a href="global.html#svg">svg</a></li><li><a href="global.html#tickToggle">tickToggle</a></li><li><a href="global.html#timeAndDate">timeAndDate</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#titleDropDown">titleDropDown</a></li><li><a href="global.html#togglePanel">togglePanel</a></li><li><a href="global.html#toolHandler">toolHandler</a></li><li><a href="global.html#transpose">transpose</a></li><li><a href="global.html#trophic">trophic</a></li><li><a href="global.html#undirected">undirected</a></li><li><a href="global.html#unFollow">unFollow</a></li><li><a href="global.html#unHideAll">unHideAll</a></li><li><a href="global.html#unlockAll">unlockAll</a></li><li><a href="global.html#unlockEdge">unlockEdge</a></li><li><a href="global.html#unlockNode">unlockNode</a></li><li><a href="global.html#unSelect">unSelect</a></li><li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li><li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li><li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li><li><a href="global.html#updateFilter">updateFilter</a></li><li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li><li><a href="global.html#updateLastSamples">updateLastSamples</a></li><li><a href="global.html#updateLegend">updateLegend</a></li><li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li><li><a href="global.html#updateNodeCellData">updateNodeCellData</a></li><li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li><li><a href="global.html#upscaling">upscaling</a></li><li><a href="global.html#uuidv4">uuidv4</a></li><li><a href="global.html#zero">zero</a></li><li><a href="global.html#zoomincr">zoomincr</a></li><li><a href="global.html#zoomnet">zoomnet</a></li><li><a href="global.html#zoomset">zoomset</a></li></ul>
-</nav>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Mon Dec 06 2021 15:43:23 GMT+0000 (Greenwich Mean Time)
-</footer>
-
-<script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
-</body>
+		<script>
+			prettyPrint()
+		</script>
+		<script src="scripts/linenumber.js"></script>
+	</body>
 </html>

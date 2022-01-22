@@ -1,501 +1,1494 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
-<head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="pandoc" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>PRSM Help</title>
-  <style>
-    code{white-space: pre-wrap;}
-    span.smallcaps{font-variant: small-caps;}
-    span.underline{text-decoration: underline;}
-    div.column{display: inline-block; vertical-align: top; width: 50%;}
-    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    ul.task-list{list-style: none;}
-    pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-    pre > code.sourceCode > span:empty { height: 1.2em; }
-    .sourceCode { overflow: visible; }
-    code.sourceCode > span { color: inherit; text-decoration: inherit; }
-    div.sourceCode { margin: 1em 0; }
-    pre.sourceCode { margin: 0; }
-    @media screen {
-    div.sourceCode { overflow: auto; }
-    }
-    @media print {
-    pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-    }
-    pre.numberSource code
-      { counter-reset: source-line 0; }
-    pre.numberSource code > span
-      { position: relative; left: -4em; counter-increment: source-line; }
-    pre.numberSource code > span > a:first-child::before
-      { content: counter(source-line);
-        position: relative; left: -1em; text-align: right; vertical-align: baseline;
-        border: none; display: inline-block;
-        -webkit-touch-callout: none; -webkit-user-select: none;
-        -khtml-user-select: none; -moz-user-select: none;
-        -ms-user-select: none; user-select: none;
-        padding: 0 4px; width: 4em;
-        color: #aaaaaa;
-      }
-    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      {   }
-    @media screen {
-    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-    }
-    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-    code span.at { color: #7d9029; } /* Attribute */
-    code span.bn { color: #40a070; } /* BaseN */
-    code span.bu { } /* BuiltIn */
-    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-    code span.ch { color: #4070a0; } /* Char */
-    code span.cn { color: #880000; } /* Constant */
-    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-    code span.dt { color: #902000; } /* DataType */
-    code span.dv { color: #40a070; } /* DecVal */
-    code span.er { color: #ff0000; font-weight: bold; } /* Error */
-    code span.ex { } /* Extension */
-    code span.fl { color: #40a070; } /* Float */
-    code span.fu { color: #06287e; } /* Function */
-    code span.im { } /* Import */
-    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-    code span.op { color: #666666; } /* Operator */
-    code span.ot { color: #007020; } /* Other */
-    code span.pp { color: #bc7a00; } /* Preprocessor */
-    code span.sc { color: #4070a0; } /* SpecialChar */
-    code span.ss { color: #bb6688; } /* SpecialString */
-    code span.st { color: #4070a0; } /* String */
-    code span.va { color: #19177c; } /* Variable */
-    code span.vs { color: #4070a0; } /* VerbatimString */
-    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
-  </style>
-  <link rel="stylesheet" href="/doc/help.css" />
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
-  <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png" />
-  <link rel="shortcut icon" href="../icons/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-</head>
-<body>
-<div class="contents" id="contents">
-<header id="title-block-header">
-<h1 class="title">PRSM Help</h1>
-</header>
-<!-- markdownlint-disable-file MD026 MD033 MD036-->
-<h1 id="participatory-system-mapper">Participatory System Mapper</h1>
-<h2 id="what-is-it">What is it?</h2>
-<p>The Participatory System Mapper (PRSM for short) is a web app that makes it easy for a group of people working together to draw networks (or ‘maps’) of systems.</p>
-<h3 id="maps">Maps</h3>
-<p>The network or map can be anything that has items (or ‘factors’ or ‘nodes’) connected by links (or ‘edges’). Here are some examples:</p>
-<ul>
-<li>People (the nodes) connected by knowing each other</li>
-<li>Factors or variables causing (the links) changes in other factors</li>
-<li>Switches connected by wires</li>
-<li>Computers connected by network links</li>
-<li>Theories expressed as variables and relationships between them</li>
-<li>Company boards of directors (the nodes) and the directors that sit on more than one board (the links)</li>
-<li>Twitter hashtags (the nodes) included together on posts (the links)</li>
-<li>Scientists (the nodes) co-authoring papers (the links)</li>
-<li>and so on.</li>
-</ul>
-<h3 id="systems">Systems</h3>
-<p>The software is aimed at people who are interested in understanding whole systems. <a href="https://en.wikipedia.org/wiki/System" target="_blank" rel="noreferrer">Wikipedia</a> defines a system as a group of interacting or interrelated entities that form a unified whole.</p>
-<h3 id="participatory-system-mapping">Participatory system mapping</h3>
-<p>The app is designed to enable groups of people, each using their own computer (or tablet) to collaborate in the drawing of a map. They may be sitting around a table, discussing the map as it is created face to face, or working remotely, using video conferencing or the chat feature that is built into the app. Everyone can participate because every edit (creating nodes and links, arranging them and so on) is broadcast to all the other participants as the changes are made (just as Google Docs does for text, for example).</p>
-<p>When you start the app in your browser, a ‘room’ is created for you in which to draw your network. You can add other users to this room to share the work. Only those with access to the room can see what is being created.</p>
-<h2 id="examples">Examples</h2>
-<p>Here are a few examples of what you can do with the app:</p>
-<p>The first is a theory of change adapted from an <a href="https://www.thinknpc.org/resource-hub/ten-steps/" target="_blank" rel="noreferrer">NPC report</a>.</p>
-<figure>
-<img src="/doc/images/NPCexample.png" alt="NCP Example" /><figcaption aria-hidden="true">NCP Example</figcaption>
-</figure>
-<p>The second is a system map about the environmental impact of goods transport developed by a small group of experts working together using the app.</p>
-<figure>
-<img src="/doc/images/SCandLexample.png" alt="SCandL Example" /><figcaption aria-hidden="true">SCandL Example</figcaption>
-</figure>
-<p>The third is a large network of 736 nodes and about 9000 links representing the team members playing in the 2019 football World Cup.</p>
-<figure>
-<img src="/doc/images/WorldCup2019example.png" alt="World Cup 2019 Example" /><figcaption aria-hidden="true">World Cup 2019 Example</figcaption>
-</figure>
-<h2 id="installation">Installation</h2>
-<p>No installation on your computer is needed. The software is a web app, which means that it can be accessed using a web browser by pasting this link into the address bar:</p>
-<p><a href="https://prsm.uk/prsm.html" target="_blank" rel="noreferrer">https://prsm.uk/prsm.html</a></p>
-<p>You need a modern web browser such as Chrome, Firefox, Microsoft Edge or Safari. It will not work with Internet Explorer.</p>
-<p>The software is free and available under an <a href="https://choosealicense.com/licenses/mit/" target="_blank" rel="noreferrer">MIT</a> license.</p>
-<h2 id="basic-use">Basic use</h2>
-<p>When the app is started for the first time in your browser, there is an option to type in your name and then to follow a brief tour that shows you the main items on the web page.</p>
-<figure>
-<img src="/doc/images/start-screen.png" alt="Nav Bar icons" /><figcaption aria-hidden="true">Nav Bar icons</figcaption>
-</figure>
-<p>This introductory tour is only shown the very first time you use PRSM. If you want to view the tour again, click <button onclick="localStorage.setItem('doneIntro', 'false'); return false">here</button>.</p>
-<p>At the top of the screen are a row of buttons. <!-- ![Nav Bar icons](/doc/images/prsm-nav-icons.png)--> <img src="/doc/images/Buttons.png" width="400"></p>
-<p>This what they do, from left to right:</p>
-<ul>
-<li><strong>New factor</strong> (or node). Click on the cross and then click somewhere on the blank area below (the ‘network pane’) to create a node for the network. A small dialog box will open for you to type in a label for the factor.</li>
-<li><strong>New link</strong> (or edge). Click on the arrow button and then drag from one factor to another to link them. If you wish, you can have two links between a pair of factors: one for each direction.</li>
-</ul>
-<p style="text-align: center"><video width="640" height="360" autoplay muted loop><source src="/doc/images/create-link-nodes.mp4" type="video/mp4">Your browser does not support the video tag.</video></p>
-<ul>
-<li><strong>Undo</strong>. Reverses the last action (e.g. if you have just created a new factor, it will be removed). See also using rollback from the History window, described in the section about the <a href="#network-tab">Network Tab</a>.</li>
-<li><strong>Redo</strong>. Redo the last action (e.g. if you have just undone the creation of a factor, this will return the factor to the network).</li>
-<li><strong>Bin</strong>. First, select a factor or a link by clicking on it. Note that the selected factor or link gains a shadow and is listed in the status bar at the bottom of the window. Then click on the Bin button (or press the backspace or delete keys) - the factor or link is deleted. The Undo button will restore it if you deleted it by mistake.</li>
-<li><strong>Share</strong>. Shows a dialog box with a web link that you can copy and send to someone else. If they then access that link, they will see your network and can edit and add to it. See <a href="#sharing">Sharing</a> below.</li>
-<li><strong>Open file</strong>. Read in a file containing a network from your computer drive. See <a href="#file-formats">below</a> for supported file formats. The content of the file replaces the network in the browser.</li>
-<li><strong>Save file</strong>. Save the network in a file on your computer. The file is saved in the app’s own format, or if you click on the small triangle next to the button, you can choose to save an image of the map as a high resolution image (a .PNG file), or the map data in GML (Graph Markup Language) or CSV (Comma Separated Values) formats.</li>
-<li><strong>Search</strong>. Search for factors by name.</li>
-<li><strong>Help</strong> Display this help page in a separate window.</li>
-<li><strong>Settings</strong>. Opens a panel that allows much more customisation and exploration of the network (see <a href="#styling-the-map">Styling the map</a> and <a href="#analysing-the-map">Analysing the map</a> below).</li>
-</ul>
-<p>To <strong>select</strong> a factor or a link, click on it. To select more than one, click on one factor or link and then <em>hold down</em> the pointer on the other. Or you can hold down the control (CTRL) key and click to add to the selection. At the bottom of the window is the status bar that will show which factors and links have been selected. Clicking anywhere on the background will deselect all the factors and links.</p>
-<p>Each factor can be moved across the network pane by dragging it. The whole network can be moved by dragging the background.</p>
-<p>Also at the bottom of the window on the right is a slider that will adjust the <strong>magnification</strong>: slide to the right to make the factors and links larger and to the left to make them smaller (or click on the + and - signs). To return the network to a size that will fit neatly in the window, double click on the black bar at the top, or anywhere on the network background (the latter will also desleect any selected factors or links). On a tablet or phone, you can zoom by using the ‘pinch’ gesture.</p>
-<p>At the top left, you can enter a <strong>title</strong> for the map. Click on ‘Untitled map’ and type in your title. If you have created or used several maps (and they have titles), a small downward triangle will appear to the right of the title. Clicking on this shows a list of those previous maps, and clicking on one of those takes you away from the current map and loads the previous one (after you have confirmed that this is what you want to do).</p>
-<p>Holding down the Shift key and then moving the mouse pointer will show a <strong>magnifying glass</strong> with an enlarged view of the part of the map under the pointer. You need to be using a keyboard for this.</p>
-<h3 id="notes">Notes</h3>
-<p>If you select just one factor or one link, a small panel appears. This shows the factor or link label (if it has one), the time and date when the factor or link was created, when it was last modifed if it has been changed since it was created, some network statistics about the factor, and an area where you can type a note to show further information about the factor or link. For factors, there is also an open or closed padlock symbol. If this is shown closed, the factor will be locked into place on the network pane and cannot be dragged elsewhere.</p>
-<p>If a factor or link has a note, a small ‘scroll’ icon is shown next to it.</p>
-<p><img src="/doc/images/FactorWithNote.png" width="500"></p>
-<p>A basic editor is provided for writing the Notes. You can format the text with <strong>bold</strong>, <em>italic</em> or <u>underline</u>, create bulletted or numbered lists, and add weblinks (URLs) to the text.</p>
-<h3 id="sharing">Sharing</h3>
-<p>If you use the <a href="#Installation">link above</a> to start the app, a new room is created for you. When you click on the share icon, a dialog box is shown that includes the name of the room in the link that is displayed:</p>
-<figure>
-<img src="/doc/images/prsm-share.png" alt="Sharing box" /><figcaption aria-hidden="true">Sharing box</figcaption>
-</figure>
-<p>Click the ‘Copy to clipboard’ button to copy the web link to the clipboard, and then paste the link into an email or a text message or just tell other participants the name of the room (which is a randomly generated set of 4 groups of three letters separated by hyphens). When they access the link, they will see whatever is in your app window.</p>
-<p>There are three options for the sharing link. If you check the ‘Clone map’ box, the web link will be to the same map but in a new room - any changes made to this new map will <em>not</em> appear in the original room. If you check the ‘View only’ box, the recipient of the web link will not be able to make any changes to the map. If you check the Data view box, the web link will be a a spreadsheet-like view of the facors and links in the map (see the <a href="#data-view">section on the Data view</a>).</p>
-<h3 id="avatars-and-pointers">Avatars and pointers</h3>
-<p>When there are others in the room, the initial letters of their name appear in a circle at the top left - their <em>avatar</em>. If you hover the mouse pointer over the circle, their full name is shown (their real name or the name they have been given by the app). If they don’t do anything for 15 minutes, the avatar fades and, if they close their browser window, it disappears.</p>
-<p>The other users’ mouse pointers are shown on the map. As you move your mouse pointer (or finger on a touchscreen), a small disc containing your initials moves on every other users’ map correspondingly. If you are talking with other users by audio or video link, you can use your mouse to point to things of interest, and the other users can see what you are pointing at.</p>
-<!-- ![Avatars](/doc/images/avatars.png) -->
-<p><img src="/doc/images/avatars.png" width="400"></p>
-<p>You can ‘follow’ the mouse movements of another user by clicking on their avatar. When you do that, if that user moves to another part of the map, your map moves too, following that user’s mouse pointer. This can be very helpful if the other user is showing you something on the map. To stop following, just click anywhere on the map.</p>
-<h3 id="using-the-mouse-and-touch">Using the mouse and touch</h3>
-<p>You can use the following mouse actions (or finger or pencil gestures on a tablet):</p>
-<ul>
-<li>a <em>click</em> on a factor or a link will select it (the factor or link gains a shadow to show it has been selected, and a message appears in the status bar). Selected factors can be moved by dragging them (hold down and then move the mouse ) and can be deleted (click on the dustbin/trash can icon in the navigation bar).</li>
-<li>a <em>long click</em> on a factor or link extends the selection: that factor or link is added to those already selected.</li>
-<li>a <em>control-click</em> (hold down the control key and click with the mouse) on a factor or link also extends the selection.</li>
-<li>a <em>double-click</em> on a factor or link opens an editing dialog so that you can edit its label, change colors and border widths etc. (see <a href="#formatting-factors-and-links">Formatting factors and links</a>).</li>
-<li>a <em>click</em> on the background de-selects all factors and links.</li>
-<li><em>dragging</em> the background moves the whole map.</li>
-<li>a <em>double-click</em> on the background zooms the whole map in or out so that it neatly fits the window. Any selected factors or links are de-selected.</li>
-<li>holding down the <em>shift</em> key and moving the mouse shows a loupe (a magnifying glass) to see small details of the map.</li>
-<li>holding down the <em>control</em> key and dragging shows a selection rectangle - when you release the mouse, all factors in the rectangle are selected.</li>
-<li>holding down the <em>option</em> or ALT key and clicking on the background is a shortcut for adding a new factor</li>
-<li>holding down the <em>option</em> or ALT key and clicking on a factor is a shortcut for adding a link - the pointer will become a cross and you can then drag from the factor to another factor to create the link.</li>
-</ul>
-<h3 id="copy-and-paste">Copy and paste</h3>
-<p>You can copy selected factors to the clipboard and then paste them into either the same map (to duplicate them) or into another map in another browser window or tab.</p>
-<p>To copy, first select the factors that you want copied (a long press on the factors). Then hold down the Command ⌘ or CTRL ⌃key and type C. If you copy more than one factor, all the links that go between the selected factors get copied too.</p>
-<p>If you want to copy these factors and links into a new map, open a new tab in your browser, go to <a href="https://prsm.uk/prsm.html" target="_blank" rel="noreferrer">https://prsm.uk/prsm.html</a>, click on the map and type ⌘V or ⌃V. Or to duplicate the factors in the same map, just type ⌘V or ⌃V.</p>
-<h3 id="formatting-factors-and-links">Formatting factors and links</h3>
-<p>Double clicking on a factor or a link will bring up a small dialog that enables you to change the design of the factor or link - its colour, shape or the label.</p>
-<!-- ![Editing a node](/doc/images/Editingnode.png) -->
-<p><img src="/doc/images/Editingnode.png" width="400"></p>
-<p>See <a href="#styling-the-map">Styling the map</a> for more on changing the look of factors and links.</p>
-<h3 id="the-chat-window">The chat window</h3>
-<p>Clicking on the speech balloon at the bottom right opens up a chat window that you can use to type messages to other participants in your room.</p>
-<!-- ![Chat window](/doc/images/ChatWindow.png) -->
-<p><img src="/doc/images/ChatWindow.png" width="300"></p>
-<p>If you haven’t provided your real name, the name at the top is initially randomly generated, but if you click on it, you can substitute your own. You can write messages in the box at the bottom and send them by clicking the paper plane button. Use the <strong>X</strong> to close the chat window.</p>
-<p>You can choose to send your messages either to everyone or to one selected person (from among those online).</p>
-<p>If someone has sent you a message but your chat window is closed, the button will gently pulse to remind you to open it:</p>
-<figure>
-<img src="/doc/images/ChatWindowButton.gif" alt="Chat Window Button" /><figcaption aria-hidden="true">Chat Window Button</figcaption>
-</figure>
-<h3 id="file-formats">File formats</h3>
-<p>The app can read files in its native format (files with the suffix ‘.prsm’), or in <a href="http://graphml.graphdrawing.org/" target="_blank" rel="noreferrer">GRAPHML</a> (.graphml), <a href="https://en.wikipedia.org/wiki/Graph_Modelling_Language" target="_blank" rel="noreferrer">GML</a> (.gml) or <a href="https://en.wikipedia.org/wiki/Comma-separated_values" target="_blank" rel="noreferrer">Comma Separated Values (CSV)</a> (.csv) formats. A CSV file must contain at least two columns of values. Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to. This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottom right as shown on the <a href="#factors-tab">Factors tab</a>). The fifth column may contain the style number for the link.</p>
-<p>The app can create output files in the app’s own native format, as a GML file or as a CSV file. You can also save an image of the map as a Portable Network Graphics (.png) file. The image shows the same view of the map as you see on the screen (so, for example, it will not show factors that have been moved out of the app window).</p>
-<h3 id="privacy-and-security">Privacy and security</h3>
-<p>The only way to join the room and see the network is by using the randomly generated room name, and the chances of finding that name by trial and error is very, very small. The network data are stored on a central server in encoded form. The server is located in Europe.</p>
-<h2 id="styling-the-map">Styling the map</h2>
-<p>fourThe view you see when you first open the app is intentionally very simple, but hidden away are many more features. To access these, click on the last, Settings, button on the top bar: <!-- ![Settings Button](/doc/images/SettingsButton.png) --><img src="/doc/images/SettingsButton.png" style="display: inline" width="20">. This will reveal a set of four tabs: Factors, Links, Netork and Analysis, with the Factors tab open.</p>
-<p>The panel showing the tabs can moved across the network pane: drag it using the thin black strip at the top of the panel above the tab buttons. This can be useful if the panel gets in the way of seeing the network.</p>
-<h3 id="factors-tab">Factors tab</h3>
-<!-- ![FactorsWindow](/doc/images/FactorsPanel.png) -->
-<p><img src="/doc/images/FactorsPanel.png" width="250"></p>
-<p>There are 9 sample styles for how factors can look. If you select a factor from the network and then click on one of the 9 styles, the factor will change to resemble the style. As a short cut, if you click on the ‘Select all factors’ button at the bottom, and then click on a style, all the factors will change to the chosen style.</p>
-<p>Double clicking on any of the 9 styles opens a dialog box to change the style:</p>
-<!-- ![FactorStyleDialog](/doc/images/FactorStyle.png) -->
-<p><img src="/doc/images/FactorsStyle.png" width="600"></p>
-<p>There are options to change the colour of the background (the ‘fill’), the border and the font, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted or none, and to change the font size of the label.</p>
-<p>If you right click (or Control click) on one of the style samples, there is a menu with which you can either select all the Factors that have that style, or hide all those Factors from view.</p>
-<h4 id="legend">Legend</h4>
-<p>You can also change the name of the style. If you do so, this name will appear on the network pane as one item in the ‘legend’. So, for example, if you had some factors that are Activities, some that are Change mechanisms, some Outcomes and some Impacts, you could give four of the styles these names, colour their fills red, orange, yellow and blue, and then apply these styles to the appropriate factors in the network. The legend will be automatically displayed on the network pane:</p>
-<figure>
-<img src="/doc/images/Legend.png" alt="Legend" /><figcaption aria-hidden="true">Legend</figcaption>
-</figure>
-<p>The legend can be moved by dragging the top of the Legend pane.</p>
-<h3 id="links-tab">Links tab</h3>
-<p>The Links tab is very similar to the Factors tab, except that it relates to the links. There are 9 link styles and each of these can be changed by double clicking the link style. There are options to change the colour of the link, whether it has an arrow at the end, whether it is solid, dashed or dotted, and to add a link label.</p>
-<!-- ![LinksPanel](/doc/images/LinksPanel.png) -->
-<p><img src="/doc/images/LinksPanel.png" width="250"></p>
-<h3 id="network-tab">Network tab</h3>
-<p>The Network tab enables you to change many aspects of the network visualisation and what is shown in the window.</p>
-<p>It is sometimes useful to get PSRM to layout Factors using an automatic procedure and then adjust their positions manually to achieve the desired placement. PRSM provides several layout algorithms:</p>
-<ul>
-<li>The <em>trophic</em> algorithm helps to reveal <a href="https://royalsocietypublishing.org/doi/10.1098/rsos.201138" target="_blank" rel="noreferrer">the causal structure of the map</a>. With the trophic layout, the factors are arranged along the horizontal axis according to their positions (their trophic levels) in the overall causal flow within the system, making it easier to identify upstream and downstream factors; the linked chains of influence that connect them; and where factors act on the system within this overall causal structure (which may be upstream or downstream). It will re-arrange the factors and links to create a layout such that all the links point from left to right and are arranged according to <a href="https://en.wikipedia.org/wiki/Trophic_level" target="_blank" rel="noreferrer">trophic level</a>.</li>
-<li><em>Barnes Hut</em> This is a ‘gravity’ algorithm. Each Factor is modelled as though it has a mass that repulses all other Factors with an inverse square, while the links are modelled as springs that pull the Factors together. The algorithm is iterative, i.e. it tries repeatedly to find the best arrangement of factors that balance the repulsive forces between the Factors and the attractive forces from the springs.</li>
-<li><em>Force Atlas 2</em> This is a variation of the Barnes Hut algorithm in which the repulsion between the Factors is linear rather than qudratric.</li>
-<li><em>Repulsion</em> Another variation of Barnes Hut.</li>
-</ul>
-<p>There is no best layout algorithm that works for all networks; you need to see which one looks best for your map. If you don’t like the effect of an algorithm, you can choose another one, or use the Undo button on the top bar to revert the map to its original layout.</p>
-<p>On the Network tab, there are controls for:</p>
-<!-- ![NetworkPanel](/doc/images/NetworkPanel.png) -->
-<p><img src="/doc/images/NetworkPanel.png" width="250"></p>
-<ul>
-<li><strong>Auto Layout</strong> Choose which layout algorithm to apply. The algorithm will then adjust the positions of the Factors and links and, once complete, the selection will revert to ‘Off’, leaving the Factors where the algorithm has placed them.</li>
-<li><strong>Snap to grid</strong> When ON, factors shift to be at the intersection of invisible grid lines. This makes it much easier to line up factors neatly.</li>
-<li><strong>Link</strong> Links can either be drawn using a curved line or a straight line. This control swaps between the two.</li>
-<li><strong>Background</strong> This changes the colour of the background of the network pane. Click on the colour well to display possible colours. The default is white, but a black background can also be effective.</li>
-<li><strong>Show legend</strong> If the factor and link styles are given names (other than ‘Sample’), the styles and their names will be shown in a panel at the left bottom of the network pane headed ‘Legend’, when this switch is ON. See the description of the <a href="#factors-tab">Factors tab</a>.</li>
-<li><strong>Show drawing layer</strong> Puts the network pane into drawing mode, so that background shapes, images and text can be added. See <a href="#drawing-mode">Drawing Mode</a> for more details.</li>
-<li><strong>Show other users</strong> When ON, the positions of other users’ mouse pointers are shown in real time.<br />
-</li>
-<li><strong>Show history</strong> When ON, a panel displaying every change to a factor or link (adding a factor or link, editing it or deleting it) is shown. It is possible to ‘rollback’ the map to the state it was in before a change. This can be quicker than repeatedly undoing changes with the Undo button. To rollback, click on the [SYMBOL]. You will be asked to confirm the action.</li>
-<li><strong>Show notes</strong> When a factor or link is selected, normally a Notes panel pops up at the bottom right of the map. Turning this switch OFF prevents the Notes panels from being displayed.</li>
-</ul>
-<h3 id="analysis-tab">Analysis tab</h3>
-<p>The Analysis tab allows you to view portions of the map and to cluster Factors to help with the analysis of the network (see the <a href="#analysis">Analysis</a> section below for help on how this can be useful).</p>
-<p><img src="/doc/images/AnalysisPanel.png" width="250"></p>
-<p>The panel is divided into five sections:</p>
-<ul>
-<li><strong>Show only neighbouring Factors</strong> If you first select a Factor (or several Factors) and then one of these options, all Factors in the network will be hidden, except for those 1, 2, or 3 links away from the selected Factor(s). This is useful when you want to focus on just one part of a large network.</li>
-<li><strong>Show only up or downstream Factors</strong> If you first select a Factor (or several Factors) and then one of these options, all Factors in the network will be hidden, except for those ‘downstream’ (i.e. linked to the selected Factor(s) by following links directed <em>away</em> from those Factor(s)), or those ‘upstream’ (i.e. linked to the selected Factor(s) by following links directed <em>towards</em> those Factor(s)).</li>
-<li><strong>Show paths between</strong> If you first select at least two Factors, and then
-<ul>
-<li><strong>Show all paths between</strong>, only those links that lie on a path between the selected Factors will be shown. A ‘path’ is a set of links that, following the direction of the arrows, connects two Factors. There may be several ways of getting from one Factor to another; if so, all the paths are shown. All Factors that do not lie on the connecting paths are hidden.</li>
-<li><strong>Show shortest path between</strong> displays only the path with the fewest links between the selected Factors (if there are two shortest paths with same number of links, only one, chosen arbitrarily, is shown).</li>
-</ul>
-For both these options, all the selected Factors in turn are used as the starting point for the paths, and all other Factors are used as the end points. For example, if Factors A, B and C are selected, paths from A to B, A, to C, B to A, B to C , C to A and C to B will be shown (if they exist). This has the incidental use of identifying ‘loops’ that could indicate feedbacks. If there is a path from A to B <em>and</em> a path from B to A, the effect of A on B will feedback on A.</li>
-</ul>
-<p>Here is an example. The first is the original network. <img src="/doc/images/ShowAll.png" width="250"> The second is the same network with Show all paths between Factors 1 and 7. <img src="/doc/images/ShowAllPaths.png" width="250"> The third is the same network with Show the shortest path between Factors 1 and 7. <img src="/doc/images/ShowShortestPath.png" width="250"></p>
-<p>The above three options can be combined. For example, the shortest path between two Factors option may display two paths: one with a couple of links and another feedback path going in the reverse direction that winds around the map and includes many links. Because it consists of many links, the latter path may not be of much interest. Choosing both Shortest path and Show Factors only 2 links away will display just the direct path.</p>
-<ul>
-<li><p><strong>Size Factors to</strong> This is used to change the size of the Factors to be proportional to one of a set of metrics: the number of inputs (the ‘in-degree’), the number of outputs (the ‘out-degree’), the leverage (ratio of inputs to outputs), or the <a href="https://en.wikipedia.org/wiki/Betweenness_centrality" target="_blank" rel="noreferrer">betweenness centrality</a>. Note that the Factors are always drawn large enough to accommodate their labels, and so the size may not be exactly proportional to the metric. The values of these metrics for a Factor are shown in its Notes panel.</p></li>
-<li><p><strong>Cluster</strong> With large maps, it is sometimes useful to aggregate Factors into groups, thus displaying the map at a higher level of abstraction. For example, all the Factors relating to the effect of climate change might be replaced on the map by one ‘Climate Change Cluster’ Factor, and similarly, all the Factors concerned with transport replaced by one Transport Factor. Links that used to go to Factors outside the cluster are replaced by links that go to the new Cluster Factor (and likewise for links that go from the clustered Factors to Factors outside the cluster).</p>
-<p>For example, here is a simple map before clustering:</p>
-<p><img src="/doc/images/BeforeClustering.png" width="600"></p>
-<p>and here is the same map afterclustering by Style:</p>
-<p><img src="/doc/images/Clustered.png" width="600"></p>
-<p>Links to and from cluster Factors are labelled with the number of links that they aggregate.</p>
-<p>Clustering is done according to the values of a clustering attribute - all Factors with the same value for this attribute are joined into the same cluster. The Cluster pulldown menu offers as standard, Style (i.e. the Factors’ style as set in the Factor tab) and Colour (i.e. the colour of the Factors’ backgrounds) as possible attributes with which to cluster. In addition, bespoke attributes can be used by creating a new column in the Data View and giving each Factor a value there (see the section on the <a href="#data-view">Data View</a> for how to create attributes). These additional atributes are automatically added to Cluster pull-down menu when they are created.</p>
-<p>Once the map has been clustered, a cluster Factor can be ‘unclustered’ (its component Factors revealed) by right (Control) clicking it, and reclustered by right (Control) clicking any of the component Factors. To uncluster the map as a whole, select None from the Cluster pull-down menu.</p></li>
-</ul>
-<h2 id="drawing-mode">Drawing Mode</h2>
-<p>Switching ‘Show drawing layer’ ON reveals a group of buttons on the left that enable you to draw shapes, write text, and import images onto the network background.</p>
-<figure>
-<img src="/doc/images/drawingLayer.png" alt="Drawing layer" /><figcaption aria-hidden="true">Drawing layer</figcaption>
-</figure>
-<p>In drawing mode, the background has a faint square grid to help line up your drawing. When you draw, you are ‘painting’ on the background, which means that the shapes and text you apply can only be moved by erasing them and redrawing.</p>
-<p>When you click on a drawing button, a small dialog box appears that can be used to adjust the drawing tool. For instance, the Line tool, which draws straight lines, has options for the line thickness and line colour.</p>
-<p>To stop using a tool, either click on another one, or click a second time on that tool’s button.</p>
-<p>The drawing tools are, in order from top to bottom:</p>
-<ul>
-<li><strong>Line</strong> draws straight lines. There are options for the line width, the colour of the line, and whether the line must be along the axes, i.e. either horizontal or vertical. To use the tool, click on the background at the desired start position, drag across to the line end and lift the mouse pointer.</li>
-<li><strong>Rectangle</strong> The options are the width of the border around the rectangle and its colour, the colour of the inside of the rectangle (the ‘fill’ colour) and whether it should have rounded or sharp corners. To draw a rectangle, click where one corner should be, then drag out to where the opposite corner should be and lift the pointer.</li>
-<li><strong>Text</strong> Use this tool to add fixed text to the background. The options are the colour and size of the text. Click on the background to show a text box into which you can type. You can move the box by dragging on the grey border and expand it by dragging the black square at the bottom right corner. Click anywhere outside the box to finish.</li>
-<li><strong>Pencil</strong> draws freehand lines.</li>
-<li><strong>Marker</strong> draws lines like a marker or highlighter pen.</li>
-<li><strong>Eraser</strong> removes everything it passes over.</li>
-<li><strong>Image</strong> Clicking on this tool gives you a file chooser to select an image file (picture) from your computer - JPG, PNG and GIF formats are accepted. When the image has been placed on the background, you can drag it to where you want it, and resize it by dragging on the small black square at the bottom right. Click anywhere outside the image to fix it to the background.</li>
-<li><strong>Undo</strong> This tool will undo the effect of the last drawing (e.g. if you have just placed an image on the background, it will remove the image, or if you have drawn a line with the pencil, it will undo that line). Each click of the Undo button removes a previous drawing.</li>
-</ul>
-<h2 id="analysis">Analysis</h2>
-<p>Once you have a map, you may want to examine it for themes and patterns. This is easiest if you examine portions of the map, or ‘sub-maps’, one at a time. As Barbrook-Johnson and Penn explain (<a href="https://doi.org/10.1177/1356389020976153" target="_blank" rel="noreferrer">Barbrook-Johnson, P., &amp; Penn, A. (2021). Participatory systems mapping for complex energy policy evaluation. Evaluation, 27(1), 57–79.</a>), network analysis can be combined with subjective information to answer a range of questions, as indicated in the table below.</p>
-<table class="analysis">
-<thead>
-<tr class="header">
-<th><strong>Way to start</strong></th>
-<th><strong>Starting point options</strong></th>
-<th><strong>How to build</strong></th>
-<th><strong>Interpretation</strong></th>
-<th><strong>How to do it with PRSM</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td rowspan="9"><strong>Stakeholder-suggested factors</strong></td>
-<td rowspan="3">Intervention or controllable factors</td>
-<td>Downstream factors and edges</td>
-<td>What is the intervention or controllable factor affecting? Unexpected indirect effects?</td>
-<td>Select the intervention factor and choose ‘Show only Factors downstream’</td>
-</tr>
-<tr class="even">
-<td>For multiple factors create a union or intersection of multiple downstream submaps</td>
-<td>How are multiple interventions complementing or clashing with each other?</td>
-<td>Select all the interventions and choose ‘Show only Factors downstream’</td>
-</tr>
-<tr class="odd">
-<td>Paths between intervention factors and outcome factors, including ego networks of factors on paths</td>
-<td>What does the intervention rely on to achieve its goals? What wider context might affect it?</td>
-<td>Select all the factors on the path(s) between the intervention(s) and the outcomes(s), and choose ‘Show only Factors 1 link away’ (or 2 or 3 links away)</td>
-</tr>
-<tr class="even">
-<td rowspan="4">Important or outcome factors</td>
-<td>Upstream factors and edges</td>
-<td>What is influencing the thing we care about? Constraints? Control? Buffered or buffeted?</td>
-<td>Select the intervention factor and choose ‘Show only Factors upstream’</td>
-</tr>
-<tr class="odd">
-<td>For multiple factors create a union or intersection of ego networks. Or, pull out paths between outcomes.</td>
-<td>What trade-offs or synergies might there be between achieving the things we care about?</td>
-<td>Select all the interventions and choose ‘Show only Factors upstream’</td>
-</tr>
-<tr class="even">
-<td><p>Ego networks</p>
-<p> </p></td>
-<td>What is influencing the thing we care about, what does it influence and how do those things interact?</td>
-<td>Select the factor and choose ‘Show only Factors 1 link away’ (or 2 or 3 links away)</td>
-</tr>
-<tr class="odd">
-<td>Union or intersection of upstream factors and edges</td>
-<td>What factors influence multiple outcomes? Identify potential levers in the system, co-benefits, synergies, or risks.</td>
-<td>Select all the outcome factors and choose ‘Show only Factors upstream’</td>
-</tr>
-<tr class="even">
-<td rowspan="2">Vulnerable to change factors</td>
-<td>Up and/or downstream factors and edges</td>
-<td>What might mitigate change in this factor? What impact might change have?</td>
-<td>Select one or more factors and choose ‘Show only Factors 1 link away’ (or 2 or 3 links away)</td>
-</tr>
-<tr class="odd">
-<td>Union/intersection multiple downstream sub maps</td>
-<td>Are there compound risks, how might interventions interact with external change?</td>
-<td>Select factors and choose ‘Show only Factors downstream’</td>
-</tr>
-<tr class="even">
-<td rowspan="5"><strong>System-suggested factors</strong></td>
-<td>Influential (i.e. many outgoing connections)</td>
-<td>Downstream factors and edges</td>
-<td>What is this influential thing affecting? Vulnerability or lever?</td>
-<td>First, set ‘Size Factors to: Outputs’ to see which factors have many outgoing connections. Then select an influential factor and choose ‘Show only Factors downstream’.</td>
-</tr>
-<tr class="odd">
-<td rowspan="2">Central to the map (i.e. well-connected, or bridging)</td>
-<td>Downstream and/or upstream factors and edges</td>
-<td>What is influencing this central factor? What influence does it have? Bottleneck, bridge, transmitter?</td>
-<td>First, set ‘Size Factors to: Centrality’ to see which factors are central. Then select a central factor and choose ‘Show only Factors upstream’.</td>
-</tr>
-<tr class="even">
-<td>Ego networks</td>
-<td>What does this factor bridge or connect?</td>
-<td>First, set ‘Size Factors to: Centrality’ to see which factors are central. Then select a central factor and choose ‘Show only Factors 1 link away’.</td>
-</tr>
-<tr class="odd">
-<td>Influenced (i.e. many incoming connections)</td>
-<td>Upstream factors and edges</td>
-<td>What is influencing this highly influenced factor? Buffered or buffeted?</td>
-<td>First, set ‘Size Factors to: Inputs’ to see which factors have many incoming connections. Then select a factor and choose ‘Show only Factors upstream'.</td>
-</tr>
-<tr class="even">
-<td>Unusual network property</td>
-<td>Any of the above</td>
-<td>Does this factor play an important but counter-intuitive role in the system? </td>
-<td>Set ‘Size Factors to: Leverage’ to see which factors have either many incoming but few outgoing connections or few outgoing but many incoming connections.</td>
-</tr>
-</tbody>
-</table>
-<p>With thanks to Alex Penn and Pete Barbrook-Johnson for the original of this table.</p>
-<h2 id="data-view">Data View</h2>
-<p>As well as the map view described above, PRSM also provides an alternative Data View. This shows the Factors and Links in tables like a spreadsheet. You can make changes in the Data View and the changes to Factors and Links will immediately be passed over to the Map view. For some tasks, the Data View is more convenient than the Map, especially when one wants to summarise or make changes to lots of Factors or Links at the same time.</p>
-<p>To see a Data View, open a PRSM map, click on the Share button at the top, check the box labelled ‘Data View’ in the dialog that appears, and then click on the ‘Copy to clipboard’ button to copy the URL shown. Open a new tab in your browser and paste the URL into the address bar.</p>
-<p><img src="/doc/images/DataView.png"></p>
-<p>The main part of the Data View when opened shows a table with one row for each of the Factors in the map. On the left are the Factors’ labels. To the right, there is a group of columns that show the format of the Factors, a group of columns with various statistics about the Factors and column showing the Notes attached to the Factors. At the bottom of the table are summaries (counts of how many Factors there are, the average betweenness centrality, and so on). If there are too many Factors to fit in the window, you can scroll the table to the top or bottom.</p>
-<p>Only the first column of the Fornat and Statistics column groups are shown when the Data View is first opened. To reveal the other columns in each group, click on the <img src="/doc/images/ExpandSymbol.png" style="display: inline" width="20"> to the right of the group heading. Similarly, the Notes column can be expanded to show more of the Notes.</p>
-<p><img src="/doc/images/ExpandedDataView.png"></p>
-<p>Use the small triangles in the column headings to sort the table according to the values in that column - one click for ascending and two for descending.</p>
-<p>The values in columns with headings in black letters can be edited from the Data View, but the ones in columns with grey headings are read only.</p>
-<p>Some columns need further explanation:</p>
-<ul>
-<li><strong>Select</strong> If you edit a value in a row that has a check mark (tick) in the Select column, the same edit will be made in all the other rows that are checked. For example, if you check three rows and change the value of the Shape column in any one of the three Selected rows to ‘ellipse’, the other two rows’ shape will also change to ‘ellipse’. This is a convenient way to change multiple Factors at once. Clicking the check box in the heading will Select all the Factors (or unselect them all if they are all selected).</li>
-<li><strong>Style</strong> The values in this column are the styles assigned in the Style panel in the Map view. ‘–’ is shown for Factors that use a style that has not been named.</li>
-<li><strong>Hidden</strong> A Factor with a check (tick) in this column is not displayed in the Map view. The Links to that Factor are also hidden. For instance, when you use the ‘Show only Factors upstream’ feature in the Network panel in the Map view, this hides the Factors that are downstream. However, using this column in the Data view is more flexible: you can hide any factor on the map. Clicking the check box in the heading will Hide all the Factors (so nothing will show in the Map view). Unchecking it will ‘unhide’ all Factors.</li>
-<li><strong>Relative size</strong> This column can be used to alter the size (width and height) of Factors on the map. Enter a number between 0 and 10 to control the size (e.g. a Factor with a relative size of 10 will be shown as much bigger on the map than a Factor with relative size 1).</li>
-<li><strong>Fill colour</strong> Clicking on the cell will open a colour editor that you can use to change the background colour of the Factor.</li>
-<li><strong>Notes</strong> Clicking on a cell in the Notes column will display a dialog in the middle of the window in which you can create or edit a Note. Click anywhere outside the dialog box to save the edit.</li>
-</ul>
-<p>Above the table, there are tabs labelled ‘Factors’ and ‘Links’. Clicking the Links tab displays a similar table but with one row for each Link:</p>
-<figure>
-<img src="/doc/images/DataViewLinksTab.png" alt="Data View Links Tab" /><figcaption aria-hidden="true">Data View Links Tab</figcaption>
-</figure>
-<p>Most of the cells in the Format section of these tables are editable (columns with headings in <strong>bold</strong> have editable cells; those with headings in grey are not). To edit a cell, click it. Depending on the column, you can then edit the text (e.g. the Label), select from a drop down menu (e.g. Shape) or enter a number (e.g. Font size).</p>
-<h3 id="top-button-bar">Top button bar</h3>
-<p>At the top right is a row of buttons. These are:</p>
-<ul>
-<li><strong>Add column</strong> Clicking on this button will add an extra column on the right of the Factcor table. This can be used to add any ‘attribute’ you wish to the Factors. You can edit the heading to give the column an appropriate title, and then enter numbers or text into the cells. For example, you might use the extra column to record the importance of Factors. Right click the column heading to see a menu to delete the column.</li>
-</ul>
-<figure>
-<img src="/doc/images/Attribute.png" alt="Filter" /><figcaption aria-hidden="true">Filter</figcaption>
-</figure>
-<ul>
-<li><strong>Undo</strong> Restores the previous edit of a cell value.</li>
-<li><strong>Redo</strong> Retracts a previous ‘undo’.</li>
-<li><strong>Share</strong> Allows you to copy the web link you need to open a Map view.</li>
-<li><strong>Copy table</strong> Clicking on this button copies the whole table to the clipboard. You can then paste it into a spreadsheet such as Microsoft Excel for further analysis.</li>
-<li><strong>Filter</strong> This enables you to filter rows according to some condition - for example, you might filter out all the rows that have labels that do not have the word ‘climate’ in them. Clicking on the button reveals a dialog just above the table:</li>
-</ul>
-<figure>
-<img src="/doc/images/Filter.png" alt="Filter" /><figcaption aria-hidden="true">Filter</figcaption>
-</figure>
-<p>The first drop down menu includes all the columns (except those that are for colours; you cannot filter by colour). The second drop down menu has a set of conditions to apply to the values in the filter column. To the right of this is a text box where you can complete the condition. For example, to filter out all but those Factors that have the word ‘climate’ in their label, you would use:</p>
-<p>The rightmost ☒ is a button to dismiss the filter (or you can click the filter button again).</p>
-<ul>
-<li><strong>Help</strong> brings you to this documentation.</li>
-</ul>
-<h3 id="using-the-filter-and-select">Using the Filter and Select</h3>
-<p>The Filter and the Select column can be used in combination. For example, suppose you wanted to display all the Factors that influenced 2 or more other factors larger than the rest, to emphasise them in the Map view. This is what you could do:</p>
-<ol type="1">
-<li>Click on the Filter button. Set up a filter with Out-degree &gt;= 2</li>
-<li>Click on the Select all check box at the top of the first column</li>
-<li>Click on one of the cells in the Relative Size column. Edit the value to ‘5’</li>
-<li>Look at the Map view. Observe that all the Factors with 3 or more links pointing away from them are now larger than the rest.</li>
-</ol>
-<figure>
-<img src="/doc/images/OutDegreeFilter.png" alt="OutDegreeFilter" /><figcaption aria-hidden="true">OutDegreeFilter</figcaption>
-</figure>
-<p>Another, more complicated example: Show only those Factors in the map with a value of Betweenness Centrality greater than some threshold, together with the links that go between these Factors, and hide all other Factors and Links.</p>
-<ol type="1">
-<li>In the Data view, sort the Factors by Betweenness (click on the sorting triangle in the column header).</li>
-<li>Click the checkbox in the Hidden column header. This hides every Factor in the map (if you glance at the map now, you’ll find that it is apparently empty)</li>
-<li>Open the Filter (click on the Filter button at the top), and filter using ‘Betweenness’ ‘&gt;=’ ‘70’ (or whatever threshold value you choose).</li>
-<li>Uncheck the cells in the Hidden column in each of the rows that are now visible. This reveals the Factors on the Map that have a Betweenness Centrality greater than the threshold, and the Links between them.</li>
-</ol>
-<h2 id="source-code">Source Code</h2>
-<p><em>(The following is intended for developers who want to extend PRSM)</em></p>
-<p>The program code is available on <a href="https://github.com/micrology/prsm" target="_blank" rel="noreferrer">GitHub</a>.</p>
-<p>The javascript (ES6) code in sub-directory <code>js</code> is divided into several modules: those that handle the main network pane (<code>prsm.js</code>), the background painting functions (<code>paint.js</code>), editing the styles (<code>styles.js</code>) (the default styles are in <code>samples.js</code>), the initial tour (<code>tutorial.js</code>), does tophic layout (<code>trophic.js</code>), does clustering (<code>cluster.js</code>), calulates the betweenness centrality (<code>betweenness.js</code>) and provides shared utility functions (<code>utils.js</code>). The HTML file that displays in the browser is in the <code>html</code> directory.</p>
-<p>PRSM uses two important packages: <a href="https://github.com/yjs/yjs" target="_blank" rel="noreferrer"><code>yjs</code></a> and <a href="https://visjs.org/" target="_blank" rel="noreferrer"><code>vis-network</code></a>. The former handles the sharing between participants’ browsers and the latter draws the network. A few other packages are used for dealing with touch input (<a href="https://hammerjs.github.io/" target="_blank" rel="noreferrer"><code>Hammer</code></a>), drawing emojis, and parsing XML file input.</p>
-<p>These components are assembled using <a href="https://parceljs.org/" target="_blank" rel="noreferrer"><code>parcel</code></a> and the bundled file is placed in the <code>dist</code> directory. So that users have an easy URL to access (i.e. not needing to include <code>dist</code> in the link), there is an <code>.htaccess</code> file that rewrites URLs from what the user puts into their browser to the correct location.</p>
-<p>To install the code, use <code>git</code> to clone the <a href="https://github.com/micrology/prsm" target="_blank" rel="noreferrer">repo</a> to your local disk and change to the cloned directory. Then install the required packages with</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install</span></code></pre></div>
-<p>and build the distribution with</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run build</span></code></pre></div>
-<p>Documentation can be found in the <code>doc</code> directory.</p>
-<p>See <code>package.json</code> for other npm commands.</p>
-<h2 id="acknowledgements">Acknowledgements</h2>
-<p>With thanks to all who helped inspire, suggest features for, comment on, and test PRSM, including the members of <a href="https://www.cecan.ac.uk/" target="_blank" rel="noreferrer">CECAN</a>, <a href="https://cress.soc.surrey.ac.uk/" target="_blank" rel="noreferrer">CRESS</a>, <a href="https://www.risksol.co.uk/" target="_blank" rel="noreferrer">Risk Solutions</a>, and Robin Gilbert.</p>
-<h2 id="bug-reports-and-feature-requests">Bug reports and feature requests</h2>
-<p>Please report problems, suggestions and praise to <a href="mailto:nigel@prsm.uk">nigel@prsm.uk</a></p>
-</div>
-<script src="/node_modules/scrollnav/dist/scrollnav.min.umd.js"></script>
-<script>
-window.addEventListener('load', () => {
-    const content = document.querySelector('#contents');
-    scrollnav.init(content, {subSections: 'h3', animated: false});
-});
-</script>
-</body>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="generator" content="pandoc" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+		<title>PRSM Help</title>
+		<style>
+			code {
+				white-space: pre-wrap;
+			}
+			span.smallcaps {
+				font-variant: small-caps;
+			}
+			span.underline {
+				text-decoration: underline;
+			}
+			div.column {
+				display: inline-block;
+				vertical-align: top;
+				width: 50%;
+			}
+			div.hanging-indent {
+				margin-left: 1.5em;
+				text-indent: -1.5em;
+			}
+			ul.task-list {
+				list-style: none;
+			}
+			pre > code.sourceCode {
+				white-space: pre;
+				position: relative;
+			}
+			pre > code.sourceCode > span {
+				display: inline-block;
+				line-height: 1.25;
+			}
+			pre > code.sourceCode > span:empty {
+				height: 1.2em;
+			}
+			.sourceCode {
+				overflow: visible;
+			}
+			code.sourceCode > span {
+				color: inherit;
+				text-decoration: inherit;
+			}
+			div.sourceCode {
+				margin: 1em 0;
+			}
+			pre.sourceCode {
+				margin: 0;
+			}
+			@media screen {
+				div.sourceCode {
+					overflow: auto;
+				}
+			}
+			@media print {
+				pre > code.sourceCode {
+					white-space: pre-wrap;
+				}
+				pre > code.sourceCode > span {
+					text-indent: -5em;
+					padding-left: 5em;
+				}
+			}
+			pre.numberSource code {
+				counter-reset: source-line 0;
+			}
+			pre.numberSource code > span {
+				position: relative;
+				left: -4em;
+				counter-increment: source-line;
+			}
+			pre.numberSource code > span > a:first-child::before {
+				content: counter(source-line);
+				position: relative;
+				left: -1em;
+				text-align: right;
+				vertical-align: baseline;
+				border: none;
+				display: inline-block;
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+				padding: 0 4px;
+				width: 4em;
+				color: #aaaaaa;
+			}
+			pre.numberSource {
+				margin-left: 3em;
+				border-left: 1px solid #aaaaaa;
+				padding-left: 4px;
+			}
+			div.sourceCode {
+			}
+			@media screen {
+				pre > code.sourceCode > span > a:first-child::before {
+					text-decoration: underline;
+				}
+			}
+			code span.al {
+				color: #ff0000;
+				font-weight: bold;
+			} /* Alert */
+			code span.an {
+				color: #60a0b0;
+				font-weight: bold;
+				font-style: italic;
+			} /* Annotation */
+			code span.at {
+				color: #7d9029;
+			} /* Attribute */
+			code span.bn {
+				color: #40a070;
+			} /* BaseN */
+			code span.bu {
+			} /* BuiltIn */
+			code span.cf {
+				color: #007020;
+				font-weight: bold;
+			} /* ControlFlow */
+			code span.ch {
+				color: #4070a0;
+			} /* Char */
+			code span.cn {
+				color: #880000;
+			} /* Constant */
+			code span.co {
+				color: #60a0b0;
+				font-style: italic;
+			} /* Comment */
+			code span.cv {
+				color: #60a0b0;
+				font-weight: bold;
+				font-style: italic;
+			} /* CommentVar */
+			code span.do {
+				color: #ba2121;
+				font-style: italic;
+			} /* Documentation */
+			code span.dt {
+				color: #902000;
+			} /* DataType */
+			code span.dv {
+				color: #40a070;
+			} /* DecVal */
+			code span.er {
+				color: #ff0000;
+				font-weight: bold;
+			} /* Error */
+			code span.ex {
+			} /* Extension */
+			code span.fl {
+				color: #40a070;
+			} /* Float */
+			code span.fu {
+				color: #06287e;
+			} /* Function */
+			code span.im {
+			} /* Import */
+			code span.in {
+				color: #60a0b0;
+				font-weight: bold;
+				font-style: italic;
+			} /* Information */
+			code span.kw {
+				color: #007020;
+				font-weight: bold;
+			} /* Keyword */
+			code span.op {
+				color: #666666;
+			} /* Operator */
+			code span.ot {
+				color: #007020;
+			} /* Other */
+			code span.pp {
+				color: #bc7a00;
+			} /* Preprocessor */
+			code span.sc {
+				color: #4070a0;
+			} /* SpecialChar */
+			code span.ss {
+				color: #bb6688;
+			} /* SpecialString */
+			code span.st {
+				color: #4070a0;
+			} /* String */
+			code span.va {
+				color: #19177c;
+			} /* Variable */
+			code span.vs {
+				color: #4070a0;
+			} /* VerbatimString */
+			code span.wa {
+				color: #60a0b0;
+				font-weight: bold;
+				font-style: italic;
+			} /* Warning */
+			.display.math {
+				display: block;
+				text-align: center;
+				margin: 0.5rem auto;
+			}
+		</style>
+		<link rel="stylesheet" href="/doc/help.css" />
+		<link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png" />
+		<link rel="shortcut icon" href="../icons/favicon.ico" />
+		<link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<!--[if lt IE 9]>
+			<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<div class="contents" id="contents">
+			<header id="title-block-header">
+				<h1 class="title">PRSM Help</h1>
+			</header>
+			<!-- markdownlint-disable-file MD026 MD033 MD036-->
+			<h1 id="participatory-system-mapper">Participatory System Mapper</h1>
+			<h2 id="what-is-it">What is it?</h2>
+			<p>
+				The Participatory System Mapper (PRSM for short) is a web app that makes it easy for a group of people
+				working together to draw networks (or ‘maps’) of systems.
+			</p>
+			<h3 id="maps">Maps</h3>
+			<p>
+				The network or map can be anything that has items (or ‘factors’ or ‘nodes’) connected by links (or
+				‘edges’). Here are some examples:
+			</p>
+			<ul>
+				<li>People (the nodes) connected by knowing each other</li>
+				<li>Factors or variables causing (the links) changes in other factors</li>
+				<li>Switches connected by wires</li>
+				<li>Computers connected by network links</li>
+				<li>Theories expressed as variables and relationships between them</li>
+				<li>
+					Company boards of directors (the nodes) and the directors that sit on more than one board (the
+					links)
+				</li>
+				<li>Twitter hashtags (the nodes) included together on posts (the links)</li>
+				<li>Scientists (the nodes) co-authoring papers (the links)</li>
+				<li>and so on.</li>
+			</ul>
+			<h3 id="systems">Systems</h3>
+			<p>
+				The software is aimed at people who are interested in understanding whole systems.
+				<a href="https://en.wikipedia.org/wiki/System" target="_blank" rel="noreferrer">Wikipedia</a>
+				defines a system as a group of interacting or interrelated entities that form a unified whole.
+			</p>
+			<h3 id="participatory-system-mapping">Participatory system mapping</h3>
+			<p>
+				The app is designed to enable groups of people, each using their own computer (or tablet) to collaborate
+				in the drawing of a map. They may be sitting around a table, discussing the map as it is created face to
+				face, or working remotely, using video conferencing or the chat feature that is built into the app.
+				Everyone can participate because every edit (creating nodes and links, arranging them and so on) is
+				broadcast to all the other participants as the changes are made (just as Google Docs does for text, for
+				example).
+			</p>
+			<p>
+				When you start the app in your browser, a ‘room’ is created for you in which to draw your network. You
+				can add other users to this room to share the work. Only those with access to the room can see what is
+				being created.
+			</p>
+			<h2 id="examples">Examples</h2>
+			<p>Here are a few examples of what you can do with the app:</p>
+			<p>
+				The first is a theory of change adapted from an
+				<a href="https://www.thinknpc.org/resource-hub/ten-steps/" target="_blank" rel="noreferrer">
+					NPC report
+				</a>
+				.
+			</p>
+			<figure>
+				<img src="/doc/images/NPCexample.png" alt="NCP Example" />
+				<figcaption aria-hidden="true">NCP Example</figcaption>
+			</figure>
+			<p>
+				The second is a system map about the environmental impact of goods transport developed by a small group
+				of experts working together using the app.
+			</p>
+			<figure>
+				<img src="/doc/images/SCandLexample.png" alt="SCandL Example" />
+				<figcaption aria-hidden="true">SCandL Example</figcaption>
+			</figure>
+			<p>
+				The third is a large network of 736 nodes and about 9000 links representing the team members playing in
+				the 2019 football World Cup.
+			</p>
+			<figure>
+				<img src="/doc/images/WorldCup2019example.png" alt="World Cup 2019 Example" />
+				<figcaption aria-hidden="true">World Cup 2019 Example</figcaption>
+			</figure>
+			<h2 id="installation">Installation</h2>
+			<p>
+				No installation on your computer is needed. The software is a web app, which means that it can be
+				accessed using a web browser by pasting this link into the address bar:
+			</p>
+			<p><a href="https://prsm.uk/prsm.html" target="_blank" rel="noreferrer">https://prsm.uk/prsm.html</a></p>
+			<p>
+				You need a modern web browser such as Chrome, Firefox, Microsoft Edge or Safari. It will not work with
+				Internet Explorer.
+			</p>
+			<p>
+				The software is free and available under an
+				<a href="https://choosealicense.com/licenses/mit/" target="_blank" rel="noreferrer">MIT</a>
+				license.
+			</p>
+			<h2 id="basic-use">Basic use</h2>
+			<p>
+				When the app is started for the first time in your browser, there is an option to type in your name and
+				then to follow a brief tour that shows you the main items on the web page.
+			</p>
+			<figure>
+				<img src="/doc/images/start-screen.png" alt="Nav Bar icons" />
+				<figcaption aria-hidden="true">Nav Bar icons</figcaption>
+			</figure>
+			<p>
+				This introductory tour is only shown the very first time you use PRSM. If you want to view the tour
+				again, click
+				<button onclick="localStorage.setItem('doneIntro', 'false'); return false">here</button>
+				.
+			</p>
+			<p>
+				At the top of the screen are a row of buttons.
+				<!-- ![Nav Bar icons](/doc/images/prsm-nav-icons.png)-->
+				<img src="/doc/images/Buttons.png" width="400" />
+			</p>
+			<p>This what they do, from left to right:</p>
+			<ul>
+				<li>
+					<strong>New factor</strong>
+					(or node). Click on the cross and then click somewhere on the blank area below (the ‘network pane’)
+					to create a node for the network. A small dialog box will open for you to type in a label for the
+					factor.
+				</li>
+				<li>
+					<strong>New link</strong>
+					(or edge). Click on the arrow button and then drag from one factor to another to link them. If you
+					wish, you can have two links between a pair of factors: one for each direction.
+				</li>
+			</ul>
+			<p style="text-align: center">
+				<video width="640" height="360" autoplay muted loop>
+					<source src="/doc/images/create-link-nodes.mp4" type="video/mp4" />
+					Your browser does not support the video tag.
+				</video>
+			</p>
+			<ul>
+				<li>
+					<strong>Undo</strong>
+					. Reverses the last action (e.g. if you have just created a new factor, it will be removed). See
+					also using rollback from the History window, described in the section about the
+					<a href="#network-tab">Network Tab</a>
+					.
+				</li>
+				<li>
+					<strong>Redo</strong>
+					. Redo the last action (e.g. if you have just undone the creation of a factor, this will return the
+					factor to the network).
+				</li>
+				<li>
+					<strong>Bin</strong>
+					. First, select a factor or a link by clicking on it. Note that the selected factor or link gains a
+					shadow and is listed in the status bar at the bottom of the window. Then click on the Bin button (or
+					press the backspace or delete keys) - the factor or link is deleted. The Undo button will restore it
+					if you deleted it by mistake.
+				</li>
+				<li>
+					<strong>Share</strong>
+					. Shows a dialog box with a web link that you can copy and send to someone else. If they then access
+					that link, they will see your network and can edit and add to it. See
+					<a href="#sharing">Sharing</a>
+					below.
+				</li>
+				<li>
+					<strong>Open file</strong>
+					. Read in a file containing a network from your computer drive. See
+					<a href="#file-formats">below</a>
+					for supported file formats. The content of the file replaces the network in the browser.
+				</li>
+				<li>
+					<strong>Save file</strong>
+					. Save the network in a file on your computer. The file is saved in the app’s own format, or if you
+					click on the small triangle next to the button, you can choose to save an image of the map as a high
+					resolution image (a .PNG file), or the map data in GML (Graph Markup Language) or CSV (Comma
+					Separated Values) formats.
+				</li>
+				<li>
+					<strong>Search</strong>
+					. Search for factors by name.
+				</li>
+				<li>
+					<strong>Help</strong>
+					Display this help page in a separate window.
+				</li>
+				<li>
+					<strong>Settings</strong>
+					. Opens a panel that allows much more customisation and exploration of the network (see
+					<a href="#styling-the-map">Styling the map</a>
+					and
+					<a href="#analysing-the-map">Analysing the map</a>
+					below).
+				</li>
+			</ul>
+			<p>
+				To
+				<strong>select</strong>
+				a factor or a link, click on it. To select more than one, click on one factor or link and then
+				<em>hold down</em>
+				the pointer on the other. Or you can hold down the control (CTRL) key and click to add to the selection.
+				At the bottom of the window is the status bar that will show which factors and links have been selected.
+				Clicking anywhere on the background will deselect all the factors and links.
+			</p>
+			<p>
+				Each factor can be moved across the network pane by dragging it. The whole network can be moved by
+				dragging the background.
+			</p>
+			<p>
+				Also at the bottom of the window on the right is a slider that will adjust the
+				<strong>magnification</strong>
+				: slide to the right to make the factors and links larger and to the left to make them smaller (or click
+				on the + and - signs). To return the network to a size that will fit neatly in the window, double click
+				on the black bar at the top, or anywhere on the network background (the latter will also desleect any
+				selected factors or links). On a tablet or phone, you can zoom by using the ‘pinch’ gesture.
+			</p>
+			<p>
+				At the top left, you can enter a
+				<strong>title</strong>
+				for the map. Click on ‘Untitled map’ and type in your title. If you have created or used several maps
+				(and they have titles), a small downward triangle will appear to the right of the title. Clicking on
+				this shows a list of those previous maps, and clicking on one of those takes you away from the current
+				map and loads the previous one (after you have confirmed that this is what you want to do).
+			</p>
+			<p>
+				Holding down the Shift key and then moving the mouse pointer will show a
+				<strong>magnifying glass</strong>
+				with an enlarged view of the part of the map under the pointer. You need to be using a keyboard for
+				this.
+			</p>
+			<h3 id="notes">Notes</h3>
+			<p>
+				If you select just one factor or one link, a small panel appears. This shows the factor or link label
+				(if it has one), the time and date when the factor or link was created, when it was last modifed if it
+				has been changed since it was created, some network statistics about the factor, and an area where you
+				can type a note to show further information about the factor or link.
+			</p>
+			<p>
+				For factors, there is also an open or closed padlock symbol. If this is shown closed, the factor will be
+				locked into place on the network pane and cannot be dragged elsewhere. The factor will be shown as
+				selected (with a shadow around it) and will have a small padlock symbol at the top left. Locking a
+				factor is useful when you are doing analysis of the map (see the
+				<a href="#analysis">Analysis</a>
+				section below) and don’t want to lose the selection while investigating other factors.
+			</p>
+			<p>If a factor or link has a note, a small ‘card’ icon is shown next to it.</p>
+			<p><img src="/doc/images/FactorWithNote.png" width="500" /></p>
+			<p>
+				A basic editor is provided for writing the Notes. You can format the text with
+				<strong>bold</strong>
+				,
+				<em>italic</em>
+				or
+				<u>underline</u>
+				, create bulletted or numbered lists, and add weblinks (URLs) to the text.
+			</p>
+			<h3 id="sharing">Sharing</h3>
+			<p>
+				If you use the
+				<a href="#Installation">link above</a>
+				to start the app, a new room is created for you. When you click on the share icon, a dialog box is shown
+				that includes the name of the room in the link that is displayed:
+			</p>
+			<figure>
+				<img src="/doc/images/prsm-share.png" alt="Sharing box" />
+				<figcaption aria-hidden="true">Sharing box</figcaption>
+			</figure>
+			<p>
+				Click the ‘Copy to clipboard’ button to copy the web link to the clipboard, and then paste the link into
+				an email or a text message or just tell other participants the name of the room (which is a randomly
+				generated set of 4 groups of three letters separated by hyphens). When they access the link, they will
+				see whatever is in your app window.
+			</p>
+			<p>
+				There are three options for the sharing link. If you check the ‘Clone map’ box, the web link will be to
+				the same map but in a new room - any changes made to this new map will
+				<em>not</em>
+				appear in the original room. If you check the ‘View only’ box, the recipient of the web link will not be
+				able to make any changes to the map. If you check the Data view box, the web link will be a a
+				spreadsheet-like view of the facors and links in the map (see the
+				<a href="#data-view">section on the Data view</a>
+				).
+			</p>
+			<h3 id="avatars-and-pointers">Avatars and pointers</h3>
+			<p>
+				When there are others in the room, the initial letters of their name appear in a circle at the top left
+				- their
+				<em>avatar</em>
+				. If you hover the mouse pointer over the circle, their full name is shown (their real name or the name
+				they have been given by the app). If they don’t do anything for 15 minutes, the avatar fades and, if
+				they close their browser window, it disappears.
+			</p>
+			<p>
+				The other users’ mouse pointers are shown on the map. As you move your mouse pointer (or finger on a
+				touchscreen), a small disc containing your initials moves on every other users’ map correspondingly. If
+				you are talking with other users by audio or video link, you can use your mouse to point to things of
+				interest, and the other users can see what you are pointing at.
+			</p>
+			<!-- ![Avatars](/doc/images/avatars.png) -->
+			<p><img src="/doc/images/avatars.png" width="400" /></p>
+			<p>
+				You can ‘follow’ the mouse movements of another user by clicking on their avatar. When you do that, if
+				that user moves to another part of the map, your map moves too, following that user’s mouse pointer.
+				This can be very helpful if the other user is showing you something on the map. To stop following, just
+				click anywhere on the map.
+			</p>
+			<h3 id="using-the-mouse-and-touch">Using the mouse and touch</h3>
+			<p>You can use the following mouse actions (or finger or pencil gestures on a tablet):</p>
+			<ul>
+				<li>
+					a
+					<em>click</em>
+					on a factor or a link will select it (the factor or link gains a shadow to show it has been
+					selected, and a message appears in the status bar). Selected factors can be moved by dragging them
+					(hold down and then move the mouse ) and can be deleted (click on the dustbin/trash can icon in the
+					navigation bar).
+				</li>
+				<li>
+					a
+					<em>long click</em>
+					on a factor or link extends the selection: that factor or link is added to those already selected.
+				</li>
+				<li>
+					a
+					<em>control-click</em>
+					(hold down the control key and click with the mouse) on a factor or link also extends the selection.
+				</li>
+				<li>
+					a
+					<em>double-click</em>
+					on a factor or link opens an editing dialog so that you can edit its label, change colors and border
+					widths etc. (see
+					<a href="#formatting-factors-and-links">Formatting factors and links</a>
+					).
+				</li>
+				<li>
+					a
+					<em>click</em>
+					on the background de-selects all factors and links.
+				</li>
+				<li>
+					<em>dragging</em>
+					the background moves the whole map.
+				</li>
+				<li>
+					a
+					<em>double-click</em>
+					on the background zooms the whole map in or out so that it neatly fits the window. Any selected
+					factors or links are de-selected.
+				</li>
+				<li>
+					holding down the
+					<em>shift</em>
+					key and moving the mouse shows a loupe (a magnifying glass) to see small details of the map.
+				</li>
+				<li>
+					holding down the
+					<em>control</em>
+					key and dragging shows a selection rectangle - when you release the mouse, all factors in the
+					rectangle are selected.
+				</li>
+				<li>
+					holding down the
+					<em>option</em>
+					or ALT key and clicking on the background is a shortcut for adding a new factor
+				</li>
+				<li>
+					holding down the
+					<em>option</em>
+					or ALT key and clicking on a factor is a shortcut for adding a link - the pointer will become a
+					cross and you can then drag from the factor to another factor to create the link.
+				</li>
+			</ul>
+			<h3 id="copy-and-paste">Copy and paste</h3>
+			<p>
+				You can copy selected factors to the clipboard and then paste them into either the same map (to
+				duplicate them) or into another map in another browser window or tab.
+			</p>
+			<p>
+				To copy, first select the factors that you want copied (a long press on the factors). Then hold down the
+				Command ⌘ or CTRL ⌃key and type C. If you copy more than one factor, all the links that go between the
+				selected factors get copied too.
+			</p>
+			<p>
+				If you want to copy these factors and links into a new map, open a new tab in your browser, go to
+				<a href="https://prsm.uk/prsm.html" target="_blank" rel="noreferrer">https://prsm.uk/prsm.html</a>
+				, click on the map and type ⌘V or ⌃V. Or to duplicate the factors in the same map, just type ⌘V or ⌃V.
+			</p>
+			<h3 id="formatting-factors-and-links">Formatting factors and links</h3>
+			<p>
+				Double clicking on a factor or a link will bring up a small dialog that enables you to change the design
+				of the factor or link - its colour, shape or the label.
+			</p>
+			<!-- ![Editing a node](/doc/images/Editingnode.png) -->
+			<p><img src="/doc/images/Editingnode.png" width="400" /></p>
+			<p>
+				See
+				<a href="#styling-the-map">Styling the map</a>
+				for more on changing the look of factors and links.
+			</p>
+			<h3 id="the-chat-window">The chat window</h3>
+			<p>
+				Clicking on the speech balloon at the bottom right opens up a chat window that you can use to type
+				messages to other participants in your room.
+			</p>
+			<!-- ![Chat window](/doc/images/ChatWindow.png) -->
+			<p><img src="/doc/images/ChatWindow.png" width="300" /></p>
+			<p>
+				If you haven’t provided your real name, the name at the top is initially randomly generated, but if you
+				click on it, you can substitute your own. You can write messages in the box at the bottom and send them
+				by clicking the paper plane button. Use the
+				<strong>X</strong>
+				to close the chat window.
+			</p>
+			<p>
+				You can choose to send your messages either to everyone or to one selected person (from among those
+				online).
+			</p>
+			<p>
+				If someone has sent you a message but your chat window is closed, the button will gently pulse to remind
+				you to open it:
+			</p>
+			<figure>
+				<img src="/doc/images/ChatWindowButton.gif" alt="Chat Window Button" />
+				<figcaption aria-hidden="true">Chat Window Button</figcaption>
+			</figure>
+			<h3 id="file-formats">File formats</h3>
+			<p>
+				The app can read files in its native format (files with the suffix ‘.prsm’), or in
+				<a href="http://graphml.graphdrawing.org/" target="_blank" rel="noreferrer">GRAPHML</a>
+				(.graphml),
+				<a href="https://en.wikipedia.org/wiki/Graph_Modelling_Language" target="_blank" rel="noreferrer">
+					GML
+				</a>
+				(.gml) or
+				<a href="https://en.wikipedia.org/wiki/Comma-separated_values" target="_blank" rel="noreferrer">
+					Comma Separated Values (CSV)
+				</a>
+				(.csv) formats. A CSV file must contain at least two columns of values. Each row represents a link. In
+				the first column is the label of the factor from which the link points, and in the second column is the
+				label of the factor the link is pointing to. This very simple format is designed to allow
+				straightforward imports from other software. Optionally, the third and fourth columns may contain an
+				integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top
+				left to bottom right as shown on the
+				<a href="#factors-tab">Factors tab</a>
+				). The fifth column may contain the style number for the link.
+			</p>
+			<p>
+				The app can create output files in the app’s own native format, as a GML file or as a CSV file. You can
+				also save an image of the map as a Portable Network Graphics (.png) file. The image shows the same view
+				of the map as you see on the screen (so, for example, it will not show factors that have been moved out
+				of the app window).
+			</p>
+			<h3 id="privacy-and-security">Privacy and security</h3>
+			<p>
+				The only way to join the room and see the network is by using the randomly generated room name, and the
+				chances of finding that name by trial and error is very, very small. The network data are stored on a
+				central server in encoded form. The server is located in Europe.
+			</p>
+			<h2 id="styling-the-map">Styling the map</h2>
+			<p>
+				fourThe view you see when you first open the app is intentionally very simple, but hidden away are many
+				more features. To access these, click on the last, Settings, button on the top bar:
+				<!-- ![Settings Button](/doc/images/SettingsButton.png) -->
+				<img src="/doc/images/SettingsButton.png" style="display: inline" width="20" />
+				. This will reveal a set of four tabs: Factors, Links, Netork and Analysis, with the Factors tab open.
+			</p>
+			<p>
+				The panel showing the tabs can moved across the network pane: drag it using the thin black strip at the
+				top of the panel above the tab buttons. This can be useful if the panel gets in the way of seeing the
+				network.
+			</p>
+			<h3 id="factors-tab">Factors tab</h3>
+			<!-- ![FactorsWindow](/doc/images/FactorsPanel.png) -->
+			<p><img src="/doc/images/FactorsPanel.png" width="250" /></p>
+			<p>
+				There are 9 sample styles for how factors can look. If you select a factor from the network and then
+				click on one of the 9 styles, the factor will change to resemble the style. As a short cut, if you click
+				on the ‘Select all factors’ button at the bottom, and then click on a style, all the factors will change
+				to the chosen style.
+			</p>
+			<p>Double clicking on any of the 9 styles opens a dialog box to change the style:</p>
+			<!-- ![FactorStyleDialog](/doc/images/FactorStyle.png) -->
+			<p><img src="/doc/images/FactorsStyle.png" width="600" /></p>
+			<p>
+				There are options to change the colour of the background (the ‘fill’), the border and the font, to
+				change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or
+				dotted or none, and to change the font size of the label.
+			</p>
+			<p>
+				If you right click (or Control click) on one of the style samples, there is a menu with which you can
+				either select all the factors that have that style, or hide all those factors from view.
+			</p>
+			<h4 id="legend">Legend</h4>
+			<p>
+				You can also change the name of the style. If you do so, this name will appear on the network pane as
+				one item in the ‘legend’. So, for example, if you had some factors that are Activities, some that are
+				Change mechanisms, some Outcomes and some Impacts, you could give four of the styles these names, colour
+				their fills red, orange, yellow and blue, and then apply these styles to the appropriate factors in the
+				network. The legend will be automatically displayed on the network pane:
+			</p>
+			<figure>
+				<img src="/doc/images/Legend.png" alt="Legend" />
+				<figcaption aria-hidden="true">Legend</figcaption>
+			</figure>
+			<p>The legend can be moved by dragging the top of the Legend pane.</p>
+			<h3 id="links-tab">Links tab</h3>
+			<p>
+				The Links tab is very similar to the Factors tab, except that it relates to the links. There are 9 link
+				styles and each of these can be changed by double clicking the link style. There are options to change
+				the colour of the link, whether it has an arrow at the end, whether it is solid, dashed or dotted, and
+				to add a link label.
+			</p>
+			<!-- ![LinksPanel](/doc/images/LinksPanel.png) -->
+			<p><img src="/doc/images/LinksPanel.png" width="250" /></p>
+			<h3 id="network-tab">Network tab</h3>
+			<p>
+				The Network tab enables you to change many aspects of the network visualisation and what is shown in the
+				window.
+			</p>
+			<p>
+				It is sometimes useful to get PSRM to layout factors using an automatic procedure and then adjust their
+				positions manually to achieve the desired placement. PRSM provides several layout algorithms:
+			</p>
+			<ul>
+				<li>
+					The
+					<em>trophic</em>
+					algorithm helps to reveal
+					<a
+						href="https://royalsocietypublishing.org/doi/10.1098/rsos.201138"
+						target="_blank"
+						rel="noreferrer"
+					>
+						the causal structure of the map
+					</a>
+					. With the trophic layout, the factors are arranged along the horizontal axis according to their
+					positions (their trophic levels) in the overall causal flow within the system, making it easier to
+					identify upstream and downstream factors; the linked chains of influence that connect them; and
+					where factors act on the system within this overall causal structure (which may be upstream or
+					downstream). It will re-arrange the factors and links to create a layout such that all the links
+					point from left to right and are arranged according to
+					<a href="https://en.wikipedia.org/wiki/Trophic_level" target="_blank" rel="noreferrer">
+						trophic level
+					</a>
+					.
+				</li>
+				<li>
+					<em>Fan</em>
+					Arranges the factors in a fan shape starting from a selected factor. You need to select at least one
+					factor before using this layout option. It is most useful after displaying the factors up or
+					downstream from a selected factor (see the
+					<a href="#analysis">Analysis</a>
+					section below for an explanation of Up and Down stream).
+				</li>
+				<li>
+					<em>Barnes Hut</em>
+					This is a ‘gravity’ algorithm. Each factor is modelled as though it has a mass that repulses all
+					other factors with an inverse square, while the links are modelled as springs that pull the factors
+					together. The algorithm is iterative, i.e. it tries repeatedly to find the best arrangement of
+					factors that balance the repulsive forces between the factors and the attractive forces from the
+					springs.
+				</li>
+				<li>
+					<em>Force Atlas 2</em>
+					This is a variation of the Barnes Hut algorithm in which the repulsion between the factors is linear
+					rather than qudratric.
+				</li>
+				<li>
+					<em>Repulsion</em>
+					Another variation of Barnes Hut.
+				</li>
+			</ul>
+			<p>
+				There is no best layout algorithm that works for all networks; you need to see which one looks best for
+				your map. If you don’t like the effect of an algorithm, you can choose another one, or use the Undo
+				button on the top bar to revert the map to its original layout.
+			</p>
+			<p>On the Network tab, there are controls for:</p>
+			<!-- ![NetworkPanel](/doc/images/NetworkPanel.png) -->
+			<p><img src="/doc/images/NetworkPanel.png" width="250" /></p>
+			<ul>
+				<li>
+					<strong>Auto Layout</strong>
+					Choose which layout algorithm to apply. The algorithm will then adjust the positions of the factors
+					and links and, once complete, the selection will revert to ‘Off’, leaving the factors where the
+					algorithm has placed them.
+				</li>
+				<li>
+					<strong>Snap to grid</strong>
+					When ON, factors shift to be at the intersection of invisible grid lines. This makes it much easier
+					to line up factors neatly.
+				</li>
+				<li>
+					<strong>Link</strong>
+					Links can either be drawn using a curved line or a straight line. This control swaps between the
+					two.
+				</li>
+				<li>
+					<strong>Background</strong>
+					This changes the colour of the background of the network pane. Click on the colour well to display
+					possible colours. The default is white, but a black background can also be effective.
+				</li>
+				<li>
+					<strong>Show legend</strong>
+					If the factor and link styles are given names (other than ‘Sample’), the styles and their names will
+					be shown in a panel at the left bottom of the network pane headed ‘Legend’, when this switch is ON.
+					See the description of the
+					<a href="#factors-tab">Factors tab</a>
+					.
+				</li>
+				<li>
+					<strong>Show drawing layer</strong>
+					Puts the network pane into drawing mode, so that background shapes, images and text can be added.
+					See
+					<a href="#drawing-mode">Drawing Mode</a>
+					for more details.
+				</li>
+				<li>
+					<strong>Show other users</strong>
+					When ON, the positions of other users’ mouse pointers are shown in real time.
+					<br />
+				</li>
+				<li>
+					<strong>Show history</strong>
+					When ON, a panel displaying every change to a factor or link (adding a factor or link, editing it or
+					deleting it) is shown. It is possible to ‘rollback’ the map to the state it was in before a change.
+					This can be quicker than repeatedly undoing changes with the Undo button. To rollback, click on the
+					[SYMBOL]. You will be asked to confirm the action.
+				</li>
+				<li>
+					<strong>Show notes</strong>
+					When a factor or link is selected, normally a Notes panel pops up at the bottom right of the map.
+					Turning this switch OFF prevents the Notes panels from being displayed.
+				</li>
+			</ul>
+			<h3 id="analysis-tab">Analysis tab</h3>
+			<p>
+				The Analysis tab allows you to view portions of the map and to cluster factors to help with the analysis
+				of the network (see the
+				<a href="#analysis">Analysis</a>
+				section below for help on how this can be useful).
+			</p>
+			<p><img src="/doc/images/AnalysisPanel.png" width="250" /></p>
+			<p>The panel is divided into five sections:</p>
+			<ul>
+				<li>
+					<strong>Show only neighbouring Factors</strong>
+					If you first select a factor (or several factors) and then one of these options, all factors in the
+					network will be hidden, except for those 1, 2, or 3 links away from the selected factor(s). This is
+					useful when you want to focus on just one part of a large network.
+				</li>
+				<li>
+					<strong>Show only up or downstream Factors</strong>
+					If you first select a factor (or several factors) and then one of these options, all factors in the
+					network will be hidden, except for those ‘downstream’ (i.e. linked to the selected factor(s) by
+					following links directed
+					<em>away</em>
+					from those factor(s)), or those ‘upstream’ (i.e. linked to the selected factor(s) by following links
+					directed
+					<em>towards</em>
+					those factor(s)).
+				</li>
+				<li>
+					<strong>Show paths between</strong>
+					If you first select at least two factors, and then
+					<ul>
+						<li>
+							<strong>Show all paths between</strong>
+							, only those links that lie on a path between the selected factors will be shown. A ‘path’
+							is a set of links that, following the direction of the arrows, connects two factors. There
+							may be several ways of getting from one factor to another; if so, all the paths are shown.
+							All factors that do not lie on the connecting paths are hidden.
+						</li>
+						<li>
+							<strong>Show shortest path between</strong>
+							displays only the path with the fewest links between the selected factors (if there are two
+							shortest paths with same number of links, only one, chosen arbitrarily, is shown).
+						</li>
+					</ul>
+					For both these options, all the selected factors in turn are used as the starting point for the
+					paths, and all other factors are used as the end points. For example, if factors A, B and C are
+					selected, paths from A to B, A, to C, B to A, B to C , C to A and C to B will be shown (if they
+					exist). This has the incidental use of identifying ‘loops’ that could indicate feedbacks. If there
+					is a path from A to B
+					<em>and</em>
+					a path from B to A, the effect of A on B will feedback on A.
+				</li>
+			</ul>
+			<p>
+				Here is an example. The first is the original network.
+				<img src="/doc/images/ShowAll.png" width="250" />
+				The second is the same network with
+				<strong>Show all paths</strong>
+				between Factors 1 and 7.
+				<img src="/doc/images/ShowAllPaths.png" width="250" />
+				The third is the same network with
+				<strong>Show shortest path</strong>
+				between Factors 1 and 7.
+				<img src="/doc/images/ShowShortestPath.png" width="250" />
+			</p>
+			<p>
+				The above three options can be combined. For example, the shortest path between two Factors option may
+				display two paths: one with a couple of links and another feedback path going in the reverse direction
+				that winds around the map and includes many links. Because it consists of many links, the latter path
+				may not be of much interest. Choosing both
+				<strong>Show Shortest path</strong>
+				and
+				<strong>Show only Factors 2 links away</strong>
+				will display just the direct path.
+			</p>
+			<ul>
+				<li>
+					<p>
+						<strong>Size Factors to</strong>
+						This is used to change the size of the factors to be proportional to one of a set of metrics:
+						the number of inputs (the ‘in-degree’), the number of outputs (the ‘out-degree’), the leverage
+						(ratio of inputs to outputs), or the
+						<a href="https://en.wikipedia.org/wiki/Betweenness_centrality" target="_blank" rel="noreferrer">
+							betweenness centrality
+						</a>
+						. Note that the factors are always drawn large enough to accommodate their labels, and so the
+						size may not be exactly proportional to the metric. The values of these metrics for a factor are
+						shown in its Notes panel.
+					</p>
+				</li>
+				<li>
+					<p>
+						<strong>Cluster</strong>
+						With large maps, it is sometimes useful to aggregate factors into groups, thus displaying the
+						map at a higher level of abstraction. For example, all the factors relating to the effect of
+						climate change might be replaced on the map by one ‘Climate Change Cluster’ factor, and
+						similarly, all the factors concerned with transport replaced by one Transport factor. Links that
+						used to go to factors outside the cluster are replaced by links that go to the new Cluster
+						factor (and likewise for links that go from the clustered factors to factors outside the
+						cluster).
+					</p>
+					<p>For example, here is a simple map before clustering:</p>
+					<p><img src="/doc/images/BeforeClustering.png" width="600" /></p>
+					<p>and here is the same map afterclustering by Style:</p>
+					<p><img src="/doc/images/Clustered.png" width="600" /></p>
+					<p>Links to and from cluster factors are labelled with the number of links that they aggregate.</p>
+					<p>
+						Clustering is done according to the values of a clustering attribute - all factors with the same
+						value for this attribute are joined into the same cluster. The Cluster pulldown menu offers as
+						standard, Style (i.e. the factors’ style as set in the factor tab) and Colour (i.e. the colour
+						of the factors’ backgrounds) as possible attributes with which to cluster. In addition, bespoke
+						attributes can be used by creating a new column in the Data View and giving each factor a value
+						there (see the section on the
+						<a href="#data-view">Data View</a>
+						for how to create attributes). These additional atributes are automatically added to Cluster
+						pull-down menu when they are created.
+					</p>
+					<p>
+						Once the map has been clustered, a cluster factor can be ‘unclustered’ (its component factors
+						revealed) by right (Control) clicking it, and reclustered by right (Control) clicking any of the
+						component factors. To uncluster the map as a whole, select None from the Cluster pull-down menu.
+					</p>
+				</li>
+			</ul>
+			<h2 id="drawing-mode">Drawing Mode</h2>
+			<p>
+				Switching ‘Show drawing layer’ ON reveals a group of buttons on the left that enable you to draw shapes,
+				write text, and import images onto the network background.
+			</p>
+			<figure>
+				<img src="/doc/images/drawingLayer.png" alt="Drawing layer" />
+				<figcaption aria-hidden="true">Drawing layer</figcaption>
+			</figure>
+			<p>
+				In drawing mode, the background has a faint square grid to help line up your drawing. When you draw, you
+				are ‘painting’ on the background, which means that the shapes and text you apply can only be moved by
+				erasing them and redrawing.
+			</p>
+			<p>
+				When you click on a drawing button, a small dialog box appears that can be used to adjust the drawing
+				tool. For instance, the Line tool, which draws straight lines, has options for the line thickness and
+				line colour.
+			</p>
+			<p>To stop using a tool, either click on another one, or click a second time on that tool’s button.</p>
+			<p>The drawing tools are, in order from top to bottom:</p>
+			<ul>
+				<li>
+					<strong>Line</strong>
+					draws straight lines. There are options for the line width, the colour of the line, and whether the
+					line must be along the axes, i.e. either horizontal or vertical. To use the tool, click on the
+					background at the desired start position, drag across to the line end and lift the mouse pointer.
+				</li>
+				<li>
+					<strong>Rectangle</strong>
+					The options are the width of the border around the rectangle and its colour, the colour of the
+					inside of the rectangle (the ‘fill’ colour) and whether it should have rounded or sharp corners. To
+					draw a rectangle, click where one corner should be, then drag out to where the opposite corner
+					should be and lift the pointer.
+				</li>
+				<li>
+					<strong>Text</strong>
+					Use this tool to add fixed text to the background. The options are the colour and size of the text.
+					Click on the background to show a text box into which you can type. You can move the box by dragging
+					on the grey border and expand it by dragging the black square at the bottom right corner. Click
+					anywhere outside the box to finish.
+				</li>
+				<li>
+					<strong>Pencil</strong>
+					draws freehand lines.
+				</li>
+				<li>
+					<strong>Marker</strong>
+					draws lines like a marker or highlighter pen.
+				</li>
+				<li>
+					<strong>Eraser</strong>
+					removes everything it passes over.
+				</li>
+				<li>
+					<strong>Image</strong>
+					Clicking on this tool gives you a file chooser to select an image file (picture) from your computer
+					- JPG, PNG and GIF formats are accepted. When the image has been placed on the background, you can
+					drag it to where you want it, and resize it by dragging on the small black square at the bottom
+					right. Click anywhere outside the image to fix it to the background.
+				</li>
+				<li>
+					<strong>Undo</strong>
+					This tool will undo the effect of the last drawing (e.g. if you have just placed an image on the
+					background, it will remove the image, or if you have drawn a line with the pencil, it will undo that
+					line). Each click of the Undo button removes a previous drawing.
+				</li>
+			</ul>
+			<h2 id="analysis">Analysis</h2>
+			<p>
+				Once you have a map, you may want to examine it for themes and patterns. This is easiest if you examine
+				portions of the map, or ‘sub-maps’, one at a time. As Barbrook-Johnson and Penn explain (
+				<a href="https://doi.org/10.1177/1356389020976153" target="_blank" rel="noreferrer">
+					Barbrook-Johnson, P., &amp; Penn, A. (2021). Participatory systems mapping for complex energy policy
+					evaluation. Evaluation, 27(1), 57–79.
+				</a>
+				), network analysis can be combined with subjective information to answer a range of questions, as
+				indicated in the table below.
+			</p>
+			<table class="analysis">
+				<thead>
+					<tr class="header">
+						<th><strong>Way to start</strong></th>
+						<th><strong>Starting point options</strong></th>
+						<th><strong>How to build</strong></th>
+						<th><strong>Interpretation</strong></th>
+						<th><strong>How to do it with PRSM</strong></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="odd">
+						<td rowspan="9"><strong>Stakeholder-suggested factors</strong></td>
+						<td rowspan="3">Intervention or controllable factors</td>
+						<td>Downstream factors and edges</td>
+						<td>What is the intervention or controllable factor affecting? Unexpected indirect effects?</td>
+						<td>Select the intervention factor and choose ‘Show only Factors downstream’</td>
+					</tr>
+					<tr class="even">
+						<td>For multiple factors create a union or intersection of multiple downstream submaps</td>
+						<td>How are multiple interventions complementing or clashing with each other?</td>
+						<td>Select all the interventions and choose ‘Show only Factors downstream’</td>
+					</tr>
+					<tr class="odd">
+						<td>
+							Paths between intervention factors and outcome factors, including ego networks of factors on
+							paths
+						</td>
+						<td>
+							What does the intervention rely on to achieve its goals? What wider context might affect it?
+						</td>
+						<td>
+							Select all the factors on the path(s) between the intervention(s) and the outcomes(s), and
+							choose ‘Show only Factors 1 link away’ (or 2 or 3 links away)
+						</td>
+					</tr>
+					<tr class="even">
+						<td rowspan="4">Important or outcome factors</td>
+						<td>Upstream factors and edges</td>
+						<td>
+							What is influencing the thing we care about? Constraints? Control? Buffered or buffeted?
+						</td>
+						<td>Select the intervention factor and choose ‘Show only Factors upstream’</td>
+					</tr>
+					<tr class="odd">
+						<td>
+							For multiple factors create a union or intersection of ego networks. Or, pull out paths
+							between outcomes.
+						</td>
+						<td>What trade-offs or synergies might there be between achieving the things we care about?</td>
+						<td>Select all the interventions and choose ‘Show only Factors upstream’</td>
+					</tr>
+					<tr class="even">
+						<td>
+							<p>Ego networks</p>
+							<p> </p>
+						</td>
+						<td>
+							What is influencing the thing we care about, what does it influence and how do those things
+							interact?
+						</td>
+						<td>Select the factor and choose ‘Show only Factors 1 link away’ (or 2 or 3 links away)</td>
+					</tr>
+					<tr class="odd">
+						<td>Union or intersection of upstream factors and edges</td>
+						<td>
+							What factors influence multiple outcomes? Identify potential levers in the system,
+							co-benefits, synergies, or risks.
+						</td>
+						<td>Select all the outcome factors and choose ‘Show only Factors upstream’</td>
+					</tr>
+					<tr class="even">
+						<td rowspan="2">Vulnerable to change factors</td>
+						<td>Up and/or downstream factors and edges</td>
+						<td>What might mitigate change in this factor? What impact might change have?</td>
+						<td>
+							Select one or more factors and choose ‘Show only Factors 1 link away’ (or 2 or 3 links away)
+						</td>
+					</tr>
+					<tr class="odd">
+						<td>Union/intersection multiple downstream sub maps</td>
+						<td>Are there compound risks, how might interventions interact with external change?</td>
+						<td>Select factors and choose ‘Show only Factors downstream’</td>
+					</tr>
+					<tr class="even">
+						<td rowspan="5"><strong>System-suggested factors</strong></td>
+						<td>Influential (i.e. many outgoing connections)</td>
+						<td>Downstream factors and edges</td>
+						<td>What is this influential thing affecting? Vulnerability or lever?</td>
+						<td>
+							First, set ‘Size Factors to: Outputs’ to see which factors have many outgoing connections.
+							Then select an influential factor and choose ‘Show only Factors downstream’.
+						</td>
+					</tr>
+					<tr class="odd">
+						<td rowspan="2">Central to the map (i.e. well-connected, or bridging)</td>
+						<td>Downstream and/or upstream factors and edges</td>
+						<td>
+							What is influencing this central factor? What influence does it have? Bottleneck, bridge,
+							transmitter?
+						</td>
+						<td>
+							First, set ‘Size Factors to: Centrality’ to see which factors are central. Then select a
+							central factor and choose ‘Show only Factors upstream’.
+						</td>
+					</tr>
+					<tr class="even">
+						<td>Ego networks</td>
+						<td>What does this factor bridge or connect?</td>
+						<td>
+							First, set ‘Size Factors to: Centrality’ to see which factors are central. Then select a
+							central factor and choose ‘Show only Factors 1 link away’.
+						</td>
+					</tr>
+					<tr class="odd">
+						<td>Influenced (i.e. many incoming connections)</td>
+						<td>Upstream factors and edges</td>
+						<td>What is influencing this highly influenced factor? Buffered or buffeted?</td>
+						<td>
+							First, set ‘Size Factors to: Inputs’ to see which factors have many incoming connections.
+							Then select a factor and choose ‘Show only Factors upstream'.
+						</td>
+					</tr>
+					<tr class="even">
+						<td>Unusual network property</td>
+						<td>Any of the above</td>
+						<td>Does this factor play an important but counter-intuitive role in the system? </td>
+						<td>
+							Set ‘Size Factors to: Leverage’ to see which factors have either many incoming but few
+							outgoing connections or few outgoing but many incoming connections.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<p>With thanks to Alex Penn and Pete Barbrook-Johnson for the original of this table.</p>
+			<h2 id="data-view">Data View</h2>
+			<p>
+				As well as the map view described above, PRSM also provides an alternative Data View. This shows the
+				factors and links in tables like a spreadsheet. You can make changes in the Data View and the changes to
+				factors and links will immediately be passed over to the Map view. For some tasks, the Data View is more
+				convenient than the Map, especially when one wants to summarise or make changes to lots of factors or
+				links at the same time.
+			</p>
+			<p>
+				To see a Data View, open a PRSM map, click on the Share button at the top, check the box labelled ‘Data
+				View’ in the dialog that appears, and then click on the ‘Copy to clipboard’ button to copy the URL
+				shown. Open a new tab in your browser and paste the URL into the address bar.
+			</p>
+			<p><img src="/doc/images/DataView.png" /></p>
+			<p>
+				The main part of the Data View when opened shows a table with one row for each of the factors in the
+				map. On the left are the factors’ labels. To the right, there is a group of columns that show the format
+				of the factors, a group of columns with various statistics about the factors and column showing the
+				Notes attached to the factors. At the bottom of the table are summaries (counts of how many factors
+				there are, the average betweenness centrality, and so on). If there are too many factors to fit in the
+				window, you can scroll the table to the top or bottom.
+			</p>
+			<p>
+				Only the first column of the Fornat and Statistics column groups are shown when the Data View is first
+				opened. To reveal the other columns in each group, click on the
+				<img src="/doc/images/ExpandSymbol.png" style="display: inline" width="20" />
+				to the right of the group heading. Similarly, the Notes column can be expanded to show more of the
+				Notes.
+			</p>
+			<p><img src="/doc/images/ExpandedDataView.png" /></p>
+			<p>
+				Use the small triangles in the column headings to sort the table according to the values in that column
+				- one click for ascending and two for descending.
+			</p>
+			<p>
+				The values in columns with headings in black letters can be edited from the Data View, but the ones in
+				columns with grey headings are read only.
+			</p>
+			<p>Some columns need further explanation:</p>
+			<ul>
+				<li>
+					<strong>Select</strong>
+					If you edit a value in a row that has a check mark (tick) in the Select column, the same edit will
+					be made in all the other rows that are checked. For example, if you check three rows and change the
+					value of the Shape column in any one of the three Selected rows to ‘ellipse’, the other two rows’
+					shape will also change to ‘ellipse’. This is a convenient way to change multiple factors at once.
+					Clicking the check box in the heading will Select all the factors (or unselect them all if they are
+					all selected).
+				</li>
+				<li>
+					<strong>Style</strong>
+					The values in this column are the styles assigned in the Style panel in the Map view. ‘–’ is shown
+					for factors that use a style that has not been named.
+				</li>
+				<li>
+					<strong>Hidden</strong>
+					A factor with a check (tick) in this column is not displayed in the Map view. The Links to that
+					factor are also hidden. For instance, when you use the ‘Show only factors upstream’ feature in the
+					Network panel in the Map view, this hides the factors that are downstream. However, using this
+					column in the Data view is more flexible: you can hide any factor on the map. Clicking the check box
+					in the heading will Hide all the factors (so nothing will show in the Map view). Unchecking it will
+					‘unhide’ all factors.
+				</li>
+				<li>
+					<strong>Relative size</strong>
+					This column can be used to alter the size (width and height) of factors on the map. Enter a number
+					between 0 and 10 to control the size (e.g. a factor with a relative size of 10 will be shown as much
+					bigger on the map than a factor with relative size 1).
+				</li>
+				<li>
+					<strong>Fill colour</strong>
+					Clicking on the cell will open a colour editor that you can use to change the background colour of
+					the factor.
+				</li>
+				<li>
+					<strong>Notes</strong>
+					Clicking on a cell in the Notes column will display a dialog in the middle of the window in which
+					you can create or edit a Note. Click anywhere outside the dialog box to save the edit.
+				</li>
+			</ul>
+			<p>
+				Above the table, there are tabs labelled ‘Factors’ and ‘Links’. Clicking the Links tab displays a
+				similar table but with one row for each Link:
+			</p>
+			<figure>
+				<img src="/doc/images/DataViewLinksTab.png" alt="Data View Links Tab" />
+				<figcaption aria-hidden="true">Data View Links Tab</figcaption>
+			</figure>
+			<p>
+				Most of the cells in the Format section of these tables are editable (columns with headings in
+				<strong>bold</strong>
+				have editable cells; those with headings in grey are not). To edit a cell, click it. Depending on the
+				column, you can then edit the text (e.g. the Label), select from a drop down menu (e.g. Shape) or enter
+				a number (e.g. Font size).
+			</p>
+			<h3 id="top-button-bar">Top button bar</h3>
+			<p>At the top right is a row of buttons. These are:</p>
+			<ul>
+				<li>
+					<strong>Add column</strong>
+					Clicking on this button will add an extra column on the right of the Factcor table. This can be used
+					to add any ‘attribute’ you wish to the factors. You can edit the heading to give the column an
+					appropriate title, and then enter numbers or text into the cells. For example, you might use the
+					extra column to record the importance of factors. Right click the column heading to see a menu to
+					delete the column.
+				</li>
+			</ul>
+			<figure>
+				<img src="/doc/images/Attribute.png" alt="Filter" />
+				<figcaption aria-hidden="true">Filter</figcaption>
+			</figure>
+			<ul>
+				<li>
+					<strong>Undo</strong>
+					Restores the previous edit of a cell value.
+				</li>
+				<li>
+					<strong>Redo</strong>
+					Retracts a previous ‘undo’.
+				</li>
+				<li>
+					<strong>Share</strong>
+					Allows you to copy the web link you need to open a Map view.
+				</li>
+				<li>
+					<strong>Copy table</strong>
+					Clicking on this button copies the whole table to the clipboard. You can then paste it into a
+					spreadsheet such as Microsoft Excel for further analysis.
+				</li>
+				<li>
+					<strong>Filter</strong>
+					This enables you to filter rows according to some condition - for example, you might filter out all
+					the rows that have labels that do not have the word ‘climate’ in them. Clicking on the button
+					reveals a dialog just above the table:
+				</li>
+			</ul>
+			<figure>
+				<img src="/doc/images/Filter.png" alt="Filter" />
+				<figcaption aria-hidden="true">Filter</figcaption>
+			</figure>
+			<p>
+				The first drop down menu includes all the columns (except those that are for colours; you cannot filter
+				by colour). The second drop down menu has a set of conditions to apply to the values in the filter
+				column. To the right of this is a text box where you can complete the condition. For example, to filter
+				out all but those factors that have the word ‘climate’ in their label, you would use:
+			</p>
+			<p>The rightmost ☒ is a button to dismiss the filter (or you can click the filter button again).</p>
+			<ul>
+				<li>
+					<strong>Help</strong>
+					brings you to this documentation.
+				</li>
+			</ul>
+			<h3 id="using-the-filter-and-select">Using the Filter and Select</h3>
+			<p>
+				The Filter and the Select column can be used in combination. For example, suppose you wanted to display
+				all the factors that influenced 2 or more other factors larger than the rest, to emphasise them in the
+				Map view. This is what you could do:
+			</p>
+			<ol type="1">
+				<li>Click on the Filter button. Set up a filter with Out-degree &gt;= 2</li>
+				<li>Click on the Select all check box at the top of the first column</li>
+				<li>Click on one of the cells in the Relative Size column. Edit the value to ‘5’</li>
+				<li>
+					Look at the Map view. Observe that all the factors with 3 or more links pointing away from them are
+					now larger than the rest.
+				</li>
+			</ol>
+			<figure>
+				<img src="/doc/images/OutDegreeFilter.png" alt="OutDegreeFilter" />
+				<figcaption aria-hidden="true">OutDegreeFilter</figcaption>
+			</figure>
+			<p>
+				Another, more complicated example: Show only those factors in the map with a value of Betweenness
+				Centrality greater than some threshold, together with the links that go between these factors, and hide
+				all other factors and Links.
+			</p>
+			<ol type="1">
+				<li>
+					In the Data view, sort the factors by Betweenness (click on the sorting triangle in the column
+					header).
+				</li>
+				<li>
+					Click the checkbox in the Hidden column header. This hides every factor in the map (if you glance at
+					the map now, you’ll find that it is apparently empty)
+				</li>
+				<li>
+					Open the Filter (click on the Filter button at the top), and filter using ‘Betweenness’ ‘&gt;=’ ‘70’
+					(or whatever threshold value you choose).
+				</li>
+				<li>
+					Uncheck the cells in the Hidden column in each of the rows that are now visible. This reveals the
+					factors on the Map that have a Betweenness Centrality greater than the threshold, and the Links
+					between them.
+				</li>
+			</ol>
+			<h2 id="source-code">Source Code</h2>
+			<p><em>(The following is intended for developers who want to extend PRSM)</em></p>
+			<p>
+				The program code is available on
+				<a href="https://github.com/micrology/prsm" target="_blank" rel="noreferrer">GitHub</a>
+				.
+			</p>
+			<p>
+				The javascript (ES6) code in sub-directory
+				<code>js</code>
+				is divided into several modules: those that handle the main network pane (
+				<code>prsm.js</code>
+				), the background painting functions (
+				<code>paint.js</code>
+				), editing the styles (
+				<code>styles.js</code>
+				) (the default styles are in
+				<code>samples.js</code>
+				), the initial tour (
+				<code>tutorial.js</code>
+				), does tophic layout (
+				<code>trophic.js</code>
+				), does clustering (
+				<code>cluster.js</code>
+				), calulates the betweenness centrality (
+				<code>betweenness.js</code>
+				) and provides shared utility functions (
+				<code>utils.js</code>
+				). The HTML file that displays in the browser is in the
+				<code>html</code>
+				directory.
+			</p>
+			<p>
+				PRSM uses two important packages:
+				<a href="https://github.com/yjs/yjs" target="_blank" rel="noreferrer"><code>yjs</code></a>
+				and
+				<a href="https://visjs.org/" target="_blank" rel="noreferrer"><code>vis-network</code></a>
+				. The former handles the sharing between participants’ browsers and the latter draws the network. A few
+				other packages are used for dealing with touch input (
+				<a href="https://hammerjs.github.io/" target="_blank" rel="noreferrer"><code>Hammer</code></a>
+				), drawing emojis, and parsing XML file input.
+			</p>
+			<p>
+				These components are assembled using
+				<a href="https://parceljs.org/" target="_blank" rel="noreferrer"><code>parcel</code></a>
+				and the bundled file is placed in the
+				<code>dist</code>
+				directory. So that users have an easy URL to access (i.e. not needing to include
+				<code>dist</code>
+				in the link), there is an
+				<code>.htaccess</code>
+				file that rewrites URLs from what the user puts into their browser to the correct location.
+			</p>
+			<p>
+				To install the code, use
+				<code>git</code>
+				to clone the
+				<a href="https://github.com/micrology/prsm" target="_blank" rel="noreferrer">repo</a>
+				to your local disk and change to the cloned directory. Then install the required packages with
+			</p>
+			<div class="sourceCode" id="cb1">
+				<pre
+					class="sourceCode bash"
+				><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install</span></code></pre>
+			</div>
+			<p>and build the distribution with</p>
+			<div class="sourceCode" id="cb2">
+				<pre
+					class="sourceCode bash"
+				><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run build</span></code></pre>
+			</div>
+			<p>
+				Documentation can be found in the
+				<code>doc</code>
+				directory.
+			</p>
+			<p>
+				See
+				<code>package.json</code>
+				for other npm commands.
+			</p>
+			<h2 id="acknowledgements">Acknowledgements</h2>
+			<p>
+				With thanks to all who helped inspire, suggest features for, comment on, and test PRSM, including the
+				members of
+				<a href="https://www.cecan.ac.uk/" target="_blank" rel="noreferrer">CECAN</a>
+				,
+				<a href="https://cress.soc.surrey.ac.uk/" target="_blank" rel="noreferrer">CRESS</a>
+				,
+				<a href="https://www.risksol.co.uk/" target="_blank" rel="noreferrer">Risk Solutions</a>
+				, and Robin Gilbert.
+			</p>
+			<h2 id="bug-reports-and-feature-requests">Bug reports and feature requests</h2>
+			<p>
+				Please report problems, suggestions and praise to
+				<a href="mailto:nigel@prsm.uk">nigel@prsm.uk</a>
+			</p>
+		</div>
+		<script src="/node_modules/scrollnav/dist/scrollnav.min.umd.js"></script>
+		<script>
+			window.addEventListener('load', () => {
+				const content = document.querySelector('#contents')
+				scrollnav.init(content, {subSections: 'h3', animated: false})
+			})
+		</script>
+	</body>
 </html>

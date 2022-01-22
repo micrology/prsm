@@ -793,7 +793,8 @@ function draw() {
 				// for some weird reason, vis-network copies the group properties into the
 				// node properties before calling this fn, which we don't want.  So we
 				// revert to using the original node properties before continuing.
-				item = data.nodes.get(item.id); console.log(item.label)
+				item = data.nodes.get(item.id)
+				console.log(item.label)
 				item.modified = timestamp()
 				let point = {x: event.offsetX, y: event.offsetY}
 				editNode(item, point, cancelEdit, callback)
@@ -902,6 +903,7 @@ function draw() {
 	network.on('click', (params) => {
 		if (/gui/.test(debug)) console.log('**click**')
 		let keys = params.event.pointers[0]
+		if (!keys) return
 		if (keys.metaKey) {
 			// if the Command key (on a Mac) is down, and the click is on a node/edge, log it to the console
 			if (params.nodes.length == 1) {
@@ -976,7 +978,7 @@ function draw() {
 	network.on('deselectEdge', function () {
 		if (/gui/.test(debug)) console.log('deselectEdge')
 		hideNotes()
-		clearStatusBar()
+		showSelected()
 	})
 	network.on('oncontext', function (e) {
 		let nodeId = network.getNodeAt(e.pointer.DOM)
@@ -1213,22 +1215,27 @@ export function logHistory(action, actor) {
 	)
 	dirty = true
 }
-
+/**
+ * draw badges (icons) around Factors and Links
+ * @param {CanvasRenderingContext2D} ctx NetPane canvas context
+ */
 function drawBadges(ctx) {
+	// padlock for locked factors
 	data.nodes
-	.get()
-	.filter((node) => !node.hidden && node.fixed)
-	.forEach((node) => {
-		let box = network.getBoundingBox(node.id)
-		drawLock(ctx, box.left - 10, box.top)
-	})
+		.get()
+		.filter((node) => !node.hidden && node.fixed)
+		.forEach((node) => {
+			let box = network.getBoundingBox(node.id)
+			drawLockBadge(ctx, box.left - 10, box.top)
+		})
 	if (!showNotesToggle) return
+	// note card for Factors and Links with Notes
 	data.nodes
 		.get()
 		.filter((node) => !node.hidden && node.note && node.note != 'Notes')
 		.forEach((node) => {
 			let box = network.getBoundingBox(node.id)
-			drawBadge(ctx, box.right, box.top)
+			drawNoteBadge(ctx, box.right, box.top)
 		})
 	let changedEdges = []
 	data.edges.get().forEach((edge) => {
@@ -1244,7 +1251,7 @@ function drawBadges(ctx) {
 			changedEdges.push(edge)
 			edge.arrows.middle.enabled = true
 			edge.arrows.middle.type = 'image'
-			edge.arrows.middle.src = elem('badge').src
+			edge.arrows.middle.src = noteImage.src
 		} else if (
 			(!edge.note || (edge.note && edge.note == 'Notes')) &&
 			edge.arrows &&
@@ -1258,17 +1265,19 @@ function drawBadges(ctx) {
 	})
 	data.edges.update(changedEdges)
 }
-function drawBadge(ctx, x, y) {
+function drawNoteBadge(ctx, x, y) {
 	ctx.beginPath()
 	ctx.drawImage(noteImage, Math.floor(x), Math.floor(y))
 }
 
 var noteImage = new Image()
-noteImage.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktY2FyZC10ZXh0IiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik0xNC41IDNhLjUuNSAwIDAgMSAuNS41djlhLjUuNSAwIDAgMS0uNS41aC0xM2EuNS41IDAgMCAxLS41LS41di05YS41LjUgMCAwIDEgLjUtLjVoMTN6bS0xMy0xQTEuNSAxLjUgMCAwIDAgMCAzLjV2OUExLjUgMS41IDAgMCAwIDEuNSAxNGgxM2ExLjUgMS41IDAgMCAwIDEuNS0xLjV2LTlBMS41IDEuNSAwIDAgMCAxNC41IDJoLTEzeiIvPgogIDxwYXRoIGQ9Ik0zIDUuNWEuNS41IDAgMCAxIC41LS41aDlhLjUuNSAwIDAgMSAwIDFoLTlhLjUuNSAwIDAgMS0uNS0uNXpNMyA4YS41LjUgMCAwIDEgLjUtLjVoOWEuNS41IDAgMCAxIDAgMWgtOUEuNS41IDAgMCAxIDMgOHptMCAyLjVhLjUuNSAwIDAgMSAuNS0uNWg2YS41LjUgMCAwIDEgMCAxaC02YS41LjUgMCAwIDEtLjUtLjV6Ii8+Cjwvc3ZnPg=='
+noteImage.src =
+	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktY2FyZC10ZXh0IiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik0xNC41IDNhLjUuNSAwIDAgMSAuNS41djlhLjUuNSAwIDAgMS0uNS41aC0xM2EuNS41IDAgMCAxLS41LS41di05YS41LjUgMCAwIDEgLjUtLjVoMTN6bS0xMy0xQTEuNSAxLjUgMCAwIDAgMCAzLjV2OUExLjUgMS41IDAgMCAwIDEuNSAxNGgxM2ExLjUgMS41IDAgMCAwIDEuNS0xLjV2LTlBMS41IDEuNSAwIDAgMCAxNC41IDJoLTEzeiIvPgogIDxwYXRoIGQ9Ik0zIDUuNWEuNS41IDAgMCAxIC41LS41aDlhLjUuNSAwIDAgMSAwIDFoLTlhLjUuNSAwIDAgMS0uNS0uNXpNMyA4YS41LjUgMCAwIDEgLjUtLjVoOWEuNS41IDAgMCAxIDAgMWgtOUEuNS41IDAgMCAxIDMgOHptMCAyLjVhLjUuNSAwIDAgMSAuNS0uNWg2YS41LjUgMCAwIDEgMCAxaC02YS41LjUgMCAwIDEtLjUtLjV6Ii8+Cjwvc3ZnPg=='
 var lockImage = new Image()
-lockImage.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktbG9jay1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik04IDFhMiAyIDAgMCAxIDIgMnY0SDZWM2EyIDIgMCAwIDEgMi0yem0zIDZWM2EzIDMgMCAwIDAtNiAwdjRhMiAyIDAgMCAwLTIgMnY1YTIgMiAwIDAgMCAyIDJoNmEyIDIgMCAwIDAgMi0yVjlhMiAyIDAgMCAwLTItMnoiLz4KPC9zdmc+'
+lockImage.src =
+	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktbG9jay1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik04IDFhMiAyIDAgMCAxIDIgMnY0SDZWM2EyIDIgMCAwIDEgMi0yem0zIDZWM2EzIDMgMCAwIDAtNiAwdjRhMiAyIDAgMCAwLTIgMnY1YTIgMiAwIDAgMCAyIDJoNmEyIDIgMCAwIDAgMi0yVjlhMiAyIDAgMCAwLTItMnoiLz4KPC9zdmc+'
 
-function drawLock(ctx, x, y) {
+function drawLockBadge(ctx, x, y) {
 	ctx.beginPath()
 	ctx.drawImage(lockImage, Math.floor(x), Math.floor(y))
 }
@@ -1982,13 +1991,18 @@ worker.onmessage = function (e) {
 */
 /**
  * return a string listing the labels of the given nodes, with nice connecting words
- * @param {Array} factors List of factors
+ * @param {Array} factors List of node Ids
+ * @param {Boolean} suppressType If true, don't start string with 'Factors'
  */
-function listFactors(factors) {
+function listFactors(factors, suppressType) {
 	if (factors.length > 5) return factors.length + ' factors'
-	let str = 'Factor'
-	if (factors.length > 1) str = str + 's'
-	return str + ': ' + lf(factors)
+	let str = ''
+	if (!suppressType) {
+		str = 'Factor'
+		if (factors.length > 1) str = str + 's'
+		str = str + ': '
+	}
+	return str + lf(factors)
 
 	function lf(factors) {
 		// recursive fn to return a string of the node labels, separated by commas and 'and'
@@ -2014,7 +2028,7 @@ function listLinks(links) {
  * @returns {String} string of labels of links and factors, nicely formatted
  */
 function selectedLabels() {
-	let selectedNodes = network.getSelectedNodes()
+	let selectedNodes = getSelectedAndFixedNodes()
 	let selectedEdges = network.getSelectedEdges()
 	let msg = ''
 	if (selectedNodes.length > 0) msg = listFactors(selectedNodes)
@@ -2026,11 +2040,8 @@ function selectedLabels() {
  * show the nodes and links selected in the status bar
  */
 function showSelected() {
-	if (network.getSelectedNodes().length == 0) clearStatusBar()
-	else {
-		let msg = selectedLabels()
-		if (msg.length > 0) statusMsg(msg + ' selected')
-	}
+	let msg = selectedLabels()
+	if (msg.length > 0) statusMsg(msg + ' selected')
 }
 /* zoom slider */
 Network.prototype.zoom = function (scale) {
@@ -3429,7 +3440,7 @@ function autoLayout(e) {
 				{
 					let nodes = data.nodes.get().filter((n) => !n.hidden)
 					nodes.forEach((n) => (n.level = undefined))
-					let selectedNodes = network.getSelectedNodes().map((nId) => data.nodes.get(nId))
+					let selectedNodes = getSelectedAndFixedNodes().map((nId) => data.nodes.get(nId))
 					if (selectedNodes.length == 0) {
 						statusMsg('At least one Factor needs to be selected', 'error')
 						elem('layoutSelect').value = 'off'
@@ -3722,6 +3733,22 @@ function setRadioVal(name, value) {
 		radios[i].checked = radios[i].value == value
 	}
 }
+/**
+ * Return an array of the node Ids of Factors that are selected of are locked
+ * @returns Array
+ */
+function getSelectedAndFixedNodes() {
+	return [
+		...new Set(
+			network.getSelectedNodes().concat(
+				data.nodes
+					.get()
+					.filter((n) => n.fixed)
+					.map((n) => n.id)
+			)
+		),
+	]
+}
 
 /**
  * Sets the Analysis radio buttons and Factor selection according to values in global hiddenNodes
@@ -3732,7 +3759,7 @@ function setAnalysisButtonsFromRemote() {
 		let selectedNodes = [].concat(hiddenNodes.selected) // ensure that hiddenNodes.selected is an array
 		if (selectedNodes.length > 0) {
 			network.selectNodes(selectedNodes, false) // in viewing  only mode, this does nothing
-			if (!viewOnly) statusMsg(listFactors(network.getSelectedNodes()) + ' selected')
+			if (!viewOnly) statusMsg(listFactors(getSelectedAndFixedNodes()) + ' selected')
 		}
 		if (hiddenNodes.radiusSetting) setRadioVal('radius', hiddenNodes.radiusSetting)
 		if (hiddenNodes.streamSetting) setRadioVal('stream', hiddenNodes.streamSetting)
@@ -3741,7 +3768,7 @@ function setAnalysisButtonsFromRemote() {
 }
 
 function setYMapAnalysisButtons() {
-	let selectedNodes = network.getSelectedNodes()
+	let selectedNodes = getSelectedAndFixedNodes()
 	yNetMap.set('radius', {
 		radiusSetting: getRadioVal('radius'),
 		selected: selectedNodes,
@@ -3760,7 +3787,7 @@ function setYMapAnalysisButtons() {
  * those up/downstream and/or those on paths between the selected factors
  */
 function analyse() {
-	let selectedNodes = network.getSelectedNodes()
+	let selectedNodes = getSelectedAndFixedNodes()
 	setYMapAnalysisButtons()
 	// get all nodes and edges and unhide them before hiding those not wanted to be visible
 	let nodes = data.nodes
@@ -3782,7 +3809,7 @@ function analyse() {
 		setYMapAnalysisButtons()
 		data.nodes.update(nodes)
 		data.edges.update(edges)
-		clearStatusBar()
+		showSelected()
 		return
 	}
 
@@ -3829,15 +3856,17 @@ function analyse() {
 	if (getRadioVal('paths') == 'shortestPath') pathsMsg = ': showing shortest paths'
 	if (getRadioVal('stream') == 'All' && getRadioVal('radius') == 'All')
 		statusMsg(
-			`Showing  ${
-				getRadioVal('paths') == 'allPaths' ? 'all paths' : 'shortest paths'
-			} between ${selectedLabels()}`
+			`Showing  ${getRadioVal('paths') == 'allPaths' ? 'all paths' : 'shortest paths'} between ${listFactors(
+				getSelectedAndFixedNodes(),
+				true
+			)}`
 		)
 	else
 		statusMsg(
-			`Factors ${streamMsg} ${
-				streamMsg && radiusMsg ? ' and ' : ''
-			} ${radiusMsg} of ${selectedLabels()}${pathsMsg}`
+			`Factors ${streamMsg} ${streamMsg && radiusMsg ? ' and ' : ''} ${radiusMsg} of ${listFactors(
+				getSelectedAndFixedNodes(),
+				true
+			)}${pathsMsg}`
 		)
 
 	/**

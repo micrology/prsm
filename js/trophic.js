@@ -12,7 +12,7 @@ NG 18 December 2020
  * Matrix data structure is just an array of arrays
  */
 
-import { NLEVELS } from './prsm.js'
+import {NLEVELS} from './prsm.js'
 /**
  * convert a directed adjacency matrix to an undirected one
  * mirror the elements above the leading diagonal to below it
@@ -384,7 +384,13 @@ export function trophic(data) {
 		}
 	})
 	// move all the rest (i.e. unconnected nodes) to the base level
-	data.nodes.get().filter((n) => !updatedNodes.some((u) => n.id == u.id)).map((n) => { n.x = minX; n.level = 0 })
+	data.nodes
+		.get()
+		.filter((n) => !updatedNodes.some((u) => n.id == u.id))
+		.map((n) => {
+			n.x = minX
+			n.level = 0
+		})
 
 	return data.nodes.get()
 }

@@ -518,7 +518,9 @@ export function statusMsg(msg, status) {
 		errMsgElement.style.color = 'white'
 	}
 	errMsgElement.innerHTML = msg
-	listen('errMsg', "animationend", () => { elem('errMsg').classList.remove('fadeInAndOut') })
+	listen('errMsg', 'animationend', () => {
+		elem('errMsg').classList.remove('fadeInAndOut')
+	})
 	errMsgElement.classList.add('fadeInAndOut')
 }
 /**
@@ -568,17 +570,17 @@ export function initials(name) {
 
 /**
  * Convert #xxyyzz to rgb(aa,bb,cc)
- * @param {String} hex 
+ * @param {String} hex
  * @returns String
  */
- /* function hex2rgb(hex) {
+/* function hex2rgb(hex) {
 	return (
 		'rgb(' + [('0x' + hex[1] + hex[2]) | 0, ('0x' + hex[3] + hex[4]) | 0, ('0x' + hex[5] + hex[6]) | 0].join() + ')'
 	)
 } */
 /**
  * Convert rgb(aa,bb,cc) to #xxyyzz
- * @param {String} str 
+ * @param {String} str
  * @returns String
  */
 function rgbToHex(str) {
@@ -592,12 +594,12 @@ function rgbToHex(str) {
  * or any other legal CSS color value)
  * @param {string} str
  */
- export function standardize_color(str) {
+export function standardize_color(str) {
 	if (str.charAt(0) === '#') return str
 	let ctx = document.createElement('canvas').getContext('2d')
 	ctx.fillStyle = str
 	return ctx.fillStyle
- }
+}
 
 /**
  * closure to generate a sequence of colours (as rgb strings, e.g. 'rgb(246,121,16)')
@@ -831,5 +833,5 @@ export function exactTime() {
 }
 
 export function capitalizeFirstLetter(string) {
-	return string.charAt(0).toUpperCase() + string.slice(1);
-  }
+	return string.charAt(0).toUpperCase() + string.slice(1)
+}

@@ -129,7 +129,7 @@ function cancelLoading() {
 
 /**
  * Convert a node from the normal PRSM format to the one required by the 3d display
- * @param {Object} node 
+ * @param {Object} node
  * @returns Object
  */
 function convertNode(node) {
@@ -138,7 +138,7 @@ function convertNode(node) {
 
 /**
  * Convert an edge from the normal PRSM format to the one required by the 3d display
- * @param {object} edge 
+ * @param {object} edge
  * @returns object
  */
 function convertEdge(edge) {
