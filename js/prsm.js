@@ -1215,13 +1215,20 @@ export function logHistory(action, actor) {
 }
 
 function drawBadges(ctx) {
+	data.nodes
+	.get()
+	.filter((node) => !node.hidden && node.fixed)
+	.forEach((node) => {
+		let box = network.getBoundingBox(node.id)
+		drawLock(ctx, box.left - 10, box.top)
+	})
 	if (!showNotesToggle) return
 	data.nodes
 		.get()
 		.filter((node) => !node.hidden && node.note && node.note != 'Notes')
 		.forEach((node) => {
 			let box = network.getBoundingBox(node.id)
-			drawBadge(ctx, box.right - 20, box.top)
+			drawBadge(ctx, box.right, box.top)
 		})
 	let changedEdges = []
 	data.edges.get().forEach((edge) => {
@@ -1251,12 +1258,21 @@ function drawBadges(ctx) {
 	})
 	data.edges.update(changedEdges)
 }
-const badge = elem('badge')
-
 function drawBadge(ctx, x, y) {
 	ctx.beginPath()
-	ctx.drawImage(badge, Math.floor(x), Math.floor(y))
+	ctx.drawImage(noteImage, Math.floor(x), Math.floor(y))
 }
+
+var noteImage = new Image()
+noteImage.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktY2FyZC10ZXh0IiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik0xNC41IDNhLjUuNSAwIDAgMSAuNS41djlhLjUuNSAwIDAgMS0uNS41aC0xM2EuNS41IDAgMCAxLS41LS41di05YS41LjUgMCAwIDEgLjUtLjVoMTN6bS0xMy0xQTEuNSAxLjUgMCAwIDAgMCAzLjV2OUExLjUgMS41IDAgMCAwIDEuNSAxNGgxM2ExLjUgMS41IDAgMCAwIDEuNS0xLjV2LTlBMS41IDEuNSAwIDAgMCAxNC41IDJoLTEzeiIvPgogIDxwYXRoIGQ9Ik0zIDUuNWEuNS41IDAgMCAxIC41LS41aDlhLjUuNSAwIDAgMSAwIDFoLTlhLjUuNSAwIDAgMS0uNS0uNXpNMyA4YS41LjUgMCAwIDEgLjUtLjVoOWEuNS41IDAgMCAxIDAgMWgtOUEuNS41IDAgMCAxIDMgOHptMCAyLjVhLjUuNSAwIDAgMSAuNS0uNWg2YS41LjUgMCAwIDEgMCAxaC02YS41LjUgMCAwIDEtLjUtLjV6Ii8+Cjwvc3ZnPg=='
+var lockImage = new Image()
+lockImage.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktbG9jay1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik04IDFhMiAyIDAgMCAxIDIgMnY0SDZWM2EyIDIgMCAwIDEgMi0yem0zIDZWM2EzIDMgMCAwIDAtNiAwdjRhMiAyIDAgMCAwLTIgMnY1YTIgMiAwIDAgMCAyIDJoNmEyIDIgMCAwIDAgMi0yVjlhMiAyIDAgMCAwLTItMnoiLz4KPC9zdmc+'
+
+function drawLock(ctx, x, y) {
+	ctx.beginPath()
+	ctx.drawImage(lockImage, Math.floor(x), Math.floor(y))
+}
+
 /**
  * rescale and redraw the network so that it fits the pane
  * @param {number} duration speed of zoom to fit
@@ -3214,6 +3230,7 @@ function setFixed() {
 	let locked = elem('fixed').style.display == 'none'
 	let node = data.nodes.get(editor.id)
 	node.fixed = locked
+	node.shadow = locked
 	elem('fixed').style.display = node.fixed ? 'inline' : 'none'
 	elem('unfixed').style.display = node.fixed ? 'none' : 'inline'
 	data.nodes.update(node)
