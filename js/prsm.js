@@ -364,8 +364,12 @@ function startY(newRoom) {
 				let obj = yNodesMap.get(key)
 				if (!object_equals(obj, data.nodes.get(key))) {
 					nodesToUpdate.push(deepCopy(obj))
-					// if a note on a node is being remotely edited and is on display here, update the local note
-					if (editor && editor.id == key && event.transaction.local === false) editor.setContents(obj.note)
+					// if a note on a node is being remotely edited and is on display here, update the local note and the padlock
+					if (editor && editor.id == key && event.transaction.local === false) {
+						editor.setContents(obj.note)
+						elem('fixed').style.display = obj.fixed ? 'inline' : 'none'
+						elem('unfixed').style.display = obj.fixed ? 'none' : 'inline'
+					}
 				}
 			} else {
 				hideNotes()
@@ -939,7 +943,6 @@ function draw() {
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
 		if (/gui/.test(debug)) console.log('**doubleClick**')
-		console.log(params, inEditMode, data.nodes.get(params.nodes[0]).label)
 		if (params.nodes.length === 1) {
 			if (!viewOnly && !inEditMode) network.editNode()
 		} else if (params.edges.length === 1) {
@@ -1322,7 +1325,7 @@ function snapToGrid(node) {
 function copyToClipboard(event) {
 	if (document.getSelection().toString()) return // only copy factors if there is no text selected (e.g. in Notes)
 	event.preventDefault()
-	let nIds = network.getSelectedNodes()
+	let nIds = getSelectedAndFixedNodes()
 	let eIds = network.getSelectedEdges()
 	if (nIds.length + eIds.length == 0) {
 		statusMsg('Nothing selected to copy', 'warn')
@@ -2473,7 +2476,13 @@ function loadJSONfile(str) {
 	yPointsArray.delete(0, yPointsArray.length)
 	if (json.underlay) yPointsArray.insert(0, json.underlay)
 	yHistory.delete(0, yHistory.length)
-	if (json.history) yHistory.insert(0, json.history)
+	if (json.history) {
+		// delete all but the last 10 saved states
+		for (let i = 0; i < json.history.length - 10; i++) {
+			json.history[i].state = null
+		}
+		yHistory.insert(0, json.history)
+	}
 	return {
 		nodes: nodes,
 		edges: edges,

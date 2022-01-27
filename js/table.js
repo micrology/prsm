@@ -892,6 +892,10 @@ function convertNodeBack(node, field, value) {
 		case 'hidden':
 			hideNodeAndEdges(node, value)
 			break
+		case 'fixed':
+			node.shadow = value
+			node.fixed = value
+			break
 		case 'borderStyle':
 			if (node.borderWidth == 0) node.borderWidth = 4
 			switch (value) {
