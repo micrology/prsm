@@ -1213,6 +1213,16 @@ export function logHistory(action, actor) {
 	savedState = compressToUTF16(
 		JSON.stringify({nodes: data.nodes.get(), edges: data.edges.get(), net: yNetMap.toJSON()})
 	)
+	// delete all but the last 10 saved states
+	for (let i = 0; i < yHistory.length - 10; i++) {
+		let obj = yHistory.get(i)
+		if (obj.state) {
+			obj.state = null
+			yHistory.delete(i)
+			yHistory.insert(i, [obj])
+		}
+	}
+	if (elem('history-window').style.display == 'block') showHistory()
 	dirty = true
 }
 /**
