@@ -40,7 +40,7 @@
 				font-display: swap;
 			}
 		</style>
-<!-- 		<link
+		<!-- 		<link
 			rel="preload"
 			href="../css/vis-network.min.css"
 			as="style"
@@ -118,7 +118,8 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Add factor</span>
+							<div class="button-text">Add factor</div>
+							<span class="tooltiptext">Add a new factor</span>
 						</div>
 						<div
 							class="tooltip right-border"
@@ -129,19 +130,22 @@
 							<button type="button" id="addLink">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									width="28"
-									height="28"
+									width="24"
+									height="24"
 									fill="currentColor"
 									class="bi bi-arrow-right"
 									viewBox="0 0 16 16"
 								>
 									<path
+										stroke="currentColor"
+										stroke-width="1.2"
 										fill-rule="evenodd"
 										d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Add link</span>
+							<div class="button-text">Add link</div>
+							<span class="tooltiptext">Add a new link between factors</span>
 						</div>
 						<div class="tooltip">
 							<button type="button" id="undo" class="disabled">
@@ -162,7 +166,8 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Undo</span>
+							<div class="button-text">Undo</div>
+							<span class="tooltiptext">Undo the last action</span>
 						</div>
 						<div class="tooltip">
 							<button type="button" id="redo" class="disabled">
@@ -183,7 +188,8 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Redo</span>
+							<div class="button-text">Redo</div>
+							<span class="tooltiptext">Redo the last undo</span>
 						</div>
 						<div
 							class="tooltip right-border"
@@ -191,7 +197,7 @@
 							data-step="4"
 							data-position="below"
 						>
-							<button type="button" id="deleteNode">
+							<button type="button" id="deleteNode" class="disabled">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -209,7 +215,8 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Delete selected</span>
+							<div class="button-text">Delete</div>
+							<span class="tooltiptext">Delete selected factors and links</span>
 						</div>
 						<div class="tooltip">
 							<button type="button" id="share">
@@ -231,10 +238,11 @@
 									<path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" />
 								</svg>
 							</button>
-							<span class="tooltiptext">Share</span>
+							<div class="button-text">Share</div>
+							<span class="tooltiptext">Share the map using a web link</span>
 						</div>
 						<div class="tooltip">
-							<button type="button" id="openFile">
+							<button type="button" id="openMap">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -248,7 +256,8 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Open network</span>
+							<div class="button-text">Open</div>
+							<span class="tooltiptext">Open a map file</span>
 						</div>
 						<div
 							class="tooltip"
@@ -273,7 +282,8 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Save network</span>
+							<div class="button-text">Save</div>
+							<span class="tooltiptext">Save the map to a file</span>
 						</div>
 						<div class="dropdown-wrapper">
 							<span id="save-dropdown">
@@ -291,26 +301,35 @@
 								</svg>
 							</span>
 							<div class="dropdown-content">
-								<div class="tooltip">
-									<button class="dropdown-label" type="button" id="exportPRSM">PRSM</button>
-									<span class="tooltiptext">Save as a PRSM file</span>
+								<div>
+									<div class="tooltip">
+										<button class="dropdown-label" type="button" id="exportPRSM">PRSM</button>
+										<span class="tooltiptext">Save as a PRSM file</span>
+									</div>
 								</div>
-								<div class="tooltip">
-									<button class="dropdown-label" type="button" id="exportImage">Image</button>
-									<span class="tooltiptext">Save as a PNG image file</span>
+								<div>
+									<div class="tooltip">
+										<button class="dropdown-label" type="button" id="exportImage">Image</button>
+										<span class="tooltiptext">Save as a PNG image file</span>
+									</div>
 								</div>
-								<div class="tooltip">
-									<button class="dropdown-label" type="button" id="exportCVS">CSV</button>
-									<span class="tooltiptext">Save as CSV files</span>
+								<div>
+									<div class="tooltip">
+										<button class="dropdown-label" type="button" id="exportCVS">CSV</button>
+										<span class="tooltiptext">Save as CSV files</span>
+									</div>
 								</div>
-								<div class="tooltip">
-									<button class="dropdown-label" type="button" id="exportGML">GML</button>
-									<span class="tooltiptext">Save as a GML file</span>
+								<div>
+									<div class="tooltip">
+										<button class="dropdown-label" type="button" id="exportGML">GML</button>
+										<span class="tooltiptext">Save as a GML file</span>
+									</div>
 								</div>
 							</div>
 						</div>
 						<div
 							class="tooltip left-border"
+							style="margin-left: 5px"
 							data-tutorial="Search for factors"
 							data-step="6"
 							data-position="left"
@@ -329,6 +348,7 @@
 									/>
 								</svg>
 							</button>
+							<div class="button-text">Search</div>
 							<span class="tooltiptext searchtip">Search for factors by name</span>
 						</div>
 						<div
@@ -351,6 +371,7 @@
 									/>
 								</svg>
 							</button>
+							<div class="button-text">Help</div>
 							<span class="tooltiptext">Show help in a new window</span>
 						</div>
 						<div class="tooltip" data-tutorial="Show more options" data-step="8" data-position="left">
@@ -369,7 +390,12 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Show or hide settings</span>
+							<div class="button-text">Settings</div>
+							<span class="tooltiptext settingstip">
+								Show or hide
+								<br />
+								the settings panel
+							</span>
 						</div>
 					</div>
 				</div>

@@ -156,7 +156,7 @@ function addEventListeners() {
 	listen('undo', 'click', undo)
 	listen('redo', 'click', redo)
 	listen('fileInput', 'change', readSingleFile)
-	listen('openFile', 'click', openFile)
+	listen('openMap', 'click', openFile)
 	listen('saveFile', 'click', savePRSMfile)
 	listen('exportPRSM', 'click', savePRSMfile)
 	listen('exportImage', 'click', exportPNGfile)
@@ -954,6 +954,7 @@ function draw() {
 		if (/gui/.test(debug)) console.log('selectNode')
 		showSelected()
 		showNodeOrEdgeData()
+		toggleDeleteButton()
 		if (getRadioVal('radio') !== 'All') analyse()
 		if (getRadioVal('stream') !== 'All') analyse()
 		if (getRadioVal('paths') !== 'All') analyse()
@@ -962,6 +963,7 @@ function draw() {
 		if (/gui/.test(debug)) console.log('deselectNode')
 		showSelected()
 		showNodeOrEdgeData()
+		toggleDeleteButton()
 		if (getRadioVal('radio') !== 'All') analyse()
 		if (getRadioVal('stream') !== 'All') analyse()
 		if (getRadioVal('paths') !== 'All') analyse()
@@ -976,11 +978,13 @@ function draw() {
 		if (/gui/.test(debug)) console.log('selectEdge')
 		showSelected()
 		showNodeOrEdgeData()
+		toggleDeleteButton()
 	})
 	network.on('deselectEdge', function () {
 		if (/gui/.test(debug)) console.log('deselectEdge')
 		hideNotes()
 		showSelected()
+		toggleDeleteButton()
 	})
 	network.on('oncontext', function (e) {
 		let nodeId = network.getNodeAt(e.pointer.DOM)
@@ -1187,6 +1191,15 @@ function draw() {
 		magnifier.style.display = 'none'
 	}
 } // end draw()
+
+/**
+ * un fade the delete button to show that it can be used when something is selected
+ */
+function toggleDeleteButton() {
+	if (network.getSelectedNodes().length > 0 || network.getSelectedEdges().length > 0)
+		elem('deleteNode').classList.remove('disabled')
+	else elem('deleteNode').classList.add('disabled')
+}
 
 function contextMenu(event) {
 	event.preventDefault()
@@ -2054,6 +2067,7 @@ function selectedLabels() {
 function showSelected() {
 	let msg = selectedLabels()
 	if (msg.length > 0) statusMsg(msg + ' selected')
+	else clearStatusBar()
 }
 /* zoom slider */
 Network.prototype.zoom = function (scale) {
