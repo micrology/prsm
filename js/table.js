@@ -992,6 +992,17 @@ function initialiseLinkTable() {
 		columnHeaderVertAlign: 'bottom',
 		columns: [
 			{
+				title: `Select&nbsp;
+					<span  id="select-all-links"><span class="checkbox-box-off">${svg('cross')}</span>
+			  		<span class="checkbox-box-on">${svg('tick')}</span></span>`,
+				field: 'selection',
+				hozAlign: 'center',
+				formatter: 'tickCross',
+				formatterParams: tickCrossFormatter(),
+				cellClick: tickToggle,
+				headerVertical: true,
+			},
+			{
 				title: 'From',
 				field: 'fromLabel',
 				width: 300,
@@ -1094,6 +1105,12 @@ function initialiseLinkTable() {
 		],
 	})
 	window.linksTable = linksTable
+	listen('select-all-links', 'click', (e) => {
+		let ticked = headerTickToggle(e, '#select-all-links')
+		linksTable.getRows('active').forEach((row) => {
+			row.update({selection: !ticked})
+		})
+	})
 	listen('hide-all-links', 'click', (e) => {
 		let ticked = headerTickToggle(e, '#hide-all-links')
 		doc.transact(() => {
@@ -1166,21 +1183,28 @@ function updateFromAndToLabels(nodes) {
  * @param {object} cell
  */
 function updateEdgeCellData(cell) {
-	// get the old value of the edge
-	let edge = deepCopy(yEdgesMap.get(cell.getRow().getData().id))
-	// update it with the cell's new value
 	let field = cell.getField()
+	// don't do anything with the selection column
+	if (field == 'selection') return	// get the old value of the edge
+	let rows = linksTable.getRows().filter((row) => row.getData().selection)
+	if (rows.length == 0) rows = [cell.getRow()] // no rows selected, so process just this cell	
 	let value = cell.getValue()
-	edge[field] = value
-	edge = convertEdgeBack(edge, field, value)
-	if (field == 'groupLabel') {
-		edge = deepMerge(edge, ySamplesMap.get(edge.grp).edge)
-		linksTable.updateData([convertEdge(edge)])
-	}
-	edge.modified = {time: Date.now(), user: myNameRec.name}
-	cell.getTable().updateData([{id: edge.id, modifiedTime: timeAndDate(edge.modified.time)}])
-	// sync it
-	yEdgesMap.set(edge.id, edge)
+	rows.forEach((row) => {
+		let edge = deepCopy(yEdgesMap.get(row.getData().id))
+		// update it with the cell's new value
+		edge[field] = value
+		edge = convertEdgeBack(edge, field, value)
+		if (field == 'groupLabel') {
+			edge = deepMerge(edge, ySamplesMap.get(edge.grp).edge)
+			linksTable.updateData([convertEdge(edge)])
+		}
+		edge.modified = { time: Date.now(), user: myNameRec.name }
+		let update = {id: edge.id, modifiedTime: timeAndDate(edge.modified.time)}
+		update[field] = value
+		cell.getTable().updateData([update])
+		// sync it
+		yEdgesMap.set(edge.id, edge)
+	})
 }
 /**
  * Convert the properties of the edge back into the format required by vis-network

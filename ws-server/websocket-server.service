@@ -2,7 +2,7 @@
 Description=websocket-server
 
 [Service]
-ExecStart= /usr/bin/node /data/prsm/node_modules/.bin/y-websocket-server
+ExecStart= /home/ec2-user/.nvm/versions/node/v14.15.5/bin/node --max-old-space-size=4096 /data/prsm/node_modules/.bin/y-websocket-server
 Restart=always
 RestartSec=10
 User=root

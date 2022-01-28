@@ -798,7 +798,6 @@ function draw() {
 				// node properties before calling this fn, which we don't want.  So we
 				// revert to using the original node properties before continuing.
 				item = data.nodes.get(item.id)
-				console.log(item.label)
 				item.modified = timestamp()
 				let point = {x: event.offsetX, y: event.offsetY}
 				editNode(item, point, cancelEdit, callback)
