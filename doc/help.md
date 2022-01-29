@@ -249,7 +249,7 @@ On the Network tab, there are controls for:
 * **Show legend** If the factor and link styles are given names (other than 'Sample'), the styles and their names will be shown in a panel at the left bottom of the network pane headed 'Legend', when this switch is ON.  See the description of the [Factors tab](#factors-tab).
 * **Show drawing layer** Puts the network pane into drawing mode, so that background shapes, images and text can be added.  See [Drawing Mode](#drawing-mode) for more details.
 * **Show other users** When ON, the positions of other users' mouse pointers are shown in real time.  
-* **Show history** When ON, a panel displaying every change to a factor or link (adding a factor or link, editing it or deleting it) is shown. It is possible to 'rollback' the map to the state it was in before a change.  This can be quicker than repeatedly undoing changes with the Undo button.  To rollback, click on the [SYMBOL].  You will be asked to confirm the action.
+* **Show history** When ON, a panel displaying every change to a factor or link (adding a factor or link, editing it or deleting it) is shown. It is possible to 'rollback' the map to the state it was in before a change.  This can be quicker than repeatedly undoing changes with the Undo button.  To rollback, click on the <img src="/doc/images/bootstrap-reboot.svg" style="display: inline"> button.  You will be asked to confirm the action.  The states of the map for the previous 10 changes are kept.
 * **Show notes** When a factor or link is selected, normally a Notes panel pops up at the bottom right of the map.  Turning this switch OFF prevents the Notes panels from being displayed.
 
 ### Analysis tab

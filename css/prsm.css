@@ -1818,6 +1818,9 @@ div.resize {
 		font-size: 9px;
 		padding: 0;
 	}
+	nav button-text {
+display: none;
+	}
 	input[type='range'] {
 		width: 40px;
 	}
