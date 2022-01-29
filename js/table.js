@@ -1185,9 +1185,9 @@ function updateFromAndToLabels(nodes) {
 function updateEdgeCellData(cell) {
 	let field = cell.getField()
 	// don't do anything with the selection column
-	if (field == 'selection') return	// get the old value of the edge
+	if (field == 'selection') return // get the old value of the edge
 	let rows = linksTable.getRows().filter((row) => row.getData().selection)
-	if (rows.length == 0) rows = [cell.getRow()] // no rows selected, so process just this cell	
+	if (rows.length == 0) rows = [cell.getRow()] // no rows selected, so process just this cell
 	let value = cell.getValue()
 	rows.forEach((row) => {
 		let edge = deepCopy(yEdgesMap.get(row.getData().id))
@@ -1198,7 +1198,7 @@ function updateEdgeCellData(cell) {
 			edge = deepMerge(edge, ySamplesMap.get(edge.grp).edge)
 			linksTable.updateData([convertEdge(edge)])
 		}
-		edge.modified = { time: Date.now(), user: myNameRec.name }
+		edge.modified = {time: Date.now(), user: myNameRec.name}
 		let update = {id: edge.id, modifiedTime: timeAndDate(edge.modified.time)}
 		update[field] = value
 		cell.getTable().updateData([update])

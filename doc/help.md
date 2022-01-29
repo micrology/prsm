@@ -513,7 +513,7 @@ and build the distribution with
 npm run build
 ```
 
-Documentation can be found in the ```doc``` directory.
+Documentation can be found in the ```doc``` directory and a JSDOC index [here](./doc/jsdoc/){target="_blank" rel="noreferrer"}.
 
 See ```package.json``` for other npm commands.
 

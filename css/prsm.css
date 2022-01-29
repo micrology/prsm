@@ -1819,7 +1819,7 @@ div.resize {
 		padding: 0;
 	}
 	nav .button-text {
-display: none;
+		display: none;
 	}
 	input[type='range'] {
 		width: 40px;

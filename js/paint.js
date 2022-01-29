@@ -1,8 +1,8 @@
 /**
  * Underlay drawing for Participatory System Mapper
- * @author Nigel Gilbert
- * @email n.gilbert@surrey.ac.uk
- * @date June 2020
+ * author Nigel Gilbert
+ * email n.gilbert@surrey.ac.uk
+ * date June 2020
  *
  * After setup, when user selects a tool from the toolbox, the mouse is used to paint on the temp canvas.
  * When the tool is finished, a set of painting commands is stored; then those commands are used to redraw the network canvas.

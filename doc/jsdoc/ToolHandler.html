@@ -2,302 +2,42 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<title>JSDoc: Class: ToolHandler</title>
+		<title>ToolHandler - Documentation</title>
 
 		<script src="scripts/prettify/prettify.js"></script>
 		<script src="scripts/prettify/lang-css.js"></script>
 		<!--[if lt IE 9]>
 			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
-		<link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css" />
-		<link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css" />
+		<link type="text/css" rel="stylesheet" href="styles/prettify.css" />
+		<link type="text/css" rel="stylesheet" href="styles/jsdoc.css" />
+		<script src="scripts/nav.js" defer></script>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	</head>
-
 	<body>
-		<div id="main">
-			<h1 class="page-title">Class: ToolHandler</h1>
+		<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+		<label for="nav-trigger" class="navicon-button x">
+			<div class="navicon"></div>
+		</label>
 
-			<section>
-				<header>
-					<h2>
-						<span class="attribs"><span class="type-signature"></span></span>
-						ToolHandler
-						<span class="signature">()</span>
-						<span class="type-signature"></span>
-					</h2>
-
-					<div class="class-description">superclass for all tool handlers</div>
-				</header>
-
-				<article>
-					<div class="container-overview">
-						<h2>Constructor</h2>
-
-						<h4 class="name" id="ToolHandler">
-							<span class="type-signature"></span>
-							new ToolHandler
-							<span class="signature">()</span>
-							<span class="type-signature"></span>
-						</h4>
-
-						<dl class="details">
-							<dt class="tag-source">Source:</dt>
-							<dd class="tag-source">
-								<ul class="dummy">
-									<li>
-										<a href="paint.js.html">paint.js</a>
-										,
-										<a href="paint.js.html#line195">line 195</a>
-									</li>
-								</ul>
-							</dd>
-						</dl>
-					</div>
-
-					<h3 class="subsection-title">Methods</h3>
-
-					<h4 class="name" id="endPosition">
-						<span class="type-signature"></span>
-						endPosition
-						<span class="signature">(e)</span>
-						<span class="type-signature"></span>
-					</h4>
-
-					<div class="description">note the mouse coordinates relative to the canvas</div>
-
-					<h5>Parameters:</h5>
-
-					<table class="params">
-						<thead>
-							<tr>
-								<th>Name</th>
-
-								<th>Type</th>
-
-								<th class="last">Description</th>
-							</tr>
-						</thead>
-
-						<tbody>
-							<tr>
-								<td class="name"><code>e</code></td>
-
-								<td class="type">
-									<span class="param-type">event</span>
-								</td>
-
-								<td class="description last"></td>
-							</tr>
-						</tbody>
-					</table>
-
-					<dl class="details">
-						<dt class="tag-source">Source:</dt>
-						<dd class="tag-source">
-							<ul class="dummy">
-								<li>
-									<a href="paint.js.html">paint.js</a>
-									,
-									<a href="paint.js.html#line230">line 230</a>
-								</li>
-							</ul>
-						</dd>
-					</dl>
-
-					<h4 class="name" id="options">
-						<span class="type-signature"></span>
-						options
-						<span class="signature">()</span>
-						<span class="type-signature">&rarr; {object}</span>
-					</h4>
-
-					<div class="description">return an object with the current canvas drawing options</div>
-
-					<dl class="details">
-						<dt class="tag-source">Source:</dt>
-						<dd class="tag-source">
-							<ul class="dummy">
-								<li>
-									<a href="paint.js.html">paint.js</a>
-									,
-									<a href="paint.js.html#line254">line 254</a>
-								</li>
-							</ul>
-						</dd>
-					</dl>
-
-					<h5>Returns:</h5>
-
-					<dl>
-						<dt>Type</dt>
-						<dd>
-							<span class="param-type">object</span>
-						</dd>
-					</dl>
-
-					<h4 class="name" id="optionsDialog">
-						<span class="type-signature"></span>
-						optionsDialog
-						<span class="signature">(tool)</span>
-						<span class="type-signature">&rarr; {HTMLElement}</span>
-					</h4>
-
-					<div class="description">
-						create a dialog box to allow the user to choose options for the current shape sub classes fill
-						the box with controls
-					</div>
-
-					<h5>Parameters:</h5>
-
-					<table class="params">
-						<thead>
-							<tr>
-								<th>Name</th>
-
-								<th>Type</th>
-
-								<th class="last">Description</th>
-							</tr>
-						</thead>
-
-						<tbody>
-							<tr>
-								<td class="name"><code>tool</code></td>
-
-								<td class="type">
-									<span class="param-type">string</span>
-								</td>
-
-								<td class="description last"></td>
-							</tr>
-						</tbody>
-					</table>
-
-					<dl class="details">
-						<dt class="tag-source">Source:</dt>
-						<dd class="tag-source">
-							<ul class="dummy">
-								<li>
-									<a href="paint.js.html">paint.js</a>
-									,
-									<a href="paint.js.html#line273">line 273</a>
-								</li>
-							</ul>
-						</dd>
-					</dl>
-
-					<h5>Returns:</h5>
-
-					<dl>
-						<dt>Type</dt>
-						<dd>
-							<span class="param-type">HTMLElement</span>
-						</dd>
-					</dl>
-
-					<h4 class="name" id="panend">
-						<span class="type-signature"></span>
-						panend
-						<span class="signature">()</span>
-						<span class="type-signature"></span>
-					</h4>
-
-					<div class="description">
-						panend means the shape has been completed - add a marker to record that
-					</div>
-
-					<dl class="details">
-						<dt class="tag-source">Source:</dt>
-						<dd class="tag-source">
-							<ul class="dummy">
-								<li>
-									<a href="paint.js.html">paint.js</a>
-									,
-									<a href="paint.js.html#line245">line 245</a>
-								</li>
-							</ul>
-						</dd>
-					</dl>
-
-					<h4 class="name" id="panmove">
-						<span class="type-signature"></span>
-						panmove
-						<span class="signature">()</span>
-						<span class="type-signature"></span>
-					</h4>
-
-					<div class="description">do something as the mouse moves</div>
-
-					<dl class="details">
-						<dt class="tag-source">Source:</dt>
-						<dd class="tag-source">
-							<ul class="dummy">
-								<li>
-									<a href="paint.js.html">paint.js</a>
-									,
-									<a href="paint.js.html#line241">line 241</a>
-								</li>
-							</ul>
-						</dd>
-					</dl>
-
-					<h4 class="name" id="panstart">
-						<span class="type-signature"></span>
-						panstart
-						<span class="signature">(e)</span>
-						<span class="type-signature"></span>
-					</h4>
-
-					<div class="description">mouse has been pressed - note the starting mouse position and options</div>
-
-					<h5>Parameters:</h5>
-
-					<table class="params">
-						<thead>
-							<tr>
-								<th>Name</th>
-
-								<th>Type</th>
-
-								<th class="last">Description</th>
-							</tr>
-						</thead>
-
-						<tbody>
-							<tr>
-								<td class="name"><code>e</code></td>
-
-								<td class="type">
-									<span class="param-type">event</span>
-								</td>
-
-								<td class="description last"></td>
-							</tr>
-						</tbody>
-					</table>
-
-					<dl class="details">
-						<dt class="tag-source">Source:</dt>
-						<dd class="tag-source">
-							<ul class="dummy">
-								<li>
-									<a href="paint.js.html">paint.js</a>
-									,
-									<a href="paint.js.html#line216">line 216</a>
-								</li>
-							</ul>
-						</dd>
-					</dl>
-				</article>
-			</section>
-		</div>
+		<label for="nav-trigger" class="overlay"></label>
 
 		<nav>
 			<h2><a href="index.html">Home</a></h2>
 			<h3>Classes</h3>
 			<ul>
 				<li><a href="module.exports.html">exports</a></li>
-				<li><a href="ToolHandler.html">ToolHandler</a></li>
+				<li>
+					<a href="ToolHandler.html">ToolHandler</a>
+					<ul class="methods">
+						<li data-type="method"><a href="ToolHandler.html#endPosition">endPosition</a></li>
+						<li data-type="method"><a href="ToolHandler.html#options">options</a></li>
+						<li data-type="method"><a href="ToolHandler.html#optionsDialog">optionsDialog</a></li>
+						<li data-type="method"><a href="ToolHandler.html#panend">panend</a></li>
+						<li data-type="method"><a href="ToolHandler.html#panmove">panmove</a></li>
+						<li data-type="method"><a href="ToolHandler.html#panstart">panstart</a></li>
+					</ul>
+				</li>
 			</ul>
 			<h3>Global</h3>
 			<ul>
@@ -520,6 +260,7 @@
 				<li><a href="global.html#timeAndDate">timeAndDate</a></li>
 				<li><a href="global.html#timestamp">timestamp</a></li>
 				<li><a href="global.html#titleDropDown">titleDropDown</a></li>
+				<li><a href="global.html#toggleDeleteButton">toggleDeleteButton</a></li>
 				<li><a href="global.html#togglePanel">togglePanel</a></li>
 				<li><a href="global.html#toolHandler">toolHandler</a></li>
 				<li><a href="global.html#transpose">transpose</a></li>
@@ -549,17 +290,303 @@
 			</ul>
 		</nav>
 
+		<div id="main">
+			<h1 class="page-title">ToolHandler</h1>
+
+			<section>
+				<header>
+					<h2>ToolHandler</h2>
+
+					<div class="class-description usertext"><p>superclass for all tool handlers</p></div>
+				</header>
+
+				<article>
+					<div class="container-overview">
+						<h2>Constructor</h2>
+
+						<h4 class="name" id="ToolHandler">
+							<span class="type-signature"></span>
+							new ToolHandler
+							<span class="signature">()</span>
+							<span class="type-signature"></span>
+						</h4>
+
+						<dl class="details">
+							<dt class="tag-source">Source:</dt>
+							<dd class="tag-source">
+								<ul class="dummy">
+									<li>
+										<a href="paint.js.html">paint.js</a>
+										,
+										<a href="paint.js.html#line195">line 195</a>
+									</li>
+								</ul>
+							</dd>
+						</dl>
+					</div>
+
+					<h3 class="subsection-title">Methods</h3>
+
+					<h4 class="name" id="endPosition">
+						<span class="type-signature"></span>
+						endPosition
+						<span class="signature">(e)</span>
+						<span class="type-signature"></span>
+					</h4>
+
+					<dl class="details">
+						<dt class="tag-source">Source:</dt>
+						<dd class="tag-source">
+							<ul class="dummy">
+								<li>
+									<a href="paint.js.html">paint.js</a>
+									,
+									<a href="paint.js.html#line230">line 230</a>
+								</li>
+							</ul>
+						</dd>
+					</dl>
+
+					<div class="description usertext">
+						<p>note the mouse coordinates relative to the canvas</p>
+					</div>
+
+					<h5>Parameters:</h5>
+
+					<table class="params">
+						<thead>
+							<tr>
+								<th>Name</th>
+
+								<th>Type</th>
+
+								<th class="last">Description</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr>
+								<td class="name"><code>e</code></td>
+
+								<td class="type">
+									<span class="param-type">event</span>
+								</td>
+
+								<td class="description last"></td>
+							</tr>
+						</tbody>
+					</table>
+
+					<h4 class="name" id="options">
+						<span class="type-signature"></span>
+						options
+						<span class="signature">()</span>
+						<span class="type-signature">&rarr; {object}</span>
+					</h4>
+
+					<dl class="details">
+						<dt class="tag-source">Source:</dt>
+						<dd class="tag-source">
+							<ul class="dummy">
+								<li>
+									<a href="paint.js.html">paint.js</a>
+									,
+									<a href="paint.js.html#line254">line 254</a>
+								</li>
+							</ul>
+						</dd>
+					</dl>
+
+					<div class="description usertext">
+						<p>return an object with the current canvas drawing options</p>
+					</div>
+
+					<h5>Returns:</h5>
+
+					<dl class="param-type">
+						<dt>Type</dt>
+						<dd>
+							<span class="param-type">object</span>
+						</dd>
+					</dl>
+
+					<h4 class="name" id="optionsDialog">
+						<span class="type-signature"></span>
+						optionsDialog
+						<span class="signature">(tool)</span>
+						<span class="type-signature">&rarr; {HTMLElement}</span>
+					</h4>
+
+					<dl class="details">
+						<dt class="tag-source">Source:</dt>
+						<dd class="tag-source">
+							<ul class="dummy">
+								<li>
+									<a href="paint.js.html">paint.js</a>
+									,
+									<a href="paint.js.html#line273">line 273</a>
+								</li>
+							</ul>
+						</dd>
+					</dl>
+
+					<div class="description usertext">
+						<p>
+							create a dialog box to allow the user to choose options for the current shape sub classes
+							fill the box with controls
+						</p>
+					</div>
+
+					<h5>Parameters:</h5>
+
+					<table class="params">
+						<thead>
+							<tr>
+								<th>Name</th>
+
+								<th>Type</th>
+
+								<th class="last">Description</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr>
+								<td class="name"><code>tool</code></td>
+
+								<td class="type">
+									<span class="param-type">string</span>
+								</td>
+
+								<td class="description last"></td>
+							</tr>
+						</tbody>
+					</table>
+
+					<h5>Returns:</h5>
+
+					<dl class="param-type">
+						<dt>Type</dt>
+						<dd>
+							<span class="param-type">HTMLElement</span>
+						</dd>
+					</dl>
+
+					<h4 class="name" id="panend">
+						<span class="type-signature"></span>
+						panend
+						<span class="signature">()</span>
+						<span class="type-signature"></span>
+					</h4>
+
+					<dl class="details">
+						<dt class="tag-source">Source:</dt>
+						<dd class="tag-source">
+							<ul class="dummy">
+								<li>
+									<a href="paint.js.html">paint.js</a>
+									,
+									<a href="paint.js.html#line245">line 245</a>
+								</li>
+							</ul>
+						</dd>
+					</dl>
+
+					<div class="description usertext">
+						<p>panend means the shape has been completed - add a marker to record that</p>
+					</div>
+
+					<h4 class="name" id="panmove">
+						<span class="type-signature"></span>
+						panmove
+						<span class="signature">()</span>
+						<span class="type-signature"></span>
+					</h4>
+
+					<dl class="details">
+						<dt class="tag-source">Source:</dt>
+						<dd class="tag-source">
+							<ul class="dummy">
+								<li>
+									<a href="paint.js.html">paint.js</a>
+									,
+									<a href="paint.js.html#line241">line 241</a>
+								</li>
+							</ul>
+						</dd>
+					</dl>
+
+					<div class="description usertext">
+						<p>do something as the mouse moves</p>
+					</div>
+
+					<h4 class="name" id="panstart">
+						<span class="type-signature"></span>
+						panstart
+						<span class="signature">(e)</span>
+						<span class="type-signature"></span>
+					</h4>
+
+					<dl class="details">
+						<dt class="tag-source">Source:</dt>
+						<dd class="tag-source">
+							<ul class="dummy">
+								<li>
+									<a href="paint.js.html">paint.js</a>
+									,
+									<a href="paint.js.html#line216">line 216</a>
+								</li>
+							</ul>
+						</dd>
+					</dl>
+
+					<div class="description usertext">
+						<p>mouse has been pressed - note the starting mouse position and options</p>
+					</div>
+
+					<h5>Parameters:</h5>
+
+					<table class="params">
+						<thead>
+							<tr>
+								<th>Name</th>
+
+								<th>Type</th>
+
+								<th class="last">Description</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr>
+								<td class="name"><code>e</code></td>
+
+								<td class="type">
+									<span class="param-type">event</span>
+								</td>
+
+								<td class="description last"></td>
+							</tr>
+						</tbody>
+					</table>
+				</article>
+			</section>
+		</div>
+
 		<br class="clear" />
 
 		<footer>
 			Documentation generated by
-			<a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a>
-			on Sat Jan 22 2022 22:22:27 GMT+0000 (Greenwich Mean Time)
+			<a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a>
+			on Sat Jan 29 2022 14:03:02 GMT+0000 (Greenwich Mean Time) using the
+			<a href="https://github.com/clenemt/docdash">docdash</a>
+			theme.
 		</footer>
 
 		<script>
 			prettyPrint()
 		</script>
+		<script src="scripts/polyfill.js"></script>
 		<script src="scripts/linenumber.js"></script>
 	</body>
 </html>
