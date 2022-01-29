@@ -634,6 +634,7 @@ function displayNetPane(msg) {
 			JSON.stringify({nodes: data.nodes.get(), edges: data.edges.get(), net: yNetMap.toJSON()})
 		)
 		setAnalysisButtonsFromRemote()
+		toggleDeleteButton()
 		setLegend(yNetMap.get('legend'), false)
 	}
 }
@@ -2237,6 +2238,10 @@ function plusLink() {
 		default:
 			// false
 			removeFactorCursor()
+			if (data.nodes.length < 2) {
+				statusMsg('Two Factors needed to link', 'error')
+				break
+			}
 			changeCursor('crosshair')
 			inAddMode = 'addLink'
 			showPressed('addLink', 'add')
@@ -2418,6 +2423,7 @@ function loadFile(contents) {
 	})
 	yUndoManager.clear()
 	undoRedoButtonStatus()
+	toggleDeleteButton()
 }
 /**
  * Parse and load a PRSM map file, or a JSON file exported from Gephi
@@ -2769,26 +2775,13 @@ function savePRSMfile() {
  * download location with a default name.
  */
 function saveStr(str, extn) {
-	let blob = new Blob([str], {
-		type: 'text/plain',
-	})
 	setFileName(extn)
-	// detect whether the browser is IE/Edge or another browser
-	if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-		// IE or Edge browser.
-		window.navigator.msSaveOrOpenBlob(blob, lastFileName)
-	} else {
-		// Another browser, create a tag to download file.
-		const url = window.URL.createObjectURL(blob)
-		const a = document.createElement('a')
-		document.body.appendChild(a)
-		a.setAttribute('style', 'display: none')
-		a.href = url
-		a.download = lastFileName
-		a.click()
-		a.remove()
-	}
-	statusMsg(`'${lastFileName}' saved`, 'info')
+	const a = document.createElement('a')
+	const file = new Blob([str], {type: 'text/plain'})
+	a.href = URL.createObjectURL(file)
+	a.download = lastFileName
+	a.click()
+	URL.revokeObjectURL(a.href)
 	checkMapSaved = false
 	dirty = false
 }
