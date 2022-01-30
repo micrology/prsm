@@ -1046,26 +1046,21 @@
 					<div class="invite">
 						To invite others to participate in developing this map, send them this link:
 					</div>
-					<label class="clone" for="clone-check">
-						Clone map
-						<br />
-						<span class="small">
+					<div class="clone">
+						Open a clone of the map 
+						<div class="small">
 							(users will be able to modify the map, but their changes won't change this one)
-						</span>
-					</label>
-					<input class="clone-check" type="checkbox" id="clone-check" />
-					<label class="view" for="view-check">
-						View only
-						<br />
-						<span class="small">(users will be able to see the map, but will not able to modify it)</span>
-					</label>
-					<input class="view-check" type="checkbox" id="view-check" />
-					<label class="table" for="tablecheck">
-						Data view
-						<br />
-						<span class="small">(view Factors and Links in a data table)</span>
-					</label>
-					<input class="table-check" type="checkbox" id="table-check" />
+						</div>
+					</div>
+					<button class="modal-button clone-button" type="button" id="clone-button">Clone map</button>
+					<div class="view">Open a view-only copy of the map 
+						<div class="small">(users will be able to see the map, but will not able to modify it)</div>
+					</div>
+					<button class="modal-button view-button" type="button" id="view-button">Read only</button>
+					<div class="table">Open a data view of the map
+						<div class="small">(view Factors and Links in a data table)</div>
+					</div>
+					<button class="modal-button table-button" type="button" id="table-button">Data view</button>
 					<textarea class="text-to-copy" rows="1" readonly id="text-to-copy"></textarea>
 					<div class="copy-text-container">
 						<button type="button" id="copy-text">Copy to clipboard</button>

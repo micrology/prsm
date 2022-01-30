@@ -2938,37 +2938,7 @@ function setUpShareDialog() {
 
 	// When the user clicks the button, open the modal
 	listen('share', 'click', () => {
-		setLink('share')
-	})
-	listen('clone-check', 'click', () => setLink(elem('clone-check').checked ? 'clone' : 'share'))
-	listen('view-check', 'click', () => setLink(elem('view-check').checked ? 'view' : 'share'))
-	listen('table-check', 'click', () => setLink(elem('table-check').checked ? 'table' : 'share'))
-
-	function setLink(type) {
-		let path
-		switch (type) {
-			case 'share':
-				path = window.location.pathname + '?room=' + room
-				break
-			case 'clone':
-				path = window.location.pathname + '?room=' + clone()
-				elem('view-check').checked = false
-				elem('table-check').checked = false
-				break
-			case 'view':
-				path = window.location.pathname + '?room=' + room + '&viewing'
-				elem('clone-check').checked = false
-				elem('table-check').checked = false
-				break
-			case 'table':
-				path = window.location.pathname.replace('prsm.html', 'table.html') + '?room=' + room
-				elem('clone-check').checked = false
-				elem('view-check').checked = false
-				break
-			default:
-				console.log('Bad case in setLink()')
-				break
-		}
+		let path = window.location.pathname + '?room=' + room
 		let linkToShare = window.location.origin + path
 		modal.style.display = 'block'
 		inputElem.cols = linkToShare.length.toString()
@@ -2976,6 +2946,28 @@ function setUpShareDialog() {
 		inputElem.style.height = inputElem.scrollHeight - 3 + 'px'
 		inputElem.select()
 		network.storePositions()
+	})
+	listen('clone-button', 'click', () => openWindow('clone'))
+	listen('view-button', 'click', () => openWindow('view'))
+	listen('table-button', 'click', () => openWindow('table'))
+
+	function openWindow(type) {
+		let path = ''
+		switch (type) {
+			case 'clone':
+				path = window.location.pathname + '?room=' + clone()
+				break
+			case 'view':
+				path = window.location.pathname + '?room=' + room + '&viewing'
+				break
+			case 'table':
+				path = window.location.pathname.replace('prsm.html', 'table.html') + '?room=' + room
+				break
+			default:
+				console.log('Bad case in openWindow()')
+				break
+		}
+		window.open(path, '_blank')
 	}
 	// When the user clicks on <span> (x), close the modal
 	listen('modal-close', 'click', closeShareDialog)
@@ -2986,8 +2978,6 @@ function setUpShareDialog() {
 		let modal = elem('shareModal')
 		if (event.target == modal || event.target == elem('modal-close')) {
 			modal.style.display = 'none'
-			elem('clone-check').checked = false
-			elem('view-check').checked = false
 			copiedText.style.display = 'none'
 		}
 	}
