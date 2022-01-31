@@ -1365,9 +1365,9 @@ function copyToClipboard(event) {
 
 async function copyText(text) {
 	try {
-		typeof navigator.clipboard.writeText !== 'function'
+		if( typeof navigator.clipboard.writeText !== 'function') throw new Error('navigator.clipboard.writeText not a function')
 	} catch(e) {
-		statusMsg('Copying not implemented in this browser: try another browser', 'error')
+		statusMsg('Copying not implemented in this browser', 'error')
 		return false
 	}
 	try {
@@ -1413,9 +1413,9 @@ async function pasteFromClipboard() {
 
 async function getClipboardContents() {
 	try {
-		typeof navigator.clipboard.readText !== 'function'
+		if( typeof navigator.clipboard.readText !== 'function') throw new Error('navigator.clipboard.readText not a function')
 	} catch(e) {
-		statusMsg('Pasting not implemented in this browser: try another browser', 'error')
+		statusMsg('Pasting not implemented in this browser', 'error')
 		return null
 	}
 	try {
