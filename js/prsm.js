@@ -1365,7 +1365,14 @@ function copyToClipboard(event) {
 
 async function copyText(text) {
 	try {
+		typeof navigator.clipboard.writeText !== 'function'
+	} catch(e) {
+		statusMsg('Copying not implemented in this browser: try another browser', 'error')
+		return false
+	}
+	try {
 		await navigator.clipboard.writeText(text)
+		statusMsg('Copied', 'info')
 		return true
 	} catch (err) {
 		console.error('Failed to copy: ', err)
@@ -1375,10 +1382,10 @@ async function copyText(text) {
 }
 
 async function pasteFromClipboard() {
-	let clip = await getClipboardContents()
+	let clip = await getClipboardContents();
 	let nodes, edges
 	try {
-		;({nodes, edges} = JSON.parse(clip))
+		({nodes, edges} = JSON.parse(clip))
 	} catch (err) {
 		// silently return (i.e. use system paste) if there is nothing relevant on the clipboard
 		return
@@ -1401,9 +1408,16 @@ async function pasteFromClipboard() {
 	data.edges.add(edges)
 	network.setSelection({nodes: nodes.map((n) => n.id), edges: edges.map((e) => e.id)})
 	showSelected()
+	statusMsg('Pasted', 'info')
 }
 
 async function getClipboardContents() {
+	try {
+		typeof navigator.clipboard.readText !== 'function'
+	} catch(e) {
+		statusMsg('Pasting not implemented in this browser: try another browser', 'error')
+		return null
+	}
 	try {
 		return await navigator.clipboard.readText()
 	} catch (err) {
