@@ -40,12 +40,12 @@
 				font-display: swap;
 			}
 		</style>
-		<link
+		<!-- 		<link
 			rel="preload"
 			href="../css/vis-network.min.css"
 			as="style"
 			onload="this.onload=null;this.rel='stylesheet'"
-		/>
+		/> -->
 		<link href="../node_modules/quill/dist/quill.snow.css" rel="stylesheet" />
 		<link href="../css/prsm.css" rel="stylesheet" />
 		<script>
@@ -55,7 +55,7 @@
 			if (window.document.documentMode || window.navigator.userAgent.indexOf('Edge/') > -1) {
 				alert(
 					'Your browser does not support all the features required.  Try an up-to-date copy of Edge, Chrome, Firefox or Safari'
-				);
+				)
 			}
 		</script>
 	</head>
@@ -66,7 +66,7 @@
 				<div>
 					<div class="strap">
 						<span class="strapline">Participatory System Mapper</span>
-						<span class="version" id="version">1.7.0</span>
+						<span class="version" id="version">1.9.0</span>
 					</div>
 					<div class="title">
 						<div
@@ -118,7 +118,8 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Add factor</span>
+							<div class="button-text">Add factor</div>
+							<span class="tooltiptext">Add a new factor</span>
 						</div>
 						<div
 							class="tooltip right-border"
@@ -129,19 +130,22 @@
 							<button type="button" id="addLink">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									width="28"
-									height="28"
+									width="24"
+									height="24"
 									fill="currentColor"
 									class="bi bi-arrow-right"
 									viewBox="0 0 16 16"
 								>
 									<path
+										stroke="currentColor"
+										stroke-width="1.2"
 										fill-rule="evenodd"
 										d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Add link</span>
+							<div class="button-text">Add link</div>
+							<span class="tooltiptext">Add a new link between factors</span>
 						</div>
 						<div class="tooltip">
 							<button type="button" id="undo" class="disabled">
@@ -162,7 +166,8 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Undo</span>
+							<div class="button-text">Undo</div>
+							<span class="tooltiptext">Undo the last action</span>
 						</div>
 						<div class="tooltip">
 							<button type="button" id="redo" class="disabled">
@@ -183,7 +188,8 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Redo</span>
+							<div class="button-text">Redo</div>
+							<span class="tooltiptext">Redo the last undo</span>
 						</div>
 						<div
 							class="tooltip right-border"
@@ -191,7 +197,7 @@
 							data-step="4"
 							data-position="below"
 						>
-							<button type="button" id="deleteNode">
+							<button type="button" id="deleteNode" class="disabled">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -209,7 +215,8 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Delete selected</span>
+							<div class="button-text">Delete</div>
+							<span class="tooltiptext">Delete selected factors and links</span>
 						</div>
 						<div class="tooltip">
 							<button type="button" id="share">
@@ -231,10 +238,11 @@
 									<path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" />
 								</svg>
 							</button>
-							<span class="tooltiptext">Share</span>
+							<div class="button-text">Share</div>
+							<span class="tooltiptext">Share the map using a web link</span>
 						</div>
 						<div class="tooltip">
-							<button type="button" id="openFile">
+							<button type="button" id="openMap">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -248,7 +256,8 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Open network</span>
+							<div class="button-text">Open</div>
+							<span class="tooltiptext">Open a map file</span>
 						</div>
 						<div
 							class="tooltip"
@@ -273,7 +282,8 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Save network</span>
+							<div class="button-text">Save</div>
+							<span class="tooltiptext">Save the map to a file</span>
 						</div>
 						<div class="dropdown-wrapper">
 							<span id="save-dropdown">
@@ -291,26 +301,35 @@
 								</svg>
 							</span>
 							<div class="dropdown-content">
-								<div class="tooltip">
-									<button class="dropdown-label" type="button" id="exportPRSM">PRSM</button>
-									<span class="tooltiptext">Save as a PRSM file</span>
+								<div>
+									<div class="tooltip">
+										<button class="dropdown-label" type="button" id="exportPRSM">PRSM</button>
+										<span class="tooltiptext">Save as a PRSM file</span>
+									</div>
 								</div>
-								<div class="tooltip">
-									<button class="dropdown-label" type="button" id="exportImage">Image</button>
-									<span class="tooltiptext">Save as a PNG image file</span>
+								<div>
+									<div class="tooltip">
+										<button class="dropdown-label" type="button" id="exportImage">Image</button>
+										<span class="tooltiptext">Save as a PNG image file</span>
+									</div>
 								</div>
-								<div class="tooltip">
-									<button class="dropdown-label" type="button" id="exportCVS">CSV</button>
-									<span class="tooltiptext">Save as CSV files</span>
+								<div>
+									<div class="tooltip">
+										<button class="dropdown-label" type="button" id="exportCVS">CSV</button>
+										<span class="tooltiptext">Save as CSV files</span>
+									</div>
 								</div>
-								<div class="tooltip">
-									<button class="dropdown-label" type="button" id="exportGML">GML</button>
-									<span class="tooltiptext">Save as a GML file</span>
+								<div>
+									<div class="tooltip">
+										<button class="dropdown-label" type="button" id="exportGML">GML</button>
+										<span class="tooltiptext">Save as a GML file</span>
+									</div>
 								</div>
 							</div>
 						</div>
 						<div
 							class="tooltip left-border"
+							style="margin-left: 5px"
 							data-tutorial="Search for factors"
 							data-step="6"
 							data-position="left"
@@ -329,6 +348,7 @@
 									/>
 								</svg>
 							</button>
+							<div class="button-text">Search</div>
 							<span class="tooltiptext searchtip">Search for factors by name</span>
 						</div>
 						<div
@@ -351,6 +371,7 @@
 									/>
 								</svg>
 							</button>
+							<div class="button-text">Help</div>
 							<span class="tooltiptext">Show help in a new window</span>
 						</div>
 						<div class="tooltip" data-tutorial="Show more options" data-step="8" data-position="left">
@@ -369,7 +390,12 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Show or hide settings</span>
+							<div class="button-text">Settings</div>
+							<span class="tooltiptext settingstip">
+								Show or hide
+								<br />
+								the settings panel
+							</span>
 						</div>
 					</div>
 				</div>
@@ -579,18 +605,66 @@
 			<div class="panelHeader" id="panelHeader"></div>
 			<!-- Tabs -->
 			<div class="tab" id="tab">
-				<div class="tablinks" id="networkButton">Network</div>
 				<div class="tablinks" id="nodesButton">Factors</div>
 				<div class="tablinks" id="linksButton">Links</div>
+				<div class="tablinks" id="networkButton">Network</div>
+				<div class="tablinks" id="analysisButton">Analysis</div>
 			</div>
 			<!-- Tab content -->
+			<!-- Factor tab -->
+			<div class="tabcontent hide" id="nodesTab">
+				<div class="samples">
+					<div class="sampleGrid">
+						<div class="sampleNode" id="nodeSample1"></div>
+						<div class="sampleNode" id="nodeSample2"></div>
+						<div class="sampleNode" id="nodeSample3"></div>
+						<div class="sampleNode" id="nodeSample4"></div>
+						<div class="sampleNode" id="nodeSample5"></div>
+						<div class="sampleNode" id="nodeSample6"></div>
+						<div class="sampleNode" id="nodeSample7"></div>
+						<div class="sampleNode" id="nodeSample8"></div>
+						<div class="sampleNode" id="nodeSample9"></div>
+					</div>
+					<div class="panelRow centered">
+						<button type="button" class="btn" id="allFactors">Select all factors</button>
+					</div>
+				</div>
+			</div>
+			<!-- Links Tab -->
+			<div class="tabcontent hide" id="linksTab">
+				<div class="samples">
+					<div class="sampleGrid">
+						<div class="sampleLink" id="linkSample1"></div>
+						<div class="sampleLink" id="linkSample2"></div>
+						<div class="sampleLink" id="linkSample3"></div>
+						<div class="sampleLink" id="linkSample4"></div>
+						<div class="sampleLink" id="linkSample5"></div>
+						<div class="sampleLink" id="linkSample6"></div>
+						<div class="sampleLink" id="linkSample7"></div>
+						<div class="sampleLink" id="linkSample8"></div>
+						<div class="sampleLink" id="linkSample9"></div>
+					</div>
+					<div class="panelRow centered">
+						<button type="button" class="btn" id="allLinks">Select all links</button>
+					</div>
+				</div>
+			</div>
 			<!-- Network tab -->
 			<div class="tabcontent hide" id="networkTab">
 				<div class="networkStyles">
 					<div class="networkGrid">
 						<div class="panelRow">
-							<div>Apply</div>
-							<button type="button" class="pushbutton" id="trophicButton">Trophic layout</button>
+							<div>Auto layout:</div>
+							<div>
+								<select id="layoutSelect">
+									<option value="off" selected>Off</option>
+									<option value="trophic">Trophic</option>
+									<option value="fan">Fan</option>
+									<option value="barnesHut">Barnes Hut</option>
+									<option value="forceAtlas2Based">Force Atlas 2</option>
+									<option value="repulsion">Repulsion</option>
+								</select>
+							</div>
 						</div>
 						<div class="panelRow">
 							<div>Snap to grid</div>
@@ -695,21 +769,28 @@
 								</label>
 							</div>
 						</div>
-						<div class="panelRow divider">
-							<label for="hideAll">Show all</label>
-							<input type="radio" id="hideAll" name="hide" value="All" checked />
+					</div>
+				</div>
+			</div>
+			<!-- Analysis tab -->
+			<div class="tabcontent hide" id="analysisTab">
+				<div class="networkStyles">
+					<div class="networkGrid">
+						<div class="panelRow">
+							<label for="radiusAll">Show all</label>
+							<input type="radio" id="radiusAll" name="radius" value="All" checked />
 						</div>
 						<div class="panelRow">
 							<label for="oneLink">Show only Factors 1 link away</label>
-							<input type="radio" id="oneLink" name="hide" value="1" />
+							<input type="radio" id="oneLink" name="radius" value="1" />
 						</div>
 						<div class="panelRow">
 							<label for="oneLink">Show only Factors 2 links away</label>
-							<input type="radio" id="twoLinks" name="hide" value="2" />
+							<input type="radio" id="twoLinks" name="radius" value="2" />
 						</div>
 						<div class="panelRow">
 							<label for="threeLinks">Show only Factors 3 links away</label>
-							<input type="radio" id="threeLinks" name="hide" value="3" />
+							<input type="radio" id="threeLinks" name="radius" value="3" />
 						</div>
 						<div class="panelRow divider">
 							<label for="streamAll">Show all</label>
@@ -722,6 +803,18 @@
 						<div class="panelRow">
 							<label for="downstream">Show only Factors downstream</label>
 							<input type="radio" id="downstream" name="stream" value="downstream" />
+						</div>
+						<div class="panelRow divider">
+							<label for="pathsAll">Show all</label>
+							<input type="radio" id="pathsAll" name="paths" value="All" checked />
+						</div>
+						<div class="panelRow">
+							<label for="paths">Show all paths between</label>
+							<input type="radio" id="allPaths" name="paths" value="allPaths" />
+						</div>
+						<div class="panelRow">
+							<label for="shortestPath">Show shortest path between</label>
+							<input type="radio" id="shortestPath" name="paths" value="shortestPath" />
 						</div>
 						<div class="panelRow divider">
 							<div>Size Factors to:</div>
@@ -745,45 +838,6 @@
 								</select>
 							</div>
 						</div>
-					</div>
-				</div>
-			</div>
-			<!-- Factor tab -->
-			<div class="tabcontent hide" id="nodesTab">
-				<div class="samples">
-					<div class="sampleGrid">
-						<div class="sampleNode" id="nodeSample1"></div>
-						<div class="sampleNode" id="nodeSample2"></div>
-						<div class="sampleNode" id="nodeSample3"></div>
-						<div class="sampleNode" id="nodeSample4"></div>
-						<div class="sampleNode" id="nodeSample5"></div>
-						<div class="sampleNode" id="nodeSample6"></div>
-						<div class="sampleNode" id="nodeSample7"></div>
-						<div class="sampleNode" id="nodeSample8"></div>
-						<div class="sampleNode" id="nodeSample9"></div>
-					</div>
-					<div class="panelRow centered">
-						<button type="button" class="btn" id="allFactors">Select all factors</button>
-					</div>
-				</div>
-			</div>
-
-			<!-- Links Tab -->
-			<div class="tabcontent hide" id="linksTab">
-				<div class="samples">
-					<div class="sampleGrid">
-						<div class="sampleLink" id="linkSample1"></div>
-						<div class="sampleLink" id="linkSample2"></div>
-						<div class="sampleLink" id="linkSample3"></div>
-						<div class="sampleLink" id="linkSample4"></div>
-						<div class="sampleLink" id="linkSample5"></div>
-						<div class="sampleLink" id="linkSample6"></div>
-						<div class="sampleLink" id="linkSample7"></div>
-						<div class="sampleLink" id="linkSample8"></div>
-						<div class="sampleLink" id="linkSample9"></div>
-					</div>
-					<div class="panelRow centered">
-						<button type="button" class="btn" id="allLinks">Select all links</button>
 					</div>
 				</div>
 			</div>
@@ -867,6 +921,7 @@
 				</div>
 			</div>
 		</div>
+		<div id="errMsg"></div>
 		<footer data-tutorial="Hints and messages appear here" data-step="9" data-position="above">
 			<div id="statusBar">
 				<br />
@@ -991,26 +1046,21 @@
 					<div class="invite">
 						To invite others to participate in developing this map, send them this link:
 					</div>
-					<label class="clone" for="clone-check">
-						Clone map
-						<br />
-						<span class="small">
+					<div class="clone">
+						Open a clone of the map 
+						<div class="small">
 							(users will be able to modify the map, but their changes won't change this one)
-						</span>
-					</label>
-					<input class="clone-check" type="checkbox" id="clone-check" />
-					<label class="view" for="view-check">
-						View only
-						<br />
-						<span class="small">(users will be able to see the map, but will not able to modify it)</span>
-					</label>
-					<input class="view-check" type="checkbox" id="view-check" />
-					<label class="table" for="tablecheck">
-						Data view
-						<br />
-						<span class="small">(view Factors and Links in a data table)</span>
-					</label>
-					<input class="table-check" type="checkbox" id="table-check" />
+						</div>
+					</div>
+					<button class="modal-button clone-button" type="button" id="clone-button">Clone map</button>
+					<div class="view">Open a view-only copy of the map 
+						<div class="small">(users will be able to see the map, but will not able to modify it)</div>
+					</div>
+					<button class="modal-button view-button" type="button" id="view-button">Read only</button>
+					<div class="table">Open a data view of the map
+						<div class="small">(view Factors and Links in a data table)</div>
+					</div>
+					<button class="modal-button table-button" type="button" id="table-button">Data view</button>
 					<textarea class="text-to-copy" rows="1" readonly id="text-to-copy"></textarea>
 					<div class="copy-text-container">
 						<button type="button" id="copy-text">Copy to clipboard</button>
@@ -1052,11 +1102,11 @@
 			<div class="chatbox chatbox-hide" id="chatbox">
 				<div class="chatbox-top" id="chatbox-top">
 					<div class="chat-name">
-						My name:
 						<div class="tooltip">
-							<input type="text" id="chat-name" />
+							<label for="chat-name">My name:</label>
 							<span class="tooltiptext">Click to change your nickname</span>
 						</div>
+						<input type="text" id="chat-name" />
 					</div>
 					<div class="chatbox-icons">
 						<div class="tooltip">
@@ -1115,33 +1165,12 @@
 		<div class="history-window" id="history-window">
 			<div class="history-header" id="history-header">
 				History
-				<span class="history-close" id="history-close">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="24"
-						height="24"
-						fill="currentColor"
-						class="bi bi-x"
-						viewBox="0 0 16 16"
-					>
-						<path
-							d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
-						/>
-					</svg>
-				</span>
+				<span class="history-close" id="history-close">&times;</span>
 			</div>
 			<div class="history-log-wrapper" id="history-log-wrapper">
 				<div class="history-log" id="history-log"></div>
 			</div>
 		</div>
-		<img
-			id="badge"
-			style="display: none"
-			src="../img/Letter-Open-icon.png"
-			alt="Notes icon"
-			width="24"
-			height="24"
-		/>
 		<ol class="contextmenu" id="styleNodeContextMenu">
 			<li class="menu-item">
 				<button type="button" class="menu-btn">

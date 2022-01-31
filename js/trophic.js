@@ -12,194 +12,195 @@ NG 18 December 2020
  * Matrix data structure is just an array of arrays
  */
 
+import {NLEVELS} from './prsm.js'
 /**
  * convert a directed adjacency matrix to an undirected one
  * mirror the elements above the leading diagonal to below it
- * @param {matrix} a
- * @returns {matrix} a copy of a
+ * @param {array[]} a
+ * @returns {array[]} a copy of a
  */
 function undirected(a) {
-	let b = Array(a.length);
+	let b = Array(a.length)
 	for (let i = 0; i < a.length; i++) {
-		b[i] = new Array(a.length);
-		b[i][i] = a[i][i];
+		b[i] = new Array(a.length)
+		b[i][i] = a[i][i]
 	}
 	for (let i = 0; i < a.length; i++) {
 		for (let j = i + 1; j < a.length; j++) {
 			if (a[i][j] || a[j][i]) {
-				b[i][j] = 1;
-				b[j][i] = 1;
+				b[i][j] = 1
+				b[j][i] = 1
 			} else {
-				b[i][j] = 0;
-				b[j][i] = 0;
+				b[i][j] = 0
+				b[j][i] = 0
 			}
 		}
 	}
-	return b;
+	return b
 }
 /**
  * check that all nodes are connected to at least one other node
  * i.e. every row includes at least one 1
- * @param {matrix} a
+ * @param {array[]} a
  */
 function connected(a) {
 	for (let i = 0; i < a.length; i++) {
-		let nonzero = false;
+		let nonzero = false
 		for (let j = 0; j < a.length; j++) {
 			if (a[i][j] !== 0) {
-				nonzero = true;
-				break;
+				nonzero = true
+				break
 			}
 		}
-		if (!nonzero) return false;
+		if (!nonzero) return false
 	}
-	return true;
+	return true
 }
 /**
  * swap cell values across the leading diagonal
- * @param {matrix} a
- * @returns {matrix} a transposed copy of a
+ * @param {array[]} a
+ * @returns {array[]} a transposed copy of a
  */
 function transpose(a) {
-	let b = new Array(a.length);
+	let b = new Array(a.length)
 	for (let i = 0; i < a.length; i++) {
-		b[i] = new Array(a.length);
-		for (let j = 0; j < a.length; j++) b[i][j] = a[j][i];
+		b[i] = new Array(a.length)
+		for (let j = 0; j < a.length; j++) b[i][j] = a[j][i]
 	}
-	return b;
+	return b
 }
 /**
  * return a vector of the number of edges out of a node
- * @param {matrix} a
- * @returns {vector}
+ * @param {array[]} a
+ * @returns {array}
  */
 function out_degree(a) {
-	let v = new Array(a.length);
-	for (let row = 0; row < a.length; row++) v[row] = sumVec(a[row]);
-	return v;
+	let v = new Array(a.length)
+	for (let row = 0; row < a.length; row++) v[row] = sumVec(a[row])
+	return v
 }
 /**
  * return a vector of the number of edges into a node
- * @param {matrix} a
- * @returns {vector}
+ * @param {array[]} a
+ * @returns {array}
  */
 function in_degree(a) {
-	return out_degree(transpose(a));
+	return out_degree(transpose(a))
 }
 /**
  * returns the summation of the values in the vector
- * @param {vector} v
- * @returns {integer}
+ * @param {array} v
+ * @returns {number}
  */
 function sumVec(v) {
-	let sum = 0;
-	for (let i = 0; i < v.length; i++) sum += v[i];
-	return sum;
+	let sum = 0
+	for (let i = 0; i < v.length; i++) sum += v[i]
+	return sum
 }
 /**
  * v1 - v2
- * @param {vector} v1
- * @param {vector} v2
- * @returns {vector}
+ * @param {array} v1
+ * @param {array} v2
+ * @returns {array}
  */
 function subVec(v1, v2) {
-	let res = new Array(v1.length);
-	for (let i = 0; i < v1.length; i++) res[i] = v1[i] - v2[i];
-	return res;
+	let res = new Array(v1.length)
+	for (let i = 0; i < v1.length; i++) res[i] = v1[i] - v2[i]
+	return res
 }
 /**
  * v1 + v2
- * @param {vector} v1
- * @param {vector} v2
- * @returns {vector}
+ * @param {array} v1
+ * @param {array} v2
+ * @returns {array}
  */
 function addVec(v1, v2) {
-	let res = new Array(v1.length);
-	for (let i = 0; i < v1.length; i++) res[i] = v1[i] + v2[i];
-	return res;
+	let res = new Array(v1.length)
+	for (let i = 0; i < v1.length; i++) res[i] = v1[i] + v2[i]
+	return res
 }
 /**
  * subtract matrix b from a
- * @param {matrix} a
- * @param {matrix} b
+ * @param {array[]} a
+ * @param {array[]} b
  */
 function subtract(a, b) {
-	let c = new Array(a.length);
+	let c = new Array(a.length)
 	for (let i = 0; i < a.length; i++) {
-		c[i] = subVec(a[i], b[i]);
+		c[i] = subVec(a[i], b[i])
 	}
-	return c;
+	return c
 }
 /**
  * Add matrix a to its transpose, but normalise the cell values resulting to 0/1
- * @param {matrix} a
- * @returns {matrix} a copy of the result
+ * @param {array[]} a
+ * @returns {array[]} a copy of the result
  */
 function mergeTranspose(a) {
-	let b = transpose(a);
+	let b = transpose(a)
 	for (let i = 0; i < a.length; i++) {
-		for (let j = 0; j < a.length; j++) if (a[i][j] > 0) b[i][j] = 1;
+		for (let j = 0; j < a.length; j++) if (a[i][j] > 0) b[i][j] = 1
 	}
-	return b;
+	return b
 }
 /**
  * create a new matrix of size n, with all cells zero
- * @param {matrix} a
+ * @param {number} n
  */
 function zero(n) {
-	let b = new Array(n);
+	let b = new Array(n)
 	for (let i = 0; i < n; i++) {
-		b[i] = new Array(n).fill(0);
+		b[i] = new Array(n).fill(0)
 	}
-	return b;
+	return b
 }
 /**
  * create a zero matrix with v as the leading diagonal
- * @param {vector} v
- * @returns {matrix}
+ * @param {array} v
+ * @returns {array[]}
  */
 function diag(v) {
-	let b = zero(v.length);
+	let b = zero(v.length)
 	for (let i = 0; i < v.length; i++) {
-		b[i][i] = v[i];
+		b[i][i] = v[i]
 	}
-	return b;
+	return b
 }
 /**
  * subtract the minimum value of any cell from each cell of the vector
- * @param {vector} v
+ * @param {array} v
  */
 function rebase(v) {
-	let min = Math.min(...v);
-	let res = new Array(v.length);
-	for (let i = 0; i < v.length; i++) res[i] = v[i] - min;
-	return res;
+	let min = Math.min(...v)
+	let res = new Array(v.length)
+	for (let i = 0; i < v.length; i++) res[i] = v[i] - min
+	return res
 }
 /**
  * solve Ax=B by Gauss-Jordan elimination method
  * adapted from https://www.npmjs.com/package/linear-equation-system
- * @param {matrix} A
- * @param {vector} B
+ * @param {array[]} A
+ * @param {array} B
  */
 function solve(A, B) {
-	let system = A.slice();
-	for (let i = 0; i < B.length; i++) system[i].push(B[i]);
+	let system = A.slice()
+	for (let i = 0; i < B.length; i++) system[i].push(B[i])
 
 	for (let i = 0; i < system.length; i++) {
-		let pivotRow = findPivotRow(system, i);
-		if (!pivotRow) return false; //Singular system
-		if (pivotRow != i) system = swapRows(system, i, pivotRow);
-		let pivot = system[i][i];
+		let pivotRow = findPivotRow(system, i)
+		if (!pivotRow) return false //Singular system
+		if (pivotRow != i) system = swapRows(system, i, pivotRow)
+		let pivot = system[i][i]
 		for (let j = i; j < system[i].length; j++) {
 			//divide row by pivot
-			system[i][j] = system[i][j] / pivot;
+			system[i][j] = system[i][j] / pivot
 		}
 		for (let j = i + 1; j < system.length; j++) {
 			// Cancel below pivot
 			if (system[j][i] != 0) {
-				let operable = system[j][i];
+				let operable = system[j][i]
 				for (let k = i; k < system[i].length; k++) {
-					system[j][k] -= operable * system[i][k];
+					system[j][k] -= operable * system[i][k]
 				}
 			}
 		}
@@ -208,176 +209,188 @@ function solve(A, B) {
 		// Back substitution
 		for (let j = i - 1; j >= 0; j--) {
 			if (system[j][i] != 0) {
-				let operable = system[j][i];
+				let operable = system[j][i]
 				for (let k = j; k < system[j].length; k++) {
-					system[j][k] -= operable * system[i][k];
+					system[j][k] -= operable * system[i][k]
 				}
 			}
 		}
 	}
-	let answer = [];
+	let answer = []
 	for (let i = 0; i < system.length; i++) {
-		answer.push(system[i].pop());
+		answer.push(system[i].pop())
 	}
-	return answer;
+	return answer
 
 	function findPivotRow(sys, index) {
-		let row = index;
-		for (let i = index; i < sys.length; i++) if (Math.abs(sys[i][index]) > Math.abs(sys[row][index])) row = i;
-		if (sys[row][index] == 0) return false;
-		return row;
+		let row = index
+		for (let i = index; i < sys.length; i++) if (Math.abs(sys[i][index]) > Math.abs(sys[row][index])) row = i
+		if (sys[row][index] == 0) return false
+		return row
 	}
 
 	function swapRows(sys, row1, row2) {
-		let cache = sys[row1];
-		sys[row1] = sys[row2];
-		sys[row2] = cache;
-		return sys;
+		let cache = sys[row1]
+		sys[row1] = sys[row2]
+		sys[row2] = cache
+		return sys
 	}
 }
 /**
  * Round the cell values of v to the given number of decimal places
- * @param {vector} v
- * @param {integer} places
+ * @param {array} v
+ * @param {number} places
  */
 function round(v, places) {
-	for (let i = 0; i < v.length; i++) v[i] = v[i].toFixed(places);
-	return v;
+	for (let i = 0; i < v.length; i++) v[i] = v[i].toFixed(places)
+	return v
 }
 
 /* --------------------------------------------------------------------*/
 /**
  * This is the Trophic Levels Algorithm
  *
- * @param {matrix} a square adjacency matrix
- * @returns {vector} levels (heights)
+ * @param {array[]} a square adjacency matrix
+ * @returns {array} levels (heights)
  */
 function get_trophic_levels(a) {
 	// get undirected matrix
-	let au = undirected(a);
+	let au = undirected(a)
 	// check connected
 	if (connected(au)) {
 		// get in degree vector
-		let in_deg = in_degree(a);
+		let in_deg = in_degree(a)
 		// get out degree vector
-		let out_deg = out_degree(a);
+		let out_deg = out_degree(a)
 		// get in - out
-		let v = subVec(in_deg, out_deg);
+		let v = subVec(in_deg, out_deg)
 		// get diagonal matrix, subtract (adj. matrix plus its transpose)
-		let L = subtract(diag(addVec(in_deg, out_deg)), mergeTranspose(a));
+		let L = subtract(diag(addVec(in_deg, out_deg)), mergeTranspose(a))
 		// set (0,0) to zero
-		L[0][0] = 0;
+		L[0][0] = 0
 		// do linear solve
-		let h = solve(L, v);
+		let h = solve(L, v)
 		if (!h) {
-			throw new Error('Singular matrix');
+			throw new Error('Singular matrix')
 		}
 		// base to zero
-		h = rebase(h);
+		h = rebase(h)
 		// round to 3 decimal places
-		h = round(h, 3);
+		h = round(h, 3)
 		// return tropic heights
-		return h;
+		return h
 	} else {
-		throw new Error('Network must be weakly connected');
+		throw new Error('Network must be weakly connected')
 	}
 }
 /**
  * convert a vector of objects, each an edge referencing from and to nodes
  * to an adjacency matrix.  nodes is a list of nodes that acts as the index for the adj. matrix.
- * @param {vector} v list of edges
- * @param {vector} nodes list of node Ids
+ * @param {array} v list of edges
+ * @param {array} nodes list of node Ids
  * @returns matrix
  */
 function edgeListToAdjMatrix(v, nodes) {
-	let a = zero(nodes.length);
+	let a = zero(nodes.length)
 	for (let i = 0; i < v.length; i++) {
-		a[nodes.indexOf(v[i].from)][nodes.indexOf(v[i].to)] = 1;
+		a[nodes.indexOf(v[i].from)][nodes.indexOf(v[i].to)] = 1
 	}
-	return a;
+	return a
 }
 /**
  * returns a list of the node Ids mentioned in a vector of edges
- * @param {vector} v edges
+ * @param {array} v edges
  */
 function nodeList(v) {
-	let nodes = new Array();
+	let nodes = new Array()
 	for (let i = 0; i < v.length; i++) {
-		if (nodes.indexOf(v[i].from) == -1) nodes.push(v[i].from);
-		if (nodes.indexOf(v[i].to) == -1) nodes.push(v[i].to);
+		if (nodes.indexOf(v[i].from) == -1) nodes.push(v[i].from)
+		if (nodes.indexOf(v[i].to) == -1) nodes.push(v[i].to)
 	}
-	return nodes;
+	return nodes
 }
 /**
  * given a complete set of edges, returns a list of lists of edges, each list being the edges of a connected component
- * @param {dataSet} data
+ * @param {object} data
  */
 function connectedComponents(data) {
-	let edges = data.edges.get();
-	let cc = [];
-	let added = [];
-	let component = [];
+	let edges = data.edges.get()
+	let cc = []
+	let added = []
+	let component = []
 	// starting from each edge...
 	edges.forEach((e) => {
 		if (!added.includes(e)) {
-			component = [];
+			component = []
 			//do a depth first search for connected edges
-			dfs(e);
-			cc.push(component);
+			dfs(e)
+			cc.push(component)
 		}
-	});
+	})
 	/**
 	 * depth first search for edges connected to 'to' or 'from' nodes of this edge
 	 * adds edges found to component array
-	 * @param {edge} e
+	 * @param {object} e
 	 */
 	function dfs(e) {
-		added.push(e);
-		component.push(e);
+		added.push(e)
+		component.push(e)
 		edges
 			.filter((next) => {
 				return (
 					e !== next && (next.from === e.to || next.to === e.from || next.from == -e.from || next.to === e.to)
-				);
+				)
 			})
 			.forEach((next) => {
-				if (!added.includes(next)) dfs(next);
-			});
+				if (!added.includes(next)) dfs(next)
+			})
 	}
-	return cc;
+	return cc
 }
+
 /**
  * shift the positions of nodes according to the trophic 'height' (actually, here, the x coordinate)
- * @param {dataSet} data
+ * @param {object} data
  * @returns list of nodes whose positions have been altered
  */
 export function trophic(data) {
 	// get a list of lists of connected components, each list being pairs of to and from nodes
 	// process each connected component individually
-	let updatedNodes = [];
+	// nodes that are not connected to anything (degree 0) moved to the base level
+	let updatedNodes = []
+	// save min and max x coordinates of nodes
+	let minX = Math.min(...data.nodes.map((n) => n.x))
+	let maxX = Math.max(...data.nodes.map((n) => n.x))
 	connectedComponents(data).forEach((edges) => {
-		let nodeIds = nodeList(edges);
-		let nodes = data.nodes.get(nodeIds);
-		// save min and max x coordinates of nodes
-		let minX = Math.min(...nodes.map((n) => n.x));
-		let maxX = Math.max(...nodes.map((n) => n.x));
+		let nodeIds = nodeList(edges)
+		let nodes = data.nodes.get(nodeIds)
 		// convert to an adjacency matrix
-		let adj = edgeListToAdjMatrix(edges, nodeIds);
+		let adj = edgeListToAdjMatrix(edges, nodeIds)
 		// get trophic levels
-		let levels = get_trophic_levels(adj);
-		// rescale levels to match original max and min
-		let range = Math.max(...levels) - Math.min(...levels);
+		let levels = get_trophic_levels(adj)
+		// experimental: round levels to integers within the range 0 .. NLEVELS
+		let range = Math.max(...levels) - Math.min(...levels)
+		levels = levels.map((l) => Math.round((l * NLEVELS) / range))
+		// rescale x to match original max and min
+		range = Math.max(...levels) - Math.min(...levels)
 		// if all nodes are at same trophic height (range == 0, so scale would be infinity), line them up
-		let scale = range > 0.000001 ? (maxX - minX) / range : 0;
-		for (let i = 0; i < levels.length; i++) {
-			levels[i] = levels[i] * scale + minX;
-		}
+		let scale = range > 0.000001 ? (maxX - minX) / range : 0
 		// move nodes to new positions
 		for (let i = 0; i < nodeIds.length; i++) {
-			let node = nodes[i];
-			node.x = levels[i];
-			updatedNodes.push(node);
+			let node = nodes[i]
+			node.x = levels[i] * scale + minX
+			node.level = levels[i]
+			updatedNodes.push(node)
 		}
-	});
-	return updatedNodes;
+	})
+	// move all the rest (i.e. unconnected nodes) to the base level
+	data.nodes
+		.get()
+		.filter((n) => !updatedNodes.some((u) => n.id == u.id))
+		.map((n) => {
+			n.x = minX
+			n.level = 0
+		})
+
+	return data.nodes.get()
 }

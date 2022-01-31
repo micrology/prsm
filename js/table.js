@@ -1,68 +1,71 @@
-import * as Y from 'yjs';
-import {WebsocketProvider} from 'y-websocket';
-import {IndexeddbPersistence} from 'y-indexeddb';
-import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten} from './utils.js';
-import Tabulator from 'tabulator-tables';
-import {version} from '../package.json';
-import Quill from 'quill';
-import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html';
+import * as Y from 'yjs'
+import {WebsocketProvider} from 'y-websocket'
+import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter} from './utils.js'
+import Tabulator from 'tabulator-tables'
+import {version} from '../package.json'
+import Quill from 'quill'
+import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
 
-const shortAppName = 'PRSM';
+const shortAppName = 'PRSM'
 
-var debug = [];
-window.debug = debug;
-var room;
-const doc = new Y.Doc();
-var websocket = 'wss://www.prsm.uk/wss'; // web socket server URL
-var clientID; // unique ID for this browser
-var yNodesMap; // shared map of nodes
-var yEdgesMap; // shared map of edges
-var yNetMap; // shared map of network state
-var ySamplesMap; // shared map of styles
-var yUndoManager; // shared list of commands for undo
-var factorsTable; // the factors table
-var linksTable; //the links table
-var openTable; // the table that is currently on view
-var initialising = true; // true until the tables have been loaded
-var nAttributes = 0; // number of attributes
-var attributeTitles = {}; // titles of each of the attributes
-var myNameRec; // my name etc.
-var qed; // Quill editor
+var debug = ''
+window.debug = debug
+var room
+const doc = new Y.Doc()
+var websocket = 'wss://www.prsm.uk/wss' // web socket server URL
+var clientID // unique ID for this browser
+var yNodesMap // shared map of nodes
+var yEdgesMap // shared map of edges
+var yNetMap // shared map of network state
+var ySamplesMap // shared map of styles
+var yUndoManager // shared list of commands for undo
+var factorsTable // the factors table
+var linksTable //the links table
+var openTable // the table that is currently on view
+var initialising = true // true until the tables have been loaded
+var nAttributes = 0 // number of attributes
+var attributeTitles = {} // titles of each of the attributes
+var myNameRec // my name etc.
+var qed // Quill editor
+var loadingDelayTimer // timer to delay the start of the loading animation for few moments
 
 window.addEventListener('load', () => {
-	elem('version').innerHTML = version;
-	qed = new Quill('#notes-div');
-	setUpTabs();
-	setUpShareDialog();
-	startY();
-});
+	loadingDelayTimer = setTimeout(() => {
+		elem('loading').style.display = 'block'
+	}, 100)
+	elem('version').innerHTML = version
+	qed = new Quill('#notes-div')
+	setUpTabs()
+	setUpShareDialog()
+	startY()
+})
 
 /**
  * add event listeners for the Factor and Link tabs
  */
 
 function setUpTabs() {
-	elem('factors-table').style.display = 'block';
-	elem('links-table').style.display = 'none';
-	elem('factors-table-tab').classList.add('active');
+	elem('factors-table').style.display = 'block'
+	elem('links-table').style.display = 'none'
+	elem('factors-table-tab').classList.add('active')
 
-	let tabs = document.getElementsByClassName('table-tab');
+	let tabs = document.getElementsByClassName('table-tab')
 	for (let i = 0; i < tabs.length; i++) {
 		listen(tabs[i].id, 'click', (e) => {
-			let tabs = document.getElementsByClassName('table-tab');
+			let tabs = document.getElementsByClassName('table-tab')
 			for (let i = 0; i < tabs.length; i++) {
-				tabs[i].classList.remove('active');
+				tabs[i].classList.remove('active')
 			}
-			e.currentTarget.classList.add('active');
-			let tabcontent = document.getElementsByClassName('table');
+			e.currentTarget.classList.add('active')
+			let tabcontent = document.getElementsByClassName('table')
 			for (let i = 0; i < tabcontent.length; i++) {
-				tabcontent[i].style.display = 'none';
+				tabcontent[i].style.display = 'none'
 			}
-			elem(e.currentTarget.dataset.table).style.display = 'block';
+			elem(e.currentTarget.dataset.table).style.display = 'block'
 			openTable =
-				e.currentTarget.dataset.table == 'factors-table' ? initialiseFactorTable() : initialiseLinkTable();
-			if (filterDisplayed) closeFilter();
-		});
+				e.currentTarget.dataset.table == 'factors-table' ? initialiseFactorTable() : initialiseLinkTable()
+			if (filterDisplayed) closeFilter()
+		})
 	}
 }
 /**
@@ -70,131 +73,126 @@ function setUpTabs() {
  */
 function startY() {
 	// get the room number from the URL, or if none, complain
-	let url = new URL(document.location);
-	room = url.searchParams.get('room');
-	if (room == null || room == '') alert('No room name');
-	else room = room.toUpperCase();
-	debug = [url.searchParams.get('debug')];
-	document.title = document.title + ' ' + room;
-	const persistence = new IndexeddbPersistence(room, doc);
-	// when the connection has been made, start building the table
-	persistence.once('synced', () => {
-		console.log(exactTime() + ' local content loaded');
-		openTable = initialiseFactorTable();
-		initialiseLinkTable();
-		elem('links-table').style.display = 'none';
-	});
-	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc);
+	let url = new URL(document.location)
+	room = url.searchParams.get('room')
+	if (room == null || room == '') alert('No room name')
+	else room = room.toUpperCase()
+	debug = [url.searchParams.get('debug')]
+	document.title = document.title + ' ' + room
+	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
 	wsProvider.on('sync', () => {
-		console.log(exactTime() + ' remote content loaded');
-	});
+		console.log(exactTime() + ' remote content loaded')
+		openTable = initialiseFactorTable()
+		initialiseLinkTable()
+		elem('links-table').style.display = 'none'
+	})
 	wsProvider.on('status', (event) => {
-		console.log(exactTime() + event.status + (event.status == 'connected' ? ' to' : ' from') + ' room ' + room); // logs when websocket is "connected" or "disconnected"
-	});
+		console.log(exactTime() + event.status + (event.status == 'connected' ? ' to' : ' from') + ' room ' + room) // logs when websocket is "connected" or "disconnected"
+	})
 
-	yNodesMap = doc.getMap('nodes');
-	yEdgesMap = doc.getMap('edges');
-	yNetMap = doc.getMap('network');
-	ySamplesMap = doc.getMap('samples');
-	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap]);
+	yNodesMap = doc.getMap('nodes')
+	yEdgesMap = doc.getMap('edges')
+	yNetMap = doc.getMap('network')
+	ySamplesMap = doc.getMap('samples')
+	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap])
 
-	clientID = doc.clientID;
-	console.log('My client ID: ' + clientID);
+	clientID = doc.clientID
+	console.log('My client ID: ' + clientID)
 
 	/* 
 	for convenience when debugging
 	 */
-	window.debug = debug;
-	window.clientID = clientID;
-	window.yNodesMap = yNodesMap;
-	window.yEdgesMap = yEdgesMap;
-	window.yNetMap = yNetMap;
-	window.attributeTitles = attributeTitles;
+	window.debug = debug
+	window.clientID = clientID
+	window.yNodesMap = yNodesMap
+	window.yEdgesMap = yEdgesMap
+	window.yNetMap = yNetMap
+	window.attributeTitles = attributeTitles
 
 	yNodesMap.observe((event) => {
-		yjsTrace('yNodesMap.observe', event.transaction.local, event);
+		yjsTrace('yNodesMap.observe', event.transaction.local, event)
 		if (event.transaction.origin && !initialising) {
 			let adds = [],
 				updates = [],
-				deletes = [];
+				deletes = []
 			event.changes.keys.forEach((value, key) => {
 				switch (value.action) {
 					case 'add':
-						adds.push(convertNode(yNodesMap.get(key)));
-						break;
+						adds.push(convertNode(yNodesMap.get(key)))
+						break
 					case 'update':
-						updates.push(convertNode(yNodesMap.get(key)));
-						break;
+						updates.push(convertNode(yNodesMap.get(key)))
+						break
 					case 'delete':
-						deletes.push(key);
-						break;
+						deletes.push(key)
+						break
 				}
-			});
-			updateFromAndToLabels(updates);
-			if (adds) factorsTable.addData(adds);
-			if (updates) factorsTable.updateData(updates);
-			if (deletes) factorsTable.deleteRow(deletes);
+			})
+			updateFromAndToLabels(updates)
+			if (adds) factorsTable.addData(adds)
+			if (updates) factorsTable.updateData(updates)
+			if (deletes) factorsTable.deleteRow(deletes)
 		}
-		yjsTrace('yNodesMap.observe finished', event.transaction.local, event);
-	});
+		yjsTrace('yNodesMap.observe finished', event.transaction.local, event)
+	})
 	yEdgesMap.observe((event) => {
-		yjsTrace('yEdgesMap.observe', event.transaction.local, event);
+		yjsTrace('yEdgesMap.observe', event.transaction.local, event)
 		if (event.transaction.origin && !initialising) {
 			let adds = [],
 				updates = [],
-				deletes = [];
+				deletes = []
 			event.changes.keys.forEach((value, key) => {
 				switch (value.action) {
 					case 'add':
-						adds.push(convertEdge(yEdgesMap.get(key)));
-						break;
+						adds.push(convertEdge(yEdgesMap.get(key)))
+						break
 					case 'update':
-						updates.push(convertEdge(yEdgesMap.get(key)));
-						break;
+						updates.push(convertEdge(yEdgesMap.get(key)))
+						break
 					case 'delete':
-						deletes.push(key);
-						break;
+						deletes.push(key)
+						break
 				}
-			});
-			if (adds) linksTable.addData(adds);
-			if (updates) linksTable.updateData(updates);
-			if (deletes) linksTable.deleteRow(deletes);
+			})
+			if (adds) linksTable.addData(adds)
+			if (updates) linksTable.updateData(updates)
+			if (deletes) linksTable.deleteRow(deletes)
 		}
-		yjsTrace('yEdgesMap.observe finished', event.transaction.local, event);
-	});
+		yjsTrace('yEdgesMap.observe finished', event.transaction.local, event)
+	})
 	yNetMap.observe((event) => {
-		yjsTrace('YNetMap.observe', event.transaction.local, event);
+		yjsTrace('YNetMap.observe', event.transaction.local, event)
 		for (let key of event.keysChanged) {
-			let obj = yNetMap.get(key);
+			let obj = yNetMap.get(key)
 			switch (key) {
 				case 'mapTitle':
 				case 'maptitle': {
-					let title = obj;
-					let div = elem('maptitle');
+					let title = obj
+					let div = elem('maptitle')
 					if (title == 'Untitled map') {
-						div.classList.add('unsetmaptitle');
+						div.classList.add('unsetmaptitle')
 					} else {
-						div.classList.remove('unsetmaptitle');
-						document.title = `${title}: ${shortAppName} table`;
+						div.classList.remove('unsetmaptitle')
+						document.title = `${title}: ${shortAppName} table`
 					}
-					if (title !== div.innerText) div.innerText = title;
-					break;
+					if (title !== div.innerText) div.innerText = title
+					break
 				}
 				case 'attributeTitles': {
 					if (!initialising) {
-						attributeTitles = obj;
-						let colComps = factorsTable.getColumns();
+						attributeTitles = obj
+						let colComps = factorsTable.getColumns()
 						for (let attributeFieldName in obj) {
-							let colComp = colComps.find((c) => c.getField() == attributeFieldName);
+							let colComp = colComps.find((c) => c.getField() == attributeFieldName)
 							if (colComp) {
 								if (obj[attributeFieldName] == '*deleted*') {
-									colComp.delete();
+									colComp.delete()
 								} else {
-									colComp.updateDefinition({title: obj[attributeFieldName]});
+									colComp.updateDefinition({title: obj[attributeFieldName]})
 								}
 							} else {
 								if (obj[attributeFieldName] != '*deleted*') {
-									nAttributes++;
+									nAttributes++
 									factorsTable.addColumn({
 										title: obj[attributeFieldName],
 										editableTitle: true,
@@ -202,98 +200,98 @@ function startY() {
 										editor: 'input',
 										width: 100,
 										headerContextMenu: headerContextMenu,
-									});
+									})
 								}
 							}
 						}
 					}
-					break;
+					break
 				}
 				default:
-					break;
+					break
 			}
 		}
-	});
+	})
 	yUndoManager.on('stack-item-added', (event) => {
-		yjsTrace('yUndoManager.on stack-item-added', true, event);
-		undoRedoButtonStatus();
-	});
+		yjsTrace('yUndoManager.on stack-item-added', true, event)
+		undoRedoButtonStatus()
+	})
 	yUndoManager.on('stack-item-popped', (event) => {
-		yjsTrace('yUndoManager.on stack-item-popped', true, event);
-		undoRedoButtonStatus();
-	});
-	myNameRec = JSON.parse(localStorage.getItem('myName'));
-	myNameRec.id = clientID;
-	console.log('My name: ' + myNameRec.name);
+		yjsTrace('yUndoManager.on stack-item-popped', true, event)
+		undoRedoButtonStatus()
+	})
+	myNameRec = JSON.parse(localStorage.getItem('myName'))
+	myNameRec.id = clientID
+	console.log('My name: ' + myNameRec.name)
 } // end startY()
 
 function yjsTrace(where, source, what) {
 	if (window.debug.includes('yjs')) {
-		console.log(exactTime(), source ? 'local' : 'non-local', where, what);
+		console.log(exactTime(), source ? 'local' : 'non-local', where, what)
 	}
 }
 function exactTime() {
-	let d = new Date();
-	return `${d.toLocaleTimeString()}:${d.getMilliseconds()} `;
+	let d = new Date()
+	return `${d.toLocaleTimeString()}:${d.getMilliseconds()} `
 }
 /**
  * set up the modal dialog that opens when the user clicks the Share icon in the nav bar
  */
 function setUpShareDialog() {
-	let modal = elem('shareModal');
-	let inputElem = elem('text-to-copy');
-	let copiedText = elem('copied-text');
+	let modal = elem('shareModal')
+	let inputElem = elem('text-to-copy')
+	let copiedText = elem('copied-text')
 
 	// When the user clicks the button, open the modal
 	listen('share', 'click', () => {
-		setLink('share');
-	});
+		setLink('share')
+	})
 
 	function setLink(type) {
-		let path;
+		let path
 		switch (type) {
 			case 'share':
-				path = window.location.pathname.replace('table.html', 'prsm.html') + '?room=' + room;
-				break;
+				path = window.location.pathname.replace('table.html', 'prsm.html') + '?room=' + room
+				break
 			default:
-				console.log('Bad case in setLink()');
-				break;
+				console.log('Bad case in setLink()')
+				break
 		}
-		let linkToShare = window.location.origin + path;
-		modal.style.display = 'block';
-		inputElem.cols = linkToShare.length.toString();
-		inputElem.value = linkToShare;
-		inputElem.style.height = inputElem.scrollHeight - 3 + 'px';
-		inputElem.select();
+		let linkToShare = window.location.origin + path
+		modal.style.display = 'block'
+		inputElem.cols = linkToShare.length.toString()
+		inputElem.value = linkToShare
+		inputElem.style.height = inputElem.scrollHeight - 3 + 'px'
+		inputElem.select()
 	}
 	// When the user clicks on <span> (x), close the modal
-	listen('modal-close', 'click', closeShareDialog);
+	listen('modal-close', 'click', closeShareDialog)
 	// When the user clicks anywhere on the background, close it
-	listen('shareModal', 'click', closeShareDialog);
+	listen('shareModal', 'click', closeShareDialog)
 
 	function closeShareDialog() {
-		let modal = elem('shareModal');
+		let modal = elem('shareModal')
 		if (event.target == modal || event.target == elem('modal-close')) {
-			modal.style.display = 'none';
-			copiedText.style.display = 'none';
+			modal.style.display = 'none'
+			copiedText.style.display = 'none'
 		}
 	}
 	listen('copy-text', 'click', (e) => {
-		e.preventDefault();
+		e.preventDefault()
 		// Select the text
-		inputElem.select();
+		inputElem.select()
 		if (copyText(inputElem.value))
 			// Display the copied text message
-			copiedText.style.display = 'inline-block';
-	});
+			copiedText.style.display = 'inline-block'
+	})
 }
 async function copyText(text) {
 	try {
-		await navigator.clipboard.writeText(text);
-		return true;
+		await navigator.clipboard.writeText(text)
+		return true
 	} catch (err) {
-		console.error('Failed to copy: ', err);
-		return false;
+		console.error('Failed to copy: ', err)
+		return false
 	}
 }
 /*
@@ -303,23 +301,24 @@ var headerContextMenu = [
 	{
 		label: 'Delete Column',
 		action: function (e, column) {
-			deleteColumn(e, column);
+			deleteColumn(e, column)
 		},
 	},
-];
+]
 
 /**
  * define the Factor table
- * @return {Tabulate} the table
+ * @return {Tabulator} the table
  */
 function initialiseFactorTable() {
 	let tabledata = Array.from(yNodesMap.values())
 		.filter((n) => !n.isCluster)
 		.map((n) => {
-			return convertNode(n);
-		});
+			return convertNode(n)
+		})
 	factorsTable = new Tabulator('#factors-table', {
 		data: tabledata, //assign data to table
+		tableBuilt: cancelLoading,
 		layout: 'fitData',
 		layoutColumnsOnNewData: true,
 		height: window.innerHeight - 180,
@@ -333,14 +332,14 @@ function initialiseFactorTable() {
 			formatCells: false, //show raw cell values without formatter
 		},
 		dataLoaded: () => {
-			initialising = false;
+			initialising = false
 		},
 		index: 'id',
 		columnTitleChanged: function (column) {
-			updateColumnTitle(column);
+			updateColumnTitle(column)
 		},
 		cellEdited: function (cell) {
-			updateNodeCellData(cell);
+			updateNodeCellData(cell)
 		},
 		columnHeaderVertAlign: 'bottom',
 		columns: [
@@ -379,6 +378,7 @@ function initialiseFactorTable() {
 					{
 						title: 'Shape',
 						field: 'shape',
+						minWidth: 100,
 						editor: 'select',
 						editorParams: {values: {box: 'box', ellipse: 'ellipse', circle: 'circle', text: 'none'}},
 					},
@@ -544,12 +544,12 @@ function initialiseFactorTable() {
 				],
 			},
 		],
-	});
+	})
 	// add all the user defined attribute columns
-	attributeTitles = yNetMap.get('attributeTitles') || {};
+	attributeTitles = yNetMap.get('attributeTitles') || {}
 	for (let field in attributeTitles) {
 		if (attributeTitles[field] != '*deleted*') {
-			nAttributes++;
+			nAttributes++
 			factorsTable.addColumn({
 				title: attributeTitles[field],
 				editableTitle: true,
@@ -557,35 +557,43 @@ function initialiseFactorTable() {
 				editor: 'input',
 				width: getWidthOfTitle(attributeTitles[field]),
 				headerContextMenu: headerContextMenu,
-			});
+			})
 		}
 	}
-	window.factorsTable = factorsTable;
+	window.factorsTable = factorsTable
 
 	listen('select-all', 'click', (e) => {
-		let ticked = headerTickToggle(e, '#select-all');
+		let ticked = headerTickToggle(e, '#select-all')
 		factorsTable.getRows('active').forEach((row) => {
-			row.update({selection: !ticked});
-		});
-	});
+			row.update({selection: !ticked})
+		})
+	})
 	listen('hide-all-factors', 'click', (e) => {
-		let ticked = headerTickToggle(e, '#hide-all-factors');
+		let ticked = headerTickToggle(e, '#hide-all-factors')
 		doc.transact(() => {
 			factorsTable.getRows().forEach((row) => {
-				row.update({hidden: !ticked});
-				let node = deepCopy(yNodesMap.get(row.getData().id));
-				node.hidden = !ticked;
-				yNodesMap.set(node.id, node);
-			});
-		});
-	});
+				row.update({hidden: !ticked})
+				let node = deepCopy(yNodesMap.get(row.getData().id))
+				node.hidden = !ticked
+				yNodesMap.set(node.id, node)
+			})
+		})
+	})
 	// start with column groups collapsed
-	collapseColGroup(factorsTable, 'Format');
-	collapseColGroup(factorsTable, 'Statistics');
-	collapseNotes(factorsTable);
+	collapseColGroup(factorsTable, 'Format')
+	collapseColGroup(factorsTable, 'Statistics')
+	collapseNotes(factorsTable)
 
-	return factorsTable;
+	return factorsTable
 }
+/**
+ * After the Factor tab is loaded, cancel the Loading... dots
+ */
+function cancelLoading() {
+	elem('loading').style.display = 'none'
+	clearTimeout(loadingDelayTimer)
+}
+
 /**
  * return HTML string for column group header, with embedded collapse/reveal icon
  * @param {String} field field name of column group
@@ -596,11 +604,11 @@ function groupTitle(field, collapse = true) {
 	if (collapse)
 		return `${field}<span style="float:right"><span id="hide${field}" data-collapsed="true" title="Collapse columns">${svg(
 			'collapse'
-		)}</span></span>`;
+		)}</span></span>`
 	else
 		return `${field}<span style="float:right"><span id="hide${field}" data-collapsed="false" title="Reveal columns">${svg(
 			'uncollapse'
-		)}</span></span>`;
+		)}</span></span>`
 }
 /**
  * hides (or shows) all but the first column in the column group and replaces the column group header
@@ -608,52 +616,52 @@ function groupTitle(field, collapse = true) {
  * @param {String} field field name of column group
  */
 function collapseColGroup(table, field) {
-	let first = true;
+	let first = true
 	table.columnManager.columnsByIndex.forEach((col) => {
 		if (col.parent.field == field) {
 			if (first) {
-				first = false;
+				first = false
 				if (document.getElementById(`hide${field}`).dataset.collapsed == 'true')
-					col.parent.titleElement.innerHTML = groupTitle(field, false);
-				else col.parent.titleElement.innerHTML = groupTitle(field, true);
+					col.parent.titleElement.innerHTML = groupTitle(field, false)
+				else col.parent.titleElement.innerHTML = groupTitle(field, true)
 				listen(`hide${field}`, 'click', () => {
-					collapseColGroup(table, field);
-				});
+					collapseColGroup(table, field)
+				})
 			} else {
-				if (col.visible) col.hide();
-				else col.show();
+				if (col.visible) col.hide()
+				else col.show()
 			}
 		}
-	});
+	})
 }
 /**
  * reduce (and shorten the notes text) or expand the width of the Notes column
- * @param {table} table
- * @param {String} field
+ * @param {Tabulator} table
+ * @param {string} field
  */
 function collapseNotes(table, field = 'Notes') {
-	let col = table.columnManager.columnsByIndex.filter((c) => c.field == 'note')[0];
+	let col = table.columnManager.columnsByIndex.filter((c) => c.field == 'note')[0]
 	if (document.getElementById(`hide${field}`).dataset.collapsed == 'true') {
-		col.parent.titleElement.innerHTML = groupTitle(field, false);
-		col.setWidth(200);
+		col.parent.titleElement.innerHTML = groupTitle(field, false)
+		col.setWidth(200)
 	} else {
-		col.parent.titleElement.innerHTML = groupTitle(field, true);
-		col.setWidth(600);
+		col.parent.titleElement.innerHTML = groupTitle(field, true)
+		col.setWidth(600)
 	}
 	// rewrite the values, so that the Notes formatter can shorten or expand the displayed text
-	col.getCells().forEach((cell) => cell.setValue(cell.getValue()));
+	col.getCells().forEach((cell) => cell.setValue(cell.getValue()))
 	listen(`hide${field}`, 'click', () => {
-		collapseNotes(table, field);
-	});
+		collapseNotes(table, field)
+	})
 }
 
 /**
  * Toggle the value of a cell in a TickCross column
- * @param {Event} e
- * @param {CellComponent} cell
+ * @param {event} e
+ * @param {object} cell
  */
 function tickToggle(e, cell) {
-	cell.setValue(!cell.getValue());
+	cell.setValue(!cell.getValue())
 }
 /**
  * Toggle the displayed state of the checkbox in a TickCross column
@@ -661,18 +669,18 @@ function tickToggle(e, cell) {
  * @param {String} id id of checkbox in header of a tickCross column
  */
 function headerTickToggle(e, id) {
-	e.stopPropagation();
-	let off = document.querySelector(id + ' .checkbox-box-off');
-	let on = document.querySelector(id + ' .checkbox-box-on');
-	let ticked = off.style.display == 'none';
+	e.stopPropagation()
+	let off = document.querySelector(id + ' .checkbox-box-off')
+	let on = document.querySelector(id + ' .checkbox-box-on')
+	let ticked = off.style.display == 'none'
 	if (ticked) {
-		off.style.display = 'inline';
-		on.style.display = 'none';
+		off.style.display = 'inline'
+		on.style.display = 'none'
 	} else {
-		on.style.display = 'inline';
-		off.style.display = 'none';
+		on.style.display = 'inline'
+		off.style.display = 'none'
 	}
-	return ticked;
+	return ticked
 }
 
 function tickCrossFormatter() {
@@ -680,10 +688,10 @@ function tickCrossFormatter() {
 		allowTruthy: true,
 		tickElement: svg('tick'),
 		crossElement: svg('cross'),
-	};
+	}
 }
 function bottomCalcFormatter(cell, params) {
-	return `<span class="col-calc">${params.legend} ${cell.getValue()}</span>`;
+	return `<span class="col-calc">${params.legend} ${cell.getValue()}</span>`
 }
 /**
  * @return list of Factor Style names (omitting those called the default, 'Sample')
@@ -692,7 +700,7 @@ function styleNodeNames() {
 	return Array.from(ySamplesMap.values())
 		.filter((s) => s.node)
 		.map((s) => s.node.groupLabel)
-		.filter((l) => l != 'Sample');
+		.filter((l) => l != 'Sample')
 }
 /**
  * return the SVG code for the given icon (see Bootstrap Icons)
@@ -704,57 +712,57 @@ function svg(icon) {
 			return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-square" viewBox="0 0 16 16">
 		<path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
 		<path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.235.235 0 0 1 .02-.022z"/>
-	  </svg>`;
+	  </svg>`
 		case 'cross':
 			return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-square" viewBox="0 0 16 16">
 		<path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
-	  </svg>`;
+	  </svg>`
 		case 'close':
 			return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square" viewBox="0 0 16 16">
 		<path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
 		<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-	  </svg>`;
+	  </svg>`
 		case 'collapse':
 			return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
 			<path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5zM10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5z"/>
-		  </svg>`;
+		  </svg>`
 		case 'uncollapse':
 			return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-right" viewBox="0 0 16 16">
 			<path fill-rule="evenodd" d="M6 8a.5.5 0 0 0 .5.5h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L12.293 7.5H6.5A.5.5 0 0 0 6 8zm-2.5 7a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5z"/>
-		  </svg>`;
+		  </svg>`
 		default:
-			console.log('Bad request for svg');
+			console.log('Bad request for svg')
 	}
 }
 /**
  * returns the note for this factor in HTML format, shortening it with ellipses if the column is collapsed
- * @param {CellComponent} cell
+ * @param {object} cell
  * @returns HTML string
  */
 function quillFormatter(cell) {
-	let note = cell.getValue();
+	let note = cell.getValue()
 	if (note) {
-		qed.setContents(note);
-		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert();
+		qed.setContents(note)
+		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert()
 		if (elem(`hide${cell.getColumn().getParentColumn().getField()}`).dataset.collapsed == 'false')
-			return shorten(html, 50);
-		else return html;
+			return shorten(html, 50)
+		else return html
 	}
-	return '';
+	return ''
 }
 /**
  * start up a Quill editor for the note in this cell
- * @param {cell Component} cell
- * @param {callback} onRendered not used
- * @param {callback} success function to call when user has finished editing
+ * @param {object} cell
+ * @param {function} onRendered not used
+ * @param {function} success function to call when user has finished editing
  * @returns HTMLElement placeholder for the cell while it is being edited elsewhere
  */
 function quillEditor(cell, onRendered, success) {
-	let pane = document.createElement('div');
-	pane.className = 'quill-pane';
-	elem('container').appendChild(pane);
-	let element = document.createElement('div');
-	pane.appendChild(element);
+	let pane = document.createElement('div')
+	pane.className = 'quill-pane'
+	elem('container').appendChild(pane)
+	let element = document.createElement('div')
+	pane.appendChild(element)
 	let editor = new Quill(element, {
 		modules: {
 			toolbar: [
@@ -771,26 +779,26 @@ function quillEditor(cell, onRendered, success) {
 		placeholder: 'Notes',
 		theme: 'snow',
 		bounds: element,
-	});
-	let note = cell.getValue();
+	})
+	let note = cell.getValue()
 	if (note) {
-		if (note instanceof Object) editor.setContents(note);
-		else editor.setText(note);
-	} else editor.setText('');
+		if (note instanceof Object) editor.setContents(note)
+		else editor.setText(note)
+	} else editor.setText('')
 	editor.on('selection-change', (range) => {
 		if (!range) {
-			finish(cell);
+			finish(cell)
 		}
-	});
-	editor.focus();
-	let placeholder = document.createElement('div');
-	placeholder.className = 'quill-placeholder';
-	return placeholder;
+	})
+	editor.focus()
+	let placeholder = document.createElement('div')
+	placeholder.className = 'quill-placeholder'
+	return placeholder
 
 	function finish(cell) {
-		cell.getTable().modules.edit.currentCell = cell._cell;
-		success(editor.getContents());
-		pane.remove();
+		cell.getTable().modules.edit.currentCell = cell._cell
+		success(editor.getContents())
+		pane.remove()
 	}
 }
 
@@ -801,144 +809,165 @@ function quillEditor(cell, onRendered, success) {
  * @returns {object} the node augmented with new properties
  */
 function convertNode(node) {
-	let n = deepCopy(node);
+	let n = deepCopy(node)
 	let conversions = {
 		borderColor: ['color', 'border'],
 		backgroundColor: ['color', 'background'],
 		fontFace: ['font', 'face'],
 		fontColor: ['font', 'color'],
 		fontSize: ['font', 'size'],
-	};
+	}
 	for (let prop in conversions) {
-		n[prop] = n[conversions[prop][0]][conversions[prop][1]];
+		n[prop] = n[conversions[prop][0]][conversions[prop][1]]
 	}
 	n.size =
-		n.scaling.label.enabled && n.value != undefined && !isNaN(n.value) ? parseFloat(n.value).toPrecision(3) : '--';
-	if (n.groupLabel == 'Sample') n.groupLabel = '--';
-	n.borderStyle = n.shapeProperties.borderDashes;
-	if (n.borderWidth == 0) n.borderStyle = 'None';
+		n.scaling.label.enabled && n.value != undefined && !isNaN(n.value) ? parseFloat(n.value).toPrecision(3) : '--'
+	if (n.groupLabel == 'Sample') n.groupLabel = '--'
+	n.borderStyle = n.shapeProperties.borderDashes
+	if (n.borderWidth == 0) n.borderStyle = 'None'
 	else {
-		if (Array.isArray(n.borderStyle)) n.borderStyle = 'Dotted';
-		else n.borderStyle = n.borderStyle ? 'Dashed' : 'Solid';
+		if (Array.isArray(n.borderStyle)) n.borderStyle = 'Dotted'
+		else n.borderStyle = n.borderStyle ? 'Dashed' : 'Solid'
 	}
-	if (n.modified) n.modifiedTime = timeAndDate(n.modified.time);
-	else if (n.created) n.modifiedTime = timeAndDate(n.created.time);
-	else n.modifiedTime = '--';
-	n.indegree = 0;
-	n.outdegree = 0;
+	if (n.modified) n.modifiedTime = timeAndDate(n.modified.time)
+	else if (n.created) n.modifiedTime = timeAndDate(n.created.time)
+	else n.modifiedTime = '--'
+	n.indegree = 0
+	n.outdegree = 0
 	Array.from(yEdgesMap.values()).forEach((e) => {
-		if (n.id == e.from) n.outdegree++;
-		if (n.id == e.to) n.indegree++;
-	});
-	n.degree = n.outdegree + n.indegree;
-	n.leverage = n.indegree == 0 ? '--' : (n.outdegree / n.indegree).toPrecision(3);
-	if (n.bc == undefined) n.bc = '--';
-	else n.bc = parseFloat(n.bc).toPrecision(3);
+		if (n.id == e.from) n.outdegree++
+		if (n.id == e.to) n.indegree++
+	})
+	n.degree = n.outdegree + n.indegree
+	n.leverage = n.indegree == 0 ? '--' : (n.outdegree / n.indegree).toPrecision(3)
+	if (n.bc == undefined) n.bc = '--'
+	else n.bc = parseFloat(n.bc).toPrecision(3)
 
-	return n;
+	return n
 }
 
 /**
  * store the user's edit to the cell value
  * (but if other rows are selected, put that new value in those rows too)
- * @param {cellComponent} cell
+ * @param {object} cell
  */
 function updateNodeCellData(cell) {
-	let field = cell.getField();
+	let field = cell.getField()
 	// don't do anything with the selection column
-	if (field == 'selection') return;
-	let rows = factorsTable.getRows().filter((row) => row.getData().selection);
-	if (rows.length == 0) rows = [cell.getRow()]; // no rows selected, so process just this cell
-	let value = cell.getValue();
+	if (field == 'selection') return
+	let rows = factorsTable.getRows().filter((row) => row.getData().selection)
+	if (rows.length == 0) rows = [cell.getRow()] // no rows selected, so process just this cell
+	let value = cell.getValue()
 	rows.forEach((row) => {
 		// process all selected rows to update their field with cell value
 		// get the old value of the node
-		let node = deepCopy(yNodesMap.get(row.getData().id));
+		let node = deepCopy(yNodesMap.get(row.getData().id))
 		// update it with the cell's new value
-		node = convertNodeBack(node, field, value);
+		node = convertNodeBack(node, field, value)
 		if (field == 'groupLabel') {
-			node = deepMerge(node, ySamplesMap.get(node.grp).node);
-			factorsTable.updateData([convertNode(node)]);
+			node = deepMerge(node, ySamplesMap.get(node.grp).node)
+			factorsTable.updateData([convertNode(node)])
 		}
-		node.modified = {time: Date.now(), user: myNameRec.name};
-		let update = {id: node.id, modifiedTime: timeAndDate(node.modified.time)};
-		update[field] = value;
-		cell.getTable().updateData([update]);
+		node.modified = {time: Date.now(), user: myNameRec.name}
+		let update = {id: node.id, modifiedTime: timeAndDate(node.modified.time)}
+		update[field] = value
+		cell.getTable().updateData([update])
 		// sync it
-		yNodesMap.set(node.id, node);
-		updateFromAndToLabels([node]);
-	});
+		yNodesMap.set(node.id, node)
+		updateFromAndToLabels([node])
+	})
 }
 
 /**
  * Convert the properties of the node back into the format required by vis-network
- * @param {Object} node
- * @param {String} field
- * @param {Any} value
+ * @param {object} node
+ * @param {string} field
+ * @param {any} value
  */
 function convertNodeBack(node, field, value) {
 	switch (field) {
 		case 'groupLabel':
-			node.grp = getNodeGroupFromGroupLabel(value);
-			break;
+			node.grp = getNodeGroupFromGroupLabel(value)
+			break
+		case 'hidden':
+			hideNodeAndEdges(node, value)
+			break
+		case 'fixed':
+			node.shadow = value
+			node.fixed = value
+			break
 		case 'borderStyle':
-			if (node.borderWidth == 0) node.borderWidth = 4;
+			if (node.borderWidth == 0) node.borderWidth = 4
 			switch (value) {
 				case 'None':
-					node.borderWidth = 0;
-					node.shapeProperties.borderDashes = false;
-					break;
+					node.borderWidth = 0
+					node.shapeProperties.borderDashes = false
+					break
 				case 'Dotted':
-					node.shapeProperties.borderDashes = false;
-					break;
+					node.shapeProperties.borderDashes = false
+					break
 				case 'Dashed':
-					node.shapeProperties.borderDashes = true;
-					break;
+					node.shapeProperties.borderDashes = true
+					break
 				case 'Solid':
-					node.shapeProperties.borderDashes = false;
-					break;
+					node.shapeProperties.borderDashes = false
+					break
 			}
-			break;
+			break
 		case 'backgroundColor':
-			node.color.background = value;
-			break;
+			node.color.background = value
+			break
 		case 'borderColor':
-			node.color.border = value;
-			break;
+			node.color.border = value
+			break
 		case 'fontColor':
-			node.font.color = value;
-			break;
+			node.font.color = value
+			break
 		case 'fontSize':
-			node.font.size = parseFloat(value);
-			break;
+			node.font.size = parseFloat(value)
+			break
 		case 'size':
-			if (value == '--') node.scaling.label.enabled = false;
+			if (value == '--') node.scaling.label.enabled = false
 			else {
-				node.scaling.label.enabled = true;
-				node.value = parseFloat(value);
+				node.scaling.label.enabled = true
+				node.value = parseFloat(value)
 			}
-			break;
+			break
 		default:
-			node[field] = value;
-			break;
+			node[field] = value
+			break
 	}
-	return node;
+	return node
+}
+/**
+ * Set the node's hidden property to true, and hide all the connected edges (or the reverse if value is false)
+ * @param {object} node
+ * @param {boolean} value new value (hidden or not hidden)
+ */
+function hideNodeAndEdges(node, value) {
+	node.hidden = value
+	yEdgesMap.forEach((e) => {
+		if (e.from == node.id || e.to == node.id) {
+			e.hidden = value
+			yEdgesMap.set(e.id, e)
+		}
+	})
 }
 /**
  * Given a label for a style, return the style's group id.  Assumes that the style label is unique
  * @param {String} groupLabel
  */
 function getNodeGroupFromGroupLabel(groupLabel) {
-	return Array.from(ySamplesMap.entries()).filter((a) => a[1].node && a[1].node.groupLabel == groupLabel)[0][0];
+	return Array.from(ySamplesMap.entries()).filter((a) => a[1].node && a[1].node.groupLabel == groupLabel)[0][0]
 }
 /**
  * define the Link table
- * @return {Tabulate} the table
+ * @return {Tabulator} the table
  */
 function initialiseLinkTable() {
 	let tabledata = Array.from(yEdgesMap.values()).map((n) => {
-		return convertEdge(n);
-	});
+		return convertEdge(n)
+	})
 
 	linksTable = new Tabulator('#links-table', {
 		data: tabledata, //assign data to table
@@ -954,14 +983,25 @@ function initialiseLinkTable() {
 		layout: 'fitData',
 		height: window.innerHeight - 180,
 		dataLoaded: () => {
-			initialising = false;
+			initialising = false
 		},
 		index: 'id',
 		cellEdited: function (cell) {
-			updateEdgeCellData(cell);
+			updateEdgeCellData(cell)
 		},
 		columnHeaderVertAlign: 'bottom',
 		columns: [
+			{
+				title: `Select&nbsp;
+					<span  id="select-all-links"><span class="checkbox-box-off">${svg('cross')}</span>
+			  		<span class="checkbox-box-on">${svg('tick')}</span></span>`,
+				field: 'selection',
+				hozAlign: 'center',
+				formatter: 'tickCross',
+				formatterParams: tickCrossFormatter(),
+				cellClick: tickToggle,
+				headerVertical: true,
+			},
 			{
 				title: 'From',
 				field: 'fromLabel',
@@ -980,6 +1020,7 @@ function initialiseLinkTable() {
 					{
 						title: 'Style',
 						field: 'groupLabel',
+						minWidth: 100,
 						editor: 'select',
 						editorParams: {values: styleEdgeNames},
 					},
@@ -1062,23 +1103,29 @@ function initialiseLinkTable() {
 				],
 			},
 		],
-	});
-	window.linksTable = linksTable;
+	})
+	window.linksTable = linksTable
+	listen('select-all-links', 'click', (e) => {
+		let ticked = headerTickToggle(e, '#select-all-links')
+		linksTable.getRows('active').forEach((row) => {
+			row.update({selection: !ticked})
+		})
+	})
 	listen('hide-all-links', 'click', (e) => {
-		let ticked = headerTickToggle(e, '#hide-all-links');
+		let ticked = headerTickToggle(e, '#hide-all-links')
 		doc.transact(() => {
 			linksTable.getRows().forEach((row) => {
-				row.update({hidden: !ticked});
-				let edge = deepCopy(yEdgesMap.get(row.getData().id));
-				edge.hidden = !ticked;
-				yEdgesMap.set(edge.id, edge);
-			});
-		});
-	});
-	collapseColGroup(linksTable, 'Style');
-	collapseNotes(linksTable, 'LinkNotes');
+				row.update({hidden: !ticked})
+				let edge = deepCopy(yEdgesMap.get(row.getData().id))
+				edge.hidden = !ticked
+				yEdgesMap.set(edge.id, edge)
+			})
+		})
+	})
+	collapseColGroup(linksTable, 'Style')
+	collapseNotes(linksTable, 'LinkNotes')
 
-	return linksTable;
+	return linksTable
 }
 /**
  * @return list of Factor Style names (omitting those called the default, 'Sample')
@@ -1087,34 +1134,34 @@ function styleEdgeNames() {
 	return Array.from(ySamplesMap.values())
 		.filter((s) => s.edge)
 		.map((s) => s.edge.groupLabel)
-		.filter((l) => l != 'Sample');
+		.filter((l) => l != 'Sample')
 }
 /**
  * spread some deep values to the top level to suit the requirements of the Tabulator package better
  * NB: any such converted values cannot then be edited without special attention (in updateEdgeCellData)
- * @param {Object} node
+ * @param {object} edge
  * @returns {object} the node augmented with new properties
  */
 function convertEdge(edge) {
-	let e = deepCopy(edge);
-	e.fromLabel = yNodesMap.get(e.from).label;
-	e.toLabel = yNodesMap.get(e.to).label;
-	e.arrowShape = e.arrows.to.type;
-	if (e.groupLabel == 'Sample') e.groupLabel = '--';
-	if (Array.isArray(e.dashes)) e.lineStyle = 'Dotted';
-	else if (e.dashes) e.lineStyle = 'Dashed';
-	else e.lineStyle = 'Solid';
+	let e = deepCopy(edge)
+	e.fromLabel = yNodesMap.get(e.from).label
+	e.toLabel = yNodesMap.get(e.to).label
+	e.arrowShape = e.arrows.to.type
+	if (e.groupLabel == 'Sample') e.groupLabel = '--'
+	if (Array.isArray(e.dashes)) e.lineStyle = 'Dotted'
+	else if (e.dashes) e.lineStyle = 'Dashed'
+	else e.lineStyle = 'Solid'
 	let conversions = {
 		arrowColor: ['color', 'color'],
 		fontSize: ['font', 'size'],
-	};
-	for (let prop in conversions) {
-		e[prop] = e[conversions[prop][0]][conversions[prop][1]];
 	}
-	if (e.modified) e.modifiedTime = timeAndDate(e.modified.time);
-	else if (e.created) e.modifiedTime = timeAndDate(e.created.time);
-	else e.modifiedTime = '--';
-	return e;
+	for (let prop in conversions) {
+		e[prop] = e[conversions[prop][0]][conversions[prop][1]]
+	}
+	if (e.modified) e.modifiedTime = timeAndDate(e.modified.time)
+	else if (e.created) e.modifiedTime = timeAndDate(e.created.time)
+	else e.modifiedTime = '--'
+	return e
 }
 /**
  * When a node is updated, the update may include a change of its label.  Make the corresponding changes to the
@@ -1122,150 +1169,157 @@ function convertEdge(edge) {
  * @param {Array} nodes - array of updated nodes
  */
 function updateFromAndToLabels(nodes) {
-	let linksToUpdate = [];
+	let linksToUpdate = []
 	nodes.forEach((node) => {
 		linksToUpdate = linksToUpdate.concat(
 			Array.from(yEdgesMap.values()).filter((e) => e.from == node.id || e.to == node.id)
-		);
-	});
-	linksTable.updateOrAddData(linksToUpdate.map((e) => convertEdge(e)));
+		)
+	})
+	linksTable.updateOrAddData(linksToUpdate.map((e) => convertEdge(e)))
 }
 
 /**
  * store the user's edit to the cell value
- * @param {cellComponent} cell
+ * @param {object} cell
  */
 function updateEdgeCellData(cell) {
-	// get the old value of the edge
-	let edge = deepCopy(yEdgesMap.get(cell.getRow().getData().id));
-	// update it with the cell's new value
-	let field = cell.getField();
-	let value = cell.getValue();
-	edge[field] = value;
-	edge = convertEdgeBack(edge, field, value);
-	if (field == 'groupLabel') {
-		edge = deepMerge(edge, ySamplesMap.get(edge.grp).edge);
-		linksTable.updateData([convertEdge(edge)]);
-	}
-	edge.modified = {time: Date.now(), user: myNameRec.name};
-	cell.getTable().updateData([{id: edge.id, modifiedTime: timeAndDate(edge.modified.time)}]);
-	// sync it
-	yEdgesMap.set(edge.id, edge);
+	let field = cell.getField()
+	// don't do anything with the selection column
+	if (field == 'selection') return // get the old value of the edge
+	let rows = linksTable.getRows().filter((row) => row.getData().selection)
+	if (rows.length == 0) rows = [cell.getRow()] // no rows selected, so process just this cell
+	let value = cell.getValue()
+	rows.forEach((row) => {
+		let edge = deepCopy(yEdgesMap.get(row.getData().id))
+		// update it with the cell's new value
+		edge[field] = value
+		edge = convertEdgeBack(edge, field, value)
+		if (field == 'groupLabel') {
+			edge = deepMerge(edge, ySamplesMap.get(edge.grp).edge)
+			linksTable.updateData([convertEdge(edge)])
+		}
+		edge.modified = {time: Date.now(), user: myNameRec.name}
+		let update = {id: edge.id, modifiedTime: timeAndDate(edge.modified.time)}
+		update[field] = value
+		cell.getTable().updateData([update])
+		// sync it
+		yEdgesMap.set(edge.id, edge)
+	})
 }
 /**
  * Convert the properties of the edge back into the format required by vis-network
- * @param {Object} edge
- * @param {String} field
- * @param {Any} value
+ * @param {object} edge
+ * @param {string} field
+ * @param {any} value
  */
 function convertEdgeBack(edge, field, value) {
 	switch (field) {
 		case 'groupLabel':
-			edge.grp = getEdgeGroupFromGroupLabel(value);
-			break;
+			edge.grp = getEdgeGroupFromGroupLabel(value)
+			break
 		case 'arrowShape':
-			edge.arrows.to.type = edge.arrowShape;
-			break;
+			edge.arrows.to.type = edge.arrowShape
+			break
 		case 'fontSize':
-			edge.font.size = edge.fontSize;
-			break;
+			edge.font.size = edge.fontSize
+			break
 		case 'lineStyle':
 			switch (value) {
 				case 'Solid':
-					edge.dashes = false;
-					break;
+					edge.dashes = false
+					break
 				case 'Dashed':
-					edge.dashes = [10, 10];
-					break;
+					edge.dashes = [10, 10]
+					break
 				case 'Dotted':
-					edge.dashes = [2, 8];
-					break;
+					edge.dashes = [2, 8]
+					break
 				default:
-					edge.dashes = value;
-					break;
+					edge.dashes = value
+					break
 			}
-			break;
+			break
 		case 'arrowColor':
-			edge.color.color = edge.arrowColor;
-			break;
+			edge.color.color = edge.arrowColor
+			break
 		default:
-			edge[field] = value;
-			break;
+			edge[field] = value
+			break
 	}
-	return edge;
+	return edge
 }
 
 function getEdgeGroupFromGroupLabel(groupLabel) {
-	return Array.from(ySamplesMap.entries()).filter((a) => a[1].edge && a[1].edge.groupLabel == groupLabel)[0][0];
+	return Array.from(ySamplesMap.entries()).filter((a) => a[1].edge && a[1].edge.groupLabel == groupLabel)[0][0]
 }
 
 /**
  * store the user's new title for the column
- * @param {ColComponent} column
+ * @param {object} column
  */
 
 function updateColumnTitle(column) {
-	let newTitle = column.getDefinition().title;
-	attributeTitles[column.getField()] = newTitle;
-	yNetMap.set('attributeTitles', attributeTitles);
+	let newTitle = column.getDefinition().title
+	attributeTitles[column.getField()] = newTitle
+	yNetMap.set('attributeTitles', attributeTitles)
 }
 
 /**
  * return the length of the string in pixels when displayed using given font
- * @param {String} text
- * @param {String} fontname
- * @param {Number} fontsize
- * @return {Number} pixels
+ * @param {string} text
+ * @param {string} fontname
+ * @param {number} fontsize
+ * @return {number} pixels
  */
 function getWidthOfTitle(text, fontname = 'Oxygen', fontsize = 13.33) {
 	if (getWidthOfTitle.c === undefined) {
-		getWidthOfTitle.c = document.createElement('canvas');
-		getWidthOfTitle.ctx = getWidthOfTitle.c.getContext('2d');
+		getWidthOfTitle.c = document.createElement('canvas')
+		getWidthOfTitle.ctx = getWidthOfTitle.c.getContext('2d')
 	}
-	let fontspec = fontsize + ' ' + fontname;
-	if (getWidthOfTitle.ctx.font !== fontspec) getWidthOfTitle.ctx.font = fontspec;
-	return getWidthOfTitle.ctx.measureText(text + '  ').width + 90;
+	let fontspec = fontsize + ' ' + fontname
+	if (getWidthOfTitle.ctx.font !== fontspec) getWidthOfTitle.ctx.font = fontspec
+	return getWidthOfTitle.ctx.measureText(text + '  ').width + 90
 }
 /**
  * Use the browser standard color picker to edit the cell colour
- * @param {CellComponent} cell - the cell component for the editable cell
- * @param {Function} onRendered - function to call when the editor has been rendered
- * @param {Function} success function to call to pass the successfully updated value to Tabulator
- * @return {DOMElement} the editor element
+ * @param {object} cell - the cell component for the editable cell
+ * @param {function} onRendered - function to call when the editor has been rendered
+ * @param {function} success function to call to pass the successfully updated value to Tabulator
+ * @return {HTMLElement} the editor element
  */
 function colorEditor(cell, onRendered, success) {
-	let editor = document.createElement('input');
-	editor.setAttribute('type', 'color');
-	editor.style.width = '100%';
-	editor.style.padding = '0px';
-	editor.style.boxSizing = 'border-box';
+	let editor = document.createElement('input')
+	editor.setAttribute('type', 'color')
+	editor.style.width = '100%'
+	editor.style.padding = '0px'
+	editor.style.boxSizing = 'border-box'
 
-	editor.value = cell.getValue();
+	editor.value = cell.getValue()
 
 	//set focus on the select box when the editor is selected (timeout allows for editor to be added to DOM)
 	onRendered(function () {
-		editor.focus();
-		editor.style.css = '100%';
-	});
+		editor.focus()
+		editor.style.css = '100%'
+	})
 
 	//when the value has been set, trigger the cell to update
 	function successFunc() {
-		success(editor.value);
+		success(editor.value)
 	}
 
-	editor.addEventListener('change', successFunc);
-	editor.addEventListener('blur', successFunc);
+	editor.addEventListener('change', successFunc)
+	editor.addEventListener('blur', successFunc)
 
-	return editor;
+	return editor
 }
 
-listen('col-insert', 'click', addColumn);
+listen('col-insert', 'click', addColumn)
 
 /**
  * user has clicked the button to add a column for a user-defined attribute
  */
 function addColumn() {
-	nAttributes++;
+	nAttributes++
 	factorsTable.addColumn({
 		title: 'Att ' + nAttributes,
 		editableTitle: true,
@@ -1273,37 +1327,37 @@ function addColumn() {
 		editor: 'input',
 		width: 100,
 		headerContextMenu: headerContextMenu,
-	});
-	attributeTitles['att' + nAttributes] = 'Att ' + nAttributes;
-	yNetMap.set('attributeTitles', attributeTitles);
+	})
+	attributeTitles['att' + nAttributes] = 'Att ' + nAttributes
+	yNetMap.set('attributeTitles', attributeTitles)
 }
 
 /**
  * delete the column from the table and mark the data as deleted
- * @param {colComponent} column
+ * @param {object} column
  */
 function deleteColumn(e, column) {
-	attributeTitles[column.getField()] = '*deleted*';
-	yNetMap.set('attributeTitles', attributeTitles);
-	column.delete();
+	attributeTitles[column.getField()] = '*deleted*'
+	yNetMap.set('attributeTitles', attributeTitles)
+	column.delete()
 }
 /**
  * Undo/redo
  */
-listen('undo', 'click', undo);
-listen('redo', 'click', redo);
+listen('undo', 'click', undo)
+listen('redo', 'click', redo)
 
 function undo() {
-	yUndoManager.undo();
+	yUndoManager.undo()
 }
 
 function redo() {
-	yUndoManager.redo();
+	yUndoManager.redo()
 }
 
 function undoRedoButtonStatus() {
-	setButtonDisabledStatus('undo', yUndoManager.undoStack.length === 0);
-	setButtonDisabledStatus('redo', yUndoManager.redoStack.length === 0);
+	setButtonDisabledStatus('undo', yUndoManager.undoStack.length === 0)
+	setButtonDisabledStatus('redo', yUndoManager.redoStack.length === 0)
 }
 
 /**
@@ -1312,36 +1366,36 @@ function undoRedoButtonStatus() {
  * @param {Boolean} state - true to make the button disabled
  */
 function setButtonDisabledStatus(id, state) {
-	if (state) elem(id).classList.add('disabled');
-	else elem(id).classList.remove('disabled');
+	if (state) elem(id).classList.add('disabled')
+	else elem(id).classList.remove('disabled')
 }
 
-listen('filter', 'click', setUpFilter);
+listen('filter', 'click', setUpFilter)
 
-var filterDisplayed = false;
+var filterDisplayed = false
 
 /**
  * Display a dialog box to get the filter parameters
  */
 function setUpFilter() {
-	let filterDiv = elem('filter-dialog');
+	let filterDiv = elem('filter-dialog')
 	if (filterDisplayed) {
-		closeFilter();
-		return;
+		closeFilter()
+		return
 	}
-	filterDisplayed = true;
-	filterDiv.style.display = 'block';
-	let select = document.createElement('select');
-	select.id = 'filter-field';
-	let i = 0;
+	filterDisplayed = true
+	filterDiv.style.display = 'block'
+	let select = document.createElement('select')
+	select.id = 'filter-field'
+	let i = 0
 	openTable.getColumns().forEach((colComp) => {
-		let def = colComp.getDefinition();
+		let def = colComp.getDefinition()
 		if (def.formatter != 'color' && def.field != 'selection')
 			// cannot sort by color
-			select[i++] = new Option(def.titleClipboard || def.title, def.field);
-	});
-	filterDiv.appendChild(select);
-	filterDiv.insertAdjacentHTML('afterbegin', 'Filter: ');
+			select[i++] = new Option(def.titleClipboard || def.title || capitalizeFirstLetter(def.field), def.field)
+	})
+	filterDiv.appendChild(select)
+	filterDiv.insertAdjacentHTML('afterbegin', 'Filter: ')
 	filterDiv.insertAdjacentHTML(
 		'beforeend',
 		`
@@ -1359,11 +1413,11 @@ function setUpFilter() {
   	</select>
 	  <input id="filter-value" type="text">
 	  <button id= "filter-close">${svg('close')}</button>`
-	);
-	listen('filter-field', 'change', updateFilter);
-	listen('filter-type', 'change', updateFilter);
-	listen('filter-value', 'keyup', updateFilter);
-	listen('filter-close', 'click', closeFilter);
+	)
+	listen('filter-field', 'change', updateFilter)
+	listen('filter-type', 'change', updateFilter)
+	listen('filter-value', 'keyup', updateFilter)
+	listen('filter-close', 'click', closeFilter)
 }
 
 /**
@@ -1371,36 +1425,65 @@ function setUpFilter() {
  */
 function updateFilter() {
 	let select = elem('filter-field'),
-		type = elem('filter-type');
-	let filterVal = select.options[select.selectedIndex].value;
-	var typeVal = type.options[type.selectedIndex].value;
+		type = elem('filter-type'),
+		value = elem('filter-value').value
+	let filterVal = select.options[select.selectedIndex].value
+	var typeVal = type.options[type.selectedIndex].value
 	if (filterVal) {
-		openTable.setFilter(filterVal, typeVal, elem('filter-value').value);
+		if (filterVal == 'note') openTable.setFilter(noteFilter, {type: typeVal, str: value})
+		else openTable.setFilter(filterVal, typeVal, value)
 	}
+}
+/**
+ * Custom filter for Notes -first converts Quill format to string and then checks the string
+ * @param {object} data - a row
+ * @param {object} params - {type of comparison, str: string to match}
+ * @returns Boolean
+ */
+function noteFilter(data, params) {
+	if (data.note) {
+		qed.setContents(data.note)
+		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true})
+			.convert()
+			.replace(/(<([^>]+)>)/gi, '')
+		switch (params.type) {
+			case 'like':
+				return html.includes(params.str)
+			case '=':
+				return html == params.str
+			case 'starts':
+				return html.startsWith(params.str)
+			case 'ends':
+				return html.endsWith(params.str)
+			default:
+				return true
+		}
+	}
+	return false
 }
 /**
  * Close the filter dialog and remove the filter (i.e. display all rows)
  */
 function closeFilter() {
-	elem('filter-dialog').innerHTML = '';
-	openTable.clearFilter();
-	filterDisplayed = false;
-	elem('filter-dialog').style.display = 'none';
+	elem('filter-dialog').innerHTML = ''
+	openTable.clearFilter()
+	filterDisplayed = false
+	elem('filter-dialog').style.display = 'none'
 }
 
-listen('copy', 'click', copyTable);
+listen('copy', 'click', copyTable)
 /**
  * Copy the whole table to the clipboard
  */
 function copyTable() {
-	openTable.copyToClipboard('all');
+	openTable.copyToClipboard('all')
 }
 
-listen('help', 'click', displayHelp);
+listen('help', 'click', displayHelp)
 
 /**
  * display help page in a separate window
  */
 function displayHelp() {
-	window.open('./help.html#contents', 'helpWindow');
+	window.open('./help.html#contents', 'helpWindow')
 }

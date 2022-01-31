@@ -64,6 +64,7 @@
 									/>
 								</svg>
 							</button>
+							<div class="button-text">Add attr.</div>
 							<span class="tooltiptext">Add an attribute column</span>
 						</div>
 						<div class="tooltip">
@@ -85,7 +86,8 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Undo</span>
+							<div class="button-text">Undo</div>
+							<span class="tooltiptext">Undo the last action</span>
 						</div>
 						<div class="tooltip">
 							<button type="button" id="redo" class="disabled">
@@ -106,7 +108,8 @@
 									/>
 								</svg>
 							</button>
-							<span class="tooltiptext">Redo</span>
+							<div class="button-text">Redo</div>
+							<span class="tooltiptext">Redo the last undo</span>
 						</div>
 						<div class="tooltip">
 							<button type="button" id="share">
@@ -128,6 +131,7 @@
 									<path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" />
 								</svg>
 							</button>
+							<div class="button-text">Share</div>
 							<span class="tooltiptext">Share</span>
 						</div>
 						<div class="tooltip">
@@ -145,6 +149,7 @@
 									/>
 								</svg>
 							</button>
+							<div class="button-text">Copy</div>
 							<span class="tooltiptext">Copy the table</span>
 						</div>
 						<div class="tooltip">
@@ -162,6 +167,7 @@
 									/>
 								</svg>
 							</button>
+							<div class="button-text">Filter</div>
 							<span class="tooltiptext">Filter the table</span>
 						</div>
 						<div class="tooltip">
@@ -179,6 +185,7 @@
 									/>
 								</svg>
 							</button>
+							<div class="button-text">Help</div>
 							<span class="tooltiptext">Show help in a new window</span>
 						</div>
 					</div>
@@ -192,6 +199,16 @@
 		<div id="filter-dialog"></div>
 		<div class="table" id="factors-table"></div>
 		<div class="table" id="links-table"></div>
+		<div id="loading">
+			<div class="loader">
+				<div class="loader--dot"></div>
+				<div class="loader--dot"></div>
+				<div class="loader--dot"></div>
+				<div class="loader--dot"></div>
+				<div class="loader--dot"></div>
+				<div class="loader--dot"></div>
+			</div>
+		</div>
 		<!-- Share model dialog -->
 		<div id="shareModal" class="modal">
 			<div class="modal-content">
