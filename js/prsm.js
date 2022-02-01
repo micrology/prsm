@@ -3675,6 +3675,7 @@ function toggleDrawingLayer() {
 		elem('temp-canvas').style.zIndex = 0
 		elem('chatbox-tab').classList.remove('chatbox-hide')
 		inAddMode = false
+		elem('buttons').style.display = 'flex'
 		setButtonDisabledStatus('addNode', false)
 		setButtonDisabledStatus('addLink', false)
 		undoRedoButtonStatus()
@@ -3690,6 +3691,7 @@ function toggleDrawingLayer() {
 		minimize()
 		elem('chatbox-tab').classList.add('chatbox-hide')
 		inAddMode = 'disabled'
+		elem('buttons').style.display = 'none'
 		setButtonDisabledStatus('addNode', true)
 		setButtonDisabledStatus('addLink', true)
 		setButtonDisabledStatus('undo', true)

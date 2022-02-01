@@ -59,7 +59,7 @@ select {
 	font-size: 12px;
 	outline: none;
 }
-.container {
+#container {
 	position: relative;
 	height: 100vh;
 	height: calc(var(--vh, 1vh) * 100);
@@ -72,15 +72,29 @@ select {
 		'main'
 		'footer';
 }
-header {
-	text-align: center;
-	height: 80px;
+#container > header {
 	grid-area: header;
+	text-align: center;
 }
-main {
+#container > main {
+	grid-area: main;
 	position: relative;
 	cursor: default;
-	grid-area: main;
+}
+#container > footer {
+	grid-area: footer;
+	width: 100%;
+	z-index: 1000;
+	display: flex;
+	justify-content: space-between;
+	padding: 5px;
+	height: 25px;
+	text-align: center;
+	font-size: 14px;
+	background-color: white;
+	color: black;
+	border-top: 1px solid lightgrey;
+	user-select: none;
 }
 #net-pane {
 	width: 100%;
@@ -180,23 +194,6 @@ aside {
 	width: 200px;
 	user-select: none;
 	z-index: 2000;
-}
-footer {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	width: 100%;
-	z-index: 1000;
-	display: flex;
-	justify-content: space-between;
-	padding: 5px;
-	height: 25px;
-	text-align: center;
-	font-size: 14px;
-	background-color: white;
-	color: black;
-	border-top: 1px solid lightgrey;
-	user-select: none;
 }
 #errMsg {
 	position: absolute;
@@ -383,7 +380,6 @@ nav {
 	background-color: var(--header-color);
 	flex-direction: row;
 	justify-content: flex-start;
-	height: 70px;
 	padding: 10px 0 0 20px;
 }
 .strapline {
@@ -1367,23 +1363,20 @@ but moving the panel out of sight works instead */
 	position: relative;
 	width: 40px;
 	height: 40px;
-	border-left: thin solid black;
-	border-right: thin solid black;
-	border-bottom: thin solid black;
 	border-radius: 6px;
 	text-align: center;
 	line-height: 40px;
 	font-size: 26px;
-}
-.tool:first-child {
-	border-top: thin solid black;
+	color:white;
+	background-color: black;
+	margin: 8px;
 }
 .tool:hover {
-	box-shadow: 0 0 0 4px grey inset;
+	box-shadow: 0 0 0 2px darkgrey inset;
 }
 .tool:active,
 .selected {
-	background-color: lightgray;
+	background-color: darkgray;
 }
 .tool .tooltiptext {
 	visibility: hidden;
@@ -1808,21 +1801,8 @@ div.resize {
 /* for iPads etc in landscape: nav buttons go under title */
 
 @media screen and (min-width: 481px) and (max-width: 1112px) {
-	html,
-	body {
-		height: 100%;
-		overflow-x: hidden;
-		max-width: 100%;
-	}
-	main {
-		height: calc(100vh - 200px);
-	}
-	header {
-		height: 125px;
-	}
 	nav {
 		display: grid;
-		height: 110px;
 		grid-template-columns: 1fr;
 		padding: 0;
 	}
@@ -1862,21 +1842,8 @@ div.resize {
 /* for iPads etc in portrait and smart phones: nav buttons go under title and font is smaller */
 
 @media screen and (max-width: 480px) {
-	html,
-	body {
-		height: 100%;
-		overflow-x: hidden;
-		max-width: 100%;
-	}
-	main {
-		height: calc(100vh - 130px);
-	}
-	header {
-		height: 90px;
-	}
 	nav {
 		display: grid;
-		height: 90px;
 		grid-template-columns: 1fr;
 		padding: 0;
 	}
@@ -1888,15 +1855,20 @@ div.resize {
 		grid-row: 1;
 		font-size: 14px;
 	}
+	.title{
+		justify-content: stretch;
+	}
 	.maptitle {
 		text-align: center;
 		font-size: 14px;
-		margin-top: 5px;
+		margin: 0 auto;
+		padding: 0;
 	}
 	.button-wrapper {
 		grid-column: 1;
 		grid-row: 2;
-		width: 100%;
+		width: 90%;
+		margin: 0 auto;
 	}
 	.buttons {
 		justify-content: space-around;
@@ -1909,6 +1881,12 @@ div.resize {
 	}
 	nav .button-text {
 		display: none;
+	}
+	.left-border {
+		border: none
+	}
+	.right-border {
+		border: none
 	}
 	input[type='range'] {
 		width: 40px;
