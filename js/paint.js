@@ -292,6 +292,7 @@ class LineHandler extends ToolHandler {
 	constructor() {
 		super()
 		this.axes = false
+		this.dashed = false
 	}
 	panmove(e) {
 		if (this.isPanstart) {
@@ -301,14 +302,15 @@ class LineHandler extends ToolHandler {
 				else this.endX = this.startX
 			}
 			drawHelper.clear(tempctx)
-			drawHelper.line(tempctx, [this.startX, this.startY, this.endX, this.endY])
+			if (this.dashed) drawHelper.dashedLine(tempctx, [this.startX, this.startY, this.endX, this.endY])
+			else drawHelper.line(tempctx, [this.startX, this.startY, this.endX, this.endY])
 		}
 	}
 	panend() {
 		if (this.isPanstart) {
 			yPointsArray.push([
 				[
-					'line',
+					this.dashed ? 'dashedLine' : 'line',
 					[
 						DOMtoCanvasX(this.startX),
 						DOMtoCanvasY(this.startY),
@@ -325,6 +327,7 @@ class LineHandler extends ToolHandler {
 		box.innerHTML = `
 	<div>Line width</div><div><input id="lineWidth" type="number" min="0" max="99" size="2"></div>
 	<div>Colour</div><div><input id="lineColour" type="color"></div>
+	<div>Dashed</div><div><input type="checkbox" id="dashed"></div>
 	<div>Vert/Horiz</div><div><input type="checkbox" id="axes"></div>`
 		let widthInput = document.getElementById('lineWidth')
 		widthInput.value = this.lineWidth
@@ -336,6 +339,11 @@ class LineHandler extends ToolHandler {
 		lineColor.value = this.strokeStyle
 		lineColor.addEventListener('blur', () => {
 			this.strokeStyle = lineColor.value
+		})
+		let dashed = document.getElementById('dashed')
+		dashed.checked = this.dashed
+		dashed.addEventListener('change', () => {
+			this.dashed = dashed.checked
 		})
 		let axes = document.getElementById('axes')
 		axes.checked = this.axes
@@ -1139,6 +1147,15 @@ let drawHelper = {
 		ctx.moveTo(startX, startY)
 		ctx.lineTo(endX, endY)
 		ctx.stroke()
+	},
+	dashedLine: function (ctx, [startX, startY, endX, endY]) {
+		ctx.beginPath()
+		ctx.moveTo(startX, startY)
+		ctx.setLineDash([10, 10])
+		ctx.lineTo(endX, endY)
+		ctx.stroke()
+		ctx.setLineDash([])
+
 	},
 	rect: function (ctx, [startX, startY, width, height]) {
 		ctx.beginPath()

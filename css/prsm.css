@@ -1413,11 +1413,21 @@ but moving the panel out of sight works instead */
 	z-index: 1002;
 	color: black;
 	border-radius: 6px;
-	font-size: 16px;
+	font-size: 14px;
 }
+.options::after {
+	content: "";
+	position: absolute;
+	top: 16px;
+	right: 100%;
+	margin-top: -5px;
+	border-width: 10px;
+	border-style: solid;
+	border-color: transparent var(--pop-up-shadow-color) transparent transparent;
+  }
 .options div {
 	text-align: left;
-	padding: 3px;
+	padding: 2px;
 }
 .options :nth-child(2n + 1) {
 	text-align: right;
