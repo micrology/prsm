@@ -1090,9 +1090,7 @@ function draw() {
 		if (/gui/.test(debug)) console.log('controlNodeDragEnd')
 		if (event.controlEdge.from != event.controlEdge.to) changeCursor('default')
 	})
-	network.on('beforeDrawing', function (ctx) {
-		redraw(ctx)
-	})
+	network.on('beforeDrawing', (ctx) => redraw(ctx))
 	network.on('afterDrawing', (ctx) => drawBadges(ctx))
 
 	// listen for changes to the network structure

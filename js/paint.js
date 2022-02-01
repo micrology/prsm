@@ -11,6 +11,7 @@
 
 import {yPointsArray, network, drawingSwitch} from './prsm.js'
 import * as Hammer from '@egjs/hammerjs'
+
 /**
  * Initialisation
  */
@@ -82,10 +83,9 @@ function setUpCanvas(id) {
  */
 function getContext(canvas) {
 	let ctx = canvas.getContext('2d')
-	//	ctx.scale(dpr, dpr);
 	ctx.lineWidth = defaultOptions.lineWidth
 	ctx.strokeStyle = defaultOptions.strokeStyle
-	ctx.fillStyle = defaultOptions.fillstyle
+	ctx.fillStyle = defaultOptions.fillStyle
 	ctx.font = defaultOptions.font
 	ctx.lineJoin = 'round'
 	ctx.lineCap = 'round'
@@ -199,6 +199,7 @@ class ToolHandler {
 		this.startY = 0
 		this.endX = 0
 		this.endY = 0
+		this.canvasBox = null
 		this.strokeStyle = defaultOptions.strokeStyle
 		this.lineWidth = defaultOptions.lineWidth
 		this.fillStyle = defaultOptions.fillStyle
@@ -216,6 +217,7 @@ class ToolHandler {
 	panstart(e) {
 		if (this.isPanstart) return
 		tempCanvas.focus()
+		this.canvasBox = tempCanvas.getBoundingClientRect()
 		this.endPosition(e)
 		this.startX = this.endX
 		this.startY = this.endY
@@ -228,12 +230,14 @@ class ToolHandler {
 	 * @param {event} e
 	 */
 	endPosition(e) {
-		this.endX = (e.offsetX * tempCanvas.width) / (dpr * tempCanvas.clientWidth)
-		if (this.endX < 0) this.endX = 0
-		if (this.endX > tempCanvas.offsetWidth) this.endX = tempCanvas.offsetWidth
-		this.endY = (e.offsetY * tempCanvas.height) / (dpr * tempCanvas.clientHeight)
-		if (this.endY < 0) this.endY = 0
-		if (this.endY > tempCanvas.offsetHeight) this.endY = tempCanvas.offsetHeight
+		let domX = e.clientX
+		if (domX < 0) domX = 0
+		if (domX > this.canvasBox.right) domX = this.canvasBox.right
+		this.endX = (domX * tempCanvas.width) / (dpr * tempCanvas.clientWidth)
+		let domY = e.clientY
+		if (domY < this.canvasBox.top) domY = this.canvasBox.top
+		if (domY > this.canvasBox.bottom) domY = this.canvasBox.bottom
+		this.endY = ((domY - this.canvasBox.top) * tempCanvas.height) / (dpr * tempCanvas.clientHeight)
 	}
 	/**
 	 * do something as the mouse moves

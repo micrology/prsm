@@ -1818,11 +1818,11 @@ div.resize {
 		height: calc(100vh - 200px);
 	}
 	header {
-		height: 101px;
+		height: 125px;
 	}
 	nav {
 		display: grid;
-		height: 100px;
+		height: 110px;
 		grid-template-columns: 1fr;
 		padding: 0;
 	}
@@ -1837,7 +1837,7 @@ div.resize {
 	.maptitle {
 		text-align: center;
 		font-size: 16px;
-		margin-top: 5px;
+		margin-top: 0;
 	}
 	.button-wrapper {
 		grid-column: 1;
