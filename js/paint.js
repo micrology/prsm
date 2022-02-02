@@ -360,7 +360,7 @@ class RectHandler extends ToolHandler {
 	constructor() {
 		super()
 		this.roundCorners = true
-		this.globalAlpha = 0.5
+		this.globalAlpha = 1.0
 	}
 	panstart(e) {
 		super.panstart(e)

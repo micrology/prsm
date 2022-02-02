@@ -97,7 +97,7 @@ var followme // clientId of user's cursor to follow
 var editor = null // Quill editor
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
 var netLoaded = false // becomes true when map is fully displayed
-var savedState = '' // the current sate of the map (nodes, edges, network settings) before current user action
+var savedState = '' // the current state of the map (nodes, edges, network settings) before current user action
 /**
  * top level function to initialise everything
  */
@@ -143,8 +143,8 @@ function addEventListeners() {
 	})
 	listen('recent-rooms-caret', 'click', createTitleDropDown)
 	listen('maptitle', 'keyup', mapTitle)
-/* 	listen('maptitle', 'paste', pasteMapTitle)
- */	listen('maptitle', 'click', (e) => {
+	listen('maptitle', 'paste', pasteMapTitle)
+	listen('maptitle', 'click', (e) => {
 		if (e.target.innerText == 'Untitled map') window.getSelection().selectAllChildren(e.target)
 	})
 	listen('addNode', 'click', plusNode)
@@ -219,7 +219,6 @@ function addEventListeners() {
 	)
 	listen('body', 'copy', copyToClipboard)
 	listen('body', 'paste', pasteFromClipboard)
-	//listen('body', 'paste', () => console.log('Paste'))
 }
 
 /**
@@ -632,7 +631,12 @@ function displayNetPane(msg) {
 		setUpTutorial()
 		netLoaded = true
 		savedState = compressToUTF16(
-			JSON.stringify({nodes: data.nodes.get(), edges: data.edges.get(), net: yNetMap.toJSON()})
+			JSON.stringify({
+				nodes: data.nodes.get(),
+				edges: data.edges.get(),
+				net: yNetMap.toJSON(),
+				paint: yPointsArray.toArray(),
+			})
 		)
 		setAnalysisButtonsFromRemote()
 		toggleDeleteButton()
@@ -1226,7 +1230,12 @@ export function logHistory(action, actor) {
 		},
 	])
 	savedState = compressToUTF16(
-		JSON.stringify({nodes: data.nodes.get(), edges: data.edges.get(), net: yNetMap.toJSON(), paint: yPointsArray.toArray()})
+		JSON.stringify({
+			nodes: data.nodes.get(),
+			edges: data.edges.get(),
+			net: yNetMap.toJSON(),
+			paint: yPointsArray.toArray(),
+		})
 	)
 	// delete all but the last 10 saved states
 	for (let i = 0; i < yHistory.length - 10; i++) {
@@ -1364,8 +1373,9 @@ function copyToClipboard(event) {
 
 async function copyText(text) {
 	try {
-		if( typeof navigator.clipboard.writeText !== 'function') throw new Error('navigator.clipboard.writeText not a function')
-	} catch(e) {
+		if (typeof navigator.clipboard.writeText !== 'function')
+			throw new Error('navigator.clipboard.writeText not a function')
+	} catch (e) {
 		statusMsg('Copying not implemented in this browser', 'error')
 		return false
 	}
@@ -1381,10 +1391,10 @@ async function copyText(text) {
 }
 
 async function pasteFromClipboard() {
-	let clip = await getClipboardContents();
+	let clip = await getClipboardContents()
 	let nodes, edges
 	try {
-		({nodes, edges} = JSON.parse(clip))
+		;({nodes, edges} = JSON.parse(clip))
 	} catch (err) {
 		// silently return (i.e. use system paste) if there is nothing relevant on the clipboard
 		return
@@ -1408,12 +1418,14 @@ async function pasteFromClipboard() {
 	network.setSelection({nodes: nodes.map((n) => n.id), edges: edges.map((e) => e.id)})
 	showSelected()
 	statusMsg('Pasted', 'info')
+	logHistory('pasted factors and/or links from clipboard')
 }
 
 async function getClipboardContents() {
 	try {
-		if( typeof navigator.clipboard.readText !== 'function') throw new Error('navigator.clipboard.readText not a function')
-	} catch(e) {
+		if (typeof navigator.clipboard.readText !== 'function')
+			throw new Error('navigator.clipboard.readText not a function')
+	} catch (e) {
 		statusMsg('Pasting not implemented in this browser', 'error')
 		return null
 	}
@@ -4373,7 +4385,7 @@ function showHistory() {
 	document.querySelectorAll('div.history-rollback').forEach((e) => {
 		if (e.id) listen(e.id, 'click', rollback)
 	})
-	log.lastChild.scrollIntoView(false)
+	if (log.children.length > 0) log.lastChild.scrollIntoView(false)
 }
 /**
  * return a DOM element with the data in rec formatted and a button for rolling back if there is state data

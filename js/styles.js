@@ -318,7 +318,7 @@ function editNodeStyle(styleElement, groupId) {
  */
 function updateNodeEditor(groupId) {
 	let group = styles.nodes[groupId]
-	elem('nodeEditName').value = group.groupLabel
+	elem('nodeEditName').value = (group.groupLabel !== 'Sample' ? group.groupLabel : '')
 	elem('nodeEditFillColor').style.backgroundColor = standardize_color(group.color.background)
 	elem('nodeEditBorderColor').style.backgroundColor = standardize_color(group.color.border)
 	elem('nodeEditFontColor').style.backgroundColor = standardize_color(group.font.color)
@@ -446,7 +446,7 @@ function editLinkStyle(styleElement, groupId) {
  */
 function updateLinkEditor(groupId) {
 	let group = styles.edges[groupId]
-	elem('linkEditName').value = group.groupLabel
+	elem('linkEditName').value = (group.groupLabel !== 'Sample' ? group.groupLabel : '')
 	elem('linkEditLineColor').style.backgroundColor = standardize_color(group.color.color)
 	elem('linkEditWidth').value = group.width
 	elem('linkEditDashes').value = getDashes(group.dashes, 1)
