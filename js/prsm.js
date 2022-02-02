@@ -143,8 +143,8 @@ function addEventListeners() {
 	})
 	listen('recent-rooms-caret', 'click', createTitleDropDown)
 	listen('maptitle', 'keyup', mapTitle)
-	listen('maptitle', 'paste', pasteMapTitle)
-	listen('maptitle', 'click', (e) => {
+/* 	listen('maptitle', 'paste', pasteMapTitle)
+ */	listen('maptitle', 'click', (e) => {
 		if (e.target.innerText == 'Untitled map') window.getSelection().selectAllChildren(e.target)
 	})
 	listen('addNode', 'click', plusNode)
@@ -217,8 +217,9 @@ function addEventListeners() {
 			applySampleToLink(event)
 		})
 	)
-	listen('container', 'copy', copyToClipboard)
-	listen('container', 'paste', pasteFromClipboard)
+	listen('body', 'copy', copyToClipboard)
+	listen('body', 'paste', pasteFromClipboard)
+	//listen('body', 'paste', () => console.log('Paste'))
 }
 
 /**
@@ -1225,7 +1226,7 @@ export function logHistory(action, actor) {
 		},
 	])
 	savedState = compressToUTF16(
-		JSON.stringify({nodes: data.nodes.get(), edges: data.edges.get(), net: yNetMap.toJSON()})
+		JSON.stringify({nodes: data.nodes.get(), edges: data.edges.get(), net: yNetMap.toJSON(), paint: yPointsArray.toArray()})
 	)
 	// delete all but the last 10 saved states
 	for (let i = 0; i < yHistory.length - 10; i++) {
@@ -3445,6 +3446,7 @@ function autoLayout(e) {
 	let option = e.target.value
 	let selectElement = elem('layoutSelect')
 	selectElement.value = option
+	let label = selectElement.options[selectElement.selectedIndex].innerText
 	network.storePositions() // record current positions so it can be undone
 	doc.transact(() => {
 		switch (option) {
@@ -3543,8 +3545,7 @@ function autoLayout(e) {
 			}
 		}
 	})
-
-	logHistory(`applied ${selectElement.options[selectElement.selectedIndex].innerHTML} layout`)
+	logHistory(`applied ${label} layout`)
 
 	/**
 	 * set the levels for fan, using a breadth first search
@@ -3679,6 +3680,7 @@ function toggleDrawingLayer() {
 		setButtonDisabledStatus('addNode', false)
 		setButtonDisabledStatus('addLink', false)
 		undoRedoButtonStatus()
+		logHistory('drew on the background layer')
 		changeCursor('default')
 	} else {
 		// expose drawing layer
@@ -4411,6 +4413,10 @@ function rollback(event) {
 	data.edges.update(state.edges)
 	for (const k in state.net) {
 		yNetMap.set(k, state.net[k])
+	}
+	if (state.paint) {
+		yPointsArray.delete(0, yPointsArray.length)
+		yPointsArray.insert(0, state.paint)
 	}
 	logHistory(`rolled back the map to what it was before ${timeAndDate(rbTime, true)}`)
 }
