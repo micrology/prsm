@@ -8,7 +8,7 @@ import uniqolor from 'uniqolor'
  * @param {string} event
  * @param {function} callback
  */
-export function listen(id, event, callback) {
+export function listen(id, event, callback) { console.log(id)
 	elem(id).addEventListener(event, callback)
 }
 

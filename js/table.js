@@ -1,7 +1,7 @@
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
 import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter} from './utils.js'
-import Tabulator from 'tabulator-tables'
+import {TabulatorFull as Tabulator} from 'tabulator-tables'
 import {version} from '../package.json'
 import Quill from 'quill'
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
@@ -318,7 +318,6 @@ function initialiseFactorTable() {
 		})
 	factorsTable = new Tabulator('#factors-table', {
 		data: tabledata, //assign data to table
-		tableBuilt: cancelLoading,
 		layout: 'fitData',
 		layoutColumnsOnNewData: true,
 		height: window.innerHeight - 180,
@@ -331,16 +330,7 @@ function initialiseFactorTable() {
 			dataTree: false, //do not include data tree in printed table
 			formatCells: false, //show raw cell values without formatter
 		},
-		dataLoaded: () => {
-			initialising = false
-		},
 		index: 'id',
-		columnTitleChanged: function (column) {
-			updateColumnTitle(column)
-		},
-		cellEdited: function (cell) {
-			updateNodeCellData(cell)
-		},
 		columnHeaderVertAlign: 'bottom',
 		columns: [
 			{
@@ -545,45 +535,53 @@ function initialiseFactorTable() {
 			},
 		],
 	})
-	// add all the user defined attribute columns
-	attributeTitles = yNetMap.get('attributeTitles') || {}
-	for (let field in attributeTitles) {
-		if (attributeTitles[field] != '*deleted*') {
-			nAttributes++
-			factorsTable.addColumn({
-				title: attributeTitles[field],
-				editableTitle: true,
-				field: field,
-				editor: 'input',
-				width: getWidthOfTitle(attributeTitles[field]),
-				headerContextMenu: headerContextMenu,
-			})
+	factorsTable.on('tableBuilt', () => {
+		// add all the user defined attribute columns
+		attributeTitles = yNetMap.get('attributeTitles') || {}
+		for (let field in attributeTitles) {
+			if (attributeTitles[field] != '*deleted*') {
+				nAttributes++
+				factorsTable.addColumn({
+					title: attributeTitles[field],
+					editableTitle: true,
+					field: field,
+					editor: 'input',
+					width: getWidthOfTitle(attributeTitles[field]),
+					headerContextMenu: headerContextMenu,
+				})
+			}
 		}
-	}
-	window.factorsTable = factorsTable
-
-	listen('select-all', 'click', (e) => {
-		let ticked = headerTickToggle(e, '#select-all')
-		factorsTable.getRows('active').forEach((row) => {
-			row.update({selection: !ticked})
-		})
-	})
-	listen('hide-all-factors', 'click', (e) => {
-		let ticked = headerTickToggle(e, '#hide-all-factors')
-		doc.transact(() => {
-			factorsTable.getRows().forEach((row) => {
-				row.update({hidden: !ticked})
-				let node = deepCopy(yNodesMap.get(row.getData().id))
-				node.hidden = !ticked
-				yNodesMap.set(node.id, node)
+		listen('select-all', 'click', (e) => {
+			let ticked = headerTickToggle(e, '#select-all')
+			factorsTable.getRows('active').forEach((row) => {
+				row.update({selection: !ticked})
 			})
 		})
+		listen('hide-all-factors', 'click', (e) => {
+			let ticked = headerTickToggle(e, '#hide-all-factors')
+			doc.transact(() => {
+				factorsTable.getRows().forEach((row) => {
+					row.update({hidden: !ticked})
+					let node = deepCopy(yNodesMap.get(row.getData().id))
+					node.hidden = !ticked
+					yNodesMap.set(node.id, node)
+				})
+			})
+		})
+		// start with column groups collapsed
+		collapseColGroup(factorsTable, 'Format')
+		collapseColGroup(factorsTable, 'Statistics')
+		collapseNotes(factorsTable)
+		cancelLoading()
 	})
-	// start with column groups collapsed
-	collapseColGroup(factorsTable, 'Format')
-	collapseColGroup(factorsTable, 'Statistics')
-	collapseNotes(factorsTable)
-
+	factorsTable.on('dataLoaded', () => { initialising = false })
+	
+	factorsTable.on('columnTitleChanged', (column => updateColumnTitle(column)))
+	
+	factorsTable.on('cellEdited', (cell => updateNodeCellData(cell)))
+	
+	window.factorsTable = factorsTable
+	
 	return factorsTable
 }
 /**
