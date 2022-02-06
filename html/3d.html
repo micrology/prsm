@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>PRSM: 3D View</title>
@@ -42,34 +41,36 @@
 				font-display: swap;
 			}
 		</style>
+		<script src="../js/3d.js" type="module"></script>
 	</head>
 
-	<body class="container" id="container">
-		<header>
-			<nav id="navbar">
-				<div>
-					<div class="strap">
-						<span class="strapline">Participatory System Mapper</span>
-						<span class="version" id="version">1.7.0</span>
+	<body id="body">
+		<div id="container">
+			<header>
+				<nav id="navbar">
+					<div>
+						<div class="strap">
+							<span class="strapline">Participatory System Mapper</span>
+							<span class="version" id="version">1.9.0</span>
+						</div>
+						<div class="maptitle unsetmaptitle" id="maptitle">Untitled map</div>
 					</div>
-					<div class="maptitle unsetmaptitle" id="maptitle">Untitled map</div>
+					<div class="button-wrapper">
+						<div class="buttons" id="buttons"></div>
+					</div>
+				</nav>
+			</header>
+			<div id="loading">
+				<div class="loader">
+					<div class="loader--dot"></div>
+					<div class="loader--dot"></div>
+					<div class="loader--dot"></div>
+					<div class="loader--dot"></div>
+					<div class="loader--dot"></div>
+					<div class="loader--dot"></div>
 				</div>
-				<div class="button-wrapper">
-					<div class="buttons" id="buttons"></div>
-				</div>
-			</nav>
-		</header>
-		<div id="loading">
-			<div class="loader">
-				<div class="loader--dot"></div>
-				<div class="loader--dot"></div>
-				<div class="loader--dot"></div>
-				<div class="loader--dot"></div>
-				<div class="loader--dot"></div>
-				<div class="loader--dot"></div>
 			</div>
+			<div class="threeDGraph" id="3dgraph"></div>
 		</div>
-		<div class="threeDGraph" id="3dgraph"></div>
-		<script src="../js/3d.js" type="module"></script>
 	</body>
 </html>

@@ -4,8 +4,7 @@ import {Network} from 'vis-network/peer/'
 import {DataSet} from 'vis-data/peer'
 import {elem, deepMerge, standardize_color} from './utils.js'
 import {version} from '../package.json'
-import ForceGraph3D from '3d-force-graph'
-//import {legend} from './styles.js'
+import ForceGraphVR from '3d-force-graph-vr'
 
 const shortAppName = 'PRSM'
 
@@ -274,7 +273,7 @@ function display() {
 	let threeDGraphDiv = elem('3dgraph')
 	let width = threeDGraphDiv.clientWidth
 	let height = threeDGraphDiv.clientHeight
-	graph = ForceGraph3D()(threeDGraphDiv)
+	graph = ForceGraphVR()(threeDGraphDiv)
 		.width(width)
 		.height(height)
 		.graphData({nodes: graphNodes, links: graphEdges})
