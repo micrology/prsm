@@ -5,6 +5,7 @@ import {DataSet} from 'vis-data/peer'
 import {elem, deepMerge, standardize_color} from './utils.js'
 import {version} from '../package.json'
 import ForceGraphVR from '3d-force-graph-vr'
+import ForceGraph3D from '3d-force-graph'
 
 const shortAppName = 'PRSM'
 
@@ -23,12 +24,17 @@ var loadingDelayTimer // timer to delay the start of the loading animation for f
 var graph // the 3D map
 var graphNodes
 var graphEdges
+var VR = false // use VR mode
 
 window.addEventListener('load', () => {
 	loadingDelayTimer = setTimeout(() => {
 		elem('loading').style.display = 'block'
 	}, 100)
 	elem('version').innerHTML = version
+	let searchParams = new URL(document.location).searchParams
+	if (searchParams.has('debug')) debug = searchParams.get('debug')
+	// use VR version if specified in query string of URL, as "&mode='VR'""
+	VR = searchParams.has('mode') && (searchParams.get('mode').toUpperCase()  == 'VR')
 	startY()
 })
 /**
@@ -273,7 +279,7 @@ function display() {
 	let threeDGraphDiv = elem('3dgraph')
 	let width = threeDGraphDiv.clientWidth
 	let height = threeDGraphDiv.clientHeight
-	graph = ForceGraphVR()(threeDGraphDiv)
+	graph = (VR ? ForceGraphVR() : ForceGraph3D()) (threeDGraphDiv)
 		.width(width)
 		.height(height)
 		.graphData({nodes: graphNodes, links: graphEdges})

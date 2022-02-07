@@ -574,14 +574,16 @@ function initialiseFactorTable() {
 		collapseNotes(factorsTable)
 		cancelLoading()
 	})
-	factorsTable.on('dataLoaded', () => { initialising = false })
-	
-	factorsTable.on('columnTitleChanged', (column => updateColumnTitle(column)))
-	
-	factorsTable.on('cellEdited', (cell => updateNodeCellData(cell)))
-	
+	factorsTable.on('dataLoaded', () => {
+		initialising = false
+	})
+
+	factorsTable.on('columnTitleChanged', (column) => updateColumnTitle(column))
+
+	factorsTable.on('cellEdited', (cell) => updateNodeCellData(cell))
+
 	window.factorsTable = factorsTable
-	
+
 	return factorsTable
 }
 /**
@@ -980,13 +982,7 @@ function initialiseLinkTable() {
 		},
 		layout: 'fitData',
 		height: window.innerHeight - 180,
-		dataLoaded: () => {
-			initialising = false
-		},
 		index: 'id',
-		cellEdited: function (cell) {
-			updateEdgeCellData(cell)
-		},
 		columnHeaderVertAlign: 'bottom',
 		columns: [
 			{
@@ -1102,26 +1098,36 @@ function initialiseLinkTable() {
 			},
 		],
 	})
-	window.linksTable = linksTable
-	listen('select-all-links', 'click', (e) => {
-		let ticked = headerTickToggle(e, '#select-all-links')
-		linksTable.getRows('active').forEach((row) => {
-			row.update({selection: !ticked})
-		})
-	})
-	listen('hide-all-links', 'click', (e) => {
-		let ticked = headerTickToggle(e, '#hide-all-links')
-		doc.transact(() => {
-			linksTable.getRows().forEach((row) => {
-				row.update({hidden: !ticked})
-				let edge = deepCopy(yEdgesMap.get(row.getData().id))
-				edge.hidden = !ticked
-				yEdgesMap.set(edge.id, edge)
+	linksTable.on('tableBuilt', () => {
+		listen('select-all-links', 'click', (e) => {
+			let ticked = headerTickToggle(e, '#select-all-links')
+			linksTable.getRows('active').forEach((row) => {
+				row.update({selection: !ticked})
 			})
 		})
+		listen('hide-all-links', 'click', (e) => {
+			let ticked = headerTickToggle(e, '#hide-all-links')
+			doc.transact(() => {
+				linksTable.getRows().forEach((row) => {
+					row.update({hidden: !ticked})
+					let edge = deepCopy(yEdgesMap.get(row.getData().id))
+					edge.hidden = !ticked
+					yEdgesMap.set(edge.id, edge)
+				})
+			})
+		})
+		collapseColGroup(linksTable, 'Style')
+		collapseNotes(linksTable, 'LinkNotes')
 	})
-	collapseColGroup(linksTable, 'Style')
-	collapseNotes(linksTable, 'LinkNotes')
+	linksTable.on('dataLoaded', () => {
+		initialising = false
+	})
+
+	linksTable.on('columnTitleChanged', (column) => updateColumnTitle(column))
+
+	linksTable.on('cellEdited', (cell) => updateEdgeCellData(cell))
+
+	window.linksTable = linksTable
 
 	return linksTable
 }

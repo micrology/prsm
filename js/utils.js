@@ -8,7 +8,7 @@ import uniqolor from 'uniqolor'
  * @param {string} event
  * @param {function} callback
  */
-export function listen(id, event, callback) { console.log(id)
+export function listen(id, event, callback) {
 	elem(id).addEventListener(event, callback)
 }
 
@@ -595,6 +595,7 @@ function rgbToHex(str) {
  * @param {string} str
  */
 export function standardize_color(str) {
+	if (!str) return '#000000'
 	if (str.charAt(0) === '#') return str
 	let ctx = document.createElement('canvas').getContext('2d')
 	ctx.fillStyle = str
