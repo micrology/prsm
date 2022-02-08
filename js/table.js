@@ -62,8 +62,7 @@ function setUpTabs() {
 				tabcontent[i].style.display = 'none'
 			}
 			elem(e.currentTarget.dataset.table).style.display = 'block'
-			openTable =
-				e.currentTarget.dataset.table == 'factors-table' ? initialiseFactorTable() : initialiseLinkTable()
+			openTable = e.currentTarget.dataset.table
 			if (filterDisplayed) closeFilter()
 		})
 	}
@@ -341,7 +340,6 @@ function initialiseFactorTable() {
 				hozAlign: 'center',
 				formatter: 'tickCross',
 				formatterParams: tickCrossFormatter(),
-				cellClick: tickToggle,
 				headerVertical: true,
 			},
 			{
@@ -381,7 +379,6 @@ function initialiseFactorTable() {
 						hozAlign: 'center',
 						formatter: 'tickCross',
 						formatterParams: tickCrossFormatter(),
-						cellClick: tickToggle,
 						headerVertical: true,
 						bottomCalc: 'count',
 						bottomCalcFormatter: bottomCalcFormatter,
@@ -393,7 +390,6 @@ function initialiseFactorTable() {
 						hozAlign: 'center',
 						formatter: 'tickCross',
 						formatterParams: tickCrossFormatter(),
-						cellClick: tickToggle,
 						headerVertical: true,
 						bottomCalc: 'count',
 						bottomCalcFormatter: bottomCalcFormatter,
@@ -582,6 +578,18 @@ function initialiseFactorTable() {
 
 	factorsTable.on('cellEdited', (cell) => updateNodeCellData(cell))
 
+	factorsTable.on('cellClick', ((e, cell) => {
+		switch (cell.getField()) {
+			case 'hidden':
+			case 'selection':
+			case 'fixed':
+				tickToggle(e, cell)
+				break
+			default:
+				break
+		}
+	}))
+
 	window.factorsTable = factorsTable
 
 	return factorsTable
@@ -743,8 +751,10 @@ function quillFormatter(cell) {
 	let note = cell.getValue()
 	if (note) {
 		qed.setContents(note)
-		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert()
-		if (elem(`hide${cell.getColumn().getParentColumn().getField()}`).dataset.collapsed == 'false')
+		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, { inlineStyles: true }).convert()
+		// this should work, but there is a big in Tabulator
+//		if (elem(`hide${cell.getColumn().getParentColumn().getField()}`).dataset.collapsed == 'false')
+		if (elem(`hide${openTable === factorsTable ? 'Notes' :'LinkNotes'}`).dataset.collapsed == 'false')
 			return shorten(html, 50)
 		else return html
 	}
@@ -993,7 +1003,6 @@ function initialiseLinkTable() {
 				hozAlign: 'center',
 				formatter: 'tickCross',
 				formatterParams: tickCrossFormatter(),
-				cellClick: tickToggle,
 				headerVertical: true,
 			},
 			{
@@ -1027,7 +1036,6 @@ function initialiseLinkTable() {
 						hozAlign: 'center',
 						formatter: 'tickCross',
 						formatterParams: tickCrossFormatter(),
-						cellClick: tickToggle,
 						headerVertical: true,
 						bottomCalc: 'count',
 						bottomCalcFormatter: bottomCalcFormatter,
@@ -1035,7 +1043,6 @@ function initialiseLinkTable() {
 					},
 					{
 						title: 'Arrow',
-						//						width: 100,
 						field: 'arrowShape',
 						headerVertical: true,
 						editor: 'select',
@@ -1118,6 +1125,7 @@ function initialiseLinkTable() {
 		})
 		collapseColGroup(linksTable, 'Style')
 		collapseNotes(linksTable, 'LinkNotes')
+		if (openTable == factorsTable) elem('links-table').style.display = 'none'
 	})
 	linksTable.on('dataLoaded', () => {
 		initialising = false
@@ -1127,6 +1135,17 @@ function initialiseLinkTable() {
 
 	linksTable.on('cellEdited', (cell) => updateEdgeCellData(cell))
 
+	linksTable.on('cellClick', ((e, cell) => {
+		switch (cell.getField()) {
+			case 'hidden':
+			case 'selection':
+				tickToggle(e, cell)
+				break
+			default:
+				break
+		}
+	}))
+	
 	window.linksTable = linksTable
 
 	return linksTable
@@ -1196,8 +1215,7 @@ function updateEdgeCellData(cell) {
 	rows.forEach((row) => {
 		let edge = deepCopy(yEdgesMap.get(row.getData().id))
 		// update it with the cell's new value
-		edge[field] = value
-		edge = convertEdgeBack(edge, field, value)
+			edge = convertEdgeBack(edge, field, value)
 		if (field == 'groupLabel') {
 			edge = deepMerge(edge, ySamplesMap.get(edge.grp).edge)
 			linksTable.updateData([convertEdge(edge)])
