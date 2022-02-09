@@ -19,9 +19,10 @@ var yEdgesMap // shared map of edges
 var yNetMap // shared map of network state
 var ySamplesMap // shared map of styles
 var yUndoManager // shared list of commands for undo
-var factorsTable // the factors table
-var linksTable //the links table
-var openTable // the table that is currently on view
+var table  = 'factors-table' // the table that is currently on view (factors-table or links-table)
+var factorsTable // the factors table object
+var linksTable // the links table object
+var openTable // the table object that is currently on view
 var initialising = true // true until the tables have been loaded
 var nAttributes = 0 // number of attributes
 var attributeTitles = {} // titles of each of the attributes
@@ -62,7 +63,8 @@ function setUpTabs() {
 				tabcontent[i].style.display = 'none'
 			}
 			elem(e.currentTarget.dataset.table).style.display = 'block'
-			openTable = e.currentTarget.dataset.table
+			table = e.currentTarget.dataset.table
+			openTable =  (table == 'factors-table' ? factorsTable : linksTable)
 			if (filterDisplayed) closeFilter()
 		})
 	}
@@ -320,6 +322,7 @@ function initialiseFactorTable() {
 		layout: 'fitData',
 		layoutColumnsOnNewData: true,
 		height: window.innerHeight - 180,
+		resizableRows:true,
 		clipboard: true,
 		clipboardCopyConfig: {
 			columnHeaders: true, //do not include column headers in clipboard output
@@ -347,6 +350,7 @@ function initialiseFactorTable() {
 				field: 'label',
 				editor: 'textarea',
 				maxWidth: 300,
+				minWidth: 300,
 				bottomCalc: 'count',
 				bottomCalcFormatter: bottomCalcFormatter,
 				bottomCalcFormatterParams: {legend: 'Count:'},
@@ -525,6 +529,7 @@ function initialiseFactorTable() {
 						editor: quillEditor,
 						formatter: quillFormatter,
 						maxWidth: 600,
+						minWidth: 200,
 						variableHeight: true,
 					},
 				],
@@ -754,7 +759,7 @@ function quillFormatter(cell) {
 		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, { inlineStyles: true }).convert()
 		// this should work, but there is a big in Tabulator
 //		if (elem(`hide${cell.getColumn().getParentColumn().getField()}`).dataset.collapsed == 'false')
-		if (elem(`hide${openTable === factorsTable ? 'Notes' :'LinkNotes'}`).dataset.collapsed == 'false')
+		if (elem(`hide${table === 'factors-table' ? 'Notes' :'LinkNotes'}`).dataset.collapsed == 'false')
 			return shorten(html, 50)
 		else return html
 	}
@@ -1099,6 +1104,7 @@ function initialiseLinkTable() {
 						editor: quillEditor,
 						formatter: quillFormatter,
 						maxWidth: 600,
+						minWidth: 200,
 						variableHeight: true,
 					},
 				],
@@ -1125,7 +1131,7 @@ function initialiseLinkTable() {
 		})
 		collapseColGroup(linksTable, 'Style')
 		collapseNotes(linksTable, 'LinkNotes')
-		if (openTable == factorsTable) elem('links-table').style.display = 'none'
+		if (table == 'factors-table') elem('links-table').style.display = 'none'
 	})
 	linksTable.on('dataLoaded', () => {
 		initialising = false
