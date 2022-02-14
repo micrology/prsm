@@ -11,6 +11,7 @@ import {
 	selectLinks,
 	updateLastSamples,
 	cp,
+	logHistory,
 } from './prsm.js'
 import {styles} from './samples.js'
 
@@ -405,6 +406,7 @@ function nodeEditSubmit() {
 	})
 	updateLegend()
 	network.redraw()
+	logHistory('edited a Factor style')
 }
 /**
  * update all nodes in the map with this style to the current style features
@@ -536,7 +538,7 @@ function linkEditSubmit() {
 	})
 	updateLegend()
 	network.redraw()
-}
+	logHistory('edited a Link style')}
 /**
  * update all links in the map with this style to the current style features
  * @param {number[]} groupIds

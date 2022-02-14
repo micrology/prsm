@@ -587,7 +587,7 @@ nav button .pressed {
 	border-radius: 6px;
 	font-size: 12px;
 	position: absolute;
-	z-index: 2005;
+	z-index: 3005;
 	opacity: 0;
 	transition-property: opacity;
 	transition-delay: 2s;

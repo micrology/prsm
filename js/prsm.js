@@ -63,6 +63,7 @@ var edges // a dataset of edges
 export var data // an object with the nodes and edges datasets as properties
 export const doc = new Y.Doc()
 export var websocket = 'wss://www.prsm.uk/wss' // web socket server URL
+var persistence // indexDB for local, offline storage of doc
 export var clientID // unique ID for this browser
 var yNodesMap // shared map of nodes
 var yEdgesMap // shared map of edges
@@ -104,7 +105,7 @@ var savedState = '' // the current state of the map (nodes, edges, network setti
 window.addEventListener('load', () => {
 	loadingDelayTimer = setTimeout(() => {
 		elem('loading').style.display = 'block'
-	}, 100)
+	}, 200)
 	addEventListeners()
 	setUpPage()
 	startY()
@@ -270,7 +271,7 @@ function startY(newRoom) {
 		room = generateRoom()
 		checkMapSaved = true
 	} else room = room.toUpperCase()
-		const persistence = new IndexeddbPersistence(room, doc)
+	persistence = new IndexeddbPersistence(room, doc)
 	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
 		if (data.nodes.length > 0) displayNetPane(exactTime() + ' local content loaded')
@@ -627,23 +628,35 @@ function displayNetPane(msg) {
 		netPane.style.visibility = 'visible'
 		clearTimeout(loadingDelayTimer)
 		yUndoManager.clear()
+		initySamplesMap()
 		undoRedoButtonStatus()
 		setUpTutorial()
 		netLoaded = true
-		savedState = compressToUTF16(
-			JSON.stringify({
-				nodes: data.nodes.get(),
-				edges: data.edges.get(),
-				net: yNetMap.toJSON(),
-				paint: yPointsArray.toArray(),
-			})
-		)
+		savedState = saveState()
 		setAnalysisButtonsFromRemote()
 		toggleDeleteButton()
 		setLegend(yNetMap.get('legend'), false)
 	}
 }
-
+/**
+ * Load ySamplesMap with the current styles (for possible rollback)
+ */
+function initySamplesMap() {
+	doc.transact(() => {
+		for (let grpId in styles.nodes) {
+			ySamplesMap.set(grpId, {
+				node: styles.nodes[grpId],
+				clientID: clientID,
+			})
+		}
+		for (let grpId in styles.edges) {
+			ySamplesMap.set(grpId, {
+				node: styles.edges[grpId],
+				clientID: clientID,
+			})
+		}
+	})
+}
 // to handle iPad viewport sizing problem when tab bar appears and to keep panels on screen
 setvh()
 
@@ -1221,33 +1234,39 @@ function timestamp() {
  * @param {String} action
  */
 export function logHistory(action, actor) {
+	let now = Date.now()
 	yHistory.push([
 		{
 			action: action,
-			time: Date.now(),
+			time: now,
 			user: actor ? actor : myNameRec.name,
-			state: savedState,
 		},
 	])
-	savedState = compressToUTF16(
+	persistence.set(now, savedState)
+	savedState = saveState()
+
+	// delete all but the last 10 saved states
+	for (let i = 0; i < yHistory.length - 10; i++) {
+		let obj = yHistory.get(i)
+		if (obj.time) persistence.del(obj.time)
+	}
+	if (elem('history-window').style.display == 'block') showHistory()
+	dirty = true
+}
+/**
+ * Generate a compressed dump of the current state of the map, sufficient to reproduce it
+ * @returns binary string
+ */
+function saveState() {
+	return compressToUTF16(
 		JSON.stringify({
 			nodes: data.nodes.get(),
 			edges: data.edges.get(),
 			net: yNetMap.toJSON(),
+			samples: ySamplesMap.toJSON(),
 			paint: yPointsArray.toArray(),
 		})
 	)
-	// delete all but the last 10 saved states
-	for (let i = 0; i < yHistory.length - 10; i++) {
-		let obj = yHistory.get(i)
-		if (obj.state) {
-			obj.state = null
-			yHistory.delete(i)
-			yHistory.insert(i, [obj])
-		}
-	}
-	if (elem('history-window').style.display == 'block') showHistory()
-	dirty = true
 }
 /**
  * draw badges (icons) around Factors and Links
@@ -2520,13 +2539,7 @@ function loadJSONfile(str) {
 	yPointsArray.delete(0, yPointsArray.length)
 	if (json.underlay) yPointsArray.insert(0, json.underlay)
 	yHistory.delete(0, yHistory.length)
-	if (json.history) {
-		// delete all but the last 10 saved states
-		for (let i = 0; i < json.history.length - 10; i++) {
-			json.history[i].state = null
-		}
-		yHistory.insert(0, json.history)
-	}
+	if (json.history) yHistory.insert(0, json.history)
 	return {
 		nodes: nodes,
 		edges: edges,
@@ -4380,22 +4393,24 @@ function showHistory() {
 	let log = elem('history-log')
 	log.innerHTML = yHistory
 		.toArray()
-		.map((rec) => formatLogRec(rec))
+		.map(
+			(rec) => `<div class="history-time">${timeAndDate(rec.time)}: </div>
+		<div class="history-action">${rec.user} ${rec.action}</div>
+		<div class="history-rollback" data-time="${rec.time}"></div>`
+		)
 		.join(' ')
-	document.querySelectorAll('div.history-rollback').forEach((e) => {
-		if (e.id) listen(e.id, 'click', rollback)
-	})
+	document.querySelectorAll('div.history-rollback').forEach((e) => addRollbackIcon(e))
 	if (log.children.length > 0) log.lastChild.scrollIntoView(false)
 }
 /**
- * return a DOM element with the data in rec formatted and a button for rolling back if there is state data
- * @param {Object} rec - history record (action, time, state)
- */
-function formatLogRec(rec) {
-	let rollbackButton = '<div class="history-rollback"></div>'
-	if (rec.state) {
-		rollbackButton = `<div class="history-rollback"  id="hist${rec.time}">
-			<div class="tooltip">
+ * add a button for rolling back if there is state data corresponding to this log record
+ * @param {HTMLElement} e - history record
+ * */
+async function addRollbackIcon(e) {
+	let state = await persistence.get(parseInt(e.dataset.time))
+	if (state) {
+		e.id = `hist${e.dataset.time}`
+		e.innerHTML = `<div class="tooltip">
 				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bootstrap-reboot" viewBox="0 0 16 16">
 				<path d="M1.161 8a6.84 6.84 0 1 0 6.842-6.84.58.58 0 1 1 0-1.16 8 8 0 1 1-6.556 3.412l-.663-.577a.58.58 0 0 1 .227-.997l2.52-.69a.58.58 0 0 1 .728.633l-.332 2.592a.58.58 0 0 1-.956.364l-.643-.56A6.812 6.812 0 0 0 1.16 8z"/>
 				<path d="M6.641 11.671V8.843h1.57l1.498 2.828h1.314L9.377 8.665c.897-.3 1.427-1.106 1.427-2.1 0-1.37-.943-2.246-2.456-2.246H5.5v7.352h1.141zm0-3.75V5.277h1.57c.881 0 1.416.499 1.416 1.32 0 .84-.504 1.324-1.386 1.324h-1.6z"/>
@@ -4403,33 +4418,36 @@ function formatLogRec(rec) {
 				<span class="tooltiptext rollbacktip">Rollback to before this action</span>
 			</div>
 		</div>`
+		if (elem(e.id)) listen(e.id, 'click', rollback)
 	}
-	return `<div class="history-time">${timeAndDate(rec.time)}: </div>
-			<div class="history-action">${rec.user} ${rec.action}</div>
-			${rollbackButton}`
 }
 /**
- *
+ * Restores the state of the map to a previous one
  * @param {Event} event
  * @returns null if no rollback possible or cancelled
  */
-function rollback(event) {
-	let rbTime = parseInt(event.currentTarget.id.substring(4))
-	let rb = yHistory.toArray().find((rec) => rec.time === rbTime)
-	if (!rb || !rb.state) return
+async function rollback(event) {
+	let rbTime = parseInt(event.currentTarget.dataset.time)
+	let rb = await persistence.get(rbTime)
+	if (!rb) return
 	if (!confirm(`Roll back the map to what it was before ${timeAndDate(rbTime)}?`)) return
-	let state = JSON.parse(decompressFromUTF16(rb.state))
+	let state = JSON.parse(decompressFromUTF16(rb))
 	data.nodes.clear()
 	data.edges.clear()
 	data.nodes.update(state.nodes)
 	data.edges.update(state.edges)
-	for (const k in state.net) {
-		yNetMap.set(k, state.net[k])
-	}
-	if (state.paint) {
-		yPointsArray.delete(0, yPointsArray.length)
-		yPointsArray.insert(0, state.paint)
-	}
+	doc.transact(() => {
+		for (const k in state.net) {
+			yNetMap.set(k, state.net[k])
+		}
+		for (const k in state.samples) {
+			ySamplesMap.set(k, state.samples[k])
+		}
+		if (state.paint) {
+			yPointsArray.delete(0, yPointsArray.length)
+			yPointsArray.insert(0, state.paint)
+		}
+	})
 	logHistory(`rolled back the map to what it was before ${timeAndDate(rbTime, true)}`)
 }
 

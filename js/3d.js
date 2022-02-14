@@ -6,6 +6,7 @@ import {elem, deepMerge, standardize_color} from './utils.js'
 import {version} from '../package.json'
 import ForceGraphVR from '3d-force-graph-vr'
 import ForceGraph3D from '3d-force-graph'
+import SpriteText from 'three-spritetext'
 
 const shortAppName = 'PRSM'
 
@@ -289,5 +290,14 @@ function display() {
 		.backgroundColor('black')
 		.nodeOpacity(1.0)
 		.linkDirectionalParticles(10)
+		.nodeThreeObjectExtend(true)
+        .nodeThreeObject(node => {
+          // extend node with text sprite
+          const sprite = new SpriteText(`${node.name}`);
+          sprite.color = 'lightgrey';
+          sprite.textHeight = 5;
+          return sprite;
+		})
+	.nodePositionUpdate
 	legend()
 }
