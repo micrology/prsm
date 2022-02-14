@@ -105,7 +105,7 @@ var savedState = '' // the current state of the map (nodes, edges, network setti
 window.addEventListener('load', () => {
 	loadingDelayTimer = setTimeout(() => {
 		elem('loading').style.display = 'block'
-	}, 200)
+	}, 1000)
 	addEventListeners()
 	setUpPage()
 	startY()
