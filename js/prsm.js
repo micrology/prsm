@@ -53,6 +53,7 @@ const TIMETOSLEEP = 15 * 60 * 1000 // if no mouse movement for this time, user i
 const TIMETOEDIT = 5 * 60 * 1000 // if node/edge edit dialog is not saved after this time, the edit is cancelled
 const magnification = 3 // magnification of the loupe (magnifier 'glass')
 export const NLEVELS = 20 // max. number of levels for trophic layout
+const ROLLBACKS = 20 // max. number of versions stored for rollback
 
 export var network
 var room
@@ -1245,8 +1246,8 @@ export function logHistory(action, actor) {
 	persistence.set(now, savedState)
 	savedState = saveState()
 
-	// delete all but the last 10 saved states
-	for (let i = 0; i < yHistory.length - 10; i++) {
+	// delete all but the last ROLLBACKS saved states
+	for (let i = 0; i < yHistory.length - ROLLBACKS; i++) {
 		let obj = yHistory.get(i)
 		if (obj.time) persistence.del(obj.time)
 	}
@@ -2474,6 +2475,7 @@ function loadFile(contents) {
  * @param {string} str
  */
 function loadJSONfile(str) {
+	if (str[0] != '{') str = decompressFromUTF16(str)
 	let json = JSON.parse(str)
 	if (json.version && version.substring(0, 3) > json.version.substring(0, 3)) {
 		statusMsg('Warning: file was created in an earlier version', 'warn')
@@ -2801,7 +2803,7 @@ function savePRSMfile() {
 		null,
 		'\t'
 	)
-	saveStr(json, 'prsm')
+	saveStr(compressToUTF16(json), 'prsm')
 }
 /**
  * Save the string to a local file

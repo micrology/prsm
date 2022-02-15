@@ -35,7 +35,7 @@ window.addEventListener('load', () => {
 	let searchParams = new URL(document.location).searchParams
 	if (searchParams.has('debug')) debug = searchParams.get('debug')
 	// use VR version if specified in query string of URL, as "&mode='VR'""
-	VR = searchParams.has('mode') && (searchParams.get('mode').toUpperCase()  == 'VR')
+	VR = searchParams.has('mode') && searchParams.get('mode').toUpperCase() == 'VR'
 	startY()
 })
 /**
@@ -280,24 +280,26 @@ function display() {
 	let threeDGraphDiv = elem('3dgraph')
 	let width = threeDGraphDiv.clientWidth
 	let height = threeDGraphDiv.clientHeight
-	graph = (VR ? ForceGraphVR() : ForceGraph3D()) (threeDGraphDiv)
+	graph = (VR ? ForceGraphVR() : ForceGraph3D())(threeDGraphDiv)
 		.width(width)
 		.height(height)
 		.graphData({nodes: graphNodes, links: graphEdges})
 		.linkWidth(1)
 		.linkDirectionalArrowLength(4)
 		.linkDirectionalArrowRelPos(1.0)
-		.backgroundColor('black')
+		.backgroundColor('#00008B')
 		.nodeOpacity(1.0)
 		.linkDirectionalParticles(10)
-		.nodeThreeObjectExtend(true)
-        .nodeThreeObject(node => {
-          // extend node with text sprite
-          const sprite = new SpriteText(`${node.name}`);
-          sprite.color = 'lightgrey';
-          sprite.textHeight = 5;
-          return sprite;
-		})
-	.nodePositionUpdate
+		.nodeThreeObjectExtend(false)
+		.nodeThreeObject((node) => {
+			// extend node with text sprite
+			const sprite = new SpriteText(`${node.name}`)
+			sprite.color = 'white'
+			sprite.textHeight = 3
+			sprite.backgroundColor = node.color
+			sprite.borderWidth = 1
+			sprite.borderRadius = 4
+			return sprite
+		}).nodePositionUpdate
 	legend()
 }

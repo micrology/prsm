@@ -1283,7 +1283,6 @@ but moving the panel out of sight works instead */
 }
 .history-close:hover {
 	color: var(--header-hover-color);
-	font-weight: bold;
 }
 .history-log-wrapper {
 	max-height: 500px;
