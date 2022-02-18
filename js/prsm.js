@@ -106,7 +106,7 @@ var savedState = '' // the current state of the map (nodes, edges, network setti
 window.addEventListener('load', () => {
 	loadingDelayTimer = setTimeout(() => {
 		elem('loading').style.display = 'block'
-	}, 1000)
+	}, 100)
 	addEventListeners()
 	setUpPage()
 	startY()
@@ -647,13 +647,11 @@ function initySamplesMap() {
 		for (let grpId in styles.nodes) {
 			ySamplesMap.set(grpId, {
 				node: styles.nodes[grpId],
-				clientID: clientID,
 			})
 		}
 		for (let grpId in styles.edges) {
 			ySamplesMap.set(grpId, {
-				node: styles.edges[grpId],
-				clientID: clientID,
+				edge: styles.edges[grpId],
 			})
 		}
 	})
@@ -2163,6 +2161,7 @@ function zoomset(newScale) {
 	elem('zoom').value = newZoom
 	network.zoom(newZoom)
 }
+
 
 /* var clicks = 0; // accumulate 'mousewheel' clicks sent while display is updating
 var ticking = false; // if true, we are waiting for an AnimationFrame */

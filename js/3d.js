@@ -74,6 +74,7 @@ function startY() {
 	window.yNodesMap = yNodesMap
 	window.yEdgesMap = yEdgesMap
 	window.yNetMap = yNetMap
+	window.ySamplesMap = ySamplesMap
 
 	yNodesMap.observe(() => {
 		if (graph) {
@@ -296,10 +297,41 @@ function display() {
 			const sprite = new SpriteText(`${node.name}`)
 			sprite.color = 'white'
 			sprite.textHeight = 3
+			sprite.padding = 1
 			sprite.backgroundColor = node.color
 			sprite.borderWidth = 1
 			sprite.borderRadius = 4
 			return sprite
-		}).nodePositionUpdate
+		})
+	legend()
+} 
+/* function display() {
+	convertData()
+	cancelLoading()
+	let threeDGraphDiv = elem('3dgraph')
+	let width = threeDGraphDiv.clientWidth
+	let height = threeDGraphDiv.clientHeight
+	graph = (VR ? ForceGraphVR() : ForceGraph3D())(threeDGraphDiv)
+		.width(width)
+		.height(height)
+		.graphData({nodes: graphNodes, links: graphEdges})
+		.linkWidth(1)
+		.linkDirectionalArrowLength(4)
+		.linkDirectionalArrowRelPos(1.0)
+		.backgroundColor('#00008B')
+		.nodeOpacity(1.0)
+		.linkDirectionalParticles(10)
+		.nodeThreeObjectExtend(false)
+		.nodeThreeObject((node) => {
+			// extend node with text sprite
+			const sprite = new SpriteText(`${node.name}`)
+			sprite.color = 'white'
+			sprite.textHeight = 3
+			return sprite
+		})
+		.onNodeClick(doHover)
 	legend()
 }
+function doHover(node) {
+	console.log(node)
+} */

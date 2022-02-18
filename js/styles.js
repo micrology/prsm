@@ -6,7 +6,6 @@ import {
 	data,
 	ySamplesMap,
 	yNetMap,
-	clientID,
 	selectFactors,
 	selectLinks,
 	updateLastSamples,
@@ -402,7 +401,6 @@ function nodeEditSubmit() {
 	reApplySampleToNodes([groupId], true)
 	ySamplesMap.set(groupId, {
 		node: styles.nodes[groupId],
-		clientID: clientID,
 	})
 	updateLegend()
 	network.redraw()
@@ -534,7 +532,6 @@ function linkEditSubmit() {
 	reApplySampleToLinks([groupId], true)
 	ySamplesMap.set(groupId, {
 		edge: styles.edges[groupId],
-		clientID: clientID,
 	})
 	updateLegend()
 	network.redraw()
