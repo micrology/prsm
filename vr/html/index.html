@@ -3,10 +3,12 @@
 	<head>
 		<title>A-Frame Experiments</title>
 		<meta name="description" content="A-Frame Experiments" />
+		<script src="../js/vr.js" type=""module"></script>
 		<script src="../node_modules/aframe/dist/aframe-v1.3.0.min.js"></script>
 		<script src="../node_modules/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
 		<script src="../node_modules/aframe-look-at-component/dist/aframe-look-at-component.min.js"></script>
 		<script src="../node_modules/aframe-extras/dist/aframe-extras.controls.min.js"></script>
+		<script src="../node_modules/aframe-forcegraph-component/dist/aframe-forcegraph-component.min.js"></script>
 		<script>
 			AFRAME.registerComponent('click', {
 				schema: {},
@@ -49,11 +51,9 @@
 						// the bounding sphere isn't set yet
 						//            setTimeout(evt => {
 						const bsphere = mesh.geometry.boundingSphere
-						const sphericalrig = document.createElement('a-sphere')
+						const sphericalrig = document.createElement('a-entity')
 						sphericalrig.id = 'sphericalrig'
 						sphericalrig.setAttribute('look-at', '[camera]')
-						sphericalrig.setAttribute('material', 'wireframe', true)
-						sphericalrig.setAttribute('opacity', 0)
 						el.appendChild(sphericalrig)
 						tooltip.setAttribute('position', {x: 0, y: 0, z: bsphere.radius})
 						sphericalrig.appendChild(tooltip)
@@ -96,6 +96,7 @@
 				click
 				hover="color: blue; text: green cube"
 			></a-box>
+			<a-entity forcegraph="json-url: ../img/miserables.json"></a-entity>
 			<a-entity
 				id="Hello"
 				text="value: Hello, A-Frame; color: #FAFAFA; width: 5; anchor: align"
