@@ -124,10 +124,11 @@ window.addEventListener('load', () => {
 window.onbeforeunload = function (event) {
 	unlockAll()
 	yAwareness.setLocalStateField('addingFactor', 'done')
+	yAwareness.setLocalState(null)
 	// get confirmation from user before exiting if there are unsaved changes
 	if (checkMapSaved && dirty) {
 		event.preventDefault()
-		event.returnValue = 'You have unsaved unchages.  Are you sure you want to leave?'
+		event.returnValue = 'You have unsaved unchanges.  Are you sure you want to leave?'
 	}
 }
 /**

@@ -828,8 +828,8 @@ export function setEndOfContenteditable(contentEditableElement) {
 /**
  * @returns a string with current time to the nearest millisecond
  */
-export function exactTime() {
-	let d = new Date()
+export function exactTime(time) {
+	let d = time ? new Date(time) : new Date()
 	return `${d.toLocaleTimeString()}:${d.getMilliseconds()} `
 }
 
