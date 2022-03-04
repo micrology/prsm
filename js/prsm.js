@@ -784,14 +784,14 @@ function draw() {
 		nodes: {
 			chosen: {
 				node: function (values, id, selected) {
-					if (selected) values.shadow = true
+					values.shadow = selected
 				},
 			},
 		},
 		edges: {
 			chosen: {
 				edge: function (values, id, selected) {
-					if (selected) values.shadow = true
+					values.shadow = selected
 				},
 			},
 			smooth: {
@@ -1374,7 +1374,7 @@ function snapToGrid(node) {
 function copyToClipboard(event) {
 	if (document.getSelection().toString()) return // only copy factors if there is no text selected (e.g. in Notes)
 	event.preventDefault()
-	let nIds = getSelectedAndFixedNodes()
+	let nIds = network.getSelectedNodes()
 	let eIds = network.getSelectedEdges()
 	if (nIds.length + eIds.length == 0) {
 		statusMsg('Nothing selected to copy', 'warn')
@@ -2108,7 +2108,7 @@ function listLinks(links) {
  * @returns {String} string of labels of links and factors, nicely formatted
  */
 function selectedLabels() {
-	let selectedNodes = getSelectedAndFixedNodes()
+	let selectedNodes = network.getSelectedNodes()
 	let selectedEdges = network.getSelectedEdges()
 	let msg = ''
 	if (selectedNodes.length > 0) msg = listFactors(selectedNodes)
@@ -3307,7 +3307,6 @@ function setFixed() {
 	let locked = elem('fixed').style.display == 'none'
 	let node = data.nodes.get(editor.id)
 	node.fixed = locked
-	node.shadow = locked
 	elem('fixed').style.display = node.fixed ? 'inline' : 'none'
 	elem('unfixed').style.display = node.fixed ? 'none' : 'inline'
 	data.nodes.update(node)
@@ -3803,7 +3802,7 @@ function setRadioVal(name, value) {
 	}
 }
 /**
- * Return an array of the node Ids of Factors that are selected of are locked
+ * Return an array of the node Ids of Factors that are selected or are locked
  * @returns Array
  */
 function getSelectedAndFixedNodes() {
@@ -3896,6 +3895,8 @@ function analyse() {
 	// but paths between factors needs at least two
 	if (getRadioVal('paths') !== 'All' && selectedNodes.length < 2) {
 		statusMsg('Select at least 2 factors to show paths between them', 'error')
+		setRadioVal('radius', 'All')
+		setRadioVal('stream', 'All')
 		setRadioVal('paths', 'All')
 		setYMapAnalysisButtons()
 		data.nodes.update(nodes)
