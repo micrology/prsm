@@ -57,7 +57,15 @@ const ROLLBACKS = 20 // max. number of versions stored for rollback
 
 export var network
 var room
-export var debug = '' // if includes 'yjs', all yjs sharing interactions are logged to the console; if 'gui' mouse events are reported
+/* debug options (add to the URL thus: &debug=yjs,gui)
+* yjs - display yjs observe events on console
+* changes - show details of changes to yjs types
+* gui - show all mouse events
+* plain - save PRSM file as plain text, not compressed
+* cluster - show creation of clusters
+* aware - show awareness traffic
+*/
+export var debug = ''
 var viewOnly // when true, user can only view, not modify, the network
 var nodes // a dataset of nodes
 var edges // a dataset of edges
@@ -955,6 +963,7 @@ function draw() {
 		}
 		if (keys.shiftKey) {
 			if (!inEditMode) showMagnifier(keys)
+			return
 		}
 	})
 
@@ -1466,6 +1475,7 @@ async function getClipboardContents() {
  * @param {Function} callback
  */
 function addLabel(item, cancelAction, callback) {
+	if (elem('popup').style.display == 'block') return // can't add factor when factor is already being added
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback)
 	let pos = {x: event.offsetX, y: event.offsetY}
 	positionPopUp(pos)
@@ -2798,12 +2808,13 @@ function savePRSMfile() {
 				filter: (e) => !e.isClusterEdge,
 			}),
 			underlay: yPointsArray.toArray(),
-			history: yHistory.toArray(),
+			history: yHistory.map((s) => {s.state=null; return s}),
 		},
 		null,
 		'\t'
 	)
-	saveStr(compressToUTF16(json), 'prsm')
+	if (!(/plain/.test(debug))) json = compressToUTF16(json)
+	saveStr(json, 'prsm')
 }
 /**
  * Save the string to a local file
