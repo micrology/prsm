@@ -513,6 +513,10 @@ function startY(newRoom) {
 			for (let key of event.keysChanged) {
 				let obj = yNetMap.get(key)
 				switch (key) {
+					case 'viewOnly':
+						viewOnly = viewOnly || obj
+						if (viewOnly) elem('buttons').style.display = 'none'
+						break;
 					case 'mapTitle':
 					case 'maptitle':
 						setMapTitle(obj)
@@ -646,6 +650,7 @@ function displayNetPane(msg) {
 		setAnalysisButtonsFromRemote()
 		toggleDeleteButton()
 		setLegend(yNetMap.get('legend'), false)
+		yNetMap.set('viewOnly', viewOnly)
 	}
 }
 /**
@@ -2991,6 +2996,7 @@ function setUpShareDialog() {
 	listen('share', 'click', () => {
 		let path = window.location.pathname + '?room=' + room
 		let linkToShare = window.location.origin + path
+		copiedText.style.display = 'none'
 		modal.style.display = 'block'
 		inputElem.cols = linkToShare.length.toString()
 		inputElem.value = linkToShare
@@ -3009,7 +3015,7 @@ function setUpShareDialog() {
 				path = window.location.pathname + '?room=' + clone()
 				break
 			case 'view':
-				path = window.location.pathname + '?room=' + room + '&viewing'
+				path = window.location.pathname + '?room=' + clone(true)
 				break
 			case 'table':
 				path = window.location.pathname.replace('prsm.html', 'table.html') + '?room=' + room
@@ -3019,6 +3025,7 @@ function setUpShareDialog() {
 				break
 		}
 		window.open(path, '_blank')
+		modal.style.display = 'none'
 	}
 	// When the user clicks on <span> (x), close the modal
 	listen('modal-close', 'click', closeShareDialog)
@@ -3026,10 +3033,8 @@ function setUpShareDialog() {
 	listen('shareModal', 'click', closeShareDialog)
 
 	function closeShareDialog() {
-		let modal = elem('shareModal')
 		if (event.target == modal || event.target == elem('modal-close')) {
 			modal.style.display = 'none'
-			copiedText.style.display = 'none'
 		}
 	}
 	listen('copy-text', 'click', (e) => {
@@ -3044,9 +3049,10 @@ function setUpShareDialog() {
 
 /**
  * clone the map, i.e copy everything into a new room
+ * @param {Boolean} onlyView - if true, set clone to be view only
  * @return {string} name of new room
  */
-function clone() {
+function clone(onlyView) {
 	let clonedRoom = generateRoom()
 	let clonedDoc = new Y.Doc()
 	let ws = new WebsocketProvider(websocket, 'prsm' + clonedRoom, clonedDoc)
@@ -3054,6 +3060,14 @@ function clone() {
 	ws.on('sync', () => {
 		let state = Y.encodeStateAsUpdate(doc)
 		Y.applyUpdate(clonedDoc, state)
+		if (onlyView) clonedDoc.getMap('network').set('viewOnly', true)
+		clonedDoc.getArray('history').push([
+			{
+				action: `cloned this map from room: ${room + (onlyView ? ' (Read Only)' :'')}`,
+				time: Date.now(),
+				user: myNameRec.name,
+			},
+		])
 	})
 	return clonedRoom
 }
