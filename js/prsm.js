@@ -29,6 +29,7 @@ import {
 	timeAndDate,
 	setEndOfContenteditable,
 	exactTime,
+	humanSize
 } from './utils.js'
 import Tutorial from './tutorial.js'
 import {styles} from './samples.js'
@@ -651,6 +652,7 @@ function displayNetPane(msg) {
 		toggleDeleteButton()
 		setLegend(yNetMap.get('legend'), false)
 		yNetMap.set('viewOnly', viewOnly)
+		console.log(`Doc size: ${humanSize(Y.encodeStateAsUpdate(doc).length)}`)
 	}
 }
 /**
@@ -4556,7 +4558,7 @@ function roundTripTimer() {
 		if (typeof origin === 'string') return // ignore local changes (e.g. through broadcast channel)
 		let sentpkt = yAwarenessB.getStates()?.get(yAwareness.clientID)?.pkt
 		if (sentpkt) {
-			if (Date.now() - sentpkt.time > slowTripTime) {
+			if (Date.now() - sentpkt.time > slowTripTime  || /round/.test(debug)) {
 				statusMsg('Slow or unstable network connection', 'warn')
 				console.log(`${exactTime(sentpkt.time)} Round trip: ${Date.now() - sentpkt.time} ms`)
 			}
