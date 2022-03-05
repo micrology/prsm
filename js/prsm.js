@@ -58,13 +58,13 @@ const ROLLBACKS = 20 // max. number of versions stored for rollback
 export var network
 var room
 /* debug options (add to the URL thus: &debug=yjs,gui)
-* yjs - display yjs observe events on console
-* changes - show details of changes to yjs types
-* gui - show all mouse events
-* plain - save PRSM file as plain text, not compressed
-* cluster - show creation of clusters
-* aware - show awareness traffic
-*/
+ * yjs - display yjs observe events on console
+ * changes - show details of changes to yjs types
+ * gui - show all mouse events
+ * plain - save PRSM file as plain text, not compressed
+ * cluster - show creation of clusters
+ * aware - show awareness traffic
+ */
 export var debug = ''
 var viewOnly // when true, user can only view, not modify, the network
 var nodes // a dataset of nodes
@@ -516,7 +516,7 @@ function startY(newRoom) {
 					case 'viewOnly':
 						viewOnly = viewOnly || obj
 						if (viewOnly) elem('buttons').style.display = 'none'
-						break;
+						break
 					case 'mapTitle':
 					case 'maptitle':
 						setMapTitle(obj)
@@ -2178,7 +2178,6 @@ function zoomset(newScale) {
 	network.zoom(newZoom)
 }
 
-
 /* var clicks = 0; // accumulate 'mousewheel' clicks sent while display is updating
 var ticking = false; // if true, we are waiting for an AnimationFrame */
 // see https://www.html5rocks.com/en/tutorials/speed/animations/
@@ -2813,12 +2812,15 @@ function savePRSMfile() {
 				filter: (e) => !e.isClusterEdge,
 			}),
 			underlay: yPointsArray.toArray(),
-			history: yHistory.map((s) => {s.state=null; return s}),
+			history: yHistory.map((s) => {
+				s.state = null
+				return s
+			}),
 		},
 		null,
 		'\t'
 	)
-	if (!(/plain/.test(debug))) json = compressToUTF16(json)
+	if (!/plain/.test(debug)) json = compressToUTF16(json)
 	saveStr(json, 'prsm')
 }
 /**
@@ -3063,7 +3065,7 @@ function clone(onlyView) {
 		if (onlyView) clonedDoc.getMap('network').set('viewOnly', true)
 		clonedDoc.getArray('history').push([
 			{
-				action: `cloned this map from room: ${room + (onlyView ? ' (Read Only)' :'')}`,
+				action: `cloned this map from room: ${room + (onlyView ? ' (Read Only)' : '')}`,
 				time: Date.now(),
 				user: myNameRec.name,
 			},
@@ -4492,11 +4494,19 @@ function historyClose() {
 dragElement(elem('history-window'), elem('history-header'))
 
 /* --------------------------------------- avatars and shared cursors--------------------------------*/
+/* tell user if they are offline */
+window.addEventListener('offline', () => {
+	statusMsg('No network connection - working offline', 'info')
+})
+window.addEventListener('online', () => {
+	statusMsg('Network connection re-established', 'info')
+})
 /**
  *  set up user monitoring (awareness)
  */
 function setUpAwareness() {
 	showAvatars()
+	roundTripTimer()
 	// eslint-disable-next-line no-unused-vars
 	yAwareness.on('change', (event) => {
 		if (/aware/.test(debug)) traceUsers(event)
@@ -4508,7 +4518,11 @@ function setUpAwareness() {
 		}
 	})
 	// regularly broadcast our own state, every 20 seconds
-	setInterval(() => yAwareness.setLocalState(yAwareness.getLocalState()), 20000)
+	setInterval(() => {
+		yAwareness.setLocalStateField('pkt', {time: Date.now()})
+		yAwareness.setLocalStateField('pkt', null)
+	}, 20000)
+
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false)
 	var sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP)
@@ -4527,6 +4541,29 @@ function setUpAwareness() {
 		)
 	})
 }
+/**
+ * measure the time taken to send an update to another Y.doc
+ */
+const slowTripTime = 100 // any more than this number of ms for the round trip generates a warning
+function roundTripTimer() {
+	const ydocB = new Y.Doc()
+	const wsProviderB = new WebsocketProvider(websocket, 'prsm' + room, ydocB)
+	const yAwarenessB = wsProviderB.awareness
+	wsProviderB.disconnectBc()
+	// clientB listens to updates, extracts the time from the state and displays it and
+	// how long ago the state change was made ( time now - state.time )
+	yAwarenessB.on('change', (event, origin) => {
+		if (typeof origin === 'string') return // ignore local changes (e.g. through broadcast channel)
+		let sentpkt = yAwarenessB.getStates()?.get(yAwareness.clientID)?.pkt
+		if (sentpkt) {
+			if (Date.now() - sentpkt.time > slowTripTime) {
+				statusMsg('Slow or unstable network connection', 'warn')
+				console.log(`${exactTime(sentpkt.time)} Round trip: ${Date.now() - sentpkt.time} ms`)
+			}
+		}
+	})
+}
+
 /**
  * Set the awareness local state to show whether this client is sleeping (no mouse movement for 15 minutes)
  * @param {Boolean} isSleeping

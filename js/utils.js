@@ -495,9 +495,9 @@ export function generateName() {
  */
 /**
  * show status messages at the bottom of the window
- * if status is warn or error, msg is displayed in a bubble that fades in and out
+ * if status is info, warn or error, msg is displayed in a bubble that fades in and out
  * @param {string} msg
- * @param {string} [status] type of msg - warning, error or other
+ * @param {string} [status] type of msg - info, warn, error or other
  */
 export function statusMsg(msg, status) {
 	if (!status) {
