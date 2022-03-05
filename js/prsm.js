@@ -61,10 +61,12 @@ var room
 /* debug options (add to the URL thus: &debug=yjs,gui)
  * yjs - display yjs observe events on console
  * changes - show details of changes to yjs types
+ * trans - all transactions
  * gui - show all mouse events
  * plain - save PRSM file as plain text, not compressed
  * cluster - show creation of clusters
  * aware - show awareness traffic
+ * round - round trip timing
  */
 export var debug = ''
 var viewOnly // when true, user can only view, not modify, the network
@@ -243,7 +245,7 @@ function setUpPage() {
 	if (searchParams.has('debug')) debug = searchParams.get('debug')
 	// don't allow user to change anything if URL includes ?viewing
 	viewOnly = searchParams.has('viewing')
-	if (viewOnly) elem('buttons').style.display = 'none'
+	if (viewOnly) hideNavButtons()
 	// treat user as first time user if URL includes ?start=true
 	if (searchParams.has('start')) localStorage.setItem('doneIntro', 'false')
 	container = elem('container')
@@ -306,6 +308,17 @@ function startY(newRoom) {
 	yPointsArray = doc.getArray('points')
 	yHistory = doc.getArray('history')
 	yAwareness = wsProvider.awareness
+
+	if (/trans/.test(debug)) doc.on('afterTransaction', (tr) => {
+		const nodesEvent = tr.changed.get(yNodesMap)
+		if (nodesEvent) console.log(nodesEvent)
+		const edgesEvent = tr.changed.get(yEdgesMap)
+		if (edgesEvent) console.log(edgesEvent)
+		const sampleEvent = tr.changed.get(ySamplesMap)
+		if (sampleEvent) console.log(sampleEvent)
+		const netEvent = tr.changed.get(yNetMap)
+		if (netEvent) console.log(netEvent)
+	})
 
 	clientID = doc.clientID
 	console.log('My client ID: ' + clientID)
@@ -516,7 +529,7 @@ function startY(newRoom) {
 				switch (key) {
 					case 'viewOnly':
 						viewOnly = viewOnly || obj
-						if (viewOnly) elem('buttons').style.display = 'none'
+						if (viewOnly) hideNavButtons()
 						break
 					case 'mapTitle':
 					case 'maptitle':
@@ -682,6 +695,17 @@ window.onresize = function () {
 }
 window.onorientationchange = function () {
 	setvh()
+}
+
+/**
+ * in View Only mode, hide all the Nav Bar buttons except the search button
+ * and make the map title not editable
+ */
+function hideNavButtons() {
+	elem('buttons').style.visibility = 'hidden'
+	elem('search').parentElement.style.visibility = 'visible'
+	elem('search').parentElement.style.borderLeft = 'none'
+	elem('maptitle').contentEditable = 'false'
 }
 /**
  * to handle iOS weirdness in fixing the vh unit (see https://css-tricks.com/the-trick-to-viewport-units-on-mobile/)
