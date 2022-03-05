@@ -4,7 +4,6 @@ import {Network} from 'vis-network/peer/'
 import {DataSet} from 'vis-data/peer'
 import {elem, deepMerge, standardize_color} from './utils.js'
 import {version} from '../package.json'
-import ForceGraphVR from '3d-force-graph-vr'
 import ForceGraph3D from '3d-force-graph'
 import SpriteText from 'three-spritetext'
 
@@ -25,7 +24,8 @@ var loadingDelayTimer // timer to delay the start of the loading animation for f
 var graph // the 3D map
 var graphNodes
 var graphEdges
-var VR = false // use VR mode
+window.graphNodes = graphNodes
+window.graphEdges = graphEdges
 
 window.addEventListener('load', () => {
 	loadingDelayTimer = setTimeout(() => {
@@ -34,8 +34,6 @@ window.addEventListener('load', () => {
 	elem('version').innerHTML = version
 	let searchParams = new URL(document.location).searchParams
 	if (searchParams.has('debug')) debug = searchParams.get('debug')
-	// use VR version if specified in query string of URL, as "&mode='VR'""
-	VR = searchParams.has('mode') && searchParams.get('mode').toUpperCase() == 'VR'
 	startY()
 })
 /**
@@ -140,7 +138,7 @@ function cancelLoading() {
  * @returns Object
  */
 function convertNode(node) {
-	return {id: node.id, name: node.label, color: node.color.background, val: 5 * Math.log(2 + node.bc)}
+	return {id: node.id, label: node.label, color: node.color.background, fontColor: node.font.color, val: 5} //  * Math.log(2 + node.bc)}
 }
 
 /**
@@ -156,7 +154,7 @@ function convertEdge(edge) {
 	}
 }
 /**
- * Convert the map data fromPRSM format to 3d display format
+ * Convert the map data from PRSM format to 3d display format
  * Avoid cluster nodes
  */
 function convertData() {
@@ -241,7 +239,7 @@ function legend() {
 		edge.id = i + 10000
 		edge.from = i + 20000
 		edge.to = i + 30000
-		edge.smooth = 'horizontal'
+		edge.smooth = {type: 'straightCross'}
 		edge.font = {size: 12, color: 'black', align: 'top', vadjust: -10}
 		edge.widthConstraint = 80
 		edge.chosen = false
@@ -281,21 +279,39 @@ function display() {
 	let threeDGraphDiv = elem('3dgraph')
 	let width = threeDGraphDiv.clientWidth
 	let height = threeDGraphDiv.clientHeight
-	graph = (VR ? ForceGraphVR() : ForceGraph3D())(threeDGraphDiv)
+	const highlightNodes = new Set()
+	const highlightLinks = new Set()
+	let hoverNode = null
+	graphEdges.forEach((link) => {
+		const a = graphNodes.find((n) => n.id === link.source)
+		const b = graphNodes.find((n) => n.id === link.target)
+		!a.neighbors && (a.neighbors = [])
+		!b.neighbors && (b.neighbors = [])
+		a.neighbors.push(b)
+		b.neighbors.push(a)
+
+		!a.links && (a.links = [])
+		!b.links && (b.links = [])
+		a.links.push(link)
+		b.links.push(link)
+	})
+
+	graph = ForceGraph3D()(threeDGraphDiv)
 		.width(width)
 		.height(height)
 		.graphData({nodes: graphNodes, links: graphEdges})
-		.linkWidth(1)
-		.linkDirectionalArrowLength(4)
-		.linkDirectionalArrowRelPos(1.0)
-		.backgroundColor('#00008B')
+		.linkWidth((link) => (highlightLinks.has(link) ? 1 : 0))
+		.linkDirectionalArrowLength(2)
+		.linkDirectionalArrowRelPos(1)
+		.backgroundColor('#000066')
 		.nodeOpacity(1.0)
-		.linkDirectionalParticles(10)
+		.linkOpacity(0.7)
+		.linkDirectionalParticles(5)
 		.nodeThreeObjectExtend(false)
 		.nodeThreeObject((node) => {
 			// extend node with text sprite
-			const sprite = new SpriteText(`${node.name}`)
-			sprite.color = 'white'
+			const sprite = new SpriteText(`${node.label}`)
+			sprite.color = node.fontColor
 			sprite.textHeight = 3
 			sprite.padding = 1
 			sprite.backgroundColor = node.color
@@ -303,35 +319,52 @@ function display() {
 			sprite.borderRadius = 4
 			return sprite
 		})
-	legend()
-} 
-/* function display() {
-	convertData()
-	cancelLoading()
-	let threeDGraphDiv = elem('3dgraph')
-	let width = threeDGraphDiv.clientWidth
-	let height = threeDGraphDiv.clientHeight
-	graph = (VR ? ForceGraphVR() : ForceGraph3D())(threeDGraphDiv)
-		.width(width)
-		.height(height)
-		.graphData({nodes: graphNodes, links: graphEdges})
-		.linkWidth(1)
-		.linkDirectionalArrowLength(4)
-		.linkDirectionalArrowRelPos(1.0)
-		.backgroundColor('#00008B')
-		.nodeOpacity(1.0)
-		.linkDirectionalParticles(10)
-		.nodeThreeObjectExtend(false)
-		.nodeThreeObject((node) => {
-			// extend node with text sprite
-			const sprite = new SpriteText(`${node.name}`)
-			sprite.color = 'white'
-			sprite.textHeight = 3
-			return sprite
+		.onNodeDragEnd((node) => {
+			if (node.fx) {
+				// unfix fixed node
+				node.fx = null
+				node.fy = null
+				node.fz = null
+			} else {
+				// fix nodes if they have been dragged
+				node.fx = node.x
+				node.fy = node.y
+				node.fz = node.z
+			}
 		})
-		.onNodeClick(doHover)
+		.onNodeHover(doHover)
+		.onNodeClick((node) => {
+			// Aim at node from outside it
+			const distance = 80
+			const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z)
+			graph.cameraPosition(
+				{x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio}, // new position
+				node, // lookAt ({ x, y, z })
+				3000 // ms transition duration
+			)
+		})
 	legend()
+
+	function doHover(node) {
+		// no state change
+		if ((!node && !highlightNodes.size) || (node && hoverNode === node)) return
+
+		highlightNodes.clear()
+		highlightLinks.clear()
+		if (node) {
+			highlightNodes.add(node)
+			if (node.neighbors) node.neighbors.forEach((neighbor) => highlightNodes.add(neighbor))
+			if (node.links) node.links.forEach((link) => highlightLinks.add(link))
+		}
+		hoverNode = node || null
+		updateHighlight()
+
+		function updateHighlight() {
+			// trigger update of highlighted objects in scene
+			graph
+				.nodeColor(graph.nodeColor())
+				.linkWidth(graph.linkWidth())
+				.linkDirectionalParticles(graph.linkDirectionalParticles())
+		}
+	}
 }
-function doHover(node) {
-	console.log(node)
-} */
