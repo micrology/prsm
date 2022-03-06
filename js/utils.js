@@ -839,13 +839,15 @@ export function capitalizeFirstLetter(string) {
 }
 
 /**
- * 
+ *
  * @param {number} bytes integer to convert
  * @param {boolean} si use base 10 (true) or base 2 (false)
  * @returns {string} e.g. humanFileSize(1929637) => 1.9MB
  */
-export function humanSize(bytes, si=true) {
-	let u, b=bytes, t= si ? 1000 : 1024;     
-	['', si?'k':'K', ...'MGTPEZY'].find(x=> (u=x, b/=t, b**2<1));
-	return `${u ? (t*b).toFixed(1) : bytes}${u}${!si && u ? 'i':''}B`;    
-  }
+export function humanSize(bytes, si = true) {
+	let u,
+		b = bytes,
+		t = si ? 1000 : 1024
+	;['', si ? 'k' : 'K', ...'MGTPEZY'].find((x) => ((u = x), (b /= t), b ** 2 < 1))
+	return `${u ? (t * b).toFixed(1) : bytes}${u}${!si && u ? 'i' : ''}B`
+}

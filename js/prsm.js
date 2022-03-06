@@ -29,7 +29,7 @@ import {
 	timeAndDate,
 	setEndOfContenteditable,
 	exactTime,
-	humanSize
+	humanSize,
 } from './utils.js'
 import Tutorial from './tutorial.js'
 import {styles} from './samples.js'
@@ -309,16 +309,17 @@ function startY(newRoom) {
 	yHistory = doc.getArray('history')
 	yAwareness = wsProvider.awareness
 
-	if (/trans/.test(debug)) doc.on('afterTransaction', (tr) => {
-		const nodesEvent = tr.changed.get(yNodesMap)
-		if (nodesEvent) console.log(nodesEvent)
-		const edgesEvent = tr.changed.get(yEdgesMap)
-		if (edgesEvent) console.log(edgesEvent)
-		const sampleEvent = tr.changed.get(ySamplesMap)
-		if (sampleEvent) console.log(sampleEvent)
-		const netEvent = tr.changed.get(yNetMap)
-		if (netEvent) console.log(netEvent)
-	})
+	if (/trans/.test(debug))
+		doc.on('afterTransaction', (tr) => {
+			const nodesEvent = tr.changed.get(yNodesMap)
+			if (nodesEvent) console.log(nodesEvent)
+			const edgesEvent = tr.changed.get(yEdgesMap)
+			if (edgesEvent) console.log(edgesEvent)
+			const sampleEvent = tr.changed.get(ySamplesMap)
+			if (sampleEvent) console.log(sampleEvent)
+			const netEvent = tr.changed.get(yNetMap)
+			if (netEvent) console.log(netEvent)
+		})
 
 	clientID = doc.clientID
 	console.log('My client ID: ' + clientID)
@@ -4582,7 +4583,7 @@ function roundTripTimer() {
 		if (typeof origin === 'string') return // ignore local changes (e.g. through broadcast channel)
 		let sentpkt = yAwarenessB.getStates()?.get(yAwareness.clientID)?.pkt
 		if (sentpkt) {
-			if (Date.now() - sentpkt.time > slowTripTime  || /round/.test(debug)) {
+			if (Date.now() - sentpkt.time > slowTripTime || /round/.test(debug)) {
 				statusMsg('Slow or unstable network connection', 'warn')
 				console.log(`${exactTime(sentpkt.time)} Round trip: ${Date.now() - sentpkt.time} ms`)
 			}

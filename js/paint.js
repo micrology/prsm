@@ -1155,7 +1155,6 @@ let drawHelper = {
 		ctx.lineTo(endX, endY)
 		ctx.stroke()
 		ctx.setLineDash([])
-
 	},
 	rect: function (ctx, [startX, startY, width, height]) {
 		ctx.beginPath()

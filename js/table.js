@@ -19,7 +19,7 @@ var yEdgesMap // shared map of edges
 var yNetMap // shared map of network state
 var ySamplesMap // shared map of styles
 var yUndoManager // shared list of commands for undo
-var table  = 'factors-table' // the table that is currently on view (factors-table or links-table)
+var table = 'factors-table' // the table that is currently on view (factors-table or links-table)
 var factorsTable // the factors table object
 var linksTable // the links table object
 var openTable // the table object that is currently on view
@@ -64,7 +64,7 @@ function setUpTabs() {
 			}
 			elem(e.currentTarget.dataset.table).style.display = 'block'
 			table = e.currentTarget.dataset.table
-			openTable =  (table == 'factors-table' ? factorsTable : linksTable)
+			openTable = table == 'factors-table' ? factorsTable : linksTable
 			if (filterDisplayed) closeFilter()
 		})
 	}
@@ -322,7 +322,7 @@ function initialiseFactorTable() {
 		layout: 'fitData',
 		layoutColumnsOnNewData: true,
 		height: window.innerHeight - 180,
-		resizableRows:true,
+		resizableRows: true,
 		clipboard: true,
 		clipboardCopyConfig: {
 			columnHeaders: true, //do not include column headers in clipboard output
@@ -583,7 +583,7 @@ function initialiseFactorTable() {
 
 	factorsTable.on('cellEdited', (cell) => updateNodeCellData(cell))
 
-	factorsTable.on('cellClick', ((e, cell) => {
+	factorsTable.on('cellClick', (e, cell) => {
 		switch (cell.getField()) {
 			case 'hidden':
 			case 'selection':
@@ -593,7 +593,7 @@ function initialiseFactorTable() {
 			default:
 				break
 		}
-	}))
+	})
 
 	window.factorsTable = factorsTable
 
@@ -756,10 +756,10 @@ function quillFormatter(cell) {
 	let note = cell.getValue()
 	if (note) {
 		qed.setContents(note)
-		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, { inlineStyles: true }).convert()
+		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert()
 		// this should work, but there is a big in Tabulator
-//		if (elem(`hide${cell.getColumn().getParentColumn().getField()}`).dataset.collapsed == 'false')
-		if (elem(`hide${table === 'factors-table' ? 'Notes' :'LinkNotes'}`).dataset.collapsed == 'false')
+		//		if (elem(`hide${cell.getColumn().getParentColumn().getField()}`).dataset.collapsed == 'false')
+		if (elem(`hide${table === 'factors-table' ? 'Notes' : 'LinkNotes'}`).dataset.collapsed == 'false')
 			return shorten(html, 50)
 		else return html
 	}
@@ -1141,7 +1141,7 @@ function initialiseLinkTable() {
 
 	linksTable.on('cellEdited', (cell) => updateEdgeCellData(cell))
 
-	linksTable.on('cellClick', ((e, cell) => {
+	linksTable.on('cellClick', (e, cell) => {
 		switch (cell.getField()) {
 			case 'hidden':
 			case 'selection':
@@ -1150,8 +1150,8 @@ function initialiseLinkTable() {
 			default:
 				break
 		}
-	}))
-	
+	})
+
 	window.linksTable = linksTable
 
 	return linksTable
@@ -1221,7 +1221,7 @@ function updateEdgeCellData(cell) {
 	rows.forEach((row) => {
 		let edge = deepCopy(yEdgesMap.get(row.getData().id))
 		// update it with the cell's new value
-			edge = convertEdgeBack(edge, field, value)
+		edge = convertEdgeBack(edge, field, value)
 		if (field == 'groupLabel') {
 			edge = deepMerge(edge, ySamplesMap.get(edge.grp).edge)
 			linksTable.updateData([convertEdge(edge)])

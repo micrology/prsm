@@ -44,6 +44,7 @@
 				<li><a href="global.html#addColumn">addColumn</a></li>
 				<li><a href="global.html#addEventListeners">addEventListeners</a></li>
 				<li><a href="global.html#addLabel">addLabel</a></li>
+				<li><a href="global.html#addRollbackIcon">addRollbackIcon</a></li>
 				<li><a href="global.html#addVec">addVec</a></li>
 				<li><a href="global.html#analyse">analyse</a></li>
 				<li><a href="global.html#antMarch">antMarch</a></li>
@@ -107,7 +108,6 @@
 				<li><a href="global.html#fit">fit</a></li>
 				<li><a href="global.html#follow">follow</a></li>
 				<li><a href="global.html#followUser">followUser</a></li>
-				<li><a href="global.html#formatLogRec">formatLogRec</a></li>
 				<li><a href="global.html#generateName">generateName</a></li>
 				<li><a href="global.html#generateRoom">generateRoom</a></li>
 				<li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li>
@@ -126,9 +126,11 @@
 				<li><a href="global.html#groupDashes">groupDashes</a></li>
 				<li><a href="global.html#groupTitle">groupTitle</a></li>
 				<li><a href="global.html#headerTickToggle">headerTickToggle</a></li>
+				<li><a href="global.html#hideNavButtons">hideNavButtons</a></li>
 				<li><a href="global.html#hideNodeAndEdges">hideNodeAndEdges</a></li>
 				<li><a href="global.html#hideNotes">hideNotes</a></li>
 				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
+				<li><a href="global.html#humanSize">humanSize</a></li>
 				<li><a href="global.html#in_degree">in_degree</a></li>
 				<li><a href="global.html#inAddMode">inAddMode</a></li>
 				<li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li>
@@ -136,6 +138,7 @@
 				<li><a href="global.html#initials">initials</a></li>
 				<li><a href="global.html#initPopUp">initPopUp</a></li>
 				<li><a href="global.html#initSample">initSample</a></li>
+				<li><a href="global.html#initySamplesMap">initySamplesMap</a></li>
 				<li><a href="global.html#isEmpty">isEmpty</a></li>
 				<li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li>
 				<li><a href="global.html#legend">legend</a></li>
@@ -200,6 +203,7 @@
 				<li><a href="global.html#saveLabel">saveLabel</a></li>
 				<li><a href="global.html#saveNode">saveNode</a></li>
 				<li><a href="global.html#savePRSMfile">savePRSMfile</a></li>
+				<li><a href="global.html#saveState">saveState</a></li>
 				<li><a href="global.html#saveStr">saveStr</a></li>
 				<li><a href="global.html#search">search</a></li>
 				<li><a href="global.html#searchTargets">searchTargets</a></li>
@@ -237,6 +241,7 @@
 				<li><a href="global.html#showPressed">showPressed</a></li>
 				<li><a href="global.html#showSelected">showSelected</a></li>
 				<li><a href="global.html#sizing">sizing</a></li>
+				<li><a href="global.html#slowTripTime">slowTripTime</a></li>
 				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
 				<li><a href="global.html#solve">solve</a></li>
 				<li><a href="global.html#splitText">splitText</a></li>
@@ -302,7 +307,8 @@ import {DataSet} from 'vis-data/peer'
 import {elem, deepMerge, standardize_color} from './utils.js'
 import {version} from '../package.json'
 import ForceGraph3D from '3d-force-graph'
-//import {legend} from './styles.js'
+import SpriteText from 'three-spritetext'
+import * as THREE from 'three'
 
 const shortAppName = 'PRSM'
 
@@ -327,6 +333,8 @@ window.addEventListener('load', () => {
 		elem('loading').style.display = 'block'
 	}, 100)
 	elem('version').innerHTML = version
+	let searchParams = new URL(document.location).searchParams
+	if (searchParams.has('debug')) debug = searchParams.get('debug')
 	startY()
 })
 /**
@@ -365,6 +373,7 @@ function startY() {
 	window.yNodesMap = yNodesMap
 	window.yEdgesMap = yEdgesMap
 	window.yNetMap = yNetMap
+	window.ySamplesMap = ySamplesMap
 
 	yNodesMap.observe(() => {
 		if (graph) {
@@ -430,7 +439,7 @@ function cancelLoading() {
  * @returns Object
  */
 function convertNode(node) {
-	return {id: node.id, name: node.label, color: node.color.background, val: 5 * Math.log(2 + node.bc)}
+	return {id: node.id, label: node.label, color: node.color.background, fontColor: node.font.color, val: 5} //  * Math.log(2 + node.bc)}
 }
 
 /**
@@ -446,7 +455,7 @@ function convertEdge(edge) {
 	}
 }
 /**
- * Convert the map data fromPRSM format to 3d display format
+ * Convert the map data from PRSM format to 3d display format
  * Avoid cluster nodes
  */
 function convertData() {
@@ -531,7 +540,7 @@ function legend() {
 		edge.id = i + 10000
 		edge.from = i + 20000
 		edge.to = i + 30000
-		edge.smooth = 'horizontal'
+		edge.smooth = {type: 'straightCross'}
 		edge.font = {size: 12, color: 'black', align: 'top', vadjust: -10}
 		edge.widthConstraint = 80
 		edge.chosen = false
@@ -571,17 +580,135 @@ function display() {
 	let threeDGraphDiv = elem('3dgraph')
 	let width = threeDGraphDiv.clientWidth
 	let height = threeDGraphDiv.clientHeight
+	const highlightNodes = new Set()
+	const highlightLinks = new Set()
+	let hoverNode = null
+	graphEdges.forEach((link) => {
+		const a = graphNodes.find((n) => n.id === link.source)
+		const b = graphNodes.find((n) => n.id === link.target)
+		!a.neighbors &amp;&amp; (a.neighbors = [])
+		!b.neighbors &amp;&amp; (b.neighbors = [])
+		a.neighbors.push(b)
+		b.neighbors.push(a)
+
+		!a.links &amp;&amp; (a.links = [])
+		!b.links &amp;&amp; (b.links = [])
+		a.links.push(link)
+		b.links.push(link)
+	})
+
 	graph = ForceGraph3D()(threeDGraphDiv)
 		.width(width)
 		.height(height)
-		.graphData({nodes: graphNodes, links: graphEdges})
-		.linkWidth(1)
-		.linkDirectionalArrowLength(4)
-		.linkDirectionalArrowRelPos(1.0)
-		.backgroundColor('black')
+		.graphData({ nodes: graphNodes, links: graphEdges })
+		.showNavInfo(false)
+		.linkWidth((link) => (highlightLinks.has(link) ? 1 : 0))
+		.linkDirectionalArrowLength(2)
+		.linkDirectionalArrowRelPos(1)
+		.backgroundColor('white')
 		.nodeOpacity(1.0)
-		.linkDirectionalParticles(10)
+		.linkOpacity(0.7)
+		.linkDirectionalParticles(5)
+		.nodeThreeObjectExtend(false)
+		.nodeThreeObject((node) => {
+			// extend node with text sprite
+			const sprite = new SpriteText(`${node.label}`)
+			sprite.color = node.fontColor
+			sprite.textHeight = 3
+			sprite.padding = 1
+			sprite.backgroundColor = node.color
+			sprite.borderWidth = 1
+			sprite.borderRadius = 4
+			return sprite
+		})
+		.onNodeDragEnd((node) => {
+			if (node.fx) {
+				// unfix fixed node
+				node.fx = null
+				node.fy = null
+				node.fz = null
+			} else {
+				// fix nodes if they have been dragged
+				node.fx = node.x
+				node.fy = node.y
+				node.fz = node.z
+			}
+		})
+		.onNodeHover(doHover)
+		.onNodeClick((node) => {
+			// Aim at node from outside it
+			const distance = 80
+			const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z)
+			graph.cameraPosition(
+				{x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio}, // new position
+				node, // lookAt ({ x, y, z })
+				3000 // ms transition duration
+			)
+		})
+	axes()
 	legend()
+
+	function doHover(node) {
+		// no state change
+		if ((!node &amp;&amp; !highlightNodes.size) || (node &amp;&amp; hoverNode === node)) return
+
+		highlightNodes.clear()
+		highlightLinks.clear()
+		if (node) {
+			highlightNodes.add(node)
+			if (node.neighbors) node.neighbors.forEach((neighbor) => highlightNodes.add(neighbor))
+			if (node.links) node.links.forEach((link) => highlightLinks.add(link))
+		}
+		hoverNode = node || null
+		updateHighlight()
+
+		function updateHighlight() {
+			// trigger update of highlighted objects in scene
+			graph
+				.nodeColor(graph.nodeColor())
+				.linkWidth(graph.linkWidth())
+				.linkDirectionalParticles(graph.linkDirectionalParticles())
+		}
+	}
+	addEventListener('dblclick', () => {
+		graph.width(width).height(height).zoomToFit(200, 0)
+	})
+	/**
+	 * draw axes across scene
+	 */
+	function axes() {
+		graph
+			.scene()
+			.add(
+				new THREE.Line(
+					new THREE.BufferGeometry().setFromPoints([
+						new THREE.Vector3(0, 0, -1000),
+						new THREE.Vector3(0, 0, 1000),
+					]),
+					new THREE.LineBasicMaterial({color: 'blue'})
+				)
+			)
+			.add(
+				new THREE.Line(
+					new THREE.BufferGeometry().setFromPoints([
+						new THREE.Vector3(-1000, 0, 0),
+						new THREE.Vector3(1000, 0, 0),
+					]),
+					new THREE.LineBasicMaterial({color: 'red'})
+				)
+			)
+			.add(
+				new THREE.Line(
+					new THREE.BufferGeometry().setFromPoints([
+						new THREE.Vector3(0, -1000, 0),
+						new THREE.Vector3(0, 1000, 0),
+					]),
+					new THREE.LineBasicMaterial({color: 'green'})
+				)
+			)
+	}
+	window.graphNodes = graphNodes
+	window.graphEdges = graphEdges
 }
 </code></pre>
 				</article>
@@ -593,7 +720,7 @@ function display() {
 		<footer>
 			Documentation generated by
 			<a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a>
-			on Sat Jan 29 2022 14:03:02 GMT+0000 (Greenwich Mean Time) using the
+			on Sun Mar 06 2022 21:03:20 GMT+0000 (Greenwich Mean Time) using the
 			<a href="https://github.com/clenemt/docdash">docdash</a>
 			theme.
 		</footer>
