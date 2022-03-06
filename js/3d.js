@@ -6,6 +6,7 @@ import {elem, deepMerge, standardize_color} from './utils.js'
 import {version} from '../package.json'
 import ForceGraph3D from '3d-force-graph'
 import SpriteText from 'three-spritetext'
+import * as THREE from 'three'
 
 const shortAppName = 'PRSM'
 
@@ -24,8 +25,6 @@ var loadingDelayTimer // timer to delay the start of the loading animation for f
 var graph // the 3D map
 var graphNodes
 var graphEdges
-window.graphNodes = graphNodes
-window.graphEdges = graphEdges
 
 window.addEventListener('load', () => {
 	loadingDelayTimer = setTimeout(() => {
@@ -299,11 +298,14 @@ function display() {
 	graph = ForceGraph3D()(threeDGraphDiv)
 		.width(width)
 		.height(height)
-		.graphData({nodes: graphNodes, links: graphEdges})
+		.graphData({ nodes: graphNodes, links: graphEdges })
+		.showNavInfo(false)
 		.linkWidth((link) => (highlightLinks.has(link) ? 1 : 0))
 		.linkDirectionalArrowLength(2)
 		.linkDirectionalArrowRelPos(1)
-		.backgroundColor('#000066')
+		//.backgroundColor('#000066')
+		.backgroundColor('white')
+		
 		.nodeOpacity(1.0)
 		.linkOpacity(0.7)
 		.linkDirectionalParticles(5)
@@ -343,6 +345,7 @@ function display() {
 				3000 // ms transition duration
 			)
 		})
+	axes()
 	legend()
 
 	function doHover(node) {
@@ -367,4 +370,43 @@ function display() {
 				.linkDirectionalParticles(graph.linkDirectionalParticles())
 		}
 	}
+	addEventListener('dblclick', () => {
+		graph.width(width).height(height).zoomToFit(200, 0)
+	})
+	/**
+	 * draw axes across scene
+	 */
+	function axes() {
+		graph
+			.scene()
+			.add(
+				new THREE.Line(
+					new THREE.BufferGeometry().setFromPoints([
+						new THREE.Vector3(0, 0, -1000),
+						new THREE.Vector3(0, 0, 1000),
+					]),
+					new THREE.LineBasicMaterial({color: 'blue'})
+				)
+			)
+			.add(
+				new THREE.Line(
+					new THREE.BufferGeometry().setFromPoints([
+						new THREE.Vector3(-1000, 0, 0),
+						new THREE.Vector3(1000, 0, 0),
+					]),
+					new THREE.LineBasicMaterial({color: 'red'})
+				)
+			)
+			.add(
+				new THREE.Line(
+					new THREE.BufferGeometry().setFromPoints([
+						new THREE.Vector3(0, -1000, 0),
+						new THREE.Vector3(0, 1000, 0),
+					]),
+					new THREE.LineBasicMaterial({color: 'green'})
+				)
+			)
+	}
+	window.graphNodes = graphNodes
+	window.graphEdges = graphEdges
 }

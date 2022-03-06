@@ -42,6 +42,22 @@
 				font-display: swap;
 			}
 		</style>
+		<style>
+			.legend {
+				box-shadow: none;
+				border: none;
+				border-radius: unset;
+			}
+			.info {
+				position: fixed;
+				bottom: 2px;
+				color: black;
+				font-size: x-small;
+				left: 0;
+				right: 0;
+				text-align: center;
+			}
+		</style>
 		<script src="../js/3d.js" type="module"></script>
 	</head>
 
@@ -72,6 +88,10 @@
 				</div>
 			</div>
 			<div class="threeDGraph" id="3dgraph"></div>
+			<div class="info">
+				Drag over the background to rotate.  Scroll up or down to zoom in or out. Double click on the background to re-centre. 
+				Mouse over a factor (hover) to highlight the links from and to it.  Click on a factor to centre it.
+			</div>
 		</div>
 	</body>
 </html>
