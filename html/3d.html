@@ -47,6 +47,8 @@
 				box-shadow: none;
 				border: none;
 				border-radius: unset;
+				overflow: auto;
+				bottom: 20px;
 			}
 			.info {
 				position: fixed;
@@ -56,6 +58,10 @@
 				left: 0;
 				right: 0;
 				text-align: center;
+			}
+			.buttons {
+				color: white;
+				font-size: 12px;
 			}
 		</style>
 		<script src="../js/3d.js" type="module"></script>
@@ -73,7 +79,13 @@
 						<div class="maptitle unsetmaptitle" id="maptitle">Untitled map</div>
 					</div>
 					<div class="button-wrapper">
-						<div class="buttons" id="buttons"></div>
+						<div class="buttons" id="buttons">
+							<select name="mode" id="mode">
+								<option value="light" selected>Light</option>
+								<option value="dark">Dark</option>
+							</select>
+							<span style="padding-left: 5px">mode</span>
+						</div>
 					</div>
 				</nav>
 			</header>

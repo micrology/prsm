@@ -2,7 +2,7 @@ import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
 import {Network} from 'vis-network/peer/'
 import {DataSet} from 'vis-data/peer'
-import {elem, deepMerge, standardize_color} from './utils.js'
+import {elem, listen, deepMerge, standardize_color} from './utils.js'
 import {version} from '../package.json'
 import ForceGraph3D from '3d-force-graph'
 import SpriteText from 'three-spritetext'
@@ -193,7 +193,9 @@ function legend() {
 	title.className = 'legendTitle'
 	title.appendChild(document.createTextNode('Legend'))
 	legendBox.appendChild(title)
-	legendBox.style.height = LEGENDSPACING * nItems + title.offsetHeight + 'px'
+	let boxheight = LEGENDSPACING * nItems + title.offsetHeight
+	let threeDGraphDiv = elem('3dgraph')
+	legendBox.style.height = (boxheight < threeDGraphDiv.clientHeight - 100 ? boxheight : threeDGraphDiv.clientHeight - 100) + 'px'
 	legendBox.style.width = HALFLEGENDWIDTH * 2 + 'px'
 	let canvas = document.createElement('div')
 	canvas.className = 'legendCanvas'
@@ -368,8 +370,12 @@ function display() {
 				.linkDirectionalParticles(graph.linkDirectionalParticles())
 		}
 	}
-	addEventListener('dblclick', () => {
+	document.addEventListener('dblclick', () => {
 		graph.width(width).height(height).zoomToFit(200, 0)
+	})
+	listen('mode', 'change', (e) => {
+		if (e.target.value === 'dark') graph.backgroundColor('black')
+		else graph.backgroundColor('white')
 	})
 	/**
 	 * draw axes across scene
