@@ -6,11 +6,11 @@ import {
 	data,
 	ySamplesMap,
 	yNetMap,
-	clientID,
 	selectFactors,
 	selectLinks,
 	updateLastSamples,
 	cp,
+	logHistory,
 } from './prsm.js'
 import {styles} from './samples.js'
 
@@ -318,7 +318,7 @@ function editNodeStyle(styleElement, groupId) {
  */
 function updateNodeEditor(groupId) {
 	let group = styles.nodes[groupId]
-	elem('nodeEditName').value = (group.groupLabel !== 'Sample' ? group.groupLabel : '')
+	elem('nodeEditName').value = group.groupLabel !== 'Sample' ? group.groupLabel : ''
 	elem('nodeEditFillColor').style.backgroundColor = standardize_color(group.color.background)
 	elem('nodeEditBorderColor').style.backgroundColor = standardize_color(group.color.border)
 	elem('nodeEditFontColor').style.backgroundColor = standardize_color(group.font.color)
@@ -401,10 +401,10 @@ function nodeEditSubmit() {
 	reApplySampleToNodes([groupId], true)
 	ySamplesMap.set(groupId, {
 		node: styles.nodes[groupId],
-		clientID: clientID,
 	})
 	updateLegend()
 	network.redraw()
+	logHistory('edited a Factor style')
 }
 /**
  * update all nodes in the map with this style to the current style features
@@ -446,7 +446,7 @@ function editLinkStyle(styleElement, groupId) {
  */
 function updateLinkEditor(groupId) {
 	let group = styles.edges[groupId]
-	elem('linkEditName').value = (group.groupLabel !== 'Sample' ? group.groupLabel : '')
+	elem('linkEditName').value = group.groupLabel !== 'Sample' ? group.groupLabel : ''
 	elem('linkEditLineColor').style.backgroundColor = standardize_color(group.color.color)
 	elem('linkEditWidth').value = group.width
 	elem('linkEditDashes').value = getDashes(group.dashes, 1)
@@ -532,10 +532,10 @@ function linkEditSubmit() {
 	reApplySampleToLinks([groupId], true)
 	ySamplesMap.set(groupId, {
 		edge: styles.edges[groupId],
-		clientID: clientID,
 	})
 	updateLegend()
 	network.redraw()
+	logHistory('edited a Link style')
 }
 /**
  * update all links in the map with this style to the current style features
@@ -670,7 +670,7 @@ export function legend(warn = false) {
 		edge.id = i + 10000
 		edge.from = i + 20000
 		edge.to = i + 30000
-		edge.smooth = 'horizontal'
+		edge.smooth = {type: 'straightCross'}
 		edge.font = {size: 12, color: 'black', align: 'top', vadjust: -10}
 		edge.widthConstraint = 80
 		edge.chosen = false

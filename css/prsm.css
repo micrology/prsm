@@ -587,7 +587,7 @@ nav button .pressed {
 	border-radius: 6px;
 	font-size: 12px;
 	position: absolute;
-	z-index: 2005;
+	z-index: 3005;
 	opacity: 0;
 	transition-property: opacity;
 	transition-delay: 2s;
@@ -1283,7 +1283,6 @@ but moving the panel out of sight works instead */
 }
 .history-close:hover {
 	color: var(--header-hover-color);
-	font-weight: bold;
 }
 .history-log-wrapper {
 	max-height: 500px;
@@ -1367,7 +1366,7 @@ but moving the panel out of sight works instead */
 	text-align: center;
 	line-height: 40px;
 	font-size: 26px;
-	color:white;
+	color: white;
 	background-color: black;
 	margin: 8px;
 }
@@ -1416,7 +1415,7 @@ but moving the panel out of sight works instead */
 	font-size: 14px;
 }
 .options::after {
-	content: "";
+	content: '';
 	position: absolute;
 	top: 16px;
 	right: 100%;
@@ -1424,7 +1423,7 @@ but moving the panel out of sight works instead */
 	border-width: 10px;
 	border-style: solid;
 	border-color: transparent var(--pop-up-shadow-color) transparent transparent;
-  }
+}
 .options div {
 	text-align: left;
 	padding: 2px;
@@ -1865,7 +1864,7 @@ div.resize {
 		grid-row: 1;
 		font-size: 14px;
 	}
-	.title{
+	.title {
 		justify-content: stretch;
 	}
 	.maptitle {
@@ -1893,10 +1892,10 @@ div.resize {
 		display: none;
 	}
 	.left-border {
-		border: none
+		border: none;
 	}
 	.right-border {
-		border: none
+		border: none;
 	}
 	input[type='range'] {
 		width: 40px;

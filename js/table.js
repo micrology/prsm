@@ -1,7 +1,7 @@
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
 import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter} from './utils.js'
-import Tabulator from 'tabulator-tables'
+import {TabulatorFull as Tabulator} from 'tabulator-tables'
 import {version} from '../package.json'
 import Quill from 'quill'
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
@@ -19,9 +19,10 @@ var yEdgesMap // shared map of edges
 var yNetMap // shared map of network state
 var ySamplesMap // shared map of styles
 var yUndoManager // shared list of commands for undo
-var factorsTable // the factors table
-var linksTable //the links table
-var openTable // the table that is currently on view
+var table = 'factors-table' // the table that is currently on view (factors-table or links-table)
+var factorsTable // the factors table object
+var linksTable // the links table object
+var openTable // the table object that is currently on view
 var initialising = true // true until the tables have been loaded
 var nAttributes = 0 // number of attributes
 var attributeTitles = {} // titles of each of the attributes
@@ -62,8 +63,8 @@ function setUpTabs() {
 				tabcontent[i].style.display = 'none'
 			}
 			elem(e.currentTarget.dataset.table).style.display = 'block'
-			openTable =
-				e.currentTarget.dataset.table == 'factors-table' ? initialiseFactorTable() : initialiseLinkTable()
+			table = e.currentTarget.dataset.table
+			openTable = table == 'factors-table' ? factorsTable : linksTable
 			if (filterDisplayed) closeFilter()
 		})
 	}
@@ -318,10 +319,10 @@ function initialiseFactorTable() {
 		})
 	factorsTable = new Tabulator('#factors-table', {
 		data: tabledata, //assign data to table
-		tableBuilt: cancelLoading,
 		layout: 'fitData',
 		layoutColumnsOnNewData: true,
 		height: window.innerHeight - 180,
+		resizableRows: true,
 		clipboard: true,
 		clipboardCopyConfig: {
 			columnHeaders: true, //do not include column headers in clipboard output
@@ -331,16 +332,7 @@ function initialiseFactorTable() {
 			dataTree: false, //do not include data tree in printed table
 			formatCells: false, //show raw cell values without formatter
 		},
-		dataLoaded: () => {
-			initialising = false
-		},
 		index: 'id',
-		columnTitleChanged: function (column) {
-			updateColumnTitle(column)
-		},
-		cellEdited: function (cell) {
-			updateNodeCellData(cell)
-		},
 		columnHeaderVertAlign: 'bottom',
 		columns: [
 			{
@@ -351,7 +343,6 @@ function initialiseFactorTable() {
 				hozAlign: 'center',
 				formatter: 'tickCross',
 				formatterParams: tickCrossFormatter(),
-				cellClick: tickToggle,
 				headerVertical: true,
 			},
 			{
@@ -359,6 +350,7 @@ function initialiseFactorTable() {
 				field: 'label',
 				editor: 'textarea',
 				maxWidth: 300,
+				minWidth: 300,
 				bottomCalc: 'count',
 				bottomCalcFormatter: bottomCalcFormatter,
 				bottomCalcFormatterParams: {legend: 'Count:'},
@@ -391,7 +383,6 @@ function initialiseFactorTable() {
 						hozAlign: 'center',
 						formatter: 'tickCross',
 						formatterParams: tickCrossFormatter(),
-						cellClick: tickToggle,
 						headerVertical: true,
 						bottomCalc: 'count',
 						bottomCalcFormatter: bottomCalcFormatter,
@@ -403,7 +394,6 @@ function initialiseFactorTable() {
 						hozAlign: 'center',
 						formatter: 'tickCross',
 						formatterParams: tickCrossFormatter(),
-						cellClick: tickToggle,
 						headerVertical: true,
 						bottomCalc: 'count',
 						bottomCalcFormatter: bottomCalcFormatter,
@@ -539,50 +529,73 @@ function initialiseFactorTable() {
 						editor: quillEditor,
 						formatter: quillFormatter,
 						maxWidth: 600,
+						minWidth: 200,
 						variableHeight: true,
 					},
 				],
 			},
 		],
 	})
-	// add all the user defined attribute columns
-	attributeTitles = yNetMap.get('attributeTitles') || {}
-	for (let field in attributeTitles) {
-		if (attributeTitles[field] != '*deleted*') {
-			nAttributes++
-			factorsTable.addColumn({
-				title: attributeTitles[field],
-				editableTitle: true,
-				field: field,
-				editor: 'input',
-				width: getWidthOfTitle(attributeTitles[field]),
-				headerContextMenu: headerContextMenu,
-			})
+	factorsTable.on('tableBuilt', () => {
+		// add all the user defined attribute columns
+		attributeTitles = yNetMap.get('attributeTitles') || {}
+		for (let field in attributeTitles) {
+			if (attributeTitles[field] != '*deleted*') {
+				nAttributes++
+				factorsTable.addColumn({
+					title: attributeTitles[field],
+					editableTitle: true,
+					field: field,
+					editor: 'input',
+					width: getWidthOfTitle(attributeTitles[field]),
+					headerContextMenu: headerContextMenu,
+				})
+			}
 		}
-	}
-	window.factorsTable = factorsTable
-
-	listen('select-all', 'click', (e) => {
-		let ticked = headerTickToggle(e, '#select-all')
-		factorsTable.getRows('active').forEach((row) => {
-			row.update({selection: !ticked})
-		})
-	})
-	listen('hide-all-factors', 'click', (e) => {
-		let ticked = headerTickToggle(e, '#hide-all-factors')
-		doc.transact(() => {
-			factorsTable.getRows().forEach((row) => {
-				row.update({hidden: !ticked})
-				let node = deepCopy(yNodesMap.get(row.getData().id))
-				node.hidden = !ticked
-				yNodesMap.set(node.id, node)
+		listen('select-all', 'click', (e) => {
+			let ticked = headerTickToggle(e, '#select-all')
+			factorsTable.getRows('active').forEach((row) => {
+				row.update({selection: !ticked})
 			})
 		})
+		listen('hide-all-factors', 'click', (e) => {
+			let ticked = headerTickToggle(e, '#hide-all-factors')
+			doc.transact(() => {
+				factorsTable.getRows().forEach((row) => {
+					row.update({hidden: !ticked})
+					let node = deepCopy(yNodesMap.get(row.getData().id))
+					node.hidden = !ticked
+					yNodesMap.set(node.id, node)
+				})
+			})
+		})
+		// start with column groups collapsed
+		collapseColGroup(factorsTable, 'Format')
+		collapseColGroup(factorsTable, 'Statistics')
+		collapseNotes(factorsTable)
+		cancelLoading()
 	})
-	// start with column groups collapsed
-	collapseColGroup(factorsTable, 'Format')
-	collapseColGroup(factorsTable, 'Statistics')
-	collapseNotes(factorsTable)
+	factorsTable.on('dataLoaded', () => {
+		initialising = false
+	})
+
+	factorsTable.on('columnTitleChanged', (column) => updateColumnTitle(column))
+
+	factorsTable.on('cellEdited', (cell) => updateNodeCellData(cell))
+
+	factorsTable.on('cellClick', (e, cell) => {
+		switch (cell.getField()) {
+			case 'hidden':
+			case 'selection':
+			case 'fixed':
+				tickToggle(e, cell)
+				break
+			default:
+				break
+		}
+	})
+
+	window.factorsTable = factorsTable
 
 	return factorsTable
 }
@@ -744,7 +757,9 @@ function quillFormatter(cell) {
 	if (note) {
 		qed.setContents(note)
 		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert()
-		if (elem(`hide${cell.getColumn().getParentColumn().getField()}`).dataset.collapsed == 'false')
+		// this should work, but there is a big in Tabulator
+		//		if (elem(`hide${cell.getColumn().getParentColumn().getField()}`).dataset.collapsed == 'false')
+		if (elem(`hide${table === 'factors-table' ? 'Notes' : 'LinkNotes'}`).dataset.collapsed == 'false')
 			return shorten(html, 50)
 		else return html
 	}
@@ -982,13 +997,7 @@ function initialiseLinkTable() {
 		},
 		layout: 'fitData',
 		height: window.innerHeight - 180,
-		dataLoaded: () => {
-			initialising = false
-		},
 		index: 'id',
-		cellEdited: function (cell) {
-			updateEdgeCellData(cell)
-		},
 		columnHeaderVertAlign: 'bottom',
 		columns: [
 			{
@@ -999,7 +1008,6 @@ function initialiseLinkTable() {
 				hozAlign: 'center',
 				formatter: 'tickCross',
 				formatterParams: tickCrossFormatter(),
-				cellClick: tickToggle,
 				headerVertical: true,
 			},
 			{
@@ -1033,7 +1041,6 @@ function initialiseLinkTable() {
 						hozAlign: 'center',
 						formatter: 'tickCross',
 						formatterParams: tickCrossFormatter(),
-						cellClick: tickToggle,
 						headerVertical: true,
 						bottomCalc: 'count',
 						bottomCalcFormatter: bottomCalcFormatter,
@@ -1041,7 +1048,6 @@ function initialiseLinkTable() {
 					},
 					{
 						title: 'Arrow',
-						//						width: 100,
 						field: 'arrowShape',
 						headerVertical: true,
 						editor: 'select',
@@ -1098,32 +1104,55 @@ function initialiseLinkTable() {
 						editor: quillEditor,
 						formatter: quillFormatter,
 						maxWidth: 600,
+						minWidth: 200,
 						variableHeight: true,
 					},
 				],
 			},
 		],
 	})
-	window.linksTable = linksTable
-	listen('select-all-links', 'click', (e) => {
-		let ticked = headerTickToggle(e, '#select-all-links')
-		linksTable.getRows('active').forEach((row) => {
-			row.update({selection: !ticked})
-		})
-	})
-	listen('hide-all-links', 'click', (e) => {
-		let ticked = headerTickToggle(e, '#hide-all-links')
-		doc.transact(() => {
-			linksTable.getRows().forEach((row) => {
-				row.update({hidden: !ticked})
-				let edge = deepCopy(yEdgesMap.get(row.getData().id))
-				edge.hidden = !ticked
-				yEdgesMap.set(edge.id, edge)
+	linksTable.on('tableBuilt', () => {
+		listen('select-all-links', 'click', (e) => {
+			let ticked = headerTickToggle(e, '#select-all-links')
+			linksTable.getRows('active').forEach((row) => {
+				row.update({selection: !ticked})
 			})
 		})
+		listen('hide-all-links', 'click', (e) => {
+			let ticked = headerTickToggle(e, '#hide-all-links')
+			doc.transact(() => {
+				linksTable.getRows().forEach((row) => {
+					row.update({hidden: !ticked})
+					let edge = deepCopy(yEdgesMap.get(row.getData().id))
+					edge.hidden = !ticked
+					yEdgesMap.set(edge.id, edge)
+				})
+			})
+		})
+		collapseColGroup(linksTable, 'Style')
+		collapseNotes(linksTable, 'LinkNotes')
+		if (table == 'factors-table') elem('links-table').style.display = 'none'
 	})
-	collapseColGroup(linksTable, 'Style')
-	collapseNotes(linksTable, 'LinkNotes')
+	linksTable.on('dataLoaded', () => {
+		initialising = false
+	})
+
+	linksTable.on('columnTitleChanged', (column) => updateColumnTitle(column))
+
+	linksTable.on('cellEdited', (cell) => updateEdgeCellData(cell))
+
+	linksTable.on('cellClick', (e, cell) => {
+		switch (cell.getField()) {
+			case 'hidden':
+			case 'selection':
+				tickToggle(e, cell)
+				break
+			default:
+				break
+		}
+	})
+
+	window.linksTable = linksTable
 
 	return linksTable
 }
@@ -1192,7 +1221,6 @@ function updateEdgeCellData(cell) {
 	rows.forEach((row) => {
 		let edge = deepCopy(yEdgesMap.get(row.getData().id))
 		// update it with the cell's new value
-		edge[field] = value
 		edge = convertEdgeBack(edge, field, value)
 		if (field == 'groupLabel') {
 			edge = deepMerge(edge, ySamplesMap.get(edge.grp).edge)

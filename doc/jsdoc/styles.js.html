@@ -44,6 +44,7 @@
 				<li><a href="global.html#addColumn">addColumn</a></li>
 				<li><a href="global.html#addEventListeners">addEventListeners</a></li>
 				<li><a href="global.html#addLabel">addLabel</a></li>
+				<li><a href="global.html#addRollbackIcon">addRollbackIcon</a></li>
 				<li><a href="global.html#addVec">addVec</a></li>
 				<li><a href="global.html#analyse">analyse</a></li>
 				<li><a href="global.html#antMarch">antMarch</a></li>
@@ -107,7 +108,6 @@
 				<li><a href="global.html#fit">fit</a></li>
 				<li><a href="global.html#follow">follow</a></li>
 				<li><a href="global.html#followUser">followUser</a></li>
-				<li><a href="global.html#formatLogRec">formatLogRec</a></li>
 				<li><a href="global.html#generateName">generateName</a></li>
 				<li><a href="global.html#generateRoom">generateRoom</a></li>
 				<li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li>
@@ -126,9 +126,11 @@
 				<li><a href="global.html#groupDashes">groupDashes</a></li>
 				<li><a href="global.html#groupTitle">groupTitle</a></li>
 				<li><a href="global.html#headerTickToggle">headerTickToggle</a></li>
+				<li><a href="global.html#hideNavButtons">hideNavButtons</a></li>
 				<li><a href="global.html#hideNodeAndEdges">hideNodeAndEdges</a></li>
 				<li><a href="global.html#hideNotes">hideNotes</a></li>
 				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
+				<li><a href="global.html#humanSize">humanSize</a></li>
 				<li><a href="global.html#in_degree">in_degree</a></li>
 				<li><a href="global.html#inAddMode">inAddMode</a></li>
 				<li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li>
@@ -136,6 +138,7 @@
 				<li><a href="global.html#initials">initials</a></li>
 				<li><a href="global.html#initPopUp">initPopUp</a></li>
 				<li><a href="global.html#initSample">initSample</a></li>
+				<li><a href="global.html#initySamplesMap">initySamplesMap</a></li>
 				<li><a href="global.html#isEmpty">isEmpty</a></li>
 				<li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li>
 				<li><a href="global.html#legend">legend</a></li>
@@ -200,6 +203,7 @@
 				<li><a href="global.html#saveLabel">saveLabel</a></li>
 				<li><a href="global.html#saveNode">saveNode</a></li>
 				<li><a href="global.html#savePRSMfile">savePRSMfile</a></li>
+				<li><a href="global.html#saveState">saveState</a></li>
 				<li><a href="global.html#saveStr">saveStr</a></li>
 				<li><a href="global.html#search">search</a></li>
 				<li><a href="global.html#searchTargets">searchTargets</a></li>
@@ -237,6 +241,7 @@
 				<li><a href="global.html#showPressed">showPressed</a></li>
 				<li><a href="global.html#showSelected">showSelected</a></li>
 				<li><a href="global.html#sizing">sizing</a></li>
+				<li><a href="global.html#slowTripTime">slowTripTime</a></li>
 				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
 				<li><a href="global.html#solve">solve</a></li>
 				<li><a href="global.html#splitText">splitText</a></li>
@@ -303,11 +308,11 @@ import {
 	data,
 	ySamplesMap,
 	yNetMap,
-	clientID,
 	selectFactors,
 	selectLinks,
 	updateLastSamples,
 	cp,
+	logHistory,
 } from './prsm.js'
 import {styles} from './samples.js'
 
@@ -615,7 +620,7 @@ function editNodeStyle(styleElement, groupId) {
  */
 function updateNodeEditor(groupId) {
 	let group = styles.nodes[groupId]
-	elem('nodeEditName').value = group.groupLabel
+	elem('nodeEditName').value = (group.groupLabel !== 'Sample' ? group.groupLabel : '')
 	elem('nodeEditFillColor').style.backgroundColor = standardize_color(group.color.background)
 	elem('nodeEditBorderColor').style.backgroundColor = standardize_color(group.color.border)
 	elem('nodeEditFontColor').style.backgroundColor = standardize_color(group.font.color)
@@ -698,10 +703,10 @@ function nodeEditSubmit() {
 	reApplySampleToNodes([groupId], true)
 	ySamplesMap.set(groupId, {
 		node: styles.nodes[groupId],
-		clientID: clientID,
 	})
 	updateLegend()
 	network.redraw()
+	logHistory('edited a Factor style')
 }
 /**
  * update all nodes in the map with this style to the current style features
@@ -743,7 +748,7 @@ function editLinkStyle(styleElement, groupId) {
  */
 function updateLinkEditor(groupId) {
 	let group = styles.edges[groupId]
-	elem('linkEditName').value = group.groupLabel
+	elem('linkEditName').value = (group.groupLabel !== 'Sample' ? group.groupLabel : '')
 	elem('linkEditLineColor').style.backgroundColor = standardize_color(group.color.color)
 	elem('linkEditWidth').value = group.width
 	elem('linkEditDashes').value = getDashes(group.dashes, 1)
@@ -829,11 +834,10 @@ function linkEditSubmit() {
 	reApplySampleToLinks([groupId], true)
 	ySamplesMap.set(groupId, {
 		edge: styles.edges[groupId],
-		clientID: clientID,
 	})
 	updateLegend()
 	network.redraw()
-}
+	logHistory('edited a Link style')}
 /**
  * update all links in the map with this style to the current style features
  * @param {number[]} groupIds
@@ -967,7 +971,7 @@ export function legend(warn = false) {
 		edge.id = i + 10000
 		edge.from = i + 20000
 		edge.to = i + 30000
-		edge.smooth = 'horizontal'
+		edge.smooth = {type: 'straightCross'}
 		edge.font = {size: 12, color: 'black', align: 'top', vadjust: -10}
 		edge.widthConstraint = 80
 		edge.chosen = false
@@ -1027,7 +1031,7 @@ export function updateLegend() {
 		<footer>
 			Documentation generated by
 			<a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a>
-			on Sat Jan 29 2022 14:03:02 GMT+0000 (Greenwich Mean Time) using the
+			on Sun Mar 06 2022 21:03:20 GMT+0000 (Greenwich Mean Time) using the
 			<a href="https://github.com/clenemt/docdash">docdash</a>
 			theme.
 		</footer>

@@ -4,7 +4,7 @@ The main entry point for PRSM.
 
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
-// import {IndexeddbPersistence} from 'y-indexeddb'
+import {IndexeddbPersistence} from 'y-indexeddb'
 import {Network, parseGephiNetwork} from 'vis-network/peer'
 import {DataSet} from 'vis-data/peer'
 import diff from 'microdiff'
@@ -29,6 +29,7 @@ import {
 	timeAndDate,
 	setEndOfContenteditable,
 	exactTime,
+	humanSize,
 } from './utils.js'
 import Tutorial from './tutorial.js'
 import {styles} from './samples.js'
@@ -53,16 +54,28 @@ const TIMETOSLEEP = 15 * 60 * 1000 // if no mouse movement for this time, user i
 const TIMETOEDIT = 5 * 60 * 1000 // if node/edge edit dialog is not saved after this time, the edit is cancelled
 const magnification = 3 // magnification of the loupe (magnifier 'glass')
 export const NLEVELS = 20 // max. number of levels for trophic layout
+const ROLLBACKS = 20 // max. number of versions stored for rollback
 
 export var network
 var room
-export var debug = '' // if includes 'yjs', all yjs sharing interactions are logged to the console; if 'gui' mouse events are reported
+/* debug options (add to the URL thus: &debug=yjs,gui)
+ * yjs - display yjs observe events on console
+ * changes - show details of changes to yjs types
+ * trans - all transactions
+ * gui - show all mouse events
+ * plain - save PRSM file as plain text, not compressed
+ * cluster - show creation of clusters
+ * aware - show awareness traffic
+ * round - round trip timing
+ */
+export var debug = ''
 var viewOnly // when true, user can only view, not modify, the network
 var nodes // a dataset of nodes
 var edges // a dataset of edges
 export var data // an object with the nodes and edges datasets as properties
 export const doc = new Y.Doc()
 export var websocket = 'wss://www.prsm.uk/wss' // web socket server URL
+var persistence // indexDB for local, offline storage of doc
 export var clientID // unique ID for this browser
 var yNodesMap // shared map of nodes
 var yEdgesMap // shared map of edges
@@ -122,10 +135,11 @@ window.addEventListener('load', () => {
 window.onbeforeunload = function (event) {
 	unlockAll()
 	yAwareness.setLocalStateField('addingFactor', 'done')
+	yAwareness.setLocalState(null)
 	// get confirmation from user before exiting if there are unsaved changes
 	if (checkMapSaved && dirty) {
 		event.preventDefault()
-		event.returnValue = 'You have unsaved unchages.  Are you sure you want to leave?'
+		event.returnValue = 'You have unsaved unchanges.  Are you sure you want to leave?'
 	}
 }
 /**
@@ -231,7 +245,7 @@ function setUpPage() {
 	if (searchParams.has('debug')) debug = searchParams.get('debug')
 	// don't allow user to change anything if URL includes ?viewing
 	viewOnly = searchParams.has('viewing')
-	if (viewOnly) elem('buttons').style.display = 'none'
+	if (viewOnly) hideNavButtons()
 	// treat user as first time user if URL includes ?start=true
 	if (searchParams.has('start')) localStorage.setItem('doneIntro', 'false')
 	container = elem('container')
@@ -270,11 +284,11 @@ function startY(newRoom) {
 		room = generateRoom()
 		checkMapSaved = true
 	} else room = room.toUpperCase()
-	/* 	const persistence = new IndexeddbPersistence(room, doc)
+	persistence = new IndexeddbPersistence(room, doc)
 	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
 		if (data.nodes.length > 0) displayNetPane(exactTime() + ' local content loaded')
-	}) */
+	})
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
 	wsProvider.on('sync', () => {
 		displayNetPane(exactTime() + ' remote content loaded')
@@ -294,6 +308,18 @@ function startY(newRoom) {
 	yPointsArray = doc.getArray('points')
 	yHistory = doc.getArray('history')
 	yAwareness = wsProvider.awareness
+
+	if (/trans/.test(debug))
+		doc.on('afterTransaction', (tr) => {
+			const nodesEvent = tr.changed.get(yNodesMap)
+			if (nodesEvent) console.log(nodesEvent)
+			const edgesEvent = tr.changed.get(yEdgesMap)
+			if (edgesEvent) console.log(edgesEvent)
+			const sampleEvent = tr.changed.get(ySamplesMap)
+			if (sampleEvent) console.log(sampleEvent)
+			const netEvent = tr.changed.get(yNetMap)
+			if (netEvent) console.log(netEvent)
+		})
 
 	clientID = doc.clientID
 	console.log('My client ID: ' + clientID)
@@ -502,6 +528,10 @@ function startY(newRoom) {
 			for (let key of event.keysChanged) {
 				let obj = yNetMap.get(key)
 				switch (key) {
+					case 'viewOnly':
+						viewOnly = viewOnly || obj
+						if (viewOnly) hideNavButtons()
+						break
 					case 'mapTitle':
 					case 'maptitle':
 						setMapTitle(obj)
@@ -627,23 +657,35 @@ function displayNetPane(msg) {
 		netPane.style.visibility = 'visible'
 		clearTimeout(loadingDelayTimer)
 		yUndoManager.clear()
+		initySamplesMap()
 		undoRedoButtonStatus()
 		setUpTutorial()
 		netLoaded = true
-		savedState = compressToUTF16(
-			JSON.stringify({
-				nodes: data.nodes.get(),
-				edges: data.edges.get(),
-				net: yNetMap.toJSON(),
-				paint: yPointsArray.toArray(),
-			})
-		)
+		savedState = saveState()
 		setAnalysisButtonsFromRemote()
 		toggleDeleteButton()
 		setLegend(yNetMap.get('legend'), false)
+		yNetMap.set('viewOnly', viewOnly)
+		console.log(`Doc size: ${humanSize(Y.encodeStateAsUpdate(doc).length)}`)
 	}
 }
-
+/**
+ * Load ySamplesMap with the current styles (for possible rollback)
+ */
+function initySamplesMap() {
+	doc.transact(() => {
+		for (let grpId in styles.nodes) {
+			ySamplesMap.set(grpId, {
+				node: styles.nodes[grpId],
+			})
+		}
+		for (let grpId in styles.edges) {
+			ySamplesMap.set(grpId, {
+				edge: styles.edges[grpId],
+			})
+		}
+	})
+}
 // to handle iPad viewport sizing problem when tab bar appears and to keep panels on screen
 setvh()
 
@@ -654,6 +696,17 @@ window.onresize = function () {
 }
 window.onorientationchange = function () {
 	setvh()
+}
+
+/**
+ * in View Only mode, hide all the Nav Bar buttons except the search button
+ * and make the map title not editable
+ */
+function hideNavButtons() {
+	elem('buttons').style.visibility = 'hidden'
+	elem('search').parentElement.style.visibility = 'visible'
+	elem('search').parentElement.style.borderLeft = 'none'
+	elem('maptitle').contentEditable = 'false'
 }
 /**
  * to handle iOS weirdness in fixing the vh unit (see https://css-tricks.com/the-trick-to-viewport-units-on-mobile/)
@@ -763,14 +816,14 @@ function draw() {
 		nodes: {
 			chosen: {
 				node: function (values, id, selected) {
-					if (selected) values.shadow = true
+					values.shadow = selected
 				},
 			},
 		},
 		edges: {
 			chosen: {
 				edge: function (values, id, selected) {
-					if (selected) values.shadow = true
+					values.shadow = selected
 				},
 			},
 			smooth: {
@@ -942,6 +995,7 @@ function draw() {
 		}
 		if (keys.shiftKey) {
 			if (!inEditMode) showMagnifier(keys)
+			return
 		}
 	})
 
@@ -1221,33 +1275,39 @@ function timestamp() {
  * @param {String} action
  */
 export function logHistory(action, actor) {
+	let now = Date.now()
 	yHistory.push([
 		{
 			action: action,
-			time: Date.now(),
+			time: now,
 			user: actor ? actor : myNameRec.name,
-			state: savedState,
 		},
 	])
-	savedState = compressToUTF16(
+	persistence.set(now, savedState)
+	savedState = saveState()
+
+	// delete all but the last ROLLBACKS saved states
+	for (let i = 0; i < yHistory.length - ROLLBACKS; i++) {
+		let obj = yHistory.get(i)
+		if (obj.time) persistence.del(obj.time)
+	}
+	if (elem('history-window').style.display == 'block') showHistory()
+	dirty = true
+}
+/**
+ * Generate a compressed dump of the current state of the map, sufficient to reproduce it
+ * @returns binary string
+ */
+function saveState() {
+	return compressToUTF16(
 		JSON.stringify({
 			nodes: data.nodes.get(),
 			edges: data.edges.get(),
 			net: yNetMap.toJSON(),
+			samples: ySamplesMap.toJSON(),
 			paint: yPointsArray.toArray(),
 		})
 	)
-	// delete all but the last 10 saved states
-	for (let i = 0; i < yHistory.length - 10; i++) {
-		let obj = yHistory.get(i)
-		if (obj.state) {
-			obj.state = null
-			yHistory.delete(i)
-			yHistory.insert(i, [obj])
-		}
-	}
-	if (elem('history-window').style.display == 'block') showHistory()
-	dirty = true
 }
 /**
  * draw badges (icons) around Factors and Links
@@ -1346,7 +1406,7 @@ function snapToGrid(node) {
 function copyToClipboard(event) {
 	if (document.getSelection().toString()) return // only copy factors if there is no text selected (e.g. in Notes)
 	event.preventDefault()
-	let nIds = getSelectedAndFixedNodes()
+	let nIds = network.getSelectedNodes()
 	let eIds = network.getSelectedEdges()
 	if (nIds.length + eIds.length == 0) {
 		statusMsg('Nothing selected to copy', 'warn')
@@ -1447,6 +1507,7 @@ async function getClipboardContents() {
  * @param {Function} callback
  */
 function addLabel(item, cancelAction, callback) {
+	if (elem('popup').style.display == 'block') return // can't add factor when factor is already being added
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback)
 	let pos = {x: event.offsetX, y: event.offsetY}
 	positionPopUp(pos)
@@ -2079,7 +2140,7 @@ function listLinks(links) {
  * @returns {String} string of labels of links and factors, nicely formatted
  */
 function selectedLabels() {
-	let selectedNodes = getSelectedAndFixedNodes()
+	let selectedNodes = network.getSelectedNodes()
 	let selectedEdges = network.getSelectedEdges()
 	let msg = ''
 	if (selectedNodes.length > 0) msg = listFactors(selectedNodes)
@@ -2455,6 +2516,7 @@ function loadFile(contents) {
  * @param {string} str
  */
 function loadJSONfile(str) {
+	if (str[0] != '{') str = decompressFromUTF16(str)
 	let json = JSON.parse(str)
 	if (json.version && version.substring(0, 3) > json.version.substring(0, 3)) {
 		statusMsg('Warning: file was created in an earlier version', 'warn')
@@ -2520,13 +2582,7 @@ function loadJSONfile(str) {
 	yPointsArray.delete(0, yPointsArray.length)
 	if (json.underlay) yPointsArray.insert(0, json.underlay)
 	yHistory.delete(0, yHistory.length)
-	if (json.history) {
-		// delete all but the last 10 saved states
-		for (let i = 0; i < json.history.length - 10; i++) {
-			json.history[i].state = null
-		}
-		yHistory.insert(0, json.history)
-	}
+	if (json.history) yHistory.insert(0, json.history)
 	return {
 		nodes: nodes,
 		edges: edges,
@@ -2783,11 +2839,15 @@ function savePRSMfile() {
 				filter: (e) => !e.isClusterEdge,
 			}),
 			underlay: yPointsArray.toArray(),
-			history: yHistory.toArray(),
+			history: yHistory.map((s) => {
+				s.state = null
+				return s
+			}),
 		},
 		null,
 		'\t'
 	)
+	if (!/plain/.test(debug)) json = compressToUTF16(json)
 	saveStr(json, 'prsm')
 }
 /**
@@ -2965,6 +3025,7 @@ function setUpShareDialog() {
 	listen('share', 'click', () => {
 		let path = window.location.pathname + '?room=' + room
 		let linkToShare = window.location.origin + path
+		copiedText.style.display = 'none'
 		modal.style.display = 'block'
 		inputElem.cols = linkToShare.length.toString()
 		inputElem.value = linkToShare
@@ -2983,7 +3044,7 @@ function setUpShareDialog() {
 				path = window.location.pathname + '?room=' + clone()
 				break
 			case 'view':
-				path = window.location.pathname + '?room=' + room + '&viewing'
+				path = window.location.pathname + '?room=' + clone(true)
 				break
 			case 'table':
 				path = window.location.pathname.replace('prsm.html', 'table.html') + '?room=' + room
@@ -2993,6 +3054,7 @@ function setUpShareDialog() {
 				break
 		}
 		window.open(path, '_blank')
+		modal.style.display = 'none'
 	}
 	// When the user clicks on <span> (x), close the modal
 	listen('modal-close', 'click', closeShareDialog)
@@ -3000,10 +3062,8 @@ function setUpShareDialog() {
 	listen('shareModal', 'click', closeShareDialog)
 
 	function closeShareDialog() {
-		let modal = elem('shareModal')
 		if (event.target == modal || event.target == elem('modal-close')) {
 			modal.style.display = 'none'
-			copiedText.style.display = 'none'
 		}
 	}
 	listen('copy-text', 'click', (e) => {
@@ -3018,9 +3078,10 @@ function setUpShareDialog() {
 
 /**
  * clone the map, i.e copy everything into a new room
+ * @param {Boolean} onlyView - if true, set clone to be view only
  * @return {string} name of new room
  */
-function clone() {
+function clone(onlyView) {
 	let clonedRoom = generateRoom()
 	let clonedDoc = new Y.Doc()
 	let ws = new WebsocketProvider(websocket, 'prsm' + clonedRoom, clonedDoc)
@@ -3028,6 +3089,14 @@ function clone() {
 	ws.on('sync', () => {
 		let state = Y.encodeStateAsUpdate(doc)
 		Y.applyUpdate(clonedDoc, state)
+		if (onlyView) clonedDoc.getMap('network').set('viewOnly', true)
+		clonedDoc.getArray('history').push([
+			{
+				action: `cloned this map from room: ${room + (onlyView ? ' (Read Only)' : '')}`,
+				time: Date.now(),
+				user: myNameRec.name,
+			},
+		])
 	})
 	return clonedRoom
 }
@@ -3281,7 +3350,6 @@ function setFixed() {
 	let locked = elem('fixed').style.display == 'none'
 	let node = data.nodes.get(editor.id)
 	node.fixed = locked
-	node.shadow = locked
 	elem('fixed').style.display = node.fixed ? 'inline' : 'none'
 	elem('unfixed').style.display = node.fixed ? 'none' : 'inline'
 	data.nodes.update(node)
@@ -3777,7 +3845,7 @@ function setRadioVal(name, value) {
 	}
 }
 /**
- * Return an array of the node Ids of Factors that are selected of are locked
+ * Return an array of the node Ids of Factors that are selected or are locked
  * @returns Array
  */
 function getSelectedAndFixedNodes() {
@@ -3870,6 +3938,8 @@ function analyse() {
 	// but paths between factors needs at least two
 	if (getRadioVal('paths') !== 'All' && selectedNodes.length < 2) {
 		statusMsg('Select at least 2 factors to show paths between them', 'error')
+		setRadioVal('radius', 'All')
+		setRadioVal('stream', 'All')
 		setRadioVal('paths', 'All')
 		setYMapAnalysisButtons()
 		data.nodes.update(nodes)
@@ -4380,22 +4450,24 @@ function showHistory() {
 	let log = elem('history-log')
 	log.innerHTML = yHistory
 		.toArray()
-		.map((rec) => formatLogRec(rec))
+		.map(
+			(rec) => `<div class="history-time">${timeAndDate(rec.time)}: </div>
+		<div class="history-action">${rec.user} ${rec.action}</div>
+		<div class="history-rollback" data-time="${rec.time}"></div>`
+		)
 		.join(' ')
-	document.querySelectorAll('div.history-rollback').forEach((e) => {
-		if (e.id) listen(e.id, 'click', rollback)
-	})
+	document.querySelectorAll('div.history-rollback').forEach((e) => addRollbackIcon(e))
 	if (log.children.length > 0) log.lastChild.scrollIntoView(false)
 }
 /**
- * return a DOM element with the data in rec formatted and a button for rolling back if there is state data
- * @param {Object} rec - history record (action, time, state)
- */
-function formatLogRec(rec) {
-	let rollbackButton = '<div class="history-rollback"></div>'
-	if (rec.state) {
-		rollbackButton = `<div class="history-rollback"  id="hist${rec.time}">
-			<div class="tooltip">
+ * add a button for rolling back if there is state data corresponding to this log record
+ * @param {HTMLElement} e - history record
+ * */
+async function addRollbackIcon(e) {
+	let state = await persistence.get(parseInt(e.dataset.time))
+	if (state) {
+		e.id = `hist${e.dataset.time}`
+		e.innerHTML = `<div class="tooltip">
 				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bootstrap-reboot" viewBox="0 0 16 16">
 				<path d="M1.161 8a6.84 6.84 0 1 0 6.842-6.84.58.58 0 1 1 0-1.16 8 8 0 1 1-6.556 3.412l-.663-.577a.58.58 0 0 1 .227-.997l2.52-.69a.58.58 0 0 1 .728.633l-.332 2.592a.58.58 0 0 1-.956.364l-.643-.56A6.812 6.812 0 0 0 1.16 8z"/>
 				<path d="M6.641 11.671V8.843h1.57l1.498 2.828h1.314L9.377 8.665c.897-.3 1.427-1.106 1.427-2.1 0-1.37-.943-2.246-2.456-2.246H5.5v7.352h1.141zm0-3.75V5.277h1.57c.881 0 1.416.499 1.416 1.32 0 .84-.504 1.324-1.386 1.324h-1.6z"/>
@@ -4403,33 +4475,36 @@ function formatLogRec(rec) {
 				<span class="tooltiptext rollbacktip">Rollback to before this action</span>
 			</div>
 		</div>`
+		if (elem(e.id)) listen(e.id, 'click', rollback)
 	}
-	return `<div class="history-time">${timeAndDate(rec.time)}: </div>
-			<div class="history-action">${rec.user} ${rec.action}</div>
-			${rollbackButton}`
 }
 /**
- *
+ * Restores the state of the map to a previous one
  * @param {Event} event
  * @returns null if no rollback possible or cancelled
  */
-function rollback(event) {
-	let rbTime = parseInt(event.currentTarget.id.substring(4))
-	let rb = yHistory.toArray().find((rec) => rec.time === rbTime)
-	if (!rb || !rb.state) return
+async function rollback(event) {
+	let rbTime = parseInt(event.currentTarget.dataset.time)
+	let rb = await persistence.get(rbTime)
+	if (!rb) return
 	if (!confirm(`Roll back the map to what it was before ${timeAndDate(rbTime)}?`)) return
-	let state = JSON.parse(decompressFromUTF16(rb.state))
+	let state = JSON.parse(decompressFromUTF16(rb))
 	data.nodes.clear()
 	data.edges.clear()
 	data.nodes.update(state.nodes)
 	data.edges.update(state.edges)
-	for (const k in state.net) {
-		yNetMap.set(k, state.net[k])
-	}
-	if (state.paint) {
-		yPointsArray.delete(0, yPointsArray.length)
-		yPointsArray.insert(0, state.paint)
-	}
+	doc.transact(() => {
+		for (const k in state.net) {
+			yNetMap.set(k, state.net[k])
+		}
+		for (const k in state.samples) {
+			ySamplesMap.set(k, state.samples[k])
+		}
+		if (state.paint) {
+			yPointsArray.delete(0, yPointsArray.length)
+			yPointsArray.insert(0, state.paint)
+		}
+	})
 	logHistory(`rolled back the map to what it was before ${timeAndDate(rbTime, true)}`)
 }
 
@@ -4446,11 +4521,19 @@ function historyClose() {
 dragElement(elem('history-window'), elem('history-header'))
 
 /* --------------------------------------- avatars and shared cursors--------------------------------*/
+/* tell user if they are offline */
+window.addEventListener('offline', () => {
+	statusMsg('No network connection - working offline', 'info')
+})
+window.addEventListener('online', () => {
+	statusMsg('Network connection re-established', 'info')
+})
 /**
  *  set up user monitoring (awareness)
  */
 function setUpAwareness() {
 	showAvatars()
+	roundTripTimer()
 	// eslint-disable-next-line no-unused-vars
 	yAwareness.on('change', (event) => {
 		if (/aware/.test(debug)) traceUsers(event)
@@ -4462,7 +4545,11 @@ function setUpAwareness() {
 		}
 	})
 	// regularly broadcast our own state, every 20 seconds
-	setInterval(() => yAwareness.setLocalState(yAwareness.getLocalState()), 20000)
+	setInterval(() => {
+		yAwareness.setLocalStateField('pkt', {time: Date.now()})
+		yAwareness.setLocalStateField('pkt', null)
+	}, 20000)
+
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false)
 	var sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP)
@@ -4481,6 +4568,29 @@ function setUpAwareness() {
 		)
 	})
 }
+/**
+ * measure the time taken to send an update to another Y.doc
+ */
+const slowTripTime = 100 // any more than this number of ms for the round trip generates a warning
+function roundTripTimer() {
+	const ydocB = new Y.Doc()
+	const wsProviderB = new WebsocketProvider(websocket, 'prsm' + room, ydocB)
+	const yAwarenessB = wsProviderB.awareness
+	wsProviderB.disconnectBc()
+	// clientB listens to updates, extracts the time from the state and displays it and
+	// how long ago the state change was made ( time now - state.time )
+	yAwarenessB.on('change', (event, origin) => {
+		if (typeof origin === 'string') return // ignore local changes (e.g. through broadcast channel)
+		let sentpkt = yAwarenessB.getStates()?.get(yAwareness.clientID)?.pkt
+		if (sentpkt) {
+			if (Date.now() - sentpkt.time > slowTripTime || /round/.test(debug)) {
+				statusMsg('Slow or unstable network connection', 'warn')
+				console.log(`${exactTime(sentpkt.time)} Round trip: ${Date.now() - sentpkt.time} ms`)
+			}
+		}
+	})
+}
+
 /**
  * Set the awareness local state to show whether this client is sleeping (no mouse movement for 15 minutes)
  * @param {Boolean} isSleeping

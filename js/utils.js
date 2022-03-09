@@ -495,9 +495,9 @@ export function generateName() {
  */
 /**
  * show status messages at the bottom of the window
- * if status is warn or error, msg is displayed in a bubble that fades in and out
+ * if status is info, warn or error, msg is displayed in a bubble that fades in and out
  * @param {string} msg
- * @param {string} [status] type of msg - warning, error or other
+ * @param {string} [status] type of msg - info, warn, error or other
  */
 export function statusMsg(msg, status) {
 	if (!status) {
@@ -595,6 +595,7 @@ function rgbToHex(str) {
  * @param {string} str
  */
 export function standardize_color(str) {
+	if (!str) return '#000000'
 	if (str.charAt(0) === '#') return str
 	let ctx = document.createElement('canvas').getContext('2d')
 	ctx.fillStyle = str
@@ -786,6 +787,7 @@ export class CP {
 	}
 }
 
+/********************************************************************** text ************************************************ */
 /**
  * Returns a nicely formatted Date (or time if the date is today), given a Time value (from Date() )
  * @param {number} utc
@@ -827,11 +829,25 @@ export function setEndOfContenteditable(contentEditableElement) {
 /**
  * @returns a string with current time to the nearest millisecond
  */
-export function exactTime() {
-	let d = new Date()
+export function exactTime(time) {
+	let d = time ? new Date(time) : new Date()
 	return `${d.toLocaleTimeString()}:${d.getMilliseconds()} `
 }
 
 export function capitalizeFirstLetter(string) {
 	return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
+/**
+ *
+ * @param {number} bytes integer to convert
+ * @param {boolean} si use base 10 (true) or base 2 (false)
+ * @returns {string} e.g. humanFileSize(1929637) => 1.9MB
+ */
+export function humanSize(bytes, si = true) {
+	let u,
+		b = bytes,
+		t = si ? 1000 : 1024
+	;['', si ? 'k' : 'K', ...'MGTPEZY'].find((x) => ((u = x), (b /= t), b ** 2 < 1))
+	return `${u ? (t * b).toFixed(1) : bytes}${u}${!si && u ? 'i' : ''}B`
 }

@@ -44,6 +44,7 @@
 				<li><a href="global.html#addColumn">addColumn</a></li>
 				<li><a href="global.html#addEventListeners">addEventListeners</a></li>
 				<li><a href="global.html#addLabel">addLabel</a></li>
+				<li><a href="global.html#addRollbackIcon">addRollbackIcon</a></li>
 				<li><a href="global.html#addVec">addVec</a></li>
 				<li><a href="global.html#analyse">analyse</a></li>
 				<li><a href="global.html#antMarch">antMarch</a></li>
@@ -107,7 +108,6 @@
 				<li><a href="global.html#fit">fit</a></li>
 				<li><a href="global.html#follow">follow</a></li>
 				<li><a href="global.html#followUser">followUser</a></li>
-				<li><a href="global.html#formatLogRec">formatLogRec</a></li>
 				<li><a href="global.html#generateName">generateName</a></li>
 				<li><a href="global.html#generateRoom">generateRoom</a></li>
 				<li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li>
@@ -126,9 +126,11 @@
 				<li><a href="global.html#groupDashes">groupDashes</a></li>
 				<li><a href="global.html#groupTitle">groupTitle</a></li>
 				<li><a href="global.html#headerTickToggle">headerTickToggle</a></li>
+				<li><a href="global.html#hideNavButtons">hideNavButtons</a></li>
 				<li><a href="global.html#hideNodeAndEdges">hideNodeAndEdges</a></li>
 				<li><a href="global.html#hideNotes">hideNotes</a></li>
 				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
+				<li><a href="global.html#humanSize">humanSize</a></li>
 				<li><a href="global.html#in_degree">in_degree</a></li>
 				<li><a href="global.html#inAddMode">inAddMode</a></li>
 				<li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li>
@@ -136,6 +138,7 @@
 				<li><a href="global.html#initials">initials</a></li>
 				<li><a href="global.html#initPopUp">initPopUp</a></li>
 				<li><a href="global.html#initSample">initSample</a></li>
+				<li><a href="global.html#initySamplesMap">initySamplesMap</a></li>
 				<li><a href="global.html#isEmpty">isEmpty</a></li>
 				<li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li>
 				<li><a href="global.html#legend">legend</a></li>
@@ -200,6 +203,7 @@
 				<li><a href="global.html#saveLabel">saveLabel</a></li>
 				<li><a href="global.html#saveNode">saveNode</a></li>
 				<li><a href="global.html#savePRSMfile">savePRSMfile</a></li>
+				<li><a href="global.html#saveState">saveState</a></li>
 				<li><a href="global.html#saveStr">saveStr</a></li>
 				<li><a href="global.html#search">search</a></li>
 				<li><a href="global.html#searchTargets">searchTargets</a></li>
@@ -237,6 +241,7 @@
 				<li><a href="global.html#showPressed">showPressed</a></li>
 				<li><a href="global.html#showSelected">showSelected</a></li>
 				<li><a href="global.html#sizing">sizing</a></li>
+				<li><a href="global.html#slowTripTime">slowTripTime</a></li>
 				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
 				<li><a href="global.html#solve">solve</a></li>
 				<li><a href="global.html#splitText">splitText</a></li>
@@ -308,6 +313,7 @@
 
 import {yPointsArray, network, drawingSwitch} from './prsm.js'
 import * as Hammer from '@egjs/hammerjs'
+
 /**
  * Initialisation
  */
@@ -379,10 +385,9 @@ function setUpCanvas(id) {
  */
 function getContext(canvas) {
 	let ctx = canvas.getContext('2d')
-	//	ctx.scale(dpr, dpr);
 	ctx.lineWidth = defaultOptions.lineWidth
 	ctx.strokeStyle = defaultOptions.strokeStyle
-	ctx.fillStyle = defaultOptions.fillstyle
+	ctx.fillStyle = defaultOptions.fillStyle
 	ctx.font = defaultOptions.font
 	ctx.lineJoin = 'round'
 	ctx.lineCap = 'round'
@@ -496,6 +501,7 @@ class ToolHandler {
 		this.startY = 0
 		this.endX = 0
 		this.endY = 0
+		this.canvasBox = null
 		this.strokeStyle = defaultOptions.strokeStyle
 		this.lineWidth = defaultOptions.lineWidth
 		this.fillStyle = defaultOptions.fillStyle
@@ -513,6 +519,7 @@ class ToolHandler {
 	panstart(e) {
 		if (this.isPanstart) return
 		tempCanvas.focus()
+		this.canvasBox = tempCanvas.getBoundingClientRect()
 		this.endPosition(e)
 		this.startX = this.endX
 		this.startY = this.endY
@@ -525,12 +532,14 @@ class ToolHandler {
 	 * @param {event} e
 	 */
 	endPosition(e) {
-		this.endX = (e.offsetX * tempCanvas.width) / (dpr * tempCanvas.clientWidth)
-		if (this.endX &lt; 0) this.endX = 0
-		if (this.endX > tempCanvas.offsetWidth) this.endX = tempCanvas.offsetWidth
-		this.endY = (e.offsetY * tempCanvas.height) / (dpr * tempCanvas.clientHeight)
-		if (this.endY &lt; 0) this.endY = 0
-		if (this.endY > tempCanvas.offsetHeight) this.endY = tempCanvas.offsetHeight
+		let domX = e.clientX
+		if (domX &lt; 0) domX = 0
+		if (domX > this.canvasBox.right) domX = this.canvasBox.right
+		this.endX = (domX * tempCanvas.width) / (dpr * tempCanvas.clientWidth)
+		let domY = e.clientY
+		if (domY &lt; this.canvasBox.top) domY = this.canvasBox.top
+		if (domY > this.canvasBox.bottom) domY = this.canvasBox.bottom
+		this.endY = ((domY - this.canvasBox.top) * tempCanvas.height) / (dpr * tempCanvas.clientHeight)
 	}
 	/**
 	 * do something as the mouse moves
@@ -585,6 +594,7 @@ class LineHandler extends ToolHandler {
 	constructor() {
 		super()
 		this.axes = false
+		this.dashed = false
 	}
 	panmove(e) {
 		if (this.isPanstart) {
@@ -594,14 +604,15 @@ class LineHandler extends ToolHandler {
 				else this.endX = this.startX
 			}
 			drawHelper.clear(tempctx)
-			drawHelper.line(tempctx, [this.startX, this.startY, this.endX, this.endY])
+			if (this.dashed) drawHelper.dashedLine(tempctx, [this.startX, this.startY, this.endX, this.endY])
+			else drawHelper.line(tempctx, [this.startX, this.startY, this.endX, this.endY])
 		}
 	}
 	panend() {
 		if (this.isPanstart) {
 			yPointsArray.push([
 				[
-					'line',
+					this.dashed ? 'dashedLine' : 'line',
 					[
 						DOMtoCanvasX(this.startX),
 						DOMtoCanvasY(this.startY),
@@ -618,6 +629,7 @@ class LineHandler extends ToolHandler {
 		box.innerHTML = `
 	&lt;div>Line width&lt;/div>&lt;div>&lt;input id="lineWidth" type="number" min="0" max="99" size="2">&lt;/div>
 	&lt;div>Colour&lt;/div>&lt;div>&lt;input id="lineColour" type="color">&lt;/div>
+	&lt;div>Dashed&lt;/div>&lt;div>&lt;input type="checkbox" id="dashed">&lt;/div>
 	&lt;div>Vert/Horiz&lt;/div>&lt;div>&lt;input type="checkbox" id="axes">&lt;/div>`
 		let widthInput = document.getElementById('lineWidth')
 		widthInput.value = this.lineWidth
@@ -629,6 +641,11 @@ class LineHandler extends ToolHandler {
 		lineColor.value = this.strokeStyle
 		lineColor.addEventListener('blur', () => {
 			this.strokeStyle = lineColor.value
+		})
+		let dashed = document.getElementById('dashed')
+		dashed.checked = this.dashed
+		dashed.addEventListener('change', () => {
+			this.dashed = dashed.checked
 		})
 		let axes = document.getElementById('axes')
 		axes.checked = this.axes
@@ -645,7 +662,7 @@ class RectHandler extends ToolHandler {
 	constructor() {
 		super()
 		this.roundCorners = true
-		this.globalAlpha = 0.5
+		this.globalAlpha = 1.0
 	}
 	panstart(e) {
 		super.panstart(e)
@@ -1433,6 +1450,15 @@ let drawHelper = {
 		ctx.lineTo(endX, endY)
 		ctx.stroke()
 	},
+	dashedLine: function (ctx, [startX, startY, endX, endY]) {
+		ctx.beginPath()
+		ctx.moveTo(startX, startY)
+		ctx.setLineDash([10, 10])
+		ctx.lineTo(endX, endY)
+		ctx.stroke()
+		ctx.setLineDash([])
+
+	},
 	rect: function (ctx, [startX, startY, width, height]) {
 		ctx.beginPath()
 		ctx.lineJoin = 'miter'
@@ -1517,7 +1543,7 @@ function applyOptions(ctx, options) {
 		<footer>
 			Documentation generated by
 			<a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a>
-			on Sat Jan 29 2022 14:03:02 GMT+0000 (Greenwich Mean Time) using the
+			on Sun Mar 06 2022 21:03:20 GMT+0000 (Greenwich Mean Time) using the
 			<a href="https://github.com/clenemt/docdash">docdash</a>
 			theme.
 		</footer>
