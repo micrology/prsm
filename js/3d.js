@@ -195,7 +195,7 @@ function convertData() {
  * Display the map as a 3D network
  * @param {string} backColor - background color: white or black
  */
-function display(backColor) {
+function display() {
 	cancelLoading()
 	let threeDGraphDiv = elem('3dgraph')
 	let width = threeDGraphDiv.clientWidth
@@ -203,6 +203,8 @@ function display(backColor) {
 	const highlightNodes = new Set()
 	const highlightLinks = new Set()
 	let hoverNode = null
+	let backColor = elem('mode').value === 'light' ? 'white' : 'black'
+	elem('info').style.color = elem('mode').value === 'light' ? 'black' : 'white'
 
 	graph = ForceGraph3D()(threeDGraphDiv)
 		.width(width)
@@ -279,27 +281,44 @@ function display(backColor) {
 	}
 	// fit graph to window on double click
 	listen('3dgraph', 'dblclick', () => {
+		let width = threeDGraphDiv.clientWidth
+		let height = threeDGraphDiv.clientHeight		
 		graph.width(width).height(height).zoomToFit(200, 0)
 	})
 	// change background colour using select menu in nav bar
 	listen('mode', 'change', (e) => {
-		setMode(e.target.value)
-	})
-	window.onresize = function () {
-		display(setMode(elem('mode').value))
-	}
-	/**
-	 * set the graph background colour
-	 * @param {string} mode -  dark or light
-	 */
-	function setMode(mode) {
-		if (mode === 'dark') {
+		if (e.target.value === 'dark') {
 			graph.backgroundColor('black')
 			elem('info').style.color = 'white'
 		} else {
 			graph.backgroundColor('white')
 			elem('info').style.color = 'black'
 		}
+	})
+	var timeout = false // debounce timer
+    var delay = 250 // delay after event is "complete" to run callback
+	window.addEventListener('resize', () => {
+		clearTimeout(timeout);
+		timeout = setTimeout(() => {
+			setvh()
+			let backColor = elem('mode').value === 'light' ? 'white' : 'black'
+			elem('info').style.color = elem('mode').value === 'light' ? 'black' : 'white'
+			let width = window.innerWidth
+			let height = window.innerHeight - elem('navbar').clientHeight		
+			graph.width(width).height(height).backgroundColor(backColor)
+		}, delay);
+	})
+	window.addEventListener("orientationchange",() => 	setvh())
+	
+	/**
+	 * to handle iOS weirdness in fixing the vh unit (see https://css-tricks.com/the-trick-to-viewport-units-on-mobile/)
+	 */
+	function setvh() {
+		document.body.height = window.innerHeight
+		// First we get the viewport height and we multiple it by 1% to get a value for a vh unit
+		let vh = window.innerHeight * 0.01
+		// Then we set the value in the --vh custom property to the root of the document
+		document.documentElement.style.setProperty('--vh', `${vh}px`)
 	}
 	/**
 	 * draw axes across scene
