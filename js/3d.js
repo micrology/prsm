@@ -282,7 +282,7 @@ function display() {
 	// fit graph to window on double click
 	listen('3dgraph', 'dblclick', () => {
 		let width = threeDGraphDiv.clientWidth
-		let height = threeDGraphDiv.clientHeight		
+		let height = threeDGraphDiv.clientHeight
 		graph.width(width).height(height).zoomToFit(200, 0)
 	})
 	// change background colour using select menu in nav bar
