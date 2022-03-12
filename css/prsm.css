@@ -1713,6 +1713,10 @@ div.resize {
 	z-index: 6000;
 	cursor: default;
 	user-select: none;
+	/* transition duration must be equal to mouse move throttle time */
+	transition-property: top, left;
+	transition-duration: 0.2s;
+	transition-timing-function: linear;
 }
 .ghost-factor {
 	position: absolute;
