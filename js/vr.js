@@ -108,20 +108,6 @@ function convertData() {
 	let graphEdges = Array.from(yEdgesMap.values()).map((e) => {
 		return convertEdge(e)
 	})
-	// note neighbouring nodes and links to those for each node
-	// (used for highlighting links when hovering over nodes)
-	/* graphEdges.forEach((link) => {
-		const a = graphNodes.find((n) => n.id === link.source)
-		const b = graphNodes.find((n) => n.id === link.target)
-		!a.neighbors && (a.neighbors = [])
-		!b.neighbors && (b.neighbors = [])
-		a.neighbors.push(b)
-		b.neighbors.push(a)
-		!a.links && (a.links = [])
-		!b.links && (b.links = [])
-		a.links.push(link)
-		b.links.push(link)
-	}) */
 	return {nodes: graphNodes, links: graphEdges}
 }
 function showForceGraph() {
@@ -130,10 +116,11 @@ function showForceGraph() {
 			fgEl.setAttribute('forcegraph', {
 				nodes: JSON.stringify(graphData.nodes),
 				links: JSON.stringify(graphData.links),
-				nodeAutoColorBy: 'group',
-				nodeResolution: 16,
+                nodeResolution: 16,
+                linkWidth: 1,
 				linkDirectionalArrowLength: 1.5,
-				linkDirectionalArrowRelPos: 1,
+                linkDirectionalArrowRelPos: 1,
+                linkDirectionalParticles: 5,
 				onNodeClick: (node) => console.log(node),
 			})
 			// draw a sphere entity around each node

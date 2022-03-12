@@ -68,7 +68,7 @@
 			// display a label in front of each node when pointer hits it
 			AFRAME.registerComponent('node-hover', {
 				schema: {
-					text: {type: 'string', default: 'My label'},
+					label: {type: 'string', default: 'My label'},
 					tipColor: {type: 'color', default: 'yellow'},
 				},
 
@@ -79,7 +79,7 @@
 						let tooltip = document.createElement('a-entity')
 						tooltip.id = 'tooltip'
 						tooltip.setAttribute('text', {
-							value: data.text,
+							value: data.label,
 							color: data.tipColor,
 							width: 2,
 							align: 'center',
@@ -111,13 +111,14 @@
 					document
 						.querySelector('[forcegraph]')
 						.components.forcegraph.forceGraph.children.forEach((child) => {
-							if (child.type == 'Mesh') {
+							if (child.type == 'Mesh' && child.__data.id) {
 								let sphereEl
 								if (this.spheres.get(child.__data.id)) {
 									sphereEl = this.spheres.get(child.__data.id)
 									sphereEl.setAttribute('position', child.position)
 								} else {
 									sphereEl = document.createElement('a-sphere')
+									console.log(child.__data)
 									sphereEl.classList.add('node')
 									sphereEl.id = child.__data.id
 									this.spheres.set(child.__data.id, sphereEl)
@@ -125,7 +126,7 @@
 									sphereEl.setAttribute('radius', child.geometry.parameters.radius + 0.1)
 									let childColor = child.__data.color
 									sphereEl.setAttribute('color', childColor ? childColor : 'white')
-									sphereEl.setAttribute('node-hover', {text: child.__data.id})
+									sphereEl.setAttribute('node-hover', {label: child.__data.label})
 									this.el.appendChild(sphereEl)
 								}
 							}
@@ -186,7 +187,7 @@
 			<a-plane src="#groundTexture" rotation="-90 0 0" width="5" height="5" repeat="10 10"></a-plane>
 			<!-- centre point and axes -->
 			<a-entity id="origin">
-				<a-sphere color="lightgray" radius="0.05"></a-sphere>
+				<a-sphere color="lightgray" position="0 0 0" radius="0.05"></a-sphere>
 				<a-entity line="start: -500 0 0; end: 500 0 0; color: red"></a-entity>
 				<a-entity line="start: 0 -500 0; end: 0 500 0; color: green"></a-entity>
 				<a-entity line="start: 0 0 -500; end: 0 0 500; color: blue"></a-entity>
