@@ -296,6 +296,7 @@ function startY(newRoom) {
 	wsProvider.on('status', (event) => {
 		console.log(exactTime() + event.status + (event.status == 'connected' ? ' to' : ' from') + ' room ' + room) // logs when websocket is "connected" or "disconnected"
 	})
+
 	/* 
 	create a yMap for the nodes and one for the edges (we need two because there is no 
 	guarantee that the the ids of nodes will differ from the ids of edges) 
@@ -4553,7 +4554,13 @@ function setUpAwareness() {
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false)
 	var sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP)
+	// throttle mousemove broadcast to avoid overloading server
+	var throttled = false
+	var THROTTLETIME = 200
 	window.addEventListener('mousemove', (e) => {
+		if (throttled) return
+		throttled = true
+		setTimeout(() => (throttled = false), THROTTLETIME)
 		clearTimeout(sleepTimer)
 		asleep(false)
 		sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP)
