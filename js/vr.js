@@ -117,10 +117,10 @@ function showForceGraph() {
 				nodes: JSON.stringify(graphData.nodes),
 				links: JSON.stringify(graphData.links),
                 nodeResolution: 16,
-                linkWidth: 1,
+                linkWidth: 0,
 				linkDirectionalArrowLength: 1.5,
                 linkDirectionalArrowRelPos: 1,
-                linkDirectionalParticles: 5,
+ //               linkDirectionalParticles: 5,
 				onNodeClick: (node) => console.log(node),
 			})
 			// draw a sphere entity around each node

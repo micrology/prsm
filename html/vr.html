@@ -25,7 +25,7 @@
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
-		<style>
+		<!-- <style>
 			@font-face {
 				font-family: 'Oxygen';
 				src: url('../fonts/oxygen-regular-webfont.woff2') format('woff2');
@@ -40,7 +40,7 @@
 				font-style: normal;
 				font-display: swap;
 			}
-		</style>
+		</style> -->
 		<script src="../node_modules/aframe/dist/aframe-v1.3.0.min.js"></script>
 		<script src="../node_modules/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
 		<script src="../node_modules/aframe-look-at-component/dist/aframe-look-at-component.min.js"></script>
@@ -48,11 +48,6 @@
 		<script src="../node_modules/aframe-forcegraph-component/dist/aframe-forcegraph-component.min.js"></script>
 		<script src="../js/vr.js" type="module"></script>
 		<script>
-/* 			var graphNodes = [
-				{id: 1, name: 'first', text: 'first', color: 'red'},
-				{id: 2, name: 'second', text: 'second'},
-			]
-			var graphEdges = [{source: 1, target: 2}] */
 
 			AFRAME.registerComponent('click', {
 				schema: {},
@@ -69,7 +64,7 @@
 			AFRAME.registerComponent('node-hover', {
 				schema: {
 					label: {type: 'string', default: 'My label'},
-					tipColor: {type: 'color', default: 'yellow'},
+					tipColor: {type: 'color', default: 'black'},
 				},
 
 				init: function () {
@@ -118,7 +113,6 @@
 									sphereEl.setAttribute('position', child.position)
 								} else {
 									sphereEl = document.createElement('a-sphere')
-									console.log(child.__data)
 									sphereEl.classList.add('node')
 									sphereEl.id = child.__data.id
 									this.spheres.set(child.__data.id, sphereEl)
@@ -175,11 +169,11 @@
 			<a-entity id="fg"></a-entity>
 			<!-- camera -->
 			<a-entity id="cameraRig" movement-controls="fly: true">
-				<a-camera id="camera" look-controls="pointerLockEnabled: true" vr-cursor></a-camera>
+				<a-camera id="camera" look-controls="pointerLockEnabled: true" <!-- vr-cursor -->></a-camera>
 				<a-entity
 					id="left-hand"
 					oculus-touch-controls="hand: left"
-					blink-controls="cameraRig: #cameraRig; teleportOrigin: #camera; button: trigger; snapTurn: false; defaultPlaneSize: 500"
+					blink-controls="cameraRig: #cameraRig; teleportOrigin: #camera; button: trigger; snapTurn: false; defaultPlaneSize: 1000"
 				></a-entity>
 				<a-entity laser-controls="hand: right" raycaster="objects: .collidable, .node"></a-entity>
 			</a-entity>
@@ -195,21 +189,5 @@
 			<!-- sky -->
 			<a-sky src="#skyTexture"></a-sky>
 		</a-scene>
-		<!-- set up force graph -->
-		<!-- <script>
-			const fgEl = document.getElementById('fg')
-			fgEl.setAttribute('forcegraph', {
-				nodes: graphNodes,
-				links: graphEdges,
-				nodeAutoColorBy: 'group',
-				nodeResolution: 16,
-				linkDirectionalArrowLength: 1.5,
-				linkDirectionalArrowRelPos: 1,
-				onNodeHover: (node) => showLabel(node),
-				onNodeClick: (node) => console.log(node),
-			})
-			// draw a sphere entity around each node
-			fgEl.setAttribute('network', {})
-		</script> -->
 	</body>
 </html>
