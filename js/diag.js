@@ -215,3 +215,18 @@ export function nodeIdToLabel(id) {
 	if (!node) return 'node not found'
 	return node.label
 }
+
+export function anon() {
+	let nodes = data.nodes.get()
+	nodes.forEach(n => {
+		if (n.created) n.created = undefined
+		if (n.modified) n.modified = undefined
+	})
+	data.nodes.update(nodes)
+	let edges = data.edges.get()
+	edges.forEach(e => {
+		if (e.created) e.created = undefined
+		if (e.modified) e.modified = undefined
+	})
+	data.edges.update(edges)
+}

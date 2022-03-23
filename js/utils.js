@@ -4,7 +4,7 @@ import uniqolor from 'uniqolor'
 /**
  * attach an event listener
  *
- * @param {string} id - id of the element on which to hand the event listener
+ * @param {string} id - id of the element on which to hang the event listener
  * @param {string} event
  * @param {function} callback
  */
@@ -337,7 +337,39 @@ export function dragElement(el, header) {
 		}
 	}
 }
-
+/**
+ * Create a context menu that pops up when elem is right clicked
+ * @param {HTMLElement} elem click this to get a context menu
+ * @param {array} menu array of menu options: ([{label: string, action: function to call when this option selected} {...}])
+ */
+export function addContextMenu(elem, menu) {
+	const menuEl = document.createElement('div')
+	menuEl.classList.add('context-menu')
+	document.body.appendChild(menuEl)
+	elem.addEventListener('contextmenu', (event) => {
+		event.preventDefault()
+		const { clientX: mouseX, clientY: mouseY } = event
+		let posX = (window.innerWidth - mouseX < menuEl.offsetWidth + 4) ? window.innerWidth - menuEl.offsetWidth - 4 : mouseX
+		let posY = (window.innerHeight - mouseY < menuEl.offsetHeight + 4) ? window.innerHeight - menuEl.offsetHeight - 4 : mouseY
+		menuEl.style.top = `${posY}px`
+		menuEl.style.left = `${posX}px`
+		menuEl.classList.remove('visible')
+		setTimeout(() => {
+			menuEl.classList.add('visible')
+		})
+	})
+	document.body.addEventListener('click', () => {
+		menuEl.classList.remove('visible')
+	})
+	menu.forEach((item) => {
+		const {label, action} = item
+		let option = document.createElement('div')
+		option.classList.add('item')
+		option.innerHTML = label
+		option.addEventListener('click', action)
+		menuEl.appendChild(option)
+	})
+}
 const SEA_CREATURES = Object.freeze([
 	'walrus',
 	'seal',

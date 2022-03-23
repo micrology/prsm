@@ -18,6 +18,7 @@ import {
 	deepCopy,
 	splitText,
 	dragElement,
+	addContextMenu,
 	standardize_color,
 	object_equals,
 	generateName,
@@ -267,6 +268,7 @@ function setUpPage() {
 	updateLastSamples(lastNodeSample, lastLinkSample)
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'))
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'))
+	addContextMenu(elem('lock'), [{label: 'Lock all', action: lockAllNodes}, {label: 'Unlock all', action: unlockAllNodes}])
 	hideNotes()
 }
 
@@ -2991,6 +2993,7 @@ function exportCVS() {
 }
 /**
  * Save the map as a GML file
+ * See https://web.archive.org/web/20190303094704/http://www.fim.uni-passau.de:80/fileadmin/files/lehrstuhl/brandenburg/projekte/gml/gml-technical-report.pdf for the format
  */
 function exportGML() {
 	let str =
@@ -2998,7 +3001,7 @@ function exportGML() {
 	let nodeIds = data.nodes.map((n) => n.id) //use integers, not GUIDs for node ids
 	for (let node of data.nodes.get()) {
 		str += '\tnode\n\t[\n\t\tid ' + nodeIds.indexOf(node.id)
-		if (node.label) str += '\n\t\tlabel "' + node.label + '"'
+		if (node.label) str += '\n\t\tlabel "' + node.label.replace(/"/g, "'") + '"'
 		let color = node.color.background || styles.nodes.group0.color.background
 		str += '\n\t\tcolor "' + color + '"'
 		str += '\n\t]\n'
@@ -3354,6 +3357,27 @@ function setFixed() {
 	elem('fixed').style.display = node.fixed ? 'inline' : 'none'
 	elem('unfixed').style.display = node.fixed ? 'none' : 'inline'
 	data.nodes.update(node)
+}
+
+function lockAllNodes() {
+	doc.transact(() => {
+		data.nodes.get().forEach(node => {
+			node.fixed = true
+			data.nodes.update(node)
+		})
+	})
+	elem('fixed').style.display = 'inline'
+	elem('unfixed').style.display ='none'
+}
+function unlockAllNodes() {
+	doc.transact(() => {
+		data.nodes.get().forEach(node => {
+			node.fixed = false
+			data.nodes.update(node)
+		})
+	})
+	elem('fixed').style.display = 'none'
+	elem('unfixed').style.display ='inline'
 }
 /**
  * Display a panel to show info about the selected edge or node

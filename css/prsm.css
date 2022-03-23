@@ -1457,6 +1457,7 @@ div.resize {
 	font-family: Oxygen, sans-serif;
 	font-weight: bold;
 	font-size: 24px;
+	user-select: none;
 	border: 1px solid black;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
@@ -1806,6 +1807,40 @@ div.resize {
 .menu-item:hover > .menu {
 	-webkit-transition-delay: 100ms;
 	transition-delay: 300ms;
+}
+.context-menu {
+	position: absolute;
+	padding: 0;
+	margin: 0;
+	 background: #eee;
+	z-index: 10000;
+	border-radius: 7px;
+	box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
+	border: thin solid var(--pop-up-shadow-color);
+	transform: scale(0);
+	transform-origin: top left;
+	cursor: default;
+}
+.context-menu.visible {
+	transform: scale(1);
+	transition: transform 200ms ease-in-out;
+}
+
+.context-menu .item {
+	margin: 2px;
+	padding: 8px 10px;
+	white-space: nowrap;
+	border-bottom: 1px solid lightgrey;
+	border-radius: 7px;
+	color: #444;
+	font-size: 14px;
+	text-align: left;
+}
+.context-menu .item:last-child {
+	border-bottom: none;
+}
+.context-menu .item:hover {
+	background-color: var(--pop-up-shadow-color);
 }
 /* 3d graph display */
 .threeDGraph {
