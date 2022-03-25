@@ -234,6 +234,10 @@ function addEventListeners() {
 	)
 	listen('body', 'copy', copyToClipboard)
 	listen('body', 'paste', pasteFromClipboard)
+	addContextMenu(elem('lock'), [
+		{label: 'Lock all', action: lockAllNodes},
+		{label: 'Unlock all', action: unlockAllNodes},
+	])
 }
 
 /**
@@ -268,7 +272,6 @@ function setUpPage() {
 	updateLastSamples(lastNodeSample, lastLinkSample)
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'))
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'))
-	addContextMenu(elem('lock'), [{label: 'Lock all', action: lockAllNodes}, {label: 'Unlock all', action: unlockAllNodes}])
 	hideNotes()
 }
 
@@ -3361,23 +3364,23 @@ function setFixed() {
 
 function lockAllNodes() {
 	doc.transact(() => {
-		data.nodes.get().forEach(node => {
+		data.nodes.get().forEach((node) => {
 			node.fixed = true
 			data.nodes.update(node)
 		})
 	})
 	elem('fixed').style.display = 'inline'
-	elem('unfixed').style.display ='none'
+	elem('unfixed').style.display = 'none'
 }
 function unlockAllNodes() {
 	doc.transact(() => {
-		data.nodes.get().forEach(node => {
+		data.nodes.get().forEach((node) => {
 			node.fixed = false
 			data.nodes.update(node)
 		})
 	})
 	elem('fixed').style.display = 'none'
-	elem('unfixed').style.display ='inline'
+	elem('unfixed').style.display = 'inline'
 }
 /**
  * Display a panel to show info about the selected edge or node
@@ -3829,6 +3832,16 @@ function selectAllLinks() {
 export function selectLinks(edgeIds) {
 	network.selectEdges(edgeIds)
 	showSelected()
+}
+
+/**
+ * Selects all the nodes and edges that have been created or modified by a user 
+ * @param {string} userName 
+ */
+function selectUsersItems(userName) {
+	let usersNodes = data.nodes.get().filter(n => n.created?.user == userName || n.modified?.user == userName).map(n => n.id)
+	let userEdges = data.edges.get().filter(e => e.created?.user == userName || e.modified?.user == userName).map(e => e.id)
+	network.setSelection({nodes: usersNodes, edges: userEdges})
 }
 
 function legendSwitch(e) {
@@ -4725,6 +4738,7 @@ function showAvatars() {
 			ava.appendChild(circle)
 			avatars.appendChild(ava)
 			circle.addEventListener('click', follow)
+			addContextMenu(circle, [{label: 'Select items they have modified', action: selectUsersItems(nameRec.name)}])
 		} else {
 			// to avoid flashes, don't touch anything that is already correct
 			if (ava.dataset.tooltip != nameRec.name) ava.dataset.tooltip = nameRec.name
