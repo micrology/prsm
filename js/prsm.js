@@ -4982,9 +4982,10 @@ function showAvatars() {
         statusMsg(
           nameRec.id === clientID
             ? "Right click to select all your edits"
-            : "Click to follow this person; right click to select all this person's edits"
+            : `Click to follow this person; right click to select all this person's edits`
         )
-      );
+      );      
+      circle.addEventListener("mouseout", () => clearStatusBar())
     } else {
       // to avoid flashes, don't touch anything that is already correct
       if (ava.dataset.tooltip != nameRec.name)
