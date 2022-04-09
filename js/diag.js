@@ -218,13 +218,13 @@ export function nodeIdToLabel(id) {
 
 export function anon() {
 	let nodes = data.nodes.get()
-	nodes.forEach(n => {
+	nodes.forEach((n) => {
 		if (n.created) n.created = undefined
 		if (n.modified) n.modified = undefined
 	})
 	data.nodes.update(nodes)
 	let edges = data.edges.get()
-	edges.forEach(e => {
+	edges.forEach((e) => {
 		if (e.created) e.created = undefined
 		if (e.modified) e.modified = undefined
 	})

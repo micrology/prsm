@@ -6,8 +6,8 @@
  *
  * */
 
- import * as Y from 'yjs'
-import { WebsocketProvider } from 'y-websocket'
+import * as Y from 'yjs'
+import {WebsocketProvider} from 'y-websocket'
 import {standardize_color} from './utils.js'
 
 var room
@@ -56,8 +56,7 @@ function startY() {
 	// we only read changes made by other clients; this client never writes anything to the shared document
 	yNodesMap.observe(() => {
 		showForceGraph()
-		}
-	)
+	})
 	yEdgesMap.observe(() => {
 		showForceGraph()
 	})
@@ -111,18 +110,18 @@ function convertData() {
 	return {nodes: graphNodes, links: graphEdges}
 }
 function showForceGraph() {
-    let graphData = convertData()
-    const fgEl = document.getElementById('fg')
-			fgEl.setAttribute('forcegraph', {
-				nodes: JSON.stringify(graphData.nodes),
-				links: JSON.stringify(graphData.links),
-                nodeResolution: 16,
-                linkWidth: 0,
-				linkDirectionalArrowLength: 1.5,
-                linkDirectionalArrowRelPos: 1,
- //               linkDirectionalParticles: 5,
-				onNodeClick: (node) => console.log(node),
-			})
-			// draw a sphere entity around each node
-			fgEl.setAttribute('network', {})
+	let graphData = convertData()
+	const fgEl = document.getElementById('fg')
+	fgEl.setAttribute('forcegraph', {
+		nodes: JSON.stringify(graphData.nodes),
+		links: JSON.stringify(graphData.links),
+		nodeResolution: 16,
+		linkWidth: 0,
+		linkDirectionalArrowLength: 1.5,
+		linkDirectionalArrowRelPos: 1,
+		//               linkDirectionalParticles: 5,
+		onNodeClick: (node) => console.log(node),
+	})
+	// draw a sphere entity around each node
+	fgEl.setAttribute('network', {})
 }

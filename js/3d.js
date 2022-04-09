@@ -296,20 +296,20 @@ function display() {
 		}
 	})
 	var timeout = false // debounce timer
-    var delay = 250 // delay after event is "complete" to run callback
+	var delay = 250 // delay after event is "complete" to run callback
 	window.addEventListener('resize', () => {
-		clearTimeout(timeout);
+		clearTimeout(timeout)
 		timeout = setTimeout(() => {
 			setvh()
 			let backColor = elem('mode').value === 'light' ? 'white' : 'black'
 			elem('info').style.color = elem('mode').value === 'light' ? 'black' : 'white'
 			let width = window.innerWidth
-			let height = window.innerHeight - elem('navbar').clientHeight		
+			let height = window.innerHeight - elem('navbar').clientHeight
 			graph.width(width).height(height).backgroundColor(backColor)
-		}, delay);
+		}, delay)
 	})
-	window.addEventListener("orientationchange",() => 	setvh())
-	
+	window.addEventListener('orientationchange', () => setvh())
+
 	/**
 	 * to handle iOS weirdness in fixing the vh unit (see https://css-tricks.com/the-trick-to-viewport-units-on-mobile/)
 	 */

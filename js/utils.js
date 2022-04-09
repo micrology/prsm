@@ -348,9 +348,13 @@ export function addContextMenu(elem, menu) {
 	document.body.appendChild(menuEl)
 	elem.addEventListener('contextmenu', (event) => {
 		event.preventDefault()
-		const { clientX: mouseX, clientY: mouseY } = event
-		let posX = (window.innerWidth - mouseX < menuEl.offsetWidth + 4) ? window.innerWidth - menuEl.offsetWidth - 4 : mouseX
-		let posY = (window.innerHeight - mouseY < menuEl.offsetHeight + 4) ? window.innerHeight - menuEl.offsetHeight - 4 : mouseY
+		const {clientX: mouseX, clientY: mouseY} = event
+		let posX =
+			window.innerWidth - mouseX < menuEl.offsetWidth + 4 ? window.innerWidth - menuEl.offsetWidth - 4 : mouseX
+		let posY =
+			window.innerHeight - mouseY < menuEl.offsetHeight + 4
+				? window.innerHeight - menuEl.offsetHeight - 4
+				: mouseY
 		menuEl.style.top = `${posY}px`
 		menuEl.style.left = `${posX}px`
 		menuEl.classList.remove('visible')
@@ -367,7 +371,7 @@ export function addContextMenu(elem, menu) {
 		option.classList.add('item')
 		option.innerHTML = label
 		option.addEventListener('click', action)
-		option.addEventListener('contextmenu', (event)=> event.preventDefault())
+		option.addEventListener('contextmenu', (event) => event.preventDefault())
 		menuEl.appendChild(option)
 	})
 }
