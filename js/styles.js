@@ -1,6 +1,16 @@
 import {Network} from 'vis-network/peer/'
 import {DataSet} from 'vis-data/peer'
-import {listen, elem, deepMerge, deepCopy, standardize_color, dragElement, statusMsg, clearStatusBar} from './utils.js'
+import {
+	listen,
+	elem,
+	deepMerge,
+	deepCopy,
+	standardize_color,
+	dragElement,
+	statusMsg,
+	clearStatusBar,
+	addContextMenu,
+} from './utils.js'
 import {
 	network,
 	data,
@@ -150,6 +160,39 @@ listen('linksTab', 'contextmenu', (e) => {
 })
 
 function styleNodeContextMenu(event, sampleElement, groupId) {
+	let hidden = factorsHiddenByStyle[sampleElement.id]
+	console.log('hidden', hidden)
+	addContextMenu(sampleElement, [
+		{label: 'SelectFactors', action: selectFactorsWithStyle},
+		{label: hidden ? 'Unhide Factors' : 'Hide factors', action: hideFactorsWithStyle},
+	])
+
+	function selectFactorsWithStyle (){
+		selectFactors(data.nodes.getIds({filter: (node) => node.grp == groupId}))
+	}
+	function hideFactorsWithStyle (){
+		let nodes = data.nodes.get({filter: (node) => node.grp == groupId})
+		nodes.forEach((node) => {
+			node.hidden = !hidden
+		})
+		data.nodes.update(nodes)
+		let edges = []
+		nodes.forEach((node) => {
+			let connectedEdges = network.getConnectedEdges(node.id)
+			connectedEdges.forEach((edgeId) => {
+				edges.push(data.edges.get(edgeId))
+			})
+		})
+		edges.forEach((edge) => {
+			edge.hidden = !hidden
+		})
+		data.edges.update(edges)
+		factorsHiddenByStyle[sampleElement.id] = !hidden
+		yNetMap.set('factorsHiddenByStyle', factorsHiddenByStyle)
+		sampleElement.style.opacity = hidden ? 0.6 : 1.0
+	}
+}
+/* function styleNodeContextMenu(event, sampleElement, groupId) {
 	let menu = elem('styleNodeContextMenu')
 	event.preventDefault()
 	showMenu(event.pageX, event.pageY)
@@ -205,8 +248,14 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 		factorsHiddenByStyle[sampleElement.id] = toggle
 		yNetMap.set('factorsHiddenByStyle', factorsHiddenByStyle)
 	}
-}
+} */
 function styleEdgeContextMenu(event, sampleElement, groupId) {
+	addContextMenu(sampleElement,
+		[{ label: 'Select Links', action: selectLinksWithStyle }])
+		function selectLinksWithStyle() {
+			selectLinks(data.edges.getIds({filter: (edge) => edge.grp == groupId}))
+}
+/* function styleEdgeContextMenu(event, sampleElement, groupId) {
 	let menu = elem('styleEdgeContextMenu')
 	event.preventDefault()
 	showMenu(event.pageX, event.pageY)
@@ -229,7 +278,7 @@ function styleEdgeContextMenu(event, sampleElement, groupId) {
 	}
 	function selectLinksWithStyle(groupId) {
 		selectLinks(data.edges.getIds({filter: (edge) => edge.grp == groupId}))
-	}
+	} */
 }
 /**
  * assemble configurations by merging the specifics into the default

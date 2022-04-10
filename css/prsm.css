@@ -1828,12 +1828,12 @@ div.resize {
 
 .context-menu .item {
 	margin: 2px;
-	padding: 8px 10px;
+	padding: 2x;
 	white-space: nowrap;
 	border-bottom: 1px solid lightgrey;
 	border-radius: 7px;
 	color: #444;
-	font-size: 14px;
+	font-size: 12px;
 	text-align: left;
 }
 .context-menu .item:last-child {

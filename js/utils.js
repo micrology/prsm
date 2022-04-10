@@ -375,6 +375,7 @@ export function addContextMenu(elem, menu) {
 		menuEl.appendChild(option)
 	})
 }
+
 const SEA_CREATURES = Object.freeze([
 	'walrus',
 	'seal',
