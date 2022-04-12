@@ -3293,6 +3293,7 @@ function applySampleToNode(event) {
 	for (let node of data.nodes.get(selectedNodeIds)) {
 		node = deepMerge(node, styles.nodes[sample])
 		node.grp = sample
+		node.modified = timestamp()
 		nodesToUpdate.push(node)
 	}
 	data.nodes.update(nodesToUpdate)
@@ -3308,6 +3309,7 @@ function applySampleToLink(event) {
 	for (let edge of data.edges.get(selectedEdges)) {
 		edge = deepMerge(edge, styles.edges[sample])
 		edge.grp = sample
+		edge.modified = timestamp()
 		edgesToUpdate.push(edge)
 	}
 	data.edges.update(edgesToUpdate)
@@ -4838,6 +4840,7 @@ function unFollow() {
 	if (!followme) return
 	elem('ava' + followme).classList.remove('followme')
 	followme = undefined
+	elem('errMsg').classList.remove('fadeInAndOut')
 	clearStatusBar()
 }
 /**

@@ -95,6 +95,7 @@ select {
 	color: black;
 	border-top: 1px solid lightgrey;
 	user-select: none;
+	-webkit-user-select: none;
 }
 #net-pane {
 	width: 100%;
@@ -193,6 +194,7 @@ aside {
 	right: 5px;
 	width: 200px;
 	user-select: none;
+	-webkit-user-select: none;
 	z-index: 2000;
 }
 #errMsg {
@@ -962,6 +964,7 @@ but moving the panel out of sight works instead */
 	position: relative;
 	width: 50px;
 	user-select: none;
+	-webkit-user-select: none;
 }
 .onoffswitch-checkbox {
 	display: none;
@@ -1300,6 +1303,7 @@ but moving the panel out of sight works instead */
 	font-size: 12px;
 	background-color: var(--history-log-color);
 	user-select: none;
+	-webkit-user-select: none;
 	padding-top: 4px;
 }
 .history-time {
@@ -1330,6 +1334,7 @@ but moving the panel out of sight works instead */
 	border-radius: 4px;
 	margin: 0;
 	user-select: none;
+	-webkit-user-select: none;
 	z-index: 30;
 }
 .legendTitle {
@@ -1337,6 +1342,7 @@ but moving the panel out of sight works instead */
 	text-align: center;
 	padding: 3px;
 	user-select: none;
+	-webkit-user-select: none;
 }
 .legendCanvas {
 	width: 100%;
@@ -1458,6 +1464,7 @@ div.resize {
 	font-weight: bold;
 	font-size: 24px;
 	user-select: none;
+	-webkit-user-select: none;
 	border: 1px solid black;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
@@ -1714,6 +1721,7 @@ div.resize {
 	z-index: 6000;
 	cursor: default;
 	user-select: none;
+	-webkit-user-select: none;
 	/* transition duration must be equal to mouse move throttle time */
 	transition-property: top, left;
 	transition-duration: 0.2s;

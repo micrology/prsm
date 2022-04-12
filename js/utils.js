@@ -370,7 +370,7 @@ export function addContextMenu(elem, menu) {
 		let option = document.createElement('div')
 		option.classList.add('item')
 		option.innerHTML = label
-		option.addEventListener('click', action)
+		option.addEventListener('click', () => { document.body.removeChild(menuEl); action })
 		option.addEventListener('contextmenu', (event) => event.preventDefault())
 		menuEl.appendChild(option)
 	})
