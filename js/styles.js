@@ -1,15 +1,6 @@
 import {Network} from 'vis-network/peer/'
 import {DataSet} from 'vis-data/peer'
-import {
-	listen,
-	elem,
-	deepMerge,
-	deepCopy,
-	standardize_color,
-	dragElement,
-	statusMsg,
-	clearStatusBar,
-} from './utils.js'
+import {listen, elem, deepMerge, deepCopy, standardize_color, dragElement, statusMsg, clearStatusBar} from './utils.js'
 import {
 	network,
 	data,
@@ -66,8 +57,11 @@ export function setUpSamples() {
 		sampleElement.addEventListener('contextmenu', (event) => {
 			styleNodeContextMenu(event, sampleElement, groupId)
 		})
-		sampleElement.addEventListener('mouseover', () => 
-			statusMsg('Left click: apply style to selected; Double click: edit style; Right click: Select or Hide all with this style'))
+		sampleElement.addEventListener('mouseover', () =>
+			statusMsg(
+				'Left click: apply style to selected; Double click: edit style; Right click: Select or Hide all with this style'
+			)
+		)
 		sampleElement.addEventListener('mouseout', () => clearStatusBar())
 		sampleElement.groupNode = groupId
 		sampleElement.dataSet = nodeDataSet
@@ -338,6 +332,26 @@ function updateNodeEditor(groupId) {
 	elem('nodeEditShape').value = group.shape
 	elem('nodeEditBorder').value = getDashes(group.shapeProperties.borderDashes, group.borderWidth)
 	elem('nodeEditFontSize').value = group.font.size
+	if (group.fixed) {
+		elem('nodeEditFixed').style.display = 'block'
+		elem('nodeEditUnfixed').style.display = 'none'
+	} else {
+		elem('nodeEditFixed').style.display = 'none'
+		elem('nodeEditUnfixed').style.display = 'block'
+	}
+}
+listen('nodeEditLock', 'click', toggleNodeStyleLock)
+
+function toggleNodeStyleLock() {
+	let group = styles.nodes[elem('nodeStyleEditorContainer').groupId]
+	if (group.fixed) {
+		elem('nodeEditFixed').style.display = 'none'
+		elem('nodeEditUnfixed').style.display = 'block'
+	} else {
+		elem('nodeEditFixed').style.display = 'block'
+		elem('nodeEditUnfixed').style.display = 'none'
+	}
+	group.fixed = !group.fixed
 }
 /**
  * save changes to the style made with the edit dialog to the style object

@@ -815,7 +815,7 @@
 								<input type="radio" id="pathsAll" name="paths" value="All" checked />
 							</div>
 							<div class="panelRow">
-								<label for="paths">Show all paths between</label>
+								<label for="allPaths">Show all paths between</label>
 								<input type="radio" id="allPaths" name="paths" value="allPaths" />
 							</div>
 							<div class="panelRow">
@@ -957,13 +957,13 @@
 					<div>border</div>
 					<div>font</div>
 					<div class="input-color-container">
-						<div class="color-well" name="nodeEditFillColor" id="nodeEditFillColor"></div>
+						<div class="color-well" id="nodeEditFillColor"></div>
 					</div>
 					<div class="input-color-container">
-						<div class="color-well" name="nodeEditBorderColor" id="nodeEditBorderColor"></div>
+						<div class="color-well" id="nodeEditBorderColor"></div>
 					</div>
 					<div class="input-color-container">
-						<div class="color-well" name="nodeEditFontColor" id="nodeEditFontColor"></div>
+						<div class="color-well" id="nodeEditFontColor"></div>
 					</div>
 					<div>
 						<select name="nodeEditShape" id="nodeEditShape">
@@ -991,6 +991,36 @@
 							<option value="10">Small</option>
 						</select>
 					</div>
+					<div id="nodeEditLock">
+						<span id="nodeEditUnfixed">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="16"
+								height="16"
+								fill="currentColor"
+								class="bi bi-unlock-fill"
+								viewBox="0 0 16 16"
+							>
+								<path
+									d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2z"
+								/>
+							</svg>
+						</span>
+						<span id="nodeEditFixed">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="16"
+								height="16"
+								fill="currentColor"
+								class="bi bi-lock-fill"
+								viewBox="0 0 16 16"
+							>
+								<path
+									d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"
+								/>
+							</svg>
+						</span>
+					</div>
 					<input type="button" value="save" id="nodeEditSubmit" class="save-button submit" />
 				</div>
 			</div>
@@ -1007,7 +1037,7 @@
 					<div></div>
 					<div></div>
 					<div class="input-color-container">
-						<div class="color-well" name="linkEditLineColor" id="linkEditLineColor"></div>
+						<div class="color-well" id="linkEditLineColor"></div>
 					</div>
 					<div>
 						<select name="linkEditWidth" id="linkEditWidth">

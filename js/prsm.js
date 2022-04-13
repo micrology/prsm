@@ -18,7 +18,6 @@ import {
 	deepCopy,
 	splitText,
 	dragElement,
-	addContextMenu,
 	standardize_color,
 	object_equals,
 	generateName,
@@ -240,10 +239,6 @@ function addEventListeners() {
 	)
 	listen('body', 'copy', copyToClipboard)
 	listen('body', 'paste', pasteFromClipboard)
-	addContextMenu(elem('lock'), [
-		{label: 'Lock all', action: lockAllNodes},
-		{label: 'Unlock all', action: unlockAllNodes},
-	])
 }
 
 /**
@@ -3377,27 +3372,6 @@ function setFixed() {
 	elem('fixed').style.display = node.fixed ? 'inline' : 'none'
 	elem('unfixed').style.display = node.fixed ? 'none' : 'inline'
 	data.nodes.update(node)
-}
-
-function lockAllNodes() {
-	doc.transact(() => {
-		data.nodes.get().forEach((node) => {
-			node.fixed = true
-			data.nodes.update(node)
-		})
-	})
-	elem('fixed').style.display = 'inline'
-	elem('unfixed').style.display = 'none'
-}
-function unlockAllNodes() {
-	doc.transact(() => {
-		data.nodes.get().forEach((node) => {
-			node.fixed = false
-			data.nodes.update(node)
-		})
-	})
-	elem('fixed').style.display = 'none'
-	elem('unfixed').style.display = 'inline'
 }
 /**
  * Display a panel to show info about the selected edge or node

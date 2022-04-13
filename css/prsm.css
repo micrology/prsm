@@ -1033,6 +1033,7 @@ but moving the panel out of sight works instead */
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
 	justify-items: center;
+	align-items: center;
 	grid-gap: 5px;
 	border-radius: 6px;
 	width: 230px;

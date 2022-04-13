@@ -16,6 +16,7 @@ export const styles = {
 					background: '#ffffff',
 				},
 			},
+			fixed: false,
 			font: {
 				face: 'Oxygen',
 				color: '#000000',
