@@ -55,7 +55,7 @@ const TIMETOEDIT = 5 * 60 * 1000 // if node/edge edit dialog is not saved after 
 const magnification = 3 // magnification of the loupe (magnifier 'glass')
 export const NLEVELS = 20 // max. number of levels for trophic layout
 const ROLLBACKS = 20 // max. number of versions stored for rollback
-const slowTripTime = 200 // any more than this number of ms for the round trip generates a warning
+const SLOWTRIPTIME = 300 // any more than this number of ms for the round trip generates a warning
 
 export var network
 var room
@@ -4627,7 +4627,7 @@ function roundTripTimer() {
 		if (typeof origin === 'string') return // ignore local changes (e.g. through broadcast channel)
 		let sentpkt = yAwarenessB.getStates()?.get(yAwareness.clientID)?.pkt
 		if (sentpkt) {
-			if (Date.now() - sentpkt.time > slowTripTime || /round/.test(debug)) {
+			if (Date.now() - sentpkt.time > SLOWTRIPTIME || /round/.test(debug)) {
 				statusMsg('Slow or unstable network connection', 'warn')
 				console.log(`${exactTime(sentpkt.time)} Round trip: ${Date.now() - sentpkt.time} ms`)
 			}
