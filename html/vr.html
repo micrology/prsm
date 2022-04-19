@@ -127,7 +127,7 @@
 				},
 			})
 			// remove cursor when in vr mode (use laser pointer instead)
-			AFRAME.registerComponent('vr-cursor', {
+			/* AFRAME.registerComponent('vr-cursor', {
 				init: function () {
 					let cursor = document.createElement('a-cursor')
 					cursor.setAttribute('color', '#FF0000')
@@ -140,7 +140,7 @@
 						document.querySelector('#camera').removeChild(cursor)
 					})
 				},
-			})
+			}) */
 		</script>
 	</head>
 	<body>
@@ -155,7 +155,7 @@
 				<img id="info" src="../img/info.png" crossorigin="anonymous" />
 			</a-assets>
 			<!-- information board -->
-			<a-box
+			<!-- <a-box
 				id="info"
 				color="grey"
 				width="2.5"
@@ -164,7 +164,13 @@
 				position="3 2 -2"
 				rotation="0 -90 0"
 				src="#info"
-			></a-box>
+			></a-box> -->
+			<a-entity
+				id="info"
+				position="3 2 -2"
+				rotation="0 -90 0"
+				text="width: 2; lineHeight: 50; letterSpacing: 5; color: white; value: Use the right hand laser to point to Factors\n\nUse the left hand control to move around the scene. Use the thumb knob to got forwards, back, left or right relative to the direction in which you are looking.\n\nPress and release the left hand trigger to teleport to another point on the landing plane."
+			></a-entity>
 			<!-- force graph -->
 			<a-entity id="fg"></a-entity>
 			<!-- camera -->
@@ -178,7 +184,14 @@
 				<a-entity laser-controls="hand: right" raycaster="objects: .collidable, .node"></a-entity>
 			</a-entity>
 			<!-- ground  -->
-			<a-plane src="#groundTexture" rotation="-90 0 0" width="5" height="5" repeat="10 10"></a-plane>
+			<a-plane
+				src="#groundTexture"
+				material="opacity: 0.0; transparent: true"
+				rotation="-90 0 0"
+				width="5"
+				height="5"
+				repeat="10 10"
+			></a-plane>
 			<!-- centre point and axes -->
 			<a-entity id="origin">
 				<a-sphere color="lightgray" position="0 0 0" radius="0.05"></a-sphere>

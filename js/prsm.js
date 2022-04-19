@@ -76,6 +76,7 @@ var edges // a dataset of edges
 export var data // an object with the nodes and edges datasets as properties
 export const doc = new Y.Doc()
 export var websocket = 'wss://www.prsm.uk/wss' // web socket server URL
+var wsProvider // web socket provider
 var persistence // indexDB for local, offline storage of doc
 export var clientID // unique ID for this browser
 var yNodesMap // shared map of nodes
@@ -295,7 +296,7 @@ function startY(newRoom) {
 	persistence.once('synced', () => {
 		if (data.nodes.length > 0) displayNetPane(exactTime() + ' local content loaded')
 	})
-	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
+	wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
 	wsProvider.on('sync', () => {
 		displayNetPane(exactTime() + ' remote content loaded')
 	})
@@ -4563,8 +4564,10 @@ dragElement(elem('history-window'), elem('history-header'))
 /* tell user if they are offline */
 window.addEventListener('offline', () => {
 	statusMsg('No network connection - working offline', 'info')
+	wsProvider.shouldConnect = false
 })
 window.addEventListener('online', () => {
+	wsProvider.connect()
 	statusMsg('Network connection re-established', 'info')
 })
 /**
