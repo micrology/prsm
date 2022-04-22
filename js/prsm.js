@@ -4561,7 +4561,7 @@ function historyClose() {
 dragElement(elem('history-window'), elem('history-header'))
 
 /* --------------------------------------- avatars and shared cursors--------------------------------*/
-/* tell user if they are offline */
+/* tell user if they are offline and disconnect websocket server */
 window.addEventListener('offline', () => {
 	statusMsg('No network connection - working offline', 'info')
 	wsProvider.shouldConnect = false
