@@ -24,15 +24,31 @@
 		<link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
-
+		<!-- Basic A-Frame code -->
 		<script src="../node_modules/aframe/dist/aframe-v1.3.0.min.js"></script>
+		<!-- 		Teleport code -->
 		<script src="../node_modules/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
+		<!-- 		Follow gaze code -->
 		<script src="../node_modules/aframe-look-at-component/dist/aframe-look-at-component.min.js"></script>
+		<!-- 		Move around using controllers code -->
 		<script src="../node_modules/aframe-extras/dist/aframe-extras.controls.min.js"></script>
+		<!-- 		Layout graph code -->
 		<script src="../node_modules/aframe-forcegraph-component/dist/aframe-forcegraph-component.min.js"></script>
+		<!-- 		Interace with yjs to get nodes and links code -->
 		<script src="../js/vr.js" type="module"></script>
+		<!-- 		Components to provide special features -->
 		<script>
-			// display a label in front of each node when pointer hits it
+			function standardize_color(str) {
+				if (!str) return '#000000'
+				if (str.charAt(0) === '#') return str
+				let ctx = document.createElement('canvas').getContext('2d')
+				ctx.fillStyle = str
+				return ctx.fillStyle
+			}
+			function invertColor(color) {
+				return '#' + ('000000' + (0xffffff ^ parseInt(color.substring(1), 16)).toString(16)).slice(-6)
+			}
+			// display a label in front of each node when a pointer hits it
 			AFRAME.registerComponent('node-hover', {
 				schema: {
 					label: {type: 'string', default: 'My label'},
@@ -42,6 +58,8 @@
 				init: function () {
 					const data = this.data
 					const el = this.el
+					/* when the laser ray hits the node, a text entity is created to hold the label,
+					and this is positioned tangentially to the bounding sphere, facing the camera */
 					el.addEventListener('mouseenter', function () {
 						let tooltip = document.createElement('a-entity')
 						tooltip.id = 'tooltip'
@@ -72,6 +90,7 @@
 				schema: {},
 				dependencies: ['forcegraph'],
 				init: function () {
+					// spheres are cached here and re-used
 					this.spheres = new Map()
 				},
 				tick: function (time, timeDelta) {
@@ -91,8 +110,13 @@
 									sphereEl.setAttribute('position', child.position)
 									sphereEl.setAttribute('radius', child.geometry.parameters.radius + 0.1)
 									let childColor = child.__data.color
+									childColor = childColor ? childColor : 'white'
+									let compColor = invertColor(standardize_color(childColor))
 									sphereEl.setAttribute('color', childColor ? childColor : 'white')
-									sphereEl.setAttribute('node-hover', {label: child.__data.label})
+									sphereEl.setAttribute('node-hover', {
+										label: child.__data.label,
+										tipColor: compColor,
+									})
 									this.el.appendChild(sphereEl)
 								}
 							}
@@ -109,8 +133,9 @@
 					src="../img/Solarsystemscope_texture_8k_earth_nightmap.jpeg"
 					crossorigin="anonymous"
 				/>
-				<img id="info" src="../img/info.png" crossorigin="anonymous" />
+				<img id="grass" src="../img/grass.jpeg" crossorigin="anonymous" />
 			</a-assets>
+			<!-- instructions -->
 			<a-entity
 				id="info"
 				position="3 2 -2"
@@ -127,15 +152,15 @@
 				<a-entity
 					id="left-hand"
 					laser-controls="hand: left"
-					raycaster="showLine: true; lineColor: white; objects: .collidable, .node"
+					raycaster="showLine: true; lineColor: white; objects: .node"
 					blink-controls="cameraRig: #cameraRig; teleportOrigin: #camera; button: trigger; snapTurn: false; collisionEntities: #ground"
 				></a-entity>
-				<a-entity laser-controls="hand: right" raycaster="objects: .collidable, .node"></a-entity>
+				<a-entity laser-controls="hand: right" raycaster="objects: .node"></a-entity>
 			</a-entity>
 			<!-- ground  -->
 			<a-plane
-			id="ground"
-				material="color: green; opacity: 0.5; transparent: true; side: double"
+				id="ground"
+				material="src: #grass; repeat:10 10; color: green; opacity: 0.25; transparent: true; side: double"
 				rotation="-90 0 0"
 				width="500"
 				height="500"

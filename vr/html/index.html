@@ -144,6 +144,7 @@
 									sphereEl.setAttribute('radius', child.geometry.parameters.radius + 0.1)
 									sphereEl.setAttribute('color', child.__data.color)
 									sphereEl.setAttribute('node-hover', {text: child.__data.id})
+									sphereEl.setAttribute('shadow', {cast: true})
 									this.el.appendChild(sphereEl)
 								}
 							}
@@ -161,6 +162,7 @@
 					src="../img/Solarsystemscope_texture_8k_earth_nightmap.jpeg"
 					crossorigin="anonymous"
 				/>
+				<img id="grass" src="../img/grass.jpeg" crossorigin="anonymous" />
 				<img id="groundTexture" src="../img/floor.jpeg" crossorigin="anonymous" />
 				<img id="controls" src="../img/controls.png" crossorigin="anonymous" />
 			</a-assets>
@@ -170,6 +172,7 @@
 				position="2 2 -5"
 				rotation="0 0 0"
 				scale="1 1 1"
+				shadow="cast: true"
 				click
 				hover="color: blue; text: red cube"
 			></a-box>
@@ -179,6 +182,7 @@
 				position="-2 2 -5"
 				rotation="0 0 0"
 				scale="1 1 1"
+				shadow="cast: true"
 				click
 				hover="color: blue; text: green cube"
 			></a-box>
@@ -234,7 +238,7 @@
 			<!-- movement controls operate on whichever controller is initialised first see https://github.com/n5ro/aframe-extras/issues/345 -->
 			<a-entity id="cameraRig" movement-controls="fly: true">
 				<a-camera id="camera" look-controls="pointerLockEnabled: true">
-					<!-- <a-cursor color="#FF0000" raycaster="objects: .collidable, .node"></a-cursor> -->
+					<a-cursor color="#FF0000" raycaster="objects: .collidable, .node"></a-cursor>
 				</a-camera>
 				<a-entity id="left-hand" laser-controls="hand: left" raycaster="objects: .collidable, .node"">
 			</a-entity>
@@ -248,10 +252,12 @@
 	 
  -->
 			<a-plane
-				material="color: green; opacity: 0.5; transparent: true"
+				id="ground"
+				material="src: #grass; repeat:10 10; color: green; opacity: 0.5; transparent: true"
 				rotation="-90 0 0"
 				width="5"
 				height="5"
+				shadow="receive: true"
 			></a-plane>
 			<a-entity id="origin">
 				<a-sphere color="lightgray" radius="0.05"></a-sphere>
@@ -260,6 +266,17 @@
 				<a-entity line="start: 0 0 -500; end: 0 0 500; color: blue"></a-entity>
 			</a-entity>
 			<a-sky src="#skyTexture"></a-sky>
+			<!-- <a-entity light="type: ambient; intensity: 0.5;"></a-entity>
+			<a-entity
+				light="type: directional;
+                   castShadow: true;
+                   intensity: 1.0;
+                   shadowCameraVisible: true;"
+				position="0 100 0"
+				target="#directionaltarget"
+			>
+				<a-entity id="directionaltarget" position="0 0 -1"></a-entity>
+			</a-entity> -->
 		</a-scene>
 		<script>
 			function showLabel(node) {

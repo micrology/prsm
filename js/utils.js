@@ -641,6 +641,15 @@ export function standardize_color(str) {
 }
 
 /**
+ * return the inverse/complementary colour
+ * @param {string} color as a hex string
+ * @returns hex string
+ */
+export function invertColor(color) {
+	return '#' + ("000000" + (0xFFFFFF ^ parseInt(color.substring(1),16)).toString(16)).slice(-6);
+}
+
+/**
  * closure to generate a sequence of colours (as rgb strings, e.g. 'rgb(246,121,16)')
  * based on https://krazydad.com/tutorials/makecolors.php
  */
