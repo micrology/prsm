@@ -73,7 +73,7 @@
 						const sphericalrig = document.createElement('a-entity')
 						sphericalrig.id = 'sphericalrig'
 						sphericalrig.setAttribute('look-at', '[camera]')
-							el.appendChild(sphericalrig)
+						el.appendChild(sphericalrig)
 						tooltip.setAttribute('position', {x: 0, y: 0, z: bsphere.radius})
 						sphericalrig.appendChild(tooltip)
 						console.log(tooltip)
@@ -183,8 +183,8 @@
 				hover="color: blue; text: green cube"
 			></a-box>
 			<!-- billboard -->
-<!--  			<a-entity position="3 2 -2" rotation="0 -90 0" width="2">  -->
-				<!-- <a-box color="grey" width="2" height="2.5" depth="0.02" position="3 2 -2" rotation="0 -90 0"></a-box>
+			<!--  			<a-entity position="3 2 -2" rotation="0 -90 0" width="2">  -->
+			<!-- <a-box color="grey" width="2" height="2.5" depth="0.02" position="3 2 -2" rotation="0 -90 0"></a-box>
 				<a-text
 					id="billboard-text"
 					value="This is some instructional text and will spread over several lines I hope"
@@ -193,11 +193,19 @@
 					position="3 2 -2" 
 					rotation="0 -90 0"
 				></a-text> -->
-<!--  			</a-entity> 
- -->			<!-- 		<a-entity cursor="rayOrigin: mouse; mouseCursorStylesEnabled: true;" raycaster="objects: [forcegraph];"></a-entity>
+			<!--  			</a-entity> 
+ -->
+			<!-- 		<a-entity cursor="rayOrigin: mouse; mouseCursorStylesEnabled: true;" raycaster="objects: [forcegraph];"></a-entity>
 			-->
-			<a-box color="grey" width="2.5" height="2.5" depth="0.02" position="3 2 -2" rotation="0 -90 0"
-			src="#controls"></a-box>
+			<a-box
+				color="grey"
+				width="2.5"
+				height="2.5"
+				depth="0.02"
+				position="3 2 -2"
+				rotation="0 -90 0"
+				src="#controls"
+			></a-box>
 			<!-- <a-entity
   geometry="primitive: plane; width: 1; height: auto;"
   material="color: grey"
@@ -223,18 +231,28 @@
 				position="-0.9 0.2 -3"
 				scale="1.5 1.5 1.5"
 			></a-entity>
+			<!-- movement controls operate on whichever controller is initialised first see https://github.com/n5ro/aframe-extras/issues/345 -->
 			<a-entity id="cameraRig" movement-controls="fly: true">
 				<a-camera id="camera" look-controls="pointerLockEnabled: true">
-					<a-cursor color="#FF0000" raycaster="objects: .collidable, .node"></a-cursor>
+					<!-- <a-cursor color="#FF0000" raycaster="objects: .collidable, .node"></a-cursor> -->
 				</a-camera>
-				<!-- <a-entity
+				<a-entity id="left-hand" laser-controls="hand: left" raycaster="objects: .collidable, .node"">
+			</a-entity>
+			<!-- <a-entity
 					id="left-hand"
 					oculus-touch-controls="hand: left"
 					blink-controls="cameraRig: #cameraRig; teleportOrigin: #camera; button: trigger; snapTurn: false; defaultPlaneSize: 500"
 				></a-entity> -->
-				<a-entity laser-controls="hand: right" raycaster="objects: .collidable, .node"></a-entity>
-			</a-entity>
-			<a-plane src="#groundTexture" rotation="-90 0 0" width="5" height="5" repeat="10 10"></a-plane>
+			<a-entity laser-controls="hand: right" raycaster="objects: .collidable, .node"></a-entity>
+			<!-- 			<a-plane src="#groundTexture" rotation="-90 0 0" width="5" height="5" repeat="10 10"></a-plane>
+	 
+ -->
+			<a-plane
+				material="color: green; opacity: 0.5; transparent: true"
+				rotation="-90 0 0"
+				width="5"
+				height="5"
+			></a-plane>
 			<a-entity id="origin">
 				<a-sphere color="lightgray" radius="0.05"></a-sphere>
 				<a-entity line="start: -500 0 0; end: 500 0 0; color: red"></a-entity>
