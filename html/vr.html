@@ -38,6 +38,11 @@
 		<script src="../js/vr.js" type="module"></script>
 		<!-- 		Components to provide special features -->
 		<script>
+			/*
+			 * Given a CSS color string, return the hex equivalent
+			 * @param {string} color
+			 * @return {string}
+			 */
 			function standardize_color(str) {
 				if (!str) return '#000000'
 				if (str.charAt(0) === '#') return str
@@ -45,9 +50,54 @@
 				ctx.fillStyle = str
 				return ctx.fillStyle
 			}
-			function invertColor(color) {
-				return '#' + ('000000' + (0xffffff ^ parseInt(color.substring(1), 16)).toString(16)).slice(-6)
+			/*
+			 * Test whether color is light or dark
+			 * @param {string} hex color code
+			 * @return {string} 'light' or 'dark'
+			 */
+
+			function lightOrDark(color) {
+				color = standardize_color(color)
+				// Convert it to RGB: http://gist.github.com/983661
+				color = +('0x' + color.slice(1).replace(color.length < 5 && /./g, '$&$&'))
+
+				let r = color >> 16
+				let g = (color >> 8) & 255
+				let b = color & 255
+
+				// HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
+				let hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b))
+
+				return hsp > 127.5 ? 'light' : 'dark'
 			}
+			/**
+			 * Billboard component.
+			 *
+			 * Rotates the entity to face the current camera
+			 *
+			 */
+			AFRAME.registerComponent('billboard', {
+				init: function () {
+					this.vector = new THREE.Vector3()
+				},
+
+				tick: function (t) {
+					var self = this
+					var target = self.el.sceneEl.camera
+					var object3D = self.el.object3D
+
+					// make sure camera is set
+					if (target) {
+						target.updateMatrixWorld()
+						this.vector.setFromMatrixPosition(target.matrixWorld)
+						if (object3D.parent) {
+							object3D.parent.updateMatrixWorld()
+							object3D.parent.worldToLocal(this.vector)
+						}
+						return object3D.lookAt(this.vector)
+					}
+				},
+			})
 			// display a label in front of each node when a pointer hits it
 			AFRAME.registerComponent('node-hover', {
 				schema: {
@@ -111,7 +161,8 @@
 									sphereEl.setAttribute('radius', child.geometry.parameters.radius + 0.1)
 									let childColor = child.__data.color
 									childColor = childColor ? childColor : 'white'
-									let compColor = invertColor(standardize_color(childColor))
+									let compColor =
+										lightOrDark(standardize_color(childColor)) == 'light' ? 'black' : 'white'
 									sphereEl.setAttribute('color', childColor ? childColor : 'white')
 									sphereEl.setAttribute('node-hover', {
 										label: child.__data.label,
@@ -126,19 +177,22 @@
 		</script>
 	</head>
 	<body>
-		<a-scene>
+		<a-scene fog>
 			<a-assets>
-				<img
+				<!-- 			<img
 					id="skyTexture"
 					src="../img/Solarsystemscope_texture_8k_earth_nightmap.jpeg"
 					crossorigin="anonymous"
-				/>
+				/> -->
+				<!-- http://texturify.com/content/9229/Skies-007.jpg -->
+				<img id="skyTexture" src="../img/Skies-007.jpeg" crossorigin="anonymous" />
 				<img id="grass" src="../img/grass.jpeg" crossorigin="anonymous" />
 			</a-assets>
 			<!-- instructions -->
 			<a-entity
 				id="info"
 				position="3 2 -2"
+				billboard
 				text="width: 2; lineHeight: 50; letterSpacing: 5; color: white; value: 
 				Use the right or left hand controller to point to Factors and show their labels.\n
 				Use the right hand thumb stick to go forwards, back, left or right relative to the direction in which you are looking.\n
@@ -148,23 +202,31 @@
 			<a-entity id="fg"></a-entity>
 			<!-- camera -->
 			<a-entity id="cameraRig" movement-controls="fly: true; speed: 0.7">
-				<a-camera id="camera" look-controls="pointerLockEnabled: true"></a-camera>
+				<a-camera id="camera" look-controls="pointerLockEnabled: true">
+					<a-cursor color="#FF0000" raycaster="objects: .collidable, .node"></a-cursor>
+				</a-camera>
 				<a-entity
 					id="left-hand"
 					laser-controls="hand: left"
+					hand-tracking-controls="hand: left"
 					raycaster="showLine: true; lineColor: white; objects: .node"
-					blink-controls="cameraRig: #cameraRig; teleportOrigin: #camera; button: trigger; snapTurn: false; collisionEntities: #ground"
+					blink-controls="cameraRig: #cameraRig; teleportOrigin: #camera; button: trigger; snapTurn: false; rotateOnTeleport: false; collisionEntities: #ground"
 				></a-entity>
-				<a-entity laser-controls="hand: right" raycaster="objects: .node"></a-entity>
+				<a-entity
+					id="right-hand"
+					laser-controls="hand: right"
+					hand-tracking-controls="hand: right"
+					raycaster="objects: .node"
+				></a-entity>
 			</a-entity>
-			<!-- ground  -->
+			<!-- ground  
 			<a-plane
 				id="ground"
 				material="src: #grass; repeat:10 10; color: green; opacity: 0.25; transparent: true; side: double"
 				rotation="-90 0 0"
 				width="500"
 				height="500"
-			></a-plane>
+			></a-plane> -->
 			<!-- centre point and axes -->
 			<a-entity id="origin">
 				<a-sphere color="lightgray" position="0 0 0" radius="0.05"></a-sphere>
@@ -173,8 +235,7 @@
 				<a-entity line="start: 0 0 -500; end: 0 0 500; color: blue"></a-entity>
 			</a-entity>
 			<!-- sky -->
-			<!-- <a-sky src="#skyTexture"></a-sky> -->
-			<a-sky color="#000000"></a-sky>
+			<a-sky src="#skyTexture"></a-sky>
 		</a-scene>
 	</body>
 </html>
