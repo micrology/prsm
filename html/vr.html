@@ -174,6 +174,23 @@
 						})
 				},
 			})
+			/*
+			* when the entity is clicked, the camera (and rig) is returned to the origin
+			*
+			*/
+			AFRAME.registerComponent('return-to-origin', {
+				init: function () {
+					let el = this.el
+					el.addEventListener('click', function (e) {
+						let cameraRig = document.querySelector('#cameraRig')
+						cameraRig.setAttribute('position', {x: 0, y: 0, z: 0})
+						cameraRig.setAttribute('rotation', {x: 0, y: 0, z: 0})
+						let controls = document.querySelector('a-camera').components['look-controls']
+						controls.pitchObject.rotation.x = 0
+						controls.yawObject.rotation.y = 0
+					})
+				},
+			})
 		</script>
 	</head>
 	<body>
@@ -196,27 +213,29 @@
 				text="width: 2; lineHeight: 50; letterSpacing: 5; color: white; value: 
 				Use the right or left hand controller to point to Factors and show their labels.\n
 				Use the right hand thumb stick to go forwards, back, left or right relative to the direction in which you are looking.\n
-				Press and release the left hand trigger to teleport to another point on the landing plane. Use the left thumbstick to set the direction to go."
+				Press and release the left hand trigger to teleport to another point on the landing plane.\n
+				Point at the box at the origin (where the red, green and blue axes cross) and pull the trigger to jump
+				straight to the origin"
 			></a-entity>
 			<!-- force graph -->
 			<a-entity id="fg"></a-entity>
 			<!-- camera -->
 			<a-entity id="cameraRig" movement-controls="fly: true; speed: 0.7">
 				<a-camera id="camera" look-controls="pointerLockEnabled: true">
-					<a-cursor color="#FF0000" raycaster="objects: .collidable, .node"></a-cursor>
-				</a-camera>
+<!-- 					<a-cursor color="#FF0000" raycaster="objects: #origin-box, .node"></a-cursor>
+ -->				</a-camera>
 				<a-entity
 					id="left-hand"
 					laser-controls="hand: left"
 					hand-tracking-controls="hand: left"
-					raycaster="showLine: true; lineColor: white; objects: .node"
-					blink-controls="cameraRig: #cameraRig; teleportOrigin: #camera; button: trigger; snapTurn: false; rotateOnTeleport: false; collisionEntities: #ground"
+					raycaster="showLine: true; lineColor: white; objects: #origin-box, .node"
+					blink-controls="cameraRig: #cameraRig; teleportOrigin: #camera; button: trigger; snapTurn: false; rotateOnTeleport: false; defaultPlaneSize: 10000"
 				></a-entity>
 				<a-entity
 					id="right-hand"
 					laser-controls="hand: right"
 					hand-tracking-controls="hand: right"
-					raycaster="objects: .node"
+					raycaster="showLine: true; lineColor: white; objects: #origin-box, .node"
 				></a-entity>
 			</a-entity>
 			<!-- ground  
@@ -229,7 +248,7 @@
 			></a-plane> -->
 			<!-- centre point and axes -->
 			<a-entity id="origin">
-				<a-sphere color="lightgray" position="0 0 0" radius="0.05"></a-sphere>
+				<a-box id="origin-box" return-to-origin color="#DCDEAB" position="0 0 0"></a-box>
 				<a-entity line="start: -500 0 0; end: 500 0 0; color: red"></a-entity>
 				<a-entity line="start: 0 -500 0; end: 0 500 0; color: green"></a-entity>
 				<a-entity line="start: 0 0 -500; end: 0 0 500; color: blue"></a-entity>
