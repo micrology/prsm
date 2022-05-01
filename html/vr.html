@@ -175,9 +175,55 @@
 				},
 			})
 			/*
-			* when the entity is clicked, the camera (and rig) is returned to the origin
-			*
-			*/
+			 * prevent the camera from entering a 3d entity
+			 * coded by Synn ( https://github.com/chabloz )
+			 */
+			AFRAME.registerComponent('sphere-collider-constraint', {
+				schema: {
+					selector: {
+						default: '',
+					},
+					distance: {
+						default: 0.5,
+					},
+				},
+
+				init: function () {
+					this.lastPosition = new THREE.Vector3()
+					this.el.object3D.getWorldPosition(this.lastPosition)
+
+					this.myPos = new THREE.Vector3()
+					this.el.object3D.getWorldPosition(this.myPos)
+
+					this.targetPos = new THREE.Vector3()
+				},
+
+				tick: function () {
+					// if haven't moved since last tick, do nothing
+					this.el.object3D.getWorldPosition(this.myPos)
+					if (this.myPos.distanceTo(this.lastPosition) === 0) return
+
+					let didHit = false
+
+					for (const obj of document.querySelectorAll(this.data.selector)) {
+						obj.object3D.getWorldPosition(this.targetPos)
+						const distanceTo = this.myPos.distanceTo(this.targetPos)
+						if (distanceTo <= obj.components.geometry.data.radius + this.data.distance) {
+							didHit = true
+							break
+						}
+					}
+					if (didHit) {
+						this.el.object3D.position.copy(this.lastPosition)
+						this.el.object3D.parent.worldToLocal(this.el.object3D.position)
+					} else {
+						this.el.object3D.getWorldPosition(this.lastPosition)
+					}
+				},
+			})
+			/*
+			 * when the entity is clicked, the camera (and rig) is returned to the origin
+			 */
 			AFRAME.registerComponent('return-to-origin', {
 				init: function () {
 					let el = this.el
@@ -214,16 +260,16 @@
 				Use the right or left hand controller to point to Factors and show their labels.\n
 				Use the right hand thumb stick to go forwards, back, left or right relative to the direction in which you are looking.\n
 				Press and release the left hand trigger to teleport to another point on the landing plane.\n
-				Point at the box at the origin (where the red, green and blue axes cross) and pull the trigger to jump
-				straight to the origin"
+				Point at the box at the origin (where the red, green and blue axes cross) and\n pull the trigger to jump straight to the origin."
 			></a-entity>
 			<!-- force graph -->
 			<a-entity id="fg"></a-entity>
 			<!-- camera -->
-			<a-entity id="cameraRig" movement-controls="fly: true; speed: 0.7">
+			<a-entity id="cameraRig" movement-controls="fly: true; speed: 0.7" sphere-collider-constraint="selector: .node">
 				<a-camera id="camera" look-controls="pointerLockEnabled: true">
-<!-- 					<a-cursor color="#FF0000" raycaster="objects: #origin-box, .node"></a-cursor>
- -->				</a-camera>
+					<!-- 					<a-cursor color="#FF0000" raycaster="objects: #origin-box, .node"></a-cursor>
+ -->
+				</a-camera>
 				<a-entity
 					id="left-hand"
 					laser-controls="hand: left"
@@ -248,7 +294,7 @@
 			></a-plane> -->
 			<!-- centre point and axes -->
 			<a-entity id="origin">
-				<a-box id="origin-box" return-to-origin color="#DCDEAB" position="0 0 0"></a-box>
+				<a-box id="origin-box" return-to-origin material="color: #B87333; " position="0 0 0"></a-box>
 				<a-entity line="start: -500 0 0; end: 500 0 0; color: red"></a-entity>
 				<a-entity line="start: 0 -500 0; end: 0 500 0; color: green"></a-entity>
 				<a-entity line="start: 0 0 -500; end: 0 0 500; color: blue"></a-entity>
