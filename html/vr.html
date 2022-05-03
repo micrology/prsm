@@ -240,14 +240,8 @@
 	<body>
 		<a-scene >
 			<a-assets>
-				<!-- 			<img
-					id="skyTexture"
-					src="../img/Solarsystemscope_texture_8k_earth_nightmap.jpeg"
-					crossorigin="anonymous"
-				/> -->
 				<!-- http://texturify.com/content/9229/Skies-007.jpg -->
 				<img id="skyTexture" src="../img/Skies-007.jpeg" crossorigin="anonymous" />
-				<img id="grass" src="../img/grass.jpeg" crossorigin="anonymous" />
 			</a-assets>
 			<!-- instructions -->
 			<a-entity
@@ -279,14 +273,6 @@
 					raycaster="showLine: true; lineColor: white; objects: #origin-box, .node"
 				></a-entity>
 			</a-entity>
-			<!-- ground  
-			<a-plane
-				id="ground"
-				material="src: #grass; repeat:10 10; color: green; opacity: 0.25; transparent: true; side: double"
-				rotation="-90 0 0"
-				width="500"
-				height="500"
-			></a-plane> -->
 			<!-- centre point and axes -->
 			<a-entity id="origin">
 				<a-box id="origin-box" return-to-origin material="color: #B87333; transparent: true; opacity: 0" position="0 0 0"></a-box>
