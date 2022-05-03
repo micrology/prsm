@@ -28,6 +28,7 @@
 		<script src="../node_modules/aframe-look-at-component/dist/aframe-look-at-component.min.js"></script>
 		<script src="../node_modules/aframe-extras/dist/aframe-extras.controls.min.js"></script>
 		<script src="../node_modules/aframe-forcegraph-component/dist/aframe-forcegraph-component.min.js"></script>
+		<script src="https://unpkg.com/aframe-environment-component@1.3.1/dist/aframe-environment-component.min.js"></script>
 		<script>
 			AFRAME.registerComponent('click', {
 				schema: {},
@@ -73,7 +74,7 @@
 						const sphericalrig = document.createElement('a-entity')
 						sphericalrig.id = 'sphericalrig'
 						sphericalrig.setAttribute('look-at', '[camera]')
-							el.appendChild(sphericalrig)
+						el.appendChild(sphericalrig)
 						tooltip.setAttribute('position', {x: 0, y: 0, z: bsphere.radius})
 						sphericalrig.appendChild(tooltip)
 						console.log(tooltip)
@@ -144,10 +145,39 @@
 									sphereEl.setAttribute('radius', child.geometry.parameters.radius + 0.1)
 									sphereEl.setAttribute('color', child.__data.color)
 									sphereEl.setAttribute('node-hover', {text: child.__data.id})
+									sphereEl.setAttribute('shadow', {cast: true})
 									this.el.appendChild(sphereEl)
 								}
 							}
 						})
+				},
+			})
+			/**
+			 * Billboard component.
+			 *
+			 * Rotates the entity to face the current camera
+			 *
+			 */
+			AFRAME.registerComponent('billboard', {
+				init: function () {
+					this.vector = new THREE.Vector3()
+				},
+
+				tick: function (t) {
+					var self = this
+					var target = self.el.sceneEl.camera
+					var object3D = self.el.object3D
+
+					// make sure camera is set
+					if (target) {
+						target.updateMatrixWorld()
+						this.vector.setFromMatrixPosition(target.matrixWorld)
+						if (object3D.parent) {
+							object3D.parent.updateMatrixWorld()
+							object3D.parent.worldToLocal(this.vector)
+						}
+						return object3D.lookAt(this.vector)
+					}
 				},
 			})
 		</script>
@@ -156,11 +186,13 @@
 		<div id="labels"></div>
 		<a-scene>
 			<a-assets>
-				<img
+				<!-- <img
 					id="skyTexture"
 					src="../img/Solarsystemscope_texture_8k_earth_nightmap.jpeg"
 					crossorigin="anonymous"
-				/>
+				/> -->
+				<img id="skyTexture" src="../img/Skies-007.jpeg" crossorigin="anonymous" />
+				<img id="grass" src="../img/grass.jpeg" crossorigin="anonymous" />
 				<img id="groundTexture" src="../img/floor.jpeg" crossorigin="anonymous" />
 				<img id="controls" src="../img/controls.png" crossorigin="anonymous" />
 			</a-assets>
@@ -170,6 +202,7 @@
 				position="2 2 -5"
 				rotation="0 0 0"
 				scale="1 1 1"
+				shadow="cast: true"
 				click
 				hover="color: blue; text: red cube"
 			></a-box>
@@ -179,12 +212,13 @@
 				position="-2 2 -5"
 				rotation="0 0 0"
 				scale="1 1 1"
+				shadow="cast: true"
 				click
 				hover="color: blue; text: green cube"
 			></a-box>
 			<!-- billboard -->
-<!--  			<a-entity position="3 2 -2" rotation="0 -90 0" width="2">  -->
-				<!-- <a-box color="grey" width="2" height="2.5" depth="0.02" position="3 2 -2" rotation="0 -90 0"></a-box>
+			<!--  			<a-entity position="3 2 -2" rotation="0 -90 0" width="2">  -->
+			<!-- <a-box color="grey" width="2" height="2.5" depth="0.02" position="3 2 -2" rotation="0 -90 0"></a-box>
 				<a-text
 					id="billboard-text"
 					value="This is some instructional text and will spread over several lines I hope"
@@ -193,17 +227,35 @@
 					position="3 2 -2" 
 					rotation="0 -90 0"
 				></a-text> -->
-<!--  			</a-entity> 
- -->			<!-- 		<a-entity cursor="rayOrigin: mouse; mouseCursorStylesEnabled: true;" raycaster="objects: [forcegraph];"></a-entity>
+			<!--  			</a-entity> 
+ -->
+			<!-- 		<a-entity cursor="rayOrigin: mouse; mouseCursorStylesEnabled: true;" raycaster="objects: [forcegraph];"></a-entity>
 			-->
-			<a-box color="grey" width="2.5" height="2.5" depth="0.02" position="3 2 -2" rotation="0 -90 0"
-			src="#controls"></a-box>
+			<!-- <a-box
+				color="grey"
+				width="2.5"
+				height="2.5"
+				depth="0.02"
+				position="3 2 -2"
+				rotation="0 -90 0"
+				src="#controls"
+			></a-box> -->
 			<!-- <a-entity
   geometry="primitive: plane; width: 1; height: auto;"
   material="color: grey"
   text="value: This text will be 1 units wide.This text will be 1 units wideThis text will be 1 units wideThis text will be 1 units wide; width:0.8"
   position="2.95 2 -2" 
   rotation="0 -90 0"></a-entity> -->
+			<!-- instructions -->
+			<a-entity
+				id="info"
+				position="3 2 -2"
+				billboard
+				text="width: 2; lineHeight: 50; letterSpacing: 5; color: white; value: 
+			  Use the right or left hand controller to point to Factors and show their labels.\n
+			  Use the right hand thumb stick to go forwards, back, left or right relative to the direction in which you are looking.\n
+			  Press and release the left hand trigger to teleport to another point on the landing plane. Use the left thumbstick to set the direction to go."
+			></a-entity>
 			<a-entity
 				forcegraph="
 			json-url: ../img/miserables.json; 
@@ -213,6 +265,7 @@
         	link-directional-arrow-rel-pos: 1;
 			on-node-hover: node => showLabel2(node);
 			on-node-click: node => console.log(node);
+			on-engine-stop: console.log('Engine stopped')
 			"
 				network
 			></a-entity>
@@ -223,18 +276,30 @@
 				position="-0.9 0.2 -3"
 				scale="1.5 1.5 1.5"
 			></a-entity>
+			<!-- movement controls operate on whichever controller is initialised first see https://github.com/n5ro/aframe-extras/issues/345 -->
 			<a-entity id="cameraRig" movement-controls="fly: true">
 				<a-camera id="camera" look-controls="pointerLockEnabled: true">
 					<a-cursor color="#FF0000" raycaster="objects: .collidable, .node"></a-cursor>
 				</a-camera>
-				<a-entity
+				<a-entity id="left-hand" laser-controls="hand: left" raycaster="objects: .collidable, .node"">
+			</a-entity>
+			<!-- <a-entity
 					id="left-hand"
 					oculus-touch-controls="hand: left"
 					blink-controls="cameraRig: #cameraRig; teleportOrigin: #camera; button: trigger; snapTurn: false; defaultPlaneSize: 500"
-				></a-entity>
-				<a-entity laser-controls="hand: right" raycaster="objects: .collidable, .node"></a-entity>
-			</a-entity>
-			<a-plane src="#groundTexture" rotation="-90 0 0" width="5" height="5" repeat="10 10"></a-plane>
+				></a-entity> -->
+			<a-entity laser-controls="hand: right" raycaster="objects: .collidable, .node"></a-entity>
+			<!-- 			<a-plane src="#groundTexture" rotation="-90 0 0" width="5" height="5" repeat="10 10"></a-plane>
+	 
+ -->
+			<a-plane
+				id="ground"
+				material="src: #grass; repeat:10 10; color: green; opacity: 0.5; transparent: true"
+				rotation="-90 0 0"
+				width="5"
+				height="5"
+				shadow="receive: true"
+			></a-plane>
 			<a-entity id="origin">
 				<a-sphere color="lightgray" radius="0.05"></a-sphere>
 				<a-entity line="start: -500 0 0; end: 500 0 0; color: red"></a-entity>
@@ -242,6 +307,17 @@
 				<a-entity line="start: 0 0 -500; end: 0 0 500; color: blue"></a-entity>
 			</a-entity>
 			<a-sky src="#skyTexture"></a-sky>
+			<!-- <a-entity light="type: ambient; intensity: 0.5;"></a-entity>
+			<a-entity
+				light="type: directional;
+                   castShadow: true;
+                   intensity: 1.0;
+                   shadowCameraVisible: true;"
+				position="0 100 0"
+				target="#directionaltarget"
+			>
+				<a-entity id="directionaltarget" position="0 0 -1"></a-entity>
+			</a-entity> -->
 		</a-scene>
 		<script>
 			function showLabel(node) {
