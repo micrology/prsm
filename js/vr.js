@@ -117,6 +117,7 @@ function showForceGraph() {
 		links: JSON.stringify(graphData.links),
 		nodeResolution: 16,
 		linkWidth: 0,
+		linkOpacity: 1.0,
 		linkDirectionalArrowLength: 1.5,
 		linkDirectionalArrowRelPos: 1,
 		onEngineStop: console.log('Engine stopped'),

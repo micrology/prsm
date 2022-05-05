@@ -238,11 +238,7 @@
 		</script>
 	</head>
 	<body>
-		<a-scene >
-			<a-assets>
-				<!-- http://texturify.com/content/9229/Skies-007.jpg -->
-				<img id="skyTexture" src="../img/Skies-007.jpeg" crossorigin="anonymous" />
-			</a-assets>
+		<a-scene>
 			<!-- instructions -->
 			<a-entity
 				id="info"
@@ -256,7 +252,11 @@
 			<!-- force graph -->
 			<a-entity id="fg"></a-entity>
 			<!-- camera -->
-			<a-entity id="cameraRig" movement-controls="fly: true; speed: 0.7" sphere-collider-constraint="selector: .node">
+			<a-entity
+				id="cameraRig"
+				movement-controls="fly: true; speed: 0.7"
+				sphere-collider-constraint="selector: .node"
+			>
 				<a-camera id="camera" look-controls="pointerLockEnabled: true">
 					<!-- 					<a-cursor color="#FF0000" raycaster="objects: #origin-box, .node"></a-cursor>
  -->
@@ -264,7 +264,8 @@
 				<a-entity
 					id="left-hand"
 					hand-tracking-controls="hand: left"
-					laser-controls="hand: left" raycaster="far: 0"
+					laser-controls="hand: left"
+					raycaster="far: 0"
 				></a-entity>
 				<a-entity
 					id="right-hand"
@@ -275,14 +276,22 @@
 			</a-entity>
 			<!-- centre point and axes -->
 			<a-entity id="origin">
-				<a-box id="origin-box" return-to-origin material="color: #B87333; transparent: true; opacity: 0" position="0 0 0"></a-box>
+				<a-box
+					id="origin-box"
+					return-to-origin
+					material="transparent: true; opacity: 0"
+					depth="2"
+					height="2"
+					width="2"
+					position="0 0 0"
+				></a-box>
 				<a-sphere color="lightgray" radius="0.05"></a-sphere>
 				<a-entity line="start: -500 0 0; end: 500 0 0; color: red"></a-entity>
 				<a-entity line="start: 0 -500 0; end: 0 500 0; color: green"></a-entity>
 				<a-entity line="start: 0 0 -500; end: 0 0 500; color: blue"></a-entity>
 			</a-entity>
 			<!-- sky -->
-			<a-sky src="#skyTexture"></a-sky>
+			<a-sky color="black"></a-sky>
 		</a-scene>
 	</body>
 </html>
