@@ -2754,8 +2754,8 @@ function parseCSV(csv) {
 	for (let i = 1; i < lines.length; i++) {
 		if (lines[i].length <= 2) continue // empty line
 		let line = lines[i].split(',')
-		let from = node(line[0], line[2])
-		let to = node(line[1], line[3])
+		let from = node(line[0], line[2], i)
+		let to = node(line[1], line[3], i)
 		let grp = line[4]
 		if (grp) grp = 'edge' + (parseInt(grp.trim()) - 1)
 		links.push({
@@ -2772,9 +2772,16 @@ function parseCSV(csv) {
 		edges: edges,
 	}
 
-	function node(label, grp) {
+	function node(label, grp, lineNo) {
 		label = label.trim()
-		if (grp) grp = 'group' + (grp.trim() - 1)
+		if (grp) {
+			if (isNaN(parseInt(grp))) {
+				throw {
+					message: `Line ${lineNo}: Columns 3 and 4 must be values between 1 and 9 or blank`
+				}
+			}
+			grp = 'group' + (grp.trim() - 1)
+		}
 		if (labels.get(label) == undefined) {
 			labels.set(label, {id: label.toString(), label: label, grp: grp})
 		}
