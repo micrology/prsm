@@ -296,7 +296,7 @@ function startY(newRoom) {
 	persistence.once('synced', () => {
 		if (data.nodes.length > 0) displayNetPane(exactTime() + ' local content loaded')
 	})
-	wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
+	wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc, {resyncInterval: 5000})
 	wsProvider.on('sync', () => {
 		displayNetPane(exactTime() + ' remote content loaded')
 	})
@@ -673,7 +673,6 @@ function displayNetPane(msg) {
 		setAnalysisButtonsFromRemote()
 		toggleDeleteButton()
 		setLegend(yNetMap.get('legend'), false)
-		yNetMap.set('viewOnly', viewOnly)
 		console.log(`Doc size: ${humanSize(Y.encodeStateAsUpdate(doc).length)}`)
 	}
 }
@@ -1023,7 +1022,7 @@ function draw() {
 		showSelected()
 		showNodeOrEdgeData()
 		toggleDeleteButton()
-		if (getRadioVal('radio') !== 'All') analyse()
+		if (getRadioVal('radius') !== 'All') analyse()
 		if (getRadioVal('stream') !== 'All') analyse()
 		if (getRadioVal('paths') !== 'All') analyse()
 	})
@@ -1032,7 +1031,7 @@ function draw() {
 		showSelected()
 		showNodeOrEdgeData()
 		toggleDeleteButton()
-		if (getRadioVal('radio') !== 'All') analyse()
+		if (getRadioVal('radius') !== 'All') analyse()
 		if (getRadioVal('stream') !== 'All') analyse()
 		if (getRadioVal('paths') !== 'All') analyse()
 	})
@@ -3916,10 +3915,12 @@ function getSelectedAndFixedNodes() {
 function setAnalysisButtonsFromRemote() {
 	if (netLoaded) {
 		let selectedNodes = [].concat(hiddenNodes.selected) // ensure that hiddenNodes.selected is an array
+		network.selectNodes(selectedNodes, false) // in viewing  only mode, this does nothing
 		if (selectedNodes.length > 0) {
-			network.selectNodes(selectedNodes, false) // in viewing  only mode, this does nothing
 			if (!viewOnly) statusMsg(listFactors(getSelectedAndFixedNodes()) + ' selected')
 		}
+		else clearStatusBar()
+		showNodeOrEdgeData()
 		if (hiddenNodes.radiusSetting) setRadioVal('radius', hiddenNodes.radiusSetting)
 		if (hiddenNodes.streamSetting) setRadioVal('stream', hiddenNodes.streamSetting)
 		if (hiddenNodes.pathsSetting) setRadioVal('paths', hiddenNodes.pathsSetting)
@@ -4609,6 +4610,7 @@ function setUpAwareness() {
 	var throttled = false
 	var THROTTLETIME = 200
 	window.addEventListener('mousemove', (e) => {
+		if (!elem('showUsersSwitch').checked) return
 		if (throttled) return
 		throttled = true
 		setTimeout(() => (throttled = false), THROTTLETIME)
