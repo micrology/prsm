@@ -2433,9 +2433,11 @@ function readSingleFile(e) {
 	var reader = new FileReader()
 	reader.onloadend = function (e) {
 		try {
+			document.body.style.cursor = 'wait'
 			loadFile(e.target.result)
 			if (!msg) statusMsg("Read '" + fileName + "'", 'info')
 		} catch (err) {
+			document.body.style.cursor = 'default'
 			statusMsg("Error reading '" + fileName + "': " + err.message, 'error')
 			console.log(err)
 			return
@@ -2775,12 +2777,13 @@ function parseCSV(csv) {
 	function node(label, grp, lineNo) {
 		label = label.trim()
 		if (grp) {
-			if (isNaN(parseInt(grp))) {
+			let styleNo = parseInt(grp)
+			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
 				throw {
-					message: `Line ${lineNo}: Columns 3 and 4 must be values between 1 and 9 or blank`
+					message: `Line ${lineNo}: Columns 3 and 4 must be values between 1 and 9 or blank (found ${grp})`
 				}
 			}
-			grp = 'group' + (grp.trim() - 1)
+			grp = 'group' + (styleNo - 1)
 		}
 		if (labels.get(label) == undefined) {
 			labels.set(label, {id: label.toString(), label: label, grp: grp})
