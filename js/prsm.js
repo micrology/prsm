@@ -141,7 +141,7 @@ window.addEventListener('load', () => {
 
 window.onbeforeunload = function (event) {
 	unlockAll()
-	yAwareness.setLocalStateField('addingFactor', 'done')
+	yAwareness.setLocalStateField('addingFactor', {state: 'done'})
 	yAwareness.setLocalState(null)
 	// get confirmation from user before exiting if there are unsaved changes
 	if (checkMapSaved && dirty) {
@@ -1534,10 +1534,14 @@ function addLabel(item, cancelAction, callback) {
  * @param {Object} pos offset coordinates of Add Factor dialog
  */
 function ghostFactor(pos) {
-	yAwareness.setLocalStateField('addingFactor', network.DOMtoCanvas(pos))
+	yAwareness.setLocalStateField('addingFactor', {
+		state: 'adding',
+		pos: network.DOMtoCanvas(pos),
+		name: myNameRec.name,
+	})
 	elem('popup').timer = setTimeout(() => {
 		// close it after a time if the user has gone away
-		yAwareness.setLocalStateField('addingFactor', 'done')
+		yAwareness.setLocalStateField('addingFactor', {state: 'done'})
 	}, TIMETOEDIT)
 }
 
@@ -1754,7 +1758,7 @@ function clearPopUp() {
 		clearTimeout(elem('popup').timer)
 		elem('popup').timer = undefined
 	}
-	yAwareness.setLocalStateField('addingFactor', 'done')
+	yAwareness.setLocalStateField('addingFactor', {state: 'done'})
 	inEditMode = false
 }
 /**
@@ -4582,6 +4586,7 @@ window.addEventListener('offline', () => {
 window.addEventListener('online', () => {
 	wsProvider.connect()
 	statusMsg('Network connection re-established', 'info')
+	showAvatars()
 })
 /**
  *  set up user monitoring (awareness)
@@ -4590,25 +4595,29 @@ function setUpAwareness() {
 	showAvatars()
 	roundTripTimer()
 	yAwareness.on('change', (event) => receiveEvent(event))
-	
+
 	// regularly broadcast our own state, every 20 seconds
 	setInterval(() => {
 		yAwareness.setLocalStateField('pkt', {time: Date.now()})
 		yAwareness.setLocalStateField('pkt', null)
 	}, 20000)
 
-	setInterval(() => {
-		yAwareness.setLocalStateField('cursor', {x: Math.random() * 1000 - 500, y: Math.random() * 1000 - 500})
-	}, 200)
+	// if debug = fake, generate fake mouse events every 200 ms for testing
+	if (/fake/.test(debug)) {
+		setInterval(() => {
+			yAwareness.setLocalStateField('cursor', {x: Math.random() * 1000 - 500, y: Math.random() * 1000 - 500})
+		}, 200)
+	}
 
 	// fade out avatar when there has been no movement of the mouse for 15 minutes
 	asleep(false)
 	var sleepTimer = setTimeout(() => asleep(true), TIMETOSLEEP)
+
 	// throttle mousemove broadcast to avoid overloading server
 	var throttled = false
 	var THROTTLETIME = 200
 	window.addEventListener('mousemove', (e) => {
-		if (!elem('showUsersSwitch').checked) return
+		// broadcast my mouse movements
 		if (throttled) return
 		throttled = true
 		setTimeout(() => (throttled = false), THROTTLETIME)
@@ -4620,14 +4629,15 @@ function setUpAwareness() {
 		yAwareness.setLocalStateField(
 			'cursor',
 			network.DOMtoCanvas({
-				x: e.clientX - box.left,
-				y: e.clientY - box.top,
+				x: Math.round(e.clientX - box.left),
+				y: Math.round(e.clientY - box.top),
 			})
 		)
 	})
 }
 /**
  * measure the time taken to send an update to another Y.doc
+ * responds to updates sent as 'pkt' objects every 20 seconds (see above)
  */
 function roundTripTimer() {
 	const ydocB = new Y.Doc()
@@ -4658,6 +4668,10 @@ function asleep(isSleeping) {
 	yAwareness.setLocalState({user: myNameRec})
 	showAvatars()
 }
+/**
+ * display the awareness events
+ * @param {object} event
+ */
 function traceUsers(event) {
 	let msg = ''
 	event.added.forEach((id) => {
@@ -4677,53 +4691,53 @@ function traceUsers(event) {
 	}
 }
 var lastMicePositions = new Map()
-var lastAvatarStates = new Map()
+var lastAvatarStatus = new Map()
+var refreshAvatars = true
 /**
  * Despatch to deal with event
  * @param {object} event - from yAwareness.on('change')
  */
 function receiveEvent(event) {
-		console.log(event)
-		if (/aware/.test(debug)) traceUsers(event)
-		showGhostFactor()
+	if (/aware/.test(debug)) traceUsers(event)
 	if (elem('showUsersSwitch').checked) {
 		let box = netPane.getBoundingClientRect()
 		let changed = event.added.concat(event.updated)
-		changed.forEach(userId => {
+		changed.forEach((userId) => {
 			let rec = yAwareness.getStates().get(userId)
-			if (rec.cursor && !object_equals(rec.cursor, lastMicePositions.get(userId))) {
+			if (userId !== clientID && rec.cursor && !object_equals(rec.cursor, lastMicePositions.get(userId))) {
 				showOtherMouse(userId, rec.cursor, box)
 				lastMicePositions.set(userId, rec.cursor)
 			}
-			if (rec.user && !object_equals(rec.user, lastAvatarStates.get(userId))) {
-				showOtherAvatar(userId, rec.user)
-				lastAvatarStates.set(userId, rec.user)
+			if (rec.user) {
+				// if anything has changed, redisplay the avatars
+				if (refreshAvatars || !object_equals(rec.user, lastAvatarStatus.get(userId))) showAvatars()
+				lastAvatarStatus.set(userId, rec.user)
+				// set a timer for this avatar to self-destruct if no update has been received for a minute
+				let ava = elem('ava' + userId)
+				if (ava) {
+					clearTimeout(ava.timer)
+					ava.timer = setTimeout(removeAvatar, 60000, ava)
+				}
 			}
-			if(rec.addingFactor)showGhostFactor()
+			if (userId !== clientID && rec.addingFactor) showGhostFactor(userId, rec.addingFactor)
 		})
 	}
 	if (followme) followUser()
 }
 /**
- * Display the other users' mouse pointers (if they are inside the canvas)
+ * Display another user's mouse pointers (if they are inside the canvas)
  */
-function showMice() {
-	let recs = Array.from(yAwareness.getStates())
-	let box = netPane.getBoundingClientRect()
-	recs.forEach(([key, value]) => {
-		if (key != clientID && value.cursor) {
-			let cursorDiv = elem(key.toString())
-			if (cursorDiv) {
-				let p = network.canvasToDOM(value.cursor)
-				p.x += box.left
-				p.y += box.top
-				cursorDiv.style.top = `${p.y}px`
-				cursorDiv.style.left = `${p.x}px`
-				cursorDiv.style.display =
-					p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top ? 'none' : 'block'
-			}
-		}
-	})
+function showOtherMouse(userId, cursor, box) {
+	let cursorDiv = elem(userId.toString())
+	if (cursorDiv) {
+		let p = network.canvasToDOM(cursor)
+		p.x += box.left
+		p.y += box.top
+		cursorDiv.style.top = `${p.y}px`
+		cursorDiv.style.left = `${p.x}px`
+		cursorDiv.style.display =
+			p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top ? 'none' : 'block'
+	}
 }
 /**
  * Place a circle at the top left of the net pane to represent each user who is online
@@ -4731,9 +4745,7 @@ function showMice() {
  */
 
 function showAvatars() {
-	// becomes false if a new avatar is created, or an old one is deleted (so the row of avatars needs to be regenerated)
-	let inOrder = true
-
+	refreshAvatars = false
 	let recs = Array.from(yAwareness.getStates())
 	// remove and save myself (using clientID as the id, not name)
 	let me = recs.splice(
@@ -4763,7 +4775,7 @@ function showAvatars() {
 		let shortName = initials(nameRec.name)
 		if (ava === null) {
 			makeAvatar(nameRec)
-			inOrder = false
+			refreshAvatars = true
 		} else {
 			// to avoid flashes, don't touch anything that is already correct
 			if (ava.dataset.tooltip != nameRec.name) ava.dataset.tooltip = nameRec.name
@@ -4774,9 +4786,6 @@ function showAvatars() {
 			if (circle.innerText != shortName) circle.innerText = shortName
 			let opacity = nameRec.asleep ? 0.2 : 1.0
 			if (circle.style.opacity != opacity) circle.style.opacity = opacity
-			// set a timer for this avatar to self-destruct if no update has been received for a minute
-			clearTimeout(ava.timer)
-			ava.timer = setTimeout(removeAvatar, 60000, ava)
 		}
 
 		if (nameRec.id != clientID) {
@@ -4793,15 +4802,13 @@ function showAvatars() {
 		}
 	})
 
-	// if necessary, re-order the avatars into alpha order, without gaps, with me at the start
+	// re-order the avatars into alpha order, without gaps, with me at the start
 
-	if (!inOrder) {
-		let df = document.createDocumentFragment()
-		nameRecs.forEach((nameRec) => {
-			df.appendChild(elem('ava' + nameRec.id))
-		})
-		avatars.appendChild(df)
-	}
+	let df = document.createDocumentFragment()
+	nameRecs.forEach((nameRec) => {
+		df.appendChild(elem('ava' + nameRec.id))
+	})
+	avatars.replaceChildren(df)
 
 	// delete any cursors that remain from before
 	let cursorsToDelete = Array.from(document.querySelectorAll('.shared-cursor')).filter(
@@ -4819,6 +4826,9 @@ function showAvatars() {
 		if (followme === nameRec.id) ava.classList.add('followme')
 		ava.id = 'ava' + nameRec.id
 		ava.dataset.tooltip = nameRec.name
+		// the broadcast awareness sometimes loses a client (broadcasts that has been removed)
+		// when it actually hasn't (e.g. if there is a comms glitch).  So instead, we set a timer 
+		// and delete the avatar only if nothing is heard from that user for a minute
 		ava.timer = setTimeout(removeAvatar, 60000, ava)
 		let circle = document.createElement('div')
 		circle.classList.add('round')
@@ -4842,14 +4852,6 @@ function showAvatars() {
 		circle.addEventListener('mouseout', () => clearStatusBar())
 	}
 	/**
-	 * destroy the avatar - the user is no longer on line
-	 * @param {HTMLelement} ava
-	 */
-	function removeAvatar(ava) {
-		inOrder = false
-		ava.remove()
-	}
-	/**
 	 * make a pseudo cursor (a div)
 	 * @param {object} nameRec
 	 * @returns
@@ -4865,7 +4867,14 @@ function showAvatars() {
 		return cursorDiv
 	}
 }
-
+/**
+ * destroy the avatar - the user is no longer on line
+ * @param {HTMLelement} ava
+ */
+function removeAvatar(ava) {
+	refreshAvatars = true
+	ava.remove()
+}
 function showUsersSwitch() {
 	let on = elem('showUsersSwitch').checked
 	document.querySelectorAll('div.shared-cursor').forEach((node) => {
@@ -4908,43 +4917,42 @@ function followUser() {
 }
 /**
  * show a ghost box where another user is adding a factor
- * addingFactor can be: a position (of the Add Factor dialog); 'done' to indicate
- * that the ghost box should be removed; or false - do nothing
- *
+ * addingFactor is an object with properties:
+ * state: adding', or 'done' to indicate that the ghost box should be removed
+ * pos: a position (of the Add Factor dialog); 'done'
+ * name: the name of the other user
+ * @param {Integer} userId other user's client Id
+ * @param {object} addingFactor
  */
-function showGhostFactor() {
-	let recs = Array.from(yAwareness.getStates())
-	recs.forEach(([key, value]) => {
-		if (key != clientID && value.addingFactor) {
-			let id = `ghost-factor${key}`
-			switch (value.addingFactor) {
-				case 'done':
-					{
-						let ghostDiv = elem(id)
-						if (ghostDiv) ghostDiv.remove()
-						value.addingFactor = false
-					}
-					break
-				case false:
-					break
-				default: {
-					if (!elem(id)) {
-						let ghostDiv = document.createElement('div')
-						ghostDiv.className = 'ghost-factor'
-						ghostDiv.id = `ghost-factor${key}`
-						ghostDiv.innerText = `[New factor\nbeing added by\n${value.user.name}]`
-						let p = network.canvasToDOM(value.addingFactor)
-						let box = container.getBoundingClientRect()
-						p.x += box.left
-						p.y += box.top
-						ghostDiv.style.top = `${p.y - 50}px`
-						ghostDiv.style.left = `${p.x - 187}px`
-						ghostDiv.style.display =
-							p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top ? 'none' : 'block'
-						netPane.appendChild(ghostDiv)
-					}
+function showGhostFactor(userId, addingFactor) {
+	let id = `ghost-factor${userId}`
+	switch (addingFactor.state) {
+		case 'done':
+			{
+				let ghostDiv = elem(id)
+				if (ghostDiv) ghostDiv.remove()
+			}
+			break
+		case 'adding':
+			{
+				if (!elem(id)) {
+					let ghostDiv = document.createElement('div')
+					ghostDiv.className = 'ghost-factor'
+					ghostDiv.id = `ghost-factor${userId}`
+					ghostDiv.innerText = `[New factor\nbeing added by\n${addingFactor.name}]`
+					let p = network.canvasToDOM(addingFactor.pos)
+					let box = container.getBoundingClientRect()
+					p.x += box.left
+					p.y += box.top
+					ghostDiv.style.top = `${p.y - 50}px`
+					ghostDiv.style.left = `${p.x - 187}px`
+					ghostDiv.style.display =
+						p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top ? 'none' : 'block'
+					netPane.appendChild(ghostDiv)
 				}
 			}
-		}
-	})
+			break
+		default:
+			console.log(`Bad adding factor: ${addingFactor}`)
+	}
 }
