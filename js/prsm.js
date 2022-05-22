@@ -738,7 +738,7 @@ const chatMessages = elem('chat-messages')
  * create DOM elements for the chat box
  */
 function setUpChat() {
-	/* try {
+	try {
 		myNameRec = JSON.parse(localStorage.getItem('myName'))
 	} catch (err) {
 		myNameRec = null
@@ -747,10 +747,7 @@ function setUpChat() {
 	if (!(myNameRec != null && myNameRec.name)) {
 		myNameRec = generateName()
 		localStorage.setItem('myName', JSON.stringify(myNameRec))
-	} */
-	myNameRec = generateName()
-	myNameRec.id = clientID
-
+	}
 	console.log('My name: ' + myNameRec.name)
 	displayUserName()
 	yAwareness.setLocalState({user: myNameRec})
