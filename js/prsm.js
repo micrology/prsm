@@ -748,6 +748,7 @@ function setUpChat() {
 		myNameRec = generateName()
 		localStorage.setItem('myName', JSON.stringify(myNameRec))
 	}
+	myNameRec.id = clientID
 	console.log('My name: ' + myNameRec.name)
 	displayUserName()
 	yAwareness.setLocalState({user: myNameRec})
