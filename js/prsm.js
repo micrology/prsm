@@ -2221,8 +2221,8 @@ function zoomset(newScale) {
 	network.zoom(newZoom)
 }
 
-/* var clicks = 0; // accumulate 'mousewheel' clicks sent while display is updating
-var ticking = false; // if true, we are waiting for an AnimationFrame */
+//var clicks = 0; // accumulate 'mousewheel' clicks sent while display is updating
+//var ticking = false; // if true, we are waiting for an AnimationFrame */
 // see https://www.html5rocks.com/en/tutorials/speed/animations/
 
 /**
@@ -2783,7 +2783,7 @@ function parseCSV(csv) {
 			let styleNo = parseInt(grp)
 			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
 				throw {
-					message: `Line ${lineNo}: Columns 3 and 4 must be values between 1 and 9 or blank (found ${grp})`
+					message: `Line ${lineNo}: Columns 3 and 4 must be values between 1 and 9 or blank (found ${grp})`,
 				}
 			}
 			grp = 'group' + (styleNo - 1)
@@ -3922,8 +3922,7 @@ function setAnalysisButtonsFromRemote() {
 		network.selectNodes(selectedNodes, false) // in viewing  only mode, this does nothing
 		if (selectedNodes.length > 0) {
 			if (!viewOnly) statusMsg(listFactors(getSelectedAndFixedNodes()) + ' selected')
-		}
-		else clearStatusBar()
+		} else clearStatusBar()
 		showNodeOrEdgeData()
 		if (hiddenNodes.radiusSetting) setRadioVal('radius', hiddenNodes.radiusSetting)
 		if (hiddenNodes.streamSetting) setRadioVal('stream', hiddenNodes.streamSetting)
@@ -4597,7 +4596,6 @@ function setUpAwareness() {
 	// regularly broadcast our own state, every 20 seconds
 	setInterval(() => {
 		yAwareness.setLocalStateField('pkt', {time: Date.now()})
-		yAwareness.setLocalStateField('pkt', null)
 	}, 20000)
 
 	// if debug = fake, generate fake mouse events every 200 ms for testing
@@ -4633,6 +4631,7 @@ function setUpAwareness() {
 		)
 	})
 }
+var lastPktTime
 /**
  * measure the time taken to send an update to another Y.doc
  * responds to updates sent as 'pkt' objects every 20 seconds (see above)
@@ -4648,9 +4647,13 @@ function roundTripTimer() {
 		if (typeof origin === 'string') return // ignore local changes (e.g. through broadcast channel)
 		let sentpkt = yAwarenessB.getStates()?.get(yAwareness.clientID)?.pkt
 		if (sentpkt) {
-			if (Date.now() - sentpkt.time > SLOWTRIPTIME || /round/.test(debug)) {
-				statusMsg('Slow or unstable network connection', 'warn')
-				console.log(`${exactTime(sentpkt.time)} Round trip: ${Date.now() - sentpkt.time} ms`)
+			// ignore repetitions of the same state time sent when other things change in the state object
+			if (lastPktTime !== sentpkt.time) {
+				if (Date.now() - sentpkt.time > SLOWTRIPTIME || /round/.test(debug)) {
+					statusMsg('Slow or unstable network connection', 'warn')
+					console.log(`${exactTime(sentpkt.time)} Round trip: ${Date.now() - sentpkt.time} ms`)
+				}
+				lastPktTime = sentpkt.time
 			}
 		}
 	})
@@ -4825,7 +4828,7 @@ function showAvatars() {
 		ava.id = 'ava' + nameRec.id
 		ava.dataset.tooltip = nameRec.name
 		// the broadcast awareness sometimes loses a client (broadcasts that has been removed)
-		// when it actually hasn't (e.g. if there is a comms glitch).  So instead, we set a timer 
+		// when it actually hasn't (e.g. if there is a comms glitch).  So instead, we set a timer
 		// and delete the avatar only if nothing is heard from that user for a minute
 		ava.timer = setTimeout(removeAvatar, 60000, ava)
 		let circle = document.createElement('div')
