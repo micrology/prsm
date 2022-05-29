@@ -122,6 +122,11 @@ export function setUpSamples() {
 		sampleElement.addEventListener('contextmenu', (event) => {
 			styleEdgeContextMenu(event, sampleElement, groupId)
 		})
+		sampleElement.addEventListener('mouseover', () =>
+			statusMsg(
+				'Left click: apply style to selected; Double click: edit style; Right click: Select all with this style'
+			)
+		)
 		sampleElement.groupLink = groupId
 		sampleElement.dataSet = edgeDataSet
 	}
@@ -145,6 +150,9 @@ export function setUpSamples() {
 	listen('linkEditDashes', 'input', linkEditSave)
 	listen('linkEditArrows', 'change', linkEditSave)
 	listen('linkEditSubmit', 'click', linkEditSubmit)
+	listen('styleNodeContextMenuHide', 'contextmenu', (e) => e.preventDefault())
+	listen('styleNodeContextMenuSelect', 'contextmenu', (e) => e.preventDefault())
+	listen('styleEdgeContextMenuSelect', 'contextmenu', (e) => e.preventDefault())
 }
 
 var factorsHiddenByStyle = {}
@@ -157,26 +165,34 @@ listen('linksTab', 'contextmenu', (e) => {
 
 function styleNodeContextMenu(event, sampleElement, groupId) {
 	let menu = elem('styleNodeContextMenu')
-	event.preventDefault()
 	showMenu(event.pageX, event.pageY)
 	document.addEventListener('click', onClick, false)
 
 	function onClick(event) {
+		// Safari emits a contextmenu and a click event on control-click; ignore the click
+		if (event.ctrlKey  && !event.target.id) return
+		event.preventDefault()
 		hideMenu()
 		document.removeEventListener('click', onClick)
-		if (event.target.id == 'styleNodeContextMenuSelect') {
-			selectFactorsWithStyle(groupId)
-		} else if (event.target.id == 'styleNodeContextMenuHide') {
-			if (sampleElement.dataset.hide != 'hidden') {
-				hideFactorsWithStyle(groupId, true)
-				sampleElement.dataset.hide = 'hidden'
-				sampleElement.style.opacity = 0.6
-			} else {
-				hideFactorsWithStyle(groupId, false)
-				sampleElement.dataset.hide = 'visible'
-				sampleElement.style.opacity = 1.0
+		switch (event.target.id) {
+			case 'styleNodeContextMenuSelect':
+				selectFactorsWithStyle(groupId)
+				break
+			case 'styleNodeContextMenuHide': {
+				if (sampleElement.dataset.hide != 'hidden') {
+					hideFactorsWithStyle(groupId, true)
+					sampleElement.dataset.hide = 'hidden'
+					sampleElement.style.opacity = 0.6
+				} else {
+					hideFactorsWithStyle(groupId, false)
+					sampleElement.dataset.hide = 'visible'
+					sampleElement.style.opacity = 1.0
+				}
+				break
 			}
-		} else console.log('Bad option in styleContextMenu', event.target.id)
+			default: // clicked off menu
+				break
+		}
 	}
 	function showMenu(x, y) {
 		elem('styleNodeContextMenuHide').innerText =
@@ -220,11 +236,14 @@ function styleEdgeContextMenu(event, sampleElement, groupId) {
 	document.addEventListener('click', onClick, false)
 
 	function onClick(event) {
+		// Safari emits a contextmenu and a click event on control-click; ignore the click
+		if (event.ctrlKey  && !event.target.id) return
+		event.preventDefault()
 		hideMenu()
 		document.removeEventListener('click', onClick)
 		if (event.target.id == 'styleEdgeContextMenuSelect') {
 			selectLinksWithStyle(groupId)
-		} else console.log('Bad option in styleContextMenu', event.target.id)
+		}
 	}
 	function showMenu(x, y) {
 		menu.style.left = x + 'px'

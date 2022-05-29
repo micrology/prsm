@@ -2172,7 +2172,7 @@ function showSelected() {
 	if (msg.length > 0) statusMsg(msg + ' selected')
 	else clearStatusBar()
 }
-/* zoom slider */
+/* ----------------------------------------zoom slider -------------------------------------------- */
 Network.prototype.zoom = function (scale) {
 	let newScale = scale === undefined ? 1 : scale
 	const animationOptions = {
@@ -2190,7 +2190,9 @@ function zoomnet() {
 	network.zoom(Number(elem('zoom').value))
 }
 /**
- * zoom by the given amount (+ve or -ve); used by the + and - add the ends of the zoom slider
+ * zoom by the given amount (+ve or -ve); 
+ * used by the + and - buttons at the ends of the zoom slider
+ * and by trackpad zoom/pinch
  * @param {Number} incr
  */
 function zoomincr(incr) {
@@ -2221,31 +2223,40 @@ function zoomset(newScale) {
 	network.zoom(newZoom)
 }
 
-//var clicks = 0; // accumulate 'mousewheel' clicks sent while display is updating
-//var ticking = false; // if true, we are waiting for an AnimationFrame */
+var clicks = 0 // accumulate 'mousewheel' clicks sent while display is updating
+var ticking = false // if true, we are waiting for an AnimationFrame */
 // see https://www.html5rocks.com/en/tutorials/speed/animations/
 
+// listen for zoom/pinch (confusingly, referred to as mousewheel events)
+window.addEventListener(
+	'wheel',
+	(e) => {
+		e.preventDefault()
+		zoomscroll(e)
+	},
+	// must be passive, else pinch/zoom is intercepted by the browser itself
+	{passive: false}
+)
 /**
  * Zoom using a trackpad (with a mousewheel or two fingers)
  * @param {Event} event
  */
-/* function zoomscroll(event) {
-	event.preventDefault();
-	clicks += event.deltaY;
-	requestZoom();
+function zoomscroll(event) {
+	clicks += event.deltaY
+	requestZoom()
 }
 function requestZoom() {
-	if (!ticking) requestAnimationFrame(zoomUpdate);
-	ticking = true;
+	if (!ticking) requestAnimationFrame(zoomUpdate)
+	ticking = true
 }
 function zoomUpdate() {
-	zoomincr(clicks * 0.05);
-	ticking = false;
-	clicks = 0;
-} */
+	zoomincr(-clicks * 0.05)
+	ticking = false
+	clicks = 0
+}
 
-/* -----------Operations related to the top button bar (not the side panel)-------------
- */
+/* -----------Operations related to the top button bar (not the side panel)------------- */
+
 /**
  * react to the user pressing the Add node button
  * handles cases when the button is disabled; has previously been pressed; and the Add link

@@ -1785,6 +1785,8 @@ div.resize {
 	border: 1px solid transparent;
 	white-space: nowrap;
 	border-radius: 3px;
+	user-select: none;
+	-webkit-user-select: none;
 }
 
 .menu-item:hover > .menu-btn {

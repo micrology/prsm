@@ -50,9 +50,17 @@
 		<link href="../css/prsm.css" rel="stylesheet" />
 		<script>
 			/*
-			 * reject Internet Explorer and Legacy Edge (the latter doesn't support the destructuring operator)
+			 * reject Internet Explorer and any browser not able to understand ES6
 			 */
-			if (window.document.documentMode || window.navigator.userAgent.indexOf('Edge/') > -1) {
+			function isES6() {
+				try {
+					Function('() => {};')
+					return true
+				} catch (exception) {
+					return false
+				}
+			}
+			if (window.document.documentMode || !isES6()) {
 				alert(
 					'Your browser does not support all the features required.  Try an up-to-date copy of Edge, Chrome, Firefox or Safari'
 				)
@@ -1211,21 +1219,21 @@
 			</div>
 			<ol class="contextmenu" id="styleNodeContextMenu">
 				<li class="menu-item">
-					<button type="button" class="menu-btn">
+					<div class="menu-btn">
 						<span class="menu-text" id="styleNodeContextMenuSelect">Select Factors</span>
-					</button>
+					</div>
 				</li>
 				<li class="menu-item">
-					<button type="button" class="menu-btn">
+					<div class="menu-btn">
 						<span class="menu-text" id="styleNodeContextMenuHide">Hide Factors</span>
-					</button>
+					</div>
 				</li>
 			</ol>
 			<ol class="contextmenu" id="styleEdgeContextMenu">
 				<li class="menu-item">
-					<button type="button" class="menu-btn">
+					<div class="menu-btn">
 						<span class="menu-text" id="styleEdgeContextMenuSelect">Select Links</span>
-					</button>
+					</div>
 				</li>
 			</ol>
 		</div>
