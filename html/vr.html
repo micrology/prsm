@@ -114,23 +114,30 @@
 						tooltip.setAttribute('text', {
 							value: data.label,
 							color: data.tipColor,
-							width: 2,
+							width: 4 * el.getAttribute('radius'),
 							align: 'center',
 						})
-						tooltip.setAttribute('scale', {x: 20, y: 20, z: 20})
-						const mesh = el.getObject3D('mesh')
-						const bsphere = mesh.geometry.boundingSphere
-						const rig = document.createElement('a-entity')
+						//tooltip.setAttribute('scale', {x: 20, y: 20, z: 20})
+ 						const rig = document.createElement('a-entity')
 						rig.id = 'rig'
-						rig.setAttribute('look-at', '[camera]')
+						rig.setAttribute('look-at', '#cameraRig')
 						el.appendChild(rig)
-						tooltip.setAttribute('position', {x: 0, y: 0, z: bsphere.radius})
-						rig.appendChild(tooltip)
+						tooltip.setAttribute('position', {x: 0, y: 0, z: el.getAttribute('radius')})
+						rig.appendChild(tooltip) 
 					})
-					el.addEventListener('mouseleave', function () {
+					 el.addEventListener('mouseleave', function () {
 						let rig = el.querySelector('#rig')
 						if (rig) el.removeChild(rig)
+					}) 
+/* 					tooltip.setAttribute('position', {x: 0, y: 0, z: 2 * el.getAttribute('radius')})
+						tooltip.setAttribute('look-at', '#cameraRig')
+						el.appendChild(tooltip)
+						console.log(tooltip)
 					})
+					el.addEventListener('mouseleave', function () {
+						let tooltip = el.querySelector('#tooltip')
+						if (tooltip) el.removeChild(tooltip)
+					}) */
 				},
 			})
 			// draw a sphere around each node, to make it easy to point to them with the ray caster
@@ -187,6 +194,7 @@
 				},
 
 				init: function () {
+					//'this' is the cameraRig
 					this.lastPosition = new THREE.Vector3()
 					this.el.object3D.getWorldPosition(this.lastPosition)
 
@@ -206,7 +214,9 @@
 					for (const obj of document.querySelectorAll(this.data.selector)) {
 						obj.object3D.getWorldPosition(this.targetPos)
 						const distanceTo = this.myPos.distanceTo(this.targetPos)
-						if (distanceTo <= obj.components.geometry.data.radius + this.data.distance) {
+						console.log(distanceTo, this.data.distance + Number(obj.getAttribute('radius')))
+//						if (distanceTo <= this.data.distance + Number(obj.getAttribute('radius'))) {
+	if (distanceTo <= obj.components.geometry.data.radius + this.data.distance) {
 							didHit = true
 							break
 						}
@@ -257,15 +267,14 @@
 				movement-controls="fly: true; speed: 0.7"
 				sphere-collider-constraint="selector: .node"
 			>
-				<a-camera id="camera" look-controls="pointerLockEnabled: true">
-					<!-- 					<a-cursor color="#FF0000" raycaster="objects: #origin-box, .node"></a-cursor>
- -->
+				<a-camera id="camera" look-controls="pointerLockEnabled: true" wasd-controls="fly: true">
+					<a-cursor color="#FF0000" raycaster="objects: #origin-box, .node"></a-cursor>
+ 
 				</a-camera>
 				<a-entity
 					id="left-hand"
 					hand-tracking-controls="hand: left"
 					laser-controls="hand: left"
-					raycaster="far: 0"
 				></a-entity>
 				<a-entity
 					id="right-hand"
