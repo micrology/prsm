@@ -263,13 +263,13 @@
 			<a-entity
 				id="cameraRig"
 				movement-controls="fly: true; speed: 0.7"
+				sphere-collider-constraint="selector: .node"
 			>
 				<a-camera id="camera" look-controls="pointerLockEnabled: true" wasd-controls="fly: true"
-				sphere-collider-constraint="selector: .node"
 				>
 					<a-cursor color="#FF0000" raycaster="objects: #origin-box, .node"></a-cursor>
- 
 				</a-camera>
+				
 				<a-entity
 					id="left-hand"
 					hand-tracking-controls="hand: left"
@@ -281,6 +281,7 @@
 					hand-tracking-controls="hand: right"
 					raycaster="showLine: true; lineColor: white; objects: #origin-box, .node"
 				></a-entity>
+			
 			</a-entity>
 			<!-- centre point and axes -->
 			<a-entity id="origin">
