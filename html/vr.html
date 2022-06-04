@@ -69,6 +69,34 @@
 				return hsp > 127.5 ? 'light' : 'dark'
 			}
 			/**
+ * divide txt into lines to make it roughly square, with a
+ * maximum width of width characters, but not breaking words and
+ * respecting embedded line breaks (\n).
+ * @param {string} txt
+ * @param {number} width
+ */
+ function splitText(txt, width) {
+	let lines = ''
+	let chunks = txt.trim().split('\n')
+	chunks.forEach((chunk) => {
+		let words = chunk.trim().split(/\s/)
+		let nChars = chunk.trim().length
+		if (nChars > 2 * width) width = Math.floor(Math.sqrt(nChars))
+
+		for (let i = 0, linelength = 0; i < words.length; i++) {
+			lines += words[i]
+			if (i == words.length - 1) break
+			linelength += words[i].length
+			if (linelength > width) {
+				lines += '\n'
+				linelength = 0
+			} else lines += ' '
+		}
+		lines += '\n'
+	})
+	return lines.trim()
+}
+			/**
 			 * Billboard component.
 			 *
 			 * Rotates the entity to face the current camera
@@ -112,9 +140,9 @@
 						let tooltip = document.createElement('a-entity')
 						tooltip.id = 'tooltip'
 						tooltip.setAttribute('text', {
-							value: data.label,
+							value: splitText(data.label, 9),
 							color: data.tipColor,
-							width: 4 * el.getAttribute('radius'),
+							width: 5 * el.getAttribute('radius'),
 							align: 'center',
 						})
 						//tooltip.setAttribute('scale', {x: 20, y: 20, z: 20})
@@ -129,15 +157,6 @@
 						let rig = el.querySelector('#rig')
 						if (rig) el.removeChild(rig)
 					}) 
-/* 					tooltip.setAttribute('position', {x: 0, y: 0, z: 2 * el.getAttribute('radius')})
-						tooltip.setAttribute('look-at', '#cameraRig')
-						el.appendChild(tooltip)
-						console.log(tooltip)
-					})
-					el.addEventListener('mouseleave', function () {
-						let tooltip = el.querySelector('#tooltip')
-						if (tooltip) el.removeChild(tooltip)
-					}) */
 				},
 			})
 			// draw a sphere around each node, to make it easy to point to them with the ray caster
@@ -153,9 +172,8 @@
 						.querySelector('[forcegraph]')
 						.components.forcegraph.forceGraph.children.forEach((child) => {
 							if (child.type == 'Mesh' && child.__data.id) {
-								let sphereEl
-								if (this.spheres.get(child.__data.id)) {
-									sphereEl = this.spheres.get(child.__data.id)
+								let sphereEl = this.spheres.get(child.__data.id)
+								if (sphereEl) {
 									sphereEl.setAttribute('position', child.position)
 								} else {
 									sphereEl = document.createElement('a-sphere')
@@ -164,11 +182,10 @@
 									this.spheres.set(child.__data.id, sphereEl)
 									sphereEl.setAttribute('position', child.position)
 									sphereEl.setAttribute('radius', child.geometry.parameters.radius + 0.1)
-									let childColor = child.__data.color
-									childColor = childColor ? childColor : 'white'
+									let color = child.__data.color  || 'white'
 									let compColor =
-										lightOrDark(standardize_color(childColor)) == 'light' ? 'black' : 'white'
-									sphereEl.setAttribute('color', childColor ? childColor : 'white')
+										lightOrDark(standardize_color(color)) == 'light' ? 'black' : 'white'
+									sphereEl.setAttribute('color', color)
 									sphereEl.setAttribute('node-hover', {
 										label: child.__data.label,
 										tipColor: compColor,
