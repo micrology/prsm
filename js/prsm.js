@@ -2190,7 +2190,7 @@ function zoomnet() {
 	network.zoom(Number(elem('zoom').value))
 }
 /**
- * zoom by the given amount (+ve or -ve); 
+ * zoom by the given amount (+ve or -ve);
  * used by the + and - buttons at the ends of the zoom slider
  * and by trackpad zoom/pinch
  * @param {Number} incr
@@ -2232,7 +2232,8 @@ window.addEventListener(
 	'wheel',
 	(e) => {
 		e.preventDefault()
-		zoomscroll(e)
+		// reject all but vertical touch movements
+		if (Math.abs(e.deltaX) <= 1) zoomscroll(e)
 	},
 	// must be passive, else pinch/zoom is intercepted by the browser itself
 	{passive: false}
@@ -2243,13 +2244,13 @@ window.addEventListener(
  */
 function zoomscroll(event) {
 	clicks += event.deltaY
-	if (Math.abs(clicks) > 2) requestZoom()
+	requestZoom()
 }
 function requestZoom() {
 	if (!ticking) requestAnimationFrame(zoomUpdate)
 	ticking = true
 }
-const MOUSEWHEELZOOMRATE = 0.01 // how many 'clicks' of the mouse wheel/finger track correspond to 1 zoom increment 
+const MOUSEWHEELZOOMRATE = 0.01 // how many 'clicks' of the mouse wheel/finger track correspond to 1 zoom increment
 function zoomUpdate() {
 	zoomincr(-clicks * MOUSEWHEELZOOMRATE)
 	ticking = false
@@ -3462,7 +3463,6 @@ function showNodeData(nodeId) {
 		else editor.setText(node.note)
 	} else editor.setText('')
 	editor.on('text-change', (delta, oldDelta, source) => {
-		console.log('text changed')
 		if (source == 'user')
 			data.nodes.update({
 				id: nodeId,
