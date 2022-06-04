@@ -2243,14 +2243,15 @@ window.addEventListener(
  */
 function zoomscroll(event) {
 	clicks += event.deltaY
-	requestZoom()
+	if (Math.abs(clicks) > 2) requestZoom()
 }
 function requestZoom() {
 	if (!ticking) requestAnimationFrame(zoomUpdate)
 	ticking = true
 }
+const MOUSEWHEELZOOMRATE = 0.01 // how many 'clicks' of the mouse wheel/finger track correspond to 1 zoom increment 
 function zoomUpdate() {
-	zoomincr(-clicks * 0.05)
+	zoomincr(-clicks * MOUSEWHEELZOOMRATE)
 	ticking = false
 	clicks = 0
 }
@@ -3453,7 +3454,7 @@ function showNodeData(nodeId) {
 		placeholder: 'Notes',
 		theme: 'snow',
 		readOnly: viewOnly,
-		bounds: elem('edit-container'),
+		bounds: elem('node-edit-container'),
 	})
 	editor.id = node.id
 	if (node.note) {
@@ -3461,6 +3462,7 @@ function showNodeData(nodeId) {
 		else editor.setText(node.note)
 	} else editor.setText('')
 	editor.on('text-change', (delta, oldDelta, source) => {
+		console.log('text changed')
 		if (source == 'user')
 			data.nodes.update({
 				id: nodeId,
@@ -3509,7 +3511,7 @@ function showEdgeData() {
 		placeholder: 'Notes',
 		theme: 'snow',
 		readOnly: viewOnly,
-		bounds: elem('edit-container'),
+		bounds: elem('edge-edit-container'),
 	})
 	editor.id = edge.id
 	if (edge.note) {

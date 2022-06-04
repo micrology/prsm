@@ -16,7 +16,6 @@ var websocket = 'wss://www.prsm.uk/wss' // web socket server URL
 var clientID // unique ID for this browser
 var yNodesMap // shared map of nodes
 var yEdgesMap // shared map of edges
-var myNameRec // my name etc.
 
 window.addEventListener('load', () => {
 	startY()
@@ -61,9 +60,6 @@ function startY() {
 		showForceGraph()
 	})
 
-	myNameRec = JSON.parse(localStorage.getItem('myName'))
-	myNameRec.id = clientID
-	console.log('My name: ' + myNameRec.name)
 } // end startY()
 
 function exactTime() {
