@@ -5,7 +5,7 @@ The main entry point for PRSM.
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
 import {IndexeddbPersistence} from 'y-indexeddb'
-import {Network, parseGephiNetwork} from 'vis-network/peer'
+import {Network, parseGephiNetwork, parseDOTNetwork} from 'vis-network/peer'
 import {DataSet} from 'vis-data/peer'
 import diff from 'microdiff'
 import {
@@ -2498,6 +2498,10 @@ function loadFile(contents) {
 			case 'prsm':
 				data = loadJSONfile(contents)
 				break
+			case 'gv':
+			case 'dot':
+				data = loadDOTfile(contents)
+				break
 			default:
 				throw {message: 'Unrecognised file name suffix'}
 		}
@@ -2614,6 +2618,20 @@ function loadJSONfile(str) {
 	if (json.underlay) yPointsArray.insert(0, json.underlay)
 	yHistory.delete(0, yHistory.length)
 	if (json.history) yHistory.insert(0, json.history)
+	return {
+		nodes: nodes,
+		edges: edges,
+	}
+}
+/**
+ * parse and load a GraphViz (.DOT or .GV) file
+ * @param {string} graph contents of DOT file
+ * @returns 
+ */
+function loadDOTfile(graph) {
+	let parsedData = parseDOTNetwork(graph)
+	nodes.add(parsedData.nodes)
+	edges.add(parsedData.edges)
 	return {
 		nodes: nodes,
 		edges: edges,
