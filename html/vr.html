@@ -69,38 +69,38 @@
 				return hsp > 127.5 ? 'light' : 'dark'
 			}
 			/**
- * divide txt into lines to make it roughly square, with a
- * maximum width of width characters, but not breaking words and
- * respecting embedded line breaks (\n).
- * @param {string} txt
- * @param {number} width
- */
- function splitText(txt, width) {
-	let lines = ''
-	let chunks = txt.trim().split('\n')
-	chunks.forEach((chunk) => {
-		let words = chunk.trim().split(/\s/)
-		let nChars = chunk.trim().length
-		if (nChars > 2 * width) width = Math.floor(Math.sqrt(nChars))
+			 * divide txt into lines to make it roughly square, with a
+			 * maximum width of width characters, but not breaking words and
+			 * respecting embedded line breaks (\n).
+			 * @param {string} txt
+			 * @param {number} width
+			 */
+			function splitText(txt, width) {
+				let lines = ''
+				let chunks = txt.trim().split('\n')
+				chunks.forEach((chunk) => {
+					let words = chunk.trim().split(/\s/)
+					let nChars = chunk.trim().length
+					if (nChars > 2 * width) width = Math.floor(Math.sqrt(nChars))
 
-		for (let i = 0, linelength = 0; i < words.length; i++) {
-			lines += words[i]
-			if (i == words.length - 1) break
-			linelength += words[i].length
-			if (linelength > width) {
-				lines += '\n'
-				linelength = 0
-			} else lines += ' '
-		}
-		lines += '\n'
-	})
-	return lines.trim()
-}
+					for (let i = 0, linelength = 0; i < words.length; i++) {
+						lines += words[i]
+						if (i == words.length - 1) break
+						linelength += words[i].length
+						if (linelength > width) {
+							lines += '\n'
+							linelength = 0
+						} else lines += ' '
+					}
+					lines += '\n'
+				})
+				return lines.trim()
+			}
 			/**
 			 * Billboard component.
 			 *
 			 * Rotates the entity to face the current camera
-			 *
+			 * https://github.com/blairmacintyre/aframe-look-at-billboard-component/blob/master/index.js
 			 */
 			AFRAME.registerComponent('billboard', {
 				init: function () {
@@ -124,7 +124,7 @@
 					}
 				},
 			})
-			// display a label in front of each node when a pointer hits it
+/* 			// display a label in front of each node when a pointer hits it
 			AFRAME.registerComponent('node-hover', {
 				schema: {
 					label: {type: 'string', default: 'My label'},
@@ -133,10 +133,10 @@
 
 				init: function () {
 					const data = this.data
-					const el = this.el
+					const el = this.el*/
 					/* when the laser ray hits the node, a text entity is created to hold the label,
 					and this is positioned tangentially to the bounding sphere, facing the camera */
-					el.addEventListener('mouseenter', function () {
+/*					el.addEventListener('mouseenter', function () {
 						let tooltip = document.createElement('a-entity')
 						tooltip.id = 'tooltip'
 						tooltip.setAttribute('text', {
@@ -146,20 +146,71 @@
 							align: 'center',
 						})
 						//tooltip.setAttribute('scale', {x: 20, y: 20, z: 20})
- 						const rig = document.createElement('a-entity')
+						const rig = document.createElement('a-entity')
 						rig.id = 'rig'
 						rig.setAttribute('look-at', '#cameraRig')
 						el.appendChild(rig)
 						tooltip.setAttribute('position', {x: 0, y: 0, z: el.getAttribute('radius')})
-						rig.appendChild(tooltip) 
+						rig.appendChild(tooltip)
 					})
-					 el.addEventListener('mouseleave', function () {
+					el.addEventListener('mouseleave', function () {
 						let rig = el.querySelector('#rig')
 						if (rig) el.removeChild(rig)
-					}) 
+					})
+				},
+			}) */
+			/* draw a sphere around each node, to make it easy to point to them with the ray caster,
+			and attach a text label (which rotates to always face the camera) */
+			AFRAME.registerComponent('network', {
+				schema: {},
+				dependencies: ['forcegraph'],
+				init: function () {
+					// spheres are cached here and re-used
+					this.spheres = new Map()
+				},
+				tick: function (time, timeDelta) {
+					document
+						.querySelector('[forcegraph]')
+						.components.forcegraph.forceGraph.children.forEach((child) => {
+							if (child.type == 'Mesh' && child.__data.id) {
+								let sphereEl = this.spheres.get(child.__data.id)
+								if (sphereEl) {
+									//sphereEl.object3D.position.set(child.position.x, child.position.y, child.position.z)
+									//sphereEl.setAttribute('position', child.position)
+									sphereEl.object3D.position.copy(child.position)
+								} else {
+									sphereEl = document.createElement('a-sphere')
+									sphereEl.classList.add('node')
+									sphereEl.id = child.__data.id
+									this.spheres.set(child.__data.id, sphereEl)
+									sphereEl.setAttribute('position', child.position)
+									let radius = child.geometry.parameters.radius + 0.1
+									sphereEl.setAttribute('radius', radius)
+									let color = child.__data.color || 'white'
+									let compColor = lightOrDark(standardize_color(color)) == 'light' ? 'black' : 'white'
+									sphereEl.setAttribute('color', color)
+									this.el.appendChild(sphereEl)
+
+									let label = document.createElement('a-entity')
+									label.id = 'tooltip'
+									label.setAttribute('text', {
+										value: splitText(child.__data.label, 9),
+										color: compColor,
+										width: 5 * radius,
+										align: 'center',
+									})
+									const rig = document.createElement('a-entity')
+									rig.id = 'rig'
+									rig.setAttribute('look-at', '#cameraRig')
+									sphereEl.appendChild(rig)
+									label.setAttribute('position', {x: 0, y: 0, z: radius})
+									rig.appendChild(label)
+								}
+							}
+						})
 				},
 			})
-			// draw a sphere around each node, to make it easy to point to them with the ray caster
+			/* // draw a sphere around each node, to make it easy to point to them with the ray caster
 			AFRAME.registerComponent('network', {
 				schema: {},
 				dependencies: ['forcegraph'],
@@ -195,7 +246,7 @@
 							}
 						})
 				},
-			})
+			}) */
 			/*
 			 * prevent the camera from entering a 3d entity
 			 * coded by Synn ( https://github.com/chabloz )
@@ -282,23 +333,17 @@
 				movement-controls="fly: true; speed: 0.7"
 				sphere-collider-constraint="selector: .node"
 			>
-				<a-camera id="camera" look-controls="pointerLockEnabled: true" wasd-controls="fly: true"
-				>
+				<a-camera id="camera" look-controls="pointerLockEnabled: true" wasd-controls="fly: true">
 					<a-cursor color="#FF0000" raycaster="objects: #origin-box, .node"></a-cursor>
 				</a-camera>
-				
-				<a-entity
-					id="left-hand"
-					hand-tracking-controls="hand: left"
-					laser-controls="hand: left"
-				></a-entity>
+
+				<a-entity id="left-hand" hand-tracking-controls="hand: left" laser-controls="hand: left"></a-entity>
 				<a-entity
 					id="right-hand"
 					laser-controls="hand: right"
 					hand-tracking-controls="hand: right"
 					raycaster="showLine: true; lineColor: white; objects: #origin-box, .node"
 				></a-entity>
-			
 			</a-entity>
 			<!-- centre point and axes -->
 			<a-entity id="origin">
