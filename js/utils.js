@@ -233,14 +233,10 @@ export function cleanArray(arr, propsToRemove) {
 /**
  * return a copy of an object that only includes the properties that are in allowed
  * @param {Object} obj the object to copy
- * @param {Object} allowed the object with allowed properties
+ * @param {array} allowed list of allowed properties
  */
 export function strip(obj, allowed) {
-	return Object.fromEntries(
-		Object.entries(obj).filter(
-			([key, val]) => allowed.includes(key) // eslint-disable-line no-unused-vars
-		)
-	)
+	return  allowed.reduce((a, e) => (a[e] = obj[e], a), {});
 }
 /**
  * divide txt into lines to make it roughly square, with a

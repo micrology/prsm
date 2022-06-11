@@ -119,5 +119,5 @@ function showForceGraph() {
 		onEngineStop: console.log('Engine stopped'),
 	})
 	// draw a sphere entity around each node
-	fgEl.setAttribute('network', {})
+	fgEl.setAttribute('spherize', {})
 }

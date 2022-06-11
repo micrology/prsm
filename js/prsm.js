@@ -20,6 +20,7 @@ import {
 	dragElement,
 	standardize_color,
 	object_equals,
+	strip,
 	generateName,
 	statusMsg,
 	clearStatusBar,
@@ -183,6 +184,7 @@ function addEventListeners() {
 	listen('exportImage', 'click', exportPNGfile)
 	listen('exportCVS', 'click', exportCVS)
 	listen('exportGML', 'click', exportGML)
+	listen('exportDOT', 'click', exportDOT)
 	listen('search', 'click', search)
 	listen('help', 'click', displayHelp)
 	listen('panelToggle', 'click', togglePanel)
@@ -2625,13 +2627,41 @@ function loadJSONfile(str) {
 }
 /**
  * parse and load a GraphViz (.DOT or .GV) file
+ *  uses the vis-network DOT parser, which is pretty hopeless -
+ *  e.g. it does not manage dotted or dashed node borders and
+ *  requires some massaging of the parameters it does recognise
+ *
  * @param {string} graph contents of DOT file
- * @returns 
+ * @returns nodes and edges as an object
  */
 function loadDOTfile(graph) {
 	let parsedData = parseDOTNetwork(graph)
-	nodes.add(parsedData.nodes)
-	edges.add(parsedData.edges)
+	nodes.add(
+		parsedData.nodes.map((node) => {
+			let n = strip(node, ['id', 'label', 'color', 'shape', 'font', 'width'])
+			if(!n.id) n.id = uuidv4()
+			if (!n.color) n.color = deepCopy(styles.nodes['group0'].color)
+			if (!n.font) n.font = deepCopy(styles.nodes['group0'].font)
+			if (!n.shape) n.shape = deepCopy(styles.nodes['group0'].shape)
+			if (n.font?.size) n.font.size = parseInt(n.font.size)
+			if (n.width) n.borderWidth = parseInt(n.width)
+			if (n.shape === 'plaintext') {
+				n.shape = 'text'
+				n.borderWidth = 0
+			}
+			return n
+		})
+	)
+	edges.add(
+		parsedData.edges.map((edge) => {
+			let e = strip(edge, ['id', 'from', 'to', 'label', 'color', 'dashes'])
+			if(!e.id) e.id = uuidv4()
+			if (!e.color) e.color = deepCopy(styles.edges['edge0'].color)
+			if (!e.dashes) e.dashes = deepCopy(styles.edges['edge0'].dashes)
+			if (!e.width) e.width = e.width ? parseInt(e.width) : styles.edges['edge0'].width
+			return e
+		})
+	)
 	return {
 		nodes: nodes,
 		edges: edges,
@@ -2992,7 +3022,7 @@ function setCanvasBackgroundColor(canvas, color = '#ffffff') {
  */
 function setFileName(extn) {
 	let pos = lastFileName.indexOf('.')
-	lastFileName = lastFileName.substr(0, pos < 0 ? lastFileName.length : pos) + '.' + extn
+	lastFileName = lastFileName.substring(0, pos < 0 ? lastFileName.length : pos) + '.' + extn
 }
 /**
  * Save the map as CSV files, one for nodes and one for edges
@@ -3074,6 +3104,45 @@ function exportGML() {
 	}
 	str += '\n]'
 	saveStr(str, 'gml')
+}
+/**
+ * Save the map as GraphViz file
+ * See https://graphviz.org/doc/info/lang.html
+ */
+function exportDOT() {
+	let str = `/* Creator PRSM ${version} on ${new Date(Date.now()).toLocaleString()} */\ndigraph {\n`
+	for (let node of data.nodes.get()) {
+		str += `"${node.id}" [label="${node.label}", 
+			color="${standardize_color(node.color.border)}", fillcolor="${standardize_color(node.color.background)}",
+			shape="${node.shape == 'text' ? 'plaintext' : node.shape}",
+			${gvNodeStyle(node)},
+			fontsize="${node.font.size}", fontcolor="${standardize_color(node.font.color)}"]\n`
+	}
+	for (let edge of data.edges.get()) {
+		str += `"${edge.from}" -> "${edge.to}" [label="${edge.label || ''}", 
+			color="${standardize_color(edge.color.color)}"
+			style="${gvConvertEdgeStyle(edge)}"]\n`
+	}
+	str += '}\n'
+	saveStr(str, 'gv')
+
+	function gvNodeStyle(node) {
+		let bDashes = node.shapeProperties.borderDashes
+		let val = 'style="filled'
+		if (Array.isArray(bDashes)) val += ', dotted'
+		else val += `, ${bDashes ? 'dashed' : 'solid'}`
+		val += `", penwidth="${node.borderWidth}"`
+		return val
+	}
+	function gvConvertEdgeStyle(edge) {
+		let bDashes = edge.dashes
+		let val = 'solid'
+		if (Array.isArray(bDashes)) {
+			if (bDashes[0] == 10) val = 'dashed'
+			else val = 'dotted'
+		}
+		return val
+	}
 }
 /**
  * set up the modal dialog that opens when the user clicks the Share icon in the nav bar
