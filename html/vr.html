@@ -124,41 +124,6 @@
 					}
 				},
 			})
-/* 			// display a label in front of each node when a pointer hits it
-			AFRAME.registerComponent('node-hover', {
-				schema: {
-					label: {type: 'string', default: 'My label'},
-					tipColor: {type: 'color', default: 'black'},
-				},
-
-				init: function () {
-					const data = this.data
-					const el = this.el*/
-					/* when the laser ray hits the node, a text entity is created to hold the label,
-					and this is positioned tangentially to the bounding sphere, facing the camera */
-/*					el.addEventListener('mouseenter', function () {
-						let tooltip = document.createElement('a-entity')
-						tooltip.id = 'tooltip'
-						tooltip.setAttribute('text', {
-							value: splitText(data.label, 9),
-							color: data.tipColor,
-							width: 5 * el.getAttribute('radius'),
-							align: 'center',
-						})
-						//tooltip.setAttribute('scale', {x: 20, y: 20, z: 20})
-						const rig = document.createElement('a-entity')
-						rig.id = 'rig'
-						rig.setAttribute('look-at', '#cameraRig')
-						el.appendChild(rig)
-						tooltip.setAttribute('position', {x: 0, y: 0, z: el.getAttribute('radius')})
-						rig.appendChild(tooltip)
-					})
-					el.addEventListener('mouseleave', function () {
-						let rig = el.querySelector('#rig')
-						if (rig) el.removeChild(rig)
-					})
-				},
-			}) */
 /* helper for vasturiano/3d-force-graph-vr
 	*			draw a sphere around each force graph node, to make it easy to point to them with the ray caster,
 	* 			and attach a text label (which rotates to always face the camera)
@@ -210,43 +175,6 @@ AFRAME.registerComponent('spherize', {
 			})
 	},
 })
-			/* // draw a sphere around each node, to make it easy to point to them with the ray caster
-			AFRAME.registerComponent('network', {
-				schema: {},
-				dependencies: ['forcegraph'],
-				init: function () {
-					// spheres are cached here and re-used
-					this.spheres = new Map()
-				},
-				tick: function (time, timeDelta) {
-					document
-						.querySelector('[forcegraph]')
-						.components.forcegraph.forceGraph.children.forEach((child) => {
-							if (child.type == 'Mesh' && child.__data.id) {
-								let sphereEl = this.spheres.get(child.__data.id)
-								if (sphereEl) {
-									sphereEl.setAttribute('position', child.position)
-								} else {
-									sphereEl = document.createElement('a-sphere')
-									sphereEl.classList.add('node')
-									sphereEl.id = child.__data.id
-									this.spheres.set(child.__data.id, sphereEl)
-									sphereEl.setAttribute('position', child.position)
-									sphereEl.setAttribute('radius', child.geometry.parameters.radius + 0.1)
-									let color = child.__data.color  || 'white'
-									let compColor =
-										lightOrDark(standardize_color(color)) == 'light' ? 'black' : 'white'
-									sphereEl.setAttribute('color', color)
-									sphereEl.setAttribute('node-hover', {
-										label: child.__data.label,
-										tipColor: compColor,
-									})
-									this.el.appendChild(sphereEl)
-								}
-							}
-						})
-				},
-			}) */
 			/*
 			 * prevent the camera from entering a 3d entity
 			 * coded by Synn ( https://github.com/chabloz )
@@ -282,7 +210,6 @@ AFRAME.registerComponent('spherize', {
 					for (const obj of document.querySelectorAll(this.data.selector)) {
 						obj.object3D.getWorldPosition(this.targetPos)
 						const distanceTo = this.myPos.distanceTo(this.targetPos)
-						console.log(this.myPos,this.targetPos,distanceTo,  Number(obj.getAttribute('radius')) )
 						if (distanceTo <= this.data.distance + Number(obj.getAttribute('radius'))) {
 							didHit = true
 							break
