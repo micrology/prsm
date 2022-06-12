@@ -202,11 +202,9 @@ AFRAME.registerComponent('spherize', {
 							width: 5 * radius,
 							align: 'center',
 						})
-						const rig = document.createElement('a-entity')
-						rig.setAttribute('look-at', '#cameraRig')
-						sphereEl.appendChild(rig)
+						sphereEl.setAttribute('look-at', '#cameraRig')
 						label.setAttribute('position', {x: 0, y: 0, z: radius})
-						rig.appendChild(label)
+						sphereEl.appendChild(label)
 					}
 				}
 			})
@@ -284,6 +282,7 @@ AFRAME.registerComponent('spherize', {
 					for (const obj of document.querySelectorAll(this.data.selector)) {
 						obj.object3D.getWorldPosition(this.targetPos)
 						const distanceTo = this.myPos.distanceTo(this.targetPos)
+						console.log(this.myPos,this.targetPos,distanceTo,  Number(obj.getAttribute('radius')) )
 						if (distanceTo <= this.data.distance + Number(obj.getAttribute('radius'))) {
 							didHit = true
 							break

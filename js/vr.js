@@ -111,7 +111,8 @@ function showForceGraph() {
 	fgEl.setAttribute('forcegraph', {
 		nodes: JSON.stringify(graphData.nodes),
 		links: JSON.stringify(graphData.links),
-		nodeResolution: 16,
+		nodeResolution: 32,
+		nodeOpacity: 1.0,
 		linkWidth: 0,
 		linkOpacity: 1.0,
 		linkDirectionalArrowLength: 1.5,
