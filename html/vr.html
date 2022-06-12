@@ -124,57 +124,57 @@
 					}
 				},
 			})
-/* helper for vasturiano/3d-force-graph-vr
-	*			draw a sphere around each force graph node, to make it easy to point to them with the ray caster,
-	* 			and attach a text label (which rotates to always face the camera)
-	* after the graph has been created, use something like
-	*			fgEl.setAttribute('spherize', {})
-	* to create the spheres
-	*/
-AFRAME.registerComponent('spherize', {
-	schema: {},
-	dependencies: ['forcegraph'],
-	init: function () {
-		// spheres are cached here and re-used
-		this.spheres = new Map()
-	},
-	tick: function (time, timeDelta) {
-		document
-			.querySelector('[forcegraph]')
-			.components.forcegraph.forceGraph.children.forEach((child) => {
-				if (child.type == 'Mesh' && child.__data.id) {
-					let sphereEl = this.spheres.get(child.__data.id)
-					if (sphereEl) {
-						// reuse existing sphere and label, but change its position
-						sphereEl.object3D.position.copy(child.position)
-					} else {
-						sphereEl = document.createElement('a-sphere')
-						sphereEl.classList.add('node')
-						sphereEl.id = child.__data.id
-						this.spheres.set(child.__data.id, sphereEl)
-						sphereEl.setAttribute('position', child.position)
-						let radius = child.geometry.parameters.radius + 0.1
-						sphereEl.setAttribute('radius', radius)
-						let color = child.__data.color || 'white'
-						let compColor = lightOrDark(standardize_color(color)) == 'light' ? 'black' : 'white'
-						sphereEl.setAttribute('color', color)
-						this.el.appendChild(sphereEl)
+			/* helper for vasturiano/3d-force-graph-vr
+			 *			draw a sphere around each force graph node, to make it easy to point to them with the ray caster,
+			 * 			and attach a text label (which rotates to always face the camera)
+			 * after the graph has been created, use something like
+			 *			fgEl.setAttribute('spherize', {})
+			 * to create the spheres
+			 */
+			AFRAME.registerComponent('spherize', {
+				schema: {},
+				dependencies: ['forcegraph'],
+				init: function () {
+					// spheres are cached here and re-used
+					this.spheres = new Map()
+				},
+				tick: function (time, timeDelta) {
+					document
+						.querySelector('[forcegraph]')
+						.components.forcegraph.forceGraph.children.forEach((child) => {
+							if (child.type == 'Mesh' && child.__data.id) {
+								let sphereEl = this.spheres.get(child.__data.id)
+								if (sphereEl) {
+									// reuse existing sphere and label, but change its position
+									sphereEl.object3D.position.copy(child.position)
+								} else {
+									sphereEl = document.createElement('a-sphere')
+									sphereEl.classList.add('node')
+									sphereEl.id = child.__data.id
+									this.spheres.set(child.__data.id, sphereEl)
+									sphereEl.setAttribute('position', child.position)
+									let radius = child.geometry.parameters.radius + 0.1
+									sphereEl.setAttribute('radius', radius)
+									let color = child.__data.color || 'white'
+									let compColor = lightOrDark(standardize_color(color)) == 'light' ? 'black' : 'white'
+									sphereEl.setAttribute('color', color)
+									this.el.appendChild(sphereEl)
 
-						let label = document.createElement('a-entity')
-						label.setAttribute('text', {
-							value: splitText(child.__data.label, 9),
-							color: compColor,
-							width: 5 * radius,
-							align: 'center',
+									let label = document.createElement('a-entity')
+									label.setAttribute('text', {
+										value: splitText(child.__data.label, 9),
+										color: compColor,
+										width: 5 * radius,
+										align: 'center',
+									})
+									sphereEl.setAttribute('look-at', '#cameraRig')
+									label.setAttribute('position', {x: 0, y: 0, z: radius})
+									sphereEl.appendChild(label)
+								}
+							}
 						})
-						sphereEl.setAttribute('look-at', '#cameraRig')
-						label.setAttribute('position', {x: 0, y: 0, z: radius})
-						sphereEl.appendChild(label)
-					}
-				}
+				},
 			})
-	},
-})
 			/*
 			 * prevent the camera from entering a 3d entity
 			 * coded by Synn ( https://github.com/chabloz )
