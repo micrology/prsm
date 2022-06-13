@@ -144,7 +144,7 @@
 						.components.forcegraph.forceGraph.children.forEach((child) => {
 							if (child.type == 'Mesh' && child.__data.id) {
 								let sphereEl = this.spheres.get(child.__data.id)
-								if (sphereEl) {
+								if (sphereEl && document.getElementById(child.__data.id)) {
 									// reuse existing sphere and label, but change its position
 									sphereEl.object3D.position.copy(child.position)
 								} else {

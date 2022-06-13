@@ -8,7 +8,7 @@
 
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
-import {standardize_color} from './utils.js'
+import {object_equals, standardize_color} from './utils.js'
 
 var room
 const doc = new Y.Doc()
@@ -105,9 +105,14 @@ function convertData() {
 	})
 	return {nodes: graphNodes, links: graphEdges}
 }
+var previousData
+
 function showForceGraph() {
 	let graphData = convertData()
+	if (object_equals(previousData, graphData)) return
+	previousData = graphData
 	const fgEl = document.getElementById('fg')
+	fgEl.replaceChildren()
 	fgEl.setAttribute('forcegraph', {
 		nodes: JSON.stringify(graphData.nodes),
 		links: JSON.stringify(graphData.links),
