@@ -1015,25 +1015,32 @@ function draw() {
 		}
 		// Might be a click on a thumb up/down
 		if (showVotingToggle) {
-		for (const node of data.nodes.get()) {
-			let bBox = network.getBoundingBox(node.id)
-			let clickPos = params.pointer.canvas
-			if (
-				clickPos.x > bBox.left &&
-				clickPos.x < bBox.right &&
-				clickPos.y > bBox.bottom &&
-				clickPos.y < bBox.bottom + 20
-			) {
-				if (clickPos.x < bBox.left + (bBox.right - bBox.left) / 2) {
-					if (node.thumbUp) node.thumbUp += 1
-					else node.thumbUp = 1
-				} else {
-					if (node.thumbDown) node.thumbDown += 1
-					else node.thumbDown = 1
+			for (const node of data.nodes.get()) {
+				let bBox = network.getBoundingBox(node.id)
+				let clickPos = params.pointer.canvas
+				if (
+					clickPos.x > bBox.left &&
+					clickPos.x < bBox.right &&
+					clickPos.y > bBox.bottom &&
+					clickPos.y < bBox.bottom + 20
+				) {
+					if (clickPos.x < bBox.left + (bBox.right - bBox.left) / 2) {
+						// if user has not already voted for this, add their vote, i.e. add their clientID
+						// or if they have voted, remove it
+						if (node.thumbUp && node.thumbUp.includes(clientID))
+							node.thumbUp = node.thumbUp.filter((c) => c !== clientID)
+						else if (node.thumbUp) node.thumbUp.push(clientID)
+						else node.thumbUp = [clientID]
+					} else {
+						if (node.thumbDown && node.thumbDown.includes(clientID))
+							node.thumbDown = node.thumbDown.filter((c) => c !== clientID)
+						else if (node.thumbDown) node.thumbDown.push(clientID)
+						else node.thumbDown = [clientID]
+					}
+					data.nodes.update(node)
+					return
 				}
-				return
 			}
-		}
 		}
 	})
 
@@ -1358,10 +1365,15 @@ lockImage.src =
 var thumbUpImage = new Image()
 thumbUpImage.src =
 	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktaGFuZC10aHVtYnMtdXAiIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTguODY0LjA0NkM3LjkwOC0uMTkzIDcuMDIuNTMgNi45NTYgMS40NjZjLS4wNzIgMS4wNTEtLjIzIDIuMDE2LS40MjggMi41OS0uMTI1LjM2LS40NzkgMS4wMTMtMS4wNCAxLjYzOS0uNTU3LjYyMy0xLjI4MiAxLjE3OC0yLjEzMSAxLjQxQzIuNjg1IDcuMjg4IDIgNy44NyAyIDguNzJ2NC4wMDFjMCAuODQ1LjY4MiAxLjQ2NCAxLjQ0OCAxLjU0NSAxLjA3LjExNCAxLjU2NC40MTUgMi4wNjguNzIzbC4wNDguMDNjLjI3Mi4xNjUuNTc4LjM0OC45Ny40ODQuMzk3LjEzNi44NjEuMjE3IDEuNDY2LjIxN2gzLjVjLjkzNyAwIDEuNTk5LS40NzcgMS45MzQtMS4wNjRhMS44NiAxLjg2IDAgMCAwIC4yNTQtLjkxMmMwLS4xNTItLjAyMy0uMzEyLS4wNzctLjQ2NC4yMDEtLjI2My4zOC0uNTc4LjQ4OC0uOTAxLjExLS4zMy4xNzItLjc2Mi4wMDQtMS4xNDkuMDY5LS4xMy4xMi0uMjY5LjE1OS0uNDAzLjA3Ny0uMjcuMTEzLS41NjguMTEzLS44NTcgMC0uMjg4LS4wMzYtLjU4NS0uMTEzLS44NTZhMi4xNDQgMi4xNDQgMCAwIDAtLjEzOC0uMzYyIDEuOSAxLjkgMCAwIDAgLjIzNC0xLjczNGMtLjIwNi0uNTkyLS42ODItMS4xLTEuMi0xLjI3Mi0uODQ3LS4yODItMS44MDMtLjI3Ni0yLjUxNi0uMjExYTkuODQgOS44NCAwIDAgMC0uNDQzLjA1IDkuMzY1IDkuMzY1IDAgMCAwLS4wNjItNC41MDlBMS4zOCAxLjM4IDAgMCAwIDkuMTI1LjExMUw4Ljg2NC4wNDZ6TTExLjUgMTQuNzIxSDhjLS41MSAwLS44NjMtLjA2OS0xLjE0LS4xNjQtLjI4MS0uMDk3LS41MDYtLjIyOC0uNzc2LS4zOTNsLS4wNC0uMDI0Yy0uNTU1LS4zMzktMS4xOTgtLjczMS0yLjQ5LS44NjgtLjMzMy0uMDM2LS41NTQtLjI5LS41NTQtLjU1VjguNzJjMC0uMjU0LjIyNi0uNTQzLjYyLS42NSAxLjA5NS0uMyAxLjk3Ny0uOTk2IDIuNjE0LTEuNzA4LjYzNS0uNzEgMS4wNjQtMS40NzUgMS4yMzgtMS45NzguMjQzLS43LjQwNy0xLjc2OC40ODItMi44NS4wMjUtLjM2Mi4zNi0uNTk0LjY2Ny0uNTE4bC4yNjIuMDY2Yy4xNi4wNC4yNTguMTQzLjI4OC4yNTVhOC4zNCA4LjM0IDAgMCAxLS4xNDUgNC43MjUuNS41IDAgMCAwIC41OTUuNjQ0bC4wMDMtLjAwMS4wMTQtLjAwMy4wNTgtLjAxNGE4LjkwOCA4LjkwOCAwIDAgMSAxLjAzNi0uMTU3Yy42NjMtLjA2IDEuNDU3LS4wNTQgMi4xMS4xNjQuMTc1LjA1OC40NS4zLjU3LjY1LjEwNy4zMDguMDg3LjY3LS4yNjYgMS4wMjJsLS4zNTMuMzUzLjM1My4zNTRjLjA0My4wNDMuMTA1LjE0MS4xNTQuMzE1LjA0OC4xNjcuMDc1LjM3LjA3NS41ODEgMCAuMjEyLS4wMjcuNDE0LS4wNzUuNTgyLS4wNS4xNzQtLjExMS4yNzItLjE1NC4zMTVsLS4zNTMuMzUzLjM1My4zNTRjLjA0Ny4wNDcuMTA5LjE3Ny4wMDUuNDg4YTIuMjI0IDIuMjI0IDAgMCAxLS41MDUuODA1bC0uMzUzLjM1My4zNTMuMzU0Yy4wMDYuMDA1LjA0MS4wNS4wNDEuMTdhLjg2Ni44NjYgMCAwIDEtLjEyMS40MTZjLS4xNjUuMjg4LS41MDMuNTYtMS4wNjYuNTZ6Ii8+Cjwvc3ZnPg=='
+var thumbUpFilledImage = new Image()
+thumbUpFilledImage.src =
+	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktaGFuZC10aHVtYnMtdXAtZmlsbCIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICA8cGF0aCBkPSJNNi45NTYgMS43NDVDNy4wMjEuODEgNy45MDguMDg3IDguODY0LjMyNWwuMjYxLjA2NmMuNDYzLjExNi44NzQuNDU2IDEuMDEyLjk2NS4yMi44MTYuNTMzIDIuNTExLjA2MiA0LjUxYTkuODQgOS44NCAwIDAgMSAuNDQzLS4wNTFjLjcxMy0uMDY1IDEuNjY5LS4wNzIgMi41MTYuMjEuNTE4LjE3My45OTQuNjgxIDEuMiAxLjI3My4xODQuNTMyLjE2IDEuMTYyLS4yMzQgMS43MzMuMDU4LjExOS4xMDMuMjQyLjEzOC4zNjMuMDc3LjI3LjExMy41NjcuMTEzLjg1NiAwIC4yODktLjAzNi41ODYtLjExMy44NTYtLjAzOS4xMzUtLjA5LjI3My0uMTYuNDA0LjE2OS4zODcuMTA3LjgxOS0uMDAzIDEuMTQ4YTMuMTYzIDMuMTYzIDAgMCAxLS40ODguOTAxYy4wNTQuMTUyLjA3Ni4zMTIuMDc2LjQ2NSAwIC4zMDUtLjA4OS42MjUtLjI1My45MTJDMTMuMSAxNS41MjIgMTIuNDM3IDE2IDExLjUgMTZIOGMtLjYwNSAwLTEuMDctLjA4MS0xLjQ2Ni0uMjE4YTQuODIgNC44MiAwIDAgMS0uOTctLjQ4NGwtLjA0OC0uMDNjLS41MDQtLjMwNy0uOTk5LS42MDktMi4wNjgtLjcyMkMyLjY4MiAxNC40NjQgMiAxMy44NDYgMiAxM1Y5YzAtLjg1LjY4NS0xLjQzMiAxLjM1Ny0xLjYxNS44NDktLjIzMiAxLjU3NC0uNzg3IDIuMTMyLTEuNDEuNTYtLjYyNy45MTQtMS4yOCAxLjAzOS0xLjYzOS4xOTktLjU3NS4zNTYtMS41MzkuNDI4LTIuNTl6Ii8+Cjwvc3ZnPg=='
 var thumbDownImage = new Image()
 thumbDownImage.src =
 	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktaGFuZC10aHVtYnMtZG93biIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICA8cGF0aCBkPSJNOC44NjQgMTUuNjc0Yy0uOTU2LjI0LTEuODQzLS40ODQtMS45MDgtMS40Mi0uMDcyLTEuMDUtLjIzLTIuMDE1LS40MjgtMi41OS0uMTI1LS4zNi0uNDc5LTEuMDEyLTEuMDQtMS42MzgtLjU1Ny0uNjI0LTEuMjgyLTEuMTc5LTIuMTMxLTEuNDFDMi42ODUgOC40MzIgMiA3Ljg1IDIgN1YzYzAtLjg0NS42ODItMS40NjQgMS40NDgtMS41NDYgMS4wNy0uMTEzIDEuNTY0LS40MTUgMi4wNjgtLjcyM2wuMDQ4LS4wMjljLjI3Mi0uMTY2LjU3OC0uMzQ5Ljk3LS40ODRDNi45MzEuMDggNy4zOTUgMCA4IDBoMy41Yy45MzcgMCAxLjU5OS40NzggMS45MzQgMS4wNjQuMTY0LjI4Ny4yNTQuNjA3LjI1NC45MTMgMCAuMTUyLS4wMjMuMzEyLS4wNzcuNDY0LjIwMS4yNjIuMzguNTc3LjQ4OC45LjExLjMzLjE3Mi43NjIuMDA0IDEuMTUuMDY5LjEzLjEyLjI2OC4xNTkuNDAzLjA3Ny4yNy4xMTMuNTY3LjExMy44NTYgMCAuMjg5LS4wMzYuNTg2LS4xMTMuODU2LS4wMzUuMTItLjA4LjI0NC0uMTM4LjM2My4zOTQuNTcxLjQxOCAxLjIuMjM0IDEuNzMzLS4yMDYuNTkyLS42ODIgMS4xLTEuMiAxLjI3Mi0uODQ3LjI4My0xLjgwMy4yNzYtMi41MTYuMjExYTkuODc3IDkuODc3IDAgMCAxLS40NDMtLjA1IDkuMzY0IDkuMzY0IDAgMCAxLS4wNjIgNC41MWMtLjEzOC41MDgtLjU1Ljg0OC0xLjAxMi45NjRsLS4yNjEuMDY1ek0xMS41IDFIOGMtLjUxIDAtLjg2My4wNjgtMS4xNC4xNjMtLjI4MS4wOTctLjUwNi4yMjktLjc3Ni4zOTNsLS4wNC4wMjVjLS41NTUuMzM4LTEuMTk4LjczLTIuNDkuODY4LS4zMzMuMDM1LS41NTQuMjktLjU1NC41NVY3YzAgLjI1NS4yMjYuNTQzLjYyLjY1IDEuMDk1LjMgMS45NzcuOTk3IDIuNjE0IDEuNzA5LjYzNS43MSAxLjA2NCAxLjQ3NSAxLjIzOCAxLjk3Ny4yNDMuNy40MDcgMS43NjguNDgyIDIuODUuMDI1LjM2Mi4zNi41OTUuNjY3LjUxOGwuMjYyLS4wNjVjLjE2LS4wNC4yNTgtLjE0NC4yODgtLjI1NWE4LjM0IDguMzQgMCAwIDAtLjE0NS00LjcyNi41LjUgMCAwIDEgLjU5NS0uNjQzaC4wMDNsLjAxNC4wMDQuMDU4LjAxM2E4LjkxMiA4LjkxMiAwIDAgMCAxLjAzNi4xNTdjLjY2My4wNiAxLjQ1Ny4wNTQgMi4xMS0uMTYzLjE3NS0uMDU5LjQ1LS4zMDEuNTctLjY1MS4xMDctLjMwOC4wODctLjY3LS4yNjYtMS4wMjFMMTIuNzkzIDdsLjM1My0uMzU0Yy4wNDMtLjA0Mi4xMDUtLjE0LjE1NC0uMzE1LjA0OC0uMTY3LjA3NS0uMzcuMDc1LS41ODEgMC0uMjExLS4wMjctLjQxNC0uMDc1LS41ODEtLjA1LS4xNzQtLjExMS0uMjczLS4xNTQtLjMxNWwtLjM1My0uMzU0LjM1My0uMzU0Yy4wNDctLjA0Ny4xMDktLjE3Ni4wMDUtLjQ4OGEyLjIyNCAyLjIyNCAwIDAgMC0uNTA1LS44MDRsLS4zNTMtLjM1NC4zNTMtLjM1NGMuMDA2LS4wMDUuMDQxLS4wNS4wNDEtLjE3YS44NjYuODY2IDAgMCAwLS4xMjEtLjQxNUMxMi40IDEuMjcyIDEyLjA2MyAxIDExLjUgMXoiLz4KPC9zdmc+'
-
+var thumbDownFilledImage = new Image()
+thumbDownFilledImage.src =
+	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktaGFuZC10aHVtYnMtZG93bi1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik02Ljk1NiAxNC41MzRjLjA2NS45MzYuOTUyIDEuNjU5IDEuOTA4IDEuNDJsLjI2MS0uMDY1YTEuMzc4IDEuMzc4IDAgMCAwIDEuMDEyLS45NjVjLjIyLS44MTYuNTMzLTIuNTEyLjA2Mi00LjUxLjEzNi4wMi4yODUuMDM3LjQ0My4wNTEuNzEzLjA2NSAxLjY2OS4wNzEgMi41MTYtLjIxMS41MTgtLjE3My45OTQtLjY4IDEuMi0xLjI3MmExLjg5NiAxLjg5NiAwIDAgMC0uMjM0LTEuNzM0Yy4wNTgtLjExOC4xMDMtLjI0Mi4xMzgtLjM2Mi4wNzctLjI3LjExMy0uNTY4LjExMy0uODU2IDAtLjI5LS4wMzYtLjU4Ni0uMTEzLS44NTdhMi4wOTQgMi4wOTQgMCAwIDAtLjE2LS40MDNjLjE2OS0uMzg3LjEwNy0uODItLjAwMy0xLjE0OWEzLjE2MiAzLjE2MiAwIDAgMC0uNDg4LS45Yy4wNTQtLjE1My4wNzYtLjMxMy4wNzYtLjQ2NWExLjg2IDEuODYgMCAwIDAtLjI1My0uOTEyQzEzLjEuNzU3IDEyLjQzNy4yOCAxMS41LjI4SDhjLS42MDUgMC0xLjA3LjA4LTEuNDY2LjIxN2E0LjgyMyA0LjgyMyAwIDAgMC0uOTcuNDg1bC0uMDQ4LjAyOWMtLjUwNC4zMDgtLjk5OS42MS0yLjA2OC43MjNDMi42ODIgMS44MTUgMiAyLjQzNCAyIDMuMjc5djRjMCAuODUxLjY4NSAxLjQzMyAxLjM1NyAxLjYxNi44NDkuMjMyIDEuNTc0Ljc4NyAyLjEzMiAxLjQxLjU2LjYyNi45MTQgMS4yOCAxLjAzOSAxLjYzOC4xOTkuNTc1LjM1NiAxLjU0LjQyOCAyLjU5MXoiLz4KPC9zdmc+'
 /**
  * draw badges (icons) around Factors and Links
  * @param {CanvasRenderingContext2D} ctx NetPane canvas context
@@ -1415,13 +1427,13 @@ function drawBadges(ctx) {
 	}
 	// draw the voting thumbs up/down
 	if (showVotingToggle) {
-	data.nodes.get().forEach((node) => {
-		let box = network.getBoundingBox(node.id)
-		drawTheBadge(thumbUpImage, ctx, box.left + 20, box.bottom)
-		drawThumbCount(ctx, node.thumbUp, box.left + 36, box.bottom + 10)
-		drawTheBadge(thumbDownImage, ctx, box.right - 36, box.bottom)
-		drawThumbCount(ctx, node.thumbDown, box.right - 20, box.bottom + 10)
-	})
+		data.nodes.get().forEach((node) => {
+			let box = network.getBoundingBox(node.id)
+			drawTheBadge(node.thumbUp && node.thumbUp.includes(clientID) ? thumbUpFilledImage : thumbUpImage, ctx, box.left + 20, box.bottom)
+			drawThumbCount(ctx, node.thumbUp, box.left + 36, box.bottom + 10)
+			drawTheBadge(node.thumbDown && node.thumbDown.includes(clientID) ? thumbDownFilledImage : thumbDownImage, ctx, box.right - 36, box.bottom)
+			drawThumbCount(ctx, node.thumbDown, box.right - 20, box.bottom + 10)
+		})
 	}
 
 	/**
@@ -1435,8 +1447,15 @@ function drawBadges(ctx) {
 		ctx.beginPath()
 		ctx.drawImage(badgeImage, Math.floor(x), Math.floor(y))
 	}
-	function drawThumbCount(ctx, value, x, y) {
-		if (value) ctx.fillText(value.toString(), x, y)
+	/**
+	 * draw the length of the voters array, i.e. the count of those who have voted
+	 * @param {context} ctx 
+	 * @param {array} voters 
+	 * @param {number} x 
+	 * @param {number} y 
+	 */
+	function drawThumbCount(ctx, voters, x, y) {
+		if (voters) ctx.fillText(voters.length.toString(), x, y)
 	}
 }
 /**
