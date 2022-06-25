@@ -1455,7 +1455,11 @@ function drawBadges(ctx) {
 	 * @param {number} y 
 	 */
 	function drawThumbCount(ctx, voters, x, y) {
-		if (voters) ctx.fillText(voters.length.toString(), x, y)
+		if (voters) {
+			ctx.beginPath()
+			ctx.fillStyle='black'
+			ctx.fillText(voters.length.toString(), x, y)
+		}
 	}
 }
 /**

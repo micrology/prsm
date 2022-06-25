@@ -74,21 +74,21 @@ This what they do, from left to right:
 
 <p style="text-align: center"><video width="640" height="360" autoplay muted loop><source src="/doc/images/create-link-nodes.mp4" type="video/mp4">Your browser does not support the video tag.</video></p>
 
-* **Undo**. Reverses the last action (e.g. if you have just created a new factor, it will be removed).  See also using rollback from the History window, described in the section about the [Network Tab](#network-tab).
-* **Redo**. Redo the last action (e.g. if you have just undone the creation of a factor, this will return the factor to the network).
-* **Bin**. First, select a factor or a link by clicking on it.  Note that the selected factor or link gains a shadow and is listed in the status bar at the bottom of the window. Then click on the Bin button (or press the backspace or delete keys) - the factor or link is deleted.  The Undo button will restore it if you deleted it by mistake.
-* **Share**. Shows a dialog box with a web link that you can copy and send to someone else.  If they then access that link, they will see your network and can edit and add to it. See [Sharing](#sharing) below.
-* **Open file**. Read in a file containing a network from your computer drive.  See [below](#file-formats) for supported file formats.  The content of the file replaces the network in the browser.
-* **Save file**.  Save the network in a file on your computer. The file is saved in the app's own format, or if you click on the small triangle next to the button, you can choose to save an image of the map as a high resolution image (a .PNG file), or the map data in GML (Graph Markup Language) or CSV (Comma Separated Values) formats.
-* **Search**. Search for factors by name.
+* **Undo** Reverses the last action (e.g. if you have just created a new factor, it will be removed).  See also using rollback from the History window, described in the section about the [Network Tab](#network-tab).
+* **Redo** Redo the last action (e.g. if you have just undone the creation of a factor, this will return the factor to the network).
+* **Bin** First, select a factor or a link by clicking on it.  Note that the selected factor or link gains a shadow and is listed in the status bar at the bottom of the window. Then click on the Bin button (or press the backspace or delete keys) - the factor or link is deleted.  The Undo button will restore it if you deleted it by mistake.
+* **Share** Shows a dialog box with a web link that you can copy and send to someone else.  If they then access that link, they will see your network and can edit and add to it. See [Sharing](#sharing) below.
+* **Open file** Read in a file containing a network from your computer drive.  See [below](#file-formats) for supported file formats.  The content of the file replaces the network in the browser.
+* **Save file**  Save the network in a file on your computer. The file is saved in the app's own format, or if you click on the small triangle next to the button, you can choose to save an image of the map as a high resolution image (a .PNG file), or the map data in GML (Graph Markup Language) or CSV (Comma Separated Values) formats.
+* **Search** Search for factors by name.
 * **Help** Display this help page in a separate window.
-* **Settings**. Opens a panel that allows much more customisation and exploration of the network (see [Styling the map](#styling-the-map) and [Analysing the map](#analysing-the-map) below).
+* **Settings** Opens a panel that allows much more customisation and exploration of the network (see [Styling the map](#styling-the-map) and [Analysing the map](#analysing-the-map) below).
 
 To **select** a factor or a link, click on it. To select more than one, click on one factor or link and then *hold down* the pointer on the other.  Or you can hold down the control (CTRL) key and click to add to the selection. At the bottom of the window is the status bar that will show which factors and links have been selected. Clicking anywhere on the background will deselect all the factors and links.
 
 Each factor can be moved across the network pane by dragging it.  The whole network can be moved by dragging the background.
 
-Also at the bottom of the window on the right is a slider that will adjust the **magnification**: slide to the right to make the factors and links larger and to the left to make them smaller (or click on the + and - signs).  To return the network to a size that will fit neatly in the window, double click on the black bar at the top, or anywhere on the network background (the latter will also desleect any selected factors or links).  On a tablet or phone, you can zoom by using the 'pinch' gesture.
+Also at the bottom of the window on the right is a slider that will adjust the **magnification**: slide to the right to make the factors and links larger and to the left to make them smaller (or click on the + and - signs).  To return the network to a size that will fit neatly in the window, double click on the black bar at the top, or anywhere on the network background (the latter will also deselect any selected factors or links).  On a tablet, trackpad or phone, you can zoom by using the 'pinch' gesture.
 
 At the top left, you can enter a **title** for the  map.  Click on 'Untitled map' and type in your title. If you have created or used several maps (and they have titles), a small downward triangle will appear to the right of the title.  Clicking on this shows a list of those previous maps, and clicking on one of those takes you away from the current map and loads the previous one (after you have confirmed that this is what you want to do).
 
@@ -98,13 +98,13 @@ Holding down the Shift key and then moving the mouse pointer will show a **magni
 
 If you select just one factor or one link, a small panel appears.  This shows the factor or link label (if it has one), the time and date  when the factor or link was created, when it was last modifed if it has been changed since it was created, some network statistics about the factor, and an area where you can type a note to show further information about the factor or link.  
 
-For factors, there is also an open or closed padlock symbol. If this is shown closed, the factor will be locked into place on the network pane and cannot be dragged elsewhere.  The factor will be shown as selected (with a shadow around it) and will have a small padlock symbol at the top left.  Locking a factor is useful when you are doing analysis of the map (see the [Analysis](#analysis) section below) and don't want to lose the selection while investigating other factors.
-
 If a factor or link has a note, a small 'card' icon is shown next to it.
 
 <img src="/doc/images/FactorWithNote.png" width="500">
 
 A basic editor is provided for writing the Notes.  You can format the text with **bold**, *italic* or <u>underline</u>, create bulletted or numbered lists, and add weblinks (URLs) to the text.
+
+For factors, there is also an open or closed padlock symbol. If this is shown closed, the factor will be locked into place on the network pane and cannot be dragged elsewhere.  The factor will have a small padlock symbol at the top left.  Locking a factor is useful when you are doing analysis of the map (see the [Analysis](#analysis) section below) and don't want to lose the selection while investigating other factors.
 
 ### Sharing
 
@@ -114,11 +114,11 @@ If you use the [link above](#Installation) to start the app, a new room is creat
 
 Click the 'Copy to clipboard' button to copy the web link to the clipboard, and then paste the link into an email or a text message or just tell other participants the name of the room (which is a randomly generated set of 4 groups of three letters separated by hyphens).  When they access the link, they will see whatever is in your app window.
 
-There are three options for the sharing link.  If you check the 'Clone map' box, the web link will be to the same map but in a new room - any changes made to this new map will *not* appear in the original room.  If you check the 'View only' box, the recipient of the web link will not be able to make any changes to the map.  If you check the Data view box, the web link will be a a spreadsheet-like view of the facors and links in the map (see the [section on the Data view](#data-view)).
+There are also three buttons on the right.  If you click  the 'Clone map' button, a browser tab will open with the same map but in a new room - any changes made to this new map will *not* appear in the original room.  You can then send the web address to others, confidnet that they will not disturb the original map.  If you click the 'View only' button, a copy of the map will be made in a new browser tab, but without any of the buttons that allow one to modify the map. You can use the web link of this map to distribute the map to people whom you wnat to look at the map, but not change it.  If you click the 'Data view' button, the web link will be a a spreadsheet-like view of the factors and links in the map (see the [section on the Data view](#data-view)).
 
 ### Avatars and pointers
 
-When there are others in the room, the initial letters of their name appear in a circle at the top left - their *avatar*.  If you hover the mouse pointer over the circle, their full name is shown (their real name or the name they have been given by the app).  If they don't do anything for 15 minutes, the avatar fades and, if they close their browser window, it disappears.
+When there are others in the room, the initial letters of their name appear in a circle at the top left - their *avatar*.  If you hover the mouse pointer over the circle, their full name is shown (their real name or the name they have been given by the app).  If they don't do anything for 15 minutes, the avatar fades and if they close their browser window, it disappears.
 
 The other users' mouse pointers are shown on the map.  As you move your mouse pointer (or finger on a touchscreen), a small disc containing your initials moves on every other users' map correspondingly.  If you are talking with other users by audio or video link, you can use your mouse to point to things of interest, and the other users can see what you are pointing at.
 
@@ -145,7 +145,7 @@ You can use the following mouse actions (or finger or pencil gestures on a table
 
 ### Copy and paste
 
-You can copy selected factors to the clipboard and then paste them into either the same map (to duplicate them) or into another map in another browser window or tab.
+You can copy selected factors to the clipboard and then paste them into either the same map (to duplicate them) or into another map in another browser window or tab. (Copy and paste is not available with the Firefox browser.)
 
 To copy, first select the factors that you want copied (a long press on the factors).  Then hold down the Command &#8984; or
 CTRL &#8963;key and type C.  If you copy more than one factor, all the links that go between the selected factors get copied too.
@@ -168,7 +168,7 @@ Clicking on the speech balloon at the bottom right opens up a chat window that y
 <!-- ![Chat window](/doc/images/ChatWindow.png) -->
 <img src="/doc/images/ChatWindow.png" width="300">
 
-If you haven't provided your real name, the  name at the top is initially randomly generated, but if you click on it, you can substitute your own.  You can write messages in the box at the bottom and send them by clicking the paper plane button.  Use the **X** to close the chat window.
+If you haven't provided your real name, the  name at the top is initially randomly generated, but if you click on it, you can substitute your own.  You can write messages in the box at the bottom and send them by clicking the arrow button.  Use the **X** to close the chat window.
 
 You can choose to send your messages either to everyone or to one selected person (from among those online).
 
@@ -178,9 +178,15 @@ If someone has sent you a message but your chat window is closed, the button wil
 
 ### File formats
 
-The app can read files in its native format (files with the suffix '.prsm'), or in [GRAPHML](http://graphml.graphdrawing.org/){target="_blank" rel="noreferrer"} (.graphml), [GML](https://en.wikipedia.org/wiki/Graph_Modelling_Language){target="_blank" rel="noreferrer"} (.gml) or [Comma Separated Values (CSV)](https://en.wikipedia.org/wiki/Comma-separated_values){target="_blank" rel="noreferrer"} (.csv) formats.  A CSV file must contain at least two columns of values.  Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to.  This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottom right as shown on the [Factors tab](#factors-tab)).  The fifth column may contain the style number for the link.
+The app can read files in its native format (files with the suffix '.prsm'), or in [GRAPHML](http://graphml.graphdrawing.org/){target="_blank" rel="noreferrer"} (.graphml), [GML](https://en.wikipedia.org/wiki/Graph_Modelling_Language){target="_blank" rel="noreferrer"} (.gml), [GraphVix](https://graphviz.org/){target="_blank" rel="noreferrer"}(.gv or .dot) or [Comma Separated Values (CSV)](https://en.wikipedia.org/wiki/Comma-separated_values){target="_blank" rel="noreferrer"} (.csv) formats.  Not all features of GraphML, GML and GraphViz formats are supported.
 
-The app can create output files in the app's own native format, as a GML file or as a CSV file.  You can also save an image of the map as a Portable Network Graphics (.png) file.  The image shows the same view of the map as you see on the screen (so, for example, it will not show factors that have been moved out of the app window).
+A CSV file must contain at least two columns of values.  Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to.  This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottom right as shown on the [Factors tab](#factors-tab)).  The fifth column may contain the style number for the link.
+
+The app can create output files in the app's own native format, as a GML file, GraphViz file or as CSV files.
+
+The CSV output is as two files, one listing all the factors and the other all the links.  The factor file starts with a header row with the names of the columns (`Id,Label,Style,Note`) and then describes each factor. The links file has a header: `Source,Target,Type,Id,Label,Style,Note`, where the Source and Target refer to the Ids listed in the factors CSV file.
+
+You can also save a high resolution (600 dpi) image of the map as a Portable Network Graphics (.png) file.  The image shows the same view of the map as you see on the screen (so, for example, it will not show factors that have been moved out of the app window).
 
 ### Privacy and security
 
@@ -188,7 +194,7 @@ The only way to join the room and see the network is by using the randomly gener
 
 ## Styling the map
 
-fourThe view you see when you first open the app is intentionally very simple, but hidden away are many more features.  To access these, click on the last, Settings, button on the top bar: <!-- ![Settings Button](/doc/images/SettingsButton.png) --><img src="/doc/images/SettingsButton.png" style="display: inline" width="20">.  This will reveal a set of four tabs: Factors, Links, Netork and Analysis, with the Factors tab open.
+The view you see when you first open the app is intentionally very simple, but hidden away are many more features.  To access these, click on the last, Settings, button on the top bar: <!-- ![Settings Button](/doc/images/SettingsButton.png) --><img src="/doc/images/SettingsButton.png" style="display: inline" width="20">.  This will reveal a set of four tabs: Factors, Links, Network and Analysis, with the Factors tab open.
 
 The panel showing the tabs can moved across the network pane: drag it using the thin black strip at the top of the panel above the tab buttons.  This can be useful if the panel gets in the way of seeing the network.
 
@@ -204,9 +210,11 @@ Double clicking on any of the 9 styles opens a dialog box to change the style:
 <!-- ![FactorStyleDialog](/doc/images/FactorStyle.png) -->
 <img src="/doc/images/FactorsStyle.png" width="600">
 
-There are options to change the colour of the background (the 'fill'), the border and the font, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted or none, and to change the font size of the label.
+There are options to change the colour of the background (the 'fill'), the border and the font, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted or none, and to change the font size of the label.  Clicking on the padlock symbol will [lock](#Notes) all the factors with this style; clicking on it again will unlock them all.
 
-If you right click (or Control click) on one of the style samples, there is a menu with which you can either select all the factors that have that style, or hide all those factors from view.
+If you right click (or CTRL click) on one of the style samples, there is a menu with which you can either select all the factors that have that style, or hide all those factors from view.
+
+<img src="/doc/images/FactorsRightClick.png" width="250">
 
 #### Legend
 
@@ -227,15 +235,15 @@ The Links tab is very similar to the Factors tab, except that it relates to the 
 
 The Network tab enables you to change many aspects of the network visualisation and what is shown in the window.  
 
-It is sometimes useful to get PSRM to layout factors using an automatic procedure and then adjust their positions manually to achieve the desired placement.  PRSM provides several layout algorithms:
+It is sometimes useful to get PSRM to arrange factors using an automatic procedure and then adjust their positions manually to achieve the desired placement.  PRSM provides several layout algorithms:
 
 * The *trophic* algorithm helps to reveal [the causal structure of the map](https://royalsocietypublishing.org/doi/10.1098/rsos.201138){target="_blank" rel="noreferrer"}. With the trophic layout, the factors are arranged along the horizontal axis according to their positions (their trophic levels) in the overall causal flow within the system, making it easier to identify upstream and downstream factors; the linked chains of influence that connect them; and where factors act on the system within this overall causal structure (which may be upstream or downstream). It will re-arrange the factors and links to create a layout such that all the links point from left to right and are arranged according to [trophic level](https://en.wikipedia.org/wiki/Trophic_level){target="_blank" rel="noreferrer"}.
 * *Fan* Arranges the factors in a fan shape starting from a selected factor.  You need to select at least one factor before using this layout option.  It is most useful after displaying the factors up or downstream from a selected factor (see the [Analysis](#analysis) section below for an explanation of Up and Down stream).
 * *Barnes Hut* This is a 'gravity' algorithm.  Each factor is modelled as though it has a mass that repulses all other factors with an inverse square, while the links are modelled as springs that pull the factors together. The algorithm is iterative, i.e. it tries repeatedly to find the best arrangement of factors that balance the repulsive forces between the factors and the attractive forces from the springs.
-* *Force Atlas 2* This is a variation of the Barnes Hut algorithm in which the repulsion between the factors is linear rather than qudratric.
+* *Force Atlas 2* This is a variation of the Barnes Hut algorithm in which the repulsion between the factors is linear rather than quadratic.
 * *Repulsion*  Another variation of Barnes Hut.
 
-There is no best layout algorithm that works for all networks; you need to see which one looks best for your map. If you don't like the effect of an algorithm, you can choose another one, or use the Undo button on the top bar to revert the map to its original layout.
+There is no best layout algorithm that works for all networks; you need to see which one looks good for your map. If you don't like the effect of an algorithm, you can choose another one, or use the Undo button on the top bar to revert the map to its original layout.
 
 On the Network tab, there are controls for:
 
@@ -251,6 +259,8 @@ On the Network tab, there are controls for:
 * **Show other users** When ON, the positions of other users' mouse pointers are shown in real time.  
 * **Show history** When ON, a panel displaying every change to a factor or link (adding a factor or link, editing it or deleting it) is shown. It is possible to 'rollback' the map to the state it was in before a change.  This can be quicker than repeatedly undoing changes with the Undo button.  To rollback, click on the <img src="/doc/images/bootstrap-reboot.svg" style="display: inline"> button.  You will be asked to confirm the action.  The states of the map for the previous 10 changes are kept.
 * **Show notes** When a factor or link is selected, normally a Notes panel pops up at the bottom right of the map.  Turning this switch OFF prevents the Notes panels from being displayed.
+* **Show reactions** When this switch is on, a thumbs up (&#128077;) and a thumbs down (&#128078;) symbol appear below each factor.  People can vote using these symbols (for example, to indicate which factors they think most important, or to 'Like' a factor), by clicking on the symbol.  A second click removes their vote.  The numbers beside the symbols indicates how many people have voted.
+<img src="/doc/images/FactorReactions.png" width="250">
 
 ### Analysis tab
 
@@ -284,19 +294,19 @@ The above three options can be combined.  For example, the shortest path between
 
   <img src="/doc/images/BeforeClustering.png" width="600">
 
-  and here is the same map afterclustering by Style:
+  and here is the same map after clustering by Style:
 
    <img src="/doc/images/Clustered.png" width="600">
 
   Links to and from cluster factors are labelled with the number of links that they aggregate.
 
-  Clustering is done according to the values of  a clustering attribute - all factors with the same value for this attribute are joined into the same cluster.  The Cluster pulldown menu offers as standard, Style (i.e. the factors' style as set in the factor tab) and Colour (i.e. the colour of the factors' backgrounds) as possible attributes with which to cluster.  In addition, bespoke attributes can be used by creating a new column in the Data View and giving each factor a value there (see the section on the [Data View](#data-view) for how to create attributes).  These additional atributes are automatically added to Cluster pull-down menu when they are created.
+  Clustering is done according to the values of  the clustering attribute - all factors with the same value for this attribute are joined into the same cluster.  The **Cluster** pulldown menu offers as standard, **Style** (i.e. the factors' style as set in the factor tab) and **Colour** (i.e. the colour of the factors' backgrounds) as possible attributes with which to cluster.  In addition, bespoke attributes can be used by creating a new column in the Data View and giving each factor a value there (see the section on the [Data View](#data-view) for how to create attributes).  These additional attributes are automatically added to the Cluster pull-down menu when they are created.
 
-  Once the map has been clustered, a cluster factor can be 'unclustered' (its component factors revealed) by right (Control) clicking it, and reclustered by right (Control) clicking any of the component factors.  To uncluster the map as a whole, select None from the Cluster pull-down menu.
+  Once the map has been clustered, a cluster factor can be 'unclustered' (its component factors revealed) by right (Control) clicking it, and reclustered by right (CTRL) clicking any of the component factors.  To uncluster the map as a whole, select None from the Cluster pull-down menu.
 
 ## Drawing Mode
 
-Switching 'Show drawing layer' ON reveals a group of buttons on the left that enable you to draw shapes, write text, and import images onto the network background.  
+Switching 'Show drawing layer' ON reveals a group of buttons on the left that enables you to draw shapes, write text, and import images onto the network background.  
 
 ![Drawing layer](/doc/images/drawingLayer.png)
 

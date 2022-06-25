@@ -265,7 +265,12 @@
 					<a-cursor color="#FF0000" raycaster="objects: #origin-box, .node"></a-cursor>
 				</a-camera>
 
-				<a-entity id="left-hand" hand-tracking-controls="hand: left" laser-controls="hand: left"></a-entity>
+				<a-entity
+					id="left-hand"
+					hand-tracking-controls="hand: left"
+					laser-controls="hand: left"
+					raycaster="showLine: false"
+				></a-entity>
 				<a-entity
 					id="right-hand"
 					laser-controls="hand: right"
@@ -279,9 +284,9 @@
 					id="origin-box"
 					return-to-origin
 					material="transparent: true; opacity: 0"
-					depth="2"
-					height="2"
-					width="2"
+					depth="4"
+					height="4"
+					width="4"
 					position="0 0 0"
 				></a-box>
 				<a-sphere color="lightgray" radius="0.05"></a-sphere>
