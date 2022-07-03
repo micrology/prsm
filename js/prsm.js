@@ -35,7 +35,8 @@ import {
 import Tutorial from './tutorial.js'
 import {styles} from './samples.js'
 import {trophic} from './trophic.js'
-import {cluster, openCluster} from './cluster.js'
+import { cluster, openCluster } from './cluster.js'
+import {openOtherDoc, mergeRoom, diffRoom} from './diag.js'
 import * as parser from 'fast-xml-parser'
 // see https://github.com/joeattardi/emoji-button
 import {EmojiButton} from '@joeattardi/emoji-button'
@@ -368,6 +369,9 @@ function startY(newRoom) {
 	window.yPointsArray = yPointsArray
 	window.styles = styles
 	window.yAwareness = yAwareness
+	window.mergeRoom = mergeRoom
+	window.diffRoom = diffRoom
+	window.openOtherDoc = openOtherDoc
 
 	/* 
 	nodes.on listens for when local nodes or edges are changed (added, updated or removed).
