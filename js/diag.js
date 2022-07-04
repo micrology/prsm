@@ -132,7 +132,10 @@ function mergeMaps() {
 		let edgeName =
 			BEdge.label || `from [${bdata.nodes.get(BEdge.from).label}] to [${bdata.nodes.get(BEdge.to).label}]`
 		if (AEdge) {
-			if (AEdge.label != BEdge.label)
+			if (
+				((AEdge.label && AEdge.label.trim() != '') || (BEdge.label && BEdge.label.trim() != '')) &&
+				AEdge.label != BEdge.label
+			)
 				logHistory(
 					`Existing Link label: \n[${AEdge.label}] \ndoes not match new label: \n[${BEdge.label}].  Existing label retained.`,
 					'Merge'
@@ -191,7 +194,10 @@ function diffMaps() {
 		let edgeName =
 			BEdge.label || `from [${bdata.nodes.get(BEdge.from).label}] to [${bdata.nodes.get(BEdge.to).label}]`
 		if (AEdge) {
-			if (AEdge.label != BEdge.label)
+			if (
+				((AEdge.label && AEdge.label.trim() != '') || (BEdge.label && BEdge.label.trim() != '')) &&
+				AEdge.label != BEdge.label
+			)
 				console.log(`Existing Link label: \n[${AEdge.label}] \ndoes not match new label: \n[${BEdge.label}].  `)
 			else if (AEdge.grp != BEdge.grp)
 				console.log(
