@@ -2308,7 +2308,7 @@ var ticking = false // if true, we are waiting for an AnimationFrame */
 // see https://www.html5rocks.com/en/tutorials/speed/animations/
 
 // listen for zoom/pinch (confusingly, referred to as mousewheel events)
-window.addEventListener(
+listen('net-pane',
 	'wheel',
 	(e) => {
 		e.preventDefault()

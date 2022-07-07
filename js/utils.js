@@ -7,9 +7,10 @@ import uniqolor from 'uniqolor'
  * @param {string} id - id of the element on which to hang the event listener
  * @param {string} event
  * @param {function} callback
+ * @param {object} options
  */
-export function listen(id, event, callback) {
-	elem(id).addEventListener(event, callback)
+export function listen(id, event, callback, options) {
+	elem(id).addEventListener(event, callback, options)
 }
 
 /**
