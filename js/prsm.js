@@ -1921,6 +1921,7 @@ function lockNode(item) {
 	item.locked = true
 	item.opacity = 0.3
 	item.oldLabel = item.label
+	item.oldFontColor = item.font.color
 	item.label = item.label + '\n\n' + '[Being edited by ' + myNameRec.name + ']'
 	item.wasFixed = Boolean(item.fixed)
 	item.fixed = true
