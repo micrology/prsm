@@ -5,6 +5,7 @@ import {styles} from './samples.js'
 import {network, data, doc, yNetMap, unSelect, debug} from './prsm.js'
 
 export function cluster(attribute) {
+	if (!attribute) return
 	doc.transact(() => {
 		unCluster()
 		switch (attribute) {
