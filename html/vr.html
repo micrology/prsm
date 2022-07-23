@@ -242,13 +242,13 @@
 		</script>
 	</head>
 	<body>
-		<a-scene fog="type: linear; color: #AAA">
+		<a-scene fog="type: linear; color: #D0ECE7">
 			<!-- instructions -->
 			<a-entity
 				id="info"
 				position="1 2 -2"
 				billboard
-				text="width: 2; lineHeight: 50; letterSpacing: 5; color: black; value: 
+				text="width: 2; lineHeight: 50; letterSpacing: 5; color: white; value: 
 				Use the right hand controller to point to Factors and show their labels.\n
 				Use the left hand thumb stick to go forwards, back, left or right relative to the direction in which you are looking.\n
 				Point at the white ball at the origin (where the red, green and blue axes cross) and pull the trigger to jump straight there."
@@ -269,33 +269,31 @@
 					id="left-hand"
 					hand-tracking-controls="hand: left"
 					laser-controls="hand: left"
-					raycaster="showLine: false"
+					raycaster="showLine: true; lineColor: green; objects: #origin-box, .node"
 				></a-entity>
 				<a-entity
 					id="right-hand"
 					laser-controls="hand: right"
 					hand-tracking-controls="hand: right"
-					raycaster="showLine: true; lineColor: white; objects: #origin-box, .node"
+					raycaster="showLine: true; lineColor: green; objects: #origin-box, .node"
 				></a-entity>
 			</a-entity>
 			<!-- centre point and axes -->
 			<a-entity id="origin">
-				<a-box
+				<a-sphere
 					id="origin-box"
 					return-to-origin
 					material="transparent: true; opacity: 0"
-					depth="4"
-					height="4"
-					width="4"
+					radius="8"
 					position="0 0 0"
-				></a-box>
+				></a-sphere>
 				<a-sphere color="lightgray" radius="0.05"></a-sphere>
 				<a-entity line="start: -500 0 0; end: 500 0 0; color: red"></a-entity>
 				<a-entity line="start: 0 -500 0; end: 0 500 0; color: green"></a-entity>
 				<a-entity line="start: 0 0 -500; end: 0 0 500; color: blue"></a-entity>
 			</a-entity>
 			<!-- sky -->
-			<a-sky color="black"></a-sky>
+			<a-sky color="white"></a-sky>
 		</a-scene>
 	</body>
 </html>

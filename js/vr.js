@@ -117,6 +117,7 @@ function showForceGraph() {
 		nodes: JSON.stringify(graphData.nodes),
 		links: JSON.stringify(graphData.links),
 		nodeResolution: 32,
+		nodeRelSize: 6,
 		nodeOpacity: 1.0,
 		linkWidth: 0,
 		linkOpacity: 1.0,
