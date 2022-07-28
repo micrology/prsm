@@ -154,7 +154,7 @@
 									sphereEl.classList.add('node')
 									sphereEl.id = child.__data.id
 									this.spheres.set(child.__data.id, sphereEl)
-									sphereEl.setAttribute('position', child.position)
+									sphereEl.object3D.position.set(child.position)
 									let radius = child.geometry.parameters.radius + 0.1
 									sphereEl.setAttribute('radius', radius)
 									let color = child.__data.color || 'white'
@@ -171,43 +171,22 @@
 										align: 'center',
 									})
 									sphereEl.setAttribute('look-at', '#cameraRig')
-									label.setAttribute('position', {x: 0, y: 0, z: radius})
+									label.object3D.position.set(0, 0, radius)
 									sphereEl.appendChild(label)
 
 									sphereEl.addEventListener('mouseenter', function () {
 										let noteText = sphereEl.getAttribute('note')
-										if (!noteText) return
-										/* let noteDiv = document.createElement('div')
-										noteDiv.id = 'noteDiv'
-										noteDiv.innerHTML = noteText
-										sphereEl.appendChild(noteDiv) */
 										let note = document.createElement('a-entity')
 										sphereEl.appendChild(note)
-/* 										note.setAttribute('html', {html: '#noteDiv'})
- */										note.id = 'note'
-										
-
-/* 										note.setAttribute('text', {
-											value: noteText,
-											color: 'black',
-											width: 20,
-											anchor: 'left',
-											align: 'left',
-										}) */
-										note.setAttribute('htmlembed', {
-											ppu: 256
-										})
+										note.id = 'note'
+										note.setAttribute('htmlembed', {ppu: 256})
 										note.innerHTML = noteText
-//										note.setAttribute('geometry', {primitive: 'plane', height: 'auto', width: 20})
-//										note.setAttribute('material', {color: 'grey'})
-										note.setAttribute('scale', {x: 40, y: 40, z: 40})
-										note.setAttribute('position', {x: radius + 1, y: 0, z: radius + 1})
-										console.log('mouseenter')
+										note.object3D.scale.set(20, 20, 20)
+										note.object3D.position.set(radius + 10, 0, radius + 1)
 									})
 									sphereEl.addEventListener('mouseleave', function () {
 										let note = sphereEl.querySelector('#note')
 										if (note) sphereEl.removeChild(note)
-										console.log('mouseleave')
 									})
 								}
 							}
@@ -332,18 +311,7 @@
 				<a-entity line="start: 0 0 -500; end: 0 0 500; color: blue"></a-entity>
 			</a-entity>
 			<!-- sky -->
-			<a-sky color="white"></a-sky>
-			<!-- <a-entity position="0 1.6 -1" html="html:#noteDiv">
-			</a-entity> -->
-			<script>
-										let note = document.createElement('a-entity')
-										document.querySelector('a-scene').appendChild(note)
-										note.setAttribute('html', {html: '#noteDiv'})
-										note.id = 'note'
-										note.setAttribute('position', {x: 0, y: 1.6, z: -1})
-
-			</script>
+			<a-sky color="#87CEFA"></a-sky>
 		</a-scene>
-		<div id="noteDiv"><p>This is some <strong>bold</strong> text<br><br>Some more </p></div>
 	</body>
 </html>
