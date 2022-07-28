@@ -8,7 +8,10 @@
 
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
-import {object_equals, standardize_color} from './utils.js'
+import { object_equals, standardize_color, timeAndDate } from './utils.js'
+import Quill from 'quill'
+import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
+
 
 var room
 const doc = new Y.Doc()
@@ -66,13 +69,35 @@ function exactTime() {
 	let d = new Date()
 	return `${d.toLocaleTimeString()}:${d.getMilliseconds()} `
 }
+/* set up a div to aid conversion of notes from Quill to HTML */
+let dummyDiv = document.createElement('div')
+	dummyDiv.id = 'dummy-div'
+	dummyDiv.style.display = 'none'
+	document.querySelector('body').appendChild(dummyDiv)
+	let qed = new Quill('#dummy-div')
 /**
  * Convert a node from the normal PRSM format to the one required by the 3d display
  * @param {Object} node
  * @returns Object
  */
 function convertNode(node) {
-	return {id: node.id, label: node.label, color: node.color.background, fontColor: node.font.color, val: 5}
+	let note = ''
+	if (node.created) note = `<p>Created at ${timeAndDate(node.created.time)} by ${node.created.user}</p>`
+	if (node.modified) note += `<p>Modified at ${timeAndDate(node.modified.time)} by ${node.modified.user}</p>`
+	if (node.note) {
+		qed.setContents(node.note)
+		// convert Quill formatted note to HTML, escaping all "
+		note +=
+			
+			new QuillDeltaToHtmlConverter(qed.getContents().ops, {
+				inlineStyles: true,
+			})
+				.convert()
+				.replaceAll('"', '""') 
+	}
+	console.log(note)
+	return { id: node.id, label: node.label, color: node.color.background, fontColor: node.font.color, val: 5, note: note }
+
 }
 /**
  * Convert an edge from the normal PRSM format to the one required by the 3d display

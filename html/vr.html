@@ -32,7 +32,9 @@
 		<script src="../node_modules/aframe-extras/dist/aframe-extras.controls.min.js"></script>
 		<!-- 		Layout graph code -->
 		<script src="../node_modules/aframe-forcegraph-component/dist/aframe-forcegraph-component.min.js"></script>
+		<script src="../js/aframe-html.min.js"></script>
 		<!-- 		Interace with yjs to get nodes and links code -->
+		<script src="https://supereggbert.github.io/aframe-htmlembed-component/dist/build.js"></script>
 		<script src="../js/vr.js" type="module"></script>
 		<!-- 		Components to provide special features -->
 		<script>
@@ -158,6 +160,7 @@
 									let color = child.__data.color || 'white'
 									let compColor = lightOrDark(standardize_color(color)) == 'light' ? 'black' : 'white'
 									sphereEl.setAttribute('color', color)
+									sphereEl.setAttribute('note', child.__data.note)
 									this.el.appendChild(sphereEl)
 
 									let label = document.createElement('a-entity')
@@ -170,6 +173,42 @@
 									sphereEl.setAttribute('look-at', '#cameraRig')
 									label.setAttribute('position', {x: 0, y: 0, z: radius})
 									sphereEl.appendChild(label)
+
+									sphereEl.addEventListener('mouseenter', function () {
+										let noteText = sphereEl.getAttribute('note')
+										if (!noteText) return
+										/* let noteDiv = document.createElement('div')
+										noteDiv.id = 'noteDiv'
+										noteDiv.innerHTML = noteText
+										sphereEl.appendChild(noteDiv) */
+										let note = document.createElement('a-entity')
+										sphereEl.appendChild(note)
+/* 										note.setAttribute('html', {html: '#noteDiv'})
+ */										note.id = 'note'
+										
+
+/* 										note.setAttribute('text', {
+											value: noteText,
+											color: 'black',
+											width: 20,
+											anchor: 'left',
+											align: 'left',
+										}) */
+										note.setAttribute('htmlembed', {
+											ppu: 256
+										})
+										note.innerHTML = noteText
+//										note.setAttribute('geometry', {primitive: 'plane', height: 'auto', width: 20})
+//										note.setAttribute('material', {color: 'grey'})
+										note.setAttribute('scale', {x: 40, y: 40, z: 40})
+										note.setAttribute('position', {x: radius + 1, y: 0, z: radius + 1})
+										console.log('mouseenter')
+									})
+									sphereEl.addEventListener('mouseleave', function () {
+										let note = sphereEl.querySelector('#note')
+										if (note) sphereEl.removeChild(note)
+										console.log('mouseleave')
+									})
 								}
 							}
 						})
@@ -248,7 +287,7 @@
 				id="info"
 				position="1 2 -2"
 				billboard
-				text="width: 2; lineHeight: 50; letterSpacing: 5; color: white; value: 
+				text="width: 2; lineHeight: 50; letterSpacing: 5; color: indigo; value: 
 				Use the right hand controller to point to Factors and show their labels.\n
 				Use the left hand thumb stick to go forwards, back, left or right relative to the direction in which you are looking.\n
 				Point at the white ball at the origin (where the red, green and blue axes cross) and pull the trigger to jump straight there."
@@ -294,6 +333,17 @@
 			</a-entity>
 			<!-- sky -->
 			<a-sky color="white"></a-sky>
+			<!-- <a-entity position="0 1.6 -1" html="html:#noteDiv">
+			</a-entity> -->
+			<script>
+										let note = document.createElement('a-entity')
+										document.querySelector('a-scene').appendChild(note)
+										note.setAttribute('html', {html: '#noteDiv'})
+										note.id = 'note'
+										note.setAttribute('position', {x: 0, y: 1.6, z: -1})
+
+			</script>
 		</a-scene>
+		<div id="noteDiv"><p>This is some <strong>bold</strong> text<br><br>Some more </p></div>
 	</body>
 </html>
