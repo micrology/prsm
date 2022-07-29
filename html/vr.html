@@ -32,9 +32,7 @@
 		<script src="../node_modules/aframe-extras/dist/aframe-extras.controls.min.js"></script>
 		<!-- 		Layout graph code -->
 		<script src="../node_modules/aframe-forcegraph-component/dist/aframe-forcegraph-component.min.js"></script>
-		<script src="../js/aframe-html.min.js"></script>
 		<!-- 		Interace with yjs to get nodes and links code -->
-		<script src="https://supereggbert.github.io/aframe-htmlembed-component/dist/build.js"></script>
 		<script src="../js/vr.js" type="module"></script>
 		<!-- 		Components to provide special features -->
 		<script>
@@ -126,6 +124,109 @@
 					}
 				},
 			})
+			AFRAME.registerComponent('simplehtmlembed', {
+				schema: {
+					ppu: {
+						type: 'number',
+						default: 256,
+					},
+				},
+				init: function () {
+					let htmlcanvas = new HTMLCanvas(this.el)
+					this.htmlcanvas = htmlcanvas
+					let texture = new THREE.CanvasTexture(htmlcanvas.canvas)
+					texture.minFilter = THREE.LinearFilter
+					texture.wrapS = THREE.ClampToEdgeWrapping
+					texture.wrapT = THREE.ClampToEdgeWrapping
+					let material = new THREE.MeshBasicMaterial({
+						map: texture,
+						transparent: true,
+					})
+					let geometry = new THREE.PlaneGeometry(1, 1)
+					let screen = new THREE.Mesh(geometry, material)
+					this.el.setObject3D('screen', screen)
+					this.screen = screen
+					this.resize()
+				},
+				resize() {
+					this.width = this.htmlcanvas.width / this.data.ppu
+					this.height = this.htmlcanvas.height / this.data.ppu
+					this.screen.scale.x = Math.max(0.0001, this.width)
+					this.screen.scale.y = Math.max(0.0001, this.height)
+					this.htmlcanvas.render()
+				},
+				remove: function () {
+					this.el.removeObject3D('screen')
+				},
+			})
+
+			class HTMLCanvas {
+				constructor(html) {
+					if (!html) throw 'Container Element is Required'
+
+					// Create the canvas to be drawn to
+					this.canvas = document.createElement('canvas')
+					this.ctx = this.canvas.getContext('2d')
+
+					// Set some basic styles for the embed HTML
+					this.html = html
+					this.width = 0
+					this.height = 0
+					this.html.style.position = 'absolute'
+					this.html.style.top = '0'
+					this.html.style.left = '0'
+					this.html.style.overflow = 'hidden'
+					this.html.style.fontSize = '24px'
+					this.html.style.backgroundColor = 'white'
+
+					// Image used to draw SVG to the canvas element
+					this.img = new Image()
+					this.img.addEventListener('load', () => {
+						this.render()
+					})
+
+					this.serializer = new XMLSerializer()
+
+					this.svgToImg()
+				}
+
+				// Set the src to be rendered to the Image
+				svgToImg() {
+					// Make sure the element is visible before processing
+					this.html.style.display = 'block'
+					// If embedded html elements dimensions have change then update the canvas
+					if (this.width != this.html.offsetWidth || this.height != this.html.offsetHeight) {
+						this.width = this.html.offsetWidth
+						this.height = this.html.offsetHeight
+						this.canvas.width = this.width
+						this.canvas.height = this.height
+					}
+					let docString = this.serializer.serializeToString(this.html)
+					docString =
+						'<svg width="' +
+						this.width +
+						'" height="' +
+						this.height +
+						`" xmlns="http://www.w3.org/2000/svg"><foreignObject x="0" y="0" width="` +
+						this.width +
+						'" height="' +
+						this.height +
+						'">' +
+						docString +
+						'</foreignObject></svg>'
+					this.img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(docString)
+					// Hide the html after processing
+					this.html.style.display = 'none'
+				}
+
+				// Renders the image containing the SVG to the Canvas
+				render() {
+					this.canvas.width = this.width
+					this.canvas.height = this.height
+					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+					this.ctx.drawImage(this.img, 0, 0)
+				}
+			}
 			/* helper for vasturiano/3d-force-graph-vr
 			 *			draw a sphere around each force graph node, to make it easy to point to them with the ray caster,
 			 * 			and attach a text label (which rotates to always face the camera)
@@ -174,20 +275,23 @@
 									label.object3D.position.set(0, 0, radius)
 									sphereEl.appendChild(label)
 
-									sphereEl.addEventListener('mouseenter', function () {
-										let noteText = sphereEl.getAttribute('note')
+									let noteText = sphereEl.getAttribute('note')
+									if (noteText) {
 										let note = document.createElement('a-entity')
 										sphereEl.appendChild(note)
 										note.id = 'note'
-										note.setAttribute('htmlembed', {ppu: 256})
+										note.setAttribute('simplehtmlembed', {ppu: 256})
+										note.object3D.visible = false
 										note.innerHTML = noteText
-										note.object3D.scale.set(20, 20, 20)
-										note.object3D.position.set(radius + 10, 0, radius + 1)
-									})
-									sphereEl.addEventListener('mouseleave', function () {
-										let note = sphereEl.querySelector('#note')
-										if (note) sphereEl.removeChild(note)
-									})
+										note.object3D.scale.set(10, 10, 10)
+										note.object3D.position.set(radius + 5, 0, radius + 1)
+										sphereEl.addEventListener('mouseenter', function () {
+											note.object3D.visible = true
+										})
+										sphereEl.addEventListener('mouseleave', function () {
+											note.object3D.visible = false
+										})
+									}
 								}
 							}
 						})
