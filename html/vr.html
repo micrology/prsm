@@ -24,7 +24,7 @@
 		<link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
-		<!-- Basic A-Frame code -->
+		<!-- 		Basic A-Frame code -->
 		<script src="../node_modules/aframe/dist/aframe-v1.3.0.min.js"></script>
 		<!-- 		Follow gaze code -->
 		<script src="../node_modules/aframe-look-at-component/dist/aframe-look-at-component.min.js"></script>
@@ -124,6 +124,107 @@
 					}
 				},
 			})
+			/**
+			 * Component to display styled HTML.  Derived from https://github.com/supereggbert/aframe-htmlembed-component
+			 * but with all mouse interaction and stylesheet computation removed (which makes it must faster)
+			 * Use as <a-entity simplehtmlembed> --- some standard styled HTML here --- </a-entity>
+			 */
+			AFRAME.registerComponent('simplehtmlembed', {
+				schema: {
+					ppu: {
+						type: 'number',
+						default: 256,
+					},
+				},
+				init: function () {
+					let htmlcanvas = new HTMLCanvas(this.el)
+					this.htmlcanvas = htmlcanvas
+					let texture = new THREE.CanvasTexture(htmlcanvas.canvas)
+					texture.minFilter = THREE.LinearFilter
+					texture.wrapS = THREE.ClampToEdgeWrapping
+					texture.wrapT = THREE.ClampToEdgeWrapping
+					let material = new THREE.MeshBasicMaterial({
+						map: texture,
+						transparent: true,
+					})
+					let geometry = new THREE.PlaneGeometry(1, 1)
+					let screen = new THREE.Mesh(geometry, material)
+					this.el.setObject3D('screen', screen)
+					this.screen = screen
+					this.resize()
+				},
+				resize() {
+					this.width = this.htmlcanvas.width / this.data.ppu
+					this.height = this.htmlcanvas.height / this.data.ppu
+					this.screen.scale.x = Math.max(0.0001, this.width)
+					this.screen.scale.y = Math.max(0.0001, this.height)
+					this.htmlcanvas.render()
+				},
+				remove: function () {
+					this.el.removeObject3D('screen')
+				},
+			})
+
+			class HTMLCanvas {
+				constructor(html) {
+					if (!html) throw 'Container Element is Required'
+
+					// Create the canvas to be drawn to
+					this.canvas = document.createElement('canvas')
+					this.ctx = this.canvas.getContext('2d')
+
+					// Set some basic styles for the embedded HTML
+					this.html = html
+					this.html.style.position = 'absolute'
+					this.html.style.top = '0'
+					this.html.style.left = '0'
+					this.html.style.overflow = 'hidden'
+
+					// Image used to draw SVG to the canvas element
+					this.img = new Image()
+					this.img.addEventListener('load', () => {
+						this.render()
+					})
+
+					this.serializer = new XMLSerializer()
+
+					this.svgToImg()
+				}
+
+				// Set the src to be rendered to the Image
+				svgToImg() {
+					// Make sure the element is visible before processing
+					this.html.style.display = 'block'
+					this.width = this.html.offsetWidth
+					this.height = this.html.offsetHeight
+					this.canvas.width = this.width
+					this.canvas.height = this.height
+					let docString = this.serializer.serializeToString(this.html)
+					docString =
+						'<svg width="' +
+						this.width +
+						'" height="' +
+						this.height +
+						`" xmlns="http://www.w3.org/2000/svg"><foreignObject x="0" y="0" width="` +
+						(this.width +20) +
+						'" height="' +
+						(this.height +20) +
+						'">' +
+						docString +
+						'</foreignObject></svg>'
+					this.img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(docString)
+					// Hide the html after processing
+					this.html.style.display = 'none'
+				}
+
+				// Renders the image containing the SVG to the Canvas
+				render() {
+					this.canvas.width = this.width
+					this.canvas.height = this.height
+					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+					this.ctx.drawImage(this.img, 0, 0)
+				}
+			}
 			/* helper for vasturiano/3d-force-graph-vr
 			 *			draw a sphere around each force graph node, to make it easy to point to them with the ray caster,
 			 * 			and attach a text label (which rotates to always face the camera)
@@ -152,12 +253,13 @@
 									sphereEl.classList.add('node')
 									sphereEl.id = child.__data.id
 									this.spheres.set(child.__data.id, sphereEl)
-									sphereEl.setAttribute('position', child.position)
+									sphereEl.object3D.position.set(child.position)
 									let radius = child.geometry.parameters.radius + 0.1
 									sphereEl.setAttribute('radius', radius)
 									let color = child.__data.color || 'white'
 									let compColor = lightOrDark(standardize_color(color)) == 'light' ? 'black' : 'white'
 									sphereEl.setAttribute('color', color)
+									sphereEl.setAttribute('note', child.__data.note)
 									this.el.appendChild(sphereEl)
 
 									let label = document.createElement('a-entity')
@@ -168,8 +270,26 @@
 										align: 'center',
 									})
 									sphereEl.setAttribute('look-at', '#cameraRig')
-									label.setAttribute('position', {x: 0, y: 0, z: radius})
+									label.object3D.position.set(0, 0, radius+0.1)
 									sphereEl.appendChild(label)
+
+									let noteText = sphereEl.getAttribute('note')
+									if (noteText) {
+										let note = document.createElement('a-entity')
+										sphereEl.appendChild(note)
+										note.id = 'note'
+										note.setAttribute('simplehtmlembed', {ppu: 256})
+										note.object3D.visible = false
+										note.innerHTML = noteText
+										note.object3D.scale.set(10, 10, 10)
+										note.object3D.position.set(radius + 5, 0, radius + 1)
+										sphereEl.addEventListener('mouseenter', function () {
+											note.object3D.visible = true
+										})
+										sphereEl.addEventListener('mouseleave', function () {
+											note.object3D.visible = false
+										})
+									}
 								}
 							}
 						})
@@ -242,17 +362,18 @@
 		</script>
 	</head>
 	<body>
-		<a-scene fog="type: linear; color: #AAA">
+		<a-scene>
 			<!-- instructions -->
 			<a-entity
 				id="info"
-				position="1 2 -2"
-				billboard
-				text="width: 2; lineHeight: 50; letterSpacing: 5; color: black; value: 
-				Use the right hand controller to point to Factors and show their labels.\n
-				Use the left hand thumb stick to go forwards, back, left or right relative to the direction in which you are looking.\n
-				Point at the white ball at the origin (where the red, green and blue axes cross) and pull the trigger to jump straight there."
-			></a-entity>
+				position="1 1 -2"
+				simplehtmlembed look-at="#camera">
+				<div style="color: indigo; border: 2px solid gray; border-radius: 4px; padding: 10px; max-width: 400px">
+				<p>Use the controllers to point to Factors and show their labels.</p>
+				<p>Use the left hand thumb stick to go forwards, back, left or right relative to the direction in which you are looking.</p>
+				<p>Point at the white ball at the origin (where the red, green and blue axes cross) and pull the trigger to jump straight there.</p>
+				</div>
+			</a-entity>
 			<!-- force graph -->
 			<a-entity id="fg"></a-entity>
 			<!-- camera -->
@@ -269,33 +390,31 @@
 					id="left-hand"
 					hand-tracking-controls="hand: left"
 					laser-controls="hand: left"
-					raycaster="showLine: false"
+					raycaster="showLine: true; lineColor: green; objects: #origin-box, .node"
 				></a-entity>
 				<a-entity
 					id="right-hand"
 					laser-controls="hand: right"
 					hand-tracking-controls="hand: right"
-					raycaster="showLine: true; lineColor: white; objects: #origin-box, .node"
+					raycaster="showLine: true; lineColor: green; objects: #origin-box, .node"
 				></a-entity>
 			</a-entity>
 			<!-- centre point and axes -->
 			<a-entity id="origin">
-				<a-box
+				<a-sphere
 					id="origin-box"
 					return-to-origin
 					material="transparent: true; opacity: 0"
-					depth="4"
-					height="4"
-					width="4"
+					radius="8"
 					position="0 0 0"
-				></a-box>
+				></a-sphere>
 				<a-sphere color="lightgray" radius="0.05"></a-sphere>
 				<a-entity line="start: -500 0 0; end: 500 0 0; color: red"></a-entity>
 				<a-entity line="start: 0 -500 0; end: 0 500 0; color: green"></a-entity>
 				<a-entity line="start: 0 0 -500; end: 0 0 500; color: blue"></a-entity>
 			</a-entity>
 			<!-- sky -->
-			<a-sky color="black"></a-sky>
+			<a-sky color="#87CEFA"></a-sky>
 		</a-scene>
 	</body>
 </html>

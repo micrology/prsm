@@ -15,6 +15,7 @@ data
 htaccess.bare
 .history
 logs
+*.mp4
 
 # Compiled source #
 ###################
