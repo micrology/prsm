@@ -24,7 +24,7 @@
 		<link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
-		<!-- Basic A-Frame code -->
+		<!-- 		Basic A-Frame code -->
 		<script src="../node_modules/aframe/dist/aframe-v1.3.0.min.js"></script>
 		<!-- 		Follow gaze code -->
 		<script src="../node_modules/aframe-look-at-component/dist/aframe-look-at-component.min.js"></script>
@@ -124,6 +124,11 @@
 					}
 				},
 			})
+			/**
+			 * Component to display styled HTML.  Derived from https://github.com/supereggbert/aframe-htmlembed-component
+			 * but with all mouse interaction and stylesheet computation removed (which makes it must faster)
+			 * Use as <a-entity simplehtmlembed> --- some standard styled HTML here --- </a-entity>
+			 */
 			AFRAME.registerComponent('simplehtmlembed', {
 				schema: {
 					ppu: {
@@ -168,16 +173,12 @@
 					this.canvas = document.createElement('canvas')
 					this.ctx = this.canvas.getContext('2d')
 
-					// Set some basic styles for the embed HTML
+					// Set some basic styles for the embedded HTML
 					this.html = html
-					this.width = 0
-					this.height = 0
 					this.html.style.position = 'absolute'
 					this.html.style.top = '0'
 					this.html.style.left = '0'
 					this.html.style.overflow = 'hidden'
-					this.html.style.fontSize = '24px'
-					this.html.style.backgroundColor = 'white'
 
 					// Image used to draw SVG to the canvas element
 					this.img = new Image()
@@ -194,13 +195,10 @@
 				svgToImg() {
 					// Make sure the element is visible before processing
 					this.html.style.display = 'block'
-					// If embedded html elements dimensions have change then update the canvas
-					if (this.width != this.html.offsetWidth || this.height != this.html.offsetHeight) {
-						this.width = this.html.offsetWidth
-						this.height = this.html.offsetHeight
-						this.canvas.width = this.width
-						this.canvas.height = this.height
-					}
+					this.width = this.html.offsetWidth
+					this.height = this.html.offsetHeight
+					this.canvas.width = this.width
+					this.canvas.height = this.height
 					let docString = this.serializer.serializeToString(this.html)
 					docString =
 						'<svg width="' +
@@ -208,9 +206,9 @@
 						'" height="' +
 						this.height +
 						`" xmlns="http://www.w3.org/2000/svg"><foreignObject x="0" y="0" width="` +
-						this.width +
+						(this.width +20) +
 						'" height="' +
-						this.height +
+						(this.height +20) +
 						'">' +
 						docString +
 						'</foreignObject></svg>'
@@ -272,7 +270,7 @@
 										align: 'center',
 									})
 									sphereEl.setAttribute('look-at', '#cameraRig')
-									label.object3D.position.set(0, 0, radius)
+									label.object3D.position.set(0, 0, radius+0.1)
 									sphereEl.appendChild(label)
 
 									let noteText = sphereEl.getAttribute('note')
@@ -364,17 +362,18 @@
 		</script>
 	</head>
 	<body>
-		<a-scene fog="type: linear; color: #D0ECE7">
+		<a-scene>
 			<!-- instructions -->
 			<a-entity
 				id="info"
-				position="1 2 -2"
-				billboard
-				text="width: 2; lineHeight: 50; letterSpacing: 5; color: indigo; value: 
-				Use the right hand controller to point to Factors and show their labels.\n
-				Use the left hand thumb stick to go forwards, back, left or right relative to the direction in which you are looking.\n
-				Point at the white ball at the origin (where the red, green and blue axes cross) and pull the trigger to jump straight there."
-			></a-entity>
+				position="1 1 -2"
+				simplehtmlembed look-at="#camera">
+				<div style="color: indigo; border: 2px solid gray; border-radius: 4px; padding: 10px; max-width: 400px">
+				<p>Use the controllers to point to Factors and show their labels.</p>
+				<p>Use the left hand thumb stick to go forwards, back, left or right relative to the direction in which you are looking.</p>
+				<p>Point at the white ball at the origin (where the red, green and blue axes cross) and pull the trigger to jump straight there.</p>
+				</div>
+			</a-entity>
 			<!-- force graph -->
 			<a-entity id="fg"></a-entity>
 			<!-- camera -->

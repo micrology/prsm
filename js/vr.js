@@ -80,16 +80,21 @@ let qed = new Quill('#dummy-div')
  */
 function convertNode(node) {
 	let note = ''
-	if (node.created) note = `<p>Created at ${timeAndDate(node.created.time, true)} by ${node.created.user}</p>`
-	if (node.modified) note += `<p>Modified at ${timeAndDate(node.modified.time, true)} by ${node.modified.user}</p>`
-	if (node.note) {
-		qed.setContents(node.note)
-		// convert Quill formatted note to HTML, escaping all "
-		note += new QuillDeltaToHtmlConverter(qed.getContents().ops, {
-			inlineStyles: true,
-		})
-			.convert()
-			.replaceAll('"', '""')
+	if (node.created || node.modified || node.note) {
+		note = '<div style="padding: 12px; border-radius: 4px; border: 2px grey solid; background-color: white">'
+		if (node.created) note = `<p>Created at ${timeAndDate(node.created.time, true)} by ${node.created.user}</p>`
+		if (node.modified)
+			note += `<p>Modified at ${timeAndDate(node.modified.time, true)} by ${node.modified.user}</p>`
+		if (node.note) {
+			qed.setContents(node.note)
+			// convert Quill formatted note to HTML, escaping all "
+			note += new QuillDeltaToHtmlConverter(qed.getContents().ops, {
+				inlineStyles: true,
+			})
+				.convert()
+				.replaceAll('"', '""')
+		}
+		note += '</div>'
 	}
 	return {
 		id: node.id,
@@ -150,6 +155,7 @@ function showForceGraph() {
 		linkDirectionalArrowLength: 1.5,
 		linkDirectionalArrowRelPos: 1,
 		onEngineStop: console.log('Engine stopped'),
+		onEngineTick: console.log('tick')
 	})
 	// draw a sphere entity around each node
 	fgEl.setAttribute('spherize', {})
