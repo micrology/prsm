@@ -82,7 +82,7 @@ function convertNode(node) {
 	let note = ''
 	if (node.created || node.modified || node.note) {
 		note = '<div style="padding: 12px; border-radius: 4px; border: 2px grey solid; background-color: white">'
-		if (node.created) note = `<p>Created at ${timeAndDate(node.created.time, true)} by ${node.created.user}</p>`
+		if (node.created) note += `<p>Created at ${timeAndDate(node.created.time, true)} by ${node.created.user}</p>`
 		if (node.modified)
 			note += `<p>Modified at ${timeAndDate(node.modified.time, true)} by ${node.modified.user}</p>`
 		if (node.note) {

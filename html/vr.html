@@ -368,9 +368,17 @@
 				id="info"
 				position="1 1 -2"
 				simplehtmlembed look-at="#camera">
-				<div style="color: indigo; border: 2px solid gray; border-radius: 4px; padding: 10px; max-width: 400px">
-				<p>Use the controllers to point to Factors and show their labels.</p>
-				<p>Use the left hand thumb stick to go forwards, back, left or right relative to the direction in which you are looking.</p>
+				<div style="
+				background: rgba(255, 255, 255, 0.2);
+				border-radius: 16px;
+				box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+				backdrop-filter: blur(5px);
+				-webkit-backdrop-filter: blur(5px);
+				border: 1px solid rgba(255, 255, 255, 0.3);
+				padding: 10px; max-width: 400px">
+<!-- 				<div style="color: indigo; border: 2px solid gray; border-radius: 4px; padding: 10px; max-width: 400px">
+ -->				<p>Push the thumb stick to go forwards, back, left or right.</p>
+				<p>Use the controller's laser line to touch Factors and show any Notes that go with them.</p>
 				<p>Point at the white ball at the origin (where the red, green and blue axes cross) and pull the trigger to jump straight there.</p>
 				</div>
 			</a-entity>
@@ -383,20 +391,26 @@
 				sphere-collider-constraint="selector: .node"
 			>
 				<a-camera id="camera" look-controls="pointerLockEnabled: true" wasd-controls="fly: true">
-					<a-cursor color="#FF0000" raycaster="objects: #origin-box, .node"></a-cursor>
-				</a-camera>
+	<!-- 				<a-cursor color="#FF0000" raycaster="objects: #origin-box, .node"></a-cursor>
+	 -->			</a-camera>
 
-				<a-entity
+<!-- 				<a-entity
 					id="left-hand"
 					hand-tracking-controls="hand: left"
 					laser-controls="hand: left"
 					raycaster="showLine: true; lineColor: green; objects: #origin-box, .node"
-				></a-entity>
+				></a-entity> -->
+				<!-- <a-entity
+				id="left-hand"
+				hand-tracking-controls="hand: left"
+				laser-controls="hand: left"
+				raycaster="showLine: false"
+			></a-entity> -->
 				<a-entity
 					id="right-hand"
 					laser-controls="hand: right"
 					hand-tracking-controls="hand: right"
-					raycaster="showLine: true; lineColor: green; objects: #origin-box, .node"
+					raycaster="showLine: true; lineColor: green; far: 70; objects: #origin-box, .node"
 				></a-entity>
 			</a-entity>
 			<!-- centre point and axes -->
