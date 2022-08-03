@@ -332,6 +332,15 @@ function initialiseFactorTable() {
 			dataTree: false, //do not include data tree in printed table
 			formatCells: false, //show raw cell values without formatter
 		},
+		clipboardCopyRowRange: function () {
+			//only copy rows to clipboard that are selected, if any are
+			let selectedRows = this.getRows().filter((row) => {
+				return row.getData().selection
+			})
+			console.log(selectedRows)
+			if (selectedRows.length > 0) return selectedRows
+			else return this.getRows()
+		},
 		index: 'id',
 		columnHeaderVertAlign: 'bottom',
 		columns: [
@@ -528,6 +537,7 @@ function initialiseFactorTable() {
 						field: 'note',
 						editor: quillEditor,
 						formatter: quillFormatter,
+						accessorClipboard: quillAccessor,
 						maxWidth: 600,
 						minWidth: 200,
 						variableHeight: true,
@@ -762,6 +772,18 @@ function quillFormatter(cell) {
 		if (elem(`hide${table === 'factors-table' ? 'Notes' : 'LinkNotes'}`).dataset.collapsed == 'false')
 			return shorten(html, 50)
 		else return html
+	}
+	return ''
+}
+/**
+ * Used to convert Quill formatted notes into HTML ready for copying to the clipboard
+ * @param {Quill delta} note 
+ * @returns note in HTML format
+ */
+function quillAccessor(note) { 
+	if (note) {
+		qed.setContents(note)
+		return new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert()
 	}
 	return ''
 }
@@ -1103,6 +1125,7 @@ function initialiseLinkTable() {
 						field: 'note',
 						editor: quillEditor,
 						formatter: quillFormatter,
+						accessorClipboard: quillAccessor,
 						maxWidth: 600,
 						minWidth: 200,
 						variableHeight: true,
@@ -1501,10 +1524,10 @@ function closeFilter() {
 
 listen('copy', 'click', copyTable)
 /**
- * Copy the whole table to the clipboard
+ * Copy the all or filtered rows of the table to the clipboard
  */
 function copyTable() {
-	openTable.copyToClipboard('all')
+	openTable.copyToClipboard('active')
 }
 
 listen('help', 'click', displayHelp)
