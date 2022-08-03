@@ -333,13 +333,14 @@ function initialiseFactorTable() {
 			formatCells: false, //show raw cell values without formatter
 		},
 		clipboardCopyRowRange: function () {
+			// get the rows that remain after filtering
+			let filteredRows = this.searchRows(this.getFilters())
 			//only copy rows to clipboard that are selected, if any are
-			let selectedRows = this.getRows().filter((row) => {
+			let selectedRows = filteredRows.filter((row) => {
 				return row.getData().selection
 			})
-			console.log(selectedRows)
 			if (selectedRows.length > 0) return selectedRows
-			else return this.getRows()
+			else return filteredRows
 		},
 		index: 'id',
 		columnHeaderVertAlign: 'bottom',
@@ -1017,6 +1018,16 @@ function initialiseLinkTable() {
 			dataTree: false, //do not include data tree in printed table
 			formatCells: false, //show raw cell values without formatter
 		},
+		clipboardCopyRowRange: function () {
+			// get the rows that remain after filtering
+			let filteredRows = this.searchRows(this.getFilters())
+			//only copy rows to clipboard that are selected, if any are
+			let selectedRows = filteredRows.filter((row) => {
+				return row.getData().selection
+			})
+			if (selectedRows.length > 0) return selectedRows
+			else return filteredRows
+		},
 		layout: 'fitData',
 		height: window.innerHeight - 180,
 		index: 'id',
@@ -1525,9 +1536,11 @@ function closeFilter() {
 listen('copy', 'click', copyTable)
 /**
  * Copy the all or filtered rows of the table to the clipboard
+ * If some rows are selected, only those will be copied (see 
+ * the clipboardCopyRowRange option in the table definitions)
  */
 function copyTable() {
-	openTable.copyToClipboard('active')
+	openTable.copyToClipboard()
 }
 
 listen('help', 'click', displayHelp)
