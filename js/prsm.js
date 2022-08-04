@@ -733,6 +733,9 @@ function hideNavButtons() {
 	elem('search').parentElement.style.borderLeft = 'none'
 	elem('maptitle').contentEditable = 'false'
 }
+/** restore all the Nav Bar buttons when leaving view only mode (e.g. when
+ * going back online) 
+ */
 function showNavButtons() {
 	elem('buttons').style.visibility = 'visible'
 	elem('search').parentElement.style.visibility = 'visible'
