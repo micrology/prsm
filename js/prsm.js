@@ -57,7 +57,7 @@ const TIMETOEDIT = 5 * 60 * 1000 // if node/edge edit dialog is not saved after 
 const magnification = 3 // magnification of the loupe (magnifier 'glass')
 export const NLEVELS = 20 // max. number of levels for trophic layout
 const ROLLBACKS = 20 // max. number of versions stored for rollback
-const SLOWTRIPTIME = 300 // any more than this number of ms for the round trip generates a warning
+const SLOWTRIPTIME = 1000 // any more than this number of ms for the round trip generates a warning
 
 export var network
 var room
@@ -461,6 +461,11 @@ function startY(newRoom) {
 		}
 		if (edgesToUpdate.length > 0) edges.update(edgesToUpdate, 'remote')
 		if (edgesToRemove.length > 0) edges.remove(edgesToRemove, 'remote')
+		if (edgesToUpdate.length > 0 || edgesToRemove.length > 0) {
+			// if user is in mid-flight adding a Link, and someone else has just added a link, 
+			// vis-network will cancel the edit mode for this user.  Re-instate it.
+			if (inAddMode == 'addLink') network.addEdgeMode()
+		}
 		if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0))
 			showChange(event, yEdgesMap)
 	})
@@ -727,6 +732,15 @@ function hideNavButtons() {
 	elem('search').parentElement.style.visibility = 'visible'
 	elem('search').parentElement.style.borderLeft = 'none'
 	elem('maptitle').contentEditable = 'false'
+}
+/** restore all the Nav Bar buttons when leaving view only mode (e.g. when
+ * going back online) 
+ */
+function showNavButtons() {
+	elem('buttons').style.visibility = 'visible'
+	elem('search').parentElement.style.visibility = 'visible'
+	elem('search').parentElement.style.borderLeft = '1px solid #fff'
+	elem('maptitle').contentEditable = 'true'
 }
 /**
  * to handle iOS weirdness in fixing the vh unit (see https://css-tricks.com/the-trick-to-viewport-units-on-mobile/)
@@ -3704,7 +3718,7 @@ function displayStatistics(nodeId) {
 	let leverage = inDegree == 0 ? '--' : (outDegree / inDegree).toPrecision(3)
 	elem('leverage').textContent = leverage
 	let node = data.nodes.get(nodeId)
-	elem('bc').textContent = node.bc >= 0 ? parseFloat(node.bc).toPrecision(3) : '--'
+	elem('bc').textContent = node.bc >= 0 ? parseFloat(node.bc).toFixed(2) : '--'
 }
 
 /**
@@ -4764,14 +4778,20 @@ function historyClose() {
 dragElement(elem('history-window'), elem('history-header'))
 
 /* --------------------------------------- avatars and shared cursors--------------------------------*/
+
+var lastPktTime	// time when a round trip duration packet was last sent
+
 /* tell user if they are offline and disconnect websocket server */
 window.addEventListener('offline', () => {
-	statusMsg('No network connection - working offline', 'info')
+	statusMsg('No network connection - working offline (view only)', 'info')
 	wsProvider.shouldConnect = false
+	hideNavButtons()
 })
 window.addEventListener('online', () => {
 	wsProvider.connect()
 	statusMsg('Network connection re-established', 'info')
+	lastPktTime = null
+	if (!viewOnly) showNavButtons()
 	showAvatars()
 })
 /**
@@ -4823,7 +4843,6 @@ function setUpAwareness() {
 		)
 	})
 }
-var lastPktTime
 /**
  * measure the time taken to send an update to another Y.doc
  * responds to updates sent as 'pkt' objects every 20 seconds (see above)
@@ -4840,9 +4859,9 @@ function roundTripTimer() {
 		let sentpkt = yAwarenessB.getStates()?.get(yAwareness.clientID)?.pkt
 		if (sentpkt) {
 			// ignore repetitions of the same state time sent when other things change in the state object
-			if (lastPktTime !== sentpkt.time) {
+			if (lastPktTime && lastPktTime !== sentpkt.time) {
 				if (Date.now() - sentpkt.time > SLOWTRIPTIME || /round/.test(debug)) {
-					statusMsg('Slow or unstable network connection', 'warn')
+					statusMsg(`Slow or unstable network connection (${Date.now() - sentpkt.time} ms)`, 'warn')
 					console.log(`${exactTime(sentpkt.time)} Round trip: ${Date.now() - sentpkt.time} ms`)
 				}
 				lastPktTime = sentpkt.time

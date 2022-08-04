@@ -332,6 +332,16 @@ function initialiseFactorTable() {
 			dataTree: false, //do not include data tree in printed table
 			formatCells: false, //show raw cell values without formatter
 		},
+		clipboardCopyRowRange: function () {
+			// get the rows that remain after filtering
+			let filteredRows = this.searchRows(this.getFilters())
+			//only copy rows to clipboard that are selected, if any are
+			let selectedRows = filteredRows.filter((row) => {
+				return row.getData().selection
+			})
+			if (selectedRows.length > 0) return selectedRows
+			else return filteredRows
+		},
 		index: 'id',
 		columnHeaderVertAlign: 'bottom',
 		columns: [
@@ -528,6 +538,7 @@ function initialiseFactorTable() {
 						field: 'note',
 						editor: quillEditor,
 						formatter: quillFormatter,
+						accessorClipboard: quillAccessor,
 						maxWidth: 600,
 						minWidth: 200,
 						variableHeight: true,
@@ -766,6 +777,18 @@ function quillFormatter(cell) {
 	return ''
 }
 /**
+ * Used to convert Quill formatted notes into HTML ready for copying to the clipboard
+ * @param {Quill delta} note 
+ * @returns note in HTML format
+ */
+function quillAccessor(note) { 
+	if (note) {
+		qed.setContents(note)
+		return new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert()
+	}
+	return ''
+}
+/**
  * start up a Quill editor for the note in this cell
  * @param {object} cell
  * @param {function} onRendered not used
@@ -995,6 +1018,16 @@ function initialiseLinkTable() {
 			dataTree: false, //do not include data tree in printed table
 			formatCells: false, //show raw cell values without formatter
 		},
+		clipboardCopyRowRange: function () {
+			// get the rows that remain after filtering
+			let filteredRows = this.searchRows(this.getFilters())
+			//only copy rows to clipboard that are selected, if any are
+			let selectedRows = filteredRows.filter((row) => {
+				return row.getData().selection
+			})
+			if (selectedRows.length > 0) return selectedRows
+			else return filteredRows
+		},
 		layout: 'fitData',
 		height: window.innerHeight - 180,
 		index: 'id',
@@ -1103,6 +1136,7 @@ function initialiseLinkTable() {
 						field: 'note',
 						editor: quillEditor,
 						formatter: quillFormatter,
+						accessorClipboard: quillAccessor,
 						maxWidth: 600,
 						minWidth: 200,
 						variableHeight: true,
@@ -1501,10 +1535,12 @@ function closeFilter() {
 
 listen('copy', 'click', copyTable)
 /**
- * Copy the whole table to the clipboard
+ * Copy the all or filtered rows of the table to the clipboard
+ * If some rows are selected, only those will be copied (see 
+ * the clipboardCopyRowRange option in the table definitions)
  */
 function copyTable() {
-	openTable.copyToClipboard('all')
+	openTable.copyToClipboard()
 }
 
 listen('help', 'click', displayHelp)
