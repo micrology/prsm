@@ -462,7 +462,7 @@ function startY(newRoom) {
 		if (edgesToUpdate.length > 0) edges.update(edgesToUpdate, 'remote')
 		if (edgesToRemove.length > 0) edges.remove(edgesToRemove, 'remote')
 		if (edgesToUpdate.length > 0 || edgesToRemove.length > 0) {
-			// if user is in mid-flight adding a Link, and someone else has just added a link, 
+			// if user is in mid-flight adding a Link, and someone else has just added a link,
 			// vis-network will cancel the edit mode for this user.  Re-instate it.
 			if (inAddMode == 'addLink') network.addEdgeMode()
 		}
@@ -734,7 +734,7 @@ function hideNavButtons() {
 	elem('maptitle').contentEditable = 'false'
 }
 /** restore all the Nav Bar buttons when leaving view only mode (e.g. when
- * going back online) 
+ * going back online)
  */
 function showNavButtons() {
 	elem('buttons').style.visibility = 'visible'
@@ -1446,9 +1446,19 @@ function drawBadges(ctx) {
 	if (showVotingToggle) {
 		data.nodes.get().forEach((node) => {
 			let box = network.getBoundingBox(node.id)
-			drawTheBadge(node.thumbUp && node.thumbUp.includes(clientID) ? thumbUpFilledImage : thumbUpImage, ctx, box.left + 20, box.bottom)
+			drawTheBadge(
+				node.thumbUp && node.thumbUp.includes(clientID) ? thumbUpFilledImage : thumbUpImage,
+				ctx,
+				box.left + 20,
+				box.bottom
+			)
 			drawThumbCount(ctx, node.thumbUp, box.left + 36, box.bottom + 10)
-			drawTheBadge(node.thumbDown && node.thumbDown.includes(clientID) ? thumbDownFilledImage : thumbDownImage, ctx, box.right - 36, box.bottom)
+			drawTheBadge(
+				node.thumbDown && node.thumbDown.includes(clientID) ? thumbDownFilledImage : thumbDownImage,
+				ctx,
+				box.right - 36,
+				box.bottom
+			)
 			drawThumbCount(ctx, node.thumbDown, box.right - 20, box.bottom + 10)
 		})
 	}
@@ -1466,15 +1476,15 @@ function drawBadges(ctx) {
 	}
 	/**
 	 * draw the length of the voters array, i.e. the count of those who have voted
-	 * @param {context} ctx 
-	 * @param {array} voters 
-	 * @param {number} x 
-	 * @param {number} y 
+	 * @param {context} ctx
+	 * @param {array} voters
+	 * @param {number} x
+	 * @param {number} y
 	 */
 	function drawThumbCount(ctx, voters, x, y) {
 		if (voters) {
 			ctx.beginPath()
-			ctx.fillStyle='black'
+			ctx.fillStyle = 'black'
 			ctx.fillText(voters.length.toString(), x, y)
 		}
 	}
@@ -2323,7 +2333,8 @@ var ticking = false // if true, we are waiting for an AnimationFrame */
 // see https://www.html5rocks.com/en/tutorials/speed/animations/
 
 // listen for zoom/pinch (confusingly, referred to as mousewheel events)
-listen('net-pane',
+listen(
+	'net-pane',
 	'wheel',
 	(e) => {
 		e.preventDefault()
@@ -2907,30 +2918,82 @@ function parseGML(gml) {
  * @param {string} csv 
  */
 function parseCSV(csv) {
-	let lines = csv.split('\n')
+	let lines = csv.split(/\r\n|\n/)
 	let labels = new Map()
 	let links = []
+	/* // get column headings: those after 5th column are extra attributes
+	let attributeNames = yNetMap.get('attributeTitles') || {}
+	// attributeNames is an object with properties attributeField: attributeTitle
+	let headings = splitCSVrow(lines[0])
+	let attributeFields = []
+	for (let i = 5; i < headings.length; i++) {
+		let heading = headings[i]
+		let attributeField = Object.values(attributeNames).find((a) => a === heading)
+		if (!attributeField) {
+			// not found, so add
+			attributeField = 'att' + (Object.keys(attributeNames).length + 1)
+			attributeNames[attributeField] = heading
+		}
+		// make an ordered list of attributeFields for later use
+		attributeFields.push(attributeField)
+	}
+	console.log(attributeFields) */
 	for (let i = 1; i < lines.length; i++) {
 		if (lines[i].length <= 2) continue // empty line
-		let line = lines[i].split(',')
+		let line = splitCSVrow(lines[i])
 		let from = node(line[0], line[2], i)
 		let to = node(line[1], line[3], i)
 		let grp = line[4]
 		if (grp) grp = 'edge' + (parseInt(grp.trim()) - 1)
 		links.push({
-			id: i.toString(),
-			from: from,
-			to: to,
+			id: uuidv4(),
+			from: from.id,
+			to: to.id,
 			grp: grp,
 		})
+		/* 		// add attribute values to the From node
+		for (let i = 5; i < line.length; i++) {
+			from[attributeFields[i]] = line[i]
+		} */
 	}
+	//console.log(Array.from(labels.values()))
 	nodes.add(Array.from(labels.values()))
 	edges.add(links)
 	return {
 		nodes: nodes,
 		edges: edges,
 	}
-
+	/**
+	 * Parse a CSV row, accounting for commas inside quotes
+	 * @param {string} row
+	 * @returns array of fields
+	 */
+	function splitCSVrow(row) {
+		let insideQuote = false,
+			entries = [],
+			entry = []
+		row.split('').forEach(function (character) {
+			if (character === '"') {
+				insideQuote = !insideQuote
+			} else {
+				if (character == ',' && !insideQuote) {
+					entries.push(entry.join(''))
+					entry = []
+				} else {
+					entry.push(character)
+				}
+			}
+		})
+		entries.push(entry.join(''))
+		return entries
+	}
+	/**
+	 * retrieves or creates a (new) node object with given label and style,
+	 * @param {string} label
+	 * @param {number} grp
+	 * @param {number} lineNo the file line where this node was read from
+	 * @returns the node object
+	 */
 	function node(label, grp, lineNo) {
 		label = label.trim()
 		if (grp) {
@@ -2943,9 +3006,9 @@ function parseCSV(csv) {
 			grp = 'group' + (styleNo - 1)
 		}
 		if (labels.get(label) == undefined) {
-			labels.set(label, {id: label.toString(), label: label, grp: grp})
+			labels.set(label, {id: uuidv4(), label: label.toString(), grp: grp})
 		}
-		return labels.get(label).id
+		return labels.get(label)
 	}
 }
 /**
@@ -4779,7 +4842,7 @@ dragElement(elem('history-window'), elem('history-header'))
 
 /* --------------------------------------- avatars and shared cursors--------------------------------*/
 
-var lastPktTime	// time when a round trip duration packet was last sent
+var lastPktTime // time when a round trip duration packet was last sent
 
 /* tell user if they are offline and disconnect websocket server */
 window.addEventListener('offline', () => {
