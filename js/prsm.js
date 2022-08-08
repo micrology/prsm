@@ -47,6 +47,7 @@ import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearL
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js'
 import {version} from '../package.json'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
+import {read, utils} from 'xlsx'
 
 const appName = 'Participatory System Mapper'
 const shortAppName = 'PRSM'
@@ -2566,7 +2567,7 @@ function readSingleFile(e) {
 		}
 		document.body.style.cursor = 'default'
 	}
-	reader.readAsText(file)
+	reader.readAsArrayBuffer(file)
 }
 
 function openFile() {
@@ -2592,21 +2593,24 @@ function loadFile(contents) {
 	doc.transact(() => {
 		switch (lastFileName.split('.').pop().toLowerCase()) {
 			case 'csv':
-				data = parseCSV(contents)
+				data = parseCSV(arrayBufferToString(contents))
 				break
 			case 'graphml':
-				data = parseGraphML(contents)
+				data = parseGraphML(arrayBufferToString(contents))
 				break
 			case 'gml':
-				data = parseGML(contents)
+				data = parseGML(arrayBufferToString(contents))
 				break
 			case 'json':
 			case 'prsm':
-				data = loadJSONfile(contents)
+				data = loadJSONfile(arrayBufferToString(contents))
 				break
 			case 'gv':
 			case 'dot':
-				data = loadDOTfile(contents)
+				data = loadDOTfile(arrayBufferToString(contents))
+				break
+			case 'xlsx':
+				data = loadExcelfile(contents)
 				break
 			default:
 				throw {message: 'Unrecognised file name suffix'}
@@ -2651,6 +2655,15 @@ function loadFile(contents) {
 	yUndoManager.clear()
 	undoRedoButtonStatus()
 	toggleDeleteButton()
+}
+/**
+ * convert an ArrayBuffer to String
+ * @param {arrayBuffer} contents
+ * @returns string
+ */
+function arrayBufferToString(contents) {
+	let decoder = new TextDecoder('utf-8')
+	return decoder.decode(new DataView(contents))
 }
 /**
  * Parse and load a PRSM map file, or a JSON file exported from Gephi
@@ -2921,23 +2934,7 @@ function parseCSV(csv) {
 	let lines = csv.split(/\r\n|\n/)
 	let labels = new Map()
 	let links = []
-	/* // get column headings: those after 5th column are extra attributes
-	let attributeNames = yNetMap.get('attributeTitles') || {}
-	// attributeNames is an object with properties attributeField: attributeTitle
-	let headings = splitCSVrow(lines[0])
-	let attributeFields = []
-	for (let i = 5; i < headings.length; i++) {
-		let heading = headings[i]
-		let attributeField = Object.values(attributeNames).find((a) => a === heading)
-		if (!attributeField) {
-			// not found, so add
-			attributeField = 'att' + (Object.keys(attributeNames).length + 1)
-			attributeNames[attributeField] = heading
-		}
-		// make an ordered list of attributeFields for later use
-		attributeFields.push(attributeField)
-	}
-	console.log(attributeFields) */
+
 	for (let i = 1; i < lines.length; i++) {
 		if (lines[i].length <= 2) continue // empty line
 		let line = splitCSVrow(lines[i])
@@ -2951,12 +2948,7 @@ function parseCSV(csv) {
 			to: to.id,
 			grp: grp,
 		})
-		/* 		// add attribute values to the From node
-		for (let i = 5; i < line.length; i++) {
-			from[attributeFields[i]] = line[i]
-		} */
 	}
-	//console.log(Array.from(labels.values()))
 	nodes.add(Array.from(labels.values()))
 	edges.add(links)
 	return {
@@ -3009,6 +3001,141 @@ function parseCSV(csv) {
 			labels.set(label, {id: uuidv4(), label: label.toString(), grp: grp})
 		}
 		return labels.get(label)
+	}
+}
+/**
+ * Reads map data from an Excel file.  the file must have two spreadsheets in the workbook, named Factors and Links
+ * In the spreadsheet, there must be a header row, and columns for (minimally) Label (and for links, also From and To,
+ * with entries with the exact same text as the Labels in the Factor sheet.  There may be a Style column, which is used
+ * to specify the style for the Factor or Link (numbered from 1 to 9).  There may be a Description (or Note or Note)
+ * column, the contents of which are treated as a Factor or Link note.  Any other columns are treated as holding values
+ * for additional Attributes.
+ * @param {*} contents
+ * @returns nodes and edges data
+ */
+function loadExcelfile(contents) {
+	let workbook = read(contents)
+	let factorsSS = workbook.Sheets['Factors']
+	if (!factorsSS) throw {message: 'Sheet named Factors not found in Workbook'}
+	let linksSS = workbook.Sheets['Links']
+	if (!linksSS) throw {message: 'Sheet named Links not found in Workbook'}
+
+	/* transform data about factors into an array of objects, with properties named after the column headings
+	 and values from that row's cells.
+	 add a GUID to the object,  change 'Style' property to 'grp', and lowercase Label property if necessary
+	 put value of Description or Notes property into notes
+	 check that any other property names are not in the list of known attribute names; if so
+	 add that property name to the attribute name list 
+	 place the factor at some random location*/
+
+	let factors = utils.sheet_to_json(factorsSS)
+	let attributeNames = {}
+	// attributeNames is an object with properties attributeField: attributeTitle
+	factors.forEach((f) => {
+		f.id = uuidv4()
+		if (f.Style) {
+			let styleNo = parseInt(f.Style)
+			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
+				throw {
+					message: `Factors - Line ${f.__rowNum__}: Style must be a number between 1 and 9 or blank (found ${f.Style})`,
+				}
+			}
+			f.grp = 'group' + (styleNo - 1)
+			delete f.Style
+		}
+		if (f.Label) {
+			f.label = f.Label
+			delete f.Label
+		}
+		if (!f.label)
+			throw {
+				message: `Factors - Line ${f.__rowNum__}: Factor does not have a Label`,
+			}
+		let note = f.Description || f.Note || f.note
+		if (note) {
+			f.note = {ops: [{insert: note + '\n'}]}
+			delete f.Description
+			delete f.Note
+		}
+
+		Object.keys(f)
+			.filter((k) => !['id', 'grp', 'label', 'note', '__rowNum__'].includes(k))
+			.forEach((k) => {
+				let attributeField = Object.keys(attributeNames).find((prop) => attributeNames[prop] === k)
+				if (!attributeField) {
+					// not found, so add
+					attributeField = 'att' + (Object.keys(attributeNames).length + 1)
+					attributeNames[attributeField] = k
+				}
+				f[attributeField] = f[k]
+				delete f[k]
+			})
+		f.x = Math.random()*500
+		f.y= Math.random()*500
+	})
+	/* for each row of links
+	add a GUID
+	look up from and to in factor objects and replace with their ids
+	add other attributes as for factors */
+
+	let links = utils.sheet_to_json(linksSS)
+	links.forEach((f) => {
+		f.id = uuidv4()
+		if (f.Style) {
+			let styleNo = parseInt(f.Style)
+			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
+				throw {
+					message: `Links - Line ${f.__rowNum__}: Style must be a number between 1 and 9 or blank (found ${f.Style})`,
+				}
+			}
+			f.grp = 'edge' + (styleNo - 1)
+			delete f.Style
+		}
+		if (f.Label) {
+			f.label = f.Label
+			delete f.Label
+		}
+		if (f.From) {
+			f.from = f.From
+			delete f.From
+		}
+		if (f.To) {
+			f.to = f.To
+			delete f.To
+		}
+		let fromFactor = factors.find((factor) => factor.label === f.from)
+		if (fromFactor) f.from = fromFactor.id
+		else throw {message: `Links - Line ${f.__rowNum__}: From factor (${f.from}) not found for link`}
+		let toFactor = factors.find((factor) => factor.label === f.to)
+		if (toFactor) f.to = toFactor.id
+		else throw {message: `Links - Line ${f.__rowNum__}: To factor (${f.to}) not found for link`}
+
+		let note = f.Description || f.Note || f.note
+		if (note) {
+			f.note = {ops: [{insert: note + '\n'}]}
+			delete f.Description
+			delete f.Note
+		}
+		Object.keys(f)
+			.filter((k) => !['id', 'from', 'to', 'grp', 'label', 'note', '__rowNum__'].includes(k))
+			.forEach((k) => {
+				let attributeField = Object.keys(attributeNames).find((prop) => attributeNames[prop] === k)
+				if (!attributeField) {
+					// not found, so add
+					attributeField = 'att' + (Object.keys(attributeNames).length + 1)
+					attributeNames[attributeField] = k
+				}
+				f[attributeField] = f[k]
+				delete f[k]
+			})
+	})
+	nodes.add(factors)
+	edges.add(links)
+	yNetMap.set('attributeTitles', attributeNames)
+	recreateClusteringMenu(attributeNames)
+	return {
+		nodes: nodes,
+		edges: edges,
 	}
 }
 /**
