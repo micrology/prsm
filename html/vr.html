@@ -96,34 +96,7 @@
 				})
 				return lines.trim()
 			}
-			/**
-			 * Billboard component.
-			 *
-			 * Rotates the entity to face the current camera
-			 * https://github.com/blairmacintyre/aframe-look-at-billboard-component/blob/master/index.js
-			 */
-			AFRAME.registerComponent('billboard', {
-				init: function () {
-					this.vector = new THREE.Vector3()
-				},
 
-				tick: function (t) {
-					var self = this
-					var target = self.el.sceneEl.camera
-					var object3D = self.el.object3D
-
-					// make sure camera is set
-					if (target) {
-						target.updateMatrixWorld()
-						this.vector.setFromMatrixPosition(target.matrixWorld)
-						if (object3D.parent) {
-							object3D.parent.updateMatrixWorld()
-							object3D.parent.worldToLocal(this.vector)
-						}
-						return object3D.lookAt(this.vector)
-					}
-				},
-			})
 			/**
 			 * Component to display styled HTML.  Derived from https://github.com/supereggbert/aframe-htmlembed-component
 			 * but with all mouse interaction and stylesheet computation removed (which makes it must faster)
@@ -206,9 +179,9 @@
 						'" height="' +
 						this.height +
 						`" xmlns="http://www.w3.org/2000/svg"><foreignObject x="0" y="0" width="` +
-						(this.width +20) +
+						(this.width + 20) +
 						'" height="' +
-						(this.height +20) +
+						(this.height + 20) +
 						'">' +
 						docString +
 						'</foreignObject></svg>'
@@ -245,9 +218,10 @@
 						.components.forcegraph.forceGraph.children.forEach((child) => {
 							if (child.type == 'Mesh' && child.__data.id) {
 								let sphereEl = this.spheres.get(child.__data.id)
-								if (sphereEl && document.getElementById(child.__data.id)) {
-									// reuse existing sphere and label, but change its position
-									sphereEl.object3D.position.copy(child.position)
+								if (sphereEl) {
+									// reuse existing sphere and label, but change its position if it has moved
+									if (!sphereEl.object3D.position.equals(child.position))
+										sphereEl.object3D.position.copy(child.position)
 								} else {
 									sphereEl = document.createElement('a-sphere')
 									sphereEl.classList.add('node')
@@ -258,7 +232,8 @@
 									sphereEl.setAttribute('radius', radius)
 									let color = child.__data.color || 'white'
 									let compColor = lightOrDark(standardize_color(color)) == 'light' ? 'black' : 'white'
-									sphereEl.setAttribute('color', color)
+		/* 							sphereEl.setAttribute('color', color)
+		 */							sphereEl.setAttribute('material', {opacity: 0, transparent: true})
 									sphereEl.setAttribute('note', child.__data.note)
 									this.el.appendChild(sphereEl)
 
@@ -270,7 +245,7 @@
 										align: 'center',
 									})
 									sphereEl.setAttribute('look-at', '#cameraRig')
-									label.object3D.position.set(0, 0, radius+0.1)
+									label.object3D.position.set(0, 0, radius + 0.1)
 									sphereEl.appendChild(label)
 
 									let noteText = sphereEl.getAttribute('note')
@@ -364,22 +339,25 @@
 	<body>
 		<a-scene>
 			<!-- instructions -->
-			<a-entity
-				id="info"
-				position="1 1 -2"
-				simplehtmlembed look-at="#camera">
-				<div style="
-				background: rgba(255, 255, 255, 0.2);
-				border-radius: 16px;
-				box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-				backdrop-filter: blur(5px);
-				-webkit-backdrop-filter: blur(5px);
-				border: 1px solid rgba(255, 255, 255, 0.3);
-				padding: 10px; max-width: 400px">
-<!-- 				<div style="color: indigo; border: 2px solid gray; border-radius: 4px; padding: 10px; max-width: 400px">
- -->				<p>Push the thumb stick to go forwards, back, left or right.</p>
-				<p>Use the controller's laser line to touch Factors and show any Notes that go with them.</p>
-				<p>Point at the white ball at the origin (where the red, green and blue axes cross) and pull the trigger to jump straight there.</p>
+			<a-entity id="info" position="1 1 -2" simplehtmlembed look-at="#camera">
+				<div
+					style="
+						background: rgba(255, 255, 255, 0.2);
+						border-radius: 16px;
+						box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+						backdrop-filter: blur(5px);
+						-webkit-backdrop-filter: blur(5px);
+						border: 1px solid rgba(255, 255, 255, 0.3);
+						padding: 10px;
+						max-width: 400px;
+					"
+				>
+					<p>Push the thumb stick to go forwards, back, left or right.</p>
+					<p>Use the controller's laser line to touch Factors and show any Notes that go with them.</p>
+					<p>
+						Point at the white ball at the origin (where the red, green and blue axes cross) and pull the
+						trigger to jump straight there.
+					</p>
 				</div>
 			</a-entity>
 			<!-- force graph -->
@@ -391,44 +369,31 @@
 				sphere-collider-constraint="selector: .node"
 			>
 				<a-camera id="camera" look-controls="pointerLockEnabled: true" wasd-controls="fly: true">
-	<!-- 				<a-cursor color="#FF0000" raycaster="objects: #origin-box, .node"></a-cursor>
-	 -->			</a-camera>
+					<!-- <a-cursor color="#FF0000" raycaster="objects: .origin-box, .node"></a-cursor> -->
+				</a-camera>
 
-<!-- 				<a-entity
-					id="left-hand"
-					hand-tracking-controls="hand: left"
-					laser-controls="hand: left"
-					raycaster="showLine: true; lineColor: green; objects: #origin-box, .node"
-				></a-entity> -->
-				<!-- <a-entity
-				id="left-hand"
-				hand-tracking-controls="hand: left"
-				laser-controls="hand: left"
-				raycaster="showLine: false"
-			></a-entity> -->
 				<a-entity
 					id="right-hand"
 					laser-controls="hand: right"
 					hand-tracking-controls="hand: right"
-					raycaster="showLine: true; lineColor: green; far: 70; objects: #origin-box, .node"
+					raycaster="showLine: true; lineColor: green; far: 70; objects: .origin-box, .node"
 				></a-entity>
 			</a-entity>
 			<!-- centre point and axes -->
-			<a-entity id="origin">
-				<a-sphere
-					id="origin-box"
-					return-to-origin
-					material="transparent: true; opacity: 0"
-					radius="8"
-					position="0 0 0"
-				></a-sphere>
-				<a-sphere color="lightgray" radius="0.05"></a-sphere>
-				<a-entity line="start: -500 0 0; end: 500 0 0; color: red"></a-entity>
-				<a-entity line="start: 0 -500 0; end: 0 500 0; color: green"></a-entity>
-				<a-entity line="start: 0 0 -500; end: 0 0 500; color: blue"></a-entity>
-			</a-entity>
+			<a-sphere
+				class="origin-box"
+				return-to-origin
+				radius="8"
+				position="0 0 -1"
+				material="transparent: true; opacity: 0"
+			></a-sphere>
+			<a-sphere class="origin-box" return-to-origin color="lightgray" radius="0.05" position="0 0 -1"></a-sphere>
+			<a-entity line="start: -500 0 -1; end: 500 0 -1; color: red"></a-entity>
+			<a-entity line="start: 0 -500 -1; end: 0 500 -1; color: green"></a-entity>
+			<a-entity line="start: 0 0 -501; end: 0 0 499; color: blue"></a-entity>
 			<!-- sky -->
 			<a-sky color="#87CEFA"></a-sky>
 		</a-scene>
 	</body>
 </html>
+<!-- material="transparent: true; opacity: 0" -->

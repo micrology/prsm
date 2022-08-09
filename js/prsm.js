@@ -47,6 +47,7 @@ import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearL
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js'
 import {version} from '../package.json'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
+import {read, utils} from 'xlsx'
 
 const appName = 'Participatory System Mapper'
 const shortAppName = 'PRSM'
@@ -462,7 +463,7 @@ function startY(newRoom) {
 		if (edgesToUpdate.length > 0) edges.update(edgesToUpdate, 'remote')
 		if (edgesToRemove.length > 0) edges.remove(edgesToRemove, 'remote')
 		if (edgesToUpdate.length > 0 || edgesToRemove.length > 0) {
-			// if user is in mid-flight adding a Link, and someone else has just added a link, 
+			// if user is in mid-flight adding a Link, and someone else has just added a link,
 			// vis-network will cancel the edit mode for this user.  Re-instate it.
 			if (inAddMode == 'addLink') network.addEdgeMode()
 		}
@@ -734,7 +735,7 @@ function hideNavButtons() {
 	elem('maptitle').contentEditable = 'false'
 }
 /** restore all the Nav Bar buttons when leaving view only mode (e.g. when
- * going back online) 
+ * going back online)
  */
 function showNavButtons() {
 	elem('buttons').style.visibility = 'visible'
@@ -1446,9 +1447,19 @@ function drawBadges(ctx) {
 	if (showVotingToggle) {
 		data.nodes.get().forEach((node) => {
 			let box = network.getBoundingBox(node.id)
-			drawTheBadge(node.thumbUp && node.thumbUp.includes(clientID) ? thumbUpFilledImage : thumbUpImage, ctx, box.left + 20, box.bottom)
+			drawTheBadge(
+				node.thumbUp && node.thumbUp.includes(clientID) ? thumbUpFilledImage : thumbUpImage,
+				ctx,
+				box.left + 20,
+				box.bottom
+			)
 			drawThumbCount(ctx, node.thumbUp, box.left + 36, box.bottom + 10)
-			drawTheBadge(node.thumbDown && node.thumbDown.includes(clientID) ? thumbDownFilledImage : thumbDownImage, ctx, box.right - 36, box.bottom)
+			drawTheBadge(
+				node.thumbDown && node.thumbDown.includes(clientID) ? thumbDownFilledImage : thumbDownImage,
+				ctx,
+				box.right - 36,
+				box.bottom
+			)
 			drawThumbCount(ctx, node.thumbDown, box.right - 20, box.bottom + 10)
 		})
 	}
@@ -1466,15 +1477,15 @@ function drawBadges(ctx) {
 	}
 	/**
 	 * draw the length of the voters array, i.e. the count of those who have voted
-	 * @param {context} ctx 
-	 * @param {array} voters 
-	 * @param {number} x 
-	 * @param {number} y 
+	 * @param {context} ctx
+	 * @param {array} voters
+	 * @param {number} x
+	 * @param {number} y
 	 */
 	function drawThumbCount(ctx, voters, x, y) {
 		if (voters) {
 			ctx.beginPath()
-			ctx.fillStyle='black'
+			ctx.fillStyle = 'black'
 			ctx.fillText(voters.length.toString(), x, y)
 		}
 	}
@@ -2323,7 +2334,8 @@ var ticking = false // if true, we are waiting for an AnimationFrame */
 // see https://www.html5rocks.com/en/tutorials/speed/animations/
 
 // listen for zoom/pinch (confusingly, referred to as mousewheel events)
-listen('net-pane',
+listen(
+	'net-pane',
 	'wheel',
 	(e) => {
 		e.preventDefault()
@@ -2555,7 +2567,7 @@ function readSingleFile(e) {
 		}
 		document.body.style.cursor = 'default'
 	}
-	reader.readAsText(file)
+	reader.readAsArrayBuffer(file)
 }
 
 function openFile() {
@@ -2581,21 +2593,24 @@ function loadFile(contents) {
 	doc.transact(() => {
 		switch (lastFileName.split('.').pop().toLowerCase()) {
 			case 'csv':
-				data = parseCSV(contents)
+				data = loadCSV(arrayBufferToString(contents))
 				break
 			case 'graphml':
-				data = parseGraphML(contents)
+				data = loadGraphML(arrayBufferToString(contents))
 				break
 			case 'gml':
-				data = parseGML(contents)
+				data = loadGML(arrayBufferToString(contents))
 				break
 			case 'json':
 			case 'prsm':
-				data = loadJSONfile(contents)
+				data = loadJSONfile(arrayBufferToString(contents))
 				break
 			case 'gv':
 			case 'dot':
-				data = loadDOTfile(contents)
+				data = loadDOTfile(arrayBufferToString(contents))
+				break
+			case 'xlsx':
+				data = loadExcelfile(contents)
 				break
 			default:
 				throw {message: 'Unrecognised file name suffix'}
@@ -2640,6 +2655,15 @@ function loadFile(contents) {
 	yUndoManager.clear()
 	undoRedoButtonStatus()
 	toggleDeleteButton()
+}
+/**
+ * convert an ArrayBuffer to String
+ * @param {arrayBuffer} contents
+ * @returns string
+ */
+function arrayBufferToString(contents) {
+	let decoder = new TextDecoder('utf-8')
+	return decoder.decode(new DataView(contents))
 }
 /**
  * Parse and load a PRSM map file, or a JSON file exported from Gephi
@@ -2764,7 +2788,7 @@ function loadDOTfile(graph) {
  * parse and load a graphML file
  * @param {string} graphML
  */
-function parseGraphML(graphML) {
+function loadGraphML(graphML) {
 	let options = {
 		attributeNamePrefix: '',
 		attrNodeName: 'attr',
@@ -2817,7 +2841,7 @@ function parseGraphML(graphML) {
  * Parse and load a GML file
  * @param {string} gml
  */
-function parseGML(gml) {
+function loadGML(gml) {
 	if (gml.search('graph') < 0) throw {message: 'invalid GML format'}
 	let tokens = gml.match(/"[^"]+"|[\w]+|\[|\]/g)
 	let node
@@ -2906,21 +2930,22 @@ function parseGML(gml) {
 	column 5 can include the style of the edge.  All these must be integers between 1 and 9
  * @param {string} csv 
  */
-function parseCSV(csv) {
-	let lines = csv.split('\n')
+function loadCSV(csv) {
+	let lines = csv.split(/\r\n|\n/)
 	let labels = new Map()
 	let links = []
+
 	for (let i = 1; i < lines.length; i++) {
 		if (lines[i].length <= 2) continue // empty line
-		let line = lines[i].split(',')
+		let line = splitCSVrow(lines[i])
 		let from = node(line[0], line[2], i)
 		let to = node(line[1], line[3], i)
 		let grp = line[4]
 		if (grp) grp = 'edge' + (parseInt(grp.trim()) - 1)
 		links.push({
-			id: i.toString(),
-			from: from,
-			to: to,
+			id: uuidv4(),
+			from: from.id,
+			to: to.id,
 			grp: grp,
 		})
 	}
@@ -2930,7 +2955,37 @@ function parseCSV(csv) {
 		nodes: nodes,
 		edges: edges,
 	}
-
+	/**
+	 * Parse a CSV row, accounting for commas inside quotes
+	 * @param {string} row
+	 * @returns array of fields
+	 */
+	function splitCSVrow(row) {
+		let insideQuote = false,
+			entries = [],
+			entry = []
+		row.split('').forEach(function (character) {
+			if (character === '"') {
+				insideQuote = !insideQuote
+			} else {
+				if (character == ',' && !insideQuote) {
+					entries.push(entry.join(''))
+					entry = []
+				} else {
+					entry.push(character)
+				}
+			}
+		})
+		entries.push(entry.join(''))
+		return entries
+	}
+	/**
+	 * retrieves or creates a (new) node object with given label and style,
+	 * @param {string} label
+	 * @param {number} grp
+	 * @param {number} lineNo the file line where this node was read from
+	 * @returns the node object
+	 */
 	function node(label, grp, lineNo) {
 		label = label.trim()
 		if (grp) {
@@ -2943,9 +2998,145 @@ function parseCSV(csv) {
 			grp = 'group' + (styleNo - 1)
 		}
 		if (labels.get(label) == undefined) {
-			labels.set(label, {id: label.toString(), label: label, grp: grp})
+			labels.set(label, {id: uuidv4(), label: label.toString(), grp: grp})
 		}
-		return labels.get(label).id
+		return labels.get(label)
+	}
+}
+/**
+ * Reads map data from an Excel file.  the file must have two spreadsheets in the workbook, named Factors and Links
+ * In the spreadsheet, there must be a header row, and columns for (minimally) Label (and for links, also From and To,
+ * with entries with the exact same text as the Labels in the Factor sheet.  There may be a Style column, which is used
+ * to specify the style for the Factor or Link (numbered from 1 to 9).  There may be a Description (or Note or Note)
+ * column, the contents of which are treated as a Factor or Link note.  Any other columns are treated as holding values
+ * for additional Attributes.
+ * @param {*} contents
+ * @returns nodes and edges data
+ */
+function loadExcelfile(contents) {
+	let workbook = read(contents)
+	let factorsSS = workbook.Sheets['Factors']
+	if (!factorsSS) throw {message: 'Sheet named Factors not found in Workbook'}
+	let linksSS = workbook.Sheets['Links']
+	if (!linksSS) throw {message: 'Sheet named Links not found in Workbook'}
+
+	/* transform data about factors into an array of objects, with properties named after the column headings
+	 and values from that row's cells.
+	 add a GUID to the object,  change 'Style' property to 'grp', and lowercase Label property if necessary
+	 put value of Description or Notes property into notes
+	 check that any other property names are not in the list of known attribute names; if so
+	 add that property name to the attribute name list 
+	 place the factor at some random location*/
+
+	let factors = utils.sheet_to_json(factorsSS)
+	let attributeNames = {}
+	// attributeNames is an object with properties attributeField: attributeTitle
+	factors.forEach((f) => {
+		f.id = uuidv4()
+		if (f.Style) {
+			let styleNo = parseInt(f.Style)
+			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
+				throw {
+					message: `Factors - Line ${f.__rowNum__}: Style must be a number between 1 and 9 or blank (found ${f.Style})`,
+				}
+			}
+			f.grp = 'group' + (styleNo - 1)
+			delete f.Style
+		}
+		if (f.Label) {
+			f.label = f.Label
+			delete f.Label
+		}
+		if (!f.label)
+			throw {
+				message: `Factors - Line ${f.__rowNum__}: Factor does not have a Label`,
+			}
+		let note = f.Description || f.Note || f.note
+		if (note) {
+			f.note = {ops: [{insert: note + '\n'}]}
+			delete f.Description
+			delete f.Note
+		}
+		f.created = timestamp()
+		Object.keys(f)
+			.filter((k) => !['id', 'grp', 'label', 'note', 'created', '__rowNum__'].includes(k))
+			.forEach((k) => {
+				let attributeField = Object.keys(attributeNames).find((prop) => attributeNames[prop] === k)
+				if (!attributeField) {
+					// not found, so add
+					attributeField = 'att' + (Object.keys(attributeNames).length + 1)
+					attributeNames[attributeField] = k
+				}
+				f[attributeField] = f[k]
+				delete f[k]
+			})
+		f.x = Math.random()*500
+		f.y= Math.random()*500
+	})
+	/* for each row of links
+	add a GUID
+	look up from and to in factor objects and replace with their ids
+	add other attributes as for factors */
+
+	let links = utils.sheet_to_json(linksSS)
+	links.forEach((f) => {
+		f.id = uuidv4()
+		if (f.Style) {
+			let styleNo = parseInt(f.Style)
+			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
+				throw {
+					message: `Links - Line ${f.__rowNum__}: Style must be a number between 1 and 9 or blank (found ${f.Style})`,
+				}
+			}
+			f.grp = 'edge' + (styleNo - 1)
+			delete f.Style
+		}
+		if (f.Label) {
+			f.label = f.Label
+			delete f.Label
+		}
+		if (f.From) {
+			f.from = f.From
+			delete f.From
+		}
+		if (f.To) {
+			f.to = f.To
+			delete f.To
+		}
+		f.created = timestamp()
+		let fromFactor = factors.find((factor) => factor.label === f.from)
+		if (fromFactor) f.from = fromFactor.id
+		else throw {message: `Links - Line ${f.__rowNum__}: From factor (${f.from}) not found for link`}
+		let toFactor = factors.find((factor) => factor.label === f.to)
+		if (toFactor) f.to = toFactor.id
+		else throw {message: `Links - Line ${f.__rowNum__}: To factor (${f.to}) not found for link`}
+
+		let note = f.Description || f.Note || f.note
+		if (note) {
+			f.note = {ops: [{insert: note + '\n'}]}
+			delete f.Description
+			delete f.Note
+		}
+		Object.keys(f)
+			.filter((k) => !['id', 'from', 'to', 'grp', 'created', 'label', 'note', '__rowNum__'].includes(k))
+			.forEach((k) => {
+				let attributeField = Object.keys(attributeNames).find((prop) => attributeNames[prop] === k)
+				if (!attributeField) {
+					// not found, so add
+					attributeField = 'att' + (Object.keys(attributeNames).length + 1)
+					attributeNames[attributeField] = k
+				}
+				f[attributeField] = f[k]
+				delete f[k]
+			})
+	})
+	nodes.add(factors)
+	edges.add(links)
+	yNetMap.set('attributeTitles', attributeNames)
+	recreateClusteringMenu(attributeNames)
+	return {
+		nodes: nodes,
+		edges: edges,
 	}
 }
 /**
@@ -3871,7 +4062,6 @@ function autoLayout(e) {
 				level = currentNode.level + 1
 				connectedNodes.forEach((n) => {
 					n.level = level
-					console.table([currentNode.label, direction, level, n.label])
 				})
 				q = q.concat(connectedNodes)
 			}
@@ -4779,7 +4969,7 @@ dragElement(elem('history-window'), elem('history-header'))
 
 /* --------------------------------------- avatars and shared cursors--------------------------------*/
 
-var lastPktTime	// time when a round trip duration packet was last sent
+var lastPktTime // time when a round trip duration packet was last sent
 
 /* tell user if they are offline and disconnect websocket server */
 window.addEventListener('offline', () => {
