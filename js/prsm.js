@@ -2593,13 +2593,13 @@ function loadFile(contents) {
 	doc.transact(() => {
 		switch (lastFileName.split('.').pop().toLowerCase()) {
 			case 'csv':
-				data = parseCSV(arrayBufferToString(contents))
+				data = loadCSV(arrayBufferToString(contents))
 				break
 			case 'graphml':
-				data = parseGraphML(arrayBufferToString(contents))
+				data = loadGraphML(arrayBufferToString(contents))
 				break
 			case 'gml':
-				data = parseGML(arrayBufferToString(contents))
+				data = loadGML(arrayBufferToString(contents))
 				break
 			case 'json':
 			case 'prsm':
@@ -2788,7 +2788,7 @@ function loadDOTfile(graph) {
  * parse and load a graphML file
  * @param {string} graphML
  */
-function parseGraphML(graphML) {
+function loadGraphML(graphML) {
 	let options = {
 		attributeNamePrefix: '',
 		attrNodeName: 'attr',
@@ -2841,7 +2841,7 @@ function parseGraphML(graphML) {
  * Parse and load a GML file
  * @param {string} gml
  */
-function parseGML(gml) {
+function loadGML(gml) {
 	if (gml.search('graph') < 0) throw {message: 'invalid GML format'}
 	let tokens = gml.match(/"[^"]+"|[\w]+|\[|\]/g)
 	let node
@@ -2930,7 +2930,7 @@ function parseGML(gml) {
 	column 5 can include the style of the edge.  All these must be integers between 1 and 9
  * @param {string} csv 
  */
-function parseCSV(csv) {
+function loadCSV(csv) {
 	let lines = csv.split(/\r\n|\n/)
 	let labels = new Map()
 	let links = []
@@ -3057,9 +3057,9 @@ function loadExcelfile(contents) {
 			delete f.Description
 			delete f.Note
 		}
-
+		f.created = timestamp()
 		Object.keys(f)
-			.filter((k) => !['id', 'grp', 'label', 'note', '__rowNum__'].includes(k))
+			.filter((k) => !['id', 'grp', 'label', 'note', 'created', '__rowNum__'].includes(k))
 			.forEach((k) => {
 				let attributeField = Object.keys(attributeNames).find((prop) => attributeNames[prop] === k)
 				if (!attributeField) {
@@ -3103,6 +3103,7 @@ function loadExcelfile(contents) {
 			f.to = f.To
 			delete f.To
 		}
+		f.created = timestamp()
 		let fromFactor = factors.find((factor) => factor.label === f.from)
 		if (fromFactor) f.from = fromFactor.id
 		else throw {message: `Links - Line ${f.__rowNum__}: From factor (${f.from}) not found for link`}
@@ -3117,7 +3118,7 @@ function loadExcelfile(contents) {
 			delete f.Note
 		}
 		Object.keys(f)
-			.filter((k) => !['id', 'from', 'to', 'grp', 'label', 'note', '__rowNum__'].includes(k))
+			.filter((k) => !['id', 'from', 'to', 'grp', 'created', 'label', 'note', '__rowNum__'].includes(k))
 			.forEach((k) => {
 				let attributeField = Object.keys(attributeNames).find((prop) => attributeNames[prop] === k)
 				if (!attributeField) {
@@ -4061,7 +4062,6 @@ function autoLayout(e) {
 				level = currentNode.level + 1
 				connectedNodes.forEach((n) => {
 					n.level = level
-					console.table([currentNode.label, direction, level, n.label])
 				})
 				q = q.concat(connectedNodes)
 			}

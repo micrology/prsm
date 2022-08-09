@@ -24,7 +24,6 @@ var factorsTable // the factors table object
 var linksTable // the links table object
 var openTable // the table object that is currently on view
 var initialising = true // true until the tables have been loaded
-var nAttributes = 0 // number of attributes
 var attributeTitles = {} // titles of each of the attributes
 var myNameRec // my name etc.
 var qed // Quill editor
@@ -193,7 +192,6 @@ function startY() {
 								}
 							} else {
 								if (obj[attributeFieldName] != '*deleted*') {
-									nAttributes++
 									factorsTable.addColumn({
 										title: obj[attributeFieldName],
 										editableTitle: true,
@@ -552,7 +550,6 @@ function initialiseFactorTable() {
 		attributeTitles = yNetMap.get('attributeTitles') || {}
 		for (let field in attributeTitles) {
 			if (attributeTitles[field] != '*deleted*') {
-				nAttributes++
 				factorsTable.addColumn({
 					title: attributeTitles[field],
 					editableTitle: true,
@@ -1146,6 +1143,20 @@ function initialiseLinkTable() {
 		],
 	})
 	linksTable.on('tableBuilt', () => {
+			// add all the user defined attribute columns
+			attributeTitles = yNetMap.get('attributeTitles') || {}
+			for (let field in attributeTitles) {
+				if (attributeTitles[field] != '*deleted*') {
+					linksTable.addColumn({
+						title: attributeTitles[field],
+						editableTitle: true,
+						field: field,
+						editor: 'input',
+						width: getWidthOfTitle(attributeTitles[field]),
+						headerContextMenu: headerContextMenu,
+					})
+				}
+			}
 		listen('select-all-links', 'click', (e) => {
 			let ticked = headerTickToggle(e, '#select-all-links')
 			linksTable.getRows('active').forEach((row) => {
@@ -1381,8 +1392,8 @@ listen('col-insert', 'click', addColumn)
  * user has clicked the button to add a column for a user-defined attribute
  */
 function addColumn() {
-	nAttributes++
-	factorsTable.addColumn({
+	let nAttributes = Object.keys(attributeTitles).length + 1
+	openTable.addColumn({
 		title: 'Att ' + nAttributes,
 		editableTitle: true,
 		field: 'att' + nAttributes,
