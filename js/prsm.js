@@ -3010,6 +3010,9 @@ function loadCSV(csv) {
  * to specify the style for the Factor or Link (numbered from 1 to 9).  There may be a Description (or Note or Note)
  * column, the contents of which are treated as a Factor or Link note.  Any other columns are treated as holding values
  * for additional Attributes.
+ * 
+ * Uses https://sheetjs.com/
+ * 
  * @param {*} contents
  * @returns nodes and edges data
  */
@@ -3020,27 +3023,34 @@ function loadExcelfile(contents) {
 	let linksSS = workbook.Sheets['Links']
 	if (!linksSS) throw {message: 'Sheet named Links not found in Workbook'}
 
+	// attributeNames is an object with properties attributeField: attributeTitle
+	let attributeNames = {}
+
 	/* transform data about factors into an array of objects, with properties named after the column headings
 	 and values from that row's cells.
 	 add a GUID to the object,  change 'Style' property to 'grp', and lowercase Label property if necessary
+	 Style may be a style name or a style number between 1 and 9
 	 put value of Description or Notes property into notes
 	 check that any other property names are not in the list of known attribute names; if so
 	 add that property name to the attribute name list 
 	 place the factor at some random location*/
 
 	let factors = utils.sheet_to_json(factorsSS)
-	let attributeNames = {}
-	// attributeNames is an object with properties attributeField: attributeTitle
+	let styleNodes = Array.from(document.getElementsByClassName('sampleNode')).map(elem => elem.dataSet.get('1'))
 	factors.forEach((f) => {
 		f.id = uuidv4()
 		if (f.Style) {
-			let styleNo = parseInt(f.Style)
-			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
-				throw {
-					message: `Factors - Line ${f.__rowNum__}: Style must be a number between 1 and 9 or blank (found ${f.Style})`,
+			let styleNo = styleNodes.findIndex((s) => s.groupLabel === f.Style)
+			if (styleNo === -1) {
+				styleNo = parseInt(f.Style)
+				if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
+					throw {
+						message: `Factors - Line ${f.__rowNum__}: Style must be a number between 1 and 9, a style name, or blank (found ${f.Style})`,
+					}
 				}
+				styleNo --
 			}
-			f.grp = 'group' + (styleNo - 1)
+			f.grp = 'group' + styleNo
 			delete f.Style
 		}
 		if (f.Label) {
@@ -3079,16 +3089,22 @@ function loadExcelfile(contents) {
 	add other attributes as for factors */
 
 	let links = utils.sheet_to_json(linksSS)
+	let styleEdges = Array.from(document.getElementsByClassName('sampleLink')).map(elem => elem.dataSet.get('1'))
+
 	links.forEach((f) => {
 		f.id = uuidv4()
 		if (f.Style) {
-			let styleNo = parseInt(f.Style)
-			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
-				throw {
-					message: `Links - Line ${f.__rowNum__}: Style must be a number between 1 and 9 or blank (found ${f.Style})`,
+			let styleNo = styleEdges.findIndex((s) => s.label === f.Style)
+			if (styleNo === -1) {
+				styleNo = parseInt(f.Style)
+				if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
+					throw {
+						message: `Links - Line ${f.__rowNum__}: Style must be a number between 1 and 9, a style name or blank (found ${f.Style})`,
+					}
 				}
+				styleNo--
 			}
-			f.grp = 'edge' + (styleNo - 1)
+			f.grp = 'edge' + styleNo
 			delete f.Style
 		}
 		if (f.Label) {
