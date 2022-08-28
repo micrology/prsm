@@ -30,6 +30,7 @@ import {
 	timeAndDate,
 	setEndOfContenteditable,
 	exactTime,
+	lowerFirstLetter,
 	humanSize,
 } from './utils.js'
 import Tutorial from './tutorial.js'
@@ -47,7 +48,7 @@ import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearL
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js'
 import {version} from '../package.json'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
-import {read, utils} from 'xlsx'
+import {read, writeFileXLSX, utils} from 'xlsx'
 
 const appName = 'Participatory System Mapper'
 const shortAppName = 'PRSM'
@@ -186,6 +187,7 @@ function addEventListeners() {
 	listen('exportPRSM', 'click', savePRSMfile)
 	listen('exportImage', 'click', exportPNGfile)
 	listen('exportCVS', 'click', exportCVS)
+	listen('exportExcel', 'click', exportExcel)
 	listen('exportGML', 'click', exportGML)
 	listen('exportDOT', 'click', exportDOT)
 	listen('search', 'click', search)
@@ -2536,6 +2538,9 @@ function deleteNode() {
 	network.deleteSelected()
 	clearStatusBar()
 }
+
+/************************************************import and export the map from/to a variety of formats *****************/
+
 var lastFileName = 'network.json' // the name of the file last read in
 let msg = ''
 /**
@@ -3004,15 +3009,15 @@ function loadCSV(csv) {
 	}
 }
 /**
- * Reads map data from an Excel file.  the file must have two spreadsheets in the workbook, named Factors and Links
+ * Reads map data from an Excel file.  The file must have two spreadsheets in the workbook, named Factors and Links
  * In the spreadsheet, there must be a header row, and columns for (minimally) Label (and for links, also From and To,
  * with entries with the exact same text as the Labels in the Factor sheet.  There may be a Style column, which is used
- * to specify the style for the Factor or Link (numbered from 1 to 9).  There may be a Description (or Note or Note)
+ * to specify the style for the Factor or Link (numbered from 1 to 9).  There may be a Description (or note or Note)
  * column, the contents of which are treated as a Factor or Link note.  Any other columns are treated as holding values
  * for additional Attributes.
- * 
+ *
  * Uses https://sheetjs.com/
- * 
+ *
  * @param {*} contents
  * @returns nodes and edges data
  */
@@ -3026,50 +3031,67 @@ function loadExcelfile(contents) {
 	// attributeNames is an object with properties attributeField: attributeTitle
 	let attributeNames = {}
 
-	/* transform data about factors into an array of objects, with properties named after the column headings
-	 and values from that row's cells.
-	 add a GUID to the object,  change 'Style' property to 'grp', and lowercase Label property if necessary
+	/* 
+	 Transform data about factors into an array of objects, with properties named after the column headings
+	 (with first letter lower cased if necessary) and values from that row's cells.
+	 add a GUID to the object,  change 'Style' property to 'grp'
 	 Style may be a style name or a style number between 1 and 9
-	 put value of Description or Notes property into notes
-	 check that any other property names are not in the list of known attribute names; if so
-	 add that property name to the attribute name list 
-	 place the factor at some random location*/
+	 Put value of Description or Notes property into notes
+	 Check that any other property names are not in the list of known attribute names; if so add that property name to the attribute name list 
+	 Place the factor either at the given x and y coordinates or at some random location
+	 */
 
-	let factors = utils.sheet_to_json(factorsSS)
-	let styleNodes = Array.from(document.getElementsByClassName('sampleNode')).map(elem => elem.dataSet.get('1'))
+	// convert data from Factors sheet into an array of objects with properties starting with lower case letters
+	let factors = utils
+		.sheet_to_json(factorsSS)
+		.map((f) => lowerInitialLetterOfProps(f))
+	let styleNodes = Array.from(document.getElementsByClassName('sampleNode')).map((elem) => elem.dataSet.get('1'))
 	factors.forEach((f) => {
 		f.id = uuidv4()
-		if (f.Style) {
-			let styleNo = styleNodes.findIndex((s) => s.groupLabel === f.Style)
+		if (f.style) {
+			let styleNo = styleNodes.findIndex((s) => s.groupLabel === f.style)
 			if (styleNo === -1) {
-				styleNo = parseInt(f.Style)
+				styleNo = parseInt(f.style)
 				if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
 					throw {
-						message: `Factors - Line ${f.__rowNum__}: Style must be a number between 1 and 9, a style name, or blank (found ${f.Style})`,
+						message: `Factors - Line ${f.__rowNum__}: Style must be a number between 1 and 9, a style name, or blank (found ${f.style})`,
 					}
 				}
-				styleNo --
+				styleNo--
 			}
 			f.grp = 'group' + styleNo
-			delete f.Style
-		}
-		if (f.Label) {
-			f.label = f.Label
-			delete f.Label
+			delete f.style
 		}
 		if (!f.label)
 			throw {
 				message: `Factors - Line ${f.__rowNum__}: Factor does not have a Label`,
 			}
-		let note = f.Description || f.Note || f.note
+		let note = f.description || f.note
 		if (note) {
 			f.note = {ops: [{insert: note + '\n'}]}
-			delete f.Description
-			delete f.Note
+			delete f.description
 		}
 		f.created = timestamp()
+		// filter out known properties, leaving the rest to become attributes
 		Object.keys(f)
-			.filter((k) => !['id', 'grp', 'label', 'note', 'created', '__rowNum__'].includes(k))
+			.filter(
+				(k) =>
+					![
+						'id',
+						'grp',
+						'label',
+						'groupLabel',
+						'shape',
+						'note',
+						'created',
+						'creator',
+						'modified',
+						'modifier',
+						'x',
+						'y',
+						'__rowNum__',
+					].includes(k)
+			)
 			.forEach((k) => {
 				let attributeField = Object.keys(attributeNames).find((prop) => attributeNames[prop] === k)
 				if (!attributeField) {
@@ -3080,61 +3102,68 @@ function loadExcelfile(contents) {
 				f[attributeField] = f[k]
 				delete f[k]
 			})
-		f.x = Math.random()*500
-		f.y= Math.random()*500
+		f.x = parseInt(f.x)
+		if (!f.x || isNaN(f.x)) f.x = Math.random() * 500
+		f.y = parseInt(f.y)
+		if (!f.y || isNaN(f.y)) f.y = Math.random() * 500
 	})
 	/* for each row of links
 	add a GUID
 	look up from and to in factor objects and replace with their ids
 	add other attributes as for factors */
 
-	let links = utils.sheet_to_json(linksSS)
-	let styleEdges = Array.from(document.getElementsByClassName('sampleLink')).map(elem => elem.dataSet.get('1'))
+	let links = utils
+		.sheet_to_json(linksSS)
+		.map((l) => lowerInitialLetterOfProps(l))
+	let styleEdges = Array.from(document.getElementsByClassName('sampleLink')).map((elem) => elem.dataSet.get('1'))
 
-	links.forEach((f) => {
-		f.id = uuidv4()
-		if (f.Style) {
-			let styleNo = styleEdges.findIndex((s) => s.label === f.Style)
+	links.forEach((l) => {
+		l.id = uuidv4()
+		if (l.style) {
+			let styleNo = styleEdges.findIndex((s) => s.label === l.style)
 			if (styleNo === -1) {
-				styleNo = parseInt(f.Style)
+				styleNo = parseInt(l.style)
 				if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
 					throw {
-						message: `Links - Line ${f.__rowNum__}: Style must be a number between 1 and 9, a style name or blank (found ${f.Style})`,
+						message: `Links - Line ${l.__rowNum__}: Style must be a number between 1 and 9, a style name or blank (found ${l.style})`,
 					}
 				}
 				styleNo--
 			}
-			f.grp = 'edge' + styleNo
-			delete f.Style
+			l.grp = 'edge' + styleNo
+			delete l.style
 		}
-		if (f.Label) {
-			f.label = f.Label
-			delete f.Label
-		}
-		if (f.From) {
-			f.from = f.From
-			delete f.From
-		}
-		if (f.To) {
-			f.to = f.To
-			delete f.To
-		}
-		f.created = timestamp()
-		let fromFactor = factors.find((factor) => factor.label === f.from)
-		if (fromFactor) f.from = fromFactor.id
-		else throw {message: `Links - Line ${f.__rowNum__}: From factor (${f.from}) not found for link`}
-		let toFactor = factors.find((factor) => factor.label === f.to)
-		if (toFactor) f.to = toFactor.id
-		else throw {message: `Links - Line ${f.__rowNum__}: To factor (${f.to}) not found for link`}
+		l.created = timestamp()
+		let fromFactor = factors.find((factor) => factor.label === l.from)
+		if (fromFactor) l.from = fromFactor.id
+		else throw {message: `Links - Line ${l.__rowNum__}: From factor (${l.from}) not found for link`}
+		let toFactor = factors.find((factor) => factor.label === l.to)
+		if (toFactor) l.to = toFactor.id
+		else throw {message: `Links - Line ${l.__rowNum__}: To factor (${l.to}) not found for link`}
 
-		let note = f.Description || f.Note || f.note
+		let note = l.description || l.note
 		if (note) {
-			f.note = {ops: [{insert: note + '\n'}]}
-			delete f.Description
-			delete f.Note
+			l.note = {ops: [{insert: note + '\n'}]}
+			delete l.description
 		}
-		Object.keys(f)
-			.filter((k) => !['id', 'from', 'to', 'grp', 'created', 'label', 'note', '__rowNum__'].includes(k))
+		Object.keys(l)
+			.filter(
+				(k) =>
+					![
+						'id',
+						'from',
+						'to',
+						'grp',
+						'groupLabel',
+						'creator',
+						'created',
+						'label',
+						'modified',
+						'modifier',
+						'note',
+						'__rowNum__',
+					].includes(k)
+			)
 			.forEach((k) => {
 				let attributeField = Object.keys(attributeNames).find((prop) => attributeNames[prop] === k)
 				if (!attributeField) {
@@ -3142,8 +3171,8 @@ function loadExcelfile(contents) {
 					attributeField = 'att' + (Object.keys(attributeNames).length + 1)
 					attributeNames[attributeField] = k
 				}
-				f[attributeField] = f[k]
-				delete f[k]
+				l[attributeField] = l[k]
+				delete l[k]
 			})
 	})
 	nodes.add(factors)
@@ -3153,6 +3182,15 @@ function loadExcelfile(contents) {
 	return {
 		nodes: nodes,
 		edges: edges,
+	}
+
+	/**
+	 * ensure the initial letter of each property of obj is lower case
+	 * @param {object} obj 
+	 * @returns copy of object
+	 */
+	function lowerInitialLetterOfProps(obj) {
+		return Object.fromEntries(Object.entries(obj).map(([k, v]) => [lowerFirstLetter(k), v]))
 	}
 }
 /**
@@ -3378,6 +3416,100 @@ function exportCVS() {
 	}
 	saveStr(str, 'edges.csv')
 	dummyDiv.remove()
+}
+/**
+ * Save the map in an Excel workbook, with two sheets: Factors and Links
+ */
+function exportExcel() {
+	// set up Quill note conversion
+	let dummyDiv = document.createElement('div')
+	dummyDiv.id = 'dummy-div'
+	dummyDiv.style.display = 'none'
+	container.appendChild(dummyDiv)
+	let qed = new Quill('#dummy-div')
+	// create workbook
+	const workbook = utils.book_new()
+	// Factors
+	let rows = data.nodes
+		.get()
+		.filter((n) => !n.isCluster)
+		.map((n) => {
+			n.creator = n?.created?.user
+			n.modifier = n?.modified?.user
+			n.style = parseInt(n.grp.substring(5)) + 1
+			if (n.note) n.Note = quillToText(n.note)
+			// don't save any of the listed properties
+			return omit(n, [
+				'bc',
+				'borderWidth',
+				'borderWidthSelected',
+				'color',
+				'created',
+				'fixed',
+				'font',
+				'grp',
+				'id',
+				'labelHighlightBold',
+				'margin',
+				'modified',
+				'note',
+				'scaling',
+				'shapeProperties',
+			])
+		})
+
+	let factorWorksheet = utils.json_to_sheet(rows)
+	utils.book_append_sheet(workbook, factorWorksheet, 'Factors')
+
+	// Links
+	rows = data.edges
+		.get()
+		.filter((e) => !e.isClusterEdge)
+		.map((e) => {
+			e.creator = e?.created?.user
+			e.modifier = e?.modified?.user
+			e.style = parseInt(e.grp.substring(4)) + 1
+			e.from = data.nodes.get(e.from).label
+			e.to = data.nodes.get(e.to).label
+			if (e.note) e.Note = quillToText(e.note)
+			return omit(e, [
+				'arrows',
+				'color',
+				'created',
+				'dashes',
+				'font',
+				'grp',
+				'hoverWidth',
+				'id',
+				'note',
+				'selectionWidth',
+				'width',
+			])
+		})
+	let linksWorksheet = utils.json_to_sheet(rows)
+	utils.book_append_sheet(workbook, linksWorksheet, 'Links')
+
+	setFileName('xlsx')
+	writeFileXLSX(workbook, lastFileName)
+	dummyDiv.remove()
+
+	function omit(obj, props) {
+		return Object.keys(obj)
+			.filter((key) => props.indexOf(key) < 0)
+			.reduce((obj2, key) => ((obj2[key] = obj[key]), obj2), {})
+	}
+	function quillToText(ops) {
+		qed.setContents(ops)
+		// convert Quill formatted note to HTML, escaping all "
+		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {
+			inlineStyles: true,
+		})
+			.convert()
+			.replaceAll('"', '""')
+		dummyDiv.innerHTML = html
+		// convert HTML to plain text
+		return dummyDiv.innerText
+	}
 }
 /**
  * Save the map as a GML file
