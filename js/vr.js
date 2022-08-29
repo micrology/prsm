@@ -155,7 +155,7 @@ function showForceGraph() {
 		linkDirectionalArrowLength: 1.5,
 		linkDirectionalArrowRelPos: 1,
 		onEngineStop: console.log('Engine stopped'),
-		onEngineTick: console.log('tick')
+		onEngineTick: console.log('tick'),
 	})
 	// draw a sphere entity around each node
 	fgEl.setAttribute('spherize', {})

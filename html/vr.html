@@ -232,8 +232,8 @@
 									sphereEl.setAttribute('radius', radius)
 									let color = child.__data.color || 'white'
 									let compColor = lightOrDark(standardize_color(color)) == 'light' ? 'black' : 'white'
-		/* 							sphereEl.setAttribute('color', color)
-		 */							sphereEl.setAttribute('material', {opacity: 0, transparent: true})
+									/* 							sphereEl.setAttribute('color', color)
+									 */ sphereEl.setAttribute('material', {opacity: 0, transparent: true})
 									sphereEl.setAttribute('note', child.__data.note)
 									this.el.appendChild(sphereEl)
 

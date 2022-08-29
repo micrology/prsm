@@ -1,3 +1,26 @@
+/*********************************************************************************************************************  
+
+PRSM Participatory System Mapper 
+
+    Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+This module provides the Data View  
+ ******************************************************************************************************************** */
+
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
 import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter} from './utils.js'
@@ -775,10 +798,10 @@ function quillFormatter(cell) {
 }
 /**
  * Used to convert Quill formatted notes into HTML ready for copying to the clipboard
- * @param {Quill delta} note 
+ * @param { array} note - Quill delta
  * @returns note in HTML format
  */
-function quillAccessor(note) { 
+function quillAccessor(note) {
 	if (note) {
 		qed.setContents(note)
 		return new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert()
@@ -1143,20 +1166,20 @@ function initialiseLinkTable() {
 		],
 	})
 	linksTable.on('tableBuilt', () => {
-			// add all the user defined attribute columns
-			attributeTitles = yNetMap.get('attributeTitles') || {}
-			for (let field in attributeTitles) {
-				if (attributeTitles[field] != '*deleted*') {
-					linksTable.addColumn({
-						title: attributeTitles[field],
-						editableTitle: true,
-						field: field,
-						editor: 'input',
-						width: getWidthOfTitle(attributeTitles[field]),
-						headerContextMenu: headerContextMenu,
-					})
-				}
+		// add all the user defined attribute columns
+		attributeTitles = yNetMap.get('attributeTitles') || {}
+		for (let field in attributeTitles) {
+			if (attributeTitles[field] != '*deleted*') {
+				linksTable.addColumn({
+					title: attributeTitles[field],
+					editableTitle: true,
+					field: field,
+					editor: 'input',
+					width: getWidthOfTitle(attributeTitles[field]),
+					headerContextMenu: headerContextMenu,
+				})
 			}
+		}
 		listen('select-all-links', 'click', (e) => {
 			let ticked = headerTickToggle(e, '#select-all-links')
 			linksTable.getRows('active').forEach((row) => {
@@ -1547,7 +1570,7 @@ function closeFilter() {
 listen('copy', 'click', copyTable)
 /**
  * Copy the all or filtered rows of the table to the clipboard
- * If some rows are selected, only those will be copied (see 
+ * If some rows are selected, only those will be copied (see
  * the clipboardCopyRowRange option in the table definitions)
  */
 function copyTable() {
