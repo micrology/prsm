@@ -18,6 +18,7 @@ var websocket = 'wss://www.prsm.uk/wss' // web socket server URL
 var clientID // unique ID for this browser
 var yNodesMap // shared map of nodes
 var yEdgesMap // shared map of edges
+var ySamplesMap // shared map of styles
 
 window.addEventListener('load', () => {
 	startY()
@@ -43,6 +44,7 @@ function startY() {
 
 	yNodesMap = doc.getMap('nodes')
 	yEdgesMap = doc.getMap('edges')
+	ySamplesMap = doc.getMap('samples')
 
 	clientID = doc.clientID
 	console.log('My client ID: ' + clientID)
@@ -60,6 +62,9 @@ function startY() {
 	})
 	yEdgesMap.observe(() => {
 		showForceGraph()
+	})
+	ySamplesMap.observe(() => {
+		makeLegend()
 	})
 } // end startY()
 
@@ -159,4 +164,17 @@ function showForceGraph() {
 	})
 	// draw a sphere entity around each node
 	fgEl.setAttribute('spherize', {})
+}
+
+function makeLegend() {
+	let legend = ''
+	ySamplesMap.forEach((v) => {
+		if (v.node && v.node.groupLabel !== 'Sample') {
+			legend += `<div>${v.node.groupLabel}</div><div>${v.node.color.background}</div>\n`
+		}
+		if (v.edge && v.edge.groupLabel !== 'Sample') {
+			legend += `<div>${v.edge.groupLabel}</div><div>${v.edge.color.color}</div>\n`
+		}
+	})
+	console.log(legend)
 }
