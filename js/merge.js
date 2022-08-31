@@ -164,6 +164,7 @@ export function mergeRoom(room) {
 	openOtherDoc(room)
 	bwsp.on('sync', () => {
 		mergeMaps(bdata.nodes.get(), bdata.edges.get())
+		bwsp.disconnect()
 	})
 }
 
@@ -225,6 +226,7 @@ export function diffRoom(room) {
 	openOtherDoc(room)
 	bwsp.on('sync', () => {
 		diffMaps()
+		bwsp.disconnect()
 	})
 }
 

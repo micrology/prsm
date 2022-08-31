@@ -167,14 +167,43 @@ function showForceGraph() {
 }
 
 function makeLegend() {
-	let legend = ''
+	let legend = `
+	<div class="container">
+		<div class="factors">
+		`
 	ySamplesMap.forEach((v) => {
 		if (v.node && v.node.groupLabel !== 'Sample') {
-			legend += `<div>${v.node.groupLabel}</div><div>${v.node.color.background}</div>\n`
-		}
-		if (v.edge && v.edge.groupLabel !== 'Sample') {
-			legend += `<div>${v.edge.groupLabel}</div><div>${v.edge.color.color}</div>\n`
+			legend += `<div class="factor">
+			<div class="disk" style="background-color: ${v.node.color.background}">
+			</div>
+      		<div class="styleName">
+	  			${v.node.groupLabel}
+	  		</div>
+	  	<div>
+	  `
 		}
 	})
+	legend += `</div>
+	<div class="links">`
+	ySamplesMap.forEach((v) => {
+		if (v.edge && v.edge.groupLabel !== 'Sample') {
+			legend += `
+			<div class="link">
+				<div style="color: ${v.edge.color.color}">
+				  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+					<path stroke="currentColor" stroke-width="1.2" fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
+				  </svg>
+				</div>
+				<div class="styleName">
+				${v.edge.groupLabel}
+				</div>
+			  </div>
+			  `
+		}
+	})
+	legend += `</div>
+	</div>
+	`
+
 	console.log(legend)
 }
