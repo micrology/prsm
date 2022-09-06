@@ -108,8 +108,15 @@
 						type: 'number',
 						default: 256,
 					},
+					update: {
+						type: 'number',
+						default: 0
+					}
 				},
-				init: function () {
+				init: function () {},
+				update: function () {
+					if (this.el.getObject3D('screen')) this.remove()
+					if (this.el.innerHTML.trim() === '') return
 					let htmlcanvas = new HTMLCanvas(this.el)
 					this.htmlcanvas = htmlcanvas
 					let texture = new THREE.CanvasTexture(htmlcanvas.canvas)
@@ -360,6 +367,8 @@
 					</p>
 				</div>
 			</a-entity>
+			<!-- legend -->
+			<a-entity id="legend" position="-1 1 -2" simplehtmlembed look-at="#camera"></a-entity>
 			<!-- force graph -->
 			<a-entity id="fg"></a-entity>
 			<!-- camera -->
