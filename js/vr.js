@@ -169,7 +169,7 @@ function showForceGraph() {
 
 function makeLegend() {
 	let legend = `
-	<div style="background: rgba(255, 255, 255, 0.2); border-radius: 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.3); padding: 10px; width: 200px;">
+	<div style="background: rgba(255, 255, 255, 0.2); border-radius: 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.3); padding: 10px; width: 300px;">
 		<div style="text-align: center; font-weight: bold">Key</div>
 		<div style="display: grid; grid-template-columns: repeat(3, 1fr);">
 		`
@@ -209,7 +209,8 @@ function makeLegend() {
 		</div>
 	</div>
 	`
+	console.log(legend)
 	let legendBox = document.getElementById('legend')
 	legendBox.innerHTML = legend
-	setTimeout(() => legendBox.setAttribute('simplehtmlembed', {update: 1}), 500)
+	setTimeout(() => legendBox.setAttribute('simplehtmlembed', {update: 1}), 1500)
 }
