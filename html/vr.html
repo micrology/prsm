@@ -110,16 +110,15 @@
 					},
 					update: {
 						type: 'number',
-						default: 0
-					}
+						default: 0,
+					},
 				},
 				init: function () {},
 				update: function () {
 					if (this.el.getObject3D('screen')) this.remove()
 					if (this.el.innerHTML.trim() === '') return
-					let htmlcanvas = new HTMLCanvas(this.el)
-					this.htmlcanvas = htmlcanvas
-					let texture = new THREE.CanvasTexture(htmlcanvas.canvas)
+					this.htmlcanvas = new HTMLCanvas(this.el)
+					let texture = new THREE.CanvasTexture(this.htmlcanvas.canvas)
 					texture.minFilter = THREE.LinearFilter
 					texture.wrapS = THREE.ClampToEdgeWrapping
 					texture.wrapT = THREE.ClampToEdgeWrapping
@@ -159,15 +158,14 @@
 					this.html.style.top = '0'
 					this.html.style.left = '0'
 					this.html.style.overflow = 'hidden'
+					this.html.style.fontFamily="sans-serif"
 
 					// Image used to draw SVG to the canvas element
 					this.img = new Image()
 					this.img.addEventListener('load', () => {
 						this.render()
 					})
-
 					this.serializer = new XMLSerializer()
-
 					this.svgToImg()
 				}
 
@@ -378,14 +376,14 @@
 				sphere-collider-constraint="selector: .node"
 			>
 				<a-camera id="camera" look-controls="pointerLockEnabled: true" wasd-controls="fly: true">
-					<!-- <a-cursor color="#FF0000" raycaster="objects: .origin-box, .node"></a-cursor> -->
+					<a-cursor color="#FF0000" raycaster="objects: .origin-box, .node"></a-cursor>
 				</a-camera>
 
 				<a-entity
 					id="right-hand"
 					laser-controls="hand: right"
 					hand-tracking-controls="hand: right"
-					raycaster="showLine: true; lineColor: green; far: 70; objects: .origin-box, .node"
+					raycaster="showLine: true; lineColor: green; far: 200; objects: .origin-box, .node"
 				></a-entity>
 			</a-entity>
 			<!-- centre point and axes -->

@@ -64,7 +64,7 @@ function startY() {
 		showForceGraph()
 	})
 	ySamplesMap.observe(() => {
-		makeLegend()
+//		makeLegend()
 	})
 } // end startY()
 
@@ -159,17 +159,18 @@ function showForceGraph() {
 		linkOpacity: 1.0,
 		linkDirectionalArrowLength: 1.5,
 		linkDirectionalArrowRelPos: 1,
-		onEngineStop: console.log('Engine stopped'),
+		onEngineStop: () => {
+			console.log('Engine stopped')
+			makeLegend()
+		},
 	})
 	// draw a sphere entity around each node
 	fgEl.setAttribute('spherize', {})
 }
-{/* <div style="background: rgba(255, 255, 255, 0.2); border-radius: 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.3); padding: 10px; max-width: 300px;">
-<div style="border: 2px black solid; border-radius: 8px; width: 200px;"> */}
 
 function makeLegend() {
 	let legend = `
-	<div style="background: rgba(255, 255, 255, 0.2); border-radius: 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.3); padding: 10px; width: 300px;">
+	<div style="background: rgba(255, 255, 255, 0.2); border-radius: 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.3); padding: 20px; width: 300px; font-family: Arial, Helvetica, sans-serif;">
 		<div style="text-align: center; font-weight: bold">Key</div>
 		<div style="display: grid; grid-template-columns: repeat(3, 1fr);">
 		`
@@ -194,7 +195,7 @@ function makeLegend() {
 			legend += `
 			<div style=" width: 40px; height: 40px; justify-self: center; margin: 10px; text-align: center;">
 				<div style="color: ${v.edge.color.color}">
-					<svg style= "filter: drop-shadow(2px 2px 2px rgb(0 0 0 / 0.4));" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+					<svg style= "filter: drop-shadow(2px 2px 2px rgb(0 0 0 / 0.4));" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-right" viewbox="0 0 16 16">
 					<path stroke="currentColor" stroke-width="1.2" fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
 					</svg>
 				</div>
@@ -209,8 +210,12 @@ function makeLegend() {
 		</div>
 	</div>
 	`
-	console.log(legend)
+	//legend = `<div style="width: 200px; height: 200px; background-color: red">HALLO</div>`
+	//console.log(legend)
 	let legendBox = document.getElementById('legend')
 	legendBox.innerHTML = legend
-	setTimeout(() => legendBox.setAttribute('simplehtmlembed', {update: 1}), 1500)
+	//setTimeout(() => legendBox.setAttribute('simplehtmlembed', {update: 1}), 500)
+	setTimeout(() => legendBox.components.simplehtmlembed.update(), 100) 
+	//legendBox.components.simplehtmlembed.update()
 }
+window.makeLegend = makeLegend
