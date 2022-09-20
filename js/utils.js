@@ -1,3 +1,26 @@
+/*********************************************************************************************************************  
+
+PRSM Participatory System Mapper 
+
+    Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+This module provides a set of utility functions used widely within the PRSM code.  
+ ******************************************************************************************************************** */
+
 import * as Hammer from '@egjs/hammerjs'
 import iro from '@jaames/iro'
 import uniqolor from 'uniqolor'
@@ -237,7 +260,7 @@ export function cleanArray(arr, propsToRemove) {
  * @param {array} allowed list of allowed properties
  */
 export function strip(obj, allowed) {
-	return  allowed.reduce((a, e) => (a[e] = obj[e], a), {});
+	return allowed.reduce((a, e) => ((a[e] = obj[e]), a), {})
 }
 /**
  * divide txt into lines to make it roughly square, with a
@@ -367,7 +390,10 @@ export function addContextMenu(elem, menu) {
 		let option = document.createElement('div')
 		option.classList.add('item')
 		option.innerHTML = label
-		option.addEventListener('click', () => { document.body.removeChild(menuEl); action })
+		option.addEventListener('click', () => {
+			document.body.removeChild(menuEl)
+			action
+		})
 		option.addEventListener('contextmenu', (event) => event.preventDefault())
 		menuEl.appendChild(option)
 	})
@@ -643,7 +669,7 @@ export function standardize_color(str) {
  * @returns hex string
  */
 export function invertColor(color) {
-	return '#' + ("000000" + (0xFFFFFF ^ parseInt(color.substring(1),16)).toString(16)).slice(-6);
+	return '#' + ('000000' + (0xffffff ^ parseInt(color.substring(1), 16)).toString(16)).slice(-6)
 }
 
 /**
@@ -881,7 +907,9 @@ export function exactTime(time) {
 export function capitalizeFirstLetter(string) {
 	return string.charAt(0).toUpperCase() + string.slice(1)
 }
-
+export function lowerFirstLetter(string) {
+	return string.charAt(0).toLowerCase() + string.slice(1)
+}
 /**
  *
  * @param {number} bytes integer to convert

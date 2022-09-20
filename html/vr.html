@@ -99,7 +99,7 @@
 
 			/**
 			 * Component to display styled HTML.  Derived from https://github.com/supereggbert/aframe-htmlembed-component
-			 * but with all mouse interaction and stylesheet computation removed (which makes it must faster)
+			 * but with all mouse interaction and stylesheet computation removed (which makes it much faster)
 			 * Use as <a-entity simplehtmlembed> --- some standard styled HTML here --- </a-entity>
 			 */
 			AFRAME.registerComponent('simplehtmlembed', {
@@ -109,10 +109,12 @@
 						default: 256,
 					},
 				},
-				init: function () {
-					let htmlcanvas = new HTMLCanvas(this.el)
-					this.htmlcanvas = htmlcanvas
-					let texture = new THREE.CanvasTexture(htmlcanvas.canvas)
+				init: function () {},
+				update: function () {
+					if (this.el.getObject3D('screen')) this.remove()
+					if (this.el.innerHTML.trim() === '') return
+					this.htmlcanvas = new HTMLCanvas(this.el)
+					let texture = new THREE.CanvasTexture(this.htmlcanvas.canvas)
 					texture.minFilter = THREE.LinearFilter
 					texture.wrapS = THREE.ClampToEdgeWrapping
 					texture.wrapT = THREE.ClampToEdgeWrapping
@@ -152,15 +154,14 @@
 					this.html.style.top = '0'
 					this.html.style.left = '0'
 					this.html.style.overflow = 'hidden'
+					this.html.style.fontFamily = 'sans-serif'
 
 					// Image used to draw SVG to the canvas element
 					this.img = new Image()
 					this.img.addEventListener('load', () => {
 						this.render()
 					})
-
 					this.serializer = new XMLSerializer()
-
 					this.svgToImg()
 				}
 
@@ -232,8 +233,8 @@
 									sphereEl.setAttribute('radius', radius)
 									let color = child.__data.color || 'white'
 									let compColor = lightOrDark(standardize_color(color)) == 'light' ? 'black' : 'white'
-		/* 							sphereEl.setAttribute('color', color)
-		 */							sphereEl.setAttribute('material', {opacity: 0, transparent: true})
+									/* 							sphereEl.setAttribute('color', color)
+									 */ sphereEl.setAttribute('material', {opacity: 0, transparent: true})
 									sphereEl.setAttribute('note', child.__data.note)
 									this.el.appendChild(sphereEl)
 
@@ -360,6 +361,8 @@
 					</p>
 				</div>
 			</a-entity>
+			<!-- legend -->
+			<a-entity id="legend" position="-1 1 -2" simplehtmlembed look-at="#camera"></a-entity>
 			<!-- force graph -->
 			<a-entity id="fg"></a-entity>
 			<!-- camera -->
@@ -376,7 +379,7 @@
 					id="right-hand"
 					laser-controls="hand: right"
 					hand-tracking-controls="hand: right"
-					raycaster="showLine: true; lineColor: green; far: 70; objects: .origin-box, .node"
+					raycaster="showLine: true; lineColor: green; far: 200; objects: .origin-box, .node"
 				></a-entity>
 			</a-entity>
 			<!-- centre point and axes -->
@@ -396,4 +399,3 @@
 		</a-scene>
 	</body>
 </html>
-<!-- material="transparent: true; opacity: 0" -->

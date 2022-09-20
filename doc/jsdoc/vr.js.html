@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>cluster.js - Documentation</title>
+    <title>vr.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -32,7 +32,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">cluster.js</h1>
+    <h1 class="page-title">vr.js</h1>
     
 
     
@@ -42,332 +42,167 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/*********************************************************************************************************************  
-
-PRSM Participatory System Mapper 
-
-    Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see &lt;https://www.gnu.org/licenses/>.
-
-
-This modules clusters factors  
- ******************************************************************************************************************** */
-
-import {elem, uuidv4, deepMerge, standardize_color, makeColor, lightOrDark} from './utils.js'
-import {styles} from './samples.js'
-import {network, data, doc, yNetMap, unSelect, debug} from './prsm.js'
-
-export function cluster(attribute) {
-	if (!attribute) return
-	doc.transact(() => {
-		unCluster()
-		switch (attribute) {
-			case 'none':
-				break
-			case 'color':
-				clusterByColor()
-				break
-			case 'style':
-				clusterByStyle()
-				break
-			default:
-				clusterByAttribute(attribute)
-				break
-		}
-	})
-}
-
-/**
+            <pre class="prettyprint source linenums"><code>/**
  *
- * @param {String} attribute
- */
-function clusterByAttribute(attribute) {
-	// collect all different values of the attribute that are in use
-	let attValues = new Set()
-	data.nodes.get().forEach((node) => {
-		if (!node.isCluster) attValues.add(node[attribute])
-	})
-	unSelect()
-	let nodesToUpdate = []
-	// for each cluster
-	for (let value of attValues) {
-		// collect relevant nodes that are not already in a cluster and are not cluster nodes
-		let nodesInCluster = data.nodes.get({
-			filter: (node) => node[attribute] === value &amp;&amp; !node.clusteredIn &amp;&amp; !node.isCluster,
-		})
-		// clusters must have at least 2 nodes
-		if (nodesInCluster.length &lt;= 1) continue
-		let sumx = 0
-		let sumy = 0
-		let nInCluster = 0
-		if (!value) value = '[none]'
-		let clusterNode = data.nodes.get(`cluster-${attribute}-${value}`)
-		if (clusterNode === null) {
-			let color = makeColor()
-			clusterNode = deepMerge(styles.nodes['cluster'], {
-				id: `cluster-${attribute}-${value}`,
-				isCluster: true,
-				label: `${yNetMap.get('attributeTitles')[attribute]} ${value}`,
-				color: {background: color},
-				font: {color: lightOrDark(color) == 'light' ? 'black' : 'white'},
-				hidden: false,
-			})
-		} else clusterNode.hidden = false
-		for (let node of nodesInCluster) {
-			// for each factor that should be in the cluster
-			node.clusteredIn = clusterNode.id
-			node.hidden = true
-			sumx += node.x
-			sumy += node.y
-			nInCluster++
-			nodesToUpdate.push(node)
-		}
-		// locate the cluster node at the centroid of the constituent nodes
-		clusterNode.x = sumx / nInCluster
-		clusterNode.y = sumy / nInCluster
-		nodesToUpdate.push(clusterNode)
-	}
-	data.nodes.update(nodesToUpdate)
-	showClusterLinks()
-}
+ * PRSM VR map view
+ * generates a 'three dimensional' view of a PRSM map for VR, build on threejs and A-FRAME
+ *
+ *
+ * */
 
-function clusterByColor() {
-	// collect all different values of the attribute that are in use
-	let colors = new Set()
-	data.nodes.get().forEach((node) => {
-		if (!node.isCluster) colors.add(standardize_color(node.color.background))
-	})
-	unSelect()
-	let clusterNumber = 0
-	let nodesToUpdate = []
-	// for each cluster
-	for (const color of colors) {
-		// collect relevant nodes that are not already in a cluster and are not cluster nodes
-		let nodesInCluster = data.nodes.get({
-			filter: (node) =>
-				standardize_color(node.color.background) === color &amp;&amp; !node.clusteredIn &amp;&amp; !node.isCluster,
-		})
-		// clusters must have at least 2 nodes
-		if (nodesInCluster.length &lt;= 1) continue
-		let sumx = 0
-		let sumy = 0
-		let nInCluster = 0
-		let clusterNode = data.nodes.get(`cluster-color-${color}`)
-		if (clusterNode === null) {
-			clusterNode = deepMerge(styles.nodes['cluster'], {
-				id: `cluster-color-${color}`,
-				isCluster: true,
-				label: `Cluster ${++clusterNumber}`,
-				color: {background: color},
-				font: {color: lightOrDark(color) == 'light' ? 'black' : 'white'},
-				hidden: false,
-			})
-		} else clusterNode.hidden = false
-		for (let node of nodesInCluster) {
-			// for each factor that should be in the cluster
-			node.clusteredIn = clusterNode.id
-			node.hidden = true
-			sumx += node.x
-			sumy += node.y
-			nInCluster++
-			nodesToUpdate.push(node)
-		}
-		// locate the cluster node at the centroid of the constituent nodes
-		clusterNode.x = sumx / nInCluster
-		clusterNode.y = sumy / nInCluster
-		nodesToUpdate.push(clusterNode)
-	}
-	data.nodes.update(nodesToUpdate)
-	showClusterLinks()
-}
+import * as Y from 'yjs'
+import {WebsocketProvider} from 'y-websocket'
+import {object_equals, standardize_color, timeAndDate} from './utils.js'
+import Quill from 'quill'
+import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
 
-function clusterByStyle() {
-	// collect all different values of the style that are in use
-	let stylesInUse = new Set()
-	data.nodes.get().forEach((node) => {
-		if (!node.isCluster &amp;&amp; node.groupLabel != 'Sample') stylesInUse.add(node.grp)
-	})
-	unSelect()
-	let nodesToUpdate = []
-	// for each cluster
-	for (const style of stylesInUse) {
-		// collect relevant nodes that are not already in a cluster and are not cluster nodes
-		let nodesInCluster = data.nodes.get({
-			filter: (node) => node.grp === style &amp;&amp; !node.clusteredIn &amp;&amp; !node.isCluster,
-		})
-		// clusters must have at least 2 nodes
-		if (nodesInCluster.length &lt;= 1) continue
-		let sumx = 0
-		let sumy = 0
-		let nInCluster = 0
-		// retrieve or create the cluster node (cluster nodes are re-used if they already exist)
-		let clusterNode = data.nodes.get(`cluster-style-${style}`)
-		if (clusterNode === null) {
-			clusterNode = deepMerge(styles.nodes['cluster'], {
-				id: `cluster-style-${style}`,
-				isCluster: true,
-				label: `${styles.nodes[style].groupLabel} cluster`,
-				color: {background: styles.nodes[style].color.background},
-				font: {color: styles.nodes[style].font.color},
-				hidden: false,
-			})
-		} else clusterNode.hidden = false
-		for (let node of nodesInCluster) {
-			// for each factor that should be in the cluster
-			node.clusteredIn = clusterNode.id
-			node.hidden = true
-			sumx += node.x
-			sumy += node.y
-			nInCluster++
-			nodesToUpdate.push(node)
-		}
-		// locate the cluster node at the centroid of the constituent nodes
-		clusterNode.x = sumx / nInCluster
-		clusterNode.y = sumy / nInCluster
-		nodesToUpdate.push(clusterNode)
-	}
-	data.nodes.update(nodesToUpdate)
-	showClusterLinks()
-}
+var room
+const doc = new Y.Doc()
+var websocket = 'wss://www.prsm.uk/wss' // web socket server URL
+var clientID // unique ID for this browser
+var yNodesMap // shared map of nodes
+var yEdgesMap // shared map of edges
 
+window.addEventListener('load', () => {
+	startY()
+})
 /**
- * Create links to cluster nodes and hide links that are now inside clustered nodes
+ * create a new shared document and connect to the WebSocket provider
  */
-function showClusterLinks() {
-	// hide all links between clusters initially
-	let edgesToUpdate = []
-	data.edges.get().forEach((edge) => {
-		if (edge.isClusterEdge) {
-			edge.hidden = true
-			edge.label = ''
-		}
+function startY() {
+	// get the room number from the URL, or if none, complain
+	let url = new URL(document.location)
+	room = url.searchParams.get('room')
+	if (room == null || room == '') alert('No room name')
+	else room = room.toUpperCase()
+	document.title = document.title + ' ' + room
+	// don't bother with a local storage provider
+	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
+	wsProvider.on('sync', () => {
+		console.log(exactTime() + ' remote content loaded')
 	})
-	for (let edge of data.edges.get()) {
-		if (edge.isClusterEdge) continue
-		// if edge is between two nodes neither of which are in a cluster, show it
-		// if edge is from and to nodes that are in the same cluster, hide it
-		// if edge is from a node not in a cluster, and to a node in a cluster, hide it and make a cluster edge for it
-		// and vice versa
-		// if edge is between two nodes both in (different) clusters, hide it and make a cluster edge for it
-		let fromNode = data.nodes.get(edge.from)
-		let toNode = data.nodes.get(edge.to)
-		edge.hidden = true
-		if (!fromNode.clusteredIn &amp;&amp; !toNode.clusteredIn) {
-			edge.hidden = false
-		} else if (fromNode.clusteredIn == toNode.clusteredIn) {
-			edge.hidden = true
-		} else if (!fromNode.clusteredIn &amp;&amp; toNode.clusteredIn) makeClusterLink(edge.from, toNode.clusteredIn)
-		else if (fromNode.clusteredIn &amp;&amp; !toNode.clusteredIn) makeClusterLink(fromNode.clusteredIn, edge.to)
-		else if (fromNode.clusteredIn &amp;&amp; toNode.clusteredIn) makeClusterLink(fromNode.clusteredIn, toNode.clusteredIn)
-		else edge.hidden = false // shouldn't happen
-		edgesToUpdate.push(edge)
-	}
-	data.edges.update(edgesToUpdate)
-	if (/cluster/.test(debug)) {
-		console.log('Nodes')
-		data.nodes.get().forEach((n) => {
-			console.log([n.id, n.label, n.hidden, n.clusteredIn])
-		})
-		console.log('Edges')
-		data.edges.get().forEach((e) => {
-			console.log([e.id, data.nodes.get(e.from).label, data.nodes.get(e.to).label, e.hidden])
-		})
-	}
-	/**
-	 * Reuse existing edge or create a new one
-	 * @param {string} fromId
-	 * @param {string} toId
+	wsProvider.on('status', (event) => {
+		console.log(exactTime() + event.status + (event.status == 'connected' ? ' to' : ' from') + ' room ' + room) // logs when websocket is "connected" or "disconnected"
+	})
+
+	yNodesMap = doc.getMap('nodes')
+	yEdgesMap = doc.getMap('edges')
+
+	clientID = doc.clientID
+	console.log('My client ID: ' + clientID)
+
+	/* 
+	for convenience when debugging
 	 */
-	function makeClusterLink(fromId, toId) {
-		let edge = edgesToUpdate.filter((e) => fromId == e.from &amp;&amp; toId == e.to).shift()
-		if (!edge) {
-			edge = deepMerge(styles.edges['cluster'], {
-				id: `cledge-${uuidv4()}`,
-				from: fromId,
-				to: toId,
-				isClusterEdge: true,
+	window.clientID = clientID
+	window.yNodesMap = yNodesMap
+	window.yEdgesMap = yEdgesMap
+
+	// we only read changes made by other clients; this client never writes anything to the shared document
+	yNodesMap.observe(() => {
+		showForceGraph()
+	})
+	yEdgesMap.observe(() => {
+		showForceGraph()
+	})
+} // end startY()
+
+function exactTime() {
+	let d = new Date()
+	return `${d.toLocaleTimeString()}:${d.getMilliseconds()} `
+}
+/* set up a div to aid conversion of notes from Quill to HTML */
+let dummyDiv = document.createElement('div')
+dummyDiv.id = 'dummy-div'
+dummyDiv.style.display = 'none'
+document.querySelector('body').appendChild(dummyDiv)
+let qed = new Quill('#dummy-div')
+/**
+ * Convert a node from the normal PRSM format to the one required by the 3d display
+ * @param {Object} node
+ * @returns Object
+ */
+function convertNode(node) {
+	let note = ''
+	if (node.created || node.modified || node.note) {
+		note = '&lt;div style="padding: 12px; border-radius: 4px; border: 2px grey solid; background-color: white">'
+		if (node.created) note += `&lt;p>Created at ${timeAndDate(node.created.time, true)} by ${node.created.user}&lt;/p>`
+		if (node.modified)
+			note += `&lt;p>Modified at ${timeAndDate(node.modified.time, true)} by ${node.modified.user}&lt;/p>`
+		if (node.note) {
+			qed.setContents(node.note)
+			// convert Quill formatted note to HTML, escaping all "
+			note += new QuillDeltaToHtmlConverter(qed.getContents().ops, {
+				inlineStyles: true,
 			})
+				.convert()
+				.replaceAll('"', '""')
 		}
-		edge.hidden = false
-		edge.label = edge.label ? (parseInt(edge.label) + 1).toString() : '1'
-		edgesToUpdate.push(edge)
+		note += '&lt;/div>'
+	}
+	return {
+		id: node.id,
+		label: node.label,
+		color: node.color.background,
+		fontColor: node.font.color,
+		val: 5,
+		note: note,
 	}
 }
 /**
- * Hide the cluster node and unhide the nodes it was clustering (and their edges)
- * called by right clicking the cluster node
- * @param {string} clusterNodeId
+ * Convert an edge from the normal PRSM format to the one required by the 3d display
+ * @param {object} edge
+ * @returns object
  */
-export function openCluster(clusterNodeId) {
-	let clusterNode = data.nodes.get(clusterNodeId)
-	// if user has right clicked on a factor that is not a cluster, and clustering is
-	// set, re-cluster
-	if (!clusterNode.isCluster) {
-		let attribute = elem('clustering').value
-		if (attribute !== 'none') cluster(attribute)
-		return
-	}
-	doc.transact(() => {
-		unSelect()
-		let nodesToUpdate = []
-		let edgesToRemove = []
-		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id})
-		for (let node of nodesInCluster) {
-			node.hidden = false
-			node.clusteredIn = null
-			nodesToUpdate.push(node)
-		}
-		// hide the cluster node
-		clusterNode.hidden = true
-		// and the edges that link it
-		let eIds = network.getConnectedEdges(clusterNode.id)
-		for (let eId of eIds) {
-			edgesToRemove.push(eId)
-		}
-		nodesToUpdate.push(clusterNode)
-		data.nodes.update(nodesToUpdate)
-		data.edges.remove(edgesToRemove)
-		showClusterLinks()
-	})
-	if (data.nodes.get({filter: (n) => n.isCluster &amp;&amp; !n.hidden}).length === 0) {
-		// all clusters have been opened; reset the cluster select to None
-		elem('clustering').value = 'none'
+function convertEdge(edge) {
+	return {
+		source: edge.from,
+		target: edge.to,
+		// black links are invisible on a black background, so change them to grey,
+		// so that they are visible on either white or black backgrounds
+		color: standardize_color(edge.color.color) === '#000000' ? 'lightgrey' : edge.color.color,
 	}
 }
-
-function unCluster() {
-	let nodesToUpdate = []
-	let edgesToRemove = []
-	data.nodes.get({filter: (node) => node.isCluster}).forEach((clusterNode) => {
-		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id})
-		for (let node of nodesInCluster) {
-			node.hidden = false
-			node.clusteredIn = null
-			nodesToUpdate.push(node)
-		}
-		clusterNode.hidden = true
-		// and the edges that link it
-		let eIds = network.getConnectedEdges(clusterNode.id)
-		for (let eId of eIds) {
-			edgesToRemove.push(eId)
-		}
-		nodesToUpdate.push(clusterNode)
+/**
+ * Convert the map data from PRSM format to 3d display format
+ * Avoid cluster nodes
+ * Add lists of links and neighbours to each node
+ * @return {object} {nodes; links}
+ */
+function convertData() {
+	let graphNodes = Array.from(yNodesMap.values())
+		.filter((n) => !n.isCluster)
+		.map((n) => {
+			return convertNode(n)
+		})
+	let graphEdges = Array.from(yEdgesMap.values()).map((e) => {
+		return convertEdge(e)
 	})
-	data.nodes.update(nodesToUpdate)
-	data.edges.remove(edgesToRemove)
-	showClusterLinks()
+	return {nodes: graphNodes, links: graphEdges}
+}
+var previousData
+
+function showForceGraph() {
+	let graphData = convertData()
+	if (object_equals(previousData, graphData)) return
+	previousData = graphData
+	const fgEl = document.getElementById('fg')
+	fgEl.replaceChildren()
+	fgEl.setAttribute('forcegraph', {
+		nodes: JSON.stringify(graphData.nodes),
+		links: JSON.stringify(graphData.links),
+		nodeResolution: 32,
+		nodeRelSize: 6,
+		nodeOpacity: 1.0,
+		linkWidth: 0,
+		linkOpacity: 1.0,
+		linkDirectionalArrowLength: 1.5,
+		linkDirectionalArrowRelPos: 1,
+		onEngineStop: console.log('Engine stopped'),
+		onEngineTick: console.log('tick'),
+	})
+	// draw a sphere entity around each node
+	fgEl.setAttribute('spherize', {})
 }
 </code></pre>
         </article>

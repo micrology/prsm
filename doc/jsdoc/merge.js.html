@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>cluster.js - Documentation</title>
+    <title>merge.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -32,7 +32,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">cluster.js</h1>
+    <h1 class="page-title">merge.js</h1>
     
 
     
@@ -42,332 +42,243 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/*********************************************************************************************************************  
+            <pre class="prettyprint source linenums"><code>/**
+ * Some functions for examining and merging maps - not for public consumption, but useful
+ * for diagnosing problems and for special operations on maps
+ */
 
-PRSM Participatory System Mapper 
-
-    Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see &lt;https://www.gnu.org/licenses/>.
-
-
-This modules clusters factors  
- ******************************************************************************************************************** */
-
-import {elem, uuidv4, deepMerge, standardize_color, makeColor, lightOrDark} from './utils.js'
-import {styles} from './samples.js'
-import {network, data, doc, yNetMap, unSelect, debug} from './prsm.js'
-
-export function cluster(attribute) {
-	if (!attribute) return
-	doc.transact(() => {
-		unCluster()
-		switch (attribute) {
-			case 'none':
-				break
-			case 'color':
-				clusterByColor()
-				break
-			case 'style':
-				clusterByStyle()
-				break
-			default:
-				clusterByAttribute(attribute)
-				break
-		}
-	})
-}
-
-/**
+import * as Y from 'yjs'
+import {WebsocketProvider} from 'y-websocket'
+import {DataSet} from 'vis-data/peer'
+import {websocket, data, logHistory} from './prsm.js'
+import {uuidv4, deepCopy} from './utils.js'
+/* --------------------------------- Merge maps ----------------------------- */
+/*
+ * Evaluate mergeRoom(string: room code) e.g. mergeRoom('WBI-CRD-ROB-XDK')
+ *   adds all factors and links in the 'other' map to this one
+ *   if a factor occurs in both maps and is identical in both, nothing is added
+ *   if a factor is in both maps, but the label is different, a new factor is added
+ *     that is a clone of the 'other' factor, but with a dashed red border and with
+ *     cloned links that are dashed.
  *
- * @param {String} attribute
+ * Evaluate diffRoom(string: room code) e.g. diffRoom('WBI-CRD-ROB-XDK')
+ *  to list all the differences in the console
  */
-function clusterByAttribute(attribute) {
-	// collect all different values of the attribute that are in use
-	let attValues = new Set()
-	data.nodes.get().forEach((node) => {
-		if (!node.isCluster) attValues.add(node[attribute])
-	})
-	unSelect()
-	let nodesToUpdate = []
-	// for each cluster
-	for (let value of attValues) {
-		// collect relevant nodes that are not already in a cluster and are not cluster nodes
-		let nodesInCluster = data.nodes.get({
-			filter: (node) => node[attribute] === value &amp;&amp; !node.clusteredIn &amp;&amp; !node.isCluster,
-		})
-		// clusters must have at least 2 nodes
-		if (nodesInCluster.length &lt;= 1) continue
-		let sumx = 0
-		let sumy = 0
-		let nInCluster = 0
-		if (!value) value = '[none]'
-		let clusterNode = data.nodes.get(`cluster-${attribute}-${value}`)
-		if (clusterNode === null) {
-			let color = makeColor()
-			clusterNode = deepMerge(styles.nodes['cluster'], {
-				id: `cluster-${attribute}-${value}`,
-				isCluster: true,
-				label: `${yNetMap.get('attributeTitles')[attribute]} ${value}`,
-				color: {background: color},
-				font: {color: lightOrDark(color) == 'light' ? 'black' : 'white'},
-				hidden: false,
-			})
-		} else clusterNode.hidden = false
-		for (let node of nodesInCluster) {
-			// for each factor that should be in the cluster
-			node.clusteredIn = clusterNode.id
-			node.hidden = true
-			sumx += node.x
-			sumy += node.y
-			nInCluster++
-			nodesToUpdate.push(node)
-		}
-		// locate the cluster node at the centroid of the constituent nodes
-		clusterNode.x = sumx / nInCluster
-		clusterNode.y = sumy / nInCluster
-		nodesToUpdate.push(clusterNode)
-	}
-	data.nodes.update(nodesToUpdate)
-	showClusterLinks()
-}
 
-function clusterByColor() {
-	// collect all different values of the attribute that are in use
-	let colors = new Set()
-	data.nodes.get().forEach((node) => {
-		if (!node.isCluster) colors.add(standardize_color(node.color.background))
-	})
-	unSelect()
-	let clusterNumber = 0
-	let nodesToUpdate = []
-	// for each cluster
-	for (const color of colors) {
-		// collect relevant nodes that are not already in a cluster and are not cluster nodes
-		let nodesInCluster = data.nodes.get({
-			filter: (node) =>
-				standardize_color(node.color.background) === color &amp;&amp; !node.clusteredIn &amp;&amp; !node.isCluster,
-		})
-		// clusters must have at least 2 nodes
-		if (nodesInCluster.length &lt;= 1) continue
-		let sumx = 0
-		let sumy = 0
-		let nInCluster = 0
-		let clusterNode = data.nodes.get(`cluster-color-${color}`)
-		if (clusterNode === null) {
-			clusterNode = deepMerge(styles.nodes['cluster'], {
-				id: `cluster-color-${color}`,
-				isCluster: true,
-				label: `Cluster ${++clusterNumber}`,
-				color: {background: color},
-				font: {color: lightOrDark(color) == 'light' ? 'black' : 'white'},
-				hidden: false,
-			})
-		} else clusterNode.hidden = false
-		for (let node of nodesInCluster) {
-			// for each factor that should be in the cluster
-			node.clusteredIn = clusterNode.id
-			node.hidden = true
-			sumx += node.x
-			sumy += node.y
-			nInCluster++
-			nodesToUpdate.push(node)
-		}
-		// locate the cluster node at the centroid of the constituent nodes
-		clusterNode.x = sumx / nInCluster
-		clusterNode.y = sumy / nInCluster
-		nodesToUpdate.push(clusterNode)
-	}
-	data.nodes.update(nodesToUpdate)
-	showClusterLinks()
-}
+var bwsp //  websocket to other room
+var bdata // the data from the other room
 
-function clusterByStyle() {
-	// collect all different values of the style that are in use
-	let stylesInUse = new Set()
-	data.nodes.get().forEach((node) => {
-		if (!node.isCluster &amp;&amp; node.groupLabel != 'Sample') stylesInUse.add(node.grp)
-	})
-	unSelect()
-	let nodesToUpdate = []
-	// for each cluster
-	for (const style of stylesInUse) {
-		// collect relevant nodes that are not already in a cluster and are not cluster nodes
-		let nodesInCluster = data.nodes.get({
-			filter: (node) => node.grp === style &amp;&amp; !node.clusteredIn &amp;&amp; !node.isCluster,
-		})
-		// clusters must have at least 2 nodes
-		if (nodesInCluster.length &lt;= 1) continue
-		let sumx = 0
-		let sumy = 0
-		let nInCluster = 0
-		// retrieve or create the cluster node (cluster nodes are re-used if they already exist)
-		let clusterNode = data.nodes.get(`cluster-style-${style}`)
-		if (clusterNode === null) {
-			clusterNode = deepMerge(styles.nodes['cluster'], {
-				id: `cluster-style-${style}`,
-				isCluster: true,
-				label: `${styles.nodes[style].groupLabel} cluster`,
-				color: {background: styles.nodes[style].color.background},
-				font: {color: styles.nodes[style].font.color},
-				hidden: false,
-			})
-		} else clusterNode.hidden = false
-		for (let node of nodesInCluster) {
-			// for each factor that should be in the cluster
-			node.clusteredIn = clusterNode.id
-			node.hidden = true
-			sumx += node.x
-			sumy += node.y
-			nInCluster++
-			nodesToUpdate.push(node)
-		}
-		// locate the cluster node at the centroid of the constituent nodes
-		clusterNode.x = sumx / nInCluster
-		clusterNode.y = sumy / nInCluster
-		nodesToUpdate.push(clusterNode)
+export function openOtherDoc(room) {
+	let bDoc = new Y.Doc()
+	bwsp = new WebsocketProvider(websocket, 'prsm' + room, bDoc)
+	bwsp.disconnectBc()
+	let bNodesMap = bDoc.getMap('nodes')
+	let bEdgesMap = bDoc.getMap('edges')
+	let bNodes = new DataSet()
+	let bEdges = new DataSet()
+	bdata = {
+		nodes: bNodes,
+		edges: bEdges,
 	}
-	data.nodes.update(nodesToUpdate)
-	showClusterLinks()
-}
-
-/**
- * Create links to cluster nodes and hide links that are now inside clustered nodes
- */
-function showClusterLinks() {
-	// hide all links between clusters initially
-	let edgesToUpdate = []
-	data.edges.get().forEach((edge) => {
-		if (edge.isClusterEdge) {
-			edge.hidden = true
-			edge.label = ''
-		}
-	})
-	for (let edge of data.edges.get()) {
-		if (edge.isClusterEdge) continue
-		// if edge is between two nodes neither of which are in a cluster, show it
-		// if edge is from and to nodes that are in the same cluster, hide it
-		// if edge is from a node not in a cluster, and to a node in a cluster, hide it and make a cluster edge for it
-		// and vice versa
-		// if edge is between two nodes both in (different) clusters, hide it and make a cluster edge for it
-		let fromNode = data.nodes.get(edge.from)
-		let toNode = data.nodes.get(edge.to)
-		edge.hidden = true
-		if (!fromNode.clusteredIn &amp;&amp; !toNode.clusteredIn) {
-			edge.hidden = false
-		} else if (fromNode.clusteredIn == toNode.clusteredIn) {
-			edge.hidden = true
-		} else if (!fromNode.clusteredIn &amp;&amp; toNode.clusteredIn) makeClusterLink(edge.from, toNode.clusteredIn)
-		else if (fromNode.clusteredIn &amp;&amp; !toNode.clusteredIn) makeClusterLink(fromNode.clusteredIn, edge.to)
-		else if (fromNode.clusteredIn &amp;&amp; toNode.clusteredIn) makeClusterLink(fromNode.clusteredIn, toNode.clusteredIn)
-		else edge.hidden = false // shouldn't happen
-		edgesToUpdate.push(edge)
-	}
-	data.edges.update(edgesToUpdate)
-	if (/cluster/.test(debug)) {
-		console.log('Nodes')
-		data.nodes.get().forEach((n) => {
-			console.log([n.id, n.label, n.hidden, n.clusteredIn])
-		})
-		console.log('Edges')
-		data.edges.get().forEach((e) => {
-			console.log([e.id, data.nodes.get(e.from).label, data.nodes.get(e.to).label, e.hidden])
-		})
-	}
-	/**
-	 * Reuse existing edge or create a new one
-	 * @param {string} fromId
-	 * @param {string} toId
-	 */
-	function makeClusterLink(fromId, toId) {
-		let edge = edgesToUpdate.filter((e) => fromId == e.from &amp;&amp; toId == e.to).shift()
-		if (!edge) {
-			edge = deepMerge(styles.edges['cluster'], {
-				id: `cledge-${uuidv4()}`,
-				from: fromId,
-				to: toId,
-				isClusterEdge: true,
-			})
-		}
-		edge.hidden = false
-		edge.label = edge.label ? (parseInt(edge.label) + 1).toString() : '1'
-		edgesToUpdate.push(edge)
-	}
-}
-/**
- * Hide the cluster node and unhide the nodes it was clustering (and their edges)
- * called by right clicking the cluster node
- * @param {string} clusterNodeId
- */
-export function openCluster(clusterNodeId) {
-	let clusterNode = data.nodes.get(clusterNodeId)
-	// if user has right clicked on a factor that is not a cluster, and clustering is
-	// set, re-cluster
-	if (!clusterNode.isCluster) {
-		let attribute = elem('clustering').value
-		if (attribute !== 'none') cluster(attribute)
-		return
-	}
-	doc.transact(() => {
-		unSelect()
+	bNodesMap.observe((event) => {
 		let nodesToUpdate = []
-		let edgesToRemove = []
-		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id})
-		for (let node of nodesInCluster) {
-			node.hidden = false
-			node.clusteredIn = null
-			nodesToUpdate.push(node)
+		for (let key of event.keysChanged) {
+			if (bNodesMap.has(key)) {
+				let obj = bNodesMap.get(key)
+				nodesToUpdate.push(obj)
+			}
 		}
-		// hide the cluster node
-		clusterNode.hidden = true
-		// and the edges that link it
-		let eIds = network.getConnectedEdges(clusterNode.id)
-		for (let eId of eIds) {
-			edgesToRemove.push(eId)
-		}
-		nodesToUpdate.push(clusterNode)
-		data.nodes.update(nodesToUpdate)
-		data.edges.remove(edgesToRemove)
-		showClusterLinks()
+		if (nodesToUpdate) bNodes.update(nodesToUpdate)
 	})
-	if (data.nodes.get({filter: (n) => n.isCluster &amp;&amp; !n.hidden}).length === 0) {
-		// all clusters have been opened; reset the cluster select to None
-		elem('clustering').value = 'none'
-	}
+	bEdgesMap.observe((event) => {
+		let edgesToUpdate = []
+		for (let key of event.keysChanged) {
+			if (bEdgesMap.has(key)) {
+				let obj = bEdgesMap.get(key)
+				edgesToUpdate.push(obj)
+			}
+		}
+		bEdges.update(edgesToUpdate, origin)
+	})
 }
 
-function unCluster() {
-	let nodesToUpdate = []
-	let edgesToRemove = []
-	data.nodes.get({filter: (node) => node.isCluster}).forEach((clusterNode) => {
-		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id})
-		for (let node of nodesInCluster) {
-			node.hidden = false
-			node.clusteredIn = null
-			nodesToUpdate.push(node)
+function mergeMaps() {
+	// lists of edges from the map to be merged (B) into this one (A)
+	let newNodes = new Map()
+	bdata.nodes.get().forEach((BNode) => {
+		// for each node in the other map
+		let ANode = data.nodes.get(BNode.id) // see whether there is a node in this map with the same id
+		if (ANode) {
+			// if there is, check whether the label is the same
+			if (ANode.label != BNode.label) {
+				// if not, make a clone of the other node with a new id
+				logHistory(
+					`Existing Factor label: '${ANode.label}' does not match new label: '${BNode.label}'. Factor with new label added.`,
+					'Merge'
+				)
+				// generate a new id for BNode.  change border to dashed red.  Add it to the map
+				let newNode = deepCopy(BNode)
+				newNode.id = uuidv4()
+				newNode.shapeProperties.borderDashes = true
+				newNode.borderWidth = 4
+				newNode.borderWidthSelected = 4
+				newNode.color.border = '#ff0000'
+				newNode.color.highlight.border = '#ff0000'
+				newNode.x = ANode.x + 30
+				newNode.y = ANode.y + 30
+				// add it to this map
+				data.nodes.add(newNode)
+				// add to lookup table of existing node id to clone node id
+				newNodes.set(BNode.id, newNode.id)
+			} else if (ANode.grp != BNode.grp)
+				// label is the same, but style is not - just report this
+				logHistory(
+					`Existing style: '${ANode.grp}' does not match new style: '${BNode.grp}' for Factor: '${ANode.label}. Existing style retained.`,
+					'Merge'
+				)
+		} else {
+			// the node is on the other map, but not on this one - add it.
+			data.nodes.add(BNode)
+			logHistory(`Added new Factor: '${BNode.label}'`, 'Merge')
 		}
-		clusterNode.hidden = true
-		// and the edges that link it
-		let eIds = network.getConnectedEdges(clusterNode.id)
-		for (let eId of eIds) {
-			edgesToRemove.push(eId)
-		}
-		nodesToUpdate.push(clusterNode)
 	})
-	data.nodes.update(nodesToUpdate)
-	data.edges.remove(edgesToRemove)
-	showClusterLinks()
+
+	bdata.edges.get().forEach((BEdge) => {
+		// Some edges on the other map may have been going to/from nodes that have been cloned and given a new id.
+		// Clone these edges, giving them the new from: or to: node ids and make them dashed.
+		let newEdge = null
+		if (newNodes.has(BEdge.from)) {
+			// this edge goes from a node that has been cloned - adjust the from: id
+			newEdge = deepCopy(BEdge)
+			newEdge.from = newNodes.get(BEdge.from)
+			// it might also go to a cloned node -if so, adjust the to: id
+			if (newNodes.has(newEdge.to)) newEdge.to = newNodes.get(newEdge.to)
+		} else if (newNodes.has(BEdge.to)) {
+			// this edge goes to a cloned node
+			newEdge = deepCopy(BEdge)
+			newEdge.to = newNodes.get(BEdge.to)
+		}
+		if (newEdge) {
+			// give the cloned edge a new id
+			newEdge.id = uuidv4()
+			// make the edge dashed
+			newEdge.dashes = true
+			data.edges.add(newEdge)
+			logHistory(
+				`Added Link between new Factor(s): '${data.nodes.get(newEdge.from).label}' to '${
+					data.nodes.get(newEdge.to).label
+				}'`,
+				'Merge'
+			)
+		}
+		// now deal with the other map's edge
+		let AEdge = data.edges.get(BEdge.id)
+		let edgeName =
+			BEdge.label || `from [${bdata.nodes.get(BEdge.from).label}] to [${bdata.nodes.get(BEdge.to).label}]`
+		if (AEdge) {
+			if (
+				((AEdge.label &amp;&amp; AEdge.label.trim() != '') || (BEdge.label &amp;&amp; BEdge.label.trim() != '')) &amp;&amp;
+				AEdge.label != BEdge.label
+			)
+				logHistory(
+					`Existing Link label: \n[${AEdge.label}] \ndoes not match new label: \n[${BEdge.label}].  Existing label retained.`,
+					'Merge'
+				)
+			else if (AEdge.grp != BEdge.grp)
+				logHistory(
+					`Existing Link style: '${AEdge.grp}' does not match new style: '${BEdge.grp}' for link '${edgeName}'. Existing style retained.`,
+					'Merge'
+				)
+		} else {
+			data.edges.add(BEdge)
+			logHistory(`Added new Link: [${edgeName}]`, 'Merge')
+		}
+	})
+}
+
+export function mergeRoom(room) {
+	openOtherDoc(room)
+	bwsp.on('sync', () => {
+		mergeMaps(bdata.nodes.get(), bdata.edges.get())
+	})
+}
+
+/**
+ * Print to console the differences between the given map and the current map
+ * @param {object} nodeList
+ * @param {object} edgeList
+ */
+function diffMaps() {
+	bdata.nodes.get().forEach((BNode) => {
+		// for each node in the other map
+		let ANode = data.nodes.get(BNode.id) // see whether there is a node in this map with the same id
+		if (ANode) {
+			// if there is, check whether the label is the same
+			if (ANode.label != BNode.label) {
+				console.log(`Existing Factor label: [${ANode.label}] does not match new label: [${BNode.label}].`)
+			} else if (ANode.grp != BNode.grp)
+				// label is the same, but style is not - just report this
+				console.log(
+					`Existing style: ${ANode.grp} does not match new style: ${BNode.grp} for Factor: [${ANode.label}]. `
+				)
+		} else {
+			// the node is on the other map, but not on this one - add it.
+			console.log(`New Factor: [${BNode.label}] not in existing map`)
+		}
+	})
+	// now check that all nodes in the existing map are also in the other map
+	data.nodes.forEach((ANode) => {
+		if (!bdata.nodes.get().some((BNode) => BNode.id == ANode.id))
+			console.log(`Existing factor: [${ANode.label}] not in other map`)
+	})
+
+	// now deal with the other map's edges
+	bdata.edges.get().forEach((BEdge) => {
+		let AEdge = data.edges.get(BEdge.id)
+		let edgeName =
+			BEdge.label || `from [${bdata.nodes.get(BEdge.from).label}] to [${bdata.nodes.get(BEdge.to).label}]`
+		if (AEdge) {
+			if (
+				((AEdge.label &amp;&amp; AEdge.label.trim() != '') || (BEdge.label &amp;&amp; BEdge.label.trim() != '')) &amp;&amp;
+				AEdge.label != BEdge.label
+			)
+				console.log(`Existing Link label: \n[${AEdge.label}] \ndoes not match new label: \n[${BEdge.label}].  `)
+			else if (AEdge.grp != BEdge.grp)
+				console.log(
+					`Existing Link style: '${AEdge.grp}' does not match new style: '${BEdge.grp}' for link '${edgeName}'. `
+				)
+		} else {
+			console.log(`Existing map does not include Link: [${edgeName}]`)
+		}
+	})
+}
+export function diffRoom(room) {
+	openOtherDoc(room)
+	bwsp.on('sync', () => {
+		diffMaps()
+	})
+}
+
+export function nodeIdToLabel(id) {
+	if (!id) return id
+	let node = data.nodes.get(id)
+	if (!node) return 'node not found'
+	return node.label
+}
+
+export function anon() {
+	let nodes = data.nodes.get()
+	nodes.forEach((n) => {
+		if (n.created) n.created = undefined
+		if (n.modified) n.modified = undefined
+	})
+	data.nodes.update(nodes)
+	let edges = data.edges.get()
+	edges.forEach((e) => {
+		if (e.created) e.created = undefined
+		if (e.modified) e.modified = undefined
+	})
+	data.edges.update(edges)
 }
 </code></pre>
         </article>

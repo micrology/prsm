@@ -1,11 +1,30 @@
-/* 
-The main entry point for PRSM.  
- */
+/*********************************************************************************************************************  
+
+PRSM Participatory System Mapper 
+
+    Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+This is the main entry point for PRSM.  
+ ******************************************************************************************************************** */
 
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
 import {IndexeddbPersistence} from 'y-indexeddb'
-import {Network, parseGephiNetwork, parseDOTNetwork} from 'vis-network/peer'
+import {Network} from 'vis-network/peer'
 import {DataSet} from 'vis-data/peer'
 import diff from 'microdiff'
 import {
@@ -20,7 +39,6 @@ import {
 	dragElement,
 	standardize_color,
 	object_equals,
-	strip,
 	generateName,
 	statusMsg,
 	clearStatusBar,
@@ -32,22 +50,29 @@ import {
 	exactTime,
 	humanSize,
 } from './utils.js'
+import {
+	openFile,
+	savePRSMfile,
+	exportPNGfile,
+	exportCVS,
+	exportExcel,
+	exportDOT,
+	exportGML,
+	readSingleFile,
+} from './files.js'
 import Tutorial from './tutorial.js'
 import {styles} from './samples.js'
 import {trophic} from './trophic.js'
 import {cluster, openCluster} from './cluster.js'
 import {mergeRoom, diffRoom} from './merge.js'
-import * as parser from 'fast-xml-parser'
 // see https://github.com/joeattardi/emoji-button
 import {EmojiButton} from '@joeattardi/emoji-button'
 import Quill from 'quill'
-import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
 import Hammer from '@egjs/hammerjs'
-import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend, updateLegend} from './styles.js'
+import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend} from './styles.js'
 import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js'
 import {version} from '../package.json'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
-import {read, utils} from 'xlsx'
 
 const appName = 'Participatory System Mapper'
 const shortAppName = 'PRSM'
@@ -61,7 +86,7 @@ const ROLLBACKS = 20 // max. number of versions stored for rollback
 const SLOWTRIPTIME = 1000 // any more than this number of ms for the round trip generates a warning
 
 export var network
-var room
+export var room
 /* debug options (add to the URL thus: &debug=yjs,gui)
  * yjs - display yjs observe events on console
  * changes - show details of changes to yjs types
@@ -87,17 +112,17 @@ var yEdgesMap // shared map of edges
 export var ySamplesMap // shared map of styles
 export var yNetMap // shared map of global network settings
 export var yPointsArray // shared array of the background drawing commands
-var yUndoManager // shared list of commands for undo
+export var yUndoManager // shared list of commands for undo
 var dontUndo // when non-null, don't add an item to the undo stack
 var yChatArray // shared array of messages in the chat window
 var yAwareness // awareness channel
-var yHistory // log of actions
+export var yHistory // log of actions
 export var container //the DOM body element
 var netPane // the DOM pane showing the network
 var panel // the DOM right side panel element
 var myNameRec // the user's name record {actual name, type, etc.}
-var lastNodeSample = 'group0' // the last used node style
-var lastLinkSample = 'edge0' // the last used edge style
+export var lastNodeSample = 'group0' // the last used node style
+export var lastLinkSample = 'edge0' // the last used edge style
 /** @type {(string|boolean)} */
 var inAddMode = false // true when adding a new Factor to the network; used to choose cursor pointer
 var inEditMode = false //true when node or edge is being edited (dialog is open)
@@ -186,6 +211,7 @@ function addEventListeners() {
 	listen('exportPRSM', 'click', savePRSMfile)
 	listen('exportImage', 'click', exportPNGfile)
 	listen('exportCVS', 'click', exportCVS)
+	listen('exportExcel', 'click', exportExcel)
 	listen('exportGML', 'click', exportGML)
 	listen('exportDOT', 'click', exportDOT)
 	listen('search', 'click', search)
@@ -1316,9 +1342,32 @@ function draw() {
 } // end draw()
 
 /**
+ * clear the map by destroying all nodes and edges
+ */
+export function clearMap() {
+	doc.transact(() => {
+		unSelect()
+		ensureNotDrawing()
+		network.destroy()
+		checkMapSaved = true
+		data.nodes.clear()
+		data.edges.clear()
+		draw()
+	})
+}
+
+/**
+ * note that the map has been saved to file and so user does not need to be warned
+ * about quitting without saving
+ */
+export function markMapSaved() {
+	checkMapSaved = false
+	dirty = false
+}
+/**
  * un fade the delete button to show that it can be used when something is selected
  */
-function toggleDeleteButton() {
+export function toggleDeleteButton() {
 	if (network.getSelectedNodes().length > 0 || network.getSelectedEdges().length > 0)
 		elem('deleteNode').classList.remove('disabled')
 	else elem('deleteNode').classList.add('disabled')
@@ -1330,7 +1379,7 @@ function contextMenu(event) {
 /**
  * return an object with the current time as a date an integer and the current user's name
  */
-function timestamp() {
+export function timestamp() {
 	return {time: Date.now(), user: myNameRec.name}
 }
 /**
@@ -2092,7 +2141,7 @@ function pasteMapTitle(e) {
  * Format the map title
  * @param {string} title
  */
-function setMapTitle(title) {
+export function setMapTitle(title) {
 	let div = elem('maptitle')
 	clearStatusBar()
 	if (!title) {
@@ -2108,7 +2157,6 @@ function setMapTitle(title) {
 		}
 		div.classList.remove('unsetmaptitle')
 		document.title = `${title}: ${shortAppName} map`
-		lastFileName = title.replace(/\s+/g, '').toLowerCase()
 	}
 	if (title !== div.innerText) div.innerText = title
 	if (title.length >= 50) setEndOfContenteditable(div)
@@ -2510,7 +2558,7 @@ function redo() {
 	undoRedoButtonStatus()
 }
 
-function undoRedoButtonStatus() {
+export function undoRedoButtonStatus() {
 	setButtonDisabledStatus('undo', yUndoManager.undoStack.length === 0)
 	setButtonDisabledStatus('redo', yUndoManager.redoStack.length === 0)
 }
@@ -2536,898 +2584,7 @@ function deleteNode() {
 	network.deleteSelected()
 	clearStatusBar()
 }
-var lastFileName = 'network.json' // the name of the file last read in
-let msg = ''
-/**
- * Get the name of a map file to read and load it
- * @param {event} e
- */
-function readSingleFile(e) {
-	var file = e.target.files[0]
-	if (!file) {
-		return
-	}
-	let fileName = file.name
-	lastFileName = fileName
-	document.body.style.cursor = 'wait'
-	statusMsg("Reading '" + fileName + "'")
-	msg = ''
-	e.target.value = ''
-	var reader = new FileReader()
-	reader.onloadend = function (e) {
-		try {
-			document.body.style.cursor = 'wait'
-			loadFile(e.target.result)
-			if (!msg) statusMsg("Read '" + fileName + "'", 'info')
-		} catch (err) {
-			document.body.style.cursor = 'default'
-			statusMsg("Error reading '" + fileName + "': " + err.message, 'error')
-			console.log(err)
-			return
-		}
-		document.body.style.cursor = 'default'
-	}
-	reader.readAsArrayBuffer(file)
-}
 
-function openFile() {
-	elem('fileInput').click()
-}
-/**
- * determine what kind of file it is, parse it and replace any current map with the one read from the file
- * @param {string} contents - what is in the file
- */
-function loadFile(contents) {
-	if (data.nodes.length > 0)
-		if (!confirm('Loading a file will delete the current network.  Are you sure you want to replace it?')) return
-	// load the file as one single yjs transaction to reduce server traffic
-	doc.transact(() => {
-		unSelect()
-		ensureNotDrawing()
-		network.destroy()
-		checkMapSaved = true
-		nodes.clear()
-		edges.clear()
-		draw()
-	})
-	doc.transact(() => {
-		switch (lastFileName.split('.').pop().toLowerCase()) {
-			case 'csv':
-				data = loadCSV(arrayBufferToString(contents))
-				break
-			case 'graphml':
-				data = loadGraphML(arrayBufferToString(contents))
-				break
-			case 'gml':
-				data = loadGML(arrayBufferToString(contents))
-				break
-			case 'json':
-			case 'prsm':
-				data = loadJSONfile(arrayBufferToString(contents))
-				break
-			case 'gv':
-			case 'dot':
-				data = loadDOTfile(arrayBufferToString(contents))
-				break
-			case 'xlsx':
-				data = loadExcelfile(contents)
-				break
-			default:
-				throw {message: 'Unrecognised file name suffix'}
-		}
-		network.setOptions({
-			interaction: {
-				hideEdgesOnDrag: data.nodes.length > 100,
-				hideEdgesOnZoom: data.nodes.length > 100,
-			},
-		})
-		let nodesToUpdate = []
-		data.nodes.get().forEach((n) => {
-			// ensure that all nodes have a grp property (converting 'group' property for old format files)
-			if (!n.grp) n.grp = n.group ? 'group' + (n.group % 9) : 'group0'
-			// reassign the sample properties to the nodes
-			n = deepMerge(styles.nodes[n.grp], n)
-			// version 1.6 made changes to label scaling
-			n.scaling = {
-				label: {enabled: false, max: 40, min: 10},
-				max: 100,
-				min: 10,
-			}
-			nodesToUpdate.push(n)
-		})
-		data.nodes.update(nodesToUpdate)
-
-		// same for edges
-		let edgesToUpdate = []
-		data.edges.get().forEach((e) => {
-			// ensure that all edges have a grp property (converting 'group' property for old format files)
-			if (!e.grp) e.grp = e.group ? 'edge' + (e.group % 9) : 'edge0'
-			// reassign the sample properties to the edges
-			e = deepMerge(styles.edges[e.grp], e)
-			edgesToUpdate.push(e)
-		})
-		data.edges.update(edgesToUpdate)
-
-		network.fit(0)
-		updateLegend()
-		logHistory('loaded &lt;' + lastFileName + '&gt;')
-	})
-	yUndoManager.clear()
-	undoRedoButtonStatus()
-	toggleDeleteButton()
-}
-/**
- * convert an ArrayBuffer to String
- * @param {arrayBuffer} contents
- * @returns string
- */
-function arrayBufferToString(contents) {
-	let decoder = new TextDecoder('utf-8')
-	return decoder.decode(new DataView(contents))
-}
-/**
- * Parse and load a PRSM map file, or a JSON file exported from Gephi
- * @param {string} str
- */
-function loadJSONfile(str) {
-	if (str[0] != '{') str = decompressFromUTF16(str)
-	let json = JSON.parse(str)
-	if (json.version && version.substring(0, 3) > json.version.substring(0, 3)) {
-		statusMsg('Warning: file was created in an earlier version', 'warn')
-		msg = 'old version'
-	}
-	if (json.lastNodeSample) lastNodeSample = json.lastNodeSample
-	if (json.lastLinkSample) lastLinkSample = json.lastLinkSample
-	updateLastSamples(lastNodeSample, lastLinkSample)
-	if (json.buttons) setButtonStatus(json.buttons)
-	if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle))
-	if (json.attributeTitles) yNetMap.set('attributeTitles', json.attributeTitles)
-	else yNetMap.set('attributeTitles', {})
-	if (json.edges.length > 0 && 'source' in json.edges[0]) {
-		// the file is from Gephi and needs to be translated
-		let parsed = parseGephiNetwork(json, {
-			edges: {
-				inheritColors: false,
-			},
-			nodes: {
-				fixed: false,
-				parseColor: true,
-			},
-		})
-		nodes.add(parsed.nodes)
-		edges.add(parsed.edges)
-	} else {
-		json.nodes.forEach((n) => {
-			// at version 1.5, the title: property was renamed to note:
-			if (!n.note && n.title) n.note = n.title.replace(/<br>|<p>/g, '\n')
-			delete n.title
-		})
-		nodes.add(json.nodes)
-		json.edges.forEach((e) => {
-			if (!e.note && e.title) e.note = e.title.replace(/<br>|<p>/g, '\n')
-			delete e.title
-		})
-		edges.add(json.edges)
-	}
-	// before v1.4, the style array was called samples
-	if (json.samples) json.styles = json.samples
-	if (json.styles) {
-		styles.nodes = deepMerge(styles.nodes, json.styles.nodes)
-		for (let n in styles.nodes) {
-			delete styles.nodes[n].chosen
-		}
-		styles.edges = deepMerge(styles.edges, json.styles.edges)
-		for (let e in styles.edges) {
-			delete styles.edges[e].chosen
-		}
-		refreshSampleNodes()
-		refreshSampleLinks()
-		for (let groupId in styles.nodes) {
-			ySamplesMap.set(groupId, {
-				node: styles.nodes[groupId],
-			})
-		}
-		for (let edgeId in styles.edges) {
-			ySamplesMap.set(edgeId, {
-				edge: styles.edges[edgeId],
-			})
-		}
-	}
-	yPointsArray.delete(0, yPointsArray.length)
-	if (json.underlay) yPointsArray.insert(0, json.underlay)
-	yHistory.delete(0, yHistory.length)
-	if (json.history) yHistory.insert(0, json.history)
-	return {
-		nodes: nodes,
-		edges: edges,
-	}
-}
-/**
- * parse and load a GraphViz (.DOT or .GV) file
- *  uses the vis-network DOT parser, which is pretty hopeless -
- *  e.g. it does not manage dotted or dashed node borders and
- *  requires some massaging of the parameters it does recognise
- *
- * @param {string} graph contents of DOT file
- * @returns nodes and edges as an object
- */
-function loadDOTfile(graph) {
-	let parsedData = parseDOTNetwork(graph)
-	nodes.add(
-		parsedData.nodes.map((node) => {
-			let n = strip(node, ['id', 'label', 'color', 'shape', 'font', 'width'])
-			if (!n.id) n.id = uuidv4()
-			if (!n.color) n.color = deepCopy(styles.nodes['group0'].color)
-			if (!n.font) n.font = deepCopy(styles.nodes['group0'].font)
-			if (!n.shape) n.shape = deepCopy(styles.nodes['group0'].shape)
-			if (n.font?.size) n.font.size = parseInt(n.font.size)
-			if (n.width) n.borderWidth = parseInt(n.width)
-			if (n.shape === 'plaintext') {
-				n.shape = 'text'
-				n.borderWidth = 0
-			}
-			return n
-		})
-	)
-	edges.add(
-		parsedData.edges.map((edge) => {
-			let e = strip(edge, ['id', 'from', 'to', 'label', 'color', 'dashes'])
-			if (!e.id) e.id = uuidv4()
-			if (!e.color) e.color = deepCopy(styles.edges['edge0'].color)
-			if (!e.dashes) e.dashes = deepCopy(styles.edges['edge0'].dashes)
-			if (!e.width) e.width = e.width ? parseInt(e.width) : styles.edges['edge0'].width
-			return e
-		})
-	)
-	return {
-		nodes: nodes,
-		edges: edges,
-	}
-}
-/**
- * parse and load a graphML file
- * @param {string} graphML
- */
-function loadGraphML(graphML) {
-	let options = {
-		attributeNamePrefix: '',
-		attrNodeName: 'attr',
-		textNodeName: 'txt',
-		ignoreAttributes: false,
-		ignoreNameSpace: true,
-		allowBooleanAttributes: false,
-		parseNodeValue: true,
-		parseAttributeValue: true,
-		trimValues: true,
-		parseTrueNumberOnly: false,
-		arrayMode: false, //"strict"
-	}
-	var result = parser.validate(graphML, options)
-	if (result !== true) {
-		throw {
-			message: result.err.msg + '(line ' + result.err.line + ')',
-		}
-	}
-	let jsonObj = parser.parse(graphML, options)
-	nodes.add(
-		jsonObj.graphml.graph.node.map((n) => {
-			return {
-				id: n.attr.id.toString(),
-				label: getLabel(n.data),
-			}
-		})
-	)
-	edges.add(
-		jsonObj.graphml.graph.edge.map((e) => {
-			return {
-				id: e.attr.id.toString(),
-				from: e.attr.source.toString(),
-				to: e.attr.target.toString(),
-			}
-		})
-	)
-	return {
-		nodes: nodes,
-		edges: edges,
-	}
-
-	function getLabel(arr) {
-		for (let at of arr) {
-			if (at.attr.key == 'label') return at.txt
-		}
-	}
-}
-/**
- * Parse and load a GML file
- * @param {string} gml
- */
-function loadGML(gml) {
-	if (gml.search('graph') < 0) throw {message: 'invalid GML format'}
-	let tokens = gml.match(/"[^"]+"|[\w]+|\[|\]/g)
-	let node
-	let edge
-	let edgeId = 0
-	let tok = tokens.shift()
-	while (tok) {
-		switch (tok) {
-			case 'graph':
-				break
-			case 'node':
-				tokens.shift() // [
-				node = {}
-				tok = tokens.shift()
-				while (tok != ']') {
-					switch (tok) {
-						case 'id':
-							node.id = tokens.shift().toString()
-							break
-						case 'label':
-							node.label = splitText(tokens.shift().replace(/"/g, ''), NODEWIDTH)
-							break
-						case 'color':
-						case 'colour':
-							node.color = {}
-							node.color.background = tokens.shift().replace(/"/g, '')
-							break
-						case '[': // skip embedded groups
-							while (tok != ']') tok = tokens.shift()
-							break
-						default:
-							break
-					}
-					tok = tokens.shift() // ]
-				}
-				if (node.label == undefined) node.label = node.id
-				nodes.add(node)
-				break
-			case 'edge':
-				tokens.shift() // [
-				edge = {}
-				tok = tokens.shift()
-				while (tok != ']') {
-					switch (tok) {
-						case 'id':
-							edge.id = tokens.shift().toString()
-							break
-						case 'source':
-							edge.from = tokens.shift().toString()
-							break
-						case 'target':
-							edge.to = tokens.shift().toString()
-							break
-						case 'label':
-							edge.label = tokens.shift().replace(/"/g, '')
-							break
-						case 'color':
-						case 'colour':
-							edge.color = tokens.shift().replace(/"/g, '')
-							break
-						case '[': // skip embedded groups
-							while (tok != ']') tok = tokens.shift()
-							break
-						default:
-							break
-					}
-					tok = tokens.shift() // ]
-				}
-				if (edge.id == undefined) edge.id = (edgeId++).toString()
-				edges.add(edge)
-				break
-			default:
-				break
-		}
-		tok = tokens.shift()
-	}
-	return {
-		nodes: nodes,
-		edges: edges,
-	}
-}
-/**
- * Read a comma separated values file consisting of 'From' label and 'to' label, on each row,
-     with a header row (ignored) 
-	optional, cols 3 and 4 can include the groups (styles) of the from and to nodes,
-	column 5 can include the style of the edge.  All these must be integers between 1 and 9
- * @param {string} csv 
- */
-function loadCSV(csv) {
-	let lines = csv.split(/\r\n|\n/)
-	let labels = new Map()
-	let links = []
-
-	for (let i = 1; i < lines.length; i++) {
-		if (lines[i].length <= 2) continue // empty line
-		let line = splitCSVrow(lines[i])
-		let from = node(line[0], line[2], i)
-		let to = node(line[1], line[3], i)
-		let grp = line[4]
-		if (grp) grp = 'edge' + (parseInt(grp.trim()) - 1)
-		links.push({
-			id: uuidv4(),
-			from: from.id,
-			to: to.id,
-			grp: grp,
-		})
-	}
-	nodes.add(Array.from(labels.values()))
-	edges.add(links)
-	return {
-		nodes: nodes,
-		edges: edges,
-	}
-	/**
-	 * Parse a CSV row, accounting for commas inside quotes
-	 * @param {string} row
-	 * @returns array of fields
-	 */
-	function splitCSVrow(row) {
-		let insideQuote = false,
-			entries = [],
-			entry = []
-		row.split('').forEach(function (character) {
-			if (character === '"') {
-				insideQuote = !insideQuote
-			} else {
-				if (character == ',' && !insideQuote) {
-					entries.push(entry.join(''))
-					entry = []
-				} else {
-					entry.push(character)
-				}
-			}
-		})
-		entries.push(entry.join(''))
-		return entries
-	}
-	/**
-	 * retrieves or creates a (new) node object with given label and style,
-	 * @param {string} label
-	 * @param {number} grp
-	 * @param {number} lineNo the file line where this node was read from
-	 * @returns the node object
-	 */
-	function node(label, grp, lineNo) {
-		label = label.trim()
-		if (grp) {
-			let styleNo = parseInt(grp)
-			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
-				throw {
-					message: `Line ${lineNo}: Columns 3 and 4 must be values between 1 and 9 or blank (found ${grp})`,
-				}
-			}
-			grp = 'group' + (styleNo - 1)
-		}
-		if (labels.get(label) == undefined) {
-			labels.set(label, {id: uuidv4(), label: label.toString(), grp: grp})
-		}
-		return labels.get(label)
-	}
-}
-/**
- * Reads map data from an Excel file.  the file must have two spreadsheets in the workbook, named Factors and Links
- * In the spreadsheet, there must be a header row, and columns for (minimally) Label (and for links, also From and To,
- * with entries with the exact same text as the Labels in the Factor sheet.  There may be a Style column, which is used
- * to specify the style for the Factor or Link (numbered from 1 to 9).  There may be a Description (or Note or Note)
- * column, the contents of which are treated as a Factor or Link note.  Any other columns are treated as holding values
- * for additional Attributes.
- * @param {*} contents
- * @returns nodes and edges data
- */
-function loadExcelfile(contents) {
-	let workbook = read(contents)
-	let factorsSS = workbook.Sheets['Factors']
-	if (!factorsSS) throw {message: 'Sheet named Factors not found in Workbook'}
-	let linksSS = workbook.Sheets['Links']
-	if (!linksSS) throw {message: 'Sheet named Links not found in Workbook'}
-
-	/* transform data about factors into an array of objects, with properties named after the column headings
-	 and values from that row's cells.
-	 add a GUID to the object,  change 'Style' property to 'grp', and lowercase Label property if necessary
-	 put value of Description or Notes property into notes
-	 check that any other property names are not in the list of known attribute names; if so
-	 add that property name to the attribute name list 
-	 place the factor at some random location*/
-
-	let factors = utils.sheet_to_json(factorsSS)
-	let attributeNames = {}
-	// attributeNames is an object with properties attributeField: attributeTitle
-	factors.forEach((f) => {
-		f.id = uuidv4()
-		if (f.Style) {
-			let styleNo = parseInt(f.Style)
-			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
-				throw {
-					message: `Factors - Line ${f.__rowNum__}: Style must be a number between 1 and 9 or blank (found ${f.Style})`,
-				}
-			}
-			f.grp = 'group' + (styleNo - 1)
-			delete f.Style
-		}
-		if (f.Label) {
-			f.label = f.Label
-			delete f.Label
-		}
-		if (!f.label)
-			throw {
-				message: `Factors - Line ${f.__rowNum__}: Factor does not have a Label`,
-			}
-		let note = f.Description || f.Note || f.note
-		if (note) {
-			f.note = {ops: [{insert: note + '\n'}]}
-			delete f.Description
-			delete f.Note
-		}
-		f.created = timestamp()
-		Object.keys(f)
-			.filter((k) => !['id', 'grp', 'label', 'note', 'created', '__rowNum__'].includes(k))
-			.forEach((k) => {
-				let attributeField = Object.keys(attributeNames).find((prop) => attributeNames[prop] === k)
-				if (!attributeField) {
-					// not found, so add
-					attributeField = 'att' + (Object.keys(attributeNames).length + 1)
-					attributeNames[attributeField] = k
-				}
-				f[attributeField] = f[k]
-				delete f[k]
-			})
-		f.x = Math.random()*500
-		f.y= Math.random()*500
-	})
-	/* for each row of links
-	add a GUID
-	look up from and to in factor objects and replace with their ids
-	add other attributes as for factors */
-
-	let links = utils.sheet_to_json(linksSS)
-	links.forEach((f) => {
-		f.id = uuidv4()
-		if (f.Style) {
-			let styleNo = parseInt(f.Style)
-			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
-				throw {
-					message: `Links - Line ${f.__rowNum__}: Style must be a number between 1 and 9 or blank (found ${f.Style})`,
-				}
-			}
-			f.grp = 'edge' + (styleNo - 1)
-			delete f.Style
-		}
-		if (f.Label) {
-			f.label = f.Label
-			delete f.Label
-		}
-		if (f.From) {
-			f.from = f.From
-			delete f.From
-		}
-		if (f.To) {
-			f.to = f.To
-			delete f.To
-		}
-		f.created = timestamp()
-		let fromFactor = factors.find((factor) => factor.label === f.from)
-		if (fromFactor) f.from = fromFactor.id
-		else throw {message: `Links - Line ${f.__rowNum__}: From factor (${f.from}) not found for link`}
-		let toFactor = factors.find((factor) => factor.label === f.to)
-		if (toFactor) f.to = toFactor.id
-		else throw {message: `Links - Line ${f.__rowNum__}: To factor (${f.to}) not found for link`}
-
-		let note = f.Description || f.Note || f.note
-		if (note) {
-			f.note = {ops: [{insert: note + '\n'}]}
-			delete f.Description
-			delete f.Note
-		}
-		Object.keys(f)
-			.filter((k) => !['id', 'from', 'to', 'grp', 'created', 'label', 'note', '__rowNum__'].includes(k))
-			.forEach((k) => {
-				let attributeField = Object.keys(attributeNames).find((prop) => attributeNames[prop] === k)
-				if (!attributeField) {
-					// not found, so add
-					attributeField = 'att' + (Object.keys(attributeNames).length + 1)
-					attributeNames[attributeField] = k
-				}
-				f[attributeField] = f[k]
-				delete f[k]
-			})
-	})
-	nodes.add(factors)
-	edges.add(links)
-	yNetMap.set('attributeTitles', attributeNames)
-	recreateClusteringMenu(attributeNames)
-	return {
-		nodes: nodes,
-		edges: edges,
-	}
-}
-/**
- * ensure that the styles displayed in the node styles panel display the styles defined in the styles array
- */
-function refreshSampleNodes() {
-	let sampleElements = Array.from(document.getElementsByClassName('sampleNode'))
-	for (let i = 0; i < sampleElements.length; i++) {
-		let sampleElement = sampleElements[i]
-		let node = sampleElement.dataSet.get()[0]
-		node = deepMerge(node, styles.nodes['group' + i])
-		node.label = node.groupLabel
-		sampleElement.dataSet.remove(node.id)
-		sampleElement.dataSet.update(node)
-		sampleElement.net.fit()
-	}
-}
-/**
- * ensure that the styles displayed in the link styles panel display the styles defined in the styles array
- */
-function refreshSampleLinks() {
-	let sampleElements = Array.from(document.getElementsByClassName('sampleLink'))
-	for (let i = 0; i < sampleElements.length; i++) {
-		let sampleElement = sampleElements[i]
-		let edge = sampleElement.dataSet.get()[0]
-		edge = deepMerge(edge, styles.edges['edge' + i])
-		edge.label = edge.groupLabel
-		sampleElement.dataSet.remove(edge.id)
-		sampleElement.dataSet.update(edge)
-		sampleElement.net.fit()
-	}
-}
-
-/**
- * save the current map as a PRSM file (in JSON format)
- */
-function savePRSMfile() {
-	network.storePositions()
-	let json = JSON.stringify(
-		{
-			saved: new Date(Date.now()).toLocaleString(),
-			version: version,
-			room: room,
-			mapTitle: elem('maptitle').innerText,
-			lastNodeSample: lastNodeSample,
-			lastLinkSample: lastLinkSample,
-			// clustering, and up/down, paths between and x links away settings are not saved (and hidden property is not saved)
-			buttons: getButtonStatus(),
-			attributeTitles: yNetMap.get('attributeTitles'),
-			styles: styles,
-			nodes: data.nodes.get({
-				fields: [
-					'id',
-					'label',
-					'note',
-					'grp',
-					'x',
-					'y',
-					'arrows',
-					'color',
-					'font',
-					'borderWidth',
-					'shapeProperties',
-					'created',
-					'modified',
-				],
-				filter: (n) => !n.isCluster,
-			}),
-			edges: data.edges.get({
-				fields: ['id', 'label', 'note', 'grp', 'from', 'to', 'color', 'width', 'dashes', 'created', 'modified'],
-				filter: (e) => !e.isClusterEdge,
-			}),
-			underlay: yPointsArray.toArray(),
-			history: yHistory.map((s) => {
-				s.state = null
-				return s
-			}),
-		},
-		null,
-		'\t'
-	)
-	if (!/plain/.test(debug)) json = compressToUTF16(json)
-	saveStr(json, 'prsm')
-}
-/**
- * Save the string to a local file
- * @param {string} str file contents
- * @param {string} extn file extension
- *
- * Browser will only ask for name and location of the file to be saved if
- * it has a user setting to do so.  Otherwise, it is saved at a default
- * download location with a default name.
- */
-function saveStr(str, extn) {
-	setFileName(extn)
-	const a = document.createElement('a')
-	const file = new Blob([str], {type: 'text/plain'})
-	a.href = URL.createObjectURL(file)
-	a.download = lastFileName
-	a.click()
-	URL.revokeObjectURL(a.href)
-	checkMapSaved = false
-	dirty = false
-}
-/**
- * save the map as a PNG image file
- */
-
-const upscaling = 4 // how much bigger the image is than the displayed map
-
-function exportPNGfile() {
-	setFileName('png')
-	const a = document.createElement('a')
-	document.body.appendChild(a)
-	a.setAttribute('style', 'display: none')
-	// create a very large canvas, so we can download at high resolution
-	let bigNetPane = null
-	let bigNetwork = null
-	let bigNetCanvas = null
-	network.storePositions()
-	bigNetPane = document.createElement('div')
-	bigNetPane.id = 'big-net-pane'
-	bigNetPane.style.position = 'absolute'
-	bigNetPane.style.top = '-9999px'
-	bigNetPane.style.left = '-9999px'
-	bigNetPane.style.width = `${netPane.offsetWidth * upscaling}px`
-	bigNetPane.style.height = `${netPane.offsetHeight * upscaling}px`
-	elem('main').appendChild(bigNetPane)
-	bigNetwork = new Network(bigNetPane, data, {
-		physics: {enabled: false},
-		edges: {
-			smooth: {
-				enabled: elem('curveSelect').value === 'Curved',
-				type: 'straightCross',
-			},
-		},
-	})
-	bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
-	bigNetwork.moveTo({
-		position: network.getViewPosition(),
-		scale: network.getScale() * upscaling,
-	})
-	bigNetwork.once('afterDrawing', () => {
-		a.href = setCanvasBackgroundColor(bigNetCanvas).toDataURL('image/png')
-		a.download = lastFileName
-		a.addEventListener('click', () => {
-			a.remove()
-			bigNetwork.destroy()
-			bigNetPane.remove()
-			statusMsg(`'${lastFileName}' saved`, 'info')
-		})
-		a.click()
-	})
-}
-function setCanvasBackgroundColor(canvas, color = '#ffffff') {
-	let context = canvas.getContext('2d')
-	context.setTransform()
-	context.globalCompositeOperation = 'destination-over'
-	context.fillStyle = color
-	context.fillRect(0, 0, canvas.width, canvas.height)
-	return canvas
-}
-
-/**
- * resets lastFileName to have supplied extension
- * @param {string} extn filename extension to apply
- */
-function setFileName(extn) {
-	let pos = lastFileName.indexOf('.')
-	lastFileName = lastFileName.substring(0, pos < 0 ? lastFileName.length : pos) + '.' + extn
-}
-/**
- * Save the map as CSV files, one for nodes and one for edges
- * Only node and edge labels and style ids are saved
- */
-function exportCVS() {
-	let dummyDiv = document.createElement('div')
-	dummyDiv.id = 'dummy-div'
-	dummyDiv.style.display = 'none'
-	container.appendChild(dummyDiv)
-	let qed = new Quill('#dummy-div')
-	let str = 'Id,Label,Style,Note\n'
-	for (let node of data.nodes.get()) {
-		str += node.id + ','
-		if (node.label) str += '"' + node.label.replaceAll('\n', ' ') + '"'
-		str += ',' + node.grp + ','
-		if (node.note) {
-			qed.setContents(node.note)
-			// convert Quill formatted note to HTML, escaping all "
-			str +=
-				'"' +
-				new QuillDeltaToHtmlConverter(qed.getContents().ops, {
-					inlineStyles: true,
-				})
-					.convert()
-					.replaceAll('"', '""') +
-				'"'
-		}
-		str += '\n'
-	}
-	saveStr(str, 'nodes.csv')
-	str = 'Source,Target,Type,Id,Label,Style,Note\n'
-	for (let edge of data.edges.get()) {
-		str += edge.from + ','
-		str += edge.to + ','
-		str += 'directed,'
-		str += edge.id + ','
-		if (edge.label) str += edge.label.replaceAll('\n', ' ') + '"'
-		str += ',' + edge.grp + ','
-		if (edge.note) {
-			qed.setContents(edge.note)
-			// convert Quill formatted note to HTML, escaping all "
-			str +=
-				'"' +
-				new QuillDeltaToHtmlConverter(qed.getContents().ops, {
-					inlineStyles: true,
-				})
-					.convert()
-					.replaceAll('"', '""') +
-				'"'
-		}
-		str += '\n'
-	}
-	saveStr(str, 'edges.csv')
-	dummyDiv.remove()
-}
-/**
- * Save the map as a GML file
- * See https://web.archive.org/web/20190303094704/http://www.fim.uni-passau.de:80/fileadmin/files/lehrstuhl/brandenburg/projekte/gml/gml-technical-report.pdf for the format
- */
-function exportGML() {
-	let str =
-		'Creator "prsm ' + version + ' on ' + new Date(Date.now()).toLocaleString() + '"\ngraph\n[\n\tdirected 1\n'
-	let nodeIds = data.nodes.map((n) => n.id) //use integers, not GUIDs for node ids
-	for (let node of data.nodes.get()) {
-		str += '\tnode\n\t[\n\t\tid ' + nodeIds.indexOf(node.id)
-		if (node.label) str += '\n\t\tlabel "' + node.label.replace(/"/g, "'") + '"'
-		let color = node.color.background || styles.nodes.group0.color.background
-		str += '\n\t\tcolor "' + color + '"'
-		str += '\n\t]\n'
-	}
-	for (let edge of data.edges.get()) {
-		str += '\tedge\n\t[\n\t\tsource ' + nodeIds.indexOf(edge.from)
-		str += '\n\t\ttarget ' + nodeIds.indexOf(edge.to)
-		if (edge.label) str += '\n\t\tlabel "' + edge.label + '"'
-		let color = edge.color.color || styles.edges.edge0.color.color
-		str += '\n\t\tcolor "' + color + '"'
-		str += '\n\t]\n'
-	}
-	str += '\n]'
-	saveStr(str, 'gml')
-}
-/**
- * Save the map as GraphViz file
- * See https://graphviz.org/doc/info/lang.html
- */
-function exportDOT() {
-	let str = `/* Creator PRSM ${version} on ${new Date(Date.now()).toLocaleString()} */\ndigraph {\n`
-	for (let node of data.nodes.get()) {
-		str += `"${node.id}" [label="${node.label}", 
-			color="${standardize_color(node.color.border)}", fillcolor="${standardize_color(node.color.background)}",
-			shape="${node.shape == 'text' ? 'plaintext' : node.shape}",
-			${gvNodeStyle(node)},
-			fontsize="${node.font.size}", fontcolor="${standardize_color(node.font.color)}"]\n`
-	}
-	for (let edge of data.edges.get()) {
-		str += `"${edge.from}" -> "${edge.to}" [label="${edge.label || ''}", 
-			color="${standardize_color(edge.color.color)}"
-			style="${gvConvertEdgeStyle(edge)}"]\n`
-	}
-	str += '}\n'
-	saveStr(str, 'gv')
-
-	function gvNodeStyle(node) {
-		let bDashes = node.shapeProperties.borderDashes
-		let val = 'style="filled'
-		if (Array.isArray(bDashes)) val += ', dotted'
-		else val += `, ${bDashes ? 'dashed' : 'solid'}`
-		val += `", penwidth="${node.borderWidth}"`
-		return val
-	}
-	function gvConvertEdgeStyle(edge) {
-		let bDashes = edge.dashes
-		let val = 'solid'
-		if (Array.isArray(bDashes)) {
-			if (bDashes[0] == 10) val = 'dashed'
-			else val = 'dotted'
-		}
-		return val
-	}
-}
 /**
  * set up the modal dialog that opens when the user clicks the Share icon in the nav bar
  */
@@ -3647,35 +2804,6 @@ function openTab(tabId) {
 	positionNotes()
 }
 
-/**
- * return an object with the current Network panel setting for saving
- * settings for link radius and up/down stream are not saved
- * @return an object with the Network panel settings
- */
-function getButtonStatus() {
-	return {
-		snapToGrid: elem('snaptogridswitch').checked,
-		curve: elem('curveSelect').value,
-		background: elem('netBackColorWell').value,
-		legend: elem('showLegendSwitch').checked,
-		sizing: elem('sizing').value,
-	}
-}
-/**
- * Set the Network panel buttons to their values loaded from a file
- * @param {Object} settings
- */
-function setButtonStatus(settings) {
-	yNetMap.set('snapToGrid', settings.snapToGrid)
-	yNetMap.set('curve', settings.curve)
-	yNetMap.set('background', settings.background || '#ffffff')
-	yNetMap.set('legend', settings.legend)
-	yNetMap.set('sizing', settings.sizing)
-	yNetMap.set('radius', {radiusSetting: 'All', selected: []})
-	yNetMap.set('stream', {streamSetting: 'All', selected: []})
-	yNetMap.set('paths', {pathsSetting: 'All', selected: []})
-	yNetMap.set('cluster', 'All')
-}
 // Factors and Links Tabs
 function applySampleToNode(event) {
 	if (event.detail != 1) return // only process single clicks here
@@ -3744,6 +2872,36 @@ function updateFactorsHiddenByStyle(obj) {
 	}
 }
 
+/**
+ * ensure that the styles displayed in the node styles panel display the styles defined in the styles array
+ */
+export function refreshSampleNodes() {
+	let sampleElements = Array.from(document.getElementsByClassName('sampleNode'))
+	for (let i = 0; i < sampleElements.length; i++) {
+		let sampleElement = sampleElements[i]
+		let node = sampleElement.dataSet.get()[0]
+		node = deepMerge(node, styles.nodes['group' + i])
+		node.label = node.groupLabel
+		sampleElement.dataSet.remove(node.id)
+		sampleElement.dataSet.update(node)
+		sampleElement.net.fit()
+	}
+}
+/**
+ * ensure that the styles displayed in the link styles panel display the styles defined in the styles array
+ */
+export function refreshSampleLinks() {
+	let sampleElements = Array.from(document.getElementsByClassName('sampleLink'))
+	for (let i = 0; i < sampleElements.length; i++) {
+		let sampleElement = sampleElements[i]
+		let edge = sampleElement.dataSet.get()[0]
+		edge = deepMerge(edge, styles.edges['edge' + i])
+		edge.label = edge.groupLabel
+		sampleElement.dataSet.remove(edge.id)
+		sampleElement.dataSet.update(edge)
+		sampleElement.net.fit()
+	}
+}
 /********************************************************Notes********************************************** */
 /**
  * Globally either display or don't display notes when a factor or link is selected
@@ -4754,7 +3912,7 @@ function setCluster(option) {
  * recreate the Clustering drop down menu to include user attributes as clustering options
  * @param {object} obj {menu value, menu text}
  */
-function recreateClusteringMenu(obj) {
+export function recreateClusteringMenu(obj) {
 	// remove any old select items, other than the standard ones (which are the first 3: None, Style, Color)
 	let select = elem('clustering')
 	for (let i = 3, len = select.options.length; i < len; i++) {
@@ -5256,7 +4414,7 @@ function showAvatars() {
 	/**
 	 * make a pseudo cursor (a div)
 	 * @param {object} nameRec
-	 * @returns
+	 * @returns a div
 	 */
 	function makeCursor(nameRec) {
 		let cursorDiv = document.createElement('div')

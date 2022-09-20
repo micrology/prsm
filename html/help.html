@@ -8,10 +8,15 @@
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
-    span.underline{text-decoration: underline;}
-    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -50,7 +55,7 @@
     code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
     code span.at { color: #7d9029; } /* Attribute */
     code span.bn { color: #40a070; } /* BaseN */
-    code span.bu { } /* BuiltIn */
+    code span.bu { color: #008000; } /* BuiltIn */
     code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
     code span.ch { color: #4070a0; } /* Char */
     code span.cn { color: #880000; } /* Constant */
@@ -63,7 +68,7 @@
     code span.ex { } /* Extension */
     code span.fl { color: #40a070; } /* Float */
     code span.fu { color: #06287e; } /* Function */
-    code span.im { } /* Import */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
     code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
     code span.kw { color: #007020; font-weight: bold; } /* Keyword */
     code span.op { color: #666666; } /* Operator */
@@ -214,8 +219,9 @@ can copy and send to someone else. If they then access that link, they
 will see your network and can edit and add to it. See <a
 href="#sharing">Sharing</a> below.</li>
 <li><strong>Open file</strong> Read in a file containing a network from
-your computer drive. See <a href="#file-formats">below</a> for supported
-file formats. The content of the file replaces the network in the
+your computer drive. See <a
+href="#reading-and-importing%20maps">below</a> for supported file
+formats. The content of the file replaces the network in the
 browser.</li>
 <li><strong>Save file</strong> Save the network in a file on your
 computer. The file is saved in the app’s own format, or if you click on
@@ -277,11 +283,11 @@ text.</p>
 is shown closed, the factor will be locked into place on the network
 pane and cannot be dragged elsewhere. The factor will have a small
 padlock symbol at the top left. Locking a factor is useful when you are
-doing analysis of the map (see the <a href="#analysis">Analysis</a>
-section below) and don’t want to lose the selection while investigating
-other factors.</p>
+doing analysis of the map (see the <a
+href="#analysing-the-map">Analysis</a> section below) and don’t want to
+lose the selection while investigating other factors.</p>
 <h3 id="sharing">Sharing</h3>
-<p>If you use the <a href="#Installation">link above</a> to start the
+<p>If you use the <a href="#installation">link above</a> to start the
 app, a new room is created for you. When you click on the share icon, a
 dialog box is shown that includes the name of the room in the link that
 is displayed:</p>
@@ -402,44 +408,88 @@ button will gently pulse to remind you to open it:</p>
 <img src="/doc/images/ChatWindowButton.gif" alt="Chat Window Button" />
 <figcaption aria-hidden="true">Chat Window Button</figcaption>
 </figure>
-<h3 id="file-formats">File formats</h3>
+<h3 id="privacy-and-security">Privacy and security</h3>
+<p>The only way to join the room and see the network is by using the
+randomly generated room name, and the chances of finding that name by
+trial and error is very, very small. The network data are stored on a
+central server in encoded form. The server is located in Europe.</p>
+<h2 id="files">Files</h2>
+<h3 id="reading-and-importing-maps">Reading and Importing maps</h3>
 <p>The app can read files in its native format (files with the suffix
 ‘.prsm’), or in <a href="http://graphml.graphdrawing.org/"
 target="_blank" rel="noreferrer">GRAPHML</a> (.graphml), <a
 href="https://en.wikipedia.org/wiki/Graph_Modelling_Language"
 target="_blank" rel="noreferrer">GML</a> (.gml), <a
 href="https://graphviz.org/" target="_blank"
-rel="noreferrer">GraphVix</a>(.gv or .dot) or <a
+rel="noreferrer">GraphVix</a> (.gv or .dot), <a
 href="https://en.wikipedia.org/wiki/Comma-separated_values"
-target="_blank" rel="noreferrer">Comma Separated Values (CSV)</a> (.csv)
-formats. Not all features of GraphML, GML and GraphViz formats are
-supported.</p>
-<p>A CSV file must contain at least two columns of values. Each row
-represents a link. In the first column is the label of the factor from
-which the link points, and in the second column is the label of the
-factor the link is pointing to. This very simple format is designed to
-allow straightforward imports from other software. Optionally, the third
-and fourth columns may contain an integer between 1 and 9 - if they do,
-the factor is styled with that style (styles are numbered from top left
-to bottom right as shown on the <a href="#factors-tab">Factors tab</a>).
-The fifth column may contain the style number for the link.</p>
+target="_blank" rel="noreferrer">Comma Separated Values</a> (.csv) or <a
+href="https://www.microsoft.com/en-us/microsoft-365/excel">Microsoft
+Excel</a> (.xlsx) formats. Not all features of GraphML, GML and GraphViz
+formats are supported.</p>
+<p>An <strong>Excel</strong> workbook should contain two spreadsheets,
+one named ‘Factors’ and the other named ‘Links’. Both should have a
+Header (i.e. first row) of column names, with the remaining rows
+containing data about each Factor or Link (in any order).</p>
+<p>The <em>Factors sheet</em> must have a column headed ‘Label’. This
+column should contain text that will become the labels of the factors.
+It may, optionally, have:</p>
+<ul>
+<li>a column headed ‘Description’. The contents of this column will
+become notes for the Factors (i.e. the text shown in the Notes box when
+you select a Factor).</li>
+<li>a column headed ‘Style’, with the contents being numbers between 1
+and 9, representing the style to be applied to the Factor (the styles
+are numbered according to the <a href="#factors-tab">Factor Styles</a>
+tab, from top left to bottom right).</li>
+<li>columns headed ‘x’ and ‘y’, holding the numeric coordinates of the
+Factors in the map.</li>
+</ul>
+<p>All other columns are considered to be values of Attributes assigned
+to Factors and visible in the <a href="#data-view">Data View</a> of the
+map.</p>
+<p>The <em>Links sheet</em> must have a column headed ‘From’ and another
+headed ‘To’. The contents of these columns should be text identical to
+one of the Labels in the Factors sheet. It may, optionally, have:</p>
+<ul>
+<li>a column headed ‘Label’, with text of a label to be applied to the
+link</li>
+<li>a column headed ‘Description’. The contents of this column will
+become notes for the Links (i.e. the text shown in the Notes box when
+you select a Link).</li>
+<li>a column headed ‘Style’, with the contents being numbers between 1
+and 9, representing the link style to be applied to the Link (the styles
+are numbered according to the <a href="#links-tab">Link Styles</a> tab,
+from top left to bottom right).</li>
+</ul>
+<p>All other columns are considered to be values of Attributes assigned
+to Links and visible in the <a href="#data-view">Data View</a> of the
+map.</p>
+<p>A <strong>CSV</strong> file must contain at least two columns of
+values. Each row represents a link. In the first column is the label of
+the factor from which the link points, and in the second column is the
+label of the factor the link is pointing to. This very simple format is
+designed to allow straightforward imports from other software.
+Optionally, the third and fourth columns may contain an integer between
+1 and 9 - if they do, the factor is styled with that style (styles are
+numbered from top left to bottom right as shown on the <a
+href="#factors-tab">Factors tab</a>). The fifth column may contain the
+style number for the link. <em>Note: the CSV format is now deprciated,
+becuase the Excel format is easier to use and Excel can read and write
+CSV files. The CSV format may be removed in a future version.</em></p>
+<h3 id="saving-and-exporting-maps">Saving and Exporting maps</h3>
 <p>The app can create output files in the app’s own native format, as a
-GML file, GraphViz file or as CSV files.</p>
-<p>The CSV output is as two files, one listing all the factors and the
-other all the links. The factor file starts with a header row with the
-names of the columns (<code>Id,Label,Style,Note</code>) and then
+GML file, GraphViz file, as CSV files, or as an Excel workbook.</p>
+<p>The CSV output produces two files, one listing all the factors and
+the other all the links. The factor file starts with a header row with
+the names of the columns (<code>Id,Label,Style,Note</code>) and then
 describes each factor. The links file has a header:
 <code>Source,Target,Type,Id,Label,Style,Note</code>, where the Source
 and Target refer to the Ids listed in the factors CSV file.</p>
 <p>You can also save a high resolution (600 dpi) image of the map as a
-Portable Network Graphics (.png) file. The image shows the same view of
-the map as you see on the screen (so, for example, it will not show
-factors that have been moved out of the app window).</p>
-<h3 id="privacy-and-security">Privacy and security</h3>
-<p>The only way to join the room and see the network is by using the
-randomly generated room name, and the chances of finding that name by
-trial and error is very, very small. The network data are stored on a
-central server in encoded form. The server is located in Europe.</p>
+<strong>Portable Network Graphics</strong> (.png) file. The image shows
+the same view of the map as you see on the screen (so, for example, it
+will not show factors that have been moved out of the app window).</p>
 <h2 id="styling-the-map">Styling the map</h2>
 <p>The view you see when you first open the app is intentionally very
 simple, but hidden away are many more features. To access these, click
@@ -467,7 +517,7 @@ the style:</p>
 ‘fill’), the border and the font, to change the shape, for example to a
 rectangle or a circle, to change the border from solid to dashed or
 dotted or none, and to change the font size of the label. Clicking on
-the padlock symbol will <a href="#Notes">lock</a> all the factors with
+the padlock symbol will <a href="#notes">lock</a> all the factors with
 this style; clicking on it again will unlock them all.</p>
 <p>If you right click (or CTRL click) on one of the style samples, there
 is a menu with which you can either select all the factors that have
@@ -519,8 +569,8 @@ rel="noreferrer">trophic level</a>.</li>
 selected factor. You need to select at least one factor before using
 this layout option. It is most useful after displaying the factors up or
 downstream from a selected factor (see the <a
-href="#analysis">Analysis</a> section below for an explanation of Up and
-Down stream).</li>
+href="#analysing-the-map">Analysis</a> section below for an explanation
+of Up and Down stream).</li>
 <li><em>Barnes Hut</em> This is a ‘gravity’ algorithm. Each factor is
 modelled as though it has a mass that repulses all other factors with an
 inverse square, while the links are modelled as springs that pull the
@@ -587,8 +637,8 @@ indicates how many people have voted.
 <h3 id="analysis-tab">Analysis tab</h3>
 <p>The Analysis tab allows you to view portions of the map and to
 cluster factors to help with the analysis of the network (see the <a
-href="#analysis">Analysis</a> section below for help on how this can be
-useful).</p>
+href="#analysing-the-map">Analysis</a> section below for help on how
+this can be useful).</p>
 <p><img src="/doc/images/AnalysisPanel.png" width="250"></p>
 <p>The panel is divided into five sections:</p>
 <ul>
@@ -735,7 +785,7 @@ will remove the image, or if you have drawn a line with the pencil, it
 will undo that line). Each click of the Undo button removes a previous
 drawing.</li>
 </ul>
-<h2 id="analysis">Analysis</h2>
+<h2 id="analysing-the-map">Analysing the map</h2>
 <p>Once you have a map, you may want to examine it for themes and
 patterns. This is easiest if you examine portions of the map, or
 ‘sub-maps’, one at a time. As Barbrook-Johnson and Penn explain (<a

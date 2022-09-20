@@ -1,310 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>3d.js - Documentation</title>
+<head>
+    
+    <meta charset="utf-8">
+    <title>3d.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
 
-		<script src="scripts/prettify/prettify.js"></script>
-		<script src="scripts/prettify/lang-css.js"></script>
-		<!--[if lt IE 9]>
-			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-		<![endif]-->
-		<link type="text/css" rel="stylesheet" href="styles/prettify.css" />
-		<link type="text/css" rel="stylesheet" href="styles/jsdoc.css" />
-		<script src="scripts/nav.js" defer></script>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	</head>
-	<body>
-		<input type="checkbox" id="nav-trigger" class="nav-trigger" />
-		<label for="nav-trigger" class="navicon-button x">
-			<div class="navicon"></div>
-		</label>
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
 
-		<label for="nav-trigger" class="overlay"></label>
+<label for="nav-trigger" class="overlay"></label>
 
-		<nav>
-			<h2><a href="index.html">Home</a></h2>
-			<h3>Classes</h3>
-			<ul>
-				<li><a href="module.exports.html">exports</a></li>
-				<li>
-					<a href="ToolHandler.html">ToolHandler</a>
-					<ul class="methods">
-						<li data-type="method"><a href="ToolHandler.html#endPosition">endPosition</a></li>
-						<li data-type="method"><a href="ToolHandler.html#options">options</a></li>
-						<li data-type="method"><a href="ToolHandler.html#optionsDialog">optionsDialog</a></li>
-						<li data-type="method"><a href="ToolHandler.html#panend">panend</a></li>
-						<li data-type="method"><a href="ToolHandler.html#panmove">panmove</a></li>
-						<li data-type="method"><a href="ToolHandler.html#panstart">panstart</a></li>
-					</ul>
-				</li>
-			</ul>
-			<h3>Global</h3>
-			<ul>
-				<li><a href="global.html#addColumn">addColumn</a></li>
-				<li><a href="global.html#addEventListeners">addEventListeners</a></li>
-				<li><a href="global.html#addLabel">addLabel</a></li>
-				<li><a href="global.html#addRollbackIcon">addRollbackIcon</a></li>
-				<li><a href="global.html#addVec">addVec</a></li>
-				<li><a href="global.html#analyse">analyse</a></li>
-				<li><a href="global.html#antMarch">antMarch</a></li>
-				<li><a href="global.html#applyOptions">applyOptions</a></li>
-				<li><a href="global.html#asleep">asleep</a></li>
-				<li><a href="global.html#autoLayout">autoLayout</a></li>
-				<li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li>
-				<li><a href="global.html#cancelAdd">cancelAdd</a></li>
-				<li><a href="global.html#cancelEdit">cancelEdit</a></li>
-				<li><a href="global.html#cancelLoading">cancelLoading</a></li>
-				<li><a href="global.html#changeCursor">changeCursor</a></li>
-				<li><a href="global.html#changeRoom">changeRoom</a></li>
-				<li><a href="global.html#clean">clean</a></li>
-				<li><a href="global.html#cleanArray">cleanArray</a></li>
-				<li><a href="global.html#clearLegend">clearLegend</a></li>
-				<li><a href="global.html#clearPopUp">clearPopUp</a></li>
-				<li><a href="global.html#clearStatusBar">clearStatusBar</a></li>
-				<li><a href="global.html#clone">clone</a></li>
-				<li><a href="global.html#closeFilter">closeFilter</a></li>
-				<li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li>
-				<li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li>
-				<li><a href="global.html#collapseColGroup">collapseColGroup</a></li>
-				<li><a href="global.html#collapseNotes">collapseNotes</a></li>
-				<li><a href="global.html#colorEditor">colorEditor</a></li>
-				<li><a href="global.html#configSamples">configSamples</a></li>
-				<li><a href="global.html#connected">connected</a></li>
-				<li><a href="global.html#connectedComponents">connectedComponents</a></li>
-				<li><a href="global.html#convertDashes">convertDashes</a></li>
-				<li><a href="global.html#convertData">convertData</a></li>
-				<li><a href="global.html#convertEdge">convertEdge</a></li>
-				<li><a href="global.html#convertEdgeBack">convertEdgeBack</a></li>
-				<li><a href="global.html#convertNode">convertNode</a></li>
-				<li><a href="global.html#convertNodeBack">convertNodeBack</a></li>
-				<li><a href="global.html#copyTable">copyTable</a></li>
-				<li><a href="global.html#copyToClipboard">copyToClipboard</a></li>
-				<li><a href="global.html#createTitleDropDown">createTitleDropDown</a></li>
-				<li><a href="global.html#deepCopy">deepCopy</a></li>
-				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
-				<li><a href="global.html#deselectTool">deselectTool</a></li>
-				<li><a href="global.html#diag">diag</a></li>
-				<li><a href="global.html#diffMaps">diffMaps</a></li>
-				<li><a href="global.html#display">display</a></li>
-				<li><a href="global.html#displayHelp">displayHelp</a></li>
-				<li><a href="global.html#displayNetPane">displayNetPane</a></li>
-				<li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li>
-				<li><a href="global.html#doSearch">doSearch</a></li>
-				<li><a href="global.html#dragElement">dragElement</a></li>
-				<li><a href="global.html#draw">draw</a></li>
-				<li><a href="global.html#drawBadges">drawBadges</a></li>
-				<li><a href="global.html#drawGrid">drawGrid</a></li>
-				<li><a href="global.html#duplEdge">duplEdge</a></li>
-				<li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li>
-				<li><a href="global.html#editEdge">editEdge</a></li>
-				<li><a href="global.html#editLinkStyle">editLinkStyle</a></li>
-				<li><a href="global.html#editNode">editNode</a></li>
-				<li><a href="global.html#editNodeStyle">editNodeStyle</a></li>
-				<li><a href="global.html#elem">elem</a></li>
-				<li><a href="global.html#exactTime">exactTime</a></li>
-				<li><a href="global.html#exportCVS">exportCVS</a></li>
-				<li><a href="global.html#exportGML">exportGML</a></li>
-				<li><a href="global.html#fit">fit</a></li>
-				<li><a href="global.html#follow">follow</a></li>
-				<li><a href="global.html#followUser">followUser</a></li>
-				<li><a href="global.html#generateName">generateName</a></li>
-				<li><a href="global.html#generateRoom">generateRoom</a></li>
-				<li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li>
-				<li><a href="global.html#getArrows">getArrows</a></li>
-				<li><a href="global.html#getButtonStatus">getButtonStatus</a></li>
-				<li><a href="global.html#getContext">getContext</a></li>
-				<li><a href="global.html#getDashes">getDashes</a></li>
-				<li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li>
-				<li><a href="global.html#getRadioVal">getRadioVal</a></li>
-				<li><a href="global.html#getRandomData">getRandomData</a></li>
-				<li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li>
-				<li><a href="global.html#getSelectedAndFixedNodes">getSelectedAndFixedNodes</a></li>
-				<li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li>
-				<li><a href="global.html#ghostCursor">ghostCursor</a></li>
-				<li><a href="global.html#ghostFactor">ghostFactor</a></li>
-				<li><a href="global.html#groupDashes">groupDashes</a></li>
-				<li><a href="global.html#groupTitle">groupTitle</a></li>
-				<li><a href="global.html#headerTickToggle">headerTickToggle</a></li>
-				<li><a href="global.html#hideNavButtons">hideNavButtons</a></li>
-				<li><a href="global.html#hideNodeAndEdges">hideNodeAndEdges</a></li>
-				<li><a href="global.html#hideNotes">hideNotes</a></li>
-				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
-				<li><a href="global.html#humanSize">humanSize</a></li>
-				<li><a href="global.html#in_degree">in_degree</a></li>
-				<li><a href="global.html#inAddMode">inAddMode</a></li>
-				<li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li>
-				<li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li>
-				<li><a href="global.html#initials">initials</a></li>
-				<li><a href="global.html#initPopUp">initPopUp</a></li>
-				<li><a href="global.html#initSample">initSample</a></li>
-				<li><a href="global.html#initySamplesMap">initySamplesMap</a></li>
-				<li><a href="global.html#isEmpty">isEmpty</a></li>
-				<li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li>
-				<li><a href="global.html#legend">legend</a></li>
-				<li><a href="global.html#legendData">legendData</a></li>
-				<li><a href="global.html#lightOrDark">lightOrDark</a></li>
-				<li><a href="global.html#linkEditCancel">linkEditCancel</a></li>
-				<li><a href="global.html#linkEditorHide">linkEditorHide</a></li>
-				<li><a href="global.html#linkEditorShow">linkEditorShow</a></li>
-				<li><a href="global.html#linkEditSave">linkEditSave</a></li>
-				<li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li>
-				<li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li>
-				<li><a href="global.html#listen">listen</a></li>
-				<li><a href="global.html#listFactors">listFactors</a></li>
-				<li><a href="global.html#listLinks">listLinks</a></li>
-				<li><a href="global.html#loadFile">loadFile</a></li>
-				<li><a href="global.html#loadJSONfile">loadJSONfile</a></li>
-				<li><a href="global.html#lockNode">lockNode</a></li>
-				<li><a href="global.html#logHistory">logHistory</a></li>
-				<li><a href="global.html#makeColor">makeColor</a></li>
-				<li><a href="global.html#mapTitle">mapTitle</a></li>
-				<li><a href="global.html#mergeTranspose">mergeTranspose</a></li>
-				<li><a href="global.html#mouseDespatch">mouseDespatch</a></li>
-				<li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li>
-				<li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li>
-				<li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li>
-				<li><a href="global.html#nodeEditSave">nodeEditSave</a></li>
-				<li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li>
-				<li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li>
-				<li><a href="global.html#nodeList">nodeList</a></li>
-				<li><a href="global.html#noteFilter">noteFilter</a></li>
-				<li><a href="global.html#object_equals">object_equals</a></li>
-				<li><a href="global.html#oldUserNames">oldUserNames</a></li>
-				<li><a href="global.html#onexit">onexit</a></li>
-				<li><a href="global.html#openCluster">openCluster</a></li>
-				<li><a href="global.html#out_degree">out_degree</a></li>
-				<li><a href="global.html#parseCSV">parseCSV</a></li>
-				<li><a href="global.html#parseGML">parseGML</a></li>
-				<li><a href="global.html#parseGraphML">parseGraphML</a></li>
-				<li><a href="global.html#plusLink">plusLink</a></li>
-				<li><a href="global.html#plusNode">plusNode</a></li>
-				<li><a href="global.html#positionNotes">positionNotes</a></li>
-				<li><a href="global.html#positionPopUp">positionPopUp</a></li>
-				<li><a href="global.html#previousNames">previousNames</a></li>
-				<li><a href="global.html#quillEditor">quillEditor</a></li>
-				<li><a href="global.html#quillFormatter">quillFormatter</a></li>
-				<li><a href="global.html#readSingleFile">readSingleFile</a></li>
-				<li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li>
-				<li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li>
-				<li><a href="global.html#rebase">rebase</a></li>
-				<li><a href="global.html#recalculateStats">recalculateStats</a></li>
-				<li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li>
-				<li><a href="global.html#redraw">redraw</a></li>
-				<li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li>
-				<li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li>
-				<li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li>
-				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
-				<li><a href="global.html#resizeBox">resizeBox</a></li>
-				<li><a href="global.html#rgbToHex">rgbToHex</a></li>
-				<li><a href="global.html#rollback">rollback</a></li>
-				<li><a href="global.html#round">round</a></li>
-				<li><a href="global.html#saveEdge">saveEdge</a></li>
-				<li><a href="global.html#saveLabel">saveLabel</a></li>
-				<li><a href="global.html#saveNode">saveNode</a></li>
-				<li><a href="global.html#savePRSMfile">savePRSMfile</a></li>
-				<li><a href="global.html#saveState">saveState</a></li>
-				<li><a href="global.html#saveStr">saveStr</a></li>
-				<li><a href="global.html#search">search</a></li>
-				<li><a href="global.html#searchTargets">searchTargets</a></li>
-				<li><a href="global.html#selectClustering">selectClustering</a></li>
-				<li><a href="global.html#selectedLabels">selectedLabels</a></li>
-				<li><a href="global.html#selectTool">selectTool</a></li>
-				<li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li>
-				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
-				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
-				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
-				<li><a href="global.html#setFileName">setFileName</a></li>
-				<li><a href="global.html#setFixed">setFixed</a></li>
-				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
-				<li><a href="global.html#setRadioVal">setRadioVal</a></li>
-				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
-				<li><a href="global.html#setUpCanvas">setUpCanvas</a></li>
-				<li><a href="global.html#setUpChat">setUpChat</a></li>
-				<li><a href="global.html#setUpFilter">setUpFilter</a></li>
-				<li><a href="global.html#setUpPage">setUpPage</a></li>
-				<li><a href="global.html#setUpPaint">setUpPaint</a></li>
-				<li><a href="global.html#setUpSamples">setUpSamples</a></li>
-				<li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li>
-				<li><a href="global.html#setUpTabs">setUpTabs</a></li>
-				<li><a href="global.html#setUpToolbox">setUpToolbox</a></li>
-				<li><a href="global.html#setUpTutorial">setUpTutorial</a></li>
-				<li><a href="global.html#setvh">setvh</a></li>
-				<li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li>
-				<li><a href="global.html#showClusterLinks">showClusterLinks</a></li>
-				<li><a href="global.html#showGhostFactor">showGhostFactor</a></li>
-				<li><a href="global.html#showHistory">showHistory</a></li>
-				<li><a href="global.html#showMice">showMice</a></li>
-				<li><a href="global.html#showNodeData">showNodeData</a></li>
-				<li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li>
-				<li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li>
-				<li><a href="global.html#showPressed">showPressed</a></li>
-				<li><a href="global.html#showSelected">showSelected</a></li>
-				<li><a href="global.html#sizing">sizing</a></li>
-				<li><a href="global.html#slowTripTime">slowTripTime</a></li>
-				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
-				<li><a href="global.html#solve">solve</a></li>
-				<li><a href="global.html#splitText">splitText</a></li>
-				<li><a href="global.html#standardize_color">standardize_color</a></li>
-				<li><a href="global.html#start">start</a></li>
-				<li><a href="global.html#startY">startY</a></li>
-				<li><a href="global.html#startzoom">startzoom</a></li>
-				<li><a href="global.html#statusMsg">statusMsg</a></li>
-				<li><a href="global.html#stepFinish">stepFinish</a></li>
-				<li><a href="global.html#stepsEnd">stepsEnd</a></li>
-				<li><a href="global.html#stepStart">stepStart</a></li>
-				<li><a href="global.html#stopEdit">stopEdit</a></li>
-				<li><a href="global.html#strip">strip</a></li>
-				<li><a href="global.html#styleEdgeNames">styleEdgeNames</a></li>
-				<li><a href="global.html#styleNodeNames">styleNodeNames</a></li>
-				<li><a href="global.html#subtract">subtract</a></li>
-				<li><a href="global.html#subVec">subVec</a></li>
-				<li><a href="global.html#sumVec">sumVec</a></li>
-				<li><a href="global.html#svg">svg</a></li>
-				<li><a href="global.html#tickToggle">tickToggle</a></li>
-				<li><a href="global.html#timeAndDate">timeAndDate</a></li>
-				<li><a href="global.html#timestamp">timestamp</a></li>
-				<li><a href="global.html#titleDropDown">titleDropDown</a></li>
-				<li><a href="global.html#toggleDeleteButton">toggleDeleteButton</a></li>
-				<li><a href="global.html#togglePanel">togglePanel</a></li>
-				<li><a href="global.html#toolHandler">toolHandler</a></li>
-				<li><a href="global.html#transpose">transpose</a></li>
-				<li><a href="global.html#trophic">trophic</a></li>
-				<li><a href="global.html#undirected">undirected</a></li>
-				<li><a href="global.html#unFollow">unFollow</a></li>
-				<li><a href="global.html#unlockAll">unlockAll</a></li>
-				<li><a href="global.html#unlockEdge">unlockEdge</a></li>
-				<li><a href="global.html#unlockNode">unlockNode</a></li>
-				<li><a href="global.html#unSelect">unSelect</a></li>
-				<li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li>
-				<li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li>
-				<li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li>
-				<li><a href="global.html#updateFilter">updateFilter</a></li>
-				<li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li>
-				<li><a href="global.html#updateLastSamples">updateLastSamples</a></li>
-				<li><a href="global.html#updateLegend">updateLegend</a></li>
-				<li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li>
-				<li><a href="global.html#updateNodeCellData">updateNodeCellData</a></li>
-				<li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li>
-				<li><a href="global.html#upscaling">upscaling</a></li>
-				<li><a href="global.html#uuidv4">uuidv4</a></li>
-				<li><a href="global.html#zero">zero</a></li>
-				<li><a href="global.html#zoomincr">zoomincr</a></li>
-				<li><a href="global.html#zoomnet">zoomnet</a></li>
-				<li><a href="global.html#zoomset">zoomset</a></li>
-			</ul>
-		</nav>
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="ToolHandler.html">ToolHandler</a><ul class='methods'><li data-type='method'><a href="ToolHandler.html#endPosition">endPosition</a></li><li data-type='method'><a href="ToolHandler.html#options">options</a></li><li data-type='method'><a href="ToolHandler.html#optionsDialog">optionsDialog</a></li><li data-type='method'><a href="ToolHandler.html#panend">panend</a></li><li data-type='method'><a href="ToolHandler.html#panmove">panmove</a></li><li data-type='method'><a href="ToolHandler.html#panstart">panstart</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#addColumn">addColumn</a></li><li><a href="global.html#addContextMenu">addContextMenu</a></li><li><a href="global.html#addEventListeners">addEventListeners</a></li><li><a href="global.html#addLabel">addLabel</a></li><li><a href="global.html#addRollbackIcon">addRollbackIcon</a></li><li><a href="global.html#addVec">addVec</a></li><li><a href="global.html#analyse">analyse</a></li><li><a href="global.html#antMarch">antMarch</a></li><li><a href="global.html#applyOptions">applyOptions</a></li><li><a href="global.html#arrayBufferToString">arrayBufferToString</a></li><li><a href="global.html#asleep">asleep</a></li><li><a href="global.html#autoLayout">autoLayout</a></li><li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li><li><a href="global.html#cancelAdd">cancelAdd</a></li><li><a href="global.html#cancelEdit">cancelEdit</a></li><li><a href="global.html#cancelLoading">cancelLoading</a></li><li><a href="global.html#changeCursor">changeCursor</a></li><li><a href="global.html#changeRoom">changeRoom</a></li><li><a href="global.html#clean">clean</a></li><li><a href="global.html#cleanArray">cleanArray</a></li><li><a href="global.html#clearLegend">clearLegend</a></li><li><a href="global.html#clearMap">clearMap</a></li><li><a href="global.html#clearPopUp">clearPopUp</a></li><li><a href="global.html#clearStatusBar">clearStatusBar</a></li><li><a href="global.html#clone">clone</a></li><li><a href="global.html#closeFilter">closeFilter</a></li><li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li><li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li><li><a href="global.html#collapseColGroup">collapseColGroup</a></li><li><a href="global.html#collapseNotes">collapseNotes</a></li><li><a href="global.html#colorEditor">colorEditor</a></li><li><a href="global.html#configSamples">configSamples</a></li><li><a href="global.html#connected">connected</a></li><li><a href="global.html#connectedComponents">connectedComponents</a></li><li><a href="global.html#convertDashes">convertDashes</a></li><li><a href="global.html#convertData">convertData</a></li><li><a href="global.html#convertEdge">convertEdge</a></li><li><a href="global.html#convertEdgeBack">convertEdgeBack</a></li><li><a href="global.html#convertNode">convertNode</a></li><li><a href="global.html#convertNodeBack">convertNodeBack</a></li><li><a href="global.html#copyTable">copyTable</a></li><li><a href="global.html#copyToClipboard">copyToClipboard</a></li><li><a href="global.html#createTitleDropDown">createTitleDropDown</a></li><li><a href="global.html#deepCopy">deepCopy</a></li><li><a href="global.html#deleteColumn">deleteColumn</a></li><li><a href="global.html#deselectTool">deselectTool</a></li><li><a href="global.html#diag">diag</a></li><li><a href="global.html#diffMaps">diffMaps</a></li><li><a href="global.html#display">display</a></li><li><a href="global.html#displayHelp">displayHelp</a></li><li><a href="global.html#displayNetPane">displayNetPane</a></li><li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li><li><a href="global.html#doSearch">doSearch</a></li><li><a href="global.html#dragElement">dragElement</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawBadges">drawBadges</a></li><li><a href="global.html#drawGrid">drawGrid</a></li><li><a href="global.html#duplEdge">duplEdge</a></li><li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li><li><a href="global.html#editEdge">editEdge</a></li><li><a href="global.html#editLinkStyle">editLinkStyle</a></li><li><a href="global.html#editNode">editNode</a></li><li><a href="global.html#editNodeStyle">editNodeStyle</a></li><li><a href="global.html#elem">elem</a></li><li><a href="global.html#exactTime">exactTime</a></li><li><a href="global.html#exportCVS">exportCVS</a></li><li><a href="global.html#exportDOT">exportDOT</a></li><li><a href="global.html#exportExcel">exportExcel</a></li><li><a href="global.html#exportGML">exportGML</a></li><li><a href="global.html#fit">fit</a></li><li><a href="global.html#follow">follow</a></li><li><a href="global.html#followUser">followUser</a></li><li><a href="global.html#generateName">generateName</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li><li><a href="global.html#getArrows">getArrows</a></li><li><a href="global.html#getButtonStatus">getButtonStatus</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#getDashes">getDashes</a></li><li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li><li><a href="global.html#getRadioVal">getRadioVal</a></li><li><a href="global.html#getRandomData">getRandomData</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#getSelectedAndFixedNodes">getSelectedAndFixedNodes</a></li><li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li><li><a href="global.html#ghostCursor">ghostCursor</a></li><li><a href="global.html#ghostFactor">ghostFactor</a></li><li><a href="global.html#groupDashes">groupDashes</a></li><li><a href="global.html#groupTitle">groupTitle</a></li><li><a href="global.html#headerTickToggle">headerTickToggle</a></li><li><a href="global.html#hideNavButtons">hideNavButtons</a></li><li><a href="global.html#hideNodeAndEdges">hideNodeAndEdges</a></li><li><a href="global.html#hideNotes">hideNotes</a></li><li><a href="global.html#htmlEntities">htmlEntities</a></li><li><a href="global.html#humanSize">humanSize</a></li><li><a href="global.html#in_degree">in_degree</a></li><li><a href="global.html#inAddMode">inAddMode</a></li><li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li><li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li><li><a href="global.html#initials">initials</a></li><li><a href="global.html#initPopUp">initPopUp</a></li><li><a href="global.html#initSample">initSample</a></li><li><a href="global.html#initySamplesMap">initySamplesMap</a></li><li><a href="global.html#invertColor">invertColor</a></li><li><a href="global.html#isEmpty">isEmpty</a></li><li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li><li><a href="global.html#legend">legend</a></li><li><a href="global.html#legendData">legendData</a></li><li><a href="global.html#lightOrDark">lightOrDark</a></li><li><a href="global.html#linkEditCancel">linkEditCancel</a></li><li><a href="global.html#linkEditorHide">linkEditorHide</a></li><li><a href="global.html#linkEditorShow">linkEditorShow</a></li><li><a href="global.html#linkEditSave">linkEditSave</a></li><li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li><li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#listFactors">listFactors</a></li><li><a href="global.html#listLinks">listLinks</a></li><li><a href="global.html#loadCSV">loadCSV</a></li><li><a href="global.html#loadDOTfile">loadDOTfile</a></li><li><a href="global.html#loadExcelfile">loadExcelfile</a></li><li><a href="global.html#loadFile">loadFile</a></li><li><a href="global.html#loadGML">loadGML</a></li><li><a href="global.html#loadGraphML">loadGraphML</a></li><li><a href="global.html#loadJSONfile">loadJSONfile</a></li><li><a href="global.html#lockNode">lockNode</a></li><li><a href="global.html#logHistory">logHistory</a></li><li><a href="global.html#makeColor">makeColor</a></li><li><a href="global.html#mapTitle">mapTitle</a></li><li><a href="global.html#markMapSaved">markMapSaved</a></li><li><a href="global.html#mergeTranspose">mergeTranspose</a></li><li><a href="global.html#mouseDespatch">mouseDespatch</a></li><li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li><li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li><li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li><li><a href="global.html#nodeEditSave">nodeEditSave</a></li><li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li><li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li><li><a href="global.html#nodeList">nodeList</a></li><li><a href="global.html#noteFilter">noteFilter</a></li><li><a href="global.html#object_equals">object_equals</a></li><li><a href="global.html#oldUserNames">oldUserNames</a></li><li><a href="global.html#onexit">onexit</a></li><li><a href="global.html#openCluster">openCluster</a></li><li><a href="global.html#out_degree">out_degree</a></li><li><a href="global.html#plusLink">plusLink</a></li><li><a href="global.html#plusNode">plusNode</a></li><li><a href="global.html#positionNotes">positionNotes</a></li><li><a href="global.html#positionPopUp">positionPopUp</a></li><li><a href="global.html#quillAccessor">quillAccessor</a></li><li><a href="global.html#quillEditor">quillEditor</a></li><li><a href="global.html#quillFormatter">quillFormatter</a></li><li><a href="global.html#readSingleFile">readSingleFile</a></li><li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li><li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li><li><a href="global.html#rebase">rebase</a></li><li><a href="global.html#recalculateStats">recalculateStats</a></li><li><a href="global.html#receiveEvent">receiveEvent</a></li><li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li><li><a href="global.html#redraw">redraw</a></li><li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li><li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li><li><a href="global.html#removeAvatar">removeAvatar</a></li><li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li><li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li><li><a href="global.html#resizeBox">resizeBox</a></li><li><a href="global.html#rgbToHex">rgbToHex</a></li><li><a href="global.html#rollback">rollback</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#roundTripTimer">roundTripTimer</a></li><li><a href="global.html#saveEdge">saveEdge</a></li><li><a href="global.html#saveLabel">saveLabel</a></li><li><a href="global.html#saveNode">saveNode</a></li><li><a href="global.html#savePRSMfile">savePRSMfile</a></li><li><a href="global.html#saveState">saveState</a></li><li><a href="global.html#saveStr">saveStr</a></li><li><a href="global.html#search">search</a></li><li><a href="global.html#searchTargets">searchTargets</a></li><li><a href="global.html#selectClustering">selectClustering</a></li><li><a href="global.html#selectedLabels">selectedLabels</a></li><li><a href="global.html#selectTool">selectTool</a></li><li><a href="global.html#selectUsersItems">selectUsersItems</a></li><li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li><li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li><li><a href="global.html#setButtonStatus">setButtonStatus</a></li><li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li><li><a href="global.html#setFileName">setFileName</a></li><li><a href="global.html#setFixed">setFixed</a></li><li><a href="global.html#setMapTitle">setMapTitle</a></li><li><a href="global.html#setRadioVal">setRadioVal</a></li><li><a href="global.html#setUpAwareness">setUpAwareness</a></li><li><a href="global.html#setUpCanvas">setUpCanvas</a></li><li><a href="global.html#setUpChat">setUpChat</a></li><li><a href="global.html#setUpFilter">setUpFilter</a></li><li><a href="global.html#setUpPage">setUpPage</a></li><li><a href="global.html#setUpPaint">setUpPaint</a></li><li><a href="global.html#setUpSamples">setUpSamples</a></li><li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li><li><a href="global.html#setUpTabs">setUpTabs</a></li><li><a href="global.html#setUpToolbox">setUpToolbox</a></li><li><a href="global.html#setUpTutorial">setUpTutorial</a></li><li><a href="global.html#setvh">setvh</a></li><li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li><li><a href="global.html#showAvatars">showAvatars</a></li><li><a href="global.html#showClusterLinks">showClusterLinks</a></li><li><a href="global.html#showGhostFactor">showGhostFactor</a></li><li><a href="global.html#showHistory">showHistory</a></li><li><a href="global.html#showNavButtons">showNavButtons</a></li><li><a href="global.html#showNodeData">showNodeData</a></li><li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li><li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li><li><a href="global.html#showOtherMouse">showOtherMouse</a></li><li><a href="global.html#showPressed">showPressed</a></li><li><a href="global.html#showSelected">showSelected</a></li><li><a href="global.html#sizing">sizing</a></li><li><a href="global.html#snapToGrid">snapToGrid</a></li><li><a href="global.html#solve">solve</a></li><li><a href="global.html#splitText">splitText</a></li><li><a href="global.html#standardize_color">standardize_color</a></li><li><a href="global.html#start">start</a></li><li><a href="global.html#startY">startY</a></li><li><a href="global.html#startzoom">startzoom</a></li><li><a href="global.html#statusMsg">statusMsg</a></li><li><a href="global.html#stepFinish">stepFinish</a></li><li><a href="global.html#stepsEnd">stepsEnd</a></li><li><a href="global.html#stepStart">stepStart</a></li><li><a href="global.html#stopEdit">stopEdit</a></li><li><a href="global.html#strip">strip</a></li><li><a href="global.html#styleEdgeNames">styleEdgeNames</a></li><li><a href="global.html#styleNodeNames">styleNodeNames</a></li><li><a href="global.html#subtract">subtract</a></li><li><a href="global.html#subVec">subVec</a></li><li><a href="global.html#sumVec">sumVec</a></li><li><a href="global.html#svg">svg</a></li><li><a href="global.html#tickToggle">tickToggle</a></li><li><a href="global.html#timeAndDate">timeAndDate</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#titleDropDown">titleDropDown</a></li><li><a href="global.html#toggleDeleteButton">toggleDeleteButton</a></li><li><a href="global.html#togglePanel">togglePanel</a></li><li><a href="global.html#toolHandler">toolHandler</a></li><li><a href="global.html#traceUsers">traceUsers</a></li><li><a href="global.html#transpose">transpose</a></li><li><a href="global.html#trophic">trophic</a></li><li><a href="global.html#undirected">undirected</a></li><li><a href="global.html#unFollow">unFollow</a></li><li><a href="global.html#unlockAll">unlockAll</a></li><li><a href="global.html#unlockEdge">unlockEdge</a></li><li><a href="global.html#unlockNode">unlockNode</a></li><li><a href="global.html#unSelect">unSelect</a></li><li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li><li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li><li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li><li><a href="global.html#updateFilter">updateFilter</a></li><li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li><li><a href="global.html#updateLastSamples">updateLastSamples</a></li><li><a href="global.html#updateLegend">updateLegend</a></li><li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li><li><a href="global.html#updateNodeCellData">updateNodeCellData</a></li><li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li><li><a href="global.html#upscaling">upscaling</a></li><li><a href="global.html#uuidv4">uuidv4</a></li><li><a href="global.html#zero">zero</a></li><li><a href="global.html#zoomincr">zoomincr</a></li><li><a href="global.html#zoomnet">zoomnet</a></li><li><a href="global.html#zoomscroll">zoomscroll</a></li><li><a href="global.html#zoomset">zoomset</a></li></ul>
+</nav>
 
-		<div id="main">
-			<h1 class="page-title">3d.js</h1>
+<div id="main">
+    
+    <h1 class="page-title">3d.js</h1>
+    
 
-			<section>
-				<article>
-					<pre class="prettyprint source linenums"><code>import * as Y from 'yjs'
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ *
+ * PRSM 3D map view
+ * generates a 'three dimensional'view of a PRSM map, build on threejs
+ *
+ *
+ * */
+
+import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
 import {Network} from 'vis-network/peer/'
 import {DataSet} from 'vis-data/peer'
-import {elem, deepMerge, standardize_color} from './utils.js'
+import {elem, listen, deepMerge, standardize_color} from './utils.js'
 import {version} from '../package.json'
 import ForceGraph3D from '3d-force-graph'
 import SpriteText from 'three-spritetext'
@@ -325,8 +75,6 @@ var ySamplesMap // shared map of styles
 var myNameRec // my name etc.
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
 var graph // the 3D map
-var graphNodes
-var graphEdges
 
 window.addEventListener('load', () => {
 	loadingDelayTimer = setTimeout(() => {
@@ -348,10 +96,11 @@ function startY() {
 	else room = room.toUpperCase()
 	debug = [url.searchParams.get('debug')]
 	document.title = document.title + ' ' + room
+	// don't bother with a local storage provider
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
 	wsProvider.on('sync', () => {
 		console.log(exactTime() + ' remote content loaded')
-		display()
+		display('white')
 	})
 	wsProvider.on('status', (event) => {
 		console.log(exactTime() + event.status + (event.status == 'connected' ? ' to' : ' from') + ' room ' + room) // logs when websocket is "connected" or "disconnected"
@@ -375,16 +124,15 @@ function startY() {
 	window.yNetMap = yNetMap
 	window.ySamplesMap = ySamplesMap
 
+	// we only read changes made by other clients; this client never writes anything to the shared document
 	yNodesMap.observe(() => {
 		if (graph) {
-			convertData()
-			graph.graphData({nodes: graphNodes, links: graphEdges})
+			graph.graphData(convertData())
 		}
 	})
 	yEdgesMap.observe(() => {
 		if (graph) {
-			convertData()
-			graph.graphData({nodes: graphNodes, links: graphEdges})
+			graph.graphData(convertData())
 		}
 	})
 	ySamplesMap.observe((event) => {
@@ -439,9 +187,8 @@ function cancelLoading() {
  * @returns Object
  */
 function convertNode(node) {
-	return {id: node.id, label: node.label, color: node.color.background, fontColor: node.font.color, val: 5} //  * Math.log(2 + node.bc)}
+	return {id: node.id, label: node.label, color: node.color.background, fontColor: node.font.color, val: 5}
 }
-
 /**
  * Convert an edge from the normal PRSM format to the one required by the 3d display
  * @param {object} edge
@@ -451,22 +198,206 @@ function convertEdge(edge) {
 	return {
 		source: edge.from,
 		target: edge.to,
-		color: standardize_color(edge.color.color) === '#000000' ? 'white' : edge.color.color,
+		// black links are invisible on a black background, so change them to grey,
+		// so that they are visible on either white or black backgrounds
+		color: standardize_color(edge.color.color) === '#000000' ? 'lightgrey' : edge.color.color,
 	}
 }
 /**
  * Convert the map data from PRSM format to 3d display format
  * Avoid cluster nodes
+ * Add lists of links and neighbours to each node
+ * @return {object} {nodes; links}
  */
 function convertData() {
-	graphNodes = Array.from(yNodesMap.values())
+	let graphNodes = Array.from(yNodesMap.values())
 		.filter((n) => !n.isCluster)
 		.map((n) => {
 			return convertNode(n)
 		})
-	graphEdges = Array.from(yEdgesMap.values()).map((e) => {
+	let graphEdges = Array.from(yEdgesMap.values()).map((e) => {
 		return convertEdge(e)
 	})
+	// note neighbouring nodes and links to those for each node
+	// (used for highlighting links when hovering over nodes)
+	graphEdges.forEach((link) => {
+		const a = graphNodes.find((n) => n.id === link.source)
+		const b = graphNodes.find((n) => n.id === link.target)
+		!a.neighbors &amp;&amp; (a.neighbors = [])
+		!b.neighbors &amp;&amp; (b.neighbors = [])
+		a.neighbors.push(b)
+		b.neighbors.push(a)
+		!a.links &amp;&amp; (a.links = [])
+		!b.links &amp;&amp; (b.links = [])
+		a.links.push(link)
+		b.links.push(link)
+	})
+	return {nodes: graphNodes, links: graphEdges}
+}
+
+/**
+ * Display the map as a 3D network
+ * @param {string} backColor - background color: white or black
+ */
+function display() {
+	cancelLoading()
+	let threeDGraphDiv = elem('3dgraph')
+	let width = threeDGraphDiv.clientWidth
+	let height = threeDGraphDiv.clientHeight
+	const highlightNodes = new Set()
+	const highlightLinks = new Set()
+	let hoverNode = null
+	let backColor = elem('mode').value === 'light' ? 'white' : 'black'
+	elem('info').style.color = elem('mode').value === 'light' ? 'black' : 'white'
+
+	graph = ForceGraph3D()(threeDGraphDiv)
+		.width(width)
+		.height(height)
+		.graphData(convertData())
+		.showNavInfo(false)
+		.linkWidth((link) => (highlightLinks.has(link) ? 1 : 0))
+		.linkDirectionalArrowLength(2)
+		.linkDirectionalArrowRelPos(1)
+		.backgroundColor(backColor)
+		.nodeOpacity(1.0)
+		.linkOpacity(0.7)
+		.linkDirectionalParticles(5)
+		.nodeThreeObjectExtend(false)
+		.nodeThreeObject((node) => {
+			// extend node with text sprite
+			const sprite = new SpriteText(`${node.label}`)
+			sprite.color = node.fontColor
+			sprite.textHeight = 3
+			sprite.padding = 1
+			sprite.backgroundColor = node.color
+			sprite.borderWidth = 1
+			sprite.borderRadius = 4
+			return sprite
+		})
+		.onNodeDragEnd((node) => {
+			if (node.fx) {
+				// unfix fixed node
+				node.fx = null
+				node.fy = null
+				node.fz = null
+			} else {
+				// fix nodes if they have been dragged
+				node.fx = node.x
+				node.fy = node.y
+				node.fz = node.z
+			}
+		})
+		.onNodeHover(doHover)
+		.onNodeClick((node) => {
+			// Aim at node from outside it
+			const distance = 80
+			const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z)
+			graph.cameraPosition(
+				{x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio}, // new position
+				node, // lookAt ({ x, y, z })
+				3000 // ms transition duration
+			)
+		})
+	axes()
+	legend()
+	/**
+	 * Highlight those links (i.e. makes them thicker) that connect to the node being hovered over
+	 * @param {object} node
+	 */
+	function doHover(node) {
+		// no state change
+		if ((!node &amp;&amp; !highlightNodes.size) || (node &amp;&amp; hoverNode === node)) return
+
+		highlightNodes.clear()
+		highlightLinks.clear()
+		if (node) {
+			highlightNodes.add(node)
+			if (node.neighbors) node.neighbors.forEach((neighbor) => highlightNodes.add(neighbor))
+			if (node.links) node.links.forEach((link) => highlightLinks.add(link))
+		}
+		hoverNode = node || null
+
+		// trigger update of highlighted objects in scene
+		graph
+			.nodeColor(graph.nodeColor())
+			.linkWidth(graph.linkWidth())
+			.linkDirectionalParticles(graph.linkDirectionalParticles())
+	}
+	// fit graph to window on double click
+	listen('3dgraph', 'dblclick', () => {
+		let width = threeDGraphDiv.clientWidth
+		let height = threeDGraphDiv.clientHeight
+		graph.width(width).height(height).zoomToFit(200, 0)
+	})
+	// change background colour using select menu in nav bar
+	listen('mode', 'change', (e) => {
+		if (e.target.value === 'dark') {
+			graph.backgroundColor('black')
+			elem('info').style.color = 'white'
+		} else {
+			graph.backgroundColor('white')
+			elem('info').style.color = 'black'
+		}
+	})
+	var timeout = false // debounce timer
+	var delay = 250 // delay after event is "complete" to run callback
+	window.addEventListener('resize', () => {
+		clearTimeout(timeout)
+		timeout = setTimeout(() => {
+			setvh()
+			let backColor = elem('mode').value === 'light' ? 'white' : 'black'
+			elem('info').style.color = elem('mode').value === 'light' ? 'black' : 'white'
+			let width = window.innerWidth
+			let height = window.innerHeight - elem('navbar').clientHeight
+			graph.width(width).height(height).backgroundColor(backColor)
+		}, delay)
+	})
+	window.addEventListener('orientationchange', () => setvh())
+
+	/**
+	 * to handle iOS weirdness in fixing the vh unit (see https://css-tricks.com/the-trick-to-viewport-units-on-mobile/)
+	 */
+	function setvh() {
+		document.body.height = window.innerHeight
+		// First we get the viewport height and we multiple it by 1% to get a value for a vh unit
+		let vh = window.innerHeight * 0.01
+		// Then we set the value in the --vh custom property to the root of the document
+		document.documentElement.style.setProperty('--vh', `${vh}px`)
+	}
+	/**
+	 * draw axes across scene
+	 */
+	function axes() {
+		graph
+			.scene()
+			.add(
+				new THREE.Line(
+					new THREE.BufferGeometry().setFromPoints([
+						new THREE.Vector3(0, 0, -1000),
+						new THREE.Vector3(0, 0, 1000),
+					]),
+					new THREE.LineBasicMaterial({color: 'blue'})
+				)
+			)
+			.add(
+				new THREE.Line(
+					new THREE.BufferGeometry().setFromPoints([
+						new THREE.Vector3(-1000, 0, 0),
+						new THREE.Vector3(1000, 0, 0),
+					]),
+					new THREE.LineBasicMaterial({color: 'red'})
+				)
+			)
+			.add(
+				new THREE.Line(
+					new THREE.BufferGeometry().setFromPoints([
+						new THREE.Vector3(0, -1000, 0),
+						new THREE.Vector3(0, 1000, 0),
+					]),
+					new THREE.LineBasicMaterial({color: 'green'})
+				)
+			)
+	}
 }
 
 /**
@@ -486,6 +417,7 @@ function legend() {
 		.map((a) => a[1].edge.groupLabel)
 		.filter((a) => a !== 'Sample')
 	let nItems = nodes.length + edges.length
+	if (nItems == 0) return
 	let legendBox = document.createElement('div')
 	legendBox.className = 'legend'
 	legendBox.id = 'legendBox'
@@ -495,7 +427,10 @@ function legend() {
 	title.className = 'legendTitle'
 	title.appendChild(document.createTextNode('Legend'))
 	legendBox.appendChild(title)
-	legendBox.style.height = LEGENDSPACING * nItems + title.offsetHeight + 'px'
+	let boxheight = LEGENDSPACING * nItems + title.offsetHeight
+	let threeDGraphDiv = elem('3dgraph')
+	legendBox.style.height =
+		(boxheight &lt; threeDGraphDiv.clientHeight - 100 ? boxheight : threeDGraphDiv.clientHeight - 100) + 'px'
 	legendBox.style.width = HALFLEGENDWIDTH * 2 + 'px'
 	let canvas = document.createElement('div')
 	canvas.className = 'legendCanvas'
@@ -570,165 +505,28 @@ function legend() {
 	}
 	legendNetwork.fit({})
 }
-
-/**
- * Display the map as a 3D network
- */
-function display() {
-	convertData()
-	cancelLoading()
-	let threeDGraphDiv = elem('3dgraph')
-	let width = threeDGraphDiv.clientWidth
-	let height = threeDGraphDiv.clientHeight
-	const highlightNodes = new Set()
-	const highlightLinks = new Set()
-	let hoverNode = null
-	graphEdges.forEach((link) => {
-		const a = graphNodes.find((n) => n.id === link.source)
-		const b = graphNodes.find((n) => n.id === link.target)
-		!a.neighbors &amp;&amp; (a.neighbors = [])
-		!b.neighbors &amp;&amp; (b.neighbors = [])
-		a.neighbors.push(b)
-		b.neighbors.push(a)
-
-		!a.links &amp;&amp; (a.links = [])
-		!b.links &amp;&amp; (b.links = [])
-		a.links.push(link)
-		b.links.push(link)
-	})
-
-	graph = ForceGraph3D()(threeDGraphDiv)
-		.width(width)
-		.height(height)
-		.graphData({ nodes: graphNodes, links: graphEdges })
-		.showNavInfo(false)
-		.linkWidth((link) => (highlightLinks.has(link) ? 1 : 0))
-		.linkDirectionalArrowLength(2)
-		.linkDirectionalArrowRelPos(1)
-		.backgroundColor('white')
-		.nodeOpacity(1.0)
-		.linkOpacity(0.7)
-		.linkDirectionalParticles(5)
-		.nodeThreeObjectExtend(false)
-		.nodeThreeObject((node) => {
-			// extend node with text sprite
-			const sprite = new SpriteText(`${node.label}`)
-			sprite.color = node.fontColor
-			sprite.textHeight = 3
-			sprite.padding = 1
-			sprite.backgroundColor = node.color
-			sprite.borderWidth = 1
-			sprite.borderRadius = 4
-			return sprite
-		})
-		.onNodeDragEnd((node) => {
-			if (node.fx) {
-				// unfix fixed node
-				node.fx = null
-				node.fy = null
-				node.fz = null
-			} else {
-				// fix nodes if they have been dragged
-				node.fx = node.x
-				node.fy = node.y
-				node.fz = node.z
-			}
-		})
-		.onNodeHover(doHover)
-		.onNodeClick((node) => {
-			// Aim at node from outside it
-			const distance = 80
-			const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z)
-			graph.cameraPosition(
-				{x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio}, // new position
-				node, // lookAt ({ x, y, z })
-				3000 // ms transition duration
-			)
-		})
-	axes()
-	legend()
-
-	function doHover(node) {
-		// no state change
-		if ((!node &amp;&amp; !highlightNodes.size) || (node &amp;&amp; hoverNode === node)) return
-
-		highlightNodes.clear()
-		highlightLinks.clear()
-		if (node) {
-			highlightNodes.add(node)
-			if (node.neighbors) node.neighbors.forEach((neighbor) => highlightNodes.add(neighbor))
-			if (node.links) node.links.forEach((link) => highlightLinks.add(link))
-		}
-		hoverNode = node || null
-		updateHighlight()
-
-		function updateHighlight() {
-			// trigger update of highlighted objects in scene
-			graph
-				.nodeColor(graph.nodeColor())
-				.linkWidth(graph.linkWidth())
-				.linkDirectionalParticles(graph.linkDirectionalParticles())
-		}
-	}
-	addEventListener('dblclick', () => {
-		graph.width(width).height(height).zoomToFit(200, 0)
-	})
-	/**
-	 * draw axes across scene
-	 */
-	function axes() {
-		graph
-			.scene()
-			.add(
-				new THREE.Line(
-					new THREE.BufferGeometry().setFromPoints([
-						new THREE.Vector3(0, 0, -1000),
-						new THREE.Vector3(0, 0, 1000),
-					]),
-					new THREE.LineBasicMaterial({color: 'blue'})
-				)
-			)
-			.add(
-				new THREE.Line(
-					new THREE.BufferGeometry().setFromPoints([
-						new THREE.Vector3(-1000, 0, 0),
-						new THREE.Vector3(1000, 0, 0),
-					]),
-					new THREE.LineBasicMaterial({color: 'red'})
-				)
-			)
-			.add(
-				new THREE.Line(
-					new THREE.BufferGeometry().setFromPoints([
-						new THREE.Vector3(0, -1000, 0),
-						new THREE.Vector3(0, 1000, 0),
-					]),
-					new THREE.LineBasicMaterial({color: 'green'})
-				)
-			)
-	}
-	window.graphNodes = graphNodes
-	window.graphEdges = graphEdges
-}
 </code></pre>
-				</article>
-			</section>
-		</div>
+        </article>
+    </section>
 
-		<br class="clear" />
 
-		<footer>
-			Documentation generated by
-			<a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a>
-			on Sun Mar 06 2022 21:03:20 GMT+0000 (Greenwich Mean Time) using the
-			<a href="https://github.com/clenemt/docdash">docdash</a>
-			theme.
-		</footer>
 
-		<script>
-			prettyPrint()
-		</script>
-		<script src="scripts/polyfill.js"></script>
-		<script src="scripts/linenumber.js"></script>
-	</body>
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Mon Aug 29 2022 18:00:16 GMT+0100 (British Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
 </html>

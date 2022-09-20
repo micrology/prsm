@@ -18,6 +18,7 @@ var websocket = 'wss://www.prsm.uk/wss' // web socket server URL
 var clientID // unique ID for this browser
 var yNodesMap // shared map of nodes
 var yEdgesMap // shared map of edges
+var ySamplesMap // shared map of styles
 
 window.addEventListener('load', () => {
 	startY()
@@ -43,6 +44,7 @@ function startY() {
 
 	yNodesMap = doc.getMap('nodes')
 	yEdgesMap = doc.getMap('edges')
+	ySamplesMap = doc.getMap('samples')
 
 	clientID = doc.clientID
 	console.log('My client ID: ' + clientID)
@@ -60,6 +62,9 @@ function startY() {
 	})
 	yEdgesMap.observe(() => {
 		showForceGraph()
+	})
+	ySamplesMap.observe(() => {
+//		makeLegend()
 	})
 } // end startY()
 
@@ -154,9 +159,59 @@ function showForceGraph() {
 		linkOpacity: 1.0,
 		linkDirectionalArrowLength: 1.5,
 		linkDirectionalArrowRelPos: 1,
-		onEngineStop: console.log('Engine stopped'),
-		onEngineTick: console.log('tick')
+		onEngineStop: () => {
+			console.log('Engine stopped')
+			makeLegend()
+		},
 	})
 	// draw a sphere entity around each node
 	fgEl.setAttribute('spherize', {})
+}
+
+function makeLegend() {
+	let legend = `
+	<div style="background: rgba(255, 255, 255, 0.2); border-radius: 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.3); padding: 20px; width: 300px; font-family: Arial, Helvetica, sans-serif;">
+		<div style="text-align: center; font-weight: bold">Key</div>
+		<div style="display: grid; grid-template-columns: repeat(3, 1fr);">
+		`
+	ySamplesMap.forEach((v) => {
+		if (v.node && v.node.groupLabel !== 'Sample') {
+			legend += `
+			<div style="justify-self: center; margin: 10px;">
+				<div style="width: 40px; height: 40px; border-radius: 50%; margin: auto; box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,  rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px; background-color: ${v.node.color.background}">
+				</div>
+	    		<div>
+	  			${v.node.groupLabel}
+	  			</div>
+	  		</div>
+	  `
+		}
+	})
+	legend += `
+		</div>
+		<div style=" display: grid; grid-template-columns: repeat(3, 1fr);">`
+	ySamplesMap.forEach((v) => {
+		if (v.edge && v.edge.groupLabel !== 'Sample') {
+			legend += `
+			<div style=" width: 40px; height: 40px; justify-self: center; margin: 10px; text-align: center;">
+				<div style="color: ${v.edge.color.color}">
+					<svg style= "filter: drop-shadow(2px 2px 2px rgb(0 0 0 / 0.4));" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-right" viewbox="0 0 16 16">
+					<path stroke="currentColor" stroke-width="1.2" fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
+					</svg>
+				</div>
+				<div>
+				${v.edge.groupLabel}
+				</div>
+			</div>
+			`
+		}
+	})
+	legend += `
+		</div>
+	</div>
+	`
+	let legendBox = document.getElementById('legend')
+	legendBox.innerHTML = legend
+	// leave some time for the DOM to settle
+	setTimeout(() => legendBox.components.simplehtmlembed.update(), 100) 
 }

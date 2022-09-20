@@ -69,7 +69,7 @@ function mergeMaps() {
 			if (ANode.label != BNode.label) {
 				// if not, make a clone of the other node with a new id
 				logHistory(
-					`Existing Factor label: '${ANode.label}' does not match new label: '${BNode.label}'. Factor with new label added.`,
+					`existing Factor label: '${ANode.label}' does not match new label: '${BNode.label}'. Factor with new label added.`,
 					'Merge'
 				)
 				// generate a new id for BNode.  change border to dashed red.  Add it to the map
@@ -89,13 +89,13 @@ function mergeMaps() {
 			} else if (ANode.grp != BNode.grp)
 				// label is the same, but style is not - just report this
 				logHistory(
-					`Existing style: '${ANode.grp}' does not match new style: '${BNode.grp}' for Factor: '${ANode.label}. Existing style retained.`,
+					`existing style: '${ANode.grp}' does not match new style: '${BNode.grp}' for Factor: '${ANode.label}. Existing style retained.`,
 					'Merge'
 				)
 		} else {
 			// the node is on the other map, but not on this one - add it.
 			data.nodes.add(BNode)
-			logHistory(`Added new Factor: '${BNode.label}'`, 'Merge')
+			logHistory(`added new Factor: '${BNode.label}'`, 'Merge')
 		}
 	})
 
@@ -121,13 +121,13 @@ function mergeMaps() {
 			newEdge.dashes = true
 			data.edges.add(newEdge)
 			logHistory(
-				`Added Link between new Factor(s): '${data.nodes.get(newEdge.from).label}' to '${
+				`added Link between new Factor(s): '${data.nodes.get(newEdge.from).label}' to '${
 					data.nodes.get(newEdge.to).label
 				}'`,
 				'Merge'
 			)
 		}
-		// now deal with the other map's edge
+		// now deal with the other map's edges
 		let AEdge = data.edges.get(BEdge.id)
 		let edgeName =
 			BEdge.label || `from [${bdata.nodes.get(BEdge.from).label}] to [${bdata.nodes.get(BEdge.to).label}]`
@@ -137,17 +137,25 @@ function mergeMaps() {
 				AEdge.label != BEdge.label
 			)
 				logHistory(
-					`Existing Link label: \n[${AEdge.label}] \ndoes not match new label: \n[${BEdge.label}].  Existing label retained.`,
+					`existing Link label: \n[${AEdge.label}] \ndoes not match new label: \n[${BEdge.label}].  Existing label retained.`,
 					'Merge'
 				)
 			else if (AEdge.grp != BEdge.grp)
 				logHistory(
-					`Existing Link style: '${AEdge.grp}' does not match new style: '${BEdge.grp}' for link '${edgeName}'. Existing style retained.`,
+					`existing Link style: '${AEdge.grp}' does not match new style: '${BEdge.grp}' for link '${edgeName}'. Existing style retained.`,
 					'Merge'
 				)
 		} else {
 			data.edges.add(BEdge)
-			logHistory(`Added new Link: [${edgeName}]`, 'Merge')
+			logHistory(`added new Link: [${edgeName}]`, 'Merge')
+		}
+	})
+	// now check that all edges in the existing map are also in the other map
+	data.edges.forEach((AEdge) => {
+		if (!bdata.edges.get(AEdge.id)) {
+			let edgeName =
+				AEdge.label || `from [${data.nodes.get(AEdge.from).label}] to [${data.nodes.get(AEdge.to).label}]`
+			logHistory(`existing link: (${edgeName}) is not in other map.  Existing link retained.`, 'Merge')
 		}
 	})
 }
@@ -156,13 +164,12 @@ export function mergeRoom(room) {
 	openOtherDoc(room)
 	bwsp.on('sync', () => {
 		mergeMaps(bdata.nodes.get(), bdata.edges.get())
+		bwsp.disconnect()
 	})
 }
 
 /**
  * Print to console the differences between the given map and the current map
- * @param {object} nodeList
- * @param {object} edgeList
  */
 function diffMaps() {
 	bdata.nodes.get().forEach((BNode) => {
@@ -184,8 +191,7 @@ function diffMaps() {
 	})
 	// now check that all nodes in the existing map are also in the other map
 	data.nodes.forEach((ANode) => {
-		if (!bdata.nodes.get().some((BNode) => BNode.id == ANode.id))
-			console.log(`Existing factor: [${ANode.label}] not in other map`)
+		if (!bdata.nodes.get(ANode.id)) console.log(`Existing factor: [${ANode.label}] not in other map`)
 	})
 
 	// now deal with the other map's edges
@@ -207,11 +213,20 @@ function diffMaps() {
 			console.log(`Existing map does not include Link: [${edgeName}]`)
 		}
 	})
+	// now check that all edges in the existing map are also in the other map
+	data.edges.forEach((AEdge) => {
+		if (!bdata.edges.get(AEdge.id)) {
+			let edgeName =
+				AEdge.label || `from [${data.nodes.get(AEdge.from).label}] to [${data.nodes.get(AEdge.to).label}]`
+			console.log(`Existing link: (${edgeName}) not in other map`)
+		}
+	})
 }
 export function diffRoom(room) {
 	openOtherDoc(room)
 	bwsp.on('sync', () => {
 		diffMaps()
+		bwsp.disconnect()
 	})
 }
 

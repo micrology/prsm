@@ -78,7 +78,7 @@ This what they do, from left to right:
 * **Redo** Redo the last action (e.g. if you have just undone the creation of a factor, this will return the factor to the network).
 * **Bin** First, select a factor or a link by clicking on it.  Note that the selected factor or link gains a shadow and is listed in the status bar at the bottom of the window. Then click on the Bin button (or press the backspace or delete keys) - the factor or link is deleted.  The Undo button will restore it if you deleted it by mistake.
 * **Share** Shows a dialog box with a web link that you can copy and send to someone else.  If they then access that link, they will see your network and can edit and add to it. See [Sharing](#sharing) below.
-* **Open file** Read in a file containing a network from your computer drive.  See [below](#file-formats) for supported file formats.  The content of the file replaces the network in the browser.
+* **Open file** Read in a file containing a network from your computer drive.  See [below](#reading-and-importing maps) for supported file formats.  The content of the file replaces the network in the browser.
 * **Save file**  Save the network in a file on your computer. The file is saved in the app's own format, or if you click on the small triangle next to the button, you can choose to save an image of the map as a high resolution image (a .PNG file), or the map data in GML (Graph Markup Language) or CSV (Comma Separated Values) formats.
 * **Search** Search for factors by name.
 * **Help** Display this help page in a separate window.
@@ -104,11 +104,11 @@ If a factor or link has a note, a small 'card' icon is shown next to it.
 
 A basic editor is provided for writing the Notes.  You can format the text with **bold**, *italic* or <u>underline</u>, create bulletted or numbered lists, and add weblinks (URLs) to the text.
 
-For factors, there is also an open or closed padlock symbol. If this is shown closed, the factor will be locked into place on the network pane and cannot be dragged elsewhere.  The factor will have a small padlock symbol at the top left.  Locking a factor is useful when you are doing analysis of the map (see the [Analysis](#analysis) section below) and don't want to lose the selection while investigating other factors.
+For factors, there is also an open or closed padlock symbol. If this is shown closed, the factor will be locked into place on the network pane and cannot be dragged elsewhere.  The factor will have a small padlock symbol at the top left.  Locking a factor is useful when you are doing analysis of the map (see the [Analysis](#analysing-the-map) section below) and don't want to lose the selection while investigating other factors.
 
 ### Sharing
 
-If you use the [link above](#Installation) to start the app, a new room is created for you.  When you click on the share icon, a dialog box is shown that includes the name of the room in the link that is displayed:
+If you use the [link above](#installation) to start the app, a new room is created for you.  When you click on the share icon, a dialog box is shown that includes the name of the room in the link that is displayed:
 
 ![Sharing box](/doc/images/prsm-share.png)
 
@@ -176,21 +176,44 @@ If someone has sent you a message but your chat window is closed, the button wil
 
 ![Chat Window Button](/doc/images/ChatWindowButton.gif)
 
-### File formats
-
-The app can read files in its native format (files with the suffix '.prsm'), or in [GRAPHML](http://graphml.graphdrawing.org/){target="_blank" rel="noreferrer"} (.graphml), [GML](https://en.wikipedia.org/wiki/Graph_Modelling_Language){target="_blank" rel="noreferrer"} (.gml), [GraphVix](https://graphviz.org/){target="_blank" rel="noreferrer"}(.gv or .dot) or [Comma Separated Values (CSV)](https://en.wikipedia.org/wiki/Comma-separated_values){target="_blank" rel="noreferrer"} (.csv) formats.  Not all features of GraphML, GML and GraphViz formats are supported.
-
-A CSV file must contain at least two columns of values.  Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to.  This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottom right as shown on the [Factors tab](#factors-tab)).  The fifth column may contain the style number for the link.
-
-The app can create output files in the app's own native format, as a GML file, GraphViz file or as CSV files.
-
-The CSV output is as two files, one listing all the factors and the other all the links.  The factor file starts with a header row with the names of the columns (`Id,Label,Style,Note`) and then describes each factor. The links file has a header: `Source,Target,Type,Id,Label,Style,Note`, where the Source and Target refer to the Ids listed in the factors CSV file.
-
-You can also save a high resolution (600 dpi) image of the map as a Portable Network Graphics (.png) file.  The image shows the same view of the map as you see on the screen (so, for example, it will not show factors that have been moved out of the app window).
-
 ### Privacy and security
 
 The only way to join the room and see the network is by using the randomly generated room name, and the chances of finding that name by trial and error is very, very small.  The network data are stored on a central server in encoded form.  The server is located in Europe.
+
+## Files
+
+### Reading and Importing maps
+
+The app can read files in its native format (files with the suffix '.prsm'), or in [GRAPHML](http://graphml.graphdrawing.org/){target="_blank" rel="noreferrer"} (.graphml), [GML](https://en.wikipedia.org/wiki/Graph_Modelling_Language){target="_blank" rel="noreferrer"} (.gml), [GraphVix](https://graphviz.org/){target="_blank" rel="noreferrer"} (.gv or .dot), [Comma Separated Values](https://en.wikipedia.org/wiki/Comma-separated_values){target="_blank" rel="noreferrer"} (.csv)  or [Microsoft Excel](https://www.microsoft.com/en-us/microsoft-365/excel) (.xlsx) formats.  Not all features of GraphML, GML and GraphViz formats are supported.
+
+An **Excel** workbook should contain two spreadsheets, one named ‘Factors’ and the other named ‘Links’.  Both should have a Header (i.e. first row) of column names, with the remaining rows containing data about each Factor or Link (in any order).
+
+The *Factors sheet* must have a column headed ‘Label’.  This column should contain text that will become the labels of the factors. It may, optionally, have:
+
+* a column headed ‘Description’.  The contents of this column will become notes for the Factors (i.e. the text shown in the Notes box when you select a Factor).
+* a column headed ‘Style’, with the contents being numbers between 1 and 9, representing the style to be applied to the Factor (the styles are numbered according to the [Factor Styles](#factors-tab) tab, from top left to bottom right).
+* columns headed 'x' and 'y', holding the numeric coordinates of the Factors in the map.
+
+All other columns are considered to be values of Attributes assigned to Factors and visible in the [Data View](#data-view) of the map.
+
+The *Links sheet* must have a column headed ‘From’ and another headed ‘To’.  The contents of these columns should be text identical to one of the Labels in the Factors sheet.
+It may, optionally, have:
+
+* a column headed ‘Label’, with text of a label to be applied to the link
+* a column headed ‘Description’.  The contents of this column will become notes for the Links (i.e. the text shown in the Notes box when you select a Link).
+* a column headed ‘Style’, with the contents being numbers between 1 and 9, representing the link style to be applied to the Link (the styles are numbered according to the [Link Styles](#links-tab) tab, from top left to bottom right).
+
+All other columns are considered to be values of Attributes assigned to Links and visible in the [Data View](#data-view) of the map.
+
+A **CSV** file must contain at least two columns of values.  Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to.  This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottom right as shown on the [Factors tab](#factors-tab)).  The fifth column may contain the style number for the link. *Note: the CSV format is now deprciated, becuase the Excel format is easier to use and Excel can read and write CSV files.  The CSV format may be removed in a future version.*
+
+### Saving and Exporting maps
+
+The app can create output files in the app's own native format, as a GML file, GraphViz file, as CSV files, or as an Excel workbook.
+
+The CSV output produces two files, one listing all the factors and the other all the links.  The factor file starts with a header row with the names of the columns (`Id,Label,Style,Note`) and then describes each factor. The links file has a header: `Source,Target,Type,Id,Label,Style,Note`, where the Source and Target refer to the Ids listed in the factors CSV file.
+
+You can also save a high resolution (600 dpi) image of the map as a **Portable Network Graphics** (.png) file.  The image shows the same view of the map as you see on the screen (so, for example, it will not show factors that have been moved out of the app window).
 
 ## Styling the map
 
@@ -210,7 +233,7 @@ Double clicking on any of the 9 styles opens a dialog box to change the style:
 <!-- ![FactorStyleDialog](/doc/images/FactorStyle.png) -->
 <img src="/doc/images/FactorsStyle.png" width="600">
 
-There are options to change the colour of the background (the 'fill'), the border and the font, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted or none, and to change the font size of the label.  Clicking on the padlock symbol will [lock](#Notes) all the factors with this style; clicking on it again will unlock them all.
+There are options to change the colour of the background (the 'fill'), the border and the font, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted or none, and to change the font size of the label.  Clicking on the padlock symbol will [lock](#notes) all the factors with this style; clicking on it again will unlock them all.
 
 If you right click (or CTRL click) on one of the style samples, there is a menu with which you can either select all the factors that have that style, or hide all those factors from view.
 
@@ -238,7 +261,7 @@ The Network tab enables you to change many aspects of the network visualisation 
 It is sometimes useful to get PSRM to arrange factors using an automatic procedure and then adjust their positions manually to achieve the desired placement.  PRSM provides several layout algorithms:
 
 * The *trophic* algorithm helps to reveal [the causal structure of the map](https://royalsocietypublishing.org/doi/10.1098/rsos.201138){target="_blank" rel="noreferrer"}. With the trophic layout, the factors are arranged along the horizontal axis according to their positions (their trophic levels) in the overall causal flow within the system, making it easier to identify upstream and downstream factors; the linked chains of influence that connect them; and where factors act on the system within this overall causal structure (which may be upstream or downstream). It will re-arrange the factors and links to create a layout such that all the links point from left to right and are arranged according to [trophic level](https://en.wikipedia.org/wiki/Trophic_level){target="_blank" rel="noreferrer"}.
-* *Fan* Arranges the factors in a fan shape starting from a selected factor.  You need to select at least one factor before using this layout option.  It is most useful after displaying the factors up or downstream from a selected factor (see the [Analysis](#analysis) section below for an explanation of Up and Down stream).
+* *Fan* Arranges the factors in a fan shape starting from a selected factor.  You need to select at least one factor before using this layout option.  It is most useful after displaying the factors up or downstream from a selected factor (see the [Analysis](#analysing-the-map) section below for an explanation of Up and Down stream).
 * *Barnes Hut* This is a 'gravity' algorithm.  Each factor is modelled as though it has a mass that repulses all other factors with an inverse square, while the links are modelled as springs that pull the factors together. The algorithm is iterative, i.e. it tries repeatedly to find the best arrangement of factors that balance the repulsive forces between the factors and the attractive forces from the springs.
 * *Force Atlas 2* This is a variation of the Barnes Hut algorithm in which the repulsion between the factors is linear rather than quadratic.
 * *Repulsion*  Another variation of Barnes Hut.
@@ -264,7 +287,7 @@ On the Network tab, there are controls for:
 
 ### Analysis tab
 
-The Analysis tab allows you to view portions of the map and to cluster factors to help with the analysis of the network (see the [Analysis](#analysis) section below for help on how this can be useful).
+The Analysis tab allows you to view portions of the map and to cluster factors to help with the analysis of the network (see the [Analysis](#analysing-the-map) section below for help on how this can be useful).
 
 <img src="/doc/images/AnalysisPanel.png" width="250">
 
@@ -327,7 +350,7 @@ The drawing tools are, in order from top to bottom:
 * **Image** Clicking on this tool gives you a file chooser to select an image file (picture) from your computer - JPG, PNG and GIF formats are accepted. When the image has been placed on the background, you can drag it to where you want it, and resize it by dragging on the small black square at the bottom right.  Click anywhere outside the image to fix it to the background.
 * **Undo** This tool will undo the effect of the last drawing (e.g. if you have just placed an image on the background, it will remove the image, or if you have drawn a line with the pencil, it will undo that line).  Each click of the Undo button removes a previous drawing.
 
-## Analysis
+## Analysing the map
 
 Once you have a map, you may want to examine it for themes and patterns. This is easiest if you examine portions of the map, or 'sub-maps', one at a time.  As  Barbrook-Johnson and Penn explain ([Barbrook-Johnson, P., & Penn, A. (2021). Participatory systems mapping for complex energy policy evaluation. Evaluation, 27(1), 57–79.](https://doi.org/10.1177/1356389020976153){target="_blank" rel="noreferrer"}), network analysis can be combined with subjective information to answer a range of questions, as indicated in the table below.
 
