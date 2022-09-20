@@ -118,7 +118,7 @@ var yChatArray // shared array of messages in the chat window
 var yAwareness // awareness channel
 export var yHistory // log of actions
 export var container //the DOM body element
-var netPane // the DOM pane showing the network
+export var netPane // the DOM pane showing the network
 var panel // the DOM right side panel element
 var myNameRec // the user's name record {actual name, type, etc.}
 export var lastNodeSample = 'group0' // the last used node style
