@@ -108,10 +108,6 @@
 						type: 'number',
 						default: 256,
 					},
-					update: {
-						type: 'number',
-						default: 0,
-					},
 				},
 				init: function () {},
 				update: function () {
@@ -158,7 +154,7 @@
 					this.html.style.top = '0'
 					this.html.style.left = '0'
 					this.html.style.overflow = 'hidden'
-					this.html.style.fontFamily="sans-serif"
+					this.html.style.fontFamily = 'sans-serif'
 
 					// Image used to draw SVG to the canvas element
 					this.img = new Image()
@@ -376,7 +372,7 @@
 				sphere-collider-constraint="selector: .node"
 			>
 				<a-camera id="camera" look-controls="pointerLockEnabled: true" wasd-controls="fly: true">
-					<a-cursor color="#FF0000" raycaster="objects: .origin-box, .node"></a-cursor>
+					<!-- <a-cursor color="#FF0000" raycaster="objects: .origin-box, .node"></a-cursor> -->
 				</a-camera>
 
 				<a-entity
@@ -403,4 +399,3 @@
 		</a-scene>
 	</body>
 </html>
-<!-- material="transparent: true; opacity: 0" -->

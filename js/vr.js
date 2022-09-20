@@ -210,12 +210,8 @@ function makeLegend() {
 		</div>
 	</div>
 	`
-	//legend = `<div style="width: 200px; height: 200px; background-color: red">HALLO</div>`
-	//console.log(legend)
 	let legendBox = document.getElementById('legend')
 	legendBox.innerHTML = legend
-	//setTimeout(() => legendBox.setAttribute('simplehtmlembed', {update: 1}), 500)
+	// leave some time for the DOM to settle
 	setTimeout(() => legendBox.components.simplehtmlembed.update(), 100) 
-	//legendBox.components.simplehtmlembed.update()
 }
-window.makeLegend = makeLegend
