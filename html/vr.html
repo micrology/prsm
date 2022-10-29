@@ -32,8 +32,6 @@
 		<script src="../node_modules/aframe-extras/dist/aframe-extras.controls.min.js"></script>
 		<!-- 		Layout graph code -->
 		<script src="../node_modules/aframe-forcegraph-component/dist/aframe-forcegraph-component.min.js"></script>
-		<!-- 		Interace with yjs to get nodes and links code -->
-		<script src="../js/vr.js" type="module"></script>
 		<!-- 		Components to provide special features -->
 		<script>
 			/*
@@ -199,6 +197,25 @@
 					this.ctx.drawImage(this.img, 0, 0)
 				}
 			}
+			AFRAME.registerComponent('showlegend', {
+				dependencies: ['simplehtmlembed'],
+			init: function () {
+					this.legend = document.createElement('a-entity')
+					this.sceneEl = document.querySelector('a-scene')
+					this.sceneEl.appendChild(this.legend)
+					this.legend.id = 'abouttobeshe'
+					this.legend.innerHTML = ''
+					this.displayed = false
+				},
+				tick: function (time, timeDelta) {
+					if (this.displayed) return
+					this.displayed = true
+					this.legend.setAttribute('simplehtmlembed', {ppu: 256})
+					this.legend.innerHTML = this.el.innerHTML
+					console.log('showLegend', this.el.innerHTML)
+					this.legend.object3D.position.set(-1, 1, -2)
+				},
+			})
 			/* helper for vasturiano/3d-force-graph-vr
 			 *			draw a sphere around each force graph node, to make it easy to point to them with the ray caster,
 			 * 			and attach a text label (which rotates to always face the camera)
@@ -253,7 +270,6 @@
 									if (noteText) {
 										let note = document.createElement('a-entity')
 										sphereEl.appendChild(note)
-										note.id = 'note'
 										note.setAttribute('simplehtmlembed', {ppu: 256})
 										note.object3D.visible = false
 										note.innerHTML = noteText
@@ -362,7 +378,7 @@
 				</div>
 			</a-entity>
 			<!-- legend -->
-			<a-entity id="legend" position="-1 1 -2" simplehtmlembed look-at="#camera"></a-entity>
+			<a-entity id="legend" position="-1 1 -2" simplehtmlembed></a-entity>
 			<!-- force graph -->
 			<a-entity id="fg"></a-entity>
 			<!-- camera -->
@@ -397,5 +413,7 @@
 			<!-- sky -->
 			<a-sky color="#87CEFA"></a-sky>
 		</a-scene>
+		<!-- 		Interace with yjs to get nodes and links code -->
+		<script src="../js/vr.js" type="module"></script>
 	</body>
 </html>
