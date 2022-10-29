@@ -65,8 +65,7 @@ import {styles} from './samples.js'
 import {trophic} from './trophic.js'
 import {cluster, openCluster} from './cluster.js'
 import {mergeRoom, diffRoom} from './merge.js'
-// see https://github.com/joeattardi/emoji-button
-import {EmojiButton} from '@joeattardi/emoji-button'
+import { Picker } from 'emoji-picker-element'
 import Quill from 'quill'
 import Hammer from '@egjs/hammerjs'
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend} from './styles.js'
@@ -3933,7 +3932,7 @@ export function recreateClusteringMenu(obj) {
 var emojiPicker = null
 
 function minimize() {
-	if (emojiPicker) emojiPicker.destroyPicker()
+	if (emojiPicker) chatbox.removeChild(emojiPicker)
 	chatbox.classList.add('chatbox-hide')
 	chatboxTab.classList.remove('chatbox-hide')
 	chatboxTab.classList.remove('chatbox-blink')
@@ -3944,15 +3943,18 @@ function maximize() {
 	chatboxTab.classList.remove('chatbox-blink')
 	chatbox.classList.remove('chatbox-hide')
 	const emojiButton = document.querySelector('#emoji-button')
-	emojiPicker = new EmojiButton({
-		rootElement: chatbox,
-		zIndex: 1000,
-	})
-	emojiPicker.on('emoji', (selection) => {
-		document.querySelector('#chat-input').value += selection.emoji
-	})
 	emojiButton.addEventListener('click', () => {
-		emojiPicker.togglePicker(emojiButton)
+		if (emojiPicker) {
+			chatbox.removeChild(emojiPicker)
+			emojiPicker = null
+		}
+		else {
+			emojiPicker = new Picker()
+			chatbox.appendChild(emojiPicker)
+			emojiPicker.addEventListener('emoji-click', event => {
+				document.querySelector('#chat-input').value += event.detail.unicode
+			});
+		}
 	})
 	displayUserName()
 	displayAllMsgs()

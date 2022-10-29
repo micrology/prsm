@@ -1208,7 +1208,7 @@ but moving the panel out of sight works instead */
 	resize: none;
 	padding: 5px 10px;
 	height: 40px;
-	font-size: 12px;
+	font-size: 16px;
 	font-family: Oxygen, sans-serif;
 	color: black;
 	flex: 1;
@@ -1251,8 +1251,17 @@ but moving the panel out of sight works instead */
 		background: var(--header-hover-color);
 	}
 }
+emoji-picker {
+	position: absolute;
+	right: 320px;
+	bottom: 30px;
+	z-index: 1000;
+	--emoji-size: 1.25rem;
+    --num-columns: 8;
+	--emoji-padding: 2px;
+}
 .emoji {
-	border: 0;
+	border:0;
 	font-size: 18px;
 	background: white;
 	outline: none;
