@@ -1259,6 +1259,8 @@ emoji-picker {
 	--emoji-size: 1.25rem;
     --num-columns: 8;
 	--emoji-padding: 2px;
+	--input-line-height: 1;
+    --input-font-size: 12px;
 }
 .emoji {
 	border:0;
