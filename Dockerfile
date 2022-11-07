@@ -2,40 +2,41 @@
 
 # create single arch image: 
 # docker build -t micrology/alhttp .
-# docker run --platform linux/amd64 -d micrology/alhttp
-# docker exec -ti loving_wright /bin/bash
-FROM --platform=linux/amd64 amazonlinux:2 
+# or for Intel chip
+# docker build --build-arg pf=linux-x64 -t  micrology/alhttp .  
+# docker run -d -t -p8888:80 --name httponly --rm micrology/alhttp
+# docker exec -ti httponly /bin/bash
+
+# create multi arch image: 
+# docker buildx build --platform linux/amd64,linux/arm64 -t micrology/alhttpm --push .
+# docker run -d -t -p8888:80 --name alhttpm --rm micrology/alhttpm
+# docker exec -ti alhttpm /bin/bash
+
+FROM amazonlinux:2  
 
 # Install necessary commands
 RUN yum update -y
-RUN yum install procps httpd tar xz -y
+RUN yum install procps httpd -y
 
+# Install node in /opt
+RUN yum install tar xz -y
 ARG node_version=v17.7.1
+ARG pf=linux-arm64
 RUN cd /opt \
-  && curl -LO https://nodejs.org/download/release/${node_version}/node-${node_version}-darwin-arm64.tar.xz \
-  && tar xJf node-${node_version}-linux-x64.tar.xz \
-  && rm node-${node_version}-linux-x64.tar.xz
- ENV PATH=/opt/node-${node_version}-linux-x64/bin:${PATH}
-# ENV NODE_ENV=production
+  && curl -LO https://nodejs.org/download/release/${node_version}/node-${node_version}-${pf}.tar.xz \
+  && tar xJf node-${node_version}-${pf}.tar.xz \
+  && rm node-${node_version}-${pf}.tar.xz
+ENV PATH=/opt/node-${node_version}-${pf}/bin:${PATH}
+
 RUN mkdir /home/prsm
-# RUN adduser prsm
-# RUN sudo usermod -aG wheel prsm
-# RUN su - prsm
 RUN cd /home/prsm
 WORKDIR /home/prsm
-RUN node -v
-RUN npm -v
-# RUN touch ~/.bashrc && chmod +x ~/.bashrc
-# RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
-# # RUN source ~/.bashrc
-# RUN pwd
-# RUN whoami
-# RUN env
-# RUN nvm install 17.7.1
-# COPY ["package.json", "package-lock.json*", "./"]
-# RUN npm install --production
-COPY ["css", "doc", "fonts", "html", "icons", "img", "js", "public", "ws-server", "dist", ".htaccess", "index.html", "./"]
-# RUN npm run build
+RUN rm /etc/httpd/conf/httpd.conf
+COPY ["./DockerAssets/httpd.conf", "/etc/httpd/conf/httpd.conf"]
+COPY ["index.html", ".htaccess", "./"]
+COPY ["dist/*", "./dist/"]
+RUN npm i y-websocket
+#RUN HOST=localhost PORT=1234 npx y-websocket &
 CMD ["-D", "FOREGROUND"]
 ENTRYPOINT ["/usr/sbin/httpd"]
 EXPOSE 80

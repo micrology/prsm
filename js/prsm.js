@@ -312,10 +312,10 @@ function setUpPage() {
  * create a new shared document and start the WebSocket provider
  */
 function startY(newRoom) {
+	let url = new URL(document.location)
 	if (newRoom) room = newRoom
 	else {
 		// get the room number from the URL, or if none, generate a new one
-		let url = new URL(document.location)
 		room = url.searchParams.get('room')
 	}
 	if (room == null || room == '') {
@@ -327,11 +327,13 @@ function startY(newRoom) {
 	persistence.once('synced', () => {
 		if (data.nodes.length > 0) displayNetPane(exactTime() + ' local content loaded')
 	})
+	// if running in a Docker image (assume using  a not standard port), use localhost and port 1234
+	if (/* url.port !== 80 && */ url.port !== 443) websocket ='ws://localhost:1234' 
 	wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc, {
 		resyncInterval: 5000,
 	})
 	wsProvider.on('sync', () => {
-		displayNetPane(exactTime() + ' remote content loaded')
+		displayNetPane(exactTime() + ' remote content loaded from ' + websocket)
 	})
 	wsProvider.disconnectBc()
 	wsProvider.on('status', (event) => {
