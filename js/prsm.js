@@ -3840,39 +3840,68 @@ function sizingSwitch(e) {
 
 /**
  * set the size of the nodes proportional to the selected metric
- * @param {String} metric none, in degree, out degree or betweenness centrality
- */
+ * @param {String} metric none, all the same size, in degree, out degree or betweenness centrality
+*/
+// constants for sizes of nodes
+const MIN_WIDTH = 50
+const EQUAL_WIDTH = 100
+const MAX_WIDTH = 200
+
 function sizing(metric) {
 	let nodesToUpdate = []
+	let min = Number.MAX_VALUE
+	let max = 0
 	data.nodes.forEach((node) => {
-		node.scaling.label.enabled = true
+		let oldValue = node.val
 		switch (metric) {
 			case 'Off':
-				node.scaling.label.enabled = false
-				node.value = 0
+			case 'Equal':
+				node.val = 0
 				break
 			case 'Inputs':
-				node.value = network.getConnectedNodes(node.id, 'from').length
+				node.val = network.getConnectedNodes(node.id, 'from').length
 				break
 			case 'Outputs':
-				node.value = network.getConnectedNodes(node.id, 'to').length
+				node.val = network.getConnectedNodes(node.id, 'to').length
 				break
 			case 'Leverage': {
 				let inDegree = network.getConnectedNodes(node.id, 'from').length
 				let outDegree = network.getConnectedNodes(node.id, 'to').length
-				node.value = inDegree == 0 ? 0 : outDegree / inDegree
+				node.val = inDegree === 0 ? 0 : outDegree / inDegree
 				break
 			}
 			case 'Centrality':
-				node.value = node.bc
+				node.val = node.bc
 				break
 		}
-		nodesToUpdate.push(node)
+		if (node.val < min) min = node.val
+		if (node.val > max) max = node.val
+		if (metric === 'Off' || metric === 'Equal' || node.val !== oldValue) nodesToUpdate.push(node)
+	})
+	data.nodes.forEach((node) => {
+		switch (metric) {
+			case 'Off':
+				node.widthConstraint = null
+				break
+			case 'Equal': 
+				node.widthConstraint = EQUAL_WIDTH
+				break
+			default:
+				node.widthConstraint = MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
+		}
 	})
 	data.nodes.update(nodesToUpdate)
 	elem('sizing').value = metric
 	network.fit()
 	elem('zoom').value = network.getScale()
+
+	function scale(min, max, value) {
+		if (max === min) {
+			return 0.5
+		} else {
+			return Math.max(0, (value - min) * (1 / (max - min)))
+		}
+	}
 }
 
 // Note: most of the clustering functionality is in cluster.js
