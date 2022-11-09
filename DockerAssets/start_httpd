@@ -1,0 +1,3 @@
+#!/bin/bash
+HOST=localhost PORT=1234 npx y-websocket 
+/usr/sbin/httpd -D FOREGROUND
