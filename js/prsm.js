@@ -2325,6 +2325,7 @@ function showSelected() {
 	let msg = selectedLabels()
 	if (msg.length > 0) statusMsg(msg + ' selected')
 	else clearStatusBar()
+	toggleDeleteButton()
 }
 /* ----------------------------------------zoom slider -------------------------------------------- */
 Network.prototype.zoom = function (scale) {
@@ -2583,6 +2584,7 @@ function setButtonDisabledStatus(id, state) {
 function deleteNode() {
 	network.deleteSelected()
 	clearStatusBar()
+	toggleDeleteButton()
 }
 
 /**
@@ -3363,7 +3365,8 @@ function ensureNotDrawing() {
 }
 
 function selectAllFactors() {
-	selectFactors(data.nodes.getIds({filter: (n) => !n.hidden}))
+	selectFactors(data.nodes.getIds({ filter: (n) => !n.hidden }))
+	showSelected()
 }
 
 export function selectFactors(nodeIds) {
@@ -3372,7 +3375,8 @@ export function selectFactors(nodeIds) {
 }
 
 function selectAllLinks() {
-	selectLinks(data.edges.getIds({filter: (e) => !e.hidden}))
+	selectLinks(data.edges.getIds({ filter: (e) => !e.hidden }))
+	showSelected()
 }
 
 export function selectLinks(edgeIds) {
