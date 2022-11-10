@@ -3885,19 +3885,18 @@ function sizing(metric) {
 	data.nodes.forEach((node) => {
 		switch (metric) {
 			case 'Off':
-				node.widthConstraint = null
+				node.widthConstraint = node.heightConstraint = false
+				node.size = 25
 				break
 			case 'Equal': 
-				node.widthConstraint = EQUAL_WIDTH
+				node.widthConstraint = node.heightConstraint = node.size = EQUAL_WIDTH
 				break
 			default:
-				node.widthConstraint = MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
+				node.widthConstraint = node.heightConstraint = node.size = MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
 		}
 	})
 	data.nodes.update(nodesToUpdate)
 	elem('sizing').value = metric
-	network.fit()
-	elem('zoom').value = network.getScale()
 
 	function scale(min, max, value) {
 		if (max === min) {
