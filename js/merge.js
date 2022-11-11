@@ -6,7 +6,7 @@
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
 import {DataSet} from 'vis-data/peer'
-import {websocket, data, logHistory} from './prsm.js'
+import {websocket, data, logHistory, room} from './prsm.js'
 import {uuidv4, deepCopy} from './utils.js'
 /* --------------------------------- Merge maps ----------------------------- */
 /*
@@ -23,43 +23,24 @@ import {uuidv4, deepCopy} from './utils.js'
 
 var bwsp //  websocket to other room
 var bdata // the data from the other room
+var bNodesMap // map of nodes from the other room
+var bEdgesMap //  map of edges from the other room
 
-export function openOtherDoc(room) {
+export function openOtherDoc(otherRoom) {
 	let bDoc = new Y.Doc()
-	bwsp = new WebsocketProvider(websocket, 'prsm' + room, bDoc)
+	bwsp = new WebsocketProvider(websocket, 'prsm' + otherRoom, bDoc)
 	bwsp.disconnectBc()
-	let bNodesMap = bDoc.getMap('nodes')
-	let bEdgesMap = bDoc.getMap('edges')
+	bNodesMap = bDoc.getMap('nodes')
+	bEdgesMap = bDoc.getMap('edges')
 	let bNodes = new DataSet()
 	let bEdges = new DataSet()
 	bdata = {
 		nodes: bNodes,
 		edges: bEdges,
 	}
-	bNodesMap.observe((event) => {
-		let nodesToUpdate = []
-		for (let key of event.keysChanged) {
-			if (bNodesMap.has(key)) {
-				let obj = bNodesMap.get(key)
-				nodesToUpdate.push(obj)
-			}
-		}
-		if (nodesToUpdate) bNodes.update(nodesToUpdate)
-	})
-	bEdgesMap.observe((event) => {
-		let edgesToUpdate = []
-		for (let key of event.keysChanged) {
-			if (bEdgesMap.has(key)) {
-				let obj = bEdgesMap.get(key)
-				edgesToUpdate.push(obj)
-			}
-		}
-		bEdges.update(edgesToUpdate, origin)
-	})
 }
 
 function mergeMaps() {
-	// lists of edges from the map to be merged (B) into this one (A)
 	let newNodes = new Map()
 	bdata.nodes.get().forEach((BNode) => {
 		// for each node in the other map
@@ -117,8 +98,10 @@ function mergeMaps() {
 		if (newEdge) {
 			// give the cloned edge a new id
 			newEdge.id = uuidv4()
-			// make the edge dashed
+			// make the edge dashed, red and thick
 			newEdge.dashes = true
+			newEdge.width = 4
+			newEdge.color.color = 'rgb(255, 0, 0)'
 			data.edges.add(newEdge)
 			logHistory(
 				`added Link between new Factor(s): '${data.nodes.get(newEdge.from).label}' to '${
@@ -129,6 +112,7 @@ function mergeMaps() {
 		}
 		// now deal with the other map's edges
 		let AEdge = data.edges.get(BEdge.id)
+		if (BEdge.label && BEdge.label.trim()  === '') BEdge.label = undefined
 		let edgeName =
 			BEdge.label || `from [${bdata.nodes.get(BEdge.from).label}] to [${bdata.nodes.get(BEdge.to).label}]`
 		if (AEdge) {
@@ -137,7 +121,7 @@ function mergeMaps() {
 				AEdge.label != BEdge.label
 			)
 				logHistory(
-					`existing Link label: \n[${AEdge.label}] \ndoes not match new label: \n[${BEdge.label}].  Existing label retained.`,
+					`existing Link label: '${AEdge.label}' does not match new label: '${BEdge.label}'.  Existing label retained.`,
 					'Merge'
 				)
 			else if (AEdge.grp != BEdge.grp)
@@ -147,7 +131,7 @@ function mergeMaps() {
 				)
 		} else {
 			data.edges.add(BEdge)
-			logHistory(`added new Link: [${edgeName}]`, 'Merge')
+			logHistory(`added new Link: '${edgeName}'`, 'Merge')
 		}
 	})
 	// now check that all edges in the existing map are also in the other map
@@ -155,15 +139,19 @@ function mergeMaps() {
 		if (!bdata.edges.get(AEdge.id)) {
 			let edgeName =
 				AEdge.label || `from [${data.nodes.get(AEdge.from).label}] to [${data.nodes.get(AEdge.to).label}]`
-			logHistory(`existing link: (${edgeName}) is not in other map.  Existing link retained.`, 'Merge')
+			logHistory(`existing link: ${edgeName}' is not in other map.  Existing link retained.`, 'Merge')
 		}
 	})
 }
 
-export function mergeRoom(room) {
-	openOtherDoc(room)
-	bwsp.on('sync', () => {
-		mergeMaps(bdata.nodes.get(), bdata.edges.get())
+export function mergeRoom(otherRoom) {
+	openOtherDoc(otherRoom)
+	console.log(`%cDiffing map at ${room} (map A) with map at ${otherRoom} (map B)`, 'font-weight: bold')
+	bwsp.on('sync', (status) => {
+		if (!status) return
+		bNodesMap.forEach((n) => bdata.nodes.update(n))
+		bEdgesMap.forEach((e) => bdata.edges.update(e))
+		mergeMaps()
 		bwsp.disconnect()
 	})
 }
@@ -178,25 +166,39 @@ function diffMaps() {
 		if (ANode) {
 			// if there is, check whether the label is the same
 			if (ANode.label != BNode.label) {
-				console.log(`Existing Factor label: [${ANode.label}] does not match new label: [${BNode.label}].`)
+				console.log(
+					`Factor label in map A: [%c${inline(ANode.label)}%c] does not match label in map B: [%c${inline(
+						BNode.label
+					)}%c].`,
+					'color:green',
+					'color:black',
+					'color:green',
+					'color:black'
+				)
 			} else if (ANode.grp != BNode.grp)
 				// label is the same, but style is not - just report this
 				console.log(
-					`Existing style: ${ANode.grp} does not match new style: ${BNode.grp} for Factor: [${ANode.label}]. `
+					`Factor style in map A : ${ANode.grp} does not match style in map B: ${
+						BNode.grp
+					} for Factor: [%c${inline(ANode.label)}%c]. `,
+					'color:green',
+					'color:black'
 				)
 		} else {
 			// the node is on the other map, but not on this one - add it.
-			console.log(`New Factor: [${BNode.label}] not in existing map`)
+			console.log(`Factor: [%c${inline(BNode.label)}%c] in map B is not in map A`, 'color:green', 'color:black')
 		}
 	})
 	// now check that all nodes in the existing map are also in the other map
 	data.nodes.forEach((ANode) => {
-		if (!bdata.nodes.get(ANode.id)) console.log(`Existing factor: [${ANode.label}] not in other map`)
+		if (!bdata.nodes.get(ANode.id))
+			console.log(`Factor: [%c${inline(ANode.label)}%c] in map A is not in map B`, 'color:green', 'color:black')
 	})
 
 	// now deal with the other map's edges
 	bdata.edges.get().forEach((BEdge) => {
 		let AEdge = data.edges.get(BEdge.id)
+		if (BEdge.label && BEdge.label.trim()  === '') BEdge.label = undefined
 		let edgeName =
 			BEdge.label || `from [${bdata.nodes.get(BEdge.from).label}] to [${bdata.nodes.get(BEdge.to).label}]`
 		if (AEdge) {
@@ -204,13 +206,29 @@ function diffMaps() {
 				((AEdge.label && AEdge.label.trim() != '') || (BEdge.label && BEdge.label.trim() != '')) &&
 				AEdge.label != BEdge.label
 			)
-				console.log(`Existing Link label: \n[${AEdge.label}] \ndoes not match new label: \n[${BEdge.label}].  `)
+				console.log(
+					`Link label in map A: [%c${inline(AEdge.label)}%c] does not match label:[%c${inline(
+						BEdge.label
+					)}%c] in map B.  `,
+					'color:green',
+					'color:black',
+					'color:green',
+					'color:black'
+				)
 			else if (AEdge.grp != BEdge.grp)
 				console.log(
-					`Existing Link style: '${AEdge.grp}' does not match new style: '${BEdge.grp}' for link '${edgeName}'. `
+					`Link style: '${AEdge.grp}' in map A does not match style: '${
+						BEdge.grp
+					}' in map B for link [%c${inline(edgeName)}%c]. `,
+					'color:green',
+					'color:black'
 				)
 		} else {
-			console.log(`Existing map does not include Link: [${edgeName}]`)
+			console.log(
+				`Map A does not include the link: %c${inline(edgeName)}%c in map B. `,
+				'color:green',
+				'color:black'
+			)
 		}
 	})
 	// now check that all edges in the existing map are also in the other map
@@ -218,25 +236,45 @@ function diffMaps() {
 		if (!bdata.edges.get(AEdge.id)) {
 			let edgeName =
 				AEdge.label || `from [${data.nodes.get(AEdge.from).label}] to [${data.nodes.get(AEdge.to).label}]`
-			console.log(`Existing link: (${edgeName}) not in other map`)
+			console.log(`Link [%c${inline(edgeName)}%c] in map A is not in map B`, 'color:green', 'color:black')
 		}
 	})
 }
-export function diffRoom(room) {
-	openOtherDoc(room)
-	bwsp.on('sync', () => {
+export function diffRoom(otherRoom) {
+	openOtherDoc(otherRoom)
+	console.log(`%cComparing map at ${room} (map A) with map at ${otherRoom} (map B)`, 'font-weight: bold')
+	bwsp.on('sync', (status) => {
+		if (!status) return
+		bNodesMap.forEach((n) => bdata.nodes.update(n))
+		bEdgesMap.forEach((e) => bdata.edges.update(e))
 		diffMaps()
 		bwsp.disconnect()
 	})
+	return true
 }
 
+/**
+ * find a node with the given id and return its label
+ * @param {string} id 
+ * @returns string
+ */
 export function nodeIdToLabel(id) {
 	if (!id) return id
 	let node = data.nodes.get(id)
 	if (!node) return 'node not found'
 	return node.label
 }
-
+/**
+ * replace all white space with single space characters
+ * @param {string} label 
+ * @returns string
+ */
+function inline(label) {
+	return label.replace(/\s+/g, ' ').trim()
+}
+/**
+ * anonymise a map by removing all user names
+ */
 export function anon() {
 	let nodes = data.nodes.get()
 	nodes.forEach((n) => {
