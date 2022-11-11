@@ -131,7 +131,7 @@ function loadFile(contents) {
 				break
 			case 'json':
 			case 'prsm':
-				loadJSONfile(arrayBufferToString(contents))
+				loadPRSMfile(arrayBufferToString(contents))
 				break
 			case 'gv':
 			case 'dot':
@@ -197,7 +197,7 @@ function arrayBufferToString(contents) {
  * Parse and load a PRSM map file, or a JSON file exported from Gephi
  * @param {string} str
  */
-function loadJSONfile(str) {
+function loadPRSMfile(str) {
 	if (str[0] != '{') str = decompressFromUTF16(str)
 	let json = JSON.parse(str)
 	if (json.version && version.substring(0, 3) > json.version.substring(0, 3)) {
@@ -207,6 +207,10 @@ function loadJSONfile(str) {
 	updateLastSamples(json.lastNodeSample, json.lastLinkSample)
 	if (json.buttons) setButtonStatus(json.buttons)
 	if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle))
+	if (json.recentMaps) {
+		let recents = localStorage.getItem('recents') || {}
+		localStorage.setItem('recents', JSON.stringify(Object.assign(json.recentMaps, recents)))
+	}
 	if (json.attributeTitles) yNetMap.set('attributeTitles', json.attributeTitles)
 	else yNetMap.set('attributeTitles', {})
 	if (json.edges.length > 0 && 'source' in json.edges[0]) {
@@ -698,6 +702,7 @@ export function savePRSMfile() {
 			version: version,
 			room: room,
 			mapTitle: elem('maptitle').innerText,
+			recentMaps: JSON.parse(localStorage.getItem('recents')),
 			lastNodeSample: lastNodeSample,
 			lastLinkSample: lastLinkSample,
 			// clustering, and up/down, paths between and x links away settings are not saved (and hidden property is not saved)

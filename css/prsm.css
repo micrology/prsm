@@ -443,6 +443,56 @@ nav {
 .room-title-text:hover {
 	background-color: var(--header-hover-color);
 }
+.room-title-tooltip {
+	position: relative;
+	border-bottom: 1px dotted #666;
+	text-align: left;
+}
+.room-title-right {
+	min-width: 150px;
+	top: 50%;
+	left: 100%;
+	margin-left: 20px;
+	transform: translate(0, -50%);
+	padding: 10px 20px;
+	color: #444444;
+	background-color: #eeeeee;
+	font-weight: normal;
+	font-size: 13px;
+	border-radius: 8px;
+	position: absolute;
+	z-index: 99999999;
+	box-sizing: border-box;
+	box-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+	visibility: hidden;
+	opacity: 0;
+	transition: opacity 0.8s;
+}
+.room-title-tooltip:hover .room-title-right {
+	visibility: visible;
+	opacity: 1;
+}
+.room-title-tooltip .room-title-right i {
+	position: absolute;
+	top: 50%;
+	right: 100%;
+	margin-top: -12px;
+	width: 12px;
+	height: 24px;
+	overflow: hidden;
+}
+.room-title-tooltip .room-title-right i::after {
+	content: '';
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	left: 0;
+	top: 50%;
+	transform: translate(50%, -50%) rotate(-45deg);
+	background-color: #eeeeee;
+	box-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+}
+
 .button-wrapper {
 	margin: auto 50px auto auto;
 }
@@ -1257,13 +1307,13 @@ emoji-picker {
 	bottom: 30px;
 	z-index: 1000;
 	--emoji-size: 1.25rem;
-    --num-columns: 8;
+	--num-columns: 8;
 	--emoji-padding: 2px;
 	--input-line-height: 1;
-    --input-font-size: 12px;
+	--input-font-size: 12px;
 }
 .emoji {
-	border:0;
+	border: 0;
 	font-size: 18px;
 	background: white;
 	outline: none;

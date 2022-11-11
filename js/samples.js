@@ -107,8 +107,9 @@ export const styles = {
 			shape: 'box',
 		},
 		group5: {
+			borderWidth: 1,
 			color: {
-				border: '#000000',
+				border: '#0000ff',
 				background: '#b3ccff',
 			},
 			shape: 'ellipse',
@@ -136,9 +137,9 @@ export const styles = {
 				background: '#7A7A7A',
 			},
 			font: {
-				color: '#ffffff',
+				color: '#7A7A7A',
 			},
-			shape: 'circle',
+			shape: 'star',
 		},
 		cluster: {
 			borderWidth: 3,

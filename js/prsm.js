@@ -2195,15 +2195,21 @@ function createTitleDropDown() {
 		props.forEach((prop) => {
 			makeTitleDropDownEntry(recentMaps[prop], prop)
 		})
-		makeTitleDropDownEntry('New map', '*new*')
+		makeTitleDropDownEntry('<b>New map</b>', '*new*', false)
 	}
-
-	function makeTitleDropDownEntry(name, room) {
+/**
+ * create a previous map menu item, with tooltip showing full title and room
+ * @param {string} name Title of map
+ * @param {string} room 
+ * @param {boolean} tooltip whether to display tooltip
+ */
+	function makeTitleDropDownEntry(name, room, tooltip = true) {
 		let li = document.createElement('li')
-		li.classList.add('room-title')
+		li.classList.add('room-title', 'room-title-tooltip')
 		let div = document.createElement('div')
 		div.classList.add('room-title-text')
-		div.innerText = name
+		if (tooltip) div.innerHTML = `${name}<div class="room-title-right">${name}<br>&lt;${room}&gt;<i></i></div>`
+		else div.innerHTML = name
 		div.dataset.room = room
 		div.addEventListener('click', (event) => changeRoom(event))
 		li.appendChild(div)
@@ -2218,7 +2224,6 @@ function changeRoom(event) {
 	if (data.nodes.length > 0) if (!confirm('Are you sure you want to move to a different map?')) return
 	let newRoom = event.target.dataset.room
 	removeTitleDropDown()
-	console.log(newRoom)
 	let url = new URL(document.location)
 	url.search = newRoom != '*new*' ? `?room=${newRoom}` : ''
 	window.location.replace(url)
