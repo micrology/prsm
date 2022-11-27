@@ -65,7 +65,7 @@ import {styles} from './samples.js'
 import {trophic} from './trophic.js'
 import {cluster, openCluster} from './cluster.js'
 import {mergeRoom, diffRoom} from './merge.js'
-import { Picker } from 'emoji-picker-element'
+import {Picker} from 'emoji-picker-element'
 import Quill from 'quill'
 import Hammer from '@egjs/hammerjs'
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend} from './styles.js'
@@ -188,13 +188,13 @@ function addEventListeners() {
 		}
 	})
 	listen('net-pane', 'keydown', (e) => {
-		if (e.which == 8 || e.which == 46) deleteNode()
+		if (e.which === 8 || e.which === 46) deleteNode()
 	})
 	listen('recent-rooms-caret', 'click', createTitleDropDown)
 	listen('maptitle', 'keyup', mapTitle)
 	listen('maptitle', 'paste', pasteMapTitle)
 	listen('maptitle', 'click', (e) => {
-		if (e.target.innerText == 'Untitled map') window.getSelection().selectAllChildren(e.target)
+		if (e.target.innerText === 'Untitled map') window.getSelection().selectAllChildren(e.target)
 	})
 	listen('addNode', 'click', plusNode)
 	listen('net-pane', 'contextmenu', contextMenu)
@@ -318,26 +318,26 @@ function startY(newRoom) {
 		// get the room number from the URL, or if none, generate a new one
 		room = url.searchParams.get('room')
 	}
-	if (room == null || room == '') {
+	if (room == null || room === '') {
 		room = generateRoom()
 		checkMapSaved = true
 	} else room = room.toUpperCase()
 	persistence = new IndexeddbPersistence(room, doc)
 	// once the map is loaded, it can be displayed
 	persistence.once('synced', () => {
-		if (data.nodes.length > 0) displayNetPane(exactTime() + ' local content loaded')
+		if (data.nodes.length > 0) displayNetPane(`${exactTime()} local content loaded`)
 	})
 	// if running in a Docker image (assume using  a not standard port), use localhost and port 1234
-	if (/* url.port !== 80 && */ url.port !== 443) websocket ='ws://localhost:1234' 
-	wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc, {
+	if (/* url.port !== 80 && */ url.port !== 443) websocket = 'ws://localhost:1234'
+	wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc, {
 		resyncInterval: 5000,
 	})
 	wsProvider.on('sync', () => {
-		displayNetPane(exactTime() + ' remote content loaded from ' + websocket)
+		displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 	})
 	wsProvider.disconnectBc()
 	wsProvider.on('status', (event) => {
-		console.log(exactTime() + event.status + (event.status == 'connected' ? ' to' : ' from') + ' room ' + room) // logs when websocket is "connected" or "disconnected"
+		console.log(`${exactTime()}${event.status}${event.status === 'connected' ? ' to' : ' from'} room ${room}`) // logs when websocket is "connected" or "disconnected"
 	})
 
 	/* 
@@ -366,7 +366,7 @@ function startY(newRoom) {
 		})
 
 	clientID = doc.clientID
-	console.log('My client ID: ' + clientID)
+	console.log(`My client ID: ${clientID}`)
 
 	/* set up the undo managers */
 	yUndoManager = new Y.UndoManager([yNodesMap, yEdgesMap, yNetMap], {
@@ -411,7 +411,7 @@ function startY(newRoom) {
 			properties.items.forEach((id) => {
 				if (origin === null) {
 					// this is a local change
-					if (event == 'remove') {
+					if (event === 'remove') {
 						yNodesMap.delete(id.toString())
 					} else {
 						yNodesMap.set(id.toString(), deepCopy(nodes.get(id)))
@@ -437,7 +437,7 @@ function startY(newRoom) {
 				if (!object_equals(obj, data.nodes.get(key))) {
 					nodesToUpdate.push(deepCopy(obj))
 					// if a note on a node is being remotely edited and is on display here, update the local note and the padlock
-					if (editor && editor.id == key && event.transaction.local === false) {
+					if (editor && editor.id === key && event.transaction.local === false) {
 						editor.setContents(obj.note)
 						elem('fixed').style.display = obj.fixed ? 'inline' : 'none'
 						elem('unfixed').style.display = obj.fixed ? 'none' : 'inline'
@@ -462,7 +462,7 @@ function startY(newRoom) {
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
-					if (event == 'remove') yEdgesMap.delete(id.toString())
+					if (event === 'remove') yEdgesMap.delete(id.toString())
 					else {
 						yEdgesMap.set(id.toString(), deepCopy(edges.get(id)))
 					}
@@ -480,7 +480,7 @@ function startY(newRoom) {
 				let obj = yEdgesMap.get(key)
 				if (!object_equals(obj, data.edges.get(key))) {
 					edgesToUpdate.push(deepCopy(obj))
-					if (editor && editor.id == key && event.transaction.local === false) editor.setContents(obj.note)
+					if (editor && editor.id === key && event.transaction.local === false) editor.setContents(obj.note)
 				}
 			} else {
 				hideNotes()
@@ -492,7 +492,7 @@ function startY(newRoom) {
 		if (edgesToUpdate.length > 0 || edgesToRemove.length > 0) {
 			// if user is in mid-flight adding a Link, and someone else has just added a link,
 			// vis-network will cancel the edit mode for this user.  Re-instate it.
-			if (inAddMode == 'addLink') network.addEdgeMode()
+			if (inAddMode === 'addLink') network.addEdgeMode()
 		}
 		if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0))
 			showChange(event, yEdgesMap)
@@ -522,7 +522,7 @@ function startY(newRoom) {
 					Difference: "`,
 					typeof change.oldValue === 'object' && typeof ymap.get(key) === 'object'
 						? diff(change.oldValue, ymap.get(key))
-						: change.oldValue + ' ' + ymap.get(key),
+						: `${change.oldValue} ${ymap.get(key)}`,
 					`"`
 				)
 			} else if (change.action === 'delete') {
@@ -579,63 +579,78 @@ function startY(newRoom) {
 			for (let key of event.keysChanged) {
 				let obj = yNetMap.get(key)
 				switch (key) {
-					case 'viewOnly':
+					case 'viewOnly': {
 						viewOnly = viewOnly || obj
 						if (viewOnly) hideNavButtons()
 						break
+					}
 					case 'mapTitle':
-					case 'maptitle':
+					case 'maptitle': {
 						setMapTitle(obj)
 						break
-					case 'snapToGrid':
+					}
+					case 'snapToGrid': {
 						doSnapToGrid(obj)
 						break
-					case 'curve':
+					}
+					case 'curve': {
 						setCurve(obj)
 						break
-					case 'background':
+					}
+					case 'background': {
 						setBackground(obj)
 						break
-					case 'legend':
+					}
+					case 'legend': {
 						setLegend(obj, false)
 						break
-					case 'voting':
+					}
+					case 'voting': {
 						setVoting(obj)
 						break
-					case 'showNotes':
+					}
+					case 'showNotes': {
 						doShowNotes(obj)
 						break
-					case 'radius':
+					}
+					case 'radius': {
 						hiddenNodes.radiusSetting = obj.radiusSetting
 						hiddenNodes.selected = obj.selected
 						setAnalysisButtonsFromRemote()
 						break
-					case 'stream':
+					}
+					case 'stream': {
 						hiddenNodes.streamSetting = obj.streamSetting
 						hiddenNodes.selected = obj.selected
 						setAnalysisButtonsFromRemote()
 						break
-					case 'paths':
+					}
+					case 'paths': {
 						hiddenNodes.pathsSetting = obj.pathsSetting
 						hiddenNodes.selected = obj.selected
 						setAnalysisButtonsFromRemote()
 						break
-					case 'sizing':
+					}
+					case 'sizing': {
 						sizing(obj)
 						break
+					}
 					case 'hideAndStream':
 					case 'linkRadius':
 						// old settings (before v1.6) - ignore
 						break
-					case 'factorsHiddenByStyle':
+					case 'factorsHiddenByStyle': {
 						updateFactorsHiddenByStyle(obj)
 						break
-					case 'attributeTitles':
+					}
+					case 'attributeTitles': {
 						recreateClusteringMenu(obj)
 						break
-					case 'cluster':
+					}
+					case 'cluster': {
 						setCluster(obj)
 						break
+					}
 					default:
 						console.log('Bad key in yMapNet.observe: ', key)
 				}
@@ -704,7 +719,7 @@ function getRandomData(nNodes) {
  */
 function displayNetPane(msg) {
 	console.log(msg)
-	if (netPane.style.visibility == 'hidden' || netPane.style.visibility == '') {
+	if (netPane.style.visibility === 'hidden' || netPane.style.visibility === '') {
 		elem('loading').style.display = 'none'
 		fit(0)
 		setMapTitle(yNetMap.get('mapTitle'))
@@ -798,12 +813,12 @@ function setUpChat() {
 		myNameRec = null
 	}
 	// sanity check
-	if (!(myNameRec != null && myNameRec.name)) {
+	if (!myNameRec?.name) {
 		myNameRec = generateName()
 		localStorage.setItem('myName', JSON.stringify(myNameRec))
 	}
 	myNameRec.id = clientID
-	console.log('My name: ' + myNameRec.name)
+	console.log(`My name: ${myNameRec.name}`)
 	displayUserName()
 	yAwareness.setLocalState({user: myNameRec})
 	yChatArray.observe(() => {
@@ -813,7 +828,7 @@ function setUpChat() {
 	listen('minimize', 'click', minimize)
 	chatNameBox.addEventListener('keyup', (e) => {
 		if (myNameRec.anon) chatNameBox.style.fontStyle = 'normal'
-		if (e.key == 'Enter') saveUserName(chatNameBox.value)
+		if (e.key === 'Enter') saveUserName(chatNameBox.value)
 	})
 	chatNameBox.addEventListener('blur', () => {
 		saveUserName(chatNameBox.value)
@@ -856,7 +871,7 @@ function setUpTutorial() {
 				displayUserName()
 			})
 			splashNameBox.addEventListener('keyup', (e) => {
-				if (e.key == 'Enter') splashNameBox.blur()
+				if (e.key === 'Enter') splashNameBox.blur()
 			})
 		})
 		tutorial.start()
@@ -928,7 +943,7 @@ function draw() {
 					interaction: {dragView: true, selectable: true},
 				})
 				showPressed('addLink', 'remove')
-				if (item.from == item.to) {
+				if (item.from === item.to) {
 					callback(null)
 					stopEdit()
 					return
@@ -1029,12 +1044,12 @@ function draw() {
 		if (!keys) return
 		if (keys.metaKey) {
 			// if the Command key (on a Mac) is down, and the click is on a node/edge, log it to the console
-			if (params.nodes.length == 1) {
+			if (params.nodes.length === 1) {
 				let node = data.nodes.get(params.nodes[0])
 				console.log('node = ', node)
 				window.node = node
 			}
-			if (params.edges.length == 1) {
+			if (params.edges.length === 1) {
 				let edge = data.edges.get(params.edges[0])
 				console.log('edge = ', edge)
 				window.edge = edge
@@ -1043,7 +1058,7 @@ function draw() {
 		}
 		if (keys.altKey) {
 			// if the Option/ALT key is down, add a node if on the background
-			if (params.nodes.length == 0 && params.edges.length == 0) {
+			if (params.nodes.length === 0 && params.edges.length === 0) {
 				let pos = params.pointer.canvas
 				let item = {id: uuidv4(), label: '', x: pos.x, y: pos.y}
 				item = deepMerge(item, styles.nodes[lastNodeSample])
@@ -1072,12 +1087,11 @@ function draw() {
 					if (clickPos.x < bBox.left + (bBox.right - bBox.left) / 2) {
 						// if user has not already voted for this, add their vote, i.e. add their clientID
 						// or if they have voted, remove it
-						if (node.thumbUp && node.thumbUp.includes(clientID))
-							node.thumbUp = node.thumbUp.filter((c) => c !== clientID)
+						if (node.thumbUp?.includes(clientID)) node.thumbUp = node.thumbUp.filter((c) => c !== clientID)
 						else if (node.thumbUp) node.thumbUp.push(clientID)
 						else node.thumbUp = [clientID]
 					} else {
-						if (node.thumbDown && node.thumbDown.includes(clientID))
+						if (node.thumbDown?.includes(clientID))
 							node.thumbDown = node.thumbDown.filter((c) => c !== clientID)
 						else if (node.thumbDown) node.thumbDown.push(clientID)
 						else node.thumbDown = [clientID]
@@ -1093,9 +1107,9 @@ function draw() {
 	network.on('doubleClick', function (params) {
 		if (/gui/.test(debug)) console.log('**doubleClick**')
 		if (params.nodes.length === 1) {
-			if (!viewOnly && !inEditMode) network.editNode()
+			if (!(viewOnly || inEditMode)) network.editNode()
 		} else if (params.edges.length === 1) {
-			if (!viewOnly && !inEditMode) network.editEdgeMode()
+			if (!(viewOnly || inEditMode)) network.editEdgeMode()
 		} else {
 			fit()
 		}
@@ -1152,7 +1166,7 @@ function draw() {
 		if (/gui/.test(debug)) console.log('dragStart')
 		let e = params.event.pointers[0]
 		// start drawing a selection rectangle if the CTRL key is down and click is on the background
-		if (e.ctrlKey && params.nodes.length == 0 && params.edges.length == 0) {
+		if (e.ctrlKey && params.nodes.length === 0 && params.edges.length === 0) {
 			network.setOptions({interaction: {dragView: false}})
 			listen('net-pane', 'mousemove', showAreaSelection)
 			selectionStart = {x: e.offsetX, y: e.offsetY}
@@ -1196,13 +1210,13 @@ function draw() {
 	}
 	network.on('dragEnd', function (params) {
 		if (/gui/.test(debug)) console.log('dragEnd')
-		if (selectionArea.style.display == 'block') {
+		if (selectionArea.style.display === 'block') {
 			selectionArea.style.display = 'none'
 			network.setOptions({interaction: {dragView: true}})
 			elem('net-pane').removeEventListener('mousemove', showAreaSelection)
 		}
 		let e = params.event.pointers[0]
-		if (e.ctrlKey && params.nodes.length == 0 && params.edges.length == 0) {
+		if (e.ctrlKey && params.nodes.length === 0 && params.edges.length === 0) {
 			network.storePositions()
 			let selectionEnd = params.pointer.canvas
 			let selectedNodes = data.nodes.get({
@@ -1239,7 +1253,7 @@ function draw() {
 	})
 	network.on('controlNodeDragEnd', function (event) {
 		if (/gui/.test(debug)) console.log('controlNodeDragEnd')
-		if (event.controlEdge.from != event.controlEdge.to) changeCursor('default')
+		if (event.controlEdge.from !== event.controlEdge.to) changeCursor('default')
 	})
 	network.on('beforeDrawing', (ctx) => redraw(ctx))
 	network.on('afterDrawing', (ctx) => drawBadges(ctx))
@@ -1274,7 +1288,7 @@ function draw() {
 		if (e.shiftKey) showMagnifier(e)
 	})
 	window.addEventListener('keyup', (e) => {
-		if (e.key == 'Shift') closeMagnifier()
+		if (e.key === 'Shift') closeMagnifier()
 	})
 
 	/**
@@ -1325,8 +1339,8 @@ function draw() {
 			magSize,
 			magSize
 		)
-		magnifier.style.top = e.clientY - netPaneRect.y - halfMagSize + 'px'
-		magnifier.style.left = e.clientX - netPaneRect.x - halfMagSize + 'px'
+		magnifier.style.top = `${e.clientY - netPaneRect.y - halfMagSize}px`
+		magnifier.style.left = `${e.clientX - netPaneRect.x - halfMagSize}px`
 		magnifier.style.display = 'block'
 	}
 	/**
@@ -1406,7 +1420,7 @@ export function logHistory(action, actor) {
 		let obj = yHistory.get(i)
 		if (obj.time) persistence.del(obj.time)
 	}
-	if (elem('history-window').style.display == 'block') showHistory()
+	if (elem('history-window').style.display === 'block') showHistory()
 	dirty = true
 }
 /**
@@ -1459,7 +1473,7 @@ function drawBadges(ctx) {
 		// note card for Factors and Links with Notes
 		data.nodes
 			.get()
-			.filter((node) => !node.hidden && node.note && node.note != 'Notes')
+			.filter((node) => !node.hidden && node.note && node.note !== 'Notes')
 			.forEach((node) => {
 				let box = network.getBoundingBox(node.id)
 				drawTheBadge(noteImage, ctx, box.right, box.top)
@@ -1470,7 +1484,7 @@ function drawBadges(ctx) {
 			if (
 				!edge.hidden &&
 				edge.note &&
-				edge.note != 'Notes' &&
+				edge.note !== 'Notes' &&
 				edge.arrows &&
 				edge.arrows.middle &&
 				!edge.arrows.middle.enabled
@@ -1481,7 +1495,7 @@ function drawBadges(ctx) {
 				edge.arrows.middle.type = 'image'
 				edge.arrows.middle.src = noteImage.src
 			} else if (
-				(!edge.note || (edge.note && edge.note == 'Notes')) &&
+				(!edge.note || (edge.note && edge.note === 'Notes')) &&
 				edge.arrows &&
 				edge.arrows.middle &&
 				edge.arrows.middle.enabled
@@ -1498,14 +1512,14 @@ function drawBadges(ctx) {
 		data.nodes.get().forEach((node) => {
 			let box = network.getBoundingBox(node.id)
 			drawTheBadge(
-				node.thumbUp && node.thumbUp.includes(clientID) ? thumbUpFilledImage : thumbUpImage,
+				node.thumbUp?.includes(clientID) ? thumbUpFilledImage : thumbUpImage,
 				ctx,
 				box.left + 20,
 				box.bottom
 			)
 			drawThumbCount(ctx, node.thumbUp, box.left + 36, box.bottom + 10)
 			drawTheBadge(
-				node.thumbDown && node.thumbDown.includes(clientID) ? thumbDownFilledImage : thumbDownImage,
+				node.thumbDown?.includes(clientID) ? thumbDownFilledImage : thumbDownImage,
 				ctx,
 				box.right - 36,
 				box.bottom
@@ -1572,7 +1586,7 @@ function copyToClipboard(event) {
 	event.preventDefault()
 	let nIds = network.getSelectedNodes()
 	let eIds = network.getSelectedEdges()
-	if (nIds.length + eIds.length == 0) {
+	if (nIds.length + eIds.length === 0) {
 		statusMsg('Nothing selected to copy', 'warn')
 		return
 	}
@@ -1583,14 +1597,14 @@ function copyToClipboard(event) {
 		let edgesFromNode = network.getConnectedEdges(nId)
 		edgesFromNode.forEach((eId) => {
 			let edge = data.edges.get(eId)
-			if (nIds.includes(edge.to) && nIds.includes(edge.from) && !edges.find((e) => e.id == eId)) edges.push(edge)
+			if (nIds.includes(edge.to) && nIds.includes(edge.from) && !edges.find((e) => e.id === eId)) edges.push(edge)
 		})
 	})
 	eIds.forEach((eId) => {
 		let edge = data.edges.get(eId)
-		if (!nodes.find((n) => n.id == edge.from)) nodes.push(data.nodes.get(edge.from))
-		if (!nodes.find((n) => n.id == edge.to)) nodes.push(data.nodes.get(edge.to))
-		if (!edges.find((e) => e.id == eId)) edges.push(data.edges.get(eId))
+		if (!nodes.find((n) => n.id === edge.from)) nodes.push(data.nodes.get(edge.from))
+		if (!nodes.find((n) => n.id === edge.to)) nodes.push(data.nodes.get(edge.to))
+		if (!edges.find((e) => e.id === eId)) edges.push(data.edges.get(eId))
 	})
 	copyText(JSON.stringify({nodes: nodes, edges: edges}))
 }
@@ -1616,7 +1630,8 @@ async function copyText(text) {
 
 async function pasteFromClipboard() {
 	let clip = await getClipboardContents()
-	let nodes, edges
+	let nodes
+	let edges
 	try {
 		;({nodes, edges} = JSON.parse(clip))
 	} catch (err) {
@@ -1630,8 +1645,8 @@ async function pasteFromClipboard() {
 		node.x += 40
 		node.y += 40
 		edges.forEach((edge) => {
-			if (edge.from == oldId) edge.from = node.id
-			if (edge.to == oldId) edge.to = node.id
+			if (edge.from === oldId) edge.from = node.id
+			if (edge.to === oldId) edge.to = node.id
 		})
 	})
 	edges.forEach((edge) => {
@@ -1674,7 +1689,7 @@ async function getClipboardContents() {
  * @param {Function} callback
  */
 function addLabel(item, cancelAction, callback) {
-	if (elem('popup').style.display == 'block') return // can't add factor when factor is already being added
+	if (elem('popup').style.display === 'block') return // can't add factor when factor is already being added
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback)
 	let pos = {x: event.offsetX, y: event.offsetY}
 	positionPopUp(pos)
@@ -1710,48 +1725,48 @@ function editNode(item, point, cancelAction, callback) {
 	elem('popup').insertAdjacentHTML(
 		'beforeend',
 		`	
-	<table id="popup-table">
+		<table id="popup-table">
 		<tr>
-			<td>
-				<i>Back</i>
-			</td>
-			<td>
+		  <td>
+			<i>Back</i>
+		  </td>
+		  <td>
 			<i>Border</i>
-			</td>
-			<td>
+		  </td>
+		  <td>
 			<i>Font</i>
-			</td>
+		  </td>
 		</tr>
 		<tr>
-		<td>
-		<div class="input-color-container">
-		<div class="color-well" id="node-backgroundColor" </div>
-		</div>
-		</td>
-		<td>
+		  <td>
 			<div class="input-color-container">
-			<div class="color-well" id="node-borderColor" </div>
+			  <div class="color-well" id="node-backgroundColor"></div>
 			</div>
-			</td>
-			<td>
+		  </td>
+		  <td>
 			<div class="input-color-container">
-			<div class="color-well" id="node-fontColor" </div>
+			  <div class="color-well" id="node-borderColor"></div>
 			</div>
-			</td>
+		  </td>
+		  <td>
+			<div class="input-color-container">
+			  <div class="color-well" id="node-fontColor"></div>
+			</div>
+		  </td>
 		</tr>
 		<tr>
-		<td><i>Border:</i></td>
-			<td colspan="2">
-				<select id="node-borderType">
-					<option value="false">Type...</option>
-					<option value="false">Solid</option>
-					<option value="true">Dashed</option>
-					<option value="dots">Dotted</option>
-					<option value="none">None</option>
-				</select>
-			</td>
+		  <td><i>Border:</i></td>
+		  <td colspan="2">
+			<select id="node-borderType">
+			  <option value="false">Type...</option>
+			  <option value="false">Solid</option>
+			  <option value="true">Dashed</option>
+			  <option value="dots">Dotted</option>
+			  <option value="none">None</option>
+			</select>
+		  </td>
 		</tr>
-	</table>`
+	  </table>`
 	)
 	cp.createColorPicker('node-backgroundColor')
 	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background)
@@ -1777,7 +1792,7 @@ function editNode(item, point, cancelAction, callback) {
  */
 function getDashes(val, width) {
 	if (Array.isArray(val)) return 'dots'
-	if (width == 0) return 'none'
+	if (width === 0) return 'none'
 	return val.toString()
 }
 /**
@@ -1826,7 +1841,7 @@ function editEdge(item, point, cancelAction, callback) {
 			</td>
 			<td>
 				<div class="input-color-container">
-					<div class="color-well"  id="edge-color" </div>
+					<div class="color-well"  id="edge-color"></div>
 				</div>
 			</td>
 		</tr>
@@ -1873,7 +1888,7 @@ function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback)
 	inAddMode = false
 	inEditMode = true
 	changeCursor('default')
-	elem('popup').style.height = height + 'px'
+	elem('popup').style.height = `${height}px`
 	elem('popup-operation').innerHTML = popUpTitle
 	elem('popup-saveButton').onclick = saveAction.bind(this, item, callback)
 	elem('popup-cancelButton').onclick = cancelAction.bind(this, item, callback)
@@ -1980,10 +1995,10 @@ function saveNode(item, callback) {
 	item.color.hover.border = color
 	item.font.color = elem('node-fontColor').style.backgroundColor
 	let borderType = elem('node-borderType').value
-	item.borderWidth = borderType == 'none' ? 0 : 4
+	item.borderWidth = borderType === 'none' ? 0 : 4
 	item.shapeProperties.borderDashes = convertDashes(borderType)
 	network.manipulation.inMode = 'editNode' // ensure still in Add mode, in case others have done something meanwhile
-	if (item.label == item.oldLabel) logHistory(`edited factor: '${item.label}'`)
+	if (item.label === item.oldLabel) logHistory(`edited factor: '${item.label}'`)
 	else logHistory(`edited factor, changing label from '${item.oldLabel}' to '${item.label}'`)
 	unlockNode(item)
 	callback(item)
@@ -1997,7 +2012,7 @@ function lockNode(item) {
 	item.opacity = 0.3
 	item.oldLabel = item.label
 	item.oldFontColor = item.font.color
-	item.label = item.label + '\n\n' + '[Being edited by ' + myNameRec.name + ']'
+	item.label = `${item.label}\n\n[Being edited by ${myNameRec.name}]`
 	item.wasFixed = Boolean(item.fixed)
 	item.fixed = true
 	data.nodes.update(item)
@@ -2079,7 +2094,7 @@ function lockEdge(item) {
 	item.font.color = 'rgba(0,0,0,0.5)'
 	item.opacity = 0.1
 	item.oldLabel = item.label || ' '
-	item.label = 'Being edited by ' + myNameRec.name
+	item.label = `Being edited by ${myNameRec.name}`
 	data.edges.update(item)
 }
 /**
@@ -2105,7 +2120,7 @@ function unlockEdge(item) {
 function duplEdge(from, to) {
 	return data.edges.get({
 		filter: function (item) {
-			return item.from == from && item.to == to
+			return item.from === from && item.to === to
 		},
 	})
 }
@@ -2148,7 +2163,7 @@ export function setMapTitle(title) {
 	if (!title) {
 		title = 'Untitled map'
 	}
-	if (title == 'Untitled map') {
+	if (title === 'Untitled map') {
 		div.classList.add('unsetmaptitle')
 		document.title = appName
 	} else {
@@ -2172,7 +2187,7 @@ function titleDropDown(title) {
 	let recentMaps = localStorage.getItem('recents')
 	if (recentMaps) recentMaps = JSON.parse(recentMaps)
 	else recentMaps = {}
-	if (title != 'Untitled map') {
+	if (title !== 'Untitled map') {
 		recentMaps[room] = title
 		localStorage.setItem('recents', JSON.stringify(recentMaps))
 	}
@@ -2197,12 +2212,12 @@ function createTitleDropDown() {
 		})
 		makeTitleDropDownEntry('<b>New map</b>', '*new*', false)
 	}
-/**
- * create a previous map menu item, with tooltip showing full title and room
- * @param {string} name Title of map
- * @param {string} room 
- * @param {boolean} tooltip whether to display tooltip
- */
+	/**
+	 * create a previous map menu item, with tooltip showing full title and room
+	 * @param {string} name Title of map
+	 * @param {string} room
+	 * @param {boolean} tooltip whether to display tooltip
+	 */
 	function makeTitleDropDownEntry(name, room, tooltip = true) {
 		let li = document.createElement('li')
 		li.classList.add('room-title', 'room-title-tooltip')
@@ -2225,7 +2240,7 @@ function changeRoom(event) {
 	let newRoom = event.target.dataset.room
 	removeTitleDropDown()
 	let url = new URL(document.location)
-	url.search = newRoom != '*new*' ? `?room=${newRoom}` : ''
+	url.search = newRoom !== '*new*' ? `?room=${newRoom}` : ''
 	window.location.replace(url)
 }
 /**
@@ -2259,12 +2274,12 @@ function recalculateStats() {
 	}, 200)
 }
 worker.onmessage = function (e) {
-	if (typeof e.data == 'string') console.log(e.data)
+	if (typeof e.data === 'string') console.log(e.data)
 	// don't frighten the horses: statusMsg(e.data, 'error');
 	else {
 		let nodesToUpdate = []
 		data.nodes.get().forEach((n) => {
-			if (n.bc != e.data[n.id]) {
+			if (n.bc !== e.data[n.id]) {
 				n.bc = e.data[n.id]
 				nodesToUpdate.push(n)
 			}
@@ -2283,23 +2298,23 @@ worker.onmessage = function (e) {
  * @param {Boolean} suppressType If true, don't start string with 'Factors'
  */
 function listFactors(factors, suppressType) {
-	if (factors.length > 5) return factors.length + ' factors'
+	if (factors.length > 5) return `${factors.length} factors`
 	let str = ''
 	if (!suppressType) {
 		str = 'Factor'
-		if (factors.length > 1) str = str + 's'
-		str = str + ': '
+		if (factors.length > 1) str = `${str}s`
+		str = `${str}: `
 	}
 	return str + lf(factors)
 
 	function lf(factors) {
 		// recursive fn to return a string of the node labels, separated by commas and 'and'
 		let n = factors.length
-		let label = "'" + shorten(data.nodes.get(factors[0]).label) + "'"
-		if (n == 1) return label
+		let label = `'${shorten(data.nodes.get(factors[0]).label)}'`
+		if (n === 1) return label
 		factors.shift()
-		if (n == 2) return label.concat(' and ' + lf(factors))
-		return label.concat(', ' + lf(factors))
+		if (n === 2) return label.concat(` and ${lf(factors)}`)
+		return label.concat(`, ${lf(factors)}`)
 	}
 }
 
@@ -2308,7 +2323,7 @@ function listFactors(factors, suppressType) {
  * @param {Array} links
  */
 function listLinks(links) {
-	if (links.length > 1) return links.length + ' links'
+	if (links.length > 1) return `${links.length} links`
 	return '1 link'
 }
 /**
@@ -2329,7 +2344,7 @@ function selectedLabels() {
  */
 function showSelected() {
 	let msg = selectedLabels()
-	if (msg.length > 0) statusMsg(msg + ' selected')
+	if (msg.length > 0) statusMsg(`${msg} selected`)
 	else clearStatusBar()
 	toggleDeleteButton()
 }
@@ -2431,14 +2446,16 @@ function plusNode() {
 	switch (inAddMode) {
 		case 'disabled':
 			return
-		case 'addNode':
+		case 'addNode': {
 			removeFactorCursor()
 			showPressed('addNode', 'remove')
 			stopEdit()
 			break
-		case 'addLink':
+		}
+		case 'addLink': {
 			showPressed('addLink', 'remove')
-			stopEdit() // falls through
+			stopEdit()
+		} // falls through
 		default:
 			// false
 			network.unselectAll()
@@ -2470,19 +2487,21 @@ function ghostCursor() {
 		const boxHalfWidth = box.offsetWidth / 2
 		const boxHalfHeight = box.offsetHeight / 2
 		let left = window.event.pageX - boxHalfWidth
-		box.style.left =
-			(left <= netPaneRect.left
+		box.style.left = `${
+			left <= netPaneRect.left
 				? netPaneRect.left
 				: left >= netPaneRect.right - box.offsetWidth
 				? netPaneRect.right - box.offsetWidth
-				: left) + 'px'
+				: left
+		}px`
 		let top = window.event.pageY - boxHalfHeight
-		box.style.top =
-			(top <= netPaneRect.top
+		box.style.top = `${
+			top <= netPaneRect.top
 				? netPaneRect.top
 				: top >= netPaneRect.bottom - box.offsetHeight
 				? netPaneRect.bottom - box.offsetHeight
-				: top) + 'px'
+				: top
+		}px`
 	}
 }
 /**
@@ -2504,14 +2523,16 @@ function plusLink() {
 	switch (inAddMode) {
 		case 'disabled':
 			return
-		case 'addLink':
+		case 'addLink': {
 			showPressed('addLink', 'remove')
 			stopEdit()
 			clearStatusBar()
 			break
-		case 'addNode':
+		}
+		case 'addNode': {
 			showPressed('addNode', 'remove')
 			stopEdit() // falls through
+		} // falls through
 		default:
 			// false
 			removeFactorCursor()
@@ -2603,13 +2624,13 @@ function setUpShareDialog() {
 
 	// When the user clicks the button, open the modal
 	listen('share', 'click', () => {
-		let path = window.location.pathname + '?room=' + room
+		let path = `${window.location.pathname}?room=${room}`
 		let linkToShare = window.location.origin + path
 		copiedText.style.display = 'none'
 		modal.style.display = 'block'
 		inputElem.cols = linkToShare.length.toString()
 		inputElem.value = linkToShare
-		inputElem.style.height = inputElem.scrollHeight - 3 + 'px'
+		inputElem.style.height = `${inputElem.scrollHeight - 3}px`
 		inputElem.select()
 		network.storePositions()
 	})
@@ -2620,15 +2641,18 @@ function setUpShareDialog() {
 	function openWindow(type) {
 		let path = ''
 		switch (type) {
-			case 'clone':
-				path = window.location.pathname + '?room=' + clone()
+			case 'clone': {
+				path = `${window.location.pathname}?room=${clone()}`
 				break
-			case 'view':
-				path = window.location.pathname + '?room=' + clone(true)
+			}
+			case 'view': {
+				path = `${window.location.pathname}?room=${clone(true)}`
 				break
-			case 'table':
-				path = window.location.pathname.replace('prsm.html', 'table.html') + '?room=' + room
+			}
+			case 'table': {
+				path = `${window.location.pathname.replace('prsm.html', 'table.html')}?room=${room}`
 				break
+			}
 			default:
 				console.log('Bad case in openWindow()')
 				break
@@ -2642,7 +2666,7 @@ function setUpShareDialog() {
 	listen('shareModal', 'click', closeShareDialog)
 
 	function closeShareDialog() {
-		if (event.target == modal || event.target == elem('modal-close')) {
+		if (event.target === modal || event.target === elem('modal-close')) {
 			modal.style.display = 'none'
 		}
 	}
@@ -2664,7 +2688,7 @@ function setUpShareDialog() {
 function clone(onlyView) {
 	let clonedRoom = generateRoom()
 	let clonedDoc = new Y.Doc()
-	let ws = new WebsocketProvider(websocket, 'prsm' + clonedRoom, clonedDoc)
+	let ws = new WebsocketProvider(websocket, `prsm${clonedRoom}`, clonedDoc)
 	ws.awareness.destroy()
 	ws.on('sync', () => {
 		let state = Y.encodeStateAsUpdate(doc)
@@ -2687,7 +2711,7 @@ function clone(onlyView) {
  */
 function search() {
 	let searchBar = elem('search-bar')
-	if (searchBar.style.display == 'block') hideSearchBar()
+	if (searchBar.style.display === 'block') hideSearchBar()
 	else {
 		searchBar.style.display = 'block'
 		elem('search-icon').style.display = 'block'
@@ -2700,7 +2724,7 @@ function search() {
  */
 function searchTargets() {
 	let str = elem('search-bar').value
-	if (!str || str == ' ') {
+	if (!str || str === ' ') {
 		if (elem('targets')) elem('targets').remove()
 		return
 	}
@@ -2781,20 +2805,22 @@ dragElement(elem('panel'), elem('panelHeader'))
  */
 function keepPaneInWindow(pane) {
 	if (pane.offsetLeft + pane.offsetWidth > container.offsetLeft + container.offsetWidth) {
-		pane.style.left = container.offsetLeft + container.offsetWidth - pane.offsetWidth + 'px'
+		pane.style.left = `${container.offsetLeft + container.offsetWidth - pane.offsetWidth}px`
 	}
 	if (pane.offsetTop + pane.offsetHeight > container.offsetTop + container.offsetHeight) {
-		pane.style.top =
+		pane.style.top = `${
 			container.offsetTop +
 			container.offsetHeight -
 			pane.offsetHeight -
-			document.querySelector('footer').offsetHeight +
-			'px'
+			document.querySelector('footer').offsetHeight
+		}px`
 	}
 }
 
 function openTab(tabId) {
-	let i, tabcontent, tablinks
+	let i
+	let tabcontent
+	let tablinks
 	// Get all elements with class="tabcontent" and hide them by moving them off screen
 	tabcontent = document.getElementsByClassName('tabcontent')
 	for (i = 0; i < tabcontent.length; i++) {
@@ -2814,9 +2840,9 @@ function openTab(tabId) {
 
 // Factors and Links Tabs
 function applySampleToNode(event) {
-	if (event.detail != 1) return // only process single clicks here
+	if (event.detail !== 1) return // only process single clicks here
 	let selectedNodeIds = network.getSelectedNodes()
-	if (selectedNodeIds.length == 0) return
+	if (selectedNodeIds.length === 0) return
 	let nodesToUpdate = []
 	let sample = event.currentTarget.groupNode
 	for (let node of data.nodes.get(selectedNodeIds)) {
@@ -2830,10 +2856,10 @@ function applySampleToNode(event) {
 }
 
 function applySampleToLink(event) {
-	if (event.detail != 1) return // only process single clicks here
+	if (event.detail !== 1) return // only process single clicks here
 	let sample = event.currentTarget.groupLink
 	let selectedEdges = network.getSelectedEdges()
-	if (selectedEdges.length == 0) return
+	if (selectedEdges.length === 0) return
 	let edgesToUpdate = []
 	for (let edge of data.edges.get(selectedEdges)) {
 		edge = deepMerge(edge, styles.edges[sample])
@@ -2888,7 +2914,7 @@ export function refreshSampleNodes() {
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i]
 		let node = sampleElement.dataSet.get()[0]
-		node = deepMerge(node, styles.nodes['group' + i])
+		node = deepMerge(node, styles.nodes[`group${i}`])
 		node.label = node.groupLabel
 		sampleElement.dataSet.remove(node.id)
 		sampleElement.dataSet.update(node)
@@ -2903,7 +2929,7 @@ export function refreshSampleLinks() {
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i]
 		let edge = sampleElement.dataSet.get()[0]
-		edge = deepMerge(edge, styles.edges['edge' + i])
+		edge = deepMerge(edge, styles.edges[`edge${i}`])
 		edge.label = edge.groupLabel
 		sampleElement.dataSet.remove(edge.id)
 		sampleElement.dataSet.update(edge)
@@ -2930,7 +2956,7 @@ function doShowNotes(toggle) {
  * User has clicked the padlock.  Toggle padlock state and fix the location of the node
  */
 function setFixed() {
-	let locked = elem('fixed').style.display == 'none'
+	let locked = elem('fixed').style.display === 'none'
 	let node = data.nodes.get(editor.id)
 	node.fixed = locked
 	elem('fixed').style.display = node.fixed ? 'inline' : 'none'
@@ -2943,8 +2969,8 @@ function setFixed() {
 function showNodeOrEdgeData() {
 	hideNotes()
 	if (!showNotesToggle) return
-	if (network.getSelectedNodes().length == 1) showNodeData()
-	else if (network.getSelectedEdges().length == 1) showEdgeData()
+	if (network.getSelectedNodes().length === 1) showNodeData()
+	else if (network.getSelectedEdges().length === 1) showEdgeData()
 }
 /**
  * Hide the Node or Edge Data panel
@@ -3000,7 +3026,7 @@ function showNodeData(nodeId) {
 		else editor.setText(node.note)
 	} else editor.setText('')
 	editor.on('text-change', (delta, oldDelta, source) => {
-		if (source == 'user')
+		if (source === 'user')
 			data.nodes.update({
 				id: nodeId,
 				note: isQuillEmpty(editor) ? '' : editor.getContents(),
@@ -3023,7 +3049,7 @@ function showEdgeData() {
 	let panel = elem('edgeDataPanel')
 	let edgeId = network.getSelectedEdges()[0]
 	let edge = data.edges.get(edgeId)
-	elem('edgeLabel').innerHTML = edge.label && edge.label.trim() ? shorten(edge.label) : 'Link'
+	elem('edgeLabel').innerHTML = edge.label?.trim() ? shorten(edge.label) : 'Link'
 	if (edge.created) {
 		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${edge.created.user}`
 		elem('edgeCreation').style.display = 'flex'
@@ -3056,7 +3082,7 @@ function showEdgeData() {
 		else editor.setText(edge.note)
 	} else editor.setText('')
 	editor.on('text-change', (delta, oldDelta, source) => {
-		if (source == 'user')
+		if (source === 'user')
 			data.edges.update({
 				id: edgeId,
 				note: isQuillEmpty(editor) ? '' : editor.getContents(),
@@ -3072,7 +3098,7 @@ function displayStatistics(nodeId) {
 	// leverage (outDegree / inDegree)
 	let inDegree = network.getConnectedNodes(nodeId, 'from').length
 	let outDegree = network.getConnectedNodes(nodeId, 'to').length
-	let leverage = inDegree == 0 ? '--' : (outDegree / inDegree).toPrecision(3)
+	let leverage = inDegree === 0 ? '--' : (outDegree / inDegree).toPrecision(3)
 	elem('leverage').textContent = leverage
 	let node = data.nodes.get(nodeId)
 	elem('bc').textContent = node.bc >= 0 ? parseFloat(node.bc).toFixed(2) : '--'
@@ -3091,14 +3117,14 @@ function positionNotes() {
 	let settingsRect = elem('panel').getBoundingClientRect()
 	let netPaneRect = netPane.getBoundingClientRect()
 	if (notesPanelRect.right > settingsRect.left && notesPanelRect.top < settingsRect.bottom) {
-		notesPanel.style.left = settingsRect.left - notesPanelRect.width - 20 + 'px'
+		notesPanel.style.left = `${settingsRect.left - notesPanelRect.width - 20}px`
 	}
-	if (notesPanelRect.left < netPaneRect.left) notesPanel.style.left = netPaneRect.left + 20 + 'px'
+	if (notesPanelRect.left < netPaneRect.left) notesPanel.style.left = `${netPaneRect.left}${20}px`
 	if (notesPanelRect.right > netPaneRect.right)
-		notesPanel.style.left = netPaneRect.right - notesPanelRect.width - 20 + 'px'
-	if (notesPanelRect.top < netPaneRect.top) notesPanel.style.top = netPaneRect.top + 20 + 'px'
+		notesPanel.style.left = `${netPaneRect.right - notesPanelRect.width - 20}px`
+	if (notesPanelRect.top < netPaneRect.top) notesPanel.style.top = `${netPaneRect.top}${20}px`
 	if (notesPanelRect.bottom > netPaneRect.bottom)
-		notesPanel.style.top = Math.max(netPaneRect.bottom - notesPanelRect.height, netPaneRect.top) + 20 + 'px'
+		notesPanel.style.top = `${Math.max(netPaneRect.bottom - notesPanelRect.height, netPaneRect.top)}${20}px`
 }
 // Network tab
 
@@ -3128,20 +3154,20 @@ function autoLayout(e) {
 				}
 				break
 			}
-			case 'fan':
+			case 'fan': {
 				{
 					let nodes = data.nodes.get().filter((n) => !n.hidden)
 					nodes.forEach((n) => (n.level = undefined))
 					let selectedNodes = getSelectedAndFixedNodes().map((nId) => data.nodes.get(nId))
-					if (selectedNodes.length == 0) {
+					if (selectedNodes.length === 0) {
 						statusMsg('At least one Factor needs to be selected', 'error')
 						elem('layoutSelect').value = 'off'
 						return
 					}
 					// if Up or Down stream are selected, use those for the direction
 					let direction = 'from'
-					if (getRadioVal('stream') == 'downstream') direction = 'to'
-					else if (getRadioVal('stream') == 'upstream') direction = 'from'
+					if (getRadioVal('stream') === 'downstream') direction = 'to'
+					else if (getRadioVal('stream') === 'upstream') direction = 'from'
 					else {
 						// if neither,
 						//  and more links from the selected nodes are going upstream then downstream,
@@ -3164,14 +3190,14 @@ function autoLayout(e) {
 						setZLevel(n, direction)
 					})
 					nodes.forEach((n) => {
-						if (n.level == undefined) n.level = 0
+						if (n.level === undefined) n.level = 0
 					})
 					let maxLevel = Math.max(...nodes.map((n) => n.level))
 					let gap = (maxX - minX) / maxLevel
 					for (let l = 0; l <= maxLevel; l++) {
 						let x = l * gap + minX
-						if (direction == 'from') x = maxX - l * gap
-						let nodesOnLevel = nodes.filter((n) => n.level == l)
+						if (direction === 'from') x = maxX - l * gap
+						let nodesOnLevel = nodes.filter((n) => n.level === l)
 						nodesOnLevel.forEach((n) => (n.x = x))
 						let ySpaceNeeded = nodesOnLevel
 							.map((n) => {
@@ -3192,6 +3218,7 @@ function autoLayout(e) {
 					elem('layoutSelect').value = 'off'
 				}
 				break
+			}
 			default: {
 				let options = {physics: {solver: option, stabilization: true}}
 				options.physics[option] = {}
@@ -3223,7 +3250,7 @@ function autoLayout(e) {
 			let currentNode = q.shift()
 			let connectedNodes = data.nodes
 				.get(network.getConnectedNodes(currentNode.id, direction))
-				.filter((n) => !n.hidden && n.level == undefined)
+				.filter((n) => !n.hidden && n.level === undefined)
 			if (connectedNodes.length > 0) {
 				level = currentNode.level + 1
 				connectedNodes.forEach((n) => {
@@ -3253,7 +3280,7 @@ function autoLayout(e) {
 	 */
 	function trophicDistribute() {
 		for (let level = 0; level <= NLEVELS; level++) {
-			let nodesOnLevel = data.nodes.get().filter((n) => n.level == level)
+			let nodesOnLevel = data.nodes.get().filter((n) => n.level === level)
 			let ySpaceNeeded = nodesOnLevel
 				.map((n) => {
 					let box = network.getBoundingBox(n.id)
@@ -3309,7 +3336,7 @@ function updateNetBack(color) {
 	let ul = elem('underlay')
 	ul.style.backgroundColor = color
 	// if in drawing mode, make the underlay translucent so that network shows through
-	if (elem('toolbox').style.display == 'block') makeTranslucent(ul)
+	if (elem('toolbox').style.display === 'block') makeTranslucent(ul)
 	yNetMap.set('background', color)
 }
 
@@ -3322,12 +3349,12 @@ function makeSolid(el) {
 }
 function setBackground(color) {
 	elem('underlay').style.backgroundColor = color
-	if (elem('toolbox').style.display == 'block') makeTranslucent(elem('underlay'))
+	if (elem('toolbox').style.display === 'block') makeTranslucent(elem('underlay'))
 	elem('netBackColorWell').style.backgroundColor = color
 }
 
 function toggleDrawingLayer() {
-	drawingSwitch = elem('toolbox').style.display == 'block'
+	drawingSwitch = elem('toolbox').style.display === 'block'
 	let ul = elem('underlay')
 	if (drawingSwitch) {
 		// close drawing layer
@@ -3371,7 +3398,7 @@ function ensureNotDrawing() {
 }
 
 function selectAllFactors() {
-	selectFactors(data.nodes.getIds({ filter: (n) => !n.hidden }))
+	selectFactors(data.nodes.getIds({filter: (n) => !n.hidden}))
 	showSelected()
 }
 
@@ -3381,7 +3408,7 @@ export function selectFactors(nodeIds) {
 }
 
 function selectAllLinks() {
-	selectLinks(data.edges.getIds({ filter: (e) => !e.hidden }))
+	selectLinks(data.edges.getIds({filter: (e) => !e.hidden}))
 	showSelected()
 }
 
@@ -3398,11 +3425,11 @@ function selectUsersItems(event) {
 	let userName = event.target.dataset.userName
 	let usersNodes = data.nodes
 		.get()
-		.filter((n) => n.created?.user == userName || n.modified?.user == userName)
+		.filter((n) => n.created?.user === userName || n.modified?.user === userName)
 		.map((n) => n.id)
 	let userEdges = data.edges
 		.get()
-		.filter((e) => e.created?.user == userName || e.modified?.user == userName)
+		.filter((e) => e.created?.user === userName || e.modified?.user === userName)
 		.map((e) => e.id)
 	network.setSelection({nodes: usersNodes, edges: userEdges})
 	showSelected()
@@ -3453,7 +3480,7 @@ function setRadioVal(name, value) {
 	let radios = document.getElementsByName(name)
 	// loop through list of radio buttons and set the check on the one with the value
 	for (let i = 0, len = radios.length; i < len; i++) {
-		radios[i].checked = radios[i].value == value
+		radios[i].checked = radios[i].value === value
 	}
 }
 /**
@@ -3482,7 +3509,7 @@ function setAnalysisButtonsFromRemote() {
 		let selectedNodes = [].concat(hiddenNodes.selected) // ensure that hiddenNodes.selected is an array
 		network.selectNodes(selectedNodes, false) // in viewing  only mode, this does nothing
 		if (selectedNodes.length > 0) {
-			if (!viewOnly) statusMsg(listFactors(getSelectedAndFixedNodes()) + ' selected')
+			if (!viewOnly) statusMsg(`${listFactors(getSelectedAndFixedNodes())} selected`)
 		} else clearStatusBar()
 		showNodeOrEdgeData()
 		if (hiddenNodes.radiusSetting) setRadioVal('radius', hiddenNodes.radiusSetting)
@@ -3529,7 +3556,7 @@ function analyse() {
 			return e
 		})
 	// if showing everything, we are done
-	if (getRadioVal('radius') == 'All' && getRadioVal('stream') == 'All' && getRadioVal('paths') == 'All') {
+	if (getRadioVal('radius') === 'All' && getRadioVal('stream') === 'All' && getRadioVal('paths') === 'All') {
 		setYMapAnalysisButtons()
 		data.nodes.update(nodes)
 		data.edges.update(edges)
@@ -3538,7 +3565,7 @@ function analyse() {
 	}
 
 	// check that at least one factor is selected
-	if (selectedNodes.length == 0 && getRadioVal('paths') == 'All') {
+	if (selectedNodes.length === 0 && getRadioVal('paths') === 'All') {
 		statusMsg('A Factor needs to be selected', 'error')
 		setRadioVal('radius', 'All')
 		setRadioVal('stream', 'All')
@@ -3571,18 +3598,18 @@ function analyse() {
 
 	// announce what has been done
 	let streamMsg = ''
-	if (getRadioVal('stream') == 'upstream') streamMsg = 'upstream'
-	if (getRadioVal('stream') == 'downstream') streamMsg = 'downstream'
+	if (getRadioVal('stream') === 'upstream') streamMsg = 'upstream'
+	if (getRadioVal('stream') === 'downstream') streamMsg = 'downstream'
 	let radiusMsg = ''
-	if (getRadioVal('radius') == '1') radiusMsg = 'within one link'
-	if (getRadioVal('radius') == '2') radiusMsg = 'within two links'
-	if (getRadioVal('radius') == '3') radiusMsg = 'within three links'
+	if (getRadioVal('radius') === '1') radiusMsg = 'within one link'
+	if (getRadioVal('radius') === '2') radiusMsg = 'within two links'
+	if (getRadioVal('radius') === '3') radiusMsg = 'within three links'
 	let pathsMsg = ''
-	if (getRadioVal('paths') == 'allPaths') pathsMsg = ': showing all paths'
-	if (getRadioVal('paths') == 'shortestPath') pathsMsg = ': showing shortest paths'
-	if (getRadioVal('stream') == 'All' && getRadioVal('radius') == 'All')
+	if (getRadioVal('paths') === 'allPaths') pathsMsg = ': showing all paths'
+	if (getRadioVal('paths') === 'shortestPath') pathsMsg = ': showing shortest paths'
+	if (getRadioVal('stream') === 'All' && getRadioVal('radius') === 'All')
 		statusMsg(
-			`Showing  ${getRadioVal('paths') == 'allPaths' ? 'all paths' : 'shortest paths'} between ${listFactors(
+			`Showing  ${getRadioVal('paths') === 'allPaths' ? 'all paths' : 'shortest paths'} between ${listFactors(
 				getSelectedAndFixedNodes(),
 				true
 			)}`
@@ -3605,8 +3632,8 @@ function analyse() {
 		let linkIdsInRadiusSet = new Set()
 
 		// put those factors and links within radius links into these sets
-		if (getRadioVal('stream') == 'upstream' || getRadioVal('stream') == 'All') inSet(selectedNodes, radius, 'to')
-		if (getRadioVal('stream') == 'downstream' || getRadioVal('stream') == 'All')
+		if (getRadioVal('stream') === 'upstream' || getRadioVal('stream') === 'All') inSet(selectedNodes, radius, 'to')
+		if (getRadioVal('stream') === 'downstream' || getRadioVal('stream') === 'All')
 			inSet(selectedNodes, radius, 'from')
 
 		// hide all nodes and edges not in radius
@@ -3638,7 +3665,7 @@ function analyse() {
 				if (links && radius > 0)
 					links.forEach((lId) => {
 						linkIdsInRadiusSet.add(lId)
-						linked.push(data.edges.get(lId)[direction == 'to' ? 'from' : 'to'])
+						linked.push(data.edges.get(lId)[direction === 'to' ? 'from' : 'to'])
 					})
 				if (linked) inSet(linked, radius - 1, direction)
 			})
@@ -3660,7 +3687,7 @@ function analyse() {
 			radius = parseInt(radiusVal)
 		}
 		let direction = 'to'
-		if (upOrDown == 'upstream') direction = 'from'
+		if (upOrDown === 'upstream') direction = 'from'
 
 		// breadth first search for all Factors that are downstream and less than or equal to radius links away
 		data.nodes.map((n) => (n.level = undefined))
@@ -3674,7 +3701,7 @@ function analyse() {
 				let currentNode = q.shift()
 				let connectedNodes = data.nodes
 					.get(network.getConnectedNodes(currentNode.id, direction))
-					.filter((n) => !n.hidden && !nodeIdsInStreamSet.has(n.id))
+					.filter((n) => !(n.hidden || nodeIdsInStreamSet.has(n.id)))
 				if (connectedNodes.length > 0) {
 					level = currentNode.level + 1
 					connectedNodes.forEach((n) => {
@@ -3709,7 +3736,7 @@ function analyse() {
 	function hideNodesByPaths(selectedNodes, pathType) {
 		// paths is an array of objects with from and to node ids, or an empty array of there is no path
 		let paths = shortestPaths(selectedNodes, pathType === 'allPaths')
-		if (paths.length == 0) {
+		if (paths.length === 0) {
 			statusMsg('No path between the selected Factors', 'info')
 			setRadioVal('paths', 'All')
 			setYMapAnalysisButtons()
@@ -3794,7 +3821,7 @@ function analyse() {
 						.getConnectedEdges(source)
 						.filter((e) => {
 							let edge = data.edges.get(e)
-							return !edge.hidden && edge.from == source
+							return !edge.hidden && edge.from === source
 						})
 						.map((e) => data.edges.get(e).to)
 					if (connectedNodes.length === 0) return 'deadend'
@@ -3834,7 +3861,7 @@ function analyse() {
 						path = path.concat(bestPath)
 					}
 					// if no progress has been made (the path is just the initial source factor), return an empty path
-					if (path.length == 1) path = []
+					if (path.length === 1) path = []
 					return path
 				}
 			}
@@ -3851,7 +3878,7 @@ function sizingSwitch(e) {
 /**
  * set the size of the nodes proportional to the selected metric
  * @param {String} metric none, all the same size, in degree, out degree or betweenness centrality
-*/
+ */
 // constants for sizes of nodes
 const MIN_WIDTH = 50
 const EQUAL_WIDTH = 100
@@ -3865,24 +3892,28 @@ function sizing(metric) {
 		let oldValue = node.val
 		switch (metric) {
 			case 'Off':
-			case 'Equal':
+			case 'Equal': {
 				node.val = 0
 				break
-			case 'Inputs':
+			}
+			case 'Inputs': {
 				node.val = network.getConnectedNodes(node.id, 'from').length
 				break
-			case 'Outputs':
+			}
+			case 'Outputs': {
 				node.val = network.getConnectedNodes(node.id, 'to').length
 				break
+			}
 			case 'Leverage': {
 				let inDegree = network.getConnectedNodes(node.id, 'from').length
 				let outDegree = network.getConnectedNodes(node.id, 'to').length
 				node.val = inDegree === 0 ? 0 : outDegree / inDegree
 				break
 			}
-			case 'Centrality':
+			case 'Centrality': {
 				node.val = node.bc
 				break
+			}
 		}
 		if (node.val < min) min = node.val
 		if (node.val > max) max = node.val
@@ -3890,15 +3921,20 @@ function sizing(metric) {
 	})
 	data.nodes.forEach((node) => {
 		switch (metric) {
-			case 'Off':
+			case 'Off': {
 				node.widthConstraint = node.heightConstraint = false
 				node.size = 25
 				break
-			case 'Equal': 
+			}
+			case 'Equal': {
 				node.widthConstraint = node.heightConstraint = node.size = EQUAL_WIDTH
 				break
+			}
 			default:
-				node.widthConstraint = node.heightConstraint = node.size = MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
+				node.widthConstraint =
+					node.heightConstraint =
+					node.size =
+						MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
 		}
 	})
 	data.nodes.update(nodesToUpdate)
@@ -3986,13 +4022,12 @@ function maximize() {
 		if (emojiPicker) {
 			chatbox.removeChild(emojiPicker)
 			emojiPicker = null
-		}
-		else {
+		} else {
 			emojiPicker = new Picker()
 			chatbox.appendChild(emojiPicker)
-			emojiPicker.addEventListener('emoji-click', event => {
+			emojiPicker.addEventListener('emoji-click', (event) => {
 				document.querySelector('#chat-input').value += event.detail.unicode
-			});
+			})
 		}
 	})
 	displayUserName()
@@ -4030,9 +4065,9 @@ function displayAllMsgs() {
 }
 
 function displayMsg(msg) {
-	if (msg == undefined) return
+	if (msg === undefined) return
 	let clock = Number.isInteger(msg.time) ? timeAndDate(msg.time) : ''
-	if (msg.client == clientID) {
+	if (msg.client === clientID) {
 		// my own message
 		chatMessages.innerHTML += `<div class="message-box-holder">
 			<div class="message-header">
@@ -4045,9 +4080,9 @@ function displayMsg(msg) {
 	} else {
 		// show only messages with no recipient (as from an old version), everyone or me
 		if (
-			msg.recipient == undefined ||
-			msg.recipient == '' ||
-			msg.recipient == myNameRec.name.replace(/\s+/g, '').toLowerCase()
+			msg.recipient === undefined ||
+			msg.recipient === '' ||
+			msg.recipient === myNameRec.name.replace(/\s+/g, '').toLowerCase()
 		) {
 			blinkChatboxTab()
 			chatMessages.innerHTML += `<div class="message-box-holder">
@@ -4238,7 +4273,7 @@ function setUpAwareness() {
  */
 function roundTripTimer() {
 	const ydocB = new Y.Doc()
-	const wsProviderB = new WebsocketProvider(websocket, 'prsm' + room, ydocB)
+	const wsProviderB = new WebsocketProvider(websocket, `prsm${room}`, ydocB)
 	const yAwarenessB = wsProviderB.awareness
 	wsProviderB.disconnectBc()
 	// clientB listens to updates, extracts the time from the state and displays it and
@@ -4314,7 +4349,7 @@ function receiveEvent(event) {
 				if (refreshAvatars || !object_equals(rec.user, lastAvatarStatus.get(userId))) showAvatars()
 				lastAvatarStatus.set(userId, rec.user)
 				// set a timer for this avatar to self-destruct if no update has been received for a minute
-				let ava = elem('ava' + userId)
+				let ava = elem(`ava${userId}`)
 				if (ava) {
 					clearTimeout(ava.timer)
 					ava.timer = setTimeout(removeAvatar, 60000, ava)
@@ -4364,7 +4399,7 @@ function showAvatars() {
 
 	populateChatUserMenu(Array.from(nameRecs))
 
-	if (me.length == 0) return // app is unloading
+	if (me.length === 0) return // app is unloading
 	nameRecs.unshift(me[0][1].user) // push myself on to the front
 
 	let avatars = elem('avatars')
@@ -4372,32 +4407,32 @@ function showAvatars() {
 
 	// check that an avatar exists for each name; if not create one.  If it does, check that it is still looking right
 	nameRecs.forEach((nameRec) => {
-		let ava = elem('ava' + nameRec.id)
+		let ava = elem(`ava${nameRec.id}`)
 		let shortName = initials(nameRec.name)
 		if (ava === null) {
 			makeAvatar(nameRec)
 			refreshAvatars = true
 		} else {
 			// to avoid flashes, don't touch anything that is already correct
-			if (ava.dataset.tooltip != nameRec.name) ava.dataset.tooltip = nameRec.name
+			if (ava.dataset.tooltip !== nameRec.name) ava.dataset.tooltip = nameRec.name
 			let circle = ava.firstChild
-			if (circle.style.backgroundColor != nameRec.color) circle.style.backgroundColor = nameRec.color
+			if (circle.style.backgroundColor !== nameRec.color) circle.style.backgroundColor = nameRec.color
 			let circleBorderColor = nameRec.anon ? 'white' : 'black'
-			if (circle.style.borderColor != circleBorderColor) circle.style.borderColor = circleBorderColor
-			if (circle.innerText != shortName) circle.innerText = shortName
+			if (circle.style.borderColor !== circleBorderColor) circle.style.borderColor = circleBorderColor
+			if (circle.innerText !== shortName) circle.innerText = shortName
 			let opacity = nameRec.asleep ? 0.2 : 1.0
-			if (circle.style.opacity != opacity) circle.style.opacity = opacity
+			if (circle.style.opacity !== opacity) circle.style.opacity = opacity
 		}
 
-		if (nameRec.id != clientID) {
+		if (nameRec.id !== clientID) {
 			// don't create a cursor for myself
 			let cursorDiv = elem(nameRec.id)
 			if (cursorDiv === null) {
 				cursorDiv = makeCursor(nameRec)
 			} else {
 				if (nameRec.asleep) cursorDiv.style.display = 'none'
-				if (cursorDiv.innerText != shortName) cursorDiv.innerText = shortName
-				if (cursorDiv.style.backgroundColor != nameRec.color) cursorDiv.style.backgroundColor = nameRec.color
+				if (cursorDiv.innerText !== shortName) cursorDiv.innerText = shortName
+				if (cursorDiv.style.backgroundColor !== nameRec.color) cursorDiv.style.backgroundColor = nameRec.color
 			}
 			currentCursors.push(cursorDiv)
 		}
@@ -4407,7 +4442,7 @@ function showAvatars() {
 
 	let df = document.createDocumentFragment()
 	nameRecs.forEach((nameRec) => {
-		df.appendChild(elem('ava' + nameRec.id))
+		df.appendChild(elem(`ava${nameRec.id}`))
 	})
 	avatars.replaceChildren(df)
 
@@ -4425,7 +4460,7 @@ function showAvatars() {
 		let ava = document.createElement('div')
 		ava.classList.add('hoverme')
 		if (followme === nameRec.id) ava.classList.add('followme')
-		ava.id = 'ava' + nameRec.id
+		ava.id = `ava${nameRec.id}`
 		ava.dataset.tooltip = nameRec.name
 		// the broadcast awareness sometimes loses a client (broadcasts that has been removed)
 		// when it actually hasn't (e.g. if there is a comms glitch).  So instead, we set a timer
@@ -4490,10 +4525,10 @@ function showUsersSwitch() {
 function follow(event) {
 	if (followme) unFollow()
 	let user = parseInt(event.target.dataset.client, 10)
-	if (user == clientID) return
+	if (user === clientID) return
 	followme = user
-	elem('ava' + followme).classList.add('followme')
-	let userName = elem('ava' + user).dataset.tooltip
+	elem(`ava${followme}`).classList.add('followme')
+	let userName = elem(`ava${user}`).dataset.tooltip
 	statusMsg(`Following ${userName}`, 'info')
 }
 /**
@@ -4501,7 +4536,7 @@ function follow(event) {
  */
 function unFollow() {
 	if (!followme) return
-	elem('ava' + followme).classList.remove('followme')
+	elem(`ava${followme}`).classList.remove('followme')
 	followme = undefined
 	elem('errMsg').classList.remove('fadeInAndOut')
 	clearStatusBar()
@@ -4528,13 +4563,14 @@ function followUser() {
 function showGhostFactor(userId, addingFactor) {
 	let id = `ghost-factor${userId}`
 	switch (addingFactor.state) {
-		case 'done':
+		case 'done': {
 			{
 				let ghostDiv = elem(id)
 				if (ghostDiv) ghostDiv.remove()
 			}
 			break
-		case 'adding':
+		}
+		case 'adding': {
 			{
 				if (!elem(id)) {
 					let ghostDiv = document.createElement('div')
@@ -4553,6 +4589,7 @@ function showGhostFactor(userId, addingFactor) {
 				}
 			}
 			break
+		}
 		default:
 			console.log(`Bad adding factor: ${addingFactor}`)
 	}

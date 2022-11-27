@@ -28,7 +28,7 @@ var bEdgesMap //  map of edges from the other room
 
 export function openOtherDoc(otherRoom) {
 	let bDoc = new Y.Doc()
-	bwsp = new WebsocketProvider(websocket, 'prsm' + otherRoom, bDoc)
+	bwsp = new WebsocketProvider(websocket, `prsm${otherRoom}`, bDoc)
 	bwsp.disconnectBc()
 	bNodesMap = bDoc.getMap('nodes')
 	bEdgesMap = bDoc.getMap('edges')
@@ -47,7 +47,7 @@ function mergeMaps() {
 		let ANode = data.nodes.get(BNode.id) // see whether there is a node in this map with the same id
 		if (ANode) {
 			// if there is, check whether the label is the same
-			if (ANode.label != BNode.label) {
+			if (ANode.label !== BNode.label) {
 				// if not, make a clone of the other node with a new id
 				logHistory(
 					`existing Factor label: '${ANode.label}' does not match new label: '${BNode.label}'. Factor with new label added.`,
@@ -67,7 +67,7 @@ function mergeMaps() {
 				data.nodes.add(newNode)
 				// add to lookup table of existing node id to clone node id
 				newNodes.set(BNode.id, newNode.id)
-			} else if (ANode.grp != BNode.grp)
+			} else if (ANode.grp !== BNode.grp)
 				// label is the same, but style is not - just report this
 				logHistory(
 					`existing style: '${ANode.grp}' does not match new style: '${BNode.grp}' for Factor: '${ANode.label}. Existing style retained.`,
@@ -112,19 +112,19 @@ function mergeMaps() {
 		}
 		// now deal with the other map's edges
 		let AEdge = data.edges.get(BEdge.id)
-		if (BEdge.label && BEdge.label.trim()  === '') BEdge.label = undefined
+		if (BEdge.label && BEdge.label.trim() === '') BEdge.label = undefined
 		let edgeName =
 			BEdge.label || `from [${bdata.nodes.get(BEdge.from).label}] to [${bdata.nodes.get(BEdge.to).label}]`
 		if (AEdge) {
 			if (
-				((AEdge.label && AEdge.label.trim() != '') || (BEdge.label && BEdge.label.trim() != '')) &&
-				AEdge.label != BEdge.label
+				((AEdge.label && AEdge.label.trim() !== '') || (BEdge.label && BEdge.label.trim() !== '')) &&
+				AEdge.label !== BEdge.label
 			)
 				logHistory(
 					`existing Link label: '${AEdge.label}' does not match new label: '${BEdge.label}'.  Existing label retained.`,
 					'Merge'
 				)
-			else if (AEdge.grp != BEdge.grp)
+			else if (AEdge.grp !== BEdge.grp)
 				logHistory(
 					`existing Link style: '${AEdge.grp}' does not match new style: '${BEdge.grp}' for link '${edgeName}'. Existing style retained.`,
 					'Merge'
@@ -165,7 +165,7 @@ function diffMaps() {
 		let ANode = data.nodes.get(BNode.id) // see whether there is a node in this map with the same id
 		if (ANode) {
 			// if there is, check whether the label is the same
-			if (ANode.label != BNode.label) {
+			if (ANode.label !== BNode.label) {
 				console.log(
 					`Factor label in map A: [%c${inline(ANode.label)}%c] does not match label in map B: [%c${inline(
 						BNode.label
@@ -175,7 +175,7 @@ function diffMaps() {
 					'color:green',
 					'color:black'
 				)
-			} else if (ANode.grp != BNode.grp)
+			} else if (ANode.grp !== BNode.grp)
 				// label is the same, but style is not - just report this
 				console.log(
 					`Factor style in map A : ${ANode.grp} does not match style in map B: ${
@@ -198,13 +198,13 @@ function diffMaps() {
 	// now deal with the other map's edges
 	bdata.edges.get().forEach((BEdge) => {
 		let AEdge = data.edges.get(BEdge.id)
-		if (BEdge.label && BEdge.label.trim()  === '') BEdge.label = undefined
+		if (BEdge.label && BEdge.label.trim() === '') BEdge.label = undefined
 		let edgeName =
 			BEdge.label || `from [${bdata.nodes.get(BEdge.from).label}] to [${bdata.nodes.get(BEdge.to).label}]`
 		if (AEdge) {
 			if (
-				((AEdge.label && AEdge.label.trim() != '') || (BEdge.label && BEdge.label.trim() != '')) &&
-				AEdge.label != BEdge.label
+				((AEdge.label && AEdge.label.trim() !== '') || (BEdge.label && BEdge.label.trim() !== '')) &&
+				AEdge.label !== BEdge.label
 			)
 				console.log(
 					`Link label in map A: [%c${inline(AEdge.label)}%c] does not match label:[%c${inline(
@@ -215,7 +215,7 @@ function diffMaps() {
 					'color:green',
 					'color:black'
 				)
-			else if (AEdge.grp != BEdge.grp)
+			else if (AEdge.grp !== BEdge.grp)
 				console.log(
 					`Link style: '${AEdge.grp}' in map A does not match style: '${
 						BEdge.grp
@@ -255,7 +255,7 @@ export function diffRoom(otherRoom) {
 
 /**
  * find a node with the given id and return its label
- * @param {string} id 
+ * @param {string} id
  * @returns string
  */
 export function nodeIdToLabel(id) {
@@ -266,7 +266,7 @@ export function nodeIdToLabel(id) {
 }
 /**
  * replace all white space with single space characters
- * @param {string} label 
+ * @param {string} label
  * @returns string
  */
 function inline(label) {

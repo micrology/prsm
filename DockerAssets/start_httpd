@@ -1,3 +1,7 @@
 #!/bin/bash
-HOST=localhost PORT=1234 npx y-websocket 
-/usr/sbin/httpd -D FOREGROUND
+# start the websocket server
+HOST=0.0.0.0 PORT=1234 npx y-websocket &
+#s tart the web server
+apachectl start &
+# wait until both these jobs have exited
+wait

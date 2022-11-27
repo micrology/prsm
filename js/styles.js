@@ -47,7 +47,7 @@ export function setUpSamples() {
 	let emptyDataSet = new DataSet([])
 	let sampleElements = document.getElementsByClassName('sampleNode')
 	for (let i = 0; i < sampleElements.length; i++) {
-		let groupId = 'group' + i
+		let groupId = `group${i}`
 		let sampleElement = sampleElements[i]
 		let sampleOptions = styles.nodes[groupId]
 		let groupLabel = styles.nodes[groupId].groupLabel
@@ -55,7 +55,7 @@ export function setUpSamples() {
 			deepMerge(
 				{
 					id: '1',
-					label: groupLabel == undefined ? '' : groupLabel,
+					label: groupLabel === undefined ? '' : groupLabel,
 				},
 				sampleOptions,
 				{
@@ -93,7 +93,7 @@ export function setUpSamples() {
 	sampleElements = document.getElementsByClassName('sampleLink')
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i]
-		let groupId = 'edge' + i
+		let groupId = `edge${i}`
 		let groupLabel = styles.edges[groupId].groupLabel
 		let sampleOptions = styles.edges[groupId]
 		let edgeDataSet = new DataSet([
@@ -102,7 +102,7 @@ export function setUpSamples() {
 					id: '1',
 					from: 1,
 					to: 2,
-					label: groupLabel == undefined ? '' : groupLabel,
+					label: groupLabel === undefined ? '' : groupLabel,
 				},
 				sampleOptions,
 				{
@@ -198,11 +198,12 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 		hideMenu()
 		document.removeEventListener('click', onClick)
 		switch (event.target.id) {
-			case 'styleNodeContextMenuSelect':
+			case 'styleNodeContextMenuSelect': {
 				selectFactorsWithStyle(groupId)
 				break
+			}
 			case 'styleNodeContextMenuHide': {
-				if (sampleElement.dataset.hide != 'hidden') {
+				if (sampleElement.dataset.hide !== 'hidden') {
 					hideFactorsWithStyle(groupId, true)
 					sampleElement.dataset.hide = 'hidden'
 					sampleElement.style.opacity = 0.6
@@ -219,19 +220,19 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 	}
 	function showMenu(x, y) {
 		elem('styleNodeContextMenuHide').innerText =
-			sampleElement.dataset.hide == 'hidden' ? 'Unhide Factors' : 'Hide Factors'
-		menu.style.left = x + 'px'
-		menu.style.top = y + 'px'
+			sampleElement.dataset.hide === 'hidden' ? 'Unhide Factors' : 'Hide Factors'
+		menu.style.left = `${x}px`
+		menu.style.top = `${y}px`
 		menu.classList.add('show-menu')
 	}
 	function hideMenu() {
 		menu.classList.remove('show-menu')
 	}
 	function selectFactorsWithStyle(groupId) {
-		selectFactors(data.nodes.getIds({filter: (node) => node.grp == groupId}))
+		selectFactors(data.nodes.getIds({filter: (node) => node.grp === groupId}))
 	}
 	function hideFactorsWithStyle(groupId, toggle) {
-		let nodes = data.nodes.get({filter: (node) => node.grp == groupId})
+		let nodes = data.nodes.get({filter: (node) => node.grp === groupId})
 		nodes.forEach((node) => {
 			node.hidden = toggle
 		})
@@ -264,20 +265,20 @@ function styleEdgeContextMenu(event, sampleElement, groupId) {
 		event.preventDefault()
 		hideMenu()
 		document.removeEventListener('click', onClick)
-		if (event.target.id == 'styleEdgeContextMenuSelect') {
+		if (event.target.id === 'styleEdgeContextMenuSelect') {
 			selectLinksWithStyle(groupId)
 		}
 	}
 	function showMenu(x, y) {
-		menu.style.left = x + 'px'
-		menu.style.top = y + 'px'
+		menu.style.left = `${x}px`
+		menu.style.top = `${y}px`
 		menu.classList.add('show-menu')
 	}
 	function hideMenu() {
 		menu.classList.remove('show-menu')
 	}
 	function selectLinksWithStyle(groupId) {
-		selectLinks(data.edges.getIds({filter: (edge) => edge.grp == groupId}))
+		selectLinks(data.edges.getIds({filter: (edge) => edge.grp === groupId}))
 	}
 }
 /**
@@ -413,7 +414,7 @@ function nodeEditSave() {
 	group.shape = elem('nodeEditShape').value
 	let border = elem('nodeEditBorder').value
 	group.shapeProperties.borderDashes = groupDashes(border)
-	group.borderWidth = border == 'none' ? 0 : 4
+	group.borderWidth = border === 'none' ? 0 : 4
 	group.font.size = parseInt(elem('nodeEditFontSize').value)
 	nodeEditUpdateStyleSample(group)
 }
@@ -541,7 +542,7 @@ function linkEditSave() {
 	 * @param {string} val
 	 */
 	function groupArrows(val) {
-		if (val != '') {
+		if (val !== '') {
 			group.arrows.from.enabled = false
 			group.arrows.middle.enabled = false
 			group.arrows.to.enabled = true
@@ -631,9 +632,9 @@ export function reApplySampleToLinks(groupIds, force) {
 function getDashes(bDashes, bWidth) {
 	let val = bDashes.toString()
 	if (Array.isArray(bDashes)) {
-		if (bDashes[0] == 10) val = 'dashes'
+		if (bDashes[0] === 10) val = 'dashes'
 		else val = 'dots'
-	} else if (bWidth == 0) val = 'none'
+	} else if (bWidth === 0) val = 'none'
 	return val
 }
 /**
@@ -662,7 +663,7 @@ function groupDashes(val) {
  */
 function getArrows(prop) {
 	let val = 'none'
-	if (prop.to && prop.to.enabled && prop.to.type) val = prop.to.type
+	if (prop.to?.enabled && prop.to.type) val = prop.to.type
 	return val
 }
 
@@ -680,13 +681,13 @@ export function legend(warn = false) {
 	clearLegend()
 
 	let sampleNodeDivs = document.getElementsByClassName('sampleNode')
-	let nodes = Array.from(sampleNodeDivs).filter((elem) => elem.dataSet.get('1').groupLabel != 'Sample')
+	let nodes = Array.from(sampleNodeDivs).filter((elem) => elem.dataSet.get('1').groupLabel !== 'Sample')
 	let sampleEdgeDivs = document.getElementsByClassName('sampleLink')
 	let edges = Array.from(sampleEdgeDivs).filter(
 		(elem) => !['Sample', '', ' '].includes(elem.dataSet.get('1').groupLabel)
 	)
 	let nItems = nodes.length + edges.length
-	if (nItems == 0) {
+	if (nItems === 0) {
 		if (warn) statusMsg('Nothing to include in the Legend - rename some styles first', 'warn')
 		elem('showLegendSwitch').checked = false
 		return
@@ -700,11 +701,11 @@ export function legend(warn = false) {
 	title.className = 'legendTitle'
 	title.appendChild(document.createTextNode('Legend'))
 	legendBox.appendChild(title)
-	legendBox.style.height = LEGENDSPACING * nItems + title.offsetHeight + 'px'
-	legendBox.style.width = HALFLEGENDWIDTH * 2 + 'px'
+	legendBox.style.height = `${LEGENDSPACING * nItems}${title.offsetHeight}px`
+	legendBox.style.width = `${HALFLEGENDWIDTH * 2}px`
 	let canvas = document.createElement('div')
 	canvas.className = 'legendCanvas'
-	canvas.style.height = LEGENDSPACING * nItems + 'px'
+	canvas.style.height = `${LEGENDSPACING * nItems}px`
 	legendBox.appendChild(canvas)
 
 	dragElement(legendBox, title)
