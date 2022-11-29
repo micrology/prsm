@@ -522,6 +522,36 @@ Another, more complicated example: Show only those factors in the map with a val
 3. Open the Filter (click on the Filter button at the top), and filter using ‘Betweenness’ ‘>=’ ‘70’   (or whatever threshold value you choose).
 4. Uncheck the cells in the Hidden column in each of the rows that are now visible.  This reveals the factors on the Map that have a Betweenness Centrality greater than the threshold, and the Links between them.
 
+## Running PRSM locally or on an intranet
+
+Some organisations would prefer to run PRSM entirely within their own intranet.  Sometimes it may be desirable to run PRSM just on one computer working offline.  For these cases, PRSM is also available in 'containerised' form, which makes it easy to install it on a local server on an intranet, or even on a laptop.  The following instructions assume that you have some experience with using the command line in a Terminal or Powershell.
+
+1. Check to see whether `python3` is already installed, by typing `python3 --version` at the command prompt.  If it responds with the version of the python installation, you can go on to the next step.  If you get an error message, you will need to install python, using [these instructions](https://www.python.org/downloads/){target="_blank" rel="noreferrer"}.
+1. Install `podman` using the instructions [here](https://podman.io/getting-started/installation){target="_blank" rel="noreferrer"}.
+1. Install [podman-compose](https://github.com/containers/podman-compose){target="_blank" rel="noreferrer"} using the command:  
+ `pip3 install podman-compose`
+1. Create a plain text file named `compose.yaml` and use a text editor to copy the following into the file (be sure to use a text editor, not a word processor):  
+
+        services:
+          y-websocket:
+            image: micrology/prsm-y-websocket
+            ports: 
+              - "1234:1234"
+            restart: unless-stopped
+          htppd:
+            image: micrology/prsm-httpd
+            ports:
+              - "8080:8080"
+            restart: unless-stopped
+
+1. Save the file and then run the command:  
+`podman-compose up -d`  
+in the same directory as the `compose.yaml` file
+1. In a web browser,  on the same computer, enter `http://localhost:8080` in the address bar.  You should see the PRSM welcome page (the same as at [https://prsm.uk](https://prsm.uk){target="_blank" rel="noreferrer"}).  Click on the 'Start now' button to get to a blank PRSM map.  This copy of PRSM is running entirely locally - you can disconnect the computer from the internet and it will still function. If the computer is on an intranet, it should be possible to access this local version of PRSM with a URL something like [http://168.192.0.123:8080](http://168.192.0.123:8080) or the local network name of the computer, following by 8080 as the port number.
+
+To stop the PRSM service, navigate to the directory with the `compose.yaml` file and enter the command:  
+`podman-compose down`
+
 ## Source Code
 
 *(The following is intended for developers who want to extend PRSM)*
@@ -536,15 +566,11 @@ These components are assembled using [```parcel```](https://parceljs.org/){targe
 
 To install the code, use ```git``` to clone the [repo](https://github.com/micrology/prsm){target="_blank" rel="noreferrer"} to your local disk and change to the cloned directory.  Then install the required packages with
 
-```bash
-npm install
-```
+        npm install
 
 and build the distribution with
 
-```bash
-npm run build
-```
+        npm run build
 
 Documentation can be found in the ```doc``` directory and a JSDOC index [here](./doc/jsdoc/){target="_blank" rel="noreferrer"}.
 
