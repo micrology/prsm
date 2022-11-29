@@ -1,0 +1,19 @@
+# To run a local copy of PRSM from containers
+# 1. Install podman from https://podman.io/getting-started/installation
+# 2. Install python3 (if it is not already installed) https://www.python.org/downloads/release/python-3110/
+# 3. Install podman-compose (see https://github.com/containers/podman-compose): pip3 install podman-compose
+# 4. Change directory to the the one including this file (compose.yaml)
+# 5. Run the command: podman-compose up -d
+# 6. To stop the softare, use podman-compose down
+#
+services:
+  y-websocket:
+    image: micrology/prsm-y-websocket
+    ports: 
+      - "1234:1234"
+    restart: unless-stopped
+  htppd:
+    image: micrology/prsm-httpd
+    ports:
+      - "8080:8080"
+    restart: unless-stopped

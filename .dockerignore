@@ -1,0 +1,4 @@
+# ignore everything except the listed files
+
+*
+!dist
