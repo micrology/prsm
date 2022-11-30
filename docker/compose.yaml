@@ -8,12 +8,12 @@
 #
 services:
   y-websocket:
-    image: micrology/prsm-y-websocket
+    image: docker.io/micrology/prsm-y-websocket
     ports: 
       - "1234:1234"
     restart: unless-stopped
   htppd:
-    image: micrology/prsm-httpd
+    image: docker.io/micrology/prsm-httpd
     ports:
       - "8080:8080"
     restart: unless-stopped

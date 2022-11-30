@@ -534,12 +534,12 @@ Some organisations would prefer to run PRSM entirely within their own intranet. 
 
         services:
           y-websocket:
-            image: micrology/prsm-y-websocket
+            image: docker.io/micrology/prsm-y-websocket
             ports: 
               - "1234:1234"
             restart: unless-stopped
           htppd:
-            image: micrology/prsm-httpd
+            image: docker.io/micrology/prsm-httpd
             ports:
               - "8080:8080"
             restart: unless-stopped
@@ -547,7 +547,9 @@ Some organisations would prefer to run PRSM entirely within their own intranet. 
 1. Save the file and then run the command:  
 `podman-compose up -d`  
 in the same directory as the `compose.yaml` file
-1. In a web browser,  on the same computer, enter `http://localhost:8080` in the address bar.  You should see the PRSM welcome page (the same as at [https://prsm.uk](https://prsm.uk){target="_blank" rel="noreferrer"}).  Click on the 'Start now' button to get to a blank PRSM map.  This copy of PRSM is running entirely locally - you can disconnect the computer from the internet and it will still function. If the computer is on an intranet, it should be possible to access this local version of PRSM with a URL something like [http://168.192.0.123:8080](http://168.192.0.123:8080) or the local network name of the computer, following by 8080 as the port number.
+1. In a web browser,  on the same computer, enter `http://localhost:8080` in the address bar.  You should see the PRSM welcome page (the same as at [https://prsm.uk](https://prsm.uk){target="_blank" rel="noreferrer"}).  Click on the 'Start now' button to get to a blank PRSM map.  This copy of PRSM is running entirely locally - you can disconnect the computer from the internet and it will still function.  
+
+If the computer is on an intranet, it should be possible to access this local version of PRSM with a URL something like [http://168.192.0.123:8080](http://168.192.0.123:8080) (or the local network name of the computer, followed by 8080 as the port number).  If the broswer reports that the location is not found, check for access being blocked by a firewall.  A firewall needs to pass ports 8080 and 1234.
 
 To stop the PRSM service, navigate to the directory with the `compose.yaml` file and enter the command:  
 `podman-compose down`
@@ -558,7 +560,7 @@ To stop the PRSM service, navigate to the directory with the `compose.yaml` file
 
 The program code is available on [GitHub](https://github.com/micrology/prsm){target="_blank" rel="noreferrer"}.  
 
-The javascript (ES6) code in sub-directory ```js``` is divided into several modules: those that handle the main network pane (```prsm.js```), the background painting functions (```paint.js```), editing the styles (```styles.js```) (the default styles are in ```samples.js```), the initial tour (```tutorial.js```), does tophic layout (```trophic.js```), does clustering (```cluster.js```), calulates the betweenness centrality (```betweenness.js```) and provides shared utility functions (```utils.js```).  The HTML file that displays in the browser is in the ```html``` directory.
+The javascript (ES6) code in sub-directory ```js``` is divided into several modules: those that handle the main network pane (```prsm.js```), the background painting functions (```paint.js```), editing the styles (```styles.js```) (the default styles are in ```samples.js```), the initial tour (```tutorial.js```),  trophic layout (```trophic.js```), clustering (```cluster.js```), the calculation of  betweenness centrality (```betweenness.js```), file saving and reading (```files.js```), the data view (`table.js`) and  shared utility functions (```utils.js``` and `merge.js`).  The HTML file that displays in the browser is in the ```html``` directory.
 
 PRSM uses two important packages: [```yjs```](https://github.com/yjs/yjs){target="_blank" rel="noreferrer"} and [```vis-network```](https://visjs.org/){target="_blank" rel="noreferrer"}.  The former handles the sharing between participants' browsers and the latter draws the network. A few other packages are used for dealing with touch input ([```Hammer```](https://hammerjs.github.io/){target="_blank" rel="noreferrer"}), drawing emojis, and parsing XML file input.  
 

@@ -1017,12 +1017,12 @@ a text editor to copy the following into the file (be sure to use a text
 editor, not a word processor):</p>
 <pre><code> services:
    y-websocket:
-     image: micrology/prsm-y-websocket
+     image: docker.io/micrology/prsm-y-websocket
      ports: 
        - &quot;1234:1234&quot;
      restart: unless-stopped
    htppd:
-     image: micrology/prsm-httpd
+     image: docker.io/micrology/prsm-httpd
      ports:
        - &quot;8080:8080&quot;
      restart: unless-stopped</code></pre></li>
@@ -1035,13 +1035,15 @@ the PRSM welcome page (the same as at <a href="https://prsm.uk"
 target="_blank" rel="noreferrer">https://prsm.uk</a>). Click on the
 ‘Start now’ button to get to a blank PRSM map. This copy of PRSM is
 running entirely locally - you can disconnect the computer from the
-internet and it will still function. If the computer is on an intranet,
-it should be possible to access this local version of PRSM with a URL
-something like <a
-href="http://168.192.0.123:8080">http://168.192.0.123:8080</a> or the
-local network name of the computer, following by 8080 as the port
-number.</p></li>
+internet and it will still function.</p></li>
 </ol>
+<p>If the computer is on an intranet, it should be possible to access
+this local version of PRSM with a URL something like <a
+href="http://168.192.0.123:8080">http://168.192.0.123:8080</a> (or the
+local network name of the computer, followed by 8080 as the port
+number). If the broswer reports that the location is not found, check
+for access being blocked by a firewall. A firewall needs to pass ports
+8080 and 1234.</p>
 <p>To stop the PRSM service, navigate to the directory with the
 <code>compose.yaml</code> file and enter the command:<br />
 <code>podman-compose down</code></p>
@@ -1056,11 +1058,13 @@ into several modules: those that handle the main network pane
 (<code>prsm.js</code>), the background painting functions
 (<code>paint.js</code>), editing the styles (<code>styles.js</code>)
 (the default styles are in <code>samples.js</code>), the initial tour
-(<code>tutorial.js</code>), does tophic layout
-(<code>trophic.js</code>), does clustering (<code>cluster.js</code>),
-calulates the betweenness centrality (<code>betweenness.js</code>) and
-provides shared utility functions (<code>utils.js</code>). The HTML file
-that displays in the browser is in the <code>html</code> directory.</p>
+(<code>tutorial.js</code>), trophic layout (<code>trophic.js</code>),
+clustering (<code>cluster.js</code>), the calculation of betweenness
+centrality (<code>betweenness.js</code>), file saving and reading
+(<code>files.js</code>), the data view (<code>table.js</code>) and
+shared utility functions (<code>utils.js</code> and
+<code>merge.js</code>). The HTML file that displays in the browser is in
+the <code>html</code> directory.</p>
 <p>PRSM uses two important packages: <a
 href="https://github.com/yjs/yjs" target="_blank"
 rel="noreferrer"><code>yjs</code></a> and <a href="https://visjs.org/"
