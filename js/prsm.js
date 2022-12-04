@@ -2,20 +2,27 @@
 
 PRSM Participatory System Mapper 
 
-    Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+MIT License
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+Copyright (c) [2022] Nigel Gilbert email: prsm@prsm.uk
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 
 This is the main entry point for PRSM.  
@@ -327,8 +334,8 @@ function startY(newRoom) {
 	persistence.once('synced', () => {
 		if (data.nodes.length > 0) displayNetPane(`${exactTime()} local content loaded`)
 	})
-	// if running in a Docker image (assume using  a not standard port), use localhost and port 1234
-	if (/* url.port !== 80 && */ url.port !== 443) websocket = 'ws://localhost:1234'
+	// if using a non-standard port (i.e neither 80 nor 443) assume that the websocket port is 1234 in the same domain as the url
+	if (url.port !== 80 && url.port !== 443) websocket = `ws://${url.hostname}:1234`
 	wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc, {
 		resyncInterval: 5000,
 	})

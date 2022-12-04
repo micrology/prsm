@@ -33,7 +33,8 @@
 		"dev": "rm -rf dist/* && npx parcel build './html/*.html' --no-optimize --no-scope-hoist",
 		"build": "rm -rf dist/* && npx parcel build './html/*.html'",
 		"jsdoc": "npx jsdoc -r -c .jsdoc.json",
-		"clean": "rm -rf dist/*"
+		"clean": "rm -rf dist/*",
+		"rebuild-docker": "docker buildx build -f docker/docker-y-websocket/Dockerfile --platform linux/amd64,linux/arm64 -t micrology/prsm-y-websocket --push . && docker buildx build --platform linux/amd64,linux/arm64 -t micrology/prsm-httpd --push -f docker/docker-httpd/Dockerfile ."
 	},
 	"license": "GPL-3.0-or-later",
 	"dependencies": {
