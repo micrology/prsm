@@ -4,27 +4,27 @@ sidebar_position: 6
 
 # Styling the map
 
-The view you see when you first open the app is intentionally very simple, but hidden away are many more features.  To access these, click on the last, Settings, button on the top bar: <!-- ![Settings Button](/images/SettingsButton.png) --><img src="/images/SettingsButton.png"  width="20"/>.  This will reveal a set of four tabs: Factors, Links, Network and Analysis, with the Factors tab open.
+The view you see when you first open the app is intentionally very simple, but hidden away are many more features.  To access these, click on the last, Settings, button on the top bar: <img src={require("/static/images/SettingsButton.png").default}  width="20"/>.  This will reveal a set of four tabs: Factors, Links, Network and Analysis, with the Factors tab open.
 
 The panel showing the tabs can moved across the network pane: drag it using the thin black strip at the top of the panel above the tab buttons.  This can be useful if the panel gets in the way of seeing the network.
 
 ## Factors tab
 
 <!-- ![FactorsWindow](/images/FactorsPanel.png) -->
-<img src="/images/FactorsPanel.png" width="250"/>
+<img src={require("/static/images/FactorsPanel.png").default} width="250"/>
 
 There are 9 sample styles for how factors can look.  If you select a factor from the network and then click on one of the 9 styles, the factor will change to resemble the style.  As a short cut, if you click on the 'Select all factors' button at the bottom, and then click on a style, all the factors will change to the chosen style.
 
 Double clicking on any of the 9 styles opens a dialog box to change the style:
 
 <!-- ![FactorStyleDialog](/images/FactorStyle.png) -->
-<img src="/images/FactorsStyle.png" width="600"/>
+<img src={require("/static/images/FactorsStyle.png").default} width="600"/>
 
 There are options to change the colour of the background (the 'fill'), the border and the font, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted or none, and to change the font size of the label.  Clicking on the padlock symbol will [lock](GettingStarted/#notes) all the factors with this style; clicking on it again will unlock them all.
 
 If you right click (or CTRL click) on one of the style samples, there is a menu with which you can either select all the factors that have that style, or hide all those factors from view.
 
-<img src="/images/FactorsRightClick.png" width="250"/>
+<img src={require("/static/images/FactorsRightClick.png").default} width="250"/>
 
 ### Legend
 
@@ -39,7 +39,7 @@ The legend can be moved by dragging the top of the Legend pane.
 The Links tab is very similar to the Factors tab, except that it relates to the links.  There are 9 link styles and each of these can be changed by double clicking the link style. There are options to change the colour of the link, whether it has an arrow at the end, whether it is solid, dashed or dotted, and to add a  link label.
 
 <!-- ![LinksPanel](/images/LinksPanel.png) -->
-<img src="/images/LinksPanel.png" width="250"/>
+<img src={require("/static/images/LinksPanel.png").default} width="250"/>
 
 ## Network tab
 
@@ -59,8 +59,10 @@ There is no best layout algorithm that works for all networks; you need to see w
 
 On the Network tab, there are controls for:
 
+import RollbackSVG from "/static/images/bootstrap-reboot.svg";
+
 <!-- ![NetworkPanel](/images/NetworkPanel.png) -->
-<img src="/images/NetworkPanel.png" width="250"/>
+<img src={require("/static/images/NetworkPanel.png").default} width="250"/>
 
 * **Auto Layout** Choose which layout algorithm (see [above](#layout)) to apply.  The algorithm will then adjust the positions of the factors and links and, once complete, the selection will revert to 'Off', leaving the factors where the algorithm has placed them.
 * **Snap to grid**  When ON, factors shift to be at the intersection of invisible grid lines.  This makes it much easier to line up factors neatly.
@@ -69,17 +71,17 @@ On the Network tab, there are controls for:
 * **Show legend** If the factor and link styles are given names (other than 'Sample'), the styles and their names will be shown in a panel at the left bottom of the network pane headed 'Legend', when this switch is ON.  See the description of the [Factors tab](#factors-tab).
 * **Show drawing layer** Puts the network pane into drawing mode, so that background shapes, images and text can be added.  See [Drawing Mode](Drawing/#drawing-mode) for more details.
 * **Show other users** When ON, the positions of other users' mouse pointers are shown in real time.  
-* **Show history** When ON, a panel displaying every change to a factor or link (adding a factor or link, editing it or deleting it) is shown. It is possible to 'rollback' the map to the state it was in before a change.  This can be quicker than repeatedly undoing changes with the Undo button.  To rollback, click on the <img src="/images/bootstrap-reboot.svg" /> button.  You will be asked to confirm the action.  The states of the map for the previous 10 changes are kept.
+* **Show history** When ON, a panel displaying every change to a factor or link (adding a factor or link, editing it or deleting it) is shown. It is possible to 'rollback' the map to the state it was in before a change.  This can be quicker than repeatedly undoing changes with the Undo button.  To rollback, click on the <RollbackSVG /> button.  You will be asked to confirm the action.  The states of the map for the previous 10 changes are kept.
 * **Show notes** When a factor or link is selected, normally a Notes panel pops up at the bottom right of the map.  Turning this switch OFF prevents the Notes panels from being displayed.
 * **Show reactions** When this switch is on, a thumbs up (&#128077;) and a thumbs down (&#128078;) symbol appear below each factor.  People can vote using these symbols (for example, to indicate which factors they think most important, or to 'Like' a factor), by clicking on the symbol.  A second click removes their vote.  The numbers beside the symbols indicates how many people have voted.
 
-<img src="/images/FactorReactions.png" width="250"/>
+<img src={require("/static/images/FactorReactions.png").default} width="250"/>
 
 ## Analysis tab
 
 The Analysis tab allows you to view portions of the map and to cluster factors to help with the analysis of the network (see the [Analysis](Analysing/#analysing-the-map) section for help on how this can be useful).
 
-<img src="/images/AnalysisPanel.png" width="250"/>
+<img src={require("/static/images/AnalysisPanel.png").default} width="250"/>
 
 The panel is divided into five sections:
 
@@ -93,15 +95,15 @@ The panel is divided into five sections:
 
 Here is an example.  The first is the original network.
 
-<img src="/images/ShowAll.png" width="250"/>
+<img src={require("/static/images/ShowAll.png").default} width="250"/>
 
 The second is the same network with **Show all paths** between Factors 1 and 7.
 
-<img src="/images/ShowAllPaths.png" width="250"/>
+<img src={require("/static/images/ShowAllPaths.png").default} width="250"/>
 
 The third is the same network with **Show shortest path** between Factors 1 and 7.
 
-<img src="/images/ShowShortestPath.png" width="250"/>
+<img src={require("/static/images/ShowShortestPath.png").default} width="250"/>
 
 The above three options can be combined.  For example, the shortest path between two Factors option may display two paths: one with a couple of links and another feedback path going in the reverse direction that winds around the map and includes many links.  Because it consists of many links, the latter path may not be of much interest.  Choosing both **Show Shortest path** and **Show only Factors 2 links away** will display just the direct path.
 
@@ -110,11 +112,11 @@ The above three options can be combined.  For example, the shortest path between
 
   For example, here is a simple map before clustering:
 
-  <img src="/images/BeforeClustering.png" width="600"/>
+  <img src={require("/static/images/BeforeClustering.png").default} width="600"/>
 
   and here is the same map after clustering by Style:
 
-   <img src="/images/Clustered.png" width="600"/>
+   <img src={require("/static/images/Clustered.png").default} width="600"/>
 
   Links to and from cluster factors are labelled with the number of links that they aggregate.
 

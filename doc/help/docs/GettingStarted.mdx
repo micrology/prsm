@@ -7,11 +7,15 @@ When the app is started for the first time in your browser, there is an option t
 
 ![Nav Bar icons](/images/start-screen.png)
 
+:::tip
+
 This introductory tour is only shown the very first time you use PRSM.  If you want to view the tour again, click <button onClick={()=>localStorage.setItem('doneIntro', 'false')}>here</button>.
+
+:::
 
 At the top of the screen are a row of buttons.
 <!-- ![Nav Bar icons](/images/prsm-nav-icons.png)-->
-<img src="/images/Buttons.png" width="400"/>
+<img src={require("/static/images/Buttons.png").default} width="400"/>
 
 This what they do, from left to right:
 
@@ -20,7 +24,7 @@ This what they do, from left to right:
 
 <p align="center">
 <video width="640" height="360"  muted loop autoPlay playsInline>
-    <source src="/images/create-link-nodes.mp4" type="video/mp4"></source>
+    <source src={require("/static/images/create-link-nodes.mp4").default} type="video/mp4"></source>
 </video>
 </p>
 
@@ -38,7 +42,13 @@ To **select** a factor or a link, click on it. To select more than one, click on
 
 Each factor can be moved across the network pane by dragging it.  The whole network can be moved by dragging the background.
 
-Also at the bottom of the window on the right is a slider that will adjust the **magnification**: slide to the right to make the factors and links larger and to the left to make them smaller (or click on the + and - signs).  To return the network to a size that will fit neatly in the window, double click on the black bar at the top, or anywhere on the network background (the latter will also deselect any selected factors or links).  On a tablet, trackpad or phone, you can zoom by using the 'pinch' gesture.
+Also at the bottom of the window on the right is a slider that will adjust the **magnification**: slide to the right to make the factors and links larger and to the left to make them smaller (or click on the + and - signs).    On a tablet, trackpad or phone, you can zoom by using the 'pinch' gesture.
+
+:::tip
+
+To return the network to a size that will fit neatly in the window, double click on the black bar at the top, or anywhere on the network background (the latter will also deselect any selected factors or links).
+
+:::
 
 At the top left, you can enter a **title** for the  map.  Click on 'Untitled map' and type in your title. If you have created or used several maps (and they have titles), a small downward triangle will appear to the right of the title.  Clicking on this shows a list of those previous maps, and clicking on one of those takes you away from the current map and loads the previous one (after you have confirmed that this is what you want to do).
 
@@ -50,11 +60,17 @@ If you select just one factor or one link, a small panel appears.  This shows th
 
 If a factor or link has a note, a small 'card' icon is shown next to it.
 
-<img src="/images/FactorWithNote.png" width="500"/>
+<img src={require("/static/images/FactorWithNote.png").default} width="500"/>
 
 A basic editor is provided for writing the Notes.  You can format the text with **bold**, *italic* or <u>underline</u>, create bulletted or numbered lists, and add weblinks (URLs) to the text.
 
-For factors, there is also an open or closed padlock symbol. If this is shown closed, the factor will be locked into place on the network pane and cannot be dragged elsewhere.  The factor will have a small padlock symbol at the top left.  Locking a factor is useful when you are doing analysis of the map (see the [Analysis](Styling/#analysing-the-map) section below) and don't want to lose the selection while investigating other factors.
+For factors, there is also an open or closed padlock symbol. If this is shown closed, the factor will be locked into place on the network pane and cannot be dragged elsewhere.  The factor will have a small padlock symbol at the top left.  
+
+:::tip
+
+Locking a factor is useful when you are doing analysis of the map (see the [Analysis](Styling/#analysing-the-map) section below) and don't want to lose the selection while investigating other factors.
+
+:::
 
 ## Sharing
 
@@ -64,7 +80,7 @@ If you use [https://prsm.uk/prsm.html](https://prsm.uk/prsm.html) to start the a
 
 Click the 'Copy to clipboard' button to copy the web link to the clipboard, and then paste the link into an email or a text message or just tell other participants the name of the room (which is a randomly generated set of 4 groups of three letters separated by hyphens).  When they access the link, they will see whatever is in your app window.
 
-There are also three buttons on the right.  If you click  the 'Clone map' button, a browser tab will open with the same map but in a new room - any changes made to this new map will *not* appear in the original room.  You can then send the web address to others, confident that they will not disturb the original map.  If you click the 'View only' button, a copy of the map will be made in a new browser tab, but without any of the buttons that would allow one to modify the map. You can use the web link of this map to distribute the map to people whom you want to look at the map, but not change it.  If you click the 'Data view' button, the web link will be a spreadsheet-like view of the factors and links in the map (see the [section on the Data view](DataView/#data-view)).
+There are also three buttons on the right.  If you click  the **Clone map** button, a browser tab will open with the same map but in a new room - any changes made to this new map will *not* appear in the original room.  You can then send the web address to others, confident that they will not disturb the original map.  If you click the **Read only** button, a copy of the map will be made in a new browser tab, but without any of the buttons that would allow one to modify the map. You can use the web link of this map to distribute the map to people whom you want to look at the map, but not change it.  If you click the **Data view** button, the web link will be a spreadsheet-like view of the factors and links in the map (see the [section on the Data view](DataView/#data-view)).
 
 ## Avatars and pointers
 
@@ -73,7 +89,7 @@ When there are others in the room, the initial letters of their names appear in 
 The other users' mouse pointers are shown on the map.  As you move your mouse pointer (or finger on a touchscreen), a small disc containing your initials moves on every other users' map correspondingly.  If you are talking with other users by audio or video link, you can use your mouse to point to things of interest, and the other users can see what you are pointing at.
 
 <!-- ![Avatars](/images/avatars.png) -->
-<img src="/images/avatars.png" width="400"/>
+<img src={require("/static/images/avatars.png").default} width="400"/>
 
 You can 'follow' the mouse movements of another user by clicking on their avatar.  When you do that, if that user moves to another part of the map, your map moves too, following that user's mouse pointer.  This can be very helpful if the other user is showing you something on the map.  To stop following, just click anywhere on the map.
 
@@ -95,7 +111,13 @@ You can use the following mouse actions (or finger or pencil gestures on a table
 
 ## Copy and paste
 
-You can copy selected factors to the clipboard and then paste them into either the same map (to duplicate them) or into another map in another browser window or tab. (Copy and paste is not available with the Firefox browser.)
+You can copy selected factors to the clipboard and then paste them into either the same map (to duplicate them) or into another map in another browser window or tab. 
+
+:::caution
+
+Copy and paste is not available with the Firefox browser.
+
+:::
 
 To copy, first select the factors that you want copied (a long press on the factors).  Then hold down the Command &#8984; or
 CTRL &#8963; key and type C.  If you copy more than one factor, all the links that go between the selected factors get copied too.
@@ -107,7 +129,7 @@ If you want to copy these factors and links into a new map, open a new tab in yo
 Double clicking on a factor or a link will bring up a small dialog that enables you to change the design of the factor or link - its colour, shape or the label.
 
 <!-- ![Editing a node](/images/Editingnode.png) -->
-<img src="/images/Editingnode.png" width="400"/>
+<img src={require("/static/images/Editingnode.png").default} width="400"/>
 
 See [Styling the map](Styling/#styling-the-map) for more on changing the look of factors and links.
 
@@ -116,9 +138,15 @@ See [Styling the map](Styling/#styling-the-map) for more on changing the look of
 Clicking on the speech balloon at the bottom right opens up a chat window that you can use to type messages to other participants in your room.
 
 <!-- ![Chat window](/images/ChatWindow.png) -->
-<img src="/images/ChatWindow.png" width="300"/>
+<img src={require("/static/images/ChatWindow.png").default} width="300"/>
 
-If you haven't provided your real name, the  name at the top is initially randomly generated, but if you click on it, you can substitute your own.  You can write messages in the box at the bottom and send them by clicking the arrow button.  Use the **X** to close the chat window.
+:::tip
+
+If you didn't provide your real name when you first started using PRSM, the  name at the top is randomly generated, but if you click on the name field, you can type in your own.  
+
+:::
+
+You can write messages in the box at the bottom and send them by clicking the arrow button.  Use the **X** to close the chat window.
 
 You can choose to send your messages either to everyone or to one selected person (from among those online).
 
@@ -126,6 +154,8 @@ If someone has sent you a message but your chat window is closed, the button wil
 
 ![Chat Window Button](/images/ChatWindowButton.gif)
 
-## Privacy and security
+:::info Privacy and security
 
 The only way to join the room and see the network is by using the randomly generated room name, and the chances of finding that name by trial and error is very, very small.  The network data are stored on a central server in encoded form.  The server is located in Europe.
+
+:::

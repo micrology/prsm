@@ -29,7 +29,7 @@ All other columns are considered to be values of Attributes assigned to Links an
 
 A **CSV** file must contain at least two columns of values.  Each row represents a link. In the first column is the label of the factor from which the link points, and in the second column is the label of the factor the link is pointing to.  This very simple format is designed to allow straightforward imports from other software. Optionally, the third and fourth columns may contain an integer between 1 and 9 - if they do, the factor is styled with that style (styles are numbered from top left to bottom right as shown on the [Factors tab](Styling/#factors-tab)).  The fifth column may contain the style number for the link. *Note: the CSV format is now deprciated, becuase the Excel format is easier to use and Excel can read and write CSV files.  The CSV format may be removed in a future version.*
 
-To read in files any of these format, use the **Open** button <img src="/images/Open.png" width="20" /> in the top bar.  PRSM will work out from the file contents which type of file it is reading.
+To read in files any of these format, use the **Open** button <img src={require("/static/images/Open.png").default} width="20" /> in the top bar.  PRSM will work out from the file contents which type of file it is reading.
 
 ## Saving and Exporting maps
 
@@ -42,5 +42,5 @@ You can also save a high resolution (600 dpi) image of the map as a **Portable N
 To save the output files, click on the small downward pointing triangle beside the Save button in the top bar and choose which format you want.
 
 <p align="center">
-<img src="/images/Save.png" width="70"/>
+<img src={require("/static/images/Save.png").default} width="70"/>
 </p>

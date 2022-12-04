@@ -8,15 +8,15 @@ As well as the Map View, PRSM also provides an alternative Data View.  This show
 
 To see a Data View, open a PRSM map, click on the Share button at the top, and click on the Data View button. This will open a new tab in your browser showing the Data View.  
 
-<img src="/images/DataView.png"/>
+![Data View](/images/DataView.png)
 
 ## The Data View table
 
 The main part of the Data View when opened shows a table with one row for each of the factors in the map.  On the left are the factors' labels.  To the right, there is  a group of columns that show the format of the factors, a group of columns with various statistics about the factors and column showing the Notes attached to the factors. At the bottom of the table are summaries (counts of how many factors there are, the average betweenness centrality, and so on).  If there are too many factors to fit in the window, you can scroll the table to the top or bottom.
 
-Only the first column of the Format and Statistics column groups are shown when the Data View is first opened.  To reveal the other columns in each group, click on the <img src="/images/ExpandSymbol.png"  width="20"/> to the right of the group heading.  Similarly, the Notes column can be expanded to show more of the Notes.
+Only the first column of the Format and Statistics column groups are shown when the Data View is first opened.  To reveal the other columns in each group, click on the <img src={require("/static/images/ExpandSymbol.png").default}  width="20"/> to the right of the group heading.  Similarly, the Notes column can be expanded to show more of the Notes.
 
-<img src="/images/ExpandedDataView.png"/>
+![Expanded Data View](/images/ExpandedDataView.png)
 
 Use the small triangles in the column headings to sort the table according to the values in that column - one click for ascending  and two for descending.
 
