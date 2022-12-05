@@ -29,3 +29,7 @@ RewriteCond %{REQUEST_URI} !/acme-challenge/ [NC]
 RewriteCond %{REQUEST_URI} !/doc/ [NC]
 RewriteCond %{REQUEST_URI} !/vr/ [NC]
 RewriteRule 	"^(.*)$"	"dist/$1" [PT]
+
+# redirect Docusaurus help pages to the build directory
+RewriteCond %{REQUEST_URI} !/build/ [NC]
+RewriteRule	(doc/help)(.*)	$1/build$2 
