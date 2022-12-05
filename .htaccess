@@ -32,4 +32,4 @@ RewriteRule 	"^(.*)$"	"dist/$1" [PT]
 
 # redirect Docusaurus help pages to the build directory
 RewriteCond %{REQUEST_URI} !/build/ [NC]
-RewriteRule	(doc/help)(.*)	$1/build$2 
+RewriteRule	(doc/help)(.*)	$1/build$2

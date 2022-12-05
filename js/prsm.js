@@ -1,4 +1,4 @@
-/*********************************************************************************************************************  
+/********************************************************************************************* 
 
 PRSM Participatory System Mapper 
 
@@ -26,7 +26,7 @@ SOFTWARE.
 
 
 This is the main entry point for PRSM.  
- ******************************************************************************************************************** */
+********************************************************************************************/
 
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
@@ -2787,7 +2787,7 @@ function hideSearchBar() {
  * display help page in a separate window
  */
 function displayHelp() {
-	window.open('./help.html#contents', 'helpWindow')
+	window.open('./doc/help', 'helpWindow')
 }
 
 /**

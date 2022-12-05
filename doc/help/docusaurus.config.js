@@ -66,7 +66,7 @@ const config = {
             type: 'doc',
             docId: 'Introduction',
             position: 'left',
-            label: 'Help',
+            label: 'User Manual',
           },
         ],
       },
