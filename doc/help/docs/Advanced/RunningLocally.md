@@ -1,5 +1,5 @@
 ---
-sidebar_position: 8
+sidebar_position: 10
 ---
 # Running PRSM locally or on an intranet
 
@@ -28,7 +28,11 @@ Some organisations would prefer to run PRSM entirely within their own intranet. 
 in the same directory as the `compose.yaml` file
 1. In a web browser,  on the same computer, enter `http://localhost:8080` in the address bar.  You should see the PRSM welcome page (the same as at [https://prsm.uk](https://prsm.uk)).  Click on the 'Start now' button to get to a blank PRSM map.  This copy of PRSM is running entirely locally: you can disconnect the computer from the internet and it will still function.  
 
-If the computer is on an intranet, it should be possible to access this local version of PRSM with a URL something like [http://168.192.0.123:8080](http://168.192.0.123:8080), where the IP address is the local *intranet* address of the server (or if it has one, you can use the local network name of the computer, followed by :8080 as the port number).  If the browser reports that the location is not found, check for access being blocked by a firewall.  A firewall needs to pass ports 8080 *and* 1234.
+If the computer is on an intranet, it should be possible to access this local version of PRSM with a URL something like [http://168.192.0.123:8080](http://168.192.0.123:8080), where the IP address is the local *intranet* address of the server (or if it has one, you can use the local network name of the computer, followed by :8080 as the port number).  
+
+:::tip
+
+If the browser reports that the location is not found, check for access being blocked by a firewall.  A firewall needs to pass ports 8080 *and* 1234.  These port numbers can be changed to any free numbers above 1000 by stopping the service (see below) and editing the `compose.yaml` file to `xxxx:1234`and `yyyy:8080`, substituting the new numbers for `xxxx` and `yyyy`.
 
 To stop the PRSM service, navigate to the directory with the `compose.yaml` file and enter the command:  
 `podman-compose down`

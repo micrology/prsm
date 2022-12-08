@@ -12,7 +12,12 @@
 
 FROM node:17-slim
 RUN npm install -g http-server
-COPY ["dist/*", "/public/"]
+# copy PRSM run files
+COPY ["dist/*", "/public/prsm/"]
+# copy user manual files
+COPY ["doc/help/build/", "/public/prsm/doc/help/"]
+# redirect localhost to localhost/prsm
+RUN echo '<META HTTP-EQUIV="Refresh" CONTENT="0; URL='\'''./prsm/index.html''\''">' > /public/index.html
 ENV HOST=0.0.0.0
 CMD ["http-server"]
 EXPOSE 8080

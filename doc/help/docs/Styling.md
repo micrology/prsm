@@ -45,26 +45,14 @@ The Links tab is very similar to the Factors tab, except that it relates to the 
 
 The Network tab enables you to change many aspects of the network visualisation and what is shown in the window.  
 
-### Layout
-
-It is sometimes useful to get PSRM to arrange factors using an automatic procedure and then adjust their positions manually to achieve the desired placement.  PRSM provides several layout algorithms:
-
-* The *trophic* algorithm helps to reveal [the causal structure of the map](https://royalsocietypublishing.org/doi/10.1098/rsos.201138). With the trophic layout, the factors are arranged along the horizontal axis according to their positions (their trophic levels) in the overall causal flow within the system, making it easier to identify upstream and downstream factors; the linked chains of influence that connect them; and where factors act on the system within this overall causal structure (which may be upstream or downstream). It will re-arrange the factors and links to create a layout such that all the links point from left to right and are arranged according to [trophic level](https://en.wikipedia.org/wiki/Trophic_level).
-* *Fan* Arranges the factors in a fan shape starting from a selected factor.  You need to select at least one factor before using this layout option.  It is most useful after displaying the factors up or downstream from a selected factor (see [Analysis](#analysis-tab) below for an explanation of Up and Down stream).
-* *Barnes Hut* This is a 'gravity' algorithm.  Each factor is modelled as though it has a mass that repulses all other factors with a force depending on the inverse square distance away, while the links are modelled as springs that pull the factors together. The algorithm is iterative, i.e. it tries repeatedly to find the best arrangement of factors that balance the repulsive forces between the factors and the attractive forces from the springs.
-* *Force Atlas 2* This is a variation of the Barnes Hut algorithm in which the repulsion between the factors is linear rather than quadratic.
-* *Repulsion*  Another variation of Barnes Hut.
-
-There is no best layout algorithm that works for all networks; you need to see which one looks good for your map. If you don't like the effect of an algorithm, you can choose another one, or use the Undo button on the top bar to revert the map to its original layout.
-
-On the Network tab, there are controls for:
-
 import RollbackSVG from "/static/images/bootstrap-reboot.svg";
 
 <!-- ![NetworkPanel](/images/NetworkPanel.png) -->
 <img src={require("/static/images/NetworkPanel.png").default} width="250"/>
 
-* **Auto Layout** Choose which layout algorithm (see [above](#layout)) to apply.  The algorithm will then adjust the positions of the factors and links and, once complete, the selection will revert to 'Off', leaving the factors where the algorithm has placed them.
+On the Network tab, there are controls for:
+
+* **Auto Layout** Choose which layout algorithm (see [below](#layout)) to apply.  The algorithm will then adjust the positions of the factors and links and, once complete, the selection will revert to 'Off', leaving the factors where the algorithm has placed them.
 * **Snap to grid**  When ON, factors shift to be at the intersection of invisible grid lines.  This makes it much easier to line up factors neatly.
 * **Link** Links can either be drawn using a curved line or a straight line.  This control swaps between the two.
 * **Background** This changes the colour of the background of the network pane.  Click on the colour well to display possible colours.  The default is white, but a black background can also be effective.
@@ -76,6 +64,18 @@ import RollbackSVG from "/static/images/bootstrap-reboot.svg";
 * **Show reactions** When this switch is on, a thumbs up (&#128077;) and a thumbs down (&#128078;) symbol appear below each factor.  People can vote using these symbols (for example, to indicate which factors they think most important, or to 'Like' a factor), by clicking on the symbol.  A second click removes their vote.  The numbers beside the symbols indicates how many people have voted.
 
 <img src={require("/static/images/FactorReactions.png").default} width="250"/>
+
+### Layout
+
+It is sometimes useful to get PSRM to arrange factors using an automatic procedure and then adjust their positions manually to achieve the desired placement.  PRSM provides several layout algorithms:
+
+* The *trophic* algorithm helps to reveal [the causal structure of the map](https://royalsocietypublishing.org/doi/10.1098/rsos.201138). With the trophic layout, the factors are arranged along the horizontal axis according to their positions (their trophic levels) in the overall causal flow within the system, making it easier to identify upstream and downstream factors; the linked chains of influence that connect them; and where factors act on the system within this overall causal structure (which may be upstream or downstream). It will re-arrange the factors and links to create a layout such that all the links point from left to right and are arranged according to [trophic level](https://en.wikipedia.org/wiki/Trophic_level).
+* *Fan* Arranges the factors in a fan shape starting from a selected factor.  You need to select at least one factor before using this layout option.  It is most useful after displaying the factors up or downstream from a selected factor (see [Analysis](#analysis-tab) below for an explanation of Up and Down stream).
+* *Barnes Hut* This is a 'gravity' algorithm.  Each factor is modelled as though it has a mass that repulses all other factors with a force depending on the inverse square distance away, while the links are modelled as springs that pull the factors together. The algorithm is iterative, i.e. it tries repeatedly to find the best arrangement of factors that balance the repulsive forces between the factors and the attractive forces from the springs.
+* *Force Atlas 2* This is a variation of the Barnes Hut algorithm in which the repulsion between the factors is linear rather than quadratic.
+* *Repulsion*  Another variation of Barnes Hut.
+
+There is no best layout algorithm that works for all networks; you need to see which one looks good for your map. If you don't like the effect of an algorithm, you can choose another one, or use the Undo button on the top bar to revert the map to its original layout.
 
 ## Analysis tab
 
