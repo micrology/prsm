@@ -1130,8 +1130,14 @@ function draw() {
 		if (getRadioVal('stream') !== 'All') analyse()
 		if (getRadioVal('paths') !== 'All') analyse()
 	})
-	network.on('deselectNode', function () {
-		if (/gui/.test(debug)) console.log('deselectNode')
+	network.on('deselectNode', function (obj) {
+		if (/gui/.test(debug)) console.log('deselectNode', obj)
+		// if some other node(s) are already selected, and the user has 
+		// clicked on one of the selected nodes, do nothing
+		if (obj.nodes.length > 0) {
+			network.selectNodes(obj.previousSelection.nodes.map(node => node.id))
+			return
+		}
 		showSelected()
 		showNodeOrEdgeData()
 		toggleDeleteButton()
