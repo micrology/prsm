@@ -335,7 +335,7 @@ function startY(newRoom) {
 		if (data.nodes.length > 0) displayNetPane(`${exactTime()} local content loaded`)
 	})
 	// if using a non-standard port (i.e neither 80 nor 443) assume that the websocket port is 1234 in the same domain as the url
-	if (url.port !== 80 && url.port !== 443) websocket = `ws://${url.hostname}:1234`
+	if (url.port && url.port !== 80 && url.port !== 443) websocket = `ws://${url.hostname}:1234`
 	wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc, {
 		resyncInterval: 5000,
 	})
