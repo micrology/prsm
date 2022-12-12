@@ -45,6 +45,12 @@ function mergeMaps() {
 	bdata.nodes.get().forEach((BNode) => {
 		// for each node in the other map
 		let ANode = data.nodes.get(BNode.id) // see whether there is a node in this map with the same id
+		// if not, see whether there is a node in this map with the same label, and treat this node as the same as the node in the other map
+		if (!ANode) {
+			let sameLabelNodes = data.nodes.get().filter((an) => an.label === BNode.label)
+			if (sameLabelNodes.length> 1) console.log(`%cMatching factors by label ('${BNode.label}'), but there are two or more factors with this label in this map`, 'color: red')
+			ANode = sameLabelNodes[0]
+		}
 		if (ANode) {
 			// if there is, check whether the label is the same
 			if (ANode.label != BNode.label) {
@@ -112,7 +118,7 @@ function mergeMaps() {
 		}
 		// now deal with the other map's edges
 		let AEdge = data.edges.get(BEdge.id)
-		if (BEdge.label && BEdge.label.trim()  === '') BEdge.label = undefined
+		if (BEdge.label && BEdge.label.trim() === '') BEdge.label = undefined
 		let edgeName =
 			BEdge.label || `from [${bdata.nodes.get(BEdge.from).label}] to [${bdata.nodes.get(BEdge.to).label}]`
 		if (AEdge) {
@@ -198,7 +204,7 @@ function diffMaps() {
 	// now deal with the other map's edges
 	bdata.edges.get().forEach((BEdge) => {
 		let AEdge = data.edges.get(BEdge.id)
-		if (BEdge.label && BEdge.label.trim()  === '') BEdge.label = undefined
+		if (BEdge.label && BEdge.label.trim() === '') BEdge.label = undefined
 		let edgeName =
 			BEdge.label || `from [${bdata.nodes.get(BEdge.from).label}] to [${bdata.nodes.get(BEdge.to).label}]`
 		if (AEdge) {
@@ -255,7 +261,7 @@ export function diffRoom(otherRoom) {
 
 /**
  * find a node with the given id and return its label
- * @param {string} id 
+ * @param {string} id
  * @returns string
  */
 export function nodeIdToLabel(id) {
@@ -266,7 +272,7 @@ export function nodeIdToLabel(id) {
 }
 /**
  * replace all white space with single space characters
- * @param {string} label 
+ * @param {string} label
  * @returns string
  */
 function inline(label) {
