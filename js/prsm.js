@@ -3570,33 +3570,19 @@ function analyse() {
 		})
 	// if showing everything, we are done
 	if (getRadioVal('radius') === 'All' && getRadioVal('stream') === 'All' && getRadioVal('paths') === 'All') {
-		setYMapAnalysisButtons()
-		data.nodes.update(nodes)
-		data.edges.update(edges)
-		showSelected()
+		resetAll()
 		return
 	}
-
 	// check that at least one factor is selected
 	if (selectedNodes.length === 0 && getRadioVal('paths') === 'All') {
 		statusMsg('A Factor needs to be selected', 'error')
-		setRadioVal('radius', 'All')
-		setRadioVal('stream', 'All')
-		setRadioVal('paths', 'All')
-		setYMapAnalysisButtons()
-		data.nodes.update(nodes)
-		data.edges.update(edges)
+		resetAll()
 		return
 	}
 	// but paths between factors needs at least two
 	if (getRadioVal('paths') !== 'All' && selectedNodes.length < 2) {
-		statusMsg('Select at least 2 factors to show paths between them', 'error')
-		setRadioVal('radius', 'All')
-		setRadioVal('stream', 'All')
-		setRadioVal('paths', 'All')
-		setYMapAnalysisButtons()
-		data.nodes.update(nodes)
-		data.edges.update(edges)
+		statusMsg('Select at least 2 factors to show paths between them', 'warn')
+		resetAll()
 		return
 	}
 
@@ -3634,7 +3620,17 @@ function analyse() {
 				true
 			)}${pathsMsg}`
 		)
-
+	/**
+	 * return all to neutral analysis state
+	 */
+	function resetAll() {
+		setRadioVal('radius', 'All')
+		setRadioVal('stream', 'All')
+		setRadioVal('paths', 'All')
+		setYMapAnalysisButtons()
+		data.nodes.update(nodes)
+		data.edges.update(edges)
+	}
 	/**
 	 * Hide factors that are more than radius links distant from those selected
 	 * @param {string[]} selectedNodes
