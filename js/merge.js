@@ -48,12 +48,13 @@ function mergeMaps() {
 		let substitutes = new Map() // when two nodes have different ids, but identical labels,
 		// use this as a conversion look up table from one id to the other
 		let newNodes = new Map()
-		bdata.nodes.get().forEach((BNode) => {
-			// for each node in the other map
+		for (let BNode of bdata.nodes.get()) {
+			if (BNode.isCluster) continue
+				// for each node in the other map
 			let ANode = data.nodes.get(BNode.id) // see whether there is a node in this map with the same id
 			// if not, see whether there is a node in this map with the same label, and treat this node as the same as the node in the other map
 			if (!ANode) {
-				let sameLabelNodes = data.nodes.get().filter((an) => an.label === BNode.label)
+				let sameLabelNodes = data.nodes.get().filter((an) => an.label.replace(/\s/g, "") === BNode.label.replace(/\s/g, ""))
 				if (sameLabelNodes.length > 1)
 					console.log(
 						`%cMatching factors by label ('${BNode.label}'), but there are two or more factors with this label in this map`,
@@ -68,7 +69,7 @@ function mergeMaps() {
 			}
 			if (ANode) {
 				// if there is, check whether the label is the same
-				if (ANode.label != BNode.label) {
+				if (ANode.label.replace(/\s/g, "") !== BNode.label.replace(/\s/g, "")) {
 					// if not, make a clone of the other node with a new id
 					logMerge(
 						`existing Factor label: '${ANode.label}' does not match new label: '${BNode.label}'. Factor with new label added.`
@@ -87,7 +88,7 @@ function mergeMaps() {
 					nodesToAdd.push(newNode)
 					// add to lookup table of existing node id to clone node id
 					newNodes.set(BNode.id, newNode.id)
-				} else if (ANode.grp != BNode.grp)
+				} else if (ANode.grp !== BNode.grp)
 					// label is the same, but style is not - just report this
 					logMerge(
 						`existing style: '${ANode.grp}' does not match new style: '${BNode.grp}' for Factor: '${ANode.label}. Existing style retained.`
@@ -97,7 +98,7 @@ function mergeMaps() {
 				nodesToAdd.push(BNode)
 				logMerge(`added new Factor: '${BNode.label}'`)
 			}
-		})
+		}
 
 		bdata.edges.get().forEach((BEdge) => {
 			// Some edges on the other map may have been going to/from nodes that have been cloned and given a new id.
@@ -146,13 +147,13 @@ function mergeMaps() {
 				BEdge.label || `from [${bdata.nodes.get(BEdge.from).label}] to [${bdata.nodes.get(BEdge.to).label}]`
 			if (AEdge) {
 				if (
-					((AEdge.label && AEdge.label.trim() != '') || (BEdge.label && BEdge.label.trim() != '')) &&
-					AEdge.label != BEdge.label
+					((AEdge.label && AEdge.label.trim() !== '') || (BEdge.label && BEdge.label.trim() !== '')) &&
+					AEdge.label !== BEdge.label
 				)
 					logMerge(
 						`existing Link label: '${AEdge.label}' does not match new label: '${BEdge.label}'.  Existing label retained.`
 					)
-				else if (AEdge.grp != BEdge.grp)
+				else if (AEdge.grp !== BEdge.grp)
 					logMerge(
 						`existing Link style: '${AEdge.grp}' does not match new style: '${BEdge.grp}' for link '${edgeName}'. Existing style retained.`
 					)
@@ -178,7 +179,7 @@ function mergeMaps() {
 			}
 			if (!BEdge) {
 				let edgeName =
-					(AEdge.label && AEdge.label.trim() != '') ||
+					(AEdge.label && AEdge.label.trim() !== '') ||
 					`from [${data.nodes.get(AEdge.from).label}] to [${data.nodes.get(AEdge.to).label}]`
 				logMerge(`existing link: ${edgeName}' is not in the other map.  Existing link retained.`)
 			}
@@ -187,6 +188,7 @@ function mergeMaps() {
 		data.edges.update(edgesToAdd)
 	})
 	logHistory(history, 'Merge')
+	
 	function logMerge(action) {
 		history += '<br />' + action
 	}
@@ -210,11 +212,12 @@ export function mergeRoom(otherRoom) {
  * Print to console the differences between the given map and the current map
  */
 function diffMaps() {
-	bdata.nodes.get().forEach((BNode) => {
+	for (let BNode of bdata.nodes.get()) {
+		if (BNode.isCluster) continue
 		// for each node in the other map
 		let ANode = data.nodes.get(BNode.id) // see whether there is a node in this map with the same id
 		if (!ANode) {
-			let sameLabelNodes = data.nodes.get().filter((an) => an.label === BNode.label)
+			let sameLabelNodes = data.nodes.get().filter((an) => an.label.replace(/\s/g, "") === BNode.label.replace(/\s/g, ""))
 			if (sameLabelNodes.length > 1)
 				console.log(
 					`%cMatching factors by label [%c${inline(
@@ -239,7 +242,7 @@ function diffMaps() {
 		}
 		if (ANode) {
 			// if there is, check whether the label is the same
-			if (ANode.label != BNode.label) {
+			if (ANode.label.replace(/\s/g, "") !== BNode.label.replace(/\s/g, "")) {
 				console.log(
 					`Factor label in map A: [%c${inline(ANode.label)}%c] does not match label in map B: [%c${inline(
 						BNode.label
@@ -249,7 +252,7 @@ function diffMaps() {
 					'color:green',
 					'color:black'
 				)
-			} else if (ANode.grp != BNode.grp)
+			} else if (ANode.grp !== BNode.grp)
 				// label is the same, but style is not - just report this
 				console.log(
 					`Factor style in map A : ${ANode.grp} does not match style in map B: ${
@@ -262,12 +265,13 @@ function diffMaps() {
 			// the node is on the other map, but not on this one - add it.
 			console.log(`Factor: [%c${inline(BNode.label)}%c] in map B is not in map A`, 'color:green', 'color:black')
 		}
-	})
+	}
 	// now check that all nodes in the existing map are also in the other map
-	data.nodes.forEach((ANode) => {
+	for (let ANode of data.nodes.get()) {
+		if (ANode.isCluster) continue
 		if (!bdata.nodes.get(ANode.id))
 			console.log(`Factor: [%c${inline(ANode.label)}%c] in map A is not in map B`, 'color:green', 'color:black')
-	})
+	}
 
 	// now deal with the other map's edges
 	bdata.edges.get().forEach((BEdge) => {
@@ -276,8 +280,8 @@ function diffMaps() {
 		let edgeName = BEdge.label || `[${bdata.nodes.get(BEdge.from).label}] --> [${bdata.nodes.get(BEdge.to).label}]`
 		if (AEdge) {
 			if (
-				((AEdge.label && AEdge.label.trim() != '') || (BEdge.label && BEdge.label.trim() != '')) &&
-				AEdge.label != BEdge.label
+				((AEdge.label && AEdge.label.trim() !== '') || (BEdge.label && BEdge.label.trim() !== '')) &&
+				AEdge.label !== BEdge.label
 			)
 				console.log(
 					`Link label in map A: [%c${inline(AEdge.label)}%c] does not match label:[%c${inline(
@@ -288,7 +292,7 @@ function diffMaps() {
 					'color:green',
 					'color:black'
 				)
-			else if (AEdge.grp != BEdge.grp)
+			else if (AEdge.grp !== BEdge.grp)
 				console.log(
 					`Link style: '${AEdge.grp}' in map A does not match style: '${
 						BEdge.grp
@@ -308,7 +312,7 @@ function diffMaps() {
 	data.edges.forEach((AEdge) => {
 		if (!bdata.edges.get(AEdge.id)) {
 			let edgeName =
-				(AEdge.label && AEdge.label.trim() != '') ||
+				(AEdge.label && AEdge.label.trim() !== '') ||
 				`[${data.nodes.get(AEdge.from).label}] --> [${data.nodes.get(AEdge.to).label}]`
 			console.log(`Link %c${inline(edgeName)}%c in map A is not in map B`, 'color:green', 'color:black')
 		}
