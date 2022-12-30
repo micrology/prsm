@@ -1426,6 +1426,16 @@ emoji-picker {
 	z-index: 1001;
 	display: none;
 }
+.toolbox-header{
+	height: 15px;
+	width: 40px;
+	border: 1px solid black;
+	border-radius: 3px;
+	margin: 8px;
+}
+.toolbox-divider{
+	height: 2px;
+}
 .tool {
 	position: relative;
 	width: 40px;
@@ -1444,6 +1454,9 @@ emoji-picker {
 .tool:active,
 .selected {
 	background-color: darkgray;
+}
+.disabled {
+	color: var(--header-disabled-color);
 }
 .tool .tooltiptext {
 	visibility: hidden;
@@ -1502,14 +1515,18 @@ emoji-picker {
 .options .right {
 	text-align: right;
 }
-div.resize {
-	cursor: nwse-resize;
-	position: absolute;
-	background-color: black;
-	width: 10px;
-	height: 10px;
-	bottom: 0px;
-	right: 0px;
+.options .input-color-container {
+	position: relative;
+	overflow: hidden;
+	width: 30px;
+	height: 30px;
+	border: solid 2px lightgrey;
+	border-radius: 30px;
+	margin: auto;
+	padding: 0;
+}
+.options .input-color-container .color-well {
+	padding: 0;
 }
 /* avatars */
 .avatars {
@@ -1900,7 +1917,7 @@ div.resize {
 
 .context-menu .item {
 	margin: 2px;
-	padding: 2x;
+	padding: 2px;
 	white-space: nowrap;
 	border-bottom: 1px solid lightgrey;
 	border-radius: 7px;

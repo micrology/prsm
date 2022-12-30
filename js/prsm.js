@@ -76,7 +76,8 @@ import {Picker} from 'emoji-picker-element'
 import Quill from 'quill'
 import Hammer from '@egjs/hammerjs'
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend} from './styles.js'
-import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js'
+//import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js'
+import { setUpBackground, redraw, deselectTool } from './background.js'
 import {version} from '../package.json'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
 
@@ -118,6 +119,7 @@ var yEdgesMap // shared map of edges
 export var ySamplesMap // shared map of styles
 export var yNetMap // shared map of global network settings
 export var yPointsArray // shared array of the background drawing commands
+export var yDrawingMap // shared map of background objects
 export var yUndoManager // shared list of commands for undo
 var dontUndo // when non-null, don't add an item to the undo stack
 var yChatArray // shared array of messages in the chat window
@@ -165,8 +167,7 @@ window.addEventListener('load', () => {
 	startY()
 	setUpChat()
 	setUpAwareness()
-	setUpPaint()
-	setUpToolbox()
+	setUpBackground()
 	setUpShareDialog()
 	draw()
 })
@@ -357,6 +358,7 @@ function startY(newRoom) {
 	yNetMap = doc.getMap('network')
 	yChatArray = doc.getArray('chat')
 	yPointsArray = doc.getArray('points')
+	yDrawingMap = doc.getMap("drawing");
 	yHistory = doc.getArray('history')
 	yAwareness = wsProvider.awareness
 
@@ -3375,7 +3377,7 @@ function toggleDrawingLayer() {
 		elem('toolbox').style.display = 'none'
 		elem('underlay').style.zIndex = 0
 		makeSolid(ul)
-		elem('temp-canvas').style.zIndex = 0
+		elem('drawing-canvas').style.zIndex = 0
 		elem('chatbox-tab').classList.remove('chatbox-hide')
 		inAddMode = false
 		elem('buttons').style.display = 'flex'
@@ -3389,7 +3391,7 @@ function toggleDrawingLayer() {
 		elem('toolbox').style.display = 'block'
 		ul.style.zIndex = 1000
 		ul.style.cursor = 'default'
-		elem('temp-canvas').style.zIndex = 1000
+		elem('drawing-canvas').style.zIndex = 1000
 		// make the underlay (which is now overlay) translucent
 		makeTranslucent(ul)
 		minimize()
