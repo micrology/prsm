@@ -48,6 +48,7 @@ import {
 	setMapTitle,
 	recreateClusteringMenu,
 	markMapSaved,
+	yDrawingMap,
 } from './prsm.js'
 import {
 	elem,
@@ -265,6 +266,13 @@ function loadPRSMfile(str) {
 	}
 	yPointsArray.delete(0, yPointsArray.length)
 	if (json.underlay) yPointsArray.insert(0, json.underlay)
+	yDrawingMap.clear()
+	if (json.background) {
+		let map = JSON.parse(json.background)
+		for (const [key, value] of Object.entries(map)) {
+			yDrawingMap.set(key, value)
+		}
+	}
 	yHistory.delete(0, yHistory.length)
 	if (json.history) yHistory.insert(0, json.history)
 }
@@ -731,7 +739,7 @@ export function savePRSMfile() {
 				fields: ['id', 'label', 'note', 'grp', 'from', 'to', 'color', 'width', 'dashes', 'created', 'modified'],
 				filter: (e) => !e.isClusterEdge,
 			}),
-			underlay: yPointsArray.toArray(),
+			background: JSON.stringify(yDrawingMap.toJSON()),
 			history: yHistory.map((s) => {
 				s.state = null
 				return s
