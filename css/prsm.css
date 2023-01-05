@@ -588,7 +588,7 @@ nav button .pressed {
 	width: 195px;
 	position: absolute;
 	right: 5px;
-	top: 100px;
+	top: 13px;
 	z-index: 2500;
 }
 .search-suggestion {
@@ -658,7 +658,7 @@ nav button .pressed {
 	left: -110%;
 }
 .tooltiptext.settingstip {
-	top: 0;
+	top: 100%;
 	left: -110%;
 }
 /* Share modal dialog */
@@ -1423,7 +1423,7 @@ emoji-picker {
 	position: absolute;
 	top: 100px;
 	left: 10px;
-	z-index: 1001;
+	z-index: 1003;
 	display: none;
 }
 .toolbox-header{

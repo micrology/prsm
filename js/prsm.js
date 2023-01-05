@@ -77,7 +77,15 @@ import Quill from 'quill'
 import Hammer from '@egjs/hammerjs'
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend} from './styles.js'
 //import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js'
-import { setUpBackground, redraw, deselectTool } from './background.js'
+import {
+	setUpBackground,
+	updateFromRemote,
+	redraw,
+	resizeCanvas,
+	zoomCanvas,
+	panCanvas,
+	deselectTool,
+} from './background.js'
 import {version} from '../package.json'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
 
@@ -146,7 +154,8 @@ var hiddenNodes = {
 	selected: [],
 }
 var tutorial = new Tutorial() // object driving the tutorial
-export var cp // color picker
+export var cp = new CP()
+// color picker
 var checkMapSaved = false // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
 var dirty = false // map has been changed by user and may need saving
 var hammer // Hammer pinch recogniser instance
@@ -164,10 +173,10 @@ window.addEventListener('load', () => {
 	}, 100)
 	addEventListeners()
 	setUpPage()
+	setUpBackground()
 	startY()
 	setUpChat()
 	setUpAwareness()
-	setUpBackground()
 	setUpShareDialog()
 	draw()
 })
@@ -299,7 +308,6 @@ function setUpPage() {
 	panel = elem('panel')
 	panel.classList.add('hide')
 	container.panelHidden = true
-	cp = new CP()
 	cp.createColorPicker('netBackColorWell', updateNetBack)
 	hammer = new Hammer(netPane)
 	hammer.get('pinch').set({enable: true})
@@ -358,7 +366,7 @@ function startY(newRoom) {
 	yNetMap = doc.getMap('network')
 	yChatArray = doc.getArray('chat')
 	yPointsArray = doc.getArray('points')
-	yDrawingMap = doc.getMap("drawing");
+	yDrawingMap = doc.getMap('drawing')
 	yHistory = doc.getArray('history')
 	yAwareness = wsProvider.awareness
 
@@ -404,6 +412,7 @@ function startY(newRoom) {
 	window.yChatArray = yChatArray
 	window.yHistory = yHistory
 	window.yPointsArray = yPointsArray
+	window.yDrawingMap = yDrawingMap
 	window.styles = styles
 	window.yAwareness = yAwareness
 	window.mergeRoom = mergeRoom
@@ -669,6 +678,10 @@ function startY(newRoom) {
 		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1))
 		if (event.transaction.local === false) network.redraw()
 	})
+	yDrawingMap.observe((event) => {
+		yjsTrace('yDrawingMap.observe', event)
+		updateFromRemote(event)
+	})
 	yHistory.observe(() => {
 		yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1))
 		if (elem('showHistorySwitch').checked) showHistory()
@@ -770,6 +783,7 @@ window.onresize = function () {
 	setvh()
 	keepPaneInWindow(panel)
 	keepPaneInWindow(elem('chatbox-holder'))
+	resizeCanvas()
 }
 window.onorientationchange = function () {
 	setvh()
@@ -1134,10 +1148,10 @@ function draw() {
 	})
 	network.on('deselectNode', function (obj) {
 		if (/gui/.test(debug)) console.log('deselectNode', obj)
-		// if some other node(s) are already selected, and the user has 
+		// if some other node(s) are already selected, and the user has
 		// clicked on one of the selected nodes, do nothing
 		if (obj.nodes.length > 0) {
-			network.selectNodes(obj.previousSelection.nodes.map(node => node.id))
+			network.selectNodes(obj.previousSelection.nodes.map((node) => node.id))
 			return
 		}
 		showSelected()
@@ -1170,6 +1184,7 @@ function draw() {
 		if (nodeId) openCluster(nodeId)
 	})
 
+	let viewPosition
 	let selectionCanvasStart = {}
 	let selectionStart = {}
 	let selectionArea = document.createElement('div')
@@ -1179,6 +1194,7 @@ function draw() {
 
 	network.on('dragStart', function (params) {
 		if (/gui/.test(debug)) console.log('dragStart')
+		viewPosition = network.getViewPosition()
 		let e = params.event.pointers[0]
 		// start drawing a selection rectangle if the CTRL key is down and click is on the background
 		if (e.ctrlKey && params.nodes.length === 0 && params.edges.length === 0) {
@@ -1223,8 +1239,16 @@ function draw() {
 			Math.max(selectionStart.y, event.offsetY) - Math.min(selectionStart.y, event.offsetY)
 		}px`
 	}
+	network.on('dragging', function () {
+		let endViewPosition = network.getViewPosition()
+		panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
+		viewPosition = endViewPosition
+	})
+
 	network.on('dragEnd', function (params) {
 		if (/gui/.test(debug)) console.log('dragEnd')
+		let endViewPosition = network.getViewPosition()
+		panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
 		if (selectionArea.style.display === 'block') {
 			selectionArea.style.display = 'none'
 			network.setOptions({interaction: {dragView: true}})
@@ -1568,19 +1592,6 @@ function drawBadges(ctx) {
 			ctx.fillText(voters.length.toString(), x, y)
 		}
 	}
-}
-/**
- * rescale and redraw the network so that it fits the pane
- * @param {number} duration speed of zoom to fit
- */
-function fit(duration = 200) {
-	network.fit({
-		position: {x: 0, y: 0},
-		animation: {duration: duration, easingFunction: 'linear'},
-	})
-	let newScale = network.getScale()
-	elem('zoom').value = newScale
-	network.storePositions()
 }
 
 /**
@@ -2373,6 +2384,25 @@ Network.prototype.zoom = function (scale) {
 		},
 	}
 	this.view.moveTo(animationOptions)
+	zoomCanvas(newScale)
+}
+
+/**
+ * rescale and redraw the network so that it fits the pane
+ * @param {number} duration speed of zoom to fit
+ */
+function fit() {
+	let prevPos = network.getViewPosition()
+	network.fit({
+		position: {x: 0, y: 0}, // fit to centre of canvas
+	})
+	let newPos = network.getViewPosition()
+	let newScale = network.getScale()
+	zoomCanvas(1.0)
+	panCanvas((prevPos.x - newPos.x), (prevPos.y - newPos.y), 1.0)
+	zoomCanvas(newScale)
+	elem('zoom').value = newScale
+	network.storePositions()
 }
 /**
  * expand/reduce the network view using the value in the zoom slider
@@ -2778,8 +2808,15 @@ function searchTargets() {
 function doSearch(event) {
 	let nodeId = event.target.dataset.id
 	if (nodeId) {
-		window.network.focus(nodeId, {scale: 2, animation: true})
-		elem('zoom').value = 2
+		let prevPos = network.getViewPosition()
+		network.focus(nodeId, {scale: 1.5})
+		let newPos = network.getViewPosition()
+		let newScale = network.getScale()
+		zoomCanvas(1.0)
+		panCanvas((prevPos.x - newPos.x), (prevPos.y - newPos.y), 1.0)
+		zoomCanvas(newScale)
+		elem('zoom').value = newScale
+		network.storePositions()
 		hideSearchBar()
 	}
 }
@@ -3377,10 +3414,10 @@ function toggleDrawingLayer() {
 		elem('toolbox').style.display = 'none'
 		elem('underlay').style.zIndex = 0
 		makeSolid(ul)
-		elem('drawing-canvas').style.zIndex = 0
+		document.querySelector('.upper-canvas').style.zIndex = 0
 		elem('chatbox-tab').classList.remove('chatbox-hide')
 		inAddMode = false
-		elem('buttons').style.display = 'flex'
+		elem('buttons').style.visibility = 'visible'
 		setButtonDisabledStatus('addNode', false)
 		setButtonDisabledStatus('addLink', false)
 		undoRedoButtonStatus()
@@ -3391,13 +3428,14 @@ function toggleDrawingLayer() {
 		elem('toolbox').style.display = 'block'
 		ul.style.zIndex = 1000
 		ul.style.cursor = 'default'
-		elem('drawing-canvas').style.zIndex = 1000
+		document.querySelector('.upper-canvas').style.zIndex = 1001
 		// make the underlay (which is now overlay) translucent
 		makeTranslucent(ul)
 		minimize()
 		elem('chatbox-tab').classList.add('chatbox-hide')
+		clearLegend()
 		inAddMode = 'disabled'
-		elem('buttons').style.display = 'none'
+		elem('buttons').style.visibility = 'hidden'
 		setButtonDisabledStatus('addNode', true)
 		setButtonDisabledStatus('addLink', true)
 		setButtonDisabledStatus('undo', true)

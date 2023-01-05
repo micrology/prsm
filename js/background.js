@@ -1,29 +1,58 @@
-import {yDrawingMap, drawingSwitch} from './prsm.js'
+/********************************************************************************************* 
+
+PRSM Participatory System Mapper 
+
+MIT License
+
+Copyright (c) [2022] Nigel Gilbert email: prsm@prsm.uk
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+This module provides the background objet-oriented drawing for PRSM
+********************************************************************************************/
+
+import {yDrawingMap, network, cp, drawingSwitch} from './prsm.js'
 import {fabric} from 'fabric'
-import {elem, uuidv4, CP, deepCopy, dragElement} from '../js/utils.js'
+import {elem, listen, uuidv4, deepCopy, dragElement, statusMsg} from '../js/utils.js'
 
 // essential to prevent scaling of borders
 fabric.Object.prototype.noScaleCache = false
 
 // create a wrapper around native canvas element
-let canvas = new fabric.Canvas('drawing-canvas', {enablePointerEvents: true})
+export var canvas = new fabric.Canvas('drawing-canvas', {enablePointerEvents: true})
 window.canvas = canvas
 
 let selectedTool = null //the id of the currently selected tool
 let currentObject = null // the object implementing the tool currently selected, if any
 
-let cp = null // color picker
-
 var undos = [] // stack of user changes to objects for undo
 var redos = [] // stack of undos for redoing
 
+/**
+ * Initialise the canvas and toolbox
+ */
 export function setUpBackground() {
-	sizeCanvas()
+	resizeCanvas()
 	initDraw()
-	startY()
 }
-window.addEventListener('resize', sizeCanvas, false)
-window.addEventListener('keydown', checkKey)
+listen('drawing-canvas', 'keydown', checkKey)
 
 window.addEventListener('copy', copyToClipboard)
 window.addEventListener('paste', pasteFromClipboard)
@@ -31,17 +60,33 @@ window.addEventListener('paste', pasteFromClipboard)
 /**
  * resize the drawing canvas when the window changes size
  */
-function sizeCanvas() {
-  let underlay = elem('underlay')
-//	let width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-//	let height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-  let width = underlay.innerWidth
-  let height= underlay.innerHeight
-	canvas.setHeight(height)
-	canvas.setWidth(width)
+export function resizeCanvas() {
+	let underlay = elem('underlay')
+	let oldWidth = canvas.getWidth()
+	let oldHeight = canvas.getHeight()
+	zoomCanvas(1.0)
+	canvas.setHeight(underlay.offsetHeight)
+	canvas.setWidth(underlay.offsetWidth)
+	canvas.calcOffset()
+  panCanvas((canvas.getWidth() - oldWidth)/2,(canvas.getHeight() - oldHeight)/2, 1.0)
+	zoomCanvas(network ? network.getScale() : 1)
 	canvas.requestRenderAll()
 }
 
+/**
+ * zoom the canvas, zooming from the canvas centre
+ * @param {float} zoom
+ */
+export function zoomCanvas(zoom) {
+	canvas.zoomToPoint({x: canvas.getWidth() / 2, y: canvas.getHeight() / 2}, zoom)
+}
+
+export function panCanvas(x, y, zoom) {
+	zoom = zoom || network.getScale()
+	canvas.relativePan(new fabric.Point(x * zoom, y * zoom))
+}
+window.panCanvas = panCanvas
+window.zoomCanvas = zoomCanvas
 /**
  * set up the fabric context, the grid drawn on it and the tools
  */
@@ -57,17 +102,14 @@ function initDraw() {
 	canvas.setZoom(1)
 	initAligningGuidelines()
 }
+/**
+ * redraw the objects on the canvas and the grid
+ */
 export function redraw() {
 	canvas.requestRenderAll()
 	if (drawingSwitch) drawGrid()
 }
-/**
- * create a new shared document and start the WebSocket provider
- */
-function startY() {
-	yDrawingMap.observe((event) => updateFromRemote(event))
-	window.yDrawingMap = yDrawingMap
-}
+
 /**
  * observe remote changes, sent as a set of parameters that are used to update
  * the existing or new basic Fabric objects
@@ -75,8 +117,8 @@ function startY() {
  *
  * @param {object} event
  */
-function updateFromRemote(event) {
-	if (event.transaction.local === false && event.keysChanged.length > 0) {
+export function updateFromRemote(event) {
+	if (event.transaction.local === false && event.keysChanged.size > 0) {
 		canvas.discardActiveObject()
 		for (let key of event.keysChanged) {
 			let remoteParams = yDrawingMap.get(key)
@@ -183,34 +225,41 @@ function updateFromRemote(event) {
  * Draw the background grid before rendering the fabric objects
  */
 canvas.on('before:render', () => {
-	drawGrid(25)
+	if (drawingSwitch) drawGrid()
 	canvas.clearContext(canvas.contextTop)
 })
 canvas.on('selection:created', (e) => updateSelection(e))
 canvas.on('selection:updated', (e) => updateSelection(e))
 
+/**
+ * save changes and update state when user has selected more than 1 object
+ * @param {canvasEvent} evt
+ */
 function updateSelection(evt) {
 	// only process updates caused by user (if evt.e is undefined, the update has been generated by remote activity)
-	if (!evt.e) return
-	let activeObject = canvas.getActiveObject()
-	let activeMembers = canvas.getActiveObjects()
-	// only record selections with more than 1 member object
-	if (activeObject.type === 'activeSelection' && activeMembers.length > 1) {
-		activeObject.id = 'selection'
-		yDrawingMap.set('activeSelection', {
-			members: activeMembers.map((o) => o.id),
-		})
-		saveChange(activeObject, {id: activeObject.id, members: activeMembers.map((o) => o.id)}, 'add')
+	if (evt.e) {
+		let activeObject = canvas.getActiveObject()
+		let activeMembers = canvas.getActiveObjects()
+		// only record selections with more than 1 member object
+		if (activeObject.type === 'activeSelection' && activeMembers.length > 1) {
+			activeObject.id = 'selection'
+			yDrawingMap.set('activeSelection', {
+				members: activeMembers.map((o) => o.id),
+			})
+			saveChange(activeObject, {id: activeObject.id, members: activeMembers.map((o) => o.id)}, 'add')
+		}
+		if (activeMembers.length > 1) {
+			closeOptionsDialogs()
+		} else {
+			if (evt.selected[0].type !== selectedTool) closeOptionsDialogs()
+			// no option possible when selecting path, group or image
+			if (!['path', 'group', 'image'].includes(evt.selected[0].type)) evt.selected[0].optionsDialog()
+		}
+		updateActiveButtons()
 	}
-	if (activeMembers.length > 1) {
-		closeOptionsDialogs()
-	} else {
-		if (evt.selected[0].type !== selectedTool) closeOptionsDialogs()
-		// no option possible when selecting path, group or image
-		if (!['path', 'group', 'image'].includes(evt.selected[0].type)) evt.selected[0].optionsDialog()
-	}
-	updateActiveButtons()
 }
+
+// save changes and update state when user has unselected all objects
 canvas.on('selection:cleared', (evt) => {
 	if (!evt.e) return
 	yDrawingMap.set('activeSelection', {members: []})
@@ -224,6 +273,8 @@ canvas.on('selection:cleared', (evt) => {
 	elem('bin').classList.add('disabled')
 	elem('group').classList.add('disabled')
 })
+
+// user has just finished creating a path (with pencil or marker) - save it
 canvas.on('path:created', () => {
 	let obj = getLastPath()
 	obj.id = uuidv4()
@@ -239,6 +290,7 @@ canvas.on('path:created', () => {
 		'insert'
 	)
 })
+
 // record object moves on undo stack and broadcast them
 canvas.on('object:modified', (rec) => {
 	let obj = rec.target
@@ -280,8 +332,6 @@ function setUpToolbox() {
 	Array.from(tools).forEach((tool) => {
 		tool.addEventListener('click', selectTool)
 	})
-	// create a color picker instance for later use
-	cp = new CP()
 	dragElement(elem('toolbox'), elem('toolbox-header'))
 }
 /**
@@ -471,7 +521,7 @@ let RectHandler = fabric.util.createClass(fabric.Rect, {
 	initialize: function () {
 		this.callSuper('initialize', {
 			fill: '#ffffff',
-			strokeWidth: 2,
+			strokeWidth: 1,
 			stroke: '#000000',
 			strokeUniform: true,
 		})
@@ -543,10 +593,13 @@ let RectHandler = fabric.util.createClass(fabric.Rect, {
 	setParams: function () {
 		if (!elem('optionsBox')) return
 		let rounded = elem('rounded').checked ? 10 : 0
+		let fill = elem('fillColor').style.backgroundColor
+		// make white transparent
+		if (fill === 'rgb(255, 255, 255)') fill = 'rgba(0, 0, 0, 0)'
 		this.set({
 			rx: rounded,
 			ry: rounded,
-			fill: elem('fillColor').style.backgroundColor,
+			fill: fill,
 			strokeWidth: parseInt(elem('borderWidth').value),
 			stroke: elem('borderColor').style.backgroundColor,
 		})
@@ -597,7 +650,7 @@ let CircleHandler = fabric.util.createClass(fabric.Circle, {
 	initialize: function () {
 		this.callSuper('initialize', {
 			fill: '#ffffff',
-			strokeWidth: 2,
+			strokeWidth: 1,
 			stroke: '#000000',
 			strokeUniform: true,
 		})
@@ -644,8 +697,11 @@ let CircleHandler = fabric.util.createClass(fabric.Circle, {
 	},
 	setParams: function () {
 		if (!elem('optionsBox')) return
+		let fill = elem('fillColor').style.backgroundColor
+		// make white transparent
+		if (fill === 'rgb(255, 255, 255)') fill = 'rgba(0, 0, 0, 0)'
 		this.set({
-			fill: elem('fillColor').style.backgroundColor,
+			fill: fill,
 			strokeWidth: parseInt(elem('borderWidth').value),
 			stroke: elem('borderColor').style.backgroundColor,
 		})
@@ -688,7 +744,7 @@ let LineHandler = fabric.util.createClass(fabric.Line, {
 	type: 'line',
 	initialize: function () {
 		this.callSuper('initialize', {
-			strokeWidth: 2,
+			strokeWidth: 1,
 			stroke: '#000000',
 			strokeUniform: true,
 		})
@@ -958,12 +1014,12 @@ let MarkerHandler = fabric.util.createClass(fabric.Object, {
 	initialize: function () {
 		this.callSuper('initialize', {
 			width: 30,
-			color: '#ffff00',
+			color: 'rgb(249, 255, 71)',
 			strokeLineCap: 'square',
 			strokeLineJoin: 'bevel',
 		})
 		canvas.freeDrawingBrush.width = 30
-		canvas.freeDrawingBrush.color = '#ffff00'
+		canvas.freeDrawingBrush.color = 'rgb(249, 255, 71)'
 	},
 	pointerdown: function () {
 		this.setParams()
@@ -1108,7 +1164,7 @@ let DeleteHandler = fabric.util.createClass(fabric.Object, {
  * @param {event} e
  */
 function checkKey(e) {
-	e.preventDefault()
+	//e.preventDefault()
 	if (e.keyCode === 46 || e.key === 'Delete' || e.code === 'Delete' || e.key === 'Backspace') {
 		deleteActiveObjects()
 	}
@@ -1718,8 +1774,4 @@ async function getClipboardContents() {
 		statusMsg('Failed to paste', 'error')
 		return null
 	}
-}
-
-function statusMsg(msg, type) {
-	console.log(type, msg)
 }
