@@ -49,7 +49,7 @@ var redos = [] // stack of undos for redoing
  * Initialise the canvas and toolbox
  */
 export function setUpBackground() {
-	resizeCanvas()
+ resizeCanvas()
 	initDraw()
 }
 listen('drawing-canvas', 'keydown', checkKey)
@@ -61,6 +61,7 @@ window.addEventListener('paste', pasteFromClipboard)
  * resize the drawing canvas when the window changes size
  */
 export function resizeCanvas() {
+  console.log('enter resize', canvas.viewportTransform)
 	let underlay = elem('underlay')
 	let oldWidth = canvas.getWidth()
 	let oldHeight = canvas.getHeight()
@@ -68,11 +69,12 @@ export function resizeCanvas() {
 	canvas.setHeight(underlay.offsetHeight)
 	canvas.setWidth(underlay.offsetWidth)
 	canvas.calcOffset()
-  panCanvas((canvas.getWidth() - oldWidth)/2,(canvas.getHeight() - oldHeight)/2, 1.0)
+	panCanvas((canvas.getWidth() - oldWidth) / 2, (canvas.getHeight() - oldHeight) / 2, 1.0)
 	zoomCanvas(network ? network.getScale() : 1)
 	canvas.requestRenderAll()
+  console.log('exit resize', canvas.viewportTransform)
 }
-
+window.resizeCanvas = resizeCanvas
 /**
  * zoom the canvas, zooming from the canvas centre
  * @param {float} zoom
@@ -119,108 +121,108 @@ export function redraw() {
  */
 export function updateFromRemote(event) {
 	if (event.transaction.local === false && event.keysChanged.size > 0) {
-		canvas.discardActiveObject()
-		for (let key of event.keysChanged) {
-			let remoteParams = yDrawingMap.get(key)
-			switch (key) {
-				case 'undos': {
-					undos = deepCopy(remoteParams)
-					updateActiveButtons()
-					continue
-				}
-				case 'redos': {
-					redos = deepCopy(remoteParams)
-					updateActiveButtons()
-					continue
-				}
-				case 'activeSelection': {
-					if (remoteParams.members.length > 0) {
-						// a selection has been created remotely; make one here
-						let selectedObjects = remoteParams.members.map((id) =>
-							canvas.getObjects().find((o) => o.id === id)
-						)
-						let sel = new fabric.ActiveSelection(selectedObjects, {
-							canvas: canvas,
-						})
-						canvas.setActiveObject(sel)
-					}
-					canvas.requestRenderAll()
-					updateActiveButtons()
-					continue
-				}
-				default: {
-					let localObj = canvas.getObjects().find((o) => o.id === key)
-					// if object already exists, update it
-					if (localObj) {
-						if (remoteParams.type === 'ungroup') {
-							localObj.toActiveSelection()
-							canvas.discardActiveObject()
-						} else localObj.setOptions(remoteParams)
-					} else {
-						// create a new object
-						switch (remoteParams.type) {
-							case 'rect':
-								localObj = new RectHandler()
-								break
-							case 'circle':
-								localObj = new CircleHandler()
-								break
-							case 'line':
-								localObj = new LineHandler()
-								break
-							case 'text':
-								localObj = new TextHandler()
-								break
-							case 'path':
-								localObj = new fabric.Path()
-								break
-							case 'image':
-								fabric.Image.fromObject(remoteParams.imageObj, (image) => {
-									image.id = key
-									canvas.add(image)
-								})
-								continue
-							case 'group': {
-								let objs = remoteParams.members.map((id) =>
-									canvas.getObjects().find((o) => o.id === id)
-								)
-								canvas.discardActiveObject()
-								let group = new fabric.Group(objs)
-								canvas.remove(...objs)
-								group.id = key
-								setGroupBorderColor(group)
-								canvas.add(group)
-								canvas.setActiveObject(group)
-								continue
-							}
-							case 'activeSelection':
-								if (canvas.getActiveObject())
-									canvas.getActiveObject().set({
-										angle: remoteParams.angle,
-										left: remoteParams.left,
-										scaleX: remoteParams.scaleX,
-										scaleY: remoteParams.scaleY,
-										top: remoteParams.top,
-									})
-								continue
-							case 'selection':
-								continue
-							case 'ungroup':
-								continue
-							default:
-								throw `bad fabric object type in yDrawingMap.observe: ${remoteParams.type}`
-						}
-						localObj.setOptions(remoteParams)
-						localObj.id = key
-						canvas.add(localObj)
-					}
-					localObj.setCoords()
-				}
-			}
-			canvas.requestRenderAll()
-		}
+		refreshFromMap(event.keysChanged)
 	}
 }
+export function refreshFromMap(keys) {
+	canvas.discardActiveObject()
+	for (let key of keys) {
+		let remoteParams = yDrawingMap.get(key)
+		switch (key) {
+			case 'undos': {
+				undos = deepCopy(remoteParams)
+				updateActiveButtons()
+				continue
+			}
+			case 'redos': {
+				redos = deepCopy(remoteParams)
+				updateActiveButtons()
+				continue
+			}
+			case 'activeSelection': {
+				if (remoteParams.members.length > 0) {
+					// a selection has been created remotely; make one here
+					let selectedObjects = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
+					let sel = new fabric.ActiveSelection(selectedObjects, {
+						canvas: canvas,
+					})
+					canvas.setActiveObject(sel)
+				}
+				canvas.requestRenderAll()
+				updateActiveButtons()
+				continue
+			}
+			default: {
+				let localObj = canvas.getObjects().find((o) => o.id === key)
+				// if object already exists, update it
+				if (localObj) {
+					if (remoteParams.type === 'ungroup') {
+						localObj.toActiveSelection()
+						canvas.discardActiveObject()
+					} else localObj.setOptions(remoteParams)
+				} else {
+					// create a new object
+					switch (remoteParams.type) {
+						case 'rect':
+							localObj = new RectHandler()
+							break
+						case 'circle':
+							localObj = new CircleHandler()
+							break
+						case 'line':
+							localObj = new LineHandler()
+							break
+						case 'text':
+							localObj = new TextHandler()
+							break
+						case 'path':
+							localObj = new fabric.Path()
+							break
+						case 'image':
+							fabric.Image.fromObject(remoteParams.imageObj, (image) => {
+								image.id = key
+								canvas.add(image)
+							})
+							continue
+						case 'group': {
+							let objs = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
+							canvas.discardActiveObject()
+							let group = new fabric.Group(objs)
+							canvas.remove(...objs)
+							group.id = key
+							setGroupBorderColor(group)
+							canvas.add(group)
+							canvas.setActiveObject(group)
+							continue
+						}
+						case 'activeSelection':
+							if (canvas.getActiveObject())
+								canvas.getActiveObject().set({
+									angle: remoteParams.angle,
+									left: remoteParams.left,
+									scaleX: remoteParams.scaleX,
+									scaleY: remoteParams.scaleY,
+									top: remoteParams.top,
+								})
+							continue
+						case 'selection':
+							continue
+						case 'ungroup':
+							continue
+						default:
+							throw `bad fabric object type in yDrawingMap.observe: ${remoteParams.type}`
+					}
+					localObj.setOptions(remoteParams)
+					localObj.id = key
+					canvas.add(localObj)
+				}
+				localObj.setCoords()
+			}
+		}
+		canvas.requestRenderAll()
+	}
+}
+
 /**
  * Draw the background grid before rendering the fabric objects
  */

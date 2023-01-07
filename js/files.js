@@ -48,6 +48,7 @@ import {
 	setMapTitle,
 	recreateClusteringMenu,
 	markMapSaved,
+	fit,
 	yDrawingMap,
 } from './prsm.js'
 import {
@@ -62,6 +63,7 @@ import {
 	lowerFirstLetter,
 } from './utils.js'
 import {styles} from './samples.js'
+import {canvas, refreshFromMap} from './background.js'
 import {updateLegend} from './styles.js'
 import Quill from 'quill'
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
@@ -177,7 +179,7 @@ function loadFile(contents) {
 		})
 		data.edges.update(edgesToUpdate)
 
-		network.fit(0)
+		fit()
 		updateLegend()
 		logHistory('loaded &lt;' + lastFileName + '&gt;')
 	})
@@ -209,7 +211,7 @@ function loadPRSMfile(str) {
 	if (json.buttons) setButtonStatus(json.buttons)
 	if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle))
 	if (json.recentMaps) {
-		let recents = localStorage.getItem('recents') || {}
+		let recents = JSON.parse(localStorage.getItem('recents')) || {}
 		localStorage.setItem('recents', JSON.stringify(Object.assign(json.recentMaps, recents)))
 	}
 	if (json.attributeTitles) yNetMap.set('attributeTitles', json.attributeTitles)
@@ -267,11 +269,17 @@ function loadPRSMfile(str) {
 	yPointsArray.delete(0, yPointsArray.length)
 	if (json.underlay) yPointsArray.insert(0, json.underlay)
 	yDrawingMap.clear()
+	canvas.clear()
 	if (json.background) {
+		console.log('enter load', canvas.viewportTransform)
 		let map = JSON.parse(json.background)
 		for (const [key, value] of Object.entries(map)) {
 			yDrawingMap.set(key, value)
 		}
+		refreshFromMap(Object.keys(map))
+		console.log('after refresh from map', canvas.viewportTransform)
+		fit()
+		console.log('after fit', canvas.viewportTransform)
 	}
 	yHistory.delete(0, yHistory.length)
 	if (json.history) yHistory.insert(0, json.history)
