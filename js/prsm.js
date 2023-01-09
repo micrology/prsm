@@ -86,9 +86,11 @@ import {
 	zoomCanvas,
 	panCanvas,
 	deselectTool,
+	copyBackgroundToClipboard,
+	pasteBackgroundFromClipboard
 } from './background.js'
 import {version} from '../package.json'
-import {compressToUTF16, decompressFromUTF16} from 'lz-string'
+import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
 
 const appName = 'Participatory System Mapper'
 const shortAppName = 'PRSM'
@@ -165,6 +167,7 @@ var editor = null // Quill editor
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
 var netLoaded = false // becomes true when map is fully displayed
 var savedState = '' // the current state of the map (nodes, edges, network settings) before current user action
+
 /**
  * top level function to initialise everything
  */
@@ -287,6 +290,7 @@ function addEventListeners() {
 			applySampleToLink(event)
 		})
 	)
+	
 	listen('body', 'copy', copyToClipboard)
 	listen('body', 'paste', pasteFromClipboard)
 }
@@ -1339,6 +1343,7 @@ function draw() {
 			bigNetwork.destroy()
 			bigNetPane.remove()
 		}
+		if (drawingSwitch) return
 		netPaneRect = netPane.getBoundingClientRect()
 		network.storePositions()
 		bigNetPane = document.createElement('div')
@@ -1366,6 +1371,7 @@ function draw() {
 	 */
 	function showMagnifier(e) {
 		e.preventDefault()
+		if (drawingSwitch) return
 		if (bigNetCanvas == null) createMagnifier()
 		magnifierCtx.fillRect(0, 0, magSize, magSize)
 		magnifierCtx.drawImage(
@@ -1611,6 +1617,10 @@ function snapToGrid(node) {
 function copyToClipboard(event) {
 	if (document.getSelection().toString()) return // only copy factors if there is no text selected (e.g. in Notes)
 	event.preventDefault()
+	if (drawingSwitch) {
+		copyBackgroundToClipboard(event)
+		return
+	}
 	let nIds = network.getSelectedNodes()
 	let eIds = network.getSelectedEdges()
 	if (nIds.length + eIds.length === 0) {
@@ -1656,6 +1666,10 @@ async function copyText(text) {
 }
 
 async function pasteFromClipboard() {
+	if (drawingSwitch) {
+		pasteBackgroundFromClipboard()
+		return
+	}
 	let clip = await getClipboardContents()
 	let nodes
 	let edges
@@ -2782,7 +2796,7 @@ function searchTargets() {
 	targets.id = 'targets'
 	targets.classList.add('search-ul')
 	str = str.toLowerCase()
-	let suggestions = window.data.nodes.get().filter((n) => n.label.toLowerCase().includes(str))
+	let suggestions = data.nodes.get().filter((n) => n.label.toLowerCase().includes(str))
 	suggestions.slice(0, 8).forEach((n) => {
 		let li = document.createElement('li')
 		li.classList.add('search-suggestion')
@@ -3439,6 +3453,7 @@ function toggleDrawingLayer() {
 		clearLegend()
 		inAddMode = 'disabled'
 		elem('buttons').style.visibility = 'hidden'
+		elem('help-button').style.visibility = 'visible'
 		setButtonDisabledStatus('addNode', true)
 		setButtonDisabledStatus('addLink', true)
 		setButtonDisabledStatus('undo', true)

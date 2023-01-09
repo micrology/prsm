@@ -19,7 +19,7 @@ Above the column of buttons is a rectangle outline.  This is a 'handle' for the 
 
 ## Moving and modifying objects
 
-Once you have drawn an object (a straight line, or a rectangle, circle, freeform line or marker line), you can select it by clicking on it. The cursor will change to a cross.  Using the mouse (or a stylus or finger), you can  move the object around. To aid in aligning objects, when a side or end is just above or below or to the left or right of another object, red dotted guide lines will appear and the object will momentarily 'stick' on the alignment.
+Once you have drawn an object (a straight line, or a rectangle, circle, freeform line or marker line), you can select it by clicking on it. The cursor will change to a cross.  Using the mouse (or a stylus or finger), you can  move the object around. To aid in aligning objects, when a side or end is just above or below or to the left or right of another object, red dotted guide lines will appear and the object will momentarily 'stick' on the alignment.  For a finer control of the position, use the arrow keys on the keyboard (up, down, left and right).
 
 <img src={require("/static/images/aligningObjects.png").default} width="400"/>
 
@@ -27,7 +27,7 @@ Click on the background to deselect the object.
 
 Once an object has been selected, you can change its shape or orientation, and its colour and other characteristics. To change the fill or border colours, click in the corresponding colour well and choose a new colour.  'White' in the colour well is rendered as transparent, i.e. you will be able to see through the shape.  To get a non-transparent white shape, choose a shade very slighly different from white.  
 
-To move the object, drag one of the small blue dots (control points) to change the height or width.  Drag the dot above the object to the left or right to rotate it.
+Drag one of the small blue dots (control points) to change the height or width.  Drag the dot above the object to the left or right to rotate it.
 
 ## The drawing tools
 
@@ -40,9 +40,9 @@ The drawing tools are, in order from top to bottom:
 * **Marker** draws lines like a marker or highlighter pen.
 * **Image** Clicking on this tool gives you a file chooser to select an image file (picture) from your computer - JPG, PNG and GIF formats are accepted. When the image has been placed on the background, you can drag it to where you want it, and resize it using the control points (small blue dots at the corners).  Click anywhere outside the image when you have got it into the right location.
 * **Group** This groups objects so that they move together (see [below](#grouping-objects) for details).
-* **Delete** Deletes (erases) the selected object(s). The Delete key on the keyboard can also be used.
-* **Undo** This tool will undo the effect of the last action (e.g. if you have just placed an image on the background, it will remove the image,  if you have drawn a line with the pencil, it will undo that line, or if you have moved a rectangle, it will undo the move).  Each click of the Undo button removes one previous drawing action.
-* **Redo** Reverses the action of the previous Undo, e.g. restoring the removed image.
+* **Delete** Deletes (erases) the selected object(s). The <kbd>Delete</kbd> key on the keyboard can also be used.
+* **Undo** This tool will undo the effect of the last action (e.g. if you have just placed an image on the background, it will remove the image,  if you have drawn a line with the pencil, it will undo that line, or if you have moved a rectangle, it will undo the move).  Each click of the Undo button removes one previous drawing action. <kbd>⌘</kbd><kbd>Z</kbd> or <kbd>⌃</kbd><kbd>Z</kbd> can also be used.
+* **Redo** Reverses the action of the previous Undo, e.g. restoring the removed image. <kbd>⌘</kbd><kbd>Y</kbd> or <kbd>⌃</kbd><kbd>Y</kbd>can also be used.
 
 ## Grouping objects
 

@@ -49,19 +49,16 @@ var redos = [] // stack of undos for redoing
  * Initialise the canvas and toolbox
  */
 export function setUpBackground() {
- resizeCanvas()
+	resizeCanvas()
 	initDraw()
 }
 listen('drawing-canvas', 'keydown', checkKey)
-
-window.addEventListener('copy', copyToClipboard)
-window.addEventListener('paste', pasteFromClipboard)
 
 /**
  * resize the drawing canvas when the window changes size
  */
 export function resizeCanvas() {
-  console.log('enter resize', canvas.viewportTransform)
+	console.log('enter resize', canvas.viewportTransform)
 	let underlay = elem('underlay')
 	let oldWidth = canvas.getWidth()
 	let oldHeight = canvas.getHeight()
@@ -72,7 +69,7 @@ export function resizeCanvas() {
 	panCanvas((canvas.getWidth() - oldWidth) / 2, (canvas.getHeight() - oldHeight) / 2, 1.0)
 	zoomCanvas(network ? network.getScale() : 1)
 	canvas.requestRenderAll()
-  console.log('exit resize', canvas.viewportTransform)
+	console.log('exit resize', canvas.viewportTransform)
 }
 window.resizeCanvas = resizeCanvas
 /**
@@ -480,6 +477,60 @@ function toolHandler(tool) {
 	return currentObject
 }
 
+/**
+ * react to key presses and mouse movements
+ */
+window.addEventListener('keydown', (e) => {
+	if ((drawingSwitch && e.key === 'Backspace') || e.key === 'Delete') {
+		e.preventDefault()
+		currentObject = null
+		toolHandler('bin').delete()
+	}
+})
+window.addEventListener('keydown', (e) => {
+	if (drawingSwitch && (e.ctrlKey || e.metaKey) && e.key === 'z') {
+		console.log('undo key')
+		e.preventDefault()
+		currentObject = null
+		toolHandler('undo').undo()
+	}
+})
+window.addEventListener('keydown', (e) => {
+	if (drawingSwitch && (e.ctrlKey || e.metaKey) && e.key === 'y') {
+		console.log('redo key')
+		e.preventDefault()
+		currentObject = null
+		toolHandler('undo').redo()
+	}
+})
+window.addEventListener('keydown', (e) => {
+	if (drawingSwitch && e.key === 'ArrowUp') {
+		e.preventDefault()
+		console.log('ArrowUp')
+		arrowMove('ArrowUp')
+	}
+})
+window.addEventListener('keydown', (e) => {
+	if (drawingSwitch && e.key === 'ArrowDown') {
+		e.preventDefault()
+		console.log('ArrowDown')
+		arrowMove('ArrowDown')
+	}
+})
+window.addEventListener('keydown', (e) => {
+	if (drawingSwitch && e.key === 'ArrowLeft') {
+		e.preventDefault()
+		console.log('ArrowLeft')
+		arrowMove('ArrowLeft')
+	}
+})
+window.addEventListener('keydown', (e) => {
+	if (drawingSwitch && e.key === 'ArrowRight') {
+		e.preventDefault()
+		console.log('ArrowRight')
+		arrowMove('ArrowRight')
+	}
+})
 canvas.on('mouse:down', function (options) {
 	mouseDespatch(options)
 })
@@ -489,6 +540,31 @@ canvas.on('mouse:move', function (options) {
 canvas.on('mouse:up', function (options) {
 	mouseDespatch(options)
 })
+
+const ARROOWINCR = 1
+
+function arrowMove(direction) {
+	let activeObj = canvas.getActiveObject()
+	if (!activeObj) return
+	let top = activeObj.top
+	let left = activeObj.left
+	switch (direction) {
+		case 'ArrowUp':
+			top -= ARROOWINCR
+			break
+		case 'ArrowDown':
+			top += ARROOWINCR
+			break
+		case 'ArrowLeft':
+			left -= ARROOWINCR
+			break
+		case 'ArrowRight':
+			left += ARROOWINCR
+			break
+	}
+	activeObj.set({left: left, top: top})
+	canvas.requestRenderAll()
+}
 
 /**
  * all mouse and touch events for the canvas are handled here - despatch to the selected tool
@@ -1673,7 +1749,7 @@ var displacement = 0
  * NB this doesn't yet work in Firefox, as they haven't implemented the Clipboard API and Permissions yet.
  * @param {Event} event
  */
-function copyToClipboard(event) {
+export function copyBackgroundToClipboard(event) {
 	if (document.getSelection().toString()) return // only copy factors if there is no text selected (e.g. in Notes)
 	let activeObjs = canvas.getActiveObjects()
 	if (activeObjs.length === 0) return
@@ -1712,7 +1788,7 @@ async function copyText(text) {
 	}
 }
 
-async function pasteFromClipboard() {
+export async function pasteBackgroundFromClipboard() {
 	let clip = await getClipboardContents()
 	let paramsArray = JSON.parse(clip)
 	canvas.discardActiveObject()
