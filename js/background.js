@@ -121,6 +121,10 @@ export function updateFromRemote(event) {
 		refreshFromMap(event.keysChanged)
 	}
 }
+/**
+ * add or refresh objects that have the given list of id, using data in yDrawingMap
+ * @param {array} keys
+ */
 export function refreshFromMap(keys) {
 	canvas.discardActiveObject()
 	for (let key of keys) {
@@ -1853,3 +1857,68 @@ async function getClipboardContents() {
 		return null
 	}
 }
+
+export function upgradeFromV1(pointsArray) {
+	let options
+	let ids = []
+	pointsArray.forEach((item) => {
+		let fabObj = {id: uuidv4()}
+		switch (item[0]) {
+			case 'options':
+				options = item[1]
+				break
+			case 'dashedLine':
+				fabObj.strokeDashArray = [10, 10]
+			// falls through
+			case 'line':
+				fabObj.type = 'line'
+				fabObj.x1 = item[1][0]
+				fabObj.y1 = item[1][1]
+				fabObj.x2 = item[1][2]
+				fabObj.y2 = item[1][3]
+				fabObj.axes = false
+				fabObj.stroke = options.strokeStyle
+				fabObj.strokeWidth = options.lineWidth
+				ids.push(fabObj.id)
+				yDrawingMap.set(fabObj.id, fabObj)
+				break
+			case 'rrect':
+				fabObj.rx = 10
+				fabObj.ry = 10
+			// falls through
+			case 'rect':
+				fabObj.type = 'rect'
+				fabObj.left = item[1][0]
+				fabObj.top = item[1][1]
+				fabObj.width = item[1][2]
+				fabObj.height = item[1][3]
+				fabObj.fill = options.fillStyle
+				if (fabObj.fill === 'rgb(255, 255, 255)') fabObj.fill = 'rgba(0, 0, 0, 0)'
+				fabObj.stroke = options.strokeStyle
+				fabObj.strokeWidth = options.lineWidth
+				ids.push(fabObj.id)
+				yDrawingMap.set(fabObj.id, fabObj)
+				break
+			case 'text':
+				fabObj.type = 'text'
+				fabObj.fill = options.fillStyle
+				fabObj.fontSize = Number.parseInt(options.font)
+				fabObj.text = item[1][0]
+				fabObj.left = item[1][1]
+				fabObj.top = item[1][2]
+				ids.push(fabObj.id)
+				yDrawingMap.set(fabObj.id, fabObj)
+				break
+			case 'image':
+				break
+			case 'pencil':
+				break
+			case 'marker':
+				break
+			case 'endShape':
+				break
+		}
+	})
+	refreshFromMap(ids)
+}
+window.upgradeFromV1 = upgradeFromV1
