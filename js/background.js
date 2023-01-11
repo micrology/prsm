@@ -1893,7 +1893,7 @@ export function upgradeFromV1(pointsArray) {
 				fabObj.width = item[1][2]
 				fabObj.height = item[1][3]
 				fabObj.fill = options.fillStyle
-				if (fabObj.fill === 'rgb(255, 255, 255)') fabObj.fill = 'rgba(0, 0, 0, 0)'
+				if (fabObj.fill === 'rgb(255, 255, 255)' || fabObj.fill === '#ffffff') fabObj.fill = 'rgba(0, 0, 0, 0)'
 				fabObj.stroke = options.strokeStyle
 				fabObj.strokeWidth = options.lineWidth
 				ids.push(fabObj.id)
@@ -1909,7 +1909,19 @@ export function upgradeFromV1(pointsArray) {
 				ids.push(fabObj.id)
 				yDrawingMap.set(fabObj.id, fabObj)
 				break
-			case 'image':
+			case 'image': {
+				let image = new Image()
+				image.src = item[1][0]
+				image.onload = function () {
+					fabObj = new fabric.Image(image, {
+						left: item[1][1],
+						top: item[1][2],
+					})
+					fabObj.id = uuidv4()
+				}
+				ids.push(fabObj.id)
+				yDrawingMap.set(fabObj.id, fabObj)
+			}
 				break
 			case 'pencil':
 				break
