@@ -87,7 +87,8 @@ import {
 	panCanvas,
 	deselectTool,
 	copyBackgroundToClipboard,
-	pasteBackgroundFromClipboard
+	pasteBackgroundFromClipboard,
+	upgradeFromV1
 } from './background.js'
 import {version} from '../package.json'
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
@@ -681,7 +682,7 @@ function startY(newRoom) {
 	})
 	yPointsArray.observe((event) => {
 		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1))
-		if (event.transaction.local === false) network.redraw()
+		if (event.transaction.local === false) upgradeFromV1(yPointsArray.toArray())
 	})
 	yDrawingMap.observe((event) => {
 		yjsTrace('yDrawingMap.observe', event)

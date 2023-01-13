@@ -181,6 +181,7 @@ export function refreshFromMap(keys) {
 							break
 						case 'image':
 							fabric.Image.fromObject(remoteParams.imageObj, (image) => {
+								image.setCoords()
 								image.id = key
 								canvas.add(image)
 							})
@@ -1171,21 +1172,23 @@ let ImageHandler = fabric.util.createClass(fabric.Object, {
 				let image = new Image()
 				image.src = e.target.result
 				image.onload = function (e) {
-					let image = e.target
-					const canvasWidth = canvas.getWidth()
-					const canvasHeight = canvas.getHeight()
-					// display image centred on canvas with dimensions 300 x 300
-					this.image = new fabric.Image(image, {
-						left: (canvasWidth - 300) / 2,
-						top: (canvasHeight - 300) / 2,
-					})
-					this.image.scaleToWidth(300)
-					if (this.image.height > 300) this.image.scaleToHeight(300)
-					this.image.id = uuidv4()
-					canvas.add(this.image)
-					saveChange(this.image, {imageObj: this.image.toObject()}, 'insert')
+					let imageElement = e.target
+					// display image centred on viewport with max dimensions 300 x 300
+					if (imageElement.width > imageElement.height) {
+						if (imageElement.width > 300) imageElement.width = 300
+					}
+					else {
+						if (imageElement.height > 300) imageElement.height = 300	
+					}
+					this.imageInstance = new fabric.Image(imageElement)
+					this.imageInstance.set({originX: 'center', originY: 'center'})
+					this.imageInstance.viewportCenter()
+					this.imageInstance.setCoords()
+					this.imageInstance.id = uuidv4()
+					canvas.add(this.imageInstance)
+					saveChange(this.imageInstance, {}, 'insert')
 					unselectTool()
-					canvas.setActiveObject(this.image).requestRenderAll()
+					canvas.setActiveObject(this.imageInstance).requestRenderAll()
 				}
 			}
 		}
@@ -1909,19 +1912,23 @@ export function upgradeFromV1(pointsArray) {
 				ids.push(fabObj.id)
 				yDrawingMap.set(fabObj.id, fabObj)
 				break
-			case 'image': {
-				let image = new Image()
-				image.src = item[1][0]
-				image.onload = function () {
-					fabObj = new fabric.Image(image, {
-						left: item[1][1],
-						top: item[1][2],
-					})
-					fabObj.id = uuidv4()
+			case 'image':
+				{
+					let image = new Image()
+					image.src = item[1][0]
+					ids.push(fabObj.id)
+					image.onload = function () {
+						let imageObj = new fabric.Image(image, {
+							left: item[1][1],
+							top: item[1][2],
+							width: item[1][3],
+							height: item[1][4],
+						})
+						fabObj.type = 'image'
+						fabObj.imageObj = imageObj.toObject()
+						yDrawingMap.set(fabObj.id, fabObj)
+					}
 				}
-				ids.push(fabObj.id)
-				yDrawingMap.set(fabObj.id, fabObj)
-			}
 				break
 			case 'pencil':
 				break
@@ -1930,6 +1937,7 @@ export function upgradeFromV1(pointsArray) {
 			case 'endShape':
 				break
 		}
+		console.log(ids, fabObj, fabObj.id)
 	})
 	refreshFromMap(ids)
 }
