@@ -1176,9 +1176,8 @@ let ImageHandler = fabric.util.createClass(fabric.Object, {
 					// display image centred on viewport with max dimensions 300 x 300
 					if (imageElement.width > imageElement.height) {
 						if (imageElement.width > 300) imageElement.width = 300
-					}
-					else {
-						if (imageElement.height > 300) imageElement.height = 300	
+					} else {
+						if (imageElement.height > 300) imageElement.height = 300
 					}
 					this.imageInstance = new fabric.Image(imageElement)
 					this.imageInstance.set({originX: 'center', originY: 'center'})
@@ -1914,25 +1913,33 @@ export function upgradeFromV1(pointsArray) {
 				break
 			case 'image':
 				{
+					// this is a bit complicated because we have to allow for the async onload of the image
 					let image = new Image()
 					image.src = item[1][0]
-					ids.push(fabObj.id)
-					image.onload = function () {
-						let imageObj = new fabric.Image(image, {
-							left: item[1][1],
-							top: item[1][2],
-							width: item[1][3],
-							height: item[1][4],
-						})
-						fabObj.type = 'image'
-						fabObj.imageObj = imageObj.toObject()
+					let promise = new Promise((resolve) => {
+						image.onload = function () {
+							let imageObj = new fabric.Image(image, {
+								left: item[1][1],
+								top: item[1][2],
+								width: item[1][3],
+								height: item[1][4],
+							})
+							fabObj.type = 'image'
+							fabObj.imageObj = imageObj.toObject()
+							resolve(fabObj)
+						}
+					})
+					promise.then(() => {
 						yDrawingMap.set(fabObj.id, fabObj)
-					}
+						refreshFromMap([fabObj.id])
+					})
 				}
 				break
 			case 'pencil':
+				// not implemented (yet)
 				break
 			case 'marker':
+				// not implemented (yet)
 				break
 			case 'endShape':
 				break
