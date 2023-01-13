@@ -76,7 +76,6 @@ import {Picker} from 'emoji-picker-element'
 import Quill from 'quill'
 import Hammer from '@egjs/hammerjs'
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend} from './styles.js'
-//import {setUpPaint, setUpToolbox, deselectTool, redraw} from './paint.js'
 import {
 	canvas,
 	setUpBackground,
@@ -686,6 +685,7 @@ function startY(newRoom) {
 	})
 	yDrawingMap.observe((event) => {
 		yjsTrace('yDrawingMap.observe', event)
+		console.log(event.transaction.local, 'keys changed:', event.keysChanged)
 		updateFromRemote(event)
 	})
 	yHistory.observe(() => {

@@ -63,7 +63,7 @@ import {
 	lowerFirstLetter,
 } from './utils.js'
 import {styles} from './samples.js'
-import {canvas, refreshFromMap} from './background.js'
+import {canvas, refreshFromMap, upgradeFromV1} from './background.js'
 import {updateLegend} from './styles.js'
 import Quill from 'quill'
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
@@ -266,10 +266,13 @@ function loadPRSMfile(str) {
 			})
 		}
 	}
-	yPointsArray.delete(0, yPointsArray.length)
-	if (json.underlay) yPointsArray.insert(0, json.underlay)
 	yDrawingMap.clear()
 	canvas.clear()
+	yPointsArray.delete(0, yPointsArray.length)
+	if (json.underlay) {
+		yPointsArray.insert(0, json.underlay)
+		upgradeFromV1(yPointsArray.toArray())
+	}
 	if (json.background) {
 		console.log('enter load', canvas.viewportTransform)
 		let map = JSON.parse(json.background)

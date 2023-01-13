@@ -28,7 +28,7 @@ SOFTWARE.
 This module provides the background objet-oriented drawing for PRSM
 ********************************************************************************************/
 
-import {yDrawingMap, network, cp, drawingSwitch} from './prsm.js'
+import {yDrawingMap, network, cp, drawingSwitch, yPointsArray} from './prsm.js'
 import {fabric} from 'fabric'
 import {elem, listen, uuidv4, deepCopy, dragElement, statusMsg} from '../js/utils.js'
 
@@ -98,7 +98,8 @@ function initDraw() {
 	})
 	if (drawingSwitch) drawGrid()
 	setUpToolbox()
-	canvas.setZoom(1)
+//	canvas.setZoom(1)
+canvas.setViewportTransform([1, 0, 0, 1, canvas.getWidth() / 2, canvas.getHeight() / 2])
 	initAligningGuidelines()
 }
 /**
@@ -129,6 +130,7 @@ export function refreshFromMap(keys) {
 	canvas.discardActiveObject()
 	for (let key of keys) {
 		let remoteParams = yDrawingMap.get(key)
+		console.log('refreshFromMap', key, remoteParams)
 		switch (key) {
 			case 'undos': {
 				undos = deepCopy(remoteParams)
@@ -1861,8 +1863,16 @@ async function getClipboardContents() {
 }
 
 export function upgradeFromV1(pointsArray) {
+	if (yPointsArray.get(0)[1]?.converted) {
+		console.log('already converted')
+		return
+	}
 	let options
 	let ids = []
+	console.log('upgrade, before transorm', canvas.viewportTransform)
+	canvas.setViewportTransform([1, 0, 0, 1, canvas.getWidth() / 2, canvas.getHeight() / 2])
+	console.log('upgrade, after transorm', canvas.viewportTransform)
+	markConverted()
 	pointsArray.forEach((item) => {
 		let fabObj = {id: uuidv4()}
 		switch (item[0]) {
@@ -1944,8 +1954,12 @@ export function upgradeFromV1(pointsArray) {
 			case 'endShape':
 				break
 		}
-		console.log(ids, fabObj, fabObj.id)
 	})
 	refreshFromMap(ids)
+}
+export function markConverted() {
+	let first = yPointsArray.get(0)
+	first[1].converted = true
+	yPointsArray.insert(0, [first])
 }
 window.upgradeFromV1 = upgradeFromV1
