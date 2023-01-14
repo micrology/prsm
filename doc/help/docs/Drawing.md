@@ -7,7 +7,7 @@ Switching 'Show drawing layer' ON reveals a group of buttons on the left that en
 
 ![Drawing layer](/images/drawingLayer.png)
 
-In drawing mode, the background has a faint square grid to help you line up your drawing.
+In drawing mode, the background has a faint square grid to help you line up your drawing.  The zoom slider at the bottom left of the window can be used to zoom in and out.  Double clicking on the background sets the zoom level to 1.
 
 When you click on some of the drawing buttons, a small dialog box appears that can be used to adjust the drawing tool. For instance, the Line tool, which draws straight lines, has options for the line thickness, line colour and a couple more.
 
@@ -25,9 +25,9 @@ Once you have drawn an object (a straight line, or a rectangle, circle, freeform
 
 Click on the background to deselect the object.  
 
-Once an object has been selected, you can change its shape or orientation, and its colour and other characteristics. To change the fill or border colours, click in the corresponding colour well and choose a new colour.  'White' in the colour well is rendered as transparent, i.e. you will be able to see through the shape.  To get a non-transparent white shape, choose a shade very slighly different from white.  
+Once an object has been selected, you can change its shape or orientation, and its colour and other characteristics. To change the fill or border colours, click in the corresponding colour well and choose a new colour.  'White' in the colour well is rendered as transparent, i.e. you will be able to see through the shape.  To get a non-transparent white shape, choose a shade very slighly different from white.  Coloured shapes are shown as slightly translucent, so that you can see the factors and links on the map behind them.  When you exit from drawing mode, the shapes will get their full colours and the network will appear in front of the shapes.
 
-Drag one of the small blue dots (control points) to change the height or width.  Drag the dot above the object to the left or right to rotate it.
+Drag one of the small blue dots (control points) to change an object's height or width.  Drag the dot above the object to the left or right to rotate it.
 
 ## The drawing tools
 

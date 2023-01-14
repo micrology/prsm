@@ -28,7 +28,7 @@ SOFTWARE.
 This module provides the background objet-oriented drawing for PRSM
 ********************************************************************************************/
 
-import {doc, yDrawingMap, network, cp, drawingSwitch, yPointsArray} from './prsm.js'
+import {doc, yDrawingMap, network, cp, drawingSwitch, yPointsArray, fit} from './prsm.js'
 import {fabric} from 'fabric'
 import {elem, listen, uuidv4, deepCopy, dragElement, statusMsg} from '../js/utils.js'
 
@@ -560,6 +560,7 @@ canvas.on('mouse:move', function (options) {
 canvas.on('mouse:up', function (options) {
 	mouseDespatch(options)
 })
+canvas.on('mouse:dblclick', () => fit())
 
 const ARROOWINCR = 1
 
