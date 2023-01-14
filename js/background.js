@@ -28,7 +28,7 @@ SOFTWARE.
 This module provides the background objet-oriented drawing for PRSM
 ********************************************************************************************/
 
-import {yDrawingMap, network, cp, drawingSwitch, yPointsArray} from './prsm.js'
+import {doc,yDrawingMap, network, cp, drawingSwitch, yPointsArray} from './prsm.js'
 import {fabric} from 'fabric'
 import {elem, listen, uuidv4, deepCopy, dragElement, statusMsg} from '../js/utils.js'
 
@@ -58,7 +58,6 @@ listen('drawing-canvas', 'keydown', checkKey)
  * resize the drawing canvas when the window changes size
  */
 export function resizeCanvas() {
-	console.log('enter resize', canvas.viewportTransform)
 	let underlay = elem('underlay')
 	let oldWidth = canvas.getWidth()
 	let oldHeight = canvas.getHeight()
@@ -69,9 +68,8 @@ export function resizeCanvas() {
 	panCanvas((canvas.getWidth() - oldWidth) / 2, (canvas.getHeight() - oldHeight) / 2, 1.0)
 	zoomCanvas(network ? network.getScale() : 1)
 	canvas.requestRenderAll()
-	console.log('exit resize', canvas.viewportTransform)
 }
-window.resizeCanvas = resizeCanvas
+
 /**
  * zoom the canvas, zooming from the canvas centre
  * @param {float} zoom
@@ -84,8 +82,7 @@ export function panCanvas(x, y, zoom) {
 	zoom = zoom || network.getScale()
 	canvas.relativePan(new fabric.Point(x * zoom, y * zoom))
 }
-window.panCanvas = panCanvas
-window.zoomCanvas = zoomCanvas
+
 /**
  * set up the fabric context, the grid drawn on it and the tools
  */
@@ -119,7 +116,8 @@ export function redraw() {
  */
 export function updateFromRemote(event) {
 	if (event.transaction.local === false && event.keysChanged.size > 0) {
-		refreshFromMap(event.keysChanged)
+		//oddly, keys changed includes old, cleared keys, so use this instead.
+		refreshFromMap([...event.changes.keys.keys()])
 	}
 }
 /**
@@ -129,8 +127,13 @@ export function updateFromRemote(event) {
 export function refreshFromMap(keys) {
 	canvas.discardActiveObject()
 	for (let key of keys) {
+		/* active Selection and group have to be dealt with last, because they reference objects that may 
+		* not have been put on the canvas yet */
 		let remoteParams = yDrawingMap.get(key)
-		console.log('refreshFromMap', key, remoteParams)
+		if (!remoteParams) {
+			console.error('Empty remoteParams in refreshFromMap()', key)
+			continue
+		}
 		switch (key) {
 			case 'undos': {
 				undos = deepCopy(remoteParams)
@@ -143,16 +146,6 @@ export function refreshFromMap(keys) {
 				continue
 			}
 			case 'activeSelection': {
-				if (remoteParams.members.length > 0) {
-					// a selection has been created remotely; make one here
-					let selectedObjects = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
-					let sel = new fabric.ActiveSelection(selectedObjects, {
-						canvas: canvas,
-					})
-					canvas.setActiveObject(sel)
-				}
-				canvas.requestRenderAll()
-				updateActiveButtons()
 				continue
 			}
 			default: {
@@ -189,14 +182,6 @@ export function refreshFromMap(keys) {
 							})
 							continue
 						case 'group': {
-							let objs = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
-							canvas.discardActiveObject()
-							let group = new fabric.Group(objs)
-							canvas.remove(...objs)
-							group.id = key
-							setGroupBorderColor(group)
-							canvas.add(group)
-							canvas.setActiveObject(group)
 							continue
 						}
 						case 'activeSelection':
@@ -223,8 +208,36 @@ export function refreshFromMap(keys) {
 				localObj.setCoords()
 			}
 		}
-		canvas.requestRenderAll()
 	}
+	for (let key of keys) {
+		let remoteParams = yDrawingMap.get(key)
+		if (key === 'activeSelection') {
+			if (remoteParams.members.length > 0) {
+				// a selection has been created remotely; make one here
+				let selectedObjects = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
+				let sel = new fabric.ActiveSelection(selectedObjects, {
+					canvas: canvas,
+				})
+				canvas.setActiveObject(sel)
+			}
+			updateActiveButtons()
+		}
+		else {
+			if (remoteParams.type === 'group') {
+				let objs = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
+				canvas.discardActiveObject()
+				let group = new fabric.Group(objs)
+				canvas.remove(...objs)
+				group.id = key
+				group.members = remoteParams.members
+				setGroupBorderColor(group)
+				canvas.add(group)
+				canvas.setActiveObject(group)	
+			}
+		}
+	}
+	if(!drawingSwitch) 	canvas.discardActiveObject()
+	canvas.requestRenderAll()
 }
 
 /**
@@ -496,7 +509,6 @@ window.addEventListener('keydown', (e) => {
 })
 window.addEventListener('keydown', (e) => {
 	if (drawingSwitch && (e.ctrlKey || e.metaKey) && e.key === 'z') {
-		console.log('undo key')
 		e.preventDefault()
 		currentObject = null
 		toolHandler('undo').undo()
@@ -504,7 +516,6 @@ window.addEventListener('keydown', (e) => {
 })
 window.addEventListener('keydown', (e) => {
 	if (drawingSwitch && (e.ctrlKey || e.metaKey) && e.key === 'y') {
-		console.log('redo key')
 		e.preventDefault()
 		currentObject = null
 		toolHandler('undo').redo()
@@ -513,28 +524,24 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keydown', (e) => {
 	if (drawingSwitch && e.key === 'ArrowUp') {
 		e.preventDefault()
-		console.log('ArrowUp')
 		arrowMove('ArrowUp')
 	}
 })
 window.addEventListener('keydown', (e) => {
 	if (drawingSwitch && e.key === 'ArrowDown') {
 		e.preventDefault()
-		console.log('ArrowDown')
 		arrowMove('ArrowDown')
 	}
 })
 window.addEventListener('keydown', (e) => {
 	if (drawingSwitch && e.key === 'ArrowLeft') {
 		e.preventDefault()
-		console.log('ArrowLeft')
 		arrowMove('ArrowLeft')
 	}
 })
 window.addEventListener('keydown', (e) => {
 	if (drawingSwitch && e.key === 'ArrowRight') {
 		e.preventDefault()
-		console.log('ArrowRight')
 		arrowMove('ArrowRight')
 	}
 })
@@ -1207,8 +1214,10 @@ function makeGroup() {
 	if (!activeObj || activeObj.type !== 'activeSelection') return
 	let group = activeObj.toGroup()
 	group.id = uuidv4()
+	group.members = group.getObjects().map((ob) => ob.id)
+	group.type = 'group'
 	setGroupBorderColor(group)
-	saveChange(group, {members: group.getObjects().map((ob) => ob.id), type: 'group'}, 'insert')
+	saveChange(group, {members: group.members}, 'insert')
 	canvas.requestRenderAll()
 	elem('group').classList.remove('disabled')
 	statusMsg('Grouped', 'info')
@@ -1291,7 +1300,6 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 		if (undos.length === 0) {
 			elem('undotool').classList.add('disabled')
 		}
-		console.log('undo', undo)
 		if (undo.id === 'selection') {
 			redos.push(deepCopy(undo))
 			yDrawingMap.set('redos', redos)
@@ -1418,7 +1426,6 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 		if (redos.length === 0) {
 			elem('redotool').classList.add('disabled')
 		}
-		console.log('redo', redo)
 		if (redo.id === 'selection') {
 			undos.push(deepCopy(redo))
 			yDrawingMap.set('undos', undos)
@@ -1564,6 +1571,7 @@ function setParams(obj, params) {
 	params.type = params.type || obj.type
 	if (obj.type === 'path') params.pathOffset = obj.pathOffset
 	if (obj.type === 'image') params.imageObj = obj.toObject()
+	if (obj.type === 'group') params.members = obj.members
 	return params
 }
 /****************************************************************** Smart Guides ********************************************/
@@ -1861,105 +1869,111 @@ async function getClipboardContents() {
 		return null
 	}
 }
-
+/**
+ * Convert v1 drawing instructions into equivalent v2 background objects
+ * @param {array} pointsArray  version 1 background drawing instructions
+ * @returns 
+ */
 export function upgradeFromV1(pointsArray) {
-	if (yPointsArray.get(0)[1]?.converted) {
-		console.log('already converted')
-		return
-	}
+	if (yPointsArray.get(0)[1]?.converted) return
 	let options
 	let ids = []
-	console.log('upgrade, before transorm', canvas.viewportTransform)
 	canvas.setViewportTransform([1, 0, 0, 1, canvas.getWidth() / 2, canvas.getHeight() / 2])
-	console.log('upgrade, after transorm', canvas.viewportTransform)
 	markConverted()
-	pointsArray.forEach((item) => {
-		let fabObj = {id: uuidv4()}
-		switch (item[0]) {
-			case 'options':
-				options = item[1]
-				break
-			case 'dashedLine':
-				fabObj.strokeDashArray = [10, 10]
-			// falls through
-			case 'line':
-				fabObj.type = 'line'
-				fabObj.x1 = item[1][0]
-				fabObj.y1 = item[1][1]
-				fabObj.x2 = item[1][2]
-				fabObj.y2 = item[1][3]
-				fabObj.axes = false
-				fabObj.stroke = options.strokeStyle
-				fabObj.strokeWidth = options.lineWidth
-				ids.push(fabObj.id)
-				yDrawingMap.set(fabObj.id, fabObj)
-				break
-			case 'rrect':
-				fabObj.rx = 10
-				fabObj.ry = 10
-			// falls through
-			case 'rect':
-				fabObj.type = 'rect'
-				fabObj.left = item[1][0]
-				fabObj.top = item[1][1]
-				fabObj.width = item[1][2]
-				fabObj.height = item[1][3]
-				fabObj.fill = options.fillStyle
-				if (fabObj.fill === 'rgb(255, 255, 255)' || fabObj.fill === '#ffffff') fabObj.fill = 'rgba(0, 0, 0, 0)'
-				fabObj.stroke = options.strokeStyle
-				fabObj.strokeWidth = options.lineWidth
-				ids.push(fabObj.id)
-				yDrawingMap.set(fabObj.id, fabObj)
-				break
-			case 'text':
-				fabObj.type = 'text'
-				fabObj.fill = options.fillStyle
-				fabObj.fontSize = Number.parseInt(options.font)
-				fabObj.text = item[1][0]
-				fabObj.left = item[1][1]
-				fabObj.top = item[1][2]
-				ids.push(fabObj.id)
-				yDrawingMap.set(fabObj.id, fabObj)
-				break
-			case 'image':
-				{
-					// this is a bit complicated because we have to allow for the async onload of the image
-					let image = new Image()
-					image.src = item[1][0]
-					let promise = new Promise((resolve) => {
-						image.onload = function () {
-							let imageObj = new fabric.Image(image, {
-								left: item[1][1],
-								top: item[1][2],
-								width: item[1][3],
-								height: item[1][4],
-							})
-							fabObj.type = 'image'
-							fabObj.imageObj = imageObj.toObject()
-							resolve(fabObj)
-						}
-					})
-					promise.then(() => {
-						yDrawingMap.set(fabObj.id, fabObj)
-						refreshFromMap([fabObj.id])
-					})
-				}
-				break
-			case 'pencil':
-				// not implemented (yet)
-				break
-			case 'marker':
-				// not implemented (yet)
-				break
-			case 'endShape':
-				break
-		}
+	doc.transact(() => {
+		pointsArray.forEach((item) => {
+			let fabObj = { id: uuidv4() }
+			switch (item[0]) {
+				case 'options':
+					options = item[1]
+					break
+				case 'dashedLine':
+					fabObj.strokeDashArray = [10, 10]
+				// falls through
+				case 'line':
+					fabObj.type = 'line'
+					fabObj.x1 = item[1][0]
+					fabObj.y1 = item[1][1]
+					fabObj.x2 = item[1][2]
+					fabObj.y2 = item[1][3]
+					fabObj.axes = false
+					fabObj.stroke = options.strokeStyle
+					fabObj.strokeWidth = options.lineWidth
+					ids.push(fabObj.id)
+					yDrawingMap.set(fabObj.id, fabObj)
+					break
+				case 'rrect':
+					fabObj.rx = 10
+					fabObj.ry = 10
+				// falls through
+				case 'rect':
+					fabObj.type = 'rect'
+					fabObj.left = item[1][0]
+					fabObj.top = item[1][1]
+					fabObj.width = item[1][2]
+					fabObj.height = item[1][3]
+					fabObj.fill = options.fillStyle
+					if (fabObj.fill === 'rgb(255, 255, 255)' || fabObj.fill === '#ffffff') fabObj.fill = 'rgba(0, 0, 0, 0)'
+					fabObj.stroke = options.strokeStyle
+					fabObj.strokeWidth = options.lineWidth
+					ids.push(fabObj.id)
+					yDrawingMap.set(fabObj.id, fabObj)
+					break
+				case 'text':
+					fabObj.type = 'text'
+					fabObj.fill = options.fillStyle
+					fabObj.fontSize = Number.parseInt(options.font)
+					fabObj.text = item[1][0]
+					fabObj.left = item[1][1]
+					fabObj.top = item[1][2]
+					ids.push(fabObj.id)
+					yDrawingMap.set(fabObj.id, fabObj)
+					break
+				case 'image':
+					{
+						// this is a bit complicated because we have to allow for the async onload of the image
+						let image = new Image()
+						image.src = item[1][0]
+						let promise = new Promise((resolve) => {
+							image.onload = function () {
+								let imageObj = new fabric.Image(image, {
+									left: item[1][1],
+									top: item[1][2],
+									width: item[1][3],
+									height: item[1][4],
+								})
+								fabObj.type = 'image'
+								fabObj.imageObj = imageObj.toObject()
+								resolve(fabObj)
+							}
+						})
+						promise.then(() => {
+							yDrawingMap.set(fabObj.id, fabObj)
+							refreshFromMap([fabObj.id])
+						})
+					}
+					break
+				case 'pencil':
+					// not implemented (yet)
+					break
+				case 'marker':
+					// not implemented (yet)
+					break
+				case 'endShape':
+					break
+			}
+		})
 	})
 	refreshFromMap(ids)
 }
-export function markConverted() {
+/**
+ * we don't want to convert v1 instructions into v2 objects more than once (to do so would duplicate
+ * the objects), but we don't want to delete them either, as that would upset v1 users.  So quietly mark
+ * the v1 instructions to show that they have already been converted
+ */
+function markConverted() {
 	let first = yPointsArray.get(0)
 	first[1].converted = true
 	yPointsArray.insert(0, [first])
 }
-window.upgradeFromV1 = upgradeFromV1
+

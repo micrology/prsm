@@ -270,19 +270,17 @@ function loadPRSMfile(str) {
 	canvas.clear()
 	yPointsArray.delete(0, yPointsArray.length)
 	if (json.underlay) {
+		// background from v1; update it 
 		yPointsArray.insert(0, json.underlay)
-		upgradeFromV1(yPointsArray.toArray())
+		if (yPointsArray.length > 0) upgradeFromV1(yPointsArray.toArray())
 	}
 	if (json.background) {
-		console.log('enter load', canvas.viewportTransform)
 		let map = JSON.parse(json.background)
 		for (const [key, value] of Object.entries(map)) {
 			yDrawingMap.set(key, value)
 		}
 		refreshFromMap(Object.keys(map))
-		console.log('after refresh from map', canvas.viewportTransform)
 		fit()
-		console.log('after fit', canvas.viewportTransform)
 	}
 	yHistory.delete(0, yHistory.length)
 	if (json.history) yHistory.insert(0, json.history)

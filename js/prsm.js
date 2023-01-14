@@ -77,7 +77,6 @@ import Quill from 'quill'
 import Hammer from '@egjs/hammerjs'
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend} from './styles.js'
 import {
-	canvas,
 	setUpBackground,
 	updateFromRemote,
 	redraw,
@@ -685,7 +684,6 @@ function startY(newRoom) {
 	})
 	yDrawingMap.observe((event) => {
 		yjsTrace('yDrawingMap.observe', event)
-		console.log(event.transaction.local, 'keys changed:', event.keysChanged)
 		updateFromRemote(event)
 	})
 	yHistory.observe(() => {
@@ -2405,10 +2403,8 @@ Network.prototype.zoom = function (scale) {
 
 /**
  * rescale and redraw the network so that it fits the pane
- * @param {number} duration speed of zoom to fit
- */
+*/
 export function fit() {
-	console.log('enter fit', canvas.viewportTransform)
 	let prevPos = network.getViewPosition()
 	network.fit({
 		position: {x: 0, y: 0}, // fit to centre of canvas
@@ -2420,7 +2416,6 @@ export function fit() {
 	zoomCanvas(newScale)
 	elem('zoom').value = newScale
 	network.storePositions()
-	console.log('exit fit', canvas.viewportTransform)
 }
 /**
  * expand/reduce the network view using the value in the zoom slider

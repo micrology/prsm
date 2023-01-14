@@ -186,7 +186,6 @@ select {
 	position: absolute;
 	top: 0;
 	left: 0;
-	background-color: transparent;
 }
 aside {
 	position: fixed;
@@ -501,6 +500,9 @@ nav {
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;
+	border: var(--tab-color) solid 1px;
+	border-radius: 4px;
+	padding: 5px;
 }
 nav button {
 	border: none;
@@ -1418,6 +1420,7 @@ emoji-picker {
 	width: 100%;
 	height: 100%;
 	background-color: transparent;
+	opacity: 0.9;
 }
 .toolbox {
 	position: absolute;
@@ -1426,14 +1429,14 @@ emoji-picker {
 	z-index: 1003;
 	display: none;
 }
-.toolbox-header{
+.toolbox-header {
 	height: 15px;
 	width: 40px;
 	border: 1px solid black;
 	border-radius: 3px;
 	margin: 8px;
 }
-.toolbox-divider{
+.toolbox-divider {
 	height: 2px;
 }
 .tool {
@@ -1963,6 +1966,7 @@ emoji-picker {
 	}
 	.buttons {
 		justify-content: center;
+		border: 0;
 	}
 	nav button {
 		margin: auto 0;
@@ -2010,6 +2014,7 @@ emoji-picker {
 	.buttons {
 		justify-content: space-around;
 		flex-wrap: wrap;
+		border: 0;
 	}
 	nav button {
 		margin: auto 0;
