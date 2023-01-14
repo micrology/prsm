@@ -28,7 +28,7 @@ SOFTWARE.
 This module provides the background objet-oriented drawing for PRSM
 ********************************************************************************************/
 
-import {doc,yDrawingMap, network, cp, drawingSwitch, yPointsArray} from './prsm.js'
+import {doc, yDrawingMap, network, cp, drawingSwitch, yPointsArray} from './prsm.js'
 import {fabric} from 'fabric'
 import {elem, listen, uuidv4, deepCopy, dragElement, statusMsg} from '../js/utils.js'
 
@@ -95,8 +95,8 @@ function initDraw() {
 	})
 	if (drawingSwitch) drawGrid()
 	setUpToolbox()
-//	canvas.setZoom(1)
-canvas.setViewportTransform([1, 0, 0, 1, canvas.getWidth() / 2, canvas.getHeight() / 2])
+	//	canvas.setZoom(1)
+	canvas.setViewportTransform([1, 0, 0, 1, canvas.getWidth() / 2, canvas.getHeight() / 2])
 	initAligningGuidelines()
 }
 /**
@@ -127,8 +127,8 @@ export function updateFromRemote(event) {
 export function refreshFromMap(keys) {
 	canvas.discardActiveObject()
 	for (let key of keys) {
-		/* active Selection and group have to be dealt with last, because they reference objects that may 
-		* not have been put on the canvas yet */
+		/* active Selection and group have to be dealt with last, because they reference objects that may
+		 * not have been put on the canvas yet */
 		let remoteParams = yDrawingMap.get(key)
 		if (!remoteParams) {
 			console.error('Empty remoteParams in refreshFromMap()', key)
@@ -221,8 +221,7 @@ export function refreshFromMap(keys) {
 				canvas.setActiveObject(sel)
 			}
 			updateActiveButtons()
-		}
-		else {
+		} else {
 			if (remoteParams.type === 'group') {
 				let objs = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
 				canvas.discardActiveObject()
@@ -231,12 +230,19 @@ export function refreshFromMap(keys) {
 				group.id = key
 				group.members = remoteParams.members
 				setGroupBorderColor(group)
+				group.set({
+					left: remoteParams.left,
+					top: remoteParams.top,
+					angle: remoteParams.angle,
+					scaleX: remoteParams.scaleX,
+					scaleY: remoteParams.scaleY,
+				})
 				canvas.add(group)
-				canvas.setActiveObject(group)	
+				canvas.setActiveObject(group)
 			}
 		}
 	}
-	if(!drawingSwitch) 	canvas.discardActiveObject()
+	if (!drawingSwitch) canvas.discardActiveObject()
 	canvas.requestRenderAll()
 }
 
@@ -1872,7 +1878,7 @@ async function getClipboardContents() {
 /**
  * Convert v1 drawing instructions into equivalent v2 background objects
  * @param {array} pointsArray  version 1 background drawing instructions
- * @returns 
+ * @returns
  */
 export function upgradeFromV1(pointsArray) {
 	if (yPointsArray.get(0)[1]?.converted) return
@@ -1882,7 +1888,7 @@ export function upgradeFromV1(pointsArray) {
 	markConverted()
 	doc.transact(() => {
 		pointsArray.forEach((item) => {
-			let fabObj = { id: uuidv4() }
+			let fabObj = {id: uuidv4()}
 			switch (item[0]) {
 				case 'options':
 					options = item[1]
@@ -1913,7 +1919,8 @@ export function upgradeFromV1(pointsArray) {
 					fabObj.width = item[1][2]
 					fabObj.height = item[1][3]
 					fabObj.fill = options.fillStyle
-					if (fabObj.fill === 'rgb(255, 255, 255)' || fabObj.fill === '#ffffff') fabObj.fill = 'rgba(0, 0, 0, 0)'
+					if (fabObj.fill === 'rgb(255, 255, 255)' || fabObj.fill === '#ffffff')
+						fabObj.fill = 'rgba(0, 0, 0, 0)'
 					fabObj.stroke = options.strokeStyle
 					fabObj.strokeWidth = options.lineWidth
 					ids.push(fabObj.id)
@@ -1976,4 +1983,3 @@ function markConverted() {
 	first[1].converted = true
 	yPointsArray.insert(0, [first])
 }
-
