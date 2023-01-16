@@ -56,6 +56,7 @@ select {
 }
 select {
 	border-color: lightgrey;
+	border-radius: 5px;
 	font-size: 12px;
 	outline: none;
 }
@@ -335,11 +336,12 @@ input[type='range'] {
 .input-color-container {
 	position: relative;
 	overflow: hidden;
-	width: 30px;
-	height: 30px;
+	width: 20px;
+	height: 20px;
 	border: solid 2px lightgrey;
-	border-radius: 30px;
+	border-radius: 20px;
 	margin: auto;
+	padding:0;
 }
 
 /* ----------- colour picker ----------*/
@@ -359,9 +361,9 @@ input[type='range'] {
 .color-well {
 	position: relative;
 	overflow: hidden;
-	width: 30px;
-	height: 30px;
-	border-radius: 30px;
+	width: 20px;
+	height: 20px;
+	border-radius: 20px;
 	margin: auto;
 	background-color: white;
 }
@@ -812,6 +814,7 @@ nav button .pressed {
 .tab {
 	display: flex;
 	justify-content: space-between;
+	padding: 0 4px 0 4px;
 	overflow: hidden;
 	background-color: var(--panel-color);
 }
@@ -820,9 +823,10 @@ nav button .pressed {
 .tab .tablinks {
 	flex: 1;
 	font-size: 11px;
-	background-color: var(--tab-color);
+	background-color: var(--panel-color);
+	color: white;
 	float: left;
-	border-right: 1px solid black;
+	border: 1px solid white;
 	border-radius: 4px;
 	width: 66px;
 	text-align: center;
@@ -1009,75 +1013,6 @@ but moving the panel out of sight works instead */
 	border-top: 1px solid grey;
 	color: white;
 	transition: All 250ms ease;
-}
-/* create the impression of a sliding on/off switch see https://proto.io/freebies/onoff/ */
-
-.onoffswitch {
-	position: relative;
-	width: 50px;
-	user-select: none;
-	-webkit-user-select: none;
-}
-.onoffswitch-checkbox {
-	display: none;
-}
-.onoffswitch-label {
-	display: block;
-	overflow: hidden;
-	cursor: pointer;
-	border: 0 solid gray;
-	border-radius: 11px;
-}
-.onoffswitch-inner {
-	display: block;
-	width: 200%;
-	margin-left: -100%;
-	transition: margin 0.3s ease-in 0s;
-}
-.onoffswitch-inner:before,
-.onoffswitch-inner:after {
-	display: block;
-	float: left;
-	width: 50%;
-	height: 16px;
-	padding: 1px 0 0 0;
-	line-height: 16px;
-	font-size: 11px;
-	color: white;
-	font-weight: bold;
-	box-sizing: border-box;
-}
-.onoffswitch-inner:before {
-	content: 'ON';
-	padding-left: 10px;
-	background-color: white;
-	color: black;
-}
-.onoffswitch-inner:after {
-	content: 'OFF';
-	padding-right: 5px;
-	background-color: white;
-	color: black;
-	text-align: right;
-}
-.onoffswitch-switch {
-	display: block;
-	width: 18px;
-	margin: -1px;
-	background: black;
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	right: 32px;
-	border: 2px solid gray;
-	border-radius: 11px;
-	transition: all 0.3s ease-in 0s;
-}
-.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
-	margin-left: 0;
-}
-.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
-	right: 0;
 }
 
 /*  style editors */
@@ -1509,7 +1444,7 @@ emoji-picker {
 	border-color: transparent var(--pop-up-shadow-color) transparent transparent;
 }
 .options div {
-	text-align: left;
+	text-align: center;
 	padding: 2px;
 }
 .options :nth-child(2n + 1) {
@@ -1518,19 +1453,9 @@ emoji-picker {
 .options .right {
 	text-align: right;
 }
-.options .input-color-container {
-	position: relative;
-	overflow: hidden;
-	width: 30px;
-	height: 30px;
-	border: solid 2px lightgrey;
-	border-radius: 30px;
-	margin: auto;
-	padding: 0;
-}
 .options .input-color-container .color-well {
 	padding: 0;
-}
+} 
 /* avatars */
 .avatars {
 	display: flex;
@@ -2043,6 +1968,9 @@ emoji-picker {
 	.modal-body {
 		font-size: small;
 		padding: 8px;
+	}
+	.tutorial-dialog.wide {
+		width: 400px;
 	}
 }
 
