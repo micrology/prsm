@@ -9,9 +9,9 @@
 		<link rel="shortcut icon" href="../icons/favicon.ico" />
 		<link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" />
 		<link
-			href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
 			rel="stylesheet"
-			integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+			integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
 			crossorigin="anonymous"
 		/>
 		<link href="../css/web.css" rel="stylesheet" />
@@ -146,7 +146,7 @@
 				</div>
 			</nav>
 
-			<div class="container">
+			<div class="container-fluid">
 				<div class="dummy-navbar"></div>
 				<div class="row">
 					<div class="col-xs-12 text-center">
@@ -272,17 +272,15 @@
 							links (or ‘edges').
 						</p>
 						<ul>
-							<li>People (the nodes) connected by knowing each other</li>
-							<li>Factors or variables causing (the links) changes in other factors</li>
-							<li>Switches connected by wires</li>
-							<li>Computers connected by network links</li>
-							<li>Theories expressed as variables and relationships between them</li>
+							<li>People (the nodes) connected by knowing each other (e.g. a stakeholder map)</li>
+							<li>Factors or variables causing (the links) changes in other factors (e.g. a causal loop diagram)</li>
+							<li>Theories expressed as variables and relationships between them (e.g. a Theory of Change)</li>
 							<li>
 								Company boards of directors (the nodes) and the directors that sit on more than one
-								board (the links)
+								board (the links) (e.g. interlocking directorates )
 							</li>
-							<li>Twitter hashtags (the nodes) included together on posts (the links)</li>
-							<li>Scientists (the nodes) co-authoring papers (the links)</li>
+							<li>Twitter hashtags (the nodes) included together on posts (the links) (a hashtag network)</li>
+							<li>Scientists (the nodes) co-authoring or co-citing papers (the links) (e.g. a co-citation network)</li>
 						</ul>
 						&hellip; and anything else that has items and links between the items.
 					</div>
@@ -293,128 +291,16 @@
 						<p>
 							In addition to the 'map' view, PRSM will also show a data view: a spreadsheet with one sheet
 							for all the factors and and another for all the links. Each row describes a factor or link,
-							and these can be edited from thedata view as well as from the map view. The data view also
-							shows some network statistics (degree, betweenness centralty etc.) and this view can be used
-							to assign values to factors for analysis.
+							and these can be edited from the data view as well as from the map view. The data view also
+							shows some network statistics (degree, betweenness centrality etc.) and this view can be
+							used to assign values to factors for analysis.
 						</p>
 					</div>
 					<div class="col-md-6">
 						<img class="img-fluid" src="../img/DataViewExample.png" alt="Data View" />
 					</div>
 				</div>
-				<div class="row g-5 py-5 align-items-center">
-					<div class="col-md-6">
-						<img class="img-fluid" src="../img/ExampleMap25-1-22.png" alt="Example Map" />
-					</div>
-					<div class="col-md-6">
-						<!-- Begin Mailchimp Signup Form -->
-						<div id="mc_embed_signup">
-							<form
-								action="https://prsm.us20.list-manage.com/subscribe/post?u=b58b5b5baefd90ec35d583546&amp;id=e6838f8c8f"
-								method="post"
-								id="mc-embedded-subscribe-form"
-								name="mc-embedded-subscribe-form"
-								class="validate"
-								target="_blank"
-								novalidate
-							>
-								<div id="mc_embed_signup_scroll">
-									<h2>Subscribe to the PRSM Newsletter</h2>
-									<div class="indicates-required">
-										<span class="asterisk">*</span>
-										indicates required
-									</div>
-									<div class="mc-field-group">
-										<label for="mce-EMAIL">
-											Email Address
-											<span class="asterisk">*</span>
-										</label>
-										<input
-											type="email"
-											value=""
-											name="EMAIL"
-											class="required email"
-											id="mce-EMAIL"
-										/>
-									</div>
-									<div class="mc-field-group">
-										<label for="mce-FNAME">
-											First Name
-											<span class="asterisk">*</span>
-										</label>
-										<input type="text" value="" name="FNAME" class="required" id="mce-FNAME" />
-									</div>
-									<div class="mc-field-group">
-										<label for="mce-LNAME">
-											Last Name
-											<span class="asterisk">*</span>
-										</label>
-										<input type="text" value="" name="LNAME" class="required" id="mce-LNAME" />
-									</div>
-									<div id="mce-responses" class="clear foot">
-										<div class="response" id="mce-error-response" style="display: none"></div>
-										<div class="response" id="mce-success-response" style="display: none"></div>
-									</div>
-									<!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-									<div style="position: absolute; left: -5000px" aria-hidden="true">
-										<input
-											type="text"
-											name="b_b58b5b5baefd90ec35d583546_e6838f8c8f"
-											tabindex="-1"
-											value=""
-										/>
-									</div>
-									<div class="optionalParent">
-										<div class="clear foot">
-											<input
-												type="submit"
-												value="Subscribe"
-												name="subscribe"
-												id="mc-embedded-subscribe"
-												class="button"
-											/>
-											<p class="brandingLogo">
-												<a
-													href="http://eepurl.com/hSVbBH"
-													title="Mailchimp - email marketing made easy and fun"
-												>
-													<img
-														src="https://eep.io/mc-cdn-images/template_images/branding_logo_text_dark_dtp.svg"
-													/>
-												</a>
-											</p>
-										</div>
-									</div>
-								</div>
-							</form>
-						</div>
-						<script
-							type="text/javascript"
-							src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"
-						></script>
-						<script type="text/javascript">
-							;(function ($) {
-								window.fnames = new Array()
-								window.ftypes = new Array()
-								fnames[0] = 'EMAIL'
-								ftypes[0] = 'email'
-								fnames[1] = 'FNAME'
-								ftypes[1] = 'text'
-								fnames[2] = 'LNAME'
-								ftypes[2] = 'text'
-								fnames[3] = 'ADDRESS'
-								ftypes[3] = 'address'
-								fnames[4] = 'PHONE'
-								ftypes[4] = 'phone'
-								fnames[5] = 'BIRTHDAY'
-								ftypes[5] = 'birthday'
-							})(jQuery)
-							var $mcj = jQuery.noConflict(true)
-						</script>
-						<!--End mc_embed_signup-->
-					</div>
-				</div>
-				<div class="row py-3 shaded">
+				<div class="row text-bg-dark" style="padding-top: 20px">
 					<div class="col-sm-8 text-center mx-auto">
 						<h4>
 							To use
@@ -423,15 +309,45 @@
 							running on a desktop, tablet or phone.
 						</h4>
 						<p style="font-size: small">It will not work with Internet Explorer.</p>
+					</div>
+				</div>
+				<div class="row row-cols-3 text-bg-dark">
+					<div class="col-md-4">
+						<img
+							class="img-fluid d-block mx-auto"
+							src="../img/ExampleMapLaptop.png"
+							width="372"
+							height="240"
+							alt="Example Map"
+						/>
+						<p class="text-center">Laptop</p>
+					</div>
+					<div class="col-md-4">
+						<img
+							class="img-fluid d-block mx-auto"
+							width="286"
+							height="200px"
+							src="../img/ExampleMapTablet.png"
+							alt="Example Map"
+						/>
+						<p class="text-center">Tablet</p>
+					</div>
+					<div class="col-md-4 mx-auto">
+						<img class="img-fluid d-block mx-auto" width="92: height="200" src="../img/ExampleMapPhone.png"
+						alt="Example Map" />
+						<p class="text-center">Phone</p>
+					</div>
+				</div>
+				<div class="row py-5">
+					<div class="col-sm-8 text-center mx-auto">
 						<h4>
 							The software is free and
-							<a href="https://github.com/micrology/prsm" target="_blank" rel="noopener">open source</a>
-							.
+							<a href="https://github.com/micrology/prsm" target="_blank" rel="noopener">open source</a>.
 						</h4>
 					</div>
 				</div>
-				<div class="row shaded">
-					<div class="col-xs-12 text-center mx-auto py-5">
+				<div class="row">
+					<div class="col-xs-12 text-center mx-auto">
 						<a class="btn btn-primary btn-lg" href="./prsm.html" target="_blank" rel="noopener">Try it</a>
 					</div>
 				</div>
@@ -452,9 +368,10 @@
 						</p>
 						<p>
 							Encoded data is transmitted between users using a server located in Ireland, and so does not
-							leave the jurisdiction of the GDPR. You can save maps to your local computer in PRSM&rsquo;s
-							own format, save an image of the network, or export maps in one of several standard network
-							formats.
+							leave the jurisdiction of the GDPR. You can also install the server on your local intranet
+							if you wish. You can save maps to your local computer in PRSM&rsquo;s own format, save an
+							image of the network, or export maps to Microsoft Excel or in one of several standard
+							network formats.
 						</p>
 					</div>
 					<div class="col-sm-6 p-5">
@@ -485,9 +402,9 @@
 							</a>
 							for creating participatory system maps. These maps were thought to be very helpful to those
 							who worked on them &mdash; policymakers, policy analysts, and stakeholders in public policy
-							&mdash; but it was laborious digitising the paper and Post-It&trade; notes that were used in
-							mapping sessions. We therefore began investigating the possibility of asking participants to
-							use mapping software.
+							&mdash; but it was laborious to digitise the paper and Post-It&trade; notes that were used
+							in mapping sessions. We therefore began investigating the possibility of asking participants
+							to use mapping software.
 						</p>
 						<p>
 							Shortly afterwards (early 2020), the COVID-19 pandemic meant that the kind of face-to-face
@@ -510,10 +427,9 @@
 						</p>
 						<p>
 							PRSM was designed and written by
-							<a href="https://en.wikipedia.org/wiki/Nigel_Gilbert" target="_blank" rel="noopener">
-								Nigel Gilbert
-							</a>
-							.
+							<a href="https://en.wikipedia.org/wiki/Nigel_Gilbert" target="_blank" rel="noopener"
+								>Nigel Gilbert</a
+							>.
 						</p>
 					</div>
 				</div>
@@ -615,8 +531,8 @@
 			<button class="btn btn-primary mt-3 accept-cookies">OK</button>
 		</div>
 		<script
-			src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-			integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+			src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
 			crossorigin="anonymous"
 		></script>
 		<script>
