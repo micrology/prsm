@@ -1157,10 +1157,18 @@ function draw() {
 	network.on('deselectNode', function (obj) {
 		if (/gui/.test(debug)) console.log('deselectNode', obj)
 		// if some other node(s) are already selected, and the user has
-		// clicked on one of the selected nodes, do nothing
-		if (obj.nodes.length > 0) {
-			network.selectNodes(obj.previousSelection.nodes.map((node) => node.id))
-			return
+		// clicked on one of the selected nodes, do nothing,
+		// i.e reselect all the nodes previously selected
+		if (obj.nodes) {  // clicked on a node
+			let prevSelIds = obj.previousSelection.nodes.map((node) => node.id)
+			if (prevSelIds.includes(obj.nodes[0])) {
+				// reselect the previously selected nodes
+				network.selectNodes(
+					obj.previousSelection.nodes.map((node) => node.id),
+					false
+				)
+				return
+			}
 		}
 		showSelected()
 		showNodeOrEdgeData()
@@ -3042,7 +3050,7 @@ function showNodeOrEdgeData() {
 	else if (network.getSelectedEdges().length === 1) showEdgeData()
 }
 /**
- * open another window in which Notes can be edited 
+ * open another window in which Notes can be edited
  */
 function openNotesWindow() {
 	popupWindow = window.open('', 'popupWindowName', 'toolbar=no,width=600,height=600')
@@ -3067,8 +3075,8 @@ function openNotesWindow() {
 /**
  * Create a Quill editor in the editing window
  * Note that this is called from the editing window
- * @param {HTMLElement} editorEl 
- * @param {string} nodeId 
+ * @param {HTMLElement} editorEl
+ * @param {string} nodeId
  */
 function editNotesInWindow(editorEl, nodeId) {
 	let node = data.nodes.get(nodeId)
