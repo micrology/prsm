@@ -86,10 +86,10 @@ import {
 	deselectTool,
 	copyBackgroundToClipboard,
 	pasteBackgroundFromClipboard,
-	upgradeFromV1
+	upgradeFromV1,
 } from './background.js'
 import {version} from '../package.json'
-import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
+import {compressToUTF16, decompressFromUTF16} from 'lz-string'
 
 const appName = 'Participatory System Mapper'
 const shortAppName = 'PRSM'
@@ -163,6 +163,8 @@ var dirty = false // map has been changed by user and may need saving
 var hammer // Hammer pinch recogniser instance
 var followme // clientId of user's cursor to follow
 var editor = null // Quill editor
+var popupWindow = null // window for editing Notes
+var popupEditor = null // Quill editor in popup window
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
 var netLoaded = false // becomes true when map is fully displayed
 var savedState = '' // the current state of the map (nodes, edges, network settings) before current user action
@@ -269,6 +271,8 @@ function addEventListeners() {
 	listen('showNotesSwitch', 'click', showNotesSwitch)
 	listen('clustering', 'change', selectClustering)
 	listen('lock', 'click', setFixed)
+	listen('newwindow', 'click', openNotesWindow)
+
 	Array.from(document.getElementsByName('radius')).forEach((elem) => {
 		elem.addEventListener('change', analyse)
 	})
@@ -289,7 +293,7 @@ function addEventListeners() {
 			applySampleToLink(event)
 		})
 	)
-	
+
 	listen('body', 'copy', copyToClipboard)
 	listen('body', 'paste', pasteFromClipboard)
 }
@@ -2403,7 +2407,7 @@ Network.prototype.zoom = function (scale) {
 
 /**
  * rescale and redraw the network so that it fits the pane
-*/
+ */
 export function fit() {
 	let prevPos = network.getViewPosition()
 	network.fit({
@@ -2412,7 +2416,7 @@ export function fit() {
 	let newPos = network.getViewPosition()
 	let newScale = network.getScale()
 	zoomCanvas(1.0)
-	panCanvas((prevPos.x - newPos.x), (prevPos.y - newPos.y), 1.0)
+	panCanvas(prevPos.x - newPos.x, prevPos.y - newPos.y, 1.0)
 	zoomCanvas(newScale)
 	elem('zoom').value = newScale
 	network.storePositions()
@@ -2826,7 +2830,7 @@ function doSearch(event) {
 		let newPos = network.getViewPosition()
 		let newScale = network.getScale()
 		zoomCanvas(1.0)
-		panCanvas((prevPos.x - newPos.x), (prevPos.y - newPos.y), 1.0)
+		panCanvas(prevPos.x - newPos.x, prevPos.y - newPos.y, 1.0)
 		zoomCanvas(newScale)
 		elem('zoom').value = newScale
 		network.storePositions()
@@ -3038,6 +3042,73 @@ function showNodeOrEdgeData() {
 	else if (network.getSelectedEdges().length === 1) showEdgeData()
 }
 /**
+ * open another window in which Notes can be edited 
+ */
+function openNotesWindow() {
+	popupWindow = window.open('', 'popupWindowName', 'toolbar=no,width=600,height=600')
+	let nodeId = network.getSelectedNodes()[0]
+	let node = data.nodes.get(nodeId)
+	let label = node.label ? shorten(node.label) : ''
+	let doc = popupWindow.document
+	doc.open()
+	doc.writeln(`<html><head><title>${label}</title>
+	<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+	</head><body><div id="editor"></div>
+	</body></html>`)
+	doc.write(`
+	<script>
+	window.addEventListener('load', () => {
+		nodeId = '${nodeId}'; 
+		window.opener.editNotesInWindow(document.getElementById('editor'), nodeId);
+	})
+	</script>`)
+	doc.close()
+}
+/**
+ * Create a Quill editor in the editing window
+ * Note that this is called from the editing window
+ * @param {HTMLElement} editorEl 
+ * @param {string} nodeId 
+ */
+function editNotesInWindow(editorEl, nodeId) {
+	let node = data.nodes.get(nodeId)
+	popupEditor = new Quill(editorEl, {
+		modules: {
+			toolbar: [
+				'bold',
+				'italic',
+				'underline',
+				'link',
+				{list: 'ordered'},
+				{list: 'bullet'},
+				{indent: '-1'},
+				{indent: '+1'},
+			],
+		},
+		placeholder: 'Notes',
+		theme: 'snow',
+		readOnly: viewOnly,
+	})
+	popupEditor.id = node.id
+	if (node.note) {
+		if (node.note instanceof Object) popupEditor.setContents(node.note)
+		else popupEditor.setText(node.note)
+	} else popupEditor.setText('')
+	popupEditor.on('text-change', (delta, oldDelta, source) => {
+		if (source === 'user') {
+			data.nodes.update({
+				id: nodeId,
+				note: isQuillEmpty(popupEditor) ? '' : popupEditor.getContents(),
+				modified: timestamp(),
+			})
+			editor.setContents(popupEditor.getContents())
+		}
+	})
+}
+// essential, so that this can be called using window.opener.editNotesInWindow from the editing window
+window.editNotesInWindow = editNotesInWindow
+
+/**
  * Hide the Node or Edge Data panel
  */
 function hideNotes() {
@@ -3047,6 +3118,7 @@ function hideNotes() {
 	document.getSelection().removeAllRanges()
 	document.querySelectorAll('.ql-toolbar').forEach((e) => e.remove())
 	editor = null
+	if (popupWindow) popupWindow.close()
 }
 /**
  * Show the notes box, the fixed node check box and the node statistics
@@ -3091,12 +3163,14 @@ function showNodeData(nodeId) {
 		else editor.setText(node.note)
 	} else editor.setText('')
 	editor.on('text-change', (delta, oldDelta, source) => {
-		if (source === 'user')
+		if (source === 'user') {
 			data.nodes.update({
 				id: nodeId,
 				note: isQuillEmpty(editor) ? '' : editor.getContents(),
 				modified: timestamp(),
 			})
+			if (popupEditor) popupEditor.setContents(editor.getContents())
+		}
 	})
 	panel.classList.remove('hide')
 	displayStatistics(nodeId)
