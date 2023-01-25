@@ -1454,6 +1454,7 @@ function contextMenu(event) {
 export function timestamp() {
 	return {time: Date.now(), user: myNameRec.name}
 }
+window.timestamp = timestamp
 /**
  * push a record that action has been taken on to the end of the history log
  *  also record current state of the map for possible roll back
@@ -3050,7 +3051,7 @@ function showNodeOrEdgeData() {
 	else if (network.getSelectedEdges().length === 1) showEdgeData()
 }
 /**
- * open another window in which Notes can be edited
+ * open another window (popupWindow) in which Notes can be edited
  */
 function openNotesWindow() {
 	popupWindow = window.open('', 'popupWindowName', 'toolbar=no,width=600,height=600')
@@ -3064,58 +3065,44 @@ function openNotesWindow() {
 	</head><body><div id="editor"></div>
 	</body></html>`)
 	doc.write(`
+	<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 	<script>
 	window.addEventListener('load', () => {
-		nodeId = '${nodeId}'; 
-		window.opener.editNotesInWindow(document.getElementById('editor'), nodeId);
+		let nodeId = '${nodeId}'; 
+		let node = window.opener.data.nodes.get(nodeId)
+		let popupEditor = new Quill(document.getElementById('editor'), {
+			modules: {
+				toolbar: [
+					'bold',
+					'italic',
+					'underline',
+					'link',
+					{list: 'ordered'},
+					{list: 'bullet'},
+					{indent: '-1'},
+					{indent: '+1'},
+				],
+			},
+			placeholder: 'Notes',
+			theme: 'snow',
+			//readOnly: viewOnly,
+		})
+		window.popupEditor = popupEditor
+		popupEditor.setContents(node.note)
+		popupEditor.on('text-change', (delta, oldDelta, source) => {
+			if (source === 'user') {
+				window.opener.data.nodes.update({
+					id: nodeId,
+					note: popupEditor.getContents(),
+					modified: window.opener.timestamp(),
+				})
+				window.opener.editor.setContents(popupEditor.getContents())
+			}
+		})
 	})
 	</script>`)
 	doc.close()
 }
-/**
- * Create a Quill editor in the editing window
- * Note that this is called from the editing window
- * @param {HTMLElement} editorEl
- * @param {string} nodeId
- */
-function editNotesInWindow(editorEl, nodeId) {
-	let node = data.nodes.get(nodeId)
-	popupEditor = new Quill(editorEl, {
-		modules: {
-			toolbar: [
-				'bold',
-				'italic',
-				'underline',
-				'link',
-				{list: 'ordered'},
-				{list: 'bullet'},
-				{indent: '-1'},
-				{indent: '+1'},
-			],
-		},
-		placeholder: 'Notes',
-		theme: 'snow',
-		readOnly: viewOnly,
-	})
-	popupEditor.id = node.id
-	if (node.note) {
-		if (node.note instanceof Object) popupEditor.setContents(node.note)
-		else popupEditor.setText(node.note)
-	} else popupEditor.setText('')
-	popupEditor.on('text-change', (delta, oldDelta, source) => {
-		if (source === 'user') {
-			data.nodes.update({
-				id: nodeId,
-				note: isQuillEmpty(popupEditor) ? '' : popupEditor.getContents(),
-				modified: timestamp(),
-			})
-			editor.setContents(popupEditor.getContents())
-		}
-	})
-}
-// essential, so that this can be called using window.opener.editNotesInWindow from the editing window
-window.editNotesInWindow = editNotesInWindow
-
 /**
  * Hide the Node or Edge Data panel
  */
@@ -3165,6 +3152,7 @@ function showNodeData(nodeId) {
 		readOnly: viewOnly,
 		bounds: elem('node-edit-container'),
 	})
+	window.editor = editor
 	editor.id = node.id
 	if (node.note) {
 		if (node.note instanceof Object) editor.setContents(node.note)
@@ -3177,6 +3165,7 @@ function showNodeData(nodeId) {
 				note: isQuillEmpty(editor) ? '' : editor.getContents(),
 				modified: timestamp(),
 			})
+			popupEditor = popupWindow.popupEditor
 			if (popupEditor) popupEditor.setContents(editor.getContents())
 		}
 	})
