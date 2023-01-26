@@ -170,10 +170,11 @@ export function deepMerge() {
 
 /**
  * returns a deep copy of the object
+ * original replaced by new built-in
  * @param {Object} obj
  */
 export function deepCopy(obj) {
-	if (typeof obj !== 'object' || obj === null) {
+/* 	if (typeof obj !== 'object' || obj === null) {
 		return obj
 	}
 	if (obj instanceof Array) {
@@ -187,7 +188,8 @@ export function deepCopy(obj) {
 			newObj[key] = deepCopy(obj[key])
 			return newObj
 		}, {})
-	}
+	} */
+	return structuredClone(obj)
 }
 window.deepCopy = deepCopy
 /**

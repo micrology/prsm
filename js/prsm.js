@@ -271,7 +271,8 @@ function addEventListeners() {
 	listen('showNotesSwitch', 'click', showNotesSwitch)
 	listen('clustering', 'change', selectClustering)
 	listen('lock', 'click', setFixed)
-	listen('newwindow', 'click', openNotesWindow)
+	listen('newNodeWindow', 'click', openNotesWindow)
+	listen('newEdgeWindow', 'click', openNotesWindow)
 
 	Array.from(document.getElementsByName('radius')).forEach((elem) => {
 		elem.addEventListener('change', analyse)
@@ -3054,54 +3055,7 @@ function showNodeOrEdgeData() {
  * open another window (popupWindow) in which Notes can be edited
  */
 function openNotesWindow() {
-	popupWindow = window.open('', 'popupWindowName', 'toolbar=no,width=600,height=600')
-	let nodeId = network.getSelectedNodes()[0]
-	let node = data.nodes.get(nodeId)
-	let label = node.label ? shorten(node.label) : ''
-	let doc = popupWindow.document
-	doc.open()
-	doc.writeln(`<html><head><title>${label}</title>
-	<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-	</head><body><div id="editor"></div>
-	</body></html>`)
-	doc.write(`
-	<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-	<script>
-	window.addEventListener('load', () => {
-		let nodeId = '${nodeId}'; 
-		let node = window.opener.data.nodes.get(nodeId)
-		let popupEditor = new Quill(document.getElementById('editor'), {
-			modules: {
-				toolbar: [
-					'bold',
-					'italic',
-					'underline',
-					'link',
-					{list: 'ordered'},
-					{list: 'bullet'},
-					{indent: '-1'},
-					{indent: '+1'},
-				],
-			},
-			placeholder: 'Notes',
-			theme: 'snow',
-			//readOnly: viewOnly,
-		})
-		window.popupEditor = popupEditor
-		popupEditor.setContents(node.note)
-		popupEditor.on('text-change', (delta, oldDelta, source) => {
-			if (source === 'user') {
-				window.opener.data.nodes.update({
-					id: nodeId,
-					note: popupEditor.getContents(),
-					modified: window.opener.timestamp(),
-				})
-				window.opener.editor.setContents(popupEditor.getContents())
-			}
-		})
-	})
-	</script>`)
-	doc.close()
+	popupWindow = window.open('./dist/NoteWindow.html', 'popupWindowName', 'toolbar=no,width=600,height=600')
 }
 /**
  * Hide the Node or Edge Data panel
@@ -3152,7 +3106,7 @@ function showNodeData(nodeId) {
 		readOnly: viewOnly,
 		bounds: elem('node-edit-container'),
 	})
-	window.editor = editor
+	window.editor = editor  // used by popupEditor to access this editor
 	editor.id = node.id
 	if (node.note) {
 		if (node.note instanceof Object) editor.setContents(node.note)
@@ -3173,7 +3127,12 @@ function showNodeData(nodeId) {
 	displayStatistics(nodeId)
 	positionNotes()
 }
-
+/**
+ * test whether the editor has any content
+ * (could be an empty string or a Quill insert operation of just a single newline character)
+ * @param {object} quill editor
+ * @returns 
+ */
 function isQuillEmpty(quill) {
 	if ((quill.getContents()['ops'] || []).length !== 1) {
 		return false
@@ -3213,17 +3172,21 @@ function showEdgeData() {
 		bounds: elem('edge-edit-container'),
 	})
 	editor.id = edge.id
+	window.editor = editor  // used by popupEditor to access this editor
 	if (edge.note) {
 		if (edge.note instanceof Object) editor.setContents(edge.note)
 		else editor.setText(edge.note)
 	} else editor.setText('')
 	editor.on('text-change', (delta, oldDelta, source) => {
-		if (source === 'user')
+		if (source === 'user') {
 			data.edges.update({
 				id: edgeId,
 				note: isQuillEmpty(editor) ? '' : editor.getContents(),
 				modified: timestamp(),
 			})
+			popupEditor = popupWindow.popupEditor
+			if (popupEditor) popupEditor.setContents(editor.getContents())
+		}
 	})
 	panel.classList.remove('hide')
 	positionNotes()
