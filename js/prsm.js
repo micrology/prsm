@@ -61,7 +61,7 @@ import {
 	openFile,
 	savePRSMfile,
 	exportPNGfile,
-	exportCVS,
+//	exportCVS,
 	exportExcel,
 	exportDOT,
 	exportGML,
@@ -231,7 +231,7 @@ function addEventListeners() {
 	listen('saveFile', 'click', savePRSMfile)
 	listen('exportPRSM', 'click', savePRSMfile)
 	listen('exportImage', 'click', exportPNGfile)
-	listen('exportCVS', 'click', exportCVS)
+	// listen('exportCVS', 'click', exportCVS)
 	listen('exportExcel', 'click', exportExcel)
 	listen('exportGML', 'click', exportGML)
 	listen('exportDOT', 'click', exportDOT)
@@ -3119,8 +3119,10 @@ function showNodeData(nodeId) {
 				note: isQuillEmpty(editor) ? '' : editor.getContents(),
 				modified: timestamp(),
 			})
-			popupEditor = popupWindow.popupEditor
-			if (popupEditor) popupEditor.setContents(editor.getContents())
+			if (popupWindow) {
+				popupEditor = popupWindow.popupEditor
+				if (popupEditor) popupEditor.setContents(editor.getContents())
+			}
 		}
 	})
 	panel.classList.remove('hide')

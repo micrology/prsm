@@ -316,13 +316,13 @@
 											<span class="tooltiptext">Save as a PNG image file</span>
 										</div>
 									</div>
-									<div>
+<!-- 									<div>
 										<div class="tooltip">
 											<button class="dropdown-label" type="button" id="exportCVS">CSV</button>
 											<span class="tooltiptext">Save as CSV files</span>
 										</div>
 									</div>
-									<div>
+ -->									<div>
 										<div class="tooltip">
 											<button class="dropdown-label" type="button" id="exportExcel">Excel</button>
 											<span class="tooltiptext">Save as Excel workbook</span>
@@ -873,7 +873,7 @@
 						<span class="nodeLabel" id="nodeLabel"></span>
 					</div>
 					<div id="lock">
-						<span id="unfixed">
+						<span id="unfixed" class="tooltip">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="16"
@@ -886,8 +886,9 @@
 									d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2z"
 								/>
 							</svg>
+							<span class="tooltiptext">Lock position</span>
 						</span>
-						<span id="fixed">
+						<span id="fixed" class="tooltip">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="16"
@@ -900,9 +901,10 @@
 									d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"
 								/>
 							</svg>
+							<span class="tooltiptext">Unlock position</span>
 						</span>
 					</div>
-					<div id="newNodeWindow">
+					<div id="newNodeWindow" class="tooltip">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="16"
@@ -917,6 +919,7 @@
 								d="M16 5h1.58l-6.29 6.28a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0L19 6.42V8a1 1 0 0 0 1 1 1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-4a1 1 0 0 0 0 2z"
 							/>
 						</svg>
+						<span class="tooltiptext settingstip">Open in a new window</span>
 					</div>
 				</div>
 				<div class="row">

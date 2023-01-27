@@ -1980,6 +1980,7 @@ export function upgradeFromV1(pointsArray) {
  */
 function markConverted() {
 	let first = yPointsArray.get(0)
+	if (!first[1]) first[1] = {}
 	first[1].converted = true
 	yPointsArray.insert(0, [first])
 }
