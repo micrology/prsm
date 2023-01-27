@@ -64,6 +64,8 @@ If a factor or link has a note, a small 'card' icon is shown next to it.
 
 A basic editor is provided for writing the Notes.  You can format the text with **bold**, *italic* or <u>underline</u>, create bulletted or numbered lists, and add weblinks (URLs) to the text.
 
+Clicking the button at the top right of the panel will open a new window that also shows the notes for the factor or link.  Using this window is easier if you have more than a few words to write.  It also provides a more extensive range of editing buttons:  you can style the text, insert images into the text, change the font and so on.  The small panel version of the notes keeps in sync with the larger window, and the text is saved as you write. When you are finished, click on the map background to deselect the factor or link; this also closes the Note Window.  
+
 For factors, there is also an open or closed padlock symbol. If this is shown closed, the factor will be locked into place on the network pane and cannot be dragged elsewhere.  The factor will have a small padlock symbol at the top left.  
 
 :::tip

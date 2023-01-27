@@ -35,13 +35,13 @@ A **CSV** file must contain at least two columns of values.  Each row represents
 
 :::caution
 
-The CSV format is now depreciated, becuase the Excel format is easier to use and Excel can read and write CSV files.  The CSV format may be removed in a future version.*
+The CSV format is now depreciated, becuase the Excel format is easier to use and Excel can read and write CSV files.  The CSV format may be removed in a future version.
 
 :::
 
 ## Saving and Exporting maps
 
-PRSM can create output files in the app's own native format or as **GML**, **GraphViz** or **CSV** files, or as an **Excel** workbook. It can also output the map as a high resolution image.
+PRSM can create output files in the app's own native format or as **GML** and **GraphViz** files, or as an **Excel** workbook. It can also output the map as a high resolution image.
 
 To save an output file, click on the small downward pointing triangle beside the Save button in the top bar and choose which format you want.
 
@@ -52,7 +52,3 @@ To save an output file, click on the small downward pointing triangle beside the
 ### Images
 
 You can  save a high resolution (600 dpi) image of the map as a **Portable Network Graphics** (.png) file.  The image shows the same view of the map as you see on the screen (so, for example, it will not show factors that have been moved out of the app window).
-
-### CSV
-
-The CSV output produces two files, one listing all the factors and the other all the links.  The factor file starts with a header row with the names of the columns (`Id,Label,Style,Note`) and then describes each factor. The links file has a header: `Source,Target,Type,Id,Label,Style,Note`, where the Source and Target refer to the Ids listed in the factors CSV file.
