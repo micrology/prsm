@@ -56,6 +56,7 @@ import {
 	setEndOfContenteditable,
 	exactTime,
 	humanSize,
+	isQuillEmpty
 } from './utils.js'
 import {
 	openFile,
@@ -3128,18 +3129,6 @@ function showNodeData(nodeId) {
 	panel.classList.remove('hide')
 	displayStatistics(nodeId)
 	positionNotes()
-}
-/**
- * test whether the editor has any content
- * (could be an empty string or a Quill insert operation of just a single newline character)
- * @param {object} quill editor
- * @returns 
- */
-function isQuillEmpty(quill) {
-	if ((quill.getContents()['ops'] || []).length !== 1) {
-		return false
-	}
-	return quill.getText().trim().length === 0
 }
 
 function showEdgeData() {

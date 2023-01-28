@@ -925,3 +925,15 @@ export function humanSize(bytes, si = true) {
 	;['', si ? 'k' : 'K', ...'MGTPEZY'].find((x) => ((u = x), (b /= t), b ** 2 < 1))
 	return `${u ? (t * b).toFixed(1) : bytes}${u}${!si && u ? 'i' : ''}B`
 }
+/**
+ * test whether the editor has any content
+ * (could be an empty string or a Quill insert operation of just a single newline character)
+ * @param {object} quill editor
+ * @returns 
+ */
+export function isQuillEmpty(quill) {
+	if ((quill.getContents()['ops'] || []).length !== 1) {
+		return false
+	}
+	return quill.getText().trim().length === 0
+}
