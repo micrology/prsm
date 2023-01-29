@@ -8,7 +8,8 @@
 	--header-color: #0d2644;
 	--header-hover-color: grey;
 	--header-pressed-color: grey;
-	--header-disabled-color: #a8d3f0;
+	--header-buttons-color:#0d2644;
+	--header-disabled-color: #215fab;
 	--panel-color: #404040;
 	--pop-up-color: #f5f5f5;
 	--pop-up-shadow-color: #c9c9c9;
@@ -56,6 +57,7 @@ select {
 }
 select {
 	border-color: lightgrey;
+	border-radius: 5px;
 	font-size: 12px;
 	outline: none;
 }
@@ -186,7 +188,6 @@ select {
 	position: absolute;
 	top: 0;
 	left: 0;
-	background-color: transparent;
 }
 aside {
 	position: fixed;
@@ -336,11 +337,12 @@ input[type='range'] {
 .input-color-container {
 	position: relative;
 	overflow: hidden;
-	width: 30px;
-	height: 30px;
+	width: 20px;
+	height: 20px;
 	border: solid 2px lightgrey;
-	border-radius: 30px;
+	border-radius: 20px;
 	margin: auto;
+	padding:0;
 }
 
 /* ----------- colour picker ----------*/
@@ -360,9 +362,9 @@ input[type='range'] {
 .color-well {
 	position: relative;
 	overflow: hidden;
-	width: 30px;
-	height: 30px;
-	border-radius: 30px;
+	width: 20px;
+	height: 20px;
+	border-radius: 20px;
 	margin: auto;
 	background-color: white;
 }
@@ -443,6 +445,56 @@ nav {
 .room-title-text:hover {
 	background-color: var(--header-hover-color);
 }
+.room-title-tooltip {
+	position: relative;
+	border-bottom: 1px dotted #666;
+	text-align: left;
+}
+.room-title-right {
+	min-width: 150px;
+	top: 50%;
+	left: 100%;
+	margin-left: 20px;
+	transform: translate(0, -50%);
+	padding: 10px 20px;
+	color: #444444;
+	background-color: #eeeeee;
+	font-weight: normal;
+	font-size: 13px;
+	border-radius: 8px;
+	position: absolute;
+	z-index: 99999999;
+	box-sizing: border-box;
+	box-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+	visibility: hidden;
+	opacity: 0;
+	transition: opacity 0.8s;
+}
+.room-title-tooltip:hover .room-title-right {
+	visibility: visible;
+	opacity: 1;
+}
+.room-title-tooltip .room-title-right i {
+	position: absolute;
+	top: 50%;
+	right: 100%;
+	margin-top: -12px;
+	width: 12px;
+	height: 24px;
+	overflow: hidden;
+}
+.room-title-tooltip .room-title-right i::after {
+	content: '';
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	left: 0;
+	top: 50%;
+	transform: translate(50%, -50%) rotate(-45deg);
+	background-color: #eeeeee;
+	box-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+}
+
 .button-wrapper {
 	margin: auto 50px auto auto;
 }
@@ -451,11 +503,15 @@ nav {
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;
+	border: var(--tab-color) solid 1px;
+	background-color: var(--header-buttons-color);
+	border-radius: 4px;
+	padding: 5px;
 }
 nav button {
 	border: none;
 	color: white;
-	background-color: var(--header-color);
+	background-color: var(--header-buttons-color);
 	margin: auto 5px;
 	padding: 1px 6px;
 	outline: none;
@@ -492,7 +548,7 @@ nav button .pressed {
 	display: inline-block;
 	padding: 0px;
 	color: white;
-	z-index: 2001;
+	z-index: 1050;
 }
 .dropdown-content {
 	display: none;
@@ -538,7 +594,7 @@ nav button .pressed {
 	width: 195px;
 	position: absolute;
 	right: 5px;
-	top: 100px;
+	top: 13px;
 	z-index: 2500;
 }
 .search-suggestion {
@@ -608,7 +664,7 @@ nav button .pressed {
 	left: -110%;
 }
 .tooltiptext.settingstip {
-	top: 0;
+	top: 100%;
 	left: -110%;
 }
 /* Share modal dialog */
@@ -760,6 +816,7 @@ nav button .pressed {
 .tab {
 	display: flex;
 	justify-content: space-between;
+	padding: 0 4px 0 4px;
 	overflow: hidden;
 	background-color: var(--panel-color);
 }
@@ -768,9 +825,10 @@ nav button .pressed {
 .tab .tablinks {
 	flex: 1;
 	font-size: 11px;
-	background-color: var(--tab-color);
+	background-color: var(--panel-color);
+	color: white;
 	float: left;
-	border-right: 1px solid black;
+	border: 1px solid white;
 	border-radius: 4px;
 	width: 66px;
 	text-align: center;
@@ -939,6 +997,58 @@ but moving the panel out of sight works instead */
 	display: none;
 }
 
+/* switch */
+.switch {
+	position: relative;
+	display: inline-block;
+	width: 30px;
+	height: 18px;
+  }
+  /* Hide default HTML checkbox */
+  .switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+  }
+  /* The slider */
+  .slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: black;
+	transition: .4s;
+  }
+  .slider:before {
+	position: absolute;
+	content: "";
+	height: 14px;
+	width: 14px;
+	left: 2px;
+	bottom: 1px;
+	background-color: white;
+	transition: .4s;
+  }
+  input:checked + .slider {
+	background-color: darkgrey;
+  }
+  input:focus + .slider {
+	box-shadow: 0 0 1px darkgrey;
+  }
+  input:checked + .slider:before {
+	transform: translateX(12px);
+  }
+  /* Rounded sliders */
+  .slider.rounded {
+	border-radius: 17px;
+	border: 1px solid grey;
+  }
+  .slider.rounded:before {
+	border-radius: 50%;
+  }
+
 /* create a push button */
 .pushbutton {
 	padding: 0 5px;
@@ -957,75 +1067,6 @@ but moving the panel out of sight works instead */
 	border-top: 1px solid grey;
 	color: white;
 	transition: All 250ms ease;
-}
-/* create the impression of a sliding on/off switch see https://proto.io/freebies/onoff/ */
-
-.onoffswitch {
-	position: relative;
-	width: 50px;
-	user-select: none;
-	-webkit-user-select: none;
-}
-.onoffswitch-checkbox {
-	display: none;
-}
-.onoffswitch-label {
-	display: block;
-	overflow: hidden;
-	cursor: pointer;
-	border: 0 solid gray;
-	border-radius: 11px;
-}
-.onoffswitch-inner {
-	display: block;
-	width: 200%;
-	margin-left: -100%;
-	transition: margin 0.3s ease-in 0s;
-}
-.onoffswitch-inner:before,
-.onoffswitch-inner:after {
-	display: block;
-	float: left;
-	width: 50%;
-	height: 16px;
-	padding: 1px 0 0 0;
-	line-height: 16px;
-	font-size: 11px;
-	color: white;
-	font-weight: bold;
-	box-sizing: border-box;
-}
-.onoffswitch-inner:before {
-	content: 'ON';
-	padding-left: 10px;
-	background-color: white;
-	color: black;
-}
-.onoffswitch-inner:after {
-	content: 'OFF';
-	padding-right: 5px;
-	background-color: white;
-	color: black;
-	text-align: right;
-}
-.onoffswitch-switch {
-	display: block;
-	width: 18px;
-	margin: -1px;
-	background: black;
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	right: 32px;
-	border: 2px solid gray;
-	border-radius: 11px;
-	transition: all 0.3s ease-in 0s;
-}
-.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
-	margin-left: 0;
-}
-.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
-	right: 0;
 }
 
 /*  style editors */
@@ -1208,7 +1249,7 @@ but moving the panel out of sight works instead */
 	resize: none;
 	padding: 5px 10px;
 	height: 40px;
-	font-size: 12px;
+	font-size: 16px;
 	font-family: Oxygen, sans-serif;
 	color: black;
 	flex: 1;
@@ -1250,6 +1291,17 @@ but moving the panel out of sight works instead */
 	to {
 		background: var(--header-hover-color);
 	}
+}
+emoji-picker {
+	position: absolute;
+	right: 320px;
+	bottom: 30px;
+	z-index: 1000;
+	--emoji-size: 1.25rem;
+	--num-columns: 8;
+	--emoji-padding: 2px;
+	--input-line-height: 1;
+	--input-font-size: 12px;
 }
 .emoji {
 	border: 0;
@@ -1357,13 +1409,24 @@ but moving the panel out of sight works instead */
 	width: 100%;
 	height: 100%;
 	background-color: transparent;
+	opacity: 0.9;
 }
 .toolbox {
 	position: absolute;
 	top: 100px;
 	left: 10px;
-	z-index: 1001;
+	z-index: 1003;
 	display: none;
+}
+.toolbox-header {
+	height: 15px;
+	width: 40px;
+	border: 1px solid black;
+	border-radius: 3px;
+	margin: 8px;
+}
+.toolbox-divider {
+	height: 2px;
 }
 .tool {
 	position: relative;
@@ -1383,6 +1446,9 @@ but moving the panel out of sight works instead */
 .tool:active,
 .selected {
 	background-color: darkgray;
+}
+.disabled {
+	color: var(--header-disabled-color);
 }
 .tool .tooltiptext {
 	visibility: hidden;
@@ -1432,7 +1498,7 @@ but moving the panel out of sight works instead */
 	border-color: transparent var(--pop-up-shadow-color) transparent transparent;
 }
 .options div {
-	text-align: left;
+	text-align: center;
 	padding: 2px;
 }
 .options :nth-child(2n + 1) {
@@ -1441,15 +1507,9 @@ but moving the panel out of sight works instead */
 .options .right {
 	text-align: right;
 }
-div.resize {
-	cursor: nwse-resize;
-	position: absolute;
-	background-color: black;
-	width: 10px;
-	height: 10px;
-	bottom: 0px;
-	right: 0px;
-}
+.options .input-color-container .color-well {
+	padding: 0;
+} 
 /* avatars */
 .avatars {
 	display: flex;
@@ -1839,7 +1899,7 @@ div.resize {
 
 .context-menu .item {
 	margin: 2px;
-	padding: 2x;
+	padding: 2px;
 	white-space: nowrap;
 	border-bottom: 1px solid lightgrey;
 	border-radius: 7px;
@@ -1885,6 +1945,7 @@ div.resize {
 	}
 	.buttons {
 		justify-content: center;
+		border: 0;
 	}
 	nav button {
 		margin: auto 0;
@@ -1932,6 +1993,7 @@ div.resize {
 	.buttons {
 		justify-content: space-around;
 		flex-wrap: wrap;
+		border: 0;
 	}
 	nav button {
 		margin: auto 0;
@@ -1960,6 +2022,9 @@ div.resize {
 	.modal-body {
 		font-size: small;
 		padding: 8px;
+	}
+	.tutorial-dialog.wide {
+		width: 400px;
 	}
 }
 

@@ -48,6 +48,8 @@ import {
 	setMapTitle,
 	recreateClusteringMenu,
 	markMapSaved,
+	fit,
+	yDrawingMap,
 } from './prsm.js'
 import {
 	elem,
@@ -61,6 +63,7 @@ import {
 	lowerFirstLetter,
 } from './utils.js'
 import {styles} from './samples.js'
+import {canvas, refreshFromMap, upgradeFromV1} from './background.js'
 import {updateLegend} from './styles.js'
 import Quill from 'quill'
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
@@ -131,7 +134,7 @@ function loadFile(contents) {
 				break
 			case 'json':
 			case 'prsm':
-				loadJSONfile(arrayBufferToString(contents))
+				loadPRSMfile(arrayBufferToString(contents))
 				break
 			case 'gv':
 			case 'dot':
@@ -176,7 +179,7 @@ function loadFile(contents) {
 		})
 		data.edges.update(edgesToUpdate)
 
-		network.fit(0)
+		fit()
 		updateLegend()
 		logHistory('loaded &lt;' + lastFileName + '&gt;')
 	})
@@ -197,7 +200,7 @@ function arrayBufferToString(contents) {
  * Parse and load a PRSM map file, or a JSON file exported from Gephi
  * @param {string} str
  */
-function loadJSONfile(str) {
+function loadPRSMfile(str) {
 	if (str[0] != '{') str = decompressFromUTF16(str)
 	let json = JSON.parse(str)
 	if (json.version && version.substring(0, 3) > json.version.substring(0, 3)) {
@@ -207,6 +210,10 @@ function loadJSONfile(str) {
 	updateLastSamples(json.lastNodeSample, json.lastLinkSample)
 	if (json.buttons) setButtonStatus(json.buttons)
 	if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle))
+	if (json.recentMaps) {
+		let recents = JSON.parse(localStorage.getItem('recents')) || {}
+		localStorage.setItem('recents', JSON.stringify(Object.assign(json.recentMaps, recents)))
+	}
 	if (json.attributeTitles) yNetMap.set('attributeTitles', json.attributeTitles)
 	else yNetMap.set('attributeTitles', {})
 	if (json.edges.length > 0 && 'source' in json.edges[0]) {
@@ -227,11 +234,13 @@ function loadJSONfile(str) {
 			// at version 1.5, the title: property was renamed to note:
 			if (!n.note && n.title) n.note = n.title.replace(/<br>|<p>/g, '\n')
 			delete n.title
+			if (n.note && !(n.note instanceof Object)) n.note = { ops: [{ insert: n.note }]}
 		})
 		data.nodes.add(json.nodes)
 		json.edges.forEach((e) => {
 			if (!e.note && e.title) e.note = e.title.replace(/<br>|<p>/g, '\n')
 			delete e.title
+			if (e.note && !(e.note instanceof Object)) e.note = { ops: [{ insert: e.note }]}
 		})
 		data.edges.add(json.edges)
 	}
@@ -259,8 +268,22 @@ function loadJSONfile(str) {
 			})
 		}
 	}
+	yDrawingMap.clear()
+	canvas.clear()
 	yPointsArray.delete(0, yPointsArray.length)
-	if (json.underlay) yPointsArray.insert(0, json.underlay)
+	if (json.underlay) {
+		// background from v1; update it 
+		yPointsArray.insert(0, json.underlay)
+		if (yPointsArray.length > 0) upgradeFromV1(yPointsArray.toArray())
+	}
+	if (json.background) {
+		let map = JSON.parse(json.background)
+		for (const [key, value] of Object.entries(map)) {
+			yDrawingMap.set(key, value)
+		}
+		refreshFromMap(Object.keys(map))
+		fit()
+	}
 	yHistory.delete(0, yHistory.length)
 	if (json.history) yHistory.insert(0, json.history)
 }
@@ -698,6 +721,7 @@ export function savePRSMfile() {
 			version: version,
 			room: room,
 			mapTitle: elem('maptitle').innerText,
+			recentMaps: JSON.parse(localStorage.getItem('recents')),
 			lastNodeSample: lastNodeSample,
 			lastLinkSample: lastLinkSample,
 			// clustering, and up/down, paths between and x links away settings are not saved (and hidden property is not saved)
@@ -726,7 +750,7 @@ export function savePRSMfile() {
 				fields: ['id', 'label', 'note', 'grp', 'from', 'to', 'color', 'width', 'dashes', 'created', 'modified'],
 				filter: (e) => !e.isClusterEdge,
 			}),
-			underlay: yPointsArray.toArray(),
+			background: JSON.stringify(yDrawingMap.toJSON()),
 			history: yHistory.map((s) => {
 				s.state = null
 				return s

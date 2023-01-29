@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>PRSM: VR</title>
+		<meta
+			name="Description"
+			content="PRSM enables groups of people, each using their own computer (or tablet) 
+		to collaborate in the drawing of a map. They may be sitting around a table, discussing the map as it is 
+		created face to face, or working remotely, using video conferencing or the chat feature that is built 
+		into the app. Everyone can participate because every edit (creating nodes and links, arranging them 
+		and so on) is broadcast to all the other participants as the changes are made (just as Google Docs 
+		does for text, for example). When you start PRSM in your browser, a 'room' is created for you in which 
+		to draw your network. You can add other users to this room to share the work. Only those with access 
+		to the room can see what is being created."
+		/>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
+		/>
+		<link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png" />
+		<link rel="shortcut icon" href="../icons/favicon.ico" />
+		<link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<!-- 		Basic A-Frame code -->
+		<script src="../node_modules/aframe/dist/aframe-v1.3.0.min.js"></script>
+		<!-- 		Follow gaze code -->
+		<script src="../node_modules/aframe-look-at-component/dist/aframe-look-at-component.min.js"></script>
+		<!-- 		Move around using controllers code  -->
+		<!-- <script src="../node_modules/aframe-extras/dist/aframe-extras.controls.min.js"></script> -->
+		<script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-extras@09b8445/dist/aframe-extras.min.js"></script>
+		<!-- 		Layout graph code -->
+		<script src="../node_modules/aframe-forcegraph-component/dist/aframe-forcegraph-component.min.js"></script>
+		<!-- 		Components to provide special features -->
+		<script>
+			/*
+			 * Given a CSS color string, return the hex equivalent
+			 * @param {string} color
+			 * @return {string}
+			 */
+			function standardize_color(str) {
+				if (!str) return '#000000'
+				if (str.charAt(0) === '#') return str
+				let ctx = document.createElement('canvas').getContext('2d')
+				ctx.fillStyle = str
+				return ctx.fillStyle
+			}
+			/*
+			 * Test whether color is light or dark
+			 * @param {string} hex color code
+			 * @return {string} 'light' or 'dark'
+			 */
+
+			function lightOrDark(color) {
+				color = standardize_color(color)
+				// Convert it to RGB: http://gist.github.com/983661
+				color = +('0x' + color.slice(1).replace(color.length < 5 && /./g, '$&$&'))
+
+				let r = color >> 16
+				let g = (color >> 8) & 255
+				let b = color & 255
+
+				// HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
+				let hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b))
+
+				return hsp > 127.5 ? 'light' : 'dark'
+			}
+			/**
+			 * divide txt into lines to make it roughly square, with a
+			 * maximum width of width characters, but not breaking words and
+			 * respecting embedded line breaks (\n).
+			 * @param {string} txt
+			 * @param {number} width
+			 */
+			function splitText(txt, width) {
+				let lines = ''
+				let chunks = txt.trim().split('\n')
+				chunks.forEach((chunk) => {
+					let words = chunk.trim().split(/\s/)
+					let nChars = chunk.trim().length
+					if (nChars > 2 * width) width = Math.floor(Math.sqrt(nChars))
+
+					for (let i = 0, linelength = 0; i < words.length; i++) {
+						lines += words[i]
+						if (i == words.length - 1) break
+						linelength += words[i].length
+						if (linelength > width) {
+							lines += '\n'
+							linelength = 0
+						} else lines += ' '
+					}
+					lines += '\n'
+				})
+				return lines.trim()
+			}
+
+			/**
+			 * Component to display styled HTML.  Derived from https://github.com/supereggbert/aframe-htmlembed-component
+			 * but with all mouse interaction and stylesheet computation removed (which makes it much faster)
+			 * Use as <a-entity simplehtmlembed> --- some standard styled HTML here --- </a-entity>
+			 */
+			AFRAME.registerComponent('simplehtmlembed', {
+				schema: {
+					ppu: {
+						type: 'number',
+						default: 256,
+					},
+				},
+				init: function () {},
+				update: function () {
+					if (this.el.getObject3D('screen')) this.remove()
+					if (this.el.innerHTML.trim() === '') return
+					this.htmlcanvas = new HTMLCanvas(this.el)
+					let texture = new THREE.CanvasTexture(this.htmlcanvas.canvas)
+					texture.minFilter = THREE.LinearFilter
+					texture.wrapS = THREE.ClampToEdgeWrapping
+					texture.wrapT = THREE.ClampToEdgeWrapping
+					let material = new THREE.MeshBasicMaterial({
+						map: texture,
+						transparent: true,
+					})
+					let geometry = new THREE.PlaneGeometry(1, 1)
+					let screen = new THREE.Mesh(geometry, material)
+					this.el.setObject3D('screen', screen)
+					this.screen = screen
+					this.resize()
+				},
+				resize() {
+					this.width = this.htmlcanvas.width / this.data.ppu
+					this.height = this.htmlcanvas.height / this.data.ppu
+					this.screen.scale.x = Math.max(0.0001, this.width)
+					this.screen.scale.y = Math.max(0.0001, this.height)
+					this.htmlcanvas.render()
+				},
+				remove: function () {
+					this.el.removeObject3D('screen')
+				},
+			})
+
+			class HTMLCanvas {
+				constructor(html) {
+					if (!html) throw 'Container Element is Required'
+
+					// Create the canvas to be drawn to
+					this.canvas = document.createElement('canvas')
+					this.ctx = this.canvas.getContext('2d')
+
+					// Set some basic styles for the embedded HTML
+					this.html = html
+					this.html.style.position = 'absolute'
+					this.html.style.top = '0'
+					this.html.style.left = '0'
+					this.html.style.overflow = 'hidden'
+					this.html.style.fontFamily = 'sans-serif'
+
+					// Image used to draw SVG to the canvas element
+					this.img = new Image()
+					this.img.addEventListener('load', () => {
+						this.render()
+					})
+					this.serializer = new XMLSerializer()
+					this.svgToImg()
+				}
+
+				// Set the src to be rendered to the Image
+				svgToImg() {
+					// Make sure the element is visible before processing
+					this.html.style.display = 'block'
+					this.width = this.html.offsetWidth
+					this.height = this.html.offsetHeight
+					this.canvas.width = this.width
+					this.canvas.height = this.height
+					let docString = this.serializer.serializeToString(this.html)
+					docString =
+						'<svg width="' +
+						this.width +
+						'" height="' +
+						this.height +
+						`" xmlns="http://www.w3.org/2000/svg"><foreignObject x="0" y="0" width="` +
+						(this.width + 20) +
+						'" height="' +
+						(this.height + 20) +
+						'">' +
+						docString +
+						'</foreignObject></svg>'
+					this.img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(docString)
+					// Hide the html after processing
+					this.html.style.display = 'none'
+				}
+
+				// Renders the image containing the SVG to the Canvas
+				render() {
+					this.canvas.width = this.width
+					this.canvas.height = this.height
+					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+					this.ctx.drawImage(this.img, 0, 0)
+				}
+			}
+			AFRAME.registerComponent('showlegend', {
+				dependencies: ['simplehtmlembed'],
+			init: function () {
+					this.legend = document.createElement('a-entity')
+					this.sceneEl = document.querySelector('a-scene')
+					this.sceneEl.appendChild(this.legend)
+					this.legend.id = 'abouttobeshe'
+					this.legend.innerHTML = ''
+					this.displayed = false
+				},
+				tick: function (time, timeDelta) {
+					if (this.displayed) return
+					this.displayed = true
+					this.legend.setAttribute('simplehtmlembed', {ppu: 256})
+					this.legend.innerHTML = this.el.innerHTML
+					console.log('showLegend', this.el.innerHTML)
+					this.legend.object3D.position.set(-1, 1, -2)
+				},
+			})
+			/* helper for vasturiano/3d-force-graph-vr
+			 *			draw a sphere around each force graph node, to make it easy to point to them with the ray caster,
+			 * 			and attach a text label (which rotates to always face the camera)
+			 * after the graph has been created, use something like
+			 *			fgEl.setAttribute('spherize', {})
+			 * to create the spheres
+			 */
+			AFRAME.registerComponent('spherize', {
+				schema: {},
+				dependencies: ['forcegraph'],
+				init: function () {
+					// spheres are cached here and re-used
+					this.spheres = new Map()
+				},
+				tick: function (time, timeDelta) {
+					document
+						.querySelector('[forcegraph]')
+						.components.forcegraph.forceGraph.children.forEach((child) => {
+							if (child.type == 'Mesh' && child.__data.id) {
+								let sphereEl = this.spheres.get(child.__data.id)
+								if (sphereEl) {
+									// reuse existing sphere and label, but change its position if it has moved
+									if (!sphereEl.object3D.position.equals(child.position))
+										sphereEl.object3D.position.copy(child.position)
+								} else {
+									sphereEl = document.createElement('a-sphere')
+									sphereEl.classList.add('node')
+									sphereEl.id = child.__data.id
+									this.spheres.set(child.__data.id, sphereEl)
+									sphereEl.object3D.position.set(child.position)
+									let radius = child.geometry.parameters.radius + 0.1
+									sphereEl.setAttribute('radius', radius)
+									let color = child.__data.color || 'white'
+									let compColor = lightOrDark(standardize_color(color)) == 'light' ? 'black' : 'white'
+									/* 							sphereEl.setAttribute('color', color)
+									 */ sphereEl.setAttribute('material', {opacity: 0, transparent: true})
+									sphereEl.setAttribute('note', child.__data.note)
+									this.el.appendChild(sphereEl)
+
+									let label = document.createElement('a-entity')
+									label.setAttribute('text', {
+										value: splitText(child.__data.label, 9),
+										color: compColor,
+										width: 5 * radius,
+										align: 'center',
+									})
+									sphereEl.setAttribute('look-at', '#cameraRig')
+									label.object3D.position.set(0, 0, radius + 0.1)
+									sphereEl.appendChild(label)
+
+									let noteText = sphereEl.getAttribute('note')
+									if (noteText) {
+										let note = document.createElement('a-entity')
+										sphereEl.appendChild(note)
+										note.setAttribute('simplehtmlembed', {ppu: 256})
+										note.object3D.visible = false
+										note.innerHTML = noteText
+										note.object3D.scale.set(10, 10, 10)
+										note.object3D.position.set(radius + 5, 0, radius + 1)
+										sphereEl.addEventListener('mouseenter', function () {
+											note.object3D.visible = true
+										})
+										sphereEl.addEventListener('mouseleave', function () {
+											note.object3D.visible = false
+										})
+									}
+								}
+							}
+						})
+				},
+			})
+			/*
+			 * prevent the camera from entering a 3d entity
+			 * coded by Synn ( https://github.com/chabloz )
+			 */
+			AFRAME.registerComponent('sphere-collider-constraint', {
+				schema: {
+					selector: {
+						default: '',
+					},
+					distance: {
+						default: 0.5,
+					},
+				},
+
+				init: function () {
+					//'this' is the cameraRig
+					this.lastPosition = new THREE.Vector3()
+					this.el.object3D.getWorldPosition(this.lastPosition)
+
+					this.myPos = new THREE.Vector3()
+					this.el.object3D.getWorldPosition(this.myPos)
+
+					this.targetPos = new THREE.Vector3()
+				},
+
+				tick: function () {
+					// if haven't moved since last tick, do nothing
+					this.el.object3D.getWorldPosition(this.myPos)
+					if (this.myPos.distanceTo(this.lastPosition) === 0) return
+
+					let didHit = false
+
+					for (const obj of document.querySelectorAll(this.data.selector)) {
+						obj.object3D.getWorldPosition(this.targetPos)
+						const distanceTo = this.myPos.distanceTo(this.targetPos)
+						if (distanceTo <= this.data.distance + Number(obj.getAttribute('radius'))) {
+							didHit = true
+							break
+						}
+					}
+					if (didHit) {
+						this.el.object3D.position.copy(this.lastPosition)
+						this.el.object3D.parent.worldToLocal(this.el.object3D.position)
+					} else {
+						this.el.object3D.getWorldPosition(this.lastPosition)
+					}
+				},
+			})
+			/*
+			 * when the entity is clicked, the camera (and rig) is returned to the origin
+			 */
+			AFRAME.registerComponent('return-to-origin', {
+				init: function () {
+					let el = this.el
+					el.addEventListener('click', function (e) {
+						let cameraRig = document.querySelector('#cameraRig')
+						cameraRig.setAttribute('position', {x: 0, y: 0, z: 0})
+						cameraRig.setAttribute('rotation', {x: 0, y: 0, z: 0})
+						let controls = document.querySelector('a-camera').components['look-controls']
+						controls.pitchObject.rotation.x = 0
+						controls.yawObject.rotation.y = 0
+					})
+				},
+			})
+		</script>
+	</head>
+	<body>
+		<a-scene>
+			<!-- instructions -->
+			<a-entity id="info" position="1 1 -2" simplehtmlembed look-at="#camera">
+				<div
+					style="
+						background: rgba(255, 255, 255, 0.2);
+						border-radius: 16px;
+						box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+						backdrop-filter: blur(5px);
+						-webkit-backdrop-filter: blur(5px);
+						border: 1px solid rgba(255, 255, 255, 0.3);
+						padding: 10px;
+						max-width: 400px;
+					"
+				>
+					<p>Push the thumb stick to go forwards, back, left or right.</p>
+					<p>Use the controller's laser line to touch Factors and show any Notes that go with them.</p>
+					<p>
+						Point at the white ball at the origin (where the red, green and blue axes cross) and pull the
+						trigger to jump straight there.
+					</p>
+				</div>
+			</a-entity>
+			<!-- legend -->
+			<a-entity id="legend" position="-1 1 -2" simplehtmlembed></a-entity>
+			<!-- force graph -->
+			<a-entity id="fg"></a-entity>
+			<!-- camera -->
+			<a-entity
+				id="cameraRig"
+				movement-controls="fly: true; speed: 0.7"
+				sphere-collider-constraint="selector: .node"
+			>
+				<a-camera id="camera" look-controls="pointerLockEnabled: true" wasd-controls="fly: true">
+					<!-- <a-cursor color="#FF0000" raycaster="objects: .origin-box, .node"></a-cursor> -->
+				</a-camera>
+
+				<a-entity
+					id="right-hand"
+					laser-controls="hand: right"
+					hand-tracking-controls="hand: right"
+					raycaster="showLine: true; lineColor: green; far: 200; objects: .origin-box, .node"
+				></a-entity>
+			</a-entity>
+			<!-- centre point and axes -->
+			<a-sphere
+				class="origin-box"
+				return-to-origin
+				radius="8"
+				position="0 0 -1"
+				material="transparent: true; opacity: 0"
+			></a-sphere>
+			<a-sphere class="origin-box" return-to-origin color="lightgray" radius="0.05" position="0 0 -1"></a-sphere>
+			<a-entity line="start: -500 0 -1; end: 500 0 -1; color: red"></a-entity>
+			<a-entity line="start: 0 -500 -1; end: 0 500 -1; color: green"></a-entity>
+			<a-entity line="start: 0 0 -501; end: 0 0 499; color: blue"></a-entity>
+			<!-- sky -->
+			<a-sky color="#87CEFA"></a-sky>
+		</a-scene>
+		<!-- 		Interace with yjs to get nodes and links code -->
+		<script src="../js/vr.js" type="module"></script>
+	</body>
+</html>

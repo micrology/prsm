@@ -23,9 +23,9 @@ This module provides the Data View
 
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
-import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter} from './utils.js'
+import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter, isQuillEmpty} from './utils.js'
 import {TabulatorFull as Tabulator} from 'tabulator-tables'
-import {version} from '../package.json'
+import { version } from '../package.json'
 import Quill from 'quill'
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
 
@@ -788,7 +788,7 @@ function quillFormatter(cell) {
 	if (note) {
 		qed.setContents(note)
 		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert()
-		// this should work, but there is a big in Tabulator
+		// this should work, but there is a bug in Tabulator
 		//		if (elem(`hide${cell.getColumn().getParentColumn().getField()}`).dataset.collapsed == 'false')
 		if (elem(`hide${table === 'factors-table' ? 'Notes' : 'LinkNotes'}`).dataset.collapsed == 'false')
 			return shorten(html, 50)
@@ -855,7 +855,7 @@ function quillEditor(cell, onRendered, success) {
 
 	function finish(cell) {
 		cell.getTable().modules.edit.currentCell = cell._cell
-		success(editor.getContents())
+		success(isQuillEmpty(editor) ? '' : editor.getContents())
 		pane.remove()
 	}
 }
@@ -1272,7 +1272,7 @@ function updateFromAndToLabels(nodes) {
 			Array.from(yEdgesMap.values()).filter((e) => e.from == node.id || e.to == node.id)
 		)
 	})
-	linksTable.updateOrAddData(linksToUpdate.map((e) => convertEdge(e)))
+	if (linksToUpdate.length)linksTable.updateOrAddData(linksToUpdate.map((e) => convertEdge(e)))
 }
 
 /**

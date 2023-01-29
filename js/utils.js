@@ -170,10 +170,11 @@ export function deepMerge() {
 
 /**
  * returns a deep copy of the object
+ * original replaced by new built-in
  * @param {Object} obj
  */
 export function deepCopy(obj) {
-	if (typeof obj !== 'object' || obj === null) {
+/* 	if (typeof obj !== 'object' || obj === null) {
 		return obj
 	}
 	if (obj instanceof Array) {
@@ -187,7 +188,8 @@ export function deepCopy(obj) {
 			newObj[key] = deepCopy(obj[key])
 			return newObj
 		}, {})
-	}
+	} */
+	return structuredClone(obj)
 }
 window.deepCopy = deepCopy
 /**
@@ -922,4 +924,16 @@ export function humanSize(bytes, si = true) {
 		t = si ? 1000 : 1024
 	;['', si ? 'k' : 'K', ...'MGTPEZY'].find((x) => ((u = x), (b /= t), b ** 2 < 1))
 	return `${u ? (t * b).toFixed(1) : bytes}${u}${!si && u ? 'i' : ''}B`
+}
+/**
+ * test whether the editor has any content
+ * (could be an empty string or a Quill insert operation of just a single newline character)
+ * @param {object} quill editor
+ * @returns 
+ */
+export function isQuillEmpty(quill) {
+	if ((quill.getContents()['ops'] || []).length !== 1) {
+		return false
+	}
+	return quill.getText().trim().length === 0
 }

@@ -28,7 +28,7 @@ var bEdgesMap //  map of edges from the other room
 
 export function openOtherDoc(otherRoom) {
 	let bDoc = new Y.Doc()
-	bwsp = new WebsocketProvider(websocket, 'prsm' + otherRoom, bDoc)
+	bwsp = new WebsocketProvider(websocket, `prsm${otherRoom}`, bDoc)
 	bwsp.disconnectBc()
 	bNodesMap = bDoc.getMap('nodes')
 	bEdgesMap = bDoc.getMap('edges')

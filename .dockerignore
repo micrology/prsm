@@ -1,0 +1,5 @@
+# ignore everything except the listed files
+
+*
+!dist
+!doc/help/build

@@ -40,12 +40,6 @@
 				font-display: swap;
 			}
 		</style>
-		<!-- 		<link
-			rel="preload"
-			href="../css/vis-network.min.css"
-			as="style"
-			onload="this.onload=null;this.rel='stylesheet'"
-		/> -->
 		<link href="../node_modules/quill/dist/quill.snow.css" rel="stylesheet" />
 		<link href="../css/prsm.css" rel="stylesheet" />
 		<script>
@@ -75,7 +69,7 @@
 					<div>
 						<div class="strap">
 							<span class="strapline">Participatory System Mapper</span>
-							<span class="version" id="version">1.9.0</span>
+							<span class="version" id="version">2.0.0</span>
 						</div>
 						<div class="title">
 							<div
@@ -322,13 +316,13 @@
 											<span class="tooltiptext">Save as a PNG image file</span>
 										</div>
 									</div>
-									<div>
+<!-- 									<div>
 										<div class="tooltip">
 											<button class="dropdown-label" type="button" id="exportCVS">CSV</button>
 											<span class="tooltiptext">Save as CSV files</span>
 										</div>
 									</div>
-									<div>
+ -->									<div>
 										<div class="tooltip">
 											<button class="dropdown-label" type="button" id="exportExcel">Excel</button>
 											<span class="tooltiptext">Save as Excel workbook</span>
@@ -374,6 +368,7 @@
 							</div>
 							<div
 								class="tooltip"
+								id="help-button"
 								data-tutorial="Open a new window with more help"
 								data-step="7"
 								data-position="left"
@@ -421,6 +416,8 @@
 						</div>
 					</div>
 				</nav>
+			</header>
+			<main id="main" tabindex="0">
 				<input class="search-bar" id="search-bar" placeholder="Search..." />
 				<span class="search-icon" style="display: none" id="search-icon">
 					<svg
@@ -437,8 +434,6 @@
 					</svg>
 				</span>
 				<div id="suggestion-list"></div>
-			</header>
-			<main id="main" tabindex="0">
 				<div class="avatars" id="avatars"></div>
 				<div id="popup">
 					<div id="popup-top">
@@ -492,8 +487,9 @@
 					data-step="13"
 					data-position="splash"
 				>
-					<canvas class="drawing-canvas" id="temp-canvas"></canvas>
+					<canvas class="drawing-canvas" id="drawing-canvas"></canvas>
 					<div class="toolbox" id="toolbox">
+						<div class="toolbox-header" id="toolbox-header"></div>
 						<div class="tool" id="line">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -523,6 +519,19 @@
 								/>
 							</svg>
 							<span class="tooltiptext">Rectangle</span>
+						</div>
+						<div class="tool" id="circle">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="16"
+								height="16"
+								fill="currentColor"
+								class="bi bi-circle"
+								viewBox="0 0 16 16"
+							>
+								<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+							</svg>
+							<span class="tooltiptext">Circle or Ellipse</span>
 						</div>
 						<div class="tool" id="text">
 							<svg
@@ -569,21 +578,6 @@
 							</svg>
 							<span class="tooltiptext">Marker</span>
 						</div>
-						<div class="tool" id="eraser">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-eraser-fill"
-								viewBox="0 0 16 16"
-							>
-								<path
-									d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828l6.879-6.879zm.66 11.34L3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293l.16-.16z"
-								/>
-							</svg>
-							<span class="tooltiptext">Eraser</span>
-						</div>
 						<div class="tool" id="image">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -600,7 +594,42 @@
 							</svg>
 							<span class="tooltiptext">Load image</span>
 						</div>
-						<div class="tool" id="undotool">
+						<div class="toolbox-divider" id="toolbox-divider"></div>
+						<div class="tool disabled" id="group">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="16"
+								height="16"
+								fill="currentColor"
+								class="bi bi-subtract"
+								viewBox="0 0 16 16"
+							>
+								<path
+									d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2z"
+								/>
+							</svg>
+							<span class="tooltiptext">Group or ungroup</span>
+						</div>
+						<div class="tool disabled" id="bin">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="16"
+								height="16"
+								fill="currentColor"
+								class="bi bi-trash"
+								viewBox="0 0 16 16"
+							>
+								<path
+									d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"
+								/>
+								<path
+									fill-rule="evenodd"
+									d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+								/>
+							</svg>
+							<span class="tooltiptext">Delete selection</span>
+						</div>
+						<div class="tool disabled" id="undotool">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="16"
@@ -617,7 +646,26 @@
 									d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"
 								/>
 							</svg>
-							<span class="tooltiptext">Undo last shape</span>
+							<span class="tooltiptext">Undo last change</span>
+						</div>
+						<div class="tool disabled" id="redotool">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="16"
+								height="16"
+								fill="currentColor"
+								class="bi bi-arrow-clockwise"
+								viewBox="0 0 16 16"
+							>
+								<path
+									fill-rule="evenodd"
+									d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"
+								/>
+								<path
+									d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"
+								/>
+							</svg>
+							<span class="tooltiptext">Redo last undo</span>
 						</div>
 					</div>
 				</div>
@@ -689,18 +737,9 @@
 							</div>
 							<div class="panelRow">
 								<div>Snap to grid</div>
-								<div class="onoffswitch">
-									<input
-										type="checkbox"
-										name="onoffswitch"
-										class="onoffswitch-checkbox"
-										id="snaptogridswitch"
-									/>
-									<label class="onoffswitch-label" for="snaptogridswitch">
-										<span class="onoffswitch-inner"></span>
-										<span class="onoffswitch-switch"></span>
-									</label>
-								</div>
+								<label for="snaptogridswitch">
+									<input type="checkbox" id="snaptogridswitch" />
+								</label>
 							</div>
 							<div class="panelRow">
 								<div>Link:</div>
@@ -712,6 +751,13 @@
 								</div>
 							</div>
 							<div class="panelRow">
+								<div>Switch to drawing layer</div>
+								<label class="switch" for="drawing">
+									<input type="checkbox" id="drawing" />
+									<span class="slider rounded"></span>
+								</label>
+							</div>
+							<div class="panelRow">
 								<div>Background:</div>
 								<div class="input-color-container">
 									<div class="color-well" id="netBackColorWell"></div>
@@ -719,96 +765,33 @@
 							</div>
 							<div class="panelRow">
 								<div>Show legend</div>
-								<div class="onoffswitch">
-									<input
-										type="checkbox"
-										name="onoffswitch"
-										class="onoffswitch-checkbox"
-										id="showLegendSwitch"
-										checked
-									/>
-									<label class="onoffswitch-label" for="showLegendSwitch">
-										<span class="onoffswitch-inner"></span>
-										<span class="onoffswitch-switch"></span>
-									</label>
-								</div>
-							</div>
-							<div class="panelRow">
-								<div>Show drawing layer</div>
-								<div class="onoffswitch">
-									<input
-										type="checkbox"
-										name="onoffswitch"
-										class="onoffswitch-checkbox"
-										id="drawing"
-									/>
-									<label class="onoffswitch-label" for="drawing">
-										<span class="onoffswitch-inner"></span>
-										<span class="onoffswitch-switch"></span>
-									</label>
-								</div>
+								<label for="showLegendSwitch">
+									<input type="checkbox" id="showLegendSwitch" />
+								</label>
 							</div>
 							<div class="panelRow">
 								<div>Show other users</div>
-								<div class="onoffswitch">
-									<input
-										type="checkbox"
-										name="onoffswitch"
-										class="onoffswitch-checkbox"
-										id="showUsersSwitch"
-										checked
-									/>
-									<label class="onoffswitch-label" for="showUsersSwitch">
-										<span class="onoffswitch-inner"></span>
-										<span class="onoffswitch-switch"></span>
-									</label>
-								</div>
+								<label for="showUsersSwitch">
+									<input type="checkbox" id="showUsersSwitch" checked />
+								</label>
 							</div>
 							<div class="panelRow">
 								<div>Show history</div>
-								<div class="onoffswitch">
-									<input
-										type="checkbox"
-										name="onoffswitch"
-										class="onoffswitch-checkbox"
-										id="showHistorySwitch"
-									/>
-									<label class="onoffswitch-label" for="showHistorySwitch">
-										<span class="onoffswitch-inner"></span>
-										<span class="onoffswitch-switch"></span>
-									</label>
-								</div>
+								<label for="showHistorySwitch">
+									<input type="checkbox" id="showHistorySwitch" />
+								</label>
 							</div>
 							<div class="panelRow">
 								<div>Show notes</div>
-								<div class="onoffswitch">
-									<input
-										type="checkbox"
-										name="onoffswitch"
-										class="onoffswitch-checkbox"
-										id="showNotesSwitch"
-										checked
-									/>
-									<label class="onoffswitch-label" for="showNotesSwitch">
-										<span class="onoffswitch-inner"></span>
-										<span class="onoffswitch-switch"></span>
-									</label>
-								</div>
+								<label for="showNotesSwitch">
+									<input type="checkbox" id="showNotesSwitch" checked />
+								</label>
 							</div>
 							<div class="panelRow">
 								<div>Show reactions</div>
-								<div class="onoffswitch">
-									<input
-										type="checkbox"
-										name="onoffswitch"
-										class="onoffswitch-checkbox"
-										id="showVotingSwitch"
-									/>
-									<label class="onoffswitch-label" for="showVotingSwitch">
-										<span class="onoffswitch-inner"></span>
-										<span class="onoffswitch-switch"></span>
-									</label>
-								</div>
+								<label for="showVotingSwitch">
+									<input type="checkbox" id="showVotingSwitch" />
+								</label>
 							</div>
 						</div>
 					</div>
@@ -891,7 +874,7 @@
 						<span class="nodeLabel" id="nodeLabel"></span>
 					</div>
 					<div id="lock">
-						<span id="unfixed">
+						<span id="unfixed" class="tooltip">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="16"
@@ -904,8 +887,9 @@
 									d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2z"
 								/>
 							</svg>
+							<span class="tooltiptext">Lock position</span>
 						</span>
-						<span id="fixed">
+						<span id="fixed" class="tooltip">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="16"
@@ -918,7 +902,25 @@
 									d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"
 								/>
 							</svg>
+							<span class="tooltiptext">Unlock position</span>
 						</span>
+					</div>
+					<div id="newNodeWindow" class="tooltip">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="currentColor"
+						>
+							<path
+								d="M20 11a1 1 0 0 0-1 1v6a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6a1 1 0 0 0 0-2H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-6a1 1 0 0 0-1-1z"
+							/>
+							<path
+								d="M16 5h1.58l-6.29 6.28a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0L19 6.42V8a1 1 0 0 0 1 1 1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-4a1 1 0 0 0 0 2z"
+							/>
+						</svg>
+						<span class="tooltiptext settingstip">Open in a new window</span>
 					</div>
 				</div>
 				<div class="row">
@@ -948,6 +950,22 @@
 					<div>
 						<span class="edgeLabel" id="edgeLabel"></span>
 					</div>
+					<div id="newEdgeWindow">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="currentColor"
+						>
+							<path
+								d="M20 11a1 1 0 0 0-1 1v6a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6a1 1 0 0 0 0-2H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-6a1 1 0 0 0-1-1z"
+							/>
+							<path
+								d="M16 5h1.58l-6.29 6.28a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0L19 6.42V8a1 1 0 0 0 1 1 1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-4a1 1 0 0 0 0 2z"
+							/>
+						</svg>
+					</div>
 				</div>
 				<div class="row divider" id="edgeCreation">
 					<div>Created:</div>
@@ -976,7 +994,12 @@
 				>
 					Zoom
 					<span id="zoomminus">&ndash;</span>
-					<input type="range" id="zoom" min="0.1" max="4" step="0.01" />
+					<input type="range" id="zoom" min="0.1" max="4" step="0.01" value="1" list="zoom-ticks" />
+					<datalist id="zoom-ticks">
+						<option>1</option>
+						<option>2</option>
+						<option>3</option>
+					</datalist>
 					<span id="zoomplus">+</span>
 				</div>
 			</footer>
