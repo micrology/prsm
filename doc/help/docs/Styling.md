@@ -55,9 +55,9 @@ On the Network tab, there are controls for:
 * **Auto Layout** Choose which layout algorithm (see [below](#layout)) to apply.  The algorithm will then adjust the positions of the factors and links and, once complete, the selection will revert to 'Off', leaving the factors where the algorithm has placed them.
 * **Snap to grid**  When ON, factors shift to be at the intersection of invisible grid lines.  This makes it much easier to line up factors neatly.
 * **Link** Links can either be drawn using a curved line or a straight line.  This control swaps between the two.
+* **Switch to drawing layer** Puts the network pane into drawing mode, so that background shapes, images and text can be added.  See [Drawing Mode](Drawing/#drawing-mode) for more details.
 * **Background** This changes the colour of the background of the network pane.  Click on the colour well to display possible colours.  The default is white, but a black background can also be effective.
 * **Show legend** If the factor and link styles are given names (other than 'Sample'), the styles and their names will be shown in a panel at the left bottom of the network pane headed 'Legend', when this switch is ON.  See the description of the [Factors tab](#factors-tab).
-* **Show drawing layer** Puts the network pane into drawing mode, so that background shapes, images and text can be added.  See [Drawing Mode](Drawing/#drawing-mode) for more details.
 * **Show other users** When ON, the positions of other users' mouse pointers are shown in real time.  
 * **Show history** When ON, a panel displaying every change to a factor or link (adding a factor or link, editing it or deleting it) is shown. It is possible to 'rollback' the map to the state it was in before a change.  This can be quicker than repeatedly undoing changes with the Undo button.  To rollback, click on the <RollbackSVG /> button.  You will be asked to confirm the action.  The states of the map for the previous 10 changes are kept.
 * **Show notes** When a factor or link is selected, normally a Notes panel pops up at the bottom right of the map.  Turning this switch OFF prevents the Notes panels from being displayed.

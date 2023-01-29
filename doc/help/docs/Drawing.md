@@ -3,7 +3,7 @@ sidebar_position: 7
 ---
 # Drawing Mode
 
-Switching 'Show drawing layer' ON reveals a group of buttons on the left that enables you to draw shapes, write text, and import images onto the network background.  
+Switching 'Switch drawing layer' ON reveals a group of buttons on the left that enables you to draw shapes, write text, and import images onto the network background.  
 
 ![Drawing layer](/images/drawingLayer.png)
 
