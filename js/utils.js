@@ -174,7 +174,7 @@ export function deepMerge() {
  * @param {Object} obj
  */
 export function deepCopy(obj) {
-/* 	if (typeof obj !== 'object' || obj === null) {
+	/* 	if (typeof obj !== 'object' || obj === null) {
 		return obj
 	}
 	if (obj instanceof Array) {
@@ -929,7 +929,7 @@ export function humanSize(bytes, si = true) {
  * test whether the editor has any content
  * (could be an empty string or a Quill insert operation of just a single newline character)
  * @param {object} quill editor
- * @returns 
+ * @returns boolean
  */
 export function isQuillEmpty(quill) {
 	if ((quill.getContents()['ops'] || []).length !== 1) {

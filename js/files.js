@@ -234,13 +234,13 @@ function loadPRSMfile(str) {
 			// at version 1.5, the title: property was renamed to note:
 			if (!n.note && n.title) n.note = n.title.replace(/<br>|<p>/g, '\n')
 			delete n.title
-			if (n.note && !(n.note instanceof Object)) n.note = { ops: [{ insert: n.note }]}
+			if (n.note && !(n.note instanceof Object)) n.note = {ops: [{insert: n.note}]}
 		})
 		data.nodes.add(json.nodes)
 		json.edges.forEach((e) => {
 			if (!e.note && e.title) e.note = e.title.replace(/<br>|<p>/g, '\n')
 			delete e.title
-			if (e.note && !(e.note instanceof Object)) e.note = { ops: [{ insert: e.note }]}
+			if (e.note && !(e.note instanceof Object)) e.note = {ops: [{insert: e.note}]}
 		})
 		data.edges.add(json.edges)
 	}
@@ -272,7 +272,7 @@ function loadPRSMfile(str) {
 	canvas.clear()
 	yPointsArray.delete(0, yPointsArray.length)
 	if (json.underlay) {
-		// background from v1; update it 
+		// background from v1; update it
 		yPointsArray.insert(0, json.underlay)
 		if (yPointsArray.length > 0) upgradeFromV1(yPointsArray.toArray())
 	}

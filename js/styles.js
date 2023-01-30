@@ -701,7 +701,7 @@ export function legend(warn = false) {
 	title.className = 'legendTitle'
 	title.appendChild(document.createTextNode('Legend'))
 	legendBox.appendChild(title)
-	legendBox.style.height = `${LEGENDSPACING * nItems+title.offsetHeight}px`
+	legendBox.style.height = `${LEGENDSPACING * nItems + title.offsetHeight}px`
 	legendBox.style.width = `${HALFLEGENDWIDTH * 2}px`
 	let canvas = document.createElement('div')
 	canvas.className = 'legendCanvas'

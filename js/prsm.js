@@ -56,13 +56,13 @@ import {
 	setEndOfContenteditable,
 	exactTime,
 	humanSize,
-	isQuillEmpty
+	isQuillEmpty,
 } from './utils.js'
 import {
 	openFile,
 	savePRSMfile,
 	exportPNGfile,
-//	exportCVS,
+	//	exportCVS,
 	exportExcel,
 	exportDOT,
 	exportGML,
@@ -1161,7 +1161,8 @@ function draw() {
 		// if some other node(s) are already selected, and the user has
 		// clicked on one of the selected nodes, do nothing,
 		// i.e reselect all the nodes previously selected
-		if (obj.nodes) {  // clicked on a node
+		if (obj.nodes) {
+			// clicked on a node
 			let prevSelIds = obj.previousSelection.nodes.map((node) => node.id)
 			if (prevSelIds.includes(obj.nodes[0])) {
 				// reselect the previously selected nodes
@@ -3107,7 +3108,7 @@ function showNodeData(nodeId) {
 		readOnly: viewOnly,
 		bounds: elem('node-edit-container'),
 	})
-	window.editor = editor  // used by popupEditor to access this editor
+	window.editor = editor // used by popupEditor to access this editor
 	editor.id = node.id
 	if (node.note) {
 		if (node.note instanceof Object) editor.setContents(node.note)
@@ -3163,7 +3164,7 @@ function showEdgeData() {
 		bounds: elem('edge-edit-container'),
 	})
 	editor.id = edge.id
-	window.editor = editor  // used by popupEditor to access this editor
+	window.editor = editor // used by popupEditor to access this editor
 	if (edge.note) {
 		if (edge.note instanceof Object) editor.setContents(edge.note)
 		else editor.setText(edge.note)

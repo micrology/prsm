@@ -50,11 +50,13 @@ function mergeMaps() {
 		let newNodes = new Map()
 		for (let BNode of bdata.nodes.get()) {
 			if (BNode.isCluster) continue
-				// for each node in the other map
+			// for each node in the other map
 			let ANode = data.nodes.get(BNode.id) // see whether there is a node in this map with the same id
 			// if not, see whether there is a node in this map with the same label, and treat this node as the same as the node in the other map
 			if (!ANode) {
-				let sameLabelNodes = data.nodes.get().filter((an) => an.label.replace(/\s/g, "") === BNode.label.replace(/\s/g, ""))
+				let sameLabelNodes = data.nodes
+					.get()
+					.filter((an) => an.label.replace(/\s/g, '') === BNode.label.replace(/\s/g, ''))
 				if (sameLabelNodes.length > 1)
 					console.log(
 						`%cMatching factors by label ('${BNode.label}'), but there are two or more factors with this label in this map`,
@@ -69,7 +71,7 @@ function mergeMaps() {
 			}
 			if (ANode) {
 				// if there is, check whether the label is the same
-				if (ANode.label.replace(/\s/g, "") !== BNode.label.replace(/\s/g, "")) {
+				if (ANode.label.replace(/\s/g, '') !== BNode.label.replace(/\s/g, '')) {
 					// if not, make a clone of the other node with a new id
 					logMerge(
 						`existing Factor label: '${ANode.label}' does not match new label: '${BNode.label}'. Factor with new label added.`
@@ -188,7 +190,7 @@ function mergeMaps() {
 		data.edges.update(edgesToAdd)
 	})
 	logHistory(history, 'Merge')
-	
+
 	function logMerge(action) {
 		history += '<br />' + action
 	}
@@ -217,7 +219,9 @@ function diffMaps() {
 		// for each node in the other map
 		let ANode = data.nodes.get(BNode.id) // see whether there is a node in this map with the same id
 		if (!ANode) {
-			let sameLabelNodes = data.nodes.get().filter((an) => an.label.replace(/\s/g, "") === BNode.label.replace(/\s/g, ""))
+			let sameLabelNodes = data.nodes
+				.get()
+				.filter((an) => an.label.replace(/\s/g, '') === BNode.label.replace(/\s/g, ''))
 			if (sameLabelNodes.length > 1)
 				console.log(
 					`%cMatching factors by label [%c${inline(
@@ -242,7 +246,7 @@ function diffMaps() {
 		}
 		if (ANode) {
 			// if there is, check whether the label is the same
-			if (ANode.label.replace(/\s/g, "") !== BNode.label.replace(/\s/g, "")) {
+			if (ANode.label.replace(/\s/g, '') !== BNode.label.replace(/\s/g, '')) {
 				console.log(
 					`Factor label in map A: [%c${inline(ANode.label)}%c] does not match label in map B: [%c${inline(
 						BNode.label

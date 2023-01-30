@@ -10,8 +10,8 @@
 			function loadEditor() {
 				let selectedObj = 'node'
 				let nodeId = window.opener.network.getSelectedNodes()[0]
-                let edgeId = window.opener.network.getSelectedEdges()[0]
-                let node, edge
+				let edgeId = window.opener.network.getSelectedEdges()[0]
+				let node, edge
 				if (nodeId) {
 					node = window.opener.data.nodes.get(nodeId)
 					document.title = node.label

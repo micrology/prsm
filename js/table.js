@@ -25,7 +25,7 @@ import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
 import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter, isQuillEmpty} from './utils.js'
 import {TabulatorFull as Tabulator} from 'tabulator-tables'
-import { version } from '../package.json'
+import {version} from '../package.json'
 import Quill from 'quill'
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
 
@@ -1272,7 +1272,7 @@ function updateFromAndToLabels(nodes) {
 			Array.from(yEdgesMap.values()).filter((e) => e.from == node.id || e.to == node.id)
 		)
 	})
-	if (linksToUpdate.length)linksTable.updateOrAddData(linksToUpdate.map((e) => convertEdge(e)))
+	if (linksToUpdate.length) linksTable.updateOrAddData(linksToUpdate.map((e) => convertEdge(e)))
 }
 
 /**
