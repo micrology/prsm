@@ -242,6 +242,12 @@ export function refreshFromMap(keys) {
 			}
 		}
 	}
+	// if there is a white circle, assume that this was from a version 1 pixel eraser 
+	// and delete objects that it would have covered
+	let OldStyleEraser = canvas
+		.getObjects()
+		.filter((obj) => obj.type === 'circle' && obj.fill === '#ffffff')
+	if (OldStyleEraser.length) magicEraser()
 	if (!drawingSwitch) canvas.discardActiveObject()
 	canvas.requestRenderAll()
 }
@@ -1550,7 +1556,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
  * @param {Object} params the current state
  * @param {String} op insert|delete|update|null (if null, don't save on the undo stack)
  */
-function saveChange(obj, params, op) {
+function saveChange(obj, params = {}, op) {
 	// save current object position as well as any format changes
 	params = setParams(obj, params)
 	// send the object to other clients
@@ -1964,7 +1970,19 @@ export function upgradeFromV1(pointsArray) {
 					// not implemented (yet)
 					break
 				case 'marker':
-					// not implemented (yet)
+					{
+						fabObj.type = 'circle'
+						fabObj.fill = options.fillStyle
+						fabObj.strokeWidth = 0
+						fabObj.stroke = options.fillStyle
+						fabObj.originX = 'center'
+						fabObj.originY = 'center'
+						fabObj.left = item[1][0]
+						fabObj.top = item[1][1]
+						fabObj.radius = item[1][2] / 2
+						ids.push(fabObj.id)
+						yDrawingMap.set(fabObj.id, fabObj)
+					}
 					break
 				case 'endShape':
 					break
@@ -1984,3 +2002,26 @@ function markConverted() {
 	first[1].converted = true
 	yPointsArray.insert(0, [first])
 }
+function magicEraser() {
+	/* for each circle, 
+			find intersecting objects
+			if not a circle, delete it
+	delete all circles
+	*/
+	canvas
+		.getObjects()
+		.filter((obj) => obj.type === 'circle' && obj.fill === '#ffffff')
+		.forEach((circle) =>
+			canvas
+				.getObjects()
+				.filter((other) => circle.intersectsWithObject(other))
+				.forEach((other) => canvas.remove(other))
+		)
+	canvas
+		.getObjects()
+		.filter((obj) => obj.type === 'circle'  && obj.fill === '#ffffff')
+		.forEach((obj) => canvas.remove(obj))
+	yDrawingMap.clear()
+	canvas.getObjects().forEach(obj => saveChange(obj, {}))
+}
+window.magicEraser = magicEraser

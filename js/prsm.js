@@ -807,7 +807,7 @@ function hideNavButtons() {
 	elem('buttons').style.visibility = 'hidden'
 	elem('search').parentElement.style.visibility = 'visible'
 	elem('search').parentElement.style.borderLeft = 'none'
-	elem('maptitle').contentEditable = 'false'
+	elem('maptitle').contentEditable = 'false'	
 }
 /** restore all the Nav Bar buttons when leaving view only mode (e.g. when
  * going back online)
@@ -1058,7 +1058,7 @@ function draw() {
 			},
 		},
 	}
-	if (viewOnly)
+	if (viewOnly) 
 		options.interaction = {
 			dragNodes: false,
 			hover: false,
@@ -3431,12 +3431,14 @@ function updateNetBack(color) {
 	yNetMap.set('background', color)
 }
 
+var backgroundOpacity = 0.6
+
 function makeTranslucent(el) {
-	el.style.backgroundColor = getComputedStyle(el).backgroundColor.replace(')', ', 0.2)').replace('rgb', 'rgba')
+	el.style.backgroundColor = getComputedStyle(el).backgroundColor.replace(')', `, ${backgroundOpacity})`).replace('rgb', 'rgba')
 }
 
 function makeSolid(el) {
-	el.style.backgroundColor = getComputedStyle(el).backgroundColor.replace(', 0.2)', ')').replace('rgba', 'rgb')
+	el.style.backgroundColor = getComputedStyle(el).backgroundColor.replace(`, ${backgroundOpacity})`, ')').replace('rgba', 'rgb')
 }
 function setBackground(color) {
 	elem('underlay').style.backgroundColor = color

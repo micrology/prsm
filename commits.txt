@@ -1,0 +1,857 @@
+77b1b55 first commit
+e786e0f added .gitignore
+c802b1a Added to .gitignore
+9b2cb69 Got sample nodes working
+b7ab975 Added zoom menu and Edit node
+f9f0a2f Added fetch JSON network file
+387cdaa Adding delete code
+8c74d7e Got delete working and labels in add node
+948bb33 Tidying
+5db8938 dded node sample images and corrected scrolling out of viewport
+4547ea1 Added node sample jpgs
+0cb6e54 File open and download snippets
+88d720b actually adding snippet files
+42e6ca6 Got download working, except for Safari
+6e77035 Cleaned up download (still not working in Safari)
+bd248eb Added downloads for nicEdit and jscolor
+818ae83 Got colorpot workimg at last
+777523b added canvas experiment
+cfbb06b Continue with canvas for samples
+d54fe46 Add link add and link tab contents
+3139121 linked textedit to nodes
+f3104e6 Add ed @media print to styles.css and removed Oxygen font
+cb0b47f Added meta to file save and rewrote file open
+2135555 Added betweenness centrality code
+ebfa9b4 Nodes within radius and label hide added
+81add81 set physics to don't stabilise
+9a2eca9 Solved some add node bugs
+beffec8 begun to add web worker code
+6edf22e Changed nav bar to use links and made panel hide work better
+e45965b modal experiments
+1ea865b got betweenness working as a worker and made some css adjustments
+35e73a9 redid navbar CSS
+64fd14d Cleaned up index, CSS and JS files and some status messages
+b0b7475 Before adding yjs
+d03e697 Added yjs hurrah
+18ab79d bug fixing and use range for zoom
+1b58b4f Bug  fixes and tidying up
+36177f6 gnoring demo files§
+9fe7b9f Merge pull request #1 from micrology/datasets
+c39ec72 iAdded some commets and moved some js into modules
+8d4d72b  Added comments and cleared lint errors
+a394554 Added up and downstream hiding
+77264b0 Merge pull request #2 from micrology/datasets
+e8d522e stopped crash when dimming nodes in a network with loops
+2661c0a Merge pull request #3 from micrology/datasets
+def8683 Made UI more modern, got websocket server to restart if it died, better i/f fr up- and downstream
+99f2073 Added snap to grid
+9c9e25f Merge pull request #5 from micrology/datasets
+c0dd6d9 Bug fix to snaptogrid
+dd68020 Merge pull request #6 from micrology/datasets
+5dc7cdd Got undo/redo working and some changes to yMap.on
+f05703f Removed nicEditor, added underlay
+d3dac20 Merge pull request #8 from micrology/datasets
+632f756 sorted merge errors
+4efb54a Merge pull request #9 from micrology/datasets
+a22b396 Added Pete's favourite samples
+893db29 Merge pull request #10 from micrology/datasets
+b501be0 Added claim and clean
+948c9be Added node moves to p2p and undo, and made baground color well change underlay, not canvas
+31358d2 editing node samples (but not yet links, or saving the results)
+921a7a3 fixed lint error, changed ios viewport
+ebfb98c Merge pull request #11 from micrology/datasets
+61a2f7a Rewrote the sample config generation
+ef9c2f7 Editing samples working, but not yet saved.  Labelling edges nearly working
+b999fbd Corrected display bug on edge labels
+7d194c6 load and save edited samples
+b1896f1 removed spread  operaor, which Ms Edge does not implement
+7483c58 undo and redo also restire network panel buttons now.
+2c3e7b8 incremental zoom control and factors sized by centrality etc.
+edafcef Merge pull request #12 from micrology/datasets
+d72e2d2 stopped edit node adding group props to node
+107239f Adjsyted label sizes and bug in sample editing
+0d90e46 Merge pull request #13 from micrology/datasets
+421f9e2 Stop deleting colour from edges on load
+3d884cc Merge pull request #14 from micrology/datasets
+05b048d  Allowed deletion of edge labels and use curved egdes for two-way links
+cb2ff74 Merge pull request #15 from micrology/datasets
+18a3783 Read GML and GraphML data files, and propagate sample changes to other clients
+c514cfd Added downloaders for GML and CSV, corrected add node dialog position, and status msgs
+3e8f7c1 Completed CVS export feature
+5739f74 Merge pull request #16 from micrology/datasets
+5b4ddfa Nicer dialogs for samples
+e0da864 Merge pull request #17 from micrology/datasets
+686dcb0 Made adding nodes and links modal, and added notes for links
+97b0389 Merge pull request #18 from micrology/datasets
+f092617 Moved utilfns to utils.js and added spacing/gravity slider
+92a6d36 Added fixed nodes
+63dd79d Added production build
+000cf83 Merge pull request #19 from micrology/datasets
+fb88e11 Solved disappearing notes
+d5766b9 Dependent package upgrade
+e502431 Merge pull request #20 from micrology/datasets
+25948cf Chat window added and download code changed to suit MS Edge
+d1d0fd7 Reformatted code and checked lint
+d8e378e Merge pull request #21 from micrology/datasets
+39f2fed Changed colour of chat tab
+1164496 Merge pull request #22 from micrology/datasets
+925fab9 Added blinking chat tab
+a1ad431 Merge pull request #23 from micrology/datasets
+fd4a7e1 Chat window clearing bug
+c979a99 Merge pull request #24 from micrology/datasets
+b12433e Swapped in Anticipate logo
+7379852 Merge pull request #25 from micrology/datasets
+52167fc Removed Heirarchical option
+1e101b1 Merge pull request #26 from micrology/datasets
+1d3c8eb Solved bugs relating to undo of Network controls, betweenness failing when network not stabilised, network error on saving in chrome, and improved display of link samples
+057f8f4 Merge pull request #27 from micrology/datasets
+bb15e3d Updated all dependencies
+38f376c Moveable chat window (and undo of curved/straight links)
+5e436ff Merge pull request #28 from micrology/datasets
+8972b5c Moved vis-network.css to prism.html so that it is not tree-shaken, added auto line breaks for nodes, subsituted wss for ws://
+3bb4a74 Merge pull request #29 from micrology/datasets
+3cf8a9a Changed DataSet add+ remove to update; added button status to file and load
+a221185 Bug: duplicate chat messages at start up
+38815f8 Merge pull request #30 from micrology/datasets
+56ede73 added parseCSV
+adf5bdb Rewrote the node grouping code so as not to use the vis-network provision
+6e038b5 Merge pull request #31 from micrology/datasets
+4cb5450 Bug in JSON file that omitted color
+39d3e9c Merge pull request #32 from micrology/datasets
+701dcde Enhanced package.json and sample link arrow code
+ced8767 Reduced saved file size and load logo only if logo.png present
+93f6542 Merge pull request #33 from micrology/datasets
+61fce64 solved graphML and gml import bugs
+eefdbb6 Merge pull request #34 from micrology/datasets
+56d8aef Corrected source and target in parseGML
+6fb6b6d upstream after radius 2
+3937a3d Got upstrream/downstream working
+d4ce21c Straigh/curved bug solved.
+1c3d74c Merge pull request #35 from micrology/datasets
+fd29cd4 GML save includes color
+6e629e3 Added dialogs to edt individual nodes and edges
+df4209f Got the browser test to work
+a4f0f15 Merge pull request #36 from micrology/datasets
+8d28c63 Broadcast stream and hide radius settings
+5e6becb Solved disappaearing nodes when added
+722f910 Removed self-loop to avoid click on linking issue
+ccdb484 Added legend and legend switch
+356f3a6 Bump version to 1.1
+1d26818 Merge pull request #37 from micrology/datasets
+97fe44f Added prettier to package.json
+7626435 All JS and CSS files passed through prettier
+689cbf7 Formatted legend and made it moveable
+6456448 Format legend and popup. Set addNode etc directly
+22be884 Merge pull request #38 from micrology/datasets
+5064b72 Styled the link and node sample edit dialogs
+71a8167 Merge pull request #39 from micrology/datasets
+379e3be replaced deepCopy with deepMerge.  Made panel movable
+879da34 Undid panel draggable: didn't work. Made samples unsleected after editing
+95685ca Merge pull request #40 from micrology/datasets
+9f3666a nowrap zoom, shorten long labels, correct spelling, node border none for styles
+c3045fc Merge pull request #41 from micrology/datasets
+9d87bba Bump websocket-extensions from 0.1.3 to 0.1.4
+a55963f Updated dependencies
+0901c78 Merge pull request #43 from micrology/datasets
+32c4409 Merge pull request #42 from micrology/dependabot/npm_and_yarn/websocket-extensions-0.1.4
+c3f6a0d Added drawing code (but yet to rewrite it)
+018b613 After prettier
+42c8e5e First commit with drawing layer added
+9fb1ad5 Tool options appear when tool selected
+3b2459e Merge pull request #44 from micrology/datasets
+f6fa0bd nap to Grid bug and trnslucent rctangle and input cancel bug fixes
+4f090c4 BAckground image loading bug
+4d2388b Can now click outside drawing text area to submit
+ffa11fb At last, got zoom and dragof drawing canvas to work
+285e81d Merge pull request #45 from micrology/datasets
+e391508 Solved empty iput box bug
+66774b0 Non-working drag and zoom version
+29c03cd Hrrah!  Got background zoom and drag to work (I hope!)
+2e00f55 Marker, pencil and undo improved.
+09fce2c Merge pull request #46 from micrology/datasets
+060f6ed check for missing nodes
+ceb17c6 Merge pull request #47 from micrology/datasets
+8c336db Drawing bugs sorted
+188c4f2 Merge pull request #48 from micrology/datasets
+e9e12de check file open suffixes
+53928b8 Merge pull request #49 from micrology/datasets
+b5bc19c  added grid, but it doesn't spread across the window after dragging
+37e905c resizable image and text box on drawing
+a1dfb13 NPC demo network
+f56e0e9 Merge pull request #50 from micrology/datasets
+a8a779d Tetboxes now retain their shape
+ae86839 Merge pull request #51 from micrology/datasets
+ca2b09b adjusted grib boundaries; got rid of display none for open file
+e2c4066 Remove data dircteory from Github
+773e090 Solved hanging edges bug, added some comments, and nlur over text entry bug
+31d3305 Bumped version no to 1.2.5
+590fe19 Merge pull request #52 from micrology/datasets
+74ae349 Stopped mouse drawing out of the canvas
+b95b557 Merge pull request #53 from micrology/datasets
+588a97d Auto display of legend.  Restored fit() on load
+7aea6a3 Merge pull request #54 from micrology/datasets
+0dcb22d Reduced initial draws, possibly got initial fit working
+c6e2c43 Merge pull request #55 from micrology/datasets
+70e7130 Add ed persistence to Websocket-server service
+e367794 Stopped broadcast of unchanged nodes and edges, legend bug on file open
+4823238 Merge pull request #56 from micrology/datasets
+23c2075 Users with &viewing=true can only view the network
+bf7d764 Solved iPad height issue
+83fb5ce  Added tap recognizer
+e82a741 wss using port 443
+d4c2f54 iPAd page height and initial touch with hammer.js
+09bac7a updated version to 1.26
+203db88 Merge pull request #57 from micrology/datasets
+549e541 Before removing wrap
+424a566 Text input now working nicely - image next
+f58f83f Got image placemet working at last!
+60afa9a Tidied up paint.js
+d85e93d Merge pull request #58 from micrology/datasets
+87e21bc Bump elliptic from 6.5.2 to 6.5.3
+37c27f4 Merge pull request #59 from micrology/dependabot/npm_and_yarn/elliptic-6.5.3
+d47e133 Resize mods; port 1233
+f8f56b7 Image insertion and dragging sorted
+fa6e4f9 Merge pull request #60 from micrology/datasets
+ba4eaeb change meta viewpoint to make it work on android chrome
+325c953  works on Android, better drawing grid, typos
+365046d Merge pull request #61 from micrology/datasets
+9da195b Started README
+078fcd5 Merge pull request #62 from micrology/datasets
+1f385b2 Corrected typo in README file name
+fa22e8c Typo in README
+9066bf8 Merge pull request #63 from micrology/datasets
+17f34b3 More added to README
+9feab8e Size switch and style display mods
+9179f9b Finished first draft of README
+c28b611 Corrections to README and accept .prsm as file suffix
+b6f5fa8 Merge pull request #64 from micrology/datasets
+7aad9e6 removed experiments from master
+7048057 Merge pull request #65 from micrology/datasets
+6491b53 Created basic website
+9b08de9 Mods to user guide and web page
+e6ca7d1 Merge pull request #66 from micrology/datasets
+4ef6114 Updates to website
+f0003b7 Merge pull request #67 from micrology/datasets
+7c46dfb Changed to using Parcel
+5c03e20 Used htaccess to get file paths right
+a9f4711 Merge branch 'master' into parcel
+a78b2da Merge pull request #68 from micrology/parcel
+84915ea Corrected .htacess to dela with queries
+cb96844 Rewrote parseCSV() to speed it up
+6839697 Merge branch 'parcel' of https://github.com/micrology/prism into parcel
+fa172f8 Changed repo name to PRSM
+030bc8f Changed all files from PRISM to PRSM
+564a1b7 Merge pull request #69 from micrology/parcel
+1ad1b75 Moved jsdoc output to doc directory and added more comments
+a6a149e Added touch for panel, developer README, iPAd styles
+08c5a42 Minor problem with hammer in paint.js
+17bc90d Merge pull request #70 from micrology/parcel
+3c75515 website changes, help icon, keep chat pane in window
+d77f740 Upgraded node modules
+bd5a5bf Merge pull request #71 from micrology/parcel
+e14a190 Mods to node and edge creation and editing dialogs
+5f9aaa4 Control-click for adding nodes
+f2e8f49 Added shift _ sleect for new links
+fce969e Bump version to 1.4.0, don't allow CTL-Click over nodes
+b35cbc5 Tidy up comments and no longer used code
+634783f Added map title
+4d397b3 Installed intro.js and initial intros
+08ced02 Added text for intro
+4c84852 Implemented avatars
+2d51306 Add and delete a few comments
+c7026ed Added IndexDB provider
+046eef8 sorted out avatars
+ca7ffb6 Implement better style editing
+92368a1 Separate Notes area from Styles area
+98653f4 New style palette and bug fixes
+609887d  More jsdocs
+c755da0 Merge pull request #72 from micrology/parcel
+ca62840 Mended Intro (no Skip key)
+11a70e9 Merge pull request #73 from micrology/parcel
+763c917 corrected intro.js parameter
+3392f68 Added new notes for edges dialog
+ada0ecd updated packages
+1dd9e9f Bump ini from 1.3.5 to 1.3.8
+e63aeb4 Notes shown for both Factor and Link tabs
+ebfa4cc Merge pull request #74 from micrology/dependabot/npm_and_yarn/ini-1.3.8
+e0a9001 Blank net pane until network fitted
+7678423 Added check that browser is not legacy Edge, but Chromium Edge.
+892d083 corrected names of images for help
+2c9b056 New colours for page and styles, and Oxygen font
+72f1e52 Changes to intro theme and improving iPad UX
+a57e78c More tuning of introjs
+9406688 Bug in observe YNetMap, no Enter for map title, moved setupIntrojs
+16543d4 Added shadow when nodes are selected
+c9c44ce Temporaily deactiviate introjs until it works
+323a266 Added Oxygen bold
+dea61c3 Implemented tutorial code
+204e2b0 New implementation of tutorial completed.
+738c49f Sharing close bug
+bcaa5b9 Maptitle propagation bug
+4cb94e8 Added side bar ToC to help
+a92677d Replaced some README images to show new design
+def194d More additions to README
+984efb8 Update packages
+7879f41 Deselecting nodes killed add node; Prev to Back in tour, node edit border none, add node dialog moveable
+acbc84b viewing URL parameter improved.  elem function used throughout
+221390d Bug in elem() application and add factor dialog moving in Safari
+f50301d Bugs: placement of chat window tour, not going to sleep
+cc00761 redid the landing page
+90eaa78 Dealt with sticky nav not sticking, simplified CSS for index.html
+efcd252 Put viewport back to what it should be in prsm.html
+bd4bfc2 Added logos to index.html, cured sleep bug and delete stray edges when coming offline
+d7eb041 Added red border to tutorial dialogs
+a6fba78 Save individual atrributes for nodes/edges, load them, save maptitle
+5925f0a tyke changes overide individual changes, but only on user's network (not sure that this is right!)
+d959400 Nodes are locked when anyone is editing them
+7f487b8 Updated version number to 1.4.5
+43c0de2 Edit lock for edges; edit timeout
+c8870be Added edge font size to dialog, idlle timeout bug
+b9cc63d hanhe node fix to padlock icon
+7fbd95e eparate debug for gui and yjs, edge selection bug, removed hover effect
+a22d8b3 Selected edges use shadow, not thickening
+9a8e6cd nodes fixed after editing bug, edge unslected but keeping shadpw after edit bug
+2d6bce3 remove squash input - it didn't work - and prevent editing of locked nodes
+203673b Add claim for Edited by.. node so it is broadcast
+3ba0e41 claim edge edits
+a5759b5 Factors being edited show faded out text; avatars have two initials; gestures described in help.
+5c34a12 Background color while in drawing mode bug
+0dbf23d Edit dialog is closed before user unloads page
+7a0ee85 Improved css for print
+b0ad58d Improved format of legend (fit to canvas)
+54d8e23 added a working clone function
+c3a9270 Added checkboxes on Share dialog to clone and view only the map
+d1801ac removed redundnat updates from showAll and sorted z-index for tooltips on nav bar
+4b3b9ce maksure map title is displayed on load
+e2d9842 stopped marching ants if image load is aborted
+1224e8c improved tour and added a redo button to help
+d320b4f Ajust position of Skip and Next buttons on splash dialog
+0f4f74a added first draft of trophic code
+c1813d2 Added trophc.js to commit
+8f189c8 Linked trophic.js to Network panel pushbutton
+b0b6dd7 Added trophic alanysis for connected components
+0f6ec65 trophic now uses min and max for each component separately
+4210aa5 new format for chat messages
+6c87efa Chat date may be 'today'
+a033873 upgrade packages
+d78fbae Upgraded all modules to latest
+d215006 changed arrow shape to 'V'
+97deeca Removed Hide Labels and add mapMerge as hidden fn
+55fb6c0 Set document title to map title
+14ba544 REmoved duplicate avatars
+72a48c3 lock map while user is dragging out a link
+ccc57af Updated Note display to deal with change in vis-network 4 (removal of HTML format prcessing on title)
+56a34fd Added move cursor to dragElement
+5c84e63 Improve tab buttons
+e75a87d Get cursor right for Add Edge
+fd5e286 Updated y-websocket server.js to match current version
+0f0964e Merge pull request #75 from micrology/trophic
+3c788b1 Reverted to previous version of y-websocket server.js as HOST was not being accepted
+4674235 Merge pull request #76 from micrology/trophic
+3c97f81 Add some showAvatar calls and beginning sof badge display code
+0aa1c13 Badges using a div - but fails when cloning
+401394c canvas badge for nodes
+189cd95 Added badges to edges
+be03513 all done with replacing title with notes except for dragging note window.
+ba8ad5c Use middle arrow for note badge
+38f0a10 Item data dialog box
+ac5fe5a Edit dialog sve button uncovered and unlockAll bug solved
+a75fa17 Initial implementation of search
+194c777 Minor bugs etc. for search
+5b75059 Added calls to logHistory
+ff92c2d Tidy up search UX, save history
+0a4aa72 History window
+567a76e Added history switch
+6270f15 Improvements to history log  and search bar
+1bd823b Added quill editor
+5503531 dded saving and restoring notes
+9dc1332 Bug in showing legend when restoring from file
+49fb5af npm upgrade
+c707218 change appearance on all when style changed and other bugs
+95e148d moved font auwesome to node_modules
+f6d1455 Only load emoji when chat window is opened, for a real speed up loading.
+c2dce22 Initial try at getting rid of clientID and using local instead
+f8ccb46 Major rewrite of interface to yjs
+c3523e2 My avatar first; cured avatar flashing; more efficient file loading; better scaling for sizing
+814cc7e  used doc.transact to minimise yjs updates
+c17d643 Added magnifying glass!
+8656b71 Parameterised magnifier size and zoom
+7491296 Magnify event listening to window not main
+d95fc05 Added privacy notice
+75091a0 Merge branch 'master' of https://github.com/micrology/prsm
+2b7bf66 magnifier more or less works, but using a magic number
+83a9d89 Temporarily removed shift-link feature
+76a6bd4 Added image export
+a8b7e4d Minor bug fixes, add notes to CSV export
+b7fe2f6 First attempt at shared cursors
+7368ff7 Got shared cursors working
+e0de020 Finally got the magnifer to magnify the right bit of the network
+09965b3 Corrcted typos in comments
+1c158cc Sample styles now reload correctly
+654f35d Leged warning bug
+1a7e6c8 yNetMap works on reload
+f0e95f7 Updated packages
+7ede3a0 Bug fixes and shortcut splash
+133f52b Added privacy notice file
+1d41d1c Added privacy notice to home page and tutorial
+a4d7b4c Delete confirmation removed and CSS colours rationalised
+20db88d Upgrade modules
+27d22bc Initial coding of new website
+f9feb3d Added acknolwdgements and cookie query
+bcce480 Remove dead cursors.  Add privacy notice to new web site
+cb5ef34 Contact details on website footer
+361e16a Installed new website files
+4413fd7 Reorganised fies for easier maintenance
+0e84cf8 New help images and revised shortcut keys
+46da423 solved bug with position of node/link dialogs
+ba272ea Using grid for help page, and added subsections to contents
+89313ce Updated help
+848630a Added colorPicker code to utils.js
+2b63fe4 Added srcset responsive imaages for example maps for index.html
+b840e2b Added home grown color picker
+517c5fb Added color picker to node and link dialogs
+a9cb90a MOre arrow types and arrow types in link edit
+f966f42 Added selection by CTRL dragging
+cbb231a Finished control drag
+e600983 Added standard colors to picker
+55fa014 Bug fixed with saved colours.  Version bumped
+feae329 Added menu on chat window for whom to chat to
+ca0ff8c Minor Windows and iPhone bugs sorted
+005ce81 Added anaysis table to help
+50738ae bug with hideAndStream yNetMap setting
+29aa36e Improved Merge
+42e17e0 Don't overide individual styles when loading map from server
+cd930f3 Added check for unsaved changes (and bumped version to 1.6.7)
+2851feb reduced avatar flicker, hopefully
+c362cc5 expl. of trophic in help; use uniqolor for avatar colors
+8214bfa Allow user to read notes in viewing mode
+66e8a79 changed quill to snow, added link and outline formats, allowed for expandable Notes panel
+aab3adb Select/hide by style done for nodes
+0cfcdde Select links by style
+b80074c rewrote style context menu to allow more than one style to be hidden
+4ecfd61 Added style hiding to yNetMap
+1f67421 Bug  with case of clientID
+690223a bug with link labels as whitespace
+5de56dc trim bug on link notes
+42620a2 Added table code
+e433141 Added the files this time!
+e9c57f5 Bug with undoing edit solved, but yet fixed
+a3f3be6 Undo node and edge edits working.  B/ground for color picker. None border width bug.
+c81dd0d got undo/redo working in table
+719da65 Added filter GUI to table
+c5df7db Filter for links
+193ed1a Use built in chosen function instead of my own shadow
+8c2dd9d color picker for table, share to table.html, comments and tidy up for table.js
+acbb09a Pinch to zoom for tablets (and refresh package.lock)
+8225b2a pinch for zoom on tablets, and lablesin notes showing Edited even after editing
+ecb755d ured issue with nav bar disappearing afterediting text, on iOS
+3e4109f Added copy table button.  Added triangular arrow
+874817c ddedtrackpad scrolling to do zoom
+e205349 Added requestAnimationFrame to make zooming on a trackpad smoother
+90e977a use version from package.json
+e2dcb93 tidied up copy and paste
+f825ff0 Bug with clearing nodes when loading a file
+03cebf5 Added table.css
+37b21c5 temp remove hammer
+2d8673d Reinstate Hammer, and prevetlegend edge nodes being selected
+a6f08a1 Added degree columns totable
+a4fb1f7 started adding betweenness to table
+d93aa0e Hi res image download
+6f40f47 moved bc to nodes, added history to index.html
+95aa5d3 made downloaded image have a white background
+b5f5008 solved safari issues with copy/paste
+8d79850 updated dependencies
+ae8e716 moved websocket server to prsm.uk
+ceaff15 change from faont awesome to bootstrap icons
+bee4a70 Notes dragging width bug; copy/paste from quill editor
+fdc9e05 Merge branch 'trophic'
+8634ce0 Delete PRSM-privacy-notice.html
+b51da4b upgrade y-webserver and bump version to 1.7.0
+358d15e removed SVGO incorrectly squiching SVGs
+9510641 Actually added SVGO ignore file: .htmlnanorc this time
+0e83a3f Tables close button to SVG
+d1e12a8 In Tables: selection column, size column
+e3f5ae5 added hidden column; better headers for tickCross
+3b16cb9 Hidden column now works
+e812773 Move Notes out of the way of Settings panel, add comments to Table.js
+a70a0e0 htaccess permits certbot; added column calculations
+21d29f7 Hidden column for links, Select All factors only selects visible ones.
+9b32321 bug in Table links hidden
+237c65f rewrote table hide all to deal with cells not yet calculated
+a55644c window resize on iPad bug
+cfb72f9 Cache chat user menu
+9af44d4 Added followme functionality
+ca64ce2 Updates to help, and container scrolling bug
+88679b9 Allow editing of styles in Table view (factors only so far)
+472cb23 Edit Link styles in Data View
+854064a Bug when reloading maps with hidden factors
+f133b18 Added share button on table view
+0be1029 adjusted nav bar diemnsions for mobile
+23248f6 Help text for data View
+0c307a7 epplaced some out of date images in Help
+387bee0 Added Buttons.png image
+a4d34d5 typo on Buttons.png
+7b465e7 still on that typo with Buttons.png :-(
+474ecf4 Added menu of previous maps
+9c8ae2d dealt with ridiculously long map titles
+96b1c56 New draft website
+e8fbf19 examples and help.html drafts
+fb1b6e1 Added images etc to newwebsite
+36ad4bf nstalled the new landing page and site
+1326efa Updated to latest parcel build
+f66f827 Hamburger toggle on web page bug
+7d15326 Legend stretching bug Data view version bug
+9ffa1d9 Added Google analytics and GitHub icon
+b94f204  upgrade y-websocket
+6da1d20 upgraded parcel to nightly
+6b19d85 Typo in navbar of index.html
+45142fb tweaks to website - thanks Linda
+4d6d4af Add Gitter badge
+02a3b30 New shiny PRSM logo
+8bb0c7f Merge pull request #91 from gitter-badger/gitter-badge
+1b24572 Bug with loading when no local copy
+ec1d922 Added meta tags fro LinkedIn and Twitter page peeps
+6b6a25b Corrected link to image in meta on index.html
+63a8b9e edit popup color; drag width; public image
+44cdf1f Removed error message about missing factors from status msgs
+56075af New hero image for index.html
+35ca287 Packages upgrade
+2cce156 bug with duplicate Attribute columns
+eb0fa01 Added ghost factor that appears when another user is adding a factor
+72d26e3 ensure that ghost facctors are removed when origin clinet is closed
+da6a397 Notes are updated synchronously
+4b47505 Add New map option to Title drop down
+471c7f9 New map item in dropdown only if there are other maps to list
+ec95e74 Made user cursors unselectable and added status bar msgs for adding links
+8c136db disable undo/redo  nav buttons when in drawing layer
+fe8ce72 Bump version
+0b65536 Added diagnostic to show diffs between two rooms
+5c820ae Improvements to History window style and added log of undo/redo
+2f43b7b Moved diagnostic functions from prsm.js to their own file
+a242873 Added details of headers module and installation
+b619037 Merge pull request #92 from serialc/patch-1
+a950c59 In CSV export, encode Notes into HTML
+84449be Tweaked HTML output of notes in CSV export
+82f1bde Added ghost cursor after clicking + add node, and upgrade all dependencies
+7ef5ec1 Table: improved look; Paint: grid lines on top; Table: Notes as a column
+7dc093b Table: notes editor for links
+7f96221 Adjustments to CSS for phone and tablet
+d024d17 don't use ghost cursor if touch (no mouse) available
+2cedbbb Added collapse for Table Links tab
+cb996b9 bug in show downstream factors
+fee55a1 paint.js:  line drawing working with dpr=1, but still probs with text and line thickness
+7b99fbd Solved the misplaced darwing bug in paint.js
+a429710 improved paint pencil
+827f653 Number validation on paint tool dialogs
+12cdde5 Canel image tool in paint.js if user cancels image browse
+e5bda78 first draft of clustering
+991ca28 Clustering second draft
+8332f05 Draft 3
+3c29830 Clustering draft 5
+ba1bdd5 Clustering v6
+7e14a9c Added loading animation for large maps
+16ea398 Cluster draft 7: add select of cluster type
+bea28aa Clustering draft 8, plus delyed loading animation
+f8b035c Clusteringn speed up
+c6b8c68 Upgrade dependencies
+18c6552 move clusterng code to its own file
+87e1217 Cluster menu for attributes
+ab3f921 Nearly done with clustering
+fb976ab Beta version of clustering
+4bcfa42 adjust width of time column in history log
+3320a01 Add factor ghost cursor centred on real cursor and constrained to net pane
+7dc23c6 Trace awareness
+2b7d397 better tracing, added Locked to table view; fixes to undo button status
+9416b50 When 'Show other users' is off, avatars are not shown as well as cursors
+611e57f Better awareness trace, wrap avatars
+ba0b95c Avatars now in proper alpha order
+4e2f3f1 dependency upgrade; default name in input splash box; preserve created and modified dates when saving file
+6f600e2 Constrain moveable panels to always be within the window
+48a6e68 Added show Notes switch
+d4623f6 fixed Notes window moving bug; added delay to tooltips for main nav bar
+a76632d Fixed undo bug, and added more tracing for undo
+95c94c9 Check for avatar names have changed before displaying avatars to reduce flashing
+0fc5d4e Added analysis tab to settings panel
+30ebf33 first draft of all paths algorithm
+4f0bb17 Add blue border around the current factor/link style
+319581d Working shortestPaths function
+bf438ad Linked shortestPath() to UI
+ede89c3 Working version of shortestpath
+20e3ea4 Radius, Stream and Paths all working nicely together
+bb9023a Bug with circular paths squashed and comments added
+b9005d9 Using whyHidden for cluster and style
+4fa21ec Merge branch 'master' into analysis
+672d385 set prettier to remove redundant ; and reformatted all
+88de0cc sorted bugs with standardise color and with sizing
+2655d5c Bump @joeattardi/emoji-button from 4.6.0 to 4.6.2
+b48af48 Fix bugs in cluster menu and attribute cluster name, and add loading dots for data view
+6bb1628 Merge pull request #99 from micrology/dependabot/npm_and_yarn/joeattardi/emoji-button-4.6.2
+253fece Edits to jsdocs
+06cd395  Rollback
+2c003ab almost solved scrolling bug in history panel
+60476bf  MAde tabs into buttons
+783920b Paths abide by radius and stream and nodes not on pathsare hidden
+d3f39f7 set clustering to off on file load, and recluster when right clicking a clustered node
+8e16ea4 Recaulcalte min paths when factors shown changes; remove calls to IndexDC persistence because it can cause catastophic data loss.
+bb6cff4 Initial update of help for typos and Analysis tab
+2ae03de Filter function for Notes in data view
+24bb8be Updated help with new images
+9d99a12 Avatar initials not changing wghen name changed bug
+2c18b8b hide attached links when nodes hidden in data view
+e04c637 Refresh yAwareness every 20 secs, and fix link cirvature in image export
+00631be Don't select hidden factors using control and drag
+115b92c removed IndexeddbPersistence as it is suspected of causing data loss
+d4d2f1e Bump version
+e7eb81a Improve style display in Settings and Legend
+d97599f minor changes to Legend
+8b7dc1c 1st working draft of 3d view
+bf95672 upgrade dependencies
+d3589a1 Add status messages for warnings and errors that fade in and out
+0b30cf0 Redo radius,tream and paths anaysis fns, after realising that they are not communative
+893fbf2 Bump version 1.9.2 and get 1 further link in stream
+2d2206f added links between visible factors for radius and stream
+9e7499b Changed version to 1.9.0.beta
+054a91d Added more auto layout options
+bc16efc Auto layout: set spring length to average edge length and fixed undo
+abcbb94 Tidy ip trphic layout and distribute factors on y axis
+5dcd49e trophic layout: all sets of connected nodes have same min and max; increase max levels to 20
+01d2d4e Adjust the CSS for the backgroun for the 3D display
+ed7c165 ensure all factors are displayed after a 'Select factor' error
+1ae39e1 firstpass at Z-Split layout
+dd13fcf 2nd draft of Z-Split
+071e688 3rd draft of Z-Split
+5d7f72c Lock selection
+ee9fa25 Z-Split: automatucally put seected nodes on left or right according to majority of up or downstream links
+6ca4a19 Setting the padlock sets the right factor, and up and downstream selection sets the direction for Z-Split
+4043001 more changes to Z-Split and Radius
+96d1d23 change Factors up/down stream to use breadth first search
+40180cd removed node selection when locked
+2055a7c  Add lock badge and use new icons for badges
+9dde834 Tidied code
+d4d85db Add MailChimp sign up to landing page
+5030d58 resricted roll back to the last 10 actions, to reduce size of history
+cc1ddc4 Allow Data View to unlock Factors
+e1b6bc1 Add selection column to Links tab in Data View
+ea22e7f Add text under nav bar buttons and fade delete button when nothing is selected
+8286c73 no text under nav bar buttons for small screens; updated help for rollback
+f0c8bfb Add rollback icon for help.md
+f19cb6a Typo in prsm.css
+70602a2 Update dependencies and replace jsdoc template foodoc with dashdoc
+d9c5693 Redo save file; add text to data view nav bar icons
+fa7c089 Share menu uses buttons, not links for clone etc.
+6314b46 Improve error handling for copy/paste
+9047821 Tweak to copy/paste error
+1e811fd Merge branch 'analysis'
+cab17dd Stop mouse drawing outside net pane in drawing layer
+7b4870e improve css basic grid layout
+03b543c Add dashed line to draw tools
+7a702dd Changed target of copy/paste to body
+3f49507 Use placeholder for style names; corrct global alpha in drwaing rects
+e35cfba bump version to 1.9.1β
+29c8502  Tabulator upgrade (half done)
+bdb0d85 Working VR version of 3d
+027affe use URL to switch between 3D and VR
+f72be2f table.js updated to Tabulator 5.1
+3e73926 Width f Notes column bug fixed, and made rows resizable
+809d788 Re-implemeted Rollback to save states in the local IndexDB
+b08dfa7 added delay before loading dots start
+f8ff90a Bump follow-redirects from 1.14.7 to 1.14.8
+a505f82 Merge pull request #100 from micrology/dependabot/npm_and_yarn/follow-redirects-1.14.8
+a31c77a Save compressed PRSM file
+266bab5 initialise ySamplesMap properly
+b44f7df Initial vr demo code
+956df6a AFrame experiment for uploading
+9fc86a0 VR: try with fdg
+b8382d3 Labels in vr mode and billboard
+b1360ec don't save state history when filing; don't allow click outside of Add Factor dialogue
+0f9d577 Bump version.  Don't treat locked factors as selected (except for analysis functions)
+f214566 view ony mode without &viewing in URL
+7faceb0 Added round trip timer
+5372838 Added document size in console
+ca85145 Added sarch button for view only mode
+fbf6e64 Updated 3D view
+5720441 3D axes, help info msg, white background
+1c4294a Update dependencies
+5b69162 Scroll legend if too large for window, and add light/dark mode selector
+de8ab9d Add light and dark modes to 3D
+9b9b8a9  return to production version 1.9.0
+3bd2755 Merge branch 'dev'
+4ca8d38 update package.lock
+b5fd036 Get 3D resize to work
+988c094 1st attempt at VR for a PRSM map
+e13140e Move VR frcegraph code to vr.js
+15e46f7 Add mouse throttling
+3e2ad28 Merge branch 'mouse' into dev
+2706d69 Minor adjustments to VR
+797178a Context menu to fix/unfix all nodes
+faa684f contextmenu part 2
+105df2c Add right clikc on avatar to show what user has edited
+26263aa improve hover message for avatar icons
+055fbc6 Cleanup formatting
+2e07270 context menu for styles
+38cc5f9 Revert to prev.impl.of context menu for styles
+e4b5470 Merge dev into master to v 1.9.3
+d0eaa4d Lock factors by style
+2d81bd9 merged master
+19f357f Update deps and change SLOWTRIPTIME to 300ms
+4c0ab88 Merge branch 'master' into dev
+9c1e4b4 stop wsProvider complaining if go offline
+03b9796 upgrade y-websocket to 1.4.1
+1e851a8 disconnect wsProvider if offline; update node in websocket service
+c634571 Resolve issues with VR laser controls and jumps
+1f770dc Minor improvements to the VR looks
+343c1e5 Update deps
+b4a9669 Update deps
+9a144f5 Use latest node for web server
+4ba3300 New sky texture
+fd8c789 Origin box returns to origin when clicked
+3b71583 prevented camera passing throigh nodes
+2c151ee Remove teleport and left laser to simplify UX; use invisible box as back to origin target
+d342d82 Renamed version to 1.9.4
+5d90794 Merge branch 'dev'
+9ee19ca Made sky black
+964a4a0 Merge branch 'dev'
+582cc52 Add value range check on styles input in CSV file
+d35a625 further improvements to the CSV file read error checking
+d1fad43 Correcttypo that caused node selection to be broadcast; dealt with bug that boradcast vie only setting redundantly; stopped mouse coords being broadcast if show other users is off; bump paych version to 1.9.5
+9120804 Merge branch 'dev'
+dfb5afa rewrote show avatars
+18a8bb8 Rewrite awarness code to reduce CPU cycles used
+127f328 Merge branch 'dev'
+973c601 Bump version to 1.9.6
+31f6bc7 Merge branch 'dev'
+2750124 Oops - left in fake naem generator used for testing.  Now removed.
+1a6a72a Merge branch 'dev'
+58d8ec8 Restored errorneously deleted setting of myNameRec.id
+1b26ac0 Removed sending null pkts to measure slow network
+72dc3ac fix: context menu on style panes; feature detection by code not nav sniffing
+238a6e4 labels improved, collsions not working
+85141b4 sphere-collider fixed
+6af09fc spehere-collider working again
+392c474 fix quill link not working, but text-change now stopped working
+5de75cc update deps
+a45d256 much smoother trackpad zooming
+1ab89ac vr: tidied up network component and node label sizing
+038fa8f vr: made node labels show permanently
+bacc0bf reading DOT (GV) graph files
+24d0a3d DOT loader fixed
+0b451f8 simplified sphereize, but collider not working
+53f85e3 tidy up and bump version
+5129e52 reformat
+679ee23 Added thmbs up/down images
+a95e4a1 VR: changed sky to white plus fog
+2383930 fix repeated calls to forcegraph when the map has not changed
+1ee0927 Voting thumbs displayed and switched
+f4828d3 voting shared
+de0159c Update help and fix bug in Reaction counting
+0625e3e Added map merge and diff code, by linking in diag.js.
+abf9936 Fix minor bug in diffRoom
+1101627 Renamed diag.js to merge.js
+8c6c482 mousewheel zooming only on net pane, so that history window can be scrolled normally
+9f15b21 fix: old font colour not reverting if editing node cancelled
+c993a81 fix: block attmpts to cluster with no attribute
+e1c2b1d Upgrade deps
+a583419 VR: white sky, bigger origin
+03e441d working, messy, VR notes
+a6e9172 VR notes working, but jerky
+6c18e00 rewrote simplehtmlembed and now notes pop up as desired
+f63d8c7 Tidy up VR notes display
+8c520f4 Merge branch 'dev'
+64b2fde Fix bug in style creation for VR notes
+b711091 VR: use only right controller and adapt ifo to suit.
+93f25aa Set raycaster length
+90a914c Merge branch 'dev'
+2b5af23 Table: copy only filtered rows; format notes to clipboard
+8c4e49e Table: copy rows after filtering and only those selected (or all, if none sleected)
+b9cb010 Bump minor version to 1.9.8
+731f3dc Merge branch 'dev'
+9eef946 VR: slighly optimise spherize tick and move origin to in front of camera
+0b3c78a VR: make spheres transparent
+f4649c6 improved CSV file reader (accounts for commas inside fields if quoted, and uses GUIDs for IDs)
+6f571ee first working version of read Excel file
+f117d7a added attributes to Data View Link tab
+47eb044 Merge branch 'dev'
+f4a5191 Add style name as option for reading Excel file
+a828750 Added saving a map to an Excel workbook
+902f624 Minor formatting changes to Help about Excel files
+2e7fb70 Extracted importand output file fundtions into new module, files.js
+9d5d8da Merge did not deal with existing links not in other map.  Corrected.
+f10b945 generate legend HTML
+d7f417a 1st working version of Key panel for VR
+c7e23d5 New doc files for new files and move vr legend display
+84018ad Possibly working version of VR with a legend panel - yet to be thoroughly tested
+3d55888 v1.9.9 and minor changes to Help
+23fb509 upgrade deps
+c06d2d6 Merge branch 'dev'
+ba5476a fix missing export from prsm.js
+ef010f4 Merge branch 'dev'
+ae9e5c5 Upgrade deps
+7e08ba8 Merge branch 'dev'
+10c5e18 first attempts to create a Dockerfile
+8b66974 replaced emoji module
+a866452 Minor updates to deps etc.
+6653d28 moved Dockerfile into main
+936d7bc Working of Dockerfile, but not getting port right yet
+2f845e6 Use widthConstraint, not value, to size nodes
+727511e fix: dlete buttn on when selet all factors used
+f445ec7 final touches to sizing and added more node shapes
+13ba84b Fix diff big with edge labels that are all spaces
+d9453fb Merge branch 'master' into dev
+af292f4 Improve format of drop down previous map titles, and save previous map names and rooms when filing locally
+13b736d Tidied using Rome  (turns out that it is very fussy!)
+6993775 Containerise y-websocket and httpd
+2f6cf0a added help for container version installation
+0aba120 Finalise docker container code and help, and bump version to 2.0.0
+88acc9a First steps in using docusaurus for help pages
+120a6dc Adjust img's to use require and set baseURL
+1692438 Amend .htaccess to allow docusaurus help to run from help/build
+3b2cd12 got help-centre to build
+8b2fda0 get user manual working in container
+e7b59f0 Update deps
+049e333 Fix: add /do/help/build to commit, and corrct ws:// address for non local running
+b0db361 Allow multi-section drag
+7b79a79 refector and add resetAll()
+4f8f848 MergeRoom: merge factors with same label even if Id is different
+cec5369 Fix: Merge of links to label matched factors
+8e3d881 update to current version of a-frame-extras
+657ce81 Merge: label matching ignores whitespace differences and cluster nodes
+91b03e2 Merge branch 'master' into dev
+642c6cf fist steps in integrating background. js
+8d6a578 Adjust background to match foreground on fix() and resize()
+485ea11 1st version of fileing background
+1600603 Struggling to get background in the right place after a file load
+ec5aafe start modifying docs for new drawing module
+f60daa9 Upgrade deps
+1c6f3bc Upgrade deps
+c07dd2b Add more to drawing mode doc
+431d679 Finalise drawing mode doc
+71de9dd Add key combos for move, delete, undo for background
+e2ef376 Start translation of yPointsArray to yDrawingMap
+f563bab continuing translation
+be70c00 Still working on translation of images
+2726da4 Dealt with async loading of image in transation code
+2870692 stopped repeated conversion on reload
+a24d9f7 clean up debugging messages
+a25ead9 Bug: grouped not correctly located on reload
+f0dda4e Added dblclick to fit to background
+eff832f Update deps
+c3ccb49 Rebuild jsdoc and help
+faa3593 change version to 2.0.0RC
+9aff39f removed on/off switches; replaced with checkboxes
+6bb42cf update landing page
+7ac7d1d Changed header buttons color
+2d82f49 Add env. degradation to examples
+8103135 added biodiversity map images
+30135c4 Implement Notes editing window (but navbar doesn't work yet)
+cdd8f94 Don't deselect node if a selected factor is clicked
+483eb63 windows now syncing, but note is deletd in close of Notes window
+fa4f8a7 NoteWindow all working now
+9d2fa29 Bug fixes and tooltips for NoteWindow
+90c77ca Added help for Note Window
+39f6828 Deleting note in data view removes note in map view
+435cb9e upgrade deps
+bf2e059 Updated images in help
+afad70a Merge branch 'dev'
+c0743c1 Resolve conflict in package.json
+5b2009a update package-lock and norton security file
+ab30943 re-run jsdoc, prettier etc
