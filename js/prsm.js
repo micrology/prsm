@@ -463,6 +463,8 @@ function startY(newRoom) {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key)
 				if (!object_equals(obj, data.nodes.get(key))) {
+					// fix nodes if this is a view only copy
+					if (viewOnly)obj.fixed = true
 					nodesToUpdate.push(deepCopy(obj))
 					// if a note on a node is being remotely edited and is on display here, update the local note and the padlock
 					if (editor && editor.id === key && event.transaction.local === false) {
@@ -1523,13 +1525,15 @@ thumbDownFilledImage.src =
  */
 function drawBadges(ctx) {
 	// padlock for locked factors
-	data.nodes
-		.get()
-		.filter((node) => !node.hidden && node.fixed)
-		.forEach((node) => {
-			let box = network.getBoundingBox(node.id)
-			drawTheBadge(lockImage, ctx, box.left - 10, box.top)
-		})
+	if (!viewOnly) {  // for a view only map, factors are always locked, so don't bother with padlock
+		data.nodes
+			.get()
+			.filter((node) => !node.hidden && node.fixed)
+			.forEach((node) => {
+				let box = network.getBoundingBox(node.id)
+				drawTheBadge(lockImage, ctx, box.left - 10, box.top)
+			})
+	}
 	if (showNotesToggle) {
 		// note card for Factors and Links with Notes
 		data.nodes
