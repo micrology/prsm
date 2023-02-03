@@ -36,7 +36,7 @@ import {elem, listen, uuidv4, deepCopy, dragElement, statusMsg} from '../js/util
 fabric.Object.prototype.noScaleCache = false
 
 // create a wrapper around native canvas element
-export var canvas = new fabric.Canvas('drawing-canvas', {enablePointerEvents: true})
+export var canvas = new fabric.Canvas('drawing-canvas', {enablePointerEvents: true, stopContextMenu: true})
 window.canvas = canvas
 
 let selectedTool = null //the id of the currently selected tool
@@ -95,7 +95,6 @@ function initDraw() {
 	})
 	if (drawingSwitch) drawGrid()
 	setUpToolbox()
-	//	canvas.setZoom(1)
 	canvas.setViewportTransform([1, 0, 0, 1, canvas.getWidth() / 2, canvas.getHeight() / 2])
 	initAligningGuidelines()
 }
@@ -555,49 +554,60 @@ window.addEventListener('keydown', (e) => {
 		arrowMove('ArrowRight')
 	}
 })
+/**
+ *  handle mouse moves, despatching to tools or panning the canvas
+ */
+
 canvas.on('mouse:down', function (options) {
-	mouseDespatch(options)
+	let event = options.e
+	if (selectedTool) {
+		toolHandler(selectedTool)[event.type](event)
+	} else {
+		if (!canvas.getActiveObject()) {
+			this.isDragging = true
+			this.selection = false
+			this.lastPosX = event.clientX
+			this.lastPosY = event.clientY
+		}
+	}
 })
+
 canvas.on('mouse:move', function (options) {
-	mouseDespatch(options)
+	let event = options.e
+	if (selectedTool) {
+		toolHandler(selectedTool)[event.type](event)
+	} else {
+		if (this.isDragging) {
+			event.stopImmediatePropagation()
+			let vpt = this.viewportTransform
+			let moveX = event.clientX - this.lastPosX
+			let moveY = event.clientY - this.lastPosY
+			vpt[4] += moveX
+			vpt[5] += moveY
+			let networkVP = network.getViewPosition()
+			network.moveTo({
+				position: {
+					x: networkVP.x - moveX / vpt[0],
+					y: networkVP.y - moveY / vpt[0],
+				},
+			})
+			this.requestRenderAll()
+			this.lastPosX = event.clientX
+			this.lastPosY = event.clientY
+		}
+	}
 })
 canvas.on('mouse:up', function (options) {
-	mouseDespatch(options)
+	let event = options.e
+	if (selectedTool) {
+		toolHandler(selectedTool)[event.type](event)
+	} else {
+		this.setViewportTransform(this.viewportTransform)
+		this.isDragging = false
+		this.selection = true
+	}
 })
 canvas.on('mouse:dblclick', () => fit())
-
-canvas.on('mouse:down', function (opt) {
-	var evt = opt.e
-	if (evt.altKey === true) {
-		this.isDragging = true
-		this.selection = false
-		this.lastPosX = evt.clientX
-		this.lastPosY = evt.clientY
-	}
-})
-canvas.on('mouse:move', function (opt) {
-	if (this.isDragging) {
-		let e = opt.e
-		let vpt = this.viewportTransform
-		vpt[4] += e.clientX - this.lastPosX
-		vpt[5] += e.clientY - this.lastPosY
-		let networkVP = network.getViewPosition()
-		network.moveTo({
-			position: {
-				x: networkVP.x - (e.clientX - this.lastPosX) / vpt[0],
-				y: networkVP.y - (e.clientY - this.lastPosY) / vpt[0],
-			},
-		})
-		this.requestRenderAll()
-		this.lastPosX = e.clientX
-		this.lastPosY = e.clientY
-	}
-})
-canvas.on('mouse:up', function () {
-	this.setViewportTransform(this.viewportTransform)
-	this.isDragging = false
-	this.selection = true
-})
 
 const ARROOWINCR = 1
 
@@ -624,15 +634,6 @@ function arrowMove(direction) {
 	canvas.requestRenderAll()
 }
 
-/**
- * all mouse and touch events for the canvas are handled here - despatch to the selected tool
- * @param {PointerEvent} event
- */
-function mouseDespatch(options) {
-	let event = options.e
-	event.preventDefault()
-	if (selectedTool) toolHandler(selectedTool)[event.type](event)
-}
 /**
  * Create an HTMLElement that will hold the options dialog
  * @param {String} tool
