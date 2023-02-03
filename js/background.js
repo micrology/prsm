@@ -242,11 +242,9 @@ export function refreshFromMap(keys) {
 			}
 		}
 	}
-	// if there is a white circle, assume that this was from a version 1 pixel eraser 
+	// if there is a white circle, assume that this was from a version 1 pixel eraser
 	// and delete objects that it would have covered
-	let OldStyleEraser = canvas
-		.getObjects()
-		.filter((obj) => obj.type === 'circle' && obj.fill === '#ffffff')
+	let OldStyleEraser = canvas.getObjects().filter((obj) => obj.type === 'circle' && obj.fill === '#ffffff')
 	if (OldStyleEraser.length) magicEraser()
 	if (!drawingSwitch) canvas.discardActiveObject()
 	canvas.requestRenderAll()
@@ -567,6 +565,39 @@ canvas.on('mouse:up', function (options) {
 	mouseDespatch(options)
 })
 canvas.on('mouse:dblclick', () => fit())
+
+canvas.on('mouse:down', function (opt) {
+	var evt = opt.e
+	if (evt.altKey === true) {
+		this.isDragging = true
+		this.selection = false
+		this.lastPosX = evt.clientX
+		this.lastPosY = evt.clientY
+	}
+})
+canvas.on('mouse:move', function (opt) {
+	if (this.isDragging) {
+		let e = opt.e
+		let vpt = this.viewportTransform
+		vpt[4] += e.clientX - this.lastPosX
+		vpt[5] += e.clientY - this.lastPosY
+		let networkVP = network.getViewPosition()
+		network.moveTo({
+			position: {
+				x: networkVP.x - (e.clientX - this.lastPosX) / vpt[0],
+				y: networkVP.y - (e.clientY - this.lastPosY) / vpt[0],
+			},
+		})
+		this.requestRenderAll()
+		this.lastPosX = e.clientX
+		this.lastPosY = e.clientY
+	}
+})
+canvas.on('mouse:up', function () {
+	this.setViewportTransform(this.viewportTransform)
+	this.isDragging = false
+	this.selection = true
+})
 
 const ARROOWINCR = 1
 
@@ -2022,7 +2053,7 @@ function magicEraser() {
 			.getObjects()
 			.filter((obj) => obj.type === 'circle' && obj.fill === '#ffffff')
 			.forEach((obj) => canvas.remove(obj))
-		canvas.getObjects().forEach(obj => saveChange(obj, {}))
+		canvas.getObjects().forEach((obj) => saveChange(obj, {}))
 	})
 }
 window.magicEraser = magicEraser
