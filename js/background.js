@@ -2008,20 +2008,21 @@ function magicEraser() {
 			if not a circle, delete it
 	delete all circles
 	*/
-	canvas
-		.getObjects()
-		.filter((obj) => obj.type === 'circle' && obj.fill === '#ffffff')
-		.forEach((circle) =>
-			canvas
-				.getObjects()
-				.filter((other) => circle.intersectsWithObject(other))
-				.forEach((other) => canvas.remove(other))
-		)
-	canvas
-		.getObjects()
-		.filter((obj) => obj.type === 'circle'  && obj.fill === '#ffffff')
-		.forEach((obj) => canvas.remove(obj))
-	yDrawingMap.clear()
-	canvas.getObjects().forEach(obj => saveChange(obj, {}))
+	doc.transact(() => {
+		canvas
+			.getObjects()
+			.filter((obj) => obj.type === 'circle' && obj.fill === '#ffffff')
+			.forEach((circle) =>
+				canvas
+					.getObjects()
+					.filter((other) => circle.intersectsWithObject(other))
+					.forEach((other) => canvas.remove(other))
+			)
+		canvas
+			.getObjects()
+			.filter((obj) => obj.type === 'circle' && obj.fill === '#ffffff')
+			.forEach((obj) => canvas.remove(obj))
+		canvas.getObjects().forEach(obj => saveChange(obj, {}))
+	})
 }
 window.magicEraser = magicEraser
