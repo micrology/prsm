@@ -571,6 +571,8 @@ canvas.on('mouse:down', function (options) {
 			this.selection = false
 			this.lastPosX = event.clientX
 			this.lastPosY = event.clientY
+			this.defaultCursor = 'grabbing'
+			this.setCursor(this.defaultCursor)
 		}
 	}
 })
@@ -608,6 +610,8 @@ canvas.on('mouse:up', function (options) {
 		this.setViewportTransform(this.viewportTransform)
 		this.isDragging = false
 		this.selection = true
+		this.defaultCursor = 'default'
+		this.setCursor(this.defaultCursor)
 	}
 })
 canvas.on('mouse:dblclick', () => fit())

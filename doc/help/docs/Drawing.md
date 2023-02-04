@@ -7,7 +7,11 @@ Switching 'Switch drawing layer' ON reveals a group of buttons on the left that 
 
 ![Drawing layer](/images/drawingLayer.png)
 
-In drawing mode, the background has a faint square grid to help you line up your drawing.  The zoom slider at the bottom left of the window can be used to zoom in and out.  Double clicking on the background sets the zoom level to 1.
+In drawing mode, the background has a faint square grid to help you line up your drawing.  
+
+The zoom slider at the bottom left of the window can be used to zoom in and out.  Double clicking on the background sets the zoom level to 1.
+
+Drag over the background grid to move the drawing within the window.
 
 When you click on some of the drawing buttons, a small dialog box appears that can be used to adjust the drawing tool. For instance, the Line tool, which draws straight lines, has options for the line thickness, line colour and a couple more.
 
@@ -46,10 +50,7 @@ The drawing tools are, in order from top to bottom:
 
 ## Grouping objects
 
-A single object can be selected by clicking on it.  To select more than one object, either:
-
-* (with a keyboard) hold down the Shift key and click on each object to be included in the selection, or
-* click on the backround and drag over all the objects to be selected
+A single object can be selected by clicking on it.  To select more than one object hold down the Shift key and click on each object to be included in the selection.
 
 You can then move, expand or shrink, or rotate the selected  objects togther as a group as though they were one object.
 
