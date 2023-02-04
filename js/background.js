@@ -243,9 +243,9 @@ export function refreshFromMap(keys) {
 	}
 	// if there is a white circle, assume that this was from a version 1 pixel eraser
 	// and delete objects that it would have covered
-	let OldStyleEraser = canvas.getObjects().filter((obj) => obj.type === 'circle' && obj.fill === '#ffffff')
+/* 	let OldStyleEraser = canvas.getObjects().filter((obj) => obj.type === 'circle' && obj.fill === '#ffffff')
 	if (OldStyleEraser.length) magicEraser()
-	if (!drawingSwitch) canvas.discardActiveObject()
+ */	if (!drawingSwitch) canvas.discardActiveObject()
 	canvas.requestRenderAll()
 }
 
@@ -330,7 +330,7 @@ canvas.on('object:modified', (rec) => {
  * draw a grid on the drawing canvas
  * @param {Integer} grid_size - pixels between grid lines
  */
-function drawGrid(grid_size = 25) { 
+function drawGrid(grid_size = 25) {
 	const grid_context = elem('drawing-canvas').getContext('2d')
 	const currentCanvasWidth = canvas.getWidth()
 	const currentCanvasHeight = canvas.getHeight()
@@ -1927,11 +1927,13 @@ async function getClipboardContents() {
  */
 export function upgradeFromV1(pointsArray) {
 	if (yPointsArray.get(0)[1]?.converted) return
+	yDrawingMap.clear()
 	let options
 	let ids = []
 	canvas.setViewportTransform([1, 0, 0, 1, canvas.getWidth() / 2, canvas.getHeight() / 2])
 	markConverted()
 	doc.transact(() => {
+		pointsArray = eraser(pointsArray)
 		pointsArray.forEach((item) => {
 			let fabObj = {id: uuidv4()}
 			switch (item[0]) {
@@ -2035,33 +2037,95 @@ export function upgradeFromV1(pointsArray) {
  * the objects), but we don't want to delete them either, as that would upset v1 users.  So quietly mark
  * the v1 instructions to show that they have already been converted
  */
-function markConverted() {
+function markConverted(converted=true) {
 	let first = yPointsArray.get(0)
 	if (!first[1]) first[1] = {}
-	first[1].converted = true
+	first[1].converted = converted
 	yPointsArray.insert(0, [first])
 }
-function magicEraser() {
-	/* for each circle, 
-			find intersecting objects
-			if not a circle, delete it
-	delete all circles
-	*/
-	doc.transact(() => {
-		canvas
-			.getObjects()
-			.filter((obj) => obj.type === 'circle' && obj.fill === '#ffffff')
-			.forEach((circle) =>
-				canvas
-					.getObjects()
-					.filter((other) => circle.intersectsWithObject(other))
-					.forEach((other) => canvas.remove(other))
-			)
-		canvas
-			.getObjects()
-			.filter((obj) => obj.type === 'circle' && obj.fill === '#ffffff')
-			.forEach((obj) => canvas.remove(obj))
-		canvas.getObjects().forEach((obj) => saveChange(obj, {}))
-	})
+window.markConverted = markConverted
+
+/**
+ * Simulate the effect of the v1 eraser by deleting all rects and textboxes that are overlapped by the
+ * white circles produced by the v1 eraser 
+ * @returns a filtered version of yPointsArray, with 'erased' rects, texts and  white marker circles omitted
+ */
+function eraser() {
+	let points = deepCopy(yPointsArray.toArray())
+	let options = {}
+	// work along pointsArray.
+	for (let i = 0; i < points.length; i++) {
+		let point = points[i]
+		// if not 'endShape' or 'options'
+		if (point[0] === 'endShape') continue
+		if (point[0] === 'options') {
+			options = point[1]
+			continue
+		}
+		//if circle and white
+		if (point[0] === 'marker' && options.fillStyle === '#ffffff') {
+			// starting at beginning test each array entry until reached current entry
+			for (let j = 0; j < i; j++) {
+				// test whether circle overlaps shape
+				if (intersect(point, points[j]))
+					// if so, change shape to 'deleted'
+					console.log('erased', points[j])
+				points[j][0] = 'deleted'
+			}
+			// when reach current entry, change circle to 'deleted' and repeat until end of array.
+			point[0] = 'deleted'
+		}
+	}
+	return points.filter(p => p[0] !== 'deleted')
 }
-window.magicEraser = magicEraser
+/**
+ * returns tue iff the circle overlaps the shape (tests only rects and text boxes, not lines or pencil)
+ * @param {array} circle a marker item from yPointsArray
+ * @param {array} shape an item form yPointsArray
+ * @returns Boolean
+ */
+function intersect(circle, shape) {
+	let circObj = {x: circle[1][0], y: circle[1][1], r: circle[1][2]}
+	switch (shape[0]) {
+		case 'rect':
+		case 'rrect': {
+			let rectObj = {x: shape[1][0], y: shape[1][1], w: shape[1][2], h: shape[1][3]}
+			return circleIntersectsRect(circObj, rectObj)
+		}
+		case 'text': {
+			// to simplify, just test whether the start point is covered by the circle
+			return (circObj.x - shape[1][1]) ** 2 + (circObj.y - shape[1][2]) ** 2 < circObj.r ** 2
+		}
+		default:
+			return false
+	}
+}
+/**
+ * tests whether any part of the circle overlaps the rectangle
+ * @param {object} circle an object with x,y as the circle's centre and r, the circle's radius
+ * @param {object} rect an object with the rects x,y for its top left, and width and height
+ * @returns Boolean
+ */
+function circleIntersectsRect(circle, rect) {
+	var distX = Math.abs(circle.x - rect.x - rect.w / 2)
+	var distY = Math.abs(circle.y - rect.y - rect.h / 2)
+
+	if (distX > rect.w / 2 + circle.r) {
+		return false
+	}
+	if (distY > rect.h / 2 + circle.r) {
+		return false
+	}
+
+	if (distX <= rect.w / 2) {
+		return true
+	}
+	if (distY <= rect.h / 2) {
+		return true
+	}
+
+	var dx = distX - rect.w / 2
+	var dy = distY - rect.h / 2
+	return dx * dx + dy * dy <= circle.r * circle.r
+}
+
