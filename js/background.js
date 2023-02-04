@@ -330,26 +330,29 @@ canvas.on('object:modified', (rec) => {
  * draw a grid on the drawing canvas
  * @param {Integer} grid_size - pixels between grid lines
  */
-function drawGrid(grid_size = 25) {
+function drawGrid(grid_size = 25) { 
 	const grid_context = elem('drawing-canvas').getContext('2d')
 	const currentCanvasWidth = canvas.getWidth()
 	const currentCanvasHeight = canvas.getHeight()
 
 	grid_context.save()
 	grid_context.clearRect(0, 0, currentCanvasWidth, currentCanvasHeight)
+	grid_context.strokeStyle = 'rgba(0, 0, 0, 0.2)'
 	// Drawing vertical lines
 	for (let x = 0; x <= currentCanvasWidth; x += grid_size) {
+		grid_context.beginPath()
 		grid_context.moveTo(x + 0.5, 0)
 		grid_context.lineTo(x + 0.5, currentCanvasHeight)
+		grid_context.stroke()
 	}
 
 	// Drawing horizontal lines
 	for (let y = 0; y <= currentCanvasHeight; y += grid_size) {
+		grid_context.beginPath()
 		grid_context.moveTo(0, y + 0.5)
 		grid_context.lineTo(currentCanvasWidth, y + 0.5)
+		grid_context.stroke()
 	}
-	grid_context.strokeStyle = 'rgba(0, 0, 0, 0.2)'
-	grid_context.stroke()
 	grid_context.restore()
 }
 /**
