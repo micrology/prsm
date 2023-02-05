@@ -120,6 +120,13 @@ export function updateFromRemote(event) {
 	}
 }
 /**
+ * redisplay the objects on the canvas, using the data in yDrawingMap
+ */
+export function updateFromDrawingMap() {
+	canvas.clear()
+	refreshFromMap([...yDrawingMap.keys()])
+}
+/**
  * add or refresh objects that have the given list of id, using data in yDrawingMap
  * @param {array} keys
  */

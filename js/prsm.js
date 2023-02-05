@@ -88,6 +88,7 @@ import {
 	copyBackgroundToClipboard,
 	pasteBackgroundFromClipboard,
 	upgradeFromV1,
+	updateFromDrawingMap,
 } from './background.js'
 import {version} from '../package.json'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
@@ -1495,6 +1496,7 @@ function saveState() {
 			net: yNetMap.toJSON(),
 			samples: ySamplesMap.toJSON(),
 			paint: yPointsArray.toArray(),
+			drawing: yDrawingMap.toJSON()
 		})
 	)
 }
@@ -4276,6 +4278,13 @@ async function rollback(event) {
 		if (state.paint) {
 			yPointsArray.delete(0, yPointsArray.length)
 			yPointsArray.insert(0, state.paint)
+		}
+		if (state.drawing) {
+			yDrawingMap.clear()
+			for (const k in state.drawing) {
+				yDrawingMap.set(k, state.drawing[k])
+			}
+			updateFromDrawingMap()
 		}
 	})
 	logHistory(`rolled back the map to what it was before ${timeAndDate(rbTime, true)}`)
