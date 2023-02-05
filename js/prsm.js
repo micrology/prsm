@@ -646,19 +646,16 @@ function startY(newRoom) {
 					case 'radius': {
 						hiddenNodes.radiusSetting = obj.radiusSetting
 						hiddenNodes.selected = obj.selected
-						setAnalysisButtonsFromRemote()
 						break
 					}
 					case 'stream': {
 						hiddenNodes.streamSetting = obj.streamSetting
 						hiddenNodes.selected = obj.selected
-						setAnalysisButtonsFromRemote()
 						break
 					}
 					case 'paths': {
 						hiddenNodes.pathsSetting = obj.pathsSetting
 						hiddenNodes.selected = obj.selected
-						setAnalysisButtonsFromRemote()
 						break
 					}
 					case 'sizing': {
@@ -755,7 +752,7 @@ function displayNetPane(msg) {
 	console.log(msg)
 	if (netPane.style.visibility === 'hidden' || netPane.style.visibility === '') {
 		elem('loading').style.display = 'none'
-		fit(0)
+		fit()
 		setMapTitle(yNetMap.get('mapTitle'))
 		netPane.style.visibility = 'visible'
 		clearTimeout(loadingDelayTimer)
@@ -2769,8 +2766,8 @@ function clone(onlyView) {
 	let ws = new WebsocketProvider(websocket, `prsm${clonedRoom}`, clonedDoc)
 	ws.awareness.destroy()
 	ws.on('sync', () => {
-		let state = Y.encodeStateAsUpdate(doc)
-		Y.applyUpdate(clonedDoc, state)
+		let state = Y.encodeStateAsUpdateV2(doc)
+		Y.applyUpdateV2(clonedDoc, state)
 		if (onlyView) clonedDoc.getMap('network').set('viewOnly', true)
 		clonedDoc.getArray('history').push([
 			{
@@ -4071,7 +4068,7 @@ function selectClustering(e) {
 		)
 	})
 	cluster(option)
-	fit(0)
+	fit()
 	yNetMap.set('cluster', option)
 }
 function setCluster(option) {

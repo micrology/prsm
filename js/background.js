@@ -210,42 +210,40 @@ export function refreshFromMap(keys) {
 	}
 	for (let key of keys) {
 		let remoteParams = yDrawingMap.get(key)
-		if (key === 'activeSelection') {
-			if (remoteParams.members.length > 0) {
-				// a selection has been created remotely; make one here
-				let selectedObjects = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
-				let sel = new fabric.ActiveSelection(selectedObjects, {
-					canvas: canvas,
-				})
-				canvas.setActiveObject(sel)
-			}
-			updateActiveButtons()
-		} else {
-			if (remoteParams.type === 'group') {
-				let objs = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
-				canvas.discardActiveObject()
-				let group = new fabric.Group(objs)
-				canvas.remove(...objs)
-				group.id = key
-				group.members = remoteParams.members
-				setGroupBorderColor(group)
-				group.set({
-					left: remoteParams.left,
-					top: remoteParams.top,
-					angle: remoteParams.angle,
-					scaleX: remoteParams.scaleX,
-					scaleY: remoteParams.scaleY,
-				})
-				canvas.add(group)
-				canvas.setActiveObject(group)
+		if (remoteParams) {
+			if (key === 'activeSelection') {
+				if (remoteParams.members.length > 0) {
+					// a selection has been created remotely; make one here
+					let selectedObjects = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
+					let sel = new fabric.ActiveSelection(selectedObjects, {
+						canvas: canvas,
+					})
+					canvas.setActiveObject(sel)
+				}
+				updateActiveButtons()
+			} else {
+				if (remoteParams.type && remoteParams.type === 'group') {
+					let objs = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
+					canvas.discardActiveObject()
+					let group = new fabric.Group(objs)
+					canvas.remove(...objs)
+					group.id = key
+					group.members = remoteParams.members
+					setGroupBorderColor(group)
+					group.set({
+						left: remoteParams.left,
+						top: remoteParams.top,
+						angle: remoteParams.angle,
+						scaleX: remoteParams.scaleX,
+						scaleY: remoteParams.scaleY,
+					})
+					canvas.add(group)
+					canvas.setActiveObject(group)
+				}
 			}
 		}
 	}
-	// if there is a white circle, assume that this was from a version 1 pixel eraser
-	// and delete objects that it would have covered
-/* 	let OldStyleEraser = canvas.getObjects().filter((obj) => obj.type === 'circle' && obj.fill === '#ffffff')
-	if (OldStyleEraser.length) magicEraser()
- */	if (!drawingSwitch) canvas.discardActiveObject()
+	if (!drawingSwitch) canvas.discardActiveObject()
 	canvas.requestRenderAll()
 }
 
@@ -1934,6 +1932,7 @@ export function upgradeFromV1(pointsArray) {
 	markConverted()
 	doc.transact(() => {
 		pointsArray = eraser(pointsArray)
+		console.log('erased pointsArray', pointsArray)
 		pointsArray.forEach((item) => {
 			let fabObj = {id: uuidv4()}
 			switch (item[0]) {
@@ -2067,19 +2066,21 @@ function eraser() {
 			// starting at beginning test each array entry until reached current entry
 			for (let j = 0; j < i; j++) {
 				// test whether circle overlaps shape
-				if (intersect(point, points[j]))
+				if (intersect(point, points[j])) {
 					// if so, change shape to 'deleted'
 					console.log('erased', points[j])
-				points[j][0] = 'deleted'
+					points[j][0] = 'deleted'
+				}
 			}
 			// when reach current entry, change circle to 'deleted' and repeat until end of array.
 			point[0] = 'deleted'
 		}
 	}
+	console.log('points before filter', points)
 	return points.filter(p => p[0] !== 'deleted')
 }
 /**
- * returns tue iff the circle overlaps the shape (tests only rects and text boxes, not lines or pencil)
+ * returns true iff the circle overlaps the shape (tests only rects and text boxes, not lines or pencil)
  * @param {array} circle a marker item from yPointsArray
  * @param {array} shape an item form yPointsArray
  * @returns Boolean
