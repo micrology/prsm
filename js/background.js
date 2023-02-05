@@ -1924,15 +1924,14 @@ async function getClipboardContents() {
  * @param {array} pointsArray  version 1 background drawing instructions
  */
 export function upgradeFromV1(pointsArray) {
-	if (yPointsArray.get(0)[1]?.converted) return
+	// do nothing if either yPointsArray is empty or yDrawingMap  already contains objects
+	if (yPointsArray.length === 0 || yDrawingMap.size > 0) return
 	yDrawingMap.clear()
 	let options
 	let ids = []
 	canvas.setViewportTransform([1, 0, 0, 1, canvas.getWidth() / 2, canvas.getHeight() / 2])
-	markConverted()
 	doc.transact(() => {
 		pointsArray = eraser(pointsArray)
-		console.log('erased pointsArray', pointsArray)
 		pointsArray.forEach((item) => {
 			let fabObj = {id: uuidv4()}
 			switch (item[0]) {
@@ -2029,24 +2028,13 @@ export function upgradeFromV1(pointsArray) {
 			}
 		})
 	})
+	console.log('Background converted from v1 to v2')
 	refreshFromMap(ids)
 }
-/**
- * we don't want to convert v1 instructions into v2 objects more than once (to do so would duplicate
- * the objects), but we don't want to delete them either, as that would upset v1 users.  So quietly mark
- * the v1 instructions to show that they have already been converted
- */
-function markConverted(converted=true) {
-	let first = yPointsArray.get(0)
-	if (!first[1]) first[1] = {}
-	first[1].converted = converted
-	yPointsArray.insert(0, [first])
-}
-window.markConverted = markConverted
 
 /**
  * Simulate the effect of the v1 eraser by deleting all rects and textboxes that are overlapped by the
- * white circles produced by the v1 eraser 
+ * white circles produced by the v1 eraser
  * @returns a filtered version of yPointsArray, with 'erased' rects, texts and  white marker circles omitted
  */
 function eraser() {
@@ -2068,7 +2056,6 @@ function eraser() {
 				// test whether circle overlaps shape
 				if (intersect(point, points[j])) {
 					// if so, change shape to 'deleted'
-					console.log('erased', points[j])
 					points[j][0] = 'deleted'
 				}
 			}
@@ -2076,8 +2063,7 @@ function eraser() {
 			point[0] = 'deleted'
 		}
 	}
-	console.log('points before filter', points)
-	return points.filter(p => p[0] !== 'deleted')
+	return points.filter((p) => p[0] !== 'deleted')
 }
 /**
  * returns true iff the circle overlaps the shape (tests only rects and text boxes, not lines or pencil)
@@ -2129,4 +2115,3 @@ function circleIntersectsRect(circle, rect) {
 	var dy = distY - rect.h / 2
 	return dx * dx + dy * dy <= circle.r * circle.r
 }
-
