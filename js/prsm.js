@@ -359,7 +359,11 @@ function startY(newRoom) {
 	wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc, {
 		resyncInterval: 5000,
 	})
-	wsProvider.on('sync', () => {
+	wsProvider.on('synced', () => {
+		/* 
+	if this is a clone, load the cloned data
+	*/
+		initiateClone()
 		displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 	})
 	wsProvider.disconnectBc()
@@ -465,7 +469,7 @@ function startY(newRoom) {
 				let obj = yNodesMap.get(key)
 				if (!object_equals(obj, data.nodes.get(key))) {
 					// fix nodes if this is a view only copy
-					if (viewOnly)obj.fixed = true
+					if (viewOnly) obj.fixed = true
 					nodesToUpdate.push(deepCopy(obj))
 					// if a note on a node is being remotely edited and is on display here, update the local note and the padlock
 					if (editor && editor.id === key && event.transaction.local === false) {
@@ -606,7 +610,8 @@ function startY(newRoom) {
 	yNetMap.observe((event) => {
 		yjsTrace('YNetMap.observe', event)
 
-		if (event.transaction.local === false)
+		if (event.transaction.origin)
+			// event is not local
 			for (let key of event.keysChanged) {
 				let obj = yNetMap.get(key)
 				switch (key) {
@@ -714,6 +719,44 @@ function startY(newRoom) {
 	})
 } // end startY()
 
+/**
+ * load cloned data from localStorage
+ */
+function initiateClone() {
+	let clone = localStorage.getItem('clone')
+	if (clone) {
+		localStorage.removeItem('clone')
+		let state = JSON.parse(decompressFromUTF16(clone))
+		data.nodes.update(state.nodes)
+		data.edges.update(state.edges)
+		doc.transact(() => {
+			for (const k in state.net) {
+				yNetMap.set(k, state.net[k])
+			}
+			if (state.options.viewOnly) {
+				viewOnly = true
+				hideNavButtons()
+				data.nodes.get().forEach(obj => obj.fixed = true)
+			}
+			for (const k in state.samples) {
+				ySamplesMap.set(k, state.samples[k])
+			}
+			if (state.paint) {
+				yPointsArray.delete(0, yPointsArray.length)
+				yPointsArray.insert(0, state.paint)
+			}
+			if (state.drawing) {
+				for (const k in state.drawing) {
+					yDrawingMap.set(k, state.drawing[k])
+				}
+				updateFromDrawingMap()
+			}
+			logHistory(state.options.created.action, state.options.created.actor)
+		}, 'clone')
+		fit()
+	}
+}
+
 function yjsTrace(where, what) {
 	if (/yjs/.test(debug)) {
 		console.log(exactTime(), where, what)
@@ -807,7 +850,7 @@ function hideNavButtons() {
 	elem('buttons').style.visibility = 'hidden'
 	elem('search').parentElement.style.visibility = 'visible'
 	elem('search').parentElement.style.borderLeft = 'none'
-	elem('maptitle').contentEditable = 'false'	
+	elem('maptitle').contentEditable = 'false'
 }
 /** restore all the Nav Bar buttons when leaving view only mode (e.g. when
  * going back online)
@@ -1058,7 +1101,7 @@ function draw() {
 			},
 		},
 	}
-	if (viewOnly) 
+	if (viewOnly)
 		options.interaction = {
 			dragNodes: false,
 			hover: false,
@@ -1488,7 +1531,7 @@ export function logHistory(action, actor) {
  * Generate a compressed dump of the current state of the map, sufficient to reproduce it
  * @returns binary string
  */
-function saveState() {
+function saveState(options) {
 	return compressToUTF16(
 		JSON.stringify({
 			nodes: data.nodes.get(),
@@ -1496,7 +1539,8 @@ function saveState() {
 			net: yNetMap.toJSON(),
 			samples: ySamplesMap.toJSON(),
 			paint: yPointsArray.toArray(),
-			drawing: yDrawingMap.toJSON()
+			drawing: yDrawingMap.toJSON(),
+			options: options,
 		})
 	)
 }
@@ -1524,7 +1568,8 @@ thumbDownFilledImage.src =
  */
 function drawBadges(ctx) {
 	// padlock for locked factors
-	if (!viewOnly) {  // for a view only map, factors are always locked, so don't bother with padlock
+	if (!viewOnly) {
+		// for a view only map, factors are always locked, so don't bother with padlock
 		data.nodes
 			.get()
 			.filter((node) => !node.hidden && node.fixed)
@@ -2714,39 +2759,11 @@ function setUpShareDialog() {
 	listen('clone-button', 'click', () => openWindow('clone'))
 	listen('view-button', 'click', () => openWindow('view'))
 	listen('table-button', 'click', () => openWindow('table'))
-
-	function openWindow(type) {
-		let path = ''
-		switch (type) {
-			case 'clone': {
-				path = `${window.location.pathname}?room=${clone()}`
-				break
-			}
-			case 'view': {
-				path = `${window.location.pathname}?room=${clone(true)}`
-				break
-			}
-			case 'table': {
-				path = `${window.location.pathname.replace('prsm.html', 'table.html')}?room=${room}`
-				break
-			}
-			default:
-				console.log('Bad case in openWindow()')
-				break
-		}
-		window.open(path, '_blank')
-		modal.style.display = 'none'
-	}
 	// When the user clicks on <span> (x), close the modal
-	listen('modal-close', 'click', closeShareDialog)
+	listen('modal-close', 'click', (event) => closeShareDialog(event))
 	// When the user clicks anywhere on the background, close it
-	listen('shareModal', 'click', closeShareDialog)
+	listen('shareModal', 'click', (event) => closeShareDialog(event))
 
-	function closeShareDialog() {
-		if (event.target === modal || event.target === elem('modal-close')) {
-			modal.style.display = 'none'
-		}
-	}
 	listen('copy-text', 'click', (e) => {
 		e.preventDefault()
 		// Select the text
@@ -2755,31 +2772,55 @@ function setUpShareDialog() {
 			// Display the copied text message
 			copiedText.style.display = 'inline-block'
 	})
-}
 
-/**
- * clone the map, i.e copy everything into a new room
- * @param {Boolean} onlyView - if true, set clone to be view only
- * @return {string} name of new room
- */
-function clone(onlyView) {
-	let clonedRoom = generateRoom()
-	let clonedDoc = new Y.Doc()
-	let ws = new WebsocketProvider(websocket, `prsm${clonedRoom}`, clonedDoc)
-	ws.awareness.destroy()
-	ws.on('sync', () => {
-		let state = Y.encodeStateAsUpdateV2(doc)
-		Y.applyUpdateV2(clonedDoc, state)
-		if (onlyView) clonedDoc.getMap('network').set('viewOnly', true)
-		clonedDoc.getArray('history').push([
-			{
+	function openWindow(type) {
+		let path = ''
+		switch (type) {
+			case 'clone': {
+				doClone(false)
+				break
+			}
+			case 'view': {
+				doClone(true)
+				break
+			}
+			case 'table': {
+				path = `${window.location.pathname.replace('prsm.html', 'table.html')}?room=${room}`
+				window.open(path, '_blank')
+				break
+			}
+			default:
+				console.log('Bad case in openWindow()')
+				break
+		}
+		modal.style.display = 'none'
+	}
+
+	function closeShareDialog(event) {
+		if (event.target === modal || event.target === elem('modal-close')) {
+			modal.style.display = 'none'
+		}
+	}
+
+	function doClone(onlyView) {
+		let options = {
+			created: {
 				action: `cloned this map from room: ${room + (onlyView ? ' (Read Only)' : '')}`,
-				time: Date.now(),
-				user: myNameRec.name,
+				actor: myNameRec.name,
 			},
-		])
-	})
-	return clonedRoom
+			viewOnly: onlyView,
+		}
+		// save state as a UTF16 string
+		let state = saveState(options)
+		// save it in local storage
+		localStorage.setItem('clone', state)
+		// make a room id
+		let clonedRoom = generateRoom()
+		//open a new map
+		let path = `${window.location.pathname}?room=${clonedRoom}`
+		window.open(path, '_blank')
+		logHistory(`made a ${onlyView ? 'read-only copy' : 'clone'} of the map in room: ${clonedRoom}`)
+	}
 }
 
 /* ----------------------------------------------------------- Search ------------------------------------------------------*/
@@ -3437,11 +3478,15 @@ function updateNetBack(color) {
 var backgroundOpacity = 0.6
 
 function makeTranslucent(el) {
-	el.style.backgroundColor = getComputedStyle(el).backgroundColor.replace(')', `, ${backgroundOpacity})`).replace('rgb', 'rgba')
+	el.style.backgroundColor = getComputedStyle(el)
+		.backgroundColor.replace(')', `, ${backgroundOpacity})`)
+		.replace('rgb', 'rgba')
 }
 
 function makeSolid(el) {
-	el.style.backgroundColor = getComputedStyle(el).backgroundColor.replace(`, ${backgroundOpacity})`, ')').replace('rgba', 'rgb')
+	el.style.backgroundColor = getComputedStyle(el)
+		.backgroundColor.replace(`, ${backgroundOpacity})`, ')')
+		.replace('rgba', 'rgb')
 }
 function setBackground(color) {
 	elem('underlay').style.backgroundColor = color
