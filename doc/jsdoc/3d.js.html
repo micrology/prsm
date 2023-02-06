@@ -1,345 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>3d.js - Documentation</title>
+<head>
+    
+    <meta charset="utf-8">
+    <title>3d.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
 
-		<script src="scripts/prettify/prettify.js"></script>
-		<script src="scripts/prettify/lang-css.js"></script>
-		<!--[if lt IE 9]>
-			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-		<![endif]-->
-		<link type="text/css" rel="stylesheet" href="styles/prettify.css" />
-		<link type="text/css" rel="stylesheet" href="styles/jsdoc.css" />
-		<script src="scripts/nav.js" defer></script>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	</head>
-	<body>
-		<input type="checkbox" id="nav-trigger" class="nav-trigger" />
-		<label for="nav-trigger" class="navicon-button x">
-			<div class="navicon"></div>
-		</label>
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
 
-		<label for="nav-trigger" class="overlay"></label>
+<label for="nav-trigger" class="overlay"></label>
 
-		<nav>
-			<h2><a href="index.html">Home</a></h2>
-			<h3>Classes</h3>
-			<ul>
-				<li><a href="module.exports.html">exports</a></li>
-				<li>
-					<a href="ToolHandler.html">ToolHandler</a>
-					<ul class="methods">
-						<li data-type="method"><a href="ToolHandler.html#endPosition">endPosition</a></li>
-						<li data-type="method"><a href="ToolHandler.html#options">options</a></li>
-						<li data-type="method"><a href="ToolHandler.html#optionsDialog">optionsDialog</a></li>
-						<li data-type="method"><a href="ToolHandler.html#panend">panend</a></li>
-						<li data-type="method"><a href="ToolHandler.html#panmove">panmove</a></li>
-						<li data-type="method"><a href="ToolHandler.html#panstart">panstart</a></li>
-					</ul>
-				</li>
-			</ul>
-			<h3>Global</h3>
-			<ul>
-				<li><a href="global.html#addColumn">addColumn</a></li>
-				<li><a href="global.html#addContextMenu">addContextMenu</a></li>
-				<li><a href="global.html#addEventListeners">addEventListeners</a></li>
-				<li><a href="global.html#addLabel">addLabel</a></li>
-				<li><a href="global.html#addRollbackIcon">addRollbackIcon</a></li>
-				<li><a href="global.html#addVec">addVec</a></li>
-				<li><a href="global.html#analyse">analyse</a></li>
-				<li><a href="global.html#anon">anon</a></li>
-				<li><a href="global.html#antMarch">antMarch</a></li>
-				<li><a href="global.html#applyOptions">applyOptions</a></li>
-				<li><a href="global.html#arrayBufferToString">arrayBufferToString</a></li>
-				<li><a href="global.html#asleep">asleep</a></li>
-				<li><a href="global.html#autoLayout">autoLayout</a></li>
-				<li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li>
-				<li><a href="global.html#cancelAdd">cancelAdd</a></li>
-				<li><a href="global.html#cancelEdit">cancelEdit</a></li>
-				<li><a href="global.html#cancelLoading">cancelLoading</a></li>
-				<li><a href="global.html#changeCursor">changeCursor</a></li>
-				<li><a href="global.html#changeRoom">changeRoom</a></li>
-				<li><a href="global.html#checkKey">checkKey</a></li>
-				<li><a href="global.html#clean">clean</a></li>
-				<li><a href="global.html#cleanArray">cleanArray</a></li>
-				<li><a href="global.html#clearLegend">clearLegend</a></li>
-				<li><a href="global.html#clearMap">clearMap</a></li>
-				<li><a href="global.html#clearPopUp">clearPopUp</a></li>
-				<li><a href="global.html#clearStatusBar">clearStatusBar</a></li>
-				<li><a href="global.html#clone">clone</a></li>
-				<li><a href="global.html#closeFilter">closeFilter</a></li>
-				<li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li>
-				<li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li>
-				<li><a href="global.html#collapseColGroup">collapseColGroup</a></li>
-				<li><a href="global.html#collapseNotes">collapseNotes</a></li>
-				<li><a href="global.html#colorEditor">colorEditor</a></li>
-				<li><a href="global.html#configSamples">configSamples</a></li>
-				<li><a href="global.html#connected">connected</a></li>
-				<li><a href="global.html#connectedComponents">connectedComponents</a></li>
-				<li><a href="global.html#convertDashes">convertDashes</a></li>
-				<li><a href="global.html#convertData">convertData</a></li>
-				<li><a href="global.html#convertEdge">convertEdge</a></li>
-				<li><a href="global.html#convertEdgeBack">convertEdgeBack</a></li>
-				<li><a href="global.html#convertNode">convertNode</a></li>
-				<li><a href="global.html#convertNodeBack">convertNodeBack</a></li>
-				<li><a href="global.html#copyBackgroundToClipboard">copyBackgroundToClipboard</a></li>
-				<li><a href="global.html#copyTable">copyTable</a></li>
-				<li><a href="global.html#copyToClipboard">copyToClipboard</a></li>
-				<li><a href="global.html#createTitleDropDown">createTitleDropDown</a></li>
-				<li><a href="global.html#deepCopy">deepCopy</a></li>
-				<li><a href="global.html#deleteActiveObjects">deleteActiveObjects</a></li>
-				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
-				<li><a href="global.html#deselectTool">deselectTool</a></li>
-				<li><a href="global.html#diag">diag</a></li>
-				<li><a href="global.html#diffMaps">diffMaps</a></li>
-				<li><a href="global.html#display">display</a></li>
-				<li><a href="global.html#displayHelp">displayHelp</a></li>
-				<li><a href="global.html#displayNetPane">displayNetPane</a></li>
-				<li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li>
-				<li><a href="global.html#doSearch">doSearch</a></li>
-				<li><a href="global.html#dragElement">dragElement</a></li>
-				<li><a href="global.html#draw">draw</a></li>
-				<li><a href="global.html#drawBadges">drawBadges</a></li>
-				<li><a href="global.html#drawGrid">drawGrid</a></li>
-				<li><a href="global.html#duplEdge">duplEdge</a></li>
-				<li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li>
-				<li><a href="global.html#editEdge">editEdge</a></li>
-				<li><a href="global.html#editLinkStyle">editLinkStyle</a></li>
-				<li><a href="global.html#editNode">editNode</a></li>
-				<li><a href="global.html#editNodeStyle">editNodeStyle</a></li>
-				<li><a href="global.html#elem">elem</a></li>
-				<li><a href="global.html#exactTime">exactTime</a></li>
-				<li><a href="global.html#exportCVS">exportCVS</a></li>
-				<li><a href="global.html#exportDOT">exportDOT</a></li>
-				<li><a href="global.html#exportExcel">exportExcel</a></li>
-				<li><a href="global.html#exportGML">exportGML</a></li>
-				<li><a href="global.html#fit">fit</a></li>
-				<li><a href="global.html#follow">follow</a></li>
-				<li><a href="global.html#followUser">followUser</a></li>
-				<li><a href="global.html#generateName">generateName</a></li>
-				<li><a href="global.html#generateRoom">generateRoom</a></li>
-				<li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li>
-				<li><a href="global.html#getArrows">getArrows</a></li>
-				<li><a href="global.html#getButtonStatus">getButtonStatus</a></li>
-				<li><a href="global.html#getContext">getContext</a></li>
-				<li><a href="global.html#getDashes">getDashes</a></li>
-				<li><a href="global.html#getLastPath">getLastPath</a></li>
-				<li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li>
-				<li><a href="global.html#getRadioVal">getRadioVal</a></li>
-				<li><a href="global.html#getRandomData">getRandomData</a></li>
-				<li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li>
-				<li><a href="global.html#getSelectedAndFixedNodes">getSelectedAndFixedNodes</a></li>
-				<li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li>
-				<li><a href="global.html#ghostCursor">ghostCursor</a></li>
-				<li><a href="global.html#ghostFactor">ghostFactor</a></li>
-				<li><a href="global.html#groupDashes">groupDashes</a></li>
-				<li><a href="global.html#groupTitle">groupTitle</a></li>
-				<li><a href="global.html#headerTickToggle">headerTickToggle</a></li>
-				<li><a href="global.html#hideNavButtons">hideNavButtons</a></li>
-				<li><a href="global.html#hideNodeAndEdges">hideNodeAndEdges</a></li>
-				<li><a href="global.html#hideNotes">hideNotes</a></li>
-				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
-				<li><a href="global.html#humanSize">humanSize</a></li>
-				<li><a href="global.html#in_degree">in_degree</a></li>
-				<li><a href="global.html#inAddMode">inAddMode</a></li>
-				<li><a href="global.html#initDraw">initDraw</a></li>
-				<li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li>
-				<li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li>
-				<li><a href="global.html#initials">initials</a></li>
-				<li><a href="global.html#initPopUp">initPopUp</a></li>
-				<li><a href="global.html#initSample">initSample</a></li>
-				<li><a href="global.html#initySamplesMap">initySamplesMap</a></li>
-				<li><a href="global.html#inline">inline</a></li>
-				<li><a href="global.html#invertColor">invertColor</a></li>
-				<li><a href="global.html#isEmpty">isEmpty</a></li>
-				<li><a href="global.html#isQuillEmpty">isQuillEmpty</a></li>
-				<li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li>
-				<li><a href="global.html#legend">legend</a></li>
-				<li><a href="global.html#legendData">legendData</a></li>
-				<li><a href="global.html#lightOrDark">lightOrDark</a></li>
-				<li><a href="global.html#linkEditCancel">linkEditCancel</a></li>
-				<li><a href="global.html#linkEditorHide">linkEditorHide</a></li>
-				<li><a href="global.html#linkEditorShow">linkEditorShow</a></li>
-				<li><a href="global.html#linkEditSave">linkEditSave</a></li>
-				<li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li>
-				<li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li>
-				<li><a href="global.html#listen">listen</a></li>
-				<li><a href="global.html#listFactors">listFactors</a></li>
-				<li><a href="global.html#listLinks">listLinks</a></li>
-				<li><a href="global.html#loadCSV">loadCSV</a></li>
-				<li><a href="global.html#loadDOTfile">loadDOTfile</a></li>
-				<li><a href="global.html#loadExcelfile">loadExcelfile</a></li>
-				<li><a href="global.html#loadFile">loadFile</a></li>
-				<li><a href="global.html#loadGML">loadGML</a></li>
-				<li><a href="global.html#loadGraphML">loadGraphML</a></li>
-				<li><a href="global.html#loadPRSMfile">loadPRSMfile</a></li>
-				<li><a href="global.html#lockNode">lockNode</a></li>
-				<li><a href="global.html#logHistory">logHistory</a></li>
-				<li><a href="global.html#makeColor">makeColor</a></li>
-				<li><a href="global.html#makeOptionsDialog">makeOptionsDialog</a></li>
-				<li><a href="global.html#mapTitle">mapTitle</a></li>
-				<li><a href="global.html#markConverted">markConverted</a></li>
-				<li><a href="global.html#markMapSaved">markMapSaved</a></li>
-				<li><a href="global.html#mergeTranspose">mergeTranspose</a></li>
-				<li><a href="global.html#MIN_WIDTH">MIN_WIDTH</a></li>
-				<li><a href="global.html#mouseDespatch">mouseDespatch</a></li>
-				<li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li>
-				<li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li>
-				<li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li>
-				<li><a href="global.html#nodeEditSave">nodeEditSave</a></li>
-				<li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li>
-				<li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li>
-				<li><a href="global.html#nodeIdToLabel">nodeIdToLabel</a></li>
-				<li><a href="global.html#nodeList">nodeList</a></li>
-				<li><a href="global.html#noteFilter">noteFilter</a></li>
-				<li><a href="global.html#object_equals">object_equals</a></li>
-				<li><a href="global.html#oldUserNames">oldUserNames</a></li>
-				<li><a href="global.html#onexit">onexit</a></li>
-				<li><a href="global.html#openCluster">openCluster</a></li>
-				<li><a href="global.html#openNotesWindow">openNotesWindow</a></li>
-				<li><a href="global.html#out_degree">out_degree</a></li>
-				<li><a href="global.html#plusLink">plusLink</a></li>
-				<li><a href="global.html#plusNode">plusNode</a></li>
-				<li><a href="global.html#positionNotes">positionNotes</a></li>
-				<li><a href="global.html#positionPopUp">positionPopUp</a></li>
-				<li><a href="global.html#quillAccessor">quillAccessor</a></li>
-				<li><a href="global.html#quillEditor">quillEditor</a></li>
-				<li><a href="global.html#quillFormatter">quillFormatter</a></li>
-				<li><a href="global.html#readSingleFile">readSingleFile</a></li>
-				<li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li>
-				<li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li>
-				<li><a href="global.html#rebase">rebase</a></li>
-				<li><a href="global.html#recalculateStats">recalculateStats</a></li>
-				<li><a href="global.html#receiveEvent">receiveEvent</a></li>
-				<li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li>
-				<li><a href="global.html#redraw">redraw</a></li>
-				<li><a href="global.html#refreshFromMap">refreshFromMap</a></li>
-				<li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li>
-				<li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li>
-				<li><a href="global.html#removeAvatar">removeAvatar</a></li>
-				<li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li>
-				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
-				<li><a href="global.html#resizeBox">resizeBox</a></li>
-				<li><a href="global.html#resizeCanvas">resizeCanvas</a></li>
-				<li><a href="global.html#rgbToHex">rgbToHex</a></li>
-				<li><a href="global.html#rollback">rollback</a></li>
-				<li><a href="global.html#round">round</a></li>
-				<li><a href="global.html#roundTripTimer">roundTripTimer</a></li>
-				<li><a href="global.html#saveChange">saveChange</a></li>
-				<li><a href="global.html#saveEdge">saveEdge</a></li>
-				<li><a href="global.html#saveLabel">saveLabel</a></li>
-				<li><a href="global.html#saveNode">saveNode</a></li>
-				<li><a href="global.html#savePRSMfile">savePRSMfile</a></li>
-				<li><a href="global.html#saveState">saveState</a></li>
-				<li><a href="global.html#saveStr">saveStr</a></li>
-				<li><a href="global.html#search">search</a></li>
-				<li><a href="global.html#searchTargets">searchTargets</a></li>
-				<li><a href="global.html#selectClustering">selectClustering</a></li>
-				<li><a href="global.html#selectedLabels">selectedLabels</a></li>
-				<li><a href="global.html#selectTool">selectTool</a></li>
-				<li><a href="global.html#selectUsersItems">selectUsersItems</a></li>
-				<li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li>
-				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
-				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
-				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
-				<li><a href="global.html#setFileName">setFileName</a></li>
-				<li><a href="global.html#setFixed">setFixed</a></li>
-				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
-				<li><a href="global.html#setParams">setParams</a></li>
-				<li><a href="global.html#setRadioVal">setRadioVal</a></li>
-				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
-				<li><a href="global.html#setUpBackground">setUpBackground</a></li>
-				<li><a href="global.html#setUpCanvas">setUpCanvas</a></li>
-				<li><a href="global.html#setUpChat">setUpChat</a></li>
-				<li><a href="global.html#setUpFilter">setUpFilter</a></li>
-				<li><a href="global.html#setUpPage">setUpPage</a></li>
-				<li><a href="global.html#setUpPaint">setUpPaint</a></li>
-				<li><a href="global.html#setUpSamples">setUpSamples</a></li>
-				<li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li>
-				<li><a href="global.html#setUpTabs">setUpTabs</a></li>
-				<li><a href="global.html#setUpToolbox">setUpToolbox</a></li>
-				<li><a href="global.html#setUpTutorial">setUpTutorial</a></li>
-				<li><a href="global.html#setvh">setvh</a></li>
-				<li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li>
-				<li><a href="global.html#showAvatars">showAvatars</a></li>
-				<li><a href="global.html#showClusterLinks">showClusterLinks</a></li>
-				<li><a href="global.html#showGhostFactor">showGhostFactor</a></li>
-				<li><a href="global.html#showHistory">showHistory</a></li>
-				<li><a href="global.html#showNavButtons">showNavButtons</a></li>
-				<li><a href="global.html#showNodeData">showNodeData</a></li>
-				<li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li>
-				<li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li>
-				<li><a href="global.html#showOtherMouse">showOtherMouse</a></li>
-				<li><a href="global.html#showPressed">showPressed</a></li>
-				<li><a href="global.html#showSelected">showSelected</a></li>
-				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
-				<li><a href="global.html#solve">solve</a></li>
-				<li><a href="global.html#splitText">splitText</a></li>
-				<li><a href="global.html#standardize_color">standardize_color</a></li>
-				<li><a href="global.html#start">start</a></li>
-				<li><a href="global.html#startY">startY</a></li>
-				<li><a href="global.html#startzoom">startzoom</a></li>
-				<li><a href="global.html#statusMsg">statusMsg</a></li>
-				<li><a href="global.html#stepFinish">stepFinish</a></li>
-				<li><a href="global.html#stepsEnd">stepsEnd</a></li>
-				<li><a href="global.html#stepStart">stepStart</a></li>
-				<li><a href="global.html#stopEdit">stopEdit</a></li>
-				<li><a href="global.html#strip">strip</a></li>
-				<li><a href="global.html#styleEdgeNames">styleEdgeNames</a></li>
-				<li><a href="global.html#styleNodeNames">styleNodeNames</a></li>
-				<li><a href="global.html#subtract">subtract</a></li>
-				<li><a href="global.html#subVec">subVec</a></li>
-				<li><a href="global.html#sumVec">sumVec</a></li>
-				<li><a href="global.html#svg">svg</a></li>
-				<li><a href="global.html#tickToggle">tickToggle</a></li>
-				<li><a href="global.html#timeAndDate">timeAndDate</a></li>
-				<li><a href="global.html#timestamp">timestamp</a></li>
-				<li><a href="global.html#titleDropDown">titleDropDown</a></li>
-				<li><a href="global.html#toggleDeleteButton">toggleDeleteButton</a></li>
-				<li><a href="global.html#togglePanel">togglePanel</a></li>
-				<li><a href="global.html#toolHandler">toolHandler</a></li>
-				<li><a href="global.html#traceUsers">traceUsers</a></li>
-				<li><a href="global.html#transpose">transpose</a></li>
-				<li><a href="global.html#trophic">trophic</a></li>
-				<li><a href="global.html#undirected">undirected</a></li>
-				<li><a href="global.html#unFollow">unFollow</a></li>
-				<li><a href="global.html#unlockAll">unlockAll</a></li>
-				<li><a href="global.html#unlockEdge">unlockEdge</a></li>
-				<li><a href="global.html#unlockNode">unlockNode</a></li>
-				<li><a href="global.html#unSelect">unSelect</a></li>
-				<li><a href="global.html#unselectTool">unselectTool</a></li>
-				<li><a href="global.html#updateActiveButtons">updateActiveButtons</a></li>
-				<li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li>
-				<li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li>
-				<li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li>
-				<li><a href="global.html#updateFilter">updateFilter</a></li>
-				<li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li>
-				<li><a href="global.html#updateFromRemote">updateFromRemote</a></li>
-				<li><a href="global.html#updateLastSamples">updateLastSamples</a></li>
-				<li><a href="global.html#updateLegend">updateLegend</a></li>
-				<li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li>
-				<li><a href="global.html#updateNodeCellData">updateNodeCellData</a></li>
-				<li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li>
-				<li><a href="global.html#updateSelection">updateSelection</a></li>
-				<li><a href="global.html#upgradeFromV1">upgradeFromV1</a></li>
-				<li><a href="global.html#upscaling">upscaling</a></li>
-				<li><a href="global.html#uuidv4">uuidv4</a></li>
-				<li><a href="global.html#zero">zero</a></li>
-				<li><a href="global.html#zoomCanvas">zoomCanvas</a></li>
-				<li><a href="global.html#zoomincr">zoomincr</a></li>
-				<li><a href="global.html#zoomnet">zoomnet</a></li>
-				<li><a href="global.html#zoomscroll">zoomscroll</a></li>
-				<li><a href="global.html#zoomset">zoomset</a></li>
-			</ul>
-		</nav>
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ToolHandler.html">ToolHandler</a><ul class='methods'><li data-type='method'><a href="ToolHandler.html#endPosition">endPosition</a></li><li data-type='method'><a href="ToolHandler.html#options">options</a></li><li data-type='method'><a href="ToolHandler.html#optionsDialog">optionsDialog</a></li><li data-type='method'><a href="ToolHandler.html#panend">panend</a></li><li data-type='method'><a href="ToolHandler.html#panmove">panmove</a></li><li data-type='method'><a href="ToolHandler.html#panstart">panstart</a></li></ul></li><li><a href="module.exports.html">exports</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li><li><a href="global.html#MIN_WIDTH">MIN_WIDTH</a></li><li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li><li><a href="global.html#addColumn">addColumn</a></li><li><a href="global.html#addContextMenu">addContextMenu</a></li><li><a href="global.html#addEventListeners">addEventListeners</a></li><li><a href="global.html#addLabel">addLabel</a></li><li><a href="global.html#addRollbackIcon">addRollbackIcon</a></li><li><a href="global.html#addVec">addVec</a></li><li><a href="global.html#analyse">analyse</a></li><li><a href="global.html#anon">anon</a></li><li><a href="global.html#antMarch">antMarch</a></li><li><a href="global.html#applyOptions">applyOptions</a></li><li><a href="global.html#arrayBufferToString">arrayBufferToString</a></li><li><a href="global.html#asleep">asleep</a></li><li><a href="global.html#autoLayout">autoLayout</a></li><li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li><li><a href="global.html#cancelAdd">cancelAdd</a></li><li><a href="global.html#cancelEdit">cancelEdit</a></li><li><a href="global.html#cancelLoading">cancelLoading</a></li><li><a href="global.html#changeCursor">changeCursor</a></li><li><a href="global.html#changeRoom">changeRoom</a></li><li><a href="global.html#checkKey">checkKey</a></li><li><a href="global.html#circleIntersectsRect">circleIntersectsRect</a></li><li><a href="global.html#clean">clean</a></li><li><a href="global.html#cleanArray">cleanArray</a></li><li><a href="global.html#clearLegend">clearLegend</a></li><li><a href="global.html#clearMap">clearMap</a></li><li><a href="global.html#clearPopUp">clearPopUp</a></li><li><a href="global.html#clearStatusBar">clearStatusBar</a></li><li><a href="global.html#closeFilter">closeFilter</a></li><li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li><li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li><li><a href="global.html#collapseColGroup">collapseColGroup</a></li><li><a href="global.html#collapseNotes">collapseNotes</a></li><li><a href="global.html#colorEditor">colorEditor</a></li><li><a href="global.html#configSamples">configSamples</a></li><li><a href="global.html#connected">connected</a></li><li><a href="global.html#connectedComponents">connectedComponents</a></li><li><a href="global.html#convertDashes">convertDashes</a></li><li><a href="global.html#convertData">convertData</a></li><li><a href="global.html#convertEdge">convertEdge</a></li><li><a href="global.html#convertEdgeBack">convertEdgeBack</a></li><li><a href="global.html#convertNode">convertNode</a></li><li><a href="global.html#convertNodeBack">convertNodeBack</a></li><li><a href="global.html#copyBackgroundToClipboard">copyBackgroundToClipboard</a></li><li><a href="global.html#copyTable">copyTable</a></li><li><a href="global.html#copyToClipboard">copyToClipboard</a></li><li><a href="global.html#createTitleDropDown">createTitleDropDown</a></li><li><a href="global.html#deepCopy">deepCopy</a></li><li><a href="global.html#deleteActiveObjects">deleteActiveObjects</a></li><li><a href="global.html#deleteColumn">deleteColumn</a></li><li><a href="global.html#deselectTool">deselectTool</a></li><li><a href="global.html#diag">diag</a></li><li><a href="global.html#diffMaps">diffMaps</a></li><li><a href="global.html#display">display</a></li><li><a href="global.html#displayHelp">displayHelp</a></li><li><a href="global.html#displayNetPane">displayNetPane</a></li><li><a href="global.html#doSearch">doSearch</a></li><li><a href="global.html#dragElement">dragElement</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawBadges">drawBadges</a></li><li><a href="global.html#drawGrid">drawGrid</a></li><li><a href="global.html#duplEdge">duplEdge</a></li><li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li><li><a href="global.html#editEdge">editEdge</a></li><li><a href="global.html#editLinkStyle">editLinkStyle</a></li><li><a href="global.html#editNode">editNode</a></li><li><a href="global.html#editNodeStyle">editNodeStyle</a></li><li><a href="global.html#elem">elem</a></li><li><a href="global.html#eraser">eraser</a></li><li><a href="global.html#exactTime">exactTime</a></li><li><a href="global.html#exportCVS">exportCVS</a></li><li><a href="global.html#exportDOT">exportDOT</a></li><li><a href="global.html#exportExcel">exportExcel</a></li><li><a href="global.html#exportGML">exportGML</a></li><li><a href="global.html#fit">fit</a></li><li><a href="global.html#follow">follow</a></li><li><a href="global.html#followUser">followUser</a></li><li><a href="global.html#generateName">generateName</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#getArrows">getArrows</a></li><li><a href="global.html#getButtonStatus">getButtonStatus</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#getDashes">getDashes</a></li><li><a href="global.html#getLastPath">getLastPath</a></li><li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li><li><a href="global.html#getRadioVal">getRadioVal</a></li><li><a href="global.html#getRandomData">getRandomData</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#getSelectedAndFixedNodes">getSelectedAndFixedNodes</a></li><li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li><li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li><li><a href="global.html#ghostCursor">ghostCursor</a></li><li><a href="global.html#ghostFactor">ghostFactor</a></li><li><a href="global.html#groupDashes">groupDashes</a></li><li><a href="global.html#groupTitle">groupTitle</a></li><li><a href="global.html#headerTickToggle">headerTickToggle</a></li><li><a href="global.html#hideNavButtons">hideNavButtons</a></li><li><a href="global.html#hideNodeAndEdges">hideNodeAndEdges</a></li><li><a href="global.html#hideNotes">hideNotes</a></li><li><a href="global.html#htmlEntities">htmlEntities</a></li><li><a href="global.html#humanSize">humanSize</a></li><li><a href="global.html#inAddMode">inAddMode</a></li><li><a href="global.html#in_degree">in_degree</a></li><li><a href="global.html#initDraw">initDraw</a></li><li><a href="global.html#initPopUp">initPopUp</a></li><li><a href="global.html#initSample">initSample</a></li><li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li><li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li><li><a href="global.html#initials">initials</a></li><li><a href="global.html#initiateClone">initiateClone</a></li><li><a href="global.html#initySamplesMap">initySamplesMap</a></li><li><a href="global.html#inline">inline</a></li><li><a href="global.html#intersect">intersect</a></li><li><a href="global.html#invertColor">invertColor</a></li><li><a href="global.html#isEmpty">isEmpty</a></li><li><a href="global.html#isQuillEmpty">isQuillEmpty</a></li><li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li><li><a href="global.html#legend">legend</a></li><li><a href="global.html#legendData">legendData</a></li><li><a href="global.html#lightOrDark">lightOrDark</a></li><li><a href="global.html#linkEditCancel">linkEditCancel</a></li><li><a href="global.html#linkEditSave">linkEditSave</a></li><li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li><li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li><li><a href="global.html#linkEditorHide">linkEditorHide</a></li><li><a href="global.html#linkEditorShow">linkEditorShow</a></li><li><a href="global.html#listFactors">listFactors</a></li><li><a href="global.html#listLinks">listLinks</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#loadCSV">loadCSV</a></li><li><a href="global.html#loadDOTfile">loadDOTfile</a></li><li><a href="global.html#loadExcelfile">loadExcelfile</a></li><li><a href="global.html#loadFile">loadFile</a></li><li><a href="global.html#loadGML">loadGML</a></li><li><a href="global.html#loadGraphML">loadGraphML</a></li><li><a href="global.html#loadPRSMfile">loadPRSMfile</a></li><li><a href="global.html#lockNode">lockNode</a></li><li><a href="global.html#logHistory">logHistory</a></li><li><a href="global.html#makeColor">makeColor</a></li><li><a href="global.html#makeOptionsDialog">makeOptionsDialog</a></li><li><a href="global.html#mapTitle">mapTitle</a></li><li><a href="global.html#markMapSaved">markMapSaved</a></li><li><a href="global.html#mergeTranspose">mergeTranspose</a></li><li><a href="global.html#mouseDespatch">mouseDespatch</a></li><li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li><li><a href="global.html#nodeEditSave">nodeEditSave</a></li><li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li><li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li><li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li><li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li><li><a href="global.html#nodeIdToLabel">nodeIdToLabel</a></li><li><a href="global.html#nodeList">nodeList</a></li><li><a href="global.html#noteFilter">noteFilter</a></li><li><a href="global.html#object_equals">object_equals</a></li><li><a href="global.html#oldUserNames">oldUserNames</a></li><li><a href="global.html#onexit">onexit</a></li><li><a href="global.html#openCluster">openCluster</a></li><li><a href="global.html#openNotesWindow">openNotesWindow</a></li><li><a href="global.html#out_degree">out_degree</a></li><li><a href="global.html#plusLink">plusLink</a></li><li><a href="global.html#plusNode">plusNode</a></li><li><a href="global.html#positionNotes">positionNotes</a></li><li><a href="global.html#positionPopUp">positionPopUp</a></li><li><a href="global.html#quillAccessor">quillAccessor</a></li><li><a href="global.html#quillEditor">quillEditor</a></li><li><a href="global.html#quillFormatter">quillFormatter</a></li><li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li><li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li><li><a href="global.html#readSingleFile">readSingleFile</a></li><li><a href="global.html#rebase">rebase</a></li><li><a href="global.html#recalculateStats">recalculateStats</a></li><li><a href="global.html#receiveEvent">receiveEvent</a></li><li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li><li><a href="global.html#redraw">redraw</a></li><li><a href="global.html#refreshFromMap">refreshFromMap</a></li><li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li><li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li><li><a href="global.html#removeAvatar">removeAvatar</a></li><li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li><li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li><li><a href="global.html#resizeBox">resizeBox</a></li><li><a href="global.html#resizeCanvas">resizeCanvas</a></li><li><a href="global.html#rgbToHex">rgbToHex</a></li><li><a href="global.html#rollback">rollback</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#roundTripTimer">roundTripTimer</a></li><li><a href="global.html#saveChange">saveChange</a></li><li><a href="global.html#saveEdge">saveEdge</a></li><li><a href="global.html#saveLabel">saveLabel</a></li><li><a href="global.html#saveNode">saveNode</a></li><li><a href="global.html#savePRSMfile">savePRSMfile</a></li><li><a href="global.html#saveState">saveState</a></li><li><a href="global.html#saveStr">saveStr</a></li><li><a href="global.html#search">search</a></li><li><a href="global.html#searchTargets">searchTargets</a></li><li><a href="global.html#selectClustering">selectClustering</a></li><li><a href="global.html#selectTool">selectTool</a></li><li><a href="global.html#selectUsersItems">selectUsersItems</a></li><li><a href="global.html#selectedLabels">selectedLabels</a></li><li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li><li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li><li><a href="global.html#setButtonStatus">setButtonStatus</a></li><li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li><li><a href="global.html#setFileName">setFileName</a></li><li><a href="global.html#setFixed">setFixed</a></li><li><a href="global.html#setMapTitle">setMapTitle</a></li><li><a href="global.html#setParams">setParams</a></li><li><a href="global.html#setRadioVal">setRadioVal</a></li><li><a href="global.html#setUpAwareness">setUpAwareness</a></li><li><a href="global.html#setUpBackground">setUpBackground</a></li><li><a href="global.html#setUpCanvas">setUpCanvas</a></li><li><a href="global.html#setUpChat">setUpChat</a></li><li><a href="global.html#setUpFilter">setUpFilter</a></li><li><a href="global.html#setUpPage">setUpPage</a></li><li><a href="global.html#setUpPaint">setUpPaint</a></li><li><a href="global.html#setUpSamples">setUpSamples</a></li><li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li><li><a href="global.html#setUpTabs">setUpTabs</a></li><li><a href="global.html#setUpToolbox">setUpToolbox</a></li><li><a href="global.html#setUpTutorial">setUpTutorial</a></li><li><a href="global.html#setvh">setvh</a></li><li><a href="global.html#showAvatars">showAvatars</a></li><li><a href="global.html#showClusterLinks">showClusterLinks</a></li><li><a href="global.html#showGhostFactor">showGhostFactor</a></li><li><a href="global.html#showHistory">showHistory</a></li><li><a href="global.html#showNavButtons">showNavButtons</a></li><li><a href="global.html#showNodeData">showNodeData</a></li><li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li><li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li><li><a href="global.html#showOtherMouse">showOtherMouse</a></li><li><a href="global.html#showPressed">showPressed</a></li><li><a href="global.html#showSelected">showSelected</a></li><li><a href="global.html#snapToGrid">snapToGrid</a></li><li><a href="global.html#solve">solve</a></li><li><a href="global.html#splitText">splitText</a></li><li><a href="global.html#standardize_color">standardize_color</a></li><li><a href="global.html#start">start</a></li><li><a href="global.html#startY">startY</a></li><li><a href="global.html#startzoom">startzoom</a></li><li><a href="global.html#statusMsg">statusMsg</a></li><li><a href="global.html#stepFinish">stepFinish</a></li><li><a href="global.html#stepStart">stepStart</a></li><li><a href="global.html#stepsEnd">stepsEnd</a></li><li><a href="global.html#stopEdit">stopEdit</a></li><li><a href="global.html#strip">strip</a></li><li><a href="global.html#styleEdgeNames">styleEdgeNames</a></li><li><a href="global.html#styleNodeNames">styleNodeNames</a></li><li><a href="global.html#subVec">subVec</a></li><li><a href="global.html#subtract">subtract</a></li><li><a href="global.html#sumVec">sumVec</a></li><li><a href="global.html#svg">svg</a></li><li><a href="global.html#tickToggle">tickToggle</a></li><li><a href="global.html#timeAndDate">timeAndDate</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#titleDropDown">titleDropDown</a></li><li><a href="global.html#toggleDeleteButton">toggleDeleteButton</a></li><li><a href="global.html#togglePanel">togglePanel</a></li><li><a href="global.html#toolHandler">toolHandler</a></li><li><a href="global.html#traceUsers">traceUsers</a></li><li><a href="global.html#transpose">transpose</a></li><li><a href="global.html#trophic">trophic</a></li><li><a href="global.html#unFollow">unFollow</a></li><li><a href="global.html#unSelect">unSelect</a></li><li><a href="global.html#undirected">undirected</a></li><li><a href="global.html#unlockAll">unlockAll</a></li><li><a href="global.html#unlockEdge">unlockEdge</a></li><li><a href="global.html#unlockNode">unlockNode</a></li><li><a href="global.html#unselectTool">unselectTool</a></li><li><a href="global.html#updateActiveButtons">updateActiveButtons</a></li><li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li><li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li><li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li><li><a href="global.html#updateFilter">updateFilter</a></li><li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li><li><a href="global.html#updateFromDrawingMap">updateFromDrawingMap</a></li><li><a href="global.html#updateFromRemote">updateFromRemote</a></li><li><a href="global.html#updateLastSamples">updateLastSamples</a></li><li><a href="global.html#updateLegend">updateLegend</a></li><li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li><li><a href="global.html#updateNodeCellData">updateNodeCellData</a></li><li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li><li><a href="global.html#updateSelection">updateSelection</a></li><li><a href="global.html#upgradeFromV1">upgradeFromV1</a></li><li><a href="global.html#upscaling">upscaling</a></li><li><a href="global.html#uuidv4">uuidv4</a></li><li><a href="global.html#zero">zero</a></li><li><a href="global.html#zoomCanvas">zoomCanvas</a></li><li><a href="global.html#zoomincr">zoomincr</a></li><li><a href="global.html#zoomnet">zoomnet</a></li><li><a href="global.html#zoomscroll">zoomscroll</a></li><li><a href="global.html#zoomset">zoomset</a></li></ul>
+    
+</nav>
 
-		<div id="main">
-			<h1 class="page-title">3d.js</h1>
+<div id="main">
+    
+    <h1 class="page-title">3d.js</h1>
+    
 
-			<section>
-				<article>
-					<pre class="prettyprint source linenums"><code>/**
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  *
  * PRSM 3D map view
  * generates a 'three dimensional'view of a PRSM map, build on threejs
@@ -803,22 +509,27 @@ function legend() {
 	legendNetwork.fit({})
 }
 </code></pre>
-				</article>
-			</section>
-		</div>
+        </article>
+    </section>
 
-		<br class="clear" />
 
-		<footer>
-			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Mon Jan 30 2023
-			14:54:11 GMT+0000 (Greenwich Mean Time) using the
-			<a href="https://github.com/clenemt/docdash">docdash</a> theme.
-		</footer>
 
-		<script>
-			prettyPrint()
-		</script>
-		<script src="scripts/polyfill.js"></script>
-		<script src="scripts/linenumber.js"></script>
-	</body>
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.0</a> on Mon Feb 06 2023 17:39:11 GMT+0000 (Greenwich Mean Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
 </html>

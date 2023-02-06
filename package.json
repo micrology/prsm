@@ -1,6 +1,6 @@
 {
 	"name": "participatory-system-mapper",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "Participatory System Mapper, browser app for collaboratively creating system maps",
 	"keywords": [
 		"social network",
@@ -67,10 +67,10 @@
 	},
 	"devDependencies": {
 		"@parcel/transformer-image": "latest",
-		"docdash": "^1.2.0",
+		"docdash": "^2.0.1",
 		"eslint": "^8.0.0",
 		"eslint-config-prettier": "^8.3.0",
-		"jsdoc": "^3.6.7",
+		"jsdoc": "^4.0.0",
 		"microdiff": "^1.1.3",
 		"parcel": "latest",
 		"parcel-resolver-ignore": "^2.1.3",
