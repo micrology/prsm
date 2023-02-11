@@ -27,7 +27,7 @@ import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirst
 import {TabulatorFull as Tabulator} from 'tabulator-tables'
 import {version} from '../package.json'
 import Quill from 'quill'
-import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
+import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html'
 
 const shortAppName = 'PRSM'
 
@@ -386,7 +386,7 @@ function initialiseFactorTable() {
 				bottomCalcFormatter: bottomCalcFormatter,
 				bottomCalcFormatterParams: {legend: 'Count:'},
 			},
-			{title: 'Modified', field: 'modifiedTime', cssClass: 'grey'},
+			{title: 'Modified', field: 'modifiedTime', /* sorter:"date" ,*/ cssClass: 'grey'},
 			{
 				title: groupTitle('Format'),
 				field: 'Format',

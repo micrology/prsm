@@ -78,6 +78,7 @@ import Quill from 'quill'
 import Hammer from '@egjs/hammerjs'
 import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend} from './styles.js'
 import {
+	nChanges,
 	setUpBackground,
 	updateFromRemote,
 	redraw,
@@ -3512,7 +3513,7 @@ function toggleDrawingLayer() {
 		setButtonDisabledStatus('addNode', false)
 		setButtonDisabledStatus('addLink', false)
 		undoRedoButtonStatus()
-		logHistory('drew on the background layer')
+		if (nChanges) logHistory('drew on the background layer')
 		changeCursor('default')
 	} else {
 		// expose drawing layer

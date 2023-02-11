@@ -30,13 +30,17 @@ This module provides the background objet-oriented drawing for PRSM
 
 import {doc, yDrawingMap, network, cp, drawingSwitch, yPointsArray, fit} from './prsm.js'
 import {fabric} from 'fabric'
-import {elem, listen, uuidv4, deepCopy, dragElement, statusMsg} from '../js/utils.js'
+import {elem, listen, uuidv4, deepCopy, dragElement, statusMsg, addContextMenu} from '../js/utils.js'
 
 // essential to prevent scaling of borders
 fabric.Object.prototype.noScaleCache = false
 
 // create a wrapper around native canvas element
-export var canvas = new fabric.Canvas('drawing-canvas', {enablePointerEvents: true, stopContextMenu: true, })
+export var canvas = new fabric.Canvas('drawing-canvas', {
+	enablePointerEvents: true,
+	stopContextMenu: true,
+	fireRightClick: true,
+})
 window.canvas = canvas
 
 let selectedTool = null //the id of the currently selected tool
@@ -44,6 +48,8 @@ let currentObject = null // the object implementing the tool currently selected,
 
 var undos = [] // stack of user changes to objects for undo
 var redos = [] // stack of undos for redoing
+
+export var nChanges = 0 // incremented when the background is amended
 
 /**
  * Initialise the canvas and toolbox
@@ -473,7 +479,10 @@ function updateActiveButtons() {
 	if (nActiveObjects > 0) elem('bin').classList.remove('disabled')
 	else elem('bin').classList.add('disabled')
 	if (nActiveObjects > 1) elem('group').classList.remove('disabled')
-	else elem('group').classList.add('disabled')
+	else {
+		if (canvas.getActiveObject()?.type === 'group') elem('group').classList.remove('disabled')
+		else elem('group').classList.add('disabled')
+	}
 }
 /**
  * return the correct instance of toolHandler for the given tool
@@ -571,6 +580,16 @@ window.addEventListener('keydown', (e) => {
 
 canvas.on('mouse:down', function (options) {
 	let event = options.e
+	// if right click on an object, display popup menu
+	if (event.button === 2) {
+		if (options.target) {
+			addContextMenu(event.target, [
+				{label: 'Send to back', action: () => sendToBack(options.target)},
+				{label: 'Bring to front', action: () => bringToFront(options.target)},
+			])
+		}
+		return
+	}
 	if (selectedTool) {
 		toolHandler(selectedTool)[event.type](event)
 	} else {
@@ -584,6 +603,13 @@ canvas.on('mouse:down', function (options) {
 		}
 	}
 })
+
+function sendToBack(obj) {
+	obj.sendToBack()
+}
+function bringToFront(obj) {
+	obj.bringToFront()
+}
 
 canvas.on('mouse:move', function (options) {
 	let event = options.e
@@ -1297,7 +1323,7 @@ function setGroupBorderColor(group) {
 	group.borderColor = 'green'
 	group.cornerColor = 'green'
 }
-/****************************************************************** Bin (delete) ********************************************/
+/****************************************************** Bin (delete) ********************************************/
 
 let DeleteHandler = fabric.util.createClass(fabric.Object, {
 	type: 'bin',
@@ -1614,6 +1640,8 @@ function saveChange(obj, params = {}, op) {
 		yDrawingMap.set('undos', undos)
 		elem('undotool').classList.remove('disabled')
 	}
+	// count the number of changes, so we can log that the background has changed
+nChanges++
 }
 /**
  * Collect the parameters that would allow the reproduction of the object
@@ -1821,7 +1849,7 @@ function initAligningGuidelines() {
 /*************************************copy & paste ********************************************/
 var displacement = 0
 /**
- * Copy the selected nodes and links to the clipboard
+ * Copy the selected objects to the clipboard
  * NB this doesn't yet work in Firefox, as they haven't implemented the Clipboard API and Permissions yet.
  * @param {Event} event
  */
@@ -1929,6 +1957,8 @@ async function getClipboardContents() {
 		return null
 	}
 }
+
+/************************************************ Upgrade drawing form version 1 to version 2 format ************* */
 /**
  * Convert v1 drawing instructions into equivalent v2 background objects
  * @param {array} pointsArray  version 1 background drawing instructions
@@ -2127,7 +2157,7 @@ function circleIntersectsRect(circle, rect) {
 }
 
 export function addBackgroundToCanvas(bigNetPane, bigNetCanvas) {
-/* 	let bigBackgroundEl = document.createElement('canvas')
+	/* 	let bigBackgroundEl = document.createElement('canvas')
 	bigBackgroundEl.id = 'big-background'
 	bigBackgroundEl.style.position = 'absolute'
 	bigBackgroundEl.style.top = 0//'-9999px'
@@ -2140,7 +2170,6 @@ export function addBackgroundToCanvas(bigNetPane, bigNetCanvas) {
 	bigCanvas.requestRenderAll()
 	let ctx = bigNetCanvas.getContext('2d')
 	ctx.drawImage(bigCanvas.toCanvasElement(network.getScale())) */
-
 	/* let c2 = document.createElement('canvas')
 	elem('main').appendChild(c2)
 	let underlay = elem('underlay')
