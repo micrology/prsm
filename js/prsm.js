@@ -89,6 +89,7 @@ import {
 	pasteBackgroundFromClipboard,
 	upgradeFromV1,
 	updateFromDrawingMap,
+	addBackgroundToCanvas
 } from './background.js'
 import {version} from '../package.json'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
@@ -356,9 +357,9 @@ function startY(newRoom) {
 	})
 	// if using a non-standard port (i.e neither 80 nor 443) assume that the websocket port is 1234 in the same domain as the url
 	if (url.port && url.port !== 80 && url.port !== 443) websocket = `ws://${url.hostname}:1234`
-	wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc, {
+	wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc, /* {
 		resyncInterval: 5000,
-	})
+	} */)
 	wsProvider.on('synced', () => {
 		/* 
 	if this is a clone, load the cloned data
@@ -1415,6 +1416,7 @@ function draw() {
 			physics: {enabled: false},
 		})
 		bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
+		addBackgroundToCanvas(bigNetPane,bigNetCanvas)
 		bigNetwork.moveTo({
 			position: network.getViewPosition(),
 			scale: magnification * network.getScale(),
