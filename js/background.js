@@ -28,7 +28,7 @@ SOFTWARE.
 This module provides the background objet-oriented drawing for PRSM
 ********************************************************************************************/
 
-import {doc, yDrawingMap, network, cp, drawingSwitch, yPointsArray, fit} from './prsm.js'
+import {doc, debug, yDrawingMap, network, cp, drawingSwitch, yPointsArray, fit} from './prsm.js'
 import {fabric} from 'fabric'
 import {elem, listen, uuidv4, deepCopy, dragElement, statusMsg, addContextMenu} from '../js/utils.js'
 
@@ -137,7 +137,10 @@ export function updateFromDrawingMap() {
  * @param {array} keys
  */
 export function refreshFromMap(keys) {
-	canvas.discardActiveObject()
+	if (/back/.test(debug)) {
+		keys.forEach(key => console.log('Key:', key, 'value:', yDrawingMap.get(key)))
+	}
+//	canvas.discardActiveObject()
 	for (let key of keys) {
 		/* active Selection and group have to be dealt with last, because they reference objects that may
 		 * not have been put on the canvas yet */
@@ -160,6 +163,8 @@ export function refreshFromMap(keys) {
 			case 'activeSelection': {
 				continue
 			}
+			case 'sequence':
+				continue
 			default: {
 				let localObj = canvas.getObjects().find((o) => o.id === key)
 				// if object already exists, update it
@@ -224,34 +229,46 @@ export function refreshFromMap(keys) {
 	for (let key of keys) {
 		let remoteParams = yDrawingMap.get(key)
 		if (remoteParams) {
-			if (key === 'activeSelection') {
-				if (remoteParams.members.length > 0) {
-					// a selection has been created remotely; make one here
-					let selectedObjects = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
-					let sel = new fabric.ActiveSelection(selectedObjects, {
-						canvas: canvas,
-					})
-					canvas.setActiveObject(sel)
+			switch (key) {
+				case 'selection': {
+					if (remoteParams.members.length > 0) {
+						// a selection has been created remotely; make one here
+						let selectedObjects = remoteParams.members.map((id) =>
+							canvas.getObjects().find((o) => o.id === id)
+						)
+						let sel = new fabric.ActiveSelection(selectedObjects, {
+							canvas: canvas,
+						})
+						canvas.setActiveObject(sel)
+					}
+					updateActiveButtons()
+					break
 				}
-				updateActiveButtons()
-			} else {
-				if (remoteParams.type && remoteParams.type === 'group') {
-					let objs = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
-					canvas.discardActiveObject()
-					let group = new fabric.Group(objs)
-					canvas.remove(...objs)
-					group.id = key
-					group.members = remoteParams.members
-					setGroupBorderColor(group)
-					group.set({
-						left: remoteParams.left,
-						top: remoteParams.top,
-						angle: remoteParams.angle,
-						scaleX: remoteParams.scaleX,
-						scaleY: remoteParams.scaleY,
-					})
-					canvas.add(group)
-					canvas.setActiveObject(group)
+				case 'sequence': {
+					let newObjects = []
+					remoteParams.forEach(id => newObjects.push(canvas.getObjects().find(obj => obj.id === id)))
+					canvas._objects = newObjects
+					break
+				}
+				default: {
+					if (remoteParams?.type === 'group') {
+						let objs = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
+						canvas.discardActiveObject()
+						let group = new fabric.Group(objs)
+						canvas.remove(...objs)
+						group.id = key
+						group.members = remoteParams.members
+						setGroupBorderColor(group)
+						group.set({
+							left: remoteParams.left,
+							top: remoteParams.top,
+							angle: remoteParams.angle,
+							scaleX: remoteParams.scaleX,
+							scaleY: remoteParams.scaleY,
+						})
+						canvas.add(group)
+						canvas.setActiveObject(group)
+					}
 				}
 			}
 		}
@@ -606,9 +623,11 @@ canvas.on('mouse:down', function (options) {
 
 function sendToBack(obj) {
 	obj.sendToBack()
+	saveChange(obj, {}, 'insert)')
 }
 function bringToFront(obj) {
 	obj.bringToFront()
+	saveChange(obj, {}, 'insert)')
 }
 
 canvas.on('mouse:move', function (options) {
@@ -1634,6 +1653,25 @@ function saveChange(obj, params = {}, op) {
 	params = setParams(obj, params)
 	// send the object to other clients
 	yDrawingMap.set(obj.id, params)
+	//check whether the order of objects has changed; if so, save the new order
+	let oldSequence = yDrawingMap.get('sequence')
+	let newSequence = canvas.getObjects().map((obj) => obj.id)
+	let different = true
+	if (oldSequence) {
+		different = newSequence.length !== oldSequence.length
+		if (!different) {
+			for (let i = 0; i < oldSequence.length; i++) {
+				if (newSequence[i] !== oldSequence[i]) {
+					different = true
+					break
+				}
+			}
+		}
+	}
+	if (different) {
+		yDrawingMap.set('sequence', newSequence)
+		console.log('new sequence', newSequence)
+	}
 	// save the change on the undo stack
 	if (op) {
 		undos.push({op: op, id: obj.id, params: params})
@@ -1641,7 +1679,7 @@ function saveChange(obj, params = {}, op) {
 		elem('undotool').classList.remove('disabled')
 	}
 	// count the number of changes, so we can log that the background has changed
-nChanges++
+	nChanges++
 }
 /**
  * Collect the parameters that would allow the reproduction of the object
@@ -1662,7 +1700,7 @@ function setParams(obj, params) {
 	if (obj.type === 'group') params.members = obj.members
 	return params
 }
-/****************************************************************** Smart Guides ********************************************/
+/************************************************** Smart Guides ********************************************/
 
 const aligningLineOffset = 5
 const aligningLineMargin = 4
