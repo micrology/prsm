@@ -90,7 +90,7 @@ import {
 	pasteBackgroundFromClipboard,
 	upgradeFromV1,
 	updateFromDrawingMap,
-	addBackgroundToCanvas
+	addBackgroundToCanvas,
 } from './background.js'
 import {version} from '../package.json'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
@@ -298,6 +298,7 @@ function addEventListeners() {
 			applySampleToLink(event)
 		})
 	)
+	listen('history-copy', 'click', copyHistoryToClipboard)
 
 	listen('body', 'copy', copyToClipboard)
 	listen('body', 'paste', pasteFromClipboard)
@@ -358,9 +359,13 @@ function startY(newRoom) {
 	})
 	// if using a non-standard port (i.e neither 80 nor 443) assume that the websocket port is 1234 in the same domain as the url
 	if (url.port && url.port !== 80 && url.port !== 443) websocket = `ws://${url.hostname}:1234`
-	wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc, /* {
+	wsProvider = new WebsocketProvider(
+		websocket,
+		`prsm${room}`,
+		doc /* {
 		resyncInterval: 5000,
-	} */)
+	} */
+	)
 	wsProvider.on('synced', () => {
 		/* 
 	if this is a clone, load the cloned data
@@ -738,7 +743,7 @@ function initiateClone() {
 			if (state.options.viewOnly) {
 				viewOnly = true
 				hideNavButtons()
-				data.nodes.get().forEach(obj => obj.fixed = true)
+				data.nodes.get().forEach((obj) => (obj.fixed = true))
 			}
 			for (const k in state.samples) {
 				ySamplesMap.set(k, state.samples[k])
@@ -1417,7 +1422,7 @@ function draw() {
 			physics: {enabled: false},
 		})
 		bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
-		addBackgroundToCanvas(bigNetPane,bigNetCanvas)
+		addBackgroundToCanvas(bigNetPane, bigNetCanvas)
 		bigNetwork.moveTo({
 			position: network.getViewPosition(),
 			scale: magnification * network.getScale(),
@@ -1711,7 +1716,14 @@ function copyToClipboard(event) {
 	})
 	copyText(JSON.stringify({nodes: nodes, edges: edges}))
 }
-
+function copyHistoryToClipboard(event) {
+	event.preventDefault()
+	let history = yHistory
+		.toArray()
+		.map((rec) => `${timeAndDate(rec.time, true)}\t${rec.user}\t${rec.action}\n`)
+		.join('')
+	copyText(history)
+}
 async function copyText(text) {
 	try {
 		if (typeof navigator.clipboard.writeText !== 'function')
@@ -1722,7 +1734,7 @@ async function copyText(text) {
 	}
 	try {
 		await navigator.clipboard.writeText(text)
-		statusMsg('Copied', 'info')
+		statusMsg('Copied to clipboard', 'info')
 		return true
 	} catch (err) {
 		console.error('Failed to copy: ', err)

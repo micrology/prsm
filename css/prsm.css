@@ -1340,6 +1340,9 @@ emoji-picker {
 .history-close:hover {
 	color: var(--header-hover-color);
 }
+.history-copy {
+	padding-left: 10px;
+}
 .history-log-wrapper {
 	max-height: 500px;
 	overflow-y: scroll;
