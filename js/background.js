@@ -138,9 +138,8 @@ export function updateFromDrawingMap() {
  */
 export function refreshFromMap(keys) {
 	if (/back/.test(debug)) {
-		keys.forEach(key => console.log('Key:', key, 'value:', yDrawingMap.get(key)))
+		keys.forEach((key) => console.log('Key:', key, 'value:', yDrawingMap.get(key)))
 	}
-//	canvas.discardActiveObject()
 	for (let key of keys) {
 		/* active Selection and group have to be dealt with last, because they reference objects that may
 		 * not have been put on the canvas yet */
@@ -160,9 +159,8 @@ export function refreshFromMap(keys) {
 				updateActiveButtons()
 				continue
 			}
-			case 'activeSelection': {
+			case 'selection':
 				continue
-			}
 			case 'sequence':
 				continue
 			default: {
@@ -201,18 +199,6 @@ export function refreshFromMap(keys) {
 						case 'group': {
 							continue
 						}
-						case 'activeSelection':
-							if (canvas.getActiveObject())
-								canvas.getActiveObject().set({
-									angle: remoteParams.angle,
-									left: remoteParams.left,
-									scaleX: remoteParams.scaleX,
-									scaleY: remoteParams.scaleY,
-									top: remoteParams.top,
-								})
-							continue
-						case 'selection':
-							continue
 						case 'ungroup':
 							continue
 						default:
@@ -231,14 +217,29 @@ export function refreshFromMap(keys) {
 		if (remoteParams) {
 			switch (key) {
 				case 'selection': {
-					if (remoteParams.members.length > 0) {
-						// a selection has been created remotely; make one here
+					let activeObject = canvas.getActiveObject()
+					if (activeObject) {
+						// if selection has zero members, this means discard selection
+						if (remoteParams.members.length === 0) canvas.discardActiveObject()
+						else {
+							activeObject.set({
+								angle: remoteParams.angle,
+								left: remoteParams.left,
+								scaleX: remoteParams.scaleX,
+								scaleY: remoteParams.scaleY,
+								top: remoteParams.top,
+							})
+						}
+					} else {
+						// no existing active selection, make one
 						let selectedObjects = remoteParams.members.map((id) =>
 							canvas.getObjects().find((o) => o.id === id)
 						)
 						let sel = new fabric.ActiveSelection(selectedObjects, {
 							canvas: canvas,
 						})
+						sel.id = 'selection'
+						sel.members = remoteParams.members
 						canvas.setActiveObject(sel)
 					}
 					updateActiveButtons()
@@ -246,7 +247,7 @@ export function refreshFromMap(keys) {
 				}
 				case 'sequence': {
 					let newObjects = []
-					remoteParams.forEach(id => newObjects.push(canvas.getObjects().find(obj => obj.id === id)))
+					remoteParams.forEach((id) => newObjects.push(canvas.getObjects().find((obj) => obj.id === id)))
 					canvas._objects = newObjects
 					break
 				}
@@ -273,6 +274,7 @@ export function refreshFromMap(keys) {
 			}
 		}
 	}
+	// if at start up, so not in drawing mode, don't show active selection borders
 	if (!drawingSwitch) canvas.discardActiveObject()
 	canvas.requestRenderAll()
 }
@@ -299,10 +301,8 @@ function updateSelection(evt) {
 		// only record selections with more than 1 member object
 		if (activeObject.type === 'activeSelection' && activeMembers.length > 1) {
 			activeObject.id = 'selection'
-			yDrawingMap.set('activeSelection', {
-				members: activeMembers.map((o) => o.id),
-			})
-			saveChange(activeObject, {id: activeObject.id, members: activeMembers.map((o) => o.id)}, 'add')
+			activeObject.members = activeMembers.map((o) => o.id)
+			saveChange(activeObject, {}, 'add')
 		}
 		if (activeMembers.length > 1) {
 			closeOptionsDialogs()
@@ -318,11 +318,14 @@ function updateSelection(evt) {
 // save changes and update state when user has unselected all objects
 canvas.on('selection:cleared', (evt) => {
 	if (!evt.e) return
-	yDrawingMap.set('activeSelection', {members: []})
 	if (evt.deselected.length > 1) {
-		let members = evt.deselected
-		saveChange({type: 'selection', id: 'selection'}, {members: members.map((o) => o.id)}, 'discard')
-		members.forEach((m) => saveChange(m, {}, 'update'))
+		let oldMembers = evt.deselected
+		saveChange(
+			{type: 'selection', id: 'selection'},
+			{members: [], oldMembers: oldMembers.map((o) => o.id)},
+			'discard'
+		)
+		//		oldMembers.forEach((m) => saveChange(m, {}, 'update'))
 	}
 	deselectTool()
 	// only allow deletion of selected objects
@@ -1413,8 +1416,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 				case 'add':
 					// reverse of add selection is dispose of it
 					canvas.discardActiveObject()
-					elem('bin').classList.add('disabled')
-					elem('group').classList.add('disabled')
+					updateActiveButtons()
 					break
 				case 'update':
 					{
@@ -1431,15 +1433,14 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 				case 'discard':
 					{
 						// reverse of discard selection is add it
-						let selectedObjects = undo.params.members.map((id) =>
+						let selectedObjects = undo.params.oldMembers.map((id) =>
 							canvas.getObjects().find((o) => o.id === id)
 						)
 						let sel = new fabric.ActiveSelection(selectedObjects, {
 							canvas: canvas,
 						})
 						canvas.setActiveObject(sel)
-						elem('bin').classList.remove('disabled')
-						elem('group').classList.remove('disabled')
+						updateActiveButtons()
 					}
 					break
 			}
@@ -1459,8 +1460,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 						obj.toActiveSelection()
 						saveChange(obj, {type: 'ungroup', members: members.map((ob) => ob.id)}, null)
 						canvas.discardActiveObject()
-						elem('bin').classList.add('disabled')
-						elem('group').classList.add('disabled')
+						updateActiveButtons()
 					}
 					break
 				case 'update':
@@ -1484,8 +1484,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 						saveChange(group, {members: group.getObjects().map((ob) => ob.id), type: 'group'}, null)
 						canvas.add(group)
 						canvas.setActiveObject(group)
-						elem('bin').classList.remove('disabled')
-						elem('group').classList.remove('disabled')
+						updateActiveButtons()
 					}
 					break
 			}
@@ -1545,8 +1544,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 							canvas: canvas,
 						})
 						canvas.setActiveObject(sel)
-						elem('bin').classList.remove('disabled')
-						elem('group').classList.remove('disabled')
+						updateActiveButtons()
 					}
 					break
 				case 'update':
@@ -1560,8 +1558,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 					break
 				case 'discard':
 					canvas.discardActiveObject()
-					elem('bin').classList.add('disabled')
-					elem('group').classList.add('disabled')
+					updateActiveButtons()
 					break
 			}
 			canvas.requestRenderAll()
@@ -1580,8 +1577,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 						obj.toActiveSelection()
 						saveChange(obj, {type: 'ungroup', members: members.map((ob) => ob.id)}, null)
 						canvas.discardActiveObject()
-						elem('bin').classList.add('disabled')
-						elem('group').classList.add('disabled')
+						updateActiveButtons()
 					}
 					break
 				case 'update':
@@ -1605,8 +1601,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 						saveChange(group, {members: group.getObjects().map((ob) => ob.id), type: 'group'}, null)
 						canvas.add(group)
 						canvas.setActiveObject(group)
-						elem('bin').classList.remove('disabled')
-						elem('group').classList.remove('disabled')
+						updateActiveButtons()
 					}
 					break
 			}
@@ -1697,7 +1692,7 @@ function setParams(obj, params) {
 	params.type = params.type || obj.type
 	if (obj.type === 'path') params.pathOffset = obj.pathOffset
 	if (obj.type === 'image') params.imageObj = obj.toObject()
-	if (obj.type === 'group') params.members = obj.members
+	if (obj.type === 'group' || obj.type === 'activeSelection') params.members = obj.members
 	return params
 }
 /************************************************** Smart Guides ********************************************/
