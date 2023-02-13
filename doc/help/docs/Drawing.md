@@ -62,3 +62,9 @@ Grouping is often useful to combine a textual label with a shape, for example:
 <img src={require("/static/images/labelledShape.png").default} width="300"/>
 
 :::
+
+## Moving shapes to the front or back
+
+If two shapes overlap, you can move one to be in the front of the other. Right clicking on an object brings up a popup menu, of 'Send to back ' and 'Bring to front'.  Choose one to alter which shape is in front.  
+
+<img src={require("/static/images/send-to-back.png").default} width="200"/>

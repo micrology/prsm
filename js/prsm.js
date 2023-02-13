@@ -1716,6 +1716,10 @@ function copyToClipboard(event) {
 	})
 	copyText(JSON.stringify({nodes: nodes, edges: edges}))
 }
+/**
+ * copy the contents of the history log to the clipboard
+ * @param {object} event
+ */
 function copyHistoryToClipboard(event) {
 	event.preventDefault()
 	let history = yHistory

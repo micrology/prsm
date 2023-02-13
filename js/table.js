@@ -23,12 +23,11 @@ This module provides the Data View
 
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
-import { listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter, isQuillEmpty } from './utils.js'
-import { DateTime } from 'luxon'
+import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter, isQuillEmpty} from './utils.js'
 import {TabulatorFull as Tabulator} from 'tabulator-tables'
 import {version} from '../package.json'
 import Quill from 'quill'
-import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html'
+import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
 
 const shortAppName = 'PRSM'
 
@@ -387,7 +386,7 @@ function initialiseFactorTable() {
 				bottomCalcFormatter: bottomCalcFormatter,
 				bottomCalcFormatterParams: {legend: 'Count:'},
 			},
-			{title: 'Modified', field: 'modifiedTime',  sorter:"date", cssClass: 'grey'},
+			{title: 'Modified', field: 'modifiedTime', sorter: 'date', cssClass: 'grey'},
 			{
 				title: groupTitle('Format'),
 				field: 'Format',

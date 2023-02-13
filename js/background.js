@@ -1665,7 +1665,6 @@ function saveChange(obj, params = {}, op) {
 	}
 	if (different) {
 		yDrawingMap.set('sequence', newSequence)
-		console.log('new sequence', newSequence)
 	}
 	// save the change on the undo stack
 	if (op) {
@@ -2189,7 +2188,7 @@ function circleIntersectsRect(circle, rect) {
 	return dx * dx + dy * dy <= circle.r * circle.r
 }
 
-export function addBackgroundToCanvas(bigNetPane, bigNetCanvas) {
+export function addBackgroundToCanvas(/*bigNetPane, bigNetCanvas*/) {
 	/* 	let bigBackgroundEl = document.createElement('canvas')
 	bigBackgroundEl.id = 'big-background'
 	bigBackgroundEl.style.position = 'absolute'
