@@ -869,6 +869,7 @@ export function timeAndDate(utc, full = false) {
 	let time = new Date()
 	time.setTime(utc)
 	if (!full && time.toDateString() == new Date().toDateString()) {
+		// return Today, 12:34
 		return (
 			'Today, ' +
 			time.toLocaleString('en-GB', {
@@ -876,15 +877,24 @@ export function timeAndDate(utc, full = false) {
 				minute: '2-digit',
 			})
 		)
-	} else {
+	}
+	if (!full && time.getFullYear() == new Date().getFullYear()) {
+		// return 12 Sept, 12:34
 		return time.toLocaleString('en-GB', {
 			day: '2-digit',
 			month: 'short',
-			year: 'numeric',
 			hour: '2-digit',
 			minute: '2-digit',
-		}).replace('Sept', 'Sep')
+		})
 	}
+	// return 12 Sep 2023, 12:34
+	return time.toLocaleString('en-GB', {
+		day: '2-digit',
+		month: 'short',
+		year: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
+	}).replace('Sept', 'Sep')
 }
 /**
  * positions the caret at the end of text in a contenteditable div
