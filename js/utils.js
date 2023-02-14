@@ -880,9 +880,10 @@ export function timeAndDate(utc, full = false) {
 		return time.toLocaleString('en-GB', {
 			day: '2-digit',
 			month: 'short',
+			year: 'numeric',
 			hour: '2-digit',
 			minute: '2-digit',
-		})
+		}).replace('Sept', 'Sep')
 	}
 }
 /**

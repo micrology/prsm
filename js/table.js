@@ -28,6 +28,7 @@ import {TabulatorFull as Tabulator} from 'tabulator-tables'
 import {version} from '../package.json'
 import Quill from 'quill'
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
+import {DateTime} from 'luxon'
 
 const shortAppName = 'PRSM'
 
@@ -51,6 +52,8 @@ var attributeTitles = {} // titles of each of the attributes
 var myNameRec // my name etc.
 var qed // Quill editor
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
+
+window.DateTime = DateTime
 
 window.addEventListener('load', () => {
 	loadingDelayTimer = setTimeout(() => {
@@ -386,7 +389,15 @@ function initialiseFactorTable() {
 				bottomCalcFormatter: bottomCalcFormatter,
 				bottomCalcFormatterParams: {legend: 'Count:'},
 			},
-			{title: 'Modified', field: 'modifiedTime', sorter: 'date', cssClass: 'grey'},
+			{
+				title: 'Modified',
+				field: 'modifiedTime',
+				sorter: 'date',
+				sorterParams: {
+					format: 'd LLL y, H:m',
+				},
+				cssClass: 'grey',
+			},
 			{
 				title: groupTitle('Format'),
 				field: 'Format',
@@ -887,8 +898,8 @@ function convertNode(node) {
 		if (Array.isArray(n.borderStyle)) n.borderStyle = 'Dotted'
 		else n.borderStyle = n.borderStyle ? 'Dashed' : 'Solid'
 	}
-	if (n.modified) n.modifiedTime = timeAndDate(n.modified.time)
-	else if (n.created) n.modifiedTime = timeAndDate(n.created.time)
+	if (n.modified) n.modifiedTime = timeAndDate(n.modified.time, true)
+	else if (n.created) n.modifiedTime = timeAndDate(n.created.time, true)
 	else n.modifiedTime = '--'
 	n.indegree = 0
 	n.outdegree = 0
@@ -1073,7 +1084,15 @@ function initialiseLinkTable() {
 				bottomCalcFormatterParams: {legend: 'Count:'},
 			},
 			{title: 'To', field: 'toLabel', width: 300, cssClass: 'grey'},
-			{title: 'Modified', field: 'modifiedTime', cssClass: 'grey'},
+			{
+				title: 'Modified',
+				field: 'modifiedTime',
+				sorter: 'date',
+				sorterParams: {
+					format: 'd LLL y, H:m',
+				},
+				cssClass: 'grey',
+			},
 			{
 				title: groupTitle('Style'),
 				field: 'Style',
