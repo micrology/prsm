@@ -2,6 +2,9 @@
 # Participatory System Mapper
 
 [![Join the chat at https://gitter.im/PRSM-community/community](https://badges.gitter.im/PRSM-community/community.svg)](https://gitter.im/PRSM-community/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+![MIT Licence](https://img.shields.io/github/license/micrology/prsm)
+![Last commit](https://img.shields.io/github/last-commit/micrology/prsm)
+![GitHub package.json version](https://img.shields.io/github/package-json/v/micrology/prsm)
 
 ## What is it?
 
@@ -43,7 +46,22 @@ The software is free and available under an [MIT](https://choosealicense.com/lic
 
 The program code is available on [GitHub](https://github.com/micrology/prsm).
 
-The javascript (ES6) code in sub-directory ```js``` is divided into modules: one that handles the main network pane (```prsm.js```), one that manages the background painting functions (```paint.js```), one that creates and edits the styles (```styles.js```) (the default styles are in ```samples.js```), one that handles the tour (```tutorial.js```) and one that includes common utility functions (```utils.js```).  The HTML files that display in the browser are in the ```html``` directory.
+The javascript (ES6) code in sub-directory ```js``` is divided into modules: 
+
+* `prsm.js` handles the main network pane
+* `background.js` manages drawing objects on the background
+* `styles.js` creates and edits the styles
+* the default styles are in `samples.js`
+* `files.js` does the import and export functions
+* `cluster.js` clusters factors
+* `table.js` provides the data view
+* `trophic.js` does the trophic layout algorithm
+* `betweenness.js` is a web worker that cacilates network statistics in the background
+* `tutorial.js` manages the initial tour
+* `utils.js` includes utility functions common to several modules
+* `merge.js` provides undocumented functions to merge two maps into one
+
+The HTML files that display in the browser are in the ```html``` directory.
 
 PRSM uses two important packages: [```yjs```](https://github.com/yjs/yjs) and [```vis-network```](https://visjs.org/).  The former handles the sharing between participants' browsers and the latter draws the network. A few other packages are used for dealing with touch input ([```Hammer```](https://hammerjs.github.io/)), drawing emojis, and parsing XML file input.  
 

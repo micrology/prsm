@@ -1725,7 +1725,7 @@ function copyHistoryToClipboard(event) {
 	let history = yHistory
 		.toArray()
 		.map((rec) => `${timeAndDate(rec.time, true)}\t${rec.user}\t${rec.action}\n`)
-		.join('')
+		.join('')..replace(/\s+/g, ' ').trim()
 	copyText(history)
 }
 async function copyText(text) {
