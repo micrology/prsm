@@ -46,7 +46,7 @@ The software is free and available under an [MIT](https://choosealicense.com/lic
 
 The program code is available on [GitHub](https://github.com/micrology/prsm).
 
-The javascript (ES6) code in sub-directory ```js``` is divided into modules: 
+The javascript (ES6) code in sub-directory ```js``` is divided into modules:
 
 * `prsm.js` handles the main network pane
 * `background.js` manages drawing objects on the background

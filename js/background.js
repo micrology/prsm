@@ -161,6 +161,8 @@ export function refreshFromMap(keys) {
 			}
 			case 'selection':
 				continue
+			case 'activeSelection':  // should never occur, but may in old versions; ignore
+				continue
 			case 'sequence':
 				continue
 			default: {
