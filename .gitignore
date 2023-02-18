@@ -3,6 +3,7 @@ prsm\ video
 prsm-demo
 dist
 node_modules
+doc/help/node_modules
 *.bbprojectd
 *.code-workspace
 experiments
@@ -16,9 +17,8 @@ data
 logs
 vr
 html/*.removed
-img.orig
-# video is too big for git push
-*.mp4
+archive
+
 
 # Compiled source #
 ###################
