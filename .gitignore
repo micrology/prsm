@@ -17,6 +17,8 @@ logs
 vr
 html/*.removed
 img.orig
+# video is too big for git push
+*.mp4
 
 # Compiled source #
 ###################
