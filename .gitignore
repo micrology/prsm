@@ -11,11 +11,12 @@ experiments
 dbDir
 data
 .cache
-.parcel-cache/
-htaccess.bare
+.parcel-cache
 .history
 logs
-*.mp4
+vr
+html/*.removed
+img.orig
 
 # Compiled source #
 ###################
