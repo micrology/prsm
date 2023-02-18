@@ -888,13 +888,15 @@ export function timeAndDate(utc, full = false) {
 		})
 	}
 	// return 12 Sep 2023, 12:34
-	return time.toLocaleString('en-GB', {
-		day: '2-digit',
-		month: 'short',
-		year: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-	}).replace('Sept', 'Sep')
+	return time
+		.toLocaleString('en-GB', {
+			day: '2-digit',
+			month: 'short',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+		})
+		.replace('Sept', 'Sep')
 }
 /**
  * positions the caret at the end of text in a contenteditable div
