@@ -7,7 +7,7 @@ sidebar_position: 1
 
 The Participatory System Mapper (PRSM for short) is a web app that makes it easy for a group of people working together to draw networks (or 'maps') of systems.  
 
-![Example map: Some factors causing loss of biodiversity](/images/biodiversityImproved.png)
+![Example map: Some factors causing loss of biodiversity](/images/biodiversityImproved.webp)
 
 ## Maps
 
