@@ -10,7 +10,7 @@ const config = {
   tagline: 'Participatory System Mapper',
   url: 'https://prsm.uk',
   //url: 'http://localhost',
-  baseUrl: '/doc/help/',
+  baseUrl: '/prsm/doc/help/',
   // use / when running dev server. url is irrelevant
   //baseUrl: '/',
   onBrokenLinks: 'throw',
