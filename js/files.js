@@ -871,19 +871,16 @@ function setCanvasBackgroundColor(canvas, color = '#ffffff') {
 }
 
 /**
- * resets lastFileName to have supplied extension
+ * resets lastFileName to a munged version of th emap title, with the supplied extension
  * if lastFileName is null, uses the map title, or if no map title, 'network' as the filename
  * @param {string} extn filename extension to apply
  */
-function setFileName(extn) {
-	if (lastFileName === '') {
+export function setFileName(extn = 'prsm') {
 		let title = elem('maptitle').innerText
 		if (title === 'Untitled map') lastFileName = 'network'
-		else lastFileName = title.replace(/\s+/g, '').toLowerCase()
-	}
-	let pos = lastFileName.indexOf('.')
-	lastFileName = lastFileName.substring(0, pos < 0 ? lastFileName.length : pos) + '.' + extn
-}
+		else lastFileName = title.replace(/\s+/g, '').replaceAll('.', '_').toLowerCase()
+		lastFileName += '.' + extn
+} 
 /**
  * Save the map as CSV files, one for nodes and one for edges
  * Only node and edge labels and style ids are saved

@@ -62,7 +62,7 @@ import {
 	openFile,
 	savePRSMfile,
 	exportPNGfile,
-	//	exportCVS,
+	setFileName,
 	exportExcel,
 	exportDOT,
 	exportGML,
@@ -117,6 +117,7 @@ export var room
  * cluster - show creation of clusters
  * aware - show awareness traffic
  * round - round trip timing
+ * back - drawing on background
  */
 export var debug = ''
 var viewOnly // when true, user can only view, not modify, the network
@@ -2299,6 +2300,7 @@ export function setMapTitle(title) {
 	}
 	if (title !== div.innerText) div.innerText = title
 	if (title.length >= 50) setEndOfContenteditable(div)
+	setFileName()
 	titleDropDown(title)
 	return title
 }
