@@ -743,6 +743,7 @@ function initiateClone() {
 			}
 			if (state.options.viewOnly) {
 				viewOnly = true
+				yNetMap.set('viewOnly', true)
 				hideNavButtons()
 				data.nodes.get().forEach((obj) => (obj.fixed = true))
 			}
@@ -2831,7 +2832,6 @@ function setUpShareDialog() {
 			},
 			viewOnly: onlyView,
 		}
-		yNetMap.set('viewOnly', onlyView)
 		// save state as a UTF16 string
 		let state = saveState(options)
 		// save it in local storage
