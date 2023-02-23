@@ -2829,6 +2829,7 @@ function setUpShareDialog() {
 			},
 			viewOnly: onlyView,
 		}
+		yNetMap.set('viewOnly', onlyView)
 		// save state as a UTF16 string
 		let state = saveState(options)
 		// save it in local storage
