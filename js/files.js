@@ -871,7 +871,7 @@ function setCanvasBackgroundColor(canvas, color = '#ffffff') {
 }
 
 /**
- * resets lastFileName to a munged version of th emap title, with the supplied extension
+ * resets lastFileName to a munged version of the map title, with the supplied extension
  * if lastFileName is null, uses the map title, or if no map title, 'network' as the filename
  * @param {string} extn filename extension to apply
  */
