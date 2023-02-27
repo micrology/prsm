@@ -11,10 +11,10 @@ Comparing version 2.0.x with version 1.9.0:
 
 * Factors can be voted on (see Setting, Network, Show Reactions).
 * Data from Excel spreadsheets can be imported and the data in maps can be exported to Excel.
-* Notes attached to factors and links can now be edited in a separate window, which can be much larger than the exsiting Notes panel and offers a wider range of editing commands.
+* Notes attached to factors and links can now be edited in a separate window, which can be much larger than the existing Notes panel and offers a wider range of editing commands.
 * Right clicking on a user's avatar (the initials in a circle at the top left of the map) selects all the factors and links that that user has created or modified.
 * Networks in [DOT or GV](https://en.wikipedia.org/wiki/DOT_(graph_description_language)) formatted files can be imported.
-* The log of a map's history can be copied to the clipboard and pasted into awordprocessor or spreadsheet.
+* The log of a map's history can be copied to the clipboard and pasted into a wordprocessor or spreadsheet.
 * It is possible to run PRSM within an intranet, with no access needed to the wider internet, for use cases requiring the highest level of security.
 
 ### Improvements

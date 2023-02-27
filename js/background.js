@@ -248,9 +248,7 @@ export function refreshFromMap(keys) {
 					break
 				}
 				case 'sequence': {
-					let newObjects = []
-					remoteParams.forEach((id) => newObjects.push(canvas.getObjects().find((obj) => obj.id === id)))
-					canvas._objects = newObjects
+					// dealt with below
 					break
 				}
 				default: {
@@ -276,6 +274,14 @@ export function refreshFromMap(keys) {
 			}
 		}
 	}
+	// and lastly reorder the objects if necessary
+	if (keys.includes('sequence')) {
+		let remoteParams = yDrawingMap.get('sequence')
+		let newObjects = []
+		remoteParams.forEach((id) => newObjects.push(canvas.getObjects().find((obj) => obj.id === id)))
+		canvas._objects = newObjects
+	}
+
 	// if at start up, so not in drawing mode, don't show active selection borders
 	if (!drawingSwitch) canvas.discardActiveObject()
 	canvas.requestRenderAll()
