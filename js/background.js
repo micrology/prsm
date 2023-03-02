@@ -1395,9 +1395,15 @@ function checkKey(e) {
 function deleteActiveObjects() {
 	canvas.getActiveObjects().forEach((obj) => {
 		if (obj.isEditing) return
-		if (obj.group) canvas.remove(obj.group)
 		obj.set('visible', false)
-		saveChange(obj, {visible: false}, 'delete')
+		saveChange(obj, { visible: false }, 'delete')
+		if (obj.type === 'group') {
+			obj.forEachObject(member => {
+				member.set('visible', false)
+				canvas.add(member)
+				saveChange(member, { visible: false }, 'delete')
+			})
+		}
 	})
 	canvas.discardActiveObject().requestRenderAll()
 }
