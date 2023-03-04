@@ -800,13 +800,13 @@ let RectHandler = fabric.util.createClass(fabric.Rect, {
 	},
 	setParams: function () {
 		if (!elem('optionsBox')) return
-		let rounded = elem('rounded').checked ? 10 : 0
+		this.roundCorners = elem('rounded').checked ? 10 : 0
 		let fill = elem('fillColor').style.backgroundColor
 		// make white transparent
 		if (fill === 'rgb(255, 255, 255)') fill = 'rgba(0, 0, 0, 0)'
 		this.set({
-			rx: rounded,
-			ry: rounded,
+			rx: this.roundCorners,
+			ry: this.roundCorners,
 			fill: fill,
 			strokeWidth: parseInt(elem('borderWidth').value),
 			stroke: elem('borderColor').style.backgroundColor,

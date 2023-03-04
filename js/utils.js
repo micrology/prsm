@@ -788,7 +788,7 @@ export class CP {
 	 * @param {string} wellId the id of the DOM element to attach the color picker to
 	 * @param {string} callback - function to call when the color has been chosen, with that color as argument
 	 */
-	createColorPicker(wellId, callback) {
+	createColorPicker(wellId, callback, onChange) {
 		let well = elem(wellId)
 		well.style.backgroundColor = '#ffffff'
 		// add listener to display picker when well clicked
@@ -808,6 +808,7 @@ export class CP {
 			this.container.style.left = `${left}px`
 			this.container.well = well
 			this.container.callback = callback
+			this.container.onChange = onChange
 			this.colorPicker.color.hexString = rgbToHex(well.style.backgroundColor)
 			this.onclose = this.closeColorPicker.bind(this)
 			document.addEventListener('click', this.onclose, true)
@@ -815,6 +816,7 @@ export class CP {
 			// update well as color is changed
 			this.colorPicker.on(['color:change'], function (color) {
 				elem('colorPicker').well.style.backgroundColor = color.hexString
+				if (elem('colorPicker').onChange) onChange()
 			})
 		})
 	}
