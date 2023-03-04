@@ -1470,9 +1470,8 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 				case 'insert':
 					{
 						// reverse of add group is dispose of it
-						let members = obj.getObjects()
-						obj.toActiveSelection()
-						saveChange(obj, {type: 'ungroup', members: members.map((ob) => ob.id)}, null)
+						obj.set('visible', false)
+						saveChange(obj, {members: undo.params.members, type: 'group'}, null)
 						canvas.discardActiveObject()
 						updateActiveButtons()
 					}
@@ -1489,16 +1488,11 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 				case 'delete':
 					{
 						// reverse of delete group is add it
-						let members = undo.params.members.map((id) => canvas.getObjects().find((o) => o.id === id))
 						canvas.discardActiveObject()
-						let group = new fabric.Group(members)
-						canvas.remove(...members)
-						group.id = undo.id
-						setGroupBorderColor(group)
-						saveChange(group, {members: group.getObjects().map((ob) => ob.id), type: 'group'}, null)
-						canvas.add(group)
-						canvas.setActiveObject(group)
-						updateActiveButtons()
+						obj.set('visible', true)
+						saveChange(obj, {members: undo.params.members, type: 'group'}, null)
+						canvas.setActiveObject(obj)
+						updateActiveButtons()							
 					}
 					break
 			}
@@ -1587,9 +1581,8 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 				case 'delete':
 					{
 						// reverse of add group is dispose of it
-						let members = obj.getObjects()
-						obj.toActiveSelection()
-						saveChange(obj, {type: 'ungroup', members: members.map((ob) => ob.id)}, null)
+						obj.set('visible', false)
+						saveChange(obj, { members: redo.params.members, type: 'group' }, null)
 						canvas.discardActiveObject()
 						updateActiveButtons()
 					}
@@ -1606,16 +1599,11 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 				case 'insert':
 					{
 						// reverse of delete group is add it
-						let members = redo.params.members.map((id) => canvas.getObjects().find((o) => o.id === id))
 						canvas.discardActiveObject()
-						let group = new fabric.Group(members)
-						canvas.remove(...members)
-						group.id = redo.id
-						setGroupBorderColor(group)
-						saveChange(group, {members: group.getObjects().map((ob) => ob.id), type: 'group'}, null)
-						canvas.add(group)
-						canvas.setActiveObject(group)
-						updateActiveButtons()
+						obj.set('visible', true)
+						saveChange(obj, {members: redo.params.members, type: 'group'}, null)
+						canvas.setActiveObject(obj)
+						updateActiveButtons()			
 					}
 					break
 			}
