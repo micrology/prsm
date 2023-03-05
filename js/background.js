@@ -41,7 +41,7 @@ export var canvas = new fabric.Canvas('drawing-canvas', {
 	stopContextMenu: true,
 	fireRightClick: true,
 	uniformScaling: true,
-	preserveObjectStacking: true
+	preserveObjectStacking: true,
 })
 window.canvas = canvas
 
@@ -138,10 +138,12 @@ export function updateFromDrawingMap() {
  * add or refresh objects that have the given list of id, using data in yDrawingMap
  * @param {array} keys
  */
-export function refreshFromMap(keys) {
+export async function refreshFromMap(keys) {
 	if (/back/.test(debug)) {
 		keys.forEach((key) => console.log('Key:', key, 'value:', yDrawingMap.get(key)))
 	}
+	let imageFound = false
+
 	for (let key of keys) {
 		/* active Selection and group have to be dealt with last, because they reference objects that may
 		 * not have been put on the canvas yet */
@@ -193,13 +195,15 @@ export function refreshFromMap(keys) {
 						case 'path':
 							localObj = new fabric.Path()
 							break
-						case 'image':
+						case 'image': {
 							fabric.Image.fromObject(remoteParams.imageObj, (image) => {
 								image.setCoords()
 								image.id = key
 								canvas.add(image)
 							})
+							imageFound = true
 							continue
+						}
 						case 'group': {
 							continue
 						}
@@ -216,6 +220,10 @@ export function refreshFromMap(keys) {
 			}
 		}
 	}
+	/* This is a horrible hack, because fabricjs doesn't yet support Promises.  If there is an image to load,
+	wait a while to ensure that it has been added to the canvas before proceeding. */
+	if (imageFound) await new Promise(r => setTimeout(r, 400));
+
 	for (let key of keys) {
 		let remoteParams = yDrawingMap.get(key)
 		if (remoteParams) {
@@ -1400,12 +1408,12 @@ function deleteActiveObjects() {
 	canvas.getActiveObjects().forEach((obj) => {
 		if (obj.isEditing) return
 		obj.set('visible', false)
-		saveChange(obj, { visible: false }, 'delete')
+		saveChange(obj, {visible: false}, 'delete')
 		if (obj.type === 'group') {
-			obj.forEachObject(member => {
+			obj.forEachObject((member) => {
 				member.set('visible', false)
 				canvas.add(member)
-				saveChange(member, { visible: false }, 'delete')
+				saveChange(member, {visible: false}, 'delete')
 			})
 		}
 	})
@@ -1496,7 +1504,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 						obj.set('visible', true)
 						saveChange(obj, {members: undo.params.members, type: 'group'}, null)
 						canvas.setActiveObject(obj)
-						updateActiveButtons()							
+						updateActiveButtons()
 					}
 					break
 			}
@@ -1586,7 +1594,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 					{
 						// reverse of add group is dispose of it
 						obj.set('visible', false)
-						saveChange(obj, { members: redo.params.members, type: 'group' }, null)
+						saveChange(obj, {members: redo.params.members, type: 'group'}, null)
 						canvas.discardActiveObject()
 						updateActiveButtons()
 					}
@@ -1607,7 +1615,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 						obj.set('visible', true)
 						saveChange(obj, {members: redo.params.members, type: 'group'}, null)
 						canvas.setActiveObject(obj)
-						updateActiveButtons()			
+						updateActiveButtons()
 					}
 					break
 			}
