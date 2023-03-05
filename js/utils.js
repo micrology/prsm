@@ -814,12 +814,12 @@ export class CP {
 			document.addEventListener('click', this.onclose, true)
 
 			// update well as color is changed
-			this.colorPicker.on(['color:change'], function (color) {
-				elem('colorPicker').well.style.backgroundColor = color.hexString
-				if (elem('colorPicker').onChange) onChange()
+			this.colorPicker.on('color:change', (color) => {
+				well.style.backgroundColor = color.hexString
+				if (onChange) onChange()
 			})
 		})
-	}
+	}		
 	/**
 	 * Report chosen colour when user clicks outside of picker (and well)
 	 * Hide the picker and save the colour choice in the previously selected colour grid
@@ -835,6 +835,7 @@ export class CP {
 
 			let callback = this.container.callback
 			if (callback) callback(color)
+			this.colorPicker.off('color:change')
 		}
 	}
 	/**
