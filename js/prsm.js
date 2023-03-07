@@ -28,12 +28,12 @@ SOFTWARE.
 This is the main entry point for PRSM.  
 ********************************************************************************************/
 
-import * as Y from 'yjs'
-import {WebsocketProvider} from 'y-websocket'
-import {IndexeddbPersistence} from 'y-indexeddb'
-import {Network} from 'vis-network/peer'
-import {DataSet} from 'vis-data/peer'
-import diff from 'microdiff'
+import * as Y from "yjs"
+import { WebsocketProvider } from "y-websocket"
+import { IndexeddbPersistence } from "y-indexeddb"
+import { Network } from "vis-network/peer"
+import { DataSet } from "vis-data/peer"
+import diff from "microdiff"
 import {
 	listen,
 	elem,
@@ -57,7 +57,7 @@ import {
 	exactTime,
 	humanSize,
 	isQuillEmpty,
-} from './utils.js'
+} from "./utils.js"
 import {
 	openFile,
 	savePRSMfile,
@@ -67,16 +67,22 @@ import {
 	exportDOT,
 	exportGML,
 	readSingleFile,
-} from './files.js'
-import Tutorial from './tutorial.js'
-import {styles} from './samples.js'
-import {trophic} from './trophic.js'
-import {cluster, openCluster} from './cluster.js'
-import {mergeRoom, diffRoom} from './merge.js'
-import {Picker} from 'emoji-picker-element'
-import Quill from 'quill'
-import Hammer from '@egjs/hammerjs'
-import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend} from './styles.js'
+} from "./files.js"
+import Tutorial from "./tutorial.js"
+import { styles } from "./samples.js"
+import { trophic } from "./trophic.js"
+import { cluster, openCluster } from "./cluster.js"
+import { mergeRoom, diffRoom } from "./merge.js"
+import { Picker } from "emoji-picker-element"
+import Quill from "quill"
+import Hammer from "@egjs/hammerjs"
+import {
+	setUpSamples,
+	reApplySampleToNodes,
+	reApplySampleToLinks,
+	legend,
+	clearLegend,
+} from "./styles.js"
 import {
 	nChanges,
 	setUpBackground,
@@ -91,12 +97,12 @@ import {
 	upgradeFromV1,
 	updateFromDrawingMap,
 	addBackgroundToCanvas,
-} from './background.js'
-import {version} from '../package.json'
-import {compressToUTF16, decompressFromUTF16} from 'lz-string'
+} from "./background.js"
+import { version } from "../package.json"
+import { compressToUTF16, decompressFromUTF16 } from "lz-string"
 
-const appName = 'Participatory System Mapper'
-const shortAppName = 'PRSM'
+const appName = "Participatory System Mapper"
+const shortAppName = "PRSM"
 const GRIDSPACING = 50 // for snap to grid
 const NODEWIDTH = 10 // chars for label splitting
 const TIMETOSLEEP = 15 * 60 * 1000 // if no mouse movement for this time, user is assumed to have left or is sleeping
@@ -119,13 +125,13 @@ export var room
  * round - round trip timing
  * back - drawing on background
  */
-export var debug = ''
+export var debug = ""
 var viewOnly // when true, user can only view, not modify, the network
 var nodes // a dataset of nodes
 var edges // a dataset of edges
 export var data // an object with the nodes and edges datasets as properties
 export const doc = new Y.Doc()
-export var websocket = 'wss://www.prsm.uk/wss' // web socket server URL
+export var websocket = "wss://www.prsm.uk/wss" // web socket server URL
 var wsProvider // web socket provider
 var persistence // indexDB for local, offline storage of doc
 export var clientID // unique ID for this browser
@@ -144,8 +150,8 @@ export var container //the DOM body element
 export var netPane // the DOM pane showing the network
 var panel // the DOM right side panel element
 var myNameRec // the user's name record {actual name, type, etc.}
-export var lastNodeSample = 'group0' // the last used node style
-export var lastLinkSample = 'edge0' // the last used edge style
+export var lastNodeSample = "group0" // the last used node style
+export var lastLinkSample = "edge0" // the last used edge style
 /** @type {(string|boolean)} */
 var inAddMode = false // true when adding a new Factor to the network; used to choose cursor pointer
 var inEditMode = false //true when node or edge is being edited (dialog is open)
@@ -172,14 +178,14 @@ var popupWindow = null // window for editing Notes
 var popupEditor = null // Quill editor in popup window
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
 var netLoaded = false // becomes true when map is fully displayed
-var savedState = '' // the current state of the map (nodes, edges, network settings) before current user action
+var savedState = "" // the current state of the map (nodes, edges, network settings) before current user action
 
 /**
  * top level function to initialise everything
  */
-window.addEventListener('load', () => {
+window.addEventListener("load", () => {
 	loadingDelayTimer = setTimeout(() => {
-		elem('loading').style.display = 'block'
+		elem("loading").style.display = "block"
 	}, 100)
 	addEventListeners()
 	setUpPage()
@@ -196,146 +202,148 @@ window.addEventListener('load', () => {
 
 window.onbeforeunload = function (event) {
 	unlockAll()
-	yAwareness.setLocalStateField('addingFactor', {state: 'done'})
+	yAwareness.setLocalStateField("addingFactor", { state: "done" })
 	yAwareness.setLocalState(null)
 	// get confirmation from user before exiting if there are unsaved changes
 	if (checkMapSaved && dirty) {
 		event.preventDefault()
-		event.returnValue = 'You have unsaved unchanges.  Are you sure you want to leave?'
+		event.returnValue =
+			"You have unsaved unchanges.  Are you sure you want to leave?"
 	}
 }
 /**
  * Set up all the permanent event listeners
  */
 function addEventListeners() {
-	listen('maptitle', 'keydown', (e) => {
+	listen("maptitle", "keydown", (e) => {
 		//disallow Enter key
-		if (e.key === 'Enter') {
+		if (e.key === "Enter") {
 			e.preventDefault()
 		}
 	})
-	listen('net-pane', 'keydown', (e) => {
+	listen("net-pane", "keydown", (e) => {
 		if (e.which === 8 || e.which === 46) deleteNode()
 	})
-	listen('recent-rooms-caret', 'click', createTitleDropDown)
-	listen('maptitle', 'keyup', mapTitle)
-	listen('maptitle', 'paste', pasteMapTitle)
-	listen('maptitle', 'click', (e) => {
-		if (e.target.innerText === 'Untitled map') window.getSelection().selectAllChildren(e.target)
+	listen("recent-rooms-caret", "click", createTitleDropDown)
+	listen("maptitle", "keyup", mapTitle)
+	listen("maptitle", "paste", pasteMapTitle)
+	listen("maptitle", "click", (e) => {
+		if (e.target.innerText === "Untitled map")
+			window.getSelection().selectAllChildren(e.target)
 	})
-	listen('addNode', 'click', plusNode)
-	listen('net-pane', 'contextmenu', contextMenu)
-	listen('net-pane', 'click', unFollow)
-	listen('net-pane', 'click', removeTitleDropDown)
-	listen('addLink', 'click', plusLink)
-	listen('deleteNode', 'click', deleteNode)
-	listen('undo', 'click', undo)
-	listen('redo', 'click', redo)
-	listen('fileInput', 'change', readSingleFile)
-	listen('openMap', 'click', openFile)
-	listen('saveFile', 'click', savePRSMfile)
-	listen('exportPRSM', 'click', savePRSMfile)
-	listen('exportImage', 'click', exportPNGfile)
+	listen("addNode", "click", plusNode)
+	listen("net-pane", "contextmenu", contextMenu)
+	listen("net-pane", "click", unFollow)
+	listen("net-pane", "click", removeTitleDropDown)
+	listen("addLink", "click", plusLink)
+	listen("deleteNode", "click", deleteNode)
+	listen("undo", "click", undo)
+	listen("redo", "click", redo)
+	listen("fileInput", "change", readSingleFile)
+	listen("openMap", "click", openFile)
+	listen("saveFile", "click", savePRSMfile)
+	listen("exportPRSM", "click", savePRSMfile)
+	listen("exportImage", "click", exportPNGfile)
 	// listen('exportCVS', 'click', exportCVS)
-	listen('exportExcel', 'click', exportExcel)
-	listen('exportGML', 'click', exportGML)
-	listen('exportDOT', 'click', exportDOT)
-	listen('search', 'click', search)
-	listen('help', 'click', displayHelp)
-	listen('panelToggle', 'click', togglePanel)
-	listen('zoom', 'change', zoomnet)
-	listen('navbar', 'dblclick', fit)
-	listen('zoomminus', 'click', () => {
+	listen("exportExcel", "click", exportExcel)
+	listen("exportGML", "click", exportGML)
+	listen("exportDOT", "click", exportDOT)
+	listen("search", "click", search)
+	listen("help", "click", displayHelp)
+	listen("panelToggle", "click", togglePanel)
+	listen("zoom", "change", zoomnet)
+	listen("navbar", "dblclick", fit)
+	listen("zoomminus", "click", () => {
 		zoomincr(-0.1)
 	})
-	listen('zoomplus', 'click', () => {
+	listen("zoomplus", "click", () => {
 		zoomincr(0.1)
 	})
-	listen('nodesButton', 'click', () => {
-		openTab('nodesTab')
+	listen("nodesButton", "click", () => {
+		openTab("nodesTab")
 	})
-	listen('linksButton', 'click', () => {
-		openTab('linksTab')
+	listen("linksButton", "click", () => {
+		openTab("linksTab")
 	})
-	listen('networkButton', 'click', () => {
-		openTab('networkTab')
+	listen("networkButton", "click", () => {
+		openTab("networkTab")
 	})
-	listen('analysisButton', 'click', () => {
-		openTab('analysisTab')
+	listen("analysisButton", "click", () => {
+		openTab("analysisTab")
 	})
-	listen('layoutSelect', 'change', autoLayout)
-	listen('snaptogridswitch', 'click', snapToGridSwitch)
-	listen('curveSelect', 'change', selectCurve)
-	listen('drawing', 'click', toggleDrawingLayer)
-	listen('allFactors', 'click', selectAllFactors)
-	listen('allLinks', 'click', selectAllLinks)
-	listen('showLegendSwitch', 'click', legendSwitch)
-	listen('showVotingSwitch', 'click', votingSwitch)
-	listen('showUsersSwitch', 'click', showUsersSwitch)
-	listen('showHistorySwitch', 'click', showHistorySwitch)
-	listen('showNotesSwitch', 'click', showNotesSwitch)
-	listen('clustering', 'change', selectClustering)
-	listen('lock', 'click', setFixed)
-	listen('newNodeWindow', 'click', openNotesWindow)
-	listen('newEdgeWindow', 'click', openNotesWindow)
+	listen("layoutSelect", "change", autoLayout)
+	listen("snaptogridswitch", "click", snapToGridSwitch)
+	listen("curveSelect", "change", selectCurve)
+	listen("drawing", "click", toggleDrawingLayer)
+	listen("allFactors", "click", selectAllFactors)
+	listen("allLinks", "click", selectAllLinks)
+	listen("showLegendSwitch", "click", legendSwitch)
+	listen("showVotingSwitch", "click", votingSwitch)
+	listen("showUsersSwitch", "click", showUsersSwitch)
+	listen("showHistorySwitch", "click", showHistorySwitch)
+	listen("showNotesSwitch", "click", showNotesSwitch)
+	listen("clustering", "change", selectClustering)
+	listen("lock", "click", setFixed)
+	listen("newNodeWindow", "click", openNotesWindow)
+	listen("newEdgeWindow", "click", openNotesWindow)
 
-	Array.from(document.getElementsByName('radius')).forEach((elem) => {
-		elem.addEventListener('change', analyse)
+	Array.from(document.getElementsByName("radius")).forEach((elem) => {
+		elem.addEventListener("change", analyse)
 	})
-	Array.from(document.getElementsByName('stream')).forEach((elem) => {
-		elem.addEventListener('change', analyse)
+	Array.from(document.getElementsByName("stream")).forEach((elem) => {
+		elem.addEventListener("change", analyse)
 	})
-	Array.from(document.getElementsByName('paths')).forEach((elem) => {
-		elem.addEventListener('change', analyse)
+	Array.from(document.getElementsByName("paths")).forEach((elem) => {
+		elem.addEventListener("change", analyse)
 	})
-	listen('sizing', 'change', sizingSwitch)
-	Array.from(document.getElementsByClassName('sampleNode')).forEach((elem) =>
-		elem.addEventListener('click', (event) => {
+	listen("sizing", "change", sizingSwitch)
+	Array.from(document.getElementsByClassName("sampleNode")).forEach((elem) =>
+		elem.addEventListener("click", (event) => {
 			applySampleToNode(event)
 		})
 	)
-	Array.from(document.getElementsByClassName('sampleLink')).forEach((elem) =>
-		elem.addEventListener('click', (event) => {
+	Array.from(document.getElementsByClassName("sampleLink")).forEach((elem) =>
+		elem.addEventListener("click", (event) => {
 			applySampleToLink(event)
 		})
 	)
-	listen('history-copy', 'click', copyHistoryToClipboard)
+	listen("history-copy", "click", copyHistoryToClipboard)
 
-	listen('body', 'copy', copyToClipboard)
-	listen('body', 'paste', pasteFromClipboard)
+	listen("body", "copy", copyToClipboard)
+	listen("body", "paste", pasteFromClipboard)
 }
 
 /**
  * create all the DOM elements on the web page
  */
 function setUpPage() {
-	elem('version').innerHTML = version
+	elem("version").innerHTML = version
 	// check options set on URL: ?debug=yjs|gui|cluster&viewing&start
 	let searchParams = new URL(document.location).searchParams
-	if (searchParams.has('debug')) debug = searchParams.get('debug')
+	if (searchParams.has("debug")) debug = searchParams.get("debug")
 	// don't allow user to change anything if URL includes ?viewing
-	viewOnly = searchParams.has('viewing')
+	viewOnly = searchParams.has("viewing")
 	if (viewOnly) hideNavButtons()
 	// treat user as first time user if URL includes ?start=true
-	if (searchParams.has('start')) localStorage.setItem('doneIntro', 'false')
-	container = elem('container')
-	netPane = elem('net-pane')
-	panel = elem('panel')
-	panel.classList.add('hide')
+	if (searchParams.has("start")) localStorage.setItem("doneIntro", "false")
+	container = elem("container")
+	netPane = elem("net-pane")
+	panel = elem("panel")
+	panel.classList.add("hide")
 	container.panelHidden = true
-	cp.createColorPicker('netBackColorWell', updateNetBack)
+	cp.createColorPicker("netBackColorWell", updateNetBack)
 	hammer = new Hammer(netPane)
-	hammer.get('pinch').set({enable: true})
-	hammer.on('pinchstart', () => {
+	hammer.get("pinch").set({ enable: true })
+	hammer.on("pinchstart", () => {
 		zoomstart()
 	})
-	hammer.on('pinch', (e) => {
+	hammer.on("pinch", (e) => {
 		zoomset(e.scale)
 	})
 	setUpSamples()
 	updateLastSamples(lastNodeSample, lastLinkSample)
-	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'))
-	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'))
+	dragElement(elem("nodeDataPanel"), elem("nodeDataHeader"))
+	dragElement(elem("edgeDataPanel"), elem("edgeDataHeader"))
 	hideNotes()
 }
 
@@ -347,19 +355,21 @@ function startY(newRoom) {
 	if (newRoom) room = newRoom
 	else {
 		// get the room number from the URL, or if none, generate a new one
-		room = url.searchParams.get('room')
+		room = url.searchParams.get("room")
 	}
-	if (room == null || room === '') {
+	if (room == null || room === "") {
 		room = generateRoom()
 		checkMapSaved = true
 	} else room = room.toUpperCase()
 	persistence = new IndexeddbPersistence(room, doc)
 	// once the map is loaded, it can be displayed
-	persistence.once('synced', () => {
-		if (data.nodes.length > 0) displayNetPane(`${exactTime()} local content loaded`)
+	persistence.once("synced", () => {
+		if (data.nodes.length > 0)
+			displayNetPane(`${exactTime()} local content loaded`)
 	})
 	// if using a non-standard port (i.e neither 80 nor 443) assume that the websocket port is 1234 in the same domain as the url
-	if (url.port && url.port !== 80 && url.port !== 443) websocket = `ws://${url.hostname}:1234`
+	if (url.port && url.port !== 80 && url.port !== 443)
+		websocket = `ws://${url.hostname}:1234`
 	wsProvider = new WebsocketProvider(
 		websocket,
 		`prsm${room}`,
@@ -367,7 +377,7 @@ function startY(newRoom) {
 		resyncInterval: 5000,
 	} */
 	)
-	wsProvider.on('synced', () => {
+	wsProvider.on("synced", () => {
 		/* 
 	if this is a clone, load the cloned data
 	*/
@@ -375,26 +385,30 @@ function startY(newRoom) {
 		displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 	})
 	wsProvider.disconnectBc()
-	wsProvider.on('status', (event) => {
-		console.log(`${exactTime()}${event.status}${event.status === 'connected' ? ' to' : ' from'} room ${room}`) // logs when websocket is "connected" or "disconnected"
+	wsProvider.on("status", (event) => {
+		console.log(
+			`${exactTime()}${event.status}${
+				event.status === "connected" ? " to" : " from"
+			} room ${room}`
+		) // logs when websocket is "connected" or "disconnected"
 	})
 
 	/* 
 	create a yMap for the nodes and one for the edges (we need two because there is no 
 	guarantee that the the ids of nodes will differ from the ids of edges) 
 	 */
-	yNodesMap = doc.getMap('nodes')
-	yEdgesMap = doc.getMap('edges')
-	ySamplesMap = doc.getMap('samples')
-	yNetMap = doc.getMap('network')
-	yChatArray = doc.getArray('chat')
-	yPointsArray = doc.getArray('points')
-	yDrawingMap = doc.getMap('drawing')
-	yHistory = doc.getArray('history')
+	yNodesMap = doc.getMap("nodes")
+	yEdgesMap = doc.getMap("edges")
+	ySamplesMap = doc.getMap("samples")
+	yNetMap = doc.getMap("network")
+	yChatArray = doc.getArray("chat")
+	yPointsArray = doc.getArray("points")
+	yDrawingMap = doc.getMap("drawing")
+	yHistory = doc.getArray("history")
 	yAwareness = wsProvider.awareness
 
 	if (/trans/.test(debug))
-		doc.on('afterTransaction', (tr) => {
+		doc.on("afterTransaction", (tr) => {
 			const nodesEvent = tr.changed.get(yNodesMap)
 			if (nodesEvent) console.log(nodesEvent)
 			const edgesEvent = tr.changed.get(yEdgesMap)
@@ -446,13 +460,18 @@ function startY(newRoom) {
 	If a local node is removed, the yMap is updated to broadcast to other clients that the node 
 	has been deleted. If a local node is added or updated, that is also broadcast.
 	 */
-	nodes.on('*', (event, properties, origin) => {
-		yjsTrace('nodes.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`)
+	nodes.on("*", (event, properties, origin) => {
+		yjsTrace(
+			"nodes.on",
+			`${event}  ${JSON.stringify(
+				properties.items
+			)} origin: ${origin} dontUndo: ${dontUndo}`
+		)
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
 					// this is a local change
-					if (event === 'remove') {
+					if (event === "remove") {
 						yNodesMap.delete(id.toString())
 					} else {
 						yNodesMap.set(id.toString(), deepCopy(nodes.get(id)))
@@ -469,7 +488,7 @@ function startY(newRoom) {
 	the local node dataSet is updated (which includes adding a new node if it does not already exist locally).
 	 */
 	yNodesMap.observe((event) => {
-		yjsTrace('yNodesMap.observe', event)
+		yjsTrace("yNodesMap.observe", event)
 		let nodesToUpdate = []
 		let nodesToRemove = []
 		for (let key of event.keysChanged) {
@@ -480,32 +499,45 @@ function startY(newRoom) {
 					if (viewOnly) obj.fixed = true
 					nodesToUpdate.push(deepCopy(obj))
 					// if a note on a node is being remotely edited and is on display here, update the local note and the padlock
-					if (editor && editor.id === key && event.transaction.local === false) {
+					if (
+						editor &&
+						editor.id === key &&
+						event.transaction.local === false
+					) {
 						editor.setContents(obj.note)
-						elem('fixed').style.display = obj.fixed ? 'inline' : 'none'
-						elem('unfixed').style.display = obj.fixed ? 'none' : 'inline'
+						elem("fixed").style.display = obj.fixed ? "inline" : "none"
+						elem("unfixed").style.display = obj.fixed ? "none" : "inline"
 					}
 				}
 			} else {
 				hideNotes()
-				if (data.nodes.get(key)) network.getConnectedEdges(key).forEach((edge) => nodesToRemove.push(edge))
+				if (data.nodes.get(key))
+					network
+						.getConnectedEdges(key)
+						.forEach((edge) => nodesToRemove.push(edge))
 				nodesToRemove.push(key)
 			}
 		}
-		if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote')
-		if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
-		if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0))
+		if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, "remote")
+		if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, "remote")
+		if (
+			/changes/.test(debug) &&
+			(nodesToUpdate.length > 0 || nodesToRemove.length > 0)
+		)
 			showChange(event, yNodesMap)
 	})
 	/* 
 	See comments above about nodes
 	 */
-	edges.on('*', (event, properties, origin) => {
-		yjsTrace('edges.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`)
+	edges.on("*", (event, properties, origin) => {
+		yjsTrace(
+			"edges.on",
+			`${event}  ${JSON.stringify(properties.items)} origin: ${origin}`
+		)
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
-					if (event === 'remove') yEdgesMap.delete(id.toString())
+					if (event === "remove") yEdgesMap.delete(id.toString())
 					else {
 						yEdgesMap.set(id.toString(), deepCopy(edges.get(id)))
 					}
@@ -515,7 +547,7 @@ function startY(newRoom) {
 		dontUndo = null
 	})
 	yEdgesMap.observe((event) => {
-		yjsTrace('yEdgesMap.observe', event)
+		yjsTrace("yEdgesMap.observe", event)
 		let edgesToUpdate = []
 		let edgesToRemove = []
 		for (let key of event.keysChanged) {
@@ -523,21 +555,25 @@ function startY(newRoom) {
 				let obj = yEdgesMap.get(key)
 				if (!object_equals(obj, data.edges.get(key))) {
 					edgesToUpdate.push(deepCopy(obj))
-					if (editor && editor.id === key && event.transaction.local === false) editor.setContents(obj.note)
+					if (editor && editor.id === key && event.transaction.local === false)
+						editor.setContents(obj.note)
 				}
 			} else {
 				hideNotes()
 				edgesToRemove.push(key)
 			}
 		}
-		if (edgesToUpdate.length > 0) edges.update(edgesToUpdate, 'remote')
-		if (edgesToRemove.length > 0) edges.remove(edgesToRemove, 'remote')
+		if (edgesToUpdate.length > 0) edges.update(edgesToUpdate, "remote")
+		if (edgesToRemove.length > 0) edges.remove(edgesToRemove, "remote")
 		if (edgesToUpdate.length > 0 || edgesToRemove.length > 0) {
 			// if user is in mid-flight adding a Link, and someone else has just added a link,
 			// vis-network will cancel the edit mode for this user.  Re-instate it.
-			if (inAddMode === 'addLink') network.addEdgeMode()
+			if (inAddMode === "addLink") network.addEdgeMode()
 		}
-		if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0))
+		if (
+			/changes/.test(debug) &&
+			(edgesToUpdate.length > 0 || edgesToRemove.length > 0)
+		)
 			showChange(event, yEdgesMap)
 	})
 	/**
@@ -547,13 +583,13 @@ function startY(newRoom) {
 	 */
 	function showChange(event, ymap) {
 		event.changes.keys.forEach((change, key) => {
-			if (change.action === 'add') {
+			if (change.action === "add") {
 				console.log(
 					`Property "${key}" was added. 
 				Initial value: `,
 					ymap.get(key)
 				)
-			} else if (change.action === 'update') {
+			} else if (change.action === "update") {
 				console.log(
 					`Property "${key}" was updated. 
 					New value: "`,
@@ -563,12 +599,13 @@ function startY(newRoom) {
 					change.oldValue,
 					`" 
 					Difference: "`,
-					typeof change.oldValue === 'object' && typeof ymap.get(key) === 'object'
+					typeof change.oldValue === "object" &&
+						typeof ymap.get(key) === "object"
 						? diff(change.oldValue, ymap.get(key))
 						: `${change.oldValue} ${ymap.get(key)}`,
 					`"`
 				)
-			} else if (change.action === 'delete') {
+			} else if (change.action === "delete") {
 				console.log(
 					`Property "${key}" was deleted. 
 				Previous value: `,
@@ -578,7 +615,7 @@ function startY(newRoom) {
 		})
 	}
 	ySamplesMap.observe((event) => {
-		yjsTrace('ySamplesMap.observe', event)
+		yjsTrace("ySamplesMap.observe", event)
 		let nodesToUpdate = []
 		let edgesToUpdate = []
 		for (let key of event.keysChanged) {
@@ -616,109 +653,109 @@ function startY(newRoom) {
 	For cases 2 and 3, the functions called here must not invoke yNetMap.set() to avoid loops
 	*/
 	yNetMap.observe((event) => {
-		yjsTrace('YNetMap.observe', event)
+		yjsTrace("YNetMap.observe", event)
 
 		if (event.transaction.origin)
 			// event is not local
 			for (let key of event.keysChanged) {
 				let obj = yNetMap.get(key)
 				switch (key) {
-					case 'viewOnly': {
+					case "viewOnly": {
 						viewOnly = viewOnly || obj
 						if (viewOnly) hideNavButtons()
 						break
 					}
-					case 'mapTitle':
-					case 'maptitle': {
+					case "mapTitle":
+					case "maptitle": {
 						setMapTitle(obj)
 						break
 					}
-					case 'snapToGrid': {
+					case "snapToGrid": {
 						doSnapToGrid(obj)
 						break
 					}
-					case 'curve': {
+					case "curve": {
 						setCurve(obj)
 						break
 					}
-					case 'background': {
+					case "background": {
 						setBackground(obj)
 						break
 					}
-					case 'legend': {
+					case "legend": {
 						setLegend(obj, false)
 						break
 					}
-					case 'voting': {
+					case "voting": {
 						setVoting(obj)
 						break
 					}
-					case 'showNotes': {
+					case "showNotes": {
 						doShowNotes(obj)
 						break
 					}
-					case 'radius': {
+					case "radius": {
 						hiddenNodes.radiusSetting = obj.radiusSetting
 						hiddenNodes.selected = obj.selected
 						break
 					}
-					case 'stream': {
+					case "stream": {
 						hiddenNodes.streamSetting = obj.streamSetting
 						hiddenNodes.selected = obj.selected
 						break
 					}
-					case 'paths': {
+					case "paths": {
 						hiddenNodes.pathsSetting = obj.pathsSetting
 						hiddenNodes.selected = obj.selected
 						break
 					}
-					case 'sizing': {
+					case "sizing": {
 						sizing(obj)
 						break
 					}
-					case 'hideAndStream':
-					case 'linkRadius':
+					case "hideAndStream":
+					case "linkRadius":
 						// old settings (before v1.6) - ignore
 						break
-					case 'factorsHiddenByStyle': {
+					case "factorsHiddenByStyle": {
 						updateFactorsHiddenByStyle(obj)
 						break
 					}
-					case 'attributeTitles': {
+					case "attributeTitles": {
 						recreateClusteringMenu(obj)
 						break
 					}
-					case 'cluster': {
+					case "cluster": {
 						setCluster(obj)
 						break
 					}
 					default:
-						console.log('Bad key in yMapNet.observe: ', key)
+						console.log("Bad key in yMapNet.observe: ", key)
 				}
 			}
 	})
 	yPointsArray.observe((event) => {
-		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1))
+		yjsTrace("yPointsArray.observe", yPointsArray.get(yPointsArray.length - 1))
 		if (event.transaction.local === false) upgradeFromV1(yPointsArray.toArray())
 	})
 	yDrawingMap.observe((event) => {
-		yjsTrace('yDrawingMap.observe', event)
+		yjsTrace("yDrawingMap.observe", event)
 		updateFromRemote(event)
 	})
 	yHistory.observe(() => {
-		yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1))
-		if (elem('showHistorySwitch').checked) showHistory()
+		yjsTrace("yHistory.observe", yHistory.get(yHistory.length - 1))
+		if (elem("showHistorySwitch").checked) showHistory()
 	})
-	yUndoManager.on('stack-item-added', (event) => {
-		yjsTrace('yUndoManager.on stack-item-added', event)
+	yUndoManager.on("stack-item-added", (event) => {
+		yjsTrace("yUndoManager.on stack-item-added", event)
 		if (/changes/.test(debug))
 			event.changedParentTypes.forEach((v) => {
 				showChange(v[0], v[0].target)
 			})
 		undoRedoButtonStatus()
 	})
-	yUndoManager.on('stack-item-popped', (event) => {
-		yjsTrace('yUndoManager.on stack-item-popped', event)
+	yUndoManager.on("stack-item-popped", (event) => {
+		yjsTrace("yUndoManager.on stack-item-popped", event)
 		if (/changes/.test(debug))
 			event.changedParentTypes.forEach((v) => {
 				showChange(v[0], v[0].target)
@@ -731,9 +768,9 @@ function startY(newRoom) {
  * load cloned data from localStorage
  */
 function initiateClone() {
-	let clone = localStorage.getItem('clone')
+	let clone = localStorage.getItem("clone")
 	if (clone) {
-		localStorage.removeItem('clone')
+		localStorage.removeItem("clone")
 		let state = JSON.parse(decompressFromUTF16(clone))
 		data.nodes.update(state.nodes)
 		data.edges.update(state.edges)
@@ -743,7 +780,7 @@ function initiateClone() {
 			}
 			if (state.options.viewOnly) {
 				viewOnly = true
-				yNetMap.set('viewOnly', true)
+				yNetMap.set("viewOnly", true)
 				hideNavButtons()
 				data.nodes.get().forEach((obj) => (obj.fixed = true))
 			}
@@ -761,7 +798,7 @@ function initiateClone() {
 				updateFromDrawingMap()
 			}
 			logHistory(state.options.created.action, state.options.created.actor)
-		}, 'clone')
+		}, "clone")
 		fit()
 	}
 }
@@ -775,12 +812,12 @@ function yjsTrace(where, what) {
  * create a random string of the form AAA-BBB-CCC-DDD
  */
 function generateRoom() {
-	let room = ''
+	let room = ""
 	for (let i = 0; i < 4; i++) {
 		for (let j = 0; j < 3; j++) {
 			room += String.fromCharCode(65 + Math.floor(Math.random() * 26))
 		}
-		if (i < 3) room += '-'
+		if (i < 3) room += "-"
 	}
 	return room
 }
@@ -793,8 +830,8 @@ function getRandomData(nNodes) {
 	let SFNdata = getScaleFreeNetwork(nNodes)
 	nodes.add(SFNdata.nodes)
 	edges.add(SFNdata.edges)
-	reApplySampleToNodes(['group0'])
-	reApplySampleToLinks(['edge0'])
+	reApplySampleToNodes(["group0"])
+	reApplySampleToLinks(["edge0"])
 	recalculateStats()
 }
 /**
@@ -803,11 +840,14 @@ function getRandomData(nNodes) {
  */
 function displayNetPane(msg) {
 	console.log(msg)
-	if (netPane.style.visibility === 'hidden' || netPane.style.visibility === '') {
-		elem('loading').style.display = 'none'
+	if (
+		netPane.style.visibility === "hidden" ||
+		netPane.style.visibility === ""
+	) {
+		elem("loading").style.display = "none"
 		fit()
-		setMapTitle(yNetMap.get('mapTitle'))
-		netPane.style.visibility = 'visible'
+		setMapTitle(yNetMap.get("mapTitle"))
+		netPane.style.visibility = "visible"
 		clearTimeout(loadingDelayTimer)
 		yUndoManager.clear()
 		initySamplesMap()
@@ -817,7 +857,7 @@ function displayNetPane(msg) {
 		savedState = saveState()
 		setAnalysisButtonsFromRemote()
 		toggleDeleteButton()
-		setLegend(yNetMap.get('legend'), false)
+		setLegend(yNetMap.get("legend"), false)
 		console.log(`Doc size: ${humanSize(Y.encodeStateAsUpdate(doc).length)}`)
 	}
 }
@@ -844,7 +884,7 @@ setvh()
 window.onresize = function () {
 	setvh()
 	keepPaneInWindow(panel)
-	keepPaneInWindow(elem('chatbox-holder'))
+	keepPaneInWindow(elem("chatbox-holder"))
 	resizeCanvas()
 }
 window.onorientationchange = function () {
@@ -856,19 +896,19 @@ window.onorientationchange = function () {
  * and make the map title not editable
  */
 function hideNavButtons() {
-	elem('buttons').style.visibility = 'hidden'
-	elem('search').parentElement.style.visibility = 'visible'
-	elem('search').parentElement.style.borderLeft = 'none'
-	elem('maptitle').contentEditable = 'false'
+	elem("buttons").style.visibility = "hidden"
+	elem("search").parentElement.style.visibility = "visible"
+	elem("search").parentElement.style.borderLeft = "none"
+	elem("maptitle").contentEditable = "false"
 }
 /** restore all the Nav Bar buttons when leaving view only mode (e.g. when
  * going back online)
  */
 function showNavButtons() {
-	elem('buttons').style.visibility = 'visible'
-	elem('search').parentElement.style.visibility = 'visible'
-	elem('search').parentElement.style.borderLeft = '1px solid #fff'
-	elem('maptitle').contentEditable = 'true'
+	elem("buttons").style.visibility = "visible"
+	elem("search").parentElement.style.visibility = "visible"
+	elem("search").parentElement.style.borderLeft = "1px solid #fff"
+	elem("maptitle").contentEditable = "true"
 }
 /**
  * to handle iOS weirdness in fixing the vh unit (see https://css-tricks.com/the-trick-to-viewport-units-on-mobile/)
@@ -878,52 +918,52 @@ function setvh() {
 	// First we get the viewport height and we multiple it by 1% to get a value for a vh unit
 	let vh = window.innerHeight * 0.01
 	// Then we set the value in the --vh custom property to the root of the document
-	document.documentElement.style.setProperty('--vh', `${vh}px`)
+	document.documentElement.style.setProperty("--vh", `${vh}px`)
 }
 
-const chatbox = elem('chatbox')
-const chatboxTab = elem('chatbox-tab')
-const chatNameBox = elem('chat-name')
-const chatInput = elem('chat-input')
-const chatSend = elem('send-button')
-const chatMessages = elem('chat-messages')
+const chatbox = elem("chatbox")
+const chatboxTab = elem("chatbox-tab")
+const chatNameBox = elem("chat-name")
+const chatInput = elem("chat-input")
+const chatSend = elem("send-button")
+const chatMessages = elem("chat-messages")
 
 /**
  * create DOM elements for the chat box
  */
 function setUpChat() {
 	try {
-		myNameRec = JSON.parse(localStorage.getItem('myName'))
+		myNameRec = JSON.parse(localStorage.getItem("myName"))
 	} catch (err) {
 		myNameRec = null
 	}
 	// sanity check
 	if (!myNameRec?.name) {
 		myNameRec = generateName()
-		localStorage.setItem('myName', JSON.stringify(myNameRec))
+		localStorage.setItem("myName", JSON.stringify(myNameRec))
 	}
 	myNameRec.id = clientID
 	console.log(`My name: ${myNameRec.name}`)
 	displayUserName()
-	yAwareness.setLocalState({user: myNameRec})
+	yAwareness.setLocalState({ user: myNameRec })
 	yChatArray.observe(() => {
 		displayLastMsg()
 	})
-	chatboxTab.addEventListener('click', maximize)
-	listen('minimize', 'click', minimize)
-	chatNameBox.addEventListener('keyup', (e) => {
-		if (myNameRec.anon) chatNameBox.style.fontStyle = 'normal'
-		if (e.key === 'Enter') saveUserName(chatNameBox.value)
+	chatboxTab.addEventListener("click", maximize)
+	listen("minimize", "click", minimize)
+	chatNameBox.addEventListener("keyup", (e) => {
+		if (myNameRec.anon) chatNameBox.style.fontStyle = "normal"
+		if (e.key === "Enter") saveUserName(chatNameBox.value)
 	})
-	chatNameBox.addEventListener('blur', () => {
+	chatNameBox.addEventListener("blur", () => {
 		saveUserName(chatNameBox.value)
 	})
-	chatNameBox.addEventListener('click', () => {
-		if (myNameRec.anon) chatNameBox.value = ''
+	chatNameBox.addEventListener("click", () => {
+		if (myNameRec.anon) chatNameBox.value = ""
 		chatNameBox.focus()
 		chatNameBox.select()
 	})
-	chatSend.addEventListener('click', sendMsg)
+	chatSend.addEventListener("click", sendMsg)
 }
 function saveUserName(name) {
 	if (name.length > 0) {
@@ -934,29 +974,29 @@ function saveUserName(name) {
 		chatNameBox.value = myNameRec.name
 	}
 	myNameRec.id = clientID
-	localStorage.setItem('myName', JSON.stringify(myNameRec))
-	yAwareness.setLocalState({user: myNameRec})
+	localStorage.setItem("myName", JSON.stringify(myNameRec))
+	yAwareness.setLocalState({ user: myNameRec })
 	showAvatars()
 }
 /**
  * if this is the user's first time, show them how the user interface works
  */
 function setUpTutorial() {
-	if (localStorage.getItem('doneIntro') !== 'done' && viewOnly === false) {
+	if (localStorage.getItem("doneIntro") !== "done" && viewOnly === false) {
 		tutorial.onexit(function () {
-			localStorage.setItem('doneIntro', 'done')
+			localStorage.setItem("doneIntro", "done")
 		})
 		tutorial.onstep(0, () => {
-			let splashNameBox = elem('splashNameBox')
+			let splashNameBox = elem("splashNameBox")
 			let anonName = myNameRec.name || generateName().name
 			splashNameBox.placeholder = anonName
 			splashNameBox.focus()
-			splashNameBox.addEventListener('blur', () => {
+			splashNameBox.addEventListener("blur", () => {
 				saveUserName(splashNameBox.value || anonName)
 				displayUserName()
 			})
-			splashNameBox.addEventListener('keyup', (e) => {
-				if (e.key === 'Enter') splashNameBox.blur()
+			splashNameBox.addEventListener("keyup", (e) => {
+				if (e.key === "Enter") splashNameBox.blur()
 			})
 		})
 		tutorial.start()
@@ -970,7 +1010,7 @@ function draw() {
 	// for testing, you can append ?t=XXX to the URL of the page, where XXX is the number
 	// of factors to include in a random network
 	let url = new URL(document.location)
-	let nNodes = parseInt(url.searchParams.get('t'))
+	let nNodes = parseInt(url.searchParams.get("t"))
 	if (nNodes) getRandomData(nNodes)
 	// create a network
 	var options = {
@@ -988,7 +1028,7 @@ function draw() {
 				},
 			},
 			smooth: {
-				type: 'straightCross',
+				type: "straightCross",
 			},
 		},
 		physics: {
@@ -1006,12 +1046,12 @@ function draw() {
 		manipulation: {
 			enabled: false,
 			addNode: function (item, callback) {
-				item.label = ''
+				item.label = ""
 				item = deepMerge(item, styles.nodes[lastNodeSample])
 				item.grp = lastNodeSample
 				item.created = timestamp()
 				addLabel(item, cancelAdd, callback)
-				showPressed('addNode', 'remove')
+				showPressed("addNode", "remove")
 			},
 			editNode: function (item, callback) {
 				// for some weird reason, vis-network copies the group properties into the
@@ -1019,28 +1059,35 @@ function draw() {
 				// revert to using the original node properties before continuing.
 				item = data.nodes.get(item.id)
 				item.modified = timestamp()
-				let point = {x: event.offsetX, y: event.offsetY}
+				//				let point = {x: event.offsetX, y: event.offsetY}
+				let point = network.canvasToDOM({ x: item.x, y: item.y })
 				editNode(item, point, cancelEdit, callback)
 			},
 			addEdge: function (item, callback) {
 				inAddMode = false
 				network.setOptions({
-					interaction: {dragView: true, selectable: true},
+					interaction: { dragView: true, selectable: true },
 				})
-				showPressed('addLink', 'remove')
+				showPressed("addLink", "remove")
 				if (item.from === item.to) {
 					callback(null)
 					stopEdit()
 					return
 				}
 				if (duplEdge(item.from, item.to).length > 0) {
-					statusMsg('There is already a link from this Factor to the other.', 'error')
+					statusMsg(
+						"There is already a link from this Factor to the other.",
+						"error"
+					)
 					callback(null)
 					stopEdit()
 					return
 				}
-				if (data.nodes.get(item.from).isCluster || data.nodes.get(item.to).isCluster) {
-					statusMsg('Links cannot be made to or from a cluster', 'error')
+				if (
+					data.nodes.get(item.from).isCluster ||
+					data.nodes.get(item.to).isCluster
+				) {
+					statusMsg("Links cannot be made to or from a cluster", "error")
 					callback(null)
 					stopEdit()
 					return
@@ -1050,13 +1097,18 @@ function draw() {
 				item.created = timestamp()
 				clearStatusBar()
 				callback(item)
-				logHistory(`added link from '${data.nodes.get(item.from).label}' to '${data.nodes.get(item.to).label}'`)
+				logHistory(
+					`added link from '${data.nodes.get(item.from).label}' to '${
+						data.nodes.get(item.to).label
+					}'`
+				)
 			},
 			editEdge: {
 				editWithoutDrag: function (item, callback) {
 					item = data.edges.get(item.id)
 					item.modified = timestamp()
-					let point = {x: event.offsetX, y: event.offsetY}
+					//					let point = {x: event.offsetX, y: event.offsetY}
+					let point = network.canvasToDOM({ x: item.x, y: item.y })
 					editEdge(item, point, cancelEdit, callback)
 				},
 			},
@@ -1066,7 +1118,12 @@ function draw() {
 					let n = data.nodes.get(nId)
 					if (n.locked) {
 						locked = true
-						statusMsg(`Factor '${shorten(n.oldLabel)}' can't be deleted because it is locked`, 'warn')
+						statusMsg(
+							`Factor '${shorten(
+								n.oldLabel
+							)}' can't be deleted because it is locked`,
+							"warn"
+						)
 						callback(null)
 						return
 					}
@@ -1082,9 +1139,9 @@ function draw() {
 				})
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
-							data.nodes.get(data.edges.get(edgeId).to).label
-						}'`
+						`deleted link from '${
+							data.nodes.get(data.edges.get(edgeId).from).label
+						}' to '${data.nodes.get(data.edges.get(edgeId).to).label}'`
 					)
 				})
 				item.nodes.forEach((nodeId) => {
@@ -1095,16 +1152,16 @@ function draw() {
 			deleteEdge: function (item, callback) {
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
-							data.nodes.get(data.edges.get(edgeId).to).label
-						}'`
+						`deleted link from '${
+							data.nodes.get(data.edges.get(edgeId).from).label
+						}' to '${data.nodes.get(data.edges.get(edgeId).to).label}'`
 					)
 				})
 				callback(item)
 			},
 			controlNodeStyle: {
-				shape: 'dot',
-				color: 'red',
+				shape: "dot",
+				color: "red",
 				size: 5,
 				group: undefined,
 			},
@@ -1117,26 +1174,26 @@ function draw() {
 		}
 	network = new Network(netPane, data, options)
 	window.network = network
-	elem('zoom').value = network.getScale()
+	elem("zoom").value = network.getScale()
 
 	// start with factor tab open, but hidden
-	elem('nodesButton').click()
+	elem("nodesButton").click()
 
 	// listen for click events on the network pane
-	network.on('click', (params) => {
-		if (/gui/.test(debug)) console.log('**click**')
+	network.on("click", (params) => {
+		if (/gui/.test(debug)) console.log("**click**")
 		let keys = params.event.pointers[0]
 		if (!keys) return
 		if (keys.metaKey) {
 			// if the Command key (on a Mac) is down, and the click is on a node/edge, log it to the console
 			if (params.nodes.length === 1) {
 				let node = data.nodes.get(params.nodes[0])
-				console.log('node = ', node)
+				console.log("node = ", node)
 				window.node = node
 			}
 			if (params.edges.length === 1) {
 				let edge = data.edges.get(params.edges[0])
-				console.log('edge = ', edge)
+				console.log("edge = ", edge)
 				window.edge = edge
 			}
 			return
@@ -1145,7 +1202,7 @@ function draw() {
 			// if the Option/ALT key is down, add a node if on the background
 			if (params.nodes.length === 0 && params.edges.length === 0) {
 				let pos = params.pointer.canvas
-				let item = {id: uuidv4(), label: '', x: pos.x, y: pos.y}
+				let item = { id: uuidv4(), label: "", x: pos.x, y: pos.y }
 				item = deepMerge(item, styles.nodes[lastNodeSample])
 				item.grp = lastNodeSample
 				addLabel(item, clearPopUp, function (newItem) {
@@ -1172,7 +1229,8 @@ function draw() {
 					if (clickPos.x < bBox.left + (bBox.right - bBox.left) / 2) {
 						// if user has not already voted for this, add their vote, i.e. add their clientID
 						// or if they have voted, remove it
-						if (node.thumbUp?.includes(clientID)) node.thumbUp = node.thumbUp.filter((c) => c !== clientID)
+						if (node.thumbUp?.includes(clientID))
+							node.thumbUp = node.thumbUp.filter((c) => c !== clientID)
 						else if (node.thumbUp) node.thumbUp.push(clientID)
 						else node.thumbUp = [clientID]
 					} else {
@@ -1189,8 +1247,8 @@ function draw() {
 	})
 
 	// despatch to edit a node or an edge or to fit the network on the pane
-	network.on('doubleClick', function (params) {
-		if (/gui/.test(debug)) console.log('**doubleClick**')
+	network.on("doubleClick", function (params) {
+		if (/gui/.test(debug)) console.log("**doubleClick**")
 		if (params.nodes.length === 1) {
 			if (!(viewOnly || inEditMode)) network.editNode()
 		} else if (params.edges.length === 1) {
@@ -1199,17 +1257,17 @@ function draw() {
 			fit()
 		}
 	})
-	network.on('selectNode', function () {
-		if (/gui/.test(debug)) console.log('selectNode')
+	network.on("selectNode", function () {
+		if (/gui/.test(debug)) console.log("selectNode")
 		showSelected()
 		showNodeOrEdgeData()
 		toggleDeleteButton()
-		if (getRadioVal('radius') !== 'All') analyse()
-		if (getRadioVal('stream') !== 'All') analyse()
-		if (getRadioVal('paths') !== 'All') analyse()
+		if (getRadioVal("radius") !== "All") analyse()
+		if (getRadioVal("stream") !== "All") analyse()
+		if (getRadioVal("paths") !== "All") analyse()
 	})
-	network.on('deselectNode', function (obj) {
-		if (/gui/.test(debug)) console.log('deselectNode', obj)
+	network.on("deselectNode", function (obj) {
+		if (/gui/.test(debug)) console.log("deselectNode", obj)
 		// if some other node(s) are already selected, and the user has
 		// clicked on one of the selected nodes, do nothing,
 		// i.e reselect all the nodes previously selected
@@ -1228,29 +1286,29 @@ function draw() {
 		showSelected()
 		showNodeOrEdgeData()
 		toggleDeleteButton()
-		if (getRadioVal('radius') !== 'All') analyse()
-		if (getRadioVal('stream') !== 'All') analyse()
-		if (getRadioVal('paths') !== 'All') analyse()
+		if (getRadioVal("radius") !== "All") analyse()
+		if (getRadioVal("stream") !== "All") analyse()
+		if (getRadioVal("paths") !== "All") analyse()
 	})
-	network.on('hoverNode', function () {
-		changeCursor('grab')
+	network.on("hoverNode", function () {
+		changeCursor("grab")
 	})
-	network.on('blurNode', function () {
-		changeCursor('default')
+	network.on("blurNode", function () {
+		changeCursor("default")
 	})
-	network.on('selectEdge', function () {
-		if (/gui/.test(debug)) console.log('selectEdge')
+	network.on("selectEdge", function () {
+		if (/gui/.test(debug)) console.log("selectEdge")
 		showSelected()
 		showNodeOrEdgeData()
 		toggleDeleteButton()
 	})
-	network.on('deselectEdge', function () {
-		if (/gui/.test(debug)) console.log('deselectEdge')
+	network.on("deselectEdge", function () {
+		if (/gui/.test(debug)) console.log("deselectEdge")
 		hideNotes()
 		showSelected()
 		toggleDeleteButton()
 	})
-	network.on('oncontext', function (e) {
+	network.on("oncontext", function (e) {
 		let nodeId = network.getNodeAt(e.pointer.DOM)
 		if (nodeId) openCluster(nodeId)
 	})
@@ -1258,43 +1316,43 @@ function draw() {
 	let viewPosition
 	let selectionCanvasStart = {}
 	let selectionStart = {}
-	let selectionArea = document.createElement('div')
-	selectionArea.className = 'selectionBox'
-	selectionArea.style.display = 'none'
-	elem('main').appendChild(selectionArea)
+	let selectionArea = document.createElement("div")
+	selectionArea.className = "selectionBox"
+	selectionArea.style.display = "none"
+	elem("main").appendChild(selectionArea)
 
-	network.on('dragStart', function (params) {
-		if (/gui/.test(debug)) console.log('dragStart')
+	network.on("dragStart", function (params) {
+		if (/gui/.test(debug)) console.log("dragStart")
 		viewPosition = network.getViewPosition()
 		let e = params.event.pointers[0]
 		// start drawing a selection rectangle if the CTRL key is down and click is on the background
 		if (e.ctrlKey && params.nodes.length === 0 && params.edges.length === 0) {
-			network.setOptions({interaction: {dragView: false}})
-			listen('net-pane', 'mousemove', showAreaSelection)
-			selectionStart = {x: e.offsetX, y: e.offsetY}
+			network.setOptions({ interaction: { dragView: false } })
+			listen("net-pane", "mousemove", showAreaSelection)
+			selectionStart = { x: e.offsetX, y: e.offsetY }
 			selectionCanvasStart = params.pointer.canvas
 			selectionArea.style.left = `${e.offsetX}px`
 			selectionArea.style.top = `${e.offsetY}px`
-			selectionArea.style.width = '0px'
-			selectionArea.style.height = '0px'
-			selectionArea.style.display = 'block'
+			selectionArea.style.width = "0px"
+			selectionArea.style.height = "0px"
+			selectionArea.style.display = "block"
 			return
 		}
 		if (e.altKey) {
 			if (!inAddMode) {
 				removeFactorCursor()
-				changeCursor('crosshair')
-				inAddMode = 'addLink'
-				showPressed('addLink', 'add')
-				statusMsg('Now drag to the middle of the Destination factor')
+				changeCursor("crosshair")
+				inAddMode = "addLink"
+				showPressed("addLink", "add")
+				statusMsg("Now drag to the middle of the Destination factor")
 				network.setOptions({
-					interaction: {dragView: false, selectable: false},
+					interaction: { dragView: false, selectable: false },
 				})
 				network.addEdgeMode()
 				return
 			}
 		}
-		changeCursor('grabbing')
+		changeCursor("grabbing")
 	})
 	/**
 	 * update the selection rectangle as the mouse moves
@@ -1304,26 +1362,34 @@ function draw() {
 		selectionArea.style.left = `${Math.min(selectionStart.x, event.offsetX)}px`
 		selectionArea.style.top = `${Math.min(selectionStart.y, event.offsetY)}px`
 		selectionArea.style.width = `${
-			Math.max(selectionStart.x, event.offsetX) - Math.min(selectionStart.x, event.offsetX)
+			Math.max(selectionStart.x, event.offsetX) -
+			Math.min(selectionStart.x, event.offsetX)
 		}px`
 		selectionArea.style.height = `${
-			Math.max(selectionStart.y, event.offsetY) - Math.min(selectionStart.y, event.offsetY)
+			Math.max(selectionStart.y, event.offsetY) -
+			Math.min(selectionStart.y, event.offsetY)
 		}px`
 	}
-	network.on('dragging', function () {
+	network.on("dragging", function () {
 		let endViewPosition = network.getViewPosition()
-		panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
+		panCanvas(
+			viewPosition.x - endViewPosition.x,
+			viewPosition.y - endViewPosition.y
+		)
 		viewPosition = endViewPosition
 	})
 
-	network.on('dragEnd', function (params) {
-		if (/gui/.test(debug)) console.log('dragEnd')
+	network.on("dragEnd", function (params) {
+		if (/gui/.test(debug)) console.log("dragEnd")
 		let endViewPosition = network.getViewPosition()
-		panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
-		if (selectionArea.style.display === 'block') {
-			selectionArea.style.display = 'none'
-			network.setOptions({interaction: {dragView: true}})
-			elem('net-pane').removeEventListener('mousemove', showAreaSelection)
+		panCanvas(
+			viewPosition.x - endViewPosition.x,
+			viewPosition.y - endViewPosition.y
+		)
+		if (selectionArea.style.display === "block") {
+			selectionArea.style.display = "none"
+			network.setOptions({ interaction: { dragView: true } })
+			elem("net-pane").removeEventListener("mousemove", showAreaSelection)
 		}
 		let e = params.event.pointers[0]
 		if (e.ctrlKey && params.nodes.length === 0 && params.edges.length === 0) {
@@ -1341,7 +1407,9 @@ function draw() {
 				},
 			})
 			network.setSelection({
-				nodes: selectedNodes.map((n) => n.id).concat(network.getSelectedNodes()),
+				nodes: selectedNodes
+					.map((n) => n.id)
+					.concat(network.getSelectedNodes()),
 			})
 			showSelected()
 			return
@@ -1355,50 +1423,50 @@ function draw() {
 				return n
 			})
 		)
-		changeCursor('default')
+		changeCursor("default")
 	})
-	network.on('controlNodeDragging', function () {
-		if (/gui/.test(debug)) console.log('controlNodeDragging')
-		changeCursor('crosshair')
+	network.on("controlNodeDragging", function () {
+		if (/gui/.test(debug)) console.log("controlNodeDragging")
+		changeCursor("crosshair")
 	})
-	network.on('controlNodeDragEnd', function (event) {
-		if (/gui/.test(debug)) console.log('controlNodeDragEnd')
-		if (event.controlEdge.from !== event.controlEdge.to) changeCursor('default')
+	network.on("controlNodeDragEnd", function (event) {
+		if (/gui/.test(debug)) console.log("controlNodeDragEnd")
+		if (event.controlEdge.from !== event.controlEdge.to) changeCursor("default")
 	})
-	network.on('beforeDrawing', (ctx) => redraw(ctx))
-	network.on('afterDrawing', (ctx) => drawBadges(ctx))
+	network.on("beforeDrawing", (ctx) => redraw(ctx))
+	network.on("afterDrawing", (ctx) => drawBadges(ctx))
 
 	// listen for changes to the network structure
 	// and recalculate the network statistics when there is one
-	data.nodes.on('add', recalculateStats)
-	data.nodes.on('remove', recalculateStats)
-	data.edges.on('add', recalculateStats)
-	data.edges.on('remove', recalculateStats)
+	data.nodes.on("add", recalculateStats)
+	data.nodes.on("remove", recalculateStats)
+	data.edges.on("add", recalculateStats)
+	data.edges.on("remove", recalculateStats)
 
 	/* --------------------------------------------set up the magnifier --------------------------------------------*/
 	const magSize = 300 // diameter of loupe
 	const halfMagSize = magSize / 2.0
 	const netPaneCanvas = netPane.firstElementChild.firstElementChild
-	let magnifier = document.createElement('canvas')
+	let magnifier = document.createElement("canvas")
 	magnifier.width = magSize
 	magnifier.height = magSize
-	magnifier.className = 'magnifier'
-	let magnifierCtx = magnifier.getContext('2d')
-	magnifierCtx.fillStyle = 'white'
+	magnifier.className = "magnifier"
+	let magnifierCtx = magnifier.getContext("2d")
+	magnifierCtx.fillStyle = "white"
 	netPane.appendChild(magnifier)
 	let bigNetPane = null
 	let bigNetwork = null
 	let bigNetCanvas = null
 	let netPaneRect = null
 
-	window.addEventListener('keydown', (e) => {
+	window.addEventListener("keydown", (e) => {
 		if (!inEditMode && e.shiftKey) createMagnifier()
 	})
-	window.addEventListener('mousemove', (e) => {
+	window.addEventListener("mousemove", (e) => {
 		if (e.shiftKey) showMagnifier(e)
 	})
-	window.addEventListener('keyup', (e) => {
-		if (e.key === 'Shift') closeMagnifier()
+	window.addEventListener("keyup", (e) => {
+		if (e.key === "Shift") closeMagnifier()
 	})
 
 	/**
@@ -1412,16 +1480,16 @@ function draw() {
 		if (drawingSwitch) return
 		netPaneRect = netPane.getBoundingClientRect()
 		network.storePositions()
-		bigNetPane = document.createElement('div')
-		bigNetPane.id = 'big-net-pane'
-		bigNetPane.style.position = 'absolute'
-		bigNetPane.style.top = '-9999px'
-		bigNetPane.style.left = '-9999px'
+		bigNetPane = document.createElement("div")
+		bigNetPane.id = "big-net-pane"
+		bigNetPane.style.position = "absolute"
+		bigNetPane.style.top = "-9999px"
+		bigNetPane.style.left = "-9999px"
 		bigNetPane.style.width = `${netPane.offsetWidth * magnification}px`
 		bigNetPane.style.height = `${netPane.offsetHeight * magnification}px`
 		netPane.appendChild(bigNetPane)
 		bigNetwork = new Network(bigNetPane, data, {
-			physics: {enabled: false},
+			physics: { enabled: false },
 		})
 		bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
 		addBackgroundToCanvas(bigNetPane, bigNetCanvas)
@@ -1429,8 +1497,8 @@ function draw() {
 			position: network.getViewPosition(),
 			scale: magnification * network.getScale(),
 		})
-		netPane.style.cursor = 'none'
-		magnifier.style.display = 'none'
+		netPane.style.cursor = "none"
+		magnifier.style.display = "none"
 	}
 	/**
 	 * display the loupe, centred on the mouse pointer, and fill it with
@@ -1443,8 +1511,12 @@ function draw() {
 		magnifierCtx.fillRect(0, 0, magSize, magSize)
 		magnifierCtx.drawImage(
 			bigNetCanvas,
-			((e.clientX - netPaneRect.x) * bigNetCanvas.width) / netPaneCanvas.clientWidth - halfMagSize,
-			((e.clientY - netPaneRect.y) * bigNetCanvas.height) / netPaneCanvas.clientHeight - halfMagSize,
+			((e.clientX - netPaneRect.x) * bigNetCanvas.width) /
+				netPaneCanvas.clientWidth -
+				halfMagSize,
+			((e.clientY - netPaneRect.y) * bigNetCanvas.height) /
+				netPaneCanvas.clientHeight -
+				halfMagSize,
 			magSize,
 			magSize,
 			0,
@@ -1454,7 +1526,7 @@ function draw() {
 		)
 		magnifier.style.top = `${e.clientY - netPaneRect.y - halfMagSize}px`
 		magnifier.style.left = `${e.clientX - netPaneRect.x - halfMagSize}px`
-		magnifier.style.display = 'block'
+		magnifier.style.display = "block"
 	}
 	/**
 	 * destroy the magnified network copy
@@ -1464,8 +1536,8 @@ function draw() {
 			bigNetwork.destroy()
 			bigNetPane.remove()
 		}
-		netPane.style.cursor = 'default'
-		magnifier.style.display = 'none'
+		netPane.style.cursor = "default"
+		magnifier.style.display = "none"
 	}
 } // end draw()
 
@@ -1496,9 +1568,12 @@ export function markMapSaved() {
  * un fade the delete button to show that it can be used when something is selected
  */
 export function toggleDeleteButton() {
-	if (network.getSelectedNodes().length > 0 || network.getSelectedEdges().length > 0)
-		elem('deleteNode').classList.remove('disabled')
-	else elem('deleteNode').classList.add('disabled')
+	if (
+		network.getSelectedNodes().length > 0 ||
+		network.getSelectedEdges().length > 0
+	)
+		elem("deleteNode").classList.remove("disabled")
+	else elem("deleteNode").classList.add("disabled")
 }
 
 function contextMenu(event) {
@@ -1508,7 +1583,7 @@ function contextMenu(event) {
  * return an object with the current time as a date an integer and the current user's name
  */
 export function timestamp() {
-	return {time: Date.now(), user: myNameRec.name}
+	return { time: Date.now(), user: myNameRec.name }
 }
 window.timestamp = timestamp
 /**
@@ -1534,7 +1609,7 @@ export function logHistory(action, actor) {
 		let obj = yHistory.get(i)
 		if (obj.time) persistence.del(obj.time)
 	}
-	if (elem('history-window').style.display === 'block') showHistory()
+	if (elem("history-window").style.display === "block") showHistory()
 	dirty = true
 }
 /**
@@ -1556,22 +1631,22 @@ function saveState(options) {
 }
 var noteImage = new Image()
 noteImage.src =
-	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktY2FyZC10ZXh0IiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik0xNC41IDNhLjUuNSAwIDAgMSAuNS41djlhLjUuNSAwIDAgMS0uNS41aC0xM2EuNS41IDAgMCAxLS41LS41di05YS41LjUgMCAwIDEgLjUtLjVoMTN6bS0xMy0xQTEuNSAxLjUgMCAwIDAgMCAzLjV2OUExLjUgMS41IDAgMCAwIDEuNSAxNGgxM2ExLjUgMS41IDAgMCAwIDEuNS0xLjV2LTlBMS41IDEuNSAwIDAgMCAxNC41IDJoLTEzeiIvPgogIDxwYXRoIGQ9Ik0zIDUuNWEuNS41IDAgMCAxIC41LS41aDlhLjUuNSAwIDAgMSAwIDFoLTlhLjUuNSAwIDAgMS0uNS0uNXpNMyA4YS41LjUgMCAwIDEgLjUtLjVoOWEuNS41IDAgMCAxIDAgMWgtOUEuNS41IDAgMCAxIDMgOHptMCAyLjVhLjUuNSAwIDAgMSAuNS0uNWg2YS41LjUgMCAwIDEgMCAxaC02YS41LjUgMCAwIDEtLjUtLjV6Ii8+Cjwvc3ZnPg=='
+	"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktY2FyZC10ZXh0IiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik0xNC41IDNhLjUuNSAwIDAgMSAuNS41djlhLjUuNSAwIDAgMS0uNS41aC0xM2EuNS41IDAgMCAxLS41LS41di05YS41LjUgMCAwIDEgLjUtLjVoMTN6bS0xMy0xQTEuNSAxLjUgMCAwIDAgMCAzLjV2OUExLjUgMS41IDAgMCAwIDEuNSAxNGgxM2ExLjUgMS41IDAgMCAwIDEuNS0xLjV2LTlBMS41IDEuNSAwIDAgMCAxNC41IDJoLTEzeiIvPgogIDxwYXRoIGQ9Ik0zIDUuNWEuNS41IDAgMCAxIC41LS41aDlhLjUuNSAwIDAgMSAwIDFoLTlhLjUuNSAwIDAgMS0uNS0uNXpNMyA4YS41LjUgMCAwIDEgLjUtLjVoOWEuNS41IDAgMCAxIDAgMWgtOUEuNS41IDAgMCAxIDMgOHptMCAyLjVhLjUuNSAwIDAgMSAuNS0uNWg2YS41LjUgMCAwIDEgMCAxaC02YS41LjUgMCAwIDEtLjUtLjV6Ii8+Cjwvc3ZnPg=="
 var lockImage = new Image()
 lockImage.src =
-	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktbG9jay1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik04IDFhMiAyIDAgMCAxIDIgMnY0SDZWM2EyIDIgMCAwIDEgMi0yem0zIDZWM2EzIDMgMCAwIDAtNiAwdjRhMiAyIDAgMCAwLTIgMnY1YTIgMiAwIDAgMCAyIDJoNmEyIDIgMCAwIDAgMi0yVjlhMiAyIDAgMCAwLTItMnoiLz4KPC9zdmc+'
+	"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktbG9jay1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik04IDFhMiAyIDAgMCAxIDIgMnY0SDZWM2EyIDIgMCAwIDEgMi0yem0zIDZWM2EzIDMgMCAwIDAtNiAwdjRhMiAyIDAgMCAwLTIgMnY1YTIgMiAwIDAgMCAyIDJoNmEyIDIgMCAwIDAgMi0yVjlhMiAyIDAgMCAwLTItMnoiLz4KPC9zdmc+"
 var thumbUpImage = new Image()
 thumbUpImage.src =
-	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktaGFuZC10aHVtYnMtdXAiIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTguODY0LjA0NkM3LjkwOC0uMTkzIDcuMDIuNTMgNi45NTYgMS40NjZjLS4wNzIgMS4wNTEtLjIzIDIuMDE2LS40MjggMi41OS0uMTI1LjM2LS40NzkgMS4wMTMtMS4wNCAxLjYzOS0uNTU3LjYyMy0xLjI4MiAxLjE3OC0yLjEzMSAxLjQxQzIuNjg1IDcuMjg4IDIgNy44NyAyIDguNzJ2NC4wMDFjMCAuODQ1LjY4MiAxLjQ2NCAxLjQ0OCAxLjU0NSAxLjA3LjExNCAxLjU2NC40MTUgMi4wNjguNzIzbC4wNDguMDNjLjI3Mi4xNjUuNTc4LjM0OC45Ny40ODQuMzk3LjEzNi44NjEuMjE3IDEuNDY2LjIxN2gzLjVjLjkzNyAwIDEuNTk5LS40NzcgMS45MzQtMS4wNjRhMS44NiAxLjg2IDAgMCAwIC4yNTQtLjkxMmMwLS4xNTItLjAyMy0uMzEyLS4wNzctLjQ2NC4yMDEtLjI2My4zOC0uNTc4LjQ4OC0uOTAxLjExLS4zMy4xNzItLjc2Mi4wMDQtMS4xNDkuMDY5LS4xMy4xMi0uMjY5LjE1OS0uNDAzLjA3Ny0uMjcuMTEzLS41NjguMTEzLS44NTcgMC0uMjg4LS4wMzYtLjU4NS0uMTEzLS44NTZhMi4xNDQgMi4xNDQgMCAwIDAtLjEzOC0uMzYyIDEuOSAxLjkgMCAwIDAgLjIzNC0xLjczNGMtLjIwNi0uNTkyLS42ODItMS4xLTEuMi0xLjI3Mi0uODQ3LS4yODItMS44MDMtLjI3Ni0yLjUxNi0uMjExYTkuODQgOS44NCAwIDAgMC0uNDQzLjA1IDkuMzY1IDkuMzY1IDAgMCAwLS4wNjItNC41MDlBMS4zOCAxLjM4IDAgMCAwIDkuMTI1LjExMUw4Ljg2NC4wNDZ6TTExLjUgMTQuNzIxSDhjLS41MSAwLS44NjMtLjA2OS0xLjE0LS4xNjQtLjI4MS0uMDk3LS41MDYtLjIyOC0uNzc2LS4zOTNsLS4wNC0uMDI0Yy0uNTU1LS4zMzktMS4xOTgtLjczMS0yLjQ5LS44NjgtLjMzMy0uMDM2LS41NTQtLjI5LS41NTQtLjU1VjguNzJjMC0uMjU0LjIyNi0uNTQzLjYyLS42NSAxLjA5NS0uMyAxLjk3Ny0uOTk2IDIuNjE0LTEuNzA4LjYzNS0uNzEgMS4wNjQtMS40NzUgMS4yMzgtMS45NzguMjQzLS43LjQwNy0xLjc2OC40ODItMi44NS4wMjUtLjM2Mi4zNi0uNTk0LjY2Ny0uNTE4bC4yNjIuMDY2Yy4xNi4wNC4yNTguMTQzLjI4OC4yNTVhOC4zNCA4LjM0IDAgMCAxLS4xNDUgNC43MjUuNS41IDAgMCAwIC41OTUuNjQ0bC4wMDMtLjAwMS4wMTQtLjAwMy4wNTgtLjAxNGE4LjkwOCA4LjkwOCAwIDAgMSAxLjAzNi0uMTU3Yy42NjMtLjA2IDEuNDU3LS4wNTQgMi4xMS4xNjQuMTc1LjA1OC40NS4zLjU3LjY1LjEwNy4zMDguMDg3LjY3LS4yNjYgMS4wMjJsLS4zNTMuMzUzLjM1My4zNTRjLjA0My4wNDMuMTA1LjE0MS4xNTQuMzE1LjA0OC4xNjcuMDc1LjM3LjA3NS41ODEgMCAuMjEyLS4wMjcuNDE0LS4wNzUuNTgyLS4wNS4xNzQtLjExMS4yNzItLjE1NC4zMTVsLS4zNTMuMzUzLjM1My4zNTRjLjA0Ny4wNDcuMTA5LjE3Ny4wMDUuNDg4YTIuMjI0IDIuMjI0IDAgMCAxLS41MDUuODA1bC0uMzUzLjM1My4zNTMuMzU0Yy4wMDYuMDA1LjA0MS4wNS4wNDEuMTdhLjg2Ni44NjYgMCAwIDEtLjEyMS40MTZjLS4xNjUuMjg4LS41MDMuNTYtMS4wNjYuNTZ6Ii8+Cjwvc3ZnPg=='
+	"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktaGFuZC10aHVtYnMtdXAiIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTguODY0LjA0NkM3LjkwOC0uMTkzIDcuMDIuNTMgNi45NTYgMS40NjZjLS4wNzIgMS4wNTEtLjIzIDIuMDE2LS40MjggMi41OS0uMTI1LjM2LS40NzkgMS4wMTMtMS4wNCAxLjYzOS0uNTU3LjYyMy0xLjI4MiAxLjE3OC0yLjEzMSAxLjQxQzIuNjg1IDcuMjg4IDIgNy44NyAyIDguNzJ2NC4wMDFjMCAuODQ1LjY4MiAxLjQ2NCAxLjQ0OCAxLjU0NSAxLjA3LjExNCAxLjU2NC40MTUgMi4wNjguNzIzbC4wNDguMDNjLjI3Mi4xNjUuNTc4LjM0OC45Ny40ODQuMzk3LjEzNi44NjEuMjE3IDEuNDY2LjIxN2gzLjVjLjkzNyAwIDEuNTk5LS40NzcgMS45MzQtMS4wNjRhMS44NiAxLjg2IDAgMCAwIC4yNTQtLjkxMmMwLS4xNTItLjAyMy0uMzEyLS4wNzctLjQ2NC4yMDEtLjI2My4zOC0uNTc4LjQ4OC0uOTAxLjExLS4zMy4xNzItLjc2Mi4wMDQtMS4xNDkuMDY5LS4xMy4xMi0uMjY5LjE1OS0uNDAzLjA3Ny0uMjcuMTEzLS41NjguMTEzLS44NTcgMC0uMjg4LS4wMzYtLjU4NS0uMTEzLS44NTZhMi4xNDQgMi4xNDQgMCAwIDAtLjEzOC0uMzYyIDEuOSAxLjkgMCAwIDAgLjIzNC0xLjczNGMtLjIwNi0uNTkyLS42ODItMS4xLTEuMi0xLjI3Mi0uODQ3LS4yODItMS44MDMtLjI3Ni0yLjUxNi0uMjExYTkuODQgOS44NCAwIDAgMC0uNDQzLjA1IDkuMzY1IDkuMzY1IDAgMCAwLS4wNjItNC41MDlBMS4zOCAxLjM4IDAgMCAwIDkuMTI1LjExMUw4Ljg2NC4wNDZ6TTExLjUgMTQuNzIxSDhjLS41MSAwLS44NjMtLjA2OS0xLjE0LS4xNjQtLjI4MS0uMDk3LS41MDYtLjIyOC0uNzc2LS4zOTNsLS4wNC0uMDI0Yy0uNTU1LS4zMzktMS4xOTgtLjczMS0yLjQ5LS44NjgtLjMzMy0uMDM2LS41NTQtLjI5LS41NTQtLjU1VjguNzJjMC0uMjU0LjIyNi0uNTQzLjYyLS42NSAxLjA5NS0uMyAxLjk3Ny0uOTk2IDIuNjE0LTEuNzA4LjYzNS0uNzEgMS4wNjQtMS40NzUgMS4yMzgtMS45NzguMjQzLS43LjQwNy0xLjc2OC40ODItMi44NS4wMjUtLjM2Mi4zNi0uNTk0LjY2Ny0uNTE4bC4yNjIuMDY2Yy4xNi4wNC4yNTguMTQzLjI4OC4yNTVhOC4zNCA4LjM0IDAgMCAxLS4xNDUgNC43MjUuNS41IDAgMCAwIC41OTUuNjQ0bC4wMDMtLjAwMS4wMTQtLjAwMy4wNTgtLjAxNGE4LjkwOCA4LjkwOCAwIDAgMSAxLjAzNi0uMTU3Yy42NjMtLjA2IDEuNDU3LS4wNTQgMi4xMS4xNjQuMTc1LjA1OC40NS4zLjU3LjY1LjEwNy4zMDguMDg3LjY3LS4yNjYgMS4wMjJsLS4zNTMuMzUzLjM1My4zNTRjLjA0My4wNDMuMTA1LjE0MS4xNTQuMzE1LjA0OC4xNjcuMDc1LjM3LjA3NS41ODEgMCAuMjEyLS4wMjcuNDE0LS4wNzUuNTgyLS4wNS4xNzQtLjExMS4yNzItLjE1NC4zMTVsLS4zNTMuMzUzLjM1My4zNTRjLjA0Ny4wNDcuMTA5LjE3Ny4wMDUuNDg4YTIuMjI0IDIuMjI0IDAgMCAxLS41MDUuODA1bC0uMzUzLjM1My4zNTMuMzU0Yy4wMDYuMDA1LjA0MS4wNS4wNDEuMTdhLjg2Ni44NjYgMCAwIDEtLjEyMS40MTZjLS4xNjUuMjg4LS41MDMuNTYtMS4wNjYuNTZ6Ii8+Cjwvc3ZnPg=="
 var thumbUpFilledImage = new Image()
 thumbUpFilledImage.src =
-	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktaGFuZC10aHVtYnMtdXAtZmlsbCIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICA8cGF0aCBkPSJNNi45NTYgMS43NDVDNy4wMjEuODEgNy45MDguMDg3IDguODY0LjMyNWwuMjYxLjA2NmMuNDYzLjExNi44NzQuNDU2IDEuMDEyLjk2NS4yMi44MTYuNTMzIDIuNTExLjA2MiA0LjUxYTkuODQgOS44NCAwIDAgMSAuNDQzLS4wNTFjLjcxMy0uMDY1IDEuNjY5LS4wNzIgMi41MTYuMjEuNTE4LjE3My45OTQuNjgxIDEuMiAxLjI3My4xODQuNTMyLjE2IDEuMTYyLS4yMzQgMS43MzMuMDU4LjExOS4xMDMuMjQyLjEzOC4zNjMuMDc3LjI3LjExMy41NjcuMTEzLjg1NiAwIC4yODktLjAzNi41ODYtLjExMy44NTYtLjAzOS4xMzUtLjA5LjI3My0uMTYuNDA0LjE2OS4zODcuMTA3LjgxOS0uMDAzIDEuMTQ4YTMuMTYzIDMuMTYzIDAgMCAxLS40ODguOTAxYy4wNTQuMTUyLjA3Ni4zMTIuMDc2LjQ2NSAwIC4zMDUtLjA4OS42MjUtLjI1My45MTJDMTMuMSAxNS41MjIgMTIuNDM3IDE2IDExLjUgMTZIOGMtLjYwNSAwLTEuMDctLjA4MS0xLjQ2Ni0uMjE4YTQuODIgNC44MiAwIDAgMS0uOTctLjQ4NGwtLjA0OC0uMDNjLS41MDQtLjMwNy0uOTk5LS42MDktMi4wNjgtLjcyMkMyLjY4MiAxNC40NjQgMiAxMy44NDYgMiAxM1Y5YzAtLjg1LjY4NS0xLjQzMiAxLjM1Ny0xLjYxNS44NDktLjIzMiAxLjU3NC0uNzg3IDIuMTMyLTEuNDEuNTYtLjYyNy45MTQtMS4yOCAxLjAzOS0xLjYzOS4xOTktLjU3NS4zNTYtMS41MzkuNDI4LTIuNTl6Ii8+Cjwvc3ZnPg=='
+	"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktaGFuZC10aHVtYnMtdXAtZmlsbCIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICA8cGF0aCBkPSJNNi45NTYgMS43NDVDNy4wMjEuODEgNy45MDguMDg3IDguODY0LjMyNWwuMjYxLjA2NmMuNDYzLjExNi44NzQuNDU2IDEuMDEyLjk2NS4yMi44MTYuNTMzIDIuNTExLjA2MiA0LjUxYTkuODQgOS44NCAwIDAgMSAuNDQzLS4wNTFjLjcxMy0uMDY1IDEuNjY5LS4wNzIgMi41MTYuMjEuNTE4LjE3My45OTQuNjgxIDEuMiAxLjI3My4xODQuNTMyLjE2IDEuMTYyLS4yMzQgMS43MzMuMDU4LjExOS4xMDMuMjQyLjEzOC4zNjMuMDc3LjI3LjExMy41NjcuMTEzLjg1NiAwIC4yODktLjAzNi41ODYtLjExMy44NTYtLjAzOS4xMzUtLjA5LjI3My0uMTYuNDA0LjE2OS4zODcuMTA3LjgxOS0uMDAzIDEuMTQ4YTMuMTYzIDMuMTYzIDAgMCAxLS40ODguOTAxYy4wNTQuMTUyLjA3Ni4zMTIuMDc2LjQ2NSAwIC4zMDUtLjA4OS42MjUtLjI1My45MTJDMTMuMSAxNS41MjIgMTIuNDM3IDE2IDExLjUgMTZIOGMtLjYwNSAwLTEuMDctLjA4MS0xLjQ2Ni0uMjE4YTQuODIgNC44MiAwIDAgMS0uOTctLjQ4NGwtLjA0OC0uMDNjLS41MDQtLjMwNy0uOTk5LS42MDktMi4wNjgtLjcyMkMyLjY4MiAxNC40NjQgMiAxMy44NDYgMiAxM1Y5YzAtLjg1LjY4NS0xLjQzMiAxLjM1Ny0xLjYxNS44NDktLjIzMiAxLjU3NC0uNzg3IDIuMTMyLTEuNDEuNTYtLjYyNy45MTQtMS4yOCAxLjAzOS0xLjYzOS4xOTktLjU3NS4zNTYtMS41MzkuNDI4LTIuNTl6Ii8+Cjwvc3ZnPg=="
 var thumbDownImage = new Image()
 thumbDownImage.src =
-	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktaGFuZC10aHVtYnMtZG93biIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICA8cGF0aCBkPSJNOC44NjQgMTUuNjc0Yy0uOTU2LjI0LTEuODQzLS40ODQtMS45MDgtMS40Mi0uMDcyLTEuMDUtLjIzLTIuMDE1LS40MjgtMi41OS0uMTI1LS4zNi0uNDc5LTEuMDEyLTEuMDQtMS42MzgtLjU1Ny0uNjI0LTEuMjgyLTEuMTc5LTIuMTMxLTEuNDFDMi42ODUgOC40MzIgMiA3Ljg1IDIgN1YzYzAtLjg0NS42ODItMS40NjQgMS40NDgtMS41NDYgMS4wNy0uMTEzIDEuNTY0LS40MTUgMi4wNjgtLjcyM2wuMDQ4LS4wMjljLjI3Mi0uMTY2LjU3OC0uMzQ5Ljk3LS40ODRDNi45MzEuMDggNy4zOTUgMCA4IDBoMy41Yy45MzcgMCAxLjU5OS40NzggMS45MzQgMS4wNjQuMTY0LjI4Ny4yNTQuNjA3LjI1NC45MTMgMCAuMTUyLS4wMjMuMzEyLS4wNzcuNDY0LjIwMS4yNjIuMzguNTc3LjQ4OC45LjExLjMzLjE3Mi43NjIuMDA0IDEuMTUuMDY5LjEzLjEyLjI2OC4xNTkuNDAzLjA3Ny4yNy4xMTMuNTY3LjExMy44NTYgMCAuMjg5LS4wMzYuNTg2LS4xMTMuODU2LS4wMzUuMTItLjA4LjI0NC0uMTM4LjM2My4zOTQuNTcxLjQxOCAxLjIuMjM0IDEuNzMzLS4yMDYuNTkyLS42ODIgMS4xLTEuMiAxLjI3Mi0uODQ3LjI4My0xLjgwMy4yNzYtMi41MTYuMjExYTkuODc3IDkuODc3IDAgMCAxLS40NDMtLjA1IDkuMzY0IDkuMzY0IDAgMCAxLS4wNjIgNC41MWMtLjEzOC41MDgtLjU1Ljg0OC0xLjAxMi45NjRsLS4yNjEuMDY1ek0xMS41IDFIOGMtLjUxIDAtLjg2My4wNjgtMS4xNC4xNjMtLjI4MS4wOTctLjUwNi4yMjktLjc3Ni4zOTNsLS4wNC4wMjVjLS41NTUuMzM4LTEuMTk4LjczLTIuNDkuODY4LS4zMzMuMDM1LS41NTQuMjktLjU1NC41NVY3YzAgLjI1NS4yMjYuNTQzLjYyLjY1IDEuMDk1LjMgMS45NzcuOTk3IDIuNjE0IDEuNzA5LjYzNS43MSAxLjA2NCAxLjQ3NSAxLjIzOCAxLjk3Ny4yNDMuNy40MDcgMS43NjguNDgyIDIuODUuMDI1LjM2Mi4zNi41OTUuNjY3LjUxOGwuMjYyLS4wNjVjLjE2LS4wNC4yNTgtLjE0NC4yODgtLjI1NWE4LjM0IDguMzQgMCAwIDAtLjE0NS00LjcyNi41LjUgMCAwIDEgLjU5NS0uNjQzaC4wMDNsLjAxNC4wMDQuMDU4LjAxM2E4LjkxMiA4LjkxMiAwIDAgMCAxLjAzNi4xNTdjLjY2My4wNiAxLjQ1Ny4wNTQgMi4xMS0uMTYzLjE3NS0uMDU5LjQ1LS4zMDEuNTctLjY1MS4xMDctLjMwOC4wODctLjY3LS4yNjYtMS4wMjFMMTIuNzkzIDdsLjM1My0uMzU0Yy4wNDMtLjA0Mi4xMDUtLjE0LjE1NC0uMzE1LjA0OC0uMTY3LjA3NS0uMzcuMDc1LS41ODEgMC0uMjExLS4wMjctLjQxNC0uMDc1LS41ODEtLjA1LS4xNzQtLjExMS0uMjczLS4xNTQtLjMxNWwtLjM1My0uMzU0LjM1My0uMzU0Yy4wNDctLjA0Ny4xMDktLjE3Ni4wMDUtLjQ4OGEyLjIyNCAyLjIyNCAwIDAgMC0uNTA1LS44MDRsLS4zNTMtLjM1NC4zNTMtLjM1NGMuMDA2LS4wMDUuMDQxLS4wNS4wNDEtLjE3YS44NjYuODY2IDAgMCAwLS4xMjEtLjQxNUMxMi40IDEuMjcyIDEyLjA2MyAxIDExLjUgMXoiLz4KPC9zdmc+'
+	"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktaGFuZC10aHVtYnMtZG93biIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICA8cGF0aCBkPSJNOC44NjQgMTUuNjc0Yy0uOTU2LjI0LTEuODQzLS40ODQtMS45MDgtMS40Mi0uMDcyLTEuMDUtLjIzLTIuMDE1LS40MjgtMi41OS0uMTI1LS4zNi0uNDc5LTEuMDEyLTEuMDQtMS42MzgtLjU1Ny0uNjI0LTEuMjgyLTEuMTc5LTIuMTMxLTEuNDFDMi42ODUgOC40MzIgMiA3Ljg1IDIgN1YzYzAtLjg0NS42ODItMS40NjQgMS40NDgtMS41NDYgMS4wNy0uMTEzIDEuNTY0LS40MTUgMi4wNjgtLjcyM2wuMDQ4LS4wMjljLjI3Mi0uMTY2LjU3OC0uMzQ5Ljk3LS40ODRDNi45MzEuMDggNy4zOTUgMCA4IDBoMy41Yy45MzcgMCAxLjU5OS40NzggMS45MzQgMS4wNjQuMTY0LjI4Ny4yNTQuNjA3LjI1NC45MTMgMCAuMTUyLS4wMjMuMzEyLS4wNzcuNDY0LjIwMS4yNjIuMzguNTc3LjQ4OC45LjExLjMzLjE3Mi43NjIuMDA0IDEuMTUuMDY5LjEzLjEyLjI2OC4xNTkuNDAzLjA3Ny4yNy4xMTMuNTY3LjExMy44NTYgMCAuMjg5LS4wMzYuNTg2LS4xMTMuODU2LS4wMzUuMTItLjA4LjI0NC0uMTM4LjM2My4zOTQuNTcxLjQxOCAxLjIuMjM0IDEuNzMzLS4yMDYuNTkyLS42ODIgMS4xLTEuMiAxLjI3Mi0uODQ3LjI4My0xLjgwMy4yNzYtMi41MTYuMjExYTkuODc3IDkuODc3IDAgMCAxLS40NDMtLjA1IDkuMzY0IDkuMzY0IDAgMCAxLS4wNjIgNC41MWMtLjEzOC41MDgtLjU1Ljg0OC0xLjAxMi45NjRsLS4yNjEuMDY1ek0xMS41IDFIOGMtLjUxIDAtLjg2My4wNjgtMS4xNC4xNjMtLjI4MS4wOTctLjUwNi4yMjktLjc3Ni4zOTNsLS4wNC4wMjVjLS41NTUuMzM4LTEuMTk4LjczLTIuNDkuODY4LS4zMzMuMDM1LS41NTQuMjktLjU1NC41NVY3YzAgLjI1NS4yMjYuNTQzLjYyLjY1IDEuMDk1LjMgMS45NzcuOTk3IDIuNjE0IDEuNzA5LjYzNS43MSAxLjA2NCAxLjQ3NSAxLjIzOCAxLjk3Ny4yNDMuNy40MDcgMS43NjguNDgyIDIuODUuMDI1LjM2Mi4zNi41OTUuNjY3LjUxOGwuMjYyLS4wNjVjLjE2LS4wNC4yNTgtLjE0NC4yODgtLjI1NWE4LjM0IDguMzQgMCAwIDAtLjE0NS00LjcyNi41LjUgMCAwIDEgLjU5NS0uNjQzaC4wMDNsLjAxNC4wMDQuMDU4LjAxM2E4LjkxMiA4LjkxMiAwIDAgMCAxLjAzNi4xNTdjLjY2My4wNiAxLjQ1Ny4wNTQgMi4xMS0uMTYzLjE3NS0uMDU5LjQ1LS4zMDEuNTctLjY1MS4xMDctLjMwOC4wODctLjY3LS4yNjYtMS4wMjFMMTIuNzkzIDdsLjM1My0uMzU0Yy4wNDMtLjA0Mi4xMDUtLjE0LjE1NC0uMzE1LjA0OC0uMTY3LjA3NS0uMzcuMDc1LS41ODEgMC0uMjExLS4wMjctLjQxNC0uMDc1LS41ODEtLjA1LS4xNzQtLjExMS0uMjczLS4xNTQtLjMxNWwtLjM1My0uMzU0LjM1My0uMzU0Yy4wNDctLjA0Ny4xMDktLjE3Ni4wMDUtLjQ4OGEyLjIyNCAyLjIyNCAwIDAgMC0uNTA1LS44MDRsLS4zNTMtLjM1NC4zNTMtLjM1NGMuMDA2LS4wMDUuMDQxLS4wNS4wNDEtLjE3YS44NjYuODY2IDAgMCAwLS4xMjEtLjQxNUMxMi40IDEuMjcyIDEyLjA2MyAxIDExLjUgMXoiLz4KPC9zdmc+"
 var thumbDownFilledImage = new Image()
 thumbDownFilledImage.src =
-	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktaGFuZC10aHVtYnMtZG93bi1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik02Ljk1NiAxNC41MzRjLjA2NS45MzYuOTUyIDEuNjU5IDEuOTA4IDEuNDJsLjI2MS0uMDY1YTEuMzc4IDEuMzc4IDAgMCAwIDEuMDEyLS45NjVjLjIyLS44MTYuNTMzLTIuNTEyLjA2Mi00LjUxLjEzNi4wMi4yODUuMDM3LjQ0My4wNTEuNzEzLjA2NSAxLjY2OS4wNzEgMi41MTYtLjIxMS41MTgtLjE3My45OTQtLjY4IDEuMi0xLjI3MmExLjg5NiAxLjg5NiAwIDAgMC0uMjM0LTEuNzM0Yy4wNTgtLjExOC4xMDMtLjI0Mi4xMzgtLjM2Mi4wNzctLjI3LjExMy0uNTY4LjExMy0uODU2IDAtLjI5LS4wMzYtLjU4Ni0uMTEzLS44NTdhMi4wOTQgMi4wOTQgMCAwIDAtLjE2LS40MDNjLjE2OS0uMzg3LjEwNy0uODItLjAwMy0xLjE0OWEzLjE2MiAzLjE2MiAwIDAgMC0uNDg4LS45Yy4wNTQtLjE1My4wNzYtLjMxMy4wNzYtLjQ2NWExLjg2IDEuODYgMCAwIDAtLjI1My0uOTEyQzEzLjEuNzU3IDEyLjQzNy4yOCAxMS41LjI4SDhjLS42MDUgMC0xLjA3LjA4LTEuNDY2LjIxN2E0LjgyMyA0LjgyMyAwIDAgMC0uOTcuNDg1bC0uMDQ4LjAyOWMtLjUwNC4zMDgtLjk5OS42MS0yLjA2OC43MjNDMi42ODIgMS44MTUgMiAyLjQzNCAyIDMuMjc5djRjMCAuODUxLjY4NSAxLjQzMyAxLjM1NyAxLjYxNi44NDkuMjMyIDEuNTc0Ljc4NyAyLjEzMiAxLjQxLjU2LjYyNi45MTQgMS4yOCAxLjAzOSAxLjYzOC4xOTkuNTc1LjM1NiAxLjU0LjQyOCAyLjU5MXoiLz4KPC9zdmc+'
+	"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktaGFuZC10aHVtYnMtZG93bi1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik02Ljk1NiAxNC41MzRjLjA2NS45MzYuOTUyIDEuNjU5IDEuOTA4IDEuNDJsLjI2MS0uMDY1YTEuMzc4IDEuMzc4IDAgMCAwIDEuMDEyLS45NjVjLjIyLS44MTYuNTMzLTIuNTEyLjA2Mi00LjUxLjEzNi4wMi4yODUuMDM3LjQ0My4wNTEuNzEzLjA2NSAxLjY2OS4wNzEgMi41MTYtLjIxMS41MTgtLjE3My45OTQtLjY4IDEuMi0xLjI3MmExLjg5NiAxLjg5NiAwIDAgMC0uMjM0LTEuNzM0Yy4wNTgtLjExOC4xMDMtLjI0Mi4xMzgtLjM2Mi4wNzctLjI3LjExMy0uNTY4LjExMy0uODU2IDAtLjI5LS4wMzYtLjU4Ni0uMTEzLS44NTdhMi4wOTQgMi4wOTQgMCAwIDAtLjE2LS40MDNjLjE2OS0uMzg3LjEwNy0uODItLjAwMy0xLjE0OWEzLjE2MiAzLjE2MiAwIDAgMC0uNDg4LS45Yy4wNTQtLjE1My4wNzYtLjMxMy4wNzYtLjQ2NWExLjg2IDEuODYgMCAwIDAtLjI1My0uOTEyQzEzLjEuNzU3IDEyLjQzNy4yOCAxMS41LjI4SDhjLS42MDUgMC0xLjA3LjA4LTEuNDY2LjIxN2E0LjgyMyA0LjgyMyAwIDAgMC0uOTcuNDg1bC0uMDQ4LjAyOWMtLjUwNC4zMDgtLjk5OS42MS0yLjA2OC43MjNDMi42ODIgMS44MTUgMiAyLjQzNCAyIDMuMjc5djRjMCAuODUxLjY4NSAxLjQzMyAxLjM1NyAxLjYxNi44NDkuMjMyIDEuNTc0Ljc4NyAyLjEzMiAxLjQxLjU2LjYyNi45MTQgMS4yOCAxLjAzOSAxLjYzOC4xOTkuNTc1LjM1NiAxLjU0LjQyOCAyLjU5MXoiLz4KPC9zdmc+"
 /**
  * draw badges (icons) around Factors and Links
  * @param {CanvasRenderingContext2D} ctx NetPane canvas context
@@ -1592,7 +1667,7 @@ function drawBadges(ctx) {
 		// note card for Factors and Links with Notes
 		data.nodes
 			.get()
-			.filter((node) => !node.hidden && node.note && node.note !== 'Notes')
+			.filter((node) => !node.hidden && node.note && node.note !== "Notes")
 			.forEach((node) => {
 				let box = network.getBoundingBox(node.id)
 				drawTheBadge(noteImage, ctx, box.right, box.top)
@@ -1603,7 +1678,7 @@ function drawBadges(ctx) {
 			if (
 				!edge.hidden &&
 				edge.note &&
-				edge.note !== 'Notes' &&
+				edge.note !== "Notes" &&
 				edge.arrows &&
 				edge.arrows.middle &&
 				!edge.arrows.middle.enabled
@@ -1611,10 +1686,10 @@ function drawBadges(ctx) {
 				// there is a note, but the badge is not shown
 				changedEdges.push(edge)
 				edge.arrows.middle.enabled = true
-				edge.arrows.middle.type = 'image'
+				edge.arrows.middle.type = "image"
 				edge.arrows.middle.src = noteImage.src
 			} else if (
-				(!edge.note || (edge.note && edge.note === 'Notes')) &&
+				(!edge.note || (edge.note && edge.note === "Notes")) &&
 				edge.arrows &&
 				edge.arrows.middle &&
 				edge.arrows.middle.enabled
@@ -1638,7 +1713,9 @@ function drawBadges(ctx) {
 			)
 			drawThumbCount(ctx, node.thumbUp, box.left + 36, box.bottom + 10)
 			drawTheBadge(
-				node.thumbDown?.includes(clientID) ? thumbDownFilledImage : thumbDownImage,
+				node.thumbDown?.includes(clientID)
+					? thumbDownFilledImage
+					: thumbDownImage,
 				ctx,
 				box.right - 36,
 				box.bottom
@@ -1668,7 +1745,7 @@ function drawBadges(ctx) {
 	function drawThumbCount(ctx, voters, x, y) {
 		if (voters) {
 			ctx.beginPath()
-			ctx.fillStyle = 'black'
+			ctx.fillStyle = "black"
 			ctx.fillText(voters.length.toString(), x, y)
 		}
 	}
@@ -1697,7 +1774,7 @@ function copyToClipboard(event) {
 	let nIds = network.getSelectedNodes()
 	let eIds = network.getSelectedEdges()
 	if (nIds.length + eIds.length === 0) {
-		statusMsg('Nothing selected to copy', 'warn')
+		statusMsg("Nothing selected to copy", "warn")
 		return
 	}
 	let nodes = []
@@ -1707,16 +1784,23 @@ function copyToClipboard(event) {
 		let edgesFromNode = network.getConnectedEdges(nId)
 		edgesFromNode.forEach((eId) => {
 			let edge = data.edges.get(eId)
-			if (nIds.includes(edge.to) && nIds.includes(edge.from) && !edges.find((e) => e.id === eId)) edges.push(edge)
+			if (
+				nIds.includes(edge.to) &&
+				nIds.includes(edge.from) &&
+				!edges.find((e) => e.id === eId)
+			)
+				edges.push(edge)
 		})
 	})
 	eIds.forEach((eId) => {
 		let edge = data.edges.get(eId)
-		if (!nodes.find((n) => n.id === edge.from)) nodes.push(data.nodes.get(edge.from))
-		if (!nodes.find((n) => n.id === edge.to)) nodes.push(data.nodes.get(edge.to))
+		if (!nodes.find((n) => n.id === edge.from))
+			nodes.push(data.nodes.get(edge.from))
+		if (!nodes.find((n) => n.id === edge.to))
+			nodes.push(data.nodes.get(edge.to))
 		if (!edges.find((e) => e.id === eId)) edges.push(data.edges.get(eId))
 	})
-	copyText(JSON.stringify({nodes: nodes, edges: edges}))
+	copyText(JSON.stringify({ nodes: nodes, edges: edges }))
 }
 /**
  * copy the contents of the history log to the clipboard
@@ -1726,25 +1810,30 @@ function copyHistoryToClipboard(event) {
 	event.preventDefault()
 	let history = yHistory
 		.toArray()
-		.map((rec) => `${timeAndDate(rec.time, true)}\t${rec.user}\t${rec.action.replace(/\s+/g, ' ').trim()}\n`)
-		.join('')
+		.map(
+			(rec) =>
+				`${timeAndDate(rec.time, true)}\t${rec.user}\t${rec.action
+					.replace(/\s+/g, " ")
+					.trim()}\n`
+		)
+		.join("")
 	copyText(history)
 }
 async function copyText(text) {
 	try {
-		if (typeof navigator.clipboard.writeText !== 'function')
-			throw new Error('navigator.clipboard.writeText not a function')
+		if (typeof navigator.clipboard.writeText !== "function")
+			throw new Error("navigator.clipboard.writeText not a function")
 	} catch (e) {
-		statusMsg('Copying not implemented in this browser', 'error')
+		statusMsg("Copying not implemented in this browser", "error")
 		return false
 	}
 	try {
 		await navigator.clipboard.writeText(text)
-		statusMsg('Copied to clipboard', 'info')
+		statusMsg("Copied to clipboard", "info")
 		return true
 	} catch (err) {
-		console.error('Failed to copy: ', err)
-		statusMsg('Copy failed', 'error')
+		console.error("Failed to copy: ", err)
+		statusMsg("Copy failed", "error")
 		return false
 	}
 }
@@ -1758,7 +1847,7 @@ async function pasteFromClipboard() {
 	let nodes
 	let edges
 	try {
-		;({nodes, edges} = JSON.parse(clip))
+		;({ nodes, edges } = JSON.parse(clip))
 	} catch (err) {
 		// silently return (i.e. use system paste) if there is nothing relevant on the clipboard
 		return
@@ -1784,23 +1873,23 @@ async function pasteFromClipboard() {
 		edges: edges.map((e) => e.id),
 	})
 	showSelected()
-	statusMsg('Pasted', 'info')
-	logHistory('pasted factors and/or links from clipboard')
+	statusMsg("Pasted", "info")
+	logHistory("pasted factors and/or links from clipboard")
 }
 
 async function getClipboardContents() {
 	try {
-		if (typeof navigator.clipboard.readText !== 'function')
-			throw new Error('navigator.clipboard.readText not a function')
+		if (typeof navigator.clipboard.readText !== "function")
+			throw new Error("navigator.clipboard.readText not a function")
 	} catch (e) {
-		statusMsg('Pasting not implemented in this browser', 'error')
+		statusMsg("Pasting not implemented in this browser", "error")
 		return null
 	}
 	try {
 		return await navigator.clipboard.readText()
 	} catch (err) {
-		console.error('Failed to read clipboard contents: ', err)
-		statusMsg('Failed to paste', 'error')
+		console.error("Failed to read clipboard contents: ", err)
+		statusMsg("Failed to paste", "error")
 		return null
 	}
 }
@@ -1814,27 +1903,27 @@ async function getClipboardContents() {
  * @param {Function} callback
  */
 function addLabel(item, cancelAction, callback) {
-	if (elem('popup').style.display === 'block') return // can't add factor when factor is already being added
-	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback)
-	let pos = {x: event.offsetX, y: event.offsetY}
+	if (elem("popup").style.display === "block") return // can't add factor when factor is already being added
+	initPopUp("Add Factor", 60, item, cancelAction, saveLabel, callback)
+	let pos = network.canvasToDOM({ x: item.x, y: item.y })
 	positionPopUp(pos)
 	removeFactorCursor()
 	ghostFactor(pos)
-	elem('popup-label').focus()
+	elem("popup-label").focus()
 }
 /**
  * broadcast to other users that a new factor is being added here
  * @param {Object} pos offset coordinates of Add Factor dialog
  */
 function ghostFactor(pos) {
-	yAwareness.setLocalStateField('addingFactor', {
-		state: 'adding',
+	yAwareness.setLocalStateField("addingFactor", {
+		state: "adding",
 		pos: network.DOMtoCanvas(pos),
 		name: myNameRec.name,
 	})
-	elem('popup').timer = setTimeout(() => {
+	elem("popup").timer = setTimeout(() => {
 		// close it after a time if the user has gone away
-		yAwareness.setLocalStateField('addingFactor', {state: 'done'})
+		yAwareness.setLocalStateField("addingFactor", { state: "done" })
 	}, TIMETOEDIT)
 }
 
@@ -1846,9 +1935,9 @@ function ghostFactor(pos) {
  * @param {Function} callback what to do if the edit is saved
  */
 function editNode(item, point, cancelAction, callback) {
-	initPopUp('Edit Factor', 150, item, cancelAction, saveNode, callback)
-	elem('popup').insertAdjacentHTML(
-		'beforeend',
+	initPopUp("Edit Factor", 150, item, cancelAction, saveNode, callback)
+	elem("popup").insertAdjacentHTML(
+		"beforeend",
 		`	
 		<table id="popup-table">
 		<tr>
@@ -1893,19 +1982,28 @@ function editNode(item, point, cancelAction, callback) {
 		</tr>
 	  </table>`
 	)
-	cp.createColorPicker('node-backgroundColor')
-	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background)
-	cp.createColorPicker('node-borderColor')
-	elem('node-borderColor').style.backgroundColor = standardize_color(item.color.border)
-	cp.createColorPicker('node-fontColor')
-	elem('node-fontColor').style.backgroundColor = standardize_color(item.font.color)
-	elem('node-borderType').value = getDashes(item.shapeProperties.borderDashes, item.borderWidth)
+	cp.createColorPicker("node-backgroundColor")
+	elem("node-backgroundColor").style.backgroundColor = standardize_color(
+		item.color.background
+	)
+	cp.createColorPicker("node-borderColor")
+	elem("node-borderColor").style.backgroundColor = standardize_color(
+		item.color.border
+	)
+	cp.createColorPicker("node-fontColor")
+	elem("node-fontColor").style.backgroundColor = standardize_color(
+		item.font.color
+	)
+	elem("node-borderType").value = getDashes(
+		item.shapeProperties.borderDashes,
+		item.borderWidth
+	)
 	positionPopUp(point)
-	elem('popup-label').focus()
-	elem('popup').timer = setTimeout(() => {
+	elem("popup-label").focus()
+	elem("popup").timer = setTimeout(() => {
 		//ensure that the node cannot be locked out for ever
 		cancelEdit(item, callback)
-		statusMsg('Edit timed out', 'warn')
+		statusMsg("Edit timed out", "warn")
 	}, TIMETOEDIT)
 	lockNode(item)
 }
@@ -1916,8 +2014,8 @@ function editNode(item, point, cancelAction, callback) {
  * @param {number} width
  */
 function getDashes(val, width) {
-	if (Array.isArray(val)) return 'dots'
-	if (width === 0) return 'none'
+	if (Array.isArray(val)) return "dots"
+	if (width === 0) return "none"
 	return val.toString()
 }
 /**
@@ -1928,9 +2026,9 @@ function getDashes(val, width) {
  * @param {Function} callback what to do if the edit is saved
  */
 function editEdge(item, point, cancelAction, callback) {
-	initPopUp('Edit Link', 150, item, cancelAction, saveEdge, callback)
-	elem('popup').insertAdjacentHTML(
-		'beforeend',
+	initPopUp("Edit Link", 150, item, cancelAction, saveEdge, callback)
+	elem("popup").insertAdjacentHTML(
+		"beforeend",
 		` 
 		<table id="popup-table">
 		<tr>
@@ -1985,18 +2083,20 @@ function editEdge(item, point, cancelAction, callback) {
 		</tr>
 	</table>`
 	)
-	elem('edge-width').value = parseInt(item.width)
-	cp.createColorPicker('edge-color')
-	elem('edge-color').style.backgroundColor = standardize_color(item.color.color)
-	elem('edge-type').value = getDashes(item.dashes, null)
-	elem('edge-arrow').value = item.arrows.to.enabled ? item.arrows.to.type : 'none'
-	elem('edge-font-size').value = parseInt(item.font.size)
+	elem("edge-width").value = parseInt(item.width)
+	cp.createColorPicker("edge-color")
+	elem("edge-color").style.backgroundColor = standardize_color(item.color.color)
+	elem("edge-type").value = getDashes(item.dashes, null)
+	elem("edge-arrow").value = item.arrows.to.enabled
+		? item.arrows.to.type
+		: "none"
+	elem("edge-font-size").value = parseInt(item.font.size)
 	positionPopUp(point)
-	elem('popup-label').focus()
-	elem('popup').timer = setTimeout(() => {
+	elem("popup-label").focus()
+	elem("popup").timer = setTimeout(() => {
 		//ensure that the edge cannot be locked out for ever
 		cancelEdit(item, callback)
-		statusMsg('Edit timed out', 'warn')
+		statusMsg("Edit timed out", "warn")
 	}, TIMETOEDIT)
 	lockEdge(item)
 }
@@ -2009,18 +2109,26 @@ function editEdge(item, point, cancelAction, callback) {
  * @param {function} saveAction
  * @param {function} callback
  */
-function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback) {
+function initPopUp(
+	popUpTitle,
+	height,
+	item,
+	cancelAction,
+	saveAction,
+	callback
+) {
 	inAddMode = false
 	inEditMode = true
-	changeCursor('default')
-	elem('popup').style.height = `${height}px`
-	elem('popup-operation').innerHTML = popUpTitle
-	elem('popup-saveButton').onclick = saveAction.bind(this, item, callback)
-	elem('popup-cancelButton').onclick = cancelAction.bind(this, item, callback)
-	let popupLabel = elem('popup-label')
-	popupLabel.style.fontSize = '14px'
-	popupLabel.innerText = item.label === undefined ? '' : item.label.replace(/\n/g, ' ')
-	let table = elem('popup-table')
+	changeCursor("default")
+	elem("popup").style.height = `${height}px`
+	elem("popup-operation").innerHTML = popUpTitle
+	elem("popup-saveButton").onclick = saveAction.bind(this, item, callback)
+	elem("popup-cancelButton").onclick = cancelAction.bind(this, item, callback)
+	let popupLabel = elem("popup-label")
+	popupLabel.style.fontSize = "14px"
+	popupLabel.innerText =
+		item.label === undefined ? "" : item.label.replace(/\n/g, " ")
+	let table = elem("popup-table")
 	if (table) table.remove()
 }
 
@@ -2030,28 +2138,28 @@ function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback)
  * @param {Object} point
  */
 function positionPopUp(point) {
-	let popUp = elem('popup')
-	popUp.style.display = 'block'
+	let popUp = elem("popup")
+	popUp.style.display = "block"
 	// popup appears to the left of the given point
 	popUp.style.top = `${point.y - popUp.offsetHeight / 2}px`
 	let left = point.x - popUp.offsetWidth / 2 - 3
 	popUp.style.left = `${left < 0 ? 0 : left}px`
-	dragElement(popUp, elem('popup-top'))
+	dragElement(popUp, elem("popup-top"))
 }
 
 /**
  * Hide the editing dialog box
  */
 function clearPopUp() {
-	elem('popup-saveButton').onclick = null
-	elem('popup-cancelButton').onclick = null
-	elem('popup-label').onkeyup = null
-	elem('popup').style.display = 'none'
-	if (elem('popup').timer) {
-		clearTimeout(elem('popup').timer)
-		elem('popup').timer = undefined
+	elem("popup-saveButton").onclick = null
+	elem("popup-cancelButton").onclick = null
+	elem("popup-label").onkeyup = null
+	elem("popup").style.display = "none"
+	if (elem("popup").timer) {
+		clearTimeout(elem("popup").timer)
+		elem("popup").timer = undefined
 	}
-	yAwareness.setLocalStateField('addingFactor', {state: 'done'})
+	yAwareness.setLocalStateField("addingFactor", { state: "done" })
 	inEditMode = false
 }
 /**
@@ -2086,14 +2194,14 @@ function cancelEdit(item, callback) {
  * @param {Function} callback
  */
 function saveLabel(node, callback) {
-	node.label = splitText(elem('popup-label').innerText, NODEWIDTH)
+	node.label = splitText(elem("popup-label").innerText, NODEWIDTH)
 	clearPopUp()
-	if (node.label === '') {
-		statusMsg('No label: cancelled', 'error')
+	if (node.label === "") {
+		statusMsg("No label: cancelled", "error")
 		callback(null)
 		return
 	}
-	network.manipulation.inMode = 'addNode' // ensure still in Add mode, in case others have done something meanwhile
+	network.manipulation.inMode = "addNode" // ensure still in Add mode, in case others have done something meanwhile
 	callback(node)
 	logHistory(`added factor '${node.label}'`)
 }
@@ -2103,28 +2211,31 @@ function saveLabel(node, callback) {
  * @param {Function} callback
  */
 function saveNode(item, callback) {
-	item.label = splitText(elem('popup-label').innerText, NODEWIDTH)
+	item.label = splitText(elem("popup-label").innerText, NODEWIDTH)
 	clearPopUp()
-	if (item.label === '') {
+	if (item.label === "") {
 		// if there is no label, cancel (nodes must have a label)
-		statusMsg('No label: cancelled', 'error')
+		statusMsg("No label: cancelled", "error")
 		callback(null)
 	}
-	let color = elem('node-backgroundColor').style.backgroundColor
+	let color = elem("node-backgroundColor").style.backgroundColor
 	item.color.background = color
 	item.color.highlight.background = color
 	item.color.hover.background = color
-	color = elem('node-borderColor').style.backgroundColor
+	color = elem("node-borderColor").style.backgroundColor
 	item.color.border = color
 	item.color.highlight.border = color
 	item.color.hover.border = color
-	item.font.color = elem('node-fontColor').style.backgroundColor
-	let borderType = elem('node-borderType').value
-	item.borderWidth = borderType === 'none' ? 0 : 4
+	item.font.color = elem("node-fontColor").style.backgroundColor
+	let borderType = elem("node-borderType").value
+	item.borderWidth = borderType === "none" ? 0 : 4
 	item.shapeProperties.borderDashes = convertDashes(borderType)
-	network.manipulation.inMode = 'editNode' // ensure still in Add mode, in case others have done something meanwhile
+	network.manipulation.inMode = "editNode" // ensure still in Add mode, in case others have done something meanwhile
 	if (item.label === item.oldLabel) logHistory(`edited factor: '${item.label}'`)
-	else logHistory(`edited factor, changing label from '${item.oldLabel}' to '${item.label}'`)
+	else
+		logHistory(
+			`edited factor, changing label from '${item.oldLabel}' to '${item.label}'`
+		)
 	unlockNode(item)
 	callback(item)
 }
@@ -2151,7 +2262,7 @@ function unlockNode(item) {
 	item.opacity = 1
 	item.fixed = item.wasFixed
 	item.oldLabel = undefined
-	dontUndo = 'unlocked'
+	dontUndo = "unlocked"
 	data.nodes.update(item)
 	showNodeOrEdgeData()
 }
@@ -2172,27 +2283,31 @@ function unlockAll() {
  * @param {Function} callback
  */
 function saveEdge(item, callback) {
-	item.label = splitText(elem('popup-label').innerText, NODEWIDTH)
+	item.label = splitText(elem("popup-label").innerText, NODEWIDTH)
 	clearPopUp()
-	if (item.label === '') item.label = ' '
-	let color = elem('edge-color').style.backgroundColor
+	if (item.label === "") item.label = " "
+	let color = elem("edge-color").style.backgroundColor
 	item.color.color = color
 	item.color.hover = color
 	item.color.highlight = color
-	item.width = parseInt(elem('edge-width').value)
+	item.width = parseInt(elem("edge-width").value)
 	if (!item.width) item.width = 1
-	item.dashes = convertDashes(elem('edge-type').value)
+	item.dashes = convertDashes(elem("edge-type").value)
 	item.arrows.to = {
-		enabled: elem('edge-arrow').value !== 'none',
-		type: elem('edge-arrow').value,
+		enabled: elem("edge-arrow").value !== "none",
+		type: elem("edge-arrow").value,
 	}
-	item.font.size = parseInt(elem('edge-font-size').value)
-	network.manipulation.inMode = 'editEdge' // ensure still in edit mode, in case others have done something meanwhile
+	item.font.size = parseInt(elem("edge-font-size").value)
+	network.manipulation.inMode = "editEdge" // ensure still in edit mode, in case others have done something meanwhile
 	unlockEdge(item)
 	// vis-network silently deselects all edges in the callback (why?).  So we have to mark this edge as unselected in preparation
 	clearStatusBar()
 	callback(item)
-	logHistory(`edited link from '${data.nodes.get(item.from).label}' to '${data.nodes.get(item.to).label}'`)
+	logHistory(
+		`edited link from '${data.nodes.get(item.from).label}' to '${
+			data.nodes.get(item.to).label
+		}'`
+	)
 }
 /**
  * Convert from the menu selection to the CSS format of the edge
@@ -2200,15 +2315,15 @@ function saveEdge(item, callback) {
  */
 function convertDashes(val) {
 	switch (val) {
-		case 'true':
+		case "true":
 			return true
-		case 'false':
+		case "false":
 			return false
-		case 'dashes':
+		case "dashes":
 			return [10, 10]
-		case 'dots':
+		case "dots":
 			return [2, 8]
-		case 'none':
+		case "none":
 			return false
 		default:
 			return val
@@ -2216,9 +2331,9 @@ function convertDashes(val) {
 }
 function lockEdge(item) {
 	item.locked = true
-	item.font.color = 'rgba(0,0,0,0.5)'
+	item.font.color = "rgba(0,0,0,0.5)"
 	item.opacity = 0.1
-	item.oldLabel = item.label || ' '
+	item.oldLabel = item.label || " "
 	item.label = `Being edited by ${myNameRec.name}`
 	data.edges.update(item)
 }
@@ -2228,10 +2343,10 @@ function lockEdge(item) {
  */
 function unlockEdge(item) {
 	item.locked = false
-	item.font.color = 'rgba(0,0,0,1)'
+	item.font.color = "rgba(0,0,0,1)"
 	item.opacity = 1
 	item.oldLabel = undefined
-	dontUndo = 'unlocked'
+	dontUndo = "unlocked"
 	data.edges.update(item)
 	showNodeOrEdgeData()
 }
@@ -2257,7 +2372,7 @@ function duplEdge(from, to) {
 function changeCursor(newCursorStyle) {
 	if (inAddMode) return
 	netPane.style.cursor = newCursorStyle
-	elem('navbar').style.cursor = newCursorStyle
+	elem("navbar").style.cursor = newCursorStyle
 }
 /**
  * User has set or changed the map title: update the UI and broadcast the new title
@@ -2266,37 +2381,37 @@ function changeCursor(newCursorStyle) {
 function mapTitle(e) {
 	let title = e.target.innerText
 	title = setMapTitle(title)
-	yNetMap.set('mapTitle', title)
+	yNetMap.set("mapTitle", title)
 }
 function pasteMapTitle(e) {
 	e.preventDefault()
-	let paste = (e.clipboardData || window.clipboardData).getData('text/plain')
+	let paste = (e.clipboardData || window.clipboardData).getData("text/plain")
 	if (paste instanceof HTMLElement) paste = paste.textContent
 	const selection = window.getSelection()
 	if (!selection.rangeCount) return false
 	selection.deleteFromDocument()
 	selection.getRangeAt(0).insertNode(document.createTextNode(paste))
-	setMapTitle(elem('maptitle').innerText)
+	setMapTitle(elem("maptitle").innerText)
 }
 /**
  * Format the map title
  * @param {string} title
  */
 export function setMapTitle(title) {
-	let div = elem('maptitle')
+	let div = elem("maptitle")
 	clearStatusBar()
 	if (!title) {
-		title = 'Untitled map'
+		title = "Untitled map"
 	}
-	if (title === 'Untitled map') {
-		div.classList.add('unsetmaptitle')
+	if (title === "Untitled map") {
+		div.classList.add("unsetmaptitle")
 		document.title = appName
 	} else {
 		if (title.length > 50) {
 			title = title.slice(0, 50)
-			statusMsg('Map title is too long: truncated', 'warn')
+			statusMsg("Map title is too long: truncated", "warn")
 		}
-		div.classList.remove('unsetmaptitle')
+		div.classList.remove("unsetmaptitle")
 		document.title = `${title}: ${shortAppName} map`
 	}
 	if (title !== div.innerText) div.innerText = title
@@ -2310,33 +2425,34 @@ export function setMapTitle(title) {
  * @param {String} title
  */
 function titleDropDown(title) {
-	let recentMaps = localStorage.getItem('recents')
+	let recentMaps = localStorage.getItem("recents")
 	if (recentMaps) recentMaps = JSON.parse(recentMaps)
 	else recentMaps = {}
-	if (title !== 'Untitled map') {
+	if (title !== "Untitled map") {
 		recentMaps[room] = title
-		localStorage.setItem('recents', JSON.stringify(recentMaps))
+		localStorage.setItem("recents", JSON.stringify(recentMaps))
 	}
 	// if there is more than 1, append a down arrow after the map title as a cue to there being a list
-	if (Object.keys(recentMaps).length > 1) elem('recent-rooms-caret').classList.remove('hidden')
+	if (Object.keys(recentMaps).length > 1)
+		elem("recent-rooms-caret").classList.remove("hidden")
 }
 /**
  * Create a drop down list of previous maps used for user selection
  */
 function createTitleDropDown() {
 	removeTitleDropDown()
-	let selectList = document.createElement('ul')
-	selectList.id = 'recent-rooms-select'
-	selectList.classList.add('room-titles')
-	elem('recent-rooms').appendChild(selectList)
-	let recentMaps = JSON.parse(localStorage.getItem('recents'))
+	let selectList = document.createElement("ul")
+	selectList.id = "recent-rooms-select"
+	selectList.classList.add("room-titles")
+	elem("recent-rooms").appendChild(selectList)
+	let recentMaps = JSON.parse(localStorage.getItem("recents"))
 	// list is with most recent at the top, and no more than 20 items
 	if (recentMaps) {
 		let props = Object.keys(recentMaps).reverse().slice(0, 20)
 		props.forEach((prop) => {
 			makeTitleDropDownEntry(recentMaps[prop], prop)
 		})
-		makeTitleDropDownEntry('<b>New map</b>', '*new*', false)
+		makeTitleDropDownEntry("<b>New map</b>", "*new*", false)
 	}
 	/**
 	 * create a previous map menu item, with tooltip showing full title and room
@@ -2345,14 +2461,15 @@ function createTitleDropDown() {
 	 * @param {boolean} tooltip whether to display tooltip
 	 */
 	function makeTitleDropDownEntry(name, room, tooltip = true) {
-		let li = document.createElement('li')
-		li.classList.add('room-title', 'room-title-tooltip')
-		let div = document.createElement('div')
-		div.classList.add('room-title-text')
-		if (tooltip) div.innerHTML = `${name}<div class="room-title-right">${name}<br>&lt;${room}&gt;<i></i></div>`
+		let li = document.createElement("li")
+		li.classList.add("room-title", "room-title-tooltip")
+		let div = document.createElement("div")
+		div.classList.add("room-title-text")
+		if (tooltip)
+			div.innerHTML = `${name}<div class="room-title-right">${name}<br>&lt;${room}&gt;<i></i></div>`
 		else div.innerHTML = name
 		div.dataset.room = room
-		div.addEventListener('click', (event) => changeRoom(event))
+		div.addEventListener("click", (event) => changeRoom(event))
 		li.appendChild(div)
 		selectList.appendChild(li)
 	}
@@ -2362,18 +2479,19 @@ function createTitleDropDown() {
  * @param {Event} event
  */
 function changeRoom(event) {
-	if (data.nodes.length > 0) if (!confirm('Are you sure you want to move to a different map?')) return
+	if (data.nodes.length > 0)
+		if (!confirm("Are you sure you want to move to a different map?")) return
 	let newRoom = event.target.dataset.room
 	removeTitleDropDown()
 	let url = new URL(document.location)
-	url.search = newRoom !== '*new*' ? `?room=${newRoom}` : ''
+	url.search = newRoom !== "*new*" ? `?room=${newRoom}` : ""
 	window.location.replace(url)
 }
 /**
  * Remove the drop down list of previous maps if user clicks on the net-pane or on a map title.
  */
 function removeTitleDropDown() {
-	let oldSelect = elem('recent-rooms-select')
+	let oldSelect = elem("recent-rooms-select")
 	if (oldSelect) oldSelect.remove()
 }
 /**
@@ -2389,7 +2507,7 @@ export function unSelect() {
 */
 // set  up a web worker to calculate network statistics in parallel with whatever
 // the user is doing
-var worker = new Worker(new URL('betweenness.js', import.meta.url))
+var worker = new Worker(new URL("betweenness.js", import.meta.url))
 /**
  * Ask the web worker to recalculate network statistics
  */
@@ -2400,7 +2518,7 @@ function recalculateStats() {
 	}, 200)
 }
 worker.onmessage = function (e) {
-	if (typeof e.data === 'string') console.log(e.data)
+	if (typeof e.data === "string") console.log(e.data)
 	// don't frighten the horses: statusMsg(e.data, 'error');
 	else {
 		let nodesToUpdate = []
@@ -2425,9 +2543,9 @@ worker.onmessage = function (e) {
  */
 function listFactors(factors, suppressType) {
 	if (factors.length > 5) return `${factors.length} factors`
-	let str = ''
+	let str = ""
 	if (!suppressType) {
-		str = 'Factor'
+		str = "Factor"
 		if (factors.length > 1) str = `${str}s`
 		str = `${str}: `
 	}
@@ -2450,7 +2568,7 @@ function listFactors(factors, suppressType) {
  */
 function listLinks(links) {
 	if (links.length > 1) return `${links.length} links`
-	return '1 link'
+	return "1 link"
 }
 /**
  * returns string of currently selected labels of links and factors, nicely formatted
@@ -2459,9 +2577,9 @@ function listLinks(links) {
 function selectedLabels() {
 	let selectedNodes = network.getSelectedNodes()
 	let selectedEdges = network.getSelectedEdges()
-	let msg = ''
+	let msg = ""
 	if (selectedNodes.length > 0) msg = listFactors(selectedNodes)
-	if (selectedNodes.length > 0 && selectedEdges.length > 0) msg += ' and '
+	if (selectedNodes.length > 0 && selectedEdges.length > 0) msg += " and "
 	if (selectedEdges.length > 0) msg += listLinks(selectedEdges)
 	return msg
 }
@@ -2493,21 +2611,21 @@ Network.prototype.zoom = function (scale) {
 export function fit() {
 	let prevPos = network.getViewPosition()
 	network.fit({
-		position: {x: 0, y: 0}, // fit to centre of canvas
+		position: { x: 0, y: 0 }, // fit to centre of canvas
 	})
 	let newPos = network.getViewPosition()
 	let newScale = network.getScale()
 	zoomCanvas(1.0)
 	panCanvas(prevPos.x - newPos.x, prevPos.y - newPos.y, 1.0)
 	zoomCanvas(newScale)
-	elem('zoom').value = newScale
+	elem("zoom").value = newScale
 	network.storePositions()
 }
 /**
  * expand/reduce the network view using the value in the zoom slider
  */
 function zoomnet() {
-	network.zoom(Number(elem('zoom').value))
+	network.zoom(Number(elem("zoom").value))
 }
 /**
  * zoom by the given amount (+ve or -ve);
@@ -2516,11 +2634,11 @@ function zoomnet() {
  * @param {Number} incr
  */
 function zoomincr(incr) {
-	let newScale = Number(elem('zoom').value)
+	let newScale = Number(elem("zoom").value)
 	newScale += incr
 	if (newScale > 4) newScale = 4
 	if (newScale <= 0.1) newScale = 0.1
-	elem('zoom').value = newScale
+	elem("zoom").value = newScale
 	network.zoom(newScale)
 }
 /**
@@ -2529,7 +2647,7 @@ function zoomincr(incr) {
  */
 var startzoom = 1
 function zoomstart() {
-	startzoom = Number(elem('zoom').value)
+	startzoom = Number(elem("zoom").value)
 }
 /**
  * zoom by the given amount
@@ -2539,7 +2657,7 @@ function zoomset(newScale) {
 	let newZoom = startzoom * newScale
 	if (newZoom > 4) newZoom = 4
 	if (newZoom <= 0.1) newZoom = 0.1
-	elem('zoom').value = newZoom
+	elem("zoom").value = newZoom
 	network.zoom(newZoom)
 }
 
@@ -2549,15 +2667,15 @@ var ticking = false // if true, we are waiting for an AnimationFrame */
 
 // listen for zoom/pinch (confusingly, referred to as mousewheel events)
 listen(
-	'net-pane',
-	'wheel',
+	"net-pane",
+	"wheel",
 	(e) => {
 		e.preventDefault()
 		// reject all but vertical touch movements
 		if (Math.abs(e.deltaX) <= 1) zoomscroll(e)
 	},
 	// must be passive, else pinch/zoom is intercepted by the browser itself
-	{passive: false}
+	{ passive: false }
 )
 /**
  * Zoom using a trackpad (with a mousewheel or two fingers)
@@ -2588,27 +2706,29 @@ function zoomUpdate() {
  */
 function plusNode() {
 	switch (inAddMode) {
-		case 'disabled':
+		case "disabled":
 			return
-		case 'addNode': {
+		case "addNode": {
 			removeFactorCursor()
-			showPressed('addNode', 'remove')
+			showPressed("addNode", "remove")
 			stopEdit()
 			break
 		}
-		case 'addLink': {
-			showPressed('addLink', 'remove')
+		case "addLink": {
+			showPressed("addLink", "remove")
 			stopEdit()
 		} // falls through
 		default:
 			// false
+			// don't allow user to add a factor while editing another one
+			if (elem("popup").style.display === "block") break
 			network.unselectAll()
-			changeCursor('cell')
+			changeCursor("cell")
 			ghostCursor()
-			inAddMode = 'addNode'
-			showPressed('addNode', 'add')
+			inAddMode = "addNode"
+			showPressed("addNode", "add")
 			unSelect()
-			statusMsg('Click on the map to add a factor')
+			statusMsg("Click on the map to add a factor")
 			network.addNodeMode()
 	}
 }
@@ -2617,14 +2737,14 @@ function plusNode() {
  */
 function ghostCursor() {
 	// no ghost cursor if the hardware only supports touch
-	if (!window.matchMedia('(any-hover: hover)').matches) return
-	const box = document.createElement('div')
-	box.classList.add('ghost-factor', 'factor-cursor')
-	box.id = 'factor-cursor'
+	if (!window.matchMedia("(any-hover: hover)").matches) return
+	const box = document.createElement("div")
+	box.classList.add("ghost-factor", "factor-cursor")
+	box.id = "factor-cursor"
 	document.body.appendChild(box)
 	const netPaneRect = netPane.getBoundingClientRect()
 	keepInWindow(box, netPaneRect)
-	document.addEventListener('pointermove', () => {
+	document.addEventListener("pointermove", () => {
 		keepInWindow(box, netPaneRect)
 	})
 	function keepInWindow(box, netPaneRect) {
@@ -2652,7 +2772,7 @@ function ghostCursor() {
  * remove the factor cursor if it exists
  */
 function removeFactorCursor() {
-	let factorCursor = elem('factor-cursor')
+	let factorCursor = elem("factor-cursor")
 	if (factorCursor) {
 		factorCursor.remove()
 	}
@@ -2665,32 +2785,36 @@ function removeFactorCursor() {
  */
 function plusLink() {
 	switch (inAddMode) {
-		case 'disabled':
+		case "disabled":
 			return
-		case 'addLink': {
-			showPressed('addLink', 'remove')
+		case "addLink": {
+			showPressed("addLink", "remove")
 			stopEdit()
 			clearStatusBar()
 			break
 		}
-		case 'addNode': {
-			showPressed('addNode', 'remove')
+		case "addNode": {
+			showPressed("addNode", "remove")
 			stopEdit() // falls through
 		} // falls through
 		default:
 			// false
+			// don't allow user to add a factor while editing another one
+			if (elem("popup").style.display === "block") break
 			removeFactorCursor()
 			if (data.nodes.length < 2) {
-				statusMsg('Two Factors needed to link', 'error')
+				statusMsg("Two Factors needed to link", "error")
 				break
 			}
-			changeCursor('crosshair')
-			inAddMode = 'addLink'
-			showPressed('addLink', 'add')
+			changeCursor("crosshair")
+			inAddMode = "addLink"
+			showPressed("addLink", "add")
 			unSelect()
-			statusMsg('Now drag from the middle of the Source factor to the middle of the Destination factor')
+			statusMsg(
+				"Now drag from the middle of the Source factor to the middle of the Destination factor"
+			)
 			network.setOptions({
-				interaction: {dragView: false, selectable: false},
+				interaction: { dragView: false, selectable: false },
 			})
 			network.addEdgeMode()
 	}
@@ -2702,7 +2826,7 @@ function stopEdit() {
 	inAddMode = false
 	network.disableEditMode()
 	clearStatusBar()
-	changeCursor('default')
+	changeCursor("default")
 }
 /**
  * Add or remove the CSS style showing that the button has been pressed
@@ -2711,28 +2835,28 @@ function stopEdit() {
  *
  */
 function showPressed(el, action) {
-	elem(el).children.item(0).classList[action]('pressed')
+	elem(el).children.item(0).classList[action]("pressed")
 }
 
 function undo() {
-	if (buttonIsDisabled('undo')) return
+	if (buttonIsDisabled("undo")) return
 	unSelect()
 	yUndoManager.undo()
-	logHistory('undid last action')
+	logHistory("undid last action")
 	undoRedoButtonStatus()
 }
 
 function redo() {
-	if (buttonIsDisabled('redo')) return
+	if (buttonIsDisabled("redo")) return
 	unSelect()
 	yUndoManager.redo()
-	logHistory('redid last action')
+	logHistory("redid last action")
 	undoRedoButtonStatus()
 }
 
 export function undoRedoButtonStatus() {
-	setButtonDisabledStatus('undo', yUndoManager.undoStack.length === 0)
-	setButtonDisabledStatus('redo', yUndoManager.redoStack.length === 0)
+	setButtonDisabledStatus("undo", yUndoManager.undoStack.length === 0)
+	setButtonDisabledStatus("redo", yUndoManager.redoStack.length === 0)
 }
 /**
  * Returns true if the button is not disabled
@@ -2740,7 +2864,7 @@ export function undoRedoButtonStatus() {
  * @returns Boolean
  */
 function buttonIsDisabled(id) {
-	return elem(id).classList.contains('disabled')
+	return elem(id).classList.contains("disabled")
 }
 /**
  * Change the visible state of a button
@@ -2748,8 +2872,8 @@ function buttonIsDisabled(id) {
  * @param {Boolean} state - true to make the button disabled
  */
 function setButtonDisabledStatus(id, state) {
-	if (state) elem(id).classList.add('disabled')
-	else elem(id).classList.remove('disabled')
+	if (state) elem(id).classList.add("disabled")
+	else elem(id).classList.remove("disabled")
 }
 
 function deleteNode() {
@@ -2762,72 +2886,77 @@ function deleteNode() {
  * set up the modal dialog that opens when the user clicks the Share icon in the nav bar
  */
 function setUpShareDialog() {
-	let modal = elem('shareModal')
-	let inputElem = elem('text-to-copy')
-	let copiedText = elem('copied-text')
+	let modal = elem("shareModal")
+	let inputElem = elem("text-to-copy")
+	let copiedText = elem("copied-text")
 
 	// When the user clicks the button, open the modal
-	listen('share', 'click', () => {
+	listen("share", "click", () => {
 		let path = `${window.location.pathname}?room=${room}`
 		let linkToShare = window.location.origin + path
-		copiedText.style.display = 'none'
-		modal.style.display = 'block'
+		copiedText.style.display = "none"
+		modal.style.display = "block"
 		inputElem.cols = linkToShare.length.toString()
 		inputElem.value = linkToShare
 		inputElem.style.height = `${inputElem.scrollHeight - 3}px`
 		inputElem.select()
 		network.storePositions()
 	})
-	listen('clone-button', 'click', () => openWindow('clone'))
-	listen('view-button', 'click', () => openWindow('view'))
-	listen('table-button', 'click', () => openWindow('table'))
+	listen("clone-button", "click", () => openWindow("clone"))
+	listen("view-button", "click", () => openWindow("view"))
+	listen("table-button", "click", () => openWindow("table"))
 	// When the user clicks on <span> (x), close the modal
-	listen('modal-close', 'click', (event) => closeShareDialog(event))
+	listen("modal-close", "click", (event) => closeShareDialog(event))
 	// When the user clicks anywhere on the background, close it
-	listen('shareModal', 'click', (event) => closeShareDialog(event))
+	listen("shareModal", "click", (event) => closeShareDialog(event))
 
-	listen('copy-text', 'click', (e) => {
+	listen("copy-text", "click", (e) => {
 		e.preventDefault()
 		// Select the text
 		inputElem.select()
 		if (copyText(inputElem.value))
 			// Display the copied text message
-			copiedText.style.display = 'inline-block'
+			copiedText.style.display = "inline-block"
 	})
 
 	function openWindow(type) {
-		let path = ''
+		let path = ""
 		switch (type) {
-			case 'clone': {
+			case "clone": {
 				doClone(false)
 				break
 			}
-			case 'view': {
+			case "view": {
 				doClone(true)
 				break
 			}
-			case 'table': {
-				path = `${window.location.pathname.replace('prsm.html', 'table.html')}?room=${room}`
-				window.open(path, '_blank')
+			case "table": {
+				path = `${window.location.pathname.replace(
+					"prsm.html",
+					"table.html"
+				)}?room=${room}`
+				window.open(path, "_blank")
 				break
 			}
 			default:
-				console.log('Bad case in openWindow()')
+				console.log("Bad case in openWindow()")
 				break
 		}
-		modal.style.display = 'none'
+		modal.style.display = "none"
 	}
 
 	function closeShareDialog(event) {
-		if (event.target === modal || event.target === elem('modal-close')) {
-			modal.style.display = 'none'
+		if (event.target === modal || event.target === elem("modal-close")) {
+			modal.style.display = "none"
 		}
 	}
 
 	function doClone(onlyView) {
 		let options = {
 			created: {
-				action: `cloned this map from room: ${room + (onlyView ? ' (Read Only)' : '')}`,
+				action: `cloned this map from room: ${
+					room + (onlyView ? " (Read Only)" : "")
+				}`,
 				actor: myNameRec.name,
 			},
 			viewOnly: onlyView,
@@ -2835,13 +2964,17 @@ function setUpShareDialog() {
 		// save state as a UTF16 string
 		let state = saveState(options)
 		// save it in local storage
-		localStorage.setItem('clone', state)
+		localStorage.setItem("clone", state)
 		// make a room id
 		let clonedRoom = generateRoom()
 		//open a new map
 		let path = `${window.location.pathname}?room=${clonedRoom}`
-		window.open(path, '_blank')
-		logHistory(`made a ${onlyView ? 'read-only copy' : 'clone'} of the map in room: ${clonedRoom}`)
+		window.open(path, "_blank")
+		logHistory(
+			`made a ${
+				onlyView ? "read-only copy" : "clone"
+			} of the map in room: ${clonedRoom}`
+		)
 	}
 }
 
@@ -2850,52 +2983,54 @@ function setUpShareDialog() {
  * Open an input for user to type label of node to search for and generate suggestions when user starts typing
  */
 function search() {
-	let searchBar = elem('search-bar')
-	if (searchBar.style.display === 'block') hideSearchBar()
+	let searchBar = elem("search-bar")
+	if (searchBar.style.display === "block") hideSearchBar()
 	else {
-		searchBar.style.display = 'block'
-		elem('search-icon').style.display = 'block'
+		searchBar.style.display = "block"
+		elem("search-icon").style.display = "block"
 		searchBar.focus()
-		listen('search-bar', 'keyup', searchTargets)
+		listen("search-bar", "keyup", searchTargets)
 	}
 }
 /**
  * generate and display a set of suggestions - nodes with labels that include the substring that the user has typed
  */
 function searchTargets() {
-	let str = elem('search-bar').value
-	if (!str || str === ' ') {
-		if (elem('targets')) elem('targets').remove()
+	let str = elem("search-bar").value
+	if (!str || str === " ") {
+		if (elem("targets")) elem("targets").remove()
 		return
 	}
-	let targets = elem('targets')
+	let targets = elem("targets")
 	if (targets) targets.remove()
-	targets = document.createElement('ul')
-	targets.id = 'targets'
-	targets.classList.add('search-ul')
+	targets = document.createElement("ul")
+	targets.id = "targets"
+	targets.classList.add("search-ul")
 	str = str.toLowerCase()
-	let suggestions = data.nodes.get().filter((n) => n.label.toLowerCase().includes(str))
+	let suggestions = data.nodes
+		.get()
+		.filter((n) => n.label.toLowerCase().includes(str))
 	suggestions.slice(0, 8).forEach((n) => {
-		let li = document.createElement('li')
-		li.classList.add('search-suggestion')
-		let div = document.createElement('div')
-		div.classList.add('search-suggestion-text')
-		div.innerText = n.label.replace(/\n/g, ' ')
+		let li = document.createElement("li")
+		li.classList.add("search-suggestion")
+		let div = document.createElement("div")
+		div.classList.add("search-suggestion-text")
+		div.innerText = n.label.replace(/\n/g, " ")
 		div.dataset.id = n.id
-		div.addEventListener('click', (event) => doSearch(event))
+		div.addEventListener("click", (event) => doSearch(event))
 		li.appendChild(div)
 		targets.appendChild(li)
 	})
 	if (suggestions.length > 8) {
-		let li = document.createElement('li')
-		li.classList.add('search-suggestion')
-		let div = document.createElement('div')
-		div.className = 'search-suggestion-text and-more'
-		div.innerText = 'and more ...'
+		let li = document.createElement("li")
+		li.classList.add("search-suggestion")
+		let div = document.createElement("div")
+		div.className = "search-suggestion-text and-more"
+		div.innerText = "and more ..."
 		li.appendChild(div)
 		targets.appendChild(li)
 	}
-	elem('suggestion-list').appendChild(targets)
+	elem("suggestion-list").appendChild(targets)
 }
 /**
  * do the search using the string in the search bar and, when found, focus on that node
@@ -2904,30 +3039,30 @@ function doSearch(event) {
 	let nodeId = event.target.dataset.id
 	if (nodeId) {
 		let prevPos = network.getViewPosition()
-		network.focus(nodeId, {scale: 1.5})
+		network.focus(nodeId, { scale: 1.5 })
 		let newPos = network.getViewPosition()
 		let newScale = network.getScale()
 		zoomCanvas(1.0)
 		panCanvas(prevPos.x - newPos.x, prevPos.y - newPos.y, 1.0)
 		zoomCanvas(newScale)
-		elem('zoom').value = newScale
+		elem("zoom").value = newScale
 		network.storePositions()
 		hideSearchBar()
 	}
 }
 function hideSearchBar() {
-	let searchBar = elem('search-bar')
-	if (elem('targets')) elem('targets').remove()
-	searchBar.value = ''
-	searchBar.style.display = 'none'
-	elem('search-icon').style.display = 'none'
+	let searchBar = elem("search-bar")
+	if (elem("targets")) elem("targets").remove()
+	searchBar.value = ""
+	searchBar.style.display = "none"
+	elem("search-icon").style.display = "none"
 }
 
 /**
  * display help page in a separate window
  */
 function displayHelp() {
-	window.open('./doc/help', 'helpWindow')
+	window.open("./doc/help", "helpWindow")
 }
 
 /**
@@ -2935,14 +3070,14 @@ function displayHelp() {
  */
 function togglePanel() {
 	if (container.panelHidden) {
-		panel.classList.remove('hide')
+		panel.classList.remove("hide")
 		positionNotes()
 	} else {
-		panel.classList.add('hide')
+		panel.classList.add("hide")
 	}
 	container.panelHidden = !container.panelHidden
 }
-dragElement(elem('panel'), elem('panelHeader'))
+dragElement(elem("panel"), elem("panelHeader"))
 
 /* ------------------------------------------------operations related to the side panel -------------------------------------*/
 
@@ -2951,15 +3086,23 @@ dragElement(elem('panel'), elem('panelHeader'))
  * @param {HTMLelement} pane
  */
 function keepPaneInWindow(pane) {
-	if (pane.offsetLeft + pane.offsetWidth > container.offsetLeft + container.offsetWidth) {
-		pane.style.left = `${container.offsetLeft + container.offsetWidth - pane.offsetWidth}px`
+	if (
+		pane.offsetLeft + pane.offsetWidth >
+		container.offsetLeft + container.offsetWidth
+	) {
+		pane.style.left = `${
+			container.offsetLeft + container.offsetWidth - pane.offsetWidth
+		}px`
 	}
-	if (pane.offsetTop + pane.offsetHeight > container.offsetTop + container.offsetHeight) {
+	if (
+		pane.offsetTop + pane.offsetHeight >
+		container.offsetTop + container.offsetHeight
+	) {
 		pane.style.top = `${
 			container.offsetTop +
 			container.offsetHeight -
 			pane.offsetHeight -
-			document.querySelector('footer').offsetHeight
+			document.querySelector("footer").offsetHeight
 		}px`
 	}
 }
@@ -2969,18 +3112,18 @@ function openTab(tabId) {
 	let tabcontent
 	let tablinks
 	// Get all elements with class="tabcontent" and hide them by moving them off screen
-	tabcontent = document.getElementsByClassName('tabcontent')
+	tabcontent = document.getElementsByClassName("tabcontent")
 	for (i = 0; i < tabcontent.length; i++) {
-		tabcontent[i].classList.add('hide')
+		tabcontent[i].classList.add("hide")
 	}
 	// Get all elements with class="tablinks" and remove the class "active"
-	tablinks = document.getElementsByClassName('tablinks')
+	tablinks = document.getElementsByClassName("tablinks")
 	for (i = 0; i < tablinks.length; i++) {
-		tablinks[i].className = tablinks[i].className.replace(' active', '')
+		tablinks[i].className = tablinks[i].className.replace(" active", "")
 	}
 	// Show the current tab, and add an "active" class to the button that opened the tab
-	elem(tabId).classList.remove('hide')
-	event.currentTarget.className += ' active'
+	elem(tabId).classList.remove("hide")
+	event.currentTarget.className += " active"
 	// if a Notes panel is in the way, move it
 	positionNotes()
 }
@@ -3026,17 +3169,17 @@ function applySampleToLink(event) {
 export function updateLastSamples(nodeId, linkId) {
 	if (nodeId) {
 		lastNodeSample = nodeId
-		let sampleNodes = Array.from(document.getElementsByClassName('sampleNode'))
+		let sampleNodes = Array.from(document.getElementsByClassName("sampleNode"))
 		let node = sampleNodes.filter((e) => e.groupNode === nodeId)[0]
-		sampleNodes.forEach((n) => n.classList.remove('sampleSelected'))
-		node.classList.add('sampleSelected')
+		sampleNodes.forEach((n) => n.classList.remove("sampleSelected"))
+		node.classList.add("sampleSelected")
 	}
 	if (linkId) {
 		lastLinkSample = linkId
-		let sampleLinks = Array.from(document.getElementsByClassName('sampleLink'))
+		let sampleLinks = Array.from(document.getElementsByClassName("sampleLink"))
 		let link = sampleLinks.filter((e) => e.groupLink === linkId)[0]
-		sampleLinks.forEach((n) => n.classList.remove('sampleSelected'))
-		link.classList.add('sampleSelected')
+		sampleLinks.forEach((n) => n.classList.remove("sampleSelected"))
+		link.classList.add("sampleSelected")
 	}
 }
 
@@ -3048,7 +3191,7 @@ function updateFactorsHiddenByStyle(obj) {
 	for (const sampleElementId in obj) {
 		let sampleElement = elem(sampleElementId)
 		let state = obj[sampleElementId]
-		sampleElement.dataset.hide = state ? 'hidden' : 'visible'
+		sampleElement.dataset.hide = state ? "hidden" : "visible"
 		sampleElement.style.opacity = state ? 0.6 : 1.0
 	}
 }
@@ -3057,7 +3200,7 @@ function updateFactorsHiddenByStyle(obj) {
  * ensure that the styles displayed in the node styles panel display the styles defined in the styles array
  */
 export function refreshSampleNodes() {
-	let sampleElements = Array.from(document.getElementsByClassName('sampleNode'))
+	let sampleElements = Array.from(document.getElementsByClassName("sampleNode"))
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i]
 		let node = sampleElement.dataSet.get()[0]
@@ -3072,7 +3215,7 @@ export function refreshSampleNodes() {
  * ensure that the styles displayed in the link styles panel display the styles defined in the styles array
  */
 export function refreshSampleLinks() {
-	let sampleElements = Array.from(document.getElementsByClassName('sampleLink'))
+	let sampleElements = Array.from(document.getElementsByClassName("sampleLink"))
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i]
 		let edge = sampleElement.dataSet.get()[0]
@@ -3091,10 +3234,10 @@ export function refreshSampleLinks() {
 function showNotesSwitch(e) {
 	showNotesToggle = e.target.checked
 	doShowNotes(showNotesToggle)
-	yNetMap.set('showNotes', showNotesToggle)
+	yNetMap.set("showNotes", showNotesToggle)
 }
 function doShowNotes(toggle) {
-	elem('showNotesSwitch').checked = toggle
+	elem("showNotesSwitch").checked = toggle
 	showNotesToggle = toggle
 	network.redraw()
 	showNodeOrEdgeData()
@@ -3103,11 +3246,11 @@ function doShowNotes(toggle) {
  * User has clicked the padlock.  Toggle padlock state and fix the location of the node
  */
 function setFixed() {
-	let locked = elem('fixed').style.display === 'none'
+	let locked = elem("fixed").style.display === "none"
 	let node = data.nodes.get(editor.id)
 	node.fixed = locked
-	elem('fixed').style.display = node.fixed ? 'inline' : 'none'
-	elem('unfixed').style.display = node.fixed ? 'none' : 'inline'
+	elem("fixed").style.display = node.fixed ? "inline" : "none"
+	elem("unfixed").style.display = node.fixed ? "none" : "inline"
 	data.nodes.update(node)
 }
 /**
@@ -3123,17 +3266,21 @@ function showNodeOrEdgeData() {
  * open another window (popupWindow) in which Notes can be edited
  */
 function openNotesWindow() {
-	popupWindow = window.open('./dist/NoteWindow.html', 'popupWindowName', 'toolbar=no,width=600,height=600')
+	popupWindow = window.open(
+		"./dist/NoteWindow.html",
+		"popupWindowName",
+		"toolbar=no,width=600,height=600"
+	)
 }
 /**
  * Hide the Node or Edge Data panel
  */
 function hideNotes() {
 	if (editor == null) return
-	elem('nodeDataPanel').classList.add('hide')
-	elem('edgeDataPanel').classList.add('hide')
+	elem("nodeDataPanel").classList.add("hide")
+	elem("edgeDataPanel").classList.add("hide")
 	document.getSelection().removeAllRanges()
-	document.querySelectorAll('.ql-toolbar').forEach((e) => e.remove())
+	document.querySelectorAll(".ql-toolbar").forEach((e) => e.remove())
 	editor = null
 	if (popupWindow) popupWindow.close()
 }
@@ -3141,50 +3288,54 @@ function hideNotes() {
  * Show the notes box, the fixed node check box and the node statistics
  */
 function showNodeData(nodeId) {
-	let panel = elem('nodeDataPanel')
+	let panel = elem("nodeDataPanel")
 	nodeId = nodeId || network.getSelectedNodes()[0]
 	let node = data.nodes.get(nodeId)
-	elem('fixed').style.display = node.fixed ? 'inline' : 'none'
-	elem('unfixed').style.display = node.fixed ? 'none' : 'inline'
-	elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : ''
+	elem("fixed").style.display = node.fixed ? "inline" : "none"
+	elem("unfixed").style.display = node.fixed ? "none" : "inline"
+	elem("nodeLabel").innerHTML = node.label ? shorten(node.label) : ""
 	if (node.created) {
-		elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${node.created.user}`
-		elem('nodeCreation').style.display = 'flex'
-	} else elem('nodeCreation').style.display = 'none'
+		elem("nodeCreated").innerHTML = `${timeAndDate(node.created.time)} by ${
+			node.created.user
+		}`
+		elem("nodeCreation").style.display = "flex"
+	} else elem("nodeCreation").style.display = "none"
 	if (node.modified) {
-		elem('nodeModified').innerHTML = `${timeAndDate(node.modified.time)} by ${node.modified.user}`
-		elem('nodeModification').style.display = 'flex'
-	} else elem('nodeModification').style.display = 'none'
-	elem('node-notes').className = 'notes'
-	editor = new Quill('#node-notes', {
+		elem("nodeModified").innerHTML = `${timeAndDate(node.modified.time)} by ${
+			node.modified.user
+		}`
+		elem("nodeModification").style.display = "flex"
+	} else elem("nodeModification").style.display = "none"
+	elem("node-notes").className = "notes"
+	editor = new Quill("#node-notes", {
 		modules: {
 			toolbar: [
-				'bold',
-				'italic',
-				'underline',
-				'link',
-				{list: 'ordered'},
-				{list: 'bullet'},
-				{indent: '-1'},
-				{indent: '+1'},
+				"bold",
+				"italic",
+				"underline",
+				"link",
+				{ list: "ordered" },
+				{ list: "bullet" },
+				{ indent: "-1" },
+				{ indent: "+1" },
 			],
 		},
-		placeholder: 'Notes',
-		theme: 'snow',
+		placeholder: "Notes",
+		theme: "snow",
 		readOnly: viewOnly,
-		bounds: elem('node-edit-container'),
+		bounds: elem("node-edit-container"),
 	})
 	window.editor = editor // used by popupEditor to access this editor
 	editor.id = node.id
 	if (node.note) {
 		if (node.note instanceof Object) editor.setContents(node.note)
 		else editor.setText(node.note)
-	} else editor.setText('')
-	editor.on('text-change', (delta, oldDelta, source) => {
-		if (source === 'user') {
+	} else editor.setText("")
+	editor.on("text-change", (delta, oldDelta, source) => {
+		if (source === "user") {
 			data.nodes.update({
 				id: nodeId,
-				note: isQuillEmpty(editor) ? '' : editor.getContents(),
+				note: isQuillEmpty(editor) ? "" : editor.getContents(),
 				modified: timestamp(),
 			})
 			if (popupWindow) {
@@ -3193,72 +3344,78 @@ function showNodeData(nodeId) {
 			}
 		}
 	})
-	panel.classList.remove('hide')
+	panel.classList.remove("hide")
 	displayStatistics(nodeId)
 	positionNotes()
 }
 
 function showEdgeData() {
-	let panel = elem('edgeDataPanel')
+	let panel = elem("edgeDataPanel")
 	let edgeId = network.getSelectedEdges()[0]
 	let edge = data.edges.get(edgeId)
-	elem('edgeLabel').innerHTML = edge.label?.trim() ? shorten(edge.label) : 'Link'
+	elem("edgeLabel").innerHTML = edge.label?.trim()
+		? shorten(edge.label)
+		: "Link"
 	if (edge.created) {
-		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${edge.created.user}`
-		elem('edgeCreation').style.display = 'flex'
-	} else elem('edgeCreation').style.display = 'none'
+		elem("edgeCreated").innerHTML = `${timeAndDate(edge.created.time)} by ${
+			edge.created.user
+		}`
+		elem("edgeCreation").style.display = "flex"
+	} else elem("edgeCreation").style.display = "none"
 	if (edge.modified) {
-		elem('edgeModified').innerHTML = `${timeAndDate(edge.modified.time)} by ${edge.modified.user}`
-		elem('edgeModification').style.display = 'flex'
-	} else elem('edgeModification').style.display = 'none'
-	editor = new Quill('#edge-notes', {
+		elem("edgeModified").innerHTML = `${timeAndDate(edge.modified.time)} by ${
+			edge.modified.user
+		}`
+		elem("edgeModification").style.display = "flex"
+	} else elem("edgeModification").style.display = "none"
+	editor = new Quill("#edge-notes", {
 		modules: {
 			toolbar: [
-				'bold',
-				'italic',
-				'underline',
-				'link',
-				{list: 'ordered'},
-				{list: 'bullet'},
-				{indent: '-1'},
-				{indent: '+1'},
+				"bold",
+				"italic",
+				"underline",
+				"link",
+				{ list: "ordered" },
+				{ list: "bullet" },
+				{ indent: "-1" },
+				{ indent: "+1" },
 			],
 		},
-		placeholder: 'Notes',
-		theme: 'snow',
+		placeholder: "Notes",
+		theme: "snow",
 		readOnly: viewOnly,
-		bounds: elem('edge-edit-container'),
+		bounds: elem("edge-edit-container"),
 	})
 	editor.id = edge.id
 	window.editor = editor // used by popupEditor to access this editor
 	if (edge.note) {
 		if (edge.note instanceof Object) editor.setContents(edge.note)
 		else editor.setText(edge.note)
-	} else editor.setText('')
-	editor.on('text-change', (delta, oldDelta, source) => {
-		if (source === 'user') {
+	} else editor.setText("")
+	editor.on("text-change", (delta, oldDelta, source) => {
+		if (source === "user") {
 			data.edges.update({
 				id: edgeId,
-				note: isQuillEmpty(editor) ? '' : editor.getContents(),
+				note: isQuillEmpty(editor) ? "" : editor.getContents(),
 				modified: timestamp(),
 			})
 			popupEditor = popupWindow.popupEditor
 			if (popupEditor) popupEditor.setContents(editor.getContents())
 		}
 	})
-	panel.classList.remove('hide')
+	panel.classList.remove("hide")
 	positionNotes()
 }
 
 // Statistics specific to a node
 function displayStatistics(nodeId) {
 	// leverage (outDegree / inDegree)
-	let inDegree = network.getConnectedNodes(nodeId, 'from').length
-	let outDegree = network.getConnectedNodes(nodeId, 'to').length
-	let leverage = inDegree === 0 ? '--' : (outDegree / inDegree).toPrecision(3)
-	elem('leverage').textContent = leverage
+	let inDegree = network.getConnectedNodes(nodeId, "from").length
+	let outDegree = network.getConnectedNodes(nodeId, "to").length
+	let leverage = inDegree === 0 ? "--" : (outDegree / inDegree).toPrecision(3)
+	elem("leverage").textContent = leverage
 	let node = data.nodes.get(nodeId)
-	elem('bc').textContent = node.bc >= 0 ? parseFloat(node.bc).toFixed(2) : '--'
+	elem("bc").textContent = node.bc >= 0 ? parseFloat(node.bc).toFixed(2) : "--"
 }
 
 /**
@@ -3267,21 +3424,31 @@ function displayStatistics(nodeId) {
  */
 function positionNotes() {
 	let notesPanel
-	if (!elem('nodeDataPanel').classList.contains('hide')) notesPanel = elem('nodeDataPanel')
-	if (!elem('edgeDataPanel').classList.contains('hide')) notesPanel = elem('edgeDataPanel')
+	if (!elem("nodeDataPanel").classList.contains("hide"))
+		notesPanel = elem("nodeDataPanel")
+	if (!elem("edgeDataPanel").classList.contains("hide"))
+		notesPanel = elem("edgeDataPanel")
 	if (!notesPanel) return
 	let notesPanelRect = notesPanel.getBoundingClientRect()
-	let settingsRect = elem('panel').getBoundingClientRect()
+	let settingsRect = elem("panel").getBoundingClientRect()
 	let netPaneRect = netPane.getBoundingClientRect()
-	if (notesPanelRect.right > settingsRect.left && notesPanelRect.top < settingsRect.bottom) {
+	if (
+		notesPanelRect.right > settingsRect.left &&
+		notesPanelRect.top < settingsRect.bottom
+	) {
 		notesPanel.style.left = `${settingsRect.left - notesPanelRect.width - 20}px`
 	}
-	if (notesPanelRect.left < netPaneRect.left) notesPanel.style.left = `${netPaneRect.left}${20}px`
+	if (notesPanelRect.left < netPaneRect.left)
+		notesPanel.style.left = `${netPaneRect.left}${20}px`
 	if (notesPanelRect.right > netPaneRect.right)
 		notesPanel.style.left = `${netPaneRect.right - notesPanelRect.width - 20}px`
-	if (notesPanelRect.top < netPaneRect.top) notesPanel.style.top = `${netPaneRect.top}${20}px`
+	if (notesPanelRect.top < netPaneRect.top)
+		notesPanel.style.top = `${netPaneRect.top}${20}px`
 	if (notesPanelRect.bottom > netPaneRect.bottom)
-		notesPanel.style.top = `${Math.max(netPaneRect.bottom - notesPanelRect.height, netPaneRect.top)}${20}px`
+		notesPanel.style.top = `${Math.max(
+			netPaneRect.bottom - notesPanelRect.height,
+			netPaneRect.top
+		)}${20}px`
 }
 // Network tab
 
@@ -3290,41 +3457,43 @@ function positionNotes() {
  */
 function autoLayout(e) {
 	let option = e.target.value
-	let selectElement = elem('layoutSelect')
+	let selectElement = elem("layoutSelect")
 	selectElement.value = option
 	let label = selectElement.options[selectElement.selectedIndex].innerText
 	network.storePositions() // record current positions so it can be undone
 	doc.transact(() => {
 		switch (option) {
-			case 'off': {
-				network.setOptions({physics: {enabled: false}})
+			case "off": {
+				network.setOptions({ physics: { enabled: false } })
 				break
 			}
-			case 'trophic': {
+			case "trophic": {
 				try {
 					trophic(data)
 					trophicDistribute()
 					data.nodes.update(data.nodes.get())
-					elem('layoutSelect').value = 'off'
+					elem("layoutSelect").value = "off"
 				} catch (e) {
-					statusMsg(`Trophic layout: ${e.message}`, 'error')
+					statusMsg(`Trophic layout: ${e.message}`, "error")
 				}
 				break
 			}
-			case 'fan': {
+			case "fan": {
 				{
 					let nodes = data.nodes.get().filter((n) => !n.hidden)
 					nodes.forEach((n) => (n.level = undefined))
-					let selectedNodes = getSelectedAndFixedNodes().map((nId) => data.nodes.get(nId))
+					let selectedNodes = getSelectedAndFixedNodes().map((nId) =>
+						data.nodes.get(nId)
+					)
 					if (selectedNodes.length === 0) {
-						statusMsg('At least one Factor needs to be selected', 'error')
-						elem('layoutSelect').value = 'off'
+						statusMsg("At least one Factor needs to be selected", "error")
+						elem("layoutSelect").value = "off"
 						return
 					}
 					// if Up or Down stream are selected, use those for the direction
-					let direction = 'from'
-					if (getRadioVal('stream') === 'downstream') direction = 'to'
-					else if (getRadioVal('stream') === 'upstream') direction = 'from'
+					let direction = "from"
+					if (getRadioVal("stream") === "downstream") direction = "to"
+					else if (getRadioVal("stream") === "upstream") direction = "from"
 					else {
 						// if neither,
 						//  and more links from the selected nodes are going upstream then downstream,
@@ -3333,13 +3502,13 @@ function autoLayout(e) {
 						let nDown = 0
 						selectedNodes.forEach((sl) => {
 							nUp += network
-								.getConnectedNodes(sl.id, 'to')
+								.getConnectedNodes(sl.id, "to")
 								.filter((nId) => !data.nodes.get(nId).hidden).length
 							nDown += network
-								.getConnectedNodes(sl.id, 'from')
+								.getConnectedNodes(sl.id, "from")
 								.filter((nId) => !data.nodes.get(nId).hidden).length
 						})
-						direction = nUp > nDown ? 'to' : 'from'
+						direction = nUp > nDown ? "to" : "from"
 					}
 					let minX = Math.min(...nodes.map((n) => n.x))
 					let maxX = Math.max(...nodes.map((n) => n.x))
@@ -3353,7 +3522,7 @@ function autoLayout(e) {
 					let gap = (maxX - minX) / maxLevel
 					for (let l = 0; l <= maxLevel; l++) {
 						let x = l * gap + minX
-						if (direction === 'from') x = maxX - l * gap
+						if (direction === "from") x = maxX - l * gap
 						let nodesOnLevel = nodes.filter((n) => n.level === l)
 						nodesOnLevel.forEach((n) => (n.x = x))
 						let ySpaceNeeded = nodesOnLevel
@@ -3372,20 +3541,20 @@ function autoLayout(e) {
 							})
 					}
 					data.nodes.update(nodes)
-					elem('layoutSelect').value = 'off'
+					elem("layoutSelect").value = "off"
 				}
 				break
 			}
 			default: {
-				let options = {physics: {solver: option, stabilization: true}}
+				let options = { physics: { solver: option, stabilization: true } }
 				options.physics[option] = {}
 				options.physics[option].springLength = avEdgeLength()
 				network.setOptions(options)
 				// cancel the iterative algorithms as soon as they have stabilized
-				network.on('stabilized', () => {
-					network.setOptions({physics: {enabled: false}})
+				network.on("stabilized", () => {
+					network.setOptions({ physics: { enabled: false } })
 					network.storePositions()
-					elem('layoutSelect').value = 'off'
+					elem("layoutSelect").value = "off"
 					data.nodes.update(data.nodes.get())
 				})
 				break
@@ -3459,11 +3628,11 @@ function autoLayout(e) {
 function snapToGridSwitch(e) {
 	snapToGridToggle = e.target.checked
 	doSnapToGrid(snapToGridToggle)
-	yNetMap.set('snapToGrid', snapToGridToggle)
+	yNetMap.set("snapToGrid", snapToGridToggle)
 }
 
 function doSnapToGrid(toggle) {
-	elem('snaptogridswitch').checked = toggle
+	elem("snaptogridswitch").checked = toggle
 	if (toggle) {
 		data.nodes.update(
 			data.nodes.get().map((n) => {
@@ -3477,81 +3646,82 @@ function doSnapToGrid(toggle) {
 function selectCurve(e) {
 	let option = e.target.value
 	setCurve(option)
-	yNetMap.set('curve', option)
+	yNetMap.set("curve", option)
 }
 
 function setCurve(option) {
-	elem('curveSelect').value = option
+	elem("curveSelect").value = option
 	network.setOptions({
 		edges: {
-			smooth: option === 'Curved',
+			smooth: option === "Curved",
 		},
 	})
 }
 
 function updateNetBack(color) {
-	let ul = elem('underlay')
+	let ul = elem("underlay")
 	ul.style.backgroundColor = color
 	// if in drawing mode, make the underlay translucent so that network shows through
-	if (elem('toolbox').style.display === 'block') makeTranslucent(ul)
-	yNetMap.set('background', color)
+	if (elem("toolbox").style.display === "block") makeTranslucent(ul)
+	yNetMap.set("background", color)
 }
 
 var backgroundOpacity = 0.6
 
 function makeTranslucent(el) {
 	el.style.backgroundColor = getComputedStyle(el)
-		.backgroundColor.replace(')', `, ${backgroundOpacity})`)
-		.replace('rgb', 'rgba')
+		.backgroundColor.replace(")", `, ${backgroundOpacity})`)
+		.replace("rgb", "rgba")
 }
 
 function makeSolid(el) {
 	el.style.backgroundColor = getComputedStyle(el)
-		.backgroundColor.replace(`, ${backgroundOpacity})`, ')')
-		.replace('rgba', 'rgb')
+		.backgroundColor.replace(`, ${backgroundOpacity})`, ")")
+		.replace("rgba", "rgb")
 }
 function setBackground(color) {
-	elem('underlay').style.backgroundColor = color
-	if (elem('toolbox').style.display === 'block') makeTranslucent(elem('underlay'))
-	elem('netBackColorWell').style.backgroundColor = color
+	elem("underlay").style.backgroundColor = color
+	if (elem("toolbox").style.display === "block")
+		makeTranslucent(elem("underlay"))
+	elem("netBackColorWell").style.backgroundColor = color
 }
 
 function toggleDrawingLayer() {
-	drawingSwitch = elem('toolbox').style.display === 'block'
-	let ul = elem('underlay')
+	drawingSwitch = elem("toolbox").style.display === "block"
+	let ul = elem("underlay")
 	if (drawingSwitch) {
 		// close drawing layer
 		deselectTool()
-		elem('toolbox').style.display = 'none'
-		elem('underlay').style.zIndex = 0
+		elem("toolbox").style.display = "none"
+		elem("underlay").style.zIndex = 0
 		makeSolid(ul)
-		document.querySelector('.upper-canvas').style.zIndex = 0
-		elem('chatbox-tab').classList.remove('chatbox-hide')
+		document.querySelector(".upper-canvas").style.zIndex = 0
+		elem("chatbox-tab").classList.remove("chatbox-hide")
 		inAddMode = false
-		elem('buttons').style.visibility = 'visible'
-		setButtonDisabledStatus('addNode', false)
-		setButtonDisabledStatus('addLink', false)
+		elem("buttons").style.visibility = "visible"
+		setButtonDisabledStatus("addNode", false)
+		setButtonDisabledStatus("addLink", false)
 		undoRedoButtonStatus()
-		if (nChanges) logHistory('drew on the background layer')
-		changeCursor('default')
+		if (nChanges) logHistory("drew on the background layer")
+		changeCursor("default")
 	} else {
 		// expose drawing layer
-		elem('toolbox').style.display = 'block'
+		elem("toolbox").style.display = "block"
 		ul.style.zIndex = 1000
-		ul.style.cursor = 'default'
-		document.querySelector('.upper-canvas').style.zIndex = 1001
+		ul.style.cursor = "default"
+		document.querySelector(".upper-canvas").style.zIndex = 1001
 		// make the underlay (which is now overlay) translucent
 		makeTranslucent(ul)
 		minimize()
-		elem('chatbox-tab').classList.add('chatbox-hide')
+		elem("chatbox-tab").classList.add("chatbox-hide")
 		clearLegend()
-		inAddMode = 'disabled'
-		elem('buttons').style.visibility = 'hidden'
-		elem('help-button').style.visibility = 'visible'
-		setButtonDisabledStatus('addNode', true)
-		setButtonDisabledStatus('addLink', true)
-		setButtonDisabledStatus('undo', true)
-		setButtonDisabledStatus('redo', true)
+		inAddMode = "disabled"
+		elem("buttons").style.visibility = "hidden"
+		elem("help-button").style.visibility = "visible"
+		setButtonDisabledStatus("addNode", true)
+		setButtonDisabledStatus("addLink", true)
+		setButtonDisabledStatus("undo", true)
+		setButtonDisabledStatus("redo", true)
 	}
 	drawingSwitch = !drawingSwitch
 	network.redraw()
@@ -3559,11 +3729,11 @@ function toggleDrawingLayer() {
 function ensureNotDrawing() {
 	if (!drawingSwitch) return
 	toggleDrawingLayer()
-	elem('drawing').checked = false
+	elem("drawing").checked = false
 }
 
 function selectAllFactors() {
-	selectFactors(data.nodes.getIds({filter: (n) => !n.hidden}))
+	selectFactors(data.nodes.getIds({ filter: (n) => !n.hidden }))
 	showSelected()
 }
 
@@ -3573,7 +3743,7 @@ export function selectFactors(nodeIds) {
 }
 
 function selectAllLinks() {
-	selectLinks(data.edges.getIds({filter: (e) => !e.hidden}))
+	selectLinks(data.edges.getIds({ filter: (e) => !e.hidden }))
 	showSelected()
 }
 
@@ -3590,33 +3760,37 @@ function selectUsersItems(event) {
 	let userName = event.target.dataset.userName
 	let usersNodes = data.nodes
 		.get()
-		.filter((n) => n.created?.user === userName || n.modified?.user === userName)
+		.filter(
+			(n) => n.created?.user === userName || n.modified?.user === userName
+		)
 		.map((n) => n.id)
 	let userEdges = data.edges
 		.get()
-		.filter((e) => e.created?.user === userName || e.modified?.user === userName)
+		.filter(
+			(e) => e.created?.user === userName || e.modified?.user === userName
+		)
 		.map((e) => e.id)
-	network.setSelection({nodes: usersNodes, edges: userEdges})
+	network.setSelection({ nodes: usersNodes, edges: userEdges })
 	showSelected()
 }
 
 function legendSwitch(e) {
 	let on = e.target.checked
 	setLegend(on, true)
-	yNetMap.set('legend', on)
+	yNetMap.set("legend", on)
 }
 function setLegend(on, warn) {
-	elem('showLegendSwitch').checked = on
+	elem("showLegendSwitch").checked = on
 	if (on) legend(warn)
 	else clearLegend()
 }
 function votingSwitch(e) {
 	let on = e.target.checked
 	setVoting(on)
-	yNetMap.set('voting', on)
+	yNetMap.set("voting", on)
 }
 function setVoting(on) {
-	elem('showVotingSwitch').checked = on
+	elem("showVotingSwitch").checked = on
 	showVotingToggle = on
 	network.redraw()
 }
@@ -3674,27 +3848,30 @@ function setAnalysisButtonsFromRemote() {
 		let selectedNodes = [].concat(hiddenNodes.selected) // ensure that hiddenNodes.selected is an array
 		network.selectNodes(selectedNodes, false) // in viewing  only mode, this does nothing
 		if (selectedNodes.length > 0) {
-			if (!viewOnly) statusMsg(`${listFactors(getSelectedAndFixedNodes())} selected`)
+			if (!viewOnly)
+				statusMsg(`${listFactors(getSelectedAndFixedNodes())} selected`)
 		} else clearStatusBar()
 		showNodeOrEdgeData()
-		if (hiddenNodes.radiusSetting) setRadioVal('radius', hiddenNodes.radiusSetting)
-		if (hiddenNodes.streamSetting) setRadioVal('stream', hiddenNodes.streamSetting)
-		if (hiddenNodes.pathsSetting) setRadioVal('paths', hiddenNodes.pathsSetting)
+		if (hiddenNodes.radiusSetting)
+			setRadioVal("radius", hiddenNodes.radiusSetting)
+		if (hiddenNodes.streamSetting)
+			setRadioVal("stream", hiddenNodes.streamSetting)
+		if (hiddenNodes.pathsSetting) setRadioVal("paths", hiddenNodes.pathsSetting)
 	}
 }
 
 function setYMapAnalysisButtons() {
 	let selectedNodes = getSelectedAndFixedNodes()
-	yNetMap.set('radius', {
-		radiusSetting: getRadioVal('radius'),
+	yNetMap.set("radius", {
+		radiusSetting: getRadioVal("radius"),
 		selected: selectedNodes,
 	})
-	yNetMap.set('stream', {
-		streamSetting: getRadioVal('stream'),
+	yNetMap.set("stream", {
+		streamSetting: getRadioVal("stream"),
 		selected: selectedNodes,
 	})
-	yNetMap.set('paths', {
-		pathsSetting: getRadioVal('paths'),
+	yNetMap.set("paths", {
+		pathsSetting: getRadioVal("paths"),
 		selected: selectedNodes,
 	})
 }
@@ -3721,53 +3898,62 @@ function analyse() {
 			return e
 		})
 	// if showing everything, we are done
-	if (getRadioVal('radius') === 'All' && getRadioVal('stream') === 'All' && getRadioVal('paths') === 'All') {
+	if (
+		getRadioVal("radius") === "All" &&
+		getRadioVal("stream") === "All" &&
+		getRadioVal("paths") === "All"
+	) {
 		resetAll()
 		return
 	}
 	// check that at least one factor is selected
-	if (selectedNodes.length === 0 && getRadioVal('paths') === 'All') {
-		statusMsg('A Factor needs to be selected', 'error')
+	if (selectedNodes.length === 0 && getRadioVal("paths") === "All") {
+		statusMsg("A Factor needs to be selected", "error")
 		resetAll()
 		return
 	}
 	// but paths between factors needs at least two
-	if (getRadioVal('paths') !== 'All' && selectedNodes.length < 2) {
-		statusMsg('Select at least 2 factors to show paths between them', 'warn')
+	if (getRadioVal("paths") !== "All" && selectedNodes.length < 2) {
+		statusMsg("Select at least 2 factors to show paths between them", "warn")
 		resetAll()
 		return
 	}
 
 	// these operations are not commutative (at least for networks with loops), so do them all in order
-	if (getRadioVal('radius') !== 'All') hideNodesByRadius(selectedNodes, parseInt(getRadioVal('radius')))
-	if (getRadioVal('stream') !== 'All') hideNodesByStream(selectedNodes, getRadioVal('stream'))
-	if (getRadioVal('paths') !== 'All') hideNodesByPaths(selectedNodes, getRadioVal('paths'))
+	if (getRadioVal("radius") !== "All")
+		hideNodesByRadius(selectedNodes, parseInt(getRadioVal("radius")))
+	if (getRadioVal("stream") !== "All")
+		hideNodesByStream(selectedNodes, getRadioVal("stream"))
+	if (getRadioVal("paths") !== "All")
+		hideNodesByPaths(selectedNodes, getRadioVal("paths"))
 
 	// finally display the map with its hidden factors and edges
 	data.nodes.update(nodes)
 	data.edges.update(edges)
 
 	// announce what has been done
-	let streamMsg = ''
-	if (getRadioVal('stream') === 'upstream') streamMsg = 'upstream'
-	if (getRadioVal('stream') === 'downstream') streamMsg = 'downstream'
-	let radiusMsg = ''
-	if (getRadioVal('radius') === '1') radiusMsg = 'within one link'
-	if (getRadioVal('radius') === '2') radiusMsg = 'within two links'
-	if (getRadioVal('radius') === '3') radiusMsg = 'within three links'
-	let pathsMsg = ''
-	if (getRadioVal('paths') === 'allPaths') pathsMsg = ': showing all paths'
-	if (getRadioVal('paths') === 'shortestPath') pathsMsg = ': showing shortest paths'
-	if (getRadioVal('stream') === 'All' && getRadioVal('radius') === 'All')
+	let streamMsg = ""
+	if (getRadioVal("stream") === "upstream") streamMsg = "upstream"
+	if (getRadioVal("stream") === "downstream") streamMsg = "downstream"
+	let radiusMsg = ""
+	if (getRadioVal("radius") === "1") radiusMsg = "within one link"
+	if (getRadioVal("radius") === "2") radiusMsg = "within two links"
+	if (getRadioVal("radius") === "3") radiusMsg = "within three links"
+	let pathsMsg = ""
+	if (getRadioVal("paths") === "allPaths") pathsMsg = ": showing all paths"
+	if (getRadioVal("paths") === "shortestPath")
+		pathsMsg = ": showing shortest paths"
+	if (getRadioVal("stream") === "All" && getRadioVal("radius") === "All")
 		statusMsg(
-			`Showing  ${getRadioVal('paths') === 'allPaths' ? 'all paths' : 'shortest paths'} between ${listFactors(
-				getSelectedAndFixedNodes(),
-				true
-			)}`
+			`Showing  ${
+				getRadioVal("paths") === "allPaths" ? "all paths" : "shortest paths"
+			} between ${listFactors(getSelectedAndFixedNodes(), true)}`
 		)
 	else
 		statusMsg(
-			`Factors ${streamMsg} ${streamMsg && radiusMsg ? ' and ' : ''} ${radiusMsg} of ${listFactors(
+			`Factors ${streamMsg} ${
+				streamMsg && radiusMsg ? " and " : ""
+			} ${radiusMsg} of ${listFactors(
 				getSelectedAndFixedNodes(),
 				true
 			)}${pathsMsg}`
@@ -3776,9 +3962,9 @@ function analyse() {
 	 * return all to neutral analysis state
 	 */
 	function resetAll() {
-		setRadioVal('radius', 'All')
-		setRadioVal('stream', 'All')
-		setRadioVal('paths', 'All')
+		setRadioVal("radius", "All")
+		setRadioVal("stream", "All")
+		setRadioVal("paths", "All")
 		setYMapAnalysisButtons()
 		data.nodes.update(nodes)
 		data.edges.update(edges)
@@ -3793,9 +3979,13 @@ function analyse() {
 		let linkIdsInRadiusSet = new Set()
 
 		// put those factors and links within radius links into these sets
-		if (getRadioVal('stream') === 'upstream' || getRadioVal('stream') === 'All') inSet(selectedNodes, radius, 'to')
-		if (getRadioVal('stream') === 'downstream' || getRadioVal('stream') === 'All')
-			inSet(selectedNodes, radius, 'from')
+		if (getRadioVal("stream") === "upstream" || getRadioVal("stream") === "All")
+			inSet(selectedNodes, radius, "to")
+		if (
+			getRadioVal("stream") === "downstream" ||
+			getRadioVal("stream") === "All"
+		)
+			inSet(selectedNodes, radius, "from")
 
 		// hide all nodes and edges not in radius
 		nodes.forEach((n) => {
@@ -3806,7 +3996,9 @@ function analyse() {
 		})
 		// add links between factors that are in radius set, to give an ego network
 		nodeIdsInRadiusSet.forEach((f) => {
-			network.getConnectedEdges(f).forEach((e) => (data.edges.get(e).hidden = false))
+			network
+				.getConnectedEdges(f)
+				.forEach((e) => (data.edges.get(e).hidden = false))
 		})
 
 		/**
@@ -3822,11 +4014,13 @@ function analyse() {
 			nodeIds.forEach((nId) => {
 				let linked = []
 				nodeIdsInRadiusSet.add(nId)
-				let links = network.getConnectedEdges(nId).filter((e) => data.edges.get(e)[direction] === nId)
+				let links = network
+					.getConnectedEdges(nId)
+					.filter((e) => data.edges.get(e)[direction] === nId)
 				if (links && radius > 0)
 					links.forEach((lId) => {
 						linkIdsInRadiusSet.add(lId)
-						linked.push(data.edges.get(lId)[direction === 'to' ? 'from' : 'to'])
+						linked.push(data.edges.get(lId)[direction === "to" ? "from" : "to"])
 					})
 				if (linked) inSet(linked, radius - 1, direction)
 			})
@@ -3842,13 +4036,13 @@ function analyse() {
 		let nodeIdsInStreamSet = new Set()
 		let linkIdsInStreamSet = new Set()
 
-		let radiusVal = getRadioVal('radius')
+		let radiusVal = getRadioVal("radius")
 		let radius = Infinity
-		if (radiusVal !== 'All') {
+		if (radiusVal !== "All") {
 			radius = parseInt(radiusVal)
 		}
-		let direction = 'to'
-		if (upOrDown === 'upstream') direction = 'from'
+		let direction = "to"
+		if (upOrDown === "upstream") direction = "from"
 
 		// breadth first search for all Factors that are downstream and less than or equal to radius links away
 		data.nodes.map((n) => (n.level = undefined))
@@ -3884,7 +4078,9 @@ function analyse() {
 
 		// add links between factors that are in radius set, to give an ego network
 		nodeIdsInStreamSet.forEach((f) => {
-			network.getConnectedEdges(f).forEach((e) => (data.edges.get(e).hidden = false))
+			network
+				.getConnectedEdges(f)
+				.forEach((e) => (data.edges.get(e).hidden = false))
 		})
 	}
 
@@ -3896,10 +4092,10 @@ function analyse() {
 	 */
 	function hideNodesByPaths(selectedNodes, pathType) {
 		// paths is an array of objects with from and to node ids, or an empty array of there is no path
-		let paths = shortestPaths(selectedNodes, pathType === 'allPaths')
+		let paths = shortestPaths(selectedNodes, pathType === "allPaths")
 		if (paths.length === 0) {
-			statusMsg('No path between the selected Factors', 'info')
-			setRadioVal('paths', 'All')
+			statusMsg("No path between the selected Factors", "info")
+			setRadioVal("paths", "All")
 			setYMapAnalysisButtons()
 			return
 		}
@@ -3934,7 +4130,9 @@ function analyse() {
 			let visited = new Map()
 			let allPaths = []
 			// list of all pairs of the selected factors
-			let combos = selectedNodes.flatMap((v, i) => selectedNodes.slice(i + 1).map((w) => [v, w]))
+			let combos = selectedNodes.flatMap((v, i) =>
+				selectedNodes.slice(i + 1).map((w) => [v, w])
+			)
 			// for each pair, find the sequences of links in both directions and combine them
 			combos.forEach((combo) => {
 				let source = combo[0]
@@ -3959,10 +4157,11 @@ function analyse() {
 				let paths = getPaths(source, dest)
 				// if no path found, getPaths return an array of length greater than the total number of factors in the map, or a string
 				// in this case, return an empty list
-				if (!Array.isArray(paths) || paths.length === data.nodes.length + 1) paths = []
+				if (!Array.isArray(paths) || paths.length === data.nodes.length + 1)
+					paths = []
 				if (!all) {
 					for (let i = 0; i < paths.length - 1; i++) {
-						links.push({from: paths[i], to: paths[i + 1]})
+						links.push({ from: paths[i], to: paths[i + 1] })
 					}
 				}
 				return links
@@ -3985,19 +4184,19 @@ function analyse() {
 							return !edge.hidden && edge.from === source
 						})
 						.map((e) => data.edges.get(e).to)
-					if (connectedNodes.length === 0) return 'deadend'
+					if (connectedNodes.length === 0) return "deadend"
 					if (all) {
 						// all paths between the source and destination
 						connectedNodes.forEach((next) => {
 							let vis = visited.get(next)
-							if (vis === 'onpath') {
-								links.push({from: source, to: next})
+							if (vis === "onpath") {
+								links.push({ from: source, to: next })
 								path = path.concat([next])
 							} else if (!vis) {
 								let p = getPaths(next, dest)
 								if (Array.isArray(p) && p.length > 0) {
-									links.push({from: source, to: next})
-									visited.set(next, 'onpath')
+									links.push({ from: source, to: next })
+									visited.set(next, "onpath")
 									path = path.concat(p)
 								}
 							}
@@ -4033,7 +4232,7 @@ function analyse() {
 function sizingSwitch(e) {
 	let metric = e.target.value
 	sizing(metric)
-	yNetMap.set('sizing', metric)
+	yNetMap.set("sizing", metric)
 }
 
 /**
@@ -4052,42 +4251,43 @@ function sizing(metric) {
 	data.nodes.forEach((node) => {
 		let oldValue = node.val
 		switch (metric) {
-			case 'Off':
-			case 'Equal': {
+			case "Off":
+			case "Equal": {
 				node.val = 0
 				break
 			}
-			case 'Inputs': {
-				node.val = network.getConnectedNodes(node.id, 'from').length
+			case "Inputs": {
+				node.val = network.getConnectedNodes(node.id, "from").length
 				break
 			}
-			case 'Outputs': {
-				node.val = network.getConnectedNodes(node.id, 'to').length
+			case "Outputs": {
+				node.val = network.getConnectedNodes(node.id, "to").length
 				break
 			}
-			case 'Leverage': {
-				let inDegree = network.getConnectedNodes(node.id, 'from').length
-				let outDegree = network.getConnectedNodes(node.id, 'to').length
+			case "Leverage": {
+				let inDegree = network.getConnectedNodes(node.id, "from").length
+				let outDegree = network.getConnectedNodes(node.id, "to").length
 				node.val = inDegree === 0 ? 0 : outDegree / inDegree
 				break
 			}
-			case 'Centrality': {
+			case "Centrality": {
 				node.val = node.bc
 				break
 			}
 		}
 		if (node.val < min) min = node.val
 		if (node.val > max) max = node.val
-		if (metric === 'Off' || metric === 'Equal' || node.val !== oldValue) nodesToUpdate.push(node)
+		if (metric === "Off" || metric === "Equal" || node.val !== oldValue)
+			nodesToUpdate.push(node)
 	})
 	data.nodes.forEach((node) => {
 		switch (metric) {
-			case 'Off': {
+			case "Off": {
 				node.widthConstraint = node.heightConstraint = false
 				node.size = 25
 				break
 			}
-			case 'Equal': {
+			case "Equal": {
 				node.widthConstraint = node.heightConstraint = node.size = EQUAL_WIDTH
 				break
 			}
@@ -4099,7 +4299,7 @@ function sizing(metric) {
 		}
 	})
 	data.nodes.update(nodesToUpdate)
-	elem('sizing').value = metric
+	elem("sizing").value = metric
 
 	function scale(min, max, value) {
 		if (max === min) {
@@ -4118,9 +4318,9 @@ function sizing(metric) {
 function selectClustering(e) {
 	let option = e.target.value
 	// it doesn't make much sense to cluster while the factors are hidden, so undo that
-	setRadioVal('radius', 'All')
-	setRadioVal('stream', 'All')
-	setRadioVal('paths', 'All')
+	setRadioVal("radius", "All")
+	setRadioVal("stream", "All")
+	setRadioVal("paths", "All")
 	setYMapAnalysisButtons()
 	doc.transact(() => {
 		data.nodes.update(
@@ -4138,10 +4338,10 @@ function selectClustering(e) {
 	})
 	cluster(option)
 	fit()
-	yNetMap.set('cluster', option)
+	yNetMap.set("cluster", option)
 }
 function setCluster(option) {
-	elem('clustering').value = option
+	elem("clustering").value = option
 }
 /**
  * recreate the Clustering drop down menu to include user attributes as clustering options
@@ -4149,14 +4349,14 @@ function setCluster(option) {
  */
 export function recreateClusteringMenu(obj) {
 	// remove any old select items, other than the standard ones (which are the first 3: None, Style, Color)
-	let select = elem('clustering')
+	let select = elem("clustering")
 	for (let i = 3, len = select.options.length; i < len; i++) {
 		select.remove(3)
 	}
 	// append the ones provided
 	for (const property in obj) {
-		if (obj[property] !== '*deleted*') {
-			let opt = document.createElement('option')
+		if (obj[property] !== "*deleted*") {
+			let opt = document.createElement("option")
 			opt.value = property
 			opt.text = obj[property]
 			select.add(opt, null)
@@ -4169,25 +4369,25 @@ var emojiPicker = null
 
 function minimize() {
 	if (emojiPicker) chatbox.removeChild(emojiPicker)
-	chatbox.classList.add('chatbox-hide')
-	chatboxTab.classList.remove('chatbox-hide')
-	chatboxTab.classList.remove('chatbox-blink')
+	chatbox.classList.add("chatbox-hide")
+	chatboxTab.classList.remove("chatbox-hide")
+	chatboxTab.classList.remove("chatbox-blink")
 }
 
 function maximize() {
-	chatboxTab.classList.add('chatbox-hide')
-	chatboxTab.classList.remove('chatbox-blink')
-	chatbox.classList.remove('chatbox-hide')
-	const emojiButton = document.querySelector('#emoji-button')
-	emojiButton.addEventListener('click', () => {
+	chatboxTab.classList.add("chatbox-hide")
+	chatboxTab.classList.remove("chatbox-blink")
+	chatbox.classList.remove("chatbox-hide")
+	const emojiButton = document.querySelector("#emoji-button")
+	emojiButton.addEventListener("click", () => {
 		if (emojiPicker) {
 			chatbox.removeChild(emojiPicker)
 			emojiPicker = null
 		} else {
 			emojiPicker = new Picker()
 			chatbox.appendChild(emojiPicker)
-			emojiPicker.addEventListener('emoji-click', (event) => {
-				document.querySelector('#chat-input').value += event.detail.unicode
+			emojiPicker.addEventListener("emoji-click", (event) => {
+				document.querySelector("#chat-input").value += event.detail.unicode
 			})
 		}
 	})
@@ -4196,21 +4396,21 @@ function maximize() {
 }
 
 function blinkChatboxTab() {
-	if (yChatArray.length > 0) chatboxTab.classList.add('chatbox-blink')
+	if (yChatArray.length > 0) chatboxTab.classList.add("chatbox-blink")
 }
 
 function sendMsg() {
-	let inputMsg = chatInput.value.replace(/\n/g, '</br>')
+	let inputMsg = chatInput.value.replace(/\n/g, "</br>")
 	yChatArray.push([
 		{
 			client: clientID,
 			author: myNameRec.name,
-			recipient: elem('chat-users').value,
+			recipient: elem("chat-users").value,
 			time: Date.now(),
 			msg: inputMsg,
 		},
 	])
-	chatInput.value = ''
+	chatInput.value = ""
 }
 
 function displayLastMsg() {
@@ -4218,7 +4418,7 @@ function displayLastMsg() {
 }
 
 function displayAllMsgs() {
-	chatMessages.innerHTML = ''
+	chatMessages.innerHTML = ""
 	for (let m = 0; m < yChatArray.length; m++) {
 		displayMsg(yChatArray.get(m))
 	}
@@ -4227,7 +4427,7 @@ function displayAllMsgs() {
 
 function displayMsg(msg) {
 	if (msg === undefined) return
-	let clock = Number.isInteger(msg.time) ? timeAndDate(msg.time) : ''
+	let clock = Number.isInteger(msg.time) ? timeAndDate(msg.time) : ""
 	if (msg.client === clientID) {
 		// my own message
 		chatMessages.innerHTML += `<div class="message-box-holder">
@@ -4242,8 +4442,8 @@ function displayMsg(msg) {
 		// show only messages with no recipient (as from an old version), everyone or me
 		if (
 			msg.recipient === undefined ||
-			msg.recipient === '' ||
-			msg.recipient === myNameRec.name.replace(/\s+/g, '').toLowerCase()
+			msg.recipient === "" ||
+			msg.recipient === myNameRec.name.replace(/\s+/g, "").toLowerCase()
 		) {
 			blinkChatboxTab()
 			chatMessages.innerHTML += `<div class="message-box-holder">
@@ -4260,7 +4460,7 @@ function displayMsg(msg) {
 }
 
 function displayUserName() {
-	chatNameBox.style.fontStyle = myNameRec.anon ? 'italic' : 'normal'
+	chatNameBox.style.fontStyle = myNameRec.anon ? "italic" : "normal"
 	chatNameBox.value = myNameRec.name
 }
 
@@ -4276,20 +4476,22 @@ function populateChatUserMenu(names) {
 	oldUserNames = userNames
 	let options = '<option value="">Everyone</option>'
 	userNames.forEach((name) => {
-		options += `<option value=${name.replace(/\s+/g, '').toLowerCase()}>${name}</option>`
+		options += `<option value=${name
+			.replace(/\s+/g, "")
+			.toLowerCase()}>${name}</option>`
 	})
-	elem('chat-users').innerHTML = options
+	elem("chat-users").innerHTML = options
 }
 
-dragElement(elem('chatbox-holder'), elem('chatbox-top'))
+dragElement(elem("chatbox-holder"), elem("chatbox-top"))
 
 /* ---------------------------------------history window --------------------------------*/
 /**
  * display the history log in a window
  */
 function showHistory() {
-	elem('history-window').style.display = 'block'
-	let log = elem('history-log')
+	elem("history-window").style.display = "block"
+	let log = elem("history-log")
 	log.innerHTML = yHistory
 		.toArray()
 		.map(
@@ -4297,8 +4499,10 @@ function showHistory() {
 		<div class="history-action">${rec.user} ${rec.action}</div>
 		<div class="history-rollback" data-time="${rec.time}"></div>`
 		)
-		.join(' ')
-	document.querySelectorAll('div.history-rollback').forEach((e) => addRollbackIcon(e))
+		.join(" ")
+	document
+		.querySelectorAll("div.history-rollback")
+		.forEach((e) => addRollbackIcon(e))
 	if (log.children.length > 0) log.lastChild.scrollIntoView(false)
 }
 /**
@@ -4317,7 +4521,7 @@ async function addRollbackIcon(e) {
 				<span class="tooltiptext rollbacktip">Rollback to before this action</span>
 			</div>
 		</div>`
-		if (elem(e.id)) listen(e.id, 'click', rollback)
+		if (elem(e.id)) listen(e.id, "click", rollback)
 	}
 }
 /**
@@ -4329,7 +4533,10 @@ async function rollback(event) {
 	let rbTime = parseInt(event.currentTarget.dataset.time)
 	let rb = await persistence.get(rbTime)
 	if (!rb) return
-	if (!confirm(`Roll back the map to what it was before ${timeAndDate(rbTime)}?`)) return
+	if (
+		!confirm(`Roll back the map to what it was before ${timeAndDate(rbTime)}?`)
+	)
+		return
 	let state = JSON.parse(decompressFromUTF16(rb))
 	data.nodes.clear()
 	data.edges.clear()
@@ -4354,34 +4561,36 @@ async function rollback(event) {
 			updateFromDrawingMap()
 		}
 	})
-	logHistory(`rolled back the map to what it was before ${timeAndDate(rbTime, true)}`)
+	logHistory(
+		`rolled back the map to what it was before ${timeAndDate(rbTime, true)}`
+	)
 }
 
 function showHistorySwitch() {
-	if (elem('showHistorySwitch').checked) showHistory()
-	else elem('history-window').style.display = 'none'
+	if (elem("showHistorySwitch").checked) showHistory()
+	else elem("history-window").style.display = "none"
 }
-listen('history-close', 'click', historyClose)
+listen("history-close", "click", historyClose)
 function historyClose() {
-	elem('history-window').style.display = 'none'
-	elem('showHistorySwitch').checked = false
+	elem("history-window").style.display = "none"
+	elem("showHistorySwitch").checked = false
 }
 
-dragElement(elem('history-window'), elem('history-header'))
+dragElement(elem("history-window"), elem("history-header"))
 
 /* --------------------------------------- avatars and shared cursors--------------------------------*/
 
 var lastPktTime // time when a round trip duration packet was last sent
 
 /* tell user if they are offline and disconnect websocket server */
-window.addEventListener('offline', () => {
-	statusMsg('No network connection - working offline (view only)', 'info')
+window.addEventListener("offline", () => {
+	statusMsg("No network connection - working offline (view only)", "info")
 	wsProvider.shouldConnect = false
 	hideNavButtons()
 })
-window.addEventListener('online', () => {
+window.addEventListener("online", () => {
 	wsProvider.connect()
-	statusMsg('Network connection re-established', 'info')
+	statusMsg("Network connection re-established", "info")
 	lastPktTime = null
 	if (!viewOnly) showNavButtons()
 	showAvatars()
@@ -4392,17 +4601,17 @@ window.addEventListener('online', () => {
 function setUpAwareness() {
 	showAvatars()
 	roundTripTimer()
-	yAwareness.on('change', (event) => receiveEvent(event))
+	yAwareness.on("change", (event) => receiveEvent(event))
 
 	// regularly broadcast our own state, every 20 seconds
 	setInterval(() => {
-		yAwareness.setLocalStateField('pkt', {time: Date.now()})
+		yAwareness.setLocalStateField("pkt", { time: Date.now() })
 	}, 20000)
 
 	// if debug = fake, generate fake mouse events every 200 ms for testing
 	if (/fake/.test(debug)) {
 		setInterval(() => {
-			yAwareness.setLocalStateField('cursor', {
+			yAwareness.setLocalStateField("cursor", {
 				x: Math.random() * 1000 - 500,
 				y: Math.random() * 1000 - 500,
 			})
@@ -4416,7 +4625,7 @@ function setUpAwareness() {
 	// throttle mousemove broadcast to avoid overloading server
 	var throttled = false
 	var THROTTLETIME = 200
-	window.addEventListener('mousemove', (e) => {
+	window.addEventListener("mousemove", (e) => {
 		// broadcast my mouse movements
 		if (throttled) return
 		throttled = true
@@ -4427,7 +4636,7 @@ function setUpAwareness() {
 		// broadcast current position of mouse in canvas coordinates
 		let box = netPane.getBoundingClientRect()
 		yAwareness.setLocalStateField(
-			'cursor',
+			"cursor",
 			network.DOMtoCanvas({
 				x: Math.round(e.clientX - box.left),
 				y: Math.round(e.clientY - box.top),
@@ -4446,15 +4655,24 @@ function roundTripTimer() {
 	wsProviderB.disconnectBc()
 	// clientB listens to updates, extracts the time from the state and displays it and
 	// how long ago the state change was made ( time now - state.time )
-	yAwarenessB.on('change', (event, origin) => {
-		if (typeof origin === 'string') return // ignore local changes (e.g. through broadcast channel)
+	yAwarenessB.on("change", (event, origin) => {
+		if (typeof origin === "string") return // ignore local changes (e.g. through broadcast channel)
 		let sentpkt = yAwarenessB.getStates()?.get(yAwareness.clientID)?.pkt
 		if (sentpkt) {
 			// ignore repetitions of the same state time sent when other things change in the state object
 			if (lastPktTime && lastPktTime !== sentpkt.time) {
 				if (Date.now() - sentpkt.time > SLOWTRIPTIME || /round/.test(debug)) {
-					statusMsg(`Slow or unstable network connection (${Date.now() - sentpkt.time} ms)`, 'warn')
-					console.log(`${exactTime(sentpkt.time)} Round trip: ${Date.now() - sentpkt.time} ms`)
+					statusMsg(
+						`Slow or unstable network connection (${
+							Date.now() - sentpkt.time
+						} ms)`,
+						"warn"
+					)
+					console.log(
+						`${exactTime(sentpkt.time)} Round trip: ${
+							Date.now() - sentpkt.time
+						} ms`
+					)
 				}
 				lastPktTime = sentpkt.time
 			}
@@ -4469,7 +4687,7 @@ function roundTripTimer() {
 function asleep(isSleeping) {
 	if (myNameRec.asleep === isSleeping) return
 	myNameRec.asleep = isSleeping
-	yAwareness.setLocalState({user: myNameRec})
+	yAwareness.setLocalState({ user: myNameRec })
 	showAvatars()
 }
 /**
@@ -4477,7 +4695,7 @@ function asleep(isSleeping) {
  * @param {object} event
  */
 function traceUsers(event) {
-	let msg = ''
+	let msg = ""
 	event.added.forEach((id) => {
 		msg += `Added ${user(id)} (${id}) `
 	})
@@ -4487,7 +4705,7 @@ function traceUsers(event) {
 	event.removed.forEach((id) => {
 		msg += `Removed (${id}) `
 	})
-	console.log('yAwareness', exactTime(), msg)
+	console.log("yAwareness", exactTime(), msg)
 
 	function user(id) {
 		let userRec = yAwareness.getStates().get(id)
@@ -4503,18 +4721,26 @@ var refreshAvatars = true
  */
 function receiveEvent(event) {
 	if (/aware/.test(debug)) traceUsers(event)
-	if (elem('showUsersSwitch').checked) {
+	if (elem("showUsersSwitch").checked) {
 		let box = netPane.getBoundingClientRect()
 		let changed = event.added.concat(event.updated)
 		changed.forEach((userId) => {
 			let rec = yAwareness.getStates().get(userId)
-			if (userId !== clientID && rec.cursor && !object_equals(rec.cursor, lastMicePositions.get(userId))) {
+			if (
+				userId !== clientID &&
+				rec.cursor &&
+				!object_equals(rec.cursor, lastMicePositions.get(userId))
+			) {
 				showOtherMouse(userId, rec.cursor, box)
 				lastMicePositions.set(userId, rec.cursor)
 			}
 			if (rec.user) {
 				// if anything has changed, redisplay the avatars
-				if (refreshAvatars || !object_equals(rec.user, lastAvatarStatus.get(userId))) showAvatars()
+				if (
+					refreshAvatars ||
+					!object_equals(rec.user, lastAvatarStatus.get(userId))
+				)
+					showAvatars()
 				lastAvatarStatus.set(userId, rec.user)
 				// set a timer for this avatar to self-destruct if no update has been received for a minute
 				let ava = elem(`ava${userId}`)
@@ -4523,7 +4749,8 @@ function receiveEvent(event) {
 					ava.timer = setTimeout(removeAvatar, 60000, ava)
 				}
 			}
-			if (userId !== clientID && rec.addingFactor) showGhostFactor(userId, rec.addingFactor)
+			if (userId !== clientID && rec.addingFactor)
+				showGhostFactor(userId, rec.addingFactor)
 		})
 	}
 	if (followme) followUser()
@@ -4540,7 +4767,9 @@ function showOtherMouse(userId, cursor, box) {
 		cursorDiv.style.top = `${p.y}px`
 		cursorDiv.style.left = `${p.x}px`
 		cursorDiv.style.display =
-			p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top ? 'none' : 'block'
+			p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top
+				? "none"
+				: "block"
 	}
 }
 /**
@@ -4563,14 +4792,16 @@ function showAvatars() {
 		})
 		.filter((e) => e) // remove any recs without a user record
 		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates, by name
-		.sort((a, b) => (a.name.charAt(0).toUpperCase() > b.name.charAt(0).toUpperCase() ? 1 : -1)) // sort names
+		.sort((a, b) =>
+			a.name.charAt(0).toUpperCase() > b.name.charAt(0).toUpperCase() ? 1 : -1
+		) // sort names
 
 	populateChatUserMenu(Array.from(nameRecs))
 
 	if (me.length === 0) return // app is unloading
 	nameRecs.unshift(me[0][1].user) // push myself on to the front
 
-	let avatars = elem('avatars')
+	let avatars = elem("avatars")
 	let currentCursors = []
 
 	// check that an avatar exists for each name; if not create one.  If it does, check that it is still looking right
@@ -4582,11 +4813,14 @@ function showAvatars() {
 			refreshAvatars = true
 		} else {
 			// to avoid flashes, don't touch anything that is already correct
-			if (ava.dataset.tooltip !== nameRec.name) ava.dataset.tooltip = nameRec.name
+			if (ava.dataset.tooltip !== nameRec.name)
+				ava.dataset.tooltip = nameRec.name
 			let circle = ava.firstChild
-			if (circle.style.backgroundColor !== nameRec.color) circle.style.backgroundColor = nameRec.color
-			let circleBorderColor = nameRec.anon ? 'white' : 'black'
-			if (circle.style.borderColor !== circleBorderColor) circle.style.borderColor = circleBorderColor
+			if (circle.style.backgroundColor !== nameRec.color)
+				circle.style.backgroundColor = nameRec.color
+			let circleBorderColor = nameRec.anon ? "white" : "black"
+			if (circle.style.borderColor !== circleBorderColor)
+				circle.style.borderColor = circleBorderColor
 			if (circle.innerText !== shortName) circle.innerText = shortName
 			let opacity = nameRec.asleep ? 0.2 : 1.0
 			if (circle.style.opacity !== opacity) circle.style.opacity = opacity
@@ -4598,9 +4832,10 @@ function showAvatars() {
 			if (cursorDiv === null) {
 				cursorDiv = makeCursor(nameRec)
 			} else {
-				if (nameRec.asleep) cursorDiv.style.display = 'none'
+				if (nameRec.asleep) cursorDiv.style.display = "none"
 				if (cursorDiv.innerText !== shortName) cursorDiv.innerText = shortName
-				if (cursorDiv.style.backgroundColor !== nameRec.color) cursorDiv.style.backgroundColor = nameRec.color
+				if (cursorDiv.style.backgroundColor !== nameRec.color)
+					cursorDiv.style.backgroundColor = nameRec.color
 			}
 			currentCursors.push(cursorDiv)
 		}
@@ -4615,9 +4850,9 @@ function showAvatars() {
 	avatars.replaceChildren(df)
 
 	// delete any cursors that remain from before
-	let cursorsToDelete = Array.from(document.querySelectorAll('.shared-cursor')).filter(
-		(a) => !currentCursors.includes(a)
-	)
+	let cursorsToDelete = Array.from(
+		document.querySelectorAll(".shared-cursor")
+	).filter((a) => !currentCursors.includes(a))
 	cursorsToDelete.forEach((e) => e.remove())
 
 	/**
@@ -4625,35 +4860,35 @@ function showAvatars() {
 	 * @param {object} nameRec
 	 */
 	function makeAvatar(nameRec) {
-		let ava = document.createElement('div')
-		ava.classList.add('hoverme')
-		if (followme === nameRec.id) ava.classList.add('followme')
+		let ava = document.createElement("div")
+		ava.classList.add("hoverme")
+		if (followme === nameRec.id) ava.classList.add("followme")
 		ava.id = `ava${nameRec.id}`
 		ava.dataset.tooltip = nameRec.name
 		// the broadcast awareness sometimes loses a client (broadcasts that has been removed)
 		// when it actually hasn't (e.g. if there is a comms glitch).  So instead, we set a timer
 		// and delete the avatar only if nothing is heard from that user for a minute
 		ava.timer = setTimeout(removeAvatar, 60000, ava)
-		let circle = document.createElement('div')
-		circle.classList.add('round')
+		let circle = document.createElement("div")
+		circle.classList.add("round")
 		circle.style.backgroundColor = nameRec.color
-		if (nameRec.anon) circle.style.borderColor = 'white'
+		if (nameRec.anon) circle.style.borderColor = "white"
 		circle.innerText = initials(nameRec.name)
 		circle.style.opacity = nameRec.asleep ? 0.2 : 1.0
 		circle.dataset.client = nameRec.id
 		circle.dataset.userName = nameRec.name
 		ava.appendChild(circle)
 		avatars.appendChild(ava)
-		circle.addEventListener('click', follow)
-		circle.addEventListener('contextmenu', selectUsersItems)
-		circle.addEventListener('mouseover', () =>
+		circle.addEventListener("click", follow)
+		circle.addEventListener("contextmenu", selectUsersItems)
+		circle.addEventListener("mouseover", () =>
 			statusMsg(
 				nameRec.id === clientID
-					? 'Right click to select all your edits'
+					? "Right click to select all your edits"
 					: `Click to follow this person; right click to select all this person's edits`
 			)
 		)
-		circle.addEventListener('mouseout', () => clearStatusBar())
+		circle.addEventListener("mouseout", () => clearStatusBar())
 	}
 	/**
 	 * make a pseudo cursor (a div)
@@ -4661,12 +4896,12 @@ function showAvatars() {
 	 * @returns a div
 	 */
 	function makeCursor(nameRec) {
-		let cursorDiv = document.createElement('div')
-		cursorDiv.className = 'shared-cursor'
+		let cursorDiv = document.createElement("div")
+		cursorDiv.className = "shared-cursor"
 		cursorDiv.id = nameRec.id
 		cursorDiv.style.backgroundColor = nameRec.color
 		cursorDiv.innerText = initials(nameRec.name)
-		cursorDiv.style.display = 'none' // hide it until we get coordinates at next mousemove
+		cursorDiv.style.display = "none" // hide it until we get coordinates at next mousemove
 		container.appendChild(cursorDiv)
 		return cursorDiv
 	}
@@ -4680,11 +4915,11 @@ function removeAvatar(ava) {
 	ava.remove()
 }
 function showUsersSwitch() {
-	let on = elem('showUsersSwitch').checked
-	document.querySelectorAll('div.shared-cursor').forEach((node) => {
-		node.style.display = on ? 'block' : 'none'
+	let on = elem("showUsersSwitch").checked
+	document.querySelectorAll("div.shared-cursor").forEach((node) => {
+		node.style.display = on ? "block" : "none"
 	})
-	elem('avatars').style.display = on ? 'flex' : 'none'
+	elem("avatars").style.display = on ? "flex" : "none"
 }
 /**
  * User has clicked on an avatar.  Start following this avatar
@@ -4695,18 +4930,18 @@ function follow(event) {
 	let user = parseInt(event.target.dataset.client, 10)
 	if (user === clientID) return
 	followme = user
-	elem(`ava${followme}`).classList.add('followme')
+	elem(`ava${followme}`).classList.add("followme")
 	let userName = elem(`ava${user}`).dataset.tooltip
-	statusMsg(`Following ${userName}`, 'info')
+	statusMsg(`Following ${userName}`, "info")
 }
 /**
  * User was following another user, but has now clicked off the avatar, so stop following
  */
 function unFollow() {
 	if (!followme) return
-	elem(`ava${followme}`).classList.remove('followme')
+	elem(`ava${followme}`).classList.remove("followme")
 	followme = undefined
-	elem('errMsg').classList.remove('fadeInAndOut')
+	elem("errMsg").classList.remove("fadeInAndOut")
 	clearStatusBar()
 }
 /**
@@ -4717,7 +4952,7 @@ function followUser() {
 	if (!userRec) return
 	if (userRec.user.asleep) unFollow()
 	let userPosition = userRec.cursor
-	if (userPosition) network.moveTo({position: userPosition})
+	if (userPosition) network.moveTo({ position: userPosition })
 }
 /**
  * show a ghost box where another user is adding a factor
@@ -4731,18 +4966,18 @@ function followUser() {
 function showGhostFactor(userId, addingFactor) {
 	let id = `ghost-factor${userId}`
 	switch (addingFactor.state) {
-		case 'done': {
+		case "done": {
 			{
 				let ghostDiv = elem(id)
 				if (ghostDiv) ghostDiv.remove()
 			}
 			break
 		}
-		case 'adding': {
+		case "adding": {
 			{
 				if (!elem(id)) {
-					let ghostDiv = document.createElement('div')
-					ghostDiv.className = 'ghost-factor'
+					let ghostDiv = document.createElement("div")
+					ghostDiv.className = "ghost-factor"
 					ghostDiv.id = `ghost-factor${userId}`
 					ghostDiv.innerText = `[New factor\nbeing added by\n${addingFactor.name}]`
 					let p = network.canvasToDOM(addingFactor.pos)
@@ -4752,7 +4987,12 @@ function showGhostFactor(userId, addingFactor) {
 					ghostDiv.style.top = `${p.y - 50}px`
 					ghostDiv.style.left = `${p.x - 187}px`
 					ghostDiv.style.display =
-						p.x < box.left || p.x > box.right || p.y > box.bottom || p.y < box.top ? 'none' : 'block'
+						p.x < box.left ||
+						p.x > box.right ||
+						p.y > box.bottom ||
+						p.y < box.top
+							? "none"
+							: "block"
 					netPane.appendChild(ghostDiv)
 				}
 			}
