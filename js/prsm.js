@@ -2624,6 +2624,7 @@ function ghostCursor() {
 	if (!window.matchMedia('(any-hover: hover)').matches) return
 	const box = document.createElement('div')
 	box.classList.add('ghost-factor', 'factor-cursor')
+	box.innerText = 'Click on the map to add a factor'
 	box.id = 'factor-cursor'
 	document.body.appendChild(box)
 	const netPaneRect = netPane.getBoundingClientRect()

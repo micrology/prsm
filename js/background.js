@@ -220,7 +220,7 @@ export async function refreshFromMap(keys) {
 			}
 		}
 	}
-	/* This is a horrible hack, because fabricjs doesn't yet support Promises.  If there is an image to load,
+	/* This is a horrible hack, because fabric.js doesn't yet support Promises.  If there is an image to load,
 	wait a while to ensure that it has been added to the canvas before proceeding. */
 	if (imageFound) await new Promise(r => setTimeout(r, 400));
 
