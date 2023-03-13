@@ -11,10 +11,12 @@ import {WebsocketProvider} from 'y-websocket'
 import {Network} from 'vis-network/peer/'
 import {DataSet} from 'vis-data/peer'
 import {elem, listen, deepMerge, standardize_color} from './utils.js'
-import {version} from '../package.json'
-import ForceGraph3D from '3d-force-graph'
+import { version } from '../package.json'
+// For unknown reasons, ForceGraph3D crashes if loaded from node_modules, but works if loaded from a CDN
+//import ForceGraph3D from '3d-force-graph'
+/*global ForceGraph3D */
 import SpriteText from 'three-spritetext'
-import * as THREE from 'three'
+import * as THREE from 'three' 
 
 const shortAppName = 'PRSM'
 
