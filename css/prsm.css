@@ -548,7 +548,7 @@ nav button .pressed {
 	display: inline-block;
 	padding: 0px;
 	color: white;
-	z-index: 1050;
+	z-index: 2050;
 }
 .dropdown-content {
 	display: none;

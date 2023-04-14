@@ -209,6 +209,7 @@ function display() {
 	elem('info').style.color = elem('mode').value === 'light' ? 'black' : 'white'
 
 	graph = ForceGraph3D()(threeDGraphDiv)
+//		.cooldownTicks(0)
 		.width(width)
 		.height(height)
 		.graphData(convertData())

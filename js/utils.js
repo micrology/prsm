@@ -271,7 +271,7 @@ export function strip(obj, allowed) {
  * @param {string} txt
  * @param {number} width
  */
-export function splitText(txt, width) {
+export function splitText(txt, width=10) {
 	let lines = ''
 	let chunks = txt.trim().split('\n')
 	chunks.forEach((chunk) => {

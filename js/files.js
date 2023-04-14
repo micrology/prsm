@@ -695,6 +695,9 @@ function loadExcelfile(contents) {
 				delete l[k]
 			})
 	})
+	factors.forEach((f) => {
+		f.label = splitText(f.label, NODEWIDTH)
+	})
 	data.nodes.add(factors)
 	data.edges.add(links)
 	yNetMap.set('attributeTitles', attributeNames)
@@ -876,11 +879,11 @@ function setCanvasBackgroundColor(canvas, color = '#ffffff') {
  * @param {string} extn filename extension to apply
  */
 export function setFileName(extn = 'prsm') {
-		let title = elem('maptitle').innerText
-		if (title === 'Untitled map') lastFileName = 'network'
-		else lastFileName = title.replace(/\s+/g, '').replaceAll('.', '_').toLowerCase()
-		lastFileName += '.' + extn
-} 
+	let title = elem('maptitle').innerText
+	if (title === 'Untitled map') lastFileName = 'network'
+	else lastFileName = title.replace(/\s+/g, '').replaceAll('.', '_').toLowerCase()
+	lastFileName += '.' + extn
+}
 /**
  * Save the map as CSV files, one for nodes and one for edges
  * Only node and edge labels and style ids are saved
