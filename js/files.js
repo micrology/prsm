@@ -40,6 +40,7 @@ import {
 	timestamp,
 	clearMap,
 	debug,
+	setCanvasBackground,
 	toggleDeleteButton,
 	undoRedoButtonStatus,
 	updateLastSamples,
@@ -839,7 +840,7 @@ export function exportPNGfile() {
 	bigNetPane.style.height = `${netPane.offsetHeight * upscaling}px`
 	elem('main').appendChild(bigNetPane)
 	bigNetwork = new Network(bigNetPane, data, {
-		physics: {enabled: false},
+		physics: { enabled: false },
 		edges: {
 			smooth: {
 				enabled: elem('curveSelect').value === 'Curved',
@@ -848,12 +849,8 @@ export function exportPNGfile() {
 		},
 	})
 	bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
-	bigNetwork.moveTo({
-		position: network.getViewPosition(),
-		scale: network.getScale() * upscaling,
-	})
-	bigNetwork.once('afterDrawing', () => {
-		a.href = setCanvasBackgroundColor(bigNetCanvas).toDataURL('image/png')
+	bigNetwork.on('afterDrawing', () => {
+		a.href = setCanvasBackground(bigNetCanvas).toDataURL('image/png')
 		a.download = lastFileName
 		a.addEventListener('click', () => {
 			a.remove()
@@ -863,14 +860,10 @@ export function exportPNGfile() {
 		})
 		a.click()
 	})
-}
-function setCanvasBackgroundColor(canvas, color = '#ffffff') {
-	let context = canvas.getContext('2d')
-	context.setTransform()
-	context.globalCompositeOperation = 'destination-over'
-	context.fillStyle = color
-	context.fillRect(0, 0, canvas.width, canvas.height)
-	return canvas
+	bigNetwork.moveTo({
+		position: network.getViewPosition(),
+		scale: network.getScale() * upscaling,
+	})
 }
 
 /**

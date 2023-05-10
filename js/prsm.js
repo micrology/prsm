@@ -90,7 +90,6 @@ import {
 	pasteBackgroundFromClipboard,
 	upgradeFromV1,
 	updateFromDrawingMap,
-	addBackgroundToCanvas,
 } from './background.js'
 import {version} from '../package.json'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
@@ -1426,7 +1425,9 @@ function draw() {
 			physics: {enabled: false},
 		})
 		bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
-		addBackgroundToCanvas(bigNetPane, bigNetCanvas)
+		bigNetwork.on('afterDrawing', () => {
+			setCanvasBackground(bigNetCanvas)
+		})
 		bigNetwork.moveTo({
 			position: network.getViewPosition(),
 			scale: magnification * network.getScale(),
@@ -1470,6 +1471,24 @@ function draw() {
 		magnifier.style.display = 'none'
 	}
 } // end draw()
+
+/**
+ * draw the background on the given canvas (which will be a magnified version of the net pane)
+ * @param {HTMLElement} canvas 
+ * @returns canvas
+ */
+export function setCanvasBackground(canvas) {
+	let context = canvas.getContext('2d')
+	context.setTransform()
+	context.globalCompositeOperation = 'destination-over'
+	// apply the background objects
+	let backgroundCanvas = document.getElementById('underlay').firstElementChild.firstElementChild
+	context.drawImage(backgroundCanvas, 0, 0, canvas.width, canvas.height)
+	// apply the background colour, if any, or white
+	context.fillStyle = elem('underlay').style.backgroundColor || '#ffffff'
+	context.fillRect(0, 0, canvas.width, canvas.height)
+	return canvas
+}
 
 /**
  * clear the map by destroying all nodes and edges

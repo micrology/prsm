@@ -2201,34 +2201,3 @@ function circleIntersectsRect(circle, rect) {
 	var dy = distY - rect.h / 2
 	return dx * dx + dy * dy <= circle.r * circle.r
 }
-
-export function addBackgroundToCanvas(/*bigNetPane, bigNetCanvas*/) {
-	/* 	let bigBackgroundEl = document.createElement('canvas')
-	bigBackgroundEl.id = 'big-background'
-	bigBackgroundEl.style.position = 'absolute'
-	bigBackgroundEl.style.top = 0//'-9999px'
-	bigBackgroundEl.style.left = 0//'-9999px'
-	elem('main').appendChild(bigBackgroundEl)
-	let bigCanvas = new fabric.Canvas(bigBackgroundEl)
-	bigCanvas.setWidth(bigNetPane.offsetWidth)
-	bigCanvas.setHeight(bigNetPane.offsetHeight)
-	canvas.getObjects().forEach((obj) => bigCanvas.add(obj))
-	bigCanvas.requestRenderAll()
-	let ctx = bigNetCanvas.getContext('2d')
-	ctx.drawImage(bigCanvas.toCanvasElement(network.getScale())) */
-	/* let c2 = document.createElement('canvas')
-	elem('main').appendChild(c2)
-	let underlay = elem('underlay')
-	let canvas2 = new fabric.Canvas(c2)
-	canvas2.setWidth(underlay.offsetWidth)
-	canvas2.setHeight(underlay.offsetHeight)
-	canvas.setViewportTransform(canvas.viewportTransform)
-	canvas.getObjects().forEach((obj) => canvas2.add(obj))
-	canvas2.requestRenderAll()
-	window.canvas2 = canvas2
-	let can2 = canvas2.toCanvasElement(1.5)
-	let ctx = underlay.firstElementChild.firstElementChild.getContext('2d')
-	ctx.drawImage(can2, 0, 0)
-
- */
-}
