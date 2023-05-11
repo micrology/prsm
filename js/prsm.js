@@ -3129,6 +3129,7 @@ function doShowNotes(toggle) {
  * User has clicked the padlock.  Toggle padlock state and fix the location of the node
  */
 function setFixed() {
+	if (viewOnly) return
 	let locked = elem('fixed').style.display === 'none'
 	let node = data.nodes.get(editor.id)
 	node.fixed = locked
