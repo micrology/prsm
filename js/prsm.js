@@ -1018,7 +1018,6 @@ function draw() {
 				// revert to using the original node properties before continuing.
 				item = data.nodes.get(item.id)
 				item.modified = timestamp()
-				//				let point = {x: event.offsetX, y: event.offsetY}
 				let point = network.canvasToDOM({x: item.x, y: item.y})
 				editNode(item, point, cancelEdit, callback)
 			},
@@ -1056,7 +1055,6 @@ function draw() {
 				editWithoutDrag: function (item, callback) {
 					item = data.edges.get(item.id)
 					item.modified = timestamp()
-					//					let point = {x: event.offsetX, y: event.offsetY}
 					let point = network.canvasToDOM({x: item.x, y: item.y})
 					editEdge(item, point, cancelEdit, callback)
 				},
@@ -1867,6 +1865,7 @@ function ghostFactor(pos) {
  * @param {Function} callback what to do if the edit is saved
  */
 function editNode(item, point, cancelAction, callback) {
+	if (item.locked) return
 	initPopUp('Edit Factor', 150, item, cancelAction, saveNode, callback)
 	elem('popup').insertAdjacentHTML(
 		'beforeend',
@@ -1949,6 +1948,7 @@ function getDashes(val, width) {
  * @param {Function} callback what to do if the edit is saved
  */
 function editEdge(item, point, cancelAction, callback) {
+	if (item.locked) return
 	initPopUp('Edit Link', 150, item, cancelAction, saveEdge, callback)
 	elem('popup').insertAdjacentHTML(
 		'beforeend',
@@ -3559,6 +3559,7 @@ function toggleDrawingLayer() {
 		setButtonDisabledStatus('addNode', false)
 		setButtonDisabledStatus('addLink', false)
 		undoRedoButtonStatus()
+		if(elem('showLegendSwitch').checked) legend()
 		if (nChanges) logHistory('drew on the background layer')
 		changeCursor('default')
 	} else {

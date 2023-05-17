@@ -222,7 +222,7 @@ export async function refreshFromMap(keys) {
 	}
 	/* This is a horrible hack, because fabric.js doesn't yet support Promises.  If there is an image to load,
 	wait a while to ensure that it has been added to the canvas before proceeding. */
-	if (imageFound) await new Promise(r => setTimeout(r, 400));
+	if (imageFound) await new Promise((r) => setTimeout(r, 400))
 
 	for (let key of keys) {
 		let remoteParams = yDrawingMap.get(key)
@@ -266,7 +266,6 @@ export async function refreshFromMap(keys) {
 						let objs = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
 						canvas.discardActiveObject()
 						let group = new fabric.Group(objs)
-						canvas.remove(...objs)
 						group.id = key
 						group.members = remoteParams.members
 						setGroupBorderColor(group)
@@ -288,7 +287,10 @@ export async function refreshFromMap(keys) {
 	if (keys.includes('sequence')) {
 		let remoteParams = yDrawingMap.get('sequence')
 		let newObjects = []
-		remoteParams.forEach((id) => newObjects.push(canvas.getObjects().find((obj) => obj.id === id)))
+		remoteParams.forEach((id) => {
+			let newObject = canvas.getObjects().find((obj) => obj.id === id)
+			if (newObject) newObjects.push(newObject)
+		})
 		canvas._objects = newObjects
 	}
 
