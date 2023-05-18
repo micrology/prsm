@@ -1055,7 +1055,11 @@ function draw() {
 				editWithoutDrag: function (item, callback) {
 					item = data.edges.get(item.id)
 					item.modified = timestamp()
-					let point = network.canvasToDOM({x: item.x, y: item.y})
+					// find midpoint of edge
+					let point = network.canvasToDOM({
+						x: (network.getPosition(item.from).x + network.getPosition(item.to).x) / 2,
+						y: (network.getPosition(item.from).y + network.getPosition(item.to).y) / 2,
+					})
 					editEdge(item, point, cancelEdit, callback)
 				},
 			},
@@ -1472,7 +1476,7 @@ function draw() {
 
 /**
  * draw the background on the given canvas (which will be a magnified version of the net pane)
- * @param {HTMLElement} canvas 
+ * @param {HTMLElement} canvas
  * @returns canvas
  */
 export function setCanvasBackground(canvas) {
@@ -3559,7 +3563,7 @@ function toggleDrawingLayer() {
 		setButtonDisabledStatus('addNode', false)
 		setButtonDisabledStatus('addLink', false)
 		undoRedoButtonStatus()
-		if(elem('showLegendSwitch').checked) legend()
+		if (elem('showLegendSwitch').checked) legend()
 		if (nChanges) logHistory('drew on the background layer')
 		changeCursor('default')
 	} else {
