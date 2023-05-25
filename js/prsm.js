@@ -2128,6 +2128,7 @@ function saveLabel(node, callback) {
  * @param {Function} callback
  */
 function saveNode(item, callback) {
+	unlockNode(item)
 	item.label = splitText(elem('popup-label').innerText, NODEWIDTH)
 	clearPopUp()
 	if (item.label === '') {
@@ -2150,7 +2151,6 @@ function saveNode(item, callback) {
 	network.manipulation.inMode = 'editNode' // ensure still in Add mode, in case others have done something meanwhile
 	if (item.label === item.oldLabel) logHistory(`edited factor: '${item.label}'`)
 	else logHistory(`edited factor, changing label from '${item.oldLabel}' to '${item.label}'`)
-	unlockNode(item)
 	callback(item)
 }
 /**
@@ -2165,6 +2165,7 @@ function lockNode(item) {
 	item.label = `${item.label}\n\n[Being edited by ${myNameRec.name}]`
 	item.wasFixed = Boolean(item.fixed)
 	item.fixed = true
+	dontUndo = 'locked'
 	data.nodes.update(item)
 }
 /**
@@ -2175,6 +2176,7 @@ function unlockNode(item) {
 	item.locked = false
 	item.opacity = 1
 	item.fixed = item.wasFixed
+	item.label = item.oldLabel
 	item.oldLabel = undefined
 	dontUndo = 'unlocked'
 	data.nodes.update(item)
@@ -2197,6 +2199,7 @@ function unlockAll() {
  * @param {Function} callback
  */
 function saveEdge(item, callback) {
+	unlockEdge(item)
 	item.label = splitText(elem('popup-label').innerText, NODEWIDTH)
 	clearPopUp()
 	if (item.label === '') item.label = ' '
@@ -2213,7 +2216,6 @@ function saveEdge(item, callback) {
 	}
 	item.font.size = parseInt(elem('edge-font-size').value)
 	network.manipulation.inMode = 'editEdge' // ensure still in edit mode, in case others have done something meanwhile
-	unlockEdge(item)
 	// vis-network silently deselects all edges in the callback (why?).  So we have to mark this edge as unselected in preparation
 	clearStatusBar()
 	callback(item)
@@ -2245,6 +2247,7 @@ function lockEdge(item) {
 	item.opacity = 0.1
 	item.oldLabel = item.label || ' '
 	item.label = `Being edited by ${myNameRec.name}`
+	dontUndo = 'locked'
 	data.edges.update(item)
 }
 /**
@@ -2255,6 +2258,7 @@ function unlockEdge(item) {
 	item.locked = false
 	item.font.color = 'rgba(0,0,0,1)'
 	item.opacity = 1
+	item.label = item.oldLabel
 	item.oldLabel = undefined
 	dontUndo = 'unlocked'
 	data.edges.update(item)

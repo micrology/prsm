@@ -800,7 +800,7 @@ export class CP {
 			if (top > netPane.bottom - this.container.offsetHeight)
 				top = netPane.bottom - this.container.offsetHeight - 10
 			if (top < netPane.top) top = netPane.top + 10
-			let left = event.clientX
+			let left = event.clientX -this.container.offsetWidth / 2
 			if (left < netPane.left) left = netPane.left + 10
 			if (left > netPane.right - this.container.offsetWidth)
 				left = netPane.right - this.container.offsetWidth - 10
