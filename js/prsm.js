@@ -445,13 +445,13 @@ function startY(newRoom) {
 	If a local node is removed, the yMap is updated to broadcast to other clients that the node 
 	has been deleted. If a local node is added or updated, that is also broadcast.
 	 */
-	nodes.on('*', (event, properties, origin) => {
-		yjsTrace('nodes.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`)
+	nodes.on('*', (evt, properties, origin) => {
+		yjsTrace('nodes.on', `${evt}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`)
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
 					// this is a local change
-					if (event === 'remove') {
+					if (evt === 'remove') {
 						yNodesMap.delete(id.toString())
 					} else {
 						yNodesMap.set(id.toString(), deepCopy(nodes.get(id)))
@@ -467,11 +467,11 @@ function startY(newRoom) {
 	removed from the local nodes dataSet. Otherwise, if the received node differs from the local one, 
 	the local node dataSet is updated (which includes adding a new node if it does not already exist locally).
 	 */
-	yNodesMap.observe((event) => {
-		yjsTrace('yNodesMap.observe', event)
+	yNodesMap.observe((evt) => {
+		yjsTrace('yNodesMap.observe', evt)
 		let nodesToUpdate = []
 		let nodesToRemove = []
-		for (let key of event.keysChanged) {
+		for (let key of evt.keysChanged) {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key)
 				if (!object_equals(obj, data.nodes.get(key))) {
@@ -479,7 +479,7 @@ function startY(newRoom) {
 					if (viewOnly) obj.fixed = true
 					nodesToUpdate.push(deepCopy(obj))
 					// if a note on a node is being remotely edited and is on display here, update the local note and the padlock
-					if (editor && editor.id === key && event.transaction.local === false) {
+					if (editor && editor.id === key && evt.transaction.local === false) {
 						editor.setContents(obj.note)
 						elem('fixed').style.display = obj.fixed ? 'inline' : 'none'
 						elem('unfixed').style.display = obj.fixed ? 'none' : 'inline'
@@ -494,17 +494,17 @@ function startY(newRoom) {
 		if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote')
 		if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
 		if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0))
-			showChange(event, yNodesMap)
+			showChange(evt, yNodesMap)
 	})
 	/* 
 	See comments above about nodes
 	 */
-	edges.on('*', (event, properties, origin) => {
-		yjsTrace('edges.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`)
+	edges.on('*', (evt, properties, origin) => {
+		yjsTrace('edges.on', `${evt}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`)
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
-					if (event === 'remove') yEdgesMap.delete(id.toString())
+					if (evt === 'remove') yEdgesMap.delete(id.toString())
 					else {
 						yEdgesMap.set(id.toString(), deepCopy(edges.get(id)))
 					}
@@ -513,16 +513,16 @@ function startY(newRoom) {
 		}, dontUndo)
 		dontUndo = null
 	})
-	yEdgesMap.observe((event) => {
-		yjsTrace('yEdgesMap.observe', event)
+	yEdgesMap.observe((evt) => {
+		yjsTrace('yEdgesMap.observe', evt)
 		let edgesToUpdate = []
 		let edgesToRemove = []
-		for (let key of event.keysChanged) {
+		for (let key of evt.keysChanged) {
 			if (yEdgesMap.has(key)) {
 				let obj = yEdgesMap.get(key)
 				if (!object_equals(obj, data.edges.get(key))) {
 					edgesToUpdate.push(deepCopy(obj))
-					if (editor && editor.id === key && event.transaction.local === false) editor.setContents(obj.note)
+					if (editor && editor.id === key && evt.transaction.local === false) editor.setContents(obj.note)
 				}
 			} else {
 				hideNotes()
@@ -537,15 +537,15 @@ function startY(newRoom) {
 			if (inAddMode === 'addLink') network.addEdgeMode()
 		}
 		if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0))
-			showChange(event, yEdgesMap)
+			showChange(evt, yEdgesMap)
 	})
 	/**
 	 * utility trace function that prints the change in the value of a YMap property to the console
-	 * @param {YEvent} event
+	 * @param {YEvent} evt
 	 * @param {MapType} ymap
 	 */
-	function showChange(event, ymap) {
-		event.changes.keys.forEach((change, key) => {
+	function showChange(evt, ymap) {
+		evt.changes.keys.forEach((change, key) => {
 			if (change.action === 'add') {
 				console.log(
 					`Property "${key}" was added. 
@@ -576,11 +576,11 @@ function startY(newRoom) {
 			}
 		})
 	}
-	ySamplesMap.observe((event) => {
-		yjsTrace('ySamplesMap.observe', event)
+	ySamplesMap.observe((evt) => {
+		yjsTrace('ySamplesMap.observe', evt)
 		let nodesToUpdate = []
 		let edgesToUpdate = []
-		for (let key of event.keysChanged) {
+		for (let key of evt.keysChanged) {
 			let sample = ySamplesMap.get(key)
 			if (sample.node !== undefined) {
 				if (!object_equals(styles.nodes[key], sample.node)) {
@@ -614,12 +614,12 @@ function startY(newRoom) {
 		Background)
 	For cases 2 and 3, the functions called here must not invoke yNetMap.set() to avoid loops
 	*/
-	yNetMap.observe((event) => {
-		yjsTrace('YNetMap.observe', event)
+	yNetMap.observe((evt) => {
+		yjsTrace('YNetMap.observe', evt)
 
-		if (event.transaction.origin)
-			// event is not local
-			for (let key of event.keysChanged) {
+		if (evt.transaction.origin)
+			// evt is not local
+			for (let key of evt.keysChanged) {
 				let obj = yNetMap.get(key)
 				switch (key) {
 					case 'viewOnly': {
@@ -696,34 +696,53 @@ function startY(newRoom) {
 				}
 			}
 	})
-	yPointsArray.observe((event) => {
+	yPointsArray.observe((evt) => {
 		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1))
-		if (event.transaction.local === false) upgradeFromV1(yPointsArray.toArray())
+		if (evt.transaction.local === false) upgradeFromV1(yPointsArray.toArray())
 	})
-	yDrawingMap.observe((event) => {
-		yjsTrace('yDrawingMap.observe', event)
-		updateFromRemote(event)
+	yDrawingMap.observe((evt) => {
+		yjsTrace('yDrawingMap.observe', evt)
+		updateFromRemote(evt)
 	})
 	yHistory.observe(() => {
 		yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1))
 		if (elem('showHistorySwitch').checked) showHistory()
 	})
-	yUndoManager.on('stack-item-added', (event) => {
-		yjsTrace('yUndoManager.on stack-item-added', event)
+	yUndoManager.on('stack-item-added', (evt) => {
+		yjsTrace('yUndoManager.on stack-item-added', evt)
 		if (/changes/.test(debug))
-			event.changedParentTypes.forEach((v) => {
+			evt.changedParentTypes.forEach((v) => {
 				showChange(v[0], v[0].target)
 			})
 		undoRedoButtonStatus()
 	})
-	yUndoManager.on('stack-item-popped', (event) => {
-		yjsTrace('yUndoManager.on stack-item-popped', event)
+	yUndoManager.on('stack-item-popped', (evt) => {
+		yjsTrace('yUndoManager.on stack-item-popped', evt)
 		if (/changes/.test(debug))
-			event.changedParentTypes.forEach((v) => {
+			evt.changedParentTypes.forEach((v) => {
 				showChange(v[0], v[0].target)
 			})
+		pruneDanglingEdges()
 		undoRedoButtonStatus()
 	})
+	/**
+	 * In some slightly obscure circumstances, (specifically, client A undoes the creation of a factor that 
+	 * client B has subsequently linked to another factor), the undo operation can result in a link that
+	 * has no source or destination factor.  Tracking such a situation is rather complex, so this cleans 
+	 * up the mess without bothering about its cause.
+	 */
+	function pruneDanglingEdges() {
+		data.edges.forEach((edge) => {
+			if (data.nodes.get(edge.from) === null) {
+				dontUndo = 'danglingEdge'
+				data.edges.remove(edge.id)
+			}
+			if (data.nodes.get(edge.to) == null) {
+				dontUndo = 'danglingEdge'
+				data.edges.remove(edge.id)
+			}
+		})
+	}
 } // end startY()
 
 /**
@@ -2440,7 +2459,9 @@ worker.onmessage = function (e) {
 			}
 		})
 		if (nodesToUpdate) {
+			dontUndo = 'recalcStats'
 			data.nodes.update(nodesToUpdate)
+			dontUndo = null
 		}
 	}
 }
@@ -2785,7 +2806,9 @@ function setButtonDisabledStatus(id, state) {
 	if (state) elem(id).classList.add('disabled')
 	else elem(id).classList.remove('disabled')
 }
-
+/**
+ * Delete the selected node, plus all the edges that connect to it (so no edge is left dangling)
+ */
 function deleteNode() {
 	network.deleteSelected()
 	clearStatusBar()
