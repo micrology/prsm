@@ -1236,12 +1236,12 @@ let MarkerHandler = fabric.util.createClass(fabric.Object, {
 	initialize: function () {
 		this.callSuper('initialize', {
 			width: 30,
-			color: 'rgb(249, 255, 71)',
+			color: 'rgba(249, 255, 71, 0.5)',
 			strokeLineCap: 'square',
 			strokeLineJoin: 'bevel',
 		})
 		canvas.freeDrawingBrush.width = 30
-		canvas.freeDrawingBrush.color = 'rgb(249, 255, 71)'
+		canvas.freeDrawingBrush.color = 'rgba(249, 255, 71, 0.5)'
 	},
 	pointerdown: function () {
 		this.setParams()

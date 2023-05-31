@@ -1417,7 +1417,7 @@ function draw() {
 		if (!inEditMode && e.shiftKey) createMagnifier()
 	})
 	window.addEventListener('mousemove', (e) => {
-		if (e.shiftKey) showMagnifier(e)
+		if (!inEditMode && e.shiftKey) showMagnifier(e)
 	})
 	window.addEventListener('keyup', (e) => {
 		if (e.key === 'Shift') closeMagnifier()
@@ -2723,7 +2723,6 @@ function plusLink() {
 		case 'addLink': {
 			showPressed('addLink', 'remove')
 			stopEdit()
-			clearStatusBar()
 			break
 		}
 		case 'addNode': {
@@ -2756,6 +2755,9 @@ function plusLink() {
 function stopEdit() {
 	inAddMode = false
 	network.disableEditMode()
+	network.setOptions({
+		interaction: {dragView: true, selectable: true},
+	})
 	clearStatusBar()
 	changeCursor('default')
 }
