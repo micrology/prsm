@@ -885,7 +885,7 @@ function hideNavButtons() {
 function showNavButtons() {
 	elem('buttons').style.visibility = 'visible'
 	elem('search').parentElement.style.visibility = 'visible'
-	elem('search').parentElement.style.borderLeft = '1px solid #fff'
+	elem('search').parentElement.style.borderLeft = '1px solid rgb(255, 255, 255)'
 	elem('maptitle').contentEditable = 'true'
 }
 /**
@@ -1506,7 +1506,7 @@ export function setCanvasBackground(canvas) {
 	let backgroundCanvas = document.getElementById('underlay').firstElementChild.firstElementChild
 	context.drawImage(backgroundCanvas, 0, 0, canvas.width, canvas.height)
 	// apply the background colour, if any, or white
-	context.fillStyle = elem('underlay').style.backgroundColor || '#ffffff'
+	context.fillStyle = elem('underlay').style.backgroundColor || 'rgb(255, 255, 255)'
 	context.fillRect(0, 0, canvas.width, canvas.height)
 	return canvas
 }
@@ -2196,7 +2196,6 @@ function unlockNode(item) {
 	item.opacity = 1
 	item.fixed = item.wasFixed
 	item.label = item.oldLabel
-	item.oldLabel = undefined
 	dontUndo = 'unlocked'
 	data.nodes.update(item)
 	showNodeOrEdgeData()
@@ -2459,9 +2458,7 @@ worker.onmessage = function (e) {
 			}
 		})
 		if (nodesToUpdate) {
-			dontUndo = 'recalcStats'
 			data.nodes.update(nodesToUpdate)
-			dontUndo = null
 		}
 	}
 }

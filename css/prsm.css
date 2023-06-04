@@ -5,21 +5,21 @@
 	box-sizing: border-box;
 	touch-action: none;
 	/* interface colours defined here: CECAN theme */
-	--header-color: #0d2644;
-	--header-hover-color: grey;
-	--header-pressed-color: grey;
-	--header-buttons-color: #0d2644;
-	--header-disabled-color: #215fab;
-	--panel-color: #404040;
-	--pop-up-color: #f5f5f5;
-	--pop-up-shadow-color: #c9c9c9;
-	--modal-header-color: #0d2644;
-	--tab-color: #dcdcdc;
-	--tutorial-highlight-color: #d32f2f;
-	--chat-message-header-color: #a2a2a2;
-	--history-log-color: #fffde7;
-	--map-title-color: #ffc107;
-	--sample-selected-color: lightblue;
+	--header-color: 		rgb(13, 38, 68);
+	--header-hover-color: 	rgb(128,128,128);
+	--header-pressed-color: rgb(128,128,128);
+	--header-buttons-color: rgb(13, 38, 68);
+	--header-disabled-color:rgb(33, 95, 171);
+	--panel-color: 			rgb(64, 64, 64);
+	--pop-up-color: 		rgb(245, 245, 245);
+	--pop-up-shadow-color:	rgb(201, 201, 201);
+	--modal-header-color: 	rgb(13, 38, 68);
+	--tab-color:			rgb(220, 220, 220);
+	--tutorial-highlight-color: rgb(211, 47, 47);
+	--chat-message-header-color: rgb(162, 162, 162);
+	--history-log-color:	 rgb(255, 253, 231);
+	--map-title-color:		 rgb(255, 193, 7);
+	--sample-selected-color: rgb(173, 216, 230);
 }
 html,
 body,
@@ -56,7 +56,7 @@ select {
 	font-family: Oxygen, sans-serif;
 }
 select {
-	border-color: lightgrey;
+	border-color: rgb(211, 211, 211);
 	border-radius: 5px;
 	font-size: 12px;
 	outline: none;
@@ -94,8 +94,8 @@ select {
 	text-align: center;
 	font-size: 14px;
 	background-color: white;
-	color: black;
-	border-top: 1px solid lightgrey;
+	color: rgb(0, 0, 0);
+	border-top: 1px solid rgb(211, 211, 211);
 	user-select: none;
 	-webkit-user-select: none;
 }
@@ -136,31 +136,31 @@ select {
 	height: 20px;
 	width: 20px;
 	border-radius: 100%;
-	background-color: black;
+	background-color: rgb(0, 0, 0);
 	position: absolute;
 }
 .loader--dot:first-child {
-	background-color: #8cc759;
+	background-color: rgb(140, 199, 89);
 	animation-delay: 0.5s;
 }
 .loader--dot:nth-child(2) {
-	background-color: #8c6daf;
+	background-color: rgb(140, 109, 175);
 	animation-delay: 0.4s;
 }
 .loader--dot:nth-child(3) {
-	background-color: #ef5d74;
+	background-color: rgb(239, 93, 116);
 	animation-delay: 0.3s;
 }
 .loader--dot:nth-child(4) {
-	background-color: #f9a74b;
+	background-color: rgb(249, 167, 75);
 	animation-delay: 0.2s;
 }
 .loader--dot:nth-child(5) {
-	background-color: #60beeb;
+	background-color: rgb(96, 190, 235);
 	animation-delay: 0.1s;
 }
 .loader--dot:nth-child(6) {
-	background-color: #fbef5a;
+	background-color: rgb(251, 239, 90);
 	animation-delay: 0s;
 }
 @keyframes loader {
@@ -256,7 +256,7 @@ input[type='range'] {
 	height: 0;
 	z-index: 100;
 	background-color: rgba(0, 0, 250, 0.1);
-	border: 1px blue dotted;
+	border: 1px rgb(0, 0, 255) dotted;
 }
 /* Add factor dialog */
 
@@ -282,7 +282,7 @@ input[type='range'] {
 	overflow-y: auto;
 	overflow-x: hidden;
 	outline: none;
-	color: black;
+	color: rgb(0, 0, 0);
 	min-width: 160px;
 	min-height: 50px;
 	max-height: 60px;
@@ -301,7 +301,7 @@ input[type='range'] {
 	bottom: 7px;
 	right: 7px;
 	font-size: 12px;
-	background-color: black;
+	background-color: rgb(0, 0, 0);
 	color: white;
 	border-radius: 20%;
 	padding: 3px;
@@ -309,17 +309,17 @@ input[type='range'] {
 #popup-saveButton:hover {
 	text-decoration: none;
 	cursor: pointer;
-	background-color: gray;
+	background-color: rgb(128, 128, 128);
 }
 #popup-cancelButton {
-	color: black;
+	color: rgb(0, 0, 0);
 	position: absolute;
 	top: 0px;
 	right: 5px;
 	font-size: 20px;
 }
 #popup-cancelButton:hover {
-	color: gray;
+	color: rgb(128, 128, 128);
 	text-decoration: none;
 	cursor: pointer;
 }
@@ -339,7 +339,7 @@ input[type='range'] {
 	overflow: hidden;
 	width: 20px;
 	height: 20px;
-	border: solid 2px lightgrey;
+	border: solid 2px rgb(211, 211, 211);
 	border-radius: 20px;
 	margin: auto;
 	padding: 0;
@@ -350,14 +350,14 @@ input[type='range'] {
 	display: flex;
 	margin: 3px 0;
 	width: 160px;
-	border-top: 1px solid grey;
-	border-bottom: 1px solid grey;
-	border-right: 1px solid grey;
+	border-top: 1px solid rgb(128, 128, 128);
+	border-bottom: 1px solid rgb(128, 128, 128);
+	border-right: 1px solid rgb(128, 128, 128);
 }
 .cached-color {
 	width: 20px;
 	height: 20px;
-	border-left: 1px solid grey;
+	border-left: 1px solid rgb(128, 128, 128);
 }
 .color-well {
 	position: relative;
@@ -372,7 +372,7 @@ input[type='range'] {
 	display: none;
 	position: absolute;
 	z-index: 5000;
-	background-color: lightgrey;
+	background-color: rgb(211, 211, 211);
 	border-radius: 4px;
 	box-shadow: 4px 4px 15px 0px var(--pop-up-shadow-color);
 	border: thin solid var(--pop-up-shadow-color);
@@ -394,7 +394,7 @@ nav {
 }
 .version {
 	font-size: xx-small;
-	color: lightgray;
+	color: rgb(211, 211, 211);
 	margin-left: 10px;
 }
 .title {
@@ -410,7 +410,7 @@ nav {
 	text-align: left;
 }
 .unsetmaptitle {
-	color: lightgrey;
+	color: rgb(211, 211, 211);
 }
 .recent-rooms-caret {
 	color: white;
@@ -447,7 +447,7 @@ nav {
 }
 .room-title-tooltip {
 	position: relative;
-	border-bottom: 1px dotted #666;
+	border-bottom: 1px dotted rgb(102, 102, 102);
 	text-align: left;
 }
 .room-title-right {
@@ -457,7 +457,7 @@ nav {
 	margin-left: 20px;
 	transform: translate(0, -50%);
 	padding: 10px 20px;
-	color: #444444;
+	color: rgb(68, 68, 68);
 	background-color: #eeeeee;
 	font-weight: normal;
 	font-size: 13px;
@@ -491,7 +491,7 @@ nav {
 	left: 0;
 	top: 50%;
 	transform: translate(50%, -50%) rotate(-45deg);
-	background-color: #eeeeee;
+	background-color: rgb(238, 238, 238);
 	box-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
 
@@ -607,7 +607,7 @@ nav button .pressed {
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	background-color: white;
-	border: 2px solid grey;
+	border: 2px solid rgb(128, 128, 128);
 	border-radius: 4px;
 	padding: 2px;
 	margin-top: 2px;
@@ -615,7 +615,7 @@ nav button .pressed {
 }
 .and-more {
 	text-align: center;
-	color: grey;
+	color: rgb(128, 128, 128);
 }
 
 #download {
@@ -638,7 +638,7 @@ nav button .pressed {
 	left: 50%;
 	margin-left: -60px;
 	/* Use half of the width (120/2 = 60), to center the tooltip */
-	background-color: gray;
+	background-color: rgb(128, 128, 128);
 	color: white;
 	text-align: center;
 	padding: 5px 0;
@@ -688,7 +688,7 @@ nav button .pressed {
 	background-color: white;
 	margin: auto;
 	padding: 0;
-	border: 1px solid gray;
+	border: 1px solid rgb(128, 128, 128);
 	width: 60%;
 	max-width: 900px;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -718,7 +718,7 @@ nav button .pressed {
 }
 .modal-header .close:hover,
 .modal-header .close:focus {
-	color: grey;
+	color: rgb(128, 128, 128);
 	text-decoration: none;
 	cursor: pointer;
 }
@@ -735,17 +735,17 @@ nav button .pressed {
 }
 .modal-body .modal-button {
 	border-radius: 8px;
-	color: black;
+	color: rgb(0, 0, 0);
 	background-color: white;
-	border: 2px solid grey;
+	border: 2px solid rgb(128, 128, 128);
 	text-align: center;
-	box-shadow: 1px 1px 4px grey;
+	box-shadow: 1px 1px 4px rgb(128, 128, 128);
 }
 .modal-body .modal-button:hover {
-	border-color: black;
+	border-color: rgb(0, 0, 0);
 }
 .modal-body .modal-button:active {
-	box-shadow: inset 0px 0px 5px #c1c1c1;
+	box-shadow: inset 0px 0px 5px rgb(193, 193, 193);
 	outline: none;
 }
 .modal-body .clone {
@@ -843,7 +843,7 @@ nav button .pressed {
 
 .tab .tablinks.active {
 	background-color: white;
-	color: black;
+	color: rgb(0, 0, 0);
 }
 /* Style the tab content */
 
@@ -948,7 +948,7 @@ but moving the panel out of sight works instead */
 .notes {
 	padding: 4px;
 	background-color: white;
-	color: black;
+	color: rgb(0, 0, 0);
 	width: 100%;
 	min-height: 100px;
 	outline: none;
@@ -981,7 +981,7 @@ but moving the panel out of sight works instead */
 }
 .itemData .row.divider {
 	margin-top: 5px;
-	border-top: 1px solid lightgrey;
+	border-top: 1px solid rgb(211, 211, 211);
 }
 .itemData .row .hidden {
 	display: none;
@@ -1018,7 +1018,7 @@ but moving the panel out of sight works instead */
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-color: black;
+	background-color: rgb(0, 0, 0);
 	transition: 0.4s;
 }
 .slider:before {
@@ -1032,10 +1032,10 @@ but moving the panel out of sight works instead */
 	transition: 0.4s;
 }
 input:checked + .slider {
-	background-color: darkgrey;
+	background-color: rgb(169, 169, 169);
 }
 input:focus + .slider {
-	box-shadow: 0 0 1px darkgrey;
+	box-shadow: 0 0 1px rgb(169, 169, 169);
 }
 input:checked + .slider:before {
 	transform: translateX(12px);
@@ -1043,7 +1043,7 @@ input:checked + .slider:before {
 /* Rounded sliders */
 .slider.rounded {
 	border-radius: 17px;
-	border: 1px solid grey;
+	border: 1px solid rgb(128, 128, 128);
 }
 .slider.rounded:before {
 	border-radius: 50%;
@@ -1053,18 +1053,18 @@ input:checked + .slider:before {
 .pushbutton {
 	padding: 0 5px;
 	background-color: white;
-	border: 1px solid grey;
+	border: 1px solid rgb(128, 128, 128);
 	border-top: 1px solid white;
 	border-radius: 8px;
 	font-size: 12px;
-	color: black;
+	color: rgb(0, 0, 0);
 	outline: none;
 	transition: All 250ms ease;
 }
 .pushbutton:active {
-	background-color: grey;
-	border: 1px solid black;
-	border-top: 1px solid grey;
+	background-color: rgb(128, 128, 128);
+	border: 1px solid rgb(0, 0, 0);
+	border-top: 1px solid rgb(128, 128, 128);
 	color: white;
 	transition: All 250ms ease;
 }
@@ -1081,7 +1081,7 @@ input:checked + .slider:before {
 	background-color: var(--pop-up-color);
 	box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
 	border: thin solid var(--pop-up-shadow-color);
-	color: black;
+	color: rgb(0, 0, 0);
 	font-family: Oxygen, sans-serif;
 	font-size: 12px;
 	padding: 10px;
@@ -1098,7 +1098,7 @@ input:checked + .slider:before {
 	justify-self: start;
 	font-weight: bold;
 	font-size: 14px;
-	color: black;
+	color: rgb(0, 0, 0);
 }
 .styleEditor .title {
 	grid-column: 1/4;
@@ -1106,25 +1106,25 @@ input:checked + .slider:before {
 .styleEditor .title input {
 	font-family: sans-serif;
 	font-size: 12px;
-	border: 1px solid black;
+	border: 1px solid rgb(0, 0, 0);
 	border-radius: 4px;
 	padding: 4px;
 }
 .styleEditor .x-button {
-	color: black;
+	color: rgb(0, 0, 0);
 	position: absolute;
 	top: 3px;
 	right: 5px;
 	font-size: 20px;
 }
 .styleEditor .x-button:hover {
-	color: gray;
+	color: rgb(128, 128, 128);
 	text-decoration: none;
 	cursor: pointer;
 }
 .styleEditor .save-button {
 	font-size: 12px;
-	background-color: black;
+	background-color: rgb(0, 0, 0);
 	color: white;
 	border-radius: 20%;
 	padding: 3px;
@@ -1132,7 +1132,7 @@ input:checked + .slider:before {
 .styleEditor .save-button:hover {
 	text-decoration: none;
 	cursor: pointer;
-	background-color: gray;
+	background-color: rgb(128, 128, 128);
 }
 .styleEditor .submit {
 	grid-column: 3/4;
@@ -1191,7 +1191,7 @@ input:checked + .slider:before {
 	color: white;
 }
 .chat-messages {
-	border: 1px solid black;
+	border: 1px solid rgb(0, 0, 0);
 	padding: 10px;
 	overflow: auto;
 	display: flex;
@@ -1204,7 +1204,7 @@ input:checked + .slider:before {
 	display: flex;
 	flex-flow: column;
 	align-items: flex-end;
-	border-top: 1px solid lightgrey;
+	border-top: 1px solid rgb(211, 211, 211);
 }
 .message-header {
 	font-size: 12px;
@@ -1221,7 +1221,7 @@ input:checked + .slider:before {
 .message-box {
 	padding: 7px;
 	position: relative;
-	color: black;
+	color: rgb(0, 0, 0);
 	font-size: 14px;
 }
 .message-received {
@@ -1229,16 +1229,16 @@ input:checked + .slider:before {
 }
 .chat-input-holder {
 	display: flex;
-	border-left: 1px solid black;
-	border-bottom: 1px solid black;
-	border-right: 1px solid black;
+	border-left: 1px solid rgb(0, 0, 0);
+	border-bottom: 1px solid rgb(0, 0, 0);
+	border-right: 1px solid rgb(0, 0, 0);
 }
 .chat-users-menu {
 	display: flex;
 	flex-flow: row nowrap;
 	justify-content: space-between;
-	border-left: 1px solid black;
-	border-right: 1px solid black;
+	border-left: 1px solid rgb(0, 0, 0);
+	border-right: 1px solid rgb(0, 0, 0);
 	font-size: 12px;
 	padding: 4px;
 }
@@ -1251,7 +1251,7 @@ input:checked + .slider:before {
 	height: 40px;
 	font-size: 16px;
 	font-family: Oxygen, sans-serif;
-	color: black;
+	color: rgb(0, 0, 0);
 	flex: 1;
 	border: none;
 	background: white;
@@ -1324,11 +1324,11 @@ emoji-picker {
 	left: calc(100% - 630px);
 	width: 400px;
 	z-index: 2200;
-	background-color: black;
+	background-color: rgb(0, 0, 0);
 	border-radius: 4px;
 }
 .history-header {
-	background-color: black;
+	background-color: rgb(0, 0, 0);
 	border-radius: 4px 4px 0 0;
 	text-align: center;
 	color: white;
@@ -1348,7 +1348,7 @@ emoji-picker {
 	overflow-y: scroll;
 	overflow-x: clip;
 	width: 100%;
-	border: 2px solid black;
+	border: 2px solid rgb(0, 0, 0);
 	border-radius: 0 0 4px 4px;
 	box-sizing: border-box;
 }
@@ -1424,7 +1424,7 @@ emoji-picker {
 .toolbox-header {
 	height: 15px;
 	width: 40px;
-	border: 1px solid black;
+	border: 1px solid rgb(0, 0, 0);
 	border-radius: 3px;
 	margin: 8px;
 }
@@ -1440,15 +1440,15 @@ emoji-picker {
 	line-height: 40px;
 	font-size: 26px;
 	color: white;
-	background-color: black;
+	background-color: rgb(0, 0, 0);
 	margin: 8px;
 }
 .tool:hover {
-	box-shadow: 0 0 0 2px darkgrey inset;
+	box-shadow: 0 0 0 2px rgb(169, 169, 169) inset;
 }
 .tool:active,
 .selected {
-	background-color: darkgray;
+	background-color: rgb(58, 59, 60);
 }
 .disabled {
 	color: var(--header-disabled-color);
@@ -1457,7 +1457,7 @@ emoji-picker {
 	visibility: hidden;
 	top: 0;
 	left: 50px;
-	background-color: gray;
+	background-color: rgb(128, 128, 128);
 	color: white;
 	text-align: center;
 	padding: 5px 10px;
@@ -1486,7 +1486,7 @@ emoji-picker {
 	border: thin solid var(--pop-up-shadow-color);
 	background-color: var(--pop-up-color);
 	z-index: 1002;
-	color: black;
+	color: rgb(0, 0, 0);
 	border-radius: 6px;
 	font-size: 14px;
 }
@@ -1529,7 +1529,7 @@ emoji-picker {
 	font-size: 24px;
 	user-select: none;
 	-webkit-user-select: none;
-	border: 1px solid black;
+	border: 1px solid rgb(0, 0, 0);
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 .hoverme {
@@ -1595,7 +1595,7 @@ emoji-picker {
 }
 
 .followme {
-	box-shadow: inset 0px 0px 0px 4px red;
+	box-shadow: inset 0px 0px 0px 4px rgb(255, 0, 0);
 	border-radius: 8px;
 }
 /* ---------------------------- Tutorial --------------------------------*/
@@ -1611,7 +1611,7 @@ emoji-picker {
 	background-color: var(--pop-up-color);
 	box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
 	border: thin solid var(--pop-up-shadow-color);
-	color: black;
+	color: rgb(0, 0, 0);
 	font-family: Oxygen, sans-serif;
 	font-size: 16px;
 	padding: 5px;
@@ -1645,7 +1645,7 @@ emoji-picker {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	border: green 4px solid;
+	border: rgb(0, 255, 0) 4px solid;
 }
 .tutorial-dialog.wide {
 	width: 500px;
@@ -1660,24 +1660,24 @@ emoji-picker {
 	position: absolute;
 	top: -6px;
 	right: 3px;
-	color: grey;
+	color: rgb(128, 128, 128);
 	font-size: 20px;
 }
 .tutorial-dialog .x-button:hover {
-	color: black;
+	color: rgb(0, 0, 0);
 	text-decoration: none;
 	cursor: pointer;
 }
 .tutorial-dialog .tutorial-button {
 	font-size: 12px;
-	background-color: black;
+	background-color: rgb(0, 0, 0);
 	color: white;
 	border-radius: 20%;
 }
 .tutorial-dialog .tutorial-button:hover {
 	text-decoration: none;
 	cursor: pointer;
-	background-color: gray;
+	background-color: rgb(128, 128, 128);
 }
 .tutorial-dialog .next {
 	grid-column: 2;
@@ -1768,8 +1768,8 @@ emoji-picker {
 .magnifier {
 	display: none;
 	position: absolute;
-	border: 1px black solid;
-	box-shadow: 5px 5px 10px #1e1e1e;
+	border: 1px rgb(0, 0, 0) solid;
+	box-shadow: 5px 5px 10px rgb(30, 30, 30);
 	border-radius: 50%;
 	z-index: 5000;
 }
@@ -1796,7 +1796,7 @@ emoji-picker {
 	z-index: 50;
 	width: 190px;
 	height: 75px;
-	color: grey;
+	color: rgb(128, 128, 128);
 	background-color: rgb(235, 232, 232);
 	border: thin solid var(--pop-up-shadow-color);
 	border-radius: 5px;
@@ -1814,7 +1814,7 @@ emoji-picker {
 	position: absolute;
 	padding: 0;
 	margin: 0;
-	background: #eee;
+	background: rgb(238, 238, 238);
 	z-index: 3000;
 	border-radius: 7px;
 	box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
@@ -1830,7 +1830,7 @@ emoji-picker {
 	margin: 0;
 	padding: 0;
 	white-space: nowrap;
-	border-bottom: 1px solid lightgrey;
+	border-bottom: 1px solid rgb(211, 211, 211);
 }
 .menu-item:last-child {
 	border-bottom: none;
@@ -1841,7 +1841,7 @@ emoji-picker {
 	overflow: visible;
 	display: block;
 	width: 100%;
-	color: #444;
+	color: rgb(68, 68, 68);
 	font-size: 12px;
 	text-align: left;
 	cursor: pointer;
@@ -1855,8 +1855,8 @@ emoji-picker {
 .menu-item:hover > .menu-btn {
 	color: white;
 	outline: none;
-	background-color: #2e3940;
-	border: 1px solid #2e3940;
+	background-color: rgb(46, 57, 64);
+	border: 1px solid rgb(46, 57, 64);
 }
 .menu-item.disabled {
 	opacity: 0.5;
@@ -1869,8 +1869,8 @@ emoji-picker {
 	display: block;
 	margin: 7px 5px;
 	height: 1px;
-	border-bottom: 1px solid #fff;
-	background-color: #aaa;
+	border-bottom: 1px solid rgb(255, 255, 255);
+	background-color: rgb(170, 170, 170);
 }
 .show-menu,
 .menu-item:hover > .menu {
@@ -1886,7 +1886,7 @@ emoji-picker {
 	position: absolute;
 	padding: 0;
 	margin: 0;
-	background: #eee;
+	background: rgb(238, 238, 238);
 	z-index: 10000;
 	border-radius: 7px;
 	box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
@@ -1904,9 +1904,9 @@ emoji-picker {
 	margin: 2px;
 	padding: 2px;
 	white-space: nowrap;
-	border-bottom: 1px solid lightgrey;
+	border-bottom: 1px solid rgb(211, 211, 211);
 	border-radius: 7px;
-	color: #444;
+	color: rgb(68, 68, 68);
 	font-size: 12px;
 	text-align: left;
 }
@@ -2043,6 +2043,6 @@ emoji-picker {
 	}
 	.legend {
 		box-shadow: none;
-		border: 1px lightgrey solid;
+		border: 1px rgb(211, 211, 211) solid;
 	}
 }

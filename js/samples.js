@@ -27,21 +27,21 @@ export const styles = {
 			borderWidth: 4,
 			borderWidthSelected: 4,
 			color: {
-				border: '#000000',
-				background: '#ffffff',
+				border: 'rgb(0, 0, 0)',
+				background: 'rgb(255, 255, 255)',
 				highlight: {
-					border: '#000000',
-					background: '#ffffff',
+					border: 'rgb(0, 0, 0)',
+					background: 'rgb(255, 255, 255)',
 				},
 				hover: {
-					border: '#000000',
-					background: '#ffffff',
+					border: 'rgb(0, 0, 0)',
+					background: 'rgb(255, 255, 255)',
 				},
 			},
 			fixed: false,
 			font: {
 				face: 'Oxygen',
-				color: '#000000',
+				color: 'rgb(0, 0, 0)',
 				size: 14,
 			},
 			labelHighlightBold: true,
@@ -63,67 +63,67 @@ export const styles = {
 		group0: {
 			borderWidth: 0,
 			color: {
-				border: '#9ADBB4',
-				background: '#9ADBB4',
+				border: 'rgb(154, 219, 180)',
+				background: 'rgb(154, 219, 180)',
 			},
 			shape: 'box',
 		},
 		group1: {
 			borderWidth: 0,
 			color: {
-				border: '#CADB5C',
-				background: '#CADB5C',
+				border: 'rgb(202, 219, 92)',
+				background: 'rgb(202, 219, 92)',
 			},
 			shape: 'box',
 		},
 		group2: {
 			borderWidth: 0,
 			color: {
-				border: '#DBA542',
-				background: '#DBA542',
+				border: 'rgb(219, 165, 66)',
+				background: 'rgb(219, 165, 66)',
 			},
 			shape: 'box',
 		},
 		group3: {
 			borderWidth: 0,
 			color: {
-				border: '#DB6E67',
-				background: '#DB6E67',
+				border: 'rgb(219, 110, 103)',
+				background: 'rgb(219, 110, 103)',
 			},
 			font: {
-				color: '#ffffff',
+				color: 'rgb(255, 255, 255)',
 			},
 			shape: 'box',
 		},
 		group4: {
 			borderWidth: 0,
 			color: {
-				border: '#8371B7',
-				background: '#8371B7',
+				border: 'rgb(131, 113, 183)',
+				background: 'rgb(131, 113, 183)',
 			},
 			font: {
-				color: '#ffffff',
+				color: 'rgb(255, 255, 255)',
 			},
 			shape: 'box',
 		},
 		group5: {
 			borderWidth: 1,
 			color: {
-				border: '#0000ff',
-				background: '#b3ccff',
+				border: 'rgb(0, 0, 255)',
+				background: 'rgb(179, 204, 255)',
 			},
 			shape: 'ellipse',
 		},
 		group6: {
 			font: {
-				color: '#1c5f1b',
+				color: 'rgb(28, 95, 27)',
 			},
 			shape: 'text',
 		},
 		group7: {
 			color: {
-				border: '#000000',
-				background: '#ffff99',
+				border: 'rgb(0, 0, 0)',
+				background: 'rgb(255, 255, 153)',
 			},
 			shape: 'circle',
 			shapeProperties: {
@@ -133,22 +133,22 @@ export const styles = {
 		group8: {
 			borderWidth: 0,
 			color: {
-				border: '#7A7A7A',
-				background: '#7A7A7A',
+				border: 'rgb(122, 122, 122)',
+				background: 'rgb(122, 122, 122)',
 			},
 			font: {
-				color: '#7A7A7A',
+				color: 'rgb(122, 122, 122)',
 			},
 			shape: 'star',
 		},
 		cluster: {
 			borderWidth: 3,
 			color: {
-				border: '#000000',
-				background: '#DD2C00',
+				border: 'rgb(0, 0, 0)',
+				background: 'rgb(221, 44, 0)',
 			},
 			font: {
-				color: '#ffffff',
+				color: 'rgb(255, 255, 255)',
 			},
 			shape: 'database',
 			margin: {top: 40},
@@ -169,9 +169,9 @@ export const styles = {
 				},
 			},
 			color: {
-				color: '#000000',
-				highlight: '#000000',
-				hover: '#000000',
+				color: 'rgb(0, 0, 0)',
+				highlight: 'rgb(0, 0, 0)',
+				hover: 'rgb(0, 0, 0)',
 				inherit: false,
 				opacity: 1,
 			},
@@ -186,43 +186,43 @@ export const styles = {
 		},
 		edge0: {
 			color: {
-				color: '#000000',
+				color: 'rgb(0, 0, 0)',
 			},
 		},
 		edge1: {
 			color: {
-				color: '#00cc00',
+				color: 'rgb(0, 204, 0)',
 			},
 		},
 		edge2: {
 			color: {
-				color: '#ff0000',
+				color: 'rgb(255, 0, 0)',
 			},
 		},
 		edge3: {
 			color: {
-				color: '#0000ff',
+				color: 'rgb(0, 0, 255)',
 			},
 		},
 		edge4: {
 			color: {
-				color: '#808080',
+				color: 'rgb(128, 128, 128)',
 			},
 		},
 		edge5: {
 			color: {
-				color: '#e6b800',
+				color: 'rgb(230, 184, 0)',
 			},
 		},
 		edge6: {
 			color: {
-				color: '#000000',
+				color: 'rgb(0, 0, 0)',
 			},
 			dashes: [3, 3],
 		},
 		edge7: {
 			color: {
-				color: '#008000',
+				color: 'rgb(0, 128, 0)',
 			},
 			dashes: [10, 10],
 			width: 3,
@@ -238,12 +238,12 @@ export const styles = {
 				},
 			},
 			color: {
-				color: '#000000',
+				color: 'rgb(0, 0, 0)',
 			},
 		},
 		cluster: {
 			color: {
-				color: '#8D6E63',
+				color: 'rgb(141, 110, 99)',
 			},
 			width: 3,
 		},
