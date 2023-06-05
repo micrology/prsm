@@ -226,6 +226,7 @@ function addEventListeners() {
 	listen('net-pane', 'contextmenu', contextMenu)
 	listen('net-pane', 'click', unFollow)
 	listen('net-pane', 'click', removeTitleDropDown)
+	listen('drawer-handle', 'click', () => { elem('drawer-wrapper').classList.toggle('hide-drawer') })
 	listen('addLink', 'click', plusLink)
 	listen('deleteNode', 'click', deleteNode)
 	listen('undo', 'click', undo)

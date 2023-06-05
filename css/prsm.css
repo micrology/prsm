@@ -5,20 +5,20 @@
 	box-sizing: border-box;
 	touch-action: none;
 	/* interface colours defined here: CECAN theme */
-	--header-color: 		rgb(13, 38, 68);
-	--header-hover-color: 	rgb(128,128,128);
-	--header-pressed-color: rgb(128,128,128);
+	--header-color: rgb(13, 38, 68);
+	--header-hover-color: rgb(128, 128, 128);
+	--header-pressed-color: rgb(128, 128, 128);
 	--header-buttons-color: rgb(13, 38, 68);
-	--header-disabled-color:rgb(33, 95, 171);
-	--panel-color: 			rgb(64, 64, 64);
-	--pop-up-color: 		rgb(245, 245, 245);
-	--pop-up-shadow-color:	rgb(201, 201, 201);
-	--modal-header-color: 	rgb(13, 38, 68);
-	--tab-color:			rgb(220, 220, 220);
+	--header-disabled-color: rgb(33, 95, 171);
+	--panel-color: rgb(64, 64, 64);
+	--pop-up-color: rgb(245, 245, 245);
+	--pop-up-shadow-color: rgb(201, 201, 201);
+	--modal-header-color: rgb(13, 38, 68);
+	--tab-color: rgb(220, 220, 220);
 	--tutorial-highlight-color: rgb(211, 47, 47);
 	--chat-message-header-color: rgb(162, 162, 162);
-	--history-log-color:	 rgb(255, 253, 231);
-	--map-title-color:		 rgb(255, 193, 7);
+	--history-log-color: rgb(255, 253, 231);
+	--map-title-color: rgb(255, 193, 7);
 	--sample-selected-color: rgb(173, 216, 230);
 }
 html,
@@ -1915,6 +1915,36 @@ emoji-picker {
 }
 .context-menu .item:hover {
 	background-color: var(--pop-up-shadow-color);
+}
+/* map notes drawer */
+#drawer-wrapper {
+	--drawer-open-width: 80%;
+	--drawer-closed-width: -98%;
+	display: flex;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: var(--drawer-open-width);
+	height: 100%;
+	transition: transform 1s ease;
+	z-index: 5000;
+}
+#drawer {
+	border: 1px solid gray;
+	width: 100%;
+	overflow: hidden;
+}
+#drawer-handle {
+	background-color: gray;
+	align-self: center;
+	cursor: default;
+	width: 10px;
+	height: 32px;
+	border-radius: 0 8px 8px 0;
+	border: 1px solid black;
+}
+.hide-drawer {
+	transform: translateX(var(--drawer-closed-width));
 }
 /* 3d graph display */
 .threeDGraph {
