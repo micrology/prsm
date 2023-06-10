@@ -20,6 +20,7 @@
 	--history-log-color: rgb(255, 253, 231);
 	--map-title-color: rgb(255, 193, 7);
 	--sample-selected-color: rgb(173, 216, 230);
+	--notes-background-color: rgb(255,255,240);
 }
 html,
 body,
@@ -947,7 +948,6 @@ but moving the panel out of sight works instead */
 }
 .notes {
 	padding: 4px;
-	background-color: white;
 	color: rgb(0, 0, 0);
 	width: 100%;
 	min-height: 100px;
@@ -957,7 +957,7 @@ but moving the panel out of sight works instead */
 .edit-container {
 	width: 100%;
 	max-width: 500px;
-	background-color: white;
+	background-color: var(--notes-background-color);
 	resize: both;
 	overflow: hidden;
 }
@@ -1919,7 +1919,7 @@ emoji-picker {
 /* map notes drawer */
 #drawer-wrapper {
 	--drawer-open-width: 80%;
-	--drawer-closed-width: -98%;
+	--drawer-closed-width: calc(20px - 100%);
 	display: flex;
 	position: absolute;
 	top: 0;
@@ -1930,18 +1930,21 @@ emoji-picker {
 	z-index: 5000;
 }
 #drawer {
-	border: 1px solid gray;
+	border: 1px solid rgb(128, 128, 128);
 	width: 100%;
-	overflow: hidden;
+	overflow-x: hidden;
+	padding-left: 10px;
+	background-color: var(--notes-background-color);
+	box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 #drawer-handle {
-	background-color: gray;
+	background-color: rgb(128, 128, 128);
 	align-self: center;
 	cursor: default;
 	width: 10px;
 	height: 32px;
 	border-radius: 0 8px 8px 0;
-	border: 1px solid black;
+	border: 1px solid rgb(0, 0, 0);
 }
 .hide-drawer {
 	transform: translateX(var(--drawer-closed-width));

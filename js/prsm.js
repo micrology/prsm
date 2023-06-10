@@ -226,7 +226,9 @@ function addEventListeners() {
 	listen('net-pane', 'contextmenu', contextMenu)
 	listen('net-pane', 'click', unFollow)
 	listen('net-pane', 'click', removeTitleDropDown)
-	listen('drawer-handle', 'click', () => { elem('drawer-wrapper').classList.toggle('hide-drawer') })
+	listen('drawer-handle', 'click', () => {
+		elem('drawer-wrapper').classList.toggle('hide-drawer')
+	})
 	listen('addLink', 'click', plusLink)
 	listen('deleteNode', 'click', deleteNode)
 	listen('undo', 'click', undo)
@@ -494,8 +496,7 @@ function startY(newRoom) {
 		}
 		if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote')
 		if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
-		if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0))
-			showChange(evt, yNodesMap)
+		if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0)) showChange(evt, yNodesMap)
 	})
 	/* 
 	See comments above about nodes
@@ -537,8 +538,7 @@ function startY(newRoom) {
 			// vis-network will cancel the edit mode for this user.  Re-instate it.
 			if (inAddMode === 'addLink') network.addEdgeMode()
 		}
-		if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0))
-			showChange(evt, yEdgesMap)
+		if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0)) showChange(evt, yEdgesMap)
 	})
 	/**
 	 * utility trace function that prints the change in the value of a YMap property to the console
@@ -692,6 +692,10 @@ function startY(newRoom) {
 						setCluster(obj)
 						break
 					}
+					case 'mapDescription': {
+						setSideDrawer(obj)
+						break
+					}
 					default:
 						console.log('Bad key in yMapNet.observe: ', key)
 				}
@@ -727,9 +731,9 @@ function startY(newRoom) {
 		undoRedoButtonStatus()
 	})
 	/**
-	 * In some slightly obscure circumstances, (specifically, client A undoes the creation of a factor that 
+	 * In some slightly obscure circumstances, (specifically, client A undoes the creation of a factor that
 	 * client B has subsequently linked to another factor), the undo operation can result in a link that
-	 * has no source or destination factor.  Tracking such a situation is rather complex, so this cleans 
+	 * has no source or destination factor.  Tracking such a situation is rather complex, so this cleans
 	 * up the mess without bothering about its cause.
 	 */
 	function pruneDanglingEdges() {
@@ -1597,6 +1601,44 @@ function saveState(options) {
 		})
 	)
 }
+
+/******************************************************** map notes side drawer *****************************************************************/
+let toolbarOptions = [
+	['bold', 'italic', 'underline', 'strike'],
+	['blockquote', 'code-block'],
+
+	[{list: 'ordered'}, {list: 'bullet'}],
+	[{script: 'sub'}, {script: 'super'}],
+	[{indent: '-1'}, {indent: '+1'}],
+	[{align: []}],
+
+	['link', 'image'],
+	[{size: ['small', false, 'large', 'huge']}],
+	[{header: [1, 2, 3, 4, 5, 6, false]}],
+
+	[{color: []}, {background: []}],
+	[{font: []}],
+
+	['clean'],
+]
+let drawerEditor = new Quill(elem('drawer-editor'), {
+	modules: {
+		toolbar: toolbarOptions,
+	},
+	placeholder: 'Notes about the map',
+	theme: 'snow',
+})
+
+drawerEditor.on('text-change', (delta, oldDelta, source) => {
+	if (source === 'user') {
+		yNetMap.set('mapDescription', {text: isQuillEmpty(drawerEditor) ? '' : drawerEditor.getContents()})
+	}
+})
+function setSideDrawer(contents) {
+	drawerEditor.setContents(contents.text)
+}
+
+/************************************************************* badges around the factors ******************************************/
 var noteImage = new Image()
 noteImage.src =
 	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktY2FyZC10ZXh0IiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik0xNC41IDNhLjUuNSAwIDAgMSAuNS41djlhLjUuNSAwIDAgMS0uNS41aC0xM2EuNS41IDAgMCAxLS41LS41di05YS41LjUgMCAwIDEgLjUtLjVoMTN6bS0xMy0xQTEuNSAxLjUgMCAwIDAgMCAzLjV2OUExLjUgMS41IDAgMCAwIDEuNSAxNGgxM2ExLjUgMS41IDAgMCAwIDEuNS0xLjV2LTlBMS41IDEuNSAwIDAgMCAxNC41IDJoLTEzeiIvPgogIDxwYXRoIGQ9Ik0zIDUuNWEuNS41IDAgMCAxIC41LS41aDlhLjUuNSAwIDAgMSAwIDFoLTlhLjUuNSAwIDAgMS0uNS0uNXpNMyA4YS41LjUgMCAwIDEgLjUtLjVoOWEuNS41IDAgMCAxIDAgMWgtOUEuNS41IDAgMCAxIDMgOHptMCAyLjVhLjUuNSAwIDAgMSAuNS0uNWg2YS41LjUgMCAwIDEgMCAxaC02YS41LjUgMCAwIDEtLjUtLjV6Ii8+Cjwvc3ZnPg=='
@@ -1725,6 +1767,8 @@ function snapToGrid(node) {
 	node.x = GRIDSPACING * Math.round(node.x / GRIDSPACING)
 	node.y = GRIDSPACING * Math.round(node.y / GRIDSPACING)
 }
+
+/*************************************************************** clipboard ************************************** */
 /**
  * Copy the selected nodes and links to the clipboard
  * NB this doesn't yet work in Firefox, as they haven't implemented the Clipboard API and Permissions yet.
