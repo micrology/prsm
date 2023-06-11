@@ -652,6 +652,36 @@ export function initials(name) {
 	return '#' + ((1 << 24) + (+str[0] << 16) + (+str[1] << 8) + +str[2]).toString(16).slice(1)
 } */
 
+const hiddenOpacity = 0.1
+/**
+ * set this node to its 'hidden' appearance (very faint), or restore it to its usual appearance
+ * @param {object} node
+ * @param {boolean} hide
+ */
+export function setNodeHidden(node, hide) {
+	node.nodeHidden = hide
+	node.opacity = hide ? hiddenOpacity : 1.0
+	node.font.color = rgba(node.font.color, hide ? hiddenOpacity : 1.0)
+}
+/**
+ * set this edge to its 'hidden' appearance (very faint), or restore it to its usual appearance
+ * @param {object} edge
+ * @param {boolean} hide
+ */
+export function setEdgeHidden(edge, hide) {
+	edge.edgeHidden = hide
+	edge.color.opacity = hide ? hiddenOpacity : 1.0
+	if (!edge.font.color) edge.font.color = 'rgba(0,0,0,1)'
+	edge.font.color = rgba(edge.font.color, hide ? hiddenOpacity : 1.0)
+}
+
+/**
+ * convert an rgb(a) string to rgba with given alpha value
+ */
+function rgba(rgb, alpha) {
+	if (rgb.indexOf('a') == -1) rgb = rgb.replace('rgb', 'rgba').replace(')', ',0.0)')
+	return rgb.replace(/[^,]*$/, ` ${alpha})`)
+}
 /**
  * return the hex value for the CSS color in str (which may be a color name, e.g. white, or a hex number
  * or any other legal CSS color value)

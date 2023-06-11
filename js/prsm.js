@@ -45,6 +45,8 @@ import {
 	splitText,
 	dragElement,
 	standardize_color,
+	setNodeHidden,
+	setEdgeHidden,
 	object_equals,
 	generateName,
 	statusMsg,
@@ -493,8 +495,7 @@ function startY(newRoom) {
 		}
 		if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote')
 		if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
-		if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0))
-			showChange(evt, yNodesMap)
+		if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0)) showChange(evt, yNodesMap)
 	})
 	/* 
 	See comments above about nodes
@@ -536,8 +537,7 @@ function startY(newRoom) {
 			// vis-network will cancel the edit mode for this user.  Re-instate it.
 			if (inAddMode === 'addLink') network.addEdgeMode()
 		}
-		if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0))
-			showChange(evt, yEdgesMap)
+		if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0)) showChange(evt, yEdgesMap)
 	})
 	/**
 	 * utility trace function that prints the change in the value of a YMap property to the console
@@ -726,9 +726,9 @@ function startY(newRoom) {
 		undoRedoButtonStatus()
 	})
 	/**
-	 * In some slightly obscure circumstances, (specifically, client A undoes the creation of a factor that 
+	 * In some slightly obscure circumstances, (specifically, client A undoes the creation of a factor that
 	 * client B has subsequently linked to another factor), the undo operation can result in a link that
-	 * has no source or destination factor.  Tracking such a situation is rather complex, so this cleans 
+	 * has no source or destination factor.  Tracking such a situation is rather complex, so this cleans
 	 * up the mess without bothering about its cause.
 	 */
 	function pruneDanglingEdges() {
@@ -1354,7 +1354,7 @@ function draw() {
 			let selectedNodes = data.nodes.get({
 				filter: function (node) {
 					return (
-						!node.hidden &&
+						!node.nodeHidden &&
 						node.x >= selectionCanvasStart.x &&
 						node.x <= selectionEnd.x &&
 						node.y >= selectionCanvasStart.y &&
@@ -1624,7 +1624,7 @@ function drawBadges(ctx) {
 		// for a view only map, factors are always locked, so don't bother with padlock
 		data.nodes
 			.get()
-			.filter((node) => !node.hidden && node.fixed)
+			.filter((node) => !node.nodeHidden && node.fixed)
 			.forEach((node) => {
 				let box = network.getBoundingBox(node.id)
 				drawTheBadge(lockImage, ctx, box.left - 10, box.top)
@@ -1634,7 +1634,7 @@ function drawBadges(ctx) {
 		// note card for Factors and Links with Notes
 		data.nodes
 			.get()
-			.filter((node) => !node.hidden && node.note && node.note !== 'Notes')
+			.filter((node) => !node.nodeHidden && node.note && node.note !== 'Notes')
 			.forEach((node) => {
 				let box = network.getBoundingBox(node.id)
 				drawTheBadge(noteImage, ctx, box.right, box.top)
@@ -1643,25 +1643,25 @@ function drawBadges(ctx) {
 		let changedEdges = []
 		data.edges.get().forEach((edge) => {
 			if (
-				!edge.hidden &&
+				!edge.edgeHidden &&
 				edge.note &&
 				edge.note !== 'Notes' &&
 				edge.arrows &&
 				edge.arrows.middle &&
 				!edge.arrows.middle.enabled
 			) {
-				// there is a note, but the badge is not shown
+				// there is a note, but the badge is not shown, so show it
 				changedEdges.push(edge)
 				edge.arrows.middle.enabled = true
 				edge.arrows.middle.type = 'image'
 				edge.arrows.middle.src = noteImage.src
 			} else if (
-				(!edge.note || (edge.note && edge.note === 'Notes')) &&
+				(!edge.note || (edge.note && edge.note === 'Notes') || edge.edgeHidden) &&
 				edge.arrows &&
 				edge.arrows.middle &&
 				edge.arrows.middle.enabled
 			) {
-				// there is not a note, but the badge is shown
+				// there is not a note, but the badge is shown, so remove it
 				changedEdges.push(edge)
 				edge.arrows.middle.enabled = false
 			}
@@ -3370,7 +3370,7 @@ function autoLayout(e) {
 			}
 			case 'fan': {
 				{
-					let nodes = data.nodes.get().filter((n) => !n.hidden)
+					let nodes = data.nodes.get().filter((n) => !n.nodeHidden)
 					nodes.forEach((n) => (n.level = undefined))
 					let selectedNodes = getSelectedAndFixedNodes().map((nId) => data.nodes.get(nId))
 					if (selectedNodes.length === 0) {
@@ -3391,10 +3391,10 @@ function autoLayout(e) {
 						selectedNodes.forEach((sl) => {
 							nUp += network
 								.getConnectedNodes(sl.id, 'to')
-								.filter((nId) => !data.nodes.get(nId).hidden).length
+								.filter((nId) => !data.nodes.get(nId).nodeHidden).length
 							nDown += network
 								.getConnectedNodes(sl.id, 'from')
-								.filter((nId) => !data.nodes.get(nId).hidden).length
+								.filter((nId) => !data.nodes.get(nId).nodeHidden).length
 						})
 						direction = nUp > nDown ? 'to' : 'from'
 					}
@@ -3464,7 +3464,7 @@ function autoLayout(e) {
 			let currentNode = q.shift()
 			let connectedNodes = data.nodes
 				.get(network.getConnectedNodes(currentNode.id, direction))
-				.filter((n) => !n.hidden && n.level === undefined)
+				.filter((n) => !n.nodeHidden && n.level === undefined)
 			if (connectedNodes.length > 0) {
 				level = currentNode.level + 1
 				connectedNodes.forEach((n) => {
@@ -3621,7 +3621,7 @@ function ensureNotDrawing() {
 }
 
 function selectAllFactors() {
-	selectFactors(data.nodes.getIds({filter: (n) => !n.hidden}))
+	selectFactors(data.nodes.getIds({filter: (n) => !n.nodeHidden}))
 	showSelected()
 }
 
@@ -3631,7 +3631,7 @@ export function selectFactors(nodeIds) {
 }
 
 function selectAllLinks() {
-	selectLinks(data.edges.getIds({filter: (e) => !e.hidden}))
+	selectLinks(data.edges.getIds({filter: (e) => !e.edgeHidden}))
 	showSelected()
 }
 
@@ -3768,14 +3768,14 @@ function analyse() {
 		.get()
 		.filter((n) => !n.isCluster)
 		.map((n) => {
-			n.hidden = false
+			setNodeHidden(n, false)
 			return n
 		})
 	let edges = data.edges
 		.get()
 		.filter((e) => !e.isClusterEdge)
 		.map((e) => {
-			e.hidden = false
+			setEdgeHidden(e, false)
 			return e
 		})
 	// if showing everything, we are done
@@ -3857,14 +3857,17 @@ function analyse() {
 
 		// hide all nodes and edges not in radius
 		nodes.forEach((n) => {
-			if (!nodeIdsInRadiusSet.has(n.id)) n.hidden = true
+			if (!nodeIdsInRadiusSet.has(n.id)) setNodeHidden(n, true)
 		})
 		edges.forEach((e) => {
-			if (!linkIdsInRadiusSet.has(e.id)) e.hidden = true
+			if (!linkIdsInRadiusSet.has(e.id)) setEdgeHidden(e, true)
 		})
 		// add links between factors that are in radius set, to give an ego network
 		nodeIdsInRadiusSet.forEach((f) => {
-			network.getConnectedEdges(f).forEach((e) => (data.edges.get(e).hidden = false))
+			network.getConnectedEdges(f).forEach((e) => {
+				let edge = data.edges.get(e)
+				if (nodeIdsInRadiusSet.has(edge.from) && nodeIdsInRadiusSet.has(edge.to))setEdgeHidden(edge, false)
+			})
 		})
 
 		/**
@@ -3920,7 +3923,7 @@ function analyse() {
 				let currentNode = q.shift()
 				let connectedNodes = data.nodes
 					.get(network.getConnectedNodes(currentNode.id, direction))
-					.filter((n) => !(n.hidden || nodeIdsInStreamSet.has(n.id)))
+					.filter((n) => !(n.nodeHidden || nodeIdsInStreamSet.has(n.id)))
 				if (connectedNodes.length > 0) {
 					level = currentNode.level + 1
 					connectedNodes.forEach((n) => {
@@ -3934,15 +3937,18 @@ function analyse() {
 
 		// hide all nodes and edges not up or down stream
 		nodes.forEach((n) => {
-			if (!nodeIdsInStreamSet.has(n.id)) n.hidden = true
+			if (!nodeIdsInStreamSet.has(n.id)) setNodeHidden(n, true)
 		})
 		edges.forEach((e) => {
-			if (!linkIdsInStreamSet.has(e.id)) e.hidden = true
+			if (!linkIdsInStreamSet.has(e.id)) setEdgeHidden(e, true)
 		})
 
 		// add links between factors that are in radius set, to give an ego network
 		nodeIdsInStreamSet.forEach((f) => {
-			network.getConnectedEdges(f).forEach((e) => (data.edges.get(e).hidden = false))
+			network.getConnectedEdges(f).forEach((e) => {
+				let edge = data.edges.get(e)
+				if (nodeIdsInStreamSet.has(edge.from) && nodeIdsInStreamSet.has(edge.to))setEdgeHidden(edge, false)
+			})
 		})
 	}
 
@@ -3977,10 +3983,10 @@ function analyse() {
 		})
 		// hide all factors and links that are not in the set of paths
 		nodes.forEach((n) => {
-			if (!nodeIdsInPathsSet.has(n.id)) n.hidden = true
+			if (!nodeIdsInPathsSet.has(n.id)) setNodeHidden(n, true)
 		})
 		edges.forEach((e) => {
-			if (!linkIdsInPathsSet.has(e.id)) e.hidden = true
+			if (!linkIdsInPathsSet.has(e.id)) setEdgeHidden(e, true)
 		})
 
 		/**
@@ -4040,7 +4046,7 @@ function analyse() {
 						.getConnectedEdges(source)
 						.filter((e) => {
 							let edge = data.edges.get(e)
-							return !edge.hidden && edge.from === source
+							return !edge.edgeHidden && edge.from === source
 						})
 						.map((e) => data.edges.get(e).to)
 					if (connectedNodes.length === 0) return 'deadend'
@@ -4183,13 +4189,13 @@ function selectClustering(e) {
 	doc.transact(() => {
 		data.nodes.update(
 			data.nodes.get().map((n) => {
-				n.hidden = false
+				setNodeHidden(n, false)
 				return n
 			})
 		)
 		data.edges.update(
 			data.edges.get().map((e) => {
-				e.hidden = false
+				setEdgeHidden(e, false)
 				return e
 			})
 		)
