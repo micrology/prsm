@@ -23,7 +23,7 @@ This module provides the Data View
 
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
-import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter, isQuillEmpty} from './utils.js'
+import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter, isQuillEmpty, setNodeHidden, setEdgeHidden} from './utils.js'
 import {TabulatorFull as Tabulator} from 'tabulator-tables'
 import {version} from '../package.json'
 import Quill from 'quill'
@@ -606,7 +606,7 @@ function initialiseFactorTable() {
 				factorsTable.getRows().forEach((row) => {
 					row.update({hidden: !ticked})
 					let node = deepCopy(yNodesMap.get(row.getData().id))
-					node.hidden = !ticked
+					node.nodeHidden = !ticked
 					yNodesMap.set(node.id, node)
 				})
 			})
@@ -898,6 +898,7 @@ function convertNode(node) {
 		if (Array.isArray(n.borderStyle)) n.borderStyle = 'Dotted'
 		else n.borderStyle = n.borderStyle ? 'Dashed' : 'Solid'
 	}
+	n.hidden = n.nodeHidden
 	if (n.modified) n.modifiedTime = timeAndDate(n.modified.time, true)
 	else if (n.created) n.modifiedTime = timeAndDate(n.created.time, true)
 	else n.modifiedTime = '--'
@@ -1014,10 +1015,10 @@ function convertNodeBack(node, field, value) {
  * @param {boolean} value new value (hidden or not hidden)
  */
 function hideNodeAndEdges(node, value) {
-	node.hidden = value
+	setNodeHidden(node, value)
 	yEdgesMap.forEach((e) => {
 		if (e.from == node.id || e.to == node.id) {
-			e.hidden = value
+			setEdgeHidden(e, value)
 			yEdgesMap.set(e.id, e)
 		}
 	})
@@ -1211,7 +1212,7 @@ function initialiseLinkTable() {
 				linksTable.getRows().forEach((row) => {
 					row.update({hidden: !ticked})
 					let edge = deepCopy(yEdgesMap.get(row.getData().id))
-					edge.hidden = !ticked
+					edge.edgeHidden = !ticked
 					yEdgesMap.set(edge.id, edge)
 				})
 			})
@@ -1274,6 +1275,7 @@ function convertEdge(edge) {
 	for (let prop in conversions) {
 		e[prop] = e[conversions[prop][0]][conversions[prop][1]]
 	}
+	e.hidden = e.edgeHidden
 	if (e.modified) e.modifiedTime = timeAndDate(e.modified.time)
 	else if (e.created) e.modifiedTime = timeAndDate(e.created.time)
 	else e.modifiedTime = '--'
