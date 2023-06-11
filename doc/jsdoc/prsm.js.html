@@ -95,6 +95,7 @@
 				<li><a href="global.html#deepCopy">deepCopy</a></li>
 				<li><a href="global.html#deleteActiveObjects">deleteActiveObjects</a></li>
 				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
+				<li><a href="global.html#deleteNode">deleteNode</a></li>
 				<li><a href="global.html#deselectTool">deselectTool</a></li>
 				<li><a href="global.html#diag">diag</a></li>
 				<li><a href="global.html#diffMaps">diffMaps</a></li>
@@ -227,7 +228,7 @@
 				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
 				<li><a href="global.html#resizeBox">resizeBox</a></li>
 				<li><a href="global.html#resizeCanvas">resizeCanvas</a></li>
-				<li><a href="global.html#rgbToHex">rgbToHex</a></li>
+				<li><a href="global.html#rgba">rgba</a></li>
 				<li><a href="global.html#rollback">rollback</a></li>
 				<li><a href="global.html#round">round</a></li>
 				<li><a href="global.html#roundTripTimer">roundTripTimer</a></li>
@@ -247,10 +248,13 @@
 				<li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li>
 				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
 				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
+				<li><a href="global.html#setCanvasBackground">setCanvasBackground</a></li>
+				<li><a href="global.html#setEdgeHidden">setEdgeHidden</a></li>
 				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
 				<li><a href="global.html#setFileName">setFileName</a></li>
 				<li><a href="global.html#setFixed">setFixed</a></li>
 				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
+				<li><a href="global.html#setNodeHidden">setNodeHidden</a></li>
 				<li><a href="global.html#setParams">setParams</a></li>
 				<li><a href="global.html#setRadioVal">setRadioVal</a></li>
 				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
@@ -393,6 +397,8 @@ import {
 	splitText,
 	dragElement,
 	standardize_color,
+	setNodeHidden,
+	setEdgeHidden,
 	object_equals,
 	generateName,
 	statusMsg,
@@ -410,7 +416,7 @@ import {
 	openFile,
 	savePRSMfile,
 	exportPNGfile,
-	//	exportCVS,
+	setFileName,
 	exportExcel,
 	exportDOT,
 	exportGML,
@@ -438,7 +444,6 @@ import {
 	pasteBackgroundFromClipboard,
 	upgradeFromV1,
 	updateFromDrawingMap,
-	addBackgroundToCanvas,
 } from './background.js'
 import {version} from '../package.json'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
@@ -465,6 +470,7 @@ export var room
  * cluster - show creation of clusters
  * aware - show awareness traffic
  * round - round trip timing
+ * back - drawing on background
  */
 export var debug = ''
 var viewOnly // when true, user can only view, not modify, the network
@@ -574,6 +580,9 @@ function addEventListeners() {
 	listen('net-pane', 'contextmenu', contextMenu)
 	listen('net-pane', 'click', unFollow)
 	listen('net-pane', 'click', removeTitleDropDown)
+	listen('drawer-handle', 'click', () => {
+		elem('drawer-wrapper').classList.toggle('hide-drawer')
+	})
 	listen('addLink', 'click', plusLink)
 	listen('deleteNode', 'click', deleteNode)
 	listen('undo', 'click', undo)
@@ -793,13 +802,13 @@ function startY(newRoom) {
 	If a local node is removed, the yMap is updated to broadcast to other clients that the node 
 	has been deleted. If a local node is added or updated, that is also broadcast.
 	 */
-	nodes.on('*', (event, properties, origin) => {
-		yjsTrace('nodes.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`)
+	nodes.on('*', (evt, properties, origin) => {
+		yjsTrace('nodes.on', `${evt}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`)
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
 					// this is a local change
-					if (event === 'remove') {
+					if (evt === 'remove') {
 						yNodesMap.delete(id.toString())
 					} else {
 						yNodesMap.set(id.toString(), deepCopy(nodes.get(id)))
@@ -815,11 +824,11 @@ function startY(newRoom) {
 	removed from the local nodes dataSet. Otherwise, if the received node differs from the local one, 
 	the local node dataSet is updated (which includes adding a new node if it does not already exist locally).
 	 */
-	yNodesMap.observe((event) => {
-		yjsTrace('yNodesMap.observe', event)
+	yNodesMap.observe((evt) => {
+		yjsTrace('yNodesMap.observe', evt)
 		let nodesToUpdate = []
 		let nodesToRemove = []
-		for (let key of event.keysChanged) {
+		for (let key of evt.keysChanged) {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key)
 				if (!object_equals(obj, data.nodes.get(key))) {
@@ -827,7 +836,7 @@ function startY(newRoom) {
 					if (viewOnly) obj.fixed = true
 					nodesToUpdate.push(deepCopy(obj))
 					// if a note on a node is being remotely edited and is on display here, update the local note and the padlock
-					if (editor &amp;&amp; editor.id === key &amp;&amp; event.transaction.local === false) {
+					if (editor &amp;&amp; editor.id === key &amp;&amp; evt.transaction.local === false) {
 						editor.setContents(obj.note)
 						elem('fixed').style.display = obj.fixed ? 'inline' : 'none'
 						elem('unfixed').style.display = obj.fixed ? 'none' : 'inline'
@@ -841,18 +850,17 @@ function startY(newRoom) {
 		}
 		if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote')
 		if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
-		if (/changes/.test(debug) &amp;&amp; (nodesToUpdate.length > 0 || nodesToRemove.length > 0))
-			showChange(event, yNodesMap)
+		if (/changes/.test(debug) &amp;&amp; (nodesToUpdate.length > 0 || nodesToRemove.length > 0)) showChange(evt, yNodesMap)
 	})
 	/* 
 	See comments above about nodes
 	 */
-	edges.on('*', (event, properties, origin) => {
-		yjsTrace('edges.on', `${event}  ${JSON.stringify(properties.items)} origin: ${origin}`)
+	edges.on('*', (evt, properties, origin) => {
+		yjsTrace('edges.on', `${evt}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`)
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
-					if (event === 'remove') yEdgesMap.delete(id.toString())
+					if (evt === 'remove') yEdgesMap.delete(id.toString())
 					else {
 						yEdgesMap.set(id.toString(), deepCopy(edges.get(id)))
 					}
@@ -861,16 +869,16 @@ function startY(newRoom) {
 		}, dontUndo)
 		dontUndo = null
 	})
-	yEdgesMap.observe((event) => {
-		yjsTrace('yEdgesMap.observe', event)
+	yEdgesMap.observe((evt) => {
+		yjsTrace('yEdgesMap.observe', evt)
 		let edgesToUpdate = []
 		let edgesToRemove = []
-		for (let key of event.keysChanged) {
+		for (let key of evt.keysChanged) {
 			if (yEdgesMap.has(key)) {
 				let obj = yEdgesMap.get(key)
 				if (!object_equals(obj, data.edges.get(key))) {
 					edgesToUpdate.push(deepCopy(obj))
-					if (editor &amp;&amp; editor.id === key &amp;&amp; event.transaction.local === false) editor.setContents(obj.note)
+					if (editor &amp;&amp; editor.id === key &amp;&amp; evt.transaction.local === false) editor.setContents(obj.note)
 				}
 			} else {
 				hideNotes()
@@ -884,16 +892,15 @@ function startY(newRoom) {
 			// vis-network will cancel the edit mode for this user.  Re-instate it.
 			if (inAddMode === 'addLink') network.addEdgeMode()
 		}
-		if (/changes/.test(debug) &amp;&amp; (edgesToUpdate.length > 0 || edgesToRemove.length > 0))
-			showChange(event, yEdgesMap)
+		if (/changes/.test(debug) &amp;&amp; (edgesToUpdate.length > 0 || edgesToRemove.length > 0)) showChange(evt, yEdgesMap)
 	})
 	/**
 	 * utility trace function that prints the change in the value of a YMap property to the console
-	 * @param {YEvent} event
+	 * @param {YEvent} evt
 	 * @param {MapType} ymap
 	 */
-	function showChange(event, ymap) {
-		event.changes.keys.forEach((change, key) => {
+	function showChange(evt, ymap) {
+		evt.changes.keys.forEach((change, key) => {
 			if (change.action === 'add') {
 				console.log(
 					`Property "${key}" was added. 
@@ -924,11 +931,11 @@ function startY(newRoom) {
 			}
 		})
 	}
-	ySamplesMap.observe((event) => {
-		yjsTrace('ySamplesMap.observe', event)
+	ySamplesMap.observe((evt) => {
+		yjsTrace('ySamplesMap.observe', evt)
 		let nodesToUpdate = []
 		let edgesToUpdate = []
-		for (let key of event.keysChanged) {
+		for (let key of evt.keysChanged) {
 			let sample = ySamplesMap.get(key)
 			if (sample.node !== undefined) {
 				if (!object_equals(styles.nodes[key], sample.node)) {
@@ -962,12 +969,12 @@ function startY(newRoom) {
 		Background)
 	For cases 2 and 3, the functions called here must not invoke yNetMap.set() to avoid loops
 	*/
-	yNetMap.observe((event) => {
-		yjsTrace('YNetMap.observe', event)
+	yNetMap.observe((evt) => {
+		yjsTrace('YNetMap.observe', evt)
 
-		if (event.transaction.origin)
-			// event is not local
-			for (let key of event.keysChanged) {
+		if (evt.transaction.origin)
+			// evt is not local
+			for (let key of evt.keysChanged) {
 				let obj = yNetMap.get(key)
 				switch (key) {
 					case 'viewOnly': {
@@ -1039,39 +1046,62 @@ function startY(newRoom) {
 						setCluster(obj)
 						break
 					}
+					case 'mapDescription': {
+						setSideDrawer(obj)
+						break
+					}
 					default:
 						console.log('Bad key in yMapNet.observe: ', key)
 				}
 			}
 	})
-	yPointsArray.observe((event) => {
+	yPointsArray.observe((evt) => {
 		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1))
-		if (event.transaction.local === false) upgradeFromV1(yPointsArray.toArray())
+		if (evt.transaction.local === false) upgradeFromV1(yPointsArray.toArray())
 	})
-	yDrawingMap.observe((event) => {
-		yjsTrace('yDrawingMap.observe', event)
-		updateFromRemote(event)
+	yDrawingMap.observe((evt) => {
+		yjsTrace('yDrawingMap.observe', evt)
+		updateFromRemote(evt)
 	})
 	yHistory.observe(() => {
 		yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1))
 		if (elem('showHistorySwitch').checked) showHistory()
 	})
-	yUndoManager.on('stack-item-added', (event) => {
-		yjsTrace('yUndoManager.on stack-item-added', event)
+	yUndoManager.on('stack-item-added', (evt) => {
+		yjsTrace('yUndoManager.on stack-item-added', evt)
 		if (/changes/.test(debug))
-			event.changedParentTypes.forEach((v) => {
+			evt.changedParentTypes.forEach((v) => {
 				showChange(v[0], v[0].target)
 			})
 		undoRedoButtonStatus()
 	})
-	yUndoManager.on('stack-item-popped', (event) => {
-		yjsTrace('yUndoManager.on stack-item-popped', event)
+	yUndoManager.on('stack-item-popped', (evt) => {
+		yjsTrace('yUndoManager.on stack-item-popped', evt)
 		if (/changes/.test(debug))
-			event.changedParentTypes.forEach((v) => {
+			evt.changedParentTypes.forEach((v) => {
 				showChange(v[0], v[0].target)
 			})
+		pruneDanglingEdges()
 		undoRedoButtonStatus()
 	})
+	/**
+	 * In some slightly obscure circumstances, (specifically, client A undoes the creation of a factor that
+	 * client B has subsequently linked to another factor), the undo operation can result in a link that
+	 * has no source or destination factor.  Tracking such a situation is rather complex, so this cleans
+	 * up the mess without bothering about its cause.
+	 */
+	function pruneDanglingEdges() {
+		data.edges.forEach((edge) => {
+			if (data.nodes.get(edge.from) === null) {
+				dontUndo = 'danglingEdge'
+				data.edges.remove(edge.id)
+			}
+			if (data.nodes.get(edge.to) == null) {
+				dontUndo = 'danglingEdge'
+				data.edges.remove(edge.id)
+			}
+		})
+	}
 } // end startY()
 
 /**
@@ -1090,6 +1120,7 @@ function initiateClone() {
 			}
 			if (state.options.viewOnly) {
 				viewOnly = true
+				yNetMap.set('viewOnly', true)
 				hideNavButtons()
 				data.nodes.get().forEach((obj) => (obj.fixed = true))
 			}
@@ -1213,7 +1244,7 @@ function hideNavButtons() {
 function showNavButtons() {
 	elem('buttons').style.visibility = 'visible'
 	elem('search').parentElement.style.visibility = 'visible'
-	elem('search').parentElement.style.borderLeft = '1px solid #fff'
+	elem('search').parentElement.style.borderLeft = '1px solid rgb(255, 255, 255)'
 	elem('maptitle').contentEditable = 'true'
 }
 /**
@@ -1365,7 +1396,7 @@ function draw() {
 				// revert to using the original node properties before continuing.
 				item = data.nodes.get(item.id)
 				item.modified = timestamp()
-				let point = {x: event.offsetX, y: event.offsetY}
+				let point = network.canvasToDOM({x: item.x, y: item.y})
 				editNode(item, point, cancelEdit, callback)
 			},
 			addEdge: function (item, callback) {
@@ -1402,7 +1433,11 @@ function draw() {
 				editWithoutDrag: function (item, callback) {
 					item = data.edges.get(item.id)
 					item.modified = timestamp()
-					let point = {x: event.offsetX, y: event.offsetY}
+					// find midpoint of edge
+					let point = network.canvasToDOM({
+						x: (network.getPosition(item.from).x + network.getPosition(item.to).x) / 2,
+						y: (network.getPosition(item.from).y + network.getPosition(item.to).y) / 2,
+					})
 					editEdge(item, point, cancelEdit, callback)
 				},
 			},
@@ -1678,7 +1713,7 @@ function draw() {
 			let selectedNodes = data.nodes.get({
 				filter: function (node) {
 					return (
-						!node.hidden &amp;&amp;
+						!node.nodeHidden &amp;&amp;
 						node.x >= selectionCanvasStart.x &amp;&amp;
 						node.x &lt;= selectionEnd.x &amp;&amp;
 						node.y >= selectionCanvasStart.y &amp;&amp;
@@ -1741,7 +1776,7 @@ function draw() {
 		if (!inEditMode &amp;&amp; e.shiftKey) createMagnifier()
 	})
 	window.addEventListener('mousemove', (e) => {
-		if (e.shiftKey) showMagnifier(e)
+		if (!inEditMode &amp;&amp; e.shiftKey) showMagnifier(e)
 	})
 	window.addEventListener('keyup', (e) => {
 		if (e.key === 'Shift') closeMagnifier()
@@ -1770,7 +1805,9 @@ function draw() {
 			physics: {enabled: false},
 		})
 		bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
-		addBackgroundToCanvas(bigNetPane, bigNetCanvas)
+		bigNetwork.on('afterDrawing', () => {
+			setCanvasBackground(bigNetCanvas)
+		})
 		bigNetwork.moveTo({
 			position: network.getViewPosition(),
 			scale: magnification * network.getScale(),
@@ -1814,6 +1851,24 @@ function draw() {
 		magnifier.style.display = 'none'
 	}
 } // end draw()
+
+/**
+ * draw the background on the given canvas (which will be a magnified version of the net pane)
+ * @param {HTMLElement} canvas
+ * @returns canvas
+ */
+export function setCanvasBackground(canvas) {
+	let context = canvas.getContext('2d')
+	context.setTransform()
+	context.globalCompositeOperation = 'destination-over'
+	// apply the background objects
+	let backgroundCanvas = document.getElementById('underlay').firstElementChild.firstElementChild
+	context.drawImage(backgroundCanvas, 0, 0, canvas.width, canvas.height)
+	// apply the background colour, if any, or white
+	context.fillStyle = elem('underlay').style.backgroundColor || 'rgb(255, 255, 255)'
+	context.fillRect(0, 0, canvas.width, canvas.height)
+	return canvas
+}
 
 /**
  * clear the map by destroying all nodes and edges
@@ -1900,6 +1955,44 @@ function saveState(options) {
 		})
 	)
 }
+
+/******************************************************** map notes side drawer *****************************************************************/
+let toolbarOptions = [
+	['bold', 'italic', 'underline', 'strike'],
+	['blockquote', 'code-block'],
+
+	[{list: 'ordered'}, {list: 'bullet'}],
+	[{script: 'sub'}, {script: 'super'}],
+	[{indent: '-1'}, {indent: '+1'}],
+	[{align: []}],
+
+	['link', 'image'],
+	[{size: ['small', false, 'large', 'huge']}],
+	[{header: [1, 2, 3, 4, 5, 6, false]}],
+
+	[{color: []}, {background: []}],
+	[{font: []}],
+
+	['clean'],
+]
+let drawerEditor = new Quill(elem('drawer-editor'), {
+	modules: {
+		toolbar: toolbarOptions,
+	},
+	placeholder: 'Notes about the map',
+	theme: 'snow',
+})
+
+drawerEditor.on('text-change', (delta, oldDelta, source) => {
+	if (source === 'user') {
+		yNetMap.set('mapDescription', {text: isQuillEmpty(drawerEditor) ? '' : drawerEditor.getContents()})
+	}
+})
+function setSideDrawer(contents) {
+	drawerEditor.setContents(contents.text)
+}
+
+/************************************************************* badges around the factors ******************************************/
 var noteImage = new Image()
 noteImage.src =
 	'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktY2FyZC10ZXh0IiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik0xNC41IDNhLjUuNSAwIDAgMSAuNS41djlhLjUuNSAwIDAgMS0uNS41aC0xM2EuNS41IDAgMCAxLS41LS41di05YS41LjUgMCAwIDEgLjUtLjVoMTN6bS0xMy0xQTEuNSAxLjUgMCAwIDAgMCAzLjV2OUExLjUgMS41IDAgMCAwIDEuNSAxNGgxM2ExLjUgMS41IDAgMCAwIDEuNS0xLjV2LTlBMS41IDEuNSAwIDAgMCAxNC41IDJoLTEzeiIvPgogIDxwYXRoIGQ9Ik0zIDUuNWEuNS41IDAgMCAxIC41LS41aDlhLjUuNSAwIDAgMSAwIDFoLTlhLjUuNSAwIDAgMS0uNS0uNXpNMyA4YS41LjUgMCAwIDEgLjUtLjVoOWEuNS41IDAgMCAxIDAgMWgtOUEuNS41IDAgMCAxIDMgOHptMCAyLjVhLjUuNSAwIDAgMSAuNS0uNWg2YS41LjUgMCAwIDEgMCAxaC02YS41LjUgMCAwIDEtLjUtLjV6Ii8+Cjwvc3ZnPg=='
@@ -1928,7 +2021,7 @@ function drawBadges(ctx) {
 		// for a view only map, factors are always locked, so don't bother with padlock
 		data.nodes
 			.get()
-			.filter((node) => !node.hidden &amp;&amp; node.fixed)
+			.filter((node) => !node.nodeHidden &amp;&amp; node.fixed)
 			.forEach((node) => {
 				let box = network.getBoundingBox(node.id)
 				drawTheBadge(lockImage, ctx, box.left - 10, box.top)
@@ -1938,7 +2031,7 @@ function drawBadges(ctx) {
 		// note card for Factors and Links with Notes
 		data.nodes
 			.get()
-			.filter((node) => !node.hidden &amp;&amp; node.note &amp;&amp; node.note !== 'Notes')
+			.filter((node) => !node.nodeHidden &amp;&amp; node.note &amp;&amp; node.note !== 'Notes')
 			.forEach((node) => {
 				let box = network.getBoundingBox(node.id)
 				drawTheBadge(noteImage, ctx, box.right, box.top)
@@ -1947,25 +2040,25 @@ function drawBadges(ctx) {
 		let changedEdges = []
 		data.edges.get().forEach((edge) => {
 			if (
-				!edge.hidden &amp;&amp;
+				!edge.edgeHidden &amp;&amp;
 				edge.note &amp;&amp;
 				edge.note !== 'Notes' &amp;&amp;
 				edge.arrows &amp;&amp;
 				edge.arrows.middle &amp;&amp;
 				!edge.arrows.middle.enabled
 			) {
-				// there is a note, but the badge is not shown
+				// there is a note, but the badge is not shown, so show it
 				changedEdges.push(edge)
 				edge.arrows.middle.enabled = true
 				edge.arrows.middle.type = 'image'
 				edge.arrows.middle.src = noteImage.src
 			} else if (
-				(!edge.note || (edge.note &amp;&amp; edge.note === 'Notes')) &amp;&amp;
+				(!edge.note || (edge.note &amp;&amp; edge.note === 'Notes') || edge.edgeHidden) &amp;&amp;
 				edge.arrows &amp;&amp;
 				edge.arrows.middle &amp;&amp;
 				edge.arrows.middle.enabled
 			) {
-				// there is not a note, but the badge is shown
+				// there is not a note, but the badge is shown, so remove it
 				changedEdges.push(edge)
 				edge.arrows.middle.enabled = false
 			}
@@ -1974,7 +2067,7 @@ function drawBadges(ctx) {
 	}
 	// draw the voting thumbs up/down
 	if (showVotingToggle) {
-		data.nodes.get().forEach((node) => {
+		data.nodes.get().filter(node => !node.hidden &amp;&amp; !node.nodeHidden).forEach((node) => {
 			let box = network.getBoundingBox(node.id)
 			drawTheBadge(
 				node.thumbUp?.includes(clientID) ? thumbUpFilledImage : thumbUpImage,
@@ -2028,6 +2121,8 @@ function snapToGrid(node) {
 	node.x = GRIDSPACING * Math.round(node.x / GRIDSPACING)
 	node.y = GRIDSPACING * Math.round(node.y / GRIDSPACING)
 }
+
+/*************************************************************** clipboard ************************************** */
 /**
  * Copy the selected nodes and links to the clipboard
  * NB this doesn't yet work in Firefox, as they haven't implemented the Clipboard API and Permissions yet.
@@ -2066,13 +2161,13 @@ function copyToClipboard(event) {
 }
 /**
  * copy the contents of the history log to the clipboard
- * @param {object} event 
+ * @param {object} event
  */
 function copyHistoryToClipboard(event) {
 	event.preventDefault()
 	let history = yHistory
 		.toArray()
-		.map((rec) => `${timeAndDate(rec.time, true)}\t${rec.user}\t${rec.action}\n`)
+		.map((rec) => `${timeAndDate(rec.time, true)}\t${rec.user}\t${rec.action.replace(/\s+/g, ' ').trim()}\n`)
 		.join('')
 	copyText(history)
 }
@@ -2162,7 +2257,7 @@ async function getClipboardContents() {
 function addLabel(item, cancelAction, callback) {
 	if (elem('popup').style.display === 'block') return // can't add factor when factor is already being added
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback)
-	let pos = {x: event.offsetX, y: event.offsetY}
+	let pos = network.canvasToDOM({x: item.x, y: item.y})
 	positionPopUp(pos)
 	removeFactorCursor()
 	ghostFactor(pos)
@@ -2192,6 +2287,7 @@ function ghostFactor(pos) {
  * @param {Function} callback what to do if the edit is saved
  */
 function editNode(item, point, cancelAction, callback) {
+	if (item.locked) return
 	initPopUp('Edit Factor', 150, item, cancelAction, saveNode, callback)
 	elem('popup').insertAdjacentHTML(
 		'beforeend',
@@ -2274,6 +2370,7 @@ function getDashes(val, width) {
  * @param {Function} callback what to do if the edit is saved
  */
 function editEdge(item, point, cancelAction, callback) {
+	if (item.locked) return
 	initPopUp('Edit Link', 150, item, cancelAction, saveEdge, callback)
 	elem('popup').insertAdjacentHTML(
 		'beforeend',
@@ -2449,6 +2546,7 @@ function saveLabel(node, callback) {
  * @param {Function} callback
  */
 function saveNode(item, callback) {
+	unlockNode(item)
 	item.label = splitText(elem('popup-label').innerText, NODEWIDTH)
 	clearPopUp()
 	if (item.label === '') {
@@ -2471,7 +2569,6 @@ function saveNode(item, callback) {
 	network.manipulation.inMode = 'editNode' // ensure still in Add mode, in case others have done something meanwhile
 	if (item.label === item.oldLabel) logHistory(`edited factor: '${item.label}'`)
 	else logHistory(`edited factor, changing label from '${item.oldLabel}' to '${item.label}'`)
-	unlockNode(item)
 	callback(item)
 }
 /**
@@ -2486,6 +2583,7 @@ function lockNode(item) {
 	item.label = `${item.label}\n\n[Being edited by ${myNameRec.name}]`
 	item.wasFixed = Boolean(item.fixed)
 	item.fixed = true
+	dontUndo = 'locked'
 	data.nodes.update(item)
 }
 /**
@@ -2496,7 +2594,7 @@ function unlockNode(item) {
 	item.locked = false
 	item.opacity = 1
 	item.fixed = item.wasFixed
-	item.oldLabel = undefined
+	item.label = item.oldLabel
 	dontUndo = 'unlocked'
 	data.nodes.update(item)
 	showNodeOrEdgeData()
@@ -2518,6 +2616,7 @@ function unlockAll() {
  * @param {Function} callback
  */
 function saveEdge(item, callback) {
+	unlockEdge(item)
 	item.label = splitText(elem('popup-label').innerText, NODEWIDTH)
 	clearPopUp()
 	if (item.label === '') item.label = ' '
@@ -2534,7 +2633,6 @@ function saveEdge(item, callback) {
 	}
 	item.font.size = parseInt(elem('edge-font-size').value)
 	network.manipulation.inMode = 'editEdge' // ensure still in edit mode, in case others have done something meanwhile
-	unlockEdge(item)
 	// vis-network silently deselects all edges in the callback (why?).  So we have to mark this edge as unselected in preparation
 	clearStatusBar()
 	callback(item)
@@ -2566,6 +2664,7 @@ function lockEdge(item) {
 	item.opacity = 0.1
 	item.oldLabel = item.label || ' '
 	item.label = `Being edited by ${myNameRec.name}`
+	dontUndo = 'locked'
 	data.edges.update(item)
 }
 /**
@@ -2576,6 +2675,7 @@ function unlockEdge(item) {
 	item.locked = false
 	item.font.color = 'rgba(0,0,0,1)'
 	item.opacity = 1
+	item.label = item.oldLabel
 	item.oldLabel = undefined
 	dontUndo = 'unlocked'
 	data.edges.update(item)
@@ -2647,6 +2747,7 @@ export function setMapTitle(title) {
 	}
 	if (title !== div.innerText) div.innerText = title
 	if (title.length >= 50) setEndOfContenteditable(div)
+	setFileName()
 	titleDropDown(title)
 	return title
 }
@@ -2947,6 +3048,8 @@ function plusNode() {
 		} // falls through
 		default:
 			// false
+			// don't allow user to add a factor while editing another one
+			if (elem('popup').style.display === 'block') break
 			network.unselectAll()
 			changeCursor('cell')
 			ghostCursor()
@@ -2965,6 +3068,7 @@ function ghostCursor() {
 	if (!window.matchMedia('(any-hover: hover)').matches) return
 	const box = document.createElement('div')
 	box.classList.add('ghost-factor', 'factor-cursor')
+	box.innerText = 'Click on the map to add a factor'
 	box.id = 'factor-cursor'
 	document.body.appendChild(box)
 	const netPaneRect = netPane.getBoundingClientRect()
@@ -3015,7 +3119,6 @@ function plusLink() {
 		case 'addLink': {
 			showPressed('addLink', 'remove')
 			stopEdit()
-			clearStatusBar()
 			break
 		}
 		case 'addNode': {
@@ -3024,6 +3127,8 @@ function plusLink() {
 		} // falls through
 		default:
 			// false
+			// don't allow user to add a factor while editing another one
+			if (elem('popup').style.display === 'block') break
 			removeFactorCursor()
 			if (data.nodes.length &lt; 2) {
 				statusMsg('Two Factors needed to link', 'error')
@@ -3046,6 +3151,9 @@ function plusLink() {
 function stopEdit() {
 	inAddMode = false
 	network.disableEditMode()
+	network.setOptions({
+		interaction: {dragView: true, selectable: true},
+	})
 	clearStatusBar()
 	changeCursor('default')
 }
@@ -3096,7 +3204,9 @@ function setButtonDisabledStatus(id, state) {
 	if (state) elem(id).classList.add('disabled')
 	else elem(id).classList.remove('disabled')
 }
-
+/**
+ * Delete the selected node, plus all the edges that connect to it (so no edge is left dangling)
+ */
 function deleteNode() {
 	network.deleteSelected()
 	clearStatusBar()
@@ -3448,6 +3558,7 @@ function doShowNotes(toggle) {
  * User has clicked the padlock.  Toggle padlock state and fix the location of the node
  */
 function setFixed() {
+	if (viewOnly) return
 	let locked = elem('fixed').style.display === 'none'
 	let node = data.nodes.get(editor.id)
 	node.fixed = locked
@@ -3658,7 +3769,7 @@ function autoLayout(e) {
 			}
 			case 'fan': {
 				{
-					let nodes = data.nodes.get().filter((n) => !n.hidden)
+					let nodes = data.nodes.get().filter((n) => !n.nodeHidden)
 					nodes.forEach((n) => (n.level = undefined))
 					let selectedNodes = getSelectedAndFixedNodes().map((nId) => data.nodes.get(nId))
 					if (selectedNodes.length === 0) {
@@ -3679,10 +3790,10 @@ function autoLayout(e) {
 						selectedNodes.forEach((sl) => {
 							nUp += network
 								.getConnectedNodes(sl.id, 'to')
-								.filter((nId) => !data.nodes.get(nId).hidden).length
+								.filter((nId) => !data.nodes.get(nId).nodeHidden).length
 							nDown += network
 								.getConnectedNodes(sl.id, 'from')
-								.filter((nId) => !data.nodes.get(nId).hidden).length
+								.filter((nId) => !data.nodes.get(nId).nodeHidden).length
 						})
 						direction = nUp > nDown ? 'to' : 'from'
 					}
@@ -3752,7 +3863,7 @@ function autoLayout(e) {
 			let currentNode = q.shift()
 			let connectedNodes = data.nodes
 				.get(network.getConnectedNodes(currentNode.id, direction))
-				.filter((n) => !n.hidden &amp;&amp; n.level === undefined)
+				.filter((n) => !n.nodeHidden &amp;&amp; n.level === undefined)
 			if (connectedNodes.length > 0) {
 				level = currentNode.level + 1
 				connectedNodes.forEach((n) => {
@@ -3877,6 +3988,7 @@ function toggleDrawingLayer() {
 		setButtonDisabledStatus('addNode', false)
 		setButtonDisabledStatus('addLink', false)
 		undoRedoButtonStatus()
+		if (elem('showLegendSwitch').checked) legend()
 		if (nChanges) logHistory('drew on the background layer')
 		changeCursor('default')
 	} else {
@@ -3908,7 +4020,7 @@ function ensureNotDrawing() {
 }
 
 function selectAllFactors() {
-	selectFactors(data.nodes.getIds({filter: (n) => !n.hidden}))
+	selectFactors(data.nodes.getIds({filter: (n) => !n.nodeHidden}))
 	showSelected()
 }
 
@@ -3918,7 +4030,7 @@ export function selectFactors(nodeIds) {
 }
 
 function selectAllLinks() {
-	selectLinks(data.edges.getIds({filter: (e) => !e.hidden}))
+	selectLinks(data.edges.getIds({filter: (e) => !e.edgeHidden}))
 	showSelected()
 }
 
@@ -4055,14 +4167,14 @@ function analyse() {
 		.get()
 		.filter((n) => !n.isCluster)
 		.map((n) => {
-			n.hidden = false
+			setNodeHidden(n, false)
 			return n
 		})
 	let edges = data.edges
 		.get()
 		.filter((e) => !e.isClusterEdge)
 		.map((e) => {
-			e.hidden = false
+			setEdgeHidden(e, false)
 			return e
 		})
 	// if showing everything, we are done
@@ -4144,14 +4256,17 @@ function analyse() {
 
 		// hide all nodes and edges not in radius
 		nodes.forEach((n) => {
-			if (!nodeIdsInRadiusSet.has(n.id)) n.hidden = true
+			if (!nodeIdsInRadiusSet.has(n.id)) setNodeHidden(n, true)
 		})
 		edges.forEach((e) => {
-			if (!linkIdsInRadiusSet.has(e.id)) e.hidden = true
+			if (!linkIdsInRadiusSet.has(e.id)) setEdgeHidden(e, true)
 		})
 		// add links between factors that are in radius set, to give an ego network
 		nodeIdsInRadiusSet.forEach((f) => {
-			network.getConnectedEdges(f).forEach((e) => (data.edges.get(e).hidden = false))
+			network.getConnectedEdges(f).forEach((e) => {
+				let edge = data.edges.get(e)
+				if (nodeIdsInRadiusSet.has(edge.from) &amp;&amp; nodeIdsInRadiusSet.has(edge.to))setEdgeHidden(edge, false)
+			})
 		})
 
 		/**
@@ -4207,7 +4322,7 @@ function analyse() {
 				let currentNode = q.shift()
 				let connectedNodes = data.nodes
 					.get(network.getConnectedNodes(currentNode.id, direction))
-					.filter((n) => !(n.hidden || nodeIdsInStreamSet.has(n.id)))
+					.filter((n) => !(n.nodeHidden || nodeIdsInStreamSet.has(n.id)))
 				if (connectedNodes.length > 0) {
 					level = currentNode.level + 1
 					connectedNodes.forEach((n) => {
@@ -4221,15 +4336,18 @@ function analyse() {
 
 		// hide all nodes and edges not up or down stream
 		nodes.forEach((n) => {
-			if (!nodeIdsInStreamSet.has(n.id)) n.hidden = true
+			if (!nodeIdsInStreamSet.has(n.id)) setNodeHidden(n, true)
 		})
 		edges.forEach((e) => {
-			if (!linkIdsInStreamSet.has(e.id)) e.hidden = true
+			if (!linkIdsInStreamSet.has(e.id)) setEdgeHidden(e, true)
 		})
 
 		// add links between factors that are in radius set, to give an ego network
 		nodeIdsInStreamSet.forEach((f) => {
-			network.getConnectedEdges(f).forEach((e) => (data.edges.get(e).hidden = false))
+			network.getConnectedEdges(f).forEach((e) => {
+				let edge = data.edges.get(e)
+				if (nodeIdsInStreamSet.has(edge.from) &amp;&amp; nodeIdsInStreamSet.has(edge.to))setEdgeHidden(edge, false)
+			})
 		})
 	}
 
@@ -4264,10 +4382,10 @@ function analyse() {
 		})
 		// hide all factors and links that are not in the set of paths
 		nodes.forEach((n) => {
-			if (!nodeIdsInPathsSet.has(n.id)) n.hidden = true
+			if (!nodeIdsInPathsSet.has(n.id)) setNodeHidden(n, true)
 		})
 		edges.forEach((e) => {
-			if (!linkIdsInPathsSet.has(e.id)) e.hidden = true
+			if (!linkIdsInPathsSet.has(e.id)) setEdgeHidden(e, true)
 		})
 
 		/**
@@ -4327,7 +4445,7 @@ function analyse() {
 						.getConnectedEdges(source)
 						.filter((e) => {
 							let edge = data.edges.get(e)
-							return !edge.hidden &amp;&amp; edge.from === source
+							return !edge.edgeHidden &amp;&amp; edge.from === source
 						})
 						.map((e) => data.edges.get(e).to)
 					if (connectedNodes.length === 0) return 'deadend'
@@ -4470,13 +4588,13 @@ function selectClustering(e) {
 	doc.transact(() => {
 		data.nodes.update(
 			data.nodes.get().map((n) => {
-				n.hidden = false
+				setNodeHidden(n, false)
 				return n
 			})
 		)
 		data.edges.update(
 			data.edges.get().map((e) => {
-				e.hidden = false
+				setEdgeHidden(e, false)
 				return e
 			})
 		)
@@ -5115,8 +5233,8 @@ function showGhostFactor(userId, addingFactor) {
 		<br class="clear" />
 
 		<footer>
-			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.0</a> on Mon Feb 13 2023
-			22:35:45 GMT+0000 (Greenwich Mean Time) using the
+			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Sun Jun 11 2023
+			21:34:49 GMT+0100 (British Summer Time) using the
 			<a href="https://github.com/clenemt/docdash">docdash</a> theme.
 		</footer>
 

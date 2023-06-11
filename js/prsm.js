@@ -1715,23 +1715,26 @@ function drawBadges(ctx) {
 	}
 	// draw the voting thumbs up/down
 	if (showVotingToggle) {
-		data.nodes.get().filter(node => !node.hidden && !node.nodeHidden).forEach((node) => {
-			let box = network.getBoundingBox(node.id)
-			drawTheBadge(
-				node.thumbUp?.includes(clientID) ? thumbUpFilledImage : thumbUpImage,
-				ctx,
-				box.left + 20,
-				box.bottom
-			)
-			drawThumbCount(ctx, node.thumbUp, box.left + 36, box.bottom + 10)
-			drawTheBadge(
-				node.thumbDown?.includes(clientID) ? thumbDownFilledImage : thumbDownImage,
-				ctx,
-				box.right - 36,
-				box.bottom
-			)
-			drawThumbCount(ctx, node.thumbDown, box.right - 20, box.bottom + 10)
-		})
+		data.nodes
+			.get()
+			.filter((node) => !node.hidden && !node.nodeHidden)
+			.forEach((node) => {
+				let box = network.getBoundingBox(node.id)
+				drawTheBadge(
+					node.thumbUp?.includes(clientID) ? thumbUpFilledImage : thumbUpImage,
+					ctx,
+					box.left + 20,
+					box.bottom
+				)
+				drawThumbCount(ctx, node.thumbUp, box.left + 36, box.bottom + 10)
+				drawTheBadge(
+					node.thumbDown?.includes(clientID) ? thumbDownFilledImage : thumbDownImage,
+					ctx,
+					box.right - 36,
+					box.bottom
+				)
+				drawThumbCount(ctx, node.thumbDown, box.right - 20, box.bottom + 10)
+			})
 	}
 
 	/**
@@ -3913,7 +3916,7 @@ function analyse() {
 		nodeIdsInRadiusSet.forEach((f) => {
 			network.getConnectedEdges(f).forEach((e) => {
 				let edge = data.edges.get(e)
-				if (nodeIdsInRadiusSet.has(edge.from) && nodeIdsInRadiusSet.has(edge.to))setEdgeHidden(edge, false)
+				if (nodeIdsInRadiusSet.has(edge.from) && nodeIdsInRadiusSet.has(edge.to)) setEdgeHidden(edge, false)
 			})
 		})
 
@@ -3994,7 +3997,7 @@ function analyse() {
 		nodeIdsInStreamSet.forEach((f) => {
 			network.getConnectedEdges(f).forEach((e) => {
 				let edge = data.edges.get(e)
-				if (nodeIdsInStreamSet.has(edge.from) && nodeIdsInStreamSet.has(edge.to))setEdgeHidden(edge, false)
+				if (nodeIdsInStreamSet.has(edge.from) && nodeIdsInStreamSet.has(edge.to)) setEdgeHidden(edge, false)
 			})
 		})
 	}

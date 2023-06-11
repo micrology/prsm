@@ -23,7 +23,18 @@ This module provides the Data View
 
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
-import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter, isQuillEmpty, setNodeHidden, setEdgeHidden} from './utils.js'
+import {
+	listen,
+	elem,
+	deepCopy,
+	deepMerge,
+	timeAndDate,
+	shorten,
+	capitalizeFirstLetter,
+	isQuillEmpty,
+	setNodeHidden,
+	setEdgeHidden,
+} from './utils.js'
 import {TabulatorFull as Tabulator} from 'tabulator-tables'
 import {version} from '../package.json'
 import Quill from 'quill'

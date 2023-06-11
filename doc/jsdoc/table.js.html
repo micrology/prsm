@@ -95,6 +95,7 @@
 				<li><a href="global.html#deepCopy">deepCopy</a></li>
 				<li><a href="global.html#deleteActiveObjects">deleteActiveObjects</a></li>
 				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
+				<li><a href="global.html#deleteNode">deleteNode</a></li>
 				<li><a href="global.html#deselectTool">deselectTool</a></li>
 				<li><a href="global.html#diag">diag</a></li>
 				<li><a href="global.html#diffMaps">diffMaps</a></li>
@@ -227,7 +228,7 @@
 				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
 				<li><a href="global.html#resizeBox">resizeBox</a></li>
 				<li><a href="global.html#resizeCanvas">resizeCanvas</a></li>
-				<li><a href="global.html#rgbToHex">rgbToHex</a></li>
+				<li><a href="global.html#rgba">rgba</a></li>
 				<li><a href="global.html#rollback">rollback</a></li>
 				<li><a href="global.html#round">round</a></li>
 				<li><a href="global.html#roundTripTimer">roundTripTimer</a></li>
@@ -247,10 +248,13 @@
 				<li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li>
 				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
 				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
+				<li><a href="global.html#setCanvasBackground">setCanvasBackground</a></li>
+				<li><a href="global.html#setEdgeHidden">setEdgeHidden</a></li>
 				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
 				<li><a href="global.html#setFileName">setFileName</a></li>
 				<li><a href="global.html#setFixed">setFixed</a></li>
 				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
+				<li><a href="global.html#setNodeHidden">setNodeHidden</a></li>
 				<li><a href="global.html#setParams">setParams</a></li>
 				<li><a href="global.html#setRadioVal">setRadioVal</a></li>
 				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
@@ -371,11 +375,12 @@ This module provides the Data View
 
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
-import { listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter, isQuillEmpty } from './utils.js'
+import {listen, elem, deepCopy, deepMerge, timeAndDate, shorten, capitalizeFirstLetter, isQuillEmpty, setNodeHidden, setEdgeHidden} from './utils.js'
 import {TabulatorFull as Tabulator} from 'tabulator-tables'
 import {version} from '../package.json'
 import Quill from 'quill'
-import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html'
+import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
+import {DateTime} from 'luxon'
 
 const shortAppName = 'PRSM'
 
@@ -399,6 +404,8 @@ var attributeTitles = {} // titles of each of the attributes
 var myNameRec // my name etc.
 var qed // Quill editor
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
+
+window.DateTime = DateTime
 
 window.addEventListener('load', () => {
 	loadingDelayTimer = setTimeout(() => {
@@ -734,7 +741,15 @@ function initialiseFactorTable() {
 				bottomCalcFormatter: bottomCalcFormatter,
 				bottomCalcFormatterParams: {legend: 'Count:'},
 			},
-			{title: 'Modified', field: 'modifiedTime',  sorter:"date", cssClass: 'grey'},
+			{
+				title: 'Modified',
+				field: 'modifiedTime',
+				sorter: 'date',
+				sorterParams: {
+					format: 'd LLL y, H:m',
+				},
+				cssClass: 'grey',
+			},
 			{
 				title: groupTitle('Format'),
 				field: 'Format',
@@ -943,7 +958,7 @@ function initialiseFactorTable() {
 				factorsTable.getRows().forEach((row) => {
 					row.update({hidden: !ticked})
 					let node = deepCopy(yNodesMap.get(row.getData().id))
-					node.hidden = !ticked
+					node.nodeHidden = !ticked
 					yNodesMap.set(node.id, node)
 				})
 			})
@@ -1235,8 +1250,9 @@ function convertNode(node) {
 		if (Array.isArray(n.borderStyle)) n.borderStyle = 'Dotted'
 		else n.borderStyle = n.borderStyle ? 'Dashed' : 'Solid'
 	}
-	if (n.modified) n.modifiedTime = timeAndDate(n.modified.time)
-	else if (n.created) n.modifiedTime = timeAndDate(n.created.time)
+	n.hidden = n.nodeHidden
+	if (n.modified) n.modifiedTime = timeAndDate(n.modified.time, true)
+	else if (n.created) n.modifiedTime = timeAndDate(n.created.time, true)
 	else n.modifiedTime = '--'
 	n.indegree = 0
 	n.outdegree = 0
@@ -1351,10 +1367,10 @@ function convertNodeBack(node, field, value) {
  * @param {boolean} value new value (hidden or not hidden)
  */
 function hideNodeAndEdges(node, value) {
-	node.hidden = value
+	setNodeHidden(node, value)
 	yEdgesMap.forEach((e) => {
 		if (e.from == node.id || e.to == node.id) {
-			e.hidden = value
+			setEdgeHidden(e, value)
 			yEdgesMap.set(e.id, e)
 		}
 	})
@@ -1421,7 +1437,15 @@ function initialiseLinkTable() {
 				bottomCalcFormatterParams: {legend: 'Count:'},
 			},
 			{title: 'To', field: 'toLabel', width: 300, cssClass: 'grey'},
-			{title: 'Modified', field: 'modifiedTime', cssClass: 'grey'},
+			{
+				title: 'Modified',
+				field: 'modifiedTime',
+				sorter: 'date',
+				sorterParams: {
+					format: 'd LLL y, H:m',
+				},
+				cssClass: 'grey',
+			},
 			{
 				title: groupTitle('Style'),
 				field: 'Style',
@@ -1540,7 +1564,7 @@ function initialiseLinkTable() {
 				linksTable.getRows().forEach((row) => {
 					row.update({hidden: !ticked})
 					let edge = deepCopy(yEdgesMap.get(row.getData().id))
-					edge.hidden = !ticked
+					edge.edgeHidden = !ticked
 					yEdgesMap.set(edge.id, edge)
 				})
 			})
@@ -1603,6 +1627,7 @@ function convertEdge(edge) {
 	for (let prop in conversions) {
 		e[prop] = e[conversions[prop][0]][conversions[prop][1]]
 	}
+	e.hidden = e.edgeHidden
 	if (e.modified) e.modifiedTime = timeAndDate(e.modified.time)
 	else if (e.created) e.modifiedTime = timeAndDate(e.created.time)
 	else e.modifiedTime = '--'
@@ -1941,8 +1966,8 @@ function displayHelp() {
 		<br class="clear" />
 
 		<footer>
-			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.0</a> on Mon Feb 13 2023
-			22:35:45 GMT+0000 (Greenwich Mean Time) using the
+			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Sun Jun 11 2023
+			21:34:49 GMT+0100 (British Summer Time) using the
 			<a href="https://github.com/clenemt/docdash">docdash</a> theme.
 		</footer>
 

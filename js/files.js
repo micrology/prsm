@@ -840,7 +840,7 @@ export function exportPNGfile() {
 	bigNetPane.style.height = `${netPane.offsetHeight * upscaling}px`
 	elem('main').appendChild(bigNetPane)
 	bigNetwork = new Network(bigNetPane, data, {
-		physics: { enabled: false },
+		physics: {enabled: false},
 		edges: {
 			smooth: {
 				enabled: elem('curveSelect').value === 'Curved',

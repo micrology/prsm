@@ -271,7 +271,7 @@ export function strip(obj, allowed) {
  * @param {string} txt
  * @param {number} width
  */
-export function splitText(txt, width=10) {
+export function splitText(txt, width = 10) {
 	let lines = ''
 	let chunks = txt.trim().split('\n')
 	chunks.forEach((chunk) => {
@@ -830,7 +830,7 @@ export class CP {
 			if (top > netPane.bottom - this.container.offsetHeight)
 				top = netPane.bottom - this.container.offsetHeight - 10
 			if (top < netPane.top) top = netPane.top + 10
-			let left = event.clientX -this.container.offsetWidth / 2
+			let left = event.clientX - this.container.offsetWidth / 2
 			if (left < netPane.left) left = netPane.left + 10
 			if (left > netPane.right - this.container.offsetWidth)
 				left = netPane.right - this.container.offsetWidth - 10
@@ -849,7 +849,7 @@ export class CP {
 				if (onChange) onChange()
 			})
 		})
-	}		
+	}
 	/**
 	 * Report chosen colour when user clicks outside of picker (and well)
 	 * Hide the picker and save the colour choice in the previously selected colour grid

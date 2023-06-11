@@ -95,6 +95,7 @@
 				<li><a href="global.html#deepCopy">deepCopy</a></li>
 				<li><a href="global.html#deleteActiveObjects">deleteActiveObjects</a></li>
 				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
+				<li><a href="global.html#deleteNode">deleteNode</a></li>
 				<li><a href="global.html#deselectTool">deselectTool</a></li>
 				<li><a href="global.html#diag">diag</a></li>
 				<li><a href="global.html#diffMaps">diffMaps</a></li>
@@ -227,7 +228,7 @@
 				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
 				<li><a href="global.html#resizeBox">resizeBox</a></li>
 				<li><a href="global.html#resizeCanvas">resizeCanvas</a></li>
-				<li><a href="global.html#rgbToHex">rgbToHex</a></li>
+				<li><a href="global.html#rgba">rgba</a></li>
 				<li><a href="global.html#rollback">rollback</a></li>
 				<li><a href="global.html#round">round</a></li>
 				<li><a href="global.html#roundTripTimer">roundTripTimer</a></li>
@@ -247,10 +248,13 @@
 				<li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li>
 				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
 				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
+				<li><a href="global.html#setCanvasBackground">setCanvasBackground</a></li>
+				<li><a href="global.html#setEdgeHidden">setEdgeHidden</a></li>
 				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
 				<li><a href="global.html#setFileName">setFileName</a></li>
 				<li><a href="global.html#setFixed">setFixed</a></li>
 				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
+				<li><a href="global.html#setNodeHidden">setNodeHidden</a></li>
 				<li><a href="global.html#setParams">setParams</a></li>
 				<li><a href="global.html#setRadioVal">setRadioVal</a></li>
 				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
@@ -372,7 +376,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4041">line 4041</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4155">line 4155</a>
 								</li>
 							</ul>
 						</dd>
@@ -420,7 +424,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line149">line 149</a></li>
+								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line151">line 151</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -450,7 +454,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="3d.js.html">3d.js</a>, <a href="3d.js.html#line362">line 362</a></li>
+								<li><a href="3d.js.html">3d.js</a>, <a href="3d.js.html#line365">line 365</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -482,7 +486,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line681">line 681</a>
+									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line711">line 711</a>
 								</li>
 							</ul>
 						</dd>
@@ -513,7 +517,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4269">line 4269</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4383">line 4383</a>
 								</li>
 							</ul>
 						</dd>
@@ -585,7 +589,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2527">line 2527</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2624">line 2624</a>
 								</li>
 							</ul>
 						</dd>
@@ -613,7 +617,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line818">line 818</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line822">line 822</a>
 								</li>
 							</ul>
 						</dd>
@@ -671,7 +675,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1417">line 1417</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1438">line 1438</a>
 								</li>
 							</ul>
 						</dd>
@@ -757,7 +761,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line209">line 209</a></li>
+								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line211">line 211</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -780,7 +784,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1814">line 1814</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1905">line 1905</a>
 								</li>
 							</ul>
 						</dd>
@@ -856,7 +860,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4305">line 4305</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4419">line 4419</a>
 								</li>
 							</ul>
 						</dd>
@@ -979,7 +983,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3702">line 3702</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3810">line 3810</a>
 								</li>
 							</ul>
 						</dd>
@@ -1166,7 +1170,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line195">line 195</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line196">line 196</a>
 								</li>
 							</ul>
 						</dd>
@@ -1226,7 +1230,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4466">line 4466</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4580">line 4580</a>
 								</li>
 							</ul>
 						</dd>
@@ -1275,7 +1279,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3288">line 3288</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3395">line 3395</a>
 								</li>
 							</ul>
 						</dd>
@@ -1298,7 +1302,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2739">line 2739</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2843">line 2843</a>
 								</li>
 							</ul>
 						</dd>
@@ -1353,7 +1357,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2059">line 2059</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2152">line 2152</a>
 								</li>
 							</ul>
 						</dd>
@@ -1403,7 +1407,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2069">line 2069</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2162">line 2162</a>
 								</li>
 							</ul>
 						</dd>
@@ -1468,7 +1472,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line636">line 636</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line647">line 647</a>
 								</li>
 							</ul>
 						</dd>
@@ -1491,7 +1495,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2255">line 2255</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2351">line 2351</a>
 								</li>
 							</ul>
 						</dd>
@@ -1545,7 +1549,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2361">line 2361</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2458">line 2458</a>
 								</li>
 							</ul>
 						</dd>
@@ -1600,7 +1604,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line1369">line 1369</a>
+									<a href="background.js.html#line1391">line 1391</a>
 								</li>
 							</ul>
 						</dd>
@@ -1651,7 +1655,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line2168">line 2168</a>
+									<a href="background.js.html#line2184">line 2184</a>
 								</li>
 							</ul>
 						</dd>
@@ -1844,7 +1848,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line777">line 777</a>
+									<a href="styles.js.html#line863">line 863</a>
 								</li>
 							</ul>
 						</dd>
@@ -1867,7 +1871,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1473">line 1473</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1524">line 1524</a>
 								</li>
 							</ul>
 						</dd>
@@ -1890,7 +1894,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2043">line 2043</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2136">line 2136</a>
 								</li>
 							</ul>
 						</dd>
@@ -1936,7 +1940,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1563">line 1563</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1584">line 1584</a>
 								</li>
 							</ul>
 						</dd>
@@ -1960,7 +1964,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line485">line 485</a>
+									<a href="background.js.html#line506">line 506</a>
 								</li>
 							</ul>
 						</dd>
@@ -2054,7 +2058,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line662">line 662</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line673">line 673</a>
 								</li>
 							</ul>
 						</dd>
@@ -2115,7 +2119,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line686">line 686</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line697">line 697</a>
 								</li>
 							</ul>
 						</dd>
@@ -2183,7 +2187,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1386">line 1386</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1407">line 1407</a>
 								</li>
 							</ul>
 						</dd>
@@ -2270,7 +2274,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line287">line 287</a>
+									<a href="styles.js.html#line373">line 373</a>
 								</li>
 							</ul>
 						</dd>
@@ -2403,7 +2407,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2199">line 2199</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2293">line 2293</a>
 								</li>
 							</ul>
 						</dd>
@@ -2456,7 +2460,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="3d.js.html">3d.js</a>, <a href="3d.js.html#line168">line 168</a></li>
+								<li><a href="3d.js.html">3d.js</a>, <a href="3d.js.html#line170">line 170</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -2495,7 +2499,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="3d.js.html">3d.js</a>, <a href="3d.js.html#line153">line 153</a></li>
+								<li><a href="3d.js.html">3d.js</a>, <a href="3d.js.html#line155">line 155</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -2555,7 +2559,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1242">line 1242</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1262">line 1262</a>
 								</li>
 							</ul>
 						</dd>
@@ -2622,7 +2626,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1311">line 1311</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1332">line 1332</a>
 								</li>
 							</ul>
 						</dd>
@@ -2694,7 +2698,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="3d.js.html">3d.js</a>, <a href="3d.js.html#line145">line 145</a></li>
+								<li><a href="3d.js.html">3d.js</a>, <a href="3d.js.html#line147">line 147</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -2754,7 +2758,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line869">line 869</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line880">line 880</a>
 								</li>
 							</ul>
 						</dd>
@@ -2821,7 +2825,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line945">line 945</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line957">line 957</a>
 								</li>
 							</ul>
 						</dd>
@@ -2897,7 +2901,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line1888">line 1888</a>
+									<a href="background.js.html#line1904">line 1904</a>
 								</li>
 							</ul>
 						</dd>
@@ -2946,7 +2950,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1723">line 1723</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1814">line 1814</a>
 								</li>
 							</ul>
 						</dd>
@@ -3001,7 +3005,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1576">line 1576</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1597">line 1597</a>
 								</li>
 							</ul>
 						</dd>
@@ -3029,7 +3033,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1688">line 1688</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1779">line 1779</a>
 								</li>
 							</ul>
 						</dd>
@@ -3078,7 +3082,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2323">line 2323</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2420">line 2420</a>
 								</li>
 							</ul>
 						</dd>
@@ -3156,7 +3160,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line1387">line 1387</a>
+									<a href="background.js.html#line1409">line 1409</a>
 								</li>
 							</ul>
 						</dd>
@@ -3179,7 +3183,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1435">line 1435</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1456">line 1456</a>
 								</li>
 							</ul>
 						</dd>
@@ -3211,6 +3215,34 @@
 						</tbody>
 					</table>
 
+					<h4 class="name" id="deleteNode">
+						<span class="type-signature"></span>deleteNode<span class="signature">()</span
+						><span class="type-signature"></span>
+					</h4>
+
+					<dl class="details">
+						<dt class="tag-description">Description:</dt>
+						<dd class="tag-description">
+							<ul class="dummy">
+								<li>
+									<p>
+										Delete the selected node, plus all the edges that connect to it (so no edge is
+										left dangling)
+									</p>
+								</li>
+							</ul>
+						</dd>
+
+						<dt class="tag-source">Source:</dt>
+						<dd class="tag-source">
+							<ul class="dummy">
+								<li>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2858">line 2858</a>
+								</li>
+							</ul>
+						</dd>
+					</dl>
+
 					<h4 class="name" id="deselectTool">
 						<span class="type-signature"></span>deselectTool<span class="signature">()</span
 						><span class="type-signature"></span>
@@ -3234,7 +3266,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line465">line 465</a>
+									<a href="background.js.html#line486">line 486</a>
 								</li>
 							</ul>
 						</dd>
@@ -3363,7 +3395,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="3d.js.html">3d.js</a>, <a href="3d.js.html#line198">line 198</a></li>
+								<li><a href="3d.js.html">3d.js</a>, <a href="3d.js.html#line200">line 200</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -3411,7 +3443,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2926">line 2926</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3032">line 3032</a>
 								</li>
 							</ul>
 						</dd>
@@ -3434,7 +3466,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1585">line 1585</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1606">line 1606</a>
 								</li>
 							</ul>
 						</dd>
@@ -3456,7 +3488,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line802">line 802</a></li>
+								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line829">line 829</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -3509,7 +3541,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2900">line 2900</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3006">line 3006</a>
 								</li>
 							</ul>
 						</dd>
@@ -3594,7 +3626,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line967">line 967</a></li>
+								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line994">line 994</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -3616,7 +3648,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1577">line 1577</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1666">line 1666</a>
 								</li>
 							</ul>
 						</dd>
@@ -3668,7 +3700,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line364">line 364</a>
+									<a href="background.js.html#line385">line 385</a>
 								</li>
 							</ul>
 						</dd>
@@ -3776,7 +3808,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2243">line 2243</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2339">line 2339</a>
 								</li>
 							</ul>
 						</dd>
@@ -3908,7 +3940,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1928">line 1928</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2020">line 2020</a>
 								</li>
 							</ul>
 						</dd>
@@ -3989,7 +4021,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line502">line 502</a>
+									<a href="styles.js.html#line588">line 588</a>
 								</li>
 							</ul>
 						</dd>
@@ -4049,7 +4081,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1846">line 1846</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1937">line 1937</a>
 								</li>
 							</ul>
 						</dd>
@@ -4130,7 +4162,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line351">line 351</a>
+									<a href="styles.js.html#line437">line 437</a>
 								</li>
 							</ul>
 						</dd>
@@ -4244,7 +4276,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line2112">line 2112</a>
+									<a href="background.js.html#line2128">line 2128</a>
 								</li>
 							</ul>
 						</dd>
@@ -4269,7 +4301,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line904">line 904</a>
+									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line950">line 950</a>
 								</li>
 							</ul>
 						</dd>
@@ -4303,7 +4335,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line891">line 891</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line884">line 884</a>
 								</li>
 							</ul>
 						</dd>
@@ -4328,7 +4360,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line1066">line 1066</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line1059">line 1059</a>
 								</li>
 							</ul>
 						</dd>
@@ -4351,7 +4383,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line945">line 945</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line938">line 938</a>
 								</li>
 							</ul>
 						</dd>
@@ -4380,7 +4412,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line1040">line 1040</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line1033">line 1033</a>
 								</li>
 							</ul>
 						</dd>
@@ -4403,7 +4435,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2490">line 2490</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2587">line 2587</a>
 								</li>
 							</ul>
 						</dd>
@@ -4426,7 +4458,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4690">line 4690</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4804">line 4804</a>
 								</li>
 							</ul>
 						</dd>
@@ -4477,7 +4509,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4712">line 4712</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4826">line 4826</a>
 								</li>
 							</ul>
 						</dd>
@@ -4522,7 +4554,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line775">line 775</a></li>
+								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line802">line 802</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -4545,7 +4577,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line664">line 664</a>
+									<a href="styles.js.html#line750">line 750</a>
 								</li>
 							</ul>
 						</dd>
@@ -4599,7 +4631,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line771">line 771</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line775">line 775</a>
 								</li>
 							</ul>
 						</dd>
@@ -4695,7 +4727,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1916">line 1916</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2008">line 2008</a>
 								</li>
 							</ul>
 						</dd>
@@ -4758,7 +4790,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line632">line 632</a>
+									<a href="styles.js.html#line718">line 718</a>
 								</li>
 							</ul>
 						</dd>
@@ -4823,7 +4855,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line1269">line 1269</a>
+									<a href="background.js.html#line1291">line 1291</a>
 								</li>
 							</ul>
 						</dd>
@@ -4858,7 +4890,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1018">line 1018</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1030">line 1030</a>
 								</li>
 							</ul>
 						</dd>
@@ -4900,7 +4932,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3627">line 3627</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3735">line 3735</a>
 								</li>
 							</ul>
 						</dd>
@@ -4958,7 +4990,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line790">line 790</a></li>
+								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line817">line 817</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -5037,7 +5069,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3652">line 3652</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3760">line 3760</a>
 								</li>
 							</ul>
 						</dd>
@@ -5069,7 +5101,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1370">line 1370</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1391">line 1391</a>
 								</li>
 							</ul>
 						</dd>
@@ -5231,7 +5263,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2615">line 2615</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2714">line 2714</a>
 								</li>
 							</ul>
 						</dd>
@@ -5254,7 +5286,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1827">line 1827</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1918">line 1918</a>
 								</li>
 							</ul>
 						</dd>
@@ -5304,7 +5336,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line644">line 644</a>
+									<a href="styles.js.html#line730">line 730</a>
 								</li>
 							</ul>
 						</dd>
@@ -5357,7 +5389,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line647">line 647</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line658">line 658</a>
 								</li>
 							</ul>
 						</dd>
@@ -5432,7 +5464,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line715">line 715</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line726">line 726</a>
 								</li>
 							</ul>
 						</dd>
@@ -5495,7 +5527,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line856">line 856</a></li>
+								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line883">line 883</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -5522,7 +5554,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1005">line 1005</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1017">line 1017</a>
 								</li>
 							</ul>
 						</dd>
@@ -5581,7 +5613,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3128">line 3128</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3235">line 3235</a>
 								</li>
 							</ul>
 						</dd>
@@ -5646,7 +5678,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line921">line 921</a>
+									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line967">line 967</a>
 								</li>
 							</ul>
 						</dd>
@@ -5778,7 +5810,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line95">line 95</a>
+									<a href="background.js.html#line97">line 97</a>
 								</li>
 							</ul>
 						</dd>
@@ -5802,7 +5834,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2010">line 2010</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2103">line 2103</a>
 								</li>
 							</ul>
 						</dd>
@@ -5903,7 +5935,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line314">line 314</a>
+									<a href="styles.js.html#line400">line 400</a>
 								</li>
 							</ul>
 						</dd>
@@ -5962,7 +5994,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line335">line 335</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line338">line 338</a>
 								</li>
 							</ul>
 						</dd>
@@ -5998,7 +6030,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1025">line 1025</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1037">line 1037</a>
 								</li>
 							</ul>
 						</dd>
@@ -6084,7 +6116,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line732">line 732</a></li>
+								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line758">line 758</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -6105,7 +6137,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line825">line 825</a></li>
+								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line852">line 852</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -6188,7 +6220,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line2146">line 2146</a>
+									<a href="background.js.html#line2162">line 2162</a>
 								</li>
 							</ul>
 						</dd>
@@ -6253,7 +6285,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line673">line 673</a>
+									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line703">line 703</a>
 								</li>
 							</ul>
 						</dd>
@@ -6368,7 +6400,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line934">line 934</a>
+									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line980">line 980</a>
 								</li>
 							</ul>
 						</dd>
@@ -6423,7 +6455,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2950">line 2950</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3056">line 3056</a>
 								</li>
 							</ul>
 						</dd>
@@ -6475,7 +6507,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line680">line 680</a>
+									<a href="styles.js.html#line766">line 766</a>
 								</li>
 							</ul>
 						</dd>
@@ -6531,7 +6563,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line705">line 705</a>
+									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line735">line 735</a>
 								</li>
 							</ul>
 						</dd>
@@ -6587,7 +6619,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line571">line 571</a>
+									<a href="styles.js.html#line657">line 657</a>
 								</li>
 							</ul>
 						</dd>
@@ -6611,7 +6643,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line528">line 528</a>
+									<a href="styles.js.html#line614">line 614</a>
 								</li>
 							</ul>
 						</dd>
@@ -6640,7 +6672,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line597">line 597</a>
+									<a href="styles.js.html#line683">line 683</a>
 								</li>
 							</ul>
 						</dd>
@@ -6665,7 +6697,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line558">line 558</a>
+									<a href="styles.js.html#line644">line 644</a>
 								</li>
 							</ul>
 						</dd>
@@ -6715,7 +6747,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line580">line 580</a>
+									<a href="styles.js.html#line666">line 666</a>
 								</li>
 							</ul>
 						</dd>
@@ -6739,7 +6771,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line586">line 586</a>
+									<a href="styles.js.html#line672">line 672</a>
 								</li>
 							</ul>
 						</dd>
@@ -6768,7 +6800,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2423">line 2423</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2520">line 2520</a>
 								</li>
 							</ul>
 						</dd>
@@ -6827,7 +6859,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2448">line 2448</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2545">line 2545</a>
 								</li>
 							</ul>
 						</dd>
@@ -6965,7 +6997,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line466">line 466</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line467">line 467</a>
 								</li>
 							</ul>
 						</dd>
@@ -7020,7 +7052,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line299">line 299</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line300">line 300</a>
 								</li>
 							</ul>
 						</dd>
@@ -7087,7 +7119,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line548">line 548</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line549">line 549</a>
 								</li>
 							</ul>
 						</dd>
@@ -7147,7 +7179,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line119">line 119</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line120">line 120</a>
 								</li>
 							</ul>
 						</dd>
@@ -7196,7 +7228,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line381">line 381</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line382">line 382</a>
 								</li>
 							</ul>
 						</dd>
@@ -7245,7 +7277,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line332">line 332</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line333">line 333</a>
 								</li>
 							</ul>
 						</dd>
@@ -7294,7 +7326,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line203">line 203</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line204">line 204</a>
 								</li>
 							</ul>
 						</dd>
@@ -7348,7 +7380,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2133">line 2133</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2226">line 2226</a>
 								</li>
 							</ul>
 						</dd>
@@ -7403,7 +7435,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1518">line 1518</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1569">line 1569</a>
 								</li>
 							</ul>
 						</dd>
@@ -7453,7 +7485,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line705">line 705</a>
+									<a href="background.js.html#line726">line 726</a>
 								</li>
 							</ul>
 						</dd>
@@ -7512,7 +7544,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2264">line 2264</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2360">line 2360</a>
 								</li>
 							</ul>
 						</dd>
@@ -7566,7 +7598,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1489">line 1489</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1540">line 1540</a>
 								</li>
 							</ul>
 						</dd>
@@ -7709,7 +7741,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line437">line 437</a>
+									<a href="styles.js.html#line523">line 523</a>
 								</li>
 							</ul>
 						</dd>
@@ -7733,7 +7765,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line402">line 402</a>
+									<a href="styles.js.html#line488">line 488</a>
 								</li>
 							</ul>
 						</dd>
@@ -7762,7 +7794,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line464">line 464</a>
+									<a href="styles.js.html#line550">line 550</a>
 								</li>
 							</ul>
 						</dd>
@@ -7787,7 +7819,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line425">line 425</a>
+									<a href="styles.js.html#line511">line 511</a>
 								</li>
 							</ul>
 						</dd>
@@ -7837,7 +7869,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line447">line 447</a>
+									<a href="styles.js.html#line533">line 533</a>
 								</li>
 							</ul>
 						</dd>
@@ -7861,7 +7893,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line453">line 453</a>
+									<a href="styles.js.html#line539">line 539</a>
 								</li>
 							</ul>
 						</dd>
@@ -7994,7 +8026,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1539">line 1539</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1560">line 1560</a>
 								</li>
 							</ul>
 						</dd>
@@ -8229,7 +8261,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3122">line 3122</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3229">line 3229</a>
 								</li>
 							</ul>
 						</dd>
@@ -8317,7 +8349,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2663">line 2663</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2763">line 2763</a>
 								</li>
 							</ul>
 						</dd>
@@ -8346,7 +8378,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2586">line 2586</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2683">line 2683</a>
 								</li>
 							</ul>
 						</dd>
@@ -8374,7 +8406,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3265">line 3265</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3372">line 3372</a>
 								</li>
 							</ul>
 						</dd>
@@ -8428,7 +8460,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2030">line 2030</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2123">line 2123</a>
 								</li>
 							</ul>
 						</dd>
@@ -8482,7 +8514,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line804">line 804</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line815">line 815</a>
 								</li>
 							</ul>
 						</dd>
@@ -8538,7 +8570,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line818">line 818</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line829">line 829</a>
 								</li>
 							</ul>
 						</dd>
@@ -8618,7 +8650,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line786">line 786</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line797">line 797</a>
 								</li>
 							</ul>
 						</dd>
@@ -8677,7 +8709,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line615">line 615</a>
+									<a href="styles.js.html#line701">line 701</a>
 								</li>
 							</ul>
 						</dd>
@@ -8746,7 +8778,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line484">line 484</a>
+									<a href="styles.js.html#line570">line 570</a>
 								</li>
 							</ul>
 						</dd>
@@ -8811,7 +8843,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line84">line 84</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line85">line 85</a>
 								</li>
 							</ul>
 						</dd>
@@ -8910,7 +8942,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2393">line 2393</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2490">line 2490</a>
 								</li>
 							</ul>
 						</dd>
@@ -8933,7 +8965,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4501">line 4501</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4615">line 4615</a>
 								</li>
 							</ul>
 						</dd>
@@ -8987,7 +9019,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4147">line 4147</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4261">line 4261</a>
 								</li>
 							</ul>
 						</dd>
@@ -9037,7 +9069,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line110">line 110</a>
+									<a href="background.js.html#line112">line 112</a>
 								</li>
 							</ul>
 						</dd>
@@ -9088,7 +9120,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line139">line 139</a>
+									<a href="background.js.html#line141">line 141</a>
 								</li>
 							</ul>
 						</dd>
@@ -9142,7 +9174,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3071">line 3071</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3177">line 3177</a>
 								</li>
 							</ul>
 						</dd>
@@ -9170,7 +9202,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3056">line 3056</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3162">line 3162</a>
 								</li>
 							</ul>
 						</dd>
@@ -9193,7 +9225,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4675">line 4675</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4789">line 4789</a>
 								</li>
 							</ul>
 						</dd>
@@ -9242,7 +9274,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2651">line 2651</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2751">line 2751</a>
 								</li>
 							</ul>
 						</dd>
@@ -9270,7 +9302,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2372">line 2372</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2469">line 2469</a>
 								</li>
 							</ul>
 						</dd>
@@ -9294,14 +9326,14 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line66">line 66</a>
+									<a href="background.js.html#line68">line 68</a>
 								</li>
 							</ul>
 						</dd>
 					</dl>
 
-					<h4 class="name" id="rgbToHex">
-						<span class="type-signature"></span>rgbToHex<span class="signature">(str)</span
+					<h4 class="name" id="rgba">
+						<span class="type-signature"></span>rgba<span class="signature">()</span
 						><span class="type-signature"></span>
 					</h4>
 
@@ -9309,7 +9341,7 @@
 						<dt class="tag-description">Description:</dt>
 						<dd class="tag-description">
 							<ul class="dummy">
-								<li><p>Convert rgb(aa,bb,cc) to #xxyyzz</p></li>
+								<li><p>convert an rgb(a) string to rgba with given alpha value</p></li>
 							</ul>
 						</dd>
 
@@ -9317,43 +9349,11 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line649">line 649</a>
+									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line681">line 681</a>
 								</li>
 							</ul>
 						</dd>
 					</dl>
-
-					<h5 class="h5-parameters">Parameters:</h5>
-
-					<table class="params">
-						<thead>
-							<tr>
-								<th>Name</th>
-
-								<th>Type</th>
-
-								<th class="last">Description</th>
-							</tr>
-						</thead>
-
-						<tbody>
-							<tr>
-								<td class="name"><code>str</code></td>
-
-								<td class="type">
-									<span class="param-type">String</span>
-								</td>
-
-								<td class="description last"></td>
-							</tr>
-						</tbody>
-					</table>
-
-					<h5 class="h5-returns">Returns:</h5>
-
-					<div class="param-desc">
-						<p>String</p>
-					</div>
 
 					<h4 class="name" id="rollback">
 						<span class="type-signature type-signature-async">(async) </span>rollback<span class="signature"
@@ -9373,7 +9373,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4325">line 4325</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4439">line 4439</a>
 								</li>
 							</ul>
 						</dd>
@@ -9493,7 +9493,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4439">line 4439</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4553">line 4553</a>
 								</li>
 							</ul>
 						</dd>
@@ -9522,7 +9522,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line1646">line 1646</a>
+									<a href="background.js.html#line1662">line 1662</a>
 								</li>
 							</ul>
 						</dd>
@@ -9593,7 +9593,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2172">line 2172</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2266">line 2266</a>
 								</li>
 							</ul>
 						</dd>
@@ -9652,7 +9652,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2086">line 2086</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2179">line 2179</a>
 								</li>
 							</ul>
 						</dd>
@@ -9711,7 +9711,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2103">line 2103</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2196">line 2196</a>
 								</li>
 							</ul>
 						</dd>
@@ -9770,7 +9770,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line716">line 716</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line720">line 720</a>
 								</li>
 							</ul>
 						</dd>
@@ -9798,7 +9798,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1542">line 1542</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1593">line 1593</a>
 								</li>
 							</ul>
 						</dd>
@@ -9827,7 +9827,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line805">line 805</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line809">line 809</a>
 								</li>
 							</ul>
 						</dd>
@@ -9898,7 +9898,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2849">line 2849</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2955">line 2955</a>
 								</li>
 							</ul>
 						</dd>
@@ -9926,7 +9926,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2862">line 2862</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2968">line 2968</a>
 								</li>
 							</ul>
 						</dd>
@@ -9949,7 +9949,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4115">line 4115</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4229">line 4229</a>
 								</li>
 							</ul>
 						</dd>
@@ -10005,7 +10005,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line413">line 413</a>
+									<a href="background.js.html#line434">line 434</a>
 								</li>
 							</ul>
 						</dd>
@@ -10111,7 +10111,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3585">line 3585</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3693">line 3693</a>
 								</li>
 							</ul>
 						</dd>
@@ -10139,7 +10139,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2456">line 2456</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2553">line 2553</a>
 								</li>
 							</ul>
 						</dd>
@@ -10181,7 +10181,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3669">line 3669</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3777">line 3777</a>
 								</li>
 							</ul>
 						</dd>
@@ -10205,7 +10205,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2747">line 2747</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2851">line 2851</a>
 								</li>
 							</ul>
 						</dd>
@@ -10265,7 +10265,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1464">line 1464</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1485">line 1485</a>
 								</li>
 							</ul>
 						</dd>
@@ -10324,7 +10324,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line784">line 784</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line788">line 788</a>
 								</li>
 							</ul>
 						</dd>
@@ -10356,6 +10356,130 @@
 						</tbody>
 					</table>
 
+					<h4 class="name" id="setCanvasBackground">
+						<span class="type-signature"></span>setCanvasBackground<span class="signature">(canvas)</span
+						><span class="type-signature"></span>
+					</h4>
+
+					<dl class="details">
+						<dt class="tag-description">Description:</dt>
+						<dd class="tag-description">
+							<ul class="dummy">
+								<li>
+									<p>
+										draw the background on the given canvas (which will be a magnified version of
+										the net pane)
+									</p>
+								</li>
+							</ul>
+						</dd>
+
+						<dt class="tag-source">Source:</dt>
+						<dd class="tag-source">
+							<ul class="dummy">
+								<li>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1508">line 1508</a>
+								</li>
+							</ul>
+						</dd>
+					</dl>
+
+					<h5 class="h5-parameters">Parameters:</h5>
+
+					<table class="params">
+						<thead>
+							<tr>
+								<th>Name</th>
+
+								<th>Type</th>
+
+								<th class="last">Description</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr>
+								<td class="name"><code>canvas</code></td>
+
+								<td class="type">
+									<span class="param-type">HTMLElement</span>
+								</td>
+
+								<td class="description last"></td>
+							</tr>
+						</tbody>
+					</table>
+
+					<h5 class="h5-returns">Returns:</h5>
+
+					<div class="param-desc">
+						<p>canvas</p>
+					</div>
+
+					<h4 class="name" id="setEdgeHidden">
+						<span class="type-signature"></span>setEdgeHidden<span class="signature">(edge, hide)</span
+						><span class="type-signature"></span>
+					</h4>
+
+					<dl class="details">
+						<dt class="tag-description">Description:</dt>
+						<dd class="tag-description">
+							<ul class="dummy">
+								<li>
+									<p>
+										set this edge to its 'hidden' appearance (very faint), or restore it to its
+										usual appearance
+									</p>
+								</li>
+							</ul>
+						</dd>
+
+						<dt class="tag-source">Source:</dt>
+						<dd class="tag-source">
+							<ul class="dummy">
+								<li>
+									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line671">line 671</a>
+								</li>
+							</ul>
+						</dd>
+					</dl>
+
+					<h5 class="h5-parameters">Parameters:</h5>
+
+					<table class="params">
+						<thead>
+							<tr>
+								<th>Name</th>
+
+								<th>Type</th>
+
+								<th class="last">Description</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr>
+								<td class="name"><code>edge</code></td>
+
+								<td class="type">
+									<span class="param-type">object</span>
+								</td>
+
+								<td class="description last"></td>
+							</tr>
+
+							<tr>
+								<td class="name"><code>hide</code></td>
+
+								<td class="type">
+									<span class="param-type">boolean</span>
+								</td>
+
+								<td class="description last"></td>
+							</tr>
+						</tbody>
+					</table>
+
 					<h4 class="name" id="setEndOfContenteditable">
 						<span class="type-signature"></span>setEndOfContenteditable<span class="signature"
 							>(contentEditableElement)</span
@@ -10374,7 +10498,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line892">line 892</a>
+									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line938">line 938</a>
 								</li>
 							</ul>
 						</dd>
@@ -10417,8 +10541,9 @@
 							<ul class="dummy">
 								<li>
 									<p>
-										resets lastFileName to have supplied extension if lastFileName is null, uses the
-										map title, or if no map title, 'network' as the filename
+										resets lastFileName to a munged version of the map title, with the supplied
+										extension if lastFileName is null, uses the map title, or if no map title,
+										'network' as the filename
 									</p>
 								</li>
 							</ul>
@@ -10428,7 +10553,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="files.js.html">files.js</a>, <a href="files.js.html#line878">line 878</a>
+									<a href="files.js.html">files.js</a>, <a href="files.js.html#line874">line 874</a>
 								</li>
 							</ul>
 						</dd>
@@ -10482,7 +10607,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3102">line 3102</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3208">line 3208</a>
 								</li>
 							</ul>
 						</dd>
@@ -10505,7 +10630,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2283">line 2283</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2379">line 2379</a>
 								</li>
 							</ul>
 						</dd>
@@ -10537,6 +10662,70 @@
 						</tbody>
 					</table>
 
+					<h4 class="name" id="setNodeHidden">
+						<span class="type-signature"></span>setNodeHidden<span class="signature">(node, hide)</span
+						><span class="type-signature"></span>
+					</h4>
+
+					<dl class="details">
+						<dt class="tag-description">Description:</dt>
+						<dd class="tag-description">
+							<ul class="dummy">
+								<li>
+									<p>
+										set this node to its 'hidden' appearance (very faint), or restore it to its
+										usual appearance
+									</p>
+								</li>
+							</ul>
+						</dd>
+
+						<dt class="tag-source">Source:</dt>
+						<dd class="tag-source">
+							<ul class="dummy">
+								<li>
+									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line661">line 661</a>
+								</li>
+							</ul>
+						</dd>
+					</dl>
+
+					<h5 class="h5-parameters">Parameters:</h5>
+
+					<table class="params">
+						<thead>
+							<tr>
+								<th>Name</th>
+
+								<th>Type</th>
+
+								<th class="last">Description</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr>
+								<td class="name"><code>node</code></td>
+
+								<td class="type">
+									<span class="param-type">object</span>
+								</td>
+
+								<td class="description last"></td>
+							</tr>
+
+							<tr>
+								<td class="name"><code>hide</code></td>
+
+								<td class="type">
+									<span class="param-type">boolean</span>
+								</td>
+
+								<td class="description last"></td>
+							</tr>
+						</tbody>
+					</table>
+
 					<h4 class="name" id="setParams">
 						<span class="type-signature"></span>setParams<span class="signature">(obj, params)</span
 						><span class="type-signature"></span>
@@ -10555,7 +10744,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line1684">line 1684</a>
+									<a href="background.js.html#line1700">line 1700</a>
 								</li>
 							</ul>
 						</dd>
@@ -10613,7 +10802,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3640">line 3640</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3748">line 3748</a>
 								</li>
 							</ul>
 						</dd>
@@ -10672,7 +10861,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4389">line 4389</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4503">line 4503</a>
 								</li>
 							</ul>
 						</dd>
@@ -10696,7 +10885,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line57">line 57</a>
+									<a href="background.js.html#line59">line 59</a>
 								</li>
 							</ul>
 						</dd>
@@ -10776,7 +10965,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line892">line 892</a></li>
+								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line919">line 919</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -10798,7 +10987,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1476">line 1476</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1497">line 1497</a>
 								</li>
 							</ul>
 						</dd>
@@ -10820,7 +11009,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line310">line 310</a></li>
+								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line315">line 315</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -10875,7 +11064,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="styles.js.html">styles.js</a>, <a href="styles.js.html#line43">line 43</a>
+									<a href="styles.js.html">styles.js</a>, <a href="styles.js.html#line54">line 54</a>
 								</li>
 							</ul>
 						</dd>
@@ -10903,7 +11092,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2761">line 2761</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2867">line 2867</a>
 								</li>
 							</ul>
 						</dd>
@@ -10931,7 +11120,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line262">line 262</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line265">line 265</a>
 								</li>
 							</ul>
 						</dd>
@@ -10954,7 +11143,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line70">line 70</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line73">line 73</a>
 								</li>
 							</ul>
 						</dd>
@@ -10978,7 +11167,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line392">line 392</a>
+									<a href="background.js.html#line413">line 413</a>
 								</li>
 							</ul>
 						</dd>
@@ -11023,7 +11212,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line942">line 942</a></li>
+								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line969">line 969</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -11049,7 +11238,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line874">line 874</a></li>
+								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line901">line 901</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -11076,7 +11265,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4548">line 4548</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4662">line 4662</a>
 								</li>
 							</ul>
 						</dd>
@@ -11135,7 +11324,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4728">line 4728</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4842">line 4842</a>
 								</li>
 							</ul>
 						</dd>
@@ -11194,7 +11383,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4287">line 4287</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4401">line 4401</a>
 								</li>
 							</ul>
 						</dd>
@@ -11221,7 +11410,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line865">line 865</a></li>
+								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line892">line 892</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -11243,7 +11432,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3140">line 3140</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3247">line 3247</a>
 								</li>
 							</ul>
 						</dd>
@@ -11266,7 +11455,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3113">line 3113</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3220">line 3220</a>
 								</li>
 							</ul>
 						</dd>
@@ -11293,7 +11482,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3088">line 3088</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3194">line 3194</a>
 								</li>
 							</ul>
 						</dd>
@@ -11342,7 +11531,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4531">line 4531</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4645">line 4645</a>
 								</li>
 							</ul>
 						</dd>
@@ -11365,7 +11554,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2710">line 2710</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2814">line 2814</a>
 								</li>
 							</ul>
 						</dd>
@@ -11424,7 +11613,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2468">line 2468</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2565">line 2565</a>
 								</li>
 							</ul>
 						</dd>
@@ -11447,7 +11636,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1679">line 1679</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1768">line 1768</a>
 								</li>
 							</ul>
 						</dd>
@@ -11630,7 +11819,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line660">line 660</a>
+									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line690">line 690</a>
 								</li>
 							</ul>
 						</dd>
@@ -11732,7 +11921,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="3d.js.html">3d.js</a>, <a href="3d.js.html#line47">line 47</a></li>
+								<li><a href="3d.js.html">3d.js</a>, <a href="3d.js.html#line49">line 49</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -11753,7 +11942,7 @@
 						<dt class="tag-source">Source:</dt>
 						<dd class="tag-source">
 							<ul class="dummy">
-								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line344">line 344</a></li>
+								<li><a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line349">line 349</a></li>
 							</ul>
 						</dd>
 					</dl>
@@ -11775,7 +11964,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line97">line 97</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line100">line 100</a>
 								</li>
 							</ul>
 						</dd>
@@ -11946,7 +12135,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2698">line 2698</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2799">line 2799</a>
 								</li>
 							</ul>
 						</dd>
@@ -12025,7 +12214,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1230">line 1230</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1250">line 1250</a>
 								</li>
 							</ul>
 						</dd>
@@ -12047,7 +12236,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line743">line 743</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line754">line 754</a>
 								</li>
 							</ul>
 						</dd>
@@ -12264,7 +12453,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line753">line 753</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line764">line 764</a>
 								</li>
 							</ul>
 						</dd>
@@ -12313,7 +12502,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line707">line 707</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line718">line 718</a>
 								</li>
 							</ul>
 						</dd>
@@ -12377,7 +12566,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line868">line 868</a>
+									<a href="utils.js.html">utils.js</a>, <a href="utils.js.html#line901">line 901</a>
 								</li>
 							</ul>
 						</dd>
@@ -12441,7 +12630,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1508">line 1508</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1559">line 1559</a>
 								</li>
 							</ul>
 						</dd>
@@ -12464,7 +12653,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2309">line 2309</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2406">line 2406</a>
 								</li>
 							</ul>
 						</dd>
@@ -12517,7 +12706,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1496">line 1496</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line1547">line 1547</a>
 								</li>
 							</ul>
 						</dd>
@@ -12540,7 +12729,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2933">line 2933</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3039">line 3039</a>
 								</li>
 							</ul>
 						</dd>
@@ -12564,7 +12753,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line512">line 512</a>
+									<a href="background.js.html#line533">line 533</a>
 								</li>
 							</ul>
 						</dd>
@@ -12680,7 +12869,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4476">line 4476</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4590">line 4590</a>
 								</li>
 							</ul>
 						</dd>
@@ -12858,7 +13047,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4702">line 4702</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line4816">line 4816</a>
 								</li>
 							</ul>
 						</dd>
@@ -12881,7 +13070,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2379">line 2379</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2476">line 2476</a>
 								</li>
 							</ul>
 						</dd>
@@ -12977,7 +13166,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2159">line 2159</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2253">line 2253</a>
 								</li>
 							</ul>
 						</dd>
@@ -13000,7 +13189,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2227">line 2227</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2322">line 2322</a>
 								</li>
 							</ul>
 						</dd>
@@ -13049,7 +13238,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2147">line 2147</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2241">line 2241</a>
 								</li>
 							</ul>
 						</dd>
@@ -13099,7 +13288,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line475">line 475</a>
+									<a href="background.js.html#line496">line 496</a>
 								</li>
 							</ul>
 						</dd>
@@ -13128,7 +13317,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line493">line 493</a>
+									<a href="background.js.html#line514">line 514</a>
 								</li>
 							</ul>
 						</dd>
@@ -13151,7 +13340,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1357">line 1357</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1378">line 1378</a>
 								</li>
 							</ul>
 						</dd>
@@ -13200,7 +13389,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1282">line 1282</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1303">line 1303</a>
 								</li>
 							</ul>
 						</dd>
@@ -13250,7 +13439,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3044">line 3044</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3150">line 3150</a>
 								</li>
 							</ul>
 						</dd>
@@ -13299,7 +13488,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1522">line 1522</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1543">line 1543</a>
 								</li>
 							</ul>
 						</dd>
@@ -13327,7 +13516,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1268">line 1268</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line1289">line 1289</a>
 								</li>
 							</ul>
 						</dd>
@@ -13377,7 +13566,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line131">line 131</a>
+									<a href="background.js.html#line133">line 133</a>
 								</li>
 							</ul>
 						</dd>
@@ -13406,7 +13595,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line122">line 122</a>
+									<a href="background.js.html#line124">line 124</a>
 								</li>
 							</ul>
 						</dd>
@@ -13461,7 +13650,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3023">line 3023</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line3129">line 3129</a>
 								</li>
 							</ul>
 						</dd>
@@ -13521,7 +13710,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line787">line 787</a>
+									<a href="styles.js.html#line873">line 873</a>
 								</li>
 							</ul>
 						</dd>
@@ -13547,7 +13736,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line517">line 517</a>
+									<a href="styles.js.html#line603">line 603</a>
 								</li>
 							</ul>
 						</dd>
@@ -13601,7 +13790,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="table.js.html">table.js</a>, <a href="table.js.html#line912">line 912</a>
+									<a href="table.js.html">table.js</a>, <a href="table.js.html#line924">line 924</a>
 								</li>
 							</ul>
 						</dd>
@@ -13653,7 +13842,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="styles.js.html">styles.js</a>,
-									<a href="styles.js.html#line369">line 369</a>
+									<a href="styles.js.html#line455">line 455</a>
 								</li>
 							</ul>
 						</dd>
@@ -13703,7 +13892,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line296">line 296</a>
+									<a href="background.js.html#line316">line 316</a>
 								</li>
 							</ul>
 						</dd>
@@ -13753,7 +13942,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line1998">line 1998</a>
+									<a href="background.js.html#line2014">line 2014</a>
 								</li>
 							</ul>
 						</dd>
@@ -13876,7 +14065,7 @@
 							<ul class="dummy">
 								<li>
 									<a href="background.js.html">background.js</a>,
-									<a href="background.js.html#line83">line 83</a>
+									<a href="background.js.html#line85">line 85</a>
 								</li>
 							</ul>
 						</dd>
@@ -13930,7 +14119,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2515">line 2515</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2612">line 2612</a>
 								</li>
 							</ul>
 						</dd>
@@ -13979,7 +14168,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2506">line 2506</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2603">line 2603</a>
 								</li>
 							</ul>
 						</dd>
@@ -14002,7 +14191,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2563">line 2563</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2660">line 2660</a>
 								</li>
 							</ul>
 						</dd>
@@ -14051,7 +14240,7 @@
 						<dd class="tag-source">
 							<ul class="dummy">
 								<li>
-									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2535">line 2535</a>
+									<a href="prsm.js.html">prsm.js</a>, <a href="prsm.js.html#line2632">line 2632</a>
 								</li>
 							</ul>
 						</dd>
@@ -14089,8 +14278,8 @@
 		<br class="clear" />
 
 		<footer>
-			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.0</a> on Mon Feb 13 2023
-			22:35:45 GMT+0000 (Greenwich Mean Time) using the
+			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Sun Jun 11 2023
+			21:34:49 GMT+0100 (British Summer Time) using the
 			<a href="https://github.com/clenemt/docdash">docdash</a> theme.
 		</footer>
 

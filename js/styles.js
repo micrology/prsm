@@ -303,8 +303,7 @@ function styleEdgeContextMenu(event, sampleElement, groupId) {
 	function showMenu(x, y) {
 		elem('styleEdgeContextMenuHide').innerText =
 			sampleElement.dataset.hide === 'hidden' ? 'Unhide Links' : 'Hide Links'
-		if (x + menu.offsetWidth > elem('container').offsetWidth)
-			x = elem('container').offsetWidth - menu.offsetWidth
+		if (x + menu.offsetWidth > elem('container').offsetWidth) x = elem('container').offsetWidth - menu.offsetWidth
 		if (y + menu.offsetHeight > elem('container').offsetHeight)
 			y = elem('container').offsetHeighth - menu.offsetHeight
 		menu.style.left = `${x}px`

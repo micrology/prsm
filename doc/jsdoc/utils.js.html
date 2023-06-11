@@ -95,6 +95,7 @@
 				<li><a href="global.html#deepCopy">deepCopy</a></li>
 				<li><a href="global.html#deleteActiveObjects">deleteActiveObjects</a></li>
 				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
+				<li><a href="global.html#deleteNode">deleteNode</a></li>
 				<li><a href="global.html#deselectTool">deselectTool</a></li>
 				<li><a href="global.html#diag">diag</a></li>
 				<li><a href="global.html#diffMaps">diffMaps</a></li>
@@ -227,7 +228,7 @@
 				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
 				<li><a href="global.html#resizeBox">resizeBox</a></li>
 				<li><a href="global.html#resizeCanvas">resizeCanvas</a></li>
-				<li><a href="global.html#rgbToHex">rgbToHex</a></li>
+				<li><a href="global.html#rgba">rgba</a></li>
 				<li><a href="global.html#rollback">rollback</a></li>
 				<li><a href="global.html#round">round</a></li>
 				<li><a href="global.html#roundTripTimer">roundTripTimer</a></li>
@@ -247,10 +248,13 @@
 				<li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li>
 				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
 				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
+				<li><a href="global.html#setCanvasBackground">setCanvasBackground</a></li>
+				<li><a href="global.html#setEdgeHidden">setEdgeHidden</a></li>
 				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
 				<li><a href="global.html#setFileName">setFileName</a></li>
 				<li><a href="global.html#setFixed">setFixed</a></li>
 				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
+				<li><a href="global.html#setNodeHidden">setNodeHidden</a></li>
 				<li><a href="global.html#setParams">setParams</a></li>
 				<li><a href="global.html#setRadioVal">setRadioVal</a></li>
 				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
@@ -619,7 +623,7 @@ export function strip(obj, allowed) {
  * @param {string} txt
  * @param {number} width
  */
-export function splitText(txt, width) {
+export function splitText(txt, width=10) {
 	let lines = ''
 	let chunks = txt.trim().split('\n')
 	chunks.forEach((chunk) => {
@@ -994,12 +998,42 @@ export function initials(name) {
  * @param {String} str
  * @returns String
  */
-function rgbToHex(str) {
+/* function rgbToHex(str) {
 	if (~str.indexOf('#')) return str
 	str = str.replace(/[^\d,]/g, '').split(',')
 	return '#' + ((1 &lt;&lt; 24) + (+str[0] &lt;&lt; 16) + (+str[1] &lt;&lt; 8) + +str[2]).toString(16).slice(1)
+} */
+
+const hiddenOpacity = 0.1
+/**
+ * set this node to its 'hidden' appearance (very faint), or restore it to its usual appearance
+ * @param {object} node
+ * @param {boolean} hide
+ */
+export function setNodeHidden(node, hide) {
+	node.nodeHidden = hide
+	node.opacity = hide ? hiddenOpacity : 1.0
+	node.font.color = rgba(node.font.color, hide ? hiddenOpacity : 1.0)
+}
+/**
+ * set this edge to its 'hidden' appearance (very faint), or restore it to its usual appearance
+ * @param {object} edge
+ * @param {boolean} hide
+ */
+export function setEdgeHidden(edge, hide) {
+	edge.edgeHidden = hide
+	edge.color.opacity = hide ? hiddenOpacity : 1.0
+	if (!edge.font.color) edge.font.color = 'rgba(0,0,0,1)'
+	edge.font.color = rgba(edge.font.color, hide ? hiddenOpacity : 1.0)
 }
 
+/**
+ * convert an rgb(a) string to rgba with given alpha value
+ */
+function rgba(rgb, alpha) {
+	if (rgb.indexOf('a') == -1) rgb = rgb.replace('rgb', 'rgba').replace(')', ',0.0)')
+	return rgb.replace(/[^,]*$/, ` ${alpha})`)
+}
 /**
  * return the hex value for the CSS color in str (which may be a color name, e.g. white, or a hex number
  * or any other legal CSS color value)
@@ -1097,9 +1131,9 @@ export class CP {
 		// see https://iro.js.org/guide.html#getting-started
 		this.colorPicker = new iro.ColorPicker('#colorPickerControls', {
 			width: 160,
-			color: '#ffffff',
+			color: 'rgb(255, 255, 255)',
 			borderWidth: 1,
-			borderColor: '#ffffff',
+			borderColor: 'rgb(255, 255, 255)',
 			margin: 0,
 		})
 
@@ -1113,18 +1147,18 @@ export class CP {
 			c.className = 'cached-color'
 			// prefill with standard colours
 			c.style.backgroundColor = [
-				'#ff0000',
-				'#00ff00',
-				'#0000ff',
-				'#ffff00',
-				'#ffffff',
-				'#000000',
-				'#9ADBB4',
-				'#DB6E67',
+				'rgb(255, 0, 0)',
+				'rgb(0, 255, 0)',
+				'rgb(0, 0, 255)',
+				'rgb(255, 255, 0)',
+				'rgb(255, 255, 255)',
+				'rgb(0, 0, 0)',
+				'rgb(154, 219, 180)',
+				'rgb(219, 110, 103)',
 			][i]
 			c.addEventListener('click', (e) => {
 				let color = e.target.style.backgroundColor
-				if (color) this.colorPicker.color.hexString = rgbToHex(e.target.style.backgroundColor)
+				if (color) this.colorPicker.color.rgbString = e.target.style.backgroundColor
 			})
 			this.colorCache.appendChild(c)
 		}
@@ -1136,7 +1170,7 @@ export class CP {
 	 * @param {string} wellId the id of the DOM element to attach the color picker to
 	 * @param {string} callback - function to call when the color has been chosen, with that color as argument
 	 */
-	createColorPicker(wellId, callback) {
+	createColorPicker(wellId, callback, onChange) {
 		let well = elem(wellId)
 		well.style.backgroundColor = '#ffffff'
 		// add listener to display picker when well clicked
@@ -1148,7 +1182,7 @@ export class CP {
 			if (top > netPane.bottom - this.container.offsetHeight)
 				top = netPane.bottom - this.container.offsetHeight - 10
 			if (top &lt; netPane.top) top = netPane.top + 10
-			let left = event.clientX
+			let left = event.clientX -this.container.offsetWidth / 2
 			if (left &lt; netPane.left) left = netPane.left + 10
 			if (left > netPane.right - this.container.offsetWidth)
 				left = netPane.right - this.container.offsetWidth - 10
@@ -1156,16 +1190,18 @@ export class CP {
 			this.container.style.left = `${left}px`
 			this.container.well = well
 			this.container.callback = callback
-			this.colorPicker.color.hexString = rgbToHex(well.style.backgroundColor)
+			this.container.onChange = onChange
+			this.colorPicker.color.rgbString = well.style.backgroundColor
 			this.onclose = this.closeColorPicker.bind(this)
 			document.addEventListener('click', this.onclose, true)
 
 			// update well as color is changed
-			this.colorPicker.on(['color:change'], function (color) {
-				elem('colorPicker').well.style.backgroundColor = color.hexString
+			this.colorPicker.on('color:change', (color) => {
+				well.style.backgroundColor = color.rgbString
+				if (onChange) onChange()
 			})
 		})
-	}
+	}		
 	/**
 	 * Report chosen colour when user clicks outside of picker (and well)
 	 * Hide the picker and save the colour choice in the previously selected colour grid
@@ -1181,6 +1217,7 @@ export class CP {
 
 			let callback = this.container.callback
 			if (callback) callback(color)
+			this.colorPicker.off('color:change')
 		}
 	}
 	/**
@@ -1217,6 +1254,7 @@ export function timeAndDate(utc, full = false) {
 	let time = new Date()
 	time.setTime(utc)
 	if (!full &amp;&amp; time.toDateString() == new Date().toDateString()) {
+		// return Today, 12:34
 		return (
 			'Today, ' +
 			time.toLocaleString('en-GB', {
@@ -1224,7 +1262,9 @@ export function timeAndDate(utc, full = false) {
 				minute: '2-digit',
 			})
 		)
-	} else {
+	}
+	if (!full &amp;&amp; time.getFullYear() == new Date().getFullYear()) {
+		// return 12 Sept, 12:34
 		return time.toLocaleString('en-GB', {
 			day: '2-digit',
 			month: 'short',
@@ -1232,6 +1272,16 @@ export function timeAndDate(utc, full = false) {
 			minute: '2-digit',
 		})
 	}
+	// return 12 Sep 2023, 12:34
+	return time
+		.toLocaleString('en-GB', {
+			day: '2-digit',
+			month: 'short',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+		})
+		.replace('Sept', 'Sep')
 }
 /**
  * positions the caret at the end of text in a contenteditable div
@@ -1293,8 +1343,8 @@ export function isQuillEmpty(quill) {
 		<br class="clear" />
 
 		<footer>
-			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.0</a> on Mon Feb 13 2023
-			22:35:45 GMT+0000 (Greenwich Mean Time) using the
+			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Sun Jun 11 2023
+			21:34:49 GMT+0100 (British Summer Time) using the
 			<a href="https://github.com/clenemt/docdash">docdash</a> theme.
 		</footer>
 

@@ -95,6 +95,7 @@
 				<li><a href="global.html#deepCopy">deepCopy</a></li>
 				<li><a href="global.html#deleteActiveObjects">deleteActiveObjects</a></li>
 				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
+				<li><a href="global.html#deleteNode">deleteNode</a></li>
 				<li><a href="global.html#deselectTool">deselectTool</a></li>
 				<li><a href="global.html#diag">diag</a></li>
 				<li><a href="global.html#diffMaps">diffMaps</a></li>
@@ -227,7 +228,7 @@
 				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
 				<li><a href="global.html#resizeBox">resizeBox</a></li>
 				<li><a href="global.html#resizeCanvas">resizeCanvas</a></li>
-				<li><a href="global.html#rgbToHex">rgbToHex</a></li>
+				<li><a href="global.html#rgba">rgba</a></li>
 				<li><a href="global.html#rollback">rollback</a></li>
 				<li><a href="global.html#round">round</a></li>
 				<li><a href="global.html#roundTripTimer">roundTripTimer</a></li>
@@ -247,10 +248,13 @@
 				<li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li>
 				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
 				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
+				<li><a href="global.html#setCanvasBackground">setCanvasBackground</a></li>
+				<li><a href="global.html#setEdgeHidden">setEdgeHidden</a></li>
 				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
 				<li><a href="global.html#setFileName">setFileName</a></li>
 				<li><a href="global.html#setFixed">setFixed</a></li>
 				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
+				<li><a href="global.html#setNodeHidden">setNodeHidden</a></li>
 				<li><a href="global.html#setParams">setParams</a></li>
 				<li><a href="global.html#setRadioVal">setRadioVal</a></li>
 				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
@@ -388,6 +392,8 @@ export var canvas = new fabric.Canvas('drawing-canvas', {
 	enablePointerEvents: true,
 	stopContextMenu: true,
 	fireRightClick: true,
+	uniformScaling: true,
+	preserveObjectStacking: true,
 })
 window.canvas = canvas
 
@@ -484,10 +490,12 @@ export function updateFromDrawingMap() {
  * add or refresh objects that have the given list of id, using data in yDrawingMap
  * @param {array} keys
  */
-export function refreshFromMap(keys) {
+export async function refreshFromMap(keys) {
 	if (/back/.test(debug)) {
 		keys.forEach((key) => console.log('Key:', key, 'value:', yDrawingMap.get(key)))
 	}
+	let imageFound = false
+
 	for (let key of keys) {
 		/* active Selection and group have to be dealt with last, because they reference objects that may
 		 * not have been put on the canvas yet */
@@ -508,6 +516,8 @@ export function refreshFromMap(keys) {
 				continue
 			}
 			case 'selection':
+				continue
+			case 'activeSelection': // should never occur, but may in old versions; ignore
 				continue
 			case 'sequence':
 				continue
@@ -537,13 +547,15 @@ export function refreshFromMap(keys) {
 						case 'path':
 							localObj = new fabric.Path()
 							break
-						case 'image':
+						case 'image': {
 							fabric.Image.fromObject(remoteParams.imageObj, (image) => {
 								image.setCoords()
 								image.id = key
 								canvas.add(image)
 							})
+							imageFound = true
 							continue
+						}
 						case 'group': {
 							continue
 						}
@@ -560,6 +572,10 @@ export function refreshFromMap(keys) {
 			}
 		}
 	}
+	/* This is a horrible hack, because fabric.js doesn't yet support Promises.  If there is an image to load,
+	wait a while to ensure that it has been added to the canvas before proceeding. */
+	if (imageFound) await new Promise((r) => setTimeout(r, 400))
+
 	for (let key of keys) {
 		let remoteParams = yDrawingMap.get(key)
 		if (remoteParams) {
@@ -594,9 +610,7 @@ export function refreshFromMap(keys) {
 					break
 				}
 				case 'sequence': {
-					let newObjects = []
-					remoteParams.forEach((id) => newObjects.push(canvas.getObjects().find((obj) => obj.id === id)))
-					canvas._objects = newObjects
+					// dealt with below
 					break
 				}
 				default: {
@@ -604,7 +618,6 @@ export function refreshFromMap(keys) {
 						let objs = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
 						canvas.discardActiveObject()
 						let group = new fabric.Group(objs)
-						canvas.remove(...objs)
 						group.id = key
 						group.members = remoteParams.members
 						setGroupBorderColor(group)
@@ -622,6 +635,17 @@ export function refreshFromMap(keys) {
 			}
 		}
 	}
+	// and lastly reorder the objects if necessary
+	if (keys.includes('sequence')) {
+		let remoteParams = yDrawingMap.get('sequence')
+		let newObjects = []
+		remoteParams.forEach((id) => {
+			let newObject = canvas.getObjects().find((obj) => obj.id === id)
+			if (newObject) newObjects.push(newObject)
+		})
+		canvas._objects = newObjects
+	}
+
 	// if at start up, so not in drawing mode, don't show active selection borders
 	if (!drawingSwitch) canvas.discardActiveObject()
 	canvas.requestRenderAll()
@@ -644,6 +668,8 @@ canvas.on('selection:updated', (e) => updateSelection(e))
 function updateSelection(evt) {
 	// only process updates caused by user (if evt.e is undefined, the update has been generated by remote activity)
 	if (evt.e) {
+		// ignore updates if user is in the middle of creating an object and happens to click on this one
+		if (selectedTool) return
 		let activeObject = canvas.getActiveObject()
 		let activeMembers = canvas.getActiveObjects()
 		// only record selections with more than 1 member object
@@ -673,7 +699,6 @@ canvas.on('selection:cleared', (evt) => {
 			{members: [], oldMembers: oldMembers.map((o) => o.id)},
 			'discard'
 		)
-		//		oldMembers.forEach((m) => saveChange(m, {}, 'update'))
 	}
 	deselectTool()
 	// only allow deletion of selected objects
@@ -948,7 +973,7 @@ window.addEventListener('keydown', (e) => {
 
 canvas.on('mouse:down', function (options) {
 	let event = options.e
-	// if right click on an object, display popup menu
+	// if right click on an object, display 'Send to back/front' popup menu
 	if (event.button === 2) {
 		if (options.target) {
 			addContextMenu(event.target, [
@@ -1063,6 +1088,7 @@ function makeOptionsDialog(tool) {
 }
 
 /******************************************************************Rect ********************************************/
+const cornerRadius = 10 // radius of rounded corners for rounded rectangle
 
 let RectHandler = fabric.util.createClass(fabric.Rect, {
 	type: 'rect',
@@ -1074,7 +1100,7 @@ let RectHandler = fabric.util.createClass(fabric.Rect, {
 			strokeUniform: true,
 		})
 		this.dragging = false
-		this.roundCorners = 10
+		this.roundCorners = cornerRadius
 		this.id = uuidv4()
 		this.strokeUniform = true
 	},
@@ -1140,13 +1166,13 @@ let RectHandler = fabric.util.createClass(fabric.Rect, {
 	},
 	setParams: function () {
 		if (!elem('optionsBox')) return
-		let rounded = elem('rounded').checked ? 10 : 0
+		this.roundCorners = elem('rounded').checked ? cornerRadius : 0
 		let fill = elem('fillColor').style.backgroundColor
 		// make white transparent
 		if (fill === 'rgb(255, 255, 255)') fill = 'rgba(0, 0, 0, 0)'
 		this.set({
-			rx: rounded,
-			ry: rounded,
+			rx: this.roundCorners,
+			ry: this.roundCorners,
 			fill: fill,
 			strokeWidth: parseInt(elem('borderWidth').value),
 			stroke: elem('borderColor').style.backgroundColor,
@@ -1562,12 +1588,12 @@ let MarkerHandler = fabric.util.createClass(fabric.Object, {
 	initialize: function () {
 		this.callSuper('initialize', {
 			width: 30,
-			color: 'rgb(249, 255, 71)',
+			color: 'rgba(249, 255, 71, 0.5)',
 			strokeLineCap: 'square',
 			strokeLineJoin: 'bevel',
 		})
 		canvas.freeDrawingBrush.width = 30
-		canvas.freeDrawingBrush.color = 'rgb(249, 255, 71)'
+		canvas.freeDrawingBrush.color = 'rgba(249, 255, 71, 0.5)'
 	},
 	pointerdown: function () {
 		this.setParams()
@@ -1735,9 +1761,15 @@ function checkKey(e) {
 function deleteActiveObjects() {
 	canvas.getActiveObjects().forEach((obj) => {
 		if (obj.isEditing) return
-		if (obj.group) canvas.remove(obj.group)
 		obj.set('visible', false)
 		saveChange(obj, {visible: false}, 'delete')
+		if (obj.type === 'group') {
+			obj.forEachObject((member) => {
+				member.set('visible', false)
+				canvas.add(member)
+				saveChange(member, {visible: false}, 'delete')
+			})
+		}
 	})
 	canvas.discardActiveObject().requestRenderAll()
 }
@@ -1804,9 +1836,8 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 				case 'insert':
 					{
 						// reverse of add group is dispose of it
-						let members = obj.getObjects()
-						obj.toActiveSelection()
-						saveChange(obj, {type: 'ungroup', members: members.map((ob) => ob.id)}, null)
+						obj.set('visible', false)
+						saveChange(obj, {members: undo.params.members, type: 'group'}, null)
 						canvas.discardActiveObject()
 						updateActiveButtons()
 					}
@@ -1823,15 +1854,10 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 				case 'delete':
 					{
 						// reverse of delete group is add it
-						let members = undo.params.members.map((id) => canvas.getObjects().find((o) => o.id === id))
 						canvas.discardActiveObject()
-						let group = new fabric.Group(members)
-						canvas.remove(...members)
-						group.id = undo.id
-						setGroupBorderColor(group)
-						saveChange(group, {members: group.getObjects().map((ob) => ob.id), type: 'group'}, null)
-						canvas.add(group)
-						canvas.setActiveObject(group)
+						obj.set('visible', true)
+						saveChange(obj, {members: undo.params.members, type: 'group'}, null)
+						canvas.setActiveObject(obj)
 						updateActiveButtons()
 					}
 					break
@@ -1921,9 +1947,8 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 				case 'delete':
 					{
 						// reverse of add group is dispose of it
-						let members = obj.getObjects()
-						obj.toActiveSelection()
-						saveChange(obj, {type: 'ungroup', members: members.map((ob) => ob.id)}, null)
+						obj.set('visible', false)
+						saveChange(obj, {members: redo.params.members, type: 'group'}, null)
 						canvas.discardActiveObject()
 						updateActiveButtons()
 					}
@@ -1940,15 +1965,10 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 				case 'insert':
 					{
 						// reverse of delete group is add it
-						let members = redo.params.members.map((id) => canvas.getObjects().find((o) => o.id === id))
 						canvas.discardActiveObject()
-						let group = new fabric.Group(members)
-						canvas.remove(...members)
-						group.id = redo.id
-						setGroupBorderColor(group)
-						saveChange(group, {members: group.getObjects().map((ob) => ob.id), type: 'group'}, null)
-						canvas.add(group)
-						canvas.setActiveObject(group)
+						obj.set('visible', true)
+						saveChange(obj, {members: redo.params.members, type: 'group'}, null)
+						canvas.setActiveObject(obj)
 						updateActiveButtons()
 					}
 					break
@@ -2535,37 +2555,6 @@ function circleIntersectsRect(circle, rect) {
 	var dy = distY - rect.h / 2
 	return dx * dx + dy * dy &lt;= circle.r * circle.r
 }
-
-export function addBackgroundToCanvas(/*bigNetPane, bigNetCanvas*/) {
-	/* 	let bigBackgroundEl = document.createElement('canvas')
-	bigBackgroundEl.id = 'big-background'
-	bigBackgroundEl.style.position = 'absolute'
-	bigBackgroundEl.style.top = 0//'-9999px'
-	bigBackgroundEl.style.left = 0//'-9999px'
-	elem('main').appendChild(bigBackgroundEl)
-	let bigCanvas = new fabric.Canvas(bigBackgroundEl)
-	bigCanvas.setWidth(bigNetPane.offsetWidth)
-	bigCanvas.setHeight(bigNetPane.offsetHeight)
-	canvas.getObjects().forEach((obj) => bigCanvas.add(obj))
-	bigCanvas.requestRenderAll()
-	let ctx = bigNetCanvas.getContext('2d')
-	ctx.drawImage(bigCanvas.toCanvasElement(network.getScale())) */
-	/* let c2 = document.createElement('canvas')
-	elem('main').appendChild(c2)
-	let underlay = elem('underlay')
-	let canvas2 = new fabric.Canvas(c2)
-	canvas2.setWidth(underlay.offsetWidth)
-	canvas2.setHeight(underlay.offsetHeight)
-	canvas.setViewportTransform(canvas.viewportTransform)
-	canvas.getObjects().forEach((obj) => canvas2.add(obj))
-	canvas2.requestRenderAll()
-	window.canvas2 = canvas2
-	let can2 = canvas2.toCanvasElement(1.5)
-	let ctx = underlay.firstElementChild.firstElementChild.getContext('2d')
-	ctx.drawImage(can2, 0, 0)
-
- */
-}
 </code></pre>
 				</article>
 			</section>
@@ -2574,8 +2563,8 @@ export function addBackgroundToCanvas(/*bigNetPane, bigNetCanvas*/) {
 		<br class="clear" />
 
 		<footer>
-			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.0</a> on Mon Feb 13 2023
-			22:35:45 GMT+0000 (Greenwich Mean Time) using the
+			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Sun Jun 11 2023
+			21:34:49 GMT+0100 (British Summer Time) using the
 			<a href="https://github.com/clenemt/docdash">docdash</a> theme.
 		</footer>
 

@@ -95,6 +95,7 @@
 				<li><a href="global.html#deepCopy">deepCopy</a></li>
 				<li><a href="global.html#deleteActiveObjects">deleteActiveObjects</a></li>
 				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
+				<li><a href="global.html#deleteNode">deleteNode</a></li>
 				<li><a href="global.html#deselectTool">deselectTool</a></li>
 				<li><a href="global.html#diag">diag</a></li>
 				<li><a href="global.html#diffMaps">diffMaps</a></li>
@@ -227,7 +228,7 @@
 				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
 				<li><a href="global.html#resizeBox">resizeBox</a></li>
 				<li><a href="global.html#resizeCanvas">resizeCanvas</a></li>
-				<li><a href="global.html#rgbToHex">rgbToHex</a></li>
+				<li><a href="global.html#rgba">rgba</a></li>
 				<li><a href="global.html#rollback">rollback</a></li>
 				<li><a href="global.html#round">round</a></li>
 				<li><a href="global.html#roundTripTimer">roundTripTimer</a></li>
@@ -247,10 +248,13 @@
 				<li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li>
 				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
 				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
+				<li><a href="global.html#setCanvasBackground">setCanvasBackground</a></li>
+				<li><a href="global.html#setEdgeHidden">setEdgeHidden</a></li>
 				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
 				<li><a href="global.html#setFileName">setFileName</a></li>
 				<li><a href="global.html#setFixed">setFixed</a></li>
 				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
+				<li><a href="global.html#setNodeHidden">setNodeHidden</a></li>
 				<li><a href="global.html#setParams">setParams</a></li>
 				<li><a href="global.html#setRadioVal">setRadioVal</a></li>
 				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
@@ -371,7 +375,18 @@ This modules handles operations related to the Styles tabs.
 
 import {Network} from 'vis-network/peer/'
 import {DataSet} from 'vis-data/peer'
-import {listen, elem, deepMerge, deepCopy, standardize_color, dragElement, statusMsg, clearStatusBar} from './utils.js'
+import {
+	listen,
+	elem,
+	deepMerge,
+	deepCopy,
+	standardize_color,
+	setNodeHidden,
+	setEdgeHidden,
+	dragElement,
+	statusMsg,
+	clearStatusBar,
+} from './utils.js'
 import {
 	network,
 	data,
@@ -527,6 +542,7 @@ export function setUpSamples() {
 }
 
 var factorsHiddenByStyle = {}
+var linksHiddenByStyle = {}
 listen('nodesTab', 'contextmenu', (e) => {
 	e.preventDefault()
 })
@@ -569,6 +585,9 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 	function showMenu(x, y) {
 		elem('styleNodeContextMenuHide').innerText =
 			sampleElement.dataset.hide === 'hidden' ? 'Unhide Factors' : 'Hide Factors'
+		if (x + menu.offsetWidth > elem('container').offsetWidth) x = elem('container').offsetWidth - menu.offsetWidth
+		if (y + menu.offsetHeight > elem('container').offsetHeight)
+			y = elem('container').offsetHeighth - menu.offsetHeight
 		menu.style.left = `${x}px`
 		menu.style.top = `${y}px`
 		menu.classList.add('show-menu')
@@ -582,7 +601,7 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 	function hideFactorsWithStyle(groupId, toggle) {
 		let nodes = data.nodes.get({filter: (node) => node.grp === groupId})
 		nodes.forEach((node) => {
-			node.hidden = toggle
+			setNodeHidden(node, toggle)
 		})
 		data.nodes.update(nodes)
 		let edges = []
@@ -593,7 +612,7 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 			})
 		})
 		edges.forEach((edge) => {
-			edge.hidden = toggle
+			setEdgeHidden(edge, toggle)
 		})
 		data.edges.update(edges)
 		factorsHiddenByStyle[sampleElement.id] = toggle
@@ -602,6 +621,77 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 }
 
 function styleEdgeContextMenu(event, sampleElement, groupId) {
+	let menu = elem('styleEdgeContextMenu')
+	showMenu(event.pageX, event.pageY)
+	document.addEventListener('click', onClick, false)
+
+	function onClick(event) {
+		// Safari emits a contextmenu and a click event on control-click; ignore the click
+		if (event.ctrlKey &amp;&amp; !event.target.id) return
+		event.preventDefault()
+		hideMenu()
+		document.removeEventListener('click', onClick)
+		switch (event.target.id) {
+			case 'styleEdgeContextMenuSelect': {
+				selectLinksWithStyle(groupId)
+				break
+			}
+			case 'styleEdgeContextMenuHide': {
+				if (sampleElement.dataset.hide !== 'hidden') {
+					hideLinksWithStyle(groupId, true)
+					sampleElement.dataset.hide = 'hidden'
+					sampleElement.style.opacity = 0.6
+				} else {
+					hideLinksWithStyle(groupId, false)
+					sampleElement.dataset.hide = 'visible'
+					sampleElement.style.opacity = 1.0
+				}
+				break
+			}
+			default: // clicked off menu
+				break
+		}
+	}
+	function showMenu(x, y) {
+		elem('styleEdgeContextMenuHide').innerText =
+			sampleElement.dataset.hide === 'hidden' ? 'Unhide Links' : 'Hide Links'
+		if (x + menu.offsetWidth > elem('container').offsetWidth)
+			x = elem('container').offsetWidth - menu.offsetWidth
+		if (y + menu.offsetHeight > elem('container').offsetHeight)
+			y = elem('container').offsetHeighth - menu.offsetHeight
+		menu.style.left = `${x}px`
+		menu.style.top = `${y}px`
+		menu.classList.add('show-menu')
+	}
+	function hideMenu() {
+		menu.classList.remove('show-menu')
+	}
+	function selectLinksWithStyle(groupId) {
+		selectLinks(data.edges.getIds({filter: (edge) => edge.grp === groupId}))
+	}
+	function hideLinksWithStyle(groupId, toggle) {
+		let edges = data.edges.get({filter: (edge) => edge.grp === groupId})
+		edges.forEach((edge) => {
+			setEdgeHidden(edge, toggle)
+		})
+		data.edges.update(edges)
+		/* let nodes = []
+		edges.forEach((edge) => {
+			let connectedNodes = [edge.from, edge.to]
+			connectedNodes.forEach((nodeId) => {
+				nodes.push(data.nodes.get(nodeId))
+			})
+		})
+		nodes.forEach((node) => {
+			setNodeHidden(node, toggle)
+		})
+		data.nodes.update(nodes) */
+		linksHiddenByStyle[sampleElement.id] = toggle
+		yNetMap.set('linksHiddenByStyle', linksHiddenByStyle)
+	}
+}
+
+/* function styleEdgeContextMenu(event, sampleElement, groupId) {
 	let menu = elem('styleEdgeContextMenu')
 	event.preventDefault()
 	showMenu(event.pageX, event.pageY)
@@ -628,7 +718,7 @@ function styleEdgeContextMenu(event, sampleElement, groupId) {
 	function selectLinksWithStyle(groupId) {
 		selectLinks(data.edges.getIds({filter: (edge) => edge.grp === groupId}))
 	}
-}
+} */
 /**
  * assemble configurations by merging the specifics into the default
  */
@@ -1146,8 +1236,8 @@ export function updateLegend() {
 		<br class="clear" />
 
 		<footer>
-			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.0</a> on Mon Feb 13 2023
-			22:35:45 GMT+0000 (Greenwich Mean Time) using the
+			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Sun Jun 11 2023
+			21:34:49 GMT+0100 (British Summer Time) using the
 			<a href="https://github.com/clenemt/docdash">docdash</a> theme.
 		</footer>
 
