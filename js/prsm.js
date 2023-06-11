@@ -1670,7 +1670,7 @@ function drawBadges(ctx) {
 	}
 	// draw the voting thumbs up/down
 	if (showVotingToggle) {
-		data.nodes.get().forEach((node) => {
+		data.nodes.get().filter(node => !node.hidden && !node.nodeHidden).forEach((node) => {
 			let box = network.getBoundingBox(node.id)
 			drawTheBadge(
 				node.thumbUp?.includes(clientID) ? thumbUpFilledImage : thumbUpImage,

@@ -23,7 +23,18 @@ This modules handles operations related to the Styles tabs.
 
 import {Network} from 'vis-network/peer/'
 import {DataSet} from 'vis-data/peer'
-import {listen, elem, deepMerge, deepCopy, standardize_color, dragElement, statusMsg, clearStatusBar} from './utils.js'
+import {
+	listen,
+	elem,
+	deepMerge,
+	deepCopy,
+	standardize_color,
+	setNodeHidden,
+	setEdgeHidden,
+	dragElement,
+	statusMsg,
+	clearStatusBar,
+} from './utils.js'
 import {
 	network,
 	data,
@@ -179,6 +190,7 @@ export function setUpSamples() {
 }
 
 var factorsHiddenByStyle = {}
+var linksHiddenByStyle = {}
 listen('nodesTab', 'contextmenu', (e) => {
 	e.preventDefault()
 })
@@ -221,6 +233,9 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 	function showMenu(x, y) {
 		elem('styleNodeContextMenuHide').innerText =
 			sampleElement.dataset.hide === 'hidden' ? 'Unhide Factors' : 'Hide Factors'
+		if (x + menu.offsetWidth > elem('container').offsetWidth) x = elem('container').offsetWidth - menu.offsetWidth
+		if (y + menu.offsetHeight > elem('container').offsetHeight)
+			y = elem('container').offsetHeighth - menu.offsetHeight
 		menu.style.left = `${x}px`
 		menu.style.top = `${y}px`
 		menu.classList.add('show-menu')
@@ -234,7 +249,7 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 	function hideFactorsWithStyle(groupId, toggle) {
 		let nodes = data.nodes.get({filter: (node) => node.grp === groupId})
 		nodes.forEach((node) => {
-			node.hidden = toggle
+			setNodeHidden(node, toggle)
 		})
 		data.nodes.update(nodes)
 		let edges = []
@@ -245,7 +260,7 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 			})
 		})
 		edges.forEach((edge) => {
-			edge.hidden = toggle
+			setEdgeHidden(edge, toggle)
 		})
 		data.edges.update(edges)
 		factorsHiddenByStyle[sampleElement.id] = toggle
@@ -254,6 +269,77 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 }
 
 function styleEdgeContextMenu(event, sampleElement, groupId) {
+	let menu = elem('styleEdgeContextMenu')
+	showMenu(event.pageX, event.pageY)
+	document.addEventListener('click', onClick, false)
+
+	function onClick(event) {
+		// Safari emits a contextmenu and a click event on control-click; ignore the click
+		if (event.ctrlKey && !event.target.id) return
+		event.preventDefault()
+		hideMenu()
+		document.removeEventListener('click', onClick)
+		switch (event.target.id) {
+			case 'styleEdgeContextMenuSelect': {
+				selectLinksWithStyle(groupId)
+				break
+			}
+			case 'styleEdgeContextMenuHide': {
+				if (sampleElement.dataset.hide !== 'hidden') {
+					hideLinksWithStyle(groupId, true)
+					sampleElement.dataset.hide = 'hidden'
+					sampleElement.style.opacity = 0.6
+				} else {
+					hideLinksWithStyle(groupId, false)
+					sampleElement.dataset.hide = 'visible'
+					sampleElement.style.opacity = 1.0
+				}
+				break
+			}
+			default: // clicked off menu
+				break
+		}
+	}
+	function showMenu(x, y) {
+		elem('styleEdgeContextMenuHide').innerText =
+			sampleElement.dataset.hide === 'hidden' ? 'Unhide Links' : 'Hide Links'
+		if (x + menu.offsetWidth > elem('container').offsetWidth)
+			x = elem('container').offsetWidth - menu.offsetWidth
+		if (y + menu.offsetHeight > elem('container').offsetHeight)
+			y = elem('container').offsetHeighth - menu.offsetHeight
+		menu.style.left = `${x}px`
+		menu.style.top = `${y}px`
+		menu.classList.add('show-menu')
+	}
+	function hideMenu() {
+		menu.classList.remove('show-menu')
+	}
+	function selectLinksWithStyle(groupId) {
+		selectLinks(data.edges.getIds({filter: (edge) => edge.grp === groupId}))
+	}
+	function hideLinksWithStyle(groupId, toggle) {
+		let edges = data.edges.get({filter: (edge) => edge.grp === groupId})
+		edges.forEach((edge) => {
+			setEdgeHidden(edge, toggle)
+		})
+		data.edges.update(edges)
+		/* let nodes = []
+		edges.forEach((edge) => {
+			let connectedNodes = [edge.from, edge.to]
+			connectedNodes.forEach((nodeId) => {
+				nodes.push(data.nodes.get(nodeId))
+			})
+		})
+		nodes.forEach((node) => {
+			setNodeHidden(node, toggle)
+		})
+		data.nodes.update(nodes) */
+		linksHiddenByStyle[sampleElement.id] = toggle
+		yNetMap.set('linksHiddenByStyle', linksHiddenByStyle)
+	}
+}
+
+/* function styleEdgeContextMenu(event, sampleElement, groupId) {
 	let menu = elem('styleEdgeContextMenu')
 	event.preventDefault()
 	showMenu(event.pageX, event.pageY)
@@ -280,7 +366,7 @@ function styleEdgeContextMenu(event, sampleElement, groupId) {
 	function selectLinksWithStyle(groupId) {
 		selectLinks(data.edges.getIds({filter: (edge) => edge.grp === groupId}))
 	}
-}
+} */
 /**
  * assemble configurations by merging the specifics into the default
  */
