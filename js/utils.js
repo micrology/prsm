@@ -631,27 +631,6 @@ export function initials(name) {
 
 /**********************************************************colours ************************************************** */
 
-/**
- * Convert #xxyyzz to rgb(aa,bb,cc)
- * @param {String} hex
- * @returns String
- */
-/* function hex2rgb(hex) {
-	return (
-		'rgb(' + [('0x' + hex[1] + hex[2]) | 0, ('0x' + hex[3] + hex[4]) | 0, ('0x' + hex[5] + hex[6]) | 0].join() + ')'
-	)
-} */
-/**
- * Convert rgb(aa,bb,cc) to #xxyyzz
- * @param {String} str
- * @returns String
- */
-/* function rgbToHex(str) {
-	if (~str.indexOf('#')) return str
-	str = str.replace(/[^\d,]/g, '').split(',')
-	return '#' + ((1 << 24) + (+str[0] << 16) + (+str[1] << 8) + +str[2]).toString(16).slice(1)
-} */
-
 const hiddenOpacity = 0.1
 /**
  * set this node to its 'hidden' appearance (very faint), or restore it to its usual appearance

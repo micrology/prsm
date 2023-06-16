@@ -1228,8 +1228,14 @@ function draw() {
 			fit()
 		}
 	})
-	network.on('selectNode', function () {
+	network.on('selectNode', function (params) {
 		if (/gui/.test(debug)) console.log('selectNode')
+		// if a 'hidden' node is clicked, it is selected, but we don't want this
+		// reset the selected nodes to all except the hidden one
+		network.setSelection({
+			nodes: params.nodes.filter((id) => !data.nodes.get(id).nodeHidden),
+			edges: params.edges.filter((id) => !data.edges.get(id).edgeHidden),
+		})
 		showSelected()
 		showNodeOrEdgeData()
 		toggleDeleteButton()
@@ -1237,18 +1243,22 @@ function draw() {
 		if (getRadioVal('stream') !== 'All') analyse()
 		if (getRadioVal('paths') !== 'All') analyse()
 	})
-	network.on('deselectNode', function (obj) {
-		if (/gui/.test(debug)) console.log('deselectNode', obj)
+	network.on('deselectNode', function (params) {
+		if (/gui/.test(debug)) console.log('deselectNode', params)
 		// if some other node(s) are already selected, and the user has
 		// clicked on one of the selected nodes, do nothing,
 		// i.e reselect all the nodes previously selected
-		if (obj.nodes) {
+		// similarly, if the user has clicked on a 'hidden' node,
+		// reselect the previous nodes and do nothing
+		if (params.nodes) {
 			// clicked on a node
-			let prevSelIds = obj.previousSelection.nodes.map((node) => node.id)
-			if (prevSelIds.includes(obj.nodes[0])) {
+			let prevSelIds = params.previousSelection.nodes.map((node) => node.id)
+			let hiddenEdge
+			if (params.edges.length) hiddenEdge = data.edges.get(params.edges[0]).edgeHidden
+			if (prevSelIds.includes(params.nodes[0]) || data.nodes.get(params.nodes[0]).nodeHidden || hiddenEdge) {
 				// reselect the previously selected nodes
 				network.selectNodes(
-					obj.previousSelection.nodes.map((node) => node.id),
+					params.previousSelection.nodes.map((node) => node.id),
 					false
 				)
 				return
@@ -1267,14 +1277,30 @@ function draw() {
 	network.on('blurNode', function () {
 		changeCursor('default')
 	})
-	network.on('selectEdge', function () {
+	network.on('selectEdge', function (params) {
 		if (/gui/.test(debug)) console.log('selectEdge')
+		network.setSelection({
+			nodes: params.nodes.filter((id) => !data.nodes.get(id).nodeHidden),
+			edges: params.edges.filter((id) => !data.edges.get(id).edgeHidden),
+		})
 		showSelected()
 		showNodeOrEdgeData()
 		toggleDeleteButton()
 	})
-	network.on('deselectEdge', function () {
+	network.on('deselectEdge', function (params) {
 		if (/gui/.test(debug)) console.log('deselectEdge')
+		if (params.edges) {
+			// clicked on an edge(see selectNode for comments)
+			let prevSelIds = params.previousSelection.edges.map((edge) => edge.id)
+			if (prevSelIds.includes(params.edges[0]) || data.edges.get(params.edges[0]).edgeHidden) {
+				// reselect the previously selected edges
+				network.selectEdges(
+					params.previousSelection.edges.map((edge) => edge.id),
+					false
+				)
+				return
+			}
+		}
 		hideNotes()
 		showSelected()
 		toggleDeleteButton()

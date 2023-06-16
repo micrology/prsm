@@ -322,50 +322,11 @@ function styleEdgeContextMenu(event, sampleElement, groupId) {
 			setEdgeHidden(edge, toggle)
 		})
 		data.edges.update(edges)
-		/* let nodes = []
-		edges.forEach((edge) => {
-			let connectedNodes = [edge.from, edge.to]
-			connectedNodes.forEach((nodeId) => {
-				nodes.push(data.nodes.get(nodeId))
-			})
-		})
-		nodes.forEach((node) => {
-			setNodeHidden(node, toggle)
-		})
-		data.nodes.update(nodes) */
 		linksHiddenByStyle[sampleElement.id] = toggle
 		yNetMap.set('linksHiddenByStyle', linksHiddenByStyle)
 	}
 }
 
-/* function styleEdgeContextMenu(event, sampleElement, groupId) {
-	let menu = elem('styleEdgeContextMenu')
-	event.preventDefault()
-	showMenu(event.pageX, event.pageY)
-	document.addEventListener('click', onClick, false)
-
-	function onClick(event) {
-		// Safari emits a contextmenu and a click event on control-click; ignore the click
-		if (event.ctrlKey && !event.target.id) return
-		event.preventDefault()
-		hideMenu()
-		document.removeEventListener('click', onClick)
-		if (event.target.id === 'styleEdgeContextMenuSelect') {
-			selectLinksWithStyle(groupId)
-		}
-	}
-	function showMenu(x, y) {
-		menu.style.left = `${x}px`
-		menu.style.top = `${y}px`
-		menu.classList.add('show-menu')
-	}
-	function hideMenu() {
-		menu.classList.remove('show-menu')
-	}
-	function selectLinksWithStyle(groupId) {
-		selectLinks(data.edges.getIds({filter: (edge) => edge.grp === groupId}))
-	}
-} */
 /**
  * assemble configurations by merging the specifics into the default
  */
