@@ -47,6 +47,7 @@ import {
 	refreshSampleNodes,
 	refreshSampleLinks,
 	setMapTitle,
+	setSideDrawer,
 	recreateClusteringMenu,
 	markMapSaved,
 	fit,
@@ -287,6 +288,10 @@ function loadPRSMfile(str) {
 	}
 	yHistory.delete(0, yHistory.length)
 	if (json.history) yHistory.insert(0, json.history)
+	if (json.description) {
+		yNetMap.set('mapDescription', json.description)
+		setSideDrawer(json.description)
+	}
 }
 /**
  * parse and load a GraphViz (.DOT or .GV) file
@@ -759,6 +764,7 @@ export function savePRSMfile() {
 				s.state = null
 				return s
 			}),
+			description: yNetMap.get('mapDescription')
 		},
 		null,
 		'\t'

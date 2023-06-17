@@ -1662,7 +1662,7 @@ drawerEditor.on('text-change', (delta, oldDelta, source) => {
 		yNetMap.set('mapDescription', {text: isQuillEmpty(drawerEditor) ? '' : drawerEditor.getContents()})
 	}
 })
-function setSideDrawer(contents) {
+export function setSideDrawer(contents) {
 	drawerEditor.setContents(contents.text)
 }
 
