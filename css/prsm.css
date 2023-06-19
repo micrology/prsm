@@ -17,10 +17,9 @@
 	--tab-color: rgb(220, 220, 220);
 	--tutorial-highlight-color: rgb(211, 47, 47);
 	--chat-message-header-color: rgb(162, 162, 162);
-	--history-log-color: rgb(255, 253, 231);
 	--map-title-color: rgb(255, 193, 7);
 	--sample-selected-color: rgb(173, 216, 230);
-	--notes-background-color: rgb(255, 255, 240);
+	--notes-background-color: rgb(255, 253, 231);
 }
 html,
 body,
@@ -1357,7 +1356,7 @@ emoji-picker {
 	grid-template-columns: 85px 1fr 28px;
 	width: 100%;
 	font-size: 12px;
-	background-color: var(--history-log-color);
+	background-color: var(--notes-background-color);
 	user-select: none;
 	-webkit-user-select: none;
 	padding-top: 4px;
@@ -1948,6 +1947,50 @@ emoji-picker {
 }
 .hide-drawer {
 	transform: translateX(var(--drawer-closed-width));
+}
+/* What's New modal dialog */
+#whatsnew {
+	position: fixed;
+	left: 50vw;
+	top: 50vh;
+	transform: translate(-50%, -50%);
+	min-width: 200px;
+	min-height: 200px;
+	border-radius: 8px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	text-align: center;
+	display: none;
+	flex-direction: column;
+	z-index: 10000;
+}
+#whatsnewcontent {
+	background-color: var(--notes-background-color);
+	flex-grow: 1;
+}
+#whatsnewcontent h1 {
+	font-weight: bold;
+    font-size: 3em;
+    padding: 12px;
+}
+.whatsnewlist {
+	text-align: left;
+	padding: 0 40px;
+	line-height: 1.5;
+}
+#whatsnewcontinue {
+	background-color: var(--tab-color);
+	height: 50px;
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: center;
+	align-items: center;
+}
+#whatsnewbutton {
+	background-color: var(--header-color);
+	color: white;
+	border-radius: 4px;
+	padding: 4px 40px;
+	cursor: default;
 }
 /* 3d graph display */
 .threeDGraph {

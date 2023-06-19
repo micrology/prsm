@@ -209,6 +209,7 @@ window.onbeforeunload = function (event) {
  * Set up all the permanent event listeners
  */
 function addEventListeners() {
+	listen('whatsnewbutton', 'click', hideWhatsNew)
 	listen('maptitle', 'keydown', (e) => {
 		//disallow Enter key
 		if (e.key === 'Enter') {
@@ -240,7 +241,6 @@ function addEventListeners() {
 	listen('saveFile', 'click', savePRSMfile)
 	listen('exportPRSM', 'click', savePRSMfile)
 	listen('exportImage', 'click', exportPNGfile)
-	// listen('exportCVS', 'click', exportCVS)
 	listen('exportExcel', 'click', exportExcel)
 	listen('exportGML', 'click', exportGML)
 	listen('exportDOT', 'click', exportDOT)
@@ -341,8 +341,28 @@ function setUpPage() {
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'))
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'))
 	hideNotes()
+	displayWhatsNew()
 }
-
+/**
+ * show the What's New modal dialog unless this is a new user or user has already seen this dialog
+ * for this (Major.Minor) version
+ */
+function displayWhatsNew() {
+	let versionDecoded = version.match(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)/)
+	let seen = localStorage.getItem('seenWN')
+	if (seen) {
+		let seenDecoded = seen.match(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)/)
+		if (!localStorage.getItem('doneIntro') || (seenDecoded && versionDecoded[1] === seenDecoded[1] && versionDecoded[2] === seenDecoded[2])) return
+	}
+	elem('whatsnew').style.display = 'flex'
+}
+/**
+ * hide the What's New dialog when the user has clicked Continue, and note tha the user has seen it
+ */
+function hideWhatsNew() {
+	localStorage.setItem('seenWN', version)
+	elem('whatsnew').style.display = 'none'
+}
 /**
  * create a new shared document and start the WebSocket provider
  */
