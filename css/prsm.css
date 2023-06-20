@@ -1954,7 +1954,7 @@ emoji-picker {
 	left: 50vw;
 	top: 50vh;
 	transform: translate(-50%, -50%);
-	min-width: 200px;
+	min-width: 500px;
 	min-height: 200px;
 	border-radius: 8px;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -1970,12 +1970,15 @@ emoji-picker {
 #whatsnewcontent h1 {
 	font-weight: bold;
     font-size: 3em;
-    padding: 12px;
+    padding-top: 12px;
 }
 .whatsnewlist {
 	text-align: left;
 	padding: 0 40px;
 	line-height: 1.5;
+}
+#whatsnewcontent li {
+	padding-top: 1rem;
 }
 #whatsnewcontinue {
 	background-color: var(--tab-color);
