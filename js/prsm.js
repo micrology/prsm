@@ -865,9 +865,11 @@ window.onresize = function () {
 	keepPaneInWindow(elem('chatbox-holder'))
 	resizeCanvas()
 }
-window.onorientationchange = function () {
+
+screen.addEventListener("orientationchange", () => {
+// window.onorientationchange = function () {
 	setvh()
-}
+})
 
 /**
  * in View Only mode, hide all the Nav Bar buttons except the search button
