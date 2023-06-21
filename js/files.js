@@ -65,7 +65,7 @@ import {
 	lowerFirstLetter,
 } from './utils.js'
 import {styles} from './samples.js'
-import {canvas, refreshFromMap, upgradeFromV1} from './background.js'
+import {canvas, refreshFromMap, setUpBackground, upgradeFromV1} from './background.js'
 import {updateLegend} from './styles.js'
 import Quill from 'quill'
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
@@ -279,12 +279,12 @@ function loadPRSMfile(str) {
 		if (yPointsArray.length > 0) upgradeFromV1(yPointsArray.toArray())
 	}
 	if (json.background) {
+		setUpBackground()
 		let map = JSON.parse(json.background)
 		for (const [key, value] of Object.entries(map)) {
 			yDrawingMap.set(key, value)
 		}
 		refreshFromMap(Object.keys(map))
-		fit()
 	}
 	yHistory.delete(0, yHistory.length)
 	if (json.history) yHistory.insert(0, json.history)

@@ -892,9 +892,13 @@ window.onresize = function () {
 	keepPaneInWindow(elem('chatbox-holder'))
 	resizeCanvas()
 }
-window.onorientationchange = function () {
-	setvh()
-}
+
+/**
+ * Hack to get window size when orientation changes.  Should use screen.orientation, but this is not
+ * implemented by Safari 
+ */
+let portrait = window.matchMedia("(orientation: portrait)");
+portrait.addEventListener("change", () => { setvh() })
 
 /**
  * in View Only mode, hide all the Nav Bar buttons except the search button
