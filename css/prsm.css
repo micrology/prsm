@@ -2108,6 +2108,10 @@ emoji-picker {
 	.tutorial-dialog.wide {
 		width: 400px;
 	}
+	#whatsnew {
+		min-width: 350px;
+		max-height: 550px;
+		overflow: auto;
 }
 
 /* print media */
