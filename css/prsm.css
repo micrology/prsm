@@ -63,8 +63,9 @@ select {
 }
 #container {
 	position: relative;
-/* 	height: 100vh;
- */	height: calc(var(--vh, 1vh) * 100);
+	/* 	height: 100vh;
+ */
+	height: calc(var(--vh, 1vh) * 100);
 	overflow: hidden;
 	display: grid;
 	grid-template-columns: 1fr;
@@ -950,6 +951,7 @@ but moving the panel out of sight works instead */
 	color: rgb(0, 0, 0);
 	width: 100%;
 	min-height: 100px;
+	overflow: auto;
 	outline: none;
 	font-family: Oxygen, sans-serif;
 }
@@ -1969,8 +1971,8 @@ emoji-picker {
 }
 #whatsnewcontent h1 {
 	font-weight: bold;
-    font-size: 3em;
-    padding-top: 12px;
+	font-size: 3em;
+	padding-top: 12px;
 }
 .whatsnewlist {
 	text-align: left;
@@ -2112,6 +2114,7 @@ emoji-picker {
 		min-width: 350px;
 		max-height: 550px;
 		overflow: auto;
+	}
 }
 
 /* print media */

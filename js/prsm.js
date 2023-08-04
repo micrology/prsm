@@ -352,7 +352,11 @@ function displayWhatsNew() {
 	let seen = localStorage.getItem('seenWN')
 	if (seen) {
 		let seenDecoded = seen.match(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)/)
-		if (!localStorage.getItem('doneIntro') || (seenDecoded && versionDecoded[1] === seenDecoded[1] && versionDecoded[2] === seenDecoded[2])) return
+		if (
+			!localStorage.getItem('doneIntro') ||
+			(seenDecoded && versionDecoded[1] === seenDecoded[1] && versionDecoded[2] === seenDecoded[2])
+		)
+			return
 	}
 	elem('whatsnew').style.display = 'flex'
 }
@@ -895,10 +899,12 @@ window.onresize = function () {
 
 /**
  * Hack to get window size when orientation changes.  Should use screen.orientation, but this is not
- * implemented by Safari 
+ * implemented by Safari
  */
-let portrait = window.matchMedia("(orientation: portrait)");
-portrait.addEventListener("change", () => { setvh() })
+let portrait = window.matchMedia('(orientation: portrait)')
+portrait.addEventListener('change', () => {
+	setvh()
+})
 
 /**
  * in View Only mode, hide all the Nav Bar buttons except the search button
@@ -3430,15 +3436,19 @@ function positionNotes() {
 	let notesPanelRect = notesPanel.getBoundingClientRect()
 	let settingsRect = elem('panel').getBoundingClientRect()
 	let netPaneRect = netPane.getBoundingClientRect()
+	// if the notes would cover up the settings panel, move the notes to the left of the settings panel
 	if (notesPanelRect.right > settingsRect.left && notesPanelRect.top < settingsRect.bottom) {
 		notesPanel.style.left = `${settingsRect.left - notesPanelRect.width - 20}px`
 	}
-	if (notesPanelRect.left < netPaneRect.left) notesPanel.style.left = `${netPaneRect.left}${20}px`
+	// if the notes panel is outside the boundary of the net pane, shift it into the pane
+	if (notesPanelRect.left < netPaneRect.left) notesPanel.style.left = `${netPaneRect.left + 20}px`
 	if (notesPanelRect.right > netPaneRect.right)
 		notesPanel.style.left = `${netPaneRect.right - notesPanelRect.width - 20}px`
-	if (notesPanelRect.top < netPaneRect.top) notesPanel.style.top = `${netPaneRect.top}${20}px`
-	if (notesPanelRect.bottom > netPaneRect.bottom)
-		notesPanel.style.top = `${Math.max(netPaneRect.bottom - notesPanelRect.height, netPaneRect.top)}${20}px`
+	let top = notesPanelRect.top
+	if (notesPanelRect.bottom > netPaneRect.bottom - 220) top = netPaneRect.top + 30
+	if (top < netPaneRect.top + 30) top = netPaneRect.top + 30
+	notesPanel.style.top = `${top}px`
+	elem('node-notes').style.maxHeight = `${netPaneRect.height - 230}px`
 }
 // Network tab
 
