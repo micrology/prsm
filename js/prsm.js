@@ -2542,7 +2542,7 @@ export function unSelect() {
 */
 // set  up a web worker to calculate network statistics in parallel with whatever
 // the user is doing
-var worker = new Worker(new URL('betweenness.js', import.meta.url))
+var worker = new Worker(new URL('./betweenness.js', import.meta.url), {type: 'module'})
 /**
  * Ask the web worker to recalculate network statistics
  */

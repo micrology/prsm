@@ -64,6 +64,7 @@
 		"yjs": "^13.5.47"
 	},
 	"devDependencies": {
+		"@parcel/optimizer-terser": "^2.9.3",
 		"eslint": "^8.35.0",
 		"eslint-config-prettier": "^8.6.0",
 		"jsdoc": "^4.0.2",
