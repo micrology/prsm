@@ -2,6 +2,20 @@
 	<head>
 		<title>Note Window</title>
 		<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+		<style>
+			body {
+				overflow-y: hidden;
+			}
+			.ql-container {
+				height: auto;
+				position: sticky;
+				top: 0;
+			}
+			.ql-editor {
+				height: 508px;
+				overflow-y: scroll;
+			}
+		</style>
 	</head>
 	<body>
 		<div id="editor"></div>

@@ -68,6 +68,7 @@ import {
 	exportExcel,
 	exportDOT,
 	exportGML,
+	exportNotes,
 	readSingleFile,
 } from './files.js'
 import Tutorial from './tutorial.js'
@@ -244,6 +245,7 @@ function addEventListeners() {
 	listen('exportExcel', 'click', exportExcel)
 	listen('exportGML', 'click', exportGML)
 	listen('exportDOT', 'click', exportDOT)
+	listen('exportNotes', 'click', exportNotes)
 	listen('search', 'click', search)
 	listen('help', 'click', displayHelp)
 	listen('panelToggle', 'click', togglePanel)

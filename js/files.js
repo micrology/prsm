@@ -63,12 +63,15 @@ import {
 	strip,
 	statusMsg,
 	lowerFirstLetter,
+	stripNL
 } from './utils.js'
 import {styles} from './samples.js'
 import {canvas, refreshFromMap, setUpBackground, upgradeFromV1} from './background.js'
 import {updateLegend} from './styles.js'
 import Quill from 'quill'
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
+import {saveAs} from 'file-saver'
+import * as quillToWord from 'quill-to-word'
 import {read, writeFileXLSX, utils} from 'xlsx'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
 import * as parser from 'fast-xml-parser'
@@ -764,7 +767,7 @@ export function savePRSMfile() {
 				s.state = null
 				return s
 			}),
-			description: yNetMap.get('mapDescription')
+			description: yNetMap.get('mapDescription'),
 		},
 		null,
 		'\t'
@@ -871,7 +874,59 @@ export function exportPNGfile() {
 		scale: network.getScale() * upscaling,
 	})
 }
-
+/**
+ * save a local file containing all the node and edge notes, plus the map description, as a Word document
+ */
+export async function exportNotes() {
+	let delta = { ops: [{ insert: '\n' }] }
+	// start with the title of the map if there is one
+	let title = elem('maptitle').innerText
+	if (title !== 'Untitled map') {
+		delta = {ops: [{insert: title}, {attributes: {header: 1}, insert: '\n'}]}
+	}
+	// get contents of map note if there is one
+	if (yNetMap.get('mapDescription')) {
+		delta.ops = delta.ops.concat(
+			[{insert: 'Description of the map'}, {attributes: {header: 2}, insert: '\n'}],
+			yNetMap.get('mapDescription').text.ops
+		)
+	}
+	// add notes for factors
+	data.nodes.get().toSorted((a,b) => a.label.localeCompare(b.label)).forEach((n) => {
+		if (n.note) {
+			delta.ops = delta.ops.concat(
+				[{insert: `Factor: ${stripNL(n.label)}`}, {attributes: {header: 2}, insert: '\n'}],
+				n.note.ops
+			)
+		}
+	})
+	// add notes for links
+	data.edges.forEach((e) => {
+		if (e.note) {
+			let heading = e.label
+				? e.label
+				: `Link from '${stripNL(data.nodes.get(e.from).label)}' to '${stripNL(data.nodes.get(e.to).label)}'`
+			delta.ops = delta.ops.concat([{insert: heading}, {attributes: {header: 2}, insert: '\n'}])
+			delta.ops = delta.ops.concat(e.note.ops)
+		}
+	})
+	// save the delta as a Word file
+	const quillToWordConfig = {
+		exportAs: 'blob',
+		paragraphStyles: {
+			normal: {
+				paragraph: {
+					spacing: {
+						line: 240,
+					},
+				},
+			},
+		},
+	}
+	const docAsBlob = await quillToWord.generateWord(delta, quillToWordConfig)
+	setFileName('docx')
+	saveAs(docAsBlob, lastFileName)
+}
 /**
  * resets lastFileName to a munged version of the map title, with the supplied extension
  * if lastFileName is null, uses the map title, or if no map title, 'network' as the filename

@@ -962,3 +962,11 @@ export function isQuillEmpty(quill) {
 	}
 	return quill.getText().trim().length === 0
 }
+/**
+ * Replace all \n, \r with a space
+ * @param {string} str 
+ * @returns 
+ */
+export function stripNL(str) {
+	return str.replace(/\r?\n|\r/g, ' ')
+}
