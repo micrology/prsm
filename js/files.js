@@ -63,7 +63,7 @@ import {
 	strip,
 	statusMsg,
 	lowerFirstLetter,
-	stripNL
+	stripNL,
 } from './utils.js'
 import {styles} from './samples.js'
 import {canvas, refreshFromMap, setUpBackground, upgradeFromV1} from './background.js'
@@ -817,12 +817,8 @@ function setButtonStatus(settings) {
  */
 function saveStr(str, extn) {
 	setFileName(extn)
-	const a = document.createElement('a')
-	const file = new Blob([str], {type: 'text/plain'})
-	a.href = URL.createObjectURL(file)
-	a.download = lastFileName
-	a.click()
-	URL.revokeObjectURL(a.href)
+	const blob = new Blob([str], {type: 'text/plain;charset=utf-8'})
+	saveAs(blob, lastFileName, {autoBom: true})
 }
 /**
  * save the map as a PNG image file
@@ -859,15 +855,10 @@ export function exportPNGfile() {
 	})
 	bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
 	bigNetwork.on('afterDrawing', () => {
-		a.href = setCanvasBackground(bigNetCanvas).toDataURL('image/png')
-		a.download = lastFileName
-		a.addEventListener('click', () => {
-			a.remove()
-			bigNetwork.destroy()
-			bigNetPane.remove()
-			statusMsg(`'${lastFileName}' saved`, 'info')
-		})
-		a.click()
+		let canvas = setCanvasBackground(bigNetCanvas)
+		canvas.toBlob((blob) => saveAs(blob, lastFileName))
+		bigNetwork.destroy()
+		bigNetPane.remove()
 	})
 	bigNetwork.moveTo({
 		position: network.getViewPosition(),
@@ -878,7 +869,7 @@ export function exportPNGfile() {
  * save a local file containing all the node and edge notes, plus the map description, as a Word document
  */
 export async function exportNotes() {
-	let delta = { ops: [{ insert: '\n' }] }
+	let delta = {ops: [{insert: '\n'}]}
 	// start with the title of the map if there is one
 	let title = elem('maptitle').innerText
 	if (title !== 'Untitled map') {
@@ -892,14 +883,17 @@ export async function exportNotes() {
 		)
 	}
 	// add notes for factors
-	data.nodes.get().toSorted((a,b) => a.label.localeCompare(b.label)).forEach((n) => {
-		if (n.note) {
-			delta.ops = delta.ops.concat(
-				[{insert: `Factor: ${stripNL(n.label)}`}, {attributes: {header: 2}, insert: '\n'}],
-				n.note.ops
-			)
-		}
-	})
+	data.nodes
+		.get()
+		.toSorted((a, b) => a.label.localeCompare(b.label))
+		.forEach((n) => {
+			if (n.note) {
+				delta.ops = delta.ops.concat(
+					[{insert: `Factor: ${stripNL(n.label)}`}, {attributes: {header: 2}, insert: '\n'}],
+					n.note.ops
+				)
+			}
+		})
 	// add notes for links
 	data.edges.forEach((e) => {
 		if (e.note) {
@@ -1026,11 +1020,17 @@ export function exportExcel() {
 				'grp',
 				'id',
 				'labelHighlightBold',
+				'locked',
 				'margin',
 				'modified',
+				'opacity',
+				'oldFont',
+				'oldFontColor',
+				'oldLabel',
 				'note',
 				'scaling',
 				'shapeProperties',
+				'wasFixed',
 			])
 		})
 
