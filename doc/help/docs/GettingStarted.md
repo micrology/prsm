@@ -13,7 +13,9 @@ This introductory tour is only shown the very first time you use PRSM.  If you w
 
 :::
 
-At the top of the screen are a row of buttons.
+## Buttons
+
+At the top of the window are a row of buttons.
 <!-- ![Nav Bar icons](/images/prsm-nav-icons.png)-->
 <img src={require("/static/images/Buttons.png").default} width="400"/>
 
@@ -64,13 +66,15 @@ If a factor or link has a note, a small 'card' icon is shown next to it.
 
 A basic editor is provided for writing the Notes.  You can format the text with **bold**, *italic* or <u>underline</u>, create bulletted or numbered lists, and add weblinks (URLs) to the text.
 
-Clicking the button <img src={require("/static/images/newwindow.png").default} width="24"/> at the top right of the panel will open a new window that also shows the notes for the factor or link.  Using this window is easier if you have more than a few words to write.  It also provides a more extensive range of editing buttons:  you can style the text, insert images into the text, change the font and so on.  The small panel version of the notes keeps in sync with the larger window, and the text is saved as you write. When you are finished, click on the map background to deselect the factor or link; this also closes the Note Window.  
+Clicking the button <img src={require("/static/images/newwindow.png").default} width="24"/> at the top right of the panel will open a new window that also shows the notes for the factor or link.  Using this window is easier if you have more than a few words to write.  It also provides a more extensive range of editing buttons:  you can style the text, insert images into the text, change the font and so on.  The small panel version of the notes keeps in sync with the larger window, and the text is saved as you write. When you are finished, click on the map background to deselect the factor or link; this also closes the Note Window.
+
+On the left edge of the map, half way down, is a small grey tab.  Clicking on this opens a panel into which you can describe the map as a whole and enter notes about it. Click on the tab again to close the panel.
 
 For factors, there is also an open or closed padlock symbol <img src={require("/static/images/padlock.png").default} width="24"/>. If this is shown closed, the factor will be locked into place on the network pane and cannot be dragged elsewhere.  The factor will have a small padlock symbol at the top left.  
 
 :::tip
 
-Locking a factor is useful when you are doing analysis of the map (see the [Analysis](Styling/#analysing-the-map) section below) and don't want to lose the selection while investigating other factors.
+Locking a factor is useful when you are doing analysis of the map (see the [Analysis](Styling/#analysing-the-map) section) and don't want to lose the selection while investigating other factors.
 
 :::
 
