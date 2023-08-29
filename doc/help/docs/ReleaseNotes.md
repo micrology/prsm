@@ -3,6 +3,11 @@ sidebar_position: 13
 ---
 # Release Notes
 
+## 2.1
+
+* There is now a panel into which you can write a description or notes about the map as a whole.  To view the panel, click on the small grey button on the left edge of the map area.  While entering or editing text, you can use the formatting buttons at the top of the panel: bold, italic, underline, as well as change font size, insert images etc.  The contents of the panel are shared with other participants as you write. Click on the grey button again to put the panel away.
+* Instead of some factors and links being hidden when using the Analysis features, they are faded out, to provide more context around those that are shown.
+
 ## 2.0
 
 Comparing version 2.0.x with version 1.9.0:
