@@ -60,7 +60,7 @@
 		"vis-data": "^7.1.4",
 		"vis-network": "^9.1.4",
 		"vis-util": "^5.0.3",
-		"xlsx": "^0.18.5",
+		"xlsx": "https://cdn.sheetjs.com/xlsx-0.20.0/xlsx-0.20.0.tgz",
 		"y-indexeddb": "^9.0.9",
 		"y-websocket": "^1.4.6",
 		"yjs": "^13.5.47"

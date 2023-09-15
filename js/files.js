@@ -37,7 +37,6 @@ import {
 	yHistory,
 	lastNodeSample,
 	lastLinkSample,
-	timestamp,
 	clearMap,
 	debug,
 	setCanvasBackground,
@@ -568,7 +567,7 @@ function loadExcelfile(contents) {
 	 Transform data about factors into an array of objects, with properties named after the column headings
 	 (with first letter lower cased if necessary) and values from that row's cells.
 	 add a GUID to the object,  change 'Style' property to 'grp'
-	 Style may be a style name or a style number between 1 and 9
+	 Style is a style number between 1 and 9
 	 Put value of Description or Notes property into notes
 	 Check that any other property names are not in the list of known attribute names; if so add that property name to the attribute name list 
 	 Place the factor either at the given x and y coordinates or at some random location
@@ -576,21 +575,24 @@ function loadExcelfile(contents) {
 
 	// convert data from Factors sheet into an array of objects with properties starting with lower case letters
 	let factors = utils.sheet_to_json(factorsSS).map((f) => lowerInitialLetterOfProps(f))
-	let styleNodes = Array.from(document.getElementsByClassName('sampleNode')).map((elem) => elem.dataSet.get('1'))
 	factors.forEach((f) => {
 		f.id = uuidv4()
 		if (f.style) {
-			let styleNo = styleNodes.findIndex((s) => s.groupLabel === f.style)
-			if (styleNo === -1) {
-				styleNo = parseInt(f.style)
-				if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
-					throw {
-						message: `Factors - Line ${f.__rowNum__}: Style must be a number between 1 and 9, a style name, or blank (found ${f.style})`,
-					}
+			let styleNo = parseInt(f.style)
+			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
+				throw {
+					message: `Factors - Line ${f.__rowNum__}: Style must be a number between 1 and 9, a style name, or blank (found ${f.style})`,
 				}
-				styleNo--
 			}
-			f.grp = 'group' + styleNo
+			f.grp = 'group' + (styleNo - 1)
+			if (f.groupLabel) {
+				let styleDataSet = Array.from(document.getElementsByClassName('sampleNode'))[styleNo - 1].dataSet
+				let styleNode = styleDataSet.get('1')
+				styleNode.label = f.groupLabel
+				styleNode.groupLabel = f.groupLabel
+				styleDataSet.update(styleNode)
+				styles.nodes[f.grp].groupLabel = f.groupLabel
+	}
 			delete f.style
 		}
 		if (!f.label)
@@ -602,7 +604,12 @@ function loadExcelfile(contents) {
 			f.note = {ops: [{insert: note + '\n'}]}
 			delete f.description
 		}
-		f.created = timestamp()
+		if (f.creator) {
+			f.created = {time: f.createdTime ? Date.parse(f.createdTime) : Date.now(), user: f.creator}
+		}
+		if (f.modifier) {
+			f.modified = {time: f.modifiedTime? Date.parse(f.modifiedTime) : Date.now(), user: f.modifier}
+		}
 		// filter out known properties, leaving the rest to become attributes
 		Object.keys(f)
 			.filter(
@@ -615,8 +622,10 @@ function loadExcelfile(contents) {
 						'shape',
 						'note',
 						'created',
+						'createdTime',
 						'creator',
 						'modified',
+						'modifiedTime',
 						'modifier',
 						'x',
 						'y',
@@ -644,25 +653,32 @@ function loadExcelfile(contents) {
 	add other attributes as for factors */
 
 	let links = utils.sheet_to_json(linksSS).map((l) => lowerInitialLetterOfProps(l))
-	let styleEdges = Array.from(document.getElementsByClassName('sampleLink')).map((elem) => elem.dataSet.get('1'))
-
 	links.forEach((l) => {
 		l.id = uuidv4()
-		if (l.style) {
-			let styleNo = styleEdges.findIndex((s) => s.label === l.style)
-			if (styleNo === -1) {
-				styleNo = parseInt(l.style)
+			if (l.style) {
+				let styleNo = parseInt(l.style)
 				if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
 					throw {
-						message: `Links - Line ${l.__rowNum__}: Style must be a number between 1 and 9, a style name or blank (found ${l.style})`,
+						message: `Links - Line ${l.__rowNum__}: Style must be a number between 1 and 9, a style name, or blank (found ${l.style})`,
 					}
 				}
-				styleNo--
+				l.grp = 'edge' + (styleNo - 1)
+				if (l.groupLabel) {
+					let styleDataSet = Array.from(document.getElementsByClassName('sampleLink'))[styleNo - 1].dataSet
+					let styleEdge = styleDataSet.get('1')
+					styleEdge.label = l.groupLabel
+					styleEdge.groupLabel = l.groupLabel
+					styleDataSet.update(styleEdge)
+					styles.edges[l.grp].groupLabel = l.groupLabel
+				}
+				delete l.style
 			}
-			l.grp = 'edge' + styleNo
-			delete l.style
+	if (l.creator) {
+			l.created = {time: l.createdTime ? Date.parse(l.createdTime) : Date.now(), user: l.creator}
 		}
-		l.created = timestamp()
+		if (l.modifier) {
+			l.modified = {time: l.modifiedTime? Date.parse(l.modifiedTime) : Date.now(), user: l.modifier}
+		}
 		let fromFactor = factors.find((factor) => factor.label === l.from)
 		if (fromFactor) l.from = fromFactor.id
 		else throw {message: `Links - Line ${l.__rowNum__}: From factor (${l.from}) not found for link`}
@@ -1004,8 +1020,14 @@ export function exportExcel() {
 		.get()
 		.filter((n) => !n.isCluster)
 		.map((n) => {
-			n.creator = n?.created?.user
-			n.modifier = n?.modified?.user
+			if (n.created) {
+				n.creator = n.created.user
+				n.createdTime = new Date(n.created.time).toISOString()
+			}
+			if (n.modified) {
+				n.modifier = n.modified.user
+				n.modifiedTime = new Date(n.modified.time).toISOString()
+			}
 			n.style = parseInt(n.grp.substring(5)) + 1
 			if (n.note) n.Note = quillToText(n.note)
 			// don't save any of the listed properties
@@ -1042,8 +1064,14 @@ export function exportExcel() {
 		.get()
 		.filter((e) => !e.isClusterEdge)
 		.map((e) => {
-			e.creator = e?.created?.user
-			e.modifier = e?.modified?.user
+			if (e.created) {
+				e.creator = e.created.user
+				e.createdTime = new Date(e.created.time).toISOString()
+			}
+			if (e.modified) {
+				e.modifier = e.modified.user
+				e.modifiedTime = new Date(e.modified.time).toISOString()
+			}
 			e.style = parseInt(e.grp.substring(4)) + 1
 			e.from = data.nodes.get(e.from).label
 			e.to = data.nodes.get(e.to).label
