@@ -150,13 +150,13 @@ function loadFile(contents) {
 			default:
 				throw {message: 'Unrecognised file name suffix'}
 		}
-		network.setOptions({
+/* 		network.setOptions({
 			interaction: {
 				hideEdgesOnDrag: data.nodes.length > 100,
 				hideEdgesOnZoom: data.nodes.length > 100,
 			},
 		})
-		let nodesToUpdate = []
+ */		let nodesToUpdate = []
 		data.nodes.get().forEach((n) => {
 			// ensure that all nodes have a grp property (converting 'group' property for old format files)
 			if (!n.grp) n.grp = n.group ? 'group' + (n.group % 9) : 'group0'
