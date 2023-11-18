@@ -1,5 +1,5 @@
 Flat-UI-master
-prsm\ video
+video
 prsm-demo
 dist
 node_modules
@@ -42,6 +42,7 @@ archive
 *.rar
 *.tar
 *.zip
+*.mp4
 
 # Logs and databases #
 ######################

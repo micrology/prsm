@@ -9,7 +9,7 @@ When the app is started for the first time in your browser, there is an option t
 
 :::tip
 
-This introductory tour is only shown the very first time you use PRSM.  If you want to view the tour again, click <button onClick={()=>localStorage.setItem('doneIntro', 'false')}>here</button> to reset the tutorial.
+This introductory tour is only shown the very first time you use PRSM.  If you want to view the tour again, click <button onClick={()=>window.localStorage.setItem('doneIntro', 'false')}>here</button> to reset the tutorial.
 
 :::
 

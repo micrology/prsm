@@ -8,11 +8,11 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
   title: 'PRSM',
   tagline: 'Participatory System Mapper',
-  url: 'https://prsm.uk',
-  //url: 'http://localhost',
-  baseUrl: '/doc/help/',
+  //url: 'https://prsm.uk',
+  url: 'http://localhost',
+  //baseUrl: '/doc/help/',
   // use / when running dev server. url is irrelevant
-  //baseUrl: '/',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: '/images/favicon.ico',
