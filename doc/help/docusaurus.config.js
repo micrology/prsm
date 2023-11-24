@@ -1,18 +1,17 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'PRSM',
   tagline: 'Participatory System Mapper',
-  //url: 'https://prsm.uk',
-  url: 'http://localhost',
-  //baseUrl: '/doc/help/',
+  url: 'https://prsm.uk',
+  //url: 'http://localhost',
+  baseUrl: '/doc/help/',
   // use / when running dev server. url is irrelevant
-  baseUrl: '/',
+  //baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: '/images/favicon.ico',
@@ -101,10 +100,10 @@ const config = {
           ],
           copyright: `Copyright <a href="https://choosealicense.com/licenses/mit/">MIT</a>© ${new Date().getFullYear()} Nigel Gilbert. Built with Docusaurus.`,
         },
-      prism: {
-        theme: lightCodeTheme,
-        darkTheme: darkCodeTheme,
-      },
+        prism: {
+          theme: prismThemes.github,
+          darkTheme: prismThemes.dracula,
+        },
     }),
 };
 
