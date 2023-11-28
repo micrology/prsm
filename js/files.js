@@ -853,8 +853,8 @@ export function exportPNGfile() {
 	bigNetPane = document.createElement('div')
 	bigNetPane.id = 'big-net-pane'
 	bigNetPane.style.position = 'absolute'
-	bigNetPane.style.top = '10px' //'-9999px'
-	bigNetPane.style.left = '10px' //'-9999px'
+	bigNetPane.style.top = '-9999px'
+	bigNetPane.style.left = '-9999px'
 	bigNetPane.style.width = `${netPane.offsetWidth * upscaling}px`
 	bigNetPane.style.height = `${netPane.offsetHeight * upscaling}px`
 	elem('main').appendChild(bigNetPane)
@@ -869,45 +869,36 @@ export function exportPNGfile() {
 	})
 	bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
 	bigNetwork.on('afterDrawing', () => {
-/* 		let canvas = setCanvasBackground(bigNetCanvas)
+		let canvas = setCanvasBackground(bigNetCanvas)
 		canvas.toBlob((blob) => saveAs(blob, lastFileName))
 		bigNetwork.destroy()
-		bigNetPane.remove() */
+		bigNetPane.remove()
 	})
 	let selectedNodes = network.getSelectedNodes()
-	/* bigNetwork.moveTo({
-		position: bigNetwork.getViewPosition(),
-		scale: bigNetwork.getScale() * upscaling * 2,
-	}) */
 	if (selectedNodes) bigNetwork.fit({ nodes: selectedNodes })
 	else bigNetwork.fit()
-	//bigNetwork.moveTo({scale: bigNetwork.getScale() * upscaling})
-	/* bigNetwork.moveTo({
-	//	position: network.getViewPosition(),
-		//		scale: upscaling * network.getScale(), doesn't fill image
-		scale: bigNetwork.getScale() * upscaling
-	}) */
-	let box = mapBoundingBox()
-	let multX = bigNetCanvas.width / network.canvasToDOM({ x: box.maxX - box.minX, y: 0 }).x
-	let multY = bigNetCanvas.height / network.canvasToDOM({ x: 0, y: box.maxY - box.minY }).y
-/* 	let multX = bigNetCanvas.width / (box.maxX - box.minX)
-	let multY = bigNetCanvas.height / (box.maxY - box.minY) */
-	let mult = Math.min(multX, multY)
-	bigNetwork.zoom(mult)
+	let box = mapBoundingBox(bigNetwork)
+	let multX = bigNetCanvas.width / bigNetwork.canvasToDOM({ x: box.maxX - box.minX, y: 0 }).x
+	let multY = bigNetCanvas.height / bigNetwork.canvasToDOM({ x: 0, y: box.maxY - box.minY }).y
+	console.log(Math.min(multX, multY), network.getViewPosition())
+	bigNetwork.moveTo({scale: Math.min(multX, multY) })
+	
 	
 
 	window.bigNetwork = bigNetwork
+
 /**
  * Get a bounding box for all the nodes in the map
+ * @param {*} ntwk the map on which the nodes are placed
  * @returns box as an object, with dimensions in canvas coords
  */
-	function mapBoundingBox() {
+	function mapBoundingBox(ntwk) {
 		let minY = 1e9,
 			maxY = -1e9,
 			minX = 1e9,
 			maxX = -1e9
 		data.nodes.forEach((node) => {
-			let boundingBox = network.getBoundingBox(node.id)
+			let boundingBox = ntwk.getBoundingBox(node.id)
 			if (minX > boundingBox.left) {
 				minX = boundingBox.left;
 			}
