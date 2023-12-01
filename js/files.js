@@ -838,7 +838,7 @@ function saveStr(str, extn) {
  * save the map as a PNG image file
  */
 
-const upscaling = 1 // how much bigger the image is than the displayed map
+const upscaling = 4 // how much bigger the image is than the displayed map
 
 export function exportPNGfile() {
 	setFileName('png')
@@ -874,8 +874,8 @@ export function exportPNGfile() {
 		context.globalCompositeOperation = 'destination-over'
 		// apply the background objects
 		let backgroundCanvas = document.getElementById('underlay').firstElementChild.firstElementChild
-		console.log('after drawing ', multX, multY, netPane, netPane.offsetWidth * multX, netPane.offsetHeight * multY)
-		//let x = 1
+		//console.log('after drawing ', multX, multY, netPane, netPane.offsetWidth * multX, netPane.offsetHeight * multY)
+		//let x = Math.min(multX, multY)
 		//context.drawImage(backgroundCanvas, 0, 0, netPane.offsetWidth * upscaling * x, netPane.offsetHeight * upscaling * x)
 		context.drawImage(backgroundCanvas, 0, 0, bigNetCanvas.width, bigNetCanvas.height)
 
@@ -890,12 +890,13 @@ export function exportPNGfile() {
 	if (selectedNodes) bigNetwork.fit({ nodes: selectedNodes })
 	else bigNetwork.fit()
 	let box = mapBoundingBox(bigNetwork)
-	console.log('mapBoundingBox= ', box)
+	console.log('mapBoundingBox= ', network.canvasToDOM({ x: box.minX, y: box.minY }), network.canvasToDOM({ x: box.maxX, y: box.maxY }))
 	console.log('canvasBoundingBox=', canvasBoundingBox())
 	let multX = bigNetCanvas.width / bigNetwork.canvasToDOM({ x: box.maxX - box.minX, y: 0 }).x
 	let multY = bigNetCanvas.height / bigNetwork.canvasToDOM({ x: 0, y: box.maxY - box.minY }).y
-	console.log(Math.min(multX, multY), network.getViewPosition(), bigNetwork.getViewPosition())
+	console.log(Math.min(multX, multY))
 	//bigNetwork.moveTo({scale: Math.min(multX, multY) })
+	bigNetwork.moveTo({scale: upscaling })
 	
 	
 
@@ -921,10 +922,10 @@ export function exportPNGfile() {
 			}
 			if (minY > boundingBox.top) {
 				minY = boundingBox.top;
-			} // top is negative, bottom is positive
+			}
 			if (maxY < boundingBox.bottom) {
 				maxY = boundingBox.bottom;
-			} // top is negative, bottom is positive
+			}
 		})
 
 		if (minX === 1e9 && maxX === -1e9 && minY === 1e9 && maxY === -1e9) {
@@ -937,7 +938,7 @@ export function exportPNGfile() {
  * @returns {left, right, top, bottom}
  */
 function canvasBoundingBox() {
-	let box = {left:0, right:0, top:0, bottom:0}
+	let box = {left: 1e9, right: -1e9, top: 1e9, bottom: -1e9}
 	canvas.forEachObject(obj => {
 		let bounds = obj.getBoundingRect()
 		if (box.left > bounds.left) box.left = bounds.left
