@@ -838,7 +838,7 @@ function saveStr(str, extn) {
  * save the map as a PNG image file
  */
 
-const upscaling = 4 // how much bigger the image is than the displayed map
+const upscaling = 1 // how much bigger the image is than the displayed map
 
 export function exportPNGfile() {
 	setFileName('png')
@@ -869,8 +869,20 @@ export function exportPNGfile() {
 	})
 	bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
 	bigNetwork.on('afterDrawing', () => {
-		let canvas = setCanvasBackground(bigNetCanvas)
-		canvas.toBlob((blob) => saveAs(blob, lastFileName))
+		let context = bigNetCanvas.getContext('2d')
+		context.setTransform()
+		context.globalCompositeOperation = 'destination-over'
+		// apply the background objects
+		let backgroundCanvas = document.getElementById('underlay').firstElementChild.firstElementChild
+		console.log('after drawing ', multX, multY, netPane, netPane.offsetWidth * multX, netPane.offsetHeight * multY)
+		//let x = 1
+		//context.drawImage(backgroundCanvas, 0, 0, netPane.offsetWidth * upscaling * x, netPane.offsetHeight * upscaling * x)
+		context.drawImage(backgroundCanvas, 0, 0, bigNetCanvas.width, bigNetCanvas.height)
+
+		// apply the background colour, if any, or white
+		context.fillStyle = elem('underlay').style.backgroundColor || 'rgb(255, 255, 255)'
+		context.fillRect(0, 0, bigNetCanvas.width, bigNetCanvas.height)
+		bigNetCanvas.toBlob((blob) => saveAs(blob, lastFileName))
 		bigNetwork.destroy()
 		bigNetPane.remove()
 	})
@@ -878,10 +890,12 @@ export function exportPNGfile() {
 	if (selectedNodes) bigNetwork.fit({ nodes: selectedNodes })
 	else bigNetwork.fit()
 	let box = mapBoundingBox(bigNetwork)
+	console.log('mapBoundingBox= ', box)
+	console.log('canvasBoundingBox=', canvasBoundingBox())
 	let multX = bigNetCanvas.width / bigNetwork.canvasToDOM({ x: box.maxX - box.minX, y: 0 }).x
 	let multY = bigNetCanvas.height / bigNetwork.canvasToDOM({ x: 0, y: box.maxY - box.minY }).y
-	console.log(Math.min(multX, multY), network.getViewPosition())
-	bigNetwork.moveTo({scale: Math.min(multX, multY) })
+	console.log(Math.min(multX, multY), network.getViewPosition(), bigNetwork.getViewPosition())
+	//bigNetwork.moveTo({scale: Math.min(multX, multY) })
 	
 	
 
@@ -918,6 +932,23 @@ export function exportPNGfile() {
 		}
 		return { minX: minX, maxX: maxX, minY: minY, maxY: maxY };
 	}
+/**
+ * Get the rectangle that includes all the canvas objects
+ * @returns {left, right, top, bottom}
+ */
+function canvasBoundingBox() {
+	let box = {left:0, right:0, top:0, bottom:0}
+	canvas.forEachObject(obj => {
+		let bounds = obj.getBoundingRect()
+		if (box.left > bounds.left) box.left = bounds.left
+		if (box.right < bounds.left + bounds.width) box.right = bounds.left + bounds.width
+		if (box.top > bounds.top) box.top = bounds.top
+		if (box.bottom < bounds.top + bounds.height) box.bottom = bounds.top + bounds.height
+		console.log(box)
+	})
+	return box
+}
+
 
 }
 /**
