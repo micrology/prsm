@@ -28,7 +28,6 @@ import {
 	room,
 	network,
 	container,
-	netPane,
 	logHistory,
 	yUndoManager,
 	yNetMap,
@@ -39,7 +38,6 @@ import {
 	lastLinkSample,
 	clearMap,
 	debug,
-	setCanvasBackground,
 	toggleDeleteButton,
 	undoRedoButtonStatus,
 	updateLastSamples,
@@ -74,6 +72,7 @@ import * as quillToWord from 'quill-to-word'
 import { read, writeFileXLSX, utils } from 'xlsx'
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
 import * as parser from 'fast-xml-parser'
+import { fabric } from 'fabric'
 import { version } from '../package.json'
 
 const NODEWIDTH = 10 // chars for label splitting
@@ -838,7 +837,7 @@ function saveStr(str, extn) {
  * save the map as a PNG image file
  */
 
-const upscaling = 4 // how much bigger the image is than the displayed map
+const bigWidth = '800px' //'8192px'
 
 export function exportPNGfile() {
 	setFileName('png')
@@ -848,15 +847,16 @@ export function exportPNGfile() {
 	// create a very large canvas, so we can download at high resolution
 	let bigNetPane = null
 	let bigNetwork = null
-	let bigNetCanvas = null
 	network.storePositions()
+
+	// first, create a copy of the network on a large div
 	bigNetPane = document.createElement('div')
 	bigNetPane.id = 'big-net-pane'
 	bigNetPane.style.position = 'absolute'
-	bigNetPane.style.top = '-9999px'
-	bigNetPane.style.left = '-9999px'
-	bigNetPane.style.width = `${netPane.offsetWidth * upscaling}px`
-	bigNetPane.style.height = `${netPane.offsetHeight * upscaling}px`
+	bigNetPane.style.top = '0px' //'-9999px'
+	bigNetPane.style.left = '0px' //'-9999px'
+	bigNetPane.style.width = bigWidth // `${netPane.offsetWidth * upscaling}px`
+	bigNetPane.style.height = bigWidth //`${netPane.offsetHeight * upscaling}px`
 	elem('main').appendChild(bigNetPane)
 	bigNetwork = new Network(bigNetPane, data, {
 		physics: { enabled: false },
@@ -867,90 +867,130 @@ export function exportPNGfile() {
 			},
 		},
 	})
-	bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
-	bigNetwork.on('afterDrawing', () => {
+	let selectedNodes = network.getSelectedNodes()
+	if (selectedNodes) bigNetwork.fit({ nodes: selectedNodes })
+	else bigNetwork.fit()
+
+	// next, create a correspondingly large div to hold the background
+	let bigBackgroundDiv = document.createElement('div')
+	bigBackgroundDiv.id = 'big-background-div'
+	bigBackgroundDiv.style.position = 'absolute'
+	bigBackgroundDiv.style.top = 0 //'-9999px'
+	bigBackgroundDiv.style.left = 0 //'-9999px'
+	bigBackgroundDiv.style.width = bigWidth
+	bigBackgroundDiv.style.height = bigWidth
+	elem('main').appendChild(bigBackgroundDiv)
+
+	// finally create a canvas of the same zze
+	let bigBackgroundCanvas = document.createElement('canvas')
+	bigBackgroundCanvas.id = 'big-background-canvas'
+	bigBackgroundCanvas.style.position = 'absolute'
+	bigBackgroundCanvas.style.top = 0 //'-9999px'
+	bigBackgroundCanvas.style.left = 0 //'-9999px'
+	bigBackgroundCanvas.style.width = bigWidth
+	bigBackgroundCanvas.style.height = bigWidth
+	bigBackgroundDiv.appendChild(bigBackgroundCanvas)
+
+	// and copy the background objects to it
+	let fabricCanvas = new fabric.Canvas('big-background-canvas', { width: 800, height: 800 })
+	fabricCanvas.loadFromJSON(JSON.stringify(canvas.toJSON()))
+	// adjust the background objects to the larger canvas
+	fabricCanvas.setZoom(bigNetwork.getScale())
+	let fcCenter = fabricCanvas.getVpCenter()
+	let center = canvas.getVpCenter()
+	fabricCanvas.relativePan({ x: bigNetwork.getScale() * (fcCenter.x - center.x), y: bigNetwork.getScale() * (fcCenter.y - center.y) })
+	fabricCanvas.requestRenderAll()
+
+	window.fabricCanvas = fabricCanvas
+	bigNetwork.on('afterDrawing', (ctx) => {
+		// make an image copy of the network
+		let dataURL = ctx.canvas.toDataURL()
+		// add that image to the background objects
+		fabric.Image.fromURL(dataURL, function (oImg) {
+			oImg.scale(0.5)
+			fabricCanvas.add(oImg);
+	//		fabricCanvas.centerObject(oImg)
+	
+		
+			const newImg = document.createElement("img");
+			const url = fabricCanvas.toDataURL();
+	
+			newImg.src = url;
+			document.body.appendChild(newImg);
+		});
+})
+
+	//let bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
+	/* bigNetwork.on('afterDrawing', () => {
 		let context = bigNetCanvas.getContext('2d')
 		context.setTransform()
 		context.globalCompositeOperation = 'destination-over'
 		// apply the background objects
-		let backgroundCanvas = document.getElementById('underlay').firstElementChild.firstElementChild
-		//console.log('after drawing ', multX, multY, netPane, netPane.offsetWidth * multX, netPane.offsetHeight * multY)
-		//let x = Math.min(multX, multY)
-		//context.drawImage(backgroundCanvas, 0, 0, netPane.offsetWidth * upscaling * x, netPane.offsetHeight * upscaling * x)
-		context.drawImage(backgroundCanvas, 0, 0, bigNetCanvas.width, bigNetCanvas.height)
-
+		//let backgroundCanvas = document.getElementById('underlay').firstElementChild.firstElementChild
+		//	context.drawImage(bigBackgroundCanvas, 0, 0, bigNetCanvas.width, bigNetCanvas.height)
+		//context.drawImage(bigBackgroundCanvas, 0, 0, 1600, 1600)
+		let dataUrl = fabricCanvas.toDataURL()
+		let bi = document.createElement('img')
+		bi.src = dataUrl
+		context.drawImage(bi, 0,0)
+		//context.drawImage(fabricCanvas.lowerCanvasEl, 0, 0)
 		// apply the background colour, if any, or white
-		context.fillStyle = elem('underlay').style.backgroundColor || 'rgb(255, 255, 255)'
-		context.fillRect(0, 0, bigNetCanvas.width, bigNetCanvas.height)
-		bigNetCanvas.toBlob((blob) => saveAs(blob, lastFileName))
-		bigNetwork.destroy()
-		bigNetPane.remove()
-	})
-	let selectedNodes = network.getSelectedNodes()
-	if (selectedNodes) bigNetwork.fit({ nodes: selectedNodes })
-	else bigNetwork.fit()
-	let box = mapBoundingBox(bigNetwork)
-	console.log('mapBoundingBox= ', network.canvasToDOM({ x: box.minX, y: box.minY }), network.canvasToDOM({ x: box.maxX, y: box.maxY }))
-	console.log('canvasBoundingBox=', canvasBoundingBox())
-	let multX = bigNetCanvas.width / bigNetwork.canvasToDOM({ x: box.maxX - box.minX, y: 0 }).x
-	let multY = bigNetCanvas.height / bigNetwork.canvasToDOM({ x: 0, y: box.maxY - box.minY }).y
-	console.log(Math.min(multX, multY))
-	//bigNetwork.moveTo({scale: Math.min(multX, multY) })
-	bigNetwork.moveTo({scale: upscaling })
-	
-	
+		//context.fillStyle = 'rgb(255, 0, 255)'//elem('underlay').style.backgroundColor || 'rgb(255, 255, 255)'
+		//context.fillRect(0, 0, bigNetCanvas.width, bigNetCanvas.height)
+		//context.fillRect(0, 0, 1600,1600)
 
-	window.bigNetwork = bigNetwork
+		//bigNetCanvas.toBlob((blob) => saveAs(blob, lastFileName))
+		//fabricCanvas.lowerCanvasEl.toBlob((blob) => saveAs(blob, lastFileName))
+//		bigNetwork.destroy()
+//		bigNetPane.remove()
+//		bigBackgroundCanvas.remove()
+	})  */
+	//	let box = mapBoundingBox(network)
+	//	console.log('mapBoundingBox= ', box, (box.right - box.left), (box.bottom - box.top))
+	//	let multX = netPane.offsetWidth / (box.right - box.left)
+	//	let multY = netPane.offsetHeight / (box.bottom - box.top)
+	//	console.log(Math.min(multX, multY))
+	//	bigNetwork.moveTo({scale: Math.min(multX, multY) })
 
-/**
- * Get a bounding box for all the nodes in the map
- * @param {*} ntwk the map on which the nodes are placed
- * @returns box as an object, with dimensions in canvas coords
- */
+
+
+
+
+	window.bigNetwork = bigNetwork 
+
+	/**
+	 * Get a bounding box for everything on the map (the nodes and the background objects)
+	 * @param {*} ntwk the map on which the nodes are placed
+	 * @returns box as an object, with dimensions in DOM coords
+	 */
 	function mapBoundingBox(ntwk) {
-		let minY = 1e9,
-			maxY = -1e9,
-			minX = 1e9,
-			maxX = -1e9
+		let top = 1e9,
+			bottom = -1e9,
+			left = 1e9,
+			right = -1e9
 		data.nodes.forEach((node) => {
-			let boundingBox = ntwk.getBoundingBox(node.id)
-			if (minX > boundingBox.left) {
-				minX = boundingBox.left;
-			}
-			if (maxX < boundingBox.right) {
-				maxX = boundingBox.right;
-			}
-			if (minY > boundingBox.top) {
-				minY = boundingBox.top;
-			}
-			if (maxY < boundingBox.bottom) {
-				maxY = boundingBox.bottom;
-			}
+			let canvasBB = ntwk.getBoundingBox(node.id)
+			let tl = ntwk.canvasToDOM({ x: canvasBB.left, y: canvasBB.top })
+			let br = ntwk.canvasToDOM({ x: canvasBB.right, y: canvasBB.bottom })
+			if (left > tl.x) left = tl.x
+			if (right < br.x) right = br.x
+			if (top > tl.y) top = tl.y
+			if (bottom < br.y) bottom = br.y
 		})
-
-		if (minX === 1e9 && maxX === -1e9 && minY === 1e9 && maxY === -1e9) {
-			(minY = 0), (maxY = 0), (minX = 0), (maxX = 0);
+		console.log('nodes ', { left: left, right: right, top: top, bottom: bottom })
+		canvas.forEachObject(obj => {
+			let boundingBox = obj.getBoundingRect()
+			if (left > boundingBox.left) left = boundingBox.left
+			if (right < boundingBox.left + boundingBox.width) right = boundingBox.left + boundingBox.width
+			if (top > boundingBox.top) top = boundingBox.top
+			if (bottom < boundingBox.top + boundingBox.height) bottom = boundingBox.top + boundingBox.height
+		})
+		if (left === 1e9 && right === -1e9 && top === 1e9 && bottom === -1e9) {
+			(top = 0), (bottom = 0), (left = 0), (right = 0);
 		}
-		return { minX: minX, maxX: maxX, minY: minY, maxY: maxY };
+		console.log('background ', { left: left, right: right, top: top, bottom: bottom })
+		return { left: left, right: right, top: top, bottom: bottom };
 	}
-/**
- * Get the rectangle that includes all the canvas objects
- * @returns {left, right, top, bottom}
- */
-function canvasBoundingBox() {
-	let box = {left: 1e9, right: -1e9, top: 1e9, bottom: -1e9}
-	canvas.forEachObject(obj => {
-		let bounds = obj.getBoundingRect()
-		if (box.left > bounds.left) box.left = bounds.left
-		if (box.right < bounds.left + bounds.width) box.right = bounds.left + bounds.width
-		if (box.top > bounds.top) box.top = bounds.top
-		if (box.bottom < bounds.top + bounds.height) box.bottom = bounds.top + bounds.height
-		console.log(box)
-	})
-	return box
-}
-
-
 }
 /**
  * save a local file containing all the node and edge notes, plus the map description, as a Word document
