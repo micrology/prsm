@@ -1309,7 +1309,6 @@ let ImageHandler = fabric.util.createClass(fabric.Object, {
 
 			reader.onloadend = function (e) {
 				let image = new Image()
-				image.src = e.target.result
 				image.onload = function (e) {
 					let imageElement = e.target
 					// display image centred on viewport with max dimensions 300 x 300
@@ -1328,6 +1327,7 @@ let ImageHandler = fabric.util.createClass(fabric.Object, {
 					unselectTool()
 					canvas.setActiveObject(this.imageInstance).requestRenderAll()
 				}
+				image.src = e.target.result
 			}
 		}
 	},

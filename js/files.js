@@ -841,9 +841,9 @@ const bigWidth = '800px' //'8192px'
 
 export function exportPNGfile() {
 	setFileName('png')
-	const a = document.createElement('a')
+/* 	const a = document.createElement('a')
 	document.body.appendChild(a)
-	a.setAttribute('style', 'display: none')
+	a.setAttribute('style', 'display: none') */
 	// create a very large canvas, so we can download at high resolution
 	let bigNetPane = null
 	let bigNetwork = null
@@ -896,29 +896,74 @@ export function exportPNGfile() {
 	fabricCanvas.loadFromJSON(JSON.stringify(canvas.toJSON()))
 	// adjust the background objects to the larger canvas
 	fabricCanvas.setZoom(bigNetwork.getScale())
-	let fcCenter = fabricCanvas.getVpCenter()
+	/* let fcCenter = fabricCanvas.getVpCenter()
 	let center = canvas.getVpCenter()
 	fabricCanvas.relativePan({ x: bigNetwork.getScale() * (fcCenter.x - center.x), y: bigNetwork.getScale() * (fcCenter.y - center.y) })
-	fabricCanvas.requestRenderAll()
+	fabricCanvas.requestRenderAll() */
 
 	window.fabricCanvas = fabricCanvas
+
 	bigNetwork.on('afterDrawing', (ctx) => {
-		// make an image copy of the network
-		let dataURL = ctx.canvas.toDataURL()
-		// add that image to the background objects
-		fabric.Image.fromURL(dataURL, function (oImg) {
-			oImg.scale(0.5)
-			fabricCanvas.add(oImg);
-	//		fabricCanvas.centerObject(oImg)
-	
+		let fcCenter = fabricCanvas.getVpCenter()
+		let center = canvas.getVpCenter()
+		fabricCanvas.relativePan({ x: bigNetwork.getScale() * (fcCenter.x - center.x), y: bigNetwork.getScale() * (fcCenter.y - center.y) })
+		fabricCanvas.setBackgroundColor(elem('underlay').style.backgroundColor || 'rgb(255, 255, 255)')
+		fabricCanvas.requestRenderAll()
+		let bigNetCanvas = document.getElementById('big-net-pane').firstElementChild.firstElementChild
+		let bigNetContext = bigNetCanvas.getContext('2d')
+		let bbimg = document.createElement('img')
+		bbimg.onload = function () {
+			bigNetContext.globalCompositeOperation = 'destination-over'
+			bigNetContext.drawImage(bbimg, 0, 0, 800, 800)
+			bigNetCanvas.toBlob((blob) => saveAs(blob, lastFileName))
+		}
+		bbimg.src = fabricCanvas.toDataURL()
+		bbimg.id = "bImg"
+	})
+	function mergeCanvases(canvas1, canvas2) {
+		// Create a new canvas to hold the merged image
+		const mergedCanvas = document.createElement('canvas');
+
+		// Determine the dimensions of the merged canvas
+		const width = Math.max(canvas1.width, canvas2.width);
+		const height = canvas1.height + canvas2.height;
+		mergedCanvas.width = width;
+		mergedCanvas.height = height;
+
+		// Get the 2D context of the merged canvas
+		const mergedCtx = mergedCanvas.getContext('2d');
+
+		// Draw the first canvas onto the merged canvas
+		mergedCtx.drawImage(canvas1, 0, 0);
+
+		// Draw the second canvas onto the merged canvas, starting below the first
+		mergedCtx.drawImage(canvas2, 0, canvas1.height);
+
+		// Create an image element to display the merged image
+		const mergedImage = document.createElement('img');
+
+		// Convert the merged canvas to a data URL and set it as the image source
+		mergedImage.src = mergedCanvas.toDataURL();
+
+		return mergedImage;
+	}
+	/* 	bigNetwork.on('afterDrawing', (ctx) => {
+			// make an image copy of the network
+			let dataURL = ctx.canvas.toDataURL()
+			// add that image to the background objects
+			fabric.Image.fromURL(dataURL, function (oImg) {
+				oImg.scale(0.5)
+				fabricCanvas.add(oImg);
+		//		fabricCanvas.centerObject(oImg)
 		
-			const newImg = document.createElement("img");
-			const url = fabricCanvas.toDataURL();
-	
-			newImg.src = url;
-			document.body.appendChild(newImg);
-		});
-})
+			
+				const newImg = document.createElement("img");
+				const url = fabricCanvas.toDataURL();
+		
+				newImg.src = url;
+				document.body.appendChild(newImg);
+			});
+	}) */
 
 	//let bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
 	/* bigNetwork.on('afterDrawing', () => {
@@ -956,7 +1001,7 @@ export function exportPNGfile() {
 
 
 
-	window.bigNetwork = bigNetwork 
+	window.bigNetwork = bigNetwork
 
 	/**
 	 * Get a bounding box for everything on the map (the nodes and the background objects)
