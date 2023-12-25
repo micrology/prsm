@@ -837,7 +837,7 @@ function saveStr(str, extn) {
  * save the map as a PNG image file
  */
 
-const bigWidth = 2048 //'8192px'
+const bigWidth = 4096 // half the number of pixels in the image file (also half the height, as the image is square)
 
 export function exportPNGfile() {
 	setFileName('png')
@@ -845,36 +845,28 @@ export function exportPNGfile() {
 	// create a very large canvas, so we can download at high resolution
 	network.storePositions()
 
-	// first, create a copy of the network on a large div
+	// first, create a large offscreen div to hold a copy of the network at the required width
 	let bigNetDiv = document.createElement('div')
 	bigNetDiv.id = 'big-net-pane'
 	bigNetDiv.style.position = 'absolute'
-	bigNetDiv.style.top = 0//'-9999px'
-	bigNetDiv.style.left = 0//'-9999px'
+	bigNetDiv.style.top = '-9999px'
+	bigNetDiv.style.left = '-9999px'
 	bigNetDiv.style.width = `${bigWidth}px`
 	bigNetDiv.style.height = `${bigWidth}px`
 	elem('main').appendChild(bigNetDiv)
 
-	// next, create a correspondingly large div to hold the background (TODO is this really needed?)
-	let bigBackgroundDiv = document.createElement('div')
-	bigBackgroundDiv.id = 'big-background-div'
-	bigBackgroundDiv.style.position = 'absolute'
-	bigBackgroundDiv.style.top = '20px' //'-9999px'
-	bigBackgroundDiv.style.left = '20px' //'-9999px'
-	bigBackgroundDiv.style.width = `${bigWidth}px`
-	bigBackgroundDiv.style.height = `${bigWidth}px`
-	elem('main').appendChild(bigBackgroundDiv)
-
-	// finally create a canvas of the same size
+	// create an offscreen canvas of the same size to apply the background to
 	let bigBackgroundCanvas = document.createElement('canvas')
 	bigBackgroundCanvas.id = 'big-background-canvas'
 	bigBackgroundCanvas.style.position = 'absolute'
-	bigBackgroundCanvas.style.top = '20px' //'-9999px'
-	bigBackgroundCanvas.style.left = '20px' //'-9999px'
+	bigBackgroundCanvas.style.top = '-9999px'
+	bigBackgroundCanvas.style.left = '-9999px'
 	bigBackgroundCanvas.style.width = `${bigWidth}px`
 	bigBackgroundCanvas.style.height = `${bigWidth}px`
-	bigBackgroundDiv.appendChild(bigBackgroundCanvas)
+	elem('main').appendChild(bigBackgroundCanvas)
+	let bigFabricCanvas = new fabric.Canvas('big-background-canvas', { width: bigWidth, height: bigWidth })
 
+	// make a network with the same nodes and links as the original map
 	let bigNetwork = new Network(bigNetDiv, data, {
 		physics: { enabled: false },
 		edges: {
@@ -890,18 +882,16 @@ export function exportPNGfile() {
 	console.log('orig scale = ', bigNetwork.getScale())
 	console.log('new scale = ', 2 * Math.min(bigWidth / (box.right - box.left), bigWidth / (box.bottom - box.top)))
 	bigNetwork.moveTo({ scale: 2 * Math.min(bigWidth / (box.right - box.left), bigWidth / (box.bottom - box.top)) }) */
-	let bigFabricCanvas = new fabric.Canvas('big-background-canvas', { width: bigWidth, height: bigWidth })
 
-	window.bigFabricCanvas = bigFabricCanvas
+
 
 	bigNetwork.on('afterDrawing', (bigNetContext) => {
-		// and copy the background objects to it
-		console.log(JSON.stringify(canvas))
+
+		// copy the background objects to the big fabric canvas
 		bigFabricCanvas.loadFromJSON(JSON.stringify(canvas), () => {
-			console.log('bigFabricCanvas', bigFabricCanvas.getObjects())
 			bigFabricCanvas.requestRenderAll()
 
-			// adjust the fabric canvas to the big network
+			// adjust the fabric canvas scale and center to match the big network and match the background colour
 			bigFabricCanvas.setZoom(bigNetwork.getScale())
 			let fcCenter = bigFabricCanvas.getVpCenter()
 			let center = canvas.getVpCenter()
@@ -909,34 +899,34 @@ export function exportPNGfile() {
 			bigFabricCanvas.setBackgroundColor(elem('underlay').style.backgroundColor || 'rgb(255, 255, 255)')
 			bigFabricCanvas.requestRenderAll()
 
-			// create an image version of the background and copy it onto the big network background
+			// create an image version of the background and copy it onto the big network canvas
 			let bigBackgroundImage = document.createElement('img')
 			bigBackgroundImage.onload = function () {
 				bigNetContext.globalCompositeOperation = 'destination-over'
 				bigNetContext.drawImage(bigBackgroundImage, 0, 0, bigWidth, bigWidth)
+
 				// save the canvas to a file
 				bigNetContext.canvas.toBlob((blob) => saveAs(blob, lastFileName))
+
 				// clean up
 				bigNetwork.destroy()
 				bigNetDiv.remove()
-				bigBackgroundDiv.remove()
+
+				bigFabricCanvas.dispose()
+				bigBackgroundCanvas.remove()
 			}
 			bigBackgroundImage.src = bigFabricCanvas.toDataURL()
 		})
 
 	})
-	// fit the network to the big Div (centred around the selected node if any)
+	// fit the network to the big network div (centred around the selected node if any)
 	let selectedNodes = network.getSelectedNodes()
 	if (selectedNodes) bigNetwork.fit({ nodes: selectedNodes })
 	else bigNetwork.fit()
 
 
-
-
-
-
-
 	window.bigNetwork = bigNetwork
+	window.bigFabricCanvas = bigFabricCanvas
 
 	/**
 	 * Get a bounding box for everything on the map (the nodes and the background objects)
