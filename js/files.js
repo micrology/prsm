@@ -858,12 +858,6 @@ export function exportPNGfile() {
 	// create an offscreen canvas of the same size to apply the background to
 	let bigBackgroundCanvas = new OffscreenCanvas(bigWidth, bigWidth)
 	bigBackgroundCanvas.id = 'big-background-canvas'
-	/* bigBackgroundCanvas.style.position = 'absolute'
-	bigBackgroundCanvas.style.top = '-9999px'
-	bigBackgroundCanvas.style.left = '-9999px'
-	bigBackgroundCanvas.style.width = `${bigWidth}px`
-	bigBackgroundCanvas.style.height = `${bigWidth}px`
-	elem('main').appendChild(bigBackgroundCanvas) */
 	let bigFabricCanvas = new fabric.Canvas('big-background-canvas', { width: bigWidth, height: bigWidth })
 
 	// make a network with the same nodes and links as the original map
@@ -877,27 +871,16 @@ export function exportPNGfile() {
 		},
 	})
 
-	// magnify the network so that everything (including the background objects) just fits inside the canvas
-	/* let box = mapBoundingBox(bigNetwork, bigFabricCanvas)
-	console.log('orig scale = ', bigNetwork.getScale())
-	console.log('new scale = ', 2 * Math.min(bigWidth / (box.right - box.left), bigWidth / (box.bottom - box.top)))
-	bigNetwork.moveTo({ scale: 2 * Math.min(bigWidth / (box.right - box.left), bigWidth / (box.bottom - box.top)) }) */
-
-
-
 	bigNetwork.on('afterDrawing', (bigNetContext) => {
 
 		// copy the background objects to the big fabric canvas
 		bigFabricCanvas.loadFromJSON(JSON.stringify(canvas), () => {
-			bigFabricCanvas.requestRenderAll() //TODO: Needed?
+//			bigFabricCanvas.requestRenderAll() //TODO: Needed?
 
 			// adjust the fabric canvas scale and center to match the big network and match the background colour
+			console.log('after stringify: scale ', bigNetwork.getScale(), 'center', center)
 			bigFabricCanvas.setZoom(bigNetwork.getScale())
 			let fcCenter = bigFabricCanvas.getVpCenter()
-			//			let center = canvas.getVpCenter()
-			let center = position
-			//let center = network.canvasToDOM(network.getViewPosition())
-			console.log('fcCenter:', fcCenter, 'center:', center, position)
 			bigFabricCanvas.relativePan({ x: bigNetwork.getScale() * (fcCenter.x - center.x), y: bigNetwork.getScale() * (fcCenter.y - center.y) })
 
 			bigFabricCanvas.setBackgroundColor(elem('underlay').style.backgroundColor || 'rgb(255, 255, 255)')
@@ -917,37 +900,26 @@ export function exportPNGfile() {
 				bigNetDiv.remove()
 
 				bigFabricCanvas.dispose()
-				//			bigBackgroundCanvas.remove()
 			}
 			bigBackgroundImage.src = bigFabricCanvas.toDataURL()
 		})
-
 	})
 	// fit the network to the big network div (centred around the selected node if any)
 	/* let selectedNodes = network.getSelectedNodes()
 	if (selectedNodes) bigNetwork.fit({ nodes: selectedNodes })
 	else bigNetwork.fit() */
 
-	// magnify the network so that everything (including the background objects) just fits inside the canvas
-	/* 	let box = mapBoundingBox(bigNetwork, bigFabricCanvas)
-		console.log('orig scale = ', bigNetwork.getScale())
-		console.log('new scale = ', Math.min(bigWidth / (box.right - box.left), bigWidth / (box.bottom - box.top)))
-		bigNetwork.moveTo({ scale: Math.min(bigWidth / (box.right - box.left), bigWidth / (box.bottom - box.top)) }) */
-
 	let box = mapBoundingBox(network, canvas)
-	console.log('orig scale = ', network.getScale(), network.getViewPosition())
-	let scale = Math.min(bigWidth / (box.right - box.left), bigWidth / (box.bottom - box.top))
-	let position = network.DOMtoCanvas({
-		x: 0.5 * (box.right + box.left), 
-		y: 0.5 * (box.bottom + box.top) 
+	let scale = Math.min(bigWidth * network.getScale()/ (box.right - box.left), bigWidth / (box.bottom - box.top))
+	let center = network.DOMtoCanvas({
+		x: 0.5 * (box.right + box.left),
+		y: 0.5 * (box.bottom + box.top)
 	})
-	console.log('new scale = ', scale, position)
+	console.log('scale',scale, 'center', center)
 	bigNetwork.moveTo({
 		scale: scale,
-		position: position
+		position: center
 	})
-
-
 
 	window.bigNetwork = bigNetwork
 	window.bigFabricCanvas = bigFabricCanvas
@@ -964,13 +936,16 @@ export function exportPNGfile() {
 			right = -1e9
 		data.nodes.forEach((node) => {
 			let canvasBB = ntwk.getBoundingBox(node.id)
-			let tl = ntwk.canvasToDOM({ x: canvasBB.left, y: canvasBB.top })
+				let tl = ntwk.canvasToDOM({ x: canvasBB.left, y: canvasBB.top })
 			let br = ntwk.canvasToDOM({ x: canvasBB.right, y: canvasBB.bottom })
-			if (left > tl.x) left = tl.x
+/* 			let tl = { x: canvasBB.left, y: canvasBB.top }
+			let br = { x: canvasBB.right, y: canvasBB.bottom }
+ */			if (left > tl.x) left = tl.x
 			if (right < br.x) right = br.x
 			if (top > tl.y) top = tl.y
 			if (bottom < br.y) bottom = br.y
-		})
+			console.log('node:', node, { left: left, right: right, top: top, bottom: bottom })
+	})
 		console.log('nodes ', { left: left, right: right, top: top, bottom: bottom })
 		fabCanvas.forEachObject(obj => {
 			let boundingBox = obj.getBoundingRect()
