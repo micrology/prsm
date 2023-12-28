@@ -838,6 +838,7 @@ function saveStr(str, extn) {
  */
 
 const bigWidth = 4096 // half the number of pixels in the image file (also half the height, as the image is square)
+const bigMargin = 256	// white space around network so not too close to printable edge
 
 export function exportPNGfile() {
 	setFileName('png')
@@ -858,7 +859,7 @@ export function exportPNGfile() {
 	// create an offscreen canvas of the same size to apply the background to
 	let bigBackgroundCanvas = new OffscreenCanvas(bigWidth, bigWidth)
 	bigBackgroundCanvas.id = 'big-background-canvas'
-	let bigFabricCanvas = new fabric.Canvas('big-background-canvas', { width: bigWidth, height: bigWidth })
+	let bigFabricCanvas = new fabric.StaticCanvas('big-background-canvas', { width: bigWidth, height: bigWidth })
 
 	// make a network with the same nodes and links as the original map
 	let bigNetwork = new Network(bigNetDiv, data, {
@@ -875,7 +876,6 @@ export function exportPNGfile() {
 
 		// copy the background objects to the big fabric canvas
 		bigFabricCanvas.loadFromJSON(JSON.stringify(canvas), () => {
-//			bigFabricCanvas.requestRenderAll() //TODO: Needed?
 
 			// adjust the fabric canvas scale and center to match the big network and match the background colour
 			console.log('after stringify: scale ', bigNetwork.getScale(), 'center', center)
@@ -898,7 +898,6 @@ export function exportPNGfile() {
 				// clean up
 				bigNetwork.destroy()
 				bigNetDiv.remove()
-
 				bigFabricCanvas.dispose()
 			}
 			bigBackgroundImage.src = bigFabricCanvas.toDataURL()
@@ -910,19 +909,18 @@ export function exportPNGfile() {
 	else bigNetwork.fit() */
 
 	let box = mapBoundingBox(network, canvas)
-	let scale = Math.min(bigWidth * network.getScale()/ (box.right - box.left), bigWidth / (box.bottom - box.top))
+	let scale = Math.min((bigWidth - bigMargin) * network.getScale() / (box.right - box.left), (bigWidth - bigMargin) / (box.bottom - box.top))
+	console.log('scale before cut off', scale)
+	if (scale > 10) scale = 10
 	let center = network.DOMtoCanvas({
 		x: 0.5 * (box.right + box.left),
 		y: 0.5 * (box.bottom + box.top)
 	})
-	console.log('scale',scale, 'center', center)
+	console.log('scale', scale, 'center', center)
 	bigNetwork.moveTo({
 		scale: scale,
 		position: center
 	})
-
-	window.bigNetwork = bigNetwork
-	window.bigFabricCanvas = bigFabricCanvas
 
 	/**
 	 * Get a bounding box for everything on the map (the nodes and the background objects)
@@ -930,22 +928,20 @@ export function exportPNGfile() {
 	 * @returns box as an object, with dimensions in DOM coords
 	 */
 	function mapBoundingBox(ntwk, fabCanvas) {
-		let top = 1e9,
-			bottom = -1e9,
-			left = 1e9,
-			right = -1e9
+		let top = Infinity,
+			bottom = -Infinity,
+			left = Infinity,
+			right = -Infinity
 		data.nodes.forEach((node) => {
 			let canvasBB = ntwk.getBoundingBox(node.id)
-				let tl = ntwk.canvasToDOM({ x: canvasBB.left, y: canvasBB.top })
+			let tl = ntwk.canvasToDOM({ x: canvasBB.left, y: canvasBB.top })
 			let br = ntwk.canvasToDOM({ x: canvasBB.right, y: canvasBB.bottom })
-/* 			let tl = { x: canvasBB.left, y: canvasBB.top }
-			let br = { x: canvasBB.right, y: canvasBB.bottom }
- */			if (left > tl.x) left = tl.x
+			if (left > tl.x) left = tl.x
 			if (right < br.x) right = br.x
 			if (top > tl.y) top = tl.y
 			if (bottom < br.y) bottom = br.y
 			console.log('node:', node, { left: left, right: right, top: top, bottom: bottom })
-	})
+		})
 		console.log('nodes ', { left: left, right: right, top: top, bottom: bottom })
 		fabCanvas.forEachObject(obj => {
 			let boundingBox = obj.getBoundingRect()
@@ -955,8 +951,8 @@ export function exportPNGfile() {
 			if (top > boundingBox.top) top = boundingBox.top
 			if (bottom < boundingBox.top + boundingBox.height) bottom = boundingBox.top + boundingBox.height
 		})
-		if (left === 1e9 && right === -1e9 && top === 1e9 && bottom === -1e9) {
-			(top = 0), (bottom = 0), (left = 0), (right = 0);
+		if (left === Infinity) {
+			top = bottom = left = right = 0
 		}
 		console.log('background ', { left: left, right: right, top: top, bottom: bottom })
 		return { left: left, right: right, top: top, bottom: bottom };
