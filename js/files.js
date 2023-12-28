@@ -908,10 +908,10 @@ export function exportPNGfile() {
 	if (selectedNodes) bigNetwork.fit({ nodes: selectedNodes })
 	else bigNetwork.fit() */
 
-	let box = mapBoundingBox(network, canvas)
+	let box = mapBoundingBox(network, canvas, network.getSelectedNodes())
 	let scale = Math.min((bigWidth - bigMargin) * network.getScale() / (box.right - box.left), (bigWidth - bigMargin) / (box.bottom - box.top))
 	console.log('scale before cut off', scale)
-	if (scale > 10) scale = 10
+	if (scale > 5) scale = 5
 	let center = network.DOMtoCanvas({
 		x: 0.5 * (box.right + box.left),
 		y: 0.5 * (box.bottom + box.top)
@@ -927,30 +927,33 @@ export function exportPNGfile() {
 	 * @param {*} ntwk the map on which the nodes are placed
 	 * @returns box as an object, with dimensions in DOM coords
 	 */
-	function mapBoundingBox(ntwk, fabCanvas) {
+	function mapBoundingBox(ntwk, fabCanvas, selectedNodes = []) {
 		let top = Infinity,
 			bottom = -Infinity,
 			left = Infinity,
 			right = -Infinity
-		data.nodes.forEach((node) => {
-			let canvasBB = ntwk.getBoundingBox(node.id)
+		if (selectedNodes.length === 0) selectedNodes = data.nodes.map(n =>n.id)
+		selectedNodes.forEach((nodeId) => {
+			let canvasBB = ntwk.getBoundingBox(nodeId)
 			let tl = ntwk.canvasToDOM({ x: canvasBB.left, y: canvasBB.top })
 			let br = ntwk.canvasToDOM({ x: canvasBB.right, y: canvasBB.bottom })
 			if (left > tl.x) left = tl.x
 			if (right < br.x) right = br.x
 			if (top > tl.y) top = tl.y
 			if (bottom < br.y) bottom = br.y
-			console.log('node:', node, { left: left, right: right, top: top, bottom: bottom })
+			console.log('node:', nodeId, { left: left, right: right, top: top, bottom: bottom })
 		})
 		console.log('nodes ', { left: left, right: right, top: top, bottom: bottom })
-		fabCanvas.forEachObject(obj => {
-			let boundingBox = obj.getBoundingRect()
-			console.log(obj, boundingBox)
-			if (left > boundingBox.left) left = boundingBox.left
-			if (right < boundingBox.left + boundingBox.width) right = boundingBox.left + boundingBox.width
-			if (top > boundingBox.top) top = boundingBox.top
-			if (bottom < boundingBox.top + boundingBox.height) bottom = boundingBox.top + boundingBox.height
-		})
+		if (selectedNodes.length === 0) {
+			fabCanvas.forEachObject(obj => {
+				let boundingBox = obj.getBoundingRect()
+				console.log(obj, boundingBox)
+				if (left > boundingBox.left) left = boundingBox.left
+				if (right < boundingBox.left + boundingBox.width) right = boundingBox.left + boundingBox.width
+				if (top > boundingBox.top) top = boundingBox.top
+				if (bottom < boundingBox.top + boundingBox.height) bottom = boundingBox.top + boundingBox.height
+			})
+		}
 		if (left === Infinity) {
 			top = bottom = left = right = 0
 		}
