@@ -839,7 +839,7 @@ function saveStr(str, extn) {
 
 const bigWidth = 4096	// half the number of pixels in the image file (also half the height, as the image is square)
 const bigMargin = 256	// white space around network so not too close to printable edge
-const maxScale = 5		// max upsacling for image (avoids blowing up very small networks excessively)
+const maxScale = 5		// max upscaling for image (avoids blowing up very small networks excessively)
 
 export function exportPNGfile() {
 	setFileName('png')
