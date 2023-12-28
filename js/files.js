@@ -837,8 +837,9 @@ function saveStr(str, extn) {
  * save the map as a PNG image file
  */
 
-const bigWidth = 4096 // half the number of pixels in the image file (also half the height, as the image is square)
+const bigWidth = 4096	// half the number of pixels in the image file (also half the height, as the image is square)
 const bigMargin = 256	// white space around network so not too close to printable edge
+const maxScale = 5		// max upsacling for image (avoids blowing up very small networks excessively)
 
 export function exportPNGfile() {
 	setFileName('png')
@@ -878,7 +879,6 @@ export function exportPNGfile() {
 		bigFabricCanvas.loadFromJSON(JSON.stringify(canvas), () => {
 
 			// adjust the fabric canvas scale and center to match the big network and match the background colour
-			console.log('after stringify: scale ', bigNetwork.getScale(), 'center', center)
 			bigFabricCanvas.setZoom(bigNetwork.getScale())
 			let fcCenter = bigFabricCanvas.getVpCenter()
 			bigFabricCanvas.relativePan({ x: bigNetwork.getScale() * (fcCenter.x - center.x), y: bigNetwork.getScale() * (fcCenter.y - center.y) })
@@ -903,20 +903,15 @@ export function exportPNGfile() {
 			bigBackgroundImage.src = bigFabricCanvas.toDataURL()
 		})
 	})
-	// fit the network to the big network div (centred around the selected node if any)
-	/* let selectedNodes = network.getSelectedNodes()
-	if (selectedNodes) bigNetwork.fit({ nodes: selectedNodes })
-	else bigNetwork.fit() */
 
 	let box = mapBoundingBox(network, canvas, network.getSelectedNodes())
-	let scale = Math.min((bigWidth - bigMargin) * network.getScale() / (box.right - box.left), (bigWidth - bigMargin) / (box.bottom - box.top))
-	console.log('scale before cut off', scale)
-	if (scale > 5) scale = 5
+	/* let scale = Math.min((bigWidth - bigMargin) * network.getScale() / (box.right - box.left), (bigWidth - bigMargin) / (box.bottom - box.top)) */
+	let scale = network.getScale() * Math.min((bigWidth - bigMargin) / (box.right - box.left), (bigWidth - bigMargin) / (box.bottom - box.top))
+	if (scale > maxScale) scale = maxScale
 	let center = network.DOMtoCanvas({
 		x: 0.5 * (box.right + box.left),
 		y: 0.5 * (box.bottom + box.top)
 	})
-	console.log('scale', scale, 'center', center)
 	bigNetwork.moveTo({
 		scale: scale,
 		position: center
@@ -924,7 +919,8 @@ export function exportPNGfile() {
 
 	/**
 	 * Get a bounding box for everything on the map (the nodes and the background objects)
-	 * @param {*} ntwk the map on which the nodes are placed
+	 * @param {object} ntwk the map on which the nodes are placed
+	 * @param {array} selectedNodes Ids of selected nodes, if any
 	 * @returns box as an object, with dimensions in DOM coords
 	 */
 	function mapBoundingBox(ntwk, fabCanvas, selectedNodes = []) {
@@ -932,6 +928,7 @@ export function exportPNGfile() {
 			bottom = -Infinity,
 			left = Infinity,
 			right = -Infinity
+		// use all nodes if none selected
 		if (selectedNodes.length === 0) selectedNodes = data.nodes.map(n =>n.id)
 		selectedNodes.forEach((nodeId) => {
 			let canvasBB = ntwk.getBoundingBox(nodeId)
@@ -941,9 +938,8 @@ export function exportPNGfile() {
 			if (right < br.x) right = br.x
 			if (top > tl.y) top = tl.y
 			if (bottom < br.y) bottom = br.y
-			console.log('node:', nodeId, { left: left, right: right, top: top, bottom: bottom })
 		})
-		console.log('nodes ', { left: left, right: right, top: top, bottom: bottom })
+		// only include background objects if no nodes are selected
 		if (selectedNodes.length === 0) {
 			fabCanvas.forEachObject(obj => {
 				let boundingBox = obj.getBoundingRect()
@@ -957,7 +953,6 @@ export function exportPNGfile() {
 		if (left === Infinity) {
 			top = bottom = left = right = 0
 		}
-		console.log('background ', { left: left, right: right, top: top, bottom: bottom })
 		return { left: left, right: right, top: top, bottom: bottom };
 	}
 }
