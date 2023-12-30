@@ -929,7 +929,7 @@ export function exportPNGfile() {
 			left = Infinity,
 			right = -Infinity
 		// use all nodes if none selected
-		if (selectedNodes.length === 0) selectedNodes = data.nodes.map(n =>n.id)
+		if (selectedNodes.length === 0) selectedNodes = data.nodes.map(n => n.id)
 		selectedNodes.forEach((nodeId) => {
 			let canvasBB = ntwk.getBoundingBox(nodeId)
 			let tl = ntwk.canvasToDOM({ x: canvasBB.left, y: canvasBB.top })
