@@ -2599,12 +2599,13 @@ function listFactors(factors, suppressType) {
 }
 
 /**
- * return a string listing the number of Links
+ * return a string listing the number of Links, or if just one, the starting and ending factors
  * @param {Array} links
  */
 function listLinks(links) {
 	if (links.length > 1) return `${links.length} links`
-	return '1 link'
+	let link = data.edges.get(links[0])
+	return `Link from "${data.nodes.get(link.from).label}" to "${data.nodes.get(link.to).label}"`
 }
 /**
  * returns string of currently selected labels of links and factors, nicely formatted
@@ -3442,11 +3443,11 @@ function positionNotes() {
 		notesPanel.style.left = `${settingsRect.left - notesPanelRect.width - 20}px`
 	}
 	// if the notes panel is outside the boundary of the net pane, shift it into the pane
-	if (notesPanelRect.left < netPaneRect.left) notesPanel.style.left = `${netPaneRect.left + 20}px`
+	if (notesPanelRect.left < netPaneRect.left + 20) notesPanel.style.left = `${netPaneRect.left + 20}px`
 	if (notesPanelRect.right > netPaneRect.right)
 		notesPanel.style.left = `${netPaneRect.right - notesPanelRect.width - 20}px`
 	let top = notesPanelRect.top
-	if (notesPanelRect.bottom > netPaneRect.bottom - 220) top = netPaneRect.top + 30
+	if (notesPanelRect.bottom > netPaneRect.bottom) top = netPaneRect.bottom - notesPanelRect.height -10
 	if (top < netPaneRect.top + 30) top = netPaneRect.top + 30
 	notesPanel.style.top = `${top}px`
 	elem('node-notes').style.maxHeight = `${netPaneRect.height - 230}px`
