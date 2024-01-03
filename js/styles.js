@@ -2,27 +2,27 @@
 
 PRSM Participatory System Mapper 
 
-    Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+	Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
 This modules handles operations related to the Styles tabs.  
  ******************************************************************************************************************** */
 
-import {Network} from 'vis-network/peer/'
-import {DataSet} from 'vis-data/peer'
+import { Network } from 'vis-network/peer/'
+import { DataSet } from 'vis-data/peer'
 import {
 	listen,
 	elem,
@@ -45,8 +45,9 @@ import {
 	updateLastSamples,
 	cp,
 	logHistory,
+	progressBar
 } from './prsm.js'
-import {styles} from './samples.js'
+import { styles } from './samples.js'
 
 /**
  * The samples are each a mini vis-network showing just one node or two nodes and a link
@@ -74,7 +75,7 @@ export function setUpSamples() {
 					widthConstraint: 50,
 					heightConstraint: 50,
 					margin: 10,
-					scaling: {label: {enabled: false}},
+					scaling: { label: { enabled: false } },
 				}
 			),
 		])
@@ -244,10 +245,10 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 		menu.classList.remove('show-menu')
 	}
 	function selectFactorsWithStyle(groupId) {
-		selectFactors(data.nodes.getIds({filter: (node) => node.grp === groupId}))
+		selectFactors(data.nodes.getIds({ filter: (node) => node.grp === groupId }))
 	}
 	function hideFactorsWithStyle(groupId, toggle) {
-		let nodes = data.nodes.get({filter: (node) => node.grp === groupId})
+		let nodes = data.nodes.get({ filter: (node) => node.grp === groupId })
 		nodes.forEach((node) => {
 			setNodeHidden(node, toggle)
 		})
@@ -314,10 +315,10 @@ function styleEdgeContextMenu(event, sampleElement, groupId) {
 		menu.classList.remove('show-menu')
 	}
 	function selectLinksWithStyle(groupId) {
-		selectLinks(data.edges.getIds({filter: (edge) => edge.grp === groupId}))
+		selectLinks(data.edges.getIds({ filter: (edge) => edge.grp === groupId }))
 	}
 	function hideLinksWithStyle(groupId, toggle) {
-		let edges = data.edges.get({filter: (edge) => edge.grp === groupId})
+		let edges = data.edges.get({ filter: (edge) => edge.grp === groupId })
 		edges.forEach((edge) => {
 			setEdgeHidden(edge, toggle)
 		})
@@ -422,12 +423,14 @@ function updateNodeEditor(groupId) {
 	elem('nodeEditBorder').value = getDashes(group.shapeProperties.borderDashes, group.borderWidth)
 	elem('nodeEditFontSize').value = group.font.size
 	if (group.fixed) {
-		elem('nodeEditFixed').style.display = 'block'
+		elem('nodeEditFixed').style.display = 'inline'
 		elem('nodeEditUnfixed').style.display = 'none'
 	} else {
 		elem('nodeEditFixed').style.display = 'none'
-		elem('nodeEditUnfixed').style.display = 'block'
+		elem('nodeEditUnfixed').style.display = 'inline'
 	}
+	elem('factor-size').value = factorSizeToPercent(group.size)
+	progressBar(elem('factor-size'))
 }
 listen('nodeEditLock', 'click', toggleNodeStyleLock)
 
@@ -435,12 +438,35 @@ function toggleNodeStyleLock() {
 	let group = styles.nodes[elem('nodeStyleEditorContainer').groupId]
 	if (group.fixed) {
 		elem('nodeEditFixed').style.display = 'none'
-		elem('nodeEditUnfixed').style.display = 'block'
+		elem('nodeEditUnfixed').style.display = 'inline'
 	} else {
-		elem('nodeEditFixed').style.display = 'block'
+		elem('nodeEditFixed').style.display = 'inline'
 		elem('nodeEditUnfixed').style.display = 'none'
 	}
 	group.fixed = !group.fixed
+}
+/**
+ * Convert a factor size into a percent (with any size below 30 as zero), for the input range slider
+ * @param {Integer} size 
+ * @returns 
+ */
+function factorSizeToPercent(size) {
+	let fSize = (size - 20) / 2.5
+	return isNaN(fSize) || fSize < 30 ? 0 : fSize
+}
+/**
+ * Set the factor size according to the input range slider value (less then 5% is treated as the normal size)
+ * @param {object} group 
+ * @param {integer} percent 
+ */
+function setFactorSizeFromPercent(group, percent) {
+	if (percent < 5) {
+		group.size = 25
+		group.heightConstraint = group.widthConstraint = false
+	}
+	else {
+		group.heightConstraint = group.widthConstraint = group.size = percent * 2.5 + 20
+	}
 }
 /**
  * save changes to the style made with the edit dialog to the style object
@@ -462,6 +488,7 @@ function nodeEditSave() {
 	group.shapeProperties.borderDashes = groupDashes(border)
 	group.borderWidth = border === 'none' ? 0 : 4
 	group.font.size = parseInt(elem('nodeEditFontSize').value)
+	setFactorSizeFromPercent(group, elem('factor-size').value)
 	nodeEditUpdateStyleSample(group)
 }
 /**
@@ -473,9 +500,9 @@ function nodeEditUpdateStyleSample(group) {
 	let styleElement = elem('nodeStyleEditorContainer').styleElement
 	let node = styleElement.dataSet.get('1')
 	node.label = group.groupLabel
-	node = deepMerge(node, styles.nodes[groupId], {chosen: false})
-	let dataSet = styleElement.dataSet
-	dataSet.update(node)
+	// the node in the style sample does not change size
+	node = deepMerge(node, styles.nodes[groupId], { chosen: false, size: 25, widthConstraint: 25, heightConstraint: 25, })
+	styleElement.dataSet.update(node)
 }
 /**
  * cancel any editing of the style and revert to what it was previously
@@ -607,7 +634,7 @@ function linkEditUpdateStyleSample(group) {
 	let styleElement = elem('linkStyleEditorContainer').styleElement
 	let edge = styleElement.dataSet.get('1')
 	edge.label = group.groupLabel
-	edge = deepMerge(edge, styles.edges[groupId], {chosen: false})
+	edge = deepMerge(edge, styles.edges[groupId], { chosen: false })
 	let dataSet = styleElement.dataSet
 	dataSet.update(edge)
 }
@@ -715,7 +742,7 @@ function getArrows(prop) {
 
 /*  ------------display the map legend (includes all styles with a group label that is neither blank or 'Sample') */
 
-var legendData = {nodes: new DataSet(), edges: new DataSet()}
+var legendData = { nodes: new DataSet(), edges: new DataSet() }
 var legendNetwork = null
 const LEGENDSPACING = 60
 const HALFLEGENDWIDTH = 60
@@ -757,10 +784,10 @@ export function legend(warn = false) {
 	dragElement(legendBox, title)
 
 	legendNetwork = new Network(canvas, legendData, {
-		physics: {enabled: false},
-		interaction: {zoomView: false, dragView: false},
+		physics: { enabled: false },
+		interaction: { zoomView: false, dragView: false },
 	})
-	let height = legendNetwork.DOMtoCanvas({x: 0, y: 0}).y
+	let height = legendNetwork.DOMtoCanvas({ x: 0, y: 0 }).y
 	for (let i = 0; i < nodes.length; i++) {
 		let node = deepMerge(styles.nodes[nodes[i].groupNode])
 		node.id = i + 10000
@@ -786,8 +813,8 @@ export function legend(warn = false) {
 		edge.id = i + 10000
 		edge.from = i + 20000
 		edge.to = i + 30000
-		edge.smooth = {type: 'straightCross'}
-		edge.font = {size: 12, color: 'black', align: 'top', vadjust: -10}
+		edge.smooth = { type: 'straightCross' }
+		edge.font = { size: 12, color: 'black', align: 'top', vadjust: -10 }
 		edge.widthConstraint = 80
 		edge.chosen = false
 		let nodes = [

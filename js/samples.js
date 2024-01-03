@@ -59,6 +59,9 @@ export const styles = {
 					max: 40,
 				},
 			},
+			size: 25,
+			heightConstraint: false,
+			widthConstraint: false,
 		},
 		group0: {
 			borderWidth: 0,

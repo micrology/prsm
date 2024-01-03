@@ -1068,37 +1068,45 @@
 							<option value="10">Small</option>
 						</select>
 					</div>
-					<div id="nodeEditLock">
-						<span id="nodeEditUnfixed">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-unlock-fill"
-								viewBox="0 0 16 16"
-							>
-								<path
-									d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2z"
-								/>
-							</svg>
+					<div class="sizer">
+						<span id="nodeEditLock">
+							<span id="nodeEditUnfixed" style="display: none">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="16"
+									height="16"
+									fill="currentColor"
+									class="bi bi-unlock-fill"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2z"
+									/>
+								</svg>
+							</span>
+							<span id="nodeEditFixed" style="display: inline">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="16"
+									height="16"
+									fill="currentColor"
+									class="bi bi-lock-fill"
+									viewBox="0 0 16 16"
+								>
+									<path
+										d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"
+									/>
+								</svg>
+							</span>
 						</span>
-						<span id="nodeEditFixed">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-lock-fill"
-								viewBox="0 0 16 16"
-							>
-								<path
-									d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"
-								/>
-							</svg>
-						</span>
+						<label
+							>&nbsp;Size:
+							<input type="range" class="sizer xrange" id="factor-size" />
+						</label>
 					</div>
-					<input type="button" value="save" id="nodeEditSubmit" class="save-button submit" />
+					<div class="submit">
+						<input type="button" value="save" id="nodeEditSubmit" class="save-button" />
+					</div>
 				</div>
 			</div>
 			<!-- Link Style Editor -->
@@ -1348,4 +1356,3 @@
 		<script src="../js/prsm.js" type="module" async></script>
 	</body>
 </html>
- 
