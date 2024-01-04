@@ -703,12 +703,14 @@ export function reApplySampleToLinks(groupIds, force) {
  * @param {number} bWidth border width
  */
 function getDashes(bDashes, bWidth) {
-	let val = bDashes.toString()
+	if (bWidth === 0) return 'none'
+	if (bDashes === false) return 'solid'
+	if (bDashes === true) return 'dashed'
 	if (Array.isArray(bDashes)) {
-		if (bDashes[0] === 10) val = 'dashes'
-		else val = 'dots'
-	} else if (bWidth === 0) val = 'none'
-	return val
+		if (bDashes[0] === 10) return 'dashedLinks'
+		return 'dotted'
+	}
+	return null
 }
 /**
  * Convert from dashed menu selection to style object properties
@@ -716,11 +718,11 @@ function getDashes(bDashes, bWidth) {
  */
 function groupDashes(val) {
 	switch (val) {
-		case 'true': // dashes [5,15] for node borders
+		case 'dashed': // dashes [5,15] for node borders
 			return true
-		case 'dashes': // dashes for links
+		case 'dashedLinks': // dashes for links
 			return [10, 10]
-		case 'false': // solid
+		case 'solid': // solid
 			return false
 		case 'none': //solid, zero width
 			return false
