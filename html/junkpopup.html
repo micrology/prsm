@@ -1,0 +1,137 @@
+<!-- Node Style Editor -->
+<div id="nodeStyleEditorContainer" class="styleEditorContainer hideEditor">
+    <div class="styleEditor">
+        <div class="header">Edit factor style</div>
+        <div class="x-button" id="nodeEditCancel">&times;</div>
+        <div class="title">
+            Name of style:
+            <input name="nodeEditName" id="nodeEditName" placeholder="Sample" />
+        </div>
+        <div>fill</div>
+        <div>border</div>
+        <div>font</div>
+        <div class="input-color-container">
+            <div class="color-well" id="nodeEditFillColor"></div>
+        </div>
+        <div class="input-color-container">
+            <div class="color-well" id="nodeEditBorderColor"></div>
+        </div>
+        <div class="input-color-container">
+            <div class="color-well" id="nodeEditFontColor"></div>
+        </div>
+        <div>
+            <select name="nodeEditShape" id="nodeEditShape">
+                <option value="box">Shape...</option>
+                <option value="ellipse">Ellipse</option>
+                <option value="circle">Circle</option>
+                <option value="box">Rect</option>
+                <option value="diamond">Diamond</option>
+                <option value="star">Star</option>
+                <option value="triangle">Triangle</option>
+                <option value="hexagon">Hexagon</option>
+                <option value="text">Text</option>
+            </select>
+        </div>
+        <div>
+            <select name="nodeEditBorder" id="nodeEditBorder">
+                <option value="solid" selected>Solid</option>
+                <option value="dashed">Dashed</option>
+                <option value="dots">Dotted</option>
+                <option value="none">None</option>
+            </select>
+        </div>
+        <div>
+            <select name="nodeEditFontSize" id="nodeEditFontSize">
+                <option value="14">Size...</option>
+                <option value="18">Large</option>
+                <option value="14">Normal</option>
+                <option value="10">Small</option>
+            </select>
+        </div>
+        <div class="sizer">
+            <span id="nodeEditLock">
+                <span id="nodeEditUnfixed" style="display: none">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="bi bi-unlock-fill"
+                        viewBox="0 0 16 16"
+                    >
+                        <path
+                            d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2z"
+                        />
+                    </svg>
+                </span>
+                <span id="nodeEditFixed" style="display: inline">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="bi bi-lock-fill"
+                        viewBox="0 0 16 16"
+                    >
+                        <path
+                            d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"
+                        />
+                    </svg>
+                </span>
+            </span>
+            <label
+                >&nbsp;Size:
+                <input type="range" class="sizer xrange" id="factor-size" />
+            </label>
+        </div>
+        <div class="submit">
+            <input type="button" value="save" id="nodeEditSubmit" class="save-button" />
+        </div>
+    </div>
+</div>
+<!-- Link Style Editor -->
+<div id="linkStyleEditorContainer" class="styleEditorContainer hideEditor" style="top: 200px">
+    <div class="styleEditor">
+        <div class="header">Edit link style</div>
+        <div class="x-button" id="linkEditCancel">&times;</div>
+        <div class="title">
+            Name of style:
+            <input name="linkEditName" id="linkEditName" placeholder="Sample" />
+        </div>
+        <div>colour</div>
+        <div></div>
+        <div></div>
+        <div class="input-color-container">
+            <div class="color-well" id="linkEditLineColor"></div>
+        </div>
+        <div>
+            <select name="linkEditWidth" id="linkEditWidth">
+                <option value="1">Width...</option>
+                <option value="1">Width: 1</option>
+                <option value="2">Width: 2</option>
+                <option value="4">Width: 4</option>
+            </select>
+        </div>
+        <div></div>
+        <div>
+            <select name="linkEditDashes" id="linkEditDashes">
+                <option value="solid" selected>Solid</option>
+                <option value="dashedLinks">Dashed</option>
+                <option value="dots">Dotted</option>
+            </select>
+        </div>
+        <div>
+            <select name="linkEditArrows" id="linkEditArrows">
+                <option value="vee">Arrows...</option>
+                <option value="vee">Sharp</option>
+                <option value="arrow">Triangle</option>
+                <option value="bar">Bar</option>
+                <option value="circle">Circle</option>
+                <option value="box">Box</option>
+                <option value="diamond">Diamond</option>
+                <option value="none">None</option>
+            </select>
+        </div>
+        <input type="button" value="save" id="linkEditSubmit" class="save-button submit" />
+    </div>
+</div>

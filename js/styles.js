@@ -166,25 +166,25 @@ export function setUpSamples() {
 		sampleElement.dataSet = edgeDataSet
 	}
 	// set up color pickers
-	cp.createColorPicker('nodeEditFillColor', nodeEditSave)
-	cp.createColorPicker('nodeEditBorderColor', nodeEditSave)
-	cp.createColorPicker('nodeEditFontColor', nodeEditSave)
-	cp.createColorPicker('linkEditLineColor', linkEditSave)
+	cp.createColorPicker('nodeStyleEditFillColor', nodeEditSave)
+	cp.createColorPicker('nodeStyleEditBorderColor', nodeEditSave)
+	cp.createColorPicker('nodeStyleEditFontColor', nodeEditSave)
+	cp.createColorPicker('linkStyleEditLineColor', linkEditSave)
 
 	// set up listeners
-	listen('nodeEditCancel', 'click', nodeEditCancel)
-	listen('nodeEditName', 'keyup', nodeEditSave)
-	listen('nodeEditShape', 'change', nodeEditSave)
-	listen('nodeEditBorder', 'change', nodeEditSave)
-	listen('nodeEditFontSize', 'change', nodeEditSave)
-	listen('nodeEditSubmit', 'click', nodeEditSubmit)
+	listen('nodeStyleEditCancel', 'click', nodeEditCancel)
+	listen('nodeStyleEditName', 'keyup', nodeEditSave)
+	listen('nodeStyleEditShape', 'change', nodeEditSave)
+	listen('nodeStyleEditBorder', 'change', nodeEditSave)
+	listen('nodeStyleEditFontSize', 'change', nodeEditSave)
+	listen('nodeStyleEditSubmit', 'click', nodeEditSubmit)
 
-	listen('linkEditCancel', 'click', linkEditCancel)
-	listen('linkEditName', 'keyup', linkEditSave)
-	listen('linkEditWidth', 'input', linkEditSave)
-	listen('linkEditDashes', 'input', linkEditSave)
-	listen('linkEditArrows', 'change', linkEditSave)
-	listen('linkEditSubmit', 'click', linkEditSubmit)
+	listen('linkStyleEditCancel', 'click', linkEditCancel)
+	listen('linkStyleEditName', 'keyup', linkEditSave)
+	listen('linkStyleEditWidth', 'input', linkEditSave)
+	listen('linkStyleEditDashes', 'input', linkEditSave)
+	listen('linkStyleEditArrows', 'change', linkEditSave)
+	listen('linkStyleEditSubmit', 'click', linkEditSubmit)
 	listen('styleNodeContextMenuHide', 'contextmenu', (e) => e.preventDefault())
 	listen('styleNodeContextMenuSelect', 'contextmenu', (e) => e.preventDefault())
 	listen('styleEdgeContextMenuSelect', 'contextmenu', (e) => e.preventDefault())
@@ -415,33 +415,33 @@ function editNodeStyle(styleElement, groupId) {
  */
 function updateNodeEditor(groupId) {
 	let group = styles.nodes[groupId]
-	elem('nodeEditName').value = group.groupLabel !== 'Sample' ? group.groupLabel : ''
-	elem('nodeEditFillColor').style.backgroundColor = standardize_color(group.color.background)
-	elem('nodeEditBorderColor').style.backgroundColor = standardize_color(group.color.border)
-	elem('nodeEditFontColor').style.backgroundColor = standardize_color(group.font.color)
-	elem('nodeEditShape').value = group.shape
-	elem('nodeEditBorder').value = getDashes(group.shapeProperties.borderDashes, group.borderWidth)
-	elem('nodeEditFontSize').value = group.font.size
+	elem('nodeStyleEditName').value = group.groupLabel !== 'Sample' ? group.groupLabel : ''
+	elem('nodeStyleEditFillColor').style.backgroundColor = standardize_color(group.color.background)
+	elem('nodeStyleEditBorderColor').style.backgroundColor = standardize_color(group.color.border)
+	elem('nodeStyleEditFontColor').style.backgroundColor = standardize_color(group.font.color)
+	elem('nodeStyleEditShape').value = group.shape
+	elem('nodeStyleEditBorder').value = getDashes(group.shapeProperties.borderDashes, group.borderWidth)
+	elem('nodeStyleEditFontSize').value = group.font.size
 	if (group.fixed) {
-		elem('nodeEditFixed').style.display = 'inline'
-		elem('nodeEditUnfixed').style.display = 'none'
+		elem('nodeStyleEditFixed').style.display = 'inline'
+		elem('nodeStyleEditUnfixed').style.display = 'none'
 	} else {
-		elem('nodeEditFixed').style.display = 'none'
-		elem('nodeEditUnfixed').style.display = 'inline'
+		elem('nodeStyleEditFixed').style.display = 'none'
+		elem('nodeStyleEditUnfixed').style.display = 'inline'
 	}
 	elem('factor-size').value = factorSizeToPercent(group.size)
 	progressBar(elem('factor-size'))
 }
-listen('nodeEditLock', 'click', toggleNodeStyleLock)
+listen('nodeStyleEditLock', 'click', toggleNodeStyleLock)
 
 function toggleNodeStyleLock() {
 	let group = styles.nodes[elem('nodeStyleEditorContainer').groupId]
 	if (group.fixed) {
-		elem('nodeEditFixed').style.display = 'none'
-		elem('nodeEditUnfixed').style.display = 'inline'
+		elem('nodeStyleEditFixed').style.display = 'none'
+		elem('nodeStyleEditUnfixed').style.display = 'inline'
 	} else {
-		elem('nodeEditFixed').style.display = 'inline'
-		elem('nodeEditUnfixed').style.display = 'none'
+		elem('nodeStyleEditFixed').style.display = 'inline'
+		elem('nodeStyleEditUnfixed').style.display = 'none'
 	}
 	group.fixed = !group.fixed
 }
@@ -474,20 +474,20 @@ function setFactorSizeFromPercent(group, percent) {
 function nodeEditSave() {
 	let groupId = elem('nodeStyleEditorContainer').groupId
 	let group = styles.nodes[groupId]
-	group.groupLabel = elem('nodeEditName').value
+	group.groupLabel = elem('nodeStyleEditName').value
 	if (group.groupLabel === '') group.groupLabel = 'Sample'
-	group.color.background = elem('nodeEditFillColor').style.backgroundColor
-	group.color.border = elem('nodeEditBorderColor').style.backgroundColor
+	group.color.background = elem('nodeStyleEditFillColor').style.backgroundColor
+	group.color.border = elem('nodeStyleEditBorderColor').style.backgroundColor
 	group.color.highlight.background = group.color.background
 	group.color.highlight.border = group.color.border
 	group.color.hover.background = group.color.background
 	group.color.hover.border = group.color.border
-	group.font.color = elem('nodeEditFontColor').style.backgroundColor
-	group.shape = elem('nodeEditShape').value
-	let border = elem('nodeEditBorder').value
+	group.font.color = elem('nodeStyleEditFontColor').style.backgroundColor
+	group.shape = elem('nodeStyleEditShape').value
+	let border = elem('nodeStyleEditBorder').value
 	group.shapeProperties.borderDashes = groupDashes(border)
 	group.borderWidth = border === 'none' ? 0 : 4
-	group.font.size = parseInt(elem('nodeEditFontSize').value)
+	group.font.size = parseInt(elem('nodeStyleEditFontSize').value)
 	setFactorSizeFromPercent(group, elem('factor-size').value)
 	nodeEditUpdateStyleSample(group)
 }
@@ -589,11 +589,11 @@ function editLinkStyle(styleElement, groupId) {
  */
 function updateLinkEditor(groupId) {
 	let group = styles.edges[groupId]
-	elem('linkEditName').value = group.groupLabel !== 'Sample' ? group.groupLabel : ''
-	elem('linkEditLineColor').style.backgroundColor = standardize_color(group.color.color)
-	elem('linkEditWidth').value = group.width
-	elem('linkEditDashes').value = getDashes(group.dashes, 1)
-	elem('linkEditArrows').value = getArrows(group.arrows)
+	elem('linkStyleEditName').value = group.groupLabel !== 'Sample' ? group.groupLabel : ''
+	elem('linkStyleEditLineColor').style.backgroundColor = standardize_color(group.color.color)
+	elem('linkStyleEditWidth').value = group.width
+	elem('linkStyleEditDashes').value = getDashes(group.dashes, 1)
+	elem('linkStyleEditArrows').value = getArrows(group.arrows)
 }
 /**
  * save changes to the style made with the edit dialog to the style object
@@ -601,14 +601,14 @@ function updateLinkEditor(groupId) {
 function linkEditSave() {
 	let groupId = elem('linkStyleEditorContainer').groupId
 	let group = styles.edges[groupId]
-	group.groupLabel = elem('linkEditName').value
+	group.groupLabel = elem('linkStyleEditName').value
 	if (group.groupLabel === '') group.groupLabel = 'Sample'
-	group.color.color = elem('linkEditLineColor').style.backgroundColor
+	group.color.color = elem('linkStyleEditLineColor').style.backgroundColor
 	group.color.highlight = group.color.color
 	group.color.hover = group.color.color
-	group.width = parseInt(elem('linkEditWidth').value)
-	group.dashes = groupDashes(elem('linkEditDashes').value)
-	groupArrows(elem('linkEditArrows').value)
+	group.width = parseInt(elem('linkStyleEditWidth').value)
+	group.dashes = groupDashes(elem('linkStyleEditDashes').value)
+	groupArrows(elem('linkStyleEditArrows').value)
 	linkEditUpdateStyleSample(group)
 	/**
 	 * Set the link object properties to show various arrow types

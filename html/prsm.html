@@ -1021,29 +1021,28 @@
 			<div id="nodeStyleEditorContainer" class="styleEditorContainer hideEditor">
 				<div class="styleEditor">
 					<div class="header">Edit factor style</div>
-					<div class="x-button" id="nodeEditCancel">&times;</div>
+					<div class="x-button" id="nodeStyleEditCancel">&times;</div>
 					<div class="title">
 						Name of style:
-						<input name="nodeEditName" id="nodeEditName" placeholder="Sample" />
+						<input name="nodeStyleEditName" id="nodeStyleEditName" placeholder="Sample" />
 					</div>
 					<div>fill</div>
 					<div>border</div>
 					<div>font</div>
 					<div class="input-color-container">
-						<div class="color-well" id="nodeEditFillColor"></div>
+						<div class="color-well" id="nodeStyleEditFillColor"></div>
 					</div>
 					<div class="input-color-container">
-						<div class="color-well" id="nodeEditBorderColor"></div>
+						<div class="color-well" id="nodeStyleEditBorderColor"></div>
 					</div>
 					<div class="input-color-container">
-						<div class="color-well" id="nodeEditFontColor"></div>
+						<div class="color-well" id="nodeStyleEditFontColor"></div>
 					</div>
 					<div>
-						<select name="nodeEditShape" id="nodeEditShape">
-							<option value="box">Shape...</option>
+						<select name="nodeStyleEditShape" id="nodeStyleEditShape">
 							<option value="ellipse">Ellipse</option>
 							<option value="circle">Circle</option>
-							<option value="box">Rect</option>
+							<option value="box" selected>Rect</option>
 							<option value="diamond">Diamond</option>
 							<option value="star">Star</option>
 							<option value="triangle">Triangle</option>
@@ -1052,7 +1051,7 @@
 						</select>
 					</div>
 					<div>
-						<select name="nodeEditBorder" id="nodeEditBorder">
+						<select name="nodeStyleEditBorder" id="nodeStyleEditBorder">
 							<option value="solid" selected>Solid</option>
 							<option value="dashed">Dashed</option>
 							<option value="dots">Dotted</option>
@@ -1060,16 +1059,15 @@
 						</select>
 					</div>
 					<div>
-						<select name="nodeEditFontSize" id="nodeEditFontSize">
-							<option value="14">Size...</option>
+						<select name="nodeStyleEditFontSize" id="nodeStyleEditFontSize">
 							<option value="18">Large</option>
-							<option value="14">Normal</option>
+							<option value="14" selected>Normal</option>
 							<option value="10">Small</option>
 						</select>
 					</div>
 					<div class="sizer">
-						<span id="nodeEditLock">
-							<span id="nodeEditUnfixed" style="display: none">
+						<span id="nodeStyleEditLock">
+							<span id="nodeStyleEditUnfixed" style="display: none">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="16"
@@ -1083,7 +1081,7 @@
 									/>
 								</svg>
 							</span>
-							<span id="nodeEditFixed" style="display: inline">
+							<span id="nodeStyleEditFixed" style="display: inline">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="16"
@@ -1104,7 +1102,7 @@
 						</label>
 					</div>
 					<div class="submit">
-						<input type="button" value="save" id="nodeEditSubmit" class="save-button" />
+						<input type="button" value="save" id="nodeStyleEditSubmit" class="save-button" />
 					</div>
 				</div>
 			</div>
@@ -1112,19 +1110,19 @@
 			<div id="linkStyleEditorContainer" class="styleEditorContainer hideEditor" style="top: 200px">
 				<div class="styleEditor">
 					<div class="header">Edit link style</div>
-					<div class="x-button" id="linkEditCancel">&times;</div>
+					<div class="x-button" id="linkStyleEditCancel">&times;</div>
 					<div class="title">
 						Name of style:
-						<input name="linkEditName" id="linkEditName" placeholder="Sample" />
+						<input name="linkStyleEditName" id="linkStyleEditName" placeholder="Sample" />
 					</div>
 					<div>colour</div>
 					<div></div>
 					<div></div>
 					<div class="input-color-container">
-						<div class="color-well" id="linkEditLineColor"></div>
+						<div class="color-well" id="linkStyleEditLineColor"></div>
 					</div>
 					<div>
-						<select name="linkEditWidth" id="linkEditWidth">
+						<select name="linkStyleEditWidth" id="linkStyleEditWidth">
 							<option value="1">Width...</option>
 							<option value="1">Width: 1</option>
 							<option value="2">Width: 2</option>
@@ -1133,14 +1131,14 @@
 					</div>
 					<div></div>
 					<div>
-						<select name="linkEditDashes" id="linkEditDashes">
+						<select name="linkStyleEditDashes" id="linkStyleEditDashes">
 							<option value="solid" selected>Solid</option>
 							<option value="dashedLinks">Dashed</option>
 							<option value="dots">Dotted</option>
 						</select>
 					</div>
 					<div>
-						<select name="linkEditArrows" id="linkEditArrows">
+						<select name="linkStyleEditArrows" id="linkStyleEditArrows">
 							<option value="vee">Arrows...</option>
 							<option value="vee">Sharp</option>
 							<option value="arrow">Triangle</option>
@@ -1151,7 +1149,7 @@
 							<option value="none">None</option>
 						</select>
 					</div>
-					<input type="button" value="save" id="linkEditSubmit" class="save-button submit" />
+					<input type="button" value="save" id="linkStyleEditSubmit" class="save-button submit" />
 				</div>
 			</div>
 			<!-- Share model dialog -->
