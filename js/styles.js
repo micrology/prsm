@@ -34,6 +34,10 @@ import {
 	dragElement,
 	statusMsg,
 	clearStatusBar,
+	factorSizeToPercent,
+	setFactorSizeFromPercent,
+	convertDashes,
+	getDashes
 } from './utils.js'
 import {
 	network,
@@ -429,8 +433,8 @@ function updateNodeEditor(groupId) {
 		elem('nodeStyleEditFixed').style.display = 'none'
 		elem('nodeStyleEditUnfixed').style.display = 'inline'
 	}
-	elem('factor-size').value = factorSizeToPercent(group.size)
-	progressBar(elem('factor-size'))
+	elem('nodeStyleEditFactorSize').value = factorSizeToPercent(group.size)
+	progressBar(elem('nodeStyleEditFactorSize'))
 }
 listen('nodeStyleEditLock', 'click', toggleNodeStyleLock)
 
@@ -444,29 +448,6 @@ function toggleNodeStyleLock() {
 		elem('nodeStyleEditUnfixed').style.display = 'none'
 	}
 	group.fixed = !group.fixed
-}
-/**
- * Convert a factor size into a percent (with any size below 30 as zero), for the input range slider
- * @param {Integer} size 
- * @returns 
- */
-function factorSizeToPercent(size) {
-	let fSize = (size - 20) / 2.5
-	return isNaN(fSize) || fSize < 30 ? 0 : fSize
-}
-/**
- * Set the factor size according to the input range slider value (less then 5% is treated as the normal size)
- * @param {object} group 
- * @param {integer} percent 
- */
-function setFactorSizeFromPercent(group, percent) {
-	if (percent < 5) {
-		group.size = 25
-		group.heightConstraint = group.widthConstraint = false
-	}
-	else {
-		group.heightConstraint = group.widthConstraint = group.size = percent * 2.5 + 20
-	}
 }
 /**
  * save changes to the style made with the edit dialog to the style object
@@ -485,10 +466,10 @@ function nodeEditSave() {
 	group.font.color = elem('nodeStyleEditFontColor').style.backgroundColor
 	group.shape = elem('nodeStyleEditShape').value
 	let border = elem('nodeStyleEditBorder').value
-	group.shapeProperties.borderDashes = groupDashes(border)
+	group.shapeProperties.borderDashes = convertDashes(border)
 	group.borderWidth = border === 'none' ? 0 : 4
 	group.font.size = parseInt(elem('nodeStyleEditFontSize').value)
-	setFactorSizeFromPercent(group, elem('factor-size').value)
+	setFactorSizeFromPercent(group, elem('nodeStyleEditFactorSize').value)
 	nodeEditUpdateStyleSample(group)
 }
 /**
@@ -607,7 +588,7 @@ function linkEditSave() {
 	group.color.highlight = group.color.color
 	group.color.hover = group.color.color
 	group.width = parseInt(elem('linkStyleEditWidth').value)
-	group.dashes = groupDashes(elem('linkStyleEditDashes').value)
+	group.dashes = convertDashes(elem('linkStyleEditDashes').value)
 	groupArrows(elem('linkStyleEditArrows').value)
 	linkEditUpdateStyleSample(group)
 	/**
@@ -696,41 +677,6 @@ export function reApplySampleToLinks(groupIds, force) {
 			return force ? deepMerge(edge, styles.edges[edge.grp]) : deepMerge(styles.edges[edge.grp], edge)
 		})
 	)
-}
-/**
- * convert from style object properties to dashed border menu selection
- * @param {any} bDashes select menu value
- * @param {number} bWidth border width
- */
-function getDashes(bDashes, bWidth) {
-	if (bWidth === 0) return 'none'
-	if (bDashes === false) return 'solid'
-	if (bDashes === true) return 'dashed'
-	if (Array.isArray(bDashes)) {
-		if (bDashes[0] === 10) return 'dashedLinks'
-		return 'dotted'
-	}
-	return null
-}
-/**
- * Convert from dashed menu selection to style object properties
- * @param {string} val
- */
-function groupDashes(val) {
-	switch (val) {
-		case 'dashed': // dashes [5,15] for node borders
-			return true
-		case 'dashedLinks': // dashes for links
-			return [10, 10]
-		case 'solid': // solid
-			return false
-		case 'none': //solid, zero width
-			return false
-		case 'dots':
-			return [2, 8]
-		default:
-			return false
-	}
 }
 /**
  * Convert from style object properties to arrow menu selection

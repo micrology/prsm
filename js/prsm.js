@@ -47,6 +47,10 @@ import {
 	standardize_color,
 	setNodeHidden,
 	setEdgeHidden,
+	factorSizeToPercent,
+	setFactorSizeFromPercent,
+	convertDashes,
+	getDashes,
 	object_equals,
 	generateName,
 	statusMsg,
@@ -305,7 +309,7 @@ function addEventListeners() {
 			applySampleToLink(event)
 		})
 	)
-	listen('factor-size', 'input', (event) => progressBar(event.target))
+	listen('nodeStyleEditFactorSize', 'input', (event) => progressBar(event.target))
 
 	listen('history-copy', 'click', copyHistoryToClipboard)
 
@@ -2004,60 +2008,73 @@ function ghostFactor(pos) {
  */
 function editNode(item, point, cancelAction, callback) {
 	if (item.locked) return
-	initPopUp('Edit Factor', 150, item, cancelAction, saveNode, callback)
+	initPopUp('Edit Factor', 180, item, cancelAction, saveNode, callback)
 	elem('popup').insertAdjacentHTML(
 		'beforeend',
-		`	
-		<table id="popup-table">
-		<tr>
-		  <td>
-			<i>Back</i>
-		  </td>
-		  <td>
-			<i>Border</i>
-		  </td>
-		  <td>
-			<i>Font</i>
-		  </td>
-		</tr>
-		<tr>
-		  <td>
-			<div class="input-color-container">
-			  <div class="color-well" id="node-backgroundColor"></div>
-			</div>
-		  </td>
-		  <td>
-			<div class="input-color-container">
-			  <div class="color-well" id="node-borderColor"></div>
-			</div>
-		  </td>
-		  <td>
-			<div class="input-color-container">
-			  <div class="color-well" id="node-fontColor"></div>
-			</div>
-		  </td>
-		</tr>
-		<tr>
-		  <td><i>Border:</i></td>
-		  <td colspan="2">
-			<select id="node-borderType">
-			  <option value="false">Type...</option>
-			  <option value="false">Solid</option>
-			  <option value="true">Dashed</option>
-			  <option value="dots">Dotted</option>
-			  <option value="none">None</option>
-			</select>
-		  </td>
-		</tr>
-	  </table>`
-	)
+		`
+		<div class="popup-node-editor" id="popup-node-editor">	
+		<div>fill</div>
+        <div>border</div>
+        <div>font</div>
+        <div class="input-color-container">
+            <div class="color-well" id="node-backgroundColor"></div>
+        </div>
+        <div class="input-color-container">
+            <div class="color-well" id="node-borderColor"></div>
+        </div>
+        <div class="input-color-container">
+            <div class="color-well" id="node-fontColor"></div>
+        </div>
+        <div>
+            <select name="nodeEditShape" id="nodeEditShape">
+                <option value="box">Shape...</option>
+                <option value="ellipse">Ellipse</option>
+                <option value="circle">Circle</option>
+                <option value="box">Rect</option>
+                <option value="diamond">Diamond</option>
+                <option value="star">Star</option>
+                <option value="triangle">Triangle</option>
+                <option value="hexagon">Hexagon</option>
+                <option value="text">Text</option>
+            </select>
+        </div>
+        <div>
+            <select name="nodeEditBorder" id="node-borderType">
+                <option value="solid" selected>Solid</option>
+                <option value="dashed">Dashed</option>
+                <option value="dots">Dotted</option>
+                <option value="none">No border</option>
+            </select>
+        </div>
+        <div>
+            <select name="nodeEditFontSize" id="nodeEditFontSize">
+                <option value="14">Size...</option>
+                <option value="18">Large</option>
+                <option value="14">Normal</option>
+                <option value="10">Small</option>
+            </select>
+        </div>
+        <div id="popup-sizer">
+            <label
+                >&nbsp;Size:
+                <input type="range" class="xrange" id="nodeEditSizer" />
+            </label>
+        </div>
+		</div>
+		`)
 	cp.createColorPicker('node-backgroundColor')
 	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background)
+	elem('nodeEditShape').value = item.shape
 	cp.createColorPicker('node-borderColor')
 	elem('node-borderColor').style.backgroundColor = standardize_color(item.color.border)
 	cp.createColorPicker('node-fontColor')
 	elem('node-fontColor').style.backgroundColor = standardize_color(item.font.color)
 	elem('node-borderType').value = getDashes(item.shapeProperties.borderDashes, item.borderWidth)
+	elem('nodeEditFontSize').value = item.font.size
+
+	elem('nodeEditSizer').value = factorSizeToPercent(item.size)
+	progressBar(elem('nodeEditSizer'))
+	listen('nodeEditSizer', 'input', (event) => progressBar(event.target))
 	positionPopUp(point)
 	elem('popup-label').focus()
 	elem('popup').timer = setTimeout(() => {
@@ -2068,17 +2085,6 @@ function editNode(item, point, cancelAction, callback) {
 	lockNode(item)
 }
 /**
- * Convert CSS description of line type to menu option format
- * true, false, [3 3] => "true", "false", "dots", "none"
- * @param {array|boolean} val
- * @param {number} width
- */
-function getDashes(val, width) {
-	if (Array.isArray(val)) return 'dots'
-	if (width === 0) return 'none'
-	return val.toString()
-}
-/**
  * Draw a dialog box for user to edit an edge
  * @param {Object} item the edge
  * @param {Object} point the centre of the edge
@@ -2087,7 +2093,7 @@ function getDashes(val, width) {
  */
 function editEdge(item, point, cancelAction, callback) {
 	if (item.locked) return
-	initPopUp('Edit Link', 150, item, cancelAction, saveEdge, callback)
+	initPopUp('Edit Link', 160, item, cancelAction, saveEdge, callback)
 	elem('popup').insertAdjacentHTML(
 		'beforeend',
 		` 
@@ -2179,8 +2185,8 @@ function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback)
 	let popupLabel = elem('popup-label')
 	popupLabel.style.fontSize = '14px'
 	popupLabel.innerText = item.label === undefined ? '' : item.label.replace(/\n/g, ' ')
-	let table = elem('popup-table')
-	if (table) table.remove()
+/* 	let table = elem('popup-table')
+	if (table) table.remove() */
 }
 
 /**
@@ -2206,6 +2212,7 @@ function clearPopUp() {
 	elem('popup-cancelButton').onclick = null
 	elem('popup-label').onkeyup = null
 	elem('popup').style.display = 'none'
+	if (elem('popup-node-editor'))elem('popup-node-editor').remove()
 	if (elem('popup').timer) {
 		clearTimeout(elem('popup').timer)
 		elem('popup').timer = undefined
@@ -2264,7 +2271,6 @@ function saveLabel(node, callback) {
 function saveNode(item, callback) {
 	unlockNode(item)
 	item.label = splitText(elem('popup-label').innerText, NODEWIDTH)
-	clearPopUp()
 	if (item.label === '') {
 		// if there is no label, cancel (nodes must have a label)
 		statusMsg('No label: cancelled', 'error')
@@ -2282,9 +2288,13 @@ function saveNode(item, callback) {
 	let borderType = elem('node-borderType').value
 	item.borderWidth = borderType === 'none' ? 0 : 4
 	item.shapeProperties.borderDashes = convertDashes(borderType)
+	item.shape = elem('nodeEditShape').value
+	item.font.size = parseInt(elem('nodeEditFontSize').value)
+	setFactorSizeFromPercent(item, elem('nodeEditSizer').value)
 	network.manipulation.inMode = 'editNode' // ensure still in Add mode, in case others have done something meanwhile
 	if (item.label === item.oldLabel) logHistory(`edited factor: '${item.label}'`)
 	else logHistory(`edited factor, changing label from '${item.oldLabel}' to '${item.label}'`)
+	clearPopUp()
 	callback(item)
 }
 /**
@@ -2353,26 +2363,6 @@ function saveEdge(item, callback) {
 	clearStatusBar()
 	callback(item)
 	logHistory(`edited link from '${data.nodes.get(item.from).label}' to '${data.nodes.get(item.to).label}'`)
-}
-/**
- * Convert from the menu selection to the CSS format of the edge
- * @param {String} val
- */
-function convertDashes(val) {
-	switch (val) {
-		case 'true':
-			return true
-		case 'false':
-			return false
-		case 'dashes':
-			return [10, 10]
-		case 'dots':
-			return [2, 8]
-		case 'none':
-			return false
-		default:
-			return val
-	}
 }
 function lockEdge(item) {
 	item.locked = true
