@@ -1969,203 +1969,6 @@ async function getClipboardContents() {
 /* ----------------- dialogs for creating and editing nodes and links ----------------*/
 
 /**
- * A factor is being created:  get its label from the user
- * @param {Object} item - the node
- * @param {Function} cancelAction
- * @param {Function} callback
- */
-function addLabel(item, cancelAction, callback) {
-	if (elem('popup').style.display === 'block') return // can't add factor when factor is already being added
-	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback)
-	let pos = network.canvasToDOM({ x: item.x, y: item.y })
-	positionPopUp(pos)
-	removeFactorCursor()
-	ghostFactor(pos)
-	elem('popup-label').focus()
-}
-/**
- * broadcast to other users that a new factor is being added here
- * @param {Object} pos offset coordinates of Add Factor dialog
- */
-function ghostFactor(pos) {
-	yAwareness.setLocalStateField('addingFactor', {
-		state: 'adding',
-		pos: network.DOMtoCanvas(pos),
-		name: myNameRec.name,
-	})
-	elem('popup').timer = setTimeout(() => {
-		// close it after a time if the user has gone away
-		yAwareness.setLocalStateField('addingFactor', { state: 'done' })
-	}, TIMETOEDIT)
-}
-
-/**
- * Draw a dialog box for user to edit a node
- * @param {Object} item the node
- * @param {Object} point the centre of the node
- * @param {Function} cancelAction what to do if the edit is cancelled
- * @param {Function} callback what to do if the edit is saved
- */
-function editNode(item, point, cancelAction, callback) {
-	if (item.locked) return
-	initPopUp('Edit Factor', 180, item, cancelAction, saveNode, callback)
-	elem('popup').insertAdjacentHTML(
-		'beforeend',
-		`
-		<div class="popup-node-editor" id="popup-node-editor">	
-		<div>fill</div>
-        <div>border</div>
-        <div>font</div>
-        <div class="input-color-container">
-            <div class="color-well" id="node-backgroundColor"></div>
-        </div>
-        <div class="input-color-container">
-            <div class="color-well" id="node-borderColor"></div>
-        </div>
-        <div class="input-color-container">
-            <div class="color-well" id="node-fontColor"></div>
-        </div>
-        <div>
-            <select name="nodeEditShape" id="nodeEditShape">
-                <option value="box">Shape...</option>
-                <option value="ellipse">Ellipse</option>
-                <option value="circle">Circle</option>
-                <option value="box">Rect</option>
-                <option value="diamond">Diamond</option>
-                <option value="star">Star</option>
-                <option value="triangle">Triangle</option>
-                <option value="hexagon">Hexagon</option>
-                <option value="text">Text</option>
-            </select>
-        </div>
-        <div>
-            <select name="nodeEditBorder" id="node-borderType">
-                <option value="solid" selected>Solid</option>
-                <option value="dashed">Dashed</option>
-                <option value="dots">Dotted</option>
-                <option value="none">No border</option>
-            </select>
-        </div>
-        <div>
-            <select name="nodeEditFontSize" id="nodeEditFontSize">
-                <option value="14">Size...</option>
-                <option value="18">Large</option>
-                <option value="14">Normal</option>
-                <option value="10">Small</option>
-            </select>
-        </div>
-        <div id="popup-sizer">
-            <label
-                >&nbsp;Size:
-                <input type="range" class="xrange" id="nodeEditSizer" />
-            </label>
-        </div>
-		</div>
-		`)
-	cp.createColorPicker('node-backgroundColor')
-	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background)
-	elem('nodeEditShape').value = item.shape
-	cp.createColorPicker('node-borderColor')
-	elem('node-borderColor').style.backgroundColor = standardize_color(item.color.border)
-	cp.createColorPicker('node-fontColor')
-	elem('node-fontColor').style.backgroundColor = standardize_color(item.font.color)
-	elem('node-borderType').value = getDashes(item.shapeProperties.borderDashes, item.borderWidth)
-	elem('nodeEditFontSize').value = item.font.size
-
-	elem('nodeEditSizer').value = factorSizeToPercent(item.size)
-	progressBar(elem('nodeEditSizer'))
-	listen('nodeEditSizer', 'input', (event) => progressBar(event.target))
-	positionPopUp(point)
-	elem('popup-label').focus()
-	elem('popup').timer = setTimeout(() => {
-		//ensure that the node cannot be locked out for ever
-		cancelEdit(item, callback)
-		statusMsg('Edit timed out', 'warn')
-	}, TIMETOEDIT)
-	lockNode(item)
-}
-/**
- * Draw a dialog box for user to edit an edge
- * @param {Object} item the edge
- * @param {Object} point the centre of the edge
- * @param {Function} cancelAction what to do if the edit is cancelled
- * @param {Function} callback what to do if the edit is saved
- */
-function editEdge(item, point, cancelAction, callback) {
-	if (item.locked) return
-	initPopUp('Edit Link', 160, item, cancelAction, saveEdge, callback)
-	elem('popup').insertAdjacentHTML(
-		'beforeend',
-		` 
-		<table id="popup-table">
-		<tr>
-			<td>
-				<select id="edge-width">
-					<option value="">Width...</option>
-					<option value="1">Width: 1</option>
-					<option value="2">Width: 2</option>
-					<option value="4">Width: 4</option>
-				</select>
-			</td>
-			<td>
-				<select id="edge-type">
-					<option value="false">Line...</option>
-					<option value="false">Solid</option>
-					<option value="true">Dashed</option>
-					<option value="dots">Dotted</option>
-				</select>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<select id="edge-arrow">
-					<option value="vee">Arrows...</option>
-					<option value="vee">Sharp</option>
-					<option value="arrow">Triangle</option>
-					<option value="bar">Bar</option>
-					<option value="circle">Circle</option>
-					<option value="box">Box</option>
-					<option value="diamond">Diamond</option>
-					<option value="none">None</option>
-				</select>
-			</td>
-			<td>
-				<div class="input-color-container">
-					<div class="color-well"  id="edge-color"></div>
-				</div>
-			</td>
-		</tr>
-		<tr>
-			<td style="text-align: right; padding-top: 5px">
-				<i>Font</i>	
-			</td>
-			<td style="padding-top: 5px">
-				<select id="edge-font-size">
-					<option value="14">Size</option>
-					<option value="18">Large</option>
-					<option value="14">Normal</option>
-					<option value="10">Small</option>
-				</select>
-			</td>
-		</tr>
-	</table>`
-	)
-	elem('edge-width').value = parseInt(item.width)
-	cp.createColorPicker('edge-color')
-	elem('edge-color').style.backgroundColor = standardize_color(item.color.color)
-	elem('edge-type').value = getDashes(item.dashes, null)
-	elem('edge-arrow').value = item.arrows.to.enabled ? item.arrows.to.type : 'none'
-	elem('edge-font-size').value = parseInt(item.font.size)
-	positionPopUp(point)
-	elem('popup-label').focus()
-	elem('popup').timer = setTimeout(() => {
-		//ensure that the edge cannot be locked out for ever
-		cancelEdit(item, callback)
-		statusMsg('Edit timed out', 'warn')
-	}, TIMETOEDIT)
-	lockEdge(item)
-}
-/**
  * Initialise the dialog for creating nodes/edges
  * @param {string} popUpTitle
  * @param {number} height
@@ -2213,6 +2016,7 @@ function clearPopUp() {
 	elem('popup-label').onkeyup = null
 	elem('popup').style.display = 'none'
 	if (elem('popup-node-editor'))elem('popup-node-editor').remove()
+	if (elem('popup-link-editor'))elem('popup-link-editor').remove()
 	if (elem('popup').timer) {
 		clearTimeout(elem('popup').timer)
 		elem('popup').timer = undefined
@@ -2247,6 +2051,36 @@ function cancelEdit(item, callback) {
 	stopEdit()
 }
 /**
+ * A factor is being created:  get its label from the user
+ * @param {Object} item - the node
+ * @param {Function} cancelAction
+ * @param {Function} callback
+ */
+function addLabel(item, cancelAction, callback) {
+	if (elem('popup').style.display === 'block') return // can't add factor when factor is already being added
+	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback)
+	let pos = network.canvasToDOM({ x: item.x, y: item.y })
+	positionPopUp(pos)
+	removeFactorCursor()
+	ghostFactor(pos)
+	elem('popup-label').focus()
+}
+/**
+ * broadcast to other users that a new factor is being added here
+ * @param {Object} pos offset coordinates of Add Factor dialog
+ */
+function ghostFactor(pos) {
+	yAwareness.setLocalStateField('addingFactor', {
+		state: 'adding',
+		pos: network.DOMtoCanvas(pos),
+		name: myNameRec.name,
+	})
+	elem('popup').timer = setTimeout(() => {
+		// close it after a time if the user has gone away
+		yAwareness.setLocalStateField('addingFactor', { state: 'done' })
+	}, TIMETOEDIT)
+}
+/**
  * called when a node has been added.  Save the label provided
  * @param {Object} node the item that has been added
  * @param {Function} callback
@@ -2262,6 +2096,91 @@ function saveLabel(node, callback) {
 	network.manipulation.inMode = 'addNode' // ensure still in Add mode, in case others have done something meanwhile
 	callback(node)
 	logHistory(`added factor '${node.label}'`)
+}
+/**
+ * Draw a dialog box for user to edit a node
+ * @param {Object} item the node
+ * @param {Object} point the centre of the node
+ * @param {Function} cancelAction what to do if the edit is cancelled
+ * @param {Function} callback what to do if the edit is saved
+ */
+function editNode(item, point, cancelAction, callback) {
+	if (item.locked) return
+	initPopUp('Edit Factor', 180, item, cancelAction, saveNode, callback)
+	elem('popup').insertAdjacentHTML(
+		'beforeend',
+		`
+		<div class="popup-node-editor" id="popup-node-editor">	
+			<div>fill</div>
+			<div>border</div>
+			<div>font</div>
+			<div class="input-color-container">
+				<div class="color-well" id="node-backgroundColor"></div>
+			</div>
+			<div class="input-color-container">
+				<div class="color-well" id="node-borderColor"></div>
+			</div>
+			<div class="input-color-container">
+				<div class="color-well" id="node-fontColor"></div>
+			</div>
+			<div>
+				<select name="nodeEditShape" id="nodeEditShape">
+					<option value="box">Shape...</option>
+					<option value="ellipse">Ellipse</option>
+					<option value="circle">Circle</option>
+					<option value="box">Rect</option>
+					<option value="diamond">Diamond</option>
+					<option value="star">Star</option>
+					<option value="triangle">Triangle</option>
+					<option value="hexagon">Hexagon</option>
+					<option value="text">Text</option>
+				</select>
+			</div>
+			<div>
+				<select name="nodeEditBorder" id="node-borderType">
+					<option value="solid" selected>Solid</option>
+					<option value="dashed">Dashed</option>
+					<option value="dots">Dotted</option>
+					<option value="none">No border</option>
+				</select>
+			</div>
+			<div>
+				<select name="nodeEditFontSize" id="nodeEditFontSize">
+					<option value="14">Size...</option>
+					<option value="18">Large</option>
+					<option value="14">Normal</option>
+					<option value="10">Small</option>
+				</select>
+			</div>
+			<div id="popup-sizer">
+				<label
+					>&nbsp;Size:
+					<input type="range" class="xrange" id="nodeEditSizer" />
+				</label>
+			</div>
+		</div>
+		`)
+	cp.createColorPicker('node-backgroundColor')
+	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background)
+	elem('nodeEditShape').value = item.shape
+	cp.createColorPicker('node-borderColor')
+	elem('node-borderColor').style.backgroundColor = standardize_color(item.color.border)
+	cp.createColorPicker('node-fontColor')
+	elem('node-fontColor').style.backgroundColor = standardize_color(item.font.color)
+	elem('node-borderType').value = getDashes(item.shapeProperties.borderDashes, item.borderWidth)
+	elem('nodeEditFontSize').value = item.font.size
+
+	elem('nodeEditSizer').value = factorSizeToPercent(item.size)
+	progressBar(elem('nodeEditSizer'))
+	listen('nodeEditSizer', 'input', (event) => progressBar(event.target))
+	positionPopUp(point)
+	elem('popup-label').focus()
+	elem('popup').timer = setTimeout(() => {
+		//ensure that the node cannot be locked out for ever
+		cancelEdit(item, callback)
+		statusMsg('Edit timed out', 'warn')
+	}, TIMETOEDIT)
+	lockNode(item)
 }
 /**
  * save the node format details that have been edited
@@ -2337,6 +2256,79 @@ function unlockAll() {
 	})
 }
 /**
+ * Draw a dialog box for user to edit an edge
+ * @param {Object} item the edge
+ * @param {Object} point the centre of the edge
+ * @param {Function} cancelAction what to do if the edit is cancelled
+ * @param {Function} callback what to do if the edit is saved
+ */
+function editEdge(item, point, cancelAction, callback) {
+	if (item.locked) return
+	initPopUp('Edit Link', 170, item, cancelAction, saveEdge, callback)
+	elem('popup').insertAdjacentHTML(
+		'beforeend',
+	`<div class="popup-link-editor" id="popup-link-editor">
+		<div>colour</div>
+		<div></div>
+		<div></div>
+		<div class="input-color-container">
+			<div class="color-well" id="linkEditLineColor"></div>
+		</div>
+		<div>
+			<select name="linkEditWidth" id="linkEditWidth">
+				<option value="1">Width: 1</option>
+				<option value="2">Width: 2</option>
+				<option value="4">Width: 4</option>
+			</select>
+		</div>
+		<div>
+			<select name="linkEditArrows" id="linkEditArrows">
+				<option value="vee">Arrows...</option>
+				<option value="vee">Sharp</option>
+				<option value="arrow">Triangle</option>
+				<option value="bar">Bar</option>
+				<option value="circle">Circle</option>
+				<option value="box">Box</option>
+				<option value="diamond">Diamond</option>
+				<option value="none">None</option>
+			</select>
+		</div>
+		<div>
+			<select name="linkEditDashes" id="linkEditDashes">
+				<option value="solid" selected>Solid</option>
+				<option value="dashedLinks">Dashed</option>
+				<option value="dots">Dotted</option>
+			</select>
+		</div>
+		<div>
+			<i>Font size:</i>	
+		</div>
+		<div>
+			<select id="linkEditFontSize">
+				<option value="18">Large</option>
+				<option value="14">Normal</option>
+				<option value="10">Small</option>
+			</select>
+		</div>
+	</div>
+`
+	)
+	elem('linkEditWidth').value = parseInt(item.width)
+	cp.createColorPicker('linkEditLineColor')
+	elem('linkEditLineColor').style.backgroundColor = standardize_color(item.color.color)
+	elem('linkEditDashes').value = getDashes(item.dashes, null)
+	elem('linkEditArrows').value = item.arrows.to.enabled ? item.arrows.to.type : 'none'
+	elem('linkEditFontSize').value = parseInt(item.font.size)
+	positionPopUp(point)
+	elem('popup-label').focus()
+	elem('popup').timer = setTimeout(() => {
+		//ensure that the edge cannot be locked out for ever
+		cancelEdit(item, callback)
+		statusMsg('Edit timed out', 'warn')
+	}, TIMETOEDIT)
+	lockEdge(item)
+}
+/**
  * save the edge format details that have been edited
  * @param {Object} item the edge that has been edited
  * @param {Function} callback
@@ -2344,25 +2336,25 @@ function unlockAll() {
 function saveEdge(item, callback) {
 	unlockEdge(item)
 	item.label = splitText(elem('popup-label').innerText, NODEWIDTH)
-	clearPopUp()
 	if (item.label === '') item.label = ' '
-	let color = elem('edge-color').style.backgroundColor
+	let color = elem('linkEditLineColor').style.backgroundColor
 	item.color.color = color
 	item.color.hover = color
 	item.color.highlight = color
-	item.width = parseInt(elem('edge-width').value)
+	item.width = parseInt(elem('linkEditWidth').value)
 	if (!item.width) item.width = 1
-	item.dashes = convertDashes(elem('edge-type').value)
+	item.dashes = convertDashes(elem('linkEditDashes').value)
 	item.arrows.to = {
-		enabled: elem('edge-arrow').value !== 'none',
-		type: elem('edge-arrow').value,
+		enabled: elem('linkEditArrows').value !== 'none',
+		type: elem('linkEditArrows').value,
 	}
-	item.font.size = parseInt(elem('edge-font-size').value)
+	item.font.size = parseInt(elem('linkEditFontSize').value)
 	network.manipulation.inMode = 'editEdge' // ensure still in edit mode, in case others have done something meanwhile
 	// vis-network silently deselects all edges in the callback (why?).  So we have to mark this edge as unselected in preparation
 	clearStatusBar()
-	callback(item)
 	logHistory(`edited link from '${data.nodes.get(item.from).label}' to '${data.nodes.get(item.to).label}'`)
+	clearPopUp()
+	callback(item)
 }
 function lockEdge(item) {
 	item.locked = true
