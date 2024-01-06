@@ -413,9 +413,7 @@ function startY(newRoom) {
 	} */
 	)
 	wsProvider.on('synced', () => {
-		/* 
-	if this is a clone, load the cloned data
-	*/
+	// if this is a clone, load the cloned data
 		initiateClone()
 		displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 	})
@@ -831,7 +829,6 @@ function initiateClone() {
 		fit()
 	}
 }
-
 function yjsTrace(where, what) {
 	if (/yjs/.test(debug)) {
 		console.log(exactTime(), where, what)
@@ -850,7 +847,6 @@ function generateRoom() {
 	}
 	return room
 }
-
 /**
  * randomly create some nodes and edges as a binary tree, mainly used for testing
  * @param {number} nNodes
@@ -913,7 +909,6 @@ window.onresize = function () {
 	keepPaneInWindow(elem('chatbox-holder'))
 	resizeCanvas()
 }
-
 /**
  * Hack to get window size when orientation changes.  Should use screen.orientation, but this is not
  * implemented by Safari
@@ -922,7 +917,6 @@ let portrait = window.matchMedia('(orientation: portrait)')
 portrait.addEventListener('change', () => {
 	setvh()
 })
-
 /**
  * in View Only mode, hide all the Nav Bar buttons except the search button
  * and make the map title not editable
@@ -1413,7 +1407,6 @@ function draw() {
 		panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
 		viewPosition = endViewPosition
 	})
-
 	network.on('dragEnd', function (params) {
 		if (/gui/.test(debug)) console.log('dragEnd')
 		let endViewPosition = network.getViewPosition()
@@ -1623,7 +1616,7 @@ function contextMenu(event) {
 	event.preventDefault()
 }
 /**
- * return an object with the current time as a date an integer and the current user's name
+ * return an object with the current time as an integer date and the current user's name
  */
 export function timestamp() {
 	return { time: Date.now(), user: myNameRec.name }
@@ -1673,7 +1666,7 @@ function saveState(options) {
 	)
 }
 
-/******************************************************** map notes side drawer *****************************************************************/
+/******************************************************** map notes side drawer *********************************************************/
 let toolbarOptions = [
 	['bold', 'italic', 'underline', 'strike'],
 	['blockquote', 'code-block'],
@@ -1988,10 +1981,7 @@ function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback)
 	let popupLabel = elem('popup-label')
 	popupLabel.style.fontSize = '14px'
 	popupLabel.innerText = item.label === undefined ? '' : item.label.replace(/\n/g, ' ')
-/* 	let table = elem('popup-table')
-	if (table) table.remove() */
 }
-
 /**
  * Position the editing dialog box so that it is to the left of the item being edited,
  * but not outside the window
@@ -2006,7 +1996,6 @@ function positionPopUp(point) {
 	popUp.style.left = `${left < 0 ? 0 : left}px`
 	dragElement(popUp, elem('popup-top'))
 }
-
 /**
  * Hide the editing dialog box
  */
