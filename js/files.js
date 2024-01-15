@@ -905,7 +905,6 @@ export function exportPNGfile() {
 	})
 
 	let box = mapBoundingBox(network, canvas, network.getSelectedNodes())
-	/* let scale = Math.min((bigWidth - bigMargin) * network.getScale() / (box.right - box.left), (bigWidth - bigMargin) / (box.bottom - box.top)) */
 	let scale = network.getScale() * Math.min((bigWidth - bigMargin) / (box.right - box.left), (bigWidth - bigMargin) / (box.bottom - box.top))
 	if (scale > maxScale) scale = maxScale
 	let center = network.DOMtoCanvas({

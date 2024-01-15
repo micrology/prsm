@@ -20,7 +20,7 @@ Double clicking on any of the 9 styles opens a dialog box to change the style:
 <!-- ![FactorStyleDialog](/images/FactorStyle.png) -->
 <img src={require("/static/images/FactorsStyle.png").default} width="600"/>
 
-There are options to change the colour of the background (the 'fill'), the border and the font, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted or none, and to change the font size of the label.  Clicking on the padlock symbol will [lock](GettingStarted/#notes) all the factors with this style; clicking on it again will unlock them all.
+There are options to change the colour of the background (the 'fill'), the border and the font, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted or none, and to change the font size of the label.  Clicking on the padlock symbol will [lock](GettingStarted/#notes) all the factors with this style; clicking on it again will unlock them all. The Size slider adjusts the relative size of the factors. Moving the dot on the slider to the far left sets the factors to their normal size, and moving it to the right makes the factors bigger.
 
 If you right click (or CTRL click) on one of the style samples, there is a menu with which you can either select all the factors that have that style, or hide all those factors from view.
 

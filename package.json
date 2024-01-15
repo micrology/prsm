@@ -19,7 +19,7 @@
 	"targets": {
 		"default": {
 			"engines": {
-				"browserslist": "defaults"
+				"browserslist": "fully supports es6"
 			},
 			"distDir": "dist",
 			"publicUrl": "."
