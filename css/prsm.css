@@ -321,7 +321,7 @@ aside {
 	max-height: 60px;
 	border: 1px solid lightgrey;
 	border-radius: 4px;
-    padding: 2px;
+	padding: 2px;
 }
 #popup-operation {
 	position: absolute;
@@ -2011,7 +2011,7 @@ emoji-picker {
 	width: 10px;
 	height: 30px;
 	border-radius: 0 4px 4px 0;
-	border: 1px solid #ECF0F1;
+	border: 1px solid #ecf0f1;
 }
 .hide-drawer {
 	transform: translateX(var(--drawer-closed-width));

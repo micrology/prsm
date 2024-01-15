@@ -1,373 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>files.js - Documentation</title>
+<head>
+    
+    <meta charset="utf-8">
+    <title>files.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
 
-		<script src="scripts/prettify/prettify.js"></script>
-		<script src="scripts/prettify/lang-css.js"></script>
-		<!--[if lt IE 9]>
-			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-		<![endif]-->
-		<link type="text/css" rel="stylesheet" href="styles/prettify.css" />
-		<link type="text/css" rel="stylesheet" href="styles/jsdoc.css" />
-		<script src="scripts/nav.js" defer></script>
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	</head>
-	<body>
-		<input type="checkbox" id="nav-trigger" class="nav-trigger" />
-		<label for="nav-trigger" class="navicon-button x">
-			<div class="navicon"></div>
-		</label>
+<label for="nav-trigger" class="overlay"></label>
 
-		<label for="nav-trigger" class="overlay"></label>
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ToolHandler.html">ToolHandler</a><ul class='methods'><li data-type='method'><a href="ToolHandler.html#endPosition">endPosition</a></li><li data-type='method'><a href="ToolHandler.html#options">options</a></li><li data-type='method'><a href="ToolHandler.html#optionsDialog">optionsDialog</a></li><li data-type='method'><a href="ToolHandler.html#panend">panend</a></li><li data-type='method'><a href="ToolHandler.html#panmove">panmove</a></li><li data-type='method'><a href="ToolHandler.html#panstart">panstart</a></li></ul></li><li><a href="module.exports.html">exports</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li><li><a href="global.html#MIN_WIDTH">MIN_WIDTH</a></li><li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li><li><a href="global.html#addColumn">addColumn</a></li><li><a href="global.html#addContextMenu">addContextMenu</a></li><li><a href="global.html#addEventListeners">addEventListeners</a></li><li><a href="global.html#addLabel">addLabel</a></li><li><a href="global.html#addRollbackIcon">addRollbackIcon</a></li><li><a href="global.html#addVec">addVec</a></li><li><a href="global.html#analyse">analyse</a></li><li><a href="global.html#anon">anon</a></li><li><a href="global.html#antMarch">antMarch</a></li><li><a href="global.html#applyOptions">applyOptions</a></li><li><a href="global.html#arrayBufferToString">arrayBufferToString</a></li><li><a href="global.html#asleep">asleep</a></li><li><a href="global.html#autoLayout">autoLayout</a></li><li><a href="global.html#bigWidth">bigWidth</a></li><li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li><li><a href="global.html#cancelAdd">cancelAdd</a></li><li><a href="global.html#cancelEdit">cancelEdit</a></li><li><a href="global.html#cancelLoading">cancelLoading</a></li><li><a href="global.html#changeCursor">changeCursor</a></li><li><a href="global.html#changeRoom">changeRoom</a></li><li><a href="global.html#checkKey">checkKey</a></li><li><a href="global.html#circleIntersectsRect">circleIntersectsRect</a></li><li><a href="global.html#clean">clean</a></li><li><a href="global.html#cleanArray">cleanArray</a></li><li><a href="global.html#clearLegend">clearLegend</a></li><li><a href="global.html#clearMap">clearMap</a></li><li><a href="global.html#clearPopUp">clearPopUp</a></li><li><a href="global.html#clearStatusBar">clearStatusBar</a></li><li><a href="global.html#closeFilter">closeFilter</a></li><li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li><li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li><li><a href="global.html#collapseColGroup">collapseColGroup</a></li><li><a href="global.html#collapseNotes">collapseNotes</a></li><li><a href="global.html#colorEditor">colorEditor</a></li><li><a href="global.html#configSamples">configSamples</a></li><li><a href="global.html#connected">connected</a></li><li><a href="global.html#connectedComponents">connectedComponents</a></li><li><a href="global.html#convertDashes">convertDashes</a></li><li><a href="global.html#convertData">convertData</a></li><li><a href="global.html#convertEdge">convertEdge</a></li><li><a href="global.html#convertEdgeBack">convertEdgeBack</a></li><li><a href="global.html#convertNode">convertNode</a></li><li><a href="global.html#convertNodeBack">convertNodeBack</a></li><li><a href="global.html#copyBackgroundToClipboard">copyBackgroundToClipboard</a></li><li><a href="global.html#copyHistoryToClipboard">copyHistoryToClipboard</a></li><li><a href="global.html#copyTable">copyTable</a></li><li><a href="global.html#copyToClipboard">copyToClipboard</a></li><li><a href="global.html#createTitleDropDown">createTitleDropDown</a></li><li><a href="global.html#deepCopy">deepCopy</a></li><li><a href="global.html#deleteActiveObjects">deleteActiveObjects</a></li><li><a href="global.html#deleteColumn">deleteColumn</a></li><li><a href="global.html#deleteNode">deleteNode</a></li><li><a href="global.html#deselectTool">deselectTool</a></li><li><a href="global.html#diag">diag</a></li><li><a href="global.html#diffMaps">diffMaps</a></li><li><a href="global.html#display">display</a></li><li><a href="global.html#displayHelp">displayHelp</a></li><li><a href="global.html#displayNetPane">displayNetPane</a></li><li><a href="global.html#displayWhatsNew">displayWhatsNew</a></li><li><a href="global.html#doSearch">doSearch</a></li><li><a href="global.html#dragElement">dragElement</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawBadges">drawBadges</a></li><li><a href="global.html#drawGrid">drawGrid</a></li><li><a href="global.html#duplEdge">duplEdge</a></li><li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li><li><a href="global.html#editEdge">editEdge</a></li><li><a href="global.html#editLinkStyle">editLinkStyle</a></li><li><a href="global.html#editNode">editNode</a></li><li><a href="global.html#editNodeStyle">editNodeStyle</a></li><li><a href="global.html#elem">elem</a></li><li><a href="global.html#eraser">eraser</a></li><li><a href="global.html#exactTime">exactTime</a></li><li><a href="global.html#exportCVS">exportCVS</a></li><li><a href="global.html#exportDOT">exportDOT</a></li><li><a href="global.html#exportExcel">exportExcel</a></li><li><a href="global.html#exportGML">exportGML</a></li><li><a href="global.html#exportNotes">exportNotes</a></li><li><a href="global.html#factorSizeToPercent">factorSizeToPercent</a></li><li><a href="global.html#fit">fit</a></li><li><a href="global.html#follow">follow</a></li><li><a href="global.html#followUser">followUser</a></li><li><a href="global.html#generateName">generateName</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#getArrows">getArrows</a></li><li><a href="global.html#getButtonStatus">getButtonStatus</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#getDashes">getDashes</a></li><li><a href="global.html#getLastPath">getLastPath</a></li><li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li><li><a href="global.html#getRadioVal">getRadioVal</a></li><li><a href="global.html#getRandomData">getRandomData</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#getSelectedAndFixedNodes">getSelectedAndFixedNodes</a></li><li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li><li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li><li><a href="global.html#ghostCursor">ghostCursor</a></li><li><a href="global.html#ghostFactor">ghostFactor</a></li><li><a href="global.html#groupTitle">groupTitle</a></li><li><a href="global.html#headerTickToggle">headerTickToggle</a></li><li><a href="global.html#hideNavButtons">hideNavButtons</a></li><li><a href="global.html#hideNodeAndEdges">hideNodeAndEdges</a></li><li><a href="global.html#hideNotes">hideNotes</a></li><li><a href="global.html#hideWhatsNew">hideWhatsNew</a></li><li><a href="global.html#htmlEntities">htmlEntities</a></li><li><a href="global.html#humanSize">humanSize</a></li><li><a href="global.html#inAddMode">inAddMode</a></li><li><a href="global.html#in_degree">in_degree</a></li><li><a href="global.html#initDraw">initDraw</a></li><li><a href="global.html#initPopUp">initPopUp</a></li><li><a href="global.html#initSample">initSample</a></li><li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li><li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li><li><a href="global.html#initials">initials</a></li><li><a href="global.html#initiateClone">initiateClone</a></li><li><a href="global.html#initySamplesMap">initySamplesMap</a></li><li><a href="global.html#inline">inline</a></li><li><a href="global.html#intersect">intersect</a></li><li><a href="global.html#invertColor">invertColor</a></li><li><a href="global.html#isEmpty">isEmpty</a></li><li><a href="global.html#isQuillEmpty">isQuillEmpty</a></li><li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li><li><a href="global.html#legend">legend</a></li><li><a href="global.html#legendData">legendData</a></li><li><a href="global.html#lightOrDark">lightOrDark</a></li><li><a href="global.html#linkEditCancel">linkEditCancel</a></li><li><a href="global.html#linkEditSave">linkEditSave</a></li><li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li><li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li><li><a href="global.html#linkEditorHide">linkEditorHide</a></li><li><a href="global.html#linkEditorShow">linkEditorShow</a></li><li><a href="global.html#listFactors">listFactors</a></li><li><a href="global.html#listLinks">listLinks</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#loadCSV">loadCSV</a></li><li><a href="global.html#loadDOTfile">loadDOTfile</a></li><li><a href="global.html#loadExcelfile">loadExcelfile</a></li><li><a href="global.html#loadFile">loadFile</a></li><li><a href="global.html#loadGML">loadGML</a></li><li><a href="global.html#loadGraphML">loadGraphML</a></li><li><a href="global.html#loadPRSMfile">loadPRSMfile</a></li><li><a href="global.html#lockNode">lockNode</a></li><li><a href="global.html#logHistory">logHistory</a></li><li><a href="global.html#makeColor">makeColor</a></li><li><a href="global.html#makeOptionsDialog">makeOptionsDialog</a></li><li><a href="global.html#mapTitle">mapTitle</a></li><li><a href="global.html#markMapSaved">markMapSaved</a></li><li><a href="global.html#mergeTranspose">mergeTranspose</a></li><li><a href="global.html#mouseDespatch">mouseDespatch</a></li><li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li><li><a href="global.html#nodeEditSave">nodeEditSave</a></li><li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li><li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li><li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li><li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li><li><a href="global.html#nodeIdToLabel">nodeIdToLabel</a></li><li><a href="global.html#nodeList">nodeList</a></li><li><a href="global.html#noteFilter">noteFilter</a></li><li><a href="global.html#object_equals">object_equals</a></li><li><a href="global.html#oldUserNames">oldUserNames</a></li><li><a href="global.html#onexit">onexit</a></li><li><a href="global.html#openCluster">openCluster</a></li><li><a href="global.html#openNotesWindow">openNotesWindow</a></li><li><a href="global.html#out_degree">out_degree</a></li><li><a href="global.html#plusLink">plusLink</a></li><li><a href="global.html#plusNode">plusNode</a></li><li><a href="global.html#portrait">portrait</a></li><li><a href="global.html#positionNotes">positionNotes</a></li><li><a href="global.html#positionPopUp">positionPopUp</a></li><li><a href="global.html#progressBar">progressBar</a></li><li><a href="global.html#quillAccessor">quillAccessor</a></li><li><a href="global.html#quillEditor">quillEditor</a></li><li><a href="global.html#quillFormatter">quillFormatter</a></li><li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li><li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li><li><a href="global.html#readSingleFile">readSingleFile</a></li><li><a href="global.html#rebase">rebase</a></li><li><a href="global.html#recalculateStats">recalculateStats</a></li><li><a href="global.html#receiveEvent">receiveEvent</a></li><li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li><li><a href="global.html#redraw">redraw</a></li><li><a href="global.html#refreshFromMap">refreshFromMap</a></li><li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li><li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li><li><a href="global.html#removeAvatar">removeAvatar</a></li><li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li><li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li><li><a href="global.html#resizeBox">resizeBox</a></li><li><a href="global.html#resizeCanvas">resizeCanvas</a></li><li><a href="global.html#rgba">rgba</a></li><li><a href="global.html#rollback">rollback</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#roundTripTimer">roundTripTimer</a></li><li><a href="global.html#saveChange">saveChange</a></li><li><a href="global.html#saveEdge">saveEdge</a></li><li><a href="global.html#saveLabel">saveLabel</a></li><li><a href="global.html#saveNode">saveNode</a></li><li><a href="global.html#savePRSMfile">savePRSMfile</a></li><li><a href="global.html#saveState">saveState</a></li><li><a href="global.html#saveStr">saveStr</a></li><li><a href="global.html#search">search</a></li><li><a href="global.html#searchTargets">searchTargets</a></li><li><a href="global.html#selectClustering">selectClustering</a></li><li><a href="global.html#selectTool">selectTool</a></li><li><a href="global.html#selectUsersItems">selectUsersItems</a></li><li><a href="global.html#selectedLabels">selectedLabels</a></li><li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li><li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li><li><a href="global.html#setButtonStatus">setButtonStatus</a></li><li><a href="global.html#setCanvasBackground">setCanvasBackground</a></li><li><a href="global.html#setEdgeHidden">setEdgeHidden</a></li><li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li><li><a href="global.html#setFactorSizeFromPercent">setFactorSizeFromPercent</a></li><li><a href="global.html#setFileName">setFileName</a></li><li><a href="global.html#setFixed">setFixed</a></li><li><a href="global.html#setMapTitle">setMapTitle</a></li><li><a href="global.html#setNodeHidden">setNodeHidden</a></li><li><a href="global.html#setParams">setParams</a></li><li><a href="global.html#setRadioVal">setRadioVal</a></li><li><a href="global.html#setUpAwareness">setUpAwareness</a></li><li><a href="global.html#setUpBackground">setUpBackground</a></li><li><a href="global.html#setUpCanvas">setUpCanvas</a></li><li><a href="global.html#setUpChat">setUpChat</a></li><li><a href="global.html#setUpFilter">setUpFilter</a></li><li><a href="global.html#setUpPage">setUpPage</a></li><li><a href="global.html#setUpPaint">setUpPaint</a></li><li><a href="global.html#setUpSamples">setUpSamples</a></li><li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li><li><a href="global.html#setUpTabs">setUpTabs</a></li><li><a href="global.html#setUpToolbox">setUpToolbox</a></li><li><a href="global.html#setUpTutorial">setUpTutorial</a></li><li><a href="global.html#setvh">setvh</a></li><li><a href="global.html#showAvatars">showAvatars</a></li><li><a href="global.html#showClusterLinks">showClusterLinks</a></li><li><a href="global.html#showGhostFactor">showGhostFactor</a></li><li><a href="global.html#showHistory">showHistory</a></li><li><a href="global.html#showNavButtons">showNavButtons</a></li><li><a href="global.html#showNodeData">showNodeData</a></li><li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li><li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li><li><a href="global.html#showOtherMouse">showOtherMouse</a></li><li><a href="global.html#showPressed">showPressed</a></li><li><a href="global.html#showSelected">showSelected</a></li><li><a href="global.html#snapToGrid">snapToGrid</a></li><li><a href="global.html#solve">solve</a></li><li><a href="global.html#splitText">splitText</a></li><li><a href="global.html#standardize_color">standardize_color</a></li><li><a href="global.html#start">start</a></li><li><a href="global.html#startY">startY</a></li><li><a href="global.html#startzoom">startzoom</a></li><li><a href="global.html#statusMsg">statusMsg</a></li><li><a href="global.html#stepFinish">stepFinish</a></li><li><a href="global.html#stepStart">stepStart</a></li><li><a href="global.html#stepsEnd">stepsEnd</a></li><li><a href="global.html#stopEdit">stopEdit</a></li><li><a href="global.html#strip">strip</a></li><li><a href="global.html#stripNL">stripNL</a></li><li><a href="global.html#styleEdgeNames">styleEdgeNames</a></li><li><a href="global.html#styleNodeNames">styleNodeNames</a></li><li><a href="global.html#subVec">subVec</a></li><li><a href="global.html#subtract">subtract</a></li><li><a href="global.html#sumVec">sumVec</a></li><li><a href="global.html#svg">svg</a></li><li><a href="global.html#tickToggle">tickToggle</a></li><li><a href="global.html#timeAndDate">timeAndDate</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#titleDropDown">titleDropDown</a></li><li><a href="global.html#toggleDeleteButton">toggleDeleteButton</a></li><li><a href="global.html#togglePanel">togglePanel</a></li><li><a href="global.html#toolHandler">toolHandler</a></li><li><a href="global.html#traceUsers">traceUsers</a></li><li><a href="global.html#transpose">transpose</a></li><li><a href="global.html#trophic">trophic</a></li><li><a href="global.html#unFollow">unFollow</a></li><li><a href="global.html#unSelect">unSelect</a></li><li><a href="global.html#undirected">undirected</a></li><li><a href="global.html#unlockAll">unlockAll</a></li><li><a href="global.html#unlockEdge">unlockEdge</a></li><li><a href="global.html#unlockNode">unlockNode</a></li><li><a href="global.html#unselectTool">unselectTool</a></li><li><a href="global.html#updateActiveButtons">updateActiveButtons</a></li><li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li><li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li><li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li><li><a href="global.html#updateFilter">updateFilter</a></li><li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li><li><a href="global.html#updateFromDrawingMap">updateFromDrawingMap</a></li><li><a href="global.html#updateFromRemote">updateFromRemote</a></li><li><a href="global.html#updateLastSamples">updateLastSamples</a></li><li><a href="global.html#updateLegend">updateLegend</a></li><li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li><li><a href="global.html#updateNodeCellData">updateNodeCellData</a></li><li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li><li><a href="global.html#updateSelection">updateSelection</a></li><li><a href="global.html#upgradeFromV1">upgradeFromV1</a></li><li><a href="global.html#uuidv4">uuidv4</a></li><li><a href="global.html#zero">zero</a></li><li><a href="global.html#zoomCanvas">zoomCanvas</a></li><li><a href="global.html#zoomincr">zoomincr</a></li><li><a href="global.html#zoomnet">zoomnet</a></li><li><a href="global.html#zoomscroll">zoomscroll</a></li><li><a href="global.html#zoomset">zoomset</a></li></ul>
+    
+</nav>
 
-		<nav>
-			<h2><a href="index.html">Home</a></h2>
-			<h3>Classes</h3>
-			<ul>
-				<li>
-					<a href="ToolHandler.html">ToolHandler</a>
-					<ul class="methods">
-						<li data-type="method"><a href="ToolHandler.html#endPosition">endPosition</a></li>
-						<li data-type="method"><a href="ToolHandler.html#options">options</a></li>
-						<li data-type="method"><a href="ToolHandler.html#optionsDialog">optionsDialog</a></li>
-						<li data-type="method"><a href="ToolHandler.html#panend">panend</a></li>
-						<li data-type="method"><a href="ToolHandler.html#panmove">panmove</a></li>
-						<li data-type="method"><a href="ToolHandler.html#panstart">panstart</a></li>
-					</ul>
-				</li>
-				<li><a href="module.exports.html">exports</a></li>
-			</ul>
-			<h3>Global</h3>
-			<ul>
-				<li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li>
-				<li><a href="global.html#MIN_WIDTH">MIN_WIDTH</a></li>
-				<li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li>
-				<li><a href="global.html#addColumn">addColumn</a></li>
-				<li><a href="global.html#addContextMenu">addContextMenu</a></li>
-				<li><a href="global.html#addEventListeners">addEventListeners</a></li>
-				<li><a href="global.html#addLabel">addLabel</a></li>
-				<li><a href="global.html#addRollbackIcon">addRollbackIcon</a></li>
-				<li><a href="global.html#addVec">addVec</a></li>
-				<li><a href="global.html#analyse">analyse</a></li>
-				<li><a href="global.html#anon">anon</a></li>
-				<li><a href="global.html#antMarch">antMarch</a></li>
-				<li><a href="global.html#applyOptions">applyOptions</a></li>
-				<li><a href="global.html#arrayBufferToString">arrayBufferToString</a></li>
-				<li><a href="global.html#asleep">asleep</a></li>
-				<li><a href="global.html#autoLayout">autoLayout</a></li>
-				<li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li>
-				<li><a href="global.html#cancelAdd">cancelAdd</a></li>
-				<li><a href="global.html#cancelEdit">cancelEdit</a></li>
-				<li><a href="global.html#cancelLoading">cancelLoading</a></li>
-				<li><a href="global.html#changeCursor">changeCursor</a></li>
-				<li><a href="global.html#changeRoom">changeRoom</a></li>
-				<li><a href="global.html#checkKey">checkKey</a></li>
-				<li><a href="global.html#circleIntersectsRect">circleIntersectsRect</a></li>
-				<li><a href="global.html#clean">clean</a></li>
-				<li><a href="global.html#cleanArray">cleanArray</a></li>
-				<li><a href="global.html#clearLegend">clearLegend</a></li>
-				<li><a href="global.html#clearMap">clearMap</a></li>
-				<li><a href="global.html#clearPopUp">clearPopUp</a></li>
-				<li><a href="global.html#clearStatusBar">clearStatusBar</a></li>
-				<li><a href="global.html#closeFilter">closeFilter</a></li>
-				<li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li>
-				<li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li>
-				<li><a href="global.html#collapseColGroup">collapseColGroup</a></li>
-				<li><a href="global.html#collapseNotes">collapseNotes</a></li>
-				<li><a href="global.html#colorEditor">colorEditor</a></li>
-				<li><a href="global.html#configSamples">configSamples</a></li>
-				<li><a href="global.html#connected">connected</a></li>
-				<li><a href="global.html#connectedComponents">connectedComponents</a></li>
-				<li><a href="global.html#convertDashes">convertDashes</a></li>
-				<li><a href="global.html#convertData">convertData</a></li>
-				<li><a href="global.html#convertEdge">convertEdge</a></li>
-				<li><a href="global.html#convertEdgeBack">convertEdgeBack</a></li>
-				<li><a href="global.html#convertNode">convertNode</a></li>
-				<li><a href="global.html#convertNodeBack">convertNodeBack</a></li>
-				<li><a href="global.html#copyBackgroundToClipboard">copyBackgroundToClipboard</a></li>
-				<li><a href="global.html#copyHistoryToClipboard">copyHistoryToClipboard</a></li>
-				<li><a href="global.html#copyTable">copyTable</a></li>
-				<li><a href="global.html#copyToClipboard">copyToClipboard</a></li>
-				<li><a href="global.html#createTitleDropDown">createTitleDropDown</a></li>
-				<li><a href="global.html#deepCopy">deepCopy</a></li>
-				<li><a href="global.html#deleteActiveObjects">deleteActiveObjects</a></li>
-				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
-				<li><a href="global.html#deleteNode">deleteNode</a></li>
-				<li><a href="global.html#deselectTool">deselectTool</a></li>
-				<li><a href="global.html#diag">diag</a></li>
-				<li><a href="global.html#diffMaps">diffMaps</a></li>
-				<li><a href="global.html#display">display</a></li>
-				<li><a href="global.html#displayHelp">displayHelp</a></li>
-				<li><a href="global.html#displayNetPane">displayNetPane</a></li>
-				<li><a href="global.html#doSearch">doSearch</a></li>
-				<li><a href="global.html#dragElement">dragElement</a></li>
-				<li><a href="global.html#draw">draw</a></li>
-				<li><a href="global.html#drawBadges">drawBadges</a></li>
-				<li><a href="global.html#drawGrid">drawGrid</a></li>
-				<li><a href="global.html#duplEdge">duplEdge</a></li>
-				<li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li>
-				<li><a href="global.html#editEdge">editEdge</a></li>
-				<li><a href="global.html#editLinkStyle">editLinkStyle</a></li>
-				<li><a href="global.html#editNode">editNode</a></li>
-				<li><a href="global.html#editNodeStyle">editNodeStyle</a></li>
-				<li><a href="global.html#elem">elem</a></li>
-				<li><a href="global.html#eraser">eraser</a></li>
-				<li><a href="global.html#exactTime">exactTime</a></li>
-				<li><a href="global.html#exportCVS">exportCVS</a></li>
-				<li><a href="global.html#exportDOT">exportDOT</a></li>
-				<li><a href="global.html#exportExcel">exportExcel</a></li>
-				<li><a href="global.html#exportGML">exportGML</a></li>
-				<li><a href="global.html#fit">fit</a></li>
-				<li><a href="global.html#follow">follow</a></li>
-				<li><a href="global.html#followUser">followUser</a></li>
-				<li><a href="global.html#generateName">generateName</a></li>
-				<li><a href="global.html#generateRoom">generateRoom</a></li>
-				<li><a href="global.html#getArrows">getArrows</a></li>
-				<li><a href="global.html#getButtonStatus">getButtonStatus</a></li>
-				<li><a href="global.html#getContext">getContext</a></li>
-				<li><a href="global.html#getDashes">getDashes</a></li>
-				<li><a href="global.html#getLastPath">getLastPath</a></li>
-				<li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li>
-				<li><a href="global.html#getRadioVal">getRadioVal</a></li>
-				<li><a href="global.html#getRandomData">getRandomData</a></li>
-				<li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li>
-				<li><a href="global.html#getSelectedAndFixedNodes">getSelectedAndFixedNodes</a></li>
-				<li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li>
-				<li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li>
-				<li><a href="global.html#ghostCursor">ghostCursor</a></li>
-				<li><a href="global.html#ghostFactor">ghostFactor</a></li>
-				<li><a href="global.html#groupDashes">groupDashes</a></li>
-				<li><a href="global.html#groupTitle">groupTitle</a></li>
-				<li><a href="global.html#headerTickToggle">headerTickToggle</a></li>
-				<li><a href="global.html#hideNavButtons">hideNavButtons</a></li>
-				<li><a href="global.html#hideNodeAndEdges">hideNodeAndEdges</a></li>
-				<li><a href="global.html#hideNotes">hideNotes</a></li>
-				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
-				<li><a href="global.html#humanSize">humanSize</a></li>
-				<li><a href="global.html#inAddMode">inAddMode</a></li>
-				<li><a href="global.html#in_degree">in_degree</a></li>
-				<li><a href="global.html#initDraw">initDraw</a></li>
-				<li><a href="global.html#initPopUp">initPopUp</a></li>
-				<li><a href="global.html#initSample">initSample</a></li>
-				<li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li>
-				<li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li>
-				<li><a href="global.html#initials">initials</a></li>
-				<li><a href="global.html#initiateClone">initiateClone</a></li>
-				<li><a href="global.html#initySamplesMap">initySamplesMap</a></li>
-				<li><a href="global.html#inline">inline</a></li>
-				<li><a href="global.html#intersect">intersect</a></li>
-				<li><a href="global.html#invertColor">invertColor</a></li>
-				<li><a href="global.html#isEmpty">isEmpty</a></li>
-				<li><a href="global.html#isQuillEmpty">isQuillEmpty</a></li>
-				<li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li>
-				<li><a href="global.html#legend">legend</a></li>
-				<li><a href="global.html#legendData">legendData</a></li>
-				<li><a href="global.html#lightOrDark">lightOrDark</a></li>
-				<li><a href="global.html#linkEditCancel">linkEditCancel</a></li>
-				<li><a href="global.html#linkEditSave">linkEditSave</a></li>
-				<li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li>
-				<li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li>
-				<li><a href="global.html#linkEditorHide">linkEditorHide</a></li>
-				<li><a href="global.html#linkEditorShow">linkEditorShow</a></li>
-				<li><a href="global.html#listFactors">listFactors</a></li>
-				<li><a href="global.html#listLinks">listLinks</a></li>
-				<li><a href="global.html#listen">listen</a></li>
-				<li><a href="global.html#loadCSV">loadCSV</a></li>
-				<li><a href="global.html#loadDOTfile">loadDOTfile</a></li>
-				<li><a href="global.html#loadExcelfile">loadExcelfile</a></li>
-				<li><a href="global.html#loadFile">loadFile</a></li>
-				<li><a href="global.html#loadGML">loadGML</a></li>
-				<li><a href="global.html#loadGraphML">loadGraphML</a></li>
-				<li><a href="global.html#loadPRSMfile">loadPRSMfile</a></li>
-				<li><a href="global.html#lockNode">lockNode</a></li>
-				<li><a href="global.html#logHistory">logHistory</a></li>
-				<li><a href="global.html#makeColor">makeColor</a></li>
-				<li><a href="global.html#makeOptionsDialog">makeOptionsDialog</a></li>
-				<li><a href="global.html#mapTitle">mapTitle</a></li>
-				<li><a href="global.html#markMapSaved">markMapSaved</a></li>
-				<li><a href="global.html#mergeTranspose">mergeTranspose</a></li>
-				<li><a href="global.html#mouseDespatch">mouseDespatch</a></li>
-				<li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li>
-				<li><a href="global.html#nodeEditSave">nodeEditSave</a></li>
-				<li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li>
-				<li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li>
-				<li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li>
-				<li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li>
-				<li><a href="global.html#nodeIdToLabel">nodeIdToLabel</a></li>
-				<li><a href="global.html#nodeList">nodeList</a></li>
-				<li><a href="global.html#noteFilter">noteFilter</a></li>
-				<li><a href="global.html#object_equals">object_equals</a></li>
-				<li><a href="global.html#oldUserNames">oldUserNames</a></li>
-				<li><a href="global.html#onexit">onexit</a></li>
-				<li><a href="global.html#openCluster">openCluster</a></li>
-				<li><a href="global.html#openNotesWindow">openNotesWindow</a></li>
-				<li><a href="global.html#out_degree">out_degree</a></li>
-				<li><a href="global.html#plusLink">plusLink</a></li>
-				<li><a href="global.html#plusNode">plusNode</a></li>
-				<li><a href="global.html#positionNotes">positionNotes</a></li>
-				<li><a href="global.html#positionPopUp">positionPopUp</a></li>
-				<li><a href="global.html#quillAccessor">quillAccessor</a></li>
-				<li><a href="global.html#quillEditor">quillEditor</a></li>
-				<li><a href="global.html#quillFormatter">quillFormatter</a></li>
-				<li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li>
-				<li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li>
-				<li><a href="global.html#readSingleFile">readSingleFile</a></li>
-				<li><a href="global.html#rebase">rebase</a></li>
-				<li><a href="global.html#recalculateStats">recalculateStats</a></li>
-				<li><a href="global.html#receiveEvent">receiveEvent</a></li>
-				<li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li>
-				<li><a href="global.html#redraw">redraw</a></li>
-				<li><a href="global.html#refreshFromMap">refreshFromMap</a></li>
-				<li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li>
-				<li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li>
-				<li><a href="global.html#removeAvatar">removeAvatar</a></li>
-				<li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li>
-				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
-				<li><a href="global.html#resizeBox">resizeBox</a></li>
-				<li><a href="global.html#resizeCanvas">resizeCanvas</a></li>
-				<li><a href="global.html#rgba">rgba</a></li>
-				<li><a href="global.html#rollback">rollback</a></li>
-				<li><a href="global.html#round">round</a></li>
-				<li><a href="global.html#roundTripTimer">roundTripTimer</a></li>
-				<li><a href="global.html#saveChange">saveChange</a></li>
-				<li><a href="global.html#saveEdge">saveEdge</a></li>
-				<li><a href="global.html#saveLabel">saveLabel</a></li>
-				<li><a href="global.html#saveNode">saveNode</a></li>
-				<li><a href="global.html#savePRSMfile">savePRSMfile</a></li>
-				<li><a href="global.html#saveState">saveState</a></li>
-				<li><a href="global.html#saveStr">saveStr</a></li>
-				<li><a href="global.html#search">search</a></li>
-				<li><a href="global.html#searchTargets">searchTargets</a></li>
-				<li><a href="global.html#selectClustering">selectClustering</a></li>
-				<li><a href="global.html#selectTool">selectTool</a></li>
-				<li><a href="global.html#selectUsersItems">selectUsersItems</a></li>
-				<li><a href="global.html#selectedLabels">selectedLabels</a></li>
-				<li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li>
-				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
-				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
-				<li><a href="global.html#setCanvasBackground">setCanvasBackground</a></li>
-				<li><a href="global.html#setEdgeHidden">setEdgeHidden</a></li>
-				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
-				<li><a href="global.html#setFileName">setFileName</a></li>
-				<li><a href="global.html#setFixed">setFixed</a></li>
-				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
-				<li><a href="global.html#setNodeHidden">setNodeHidden</a></li>
-				<li><a href="global.html#setParams">setParams</a></li>
-				<li><a href="global.html#setRadioVal">setRadioVal</a></li>
-				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
-				<li><a href="global.html#setUpBackground">setUpBackground</a></li>
-				<li><a href="global.html#setUpCanvas">setUpCanvas</a></li>
-				<li><a href="global.html#setUpChat">setUpChat</a></li>
-				<li><a href="global.html#setUpFilter">setUpFilter</a></li>
-				<li><a href="global.html#setUpPage">setUpPage</a></li>
-				<li><a href="global.html#setUpPaint">setUpPaint</a></li>
-				<li><a href="global.html#setUpSamples">setUpSamples</a></li>
-				<li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li>
-				<li><a href="global.html#setUpTabs">setUpTabs</a></li>
-				<li><a href="global.html#setUpToolbox">setUpToolbox</a></li>
-				<li><a href="global.html#setUpTutorial">setUpTutorial</a></li>
-				<li><a href="global.html#setvh">setvh</a></li>
-				<li><a href="global.html#showAvatars">showAvatars</a></li>
-				<li><a href="global.html#showClusterLinks">showClusterLinks</a></li>
-				<li><a href="global.html#showGhostFactor">showGhostFactor</a></li>
-				<li><a href="global.html#showHistory">showHistory</a></li>
-				<li><a href="global.html#showNavButtons">showNavButtons</a></li>
-				<li><a href="global.html#showNodeData">showNodeData</a></li>
-				<li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li>
-				<li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li>
-				<li><a href="global.html#showOtherMouse">showOtherMouse</a></li>
-				<li><a href="global.html#showPressed">showPressed</a></li>
-				<li><a href="global.html#showSelected">showSelected</a></li>
-				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
-				<li><a href="global.html#solve">solve</a></li>
-				<li><a href="global.html#splitText">splitText</a></li>
-				<li><a href="global.html#standardize_color">standardize_color</a></li>
-				<li><a href="global.html#start">start</a></li>
-				<li><a href="global.html#startY">startY</a></li>
-				<li><a href="global.html#startzoom">startzoom</a></li>
-				<li><a href="global.html#statusMsg">statusMsg</a></li>
-				<li><a href="global.html#stepFinish">stepFinish</a></li>
-				<li><a href="global.html#stepStart">stepStart</a></li>
-				<li><a href="global.html#stepsEnd">stepsEnd</a></li>
-				<li><a href="global.html#stopEdit">stopEdit</a></li>
-				<li><a href="global.html#strip">strip</a></li>
-				<li><a href="global.html#styleEdgeNames">styleEdgeNames</a></li>
-				<li><a href="global.html#styleNodeNames">styleNodeNames</a></li>
-				<li><a href="global.html#subVec">subVec</a></li>
-				<li><a href="global.html#subtract">subtract</a></li>
-				<li><a href="global.html#sumVec">sumVec</a></li>
-				<li><a href="global.html#svg">svg</a></li>
-				<li><a href="global.html#tickToggle">tickToggle</a></li>
-				<li><a href="global.html#timeAndDate">timeAndDate</a></li>
-				<li><a href="global.html#timestamp">timestamp</a></li>
-				<li><a href="global.html#titleDropDown">titleDropDown</a></li>
-				<li><a href="global.html#toggleDeleteButton">toggleDeleteButton</a></li>
-				<li><a href="global.html#togglePanel">togglePanel</a></li>
-				<li><a href="global.html#toolHandler">toolHandler</a></li>
-				<li><a href="global.html#traceUsers">traceUsers</a></li>
-				<li><a href="global.html#transpose">transpose</a></li>
-				<li><a href="global.html#trophic">trophic</a></li>
-				<li><a href="global.html#unFollow">unFollow</a></li>
-				<li><a href="global.html#unSelect">unSelect</a></li>
-				<li><a href="global.html#undirected">undirected</a></li>
-				<li><a href="global.html#unlockAll">unlockAll</a></li>
-				<li><a href="global.html#unlockEdge">unlockEdge</a></li>
-				<li><a href="global.html#unlockNode">unlockNode</a></li>
-				<li><a href="global.html#unselectTool">unselectTool</a></li>
-				<li><a href="global.html#updateActiveButtons">updateActiveButtons</a></li>
-				<li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li>
-				<li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li>
-				<li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li>
-				<li><a href="global.html#updateFilter">updateFilter</a></li>
-				<li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li>
-				<li><a href="global.html#updateFromDrawingMap">updateFromDrawingMap</a></li>
-				<li><a href="global.html#updateFromRemote">updateFromRemote</a></li>
-				<li><a href="global.html#updateLastSamples">updateLastSamples</a></li>
-				<li><a href="global.html#updateLegend">updateLegend</a></li>
-				<li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li>
-				<li><a href="global.html#updateNodeCellData">updateNodeCellData</a></li>
-				<li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li>
-				<li><a href="global.html#updateSelection">updateSelection</a></li>
-				<li><a href="global.html#upgradeFromV1">upgradeFromV1</a></li>
-				<li><a href="global.html#upscaling">upscaling</a></li>
-				<li><a href="global.html#uuidv4">uuidv4</a></li>
-				<li><a href="global.html#zero">zero</a></li>
-				<li><a href="global.html#zoomCanvas">zoomCanvas</a></li>
-				<li><a href="global.html#zoomincr">zoomincr</a></li>
-				<li><a href="global.html#zoomnet">zoomnet</a></li>
-				<li><a href="global.html#zoomscroll">zoomscroll</a></li>
-				<li><a href="global.html#zoomset">zoomset</a></li>
-			</ul>
-		</nav>
+<div id="main">
+    
+    <h1 class="page-title">files.js</h1>
+    
 
-		<div id="main">
-			<h1 class="page-title">files.js</h1>
+    
 
-			<section>
-				<article>
-					<pre
-						class="prettyprint source linenums"
-					><code>/*********************************************************************************************************************  
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*********************************************************************************************************************  
 
 PRSM Participatory System Mapper 
 
-    Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+	Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see &lt;https://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see &lt;https://www.gnu.org/licenses/>.
 
 
 This module provides import and export functions, to read and save map files in a variety of formats.  
@@ -380,7 +75,6 @@ import {
 	room,
 	network,
 	container,
-	netPane,
 	logHistory,
 	yUndoManager,
 	yNetMap,
@@ -389,16 +83,15 @@ import {
 	yHistory,
 	lastNodeSample,
 	lastLinkSample,
-	timestamp,
 	clearMap,
 	debug,
-	setCanvasBackground,
 	toggleDeleteButton,
 	undoRedoButtonStatus,
 	updateLastSamples,
 	refreshSampleNodes,
 	refreshSampleLinks,
 	setMapTitle,
+	setSideDrawer,
 	recreateClusteringMenu,
 	markMapSaved,
 	fit,
@@ -414,15 +107,19 @@ import {
 	strip,
 	statusMsg,
 	lowerFirstLetter,
+	stripNL,
 } from './utils.js'
 import {styles} from './samples.js'
-import {canvas, refreshFromMap, upgradeFromV1} from './background.js'
+import {canvas, refreshFromMap, setUpBackground, upgradeFromV1} from './background.js'
 import {updateLegend} from './styles.js'
 import Quill from 'quill'
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
+import {saveAs} from 'file-saver'
+import * as quillToWord from 'quill-to-word'
 import {read, writeFileXLSX, utils} from 'xlsx'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
 import * as parser from 'fast-xml-parser'
+import {fabric} from 'fabric'
 import {version} from '../package.json'
 
 const NODEWIDTH = 10 // chars for label splitting
@@ -499,12 +196,6 @@ function loadFile(contents) {
 			default:
 				throw {message: 'Unrecognised file name suffix'}
 		}
-		network.setOptions({
-			interaction: {
-				hideEdgesOnDrag: data.nodes.length > 100,
-				hideEdgesOnZoom: data.nodes.length > 100,
-			},
-		})
 		let nodesToUpdate = []
 		data.nodes.get().forEach((n) => {
 			// ensure that all nodes have a grp property (converting 'group' property for old format files)
@@ -630,15 +321,19 @@ function loadPRSMfile(str) {
 		if (yPointsArray.length > 0) upgradeFromV1(yPointsArray.toArray())
 	}
 	if (json.background) {
+		setUpBackground()
 		let map = JSON.parse(json.background)
 		for (const [key, value] of Object.entries(map)) {
 			yDrawingMap.set(key, value)
 		}
 		refreshFromMap(Object.keys(map))
-		fit()
 	}
 	yHistory.delete(0, yHistory.length)
 	if (json.history) yHistory.insert(0, json.history)
+	if (json.description) {
+		yNetMap.set('mapDescription', json.description)
+		setSideDrawer(json.description)
+	}
 }
 /**
  * parse and load a GraphViz (.DOT or .GV) file
@@ -811,7 +506,7 @@ function loadGML(gml) {
 }
 /**
  * Read a comma separated values file consisting of 'From' label and 'to' label, on each row,
-     with a header row (ignored) 
+	 with a header row (ignored) 
 	optional, cols 3 and 4 can include the groups (styles) of the from and to nodes,
 	column 5 can include the style of the edge.  All these must be integers between 1 and 9
  * @param {string} csv 
@@ -912,7 +607,7 @@ function loadExcelfile(contents) {
 	 Transform data about factors into an array of objects, with properties named after the column headings
 	 (with first letter lower cased if necessary) and values from that row's cells.
 	 add a GUID to the object,  change 'Style' property to 'grp'
-	 Style may be a style name or a style number between 1 and 9
+	 Style is a style number between 1 and 9
 	 Put value of Description or Notes property into notes
 	 Check that any other property names are not in the list of known attribute names; if so add that property name to the attribute name list 
 	 Place the factor either at the given x and y coordinates or at some random location
@@ -920,21 +615,24 @@ function loadExcelfile(contents) {
 
 	// convert data from Factors sheet into an array of objects with properties starting with lower case letters
 	let factors = utils.sheet_to_json(factorsSS).map((f) => lowerInitialLetterOfProps(f))
-	let styleNodes = Array.from(document.getElementsByClassName('sampleNode')).map((elem) => elem.dataSet.get('1'))
 	factors.forEach((f) => {
 		f.id = uuidv4()
 		if (f.style) {
-			let styleNo = styleNodes.findIndex((s) => s.groupLabel === f.style)
-			if (styleNo === -1) {
-				styleNo = parseInt(f.style)
-				if (isNaN(styleNo) || styleNo &lt; 1 || styleNo > 9) {
-					throw {
-						message: `Factors - Line ${f.__rowNum__}: Style must be a number between 1 and 9, a style name, or blank (found ${f.style})`,
-					}
+			let styleNo = parseInt(f.style)
+			if (isNaN(styleNo) || styleNo &lt; 1 || styleNo > 9) {
+				throw {
+					message: `Factors - Line ${f.__rowNum__}: Style must be a number between 1 and 9, a style name, or blank (found ${f.style})`,
 				}
-				styleNo--
 			}
-			f.grp = 'group' + styleNo
+			f.grp = 'group' + (styleNo - 1)
+			if (f.groupLabel) {
+				let styleDataSet = Array.from(document.getElementsByClassName('sampleNode'))[styleNo - 1].dataSet
+				let styleNode = styleDataSet.get('1')
+				styleNode.label = f.groupLabel
+				styleNode.groupLabel = f.groupLabel
+				styleDataSet.update(styleNode)
+				styles.nodes[f.grp].groupLabel = f.groupLabel
+			}
 			delete f.style
 		}
 		if (!f.label)
@@ -946,7 +644,14 @@ function loadExcelfile(contents) {
 			f.note = {ops: [{insert: note + '\n'}]}
 			delete f.description
 		}
-		f.created = timestamp()
+		if (f.creator) {
+			f.created = {time: f.createdTime ? Date.parse(f.createdTime) : Date.now(), user: f.creator}
+			delete f.createdTime
+		}
+		if (f.modifier) {
+			f.modified = {time: f.modifiedTime ? Date.parse(f.modifiedTime) : Date.now(), user: f.modifier}
+			delete f.modifiedTime
+		}
 		// filter out known properties, leaving the rest to become attributes
 		Object.keys(f)
 			.filter(
@@ -959,8 +664,10 @@ function loadExcelfile(contents) {
 						'shape',
 						'note',
 						'created',
+						'createdTime',
 						'creator',
 						'modified',
+						'modifiedTime',
 						'modifier',
 						'x',
 						'y',
@@ -988,25 +695,34 @@ function loadExcelfile(contents) {
 	add other attributes as for factors */
 
 	let links = utils.sheet_to_json(linksSS).map((l) => lowerInitialLetterOfProps(l))
-	let styleEdges = Array.from(document.getElementsByClassName('sampleLink')).map((elem) => elem.dataSet.get('1'))
-
 	links.forEach((l) => {
 		l.id = uuidv4()
 		if (l.style) {
-			let styleNo = styleEdges.findIndex((s) => s.label === l.style)
-			if (styleNo === -1) {
-				styleNo = parseInt(l.style)
-				if (isNaN(styleNo) || styleNo &lt; 1 || styleNo > 9) {
-					throw {
-						message: `Links - Line ${l.__rowNum__}: Style must be a number between 1 and 9, a style name or blank (found ${l.style})`,
-					}
+			let styleNo = parseInt(l.style)
+			if (isNaN(styleNo) || styleNo &lt; 1 || styleNo > 9) {
+				throw {
+					message: `Links - Line ${l.__rowNum__}: Style must be a number between 1 and 9, a style name, or blank (found ${l.style})`,
 				}
-				styleNo--
 			}
-			l.grp = 'edge' + styleNo
+			l.grp = 'edge' + (styleNo - 1)
+			if (l.groupLabel) {
+				let styleDataSet = Array.from(document.getElementsByClassName('sampleLink'))[styleNo - 1].dataSet
+				let styleEdge = styleDataSet.get('1')
+				styleEdge.label = l.groupLabel
+				styleEdge.groupLabel = l.groupLabel
+				styleDataSet.update(styleEdge)
+				styles.edges[l.grp].groupLabel = l.groupLabel
+			}
 			delete l.style
 		}
-		l.created = timestamp()
+		if (l.creator) {
+			l.created = {time: l.createdTime ? Date.parse(l.createdTime) : Date.now(), user: l.creator}
+			delete l.createdTime
+		}
+		if (l.modifier) {
+			l.modified = {time: l.modifiedTime ? Date.parse(l.modifiedTime) : Date.now(), user: l.modifier}
+			delete l.modifiedTime
+		}
 		let fromFactor = factors.find((factor) => factor.label === l.from)
 		if (fromFactor) l.from = fromFactor.id
 		else throw {message: `Links - Line ${l.__rowNum__}: From factor (${l.from}) not found for link`}
@@ -1111,6 +827,7 @@ export function savePRSMfile() {
 				s.state = null
 				return s
 			}),
+			description: yNetMap.get('mapDescription'),
 		},
 		null,
 		'\t'
@@ -1160,39 +877,41 @@ function setButtonStatus(settings) {
  */
 function saveStr(str, extn) {
 	setFileName(extn)
-	const a = document.createElement('a')
-	const file = new Blob([str], {type: 'text/plain'})
-	a.href = URL.createObjectURL(file)
-	a.download = lastFileName
-	a.click()
-	URL.revokeObjectURL(a.href)
+	const blob = new Blob([str], {type: 'text/plain;charset=utf-8'})
+	saveAs(blob, lastFileName, {autoBom: true})
 }
 /**
  * save the map as a PNG image file
  */
 
-const upscaling = 4 // how much bigger the image is than the displayed map
+const bigWidth = 4096 // half the number of pixels in the image file (also half the height, as the image is square)
+const bigMargin = 256 // white space around network so not too close to printable edge
+const maxScale = 5 // max upscaling for image (avoids blowing up very small networks excessively)
 
 export function exportPNGfile() {
 	setFileName('png')
-	const a = document.createElement('a')
-	document.body.appendChild(a)
-	a.setAttribute('style', 'display: none')
+
 	// create a very large canvas, so we can download at high resolution
-	let bigNetPane = null
-	let bigNetwork = null
-	let bigNetCanvas = null
 	network.storePositions()
-	bigNetPane = document.createElement('div')
-	bigNetPane.id = 'big-net-pane'
-	bigNetPane.style.position = 'absolute'
-	bigNetPane.style.top = '-9999px'
-	bigNetPane.style.left = '-9999px'
-	bigNetPane.style.width = `${netPane.offsetWidth * upscaling}px`
-	bigNetPane.style.height = `${netPane.offsetHeight * upscaling}px`
-	elem('main').appendChild(bigNetPane)
-	bigNetwork = new Network(bigNetPane, data, {
-		physics: { enabled: false },
+
+	// first, create a large offscreen div to hold a copy of the network at the required width
+	let bigNetDiv = document.createElement('div')
+	bigNetDiv.id = 'big-net-pane'
+	bigNetDiv.style.position = 'absolute'
+	bigNetDiv.style.top = '-9999px'
+	bigNetDiv.style.left = '-9999px'
+	bigNetDiv.style.width = `${bigWidth}px`
+	bigNetDiv.style.height = `${bigWidth}px`
+	elem('main').appendChild(bigNetDiv)
+
+	// create an offscreen canvas of the same size to apply the background to
+	let bigBackgroundCanvas = new OffscreenCanvas(bigWidth, bigWidth)
+	bigBackgroundCanvas.id = 'big-background-canvas'
+	let bigFabricCanvas = new fabric.StaticCanvas('big-background-canvas', {width: bigWidth, height: bigWidth})
+
+	// make a network with the same nodes and links as the original map
+	let bigNetwork = new Network(bigNetDiv, data, {
+		physics: {enabled: false},
 		edges: {
 			smooth: {
 				enabled: elem('curveSelect').value === 'Curved',
@@ -1200,24 +919,148 @@ export function exportPNGfile() {
 			},
 		},
 	})
-	bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
-	bigNetwork.on('afterDrawing', () => {
-		a.href = setCanvasBackground(bigNetCanvas).toDataURL('image/png')
-		a.download = lastFileName
-		a.addEventListener('click', () => {
-			a.remove()
-			bigNetwork.destroy()
-			bigNetPane.remove()
-			statusMsg(`'${lastFileName}' saved`, 'info')
+
+	bigNetwork.on('afterDrawing', (bigNetContext) => {
+		// copy the background objects to the big fabric canvas
+		bigFabricCanvas.loadFromJSON(JSON.stringify(canvas), () => {
+			// adjust the fabric canvas scale and center to match the big network and match the background colour
+			bigFabricCanvas.setZoom(bigNetwork.getScale())
+			let fcCenter = bigFabricCanvas.getVpCenter()
+			bigFabricCanvas.relativePan({
+				x: bigNetwork.getScale() * (fcCenter.x - center.x),
+				y: bigNetwork.getScale() * (fcCenter.y - center.y),
+			})
+
+			bigFabricCanvas.setBackgroundColor(elem('underlay').style.backgroundColor || 'rgb(255, 255, 255)')
+			bigFabricCanvas.requestRenderAll()
+
+			// create an image version of the background and copy it onto the big network canvas
+			let bigBackgroundImage = document.createElement('img')
+			bigBackgroundImage.onload = function () {
+				bigNetContext.globalCompositeOperation = 'destination-over'
+				bigNetContext.drawImage(bigBackgroundImage, 0, 0, bigWidth, bigWidth)
+
+				// save the canvas to a file
+				bigNetContext.canvas.toBlob((blob) => saveAs(blob, lastFileName))
+
+				// clean up
+				bigNetwork.destroy()
+				bigNetDiv.remove()
+				bigFabricCanvas.dispose()
+			}
+			bigBackgroundImage.src = bigFabricCanvas.toDataURL()
 		})
-		a.click()
+	})
+
+	let box = mapBoundingBox(network, canvas, network.getSelectedNodes())
+	let scale =
+		network.getScale() *
+		Math.min((bigWidth - bigMargin) / (box.right - box.left), (bigWidth - bigMargin) / (box.bottom - box.top))
+	if (scale > maxScale) scale = maxScale
+	let center = network.DOMtoCanvas({
+		x: 0.5 * (box.right + box.left),
+		y: 0.5 * (box.bottom + box.top),
 	})
 	bigNetwork.moveTo({
-		position: network.getViewPosition(),
-		scale: network.getScale() * upscaling,
+		scale: scale,
+		position: center,
 	})
-}
 
+	/**
+	 * Get a bounding box for everything on the map (the nodes and the background objects)
+	 * @param {object} ntwk the map on which the nodes are placed
+	 * @param {array} selectedNodes Ids of selected nodes, if any
+	 * @returns box as an object, with dimensions in DOM coords
+	 */
+	function mapBoundingBox(ntwk, fabCanvas, selectedNodes = []) {
+		let top = Infinity,
+			bottom = -Infinity,
+			left = Infinity,
+			right = -Infinity
+		// use all nodes if none selected
+		if (selectedNodes.length === 0) selectedNodes = data.nodes.map((n) => n.id)
+		selectedNodes.forEach((nodeId) => {
+			let canvasBB = ntwk.getBoundingBox(nodeId)
+			let tl = ntwk.canvasToDOM({x: canvasBB.left, y: canvasBB.top})
+			let br = ntwk.canvasToDOM({x: canvasBB.right, y: canvasBB.bottom})
+			if (left > tl.x) left = tl.x
+			if (right &lt; br.x) right = br.x
+			if (top > tl.y) top = tl.y
+			if (bottom &lt; br.y) bottom = br.y
+		})
+		// only include background objects if no nodes are selected
+		if (selectedNodes.length === 0) {
+			fabCanvas.forEachObject((obj) => {
+				let boundingBox = obj.getBoundingRect()
+				console.log(obj, boundingBox)
+				if (left > boundingBox.left) left = boundingBox.left
+				if (right &lt; boundingBox.left + boundingBox.width) right = boundingBox.left + boundingBox.width
+				if (top > boundingBox.top) top = boundingBox.top
+				if (bottom &lt; boundingBox.top + boundingBox.height) bottom = boundingBox.top + boundingBox.height
+			})
+		}
+		if (left === Infinity) {
+			top = bottom = left = right = 0
+		}
+		return {left: left, right: right, top: top, bottom: bottom}
+	}
+}
+/**
+ * save a local file containing all the node and edge notes, plus the map description, as a Word document
+ */
+export async function exportNotes() {
+	let delta = {ops: [{insert: '\n'}]}
+	// start with the title of the map if there is one
+	let title = elem('maptitle').innerText
+	if (title !== 'Untitled map') {
+		delta = {ops: [{insert: title}, {attributes: {header: 1}, insert: '\n'}]}
+	}
+	// get contents of map note if there is one
+	if (yNetMap.get('mapDescription')) {
+		delta.ops = delta.ops.concat(
+			[{insert: 'Description of the map'}, {attributes: {header: 2}, insert: '\n'}],
+			yNetMap.get('mapDescription').text.ops
+		)
+	}
+	// add notes for factors
+	data.nodes
+		.get()
+		.toSorted((a, b) => a.label.localeCompare(b.label))
+		.forEach((n) => {
+			if (n.note) {
+				delta.ops = delta.ops.concat(
+					[{insert: `Factor: ${stripNL(n.label)}`}, {attributes: {header: 2}, insert: '\n'}],
+					n.note.ops
+				)
+			}
+		})
+	// add notes for links
+	data.edges.forEach((e) => {
+		if (e.note) {
+			let heading = e.label
+				? e.label
+				: `Link from '${stripNL(data.nodes.get(e.from).label)}' to '${stripNL(data.nodes.get(e.to).label)}'`
+			delta.ops = delta.ops.concat([{insert: heading}, {attributes: {header: 2}, insert: '\n'}])
+			delta.ops = delta.ops.concat(e.note.ops)
+		}
+	})
+	// save the delta as a Word file
+	const quillToWordConfig = {
+		exportAs: 'blob',
+		paragraphStyles: {
+			normal: {
+				paragraph: {
+					spacing: {
+						line: 240,
+					},
+				},
+			},
+		},
+	}
+	const docAsBlob = await quillToWord.generateWord(delta, quillToWordConfig)
+	setFileName('docx')
+	saveAs(docAsBlob, lastFileName)
+}
 /**
  * resets lastFileName to a munged version of the map title, with the supplied extension
  * if lastFileName is null, uses the map title, or if no map title, 'network' as the filename
@@ -1301,8 +1144,14 @@ export function exportExcel() {
 		.get()
 		.filter((n) => !n.isCluster)
 		.map((n) => {
-			n.creator = n?.created?.user
-			n.modifier = n?.modified?.user
+			if (n.created) {
+				n.creator = n.created.user
+				n.createdTime = new Date(n.created.time).toISOString()
+			}
+			if (n.modified) {
+				n.modifier = n.modified.user
+				n.modifiedTime = new Date(n.modified.time).toISOString()
+			}
 			n.style = parseInt(n.grp.substring(5)) + 1
 			if (n.note) n.Note = quillToText(n.note)
 			// don't save any of the listed properties
@@ -1317,11 +1166,17 @@ export function exportExcel() {
 				'grp',
 				'id',
 				'labelHighlightBold',
+				'locked',
 				'margin',
 				'modified',
+				'opacity',
+				'oldFont',
+				'oldFontColor',
+				'oldLabel',
 				'note',
 				'scaling',
 				'shapeProperties',
+				'wasFixed',
 			])
 		})
 
@@ -1329,30 +1184,34 @@ export function exportExcel() {
 	utils.book_append_sheet(workbook, factorWorksheet, 'Factors')
 
 	// Links
-	rows = data.edges
-		.get()
-		.filter((e) => !e.isClusterEdge)
-		.map((e) => {
-			e.creator = e?.created?.user
-			e.modifier = e?.modified?.user
-			e.style = parseInt(e.grp.substring(4)) + 1
-			e.from = data.nodes.get(e.from).label
-			e.to = data.nodes.get(e.to).label
-			if (e.note) e.Note = quillToText(e.note)
-			return omit(e, [
-				'arrows',
-				'color',
-				'created',
-				'dashes',
-				'font',
-				'grp',
-				'hoverWidth',
-				'id',
-				'note',
-				'selectionWidth',
-				'width',
-			])
-		})
+	let edges = deepCopy(data.edges.get().filter((e) => !e.isClusterEdge))
+	rows = edges.map((e) => {
+		if (e.created) {
+			e.creator = e.created.user
+			e.createdTime = new Date(e.created.time).toISOString()
+		}
+		if (e.modified) {
+			e.modifier = e.modified.user
+			e.modifiedTime = new Date(e.modified.time).toISOString()
+		}
+		e.style = parseInt(e.grp.substring(4)) + 1
+		e.from = data.nodes.get(e.from).label
+		e.to = data.nodes.get(e.to).label
+		if (e.note) e.Note = quillToText(e.note)
+		return omit(e, [
+			'arrows',
+			'color',
+			'created',
+			'dashes',
+			'font',
+			'grp',
+			'hoverWidth',
+			'id',
+			'note',
+			'selectionWidth',
+			'width',
+		])
+	})
 	let linksWorksheet = utils.json_to_sheet(rows)
 	utils.book_append_sheet(workbook, linksWorksheet, 'Links')
 
@@ -1444,22 +1303,27 @@ export function exportDOT() {
 	}
 }
 </code></pre>
-				</article>
-			</section>
-		</div>
+        </article>
+    </section>
 
-		<br class="clear" />
 
-		<footer>
-			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Sun Jun 11 2023
-			21:34:49 GMT+0100 (British Summer Time) using the
-			<a href="https://github.com/clenemt/docdash">docdash</a> theme.
-		</footer>
 
-		<script>
-			prettyPrint()
-		</script>
-		<script src="scripts/polyfill.js"></script>
-		<script src="scripts/linenumber.js"></script>
-	</body>
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Mon Jan 15 2024 15:28:31 GMT+0000 (Greenwich Mean Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
 </html>

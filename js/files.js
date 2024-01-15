@@ -21,7 +21,7 @@ PRSM Participatory System Mapper
 This module provides import and export functions, to read and save map files in a variety of formats.  
  ******************************************************************************************************************** */
 
-import { Network, parseGephiNetwork, parseDOTNetwork } from 'vis-network/peer'
+import {Network, parseGephiNetwork, parseDOTNetwork} from 'vis-network/peer'
 import {
 	data,
 	doc,
@@ -62,18 +62,18 @@ import {
 	lowerFirstLetter,
 	stripNL,
 } from './utils.js'
-import { styles } from './samples.js'
-import { canvas, refreshFromMap, setUpBackground, upgradeFromV1 } from './background.js'
-import { updateLegend } from './styles.js'
+import {styles} from './samples.js'
+import {canvas, refreshFromMap, setUpBackground, upgradeFromV1} from './background.js'
+import {updateLegend} from './styles.js'
 import Quill from 'quill'
-import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html'
-import { saveAs } from 'file-saver'
+import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
+import {saveAs} from 'file-saver'
 import * as quillToWord from 'quill-to-word'
-import { read, writeFileXLSX, utils } from 'xlsx'
-import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
+import {read, writeFileXLSX, utils} from 'xlsx'
+import {compressToUTF16, decompressFromUTF16} from 'lz-string'
 import * as parser from 'fast-xml-parser'
-import { fabric } from 'fabric'
-import { version } from '../package.json'
+import {fabric} from 'fabric'
+import {version} from '../package.json'
 
 const NODEWIDTH = 10 // chars for label splitting
 
@@ -147,7 +147,7 @@ function loadFile(contents) {
 				loadExcelfile(contents)
 				break
 			default:
-				throw { message: 'Unrecognised file name suffix' }
+				throw {message: 'Unrecognised file name suffix'}
 		}
 		let nodesToUpdate = []
 		data.nodes.get().forEach((n) => {
@@ -157,7 +157,7 @@ function loadFile(contents) {
 			n = deepMerge(styles.nodes[n.grp], n)
 			// version 1.6 made changes to label scaling
 			n.scaling = {
-				label: { enabled: false, max: 40, min: 10 },
+				label: {enabled: false, max: 40, min: 10},
 				max: 100,
 				min: 10,
 			}
@@ -231,13 +231,13 @@ function loadPRSMfile(str) {
 			// at version 1.5, the title: property was renamed to note:
 			if (!n.note && n.title) n.note = n.title.replace(/<br>|<p>/g, '\n')
 			delete n.title
-			if (n.note && !(n.note instanceof Object)) n.note = { ops: [{ insert: n.note }] }
+			if (n.note && !(n.note instanceof Object)) n.note = {ops: [{insert: n.note}]}
 		})
 		data.nodes.add(json.nodes)
 		json.edges.forEach((e) => {
 			if (!e.note && e.title) e.note = e.title.replace(/<br>|<p>/g, '\n')
 			delete e.title
-			if (e.note && !(e.note instanceof Object)) e.note = { ops: [{ insert: e.note }] }
+			if (e.note && !(e.note instanceof Object)) e.note = {ops: [{insert: e.note}]}
 		})
 		data.edges.add(json.edges)
 	}
@@ -380,7 +380,7 @@ function loadGraphML(graphML) {
  * @param {string} gml
  */
 function loadGML(gml) {
-	if (gml.search('graph') < 0) throw { message: 'invalid GML format' }
+	if (gml.search('graph') < 0) throw {message: 'invalid GML format'}
 	let tokens = gml.match(/"[^"]+"|[\w]+|\[|\]/g)
 	let node
 	let edge
@@ -528,7 +528,7 @@ function loadCSV(csv) {
 			grp = 'group' + (styleNo - 1)
 		}
 		if (labels.get(label) == undefined) {
-			labels.set(label, { id: uuidv4(), label: label.toString(), grp: grp })
+			labels.set(label, {id: uuidv4(), label: label.toString(), grp: grp})
 		}
 		return labels.get(label)
 	}
@@ -549,9 +549,9 @@ function loadCSV(csv) {
 function loadExcelfile(contents) {
 	let workbook = read(contents)
 	let factorsSS = workbook.Sheets['Factors']
-	if (!factorsSS) throw { message: 'Sheet named Factors not found in Workbook' }
+	if (!factorsSS) throw {message: 'Sheet named Factors not found in Workbook'}
 	let linksSS = workbook.Sheets['Links']
-	if (!linksSS) throw { message: 'Sheet named Links not found in Workbook' }
+	if (!linksSS) throw {message: 'Sheet named Links not found in Workbook'}
 
 	// attributeNames is an object with properties attributeField: attributeTitle
 	let attributeNames = {}
@@ -594,15 +594,15 @@ function loadExcelfile(contents) {
 			}
 		let note = f.description || f.note
 		if (note) {
-			f.note = { ops: [{ insert: note + '\n' }] }
+			f.note = {ops: [{insert: note + '\n'}]}
 			delete f.description
 		}
 		if (f.creator) {
-			f.created = { time: f.createdTime ? Date.parse(f.createdTime) : Date.now(), user: f.creator }
+			f.created = {time: f.createdTime ? Date.parse(f.createdTime) : Date.now(), user: f.creator}
 			delete f.createdTime
 		}
 		if (f.modifier) {
-			f.modified = { time: f.modifiedTime ? Date.parse(f.modifiedTime) : Date.now(), user: f.modifier }
+			f.modified = {time: f.modifiedTime ? Date.parse(f.modifiedTime) : Date.now(), user: f.modifier}
 			delete f.modifiedTime
 		}
 		// filter out known properties, leaving the rest to become attributes
@@ -669,23 +669,23 @@ function loadExcelfile(contents) {
 			delete l.style
 		}
 		if (l.creator) {
-			l.created = { time: l.createdTime ? Date.parse(l.createdTime) : Date.now(), user: l.creator }
+			l.created = {time: l.createdTime ? Date.parse(l.createdTime) : Date.now(), user: l.creator}
 			delete l.createdTime
 		}
 		if (l.modifier) {
-			l.modified = { time: l.modifiedTime ? Date.parse(l.modifiedTime) : Date.now(), user: l.modifier }
+			l.modified = {time: l.modifiedTime ? Date.parse(l.modifiedTime) : Date.now(), user: l.modifier}
 			delete l.modifiedTime
 		}
 		let fromFactor = factors.find((factor) => factor.label === l.from)
 		if (fromFactor) l.from = fromFactor.id
-		else throw { message: `Links - Line ${l.__rowNum__}: From factor (${l.from}) not found for link` }
+		else throw {message: `Links - Line ${l.__rowNum__}: From factor (${l.from}) not found for link`}
 		let toFactor = factors.find((factor) => factor.label === l.to)
 		if (toFactor) l.to = toFactor.id
-		else throw { message: `Links - Line ${l.__rowNum__}: To factor (${l.to}) not found for link` }
+		else throw {message: `Links - Line ${l.__rowNum__}: To factor (${l.to}) not found for link`}
 
 		let note = l.description || l.note
 		if (note) {
-			l.note = { ops: [{ insert: note + '\n' }] }
+			l.note = {ops: [{insert: note + '\n'}]}
 			delete l.description
 		}
 		Object.keys(l)
@@ -813,9 +813,9 @@ function setButtonStatus(settings) {
 	yNetMap.set('background', settings.background || '#ffffff')
 	yNetMap.set('legend', settings.legend)
 	yNetMap.set('sizing', settings.sizing)
-	yNetMap.set('radius', { radiusSetting: 'All', selected: [] })
-	yNetMap.set('stream', { streamSetting: 'All', selected: [] })
-	yNetMap.set('paths', { pathsSetting: 'All', selected: [] })
+	yNetMap.set('radius', {radiusSetting: 'All', selected: []})
+	yNetMap.set('stream', {streamSetting: 'All', selected: []})
+	yNetMap.set('paths', {pathsSetting: 'All', selected: []})
 	yNetMap.set('cluster', 'All')
 }
 
@@ -830,16 +830,16 @@ function setButtonStatus(settings) {
  */
 function saveStr(str, extn) {
 	setFileName(extn)
-	const blob = new Blob([str], { type: 'text/plain;charset=utf-8' })
-	saveAs(blob, lastFileName, { autoBom: true })
+	const blob = new Blob([str], {type: 'text/plain;charset=utf-8'})
+	saveAs(blob, lastFileName, {autoBom: true})
 }
 /**
  * save the map as a PNG image file
  */
 
-const bigWidth = 4096	// half the number of pixels in the image file (also half the height, as the image is square)
-const bigMargin = 256	// white space around network so not too close to printable edge
-const maxScale = 5		// max upscaling for image (avoids blowing up very small networks excessively)
+const bigWidth = 4096 // half the number of pixels in the image file (also half the height, as the image is square)
+const bigMargin = 256 // white space around network so not too close to printable edge
+const maxScale = 5 // max upscaling for image (avoids blowing up very small networks excessively)
 
 export function exportPNGfile() {
 	setFileName('png')
@@ -860,11 +860,11 @@ export function exportPNGfile() {
 	// create an offscreen canvas of the same size to apply the background to
 	let bigBackgroundCanvas = new OffscreenCanvas(bigWidth, bigWidth)
 	bigBackgroundCanvas.id = 'big-background-canvas'
-	let bigFabricCanvas = new fabric.StaticCanvas('big-background-canvas', { width: bigWidth, height: bigWidth })
+	let bigFabricCanvas = new fabric.StaticCanvas('big-background-canvas', {width: bigWidth, height: bigWidth})
 
 	// make a network with the same nodes and links as the original map
 	let bigNetwork = new Network(bigNetDiv, data, {
-		physics: { enabled: false },
+		physics: {enabled: false},
 		edges: {
 			smooth: {
 				enabled: elem('curveSelect').value === 'Curved',
@@ -874,14 +874,15 @@ export function exportPNGfile() {
 	})
 
 	bigNetwork.on('afterDrawing', (bigNetContext) => {
-
 		// copy the background objects to the big fabric canvas
 		bigFabricCanvas.loadFromJSON(JSON.stringify(canvas), () => {
-
 			// adjust the fabric canvas scale and center to match the big network and match the background colour
 			bigFabricCanvas.setZoom(bigNetwork.getScale())
 			let fcCenter = bigFabricCanvas.getVpCenter()
-			bigFabricCanvas.relativePan({ x: bigNetwork.getScale() * (fcCenter.x - center.x), y: bigNetwork.getScale() * (fcCenter.y - center.y) })
+			bigFabricCanvas.relativePan({
+				x: bigNetwork.getScale() * (fcCenter.x - center.x),
+				y: bigNetwork.getScale() * (fcCenter.y - center.y),
+			})
 
 			bigFabricCanvas.setBackgroundColor(elem('underlay').style.backgroundColor || 'rgb(255, 255, 255)')
 			bigFabricCanvas.requestRenderAll()
@@ -905,15 +906,17 @@ export function exportPNGfile() {
 	})
 
 	let box = mapBoundingBox(network, canvas, network.getSelectedNodes())
-	let scale = network.getScale() * Math.min((bigWidth - bigMargin) / (box.right - box.left), (bigWidth - bigMargin) / (box.bottom - box.top))
+	let scale =
+		network.getScale() *
+		Math.min((bigWidth - bigMargin) / (box.right - box.left), (bigWidth - bigMargin) / (box.bottom - box.top))
 	if (scale > maxScale) scale = maxScale
 	let center = network.DOMtoCanvas({
 		x: 0.5 * (box.right + box.left),
-		y: 0.5 * (box.bottom + box.top)
+		y: 0.5 * (box.bottom + box.top),
 	})
 	bigNetwork.moveTo({
 		scale: scale,
-		position: center
+		position: center,
 	})
 
 	/**
@@ -928,11 +931,11 @@ export function exportPNGfile() {
 			left = Infinity,
 			right = -Infinity
 		// use all nodes if none selected
-		if (selectedNodes.length === 0) selectedNodes = data.nodes.map(n => n.id)
+		if (selectedNodes.length === 0) selectedNodes = data.nodes.map((n) => n.id)
 		selectedNodes.forEach((nodeId) => {
 			let canvasBB = ntwk.getBoundingBox(nodeId)
-			let tl = ntwk.canvasToDOM({ x: canvasBB.left, y: canvasBB.top })
-			let br = ntwk.canvasToDOM({ x: canvasBB.right, y: canvasBB.bottom })
+			let tl = ntwk.canvasToDOM({x: canvasBB.left, y: canvasBB.top})
+			let br = ntwk.canvasToDOM({x: canvasBB.right, y: canvasBB.bottom})
 			if (left > tl.x) left = tl.x
 			if (right < br.x) right = br.x
 			if (top > tl.y) top = tl.y
@@ -940,7 +943,7 @@ export function exportPNGfile() {
 		})
 		// only include background objects if no nodes are selected
 		if (selectedNodes.length === 0) {
-			fabCanvas.forEachObject(obj => {
+			fabCanvas.forEachObject((obj) => {
 				let boundingBox = obj.getBoundingRect()
 				console.log(obj, boundingBox)
 				if (left > boundingBox.left) left = boundingBox.left
@@ -952,23 +955,23 @@ export function exportPNGfile() {
 		if (left === Infinity) {
 			top = bottom = left = right = 0
 		}
-		return { left: left, right: right, top: top, bottom: bottom };
+		return {left: left, right: right, top: top, bottom: bottom}
 	}
 }
 /**
  * save a local file containing all the node and edge notes, plus the map description, as a Word document
  */
 export async function exportNotes() {
-	let delta = { ops: [{ insert: '\n' }] }
+	let delta = {ops: [{insert: '\n'}]}
 	// start with the title of the map if there is one
 	let title = elem('maptitle').innerText
 	if (title !== 'Untitled map') {
-		delta = { ops: [{ insert: title }, { attributes: { header: 1 }, insert: '\n' }] }
+		delta = {ops: [{insert: title}, {attributes: {header: 1}, insert: '\n'}]}
 	}
 	// get contents of map note if there is one
 	if (yNetMap.get('mapDescription')) {
 		delta.ops = delta.ops.concat(
-			[{ insert: 'Description of the map' }, { attributes: { header: 2 }, insert: '\n' }],
+			[{insert: 'Description of the map'}, {attributes: {header: 2}, insert: '\n'}],
 			yNetMap.get('mapDescription').text.ops
 		)
 	}
@@ -979,7 +982,7 @@ export async function exportNotes() {
 		.forEach((n) => {
 			if (n.note) {
 				delta.ops = delta.ops.concat(
-					[{ insert: `Factor: ${stripNL(n.label)}` }, { attributes: { header: 2 }, insert: '\n' }],
+					[{insert: `Factor: ${stripNL(n.label)}`}, {attributes: {header: 2}, insert: '\n'}],
 					n.note.ops
 				)
 			}
@@ -990,7 +993,7 @@ export async function exportNotes() {
 			let heading = e.label
 				? e.label
 				: `Link from '${stripNL(data.nodes.get(e.from).label)}' to '${stripNL(data.nodes.get(e.to).label)}'`
-			delta.ops = delta.ops.concat([{ insert: heading }, { attributes: { header: 2 }, insert: '\n' }])
+			delta.ops = delta.ops.concat([{insert: heading}, {attributes: {header: 2}, insert: '\n'}])
 			delta.ops = delta.ops.concat(e.note.ops)
 		}
 	})

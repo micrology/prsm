@@ -21,8 +21,8 @@ PRSM Participatory System Mapper
 This modules handles operations related to the Styles tabs.  
  ******************************************************************************************************************** */
 
-import { Network } from 'vis-network/peer/'
-import { DataSet } from 'vis-data/peer'
+import {Network} from 'vis-network/peer/'
+import {DataSet} from 'vis-data/peer'
 import {
 	listen,
 	elem,
@@ -37,7 +37,7 @@ import {
 	factorSizeToPercent,
 	setFactorSizeFromPercent,
 	convertDashes,
-	getDashes
+	getDashes,
 } from './utils.js'
 import {
 	network,
@@ -49,9 +49,9 @@ import {
 	updateLastSamples,
 	cp,
 	logHistory,
-	progressBar
+	progressBar,
 } from './prsm.js'
-import { styles } from './samples.js'
+import {styles} from './samples.js'
 
 /**
  * The samples are each a mini vis-network showing just one node or two nodes and a link
@@ -79,7 +79,7 @@ export function setUpSamples() {
 					widthConstraint: 50,
 					heightConstraint: 50,
 					margin: 10,
-					scaling: { label: { enabled: false } },
+					scaling: {label: {enabled: false}},
 				}
 			),
 		])
@@ -249,10 +249,10 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 		menu.classList.remove('show-menu')
 	}
 	function selectFactorsWithStyle(groupId) {
-		selectFactors(data.nodes.getIds({ filter: (node) => node.grp === groupId }))
+		selectFactors(data.nodes.getIds({filter: (node) => node.grp === groupId}))
 	}
 	function hideFactorsWithStyle(groupId, toggle) {
-		let nodes = data.nodes.get({ filter: (node) => node.grp === groupId })
+		let nodes = data.nodes.get({filter: (node) => node.grp === groupId})
 		nodes.forEach((node) => {
 			setNodeHidden(node, toggle)
 		})
@@ -319,10 +319,10 @@ function styleEdgeContextMenu(event, sampleElement, groupId) {
 		menu.classList.remove('show-menu')
 	}
 	function selectLinksWithStyle(groupId) {
-		selectLinks(data.edges.getIds({ filter: (edge) => edge.grp === groupId }))
+		selectLinks(data.edges.getIds({filter: (edge) => edge.grp === groupId}))
 	}
 	function hideLinksWithStyle(groupId, toggle) {
-		let edges = data.edges.get({ filter: (edge) => edge.grp === groupId })
+		let edges = data.edges.get({filter: (edge) => edge.grp === groupId})
 		edges.forEach((edge) => {
 			setEdgeHidden(edge, toggle)
 		})
@@ -482,7 +482,7 @@ function nodeEditUpdateStyleSample(group) {
 	let node = styleElement.dataSet.get('1')
 	node.label = group.groupLabel
 	// the node in the style sample does not change size
-	node = deepMerge(node, styles.nodes[groupId], { chosen: false, size: 25, widthConstraint: 25, heightConstraint: 25, })
+	node = deepMerge(node, styles.nodes[groupId], {chosen: false, size: 25, widthConstraint: 25, heightConstraint: 25})
 	styleElement.dataSet.update(node)
 }
 /**
@@ -615,7 +615,7 @@ function linkEditUpdateStyleSample(group) {
 	let styleElement = elem('linkStyleEditorContainer').styleElement
 	let edge = styleElement.dataSet.get('1')
 	edge.label = group.groupLabel
-	edge = deepMerge(edge, styles.edges[groupId], { chosen: false })
+	edge = deepMerge(edge, styles.edges[groupId], {chosen: false})
 	let dataSet = styleElement.dataSet
 	dataSet.update(edge)
 }
@@ -690,7 +690,7 @@ function getArrows(prop) {
 
 /*  ------------display the map legend (includes all styles with a group label that is neither blank or 'Sample') */
 
-var legendData = { nodes: new DataSet(), edges: new DataSet() }
+var legendData = {nodes: new DataSet(), edges: new DataSet()}
 var legendNetwork = null
 const LEGENDSPACING = 60
 const HALFLEGENDWIDTH = 60
@@ -732,10 +732,10 @@ export function legend(warn = false) {
 	dragElement(legendBox, title)
 
 	legendNetwork = new Network(canvas, legendData, {
-		physics: { enabled: false },
-		interaction: { zoomView: false, dragView: false },
+		physics: {enabled: false},
+		interaction: {zoomView: false, dragView: false},
 	})
-	let height = legendNetwork.DOMtoCanvas({ x: 0, y: 0 }).y
+	let height = legendNetwork.DOMtoCanvas({x: 0, y: 0}).y
 	for (let i = 0; i < nodes.length; i++) {
 		let node = deepMerge(styles.nodes[nodes[i].groupNode])
 		node.id = i + 10000
@@ -761,8 +761,8 @@ export function legend(warn = false) {
 		edge.id = i + 10000
 		edge.from = i + 20000
 		edge.to = i + 30000
-		edge.smooth = { type: 'straightCross' }
-		edge.font = { size: 12, color: 'black', align: 'top', vadjust: -10 }
+		edge.smooth = {type: 'straightCross'}
+		edge.font = {size: 12, color: 'black', align: 'top', vadjust: -10}
 		edge.widthConstraint = 80
 		edge.chosen = false
 		let nodes = [

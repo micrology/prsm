@@ -1,356 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>prsm.js - Documentation</title>
+<head>
+    
+    <meta charset="utf-8">
+    <title>prsm.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
 
-		<script src="scripts/prettify/prettify.js"></script>
-		<script src="scripts/prettify/lang-css.js"></script>
-		<!--[if lt IE 9]>
-			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-		<![endif]-->
-		<link type="text/css" rel="stylesheet" href="styles/prettify.css" />
-		<link type="text/css" rel="stylesheet" href="styles/jsdoc.css" />
-		<script src="scripts/nav.js" defer></script>
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	</head>
-	<body>
-		<input type="checkbox" id="nav-trigger" class="nav-trigger" />
-		<label for="nav-trigger" class="navicon-button x">
-			<div class="navicon"></div>
-		</label>
+<label for="nav-trigger" class="overlay"></label>
 
-		<label for="nav-trigger" class="overlay"></label>
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ToolHandler.html">ToolHandler</a><ul class='methods'><li data-type='method'><a href="ToolHandler.html#endPosition">endPosition</a></li><li data-type='method'><a href="ToolHandler.html#options">options</a></li><li data-type='method'><a href="ToolHandler.html#optionsDialog">optionsDialog</a></li><li data-type='method'><a href="ToolHandler.html#panend">panend</a></li><li data-type='method'><a href="ToolHandler.html#panmove">panmove</a></li><li data-type='method'><a href="ToolHandler.html#panstart">panstart</a></li></ul></li><li><a href="module.exports.html">exports</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li><li><a href="global.html#MIN_WIDTH">MIN_WIDTH</a></li><li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li><li><a href="global.html#addColumn">addColumn</a></li><li><a href="global.html#addContextMenu">addContextMenu</a></li><li><a href="global.html#addEventListeners">addEventListeners</a></li><li><a href="global.html#addLabel">addLabel</a></li><li><a href="global.html#addRollbackIcon">addRollbackIcon</a></li><li><a href="global.html#addVec">addVec</a></li><li><a href="global.html#analyse">analyse</a></li><li><a href="global.html#anon">anon</a></li><li><a href="global.html#antMarch">antMarch</a></li><li><a href="global.html#applyOptions">applyOptions</a></li><li><a href="global.html#arrayBufferToString">arrayBufferToString</a></li><li><a href="global.html#asleep">asleep</a></li><li><a href="global.html#autoLayout">autoLayout</a></li><li><a href="global.html#bigWidth">bigWidth</a></li><li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li><li><a href="global.html#cancelAdd">cancelAdd</a></li><li><a href="global.html#cancelEdit">cancelEdit</a></li><li><a href="global.html#cancelLoading">cancelLoading</a></li><li><a href="global.html#changeCursor">changeCursor</a></li><li><a href="global.html#changeRoom">changeRoom</a></li><li><a href="global.html#checkKey">checkKey</a></li><li><a href="global.html#circleIntersectsRect">circleIntersectsRect</a></li><li><a href="global.html#clean">clean</a></li><li><a href="global.html#cleanArray">cleanArray</a></li><li><a href="global.html#clearLegend">clearLegend</a></li><li><a href="global.html#clearMap">clearMap</a></li><li><a href="global.html#clearPopUp">clearPopUp</a></li><li><a href="global.html#clearStatusBar">clearStatusBar</a></li><li><a href="global.html#closeFilter">closeFilter</a></li><li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li><li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li><li><a href="global.html#collapseColGroup">collapseColGroup</a></li><li><a href="global.html#collapseNotes">collapseNotes</a></li><li><a href="global.html#colorEditor">colorEditor</a></li><li><a href="global.html#configSamples">configSamples</a></li><li><a href="global.html#connected">connected</a></li><li><a href="global.html#connectedComponents">connectedComponents</a></li><li><a href="global.html#convertDashes">convertDashes</a></li><li><a href="global.html#convertData">convertData</a></li><li><a href="global.html#convertEdge">convertEdge</a></li><li><a href="global.html#convertEdgeBack">convertEdgeBack</a></li><li><a href="global.html#convertNode">convertNode</a></li><li><a href="global.html#convertNodeBack">convertNodeBack</a></li><li><a href="global.html#copyBackgroundToClipboard">copyBackgroundToClipboard</a></li><li><a href="global.html#copyHistoryToClipboard">copyHistoryToClipboard</a></li><li><a href="global.html#copyTable">copyTable</a></li><li><a href="global.html#copyToClipboard">copyToClipboard</a></li><li><a href="global.html#createTitleDropDown">createTitleDropDown</a></li><li><a href="global.html#deepCopy">deepCopy</a></li><li><a href="global.html#deleteActiveObjects">deleteActiveObjects</a></li><li><a href="global.html#deleteColumn">deleteColumn</a></li><li><a href="global.html#deleteNode">deleteNode</a></li><li><a href="global.html#deselectTool">deselectTool</a></li><li><a href="global.html#diag">diag</a></li><li><a href="global.html#diffMaps">diffMaps</a></li><li><a href="global.html#display">display</a></li><li><a href="global.html#displayHelp">displayHelp</a></li><li><a href="global.html#displayNetPane">displayNetPane</a></li><li><a href="global.html#displayWhatsNew">displayWhatsNew</a></li><li><a href="global.html#doSearch">doSearch</a></li><li><a href="global.html#dragElement">dragElement</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawBadges">drawBadges</a></li><li><a href="global.html#drawGrid">drawGrid</a></li><li><a href="global.html#duplEdge">duplEdge</a></li><li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li><li><a href="global.html#editEdge">editEdge</a></li><li><a href="global.html#editLinkStyle">editLinkStyle</a></li><li><a href="global.html#editNode">editNode</a></li><li><a href="global.html#editNodeStyle">editNodeStyle</a></li><li><a href="global.html#elem">elem</a></li><li><a href="global.html#eraser">eraser</a></li><li><a href="global.html#exactTime">exactTime</a></li><li><a href="global.html#exportCVS">exportCVS</a></li><li><a href="global.html#exportDOT">exportDOT</a></li><li><a href="global.html#exportExcel">exportExcel</a></li><li><a href="global.html#exportGML">exportGML</a></li><li><a href="global.html#exportNotes">exportNotes</a></li><li><a href="global.html#factorSizeToPercent">factorSizeToPercent</a></li><li><a href="global.html#fit">fit</a></li><li><a href="global.html#follow">follow</a></li><li><a href="global.html#followUser">followUser</a></li><li><a href="global.html#generateName">generateName</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#getArrows">getArrows</a></li><li><a href="global.html#getButtonStatus">getButtonStatus</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#getDashes">getDashes</a></li><li><a href="global.html#getLastPath">getLastPath</a></li><li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li><li><a href="global.html#getRadioVal">getRadioVal</a></li><li><a href="global.html#getRandomData">getRandomData</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#getSelectedAndFixedNodes">getSelectedAndFixedNodes</a></li><li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li><li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li><li><a href="global.html#ghostCursor">ghostCursor</a></li><li><a href="global.html#ghostFactor">ghostFactor</a></li><li><a href="global.html#groupTitle">groupTitle</a></li><li><a href="global.html#headerTickToggle">headerTickToggle</a></li><li><a href="global.html#hideNavButtons">hideNavButtons</a></li><li><a href="global.html#hideNodeAndEdges">hideNodeAndEdges</a></li><li><a href="global.html#hideNotes">hideNotes</a></li><li><a href="global.html#hideWhatsNew">hideWhatsNew</a></li><li><a href="global.html#htmlEntities">htmlEntities</a></li><li><a href="global.html#humanSize">humanSize</a></li><li><a href="global.html#inAddMode">inAddMode</a></li><li><a href="global.html#in_degree">in_degree</a></li><li><a href="global.html#initDraw">initDraw</a></li><li><a href="global.html#initPopUp">initPopUp</a></li><li><a href="global.html#initSample">initSample</a></li><li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li><li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li><li><a href="global.html#initials">initials</a></li><li><a href="global.html#initiateClone">initiateClone</a></li><li><a href="global.html#initySamplesMap">initySamplesMap</a></li><li><a href="global.html#inline">inline</a></li><li><a href="global.html#intersect">intersect</a></li><li><a href="global.html#invertColor">invertColor</a></li><li><a href="global.html#isEmpty">isEmpty</a></li><li><a href="global.html#isQuillEmpty">isQuillEmpty</a></li><li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li><li><a href="global.html#legend">legend</a></li><li><a href="global.html#legendData">legendData</a></li><li><a href="global.html#lightOrDark">lightOrDark</a></li><li><a href="global.html#linkEditCancel">linkEditCancel</a></li><li><a href="global.html#linkEditSave">linkEditSave</a></li><li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li><li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li><li><a href="global.html#linkEditorHide">linkEditorHide</a></li><li><a href="global.html#linkEditorShow">linkEditorShow</a></li><li><a href="global.html#listFactors">listFactors</a></li><li><a href="global.html#listLinks">listLinks</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#loadCSV">loadCSV</a></li><li><a href="global.html#loadDOTfile">loadDOTfile</a></li><li><a href="global.html#loadExcelfile">loadExcelfile</a></li><li><a href="global.html#loadFile">loadFile</a></li><li><a href="global.html#loadGML">loadGML</a></li><li><a href="global.html#loadGraphML">loadGraphML</a></li><li><a href="global.html#loadPRSMfile">loadPRSMfile</a></li><li><a href="global.html#lockNode">lockNode</a></li><li><a href="global.html#logHistory">logHistory</a></li><li><a href="global.html#makeColor">makeColor</a></li><li><a href="global.html#makeOptionsDialog">makeOptionsDialog</a></li><li><a href="global.html#mapTitle">mapTitle</a></li><li><a href="global.html#markMapSaved">markMapSaved</a></li><li><a href="global.html#mergeTranspose">mergeTranspose</a></li><li><a href="global.html#mouseDespatch">mouseDespatch</a></li><li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li><li><a href="global.html#nodeEditSave">nodeEditSave</a></li><li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li><li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li><li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li><li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li><li><a href="global.html#nodeIdToLabel">nodeIdToLabel</a></li><li><a href="global.html#nodeList">nodeList</a></li><li><a href="global.html#noteFilter">noteFilter</a></li><li><a href="global.html#object_equals">object_equals</a></li><li><a href="global.html#oldUserNames">oldUserNames</a></li><li><a href="global.html#onexit">onexit</a></li><li><a href="global.html#openCluster">openCluster</a></li><li><a href="global.html#openNotesWindow">openNotesWindow</a></li><li><a href="global.html#out_degree">out_degree</a></li><li><a href="global.html#plusLink">plusLink</a></li><li><a href="global.html#plusNode">plusNode</a></li><li><a href="global.html#portrait">portrait</a></li><li><a href="global.html#positionNotes">positionNotes</a></li><li><a href="global.html#positionPopUp">positionPopUp</a></li><li><a href="global.html#progressBar">progressBar</a></li><li><a href="global.html#quillAccessor">quillAccessor</a></li><li><a href="global.html#quillEditor">quillEditor</a></li><li><a href="global.html#quillFormatter">quillFormatter</a></li><li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li><li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li><li><a href="global.html#readSingleFile">readSingleFile</a></li><li><a href="global.html#rebase">rebase</a></li><li><a href="global.html#recalculateStats">recalculateStats</a></li><li><a href="global.html#receiveEvent">receiveEvent</a></li><li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li><li><a href="global.html#redraw">redraw</a></li><li><a href="global.html#refreshFromMap">refreshFromMap</a></li><li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li><li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li><li><a href="global.html#removeAvatar">removeAvatar</a></li><li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li><li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li><li><a href="global.html#resizeBox">resizeBox</a></li><li><a href="global.html#resizeCanvas">resizeCanvas</a></li><li><a href="global.html#rgba">rgba</a></li><li><a href="global.html#rollback">rollback</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#roundTripTimer">roundTripTimer</a></li><li><a href="global.html#saveChange">saveChange</a></li><li><a href="global.html#saveEdge">saveEdge</a></li><li><a href="global.html#saveLabel">saveLabel</a></li><li><a href="global.html#saveNode">saveNode</a></li><li><a href="global.html#savePRSMfile">savePRSMfile</a></li><li><a href="global.html#saveState">saveState</a></li><li><a href="global.html#saveStr">saveStr</a></li><li><a href="global.html#search">search</a></li><li><a href="global.html#searchTargets">searchTargets</a></li><li><a href="global.html#selectClustering">selectClustering</a></li><li><a href="global.html#selectTool">selectTool</a></li><li><a href="global.html#selectUsersItems">selectUsersItems</a></li><li><a href="global.html#selectedLabels">selectedLabels</a></li><li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li><li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li><li><a href="global.html#setButtonStatus">setButtonStatus</a></li><li><a href="global.html#setCanvasBackground">setCanvasBackground</a></li><li><a href="global.html#setEdgeHidden">setEdgeHidden</a></li><li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li><li><a href="global.html#setFactorSizeFromPercent">setFactorSizeFromPercent</a></li><li><a href="global.html#setFileName">setFileName</a></li><li><a href="global.html#setFixed">setFixed</a></li><li><a href="global.html#setMapTitle">setMapTitle</a></li><li><a href="global.html#setNodeHidden">setNodeHidden</a></li><li><a href="global.html#setParams">setParams</a></li><li><a href="global.html#setRadioVal">setRadioVal</a></li><li><a href="global.html#setUpAwareness">setUpAwareness</a></li><li><a href="global.html#setUpBackground">setUpBackground</a></li><li><a href="global.html#setUpCanvas">setUpCanvas</a></li><li><a href="global.html#setUpChat">setUpChat</a></li><li><a href="global.html#setUpFilter">setUpFilter</a></li><li><a href="global.html#setUpPage">setUpPage</a></li><li><a href="global.html#setUpPaint">setUpPaint</a></li><li><a href="global.html#setUpSamples">setUpSamples</a></li><li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li><li><a href="global.html#setUpTabs">setUpTabs</a></li><li><a href="global.html#setUpToolbox">setUpToolbox</a></li><li><a href="global.html#setUpTutorial">setUpTutorial</a></li><li><a href="global.html#setvh">setvh</a></li><li><a href="global.html#showAvatars">showAvatars</a></li><li><a href="global.html#showClusterLinks">showClusterLinks</a></li><li><a href="global.html#showGhostFactor">showGhostFactor</a></li><li><a href="global.html#showHistory">showHistory</a></li><li><a href="global.html#showNavButtons">showNavButtons</a></li><li><a href="global.html#showNodeData">showNodeData</a></li><li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li><li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li><li><a href="global.html#showOtherMouse">showOtherMouse</a></li><li><a href="global.html#showPressed">showPressed</a></li><li><a href="global.html#showSelected">showSelected</a></li><li><a href="global.html#snapToGrid">snapToGrid</a></li><li><a href="global.html#solve">solve</a></li><li><a href="global.html#splitText">splitText</a></li><li><a href="global.html#standardize_color">standardize_color</a></li><li><a href="global.html#start">start</a></li><li><a href="global.html#startY">startY</a></li><li><a href="global.html#startzoom">startzoom</a></li><li><a href="global.html#statusMsg">statusMsg</a></li><li><a href="global.html#stepFinish">stepFinish</a></li><li><a href="global.html#stepStart">stepStart</a></li><li><a href="global.html#stepsEnd">stepsEnd</a></li><li><a href="global.html#stopEdit">stopEdit</a></li><li><a href="global.html#strip">strip</a></li><li><a href="global.html#stripNL">stripNL</a></li><li><a href="global.html#styleEdgeNames">styleEdgeNames</a></li><li><a href="global.html#styleNodeNames">styleNodeNames</a></li><li><a href="global.html#subVec">subVec</a></li><li><a href="global.html#subtract">subtract</a></li><li><a href="global.html#sumVec">sumVec</a></li><li><a href="global.html#svg">svg</a></li><li><a href="global.html#tickToggle">tickToggle</a></li><li><a href="global.html#timeAndDate">timeAndDate</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#titleDropDown">titleDropDown</a></li><li><a href="global.html#toggleDeleteButton">toggleDeleteButton</a></li><li><a href="global.html#togglePanel">togglePanel</a></li><li><a href="global.html#toolHandler">toolHandler</a></li><li><a href="global.html#traceUsers">traceUsers</a></li><li><a href="global.html#transpose">transpose</a></li><li><a href="global.html#trophic">trophic</a></li><li><a href="global.html#unFollow">unFollow</a></li><li><a href="global.html#unSelect">unSelect</a></li><li><a href="global.html#undirected">undirected</a></li><li><a href="global.html#unlockAll">unlockAll</a></li><li><a href="global.html#unlockEdge">unlockEdge</a></li><li><a href="global.html#unlockNode">unlockNode</a></li><li><a href="global.html#unselectTool">unselectTool</a></li><li><a href="global.html#updateActiveButtons">updateActiveButtons</a></li><li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li><li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li><li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li><li><a href="global.html#updateFilter">updateFilter</a></li><li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li><li><a href="global.html#updateFromDrawingMap">updateFromDrawingMap</a></li><li><a href="global.html#updateFromRemote">updateFromRemote</a></li><li><a href="global.html#updateLastSamples">updateLastSamples</a></li><li><a href="global.html#updateLegend">updateLegend</a></li><li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li><li><a href="global.html#updateNodeCellData">updateNodeCellData</a></li><li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li><li><a href="global.html#updateSelection">updateSelection</a></li><li><a href="global.html#upgradeFromV1">upgradeFromV1</a></li><li><a href="global.html#uuidv4">uuidv4</a></li><li><a href="global.html#zero">zero</a></li><li><a href="global.html#zoomCanvas">zoomCanvas</a></li><li><a href="global.html#zoomincr">zoomincr</a></li><li><a href="global.html#zoomnet">zoomnet</a></li><li><a href="global.html#zoomscroll">zoomscroll</a></li><li><a href="global.html#zoomset">zoomset</a></li></ul>
+    
+</nav>
 
-		<nav>
-			<h2><a href="index.html">Home</a></h2>
-			<h3>Classes</h3>
-			<ul>
-				<li>
-					<a href="ToolHandler.html">ToolHandler</a>
-					<ul class="methods">
-						<li data-type="method"><a href="ToolHandler.html#endPosition">endPosition</a></li>
-						<li data-type="method"><a href="ToolHandler.html#options">options</a></li>
-						<li data-type="method"><a href="ToolHandler.html#optionsDialog">optionsDialog</a></li>
-						<li data-type="method"><a href="ToolHandler.html#panend">panend</a></li>
-						<li data-type="method"><a href="ToolHandler.html#panmove">panmove</a></li>
-						<li data-type="method"><a href="ToolHandler.html#panstart">panstart</a></li>
-					</ul>
-				</li>
-				<li><a href="module.exports.html">exports</a></li>
-			</ul>
-			<h3>Global</h3>
-			<ul>
-				<li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li>
-				<li><a href="global.html#MIN_WIDTH">MIN_WIDTH</a></li>
-				<li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li>
-				<li><a href="global.html#addColumn">addColumn</a></li>
-				<li><a href="global.html#addContextMenu">addContextMenu</a></li>
-				<li><a href="global.html#addEventListeners">addEventListeners</a></li>
-				<li><a href="global.html#addLabel">addLabel</a></li>
-				<li><a href="global.html#addRollbackIcon">addRollbackIcon</a></li>
-				<li><a href="global.html#addVec">addVec</a></li>
-				<li><a href="global.html#analyse">analyse</a></li>
-				<li><a href="global.html#anon">anon</a></li>
-				<li><a href="global.html#antMarch">antMarch</a></li>
-				<li><a href="global.html#applyOptions">applyOptions</a></li>
-				<li><a href="global.html#arrayBufferToString">arrayBufferToString</a></li>
-				<li><a href="global.html#asleep">asleep</a></li>
-				<li><a href="global.html#autoLayout">autoLayout</a></li>
-				<li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li>
-				<li><a href="global.html#cancelAdd">cancelAdd</a></li>
-				<li><a href="global.html#cancelEdit">cancelEdit</a></li>
-				<li><a href="global.html#cancelLoading">cancelLoading</a></li>
-				<li><a href="global.html#changeCursor">changeCursor</a></li>
-				<li><a href="global.html#changeRoom">changeRoom</a></li>
-				<li><a href="global.html#checkKey">checkKey</a></li>
-				<li><a href="global.html#circleIntersectsRect">circleIntersectsRect</a></li>
-				<li><a href="global.html#clean">clean</a></li>
-				<li><a href="global.html#cleanArray">cleanArray</a></li>
-				<li><a href="global.html#clearLegend">clearLegend</a></li>
-				<li><a href="global.html#clearMap">clearMap</a></li>
-				<li><a href="global.html#clearPopUp">clearPopUp</a></li>
-				<li><a href="global.html#clearStatusBar">clearStatusBar</a></li>
-				<li><a href="global.html#closeFilter">closeFilter</a></li>
-				<li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li>
-				<li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li>
-				<li><a href="global.html#collapseColGroup">collapseColGroup</a></li>
-				<li><a href="global.html#collapseNotes">collapseNotes</a></li>
-				<li><a href="global.html#colorEditor">colorEditor</a></li>
-				<li><a href="global.html#configSamples">configSamples</a></li>
-				<li><a href="global.html#connected">connected</a></li>
-				<li><a href="global.html#connectedComponents">connectedComponents</a></li>
-				<li><a href="global.html#convertDashes">convertDashes</a></li>
-				<li><a href="global.html#convertData">convertData</a></li>
-				<li><a href="global.html#convertEdge">convertEdge</a></li>
-				<li><a href="global.html#convertEdgeBack">convertEdgeBack</a></li>
-				<li><a href="global.html#convertNode">convertNode</a></li>
-				<li><a href="global.html#convertNodeBack">convertNodeBack</a></li>
-				<li><a href="global.html#copyBackgroundToClipboard">copyBackgroundToClipboard</a></li>
-				<li><a href="global.html#copyHistoryToClipboard">copyHistoryToClipboard</a></li>
-				<li><a href="global.html#copyTable">copyTable</a></li>
-				<li><a href="global.html#copyToClipboard">copyToClipboard</a></li>
-				<li><a href="global.html#createTitleDropDown">createTitleDropDown</a></li>
-				<li><a href="global.html#deepCopy">deepCopy</a></li>
-				<li><a href="global.html#deleteActiveObjects">deleteActiveObjects</a></li>
-				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
-				<li><a href="global.html#deleteNode">deleteNode</a></li>
-				<li><a href="global.html#deselectTool">deselectTool</a></li>
-				<li><a href="global.html#diag">diag</a></li>
-				<li><a href="global.html#diffMaps">diffMaps</a></li>
-				<li><a href="global.html#display">display</a></li>
-				<li><a href="global.html#displayHelp">displayHelp</a></li>
-				<li><a href="global.html#displayNetPane">displayNetPane</a></li>
-				<li><a href="global.html#doSearch">doSearch</a></li>
-				<li><a href="global.html#dragElement">dragElement</a></li>
-				<li><a href="global.html#draw">draw</a></li>
-				<li><a href="global.html#drawBadges">drawBadges</a></li>
-				<li><a href="global.html#drawGrid">drawGrid</a></li>
-				<li><a href="global.html#duplEdge">duplEdge</a></li>
-				<li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li>
-				<li><a href="global.html#editEdge">editEdge</a></li>
-				<li><a href="global.html#editLinkStyle">editLinkStyle</a></li>
-				<li><a href="global.html#editNode">editNode</a></li>
-				<li><a href="global.html#editNodeStyle">editNodeStyle</a></li>
-				<li><a href="global.html#elem">elem</a></li>
-				<li><a href="global.html#eraser">eraser</a></li>
-				<li><a href="global.html#exactTime">exactTime</a></li>
-				<li><a href="global.html#exportCVS">exportCVS</a></li>
-				<li><a href="global.html#exportDOT">exportDOT</a></li>
-				<li><a href="global.html#exportExcel">exportExcel</a></li>
-				<li><a href="global.html#exportGML">exportGML</a></li>
-				<li><a href="global.html#fit">fit</a></li>
-				<li><a href="global.html#follow">follow</a></li>
-				<li><a href="global.html#followUser">followUser</a></li>
-				<li><a href="global.html#generateName">generateName</a></li>
-				<li><a href="global.html#generateRoom">generateRoom</a></li>
-				<li><a href="global.html#getArrows">getArrows</a></li>
-				<li><a href="global.html#getButtonStatus">getButtonStatus</a></li>
-				<li><a href="global.html#getContext">getContext</a></li>
-				<li><a href="global.html#getDashes">getDashes</a></li>
-				<li><a href="global.html#getLastPath">getLastPath</a></li>
-				<li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li>
-				<li><a href="global.html#getRadioVal">getRadioVal</a></li>
-				<li><a href="global.html#getRandomData">getRandomData</a></li>
-				<li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li>
-				<li><a href="global.html#getSelectedAndFixedNodes">getSelectedAndFixedNodes</a></li>
-				<li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li>
-				<li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li>
-				<li><a href="global.html#ghostCursor">ghostCursor</a></li>
-				<li><a href="global.html#ghostFactor">ghostFactor</a></li>
-				<li><a href="global.html#groupDashes">groupDashes</a></li>
-				<li><a href="global.html#groupTitle">groupTitle</a></li>
-				<li><a href="global.html#headerTickToggle">headerTickToggle</a></li>
-				<li><a href="global.html#hideNavButtons">hideNavButtons</a></li>
-				<li><a href="global.html#hideNodeAndEdges">hideNodeAndEdges</a></li>
-				<li><a href="global.html#hideNotes">hideNotes</a></li>
-				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
-				<li><a href="global.html#humanSize">humanSize</a></li>
-				<li><a href="global.html#inAddMode">inAddMode</a></li>
-				<li><a href="global.html#in_degree">in_degree</a></li>
-				<li><a href="global.html#initDraw">initDraw</a></li>
-				<li><a href="global.html#initPopUp">initPopUp</a></li>
-				<li><a href="global.html#initSample">initSample</a></li>
-				<li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li>
-				<li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li>
-				<li><a href="global.html#initials">initials</a></li>
-				<li><a href="global.html#initiateClone">initiateClone</a></li>
-				<li><a href="global.html#initySamplesMap">initySamplesMap</a></li>
-				<li><a href="global.html#inline">inline</a></li>
-				<li><a href="global.html#intersect">intersect</a></li>
-				<li><a href="global.html#invertColor">invertColor</a></li>
-				<li><a href="global.html#isEmpty">isEmpty</a></li>
-				<li><a href="global.html#isQuillEmpty">isQuillEmpty</a></li>
-				<li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li>
-				<li><a href="global.html#legend">legend</a></li>
-				<li><a href="global.html#legendData">legendData</a></li>
-				<li><a href="global.html#lightOrDark">lightOrDark</a></li>
-				<li><a href="global.html#linkEditCancel">linkEditCancel</a></li>
-				<li><a href="global.html#linkEditSave">linkEditSave</a></li>
-				<li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li>
-				<li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li>
-				<li><a href="global.html#linkEditorHide">linkEditorHide</a></li>
-				<li><a href="global.html#linkEditorShow">linkEditorShow</a></li>
-				<li><a href="global.html#listFactors">listFactors</a></li>
-				<li><a href="global.html#listLinks">listLinks</a></li>
-				<li><a href="global.html#listen">listen</a></li>
-				<li><a href="global.html#loadCSV">loadCSV</a></li>
-				<li><a href="global.html#loadDOTfile">loadDOTfile</a></li>
-				<li><a href="global.html#loadExcelfile">loadExcelfile</a></li>
-				<li><a href="global.html#loadFile">loadFile</a></li>
-				<li><a href="global.html#loadGML">loadGML</a></li>
-				<li><a href="global.html#loadGraphML">loadGraphML</a></li>
-				<li><a href="global.html#loadPRSMfile">loadPRSMfile</a></li>
-				<li><a href="global.html#lockNode">lockNode</a></li>
-				<li><a href="global.html#logHistory">logHistory</a></li>
-				<li><a href="global.html#makeColor">makeColor</a></li>
-				<li><a href="global.html#makeOptionsDialog">makeOptionsDialog</a></li>
-				<li><a href="global.html#mapTitle">mapTitle</a></li>
-				<li><a href="global.html#markMapSaved">markMapSaved</a></li>
-				<li><a href="global.html#mergeTranspose">mergeTranspose</a></li>
-				<li><a href="global.html#mouseDespatch">mouseDespatch</a></li>
-				<li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li>
-				<li><a href="global.html#nodeEditSave">nodeEditSave</a></li>
-				<li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li>
-				<li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li>
-				<li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li>
-				<li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li>
-				<li><a href="global.html#nodeIdToLabel">nodeIdToLabel</a></li>
-				<li><a href="global.html#nodeList">nodeList</a></li>
-				<li><a href="global.html#noteFilter">noteFilter</a></li>
-				<li><a href="global.html#object_equals">object_equals</a></li>
-				<li><a href="global.html#oldUserNames">oldUserNames</a></li>
-				<li><a href="global.html#onexit">onexit</a></li>
-				<li><a href="global.html#openCluster">openCluster</a></li>
-				<li><a href="global.html#openNotesWindow">openNotesWindow</a></li>
-				<li><a href="global.html#out_degree">out_degree</a></li>
-				<li><a href="global.html#plusLink">plusLink</a></li>
-				<li><a href="global.html#plusNode">plusNode</a></li>
-				<li><a href="global.html#positionNotes">positionNotes</a></li>
-				<li><a href="global.html#positionPopUp">positionPopUp</a></li>
-				<li><a href="global.html#quillAccessor">quillAccessor</a></li>
-				<li><a href="global.html#quillEditor">quillEditor</a></li>
-				<li><a href="global.html#quillFormatter">quillFormatter</a></li>
-				<li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li>
-				<li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li>
-				<li><a href="global.html#readSingleFile">readSingleFile</a></li>
-				<li><a href="global.html#rebase">rebase</a></li>
-				<li><a href="global.html#recalculateStats">recalculateStats</a></li>
-				<li><a href="global.html#receiveEvent">receiveEvent</a></li>
-				<li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li>
-				<li><a href="global.html#redraw">redraw</a></li>
-				<li><a href="global.html#refreshFromMap">refreshFromMap</a></li>
-				<li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li>
-				<li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li>
-				<li><a href="global.html#removeAvatar">removeAvatar</a></li>
-				<li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li>
-				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
-				<li><a href="global.html#resizeBox">resizeBox</a></li>
-				<li><a href="global.html#resizeCanvas">resizeCanvas</a></li>
-				<li><a href="global.html#rgba">rgba</a></li>
-				<li><a href="global.html#rollback">rollback</a></li>
-				<li><a href="global.html#round">round</a></li>
-				<li><a href="global.html#roundTripTimer">roundTripTimer</a></li>
-				<li><a href="global.html#saveChange">saveChange</a></li>
-				<li><a href="global.html#saveEdge">saveEdge</a></li>
-				<li><a href="global.html#saveLabel">saveLabel</a></li>
-				<li><a href="global.html#saveNode">saveNode</a></li>
-				<li><a href="global.html#savePRSMfile">savePRSMfile</a></li>
-				<li><a href="global.html#saveState">saveState</a></li>
-				<li><a href="global.html#saveStr">saveStr</a></li>
-				<li><a href="global.html#search">search</a></li>
-				<li><a href="global.html#searchTargets">searchTargets</a></li>
-				<li><a href="global.html#selectClustering">selectClustering</a></li>
-				<li><a href="global.html#selectTool">selectTool</a></li>
-				<li><a href="global.html#selectUsersItems">selectUsersItems</a></li>
-				<li><a href="global.html#selectedLabels">selectedLabels</a></li>
-				<li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li>
-				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
-				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
-				<li><a href="global.html#setCanvasBackground">setCanvasBackground</a></li>
-				<li><a href="global.html#setEdgeHidden">setEdgeHidden</a></li>
-				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
-				<li><a href="global.html#setFileName">setFileName</a></li>
-				<li><a href="global.html#setFixed">setFixed</a></li>
-				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
-				<li><a href="global.html#setNodeHidden">setNodeHidden</a></li>
-				<li><a href="global.html#setParams">setParams</a></li>
-				<li><a href="global.html#setRadioVal">setRadioVal</a></li>
-				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
-				<li><a href="global.html#setUpBackground">setUpBackground</a></li>
-				<li><a href="global.html#setUpCanvas">setUpCanvas</a></li>
-				<li><a href="global.html#setUpChat">setUpChat</a></li>
-				<li><a href="global.html#setUpFilter">setUpFilter</a></li>
-				<li><a href="global.html#setUpPage">setUpPage</a></li>
-				<li><a href="global.html#setUpPaint">setUpPaint</a></li>
-				<li><a href="global.html#setUpSamples">setUpSamples</a></li>
-				<li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li>
-				<li><a href="global.html#setUpTabs">setUpTabs</a></li>
-				<li><a href="global.html#setUpToolbox">setUpToolbox</a></li>
-				<li><a href="global.html#setUpTutorial">setUpTutorial</a></li>
-				<li><a href="global.html#setvh">setvh</a></li>
-				<li><a href="global.html#showAvatars">showAvatars</a></li>
-				<li><a href="global.html#showClusterLinks">showClusterLinks</a></li>
-				<li><a href="global.html#showGhostFactor">showGhostFactor</a></li>
-				<li><a href="global.html#showHistory">showHistory</a></li>
-				<li><a href="global.html#showNavButtons">showNavButtons</a></li>
-				<li><a href="global.html#showNodeData">showNodeData</a></li>
-				<li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li>
-				<li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li>
-				<li><a href="global.html#showOtherMouse">showOtherMouse</a></li>
-				<li><a href="global.html#showPressed">showPressed</a></li>
-				<li><a href="global.html#showSelected">showSelected</a></li>
-				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
-				<li><a href="global.html#solve">solve</a></li>
-				<li><a href="global.html#splitText">splitText</a></li>
-				<li><a href="global.html#standardize_color">standardize_color</a></li>
-				<li><a href="global.html#start">start</a></li>
-				<li><a href="global.html#startY">startY</a></li>
-				<li><a href="global.html#startzoom">startzoom</a></li>
-				<li><a href="global.html#statusMsg">statusMsg</a></li>
-				<li><a href="global.html#stepFinish">stepFinish</a></li>
-				<li><a href="global.html#stepStart">stepStart</a></li>
-				<li><a href="global.html#stepsEnd">stepsEnd</a></li>
-				<li><a href="global.html#stopEdit">stopEdit</a></li>
-				<li><a href="global.html#strip">strip</a></li>
-				<li><a href="global.html#styleEdgeNames">styleEdgeNames</a></li>
-				<li><a href="global.html#styleNodeNames">styleNodeNames</a></li>
-				<li><a href="global.html#subVec">subVec</a></li>
-				<li><a href="global.html#subtract">subtract</a></li>
-				<li><a href="global.html#sumVec">sumVec</a></li>
-				<li><a href="global.html#svg">svg</a></li>
-				<li><a href="global.html#tickToggle">tickToggle</a></li>
-				<li><a href="global.html#timeAndDate">timeAndDate</a></li>
-				<li><a href="global.html#timestamp">timestamp</a></li>
-				<li><a href="global.html#titleDropDown">titleDropDown</a></li>
-				<li><a href="global.html#toggleDeleteButton">toggleDeleteButton</a></li>
-				<li><a href="global.html#togglePanel">togglePanel</a></li>
-				<li><a href="global.html#toolHandler">toolHandler</a></li>
-				<li><a href="global.html#traceUsers">traceUsers</a></li>
-				<li><a href="global.html#transpose">transpose</a></li>
-				<li><a href="global.html#trophic">trophic</a></li>
-				<li><a href="global.html#unFollow">unFollow</a></li>
-				<li><a href="global.html#unSelect">unSelect</a></li>
-				<li><a href="global.html#undirected">undirected</a></li>
-				<li><a href="global.html#unlockAll">unlockAll</a></li>
-				<li><a href="global.html#unlockEdge">unlockEdge</a></li>
-				<li><a href="global.html#unlockNode">unlockNode</a></li>
-				<li><a href="global.html#unselectTool">unselectTool</a></li>
-				<li><a href="global.html#updateActiveButtons">updateActiveButtons</a></li>
-				<li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li>
-				<li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li>
-				<li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li>
-				<li><a href="global.html#updateFilter">updateFilter</a></li>
-				<li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li>
-				<li><a href="global.html#updateFromDrawingMap">updateFromDrawingMap</a></li>
-				<li><a href="global.html#updateFromRemote">updateFromRemote</a></li>
-				<li><a href="global.html#updateLastSamples">updateLastSamples</a></li>
-				<li><a href="global.html#updateLegend">updateLegend</a></li>
-				<li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li>
-				<li><a href="global.html#updateNodeCellData">updateNodeCellData</a></li>
-				<li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li>
-				<li><a href="global.html#updateSelection">updateSelection</a></li>
-				<li><a href="global.html#upgradeFromV1">upgradeFromV1</a></li>
-				<li><a href="global.html#upscaling">upscaling</a></li>
-				<li><a href="global.html#uuidv4">uuidv4</a></li>
-				<li><a href="global.html#zero">zero</a></li>
-				<li><a href="global.html#zoomCanvas">zoomCanvas</a></li>
-				<li><a href="global.html#zoomincr">zoomincr</a></li>
-				<li><a href="global.html#zoomnet">zoomnet</a></li>
-				<li><a href="global.html#zoomscroll">zoomscroll</a></li>
-				<li><a href="global.html#zoomset">zoomset</a></li>
-			</ul>
-		</nav>
+<div id="main">
+    
+    <h1 class="page-title">prsm.js</h1>
+    
 
-		<div id="main">
-			<h1 class="page-title">prsm.js</h1>
+    
 
-			<section>
-				<article>
-					<pre
-						class="prettyprint source linenums"
-					><code>/********************************************************************************************* 
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/********************************************************************************************* 
 
 PRSM Participatory System Mapper 
 
@@ -399,6 +94,10 @@ import {
 	standardize_color,
 	setNodeHidden,
 	setEdgeHidden,
+	factorSizeToPercent,
+	setFactorSizeFromPercent,
+	convertDashes,
+	getDashes,
 	object_equals,
 	generateName,
 	statusMsg,
@@ -420,6 +119,7 @@ import {
 	exportExcel,
 	exportDOT,
 	exportGML,
+	exportNotes,
 	readSingleFile,
 } from './files.js'
 import Tutorial from './tutorial.js'
@@ -561,6 +261,7 @@ window.onbeforeunload = function (event) {
  * Set up all the permanent event listeners
  */
 function addEventListeners() {
+	listen('whatsnewbutton', 'click', hideWhatsNew)
 	listen('maptitle', 'keydown', (e) => {
 		//disallow Enter key
 		if (e.key === 'Enter') {
@@ -592,10 +293,10 @@ function addEventListeners() {
 	listen('saveFile', 'click', savePRSMfile)
 	listen('exportPRSM', 'click', savePRSMfile)
 	listen('exportImage', 'click', exportPNGfile)
-	// listen('exportCVS', 'click', exportCVS)
 	listen('exportExcel', 'click', exportExcel)
 	listen('exportGML', 'click', exportGML)
 	listen('exportDOT', 'click', exportDOT)
+	listen('exportNotes', 'click', exportNotes)
 	listen('search', 'click', search)
 	listen('help', 'click', displayHelp)
 	listen('panelToggle', 'click', togglePanel)
@@ -655,6 +356,8 @@ function addEventListeners() {
 			applySampleToLink(event)
 		})
 	)
+	listen('nodeStyleEditFactorSize', 'input', (event) => progressBar(event.target))
+
 	listen('history-copy', 'click', copyHistoryToClipboard)
 
 	listen('body', 'copy', copyToClipboard)
@@ -693,8 +396,42 @@ function setUpPage() {
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'))
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'))
 	hideNotes()
+	displayWhatsNew()
 }
-
+const sliderColor = getComputedStyle(document.documentElement).getPropertyValue('--slider')
+/**
+ * draw the solid bar to the left of the thumb on a slider
+ * @param {HTMLElement} sliderEl input[type=range] element
+ */
+export function progressBar(sliderEl) {
+	const sliderValue = sliderEl.value
+	sliderEl.style.background = `linear-gradient(to right, ${sliderColor} ${sliderValue}%, #ccc ${sliderValue}%)`
+}
+/**
+ * show the What's New modal dialog unless this is a new user or user has already seen this dialog
+ * for this (Major.Minor) version
+ */
+function displayWhatsNew() {
+	let versionDecoded = version.match(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)/)
+	let seen = localStorage.getItem('seenWN')
+	if (seen) {
+		let seenDecoded = seen.match(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)/)
+		if (
+			!localStorage.getItem('doneIntro') ||
+			(seenDecoded &amp;&amp; versionDecoded[1] === seenDecoded[1] &amp;&amp; versionDecoded[2] === seenDecoded[2])
+		)
+			return
+	}
+	elem('whatsnewversion').innerHTML = `Version ${version}`
+	elem('whatsnew').style.display = 'flex'
+}
+/**
+ * hide the What's New dialog when the user has clicked Continue, and note tha the user has seen it
+ */
+function hideWhatsNew() {
+	localStorage.setItem('seenWN', version)
+	elem('whatsnew').style.display = 'none'
+}
 /**
  * create a new shared document and start the WebSocket provider
  */
@@ -724,9 +461,7 @@ function startY(newRoom) {
 	} */
 	)
 	wsProvider.on('synced', () => {
-		/* 
-	if this is a clone, load the cloned data
-	*/
+		// if this is a clone, load the cloned data
 		initiateClone()
 		displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 	})
@@ -1142,7 +877,6 @@ function initiateClone() {
 		fit()
 	}
 }
-
 function yjsTrace(where, what) {
 	if (/yjs/.test(debug)) {
 		console.log(exactTime(), where, what)
@@ -1161,7 +895,6 @@ function generateRoom() {
 	}
 	return room
 }
-
 /**
  * randomly create some nodes and edges as a binary tree, mainly used for testing
  * @param {number} nNodes
@@ -1224,10 +957,14 @@ window.onresize = function () {
 	keepPaneInWindow(elem('chatbox-holder'))
 	resizeCanvas()
 }
-window.onorientationchange = function () {
+/**
+ * Hack to get window size when orientation changes.  Should use screen.orientation, but this is not
+ * implemented by Safari
+ */
+let portrait = window.matchMedia('(orientation: portrait)')
+portrait.addEventListener('change', () => {
 	setvh()
-}
-
+})
 /**
  * in View Only mode, hide all the Nav Bar buttons except the search button
  * and make the map title not editable
@@ -1580,8 +1317,14 @@ function draw() {
 			fit()
 		}
 	})
-	network.on('selectNode', function () {
+	network.on('selectNode', function (params) {
 		if (/gui/.test(debug)) console.log('selectNode')
+		// if a 'hidden' node is clicked, it is selected, but we don't want this
+		// reset the selected nodes to all except the hidden one
+		network.setSelection({
+			nodes: params.nodes.filter((id) => !data.nodes.get(id).nodeHidden),
+			edges: params.edges.filter((id) => !data.edges.get(id).edgeHidden),
+		})
 		showSelected()
 		showNodeOrEdgeData()
 		toggleDeleteButton()
@@ -1589,18 +1332,22 @@ function draw() {
 		if (getRadioVal('stream') !== 'All') analyse()
 		if (getRadioVal('paths') !== 'All') analyse()
 	})
-	network.on('deselectNode', function (obj) {
-		if (/gui/.test(debug)) console.log('deselectNode', obj)
+	network.on('deselectNode', function (params) {
+		if (/gui/.test(debug)) console.log('deselectNode', params)
 		// if some other node(s) are already selected, and the user has
 		// clicked on one of the selected nodes, do nothing,
 		// i.e reselect all the nodes previously selected
-		if (obj.nodes) {
+		// similarly, if the user has clicked on a 'hidden' node,
+		// reselect the previous nodes and do nothing
+		if (params.nodes) {
 			// clicked on a node
-			let prevSelIds = obj.previousSelection.nodes.map((node) => node.id)
-			if (prevSelIds.includes(obj.nodes[0])) {
+			let prevSelIds = params.previousSelection.nodes.map((node) => node.id)
+			let hiddenEdge
+			if (params.edges.length) hiddenEdge = data.edges.get(params.edges[0]).edgeHidden
+			if (prevSelIds.includes(params.nodes[0]) || data.nodes.get(params.nodes[0]).nodeHidden || hiddenEdge) {
 				// reselect the previously selected nodes
 				network.selectNodes(
-					obj.previousSelection.nodes.map((node) => node.id),
+					params.previousSelection.nodes.map((node) => node.id),
 					false
 				)
 				return
@@ -1619,14 +1366,30 @@ function draw() {
 	network.on('blurNode', function () {
 		changeCursor('default')
 	})
-	network.on('selectEdge', function () {
+	network.on('selectEdge', function (params) {
 		if (/gui/.test(debug)) console.log('selectEdge')
+		network.setSelection({
+			nodes: params.nodes.filter((id) => !data.nodes.get(id).nodeHidden),
+			edges: params.edges.filter((id) => !data.edges.get(id).edgeHidden),
+		})
 		showSelected()
 		showNodeOrEdgeData()
 		toggleDeleteButton()
 	})
-	network.on('deselectEdge', function () {
+	network.on('deselectEdge', function (params) {
 		if (/gui/.test(debug)) console.log('deselectEdge')
+		if (params.edges) {
+			// clicked on an edge(see selectNode for comments)
+			let prevSelIds = params.previousSelection.edges.map((edge) => edge.id)
+			if (prevSelIds.includes(params.edges[0]) || data.edges.get(params.edges[0]).edgeHidden) {
+				// reselect the previously selected edges
+				network.selectEdges(
+					params.previousSelection.edges.map((edge) => edge.id),
+					false
+				)
+				return
+			}
+		}
 		hideNotes()
 		showSelected()
 		toggleDeleteButton()
@@ -1696,7 +1459,6 @@ function draw() {
 		panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
 		viewPosition = endViewPosition
 	})
-
 	network.on('dragEnd', function (params) {
 		if (/gui/.test(debug)) console.log('dragEnd')
 		let endViewPosition = network.getViewPosition()
@@ -1906,7 +1668,7 @@ function contextMenu(event) {
 	event.preventDefault()
 }
 /**
- * return an object with the current time as a date an integer and the current user's name
+ * return an object with the current time as an integer date and the current user's name
  */
 export function timestamp() {
 	return {time: Date.now(), user: myNameRec.name}
@@ -1956,7 +1718,7 @@ function saveState(options) {
 	)
 }
 
-/******************************************************** map notes side drawer *****************************************************************/
+/******************************************************** map notes side drawer *********************************************************/
 let toolbarOptions = [
 	['bold', 'italic', 'underline', 'strike'],
 	['blockquote', 'code-block'],
@@ -1988,7 +1750,7 @@ drawerEditor.on('text-change', (delta, oldDelta, source) => {
 		yNetMap.set('mapDescription', {text: isQuillEmpty(drawerEditor) ? '' : drawerEditor.getContents()})
 	}
 })
-function setSideDrawer(contents) {
+export function setSideDrawer(contents) {
 	drawerEditor.setContents(contents.text)
 }
 
@@ -2067,23 +1829,26 @@ function drawBadges(ctx) {
 	}
 	// draw the voting thumbs up/down
 	if (showVotingToggle) {
-		data.nodes.get().filter(node => !node.hidden &amp;&amp; !node.nodeHidden).forEach((node) => {
-			let box = network.getBoundingBox(node.id)
-			drawTheBadge(
-				node.thumbUp?.includes(clientID) ? thumbUpFilledImage : thumbUpImage,
-				ctx,
-				box.left + 20,
-				box.bottom
-			)
-			drawThumbCount(ctx, node.thumbUp, box.left + 36, box.bottom + 10)
-			drawTheBadge(
-				node.thumbDown?.includes(clientID) ? thumbDownFilledImage : thumbDownImage,
-				ctx,
-				box.right - 36,
-				box.bottom
-			)
-			drawThumbCount(ctx, node.thumbDown, box.right - 20, box.bottom + 10)
-		})
+		data.nodes
+			.get()
+			.filter((node) => !node.hidden &amp;&amp; !node.nodeHidden)
+			.forEach((node) => {
+				let box = network.getBoundingBox(node.id)
+				drawTheBadge(
+					node.thumbUp?.includes(clientID) ? thumbUpFilledImage : thumbUpImage,
+					ctx,
+					box.left + 20,
+					box.bottom
+				)
+				drawThumbCount(ctx, node.thumbUp, box.left + 36, box.bottom + 10)
+				drawTheBadge(
+					node.thumbDown?.includes(clientID) ? thumbDownFilledImage : thumbDownImage,
+					ctx,
+					box.right - 36,
+					box.bottom
+				)
+				drawThumbCount(ctx, node.thumbDown, box.right - 20, box.bottom + 10)
+			})
 	}
 
 	/**
@@ -2249,201 +2014,6 @@ async function getClipboardContents() {
 /* ----------------- dialogs for creating and editing nodes and links ----------------*/
 
 /**
- * A factor is being created:  get its label from the user
- * @param {Object} item - the node
- * @param {Function} cancelAction
- * @param {Function} callback
- */
-function addLabel(item, cancelAction, callback) {
-	if (elem('popup').style.display === 'block') return // can't add factor when factor is already being added
-	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback)
-	let pos = network.canvasToDOM({x: item.x, y: item.y})
-	positionPopUp(pos)
-	removeFactorCursor()
-	ghostFactor(pos)
-	elem('popup-label').focus()
-}
-/**
- * broadcast to other users that a new factor is being added here
- * @param {Object} pos offset coordinates of Add Factor dialog
- */
-function ghostFactor(pos) {
-	yAwareness.setLocalStateField('addingFactor', {
-		state: 'adding',
-		pos: network.DOMtoCanvas(pos),
-		name: myNameRec.name,
-	})
-	elem('popup').timer = setTimeout(() => {
-		// close it after a time if the user has gone away
-		yAwareness.setLocalStateField('addingFactor', {state: 'done'})
-	}, TIMETOEDIT)
-}
-
-/**
- * Draw a dialog box for user to edit a node
- * @param {Object} item the node
- * @param {Object} point the centre of the node
- * @param {Function} cancelAction what to do if the edit is cancelled
- * @param {Function} callback what to do if the edit is saved
- */
-function editNode(item, point, cancelAction, callback) {
-	if (item.locked) return
-	initPopUp('Edit Factor', 150, item, cancelAction, saveNode, callback)
-	elem('popup').insertAdjacentHTML(
-		'beforeend',
-		`	
-		&lt;table id="popup-table">
-		&lt;tr>
-		  &lt;td>
-			&lt;i>Back&lt;/i>
-		  &lt;/td>
-		  &lt;td>
-			&lt;i>Border&lt;/i>
-		  &lt;/td>
-		  &lt;td>
-			&lt;i>Font&lt;/i>
-		  &lt;/td>
-		&lt;/tr>
-		&lt;tr>
-		  &lt;td>
-			&lt;div class="input-color-container">
-			  &lt;div class="color-well" id="node-backgroundColor">&lt;/div>
-			&lt;/div>
-		  &lt;/td>
-		  &lt;td>
-			&lt;div class="input-color-container">
-			  &lt;div class="color-well" id="node-borderColor">&lt;/div>
-			&lt;/div>
-		  &lt;/td>
-		  &lt;td>
-			&lt;div class="input-color-container">
-			  &lt;div class="color-well" id="node-fontColor">&lt;/div>
-			&lt;/div>
-		  &lt;/td>
-		&lt;/tr>
-		&lt;tr>
-		  &lt;td>&lt;i>Border:&lt;/i>&lt;/td>
-		  &lt;td colspan="2">
-			&lt;select id="node-borderType">
-			  &lt;option value="false">Type...&lt;/option>
-			  &lt;option value="false">Solid&lt;/option>
-			  &lt;option value="true">Dashed&lt;/option>
-			  &lt;option value="dots">Dotted&lt;/option>
-			  &lt;option value="none">None&lt;/option>
-			&lt;/select>
-		  &lt;/td>
-		&lt;/tr>
-	  &lt;/table>`
-	)
-	cp.createColorPicker('node-backgroundColor')
-	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background)
-	cp.createColorPicker('node-borderColor')
-	elem('node-borderColor').style.backgroundColor = standardize_color(item.color.border)
-	cp.createColorPicker('node-fontColor')
-	elem('node-fontColor').style.backgroundColor = standardize_color(item.font.color)
-	elem('node-borderType').value = getDashes(item.shapeProperties.borderDashes, item.borderWidth)
-	positionPopUp(point)
-	elem('popup-label').focus()
-	elem('popup').timer = setTimeout(() => {
-		//ensure that the node cannot be locked out for ever
-		cancelEdit(item, callback)
-		statusMsg('Edit timed out', 'warn')
-	}, TIMETOEDIT)
-	lockNode(item)
-}
-/**
- * Convert CSS description of line type to menu option format
- * true, false, [3 3] => "true", "false", "dots", "none"
- * @param {array|boolean} val
- * @param {number} width
- */
-function getDashes(val, width) {
-	if (Array.isArray(val)) return 'dots'
-	if (width === 0) return 'none'
-	return val.toString()
-}
-/**
- * Draw a dialog box for user to edit an edge
- * @param {Object} item the edge
- * @param {Object} point the centre of the edge
- * @param {Function} cancelAction what to do if the edit is cancelled
- * @param {Function} callback what to do if the edit is saved
- */
-function editEdge(item, point, cancelAction, callback) {
-	if (item.locked) return
-	initPopUp('Edit Link', 150, item, cancelAction, saveEdge, callback)
-	elem('popup').insertAdjacentHTML(
-		'beforeend',
-		` 
-		&lt;table id="popup-table">
-		&lt;tr>
-			&lt;td>
-				&lt;select id="edge-width">
-					&lt;option value="">Width...&lt;/option>
-					&lt;option value="1">Width: 1&lt;/option>
-					&lt;option value="2">Width: 2&lt;/option>
-					&lt;option value="4">Width: 4&lt;/option>
-				&lt;/select>
-			&lt;/td>
-			&lt;td>
-				&lt;select id="edge-type">
-					&lt;option value="false">Line...&lt;/option>
-					&lt;option value="false">Solid&lt;/option>
-					&lt;option value="true">Dashed&lt;/option>
-					&lt;option value="dots">Dotted&lt;/option>
-				&lt;/select>
-			&lt;/td>
-		&lt;/tr>
-		&lt;tr>
-			&lt;td>
-				&lt;select id="edge-arrow">
-					&lt;option value="vee">Arrows...&lt;/option>
-					&lt;option value="vee">Sharp&lt;/option>
-					&lt;option value="arrow">Triangle&lt;/option>
-					&lt;option value="bar">Bar&lt;/option>
-					&lt;option value="circle">Circle&lt;/option>
-					&lt;option value="box">Box&lt;/option>
-					&lt;option value="diamond">Diamond&lt;/option>
-					&lt;option value="none">None&lt;/option>
-				&lt;/select>
-			&lt;/td>
-			&lt;td>
-				&lt;div class="input-color-container">
-					&lt;div class="color-well"  id="edge-color">&lt;/div>
-				&lt;/div>
-			&lt;/td>
-		&lt;/tr>
-		&lt;tr>
-			&lt;td style="text-align: right; padding-top: 5px">
-				&lt;i>Font&lt;/i>	
-			&lt;/td>
-			&lt;td style="padding-top: 5px">
-				&lt;select id="edge-font-size">
-					&lt;option value="14">Size&lt;/option>
-					&lt;option value="18">Large&lt;/option>
-					&lt;option value="14">Normal&lt;/option>
-					&lt;option value="10">Small&lt;/option>
-				&lt;/select>
-			&lt;/td>
-		&lt;/tr>
-	&lt;/table>`
-	)
-	elem('edge-width').value = parseInt(item.width)
-	cp.createColorPicker('edge-color')
-	elem('edge-color').style.backgroundColor = standardize_color(item.color.color)
-	elem('edge-type').value = getDashes(item.dashes, null)
-	elem('edge-arrow').value = item.arrows.to.enabled ? item.arrows.to.type : 'none'
-	elem('edge-font-size').value = parseInt(item.font.size)
-	positionPopUp(point)
-	elem('popup-label').focus()
-	elem('popup').timer = setTimeout(() => {
-		//ensure that the edge cannot be locked out for ever
-		cancelEdit(item, callback)
-		statusMsg('Edit timed out', 'warn')
-	}, TIMETOEDIT)
-	lockEdge(item)
-}
-/**
  * Initialise the dialog for creating nodes/edges
  * @param {string} popUpTitle
  * @param {number} height
@@ -2463,10 +2033,7 @@ function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback)
 	let popupLabel = elem('popup-label')
 	popupLabel.style.fontSize = '14px'
 	popupLabel.innerText = item.label === undefined ? '' : item.label.replace(/\n/g, ' ')
-	let table = elem('popup-table')
-	if (table) table.remove()
 }
-
 /**
  * Position the editing dialog box so that it is to the left of the item being edited,
  * but not outside the window
@@ -2481,7 +2048,6 @@ function positionPopUp(point) {
 	popUp.style.left = `${left &lt; 0 ? 0 : left}px`
 	dragElement(popUp, elem('popup-top'))
 }
-
 /**
  * Hide the editing dialog box
  */
@@ -2490,6 +2056,8 @@ function clearPopUp() {
 	elem('popup-cancelButton').onclick = null
 	elem('popup-label').onkeyup = null
 	elem('popup').style.display = 'none'
+	if (elem('popup-node-editor')) elem('popup-node-editor').remove()
+	if (elem('popup-link-editor')) elem('popup-link-editor').remove()
 	if (elem('popup').timer) {
 		clearTimeout(elem('popup').timer)
 		elem('popup').timer = undefined
@@ -2524,6 +2092,36 @@ function cancelEdit(item, callback) {
 	stopEdit()
 }
 /**
+ * A factor is being created:  get its label from the user
+ * @param {Object} item - the node
+ * @param {Function} cancelAction
+ * @param {Function} callback
+ */
+function addLabel(item, cancelAction, callback) {
+	if (elem('popup').style.display === 'block') return // can't add factor when factor is already being added
+	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback)
+	let pos = network.canvasToDOM({x: item.x, y: item.y})
+	positionPopUp(pos)
+	removeFactorCursor()
+	ghostFactor(pos)
+	elem('popup-label').focus()
+}
+/**
+ * broadcast to other users that a new factor is being added here
+ * @param {Object} pos offset coordinates of Add Factor dialog
+ */
+function ghostFactor(pos) {
+	yAwareness.setLocalStateField('addingFactor', {
+		state: 'adding',
+		pos: network.DOMtoCanvas(pos),
+		name: myNameRec.name,
+	})
+	elem('popup').timer = setTimeout(() => {
+		// close it after a time if the user has gone away
+		yAwareness.setLocalStateField('addingFactor', {state: 'done'})
+	}, TIMETOEDIT)
+}
+/**
  * called when a node has been added.  Save the label provided
  * @param {Object} node the item that has been added
  * @param {Function} callback
@@ -2541,6 +2139,92 @@ function saveLabel(node, callback) {
 	logHistory(`added factor '${node.label}'`)
 }
 /**
+ * Draw a dialog box for user to edit a node
+ * @param {Object} item the node
+ * @param {Object} point the centre of the node
+ * @param {Function} cancelAction what to do if the edit is cancelled
+ * @param {Function} callback what to do if the edit is saved
+ */
+function editNode(item, point, cancelAction, callback) {
+	if (item.locked) return
+	initPopUp('Edit Factor', 180, item, cancelAction, saveNode, callback)
+	elem('popup').insertAdjacentHTML(
+		'beforeend',
+		`
+		&lt;div class="popup-node-editor" id="popup-node-editor">	
+			&lt;div>fill&lt;/div>
+			&lt;div>border&lt;/div>
+			&lt;div>font&lt;/div>
+			&lt;div class="input-color-container">
+				&lt;div class="color-well" id="node-backgroundColor">&lt;/div>
+			&lt;/div>
+			&lt;div class="input-color-container">
+				&lt;div class="color-well" id="node-borderColor">&lt;/div>
+			&lt;/div>
+			&lt;div class="input-color-container">
+				&lt;div class="color-well" id="node-fontColor">&lt;/div>
+			&lt;/div>
+			&lt;div>
+				&lt;select name="nodeEditShape" id="nodeEditShape">
+					&lt;option value="box">Shape...&lt;/option>
+					&lt;option value="ellipse">Ellipse&lt;/option>
+					&lt;option value="circle">Circle&lt;/option>
+					&lt;option value="box">Rect&lt;/option>
+					&lt;option value="diamond">Diamond&lt;/option>
+					&lt;option value="star">Star&lt;/option>
+					&lt;option value="triangle">Triangle&lt;/option>
+					&lt;option value="hexagon">Hexagon&lt;/option>
+					&lt;option value="text">Text&lt;/option>
+				&lt;/select>
+			&lt;/div>
+			&lt;div>
+				&lt;select name="nodeEditBorder" id="node-borderType">
+					&lt;option value="solid" selected>Solid&lt;/option>
+					&lt;option value="dashed">Dashed&lt;/option>
+					&lt;option value="dots">Dotted&lt;/option>
+					&lt;option value="none">No border&lt;/option>
+				&lt;/select>
+			&lt;/div>
+			&lt;div>
+				&lt;select name="nodeEditFontSize" id="nodeEditFontSize">
+					&lt;option value="14">Size...&lt;/option>
+					&lt;option value="18">Large&lt;/option>
+					&lt;option value="14">Normal&lt;/option>
+					&lt;option value="10">Small&lt;/option>
+				&lt;/select>
+			&lt;/div>
+			&lt;div id="popup-sizer">
+				&lt;label
+					>&amp;nbsp;Size:
+					&lt;input type="range" class="xrange" id="nodeEditSizer" />
+				&lt;/label>
+			&lt;/div>
+		&lt;/div>
+		`
+	)
+	cp.createColorPicker('node-backgroundColor')
+	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background)
+	elem('nodeEditShape').value = item.shape
+	cp.createColorPicker('node-borderColor')
+	elem('node-borderColor').style.backgroundColor = standardize_color(item.color.border)
+	cp.createColorPicker('node-fontColor')
+	elem('node-fontColor').style.backgroundColor = standardize_color(item.font.color)
+	elem('node-borderType').value = getDashes(item.shapeProperties.borderDashes, item.borderWidth)
+	elem('nodeEditFontSize').value = item.font.size
+
+	elem('nodeEditSizer').value = factorSizeToPercent(item.size)
+	progressBar(elem('nodeEditSizer'))
+	listen('nodeEditSizer', 'input', (event) => progressBar(event.target))
+	positionPopUp(point)
+	elem('popup-label').focus()
+	elem('popup').timer = setTimeout(() => {
+		//ensure that the node cannot be locked out for ever
+		cancelEdit(item, callback)
+		statusMsg('Edit timed out', 'warn')
+	}, TIMETOEDIT)
+	lockNode(item)
+}
+/**
  * save the node format details that have been edited
  * @param {Object} item the node that has been edited
  * @param {Function} callback
@@ -2548,7 +2232,6 @@ function saveLabel(node, callback) {
 function saveNode(item, callback) {
 	unlockNode(item)
 	item.label = splitText(elem('popup-label').innerText, NODEWIDTH)
-	clearPopUp()
 	if (item.label === '') {
 		// if there is no label, cancel (nodes must have a label)
 		statusMsg('No label: cancelled', 'error')
@@ -2566,9 +2249,13 @@ function saveNode(item, callback) {
 	let borderType = elem('node-borderType').value
 	item.borderWidth = borderType === 'none' ? 0 : 4
 	item.shapeProperties.borderDashes = convertDashes(borderType)
+	item.shape = elem('nodeEditShape').value
+	item.font.size = parseInt(elem('nodeEditFontSize').value)
+	setFactorSizeFromPercent(item, elem('nodeEditSizer').value)
 	network.manipulation.inMode = 'editNode' // ensure still in Add mode, in case others have done something meanwhile
 	if (item.label === item.oldLabel) logHistory(`edited factor: '${item.label}'`)
 	else logHistory(`edited factor, changing label from '${item.oldLabel}' to '${item.label}'`)
+	clearPopUp()
 	callback(item)
 }
 /**
@@ -2611,6 +2298,79 @@ function unlockAll() {
 	})
 }
 /**
+ * Draw a dialog box for user to edit an edge
+ * @param {Object} item the edge
+ * @param {Object} point the centre of the edge
+ * @param {Function} cancelAction what to do if the edit is cancelled
+ * @param {Function} callback what to do if the edit is saved
+ */
+function editEdge(item, point, cancelAction, callback) {
+	if (item.locked) return
+	initPopUp('Edit Link', 170, item, cancelAction, saveEdge, callback)
+	elem('popup').insertAdjacentHTML(
+		'beforeend',
+		`&lt;div class="popup-link-editor" id="popup-link-editor">
+		&lt;div>colour&lt;/div>
+		&lt;div>&lt;/div>
+		&lt;div>&lt;/div>
+		&lt;div class="input-color-container">
+			&lt;div class="color-well" id="linkEditLineColor">&lt;/div>
+		&lt;/div>
+		&lt;div>
+			&lt;select name="linkEditWidth" id="linkEditWidth">
+				&lt;option value="1">Width: 1&lt;/option>
+				&lt;option value="2">Width: 2&lt;/option>
+				&lt;option value="4">Width: 4&lt;/option>
+			&lt;/select>
+		&lt;/div>
+		&lt;div>
+			&lt;select name="linkEditArrows" id="linkEditArrows">
+				&lt;option value="vee">Arrows...&lt;/option>
+				&lt;option value="vee">Sharp&lt;/option>
+				&lt;option value="arrow">Triangle&lt;/option>
+				&lt;option value="bar">Bar&lt;/option>
+				&lt;option value="circle">Circle&lt;/option>
+				&lt;option value="box">Box&lt;/option>
+				&lt;option value="diamond">Diamond&lt;/option>
+				&lt;option value="none">None&lt;/option>
+			&lt;/select>
+		&lt;/div>
+		&lt;div>
+			&lt;select name="linkEditDashes" id="linkEditDashes">
+				&lt;option value="solid" selected>Solid&lt;/option>
+				&lt;option value="dashedLinks">Dashed&lt;/option>
+				&lt;option value="dots">Dotted&lt;/option>
+			&lt;/select>
+		&lt;/div>
+		&lt;div>
+			&lt;i>Font size:&lt;/i>	
+		&lt;/div>
+		&lt;div>
+			&lt;select id="linkEditFontSize">
+				&lt;option value="18">Large&lt;/option>
+				&lt;option value="14">Normal&lt;/option>
+				&lt;option value="10">Small&lt;/option>
+			&lt;/select>
+		&lt;/div>
+	&lt;/div>
+`
+	)
+	elem('linkEditWidth').value = parseInt(item.width)
+	cp.createColorPicker('linkEditLineColor')
+	elem('linkEditLineColor').style.backgroundColor = standardize_color(item.color.color)
+	elem('linkEditDashes').value = getDashes(item.dashes, null)
+	elem('linkEditArrows').value = item.arrows.to.enabled ? item.arrows.to.type : 'none'
+	elem('linkEditFontSize').value = parseInt(item.font.size)
+	positionPopUp(point)
+	elem('popup-label').focus()
+	elem('popup').timer = setTimeout(() => {
+		//ensure that the edge cannot be locked out for ever
+		cancelEdit(item, callback)
+		statusMsg('Edit timed out', 'warn')
+	}, TIMETOEDIT)
+	lockEdge(item)
+}
+/**
  * save the edge format details that have been edited
  * @param {Object} item the edge that has been edited
  * @param {Function} callback
@@ -2618,45 +2378,25 @@ function unlockAll() {
 function saveEdge(item, callback) {
 	unlockEdge(item)
 	item.label = splitText(elem('popup-label').innerText, NODEWIDTH)
-	clearPopUp()
 	if (item.label === '') item.label = ' '
-	let color = elem('edge-color').style.backgroundColor
+	let color = elem('linkEditLineColor').style.backgroundColor
 	item.color.color = color
 	item.color.hover = color
 	item.color.highlight = color
-	item.width = parseInt(elem('edge-width').value)
+	item.width = parseInt(elem('linkEditWidth').value)
 	if (!item.width) item.width = 1
-	item.dashes = convertDashes(elem('edge-type').value)
+	item.dashes = convertDashes(elem('linkEditDashes').value)
 	item.arrows.to = {
-		enabled: elem('edge-arrow').value !== 'none',
-		type: elem('edge-arrow').value,
+		enabled: elem('linkEditArrows').value !== 'none',
+		type: elem('linkEditArrows').value,
 	}
-	item.font.size = parseInt(elem('edge-font-size').value)
+	item.font.size = parseInt(elem('linkEditFontSize').value)
 	network.manipulation.inMode = 'editEdge' // ensure still in edit mode, in case others have done something meanwhile
 	// vis-network silently deselects all edges in the callback (why?).  So we have to mark this edge as unselected in preparation
 	clearStatusBar()
-	callback(item)
 	logHistory(`edited link from '${data.nodes.get(item.from).label}' to '${data.nodes.get(item.to).label}'`)
-}
-/**
- * Convert from the menu selection to the CSS format of the edge
- * @param {String} val
- */
-function convertDashes(val) {
-	switch (val) {
-		case 'true':
-			return true
-		case 'false':
-			return false
-		case 'dashes':
-			return [10, 10]
-		case 'dots':
-			return [2, 8]
-		case 'none':
-			return false
-		default:
-			return val
-	}
+	clearPopUp()
+	callback(item)
 }
 function lockEdge(item) {
 	item.locked = true
@@ -2835,7 +2575,7 @@ export function unSelect() {
 */
 // set  up a web worker to calculate network statistics in parallel with whatever
 // the user is doing
-var worker = new Worker(new URL('betweenness.js', import.meta.url))
+var worker = new Worker(new URL('./betweenness.js', import.meta.url), {type: 'module'})
 /**
  * Ask the web worker to recalculate network statistics
  */
@@ -2846,8 +2586,7 @@ function recalculateStats() {
 	}, 200)
 }
 worker.onmessage = function (e) {
-	if (typeof e.data === 'string') console.log(e.data)
-	// don't frighten the horses: statusMsg(e.data, 'error');
+	if (typeof e.data === 'string') statusMsg(e.data, 'error')
 	else {
 		let nodesToUpdate = []
 		data.nodes.get().forEach((n) => {
@@ -2891,12 +2630,13 @@ function listFactors(factors, suppressType) {
 }
 
 /**
- * return a string listing the number of Links
+ * return a string listing the number of Links, or if just one, the starting and ending factors
  * @param {Array} links
  */
 function listLinks(links) {
 	if (links.length > 1) return `${links.length} links`
-	return '1 link'
+	let link = data.edges.get(links[0])
+	return `Link from "${data.nodes.get(link.from).label}" to "${data.nodes.get(link.to).label}"`
 }
 /**
  * returns string of currently selected labels of links and factors, nicely formatted
@@ -3516,7 +3256,12 @@ export function refreshSampleNodes() {
 	for (let i = 0; i &lt; sampleElements.length; i++) {
 		let sampleElement = sampleElements[i]
 		let node = sampleElement.dataSet.get()[0]
-		node = deepMerge(node, styles.nodes[`group${i}`])
+		node = deepMerge(node, styles.nodes[`group${i}`], {
+			chosen: false,
+			size: 25,
+			widthConstraint: 25,
+			heightConstraint: 25,
+		})
 		node.label = node.groupLabel
 		sampleElement.dataSet.remove(node.id)
 		sampleElement.dataSet.update(node)
@@ -3729,15 +3474,19 @@ function positionNotes() {
 	let notesPanelRect = notesPanel.getBoundingClientRect()
 	let settingsRect = elem('panel').getBoundingClientRect()
 	let netPaneRect = netPane.getBoundingClientRect()
+	// if the notes would cover up the settings panel, move the notes to the left of the settings panel
 	if (notesPanelRect.right > settingsRect.left &amp;&amp; notesPanelRect.top &lt; settingsRect.bottom) {
 		notesPanel.style.left = `${settingsRect.left - notesPanelRect.width - 20}px`
 	}
-	if (notesPanelRect.left &lt; netPaneRect.left) notesPanel.style.left = `${netPaneRect.left}${20}px`
+	// if the notes panel is outside the boundary of the net pane, shift it into the pane
+	if (notesPanelRect.left &lt; netPaneRect.left + 20) notesPanel.style.left = `${netPaneRect.left + 20}px`
 	if (notesPanelRect.right > netPaneRect.right)
 		notesPanel.style.left = `${netPaneRect.right - notesPanelRect.width - 20}px`
-	if (notesPanelRect.top &lt; netPaneRect.top) notesPanel.style.top = `${netPaneRect.top}${20}px`
-	if (notesPanelRect.bottom > netPaneRect.bottom)
-		notesPanel.style.top = `${Math.max(netPaneRect.bottom - notesPanelRect.height, netPaneRect.top)}${20}px`
+	let top = notesPanelRect.top
+	if (notesPanelRect.bottom > netPaneRect.bottom) top = netPaneRect.bottom - notesPanelRect.height - 10
+	if (top &lt; netPaneRect.top + 30) top = netPaneRect.top + 30
+	notesPanel.style.top = `${top}px`
+	elem('node-notes').style.maxHeight = `${netPaneRect.height - 230}px`
 }
 // Network tab
 
@@ -4265,7 +4014,7 @@ function analyse() {
 		nodeIdsInRadiusSet.forEach((f) => {
 			network.getConnectedEdges(f).forEach((e) => {
 				let edge = data.edges.get(e)
-				if (nodeIdsInRadiusSet.has(edge.from) &amp;&amp; nodeIdsInRadiusSet.has(edge.to))setEdgeHidden(edge, false)
+				if (nodeIdsInRadiusSet.has(edge.from) &amp;&amp; nodeIdsInRadiusSet.has(edge.to)) setEdgeHidden(edge, false)
 			})
 		})
 
@@ -4346,7 +4095,7 @@ function analyse() {
 		nodeIdsInStreamSet.forEach((f) => {
 			network.getConnectedEdges(f).forEach((e) => {
 				let edge = data.edges.get(e)
-				if (nodeIdsInStreamSet.has(edge.from) &amp;&amp; nodeIdsInStreamSet.has(edge.to))setEdgeHidden(edge, false)
+				if (nodeIdsInStreamSet.has(edge.from) &amp;&amp; nodeIdsInStreamSet.has(edge.to)) setEdgeHidden(edge, false)
 			})
 		})
 	}
@@ -5226,22 +4975,27 @@ function showGhostFactor(userId, addingFactor) {
 	}
 }
 </code></pre>
-				</article>
-			</section>
-		</div>
+        </article>
+    </section>
 
-		<br class="clear" />
 
-		<footer>
-			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Sun Jun 11 2023
-			21:34:49 GMT+0100 (British Summer Time) using the
-			<a href="https://github.com/clenemt/docdash">docdash</a> theme.
-		</footer>
 
-		<script>
-			prettyPrint()
-		</script>
-		<script src="scripts/polyfill.js"></script>
-		<script src="scripts/linenumber.js"></script>
-	</body>
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Mon Jan 15 2024 15:28:31 GMT+0000 (Greenwich Mean Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
 </html>

@@ -302,8 +302,8 @@ Set.prototype.intersection = function (otherSet) {
 }
 /**
  * Convert a factor size into a percent (with any size below 30 as zero), for the input range slider
- * @param {Integer} size 
- * @returns 
+ * @param {Integer} size
+ * @returns {Integer} percent
  */
 export function factorSizeToPercent(size) {
 	let fSize = (size - 20) / 2.5
@@ -311,15 +311,14 @@ export function factorSizeToPercent(size) {
 }
 /**
  * Set the factor size according to the input range slider value (less then 5% is treated as the normal size)
- * @param {object} node 
- * @param {integer} percent 
+ * @param {object} node
+ * @param {integer} percent
  */
 export function setFactorSizeFromPercent(node, percent) {
 	if (percent < 5) {
 		node.size = 25
 		node.heightConstraint = node.widthConstraint = false
-	}
-	else {
+	} else {
 		node.heightConstraint = node.widthConstraint = node.size = percent * 2.5 + 20
 	}
 }
@@ -1023,7 +1022,7 @@ export function isQuillEmpty(quill) {
 /**
  * Replace all \n, \r with a space
  * @param {string} str
- * @returns
+ * @returns string
  */
 export function stripNL(str) {
 	return str.replace(/\r?\n|\r/g, ' ')
