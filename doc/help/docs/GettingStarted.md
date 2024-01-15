@@ -68,8 +68,6 @@ A basic editor is provided for writing the Notes.  You can format the text with 
 
 Clicking the button <img src={require("/static/images/newwindow.png").default} width="24"/> at the top right of the panel will open a new window that also shows the notes for the factor or link.  Using this window is easier if you have more than a few words to write.  It also provides a more extensive range of editing buttons:  you can style the text, insert images into the text, change the font and so on.  The small panel version of the notes keeps in sync with the larger window, and the text is saved as you write. When you are finished, click on the map background to deselect the factor or link; this also closes the Note Window.
 
-On the left edge of the map, half way down, is a small grey tab.  Clicking on this opens a panel into which you can describe the map as a whole and enter notes about it. Click on the tab again to close the panel.
-
 For factors, there is also an open or closed padlock symbol <img src={require("/static/images/padlock.png").default} width="24"/>. If this is shown closed, the factor will be locked into place on the network pane and cannot be dragged elsewhere.  The factor will have a small padlock symbol at the top left.  
 
 :::tip
@@ -77,6 +75,10 @@ For factors, there is also an open or closed padlock symbol <img src={require("/
 Locking a factor is useful when you are doing analysis of the map (see the [Analysis](Styling/#analysing-the-map) section) and don't want to lose the selection while investigating other factors.
 
 :::
+
+### Overview
+
+On the left edge of the map, half way down, is a small yellow tab with three black dots.  Clicking on this opens an **overview panel** where you can describe the map as a whole and enter notes about it. Click on the tab again to close the panel.
 
 ## Sharing
 
@@ -116,7 +118,7 @@ If you want to copy these factors and links into a new map, open a new tab in yo
 
 ## Formatting factors and links
 
-Double clicking on a factor or a link will bring up a small dialog that enables you to change the design of the factor or link - its colour, shape or the label.
+Double clicking on a factor or a link will bring up a small dialog that enables you to change the design of the factor or link - its colour, shape, size or the label.
 
 <!-- ![Editing a node](/images/Editingnode.png) -->
 <img src={require("/static/images/Editingnode.png").default} width="400"/>

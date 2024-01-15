@@ -49,4 +49,10 @@ The output is a **Word** file (.docx) containing, in order, the name of the map,
 
 ### Image file
 
-You can  save a high resolution (600 dpi) image of the map as a **Portable Network Graphics** (.png) file.  The image shows the same view of the map as you see on the screen (so, for example, it will not show factors that have been moved out of the app window).
+You can save a high resolution (8192 x 8192 pixels) image of the map as a **Portable Network Graphics** (.png) file.  The image will show the whole map.  Here is an example of an image of a large map.
+
+<img src={require("/static/images/imageexample.jpg").default} width="600"/>
+
+If, however, you want the image to include just a portion of the map, select a factor or factors that you want the image to be centred on.  The image will include those factors and the neighbouring ones.  The example below was created afer selecting the factors 'Traffic noise' and 'Socio-demographic Mobility Equity' from the map above.
+
+<img src={require("/static/images/subsetimageexample.jpg").default} width="600"/>

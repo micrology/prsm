@@ -1,6 +1,6 @@
 {
 	"name": "participatory-system-mapper",
-	"version": "2.1.2",
+	"version": "2.2.1",
 	"description": "Participatory System Mapper, browser app for collaboratively creating system maps",
 	"keywords": [
 		"social network",
@@ -19,7 +19,7 @@
 	"targets": {
 		"default": {
 			"engines": {
-				"browserslist": "defaults"
+				"browserslist": "fully supports es6"
 			},
 			"distDir": "dist",
 			"publicUrl": "."

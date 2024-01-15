@@ -301,6 +301,64 @@ Set.prototype.intersection = function (otherSet) {
 	return intersectionSet
 }
 /**
+ * Convert a factor size into a percent (with any size below 30 as zero), for the input range slider
+ * @param {Integer} size 
+ * @returns 
+ */
+export function factorSizeToPercent(size) {
+	let fSize = (size - 20) / 2.5
+	return isNaN(fSize) || fSize < 30 ? 0 : fSize
+}
+/**
+ * Set the factor size according to the input range slider value (less then 5% is treated as the normal size)
+ * @param {object} node 
+ * @param {integer} percent 
+ */
+export function setFactorSizeFromPercent(node, percent) {
+	if (percent < 5) {
+		node.size = 25
+		node.heightConstraint = node.widthConstraint = false
+	}
+	else {
+		node.heightConstraint = node.widthConstraint = node.size = percent * 2.5 + 20
+	}
+}
+/**
+ * convert from style object properties to dashed border menu selection
+ * @param {any} bDashes select menu value
+ * @param {number} bWidth border width
+ */
+export function getDashes(bDashes, bWidth) {
+	if (bWidth === 0) return 'none'
+	if (bDashes === false) return 'solid'
+	if (bDashes === true) return 'dashed'
+	if (Array.isArray(bDashes)) {
+		if (bDashes[0] === 10) return 'dashedLinks'
+		return 'dots'
+	}
+	return null
+}
+/**
+ * Convert from dashed menu selection to style object properties
+ * @param {string} val
+ */
+export function convertDashes(val) {
+	switch (val) {
+		case 'dashed': // dashes [5,15] for node borders
+			return true
+		case 'dashedLinks': // dashes for links
+			return [10, 10]
+		case 'solid': // solid
+			return false
+		case 'none': //solid, zero width
+			return false
+		case 'dots':
+			return [2, 8]
+		default:
+			return false
+	}
+}
+/**
  * allow user to drag the element that has a header element that acts as the handle
  * @param {HTMLElement} el
  * @param {HTMLElement} header

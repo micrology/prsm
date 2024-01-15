@@ -47,6 +47,10 @@ import {
 	standardize_color,
 	setNodeHidden,
 	setEdgeHidden,
+	factorSizeToPercent,
+	setFactorSizeFromPercent,
+	convertDashes,
+	getDashes,
 	object_equals,
 	generateName,
 	statusMsg,
@@ -305,6 +309,8 @@ function addEventListeners() {
 			applySampleToLink(event)
 		})
 	)
+	listen('nodeStyleEditFactorSize', 'input', (event) => progressBar(event.target))
+
 	listen('history-copy', 'click', copyHistoryToClipboard)
 
 	listen('body', 'copy', copyToClipboard)
@@ -345,6 +351,15 @@ function setUpPage() {
 	hideNotes()
 	displayWhatsNew()
 }
+const sliderColor = getComputedStyle(document.documentElement).getPropertyValue('--slider')
+/**
+ * draw the solid bar to the left of the thumb on a slider
+ * @param {HTMLElement} sliderEl input[type=range] element
+ */
+export function progressBar(sliderEl) {
+	const sliderValue = sliderEl.value
+	sliderEl.style.background = `linear-gradient(to right, ${sliderColor} ${sliderValue}%, #ccc ${sliderValue}%)`
+}
 /**
  * show the What's New modal dialog unless this is a new user or user has already seen this dialog
  * for this (Major.Minor) version
@@ -360,6 +375,7 @@ function displayWhatsNew() {
 		)
 			return
 	}
+	elem('whatsnewversion').innerHTML = `Version ${version}`
 	elem('whatsnew').style.display = 'flex'
 }
 /**
@@ -398,9 +414,7 @@ function startY(newRoom) {
 	} */
 	)
 	wsProvider.on('synced', () => {
-		/* 
-	if this is a clone, load the cloned data
-	*/
+	// if this is a clone, load the cloned data
 		initiateClone()
 		displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 	})
@@ -816,7 +830,6 @@ function initiateClone() {
 		fit()
 	}
 }
-
 function yjsTrace(where, what) {
 	if (/yjs/.test(debug)) {
 		console.log(exactTime(), where, what)
@@ -835,7 +848,6 @@ function generateRoom() {
 	}
 	return room
 }
-
 /**
  * randomly create some nodes and edges as a binary tree, mainly used for testing
  * @param {number} nNodes
@@ -898,7 +910,6 @@ window.onresize = function () {
 	keepPaneInWindow(elem('chatbox-holder'))
 	resizeCanvas()
 }
-
 /**
  * Hack to get window size when orientation changes.  Should use screen.orientation, but this is not
  * implemented by Safari
@@ -907,7 +918,6 @@ let portrait = window.matchMedia('(orientation: portrait)')
 portrait.addEventListener('change', () => {
 	setvh()
 })
-
 /**
  * in View Only mode, hide all the Nav Bar buttons except the search button
  * and make the map title not editable
@@ -1398,7 +1408,6 @@ function draw() {
 		panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
 		viewPosition = endViewPosition
 	})
-
 	network.on('dragEnd', function (params) {
 		if (/gui/.test(debug)) console.log('dragEnd')
 		let endViewPosition = network.getViewPosition()
@@ -1608,7 +1617,7 @@ function contextMenu(event) {
 	event.preventDefault()
 }
 /**
- * return an object with the current time as a date an integer and the current user's name
+ * return an object with the current time as an integer date and the current user's name
  */
 export function timestamp() {
 	return { time: Date.now(), user: myNameRec.name }
@@ -1658,7 +1667,7 @@ function saveState(options) {
 	)
 }
 
-/******************************************************** map notes side drawer *****************************************************************/
+/******************************************************** map notes side drawer *********************************************************/
 let toolbarOptions = [
 	['bold', 'italic', 'underline', 'strike'],
 	['blockquote', 'code-block'],
@@ -1954,201 +1963,6 @@ async function getClipboardContents() {
 /* ----------------- dialogs for creating and editing nodes and links ----------------*/
 
 /**
- * A factor is being created:  get its label from the user
- * @param {Object} item - the node
- * @param {Function} cancelAction
- * @param {Function} callback
- */
-function addLabel(item, cancelAction, callback) {
-	if (elem('popup').style.display === 'block') return // can't add factor when factor is already being added
-	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback)
-	let pos = network.canvasToDOM({ x: item.x, y: item.y })
-	positionPopUp(pos)
-	removeFactorCursor()
-	ghostFactor(pos)
-	elem('popup-label').focus()
-}
-/**
- * broadcast to other users that a new factor is being added here
- * @param {Object} pos offset coordinates of Add Factor dialog
- */
-function ghostFactor(pos) {
-	yAwareness.setLocalStateField('addingFactor', {
-		state: 'adding',
-		pos: network.DOMtoCanvas(pos),
-		name: myNameRec.name,
-	})
-	elem('popup').timer = setTimeout(() => {
-		// close it after a time if the user has gone away
-		yAwareness.setLocalStateField('addingFactor', { state: 'done' })
-	}, TIMETOEDIT)
-}
-
-/**
- * Draw a dialog box for user to edit a node
- * @param {Object} item the node
- * @param {Object} point the centre of the node
- * @param {Function} cancelAction what to do if the edit is cancelled
- * @param {Function} callback what to do if the edit is saved
- */
-function editNode(item, point, cancelAction, callback) {
-	if (item.locked) return
-	initPopUp('Edit Factor', 150, item, cancelAction, saveNode, callback)
-	elem('popup').insertAdjacentHTML(
-		'beforeend',
-		`	
-		<table id="popup-table">
-		<tr>
-		  <td>
-			<i>Back</i>
-		  </td>
-		  <td>
-			<i>Border</i>
-		  </td>
-		  <td>
-			<i>Font</i>
-		  </td>
-		</tr>
-		<tr>
-		  <td>
-			<div class="input-color-container">
-			  <div class="color-well" id="node-backgroundColor"></div>
-			</div>
-		  </td>
-		  <td>
-			<div class="input-color-container">
-			  <div class="color-well" id="node-borderColor"></div>
-			</div>
-		  </td>
-		  <td>
-			<div class="input-color-container">
-			  <div class="color-well" id="node-fontColor"></div>
-			</div>
-		  </td>
-		</tr>
-		<tr>
-		  <td><i>Border:</i></td>
-		  <td colspan="2">
-			<select id="node-borderType">
-			  <option value="false">Type...</option>
-			  <option value="false">Solid</option>
-			  <option value="true">Dashed</option>
-			  <option value="dots">Dotted</option>
-			  <option value="none">None</option>
-			</select>
-		  </td>
-		</tr>
-	  </table>`
-	)
-	cp.createColorPicker('node-backgroundColor')
-	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background)
-	cp.createColorPicker('node-borderColor')
-	elem('node-borderColor').style.backgroundColor = standardize_color(item.color.border)
-	cp.createColorPicker('node-fontColor')
-	elem('node-fontColor').style.backgroundColor = standardize_color(item.font.color)
-	elem('node-borderType').value = getDashes(item.shapeProperties.borderDashes, item.borderWidth)
-	positionPopUp(point)
-	elem('popup-label').focus()
-	elem('popup').timer = setTimeout(() => {
-		//ensure that the node cannot be locked out for ever
-		cancelEdit(item, callback)
-		statusMsg('Edit timed out', 'warn')
-	}, TIMETOEDIT)
-	lockNode(item)
-}
-/**
- * Convert CSS description of line type to menu option format
- * true, false, [3 3] => "true", "false", "dots", "none"
- * @param {array|boolean} val
- * @param {number} width
- */
-function getDashes(val, width) {
-	if (Array.isArray(val)) return 'dots'
-	if (width === 0) return 'none'
-	return val.toString()
-}
-/**
- * Draw a dialog box for user to edit an edge
- * @param {Object} item the edge
- * @param {Object} point the centre of the edge
- * @param {Function} cancelAction what to do if the edit is cancelled
- * @param {Function} callback what to do if the edit is saved
- */
-function editEdge(item, point, cancelAction, callback) {
-	if (item.locked) return
-	initPopUp('Edit Link', 150, item, cancelAction, saveEdge, callback)
-	elem('popup').insertAdjacentHTML(
-		'beforeend',
-		` 
-		<table id="popup-table">
-		<tr>
-			<td>
-				<select id="edge-width">
-					<option value="">Width...</option>
-					<option value="1">Width: 1</option>
-					<option value="2">Width: 2</option>
-					<option value="4">Width: 4</option>
-				</select>
-			</td>
-			<td>
-				<select id="edge-type">
-					<option value="false">Line...</option>
-					<option value="false">Solid</option>
-					<option value="true">Dashed</option>
-					<option value="dots">Dotted</option>
-				</select>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<select id="edge-arrow">
-					<option value="vee">Arrows...</option>
-					<option value="vee">Sharp</option>
-					<option value="arrow">Triangle</option>
-					<option value="bar">Bar</option>
-					<option value="circle">Circle</option>
-					<option value="box">Box</option>
-					<option value="diamond">Diamond</option>
-					<option value="none">None</option>
-				</select>
-			</td>
-			<td>
-				<div class="input-color-container">
-					<div class="color-well"  id="edge-color"></div>
-				</div>
-			</td>
-		</tr>
-		<tr>
-			<td style="text-align: right; padding-top: 5px">
-				<i>Font</i>	
-			</td>
-			<td style="padding-top: 5px">
-				<select id="edge-font-size">
-					<option value="14">Size</option>
-					<option value="18">Large</option>
-					<option value="14">Normal</option>
-					<option value="10">Small</option>
-				</select>
-			</td>
-		</tr>
-	</table>`
-	)
-	elem('edge-width').value = parseInt(item.width)
-	cp.createColorPicker('edge-color')
-	elem('edge-color').style.backgroundColor = standardize_color(item.color.color)
-	elem('edge-type').value = getDashes(item.dashes, null)
-	elem('edge-arrow').value = item.arrows.to.enabled ? item.arrows.to.type : 'none'
-	elem('edge-font-size').value = parseInt(item.font.size)
-	positionPopUp(point)
-	elem('popup-label').focus()
-	elem('popup').timer = setTimeout(() => {
-		//ensure that the edge cannot be locked out for ever
-		cancelEdit(item, callback)
-		statusMsg('Edit timed out', 'warn')
-	}, TIMETOEDIT)
-	lockEdge(item)
-}
-/**
  * Initialise the dialog for creating nodes/edges
  * @param {string} popUpTitle
  * @param {number} height
@@ -2168,10 +1982,7 @@ function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback)
 	let popupLabel = elem('popup-label')
 	popupLabel.style.fontSize = '14px'
 	popupLabel.innerText = item.label === undefined ? '' : item.label.replace(/\n/g, ' ')
-	let table = elem('popup-table')
-	if (table) table.remove()
 }
-
 /**
  * Position the editing dialog box so that it is to the left of the item being edited,
  * but not outside the window
@@ -2186,7 +1997,6 @@ function positionPopUp(point) {
 	popUp.style.left = `${left < 0 ? 0 : left}px`
 	dragElement(popUp, elem('popup-top'))
 }
-
 /**
  * Hide the editing dialog box
  */
@@ -2195,6 +2005,8 @@ function clearPopUp() {
 	elem('popup-cancelButton').onclick = null
 	elem('popup-label').onkeyup = null
 	elem('popup').style.display = 'none'
+	if (elem('popup-node-editor'))elem('popup-node-editor').remove()
+	if (elem('popup-link-editor'))elem('popup-link-editor').remove()
 	if (elem('popup').timer) {
 		clearTimeout(elem('popup').timer)
 		elem('popup').timer = undefined
@@ -2229,6 +2041,36 @@ function cancelEdit(item, callback) {
 	stopEdit()
 }
 /**
+ * A factor is being created:  get its label from the user
+ * @param {Object} item - the node
+ * @param {Function} cancelAction
+ * @param {Function} callback
+ */
+function addLabel(item, cancelAction, callback) {
+	if (elem('popup').style.display === 'block') return // can't add factor when factor is already being added
+	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback)
+	let pos = network.canvasToDOM({ x: item.x, y: item.y })
+	positionPopUp(pos)
+	removeFactorCursor()
+	ghostFactor(pos)
+	elem('popup-label').focus()
+}
+/**
+ * broadcast to other users that a new factor is being added here
+ * @param {Object} pos offset coordinates of Add Factor dialog
+ */
+function ghostFactor(pos) {
+	yAwareness.setLocalStateField('addingFactor', {
+		state: 'adding',
+		pos: network.DOMtoCanvas(pos),
+		name: myNameRec.name,
+	})
+	elem('popup').timer = setTimeout(() => {
+		// close it after a time if the user has gone away
+		yAwareness.setLocalStateField('addingFactor', { state: 'done' })
+	}, TIMETOEDIT)
+}
+/**
  * called when a node has been added.  Save the label provided
  * @param {Object} node the item that has been added
  * @param {Function} callback
@@ -2246,6 +2088,91 @@ function saveLabel(node, callback) {
 	logHistory(`added factor '${node.label}'`)
 }
 /**
+ * Draw a dialog box for user to edit a node
+ * @param {Object} item the node
+ * @param {Object} point the centre of the node
+ * @param {Function} cancelAction what to do if the edit is cancelled
+ * @param {Function} callback what to do if the edit is saved
+ */
+function editNode(item, point, cancelAction, callback) {
+	if (item.locked) return
+	initPopUp('Edit Factor', 180, item, cancelAction, saveNode, callback)
+	elem('popup').insertAdjacentHTML(
+		'beforeend',
+		`
+		<div class="popup-node-editor" id="popup-node-editor">	
+			<div>fill</div>
+			<div>border</div>
+			<div>font</div>
+			<div class="input-color-container">
+				<div class="color-well" id="node-backgroundColor"></div>
+			</div>
+			<div class="input-color-container">
+				<div class="color-well" id="node-borderColor"></div>
+			</div>
+			<div class="input-color-container">
+				<div class="color-well" id="node-fontColor"></div>
+			</div>
+			<div>
+				<select name="nodeEditShape" id="nodeEditShape">
+					<option value="box">Shape...</option>
+					<option value="ellipse">Ellipse</option>
+					<option value="circle">Circle</option>
+					<option value="box">Rect</option>
+					<option value="diamond">Diamond</option>
+					<option value="star">Star</option>
+					<option value="triangle">Triangle</option>
+					<option value="hexagon">Hexagon</option>
+					<option value="text">Text</option>
+				</select>
+			</div>
+			<div>
+				<select name="nodeEditBorder" id="node-borderType">
+					<option value="solid" selected>Solid</option>
+					<option value="dashed">Dashed</option>
+					<option value="dots">Dotted</option>
+					<option value="none">No border</option>
+				</select>
+			</div>
+			<div>
+				<select name="nodeEditFontSize" id="nodeEditFontSize">
+					<option value="14">Size...</option>
+					<option value="18">Large</option>
+					<option value="14">Normal</option>
+					<option value="10">Small</option>
+				</select>
+			</div>
+			<div id="popup-sizer">
+				<label
+					>&nbsp;Size:
+					<input type="range" class="xrange" id="nodeEditSizer" />
+				</label>
+			</div>
+		</div>
+		`)
+	cp.createColorPicker('node-backgroundColor')
+	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background)
+	elem('nodeEditShape').value = item.shape
+	cp.createColorPicker('node-borderColor')
+	elem('node-borderColor').style.backgroundColor = standardize_color(item.color.border)
+	cp.createColorPicker('node-fontColor')
+	elem('node-fontColor').style.backgroundColor = standardize_color(item.font.color)
+	elem('node-borderType').value = getDashes(item.shapeProperties.borderDashes, item.borderWidth)
+	elem('nodeEditFontSize').value = item.font.size
+
+	elem('nodeEditSizer').value = factorSizeToPercent(item.size)
+	progressBar(elem('nodeEditSizer'))
+	listen('nodeEditSizer', 'input', (event) => progressBar(event.target))
+	positionPopUp(point)
+	elem('popup-label').focus()
+	elem('popup').timer = setTimeout(() => {
+		//ensure that the node cannot be locked out for ever
+		cancelEdit(item, callback)
+		statusMsg('Edit timed out', 'warn')
+	}, TIMETOEDIT)
+	lockNode(item)
+}
+/**
  * save the node format details that have been edited
  * @param {Object} item the node that has been edited
  * @param {Function} callback
@@ -2253,7 +2180,6 @@ function saveLabel(node, callback) {
 function saveNode(item, callback) {
 	unlockNode(item)
 	item.label = splitText(elem('popup-label').innerText, NODEWIDTH)
-	clearPopUp()
 	if (item.label === '') {
 		// if there is no label, cancel (nodes must have a label)
 		statusMsg('No label: cancelled', 'error')
@@ -2271,9 +2197,13 @@ function saveNode(item, callback) {
 	let borderType = elem('node-borderType').value
 	item.borderWidth = borderType === 'none' ? 0 : 4
 	item.shapeProperties.borderDashes = convertDashes(borderType)
+	item.shape = elem('nodeEditShape').value
+	item.font.size = parseInt(elem('nodeEditFontSize').value)
+	setFactorSizeFromPercent(item, elem('nodeEditSizer').value)
 	network.manipulation.inMode = 'editNode' // ensure still in Add mode, in case others have done something meanwhile
 	if (item.label === item.oldLabel) logHistory(`edited factor: '${item.label}'`)
 	else logHistory(`edited factor, changing label from '${item.oldLabel}' to '${item.label}'`)
+	clearPopUp()
 	callback(item)
 }
 /**
@@ -2316,6 +2246,79 @@ function unlockAll() {
 	})
 }
 /**
+ * Draw a dialog box for user to edit an edge
+ * @param {Object} item the edge
+ * @param {Object} point the centre of the edge
+ * @param {Function} cancelAction what to do if the edit is cancelled
+ * @param {Function} callback what to do if the edit is saved
+ */
+function editEdge(item, point, cancelAction, callback) {
+	if (item.locked) return
+	initPopUp('Edit Link', 170, item, cancelAction, saveEdge, callback)
+	elem('popup').insertAdjacentHTML(
+		'beforeend',
+	`<div class="popup-link-editor" id="popup-link-editor">
+		<div>colour</div>
+		<div></div>
+		<div></div>
+		<div class="input-color-container">
+			<div class="color-well" id="linkEditLineColor"></div>
+		</div>
+		<div>
+			<select name="linkEditWidth" id="linkEditWidth">
+				<option value="1">Width: 1</option>
+				<option value="2">Width: 2</option>
+				<option value="4">Width: 4</option>
+			</select>
+		</div>
+		<div>
+			<select name="linkEditArrows" id="linkEditArrows">
+				<option value="vee">Arrows...</option>
+				<option value="vee">Sharp</option>
+				<option value="arrow">Triangle</option>
+				<option value="bar">Bar</option>
+				<option value="circle">Circle</option>
+				<option value="box">Box</option>
+				<option value="diamond">Diamond</option>
+				<option value="none">None</option>
+			</select>
+		</div>
+		<div>
+			<select name="linkEditDashes" id="linkEditDashes">
+				<option value="solid" selected>Solid</option>
+				<option value="dashedLinks">Dashed</option>
+				<option value="dots">Dotted</option>
+			</select>
+		</div>
+		<div>
+			<i>Font size:</i>	
+		</div>
+		<div>
+			<select id="linkEditFontSize">
+				<option value="18">Large</option>
+				<option value="14">Normal</option>
+				<option value="10">Small</option>
+			</select>
+		</div>
+	</div>
+`
+	)
+	elem('linkEditWidth').value = parseInt(item.width)
+	cp.createColorPicker('linkEditLineColor')
+	elem('linkEditLineColor').style.backgroundColor = standardize_color(item.color.color)
+	elem('linkEditDashes').value = getDashes(item.dashes, null)
+	elem('linkEditArrows').value = item.arrows.to.enabled ? item.arrows.to.type : 'none'
+	elem('linkEditFontSize').value = parseInt(item.font.size)
+	positionPopUp(point)
+	elem('popup-label').focus()
+	elem('popup').timer = setTimeout(() => {
+		//ensure that the edge cannot be locked out for ever
+		cancelEdit(item, callback)
+		statusMsg('Edit timed out', 'warn')
+	}, TIMETOEDIT)
+	lockEdge(item)
+}
+/**
  * save the edge format details that have been edited
  * @param {Object} item the edge that has been edited
  * @param {Function} callback
@@ -2323,45 +2326,25 @@ function unlockAll() {
 function saveEdge(item, callback) {
 	unlockEdge(item)
 	item.label = splitText(elem('popup-label').innerText, NODEWIDTH)
-	clearPopUp()
 	if (item.label === '') item.label = ' '
-	let color = elem('edge-color').style.backgroundColor
+	let color = elem('linkEditLineColor').style.backgroundColor
 	item.color.color = color
 	item.color.hover = color
 	item.color.highlight = color
-	item.width = parseInt(elem('edge-width').value)
+	item.width = parseInt(elem('linkEditWidth').value)
 	if (!item.width) item.width = 1
-	item.dashes = convertDashes(elem('edge-type').value)
+	item.dashes = convertDashes(elem('linkEditDashes').value)
 	item.arrows.to = {
-		enabled: elem('edge-arrow').value !== 'none',
-		type: elem('edge-arrow').value,
+		enabled: elem('linkEditArrows').value !== 'none',
+		type: elem('linkEditArrows').value,
 	}
-	item.font.size = parseInt(elem('edge-font-size').value)
+	item.font.size = parseInt(elem('linkEditFontSize').value)
 	network.manipulation.inMode = 'editEdge' // ensure still in edit mode, in case others have done something meanwhile
 	// vis-network silently deselects all edges in the callback (why?).  So we have to mark this edge as unselected in preparation
 	clearStatusBar()
-	callback(item)
 	logHistory(`edited link from '${data.nodes.get(item.from).label}' to '${data.nodes.get(item.to).label}'`)
-}
-/**
- * Convert from the menu selection to the CSS format of the edge
- * @param {String} val
- */
-function convertDashes(val) {
-	switch (val) {
-		case 'true':
-			return true
-		case 'false':
-			return false
-		case 'dashes':
-			return [10, 10]
-		case 'dots':
-			return [2, 8]
-		case 'none':
-			return false
-		default:
-			return val
-	}
+	clearPopUp()
+	callback(item)
 }
 function lockEdge(item) {
 	item.locked = true
@@ -2595,12 +2578,13 @@ function listFactors(factors, suppressType) {
 }
 
 /**
- * return a string listing the number of Links
+ * return a string listing the number of Links, or if just one, the starting and ending factors
  * @param {Array} links
  */
 function listLinks(links) {
 	if (links.length > 1) return `${links.length} links`
-	return '1 link'
+	let link = data.edges.get(links[0])
+	return `Link from "${data.nodes.get(link.from).label}" to "${data.nodes.get(link.to).label}"`
 }
 /**
  * returns string of currently selected labels of links and factors, nicely formatted
@@ -3217,7 +3201,7 @@ export function refreshSampleNodes() {
 	for (let i = 0; i < sampleElements.length; i++) {
 		let sampleElement = sampleElements[i]
 		let node = sampleElement.dataSet.get()[0]
-		node = deepMerge(node, styles.nodes[`group${i}`])
+		node = deepMerge(node, styles.nodes[`group${i}`], { chosen: false, size: 25, widthConstraint: 25, heightConstraint: 25, })
 		node.label = node.groupLabel
 		sampleElement.dataSet.remove(node.id)
 		sampleElement.dataSet.update(node)
@@ -3435,11 +3419,11 @@ function positionNotes() {
 		notesPanel.style.left = `${settingsRect.left - notesPanelRect.width - 20}px`
 	}
 	// if the notes panel is outside the boundary of the net pane, shift it into the pane
-	if (notesPanelRect.left < netPaneRect.left) notesPanel.style.left = `${netPaneRect.left + 20}px`
+	if (notesPanelRect.left < netPaneRect.left + 20) notesPanel.style.left = `${netPaneRect.left + 20}px`
 	if (notesPanelRect.right > netPaneRect.right)
 		notesPanel.style.left = `${netPaneRect.right - notesPanelRect.width - 20}px`
 	let top = notesPanelRect.top
-	if (notesPanelRect.bottom > netPaneRect.bottom - 220) top = netPaneRect.top + 30
+	if (notesPanelRect.bottom > netPaneRect.bottom) top = netPaneRect.bottom - notesPanelRect.height - 10
 	if (top < netPaneRect.top + 30) top = netPaneRect.top + 30
 	notesPanel.style.top = `${top}px`
 	elem('node-notes').style.maxHeight = `${netPaneRect.height - 230}px`

@@ -2,27 +2,27 @@
 
 PRSM Participatory System Mapper 
 
-    Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+	Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
 This modules handles operations related to the Styles tabs.  
  ******************************************************************************************************************** */
 
-import {Network} from 'vis-network/peer/'
-import {DataSet} from 'vis-data/peer'
+import { Network } from 'vis-network/peer/'
+import { DataSet } from 'vis-data/peer'
 import {
 	listen,
 	elem,
@@ -34,6 +34,10 @@ import {
 	dragElement,
 	statusMsg,
 	clearStatusBar,
+	factorSizeToPercent,
+	setFactorSizeFromPercent,
+	convertDashes,
+	getDashes
 } from './utils.js'
 import {
 	network,
@@ -45,8 +49,9 @@ import {
 	updateLastSamples,
 	cp,
 	logHistory,
+	progressBar
 } from './prsm.js'
-import {styles} from './samples.js'
+import { styles } from './samples.js'
 
 /**
  * The samples are each a mini vis-network showing just one node or two nodes and a link
@@ -74,7 +79,7 @@ export function setUpSamples() {
 					widthConstraint: 50,
 					heightConstraint: 50,
 					margin: 10,
-					scaling: {label: {enabled: false}},
+					scaling: { label: { enabled: false } },
 				}
 			),
 		])
@@ -165,25 +170,25 @@ export function setUpSamples() {
 		sampleElement.dataSet = edgeDataSet
 	}
 	// set up color pickers
-	cp.createColorPicker('nodeEditFillColor', nodeEditSave)
-	cp.createColorPicker('nodeEditBorderColor', nodeEditSave)
-	cp.createColorPicker('nodeEditFontColor', nodeEditSave)
-	cp.createColorPicker('linkEditLineColor', linkEditSave)
+	cp.createColorPicker('nodeStyleEditFillColor', nodeEditSave)
+	cp.createColorPicker('nodeStyleEditBorderColor', nodeEditSave)
+	cp.createColorPicker('nodeStyleEditFontColor', nodeEditSave)
+	cp.createColorPicker('linkStyleEditLineColor', linkEditSave)
 
 	// set up listeners
-	listen('nodeEditCancel', 'click', nodeEditCancel)
-	listen('nodeEditName', 'keyup', nodeEditSave)
-	listen('nodeEditShape', 'change', nodeEditSave)
-	listen('nodeEditBorder', 'change', nodeEditSave)
-	listen('nodeEditFontSize', 'change', nodeEditSave)
-	listen('nodeEditSubmit', 'click', nodeEditSubmit)
+	listen('nodeStyleEditCancel', 'click', nodeEditCancel)
+	listen('nodeStyleEditName', 'keyup', nodeEditSave)
+	listen('nodeStyleEditShape', 'change', nodeEditSave)
+	listen('nodeStyleEditBorder', 'change', nodeEditSave)
+	listen('nodeStyleEditFontSize', 'change', nodeEditSave)
+	listen('nodeStyleEditSubmit', 'click', nodeEditSubmit)
 
-	listen('linkEditCancel', 'click', linkEditCancel)
-	listen('linkEditName', 'keyup', linkEditSave)
-	listen('linkEditWidth', 'input', linkEditSave)
-	listen('linkEditDashes', 'input', linkEditSave)
-	listen('linkEditArrows', 'change', linkEditSave)
-	listen('linkEditSubmit', 'click', linkEditSubmit)
+	listen('linkStyleEditCancel', 'click', linkEditCancel)
+	listen('linkStyleEditName', 'keyup', linkEditSave)
+	listen('linkStyleEditWidth', 'input', linkEditSave)
+	listen('linkStyleEditDashes', 'input', linkEditSave)
+	listen('linkStyleEditArrows', 'change', linkEditSave)
+	listen('linkStyleEditSubmit', 'click', linkEditSubmit)
 	listen('styleNodeContextMenuHide', 'contextmenu', (e) => e.preventDefault())
 	listen('styleNodeContextMenuSelect', 'contextmenu', (e) => e.preventDefault())
 	listen('styleEdgeContextMenuSelect', 'contextmenu', (e) => e.preventDefault())
@@ -244,10 +249,10 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 		menu.classList.remove('show-menu')
 	}
 	function selectFactorsWithStyle(groupId) {
-		selectFactors(data.nodes.getIds({filter: (node) => node.grp === groupId}))
+		selectFactors(data.nodes.getIds({ filter: (node) => node.grp === groupId }))
 	}
 	function hideFactorsWithStyle(groupId, toggle) {
-		let nodes = data.nodes.get({filter: (node) => node.grp === groupId})
+		let nodes = data.nodes.get({ filter: (node) => node.grp === groupId })
 		nodes.forEach((node) => {
 			setNodeHidden(node, toggle)
 		})
@@ -314,10 +319,10 @@ function styleEdgeContextMenu(event, sampleElement, groupId) {
 		menu.classList.remove('show-menu')
 	}
 	function selectLinksWithStyle(groupId) {
-		selectLinks(data.edges.getIds({filter: (edge) => edge.grp === groupId}))
+		selectLinks(data.edges.getIds({ filter: (edge) => edge.grp === groupId }))
 	}
 	function hideLinksWithStyle(groupId, toggle) {
-		let edges = data.edges.get({filter: (edge) => edge.grp === groupId})
+		let edges = data.edges.get({ filter: (edge) => edge.grp === groupId })
 		edges.forEach((edge) => {
 			setEdgeHidden(edge, toggle)
 		})
@@ -414,31 +419,33 @@ function editNodeStyle(styleElement, groupId) {
  */
 function updateNodeEditor(groupId) {
 	let group = styles.nodes[groupId]
-	elem('nodeEditName').value = group.groupLabel !== 'Sample' ? group.groupLabel : ''
-	elem('nodeEditFillColor').style.backgroundColor = standardize_color(group.color.background)
-	elem('nodeEditBorderColor').style.backgroundColor = standardize_color(group.color.border)
-	elem('nodeEditFontColor').style.backgroundColor = standardize_color(group.font.color)
-	elem('nodeEditShape').value = group.shape
-	elem('nodeEditBorder').value = getDashes(group.shapeProperties.borderDashes, group.borderWidth)
-	elem('nodeEditFontSize').value = group.font.size
+	elem('nodeStyleEditName').value = group.groupLabel !== 'Sample' ? group.groupLabel : ''
+	elem('nodeStyleEditFillColor').style.backgroundColor = standardize_color(group.color.background)
+	elem('nodeStyleEditBorderColor').style.backgroundColor = standardize_color(group.color.border)
+	elem('nodeStyleEditFontColor').style.backgroundColor = standardize_color(group.font.color)
+	elem('nodeStyleEditShape').value = group.shape
+	elem('nodeStyleEditBorder').value = getDashes(group.shapeProperties.borderDashes, group.borderWidth)
+	elem('nodeStyleEditFontSize').value = group.font.size
 	if (group.fixed) {
-		elem('nodeEditFixed').style.display = 'block'
-		elem('nodeEditUnfixed').style.display = 'none'
+		elem('nodeStyleEditFixed').style.display = 'inline'
+		elem('nodeStyleEditUnfixed').style.display = 'none'
 	} else {
-		elem('nodeEditFixed').style.display = 'none'
-		elem('nodeEditUnfixed').style.display = 'block'
+		elem('nodeStyleEditFixed').style.display = 'none'
+		elem('nodeStyleEditUnfixed').style.display = 'inline'
 	}
+	elem('nodeStyleEditFactorSize').value = factorSizeToPercent(group.size)
+	progressBar(elem('nodeStyleEditFactorSize'))
 }
-listen('nodeEditLock', 'click', toggleNodeStyleLock)
+listen('nodeStyleEditLock', 'click', toggleNodeStyleLock)
 
 function toggleNodeStyleLock() {
 	let group = styles.nodes[elem('nodeStyleEditorContainer').groupId]
 	if (group.fixed) {
-		elem('nodeEditFixed').style.display = 'none'
-		elem('nodeEditUnfixed').style.display = 'block'
+		elem('nodeStyleEditFixed').style.display = 'none'
+		elem('nodeStyleEditUnfixed').style.display = 'inline'
 	} else {
-		elem('nodeEditFixed').style.display = 'block'
-		elem('nodeEditUnfixed').style.display = 'none'
+		elem('nodeStyleEditFixed').style.display = 'inline'
+		elem('nodeStyleEditUnfixed').style.display = 'none'
 	}
 	group.fixed = !group.fixed
 }
@@ -448,20 +455,21 @@ function toggleNodeStyleLock() {
 function nodeEditSave() {
 	let groupId = elem('nodeStyleEditorContainer').groupId
 	let group = styles.nodes[groupId]
-	group.groupLabel = elem('nodeEditName').value
+	group.groupLabel = elem('nodeStyleEditName').value
 	if (group.groupLabel === '') group.groupLabel = 'Sample'
-	group.color.background = elem('nodeEditFillColor').style.backgroundColor
-	group.color.border = elem('nodeEditBorderColor').style.backgroundColor
+	group.color.background = elem('nodeStyleEditFillColor').style.backgroundColor
+	group.color.border = elem('nodeStyleEditBorderColor').style.backgroundColor
 	group.color.highlight.background = group.color.background
 	group.color.highlight.border = group.color.border
 	group.color.hover.background = group.color.background
 	group.color.hover.border = group.color.border
-	group.font.color = elem('nodeEditFontColor').style.backgroundColor
-	group.shape = elem('nodeEditShape').value
-	let border = elem('nodeEditBorder').value
-	group.shapeProperties.borderDashes = groupDashes(border)
+	group.font.color = elem('nodeStyleEditFontColor').style.backgroundColor
+	group.shape = elem('nodeStyleEditShape').value
+	let border = elem('nodeStyleEditBorder').value
+	group.shapeProperties.borderDashes = convertDashes(border)
 	group.borderWidth = border === 'none' ? 0 : 4
-	group.font.size = parseInt(elem('nodeEditFontSize').value)
+	group.font.size = parseInt(elem('nodeStyleEditFontSize').value)
+	setFactorSizeFromPercent(group, elem('nodeStyleEditFactorSize').value)
 	nodeEditUpdateStyleSample(group)
 }
 /**
@@ -473,9 +481,9 @@ function nodeEditUpdateStyleSample(group) {
 	let styleElement = elem('nodeStyleEditorContainer').styleElement
 	let node = styleElement.dataSet.get('1')
 	node.label = group.groupLabel
-	node = deepMerge(node, styles.nodes[groupId], {chosen: false})
-	let dataSet = styleElement.dataSet
-	dataSet.update(node)
+	// the node in the style sample does not change size
+	node = deepMerge(node, styles.nodes[groupId], { chosen: false, size: 25, widthConstraint: 25, heightConstraint: 25, })
+	styleElement.dataSet.update(node)
 }
 /**
  * cancel any editing of the style and revert to what it was previously
@@ -562,11 +570,11 @@ function editLinkStyle(styleElement, groupId) {
  */
 function updateLinkEditor(groupId) {
 	let group = styles.edges[groupId]
-	elem('linkEditName').value = group.groupLabel !== 'Sample' ? group.groupLabel : ''
-	elem('linkEditLineColor').style.backgroundColor = standardize_color(group.color.color)
-	elem('linkEditWidth').value = group.width
-	elem('linkEditDashes').value = getDashes(group.dashes, 1)
-	elem('linkEditArrows').value = getArrows(group.arrows)
+	elem('linkStyleEditName').value = group.groupLabel !== 'Sample' ? group.groupLabel : ''
+	elem('linkStyleEditLineColor').style.backgroundColor = standardize_color(group.color.color)
+	elem('linkStyleEditWidth').value = group.width
+	elem('linkStyleEditDashes').value = getDashes(group.dashes, 1)
+	elem('linkStyleEditArrows').value = getArrows(group.arrows)
 }
 /**
  * save changes to the style made with the edit dialog to the style object
@@ -574,14 +582,14 @@ function updateLinkEditor(groupId) {
 function linkEditSave() {
 	let groupId = elem('linkStyleEditorContainer').groupId
 	let group = styles.edges[groupId]
-	group.groupLabel = elem('linkEditName').value
+	group.groupLabel = elem('linkStyleEditName').value
 	if (group.groupLabel === '') group.groupLabel = 'Sample'
-	group.color.color = elem('linkEditLineColor').style.backgroundColor
+	group.color.color = elem('linkStyleEditLineColor').style.backgroundColor
 	group.color.highlight = group.color.color
 	group.color.hover = group.color.color
-	group.width = parseInt(elem('linkEditWidth').value)
-	group.dashes = groupDashes(elem('linkEditDashes').value)
-	groupArrows(elem('linkEditArrows').value)
+	group.width = parseInt(elem('linkStyleEditWidth').value)
+	group.dashes = convertDashes(elem('linkStyleEditDashes').value)
+	groupArrows(elem('linkStyleEditArrows').value)
 	linkEditUpdateStyleSample(group)
 	/**
 	 * Set the link object properties to show various arrow types
@@ -607,7 +615,7 @@ function linkEditUpdateStyleSample(group) {
 	let styleElement = elem('linkStyleEditorContainer').styleElement
 	let edge = styleElement.dataSet.get('1')
 	edge.label = group.groupLabel
-	edge = deepMerge(edge, styles.edges[groupId], {chosen: false})
+	edge = deepMerge(edge, styles.edges[groupId], { chosen: false })
 	let dataSet = styleElement.dataSet
 	dataSet.update(edge)
 }
@@ -671,39 +679,6 @@ export function reApplySampleToLinks(groupIds, force) {
 	)
 }
 /**
- * convert from style object properties to dashed border menu selection
- * @param {any} bDashes select menu value
- * @param {number} bWidth border width
- */
-function getDashes(bDashes, bWidth) {
-	let val = bDashes.toString()
-	if (Array.isArray(bDashes)) {
-		if (bDashes[0] === 10) val = 'dashes'
-		else val = 'dots'
-	} else if (bWidth === 0) val = 'none'
-	return val
-}
-/**
- * Convert from dashed menu selection to style object properties
- * @param {string} val
- */
-function groupDashes(val) {
-	switch (val) {
-		case 'true': // dashes [5,15] for node borders
-			return true
-		case 'dashes': // dashes for links
-			return [10, 10]
-		case 'false': // solid
-			return false
-		case 'none': //solid, zero width
-			return false
-		case 'dots':
-			return [2, 8]
-		default:
-			return false
-	}
-}
-/**
  * Convert from style object properties to arrow menu selection
  * @param {Object} prop
  */
@@ -715,7 +690,7 @@ function getArrows(prop) {
 
 /*  ------------display the map legend (includes all styles with a group label that is neither blank or 'Sample') */
 
-var legendData = {nodes: new DataSet(), edges: new DataSet()}
+var legendData = { nodes: new DataSet(), edges: new DataSet() }
 var legendNetwork = null
 const LEGENDSPACING = 60
 const HALFLEGENDWIDTH = 60
@@ -757,10 +732,10 @@ export function legend(warn = false) {
 	dragElement(legendBox, title)
 
 	legendNetwork = new Network(canvas, legendData, {
-		physics: {enabled: false},
-		interaction: {zoomView: false, dragView: false},
+		physics: { enabled: false },
+		interaction: { zoomView: false, dragView: false },
 	})
-	let height = legendNetwork.DOMtoCanvas({x: 0, y: 0}).y
+	let height = legendNetwork.DOMtoCanvas({ x: 0, y: 0 }).y
 	for (let i = 0; i < nodes.length; i++) {
 		let node = deepMerge(styles.nodes[nodes[i].groupNode])
 		node.id = i + 10000
@@ -786,8 +761,8 @@ export function legend(warn = false) {
 		edge.id = i + 10000
 		edge.from = i + 20000
 		edge.to = i + 30000
-		edge.smooth = {type: 'straightCross'}
-		edge.font = {size: 12, color: 'black', align: 'top', vadjust: -10}
+		edge.smooth = { type: 'straightCross' }
+		edge.font = { size: 12, color: 'black', align: 'top', vadjust: -10 }
 		edge.widthConstraint = 80
 		edge.chosen = false
 		let nodes = [
