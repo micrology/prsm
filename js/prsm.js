@@ -375,6 +375,7 @@ function displayWhatsNew() {
 		)
 			return
 	}
+	elem('whatsnewversion').innerHTML = `Version ${version}`
 	elem('whatsnew').style.display = 'flex'
 }
 /**
