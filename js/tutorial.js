@@ -104,6 +104,9 @@ export default class Tutorial {
 				elem.insertAdjacentElement('afterend', this.back)
 			}
 			dialog.classList.add('splash')
+			if (this.step == 0) {
+				dialog.classList.add('intro-splash')
+			}
 		} else {
 			let border = document.createElement('div')
 			border.className = 'tutorial-border'

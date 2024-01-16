@@ -1,18 +1,25 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-import {themes as prismThemes} from 'prism-react-renderer';
+import { themes as prismThemes } from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'PRSM',
   tagline: 'Participatory System Mapper',
-  url: 'https://prsm.uk',
-  //url: 'http://localhost',
-  baseUrl: '/doc/help/',
+
+  // to run on localhost:
+  url: 'http://localhost',
+  baseUrl: '/prsm/doc/help/',
+  // to run on prsm.uk
+  //url: 'https://prsm.uk',
+  //baseUrl: '/doc/help/',
+  // to run on cress
+  //url: 'https://cress.soc.surrey.ac.uk/',
+  //baseUrl: '/prsm/doc/help/',
+
   // use / when running dev server. url is irrelevant
   //baseUrl: '/',
-  //baseUrl: '/prsm/doc/help/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: '/images/favicon.ico',
@@ -98,13 +105,13 @@ const config = {
             label: 'GitHub',
             href: 'https://github.com/micrology/prsm',
           }
-          ],
-          copyright: `Copyright <a href="https://choosealicense.com/licenses/mit/">MIT</a>© ${new Date().getFullYear()} Nigel Gilbert. Built with Docusaurus.`,
-        },
-        prism: {
-          theme: prismThemes.github,
-          darkTheme: prismThemes.dracula,
-        },
+        ],
+        copyright: `Copyright <a href="https://choosealicense.com/licenses/mit/">MIT</a>© ${new Date().getFullYear()} Nigel Gilbert. Built with Docusaurus.`,
+      },
+      prism: {
+        theme: prismThemes.github,
+        darkTheme: prismThemes.dracula,
+      },
     }),
 };
 

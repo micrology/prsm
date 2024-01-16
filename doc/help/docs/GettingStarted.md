@@ -3,7 +3,7 @@ sidebar_position: 4
 ---
 # Getting started
 
-When the app is started for the first time in your browser, there is an option to type in your name and then to follow a brief tour that shows you the main items on the web page.  
+When the app is started for the first time in your browser, there is an option to type in your name and then to follow a brief tour that shows you the main items on the web page.  If you don't enter your name, one is created for you (a sea creature), so that you can remain anonymous.
 
 ![Nav Bar icons](/images/start-screen.png)
 
