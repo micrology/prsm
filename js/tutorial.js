@@ -2,20 +2,20 @@
 
 PRSM Participatory System Mapper 
 
-    Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+	Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
 This module handles the display of tutorial help messages to beginners.  
@@ -105,7 +105,11 @@ export default class Tutorial {
 			}
 			dialog.classList.add('splash')
 			if (this.step == 0) {
+				// initial splash screen for new users
 				dialog.classList.add('intro-splash')
+				let img = document.createElement('img');
+				img.src = new URL('../icons/PRSMlogo200.png?as=webp&width=80',import.meta.url)
+				document.getElementById('intro-logo').appendChild(img)
 			}
 		} else {
 			let border = document.createElement('div')
