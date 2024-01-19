@@ -32,5 +32,8 @@ RewriteCond %{REQUEST_URI} !norton [NC]
 RewriteRule 	"^(.*)$"	"dist/$1" [PT]
 
 # redirect Docusaurus help pages to the build directory
+#RewriteCond &{HTTP_HOST}   /^prsm.uk$/ [NC]
+#RewriteCond %{REQUEST_URI} !/build/ [NC]
+#RewriteRule	(doc/help)(.*)	$1/build$2 [PT]
 RewriteCond %{REQUEST_URI} !/build/ [NC]
 RewriteRule	(doc/help)(.*)	$1/build$2
