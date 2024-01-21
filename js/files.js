@@ -66,7 +66,6 @@ import {styles} from './samples.js'
 import {canvas, refreshFromMap, setUpBackground, upgradeFromV1} from './background.js'
 import {updateLegend} from './styles.js'
 import Quill from 'quill'
-import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
 import {saveAs} from 'file-saver'
 import * as quillToWord from 'quill-to-word'
 import {read, writeFileXLSX, utils} from 'xlsx'
@@ -1028,8 +1027,10 @@ export function setFileName(extn = 'prsm') {
 /**
  * Save the map as CSV files, one for nodes and one for edges
  * Only node and edge labels and style ids are saved
+ * 
+ * Now obsolete, as the Excel file format is much more useful
  */
-export function exportCVS() {
+/* export function exportCVS() {
 	let dummyDiv = document.createElement('div')
 	dummyDiv.id = 'dummy-div'
 	dummyDiv.style.display = 'none'
@@ -1079,7 +1080,7 @@ export function exportCVS() {
 	}
 	saveStr(str, 'edges.csv')
 	dummyDiv.remove()
-}
+} */
 /**
  * Save the map in an Excel workbook, with two sheets: Factors and Links
  */
@@ -1177,17 +1178,15 @@ export function exportExcel() {
 			.filter((key) => props.indexOf(key) < 0)
 			.reduce((obj2, key) => ((obj2[key] = obj[key]), obj2), {})
 	}
+	/**
+	 * 
+	 * @param {object} ops 
+	 * @returns contents of Quill note as plain text
+	 */
 	function quillToText(ops) {
 		qed.setContents(ops)
-		// convert Quill formatted note to HTML, escaping all "
-		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {
-			inlineStyles: true,
-		})
-			.convert()
-			.replaceAll('"', '""')
-		dummyDiv.innerHTML = html
-		// convert HTML to plain text
-		return dummyDiv.innerText
+		// use qed.root.innerHTML to convert to HTML if that is preferred
+		return qed.getText()
 	}
 }
 /**
