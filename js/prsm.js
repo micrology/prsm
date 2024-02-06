@@ -3349,7 +3349,7 @@ function showEdgeData() {
 	let panel = elem('edgeDataPanel')
 	let edgeId = network.getSelectedEdges()[0]
 	let edge = data.edges.get(edgeId)
-	elem('edgeLabel').innerHTML = edge.label?.trim() ? shorten(edge.label) : 'Link'
+	elem('edgeLabel').innerHTML = `Link from "${shorten(data.nodes.get(edge.from).label)}" to "${shorten(data.nodes.get(edge.to).label)}"`
 	if (edge.created) {
 		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${edge.created.user}`
 		elem('edgeCreation').style.display = 'flex'
