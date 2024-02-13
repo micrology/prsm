@@ -2188,12 +2188,15 @@ input#splashNameBox::placeholder {
 		padding: 8px;
 	}
 	.tutorial-dialog.wide {
-		width: 400px;
+		width: 350px;
 	}
 	#whatsnew {
 		min-width: 350px;
 		max-height: 550px;
 		overflow: auto;
+	}
+	.tutorial-dialog.splash.intro-splash {
+		width: 350px;
 	}
 }
 
