@@ -2585,7 +2585,7 @@ function listFactors(factors, suppressType) {
 function listLinks(links) {
 	if (links.length > 1) return `${links.length} links`
 	let link = data.edges.get(links[0])
-	return `Link from "${data.nodes.get(link.from).label}" to "${data.nodes.get(link.to).label}"`
+	return `Link from "${shorten(data.nodes.get(link.from).label)}" to "${shorten(data.nodes.get(link.to).label)}"`
 }
 /**
  * returns string of currently selected labels of links and factors, nicely formatted
