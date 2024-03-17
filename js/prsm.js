@@ -1157,6 +1157,7 @@ function draw() {
 						}'`
 					)
 				})
+				network.unselectAll()
 				item.nodes.forEach((nodeId) => {
 					logHistory(`deleted factor: '${data.nodes.get(nodeId).label}'`)
 				})
