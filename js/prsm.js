@@ -2138,7 +2138,7 @@ function editNode(item, point, cancelAction, callback) {
 			<div>
 				<select name="nodeEditFontSize" id="nodeEditFontSize">
 					<option value="14">Size...</option>
-					<option value="18">Large</option>
+					<option value="24">Large</option>
 					<option value="14">Normal</option>
 					<option value="10">Small</option>
 				</select>
@@ -2297,7 +2297,7 @@ function editEdge(item, point, cancelAction, callback) {
 		</div>
 		<div>
 			<select id="linkEditFontSize">
-				<option value="18">Large</option>
+				<option value="24">Large</option>
 				<option value="14">Normal</option>
 				<option value="10">Small</option>
 			</select>
