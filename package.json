@@ -62,7 +62,7 @@
 		"vis-util": "^5.0.3",
 		"xlsx": "https://cdn.sheetjs.com/xlsx-0.20.0/xlsx-0.20.0.tgz",
 		"y-indexeddb": "^9.0.9",
-		"y-websocket": "^1.4.6",
+		"y-websocket": "^2.0.0",
 		"yjs": "^13.5.47"
 	},
 	"devDependencies": {
