@@ -945,8 +945,8 @@ function convertNode(node) {
 	n.leverage = n.indegree == 0 ? '--' : (n.outdegree / n.indegree).toPrecision(3)
 	if (n.bc == undefined) n.bc = '--'
 	else n.bc = parseFloat(n.bc).toPrecision(3)
-	n.thumbUp = n.thumbUp.length
-	n.thumbDown = n.thumbDown.length
+	n.thumbUp = Array.isArray(n.thumbUp) ? n.thumbUp.length : 0
+	n.thumbDown = Array.isArray(n.thumbDown) ? n.thumbDown.length : 0
 
 	return n
 }
