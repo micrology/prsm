@@ -45,6 +45,11 @@ import {
 	refreshSampleLinks,
 	setMapTitle,
 	setSideDrawer,
+	doSnapToGrid,
+	setCurve,
+	setBackground,
+	setLegend,
+	sizing,
 	recreateClusteringMenu,
 	markMapSaved,
 	fit,
@@ -286,6 +291,8 @@ function loadPRSMfile(str) {
 		yNetMap.set('mapDescription', json.description)
 		setSideDrawer(json.description)
 	}
+	// node sizing has to be done after nodes have been created
+	sizing(yNetMap.get('sizing'))
 }
 /**
  * parse and load a GraphViz (.DOT or .GV) file
@@ -797,7 +804,7 @@ function getButtonStatus() {
 	return {
 		snapToGrid: elem('snaptogridswitch').checked,
 		curve: elem('curveSelect').value,
-		background: elem('netBackColorWell').value,
+		background: elem('netBackColorWell').style.backgroundColor,
 		legend: elem('showLegendSwitch').checked,
 		sizing: elem('sizing').value,
 	}
@@ -808,10 +815,15 @@ function getButtonStatus() {
  */
 function setButtonStatus(settings) {
 	yNetMap.set('snapToGrid', settings.snapToGrid)
+	doSnapToGrid(settings.snapToGrid)
 	yNetMap.set('curve', settings.curve)
+	setCurve(settings.curve)
 	yNetMap.set('background', settings.background || '#ffffff')
+	setBackground(yNetMap.get('background'))
 	yNetMap.set('legend', settings.legend)
+	setLegend(settings.legend)
 	yNetMap.set('sizing', settings.sizing)
+	sizing(settings.sizing)
 	yNetMap.set('radius', {radiusSetting: 'All', selected: []})
 	yNetMap.set('stream', {streamSetting: 'All', selected: []})
 	yNetMap.set('paths', {pathsSetting: 'All', selected: []})

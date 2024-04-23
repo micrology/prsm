@@ -3625,7 +3625,7 @@ function snapToGridSwitch(e) {
 	yNetMap.set('snapToGrid', snapToGridToggle)
 }
 
-function doSnapToGrid(toggle) {
+export function doSnapToGrid(toggle) {
 	elem('snaptogridswitch').checked = toggle
 	if (toggle) {
 		data.nodes.update(
@@ -3643,7 +3643,7 @@ function selectCurve(e) {
 	yNetMap.set('curve', option)
 }
 
-function setCurve(option) {
+export function setCurve(option) {
 	elem('curveSelect').value = option
 	network.setOptions({
 		edges: {
@@ -3673,7 +3673,7 @@ function makeSolid(el) {
 		.backgroundColor.replace(`, ${backgroundOpacity})`, ')')
 		.replace('rgba', 'rgb')
 }
-function setBackground(color) {
+export function setBackground(color) {
 	elem('underlay').style.backgroundColor = color
 	if (elem('toolbox').style.display === 'block') makeTranslucent(elem('underlay'))
 	elem('netBackColorWell').style.backgroundColor = color
@@ -3769,7 +3769,7 @@ function legendSwitch(e) {
 	setLegend(on, true)
 	yNetMap.set('legend', on)
 }
-function setLegend(on, warn) {
+export function setLegend(on, warn) {
 	elem('showLegendSwitch').checked = on
 	if (on) legend(warn)
 	else clearLegend()
@@ -4215,7 +4215,7 @@ const MIN_WIDTH = 50
 const EQUAL_WIDTH = 100
 const MAX_WIDTH = 200
 
-function sizing(metric) {
+export function sizing(metric) {
 	let nodesToUpdate = []
 	let min = Number.MAX_VALUE
 	let max = 0
