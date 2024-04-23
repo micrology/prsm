@@ -29,10 +29,10 @@ This is the main entry point for PRSM.
 ********************************************************************************************/
 
 import * as Y from 'yjs'
-import { WebsocketProvider } from 'y-websocket'
-import { IndexeddbPersistence } from 'y-indexeddb'
-import { Network } from 'vis-network/peer'
-import { DataSet } from 'vis-data/peer'
+import {WebsocketProvider} from 'y-websocket'
+import {IndexeddbPersistence} from 'y-indexeddb'
+import {Network} from 'vis-network/peer'
+import {DataSet} from 'vis-data/peer'
 import diff from 'microdiff'
 import {
 	listen,
@@ -76,14 +76,14 @@ import {
 	readSingleFile,
 } from './files.js'
 import Tutorial from './tutorial.js'
-import { styles } from './samples.js'
-import { trophic } from './trophic.js'
-import { cluster, openCluster } from './cluster.js'
-import { mergeRoom, diffRoom } from './merge.js'
-import { Picker } from 'emoji-picker-element'
+import {styles} from './samples.js'
+import {trophic} from './trophic.js'
+import {cluster, openCluster} from './cluster.js'
+import {mergeRoom, diffRoom} from './merge.js'
+import {Picker} from 'emoji-picker-element'
 import Quill from 'quill'
 import Hammer from '@egjs/hammerjs'
-import { setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend } from './styles.js'
+import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend} from './styles.js'
 import {
 	nChanges,
 	setUpBackground,
@@ -98,8 +98,8 @@ import {
 	upgradeFromV1,
 	updateFromDrawingMap,
 } from './background.js'
-import { version } from '../package.json'
-import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
+import {version} from '../package.json'
+import {compressToUTF16, decompressFromUTF16} from 'lz-string'
 
 const appName = 'Participatory System Mapper'
 const shortAppName = 'PRSM'
@@ -202,7 +202,7 @@ window.addEventListener('load', () => {
 
 window.onbeforeunload = function (event) {
 	unlockAll()
-	yAwareness.setLocalStateField('addingFactor', { state: 'done' })
+	yAwareness.setLocalStateField('addingFactor', {state: 'done'})
 	yAwareness.setLocalState(null)
 	// get confirmation from user before exiting if there are unsaved changes
 	if (checkMapSaved && dirty) {
@@ -337,7 +337,7 @@ function setUpPage() {
 	container.panelHidden = true
 	cp.createColorPicker('netBackColorWell', updateNetBack)
 	hammer = new Hammer(netPane)
-	hammer.get('pinch').set({ enable: true })
+	hammer.get('pinch').set({enable: true})
 	hammer.on('pinchstart', () => {
 		zoomstart()
 	})
@@ -372,8 +372,7 @@ function displayWhatsNew() {
 	if (seen) {
 		let seenDecoded = seen.match(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)/)
 		// if this is a new minor version, show the What's New dialog
-		if ((seenDecoded && versionDecoded[1] === seenDecoded[1] && versionDecoded[2] === seenDecoded[2])
-		) return
+		if (seenDecoded && versionDecoded[1] === seenDecoded[1] && versionDecoded[2] === seenDecoded[2]) return
 	}
 	elem('whatsnewversion').innerHTML = `Version ${version}`
 	elem('whatsnew').style.display = 'flex'
@@ -945,7 +944,7 @@ function cancelViewOnly() {
 	yNetMap.set('viewOnly', false)
 	showNavButtons()
 	data.nodes.get().forEach((obj) => (obj.fixed = false))
-	network.setOptions({ interaction: { dragNodes: true, hover: true } })
+	network.setOptions({interaction: {dragNodes: true, hover: true}})
 }
 window.cancelViewOnly = cancelViewOnly
 /**
@@ -983,7 +982,7 @@ function setUpChat() {
 	myNameRec.id = clientID
 	console.log(`My name: ${myNameRec.name}`)
 	displayUserName()
-	yAwareness.setLocalState({ user: myNameRec })
+	yAwareness.setLocalState({user: myNameRec})
 	yChatArray.observe(() => {
 		displayLastMsg()
 	})
@@ -1013,7 +1012,7 @@ function saveUserName(name) {
 	}
 	myNameRec.id = clientID
 	localStorage.setItem('myName', JSON.stringify(myNameRec))
-	yAwareness.setLocalState({ user: myNameRec })
+	yAwareness.setLocalState({user: myNameRec})
 	showAvatars()
 }
 /**
@@ -1097,13 +1096,13 @@ function draw() {
 				// revert to using the original node properties before continuing.
 				item = data.nodes.get(item.id)
 				item.modified = timestamp()
-				let point = network.canvasToDOM({ x: item.x, y: item.y })
+				let point = network.canvasToDOM({x: item.x, y: item.y})
 				editNode(item, point, cancelEdit, callback)
 			},
 			addEdge: function (item, callback) {
 				inAddMode = false
 				network.setOptions({
-					interaction: { dragView: true, selectable: true },
+					interaction: {dragView: true, selectable: true},
 				})
 				showPressed('addLink', 'remove')
 				if (item.from === item.to) {
@@ -1164,7 +1163,8 @@ function draw() {
 				})
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
+						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
+							data.nodes.get(data.edges.get(edgeId).to).label
 						}'`
 					)
 				})
@@ -1177,7 +1177,8 @@ function draw() {
 			deleteEdge: function (item, callback) {
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
+						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
+							data.nodes.get(data.edges.get(edgeId).to).label
 						}'`
 					)
 				})
@@ -1226,7 +1227,7 @@ function draw() {
 			// if the Option/ALT key is down, add a node if on the background
 			if (params.nodes.length === 0 && params.edges.length === 0) {
 				let pos = params.pointer.canvas
-				let item = { id: uuidv4(), label: '', x: pos.x, y: pos.y }
+				let item = {id: uuidv4(), label: '', x: pos.x, y: pos.y}
 				item = deepMerge(item, styles.nodes[lastNodeSample])
 				item.grp = lastNodeSample
 				addLabel(item, clearPopUp, function (newItem) {
@@ -1376,9 +1377,9 @@ function draw() {
 		let e = params.event.pointers[0]
 		// start drawing a selection rectangle if the CTRL key is down and click is on the background
 		if (e.ctrlKey && params.nodes.length === 0 && params.edges.length === 0) {
-			network.setOptions({ interaction: { dragView: false } })
+			network.setOptions({interaction: {dragView: false}})
 			listen('net-pane', 'mousemove', showAreaSelection)
-			selectionStart = { x: e.offsetX, y: e.offsetY }
+			selectionStart = {x: e.offsetX, y: e.offsetY}
 			selectionCanvasStart = params.pointer.canvas
 			selectionArea.style.left = `${e.offsetX}px`
 			selectionArea.style.top = `${e.offsetY}px`
@@ -1395,7 +1396,7 @@ function draw() {
 				showPressed('addLink', 'add')
 				statusMsg('Now drag to the middle of the Destination factor')
 				network.setOptions({
-					interaction: { dragView: false, selectable: false },
+					interaction: {dragView: false, selectable: false},
 				})
 				network.addEdgeMode()
 				return
@@ -1410,10 +1411,12 @@ function draw() {
 	function showAreaSelection(event) {
 		selectionArea.style.left = `${Math.min(selectionStart.x, event.offsetX)}px`
 		selectionArea.style.top = `${Math.min(selectionStart.y, event.offsetY)}px`
-		selectionArea.style.width = `${Math.max(selectionStart.x, event.offsetX) - Math.min(selectionStart.x, event.offsetX)
-			}px`
-		selectionArea.style.height = `${Math.max(selectionStart.y, event.offsetY) - Math.min(selectionStart.y, event.offsetY)
-			}px`
+		selectionArea.style.width = `${
+			Math.max(selectionStart.x, event.offsetX) - Math.min(selectionStart.x, event.offsetX)
+		}px`
+		selectionArea.style.height = `${
+			Math.max(selectionStart.y, event.offsetY) - Math.min(selectionStart.y, event.offsetY)
+		}px`
 	}
 	network.on('dragging', function () {
 		let endViewPosition = network.getViewPosition()
@@ -1426,7 +1429,7 @@ function draw() {
 		panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
 		if (selectionArea.style.display === 'block') {
 			selectionArea.style.display = 'none'
-			network.setOptions({ interaction: { dragView: true } })
+			network.setOptions({interaction: {dragView: true}})
 			elem('net-pane').removeEventListener('mousemove', showAreaSelection)
 		}
 		let e = params.event.pointers[0]
@@ -1525,7 +1528,7 @@ function draw() {
 		bigNetPane.style.height = `${netPane.offsetHeight * magnification}px`
 		netPane.appendChild(bigNetPane)
 		bigNetwork = new Network(bigNetPane, data, {
-			physics: { enabled: false },
+			physics: {enabled: false},
 		})
 		bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
 		bigNetwork.on('afterDrawing', () => {
@@ -1632,7 +1635,7 @@ function contextMenu(event) {
  * return an object with the current time as an integer date and the current user's name
  */
 export function timestamp() {
-	return { time: Date.now(), user: myNameRec.name }
+	return {time: Date.now(), user: myNameRec.name}
 }
 window.timestamp = timestamp
 /**
@@ -1684,17 +1687,17 @@ let toolbarOptions = [
 	['bold', 'italic', 'underline', 'strike'],
 	['blockquote', 'code-block'],
 
-	[{ list: 'ordered' }, { list: 'bullet' }],
-	[{ script: 'sub' }, { script: 'super' }],
-	[{ indent: '-1' }, { indent: '+1' }],
-	[{ align: [] }],
+	[{list: 'ordered'}, {list: 'bullet'}],
+	[{script: 'sub'}, {script: 'super'}],
+	[{indent: '-1'}, {indent: '+1'}],
+	[{align: []}],
 
 	['link', 'image'],
-	[{ size: ['small', false, 'large', 'huge'] }],
-	[{ header: [1, 2, 3, 4, 5, 6, false] }],
+	[{size: ['small', false, 'large', 'huge']}],
+	[{header: [1, 2, 3, 4, 5, 6, false]}],
 
-	[{ color: [] }, { background: [] }],
-	[{ font: [] }],
+	[{color: []}, {background: []}],
+	[{font: []}],
 
 	['clean'],
 ]
@@ -1708,7 +1711,7 @@ let drawerEditor = new Quill(elem('drawer-editor'), {
 
 drawerEditor.on('text-change', (delta, oldDelta, source) => {
 	if (source === 'user') {
-		yNetMap.set('mapDescription', { text: isQuillEmpty(drawerEditor) ? '' : drawerEditor.getContents() })
+		yNetMap.set('mapDescription', {text: isQuillEmpty(drawerEditor) ? '' : drawerEditor.getContents()})
 	}
 })
 export function setSideDrawer(contents) {
@@ -1883,7 +1886,7 @@ function copyToClipboard(event) {
 		if (!nodes.find((n) => n.id === edge.to)) nodes.push(data.nodes.get(edge.to))
 		if (!edges.find((e) => e.id === eId)) edges.push(data.edges.get(eId))
 	})
-	copyText(JSON.stringify({ nodes: nodes, edges: edges }))
+	copyText(JSON.stringify({nodes: nodes, edges: edges}))
 }
 /**
  * copy the contents of the history log to the clipboard
@@ -1925,7 +1928,7 @@ async function pasteFromClipboard() {
 	let nodes
 	let edges
 	try {
-		; ({ nodes, edges } = JSON.parse(clip))
+		;({nodes, edges} = JSON.parse(clip))
 	} catch (err) {
 		// silently return (i.e. use system paste) if there is nothing relevant on the clipboard
 		return
@@ -2023,7 +2026,7 @@ function clearPopUp() {
 		clearTimeout(elem('popup').timer)
 		elem('popup').timer = undefined
 	}
-	yAwareness.setLocalStateField('addingFactor', { state: 'done' })
+	yAwareness.setLocalStateField('addingFactor', {state: 'done'})
 	inEditMode = false
 }
 /**
@@ -2061,7 +2064,7 @@ function cancelEdit(item, callback) {
 function addLabel(item, cancelAction, callback) {
 	if (elem('popup').style.display === 'block') return // can't add factor when factor is already being added
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback)
-	let pos = network.canvasToDOM({ x: item.x, y: item.y })
+	let pos = network.canvasToDOM({x: item.x, y: item.y})
 	positionPopUp(pos)
 	removeFactorCursor()
 	ghostFactor(pos)
@@ -2079,7 +2082,7 @@ function ghostFactor(pos) {
 	})
 	elem('popup').timer = setTimeout(() => {
 		// close it after a time if the user has gone away
-		yAwareness.setLocalStateField('addingFactor', { state: 'done' })
+		yAwareness.setLocalStateField('addingFactor', {state: 'done'})
 	}, TIMETOEDIT)
 }
 /**
@@ -2536,7 +2539,7 @@ export function unSelect() {
 */
 // set  up a web worker to calculate network statistics in parallel with whatever
 // the user is doing
-var worker = new Worker(new URL('./betweenness.js', import.meta.url), { type: 'module' })
+var worker = new Worker(new URL('./betweenness.js', import.meta.url), {type: 'module'})
 /**
  * Ask the web worker to recalculate network statistics
  */
@@ -2640,7 +2643,7 @@ Network.prototype.zoom = function (scale) {
 export function fit() {
 	let prevPos = network.getViewPosition()
 	network.fit({
-		position: { x: 0, y: 0 }, // fit to centre of canvas
+		position: {x: 0, y: 0}, // fit to centre of canvas
 	})
 	let newPos = network.getViewPosition()
 	let newScale = network.getScale()
@@ -2704,7 +2707,7 @@ listen(
 		if (Math.abs(e.deltaX) <= 1) zoomscroll(e)
 	},
 	// must be passive, else pinch/zoom is intercepted by the browser itself
-	{ passive: false }
+	{passive: false}
 )
 /**
  * Zoom using a trackpad (with a mousewheel or two fingers)
@@ -2781,19 +2784,21 @@ function ghostCursor() {
 		const boxHalfWidth = box.offsetWidth / 2
 		const boxHalfHeight = box.offsetHeight / 2
 		let left = window.event.pageX - boxHalfWidth
-		box.style.left = `${left <= netPaneRect.left
+		box.style.left = `${
+			left <= netPaneRect.left
 				? netPaneRect.left
 				: left >= netPaneRect.right - box.offsetWidth
-					? netPaneRect.right - box.offsetWidth
-					: left
-			}px`
+				? netPaneRect.right - box.offsetWidth
+				: left
+		}px`
 		let top = window.event.pageY - boxHalfHeight
-		box.style.top = `${top <= netPaneRect.top
+		box.style.top = `${
+			top <= netPaneRect.top
 				? netPaneRect.top
 				: top >= netPaneRect.bottom - box.offsetHeight
-					? netPaneRect.bottom - box.offsetHeight
-					: top
-			}px`
+				? netPaneRect.bottom - box.offsetHeight
+				: top
+		}px`
 	}
 }
 /**
@@ -2839,7 +2844,7 @@ function plusLink() {
 			unSelect()
 			statusMsg('Now drag from the middle of the Source factor to the middle of the Destination factor')
 			network.setOptions({
-				interaction: { dragView: false, selectable: false },
+				interaction: {dragView: false, selectable: false},
 			})
 			network.addEdgeMode()
 	}
@@ -2851,7 +2856,7 @@ function stopEdit() {
 	inAddMode = false
 	network.disableEditMode()
 	network.setOptions({
-		interaction: { dragView: true, selectable: true },
+		interaction: {dragView: true, selectable: true},
 	})
 	clearStatusBar()
 	changeCursor('default')
@@ -3058,7 +3063,7 @@ function doSearch(event) {
 	let nodeId = event.target.dataset.id
 	if (nodeId) {
 		let prevPos = network.getViewPosition()
-		network.focus(nodeId, { scale: 1.5 })
+		network.focus(nodeId, {scale: 1.5})
 		let newPos = network.getViewPosition()
 		let newScale = network.getScale()
 		zoomCanvas(1.0)
@@ -3109,11 +3114,12 @@ function keepPaneInWindow(pane) {
 		pane.style.left = `${container.offsetLeft + container.offsetWidth - pane.offsetWidth}px`
 	}
 	if (pane.offsetTop + pane.offsetHeight > container.offsetTop + container.offsetHeight) {
-		pane.style.top = `${container.offsetTop +
+		pane.style.top = `${
+			container.offsetTop +
 			container.offsetHeight -
 			pane.offsetHeight -
 			document.querySelector('footer').offsetHeight
-			}px`
+		}px`
 	}
 }
 
@@ -3322,10 +3328,10 @@ function showNodeData(nodeId) {
 				'italic',
 				'underline',
 				'link',
-				{ list: 'ordered' },
-				{ list: 'bullet' },
-				{ indent: '-1' },
-				{ indent: '+1' },
+				{list: 'ordered'},
+				{list: 'bullet'},
+				{indent: '-1'},
+				{indent: '+1'},
 			],
 		},
 		placeholder: 'Notes',
@@ -3361,7 +3367,9 @@ function showEdgeData() {
 	let panel = elem('edgeDataPanel')
 	let edgeId = network.getSelectedEdges()[0]
 	let edge = data.edges.get(edgeId)
-	elem('edgeLabel').innerHTML = `Link from "${shorten(data.nodes.get(edge.from).label)}" to "${shorten(data.nodes.get(edge.to).label)}"`
+	elem('edgeLabel').innerHTML = `Link from "${shorten(data.nodes.get(edge.from).label)}" to "${shorten(
+		data.nodes.get(edge.to).label
+	)}"`
 	if (edge.created) {
 		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${edge.created.user}`
 		elem('edgeCreation').style.display = 'flex'
@@ -3377,10 +3385,10 @@ function showEdgeData() {
 				'italic',
 				'underline',
 				'link',
-				{ list: 'ordered' },
-				{ list: 'bullet' },
-				{ indent: '-1' },
-				{ indent: '+1' },
+				{list: 'ordered'},
+				{list: 'bullet'},
+				{indent: '-1'},
+				{indent: '+1'},
 			],
 		},
 		placeholder: 'Notes',
@@ -3460,7 +3468,7 @@ function autoLayout(e) {
 	doc.transact(() => {
 		switch (option) {
 			case 'off': {
-				network.setOptions({ physics: { enabled: false } })
+				network.setOptions({physics: {enabled: false}})
 				break
 			}
 			case 'trophic': {
@@ -3540,13 +3548,13 @@ function autoLayout(e) {
 				break
 			}
 			default: {
-				let options = { physics: { solver: option, stabilization: true } }
+				let options = {physics: {solver: option, stabilization: true}}
 				options.physics[option] = {}
 				options.physics[option].springLength = avEdgeLength()
 				network.setOptions(options)
 				// cancel the iterative algorithms as soon as they have stabilized
 				network.on('stabilized', () => {
-					network.setOptions({ physics: { enabled: false } })
+					network.setOptions({physics: {enabled: false}})
 					network.storePositions()
 					elem('layoutSelect').value = 'off'
 					data.nodes.update(data.nodes.get())
@@ -3727,7 +3735,7 @@ function ensureNotDrawing() {
 }
 
 function selectAllFactors() {
-	selectFactors(data.nodes.getIds({ filter: (n) => !n.nodeHidden }))
+	selectFactors(data.nodes.getIds({filter: (n) => !n.nodeHidden}))
 	showSelected()
 }
 
@@ -3737,7 +3745,7 @@ export function selectFactors(nodeIds) {
 }
 
 function selectAllLinks() {
-	selectLinks(data.edges.getIds({ filter: (e) => !e.edgeHidden }))
+	selectLinks(data.edges.getIds({filter: (e) => !e.edgeHidden}))
 	showSelected()
 }
 
@@ -3760,7 +3768,7 @@ function selectUsersItems(event) {
 		.get()
 		.filter((e) => e.created?.user === userName || e.modified?.user === userName)
 		.map((e) => e.id)
-	network.setSelection({ nodes: usersNodes, edges: userEdges })
+	network.setSelection({nodes: usersNodes, edges: userEdges})
 	showSelected()
 }
 
@@ -4132,7 +4140,7 @@ function analyse() {
 				if (!Array.isArray(paths) || paths.length === data.nodes.length + 1) paths = []
 				if (!all) {
 					for (let i = 0; i < paths.length - 1; i++) {
-						links.push({ from: paths[i], to: paths[i + 1] })
+						links.push({from: paths[i], to: paths[i + 1]})
 					}
 				}
 				return links
@@ -4161,12 +4169,12 @@ function analyse() {
 						connectedNodes.forEach((next) => {
 							let vis = visited.get(next)
 							if (vis === 'onpath') {
-								links.push({ from: source, to: next })
+								links.push({from: source, to: next})
 								path = path.concat([next])
 							} else if (!vis) {
 								let p = getPaths(next, dest)
 								if (Array.isArray(p) && p.length > 0) {
-									links.push({ from: source, to: next })
+									links.push({from: source, to: next})
 									visited.set(next, 'onpath')
 									path = path.concat(p)
 								}
@@ -4265,7 +4273,7 @@ export function sizing(metric) {
 				node.widthConstraint =
 					node.heightConstraint =
 					node.size =
-					MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
+						MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
 		}
 	})
 	data.nodes.update(nodesToUpdate)
@@ -4566,7 +4574,7 @@ function setUpAwareness() {
 
 	// regularly broadcast our own state, every 20 seconds
 	setInterval(() => {
-		yAwareness.setLocalStateField('pkt', { time: Date.now() })
+		yAwareness.setLocalStateField('pkt', {time: Date.now()})
 	}, 20000)
 
 	// if debug = fake, generate fake mouse events every 200 ms for testing
@@ -4639,7 +4647,7 @@ function roundTripTimer() {
 function asleep(isSleeping) {
 	if (myNameRec.asleep === isSleeping) return
 	myNameRec.asleep = isSleeping
-	yAwareness.setLocalState({ user: myNameRec })
+	yAwareness.setLocalState({user: myNameRec})
 	showAvatars()
 }
 /**
@@ -4759,7 +4767,8 @@ function showAvatars() {
 			if (circle.style.borderColor !== circleBorderColor) circle.style.borderColor = circleBorderColor
 			if (circle.innerText !== shortName) circle.innerText = shortName
 			let circleFontColor = circle.style.color
-			if (circleFontColor !== (nameRec.isLight ? 'black' : 'white')) circle.style.color = nameRec.isLight ? 'black' : 'white'
+			if (circleFontColor !== (nameRec.isLight ? 'black' : 'white'))
+				circle.style.color = nameRec.isLight ? 'black' : 'white'
 			let opacity = nameRec.asleep ? 0.2 : 1.0
 			if (circle.style.opacity !== opacity) circle.style.opacity = opacity
 		}
@@ -4890,7 +4899,7 @@ function followUser() {
 	if (!userRec) return
 	if (userRec.user.asleep) unFollow()
 	let userPosition = userRec.cursor
-	if (userPosition) network.moveTo({ position: userPosition })
+	if (userPosition) network.moveTo({position: userPosition})
 }
 /**
  * show a ghost box where another user is adding a factor

@@ -1039,7 +1039,7 @@ export function setFileName(extn = 'prsm') {
 /**
  * Save the map as CSV files, one for nodes and one for edges
  * Only node and edge labels and style ids are saved
- * 
+ *
  * Now obsolete, as the Excel file format is much more useful
  */
 /* export function exportCVS() {
@@ -1191,8 +1191,8 @@ export function exportExcel() {
 			.reduce((obj2, key) => ((obj2[key] = obj[key]), obj2), {})
 	}
 	/**
-	 * 
-	 * @param {object} ops 
+	 *
+	 * @param {object} ops
 	 * @returns contents of Quill note as plain text
 	 */
 	function quillToText(ops) {

@@ -107,8 +107,8 @@ export default class Tutorial {
 			if (this.step == 0) {
 				// initial splash screen for new users
 				dialog.classList.add('intro-splash')
-				let img = document.createElement('img');
-				img.src = new URL('../icons/PRSMlogo200.png?as=webp&width=80',import.meta.url)
+				let img = document.createElement('img')
+				img.src = new URL('../icons/PRSMlogo200.png?as=webp&width=80', import.meta.url)
 				document.getElementById('intro-logo').appendChild(img)
 			}
 		} else {

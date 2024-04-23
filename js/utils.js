@@ -367,7 +367,7 @@ export function dragElement(el, header) {
 	header.addEventListener('mouseout', () => (header.style.cursor = 'auto'))
 
 	let mc = new Hammer.Manager(header, {
-		recognizers: [[Hammer.Pan, { direction: Hammer.DIRECTION_ALL, threshold: 0 }]],
+		recognizers: [[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}]],
 	})
 	// tie in the handler that will be called
 	mc.on('pan', handleDrag)
@@ -427,7 +427,7 @@ export function addContextMenu(elem, menu) {
 	document.body.appendChild(menuEl)
 	elem.addEventListener('contextmenu', (event) => {
 		event.preventDefault()
-		const { clientX: mouseX, clientY: mouseY } = event
+		const {clientX: mouseX, clientY: mouseY} = event
 		let posX =
 			window.innerWidth - mouseX < menuEl.offsetWidth + 4 ? window.innerWidth - menuEl.offsetWidth - 4 : mouseX
 		let posY =
@@ -445,7 +445,7 @@ export function addContextMenu(elem, menu) {
 		menuEl.classList.remove('visible')
 	})
 	menu.forEach((item) => {
-		const { label, action } = item
+		const {label, action} = item
 		let option = document.createElement('div')
 		option.classList.add('item')
 		option.innerHTML = label
@@ -596,45 +596,45 @@ const ADJECTIVES = Object.freeze([
 ])
 
 let colors = [
-	"#00ffff",
-	"#f0ffff",
-	"#f5f5dc",
-	"#0000ff",
-	"#a52a2a",
-	"#00008b",
-	"#008b8b",
-	"#a9a9a9",
-	"#006400",
-	"#bdb76b",
-	"#8b008b",
-	"#556b2f",
-	"#ff8c00",
-	"#9932cc",
-	"#8b0000",
-	"#e9967a",
-	"#9400d3",
-	"#ff00ff",
-	"#ffd700",
-	"#008000",
-	"#4b0082",
-	"#f0e68c",
-	"#add8e6",
-	"#e0ffff",
-	"#90ee90",
-	"#d3d3d3",
-	"#ffb6c1",
-	"#ffffe0",
-	"#00ff00",
-	"#ff00ff",
-	"#800000",
-	"#000080",
-	"#808000",
-	"#ffa500",
-	"#ffc0cb",
-	"#800080",
-	"#ff0000",
-	"#c0c0c0",
-	"#ffff00"
+	'#00ffff',
+	'#f0ffff',
+	'#f5f5dc',
+	'#0000ff',
+	'#a52a2a',
+	'#00008b',
+	'#008b8b',
+	'#a9a9a9',
+	'#006400',
+	'#bdb76b',
+	'#8b008b',
+	'#556b2f',
+	'#ff8c00',
+	'#9932cc',
+	'#8b0000',
+	'#e9967a',
+	'#9400d3',
+	'#ff00ff',
+	'#ffd700',
+	'#008000',
+	'#4b0082',
+	'#f0e68c',
+	'#add8e6',
+	'#e0ffff',
+	'#90ee90',
+	'#d3d3d3',
+	'#ffb6c1',
+	'#ffffe0',
+	'#00ff00',
+	'#ff00ff',
+	'#800000',
+	'#000080',
+	'#808000',
+	'#ffa500',
+	'#ffc0cb',
+	'#800080',
+	'#ff0000',
+	'#c0c0c0',
+	'#ffff00',
 ]
 
 const random = (items) => items[(Math.random() * items.length) | 0]
@@ -648,17 +648,25 @@ const random = (items) => items[(Math.random() * items.length) | 0]
  * @param  {number}  differencePoint
  * @return {boolean}
  */
-const rgbIsLight = (r, g, b, differencePoint) => ((r * 299) + (g * 587) + (b * 114)) / 1000 >= differencePoint
+const rgbIsLight = (r, g, b, differencePoint) => (r * 299 + g * 587 + b * 114) / 1000 >= differencePoint
 
 /**
- * return a random colour, with a flag to show whether the color is light or dark, 
+ * return a random colour, with a flag to show whether the color is light or dark,
  *  to suggest whether text applied should be white or black
  * @returns {Object} {color: string, isLight: boolean}
  */
 function randomColour() {
 	const color = random(colors)
 	const rgb = color.replace('#', '')
-	return { color: color, isLight: rgbIsLight(parseInt(rgb.substring(0, 2), 16), parseInt(rgb.substring(2, 4), 16), parseInt(rgb.substring(4, 6), 16), 128) }
+	return {
+		color: color,
+		isLight: rgbIsLight(
+			parseInt(rgb.substring(0, 2), 16),
+			parseInt(rgb.substring(2, 4), 16),
+			parseInt(rgb.substring(4, 6), 16),
+			128
+		),
+	}
 }
 
 const capitalize = (string) => string[0].toUpperCase() + string.slice(1)
@@ -1070,7 +1078,7 @@ export function humanSize(bytes, si = true) {
 	let u,
 		b = bytes,
 		t = si ? 1000 : 1024
-		;['', si ? 'k' : 'K', ...'MGTPEZY'].find((x) => ((u = x), (b /= t), b ** 2 < 1))
+	;['', si ? 'k' : 'K', ...'MGTPEZY'].find((x) => ((u = x), (b /= t), b ** 2 < 1))
 	return `${u ? (t * b).toFixed(1) : bytes}${u}${!si && u ? 'i' : ''}B`
 }
 /**
