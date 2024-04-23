@@ -2,20 +2,20 @@
 
 PRSM Participatory System Mapper 
 
-    Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+	Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
 This module provides a set of utility functions used widely within the PRSM code.  
@@ -23,7 +23,7 @@ This module provides a set of utility functions used widely within the PRSM code
 
 import * as Hammer from '@egjs/hammerjs'
 import iro from '@jaames/iro'
-import uniqolor from 'uniqolor'
+
 /**
  * attach an event listener
  *
@@ -367,7 +367,7 @@ export function dragElement(el, header) {
 	header.addEventListener('mouseout', () => (header.style.cursor = 'auto'))
 
 	let mc = new Hammer.Manager(header, {
-		recognizers: [[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}]],
+		recognizers: [[Hammer.Pan, { direction: Hammer.DIRECTION_ALL, threshold: 0 }]],
 	})
 	// tie in the handler that will be called
 	mc.on('pan', handleDrag)
@@ -427,7 +427,7 @@ export function addContextMenu(elem, menu) {
 	document.body.appendChild(menuEl)
 	elem.addEventListener('contextmenu', (event) => {
 		event.preventDefault()
-		const {clientX: mouseX, clientY: mouseY} = event
+		const { clientX: mouseX, clientY: mouseY } = event
 		let posX =
 			window.innerWidth - mouseX < menuEl.offsetWidth + 4 ? window.innerWidth - menuEl.offsetWidth - 4 : mouseX
 		let posY =
@@ -445,7 +445,7 @@ export function addContextMenu(elem, menu) {
 		menuEl.classList.remove('visible')
 	})
 	menu.forEach((item) => {
-		const {label, action} = item
+		const { label, action } = item
 		let option = document.createElement('div')
 		option.classList.add('item')
 		option.innerHTML = label
@@ -595,9 +595,74 @@ const ADJECTIVES = Object.freeze([
 	'wild',
 ])
 
+let colors = [
+	"#00ffff",
+	"#f0ffff",
+	"#f5f5dc",
+	"#0000ff",
+	"#a52a2a",
+	"#00008b",
+	"#008b8b",
+	"#a9a9a9",
+	"#006400",
+	"#bdb76b",
+	"#8b008b",
+	"#556b2f",
+	"#ff8c00",
+	"#9932cc",
+	"#8b0000",
+	"#e9967a",
+	"#9400d3",
+	"#ff00ff",
+	"#ffd700",
+	"#008000",
+	"#4b0082",
+	"#f0e68c",
+	"#add8e6",
+	"#e0ffff",
+	"#90ee90",
+	"#d3d3d3",
+	"#ffb6c1",
+	"#ffffe0",
+	"#00ff00",
+	"#ff00ff",
+	"#800000",
+	"#000080",
+	"#808000",
+	"#ffa500",
+	"#ffc0cb",
+	"#800080",
+	"#ff0000",
+	"#c0c0c0",
+	"#ffff00"
+]
+
 const random = (items) => items[(Math.random() * items.length) | 0]
 
+/**
+ * Determine whether the RGB color is light or not
+ * http://www.w3.org/TR/AERT#color-contrast
+ * @param  {number}  r               Red
+ * @param  {number}  g               Green
+ * @param  {number}  b               Blue
+ * @param  {number}  differencePoint
+ * @return {boolean}
+ */
+const rgbIsLight = (r, g, b, differencePoint) => ((r * 299) + (g * 587) + (b * 114)) / 1000 >= differencePoint
+
+/**
+ * return a random colour, with a flag to show whether the color is light or dark, 
+ *  to suggest whether text applied should be white or black
+ * @returns {Object} {color: string, isLight: boolean}
+ */
+function randomColour() {
+	const color = random(colors)
+	const rgb = color.replace('#', '')
+	return { color: color, isLight: rgbIsLight(parseInt(rgb.substring(0, 2), 16), parseInt(rgb.substring(2, 4), 16), parseInt(rgb.substring(4, 6), 16), 128) }
+}
+
 const capitalize = (string) => string[0].toUpperCase() + string.slice(1)
+
 /**
  * return a random fancy name for an avatar, with a random colour
  */
@@ -605,12 +670,13 @@ export function generateName() {
 	let name = capitalize(random(ADJECTIVES)) + ' ' + capitalize(random(SEA_CREATURES))
 
 	return {
-		...uniqolor(name, {saturation: 95, lightness: 60}),
+		...randomColour(),
 		name: name,
 		anon: true,
 		asleep: false,
 	}
 }
+
 /*----------- Status messages ---------------------------------------
  */
 /**
@@ -1004,7 +1070,7 @@ export function humanSize(bytes, si = true) {
 	let u,
 		b = bytes,
 		t = si ? 1000 : 1024
-	;['', si ? 'k' : 'K', ...'MGTPEZY'].find((x) => ((u = x), (b /= t), b ** 2 < 1))
+		;['', si ? 'k' : 'K', ...'MGTPEZY'].find((x) => ((u = x), (b /= t), b ** 2 < 1))
 	return `${u ? (t * b).toFixed(1) : bytes}${u}${!si && u ? 'i' : ''}B`
 }
 /**

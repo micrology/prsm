@@ -4747,6 +4747,8 @@ function showAvatars() {
 			let circleBorderColor = nameRec.anon ? 'white' : 'black'
 			if (circle.style.borderColor !== circleBorderColor) circle.style.borderColor = circleBorderColor
 			if (circle.innerText !== shortName) circle.innerText = shortName
+			let circleFontColor = circle.style.color
+			if (circleFontColor !== (nameRec.isLight ? 'black' : 'white')) circle.style.color = nameRec.isLight ? 'black' : 'white'
 			let opacity = nameRec.asleep ? 0.2 : 1.0
 			if (circle.style.opacity !== opacity) circle.style.opacity = opacity
 		}
@@ -4798,6 +4800,7 @@ function showAvatars() {
 		circle.style.backgroundColor = nameRec.color
 		if (nameRec.anon) circle.style.borderColor = 'white'
 		circle.innerText = initials(nameRec.name)
+		circle.style.color = nameRec.isLight ? 'black' : 'white'
 		circle.style.opacity = nameRec.asleep ? 0.2 : 1.0
 		circle.dataset.client = nameRec.id
 		circle.dataset.userName = nameRec.name
