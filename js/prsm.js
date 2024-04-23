@@ -938,6 +938,17 @@ function showNavButtons() {
 	elem('maptitle').contentEditable = 'true'
 }
 /**
+ * cancel View Only mode (only available via the console)
+ */
+function cancelViewOnly() {
+	viewOnly = false
+	yNetMap.set('viewOnly', false)
+	showNavButtons()
+	data.nodes.get().forEach((obj) => (obj.fixed = false))
+	network.setOptions({ interaction: { dragNodes: true, hover: true } })
+}
+window.cancelViewOnly = cancelViewOnly
+/**
  * to handle iOS weirdness in fixing the vh unit (see https://css-tricks.com/the-trick-to-viewport-units-on-mobile/)
  */
 function setvh() {
