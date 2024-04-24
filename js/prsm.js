@@ -4848,6 +4848,7 @@ function showAvatars() {
 		cursorDiv.id = nameRec.id
 		cursorDiv.style.backgroundColor = nameRec.color
 		cursorDiv.innerText = initials(nameRec.name)
+		cursorDiv.style.color = nameRec.isLight ? 'black' : 'white'
 		cursorDiv.style.display = 'none' // hide it until we get coordinates at next mousemove
 		container.appendChild(cursorDiv)
 		return cursorDiv

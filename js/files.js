@@ -823,7 +823,7 @@ function setButtonStatus(settings) {
 	yNetMap.set('legend', settings.legend)
 	setLegend(settings.legend)
 	yNetMap.set('sizing', settings.sizing)
-	sizing(settings.sizing)
+	// sizing done after the nodes have been created: sizing(settings.sizing)
 	yNetMap.set('radius', {radiusSetting: 'All', selected: []})
 	yNetMap.set('stream', {streamSetting: 'All', selected: []})
 	yNetMap.set('paths', {pathsSetting: 'All', selected: []})
