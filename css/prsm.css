@@ -64,8 +64,6 @@ select {
 }
 #container {
 	position: relative;
-	/* 	height: 100vh;
- */
 	height: calc(var(--vh, 1vh) * 100);
 	overflow: hidden;
 	display: grid;
@@ -480,11 +478,12 @@ nav {
 	left: 0px;
 	top: 65px;
 	z-index: 2500;
+	max-height: calc(100% - 200px);
+	overflow-y: auto;
+	scrollbar-color: white black;
 }
 .room-title {
 	list-style-type: none;
-}
-.room-title-text {
 	font-size: 12px;
 	text-align: left;
 	overflow: hidden;
@@ -499,55 +498,6 @@ nav {
 }
 .room-title-text:hover {
 	background-color: var(--header-hover-color);
-}
-.room-title-tooltip {
-	position: relative;
-	border-bottom: 1px dotted rgb(102, 102, 102);
-	text-align: left;
-}
-.room-title-right {
-	min-width: 150px;
-	top: 50%;
-	left: 100%;
-	margin-left: 20px;
-	transform: translate(0, -50%);
-	padding: 10px 20px;
-	color: rgb(68, 68, 68);
-	background-color: #eeeeee;
-	font-weight: normal;
-	font-size: 13px;
-	border-radius: 8px;
-	position: absolute;
-	z-index: 99999999;
-	box-sizing: border-box;
-	box-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
-	visibility: hidden;
-	opacity: 0;
-	transition: opacity 0.8s;
-}
-.room-title-tooltip:hover .room-title-right {
-	visibility: visible;
-	opacity: 1;
-}
-.room-title-tooltip .room-title-right i {
-	position: absolute;
-	top: 50%;
-	right: 100%;
-	margin-top: -12px;
-	width: 12px;
-	height: 24px;
-	overflow: hidden;
-}
-.room-title-tooltip .room-title-right i::after {
-	content: '';
-	position: absolute;
-	width: 12px;
-	height: 12px;
-	left: 0;
-	top: 50%;
-	transform: translate(50%, -50%) rotate(-45deg);
-	background-color: rgb(238, 238, 238);
-	box-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
 
 .button-wrapper {
@@ -2103,6 +2053,9 @@ input#splashNameBox::placeholder {
 		font-size: 16px;
 		margin-top: 0;
 	}
+	.room-titles {
+		top: 110px;
+	}
 	.button-wrapper {
 		grid-column: 1;
 		grid-row: 2;
@@ -2148,6 +2101,9 @@ input#splashNameBox::placeholder {
 		font-size: 14px;
 		margin: 0 auto;
 		padding: 0;
+	}
+	.room-titles {
+		top: 110px;
 	}
 	.button-wrapper {
 		grid-column: 1;
