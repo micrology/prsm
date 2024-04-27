@@ -80,7 +80,6 @@ import { styles } from './samples.js'
 import { trophic } from './trophic.js'
 import { cluster, openCluster } from './cluster.js'
 import { mergeRoom, diffRoom } from './merge.js'
-import { Picker } from 'emoji-picker-element'
 import Quill from 'quill'
 import Hammer from '@egjs/hammerjs'
 import { setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend } from './styles.js'
@@ -143,7 +142,6 @@ export var yPointsArray // shared array of the background drawing commands
 export var yDrawingMap // shared map of background objects
 export var yUndoManager // shared list of commands for undo
 var dontUndo // when non-null, don't add an item to the undo stack
-var yChatArray // shared array of messages in the chat window
 var yAwareness // awareness channel
 export var yHistory // log of actions
 export var container //the DOM body element
@@ -191,7 +189,7 @@ window.addEventListener('load', () => {
 	setUpPage()
 	setUpBackground()
 	startY()
-	setUpChat()
+	setUpUserName()
 	setUpAwareness()
 	setUpShareDialog()
 	draw()
@@ -430,7 +428,6 @@ function startY(newRoom) {
 	yEdgesMap = doc.getMap('edges')
 	ySamplesMap = doc.getMap('samples')
 	yNetMap = doc.getMap('network')
-	yChatArray = doc.getArray('chat')
 	yPointsArray = doc.getArray('points')
 	yDrawingMap = doc.getMap('drawing')
 	yHistory = doc.getArray('history')
@@ -475,7 +472,6 @@ function startY(newRoom) {
 	window.ySamplesMap = ySamplesMap
 	window.yNetMap = yNetMap
 	window.yUndoManager = yUndoManager
-	window.yChatArray = yChatArray
 	window.yHistory = yHistory
 	window.yPointsArray = yPointsArray
 	window.yDrawingMap = yDrawingMap
@@ -906,7 +902,6 @@ setvh()
 window.onresize = function () {
 	setvh()
 	keepPaneInWindow(panel)
-	keepPaneInWindow(elem('chatbox-holder'))
 	resizeCanvas()
 }
 /**
@@ -958,63 +953,36 @@ function setvh() {
 	document.documentElement.style.setProperty('--vh', `${vh}px`)
 }
 
-const chatbox = elem('chatbox')
-const chatboxTab = elem('chatbox-tab')
-const chatNameBox = elem('chat-name')
-const chatInput = elem('chat-input')
-const chatSend = elem('send-button')
-const chatMessages = elem('chat-messages')
-
 /**
- * create DOM elements for the chat box
+ * retrieve or generate user's name
  */
-function setUpChat() {
+
+function setUpUserName() {
 	try {
 		myNameRec = JSON.parse(localStorage.getItem('myName'))
 	} catch (err) {
 		myNameRec = null
 	}
-	// sanity check
-	if (!myNameRec?.name) {
-		myNameRec = generateName()
-		localStorage.setItem('myName', JSON.stringify(myNameRec))
-	}
-	myNameRec.id = clientID
+	saveUserName(myNameRec?.name ? myNameRec.name : '')
 	console.log(`My name: ${myNameRec.name}`)
-	displayUserName()
-	yAwareness.setLocalState({ user: myNameRec })
-	yChatArray.observe(() => {
-		displayLastMsg()
-	})
-	chatboxTab.addEventListener('click', maximize)
-	listen('minimize', 'click', minimize)
-	chatNameBox.addEventListener('keyup', (e) => {
-		if (myNameRec.anon) chatNameBox.style.fontStyle = 'normal'
-		if (e.key === 'Enter') saveUserName(chatNameBox.value)
-	})
-	chatNameBox.addEventListener('blur', () => {
-		saveUserName(chatNameBox.value)
-	})
-	chatNameBox.addEventListener('click', () => {
-		if (myNameRec.anon) chatNameBox.value = ''
-		chatNameBox.focus()
-		chatNameBox.select()
-	})
-	chatSend.addEventListener('click', sendMsg)
 }
+/**
+ * Save a new user name into local storage
+ * @param {String} name 
+ */
 function saveUserName(name) {
 	if (name.length > 0) {
 		myNameRec.name = name
 		myNameRec.anon = false
 	} else {
 		myNameRec = generateName()
-		chatNameBox.value = myNameRec.name
 	}
 	myNameRec.id = clientID
 	localStorage.setItem('myName', JSON.stringify(myNameRec))
 	yAwareness.setLocalState({ user: myNameRec })
 	showAvatars()
 }
+
 /**
  * if this is the user's first time, show them how the user interface works
  */
@@ -1030,7 +998,6 @@ function setUpTutorial() {
 			splashNameBox.focus()
 			splashNameBox.addEventListener('blur', () => {
 				saveUserName(splashNameBox.value || anonName)
-				displayUserName()
 			})
 			splashNameBox.addEventListener('keyup', (e) => {
 				if (e.key === 'Enter') splashNameBox.blur()
@@ -3685,7 +3652,6 @@ function toggleDrawingLayer() {
 		elem('underlay').style.zIndex = 0
 		makeSolid(ul)
 		document.querySelector('.upper-canvas').style.zIndex = 0
-		elem('chatbox-tab').classList.remove('chatbox-hide')
 		inAddMode = false
 		elem('buttons').style.visibility = 'visible'
 		setButtonDisabledStatus('addNode', false)
@@ -3702,8 +3668,6 @@ function toggleDrawingLayer() {
 		document.querySelector('.upper-canvas').style.zIndex = 1001
 		// make the underlay (which is now overlay) translucent
 		makeTranslucent(ul)
-		minimize()
-		elem('chatbox-tab').classList.add('chatbox-hide')
 		clearLegend()
 		inAddMode = 'disabled'
 		elem('buttons').style.visibility = 'hidden'
@@ -4329,125 +4293,6 @@ export function recreateClusteringMenu(obj) {
 		}
 	}
 }
-/*****************************************************************chat window ******************************************************************/
-
-var emojiPicker = null
-
-function minimize() {
-	if (emojiPicker) chatbox.removeChild(emojiPicker)
-	chatbox.classList.add('chatbox-hide')
-	chatboxTab.classList.remove('chatbox-hide')
-	chatboxTab.classList.remove('chatbox-blink')
-}
-
-function maximize() {
-	chatboxTab.classList.add('chatbox-hide')
-	chatboxTab.classList.remove('chatbox-blink')
-	chatbox.classList.remove('chatbox-hide')
-	const emojiButton = document.querySelector('#emoji-button')
-	emojiButton.addEventListener('click', () => {
-		if (emojiPicker) {
-			chatbox.removeChild(emojiPicker)
-			emojiPicker = null
-		} else {
-			emojiPicker = new Picker()
-			chatbox.appendChild(emojiPicker)
-			emojiPicker.addEventListener('emoji-click', (event) => {
-				document.querySelector('#chat-input').value += event.detail.unicode
-			})
-		}
-	})
-	displayUserName()
-	displayAllMsgs()
-}
-
-function blinkChatboxTab() {
-	if (yChatArray.length > 0) chatboxTab.classList.add('chatbox-blink')
-}
-
-function sendMsg() {
-	let inputMsg = chatInput.value.replace(/\n/g, '</br>')
-	yChatArray.push([
-		{
-			client: clientID,
-			author: myNameRec.name,
-			recipient: elem('chat-users').value,
-			time: Date.now(),
-			msg: inputMsg,
-		},
-	])
-	chatInput.value = ''
-}
-
-function displayLastMsg() {
-	displayMsg(yChatArray.get(yChatArray.length - 1))
-}
-
-function displayAllMsgs() {
-	chatMessages.innerHTML = ''
-	for (let m = 0; m < yChatArray.length; m++) {
-		displayMsg(yChatArray.get(m))
-	}
-	chatMessages.scrollTop = chatMessages.scrollHeight
-}
-
-function displayMsg(msg) {
-	if (msg === undefined) return
-	let clock = Number.isInteger(msg.time) ? timeAndDate(msg.time) : ''
-	if (msg.client === clientID) {
-		// my own message
-		chatMessages.innerHTML += `<div class="message-box-holder">
-			<div class="message-header">
-				<span class="message-time">${clock}</span>
-			</div>
-			<div class="message-box">
-				${msg.msg}
-			</div>
-		</div>`
-	} else {
-		// show only messages with no recipient (as from an old version), everyone or me
-		if (
-			msg.recipient === undefined ||
-			msg.recipient === '' ||
-			msg.recipient === myNameRec.name.replace(/\s+/g, '').toLowerCase()
-		) {
-			blinkChatboxTab()
-			chatMessages.innerHTML += `<div class="message-box-holder">
-			<div class="message-header">
-				<span class="message-author">${msg.author}</span><span class="message-time">${clock}</span> 
-			</div>
-			<div class="message-box message-received">
-				${msg.msg}
-			</div>
-		</div>`
-		}
-	}
-	chatMessages.scrollTop = chatMessages.scrollHeight
-}
-
-function displayUserName() {
-	chatNameBox.style.fontStyle = myNameRec.anon ? 'italic' : 'normal'
-	chatNameBox.value = myNameRec.name
-}
-
-/**
- * Create a set of options for the select menu of the currently online users
- * @param {Array} names - array of name records from yAwareness (see showAvatars)
- */
-// cache menu to avoid expensive DOM operations
-let oldUserNames = []
-function populateChatUserMenu(names) {
-	let userNames = names.map((nRec) => nRec.name)
-	if (object_equals(oldUserNames, userNames)) return
-	oldUserNames = userNames
-	let options = '<option value="">Everyone</option>'
-	userNames.forEach((name) => {
-		options += `<option value=${name.replace(/\s+/g, '').toLowerCase()}>${name}</option>`
-	})
-	elem('chat-users').innerHTML = options
-}
-
-dragElement(elem('chatbox-holder'), elem('chatbox-top'))
 
 /* ---------------------------------------history window --------------------------------*/
 /**
@@ -4731,8 +4576,6 @@ function showAvatars() {
 		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates, by name
 		.sort((a, b) => (a.name.charAt(0).toUpperCase() > b.name.charAt(0).toUpperCase() ? 1 : -1)) // sort names
 
-	populateChatUserMenu(Array.from(nameRecs))
-
 	if (me.length === 0) return // app is unloading
 	nameRecs.unshift(me[0][1].user) // push myself on to the front
 
@@ -4799,7 +4642,7 @@ function showAvatars() {
 		if (followme === nameRec.id) ava.classList.add('followme')
 		ava.id = `ava${nameRec.id}`
 		ava.dataset.tooltip = nameRec.name
-		// the broadcast awareness sometimes loses a client (broadcasts that has been removed)
+		// the broadcast awareness sometimes loses a client (i.e. broadcasts that it has been removed)
 		// when it actually hasn't (e.g. if there is a comms glitch).  So instead, we set a timer
 		// and delete the avatar only if nothing is heard from that user for a minute
 		ava.timer = setTimeout(removeAvatar, 60000, ava)
@@ -4814,13 +4657,13 @@ function showAvatars() {
 		circle.dataset.userName = nameRec.name
 		ava.appendChild(circle)
 		avatars.appendChild(ava)
-		circle.addEventListener('click', follow)
+		circle.addEventListener('click', nameRec.id === clientID ? renameUser : follow)
 		circle.addEventListener('contextmenu', selectUsersItems)
 		circle.addEventListener('mouseover', () =>
 			statusMsg(
 				nameRec.id === clientID
-					? 'Right click to select all your edits'
-					: `Click to follow this person; right click to select all this person's edits`
+					? 'Click to change your name. Right click to select all your edits'
+					: `Click to follow this person. Right click to select all this person's edits`
 			)
 		)
 		circle.addEventListener('mouseout', () => clearStatusBar())
@@ -4889,6 +4732,18 @@ function followUser() {
 	if (userRec.user.asleep) unFollow()
 	let userPosition = userRec.cursor
 	if (userPosition) network.moveTo({ position: userPosition })
+}
+/**
+ * User has clicked on their own avatar.  Prompt them to change their own name.
+ */
+function renameUser() {
+	let newName = prompt('Enter your new name', myNameRec.name)
+	if (newName) {
+		myNameRec.name = newName
+		myNameRec.anon = false
+		yAwareness.setLocalState({ user: myNameRec })
+		showAvatars()
+	}
 }
 /**
  * show a ghost box where another user is adding a factor
