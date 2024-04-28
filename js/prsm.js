@@ -872,6 +872,7 @@ function displayNetPane(msg) {
 		undoRedoButtonStatus()
 		setUpTutorial()
 		netLoaded = true
+		drawMiniMap()
 		savedState = saveState()
 		setAnalysisButtonsFromRemote()
 		toggleDeleteButton()
@@ -1558,7 +1559,99 @@ export function setCanvasBackground(canvas) {
 	context.fillRect(0, 0, canvas.width, canvas.height)
 	return canvas
 }
+/* --------------------------------------------draw and update the minimap --------------------------------------------*/
+function drawMiniMap() {
+	const ratio = 5; // Ratio is difference between original VisJS Network and Minimap.
+	function drawMinimapWrapper() {
+		const {
+			clientWidth,
+			clientHeight
+		} = network.body.container;
+		const minimapWrapper = document.getElementById('minimapWrapper');
+		const width = Math.round(clientWidth / ratio);
+		const height = Math.round(clientHeight / ratio);
 
+		minimapWrapper.style.width = `${width}px`;
+		minimapWrapper.style.height = `${height}px`;
+	}
+	// Draw minimap Image
+	const drawMinimapImage = () => {
+		const originalCanvas = netPane.firstElementChild.firstElementChild
+		const minimapImage = document.getElementById('minimapImage')
+
+		const {
+			clientWidth,
+			clientHeight
+		} = network.body.container
+
+		const tempCanvas = document.createElement('canvas')
+		const tempContext = tempCanvas.getContext('2d')
+
+		const width = Math.round((tempCanvas.width = clientWidth / ratio))
+		const height = Math.round((tempCanvas.height = clientHeight / ratio))
+
+		if (tempContext) {
+			tempContext.drawImage(originalCanvas, 0, 0, width, height)
+			minimapImage.src = tempCanvas.toDataURL()
+			minimapImage.width = width
+			minimapImage.height = height
+		}
+	}
+
+	var targetScale;
+
+	// Draw minimap Radar
+	const drawRadar = () => {
+		const {
+			clientWidth,
+			clientHeight
+		} = network.body.container
+		const minimapRadar = document.getElementById('minimapRadar')
+		const scale = network.getScale()
+		const translate = network.getViewPosition()
+		minimapRadar.style.transform = `translate(${(translate.x / ratio) *
+			targetScale}px, ${(translate.y / ratio) * targetScale}px) scale(${targetScale / scale})`
+		minimapRadar.style.width = `${clientWidth / ratio}px`
+		minimapRadar.style.height = `${clientHeight / ratio}px`
+	}
+
+	network.on('afterDrawing', () => {
+		const {
+			clientWidth,
+			clientHeight
+		} = network.body.container;
+		const width = Math.round(clientWidth / ratio);
+		const height = Math.round(clientHeight / ratio);
+		const minimapImage = document.getElementById('minimapImage');
+		const minimapWrapper = document.getElementById('minimapWrapper');
+		// Initial render
+		if (!minimapImage.hasAttribute('src') || minimapImage.src === '') {
+			if (!minimapWrapper.style.width || !minimapWrapper.style.height) {
+				drawMinimapWrapper();
+			}
+			drawMinimapImage();
+			drawRadar();
+			targetScale = network.view.targetScale;
+		} else if (
+			minimapWrapper.style.width !== `${width}px` ||
+			minimapWrapper.style.height !== `${height}px`
+		) {
+			minimapImage.removeAttribute('src');
+			drawMinimapWrapper();
+			network.fit();
+		} else {
+			drawRadar();
+		}
+	})
+	const minimapWrapper = document.getElementById('minimapWrapper');
+	minimapWrapper.addEventListener('click', jumpto);
+	function jumpto(e) {
+		var rect = document.getElementById('minimapWrapper').getBoundingClientRect();
+		var x = (e.clientX - rect.left - rect.width / 2) * ratio / targetScale;
+		var y = (e.clientY - rect.top - rect.height / 2) * ratio / targetScale;
+		network.moveTo({ 'position': { 'x': x, 'y': y } });
+	}
+}
 /**
  * clear the map by destroying all nodes and edges
  */
@@ -2743,17 +2836,17 @@ function ghostCursor() {
 		const boxHalfHeight = box.offsetHeight / 2
 		let left = window.event.pageX - boxHalfWidth
 		box.style.left = `${left <= netPaneRect.left
-				? netPaneRect.left
-				: left >= netPaneRect.right - box.offsetWidth
-					? netPaneRect.right - box.offsetWidth
-					: left
+			? netPaneRect.left
+			: left >= netPaneRect.right - box.offsetWidth
+				? netPaneRect.right - box.offsetWidth
+				: left
 			}px`
 		let top = window.event.pageY - boxHalfHeight
 		box.style.top = `${top <= netPaneRect.top
-				? netPaneRect.top
-				: top >= netPaneRect.bottom - box.offsetHeight
-					? netPaneRect.bottom - box.offsetHeight
-					: top
+			? netPaneRect.top
+			: top >= netPaneRect.bottom - box.offsetHeight
+				? netPaneRect.bottom - box.offsetHeight
+				: top
 			}px`
 	}
 }

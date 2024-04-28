@@ -1153,194 +1153,23 @@ input:checked + .slider:before {
 	grid-column: 3/4;
 	justify-self: end;
 }
-
-/* chat window */
-/* based on https://codepen.io/kh-mamun/pen/jBgGwa */
-
-.chatbox-holder {
-	position: fixed;
-	right: 0;
-	bottom: 37px;
-	display: flex;
-	align-items: flex-end;
-	height: 0;
-	z-index: 40;
-}
-.chatbox {
-	width: 300px;
-	height: 330px;
-	margin-right: 5px;
-	position: relative;
-	display: flex;
-	flex-flow: column;
-	border-radius: 10px 10px 0 0;
-	background: white;
-	bottom: 0;
-}
-.chatbox-hide {
-	display: none;
-}
-.chatbox-top {
-	position: relative;
-	display: flex;
-	padding: 10px 0;
-	border-radius: 10px 10px 0 0;
-	background: var(--panel-color);
-}
-.chatbox-icons {
-	padding: 0 10px 0 0;
-	display: flex;
-	position: relative;
-}
-.chatbox-close {
-	background: var(--panel-color);
-	color: white;
-}
-.chatbox-close:hover {
-	color: var(--header-hover-color);
-}
-.chat-name {
-	flex: 1;
-	padding-left: 50px;
-	font-size: 12px;
-	color: white;
-}
-.chat-messages {
-	border: 1px solid rgb(0, 0, 0);
-	padding: 10px;
-	overflow: auto;
-	display: flex;
-	flex-flow: row wrap;
-	align-content: flex-start;
-	flex: 1;
-}
-.message-box-holder {
-	width: 100%;
-	display: flex;
-	flex-flow: column;
-	align-items: flex-end;
-	border-top: 1px solid rgb(211, 211, 211);
-}
-.message-header {
-	font-size: 12px;
-	font-weight: bold;
-	color: var(--chat-message-header-color);
-	width: 100%;
-}
-.message-author {
-	float: left;
-}
-.message-time {
-	float: right;
-}
-.message-box {
-	padding: 7px;
-	position: relative;
-	color: rgb(0, 0, 0);
-	font-size: 14px;
-}
-.message-received {
-	align-self: flex-start;
-}
-.chat-input-holder {
-	display: flex;
-	border-left: 1px solid rgb(0, 0, 0);
-	border-bottom: 1px solid rgb(0, 0, 0);
-	border-right: 1px solid rgb(0, 0, 0);
-}
-.chat-users-menu {
-	display: flex;
-	flex-flow: row nowrap;
-	justify-content: space-between;
-	border-left: 1px solid rgb(0, 0, 0);
-	border-right: 1px solid rgb(0, 0, 0);
-	font-size: 12px;
-	padding: 4px;
-}
-.chat-users {
-	outline: none;
-}
-.chat-input {
-	resize: none;
-	padding: 5px 10px;
-	height: 40px;
-	font-size: 16px;
-	font-family: Oxygen, sans-serif;
-	color: rgb(0, 0, 0);
-	flex: 1;
-	border: none;
-	background: white;
-	outline: none;
-}
-.message-send {
-	background: white;
-	color: var(--header-color);
-	font-size: 24px;
-	padding: 0 10px;
-	border: none;
-	border-radius: 10px;
+/* minimap */
+#minimapWrapper {
+	position: absolute;
+	bottom: 60px;
+	right: 10px;
 	margin: 5px;
-	outline: none;
+	border: 2px solid black;
+	overflow: hidden;
+	background-color: #fff;
+	z-index: 9;
 }
-.chatbox-tab {
-	background: var(--header-color);
-	border-radius: 10px 0 0 0;
-	font-size: 28px;
-	color: white;
-	padding: 8px;
-	position: fixed;
-	right: 0;
-	bottom: 36px;
-	z-index: 40;
-}
-.chatbox-blink {
-	animation-duration: 1s;
-	animation-name: blinking;
-	animation-iteration-count: infinite;
-	animation-direction: alternate;
-}
-@keyframes blinking {
-	from {
-		background: var(--header-color);
-	}
-	to {
-		background: var(--header-hover-color);
-	}
-}
-emoji-picker {
+#minimapImage {
 	position: absolute;
-	right: 320px;
-	bottom: 30px;
-	z-index: 1000;
-	--emoji-size: 1.25rem;
-	--num-columns: 8;
-	--emoji-padding: 2px;
-	--input-line-height: 1;
-	--input-font-size: 12px;
 }
-.emoji {
-	border: 0;
-	font-size: 18px;
-	background: white;
-	outline: none;
-}
-.emoji-icon {
-	font-size: larger;
-}
-.tooltiptext.emojitip {
-	margin-left: -130px;
-	top: 0;
-}
-/* History window */
-.history-window {
-	display: none;
+#minimapRadar {
 	position: absolute;
-	top: 110px;
-	left: calc(100% - 630px);
-	width: 400px;
-	z-index: 2200;
-	background-color: rgb(0, 0, 0);
-	border-radius: 4px;
+	background-color: rgba(16, 84, 154, 0.26);
 }
 .history-header {
 	background-color: rgb(0, 0, 0);
