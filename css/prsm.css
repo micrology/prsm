@@ -1156,20 +1156,35 @@ input:checked + .slider:before {
 /* minimap */
 #minimapWrapper {
 	position: absolute;
-	bottom: 60px;
-	right: 10px;
+	bottom: 12px;
+	right: 12px;
 	margin: 5px;
-	border: 2px solid black;
+	border: 1px solid grey;
+	border-radius: 4px;
 	overflow: hidden;
-	background-color: #fff;
+	background-color: white;
+	box-shadow: 2px 2px 4px 0px rgba(0,0,0,0.75);
 	z-index: 9;
+	user-select: none;
 }
 #minimapImage {
 	position: absolute;
 }
 #minimapRadar {
 	position: absolute;
-	background-color: rgba(16, 84, 154, 0.26);
+	background-color: transparent;
+	border: 1px solid black;
+}
+/* History window */
+.history-window {
+	display: none;
+	position: absolute;
+	top: 110px;
+	left: calc(100% - 630px);
+	width: 400px;
+	z-index: 2200;
+	background-color: rgb(0, 0, 0);
+	border-radius: 4px;
 }
 .history-header {
 	background-color: rgb(0, 0, 0);

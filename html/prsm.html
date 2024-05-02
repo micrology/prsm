@@ -6,24 +6,24 @@
 			name="Description"
 			content="PRSM enables groups of people, each using their own computer (or tablet) 
 		to collaborate in the drawing of a map. They may be sitting around a table, discussing the map as it is 
-		created face to face, or working remotely, using video conferencing or the chat feature that is built 
-		into the app. Everyone can participate because every edit (creating nodes and links, arranging them 
+		created face to face, or working remotely, using video conferencing and the app. 
+		Everyone can participate because every edit (creating nodes and links, arranging them 
 		and so on) is broadcast to all the other participants as the changes are made (just as Google Docs 
 		does for text, for example). When you start PRSM in your browser, a 'room' is created for you in which 
 		to draw your network. You can add other users to this room to share the work. Only those with access 
 		to the room can see what is being created."
-		/>
-		<meta charset="utf-8" />
+		>
+		<meta charset="utf-8" >
 		<meta
 			name="viewport"
 			content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
-		/>
-		<link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png" />
-		<link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png" />
-		<link rel="shortcut icon" href="../icons/favicon.ico" />
-		<link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" />
-		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		>
+		<link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png" >
+		<link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png" >
+		<link rel="shortcut icon" href="../icons/favicon.ico" >
+		<link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" >
+		<meta name="apple-mobile-web-app-capable" content="yes" >
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" >
 		<style>
 			@font-face {
 				font-family: 'Oxygen';
@@ -40,8 +40,8 @@
 				font-display: swap;
 			}
 		</style>
-		<link href="../node_modules/quill/dist/quill.snow.css" rel="stylesheet" />
-		<link href="../css/prsm.css" rel="stylesheet" />
+		<link href="../node_modules/quill/dist/quill.snow.css" rel="stylesheet" >
+		<link href="../css/prsm.css" rel="stylesheet" >
 		<script>
 			/*
 			 * reject Internet Explorer and any browser not able to understand ES6
@@ -416,7 +416,7 @@
 								<div class="button-text">Settings</div>
 								<span class="tooltiptext settingstip">
 									Show or hide
-									<br />
+									<br>
 									the settings panel
 								</span>
 							</div>
@@ -425,7 +425,7 @@
 				</nav>
 			</header>
 			<main id="main" tabindex="0">
-				<input class="search-bar" id="search-bar" placeholder="Search..." />
+				<input class="search-bar" id="search-bar" placeholder="Search...">
 				<span class="search-icon" style="display: none" id="search-icon">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -450,7 +450,7 @@
 					<div>
 						<div id="popup-label" contenteditable="true" spellcheck="true"></div>
 					</div>
-					<input type="button" value="save" id="popup-saveButton" />
+					<input type="button" value="save" id="popup-saveButton">
 				</div>
 				<div id="loading">
 					<div class="loader">
@@ -479,7 +479,7 @@
 				></div>
 				<!-- Mini map -->
 				<div id="minimapWrapper">
-					<img id="minimapImage"></img>
+					<img id="minimapImage" src="#" alt="Minimap">
 					<div id="minimapRadar"></div>
 				</div>
 				<!-- Map notes drawer -->
@@ -768,7 +768,7 @@
 							<div class="panelRow">
 								<div>Snap to grid</div>
 								<label for="snaptogridswitch">
-									<input type="checkbox" id="snaptogridswitch" />
+									<input type="checkbox" id="snaptogridswitch">
 								</label>
 							</div>
 							<div class="panelRow">
@@ -783,7 +783,7 @@
 							<div class="panelRow">
 								<div>Switch to drawing layer</div>
 								<label class="switch" for="drawing">
-									<input type="checkbox" id="drawing" />
+									<input type="checkbox" id="drawing">
 									<span class="slider rounded"></span>
 								</label>
 							</div>
@@ -808,31 +808,31 @@
 							<div class="panelRow">
 								<div>Show legend</div>
 								<label for="showLegendSwitch">
-									<input type="checkbox" id="showLegendSwitch" />
+									<input type="checkbox" id="showLegendSwitch">
 								</label>
 							</div>
 							<div class="panelRow">
 								<div>Show other users</div>
 								<label for="showUsersSwitch">
-									<input type="checkbox" id="showUsersSwitch" checked />
+									<input type="checkbox" id="showUsersSwitch" checked>
 								</label>
 							</div>
 							<div class="panelRow">
 								<div>Show history</div>
 								<label for="showHistorySwitch">
-									<input type="checkbox" id="showHistorySwitch" />
+									<input type="checkbox" id="showHistorySwitch">
 								</label>
 							</div>
 							<div class="panelRow">
 								<div>Show notes</div>
 								<label for="showNotesSwitch">
-									<input type="checkbox" id="showNotesSwitch" checked />
+									<input type="checkbox" id="showNotesSwitch" checked>
 								</label>
 							</div>
 							<div class="panelRow">
 								<div>Show reactions</div>
 								<label for="showVotingSwitch">
-									<input type="checkbox" id="showVotingSwitch" />
+									<input type="checkbox" id="showVotingSwitch">
 								</label>
 							</div>
 						</div>
@@ -844,43 +844,43 @@
 						<div class="networkGrid">
 							<div class="panelRow">
 								<label for="radiusAll">Show all</label>
-								<input type="radio" id="radiusAll" name="radius" value="All" checked />
+								<input type="radio" id="radiusAll" name="radius" value="All" checked>
 							</div>
 							<div class="panelRow">
 								<label for="oneLink">Show only Factors 1 link away</label>
-								<input type="radio" id="oneLink" name="radius" value="1" />
+								<input type="radio" id="oneLink" name="radius" value="1">
 							</div>
 							<div class="panelRow">
 								<label for="oneLink">Show only Factors 2 links away</label>
-								<input type="radio" id="twoLinks" name="radius" value="2" />
+								<input type="radio" id="twoLinks" name="radius" value="2">
 							</div>
 							<div class="panelRow">
 								<label for="threeLinks">Show only Factors 3 links away</label>
-								<input type="radio" id="threeLinks" name="radius" value="3" />
+								<input type="radio" id="threeLinks" name="radius" value="3">
 							</div>
 							<div class="panelRow divider">
 								<label for="streamAll">Show all</label>
-								<input type="radio" id="streamAll" name="stream" value="All" checked />
+								<input type="radio" id="streamAll" name="stream" value="All" checked>
 							</div>
 							<div class="panelRow">
 								<label for="upstream">Show only Factors upstream</label>
-								<input type="radio" id="upstream" name="stream" value="upstream" />
+								<input type="radio" id="upstream" name="stream" value="upstream">
 							</div>
 							<div class="panelRow">
 								<label for="downstream">Show only Factors downstream</label>
-								<input type="radio" id="downstream" name="stream" value="downstream" />
+								<input type="radio" id="downstream" name="stream" value="downstream">
 							</div>
 							<div class="panelRow divider">
 								<label for="pathsAll">Show all</label>
-								<input type="radio" id="pathsAll" name="paths" value="All" checked />
+								<input type="radio" id="pathsAll" name="paths" value="All" checked>
 							</div>
 							<div class="panelRow">
 								<label for="allPaths">Show all paths between</label>
-								<input type="radio" id="allPaths" name="paths" value="allPaths" />
+								<input type="radio" id="allPaths" name="paths" value="allPaths">
 							</div>
 							<div class="panelRow">
 								<label for="shortestPath">Show shortest path between</label>
-								<input type="radio" id="shortestPath" name="paths" value="shortestPath" />
+								<input type="radio" id="shortestPath" name="paths" value="shortestPath">
 							</div>
 							<div class="panelRow divider">
 								<div>Size Factors to:</div>
@@ -1026,7 +1026,7 @@
 			<div id="errMsg"></div>
 			<footer data-tutorial="Hints and messages appear here" data-step="9" data-position="above">
 				<div id="statusBar">
-					<br />
+					<br>
 				</div>
 				<div
 					id="zoomcontrol"
@@ -1036,7 +1036,7 @@
 				>
 					Zoom
 					<span id="zoomminus">&ndash;</span>
-					<input type="range" id="zoom" min="0.1" max="4" step="0.01" value="1" list="zoom-ticks" />
+					<input type="range" id="zoom" min="0.1" max="4" step="0.01" value="1" list="zoom-ticks">
 					<datalist id="zoom-ticks">
 						<option>1</option>
 						<option>2</option>
@@ -1052,7 +1052,7 @@
 					<div class="x-button" id="nodeStyleEditCancel">&times;</div>
 					<div class="title">
 						Name of style:
-						<input name="nodeStyleEditName" id="nodeStyleEditName" placeholder="Sample" />
+						<input name="nodeStyleEditName" id="nodeStyleEditName" placeholder="Sample">
 					</div>
 					<div>fill</div>
 					<div>border</div>
@@ -1126,11 +1126,11 @@
 						</span>
 						<label
 							>&nbsp;Size:
-							<input type="range" class="sizer xrange" id="nodeStyleEditFactorSize" />
+							<input type="range" class="sizer xrange" id="nodeStyleEditFactorSize">
 						</label>
 					</div>
 					<div class="submit">
-						<input type="button" value="save" id="nodeStyleEditSubmit" class="save-button" />
+						<input type="button" value="save" id="nodeStyleEditSubmit" class="save-button">
 					</div>
 				</div>
 			</div>
@@ -1141,7 +1141,7 @@
 					<div class="x-button" id="linkStyleEditCancel">&times;</div>
 					<div class="title">
 						Name of style:
-						<input name="linkStyleEditName" id="linkStyleEditName" placeholder="Sample" />
+						<input name="linkStyleEditName" id="linkStyleEditName" placeholder="Sample">
 					</div>
 					<div>colour</div>
 					<div></div>
@@ -1177,7 +1177,7 @@
 							<option value="none">None</option>
 						</select>
 					</div>
-					<input type="button" value="save" id="linkStyleEditSubmit" class="save-button submit" />
+					<input type="button" value="save" id="linkStyleEditSubmit" class="save-button submit">
 				</div>
 			</div>
 			<!-- Share model dialog -->
@@ -1232,7 +1232,7 @@
 				</div>
 			</div>
 			<!-- Open file dialog -->
-			<input type="file" id="fileInput" style="display: none" />
+			<input type="file" id="fileInput" style="display: none">
 			<!-- History window -->
 			<div class="history-window" id="history-window">
 				<div class="history-header" id="history-header">

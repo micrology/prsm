@@ -38,6 +38,7 @@ import {
 	lastLinkSample,
 	clearMap,
 	debug,
+	drawMinimap,
 	toggleDeleteButton,
 	undoRedoButtonStatus,
 	updateLastSamples,
@@ -187,6 +188,7 @@ function loadFile(contents) {
 	yUndoManager.clear()
 	undoRedoButtonStatus()
 	toggleDeleteButton()
+	drawMinimap()
 }
 /**
  * convert an ArrayBuffer to String

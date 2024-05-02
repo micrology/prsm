@@ -872,7 +872,7 @@ function displayNetPane(msg) {
 		undoRedoButtonStatus()
 		setUpTutorial()
 		netLoaded = true
-		drawMiniMap()
+		drawMinimap()
 		savedState = saveState()
 		setAnalysisButtonsFromRemote()
 		toggleDeleteButton()
@@ -1559,99 +1559,122 @@ export function setCanvasBackground(canvas) {
 	context.fillRect(0, 0, canvas.width, canvas.height)
 	return canvas
 }
+
 /* --------------------------------------------draw and update the minimap --------------------------------------------*/
-function drawMiniMap() {
-	const ratio = 5; // Ratio is difference between original VisJS Network and Minimap.
-	function drawMinimapWrapper() {
-		const {
-			clientWidth,
-			clientHeight
-		} = network.body.container;
-		const minimapWrapper = document.getElementById('minimapWrapper');
-		const width = Math.round(clientWidth / ratio);
-		const height = Math.round(clientHeight / ratio);
+/**
+ * Draw the minimap, which is a scaled down version of the network
+ * with a radar overlay showing the current view
+ * 
+ * @param {number} [ratio=5] - the ratio of the size of the minimap to the network
+ */
+export function drawMinimap(ratio = 5) {
+	const minimapWrapper = document.getElementById('minimapWrapper')// a div to contain the minimap
+	const minimapImage = document.getElementById('minimapImage')	// an img, child of minimapWrapper
+	const minimapRadar = document.getElementById('minimapRadar')	// a div, child of minimapWrapper
+	const { clientWidth, clientHeight } = network.body.container
+	// size the minimap
+	let minimapWidth = clientWidth / ratio
+	let minimapHeight = clientHeight / ratio
+	minimapWrapper.style.width = `${minimapWidth}px`
+	minimapWrapper.style.height = `${minimapHeight}px`
+	let fullNetPane, fullNetwork, initialScale, initialPosition
+	drawMinimapImage()
 
-		minimapWrapper.style.width = `${width}px`;
-		minimapWrapper.style.height = `${height}px`;
-	}
-	// Draw minimap Image
-	const drawMinimapImage = () => {
-		const originalCanvas = netPane.firstElementChild.firstElementChild
-		const minimapImage = document.getElementById('minimapImage')
+	/**
+	 * Draw minimap Image
+	 * Draw a copy of the full network offscreen, then create an image of it
+	 */
+	function drawMinimapImage() {
+		fullNetPane = document.createElement('div')
+		fullNetPane.style.position = 'absolute'
+		fullNetPane.style.top = '-9999px'
+		fullNetPane.style.left = '-9999px'
+		fullNetPane.style.width = `${netPane.offsetWidth}px`
+		fullNetPane.style.height = `${netPane.offsetHeight}px`
+		fullNetPane.id = 'fullNetPane'
+		netPane.appendChild(fullNetPane)
+		fullNetwork = new Network(fullNetPane, data, {
+			physics: { enabled: false },
+			edges: { smooth: elem('curveSelect').value === 'Curved' },
+		})
+		fullNetwork.fit()
+		initialScale = fullNetwork.getScale()
+		initialPosition = fullNetwork.getViewPosition()
 
-		const {
-			clientWidth,
-			clientHeight
-		} = network.body.container
-
-		const tempCanvas = document.createElement('canvas')
-		const tempContext = tempCanvas.getContext('2d')
-
-		const width = Math.round((tempCanvas.width = clientWidth / ratio))
-		const height = Math.round((tempCanvas.height = clientHeight / ratio))
-
-		if (tempContext) {
-			tempContext.drawImage(originalCanvas, 0, 0, width, height)
+		const fullNetworklCanvas = fullNetPane.firstElementChild.firstElementChild
+		fullNetwork.on('afterDrawing', () => {
+			// make the image as a reduced version of the fullNetwork
+			const tempCanvas = document.createElement('canvas')
+			const tempContext = tempCanvas.getContext('2d')
+			tempCanvas.width = minimapWidth
+			tempCanvas.height = minimapHeight
+			tempContext.drawImage(fullNetworklCanvas, 0, 0, minimapWidth, minimapHeight)
 			minimapImage.src = tempCanvas.toDataURL()
-			minimapImage.width = width
-			minimapImage.height = height
-		}
+			minimapImage.width = minimapWidth
+			minimapImage.height = minimapHeight
+			// it has done its work - destroy it
+			fullNetwork.destroy()
+			fullNetPane.remove()
+		})
 	}
-
-	var targetScale;
-
-	// Draw minimap Radar
-	const drawRadar = () => {
-		const {
-			clientWidth,
-			clientHeight
-		} = network.body.container
-		const minimapRadar = document.getElementById('minimapRadar')
-		const scale = network.getScale()
-		const translate = network.getViewPosition()
-		minimapRadar.style.transform = `translate(${(translate.x / ratio) *
-			targetScale}px, ${(translate.y / ratio) * targetScale}px) scale(${targetScale / scale})`
-		minimapRadar.style.width = `${clientWidth / ratio}px`
-		minimapRadar.style.height = `${clientHeight / ratio}px`
+	/**
+	 * 
+	 * Move a radar overlay on the minimap to show the current view
+	 * 
+	 */
+	function drawRadar() {
+		const scale = initialScale / network.getScale()
+		const position = network.canvasToDOM(network.getViewPosition())
+		const initialDOMPos = network.canvasToDOM(initialPosition)
+		minimapRadar.style.width = `${minimapWidth}px`
+		minimapRadar.style.height = `${minimapHeight}px`
+		minimapRadar.style.transform = `translate(${((position.x - initialDOMPos.x) * scale / ratio)}px, ${((position.y - initialDOMPos.y) * scale / ratio)}px) scale(${scale})`
 	}
-
-	network.on('afterDrawing', () => {
-		const {
-			clientWidth,
-			clientHeight
-		} = network.body.container;
-		const width = Math.round(clientWidth / ratio);
-		const height = Math.round(clientHeight / ratio);
-		const minimapImage = document.getElementById('minimapImage');
-		const minimapWrapper = document.getElementById('minimapWrapper');
-		// Initial render
-		if (!minimapImage.hasAttribute('src') || minimapImage.src === '') {
-			if (!minimapWrapper.style.width || !minimapWrapper.style.height) {
-				drawMinimapWrapper();
-			}
-			drawMinimapImage();
-			drawRadar();
-			targetScale = network.view.targetScale;
-		} else if (
-			minimapWrapper.style.width !== `${width}px` ||
-			minimapWrapper.style.height !== `${height}px`
-		) {
-			minimapImage.removeAttribute('src');
-			drawMinimapWrapper();
-			network.fit();
-		} else {
-			drawRadar();
-		}
+	/* Whenever there are visible changes to the network, the minimap image needs to be recreated.
+	 * This is done by listening for the 'click' event on the network, which is triggered
+	 * whenever a node or edge is moved or edited.  
+	 */
+	network.on('click', drawMinimapImage)
+	network.on('selectNode', drawMinimapImage)
+	network.on('selectEdge', drawMinimapImage)
+	network.on('controlNodeDragEnd', drawMinimapImage)
+	/**
+	 * Whenever the network is resized, the minimap needs to be resized and the radar overlay moved
+	 */
+	network.on('resize', () => {
+		const { clientWidth, clientHeight } = network.body.container
+		minimapWidth = Math.round(clientWidth / ratio)
+		minimapHeight = Math.round(clientHeight / ratio)
+		drawRadar()
 	})
-	const minimapWrapper = document.getElementById('minimapWrapper');
-	minimapWrapper.addEventListener('click', jumpto);
-	function jumpto(e) {
-		var rect = document.getElementById('minimapWrapper').getBoundingClientRect();
-		var x = (e.clientX - rect.left - rect.width / 2) * ratio / targetScale;
-		var y = (e.clientY - rect.top - rect.height / 2) * ratio / targetScale;
-		network.moveTo({ 'position': { 'x': x, 'y': y } });
+	/**
+	 * Whenever the network is panned or zoomed, the radar overlay needs to be moved
+	 */
+	network.on('afterDrawing', () => {
+		drawRadar()
+	})
+	/**
+	 * clicking on the map will move the network so that it is centred on the point corresponding to the 
+	 * location of the click
+	 * @param {Event} e 
+	 */
+	function minimapClick(e) {
+		e.preventDefault()
+		let originInDOM = network.canvasToDOM(initialPosition)
+		const scale = initialScale / network.getScale()
+		network.moveTo({
+			position: network.DOMtoCanvas({
+				x: (e.offsetX - minimapWrapper.offsetWidth / 2) * ratio / scale + originInDOM.x,
+				y: (e.offsetY - minimapWrapper.offsetHeight / 2) * ratio / scale + originInDOM.y
+			})
+		})
 	}
+	// listen for clicks on the minimap
+	minimapWrapper.addEventListener('click', (e) => {
+		minimapClick(e)
+	})
 }
+
 /**
  * clear the map by destroying all nodes and edges
  */
