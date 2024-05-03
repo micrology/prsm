@@ -121,6 +121,21 @@ export function openFile() {
 	elem('fileInput').click()
 }
 /**
+ * Allow user to open a file by dragging and dropping it over the PRSM window
+ */
+elem('container').addEventListener('drop', (e) => {
+	e.preventDefault()
+	let dt = e.dataTransfer
+	let files = dt.files
+	console.log(dt, files, files[0])
+	if (files.length > 0) {
+		readSingleFile({ target: { files: files } })
+	}
+})
+elem('container').addEventListener('dragover', (e) => {
+	e.preventDefault()
+})
+/**
  * determine what kind of file it is, parse it and replace any current map with the one read from the file
  * @param {string} contents - what is in the file
  */
@@ -1001,7 +1016,7 @@ export async function exportNotes() {
 		})
 	// add notes for links
 	data.edges.forEach((e) => {
-		let heading =  `Link from '${stripNL(data.nodes.get(e.from).label)}' to '${stripNL(data.nodes.get(e.to).label)}'`
+		let heading = `Link from '${stripNL(data.nodes.get(e.from).label)}' to '${stripNL(data.nodes.get(e.to).label)}'`
 		delta.ops = delta.ops.concat([{ insert: heading }, { attributes: { header: 2 }, insert: '\n' }])
 		delta.ops = delta.ops.concat((e.note ? e.note.ops : [{ insert: '[No note]\n' }]))
 	})
