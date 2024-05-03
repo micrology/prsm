@@ -1563,40 +1563,50 @@ export function setCanvasBackground(canvas) {
 /* --------------------------------------------draw and update the minimap --------------------------------------------*/
 /**
  * Draw the minimap, which is a scaled down version of the network
- * with a radar overlay showing the current view
+ * with a 'radar' overlay showing the current view
  * 
  * @param {number} [ratio=5] - the ratio of the size of the minimap to the network
  */
 export function drawMinimap(ratio = 5) {
+	let fullNetPane, fullNetwork, initialScale, initialPosition, minimapWidth, minimapHeight
 	const minimapWrapper = document.getElementById('minimapWrapper')// a div to contain the minimap
 	const minimapImage = document.getElementById('minimapImage')	// an img, child of minimapWrapper
 	const minimapRadar = document.getElementById('minimapRadar')	// a div, child of minimapWrapper
-	const { clientWidth, clientHeight } = network.body.container
 	// size the minimap
-	let minimapWidth = clientWidth / ratio
-	let minimapHeight = clientHeight / ratio
-	minimapWrapper.style.width = `${minimapWidth}px`
-	minimapWrapper.style.height = `${minimapHeight}px`
-	let fullNetPane, fullNetwork, initialScale, initialPosition
-	drawMinimapImage()
-
+	minimapSize()
 	/**
-	 * Draw minimap Image
+	 * Set the size of the minimap and its components
+	 */
+	function minimapSize() {
+		const { clientWidth, clientHeight } = network.body.container
+		minimapWidth = clientWidth / ratio
+		minimapHeight = clientHeight / ratio
+		minimapWrapper.style.width = `${minimapWidth}px`
+		minimapWrapper.style.height = `${minimapHeight}px`
+		drawMinimapImage()
+		drawRadar()
+	}
+	/**
 	 * Draw a copy of the full network offscreen, then create an image of it
+	 * The visible network can't be used, because it may be scaled and panned, but the minimap image needs to  
+	 * show the full network
 	 */
 	function drawMinimapImage() {
-		fullNetPane = document.createElement('div')
-		fullNetPane.style.position = 'absolute'
-		fullNetPane.style.top = '-9999px'
-		fullNetPane.style.left = '-9999px'
-		fullNetPane.style.width = `${netPane.offsetWidth}px`
-		fullNetPane.style.height = `${netPane.offsetHeight}px`
-		fullNetPane.id = 'fullNetPane'
-		netPane.appendChild(fullNetPane)
-		fullNetwork = new Network(fullNetPane, data, {
-			physics: { enabled: false },
-			edges: { smooth: elem('curveSelect').value === 'Curved' },
-		})
+		if (!elem('fullnetPane')) {
+			// if the full network does not exist, create it
+			fullNetPane = document.createElement('div')
+			fullNetPane.style.position = 'absolute'
+			fullNetPane.style.top = '-9999px'
+			fullNetPane.style.left = '-9999px'
+			fullNetPane.style.width = `${netPane.offsetWidth}px`
+			fullNetPane.style.height = `${netPane.offsetHeight}px`
+			fullNetPane.id = 'fullNetPane'
+			netPane.appendChild(fullNetPane)
+			fullNetwork = new Network(fullNetPane, data, {
+				physics: { enabled: false }
+			})
+		}
+		fullNetwork.setOptions({ edges: { smooth: elem('curveSelect').value === 'Curved' } })
 		fullNetwork.fit()
 		initialScale = fullNetwork.getScale()
 		initialPosition = fullNetwork.getViewPosition()
@@ -1612,69 +1622,50 @@ export function drawMinimap(ratio = 5) {
 			minimapImage.src = tempCanvas.toDataURL()
 			minimapImage.width = minimapWidth
 			minimapImage.height = minimapHeight
-			// it has done its work - destroy it
-			fullNetwork.destroy()
-			fullNetPane.remove()
 		})
 	}
 	/**
-	 * 
-	 * Move a radar overlay on the minimap to show the current view
-	 * 
+	 * Move a radar overlay on the minimap to show the current view of the network
 	 */
 	function drawRadar() {
 		const scale = initialScale / network.getScale()
-		const position = network.canvasToDOM(network.getViewPosition())
-		const initialDOMPos = network.canvasToDOM(initialPosition)
+		const currentDOMPosition = network.canvasToDOM(network.getViewPosition())
+		const initialDOMPosition = network.canvasToDOM(initialPosition)
 		minimapRadar.style.width = `${minimapWidth}px`
 		minimapRadar.style.height = `${minimapHeight}px`
-		minimapRadar.style.transform = `translate(${((position.x - initialDOMPos.x) * scale / ratio)}px, ${((position.y - initialDOMPos.y) * scale / ratio)}px) scale(${scale})`
+		minimapRadar.style.transform = `translate(${((currentDOMPosition.x - initialDOMPosition.x) * scale / ratio)}px, ${((currentDOMPosition.y - initialDOMPosition.y) * scale / ratio)}px) scale(${scale})`
 	}
-	/* Whenever there are visible changes to the network, the minimap image needs to be recreated.
-	 * This is done by listening for the 'click' event on the network, which is triggered
-	 * whenever a node or edge is moved or edited.  
-	 */
-	network.on('click', drawMinimapImage)
-	network.on('selectNode', drawMinimapImage)
-	network.on('selectEdge', drawMinimapImage)
-	network.on('controlNodeDragEnd', drawMinimapImage)
+
 	/**
 	 * Whenever the network is resized, the minimap needs to be resized and the radar overlay moved
 	 */
-	network.on('resize', () => {
-		const { clientWidth, clientHeight } = network.body.container
-		minimapWidth = Math.round(clientWidth / ratio)
-		minimapHeight = Math.round(clientHeight / ratio)
-		drawRadar()
-	})
+	network.on('resize', () => { minimapSize() })
 	/**
-	 * Whenever the network is panned or zoomed, the radar overlay needs to be moved
+	 * Whenever the network is changed, panned or zoomed, the radar overlay needs to be moved
 	 */
-	network.on('afterDrawing', () => {
-		drawRadar()
-	})
+	network.on('afterDrawing', () => { drawRadar() })
 	/**
-	 * clicking on the map will move the network so that it is centred on the point corresponding to the 
+	 * Clicking on the map will move the network so that it is centred on the point corresponding to the 
 	 * location of the click
 	 * @param {Event} e 
 	 */
 	function minimapClick(e) {
 		e.preventDefault()
-		let originInDOM = network.canvasToDOM(initialPosition)
+		let initialDOMPosition = network.canvasToDOM(initialPosition)
 		const scale = initialScale / network.getScale()
 		network.moveTo({
 			position: network.DOMtoCanvas({
-				x: (e.offsetX - minimapWrapper.offsetWidth / 2) * ratio / scale + originInDOM.x,
-				y: (e.offsetY - minimapWrapper.offsetHeight / 2) * ratio / scale + originInDOM.y
+				x: (e.offsetX - minimapWrapper.offsetWidth / 2) * ratio / scale + initialDOMPosition.x,
+				y: (e.offsetY - minimapWrapper.offsetHeight / 2) * ratio / scale + initialDOMPosition.y
 			})
 		})
 	}
-	// listen for clicks on the minimap
-	minimapWrapper.addEventListener('click', (e) => {
-		minimapClick(e)
-	})
+	/**
+	 * Listen for clicks on the minimap
+	 */
+	minimapWrapper.addEventListener('click', (e) => { minimapClick(e) })
 }
-
+/* -------------------------------------------- network map utilities --------------------------------------------*/
 /**
  * clear the map by destroying all nodes and edges
  */
