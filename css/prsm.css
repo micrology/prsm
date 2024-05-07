@@ -1833,6 +1833,8 @@ input#splashNameBox::placeholder {
 	transform: translate(-50%, -50%);
 	min-width: 500px;
 	min-height: 200px;
+	max-height: 70%;
+	overflow: auto;
 	border-radius: 8px;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 	text-align: center;
@@ -1859,18 +1861,23 @@ input#splashNameBox::placeholder {
 }
 #whatsnewcontinue {
 	background-color: var(--tab-color);
-	height: 50px;
 	display: flex;
 	flex-flow: row wrap;
-	justify-content: center;
+	justify-content: flex-end;
 	align-items: center;
 }
 #whatsnewbutton {
 	background-color: var(--header-color);
 	color: white;
 	border-radius: 4px;
+	box-shadow: 0px 1px 3px #666666;
+	font-size: 20px;
 	padding: 4px 40px;
+	margin: 12px;
 	cursor: default;
+}
+#whatsnewbutton:hover {
+	background-color: var(--header-hover-color);
 }
 /* 3d graph display */
 .threeDGraph {

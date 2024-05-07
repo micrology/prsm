@@ -127,7 +127,6 @@ elem('container').addEventListener('drop', (e) => {
 	e.preventDefault()
 	let dt = e.dataTransfer
 	let files = dt.files
-	console.log(dt, files, files[0])
 	if (files.length > 0) {
 		readSingleFile({ target: { files: files } })
 	}
@@ -789,6 +788,8 @@ export function savePRSMfile() {
 					'font',
 					'borderWidth',
 					'shapeProperties',
+					'thumbUp',
+					'thumbDown',
 					'created',
 					'modified',
 				],
