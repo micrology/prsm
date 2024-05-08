@@ -697,16 +697,19 @@ function startY(newRoom) {
 					case 'radius': {
 						hiddenNodes.radiusSetting = obj.radiusSetting
 						hiddenNodes.selected = obj.selected
+						setRadioVal('radius', hiddenNodes.radiusSetting)
 						break
 					}
 					case 'stream': {
 						hiddenNodes.streamSetting = obj.streamSetting
 						hiddenNodes.selected = obj.selected
+						setRadioVal('stream', hiddenNodes.streamSetting)
 						break
 					}
 					case 'paths': {
 						hiddenNodes.pathsSetting = obj.pathsSetting
 						hiddenNodes.selected = obj.selected
+						setRadioVal('paths', hiddenNodes.pathsSetting)
 						break
 					}
 					case 'sizing': {
@@ -737,6 +740,7 @@ function startY(newRoom) {
 						console.log('Bad key in yMapNet.observe: ', key)
 				}
 			}
+		//setAnalysisButtonsFromRemote()
 	})
 	yPointsArray.observe((evt) => {
 		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1))
