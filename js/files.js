@@ -787,6 +787,7 @@ export function savePRSMfile() {
 					'color',
 					'font',
 					'borderWidth',
+					'shape',
 					'shapeProperties',
 					'thumbUp',
 					'thumbDown',

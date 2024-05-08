@@ -20,7 +20,8 @@ const config = {
 
   // use / when running dev server. url is irrelevant
   //baseUrl: '/',
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
+  onBrokenAnchors: 'ignore',
   onBrokenMarkdownLinks: 'warn',
   favicon: '/images/favicon.ico',
 

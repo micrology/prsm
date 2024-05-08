@@ -100,6 +100,11 @@ The other users' mouse pointers are shown on the map.  As you move your mouse po
 <img src={require("/static/images/avatars.png").default} width="400"/>
 
 You can 'follow' the mouse movements of another user by clicking on their avatar.  When you do that, if that user moves to another part of the map, your map moves too, following that user's mouse pointer.  This can be very helpful if the other user is showing you something on the map.  To stop following, just click anywhere on the map.
+:::tip
+
+If you didn't provide your real name when you first started using PRSM, your nickname is randomly generated.  If you want to change your name, for instance to use your real name, click on your avatar (the one at the left edge), type in your replacement name and press OK.  
+
+:::
 
 ## Copy and paste
 
@@ -124,27 +129,6 @@ Double clicking on a factor or a link will bring up a small dialog that enables 
 <img src={require("/static/images/Editingnode.png").default} width="400"/>
 
 See [Styling the map](Styling/#styling-the-map) for more on changing the look of factors and links.
-
-## The chat window
-
-Clicking on the speech balloon at the bottom right opens up a chat window that you can use to type messages to other participants in your room.
-
-<!-- ![Chat window](/images/ChatWindow.png) -->
-<img src={require("/static/images/ChatWindow.png").default} width="300"/>
-
-:::tip
-
-If you didn't provide your real name when you first started using PRSM, the  name at the top is randomly generated, but if you click on the name field, you can type in your own.  
-
-:::
-
-You can write messages in the box at the bottom and send them by clicking the arrow button.  Use the **X** to close the chat window.
-
-You can choose to send your messages either to everyone or to one selected person (from among those online).
-
-If someone has sent you a message but your chat window is closed, the button will gently pulse to remind you to open it:
-
-![Chat Window Button](/images/ChatWindowButton.gif)
 
 :::info Privacy and security
 
