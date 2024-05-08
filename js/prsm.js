@@ -1491,9 +1491,30 @@ function draw() {
 		bigNetPane.style.width = `${netPane.offsetWidth * magnification}px`
 		bigNetPane.style.height = `${netPane.offsetHeight * magnification}px`
 		netPane.appendChild(bigNetPane)
-		bigNetwork = new Network(bigNetPane, data, {
+		let bigNetData = {
+			nodes: new DataSet(),
+			edges: new DataSet(),
+		}
+		bigNetData.nodes.add(data.nodes.get())
+		bigNetData.edges.add(data.edges.get())
+		bigNetwork = new Network(bigNetPane, bigNetData, {
 			physics: { enabled: false },
 		})
+		// unhide any hidden nodes and edges
+		let changedNodes = []
+		bigNetData.nodes.forEach((n) => {
+			if (n.nodeHidden) {
+				changedNodes.push(setNodeHidden(n, false))
+			}
+		})
+		let changedEdges = []
+		bigNetData.edges.forEach((e) => {
+			if (e.edgeHidden) {
+				changedEdges.push(setEdgeHidden(e, false))
+			}
+		})
+		bigNetData.nodes.update(changedNodes)
+		bigNetData.edges.update(changedEdges)
 		bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
 		bigNetwork.on('afterDrawing', () => {
 			setCanvasBackground(bigNetCanvas)
@@ -3429,9 +3450,7 @@ function showEdgeData() {
 	let panel = elem('edgeDataPanel')
 	let edgeId = network.getSelectedEdges()[0]
 	let edge = data.edges.get(edgeId)
-	elem('edgeLabel').innerHTML = `Link from "${shorten(data.nodes.get(edge.from).label)}" to "${shorten(
-		data.nodes.get(edge.to).label
-	)}"`
+	elem('edgeLabel').innerHTML = (edge.label ? edge.label : `Link from "${shorten(data.nodes.get(edge.from).label)}" to "${shorten(data.nodes.get(edge.to).label)}"`)
 	if (edge.created) {
 		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${edge.created.user}`
 		elem('edgeCreation').style.display = 'flex'

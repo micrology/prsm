@@ -1173,7 +1173,7 @@ input:checked + .slider:before {
 #minimapRadar {
 	position: absolute;
 	background-color: transparent;
-	border: 1px solid black;
+	border: 2px solid black;
 }
 /* History window */
 .history-window {
@@ -1243,6 +1243,8 @@ input:checked + .slider:before {
 	position: fixed;
 	bottom: 80px;
 	left: 20px;
+	max-height: 75%;
+    overflow-y: auto;
 	box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
 	border: thin solid var(--pop-up-shadow-color);
 	background-color: white;
@@ -1808,7 +1810,7 @@ input#splashNameBox::placeholder {
 	overflow-x: hidden;
 	padding-left: 10px;
 	background-color: var(--notes-background-color);
-	opacity: 0.8;
+	opacity: 0.9;
 	box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 #drawer-handle {

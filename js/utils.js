@@ -767,22 +767,26 @@ const hiddenOpacity = 0.1
  * set this node to its 'hidden' appearance (very faint), or restore it to its usual appearance
  * @param {object} node
  * @param {boolean} hide
+ * @returns {object} node
  */
 export function setNodeHidden(node, hide) {
 	node.nodeHidden = hide
 	node.opacity = hide ? hiddenOpacity : 1.0
 	node.font.color = rgba(node.font.color, hide ? hiddenOpacity : 1.0)
+	return node
 }
 /**
  * set this edge to its 'hidden' appearance (very faint), or restore it to its usual appearance
  * @param {object} edge
  * @param {boolean} hide
+ * @returns {object} edge
  */
 export function setEdgeHidden(edge, hide) {
 	edge.edgeHidden = hide
 	edge.color.opacity = hide ? hiddenOpacity : 1.0
 	if (!edge.font.color) edge.font.color = 'rgba(0,0,0,1)'
 	edge.font.color = rgba(edge.font.color, hide ? hiddenOpacity : 1.0)
+	return edge
 }
 
 /**
