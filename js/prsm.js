@@ -1599,6 +1599,9 @@ export function drawMinimap(ratio = 5) {
 	const minimapRadar = document.getElementById('minimapRadar')	// a div, child of minimapWrapper
 	// size the minimap
 	minimapSize()
+	// if true, ignore clicks when user is dragging radar overlay
+	let dragging = false
+	dragElement(minimapRadar)
 	/**
 	 * Set the size of the minimap and its components
 	 */
@@ -1675,13 +1678,17 @@ export function drawMinimap(ratio = 5) {
 	 * @param {Event} e 
 	 */
 	function minimapClick(e) {
+		if (dragging) {
+			dragging = false
+			return
+		}
 		e.preventDefault()
 		let initialDOMPosition = network.canvasToDOM(initialPosition)
 		const scale = initialScale / network.getScale()
 		network.moveTo({
 			position: network.DOMtoCanvas({
-				x: (e.offsetX - minimapWrapper.offsetWidth / 2) * ratio / scale + initialDOMPosition.x,
-				y: (e.offsetY - minimapWrapper.offsetHeight / 2) * ratio / scale + initialDOMPosition.y
+				x: (e.offsetX - minimapImage.offsetWidth / 2) * ratio / scale + initialDOMPosition.x,
+				y: (e.offsetY - minimapImage.offsetHeight / 2) * ratio / scale + initialDOMPosition.y
 			})
 		})
 	}
@@ -1689,6 +1696,56 @@ export function drawMinimap(ratio = 5) {
 	 * Listen for clicks on the minimap
 	 */
 	minimapWrapper.addEventListener('click', (e) => { minimapClick(e) })
+
+	function dragElement(elmnt) {
+		var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+		  elmnt.onmousedown = dragMouseDown;
+	  
+		function dragMouseDown(e) {
+		  e.preventDefault();
+		  // get the mouse cursor position at startup:
+		  pos3 = e.clientX;
+		  pos4 = e.clientY;
+		  document.onmouseup = closeDragElement;
+		  // call a function whenever the cursor moves:
+		  document.onmousemove = elementDrag;
+		}
+	  
+		function elementDrag(e) {
+			e.preventDefault();
+			dragging = true
+		  // calculate the new cursor position:
+		  pos1 = pos3 - e.clientX;
+		  pos2 = pos4 - e.clientY;
+		  pos3 = e.clientX;
+		  pos4 = e.clientY;
+		  // set the element's new position:
+		  elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+			elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+			console.log('dragging. offset: ', e.offsetX, e.offsetY)
+		}
+	  
+		function closeDragElement(e) {
+			e.preventDefault();
+			if (!dragging) return
+		  // stop moving when mouse button is released:
+		  document.onmouseup = null;
+			document.onmousemove = null;
+			let initialDOMPosition = network.canvasToDOM(initialPosition)
+			const scale = initialScale / network.getScale()
+			let radarRect = minimapRadar.getBoundingClientRect()
+			let wrapperRect = minimapWrapper.getBoundingClientRect()
+			console.log(radarRect, wrapperRect, (radarRect.left - wrapperRect.left + radarRect.width / 2), (radarRect.top - wrapperRect.top + radarRect.height / 2))
+			elmnt.style.top = 0
+			elmnt.style.left = 0
+			network.moveTo({
+				position: network.DOMtoCanvas({
+					x: (radarRect.left - wrapperRect.left + radarRect.width / 2- minimapWrapper.offsetWidth / 2) * ratio / scale + initialDOMPosition.x,
+					y: (radarRect.top - wrapperRect.top + radarRect.height / 2- minimapWrapper.offsetHeight / 2) * ratio / scale + initialDOMPosition.y
+				})
+			})
+		}
+	  }
 }
 /* -------------------------------------------- network map utilities --------------------------------------------*/
 /**
