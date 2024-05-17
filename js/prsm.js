@@ -313,6 +313,8 @@ function addEventListeners() {
 
 	listen('body', 'copy', copyToClipboard)
 	listen('body', 'paste', pasteFromClipboard)
+	// if user has changed to this  tab, ensure that the network has been drawn
+	document.addEventListener("visibilitychange", () => {network.redraw()})
 }
 
 /**
@@ -1598,19 +1600,21 @@ export function drawMinimap(ratio = 5) {
 	const minimapImage = document.getElementById('minimapImage')	// an img, child of minimapWrapper
 	const minimapRadar = document.getElementById('minimapRadar')	// a div, child of minimapWrapper
 	// size the minimap
-	minimapSize()
-	// if true, ignore clicks when user is dragging radar overlay
-	let dragging = false
-	dragElement(minimapRadar)
+	minimapSetup()
+	// set up dragging of the radar overlay
+	let dragging = false // if true, ignore clicks when user is dragging radar overlay
+	dragRadar()
 	/**
 	 * Set the size of the minimap and its components
 	 */
-	function minimapSize() {
+	function minimapSetup() {
 		const { clientWidth, clientHeight } = network.body.container
 		minimapWidth = clientWidth / ratio
 		minimapHeight = clientHeight / ratio
 		minimapWrapper.style.width = `${minimapWidth}px`
 		minimapWrapper.style.height = `${minimapHeight}px`
+		minimapRadar.style.width = `${minimapWidth}px`
+		minimapRadar.style.height = `${minimapHeight}px`
 		drawMinimapImage()
 		drawRadar()
 	}
@@ -1657,95 +1661,109 @@ export function drawMinimap(ratio = 5) {
 	 */
 	function drawRadar() {
 		const scale = initialScale / network.getScale()
+		// fade out the whole minimap if the network is all visible in the viewport 
+		// (there is no value in having a minimap in this case)
+		if (scale >= 1 && networkInPane()) {
+			minimapWrapper.style.opacity = 0
+			return
+		}
+		else minimapWrapper.style.opacity = 1
 		const currentDOMPosition = network.canvasToDOM(network.getViewPosition())
 		const initialDOMPosition = network.canvasToDOM(initialPosition)
-		minimapRadar.style.width = `${minimapWidth}px`
-		minimapRadar.style.height = `${minimapHeight}px`
-		minimapRadar.style.transform = `translate(${((currentDOMPosition.x - initialDOMPosition.x) * scale / ratio)}px, ${((currentDOMPosition.y - initialDOMPosition.y) * scale / ratio)}px) scale(${scale})`
-	}
 
+		minimapRadar.style.left = `${Math.round((currentDOMPosition.x - initialDOMPosition.x) * scale / ratio + minimapWidth * (1 - scale) / 2)}px`
+		minimapRadar.style.top = `${Math.round((currentDOMPosition.y - initialDOMPosition.y) * scale / ratio + minimapHeight * (1 - scale) / 2)}px`
+		minimapRadar.style.width = `${minimapWidth * scale}px`
+		minimapRadar.style.height = `${minimapHeight * scale}px`
+	}
+	/**
+	 * 
+	 * @returns {boolean} - true if the network is entirely within the viewport
+	 */
+	function networkInPane() {
+		const netPaneTopLeft = network.DOMtoCanvas({ x: 0, y: 0 })
+		const netPaneBottomRight = network.DOMtoCanvas({ x: netPane.clientWidth, y: netPane.clientHeight })
+		for (const nodeId of data.nodes.getIds()) {
+			const boundingBox = network.getBoundingBox(nodeId)
+			if (boundingBox.left < netPaneTopLeft.x) return false
+			if (boundingBox.right > netPaneBottomRight.x) return false
+			if (boundingBox.top < netPaneTopLeft.y) return false
+			if (boundingBox.bottom > netPaneBottomRight.y) return false
+		}
+		return true
+	}
 	/**
 	 * Whenever the network is resized, the minimap needs to be resized and the radar overlay moved
 	 */
-	network.on('resize', () => { minimapSize() })
+	network.on('resize', () => { minimapSetup() })
 	/**
 	 * Whenever the network is changed, panned or zoomed, the radar overlay needs to be moved
 	 */
 	network.on('afterDrawing', () => { drawRadar() })
 	/**
-	 * Clicking on the map will move the network so that it is centred on the point corresponding to the 
-	 * location of the click
-	 * @param {Event} e 
+	 * Set up dragging of the radar overlay
 	 */
-	function minimapClick(e) {
-		if (dragging) {
-			dragging = false
-			return
-		}
-		e.preventDefault()
-		let initialDOMPosition = network.canvasToDOM(initialPosition)
-		const scale = initialScale / network.getScale()
-		network.moveTo({
-			position: network.DOMtoCanvas({
-				x: (e.offsetX - minimapImage.offsetWidth / 2) * ratio / scale + initialDOMPosition.x,
-				y: (e.offsetY - minimapImage.offsetHeight / 2) * ratio / scale + initialDOMPosition.y
-			})
-		})
-	}
-	/**
-	 * Listen for clicks on the minimap
-	 */
-	minimapWrapper.addEventListener('click', (e) => { minimapClick(e) })
+	function dragRadar() {
+		let x, y, radarStart
+		minimapRadar.addEventListener('mousedown', dragMouseDown)
+		minimapWrapper.addEventListener('wheel', (e) => {
+			e.preventDefault()
+			// reject all but vertical touch movements
+			if (Math.abs(e.deltaX) <= 1) zoomscroll(e)
+		}, { passive: false })
 
-	function dragElement(elmnt) {
-		var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-		  elmnt.onmousedown = dragMouseDown;
-	  
 		function dragMouseDown(e) {
-		  e.preventDefault();
-		  // get the mouse cursor position at startup:
-		  pos3 = e.clientX;
-		  pos4 = e.clientY;
-		  document.onmouseup = closeDragElement;
-		  // call a function whenever the cursor moves:
-		  document.onmousemove = elementDrag;
+			e.preventDefault();
+			x = e.clientX, y = e.clientY
+			radarStart = { x: minimapRadar.offsetLeft, y: minimapRadar.offsetTop }
+			minimapRadar.addEventListener('mousemove', drag)
+			minimapRadar.addEventListener('mouseup', dragMouseUp)
 		}
-	  
-		function elementDrag(e) {
+
+		function drag(e) {
 			e.preventDefault();
 			dragging = true
-		  // calculate the new cursor position:
-		  pos1 = pos3 - e.clientX;
-		  pos2 = pos4 - e.clientY;
-		  pos3 = e.clientX;
-		  pos4 = e.clientY;
-		  // set the element's new position:
-		  elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-			elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-			console.log('dragging. offset: ', e.offsetX, e.offsetY)
-		}
-	  
-		function closeDragElement(e) {
-			e.preventDefault();
-			if (!dragging) return
-		  // stop moving when mouse button is released:
-		  document.onmouseup = null;
-			document.onmousemove = null;
+			let dx = e.clientX - x;
+			let dy = e.clientY - y;
+			let left = radarStart.x + dx
+			let top = radarStart.y + dy
+			if (left < 0) left = 0
+			if (left + minimapRadar.offsetWidth >= minimapWidth) left = minimapWidth - minimapRadar.offsetWidth
+			if (top < 0) top = 0
+			if (top + minimapRadar.offsetHeight >= minimapHeight) top = minimapHeight - minimapRadar.offsetHeight
+			minimapRadar.style.left = `${Math.round(left)}px`
+			minimapRadar.style.top = `${Math.round(top)}px`
 			let initialDOMPosition = network.canvasToDOM(initialPosition)
 			const scale = initialScale / network.getScale()
-			let radarRect = minimapRadar.getBoundingClientRect()
-			let wrapperRect = minimapWrapper.getBoundingClientRect()
-			console.log(radarRect, wrapperRect, (radarRect.left - wrapperRect.left + radarRect.width / 2), (radarRect.top - wrapperRect.top + radarRect.height / 2))
-			elmnt.style.top = 0
-			elmnt.style.left = 0
-			network.moveTo({
+			const radarRect = minimapRadar.getBoundingClientRect()
+			const wrapperRect = minimapWrapper.getBoundingClientRect()
+/* 			minimapRadar.style.top = 0
+			minimapRadar.style.left = 0
+ */			network.moveTo({
 				position: network.DOMtoCanvas({
-					x: (radarRect.left - wrapperRect.left + radarRect.width / 2- minimapWrapper.offsetWidth / 2) * ratio / scale + initialDOMPosition.x,
-					y: (radarRect.top - wrapperRect.top + radarRect.height / 2- minimapWrapper.offsetHeight / 2) * ratio / scale + initialDOMPosition.y
+					x: (radarRect.left - wrapperRect.left + (radarRect.width - wrapperRect.width) / 2) * ratio / scale + initialDOMPosition.x,
+					y: (radarRect.top - wrapperRect.top + (radarRect.height - wrapperRect.height) / 2) * ratio / scale + initialDOMPosition.y
 				})
 			})
 		}
-	  }
+
+		function dragMouseUp(e) {
+			e.preventDefault()
+			if (!dragging) return
+			minimapRadar.removeEventListener('mousemove', drag)
+			minimapRadar.removeEventListener('mouseup', dragMouseUp)
+			/* 			let initialDOMPosition = network.canvasToDOM(initialPosition)
+						const scale = initialScale / network.getScale()
+						const radarRect = minimapRadar.getBoundingClientRect()
+						const wrapperRect = minimapWrapper.getBoundingClientRect()
+						network.moveTo({
+							position: network.DOMtoCanvas({
+								x: (radarRect.left - wrapperRect.left + (radarRect.width - wrapperRect.width) / 2) * ratio / scale + initialDOMPosition.x,
+								y: (radarRect.top - wrapperRect.top + (radarRect.height - wrapperRect.height) / 2) * ratio / scale + initialDOMPosition.y
+							})
+						}) */
+		}
+	}
 }
 /* -------------------------------------------- network map utilities --------------------------------------------*/
 /**

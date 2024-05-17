@@ -1166,6 +1166,8 @@ input:checked + .slider:before {
 	box-shadow: 2px 2px 4px 0px rgba(0,0,0,0.75);
 	z-index: 9;
 	user-select: none;
+	opacity: 0;
+	transition: opacity 0.3s linear;
 }
 #minimapImage {
 	position: absolute;
@@ -1173,7 +1175,7 @@ input:checked + .slider:before {
 #minimapRadar {
 	position: absolute;
 	background-color: transparent;
-	border: 2px solid black;
+	border: 1px solid grey;
 }
 /* History window */
 .history-window {
