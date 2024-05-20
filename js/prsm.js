@@ -926,6 +926,10 @@ function hideNavButtons() {
 	elem('search').parentElement.style.visibility = 'visible'
 	elem('search').parentElement.style.borderLeft = 'none'
 	elem('maptitle').contentEditable = 'false'
+	if (!container.panelHidden) {
+		panel.classList.add('hide')
+		container.panelHidden = true
+	}
 }
 /** restore all the Nav Bar buttons when leaving view only mode (e.g. when
  * going back online)
@@ -1649,14 +1653,14 @@ export function logHistory(action, actor) {
 			user: actor ? actor : myNameRec.name,
 		},
 	])
-	persistence.set(now, savedState)
+/* 	persistence.set(now, savedState)
 	savedState = saveState()
 
 	// delete all but the last ROLLBACKS saved states
 	for (let i = 0; i < yHistory.length - ROLLBACKS; i++) {
 		let obj = yHistory.get(i)
 		if (obj.time) persistence.del(obj.time)
-	}
+	} */
 	if (elem('history-window').style.display === 'block') showHistory()
 	dirty = true
 }
