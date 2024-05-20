@@ -315,6 +315,8 @@ function addEventListeners() {
 
 	listen('body', 'copy', copyToClipboard)
 	listen('body', 'paste', pasteFromClipboard)
+	// if user has changed to this  tab, ensure that the network has been drawn
+	document.addEventListener("visibilitychange", () => {network.redraw()})
 }
 
 /**
