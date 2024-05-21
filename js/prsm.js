@@ -316,7 +316,7 @@ function addEventListeners() {
 	listen('body', 'copy', copyToClipboard)
 	listen('body', 'paste', pasteFromClipboard)
 	// if user has changed to this  tab, ensure that the network has been drawn
-	document.addEventListener("visibilitychange", () => {network.redraw()})
+	document.addEventListener("visibilitychange", () => { network.redraw() })
 }
 
 /**
@@ -874,7 +874,7 @@ function displayNetPane(msg) {
 		netPane.style.visibility = 'visible'
 		clearTimeout(loadingDelayTimer)
 		yUndoManager.clear()
-		initySamplesMap()
+		//	initySamplesMap()
 		undoRedoButtonStatus()
 		setUpTutorial()
 		netLoaded = true
@@ -888,7 +888,7 @@ function displayNetPane(msg) {
 /**
  * Load ySamplesMap with the current styles (for possible rollback)
  */
-function initySamplesMap() {
+/* function initySamplesMap() {
 	doc.transact(() => {
 		for (let grpId in styles.nodes) {
 			ySamplesMap.set(grpId, {
@@ -901,7 +901,7 @@ function initySamplesMap() {
 			})
 		}
 	})
-}
+} */
 // to handle iPad viewport sizing problem when tab bar appears and to keep panels on screen
 setvh()
 
@@ -1655,14 +1655,14 @@ export function logHistory(action, actor) {
 			user: actor ? actor : myNameRec.name,
 		},
 	])
-/* 	persistence.set(now, savedState)
-	savedState = saveState()
-
-	// delete all but the last ROLLBACKS saved states
-	for (let i = 0; i < yHistory.length - ROLLBACKS; i++) {
-		let obj = yHistory.get(i)
-		if (obj.time) persistence.del(obj.time)
-	} */
+	/* 	persistence.set(now, savedState)
+		savedState = saveState()
+	
+		// delete all but the last ROLLBACKS saved states
+		for (let i = 0; i < yHistory.length - ROLLBACKS; i++) {
+			let obj = yHistory.get(i)
+			if (obj.time) persistence.del(obj.time)
+		} */
 	if (elem('history-window').style.display === 'block') showHistory()
 	dirty = true
 }
@@ -1709,6 +1709,7 @@ let drawerEditor = new Quill(elem('drawer-editor'), {
 	},
 	placeholder: 'Notes about the map',
 	theme: 'snow',
+	readOnly: viewOnly,
 })
 
 drawerEditor.on('text-change', (delta, oldDelta, source) => {
@@ -2782,17 +2783,17 @@ function ghostCursor() {
 		const boxHalfHeight = box.offsetHeight / 2
 		let left = window.event.pageX - boxHalfWidth
 		box.style.left = `${left <= netPaneRect.left
-				? netPaneRect.left
-				: left >= netPaneRect.right - box.offsetWidth
-					? netPaneRect.right - box.offsetWidth
-					: left
+			? netPaneRect.left
+			: left >= netPaneRect.right - box.offsetWidth
+				? netPaneRect.right - box.offsetWidth
+				: left
 			}px`
 		let top = window.event.pageY - boxHalfHeight
 		box.style.top = `${top <= netPaneRect.top
-				? netPaneRect.top
-				: top >= netPaneRect.bottom - box.offsetHeight
-					? netPaneRect.bottom - box.offsetHeight
-					: top
+			? netPaneRect.top
+			: top >= netPaneRect.bottom - box.offsetHeight
+				? netPaneRect.bottom - box.offsetHeight
+				: top
 			}px`
 	}
 }
@@ -4544,19 +4545,27 @@ dragElement(elem('history-window'), elem('history-header'))
 /* --------------------------------------- avatars and shared cursors--------------------------------*/
 
 var lastPktTime // time when a round trip duration packet was last sent
-
+var oldViewOnly = viewOnly // save the viewOnly state
 /* tell user if they are offline and disconnect websocket server */
 window.addEventListener('offline', () => {
 	statusMsg('No network connection - working offline (view only)', 'info')
 	wsProvider.shouldConnect = false
+	network.setOptions({ interaction: { dragNodes: false, hover: false } })
 	hideNavButtons()
+	drawerEditor.enable(false)
+	oldViewOnly = viewOnly
+	viewOnly = true
 })
 window.addEventListener('online', () => {
 	wsProvider.connect()
 	statusMsg('Network connection re-established', 'info')
 	lastPktTime = null
+	viewOnly = oldViewOnly
 	if (!viewOnly) showNavButtons()
+	drawerEditor.enable(true)
+	network.setOptions({ interaction: { dragNodes: true, hover: true } })
 	showAvatars()
+
 })
 /**
  *  set up user monitoring (awareness)
