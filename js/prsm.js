@@ -30,7 +30,6 @@ This is the main entry point for PRSM.
 
 import * as Y from 'yjs'
 import { WebsocketProvider } from 'y-websocket'
-import { IndexeddbPersistence } from 'y-indexeddb'
 import { Network } from 'vis-network/peer'
 import { DataSet } from 'vis-data/peer'
 import diff from 'microdiff'
@@ -108,7 +107,7 @@ const TIMETOSLEEP = 15 * 60 * 1000 // if no mouse movement for this time, user i
 const TIMETOEDIT = 5 * 60 * 1000 // if node/edge edit dialog is not saved after this time, the edit is cancelled
 const magnification = 3 // magnification of the loupe (magnifier 'glass')
 export const NLEVELS = 20 // max. number of levels for trophic layout
-const ROLLBACKS = 20 // max. number of versions stored for rollback
+const ROLLBACKS = 10 // max. number of versions stored for rollback
 const SLOWTRIPTIME = 1000 // any more than this number of ms for the round trip generates a warning
 
 export var network
@@ -132,7 +131,6 @@ export var data // an object with the nodes and edges datasets as properties
 export const doc = new Y.Doc()
 export var websocket = 'wss://www.prsm.uk/wss' // web socket server URL
 var wsProvider // web socket provider
-var persistence // indexDB for local, offline storage of doc
 export var clientID // unique ID for this browser
 var yNodesMap // shared map of nodes
 var yEdgesMap // shared map of edges
@@ -314,7 +312,7 @@ function addEventListeners() {
 	listen('body', 'copy', copyToClipboard)
 	listen('body', 'paste', pasteFromClipboard)
 	// if user has changed to this  tab, ensure that the network has been drawn
-	document.addEventListener("visibilitychange", () => {network.redraw()})
+	document.addEventListener("visibilitychange", () => { network.redraw() })
 }
 
 /**
@@ -398,11 +396,6 @@ function startY(newRoom) {
 		room = generateRoom()
 		checkMapSaved = true
 	} else room = room.toUpperCase()
-	persistence = new IndexeddbPersistence(room, doc)
-	// once the map is loaded, it can be displayed
-	persistence.once('synced', () => {
-		if (data.nodes.length > 0) displayNetPane(`${exactTime()} local content loaded`)
-	})
 	// if using a non-standard port (i.e neither 80 nor 443) assume that the websocket port is 1234 in the same domain as the url
 	if (url.port && url.port !== 80 && url.port !== 443) websocket = `ws://${url.hostname}:1234`
 	wsProvider = new WebsocketProvider(
@@ -874,7 +867,6 @@ function displayNetPane(msg) {
 		netPane.style.visibility = 'visible'
 		clearTimeout(loadingDelayTimer)
 		yUndoManager.clear()
-		initySamplesMap()
 		undoRedoButtonStatus()
 		setUpTutorial()
 		netLoaded = true
@@ -885,23 +877,6 @@ function displayNetPane(msg) {
 		setLegend(yNetMap.get('legend'), false)
 		console.log(`Doc size: ${humanSize(Y.encodeStateAsUpdate(doc).length)}`)
 	}
-}
-/**
- * Load ySamplesMap with the current styles (for possible rollback)
- */
-function initySamplesMap() {
-	doc.transact(() => {
-		for (let grpId in styles.nodes) {
-			ySamplesMap.set(grpId, {
-				node: styles.nodes[grpId],
-			})
-		}
-		for (let grpId in styles.edges) {
-			ySamplesMap.set(grpId, {
-				edge: styles.edges[grpId],
-			})
-		}
-	})
 }
 // to handle iPad viewport sizing problem when tab bar appears and to keep panels on screen
 setvh()
@@ -928,6 +903,10 @@ function hideNavButtons() {
 	elem('search').parentElement.style.visibility = 'visible'
 	elem('search').parentElement.style.borderLeft = 'none'
 	elem('maptitle').contentEditable = 'false'
+	if (!container.panelHidden) {
+		panel.classList.add('hide')
+		container.panelHidden = true
+	}
 }
 /** restore all the Nav Bar buttons when leaving view only mode (e.g. when
  * going back online)
@@ -1467,14 +1446,15 @@ function draw() {
 	let bigNetwork = null
 	let bigNetCanvas = null
 	let netPaneRect = null
+	let magnifying = false
 
-	window.addEventListener('keydown', (e) => {
-		if (!inEditMode && e.shiftKey) createMagnifier()
+	netPane.addEventListener('keydown', (e) => {
+		if (!inEditMode && e.shiftKey && !magnifying) createMagnifier()
 	})
-	window.addEventListener('mousemove', (e) => {
-		if (!inEditMode && e.shiftKey) showMagnifier(e)
+	netPane.addEventListener('mousemove', (e) => {
+		if (magnifying && !inEditMode && e.shiftKey) showMagnifier(e)
 	})
-	window.addEventListener('keyup', (e) => {
+	netPane.addEventListener('keyup', (e) => {
 		if (e.key === 'Shift') closeMagnifier()
 	})
 
@@ -1487,6 +1467,7 @@ function draw() {
 			bigNetPane.remove()
 		}
 		if (drawingSwitch) return
+		magnifying = true
 		netPaneRect = netPane.getBoundingClientRect()
 		network.storePositions()
 		bigNetPane = document.createElement('div')
@@ -1566,6 +1547,7 @@ function draw() {
 		}
 		netPane.style.cursor = 'default'
 		magnifier.style.display = 'none'
+		magnifying = false
 	}
 } // end draw()
 
@@ -1801,6 +1783,7 @@ export function toggleDeleteButton() {
 function contextMenu(event) {
 	event.preventDefault()
 }
+/****************************************************** update history for history log **************************/
 /**
  * return an object with the current time as an integer date and the current user's name
  */
@@ -1808,6 +1791,15 @@ export function timestamp() {
 	return { time: Date.now(), user: myNameRec.name }
 }
 window.timestamp = timestamp
+/**
+ * Generate a key for a time slot in the history log
+ * 
+ * @param {integer} time 
+ * @returns {string} key
+ */
+function timekey(time) {
+	return room + time
+}
 /**
  * push a record that action has been taken on to the end of the history log
  *  also record current state of the map for possible roll back
@@ -1823,13 +1815,15 @@ export function logHistory(action, actor) {
 			user: actor ? actor : myNameRec.name,
 		},
 	])
-	persistence.set(now, savedState)
+	// store the current state of the map for possible rollback
+
+	localStorage.setItem(timekey(now), savedState)
 	savedState = saveState()
 
 	// delete all but the last ROLLBACKS saved states
 	for (let i = 0; i < yHistory.length - ROLLBACKS; i++) {
 		let obj = yHistory.get(i)
-		if (obj.time) persistence.del(obj.time)
+		if (obj.time) localStorage.removeItem(timekey(obj.time))
 	}
 	if (elem('history-window').style.display === 'block') showHistory()
 	dirty = true
@@ -1838,7 +1832,7 @@ export function logHistory(action, actor) {
  * Generate a compressed dump of the current state of the map, sufficient to reproduce it
  * @returns binary string
  */
-function saveState(options) {
+export function saveState(options) {
 	return compressToUTF16(
 		JSON.stringify({
 			nodes: data.nodes.get(),
@@ -1877,6 +1871,7 @@ let drawerEditor = new Quill(elem('drawer-editor'), {
 	},
 	placeholder: 'Notes about the map',
 	theme: 'snow',
+	readOnly: viewOnly,
 })
 
 drawerEditor.on('text-change', (delta, oldDelta, source) => {
@@ -3147,6 +3142,13 @@ function setUpShareDialog() {
 	}
 
 	function doClone(onlyView) {
+		// undo any ongoing analysis and unselect all nodes and edges
+		setRadioVal('radius', 'All')
+		setRadioVal('stream', 'All')
+		setRadioVal('paths', 'All')
+		analyse()
+		unSelect()
+
 		let options = {
 			created: {
 				action: `cloned this map from room: ${room + (onlyView ? ' (Read Only)' : '')}`,
@@ -3314,12 +3316,16 @@ function applySampleToNode(event) {
 	let nodesToUpdate = []
 	let sample = event.currentTarget.groupNode
 	for (let node of data.nodes.get(selectedNodeIds)) {
-		node = deepMerge(node, styles.nodes[sample])
-		node.grp = sample
-		node.modified = timestamp()
-		nodesToUpdate.push(node)
+		if (sample !== node.grp) {
+			node = deepMerge(node, styles.nodes[sample])
+			node.grp = sample
+			node.modified = timestamp()
+			nodesToUpdate.push(node)
+		}
 	}
 	data.nodes.update(nodesToUpdate)
+	let nNodes = nodesToUpdate.length
+	if (nNodes) logHistory(`applied ${styles.nodes[sample].groupLabel} style to ${nNodes === 1 ? nodesToUpdate[0].label : nNodes + ' factors'}`)
 	lastNodeSample = sample
 }
 
@@ -3330,12 +3336,16 @@ function applySampleToLink(event) {
 	if (selectedEdges.length === 0) return
 	let edgesToUpdate = []
 	for (let edge of data.edges.get(selectedEdges)) {
-		edge = deepMerge(edge, styles.edges[sample])
-		edge.grp = sample
-		edge.modified = timestamp()
-		edgesToUpdate.push(edge)
+		if (sample !== edge.grp) {
+			edge = deepMerge(edge, styles.edges[sample])
+			edge.grp = sample
+			edge.modified = timestamp()
+			edgesToUpdate.push(edge)
+		}
 	}
 	data.edges.update(edgesToUpdate)
+	let nEdges = edgesToUpdate.length
+	if (nEdges) logHistory(`applied ${styles.edges[sample].groupLabel} style to ${nEdges} link${(nEdges === 1) ? '' : 's'} `)
 	lastLinkSample = sample
 }
 /**
@@ -4521,8 +4531,8 @@ function showHistory() {
  * add a button for rolling back if there is state data corresponding to this log record
  * @param {HTMLElement} e - history record
  * */
-async function addRollbackIcon(e) {
-	let state = await persistence.get(parseInt(e.dataset.time))
+function addRollbackIcon(e) {
+	let state = localStorage.getItem(timekey(parseInt(e.dataset.time)))
 	if (state) {
 		e.id = `hist${e.dataset.time}`
 		e.innerHTML = `<div class="tooltip">
@@ -4541,9 +4551,9 @@ async function addRollbackIcon(e) {
  * @param {Event} event
  * @returns null if no rollback possible or cancelled
  */
-async function rollback(event) {
+function rollback(event) {
 	let rbTime = parseInt(event.currentTarget.dataset.time)
-	let rb = await persistence.get(rbTime)
+	let rb = localStorage.getItem(timekey(rbTime))
 	if (!rb) return
 	if (!confirm(`Roll back the map to what it was before ${timeAndDate(rbTime)}?`)) return
 	let state = JSON.parse(decompressFromUTF16(rb))
@@ -4555,6 +4565,7 @@ async function rollback(event) {
 		for (const k in state.net) {
 			yNetMap.set(k, state.net[k])
 		}
+		setMapTitle(state.net.mapTitle)
 		for (const k in state.samples) {
 			ySamplesMap.set(k, state.samples[k])
 		}
@@ -4588,19 +4599,27 @@ dragElement(elem('history-window'), elem('history-header'))
 /* --------------------------------------- avatars and shared cursors--------------------------------*/
 
 var lastPktTime // time when a round trip duration packet was last sent
-
+var oldViewOnly = viewOnly // save the viewOnly state
 /* tell user if they are offline and disconnect websocket server */
 window.addEventListener('offline', () => {
 	statusMsg('No network connection - working offline (view only)', 'info')
 	wsProvider.shouldConnect = false
+	network.setOptions({ interaction: { dragNodes: false, hover: false } })
 	hideNavButtons()
+	drawerEditor.enable(false)
+	oldViewOnly = viewOnly
+	viewOnly = true
 })
 window.addEventListener('online', () => {
 	wsProvider.connect()
 	statusMsg('Network connection re-established', 'info')
 	lastPktTime = null
+	viewOnly = oldViewOnly
 	if (!viewOnly) showNavButtons()
+	drawerEditor.enable(true)
+	network.setOptions({ interaction: { dragNodes: true, hover: true } })
 	showAvatars()
+
 })
 /**
  *  set up user monitoring (awareness)
