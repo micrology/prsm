@@ -52,6 +52,7 @@ import {
 	sizing,
 	recreateClusteringMenu,
 	markMapSaved,
+	saveState,
 	fit,
 	yDrawingMap,
 } from './prsm.js'
@@ -126,6 +127,7 @@ export function openFile() {
 function loadFile(contents) {
 	if (data.nodes.length > 0)
 		if (!confirm('Loading a file will delete the current network.  Are you sure you want to replace it?')) return
+	saveState()
 	// load the file as one single yjs transaction to reduce server traffic
 	clearMap()
 	doc.transact(() => {
