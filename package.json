@@ -78,5 +78,8 @@
 		"process": "^0.11.10",
 		"sharp": "^0.31.3"
 	},
-	"private": true
+	"private": true,
+	"optionalDependencies": {
+		"@parcel/watcher-linux-x64-glibc": "^2.4.1"
+	}
 }

@@ -20,6 +20,8 @@
 	--map-title-color: rgb(255, 193, 7);
 	--sample-selected-color: rgb(173, 216, 230);
 	--notes-background-color: rgb(255, 253, 231);
+	--notes-background-color: rgb(255, 253, 231, 0.9);
+	--notes-background-solid-color: rgb(255, 253, 231);
 	--slider: rgb(13, 38, 68);
 }
 html,
@@ -967,12 +969,17 @@ but moving the panel out of sight works instead */
 .edit-container {
 	width: 100%;
 	max-width: 500px;
-	background-color: var(--notes-background-color);
+	background-color: var(--notes-background-solid-color);
 	resize: both;
 	overflow: hidden;
 }
 .ql-editor {
 	padding: 3px;
+}
+.ql-toolbar {
+	position: sticky;
+	top: 0;
+	background-color: var(--notes-background-solid-color);
 }
 .ql-toolbar.ql-snow .ql-formats {
 	margin-right: 0;
@@ -1810,9 +1817,10 @@ input#splashNameBox::placeholder {
 	border: 1px solid rgb(128, 128, 128);
 	width: 100%;
 	overflow-x: hidden;
+	display: flex;
+	flex-direction: column;
 	padding-left: 10px;
 	background-color: var(--notes-background-color);
-	opacity: 0.9;
 	box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 #drawer-handle {
