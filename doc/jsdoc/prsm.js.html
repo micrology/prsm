@@ -110,6 +110,7 @@
 				<li><a href="global.html#draw">draw</a></li>
 				<li><a href="global.html#drawBadges">drawBadges</a></li>
 				<li><a href="global.html#drawGrid">drawGrid</a></li>
+				<li><a href="global.html#drawMinimap">drawMinimap</a></li>
 				<li><a href="global.html#duplEdge">duplEdge</a></li>
 				<li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li>
 				<li><a href="global.html#editEdge">editEdge</a></li>
@@ -160,7 +161,6 @@
 				<li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li>
 				<li><a href="global.html#initials">initials</a></li>
 				<li><a href="global.html#initiateClone">initiateClone</a></li>
-				<li><a href="global.html#initySamplesMap">initySamplesMap</a></li>
 				<li><a href="global.html#inline">inline</a></li>
 				<li><a href="global.html#intersect">intersect</a></li>
 				<li><a href="global.html#invertColor">invertColor</a></li>
@@ -204,7 +204,6 @@
 				<li><a href="global.html#nodeList">nodeList</a></li>
 				<li><a href="global.html#noteFilter">noteFilter</a></li>
 				<li><a href="global.html#object_equals">object_equals</a></li>
-				<li><a href="global.html#oldUserNames">oldUserNames</a></li>
 				<li><a href="global.html#onexit">onexit</a></li>
 				<li><a href="global.html#openCluster">openCluster</a></li>
 				<li><a href="global.html#openNotesWindow">openNotesWindow</a></li>
@@ -233,6 +232,7 @@
 				<li><a href="global.html#removeAvatar">removeAvatar</a></li>
 				<li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li>
 				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
+				<li><a href="global.html#renameUser">renameUser</a></li>
 				<li><a href="global.html#resizeBox">resizeBox</a></li>
 				<li><a href="global.html#resizeCanvas">resizeCanvas</a></li>
 				<li><a href="global.html#rgbIsLight">rgbIsLight</a></li>
@@ -247,6 +247,7 @@
 				<li><a href="global.html#savePRSMfile">savePRSMfile</a></li>
 				<li><a href="global.html#saveState">saveState</a></li>
 				<li><a href="global.html#saveStr">saveStr</a></li>
+				<li><a href="global.html#saveUserName">saveUserName</a></li>
 				<li><a href="global.html#search">search</a></li>
 				<li><a href="global.html#searchTargets">searchTargets</a></li>
 				<li><a href="global.html#selectClustering">selectClustering</a></li>
@@ -269,7 +270,6 @@
 				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
 				<li><a href="global.html#setUpBackground">setUpBackground</a></li>
 				<li><a href="global.html#setUpCanvas">setUpCanvas</a></li>
-				<li><a href="global.html#setUpChat">setUpChat</a></li>
 				<li><a href="global.html#setUpFilter">setUpFilter</a></li>
 				<li><a href="global.html#setUpPage">setUpPage</a></li>
 				<li><a href="global.html#setUpPaint">setUpPaint</a></li>
@@ -278,6 +278,7 @@
 				<li><a href="global.html#setUpTabs">setUpTabs</a></li>
 				<li><a href="global.html#setUpToolbox">setUpToolbox</a></li>
 				<li><a href="global.html#setUpTutorial">setUpTutorial</a></li>
+				<li><a href="global.html#setUpUserName">setUpUserName</a></li>
 				<li><a href="global.html#setvh">setvh</a></li>
 				<li><a href="global.html#showAvatars">showAvatars</a></li>
 				<li><a href="global.html#showClusterLinks">showClusterLinks</a></li>
@@ -312,6 +313,7 @@
 				<li><a href="global.html#svg">svg</a></li>
 				<li><a href="global.html#tickToggle">tickToggle</a></li>
 				<li><a href="global.html#timeAndDate">timeAndDate</a></li>
+				<li><a href="global.html#timekey">timekey</a></li>
 				<li><a href="global.html#timestamp">timestamp</a></li>
 				<li><a href="global.html#titleDropDown">titleDropDown</a></li>
 				<li><a href="global.html#toggleDeleteButton">toggleDeleteButton</a></li>
@@ -390,10 +392,9 @@ This is the main entry point for PRSM.
 ********************************************************************************************/
 
 import * as Y from 'yjs'
-import {WebsocketProvider} from 'y-websocket'
-import {IndexeddbPersistence} from 'y-indexeddb'
-import {Network} from 'vis-network/peer'
-import {DataSet} from 'vis-data/peer'
+import { WebsocketProvider } from 'y-websocket'
+import { Network } from 'vis-network/peer'
+import { DataSet } from 'vis-data/peer'
 import diff from 'microdiff'
 import {
 	listen,
@@ -437,14 +438,13 @@ import {
 	readSingleFile,
 } from './files.js'
 import Tutorial from './tutorial.js'
-import {styles} from './samples.js'
-import {trophic} from './trophic.js'
-import {cluster, openCluster} from './cluster.js'
-import {mergeRoom, diffRoom} from './merge.js'
-import {Picker} from 'emoji-picker-element'
+import { styles } from './samples.js'
+import { trophic } from './trophic.js'
+import { cluster, openCluster } from './cluster.js'
+import { mergeRoom, diffRoom } from './merge.js'
 import Quill from 'quill'
 import Hammer from '@egjs/hammerjs'
-import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend} from './styles.js'
+import { setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend } from './styles.js'
 import {
 	nChanges,
 	setUpBackground,
@@ -459,8 +459,8 @@ import {
 	upgradeFromV1,
 	updateFromDrawingMap,
 } from './background.js'
-import {version} from '../package.json'
-import {compressToUTF16, decompressFromUTF16} from 'lz-string'
+import { version } from '../package.json'
+import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
 
 const appName = 'Participatory System Mapper'
 const shortAppName = 'PRSM'
@@ -470,7 +470,7 @@ const TIMETOSLEEP = 15 * 60 * 1000 // if no mouse movement for this time, user i
 const TIMETOEDIT = 5 * 60 * 1000 // if node/edge edit dialog is not saved after this time, the edit is cancelled
 const magnification = 3 // magnification of the loupe (magnifier 'glass')
 export const NLEVELS = 20 // max. number of levels for trophic layout
-const ROLLBACKS = 20 // max. number of versions stored for rollback
+const ROLLBACKS = 10 // max. number of versions stored for rollback
 const SLOWTRIPTIME = 1000 // any more than this number of ms for the round trip generates a warning
 
 export var network
@@ -494,7 +494,6 @@ export var data // an object with the nodes and edges datasets as properties
 export const doc = new Y.Doc()
 export var websocket = 'wss://www.prsm.uk/wss' // web socket server URL
 var wsProvider // web socket provider
-var persistence // indexDB for local, offline storage of doc
 export var clientID // unique ID for this browser
 var yNodesMap // shared map of nodes
 var yEdgesMap // shared map of edges
@@ -504,7 +503,6 @@ export var yPointsArray // shared array of the background drawing commands
 export var yDrawingMap // shared map of background objects
 export var yUndoManager // shared list of commands for undo
 var dontUndo // when non-null, don't add an item to the undo stack
-var yChatArray // shared array of messages in the chat window
 var yAwareness // awareness channel
 export var yHistory // log of actions
 export var container //the DOM body element
@@ -552,7 +550,7 @@ window.addEventListener('load', () => {
 	setUpPage()
 	setUpBackground()
 	startY()
-	setUpChat()
+	setUpUserName()
 	setUpAwareness()
 	setUpShareDialog()
 	draw()
@@ -563,7 +561,7 @@ window.addEventListener('load', () => {
 
 window.onbeforeunload = function (event) {
 	unlockAll()
-	yAwareness.setLocalStateField('addingFactor', {state: 'done'})
+	yAwareness.setLocalStateField('addingFactor', { state: 'done' })
 	yAwareness.setLocalState(null)
 	// get confirmation from user before exiting if there are unsaved changes
 	if (checkMapSaved &amp;&amp; dirty) {
@@ -676,6 +674,8 @@ function addEventListeners() {
 
 	listen('body', 'copy', copyToClipboard)
 	listen('body', 'paste', pasteFromClipboard)
+	// if user has changed to this  tab, ensure that the network has been drawn
+	document.addEventListener("visibilitychange", () => { network.redraw() })
 }
 
 /**
@@ -698,7 +698,7 @@ function setUpPage() {
 	container.panelHidden = true
 	cp.createColorPicker('netBackColorWell', updateNetBack)
 	hammer = new Hammer(netPane)
-	hammer.get('pinch').set({enable: true})
+	hammer.get('pinch').set({ enable: true })
 	hammer.on('pinchstart', () => {
 		zoomstart()
 	})
@@ -759,11 +759,6 @@ function startY(newRoom) {
 		room = generateRoom()
 		checkMapSaved = true
 	} else room = room.toUpperCase()
-	persistence = new IndexeddbPersistence(room, doc)
-	// once the map is loaded, it can be displayed
-	persistence.once('synced', () => {
-		if (data.nodes.length > 0) displayNetPane(`${exactTime()} local content loaded`)
-	})
 	// if using a non-standard port (i.e neither 80 nor 443) assume that the websocket port is 1234 in the same domain as the url
 	if (url.port &amp;&amp; url.port !== 80 &amp;&amp; url.port !== 443) websocket = `ws://${url.hostname}:1234`
 	wsProvider = new WebsocketProvider(
@@ -791,7 +786,6 @@ function startY(newRoom) {
 	yEdgesMap = doc.getMap('edges')
 	ySamplesMap = doc.getMap('samples')
 	yNetMap = doc.getMap('network')
-	yChatArray = doc.getArray('chat')
 	yPointsArray = doc.getArray('points')
 	yDrawingMap = doc.getMap('drawing')
 	yHistory = doc.getArray('history')
@@ -836,7 +830,6 @@ function startY(newRoom) {
 	window.ySamplesMap = ySamplesMap
 	window.yNetMap = yNetMap
 	window.yUndoManager = yUndoManager
-	window.yChatArray = yChatArray
 	window.yHistory = yHistory
 	window.yPointsArray = yPointsArray
 	window.yDrawingMap = yDrawingMap
@@ -1062,16 +1055,19 @@ function startY(newRoom) {
 					case 'radius': {
 						hiddenNodes.radiusSetting = obj.radiusSetting
 						hiddenNodes.selected = obj.selected
+						setRadioVal('radius', hiddenNodes.radiusSetting)
 						break
 					}
 					case 'stream': {
 						hiddenNodes.streamSetting = obj.streamSetting
 						hiddenNodes.selected = obj.selected
+						setRadioVal('stream', hiddenNodes.streamSetting)
 						break
 					}
 					case 'paths': {
 						hiddenNodes.pathsSetting = obj.pathsSetting
 						hiddenNodes.selected = obj.selected
+						setRadioVal('paths', hiddenNodes.pathsSetting)
 						break
 					}
 					case 'sizing': {
@@ -1102,6 +1098,7 @@ function startY(newRoom) {
 						console.log('Bad key in yMapNet.observe: ', key)
 				}
 			}
+		//setAnalysisButtonsFromRemote()
 	})
 	yPointsArray.observe((evt) => {
 		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1))
@@ -1233,10 +1230,10 @@ function displayNetPane(msg) {
 		netPane.style.visibility = 'visible'
 		clearTimeout(loadingDelayTimer)
 		yUndoManager.clear()
-		initySamplesMap()
 		undoRedoButtonStatus()
 		setUpTutorial()
 		netLoaded = true
+		drawMinimap()
 		savedState = saveState()
 		setAnalysisButtonsFromRemote()
 		toggleDeleteButton()
@@ -1244,30 +1241,12 @@ function displayNetPane(msg) {
 		console.log(`Doc size: ${humanSize(Y.encodeStateAsUpdate(doc).length)}`)
 	}
 }
-/**
- * Load ySamplesMap with the current styles (for possible rollback)
- */
-function initySamplesMap() {
-	doc.transact(() => {
-		for (let grpId in styles.nodes) {
-			ySamplesMap.set(grpId, {
-				node: styles.nodes[grpId],
-			})
-		}
-		for (let grpId in styles.edges) {
-			ySamplesMap.set(grpId, {
-				edge: styles.edges[grpId],
-			})
-		}
-	})
-}
 // to handle iPad viewport sizing problem when tab bar appears and to keep panels on screen
 setvh()
 
 window.onresize = function () {
 	setvh()
 	keepPaneInWindow(panel)
-	keepPaneInWindow(elem('chatbox-holder'))
 	resizeCanvas()
 }
 /**
@@ -1287,6 +1266,10 @@ function hideNavButtons() {
 	elem('search').parentElement.style.visibility = 'visible'
 	elem('search').parentElement.style.borderLeft = 'none'
 	elem('maptitle').contentEditable = 'false'
+	if (!container.panelHidden) {
+		panel.classList.add('hide')
+		container.panelHidden = true
+	}
 }
 /** restore all the Nav Bar buttons when leaving view only mode (e.g. when
  * going back online)
@@ -1305,7 +1288,7 @@ function cancelViewOnly() {
 	yNetMap.set('viewOnly', false)
 	showNavButtons()
 	data.nodes.get().forEach((obj) => (obj.fixed = false))
-	network.setOptions({interaction: {dragNodes: true, hover: true}})
+	network.setOptions({ interaction: { dragNodes: true, hover: true } })
 }
 window.cancelViewOnly = cancelViewOnly
 /**
@@ -1319,63 +1302,36 @@ function setvh() {
 	document.documentElement.style.setProperty('--vh', `${vh}px`)
 }
 
-const chatbox = elem('chatbox')
-const chatboxTab = elem('chatbox-tab')
-const chatNameBox = elem('chat-name')
-const chatInput = elem('chat-input')
-const chatSend = elem('send-button')
-const chatMessages = elem('chat-messages')
-
 /**
- * create DOM elements for the chat box
+ * retrieve or generate user's name
  */
-function setUpChat() {
+
+function setUpUserName() {
 	try {
 		myNameRec = JSON.parse(localStorage.getItem('myName'))
 	} catch (err) {
 		myNameRec = null
 	}
-	// sanity check
-	if (!myNameRec?.name) {
-		myNameRec = generateName()
-		localStorage.setItem('myName', JSON.stringify(myNameRec))
-	}
-	myNameRec.id = clientID
+	saveUserName(myNameRec?.name ? myNameRec.name : '')
 	console.log(`My name: ${myNameRec.name}`)
-	displayUserName()
-	yAwareness.setLocalState({user: myNameRec})
-	yChatArray.observe(() => {
-		displayLastMsg()
-	})
-	chatboxTab.addEventListener('click', maximize)
-	listen('minimize', 'click', minimize)
-	chatNameBox.addEventListener('keyup', (e) => {
-		if (myNameRec.anon) chatNameBox.style.fontStyle = 'normal'
-		if (e.key === 'Enter') saveUserName(chatNameBox.value)
-	})
-	chatNameBox.addEventListener('blur', () => {
-		saveUserName(chatNameBox.value)
-	})
-	chatNameBox.addEventListener('click', () => {
-		if (myNameRec.anon) chatNameBox.value = ''
-		chatNameBox.focus()
-		chatNameBox.select()
-	})
-	chatSend.addEventListener('click', sendMsg)
 }
+/**
+ * Save a new user name into local storage
+ * @param {String} name 
+ */
 function saveUserName(name) {
 	if (name.length > 0) {
 		myNameRec.name = name
 		myNameRec.anon = false
 	} else {
 		myNameRec = generateName()
-		chatNameBox.value = myNameRec.name
 	}
 	myNameRec.id = clientID
 	localStorage.setItem('myName', JSON.stringify(myNameRec))
-	yAwareness.setLocalState({user: myNameRec})
+	yAwareness.setLocalState({ user: myNameRec })
 	showAvatars()
 }
+
 /**
  * if this is the user's first time, show them how the user interface works
  */
@@ -1391,7 +1347,6 @@ function setUpTutorial() {
 			splashNameBox.focus()
 			splashNameBox.addEventListener('blur', () => {
 				saveUserName(splashNameBox.value || anonName)
-				displayUserName()
 			})
 			splashNameBox.addEventListener('keyup', (e) => {
 				if (e.key === 'Enter') splashNameBox.blur()
@@ -1457,13 +1412,13 @@ function draw() {
 				// revert to using the original node properties before continuing.
 				item = data.nodes.get(item.id)
 				item.modified = timestamp()
-				let point = network.canvasToDOM({x: item.x, y: item.y})
+				let point = network.canvasToDOM({ x: item.x, y: item.y })
 				editNode(item, point, cancelEdit, callback)
 			},
 			addEdge: function (item, callback) {
 				inAddMode = false
 				network.setOptions({
-					interaction: {dragView: true, selectable: true},
+					interaction: { dragView: true, selectable: true },
 				})
 				showPressed('addLink', 'remove')
 				if (item.from === item.to) {
@@ -1524,8 +1479,7 @@ function draw() {
 				})
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
-							data.nodes.get(data.edges.get(edgeId).to).label
+						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
 						}'`
 					)
 				})
@@ -1538,8 +1492,7 @@ function draw() {
 			deleteEdge: function (item, callback) {
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
-							data.nodes.get(data.edges.get(edgeId).to).label
+						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
 						}'`
 					)
 				})
@@ -1588,7 +1541,7 @@ function draw() {
 			// if the Option/ALT key is down, add a node if on the background
 			if (params.nodes.length === 0 &amp;&amp; params.edges.length === 0) {
 				let pos = params.pointer.canvas
-				let item = {id: uuidv4(), label: '', x: pos.x, y: pos.y}
+				let item = { id: uuidv4(), label: '', x: pos.x, y: pos.y }
 				item = deepMerge(item, styles.nodes[lastNodeSample])
 				item.grp = lastNodeSample
 				addLabel(item, clearPopUp, function (newItem) {
@@ -1738,9 +1691,9 @@ function draw() {
 		let e = params.event.pointers[0]
 		// start drawing a selection rectangle if the CTRL key is down and click is on the background
 		if (e.ctrlKey &amp;&amp; params.nodes.length === 0 &amp;&amp; params.edges.length === 0) {
-			network.setOptions({interaction: {dragView: false}})
+			network.setOptions({ interaction: { dragView: false } })
 			listen('net-pane', 'mousemove', showAreaSelection)
-			selectionStart = {x: e.offsetX, y: e.offsetY}
+			selectionStart = { x: e.offsetX, y: e.offsetY }
 			selectionCanvasStart = params.pointer.canvas
 			selectionArea.style.left = `${e.offsetX}px`
 			selectionArea.style.top = `${e.offsetY}px`
@@ -1757,7 +1710,7 @@ function draw() {
 				showPressed('addLink', 'add')
 				statusMsg('Now drag to the middle of the Destination factor')
 				network.setOptions({
-					interaction: {dragView: false, selectable: false},
+					interaction: { dragView: false, selectable: false },
 				})
 				network.addEdgeMode()
 				return
@@ -1772,12 +1725,10 @@ function draw() {
 	function showAreaSelection(event) {
 		selectionArea.style.left = `${Math.min(selectionStart.x, event.offsetX)}px`
 		selectionArea.style.top = `${Math.min(selectionStart.y, event.offsetY)}px`
-		selectionArea.style.width = `${
-			Math.max(selectionStart.x, event.offsetX) - Math.min(selectionStart.x, event.offsetX)
-		}px`
-		selectionArea.style.height = `${
-			Math.max(selectionStart.y, event.offsetY) - Math.min(selectionStart.y, event.offsetY)
-		}px`
+		selectionArea.style.width = `${Math.max(selectionStart.x, event.offsetX) - Math.min(selectionStart.x, event.offsetX)
+			}px`
+		selectionArea.style.height = `${Math.max(selectionStart.y, event.offsetY) - Math.min(selectionStart.y, event.offsetY)
+			}px`
 	}
 	network.on('dragging', function () {
 		let endViewPosition = network.getViewPosition()
@@ -1790,7 +1741,7 @@ function draw() {
 		panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
 		if (selectionArea.style.display === 'block') {
 			selectionArea.style.display = 'none'
-			network.setOptions({interaction: {dragView: true}})
+			network.setOptions({ interaction: { dragView: true } })
 			elem('net-pane').removeEventListener('mousemove', showAreaSelection)
 		}
 		let e = params.event.pointers[0]
@@ -1858,14 +1809,15 @@ function draw() {
 	let bigNetwork = null
 	let bigNetCanvas = null
 	let netPaneRect = null
+	let magnifying = false
 
-	window.addEventListener('keydown', (e) => {
-		if (!inEditMode &amp;&amp; e.shiftKey) createMagnifier()
+	netPane.addEventListener('keydown', (e) => {
+		if (!inEditMode &amp;&amp; e.shiftKey &amp;&amp; !magnifying) createMagnifier()
 	})
-	window.addEventListener('mousemove', (e) => {
-		if (!inEditMode &amp;&amp; e.shiftKey) showMagnifier(e)
+	netPane.addEventListener('mousemove', (e) => {
+		if (magnifying &amp;&amp; !inEditMode &amp;&amp; e.shiftKey) showMagnifier(e)
 	})
-	window.addEventListener('keyup', (e) => {
+	netPane.addEventListener('keyup', (e) => {
 		if (e.key === 'Shift') closeMagnifier()
 	})
 
@@ -1878,6 +1830,7 @@ function draw() {
 			bigNetPane.remove()
 		}
 		if (drawingSwitch) return
+		magnifying = true
 		netPaneRect = netPane.getBoundingClientRect()
 		network.storePositions()
 		bigNetPane = document.createElement('div')
@@ -1888,9 +1841,30 @@ function draw() {
 		bigNetPane.style.width = `${netPane.offsetWidth * magnification}px`
 		bigNetPane.style.height = `${netPane.offsetHeight * magnification}px`
 		netPane.appendChild(bigNetPane)
-		bigNetwork = new Network(bigNetPane, data, {
-			physics: {enabled: false},
+		let bigNetData = {
+			nodes: new DataSet(),
+			edges: new DataSet(),
+		}
+		bigNetData.nodes.add(data.nodes.get())
+		bigNetData.edges.add(data.edges.get())
+		bigNetwork = new Network(bigNetPane, bigNetData, {
+			physics: { enabled: false },
 		})
+		// unhide any hidden nodes and edges
+		let changedNodes = []
+		bigNetData.nodes.forEach((n) => {
+			if (n.nodeHidden) {
+				changedNodes.push(setNodeHidden(n, false))
+			}
+		})
+		let changedEdges = []
+		bigNetData.edges.forEach((e) => {
+			if (e.edgeHidden) {
+				changedEdges.push(setEdgeHidden(e, false))
+			}
+		})
+		bigNetData.nodes.update(changedNodes)
+		bigNetData.edges.update(changedEdges)
 		bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
 		bigNetwork.on('afterDrawing', () => {
 			setCanvasBackground(bigNetCanvas)
@@ -1936,6 +1910,7 @@ function draw() {
 		}
 		netPane.style.cursor = 'default'
 		magnifier.style.display = 'none'
+		magnifying = false
 	}
 } // end draw()
 
@@ -1957,6 +1932,185 @@ export function setCanvasBackground(canvas) {
 	return canvas
 }
 
+/* --------------------------------------------draw and update the minimap --------------------------------------------*/
+/**
+ * Draw the minimap, which is a scaled down version of the network
+ * with a 'radar' overlay showing the current view
+ * 
+ * @param {number} [ratio=5] - the ratio of the size of the minimap to the network
+ */
+export function drawMinimap(ratio = 5) {
+	let fullNetPane, fullNetwork, initialScale, initialPosition, minimapWidth, minimapHeight
+	const minimapWrapper = document.getElementById('minimapWrapper')// a div to contain the minimap
+	const minimapImage = document.getElementById('minimapImage')	// an img, child of minimapWrapper
+	const minimapRadar = document.getElementById('minimapRadar')	// a div, child of minimapWrapper
+	// size the minimap
+	minimapSetup()
+	// set up dragging of the radar overlay
+	let dragging = false // if true, ignore clicks when user is dragging radar overlay
+	dragRadar()
+	/**
+	 * Set the size of the minimap and its components
+	 */
+	function minimapSetup() {
+		const { clientWidth, clientHeight } = network.body.container
+		minimapWidth = clientWidth / ratio
+		minimapHeight = clientHeight / ratio
+		minimapWrapper.style.width = `${minimapWidth}px`
+		minimapWrapper.style.height = `${minimapHeight}px`
+		minimapRadar.style.width = `${minimapWidth}px`
+		minimapRadar.style.height = `${minimapHeight}px`
+		drawMinimapImage()
+		drawRadar()
+	}
+	/**
+	 * Draw a copy of the full network offscreen, then create an image of it
+	 * The visible network can't be used, because it may be scaled and panned, but the minimap image needs to  
+	 * show the full network
+	 */
+	function drawMinimapImage() {
+		if (!elem('fullnetPane')) {
+			// if the full network does not exist, create it
+			fullNetPane = document.createElement('div')
+			fullNetPane.style.position = 'absolute'
+			fullNetPane.style.top = '-9999px'
+			fullNetPane.style.left = '-9999px'
+			fullNetPane.style.width = `${netPane.offsetWidth}px`
+			fullNetPane.style.height = `${netPane.offsetHeight}px`
+			fullNetPane.id = 'fullNetPane'
+			netPane.appendChild(fullNetPane)
+			fullNetwork = new Network(fullNetPane, data, {
+				physics: { enabled: false }
+			})
+		}
+		fullNetwork.setOptions({ edges: { smooth: elem('curveSelect').value === 'Curved' } })
+		fullNetwork.fit()
+		initialScale = fullNetwork.getScale()
+		initialPosition = fullNetwork.getViewPosition()
+
+		const fullNetworklCanvas = fullNetPane.firstElementChild.firstElementChild
+		fullNetwork.on('afterDrawing', () => {
+			// make the image as a reduced version of the fullNetwork
+			const tempCanvas = document.createElement('canvas')
+			const tempContext = tempCanvas.getContext('2d')
+			tempCanvas.width = minimapWidth
+			tempCanvas.height = minimapHeight
+			tempContext.drawImage(fullNetworklCanvas, 0, 0, minimapWidth, minimapHeight)
+			minimapImage.src = tempCanvas.toDataURL()
+			minimapImage.width = minimapWidth
+			minimapImage.height = minimapHeight
+		})
+	}
+	/**
+	 * Move a radar overlay on the minimap to show the current view of the network
+	 */
+	function drawRadar() {
+		const scale = initialScale / network.getScale()
+		// fade out the whole minimap if the network is all visible in the viewport 
+		// (there is no value in having a minimap in this case)
+		if (scale >= 1 &amp;&amp; networkInPane()) {
+			minimapWrapper.style.opacity = 0
+			return
+		}
+		else minimapWrapper.style.opacity = 1
+		const currentDOMPosition = network.canvasToDOM(network.getViewPosition())
+		const initialDOMPosition = network.canvasToDOM(initialPosition)
+
+		minimapRadar.style.left = `${Math.round((currentDOMPosition.x - initialDOMPosition.x) * scale / ratio + minimapWidth * (1 - scale) / 2)}px`
+		minimapRadar.style.top = `${Math.round((currentDOMPosition.y - initialDOMPosition.y) * scale / ratio + minimapHeight * (1 - scale) / 2)}px`
+		minimapRadar.style.width = `${minimapWidth * scale}px`
+		minimapRadar.style.height = `${minimapHeight * scale}px`
+	}
+	/**
+	 * 
+	 * @returns {boolean} - true if the network is entirely within the viewport
+	 */
+	function networkInPane() {
+		const netPaneTopLeft = network.DOMtoCanvas({ x: 0, y: 0 })
+		const netPaneBottomRight = network.DOMtoCanvas({ x: netPane.clientWidth, y: netPane.clientHeight })
+		for (const nodeId of data.nodes.getIds()) {
+			const boundingBox = network.getBoundingBox(nodeId)
+			if (boundingBox.left &lt; netPaneTopLeft.x) return false
+			if (boundingBox.right > netPaneBottomRight.x) return false
+			if (boundingBox.top &lt; netPaneTopLeft.y) return false
+			if (boundingBox.bottom > netPaneBottomRight.y) return false
+		}
+		return true
+	}
+	/**
+	 * Whenever the network is resized, the minimap needs to be resized and the radar overlay moved
+	 */
+	network.on('resize', () => { minimapSetup() })
+	/**
+	 * Whenever the network is changed, panned or zoomed, the radar overlay needs to be moved
+	 */
+	network.on('afterDrawing', () => { drawRadar() })
+	/**
+	 * Set up dragging of the radar overlay
+	 */
+	function dragRadar() {
+		let x, y, radarStart
+		minimapRadar.addEventListener('mousedown', dragMouseDown)
+		minimapWrapper.addEventListener('wheel', (e) => {
+			e.preventDefault()
+			// reject all but vertical touch movements
+			if (Math.abs(e.deltaX) &lt;= 1) zoomscroll(e)
+		}, { passive: false })
+
+		function dragMouseDown(e) {
+			e.preventDefault();
+			x = e.clientX, y = e.clientY
+			radarStart = { x: minimapRadar.offsetLeft, y: minimapRadar.offsetTop }
+			minimapRadar.addEventListener('mousemove', drag)
+			minimapRadar.addEventListener('mouseup', dragMouseUp)
+		}
+
+		function drag(e) {
+			e.preventDefault();
+			dragging = true
+			let dx = e.clientX - x;
+			let dy = e.clientY - y;
+			let left = radarStart.x + dx
+			let top = radarStart.y + dy
+			if (left &lt; 0) left = 0
+			if (left + minimapRadar.offsetWidth >= minimapWidth) left = minimapWidth - minimapRadar.offsetWidth
+			if (top &lt; 0) top = 0
+			if (top + minimapRadar.offsetHeight >= minimapHeight) top = minimapHeight - minimapRadar.offsetHeight
+			minimapRadar.style.left = `${Math.round(left)}px`
+			minimapRadar.style.top = `${Math.round(top)}px`
+			let initialDOMPosition = network.canvasToDOM(initialPosition)
+			const scale = initialScale / network.getScale()
+			const radarRect = minimapRadar.getBoundingClientRect()
+			const wrapperRect = minimapWrapper.getBoundingClientRect()
+/* 			minimapRadar.style.top = 0
+			minimapRadar.style.left = 0
+ */			network.moveTo({
+				position: network.DOMtoCanvas({
+					x: (radarRect.left - wrapperRect.left + (radarRect.width - wrapperRect.width) / 2) * ratio / scale + initialDOMPosition.x,
+					y: (radarRect.top - wrapperRect.top + (radarRect.height - wrapperRect.height) / 2) * ratio / scale + initialDOMPosition.y
+				})
+			})
+		}
+
+		function dragMouseUp(e) {
+			e.preventDefault()
+			if (!dragging) return
+			minimapRadar.removeEventListener('mousemove', drag)
+			minimapRadar.removeEventListener('mouseup', dragMouseUp)
+			/* 			let initialDOMPosition = network.canvasToDOM(initialPosition)
+						const scale = initialScale / network.getScale()
+						const radarRect = minimapRadar.getBoundingClientRect()
+						const wrapperRect = minimapWrapper.getBoundingClientRect()
+						network.moveTo({
+							position: network.DOMtoCanvas({
+								x: (radarRect.left - wrapperRect.left + (radarRect.width - wrapperRect.width) / 2) * ratio / scale + initialDOMPosition.x,
+								y: (radarRect.top - wrapperRect.top + (radarRect.height - wrapperRect.height) / 2) * ratio / scale + initialDOMPosition.y
+							})
+						}) */
+		}
+	}
+}
+/* -------------------------------------------- network map utilities --------------------------------------------*/
 /**
  * clear the map by destroying all nodes and edges
  */
@@ -1992,13 +2146,23 @@ export function toggleDeleteButton() {
 function contextMenu(event) {
 	event.preventDefault()
 }
+/****************************************************** update history for history log **************************/
 /**
  * return an object with the current time as an integer date and the current user's name
  */
 export function timestamp() {
-	return {time: Date.now(), user: myNameRec.name}
+	return { time: Date.now(), user: myNameRec.name }
 }
 window.timestamp = timestamp
+/**
+ * Generate a key for a time slot in the history log
+ * 
+ * @param {integer} time 
+ * @returns {string} key
+ */
+function timekey(time) {
+	return room + time
+}
 /**
  * push a record that action has been taken on to the end of the history log
  *  also record current state of the map for possible roll back
@@ -2014,13 +2178,15 @@ export function logHistory(action, actor) {
 			user: actor ? actor : myNameRec.name,
 		},
 	])
-	persistence.set(now, savedState)
+	// store the current state of the map for possible rollback
+
+	localStorage.setItem(timekey(now), savedState)
 	savedState = saveState()
 
 	// delete all but the last ROLLBACKS saved states
 	for (let i = 0; i &lt; yHistory.length - ROLLBACKS; i++) {
 		let obj = yHistory.get(i)
-		if (obj.time) persistence.del(obj.time)
+		if (obj.time) localStorage.removeItem(timekey(obj.time))
 	}
 	if (elem('history-window').style.display === 'block') showHistory()
 	dirty = true
@@ -2029,7 +2195,7 @@ export function logHistory(action, actor) {
  * Generate a compressed dump of the current state of the map, sufficient to reproduce it
  * @returns binary string
  */
-function saveState(options) {
+export function saveState(options) {
 	return compressToUTF16(
 		JSON.stringify({
 			nodes: data.nodes.get(),
@@ -2048,17 +2214,17 @@ let toolbarOptions = [
 	['bold', 'italic', 'underline', 'strike'],
 	['blockquote', 'code-block'],
 
-	[{list: 'ordered'}, {list: 'bullet'}],
-	[{script: 'sub'}, {script: 'super'}],
-	[{indent: '-1'}, {indent: '+1'}],
-	[{align: []}],
+	[{ list: 'ordered' }, { list: 'bullet' }],
+	[{ script: 'sub' }, { script: 'super' }],
+	[{ indent: '-1' }, { indent: '+1' }],
+	[{ align: [] }],
 
 	['link', 'image'],
-	[{size: ['small', false, 'large', 'huge']}],
-	[{header: [1, 2, 3, 4, 5, 6, false]}],
+	[{ size: ['small', false, 'large', 'huge'] }],
+	[{ header: [1, 2, 3, 4, 5, 6, false] }],
 
-	[{color: []}, {background: []}],
-	[{font: []}],
+	[{ color: [] }, { background: [] }],
+	[{ font: [] }],
 
 	['clean'],
 ]
@@ -2068,11 +2234,12 @@ let drawerEditor = new Quill(elem('drawer-editor'), {
 	},
 	placeholder: 'Notes about the map',
 	theme: 'snow',
+	readOnly: viewOnly,
 })
 
 drawerEditor.on('text-change', (delta, oldDelta, source) => {
 	if (source === 'user') {
-		yNetMap.set('mapDescription', {text: isQuillEmpty(drawerEditor) ? '' : drawerEditor.getContents()})
+		yNetMap.set('mapDescription', { text: isQuillEmpty(drawerEditor) ? '' : drawerEditor.getContents() })
 	}
 })
 export function setSideDrawer(contents) {
@@ -2247,7 +2414,7 @@ function copyToClipboard(event) {
 		if (!nodes.find((n) => n.id === edge.to)) nodes.push(data.nodes.get(edge.to))
 		if (!edges.find((e) => e.id === eId)) edges.push(data.edges.get(eId))
 	})
-	copyText(JSON.stringify({nodes: nodes, edges: edges}))
+	copyText(JSON.stringify({ nodes: nodes, edges: edges }))
 }
 /**
  * copy the contents of the history log to the clipboard
@@ -2289,7 +2456,7 @@ async function pasteFromClipboard() {
 	let nodes
 	let edges
 	try {
-		;({nodes, edges} = JSON.parse(clip))
+		; ({ nodes, edges } = JSON.parse(clip))
 	} catch (err) {
 		// silently return (i.e. use system paste) if there is nothing relevant on the clipboard
 		return
@@ -2387,7 +2554,7 @@ function clearPopUp() {
 		clearTimeout(elem('popup').timer)
 		elem('popup').timer = undefined
 	}
-	yAwareness.setLocalStateField('addingFactor', {state: 'done'})
+	yAwareness.setLocalStateField('addingFactor', { state: 'done' })
 	inEditMode = false
 }
 /**
@@ -2425,7 +2592,7 @@ function cancelEdit(item, callback) {
 function addLabel(item, cancelAction, callback) {
 	if (elem('popup').style.display === 'block') return // can't add factor when factor is already being added
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback)
-	let pos = network.canvasToDOM({x: item.x, y: item.y})
+	let pos = network.canvasToDOM({ x: item.x, y: item.y })
 	positionPopUp(pos)
 	removeFactorCursor()
 	ghostFactor(pos)
@@ -2443,7 +2610,7 @@ function ghostFactor(pos) {
 	})
 	elem('popup').timer = setTimeout(() => {
 		// close it after a time if the user has gone away
-		yAwareness.setLocalStateField('addingFactor', {state: 'done'})
+		yAwareness.setLocalStateField('addingFactor', { state: 'done' })
 	}, TIMETOEDIT)
 }
 /**
@@ -2841,30 +3008,25 @@ function createTitleDropDown() {
 	selectList.classList.add('room-titles')
 	elem('recent-rooms').appendChild(selectList)
 	let recentMaps = JSON.parse(localStorage.getItem('recents'))
-	// list is with most recent at the top, and no more than 20 items
+	// list is with New Map and then the most recent at the top
 	if (recentMaps) {
-		let props = Object.keys(recentMaps).reverse().slice(0, 20)
+		makeTitleDropDownEntry('&lt;b>New map&lt;/b>', '*new*', false)
+		let props = Object.keys(recentMaps).reverse()
 		props.forEach((prop) => {
 			makeTitleDropDownEntry(recentMaps[prop], prop)
 		})
-		makeTitleDropDownEntry('&lt;b>New map&lt;/b>', '*new*', false)
 	}
 	/**
-	 * create a previous map menu item, with tooltip showing full title and room
+	 * create a previous map menu item
 	 * @param {string} name Title of map
 	 * @param {string} room
-	 * @param {boolean} tooltip whether to display tooltip
 	 */
-	function makeTitleDropDownEntry(name, room, tooltip = true) {
+	function makeTitleDropDownEntry(name, room) {
 		let li = document.createElement('li')
-		li.classList.add('room-title', 'room-title-tooltip')
-		let div = document.createElement('div')
-		div.classList.add('room-title-text')
-		if (tooltip) div.innerHTML = `${name}&lt;div class="room-title-right">${name}&lt;br>&amp;lt;${room}&amp;gt;&lt;i>&lt;/i>&lt;/div>`
-		else div.innerHTML = name
-		div.dataset.room = room
-		div.addEventListener('click', (event) => changeRoom(event))
-		li.appendChild(div)
+		li.classList.add('room-title')
+		li.innerHTML = name
+		li.dataset.room = room
+		li.addEventListener('click', (event) => changeRoom(event))
 		selectList.appendChild(li)
 	}
 }
@@ -2900,7 +3062,7 @@ export function unSelect() {
 */
 // set  up a web worker to calculate network statistics in parallel with whatever
 // the user is doing
-var worker = new Worker(new URL('./betweenness.js', import.meta.url), {type: 'module'})
+var worker = new Worker(new URL('./betweenness.js', import.meta.url), { type: 'module' })
 /**
  * Ask the web worker to recalculate network statistics
  */
@@ -3004,7 +3166,7 @@ Network.prototype.zoom = function (scale) {
 export function fit() {
 	let prevPos = network.getViewPosition()
 	network.fit({
-		position: {x: 0, y: 0}, // fit to centre of canvas
+		position: { x: 0, y: 0 }, // fit to centre of canvas
 	})
 	let newPos = network.getViewPosition()
 	let newScale = network.getScale()
@@ -3068,7 +3230,7 @@ listen(
 		if (Math.abs(e.deltaX) &lt;= 1) zoomscroll(e)
 	},
 	// must be passive, else pinch/zoom is intercepted by the browser itself
-	{passive: false}
+	{ passive: false }
 )
 /**
  * Zoom using a trackpad (with a mousewheel or two fingers)
@@ -3145,21 +3307,19 @@ function ghostCursor() {
 		const boxHalfWidth = box.offsetWidth / 2
 		const boxHalfHeight = box.offsetHeight / 2
 		let left = window.event.pageX - boxHalfWidth
-		box.style.left = `${
-			left &lt;= netPaneRect.left
-				? netPaneRect.left
-				: left >= netPaneRect.right - box.offsetWidth
+		box.style.left = `${left &lt;= netPaneRect.left
+			? netPaneRect.left
+			: left >= netPaneRect.right - box.offsetWidth
 				? netPaneRect.right - box.offsetWidth
 				: left
-		}px`
+			}px`
 		let top = window.event.pageY - boxHalfHeight
-		box.style.top = `${
-			top &lt;= netPaneRect.top
-				? netPaneRect.top
-				: top >= netPaneRect.bottom - box.offsetHeight
+		box.style.top = `${top &lt;= netPaneRect.top
+			? netPaneRect.top
+			: top >= netPaneRect.bottom - box.offsetHeight
 				? netPaneRect.bottom - box.offsetHeight
 				: top
-		}px`
+			}px`
 	}
 }
 /**
@@ -3205,7 +3365,7 @@ function plusLink() {
 			unSelect()
 			statusMsg('Now drag from the middle of the Source factor to the middle of the Destination factor')
 			network.setOptions({
-				interaction: {dragView: false, selectable: false},
+				interaction: { dragView: false, selectable: false },
 			})
 			network.addEdgeMode()
 	}
@@ -3217,7 +3377,7 @@ function stopEdit() {
 	inAddMode = false
 	network.disableEditMode()
 	network.setOptions({
-		interaction: {dragView: true, selectable: true},
+		interaction: { dragView: true, selectable: true },
 	})
 	clearStatusBar()
 	changeCursor('default')
@@ -3345,6 +3505,13 @@ function setUpShareDialog() {
 	}
 
 	function doClone(onlyView) {
+		// undo any ongoing analysis and unselect all nodes and edges
+		setRadioVal('radius', 'All')
+		setRadioVal('stream', 'All')
+		setRadioVal('paths', 'All')
+		analyse()
+		unSelect()
+
 		let options = {
 			created: {
 				action: `cloned this map from room: ${room + (onlyView ? ' (Read Only)' : '')}`,
@@ -3424,7 +3591,7 @@ function doSearch(event) {
 	let nodeId = event.target.dataset.id
 	if (nodeId) {
 		let prevPos = network.getViewPosition()
-		network.focus(nodeId, {scale: 1.5})
+		network.focus(nodeId, { scale: 1.5 })
 		let newPos = network.getViewPosition()
 		let newScale = network.getScale()
 		zoomCanvas(1.0)
@@ -3475,12 +3642,11 @@ function keepPaneInWindow(pane) {
 		pane.style.left = `${container.offsetLeft + container.offsetWidth - pane.offsetWidth}px`
 	}
 	if (pane.offsetTop + pane.offsetHeight > container.offsetTop + container.offsetHeight) {
-		pane.style.top = `${
-			container.offsetTop +
+		pane.style.top = `${container.offsetTop +
 			container.offsetHeight -
 			pane.offsetHeight -
 			document.querySelector('footer').offsetHeight
-		}px`
+			}px`
 	}
 }
 
@@ -3513,12 +3679,16 @@ function applySampleToNode(event) {
 	let nodesToUpdate = []
 	let sample = event.currentTarget.groupNode
 	for (let node of data.nodes.get(selectedNodeIds)) {
-		node = deepMerge(node, styles.nodes[sample])
-		node.grp = sample
-		node.modified = timestamp()
-		nodesToUpdate.push(node)
+		if (sample !== node.grp) {
+			node = deepMerge(node, styles.nodes[sample])
+			node.grp = sample
+			node.modified = timestamp()
+			nodesToUpdate.push(node)
+		}
 	}
 	data.nodes.update(nodesToUpdate)
+	let nNodes = nodesToUpdate.length
+	if (nNodes) logHistory(`applied ${styles.nodes[sample].groupLabel} style to ${nNodes === 1 ? nodesToUpdate[0].label : nNodes + ' factors'}`)
 	lastNodeSample = sample
 }
 
@@ -3529,12 +3699,16 @@ function applySampleToLink(event) {
 	if (selectedEdges.length === 0) return
 	let edgesToUpdate = []
 	for (let edge of data.edges.get(selectedEdges)) {
-		edge = deepMerge(edge, styles.edges[sample])
-		edge.grp = sample
-		edge.modified = timestamp()
-		edgesToUpdate.push(edge)
+		if (sample !== edge.grp) {
+			edge = deepMerge(edge, styles.edges[sample])
+			edge.grp = sample
+			edge.modified = timestamp()
+			edgesToUpdate.push(edge)
+		}
 	}
 	data.edges.update(edgesToUpdate)
+	let nEdges = edgesToUpdate.length
+	if (nEdges) logHistory(`applied ${styles.edges[sample].groupLabel} style to ${nEdges} link${(nEdges === 1) ? '' : 's'} `)
 	lastLinkSample = sample
 }
 /**
@@ -3689,10 +3863,10 @@ function showNodeData(nodeId) {
 				'italic',
 				'underline',
 				'link',
-				{list: 'ordered'},
-				{list: 'bullet'},
-				{indent: '-1'},
-				{indent: '+1'},
+				{ list: 'ordered' },
+				{ list: 'bullet' },
+				{ indent: '-1' },
+				{ indent: '+1' },
 			],
 		},
 		placeholder: 'Notes',
@@ -3728,9 +3902,7 @@ function showEdgeData() {
 	let panel = elem('edgeDataPanel')
 	let edgeId = network.getSelectedEdges()[0]
 	let edge = data.edges.get(edgeId)
-	elem('edgeLabel').innerHTML = `Link from "${shorten(data.nodes.get(edge.from).label)}" to "${shorten(
-		data.nodes.get(edge.to).label
-	)}"`
+	elem('edgeLabel').innerHTML = (edge.label ? edge.label : `Link from "${shorten(data.nodes.get(edge.from).label)}" to "${shorten(data.nodes.get(edge.to).label)}"`)
 	if (edge.created) {
 		elem('edgeCreated').innerHTML = `${timeAndDate(edge.created.time)} by ${edge.created.user}`
 		elem('edgeCreation').style.display = 'flex'
@@ -3746,10 +3918,10 @@ function showEdgeData() {
 				'italic',
 				'underline',
 				'link',
-				{list: 'ordered'},
-				{list: 'bullet'},
-				{indent: '-1'},
-				{indent: '+1'},
+				{ list: 'ordered' },
+				{ list: 'bullet' },
+				{ indent: '-1' },
+				{ indent: '+1' },
 			],
 		},
 		placeholder: 'Notes',
@@ -3829,7 +4001,7 @@ function autoLayout(e) {
 	doc.transact(() => {
 		switch (option) {
 			case 'off': {
-				network.setOptions({physics: {enabled: false}})
+				network.setOptions({ physics: { enabled: false } })
 				break
 			}
 			case 'trophic': {
@@ -3909,13 +4081,13 @@ function autoLayout(e) {
 				break
 			}
 			default: {
-				let options = {physics: {solver: option, stabilization: true}}
+				let options = { physics: { solver: option, stabilization: true } }
 				options.physics[option] = {}
 				options.physics[option].springLength = avEdgeLength()
 				network.setOptions(options)
 				// cancel the iterative algorithms as soon as they have stabilized
 				network.on('stabilized', () => {
-					network.setOptions({physics: {enabled: false}})
+					network.setOptions({ physics: { enabled: false } })
 					network.storePositions()
 					elem('layoutSelect').value = 'off'
 					data.nodes.update(data.nodes.get())
@@ -4058,7 +4230,6 @@ function toggleDrawingLayer() {
 		elem('underlay').style.zIndex = 0
 		makeSolid(ul)
 		document.querySelector('.upper-canvas').style.zIndex = 0
-		elem('chatbox-tab').classList.remove('chatbox-hide')
 		inAddMode = false
 		elem('buttons').style.visibility = 'visible'
 		setButtonDisabledStatus('addNode', false)
@@ -4075,8 +4246,6 @@ function toggleDrawingLayer() {
 		document.querySelector('.upper-canvas').style.zIndex = 1001
 		// make the underlay (which is now overlay) translucent
 		makeTranslucent(ul)
-		minimize()
-		elem('chatbox-tab').classList.add('chatbox-hide')
 		clearLegend()
 		inAddMode = 'disabled'
 		elem('buttons').style.visibility = 'hidden'
@@ -4096,7 +4265,7 @@ function ensureNotDrawing() {
 }
 
 function selectAllFactors() {
-	selectFactors(data.nodes.getIds({filter: (n) => !n.nodeHidden}))
+	selectFactors(data.nodes.getIds({ filter: (n) => !n.nodeHidden }))
 	showSelected()
 }
 
@@ -4106,7 +4275,7 @@ export function selectFactors(nodeIds) {
 }
 
 function selectAllLinks() {
-	selectLinks(data.edges.getIds({filter: (e) => !e.edgeHidden}))
+	selectLinks(data.edges.getIds({ filter: (e) => !e.edgeHidden }))
 	showSelected()
 }
 
@@ -4129,7 +4298,7 @@ function selectUsersItems(event) {
 		.get()
 		.filter((e) => e.created?.user === userName || e.modified?.user === userName)
 		.map((e) => e.id)
-	network.setSelection({nodes: usersNodes, edges: userEdges})
+	network.setSelection({ nodes: usersNodes, edges: userEdges })
 	showSelected()
 }
 
@@ -4501,7 +4670,7 @@ function analyse() {
 				if (!Array.isArray(paths) || paths.length === data.nodes.length + 1) paths = []
 				if (!all) {
 					for (let i = 0; i &lt; paths.length - 1; i++) {
-						links.push({from: paths[i], to: paths[i + 1]})
+						links.push({ from: paths[i], to: paths[i + 1] })
 					}
 				}
 				return links
@@ -4530,12 +4699,12 @@ function analyse() {
 						connectedNodes.forEach((next) => {
 							let vis = visited.get(next)
 							if (vis === 'onpath') {
-								links.push({from: source, to: next})
+								links.push({ from: source, to: next })
 								path = path.concat([next])
 							} else if (!vis) {
 								let p = getPaths(next, dest)
 								if (Array.isArray(p) &amp;&amp; p.length > 0) {
-									links.push({from: source, to: next})
+									links.push({ from: source, to: next })
 									visited.set(next, 'onpath')
 									path = path.concat(p)
 								}
@@ -4634,7 +4803,7 @@ export function sizing(metric) {
 				node.widthConstraint =
 					node.heightConstraint =
 					node.size =
-						MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
+					MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
 		}
 	})
 	data.nodes.update(nodesToUpdate)
@@ -4702,125 +4871,6 @@ export function recreateClusteringMenu(obj) {
 		}
 	}
 }
-/*****************************************************************chat window ******************************************************************/
-
-var emojiPicker = null
-
-function minimize() {
-	if (emojiPicker) chatbox.removeChild(emojiPicker)
-	chatbox.classList.add('chatbox-hide')
-	chatboxTab.classList.remove('chatbox-hide')
-	chatboxTab.classList.remove('chatbox-blink')
-}
-
-function maximize() {
-	chatboxTab.classList.add('chatbox-hide')
-	chatboxTab.classList.remove('chatbox-blink')
-	chatbox.classList.remove('chatbox-hide')
-	const emojiButton = document.querySelector('#emoji-button')
-	emojiButton.addEventListener('click', () => {
-		if (emojiPicker) {
-			chatbox.removeChild(emojiPicker)
-			emojiPicker = null
-		} else {
-			emojiPicker = new Picker()
-			chatbox.appendChild(emojiPicker)
-			emojiPicker.addEventListener('emoji-click', (event) => {
-				document.querySelector('#chat-input').value += event.detail.unicode
-			})
-		}
-	})
-	displayUserName()
-	displayAllMsgs()
-}
-
-function blinkChatboxTab() {
-	if (yChatArray.length > 0) chatboxTab.classList.add('chatbox-blink')
-}
-
-function sendMsg() {
-	let inputMsg = chatInput.value.replace(/\n/g, '&lt;/br>')
-	yChatArray.push([
-		{
-			client: clientID,
-			author: myNameRec.name,
-			recipient: elem('chat-users').value,
-			time: Date.now(),
-			msg: inputMsg,
-		},
-	])
-	chatInput.value = ''
-}
-
-function displayLastMsg() {
-	displayMsg(yChatArray.get(yChatArray.length - 1))
-}
-
-function displayAllMsgs() {
-	chatMessages.innerHTML = ''
-	for (let m = 0; m &lt; yChatArray.length; m++) {
-		displayMsg(yChatArray.get(m))
-	}
-	chatMessages.scrollTop = chatMessages.scrollHeight
-}
-
-function displayMsg(msg) {
-	if (msg === undefined) return
-	let clock = Number.isInteger(msg.time) ? timeAndDate(msg.time) : ''
-	if (msg.client === clientID) {
-		// my own message
-		chatMessages.innerHTML += `&lt;div class="message-box-holder">
-			&lt;div class="message-header">
-				&lt;span class="message-time">${clock}&lt;/span>
-			&lt;/div>
-			&lt;div class="message-box">
-				${msg.msg}
-			&lt;/div>
-		&lt;/div>`
-	} else {
-		// show only messages with no recipient (as from an old version), everyone or me
-		if (
-			msg.recipient === undefined ||
-			msg.recipient === '' ||
-			msg.recipient === myNameRec.name.replace(/\s+/g, '').toLowerCase()
-		) {
-			blinkChatboxTab()
-			chatMessages.innerHTML += `&lt;div class="message-box-holder">
-			&lt;div class="message-header">
-				&lt;span class="message-author">${msg.author}&lt;/span>&lt;span class="message-time">${clock}&lt;/span> 
-			&lt;/div>
-			&lt;div class="message-box message-received">
-				${msg.msg}
-			&lt;/div>
-		&lt;/div>`
-		}
-	}
-	chatMessages.scrollTop = chatMessages.scrollHeight
-}
-
-function displayUserName() {
-	chatNameBox.style.fontStyle = myNameRec.anon ? 'italic' : 'normal'
-	chatNameBox.value = myNameRec.name
-}
-
-/**
- * Create a set of options for the select menu of the currently online users
- * @param {Array} names - array of name records from yAwareness (see showAvatars)
- */
-// cache menu to avoid expensive DOM operations
-let oldUserNames = []
-function populateChatUserMenu(names) {
-	let userNames = names.map((nRec) => nRec.name)
-	if (object_equals(oldUserNames, userNames)) return
-	oldUserNames = userNames
-	let options = '&lt;option value="">Everyone&lt;/option>'
-	userNames.forEach((name) => {
-		options += `&lt;option value=${name.replace(/\s+/g, '').toLowerCase()}>${name}&lt;/option>`
-	})
-	elem('chat-users').innerHTML = options
-}
-
-dragElement(elem('chatbox-holder'), elem('chatbox-top'))
 
 /* ---------------------------------------history window --------------------------------*/
 /**
@@ -4844,8 +4894,8 @@ function showHistory() {
  * add a button for rolling back if there is state data corresponding to this log record
  * @param {HTMLElement} e - history record
  * */
-async function addRollbackIcon(e) {
-	let state = await persistence.get(parseInt(e.dataset.time))
+function addRollbackIcon(e) {
+	let state = localStorage.getItem(timekey(parseInt(e.dataset.time)))
 	if (state) {
 		e.id = `hist${e.dataset.time}`
 		e.innerHTML = `&lt;div class="tooltip">
@@ -4864,9 +4914,9 @@ async function addRollbackIcon(e) {
  * @param {Event} event
  * @returns null if no rollback possible or cancelled
  */
-async function rollback(event) {
+function rollback(event) {
 	let rbTime = parseInt(event.currentTarget.dataset.time)
-	let rb = await persistence.get(rbTime)
+	let rb = localStorage.getItem(timekey(rbTime))
 	if (!rb) return
 	if (!confirm(`Roll back the map to what it was before ${timeAndDate(rbTime)}?`)) return
 	let state = JSON.parse(decompressFromUTF16(rb))
@@ -4878,6 +4928,7 @@ async function rollback(event) {
 		for (const k in state.net) {
 			yNetMap.set(k, state.net[k])
 		}
+		setMapTitle(state.net.mapTitle)
 		for (const k in state.samples) {
 			ySamplesMap.set(k, state.samples[k])
 		}
@@ -4911,19 +4962,27 @@ dragElement(elem('history-window'), elem('history-header'))
 /* --------------------------------------- avatars and shared cursors--------------------------------*/
 
 var lastPktTime // time when a round trip duration packet was last sent
-
+var oldViewOnly = viewOnly // save the viewOnly state
 /* tell user if they are offline and disconnect websocket server */
 window.addEventListener('offline', () => {
 	statusMsg('No network connection - working offline (view only)', 'info')
 	wsProvider.shouldConnect = false
+	network.setOptions({ interaction: { dragNodes: false, hover: false } })
 	hideNavButtons()
+	drawerEditor.enable(false)
+	oldViewOnly = viewOnly
+	viewOnly = true
 })
 window.addEventListener('online', () => {
 	wsProvider.connect()
 	statusMsg('Network connection re-established', 'info')
 	lastPktTime = null
+	viewOnly = oldViewOnly
 	if (!viewOnly) showNavButtons()
+	drawerEditor.enable(true)
+	network.setOptions({ interaction: { dragNodes: true, hover: true } })
 	showAvatars()
+
 })
 /**
  *  set up user monitoring (awareness)
@@ -4935,7 +4994,7 @@ function setUpAwareness() {
 
 	// regularly broadcast our own state, every 20 seconds
 	setInterval(() => {
-		yAwareness.setLocalStateField('pkt', {time: Date.now()})
+		yAwareness.setLocalStateField('pkt', { time: Date.now() })
 	}, 20000)
 
 	// if debug = fake, generate fake mouse events every 200 ms for testing
@@ -5008,7 +5067,7 @@ function roundTripTimer() {
 function asleep(isSleeping) {
 	if (myNameRec.asleep === isSleeping) return
 	myNameRec.asleep = isSleeping
-	yAwareness.setLocalState({user: myNameRec})
+	yAwareness.setLocalState({ user: myNameRec })
 	showAvatars()
 }
 /**
@@ -5104,8 +5163,6 @@ function showAvatars() {
 		.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates, by name
 		.sort((a, b) => (a.name.charAt(0).toUpperCase() > b.name.charAt(0).toUpperCase() ? 1 : -1)) // sort names
 
-	populateChatUserMenu(Array.from(nameRecs))
-
 	if (me.length === 0) return // app is unloading
 	nameRecs.unshift(me[0][1].user) // push myself on to the front
 
@@ -5172,7 +5229,7 @@ function showAvatars() {
 		if (followme === nameRec.id) ava.classList.add('followme')
 		ava.id = `ava${nameRec.id}`
 		ava.dataset.tooltip = nameRec.name
-		// the broadcast awareness sometimes loses a client (broadcasts that has been removed)
+		// the broadcast awareness sometimes loses a client (i.e. broadcasts that it has been removed)
 		// when it actually hasn't (e.g. if there is a comms glitch).  So instead, we set a timer
 		// and delete the avatar only if nothing is heard from that user for a minute
 		ava.timer = setTimeout(removeAvatar, 60000, ava)
@@ -5187,13 +5244,13 @@ function showAvatars() {
 		circle.dataset.userName = nameRec.name
 		ava.appendChild(circle)
 		avatars.appendChild(ava)
-		circle.addEventListener('click', follow)
+		circle.addEventListener('click', nameRec.id === clientID ? renameUser : follow)
 		circle.addEventListener('contextmenu', selectUsersItems)
 		circle.addEventListener('mouseover', () =>
 			statusMsg(
 				nameRec.id === clientID
-					? 'Right click to select all your edits'
-					: `Click to follow this person; right click to select all this person's edits`
+					? 'Click to change your name. Right click to select all your edits'
+					: `Click to follow this person. Right click to select all this person's edits`
 			)
 		)
 		circle.addEventListener('mouseout', () => clearStatusBar())
@@ -5209,6 +5266,7 @@ function showAvatars() {
 		cursorDiv.id = nameRec.id
 		cursorDiv.style.backgroundColor = nameRec.color
 		cursorDiv.innerText = initials(nameRec.name)
+		cursorDiv.style.color = nameRec.isLight ? 'black' : 'white'
 		cursorDiv.style.display = 'none' // hide it until we get coordinates at next mousemove
 		container.appendChild(cursorDiv)
 		return cursorDiv
@@ -5260,7 +5318,19 @@ function followUser() {
 	if (!userRec) return
 	if (userRec.user.asleep) unFollow()
 	let userPosition = userRec.cursor
-	if (userPosition) network.moveTo({position: userPosition})
+	if (userPosition) network.moveTo({ position: userPosition })
+}
+/**
+ * User has clicked on their own avatar.  Prompt them to change their own name.
+ */
+function renameUser() {
+	let newName = prompt('Enter your new name', myNameRec.name)
+	if (newName) {
+		myNameRec.name = newName
+		myNameRec.anon = false
+		yAwareness.setLocalState({ user: myNameRec })
+		showAvatars()
+	}
 }
 /**
  * show a ghost box where another user is adding a factor
@@ -5313,8 +5383,8 @@ function showGhostFactor(userId, addingFactor) {
 		<br class="clear" />
 
 		<footer>
-			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Tue Apr 23 2024
-			22:40:18 GMT+0100 (British Summer Time) using the
+			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.3</a> on Sun May 26 2024
+			10:07:33 GMT+0100 (British Summer Time) using the
 			<a href="https://github.com/clenemt/docdash">docdash</a> theme.
 		</footer>
 

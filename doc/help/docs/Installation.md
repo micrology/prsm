@@ -9,7 +9,7 @@ sidebar_position: 3
 
 :::info
 
-You need a modern web browser such as Chrome, Firefox, Microsoft Edge or Safari.  It will not work with Internet Explorer.
+You need a modern web browser such as Chrome, Firefox, Microsoft Edge or Safari.  It will not work with Internet Explorer. You can use a monitor and keyboard with a mouse or a trackpad, or a touchscreen on a phone, tablet or interactive display.
 
 :::
 

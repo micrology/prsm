@@ -34,13 +34,15 @@ This what they do, from left to right:
 * **Redo** Redo the last action (e.g. if you have just undone the creation of a factor, this will return the factor to the network).
 * **Bin** First, select a factor or a link by clicking on it.  Note that the selected factor or link gains a shadow and is listed in the status bar at the bottom of the window. Then click on the Bin button (or press the backspace or delete keys) - the factor or link is deleted.  The Undo button will restore it if you deleted it by mistake.
 * **Share** Shows a dialog box with a web link that you can copy and send to someone else.  If they then access that link, they will see your network and can edit and add to it. See [Sharing](#sharing) below.
-* **Open file** Read in a file containing a network from your computer drive.  See [below](#reading-and-importing maps) for supported file formats.  The content of the file replaces the network in the browser.
-* **Save file**  Save the network in a file on your computer. The file is saved in the app's own format, or if you click on the small triangle next to the button, you can choose to save an image of the map as a high resolution image (a .PNG file), or the map data in GML (Graph Markup Language) or CSV (Comma Separated Values) formats.
+* **Open** Read in a file containing a network from your computer drive.  See [Files](Files#reading-and-importing maps) for supported file formats.  The content of the file replaces the network in the browser.
+* **Save**  Save the network in a file on your computer. The file is saved in the app's own format, or if you click on the small triangle next to the button, you can choose to save an image of the map as a high resolution image (a .PNG file), or the map data in GML (Graph Markup Language) or CSV (Comma Separated Values) formats. See [Files](Files#saving-and-exporting-maps) for further details.
 * **Search** Search for factors by name.
-* **Help** Display this help page in a separate window.
+* **Help** Display this help page in a separate browser tab.
 * **Settings** Opens a panel that allows much more customisation and exploration of the network (see [Styling the map](Styling/#styling-the-map) and [Analysing the map](Styling/#analysing-the-map) below).
 
-To **select** a factor or a link, click on it. To select more than one, click on one factor or link and then *hold down* the pointer on the other.  Or you can hold down the control (CTRL) key and click to add to the selection. At the bottom of the window is the status bar that will show which factors and links have been selected. Clicking anywhere on the background will deselect all the factors and links.
+If you are using a desktop or laptop computer with a mouse or trackpad, to **select** a factor or a link, click on it. To select more than one, click on one factor or link and then *hold down* the pointer on the other.  Or you can hold down the control (CTRL) key and click to add to the selection. At the bottom of the window is the status bar that will show which factors and links have been selected. Clicking anywhere on the background will deselect all the factors and links.
+
+If you are using a tablet or phone, tapping a factor will **select** it. To select more than one, tap on the first and then press and hold the next factor. At the bottom of the window is the status bar that will show which factors and links have been selected. Tapping anywhere on the background will deselect all the factors and links.
 
 Each factor can be moved across the network pane by dragging it.  The whole network can be moved by dragging the background.
 
@@ -55,6 +57,14 @@ To return the network to a size that will fit neatly in the window, double click
 At the top left, you can enter a **title** for the  map.  Click on 'Untitled map' and type in your title. If you have created or used several maps (and they have titles), a small downward triangle will appear to the right of the title.  Clicking on this shows a list of those previous maps, and clicking on one of those takes you away from the current map and loads the previous one (after you have confirmed that this is what you want to do).
 
 Holding down the Shift key and then moving the mouse pointer will show a **magnifying glass** with an enlarged view of the part of the map under the pointer.  You need to be using a keyboard for this.
+
+## Minimap
+
+If you map is larger than the browser window, so that some factors are not visible, a miniature version of the whole map appears at the bottom right corner.  A rectangular outline shows the portion of the map that you can see.  The 'minimap' only shows when you can't see the whole of the map.
+
+![Minimap](/images/minimap.png)
+
+You can drag the outline rectangle around the minimap and the visible part of the map follows suit.  You can also zoom in and out by using a mouse wheel on the minimap.
 
 ## Notes
 
@@ -88,7 +98,7 @@ If you use [https://prsm.uk/prsm.html](https://prsm.uk/prsm.html) to start the a
 
 Click the 'Copy to clipboard' button to copy the web link to the clipboard, and then paste the link into an email or a text message or just tell other participants the name of the room (which is a randomly generated set of 4 groups of three letters separated by hyphens).  When they access the link, they will see whatever is in your app window.
 
-There are also three buttons on the right.  If you click  the **Clone map** button, a browser tab will open with the same map but in a new room - any changes made to this new map will *not* appear in the original room.  You can then send the web address to others, confident that they will not disturb the original map.  If you click the **Read only** button, a copy of the map will be made in a new browser tab, but without any of the buttons that would allow one to modify the map. You can use the web link of this map to distribute the map to people whom you want to look at the map, but not change it.  If you click the **Data view** button, the web link will be a spreadsheet-like view of the factors and links in the map (see the [section on the Data view](DataView/#data-view)).
+There are also three buttons on the right.  If you click  the **Clone map** button, a browser tab will open with the same map but in a new room - any changes made to this new map will *not* appear in the original room.  You can then send the web address to others, confident that they will not disturb the original map.  If you click the **Read only** button, a copy of the map will be made in a new browser tab, but without any of the buttons that would allow one to modify the map. You can use the web link of this map to distribute the map to people whom you want to look at the map, but not change it.  If you click the **Data view** button, the web link will be a spreadsheet-like view of the factors and links in the map (see the section on the [Data view](DataView/#data-view)).
 
 ## Avatars and pointers
 
@@ -112,7 +122,7 @@ You can copy selected factors to the clipboard and then paste them into either t
 
 :::caution
 
-Copy and paste is not available with the Firefox browser.
+Copy and paste is not available with the Firefox browser or on touchscreens.
 
 :::
 

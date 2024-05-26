@@ -39,11 +39,11 @@ Above the table, there are tabs labelled 'Factors' and 'Links'.  Clicking the Li
 
 At the top right is a row of buttons.  These are:
 
-* **Add column** Clicking on this button will add an extra column on the right of the Factcor table. This can be used to add any 'attribute' you wish to the factors.  You can edit the heading to give the column an appropriate title, and then enter numbers or text into the cells.  For example, you might use the extra column to record the importance of factors.  Attributes can be used to [cluster](Styling/#analysis-tab) Factors.
+* **Add attr.** Clicking on this button will add an extra column on the right of the Factor table. This can be used to add any 'attribute' you wish to the factors.  You can edit the heading to give the column an appropriate title, and then enter numbers or text into the cells.  For example, you might use the extra column to record the importance of factors.  Attributes can be used to [cluster](Styling/#analysis-tab) Factors.
 
     Right click the column heading to see a menu to delete the column.
 
-![Filter](/images/Attribute.png)
+![Attribute](/images/Attribute.png)
 
 * **Undo** Restores the previous edit of a cell value.
 * **Redo** Retracts a previous 'undo'.

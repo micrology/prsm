@@ -8,7 +8,7 @@ sidebar_position: 8
 
 The app can read files in its native format (files with the suffix '.prsm'), or in [GRAPHML](http://graphml.graphdrawing.org/) (.graphml), [GML](https://en.wikipedia.org/wiki/Graph_Modelling_Language) (.gml), [GraphVix](https://graphviz.org/) (.gv or .dot), or [Microsoft Excel](https://www.microsoft.com/en-us/microsoft-365/excel) (.xlsx) formats.  Not all features of the GraphML, GML and GraphViz formats are supported.
 
-To read in files any of these format, use the **Open** button <img src={require("/static/images/Open.png").default} width="20" /> in the top bar.  PRSM will work out from the file contents which type of file it is reading.
+To read in files any of these format, either use the **Open** button <img src={require("/static/images/Open.png").default} width="20" /> in the top bar, or drop the file on a PRSM map window.  PRSM will work out from the file contents which type of file it is reading.
 
 ### Excel
 
@@ -16,7 +16,7 @@ An **Excel** workbook should contain two spreadsheets, one named ‘Factors’ a
 
 The *Factors sheet* must have a column headed ‘Label’.  This column should contain text that will become the labels of the factors. It may, optionally, have:
 
-* a column headed ‘Description’.  The contents of this column will become notes for the Factors (i.e. the text shown in the Notes box when you select a Factor).
+* a column headed either 'Note' or ‘Description’.  The contents of this column will become notes for the Factors (i.e. the text shown in the Notes box when you select a Factor).
 * a column headed ‘Style’, with the contents being numbers between 1 and 9, representing the style to be applied to the Factor (the styles are numbered according to the [Factor Styles](Styling/#factors-tab) tab, from top left to bottom right).
 * columns headed 'x' and 'y', holding the numeric coordinates of the Factors in the map.
 
@@ -26,10 +26,8 @@ The *Links sheet* must have a column headed ‘From’ and another headed ‘To�
 It may also, optionally, have:
 
 * a column headed ‘Label’, with text of a label to be applied to the link
-* a column headed ‘Description’.  The contents of this column will become notes for the Links (i.e. the text shown in the Notes box when you select a Link).
+* a column headed either 'Note' or ‘Description’.  The contents of this column will become notes for the Links (i.e. the text shown in the Notes box when you select a Link).
 * a column headed ‘Style’, with the contents being numbers between 1 and 9, representing the link style to be applied to the Link (the styles are numbered according to the [Link Styles](Styling/#links-tab) tab, from top left to bottom right).
-
-All other columns are considered to be values of Attributes assigned to Links and visible in the [Data View](DataView/#data-view) of the map.
 
 ## Saving and Exporting maps
 
@@ -49,7 +47,7 @@ The output is a **Word** file (.docx) containing, in order, the name of the map,
 
 ### Image file
 
-You can save a high resolution (8192 x 8192 pixels) image of the map as a **Portable Network Graphics** (.png) file.  The image will show the whole map.  Here is an example of an image of a large map.
+You can save a high resolution (8192 x 8192 pixels) image of the map as a **Portable Network Graphics** (.png) file.  If no factors or links are selected, the image will show the whole map.  Here is an example of an image of a large map.
 
 <img src={require("/static/images/imageexample.jpg").default} width="600"/>
 
