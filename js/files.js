@@ -66,6 +66,7 @@ import {
 	standardize_color,
 	strip,
 	statusMsg,
+	alertMsg,
 	lowerFirstLetter,
 	stripNL,
 } from './utils.js'
@@ -106,10 +107,10 @@ export function readSingleFile(e) {
 		try {
 			document.body.style.cursor = 'wait'
 			loadFile(e.target.result)
-			if (!msg) statusMsg("Read '" + fileName + "'", 'info')
+			if (!msg) alertMsg("Read '" + fileName + "'", 'info')
 		} catch (err) {
 			document.body.style.cursor = 'default'
-			statusMsg("Error reading '" + fileName + "': " + err.message, 'error')
+			alertMsg("Error reading '" + fileName + "': " + err.message, 'error')
 			console.log(err)
 			return
 		}
@@ -223,7 +224,7 @@ function loadPRSMfile(str) {
 	if (str[0] != '{') str = decompressFromUTF16(str)
 	let json = JSON.parse(str)
 	if (json.version && version.substring(0, 3) > json.version.substring(0, 3)) {
-		statusMsg('Warning: file was created in an earlier version', 'warn')
+		alertMsg('Warning: file was created in an earlier version', 'warn')
 		msg = 'old version'
 	}
 	updateLastSamples(json.lastNodeSample, json.lastLinkSample)

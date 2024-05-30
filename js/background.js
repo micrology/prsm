@@ -30,7 +30,7 @@ This module provides the background objet-oriented drawing for PRSM
 
 import {doc, debug, yDrawingMap, network, cp, drawingSwitch, yPointsArray, fit} from './prsm.js'
 import {fabric} from 'fabric'
-import {elem, listen, uuidv4, deepCopy, dragElement, statusMsg, addContextMenu} from '../js/utils.js'
+import {elem, listen, uuidv4, deepCopy, dragElement, alertMsg, addContextMenu} from '../js/utils.js'
 
 // essential to prevent scaling of borders
 fabric.Object.prototype.noScaleCache = false
@@ -1350,7 +1350,7 @@ function makeGroup() {
 	saveChange(group, {members: group.members}, 'insert')
 	canvas.requestRenderAll()
 	elem('group').classList.remove('disabled')
-	statusMsg('Grouped', 'info')
+	alertMsg('Grouped', 'info')
 }
 
 function unGroup() {
@@ -1361,7 +1361,7 @@ function unGroup() {
 	saveChange(activeObj, {type: 'ungroup', members: members.map((ob) => ob.id)}, 'delete')
 	canvas.discardActiveObject()
 	canvas.requestRenderAll()
-	statusMsg('Ungrouped', 'info')
+	alertMsg('Ungrouped', 'info')
 }
 function setGroupBorderColor(group) {
 	group.borderColor = 'green'
@@ -1926,16 +1926,16 @@ async function copyText(text) {
 		if (typeof navigator.clipboard.writeText !== 'function')
 			throw new Error('navigator.clipboard.writeText not a function')
 	} catch (e) {
-		statusMsg('Copying not implemented in this browser', 'error')
+		alertMsg('Copying not implemented in this browser', 'error')
 		return false
 	}
 	try {
 		await navigator.clipboard.writeText(text)
-		statusMsg('Copied', 'info')
+		alertMsg('Copied', 'info')
 		return true
 	} catch (err) {
 		console.error('Failed to copy: ', err)
-		statusMsg('Copy failed', 'error')
+		alertMsg('Copy failed', 'error')
 		return false
 	}
 }
@@ -1986,7 +1986,7 @@ export async function pasteBackgroundFromClipboard() {
 		canvas.setActiveObject(copiedObj)
 		saveChange(copiedObj, {}, 'insert')
 	}
-	statusMsg('Pasted', 'info')
+	alertMsg('Pasted', 'info')
 }
 
 async function getClipboardContents() {
@@ -1994,14 +1994,14 @@ async function getClipboardContents() {
 		if (typeof navigator.clipboard.readText !== 'function')
 			throw new Error('navigator.clipboard.readText not a function')
 	} catch (e) {
-		statusMsg('Pasting not implemented in this browser', 'error')
+		alertMsg('Pasting not implemented in this browser', 'error')
 		return null
 	}
 	try {
 		return await navigator.clipboard.readText()
 	} catch (err) {
 		console.error('Failed to read clipboard contents: ', err)
-		statusMsg('Failed to paste', 'error')
+		alertMsg('Failed to paste', 'error')
 		return null
 	}
 }

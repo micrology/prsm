@@ -259,6 +259,9 @@ aside {
 		opacity: 0;
 	}
 }
+.dontFade {
+	opacity: 1;
+}
 #statusBar {
 	padding: 3px 20px;
 	border-radius: 5px;

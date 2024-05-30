@@ -688,34 +688,46 @@ export function generateName() {
 /*----------- Status messages ---------------------------------------
  */
 /**
- * show status messages at the bottom of the window
- * if status is info, warn or error, msg is displayed in a bubble that fades in and out
+ * show status message at the bottom of the window
  * @param {string} msg
- * @param {string} [status] type of msg - info, warn, error or other
  */
-export function statusMsg(msg, status) {
-	if (!status) {
-		elem('statusBar').innerHTML = htmlEntities(msg)
-		return
-	}
+export function statusMsg(msg) {
+	elem('statusBar').innerHTML = htmlEntities(msg)
+}
+/**
+ * show alert messages at the bottom of the window
+ * @param {string} msg
+ * @param {string} [status] type of msg - info, warn, error
+ * @param {boolean} [dontFade] if true, don't fade the message in and out
+ */
+export function alertMsg(msg, status, dontFade) {
 	let errMsgElement = elem('errMsg')
-	if (status == 'info') {
-		errMsgElement.style.backgroundColor = 'black'
-		errMsgElement.style.color = 'white'
-	}
-	if (status == 'warn') {
-		errMsgElement.style.backgroundColor = '#FFEB3B'
-		errMsgElement.style.color = 'black'
-	}
-	if (status == 'error') {
-		errMsgElement.style.backgroundColor = 'red'
-		errMsgElement.style.color = 'white'
+	switch (status) {
+		case 'info':
+			errMsgElement.style.backgroundColor = 'black'
+			errMsgElement.style.color = 'white'
+			break
+		case 'warn':
+			errMsgElement.style.backgroundColor = '#FFEB3B'
+			errMsgElement.style.color = 'black'
+			break
+		case 'error':
+			errMsgElement.style.backgroundColor = 'red'
+			errMsgElement.style.color = 'white'
+			break
+		default:
+			console.log('Unknown status in alertMsg: ' + status)
+			return
 	}
 	errMsgElement.innerHTML = msg
-	listen('errMsg', 'animationend', () => {
-		elem('errMsg').classList.remove('fadeInAndOut')
-	})
-	errMsgElement.classList.add('fadeInAndOut')
+	if (dontFade) {
+		errMsgElement.style.opacity = 1
+	} else {
+		listen('errMsg', 'animationend', () => {
+			elem('errMsg').classList.remove('fadeInAndOut')
+		})
+		errMsgElement.classList.add('fadeInAndOut')
+	}
 }
 /**
  * replace special characters with their HTML entity codes
