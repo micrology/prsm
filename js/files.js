@@ -870,8 +870,6 @@ function saveStr(str, extn) {
  * save the map as a PNG image file
  */
 
-const bigWidth = 4096 // half the number of pixels in the image file (also half the height, as the image is square)
-const bigMargin = 256 // white space around network so not too close to printable edge
 const maxScale = 5 // max upscaling for image (avoids blowing up very small networks excessively)
 
 export function exportPNGfile() {
@@ -881,6 +879,9 @@ export function exportPNGfile() {
 	network.storePositions()
 
 	// first, create a large offscreen div to hold a copy of the network at the required width
+	const bigWidth = 4096 / window.devicePixelRatio // half the number of pixels in the image file (also half the height, as the image is square)
+	const bigMargin = 256  / window.devicePixelRatio // white space around network so not too close to printable edge
+
 	let bigNetDiv = document.createElement('div')
 	bigNetDiv.id = 'big-net-pane'
 	bigNetDiv.style.position = 'absolute'

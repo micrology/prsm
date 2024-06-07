@@ -404,10 +404,7 @@ function startY(newRoom) {
 	wsProvider = new WebsocketProvider(
 		websocket,
 		`prsm${room}`,
-		doc /* {
-		resyncInterval: 5000,
-	} */
-	)
+		doc )
 	wsProvider.on('synced', () => {
 		// if this is a clone, load the cloned data
 		initiateClone()
