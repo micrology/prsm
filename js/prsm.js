@@ -1502,7 +1502,7 @@ function draw() {
 		bigNetwork = new Network(bigNetPane, bigNetData, {
 			physics: {enabled: false},
 		})
-		// unhide any hidden nodes and edges
+		/* // unhide any hidden nodes and edges
 		let changedNodes = []
 		bigNetData.nodes.forEach((n) => {
 			if (n.nodeHidden) {
@@ -1516,7 +1516,7 @@ function draw() {
 			}
 		})
 		bigNetData.nodes.update(changedNodes)
-		bigNetData.edges.update(changedEdges)
+		bigNetData.edges.update(changedEdges) */
 		bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
 		bigNetwork.on('afterDrawing', () => {
 			setCanvasBackground(bigNetCanvas)
