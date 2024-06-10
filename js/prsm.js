@@ -3623,8 +3623,10 @@ function showEdgeData() {
 				note: isQuillEmpty(editor) ? '' : editor.getContents(),
 				modified: timestamp(),
 			})
-			popupEditor = popupWindow.popupEditor
-			if (popupEditor) popupEditor.setContents(editor.getContents())
+			if (popupWindow) {
+				popupEditor = popupWindow.popupEditor
+				if (popupEditor) popupEditor.setContents(editor.getContents())
+			}
 		}
 	})
 	panel.classList.remove('hide')
