@@ -862,21 +862,24 @@ function getRandomData(nNodes) {
 function displayNetPane(msg) {
 	console.log(msg)
 	if (netPane.style.visibility === 'hidden' || netPane.style.visibility === '') {
-		elem('loading').style.display = 'none'
-		fit()
-		setMapTitle(yNetMap.get('mapTitle'))
-		netPane.style.visibility = 'visible'
-		clearTimeout(loadingDelayTimer)
-		yUndoManager.clear()
-		undoRedoButtonStatus()
-		setUpTutorial()
-		netLoaded = true
-		drawMinimap()
-		savedState = saveState()
-		setAnalysisButtonsFromRemote()
-		toggleDeleteButton()
-		setLegend(yNetMap.get('legend'), false)
-		console.log(`Doc size: ${humanSize(Y.encodeStateAsUpdate(doc).length)}`)
+		// the wait compensates for a bug in y-levelDB that fires sync before the data is ready
+		setTimeout(() => {
+			elem('loading').style.display = 'none'
+			fit()
+			setMapTitle(yNetMap.get('mapTitle'))
+			netPane.style.visibility = 'visible'
+			clearTimeout(loadingDelayTimer)
+			yUndoManager.clear()
+			undoRedoButtonStatus()
+			setUpTutorial()
+			netLoaded = true
+			drawMinimap()
+			savedState = saveState()
+			setAnalysisButtonsFromRemote()
+			toggleDeleteButton()
+			setLegend(yNetMap.get('legend'), false)
+			console.log(exactTime(),`Doc size: ${humanSize(Y.encodeStateAsUpdate(doc).length)}`)
+		}, 4000)
 	}
 }
 // to handle iPad viewport sizing problem when tab bar appears and to keep panels on screen

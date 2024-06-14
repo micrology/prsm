@@ -1182,11 +1182,13 @@ input:checked + .slider:before {
 }
 #minimapImage {
 	position: absolute;
+	user-select: none;
 }
 #minimapRadar {
 	position: absolute;
 	background-color: transparent;
 	border: 1px solid grey;
+	user-select: none;
 }
 /* History window */
 .history-window {
