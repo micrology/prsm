@@ -408,7 +408,7 @@ function startY(newRoom) {
 	wsProvider.on('synced', () => {
 		// if this is a clone, load the cloned data
 		initiateClone()
-		displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
+	//	displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 	})
 	wsProvider.disconnectBc()
 	wsProvider.on('status', (event) => {
@@ -749,6 +749,8 @@ function startY(newRoom) {
 	yHistory.observe(() => {
 		yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1))
 		if (elem('showHistorySwitch').checked) showHistory()
+		displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
+
 	})
 	yUndoManager.on('stack-item-added', (evt) => {
 		yjsTrace('yUndoManager.on stack-item-added', evt)
@@ -863,7 +865,7 @@ function displayNetPane(msg) {
 	console.log(msg)
 	if (netPane.style.visibility === 'hidden' || netPane.style.visibility === '') {
 		// the wait compensates for a bug in y-levelDB that fires sync before the data is ready
-		setTimeout(() => {
+		//setTimeout(() => {
 			elem('loading').style.display = 'none'
 			fit()
 			setMapTitle(yNetMap.get('mapTitle'))
@@ -879,7 +881,7 @@ function displayNetPane(msg) {
 			toggleDeleteButton()
 			setLegend(yNetMap.get('legend'), false)
 			console.log(exactTime(),`Doc size: ${humanSize(Y.encodeStateAsUpdate(doc).length)}`)
-		}, 4000)
+		//}, 4000)
 	}
 }
 // to handle iPad viewport sizing problem when tab bar appears and to keep panels on screen
