@@ -408,7 +408,7 @@ function startY(newRoom) {
 	wsProvider.on('synced', () => {
 		// if this is a clone, load the cloned data
 		initiateClone()
-		//	displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
+			displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 	})
 	wsProvider.disconnectBc()
 	wsProvider.on('status', (event) => {
