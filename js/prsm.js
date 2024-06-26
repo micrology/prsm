@@ -408,11 +408,13 @@ function startY(newRoom) {
 	wsProvider.on('synced', () => {
 		// if this is a clone, load the cloned data
 		initiateClone()
-			displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
+		// if this is a new map, display it
+		// (if the room already exists, wait until the map data is loaded before displaying it)
+		if (url.searchParams.get('room') === null) displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 	})
 	wsProvider.disconnectBc()
 	wsProvider.on('status', (event) => {
-		console.log(`${exactTime()}${event.status}${event.status === 'connected' ? ' to' : ' from'} room ${room}`) // logs when websocket is "connected" or "disconnected"
+		console.log(`${exactTime()}${event.status}${event.status === 'connected' ? ' to' : ' from'} room ${room}`)
 	})
 
 	/* 
@@ -749,6 +751,8 @@ function startY(newRoom) {
 	yHistory.observe(() => {
 		yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1))
 		if (elem('showHistorySwitch').checked) showHistory()
+		// assume that if we get here at initialisation, everything has been loaded from the room
+		// this is a work around to avoid a bug in y-wsserver that fires the sync event before syncing is complete
 		displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 
 	})
@@ -2967,17 +2971,17 @@ function ghostCursor() {
 		const boxHalfHeight = box.offsetHeight / 2
 		let left = window.event.pageX - boxHalfWidth
 		box.style.left = `${left <= netPaneRect.left
-				? netPaneRect.left
-				: left >= netPaneRect.right - box.offsetWidth
-					? netPaneRect.right - box.offsetWidth
-					: left
+			? netPaneRect.left
+			: left >= netPaneRect.right - box.offsetWidth
+				? netPaneRect.right - box.offsetWidth
+				: left
 			}px`
 		let top = window.event.pageY - boxHalfHeight
 		box.style.top = `${top <= netPaneRect.top
-				? netPaneRect.top
-				: top >= netPaneRect.bottom - box.offsetHeight
-					? netPaneRect.bottom - box.offsetHeight
-					: top
+			? netPaneRect.top
+			: top >= netPaneRect.bottom - box.offsetHeight
+				? netPaneRect.bottom - box.offsetHeight
+				: top
 			}px`
 	}
 }
