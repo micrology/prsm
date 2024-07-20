@@ -752,7 +752,7 @@ function startY(newRoom) {
 		yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1))
 		if (elem('showHistorySwitch').checked) showHistory()
 		// assume that if we get here at initialisation, everything has been loaded from the room
-		// this is a work around to avoid a bug in y-wsserver that fires the sync event before syncing is complete
+		// this is a work around to avoid a bug in y-webserver that fires the sync event before syncing is complete
 		displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 
 	})

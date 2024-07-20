@@ -45,6 +45,8 @@
 	"dependencies": {
 		"@egjs/hammerjs": "^2.0.17",
 		"@jaames/iro": "^5.5.2",
+		"3d-force-graph": "^1.73.3",
+		"bootstrap": "^5.3.3",
 		"fabric": "^5.3.0",
 		"fast-xml-parser": "^4.2.4",
 		"file-saver": "^2.0.5",
@@ -55,14 +57,12 @@
 		"quill-to-word": "^1.3.0",
 		"tabulator-tables": "^5.4.4",
 		"three-spritetext": "^1.8.0",
-		"uniqolor": "^1.1.0",
 		"uuid": "^8.3.2",
 		"vis-data": "^7.1.4",
 		"vis-network": "^9.1.4",
 		"vis-util": "^5.0.3",
 		"xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
-		"y-indexeddb": "^9.0.9",
-		"y-websocket": "^2.0.0",
+		"y-websocket": "^2.0.4",
 		"yjs": "^13.5.47"
 	},
 	"devDependencies": {
@@ -76,7 +76,7 @@
 		"parcel-resolver-ignore": "^2.1.5",
 		"prettier": "^2.8.4",
 		"process": "^0.11.10",
-		"sharp": "^0.31.3"
+		"sharp": "^0.33.4"
 	},
 	"private": true,
 	"optionalDependencies": {
