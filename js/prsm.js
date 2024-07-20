@@ -323,6 +323,9 @@ function addEventListeners() {
  */
 function setUpPage() {
 	elem('version').innerHTML = version
+	container = elem('container')
+	netPane = elem('net-pane')
+	panel = elem('panel')
 	// check options set on URL: ?debug=yjs|gui|cluster&viewing&start
 	let searchParams = new URL(document.location).searchParams
 	if (searchParams.has('debug')) debug = searchParams.get('debug')
@@ -331,9 +334,6 @@ function setUpPage() {
 	if (viewOnly) hideNavButtons()
 	// treat user as first time user if URL includes ?start=true
 	if (searchParams.has('start')) localStorage.setItem('doneIntro', 'false')
-	container = elem('container')
-	netPane = elem('net-pane')
-	panel = elem('panel')
 	panel.classList.add('hide')
 	container.panelHidden = true
 	cp.createColorPicker('netBackColorWell', updateNetBack)
