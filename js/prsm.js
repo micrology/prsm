@@ -753,7 +753,7 @@ function startY(newRoom) {
 		if (elem('showHistorySwitch').checked) showHistory()
 		// assume that if we get here at initialisation, everything has been loaded from the room
 		// this is a work around to avoid a bug in y-webserver that fires the sync event before syncing is complete
-		displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
+		if (!netLoaded) displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 
 	})
 	yUndoManager.on('stack-item-added', (evt) => {
@@ -867,9 +867,7 @@ function getRandomData(nNodes) {
  */
 function displayNetPane(msg) {
 	console.log(msg)
-	if (netPane.style.visibility === 'hidden' || netPane.style.visibility === '') {
-		// the wait compensates for a bug in y-levelDB that fires sync before the data is ready
-		//setTimeout(() => {
+	if (!netLoaded) {
 		elem('loading').style.display = 'none'
 		fit()
 		setMapTitle(yNetMap.get('mapTitle'))
@@ -885,7 +883,6 @@ function displayNetPane(msg) {
 		toggleDeleteButton()
 		setLegend(yNetMap.get('legend'), false)
 		console.log(exactTime(), `Doc size: ${humanSize(Y.encodeStateAsUpdate(doc).length)}`)
-		//}, 4000)
 	}
 }
 // to handle iPad viewport sizing problem when tab bar appears and to keep panels on screen
@@ -1372,12 +1369,11 @@ function draw() {
 	function showAreaSelection(event) {
 		selectionArea.style.left = `${Math.min(selectionStart.x, event.offsetX)}px`
 		selectionArea.style.top = `${Math.min(selectionStart.y, event.offsetY)}px`
-		selectionArea.style.width = `${Math.max(selectionStart.x, event.offsetX) - Math.min(selectionStart.x, event.offsetX)
-			}px`
-		selectionArea.style.height = `${Math.max(selectionStart.y, event.offsetY) - Math.min(selectionStart.y, event.offsetY)
-			}px`
+		selectionArea.style.width = `${Math.abs(event.offsetX - selectionStart.x)}px`
+		selectionArea.style.height = `${Math.abs(event.offsetY - selectionStart.y)}px`
 	}
 	network.on('dragging', function () {
+		if (/gui/.test(debug)) console.log('dragging')
 		let endViewPosition = network.getViewPosition()
 		panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
 		viewPosition = endViewPosition
@@ -1394,15 +1390,21 @@ function draw() {
 		let e = params.event.pointers[0]
 		if (e.ctrlKey && params.nodes.length === 0 && params.edges.length === 0) {
 			network.storePositions()
-			let selectionEnd = params.pointer.canvas
+			let selectionCanvasEnd = params.pointer.canvas
+			if (selectionCanvasStart.x > selectionCanvasEnd.x) {
+				[selectionCanvasStart.x, selectionCanvasEnd.x] = [selectionCanvasEnd.x, selectionCanvasStart.x]
+			}
+			if (selectionCanvasStart.y > selectionCanvasEnd.y) {
+				[selectionCanvasStart.y, selectionCanvasEnd.y] = [selectionCanvasEnd.y, selectionCanvasStart.y]
+			}
 			let selectedNodes = data.nodes.get({
 				filter: function (node) {
 					return (
 						!node.nodeHidden &&
 						node.x >= selectionCanvasStart.x &&
-						node.x <= selectionEnd.x &&
+						node.x <= selectionCanvasEnd.x &&
 						node.y >= selectionCanvasStart.y &&
-						node.y <= selectionEnd.y
+						node.y <= selectionCanvasEnd.y
 					)
 				},
 			})
@@ -1410,6 +1412,7 @@ function draw() {
 				nodes: selectedNodes.map((n) => n.id).concat(network.getSelectedNodes()),
 			})
 			showSelected()
+			showNodeOrEdgeData()
 			return
 		}
 		let newPositions = network.getPositions(params.nodes)
@@ -1667,9 +1670,9 @@ export function drawMinimap(ratio = 5) {
 		// fade out the whole minimap if the network is all visible in the viewport
 		// (there is no value in having a minimap in this case)
 		if (scale >= 1 && networkInPane()) {
-			minimapWrapper.style.opacity = 0
+			minimapWrapper.style.display='none'
 			return
-		} else minimapWrapper.style.opacity = 1
+		} else minimapWrapper.style.display = 'block'
 		const currentDOMPosition = network.canvasToDOM(network.getViewPosition())
 		const initialDOMPosition = network.canvasToDOM(initialPosition)
 

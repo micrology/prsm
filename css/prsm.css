@@ -1177,7 +1177,7 @@ input:checked + .slider:before {
 	box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.75);
 	z-index: 9;
 	user-select: none;
-	opacity: 0;
+	display: none;
 	transition: opacity 0.3s linear;
 }
 #minimapImage {

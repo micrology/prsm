@@ -1311,8 +1311,8 @@ function convertEdge(edge) {
 		e[prop] = e[conversions[prop][0]][conversions[prop][1]]
 	}
 	e.hidden = e.edgeHidden
-	if (e.modified) e.modifiedTime = timeAndDate(e.modified.time)
-	else if (e.created) e.modifiedTime = timeAndDate(e.created.time)
+	if (e.modified) e.modifiedTime = timeAndDate(e.modified.time, true)
+	else if (e.created) e.modifiedTime = timeAndDate(e.created.time, true)
 	else e.modifiedTime = '--'
 	return e
 }
@@ -1639,5 +1639,6 @@ listen('help', 'click', displayHelp)
  * display help page in a separate window
  */
 function displayHelp() {
-	window.open('./help.html#contents', 'helpWindow')
+	window.open('./doc/help', 'helpWindow')
 }
+
