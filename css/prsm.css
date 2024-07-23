@@ -550,6 +550,9 @@ nav button .pressed {
 .left-border {
 	border-left: 1px solid white;
 }
+#copy-map-button {
+	display: none;
+}
 #saveFile {
 	margin: auto 0;
 	padding: 1px 0;

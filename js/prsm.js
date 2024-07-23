@@ -247,6 +247,7 @@ function addEventListeners() {
 	listen('exportGML', 'click', exportGML)
 	listen('exportDOT', 'click', exportDOT)
 	listen('exportNotes', 'click', exportNotes)
+	listen('copy-map', 'click', () => doClone(false))
 	listen('search', 'click', search)
 	listen('help', 'click', displayHelp)
 	listen('panelToggle', 'click', togglePanel)
@@ -807,12 +808,10 @@ function initiateClone() {
 			for (const k in state.net) {
 				yNetMap.set(k, state.net[k])
 			}
-			if (state.options.viewOnly) {
-				viewOnly = true
-				yNetMap.set('viewOnly', true)
-				hideNavButtons()
-				data.nodes.get().forEach((obj) => (obj.fixed = true))
-			}
+			viewOnly = state.options.viewOnly
+			yNetMap.set('viewOnly', viewOnly)
+			data.nodes.get().forEach((obj) => (obj.fixed = viewOnly))
+			if (viewOnly) hideNavButtons()
 			for (const k in state.samples) {
 				ySamplesMap.set(k, state.samples[k])
 			}
@@ -828,6 +827,7 @@ function initiateClone() {
 			}
 			logHistory(state.options.created.action, state.options.created.actor)
 		}, 'clone')
+		unSelect()
 		fit()
 	}
 }
@@ -909,6 +909,8 @@ function hideNavButtons() {
 	elem('buttons').style.visibility = 'hidden'
 	elem('search').parentElement.style.visibility = 'visible'
 	elem('search').parentElement.style.borderLeft = 'none'
+	elem('copy-map-button').style.display = 'block'
+	elem('copy-map-button').style.visibility = 'visible'
 	elem('maptitle').contentEditable = 'false'
 	if (!container.panelHidden) {
 		panel.classList.add('hide')
@@ -922,6 +924,7 @@ function showNavButtons() {
 	elem('buttons').style.visibility = 'visible'
 	elem('search').parentElement.style.visibility = 'visible'
 	elem('search').parentElement.style.borderLeft = '1px solid rgb(255, 255, 255)'
+	elem('copy-map-button').style.display = 'none'
 	elem('maptitle').contentEditable = 'true'
 }
 /**
@@ -1670,7 +1673,7 @@ export function drawMinimap(ratio = 5) {
 		// fade out the whole minimap if the network is all visible in the viewport
 		// (there is no value in having a minimap in this case)
 		if (scale >= 1 && networkInPane()) {
-			minimapWrapper.style.display='none'
+			minimapWrapper.style.display = 'none'
 			return
 		} else minimapWrapper.style.display = 'block'
 		const currentDOMPosition = network.canvasToDOM(network.getViewPosition())
@@ -3169,34 +3172,34 @@ function setUpShareDialog() {
 			modal.style.display = 'none'
 		}
 	}
-
-	function doClone(onlyView) {
-		// undo any ongoing analysis and unselect all nodes and edges
-		setRadioVal('radius', 'All')
-		setRadioVal('stream', 'All')
-		setRadioVal('paths', 'All')
-		analyse()
-		unSelect()
-
-		let options = {
-			created: {
-				action: `cloned this map from room: ${room + (onlyView ? ' (Read Only)' : '')}`,
-				actor: myNameRec.name,
-			},
-			viewOnly: onlyView,
-		}
-		// save state as a UTF16 string
-		let state = saveState(options)
-		// save it in local storage
-		localStorage.setItem('clone', state)
-		// make a room id
-		let clonedRoom = generateRoom()
-		//open a new map
-		let path = `${window.location.pathname}?room=${clonedRoom}`
-		window.open(path, '_blank')
-		logHistory(`made a ${onlyView ? 'read-only copy' : 'clone'} of the map in room: ${clonedRoom}`)
-	}
 }
+function doClone(onlyView) {
+	// undo any ongoing analysis and unselect all nodes and edges
+	setRadioVal('radius', 'All')
+	setRadioVal('stream', 'All')
+	setRadioVal('paths', 'All')
+	analyse()
+	unSelect()
+
+	let options = {
+		created: {
+			action: `cloned this map from room: ${room + (onlyView ? ' (Read Only)' : '')}`,
+			actor: myNameRec.name,
+		},
+		viewOnly: onlyView,
+	}
+	// save state as a UTF16 string
+	let state = saveState(options)
+	// save it in local storage
+	localStorage.setItem('clone', state)
+	// make a room id
+	let clonedRoom = generateRoom()
+	//open a new map
+	let path = `${window.location.pathname}?room=${clonedRoom}`
+	window.open(path, '_blank')
+	logHistory(`made a ${onlyView ? 'read-only copy' : 'clone'} of the map in room: ${clonedRoom}`)
+}
+
 
 /* ----------------------------------------------------------- Search ------------------------------------------------------*/
 /**
