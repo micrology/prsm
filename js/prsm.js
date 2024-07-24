@@ -126,6 +126,7 @@ export var room
  */
 export var debug = ''
 var viewOnly // when true, user can only view, not modify, the network
+var showCopyMapButton = false // show the Copy Map button on the navbar in viewOnly mode
 var nodes // a dataset of nodes
 var edges // a dataset of edges
 export var data // an object with the nodes and edges datasets as properties
@@ -327,12 +328,13 @@ function setUpPage() {
 	container = elem('container')
 	netPane = elem('net-pane')
 	panel = elem('panel')
-	// check options set on URL: ?debug=yjs|gui|cluster&viewing&start
+	// check options set on URL: ?debug=yjs|gui|cluster&viewing&start&copyButton
 	let searchParams = new URL(document.location).searchParams
 	if (searchParams.has('debug')) debug = searchParams.get('debug')
 	// don't allow user to change anything if URL includes ?viewing
 	viewOnly = searchParams.has('viewing')
 	if (viewOnly) hideNavButtons()
+	if (searchParams.has('copyButton')) showCopyMapButton = true
 	// treat user as first time user if URL includes ?start=true
 	if (searchParams.has('start')) localStorage.setItem('doneIntro', 'false')
 	panel.classList.add('hide')
@@ -909,8 +911,10 @@ function hideNavButtons() {
 	elem('buttons').style.visibility = 'hidden'
 	elem('search').parentElement.style.visibility = 'visible'
 	elem('search').parentElement.style.borderLeft = 'none'
-	elem('copy-map-button').style.display = 'block'
-	elem('copy-map-button').style.visibility = 'visible'
+	if (showCopyMapButton) {
+		elem('copy-map-button').style.display = 'block'
+		elem('copy-map-button').style.visibility = 'visible'
+	}
 	elem('maptitle').contentEditable = 'false'
 	if (!container.panelHidden) {
 		panel.classList.add('hide')

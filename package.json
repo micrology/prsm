@@ -33,7 +33,7 @@
 		"pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/*.css doc/**/*.{html,css} package.json",
 		"build-help": "cd doc/help && npm run build",
 		"check": "npm run --silent lint && npm run --silent build-help && npm run --silent pretty",
-		"dev": "npx parcel build './html/*.html' --no-optimize --no-scope-hoist",
+		"dev": "npm run clean && npx parcel build './html/*.html' --no-optimize --no-scope-hoist",
 		"build": "rm -rf dist/* && npx parcel build './html/*.html'",
 		"jsdoc": "npx jsdoc -r -c .jsdoc.json",
 		"clean": "rm -rf dist/*",
