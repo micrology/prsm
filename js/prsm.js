@@ -1248,6 +1248,10 @@ function draw() {
 	})
 	network.on('selectNode', function (params) {
 		if (/gui/.test(debug)) console.log('selectNode')
+		// if user is doing an analysis, do nothing 
+		if (getRadioVal('radius') !== 'All' || getRadioVal('stream') !== 'All' || getRadioVal('paths') !== 'All') {
+			return
+		} 
 		// if a 'hidden' node is clicked, it is selected, but we don't want this
 		// reset the selected nodes to all except the hidden one
 		network.setSelection({
@@ -1263,6 +1267,14 @@ function draw() {
 	})
 	network.on('deselectNode', function (params) {
 		if (/gui/.test(debug)) console.log('deselectNode', params)
+		// if user is doing an analysis, do nothing, but first reselect the unselected nodes 
+		if (getRadioVal('radius') !== 'All' || getRadioVal('stream') !== 'All' || getRadioVal('paths') !== 'All') {
+			network.setSelection({
+				nodes: params.previousSelection.nodes.map((node) => node.id),
+				edges: params.previousSelection.edges.map((edge) => edge.id),
+			})
+			return
+		} 
 		// if some other node(s) are already selected, and the user has
 		// clicked on one of the selected nodes, do nothing,
 		// i.e reselect all the nodes previously selected
@@ -1285,9 +1297,6 @@ function draw() {
 		showSelected()
 		showNodeOrEdgeData()
 		toggleDeleteButton()
-		if (getRadioVal('radius') !== 'All') analyse()
-		if (getRadioVal('stream') !== 'All') analyse()
-		if (getRadioVal('paths') !== 'All') analyse()
 	})
 	network.on('hoverNode', function () {
 		changeCursor('grab')
@@ -4289,7 +4298,7 @@ function analyse() {
 	 * @param {string} pathType - either 'allPaths' or 'shortestPath'
 	 */
 	function hideNodesByPaths(selectedNodes, pathType) {
-		// paths is an array of objects with from and to node ids, or an empty array of there is no path
+		// paths is an array of objects with from and to node ids, or an empty array if there is no path
 		let paths = shortestPaths(selectedNodes, pathType === 'allPaths')
 		if (paths.length === 0) {
 			alertMsg('No path between the selected Factors', 'info')
