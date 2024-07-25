@@ -1172,6 +1172,18 @@ function draw() {
 	// listen for click events on the network pane
 	network.on('click', (params) => {
 		if (/gui/.test(debug)) console.log('**click**')
+		// if user is doing an analysis, and has clicked on a node, show the node notes 
+		if (getRadioVal('radius') !== 'All' || getRadioVal('stream') !== 'All' || getRadioVal('paths') !== 'All') {
+			if (!showNotesToggle) return
+			hideNotes()
+			let clickedNodeId = network.getNodeAt(params.pointer.DOM)
+			if (clickedNodeId) showNodeData(clickedNodeId)
+			else {
+				let clickedEdgeId = network.getEdgeAt(params.pointer.DOM)
+				if (clickedEdgeId) showEdgeData(clickedEdgeId)
+			}
+			return
+		}
 		let keys = params.event.pointers[0]
 		if (!keys) return
 		if (keys.metaKey) {
@@ -1251,7 +1263,7 @@ function draw() {
 		// if user is doing an analysis, do nothing 
 		if (getRadioVal('radius') !== 'All' || getRadioVal('stream') !== 'All' || getRadioVal('paths') !== 'All') {
 			return
-		} 
+		}
 		// if a 'hidden' node is clicked, it is selected, but we don't want this
 		// reset the selected nodes to all except the hidden one
 		network.setSelection({
@@ -1274,7 +1286,7 @@ function draw() {
 				edges: params.previousSelection.edges.map((edge) => edge.id),
 			})
 			return
-		} 
+		}
 		// if some other node(s) are already selected, and the user has
 		// clicked on one of the selected nodes, do nothing,
 		// i.e reselect all the nodes previously selected
@@ -1306,6 +1318,10 @@ function draw() {
 	})
 	network.on('selectEdge', function (params) {
 		if (/gui/.test(debug)) console.log('selectEdge')
+		// if user is doing an analysis, do nothing 
+		if (getRadioVal('radius') !== 'All' || getRadioVal('stream') !== 'All' || getRadioVal('paths') !== 'All') {
+			return
+		}
 		network.setSelection({
 			nodes: params.nodes.filter((id) => !data.nodes.get(id).nodeHidden),
 			edges: params.edges.filter((id) => !data.edges.get(id).edgeHidden),
@@ -1316,6 +1332,14 @@ function draw() {
 	})
 	network.on('deselectEdge', function (params) {
 		if (/gui/.test(debug)) console.log('deselectEdge')
+		// if user is doing an analysis, do nothing, but first reselect the unselected nodes 
+		if (getRadioVal('radius') !== 'All' || getRadioVal('stream') !== 'All' || getRadioVal('paths') !== 'All') {
+			network.setSelection({
+				nodes: params.previousSelection.nodes.map((node) => node.id),
+				edges: params.previousSelection.edges.map((edge) => edge.id),
+			})
+			return
+		}
 		if (params.edges) {
 			// clicked on an edge(see selectNode for comments)
 			let prevSelIds = params.previousSelection.edges.map((edge) => edge.id)
@@ -3585,11 +3609,11 @@ function showNodeData(nodeId) {
 	positionNotes()
 }
 
-function showEdgeData() {
+function showEdgeData(edgeId) {
 	let panel = elem('edgeDataPanel')
-	let edgeId = network.getSelectedEdges()[0]
+	edgeId = edgeId || network.getSelectedEdges()[0]
 	let edge = data.edges.get(edgeId)
-	elem('edgeLabel').innerHTML = edge.label
+	elem('edgeLabel').innerHTML = edge.label?.trim().length
 		? edge.label
 		: `Link from "${shorten(data.nodes.get(edge.from).label)}" to "${shorten(data.nodes.get(edge.to).label)}"`
 	if (edge.created) {
