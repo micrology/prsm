@@ -1,7 +1,4 @@
 {
   "extends": "@parcel/config-default",
-  "resolvers": ["parcel-resolver-ignore", "..."],
-  "optimizers": {
-    "*.js": ["@parcel/optimizer-terser"]
-  }
+  "resolvers": ["parcel-resolver-ignore", "..."]
 }
