@@ -177,6 +177,7 @@ var popupEditor = null // Quill editor in popup window
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
 var netLoaded = false // becomes true when map is fully displayed
 var savedState = '' // the current state of the map (nodes, edges, network settings) before current user action
+var unknowRoomTimeout = null // timer to check if the room exists
 
 /**
  * top level function to initialise everything
@@ -414,6 +415,14 @@ function startY(newRoom) {
 		// if this is a new map, display it
 		// (if the room already exists, wait until the map data is loaded before displaying it)
 		if (url.searchParams.get('room') === null) displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
+		else {
+			// if the user wants a room that doesn't exist, the system will hang, so wait and then show a blank map
+			unknowRoomTimeout = setTimeout(() => {
+				if (!netLoaded) {
+					displayNetPane(`${exactTime()} remote content not loaded from ${websocket}`)
+				}
+			}, 3000)	
+		}
 	})
 	wsProvider.disconnectBc()
 	wsProvider.on('status', (event) => {
@@ -488,6 +497,7 @@ function startY(newRoom) {
 	 */
 	nodes.on('*', (evt, properties, origin) => {
 		yjsTrace('nodes.on', `${evt}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`)
+		clearTimeout(unknowRoomTimeout)
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
@@ -1170,8 +1180,9 @@ function draw() {
 	elem('nodesButton').click()
 
 	// listen for click events on the network pane
+	let doubleClickTimer = null
 	network.on('click', (params) => {
-		if (/gui/.test(debug)) console.log('**click**')
+		if (/gui/.test(debug)) console.log('**click**', params)
 		// if user is doing an analysis, and has clicked on a node, show the node notes 
 		if (getRadioVal('radius') !== 'All' || getRadioVal('stream') !== 'All' || getRadioVal('paths') !== 'All') {
 			if (!showNotesToggle) return
@@ -1183,6 +1194,17 @@ function draw() {
 				if (clickedEdgeId) showEdgeData(clickedEdgeId)
 			}
 			return
+		}
+		// if user has clicked on a portal node, open the map in another tab and go to it
+		if (params.nodes.length === 1) {
+			let node = data.nodes.get(params.nodes[0])
+			// tricky stuff to distinguish a single click (move to map) from a double click (edit node)
+			if (node.portal && doubleClickTimer === null) {
+				doubleClickTimer = setTimeout(() => {
+					window.open(`${window.location.pathname}?room=${node.portal}`, node.portal)
+					doubleClickTimer = null
+				}, 500)
+			}
 		}
 		let keys = params.event.pointers[0]
 		if (!keys) return
@@ -1250,6 +1272,8 @@ function draw() {
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
 		if (/gui/.test(debug)) console.log('**doubleClick**')
+		clearTimeout(doubleClickTimer)
+		doubleClickTimer = null
 		if (params.nodes.length === 1) {
 			if (!(viewOnly || inEditMode)) network.editNode()
 		} else if (params.edges.length === 1) {
@@ -1259,7 +1283,7 @@ function draw() {
 		}
 	})
 	network.on('selectNode', function (params) {
-		if (/gui/.test(debug)) console.log('selectNode')
+		if (/gui/.test(debug)) console.log('selectNode', params)
 		// if user is doing an analysis, do nothing 
 		if (getRadioVal('radius') !== 'All' || getRadioVal('stream') !== 'All' || getRadioVal('paths') !== 'All') {
 			return
@@ -2281,6 +2305,7 @@ function cancelEdit(item, callback) {
 	clearPopUp()
 	item.label = item.oldLabel
 	item.font.color = item.oldFontColor
+	if (item.shape === 'portal') item.shape = 'image'
 	if (item.from) {
 		unlockEdge(item)
 	} else {
@@ -2373,6 +2398,7 @@ function editNode(item, point, cancelAction, callback) {
 					<option value="triangle">Triangle</option>
 					<option value="hexagon">Hexagon</option>
 					<option value="text">Text</option>
+					<option value="portal">Portal</option>
 				</select>
 			</div>
 			<div>
@@ -2402,6 +2428,13 @@ function editNode(item, point, cancelAction, callback) {
 	)
 	cp.createColorPicker('node-backgroundColor')
 	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background)
+	if (item.shape === 'image') {
+		item.shape = 'portal'
+		if (elem('popup-portal-room')) elem('popup-portal-room').value = item.portal
+		else {
+			makePortalInput(item.portal)
+		}
+	}
 	elem('nodeEditShape').value = item.shape
 	cp.createColorPicker('node-borderColor')
 	elem('node-borderColor').style.backgroundColor = standardize_color(item.color.border)
@@ -2413,6 +2446,14 @@ function editNode(item, point, cancelAction, callback) {
 	elem('nodeEditSizer').value = factorSizeToPercent(item.size)
 	progressBar(elem('nodeEditSizer'))
 	listen('nodeEditSizer', 'input', (event) => progressBar(event.target))
+	listen('nodeEditShape', 'change', (event) => {
+		if (event.target.value === 'portal') {
+			makePortalInput(item.portal)
+		} else {
+			elem('popup-portal-link')?.remove()
+			item.portal = undefined
+		}
+	})
 	positionPopUp(point)
 	elem('popup-label').focus()
 	elem('popup').timer = setTimeout(() => {
@@ -2421,7 +2462,25 @@ function editNode(item, point, cancelAction, callback) {
 		alertMsg('Edit timed out', 'warn')
 	}, TIMETOEDIT)
 	lockNode(item)
+	/**
+	 * Generate HTML for the textarea to obtain the room name of the portal
+	 * @param {string} portal room name to go to
+	 */
+	function makePortalInput(portal) {
+		{
+			portal = portal || ''
+			// expand the dialog to accommodate the textarea
+			elem('popup').style.height = `${230}px`
+			elem('popup-node-editor').insertAdjacentHTML('beforeend',
+				`<div id="popup-portal-link">
+      				<label for="popup-portal-room">Map:</label>
+      				<textarea id="popup-portal-room" rows="1" placeholder="ABC-DEF-GHI-JKL">${portal}</textarea>
+    			</div>`)
+		}
+	}
 }
+// fancy portal image icon
+const portalSvg = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="#ff0000" d="M298.736 21.016c-99.298 0-195.928 104.647-215.83 233.736-7.074 45.887-3.493 88.68 8.512 124.787-4.082-6.407-7.92-13.09-11.467-20.034-16.516-32.335-24.627-65.378-25-96.272-11.74 36.254-8.083 82.47 14.482 126.643 27.7 54.227 81.563 91.94 139.87 97.502 5.658.725 11.447 1.108 17.364 1.108 99.298 0 195.93-104.647 215.83-233.736 9.28-60.196.23-115.072-22.133-156.506 21.625 21.867 36.56 45.786 44.617 69.496.623-30.408-14.064-65.766-44.21-95.806-33.718-33.598-77.227-50.91-114.995-50.723-2.328-.118-4.67-.197-7.04-.197zm-5.6 36.357c40.223 0 73.65 20.342 95.702 53.533 15.915 42.888 12.51 108.315.98 147.858-16.02 54.944-40.598 96.035-79.77 126.107-41.79 32.084-98.447 24.39-115.874-5.798-1.365-2.363-2.487-4.832-3.38-7.385 11.724 14.06 38.188 14.944 61.817 1.3 25.48-14.71 38.003-40.727 27.968-58.108-10.036-17.384-38.826-19.548-64.307-4.837-9.83 5.676-17.72 13.037-23.14 20.934.507-1.295 1.043-2.59 1.626-3.88-18.687 24.49-24.562 52.126-12.848 72.417 38.702 45.923 98.07 25.503 140.746-6.426 37.95-28.392 72.32-73.55 89.356-131.988 1.265-4.34 2.416-8.677 3.467-13.008-.286 2.218-.59 4.442-.934 6.678-16.807 109.02-98.412 197.396-182.272 197.396-35.644 0-65.954-15.975-87.74-42.71-26.492-48.396-15.988-142.083 4.675-185.15 26.745-55.742 66.133-122.77 134.324-116.804 46.03 4.027 63.098 58.637 39.128 116.22-8.61 20.685-21.192 39.314-36.21 54.313 24.91-16.6 46.72-42.13 59.572-73 23.97-57.583 6.94-113.422-39.13-116.805-85.737-6.296-137.638 58.55-177.542 128.485-9.21 19.9-16.182 40.35-20.977 60.707.494-7.435 1.312-14.99 2.493-22.652C127.67 145.75 209.275 57.373 293.135 57.373z"></path></g></svg>`
 /**
  * save the node format details that have been edited
  * @param {Object} item the node that has been edited
@@ -2448,6 +2507,15 @@ function saveNode(item, callback) {
 	item.borderWidth = borderType === 'none' ? 0 : 4
 	item.shapeProperties.borderDashes = convertDashes(borderType)
 	item.shape = elem('nodeEditShape').value
+	if (item.shape === 'portal') {
+		item.portal = elem('popup-portal-room')?.value
+		if (!item.portal) {
+			alertMsg('No map room', 'error')
+			callback(null)
+		}
+		item.shape = 'image'
+		item.image = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(portalSvg);
+	}
 	item.font.size = parseInt(elem('nodeEditFontSize').value)
 	setFactorSizeFromPercent(item, elem('nodeEditSizer').value)
 	network.manipulation.inMode = 'editNode' // ensure still in Add mode, in case others have done something meanwhile
