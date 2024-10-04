@@ -792,6 +792,7 @@ export function savePRSMfile() {
 					'borderWidth',
 					'shape',
 					'shapeProperties',
+					'margin',
 					'thumbUp',
 					'thumbDown',
 					'created',
