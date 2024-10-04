@@ -198,7 +198,7 @@ function mergeMaps() {
 
 export function mergeRoom(otherRoom) {
 	openOtherDoc(otherRoom)
-	console.log(`%cMerging map at ${room} (map A) with map at ${otherRoom} (map B)`, 'font-weight: bold')
+	console.log('%cMerging map at %s (map A) with map at %s (map B)', 'font-weight: bold', room, otherRoom)
 	bwsp.on('sync', (status) => {
 		if (!status) return
 		bNodesMap.forEach((n) => bdata.nodes.update(n))
@@ -324,7 +324,7 @@ function diffMaps() {
 }
 export function diffRoom(otherRoom) {
 	openOtherDoc(otherRoom)
-	console.log(`%cComparing map at ${room} (map A) with map at ${otherRoom} (map B)`, 'font-weight: bold')
+	console.log('%cComparing map at %s (map A) with map at %s (map B)', 'font-weight: bold', room, otherRoom)
 	bwsp.on('sync', (status) => {
 		if (!status) return
 		bNodesMap.forEach((n) => bdata.nodes.update(n))

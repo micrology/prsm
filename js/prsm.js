@@ -2730,7 +2730,7 @@ function createTitleDropDown() {
 	function makeTitleDropDownEntry(name, room) {
 		let li = document.createElement('li')
 		li.classList.add('room-title')
-		li.innerHTML = name
+		li.textContent = name
 		li.dataset.room = room
 		li.addEventListener('click', (event) => changeRoom(event))
 		selectList.appendChild(li)
