@@ -34,6 +34,7 @@ import {
 	isQuillEmpty,
 	setNodeHidden,
 	setEdgeHidden,
+	displayHelp,
 } from './utils.js'
 import {TabulatorFull as Tabulator} from 'tabulator-tables'
 import {version} from '../package.json'
@@ -76,6 +77,8 @@ window.addEventListener('load', () => {
 	setUpShareDialog()
 	startY()
 })
+
+listen('help', 'click', displayHelp)
 
 /**
  * add event listeners for the Factor and Link tabs
@@ -1632,13 +1635,3 @@ listen('copy', 'click', copyTable)
 function copyTable() {
 	openTable.copyToClipboard()
 }
-
-listen('help', 'click', displayHelp)
-
-/**
- * display help page in a separate window
- */
-function displayHelp() {
-	window.open('./doc/help', 'helpWindow')
-}
-

@@ -4,6 +4,7 @@ prsm-demo
 dist
 node_modules
 doc/help/node_modules
+doc/help/doc_build
 *.bbprojectd
 *.code-workspace
 experiments
