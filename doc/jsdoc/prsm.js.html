@@ -1,51 +1,368 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    
-    <meta charset="utf-8">
-    <title>prsm.js - Documentation</title>
-    
-    
-    <script src="scripts/prettify/prettify.js"></script>
-    <script src="scripts/prettify/lang-css.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
-    <script src="scripts/nav.js" defer></script>
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
+	<head>
+		<meta charset="utf-8" />
+		<title>prsm.js - Documentation</title>
 
-<input type="checkbox" id="nav-trigger" class="nav-trigger" />
-<label for="nav-trigger" class="navicon-button x">
-  <div class="navicon"></div>
-</label>
+		<script src="scripts/prettify/prettify.js"></script>
+		<script src="scripts/prettify/lang-css.js"></script>
+		<!--[if lt IE 9]>
+			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<link type="text/css" rel="stylesheet" href="styles/prettify.css" />
+		<link type="text/css" rel="stylesheet" href="styles/jsdoc.css" />
+		<script src="scripts/nav.js" defer></script>
 
-<label for="nav-trigger" class="overlay"></label>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	</head>
+	<body>
+		<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+		<label for="nav-trigger" class="navicon-button x">
+			<div class="navicon"></div>
+		</label>
 
-<nav >
-    
-    
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ToolHandler.html">ToolHandler</a><ul class='methods'><li data-type='method'><a href="ToolHandler.html#endPosition">endPosition</a></li><li data-type='method'><a href="ToolHandler.html#options">options</a></li><li data-type='method'><a href="ToolHandler.html#optionsDialog">optionsDialog</a></li><li data-type='method'><a href="ToolHandler.html#panend">panend</a></li><li data-type='method'><a href="ToolHandler.html#panmove">panmove</a></li><li data-type='method'><a href="ToolHandler.html#panstart">panstart</a></li></ul></li><li><a href="module.exports.html">exports</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li><li><a href="global.html#MIN_WIDTH">MIN_WIDTH</a></li><li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li><li><a href="global.html#addColumn">addColumn</a></li><li><a href="global.html#addContextMenu">addContextMenu</a></li><li><a href="global.html#addEventListeners">addEventListeners</a></li><li><a href="global.html#addLabel">addLabel</a></li><li><a href="global.html#addRollbackIcon">addRollbackIcon</a></li><li><a href="global.html#addVec">addVec</a></li><li><a href="global.html#alertMsg">alertMsg</a></li><li><a href="global.html#analyse">analyse</a></li><li><a href="global.html#anon">anon</a></li><li><a href="global.html#antMarch">antMarch</a></li><li><a href="global.html#applyOptions">applyOptions</a></li><li><a href="global.html#arrayBufferToString">arrayBufferToString</a></li><li><a href="global.html#asleep">asleep</a></li><li><a href="global.html#autoLayout">autoLayout</a></li><li><a href="global.html#bigWidth">bigWidth</a></li><li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li><li><a href="global.html#cancelAdd">cancelAdd</a></li><li><a href="global.html#cancelEdit">cancelEdit</a></li><li><a href="global.html#cancelLoading">cancelLoading</a></li><li><a href="global.html#cancelViewOnly">cancelViewOnly</a></li><li><a href="global.html#changeCursor">changeCursor</a></li><li><a href="global.html#changeRoom">changeRoom</a></li><li><a href="global.html#checkKey">checkKey</a></li><li><a href="global.html#circleIntersectsRect">circleIntersectsRect</a></li><li><a href="global.html#clean">clean</a></li><li><a href="global.html#cleanArray">cleanArray</a></li><li><a href="global.html#clearLegend">clearLegend</a></li><li><a href="global.html#clearMap">clearMap</a></li><li><a href="global.html#clearPopUp">clearPopUp</a></li><li><a href="global.html#clearStatusBar">clearStatusBar</a></li><li><a href="global.html#closeFilter">closeFilter</a></li><li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li><li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li><li><a href="global.html#collapseColGroup">collapseColGroup</a></li><li><a href="global.html#collapseNotes">collapseNotes</a></li><li><a href="global.html#colorEditor">colorEditor</a></li><li><a href="global.html#configSamples">configSamples</a></li><li><a href="global.html#connected">connected</a></li><li><a href="global.html#connectedComponents">connectedComponents</a></li><li><a href="global.html#convertDashes">convertDashes</a></li><li><a href="global.html#convertData">convertData</a></li><li><a href="global.html#convertEdge">convertEdge</a></li><li><a href="global.html#convertEdgeBack">convertEdgeBack</a></li><li><a href="global.html#convertNode">convertNode</a></li><li><a href="global.html#convertNodeBack">convertNodeBack</a></li><li><a href="global.html#copyBackgroundToClipboard">copyBackgroundToClipboard</a></li><li><a href="global.html#copyHistoryToClipboard">copyHistoryToClipboard</a></li><li><a href="global.html#copyTable">copyTable</a></li><li><a href="global.html#copyToClipboard">copyToClipboard</a></li><li><a href="global.html#createTitleDropDown">createTitleDropDown</a></li><li><a href="global.html#deepCopy">deepCopy</a></li><li><a href="global.html#deleteActiveObjects">deleteActiveObjects</a></li><li><a href="global.html#deleteColumn">deleteColumn</a></li><li><a href="global.html#deleteNode">deleteNode</a></li><li><a href="global.html#deselectTool">deselectTool</a></li><li><a href="global.html#diag">diag</a></li><li><a href="global.html#diffMaps">diffMaps</a></li><li><a href="global.html#display">display</a></li><li><a href="global.html#displayHelp">displayHelp</a></li><li><a href="global.html#displayNetPane">displayNetPane</a></li><li><a href="global.html#displayWhatsNew">displayWhatsNew</a></li><li><a href="global.html#doSearch">doSearch</a></li><li><a href="global.html#dragElement">dragElement</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawBadges">drawBadges</a></li><li><a href="global.html#drawGrid">drawGrid</a></li><li><a href="global.html#drawMinimap">drawMinimap</a></li><li><a href="global.html#duplEdge">duplEdge</a></li><li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li><li><a href="global.html#editEdge">editEdge</a></li><li><a href="global.html#editLinkStyle">editLinkStyle</a></li><li><a href="global.html#editNode">editNode</a></li><li><a href="global.html#editNodeStyle">editNodeStyle</a></li><li><a href="global.html#elem">elem</a></li><li><a href="global.html#eraser">eraser</a></li><li><a href="global.html#exactTime">exactTime</a></li><li><a href="global.html#exportDOT">exportDOT</a></li><li><a href="global.html#exportExcel">exportExcel</a></li><li><a href="global.html#exportGML">exportGML</a></li><li><a href="global.html#exportNotes">exportNotes</a></li><li><a href="global.html#factorSizeToPercent">factorSizeToPercent</a></li><li><a href="global.html#fit">fit</a></li><li><a href="global.html#follow">follow</a></li><li><a href="global.html#followUser">followUser</a></li><li><a href="global.html#generateName">generateName</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#getArrows">getArrows</a></li><li><a href="global.html#getButtonStatus">getButtonStatus</a></li><li><a href="global.html#getContext">getContext</a></li><li><a href="global.html#getDashes">getDashes</a></li><li><a href="global.html#getLastPath">getLastPath</a></li><li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li><li><a href="global.html#getRadioVal">getRadioVal</a></li><li><a href="global.html#getRandomData">getRandomData</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#getSelectedAndFixedNodes">getSelectedAndFixedNodes</a></li><li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li><li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li><li><a href="global.html#ghostCursor">ghostCursor</a></li><li><a href="global.html#ghostFactor">ghostFactor</a></li><li><a href="global.html#groupTitle">groupTitle</a></li><li><a href="global.html#headerTickToggle">headerTickToggle</a></li><li><a href="global.html#hideNavButtons">hideNavButtons</a></li><li><a href="global.html#hideNodeAndEdges">hideNodeAndEdges</a></li><li><a href="global.html#hideNotes">hideNotes</a></li><li><a href="global.html#hideWhatsNew">hideWhatsNew</a></li><li><a href="global.html#htmlEntities">htmlEntities</a></li><li><a href="global.html#humanSize">humanSize</a></li><li><a href="global.html#inAddMode">inAddMode</a></li><li><a href="global.html#in_degree">in_degree</a></li><li><a href="global.html#initDraw">initDraw</a></li><li><a href="global.html#initPopUp">initPopUp</a></li><li><a href="global.html#initSample">initSample</a></li><li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li><li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li><li><a href="global.html#initials">initials</a></li><li><a href="global.html#initiateClone">initiateClone</a></li><li><a href="global.html#inline">inline</a></li><li><a href="global.html#intersect">intersect</a></li><li><a href="global.html#invertColor">invertColor</a></li><li><a href="global.html#isEmpty">isEmpty</a></li><li><a href="global.html#isQuillEmpty">isQuillEmpty</a></li><li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li><li><a href="global.html#legend">legend</a></li><li><a href="global.html#legendData">legendData</a></li><li><a href="global.html#lightOrDark">lightOrDark</a></li><li><a href="global.html#linkEditCancel">linkEditCancel</a></li><li><a href="global.html#linkEditSave">linkEditSave</a></li><li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li><li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li><li><a href="global.html#linkEditorHide">linkEditorHide</a></li><li><a href="global.html#linkEditorShow">linkEditorShow</a></li><li><a href="global.html#listFactors">listFactors</a></li><li><a href="global.html#listLinks">listLinks</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#loadCSV">loadCSV</a></li><li><a href="global.html#loadDOTfile">loadDOTfile</a></li><li><a href="global.html#loadExcelfile">loadExcelfile</a></li><li><a href="global.html#loadFile">loadFile</a></li><li><a href="global.html#loadGML">loadGML</a></li><li><a href="global.html#loadGraphML">loadGraphML</a></li><li><a href="global.html#loadPRSMfile">loadPRSMfile</a></li><li><a href="global.html#lockNode">lockNode</a></li><li><a href="global.html#logHistory">logHistory</a></li><li><a href="global.html#makeColor">makeColor</a></li><li><a href="global.html#makeOptionsDialog">makeOptionsDialog</a></li><li><a href="global.html#mapTitle">mapTitle</a></li><li><a href="global.html#markMapSaved">markMapSaved</a></li><li><a href="global.html#mergeTranspose">mergeTranspose</a></li><li><a href="global.html#mouseDespatch">mouseDespatch</a></li><li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li><li><a href="global.html#nodeEditSave">nodeEditSave</a></li><li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li><li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li><li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li><li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li><li><a href="global.html#nodeIdToLabel">nodeIdToLabel</a></li><li><a href="global.html#nodeList">nodeList</a></li><li><a href="global.html#noteFilter">noteFilter</a></li><li><a href="global.html#object_equals">object_equals</a></li><li><a href="global.html#onexit">onexit</a></li><li><a href="global.html#openCluster">openCluster</a></li><li><a href="global.html#openNotesWindow">openNotesWindow</a></li><li><a href="global.html#out_degree">out_degree</a></li><li><a href="global.html#plusLink">plusLink</a></li><li><a href="global.html#plusNode">plusNode</a></li><li><a href="global.html#portrait">portrait</a></li><li><a href="global.html#positionNotes">positionNotes</a></li><li><a href="global.html#positionPopUp">positionPopUp</a></li><li><a href="global.html#progressBar">progressBar</a></li><li><a href="global.html#quillAccessor">quillAccessor</a></li><li><a href="global.html#quillEditor">quillEditor</a></li><li><a href="global.html#quillFormatter">quillFormatter</a></li><li><a href="global.html#randomColour">randomColour</a></li><li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li><li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li><li><a href="global.html#readSingleFile">readSingleFile</a></li><li><a href="global.html#rebase">rebase</a></li><li><a href="global.html#recalculateStats">recalculateStats</a></li><li><a href="global.html#receiveEvent">receiveEvent</a></li><li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li><li><a href="global.html#redraw">redraw</a></li><li><a href="global.html#refreshFromMap">refreshFromMap</a></li><li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li><li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li><li><a href="global.html#removeAvatar">removeAvatar</a></li><li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li><li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li><li><a href="global.html#renameUser">renameUser</a></li><li><a href="global.html#resizeBox">resizeBox</a></li><li><a href="global.html#resizeCanvas">resizeCanvas</a></li><li><a href="global.html#rgbIsLight">rgbIsLight</a></li><li><a href="global.html#rgba">rgba</a></li><li><a href="global.html#rollback">rollback</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#roundTripTimer">roundTripTimer</a></li><li><a href="global.html#saveChange">saveChange</a></li><li><a href="global.html#saveEdge">saveEdge</a></li><li><a href="global.html#saveLabel">saveLabel</a></li><li><a href="global.html#saveNode">saveNode</a></li><li><a href="global.html#savePRSMfile">savePRSMfile</a></li><li><a href="global.html#saveState">saveState</a></li><li><a href="global.html#saveStr">saveStr</a></li><li><a href="global.html#saveUserName">saveUserName</a></li><li><a href="global.html#search">search</a></li><li><a href="global.html#searchTargets">searchTargets</a></li><li><a href="global.html#selectClustering">selectClustering</a></li><li><a href="global.html#selectTool">selectTool</a></li><li><a href="global.html#selectUsersItems">selectUsersItems</a></li><li><a href="global.html#selectedLabels">selectedLabels</a></li><li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li><li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li><li><a href="global.html#setButtonStatus">setButtonStatus</a></li><li><a href="global.html#setCanvasBackground">setCanvasBackground</a></li><li><a href="global.html#setEdgeHidden">setEdgeHidden</a></li><li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li><li><a href="global.html#setFactorSizeFromPercent">setFactorSizeFromPercent</a></li><li><a href="global.html#setFileName">setFileName</a></li><li><a href="global.html#setFixed">setFixed</a></li><li><a href="global.html#setMapTitle">setMapTitle</a></li><li><a href="global.html#setNodeHidden">setNodeHidden</a></li><li><a href="global.html#setParams">setParams</a></li><li><a href="global.html#setRadioVal">setRadioVal</a></li><li><a href="global.html#setUpAwareness">setUpAwareness</a></li><li><a href="global.html#setUpBackground">setUpBackground</a></li><li><a href="global.html#setUpCanvas">setUpCanvas</a></li><li><a href="global.html#setUpFilter">setUpFilter</a></li><li><a href="global.html#setUpPage">setUpPage</a></li><li><a href="global.html#setUpPaint">setUpPaint</a></li><li><a href="global.html#setUpSamples">setUpSamples</a></li><li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li><li><a href="global.html#setUpTabs">setUpTabs</a></li><li><a href="global.html#setUpToolbox">setUpToolbox</a></li><li><a href="global.html#setUpTutorial">setUpTutorial</a></li><li><a href="global.html#setUpUserName">setUpUserName</a></li><li><a href="global.html#setvh">setvh</a></li><li><a href="global.html#showAvatars">showAvatars</a></li><li><a href="global.html#showClusterLinks">showClusterLinks</a></li><li><a href="global.html#showGhostFactor">showGhostFactor</a></li><li><a href="global.html#showHistory">showHistory</a></li><li><a href="global.html#showNavButtons">showNavButtons</a></li><li><a href="global.html#showNodeData">showNodeData</a></li><li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li><li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li><li><a href="global.html#showOtherMouse">showOtherMouse</a></li><li><a href="global.html#showPressed">showPressed</a></li><li><a href="global.html#showSelected">showSelected</a></li><li><a href="global.html#snapToGrid">snapToGrid</a></li><li><a href="global.html#solve">solve</a></li><li><a href="global.html#splitText">splitText</a></li><li><a href="global.html#standardize_color">standardize_color</a></li><li><a href="global.html#start">start</a></li><li><a href="global.html#startY">startY</a></li><li><a href="global.html#startzoom">startzoom</a></li><li><a href="global.html#statusMsg">statusMsg</a></li><li><a href="global.html#stepFinish">stepFinish</a></li><li><a href="global.html#stepStart">stepStart</a></li><li><a href="global.html#stepsEnd">stepsEnd</a></li><li><a href="global.html#stopEdit">stopEdit</a></li><li><a href="global.html#strip">strip</a></li><li><a href="global.html#stripNL">stripNL</a></li><li><a href="global.html#styleEdgeNames">styleEdgeNames</a></li><li><a href="global.html#styleNodeNames">styleNodeNames</a></li><li><a href="global.html#subVec">subVec</a></li><li><a href="global.html#subtract">subtract</a></li><li><a href="global.html#sumVec">sumVec</a></li><li><a href="global.html#svg">svg</a></li><li><a href="global.html#tickToggle">tickToggle</a></li><li><a href="global.html#timeAndDate">timeAndDate</a></li><li><a href="global.html#timekey">timekey</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#titleDropDown">titleDropDown</a></li><li><a href="global.html#toggleDeleteButton">toggleDeleteButton</a></li><li><a href="global.html#togglePanel">togglePanel</a></li><li><a href="global.html#toolHandler">toolHandler</a></li><li><a href="global.html#traceUsers">traceUsers</a></li><li><a href="global.html#transpose">transpose</a></li><li><a href="global.html#trophic">trophic</a></li><li><a href="global.html#unFollow">unFollow</a></li><li><a href="global.html#unSelect">unSelect</a></li><li><a href="global.html#undirected">undirected</a></li><li><a href="global.html#unlockAll">unlockAll</a></li><li><a href="global.html#unlockEdge">unlockEdge</a></li><li><a href="global.html#unlockNode">unlockNode</a></li><li><a href="global.html#unselectTool">unselectTool</a></li><li><a href="global.html#updateActiveButtons">updateActiveButtons</a></li><li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li><li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li><li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li><li><a href="global.html#updateFilter">updateFilter</a></li><li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li><li><a href="global.html#updateFromDrawingMap">updateFromDrawingMap</a></li><li><a href="global.html#updateFromRemote">updateFromRemote</a></li><li><a href="global.html#updateLastSamples">updateLastSamples</a></li><li><a href="global.html#updateLegend">updateLegend</a></li><li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li><li><a href="global.html#updateNodeCellData">updateNodeCellData</a></li><li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li><li><a href="global.html#updateSelection">updateSelection</a></li><li><a href="global.html#upgradeFromV1">upgradeFromV1</a></li><li><a href="global.html#uuidv4">uuidv4</a></li><li><a href="global.html#zero">zero</a></li><li><a href="global.html#zoomCanvas">zoomCanvas</a></li><li><a href="global.html#zoomincr">zoomincr</a></li><li><a href="global.html#zoomnet">zoomnet</a></li><li><a href="global.html#zoomscroll">zoomscroll</a></li><li><a href="global.html#zoomset">zoomset</a></li></ul>
-    
-</nav>
+		<label for="nav-trigger" class="overlay"></label>
 
-<div id="main">
-    
-    <h1 class="page-title">prsm.js</h1>
-    
+		<nav>
+			<h2><a href="index.html">Home</a></h2>
+			<h3>Classes</h3>
+			<ul>
+				<li>
+					<a href="ToolHandler.html">ToolHandler</a>
+					<ul class="methods">
+						<li data-type="method"><a href="ToolHandler.html#endPosition">endPosition</a></li>
+						<li data-type="method"><a href="ToolHandler.html#options">options</a></li>
+						<li data-type="method"><a href="ToolHandler.html#optionsDialog">optionsDialog</a></li>
+						<li data-type="method"><a href="ToolHandler.html#panend">panend</a></li>
+						<li data-type="method"><a href="ToolHandler.html#panmove">panmove</a></li>
+						<li data-type="method"><a href="ToolHandler.html#panstart">panstart</a></li>
+					</ul>
+				</li>
+				<li><a href="module.exports.html">exports</a></li>
+			</ul>
+			<h3>Global</h3>
+			<ul>
+				<li><a href="global.html#DOMtoCanvasX">DOMtoCanvasX</a></li>
+				<li><a href="global.html#MIN_WIDTH">MIN_WIDTH</a></li>
+				<li><a href="global.html#SHORTLABELLEN">SHORTLABELLEN</a></li>
+				<li><a href="global.html#addColumn">addColumn</a></li>
+				<li><a href="global.html#addContextMenu">addContextMenu</a></li>
+				<li><a href="global.html#addEventListeners">addEventListeners</a></li>
+				<li><a href="global.html#addLabel">addLabel</a></li>
+				<li><a href="global.html#addRollbackIcon">addRollbackIcon</a></li>
+				<li><a href="global.html#addVec">addVec</a></li>
+				<li><a href="global.html#alertMsg">alertMsg</a></li>
+				<li><a href="global.html#analyse">analyse</a></li>
+				<li><a href="global.html#anon">anon</a></li>
+				<li><a href="global.html#antMarch">antMarch</a></li>
+				<li><a href="global.html#applyOptions">applyOptions</a></li>
+				<li><a href="global.html#arrayBufferToString">arrayBufferToString</a></li>
+				<li><a href="global.html#asleep">asleep</a></li>
+				<li><a href="global.html#autoLayout">autoLayout</a></li>
+				<li><a href="global.html#buttonIsDisabled">buttonIsDisabled</a></li>
+				<li><a href="global.html#cancelAdd">cancelAdd</a></li>
+				<li><a href="global.html#cancelEdit">cancelEdit</a></li>
+				<li><a href="global.html#cancelLoading">cancelLoading</a></li>
+				<li><a href="global.html#cancelViewOnly">cancelViewOnly</a></li>
+				<li><a href="global.html#changeCursor">changeCursor</a></li>
+				<li><a href="global.html#changeRoom">changeRoom</a></li>
+				<li><a href="global.html#checkKey">checkKey</a></li>
+				<li><a href="global.html#circleIntersectsRect">circleIntersectsRect</a></li>
+				<li><a href="global.html#clean">clean</a></li>
+				<li><a href="global.html#cleanArray">cleanArray</a></li>
+				<li><a href="global.html#clearLegend">clearLegend</a></li>
+				<li><a href="global.html#clearMap">clearMap</a></li>
+				<li><a href="global.html#clearPopUp">clearPopUp</a></li>
+				<li><a href="global.html#clearStatusBar">clearStatusBar</a></li>
+				<li><a href="global.html#closeFilter">closeFilter</a></li>
+				<li><a href="global.html#closeOptionsDialogs">closeOptionsDialogs</a></li>
+				<li><a href="global.html#clusterByAttribute">clusterByAttribute</a></li>
+				<li><a href="global.html#collapseColGroup">collapseColGroup</a></li>
+				<li><a href="global.html#collapseNotes">collapseNotes</a></li>
+				<li><a href="global.html#colorEditor">colorEditor</a></li>
+				<li><a href="global.html#configSamples">configSamples</a></li>
+				<li><a href="global.html#connected">connected</a></li>
+				<li><a href="global.html#connectedComponents">connectedComponents</a></li>
+				<li><a href="global.html#convertDashes">convertDashes</a></li>
+				<li><a href="global.html#convertData">convertData</a></li>
+				<li><a href="global.html#convertEdge">convertEdge</a></li>
+				<li><a href="global.html#convertEdgeBack">convertEdgeBack</a></li>
+				<li><a href="global.html#convertNode">convertNode</a></li>
+				<li><a href="global.html#convertNodeBack">convertNodeBack</a></li>
+				<li><a href="global.html#copyBackgroundToClipboard">copyBackgroundToClipboard</a></li>
+				<li><a href="global.html#copyHistoryToClipboard">copyHistoryToClipboard</a></li>
+				<li><a href="global.html#copyTable">copyTable</a></li>
+				<li><a href="global.html#copyToClipboard">copyToClipboard</a></li>
+				<li><a href="global.html#createTitleDropDown">createTitleDropDown</a></li>
+				<li><a href="global.html#deepCopy">deepCopy</a></li>
+				<li><a href="global.html#deleteActiveObjects">deleteActiveObjects</a></li>
+				<li><a href="global.html#deleteColumn">deleteColumn</a></li>
+				<li><a href="global.html#deleteNode">deleteNode</a></li>
+				<li><a href="global.html#deselectTool">deselectTool</a></li>
+				<li><a href="global.html#diag">diag</a></li>
+				<li><a href="global.html#diffMaps">diffMaps</a></li>
+				<li><a href="global.html#display">display</a></li>
+				<li><a href="global.html#displayHelp">displayHelp</a></li>
+				<li><a href="global.html#displayNetPane">displayNetPane</a></li>
+				<li><a href="global.html#displayWhatsNew">displayWhatsNew</a></li>
+				<li><a href="global.html#doSearch">doSearch</a></li>
+				<li><a href="global.html#dragElement">dragElement</a></li>
+				<li><a href="global.html#draw">draw</a></li>
+				<li><a href="global.html#drawBadges">drawBadges</a></li>
+				<li><a href="global.html#drawGrid">drawGrid</a></li>
+				<li><a href="global.html#drawMinimap">drawMinimap</a></li>
+				<li><a href="global.html#duplEdge">duplEdge</a></li>
+				<li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li>
+				<li><a href="global.html#editEdge">editEdge</a></li>
+				<li><a href="global.html#editLinkStyle">editLinkStyle</a></li>
+				<li><a href="global.html#editNode">editNode</a></li>
+				<li><a href="global.html#editNodeStyle">editNodeStyle</a></li>
+				<li><a href="global.html#elem">elem</a></li>
+				<li><a href="global.html#eraser">eraser</a></li>
+				<li><a href="global.html#exactTime">exactTime</a></li>
+				<li><a href="global.html#exportDOT">exportDOT</a></li>
+				<li><a href="global.html#exportExcel">exportExcel</a></li>
+				<li><a href="global.html#exportGML">exportGML</a></li>
+				<li><a href="global.html#exportNotes">exportNotes</a></li>
+				<li><a href="global.html#factorSizeToPercent">factorSizeToPercent</a></li>
+				<li><a href="global.html#fit">fit</a></li>
+				<li><a href="global.html#follow">follow</a></li>
+				<li><a href="global.html#followUser">followUser</a></li>
+				<li><a href="global.html#generateName">generateName</a></li>
+				<li><a href="global.html#generateRoom">generateRoom</a></li>
+				<li><a href="global.html#getArrows">getArrows</a></li>
+				<li><a href="global.html#getButtonStatus">getButtonStatus</a></li>
+				<li><a href="global.html#getContext">getContext</a></li>
+				<li><a href="global.html#getDashes">getDashes</a></li>
+				<li><a href="global.html#getLastPath">getLastPath</a></li>
+				<li><a href="global.html#getNodeGroupFromGroupLabel">getNodeGroupFromGroupLabel</a></li>
+				<li><a href="global.html#getRadioVal">getRadioVal</a></li>
+				<li><a href="global.html#getRandomData">getRandomData</a></li>
+				<li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li>
+				<li><a href="global.html#getSelectedAndFixedNodes">getSelectedAndFixedNodes</a></li>
+				<li><a href="global.html#getWidthOfTitle">getWidthOfTitle</a></li>
+				<li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li>
+				<li><a href="global.html#ghostCursor">ghostCursor</a></li>
+				<li><a href="global.html#ghostFactor">ghostFactor</a></li>
+				<li><a href="global.html#groupTitle">groupTitle</a></li>
+				<li><a href="global.html#headerTickToggle">headerTickToggle</a></li>
+				<li><a href="global.html#hideNavButtons">hideNavButtons</a></li>
+				<li><a href="global.html#hideNodeAndEdges">hideNodeAndEdges</a></li>
+				<li><a href="global.html#hideNotes">hideNotes</a></li>
+				<li><a href="global.html#hideWhatsNew">hideWhatsNew</a></li>
+				<li><a href="global.html#htmlEntities">htmlEntities</a></li>
+				<li><a href="global.html#humanSize">humanSize</a></li>
+				<li><a href="global.html#inAddMode">inAddMode</a></li>
+				<li><a href="global.html#in_degree">in_degree</a></li>
+				<li><a href="global.html#initDraw">initDraw</a></li>
+				<li><a href="global.html#initPopUp">initPopUp</a></li>
+				<li><a href="global.html#initSample">initSample</a></li>
+				<li><a href="global.html#initialiseFactorTable">initialiseFactorTable</a></li>
+				<li><a href="global.html#initialiseLinkTable">initialiseLinkTable</a></li>
+				<li><a href="global.html#initials">initials</a></li>
+				<li><a href="global.html#initiateClone">initiateClone</a></li>
+				<li><a href="global.html#inline">inline</a></li>
+				<li><a href="global.html#intersect">intersect</a></li>
+				<li><a href="global.html#invertColor">invertColor</a></li>
+				<li><a href="global.html#isEmpty">isEmpty</a></li>
+				<li><a href="global.html#isQuillEmpty">isQuillEmpty</a></li>
+				<li><a href="global.html#keepPaneInWindow">keepPaneInWindow</a></li>
+				<li><a href="global.html#legend">legend</a></li>
+				<li><a href="global.html#legendData">legendData</a></li>
+				<li><a href="global.html#lightOrDark">lightOrDark</a></li>
+				<li><a href="global.html#linkEditCancel">linkEditCancel</a></li>
+				<li><a href="global.html#linkEditSave">linkEditSave</a></li>
+				<li><a href="global.html#linkEditSubmit">linkEditSubmit</a></li>
+				<li><a href="global.html#linkEditUpdateStyleSample">linkEditUpdateStyleSample</a></li>
+				<li><a href="global.html#linkEditorHide">linkEditorHide</a></li>
+				<li><a href="global.html#linkEditorShow">linkEditorShow</a></li>
+				<li><a href="global.html#listFactors">listFactors</a></li>
+				<li><a href="global.html#listLinks">listLinks</a></li>
+				<li><a href="global.html#listen">listen</a></li>
+				<li><a href="global.html#loadCSV">loadCSV</a></li>
+				<li><a href="global.html#loadDOTfile">loadDOTfile</a></li>
+				<li><a href="global.html#loadExcelfile">loadExcelfile</a></li>
+				<li><a href="global.html#loadFile">loadFile</a></li>
+				<li><a href="global.html#loadGML">loadGML</a></li>
+				<li><a href="global.html#loadGraphML">loadGraphML</a></li>
+				<li><a href="global.html#loadPRSMfile">loadPRSMfile</a></li>
+				<li><a href="global.html#lockNode">lockNode</a></li>
+				<li><a href="global.html#logHistory">logHistory</a></li>
+				<li><a href="global.html#makeColor">makeColor</a></li>
+				<li><a href="global.html#makeOptionsDialog">makeOptionsDialog</a></li>
+				<li><a href="global.html#mapTitle">mapTitle</a></li>
+				<li><a href="global.html#markMapSaved">markMapSaved</a></li>
+				<li><a href="global.html#maxScale">maxScale</a></li>
+				<li><a href="global.html#mergeTranspose">mergeTranspose</a></li>
+				<li><a href="global.html#mouseDespatch">mouseDespatch</a></li>
+				<li><a href="global.html#nodeEditCancel">nodeEditCancel</a></li>
+				<li><a href="global.html#nodeEditSave">nodeEditSave</a></li>
+				<li><a href="global.html#nodeEditSubmit">nodeEditSubmit</a></li>
+				<li><a href="global.html#nodeEditUpdateStyleSample">nodeEditUpdateStyleSample</a></li>
+				<li><a href="global.html#nodeEditorHide">nodeEditorHide</a></li>
+				<li><a href="global.html#nodeEditorShow">nodeEditorShow</a></li>
+				<li><a href="global.html#nodeIdToLabel">nodeIdToLabel</a></li>
+				<li><a href="global.html#nodeList">nodeList</a></li>
+				<li><a href="global.html#noteFilter">noteFilter</a></li>
+				<li><a href="global.html#object_equals">object_equals</a></li>
+				<li><a href="global.html#onexit">onexit</a></li>
+				<li><a href="global.html#openCluster">openCluster</a></li>
+				<li><a href="global.html#openNotesWindow">openNotesWindow</a></li>
+				<li><a href="global.html#out_degree">out_degree</a></li>
+				<li><a href="global.html#plusLink">plusLink</a></li>
+				<li><a href="global.html#plusNode">plusNode</a></li>
+				<li><a href="global.html#portrait">portrait</a></li>
+				<li><a href="global.html#positionNotes">positionNotes</a></li>
+				<li><a href="global.html#positionPopUp">positionPopUp</a></li>
+				<li><a href="global.html#progressBar">progressBar</a></li>
+				<li><a href="global.html#quillAccessor">quillAccessor</a></li>
+				<li><a href="global.html#quillEditor">quillEditor</a></li>
+				<li><a href="global.html#quillFormatter">quillFormatter</a></li>
+				<li><a href="global.html#randomColour">randomColour</a></li>
+				<li><a href="global.html#reApplySampleToLinks">reApplySampleToLinks</a></li>
+				<li><a href="global.html#reApplySampleToNodes">reApplySampleToNodes</a></li>
+				<li><a href="global.html#readSingleFile">readSingleFile</a></li>
+				<li><a href="global.html#rebase">rebase</a></li>
+				<li><a href="global.html#recalculateStats">recalculateStats</a></li>
+				<li><a href="global.html#receiveEvent">receiveEvent</a></li>
+				<li><a href="global.html#recreateClusteringMenu">recreateClusteringMenu</a></li>
+				<li><a href="global.html#redraw">redraw</a></li>
+				<li><a href="global.html#refreshFromMap">refreshFromMap</a></li>
+				<li><a href="global.html#refreshSampleLinks">refreshSampleLinks</a></li>
+				<li><a href="global.html#refreshSampleNodes">refreshSampleNodes</a></li>
+				<li><a href="global.html#removeAvatar">removeAvatar</a></li>
+				<li><a href="global.html#removeFactorCursor">removeFactorCursor</a></li>
+				<li><a href="global.html#removeTitleDropDown">removeTitleDropDown</a></li>
+				<li><a href="global.html#renameUser">renameUser</a></li>
+				<li><a href="global.html#resizeBox">resizeBox</a></li>
+				<li><a href="global.html#resizeCanvas">resizeCanvas</a></li>
+				<li><a href="global.html#rgbIsLight">rgbIsLight</a></li>
+				<li><a href="global.html#rgba">rgba</a></li>
+				<li><a href="global.html#rollback">rollback</a></li>
+				<li><a href="global.html#round">round</a></li>
+				<li><a href="global.html#roundTripTimer">roundTripTimer</a></li>
+				<li><a href="global.html#saveChange">saveChange</a></li>
+				<li><a href="global.html#saveEdge">saveEdge</a></li>
+				<li><a href="global.html#saveLabel">saveLabel</a></li>
+				<li><a href="global.html#saveNode">saveNode</a></li>
+				<li><a href="global.html#savePRSMfile">savePRSMfile</a></li>
+				<li><a href="global.html#saveState">saveState</a></li>
+				<li><a href="global.html#saveStr">saveStr</a></li>
+				<li><a href="global.html#saveUserName">saveUserName</a></li>
+				<li><a href="global.html#search">search</a></li>
+				<li><a href="global.html#searchTargets">searchTargets</a></li>
+				<li><a href="global.html#selectClustering">selectClustering</a></li>
+				<li><a href="global.html#selectTool">selectTool</a></li>
+				<li><a href="global.html#selectUsersItems">selectUsersItems</a></li>
+				<li><a href="global.html#selectedLabels">selectedLabels</a></li>
+				<li><a href="global.html#setAnalysisButtonsFromRemote">setAnalysisButtonsFromRemote</a></li>
+				<li><a href="global.html#setButtonDisabledStatus">setButtonDisabledStatus</a></li>
+				<li><a href="global.html#setButtonStatus">setButtonStatus</a></li>
+				<li><a href="global.html#setCanvasBackground">setCanvasBackground</a></li>
+				<li><a href="global.html#setEdgeHidden">setEdgeHidden</a></li>
+				<li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li>
+				<li><a href="global.html#setFactorSizeFromPercent">setFactorSizeFromPercent</a></li>
+				<li><a href="global.html#setFileName">setFileName</a></li>
+				<li><a href="global.html#setFixed">setFixed</a></li>
+				<li><a href="global.html#setMapTitle">setMapTitle</a></li>
+				<li><a href="global.html#setNodeHidden">setNodeHidden</a></li>
+				<li><a href="global.html#setParams">setParams</a></li>
+				<li><a href="global.html#setRadioVal">setRadioVal</a></li>
+				<li><a href="global.html#setUpAwareness">setUpAwareness</a></li>
+				<li><a href="global.html#setUpBackground">setUpBackground</a></li>
+				<li><a href="global.html#setUpCanvas">setUpCanvas</a></li>
+				<li><a href="global.html#setUpFilter">setUpFilter</a></li>
+				<li><a href="global.html#setUpPage">setUpPage</a></li>
+				<li><a href="global.html#setUpPaint">setUpPaint</a></li>
+				<li><a href="global.html#setUpSamples">setUpSamples</a></li>
+				<li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li>
+				<li><a href="global.html#setUpTabs">setUpTabs</a></li>
+				<li><a href="global.html#setUpToolbox">setUpToolbox</a></li>
+				<li><a href="global.html#setUpTutorial">setUpTutorial</a></li>
+				<li><a href="global.html#setUpUserName">setUpUserName</a></li>
+				<li><a href="global.html#setvh">setvh</a></li>
+				<li><a href="global.html#showAvatars">showAvatars</a></li>
+				<li><a href="global.html#showClusterLinks">showClusterLinks</a></li>
+				<li><a href="global.html#showGhostFactor">showGhostFactor</a></li>
+				<li><a href="global.html#showHistory">showHistory</a></li>
+				<li><a href="global.html#showNavButtons">showNavButtons</a></li>
+				<li><a href="global.html#showNodeData">showNodeData</a></li>
+				<li><a href="global.html#showNodeOrEdgeData">showNodeOrEdgeData</a></li>
+				<li><a href="global.html#showNotesSwitch">showNotesSwitch</a></li>
+				<li><a href="global.html#showOtherMouse">showOtherMouse</a></li>
+				<li><a href="global.html#showPressed">showPressed</a></li>
+				<li><a href="global.html#showSelected">showSelected</a></li>
+				<li><a href="global.html#snapToGrid">snapToGrid</a></li>
+				<li><a href="global.html#solve">solve</a></li>
+				<li><a href="global.html#splitText">splitText</a></li>
+				<li><a href="global.html#standardize_color">standardize_color</a></li>
+				<li><a href="global.html#start">start</a></li>
+				<li><a href="global.html#startY">startY</a></li>
+				<li><a href="global.html#startzoom">startzoom</a></li>
+				<li><a href="global.html#statusMsg">statusMsg</a></li>
+				<li><a href="global.html#stepFinish">stepFinish</a></li>
+				<li><a href="global.html#stepStart">stepStart</a></li>
+				<li><a href="global.html#stepsEnd">stepsEnd</a></li>
+				<li><a href="global.html#stopEdit">stopEdit</a></li>
+				<li><a href="global.html#strip">strip</a></li>
+				<li><a href="global.html#stripNL">stripNL</a></li>
+				<li><a href="global.html#styleEdgeNames">styleEdgeNames</a></li>
+				<li><a href="global.html#styleNodeNames">styleNodeNames</a></li>
+				<li><a href="global.html#subVec">subVec</a></li>
+				<li><a href="global.html#subtract">subtract</a></li>
+				<li><a href="global.html#sumVec">sumVec</a></li>
+				<li><a href="global.html#svg">svg</a></li>
+				<li><a href="global.html#tickToggle">tickToggle</a></li>
+				<li><a href="global.html#timeAndDate">timeAndDate</a></li>
+				<li><a href="global.html#timekey">timekey</a></li>
+				<li><a href="global.html#timestamp">timestamp</a></li>
+				<li><a href="global.html#titleDropDown">titleDropDown</a></li>
+				<li><a href="global.html#toggleDeleteButton">toggleDeleteButton</a></li>
+				<li><a href="global.html#togglePanel">togglePanel</a></li>
+				<li><a href="global.html#toolHandler">toolHandler</a></li>
+				<li><a href="global.html#traceUsers">traceUsers</a></li>
+				<li><a href="global.html#transpose">transpose</a></li>
+				<li><a href="global.html#trophic">trophic</a></li>
+				<li><a href="global.html#unFollow">unFollow</a></li>
+				<li><a href="global.html#unSelect">unSelect</a></li>
+				<li><a href="global.html#undirected">undirected</a></li>
+				<li><a href="global.html#unlockAll">unlockAll</a></li>
+				<li><a href="global.html#unlockEdge">unlockEdge</a></li>
+				<li><a href="global.html#unlockNode">unlockNode</a></li>
+				<li><a href="global.html#unselectTool">unselectTool</a></li>
+				<li><a href="global.html#updateActiveButtons">updateActiveButtons</a></li>
+				<li><a href="global.html#updateColumnTitle">updateColumnTitle</a></li>
+				<li><a href="global.html#updateEdgeCellData">updateEdgeCellData</a></li>
+				<li><a href="global.html#updateFactorsHiddenByStyle">updateFactorsHiddenByStyle</a></li>
+				<li><a href="global.html#updateFilter">updateFilter</a></li>
+				<li><a href="global.html#updateFromAndToLabels">updateFromAndToLabels</a></li>
+				<li><a href="global.html#updateFromDrawingMap">updateFromDrawingMap</a></li>
+				<li><a href="global.html#updateFromRemote">updateFromRemote</a></li>
+				<li><a href="global.html#updateLastSamples">updateLastSamples</a></li>
+				<li><a href="global.html#updateLegend">updateLegend</a></li>
+				<li><a href="global.html#updateLinkEditor">updateLinkEditor</a></li>
+				<li><a href="global.html#updateNodeCellData">updateNodeCellData</a></li>
+				<li><a href="global.html#updateNodeEditor">updateNodeEditor</a></li>
+				<li><a href="global.html#updateSelection">updateSelection</a></li>
+				<li><a href="global.html#upgradeFromV1">upgradeFromV1</a></li>
+				<li><a href="global.html#uuidv4">uuidv4</a></li>
+				<li><a href="global.html#zero">zero</a></li>
+				<li><a href="global.html#zoomCanvas">zoomCanvas</a></li>
+				<li><a href="global.html#zoomincr">zoomincr</a></li>
+				<li><a href="global.html#zoomnet">zoomnet</a></li>
+				<li><a href="global.html#zoomscroll">zoomscroll</a></li>
+				<li><a href="global.html#zoomset">zoomset</a></li>
+			</ul>
+		</nav>
 
-    
+		<div id="main">
+			<h1 class="page-title">prsm.js</h1>
 
-
-
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/********************************************************************************************* 
+			<section>
+				<article>
+					<pre
+						class="prettyprint source linenums"
+					><code>/********************************************************************************************* 
 
 PRSM Participatory System Mapper 
 
@@ -76,9 +393,9 @@ This is the main entry point for PRSM.
 ********************************************************************************************/
 
 import * as Y from 'yjs'
-import {WebsocketProvider} from 'y-websocket'
-import {Network} from 'vis-network/peer'
-import {DataSet} from 'vis-data/peer'
+import { WebsocketProvider } from 'y-websocket'
+import { Network } from 'vis-network/peer'
+import { DataSet } from 'vis-data/peer'
 import diff from 'microdiff'
 import {
 	listen,
@@ -110,6 +427,7 @@ import {
 	exactTime,
 	humanSize,
 	isQuillEmpty,
+	displayHelp
 } from './utils.js'
 import {
 	openFile,
@@ -123,13 +441,13 @@ import {
 	readSingleFile,
 } from './files.js'
 import Tutorial from './tutorial.js'
-import {styles} from './samples.js'
-import {trophic} from './trophic.js'
-import {cluster, openCluster} from './cluster.js'
-import {mergeRoom, diffRoom} from './merge.js'
+import { styles } from './samples.js'
+import { trophic } from './trophic.js'
+import { cluster, openCluster } from './cluster.js'
+import { mergeRoom, diffRoom } from './merge.js'
 import Quill from 'quill'
 import Hammer from '@egjs/hammerjs'
-import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend} from './styles.js'
+import { setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend } from './styles.js'
 import {
 	nChanges,
 	setUpBackground,
@@ -144,8 +462,8 @@ import {
 	upgradeFromV1,
 	updateFromDrawingMap,
 } from './background.js'
-import {version} from '../package.json'
-import {compressToUTF16, decompressFromUTF16} from 'lz-string'
+import { version } from '../package.json'
+import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
 
 const appName = 'Participatory System Mapper'
 const shortAppName = 'PRSM'
@@ -173,6 +491,7 @@ export var room
  */
 export var debug = ''
 var viewOnly // when true, user can only view, not modify, the network
+var showCopyMapButton = false // show the Copy Map button on the navbar in viewOnly mode
 var nodes // a dataset of nodes
 var edges // a dataset of edges
 export var data // an object with the nodes and edges datasets as properties
@@ -223,6 +542,7 @@ var popupEditor = null // Quill editor in popup window
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
 var netLoaded = false // becomes true when map is fully displayed
 var savedState = '' // the current state of the map (nodes, edges, network settings) before current user action
+var unknowRoomTimeout = null // timer to check if the room exists
 
 /**
  * top level function to initialise everything
@@ -246,7 +566,7 @@ window.addEventListener('load', () => {
 
 window.onbeforeunload = function (event) {
 	unlockAll()
-	yAwareness.setLocalStateField('addingFactor', {state: 'done'})
+	yAwareness.setLocalStateField('addingFactor', { state: 'done' })
 	yAwareness.setLocalState(null)
 	// get confirmation from user before exiting if there are unsaved changes
 	if (checkMapSaved &amp;&amp; dirty) {
@@ -294,6 +614,7 @@ function addEventListeners() {
 	listen('exportGML', 'click', exportGML)
 	listen('exportDOT', 'click', exportDOT)
 	listen('exportNotes', 'click', exportNotes)
+	listen('copy-map', 'click', () => doClone(false))
 	listen('search', 'click', search)
 	listen('help', 'click', displayHelp)
 	listen('panelToggle', 'click', togglePanel)
@@ -370,22 +691,23 @@ function addEventListeners() {
  */
 function setUpPage() {
 	elem('version').innerHTML = version
-	// check options set on URL: ?debug=yjs|gui|cluster&amp;viewing&amp;start
+	container = elem('container')
+	netPane = elem('net-pane')
+	panel = elem('panel')
+	// check options set on URL: ?debug=yjs|gui|cluster&amp;viewing&amp;start&amp;copyButton
 	let searchParams = new URL(document.location).searchParams
 	if (searchParams.has('debug')) debug = searchParams.get('debug')
 	// don't allow user to change anything if URL includes ?viewing
 	viewOnly = searchParams.has('viewing')
 	if (viewOnly) hideNavButtons()
+	if (searchParams.has('copyButton')) showCopyMapButton = true
 	// treat user as first time user if URL includes ?start=true
 	if (searchParams.has('start')) localStorage.setItem('doneIntro', 'false')
-	container = elem('container')
-	netPane = elem('net-pane')
-	panel = elem('panel')
 	panel.classList.add('hide')
 	container.panelHidden = true
 	cp.createColorPicker('netBackColorWell', updateNetBack)
 	hammer = new Hammer(netPane)
-	hammer.get('pinch').set({enable: true})
+	hammer.get('pinch').set({ enable: true })
 	hammer.on('pinchstart', () => {
 		zoomstart()
 	})
@@ -451,18 +773,25 @@ function startY(newRoom) {
 	wsProvider = new WebsocketProvider(
 		websocket,
 		`prsm${room}`,
-		doc /* {
-		resyncInterval: 5000,
-	} */
-	)
+		doc)
 	wsProvider.on('synced', () => {
 		// if this is a clone, load the cloned data
 		initiateClone()
-		displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
+		// if this is a new map, display it
+		// (if the room already exists, wait until the map data is loaded before displaying it)
+		if (url.searchParams.get('room') === null) displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
+		else {
+			// if the user wants a room that doesn't exist, the system will hang, so wait and then show a blank map
+			unknowRoomTimeout = setTimeout(() => {
+				if (!netLoaded) {
+					displayNetPane(`${exactTime()} remote content not loaded from ${websocket}`)
+				}
+			}, 3000)	
+		}
 	})
 	wsProvider.disconnectBc()
 	wsProvider.on('status', (event) => {
-		console.log(`${exactTime()}${event.status}${event.status === 'connected' ? ' to' : ' from'} room ${room}`) // logs when websocket is "connected" or "disconnected"
+		console.log(`${exactTime()}${event.status}${event.status === 'connected' ? ' to' : ' from'} room ${room}`)
 	})
 
 	/* 
@@ -533,6 +862,7 @@ function startY(newRoom) {
 	 */
 	nodes.on('*', (evt, properties, origin) => {
 		yjsTrace('nodes.on', `${evt}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`)
+		clearTimeout(unknowRoomTimeout)
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
@@ -799,6 +1129,10 @@ function startY(newRoom) {
 	yHistory.observe(() => {
 		yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1))
 		if (elem('showHistorySwitch').checked) showHistory()
+		// assume that if we get here at initialisation, everything has been loaded from the room
+		// this is a work around to avoid a bug in y-webserver that fires the sync event before syncing is complete
+		if (!netLoaded) displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
+
 	})
 	yUndoManager.on('stack-item-added', (evt) => {
 		yjsTrace('yUndoManager.on stack-item-added', evt)
@@ -851,12 +1185,10 @@ function initiateClone() {
 			for (const k in state.net) {
 				yNetMap.set(k, state.net[k])
 			}
-			if (state.options.viewOnly) {
-				viewOnly = true
-				yNetMap.set('viewOnly', true)
-				hideNavButtons()
-				data.nodes.get().forEach((obj) => (obj.fixed = true))
-			}
+			viewOnly = state.options.viewOnly
+			yNetMap.set('viewOnly', viewOnly)
+			data.nodes.get().forEach((obj) => (obj.fixed = viewOnly))
+			if (viewOnly) hideNavButtons()
 			for (const k in state.samples) {
 				ySamplesMap.set(k, state.samples[k])
 			}
@@ -872,6 +1204,7 @@ function initiateClone() {
 			}
 			logHistory(state.options.created.action, state.options.created.actor)
 		}, 'clone')
+		unSelect()
 		fit()
 	}
 }
@@ -911,7 +1244,7 @@ function getRandomData(nNodes) {
  */
 function displayNetPane(msg) {
 	console.log(msg)
-	if (netPane.style.visibility === 'hidden' || netPane.style.visibility === '') {
+	if (!netLoaded) {
 		elem('loading').style.display = 'none'
 		fit()
 		setMapTitle(yNetMap.get('mapTitle'))
@@ -926,7 +1259,7 @@ function displayNetPane(msg) {
 		setAnalysisButtonsFromRemote()
 		toggleDeleteButton()
 		setLegend(yNetMap.get('legend'), false)
-		console.log(`Doc size: ${humanSize(Y.encodeStateAsUpdate(doc).length)}`)
+		console.log(exactTime(), `Doc size: ${humanSize(Y.encodeStateAsUpdate(doc).length)}`)
 	}
 }
 // to handle iPad viewport sizing problem when tab bar appears and to keep panels on screen
@@ -953,6 +1286,10 @@ function hideNavButtons() {
 	elem('buttons').style.visibility = 'hidden'
 	elem('search').parentElement.style.visibility = 'visible'
 	elem('search').parentElement.style.borderLeft = 'none'
+	if (showCopyMapButton) {
+		elem('copy-map-button').style.display = 'block'
+		elem('copy-map-button').style.visibility = 'visible'
+	}
 	elem('maptitle').contentEditable = 'false'
 	if (!container.panelHidden) {
 		panel.classList.add('hide')
@@ -966,6 +1303,7 @@ function showNavButtons() {
 	elem('buttons').style.visibility = 'visible'
 	elem('search').parentElement.style.visibility = 'visible'
 	elem('search').parentElement.style.borderLeft = '1px solid rgb(255, 255, 255)'
+	elem('copy-map-button').style.display = 'none'
 	elem('maptitle').contentEditable = 'true'
 }
 /**
@@ -976,7 +1314,7 @@ function cancelViewOnly() {
 	yNetMap.set('viewOnly', false)
 	showNavButtons()
 	data.nodes.get().forEach((obj) => (obj.fixed = false))
-	network.setOptions({interaction: {dragNodes: true, hover: true}})
+	network.setOptions({ interaction: { dragNodes: true, hover: true } })
 }
 window.cancelViewOnly = cancelViewOnly
 /**
@@ -1016,7 +1354,7 @@ function saveUserName(name) {
 	}
 	myNameRec.id = clientID
 	localStorage.setItem('myName', JSON.stringify(myNameRec))
-	yAwareness.setLocalState({user: myNameRec})
+	yAwareness.setLocalState({ user: myNameRec })
 	showAvatars()
 }
 
@@ -1100,13 +1438,13 @@ function draw() {
 				// revert to using the original node properties before continuing.
 				item = data.nodes.get(item.id)
 				item.modified = timestamp()
-				let point = network.canvasToDOM({x: item.x, y: item.y})
+				let point = network.canvasToDOM({ x: item.x, y: item.y })
 				editNode(item, point, cancelEdit, callback)
 			},
 			addEdge: function (item, callback) {
 				inAddMode = false
 				network.setOptions({
-					interaction: {dragView: true, selectable: true},
+					interaction: { dragView: true, selectable: true },
 				})
 				showPressed('addLink', 'remove')
 				if (item.from === item.to) {
@@ -1167,8 +1505,7 @@ function draw() {
 				})
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
-							data.nodes.get(data.edges.get(edgeId).to).label
+						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
 						}'`
 					)
 				})
@@ -1181,8 +1518,7 @@ function draw() {
 			deleteEdge: function (item, callback) {
 				item.edges.forEach((edgeId) => {
 					logHistory(
-						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
-							data.nodes.get(data.edges.get(edgeId).to).label
+						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
 						}'`
 					)
 				})
@@ -1209,8 +1545,32 @@ function draw() {
 	elem('nodesButton').click()
 
 	// listen for click events on the network pane
+	let doubleClickTimer = null
 	network.on('click', (params) => {
-		if (/gui/.test(debug)) console.log('**click**')
+		if (/gui/.test(debug)) console.log('**click**', params)
+		// if user is doing an analysis, and has clicked on a node, show the node notes 
+		if (getRadioVal('radius') !== 'All' || getRadioVal('stream') !== 'All' || getRadioVal('paths') !== 'All') {
+			if (!showNotesToggle) return
+			hideNotes()
+			let clickedNodeId = network.getNodeAt(params.pointer.DOM)
+			if (clickedNodeId) showNodeData(clickedNodeId)
+			else {
+				let clickedEdgeId = network.getEdgeAt(params.pointer.DOM)
+				if (clickedEdgeId) showEdgeData(clickedEdgeId)
+			}
+			return
+		}
+		// if user has clicked on a portal node, open the map in another tab and go to it
+		if (params.nodes.length === 1) {
+			let node = data.nodes.get(params.nodes[0])
+			// tricky stuff to distinguish a single click (move to map) from a double click (edit node)
+			if (node.portal &amp;&amp; doubleClickTimer === null) {
+				doubleClickTimer = setTimeout(() => {
+					window.open(`${window.location.pathname}?room=${node.portal}`, node.portal)
+					doubleClickTimer = null
+				}, 500)
+			}
+		}
 		let keys = params.event.pointers[0]
 		if (!keys) return
 		if (keys.metaKey) {
@@ -1231,7 +1591,7 @@ function draw() {
 			// if the Option/ALT key is down, add a node if on the background
 			if (params.nodes.length === 0 &amp;&amp; params.edges.length === 0) {
 				let pos = params.pointer.canvas
-				let item = {id: uuidv4(), label: '', x: pos.x, y: pos.y}
+				let item = { id: uuidv4(), label: '', x: pos.x, y: pos.y }
 				item = deepMerge(item, styles.nodes[lastNodeSample])
 				item.grp = lastNodeSample
 				addLabel(item, clearPopUp, function (newItem) {
@@ -1277,6 +1637,8 @@ function draw() {
 	// despatch to edit a node or an edge or to fit the network on the pane
 	network.on('doubleClick', function (params) {
 		if (/gui/.test(debug)) console.log('**doubleClick**')
+		clearTimeout(doubleClickTimer)
+		doubleClickTimer = null
 		if (params.nodes.length === 1) {
 			if (!(viewOnly || inEditMode)) network.editNode()
 		} else if (params.edges.length === 1) {
@@ -1286,7 +1648,11 @@ function draw() {
 		}
 	})
 	network.on('selectNode', function (params) {
-		if (/gui/.test(debug)) console.log('selectNode')
+		if (/gui/.test(debug)) console.log('selectNode', params)
+		// if user is doing an analysis, do nothing 
+		if (getRadioVal('radius') !== 'All' || getRadioVal('stream') !== 'All' || getRadioVal('paths') !== 'All') {
+			return
+		}
 		// if a 'hidden' node is clicked, it is selected, but we don't want this
 		// reset the selected nodes to all except the hidden one
 		network.setSelection({
@@ -1302,6 +1668,14 @@ function draw() {
 	})
 	network.on('deselectNode', function (params) {
 		if (/gui/.test(debug)) console.log('deselectNode', params)
+		// if user is doing an analysis, do nothing, but first reselect the unselected nodes 
+		if (getRadioVal('radius') !== 'All' || getRadioVal('stream') !== 'All' || getRadioVal('paths') !== 'All') {
+			network.setSelection({
+				nodes: params.previousSelection.nodes.map((node) => node.id),
+				edges: params.previousSelection.edges.map((edge) => edge.id),
+			})
+			return
+		}
 		// if some other node(s) are already selected, and the user has
 		// clicked on one of the selected nodes, do nothing,
 		// i.e reselect all the nodes previously selected
@@ -1324,9 +1698,6 @@ function draw() {
 		showSelected()
 		showNodeOrEdgeData()
 		toggleDeleteButton()
-		if (getRadioVal('radius') !== 'All') analyse()
-		if (getRadioVal('stream') !== 'All') analyse()
-		if (getRadioVal('paths') !== 'All') analyse()
 	})
 	network.on('hoverNode', function () {
 		changeCursor('grab')
@@ -1336,6 +1707,10 @@ function draw() {
 	})
 	network.on('selectEdge', function (params) {
 		if (/gui/.test(debug)) console.log('selectEdge')
+		// if user is doing an analysis, do nothing 
+		if (getRadioVal('radius') !== 'All' || getRadioVal('stream') !== 'All' || getRadioVal('paths') !== 'All') {
+			return
+		}
 		network.setSelection({
 			nodes: params.nodes.filter((id) => !data.nodes.get(id).nodeHidden),
 			edges: params.edges.filter((id) => !data.edges.get(id).edgeHidden),
@@ -1346,6 +1721,14 @@ function draw() {
 	})
 	network.on('deselectEdge', function (params) {
 		if (/gui/.test(debug)) console.log('deselectEdge')
+		// if user is doing an analysis, do nothing, but first reselect the unselected nodes 
+		if (getRadioVal('radius') !== 'All' || getRadioVal('stream') !== 'All' || getRadioVal('paths') !== 'All') {
+			network.setSelection({
+				nodes: params.previousSelection.nodes.map((node) => node.id),
+				edges: params.previousSelection.edges.map((edge) => edge.id),
+			})
+			return
+		}
 		if (params.edges) {
 			// clicked on an edge(see selectNode for comments)
 			let prevSelIds = params.previousSelection.edges.map((edge) => edge.id)
@@ -1381,9 +1764,9 @@ function draw() {
 		let e = params.event.pointers[0]
 		// start drawing a selection rectangle if the CTRL key is down and click is on the background
 		if (e.ctrlKey &amp;&amp; params.nodes.length === 0 &amp;&amp; params.edges.length === 0) {
-			network.setOptions({interaction: {dragView: false}})
+			network.setOptions({ interaction: { dragView: false } })
 			listen('net-pane', 'mousemove', showAreaSelection)
-			selectionStart = {x: e.offsetX, y: e.offsetY}
+			selectionStart = { x: e.offsetX, y: e.offsetY }
 			selectionCanvasStart = params.pointer.canvas
 			selectionArea.style.left = `${e.offsetX}px`
 			selectionArea.style.top = `${e.offsetY}px`
@@ -1400,7 +1783,7 @@ function draw() {
 				showPressed('addLink', 'add')
 				statusMsg('Now drag to the middle of the Destination factor')
 				network.setOptions({
-					interaction: {dragView: false, selectable: false},
+					interaction: { dragView: false, selectable: false },
 				})
 				network.addEdgeMode()
 				return
@@ -1415,14 +1798,11 @@ function draw() {
 	function showAreaSelection(event) {
 		selectionArea.style.left = `${Math.min(selectionStart.x, event.offsetX)}px`
 		selectionArea.style.top = `${Math.min(selectionStart.y, event.offsetY)}px`
-		selectionArea.style.width = `${
-			Math.max(selectionStart.x, event.offsetX) - Math.min(selectionStart.x, event.offsetX)
-		}px`
-		selectionArea.style.height = `${
-			Math.max(selectionStart.y, event.offsetY) - Math.min(selectionStart.y, event.offsetY)
-		}px`
+		selectionArea.style.width = `${Math.abs(event.offsetX - selectionStart.x)}px`
+		selectionArea.style.height = `${Math.abs(event.offsetY - selectionStart.y)}px`
 	}
 	network.on('dragging', function () {
+		if (/gui/.test(debug)) console.log('dragging')
 		let endViewPosition = network.getViewPosition()
 		panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
 		viewPosition = endViewPosition
@@ -1433,21 +1813,27 @@ function draw() {
 		panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
 		if (selectionArea.style.display === 'block') {
 			selectionArea.style.display = 'none'
-			network.setOptions({interaction: {dragView: true}})
+			network.setOptions({ interaction: { dragView: true } })
 			elem('net-pane').removeEventListener('mousemove', showAreaSelection)
 		}
 		let e = params.event.pointers[0]
 		if (e.ctrlKey &amp;&amp; params.nodes.length === 0 &amp;&amp; params.edges.length === 0) {
 			network.storePositions()
-			let selectionEnd = params.pointer.canvas
+			let selectionCanvasEnd = params.pointer.canvas
+			if (selectionCanvasStart.x > selectionCanvasEnd.x) {
+				[selectionCanvasStart.x, selectionCanvasEnd.x] = [selectionCanvasEnd.x, selectionCanvasStart.x]
+			}
+			if (selectionCanvasStart.y > selectionCanvasEnd.y) {
+				[selectionCanvasStart.y, selectionCanvasEnd.y] = [selectionCanvasEnd.y, selectionCanvasStart.y]
+			}
 			let selectedNodes = data.nodes.get({
 				filter: function (node) {
 					return (
 						!node.nodeHidden &amp;&amp;
 						node.x >= selectionCanvasStart.x &amp;&amp;
-						node.x &lt;= selectionEnd.x &amp;&amp;
+						node.x &lt;= selectionCanvasEnd.x &amp;&amp;
 						node.y >= selectionCanvasStart.y &amp;&amp;
-						node.y &lt;= selectionEnd.y
+						node.y &lt;= selectionCanvasEnd.y
 					)
 				},
 			})
@@ -1455,6 +1841,7 @@ function draw() {
 				nodes: selectedNodes.map((n) => n.id).concat(network.getSelectedNodes()),
 			})
 			showSelected()
+			showNodeOrEdgeData()
 			return
 		}
 		let newPositions = network.getPositions(params.nodes)
@@ -1550,9 +1937,9 @@ function draw() {
 		bigNetData.nodes.add(data.nodes.get())
 		bigNetData.edges.add(data.edges.get())
 		bigNetwork = new Network(bigNetPane, bigNetData, {
-			physics: {enabled: false},
+			physics: { enabled: false },
 		})
-		// unhide any hidden nodes and edges
+		/* // unhide any hidden nodes and edges
 		let changedNodes = []
 		bigNetData.nodes.forEach((n) => {
 			if (n.nodeHidden) {
@@ -1566,7 +1953,7 @@ function draw() {
 			}
 		})
 		bigNetData.nodes.update(changedNodes)
-		bigNetData.edges.update(changedEdges)
+		bigNetData.edges.update(changedEdges) */
 		bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
 		bigNetwork.on('afterDrawing', () => {
 			setCanvasBackground(bigNetCanvas)
@@ -1656,7 +2043,7 @@ export function drawMinimap(ratio = 5) {
 	 * Set the size of the minimap and its components
 	 */
 	function minimapSetup() {
-		const {clientWidth, clientHeight} = network.body.container
+		const { clientWidth, clientHeight } = network.body.container
 		minimapWidth = clientWidth / ratio
 		minimapHeight = clientHeight / ratio
 		minimapWrapper.style.width = `${minimapWidth}px`
@@ -1683,10 +2070,10 @@ export function drawMinimap(ratio = 5) {
 			fullNetPane.id = 'fullNetPane'
 			netPane.appendChild(fullNetPane)
 			fullNetwork = new Network(fullNetPane, data, {
-				physics: {enabled: false},
+				physics: { enabled: false },
 			})
 		}
-		fullNetwork.setOptions({edges: {smooth: elem('curveSelect').value === 'Curved'}})
+		fullNetwork.setOptions({ edges: { smooth: elem('curveSelect').value === 'Curved' } })
 		fullNetwork.fit()
 		initialScale = fullNetwork.getScale()
 		initialPosition = fullNetwork.getViewPosition()
@@ -1712,9 +2099,9 @@ export function drawMinimap(ratio = 5) {
 		// fade out the whole minimap if the network is all visible in the viewport
 		// (there is no value in having a minimap in this case)
 		if (scale >= 1 &amp;&amp; networkInPane()) {
-			minimapWrapper.style.opacity = 0
+			minimapWrapper.style.display = 'none'
 			return
-		} else minimapWrapper.style.opacity = 1
+		} else minimapWrapper.style.display = 'block'
 		const currentDOMPosition = network.canvasToDOM(network.getViewPosition())
 		const initialDOMPosition = network.canvasToDOM(initialPosition)
 
@@ -1732,8 +2119,8 @@ export function drawMinimap(ratio = 5) {
 	 * @returns {boolean} - true if the network is entirely within the viewport
 	 */
 	function networkInPane() {
-		const netPaneTopLeft = network.DOMtoCanvas({x: 0, y: 0})
-		const netPaneBottomRight = network.DOMtoCanvas({x: netPane.clientWidth, y: netPane.clientHeight})
+		const netPaneTopLeft = network.DOMtoCanvas({ x: 0, y: 0 })
+		const netPaneBottomRight = network.DOMtoCanvas({ x: netPane.clientWidth, y: netPane.clientHeight })
 		for (const nodeId of data.nodes.getIds()) {
 			const boundingBox = network.getBoundingBox(nodeId)
 			if (boundingBox.left &lt; netPaneTopLeft.x) return false
@@ -1760,7 +2147,7 @@ export function drawMinimap(ratio = 5) {
 	 */
 	function dragRadar() {
 		let x, y, radarStart
-		minimapRadar.addEventListener('mousedown', dragMouseDown)
+		minimapRadar.addEventListener('pointerdown', dragMouseDown)
 		minimapWrapper.addEventListener(
 			'wheel',
 			(e) => {
@@ -1768,15 +2155,15 @@ export function drawMinimap(ratio = 5) {
 				// reject all but vertical touch movements
 				if (Math.abs(e.deltaX) &lt;= 1) zoomscroll(e)
 			},
-			{passive: false}
+			{ passive: false }
 		)
 
 		function dragMouseDown(e) {
 			e.preventDefault()
-			;(x = e.clientX), (y = e.clientY)
-			radarStart = {x: minimapRadar.offsetLeft, y: minimapRadar.offsetTop}
-			minimapRadar.addEventListener('mousemove', drag)
-			minimapRadar.addEventListener('mouseup', dragMouseUp)
+				; (x = e.clientX), (y = e.clientY)
+			radarStart = { x: minimapRadar.offsetLeft, y: minimapRadar.offsetTop }
+			minimapRadar.addEventListener('pointermove', drag)
+			minimapRadar.addEventListener('pointerup', dragMouseUp)
 		}
 
 		function drag(e) {
@@ -1796,17 +2183,15 @@ export function drawMinimap(ratio = 5) {
 			const scale = initialScale / network.getScale()
 			const radarRect = minimapRadar.getBoundingClientRect()
 			const wrapperRect = minimapWrapper.getBoundingClientRect()
-			/* 			minimapRadar.style.top = 0
-			minimapRadar.style.left = 0
- */ network.moveTo({
+			network.moveTo({
 				position: network.DOMtoCanvas({
 					x:
 						((radarRect.left - wrapperRect.left + (radarRect.width - wrapperRect.width) / 2) * ratio) /
-							scale +
+						scale +
 						initialDOMPosition.x,
 					y:
 						((radarRect.top - wrapperRect.top + (radarRect.height - wrapperRect.height) / 2) * ratio) /
-							scale +
+						scale +
 						initialDOMPosition.y,
 				}),
 			})
@@ -1815,18 +2200,8 @@ export function drawMinimap(ratio = 5) {
 		function dragMouseUp(e) {
 			e.preventDefault()
 			if (!dragging) return
-			minimapRadar.removeEventListener('mousemove', drag)
-			minimapRadar.removeEventListener('mouseup', dragMouseUp)
-			/* 			let initialDOMPosition = network.canvasToDOM(initialPosition)
-						const scale = initialScale / network.getScale()
-						const radarRect = minimapRadar.getBoundingClientRect()
-						const wrapperRect = minimapWrapper.getBoundingClientRect()
-						network.moveTo({
-							position: network.DOMtoCanvas({
-								x: (radarRect.left - wrapperRect.left + (radarRect.width - wrapperRect.width) / 2) * ratio / scale + initialDOMPosition.x,
-								y: (radarRect.top - wrapperRect.top + (radarRect.height - wrapperRect.height) / 2) * ratio / scale + initialDOMPosition.y
-							})
-						}) */
+			minimapRadar.removeEventListener('pointermove', drag)
+			minimapRadar.removeEventListener('pointerup', dragMouseUp)
 		}
 	}
 }
@@ -1871,7 +2246,7 @@ function contextMenu(event) {
  * return an object with the current time as an integer date and the current user's name
  */
 export function timestamp() {
-	return {time: Date.now(), user: myNameRec.name}
+	return { time: Date.now(), user: myNameRec.name }
 }
 window.timestamp = timestamp
 /**
@@ -1934,17 +2309,17 @@ let toolbarOptions = [
 	['bold', 'italic', 'underline', 'strike'],
 	['blockquote', 'code-block'],
 
-	[{list: 'ordered'}, {list: 'bullet'}],
-	[{script: 'sub'}, {script: 'super'}],
-	[{indent: '-1'}, {indent: '+1'}],
-	[{align: []}],
+	[{ list: 'ordered' }, { list: 'bullet' }],
+	[{ script: 'sub' }, { script: 'super' }],
+	[{ indent: '-1' }, { indent: '+1' }],
+	[{ align: [] }],
 
 	['link', 'image'],
-	[{size: ['small', false, 'large', 'huge']}],
-	[{header: [1, 2, 3, 4, 5, 6, false]}],
+	[{ size: ['small', false, 'large', 'huge'] }],
+	[{ header: [1, 2, 3, 4, 5, 6, false] }],
 
-	[{color: []}, {background: []}],
-	[{font: []}],
+	[{ color: [] }, { background: [] }],
+	[{ font: [] }],
 
 	['clean'],
 ]
@@ -1959,7 +2334,7 @@ let drawerEditor = new Quill(elem('drawer-editor'), {
 
 drawerEditor.on('text-change', (delta, oldDelta, source) => {
 	if (source === 'user') {
-		yNetMap.set('mapDescription', {text: isQuillEmpty(drawerEditor) ? '' : drawerEditor.getContents()})
+		yNetMap.set('mapDescription', { text: isQuillEmpty(drawerEditor) ? '' : drawerEditor.getContents() })
 	}
 })
 export function setSideDrawer(contents) {
@@ -2134,7 +2509,7 @@ function copyToClipboard(event) {
 		if (!nodes.find((n) => n.id === edge.to)) nodes.push(data.nodes.get(edge.to))
 		if (!edges.find((e) => e.id === eId)) edges.push(data.edges.get(eId))
 	})
-	copyText(JSON.stringify({nodes: nodes, edges: edges}))
+	copyText(JSON.stringify({ nodes: nodes, edges: edges }))
 }
 /**
  * copy the contents of the history log to the clipboard
@@ -2176,7 +2551,7 @@ async function pasteFromClipboard() {
 	let nodes
 	let edges
 	try {
-		;({nodes, edges} = JSON.parse(clip))
+		; ({ nodes, edges } = JSON.parse(clip))
 	} catch (err) {
 		// silently return (i.e. use system paste) if there is nothing relevant on the clipboard
 		return
@@ -2274,7 +2649,7 @@ function clearPopUp() {
 		clearTimeout(elem('popup').timer)
 		elem('popup').timer = undefined
 	}
-	yAwareness.setLocalStateField('addingFactor', {state: 'done'})
+	yAwareness.setLocalStateField('addingFactor', { state: 'done' })
 	inEditMode = false
 }
 /**
@@ -2295,6 +2670,7 @@ function cancelEdit(item, callback) {
 	clearPopUp()
 	item.label = item.oldLabel
 	item.font.color = item.oldFontColor
+	if (item.shape === 'portal') item.shape = 'image'
 	if (item.from) {
 		unlockEdge(item)
 	} else {
@@ -2312,7 +2688,7 @@ function cancelEdit(item, callback) {
 function addLabel(item, cancelAction, callback) {
 	if (elem('popup').style.display === 'block') return // can't add factor when factor is already being added
 	initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback)
-	let pos = network.canvasToDOM({x: item.x, y: item.y})
+	let pos = network.canvasToDOM({ x: item.x, y: item.y })
 	positionPopUp(pos)
 	removeFactorCursor()
 	ghostFactor(pos)
@@ -2330,7 +2706,7 @@ function ghostFactor(pos) {
 	})
 	elem('popup').timer = setTimeout(() => {
 		// close it after a time if the user has gone away
-		yAwareness.setLocalStateField('addingFactor', {state: 'done'})
+		yAwareness.setLocalStateField('addingFactor', { state: 'done' })
 	}, TIMETOEDIT)
 }
 /**
@@ -2387,6 +2763,7 @@ function editNode(item, point, cancelAction, callback) {
 					&lt;option value="triangle">Triangle&lt;/option>
 					&lt;option value="hexagon">Hexagon&lt;/option>
 					&lt;option value="text">Text&lt;/option>
+					&lt;option value="portal">Portal&lt;/option>
 				&lt;/select>
 			&lt;/div>
 			&lt;div>
@@ -2416,6 +2793,13 @@ function editNode(item, point, cancelAction, callback) {
 	)
 	cp.createColorPicker('node-backgroundColor')
 	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background)
+	if (item.shape === 'image') {
+		item.shape = 'portal'
+		if (elem('popup-portal-room')) elem('popup-portal-room').value = item.portal
+		else {
+			makePortalInput(item.portal)
+		}
+	}
 	elem('nodeEditShape').value = item.shape
 	cp.createColorPicker('node-borderColor')
 	elem('node-borderColor').style.backgroundColor = standardize_color(item.color.border)
@@ -2427,6 +2811,14 @@ function editNode(item, point, cancelAction, callback) {
 	elem('nodeEditSizer').value = factorSizeToPercent(item.size)
 	progressBar(elem('nodeEditSizer'))
 	listen('nodeEditSizer', 'input', (event) => progressBar(event.target))
+	listen('nodeEditShape', 'change', (event) => {
+		if (event.target.value === 'portal') {
+			makePortalInput(item.portal)
+		} else {
+			elem('popup-portal-link')?.remove()
+			item.portal = undefined
+		}
+	})
 	positionPopUp(point)
 	elem('popup-label').focus()
 	elem('popup').timer = setTimeout(() => {
@@ -2435,7 +2827,25 @@ function editNode(item, point, cancelAction, callback) {
 		alertMsg('Edit timed out', 'warn')
 	}, TIMETOEDIT)
 	lockNode(item)
+	/**
+	 * Generate HTML for the textarea to obtain the room name of the portal
+	 * @param {string} portal room name to go to
+	 */
+	function makePortalInput(portal) {
+		{
+			portal = portal || ''
+			// expand the dialog to accommodate the textarea
+			elem('popup').style.height = `${230}px`
+			elem('popup-node-editor').insertAdjacentHTML('beforeend',
+				`&lt;div id="popup-portal-link">
+      				&lt;label for="popup-portal-room">Map:&lt;/label>
+      				&lt;textarea id="popup-portal-room" rows="1" placeholder="ABC-DEF-GHI-JKL">${portal}&lt;/textarea>
+    			&lt;/div>`)
+		}
+	}
 }
+// fancy portal image icon
+const portalSvg = `&lt;svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="#000000">&lt;g id="SVGRepo_bgCarrier" stroke-width="0">&lt;/g>&lt;g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">&lt;/g>&lt;g id="SVGRepo_iconCarrier">&lt;path fill="#ff0000" d="M298.736 21.016c-99.298 0-195.928 104.647-215.83 233.736-7.074 45.887-3.493 88.68 8.512 124.787-4.082-6.407-7.92-13.09-11.467-20.034-16.516-32.335-24.627-65.378-25-96.272-11.74 36.254-8.083 82.47 14.482 126.643 27.7 54.227 81.563 91.94 139.87 97.502 5.658.725 11.447 1.108 17.364 1.108 99.298 0 195.93-104.647 215.83-233.736 9.28-60.196.23-115.072-22.133-156.506 21.625 21.867 36.56 45.786 44.617 69.496.623-30.408-14.064-65.766-44.21-95.806-33.718-33.598-77.227-50.91-114.995-50.723-2.328-.118-4.67-.197-7.04-.197zm-5.6 36.357c40.223 0 73.65 20.342 95.702 53.533 15.915 42.888 12.51 108.315.98 147.858-16.02 54.944-40.598 96.035-79.77 126.107-41.79 32.084-98.447 24.39-115.874-5.798-1.365-2.363-2.487-4.832-3.38-7.385 11.724 14.06 38.188 14.944 61.817 1.3 25.48-14.71 38.003-40.727 27.968-58.108-10.036-17.384-38.826-19.548-64.307-4.837-9.83 5.676-17.72 13.037-23.14 20.934.507-1.295 1.043-2.59 1.626-3.88-18.687 24.49-24.562 52.126-12.848 72.417 38.702 45.923 98.07 25.503 140.746-6.426 37.95-28.392 72.32-73.55 89.356-131.988 1.265-4.34 2.416-8.677 3.467-13.008-.286 2.218-.59 4.442-.934 6.678-16.807 109.02-98.412 197.396-182.272 197.396-35.644 0-65.954-15.975-87.74-42.71-26.492-48.396-15.988-142.083 4.675-185.15 26.745-55.742 66.133-122.77 134.324-116.804 46.03 4.027 63.098 58.637 39.128 116.22-8.61 20.685-21.192 39.314-36.21 54.313 24.91-16.6 46.72-42.13 59.572-73 23.97-57.583 6.94-113.422-39.13-116.805-85.737-6.296-137.638 58.55-177.542 128.485-9.21 19.9-16.182 40.35-20.977 60.707.494-7.435 1.312-14.99 2.493-22.652C127.67 145.75 209.275 57.373 293.135 57.373z">&lt;/path>&lt;/g>&lt;/svg>`
 /**
  * save the node format details that have been edited
  * @param {Object} item the node that has been edited
@@ -2462,6 +2872,15 @@ function saveNode(item, callback) {
 	item.borderWidth = borderType === 'none' ? 0 : 4
 	item.shapeProperties.borderDashes = convertDashes(borderType)
 	item.shape = elem('nodeEditShape').value
+	if (item.shape === 'portal') {
+		item.portal = elem('popup-portal-room')?.value
+		if (!item.portal) {
+			alertMsg('No map room', 'error')
+			callback(null)
+		}
+		item.shape = 'image'
+		item.image = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(portalSvg);
+	}
 	item.font.size = parseInt(elem('nodeEditFontSize').value)
 	setFactorSizeFromPercent(item, elem('nodeEditSizer').value)
 	network.manipulation.inMode = 'editNode' // ensure still in Add mode, in case others have done something meanwhile
@@ -2744,7 +3163,7 @@ function createTitleDropDown() {
 	function makeTitleDropDownEntry(name, room) {
 		let li = document.createElement('li')
 		li.classList.add('room-title')
-		li.innerHTML = name
+		li.textContent = name
 		li.dataset.room = room
 		li.addEventListener('click', (event) => changeRoom(event))
 		selectList.appendChild(li)
@@ -2782,7 +3201,7 @@ export function unSelect() {
 */
 // set  up a web worker to calculate network statistics in parallel with whatever
 // the user is doing
-var worker = new Worker(new URL('./betweenness.js', import.meta.url), {type: 'module'})
+var worker = new Worker(new URL('./betweenness.js', import.meta.url), { type: 'module' })
 /**
  * Ask the web worker to recalculate network statistics
  */
@@ -2886,7 +3305,7 @@ Network.prototype.zoom = function (scale) {
 export function fit() {
 	let prevPos = network.getViewPosition()
 	network.fit({
-		position: {x: 0, y: 0}, // fit to centre of canvas
+		position: { x: 0, y: 0 }, // fit to centre of canvas
 	})
 	let newPos = network.getViewPosition()
 	let newScale = network.getScale()
@@ -2950,7 +3369,7 @@ listen(
 		if (Math.abs(e.deltaX) &lt;= 1) zoomscroll(e)
 	},
 	// must be passive, else pinch/zoom is intercepted by the browser itself
-	{passive: false}
+	{ passive: false }
 )
 /**
  * Zoom using a trackpad (with a mousewheel or two fingers)
@@ -3027,21 +3446,19 @@ function ghostCursor() {
 		const boxHalfWidth = box.offsetWidth / 2
 		const boxHalfHeight = box.offsetHeight / 2
 		let left = window.event.pageX - boxHalfWidth
-		box.style.left = `${
-			left &lt;= netPaneRect.left
-				? netPaneRect.left
-				: left >= netPaneRect.right - box.offsetWidth
+		box.style.left = `${left &lt;= netPaneRect.left
+			? netPaneRect.left
+			: left >= netPaneRect.right - box.offsetWidth
 				? netPaneRect.right - box.offsetWidth
 				: left
-		}px`
+			}px`
 		let top = window.event.pageY - boxHalfHeight
-		box.style.top = `${
-			top &lt;= netPaneRect.top
-				? netPaneRect.top
-				: top >= netPaneRect.bottom - box.offsetHeight
+		box.style.top = `${top &lt;= netPaneRect.top
+			? netPaneRect.top
+			: top >= netPaneRect.bottom - box.offsetHeight
 				? netPaneRect.bottom - box.offsetHeight
 				: top
-		}px`
+			}px`
 	}
 }
 /**
@@ -3087,7 +3504,7 @@ function plusLink() {
 			unSelect()
 			statusMsg('Now drag from the middle of the Source factor to the middle of the Destination factor')
 			network.setOptions({
-				interaction: {dragView: false, selectable: false},
+				interaction: { dragView: false, selectable: false },
 			})
 			network.addEdgeMode()
 	}
@@ -3099,7 +3516,7 @@ function stopEdit() {
 	inAddMode = false
 	network.disableEditMode()
 	network.setOptions({
-		interaction: {dragView: true, selectable: true},
+		interaction: { dragView: true, selectable: true },
 	})
 	clearStatusBar()
 	changeCursor('default')
@@ -3225,34 +3642,34 @@ function setUpShareDialog() {
 			modal.style.display = 'none'
 		}
 	}
-
-	function doClone(onlyView) {
-		// undo any ongoing analysis and unselect all nodes and edges
-		setRadioVal('radius', 'All')
-		setRadioVal('stream', 'All')
-		setRadioVal('paths', 'All')
-		analyse()
-		unSelect()
-
-		let options = {
-			created: {
-				action: `cloned this map from room: ${room + (onlyView ? ' (Read Only)' : '')}`,
-				actor: myNameRec.name,
-			},
-			viewOnly: onlyView,
-		}
-		// save state as a UTF16 string
-		let state = saveState(options)
-		// save it in local storage
-		localStorage.setItem('clone', state)
-		// make a room id
-		let clonedRoom = generateRoom()
-		//open a new map
-		let path = `${window.location.pathname}?room=${clonedRoom}`
-		window.open(path, '_blank')
-		logHistory(`made a ${onlyView ? 'read-only copy' : 'clone'} of the map in room: ${clonedRoom}`)
-	}
 }
+function doClone(onlyView) {
+	// undo any ongoing analysis and unselect all nodes and edges
+	setRadioVal('radius', 'All')
+	setRadioVal('stream', 'All')
+	setRadioVal('paths', 'All')
+	analyse()
+	unSelect()
+
+	let options = {
+		created: {
+			action: `cloned this map from room: ${room + (onlyView ? ' (Read Only)' : '')}`,
+			actor: myNameRec.name,
+		},
+		viewOnly: onlyView,
+	}
+	// save state as a UTF16 string
+	let state = saveState(options)
+	// save it in local storage
+	localStorage.setItem('clone', state)
+	// make a room id
+	let clonedRoom = generateRoom()
+	//open a new map
+	let path = `${window.location.pathname}?room=${clonedRoom}`
+	window.open(path, '_blank')
+	logHistory(`made a ${onlyView ? 'read-only copy' : 'clone'} of the map in room: ${clonedRoom}`)
+}
+
 
 /* ----------------------------------------------------------- Search ------------------------------------------------------*/
 /**
@@ -3313,7 +3730,7 @@ function doSearch(event) {
 	let nodeId = event.target.dataset.id
 	if (nodeId) {
 		let prevPos = network.getViewPosition()
-		network.focus(nodeId, {scale: 1.5})
+		network.focus(nodeId, { scale: 1.5 })
 		let newPos = network.getViewPosition()
 		let newScale = network.getScale()
 		zoomCanvas(1.0)
@@ -3330,13 +3747,6 @@ function hideSearchBar() {
 	searchBar.value = ''
 	searchBar.style.display = 'none'
 	elem('search-icon').style.display = 'none'
-}
-
-/**
- * display help page in a separate window
- */
-function displayHelp() {
-	window.open('./doc/help', 'helpWindow')
 }
 
 /**
@@ -3364,12 +3774,11 @@ function keepPaneInWindow(pane) {
 		pane.style.left = `${container.offsetLeft + container.offsetWidth - pane.offsetWidth}px`
 	}
 	if (pane.offsetTop + pane.offsetHeight > container.offsetTop + container.offsetHeight) {
-		pane.style.top = `${
-			container.offsetTop +
+		pane.style.top = `${container.offsetTop +
 			container.offsetHeight -
 			pane.offsetHeight -
 			document.querySelector('footer').offsetHeight
-		}px`
+			}px`
 	}
 }
 
@@ -3413,8 +3822,7 @@ function applySampleToNode(event) {
 	let nNodes = nodesToUpdate.length
 	if (nNodes)
 		logHistory(
-			`applied ${styles.nodes[sample].groupLabel} style to ${
-				nNodes === 1 ? nodesToUpdate[0].label : nNodes + ' factors'
+			`applied ${styles.nodes[sample].groupLabel} style to ${nNodes === 1 ? nodesToUpdate[0].label : nNodes + ' factors'
 			}`
 		)
 	lastNodeSample = sample
@@ -3592,10 +4000,10 @@ function showNodeData(nodeId) {
 				'italic',
 				'underline',
 				'link',
-				{list: 'ordered'},
-				{list: 'bullet'},
-				{indent: '-1'},
-				{indent: '+1'},
+				{ list: 'ordered' },
+				{ list: 'bullet' },
+				{ indent: '-1' },
+				{ indent: '+1' },
 			],
 		},
 		placeholder: 'Notes',
@@ -3627,11 +4035,11 @@ function showNodeData(nodeId) {
 	positionNotes()
 }
 
-function showEdgeData() {
+function showEdgeData(edgeId) {
 	let panel = elem('edgeDataPanel')
-	let edgeId = network.getSelectedEdges()[0]
+	edgeId = edgeId || network.getSelectedEdges()[0]
 	let edge = data.edges.get(edgeId)
-	elem('edgeLabel').innerHTML = edge.label
+	elem('edgeLabel').innerHTML = edge.label?.trim().length
 		? edge.label
 		: `Link from "${shorten(data.nodes.get(edge.from).label)}" to "${shorten(data.nodes.get(edge.to).label)}"`
 	if (edge.created) {
@@ -3649,10 +4057,10 @@ function showEdgeData() {
 				'italic',
 				'underline',
 				'link',
-				{list: 'ordered'},
-				{list: 'bullet'},
-				{indent: '-1'},
-				{indent: '+1'},
+				{ list: 'ordered' },
+				{ list: 'bullet' },
+				{ indent: '-1' },
+				{ indent: '+1' },
 			],
 		},
 		placeholder: 'Notes',
@@ -3673,8 +4081,10 @@ function showEdgeData() {
 				note: isQuillEmpty(editor) ? '' : editor.getContents(),
 				modified: timestamp(),
 			})
-			popupEditor = popupWindow.popupEditor
-			if (popupEditor) popupEditor.setContents(editor.getContents())
+			if (popupWindow) {
+				popupEditor = popupWindow.popupEditor
+				if (popupEditor) popupEditor.setContents(editor.getContents())
+			}
 		}
 	})
 	panel.classList.remove('hide')
@@ -3732,7 +4142,7 @@ function autoLayout(e) {
 	doc.transact(() => {
 		switch (option) {
 			case 'off': {
-				network.setOptions({physics: {enabled: false}})
+				network.setOptions({ physics: { enabled: false } })
 				break
 			}
 			case 'trophic': {
@@ -3815,13 +4225,13 @@ function autoLayout(e) {
 			}
 			default: {
 				statusMsg('Working...')
-				let options = {physics: {solver: option, stabilization: true}}
+				let options = { physics: { solver: option, stabilization: true } }
 				options.physics[option] = {}
 				options.physics[option].springLength = avEdgeLength()
 				network.setOptions(options)
 				// cancel the iterative algorithms as soon as they have stabilized
 				network.on('stabilized', () => {
-					network.setOptions({physics: {enabled: false}})
+					network.setOptions({ physics: { enabled: false } })
 					network.storePositions()
 					elem('layoutSelect').value = 'off'
 					statusMsg(`${label} layout applied`)
@@ -4000,7 +4410,7 @@ function ensureNotDrawing() {
 }
 
 function selectAllFactors() {
-	selectFactors(data.nodes.getIds({filter: (n) => !n.nodeHidden}))
+	selectFactors(data.nodes.getIds({ filter: (n) => !n.nodeHidden }))
 	showSelected()
 }
 
@@ -4010,7 +4420,7 @@ export function selectFactors(nodeIds) {
 }
 
 function selectAllLinks() {
-	selectLinks(data.edges.getIds({filter: (e) => !e.edgeHidden}))
+	selectLinks(data.edges.getIds({ filter: (e) => !e.edgeHidden }))
 	showSelected()
 }
 
@@ -4033,7 +4443,7 @@ function selectUsersItems(event) {
 		.get()
 		.filter((e) => e.created?.user === userName || e.modified?.user === userName)
 		.map((e) => e.id)
-	network.setSelection({nodes: usersNodes, edges: userEdges})
+	network.setSelection({ nodes: usersNodes, edges: userEdges })
 	showSelected()
 }
 
@@ -4338,7 +4748,7 @@ function analyse() {
 	 * @param {string} pathType - either 'allPaths' or 'shortestPath'
 	 */
 	function hideNodesByPaths(selectedNodes, pathType) {
-		// paths is an array of objects with from and to node ids, or an empty array of there is no path
+		// paths is an array of objects with from and to node ids, or an empty array if there is no path
 		let paths = shortestPaths(selectedNodes, pathType === 'allPaths')
 		if (paths.length === 0) {
 			alertMsg('No path between the selected Factors', 'info')
@@ -4405,7 +4815,7 @@ function analyse() {
 				if (!Array.isArray(paths) || paths.length === data.nodes.length + 1) paths = []
 				if (!all) {
 					for (let i = 0; i &lt; paths.length - 1; i++) {
-						links.push({from: paths[i], to: paths[i + 1]})
+						links.push({ from: paths[i], to: paths[i + 1] })
 					}
 				}
 				return links
@@ -4434,12 +4844,12 @@ function analyse() {
 						connectedNodes.forEach((next) => {
 							let vis = visited.get(next)
 							if (vis === 'onpath') {
-								links.push({from: source, to: next})
+								links.push({ from: source, to: next })
 								path = path.concat([next])
 							} else if (!vis) {
 								let p = getPaths(next, dest)
 								if (Array.isArray(p) &amp;&amp; p.length > 0) {
-									links.push({from: source, to: next})
+									links.push({ from: source, to: next })
 									visited.set(next, 'onpath')
 									path = path.concat(p)
 								}
@@ -4538,7 +4948,7 @@ export function sizing(metric) {
 				node.widthConstraint =
 					node.heightConstraint =
 					node.size =
-						MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
+					MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
 		}
 	})
 	data.nodes.update(nodesToUpdate)
@@ -4702,7 +5112,7 @@ var oldViewOnly = viewOnly // save the viewOnly state
 window.addEventListener('offline', () => {
 	alertMsg('No network connection - working offline (view only)', 'info')
 	wsProvider.shouldConnect = false
-	network.setOptions({interaction: {dragNodes: false, hover: false}})
+	network.setOptions({ interaction: { dragNodes: false, hover: false } })
 	hideNavButtons()
 	drawerEditor.enable(false)
 	oldViewOnly = viewOnly
@@ -4715,7 +5125,7 @@ window.addEventListener('online', () => {
 	viewOnly = oldViewOnly
 	if (!viewOnly) showNavButtons()
 	drawerEditor.enable(true)
-	network.setOptions({interaction: {dragNodes: true, hover: true}})
+	network.setOptions({ interaction: { dragNodes: true, hover: true } })
 	showAvatars()
 })
 /**
@@ -4728,7 +5138,7 @@ function setUpAwareness() {
 
 	// regularly broadcast our own state, every 20 seconds
 	setInterval(() => {
-		yAwareness.setLocalStateField('pkt', {time: Date.now()})
+		yAwareness.setLocalStateField('pkt', { time: Date.now() })
 	}, 20000)
 
 	// if debug = fake, generate fake mouse events every 200 ms for testing
@@ -4801,7 +5211,7 @@ function roundTripTimer() {
 function asleep(isSleeping) {
 	if (myNameRec.asleep === isSleeping) return
 	myNameRec.asleep = isSleeping
-	yAwareness.setLocalState({user: myNameRec})
+	yAwareness.setLocalState({ user: myNameRec })
 	showAvatars()
 }
 /**
@@ -5052,7 +5462,7 @@ function followUser() {
 	if (!userRec) return
 	if (userRec.user.asleep) unFollow()
 	let userPosition = userRec.cursor
-	if (userPosition) network.moveTo({position: userPosition})
+	if (userPosition) network.moveTo({ position: userPosition })
 }
 /**
  * User has clicked on their own avatar.  Prompt them to change their own name.
@@ -5062,7 +5472,7 @@ function renameUser() {
 	if (newName) {
 		myNameRec.name = newName
 		myNameRec.anon = false
-		yAwareness.setLocalState({user: myNameRec})
+		yAwareness.setLocalState({ user: myNameRec })
 		showAvatars()
 	}
 }
@@ -5110,27 +5520,22 @@ function showGhostFactor(userId, addingFactor) {
 	}
 }
 </code></pre>
-        </article>
-    </section>
+				</article>
+			</section>
+		</div>
 
+		<br class="clear" />
 
+		<footer>
+			Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.3</a> on Sun Oct 06 2024
+			22:34:03 GMT+0100 (British Summer Time) using the
+			<a href="https://github.com/clenemt/docdash">docdash</a> theme.
+		</footer>
 
-
-    
-    
-</div>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.3</a> on Thu May 30 2024 08:35:31 GMT+0100 (British Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
-</footer>
-
-<script>prettyPrint();</script>
-<script src="scripts/polyfill.js"></script>
-<script src="scripts/linenumber.js"></script>
-
-
-
-</body>
+		<script>
+			prettyPrint()
+		</script>
+		<script src="scripts/polyfill.js"></script>
+		<script src="scripts/linenumber.js"></script>
+	</body>
 </html>

@@ -1,6 +1,6 @@
 {
 	"name": "participatory-system-mapper",
-	"version": "2.3.4",
+	"version": "2.3.5",
 	"description": "Participatory System Mapper, browser app for collaboratively creating system maps",
 	"keywords": [
 		"social network",
@@ -40,7 +40,7 @@
 		"jsdoc": "npx jsdoc -r -c .jsdoc.json",
 		"clean": "rm -rf dist/*",
 		"rebuild-docker": "docker buildx build -f docker/docker-y-websocket/Dockerfile --platform linux/amd64,linux/arm64 -t micrology/prsm-y-websocket --push . && docker buildx build --platform linux/amd64,linux/arm64 -t micrology/prsm-httpd --push -f docker/docker-httpd/Dockerfile .",
-		"manual": "cd doc/help && npm run serve &",
+		"manual": "cd doc/help && npm run dev &",
 		"deploy": "npm run build && doc/help/edit.docusaurus.config.bash && npm run build-help"
 	},
 	"license": "GPL-3.0-or-later",

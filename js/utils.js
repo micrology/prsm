@@ -24,6 +24,7 @@ This module provides a set of utility functions used widely within the PRSM code
 import * as Hammer from '@egjs/hammerjs'
 import iro from '@jaames/iro'
 
+const MANUALURL = './doc/help/doc_build/manual/Introduction.html'
 /**
  * attach an event listener
  *
@@ -1116,4 +1117,11 @@ export function isQuillEmpty(quill) {
  */
 export function stripNL(str) {
 	return str.replace(/\r?\n|\r/g, ' ')
+}
+
+/**
+ * display help page in a separate window
+ */
+export function displayHelp() {
+	window.open(MANUALURL, 'helpWindow')
 }
