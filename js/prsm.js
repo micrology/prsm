@@ -3779,6 +3779,14 @@ function autoLayout(e) {
 	selectElement.value = option
 	let label = selectElement.options[selectElement.selectedIndex].innerText
 	network.storePositions() // record current positions so it can be undone
+	if (network.physics.options.enabled) {
+		// another layout already in progress - cancel it first
+		network.off('stabilized')
+		network.stopSimulation()
+		network.setOptions({physics: {enabled: false}})
+		network.storePositions()
+		alertMsg(`Previous layout cancelled`, 'warn')
+	}
 	doc.transact(() => {
 		switch (option) {
 			case 'off': {
