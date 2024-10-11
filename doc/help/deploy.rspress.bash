@@ -1,1 +1,1 @@
-sed -i='' "s|base: '/prsm/doc/help/doc_build/'|base: '/doc/help/doc_build/'|" rspress.config.ts
+sed -i='' "s|base: '/prsm/doc/help/doc_build/'|base: '/doc/help/doc_build/'|" doc/help/rspress.config.ts
