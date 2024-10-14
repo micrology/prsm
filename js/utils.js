@@ -906,10 +906,36 @@ export class CP {
 		// see https://iro.js.org/guide.html#getting-started
 		this.colorPicker = new iro.ColorPicker('#colorPickerControls', {
 			width: 160,
-			color: 'rgb(255, 255, 255)',
+			color: 'rgba(255, 255, 255, 1)',
 			borderWidth: 1,
-			borderColor: 'rgb(255, 255, 255)',
-			margin: 0,
+			borderColor: 'rgba(255, 255, 255,1)',
+			margin: 6,
+			layout: [
+				{
+				  component: iro.ui.Wheel,
+				  options: {
+					borderColor: '#ffffff'
+				  }
+				},
+				{
+					component: iro.ui.Slider,
+					  options: {
+						  borderColor: '#000000',
+						  sliderType: 'value',
+						  padding: 2,
+						  handleRadius: 4
+					  }
+				  },
+				{
+				  component: iro.ui.Slider,
+					options: {
+						borderColor: '#000000',
+						sliderType: 'alpha',
+						padding: 2,
+						handleRadius: 4
+					}
+				}
+			  ]
 		})
 
 		// set up a grid of squares to hold last 8 selected colors
@@ -922,18 +948,18 @@ export class CP {
 			c.className = 'cached-color'
 			// prefill with standard colours
 			c.style.backgroundColor = [
-				'rgb(255, 0, 0)',
-				'rgb(0, 255, 0)',
+				'rgba(255, 0, 0,1)',
+				'rgba(0, 255, 0,1)',
 				'rgb(0, 0, 255)',
-				'rgb(255, 255, 0)',
+				'rgba(255, 255, 0,1)',
 				'rgb(255, 255, 255)',
-				'rgb(0, 0, 0)',
-				'rgb(154, 219, 180)',
-				'rgb(219, 110, 103)',
+				'rgba(0, 0, 0,1)',
+				'rgba(154, 219, 180,1)',
+				'rgba(219, 110, 103,1)',
 			][i]
 			c.addEventListener('click', (e) => {
 				let color = e.target.style.backgroundColor
-				if (color) this.colorPicker.color.rgbString = e.target.style.backgroundColor
+				if (color) this.colorPicker.color.rgbaString = e.target.style.backgroundColor
 			})
 			this.colorCache.appendChild(c)
 		}
@@ -966,13 +992,13 @@ export class CP {
 			this.container.well = well
 			this.container.callback = callback
 			this.container.onChange = onChange
-			this.colorPicker.color.rgbString = well.style.backgroundColor
+			this.colorPicker.color.rgbaString = well.style.backgroundColor
 			this.onclose = this.closeColorPicker.bind(this)
 			document.addEventListener('click', this.onclose, true)
 
 			// update well as color is changed
 			this.colorPicker.on('color:change', (color) => {
-				well.style.backgroundColor = color.rgbString
+				well.style.backgroundColor = color.rgbaString
 				if (onChange) onChange()
 			})
 		})
