@@ -3,9 +3,22 @@
 # 2. Install python3 (if it is not already installed) https://www.python.org/downloads/
 # 3. Install podman-compose (see https://github.com/containers/podman-compose) with: pip3 install podman-compose
 # 4. Change directory to the the one including this file (compose.yaml)
-# 5. Run the command: podman-compose up -d
-# 6. To stop the software, use podman-compose down
+# 5. If not already done, start podman:
+#    podman machine init
+#    podman machine start
+# 6. Run the command: podman-compose up -d
+# 7. To stop the software, use podman-compose down
 #
+# After starting the image, use
+#   podman exec -it docker_htppd_1 bash
+# to get a shell in the container for debugging
+
+# To refresh the local copy of the images, if the version has changed, stop the containers:
+#  and run
+#   podman-compose down
+#   podman-compose pull
+#   podman-compose up -d
+
 services:
   y-websocket:
     image: docker.io/micrology/prsm-y-websocket

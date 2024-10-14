@@ -6,7 +6,7 @@
 # docker buildx build -f docker/docker-y-websocket/Dockerfile --platform linux/amd64,linux/arm64 -t micrology/prsm-y-websocket --push .
 # use same docker run command as above
 
-FROM node:17-slim
+FROM node:18-slim
 RUN npm install -g y-websocket
 EXPOSE 1234
 ENV HOST=0.0.0.0

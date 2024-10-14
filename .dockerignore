@@ -1,5 +1,6 @@
 # ignore everything except the listed files
 
 *
+!.htaccess
 !dist
-!doc/help/build
+!doc/help/doc_build

@@ -10,12 +10,14 @@
 
 # access the web page at http://localhost:8080
 
-FROM node:17-slim
+FROM node:18-slim
+RUN apt-get -y update && apt-get -y install vim
 RUN npm install -g http-server
 # copy PRSM run files
+COPY [".htaccess", "/public/"]
 COPY ["dist/*", "/public/prsm/"]
 # copy user manual files
-COPY ["doc/help/build/", "/public/prsm/doc/help/"]
+COPY ["doc/help/doc_build/", "/public/prsm/doc/help/doc_build"]
 # redirect localhost to localhost/prsm
 RUN echo '<META HTTP-EQUIV="Refresh" CONTENT="0; URL='\'''./prsm/index.html''\''">' > /public/index.html
 ENV HOST=0.0.0.0
