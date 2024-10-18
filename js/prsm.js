@@ -175,6 +175,7 @@ var followme // clientId of user's cursor to follow
 var editor = null // Quill editor
 var popupWindow = null // window for editing Notes
 var popupEditor = null // Quill editor in popup window
+var sideDrawEditor = null // Quill editor in side drawer
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
 var netLoaded = false // becomes true when map is fully displayed
 var savedState = '' // the current state of the map (nodes, edges, network settings) before current user action
@@ -355,6 +356,7 @@ function setUpPage() {
 	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'))
 	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'))
 	hideNotes()
+	setUpSideDrawer()
 	displayWhatsNew()
 }
 const sliderColor = getComputedStyle(document.documentElement).getPropertyValue('--slider')
@@ -672,7 +674,10 @@ function startY(newRoom) {
 				switch (key) {
 					case 'viewOnly': {
 						viewOnly = viewOnly || obj
-						if (viewOnly) hideNavButtons()
+						if (viewOnly) {
+							hideNavButtons()
+							sideDrawEditor.disable()
+						}
 						break
 					}
 					case 'mapTitle':
@@ -1940,40 +1945,45 @@ export function saveState(options) {
 }
 
 /******************************************************** map notes side drawer *********************************************************/
-let toolbarOptions = [
-	['bold', 'italic', 'underline', 'strike'],
-	['blockquote', 'code-block'],
+/**
+ * set up the side drawer for notes
+ */
+function setUpSideDrawer() {
+	let toolbarOptions = [
+		['bold', 'italic', 'underline', 'strike'],
+		['blockquote', 'code-block'],
 
-	[{list: 'ordered'}, {list: 'bullet'}],
-	[{script: 'sub'}, {script: 'super'}],
-	[{indent: '-1'}, {indent: '+1'}],
-	[{align: []}],
+		[{ list: 'ordered' }, { list: 'bullet' }],
+		[{ script: 'sub' }, { script: 'super' }],
+		[{ indent: '-1' }, { indent: '+1' }],
+		[{ align: [] }],
 
-	['link', 'image'],
-	[{size: ['small', false, 'large', 'huge']}],
-	[{header: [1, 2, 3, 4, 5, 6, false]}],
+		['link', 'image'],
+		[{ size: ['small', false, 'large', 'huge'] }],
+		[{ header: [1, 2, 3, 4, 5, 6, false] }],
 
-	[{color: []}, {background: []}],
-	[{font: []}],
+		[{ color: [] }, { background: [] }],
+		[{ font: [] }],
 
-	['clean'],
-]
-let drawerEditor = new Quill(elem('drawer-editor'), {
-	modules: {
-		toolbar: toolbarOptions,
-	},
-	placeholder: 'Notes about the map',
-	theme: 'snow',
-	readOnly: viewOnly,
-})
+		['clean'],
+	]
+	sideDrawEditor = new Quill(elem('drawer-editor'), {
+		modules: {
+			toolbar: viewOnly ? null : toolbarOptions,
+		},
+		placeholder: 'Notes about the map',
+		theme: 'snow',
+		readOnly: viewOnly,
+	})
 
-drawerEditor.on('text-change', (delta, oldDelta, source) => {
-	if (source === 'user') {
-		yNetMap.set('mapDescription', {text: isQuillEmpty(drawerEditor) ? '' : drawerEditor.getContents()})
-	}
-})
+	sideDrawEditor.on('text-change', (delta, oldDelta, source) => {
+		if (source === 'user') {
+			yNetMap.set('mapDescription', { text: isQuillEmpty(sideDrawEditor) ? '' : sideDrawEditor.getContents() })
+		}
+	})
+}
 export function setSideDrawer(contents) {
-	drawerEditor.setContents(contents.text)
+	sideDrawEditor.setContents(contents.text)
 }
 
 /************************************************************* badges around the factors ******************************************/
@@ -3635,7 +3645,7 @@ function showNodeData(nodeId) {
 	elem('node-notes').className = 'notes'
 	editor = new Quill('#node-notes', {
 		modules: {
-			toolbar: [
+			toolbar: viewOnly ? null : [
 				'bold',
 				'italic',
 				'underline',
@@ -3692,7 +3702,7 @@ function showEdgeData(edgeId) {
 	} else elem('edgeModification').style.display = 'none'
 	editor = new Quill('#edge-notes', {
 		modules: {
-			toolbar: [
+			toolbar: viewOnly ? null : [
 				'bold',
 				'italic',
 				'underline',
@@ -4762,7 +4772,7 @@ window.addEventListener('offline', () => {
 	wsProvider.shouldConnect = false
 	network.setOptions({interaction: {dragNodes: false, hover: false}})
 	hideNavButtons()
-	drawerEditor.enable(false)
+	sideDrawEditor.enable(false)
 	oldViewOnly = viewOnly
 	viewOnly = true
 })
@@ -4772,7 +4782,7 @@ window.addEventListener('online', () => {
 	lastPktTime = null
 	viewOnly = oldViewOnly
 	if (!viewOnly) showNavButtons()
-	drawerEditor.enable(true)
+	sideDrawEditor.enable(true)
 	network.setOptions({interaction: {dragNodes: true, hover: true}})
 	showAvatars()
 })
