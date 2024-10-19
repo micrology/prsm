@@ -46,6 +46,7 @@ import {
 	refreshSampleLinks,
 	setMapTitle,
 	setSideDrawer,
+	disableSideDrawerEditing,
 	doSnapToGrid,
 	setCurve,
 	setBackground,
@@ -308,6 +309,7 @@ function loadPRSMfile(str) {
 	if (json.history) yHistory.insert(0, json.history)
 	if (json.description) {
 		yNetMap.set('mapDescription', json.description)
+		disableSideDrawerEditing()
 		setSideDrawer(json.description)
 	}
 	// node sizing has to be done after nodes have been created

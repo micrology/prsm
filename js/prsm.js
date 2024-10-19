@@ -676,7 +676,7 @@ function startY(newRoom) {
 						viewOnly = viewOnly || obj
 						if (viewOnly) {
 							hideNavButtons()
-							sideDrawEditor.disable()
+							disableSideDrawerEditing()
 						}
 						break
 					}
@@ -1984,6 +1984,10 @@ function setUpSideDrawer() {
 }
 export function setSideDrawer(contents) {
 	sideDrawEditor.setContents(contents.text)
+}
+export function disableSideDrawerEditing() {
+	sideDrawEditor.disable()
+	elem('drawer').firstElementChild.style.display = 'none'
 }
 
 /************************************************************* badges around the factors ******************************************/
