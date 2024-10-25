@@ -179,8 +179,7 @@ var sideDrawEditor = null // Quill editor in side drawer
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
 var netLoaded = false // becomes true when map is fully displayed
 var savedState = '' // the current state of the map (nodes, edges, network settings) before current user action
-var var unknownRoomTimeout = null // timer to check if the room exists
- = null // timer to check if the room exists
+var unknownRoomTimeout = null // timer to check if the room exists
 
 /**
  * top level function to initialise everything
@@ -419,8 +418,7 @@ function startY(newRoom) {
 			displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 		else {
 			// if the user wants a room that doesn't exist, the system will hang, so wait and then show a blank map
-			var unknownRoomTimeout = null // timer to check if the room exists
- = setTimeout(() => {
+			unknownRoomTimeout = setTimeout(() => {
 				if (!netLoaded) {
 					displayNetPane(`${exactTime()} remote content not loaded from ${websocket}`)
 				}
@@ -500,8 +498,7 @@ function startY(newRoom) {
 	 */
 	nodes.on('*', (evt, properties, origin) => {
 		yjsTrace('nodes.on', `${evt}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`)
-		clearTimeout(var unknownRoomTimeout = null // timer to check if the room exists
-)
+		clearTimeout(unknownRoomTimeout)
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
@@ -3322,6 +3319,7 @@ function doClone(onlyView) {
 	let clonedRoom = generateRoom()
 	//open a new map
 	let path = `${window.location.pathname}?room=${clonedRoom}`
+	if (onlyView && elem('addCopyButton').checked) path += '&copyButton'
 	window.open(path, '_blank')
 	logHistory(`made a ${onlyView ? 'read-only copy' : 'clone'} of the map in room: ${clonedRoom}`)
 }
