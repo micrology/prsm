@@ -179,7 +179,8 @@ var sideDrawEditor = null // Quill editor in side drawer
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
 var netLoaded = false // becomes true when map is fully displayed
 var savedState = '' // the current state of the map (nodes, edges, network settings) before current user action
-var unknowRoomTimeout = null // timer to check if the room exists
+var var unknownRoomTimeout = null // timer to check if the room exists
+ = null // timer to check if the room exists
 
 /**
  * top level function to initialise everything
@@ -418,7 +419,8 @@ function startY(newRoom) {
 			displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 		else {
 			// if the user wants a room that doesn't exist, the system will hang, so wait and then show a blank map
-			unknowRoomTimeout = setTimeout(() => {
+			var unknownRoomTimeout = null // timer to check if the room exists
+ = setTimeout(() => {
 				if (!netLoaded) {
 					displayNetPane(`${exactTime()} remote content not loaded from ${websocket}`)
 				}
@@ -498,7 +500,8 @@ function startY(newRoom) {
 	 */
 	nodes.on('*', (evt, properties, origin) => {
 		yjsTrace('nodes.on', `${evt}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`)
-		clearTimeout(unknowRoomTimeout)
+		clearTimeout(var unknownRoomTimeout = null // timer to check if the room exists
+)
 		doc.transact(() => {
 			properties.items.forEach((id) => {
 				if (origin === null) {
