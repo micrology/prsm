@@ -12,7 +12,9 @@ If you click on the **Sharing** button in the top navigation bar, the sharing di
 	style={{ width: 600 }}
 />
 
-If you click the **Read only** button, a copy of the map will be made in a new browser tab, but without any of the buttons that would allow one to modify the map. It des however include a **Search** button so that users can search the factors and links in the read only map. You can use the web link of this map to distribute the map to people whom you want to look at the map, but not change it.
+## Read-only maps
+
+If you click the **Read only** button, a copy of the map will be made in a new browser tab, but without any of the buttons for modifying the map. It does however include a **Search** button so that users can search the factors and links in the read only map. You can use the web link of this map to distribute it to people whom you want to look at the map, but not change it.
 
 <img
 	src={normalizeImagePath("/images/ReadOnlyNavBar.png")}
@@ -20,7 +22,7 @@ If you click the **Read only** button, a copy of the map will be made in a new b
 	style={{ width: 600 }}
 />
 
-You may not want users to be able to change this read-only map, but nevertheless able to clone the map to another that they can edit. For example, you might want to put the read only map (or a link to it) on a public website in read only mode, so that users cannot mess with it, but also allow users to create and then modify their own versions of the map. This can be achieved by checking the box under the **Read only** button before you create the read only copy. The read only copy will be created in a new tab, as before, but its navigation bar will include a **Copy Map** button, as well as a **Search** button. Clicking on this **Copy Map** button puts the map in a new browser tab in editable mode in a new room.
+You may not want users to be able to change this read-only map, but nevertheless be able to clone the map to another that they *can* edit. For example, you might want to put the read only map (or a link to it) on a public website in read only mode, so that users cannot mess with it, but also allow users to create and then modify their own versions of the map. This can be achieved by checking the box under the **Read only** button before you create the read only copy. The read only copy will be created in a new tab, as before, but its navigation bar will include a **Copy Map** button, as well as the **Search** button. Clicking on this **Copy Map** button puts the map in a new browser tab in editable mode in a new room.
 
 <img
 	src={normalizeImagePath("/images/CopyButton.png")}
@@ -28,7 +30,7 @@ You may not want users to be able to change this read-only map, but nevertheless
 	style={{ width: 600 }}
 />
 
-## Linking a map to another
+## Linking one map to another
 
 You may have several related maps that you would like to navigate between. For example, you may have:
 
@@ -43,9 +45,9 @@ You may have several related maps that you would like to navigate between. For e
 	style={{ width: 250 }}
 />
 
-If you click on a portal factor, a tab holding the destination map is opened and revealed.
+If you click on a portal factor, a browser tab holding the destination map is opened and revealed.
 
-A portal factor is just like an ordinary factor, except that the _shape_ is `Portal` and there is an extra field that holds the room name of the destination map. To create a portal factor, add an ordinary factor, giving it a suitable name. The double click the new factor to open the factor's edit dialog. Select `Portal` from the `Shape...` menu and fill in the Map field that appears with the room name of the destination map. Press `Save` to create the portal.
+A portal factor is just like an ordinary factor, except that the _shape_ is `Portal` and there is an extra field that holds the room name of the destination map. To create a portal factor, add an ordinary factor, giving it a suitable name. Then double click the new factor to open the factor's Edit dialog. Select `Portal` from the `Shape...` menu and fill in the Map field that appears with the room name of the destination map. Press `Save` to create the portal.
 
 <img
 	src={normalizeImagePath("/images/PortalEdit.png")}
