@@ -243,7 +243,11 @@ function addEventListeners() {
 	listen('undo', 'click', undo)
 	listen('redo', 'click', redo)
 	listen('fileInput', 'change', readSingleFile)
-	listen('openMap', 'click', openFile)
+	listen('openFile', 'click', openFile)
+	listen('replaceMap', 'click', openFile)
+	listen('mergeMap', 'click', mergeMap)
+	listen('merge', 'click', doMerge)
+	listen('mergeClose', 'click', () => elem('mergeDialog').close())
 	listen('saveFile', 'click', savePRSMfile)
 	listen('exportPRSM', 'click', savePRSMfile)
 	listen('exportImage', 'click', exportPNGfile)
@@ -3324,6 +3328,29 @@ function doClone(onlyView) {
 	logHistory(`made a ${onlyView ? 'read-only copy' : 'clone'} of the map in room: ${clonedRoom}`)
 }
 
+function mergeMap() {
+	elem('mergedRoom').value = ''
+	elem('mergeDialog').showModal()
+}
+function doMerge() {
+	let path = elem('mergedRoom').value
+	if (!path) {
+		alertMsg('No map given to merge', 'error')
+		return
+	}
+	try {
+		let url = new URL(path)
+		let roomToMerge = url.searchParams.get('room')
+		console.log('merging ', roomToMerge)
+		mergeRoom(roomToMerge)
+		logHistory(`merged map from room: ${roomToMerge}`)
+	}
+	catch (e) {
+		alertMsg('Invalid map URL', 'error')
+		return
+	}
+	elem('mergeDialog').close()
+}
 /* ----------------------------------------------------------- Search ------------------------------------------------------*/
 /**
  * Open an input for user to type label of node to search for and generate suggestions when user starts typing

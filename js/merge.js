@@ -4,10 +4,10 @@
  */
 
 import * as Y from 'yjs'
-import {WebsocketProvider} from 'y-websocket'
-import {DataSet} from 'vis-data/peer'
-import {doc, websocket, data, logHistory, room} from './prsm.js'
-import {uuidv4, deepCopy} from './utils.js'
+import { WebsocketProvider } from 'y-websocket'
+import { DataSet } from 'vis-data/peer'
+import { doc, websocket, data, logHistory, room } from './prsm.js'
+import { uuidv4, deepCopy, alertMsg } from './utils.js'
 /* --------------------------------- Merge maps ----------------------------- */
 /*
  * Evaluate mergeRoom(string: room code) e.g. mergeRoom('WBI-CRD-ROB-XDK')
@@ -57,11 +57,13 @@ function mergeMaps() {
 				let sameLabelNodes = data.nodes
 					.get()
 					.filter((an) => an.label.replace(/\s/g, '') === BNode.label.replace(/\s/g, ''))
-				if (sameLabelNodes.length > 1)
+				if (sameLabelNodes.length > 1) {
 					console.log(
 						`%cMatching factors by label ('${BNode.label}'), but there are two or more factors with this label in this map`,
 						'color: red'
 					)
+					alertMsg(`Matching factors by label ('${BNode.label}'), but there are two or more factors with this label in the map`, 'warn')
+				}
 				ANode = sameLabelNodes[0]
 				if (ANode) {
 					// map works both ways - OK since ids are unique
@@ -74,7 +76,7 @@ function mergeMaps() {
 				if (ANode.label.replace(/\s/g, '') !== BNode.label.replace(/\s/g, '')) {
 					// if not, make a clone of the other node with a new id
 					logMerge(
-						`existing Factor label: '${ANode.label}' does not match new label: '${BNode.label}'. Factor with new label added.`
+						`'${ANode.label}' Factor in this map does not match Factor from other map with new label: '${BNode.label}'. Factor with new label added.`
 					)
 					// generate a new id for BNode.  change border to dashed red.  Add it to the map
 					let newNode = deepCopy(BNode)
@@ -93,7 +95,7 @@ function mergeMaps() {
 				} else if (ANode.grp !== BNode.grp)
 					// label is the same, but style is not - just report this
 					logMerge(
-						`existing style: '${ANode.grp}' does not match new style: '${BNode.grp}' for Factor: '${ANode.label}. Existing style retained.`
+						`Style: '${ANode.grp}' does not match style: '${BNode.grp}' from other map for Factor: '${ANode.label}. Existing style retained.`
 					)
 			} else {
 				// the node is on the other map, but not on this one - add it.
@@ -101,6 +103,7 @@ function mergeMaps() {
 				logMerge(`added new Factor: '${BNode.label}'`)
 			}
 		}
+		data.nodes.update(nodesToAdd)
 
 		bdata.edges.get().forEach((BEdge) => {
 			// Some edges on the other map may have been going to/from nodes that have been cloned and given a new id.
@@ -126,8 +129,7 @@ function mergeMaps() {
 				newEdge.color.color = 'rgb(255, 0, 0)'
 				edgesToAdd.push(newEdge)
 				logMerge(
-					`added Link between new Factor(s): '${data.nodes.get(newEdge.from).label}' to '${
-						data.nodes.get(newEdge.to).label
+					`added Link between new Factor(s): '${data.nodes.get(newEdge.from).label}' to '${data.nodes.get(newEdge.to).label
 					}'`
 				)
 			}
@@ -153,11 +155,11 @@ function mergeMaps() {
 					AEdge.label !== BEdge.label
 				)
 					logMerge(
-						`existing Link label: '${AEdge.label}' does not match new label: '${BEdge.label}'.  Existing label retained.`
+						`Link with label: '${AEdge.label}' does not match link from other map with label: '${BEdge.label}'.  Existing label retained.`
 					)
 				else if (AEdge.grp !== BEdge.grp)
 					logMerge(
-						`existing Link style: '${AEdge.grp}' does not match new style: '${BEdge.grp}' for link '${edgeName}'. Existing style retained.`
+						`Link with style: '${AEdge.grp}' does not match style: '${BEdge.grp}' from other map for link '${edgeName}'. Existing style retained.`
 					)
 			} else {
 				// if BEdge's from or to nodes have been substituted for a node in the A map
@@ -178,12 +180,6 @@ function mergeMaps() {
 				if (substitutes.get(to)) to = substitutes.get(to)
 				let sameEdges = bdata.edges.get().filter((e) => e.from === from && e.to === to)
 				if (sameEdges) BEdge = sameEdges[0]
-			}
-			if (!BEdge) {
-				let edgeName =
-					(AEdge.label && AEdge.label.trim() !== '') ||
-					`from [${data.nodes.get(AEdge.from).label}] to [${data.nodes.get(AEdge.to).label}]`
-				logMerge(`existing link: ${edgeName}' is not in the other map.  Existing link retained.`)
 			}
 		})
 		data.nodes.update(nodesToAdd)
@@ -259,8 +255,7 @@ function diffMaps() {
 			} else if (ANode.grp !== BNode.grp)
 				// label is the same, but style is not - just report this
 				console.log(
-					`Factor style in map A : ${ANode.grp} does not match style in map B: ${
-						BNode.grp
+					`Factor style in map A : ${ANode.grp} does not match style in map B: ${BNode.grp
 					} for Factor: [%c${inline(ANode.label)}%c]. `,
 					'color:green',
 					'color:black'
@@ -298,8 +293,7 @@ function diffMaps() {
 				)
 			else if (AEdge.grp !== BEdge.grp)
 				console.log(
-					`Link style: '${AEdge.grp}' in map A does not match style: '${
-						BEdge.grp
+					`Link style: '${AEdge.grp}' in map A does not match style: '${BEdge.grp
 					}' in map B for link [%c${inline(edgeName)}%c]. `,
 					'color:green',
 					'color:black'

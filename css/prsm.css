@@ -16,7 +16,6 @@
 	--modal-header-color: rgb(13, 38, 68);
 	--tab-color: rgb(220, 220, 220);
 	--tutorial-highlight-color: rgb(211, 47, 47);
-	--chat-message-header-color: rgb(162, 162, 162);
 	--map-title-color: rgb(255, 193, 7);
 	--sample-selected-color: rgb(173, 216, 230);
 	--notes-background-color: rgb(255, 253, 231);
@@ -567,14 +566,15 @@ nav button .pressed {
 #copy-map-button {
 	display: none;
 }
-#saveFile {
+#saveFile,
+#openFile {
 	margin: auto 0;
 	padding: 1px 0;
 }
 .dropdown-wrapper {
 	position: relative;
 	display: inline-block;
-	padding: 0px;
+	padding: 0 4px 0 0;
 	color: white;
 	z-index: 2050;
 }
@@ -834,6 +834,45 @@ nav button .pressed {
 .modal-body .copied-text {
 	display: none;
 	font-size: 12px;
+}
+
+/* -----Merge modal dialog ------------------------------------------------------------------- */
+
+#mergeDialog::backdrop {
+	opacity: 0.4;
+	background-color: grey;
+}
+#mergeDialog {
+	position: absolute;
+	top: 90px;
+	margin: 0 auto;
+	border-radius: 20px;
+	padding: 0 10px 10px 10px;
+	box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+#mergeDialog #mergeClose {
+	float: right;
+	font-weight: bold;
+	background-color: white;
+	padding: 10px;
+	border: none;
+	font-size: 2em;
+}
+#mergeDialog h2 {
+	font-size: 1.5em;
+	font-weight: bold;
+	padding: 10px;
+}
+#mergeDialog #mergedRoom {
+	width: 300px;
+}
+#mergeDialog #merge {
+	float: right;
+	padding: 6px;
+	border-radius: 6px;
+	border: 1px solid black;
+	width: 7em;
+	user-select: none;
 }
 
 /* ---- Styles for the right hand side panel ------------------------------------------------- */

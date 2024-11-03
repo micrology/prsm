@@ -245,7 +245,7 @@
 								<span class="tooltiptext">Share the map using a web link</span>
 							</div>
 							<div class="tooltip">
-								<button type="button" id="openMap">
+								<button type="button" id="openFile">
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
 										width="24"
@@ -261,6 +261,38 @@
 								</button>
 								<div class="button-text">Open</div>
 								<span class="tooltiptext">Open a map file</span>
+							</div>
+							<div class="dropdown-wrapper">
+								<span id="open-dropdown">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="16"
+										height="16"
+										fill="currentColor"
+										class="bi bi-caret-down-fill"
+										viewBox="0 0 16 16"
+									>
+										<path
+											d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"
+										/>
+									</svg>
+								</span>
+								<div class="dropdown-content">
+									<div>
+										<div class="tooltip">
+											<button class="dropdown-label" type="button" id="replaceMap">
+												Replace
+											</button>
+											<span class="tooltiptext">Replace the map with a new one</span>
+										</div>
+									</div>
+									<div>
+										<div class="tooltip">
+											<button class="dropdown-label" type="button" id="mergeMap">Merge</button>
+											<span class="tooltiptext">Merge a new map into the this one</span>
+										</div>
+									</div>
+								</div>
 							</div>
 							<div
 								class="tooltip"
@@ -371,7 +403,6 @@
 							</div>
 							<div
 								class="tooltip left-border"
-								style="margin-left: 5px"
 								data-tutorial="Search for factors"
 								data-step="6"
 								data-position="left"
@@ -1211,7 +1242,8 @@
 							<div class="small">
 								(users will be able to see the map, but will not be able to modify it)
 								<br />
-								Allow users to make an editable copy <br />of the read-only map <input type="checkbox" id="addCopyButton">
+								Allow users to make an editable copy <br />of the read-only map
+								<input type="checkbox" id="addCopyButton" />
 							</div>
 						</div>
 						<button class="modal-button view-button" type="button" id="view-button">Read only</button>
@@ -1298,6 +1330,19 @@
 				</li>
 			</ol>
 		</div>
+		<!-- merge dialog	-->
+		<dialog id="mergeDialog">
+			<button id="mergeClose">&times;</button>
+			<h2>Merge maps</h2>
+			<ol>
+				<li>Open the map you want to merge in another browser tab</li>
+				<li>Click on the <b>Share</b> button in that tab and copy the link to the clipboard</li>
+				<li>Paste the link below and click on <b>Merge</b></li>
+			</ol>
+			<label for="mergedRoom">Map to merge:&nbsp;</label>
+			<input type="url" id="mergedRoom" autofocus="true" />
+			<button id="merge">Merge</button>
+		</dialog>
 		<script src="../js/prsm.js" type="module" async></script>
 	</body>
 </html>

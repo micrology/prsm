@@ -7,9 +7,9 @@ import { normalizeImagePath } from 'rspress/runtime';
 If you click on the **Sharing** button in the top navigation bar, the sharing dialog opens. There are three buttons on the right. If you click the **Clone map** button, a new browser tab will open with the same map but in a new room - any changes made to this new map will _not_ appear in the original room. You can then send the web address to others, confident that they will not disturb the original map.
 
 <img
-	src={normalizeImagePath("/images/ShareDialog.png")}
-	alt="Share Dialog"
-	style={{ width: 600 }}
+    src={normalizeImagePath("/images/ShareDialog.png")}
+    alt="Share Dialog"
+    style={{ width: 600 }}
 />
 
 ## Read-only maps
@@ -17,17 +17,17 @@ If you click on the **Sharing** button in the top navigation bar, the sharing di
 If you click the **Read only** button, a copy of the map will be made in a new browser tab, but without any of the buttons for modifying the map. It does however include a **Search** button so that users can search the factors and links in the read only map. You can use the web link of this map to distribute it to people whom you want to look at the map, but not change it.
 
 <img
-	src={normalizeImagePath("/images/ReadOnlyNavBar.png")}
-	alt="Navigation Bar for a Read Only Map"
-	style={{ width: 600 }}
+    src={normalizeImagePath("/images/ReadOnlyNavBar.png")}
+    alt="Navigation Bar for a Read Only Map"
+    style={{ width: 600 }}
 />
 
 You may not want users to be able to change this read-only map, but nevertheless be able to clone the map to another that they *can* edit. For example, you might want to put the read only map (or a link to it) on a public website in read only mode, so that users cannot mess with it, but also allow users to create and then modify their own versions of the map. This can be achieved by checking the box under the **Read only** button before you create the read only copy. The read only copy will be created in a new tab, as before, but its navigation bar will include a **Copy Map** button, as well as the **Search** button. Clicking on this **Copy Map** button puts the map in a new browser tab in editable mode in a new room.
 
 <img
-	src={normalizeImagePath("/images/CopyButton.png")}
-	alt="Copy Map Button"
-	style={{ width: 600 }}
+    src={normalizeImagePath("/images/CopyButton.png")}
+    alt="Copy Map Button"
+    style={{ width: 600 }}
 />
 
 ## Linking one map to another
@@ -40,9 +40,9 @@ You may have several related maps that you would like to navigate between. For e
    In each of these examples, it might be useful to switch from one map to another with just a click. This can be achieved by adding **Portal** factors to the maps.
 
 <img
-	src={normalizeImagePath("/images/PortalFactor.png")}
-	alt="A portal factor"
-	style={{ width: 250 }}
+    src={normalizeImagePath("/images/PortalFactor.png")}
+    alt="A portal factor"
+    style={{ width: 250 }}
 />
 
 If you click on a portal factor, a browser tab holding the destination map is opened and revealed.
@@ -50,13 +50,33 @@ If you click on a portal factor, a browser tab holding the destination map is op
 A portal factor is just like an ordinary factor, except that the _shape_ is `Portal` and there is an extra field that holds the room name of the destination map. To create a portal factor, add an ordinary factor, giving it a suitable name. Then double click the new factor to open the factor's Edit dialog. Select `Portal` from the `Shape...` menu and fill in the Map field that appears with the room name of the destination map. Press `Save` to create the portal.
 
 <img
-	src={normalizeImagePath("/images/PortalEdit.png")}
-	alt="Editing a portal"
-	style={{ width: 250 }}
+    src={normalizeImagePath("/images/PortalEdit.png")}
+    alt="Editing a portal"
+    style={{ width: 250 }}
 />
 
 ## Merging maps
 
-It is possible to merge two maps to make a map that includes all the factors and links from both. If the identical factor or link occurs in both maps, only one copy is included in the merged map.
+It is possible to merge two maps to make a map that includes all the factors and links from both. If the identical factor or link occurs in both maps, only one copy is included in the merged map.  This can be very useful if two or more groups start with clones of the same map and each group makes changes to their own map.  You may then want to integrate all the changes into one map.  This can be done by merging the clones.
 
-[Details coming soon...]
+To merge two maps, follow these steps (repeat them to merge additional maps):
+
+1. Open one of the maps.  The other map will be merged into this one.  It is a good idea to save a copy of this map to your computer before starting to merge.
+2. Open a copy of the other map in another browser tab. Click on the **Share** button and copy the map's web link to the clipboard (click on the 'Copy to Clipboard' button).
+3. Return to the first map and hover with the mouse pointer over the small downward facing triangle next to the **Open** button.  Select **Merge** from the menu.
+4. A dialog will appear. Paste in the web link of the other map and click on the **Merge** button.
+
+<img
+    src={normalizeImagePath("/images/MergeMapsDialog.png")}
+    alt="Map merging dialog"
+    style={{ width: 600 }}
+/>
+
+Let's call the map that is receiving the merge, map A, and the map that is being merged into it, map B.  The merge will:
+
+* Add any factors in map B that are not in map A into map A
+* Add any links in map B that are not in map A into map A
+* If a factor in map A is also in map B, but has had its label changed, a new factor with the new label is added to map A, outlined in red. Any links to the factor in map A are also duplicated, linked to the new factor and coloured red.
+* If a factor is deleted from map A but retained in map B, it will reappear in map A after the merge.
+
+All the changes made to map A are recorded in its [History](/manual/Styling#network-tab).
