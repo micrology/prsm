@@ -740,7 +740,11 @@ function startY(newRoom) {
 						// old settings (before v1.6) - ignore
 						break
 					case 'factorsHiddenByStyle': {
-						updateFactorsHiddenByStyle(obj)
+						updateFactorsOrLinksHiddenByStyle(obj)
+						break
+					}
+					case 'linksHiddenByStyle': {
+						updateFactorsOrLinksHiddenByStyle(obj)
 						break
 					}
 					case 'attributeTitles': {
@@ -3480,6 +3484,7 @@ function openTab(tabId) {
 	// Show the current tab, and add an "active" class to the button that opened the tab
 	elem(tabId).classList.remove('hide')
 	event.currentTarget.className += ' active'
+	clearStatusBar()
 	// if a Notes panel is in the way, move it
 	positionNotes()
 }
@@ -3554,10 +3559,10 @@ export function updateLastSamples(nodeId, linkId) {
 }
 
 /**
- * Hide or reveal all the Factors with the given style
+ * Hide or reveal all the Factors or Links with the given style
  * @param {Object} obj {sample: state}
  */
-function updateFactorsHiddenByStyle(obj) {
+function updateFactorsOrLinksHiddenByStyle(obj) {
 	for (const sampleElementId in obj) {
 		let sampleElement = elem(sampleElementId)
 		let state = obj[sampleElementId]
@@ -4257,6 +4262,7 @@ function analyse() {
 			setEdgeHidden(e, false)
 			return e
 		})
+	cancelHiddenStyles()
 	// if showing everything, we are done
 	if (getRadioVal('radius') === 'All' && getRadioVal('stream') === 'All' && getRadioVal('paths') === 'All') {
 		resetAll()
@@ -4571,6 +4577,21 @@ function analyse() {
 			}
 		}
 	}
+}
+/**
+ * Unset the indicators on the Settings Factor and Link tabs that show that Factors/Links with
+ * these styles are hidden
+ * Assumes that the factors and links have already been unhidden - this just  removes the UI indicators
+ */
+function cancelHiddenStyles() {
+	Array.from(document.getElementsByClassName('sampleNode')).filter((n) => n.dataset.hide === 'hidden').forEach((n) => {
+		n.dataset.hide = 'visible'
+		n.style.opacity = 1.0
+	})
+	Array.from(document.getElementsByClassName('sampleLink')).filter((e) => e.dataset.hide === 'hidden').forEach((e) => {
+		e.dataset.hide = 'visible'
+		e.style.opacity = 1.0
+	})
 }
 
 function sizingSwitch(e) {
