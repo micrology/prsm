@@ -181,6 +181,10 @@ export const styles = {
 			dashes: false,
 			font: {
 				size: 14,
+				align: 'top',
+				background: 'rgb(255,255,255)',
+				vadjust: -5,
+				strokeWidth: 0,
 			},
 			groupLabel: 'Sample',
 			hoverWidth: 1,
