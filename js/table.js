@@ -36,7 +36,7 @@ import {
 	setEdgeHidden,
 	displayHelp,
 } from './utils.js'
-import {TabulatorFull as Tabulator} from 'tabulator-tables'
+import {TabulatorFull as Tabulator} from 'tabulator-tables'  // documented at https://tabulator.info/
 import {version} from '../package.json'
 import Quill from 'quill'
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
@@ -617,6 +617,7 @@ function initialiseFactorTable() {
 					editableTitle: true,
 					field: field,
 					editor: 'input',
+					editable: isNotCluster,
 					width: getWidthOfTitle(attributeTitles[field]),
 					headerContextMenu: headerContextMenu,
 				})
@@ -677,6 +678,14 @@ function cancelLoading() {
 	clearTimeout(loadingDelayTimer)
 }
 
+/**
+ * prevent the editing of an Attribute column for rows corresponding to a cluster
+ * @param {CellComponent}} cell the cell that the user is trying to edit
+ * @returns {Boolean} true if the cell is editable
+ */
+function isNotCluster(cell) {
+	return !cell.getRow().getData().isCluster
+}
 /**
  * return HTML string for column group header, with embedded collapse/reveal icon
  * @param {String} field field name of column group
