@@ -428,7 +428,7 @@ function initialiseFactorTable() {
 						field: 'shape',
 						minWidth: 100,
 						editor: 'select',
-						editorParams: {values: {box: 'box', ellipse: 'ellipse', circle: 'circle', text: 'none'}},
+						editorParams: { values: { box: 'box', ellipse: 'ellipse', circle: 'circle', diamond: 'diamond', star: 'star', triangle: 'triangle', hexagon: 'hexagon', text: 'none'}},
 					},
 					{
 						title: `Hidden&nbsp;
@@ -936,6 +936,7 @@ function convertNode(node) {
 	}
 	n.size =
 		n.scaling.label.enabled && n.value != undefined && !isNaN(n.value) ? parseFloat(n.value).toPrecision(3) : '--'
+	if (n.shape == 'database') n.shape='cluster'
 	if (n.groupLabel == 'Sample') n.groupLabel = '--'
 	n.borderStyle = n.shapeProperties.borderDashes
 	if (n.borderWidth == 0) n.borderStyle = 'None'
@@ -1005,6 +1006,10 @@ function convertNodeBack(node, field, value) {
 	switch (field) {
 		case 'groupLabel':
 			node.grp = getNodeGroupFromGroupLabel(value)
+			break
+		case 'shape':
+			if (value == 'cluster') value = 'database'
+			node.shape = value
 			break
 		case 'hidden':
 			hideNodeAndEdges(node, value)

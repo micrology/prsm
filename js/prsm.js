@@ -2027,7 +2027,7 @@ function drawBadges(ctx) {
 		// for a view only map, factors are always locked, so don't bother with padlock
 		data.nodes
 			.get()
-			.filter((node) => !node.nodeHidden && node.fixed)
+			.filter((node) => !node.nodeHidden && node.fixed && !node.clusteredIn)
 			.forEach((node) => {
 				let box = network.getBoundingBox(node.id)
 				drawTheBadge(lockImage, ctx, box.left - 10, box.top)
@@ -2037,7 +2037,7 @@ function drawBadges(ctx) {
 		// note card for Factors and Links with Notes
 		data.nodes
 			.get()
-			.filter((node) => !node.nodeHidden && node.note && node.note !== 'Notes')
+			.filter((node) => !node.hidden && !node.nodeHidden && node.note && node.note !== 'Notes' && !node.clusteredIn)
 			.forEach((node) => {
 				let box = network.getBoundingBox(node.id)
 				drawTheBadge(noteImage, ctx, box.right, box.top)
@@ -2071,11 +2071,11 @@ function drawBadges(ctx) {
 		})
 		data.edges.update(changedEdges)
 	}
-	// draw the voting thumbs up/down
+	// draw the voting thumbs up/down (but not for nodes inside a cluster, or for cluster nodes)
 	if (showVotingToggle) {
 		data.nodes
 			.get()
-			.filter((node) => !node.hidden && !node.nodeHidden)
+			.filter((node) => !node.hidden && !node.nodeHidden && !node.clusteredIn && !node.isCluster)
 			.forEach((node) => {
 				let box = network.getBoundingBox(node.id)
 				drawTheBadge(

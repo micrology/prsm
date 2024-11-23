@@ -2,28 +2,28 @@
 
 PRSM Participatory System Mapper 
 
-    Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+	Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-This modules clusters factors  
+This module clusters factors  
  ******************************************************************************************************************** */
 
-import {elem, uuidv4, deepMerge, standardize_color, makeColor, lightOrDark} from './utils.js'
-import {styles} from './samples.js'
-import {network, data, doc, yNetMap, unSelect, debug} from './prsm.js'
+import { elem, uuidv4, deepMerge, standardize_color, makeColor, lightOrDark } from './utils.js'
+import { styles } from './samples.js'
+import { network, data, doc, yNetMap, unSelect, debug } from './prsm.js'
 
 export function cluster(attribute) {
 	if (!attribute) return
@@ -76,8 +76,8 @@ function clusterByAttribute(attribute) {
 				id: `cluster-${attribute}-${value}`,
 				isCluster: true,
 				label: `${yNetMap.get('attributeTitles')[attribute]} ${value}`,
-				color: {background: color},
-				font: {color: lightOrDark(color) == 'light' ? 'black' : 'white'},
+				color: { background: color },
+				font: { color: lightOrDark(color) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)' },
 				hidden: false,
 			})
 		} else clusterNode.hidden = false
@@ -126,8 +126,8 @@ function clusterByColor() {
 				id: `cluster-color-${color}`,
 				isCluster: true,
 				label: `Cluster ${++clusterNumber}`,
-				color: {background: color},
-				font: {color: lightOrDark(color) == 'light' ? 'black' : 'white'},
+				color: { background: color },
+				font: { color: lightOrDark(color) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)' },
 				hidden: false,
 			})
 		} else clusterNode.hidden = false
@@ -153,7 +153,7 @@ function clusterByStyle() {
 	// collect all different values of the style that are in use
 	let stylesInUse = new Set()
 	data.nodes.get().forEach((node) => {
-		if (!node.isCluster && node.groupLabel != 'Sample') stylesInUse.add(node.grp)
+		if (!node.isCluster) stylesInUse.add(node.grp)
 	})
 	unSelect()
 	let nodesToUpdate = []
@@ -175,11 +175,12 @@ function clusterByStyle() {
 				id: `cluster-style-${style}`,
 				isCluster: true,
 				label: `${styles.nodes[style].groupLabel} cluster`,
-				color: {background: styles.nodes[style].color.background},
-				font: {color: styles.nodes[style].font.color},
-				hidden: false,
 			})
-		} else clusterNode.hidden = false
+		}
+		clusterNode.hidden = false
+		clusterNode.label = `${styles.nodes[style].groupLabel} cluster`
+		clusterNode.color.background = styles.nodes[style].color.background
+		clusterNode.font.color = lightOrDark(styles.nodes[style].color.background) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)'
 		for (let node of nodesInCluster) {
 			// for each factor that should be in the cluster
 			node.clusteredIn = clusterNode.id
@@ -279,7 +280,7 @@ export function openCluster(clusterNodeId) {
 		unSelect()
 		let nodesToUpdate = []
 		let edgesToRemove = []
-		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id})
+		let nodesInCluster = data.nodes.get({ filter: (node) => node.clusteredIn === clusterNode.id })
 		for (let node of nodesInCluster) {
 			node.hidden = false
 			node.clusteredIn = null
@@ -297,7 +298,7 @@ export function openCluster(clusterNodeId) {
 		data.edges.remove(edgesToRemove)
 		showClusterLinks()
 	})
-	if (data.nodes.get({filter: (n) => n.isCluster && !n.hidden}).length === 0) {
+	if (data.nodes.get({ filter: (n) => n.isCluster && !n.hidden }).length === 0) {
 		// all clusters have been opened; reset the cluster select to None
 		elem('clustering').value = 'none'
 	}
@@ -306,8 +307,8 @@ export function openCluster(clusterNodeId) {
 function unCluster() {
 	let nodesToUpdate = []
 	let edgesToRemove = []
-	data.nodes.get({filter: (node) => node.isCluster}).forEach((clusterNode) => {
-		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id})
+	data.nodes.get({ filter: (node) => node.isCluster }).forEach((clusterNode) => {
+		let nodesInCluster = data.nodes.get({ filter: (node) => node.clusteredIn === clusterNode.id })
 		for (let node of nodesInCluster) {
 			node.hidden = false
 			node.clusteredIn = null
