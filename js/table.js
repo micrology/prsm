@@ -36,11 +36,14 @@ import {
 	setEdgeHidden,
 	displayHelp,
 } from './utils.js'
-import {TabulatorFull as Tabulator} from 'tabulator-tables'  // documented at https://tabulator.info/
+import {Tabulator, FormatModule, EditModule, ColumnCalcsModule, SortModule, ExportModule, ClipboardModule, AccessorModule} from 'tabulator-tables';
+//import {TabulatorFull as Tabulator} from 'tabulator-tables'  // documented at https://tabulator.info/
 import {version} from '../package.json'
 import Quill from 'quill'
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
 import {DateTime} from 'luxon'
+
+Tabulator.registerModule([FormatModule, EditModule, ColumnCalcsModule, SortModule, ExportModule, ClipboardModule, AccessorModule]);
 
 const shortAppName = 'PRSM'
 
@@ -64,8 +67,6 @@ var attributeTitles = {} // titles of each of the attributes
 var myNameRec // my name etc.
 var qed // Quill editor
 var loadingDelayTimer // timer to delay the start of the loading animation for few moments
-
-window.DateTime = DateTime
 
 window.addEventListener('load', () => {
 	loadingDelayTimer = setTimeout(() => {
@@ -357,6 +358,9 @@ function initialiseFactorTable() {
 		})
 	factorsTable = new Tabulator('#factors-table', {
 		data: tabledata, //assign data to table
+		dependencies:{
+			DateTime:DateTime,
+		}, 
 		layout: 'fitData',
 		layoutColumnsOnNewData: true,
 		height: window.innerHeight - 180,
@@ -420,14 +424,14 @@ function initialiseFactorTable() {
 						title: 'Style',
 						field: 'groupLabel',
 						minWidth: 100,
-						editor: 'select',
+						editor: 'list',
 						editorParams: {values: styleNodeNames},
 					},
 					{
 						title: 'Shape',
 						field: 'shape',
 						minWidth: 100,
-						editor: 'select',
+						editor: 'list',
 						editorParams: { values: { box: 'box', ellipse: 'ellipse', circle: 'circle', diamond: 'diamond', star: 'star', triangle: 'triangle', hexagon: 'hexagon', text: 'none'}},
 					},
 					{
@@ -497,7 +501,7 @@ function initialiseFactorTable() {
 						title: 'Border Style',
 						field: 'borderStyle',
 						headerVertical: true,
-						editor: 'select',
+						editor: 'list',
 						editorParams: {values: ['Solid', 'Dashed', 'Dotted', 'None']},
 					},
 					{
@@ -1093,6 +1097,9 @@ function initialiseLinkTable() {
 
 	linksTable = new Tabulator('#links-table', {
 		data: tabledata, //assign data to table
+		dependencies:{
+			DateTime:DateTime,
+		}, 
 		clipboard: true,
 		clipboardCopyConfig: {
 			columnHeaders: true, //do not include column headers in clipboard output
@@ -1154,7 +1161,7 @@ function initialiseLinkTable() {
 						title: 'Style',
 						field: 'groupLabel',
 						minWidth: 100,
-						editor: 'select',
+						editor: 'list',
 						editorParams: {values: styleEdgeNames},
 					},
 					{
@@ -1175,7 +1182,7 @@ function initialiseLinkTable() {
 						title: 'Arrow',
 						field: 'arrowShape',
 						headerVertical: true,
-						editor: 'select',
+						editor: 'list',
 						editorParams: {
 							values: ['vee', 'arrow', 'bar', 'circle', 'box', 'diamond', 'none'],
 						},
@@ -1202,7 +1209,7 @@ function initialiseLinkTable() {
 					{
 						title: 'Line Style',
 						field: 'lineStyle',
-						editor: 'select',
+						editor: 'list',
 						editorParams: {
 							values: ['Solid', 'Dashed', 'Dotted'],
 						},
@@ -1212,7 +1219,7 @@ function initialiseLinkTable() {
 						title: 'Font size',
 						field: 'fontSize',
 						width: 15,
-						editor: 'select',
+						editor: 'list',
 						editorParams: {
 							values: [10, 14, 18],
 						},
@@ -1460,6 +1467,7 @@ function colorEditor(cell, onRendered, success) {
 	let editor = document.createElement('input')
 	editor.setAttribute('type', 'color')
 	editor.style.width = '100%'
+	editor.style.height = '100%'
 	editor.style.padding = '0px'
 	editor.style.boxSizing = 'border-box'
 
