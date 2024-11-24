@@ -170,9 +170,9 @@ function startY() {
 				}
 			})
 			updateFromAndToLabels(updates)
-			if (adds) factorsTable.addData(adds)
-			if (updates) factorsTable.updateData(updates)
-			if (deletes) factorsTable.deleteRow(deletes)
+			if (adds.length > 0) factorsTable.addData(adds)
+			if (updates.length> 0) factorsTable.updateData(updates)
+			if (deletes.length > 0) factorsTable.deleteRow(deletes)
 		}
 		yjsTrace('yNodesMap.observe finished', event.transaction.local, event)
 	})
@@ -195,9 +195,9 @@ function startY() {
 						break
 				}
 			})
-			if (adds) linksTable.addData(adds)
-			if (updates) linksTable.updateData(updates)
-			if (deletes) linksTable.deleteRow(deletes)
+			if (adds.length > 0) linksTable.addData(adds)
+			if (updates.length > 0) linksTable.updateData(updates)
+			if (deletes.length > 0) linksTable.deleteRow(deletes)
 		}
 		yjsTrace('yEdgesMap.observe finished', event.transaction.local, event)
 	})
@@ -1182,6 +1182,8 @@ function initialiseLinkTable() {
 						title: 'Arrow',
 						field: 'arrowShape',
 						headerVertical: true,
+						hozAlign: 'center',
+						minWidth: 100,
 						editor: 'list',
 						editorParams: {
 							values: ['vee', 'arrow', 'bar', 'circle', 'box', 'diamond', 'none'],
@@ -1209,6 +1211,8 @@ function initialiseLinkTable() {
 					{
 						title: 'Line Style',
 						field: 'lineStyle',
+						minWidth: 100,
+						hozAlign: 'center',
 						editor: 'list',
 						editorParams: {
 							values: ['Solid', 'Dashed', 'Dotted'],
@@ -1221,7 +1225,7 @@ function initialiseLinkTable() {
 						width: 15,
 						editor: 'list',
 						editorParams: {
-							values: [10, 14, 18],
+							values: [10, 14, 24],
 						},
 						headerVertical: true,
 					},
@@ -1394,10 +1398,10 @@ function convertEdgeBack(edge, field, value) {
 			edge.grp = getEdgeGroupFromGroupLabel(value)
 			break
 		case 'arrowShape':
-			edge.arrows.to.type = edge.arrowShape
+			edge.arrows.to.type = value
 			break
 		case 'fontSize':
-			edge.font.size = edge.fontSize
+			edge.font.size = value
 			break
 		case 'lineStyle':
 			switch (value) {
@@ -1416,7 +1420,7 @@ function convertEdgeBack(edge, field, value) {
 			}
 			break
 		case 'arrowColor':
-			edge.color.color = edge.arrowColor
+			edge.color.color = value
 			break
 		default:
 			edge[field] = value
