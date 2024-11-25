@@ -53,13 +53,14 @@ function clusterByAttribute(attribute) {
 	// collect all different values of the attribute that are in use
 	let attValues = new Set()
 	data.nodes.get().forEach((node) => {
-		if (!node.isCluster) attValues.add(node[attribute])
+		if (!node.isCluster && node[attribute]) attValues.add(node[attribute])
 	})
 	unSelect()
 	let nodesToUpdate = []
 	// for each cluster
 	for (let value of attValues) {
 		// collect relevant nodes that are not already in a cluster and are not cluster nodes
+		// and the attribute value is not blank
 		let nodesInCluster = data.nodes.get({
 			filter: (node) => node[attribute] === value && !node.clusteredIn && !node.isCluster,
 		})
@@ -68,19 +69,18 @@ function clusterByAttribute(attribute) {
 		let sumx = 0
 		let sumy = 0
 		let nInCluster = 0
-		if (!value) value = '[none]'
 		let clusterNode = data.nodes.get(`cluster-${attribute}-${value}`)
 		if (clusterNode === null) {
 			let color = makeColor()
 			clusterNode = deepMerge(styles.nodes['cluster'], {
 				id: `cluster-${attribute}-${value}`,
 				isCluster: true,
-				label: `${yNetMap.get('attributeTitles')[attribute]} ${value}`,
 				color: { background: color },
-				font: { color: lightOrDark(color) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)' },
-				hidden: false,
+				font: { color: lightOrDark(color) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)' }		
 			})
-		} else clusterNode.hidden = false
+		}
+		clusterNode.label = `${yNetMap.get('attributeTitles')[attribute]} ${value}`
+		clusterNode.hidden = false
 		for (let node of nodesInCluster) {
 			// for each factor that should be in the cluster
 			node.clusteredIn = clusterNode.id
@@ -124,13 +124,13 @@ function clusterByColor() {
 		if (clusterNode === null) {
 			clusterNode = deepMerge(styles.nodes['cluster'], {
 				id: `cluster-color-${color}`,
-				isCluster: true,
-				label: `Cluster ${++clusterNumber}`,
-				color: { background: color },
-				font: { color: lightOrDark(color) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)' },
-				hidden: false,
+				isCluster: true
 			})
-		} else clusterNode.hidden = false
+		}
+		clusterNode.hidden = false
+		clusterNode.label = `Cluster ${++clusterNumber}`
+		clusterNode.color = { background: color }
+		clusterNode.font = { color: lightOrDark(color) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)' }
 		for (let node of nodesInCluster) {
 			// for each factor that should be in the cluster
 			node.clusteredIn = clusterNode.id
@@ -173,8 +173,7 @@ function clusterByStyle() {
 		if (clusterNode === null) {
 			clusterNode = deepMerge(styles.nodes['cluster'], {
 				id: `cluster-style-${style}`,
-				isCluster: true,
-				label: `${styles.nodes[style].groupLabel} cluster`,
+				isCluster: true
 			})
 		}
 		clusterNode.hidden = false

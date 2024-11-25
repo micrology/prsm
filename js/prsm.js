@@ -4704,7 +4704,7 @@ function selectClustering(e) {
 	fit()
 	yNetMap.set('cluster', option)
 }
-function setCluster(option) {
+export function setCluster(option) {
 	elem('clustering').value = option
 }
 /**

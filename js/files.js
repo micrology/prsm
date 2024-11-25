@@ -51,6 +51,7 @@ import {
 	setCurve,
 	setBackground,
 	setLegend,
+	setCluster,
 	sizing,
 	recreateClusteringMenu,
 	markMapSaved,
@@ -767,6 +768,24 @@ function loadExcelfile(contents) {
  */
 export function savePRSMfile() {
 	network.storePositions()
+	let attributes = yNetMap.get('attributeTitles')
+	let nodeFields = [
+		'id',
+		'label',
+		'grp',
+		'x',
+		'y',
+		'color',
+		'font',
+		'borderWidth',
+		'shape',
+		'shapeProperties',
+		'margin',
+		'thumbUp',
+		'thumbDown',
+		'created',
+		'modified',
+	]
 	let json = JSON.stringify(
 		{
 			saved: new Date(Date.now()).toLocaleString(),
@@ -781,25 +800,7 @@ export function savePRSMfile() {
 			attributeTitles: yNetMap.get('attributeTitles'),
 			styles: styles,
 			nodes: data.nodes.get({
-				fields: [
-					'id',
-					'label',
-					'note',
-					'grp',
-					'x',
-					'y',
-					'arrows',
-					'color',
-					'font',
-					'borderWidth',
-					'shape',
-					'shapeProperties',
-					'margin',
-					'thumbUp',
-					'thumbDown',
-					'created',
-					'modified',
-				],
+				fields: [ ... nodeFields, ... Object.keys(attributes)],
 				filter: (n) => !n.isCluster,
 			}),
 			edges: data.edges.get({
@@ -852,7 +853,8 @@ function setButtonStatus(settings) {
 	yNetMap.set('radius', { radiusSetting: 'All', selected: [] })
 	yNetMap.set('stream', { streamSetting: 'All', selected: [] })
 	yNetMap.set('paths', { pathsSetting: 'All', selected: [] })
-	yNetMap.set('cluster', 'All')
+	yNetMap.set('cluster', 'none')
+	setCluster('none')
 }
 
 /**
