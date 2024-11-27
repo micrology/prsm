@@ -768,7 +768,7 @@ function loadExcelfile(contents) {
  */
 export function savePRSMfile() {
 	network.storePositions()
-	let attributes = yNetMap.get('attributeTitles')
+	let attributes = yNetMap.get('attributeTitles')  || []
 	let nodeFields = [
 		'id',
 		'label',
