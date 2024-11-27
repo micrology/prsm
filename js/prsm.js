@@ -2808,8 +2808,8 @@ function createTitleDropDown() {
 	let recentMaps = JSON.parse(localStorage.getItem('recents'))
 	// list is with New Map and then the most recent at the top
 	if (recentMaps) {
-		makeTitleDropDownEntry('<b>New map</b>', '*new*', false)
-		let props = Object.keys(recentMaps).reverse()
+		makeTitleDropDownEntry('*New map*', '*new*', false)
+		let props = Object.keys(recentMaps).reverse().slice(0, 500)
 		props.forEach((prop) => {
 			makeTitleDropDownEntry(recentMaps[prop], prop)
 		})
