@@ -2783,14 +2783,20 @@ export function setMapTitle(title) {
 }
 /**
  * Add this title to the local record of maps used
+ * The list is stored as an object so that it is easy to add [room, title] pairs
+ * and easy to modify the title of an existing room
  * @param {String} title
  */
+
+const TITLELISTLEN = 500
 function titleDropDown(title) {
 	let recentMaps = localStorage.getItem('recents')
 	if (recentMaps) recentMaps = JSON.parse(recentMaps)
 	else recentMaps = {}
 	if (title !== 'Untitled map') {
 		recentMaps[room] = title
+		// save only the most recent entries
+		recentMaps = Object.fromEntries(Object.entries(recentMaps).slice(-TITLELISTLEN))
 		localStorage.setItem('recents', JSON.stringify(recentMaps))
 	}
 	// if there is more than 1, append a down arrow after the map title as a cue to there being a list
@@ -2809,7 +2815,7 @@ function createTitleDropDown() {
 	// list is with New Map and then the most recent at the top
 	if (recentMaps) {
 		makeTitleDropDownEntry('*New map*', '*new*', false)
-		let props = Object.keys(recentMaps).reverse().slice(0, 500)
+		let props = Object.keys(recentMaps).reverse()
 		props.forEach((prop) => {
 			makeTitleDropDownEntry(recentMaps[prop], prop)
 		})
