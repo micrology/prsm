@@ -4,6 +4,8 @@
  */
 
 document.write(`
+<li><b>Version 2.4, December 2024</b></li> 
+<li>   
 <li>This "What's New" panel will pop up whenever a new version of PRSM is released.  You'll only see it once.  Click the Continue... button above to dismiss it.
 <li><b>Version 2.3, May 2024</b></li>
 <li>The chat feature (the dialog icon in the bottom right corner) has been removed - it was very rarely used.</li>
