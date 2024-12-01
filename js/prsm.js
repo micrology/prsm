@@ -226,6 +226,9 @@ function addEventListeners() {
 		if (e.which === 8 || e.which === 46) deleteNode()
 	})
 	listen('recent-rooms-caret', 'click', createTitleDropDown)
+	listen('maptitle', 'keydown', (e) => {
+		if (e.target.innerText === 'Untitled map') window.getSelection().selectAllChildren(e.target)
+	})
 	listen('maptitle', 'keyup', mapTitle)
 	listen('maptitle', 'paste', pasteMapTitle)
 	listen('maptitle', 'click', (e) => {
@@ -2740,7 +2743,7 @@ function changeCursor(newCursorStyle) {
  * @param {event} e
  */
 function mapTitle(e) {
-	let title = e.target.innerText
+	let title = e.target.innerText.trim()
 	title = setMapTitle(title)
 	yNetMap.set('mapTitle', title)
 }
@@ -2775,7 +2778,7 @@ export function setMapTitle(title) {
 		div.classList.remove('unsetmaptitle')
 		document.title = `${title}: ${shortAppName} map`
 	}
-	if (title !== div.innerText) div.innerText = title
+	if (title !== div.innerText.trim()) div.innerText = title
 	if (title.length >= 50) setEndOfContenteditable(div)
 	setFileName()
 	titleDropDown(title)
