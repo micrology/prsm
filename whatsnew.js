@@ -10,7 +10,7 @@ document.write(`
 <li>When opening a map from a file, you can now choose whether the map should replace the existing map, or be merged with it. See <a href="doc/help/doc_build/manual/Cloning.html#merging-maps" target="_blank">Merging Maps</a>.</li>
 <li>The colour picker, used to choose the colour of factors, links, background shapes and the map background, has been enhanced to control the transparency of the colour.  One use of this is that if you make the map background transparent and then obtain a high definition image of the map, that image will also have a transparent background, which can be helpful when incorporating the image into a web page.</li>
 <li>When creating a 'read-only' copy of a map, you can choose whether to include a 'Copy map' button in the top bar.  If you do, viewers cannot change the read only map, but they can create a fully editable copy of the map in a new room, displayed in a new browser tab.</li>
-<li>The User Manual has ben reformated and extended and you can now search it.</li>
+<li>The User Manual has ben reformatted and extended and you can now search it.</li>
 <li>And bug fixes and security updates.<hr></li>
 <li><b>Version 2.3, May 2024</b></li>
 <li>The chat feature (the dialog icon in the bottom right corner) has been removed - it was very rarely used.</li>

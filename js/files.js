@@ -232,10 +232,10 @@ function loadPRSMfile(str) {
 	updateLastSamples(json.lastNodeSample, json.lastLinkSample)
 	if (json.buttons) setButtonStatus(json.buttons)
 	if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle))
-	if (json.recentMaps) {
+	/* if (json.recentMaps) {
 		let recents = JSON.parse(localStorage.getItem('recents')) || {}
 		localStorage.setItem('recents', JSON.stringify(Object.assign(json.recentMaps, recents)))
-	}
+	} */
 	if (json.attributeTitles) yNetMap.set('attributeTitles', json.attributeTitles)
 	else yNetMap.set('attributeTitles', {})
 	if (json.edges.length > 0 && 'source' in json.edges[0]) {
@@ -792,7 +792,8 @@ export function savePRSMfile() {
 			version: version,
 			room: room,
 			mapTitle: elem('maptitle').innerText,
-			recentMaps: JSON.parse(localStorage.getItem('recents')),
+// 			security risk to save recent maps to a file
+//			recentMaps: JSON.parse(localStorage.getItem('recents')),
 			lastNodeSample: lastNodeSample,
 			lastLinkSample: lastLinkSample,
 			// clustering, and up/down, paths between and x links away settings are not saved (and hidden property is not saved)
