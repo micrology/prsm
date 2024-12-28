@@ -47,7 +47,7 @@
 	"dependencies": {
 		"@egjs/hammerjs": "^2.0.17",
 		"@jaames/iro": "^5.5.2",
-		"3d-force-graph": "^1.73.3",
+		"3d-force-graph": "^1.74.2",
 		"bootstrap": "^5.3.3",
 		"fabric": "^5.3.0",
 		"fast-xml-parser": "^4.2.4",
