@@ -203,6 +203,12 @@ listen('linksTab', 'contextmenu', (e) => {
 	e.preventDefault()
 })
 
+/**
+ * Context menu for node styles
+ * @param {Event} event
+ * @param {HTMLElement} sampleElement
+ * @param {string} groupId
+ */
 function styleNodeContextMenu(event, sampleElement, groupId) {
 	let menu = elem('styleNodeContextMenu')
 	showMenu(event.pageX, event.pageY)
@@ -273,6 +279,12 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 	}
 }
 
+/**
+ * Context menu for edge styles
+ * @param {Event} event
+ * @param {HTMLElement} sampleElement
+ * @param {string} groupId
+ */
 function styleEdgeContextMenu(event, sampleElement, groupId) {
 	let menu = elem('styleEdgeContextMenu')
 	showMenu(event.pageX, event.pageY)
@@ -438,6 +450,9 @@ function updateNodeEditor(groupId) {
 }
 listen('nodeStyleEditLock', 'click', toggleNodeStyleLock)
 
+/**
+ * Toggle the lock state of the node style
+ */
 function toggleNodeStyleLock() {
 	let group = styles.nodes[elem('nodeStyleEditorContainer').groupId]
 	if (group.fixed) {
