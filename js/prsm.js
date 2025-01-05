@@ -83,7 +83,7 @@ import {cluster, openCluster} from './cluster.js'
 import {mergeRoom, diffRoom} from './merge.js'
 import Quill from 'quill'
 import Hammer from '@egjs/hammerjs'
-import {setUpSamples, reApplySampleToNodes, reApplySampleToLinks, legend, clearLegend} from './styles.js'
+import {setUpSamples, reApplySampleToNodes, refreshSampleNode, reApplySampleToLinks, refreshSampleLink, legend, clearLegend} from './styles.js'
 import {
 	nChanges,
 	setUpBackground,
@@ -338,10 +338,12 @@ function setUpPage() {
 	container = elem('container')
 	netPane = elem('net-pane')
 	panel = elem('panel')
-	// check options set on URL: ?debug=yjs|gui|cluster&viewing&start&copyButton
+	// check debug options set on URL: ?debug=yjs|gui|cluster|viewing|start|copyButton
+	// each of these generates trace output on the console
 	let searchParams = new URL(document.location).searchParams
 	if (searchParams.has('debug')) debug = searchParams.get('debug')
 	// don't allow user to change anything if URL includes ?viewing
+	// this is now obsolete, but retained for backwards compatibility
 	viewOnly = searchParams.has('viewing')
 	if (viewOnly) hideNavButtons()
 	if (searchParams.has('copyButton')) showCopyMapButton = true
@@ -642,21 +644,21 @@ function startY(newRoom) {
 			if (sample.node !== undefined) {
 				if (!object_equals(styles.nodes[key], sample.node)) {
 					styles.nodes[key] = sample.node
+					refreshSampleNode(key)
 					nodesToUpdate.push(key)
 				}
 			} else {
 				if (!object_equals(styles.edges[key], sample.edge)) {
 					styles.edges[key] = sample.edge
+					refreshSampleLink(key)
 					edgesToUpdate.push(key)
 				}
 			}
 		}
 		if (nodesToUpdate) {
-			refreshSampleNodes()
 			reApplySampleToNodes(nodesToUpdate)
 		}
 		if (edgesToUpdate) {
-			refreshSampleLinks()
 			reApplySampleToLinks(edgesToUpdate)
 		}
 	})
@@ -3580,41 +3582,6 @@ function updateFactorsOrLinksHiddenByStyle(obj) {
 	}
 }
 
-/**
- * ensure that the styles displayed in the node styles panel display the styles defined in the styles array
- */
-export function refreshSampleNodes() {
-	let sampleElements = Array.from(document.getElementsByClassName('sampleNode'))
-	for (let i = 0; i < sampleElements.length; i++) {
-		let sampleElement = sampleElements[i]
-		let node = sampleElement.dataSet.get()[0]
-		node = deepMerge(node, styles.nodes[`group${i}`], {
-			chosen: false,
-			size: 25,
-			widthConstraint: 25,
-			heightConstraint: 25,
-		})
-		node.label = node.groupLabel
-		sampleElement.dataSet.remove(node.id)
-		sampleElement.dataSet.update(node)
-		sampleElement.net.fit()
-	}
-}
-/**
- * ensure that the styles displayed in the link styles panel display the styles defined in the styles array
- */
-export function refreshSampleLinks() {
-	let sampleElements = Array.from(document.getElementsByClassName('sampleLink'))
-	for (let i = 0; i < sampleElements.length; i++) {
-		let sampleElement = sampleElements[i]
-		let edge = sampleElement.dataSet.get()[0]
-		edge = deepMerge(edge, styles.edges[`edge${i}`])
-		edge.label = edge.groupLabel
-		sampleElement.dataSet.remove(edge.id)
-		sampleElement.dataSet.update(edge)
-		sampleElement.net.fit()
-	}
-}
 /********************************************************Notes********************************************** */
 /**
  * Globally either display or don't display notes when a factor or link is selected

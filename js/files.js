@@ -42,8 +42,6 @@ import {
 	toggleDeleteButton,
 	undoRedoButtonStatus,
 	updateLastSamples,
-	refreshSampleNodes,
-	refreshSampleLinks,
 	setMapTitle,
 	setSideDrawer,
 	disableSideDrawerEditing,
@@ -74,7 +72,7 @@ import {
 } from './utils.js'
 import { styles } from './samples.js'
 import { canvas, refreshFromMap, setUpBackground, upgradeFromV1 } from './background.js'
-import { updateLegend } from './styles.js'
+import { refreshSampleNode, refreshSampleLink, updateLegend } from './styles.js'
 import Quill from 'quill'
 import { saveAs } from 'file-saver'
 import * as quillToWord from 'quill-to-word'
@@ -277,17 +275,17 @@ function loadPRSMfile(str) {
 		for (let e in styles.edges) {
 			delete styles.edges[e].chosen
 		}
-		refreshSampleNodes()
-		refreshSampleLinks()
 		for (let groupId in styles.nodes) {
 			ySamplesMap.set(groupId, {
 				node: styles.nodes[groupId],
 			})
+			if (groupId.match(/\d+/)?.[0]) refreshSampleNode(groupId)
 		}
 		for (let edgeId in styles.edges) {
 			ySamplesMap.set(edgeId, {
 				edge: styles.edges[edgeId],
 			})
+			if (edgeId.match(/\d+/)?.[0]) refreshSampleLink(edgeId)
 		}
 	}
 	yDrawingMap.clear()

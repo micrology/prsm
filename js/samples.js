@@ -2,20 +2,20 @@
 
 PRSM Participatory System Mapper 
 
-    Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+	Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
 This module provides the standard set of Styles for Factors and Links.  
@@ -24,7 +24,7 @@ export const styles = {
 	nodes: {
 		base: {
 			groupLabel: 'Sample',
-			borderWidth: 4,
+			borderWidth: 0,
 			borderWidthSelected: 4,
 			color: {
 				border: 'rgb(0, 0, 0)',
@@ -64,7 +64,6 @@ export const styles = {
 			widthConstraint: false,
 		},
 		group0: {
-			borderWidth: 0,
 			color: {
 				border: 'rgb(154, 219, 180)',
 				background: 'rgb(154, 219, 180)',
@@ -72,7 +71,6 @@ export const styles = {
 			shape: 'box',
 		},
 		group1: {
-			borderWidth: 0,
 			color: {
 				border: 'rgb(202, 219, 92)',
 				background: 'rgb(202, 219, 92)',
@@ -80,7 +78,6 @@ export const styles = {
 			shape: 'box',
 		},
 		group2: {
-			borderWidth: 0,
 			color: {
 				border: 'rgb(219, 165, 66)',
 				background: 'rgb(219, 165, 66)',
@@ -88,7 +85,6 @@ export const styles = {
 			shape: 'box',
 		},
 		group3: {
-			borderWidth: 0,
 			color: {
 				border: 'rgb(219, 110, 103)',
 				background: 'rgb(219, 110, 103)',
@@ -99,7 +95,6 @@ export const styles = {
 			shape: 'box',
 		},
 		group4: {
-			borderWidth: 0,
 			color: {
 				border: 'rgb(131, 113, 183)',
 				background: 'rgb(131, 113, 183)',
@@ -110,20 +105,21 @@ export const styles = {
 			shape: 'box',
 		},
 		group5: {
-			borderWidth: 1,
-			color: {
-				border: 'rgb(0, 0, 255)',
-				background: 'rgb(179, 204, 255)',
-			},
-			shape: 'ellipse',
-		},
-		group6: {
 			font: {
 				color: 'rgb(28, 95, 27)',
 			},
 			shape: 'text',
 		},
+		group6: {
+			borderWidth: 4,
+			color: {
+				border: 'rgb(0, 0, 255)',
+				background: 'rgb(179, 204, 255)',
+			},
+			shape: 'diamond',
+		},
 		group7: {
+			borderWidth: 4,
 			color: {
 				border: 'rgb(0, 0, 0)',
 				background: 'rgb(255, 255, 153)',
@@ -134,15 +130,74 @@ export const styles = {
 			},
 		},
 		group8: {
-			borderWidth: 0,
 			color: {
-				border: 'rgb(122, 122, 122)',
-				background: 'rgb(122, 122, 122)',
+				border: 'rgb(2, 71, 254)',
+				background: 'rgb(2, 71, 254)',
 			},
 			font: {
-				color: 'rgb(122, 122, 122)',
+				color: 'rgb(255, 0, 0)',
 			},
 			shape: 'star',
+		},
+		group9: {
+			color: {
+				border: 'rgb(255, 0, 0)',
+				background: 'rgb(255, 0, 0)',
+			},
+			font: {
+				color: 'rgb(255, 255, 255)',
+			},
+			shape: 'box',
+		},
+		group10: {
+			color: {
+				border: 'rgb(0, 0, 255)',
+				background: 'rgb(0, 0, 255)',
+			},
+			font: {
+				color: 'rgb(255, 255, 255)',
+			},
+			shape: 'box',
+		},
+		group11: {
+			color: {
+				border: 'rgb(0, 255, 0)',
+				background: 'rgb(0, 255, 0)',
+			},
+			font: {
+				color: 'rgb(0, 0, 0)',
+			},
+			shape: 'box',
+		},
+		group12: {
+			color: {
+				border: 'rgb(254, 254, 51)',
+				background: 'rgb(254, 254, 51)',
+			},
+			font: {
+				color: 'rgb(0, 0, 0)',
+			},
+			shape: 'box',
+		},
+		group13: {
+			color: {
+				border: 'rgb(255, 0, 255)',
+				background: 'rgb(255, 0, 255)',
+			},
+			font: {
+				color: 'rgb(255, 255, 255)',
+			},
+			shape: 'box',
+		},
+		group14: {
+			color: {
+				border: 'rgb(0, 255, 255)',
+				background: 'rgb(0, 255, 255)',
+			},
+			font: {
+				color: 'rgb(0, 0, 0)',
+			},
+			shape: 'box',
 		},
 		cluster: {
 			borderWidth: 3,
