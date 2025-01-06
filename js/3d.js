@@ -254,7 +254,7 @@ function display() {
 			graph.cameraPosition(
 				{x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio}, // new position
 				node, // lookAt ({ x, y, z })
-				3000 // ms transition duration
+				3000, // ms transition duration
 			)
 		})
 	axes()
@@ -335,8 +335,8 @@ function display() {
 						new THREE.Vector3(0, 0, -1000),
 						new THREE.Vector3(0, 0, 1000),
 					]),
-					new THREE.LineBasicMaterial({color: 'blue'})
-				)
+					new THREE.LineBasicMaterial({color: 'blue'}),
+				),
 			)
 			.add(
 				new THREE.Line(
@@ -344,8 +344,8 @@ function display() {
 						new THREE.Vector3(-1000, 0, 0),
 						new THREE.Vector3(1000, 0, 0),
 					]),
-					new THREE.LineBasicMaterial({color: 'red'})
-				)
+					new THREE.LineBasicMaterial({color: 'red'}),
+				),
 			)
 			.add(
 				new THREE.Line(
@@ -353,8 +353,8 @@ function display() {
 						new THREE.Vector3(0, -1000, 0),
 						new THREE.Vector3(0, 1000, 0),
 					]),
-					new THREE.LineBasicMaterial({color: 'green'})
-				)
+					new THREE.LineBasicMaterial({color: 'green'}),
+				),
 			)
 	}
 }
@@ -405,7 +405,7 @@ function legend() {
 		let node = deepMerge(
 			Array.from(ySamplesMap)
 				.filter((a) => a[1].node)
-				.find((a) => a[1].node.groupLabel == nodes[i])[1].node
+				.find((a) => a[1].node.groupLabel == nodes[i])[1].node,
 		)
 		node.id = i + 10000
 		node.label = node.groupLabel
@@ -428,7 +428,7 @@ function legend() {
 		let edge = deepMerge(
 			Array.from(ySamplesMap)
 				.filter((a) => a[1].edge)
-				.find((a) => a[1].edge.groupLabel == edges[i])[1].edge
+				.find((a) => a[1].edge.groupLabel == edges[i])[1].edge,
 		)
 		edge.label = edge.groupLabel
 		edge.id = i + 10000

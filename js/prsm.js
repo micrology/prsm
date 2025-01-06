@@ -83,7 +83,15 @@ import {cluster, openCluster} from './cluster.js'
 import {mergeRoom, diffRoom} from './merge.js'
 import Quill from 'quill'
 import Hammer from '@egjs/hammerjs'
-import {setUpSamples, reApplySampleToNodes, refreshSampleNode, reApplySampleToLinks, refreshSampleLink, legend, clearLegend} from './styles.js'
+import {
+	setUpSamples,
+	reApplySampleToNodes,
+	refreshSampleNode,
+	reApplySampleToLinks,
+	refreshSampleLink,
+	legend,
+	clearLegend,
+} from './styles.js'
 import {
 	nChanges,
 	setUpBackground,
@@ -311,12 +319,12 @@ function addEventListeners() {
 	Array.from(document.getElementsByClassName('sampleNode')).forEach((elem) =>
 		elem.addEventListener('click', (event) => {
 			applySampleToNode(event)
-		})
+		}),
 	)
 	Array.from(document.getElementsByClassName('sampleLink')).forEach((elem) =>
 		elem.addEventListener('click', (event) => {
 			applySampleToLink(event)
-		})
+		}),
 	)
 	listen('nodeStyleEditFactorSize', 'input', (event) => progressBar(event.target))
 
@@ -609,7 +617,7 @@ function startY(newRoom) {
 				console.log(
 					`Property "${key}" was added. 
 				Initial value: `,
-					ymap.get(key)
+					ymap.get(key),
 				)
 			} else if (change.action === 'update') {
 				console.log(
@@ -624,13 +632,13 @@ function startY(newRoom) {
 					typeof change.oldValue === 'object' && typeof ymap.get(key) === 'object'
 						? diff(change.oldValue, ymap.get(key))
 						: `${change.oldValue} ${ymap.get(key)}`,
-					`"`
+					`"`,
 				)
 			} else if (change.action === 'delete') {
 				console.log(
 					`Property "${key}" was deleted. 
 				Previous value: `,
-					change.oldValue
+					change.oldValue,
 				)
 			}
 		})
@@ -1158,7 +1166,7 @@ function draw() {
 					logHistory(
 						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
 							data.nodes.get(data.edges.get(edgeId).to).label
-						}'`
+						}'`,
 					)
 				})
 				network.unselectAll()
@@ -1172,7 +1180,7 @@ function draw() {
 					logHistory(
 						`deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
 							data.nodes.get(data.edges.get(edgeId).to).label
-						}'`
+						}'`,
 					)
 				})
 				callback(item)
@@ -1343,7 +1351,7 @@ function draw() {
 				// reselect the previously selected nodes
 				network.selectNodes(
 					params.previousSelection.nodes.map((node) => node.id),
-					false
+					false,
 				)
 				return
 			}
@@ -1389,7 +1397,7 @@ function draw() {
 				// reselect the previously selected edges
 				network.selectEdges(
 					params.previousSelection.edges.map((edge) => edge.id),
-					false
+					false,
 				)
 				return
 			}
@@ -1504,7 +1512,7 @@ function draw() {
 				n.y = newPositions[n.id].y
 				if (snapToGridToggle) snapToGrid(n)
 				return n
-			})
+			}),
 		)
 		changeCursor('default')
 	})
@@ -1637,7 +1645,7 @@ function draw() {
 			0,
 			0,
 			magSize,
-			magSize
+			magSize,
 		)
 		magnifier.style.top = `${e.clientY - netPaneRect.y - halfMagSize}px`
 		magnifier.style.left = `${e.clientX - netPaneRect.x - halfMagSize}px`
@@ -1759,10 +1767,10 @@ export function drawMinimap(ratio = 5) {
 		const initialDOMPosition = network.canvasToDOM(initialPosition)
 
 		minimapRadar.style.left = `${Math.round(
-			((currentDOMPosition.x - initialDOMPosition.x) * scale) / ratio + (minimapWidth * (1 - scale)) / 2
+			((currentDOMPosition.x - initialDOMPosition.x) * scale) / ratio + (minimapWidth * (1 - scale)) / 2,
 		)}px`
 		minimapRadar.style.top = `${Math.round(
-			((currentDOMPosition.y - initialDOMPosition.y) * scale) / ratio + (minimapHeight * (1 - scale)) / 2
+			((currentDOMPosition.y - initialDOMPosition.y) * scale) / ratio + (minimapHeight * (1 - scale)) / 2,
 		)}px`
 		minimapRadar.style.width = `${minimapWidth * scale}px`
 		minimapRadar.style.height = `${minimapHeight * scale}px`
@@ -1808,7 +1816,7 @@ export function drawMinimap(ratio = 5) {
 				// reject all but vertical touch movements
 				if (Math.abs(e.deltaX) <= 1) zoomscroll(e)
 			},
-			{passive: false}
+			{passive: false},
 		)
 
 		function dragMouseDown(e) {
@@ -1953,7 +1961,7 @@ export function saveState(options) {
 			paint: yPointsArray.toArray(),
 			drawing: yDrawingMap.toJSON(),
 			options: options,
-		})
+		}),
 	)
 }
 
@@ -1966,17 +1974,17 @@ function setUpSideDrawer() {
 		['bold', 'italic', 'underline', 'strike'],
 		['blockquote', 'code-block'],
 
-		[{ list: 'ordered' }, { list: 'bullet' }],
-		[{ script: 'sub' }, { script: 'super' }],
-		[{ indent: '-1' }, { indent: '+1' }],
-		[{ align: [] }],
+		[{list: 'ordered'}, {list: 'bullet'}],
+		[{script: 'sub'}, {script: 'super'}],
+		[{indent: '-1'}, {indent: '+1'}],
+		[{align: []}],
 
 		['link', 'image'],
-		[{ size: ['small', false, 'large', 'huge'] }],
-		[{ header: [1, 2, 3, 4, 5, 6, false] }],
+		[{size: ['small', false, 'large', 'huge']}],
+		[{header: [1, 2, 3, 4, 5, 6, false]}],
 
-		[{ color: [] }, { background: [] }],
-		[{ font: [] }],
+		[{color: []}, {background: []}],
+		[{font: []}],
 
 		['clean'],
 	]
@@ -1991,7 +1999,7 @@ function setUpSideDrawer() {
 
 	sideDrawEditor.on('text-change', (delta, oldDelta, source) => {
 		if (source === 'user') {
-			yNetMap.set('mapDescription', { text: isQuillEmpty(sideDrawEditor) ? '' : sideDrawEditor.getContents() })
+			yNetMap.set('mapDescription', {text: isQuillEmpty(sideDrawEditor) ? '' : sideDrawEditor.getContents()})
 		}
 	})
 }
@@ -2042,7 +2050,9 @@ function drawBadges(ctx) {
 		// note card for Factors and Links with Notes
 		data.nodes
 			.get()
-			.filter((node) => !node.hidden && !node.nodeHidden && node.note && node.note !== 'Notes' && !node.clusteredIn)
+			.filter(
+				(node) => !node.hidden && !node.nodeHidden && node.note && node.note !== 'Notes' && !node.clusteredIn,
+			)
 			.forEach((node) => {
 				let box = network.getBoundingBox(node.id)
 				drawTheBadge(noteImage, ctx, box.right, box.top)
@@ -2087,14 +2097,14 @@ function drawBadges(ctx) {
 					node.thumbUp?.includes(clientID) ? thumbUpFilledImage : thumbUpImage,
 					ctx,
 					box.left + 20,
-					box.bottom
+					box.bottom,
 				)
 				drawThumbCount(ctx, node.thumbUp, box.left + 36, box.bottom + 10)
 				drawTheBadge(
 					node.thumbDown?.includes(clientID) ? thumbDownFilledImage : thumbDownImage,
 					ctx,
 					box.right - 36,
-					box.bottom
+					box.bottom,
 				)
 				drawThumbCount(ctx, node.thumbDown, box.right - 20, box.bottom + 10)
 			})
@@ -2451,7 +2461,7 @@ function editNode(item, point, cancelAction, callback) {
 				</label>
 			</div>
 		</div>
-		`
+		`,
 	)
 	cp.createColorPicker('node-backgroundColor')
 	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background)
@@ -2503,7 +2513,7 @@ function editNode(item, point, cancelAction, callback) {
 				`<div id="popup-portal-link">
       				<label for="popup-portal-room">Map:</label>
       				<textarea id="popup-portal-room" rows="1" placeholder="ABC-DEF-GHI-JKL">${portal}</textarea>
-    			</div>`
+    			</div>`,
 			)
 		}
 	}
@@ -2648,7 +2658,7 @@ function editEdge(item, point, cancelAction, callback) {
 			</select>
 		</div>
 	</div>
-`
+`,
 	)
 	elem('linkEditWidth').value = parseInt(item.width)
 	cp.createColorPicker('linkEditLineColor')
@@ -3039,7 +3049,7 @@ listen(
 		if (Math.abs(e.deltaX) <= 1) zoomscroll(e)
 	},
 	// must be passive, else pinch/zoom is intercepted by the browser itself
-	{passive: false}
+	{passive: false},
 )
 /**
  * Zoom using a trackpad (with a mousewheel or two fingers)
@@ -3120,16 +3130,16 @@ function ghostCursor() {
 			left <= netPaneRect.left
 				? netPaneRect.left
 				: left >= netPaneRect.right - box.offsetWidth
-				? netPaneRect.right - box.offsetWidth
-				: left
+					? netPaneRect.right - box.offsetWidth
+					: left
 		}px`
 		let top = window.event.pageY - boxHalfHeight
 		box.style.top = `${
 			top <= netPaneRect.top
 				? netPaneRect.top
 				: top >= netPaneRect.bottom - box.offsetHeight
-				? netPaneRect.bottom - box.offsetHeight
-				: top
+					? netPaneRect.bottom - box.offsetHeight
+					: top
 		}px`
 	}
 }
@@ -3359,8 +3369,7 @@ function doMerge() {
 		console.log('merging ', roomToMerge)
 		mergeRoom(roomToMerge)
 		logHistory(`merged map from room: ${roomToMerge}`)
-	}
-	catch (e) {
+	} catch (e) {
 		alertMsg('Invalid map URL', 'error')
 		return
 	}
@@ -3521,7 +3530,7 @@ function applySampleToNode(event) {
 		logHistory(
 			`applied ${styles.nodes[sample].groupLabel} style to ${
 				nNodes === 1 ? nodesToUpdate[0].label : nNodes + ' factors'
-			}`
+			}`,
 		)
 	lastNodeSample = sample
 }
@@ -3658,16 +3667,18 @@ function showNodeData(nodeId) {
 	elem('node-notes').className = 'notes'
 	editor = new Quill('#node-notes', {
 		modules: {
-			toolbar: viewOnly ? null : [
-				'bold',
-				'italic',
-				'underline',
-				'link',
-				{list: 'ordered'},
-				{list: 'bullet'},
-				{indent: '-1'},
-				{indent: '+1'},
-			],
+			toolbar: viewOnly
+				? null
+				: [
+						'bold',
+						'italic',
+						'underline',
+						'link',
+						{list: 'ordered'},
+						{list: 'bullet'},
+						{indent: '-1'},
+						{indent: '+1'},
+					],
 		},
 		placeholder: 'Notes',
 		theme: 'snow',
@@ -3715,16 +3726,18 @@ function showEdgeData(edgeId) {
 	} else elem('edgeModification').style.display = 'none'
 	editor = new Quill('#edge-notes', {
 		modules: {
-			toolbar: viewOnly ? null : [
-				'bold',
-				'italic',
-				'underline',
-				'link',
-				{list: 'ordered'},
-				{list: 'bullet'},
-				{indent: '-1'},
-				{indent: '+1'},
-			],
+			toolbar: viewOnly
+				? null
+				: [
+						'bold',
+						'italic',
+						'underline',
+						'link',
+						{list: 'ordered'},
+						{list: 'bullet'},
+						{indent: '-1'},
+						{indent: '+1'},
+					],
 		},
 		placeholder: 'Notes',
 		theme: 'snow',
@@ -3989,7 +4002,7 @@ export function doSnapToGrid(toggle) {
 			data.nodes.get().map((n) => {
 				snapToGrid(n)
 				return n
-			})
+			}),
 		)
 	}
 }
@@ -4177,8 +4190,8 @@ function getSelectedAndFixedNodes() {
 				data.nodes
 					.get()
 					.filter((n) => n.fixed)
-					.map((n) => n.id)
-			)
+					.map((n) => n.id),
+			),
 		),
 	]
 }
@@ -4281,15 +4294,15 @@ function analyse() {
 		statusMsg(
 			`Showing  ${getRadioVal('paths') === 'allPaths' ? 'all paths' : 'shortest paths'} between ${listFactors(
 				getSelectedAndFixedNodes(),
-				true
-			)}`
+				true,
+			)}`,
 		)
 	else
 		statusMsg(
 			`Factors ${streamMsg} ${streamMsg && radiusMsg ? ' and ' : ''} ${radiusMsg} of ${listFactors(
 				getSelectedAndFixedNodes(),
-				true
-			)}${pathsMsg}`
+				true,
+			)}${pathsMsg}`,
 		)
 	/**
 	 * return all to neutral analysis state
@@ -4560,14 +4573,18 @@ function analyse() {
  * Assumes that the factors and links have already been unhidden - this just  removes the UI indicators
  */
 function cancelHiddenStyles() {
-	Array.from(document.getElementsByClassName('sampleNode')).filter((n) => n.dataset.hide === 'hidden').forEach((n) => {
-		n.dataset.hide = 'visible'
-		n.style.opacity = 1.0
-	})
-	Array.from(document.getElementsByClassName('sampleLink')).filter((e) => e.dataset.hide === 'hidden').forEach((e) => {
-		e.dataset.hide = 'visible'
-		e.style.opacity = 1.0
-	})
+	Array.from(document.getElementsByClassName('sampleNode'))
+		.filter((n) => n.dataset.hide === 'hidden')
+		.forEach((n) => {
+			n.dataset.hide = 'visible'
+			n.style.opacity = 1.0
+		})
+	Array.from(document.getElementsByClassName('sampleLink'))
+		.filter((e) => e.dataset.hide === 'hidden')
+		.forEach((e) => {
+			e.dataset.hide = 'visible'
+			e.style.opacity = 1.0
+		})
 }
 
 function sizingSwitch(e) {
@@ -4667,13 +4684,13 @@ function selectClustering(e) {
 			data.nodes.get().map((n) => {
 				setNodeHidden(n, false)
 				return n
-			})
+			}),
 		)
 		data.edges.update(
 			data.edges.get().map((e) => {
 				setEdgeHidden(e, false)
 				return e
-			})
+			}),
 		)
 	})
 	cluster(option)
@@ -4716,7 +4733,7 @@ function showHistory() {
 		.map(
 			(rec) => `<div class="history-time">${timeAndDate(rec.time)}: </div>
 		<div class="history-action">${rec.user} ${rec.action}</div>
-		<div class="history-rollback" data-time="${rec.time}"></div>`
+		<div class="history-rollback" data-time="${rec.time}"></div>`,
 		)
 		.join(' ')
 	document.querySelectorAll('div.history-rollback').forEach((e) => addRollbackIcon(e))
@@ -4860,7 +4877,7 @@ function setUpAwareness() {
 			network.DOMtoCanvas({
 				x: Math.round(e.clientX - box.left),
 				y: Math.round(e.clientY - box.top),
-			})
+			}),
 		)
 	})
 }
@@ -4983,7 +5000,7 @@ function showAvatars() {
 	// remove and save myself (using clientID as the id, not name)
 	let me = recs.splice(
 		recs.findIndex((a) => a[0] === clientID),
-		1
+		1,
 	)
 	let nameRecs = recs
 		// eslint-disable-next-line no-unused-vars
@@ -5046,7 +5063,7 @@ function showAvatars() {
 
 	// delete any cursors that remain from before
 	let cursorsToDelete = Array.from(document.querySelectorAll('.shared-cursor')).filter(
-		(a) => !currentCursors.includes(a)
+		(a) => !currentCursors.includes(a),
 	)
 	cursorsToDelete.forEach((e) => e.remove())
 
@@ -5081,8 +5098,8 @@ function showAvatars() {
 			statusMsg(
 				nameRec.id === clientID
 					? 'Click to change your name. Right click to select all your edits'
-					: `Click to follow this person. Right click to select all this person's edits`
-			)
+					: `Click to follow this person. Right click to select all this person's edits`,
+			),
 		)
 		circle.addEventListener('mouseout', () => clearStatusBar())
 	}

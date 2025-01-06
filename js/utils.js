@@ -124,7 +124,7 @@ function seededRandom() {
  */
 export function uuidv4() {
 	return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
-		(c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
+		(c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16),
 	)
 }
 /**
@@ -665,7 +665,7 @@ function randomColour() {
 			parseInt(rgb.substring(0, 2), 16),
 			parseInt(rgb.substring(2, 4), 16),
 			parseInt(rgb.substring(4, 6), 16),
-			128
+			128,
 		),
 	}
 }
@@ -912,30 +912,30 @@ export class CP {
 			margin: 6,
 			layout: [
 				{
-				  component: iro.ui.Wheel,
-				  options: {
-					borderColor: '#ffffff'
-				  }
+					component: iro.ui.Wheel,
+					options: {
+						borderColor: '#ffffff',
+					},
 				},
 				{
 					component: iro.ui.Slider,
-					  options: {
-						  borderColor: '#000000',
-						  sliderType: 'value',
-						  padding: 2,
-						  handleRadius: 4
-					  }
-				  },
+					options: {
+						borderColor: '#000000',
+						sliderType: 'value',
+						padding: 2,
+						handleRadius: 4,
+					},
+				},
 				{
-				  component: iro.ui.Slider,
+					component: iro.ui.Slider,
 					options: {
 						borderColor: '#000000',
 						sliderType: 'alpha',
 						padding: 2,
-						handleRadius: 4
-					}
-				}
-			  ]
+						handleRadius: 4,
+					},
+				},
+			],
 		})
 
 		// set up a grid of squares to hold last 8 selected colors

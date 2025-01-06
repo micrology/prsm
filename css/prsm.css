@@ -723,7 +723,9 @@ nav button .pressed {
 	border: 1px solid rgb(128, 128, 128);
 	width: 60%;
 	max-width: 900px;
-	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	box-shadow:
+		0 4px 8px 0 rgba(0, 0, 0, 0.2),
+		0 6px 20px 0 rgba(0, 0, 0, 0.19);
 	animation-name: animatetop;
 	animation-duration: 0.4s;
 }
@@ -1467,7 +1469,9 @@ input:checked + .slider:before {
 	user-select: none;
 	-webkit-user-select: none;
 	border: 2px solid rgb(0, 0, 0);
-	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	box-shadow:
+		0 4px 8px 0 rgba(0, 0, 0, 0.2),
+		0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 .hoverme {
 	display: inline;
@@ -1772,7 +1776,9 @@ input#splashNameBox::placeholder {
 	border: thin solid var(--pop-up-shadow-color);
 	opacity: 0;
 	transform: translate(0, 15px) scale(0.95);
-	transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+	transition:
+		transform 0.1s ease-out,
+		opacity 0.1s ease-out;
 	pointer-events: none;
 }
 .menu-item {
@@ -1888,12 +1894,16 @@ input#splashNameBox::placeholder {
 	flex-direction: column;
 	padding-left: 10px;
 	background-color: var(--notes-background-color);
-	box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+	box-shadow:
+		rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+		rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 #drawer-handle {
 	background-color: var(--notes-background-color);
 	padding: 14px 0 0 2px;
-	box-shadow: 0 1px 2px #3c40434d, 0 1px 3px 1px #3c404326;
+	box-shadow:
+		0 1px 2px #3c40434d,
+		0 1px 3px 1px #3c404326;
 	align-self: center;
 	cursor: default;
 	width: 10px;
@@ -1915,7 +1925,9 @@ input#splashNameBox::placeholder {
 	max-height: 70%;
 	overflow: auto;
 	border-radius: 8px;
-	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	box-shadow:
+		0 4px 8px 0 rgba(0, 0, 0, 0.2),
+		0 6px 20px 0 rgba(0, 0, 0, 0.19);
 	text-align: center;
 	display: none;
 	flex-direction: column;

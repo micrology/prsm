@@ -21,8 +21,8 @@ PRSM Participatory System Mapper
 This module handles operations related to the Styles tabs.  
  ******************************************************************************************************************** */
 
-import { Network } from 'vis-network/peer/'
-import { DataSet } from 'vis-data/peer'
+import {Network} from 'vis-network/peer/'
+import {DataSet} from 'vis-data/peer'
 import {
 	listen,
 	elem,
@@ -52,7 +52,7 @@ import {
 	logHistory,
 	progressBar,
 } from './prsm.js'
-import { styles } from './samples.js'
+import {styles} from './samples.js'
 
 /**
  * The samples are each a mini vis-network showing just one node or two nodes and a link
@@ -79,11 +79,11 @@ export function setUpSamples() {
 					chosen: false,
 					widthConstraint: 50,
 					heightConstraint: 50,
-					font: { size: 14 },
+					font: {size: 14},
 					size: 50,
 					margin: 10,
-					scaling: { label: { enabled: false } },
-				}
+					scaling: {label: {enabled: false}},
+				},
 			),
 		])
 		initSample(sampleElement, {
@@ -101,8 +101,8 @@ export function setUpSamples() {
 		})
 		sampleElement.addEventListener('mouseover', () =>
 			statusMsg(
-				'Left click: apply style to selected; Double click: edit style; Right click: Select or Hide all with this style'
-			)
+				'Left click: apply style to selected; Double click: edit style; Right click: Select or Hide all with this style',
+			),
 		)
 		sampleElement.addEventListener('mouseout', () => clearStatusBar())
 		sampleElement.groupNode = groupId
@@ -132,8 +132,8 @@ export function setUpSamples() {
 						vadjust: -40,
 					},
 					widthConstraint: 100,
-					value: 10
-				}
+					value: 10,
+				},
 			),
 		])
 		let nodesDataSet = new DataSet([
@@ -167,8 +167,8 @@ export function setUpSamples() {
 		})
 		sampleElement.addEventListener('mouseover', () =>
 			statusMsg(
-				'Left click: apply style to selected; Double click: edit style; Right click: Select all with this style'
-			)
+				'Left click: apply style to selected; Double click: edit style; Right click: Select all with this style',
+			),
 		)
 		sampleElement.groupLink = groupId
 		sampleElement.dataSet = edgeDataSet
@@ -313,10 +313,10 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 		menu.classList.remove('show-menu')
 	}
 	function selectFactorsWithStyle(groupId) {
-		selectFactors(data.nodes.getIds({ filter: (node) => node.grp === groupId }))
+		selectFactors(data.nodes.getIds({filter: (node) => node.grp === groupId}))
 	}
 	function hideFactorsWithStyle(groupId, toggle) {
-		let nodes = data.nodes.get({ filter: (node) => node.grp === groupId })
+		let nodes = data.nodes.get({filter: (node) => node.grp === groupId})
 		nodes.forEach((node) => {
 			setNodeHidden(node, toggle)
 		})
@@ -389,10 +389,10 @@ function styleEdgeContextMenu(event, sampleElement, groupId) {
 		menu.classList.remove('show-menu')
 	}
 	function selectLinksWithStyle(groupId) {
-		selectLinks(data.edges.getIds({ filter: (edge) => edge.grp === groupId }))
+		selectLinks(data.edges.getIds({filter: (edge) => edge.grp === groupId}))
 	}
 	function hideLinksWithStyle(groupId, toggle) {
-		let edges = data.edges.get({ filter: (edge) => edge.grp === groupId })
+		let edges = data.edges.get({filter: (edge) => edge.grp === groupId})
 		edges.forEach((edge) => {
 			setEdgeHidden(edge, toggle)
 		})
@@ -491,7 +491,14 @@ function nodeEditUpdateStyleSample(group) {
 	let node = styleElement.dataSet.get('1')
 	node.label = group.groupLabel
 	// the node in the style sample does not change size
-	node = deepMerge(node, styles.nodes[groupId], { chosen: false, size: 50, widthConstraint: 50, heightConstraint: 50, margin: 10, font: { size: 14 } })
+	node = deepMerge(node, styles.nodes[groupId], {
+		chosen: false,
+		size: 50,
+		widthConstraint: 50,
+		heightConstraint: 50,
+		margin: 10,
+		font: {size: 14},
+	})
 	styleElement.dataSet.update(node)
 }
 /**
@@ -553,7 +560,7 @@ export function reApplySampleToNodes(groupIds, force) {
 	data.nodes.update(
 		nodesToUpdate.map((node) => {
 			return force ? deepMerge(node, styles.nodes[node.grp]) : deepMerge(styles.nodes[node.grp], node)
-		})
+		}),
 	)
 }
 /**
@@ -563,7 +570,14 @@ export function refreshSampleNode(groupId) {
 	let sampleElements = Array.from(document.getElementsByClassName('sampleNode'))
 	let sampleElement = sampleElements[groupId.match(/\d+/)?.[0]]
 	let node = sampleElement.dataSet.get()[0]
-	node = deepMerge(node, styles.nodes[groupId], { chosen: false, size: 50, widthConstraint: 50, heightConstraint: 50, margin: 10, font: { size: 14 } })
+	node = deepMerge(node, styles.nodes[groupId], {
+		chosen: false,
+		size: 50,
+		widthConstraint: 50,
+		heightConstraint: 50,
+		margin: 10,
+		font: {size: 14},
+	})
 	node.label = node.groupLabel
 	sampleElement.dataSet.remove(node.id)
 	sampleElement.dataSet.update(node)
@@ -636,7 +650,7 @@ function linkEditUpdateStyleSample(group) {
 	let styleElement = elem('linkStyleEditorContainer').styleElement
 	let edge = styleElement.dataSet.get('1')
 	edge.label = group.groupLabel
-	edge = deepMerge(edge, styles.edges[groupId], { chosen: false })
+	edge = deepMerge(edge, styles.edges[groupId], {chosen: false})
 	let dataSet = styleElement.dataSet
 	dataSet.update(edge)
 }
@@ -696,7 +710,7 @@ export function reApplySampleToLinks(groupIds, force) {
 	data.edges.update(
 		edgesToUpdate.map((edge) => {
 			return force ? deepMerge(edge, styles.edges[edge.grp]) : deepMerge(styles.edges[edge.grp], edge)
-		})
+		}),
 	)
 }
 /**
@@ -706,7 +720,7 @@ export function refreshSampleLink(groupId) {
 	let sampleElements = Array.from(document.getElementsByClassName('sampleLink'))
 	let sampleElement = sampleElements[groupId.match(/\d+/)?.[0]]
 	let edge = sampleElement.dataSet.get()[0]
-	edge = deepMerge(edge, styles.edges[groupId], { chosen: false, value: 10 })
+	edge = deepMerge(edge, styles.edges[groupId], {chosen: false, value: 10})
 	edge.label = edge.groupLabel
 	sampleElement.dataSet.remove(edge.id)
 	sampleElement.dataSet.update(edge)
@@ -724,7 +738,7 @@ function getArrows(prop) {
 
 /*  ------------display the map legend (includes all styles with a group label that is neither blank or 'Sample') */
 
-var legendData = { nodes: new DataSet(), edges: new DataSet() }
+var legendData = {nodes: new DataSet(), edges: new DataSet()}
 var legendNetwork = null
 const LEGENDSPACING = 60
 const HALFLEGENDWIDTH = 60
@@ -739,7 +753,7 @@ export function legend(warn = false) {
 	let nodes = Array.from(sampleNodeDivs).filter((elem) => elem.dataSet.get('1').groupLabel !== 'Sample')
 	let sampleEdgeDivs = document.getElementsByClassName('sampleLink')
 	let edges = Array.from(sampleEdgeDivs).filter(
-		(elem) => !['Sample', '', ' '].includes(elem.dataSet.get('1').groupLabel)
+		(elem) => !['Sample', '', ' '].includes(elem.dataSet.get('1').groupLabel),
 	)
 	let nItems = nodes.length + edges.length
 	if (nItems === 0) {
@@ -769,8 +783,8 @@ export function legend(warn = false) {
 	dragElement(legendBox, title)
 
 	legendNetwork = new Network(canvas, legendData, {
-		physics: { enabled: false },
-		interaction: { zoomView: false, dragView: false },
+		physics: {enabled: false},
+		interaction: {zoomView: false, dragView: false},
 	})
 	let height = 0
 	for (let i = 0; i < nodes.length; i++) {
@@ -798,8 +812,8 @@ export function legend(warn = false) {
 		edge.id = i + 10000
 		edge.from = i + 20000
 		edge.to = i + 30000
-		edge.smooth = { type: 'straightCross' }
-		edge.font = { size: 12, color: 'black', align: 'top', vadjust: -10 }
+		edge.smooth = {type: 'straightCross'}
+		edge.font = {size: 12, color: 'black', align: 'top', vadjust: -10}
 		edge.widthConstraint = 80
 		edge.chosen = false
 		let nodes = [
@@ -829,7 +843,7 @@ export function legend(warn = false) {
 	legendNetwork.fit({})
 	// required to allow scrolling on IOS
 	canvas.firstElementChild.firstElementChild.style.touchAction = 'pan-y'
-	canvas.firstElementChild.firstElementChild.style.webkitUserSelect =  'all'
+	canvas.firstElementChild.firstElementChild.style.webkitUserSelect = 'all'
 }
 window.legendData = legendData
 /**

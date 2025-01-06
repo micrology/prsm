@@ -544,10 +544,10 @@ class TextHandler extends ToolHandler {
 						[
 							text,
 							DOMtoCanvasX(
-								((this.div.offsetLeft + 12) * tempCanvas.width) / (dpr * tempCanvas.clientWidth)
+								((this.div.offsetLeft + 12) * tempCanvas.width) / (dpr * tempCanvas.clientWidth),
 							), // '12' allows for border and outline
 							DOMtoCanvasY(
-								((this.div.offsetTop + 14) * tempCanvas.height) / (dpr * tempCanvas.clientHeight)
+								((this.div.offsetTop + 14) * tempCanvas.height) / (dpr * tempCanvas.clientHeight),
 							),
 						],
 					],
@@ -871,7 +871,7 @@ class ImageHandler extends ToolHandler {
 						image.left,
 						image.top,
 						image.width,
-						image.height
+						image.height,
 					)
 					imageHandler.image = image
 					underlay.removeChild(image)
@@ -933,7 +933,7 @@ class ImageHandler extends ToolHandler {
 					this.image.left,
 					this.image.top,
 					this.image.width,
-					this.image.height
+					this.image.height,
 				)
 			} else {
 				this.image.left = this.image.startLeft + this.endX - this.startX
@@ -945,7 +945,7 @@ class ImageHandler extends ToolHandler {
 					this.image.left,
 					this.image.top,
 					this.image.width,
-					this.image.height
+					this.image.height,
 				)
 			}
 		}

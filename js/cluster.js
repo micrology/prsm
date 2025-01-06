@@ -21,9 +21,9 @@ PRSM Participatory System Mapper
 This module clusters factors  
  ******************************************************************************************************************** */
 
-import { elem, uuidv4, deepMerge, standardize_color, makeColor, lightOrDark } from './utils.js'
-import { styles } from './samples.js'
-import { network, data, doc, yNetMap, unSelect, debug } from './prsm.js'
+import {elem, uuidv4, deepMerge, standardize_color, makeColor, lightOrDark} from './utils.js'
+import {styles} from './samples.js'
+import {network, data, doc, yNetMap, unSelect, debug} from './prsm.js'
 
 export function cluster(attribute) {
 	if (!attribute) return
@@ -75,8 +75,8 @@ function clusterByAttribute(attribute) {
 			clusterNode = deepMerge(styles.nodes['cluster'], {
 				id: `cluster-${attribute}-${value}`,
 				isCluster: true,
-				color: { background: color },
-				font: { color: lightOrDark(color) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)' }		
+				color: {background: color},
+				font: {color: lightOrDark(color) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)'},
 			})
 		}
 		clusterNode.label = `${yNetMap.get('attributeTitles')[attribute]} ${value}`
@@ -124,13 +124,13 @@ function clusterByColor() {
 		if (clusterNode === null) {
 			clusterNode = deepMerge(styles.nodes['cluster'], {
 				id: `cluster-color-${color}`,
-				isCluster: true
+				isCluster: true,
 			})
 		}
 		clusterNode.hidden = false
 		clusterNode.label = `Cluster ${++clusterNumber}`
-		clusterNode.color = { background: color }
-		clusterNode.font = { color: lightOrDark(color) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)' }
+		clusterNode.color = {background: color}
+		clusterNode.font = {color: lightOrDark(color) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)'}
 		for (let node of nodesInCluster) {
 			// for each factor that should be in the cluster
 			node.clusteredIn = clusterNode.id
@@ -173,13 +173,14 @@ function clusterByStyle() {
 		if (clusterNode === null) {
 			clusterNode = deepMerge(styles.nodes['cluster'], {
 				id: `cluster-style-${style}`,
-				isCluster: true
+				isCluster: true,
 			})
 		}
 		clusterNode.hidden = false
 		clusterNode.label = `${styles.nodes[style].groupLabel} cluster`
 		clusterNode.color.background = styles.nodes[style].color.background
-		clusterNode.font.color = lightOrDark(styles.nodes[style].color.background) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)'
+		clusterNode.font.color =
+			lightOrDark(styles.nodes[style].color.background) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)'
 		for (let node of nodesInCluster) {
 			// for each factor that should be in the cluster
 			node.clusteredIn = clusterNode.id
@@ -279,7 +280,7 @@ export function openCluster(clusterNodeId) {
 		unSelect()
 		let nodesToUpdate = []
 		let edgesToRemove = []
-		let nodesInCluster = data.nodes.get({ filter: (node) => node.clusteredIn === clusterNode.id })
+		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id})
 		for (let node of nodesInCluster) {
 			node.hidden = false
 			node.clusteredIn = null
@@ -297,7 +298,7 @@ export function openCluster(clusterNodeId) {
 		data.edges.remove(edgesToRemove)
 		showClusterLinks()
 	})
-	if (data.nodes.get({ filter: (n) => n.isCluster && !n.hidden }).length === 0) {
+	if (data.nodes.get({filter: (n) => n.isCluster && !n.hidden}).length === 0) {
 		// all clusters have been opened; reset the cluster select to None
 		elem('clustering').value = 'none'
 	}
@@ -306,8 +307,8 @@ export function openCluster(clusterNodeId) {
 function unCluster() {
 	let nodesToUpdate = []
 	let edgesToRemove = []
-	data.nodes.get({ filter: (node) => node.isCluster }).forEach((clusterNode) => {
-		let nodesInCluster = data.nodes.get({ filter: (node) => node.clusteredIn === clusterNode.id })
+	data.nodes.get({filter: (node) => node.isCluster}).forEach((clusterNode) => {
+		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id})
 		for (let node of nodesInCluster) {
 			node.hidden = false
 			node.clusteredIn = null

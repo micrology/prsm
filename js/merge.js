@@ -4,10 +4,10 @@
  */
 
 import * as Y from 'yjs'
-import { WebsocketProvider } from 'y-websocket'
-import { DataSet } from 'vis-data/peer'
-import { doc, websocket, data, logHistory, room } from './prsm.js'
-import { uuidv4, deepCopy, alertMsg } from './utils.js'
+import {WebsocketProvider} from 'y-websocket'
+import {DataSet} from 'vis-data/peer'
+import {doc, websocket, data, logHistory, room} from './prsm.js'
+import {uuidv4, deepCopy, alertMsg} from './utils.js'
 /* --------------------------------- Merge maps ----------------------------- */
 /*
  * Evaluate mergeRoom(string: room code) e.g. mergeRoom('WBI-CRD-ROB-XDK')
@@ -60,9 +60,12 @@ function mergeMaps() {
 				if (sameLabelNodes.length > 1) {
 					console.log(
 						`%cMatching factors by label ('${BNode.label}'), but there are two or more factors with this label in this map`,
-						'color: red'
+						'color: red',
 					)
-					alertMsg(`Matching factors by label ('${BNode.label}'), but there are two or more factors with this label in the map`, 'warn')
+					alertMsg(
+						`Matching factors by label ('${BNode.label}'), but there are two or more factors with this label in the map`,
+						'warn',
+					)
 				}
 				ANode = sameLabelNodes[0]
 				if (ANode) {
@@ -76,7 +79,7 @@ function mergeMaps() {
 				if (ANode.label.replace(/\s/g, '') !== BNode.label.replace(/\s/g, '')) {
 					// if not, make a clone of the other node with a new id
 					logMerge(
-						`'${ANode.label}' Factor in this map does not match Factor from other map with new label: '${BNode.label}'. Factor with new label added.`
+						`'${ANode.label}' Factor in this map does not match Factor from other map with new label: '${BNode.label}'. Factor with new label added.`,
 					)
 					// generate a new id for BNode.  change border to dashed red.  Add it to the map
 					let newNode = deepCopy(BNode)
@@ -95,7 +98,7 @@ function mergeMaps() {
 				} else if (ANode.grp !== BNode.grp)
 					// label is the same, but style is not - just report this
 					logMerge(
-						`Style: '${ANode.grp}' does not match style: '${BNode.grp}' from other map for Factor: '${ANode.label}. Existing style retained.`
+						`Style: '${ANode.grp}' does not match style: '${BNode.grp}' from other map for Factor: '${ANode.label}. Existing style retained.`,
 					)
 			} else {
 				// the node is on the other map, but not on this one - add it.
@@ -129,8 +132,9 @@ function mergeMaps() {
 				newEdge.color.color = 'rgb(255, 0, 0)'
 				edgesToAdd.push(newEdge)
 				logMerge(
-					`added Link between new Factor(s): '${data.nodes.get(newEdge.from).label}' to '${data.nodes.get(newEdge.to).label
-					}'`
+					`added Link between new Factor(s): '${data.nodes.get(newEdge.from).label}' to '${
+						data.nodes.get(newEdge.to).label
+					}'`,
 				)
 			}
 			// now deal with the other map's edges
@@ -155,11 +159,11 @@ function mergeMaps() {
 					AEdge.label !== BEdge.label
 				)
 					logMerge(
-						`Link with label: '${AEdge.label}' does not match link from other map with label: '${BEdge.label}'.  Existing label retained.`
+						`Link with label: '${AEdge.label}' does not match link from other map with label: '${BEdge.label}'.  Existing label retained.`,
 					)
 				else if (AEdge.grp !== BEdge.grp)
 					logMerge(
-						`Link with style: '${AEdge.grp}' does not match style: '${BEdge.grp}' from other map for link '${edgeName}'. Existing style retained.`
+						`Link with style: '${AEdge.grp}' does not match style: '${BEdge.grp}' from other map for link '${edgeName}'. Existing style retained.`,
 					)
 			} else {
 				// if BEdge's from or to nodes have been substituted for a node in the A map
@@ -221,21 +225,21 @@ function diffMaps() {
 			if (sameLabelNodes.length > 1)
 				console.log(
 					`%cMatching factors by label [%c${inline(
-						BNode.label
+						BNode.label,
 					)}%c], but there are two or more factors with this label in this map`,
 					'color: red',
 					'color:green',
-					'color:red'
+					'color:red',
 				)
 			else {
 				if (sameLabelNodes.length === 1)
 					console.log(
 						`%cMatching factors by label [%c${inline(
-							BNode.label
+							BNode.label,
 						)}%c] because there is no pair of factors with the same id`,
 						'color: black',
 						'color:green',
-						'color: black'
+						'color: black',
 					)
 			}
 			ANode = sameLabelNodes[0]
@@ -245,20 +249,21 @@ function diffMaps() {
 			if (ANode.label.replace(/\s/g, '') !== BNode.label.replace(/\s/g, '')) {
 				console.log(
 					`Factor label in map A: [%c${inline(ANode.label)}%c] does not match label in map B: [%c${inline(
-						BNode.label
+						BNode.label,
 					)}%c].`,
 					'color:green',
 					'color:black',
 					'color:green',
-					'color:black'
+					'color:black',
 				)
 			} else if (ANode.grp !== BNode.grp)
 				// label is the same, but style is not - just report this
 				console.log(
-					`Factor style in map A : ${ANode.grp} does not match style in map B: ${BNode.grp
+					`Factor style in map A : ${ANode.grp} does not match style in map B: ${
+						BNode.grp
 					} for Factor: [%c${inline(ANode.label)}%c]. `,
 					'color:green',
-					'color:black'
+					'color:black',
 				)
 		} else {
 			// the node is on the other map, but not on this one - add it.
@@ -284,25 +289,26 @@ function diffMaps() {
 			)
 				console.log(
 					`Link label in map A: [%c${inline(AEdge.label)}%c] does not match label:[%c${inline(
-						BEdge.label
+						BEdge.label,
 					)}%c] in map B.  `,
 					'color:green',
 					'color:black',
 					'color:green',
-					'color:black'
+					'color:black',
 				)
 			else if (AEdge.grp !== BEdge.grp)
 				console.log(
-					`Link style: '${AEdge.grp}' in map A does not match style: '${BEdge.grp
+					`Link style: '${AEdge.grp}' in map A does not match style: '${
+						BEdge.grp
 					}' in map B for link [%c${inline(edgeName)}%c]. `,
 					'color:green',
-					'color:black'
+					'color:black',
 				)
 		} else {
 			console.log(
 				`Map A does not include the link: %c${inline(edgeName)}%c in map B. `,
 				'color:green',
-				'color:black'
+				'color:black',
 			)
 		}
 	})

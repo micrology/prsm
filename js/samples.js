@@ -209,7 +209,7 @@ export const styles = {
 				color: 'rgb(255, 255, 255)',
 			},
 			shape: 'database',
-			margin: { top: 40, right: 20, bottom: 20, left: 20 },
+			margin: {top: 40, right: 20, bottom: 20, left: 20},
 		},
 	},
 	edges: {

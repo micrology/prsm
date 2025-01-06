@@ -245,7 +245,7 @@ export async function refreshFromMap(keys) {
 					} else {
 						// no existing active selection, make one
 						let selectedObjects = remoteParams.members.map((id) =>
-							canvas.getObjects().find((o) => o.id === id)
+							canvas.getObjects().find((o) => o.id === id),
 						)
 						let sel = new fabric.ActiveSelection(selectedObjects, {
 							canvas: canvas,
@@ -345,7 +345,7 @@ canvas.on('selection:cleared', (evt) => {
 		saveChange(
 			{type: 'selection', id: 'selection'},
 			{members: [], oldMembers: oldMembers.map((o) => o.id)},
-			'discard'
+			'discard',
 		)
 	}
 	deselectTool()
@@ -367,7 +367,7 @@ canvas.on('path:created', () => {
 			pathOffset: obj.pathOffset,
 			fill: null,
 		},
-		'insert'
+		'insert',
 	)
 })
 
@@ -792,7 +792,7 @@ let RectHandler = fabric.util.createClass(fabric.Rect, {
 				strokeWidth: this.strokeWidth,
 				stroke: this.stroke,
 			},
-			'insert'
+			'insert',
 		)
 		canvas.selection = true
 		canvas.setActiveObject(this).requestRenderAll()
@@ -809,7 +809,7 @@ let RectHandler = fabric.util.createClass(fabric.Rect, {
 				strokeWidth: this.strokeWidth,
 				stroke: this.stroke,
 			},
-			'update'
+			'update',
 		)
 	},
 	setParams: function () {
@@ -842,12 +842,12 @@ let RectHandler = fabric.util.createClass(fabric.Rect, {
 		cp.createColorPicker(
 			'fillColor',
 			() => this.update(),
-			() => this.setParams()
+			() => this.setParams(),
 		)
 		cp.createColorPicker(
 			'borderColor',
 			() => this.update(),
-			() => this.setParams()
+			() => this.setParams(),
 		)
 		let widthInput = elem('borderWidth')
 		widthInput.value = this.strokeWidth
@@ -943,12 +943,12 @@ let CircleHandler = fabric.util.createClass(fabric.Circle, {
 		cp.createColorPicker(
 			'fillColor',
 			() => this.update(),
-			() => this.setParams()
+			() => this.setParams(),
 		)
 		cp.createColorPicker(
 			'borderColor',
 			() => this.update(),
-			() => this.setParams()
+			() => this.setParams(),
 		)
 		let widthInput = elem('borderWidth')
 		widthInput.value = this.strokeWidth
@@ -1017,7 +1017,7 @@ let LineHandler = fabric.util.createClass(fabric.Line, {
 				stroke: this.stroke,
 				strokeDashArray: this.strokeDashArray,
 			},
-			'insert'
+			'insert',
 		)
 		canvas.selection = true
 		canvas.setActiveObject(this).requestRenderAll()
@@ -1033,7 +1033,7 @@ let LineHandler = fabric.util.createClass(fabric.Line, {
 				stroke: this.stroke,
 				strokeDashArray: this.strokeDashArray,
 			},
-			'update'
+			'update',
 		)
 	},
 	setParams: function () {
@@ -1077,7 +1077,7 @@ let LineHandler = fabric.util.createClass(fabric.Line, {
 		cp.createColorPicker(
 			'lineColor',
 			() => this.update(),
-			() => this.setParams()
+			() => this.setParams(),
 		)
 		let widthInput = elem('lineWidth')
 		widthInput.value = this.strokeWidth
@@ -1132,7 +1132,7 @@ let TextHandler = fabric.util.createClass(fabric.IText, {
 					fontFamily: 'Oxygen',
 					text: this.text,
 				},
-				'insert'
+				'insert',
 			)
 		})
 	},
@@ -1165,7 +1165,7 @@ let TextHandler = fabric.util.createClass(fabric.IText, {
 			cp.createColorPicker(
 				'fontColor',
 				() => this.update(),
-				() => this.setParams()
+				() => this.setParams(),
 			)
 		}
 		let fontSizeInput = elem('fontSize')
@@ -1216,7 +1216,7 @@ let PencilHandler = fabric.util.createClass(fabric.Object, {
 			cp.createColorPicker(
 				'pencilColor',
 				() => this.update(),
-				() => this.setParams()
+				() => this.setParams(),
 			)
 		}
 		let widthInput = document.getElementById('pencilWidth')
@@ -1271,7 +1271,7 @@ let MarkerHandler = fabric.util.createClass(fabric.Object, {
 			cp.createColorPicker(
 				'pencilColor',
 				() => this.update(),
-				() => this.setParams()
+				() => this.setParams(),
 			)
 		}
 		let widthInput = document.getElementById('pencilWidth')
@@ -1462,7 +1462,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 					{
 						// reverse of discard selection is add it
 						let selectedObjects = undo.params.oldMembers.map((id) =>
-							canvas.getObjects().find((o) => o.id === id)
+							canvas.getObjects().find((o) => o.id === id),
 						)
 						let sel = new fabric.ActiveSelection(selectedObjects, {
 							canvas: canvas,
@@ -1560,7 +1560,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 				case 'add':
 					{
 						let selectedObjects = redo.params.members.map((id) =>
-							canvas.getObjects().find((o) => o.id === id)
+							canvas.getObjects().find((o) => o.id === id),
 						)
 						let sel = new fabric.ActiveSelection(selectedObjects, {
 							canvas: canvas,
@@ -1753,25 +1753,25 @@ function initAligningGuidelines() {
 				snapVertical(
 					objectCenter.x - objectHalfWidth,
 					activeObjectCenter.x - activeObjectHalfWidth,
-					objectCenter.x - objectHalfWidth + activeObjectHalfWidth
+					objectCenter.x - objectHalfWidth + activeObjectHalfWidth,
 				)
 				// snap by the left object edge matching right active edge
 				snapVertical(
 					objectCenter.x - objectHalfWidth,
 					activeObjectCenter.x + activeObjectHalfWidth,
-					objectCenter.x - objectHalfWidth - activeObjectHalfWidth
+					objectCenter.x - objectHalfWidth - activeObjectHalfWidth,
 				)
 				// snap by the right object edge matching right active edge
 				snapVertical(
 					objectCenter.x + objectHalfWidth,
 					activeObjectCenter.x + activeObjectHalfWidth,
-					objectCenter.x + objectHalfWidth - activeObjectHalfWidth
+					objectCenter.x + objectHalfWidth - activeObjectHalfWidth,
 				)
 				// snap by the right object edge matching left active edge
 				snapVertical(
 					objectCenter.x + objectHalfWidth,
 					activeObjectCenter.x - activeObjectHalfWidth,
-					objectCenter.x + objectHalfWidth + activeObjectHalfWidth
+					objectCenter.x + objectHalfWidth + activeObjectHalfWidth,
 				)
 
 				function snapVertical(objEdge, activeEdge, snapCenter) {
@@ -1790,7 +1790,7 @@ function initAligningGuidelines() {
 						activeObject.setPositionByOrigin(
 							new fabric.Point(snapCenter, activeObjectCenter.y),
 							'center',
-							'center'
+							'center',
 						)
 					}
 				}
@@ -1801,25 +1801,25 @@ function initAligningGuidelines() {
 				snapHorizontal(
 					objectCenter.y - objectHalfHeight,
 					activeObjectCenter.y - activeObjectHalfHeight,
-					objectCenter.y - objectHalfHeight + activeObjectHalfHeight
+					objectCenter.y - objectHalfHeight + activeObjectHalfHeight,
 				)
 				// snap by the top object edge matching the bottom active edge
 				snapHorizontal(
 					objectCenter.y - objectHalfHeight,
 					activeObjectCenter.y + activeObjectHalfHeight,
-					objectCenter.y - objectHalfHeight - activeObjectHalfHeight
+					objectCenter.y - objectHalfHeight - activeObjectHalfHeight,
 				)
 				// snap by the bottom object edge matching the bottom active edge
 				snapHorizontal(
 					objectCenter.y + objectHalfHeight,
 					activeObjectCenter.y + activeObjectHalfHeight,
-					objectCenter.y + objectHalfHeight - activeObjectHalfHeight
+					objectCenter.y + objectHalfHeight - activeObjectHalfHeight,
 				)
 				// snap by the bottom object edge matching the top active edge
 				snapHorizontal(
 					objectCenter.y + objectHalfHeight,
 					activeObjectCenter.y - activeObjectHalfHeight,
-					objectCenter.y + objectHalfHeight + activeObjectHalfHeight
+					objectCenter.y + objectHalfHeight + activeObjectHalfHeight,
 				)
 				function snapHorizontal(objEdge, activeObjEdge, snapCenter) {
 					if (isInRange(objEdge, activeObjEdge)) {
@@ -1837,7 +1837,7 @@ function initAligningGuidelines() {
 						activeObject.setPositionByOrigin(
 							new fabric.Point(activeObjectCenter.x, snapCenter),
 							'center',
-							'center'
+							'center',
 						)
 					}
 				}
@@ -1861,7 +1861,7 @@ function initAligningGuidelines() {
 			coords.x + 0.5,
 			coords.y1 > coords.y2 ? coords.y2 : coords.y1,
 			coords.x + 0.5,
-			coords.y2 > coords.y1 ? coords.y2 : coords.y1
+			coords.y2 > coords.y1 ? coords.y2 : coords.y1,
 		)
 	}
 	function drawHorizontalLine(coords) {
@@ -1869,7 +1869,7 @@ function initAligningGuidelines() {
 			coords.x1 > coords.x2 ? coords.x2 : coords.x1,
 			coords.y + 0.5,
 			coords.x2 > coords.x1 ? coords.x2 : coords.x1,
-			coords.y + 0.5
+			coords.y + 0.5,
 		)
 	}
 	function drawLine(x1, y1, x2, y2) {
@@ -1916,7 +1916,7 @@ export function copyBackgroundToClipboard(event) {
 		groupLeft = group.left + group.width / 2
 	}
 	copyText(
-		JSON.stringify(activeObjs.map((obj) => setParams(obj, {left: obj.left + groupLeft, top: obj.top + groupTop})))
+		JSON.stringify(activeObjs.map((obj) => setParams(obj, {left: obj.left + groupLeft, top: obj.top + groupTop}))),
 	)
 	displacement = 0
 }
