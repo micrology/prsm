@@ -1326,7 +1326,9 @@ input:checked + .slider:before {
 	z-index: 30;
 }
 .legendTitle {
-	font-weight: bold;
+	background-color: var(--header-color);
+	color: white;
+	border-radius: 4px 4px 0 0;
 	text-align: center;
 	padding: 3px;
 	user-select: none;

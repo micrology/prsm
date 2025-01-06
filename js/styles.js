@@ -769,7 +769,7 @@ export function legend(warn = false) {
 		physics: { enabled: false },
 		interaction: { zoomView: false, dragView: false },
 	})
-	let height = legendNetwork.DOMtoCanvas({ x: 0, y: 0 }).y
+	let height = 0
 	for (let i = 0; i < nodes.length; i++) {
 		let node = deepMerge(styles.nodes[nodes[i].groupNode])
 		node.id = i + 10000
@@ -824,6 +824,9 @@ export function legend(warn = false) {
 		height += 50
 	}
 	legendNetwork.fit({})
+	// required to allow scrolling on IOS
+	canvas.firstElementChild.firstElementChild.style.touchAction = 'pan-y'
+	canvas.firstElementChild.firstElementChild.style.webkitUserSelect =  'all'
 }
 window.legendData = legendData
 /**
