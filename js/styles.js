@@ -758,10 +758,13 @@ export function legend(warn = false) {
 	legendBox.appendChild(title)
 	legendBox.style.height = `${LEGENDSPACING * nItems + title.offsetHeight}px`
 	legendBox.style.width = `${HALFLEGENDWIDTH * 2}px`
+	let legendWrapper = document.createElement('div')
+	legendWrapper.className = 'legendWrapper'
+	legendBox.appendChild(legendWrapper)
 	let canvas = document.createElement('div')
 	canvas.className = 'legendCanvas'
 	canvas.style.height = `${LEGENDSPACING * nItems}px`
-	legendBox.appendChild(canvas)
+	legendWrapper.appendChild(canvas)
 
 	dragElement(legendBox, title)
 
