@@ -54,6 +54,7 @@ import {
 	generateName,
 	statusMsg,
 	alertMsg,
+	cancelAlertMsg,
 	clearStatusBar,
 	shorten,
 	initials,
@@ -106,6 +107,9 @@ import {
 	upgradeFromV1,
 	updateFromDrawingMap,
 } from './background.js'
+import {
+	getAIresponse
+} from './ai.js'
 import {version} from '../package.json'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
 
@@ -305,6 +309,7 @@ function addEventListeners() {
 	listen('lock', 'click', setFixed)
 	listen('newNodeWindow', 'click', openNotesWindow)
 	listen('newEdgeWindow', 'click', openNotesWindow)
+	listen('sparkles', 'click', hitsparkles)
 
 	Array.from(document.getElementsByName('radius')).forEach((elem) => {
 		elem.addEventListener('change', analyse)
@@ -994,7 +999,7 @@ function setvh() {
 function setUpUserName() {
 	try {
 		myNameRec = JSON.parse(localStorage.getItem('myName'))
-	} catch (err) {
+	} catch {
 		myNameRec = null
 	}
 	saveUserName(myNameRec?.name ? myNameRec.name : '')
@@ -2199,7 +2204,7 @@ async function copyText(text) {
 	try {
 		if (typeof navigator.clipboard.writeText !== 'function')
 			throw new Error('navigator.clipboard.writeText not a function')
-	} catch (e) {
+	} catch {
 		alertMsg('Copying not implemented in this browser', 'error')
 		return false
 	}
@@ -2224,7 +2229,7 @@ async function pasteFromClipboard() {
 	let edges
 	try {
 		;({nodes, edges} = JSON.parse(clip))
-	} catch (err) {
+	} catch {
 		// silently return (i.e. use system paste) if there is nothing relevant on the clipboard
 		return
 	}
@@ -2257,7 +2262,7 @@ async function getClipboardContents() {
 	try {
 		if (typeof navigator.clipboard.readText !== 'function')
 			throw new Error('navigator.clipboard.readText not a function')
-	} catch (e) {
+	} catch {
 		alertMsg('Pasting not implemented in this browser', 'error')
 		return null
 	}
@@ -3369,7 +3374,7 @@ function doMerge() {
 		console.log('merging ', roomToMerge)
 		mergeRoom(roomToMerge)
 		logHistory(`merged map from room: ${roomToMerge}`)
-	} catch (e) {
+	} catch {
 		alertMsg('Invalid map URL', 'error')
 		return
 	}
@@ -3766,8 +3771,32 @@ function showEdgeData(edgeId) {
 	panel.classList.remove('hide')
 	positionNotes()
 }
-
-// Statistics specific to a node
+/**
+ * user has clicked on the sparkles icon in ta Link node window
+ * return the output from an LLM asked to elaborate on the causal
+ * relationship between the two linked factors
+ */
+async function hitsparkles() {
+	changeCursor('wait')
+	alertMsg('Thinking...', 'info', true)
+	let edgeId = network.getSelectedEdges()[0]
+	let edge = data.edges.get(edgeId)
+	let aiResponse = await getAIresponse(data.nodes.get(edge.from).label, data.nodes.get(edge.to).label)
+	editor.setContents(aiResponse)
+	let modified = timestamp()
+	data.edges.update({
+		id: edgeId,
+		note: isQuillEmpty(editor) ? '' : editor.getContents(),
+		modified: modified,
+	})
+	elem('edgeModified').innerHTML = `${timeAndDate(modified.time)} by ${modified.user}`
+	changeCursor('default')
+	cancelAlertMsg()
+}
+/**
+ * Display the statistics for the selected node
+ * @param {String} nodeId 
+ */
 function displayStatistics(nodeId) {
 	// leverage (outDegree / inDegree)
 	let inDegree = network.getConnectedNodes(nodeId, 'from').length
@@ -3836,8 +3865,8 @@ function autoLayout(e) {
 					data.nodes.update(data.nodes.get())
 					elem('layoutSelect').value = 'off'
 					statusMsg('Trophic layout applied')
-				} catch (e) {
-					alertMsg(`Trophic layout: ${e.message}`, 'error')
+				} catch (err) {
+					alertMsg(`Trophic layout: ${err.message}`, 'error')
 				}
 				break
 			}

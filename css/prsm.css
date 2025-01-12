@@ -1072,6 +1072,22 @@ but moving the panel out of sight works instead */
 	font-size: 12px;
 	line-height: 2;
 }
+.edgeLabel {
+	grid-row: span 2 / span 2;
+}
+#edgeDataHeader {
+	display: grid;
+	grid-template-columns: 1fr, 25px;
+	grid-template-rows: 1fr, 1fr;
+}
+#newEdgeWindow {
+	grid-column-start: 2;
+	grid-row-start: 1;
+}
+#sparkles {
+	grid-column-start: 2;
+	grid-row-start: 2;
+}
 .padlock-hide {
 	display: none;
 }

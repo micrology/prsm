@@ -15,6 +15,7 @@ data
 .cache
 .parcel-cache
 .history
+.env
 logs
 vr
 html/*.removed

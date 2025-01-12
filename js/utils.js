@@ -731,6 +731,12 @@ export function alertMsg(msg, status, dontFade) {
 	}
 }
 /**
+ * cancel the alert message
+ */
+export function cancelAlertMsg() {
+	elem('errMsg').style.opacity = 0
+}
+/**
  * replace special characters with their HTML entity codes
  * @param {string} str
  */

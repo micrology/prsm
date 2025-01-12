@@ -28,5 +28,7 @@ export default [{
         sourceType: "module",
     },
 
-    rules: {},
+    rules: {
+        "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+    },
 }];
