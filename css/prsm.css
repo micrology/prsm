@@ -18,9 +18,8 @@
 	--tutorial-highlight-color: rgb(211, 47, 47);
 	--map-title-color: rgb(255, 193, 7);
 	--sample-selected-color: rgb(173, 216, 230);
-	--notes-background-color: rgb(255, 253, 231);
-	--notes-background-color: rgb(255, 253, 231, 0.9);
-	--notes-background-solid-color: rgb(255, 253, 231);
+	--notes-background-color: rgb(249, 245, 240, 0.9);
+	--notes-background-solid-color: rgb(249, 245, 240);
 	--slider: rgb(13, 38, 68);
 }
 html,
@@ -230,14 +229,19 @@ aside {
 	-webkit-user-select: none;
 	z-index: 2000;
 }
-#errMsg {
+.errMsgWrapper{
 	position: absolute;
-	bottom: 40px;
-	left: 10px;
+	top: 100px;
+	left: 0;
+	width: 100%;
+}
+#errMsg {
+	margin: auto;
 	color: white;
 	padding: 10px;
 	border-radius: 10px;
 	opacity: 0;
+	width: fit-content;
 }
 .fadeInAndOut {
 	animation-name: showErrMsg;
@@ -1084,7 +1088,7 @@ but moving the panel out of sight works instead */
 	grid-column-start: 2;
 	grid-row-start: 1;
 }
-#sparkles {
+#sparklesEdge {
 	grid-column-start: 2;
 	grid-row-start: 2;
 }

@@ -309,7 +309,8 @@ function addEventListeners() {
 	listen('lock', 'click', setFixed)
 	listen('newNodeWindow', 'click', openNotesWindow)
 	listen('newEdgeWindow', 'click', openNotesWindow)
-	listen('sparkles', 'click', hitsparkles)
+	listen('sparklesEdge', 'click', genAIEdge)
+	listen('sparklesNode', 'click', genAINode)
 
 	Array.from(document.getElementsByName('radius')).forEach((elem) => {
 		elem.addEventListener('change', analyse)
@@ -3713,7 +3714,25 @@ function showNodeData(nodeId) {
 	displayStatistics(nodeId)
 	positionNotes()
 }
-
+/**
+ * user has clicked on the sparkles icon in a Factor window
+ * return the output from an LLM asked to explain the factor
+ */
+async function genAINode() {
+	alertMsg('Thinking...', 'info', true)
+	let nodeId = network.getSelectedNodes()[0]
+	let node = data.nodes.get(nodeId)
+	let aiResponse = await getAIresponse(`Explain ${node.label}`)
+	editor.setContents(aiResponse)
+	let modified = timestamp()
+	data.nodes.update({
+		id: nodeId,
+		note: isQuillEmpty(editor) ? '' : editor.getContents(),
+		modified: modified,
+	})
+	elem('nodeModified').innerHTML = `${timeAndDate(modified.time)} by ${modified.user}`
+	cancelAlertMsg()
+}
 function showEdgeData(edgeId) {
 	let panel = elem('edgeDataPanel')
 	edgeId = edgeId || network.getSelectedEdges()[0]
@@ -3772,16 +3791,15 @@ function showEdgeData(edgeId) {
 	positionNotes()
 }
 /**
- * user has clicked on the sparkles icon in ta Link node window
+ * user has clicked on the sparkles icon in a Link node window
  * return the output from an LLM asked to elaborate on the causal
  * relationship between the two linked factors
  */
-async function hitsparkles() {
-	changeCursor('wait')
+async function genAIEdge() {
 	alertMsg('Thinking...', 'info', true)
 	let edgeId = network.getSelectedEdges()[0]
 	let edge = data.edges.get(edgeId)
-	let aiResponse = await getAIresponse(data.nodes.get(edge.from).label, data.nodes.get(edge.to).label)
+	let aiResponse = await getAIresponse(`Explain the causal link between ${data.nodes.get(edge.from).label} and ${data.nodes.get(edge.to).label}`)
 	editor.setContents(aiResponse)
 	let modified = timestamp()
 	data.edges.update({
@@ -3790,7 +3808,6 @@ async function hitsparkles() {
 		modified: modified,
 	})
 	elem('edgeModified').innerHTML = `${timeAndDate(modified.time)} by ${modified.user}`
-	changeCursor('default')
 	cancelAlertMsg()
 }
 /**
