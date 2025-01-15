@@ -21,9 +21,9 @@ PRSM Participatory System Mapper
 This module clusters factors  
  ******************************************************************************************************************** */
 
-import {elem, uuidv4, deepMerge, standardize_color, makeColor, lightOrDark} from './utils.js'
-import {styles} from './samples.js'
-import {network, data, doc, yNetMap, unSelect, debug} from './prsm.js'
+import { elem, uuidv4, deepMerge, standardize_color, makeColor } from './utils.js'
+import { styles } from './samples.js'
+import { network, data, doc, yNetMap, unSelect, debug } from './prsm.js'
 
 export function cluster(attribute) {
 	if (!attribute) return
@@ -72,14 +72,8 @@ function clusterByAttribute(attribute) {
 		let clusterNode = data.nodes.get(`cluster-${attribute}-${value}`)
 		if (clusterNode === null) {
 			let color = makeColor()
-			clusterNode = deepMerge(styles.nodes['cluster'], {
-				id: `cluster-${attribute}-${value}`,
-				isCluster: true,
-				color: {background: color},
-				font: {color: lightOrDark(color) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)'},
-			})
+			clusterNode = makeClusterNode(`cluster-${attribute}-${value}`, `${yNetMap.get('attributeTitles')[attribute]} ${value}`, color)
 		}
-		clusterNode.label = `${yNetMap.get('attributeTitles')[attribute]} ${value}`
 		clusterNode.hidden = false
 		for (let node of nodesInCluster) {
 			// for each factor that should be in the cluster
@@ -122,15 +116,9 @@ function clusterByColor() {
 		let nInCluster = 0
 		let clusterNode = data.nodes.get(`cluster-color-${color}`)
 		if (clusterNode === null) {
-			clusterNode = deepMerge(styles.nodes['cluster'], {
-				id: `cluster-color-${color}`,
-				isCluster: true,
-			})
+			clusterNode = makeClusterNode(`cluster-color-${color}`, `Cluster ${++clusterNumber}`, color)
 		}
 		clusterNode.hidden = false
-		clusterNode.label = `Cluster ${++clusterNumber}`
-		clusterNode.color = {background: color}
-		clusterNode.font = {color: lightOrDark(color) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)'}
 		for (let node of nodesInCluster) {
 			// for each factor that should be in the cluster
 			node.clusteredIn = clusterNode.id
@@ -171,16 +159,9 @@ function clusterByStyle() {
 		// retrieve or create the cluster node (cluster nodes are re-used if they already exist)
 		let clusterNode = data.nodes.get(`cluster-style-${style}`)
 		if (clusterNode === null) {
-			clusterNode = deepMerge(styles.nodes['cluster'], {
-				id: `cluster-style-${style}`,
-				isCluster: true,
-			})
+			clusterNode = makeClusterNode(`cluster-style-${style}`, `${styles.nodes[style].groupLabel} cluster`, styles.nodes[style].color.background)
 		}
 		clusterNode.hidden = false
-		clusterNode.label = `${styles.nodes[style].groupLabel} cluster`
-		clusterNode.color.background = styles.nodes[style].color.background
-		clusterNode.font.color =
-			lightOrDark(styles.nodes[style].color.background) == 'light' ? 'rgba(0,0,0,1)' : 'rgb(255,255,255,1)'
 		for (let node of nodesInCluster) {
 			// for each factor that should be in the cluster
 			node.clusteredIn = clusterNode.id
@@ -198,7 +179,30 @@ function clusterByStyle() {
 	data.nodes.update(nodesToUpdate)
 	showClusterLinks()
 }
-
+function clusterImage(color) {
+	return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg width="800" height="800" viewBox="0 0 1024 1024" class="icon" xmlns="http://www.w3.org/2000/svg">
+  <path d="M697.051 674.158c-29.622 0-59.245 11.922-83.017 23.917l-202.02-155.209c5.924-17.92 11.849-35.84 11.849-59.757 0-23.918-5.852-41.838-11.85-59.758L606.428 273.92c17.774 17.92 47.47 29.842 77.166 29.842A147.456 147.456 0 0 0 832 154.332 147.456 147.456 0 0 0 683.52 4.9a147.456 147.456 0 0 0-148.26 149.43c0 29.916 11.849 59.831 23.698 83.676l-176.64 131.51c-29.696-35.84-65.317-59.757-106.789-65.755v-65.755c53.394-11.922 89.015-59.758 89.015-113.518C364.544 58.66 311.15 4.9 245.834 4.9S127.121 58.734 127.121 124.489c0 53.76 35.548 101.596 89.015 113.518v65.828c-89.015 17.847-154.331 89.527-154.331 179.2s65.316 161.427 148.407 173.349v65.755c-53.395 11.923-89.088 59.758-89.088 113.591 0 65.756 53.394 119.516 118.71 119.516S358.62 901.486 358.62 835.73c0-53.833-35.62-101.668-89.088-113.59v-65.756c41.546-5.998 83.09-29.915 106.862-65.755L572.416 739.84c-11.85 23.918-23.698 53.76-23.698 83.675 0 83.676 65.316 149.431 148.407 149.431a147.456 147.456 0 0 0 148.406-149.43 147.456 147.456 0 0 0-148.48-149.431zm-13.385-609.5c47.47 0 89.015 41.911 89.015 89.673 0 47.836-41.545 89.674-89.015 89.674-47.543 0-89.088-41.838-89.088-89.674 0-47.762 41.545-89.673 89.088-89.673M241.883 364.69c62.245 0 116.736 54.857 116.736 117.468 0 62.683-54.491 117.467-116.662 117.467s-116.663-54.857-116.663-117.467S179.712 364.69 241.957 364.69zm-61.293-240.2c0-35.84 23.771-59.832 59.319-59.832 35.62 0 59.392 23.918 59.392 59.831 0 35.84-23.772 59.758-59.392 59.758-35.548 0-59.32-23.918-59.32-59.758M299.3 841.727c0 35.84-23.77 59.83-59.391 59.83-35.548 0-59.32-23.917-59.32-59.83 0-35.84 23.772-59.758 59.32-59.758 35.62 0 59.392 23.918 59.392 59.758m397.898 71.534c-47.543 0-89.015-41.838-89.015-89.673s41.545-89.674 89.015-89.674c47.543 0 89.015 41.838 89.015 89.674s-41.546 89.673-89.015 89.673" style="fill:${color};stroke:${color};stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"/>
+</svg>`)
+}
+/**
+ * Create an object to format a new cluster node
+ * The font is always black
+ * @param {string} id cluster nodeId
+ * @param {string} label cluster node label
+ * @param {string} color of cluster node 
+ * @returns 
+ */
+function makeClusterNode(id, label, color) {
+	return deepMerge(styles.nodes['cluster'], {
+		id: id,
+		label: label,
+		isCluster: true,
+		hidden: false,
+		shape: 'image',
+		image: clusterImage(color),
+		font: { color: 'rgb(0,0,0)' }
+	})
+}
 /**
  * Create links to cluster nodes and hide links that are now inside clustered nodes
  */
@@ -280,7 +284,7 @@ export function openCluster(clusterNodeId) {
 		unSelect()
 		let nodesToUpdate = []
 		let edgesToRemove = []
-		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id})
+		let nodesInCluster = data.nodes.get({ filter: (node) => node.clusteredIn === clusterNode.id })
 		for (let node of nodesInCluster) {
 			node.hidden = false
 			node.clusteredIn = null
@@ -298,7 +302,7 @@ export function openCluster(clusterNodeId) {
 		data.edges.remove(edgesToRemove)
 		showClusterLinks()
 	})
-	if (data.nodes.get({filter: (n) => n.isCluster && !n.hidden}).length === 0) {
+	if (data.nodes.get({ filter: (n) => n.isCluster && !n.hidden }).length === 0) {
 		// all clusters have been opened; reset the cluster select to None
 		elem('clustering').value = 'none'
 	}
@@ -307,8 +311,8 @@ export function openCluster(clusterNodeId) {
 function unCluster() {
 	let nodesToUpdate = []
 	let edgesToRemove = []
-	data.nodes.get({filter: (node) => node.isCluster}).forEach((clusterNode) => {
-		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id})
+	data.nodes.get({ filter: (node) => node.isCluster }).forEach((clusterNode) => {
+		let nodesInCluster = data.nodes.get({ filter: (node) => node.clusteredIn === clusterNode.id })
 		for (let node of nodesInCluster) {
 			node.hidden = false
 			node.clusteredIn = null

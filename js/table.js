@@ -970,9 +970,7 @@ function convertNode(node) {
 	for (let prop in conversions) {
 		n[prop] = n[conversions[prop][0]][conversions[prop][1]]
 	}
-	n.size =
-		n.scaling.label.enabled && n.value != undefined && !isNaN(n.value) ? parseFloat(n.value).toPrecision(3) : '--'
-	if (n.shape == 'database') n.shape = 'cluster'
+	n.size = n.scaling.label.enabled && n.value != undefined && !isNaN(n.value) ? parseFloat(n.value).toPrecision(3) : '--'
 	if (n.groupLabel == 'Sample') n.groupLabel = '--'
 	n.borderStyle = n.shapeProperties.borderDashes
 	if (n.borderWidth == 0) n.borderStyle = 'None'
@@ -1044,7 +1042,6 @@ function convertNodeBack(node, field, value) {
 			node.grp = getNodeGroupFromGroupLabel(value)
 			break
 		case 'shape':
-			if (value == 'cluster') value = 'database'
 			node.shape = value
 			break
 		case 'hidden':
