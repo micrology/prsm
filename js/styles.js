@@ -698,13 +698,14 @@ function linkEditSubmit() {
 }
 /**
  * update all links in the map with this style to the current style features
+ *   (don't touch cluster edges)
  * @param {number[]} groupIds
  * @param {boolean} [force] override any existing individual edge styling
  */
 export function reApplySampleToLinks(groupIds, force) {
 	let edgesToUpdate = data.edges.get({
 		filter: (item) => {
-			return groupIds.includes(item.grp)
+			return (groupIds.includes(item.grp)  && !item.isClusterEdge)
 		},
 	})
 	data.edges.update(

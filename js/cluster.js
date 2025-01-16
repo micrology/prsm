@@ -69,12 +69,7 @@ function clusterByAttribute(attribute) {
 		let sumx = 0
 		let sumy = 0
 		let nInCluster = 0
-		let clusterNode = data.nodes.get(`cluster-${attribute}-${value}`)
-		if (clusterNode === null) {
-			let color = makeColor()
-			clusterNode = makeClusterNode(`cluster-${attribute}-${value}`, `${yNetMap.get('attributeTitles')[attribute]} ${value}`, color)
-		}
-		clusterNode.hidden = false
+		let clusterNode = makeClusterNode(`cluster-${attribute}-${value}`, `${yNetMap.get('attributeTitles')[attribute]} ${value}`, makeColor())
 		for (let node of nodesInCluster) {
 			// for each factor that should be in the cluster
 			node.clusteredIn = clusterNode.id
@@ -114,11 +109,7 @@ function clusterByColor() {
 		let sumx = 0
 		let sumy = 0
 		let nInCluster = 0
-		let clusterNode = data.nodes.get(`cluster-color-${color}`)
-		if (clusterNode === null) {
-			clusterNode = makeClusterNode(`cluster-color-${color}`, `Cluster ${++clusterNumber}`, color)
-		}
-		clusterNode.hidden = false
+		let clusterNode = makeClusterNode(`cluster-color-${color}`, `Cluster ${++clusterNumber}`, color)
 		for (let node of nodesInCluster) {
 			// for each factor that should be in the cluster
 			node.clusteredIn = clusterNode.id
@@ -156,12 +147,7 @@ function clusterByStyle() {
 		let sumx = 0
 		let sumy = 0
 		let nInCluster = 0
-		// retrieve or create the cluster node (cluster nodes are re-used if they already exist)
-		let clusterNode = data.nodes.get(`cluster-style-${style}`)
-		if (clusterNode === null) {
-			clusterNode = makeClusterNode(`cluster-style-${style}`, `${styles.nodes[style].groupLabel} cluster`, styles.nodes[style].color.background)
-		}
-		clusterNode.hidden = false
+		let clusterNode = makeClusterNode(`cluster-style-${style}`, `${styles.nodes[style].groupLabel} cluster`, styles.nodes[style].color.background)
 		for (let node of nodesInCluster) {
 			// for each factor that should be in the cluster
 			node.clusteredIn = clusterNode.id

@@ -3538,7 +3538,11 @@ function applySampleToNode(event) {
 		)
 	lastNodeSample = sample
 }
-
+/**
+ * Apply the sample's format to the selected links
+ * @param {event} event 
+ * @returns 
+ */
 function applySampleToLink(event) {
 	if (event.detail !== 1) return // only process single clicks here
 	let sample = event.currentTarget.groupLink
@@ -3546,6 +3550,7 @@ function applySampleToLink(event) {
 	if (selectedEdges.length === 0) return
 	let edgesToUpdate = []
 	for (let edge of data.edges.get(selectedEdges)) {
+		if (edge.isClusterEdge) break
 		if (sample !== edge.grp) {
 			edge = deepMerge(edge, styles.edges[sample])
 			edge.grp = sample
