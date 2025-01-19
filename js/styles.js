@@ -569,6 +569,7 @@ export function reApplySampleToNodes(groupIds, force) {
 export function refreshSampleNode(groupId) {
 	let sampleElements = Array.from(document.getElementsByClassName('sampleNode'))
 	let sampleElement = sampleElements[groupId.match(/\d+/)?.[0]]
+	if (!sampleElement) return
 	let node = sampleElement.dataSet.get()[0]
 	node = deepMerge(node, styles.nodes[groupId], {
 		chosen: false,
@@ -720,6 +721,7 @@ export function reApplySampleToLinks(groupIds, force) {
 export function refreshSampleLink(groupId) {
 	let sampleElements = Array.from(document.getElementsByClassName('sampleLink'))
 	let sampleElement = sampleElements[groupId.match(/\d+/)?.[0]]
+	if (!sampleElement) return
 	let edge = sampleElement.dataSet.get()[0]
 	edge = deepMerge(edge, styles.edges[groupId], {chosen: false, value: 10})
 	edge.label = edge.groupLabel
