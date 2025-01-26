@@ -1066,7 +1066,7 @@ function draw() {
 				},
 			},
 			smooth: {
-				type: 'straightCross',
+				type: 'cubicBezier',
 			},
 		},
 		physics: {
@@ -1732,7 +1732,7 @@ export function drawMinimap(ratio = 5) {
 				physics: { enabled: false },
 			})
 		}
-		fullNetwork.setOptions({ edges: { smooth: elem('curveSelect').value === 'Curved' } })
+		fullNetwork.setOptions({ edges: { smooth: elem('curveSelect').value === 'cubicBezier' } })
 		fullNetwork.fit()
 		initialScale = fullNetwork.getScale()
 		initialPosition = fullNetwork.getViewPosition()
@@ -4026,7 +4026,7 @@ export function setCurve(option) {
 	elem('curveSelect').value = option
 	network.setOptions({
 		edges: {
-			smooth: option === 'Curved',
+			smooth: (option === 'Curved' ? { type: 'cubicBezier' } : false),
 		},
 	})
 }
