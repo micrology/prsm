@@ -920,7 +920,7 @@ export function exportPNGfile() {
 		edges: {
 			smooth: {
 				enabled: elem('curveSelect').value === 'Curved',
-				type: 'straightCross',
+				type: 'cubicBezier',
 			},
 		},
 	})

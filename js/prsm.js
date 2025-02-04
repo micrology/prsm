@@ -994,7 +994,7 @@ function setvh() {
 function setUpUserName() {
 	try {
 		myNameRec = JSON.parse(localStorage.getItem('myName'))
-	} catch (err) {
+	} catch {
 		myNameRec = null
 	}
 	saveUserName(myNameRec?.name ? myNameRec.name : '')
@@ -2197,7 +2197,7 @@ async function copyText(text) {
 	try {
 		if (typeof navigator.clipboard.writeText !== 'function')
 			throw new Error('navigator.clipboard.writeText not a function')
-	} catch (e) {
+	} catch {
 		alertMsg('Copying not implemented in this browser', 'error')
 		return false
 	}
@@ -2222,7 +2222,7 @@ async function pasteFromClipboard() {
 	let edges
 	try {
 		; ({ nodes, edges } = JSON.parse(clip))
-	} catch (err) {
+	} catch {
 		// silently return (i.e. use system paste) if there is nothing relevant on the clipboard
 		return
 	}
@@ -2255,7 +2255,7 @@ async function getClipboardContents() {
 	try {
 		if (typeof navigator.clipboard.readText !== 'function')
 			throw new Error('navigator.clipboard.readText not a function')
-	} catch (e) {
+	} catch {
 		alertMsg('Pasting not implemented in this browser', 'error')
 		return null
 	}
@@ -3374,7 +3374,7 @@ function doMerge() {
 		console.log('merging ', roomToMerge)
 		mergeRoom(roomToMerge)
 		logHistory(`merged map from room: ${roomToMerge}`)
-	} catch (e) {
+	} catch {
 		alertMsg('Invalid map URL', 'error')
 		return
 	}

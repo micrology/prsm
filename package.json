@@ -71,7 +71,6 @@
 	"devDependencies": {
 		"@eslint/eslintrc": "^3.2.0",
 		"@eslint/js": "^9.17.0",
-		"@parcel/optimizer-terser": "^2.9.3",
 		"buffer": "^6.0.3",
 		"docdash": "^2.0.2",
 		"eslint": "^9.17.0",
