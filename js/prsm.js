@@ -33,6 +33,7 @@ import { WebsocketProvider } from 'y-websocket'
 import { Network } from 'vis-network/peer'
 import { DataSet } from 'vis-data/peer'
 import diff from 'microdiff'
+import localForage from 'localforage'
 import {
 	listen,
 	elem,
@@ -832,40 +833,48 @@ function startY(newRoom) {
 
 /**
  * load cloned data from localStorage
+ * if there is no clone, returns without doing anything
  */
 function initiateClone() {
-	let clone = localStorage.getItem('clone')
-	if (clone) {
-		localStorage.removeItem('clone')
-		let state = JSON.parse(decompressFromUTF16(clone))
-		data.nodes.update(state.nodes)
-		data.edges.update(state.edges)
-		doc.transact(() => {
-			for (const k in state.net) {
-				yNetMap.set(k, state.net[k])
+	localForage.getItem('clone').then((clone) => {
+		localForage.removeItem('clone').then(() => {
+			// if there is no clone, clone will be null
+			if (clone) {
+				let state = JSON.parse(decompressFromUTF16(clone))
+				data.nodes.update(state.nodes)
+				data.edges.update(state.edges)
+				doc.transact(() => {
+					for (const k in state.net) {
+						yNetMap.set(k, state.net[k])
+					}
+					viewOnly = state.options.viewOnly
+					yNetMap.set('viewOnly', viewOnly)
+					data.nodes.get().forEach((obj) => (obj.fixed = viewOnly))
+					if (viewOnly) hideNavButtons()
+					for (const k in state.samples) {
+						ySamplesMap.set(k, state.samples[k])
+					}
+					if (state.paint) {
+						yPointsArray.delete(0, yPointsArray.length)
+						yPointsArray.insert(0, state.paint)
+					}
+					if (state.drawing) {
+						for (const k in state.drawing) {
+							yDrawingMap.set(k, state.drawing[k])
+						}
+						updateFromDrawingMap()
+					}
+					logHistory(state.options.created.action, state.options.created.actor)
+				}, 'clone')
+				unSelect()
+				fit()
 			}
-			viewOnly = state.options.viewOnly
-			yNetMap.set('viewOnly', viewOnly)
-			data.nodes.get().forEach((obj) => (obj.fixed = viewOnly))
-			if (viewOnly) hideNavButtons()
-			for (const k in state.samples) {
-				ySamplesMap.set(k, state.samples[k])
-			}
-			if (state.paint) {
-				yPointsArray.delete(0, yPointsArray.length)
-				yPointsArray.insert(0, state.paint)
-			}
-			if (state.drawing) {
-				for (const k in state.drawing) {
-					yDrawingMap.set(k, state.drawing[k])
-				}
-				updateFromDrawingMap()
-			}
-			logHistory(state.options.created.action, state.options.created.actor)
-		}, 'clone')
-		unSelect()
-		fit()
-	}
+		}).catch((err) => {
+			console.log('Cant delete localForage clone key: ', err)
+		})
+	}).catch((err) => {
+		console.log('Cant get localForage clone key: ', err)
+	})
 }
 function yjsTrace(where, what) {
 	if (/yjs/.test(debug)) {
@@ -1934,14 +1943,15 @@ export function logHistory(action, actor) {
 	])
 	// store the current state of the map for possible rollback
 
-	localStorage.setItem(timekey(now), savedState)
-	savedState = saveState()
+	localForage.setItem(timekey(now), savedState).then(() => {
+		savedState = saveState()
 
-	// delete all but the last ROLLBACKS saved states
-	for (let i = 0; i < yHistory.length - ROLLBACKS; i++) {
-		let obj = yHistory.get(i)
-		if (obj.time) localStorage.removeItem(timekey(obj.time))
-	}
+		// delete all but the last ROLLBACKS saved states
+		for (let i = 0; i < yHistory.length - ROLLBACKS; i++) {
+			let obj = yHistory.get(i)
+			if (obj.time) localForage.removeItem(timekey(obj.time))
+		}
+	})
 	if (elem('history-window').style.display === 'block') showHistory()
 	dirty = true
 }
@@ -2565,7 +2575,7 @@ function saveNode(item, callback) {
 	item.font.size = parseInt(elem('nodeEditFontSize').value)
 	setFactorSizeFromPercent(item, elem('nodeEditSizer').value)
 	network.manipulation.inMode = 'editNode' // ensure still in Add mode, in case others have done something meanwhile
-	if (item.label === item.oldLabel) logHistory(`edited factor: '${item.label}'`)
+	if (item.label.replace(/\s+|\n/g, '') === item.oldLabel.replace(/\s+|\n/g, '')) logHistory(`edited factor: '${item.label}'`)
 	else logHistory(`edited factor, changing label from '${item.oldLabel}' to '${item.label}'`)
 	clearPopUp()
 	callback(item)
@@ -3134,17 +3144,17 @@ function ghostCursor() {
 		const boxHalfHeight = box.offsetHeight / 2
 		let left = window.event.pageX - boxHalfWidth
 		box.style.left = `${left <= netPaneRect.left
-				? netPaneRect.left
-				: left >= netPaneRect.right - box.offsetWidth
-					? netPaneRect.right - box.offsetWidth
-					: left
+			? netPaneRect.left
+			: left >= netPaneRect.right - box.offsetWidth
+				? netPaneRect.right - box.offsetWidth
+				: left
 			}px`
 		let top = window.event.pageY - boxHalfHeight
 		box.style.top = `${top <= netPaneRect.top
-				? netPaneRect.top
-				: top >= netPaneRect.bottom - box.offsetHeight
-					? netPaneRect.bottom - box.offsetHeight
-					: top
+			? netPaneRect.top
+			: top >= netPaneRect.bottom - box.offsetHeight
+				? netPaneRect.bottom - box.offsetHeight
+				: top
 			}px`
 	}
 }
@@ -3347,17 +3357,20 @@ function doClone(onlyView) {
 	}
 	// save state as a UTF16 string
 	let state = saveState(options)
+	console.log('cloning state:', state.length)
 	// save it in local storage
-	localStorage.setItem('clone', state)
-	// make a room id
-	let clonedRoom = generateRoom()
-	//open a new map
-	let path = `${window.location.pathname}?room=${clonedRoom}`
-	if (onlyView && elem('addCopyButton').checked) path += '&copyButton'
-	window.open(path, '_blank')
-	logHistory(`made a ${onlyView ? 'read-only copy' : 'clone'} of the map in room: ${clonedRoom}`)
+	localForage.setItem('clone', state).then(() => {
+		// make a room id
+		let clonedRoom = generateRoom()
+		//open a new map
+		let path = `${window.location.pathname}?room=${clonedRoom}`
+		if (onlyView && elem('addCopyButton').checked) path += '&copyButton'
+		window.open(path, '_blank')
+		logHistory(`made a ${onlyView ? 'read-only copy' : 'clone'} of the map into room: ${clonedRoom}`)
+	}).catch(function (err) {
+		console.log('Error saving clone to local storage:', err)
+	})
 }
-
 function mergeMap() {
 	elem('mergedRoom').value = ''
 	elem('mergeDialog').showModal()
@@ -4753,10 +4766,10 @@ function showHistory() {
  * @param {HTMLElement} e - history record
  * */
 function addRollbackIcon(e) {
-	let state = localStorage.getItem(timekey(parseInt(e.dataset.time)))
-	if (state) {
-		e.id = `hist${e.dataset.time}`
-		e.innerHTML = `<div class="tooltip">
+	localForage.getItem(timekey(parseInt(e.dataset.time))).then((state) => {
+		if (state) {
+			e.id = `hist${e.dataset.time}`
+			e.innerHTML = `<div class="tooltip">
 				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bootstrap-reboot" viewBox="0 0 16 16">
 				<path d="M1.161 8a6.84 6.84 0 1 0 6.842-6.84.58.58 0 1 1 0-1.16 8 8 0 1 1-6.556 3.412l-.663-.577a.58.58 0 0 1 .227-.997l2.52-.69a.58.58 0 0 1 .728.633l-.332 2.592a.58.58 0 0 1-.956.364l-.643-.56A6.812 6.812 0 0 0 1.16 8z"/>
 				<path d="M6.641 11.671V8.843h1.57l1.498 2.828h1.314L9.377 8.665c.897-.3 1.427-1.106 1.427-2.1 0-1.37-.943-2.246-2.456-2.246H5.5v7.352h1.141zm0-3.75V5.277h1.57c.881 0 1.416.499 1.416 1.32 0 .84-.504 1.324-1.386 1.324h-1.6z"/>
@@ -4764,8 +4777,9 @@ function addRollbackIcon(e) {
 				<span class="tooltiptext rollbacktip">Rollback to before this action</span>
 			</div>
 		</div>`
-		if (elem(e.id)) listen(e.id, 'click', rollback)
-	}
+			if (elem(e.id)) listen(e.id, 'click', rollback)
+		}
+	})
 }
 /**
  * Restores the state of the map to a previous one
@@ -4774,35 +4788,36 @@ function addRollbackIcon(e) {
  */
 function rollback(event) {
 	let rbTime = parseInt(event.currentTarget.dataset.time)
-	let rb = localStorage.getItem(timekey(rbTime))
-	if (!rb) return
-	if (!confirm(`Roll back the map to what it was before ${timeAndDate(rbTime)}?`)) return
-	let state = JSON.parse(decompressFromUTF16(rb))
-	data.nodes.clear()
-	data.edges.clear()
-	data.nodes.update(state.nodes)
-	data.edges.update(state.edges)
-	doc.transact(() => {
-		for (const k in state.net) {
-			yNetMap.set(k, state.net[k])
-		}
-		setMapTitle(state.net.mapTitle)
-		for (const k in state.samples) {
-			ySamplesMap.set(k, state.samples[k])
-		}
-		if (state.paint) {
-			yPointsArray.delete(0, yPointsArray.length)
-			yPointsArray.insert(0, state.paint)
-		}
-		if (state.drawing) {
-			yDrawingMap.clear()
-			for (const k in state.drawing) {
-				yDrawingMap.set(k, state.drawing[k])
+	localForage.getItem(timekey(rbTime)).then((rb) => {
+		if (!rb) return
+		if (!confirm(`Roll back the map to what it was before ${timeAndDate(rbTime)}?`)) return
+		let state = JSON.parse(decompressFromUTF16(rb))
+		data.nodes.clear()
+		data.edges.clear()
+		data.nodes.update(state.nodes)
+		data.edges.update(state.edges)
+		doc.transact(() => {
+			for (const k in state.net) {
+				yNetMap.set(k, state.net[k])
 			}
-			updateFromDrawingMap()
-		}
+			setMapTitle(state.net.mapTitle)
+			for (const k in state.samples) {
+				ySamplesMap.set(k, state.samples[k])
+			}
+			if (state.paint) {
+				yPointsArray.delete(0, yPointsArray.length)
+				yPointsArray.insert(0, state.paint)
+			}
+			if (state.drawing) {
+				yDrawingMap.clear()
+				for (const k in state.drawing) {
+					yDrawingMap.set(k, state.drawing[k])
+				}
+				updateFromDrawingMap()
+			}
+		})
+		logHistory(`rolled back the map to what it was before ${timeAndDate(rbTime, true)}`)
 	})
-	logHistory(`rolled back the map to what it was before ${timeAndDate(rbTime, true)}`)
 }
 
 function showHistorySwitch() {
