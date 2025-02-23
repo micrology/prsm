@@ -586,7 +586,7 @@ function loadExcelfile(contents) {
 	 Transform data about factors into an array of objects, with properties named after the column headings
 	 (with first letter lower cased if necessary) and values from that row's cells.
 	 add a GUID to the object,  change 'Style' property to 'grp'
-	 Style is a style number between 1 and 9
+	 Style is a style number
 	 Put value of Description or Notes property into notes
 	 Check that any other property names are not in the list of known attribute names; if so add that property name to the attribute name list 
 	 Place the factor either at the given x and y coordinates or at some random location
@@ -594,13 +594,14 @@ function loadExcelfile(contents) {
 
 	// convert data from Factors sheet into an array of objects with properties starting with lower case letters
 	let factors = utils.sheet_to_json(factorsSS).map((f) => lowerInitialLetterOfProps(f))
+	let maxIndexOfFactorStyles = Object.keys(styles.nodes).length - 1
 	factors.forEach((f) => {
 		f.id = uuidv4()
 		if (f.style) {
 			let styleNo = parseInt(f.style)
-			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
+			if (isNaN(styleNo) || styleNo < 1 || styleNo > maxIndexOfFactorStyles) {
 				throw {
-					message: `Factors - Line ${f.__rowNum__}: Style must be a number between 1 and 9, a style name, or blank (found ${f.style})`,
+					message: `Factors - Line ${f.__rowNum__}: Style must be a number between 1 and ${maxIndexOfFactorStyles} or blank (found ${f.style})`,
 				}
 			}
 			f.grp = 'group' + (styleNo - 1)
@@ -1165,19 +1166,29 @@ export function exportExcel() {
 				'fixed',
 				'font',
 				'grp',
+				'hidden',
 				'id',
+				'clusteredIn',
+				'level',
 				'labelHighlightBold',
 				'locked',
 				'margin',
 				'modified',
+				'nodeHidden',
 				'opacity',
 				'oldFont',
 				'oldFontColor',
 				'oldLabel',
 				'note',
 				'scaling',
+				'shadow',
 				'shapeProperties',
+				'size',
+				'heightConstraint',
+				'val',
+				'value',
 				'wasFixed',
+				'widthConstraint'
 			])
 		})
 

@@ -3357,12 +3357,11 @@ function doClone(onlyView) {
 	}
 	// save state as a UTF16 string
 	let state = saveState(options)
-	console.log('cloning state:', state.length)
 	// save it in local storage
 	localForage.setItem('clone', state).then(() => {
 		// make a room id
 		let clonedRoom = generateRoom()
-		//open a new map
+		// open a new map
 		let path = `${window.location.pathname}?room=${clonedRoom}`
 		if (onlyView && elem('addCopyButton').checked) path += '&copyButton'
 		window.open(path, '_blank')
