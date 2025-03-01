@@ -1056,7 +1056,7 @@ function setUpTutorial() {
 function draw() {
 	// for testing, you can append ?t=XXX to the URL of the page, where XXX is the number
 	// of factors to include in a random network
-	let url = new URL(document.location)
+	let url = new URL(document.location.href.toLowerCase())
 	let nNodes = parseInt(url.searchParams.get('t'))
 	if (nNodes) getRandomData(nNodes)
 	// create a network
@@ -3928,25 +3928,61 @@ function autoLayout(e) {
 				}
 				break
 			}
-			default: {
+			case 'barnesHut':
+			case 'repulsion': {
 				statusMsg('Working...')
 				let options = { physics: { solver: option, stabilization: true } }
 				options.physics[option] = {}
 				options.physics[option].springLength = avEdgeLength()
 				network.setOptions(options)
 				// cancel the iterative algorithms as soon as they have stabilized
-				network.on('stabilized', () => {
-					network.setOptions({ physics: { enabled: false } })
-					network.storePositions()
-					elem('layoutSelect').value = 'off'
-					statusMsg(`${label} layout applied`)
-					data.nodes.update(data.nodes.get())
+				network.on('stabilized', () => cancelLayout())
+			}
+				break;
+			case 'forceAtlas2Based': {
+				statusMsg('Working...')
+				let options = {
+					physics: {
+						solver: 'forceAtlas2Based',
+						forceAtlas2Based: {
+							"theta": 2, // Boundary between consolidated long range forces and individual short range forces
+							"gravitationalConstant": -500,  // Repulsion force (-ve values push nodes apart)
+							"centralGravity": 0.01,  // Pulls nodes toward the center
+							"springConstant": 0.3, // Controls edge length
+							"springLength": 0, // Edge attraction force
+							"damping": 0.8, // Reduces oscillation
+							"avoidOverlap": 1 // Prevents node overlap
+						},
+					}
+				}
+				network.setOptions(options)
+				// cancel the iterative algorithms as soon as they have stabilized
+				network.on('stabilized', () => cancelLayout())
+				network.on('stabilizationProgress', (obj) => {
+					statusMsg(`Working... ${obj.iterations} iterations of ${obj.total}`)
 				})
+				break
+			}
+			default: {
+				console.log('Unknown layout option')
 				break
 			}
 		}
 	})
+	// if the layout doesn't stabilize, cancel it after 30 seconds
+	setTimeout(() => { cancelLayout() }, 30000)
 	logHistory(`applied ${label} layout`)
+
+	/**
+	 * cancel the iterative layout algorithms
+	 */
+	function cancelLayout() {
+		network.setOptions({ physics: { enabled: false } })
+		network.storePositions()
+		elem('layoutSelect').value = 'off'
+		statusMsg(`${label} layout applied`)
+		data.nodes.update(data.nodes.get())
+	}
 
 	/**
 	 * set the levels for fan, using a breadth first search
