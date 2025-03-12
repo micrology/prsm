@@ -2294,12 +2294,26 @@ function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback)
 	inEditMode = true
 	changeCursor('default')
 	elem('popup').style.height = `${height}px`
+	elem('popup').style.borderColor = item.color.background
 	elem('popup-operation').innerHTML = popUpTitle
 	elem('popup-saveButton').onclick = saveAction.bind(this, item, callback)
 	elem('popup-cancelButton').onclick = cancelAction.bind(this, item, callback)
 	let popupLabel = elem('popup-label')
 	popupLabel.style.fontSize = '14px'
-	popupLabel.innerText = item.label === undefined ? '' : item.label.replace(/\n/g, ' ')
+	popupLabel.innerText = item.label === undefined ? '' : item.label //.replace(/\n/g, ' ')
+	popupLabel.focus()
+	// Set the cursor to the end
+	setEndOfContenteditable(popupLabel)
+	listen('popup', 'keydown', captureReturn)
+	function captureReturn(e) {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			elem('popup').removeEventListener('keydown', captureReturn)
+			saveAction(item, callback)
+		} else if (e.key === "Escape") {
+			elem('popup').removeEventListener('keydown', captureReturn)
+			cancelAction(item, callback)
+		}
+	}
 }
 /**
  * Position the editing dialog box so that it is to the left of the item being edited,
@@ -2677,6 +2691,7 @@ function editEdge(item, point, cancelAction, callback) {
 	</div>
 `,
 	)
+	elem('popup').style.borderColor = item.color.color
 	elem('linkEditWidth').value = parseInt(item.width)
 	cp.createColorPicker('linkEditLineColor')
 	elem('linkEditLineColor').style.backgroundColor = standardize_color(item.color.color)
