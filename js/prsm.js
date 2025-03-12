@@ -1931,8 +1931,10 @@ function timekey(time) {
  *  also record current state of the map for possible roll back
  *  and note changes have been made to the map
  * @param {String} action
+ * @param {String} actor - the user who took the action 
+ * @param {boolean} dontSaveState - if defined, don't save the current state of the map
  */
-export function logHistory(action, actor) {
+export async function logHistory(action, actor, dontSaveState=null) {
 	let now = Date.now()
 	yHistory.push([
 		{
@@ -1942,16 +1944,17 @@ export function logHistory(action, actor) {
 		},
 	])
 	// store the current state of the map for possible rollback
+	if (!dontSaveState) {
+		await localForage.setItem(timekey(now), savedState).then(() => {
+			savedState = saveState()
 
-	localForage.setItem(timekey(now), savedState).then(() => {
-		savedState = saveState()
-
-		// delete all but the last ROLLBACKS saved states
-		for (let i = 0; i < yHistory.length - ROLLBACKS; i++) {
-			let obj = yHistory.get(i)
-			if (obj.time) localForage.removeItem(timekey(obj.time))
-		}
-	})
+			// delete all but the last ROLLBACKS saved states
+			for (let i = 0; i < yHistory.length - ROLLBACKS; i++) {
+				let obj = yHistory.get(i)
+				if (obj.time) localForage.removeItem(timekey(obj.time))
+			}
+		})
+	}
 	if (elem('history-window').style.display === 'block') showHistory()
 	dirty = true
 }
@@ -4809,14 +4812,17 @@ function showHistory() {
 		)
 		.join(' ')
 	document.querySelectorAll('div.history-rollback').forEach((e) => addRollbackIcon(e))
-	if (log.children.length > 0) log.lastChild.scrollIntoView(false)
+	if (log.children.length > 0) {
+		// without the timeout, the window does not scroll fully to the bottom
+		setTimeout(() => log.lastChild.scrollIntoView(false), 20)
+	}
 }
 /**
  * add a button for rolling back if there is state data corresponding to this log record
  * @param {HTMLElement} e - history record
  * */
-function addRollbackIcon(e) {
-	localForage.getItem(timekey(parseInt(e.dataset.time))).then((state) => {
+async function addRollbackIcon(e) {
+	await localForage.getItem(timekey(parseInt(e.dataset.time))).then((state) => {
 		if (state) {
 			e.id = `hist${e.dataset.time}`
 			e.innerHTML = `<div class="tooltip">
@@ -4866,7 +4872,8 @@ function rollback(event) {
 				updateFromDrawingMap()
 			}
 		})
-		logHistory(`rolled back the map to what it was before ${timeAndDate(rbTime, true)}`)
+		localForage.removeItem(timekey(rbTime))
+		logHistory(`rolled back the map to what it was before ${timeAndDate(rbTime, true)}`, null, 'rollback')
 	})
 }
 
