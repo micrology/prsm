@@ -75,7 +75,7 @@ import {canvas, refreshFromMap, setUpBackground, upgradeFromV1} from './backgrou
 import {refreshSampleNode, refreshSampleLink, updateLegend} from './styles.js'
 import Quill from 'quill'
 import {saveAs} from 'file-saver'
-import * as quillToWord from 'quill-to-word'
+//import * as quillToWord from 'quill-to-word'  //dynamically loaded in exportNotes
 import {read, writeFileXLSX, utils} from 'xlsx'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
 import * as parser from 'fast-xml-parser'
@@ -1057,7 +1057,8 @@ export async function exportNotes() {
 			},
 		},
 	}
-	const docAsBlob = await quillToWord.generateWord(delta, quillToWordConfig)
+	const ql = await import('quill-to-word')
+	const docAsBlob = await ql.generateWord(delta, quillToWordConfig)
 	setFileName('docx')
 	saveAs(docAsBlob, lastFileName)
 }
