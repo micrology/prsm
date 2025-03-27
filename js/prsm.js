@@ -876,6 +876,11 @@ function initiateClone() {
 		console.log('Cant get localForage clone key: ', err)
 	})
 }
+/**
+ * Display observed yjs event
+ * @param {string} where 
+ * @param {object} what 
+ */
 function yjsTrace(where, what) {
 	if (/yjs/.test(debug)) {
 		console.log(exactTime(), where, what)
@@ -999,7 +1004,6 @@ function setvh() {
 /**
  * retrieve or generate user's name
  */
-
 function setUpUserName() {
 	try {
 		myNameRec = JSON.parse(localStorage.getItem('myName'))
@@ -1825,15 +1829,22 @@ export function drawMinimap(ratio = 5) {
 			},
 			{ passive: false },
 		)
-
+		/**
+		 * note that the mouse is down on the radar overlay and start dragging
+		 * @param {event} e 
+		 */
 		function dragMouseDown(e) {
 			e.preventDefault()
-				; (x = e.clientX), (y = e.clientY)
+			x = e.clientX
+			y = e.clientY
 			radarStart = { x: minimapRadar.offsetLeft, y: minimapRadar.offsetTop }
 			minimapRadar.addEventListener('pointermove', drag)
 			minimapRadar.addEventListener('pointerup', dragMouseUp)
 		}
-
+/**
+ * move the radar overlay as the mouse moves
+ * @param {event} e 
+ */
 		function drag(e) {
 			e.preventDefault()
 			dragging = true
@@ -1864,12 +1875,16 @@ export function drawMinimap(ratio = 5) {
 				}),
 			})
 		}
-
+/**
+ * note that the mouse is up and stop dragging
+ * @param {event} e 
+ */
 		function dragMouseUp(e) {
 			e.preventDefault()
-			if (!dragging) return
-			minimapRadar.removeEventListener('pointermove', drag)
-			minimapRadar.removeEventListener('pointerup', dragMouseUp)
+			if (dragging) {
+				minimapRadar.removeEventListener('pointermove', drag)
+				minimapRadar.removeEventListener('pointerup', dragMouseUp)
+			}
 		}
 	}
 }
@@ -1934,7 +1949,7 @@ function timekey(time) {
  * @param {String} actor - the user who took the action 
  * @param {boolean} dontSaveState - if defined, don't save the current state of the map
  */
-export async function logHistory(action, actor, dontSaveState=null) {
+export async function logHistory(action, actor, dontSaveState = null) {
 	let now = Date.now()
 	yHistory.push([
 		{
@@ -3571,7 +3586,6 @@ function applySampleToNode(event) {
 /**
  * Apply the sample's format to the selected links
  * @param {event} event 
- * @returns 
  */
 function applySampleToLink(event) {
 	if (event.detail !== 1) return // only process single clicks here

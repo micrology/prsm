@@ -174,7 +174,7 @@ function clusterImage(color) {
  * @param {string} id cluster nodeId
  * @param {string} label cluster node label
  * @param {string} color of cluster node 
- * @returns 
+ * @returns {object} cluster node object
  */
 function makeClusterNode(id, label, color) {
 	return deepMerge(styles.nodes['cluster'], {
