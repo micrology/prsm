@@ -78,7 +78,7 @@ import {saveAs} from 'file-saver'
 //import * as quillToWord from 'quill-to-word'  //dynamically loaded in exportNotes
 import {read, writeFileXLSX, utils} from 'xlsx'
 import {compressToUTF16, decompressFromUTF16} from 'lz-string'
-import * as parser from 'fast-xml-parser'
+import { XMLParser} from 'fast-xml-parser'
 import {fabric} from 'fabric'
 import {version} from '../package.json'
 
@@ -370,11 +370,11 @@ function loadGraphML(graphML) {
 		parseTrueNumberOnly: false,
 		arrayMode: false, //"strict"
 	}
-	var result = parser.validate(graphML, options)
-	if (result !== true) {
-		throw {
-			message: result.err.msg + '(line ' + result.err.line + ')',
-		}
+	const parser = new XMLParser()
+	try {
+		parser.parse(graphML, options)
+	} catch (err) {
+			console.log(`message: ${err.msg} (line ${err.line})`)
 	}
 	let jsonObj = parser.parse(graphML, options)
 	data.nodes.add(
