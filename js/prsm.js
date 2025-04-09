@@ -424,8 +424,9 @@ function startY(newRoom) {
 		room = generateRoom()
 		checkMapSaved = true
 	} else room = room.toUpperCase()
-	// if using a non-standard port (i.e neither 80 nor 443) assume that the websocket port is 1234 in the same domain as the url
-	if (url.port && url.port !== 80 && url.port !== 443) websocket = `ws://${url.hostname}:1234`
+	// if debug flag includes 'local' or using a non-standard port (i.e neither 80 nor 443) 
+	// assume that the websocket port is 1234 in the same domain as the url
+	if (/local/.test(debug) ||(url.port && url.port !== 80 && url.port !== 443)) websocket = `ws://${url.hostname}:1234`
 	wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
 	wsProvider.on('synced', () => {
 		// if this is a clone, load the cloned data

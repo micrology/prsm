@@ -649,7 +649,7 @@ const random = (items) => items[(Math.random() * items.length) | 0]
  * @param  {number}  differencePoint
  * @return {boolean}
  */
-const rgbIsLight = (r, g, b, differencePoint) => (r * 299 + g * 587 + b * 114) / 1000 >= differencePoint
+export const rgbIsLight = (r, g, b, differencePoint=128) => (r * 299 + g * 587 + b * 114) / 1000 >= differencePoint
 
 /**
  * return a random colour, with a flag to show whether the color is light or dark,
