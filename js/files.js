@@ -533,6 +533,53 @@ function loadGEXFfile(gexf) {
 		nodes,
 		edges,
 	})
+	// transform into PRSM nodes and edges
+	let attrTitles = yNetMap.get('attributeTitles')
+	let i = attrTitles.length + 1
+	attributes?.nodes.forEach(attr => {
+		attrTitles[`attr${i++}`] = 
+	})
+	nodes.forEach((node) => {
+		let n = deepCopy(styles.nodes.group0)
+		if (!node.id) throw new Error(`No ID for node ${node.label}`)
+		n.id = node.id
+		n.label = node.label || node.id
+		n.x = node?.position.x
+		n.y = node?.position.y
+		n.size = node?.viz?.size
+		if (node?.viz?.color) {
+			let color = node.viz.color
+			n.color.background = `rgba(${color.r},${color.g},${color.b},${color.a})`
+			n.font.color = rgbIsLight(color.r, color.g, color.b)
+				? "rgb(0,0,0)"
+				: "rgb(255,255,255)"
+		}
+		n.shape = node?.viz?.shape
+		data.nodes.update(n)
+	})
+	edges.forEach((edge) => {
+		let e = deepCopy(styles.edges.edge0)
+		if (!edge.id) throw new Error("Missing edge ID")
+		e.id = edge.id
+		if (!data.nodes.get(edge.source))
+			throw new Error(
+				`No node ${edge.source} for source of edge ID ${edge.id}`
+			)
+		e.from = edge.source
+		if (!data.nodes.get(edge.target))
+			throw new Error(
+				`No node ${edge.target} for source of edge ID ${edge.id}`
+			)
+		e.to = edge.target
+		if (edge.weght) {
+			e.width = edge.weight > 20 ? 20 : edge.weight < 1 ? 1 : edge.weight
+		}
+		if (edge?.viz?.color) {
+			let color = edge.viz.color
+			e.color = `rgba(${color.r},${color.g},${color.b},${color.a})`
+		}
+		data.edges.update(e)
+	})
 
 	// Helper functions
 	function processAttributes(attributesNode) {

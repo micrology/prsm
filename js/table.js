@@ -141,7 +141,10 @@ function startY() {
 	else room = room.toUpperCase()
 	debug = [url.searchParams.get('debug')]
 	document.title = document.title + ' ' + room
-	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
+// if debug flag includes 'local' or using a non-standard port (i.e neither 80 nor 443) 
+	// assume that the websocket port is 1234 in the same domain as the url
+	if (/local/.test(debug) ||(url.port && url.port !== 80 && url.port !== 443)) websocket = `ws://${url.hostname}:1234`
+		const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
 	wsProvider.on('sync', () => {
 		console.log(exactTime() + ' remote content loaded')
 		openTable = initialiseFactorTable()
