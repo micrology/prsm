@@ -531,11 +531,11 @@ function loadGEXFfile(gexf) {
 
 	// transform into PRSM nodes and edges
 	// copy Attribute names from GEXF data
-	let attributeNames = yNetMap.get('attributeTitles') ||{}
-	Object.keys(attributes.nodes).forEach(attr=> {
+	let attributeNames = yNetMap.get("attributeTitles") || {}
+	Object.keys(attributes.nodes).forEach((attr) => {
 		attributeNames[attr] = attributes.nodes[attr].title
 	})
-	yNetMap.set('attributeTitles', attributeNames)
+	yNetMap.set("attributeTitles", attributeNames)
 	recreateClusteringMenu(attributeNames)
 	// process each node
 	nodes.forEach((node) => {
@@ -554,7 +554,7 @@ function loadGEXFfile(gexf) {
 				: "rgb(255,255,255)"
 		}
 		if (node.attributes) {
-			n = {...n, ...node.attributes}
+			n = { ...n, ...node.attributes }
 		}
 		n.shape = node?.viz?.shape
 		data.nodes.update(n)
@@ -565,14 +565,10 @@ function loadGEXFfile(gexf) {
 		if (!edge.id) throw new Error("Missing edge ID")
 		e.id = edge.id
 		if (!data.nodes.get(edge.source))
-			throw new Error(
-				`No node ${edge.source} for source of edge ID ${edge.id}`
-			)
+			throw new Error(`No node ${edge.source} for source of edge ID ${edge.id}`)
 		e.from = edge.source
 		if (!data.nodes.get(edge.target))
-			throw new Error(
-				`No node ${edge.target} for source of edge ID ${edge.id}`
-			)
+			throw new Error(`No node ${edge.target} for source of edge ID ${edge.id}`)
 		e.to = edge.target
 		if (edge.weght) {
 			e.width = edge.weight > 20 ? 20 : edge.weight < 1 ? 1 : edge.weight
@@ -1681,4 +1677,46 @@ export function exportDOT() {
 		}
 		return val
 	}
+}
+
+/**
+ * Save the map as a GEXF foprmat file, for input to Gephhi etc.
+ */
+export function exportGEXF() {
+	let str = `<?xml version='1.0' encoding='UTF-8'?>
+		<gexf xmlns="http://gexf.net/1.3" version="1.3" xmlns:viz="http://gexf.net/1.3/viz" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://gexf.net/1.3 http://gexf.net/1.3/gexf.xsd">
+		<meta lastmodifieddate="TODO 2025-04-07">
+			<creator>PRSM ${version}</creator>
+			<title>${elem("maptitle").innerText}</title>
+			<description></description>
+		</meta>
+		<graph defaultedgetype="directed" mode="static">
+		<nodes>`
+
+	data.nodes.forEach((node) => {
+		str += `
+			<node id="${node.id}"
+			label="${node.label}">
+			<viz:size value="${node.size}"/>
+			<viz:position x="${node.x}" y="${node.y}"/>
+			</node>`
+		})
+		str += `
+		</nodes>
+		<edges>
+    `
+	data.edges.forEach((edge) => {
+		str += `
+		<edge id="${edge.id}" 
+		source="${edge.from}" 
+		target="${edge.to}"/>
+		`
+	})
+
+	str += `
+		</edges>
+      </graph>
+	</gexf>`
+
+	saveStr(str, "gexf")
 }

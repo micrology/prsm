@@ -74,6 +74,7 @@ import {
 	exportExcel,
 	exportDOT,
 	exportGML,
+	exportGEXF,
 	exportNotes,
 	readSingleFile,
 } from './files.js'
@@ -266,6 +267,7 @@ function addEventListeners() {
 	listen('exportExcel', 'click', exportExcel)
 	listen('exportGML', 'click', exportGML)
 	listen('exportDOT', 'click', exportDOT)
+	listen('exportGEXF', 'click', exportGEXF)
 	listen('exportNotes', 'click', exportNotes)
 	listen('copy-map', 'click', () => doClone(false))
 	listen('search', 'click', search)
