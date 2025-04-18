@@ -468,6 +468,8 @@ function loadGraphML(graphML) {
 }
 /**
  * Parse and load a Gephi GEXF file
+ * First transforms the file from XML to JSON and then loads
+ * the PRSM data structures from the JSON data
  * @param {string} gexf  XML string from file
  */
 function loadGEXFfile(gexf) {
@@ -495,14 +497,14 @@ function loadGEXFfile(gexf) {
 	const graph = jsonObj.gexf?.graph || jsonObj.graph
 	if (!graph) throw new Error("Invalid GEXF format: no graph found")
 
-	// Process metadata
+	/* // Process metadata
 	const metadata = {
 		format: "gexf",
 		version: jsonObj.gexf?.version || "1.2",
 		mode: graph.mode || "static",
 		defaultEdgeType: graph.defaultedgetype || "directed",
 		lastModified: jsonObj.gexf?.modified,
-	}
+	} */
 
 	// Process attributes (nodes and edges)
 	const attributes = processAttributes(graph.attributes)
@@ -527,18 +529,15 @@ function loadGEXFfile(gexf) {
 		...processEdgeVizAttributes(edge),
 	}))
 
-	console.log({
-		metadata,
-		attributes,
-		nodes,
-		edges,
-	})
 	// transform into PRSM nodes and edges
-	let attrTitles = yNetMap.get('attributeTitles')
-	let i = attrTitles.length + 1
-	attributes?.nodes.forEach(attr => {
-		attrTitles[`attr${i++}`] = 
+	// copy Attribute names from GEXF data
+	let attributeNames = yNetMap.get('attributeTitles') ||{}
+	Object.keys(attributes.nodes).forEach(attr=> {
+		attributeNames[attr] = attributes.nodes[attr].title
 	})
+	yNetMap.set('attributeTitles', attributeNames)
+	recreateClusteringMenu(attributeNames)
+	// process each node
 	nodes.forEach((node) => {
 		let n = deepCopy(styles.nodes.group0)
 		if (!node.id) throw new Error(`No ID for node ${node.label}`)
@@ -554,9 +553,13 @@ function loadGEXFfile(gexf) {
 				? "rgb(0,0,0)"
 				: "rgb(255,255,255)"
 		}
+		if (node.attributes) {
+			n = {...n, ...node.attributes}
+		}
 		n.shape = node?.viz?.shape
 		data.nodes.update(n)
 	})
+	// and each edge
 	edges.forEach((edge) => {
 		let e = deepCopy(styles.edges.edge0)
 		if (!edge.id) throw new Error("Missing edge ID")
