@@ -1690,18 +1690,41 @@ export function exportGEXF() {
 			<title>${elem("maptitle").innerText}</title>
 			<description></description>
 		</meta>
-		<graph defaultedgetype="directed" mode="static">
+		<graph defaultedgetype="directed" mode="static">`
+	let attributeNames = yNetMap.get("attributeTitles") || {}
+	if (attributeNames) {
+		str += `
+			<attributes class="node" mode="static">
+	`
+		Object.keys(attributeNames).forEach((attr) => {
+			str += `		<attribute id="${attr}" title="${attributeNames[attr]}" type="string"/>
+	`
+		})
+		str += `		</attributes>`
+	}
+	str += `
 		<nodes>`
 
 	data.nodes.forEach((node) => {
 		str += `
 			<node id="${node.id}"
-			label="${node.label}">
+			label="${node.label}">`
+		if (attributeNames) {
+			str += `
+			<attvalues>`
+			Object.keys(attributeNames).forEach((attr) => {
+				if (node[attr]) str += `
+				<attvalue for="${attr}" value="${node[attr]}"/>`
+			})
+			str += `
+			</attvalues>`
+		}
+		str += `
 			<viz:size value="${node.size}"/>
 			<viz:position x="${node.x}" y="${node.y}"/>
 			</node>`
-		})
-		str += `
+	})
+	str += `
 		</nodes>
 		<edges>
     `
