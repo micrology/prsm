@@ -65,6 +65,7 @@ import {
 	splitText,
 	standardize_color,
 	rgbIsLight,
+	rgbToArray,
 	strip,
 	statusMsg,
 	alertMsg,
@@ -395,17 +396,18 @@ function loadGraphML(graphML) {
 	}
 	const parser = new XMLParser(options)
 	const parsedData = parser.parse(graphML)
-	console.log("parsedData", parsedData)
 	if (parsedData.graphml && parsedData.graphml.graph) {
-		const graph = parsedData.graphml.graph
-		console.log(graph)
-
+		let attributeNames = {}
+		if (parsedData.graphml.key) {
+			parsedData.graphml.key.forEach((key) => {
+				attributeNames[key.id] = key["attr.name"]
+			})
+		}
 		const nodes = parsedData.graphml.graph.node.map((node) => {
 			const nodeData = {}
 			if (node.data) {
 				node.data.forEach((data) => {
-					// You might want to map key IDs to their names here
-					nodeData[data["key"]] = data["#text"]
+					nodeData[attributeNames[data["key"]]] = data["#text"]
 				})
 			}
 			return {
@@ -417,8 +419,7 @@ function loadGraphML(graphML) {
 			const edgeData = {}
 			if (edge.data) {
 				edge.data.forEach((data) => {
-					// You might want to map key IDs to their names here
-					edgeData[data["key"]] = data["#text"]
+					edgeData[attributeNames[data["key"]]] = data["#text"]
 				})
 			}
 			return {
@@ -428,6 +429,7 @@ function loadGraphML(graphML) {
 				...edgeData,
 			}
 		})
+		let nodesToUpdate = []
 		nodes.forEach((node) => {
 			let n = deepCopy(styles.nodes.group0)
 			if (!node.id) throw new Error(`No ID for node ${node.label}`)
@@ -442,8 +444,11 @@ function loadGraphML(graphML) {
 					? "rgb(0,0,0)"
 					: "rgb(255,255,255)"
 			}
-			data.nodes.update(n)
+			nodesToUpdate.push(n)
 		})
+		data.nodes.update(nodesToUpdate)
+		// and each edge
+		let edgesToUpdate = []
 		edges.forEach((edge) => {
 			let e = deepCopy(styles.edges.edge0)
 			if (!edge.id) throw new Error("Missing edge ID")
@@ -459,8 +464,9 @@ function loadGraphML(graphML) {
 				)
 			e.to = edge.target
 			e.width = edge.weight > 20 ? 20 : edge.weight < 1 ? 1 : edge.weight
-			data.edges.update(e)
+			edgesToUpdate.push(e)
 		})
+		data.edges.update(edgesToUpdate)
 	} else {
 		alertMsg("Bad format in GraphML file", "error")
 		throw new Error("Bad format in GraphML file")
@@ -529,6 +535,7 @@ function loadGEXFfile(gexf) {
 	yNetMap.set("attributeTitles", attributeNames)
 	recreateClusteringMenu(attributeNames)
 	// process each node
+	let nodesToUpdate = []
 	nodes.forEach((node) => {
 		let n = deepCopy(styles.nodes.group0)
 		if (!node.id) throw new Error(`No ID for node ${node.label}`)
@@ -544,13 +551,16 @@ function loadGEXFfile(gexf) {
 				? "rgb(0,0,0)"
 				: "rgb(255,255,255)"
 		}
+		n.shape = node?.viz?.shape
 		if (node.attributes) {
 			n = { ...n, ...node.attributes }
 		}
 		n.shape = node?.viz?.shape
-		data.nodes.update(n)
+		nodesToUpdate.push(n)
 	})
+	data.nodes.update(nodesToUpdate)
 	// and each edge
+	let edgesToUpdate = []
 	edges.forEach((edge) => {
 		let e = deepCopy(styles.edges.edge0)
 		if (!edge.id) throw new Error("Missing edge ID")
@@ -561,16 +571,16 @@ function loadGEXFfile(gexf) {
 		if (!data.nodes.get(edge.target))
 			throw new Error(`No node ${edge.target} for source of edge ID ${edge.id}`)
 		e.to = edge.target
-		if (edge.weght) {
+		if (edge.weight) {
 			e.width = edge.weight > 20 ? 20 : edge.weight < 1 ? 1 : edge.weight
 		}
 		if (edge?.viz?.color) {
 			let color = edge.viz.color
 			e.color = `rgba(${color.r},${color.g},${color.b},${color.a})`
 		}
-		data.edges.update(e)
+		edgesToUpdate.push(e)
 	})
-
+	data.edges.update(edgesToUpdate)
 	// Helper functions
 	function processAttributes(attributesNode) {
 		const result = { nodes: {}, edges: {} }
@@ -1669,7 +1679,76 @@ export function exportDOT() {
 		return val
 	}
 }
-
+/*
+ * Save the map as a GraphML file
+ * See https://graphml.graphdrawing.org/pmwiki/pmwiki.php?n=Main.GraphML
+ * GraphML is an XML-based file format for graphs. It is a W3C standard and is used by many graph visualization tools.
+ * The GraphML format is a simple and flexible way to represent graphs, including nodes, edges, and their attributes.
+ * It is widely used in graph visualization and analysis tools, such as Gephi, Cytoscape, and Graphviz.
+ * GraphML files can be easily generated and parsed by various programming languages and libraries, making it a popular choice for graph data exchange.
+ * The GraphML format is based on XML, which means it is human-readable and can be easily edited with a text editor.
+ * GraphML files can be used to represent directed and undirected graphs, as well as weighted and unweighted edges.
+ * GraphML files can also include metadata, such as node and edge labels, colors, and styles.
+ */
+export function exportGraphML() {
+	let str = `<?xml version="1.0" encoding="UTF-8"?>
+	<graphml xmlns="http://graphml.graphdrawing.org/xmlns" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+	<key id="d0" for="node" attr.name="label" attr.type="string"/>
+	<key id="d1" for="node" attr.name="style" attr.type="int"/>
+	<key id="d2" for="node" attr.name="color" attr.type="string"/>
+	<key id="d3" for="node" attr.name="shape" attr.type="string"/>
+	<key id="d4" for="node" attr.name="x" attr.type="float"/>
+	<key id="d5" for="node" attr.name="y" attr.type="float"/>
+	<key id="d6" for="node" attr.name="r" attr.type="int"/>
+	<key id="d7" for="node" attr.name="g" attr.type="int"/>
+	<key id="d8" for="node" attr.name="b" attr.type="int"/>
+	<key id="d9" for="node" attr.name="size" attr.type="int"/>
+	<key id="d10" for="edge" attr.name="label" attr.type="string"/>
+	<key id="d11" for="edge" attr.name="style" attr.type="int"/>
+	<key id="d12" for="edge" attr.name="color" attr.type="string"/>
+	<key id="d13" for="edge" attr.name="r" attr.type="int"/>
+	<key id="d14" for="edge" attr.name="g" attr.type="int"/>
+	<key id="d15" for="edge" attr.name="b" attr.type="int"/>
+	<key id="d16" for="edge" attr.name="weight" attr.type="int"/>
+	<graph id="${elem("maptitle").innerText}" edgedefault="directed">`
+	for (let node of data.nodes.get()) {
+		let color = node.color.background || styles.nodes.group0.color.background
+		let rgb = rgbToArray(color)
+		str += `
+		<node id="${node.id}">
+			<data key="d0">${node.label}</data>
+			<data key="d1">${parseInt(node.grp.substring(5)) + 1}</data>
+			<data key="d2">${color}</data>
+			<data key="d3">${node.shape}</data>
+			<data key="d4">${node.x}</data>
+			<data key="d5">${node.y}</data>
+			<data key="d6">${rgb[0]}</data>
+			<data key="d7">${rgb[1]}</data>
+			<data key="d8">${rgb[2]}</data>
+			<data key="d9">${node.size}</data>
+		</node>`
+	}
+	for (let edge of data.edges.get()) {
+		let color = edge.color.color || styles.edges.edge0.color.background
+		let rgb = rgbToArray(color)
+		str += `
+		<edge id="${edge.id}" source="${edge.from}" target="${edge.to}">
+			<data key="d10">${edge.label || ""}</data>
+			<data key="d11">${parseInt(edge.grp.substring(4)) + 1}</data>
+			<data key="d12">${color}</data>
+			<data key="d13">${rgb[0]}</data>
+			<data key="d14">${rgb[1]}</data>
+			<data key="d15">${rgb[2]}</data>
+			<data key="d16">${edge.width}</data>
+		</edge>`
+	}
+	str += `
+	</graph>
+	</graphml>`
+	saveStr(str, "graphml")
+}
 /**
  * Save the map as a GEXF format file, for input to Gephi etc.
  */

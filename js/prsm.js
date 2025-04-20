@@ -74,6 +74,7 @@ import {
 	exportExcel,
 	exportDOT,
 	exportGML,
+	exportGraphML,
 	exportGEXF,
 	exportNotes,
 	readSingleFile,
@@ -267,6 +268,7 @@ function addEventListeners() {
 	listen('exportExcel', 'click', exportExcel)
 	listen('exportGML', 'click', exportGML)
 	listen('exportDOT', 'click', exportDOT)
+	listen('exportGraphML', 'click', exportGraphML)
 	listen('exportGEXF', 'click', exportGEXF)
 	listen('exportNotes', 'click', exportNotes)
 	listen('copy-map', 'click', () => doClone(false))
