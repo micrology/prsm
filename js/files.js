@@ -497,15 +497,6 @@ function loadGEXFfile(gexf) {
 	const graph = jsonObj.gexf?.graph || jsonObj.graph
 	if (!graph) throw new Error("Invalid GEXF format: no graph found")
 
-	/* // Process metadata
-	const metadata = {
-		format: "gexf",
-		version: jsonObj.gexf?.version || "1.2",
-		mode: graph.mode || "static",
-		defaultEdgeType: graph.defaultedgetype || "directed",
-		lastModified: jsonObj.gexf?.modified,
-	} */
-
 	// Process attributes (nodes and edges)
 	const attributes = processAttributes(graph.attributes)
 
@@ -543,8 +534,8 @@ function loadGEXFfile(gexf) {
 		if (!node.id) throw new Error(`No ID for node ${node.label}`)
 		n.id = node.id
 		n.label = node.label || node.id
-		n.x = node?.position.x
-		n.y = node?.position.y
+		n.x = node?.position?.x
+		n.y = node?.position?.y
 		n.size = node?.viz?.size
 		if (node?.viz?.color) {
 			let color = node.viz.color
@@ -1680,15 +1671,15 @@ export function exportDOT() {
 }
 
 /**
- * Save the map as a GEXF foprmat file, for input to Gephhi etc.
+ * Save the map as a GEXF format file, for input to Gephi etc.
  */
 export function exportGEXF() {
 	let str = `<?xml version='1.0' encoding='UTF-8'?>
 		<gexf xmlns="http://gexf.net/1.3" version="1.3" xmlns:viz="http://gexf.net/1.3/viz" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://gexf.net/1.3 http://gexf.net/1.3/gexf.xsd">
-		<meta lastmodifieddate="TODO 2025-04-07">
+		<meta lastmodifieddate="${new Date(Date.now()).toISOString().slice(0, 10)}">
 			<creator>PRSM ${version}</creator>
 			<title>${elem("maptitle").innerText}</title>
-			<description></description>
+			<description>Generated from ${window.location.href}</description>
 		</meta>
 		<graph defaultedgetype="directed" mode="static">`
 	let attributeNames = yNetMap.get("attributeTitles") || {}
