@@ -472,50 +472,34 @@ function loadGraphML(graphML) {
 		throw new Error("Bad format in GraphML file")
 	}
 }
+
 /**
- * Parse and load a Gephi GEXF file
- * First transforms the file from XML to JSON and then loads
- * the PRSM data structures from the JSON data
- * @param {string} gexf  XML string from file
+ * Parse and load a Gephi GEXF file into PRSM format
+ * @param {string} gexf - XML string from file
  */
 function loadGEXFfile(gexf) {
-	// Configure XML parser options with namespace support
-	const options = {
+	const parser = new XMLParser({
 		ignoreAttributes: false,
 		attributeNamePrefix: "",
 		processEntities: true,
-		isArray: (name) => {
-			return ["node", "edge", "attribute", "attvalue"].includes(name)
-		},
-		// Handle viz namespace
-		transformTagName: (tagName) => {
-			if (tagName.startsWith("viz:")) {
-				return tagName.replace("viz:", "viz_")
-			}
-			return tagName
-		},
-	}
+		isArray: (name) => ["node", "edge", "attribute", "attvalue"].includes(name),
+		transformTagName: (tag) => tag.startsWith("viz:") ? tag.replace("viz:", "viz_") : tag,
+	});
 
-	const parser = new XMLParser(options)
-	const jsonObj = parser.parse(gexf)
+	const jsonObj = parser.parse(gexf);
+	const graph = jsonObj.gexf?.graph || jsonObj.graph;
+	if (!graph) throw new Error("Invalid GEXF format: no graph found");
 
-	// Extract the graph object
-	const graph = jsonObj.gexf?.graph || jsonObj.graph
-	if (!graph) throw new Error("Invalid GEXF format: no graph found")
+	const attributes = processAttributes(graph.attributes);
 
-	// Process attributes (nodes and edges)
-	const attributes = processAttributes(graph.attributes)
-
-	// Process nodes with visualization attributes
 	const nodes = (graph.nodes?.node || []).map((node) => ({
 		id: node.id,
 		label: node.label || node.id,
 		attributes: processAttributeValues(node.attvalues?.attvalue || []),
 		...processVizAttributes(node),
 		...processNodePosition(node),
-	}))
+	}));
 
-	// Process edges with visualization attributes
 	const edges = (graph.edges?.edge || []).map((edge) => ({
 		id: edge.id,
 		source: edge.source,
@@ -524,186 +508,114 @@ function loadGEXFfile(gexf) {
 		weight: parseFloat(edge.weight) || 1,
 		attributes: processAttributeValues(edge.attvalues?.attvalue || []),
 		...processEdgeVizAttributes(edge),
-	}))
+	}));
 
-	// transform into PRSM nodes and edges
-	// copy Attribute names from GEXF data
-	let attributeNames = yNetMap.get("attributeTitles") || {}
-	Object.keys(attributes.nodes).forEach((attr) => {
-		attributeNames[attr] = attributes.nodes[attr].title
-	})
-	yNetMap.set("attributeTitles", attributeNames)
-	recreateClusteringMenu(attributeNames)
-	// process each node
-	let nodesToUpdate = []
-	nodes.forEach((node) => {
-		let n = deepCopy(styles.nodes.group0)
-		if (!node.id) throw new Error(`No ID for node ${node.label}`)
-		n.id = node.id
-		n.label = node.label || node.id
-		n.x = node?.position?.x
-		n.y = node?.position?.y
-		n.size = node?.viz?.size
-		if (node?.viz?.color) {
-			let color = node.viz.color
-			n.color.background = `rgba(${color.r},${color.g},${color.b},${color.a})`
-			n.font.color = rgbIsLight(color.r, color.g, color.b)
-				? "rgb(0,0,0)"
-				: "rgb(255,255,255)"
-		}
-		n.shape = node?.viz?.shape
-		if (node.attributes) {
-			n = { ...n, ...node.attributes }
-		}
-		n.shape = node?.viz?.shape
-		nodesToUpdate.push(n)
-	})
-	data.nodes.update(nodesToUpdate)
-	// and each edge
-	let edgesToUpdate = []
-	edges.forEach((edge) => {
-		let e = deepCopy(styles.edges.edge0)
-		if (!edge.id) throw new Error("Missing edge ID")
-		e.id = edge.id
-		if (!data.nodes.get(edge.source))
-			throw new Error(`No node ${edge.source} for source of edge ID ${edge.id}`)
-		e.from = edge.source
-		if (!data.nodes.get(edge.target))
-			throw new Error(`No node ${edge.target} for source of edge ID ${edge.id}`)
-		e.to = edge.target
-		if (edge.weight) {
-			e.width = edge.weight > 20 ? 20 : edge.weight < 1 ? 1 : edge.weight
-		}
-		if (edge?.viz?.color) {
-			let color = edge.viz.color
-			e.color = `rgba(${color.r},${color.g},${color.b},${color.a})`
-		}
-		edgesToUpdate.push(e)
-	})
-	data.edges.update(edgesToUpdate)
-	// Helper functions
+	const attributeNames = { ...yNetMap.get("attributeTitles") || {} };
+	Object.entries(attributes.nodes).forEach(([id, { title }]) => attributeNames[id] = title);
+	yNetMap.set("attributeTitles", attributeNames);
+	recreateClusteringMenu(attributeNames);
+
+	const nodesToUpdate = nodes.map((node) => {
+		if (!node.id) throw new Error(`No ID for node ${node.label}`);
+		const base = { ...deepCopy(styles.nodes.group0), ...node.attributes };
+		const color = node.viz?.color;
+		return {
+			...base,
+			id: node.id,
+			label: node.label,
+			x: node.position?.x,
+			y: node.position?.y,
+			size: node.viz?.size,
+			shape: node.viz?.shape,
+			color: color ? { ...base.color, background: rgba(color) } : base.color,
+			font: color ? { ...base.font, color: rgbIsLight(color.r, color.g, color.b) ? "rgb(0,0,0)" : "rgb(255,255,255)" } : base.font,
+		};
+	});
+	data.nodes.update(nodesToUpdate);
+
+	const edgesToUpdate = edges.map((edge) => {
+		if (!edge.id) throw new Error("Missing edge ID");
+		if (!data.nodes.get(edge.source)) throw new Error(`No node ${edge.source} for edge ${edge.id}`);
+		if (!data.nodes.get(edge.target)) throw new Error(`No node ${edge.target} for edge ${edge.id}`);
+
+		const color = edge.viz?.color;
+		const width = Math.min(20, Math.max(1, edge.weight));
+
+		return {
+			...deepCopy(styles.edges.edge0),
+			id: edge.id,
+			from: edge.source,
+			to: edge.target,
+			width,
+			color: color ? rgba(color) : "rgba(0,0,01)"
+		};
+	});
+	data.edges.update(edgesToUpdate);
+
+	// === Helpers ===
 	function processAttributes(attributesNode) {
-		const result = { nodes: {}, edges: {} }
-
-		if (!attributesNode) return result
-
-		const attrs = Array.isArray(attributesNode)
-			? attributesNode
-			: [attributesNode]
-
-		attrs.forEach((attrGroup) => {
-			const target = attrGroup.class === "node" ? "nodes" : "edges"
-			if (attrGroup.attribute) {
-				attrGroup.attribute.forEach((attr) => {
-					result[target][attr.id] = {
-						title: attr.title || attr.name,
-						type: attr.type || "string",
-					}
-				})
-			}
-		})
-
-		return result
+		const result = { nodes: {}, edges: {} };
+		if (!attributesNode) return result;
+		const attributes = Array.isArray(attributesNode) ? attributesNode : [attributesNode];
+	
+		(attributes || []).forEach(({ class: cls, attribute = [] }) => {
+			attribute.forEach(({ id, title, name, type }) => {
+				result[cls === "node" ? "nodes" : "edges"][id] = {
+					title: title || name,
+					type: type || "string",
+				};
+			});
+		});
+	
+		return result;
 	}
 
 	function processAttributeValues(attvalues) {
-		const result = {}
-		if (!Array.isArray(attvalues)) return result
-
-		attvalues.forEach((av) => {
-			if (av.for !== undefined && av.value !== undefined) {
-				result[av.for] = av.value
-			}
-		})
-		return result
+		return (Array.isArray(attvalues) ? attvalues : []).reduce((acc, { for: key, value }) => {
+			if (key !== undefined && value !== undefined) acc[key] = value;
+			return acc;
+		}, {});
 	}
 
-	function processVizAttributes(element) {
-		const viz = {}
-
-		// Process size
-		if (element.viz_size) {
-			viz.size = parseFloat(element.viz_size.value)
-			if (element.viz_size.size) viz.size = parseFloat(element.viz_size.size) // alternative
-		}
-
-		// Process color
-		if (element.viz_color) {
-			viz.color = {
-				r: parseInt(element.viz_color.r || 0),
-				g: parseInt(element.viz_color.g || 0),
-				b: parseInt(element.viz_color.b || 0),
-				a: parseFloat(element.viz_color.a || 1.0),
-			}
-		}
-
-		// Process position (handled separately in processNodePosition)
-		// Process shape if present
-		if (element.viz_shape) {
-			viz.shape = element.viz_shape.value
-		}
-
-		// Process thickness for edges (handled in processEdgeVizAttributes)
-
-		return Object.keys(viz).length > 0 ? { viz } : {}
+	function processVizAttributes(el) {
+		const { viz_size, viz_color, viz_shape } = el;
+		const viz = {};
+		if (viz_size) viz.size = parseFloat(viz_size.value || viz_size.size);
+		if (viz_color) viz.color = {
+			r: parseInt(viz_color.r || 0),
+			g: parseInt(viz_color.g || 0),
+			b: parseInt(viz_color.b || 0),
+			a: parseFloat(viz_color.a ?? 1.0),
+		};
+		if (viz_shape) viz.shape = viz_shape.value;
+		return Object.keys(viz).length ? { viz } : {};
 	}
 
-	function processNodePosition(node) {
-		const position = {}
-		let hasPosition = false
-
-		// Check viz:position first
-		if (node.viz_position) {
-			position.x = parseFloat(node.viz_position.x || 0)
-			position.y = parseFloat(node.viz_position.y || 0)
-			position.z = parseFloat(node.viz_position.z || 0)
-			hasPosition = true
-		}
-		// Fallback to direct attributes
-		else {
-			if (node.x !== undefined) {
-				position.x = parseFloat(node.x)
-				hasPosition = true
-			}
-			if (node.y !== undefined) {
-				position.y = parseFloat(node.y)
-				hasPosition = true
-			}
-			if (node.z !== undefined) {
-				position.z = parseFloat(node.z)
-				hasPosition = true
-			}
-		}
-
-		return hasPosition ? { position } : {}
+	function processNodePosition({ viz_position, x, y, z }) {
+		const pos = viz_position
+			? { x: +viz_position.x || 0, y: +viz_position.y || 0, z: +viz_position.z || 0 }
+			: (x || y || z) ? { x: +x, y: +y, z: +z } : null;
+		return pos ? { position: pos } : {};
 	}
 
-	function processEdgeVizAttributes(edge) {
-		const viz = {}
+	function processEdgeVizAttributes({ viz_thickness, viz_color, viz_shape }) {
+		const viz = {};
+		if (viz_thickness) viz.thickness = parseFloat(viz_thickness.value);
+		if (viz_color) viz.color = {
+			r: parseInt(viz_color.r || 0),
+			g: parseInt(viz_color.g || 0),
+			b: parseInt(viz_color.b || 0),
+			a: parseFloat(viz_color.a ?? 1.0),
+		};
+		if (viz_shape) viz.shape = viz_shape.value;
+		return Object.keys(viz).length ? { viz } : {};
+	}
 
-		// Process thickness
-		if (edge.viz_thickness) {
-			viz.thickness = parseFloat(edge.viz_thickness.value)
-		}
-
-		// Process color
-		if (edge.viz_color) {
-			viz.color = {
-				r: parseInt(edge.viz_color.r || 0),
-				g: parseInt(edge.viz_color.g || 0),
-				b: parseInt(edge.viz_color.b || 0),
-				a: parseFloat(edge.viz_color.a || 1.0),
-			}
-		}
-
-		// Process shape
-		if (edge.viz_shape) {
-			viz.shape = edge.viz_shape.value
-		}
-
-		return Object.keys(viz).length > 0 ? { viz } : {}
+	function rgba({ r, g, b, a = 1.0 }) {
+		return `rgba(${r},${g},${b},${a})`;
 	}
 }
+
 /**
  * Parse and load a GML file
  * @param {string} gml
@@ -1681,7 +1593,7 @@ export function exportDOT() {
 }
 /*
  * Save the map as a GraphML file
- * See https://graphml.graphdrawing.org/pmwiki/pmwiki.php?n=Main.GraphML
+ * See http://graphml.graphdrawing.org/primer/graphml-primer.html
  * GraphML is an XML-based file format for graphs. It is a W3C standard and is used by many graph visualization tools.
  * The GraphML format is a simple and flexible way to represent graphs, including nodes, edges, and their attributes.
  * It is widely used in graph visualization and analysis tools, such as Gephi, Cytoscape, and Graphviz.
@@ -1751,6 +1663,7 @@ export function exportGraphML() {
 }
 /**
  * Save the map as a GEXF format file, for input to Gephi etc.
+ * See https://gexf.net/index.html
  */
 export function exportGEXF() {
 	let str = `<?xml version='1.0' encoding='UTF-8'?>
