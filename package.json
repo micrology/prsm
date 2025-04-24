@@ -48,6 +48,7 @@
 	"dependencies": {
 		"@egjs/hammerjs": "^2.0.17",
 		"@jaames/iro": "^5.5.2",
+		"@y/websocket-server": "^0.1.1",
 		"3d-force-graph": "^1.74.5",
 		"bootstrap": "^5.3.3",
 		"fabric": "^5.3.0",
@@ -66,7 +67,8 @@
 		"vis-network": "^9.1.4",
 		"vis-util": "^5.0.3",
 		"xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
-		"y-websocket": "^2.0.4",
+		"y-leveldb": "^0.2.0",
+		"y-websocket": "^3.0.0",
 		"yjs": "^13.5.47"
 	},
 	"devDependencies": {
