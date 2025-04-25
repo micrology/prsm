@@ -1933,6 +1933,11 @@ input#splashNameBox::placeholder {
 	flex-direction: column;
 	z-index: 10000;
 }
+#whatsnewintro {
+	background-color: var(--notes-background-color);
+	color: black;
+	padding: 10px 20px 0 20px;
+}
 #whatsnewcontent {
 	background-color: var(--notes-background-color);
 	flex-grow: 1;

@@ -1925,7 +1925,7 @@ async function copyText(text) {
 	try {
 		if (typeof navigator.clipboard.writeText !== 'function')
 			throw new Error('navigator.clipboard.writeText not a function')
-	} catch (e) {
+	} catch {
 		alertMsg('Copying not implemented in this browser', 'error')
 		return false
 	}
@@ -1993,7 +1993,7 @@ async function getClipboardContents() {
 	try {
 		if (typeof navigator.clipboard.readText !== 'function')
 			throw new Error('navigator.clipboard.readText not a function')
-	} catch (e) {
+	} catch {
 		alertMsg('Pasting not implemented in this browser', 'error')
 		return null
 	}

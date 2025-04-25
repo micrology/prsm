@@ -706,7 +706,7 @@ function linkEditSubmit() {
 export function reApplySampleToLinks(groupIds, force) {
 	let edgesToUpdate = data.edges.get({
 		filter: (item) => {
-			return (groupIds.includes(item.grp)  && !item.isClusterEdge)
+			return groupIds.includes(item.grp) && !item.isClusterEdge
 		},
 	})
 	data.edges.update(

@@ -4,7 +4,10 @@
  */
 
 document.write(`
-<li>This "What's New" panel will pop up whenever a new version of PRSM is released.  You'll only see it once.  Click the Continue... button above to dismiss it.
+<li><b>Version 2.5, April 2025</b></li>
+<li>New: importing and exporting GEXF and GraphML files.  These are standard formats for representing graphs and networks.  You can now import and export PRSM maps in these formats, making it easier to share your maps with other applications and tools. See <a href="doc/help/doc_build/manual/Files.html" target="_blank">Opening and Saving maps</a>.</li>
+<li>The Force Atlas 2 layout engine has been tuned to give a more useful layout of complex maps.</li>
+<li>The Settings Factor Styles panel has the number of available styles doubled from 6 to 12.</li>
 <li><b>Version 2.4, December 2024</b></li> 
 <li>This version introduces a new type of factor: 'Portals'.  A portal factor is a special type of factor that links to another map.  When you click on a portal factor, the map it links to will open in a new browser tab.  This useful when, for example, you have several related maps and want to move easily between them.  It is also useful if you have a high level or abstract map. Portal factors on this map can link to more detailed maps that expand on the factors in the high level one. See <a href="doc/help/doc_build/manual/Cloning.html#linking-one-map-to-another" target="_blank">Linking one map to another</a> for further details.</li>
 <li>When opening a map from a file, you can now choose whether the map should replace the existing map, or be merged with it. See <a href="doc/help/doc_build/manual/Cloning.html#merging-maps" target="_blank">Merging Maps</a>.</li>

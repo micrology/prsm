@@ -21,9 +21,9 @@ PRSM Participatory System Mapper
 This module clusters factors  
  ******************************************************************************************************************** */
 
-import { elem, uuidv4, deepMerge, standardize_color, makeColor } from './utils.js'
-import { styles } from './samples.js'
-import { network, data, doc, yNetMap, unSelect, debug } from './prsm.js'
+import {elem, uuidv4, deepMerge, standardize_color, makeColor} from './utils.js'
+import {styles} from './samples.js'
+import {network, data, doc, yNetMap, unSelect, debug} from './prsm.js'
 
 export function cluster(attribute) {
 	if (!attribute) return
@@ -69,7 +69,11 @@ function clusterByAttribute(attribute) {
 		let sumx = 0
 		let sumy = 0
 		let nInCluster = 0
-		let clusterNode = makeClusterNode(`cluster-${attribute}-${value}`, `${yNetMap.get('attributeTitles')[attribute]} ${value}`, makeColor())
+		let clusterNode = makeClusterNode(
+			`cluster-${attribute}-${value}`,
+			`${yNetMap.get('attributeTitles')[attribute]} ${value}`,
+			makeColor(),
+		)
 		for (let node of nodesInCluster) {
 			// for each factor that should be in the cluster
 			node.clusteredIn = clusterNode.id
@@ -147,7 +151,11 @@ function clusterByStyle() {
 		let sumx = 0
 		let sumy = 0
 		let nInCluster = 0
-		let clusterNode = makeClusterNode(`cluster-style-${style}`, `${styles.nodes[style].groupLabel} cluster`, styles.nodes[style].color.background)
+		let clusterNode = makeClusterNode(
+			`cluster-style-${style}`,
+			`${styles.nodes[style].groupLabel} cluster`,
+			styles.nodes[style].color.background,
+		)
 		for (let node of nodesInCluster) {
 			// for each factor that should be in the cluster
 			node.clusteredIn = clusterNode.id
@@ -166,14 +174,19 @@ function clusterByStyle() {
 	showClusterLinks()
 }
 function clusterImage(color) {
-	return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg width="800px" height="800px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="white"><rect width="100%" height="100%" fill="white"/><path fill="${color}" fill-rule="evenodd" d="M8 0a2.25 2.25 0 00-.75 4.372v.465a3.25 3.25 0 00-1.797 1.144l-.625-.366a2.25 2.25 0 10-1.038 1.13l1.026.602a3.261 3.261 0 000 1.306l-1.026.601a2.25 2.25 0 101.038 1.13l.625-.366a3.25 3.25 0 001.797 1.145v.465a2.25 2.25 0 101.5 0v-.465a3.25 3.25 0 001.797-1.145l.625.366a2.25 2.25 0 101.038-1.13l-1.026-.6a3.26 3.26 0 000-1.307l1.026-.601a2.25 2.25 0 10-1.038-1.13l-.625.365A3.251 3.251 0 008.75 4.837v-.465A2.25 2.25 0 008 0zm-.75 2.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM2.75 4a.75.75 0 100 1.5.75.75 0 000-1.5zm0 6.5a.75.75 0 100 1.5.75.75 0 000-1.5zm4.5 3.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zm6-3.25a.75.75 0 100 1.5.75.75 0 000-1.5zm0-6.5a.75.75 0 100 1.5.75.75 0 000-1.5zM6.395 7.3a1.75 1.75 0 113.21 1.4 1.75 1.75 0 01-3.21-1.4z" clip-rule="evenodd"/></svg>`)
+	return (
+		'data:image/svg+xml;charset=utf-8,' +
+		encodeURIComponent(
+			`<svg width="800px" height="800px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="white"><rect width="100%" height="100%" fill="white"/><path fill="${color}" fill-rule="evenodd" d="M8 0a2.25 2.25 0 00-.75 4.372v.465a3.25 3.25 0 00-1.797 1.144l-.625-.366a2.25 2.25 0 10-1.038 1.13l1.026.602a3.261 3.261 0 000 1.306l-1.026.601a2.25 2.25 0 101.038 1.13l.625-.366a3.25 3.25 0 001.797 1.145v.465a2.25 2.25 0 101.5 0v-.465a3.25 3.25 0 001.797-1.145l.625.366a2.25 2.25 0 101.038-1.13l-1.026-.6a3.26 3.26 0 000-1.307l1.026-.601a2.25 2.25 0 10-1.038-1.13l-.625.365A3.251 3.251 0 008.75 4.837v-.465A2.25 2.25 0 008 0zm-.75 2.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM2.75 4a.75.75 0 100 1.5.75.75 0 000-1.5zm0 6.5a.75.75 0 100 1.5.75.75 0 000-1.5zm4.5 3.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zm6-3.25a.75.75 0 100 1.5.75.75 0 000-1.5zm0-6.5a.75.75 0 100 1.5.75.75 0 000-1.5zM6.395 7.3a1.75 1.75 0 113.21 1.4 1.75 1.75 0 01-3.21-1.4z" clip-rule="evenodd"/></svg>`,
+		)
+	)
 }
 /**
  * Create an object to format a new cluster node
  * The font is always black
  * @param {string} id cluster nodeId
  * @param {string} label cluster node label
- * @param {string} color of cluster node 
+ * @param {string} color of cluster node
  * @returns {object} cluster node object
  */
 function makeClusterNode(id, label, color) {
@@ -184,7 +197,7 @@ function makeClusterNode(id, label, color) {
 		hidden: false,
 		shape: 'image',
 		image: clusterImage(color),
-		font: { color: 'rgb(0,0,0)' }
+		font: {color: 'rgb(0,0,0)'},
 	})
 }
 /**
@@ -268,7 +281,7 @@ export function openCluster(clusterNodeId) {
 		unSelect()
 		let nodesToUpdate = []
 		let edgesToRemove = []
-		let nodesInCluster = data.nodes.get({ filter: (node) => node.clusteredIn === clusterNode.id })
+		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id})
 		for (let node of nodesInCluster) {
 			node.hidden = false
 			node.clusteredIn = null
@@ -286,7 +299,7 @@ export function openCluster(clusterNodeId) {
 		data.edges.remove(edgesToRemove)
 		showClusterLinks()
 	})
-	if (data.nodes.get({ filter: (n) => n.isCluster && !n.hidden }).length === 0) {
+	if (data.nodes.get({filter: (n) => n.isCluster && !n.hidden}).length === 0) {
 		// all clusters have been opened; reset the cluster select to None
 		elem('clustering').value = 'none'
 	}
@@ -295,8 +308,8 @@ export function openCluster(clusterNodeId) {
 function unCluster() {
 	let nodesToUpdate = []
 	let edgesToRemove = []
-	data.nodes.get({ filter: (node) => node.isCluster }).forEach((clusterNode) => {
-		let nodesInCluster = data.nodes.get({ filter: (node) => node.clusteredIn === clusterNode.id })
+	data.nodes.get({filter: (node) => node.isCluster}).forEach((clusterNode) => {
+		let nodesInCluster = data.nodes.get({filter: (node) => node.clusteredIn === clusterNode.id})
 		for (let node of nodesInCluster) {
 			node.hidden = false
 			node.clusteredIn = null

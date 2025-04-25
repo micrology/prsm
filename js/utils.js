@@ -368,7 +368,7 @@ export function dragElement(el, header) {
 	header.addEventListener('mouseout', () => (header.style.cursor = 'auto'))
 
 	let mc = new Hammer.Manager(header, {
-		recognizers: [[Hammer.Pan, { direction: Hammer.DIRECTION_ALL, threshold: 0 }]],
+		recognizers: [[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}]],
 	})
 	// tie in the handler that will be called
 	mc.on('pan', handleDrag)
@@ -428,7 +428,7 @@ export function addContextMenu(elem, menu) {
 	document.body.appendChild(menuEl)
 	elem.addEventListener('contextmenu', (event) => {
 		event.preventDefault()
-		const { clientX: mouseX, clientY: mouseY } = event
+		const {clientX: mouseX, clientY: mouseY} = event
 		let posX =
 			window.innerWidth - mouseX < menuEl.offsetWidth + 4 ? window.innerWidth - menuEl.offsetWidth - 4 : mouseX
 		let posY =
@@ -446,7 +446,7 @@ export function addContextMenu(elem, menu) {
 		menuEl.classList.remove('visible')
 	})
 	menu.forEach((item) => {
-		const { label, action } = item
+		const {label, action} = item
 		let option = document.createElement('div')
 		option.classList.add('item')
 		option.innerHTML = label
@@ -821,18 +821,15 @@ export function standardize_color(str) {
 	ctx.fillStyle = str
 	return ctx.fillStyle
 }
-/** 
+/**
  * convert a color string to an array of numbers
  * e.g. 'rgb(255, 0, 0)' -> [255, 0, 0]
  * @param {string} rgb
  * @returns {array} array of numbers
-*/
+ */
 export function rgbToArray(rgb) {
-	let values =  rgb.slice(
-		rgb.indexOf("(") + 1,
-		rgb.indexOf(")")
-	).split(",")
-	return values.map((value) => {	
+	let values = rgb.slice(rgb.indexOf('(') + 1, rgb.indexOf(')')).split(',')
+	return values.map((value) => {
 		return parseInt(value)
 	})
 }
@@ -1136,7 +1133,7 @@ export function humanSize(bytes, si = true) {
 	let u,
 		b = bytes,
 		t = si ? 1000 : 1024
-		;['', si ? 'k' : 'K', ...'MGTPEZY'].find((x) => ((u = x), (b /= t), b ** 2 < 1))
+	;['', si ? 'k' : 'K', ...'MGTPEZY'].find((x) => ((u = x), (b /= t), b ** 2 < 1))
 	return `${u ? (t * b).toFixed(1) : bytes}${u}${!si && u ? 'i' : ''}B`
 }
 /**

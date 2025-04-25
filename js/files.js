@@ -21,7 +21,7 @@ PRSM Participatory System Mapper
 This module provides import and export functions, to read and save map files in a variety of formats.  
  ******************************************************************************************************************** */
 
-import { Network, parseGephiNetwork, parseDOTNetwork } from "vis-network/peer"
+import {Network, parseGephiNetwork, parseDOTNetwork} from 'vis-network/peer'
 import {
 	data,
 	doc,
@@ -56,7 +56,7 @@ import {
 	saveState,
 	fit,
 	yDrawingMap,
-} from "./prsm.js"
+} from './prsm.js'
 import {
 	elem,
 	uuidv4,
@@ -71,28 +71,23 @@ import {
 	alertMsg,
 	lowerFirstLetter,
 	stripNL,
-} from "./utils.js"
-import { styles } from "./samples.js"
-import {
-	canvas,
-	refreshFromMap,
-	setUpBackground,
-	upgradeFromV1,
-} from "./background.js"
-import { refreshSampleNode, refreshSampleLink, updateLegend } from "./styles.js"
-import Quill from "quill"
-import { saveAs } from "file-saver"
+} from './utils.js'
+import {styles} from './samples.js'
+import {canvas, refreshFromMap, setUpBackground, upgradeFromV1} from './background.js'
+import {refreshSampleNode, refreshSampleLink, updateLegend} from './styles.js'
+import Quill from 'quill'
+import {saveAs} from 'file-saver'
 //import * as quillToWord from 'quill-to-word'  //dynamically loaded in exportNotes
-import { read, writeFileXLSX, utils } from "xlsx"
-import { compressToUTF16, decompressFromUTF16 } from "lz-string"
-import { XMLParser } from "fast-xml-parser"
-import { fabric } from "fabric"
-import { version } from "../package.json"
+import {read, writeFileXLSX, utils} from 'xlsx'
+import {compressToUTF16, decompressFromUTF16} from 'lz-string'
+import {XMLParser} from 'fast-xml-parser'
+import {fabric} from 'fabric'
+import {version} from '../package.json'
 
 const NODEWIDTH = 10 // chars for label splitting
 
-var lastFileName = "" // the name of the file last read in
-let msg = ""
+var lastFileName = '' // the name of the file last read in
+let msg = ''
 /**
  * Get the name of a map file to read and load it
  * @param {event} e
@@ -105,42 +100,42 @@ export function readSingleFile(e) {
 	}
 	let fileName = file.name
 	lastFileName = fileName
-	document.body.style.cursor = "wait"
+	document.body.style.cursor = 'wait'
 	statusMsg("Reading '" + fileName + "'")
-	msg = ""
-	e.target.value = ""
+	msg = ''
+	e.target.value = ''
 	var reader = new FileReader()
 	reader.onloadend = function (e) {
 		try {
-			document.body.style.cursor = "wait"
+			document.body.style.cursor = 'wait'
 			loadFile(e.target.result)
-			if (!msg) alertMsg("Read '" + fileName + "'", "info")
+			if (!msg) alertMsg("Read '" + fileName + "'", 'info')
 		} catch (err) {
-			document.body.style.cursor = "default"
-			alertMsg("Error reading '" + fileName + "': " + err.message, "error")
+			document.body.style.cursor = 'default'
+			alertMsg("Error reading '" + fileName + "': " + err.message, 'error')
 			console.log(err)
 			clearMap()
 		}
-		document.body.style.cursor = "default"
+		document.body.style.cursor = 'default'
 	}
 	reader.readAsArrayBuffer(file)
 }
 
 export function openFile() {
-	elem("fileInput").click()
+	elem('fileInput').click()
 }
 /**
  * Allow user to open a file by dragging and dropping it over the PRSM window
  */
-elem("container").addEventListener("drop", (e) => {
+elem('container').addEventListener('drop', (e) => {
 	e.preventDefault()
 	let dt = e.dataTransfer
 	let files = dt.files
 	if (files.length > 0) {
-		readSingleFile({ target: { files: files } })
+		readSingleFile({target: {files: files}})
 	}
 })
-elem("container").addEventListener("dragover", (e) => {
+elem('container').addEventListener('dragover', (e) => {
 	e.preventDefault()
 })
 /**
@@ -149,53 +144,48 @@ elem("container").addEventListener("dragover", (e) => {
  */
 function loadFile(contents) {
 	if (data.nodes.length > 0)
-		if (
-			!confirm(
-				"Loading a file will delete the current network.  Are you sure you want to replace it?"
-			)
-		)
-			return
+		if (!confirm('Loading a file will delete the current network.  Are you sure you want to replace it?')) return
 	saveState()
 	// load the file as one single yjs transaction to reduce server traffic
 	clearMap()
 	doc.transact(() => {
-		switch (lastFileName.split(".").pop().toLowerCase()) {
-			case "csv":
+		switch (lastFileName.split('.').pop().toLowerCase()) {
+			case 'csv':
 				loadCSV(arrayBufferToString(contents))
 				break
-			case "graphml":
+			case 'graphml':
 				loadGraphML(arrayBufferToString(contents))
 				break
-			case "gml":
+			case 'gml':
 				loadGML(arrayBufferToString(contents))
 				break
-			case "json":
-			case "prsm":
+			case 'json':
+			case 'prsm':
 				loadPRSMfile(arrayBufferToString(contents))
 				break
-			case "gv":
-			case "dot":
+			case 'gv':
+			case 'dot':
 				loadDOTfile(arrayBufferToString(contents))
 				break
-			case "xlsx":
-			case "xls":
+			case 'xlsx':
+			case 'xls':
 				loadExcelfile(contents)
 				break
-			case "gexf":
+			case 'gexf':
 				loadGEXFfile(arrayBufferToString(contents))
 				break
 			default:
-				throw new Error("Unrecognised file name suffix")
+				throw new Error('Unrecognised file name suffix')
 		}
 		let nodesToUpdate = []
 		data.nodes.get().forEach((n) => {
 			// ensure that all nodes have a grp property (converting 'group' property for old format files)
-			if (!n.grp) n.grp = n.group ? "group" + (n.group % 9) : "group0"
+			if (!n.grp) n.grp = n.group ? 'group' + (n.group % 9) : 'group0'
 			// reassign the sample properties to the nodes
 			n = deepMerge(styles.nodes[n.grp], n)
 			// version 1.6 made changes to label scaling
 			n.scaling = {
-				label: { enabled: false, max: 40, min: 10 },
+				label: {enabled: false, max: 40, min: 10},
 				max: 100,
 				min: 10,
 			}
@@ -207,7 +197,7 @@ function loadFile(contents) {
 		let edgesToUpdate = []
 		data.edges.get().forEach((e) => {
 			// ensure that all edges have a grp property (converting 'group' property for old format files)
-			if (!e.grp) e.grp = e.group ? "edge" + (e.group % 9) : "edge0"
+			if (!e.grp) e.grp = e.group ? 'edge' + (e.group % 9) : 'edge0'
 			// reassign the sample properties to the edges
 			e = deepMerge(styles.edges[e.grp], e)
 			edgesToUpdate.push(e)
@@ -216,7 +206,7 @@ function loadFile(contents) {
 
 		fit()
 		updateLegend()
-		logHistory("loaded &lt;" + lastFileName + "&gt;")
+		logHistory('loaded &lt;' + lastFileName + '&gt;')
 	})
 	yUndoManager.clear()
 	undoRedoButtonStatus()
@@ -229,7 +219,7 @@ function loadFile(contents) {
  * @returns string
  */
 function arrayBufferToString(contents) {
-	let decoder = new TextDecoder("utf-8")
+	let decoder = new TextDecoder('utf-8')
 	return decoder.decode(new DataView(contents))
 }
 /**
@@ -237,22 +227,22 @@ function arrayBufferToString(contents) {
  * @param {string} str
  */
 function loadPRSMfile(str) {
-	if (str[0] != "{") str = decompressFromUTF16(str)
+	if (str[0] != '{') str = decompressFromUTF16(str)
 	let json = JSON.parse(str)
 	if (json.version && version.substring(0, 3) > json.version.substring(0, 3)) {
-		alertMsg("Warning: file was created in an earlier version", "warn")
-		msg = "old version"
+		alertMsg('Warning: file was created in an earlier version', 'warn')
+		msg = 'old version'
 	}
 	updateLastSamples(json.lastNodeSample, json.lastLinkSample)
 	if (json.buttons) setButtonStatus(json.buttons)
-	if (json.mapTitle) yNetMap.set("mapTitle", setMapTitle(json.mapTitle))
+	if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle))
 	/* if (json.recentMaps) {
 		let recents = JSON.parse(localStorage.getItem('recents')) || {}
 		localStorage.setItem('recents', JSON.stringify(Object.assign(json.recentMaps, recents)))
 	} */
-	if (json.attributeTitles) yNetMap.set("attributeTitles", json.attributeTitles)
-	else yNetMap.set("attributeTitles", {})
-	if (json.edges.length > 0 && "source" in json.edges[0]) {
+	if (json.attributeTitles) yNetMap.set('attributeTitles', json.attributeTitles)
+	else yNetMap.set('attributeTitles', {})
+	if (json.edges.length > 0 && 'source' in json.edges[0]) {
 		// the file is from Gephi and needs to be translated
 		let parsed = parseGephiNetwork(json, {
 			edges: {
@@ -268,17 +258,15 @@ function loadPRSMfile(str) {
 	} else {
 		json.nodes.forEach((n) => {
 			// at version 1.5, the title: property was renamed to note:
-			if (!n.note && n.title) n.note = n.title.replace(/<br>|<p>/g, "\n")
+			if (!n.note && n.title) n.note = n.title.replace(/<br>|<p>/g, '\n')
 			delete n.title
-			if (n.note && !(n.note instanceof Object))
-				n.note = { ops: [{ insert: n.note }] }
+			if (n.note && !(n.note instanceof Object)) n.note = {ops: [{insert: n.note}]}
 		})
 		data.nodes.add(json.nodes)
 		json.edges.forEach((e) => {
-			if (!e.note && e.title) e.note = e.title.replace(/<br>|<p>/g, "\n")
+			if (!e.note && e.title) e.note = e.title.replace(/<br>|<p>/g, '\n')
 			delete e.title
-			if (e.note && !(e.note instanceof Object))
-				e.note = { ops: [{ insert: e.note }] }
+			if (e.note && !(e.note instanceof Object)) e.note = {ops: [{insert: e.note}]}
 		})
 		data.edges.add(json.edges)
 	}
@@ -325,12 +313,12 @@ function loadPRSMfile(str) {
 	yHistory.delete(0, yHistory.length)
 	if (json.history) yHistory.insert(0, json.history)
 	if (json.description) {
-		yNetMap.set("mapDescription", json.description)
+		yNetMap.set('mapDescription', json.description)
 		disableSideDrawerEditing()
 		setSideDrawer(json.description)
 	}
 	// node sizing has to be done after nodes have been created
-	sizing(yNetMap.get("sizing"))
+	sizing(yNetMap.get('sizing'))
 }
 /**
  * parse and load a GraphViz (.DOT or .GV) file
@@ -345,30 +333,29 @@ function loadDOTfile(graph) {
 	let parsedData = parseDOTNetwork(graph)
 	data.nodes.add(
 		parsedData.nodes.map((node) => {
-			let n = strip(node, ["id", "label", "color", "shape", "font", "width"])
+			let n = strip(node, ['id', 'label', 'color', 'shape', 'font', 'width'])
 			if (!n.id) n.id = uuidv4()
-			if (!n.color) n.color = deepCopy(styles.nodes["group0"].color)
-			if (!n.font) n.font = deepCopy(styles.nodes["group0"].font)
-			if (!n.shape) n.shape = deepCopy(styles.nodes["group0"].shape)
+			if (!n.color) n.color = deepCopy(styles.nodes['group0'].color)
+			if (!n.font) n.font = deepCopy(styles.nodes['group0'].font)
+			if (!n.shape) n.shape = deepCopy(styles.nodes['group0'].shape)
 			if (n.font?.size) n.font.size = parseInt(n.font.size)
 			if (n.width) n.borderWidth = parseInt(n.width)
-			if (n.shape === "plaintext") {
-				n.shape = "text"
+			if (n.shape === 'plaintext') {
+				n.shape = 'text'
 				n.borderWidth = 0
 			}
 			return n
-		})
+		}),
 	)
 	data.edges.add(
 		parsedData.edges.map((edge) => {
-			let e = strip(edge, ["id", "from", "to", "label", "color", "dashes"])
+			let e = strip(edge, ['id', 'from', 'to', 'label', 'color', 'dashes'])
 			if (!e.id) e.id = uuidv4()
-			if (!e.color) e.color = deepCopy(styles.edges["edge0"].color)
-			if (!e.dashes) e.dashes = deepCopy(styles.edges["edge0"].dashes)
-			if (!e.width)
-				e.width = e.width ? parseInt(e.width) : styles.edges["edge0"].width
+			if (!e.color) e.color = deepCopy(styles.edges['edge0'].color)
+			if (!e.dashes) e.dashes = deepCopy(styles.edges['edge0'].dashes)
+			if (!e.width) e.width = e.width ? parseInt(e.width) : styles.edges['edge0'].width
 			return e
-		})
+		}),
 	)
 }
 /**
@@ -378,20 +365,20 @@ function loadDOTfile(graph) {
 function loadGraphML(graphML) {
 	let options = {
 		ignoreAttributes: false,
-		attributeNamePrefix: "",
+		attributeNamePrefix: '',
 		alwaysCreateTextNode: false,
 		isArray: (name, jpath) => {
 			// Define which elements should always be arrays
 			const arrayPaths = [
-				"graphml.key",
-				"graphml.graph.node",
-				"graphml.graph.edge",
-				"graphml.graph.node.data",
-				"graphml.graph.edge.data",
+				'graphml.key',
+				'graphml.graph.node',
+				'graphml.graph.edge',
+				'graphml.graph.node.data',
+				'graphml.graph.edge.data',
 			]
 			return arrayPaths.includes(jpath)
 		},
-		textNodeName: "#text",
+		textNodeName: '#text',
 		trimValues: true,
 	}
 	const parser = new XMLParser(options)
@@ -400,18 +387,18 @@ function loadGraphML(graphML) {
 		let attributeNames = {}
 		if (parsedData.graphml.key) {
 			parsedData.graphml.key.forEach((key) => {
-				attributeNames[key.id] = key["attr.name"]
+				attributeNames[key.id] = key['attr.name']
 			})
 		}
 		const nodes = parsedData.graphml.graph.node.map((node) => {
 			const nodeData = {}
 			if (node.data) {
 				node.data.forEach((data) => {
-					nodeData[attributeNames[data["key"]]] = data["#text"]
+					nodeData[attributeNames[data['key']]] = data['#text']
 				})
 			}
 			return {
-				id: node["id"],
+				id: node['id'],
 				...nodeData,
 			}
 		})
@@ -419,13 +406,13 @@ function loadGraphML(graphML) {
 			const edgeData = {}
 			if (edge.data) {
 				edge.data.forEach((data) => {
-					edgeData[attributeNames[data["key"]]] = data["#text"]
+					edgeData[attributeNames[data['key']]] = data['#text']
 				})
 			}
 			return {
-				id: edge["id"],
-				source: edge["source"],
-				target: edge["target"],
+				id: edge['id'],
+				source: edge['source'],
+				target: edge['target'],
 				...edgeData,
 			}
 		})
@@ -440,9 +427,7 @@ function loadGraphML(graphML) {
 			if (node.y) n.y = node.y
 			if (node.r != undefined && node.g != undefined && node.b != undefined) {
 				n.color.background = `rgb(${node.r},${node.g},${node.b})`
-				n.font.color = rgbIsLight(node.r, node.g, node.b)
-					? "rgb(0,0,0)"
-					: "rgb(255,255,255)"
+				n.font.color = rgbIsLight(node.r, node.g, node.b) ? 'rgb(0,0,0)' : 'rgb(255,255,255)'
 			}
 			nodesToUpdate.push(n)
 		})
@@ -451,25 +436,19 @@ function loadGraphML(graphML) {
 		let edgesToUpdate = []
 		edges.forEach((edge) => {
 			let e = deepCopy(styles.edges.edge0)
-			if (!edge.id) throw new Error("Missing edge ID")
+			if (!edge.id) throw new Error('Missing edge ID')
 			e.id = edge.id
-			if (!data.nodes.get(edge.source))
-				throw new Error(
-					`No node ${edge.source} for source of edge ID ${edge.id}`
-				)
+			if (!data.nodes.get(edge.source)) throw new Error(`No node ${edge.source} for source of edge ID ${edge.id}`)
 			e.from = edge.source
-			if (!data.nodes.get(edge.target))
-				throw new Error(
-					`No node ${edge.target} for source of edge ID ${edge.id}`
-				)
+			if (!data.nodes.get(edge.target)) throw new Error(`No node ${edge.target} for source of edge ID ${edge.id}`)
 			e.to = edge.target
 			e.width = edge.weight > 20 ? 20 : edge.weight < 1 ? 1 : edge.weight
 			edgesToUpdate.push(e)
 		})
 		data.edges.update(edgesToUpdate)
 	} else {
-		alertMsg("Bad format in GraphML file", "error")
-		throw new Error("Bad format in GraphML file")
+		alertMsg('Bad format in GraphML file', 'error')
+		throw new Error('Bad format in GraphML file')
 	}
 }
 
@@ -480,17 +459,17 @@ function loadGraphML(graphML) {
 function loadGEXFfile(gexf) {
 	const parser = new XMLParser({
 		ignoreAttributes: false,
-		attributeNamePrefix: "",
+		attributeNamePrefix: '',
 		processEntities: true,
-		isArray: (name) => ["node", "edge", "attribute", "attvalue"].includes(name),
-		transformTagName: (tag) => tag.startsWith("viz:") ? tag.replace("viz:", "viz_") : tag,
-	});
+		isArray: (name) => ['node', 'edge', 'attribute', 'attvalue'].includes(name),
+		transformTagName: (tag) => (tag.startsWith('viz:') ? tag.replace('viz:', 'viz_') : tag),
+	})
 
-	const jsonObj = parser.parse(gexf);
-	const graph = jsonObj.gexf?.graph || jsonObj.graph;
-	if (!graph) throw new Error("Invalid GEXF format: no graph found");
+	const jsonObj = parser.parse(gexf)
+	const graph = jsonObj.gexf?.graph || jsonObj.graph
+	if (!graph) throw new Error('Invalid GEXF format: no graph found')
 
-	const attributes = processAttributes(graph.attributes);
+	const attributes = processAttributes(graph.attributes)
 
 	const nodes = (graph.nodes?.node || []).map((node) => ({
 		id: node.id,
@@ -498,27 +477,27 @@ function loadGEXFfile(gexf) {
 		attributes: processAttributeValues(node.attvalues?.attvalue || []),
 		...processVizAttributes(node),
 		...processNodePosition(node),
-	}));
+	}))
 
 	const edges = (graph.edges?.edge || []).map((edge) => ({
 		id: edge.id,
 		source: edge.source,
 		target: edge.target,
-		type: edge.type || graph.defaultedgetype || "directed",
+		type: edge.type || graph.defaultedgetype || 'directed',
 		weight: parseFloat(edge.weight) || 1,
 		attributes: processAttributeValues(edge.attvalues?.attvalue || []),
 		...processEdgeVizAttributes(edge),
-	}));
+	}))
 
-	const attributeNames = { ...yNetMap.get("attributeTitles") || {} };
-	Object.entries(attributes.nodes).forEach(([id, { title }]) => attributeNames[id] = title);
-	yNetMap.set("attributeTitles", attributeNames);
-	recreateClusteringMenu(attributeNames);
+	const attributeNames = {...(yNetMap.get('attributeTitles') || {})}
+	Object.entries(attributes.nodes).forEach(([id, {title}]) => (attributeNames[id] = title))
+	yNetMap.set('attributeTitles', attributeNames)
+	recreateClusteringMenu(attributeNames)
 
 	const nodesToUpdate = nodes.map((node) => {
-		if (!node.id) throw new Error(`No ID for node ${node.label}`);
-		const base = { ...deepCopy(styles.nodes.group0), ...node.attributes };
-		const color = node.viz?.color;
+		if (!node.id) throw new Error(`No ID for node ${node.label}`)
+		const base = {...deepCopy(styles.nodes.group0), ...node.attributes}
+		const color = node.viz?.color
 		return {
 			...base,
 			id: node.id,
@@ -527,19 +506,21 @@ function loadGEXFfile(gexf) {
 			y: node.position?.y,
 			size: node.viz?.size,
 			shape: node.viz?.shape,
-			color: color ? { ...base.color, background: rgba(color) } : base.color,
-			font: color ? { ...base.font, color: rgbIsLight(color.r, color.g, color.b) ? "rgb(0,0,0)" : "rgb(255,255,255)" } : base.font,
-		};
-	});
-	data.nodes.update(nodesToUpdate);
+			color: color ? {...base.color, background: rgba(color)} : base.color,
+			font: color
+				? {...base.font, color: rgbIsLight(color.r, color.g, color.b) ? 'rgb(0,0,0)' : 'rgb(255,255,255)'}
+				: base.font,
+		}
+	})
+	data.nodes.update(nodesToUpdate)
 
 	const edgesToUpdate = edges.map((edge) => {
-		if (!edge.id) throw new Error("Missing edge ID");
-		if (!data.nodes.get(edge.source)) throw new Error(`No node ${edge.source} for edge ${edge.id}`);
-		if (!data.nodes.get(edge.target)) throw new Error(`No node ${edge.target} for edge ${edge.id}`);
+		if (!edge.id) throw new Error('Missing edge ID')
+		if (!data.nodes.get(edge.source)) throw new Error(`No node ${edge.source} for edge ${edge.id}`)
+		if (!data.nodes.get(edge.target)) throw new Error(`No node ${edge.target} for edge ${edge.id}`)
 
-		const color = edge.viz?.color;
-		const width = Math.min(20, Math.max(1, edge.weight));
+		const color = edge.viz?.color
+		const width = Math.min(20, Math.max(1, edge.weight))
 
 		return {
 			...deepCopy(styles.edges.edge0),
@@ -547,72 +528,76 @@ function loadGEXFfile(gexf) {
 			from: edge.source,
 			to: edge.target,
 			width,
-			color: color ? rgba(color) : "rgba(0,0,01)"
-		};
-	});
-	data.edges.update(edgesToUpdate);
+			color: color ? rgba(color) : 'rgba(0,0,01)',
+		}
+	})
+	data.edges.update(edgesToUpdate)
 
 	// === Helpers ===
 	function processAttributes(attributesNode) {
-		const result = { nodes: {}, edges: {} };
-		if (!attributesNode) return result;
-		const attributes = Array.isArray(attributesNode) ? attributesNode : [attributesNode];
-	
-		(attributes || []).forEach(({ class: cls, attribute = [] }) => {
-			attribute.forEach(({ id, title, name, type }) => {
-				result[cls === "node" ? "nodes" : "edges"][id] = {
+		const result = {nodes: {}, edges: {}}
+		if (!attributesNode) return result
+		const attributes = Array.isArray(attributesNode) ? attributesNode : [attributesNode]
+
+		;(attributes || []).forEach(({class: cls, attribute = []}) => {
+			attribute.forEach(({id, title, name, type}) => {
+				result[cls === 'node' ? 'nodes' : 'edges'][id] = {
 					title: title || name,
-					type: type || "string",
-				};
-			});
-		});
-	
-		return result;
+					type: type || 'string',
+				}
+			})
+		})
+
+		return result
 	}
 
 	function processAttributeValues(attvalues) {
-		return (Array.isArray(attvalues) ? attvalues : []).reduce((acc, { for: key, value }) => {
-			if (key !== undefined && value !== undefined) acc[key] = value;
-			return acc;
-		}, {});
+		return (Array.isArray(attvalues) ? attvalues : []).reduce((acc, {for: key, value}) => {
+			if (key !== undefined && value !== undefined) acc[key] = value
+			return acc
+		}, {})
 	}
 
 	function processVizAttributes(el) {
-		const { viz_size, viz_color, viz_shape } = el;
-		const viz = {};
-		if (viz_size) viz.size = parseFloat(viz_size.value || viz_size.size);
-		if (viz_color) viz.color = {
-			r: parseInt(viz_color.r || 0),
-			g: parseInt(viz_color.g || 0),
-			b: parseInt(viz_color.b || 0),
-			a: parseFloat(viz_color.a ?? 1.0),
-		};
-		if (viz_shape) viz.shape = viz_shape.value;
-		return Object.keys(viz).length ? { viz } : {};
+		const {viz_size, viz_color, viz_shape} = el
+		const viz = {}
+		if (viz_size) viz.size = parseFloat(viz_size.value || viz_size.size)
+		if (viz_color)
+			viz.color = {
+				r: parseInt(viz_color.r || 0),
+				g: parseInt(viz_color.g || 0),
+				b: parseInt(viz_color.b || 0),
+				a: parseFloat(viz_color.a ?? 1.0),
+			}
+		if (viz_shape) viz.shape = viz_shape.value
+		return Object.keys(viz).length ? {viz} : {}
 	}
 
-	function processNodePosition({ viz_position, x, y, z }) {
+	function processNodePosition({viz_position, x, y, z}) {
 		const pos = viz_position
-			? { x: +viz_position.x || 0, y: +viz_position.y || 0, z: +viz_position.z || 0 }
-			: (x || y || z) ? { x: +x, y: +y, z: +z } : null;
-		return pos ? { position: pos } : {};
+			? {x: +viz_position.x || 0, y: +viz_position.y || 0, z: +viz_position.z || 0}
+			: x || y || z
+				? {x: +x, y: +y, z: +z}
+				: null
+		return pos ? {position: pos} : {}
 	}
 
-	function processEdgeVizAttributes({ viz_thickness, viz_color, viz_shape }) {
-		const viz = {};
-		if (viz_thickness) viz.thickness = parseFloat(viz_thickness.value);
-		if (viz_color) viz.color = {
-			r: parseInt(viz_color.r || 0),
-			g: parseInt(viz_color.g || 0),
-			b: parseInt(viz_color.b || 0),
-			a: parseFloat(viz_color.a ?? 1.0),
-		};
-		if (viz_shape) viz.shape = viz_shape.value;
-		return Object.keys(viz).length ? { viz } : {};
+	function processEdgeVizAttributes({viz_thickness, viz_color, viz_shape}) {
+		const viz = {}
+		if (viz_thickness) viz.thickness = parseFloat(viz_thickness.value)
+		if (viz_color)
+			viz.color = {
+				r: parseInt(viz_color.r || 0),
+				g: parseInt(viz_color.g || 0),
+				b: parseInt(viz_color.b || 0),
+				a: parseFloat(viz_color.a ?? 1.0),
+			}
+		if (viz_shape) viz.shape = viz_shape.value
+		return Object.keys(viz).length ? {viz} : {}
 	}
 
-	function rgba({ r, g, b, a = 1.0 }) {
-		return `rgba(${r},${g},${b},${a})`;
+	function rgba({r, g, b, a = 1.0}) {
+		return `rgba(${r},${g},${b},${a})`
 	}
 }
 
@@ -621,7 +606,7 @@ function loadGEXFfile(gexf) {
  * @param {string} gml
  */
 function loadGML(gml) {
-	if (gml.search("graph") < 0) throw new Error("invalid GML format")
+	if (gml.search('graph') < 0) throw new Error('invalid GML format')
 	let tokens = gml.match(/"[^"]+"|[\w]+|\[|\]/g)
 	let node
 	let edge
@@ -629,30 +614,27 @@ function loadGML(gml) {
 	let tok = tokens.shift()
 	while (tok) {
 		switch (tok) {
-			case "graph":
+			case 'graph':
 				break
-			case "node":
+			case 'node':
 				tokens.shift() // [
 				node = {}
 				tok = tokens.shift()
-				while (tok != "]") {
+				while (tok != ']') {
 					switch (tok) {
-						case "id":
+						case 'id':
 							node.id = tokens.shift().toString()
 							break
-						case "label":
-							node.label = splitText(
-								tokens.shift().replace(/"/g, ""),
-								NODEWIDTH
-							)
+						case 'label':
+							node.label = splitText(tokens.shift().replace(/"/g, ''), NODEWIDTH)
 							break
-						case "color":
-						case "colour":
+						case 'color':
+						case 'colour':
 							node.color = {}
-							node.color.background = tokens.shift().replace(/"/g, "")
+							node.color.background = tokens.shift().replace(/"/g, '')
 							break
-						case "[": // skip embedded groups
-							while (tok != "]") tok = tokens.shift()
+						case '[': // skip embedded groups
+							while (tok != ']') tok = tokens.shift()
 							break
 						default:
 							break
@@ -662,30 +644,30 @@ function loadGML(gml) {
 				if (node.label == undefined) node.label = node.id
 				data.nodes.add(node)
 				break
-			case "edge":
+			case 'edge':
 				tokens.shift() // [
 				edge = {}
 				tok = tokens.shift()
-				while (tok != "]") {
+				while (tok != ']') {
 					switch (tok) {
-						case "id":
+						case 'id':
 							edge.id = tokens.shift().toString()
 							break
-						case "source":
+						case 'source':
 							edge.from = tokens.shift().toString()
 							break
-						case "target":
+						case 'target':
 							edge.to = tokens.shift().toString()
 							break
-						case "label":
-							edge.label = tokens.shift().replace(/"/g, "")
+						case 'label':
+							edge.label = tokens.shift().replace(/"/g, '')
 							break
-						case "color":
-						case "colour":
-							edge.color = tokens.shift().replace(/"/g, "")
+						case 'color':
+						case 'colour':
+							edge.color = tokens.shift().replace(/"/g, '')
 							break
-						case "[": // skip embedded groups
-							while (tok != "]") tok = tokens.shift()
+						case '[': // skip embedded groups
+							while (tok != ']') tok = tokens.shift()
 							break
 						default:
 							break
@@ -719,7 +701,7 @@ function loadCSV(csv) {
 		let from = node(line[0], line[2], i)
 		let to = node(line[1], line[3], i)
 		let grp = line[4]
-		if (grp) grp = "edge" + (parseInt(grp.trim()) - 1)
+		if (grp) grp = 'edge' + (parseInt(grp.trim()) - 1)
 		links.push({
 			id: uuidv4(),
 			from: from.id,
@@ -738,19 +720,19 @@ function loadCSV(csv) {
 		let insideQuote = false,
 			entries = [],
 			entry = []
-		row.split("").forEach(function (character) {
+		row.split('').forEach(function (character) {
 			if (character === '"') {
 				insideQuote = !insideQuote
 			} else {
-				if (character == "," && !insideQuote) {
-					entries.push(entry.join(""))
+				if (character == ',' && !insideQuote) {
+					entries.push(entry.join(''))
 					entry = []
 				} else {
 					entry.push(character)
 				}
 			}
 		})
-		entries.push(entry.join(""))
+		entries.push(entry.join(''))
 		return entries
 	}
 	/**
@@ -766,13 +748,13 @@ function loadCSV(csv) {
 			let styleNo = parseInt(grp)
 			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
 				throw new Error(
-					`Line ${lineNo}: Columns 3 and 4 must be values between 1 and 9 or blank (found ${grp})`
+					`Line ${lineNo}: Columns 3 and 4 must be values between 1 and 9 or blank (found ${grp})`,
 				)
 			}
-			grp = "group" + (styleNo - 1)
+			grp = 'group' + (styleNo - 1)
 		}
 		if (labels.get(label) == undefined) {
-			labels.set(label, { id: uuidv4(), label: label.toString(), grp: grp })
+			labels.set(label, {id: uuidv4(), label: label.toString(), grp: grp})
 		}
 		return labels.get(label)
 	}
@@ -792,10 +774,10 @@ function loadCSV(csv) {
  */
 function loadExcelfile(contents) {
 	let workbook = read(contents)
-	let factorsSS = workbook.Sheets["Factors"]
-	if (!factorsSS) throw new Error("Sheet named Factors not found in Workbook")
-	let linksSS = workbook.Sheets["Links"]
-	if (!linksSS) throw new Error("Sheet named Links not found in Workbook")
+	let factorsSS = workbook.Sheets['Factors']
+	if (!factorsSS) throw new Error('Sheet named Factors not found in Workbook')
+	let linksSS = workbook.Sheets['Links']
+	if (!linksSS) throw new Error('Sheet named Links not found in Workbook')
 
 	// attributeNames is an object with properties attributeField: attributeTitle
 	let attributeNames = {}
@@ -811,9 +793,7 @@ function loadExcelfile(contents) {
 	 */
 
 	// convert data from Factors sheet into an array of objects with properties starting with lower case letters
-	let factors = utils
-		.sheet_to_json(factorsSS)
-		.map((f) => lowerInitialLetterOfProps(f))
+	let factors = utils.sheet_to_json(factorsSS).map((f) => lowerInitialLetterOfProps(f))
 	let maxIndexOfFactorStyles = Object.keys(styles.nodes).length - 1
 	factors.forEach((f) => {
 		f.id = uuidv4()
@@ -821,15 +801,13 @@ function loadExcelfile(contents) {
 			let styleNo = parseInt(f.style)
 			if (isNaN(styleNo) || styleNo < 1 || styleNo > maxIndexOfFactorStyles) {
 				throw new Error(
-					`Factors - Line ${f.__rowNum__}: Style must be a number between 1 and ${maxIndexOfFactorStyles} or blank (found ${f.style})`
+					`Factors - Line ${f.__rowNum__}: Style must be a number between 1 and ${maxIndexOfFactorStyles} or blank (found ${f.style})`,
 				)
 			}
-			f.grp = "group" + (styleNo - 1)
+			f.grp = 'group' + (styleNo - 1)
 			if (f.groupLabel) {
-				let styleDataSet = Array.from(
-					document.getElementsByClassName("sampleNode")
-				)[styleNo - 1].dataSet
-				let styleNode = styleDataSet.get("1")
+				let styleDataSet = Array.from(document.getElementsByClassName('sampleNode'))[styleNo - 1].dataSet
+				let styleNode = styleDataSet.get('1')
 				styleNode.label = f.groupLabel
 				styleNode.groupLabel = f.groupLabel
 				styleDataSet.update(styleNode)
@@ -837,13 +815,10 @@ function loadExcelfile(contents) {
 			}
 			delete f.style
 		}
-		if (!f.label)
-			throw new Error(
-				`Factors - Line ${f.__rowNum__}: Factor does not have a Label`
-			)
+		if (!f.label) throw new Error(`Factors - Line ${f.__rowNum__}: Factor does not have a Label`)
 		let note = f.description || f.note
 		if (note) {
-			f.note = { ops: [{ insert: note + "\n" }] }
+			f.note = {ops: [{insert: note + '\n'}]}
 			delete f.description
 		}
 		if (f.creator) {
@@ -865,30 +840,28 @@ function loadExcelfile(contents) {
 			.filter(
 				(k) =>
 					![
-						"id",
-						"grp",
-						"label",
-						"groupLabel",
-						"shape",
-						"note",
-						"created",
-						"createdTime",
-						"creator",
-						"modified",
-						"modifiedTime",
-						"modifier",
-						"x",
-						"y",
-						"__rowNum__",
-					].includes(k)
+						'id',
+						'grp',
+						'label',
+						'groupLabel',
+						'shape',
+						'note',
+						'created',
+						'createdTime',
+						'creator',
+						'modified',
+						'modifiedTime',
+						'modifier',
+						'x',
+						'y',
+						'__rowNum__',
+					].includes(k),
 			)
 			.forEach((k) => {
-				let attributeField = Object.keys(attributeNames).find(
-					(prop) => attributeNames[prop] === k
-				)
+				let attributeField = Object.keys(attributeNames).find((prop) => attributeNames[prop] === k)
 				if (!attributeField) {
 					// not found, so add
-					attributeField = "att" + (Object.keys(attributeNames).length + 1)
+					attributeField = 'att' + (Object.keys(attributeNames).length + 1)
 					attributeNames[attributeField] = k
 				}
 				f[attributeField] = f[k]
@@ -904,24 +877,20 @@ function loadExcelfile(contents) {
 	look up from and to in factor objects and replace with their ids
 	add other attributes as for factors */
 
-	let links = utils
-		.sheet_to_json(linksSS)
-		.map((l) => lowerInitialLetterOfProps(l))
+	let links = utils.sheet_to_json(linksSS).map((l) => lowerInitialLetterOfProps(l))
 	links.forEach((l) => {
 		l.id = uuidv4()
 		if (l.style) {
 			let styleNo = parseInt(l.style)
 			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
 				throw new Error(
-					`Links - Line ${l.__rowNum__}: Style must be a number between 1 and 9, a style name, or blank (found ${l.style})`
+					`Links - Line ${l.__rowNum__}: Style must be a number between 1 and 9, a style name, or blank (found ${l.style})`,
 				)
 			}
-			l.grp = "edge" + (styleNo - 1)
+			l.grp = 'edge' + (styleNo - 1)
 			if (l.groupLabel) {
-				let styleDataSet = Array.from(
-					document.getElementsByClassName("sampleLink")
-				)[styleNo - 1].dataSet
-				let styleEdge = styleDataSet.get("1")
+				let styleDataSet = Array.from(document.getElementsByClassName('sampleLink'))[styleNo - 1].dataSet
+				let styleEdge = styleDataSet.get('1')
 				styleEdge.label = l.groupLabel
 				styleEdge.groupLabel = l.groupLabel
 				styleDataSet.update(styleEdge)
@@ -945,47 +914,39 @@ function loadExcelfile(contents) {
 		}
 		let fromFactor = factors.find((factor) => factor.label === l.from)
 		if (fromFactor) l.from = fromFactor.id
-		else
-			throw new Error(
-				`Links - Line ${l.__rowNum__}: From factor (${l.from}) not found for link`
-			)
+		else throw new Error(`Links - Line ${l.__rowNum__}: From factor (${l.from}) not found for link`)
 		let toFactor = factors.find((factor) => factor.label === l.to)
 		if (toFactor) l.to = toFactor.id
-		else
-			throw new Error(
-				`Links - Line ${l.__rowNum__}: To factor (${l.to}) not found for link`
-			)
+		else throw new Error(`Links - Line ${l.__rowNum__}: To factor (${l.to}) not found for link`)
 
 		let note = l.description || l.note
 		if (note) {
-			l.note = { ops: [{ insert: note + "\n" }] }
+			l.note = {ops: [{insert: note + '\n'}]}
 			delete l.description
 		}
 		Object.keys(l)
 			.filter(
 				(k) =>
 					![
-						"id",
-						"from",
-						"to",
-						"grp",
-						"groupLabel",
-						"creator",
-						"created",
-						"label",
-						"modified",
-						"modifier",
-						"note",
-						"__rowNum__",
-					].includes(k)
+						'id',
+						'from',
+						'to',
+						'grp',
+						'groupLabel',
+						'creator',
+						'created',
+						'label',
+						'modified',
+						'modifier',
+						'note',
+						'__rowNum__',
+					].includes(k),
 			)
 			.forEach((k) => {
-				let attributeField = Object.keys(attributeNames).find(
-					(prop) => attributeNames[prop] === k
-				)
+				let attributeField = Object.keys(attributeNames).find((prop) => attributeNames[prop] === k)
 				if (!attributeField) {
 					// not found, so add
-					attributeField = "att" + (Object.keys(attributeNames).length + 1)
+					attributeField = 'att' + (Object.keys(attributeNames).length + 1)
 					attributeNames[attributeField] = k
 				}
 				l[attributeField] = l[k]
@@ -997,7 +958,7 @@ function loadExcelfile(contents) {
 	})
 	data.nodes.add(factors)
 	data.edges.add(links)
-	yNetMap.set("attributeTitles", attributeNames)
+	yNetMap.set('attributeTitles', attributeNames)
 	recreateClusteringMenu(attributeNames)
 
 	/**
@@ -1006,9 +967,7 @@ function loadExcelfile(contents) {
 	 * @returns copy of object
 	 */
 	function lowerInitialLetterOfProps(obj) {
-		return Object.fromEntries(
-			Object.entries(obj).map(([k, v]) => [lowerFirstLetter(k), v])
-		)
+		return Object.fromEntries(Object.entries(obj).map(([k, v]) => [lowerFirstLetter(k), v]))
 	}
 }
 
@@ -1017,37 +976,37 @@ function loadExcelfile(contents) {
  */
 export function savePRSMfile() {
 	network.storePositions()
-	let attributes = yNetMap.get("attributeTitles") || []
+	let attributes = yNetMap.get('attributeTitles') || []
 	let nodeFields = [
-		"id",
-		"label",
-		"grp",
-		"x",
-		"y",
-		"color",
-		"font",
-		"borderWidth",
-		"shape",
-		"shapeProperties",
-		"margin",
-		"thumbUp",
-		"thumbDown",
-		"created",
-		"modified",
+		'id',
+		'label',
+		'grp',
+		'x',
+		'y',
+		'color',
+		'font',
+		'borderWidth',
+		'shape',
+		'shapeProperties',
+		'margin',
+		'thumbUp',
+		'thumbDown',
+		'created',
+		'modified',
 	]
 	let json = JSON.stringify(
 		{
 			saved: new Date(Date.now()).toLocaleString(),
 			version: version,
 			room: room,
-			mapTitle: elem("maptitle").innerText,
+			mapTitle: elem('maptitle').innerText,
 			// 			security risk to save recent maps to a file
 			//			recentMaps: JSON.parse(localStorage.getItem('recents')),
 			lastNodeSample: lastNodeSample,
 			lastLinkSample: lastLinkSample,
 			// clustering, and up/down, paths between and x links away settings are not saved (and hidden property is not saved)
 			buttons: getButtonStatus(),
-			attributeTitles: yNetMap.get("attributeTitles"),
+			attributeTitles: yNetMap.get('attributeTitles'),
 			styles: styles,
 			nodes: data.nodes.get({
 				fields: [...nodeFields, ...Object.keys(attributes)],
@@ -1055,19 +1014,19 @@ export function savePRSMfile() {
 			}),
 			edges: data.edges.get({
 				fields: [
-					"id",
-					"arrows",
-					"color",
-					"created",
-					"dashes",
-					"font",
-					"from",
-					"grp",
-					"label",
-					"modified",
-					"note",
-					"to",
-					"width",
+					'id',
+					'arrows',
+					'color',
+					'created',
+					'dashes',
+					'font',
+					'from',
+					'grp',
+					'label',
+					'modified',
+					'note',
+					'to',
+					'width',
 				],
 				filter: (e) => !e.isClusterEdge,
 			}),
@@ -1076,13 +1035,13 @@ export function savePRSMfile() {
 				s.state = null
 				return s
 			}),
-			description: yNetMap.get("mapDescription"),
+			description: yNetMap.get('mapDescription'),
 		},
 		null,
-		"\t"
+		'\t',
 	)
 	if (!/plain/.test(debug)) json = compressToUTF16(json)
-	saveStr(json, "prsm")
+	saveStr(json, 'prsm')
 	markMapSaved()
 }
 /**
@@ -1092,11 +1051,11 @@ export function savePRSMfile() {
  */
 function getButtonStatus() {
 	return {
-		snapToGrid: elem("snaptogridswitch").checked,
-		curve: elem("curveSelect").value,
-		background: elem("netBackColorWell").style.backgroundColor,
-		legend: elem("showLegendSwitch").checked,
-		sizing: elem("sizing").value,
+		snapToGrid: elem('snaptogridswitch').checked,
+		curve: elem('curveSelect').value,
+		background: elem('netBackColorWell').style.backgroundColor,
+		legend: elem('showLegendSwitch').checked,
+		sizing: elem('sizing').value,
 	}
 }
 /**
@@ -1104,21 +1063,21 @@ function getButtonStatus() {
  * @param {Object} settings
  */
 function setButtonStatus(settings) {
-	yNetMap.set("snapToGrid", settings.snapToGrid)
+	yNetMap.set('snapToGrid', settings.snapToGrid)
 	doSnapToGrid(settings.snapToGrid)
-	yNetMap.set("curve", settings.curve)
+	yNetMap.set('curve', settings.curve)
 	setCurve(settings.curve)
-	yNetMap.set("background", settings.background || "#ffffff")
-	setBackground(yNetMap.get("background"))
-	yNetMap.set("legend", settings.legend)
+	yNetMap.set('background', settings.background || '#ffffff')
+	setBackground(yNetMap.get('background'))
+	yNetMap.set('legend', settings.legend)
 	setLegend(settings.legend)
-	yNetMap.set("sizing", settings.sizing)
+	yNetMap.set('sizing', settings.sizing)
 	// sizing done after the nodes have been created: sizing(settings.sizing)
-	yNetMap.set("radius", { radiusSetting: "All", selected: [] })
-	yNetMap.set("stream", { streamSetting: "All", selected: [] })
-	yNetMap.set("paths", { pathsSetting: "All", selected: [] })
-	yNetMap.set("cluster", "none")
-	setCluster("none")
+	yNetMap.set('radius', {radiusSetting: 'All', selected: []})
+	yNetMap.set('stream', {streamSetting: 'All', selected: []})
+	yNetMap.set('paths', {pathsSetting: 'All', selected: []})
+	yNetMap.set('cluster', 'none')
+	setCluster('none')
 }
 
 /**
@@ -1132,8 +1091,8 @@ function setButtonStatus(settings) {
  */
 function saveStr(str, extn) {
 	setFileName(extn)
-	const blob = new Blob([str], { type: "text/plain;charset=utf-8" })
-	saveAs(blob, lastFileName, { autoBom: true })
+	const blob = new Blob([str], {type: 'text/plain;charset=utf-8'})
+	saveAs(blob, lastFileName, {autoBom: true})
 }
 /**
  * save the map as a PNG image file
@@ -1142,7 +1101,7 @@ function saveStr(str, extn) {
 const maxScale = 5 // max upscaling for image (avoids blowing up very small networks excessively)
 
 export function exportPNGfile() {
-	setFileName("png")
+	setFileName('png')
 
 	// create a very large canvas, so we can download at high resolution
 	network.storePositions()
@@ -1151,35 +1110,35 @@ export function exportPNGfile() {
 	const bigWidth = 4096 / window.devicePixelRatio // half the number of pixels in the image file (also half the height, as the image is square)
 	const bigMargin = 256 / window.devicePixelRatio // white space around network so not too close to printable edge
 
-	let bigNetDiv = document.createElement("div")
-	bigNetDiv.id = "big-net-pane"
-	bigNetDiv.style.position = "absolute"
-	bigNetDiv.style.top = "-9999px"
-	bigNetDiv.style.left = "-9999px"
+	let bigNetDiv = document.createElement('div')
+	bigNetDiv.id = 'big-net-pane'
+	bigNetDiv.style.position = 'absolute'
+	bigNetDiv.style.top = '-9999px'
+	bigNetDiv.style.left = '-9999px'
 	bigNetDiv.style.width = `${bigWidth}px`
 	bigNetDiv.style.height = `${bigWidth}px`
-	elem("main").appendChild(bigNetDiv)
+	elem('main').appendChild(bigNetDiv)
 
 	// create an offscreen canvas of the same size to apply the background to
 	let bigBackgroundCanvas = new OffscreenCanvas(bigWidth, bigWidth)
-	bigBackgroundCanvas.id = "big-background-canvas"
-	let bigFabricCanvas = new fabric.StaticCanvas("big-background-canvas", {
+	bigBackgroundCanvas.id = 'big-background-canvas'
+	let bigFabricCanvas = new fabric.StaticCanvas('big-background-canvas', {
 		width: bigWidth,
 		height: bigWidth,
 	})
 
 	// make a network with the same nodes and links as the original map
 	let bigNetwork = new Network(bigNetDiv, data, {
-		physics: { enabled: false },
+		physics: {enabled: false},
 		edges: {
 			smooth: {
-				enabled: elem("curveSelect").value === "Curved",
-				type: "cubicBezier",
+				enabled: elem('curveSelect').value === 'Curved',
+				type: 'cubicBezier',
 			},
 		},
 	})
 
-	bigNetwork.on("afterDrawing", (bigNetContext) => {
+	bigNetwork.on('afterDrawing', (bigNetContext) => {
 		// copy the background objects to the big fabric canvas
 		bigFabricCanvas.loadFromJSON(JSON.stringify(canvas), () => {
 			// adjust the fabric canvas scale and center to match the big network and match the background colour
@@ -1190,15 +1149,13 @@ export function exportPNGfile() {
 				y: bigNetwork.getScale() * (fcCenter.y - center.y),
 			})
 
-			bigFabricCanvas.setBackgroundColor(
-				elem("underlay").style.backgroundColor || "rgb(255, 255, 255)"
-			)
+			bigFabricCanvas.setBackgroundColor(elem('underlay').style.backgroundColor || 'rgb(255, 255, 255)')
 			bigFabricCanvas.requestRenderAll()
 
 			// create an image version of the background and copy it onto the big network canvas
-			let bigBackgroundImage = document.createElement("img")
+			let bigBackgroundImage = document.createElement('img')
 			bigBackgroundImage.onload = function () {
-				bigNetContext.globalCompositeOperation = "destination-over"
+				bigNetContext.globalCompositeOperation = 'destination-over'
 				bigNetContext.drawImage(bigBackgroundImage, 0, 0, bigWidth, bigWidth)
 
 				// save the canvas to a file
@@ -1216,10 +1173,7 @@ export function exportPNGfile() {
 	let box = mapBoundingBox(network, canvas, network.getSelectedNodes())
 	let scale =
 		network.getScale() *
-		Math.min(
-			(bigWidth - bigMargin) / (box.right - box.left),
-			(bigWidth - bigMargin) / (box.bottom - box.top)
-		)
+		Math.min((bigWidth - bigMargin) / (box.right - box.left), (bigWidth - bigMargin) / (box.bottom - box.top))
 	if (scale > maxScale) scale = maxScale
 	let center = network.DOMtoCanvas({
 		x: 0.5 * (box.right + box.left),
@@ -1245,8 +1199,8 @@ export function exportPNGfile() {
 		if (selectedNodes.length === 0) selectedNodes = data.nodes.map((n) => n.id)
 		selectedNodes.forEach((nodeId) => {
 			let canvasBB = ntwk.getBoundingBox(nodeId)
-			let tl = ntwk.canvasToDOM({ x: canvasBB.left, y: canvasBB.top })
-			let br = ntwk.canvasToDOM({ x: canvasBB.right, y: canvasBB.bottom })
+			let tl = ntwk.canvasToDOM({x: canvasBB.left, y: canvasBB.top})
+			let br = ntwk.canvasToDOM({x: canvasBB.right, y: canvasBB.bottom})
 			if (left > tl.x) left = tl.x
 			if (right < br.x) right = br.x
 			if (top > tl.y) top = tl.y
@@ -1258,39 +1212,34 @@ export function exportPNGfile() {
 				let boundingBox = obj.getBoundingRect()
 				console.log(obj, boundingBox)
 				if (left > boundingBox.left) left = boundingBox.left
-				if (right < boundingBox.left + boundingBox.width)
-					right = boundingBox.left + boundingBox.width
+				if (right < boundingBox.left + boundingBox.width) right = boundingBox.left + boundingBox.width
 				if (top > boundingBox.top) top = boundingBox.top
-				if (bottom < boundingBox.top + boundingBox.height)
-					bottom = boundingBox.top + boundingBox.height
+				if (bottom < boundingBox.top + boundingBox.height) bottom = boundingBox.top + boundingBox.height
 			})
 		}
 		if (left === Infinity) {
 			top = bottom = left = right = 0
 		}
-		return { left: left, right: right, top: top, bottom: bottom }
+		return {left: left, right: right, top: top, bottom: bottom}
 	}
 }
 /**
  * save a local file containing all the node and edge notes, plus the map description, as a Word document
  */
 export async function exportNotes() {
-	let delta = { ops: [{ insert: "\n" }] }
+	let delta = {ops: [{insert: '\n'}]}
 	// start with the title of the map if there is one
-	let title = elem("maptitle").innerText
-	if (title !== "Untitled map") {
+	let title = elem('maptitle').innerText
+	if (title !== 'Untitled map') {
 		delta = {
-			ops: [{ insert: title }, { attributes: { header: 1 }, insert: "\n" }],
+			ops: [{insert: title}, {attributes: {header: 1}, insert: '\n'}],
 		}
 	}
 	// get contents of map note if there is one
-	if (yNetMap.get("mapDescription")) {
+	if (yNetMap.get('mapDescription')) {
 		delta.ops = delta.ops.concat(
-			[
-				{ insert: "Description of the map" },
-				{ attributes: { header: 2 }, insert: "\n" },
-			],
-			yNetMap.get("mapDescription").text.ops
+			[{insert: 'Description of the map'}, {attributes: {header: 2}, insert: '\n'}],
+			yNetMap.get('mapDescription').text.ops,
 		)
 	}
 	// add notes for factors
@@ -1299,27 +1248,19 @@ export async function exportNotes() {
 		.toSorted((a, b) => a.label.localeCompare(b.label))
 		.forEach((n) => {
 			delta.ops = delta.ops.concat(
-				[
-					{ insert: `Factor: ${stripNL(n.label)}` },
-					{ attributes: { header: 2 }, insert: "\n" },
-				],
-				n.note ? n.note.ops : [{ insert: "[No note]\n" }]
+				[{insert: `Factor: ${stripNL(n.label)}`}, {attributes: {header: 2}, insert: '\n'}],
+				n.note ? n.note.ops : [{insert: '[No note]\n'}],
 			)
 		})
 	// add notes for links
 	data.edges.forEach((e) => {
 		let heading = `Link from '${stripNL(data.nodes.get(e.from).label)}' to '${stripNL(data.nodes.get(e.to).label)}'`
-		delta.ops = delta.ops.concat([
-			{ insert: heading },
-			{ attributes: { header: 2 }, insert: "\n" },
-		])
-		delta.ops = delta.ops.concat(
-			e.note ? e.note.ops : [{ insert: "[No note]\n" }]
-		)
+		delta.ops = delta.ops.concat([{insert: heading}, {attributes: {header: 2}, insert: '\n'}])
+		delta.ops = delta.ops.concat(e.note ? e.note.ops : [{insert: '[No note]\n'}])
 	})
 	// save the delta as a Word file
 	const quillToWordConfig = {
-		exportAs: "blob",
+		exportAs: 'blob',
 		paragraphStyles: {
 			normal: {
 				paragraph: {
@@ -1330,9 +1271,9 @@ export async function exportNotes() {
 			},
 		},
 	}
-	const ql = await import("quill-to-word")
+	const ql = await import('quill-to-word')
 	const docAsBlob = await ql.generateWord(delta, quillToWordConfig)
-	setFileName("docx")
+	setFileName('docx')
 	saveAs(docAsBlob, lastFileName)
 }
 /**
@@ -1340,12 +1281,11 @@ export async function exportNotes() {
  * if lastFileName is null, uses the map title, or if no map title, 'network' as the filename
  * @param {string} extn filename extension to apply
  */
-export function setFileName(extn = "prsm") {
-	let title = elem("maptitle").innerText
-	if (title === "Untitled map") lastFileName = "network"
-	else
-		lastFileName = title.replace(/\s+/g, "").replaceAll(".", "_").toLowerCase()
-	lastFileName += "." + extn
+export function setFileName(extn = 'prsm') {
+	let title = elem('maptitle').innerText
+	if (title === 'Untitled map') lastFileName = 'network'
+	else lastFileName = title.replace(/\s+/g, '').replaceAll('.', '_').toLowerCase()
+	lastFileName += '.' + extn
 }
 /**
  * Save the map as CSV files, one for nodes and one for edges
@@ -1409,11 +1349,11 @@ export function setFileName(extn = "prsm") {
  */
 export function exportExcel() {
 	// set up Quill note conversion
-	let dummyDiv = document.createElement("div")
-	dummyDiv.id = "dummy-div"
-	dummyDiv.style.display = "none"
+	let dummyDiv = document.createElement('div')
+	dummyDiv.id = 'dummy-div'
+	dummyDiv.style.display = 'none'
 	container.appendChild(dummyDiv)
-	let qed = new Quill("#dummy-div")
+	let qed = new Quill('#dummy-div')
 	// create workbook
 	const workbook = utils.book_new()
 	// Factors
@@ -1433,42 +1373,42 @@ export function exportExcel() {
 			if (n.note) n.Note = quillToText(n.note)
 			// don't save any of the listed properties
 			return omit(n, [
-				"bc",
-				"borderWidth",
-				"borderWidthSelected",
-				"color",
-				"created",
-				"fixed",
-				"font",
-				"grp",
-				"hidden",
-				"id",
-				"clusteredIn",
-				"level",
-				"labelHighlightBold",
-				"locked",
-				"margin",
-				"modified",
-				"nodeHidden",
-				"opacity",
-				"oldFont",
-				"oldFontColor",
-				"oldLabel",
-				"note",
-				"scaling",
-				"shadow",
-				"shapeProperties",
-				"size",
-				"heightConstraint",
-				"val",
-				"value",
-				"wasFixed",
-				"widthConstraint",
+				'bc',
+				'borderWidth',
+				'borderWidthSelected',
+				'color',
+				'created',
+				'fixed',
+				'font',
+				'grp',
+				'hidden',
+				'id',
+				'clusteredIn',
+				'level',
+				'labelHighlightBold',
+				'locked',
+				'margin',
+				'modified',
+				'nodeHidden',
+				'opacity',
+				'oldFont',
+				'oldFontColor',
+				'oldLabel',
+				'note',
+				'scaling',
+				'shadow',
+				'shapeProperties',
+				'size',
+				'heightConstraint',
+				'val',
+				'value',
+				'wasFixed',
+				'widthConstraint',
 			])
 		})
 
 	let factorWorksheet = utils.json_to_sheet(rows)
-	utils.book_append_sheet(workbook, factorWorksheet, "Factors")
+	utils.book_append_sheet(workbook, factorWorksheet, 'Factors')
 
 	// Links
 	let edges = deepCopy(data.edges.get().filter((e) => !e.isClusterEdge))
@@ -1486,23 +1426,23 @@ export function exportExcel() {
 		e.to = data.nodes.get(e.to).label
 		if (e.note) e.Note = quillToText(e.note)
 		return omit(e, [
-			"arrows",
-			"color",
-			"created",
-			"dashes",
-			"font",
-			"grp",
-			"hoverWidth",
-			"id",
-			"note",
-			"selectionWidth",
-			"width",
+			'arrows',
+			'color',
+			'created',
+			'dashes',
+			'font',
+			'grp',
+			'hoverWidth',
+			'id',
+			'note',
+			'selectionWidth',
+			'width',
 		])
 	})
 	let linksWorksheet = utils.json_to_sheet(rows)
-	utils.book_append_sheet(workbook, linksWorksheet, "Links")
+	utils.book_append_sheet(workbook, linksWorksheet, 'Links')
 
-	setFileName("xlsx")
+	setFileName('xlsx')
 	writeFileXLSX(workbook, lastFileName)
 	dummyDiv.remove()
 
@@ -1528,29 +1468,25 @@ export function exportExcel() {
  */
 export function exportGML() {
 	let str =
-		'Creator "prsm ' +
-		version +
-		" on " +
-		new Date(Date.now()).toLocaleString() +
-		'"\ngraph\n[\n\tdirected 1\n'
+		'Creator "prsm ' + version + ' on ' + new Date(Date.now()).toLocaleString() + '"\ngraph\n[\n\tdirected 1\n'
 	let nodeIds = data.nodes.map((n) => n.id) //use integers, not GUIDs for node ids
 	for (let node of data.nodes.get()) {
-		str += "\tnode\n\t[\n\t\tid " + nodeIds.indexOf(node.id)
+		str += '\tnode\n\t[\n\t\tid ' + nodeIds.indexOf(node.id)
 		if (node.label) str += '\n\t\tlabel "' + node.label.replace(/"/g, "'") + '"'
 		let color = node.color.background || styles.nodes.group0.color.background
 		str += '\n\t\tcolor "' + color + '"'
-		str += "\n\t]\n"
+		str += '\n\t]\n'
 	}
 	for (let edge of data.edges.get()) {
-		str += "\tedge\n\t[\n\t\tsource " + nodeIds.indexOf(edge.from)
-		str += "\n\t\ttarget " + nodeIds.indexOf(edge.to)
+		str += '\tedge\n\t[\n\t\tsource ' + nodeIds.indexOf(edge.from)
+		str += '\n\t\ttarget ' + nodeIds.indexOf(edge.to)
 		if (edge.label) str += '\n\t\tlabel "' + edge.label + '"'
 		let color = edge.color.color || styles.edges.edge0.color.color
 		str += '\n\t\tcolor "' + color + '"'
-		str += "\n\t]\n"
+		str += '\n\t]\n'
 	}
-	str += "\n]"
-	saveStr(str, "gml")
+	str += '\n]'
+	saveStr(str, 'gml')
 }
 /**
  * Save the map as GraphViz file
@@ -1561,32 +1497,32 @@ export function exportDOT() {
 	for (let node of data.nodes.get()) {
 		str += `"${node.id}" [label="${node.label}", 
 			color="${standardize_color(node.color.border)}", fillcolor="${standardize_color(node.color.background)}",
-			shape="${node.shape == "text" ? "plaintext" : node.shape}",
+			shape="${node.shape == 'text' ? 'plaintext' : node.shape}",
 			${gvNodeStyle(node)},
 			fontsize="${node.font.size}", fontcolor="${standardize_color(node.font.color)}"]\n`
 	}
 	for (let edge of data.edges.get()) {
-		str += `"${edge.from}" -> "${edge.to}" [label="${edge.label || ""}", 
+		str += `"${edge.from}" -> "${edge.to}" [label="${edge.label || ''}", 
 			color="${standardize_color(edge.color.color)}"
 			style="${gvConvertEdgeStyle(edge)}"]\n`
 	}
-	str += "}\n"
-	saveStr(str, "gv")
+	str += '}\n'
+	saveStr(str, 'gv')
 
 	function gvNodeStyle(node) {
 		let bDashes = node.shapeProperties.borderDashes
 		let val = 'style="filled'
-		if (Array.isArray(bDashes)) val += ", dotted"
-		else val += `, ${bDashes ? "dashed" : "solid"}`
+		if (Array.isArray(bDashes)) val += ', dotted'
+		else val += `, ${bDashes ? 'dashed' : 'solid'}`
 		val += `", penwidth="${node.borderWidth}"`
 		return val
 	}
 	function gvConvertEdgeStyle(edge) {
 		let bDashes = edge.dashes
-		let val = "solid"
+		let val = 'solid'
 		if (Array.isArray(bDashes)) {
-			if (bDashes[0] == 10) val = "dashed"
-			else val = "dotted"
+			if (bDashes[0] == 10) val = 'dashed'
+			else val = 'dotted'
 		}
 		return val
 	}
@@ -1624,7 +1560,7 @@ export function exportGraphML() {
 	<key id="d14" for="edge" attr.name="g" attr.type="int"/>
 	<key id="d15" for="edge" attr.name="b" attr.type="int"/>
 	<key id="d16" for="edge" attr.name="weight" attr.type="int"/>
-	<graph id="${elem("maptitle").innerText}" edgedefault="directed">`
+	<graph id="${elem('maptitle').innerText}" edgedefault="directed">`
 	for (let node of data.nodes.get()) {
 		let color = node.color.background || styles.nodes.group0.color.background
 		let rgb = rgbToArray(color)
@@ -1647,7 +1583,7 @@ export function exportGraphML() {
 		let rgb = rgbToArray(color)
 		str += `
 		<edge id="${edge.id}" source="${edge.from}" target="${edge.to}">
-			<data key="d10">${edge.label || ""}</data>
+			<data key="d10">${edge.label || ''}</data>
 			<data key="d11">${parseInt(edge.grp.substring(4)) + 1}</data>
 			<data key="d12">${color}</data>
 			<data key="d13">${rgb[0]}</data>
@@ -1659,7 +1595,7 @@ export function exportGraphML() {
 	str += `
 	</graph>
 	</graphml>`
-	saveStr(str, "graphml")
+	saveStr(str, 'graphml')
 }
 /**
  * Save the map as a GEXF format file, for input to Gephi etc.
@@ -1670,11 +1606,11 @@ export function exportGEXF() {
 		<gexf xmlns="http://gexf.net/1.3" version="1.3" xmlns:viz="http://gexf.net/1.3/viz" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://gexf.net/1.3 http://gexf.net/1.3/gexf.xsd">
 		<meta lastmodifieddate="${new Date(Date.now()).toISOString().slice(0, 10)}">
 			<creator>PRSM ${version}</creator>
-			<title>${elem("maptitle").innerText}</title>
+			<title>${elem('maptitle').innerText}</title>
 			<description>Generated from ${window.location.href}</description>
 		</meta>
 		<graph defaultedgetype="directed" mode="static">`
-	let attributeNames = yNetMap.get("attributeTitles") || {}
+	let attributeNames = yNetMap.get('attributeTitles') || {}
 	if (attributeNames) {
 		str += `
 			<attributes class="node" mode="static">
@@ -1696,7 +1632,8 @@ export function exportGEXF() {
 			str += `
 			<attvalues>`
 			Object.keys(attributeNames).forEach((attr) => {
-				if (node[attr]) str += `
+				if (node[attr])
+					str += `
 				<attvalue for="${attr}" value="${node[attr]}"/>`
 			})
 			str += `
@@ -1724,5 +1661,5 @@ export function exportGEXF() {
       </graph>
 	</gexf>`
 
-	saveStr(str, "gexf")
+	saveStr(str, 'gexf')
 }

@@ -4,10 +4,10 @@
  */
 
 import * as Y from 'yjs'
-import { WebsocketProvider } from 'y-websocket'
-import { DataSet } from 'vis-data/peer'
-import { doc, websocket, data, logHistory, room } from './prsm.js'
-import { uuidv4, deepCopy, object_equals, alertMsg } from './utils.js'
+import {WebsocketProvider} from 'y-websocket'
+import {DataSet} from 'vis-data/peer'
+import {doc, websocket, data, logHistory, room} from './prsm.js'
+import {uuidv4, deepCopy, object_equals, alertMsg} from './utils.js'
 /* --------------------------------- Merge maps ----------------------------- */
 /*
  * Evaluate mergeRoom(string: room code) e.g. mergeRoom('WBI-CRD-ROB-XDK')
@@ -105,10 +105,11 @@ function mergeMaps() {
 					if (!object_equals(ANode.note, BNode.note)) {
 						// if the note is different, change it to the note from the other map
 						ANode.note = BNode.note
-						logMerge(`Note for the Factor: '${ANode.label}' changed to the Note from the Factor in the other map`)
+						logMerge(
+							`Note for the Factor: '${ANode.label}' changed to the Note from the Factor in the other map`,
+						)
 						nodesToAdd.push(ANode)
 					}
-
 				}
 			} else {
 				// the node is on the other map, but not on this one - add it.
@@ -142,7 +143,8 @@ function mergeMaps() {
 				newEdge.color.color = 'rgb(255, 0, 0)'
 				edgesToAdd.push(newEdge)
 				logMerge(
-					`added Link between new Factor(s): '${data.nodes.get(newEdge.from).label}' to '${data.nodes.get(newEdge.to).label
+					`added Link between new Factor(s): '${data.nodes.get(newEdge.from).label}' to '${
+						data.nodes.get(newEdge.to).label
 					}'`,
 				)
 			}
@@ -275,7 +277,8 @@ function diffMaps() {
 			} else if (ANode.grp !== BNode.grp)
 				// label is the same, but style is not - just report this
 				console.log(
-					`Factor style in map A : ${ANode.grp} does not match style in map B: ${BNode.grp
+					`Factor style in map A : ${ANode.grp} does not match style in map B: ${
+						BNode.grp
 					} for Factor: [%c${inline(ANode.label)}%c]. `,
 					'color:green',
 					'color:black',
@@ -313,7 +316,8 @@ function diffMaps() {
 				)
 			else if (AEdge.grp !== BEdge.grp)
 				console.log(
-					`Link style: '${AEdge.grp}' in map A does not match style: '${BEdge.grp
+					`Link style: '${AEdge.grp}' in map A does not match style: '${
+						BEdge.grp
 					}' in map B for link [%c${inline(edgeName)}%c]. `,
 					'color:green',
 					'color:black',

@@ -141,10 +141,11 @@ function startY() {
 	else room = room.toUpperCase()
 	debug = [url.searchParams.get('debug')]
 	document.title = document.title + ' ' + room
-// if debug flag includes 'local' or using a non-standard port (i.e neither 80 nor 443) 
+	// if debug flag includes 'local' or using a non-standard port (i.e neither 80 nor 443)
 	// assume that the websocket port is 1234 in the same domain as the url
-	if (/local/.test(debug) ||(url.port && url.port !== 80 && url.port !== 443)) websocket = `ws://${url.hostname}:1234`
-		const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
+	if (/local/.test(debug) || (url.port && url.port !== 80 && url.port !== 443))
+		websocket = `ws://${url.hostname}:1234`
+	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
 	wsProvider.on('sync', () => {
 		console.log(exactTime() + ' remote content loaded')
 		openTable = initialiseFactorTable()
@@ -973,7 +974,8 @@ function convertNode(node) {
 	for (let prop in conversions) {
 		n[prop] = n[conversions[prop][0]][conversions[prop][1]]
 	}
-	n.size = n.scaling.label.enabled && n.value != undefined && !isNaN(n.value) ? parseFloat(n.value).toPrecision(3) : '--'
+	n.size =
+		n.scaling.label.enabled && n.value != undefined && !isNaN(n.value) ? parseFloat(n.value).toPrecision(3) : '--'
 	if (n.groupLabel == 'Sample') n.groupLabel = '--'
 	n.borderStyle = n.shapeProperties.borderDashes
 	if (n.borderWidth == 0) n.borderStyle = 'None'
