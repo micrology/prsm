@@ -368,7 +368,7 @@ export function dragElement(el, header) {
 	header.addEventListener('mouseout', () => (header.style.cursor = 'auto'))
 
 	let mc = new Hammer.Manager(header, {
-		recognizers: [[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}]],
+		recognizers: [[Hammer.Pan, { direction: Hammer.DIRECTION_ALL, threshold: 0 }]],
 	})
 	// tie in the handler that will be called
 	mc.on('pan', handleDrag)
@@ -428,7 +428,7 @@ export function addContextMenu(elem, menu) {
 	document.body.appendChild(menuEl)
 	elem.addEventListener('contextmenu', (event) => {
 		event.preventDefault()
-		const {clientX: mouseX, clientY: mouseY} = event
+		const { clientX: mouseX, clientY: mouseY } = event
 		let posX =
 			window.innerWidth - mouseX < menuEl.offsetWidth + 4 ? window.innerWidth - menuEl.offsetWidth - 4 : mouseX
 		let posY =
@@ -446,7 +446,7 @@ export function addContextMenu(elem, menu) {
 		menuEl.classList.remove('visible')
 	})
 	menu.forEach((item) => {
-		const {label, action} = item
+		const { label, action } = item
 		let option = document.createElement('div')
 		option.classList.add('item')
 		option.innerHTML = label
@@ -1133,7 +1133,7 @@ export function humanSize(bytes, si = true) {
 	let u,
 		b = bytes,
 		t = si ? 1000 : 1024
-	;['', si ? 'k' : 'K', ...'MGTPEZY'].find((x) => ((u = x), (b /= t), b ** 2 < 1))
+		;['', si ? 'k' : 'K', ...'MGTPEZY'].find((x) => ((u = x), (b /= t), b ** 2 < 1))
 	return `${u ? (t * b).toFixed(1) : bytes}${u}${!si && u ? 'i' : ''}B`
 }
 /**
@@ -1162,4 +1162,17 @@ export function stripNL(str) {
  */
 export function displayHelp() {
 	window.open(MANUALURL, 'helpWindow')
+}
+/**
+ * remove any crud in Local storage
+ * @param {*} preserve - list of items in local storage to keep
+ */
+export async function cleanLocalStorage(preserve = ['doneIntro', 'seenWN', 'myName', 'recents']) {
+	// remove all local storage items that are not in the list
+	let keys = Object.keys(localStorage)
+	keys.forEach((key) => {
+		if (!preserve.includes(key)) localStorage.removeItem(key)
+	})
+	// remove all IndexDB databases (we don't use them any more) except localforage
+	indexedDB.databases().then(dbs => dbs.forEach(db => { if (db.name !== 'localforage') indexedDB.deleteDatabase(db.name)}))
 }
