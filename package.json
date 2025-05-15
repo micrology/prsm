@@ -28,6 +28,9 @@
 	"parcelIgnore": [
 		"/doc/help/"
 	],
+	"@parcel/resolver-default": {
+    "packageExports": true
+},
 	"scripts": {
 		"lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
 		"pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/*.css doc/**/*.{html,css} package.json",

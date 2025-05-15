@@ -785,9 +785,24 @@ const hiddenOpacity = 0.1
 export function setNodeHidden(node, hide) {
 	node.nodeHidden = hide
 	node.opacity = hide ? hiddenOpacity : 1.0
+	if (node.font.color.charAt(0) === '#') node.font.color = hexToRgba(node.font.color)
 	node.font.color = rgba(node.font.color, hide ? hiddenOpacity : 1.0)
 	return node
 }
+
+/**
+ * covert a hex color string such as £123456 to an rgba string
+ * @param {string} hex 
+ * @param {string} alpha 
+ * @returns string
+ */
+function hexToRgba(hex, alpha = 1) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+  const [r, g, b] = [0, 2, 4].map(i => parseInt(hex.slice(i, i + 2), 16));
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 /**
  * set this edge to its 'hidden' appearance (very faint), or restore it to its usual appearance
  * @param {object} edge
@@ -1118,24 +1133,32 @@ export function exactTime(time) {
 }
 
 export function capitalizeFirstLetter(string) {
-	return string.charAt(0).toUpperCase() + string.slice(1)
+	return string ? string.charAt(0).toUpperCase() + string.slice(1) : ''
 }
 export function lowerFirstLetter(string) {
-	return string.charAt(0).toLowerCase() + string.slice(1)
+	return string ? string.charAt(0).toLowerCase() + string.slice(1) : ''
 }
 /**
- *
+ * convert a number of bytes to a human-readable string
  * @param {number} bytes integer to convert
- * @param {boolean} si use base 10 (true) or base 2 (false)
- * @returns {string} e.g. humanFileSize(1929637) => 1.9MB
+ * @param {boolean} isDecimal use base 10 (true) or base 2 (false)
+ * @returns {string} e.g. humanSize(1929637) => 1.9MB
  */
-export function humanSize(bytes, si = true) {
-	let u,
-		b = bytes,
-		t = si ? 1000 : 1024
-		;['', si ? 'k' : 'K', ...'MGTPEZY'].find((x) => ((u = x), (b /= t), b ** 2 < 1))
-	return `${u ? (t * b).toFixed(1) : bytes}${u}${!si && u ? 'i' : ''}B`
-}
+export function humanSize(bytes, isDecimal = true) {
+	if (bytes === 0) return '0B';
+  
+	const decimalUnits = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+	const binaryUnits = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
+  
+	const base = isDecimal ? 1000 : 1024;
+	const units = isDecimal ? decimalUnits : binaryUnits;
+  
+	const i = Math.floor(Math.log(bytes) / Math.log(base));
+	const size = bytes / Math.pow(base, i);
+  
+	const formatted = size % 1 === 0 ? size.toString() : size.toFixed(1);
+	return `${formatted}${units[i]}`;
+  }
 /**
  * test whether the editor has any content
  * (could be an empty string or a Quill insert operation of just a single newline character)
