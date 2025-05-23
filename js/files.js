@@ -174,6 +174,9 @@ function loadFile(contents) {
 			case 'gexf':
 				loadGEXFfile(arrayBufferToString(contents))
 				break
+			case 'drawio':
+				loadDrawIOfile(arrayBufferToString(contents))
+				break
 			default:
 				throw new Error('Unrecognised file name suffix')
 		}
@@ -599,6 +602,60 @@ function loadGEXFfile(gexf) {
 	function rgba({r, g, b, a = 1.0}) {
 		return `rgba(${r},${g},${b},${a})`
 	}
+}
+/**
+ * Parse and load a file exported from Draw.io
+ * @param {string} contents 
+ */
+function loadDrawIOfile(contents) { 
+	const parser = new XMLParser({
+		ignoreAttributes: false,
+		attributeNamePrefix: '',
+		processEntities: true,
+		isArray: (name) => ['node', 'edge', 'attribute', 'attvalue'].includes(name),
+		transformTagName: (tag) => (tag.startsWith('viz:') ? tag.replace('viz:', 'viz_') : tag),
+	})
+
+	const jsonObj = parser.parse(contents)
+	const graph = jsonObj.mxfile?.diagram?.mxGraphModel.root.mxCell
+
+	console.log(graph)
+
+	if (!graph) throw new Error('Invalid Draw.io format: no graph found')
+	let nodes = []
+	let edges = []
+	graph.forEach((cell) => {
+		if (cell.mxGeometry) {
+			if (cell.edge) {
+				edges.push({
+					...deepCopy(styles.edges.edge0),
+					id: cell.id,
+					from: cell.source,
+					to: cell.target,
+					label: cell.value.replace(/<[^>]*>/g, '') || '',
+				})
+			} else {
+				nodes.push({
+					...deepCopy(styles.nodes.group0),
+					id: cell.id,
+					label: cell.value.replace(/<[^>]*>/g, ''),
+					x: parseFloat(cell.mxGeometry.x),
+					y: parseFloat(cell.mxGeometry.y),
+				})
+			}
+		}
+	})
+	nodes.forEach(node => {
+		if (!node.id) throw new Error(`No ID for node ${node.label}`)
+		if (!node.label) node.label = node.id
+	})
+	data.nodes.update(nodes)
+	edges.forEach(edge => {
+		if (!edge.id) throw new Error('Missing edge ID')
+		if (!data.nodes.get(edge.from)) throw new Error(`Missing 'from' factor: ${edge.from} for edge" ${edge.id}`)
+		if (!data.nodes.get(edge.to)) throw new Error(`Missing 'to' factor: ${edge.to} for edge: ${edge.id}`)
+	})
+	data.edges.update(edges)
 }
 
 /**
