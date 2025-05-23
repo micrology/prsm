@@ -791,12 +791,12 @@ export function setNodeHidden(node, hide) {
 }
 
 /**
- * covert a hex color string such as £123456 to an rgba string
+ * covert a hex color string such as #123456 to an rgba string
  * @param {string} hex 
  * @param {string} alpha 
  * @returns string
  */
-function hexToRgba(hex, alpha = 1) {
+export function hexToRgba(hex, alpha = 1) {
   hex = hex.replace('#', '');
   if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
   const [r, g, b] = [0, 2, 4].map(i => parseInt(hex.slice(i, i + 2), 16));
