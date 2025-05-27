@@ -1,6 +1,6 @@
 {
 	"name": "participatory-system-mapper",
-	"version": "2.5.1",
+	"version": "2.5.2",
 	"description": "Participatory System Mapper, browser app for collaboratively creating system maps",
 	"keywords": [
 		"social network",
@@ -29,8 +29,8 @@
 		"/doc/help/"
 	],
 	"@parcel/resolver-default": {
-    "packageExports": true
-},
+		"packageExports": true
+	},
 	"scripts": {
 		"lint": "./node_modules/.bin/eslint ./js/*.js --fix --quiet",
 		"pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/*.css doc/**/*.{html,css} package.json",

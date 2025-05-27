@@ -21,7 +21,7 @@ PRSM Participatory System Mapper
 This module provides import and export functions, to read and save map files in a variety of formats.  
  ******************************************************************************************************************** */
 
-import { Network, parseGephiNetwork, parseDOTNetwork } from 'vis-network/peer'
+import {Network, parseGephiNetwork, parseDOTNetwork} from 'vis-network/peer'
 import {
 	data,
 	doc,
@@ -73,17 +73,17 @@ import {
 	lowerFirstLetter,
 	stripNL,
 } from './utils.js'
-import { styles } from './samples.js'
-import { canvas, refreshFromMap, setUpBackground, upgradeFromV1 } from './background.js'
-import { refreshSampleNode, refreshSampleLink, updateLegend } from './styles.js'
+import {styles} from './samples.js'
+import {canvas, refreshFromMap, setUpBackground, upgradeFromV1} from './background.js'
+import {refreshSampleNode, refreshSampleLink, updateLegend} from './styles.js'
 import Quill from 'quill'
-import { saveAs } from 'file-saver'
+import {saveAs} from 'file-saver'
 //import * as quillToWord from 'quill-to-word'  //dynamically loaded in exportNotes
-import { read, writeFileXLSX, utils } from 'xlsx'
-import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
-import { XMLParser } from 'fast-xml-parser'
-import { fabric } from 'fabric'
-import { version } from '../package.json'
+import {read, writeFileXLSX, utils} from 'xlsx'
+import {compressToUTF16, decompressFromUTF16} from 'lz-string'
+import {XMLParser} from 'fast-xml-parser'
+import {fabric} from 'fabric'
+import {version} from '../package.json'
 
 const NODEWIDTH = 10 // chars for label splitting
 
@@ -133,7 +133,7 @@ elem('container').addEventListener('drop', (e) => {
 	let dt = e.dataTransfer
 	let files = dt.files
 	if (files.length > 0) {
-		readSingleFile({ target: { files: files } })
+		readSingleFile({target: {files: files}})
 	}
 })
 elem('container').addEventListener('dragover', (e) => {
@@ -190,7 +190,7 @@ function loadFile(contents) {
 			n = deepMerge(styles.nodes[n.grp], n)
 			// version 1.6 made changes to label scaling
 			n.scaling = {
-				label: { enabled: false, max: 40, min: 10 },
+				label: {enabled: false, max: 40, min: 10},
 				max: 100,
 				min: 10,
 			}
@@ -265,13 +265,13 @@ function loadPRSMfile(str) {
 			// at version 1.5, the title: property was renamed to note:
 			if (!n.note && n.title) n.note = n.title.replace(/<br>|<p>/g, '\n')
 			delete n.title
-			if (n.note && !(n.note instanceof Object)) n.note = { ops: [{ insert: n.note }] }
+			if (n.note && !(n.note instanceof Object)) n.note = {ops: [{insert: n.note}]}
 		})
 		data.nodes.add(json.nodes)
 		json.edges.forEach((e) => {
 			if (!e.note && e.title) e.note = e.title.replace(/<br>|<p>/g, '\n')
 			delete e.title
-			if (e.note && !(e.note instanceof Object)) e.note = { ops: [{ insert: e.note }] }
+			if (e.note && !(e.note instanceof Object)) e.note = {ops: [{insert: e.note}]}
 		})
 		data.edges.add(json.edges)
 	}
@@ -494,14 +494,14 @@ function loadGEXFfile(gexf) {
 		...processEdgeVizAttributes(edge),
 	}))
 
-	const attributeNames = { ...(yNetMap.get('attributeTitles') || {}) }
-	Object.entries(attributes.nodes).forEach(([id, { title }]) => (attributeNames[id] = title))
+	const attributeNames = {...(yNetMap.get('attributeTitles') || {})}
+	Object.entries(attributes.nodes).forEach(([id, {title}]) => (attributeNames[id] = title))
 	yNetMap.set('attributeTitles', attributeNames)
 	recreateClusteringMenu(attributeNames)
 
 	const nodesToUpdate = nodes.map((node) => {
 		if (!node.id) throw new Error(`No ID for node ${node.label}`)
-		const base = { ...deepCopy(styles.nodes.group0), ...node.attributes }
+		const base = {...deepCopy(styles.nodes.group0), ...node.attributes}
 		const color = node.viz?.color
 		return {
 			...base,
@@ -511,9 +511,9 @@ function loadGEXFfile(gexf) {
 			y: node.position?.y,
 			size: node.viz?.size,
 			shape: node.viz?.shape,
-			color: color ? { ...base.color, background: rgba(color) } : base.color,
+			color: color ? {...base.color, background: rgba(color)} : base.color,
 			font: color
-				? { ...base.font, color: rgbIsLight(color.r, color.g, color.b) ? 'rgb(0,0,0)' : 'rgb(255,255,255)' }
+				? {...base.font, color: rgbIsLight(color.r, color.g, color.b) ? 'rgb(0,0,0)' : 'rgb(255,255,255)'}
 				: base.font,
 		}
 	})
@@ -540,31 +540,31 @@ function loadGEXFfile(gexf) {
 
 	// === Helpers ===
 	function processAttributes(attributesNode) {
-		const result = { nodes: {}, edges: {} }
+		const result = {nodes: {}, edges: {}}
 		if (!attributesNode) return result
 		const attributes = Array.isArray(attributesNode) ? attributesNode : [attributesNode]
 
-			; (attributes || []).forEach(({ class: cls, attribute = [] }) => {
-				attribute.forEach(({ id, title, name, type }) => {
-					result[cls === 'node' ? 'nodes' : 'edges'][id] = {
-						title: title || name,
-						type: type || 'string',
-					}
-				})
+		;(attributes || []).forEach(({class: cls, attribute = []}) => {
+			attribute.forEach(({id, title, name, type}) => {
+				result[cls === 'node' ? 'nodes' : 'edges'][id] = {
+					title: title || name,
+					type: type || 'string',
+				}
 			})
+		})
 
 		return result
 	}
 
 	function processAttributeValues(attvalues) {
-		return (Array.isArray(attvalues) ? attvalues : []).reduce((acc, { for: key, value }) => {
+		return (Array.isArray(attvalues) ? attvalues : []).reduce((acc, {for: key, value}) => {
 			if (key !== undefined && value !== undefined) acc[key] = value
 			return acc
 		}, {})
 	}
 
 	function processVizAttributes(el) {
-		const { viz_size, viz_color, viz_shape } = el
+		const {viz_size, viz_color, viz_shape} = el
 		const viz = {}
 		if (viz_size) viz.size = parseFloat(viz_size.value || viz_size.size)
 		if (viz_color)
@@ -575,19 +575,19 @@ function loadGEXFfile(gexf) {
 				a: parseFloat(viz_color.a ?? 1.0),
 			}
 		if (viz_shape) viz.shape = viz_shape.value
-		return Object.keys(viz).length ? { viz } : {}
+		return Object.keys(viz).length ? {viz} : {}
 	}
 
-	function processNodePosition({ viz_position, x, y, z }) {
+	function processNodePosition({viz_position, x, y, z}) {
 		const pos = viz_position
-			? { x: +viz_position.x || 0, y: +viz_position.y || 0, z: +viz_position.z || 0 }
+			? {x: +viz_position.x || 0, y: +viz_position.y || 0, z: +viz_position.z || 0}
 			: x || y || z
-				? { x: +x, y: +y, z: +z }
+				? {x: +x, y: +y, z: +z}
 				: null
-		return pos ? { position: pos } : {}
+		return pos ? {position: pos} : {}
 	}
 
-	function processEdgeVizAttributes({ viz_thickness, viz_color, viz_shape }) {
+	function processEdgeVizAttributes({viz_thickness, viz_color, viz_shape}) {
 		const viz = {}
 		if (viz_thickness) viz.thickness = parseFloat(viz_thickness.value)
 		if (viz_color)
@@ -598,10 +598,10 @@ function loadGEXFfile(gexf) {
 				a: parseFloat(viz_color.a ?? 1.0),
 			}
 		if (viz_shape) viz.shape = viz_shape.value
-		return Object.keys(viz).length ? { viz } : {}
+		return Object.keys(viz).length ? {viz} : {}
 	}
 
-	function rgba({ r, g, b, a = 1.0 }) {
+	function rgba({r, g, b, a = 1.0}) {
 		return `rgba(${r},${g},${b},${a})`
 	}
 }
@@ -612,7 +612,7 @@ function loadGEXFfile(gexf) {
  * The nodes should have a label and an mxGeometry element with x, y, width and height attributes.
  * Other node cells are ignored, as are nodes holding images
  * The edges should have a source and target attribute.
- * @param {string} contents 
+ * @param {string} contents
  */
 function loadDrawIOfile(contents) {
 	const parser = new XMLParser({
@@ -635,13 +635,12 @@ function loadDrawIOfile(contents) {
 					from: cell.source,
 					to: cell.target,
 					label: splitText((cell.value || '').replace(/<[^>]*>/g, '').replace('&nbsp;', ' ')),
-					grp: 'drawIOEdge'
+					grp: 'drawIOEdge',
 				}
 				if (!cell.source || !cell.target) {
 					console.warn(`Edge ${cell.id} has no source or target, ignoring it`)
 					edge = 'ignore'
-				}
-				else if (cell.style) {
+				} else if (cell.style) {
 					let style = cell.style.split(';')
 					style.forEach((s) => {
 						if (s.startsWith('strokeColor')) {
@@ -661,9 +660,9 @@ function loadDrawIOfile(contents) {
 					label: splitText((cell.value || ' ').replace(/<[^>]*>/g, '').replace('&nbsp;', ' ')),
 					x: parseFloat(cell.mxGeometry.x),
 					y: parseFloat(cell.mxGeometry.y),
-					widthConstraint: { minimum: parseFloat(cell.mxGeometry.width) },
-					heightConstraint: { minimum: parseFloat(cell.mxGeometry.height) },
-					grp: 'drawIOnode'
+					widthConstraint: {minimum: parseFloat(cell.mxGeometry.width)},
+					heightConstraint: {minimum: parseFloat(cell.mxGeometry.height)},
+					grp: 'drawIOnode',
 				}
 				if (!node.id || node.label.trim() === '') {
 					//ignore nodes with blank labels
@@ -680,9 +679,8 @@ function loadDrawIOfile(contents) {
 						style.forEach((s) => {
 							if (s === 'ellipse') {
 								node.shape = 'ellipse'
-								node.heightConstraint = { minimum: 50 }
-							}
-							else if (s === 'text') {
+								node.heightConstraint = {minimum: 50}
+							} else if (s === 'text') {
 								node.shape = 'text'
 								node.borderWidth = 0
 							}
@@ -700,9 +698,8 @@ function loadDrawIOfile(contents) {
 								node = 'ignore'
 							} else if (s.startsWith('fontColor')) {
 								node.font.color = hexToRgba(s.split('=')[1])
-							}
-							else if (s.startsWith('round')) {
-								node.shapeProperties = { borderRadius: parseInt(s.split('=')[1]) ? 6 : 0 }
+							} else if (s.startsWith('round')) {
+								node.shapeProperties = {borderRadius: parseInt(s.split('=')[1]) ? 6 : 0}
 							}
 						})
 					}
@@ -713,7 +710,7 @@ function loadDrawIOfile(contents) {
 	})
 	data.nodes.update(nodes)
 	// check all edges are connected to nodes
-	edges.forEach(edge => {
+	edges.forEach((edge) => {
 		if (!edge.id) throw new Error('Missing edge ID')
 		if (!data.nodes.get(edge.from)) throw new Error(`Missing 'from' factor: ${edge.from} for edge: ${edge.id}`)
 		if (!data.nodes.get(edge.to)) throw new Error(`Missing 'to' factor: ${edge.to} for edge: ${edge.id}`)
@@ -874,7 +871,7 @@ function loadCSV(csv) {
 			grp = 'group' + (styleNo - 1)
 		}
 		if (labels.get(label) == undefined) {
-			labels.set(label, { id: uuidv4(), label: label.toString(), grp: grp })
+			labels.set(label, {id: uuidv4(), label: label.toString(), grp: grp})
 		}
 		return labels.get(label)
 	}
@@ -938,7 +935,7 @@ function loadExcelfile(contents) {
 		if (!f.label) throw new Error(`Factors - Line ${f.__rowNum__}: Factor does not have a Label`)
 		let note = f.description || f.note
 		if (note) {
-			f.note = { ops: [{ insert: note + '\n' }] }
+			f.note = {ops: [{insert: note + '\n'}]}
 			delete f.description
 		}
 		if (f.creator) {
@@ -1041,7 +1038,7 @@ function loadExcelfile(contents) {
 
 		let note = l.description || l.note
 		if (note) {
-			l.note = { ops: [{ insert: note + '\n' }] }
+			l.note = {ops: [{insert: note + '\n'}]}
 			delete l.description
 		}
 		Object.keys(l)
@@ -1193,9 +1190,9 @@ function setButtonStatus(settings) {
 	setLegend(settings.legend)
 	yNetMap.set('sizing', settings.sizing)
 	// sizing done after the nodes have been created: sizing(settings.sizing)
-	yNetMap.set('radius', { radiusSetting: 'All', selected: [] })
-	yNetMap.set('stream', { streamSetting: 'All', selected: [] })
-	yNetMap.set('paths', { pathsSetting: 'All', selected: [] })
+	yNetMap.set('radius', {radiusSetting: 'All', selected: []})
+	yNetMap.set('stream', {streamSetting: 'All', selected: []})
+	yNetMap.set('paths', {pathsSetting: 'All', selected: []})
 	yNetMap.set('cluster', 'none')
 	setCluster('none')
 }
@@ -1211,8 +1208,8 @@ function setButtonStatus(settings) {
  */
 function saveStr(str, extn) {
 	setFileName(extn)
-	const blob = new Blob([str], { type: 'text/plain;charset=utf-8' })
-	saveAs(blob, lastFileName, { autoBom: true })
+	const blob = new Blob([str], {type: 'text/plain;charset=utf-8'})
+	saveAs(blob, lastFileName, {autoBom: true})
 }
 /**
  * save the map as a PNG image file
@@ -1249,7 +1246,7 @@ export function exportPNGfile() {
 
 	// make a network with the same nodes and links as the original map
 	let bigNetwork = new Network(bigNetDiv, data, {
-		physics: { enabled: false },
+		physics: {enabled: false},
 		edges: {
 			smooth: {
 				enabled: elem('curveSelect').value === 'Curved',
@@ -1319,8 +1316,8 @@ export function exportPNGfile() {
 		if (selectedNodes.length === 0) selectedNodes = data.nodes.map((n) => n.id)
 		selectedNodes.forEach((nodeId) => {
 			let canvasBB = ntwk.getBoundingBox(nodeId)
-			let tl = ntwk.canvasToDOM({ x: canvasBB.left, y: canvasBB.top })
-			let br = ntwk.canvasToDOM({ x: canvasBB.right, y: canvasBB.bottom })
+			let tl = ntwk.canvasToDOM({x: canvasBB.left, y: canvasBB.top})
+			let br = ntwk.canvasToDOM({x: canvasBB.right, y: canvasBB.bottom})
 			if (left > tl.x) left = tl.x
 			if (right < br.x) right = br.x
 			if (top > tl.y) top = tl.y
@@ -1340,25 +1337,25 @@ export function exportPNGfile() {
 		if (left === Infinity) {
 			top = bottom = left = right = 0
 		}
-		return { left: left, right: right, top: top, bottom: bottom }
+		return {left: left, right: right, top: top, bottom: bottom}
 	}
 }
 /**
  * save a local file containing all the node and edge notes, plus the map description, as a Word document
  */
 export async function exportNotes() {
-	let delta = { ops: [{ insert: '\n' }] }
+	let delta = {ops: [{insert: '\n'}]}
 	// start with the title of the map if there is one
 	let title = elem('maptitle').innerText
 	if (title !== 'Untitled map') {
 		delta = {
-			ops: [{ insert: title }, { attributes: { header: 1 }, insert: '\n' }],
+			ops: [{insert: title}, {attributes: {header: 1}, insert: '\n'}],
 		}
 	}
 	// get contents of map note if there is one
 	if (yNetMap.get('mapDescription')) {
 		delta.ops = delta.ops.concat(
-			[{ insert: 'Description of the map' }, { attributes: { header: 2 }, insert: '\n' }],
+			[{insert: 'Description of the map'}, {attributes: {header: 2}, insert: '\n'}],
 			yNetMap.get('mapDescription').text.ops,
 		)
 	}
@@ -1368,15 +1365,15 @@ export async function exportNotes() {
 		.toSorted((a, b) => a.label.localeCompare(b.label))
 		.forEach((n) => {
 			delta.ops = delta.ops.concat(
-				[{ insert: `Factor: ${stripNL(n.label)}` }, { attributes: { header: 2 }, insert: '\n' }],
-				n.note ? n.note.ops : [{ insert: '[No note]\n' }],
+				[{insert: `Factor: ${stripNL(n.label)}`}, {attributes: {header: 2}, insert: '\n'}],
+				n.note ? n.note.ops : [{insert: '[No note]\n'}],
 			)
 		})
 	// add notes for links
 	data.edges.forEach((e) => {
 		let heading = `Link from '${stripNL(data.nodes.get(e.from).label)}' to '${stripNL(data.nodes.get(e.to).label)}'`
-		delta.ops = delta.ops.concat([{ insert: heading }, { attributes: { header: 2 }, insert: '\n' }])
-		delta.ops = delta.ops.concat(e.note ? e.note.ops : [{ insert: '[No note]\n' }])
+		delta.ops = delta.ops.concat([{insert: heading}, {attributes: {header: 2}, insert: '\n'}])
+		delta.ops = delta.ops.concat(e.note ? e.note.ops : [{insert: '[No note]\n'}])
 	})
 	// save the delta as a Word file
 	const quillToWordConfig = {

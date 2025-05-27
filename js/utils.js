@@ -369,7 +369,7 @@ export function dragElement(el, header) {
 	header.addEventListener('mouseout', () => (header.style.cursor = 'auto'))
 
 	let mc = new Hammer.Manager(header, {
-		recognizers: [[Hammer.Pan, { direction: Hammer.DIRECTION_ALL, threshold: 0 }]],
+		recognizers: [[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}]],
 	})
 	// tie in the handler that will be called
 	mc.on('pan', handleDrag)
@@ -429,7 +429,7 @@ export function addContextMenu(elem, menu) {
 	document.body.appendChild(menuEl)
 	elem.addEventListener('contextmenu', (event) => {
 		event.preventDefault()
-		const { clientX: mouseX, clientY: mouseY } = event
+		const {clientX: mouseX, clientY: mouseY} = event
 		let posX =
 			window.innerWidth - mouseX < menuEl.offsetWidth + 4 ? window.innerWidth - menuEl.offsetWidth - 4 : mouseX
 		let posY =
@@ -447,7 +447,7 @@ export function addContextMenu(elem, menu) {
 		menuEl.classList.remove('visible')
 	})
 	menu.forEach((item) => {
-		const { label, action } = item
+		const {label, action} = item
 		let option = document.createElement('div')
 		option.classList.add('item')
 		option.innerHTML = label
@@ -793,15 +793,19 @@ export function setNodeHidden(node, hide) {
 
 /**
  * covert a hex color string such as #123456 to an rgba string
- * @param {string} hex 
- * @param {string} alpha 
+ * @param {string} hex
+ * @param {string} alpha
  * @returns string
  */
 export function hexToRgba(hex, alpha = 1) {
-  hex = hex.replace('#', '');
-  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
-  const [r, g, b] = [0, 2, 4].map(i => parseInt(hex.slice(i, i + 2), 16));
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+	hex = hex.replace('#', '')
+	if (hex.length === 3)
+		hex = hex
+			.split('')
+			.map((c) => c + c)
+			.join('')
+	const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16))
+	return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
 /**
@@ -1146,20 +1150,20 @@ export function lowerFirstLetter(string) {
  * @returns {string} e.g. humanSize(1929637) => 1.9MB
  */
 export function humanSize(bytes, isDecimal = true) {
-	if (bytes === 0) return '0B';
-  
-	const decimalUnits = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-	const binaryUnits = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
-  
-	const base = isDecimal ? 1000 : 1024;
-	const units = isDecimal ? decimalUnits : binaryUnits;
-  
-	const i = Math.floor(Math.log(bytes) / Math.log(base));
-	const size = bytes / Math.pow(base, i);
-  
-	const formatted = size % 1 === 0 ? size.toString() : size.toFixed(1);
-	return `${formatted}${units[i]}`;
-  }
+	if (bytes === 0) return '0B'
+
+	const decimalUnits = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+	const binaryUnits = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB']
+
+	const base = isDecimal ? 1000 : 1024
+	const units = isDecimal ? decimalUnits : binaryUnits
+
+	const i = Math.floor(Math.log(bytes) / Math.log(base))
+	const size = bytes / Math.pow(base, i)
+
+	const formatted = size % 1 === 0 ? size.toString() : size.toFixed(1)
+	return `${formatted}${units[i]}`
+}
 /**
  * test whether the editor has any content
  * (could be an empty string or a Quill insert operation of just a single newline character)
@@ -1198,5 +1202,9 @@ export async function cleanLocalStorage(preserve = ['doneIntro', 'seenWN', 'myNa
 		if (!preserve.includes(key)) localStorage.removeItem(key)
 	})
 	// remove all IndexDB databases (we don't use them any more) except localforage
-	indexedDB.databases().then(dbs => dbs.forEach(db => { if (db.name !== 'localforage') indexedDB.deleteDatabase(db.name)}))
+	indexedDB.databases().then((dbs) =>
+		dbs.forEach((db) => {
+			if (db.name !== 'localforage') indexedDB.deleteDatabase(db.name)
+		}),
+	)
 }
