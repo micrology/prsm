@@ -2597,7 +2597,7 @@ function saveNode(item, callback) {
 	item.color.hover.border = color
 	item.font.color = elem('node-fontColor').style.backgroundColor
 	let borderType = elem('node-borderType').value
-	item.borderWidth = borderType === 'none' ? 0 : 4
+	item.borderWidth = borderType === 'none' ? 0 : (borderType === 'solid' ? 1 : 4)
 	item.shapeProperties.borderDashes = convertDashes(borderType)
 	item.shape = elem('nodeEditShape').value
 	if (item.shape === 'portal') {

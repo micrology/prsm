@@ -476,7 +476,7 @@ function nodeEditSave() {
 	group.shape = elem('nodeStyleEditShape').value
 	let border = elem('nodeStyleEditBorder').value
 	group.shapeProperties.borderDashes = convertDashes(border)
-	group.borderWidth = border === 'none' ? 0 : 4
+	group.borderWidth = border === 'none' ? 0 : (border === 'solid' ? 1 : 4)
 	group.font.size = parseInt(elem('nodeStyleEditFontSize').value)
 	setFactorSizeFromPercent(group, elem('nodeStyleEditFactorSize').value)
 	nodeEditUpdateStyleSample(group)

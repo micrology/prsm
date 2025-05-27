@@ -317,6 +317,7 @@ export function factorSizeToPercent(size) {
  */
 export function setFactorSizeFromPercent(node, percent) {
 	if (percent < 5) {
+		if (node.widthConstraint?.minimum || node.heightConstraint?.minimum) return
 		node.size = 25
 		node.heightConstraint = node.widthConstraint = false
 	} else {

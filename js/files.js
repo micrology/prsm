@@ -607,15 +607,17 @@ function loadGEXFfile(gexf) {
 }
 /**
  * Parse and load a file exported from Draw.io
+ * The file must be in XML format, as exported from Draw.io
+ * The file should contain a single mxGraphModel element with mxCell elements for nodes and edges.
+ * The nodes should have a label and an mxGeometry element with x, y, width and height attributes.
+ * Other node cells are ignored, as are nodes holding images
+ * The edges should have a source and target attribute.
  * @param {string} contents 
  */
 function loadDrawIOfile(contents) {
 	const parser = new XMLParser({
 		ignoreAttributes: false,
 		attributeNamePrefix: '',
-		processEntities: true,
-		isArray: (name) => ['node', 'edge', 'attribute', 'attvalue'].includes(name),
-		transformTagName: (tag) => (tag.startsWith('viz:') ? tag.replace('viz:', 'viz_') : tag),
 	})
 
 	const jsonObj = parser.parse(contents)
@@ -624,16 +626,22 @@ function loadDrawIOfile(contents) {
 	let nodes = []
 	let edges = []
 	graph.forEach((cell) => {
+		// skip the root cell
 		if (cell.mxGeometry) {
 			if (cell.edge) {
 				let edge = {
-					...deepCopy(styles.edges.edge0),
+					...deepCopy(styles.edges.base),
 					id: cell.id,
 					from: cell.source,
 					to: cell.target,
-					label: splitText((cell.value || '').replace(/<[^>]*>/g, '')),
+					label: splitText((cell.value || '').replace(/<[^>]*>/g, '').replace('&nbsp;', ' ')),
+					grp: 'drawIOEdge'
 				}
-				if (cell.style) {
+				if (!cell.source || !cell.target) {
+					console.warn(`Edge ${cell.id} has no source or target, ignoring it`)
+					edge = 'ignore'
+				}
+				else if (cell.style) {
 					let style = cell.style.split(';')
 					style.forEach((s) => {
 						if (s.startsWith('strokeColor')) {
@@ -645,53 +653,69 @@ function loadDrawIOfile(contents) {
 						}
 					})
 				}
-				edges.push(edge)
+				if (edge !== 'ignore') edges.push(edge)
 			} else {
 				let node = {
-					...deepCopy(styles.nodes.group0),
+					...deepCopy(styles.nodes.base),
 					id: cell.id,
-					label: splitText((cell.value || '').replace(/<[^>]*>/g, '')),
+					label: splitText((cell.value || ' ').replace(/<[^>]*>/g, '').replace('&nbsp;', ' ')),
 					x: parseFloat(cell.mxGeometry.x),
 					y: parseFloat(cell.mxGeometry.y),
+					widthConstraint: { minimum: parseFloat(cell.mxGeometry.width) },
+					heightConstraint: { minimum: parseFloat(cell.mxGeometry.height) },
+					grp: 'drawIOnode'
 				}
-				if (cell.style) {
-					let style = cell.style.split(';')
-					// default node style is white with thin black border
-					node.color.background = 'rgba(255, 255, 255, 1)'
-					node.borderWidth = 1
-					node.color.border = 'rgba(0, 0, 0, 1)'
-					style.forEach((s) => {
-						if (s === 'ellipse') {
-							node.shape = 'ellipse'
-							node.heightConstraint = { minimum: 50 }
-						}
-						else if (s === 'text') {
-							node.shape = 'text'
-							node.borderWidth = 0
-						}
-						if (s.startsWith('fillColor')) {
-							node.color.background = hexToRgba(s.split('=')[1])
-						} else if (s.startsWith('strokeColor')) {
-							node.color.border = hexToRgba(s.split('=')[1])
-						} else if (s.startsWith('strokeWidth')) {
-							node.borderWidth = parseInt(s.split('=')[1])
-						} else if (s.startsWith('shape')) {
-							node.shape = s.split('=')[1]
-						}
-					})
+				if (!node.id || node.label.trim() === '') {
+					//ignore nodes with blank labels
+					console.warn(`Ignoring node ${node.id} without an Id or with a blank label`)
+					node = 'ignore'
+				} else {
+					if (cell.style) {
+						let style = cell.style.split(';')
+						// default node style is a white box with thin black border
+						node.color.background = 'rgba(255, 255, 255, 1)'
+						node.borderWidth = 1
+						node.color.border = 'rgba(0, 0, 0, 1)'
+						node.shape = 'box'
+						style.forEach((s) => {
+							if (s === 'ellipse') {
+								node.shape = 'ellipse'
+								node.heightConstraint = { minimum: 50 }
+							}
+							else if (s === 'text') {
+								node.shape = 'text'
+								node.borderWidth = 0
+							}
+							if (s.startsWith('fillColor')) {
+								node.color.background = hexToRgba(s.split('=')[1])
+							} else if (s.startsWith('strokeColor')) {
+								node.color.border = hexToRgba(s.split('=')[1])
+							} else if (s.startsWith('strokeWidth')) {
+								node.borderWidth = parseInt(s.split('=')[1])
+							} else if (s.startsWith('shape')) {
+								node.shape = s.split('=')[1]
+							} else if (s.startsWith('image')) {
+								// ignore image nodes
+								console.warn(`Ignoring image node ${node.label} (${node.id})`)
+								node = 'ignore'
+							} else if (s.startsWith('fontColor')) {
+								node.font.color = hexToRgba(s.split('=')[1])
+							}
+							else if (s.startsWith('round')) {
+								node.shapeProperties = { borderRadius: parseInt(s.split('=')[1]) ? 6 : 0 }
+							}
+						})
+					}
+					if (node !== 'ignore') nodes.push(node)
 				}
-				nodes.push(node)
 			}
 		}
 	})
-	nodes.forEach(node => {
-		if (!node.id) throw new Error(`No ID for node ${node.label}`)
-		if (!node.label) node.label = node.id
-	})
 	data.nodes.update(nodes)
+	// check all edges are connected to nodes
 	edges.forEach(edge => {
 		if (!edge.id) throw new Error('Missing edge ID')
-		if (!data.nodes.get(edge.from)) throw new Error(`Missing 'from' factor: ${edge.from} for edge" ${edge.id}`)
+		if (!data.nodes.get(edge.from)) throw new Error(`Missing 'from' factor: ${edge.from} for edge: ${edge.id}`)
 		if (!data.nodes.get(edge.to)) throw new Error(`Missing 'to' factor: ${edge.to} for edge: ${edge.id}`)
 	})
 	data.edges.update(edges)
