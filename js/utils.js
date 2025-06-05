@@ -4,22 +4,14 @@ PRSM Participatory System Mapper
 
 	Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+This software is licenced under the PolyForm Noncommercial License 1.0.0
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+<https://polyformproject.org/licenses/noncommercial/1.0.0>
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+See the file LICENSE.md for details.
 
 This module provides a set of utility functions used widely within the PRSM code.  
- ******************************************************************************************************************** */
+**********************************************************************************************************************/
 
 import * as Hammer from '@egjs/hammerjs'
 import iro from '@jaames/iro'

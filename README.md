@@ -30,7 +30,7 @@ When you start the app in your browser, a 'room' is created for you in which to 
 
 ## Home page
 
-For more on PRSM, see [here](https://prsm.uk).  A guide to using PRSM is [here](https://prsm.uk/help.html).
+For more on PRSM, see [the home page](https://prsm.uk) and the [guide to using PRSM](https://prsm.uk/help.html).
 
 ## Installation
 
@@ -40,7 +40,7 @@ No installation on your computer is needed.  The software is a web app, which me
 
 You need a modern web browser such as Chrome, Firefox, Microsoft Edge or Safari.  It will not work with Internet Explorer.
 
-The software is free and available under an [MIT](https://choosealicense.com/licenses/mit/) license.
+The software is free and available under a [PolyForm Noncommercial License](https://polyformproject.org/licenses/noncommercial/1.0.0) license.
 
 ## Source Code
 
