@@ -47,6 +47,7 @@ import {
 	AccessorModule,
 	MenuModule,
 	InteractionModule,
+	FilterModule
 } from 'tabulator-tables'
 //import {TabulatorFull as Tabulator} from 'tabulator-tables'  // documented at https://tabulator.info/
 import {version} from '../package.json'
@@ -64,6 +65,7 @@ Tabulator.registerModule([
 	AccessorModule,
 	MenuModule,
 	InteractionModule,
+	FilterModule
 ])
 
 const shortAppName = 'PRSM'
@@ -675,7 +677,7 @@ function initialiseFactorTable() {
 				factorsTable.getRows().forEach((row) => {
 					row.update({hidden: !ticked})
 					let node = deepCopy(yNodesMap.get(row.getData().id))
-					node.nodeHidden = !ticked
+					hideNodeAndEdges(node, !ticked)
 					yNodesMap.set(node.id, node)
 				})
 			})
@@ -1606,8 +1608,8 @@ function setUpFilter() {
 	openTable.getColumns().forEach((colComp) => {
 		let def = colComp.getDefinition()
 		if (def.formatter != 'color' && def.field != 'selection')
-			// cannot sort by color
-			select[i++] = new Option(def.titleClipboard || def.title || capitalizeFirstLetter(def.field), def.field)
+			// cannot sort by color and avoid SVG titles
+			select[i++] = new Option(def.titleClipboard || (typeof def.title === "string" && def.title[0] !== "<" ? def.title : false) || capitalizeFirstLetter(def.field), def.field)
 	})
 	filterDiv.appendChild(select)
 	filterDiv.insertAdjacentHTML('afterbegin', 'Filter: ')
