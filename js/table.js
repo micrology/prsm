@@ -47,7 +47,7 @@ import {
 	AccessorModule,
 	MenuModule,
 	InteractionModule,
-	FilterModule
+	FilterModule,
 } from 'tabulator-tables'
 //import {TabulatorFull as Tabulator} from 'tabulator-tables'  // documented at https://tabulator.info/
 import {version} from '../package.json'
@@ -65,7 +65,7 @@ Tabulator.registerModule([
 	AccessorModule,
 	MenuModule,
 	InteractionModule,
-	FilterModule
+	FilterModule,
 ])
 
 const shortAppName = 'PRSM'
@@ -1609,7 +1609,12 @@ function setUpFilter() {
 		let def = colComp.getDefinition()
 		if (def.formatter != 'color' && def.field != 'selection')
 			// cannot sort by color and avoid SVG titles
-			select[i++] = new Option(def.titleClipboard || (typeof def.title === "string" && def.title[0] !== "<" ? def.title : false) || capitalizeFirstLetter(def.field), def.field)
+			select[i++] = new Option(
+				def.titleClipboard ||
+					(typeof def.title === 'string' && def.title[0] !== '<' ? def.title : false) ||
+					capitalizeFirstLetter(def.field),
+				def.field,
+			)
 	})
 	filterDiv.appendChild(select)
 	filterDiv.insertAdjacentHTML('afterbegin', 'Filter: ')
