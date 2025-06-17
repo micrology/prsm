@@ -32,6 +32,15 @@ alt="Open button"
 style={{ width: 20, display: "inline" }}
 /> in the top bar, or drop the file on a PRSM map window.  PRSM will work out from the file extension which type of file it is reading.
 
+On the right of the **Open** button is a small dowward pointing triangle.  If you click this, you can choose whether the map to be opened will entirely replace the existing map (the default) or be merged with the current map. For more on merging, see [Merging Maps](/manual/Cloning#merging-maps).
+
+:::tip
+If you open a open a map to replace the current map, and then after the new map has loaded, change your mind, you can revert to the previous map by clicking the Rollback icon next to the log entry in the [History panel](/manual/Styling#network-tab).
+
+However, as a special case, if you replace your map with an empty one (a map with no Factors), there is no Rollback icon in the History panel and the previous map *cannot be recovered*.  This can be useful if, for reasons of security or confidentiality, you want to permanently erase a map: just save a blank map and then open it in the map to be deleted.  Be careful to save a copy to your local file storage first if you want to preserve a copy.
+
+:::
+
 ### Excel
 
 An **Excel** workbook should contain two spreadsheets, one named ‘Factors’ and the other named ‘Links’.  Both should have a Header (i.e. first row) of column names, with the remaining rows containing data about each Factor or Link (in any order).

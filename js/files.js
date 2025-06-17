@@ -211,7 +211,9 @@ function loadFile(contents) {
 
 		fit()
 		updateLegend()
-		logHistory('loaded &lt;' + lastFileName + '&gt;')
+		// Allow open file undo unless the loaded file is blank (no factors). This gives
+		// users a way of zeroing a map.
+		logHistory('loaded &lt;' + lastFileName + '&gt;', false,data.nodes.length === 0)
 	})
 	yUndoManager.clear()
 	undoRedoButtonStatus()
