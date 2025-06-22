@@ -77,6 +77,7 @@ import { styles } from './samples.js'
 import { canvas, refreshFromMap, setUpBackground, upgradeFromV1 } from './background.js'
 import { refreshSampleNode, refreshSampleLink, updateLegend } from './styles.js'
 import Quill from 'quill'
+import markdownToDelta from 'markdown-to-quill-delta'
 import { saveAs } from 'file-saver'
 //import * as quillToWord from 'quill-to-word'  //dynamically loaded in exportNotes
 import { read, writeFileXLSX, utils } from 'xlsx'
@@ -245,10 +246,6 @@ function loadPRSMfile(str) {
 	updateLastSamples(json.lastNodeSample, json.lastLinkSample)
 	if (json.buttons) setButtonStatus(json.buttons)
 	if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle))
-	/* if (json.recentMaps) {
-		let recents = JSON.parse(localStorage.getItem('recents')) || {}
-		localStorage.setItem('recents', JSON.stringify(Object.assign(json.recentMaps, recents)))
-	} */
 	if (json.attributeTitles) yNetMap.set('attributeTitles', json.attributeTitles)
 	else yNetMap.set('attributeTitles', {})
 	if (json.edges.length > 0 && 'source' in json.edges[0]) {
@@ -730,126 +727,100 @@ function loadDrawIOfile(contents) {
  * 
  */
 function loadKumufile(str) {
-	const kumuData = JSON.parse(str);
-	const elements = kumuData.elements || [];
-	const connections = kumuData.connections || [];
-	const layouts = kumuData.layouts || {}; // layouts is a mapping: viewId -> { elementId -> layout }
-	const maps = kumuData.maps || {};
+	const kumuData = JSON.parse(str)
+	const elements = kumuData.elements || []
+	const connections = kumuData.connections || []
+	const maps = kumuData.maps || {}
+	const nodeMap = new Map()
+	const edgeMap = new Map()
 
-	console.log("=== Elements ===");
-	elements.forEach(element => {
-		const id = element._id;
-		const label = element?.attributes?.label || "No label";
-		const fields = element.fields || {};
-
-		// Check for layout in any view
-		let position = "No layout info";
-		for (const [viewId, layoutMap] of Object.entries(layouts)) {
-			if (layoutMap[id]) {
-				const { x, y } = layoutMap[id];
-				position = `View: ${viewId}, x: ${x}, y: ${y}`;
-				break; // stop after first layout found
-			}
-		}
-
-		console.log(`ID: ${id}, Label: ${label}, Position: ${position}, Fields:`, fields);
-	});
-
-	console.log("\n=== Connections ===");
-	connections.forEach(connection => {
-		const from = connection.from;
-		const to = connection.to;
-		const label = connection?.attributes?.label || "";
-		const fields = connection.fields || {};
-		console.log(`From: ${from} → To: ${to}, Label: ${label}, Fields:`, fields);
-	});
-
-	console.log("\n=== Layout Views ===");
-	for (const [viewId, layoutMap] of Object.entries(layouts)) {
-		console.log(`View ID: ${viewId}`);
-		for (const [elementId, layout] of Object.entries(layoutMap)) {
-			const { x, y } = layout;
-			console.log(`  Element: ${elementId}, x: ${x}, y: ${y}`);
-		}
+	// convert from Kumu element shapes to PRSM factor shapes
+	const shapeConversion = {
+		'circle': 'ellipse',
+		'rectangle': 'box',
+		'diamond': 'diamond',
+		'triangle': 'triangle',
+		'hexagon': 'hexagon',
+		'square': 'box',
+		'pill': 'box',
+		'pentagon': 'hexagon',
+		'octagon': 'hexagon'
 	}
-	console.log("\n=== Maps ===");
+	elements.forEach(element => {
+		const label = element?.attributes?.label || "No label"
+		const note = element?.attributes?.description || ''
+		nodeMap.set(element._id, {
+			...deepCopy(styles.nodes.base),
+			id: element._id,
+			label: splitText((label || ' ').replace(/<[^>]*>/g, '').replace('&nbsp;', ' ')),
+			note: note ? markdownToDelta(note) : '',
+			shape: 'box',
+			shapeProperties: { borderRadius: 0 },
+			grp: 'kumuNode',
+		})
+	})
+
+	connections.forEach(connection => {
+		const label = connection?.attributes?.label || ""
+		const note = connection?.attributes?.description || ''
+		edgeMap.set(connection._id, {
+			...deepCopy(styles.edges.base),
+			id: connection._id,
+			from: connection.from,
+			to: connection.to,
+			label: splitText((label || '').replace(/<[^>]*>/g, '').replace('&nbsp;', ' ')),
+			note: note ? markdownToDelta(note) : '',
+			grp: 'kumuEdge',
+		})
+
+	})
+
 	for (const map of maps) {
-		console.log(`Map ID: ${map._id}, Title: ${map.name}`);
 		if (map.description) {
-			console.log(`  Description: ${map.description}`);
+			let description = markdownToDelta(map.description)
+			yNetMap.set('mapDescription', description)
+			setSideDrawer({ text: description })
+		}
+		if (map.name) {
+			yNetMap.set('mapTitle', setMapTitle(map.name))
 		}
 		if (map.elements) {
-			console.log(`  Elements: ${Object.keys(map.elements).length}`);
 			map.elements.forEach((element) => {
-				console.log(`    Element ID: ${element.element}, Style: ${element.style}, Position: (${element?.position?.x}, ${element?.position?.y})`);
-				if (element.label) {
-					console.log(`    Label: ${element.label}`);
+				let node = nodeMap.get(element.element)
+				let color = element.style.color || 'rgba(255, 255, 255, 1)'
+				node.color = { background: color, border: color, hover: { background: color, border: color }, highlight: { background: color, border: color } }
+				node.font = {
+					color: element.style.fontColor || 'rgba(0, 0, 0, 1)',
+					size: element.style.fontSize || 14,
+					face: element.style.fontFace || 'Oxygen'
 				}
-				if (element.fields) {
-					console.log(`    Fields:`, element.fields);
+				node.shape = shapeConversion[element.style.shape] || 'box'
+				if (element.style.shape === 'pill') { node.shapeProperties = { borderRadius: 20 } }
+				if (element.style.size) {
+					node.size = element.style.size
+					node.widthConstraint = element.style.size
+					node.heightConstraint = element.style.size
 				}
-				if (element?.style?.color) {
-					console.log(`    Color: ${element.style.color}`);
-				}
-				if (element?.style?.fontStyle) {
-					console.log(`    FontStyle: ${element.style.fontStyle}`);
-				}
-				if (element?.style?.fontColor) {
-					console.log(`    fontColor: ${element.style.fontColor}`);
-				}
-				if (element?.style?.fontSize) {
-					console.log(`    fontSize: ${element.style.fontSize}`);
-				}
-				if (element?.style?.fontWeight) {
-					console.log(`    fontWeight: ${element.style.fontWeight}`);
-				}
-				if (element?.style?.size) {
-					console.log(`    Size: ${element.style.size}`);
-				}
-				if (element?.style?.shape) {
-					console.log(`    Shape:`, element.style.shape);
-				}
-			});
+				node.x = element?.position?.x || 0
+				node.y = element?.position?.y || 0
+			})
 		}
-		if (map.connections) {
-			console.log(`  Connections: ${Object.keys(map.connections).length}`);
+		data.nodes.update(Array.from(nodeMap.values()))
 
+		if (map.connections) {
 			map.connections.forEach((connection) => {
-				console.log(`    Connection ID: ${connection.connection}, Style: ${connection.style}`);
-				if (connection.label) {
-					console.log(`    Label: ${connection.label}`);
+
+				let edge = edgeMap.get(connection.connection)
+				let color = connection.style.color || 'rgba(0, 0, 0, 1)'
+				edge.color = { color: color, hover: color, highlight: color }
+				edge.font = {
+					color: connection.style.fontColor || 'rgba(0, 0, 0, 1)',
+					size: connection.style.fontSize || 14,
+					face: connection.style.fontFace || 'Oxygen'
 				}
-				if (connection.label) {
-					console.log(`    Label: ${connection.label}`);
-				}
-				if (connection.fields) {
-					console.log(`    Fields:`, connection.fields);
-				}
-				if (connection?.style?.color) {
-					console.log(`    Color: ${connection.style.color}`);
-				}
-				if (connection?.style?.fontStyle) {
-					console.log(`    FontStyle: ${connection.style.fontStyle}`);
-				}
-				if (connection?.style?.fontColor) {
-					console.log(`    fontColor: ${connection.style.fontColor}`);
-				}
-				if (connection?.style?.size) {
-					console.log(`    Size: ${connection.style.size}`);
-				}
-				if (connection?.style?.shape) {
-					console.log(`    Shape:`, connection.style.shape);
-				}
-				if (connection.width) {
-					console.log(`    Width: ${connection.width}`);
-				}
-				if (connection?.style?.fontSize) {
-					console.log(`    fontSize: ${connection.style.fontSize}`);
-				}
-				if (connection?.style?.fontWeight) {
-					console.log(`    fontWeight: ${connection.style.fontWeight}`);
-				}
-			});
+
+			})
+			data.edges.update(Array.from(edgeMap.values()))
 		}
 	}
 }

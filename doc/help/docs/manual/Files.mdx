@@ -9,15 +9,16 @@ The app can read files in its native format (files with the suffix '.prsm'), and
 * [GRAPHML](http://graphml.graphdrawing.org/) (.graphml),
 * [GEXF](https://gexf.net/primer.html)(.gexf),
 * [GML](https://en.wikipedia.org/wiki/Graph_Modelling_Language) (.gml),
-* [GraphVix](https://graphviz.org/) (.gv or .dot), or
+* [GraphVix](https://graphviz.org/) (.gv or .dot),
 * [Microsoft Excel](https://www.microsoft.com/en-us/microsoft-365/excel) (.xlsx)
-* [JGraph's draw.io](https://app.diagrams.net/) (.drawio) -- experimental  
+* [JGraph's draw.io](https://app.diagrams.net/) (.drawio) -- experimental
+* [Kumu](https://kumu.io/) (.json export format) -- experimental
 
-Not all features of these formats are supported, only those that match with the capabilities of PRSM. For instance, objects that are images or that have no labels are ignored rather than imported as Factors.  Links that do not have connected source or target Factors are also ignored when importing.
+Not all features of these formats are supported, only those that match with the capabilities of PRSM. For instance, objects that are images or that have no labels are ignored rather than imported as Factors.  Links that do not have connected source or target Factors are also ignored when importing.  If you have problems importing a map, you may email [prsm@prsm.uk](mailto:prsm@prsm.uk) with a copy of the file you are trying to import and an explanation of the problem.  
 
-Excel files need to be formatted in a special way - see below.
+Excel files need to be formatted in a special way - see [below](#excel).
 
-For example, the map below is the result of importing a GEXF file generated from one of the Gephi sample networks - the relationships between the characters in 'Les Miserables'.
+For example, the map below is the result of importing a GEXF file generated from one of the Gephi sample networks - the relationships between the characters in ['Les Miserables'](https://github.com/gephi/gephi/blob/master/modules/WelcomeScreen/src/main/resources/org/gephi/desktop/welcome/samples/Les%20Miserables.gexf).
 
 <p align="center">
 <img
