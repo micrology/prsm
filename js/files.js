@@ -71,6 +71,7 @@ import {
 	statusMsg,
 	alertMsg,
 	lowerFirstLetter,
+	encodeHTMLEntities,
 	stripNL,
 } from './utils.js'
 import { styles } from './samples.js'
@@ -728,7 +729,8 @@ function loadDrawIOfile(contents) {
  */
 function loadKumufile(str) {
 	const kumuData = JSON.parse(str)
-	const elements = kumuData.elements || []
+	const elements = kumuData.elements
+	if (!elements) throw new Error('Invalid Kumu file: no elements found')
 	const connections = kumuData.connections || []
 	const maps = kumuData.maps || {}
 	const nodeMap = new Map()
@@ -1790,7 +1792,7 @@ export function exportGraphML() {
 		let rgb = rgbToArray(color)
 		str += `
 		<node id="${node.id}">
-			<data key="d0">${node.label}</data>
+			<data key="d0">${encodeHTMLEntities(node.label)}</data>
 			<data key="d1">${parseInt(node.grp.substring(5)) + 1}</data>
 			<data key="d2">${color}</data>
 			<data key="d3">${node.shape}</data>
@@ -1807,7 +1809,7 @@ export function exportGraphML() {
 		let rgb = rgbToArray(color)
 		str += `
 		<edge id="${edge.id}" source="${edge.from}" target="${edge.to}">
-			<data key="d10">${edge.label || ''}</data>
+			<data key="d10">${encodeHTMLEntities(edge.label || '')}</data>
 			<data key="d11">${parseInt(edge.grp.substring(4)) + 1}</data>
 			<data key="d12">${color}</data>
 			<data key="d13">${rgb[0]}</data>
