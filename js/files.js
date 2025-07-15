@@ -806,20 +806,48 @@ function loadKumufile(str) {
 		pentagon: "hexagon",
 		octagon: "hexagon",
 	}
+	let attributeToUseAsStyle = undefined
+	// get names of attributes and save them
 	const attributeNames = { ...(yNetMap.get("attributeTitles") || {}) }
 	attributes.forEach((attr) => {
 		if (!["Description", "Label"].includes(attr.name))
 			attributeNames[attr._id] = attr.name
+		if (attr.name === "Category") attributeToUseAsStyle = attr._id
 	})
 	yNetMap.set("attributeTitles", attributeNames)
 	recreateClusteringMenu(attributeNames)
 
+	// get perspectives, edit PRSM styles and
+	// apply styles to factors and links
+
+	//TODO use only one
+	//for (const perspective of perspectives) {
+	let perspective = perspectives[0]
+	//console.log("Style", perspective.style)
+	// translate KUMU CSS style format to an object for easier access
+	let pStyles = parseKumuPerspectiveStyle(perspective.style)
+	console.log("Styles:", pStyles)
+	let group = 0
+	let elementStyles = pStyles["element-styles"]
+	for (const eStyle of elementStyles) {
+		if (eStyle.match?.category) {
+			styles.nodes[`group${group}`].groupLabel = eStyle.match.category
+			styles.nodes[`group${group}`].color.background = eStyle.styles.color
+			refreshSampleNode(`group${group}`)
+			group = group + 1
+			if (group > 14) break
+		}
+	}
+
+	// get all elements
 	elements.forEach((element) => {
 		const label = element?.attributes?.label || "No label"
 		const note = element?.attributes?.description || ""
 		const attributes = {}
 		for (const attr in attributeNames) {
-			attributes[attr]= element?.attributes[attributeNames[attr].toLowerCase()]
+			let value = element?.attributes[attributeNames[attr].toLowerCase()]
+			// flatten attribute value from an array to a set of strings
+			attributes[attr] = Array.isArray(value) ? value.join("|") : value
 		}
 		nodeMap.set(element._id, {
 			...deepCopy(styles.nodes.base),
@@ -831,10 +859,22 @@ function loadKumufile(str) {
 			shape: "box",
 			shapeProperties: { borderRadius: 0 },
 			grp: "kumuNode",
-			...attributes
+			...attributes,
 		})
 	})
 
+	nodeMap.forEach((node, id) => {
+		let category = node[attributeToUseAsStyle]
+		let group = undefined
+		for (const style in styles.nodes) {
+			if (styles.nodes[style].groupLabel === category) group = style
+		}
+		console.log(category, group)
+		if (group) {
+			nodeMap.set(id, deepMerge(node, styles.nodes[group], { grp: group }))
+		}
+	})
+	// get all links
 	connections.forEach((connection) => {
 		const label = connection?.attributes?.label || ""
 		const note = connection?.attributes?.description || ""
@@ -851,68 +891,64 @@ function loadKumufile(str) {
 		})
 	})
 
-	for (const map of maps) {
-		if (map.description) {
-			let description = markdownToDelta(map.description)
-			yNetMap.set("mapDescription", description)
-			setSideDrawer({ text: description })
-		}
-		if (map.name) {
-			yNetMap.set("mapTitle", setMapTitle(map.name))
-		}
-		if (map.elements) {
-			map.elements.forEach((element) => {
-				let node = nodeMap.get(element.element)
-				let color = element.style.color || "rgba(255, 255, 255, 1)"
+	// TO DO get only one map
+	//	for (const map of maps) {
+	let map = maps[0]
+	if (map.description) {
+		let description = markdownToDelta(map.description)
+		yNetMap.set("mapDescription", description)
+		setSideDrawer({ text: description })
+	}
+	if (map.name) {
+		yNetMap.set("mapTitle", setMapTitle(map.name))
+	}
+	if (map.elements) {
+		map.elements.forEach((element) => {
+			let node = nodeMap.get(element.element)
+			let color = element.style.color
+			if (color) {
 				node.color = {
 					background: color,
 					border: color,
 					hover: { background: color, border: color },
 					highlight: { background: color, border: color },
 				}
-				node.font = {
-					color: element.style.fontColor || "rgba(0, 0, 0, 1)",
-					size: element.style.fontSize || 14,
-					face: element.style.fontFace || "Oxygen",
-				}
-				node.shape = shapeConversion[element.style.shape] || "box"
-				if (element.style.shape === "pill") {
-					node.shapeProperties = { borderRadius: 20 }
-				}
-				if (element.style.size) {
-					node.size = element.style.size
-					node.widthConstraint = element.style.size
-					node.heightConstraint = element.style.size
-				}
-				node.x = element?.position?.x || 0
-				node.y = element?.position?.y || 0
-			})
-		}
-		data.nodes.update(Array.from(nodeMap.values()))
+			}
+			if (element.style.fontColor) node.font.color = element.style.fontColor
+			if (element.style.fontSize) node.font.size = element.style.fontSize
+			if (element.style.fontFace) node.font.face = element.style.fontFace
+			if (element.style.shape) node.shape = shapeConversion[element.style.shape]
+			if (element.style.shape === "pill") {
+				node.shapeProperties = { borderRadius: 20 }
+			}
+			if (element.style.size) {
+				node.size = element.style.size
+				node.widthConstraint = element.style.size
+				node.heightConstraint = element.style.size
+			}
+			node.x = element?.position?.x || 0
+			node.y = element?.position?.y || 0
+		})
+	}
+	data.nodes.update(Array.from(nodeMap.values()))
 
-		if (map.connections) {
-			map.connections.forEach((connection) => {
-				let edge = edgeMap.get(connection.connection)
-				let color = connection.style.color || "rgba(0, 0, 0, 1)"
-				edge.color = { color: color, hover: color, highlight: color }
-				edge.font = {
-					color: connection.style.fontColor || "rgba(0, 0, 0, 1)",
-					size: connection.style.fontSize || 14,
-					face: connection.style.fontFace || "Oxygen",
-				}
-			})
-			data.edges.update(Array.from(edgeMap.values()))
-		}
+	if (map.connections) {
+		map.connections.forEach((connection) => {
+			let edge = edgeMap.get(connection.connection)
+			let color = connection.style.color || "rgba(0, 0, 0, 1)"
+			edge.color = { color: color, hover: color, highlight: color }
+			edge.font = {
+				color: connection.style.fontColor || "rgba(0, 0, 0, 1)",
+				size: connection.style.fontSize || 14,
+				face: connection.style.fontFace || "Oxygen",
+			}
+		})
+		data.edges.update(Array.from(edgeMap.values()))
 	}
-	for (const perspective of perspectives) {
-		let style = perspective?.style
-		console.log("Style", style)
-		let pStyles = parseCustomStyleToJSON(style)
-		console.log("JSON Styles:", pStyles)
-	}
+	//	}
 }
 
-function parseCustomStyleToJSON(input) {
+function parseKumuPerspectiveStyle(input) {
 	const result = {
 		"@view": {},
 		"@controls": {},
