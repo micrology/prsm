@@ -63,6 +63,8 @@ import {
 	deepMerge,
 	deepCopy,
 	splitText,
+	setNodeHidden,
+	setEdgeHidden,
 	standardize_color,
 	rgbIsLight,
 	rgbToArray,
@@ -544,11 +546,11 @@ function loadGEXFfile(gexf) {
 			color: color ? { ...base.color, background: rgba(color) } : base.color,
 			font: color
 				? {
-						...base.font,
-						color: rgbIsLight(color.r, color.g, color.b)
-							? "rgb(0,0,0)"
-							: "rgb(255,255,255)",
-					}
+					...base.font,
+					color: rgbIsLight(color.r, color.g, color.b)
+						? "rgb(0,0,0)"
+						: "rgb(255,255,255)",
+				}
 				: base.font,
 		}
 	})
@@ -583,14 +585,14 @@ function loadGEXFfile(gexf) {
 			? attributesNode
 			: [attributesNode]
 
-		;(attributes || []).forEach(({ class: cls, attribute = [] }) => {
-			attribute.forEach(({ id, title, name, type }) => {
-				result[cls === "node" ? "nodes" : "edges"][id] = {
-					title: title || name,
-					type: type || "string",
-				}
+			; (attributes || []).forEach(({ class: cls, attribute = [] }) => {
+				attribute.forEach(({ id, title, name, type }) => {
+					result[cls === "node" ? "nodes" : "edges"][id] = {
+						title: title || name,
+						type: type || "string",
+					}
+				})
 			})
-		})
 
 		return result
 	}
@@ -623,10 +625,10 @@ function loadGEXFfile(gexf) {
 	function processNodePosition({ viz_position, x, y, z }) {
 		const pos = viz_position
 			? {
-					x: +viz_position.x || 0,
-					y: +viz_position.y || 0,
-					z: +viz_position.z || 0,
-				}
+				x: +viz_position.x || 0,
+				y: +viz_position.y || 0,
+				z: +viz_position.z || 0,
+			}
 			: x || y || z
 				? { x: +x, y: +y, z: +z }
 				: null
@@ -787,14 +789,19 @@ function loadKumufile(str) {
 	const kumuData = JSON.parse(str)
 	const elements = kumuData.elements
 	if (!elements) throw new Error("Invalid Kumu file: no elements found")
+	const defaultMap = kumuData.defaultMap
 	const connections = kumuData.connections || []
-	const maps = kumuData.maps || {}
-	const perspectives = kumuData.perspectives || {}
+	const maps = kumuData.maps
+	const defaultPerspective = maps.find((map) => map._id === defaultMap).defaultPerspective
+	if (!defaultPerspective) {
+		throw new Error("Invalid Kumu file: no default perspective found")
+	}
+	const perspectives = kumuData.perspectives
 	const attributes = kumuData.attributes || {}
 	const nodeMap = new Map()
 	const edgeMap = new Map()
 
-	// convert from Kumu element shapes to PRSM factor shapes
+	// convert from Kumu element shapes to nearestPRSM factor shapes
 	const shapeConversion = {
 		circle: "ellipse",
 		rectangle: "box",
@@ -806,74 +813,102 @@ function loadKumufile(str) {
 		pentagon: "hexagon",
 		octagon: "hexagon",
 	}
-	let attributeToUseAsStyle = undefined
 	// get names of attributes and save them
+	let attributeToUseAsStyle  // the id of the Category attribute that will be used to style nodes
 	const attributeNames = { ...(yNetMap.get("attributeTitles") || {}) }
 	attributes.forEach((attr) => {
 		if (!["Description", "Label"].includes(attr.name))
 			attributeNames[attr._id] = attr.name
-		if (attr.name === "Category") attributeToUseAsStyle = attr._id
+		if (attr.name === "Category") {
+			attributeToUseAsStyle = attr._id
+			// use the values as the names of the node styles
+			let group = 0
+			for (const styleName of attr.values) {
+				styles.nodes[`group${group}`].groupLabel = styleName
+				refreshSampleNode(`group${group}`)
+				if (group > 14) break
+				group++
+			}
+		}
 	})
 	yNetMap.set("attributeTitles", attributeNames)
 	recreateClusteringMenu(attributeNames)
 
-	// get perspectives, edit PRSM styles and
-	// apply styles to factors and links
+	// get perspective, edit PRSM styles and apply styles to factors and links
 
-	//TODO use only one
-	//for (const perspective of perspectives) {
-	let perspective = perspectives[0]
-	//console.log("Style", perspective.style)
+	let perspective = perspectives.find((p => p._id === defaultPerspective))
 	// translate KUMU CSS style format to an object for easier access
 	let pStyles = parseKumuPerspectiveStyle(perspective.style)
 	console.log("Styles:", pStyles)
-	let group = 0
+
+	/* Use the Perspective element styles to set the PRSM styles
+	e.g element["category"="Driver"]
+{
+	color: #d73027;
+	border-colour: black;
+	border-width: 10;
+}
+	will name a PRSM node style "Driver" with a background color of #d73027, 
+	a black border and a border width of 10.
+	*/
 	let elementStyles = pStyles["element-styles"]
 	for (const eStyle of elementStyles) {
 		if (eStyle.match?.category) {
-			styles.nodes[`group${group}`].groupLabel = eStyle.match.category
-			styles.nodes[`group${group}`].color.background = eStyle.styles.color
-			refreshSampleNode(`group${group}`)
-			group = group + 1
-			if (group > 14) break
+			// find the style with the category name
+			let style = Object.entries(styles.nodes).find(a => a[1].groupLabel === eStyle.match.category)[0]
+			let styleNode = styles.nodes[style]
+			styleNode.color.background = eStyle.styles.color
+			styleNode.color.border = eStyle.styles["border-color"] || "black"
+			styleNode.borderWidth = eStyle.styles["border-width"] / 10 || 0
+			styleNode.shape = shapeConversion[eStyle.styles["shape"]] || "dot"
+			refreshSampleNode(style)
 		}
 	}
 
 	// get all elements
 	elements.forEach((element) => {
-		const label = element?.attributes?.label || "No label"
+		const label = element?.attributes?.label
 		const note = element?.attributes?.description || ""
 		const attributes = {}
 		for (const attr in attributeNames) {
 			let value = element?.attributes[attributeNames[attr].toLowerCase()]
 			// flatten attribute value from an array to a set of strings
-			attributes[attr] = Array.isArray(value) ? value.join("|") : value
+			attributes[attr] = Array.isArray(value) ? value.join(" | ") : value
 		}
-		nodeMap.set(element._id, {
-			...deepCopy(styles.nodes.base),
-			id: element._id,
-			label: splitText(
-				(label || " ").replace(/<[^>]*>/g, "").replace("&nbsp;", " ")
-			),
-			note: note ? markdownToDelta(note) : "",
-			shape: "box",
-			shapeProperties: { borderRadius: 0 },
-			grp: "kumuNode",
-			...attributes,
-		})
+		// skip elements with no label
+		if (label) {
+			nodeMap.set(element._id, {
+				...deepCopy(styles.nodes.base),
+				id: element._id,
+				label: splitText(
+					(label || " ").replace(/<[^>]*>/g, "").replace("&nbsp;", " ")
+				),
+				note: note ? markdownToDelta(note) : "",
+				shape: "circle",
+				shapeProperties: { borderRadius: 0 },
+				grp: "kumuNode",
+				...attributes,
+			})
+		}
 	})
 
+	let ignoredCategories = pStyles['@settings'].ignore
+	let defaultFontSize = pStyles['@settings']['font-size'] || 250
+	let defaultElementSize = pStyles['@settings']['element-size'] || 100
 	nodeMap.forEach((node, id) => {
 		let category = node[attributeToUseAsStyle]
 		let group = undefined
 		for (const style in styles.nodes) {
 			if (styles.nodes[style].groupLabel === category) group = style
 		}
-		console.log(category, group)
 		if (group) {
+			// if the node is in an ignored category, hide it
+			let hideNode = ignoredCategories && ignoredCategories.includes(category)
+			setNodeHidden(node, hideNode)
 			nodeMap.set(id, deepMerge(node, styles.nodes[group], { grp: group }))
 		}
 	})
+
 	// get all links
 	connections.forEach((connection) => {
 		const label = connection?.attributes?.label || ""
@@ -891,9 +926,7 @@ function loadKumufile(str) {
 		})
 	})
 
-	// TO DO get only one map
-	//	for (const map of maps) {
-	let map = maps[0]
+	let map = maps.find((m) => m._id === defaultMap)
 	if (map.description) {
 		let description = markdownToDelta(map.description)
 		yNetMap.set("mapDescription", description)
@@ -905,29 +938,33 @@ function loadKumufile(str) {
 	if (map.elements) {
 		map.elements.forEach((element) => {
 			let node = nodeMap.get(element.element)
-			let color = element.style.color
-			if (color) {
-				node.color = {
-					background: color,
-					border: color,
-					hover: { background: color, border: color },
-					highlight: { background: color, border: color },
+			if (node) {
+				let color = element.style.color
+				if (color) {
+					node.color = {
+						background: color,
+						border: color,
+						hover: { background: color, border: color },
+						highlight: { background: color, border: color },
+					}
+				}
+				node.font.size = defaultFontSize
+				if (element.style.fontColor) node.font.color = element.style.fontColor
+				if (element.style.fontSize) node.font.size = element.style.fontSize
+				if (element.style.fontFace) node.font.face = element.style.fontFace
+				if (element.style.shape) node.shape = shapeConversion[element.style.shape]
+				if (element.style.shape === "pill") {
+					node.shapeProperties = { borderRadius: 20 }
+				}
+				let size = element.style.size || defaultElementSize
+				node.size = size
+				//node.widthConstraint = size
+				//node.heightConstraint = size
+				if (element.position) {
+					node.x = element?.position?.x
+					node.y = element?.position?.y
 				}
 			}
-			if (element.style.fontColor) node.font.color = element.style.fontColor
-			if (element.style.fontSize) node.font.size = element.style.fontSize
-			if (element.style.fontFace) node.font.face = element.style.fontFace
-			if (element.style.shape) node.shape = shapeConversion[element.style.shape]
-			if (element.style.shape === "pill") {
-				node.shapeProperties = { borderRadius: 20 }
-			}
-			if (element.style.size) {
-				node.size = element.style.size
-				node.widthConstraint = element.style.size
-				node.heightConstraint = element.style.size
-			}
-			node.x = element?.position?.x || 0
-			node.y = element?.position?.y || 0
 		})
 	}
 	data.nodes.update(Array.from(nodeMap.values()))
@@ -942,7 +979,11 @@ function loadKumufile(str) {
 				size: connection.style.fontSize || 14,
 				face: connection.style.fontFace || "Oxygen",
 			}
+			if (data.nodes.get(edge.from).nodeHidden || data.nodes.get(edge.to).nodeHidden) {
+				setEdgeHidden(edge, true)
+			}
 		})
+
 		data.edges.update(Array.from(edgeMap.values()))
 	}
 	//	}
@@ -959,7 +1000,7 @@ function parseKumuPerspectiveStyle(input) {
 	}
 
 	// Clean up input
-	const clean = input.replace(/\\n/g, "\n").replace(/\\t/g, "").trim()
+	const clean = input.replace(/\\n/g, "\n").replace(/\\t/g, "").replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1').trim()
 
 	// Utility to parse blocks like @view 'X' { @settings { ... } }
 	function parseBlock(label, blockString) {
@@ -974,21 +1015,29 @@ function parseKumuPerspectiveStyle(input) {
 		const obj = {}
 		const lines = text.split(/;\s*\n?/).filter(Boolean)
 		for (let line of lines) {
-			let [key, value] = line.split(/:\s*/)
+			let [key, value] = line.split(/:\s+/)
 			if (!key || value === undefined) continue
 			key = key.trim()
-			value = value.trim()
-			if (value === "True") value = true
-			else if (value === "False") value = false
-			else if (!isNaN(value)) value = Number(value)
-			else if (/^".*"$/.test(value)) value = value.slice(1, -1)
-			obj[key] = value
+			obj[key] = cleanValue(value)
 		}
 		return obj
 	}
 
+	// Utility to clean and convert values
+	function cleanValue(val) {
+		if (!val) return null;
+		val = val.trim().replace(/;/g, '').replace(/^"|"$/g, '');
+		if (val === 'True') return true;
+		if (val === 'False') return false;
+		if (!isNaN(val)) return Number(val);
+		if (val.includes(',')) {
+			return val.split(',').map(v => cleanValue(v.trim()));
+		}
+		return val;
+	}
+
 	// Parse all @view blocks
-	const viewRegex = /@view\s+'([^']+)'\s*\{([^}]*?)\}/gs
+	const viewRegex = /@view\s+'([^']+)'\s*\{([^}]*?\})/gs
 	let match
 	while ((match = viewRegex.exec(clean)) !== null) {
 		const [, name, body] = match
@@ -998,9 +1047,9 @@ function parseKumuPerspectiveStyle(input) {
 	}
 
 	// Parse @settings (global)
-	const globalSettingsMatch = clean.match(/@settings\s*\{([^}]+)\}/s)
+	const [, , globalSettingsMatch] = clean.match(/\}\s*(@settings\s*\{([^}]+)\})/s)
 	if (globalSettingsMatch) {
-		result["@settings"] = parseKeyValueBlock(globalSettingsMatch[1])
+		result["@settings"] = parseKeyValueBlock(globalSettingsMatch)
 	}
 
 	// Parse #background
@@ -1031,7 +1080,62 @@ function parseKumuPerspectiveStyle(input) {
 		})
 	}
 
-	// Return the formatted JSON
+	// Parse controls
+	function parseToObject(input) {
+		const match = input.match(/@controls\s*{([\s\S]*)}$/);
+		if (!match) return null; // Not a valid @controls block
+
+		const content = `{${match[1]}`; // restore root-level opening brace
+		const tokens = content.match(/([{}])|("[^"]*"|\w[\w-]*)\s*:?\s*("[^"]*"|[^;{}]+)?;?/g);
+		if (!tokens) return {};
+
+		let index = 0;
+
+		function parseBlock() {
+			const result = {};
+
+			while (index < tokens.length) {
+				let token = tokens[index++].trim();
+
+				if (token === '}') {
+					return result;
+				} else if (token === '{') {
+					continue;
+				}
+
+				const nextToken = tokens[index] ? tokens[index].trim() : null;
+
+				if (nextToken === '{') {
+					index++;
+					const child = parseBlock();
+					if (result[token]) {
+						if (Array.isArray(result[token])) {
+							result[token].push(child);
+						} else {
+							result[token] = [result[token], child];
+						}
+					} else {
+						result[token] = child;
+					}
+				} else if (token.includes(':')) {
+					const [key, val] = token.split(/\s*:\s*/);
+					result[key] = cleanValue(val);
+				} else if (nextToken && nextToken.includes(':')) {
+					const [, val] = nextToken.split(/\s*:\s*/);
+					index++;
+					result[token] = cleanValue(val);
+				}
+			}
+
+			return result;
+		}
+
+		index++; // Skip initial {
+		return parseBlock();
+
+	}
+	result["@controls"] = parseToObject(clean)
+
 	return result
 }
 
