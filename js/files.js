@@ -814,19 +814,31 @@ function loadKumufile(str) {
 		octagon: "hexagon",
 	}
 	// get names of attributes and save them
-	let attributeToUseAsStyle  // the id of the Category attribute that will be used to style nodes
+	let attributeToUseAsNodeStyle = "Category" // the name of the attribute that will be used to style nodes
+	let attributeToUseAsNodeStyleId // the id of the attribute that will be used to style nodes
+	let attributeToUseAsLinkStyle  = "Relationship impact"// the name of the attribute that will be used to style links
 	const attributeNames = { ...(yNetMap.get("attributeTitles") || {}) }
 	attributes.forEach((attr) => {
 		if (!["Description", "Label"].includes(attr.name))
 			attributeNames[attr._id] = attr.name
-		if (attr.name === "Category") {
-			attributeToUseAsStyle = attr._id
+		if (attr.name === attributeToUseAsNodeStyle) {
+			attributeToUseAsNodeStyleId = attr._id
 			// use the values as the names of the node styles
 			let group = 0
 			for (const styleName of attr.values) {
 				styles.nodes[`group${group}`].groupLabel = styleName
 				refreshSampleNode(`group${group}`)
-				if (group > 14) break
+				if (group >= 15) break
+				group++
+			}
+		}
+		if (attr.name === attributeToUseAsLinkStyle) {
+			// use the values as the names of the link styles
+			let group = 0
+			for (const styleName of attr.values) {
+				styles.edges[`edge${group}`].groupLabel = styleName
+				refreshSampleLink(`edge${group}`)
+				if (group >= 9) break
 				group++
 			}
 		}
@@ -839,7 +851,7 @@ function loadKumufile(str) {
 	let perspective = perspectives.find((p => p._id === defaultPerspective))
 	// translate KUMU CSS style format to an object for easier access
 	let pStyles = parseKumuPerspectiveStyle(perspective.style)
-	console.log("Styles:", pStyles)
+	// console.log("Styles:", pStyles)
 
 	/* Use the Perspective element styles to set the PRSM styles
 	e.g element["category"="Driver"]
@@ -860,6 +872,7 @@ function loadKumufile(str) {
 			styleNode.color.background = eStyle.styles.color
 			styleNode.color.border = eStyle.styles["border-color"] || "black"
 			styleNode.borderWidth = eStyle.styles["border-width"] / 10 || 0
+			styleNode.font.color = eStyle.styles["font-color"] || "rgb(0,0,0)"
 			styleNode.shape = shapeConversion[eStyle.styles["shape"]] || "dot"
 			refreshSampleNode(style)
 		}
@@ -896,20 +909,33 @@ function loadKumufile(str) {
 	let defaultFontSize = pStyles['@settings']['font-size'] || 250
 	let defaultElementSize = pStyles['@settings']['element-size'] || 100
 	nodeMap.forEach((node, id) => {
-		let category = node[attributeToUseAsStyle]
+		let category = node[attributeToUseAsNodeStyleId]
 		let group = undefined
 		for (const style in styles.nodes) {
 			if (styles.nodes[style].groupLabel === category) group = style
 		}
 		if (group) {
+			node = deepMerge(node, styles.nodes[group], { grp: group })
 			// if the node is in an ignored category, hide it
 			let hideNode = ignoredCategories && ignoredCategories.includes(category)
-			setNodeHidden(node, hideNode)
-			nodeMap.set(id, deepMerge(node, styles.nodes[group], { grp: group }))
+			if (hideNode) node = setNodeHidden(node, hideNode)
+			nodeMap.set(id, node)
 		}
 	})
 
 	// get all links
+
+	// first, amend the styles for the links
+	let edgeStyles = pStyles["connection-styles"]
+	for (const lStyle of edgeStyles) {
+		if (lStyle.match[attributeToUseAsLinkStyle]) {
+			// find the style with the category name
+			let style = Object.entries(styles.edges).find(a => a[1].groupLabel === lStyle.match[attributeToUseAsLinkStyle])[0]
+			let styleEdge = styles.edges[style]
+			styleEdge.color.color = lStyle.styles.color
+			refreshSampleLink(style)
+		}
+	}
 	connections.forEach((connection) => {
 		const label = connection?.attributes?.label || ""
 		const note = connection?.attributes?.description || ""
@@ -922,8 +948,23 @@ function loadKumufile(str) {
 				(label || "").replace(/<[^>]*>/g, "").replace("&nbsp;", " ")
 			),
 			note: note ? markdownToDelta(note) : "",
+			groupLabel: connection?.attributes[attributeToUseAsLinkStyle.toLowerCase()],
 			grp: "kumuEdge",
 		})
+	})
+
+	edgeMap.forEach((edge, id) => {
+		let group = undefined
+		for (const style in styles.edges) {
+			if (styles.edges[style].groupLabel === edge.groupLabel) {
+				group = style
+				break
+			}
+		}
+		if (group) {
+			edge = deepMerge(edge, styles.edges[group], { grp: group })
+			edgeMap.set(id, edge)
+		}
 	})
 
 	let map = maps.find((m) => m._id === defaultMap)
@@ -972,21 +1013,23 @@ function loadKumufile(str) {
 	if (map.connections) {
 		map.connections.forEach((connection) => {
 			let edge = edgeMap.get(connection.connection)
-			let color = connection.style.color || "rgba(0, 0, 0, 1)"
-			edge.color = { color: color, hover: color, highlight: color }
+			if (connection.style.color) {
+				let color = connection.style.color
+				edge.color = { color: color, hover: color, highlight: color }
+			}
 			edge.font = {
-				color: connection.style.fontColor || "rgba(0, 0, 0, 1)",
-				size: connection.style.fontSize || 14,
+				color: connection.style.fontColor || "rgb(0, 0, 0)",
+				size: connection.style.fontSize || defaultFontSize,
 				face: connection.style.fontFace || "Oxygen",
 			}
 			if (data.nodes.get(edge.from).nodeHidden || data.nodes.get(edge.to).nodeHidden) {
 				setEdgeHidden(edge, true)
 			}
+			edgeMap.set(connection._id, edge)
 		})
 
 		data.edges.update(Array.from(edgeMap.values()))
 	}
-	//	}
 }
 
 function parseKumuPerspectiveStyle(input) {
