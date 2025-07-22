@@ -3462,7 +3462,7 @@ function searchTargets() {
 	targets.classList.add('search-ul')
 	str = str.toLowerCase()
 	let suggestions = data.nodes.get().filter((n) => n.label.toLowerCase().includes(str))
-	suggestions.slice(0, 8).forEach((n) => {
+	suggestions.forEach((n) => {
 		let li = document.createElement('li')
 		li.classList.add('search-suggestion')
 		let div = document.createElement('div')
@@ -3473,15 +3473,6 @@ function searchTargets() {
 		li.appendChild(div)
 		targets.appendChild(li)
 	})
-	if (suggestions.length > 8) {
-		let li = document.createElement('li')
-		li.classList.add('search-suggestion')
-		let div = document.createElement('div')
-		div.className = 'search-suggestion-text and-more'
-		div.innerText = 'and more ...'
-		li.appendChild(div)
-		targets.appendChild(li)
-	}
 	elem('suggestion-list').appendChild(targets)
 }
 /**
