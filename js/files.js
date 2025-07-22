@@ -816,7 +816,7 @@ function loadKumufile(str) {
 	// get names of attributes and save them
 	let attributeToUseAsNodeStyle = "Category" // the name of the attribute that will be used to style nodes
 	let attributeToUseAsNodeStyleId // the id of the attribute that will be used to style nodes
-	let attributeToUseAsLinkStyle  = "Relationship impact"// the name of the attribute that will be used to style links
+	let attributeToUseAsLinkStyle = "Relationship impact"// the name of the attribute that will be used to style links
 	const attributeNames = { ...(yNetMap.get("attributeTitles") || {}) }
 	attributes.forEach((attr) => {
 		if (!["Description", "Label"].includes(attr.name))
@@ -916,11 +916,12 @@ function loadKumufile(str) {
 		}
 		if (group) {
 			node = deepMerge(node, styles.nodes[group], { grp: group })
+
 			// if the node is in an ignored category, hide it
 			let hideNode = ignoredCategories && ignoredCategories.includes(category)
 			if (hideNode) node = setNodeHidden(node, hideNode)
-			nodeMap.set(id, node)
 		}
+		nodeMap.set(id, node)
 	})
 
 	// get all links
@@ -987,6 +988,9 @@ function loadKumufile(str) {
 						border: color,
 						hover: { background: color, border: color },
 						highlight: { background: color, border: color },
+					}
+					if (node.color.background === "transparent" || node.color.background === "rgba(0,0,0,0)") {
+						node.shape = "text"
 					}
 				}
 				node.font.size = defaultFontSize
