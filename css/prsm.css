@@ -620,9 +620,11 @@ nav button .pressed {
 }
 .search-ul {
 	width: 195px;
+	height: 350px;
 	position: absolute;
 	right: 5px;
 	top: 13px;
+	overflow-y: auto;
 	z-index: 2500;
 }
 .search-suggestion {
