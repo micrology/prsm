@@ -2471,6 +2471,7 @@ function editNode(item, point, cancelAction, callback) {
 					<option value="box">Shape...</option>
 					<option value="ellipse">Ellipse</option>
 					<option value="circle">Circle</option>
+					<option value="dot">Dot</option>
 					<option value="box">Rect</option>
 					<option value="diamond">Diamond</option>
 					<option value="star">Star</option>
