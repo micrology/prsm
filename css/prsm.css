@@ -1330,7 +1330,13 @@ input:checked + .slider:before {
 }
 .legendWrapper {
 	max-height: calc(100% - 25px);
+	display: grid;
+	grid-template-columns: repeat(2, 50px);
+	grid-auto-rows: 50px;
 	overflow-y: auto;
+	touch-action: pan-y;
+	-webkit-user-select: all;
+	user-select: all;
 }
 .legendTitle {
 	background-color: var(--header-color);
@@ -1342,8 +1348,17 @@ input:checked + .slider:before {
 	-webkit-user-select: none;
 }
 .legendCanvas {
-	width: 100%;
-	height: 100%;
+	width: 50px;
+	height: 30px;
+}
+.legendStyleName {
+	width: 70px;
+	height: 30px;
+	font-size: 11px;
+	font-family: 'Oxygen';
+	color: rgb(0, 0, 0);
+	align-content: center;
+	overflow-wrap: break-word;
 }
 /* drawing layer */
 .drawing-canvas {
