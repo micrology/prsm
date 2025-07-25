@@ -899,7 +899,7 @@ function loadKumufile(str) {
 				note: note ? markdownToDelta(note) : "",
 				shape: "circle",
 				shapeProperties: { borderRadius: 0 },
-				grp: "kumuNode",
+				grp: "kumuGroup",
 				...attributes,
 			})
 		}
@@ -1003,8 +1003,6 @@ function loadKumufile(str) {
 				}
 				let size = element.style.size || defaultElementSize
 				node.size = size
-				//node.widthConstraint = size
-				//node.heightConstraint = size
 				if (element.position) {
 					node.x = element?.position?.x
 					node.y = element?.position?.y
