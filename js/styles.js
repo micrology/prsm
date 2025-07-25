@@ -741,7 +741,7 @@ function getArrows(prop) {
 
 /*  ------------display the map legend (includes all styles with a group label that is neither blank or 'Sample') */
 
-const LEGENDSPACING = 50
+const LEGENDHEIGHT = 35
 const LEGENDWIDTH = 120
 /**
  * display a legend on the map (but only if the styles have been given names)
@@ -771,7 +771,7 @@ export function legend(warn = false) {
 	title.className = 'legendTitle'
 	title.appendChild(document.createTextNode('Legend'))
 	legendBox.appendChild(title)
-	legendBox.style.height = `${LEGENDSPACING * nItems + title.offsetHeight}px`
+	legendBox.style.height = `${LEGENDHEIGHT * nItems + title.offsetHeight}px`
 	legendBox.style.width = `${LEGENDWIDTH}px`
 	let legendWrapper = document.createElement('div')
 	legendWrapper.className = 'legendWrapper'
@@ -790,7 +790,7 @@ export function legend(warn = false) {
 		})
 		let node = deepMerge(styles.nodes[nodes[i].groupNode])
 		node.id = i + 10000
-		node.label = ''
+		node.shape === 'text' ? node.label = 'groupLabel' : node.label = ''
 		node.fixed = true
 		node.chosen = false
 		node.margin = 10
