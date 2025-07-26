@@ -361,7 +361,7 @@ export function dragElement(el, header) {
 	header.addEventListener('mouseout', () => (header.style.cursor = 'auto'))
 
 	let mc = new Hammer.Manager(header, {
-		recognizers: [[Hammer.Pan, { direction: Hammer.DIRECTION_ALL, threshold: 0 }]],
+		recognizers: [[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}]],
 	})
 	// tie in the handler that will be called
 	mc.on('pan', handleDrag)
@@ -421,7 +421,7 @@ export function addContextMenu(elem, menu) {
 	document.body.appendChild(menuEl)
 	elem.addEventListener('contextmenu', (event) => {
 		event.preventDefault()
-		const { clientX: mouseX, clientY: mouseY } = event
+		const {clientX: mouseX, clientY: mouseY} = event
 		let posX =
 			window.innerWidth - mouseX < menuEl.offsetWidth + 4 ? window.innerWidth - menuEl.offsetWidth - 4 : mouseX
 		let posY =
@@ -439,7 +439,7 @@ export function addContextMenu(elem, menu) {
 		menuEl.classList.remove('visible')
 	})
 	menu.forEach((item) => {
-		const { label, action } = item
+		const {label, action} = item
 		let option = document.createElement('div')
 		option.classList.add('item')
 		option.innerHTML = label
@@ -1180,17 +1180,21 @@ export function stripNL(str) {
 /**
  * encode characters such as & to HTML entities such as &amp; to
  * make the string XML compliant. Only deals with common entities.
- * @param {string} text 
+ * @param {string} text
  * @returns string
  */
 export function encodeHTMLEntities(text) {
-return text.replace(/[&<>"']/g, match => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;',
-  })[match])
+	return text.replace(
+		/[&<>"']/g,
+		(match) =>
+			({
+				'&': '&amp;',
+				'<': '&lt;',
+				'>': '&gt;',
+				'"': '&quot;',
+				"'": '&#39;',
+			})[match],
+	)
 }
 
 /**
