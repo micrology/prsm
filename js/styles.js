@@ -21,8 +21,8 @@ PRSM Participatory System Mapper
 This module handles operations related to the Styles tabs.  
  ******************************************************************************************************************** */
 
-import { Network } from 'vis-network/peer/'
-import { DataSet } from 'vis-data/peer'
+import {Network} from 'vis-network/peer/'
+import {DataSet} from 'vis-data/peer'
 import {
 	listen,
 	elem,
@@ -52,7 +52,7 @@ import {
 	logHistory,
 	progressBar,
 } from './prsm.js'
-import { styles } from './samples.js'
+import {styles} from './samples.js'
 
 /**
  * The samples are each a mini vis-network showing just one node or two nodes and a link
@@ -79,10 +79,10 @@ export function setUpSamples() {
 					chosen: false,
 					widthConstraint: 50,
 					heightConstraint: 50,
-					font: { size: 14 },
+					font: {size: 14},
 					size: 50,
 					margin: 10,
-					scaling: { label: { enabled: false } },
+					scaling: {label: {enabled: false}},
 				},
 			),
 		])
@@ -313,10 +313,10 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
 		menu.classList.remove('show-menu')
 	}
 	function selectFactorsWithStyle(groupId) {
-		selectFactors(data.nodes.getIds({ filter: (node) => node.grp === groupId }))
+		selectFactors(data.nodes.getIds({filter: (node) => node.grp === groupId}))
 	}
 	function hideFactorsWithStyle(groupId, toggle) {
-		let nodes = data.nodes.get({ filter: (node) => node.grp === groupId })
+		let nodes = data.nodes.get({filter: (node) => node.grp === groupId})
 		nodes.forEach((node) => {
 			setNodeHidden(node, toggle)
 		})
@@ -389,10 +389,10 @@ function styleEdgeContextMenu(event, sampleElement, groupId) {
 		menu.classList.remove('show-menu')
 	}
 	function selectLinksWithStyle(groupId) {
-		selectLinks(data.edges.getIds({ filter: (edge) => edge.grp === groupId }))
+		selectLinks(data.edges.getIds({filter: (edge) => edge.grp === groupId}))
 	}
 	function hideLinksWithStyle(groupId, toggle) {
-		let edges = data.edges.get({ filter: (edge) => edge.grp === groupId })
+		let edges = data.edges.get({filter: (edge) => edge.grp === groupId})
 		edges.forEach((edge) => {
 			setEdgeHidden(edge, toggle)
 		})
@@ -497,7 +497,7 @@ function nodeEditUpdateStyleSample(group) {
 		widthConstraint: 50,
 		heightConstraint: 50,
 		margin: 10,
-		font: { size: 14 },
+		font: {size: 14},
 	})
 	styleElement.dataSet.update(node)
 }
@@ -577,7 +577,7 @@ export function refreshSampleNode(groupId) {
 		widthConstraint: 50,
 		heightConstraint: 50,
 		margin: 10,
-		font: { size: 14 },
+		font: {size: 14},
 	})
 	node.label = node.groupLabel
 	sampleElement.dataSet.remove(node.id)
@@ -651,7 +651,7 @@ function linkEditUpdateStyleSample(group) {
 	let styleElement = elem('linkStyleEditorContainer').styleElement
 	let edge = styleElement.dataSet.get('1')
 	edge.label = group.groupLabel
-	edge = deepMerge(edge, styles.edges[groupId], { chosen: false })
+	edge = deepMerge(edge, styles.edges[groupId], {chosen: false})
 	let dataSet = styleElement.dataSet
 	dataSet.update(edge)
 }
@@ -723,7 +723,7 @@ export function refreshSampleLink(groupId) {
 	let sampleElement = sampleElements[groupId.match(/\d+/)?.[0]]
 	if (!sampleElement) return
 	let edge = sampleElement.dataSet.get()[0]
-	edge = deepMerge(edge, styles.edges[groupId], { chosen: false, value: 10 })
+	edge = deepMerge(edge, styles.edges[groupId], {chosen: false, value: 10})
 	edge.label = edge.groupLabel
 	sampleElement.dataSet.remove(edge.id)
 	sampleElement.dataSet.update(edge)
@@ -776,21 +776,21 @@ export function legend(warn = false) {
 	let legendWrapper = document.createElement('div')
 	legendWrapper.className = 'legendWrapper'
 	legendBox.appendChild(legendWrapper)
-	
+
 	dragElement(legendBox, title)
 
 	for (let i = 0; i < nodes.length; i++) {
-		const canvas = document.createElement('div');
-		canvas.className = 'legendCanvas';
-		legendWrapper.appendChild(canvas);
-		let legendData = { nodes: new DataSet(), edges: new DataSet() }
+		const canvas = document.createElement('div')
+		canvas.className = 'legendCanvas'
+		legendWrapper.appendChild(canvas)
+		let legendData = {nodes: new DataSet(), edges: new DataSet()}
 		let legendNetwork = new Network(canvas, legendData, {
-			physics: { enabled: false },
-			interaction: { zoomView: false, dragView: false },
+			physics: {enabled: false},
+			interaction: {zoomView: false, dragView: false},
 		})
 		let node = deepMerge(styles.nodes[nodes[i].groupNode])
 		node.id = i + 10000
-		node.shape === 'text' ? node.label = 'groupLabel' : node.label = ''
+		node.shape === 'text' ? (node.label = 'groupLabel') : (node.label = '')
 		node.fixed = true
 		node.chosen = false
 		node.margin = 10
@@ -803,20 +803,20 @@ export function legend(warn = false) {
 		legendData.nodes.update(node)
 		legendNetwork.fit()
 
-		const style = document.createElement('div');
+		const style = document.createElement('div')
 		style.className = 'legendStyleName'
 		style.textContent = node.groupLabel
-		legendWrapper.appendChild(style);
+		legendWrapper.appendChild(style)
 	}
 
 	for (let i = 0; i < edges.length; i++) {
-		const canvas = document.createElement('div');
-		canvas.className = 'legendCanvas';
-		legendWrapper.appendChild(canvas);
-		let legendData = { nodes: new DataSet(), edges: new DataSet() }
+		const canvas = document.createElement('div')
+		canvas.className = 'legendCanvas'
+		legendWrapper.appendChild(canvas)
+		let legendData = {nodes: new DataSet(), edges: new DataSet()}
 		let legendNetwork = new Network(canvas, legendData, {
-			physics: { enabled: false },
-			interaction: { zoomView: false, dragView: false },
+			physics: {enabled: false},
+			interaction: {zoomView: false, dragView: false},
 		})
 
 		let edge = deepMerge(styles.edges[edges[i].groupLink])
@@ -824,7 +824,7 @@ export function legend(warn = false) {
 		edge.id = i + 10000
 		edge.from = i + 20000
 		edge.to = i + 30000
-		edge.smooth = { type: 'straightCross' }
+		edge.smooth = {type: 'straightCross'}
 		edge.chosen = false
 		let nodes = [
 			{
@@ -849,10 +849,10 @@ export function legend(warn = false) {
 		legendData.nodes.update(nodes)
 		legendData.edges.update(edge)
 		legendNetwork.fit()
-		const style = document.createElement('div');
+		const style = document.createElement('div')
 		style.className = 'legendStyleName'
 		style.textContent = edge.groupLabel
-		legendWrapper.appendChild(style);
+		legendWrapper.appendChild(style)
 	}
 }
 /**
