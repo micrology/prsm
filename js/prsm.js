@@ -82,6 +82,7 @@ import {
 	clearLegend,
 } from './styles.js'
 import {
+	canvas,
 	nChanges,
 	setUpBackground,
 	updateFromRemote,
@@ -443,7 +444,7 @@ function startY(newRoom) {
 		initiateClone()
 		// if this is a new map, display it
 		// (if the room already exists, wait until the map data is loaded before displaying it)
-		if (url.searchParams.get('room') === null)
+		if (url.searchParams.get('room') !== null)
 			displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 		else {
 			// if the user wants a room that doesn't exist, the system will hang, so wait and then show a blank map
@@ -788,7 +789,6 @@ function startY(newRoom) {
 						console.log('Bad key in yMapNet.observe: ', key)
 				}
 			}
-		//setAnalysisButtonsFromRemote()
 	})
 	yPointsArray.observe((evt) => {
 		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1))
@@ -801,9 +801,6 @@ function startY(newRoom) {
 	yHistory.observe(() => {
 		yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1))
 		if (elem('showHistorySwitch').checked) showHistory()
-		// assume that if we get here at initialisation, everything has been loaded from the room
-		// this is a work around to avoid a bug in y-webserver that fires the sync event before syncing is complete
-		if (!netLoaded) displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
 	})
 	yUndoManager.on('stack-item-added', (evt) => {
 		yjsTrace('yUndoManager.on stack-item-added', evt)
@@ -1907,7 +1904,7 @@ export function drawMinimap(ratio = 5) {
 }
 /* -------------------------------------------- network map utilities --------------------------------------------*/
 /**
- * clear the map by destroying all nodes and edges
+ * clear the map by destroying all nodes and edges and background objects
  */
 export function clearMap() {
 	doc.transact(() => {
@@ -1917,6 +1914,8 @@ export function clearMap() {
 		checkMapSaved = true
 		data.nodes.clear()
 		data.edges.clear()
+		yDrawingMap.clear()
+		canvas.clear()
 		draw()
 	})
 }
