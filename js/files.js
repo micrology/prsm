@@ -754,7 +754,7 @@ function loadKumufile(str) {
 	const nodeMap = new Map()
 	const edgeMap = new Map()
 
-	// convert from Kumu element shapes to nearestPRSM factor shapes
+	// convert from Kumu element shapes to nearest PRSM factor shapes
 	const shapeConversion = {
 		circle: 'ellipse',
 		rectangle: 'box',
@@ -768,8 +768,12 @@ function loadKumufile(str) {
 	}
 	// get names of attributes and save them
 	let attributeToUseAsNodeStyle = 'Category' // the name of the attribute that will be used to style nodes
-	let attributeToUseAsNodeStyleId // the id of the attribute that will be used to style nodes
 	let attributeToUseAsLinkStyle = 'Relationship impact' // the name of the attribute that will be used to style links
+	if (kumuData.description) {
+		attributeToUseAsNodeStyle = /PRSMFactorStyleAttribute\s*=\s['|"](.*)['|"]/i.exec(kumuData.description)?.[1] || attributeToUseAsNodeStyle
+		attributeToUseAsLinkStyle = /PRSMLinkStyleAttribute\s*=\s['|"](.*)['|"]/i.exec(kumuData.description)?.[1] || attributeToUseAsLinkStyle
+	}
+	let attributeToUseAsNodeStyleId // the id of the attribute that will be used to style nodes
 	const attributeNames = {...(yNetMap.get('attributeTitles') || {})}
 	attributes.forEach((attr) => {
 		if (!['Description', 'Label'].includes(attr.name)) attributeNames[attr._id] = attr.name
