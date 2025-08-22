@@ -939,6 +939,7 @@ function displayNetPane(msg) {
 		clearTimeout(loadingDelayTimer)
 		yUndoManager.clear()
 		undoRedoButtonStatus()
+		network.unselectAll()
 		setUpTutorial()
 		netLoaded = true
 		drawMinimap()
@@ -4309,10 +4310,12 @@ function getSelectedAndFixedNodes() {
 function setAnalysisButtonsFromRemote() {
 	if (netLoaded) {
 		let selectedNodes = [].concat(hiddenNodes.selected) // ensure that hiddenNodes.selected is an array
-		network.selectNodes(selectedNodes, false) // in viewing  only mode, this does nothing
-		if (selectedNodes.length > 0) {
-			if (!viewOnly) statusMsg(`${listFactors(getSelectedAndFixedNodes())} selected`)
-		} else clearStatusBar()
+		if (hiddenNodes.radiusSetting !== 'All' || hiddenNodes.streamSetting !== 'All' || hiddenNodes.pathsSetting !== 'All') {
+			network.selectNodes(selectedNodes, false) // in viewing  only mode, this does nothing
+			if (selectedNodes.length > 0) {
+				if (!viewOnly) statusMsg(`${listFactors(getSelectedAndFixedNodes())} selected`)
+			} else clearStatusBar()
+		}
 		showNodeOrEdgeData()
 		if (hiddenNodes.radiusSetting) setRadioVal('radius', hiddenNodes.radiusSetting)
 		if (hiddenNodes.streamSetting) setRadioVal('stream', hiddenNodes.streamSetting)

@@ -1332,7 +1332,7 @@ input:checked + .slider:before {
 	max-height: calc(100% - 25px);
 	display: grid;
 	grid-template-columns: repeat(2, 50px);
-	grid-auto-rows: 35px;
+	grid-auto-rows: max-content;
 	overflow-y: auto;
 	touch-action: pan-y;
 	-webkit-user-select: all;
@@ -1353,7 +1353,6 @@ input:checked + .slider:before {
 }
 .legendStyleName {
 	width: 70px;
-	height: 30px;
 	font-size: 11px;
 	font-family: 'Oxygen';
 	color: rgb(0, 0, 0);
