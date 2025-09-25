@@ -856,25 +856,38 @@ export function invertColor(color) {
 }
 
 /**
- * closure to generate a sequence of colours (as rgb strings, e.g. 'rgb(246,121,16)')
- * based on https://krazydad.com/tutorials/makecolors.php
+ * return a random color as an rgb string, e.g. 'rgb(246,121,16)'
+ * if a seed (number) is provided, the same color will be generated each time for that seed
+ * if no seed is provided, a different color will be generated each time
+ * @param {number} [seed]
+ * @returns {string} rgb(r,g,b)
  */
-export const makeColor = (function () {
-	let counter = 0
-	let freq = 0.3,
-		phase1 = 0,
-		phase2 = 2,
-		phase3 = 4,
-		center = 128,
-		width = 127
-	return function () {
-		counter += 1
-		let red = Math.sin(freq * counter + phase1) * width + center
-		let grn = Math.sin(freq * counter + phase2) * width + center
-		let blu = Math.sin(freq * counter + phase3) * width + center
-		return 'rgb(' + Math.round(red) + ',' + Math.round(grn) + ',' + Math.round(blu) + ')'
-	}
-})()
+export function makeColor(seed) {
+  // Mulberry32 seeded PRNG
+  function mulberry32(a) {
+    return function() {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+
+  if (typeof seed === "number") {
+    // Seeded PRNG (deterministic but well distributed)
+    const rand = mulberry32(seed);
+    let r = Math.floor(rand() * 256);
+    let g = Math.floor(rand() * 256);
+    let b = Math.floor(rand() * 256);
+    return `rgb(${r}, ${g}, ${b})`;
+  } else {
+    // Non-deterministic path
+    let r = Math.floor(Math.random() * 256);
+    let g = Math.floor(Math.random() * 256);
+    let b = Math.floor(Math.random() * 256);
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+}
 
 window.makeColor = makeColor
 /**

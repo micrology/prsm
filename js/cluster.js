@@ -21,7 +21,7 @@ PRSM Participatory System Mapper
 This module clusters factors  
  ******************************************************************************************************************** */
 
-import { elem, uuidv4, deepMerge, standardize_color, makeColor } from './utils.js'
+import { elem, uuidv4, deepMerge, alertMsg, standardize_color, makeColor } from './utils.js'
 import { styles } from './samples.js'
 import { network, data, doc, yNetMap, unSelect, debug } from './prsm.js'
 
@@ -200,6 +200,7 @@ function makeClusterNode(id, label, color) {
 		hidden: false,
 		shape: 'image',
 		image: clusterImage(color),
+		size: 50,
 		font: { color: 'rgb(0,0,0)' },
 	})
 }
@@ -348,15 +349,17 @@ function unCluster() {
 function clusterByLouvain() {
 
 	let nodes = data.nodes.get({ filter: (node) => !node.isCluster })
-	let edges = data.edges.get({ filter: (edge) => !edge.isClusterEdge })
+	let edges = data.edges.get({ filter: (edge) => !edge.isClusterEdge }).map(({ from, to, weight, ...rest }) =>
+	({
+		source: from, target: to, weight: weight || 1.0, ...rest,
+	}))
 	if (edges.length === 0) {
-		alert('No edges in the network - cannot cluster by Louvain method')
+		alertMsg('No edges in the network - cannot cluster by Louvain method', 'error')
 		elem('clustering').value = 'none'
 		return
 	}
 	let nodeIds = nodes.map((n) => n.id)
-	let louvain = jLouvain().nodes(nodeIds).edges(edges)
-	let result = louvain()
+	let result = jLouvain(nodeIds, edges)
 	// result is an object with nodeId: community number
 	// make a map of community number to color
 	let comms = new Set()
@@ -383,12 +386,13 @@ function clusterByLouvain() {
 		let sumy = 0
 		let nInCluster = 0
 		for (let n of nodes) {
-			if (result[n.id] == comm) {
+			if (result[n.id] === comm) {
 				n.clusteredIn = clusterNode.id
 				n.hidden = true
 				sumx += n.x
 				sumy += n.y
 				nInCluster++
+				nodesToUpdate.push(n)
 			}
 		}
 		// now create the cluster node
@@ -400,13 +404,13 @@ function clusterByLouvain() {
 	showClusterLinks()
 }
 /* 
- Author: Corneliu S. (github.com/upphiminn)
+ Original Author: Corneliu S. (github.com/upphiminn)
 
  This is a javascript implementation of the Louvain
  community detection algorithm (http://arxiv.org/abs/0803.0476)
  Based on https://bitbucket.org/taynaud/python-louvain/overview
 
- Modernized to ES2023 and with jsDoc comments added
+ Modernized to ES2023 and with jsDoc comments added by Nigel Gilbert
  */
 /**
  * jLouvain Community Detection Algorithm

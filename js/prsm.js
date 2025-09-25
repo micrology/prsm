@@ -4814,17 +4814,17 @@ export function setCluster(option) {
  * @param {object} obj {menu value, menu text}
  */
 export function recreateClusteringMenu(obj) {
-	// remove any old select items, other than the standard ones (which are the first 3: None, Style, Color)
+	// remove any old select items, other than the standard ones (which are the first 4: None, Style, Color, Community)
 	let select = elem('clustering')
-	for (let i = 3, len = select.options.length; i < len; i++) {
-		select.remove(3)
+	for (let i = 4, len = select.options.length; i < len; i++) {
+		select.remove()
 	}
 	// append the ones provided
 	for (const property in obj) {
 		if (obj[property] !== '*deleted*') {
 			let opt = document.createElement('option')
 			opt.value = property
-			opt.text = obj[property]
+			opt.text = shorten(obj[property], 12) 
 			select.add(opt, null)
 		}
 	}
