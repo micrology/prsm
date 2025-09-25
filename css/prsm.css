@@ -1951,12 +1951,14 @@ input#splashNameBox::placeholder {
 	z-index: 10000;
 }
 #whatsnewintro {
-	background-color: var(--notes-background-color);
+	background-color: var(--tab-color);
 	color: black;
 	padding: 10px 20px 0 20px;
+	font-size: 0.7em;
 }
 #whatsnewcontent {
-	background-color: var(--notes-background-color);
+	background-color: var(--tab-color);
+	opacity: 0.8;
 	flex-grow: 1;
 }
 #whatsnewcontent h1 {
@@ -1972,26 +1974,7 @@ input#splashNameBox::placeholder {
 #whatsnewcontent li {
 	padding-top: 1rem;
 }
-#whatsnewcontinue {
-	background-color: var(--tab-color);
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: flex-end;
-	align-items: center;
-}
-#whatsnewbutton {
-	background-color: var(--header-color);
-	color: white;
-	border-radius: 4px;
-	box-shadow: 0px 1px 3px #666666;
-	font-size: 20px;
-	padding: 4px;
-	margin: 12px;
-	cursor: default;
-}
-#whatsnewbutton:hover {
-	background-color: var(--header-hover-color);
-}
+
 /* 3d graph display */
 .threeDGraph {
 	grid-area: main;

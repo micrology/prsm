@@ -4,6 +4,10 @@
  */
 
 document.write(`
+    <li><b>Version 2.6, September 2025</b></li>
+    <li>New: Louvain clustering of factors.  This is a method of detecting communities or clusters of related factors within a map.  See <a href="doc/help/doc_build/manual/Analysis.html#louvain-clustering" target="_blank">Louvain Clustering</a> for further details.</li>
+    <li>Command/Control key combinations can be used instead of the Save (^S), Open (^O) and Undo (^Z) buttons.</li>
+    <li>And formatting changes and bug fixes.<hr></li>
 <li><b>Version 2.5, April 2025</b></li>
 <li>New: importing and exporting GEXF and GraphML files.  These are standard formats for representing graphs and networks.  You can now import and export PRSM maps in these formats, making it easier to share your maps with other applications and tools. See <a href="doc/help/doc_build/manual/Files.html" target="_blank">Opening and Saving maps</a>.</li>
 <li>The Force Atlas 2 layout engine has been tuned to give a more useful layout of complex maps.</li>

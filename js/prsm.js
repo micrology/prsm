@@ -214,7 +214,6 @@ window.onbeforeunload = function (event) {
  * Set up all the permanent event listeners
  */
 function addEventListeners() {
-	listen('whatsnewbutton', 'click', hideWhatsNew)
 	listen('maptitle', 'keydown', (e) => {
 		//disallow Enter key
 		if (e.key === 'Enter') {
@@ -412,6 +411,7 @@ function displayWhatsNew() {
 	}
 	elem('whatsnewversion').innerHTML = `Version ${version}`
 	elem('whatsnew').style.display = 'flex'
+	elem('net-pane').addEventListener('click', hideWhatsNew, {once:true})
 }
 /**
  * hide the What's New dialog when the user has clicked Continue, and note tha the user has seen it
