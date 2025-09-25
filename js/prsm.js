@@ -2464,7 +2464,6 @@ function saveLabel(node, callback) {
  */
 function editNode(item, point, cancelAction, callback) {
 	if (item.locked) return
-	if (item.isCluster) return
 	initPopUp('Edit Factor', 180, item, cancelAction, saveNode, callback)
 	elem('popup').insertAdjacentHTML(
 		'beforeend',
@@ -2524,7 +2523,7 @@ function editNode(item, point, cancelAction, callback) {
 	)
 	cp.createColorPicker('node-backgroundColor')
 	elem('node-backgroundColor').style.backgroundColor = standardize_color(item.color.background)
-	if (item.shape === 'image') {
+	if (item.shape === 'image' && !item.isCluster) {
 		item.shape = 'portal'
 		if (elem('popup-portal-room')) elem('popup-portal-room').value = item.portal
 		else {
