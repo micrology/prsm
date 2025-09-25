@@ -411,7 +411,7 @@ function displayWhatsNew() {
 	}
 	elem('whatsnewversion').innerHTML = `Version ${version}`
 	elem('whatsnew').style.display = 'flex'
-	elem('net-pane').addEventListener('click', hideWhatsNew, {once:true})
+	elem('net-pane').addEventListener('click', hideWhatsNew, { once: true })
 }
 /**
  * hide the What's New dialog when the user has clicked Continue, and note tha the user has seen it
@@ -473,8 +473,13 @@ function startY(newRoom) {
 	yHistory = doc.getArray('history')
 	yAwareness = wsProvider.awareness
 
+	doc.on('afterTransaction', () => {
+		if (!netLoaded) { fit() }
+	})
 	if (/trans/.test(debug))
 		doc.on('afterTransaction', (tr) => {
+			console.log(`${exactTime()} transaction (${JSON.stringify(tr)})  (${tr.local ? 'local' : 'remote'})`)
+			console.log('netLoaded', netLoaded)
 			const nodesEvent = tr.changed.get(yNodesMap)
 			if (nodesEvent) console.log(nodesEvent)
 			const edgesEvent = tr.changed.get(yEdgesMap)
@@ -4823,7 +4828,7 @@ export function recreateClusteringMenu(obj) {
 		if (obj[property] !== '*deleted*') {
 			let opt = document.createElement('option')
 			opt.value = property
-			opt.text = shorten(obj[property], 12) 
+			opt.text = shorten(obj[property], 12)
 			select.add(opt, null)
 		}
 	}
