@@ -442,17 +442,12 @@ function startY(newRoom) {
 	wsProvider.on('synced', () => {
 		// if this is a clone, load the cloned data
 		initiateClone()
-		// if this is a new map, display it
 		// (if the room already exists, wait until the map data is loaded before displaying it)
-		if (url.searchParams.get('room') !== null)
-			displayNetPane(`${exactTime()} remote content loaded from ${websocket}`)
-		else {
-			// if the user wants a room that doesn't exist, the system will hang, so wait and then show a blank map
-			unknownRoomTimeout = setTimeout(() => {
-				if (!netLoaded) {
-					displayNetPane(`${exactTime()} remote content not loaded from ${websocket}`)
-				}
-			}, 3000)
+		if (url.searchParams.get('room') !== null) {
+			observed('synced') 
+		} else {
+			// if this is a new map, display it
+			displayNetPane(`${exactTime()} no remote content loaded from ${websocket}`)
 		}
 	})
 	wsProvider.disconnectBc()
@@ -526,6 +521,24 @@ function startY(newRoom) {
 	window.diffRoom = diffRoom
 	window.wsProvider = wsProvider
 
+	const requiredMaps = ['nodes', 'edges', 'samples', 'network', 'drawing', 'history', 'synced']
+	let foundMaps = new Set()
+	/**
+	 * note that one of the required yMaps has been loaded; if all have been found, display the map
+	 * @param {string} what name of the yMap that has just been loaded
+	 */
+	function observed(what) {
+		// do nothing if the map is already displayed
+		if(netLoaded) return
+		if (/load/.test(debug)) {
+			console.log(`${exactTime()} Observed: ${what}`)
+		}
+		foundMaps.add(what)
+		if (requiredMaps.length === foundMaps.size) {
+			displayNetPane(`${exactTime()} all content loaded from ${websocket}`)
+		}
+	}
+
 	/* 
 	nodes.on listens for when local nodes or edges are changed (added, updated or removed).
 	If a local node is removed, the yMap is updated to broadcast to other clients that the node 
@@ -581,6 +594,7 @@ function startY(newRoom) {
 		if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote')
 		if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
 		if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0)) showChange(evt, yNodesMap)
+		observed('nodes')
 	})
 	/* 
 	See comments above about nodes
@@ -623,6 +637,7 @@ function startY(newRoom) {
 			if (inAddMode === 'addLink') network.addEdgeMode()
 		}
 		if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0)) showChange(evt, yEdgesMap)
+		observed('edges')
 	})
 	/**
 	 * utility trace function that prints the change in the value of a YMap property to the console
@@ -687,6 +702,7 @@ function startY(newRoom) {
 		if (edgesToUpdate) {
 			reApplySampleToLinks(edgesToUpdate)
 		}
+		observed('samples')
 	})
 	/*
 	Map controls (those on the Network tab) are of three kinds:
@@ -794,6 +810,7 @@ function startY(newRoom) {
 						console.log('Bad key in yMapNet.observe: ', key)
 				}
 			}
+		observed('network')
 	})
 	yPointsArray.observe((evt) => {
 		yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1))
@@ -802,10 +819,12 @@ function startY(newRoom) {
 	yDrawingMap.observe((evt) => {
 		yjsTrace('yDrawingMap.observe', evt)
 		updateFromRemote(evt)
+		observed('drawing')
 	})
 	yHistory.observe(() => {
 		yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1))
 		if (elem('showHistorySwitch').checked) showHistory()
+		observed('history')
 	})
 	yUndoManager.on('stack-item-added', (evt) => {
 		yjsTrace('yUndoManager.on stack-item-added', evt)
