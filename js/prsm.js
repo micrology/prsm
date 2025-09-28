@@ -444,7 +444,15 @@ function startY(newRoom) {
 		initiateClone()
 		// (if the room already exists, wait until the map data is loaded before displaying it)
 		if (url.searchParams.get('room') !== null) {
-			observed('synced') 
+			observed('synced')
+			if (/load/.test(debug)) console.log(`Nodes: ${yNodesMap.size} Edges: ${yEdgesMap.size} Samples: ${ySamplesMap.size} Network settings: ${yNetMap.size}	Points: ${yPointsArray.length} Drawing objects: ${yDrawingMap.size} History entries: ${yHistory.length}	`)
+			unknownRoomTimeout = setTimeout(() => {
+				if (!netLoaded) {
+					displayNetPane(
+						`${exactTime()} Timed out waiting for ${room} to load`,
+					)
+				}
+			}, 2000)
 		} else {
 			// if this is a new map, display it
 			displayNetPane(`${exactTime()} no remote content loaded from ${websocket}`)
@@ -529,7 +537,7 @@ function startY(newRoom) {
 	 */
 	function observed(what) {
 		// do nothing if the map is already displayed
-		if(netLoaded) return
+		if (netLoaded) return
 		if (/load/.test(debug)) {
 			console.log(`${exactTime()} Observed: ${what}`)
 		}
