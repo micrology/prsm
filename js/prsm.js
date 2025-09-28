@@ -452,7 +452,7 @@ function startY(newRoom) {
 						`${exactTime()} Timed out waiting for ${room} to load`,
 					)
 				}
-			}, 2000)
+			}, 3000)
 		} else {
 			// if this is a new map, display it
 			displayNetPane(`${exactTime()} no remote content loaded from ${websocket}`)
