@@ -73,7 +73,7 @@
 		"xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
 		"y-leveldb": "^0.2.0",
 		"y-websocket": "^3.0.0",
-		"yjs": "^13.5.47"
+		"yjs": "^13.6.27"
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "^3.2.0",

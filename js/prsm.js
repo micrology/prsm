@@ -460,7 +460,7 @@ function startY(newRoom) {
 	})
 	wsProvider.disconnectBc()
 	wsProvider.on('status', (event) => {
-		console.log(`${exactTime()}${event.status}${event.status === 'connected' ? ' to' : ' from'} room ${room}`)
+		console.log(`${exactTime()}${event.status}${event.status === 'connected' ? ' to' : ' from'} room ${room} using ${websocket}`)
 	})
 
 	/* 
@@ -814,6 +814,11 @@ function startY(newRoom) {
 						setSideDrawer(obj)
 						break
 					}
+					case 'lastLoaded': 
+					case 'version': {
+						// ignore these  - for info only
+						break
+					}
 					default:
 						console.log('Bad key in yMapNet.observe: ', key)
 				}
@@ -980,6 +985,8 @@ function displayNetPane(msg) {
 		toggleDeleteButton()
 		setLegend(yNetMap.get('legend'), false)
 		console.log(exactTime(), `Doc size: ${humanSize(Y.encodeStateAsUpdate(doc).length)}`)
+		yNetMap.set('lastLoaded', Date.now())
+		yNetMap.set('version', version)
 	}
 }
 // to handle iPad viewport sizing problem when tab bar appears and to keep panels on screen
@@ -3450,7 +3457,9 @@ function doClone(onlyView) {
 			let clonedRoom = generateRoom()
 			// open a new map
 			let path = `${window.location.pathname}?room=${clonedRoom}`
+			let debugType = new URL(window.location.href).searchParams.get("debug")
 			if (onlyView && elem('addCopyButton').checked) path += '&copyButton'
+			if (debugType) path += `&debug=${debugType}`
 			window.open(path, '_blank')
 			logHistory(`made a ${onlyView ? 'read-only copy' : 'clone'} of the map into room: ${clonedRoom}`)
 		})
