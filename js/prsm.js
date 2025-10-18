@@ -452,7 +452,7 @@ function startY(newRoom) {
 						`${exactTime()} Timed out waiting for ${room} to load`,
 					)
 				}
-			}, 3000)
+			}, 6000)
 		} else {
 			// if this is a new map, display it
 			displayNetPane(`${exactTime()} no remote content loaded from ${websocket}`)
@@ -544,6 +544,7 @@ function startY(newRoom) {
 		foundMaps.add(what)
 		if (requiredMaps.length === foundMaps.size) {
 			displayNetPane(`${exactTime()} all content loaded from ${websocket}`)
+			if (/load/.test(debug)) console.log(`Nodes: ${yNodesMap.size} Edges: ${yEdgesMap.size} Samples: ${ySamplesMap.size} Network settings: ${yNetMap.size}	Points: ${yPointsArray.length} Drawing objects: ${yDrawingMap.size} History entries: ${yHistory.length}	`)
 		}
 	}
 
@@ -814,7 +815,7 @@ function startY(newRoom) {
 						setSideDrawer(obj)
 						break
 					}
-					case 'lastLoaded': 
+					case 'lastLoaded':
 					case 'version': {
 						// ignore these  - for info only
 						break
