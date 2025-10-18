@@ -7,13 +7,10 @@ Restart=always
 RestartSec=10
 User=root
 Group=root
-Environment= 'YPERSISTENCE=/data/prsm/dbDir'
+Environment='YPERSISTENCE=/data/prsm/dbDir'
 # Memory limit to prevent system exhaustion
-MemoryLimit=1G
+MemoryMax=1G
 MemoryAccounting=true
-# Output to syslog
-StandardOutput=syslog
-StandardError=syslog
 SyslogIdentifier=websocket-server
 
 [Install]
