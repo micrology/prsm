@@ -2660,6 +2660,9 @@ function saveNode(item, callback) {
 		item.shape = 'image'
 		item.image = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(portalSvg)
 	}
+	if (item.isCluster) {
+		item.shape = 'image'
+	}
 	item.font.size = parseInt(elem('nodeEditFontSize').value)
 	setFactorSizeFromPercent(item, elem('nodeEditSizer').value)
 	network.manipulation.inMode = 'editNode' // ensure still in Add mode, in case others have done something meanwhile
