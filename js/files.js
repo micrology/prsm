@@ -224,6 +224,7 @@ function loadFile(contents) {
 	yUndoManager.clear()
 	undoRedoButtonStatus()
 	toggleDeleteButton()
+	recreateClusteringMenu(yNetMap.get('attributeTitles')|| {})
 	drawMinimap()
 }
 /**
@@ -501,7 +502,6 @@ function loadGEXFfile(gexf) {
 	const attributeNames = { ...(yNetMap.get('attributeTitles') || {}) }
 	Object.entries(attributes.nodes).forEach(([id, { title }]) => (attributeNames[id] = title))
 	yNetMap.set('attributeTitles', attributeNames)
-	recreateClusteringMenu(attributeNames)
 
 	const nodesToUpdate = nodes.map((node) => {
 		if (!node.id) throw new Error(`No ID for node ${node.label}`)
@@ -817,7 +817,6 @@ function loadKumufile(str) {
 		}
 	})
 	yNetMap.set('attributeTitles', attributeNames)
-	recreateClusteringMenu(attributeNames)
 
 	// get perspective, edit PRSM styles and apply styles to factors and links
 
@@ -1516,8 +1515,7 @@ function loadExcelfile(contents) {
 	data.nodes.add(factors)
 	data.edges.add(links)
 	yNetMap.set('attributeTitles', attributeNames)
-	recreateClusteringMenu(attributeNames)
-
+	
 	/**
 	 * ensure the initial letter of each property of obj is lower case
 	 * @param {object} obj
