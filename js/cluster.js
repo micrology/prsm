@@ -21,7 +21,7 @@ PRSM Participatory System Mapper
 This module clusters factors  
  ******************************************************************************************************************** */
 
-import { elem, uuidv4, deepMerge, alertMsg, standardize_color, makeColor } from './utils.js'
+import { elem, uuidv4, deepMerge, alertMsg, standardize_color, makeColor, setNodeHidden, setEdgeHidden } from './utils.js'
 import { styles } from './samples.js'
 import { network, data, doc, yNetMap, unSelect, debug } from './prsm.js'
 
@@ -216,7 +216,7 @@ function clusterGroups(groups, makeProps) {
         let nInCluster = 0
         for (const node of members) {
             node.clusteredIn = clusterNode.id
-            node.hidden = true
+            setNodeHidden(node, true)
             sumx += node.x
             sumy += node.y
             nInCluster++
@@ -284,15 +284,15 @@ function showClusterLinks() {
         // if edge is between two nodes both in (different) clusters, hide it and make a cluster edge for it
         let fromNode = data.nodes.get(edge.from)
         let toNode = data.nodes.get(edge.to)
-        edge.hidden = true
+        setEdgeHidden(edge, true)
         if (!fromNode.clusteredIn && !toNode.clusteredIn) {
-            edge.hidden = false
+            setEdgeHidden(edge, false)
         } else if (fromNode.clusteredIn == toNode.clusteredIn) {
-            edge.hidden = true
+            setEdgeHidden(edge, true)
         } else if (!fromNode.clusteredIn && toNode.clusteredIn) makeClusterLink(edge.from, toNode.clusteredIn)
         else if (fromNode.clusteredIn && !toNode.clusteredIn) makeClusterLink(fromNode.clusteredIn, edge.to)
         else if (fromNode.clusteredIn && toNode.clusteredIn) makeClusterLink(fromNode.clusteredIn, toNode.clusteredIn)
-        else edge.hidden = false // shouldn't happen
+        else setEdgeHidden(edge, false) // shouldn't happen
         edgesToUpdate.push(edge)
     }
     data.edges.update(edgesToUpdate)
@@ -346,7 +346,7 @@ export function openCluster(clusterNodeId) {
         const edgesToRemove = []
         const nodesInCluster = data.nodes.get({ filter: (node) => node.clusteredIn === clusterNode.id })
         for (const node of nodesInCluster) {
-            node.hidden = false
+            setNodeHidden(node, false)
             node.clusteredIn = null
             nodesToUpdate.push(node)
         }
@@ -382,7 +382,7 @@ function unCluster() {
     data.nodes.get({ filter: (node) => node.isCluster }).forEach((clusterNode) => {
         const nodesInCluster = data.nodes.get({ filter: (node) => node.clusteredIn === clusterNode.id })
         for (const node of nodesInCluster) {
-            node.hidden = false
+            setNodeHidden(node, false)
             node.clusteredIn = null
             nodesToUpdate.push(node)
         }
