@@ -294,6 +294,33 @@ Set.prototype.intersection = function (otherSet) {
 	return intersectionSet
 }
 /**
+ * Find the most frequent string in an array.
+ * @param {array} arr array of strings
+ * @returns string
+ */
+export function mostFrequentString(arr) {
+  if (!arr.length) return null; // handle empty array
+
+  const counts = new Map();
+
+  // Count occurrences
+  for (const str of arr) {
+    counts.set(str, (counts.get(str) || 0) + 1);
+  }
+
+  // Find the highest frequency
+  const maxCount = Math.max(...counts.values());
+
+  // Collect all strings with that frequency
+  const mostFrequent = [...counts.entries()]
+    .filter(([, count]) => count === maxCount)
+    .map(([str]) => str);
+
+  // Pick one at random if there are ties
+  const randomIndex = Math.floor(Math.random() * mostFrequent.length);
+  return mostFrequent[randomIndex];
+}
+/**
  * Convert a factor size into a percent (with any size below 30 as zero), for the input range slider
  * @param {Integer} size
  * @returns {Integer} percent
