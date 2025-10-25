@@ -451,6 +451,12 @@ function startY(newRoom) {
 					displayNetPane(
 						`${exactTime()} Timed out waiting for ${room} to load`,
 					)
+					// timeout is probably because the room is an old version that
+					// does not include one or more of these yMaps.  Add null entries
+					// to avoid future timeouts
+					if (!yDrawingMap.get('sequence')) {
+						yDrawingMap.set('sequence', [])
+					}
 				}
 			}, 6000)
 		} else {
