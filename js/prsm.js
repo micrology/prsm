@@ -449,14 +449,8 @@ function startY(newRoom) {
 			unknownRoomTimeout = setTimeout(() => {
 				if (!netLoaded) {
 					displayNetPane(
-						`${exactTime()} Timed out waiting for ${room} to load`,
+						`${exactTime()} Timed out waiting for ${room} to load. Found only ${Array.from(foundMaps).join(", ")} maps.`,
 					)
-					// timeout is probably because the room is an old version that
-					// does not include one or more of these yMaps.  Add null entries
-					// to avoid future timeouts
-					if (!yDrawingMap.get('sequence')) {
-						yDrawingMap.set('sequence', [])
-					}
 				}
 			}, 6000)
 		} else {
@@ -548,7 +542,8 @@ function startY(newRoom) {
 			console.log(`${exactTime()} Observed: ${what}`)
 		}
 		foundMaps.add(what)
-		if (requiredMaps.length === foundMaps.size) {
+		if (foundMaps.has('nodes') && foundMaps.has('edges') && foundMaps.has('samples') && foundMaps.has('network') && foundMaps.has('synced')) {
+//		if (requiredMaps.length === foundMaps.size) {
 			displayNetPane(`${exactTime()} all content loaded from ${websocket}`)
 			if (/load/.test(debug)) console.log(`Nodes: ${yNodesMap.size} Edges: ${yEdgesMap.size} Samples: ${ySamplesMap.size} Network settings: ${yNetMap.size}	Points: ${yPointsArray.length} Drawing objects: ${yDrawingMap.size} History entries: ${yHistory.length}	`)
 		}
