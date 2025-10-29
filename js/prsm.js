@@ -178,14 +178,14 @@ var loadingDelayTimer // timer to delay the start of the loading animation for f
 var netLoaded = false // becomes true when map is fully displayed
 var savedState = '' // the current state of the map (nodes, edges, network settings) before current user action
 var unknownRoomTimeout = null // timer to check if the room exists
-
+var setupStartTime = Date.now() // time when setup started
 /**
  * top level function to initialise everything
  */
 window.addEventListener('load', () => {
 	loadingDelayTimer = setTimeout(() => {
 		elem('loading').style.display = 'block'
-	}, 100)
+	}, 200)
 	addEventListeners()
 	setUpPage()
 	setUpBackground()
@@ -476,6 +476,12 @@ function startY(newRoom) {
 	yHistory = doc.getArray('history')
 	yAwareness = wsProvider.awareness
 
+	/* create a dummy item in yEdgesMap to stop having to wait for the edges map if there are no edges
+	(thus allowing to distinguish between zero edges and no edge map yet loaded) */
+	yEdgesMap.set('_dummy_', { dummy: true })
+
+	/* set up observers to listen for changes in the yMaps */
+
 	doc.on('afterTransaction', () => {
 		if (!netLoaded) { fit() }
 	})
@@ -529,7 +535,6 @@ function startY(newRoom) {
 	window.diffRoom = diffRoom
 	window.wsProvider = wsProvider
 
-	const requiredMaps = ['nodes', 'edges', 'samples', 'network', 'drawing', 'history', 'synced']
 	let foundMaps = new Set()
 	/**
 	 * note that one of the required yMaps has been loaded; if all have been found, display the map
@@ -542,10 +547,9 @@ function startY(newRoom) {
 			console.log(`${exactTime()} Observed: ${what}`)
 		}
 		foundMaps.add(what)
-		if (foundMaps.has('nodes') && foundMaps.has('edges') && foundMaps.has('samples') && foundMaps.has('network') && foundMaps.has('synced')) {
-//		if (requiredMaps.length === foundMaps.size) {
+		if (foundMaps.has('nodes') && foundMaps.has('edges') && foundMaps.has('network') && foundMaps.has('synced')) {
 			displayNetPane(`${exactTime()} all content loaded from ${websocket}`)
-			if (/load/.test(debug)) console.log(`Nodes: ${yNodesMap.size} Edges: ${yEdgesMap.size} Samples: ${ySamplesMap.size} Network settings: ${yNetMap.size}	Points: ${yPointsArray.length} Drawing objects: ${yDrawingMap.size} History entries: ${yHistory.length}	`)
+			if (/load/.test(debug)) console.log(`Nodes: ${yNodesMap.size} Edges: ${yEdgesMap.size} Samples: ${ySamplesMap.size} Network settings: ${yNetMap.size} Points: ${yPointsArray.length} Drawing objects: ${yDrawingMap.size} History entries: ${yHistory.length}	`)
 		}
 	}
 
@@ -630,6 +634,7 @@ function startY(newRoom) {
 		for (let key of evt.keysChanged) {
 			if (yEdgesMap.has(key)) {
 				let obj = yEdgesMap.get(key)
+				if (object_equals(obj, { dummy: true })) continue // skip dummy entry
 				if (!object_equals(obj, data.edges.get(key))) {
 					edgesToUpdate.push(deepCopy(obj))
 					if (editor && editor.id === key && evt.transaction.local === false) editor.setContents(obj.note)
@@ -986,7 +991,7 @@ function displayNetPane(msg) {
 		setAnalysisButtonsFromRemote()
 		toggleDeleteButton()
 		setLegend(yNetMap.get('legend'), false)
-		console.log(exactTime(), `Doc size: ${humanSize(Y.encodeStateAsUpdate(doc).length)}`)
+		console.log(exactTime(), `Doc size: ${humanSize(Y.encodeStateAsUpdate(doc).length)}, Load time: ${((Date.now() - setupStartTime) / 1000).toFixed(1)}s`)
 		yNetMap.set('lastLoaded', Date.now())
 		yNetMap.set('version', version)
 	}
