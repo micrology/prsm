@@ -15,7 +15,7 @@ See the file LICENSE.md for details.
 This module provides the background objet-oriented drawing for PRSM
 ********************************************************************************************/
 
-import {doc, debug, yDrawingMap, network, cp, drawingSwitch, yPointsArray, fit} from './prsm.js'
+import { doc, debug, yDrawingMap, network, cp, drawingSwitch, yPointsArray, fit } from './prsm.js'
 import {
 	Canvas,
 	FabricObject,
@@ -30,7 +30,7 @@ import {
 	Point,
 	PencilBrush,
 } from 'fabric'
-import {elem, listen, uuidv4, deepCopy, dragElement, alertMsg, addContextMenu} from '../js/utils.js'
+import { elem, listen, uuidv4, deepCopy, dragElement, alertMsg, addContextMenu } from '../js/utils.js'
 
 // essential to prevent scaling of borders
 FabricObject.prototype.noScaleCache = false
@@ -83,7 +83,7 @@ export function resizeCanvas() {
  * @param {float} zoom
  */
 export function zoomCanvas(zoom) {
-	canvas.zoomToPoint({x: canvas.getWidth() / 2, y: canvas.getHeight() / 2}, zoom)
+	canvas.zoomToPoint({ x: canvas.getWidth() / 2, y: canvas.getHeight() / 2 }, zoom)
 }
 
 export function panCanvas(x, y, zoom) {
@@ -152,6 +152,7 @@ export async function refreshFromMap(keys) {
 			console.error('Empty remoteParams in refreshFromMap()', key)
 			continue
 		}
+		const { type, otherParams } = remoteParams
 		switch (key) {
 			case 'undos': {
 				undos = deepCopy(remoteParams)
@@ -165,7 +166,7 @@ export async function refreshFromMap(keys) {
 			}
 			case 'selection':
 				continue
-			case 'activeSelection': // should never occur, but may in old versions; ignore
+			case 'activeselection': // should never occur, but may in old versions; ignore
 				continue
 			case 'sequence':
 				continue
@@ -173,13 +174,13 @@ export async function refreshFromMap(keys) {
 				let localObj = canvas.getObjects().find((o) => o.id === key)
 				// if object already exists, update it
 				if (localObj) {
-					if (remoteParams.type === 'ungroup') {
+					if (type === 'ungroup') {
 						localObj.toActiveSelection()
 						canvas.discardActiveObject()
 					} else localObj.setOptions(remoteParams)
 				} else {
 					// create a new object
-					switch (remoteParams.type) {
+					switch (type) {
 						case 'rect':
 							localObj = new RectHandler()
 							break
@@ -192,27 +193,29 @@ export async function refreshFromMap(keys) {
 						case 'text':
 							localObj = new TextHandler()
 							break
-					case 'path':
-						localObj = new Path()
-						break
-					case 'image': {
-						FabricImage.fromObject(remoteParams.imageObj).then((image) => {
-							image.setCoords()
-							image.id = key
-							canvas.add(image)
-						})
-						imageFound = true
-						continue
-					}
+						case 'path':
+							localObj = new Path()
+							break
+						case 'image': {
+							FabricImage.fromObject(remoteParams.imageObj).then((image) => {
+								image.setCoords()
+								image.id = key
+								canvas.add(image)
+							})
+							imageFound = true
+							continue
+						}
 						case 'group': {
 							continue
 						}
 						case 'ungroup':
 							continue
+						case 'activeselection': // should never occur, but may in old versions; ignore
+							continue
 						default:
-							throw `bad fabric object type in yDrawingMap.observe: ${remoteParams.type}`
+							throw `bad fabric object type in yDrawingMap.observe: ${type}`
 					}
-					localObj.setOptions(remoteParams)
+					localObj.setOptions(otherParams)
 					localObj.id = key
 					canvas.add(localObj)
 				}
@@ -342,8 +345,8 @@ canvas.on('selection:cleared', (evt) => {
 	if (evt.deselected.length > 1) {
 		let oldMembers = evt.deselected
 		saveChange(
-			{type: 'selection', id: 'selection'},
-			{members: [], oldMembers: oldMembers.map((o) => o.id)},
+			{ type: 'selection', id: 'selection' },
+			{ members: [], oldMembers: oldMembers.map((o) => o.id) },
 			'discard',
 		)
 	}
@@ -374,7 +377,7 @@ canvas.on('path:created', () => {
 canvas.on('object:modified', (rec) => {
 	let obj = rec.target
 	if (!obj.id) obj.id = uuidv4()
-	saveChange(obj, {id: obj.id}, 'update')
+	saveChange(obj, { id: obj.id }, 'update')
 })
 
 /**
@@ -632,8 +635,8 @@ canvas.on('mouse:down', function (options) {
 	if (event.button === 2) {
 		if (options.target) {
 			addContextMenu(event.target, [
-				{label: 'Send to back', action: () => sendToBack(options.target)},
-				{label: 'Bring to front', action: () => bringToFront(options.target)},
+				{ label: 'Send to back', action: () => sendToBack(options.target) },
+				{ label: 'Bring to front', action: () => bringToFront(options.target) },
 			])
 		}
 		return
@@ -653,11 +656,11 @@ canvas.on('mouse:down', function (options) {
 })
 
 function sendToBack(obj) {
-	obj.sendToBack()
+	canvas.sendObjectToBack(obj)
 	saveChange(obj, {}, 'insert)')
 }
 function bringToFront(obj) {
-	obj.bringToFront()
+	canvas.bringObjectToFront(obj)
 	saveChange(obj, {}, 'insert)')
 }
 
@@ -690,6 +693,7 @@ canvas.on('mouse:up', function (options) {
 	let event = options.e
 	if (selectedTool) {
 		toolHandler(selectedTool)[event.type](event)
+		closeOptionsDialogs()
 	} else {
 		this.setViewportTransform(this.viewportTransform)
 		this.isDragging = false
@@ -721,7 +725,7 @@ function arrowMove(direction) {
 			left += ARROOWINCR
 			break
 	}
-	activeObj.set({left: left, top: top})
+	activeObj.set({ left: left, top: top })
 	canvas.requestRenderAll()
 }
 
@@ -805,7 +809,7 @@ class RectHandler extends Rect {
 		)
 		canvas.selection = true
 		canvas.setActiveObject(this)
-	canvas.requestRenderAll()
+		canvas.requestRenderAll()
 		unselectTool()
 	}
 
@@ -923,16 +927,16 @@ class CircleHandler extends Circle {
 		this.dragging = false
 		currentObject = null
 		if (this.radius === 0) return
-		saveChange(this, {fill: this.fill, strokeWidth: this.strokeWidth, stroke: this.stroke}, 'insert')
+		saveChange(this, { fill: this.fill, strokeWidth: this.strokeWidth, stroke: this.stroke }, 'insert')
 		canvas.selection = true
 		canvas.setActiveObject(this)
-	canvas.requestRenderAll()
+		canvas.requestRenderAll()
 		unselectTool()
 	}
 
 	update() {
 		this.setParams()
-		saveChange(this, {fill: this.fill, strokeWidth: this.strokeWidth, stroke: this.stroke}, 'update')
+		saveChange(this, { fill: this.fill, strokeWidth: this.strokeWidth, stroke: this.stroke }, 'update')
 	}
 
 	setParams() {
@@ -1022,7 +1026,7 @@ class LineHandler extends Line {
 			if (x2 - x1 > y2 - y1) y2 = y1
 			else x2 = x1
 		}
-		this.set({x1: x1, y1: y1, x2: x2, y2: y2})
+		this.set({ x1: x1, y1: y1, x2: x2, y2: y2 })
 		canvas.requestRenderAll()
 	}
 
@@ -1042,7 +1046,7 @@ class LineHandler extends Line {
 		)
 		canvas.selection = true
 		canvas.setActiveObject(this)
-	canvas.requestRenderAll()
+		canvas.requestRenderAll()
 		unselectTool()
 	}
 
@@ -1066,7 +1070,7 @@ class LineHandler extends Line {
 		if (this.axes) {
 			if (this.x2 - this.x1 > this.y2 - this.y1) this.y2 = this.y1
 			else this.x2 = this.x1
-			this.set({x1: this.x1, y1: this.y1, x2: this.x2, y2: this.y2})
+			this.set({ x1: this.x1, y1: this.y1, x2: this.x2, y2: this.y2 })
 		}
 		// if line is constrained to horizontal/vertical (axes is true),
 		// don't display a rotate control point
@@ -1145,7 +1149,7 @@ class TextHandler extends IText {
 		this.fontFamily = 'Oxygen'
 		canvas.add(this)
 		canvas.setActiveObject(this)
-	canvas.requestRenderAll()
+		canvas.requestRenderAll()
 		unselectTool()
 		this.enterEditing()
 		this.selectAll()
@@ -1173,7 +1177,7 @@ class TextHandler extends IText {
 
 	update() {
 		this.setParams()
-		saveChange(this, {fontSize: this.fontSize, fill: this.fill, text: this.text}, 'update')
+		saveChange(this, { fontSize: this.fontSize, fill: this.fill, text: this.text }, 'update')
 	}
 
 	setParams() {
@@ -1213,7 +1217,7 @@ class TextHandler extends IText {
 
 class PencilHandler extends FabricObject {
 	constructor() {
-		super({width: 1, color: '#000000'})
+		super({ width: 1, color: '#000000' })
 		this.width = 1
 		this.color = '#000000'
 	}
@@ -1226,14 +1230,14 @@ class PencilHandler extends FabricObject {
 		}
 	}
 
-	pointermove() {}
+	pointermove() { }
 
-	pointerup() {}
+	pointerup() { }
 
 	update() {
 		this.setParams()
 		let pathObj = getLastPath()
-		saveChange(pathObj, {path: pathObj.path}, 'update')
+		saveChange(pathObj, { path: pathObj.path }, 'update')
 	}
 
 	setParams() {
@@ -1293,9 +1297,9 @@ class MarkerHandler extends FabricObject {
 		}
 	}
 
-	pointermove() {}
+	pointermove() { }
 
-	pointerup() {}
+	pointerup() { }
 
 	update() {
 		this.setParams()
@@ -1390,27 +1394,43 @@ class ImageHandler extends FabricObject {
 		}
 	}
 
-	pointerdown() {}
+	pointerdown() { }
 
-	pointermove() {}
+	pointermove() { }
 
-	pointerup() {}
+	pointerup() { }
 
-	update() {}
+	update() { }
 
-	optionsDialog() {}
+	optionsDialog() { }
 }
 /****************************************************************** Group ********************************************/
 
 function makeGroup() {
 	let activeObj = canvas.getActiveObject()
-	if (!activeObj || activeObj.type !== 'activeSelection') return
-	let group = activeObj.toGroup()
+	if (!activeObj) return
+	if (!(activeObj instanceof ActiveSelection)) return
+
+	// Get the objects from the active selection
+	let objects = activeObj.getObjects()
+
+	// Remove the active selection
+	canvas.discardActiveObject()
+
+	// Remove objects from canvas (they'll be added back as part of the group)
+	objects.forEach(obj => canvas.remove(obj))
+
+	// Create a new Group
+	let group = new Group(objects)
 	group.id = uuidv4()
 	group.members = group.getObjects().map((ob) => ob.id)
 	group.type = 'group'
 	setGroupBorderColor(group)
-	saveChange(group, {members: group.members}, 'insert')
+
+	// Add the group to canvas
+	canvas.add(group)
+	canvas.setActiveObject(group)
+	saveChange(group, { members: group.members }, 'insert')
 	canvas.requestRenderAll()
 	elem('group').classList.remove('disabled')
 	alertMsg('Grouped', 'info')
@@ -1418,17 +1438,27 @@ function makeGroup() {
 
 function unGroup() {
 	let activeObj = canvas.getActiveObject()
-	if (!activeObj || activeObj.type !== 'group') return
+	if (!activeObj || !(activeObj instanceof Group)) return
+
 	let members = activeObj.getObjects()
-	activeObj.toActiveSelection()
-	saveChange(activeObj, {type: 'ungroup', members: members.map((ob) => ob.id)}, 'delete')
-	canvas.discardActiveObject()
+	let items = activeObj.removeAll() // returns the objects
+	canvas.remove(activeObj)
+
+	items.forEach(obj => canvas.add(obj))
+	let selection = new ActiveSelection(items, { canvas: canvas })
+	canvas.setActiveObject(selection)
+
+	saveChange(activeObj, { type: 'ungroup', members: members.map((ob) => ob.id) }, 'delete')
 	canvas.requestRenderAll()
 	alertMsg('Ungrouped', 'info')
 }
+
 function setGroupBorderColor(group) {
-	group.borderColor = 'green'
-	group.cornerColor = 'green'
+	group.set({
+		borderColor: 'green',
+		cornerColor: 'green',
+		cornerStrokeColor: 'green'
+	})
 }
 /****************************************************** Bin (delete) ********************************************/
 
@@ -1442,13 +1472,13 @@ class DeleteHandler extends FabricObject {
 		unselectTool()
 	}
 
-	pointerdown() {}
+	pointerdown() { }
 
-	pointermove() {}
+	pointermove() { }
 
-	pointerup() {}
+	pointerup() { }
 
-	optionsDialog() {}
+	optionsDialog() { }
 }
 /**
  * catch and branch to a handler for special Key commands
@@ -1477,12 +1507,12 @@ function deleteActiveObjects() {
 	canvas.getActiveObjects().forEach((obj) => {
 		if (obj.isEditing) return
 		obj.set('visible', false)
-		saveChange(obj, {visible: false}, 'delete')
+		saveChange(obj, { visible: false }, 'delete')
 		if (obj.type === 'group') {
 			obj.forEachObject((member) => {
 				member.set('visible', false)
 				canvas.add(member)
-				saveChange(member, {visible: false}, 'delete')
+				saveChange(member, { visible: false }, 'delete')
 			})
 		}
 	})
@@ -1553,7 +1583,7 @@ class UndoHandler extends FabricObject {
 					{
 						// reverse of add group is dispose of it
 						obj.set('visible', false)
-						saveChange(obj, {members: undo.params.members, type: 'group'}, null)
+						saveChange(obj, { members: undo.params.members, type: 'group' }, null)
 						canvas.discardActiveObject()
 						updateActiveButtons()
 					}
@@ -1562,7 +1592,7 @@ class UndoHandler extends FabricObject {
 					{
 						// find the previous param set for this group, and set the object to those params
 						let prevDelta = undos.findLast((d) => d.id === undo.id)
-						let paramsWithoutType = {...prevDelta.params}
+						let paramsWithoutType = { ...prevDelta.params }
 						delete paramsWithoutType.type
 						obj.setOptions(paramsWithoutType)
 						obj.setCoords()
@@ -1574,7 +1604,7 @@ class UndoHandler extends FabricObject {
 						// reverse of delete group is add it
 						canvas.discardActiveObject()
 						obj.set('visible', true)
-						saveChange(obj, {members: undo.params.members, type: 'group'}, null)
+						saveChange(obj, { members: undo.params.members, type: 'group' }, null)
 						canvas.setActiveObject(obj)
 						updateActiveButtons()
 					}
@@ -1590,28 +1620,28 @@ class UndoHandler extends FabricObject {
 		for (const prop in undo.params) {
 			newParams[prop] = obj[prop]
 		}
-		redos.push({id: undo.id, params: newParams, op: undo.op})
+		redos.push({ id: undo.id, params: newParams, op: undo.op })
 		yDrawingMap.set('redos', redos)
 		elem('redotool').classList.remove('disabled')
 		switch (undo.op) {
 			case 'insert':
 				obj.set('visible', false)
-				saveChange(obj, {visible: false}, null)
+				saveChange(obj, { visible: false }, null)
 				break
 			case 'delete':
 				obj.set('visible', true)
-				saveChange(obj, {visible: true}, null)
+				saveChange(obj, { visible: true }, null)
 				break
 			case 'update':
 				{
 					// find the previous param set for this object, and set the object to those params
 					let prevDelta = undos.findLast((d) => d.id === obj.id)
 					obj.set('visible', true)
-					let paramsWithoutType = {...prevDelta.params}
+					let paramsWithoutType = { ...prevDelta.params }
 					delete paramsWithoutType.type
 					obj.setOptions(paramsWithoutType)
 					obj.setCoords()
-					saveChange(obj, Object.assign(prevDelta.params, {visible: true}), null)
+					saveChange(obj, Object.assign(prevDelta.params, { visible: true }), null)
 				}
 				break
 		}
@@ -1670,7 +1700,7 @@ class UndoHandler extends FabricObject {
 					{
 						// reverse of add group is dispose of it
 						obj.set('visible', false)
-						saveChange(obj, {members: redo.params.members, type: 'group'}, null)
+						saveChange(obj, { members: redo.params.members, type: 'group' }, null)
 						canvas.discardActiveObject()
 						updateActiveButtons()
 					}
@@ -1679,7 +1709,7 @@ class UndoHandler extends FabricObject {
 					{
 						// find the previous param set for this group, and set the object to those params
 						let prevDelta = undos.findLast((d) => d.id === redo.id)
-						let paramsWithoutType = {...prevDelta.params}
+						let paramsWithoutType = { ...prevDelta.params }
 						delete paramsWithoutType.type
 						obj.setOptions(paramsWithoutType)
 						obj.setCoords()
@@ -1691,7 +1721,7 @@ class UndoHandler extends FabricObject {
 						// reverse of delete group is add it
 						canvas.discardActiveObject()
 						obj.set('visible', true)
-						saveChange(obj, {members: redo.params.members, type: 'group'}, null)
+						saveChange(obj, { members: redo.params.members, type: 'group' }, null)
 						canvas.setActiveObject(obj)
 						updateActiveButtons()
 					}
@@ -1705,25 +1735,25 @@ class UndoHandler extends FabricObject {
 		for (const prop in redo.params) {
 			newParams[prop] = obj[prop]
 		}
-		undos.push({id: redo.id, params: newParams, op: redo.op})
+		undos.push({ id: redo.id, params: newParams, op: redo.op })
 		yDrawingMap.set('undos', undos)
 		elem('undotool').classList.remove('disabled')
 		switch (redo.op) {
 			case 'insert':
 				obj.set('visible', true)
-				saveChange(obj, {visible: true}, null)
+				saveChange(obj, { visible: true }, null)
 				break
 			case 'delete':
 				obj.set('visible', false)
-				saveChange(obj, {visible: false}, null)
+				saveChange(obj, { visible: false }, null)
 				break
 			case 'update':
 				{
-					let paramsWithoutType = {...redo.params}
+					let paramsWithoutType = { ...redo.params }
 					delete paramsWithoutType.type
 					obj.setOptions(paramsWithoutType)
 					obj.setCoords()
-					saveChange(obj, Object.assign(redo.params, {visible: true}), null)
+					saveChange(obj, Object.assign(redo.params, { visible: true }), null)
 				}
 				break
 		}
@@ -1765,7 +1795,7 @@ function saveChange(obj, params = {}, op) {
 	}
 	// save the change on the undo stack
 	if (op) {
-		undos.push({op: op, id: obj.id, params: params})
+		undos.push({ op: op, id: obj.id, params: params })
 		yDrawingMap.set('undos', undos)
 		elem('undotool').classList.remove('disabled')
 	}
@@ -1997,7 +2027,7 @@ export function copyBackgroundToClipboard(event) {
 		groupLeft = group.left + group.width / 2
 	}
 	copyText(
-		JSON.stringify(activeObjs.map((obj) => setParams(obj, {left: obj.left + groupLeft, top: obj.top + groupTop}))),
+		JSON.stringify(activeObjs.map((obj) => setParams(obj, { left: obj.left + groupLeft, top: obj.top + groupTop }))),
 	)
 	displacement = 0
 }
@@ -2053,7 +2083,7 @@ export async function pasteBackgroundFromClipboard() {
 					})
 					canvas.add(image)
 					canvas.setActiveObject(image)
-					saveChange(image, {imageObj: image.toObject()}, 'insert')
+					saveChange(image, { imageObj: image.toObject() }, 'insert')
 				})
 				continue
 			default:
@@ -2102,7 +2132,7 @@ export function upgradeFromV1(pointsArray) {
 	doc.transact(() => {
 		pointsArray = eraser(pointsArray)
 		pointsArray.forEach((item) => {
-			let fabObj = {id: uuidv4()}
+			let fabObj = { id: uuidv4() }
 			switch (item[0]) {
 				case 'options':
 					options = item[1]
@@ -2241,11 +2271,11 @@ function eraser() {
  * @returns Boolean
  */
 function intersect(circle, shape) {
-	let circObj = {x: circle[1][0], y: circle[1][1], r: circle[1][2]}
+	let circObj = { x: circle[1][0], y: circle[1][1], r: circle[1][2] }
 	switch (shape[0]) {
 		case 'rect':
 		case 'rrect': {
-			let rectObj = {x: shape[1][0], y: shape[1][1], w: shape[1][2], h: shape[1][3]}
+			let rectObj = { x: shape[1][0], y: shape[1][1], w: shape[1][2], h: shape[1][3] }
 			return circleIntersectsRect(circObj, rectObj)
 		}
 		case 'text': {
