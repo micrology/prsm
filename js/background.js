@@ -152,7 +152,7 @@ export async function refreshFromMap(keys) {
 			console.error('Empty remoteParams in refreshFromMap()', key)
 			continue
 		}
-		const { type, otherParams } = remoteParams
+		const { type, ...otherParams } = remoteParams
 		switch (key) {
 			case 'undos': {
 				undos = deepCopy(remoteParams)
@@ -177,7 +177,7 @@ export async function refreshFromMap(keys) {
 					if (type === 'ungroup') {
 						localObj.toActiveSelection()
 						canvas.discardActiveObject()
-					} else localObj.setOptions(remoteParams)
+					} else localObj.set(remoteParams)
 				} else {
 					// create a new object
 					switch (type) {
@@ -191,6 +191,7 @@ export async function refreshFromMap(keys) {
 							localObj = new LineHandler()
 							break
 						case 'text':
+						case 'i-text':
 							localObj = new TextHandler()
 							break
 						case 'path':
@@ -215,7 +216,7 @@ export async function refreshFromMap(keys) {
 						default:
 							throw `bad fabric object type in yDrawingMap.observe: ${type}`
 					}
-					localObj.setOptions(otherParams)
+					localObj.set(otherParams)
 					localObj.id = key
 					canvas.add(localObj)
 				}
@@ -927,7 +928,7 @@ class CircleHandler extends Circle {
 		this.dragging = false
 		currentObject = null
 		if (this.radius === 0) return
-		saveChange(this, { fill: this.fill, strokeWidth: this.strokeWidth, stroke: this.stroke }, 'insert')
+		saveChange(this, { fill: this.fill, strokeWidth: this.strokeWidth, stroke: this.stroke, radius: this.radius }, 'insert')
 		canvas.selection = true
 		canvas.setActiveObject(this)
 		canvas.requestRenderAll()
@@ -1303,7 +1304,8 @@ class MarkerHandler extends FabricObject {
 
 	update() {
 		this.setParams()
-		saveChange(getLastPath(), {}, 'update')
+		let pathObj = getLastPath()
+		saveChange(pathObj, { path: pathObj.path }, 'update')
 	}
 
 	setParams() {
@@ -1594,7 +1596,7 @@ class UndoHandler extends FabricObject {
 						let prevDelta = undos.findLast((d) => d.id === undo.id)
 						let paramsWithoutType = { ...prevDelta.params }
 						delete paramsWithoutType.type
-						obj.setOptions(paramsWithoutType)
+						obj.set(paramsWithoutType)
 						obj.setCoords()
 						saveChange(obj, prevDelta.params, null)
 					}
@@ -1639,7 +1641,7 @@ class UndoHandler extends FabricObject {
 					obj.set('visible', true)
 					let paramsWithoutType = { ...prevDelta.params }
 					delete paramsWithoutType.type
-					obj.setOptions(paramsWithoutType)
+					obj.set(paramsWithoutType)
 					obj.setCoords()
 					saveChange(obj, Object.assign(prevDelta.params, { visible: true }), null)
 				}
@@ -1711,7 +1713,7 @@ class UndoHandler extends FabricObject {
 						let prevDelta = undos.findLast((d) => d.id === redo.id)
 						let paramsWithoutType = { ...prevDelta.params }
 						delete paramsWithoutType.type
-						obj.setOptions(paramsWithoutType)
+						obj.set(paramsWithoutType)
 						obj.setCoords()
 						saveChange(obj, prevDelta.params, null)
 					}
@@ -1751,7 +1753,7 @@ class UndoHandler extends FabricObject {
 				{
 					let paramsWithoutType = { ...redo.params }
 					delete paramsWithoutType.type
-					obj.setOptions(paramsWithoutType)
+					obj.set(paramsWithoutType)
 					obj.setCoords()
 					saveChange(obj, Object.assign(redo.params, { visible: true }), null)
 				}
@@ -1809,12 +1811,17 @@ function saveChange(obj, params = {}, op) {
  * @returns params
  */
 function setParams(obj, params) {
-	if (obj.cacheProperties) obj.cacheProperties.forEach((p) => (params[p] = obj[p]))
 	params.left = params.left || obj.left
 	params.top = params.top || obj.top
+	params.width = params.width || obj.width
+	params.height = params.height || obj.height
 	params.angle = obj.angle
 	params.scaleX = obj.scaleX
 	params.scaleY = obj.scaleY
+	params.stroke = params.stroke || obj.stroke
+	params.strokeWidth = params.strokeWidth || obj.strokeWidth
+	params.fill = params.fill || obj.fill
+	params.radius = params.radius || obj.radius
 	params.type = params.type || obj.type
 	if (obj.type === 'path') params.pathOffset = obj.pathOffset
 	if (obj.type === 'image') params.imageObj = obj.toObject()
@@ -2089,7 +2096,7 @@ export async function pasteBackgroundFromClipboard() {
 			default:
 				throw `bad fabric object type in pasteFromClipboard: ${params.type}`
 		}
-		copiedObj.setOptions(params)
+		copiedObj.set(params)
 		copiedObj.left += displacement
 		copiedObj.top += displacement
 		copiedObj.id = uuidv4()
