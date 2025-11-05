@@ -70,8 +70,7 @@ export function resizeCanvas() {
 	let oldWidth = canvas.getWidth()
 	let oldHeight = canvas.getHeight()
 	zoomCanvas(1.0)
-	canvas.setHeight(underlay.offsetHeight)
-	canvas.setWidth(underlay.offsetWidth)
+	canvas.setDimensions({ width: underlay.offsetWidth, height: underlay.offsetHeight })
 	canvas.calcOffset()
 	panCanvas((canvas.getWidth() - oldWidth) / 2, (canvas.getHeight() - oldHeight) / 2, 1.0)
 	zoomCanvas(network ? network.getScale() : 1)
@@ -175,40 +174,49 @@ export async function refreshFromMap(keys) {
 				// if object already exists, update it
 				if (localObj) {
 					if (type === 'ungroup') {
-						localObj.toActiveSelection()
-						canvas.discardActiveObject()
-					} else localObj.set(remoteParams)
+						let items = localObj.removeAll() // returns the objects
+						canvas.remove(localObj)
+						items.forEach(obj => canvas.add(obj))
+						let selection = new ActiveSelection(items, { canvas: canvas })
+						canvas.setActiveObject(selection)
+					} else localObj.set(otherParams)
 				} else {
 					// create a new object
 					switch (type) {
 						case 'rect':
+						case 'Rect':
 							localObj = new RectHandler()
 							break
 						case 'circle':
+						case 'Circle':
 							localObj = new CircleHandler()
 							break
 						case 'line':
+						case 'Line':
 							localObj = new LineHandler()
 							break
 						case 'text':
-						case 'i-text':
+						case 'IText':
 							localObj = new TextHandler()
 							break
 						case 'path':
+						case 'Path':
 							localObj = new Path()
 							break
-						case 'image': {
-							FabricImage.fromObject(remoteParams.imageObj).then((image) => {
-								image.setCoords()
-								image.id = key
-								canvas.add(image)
-							})
-							imageFound = true
+						case 'image':
+						case 'Image':
+							{
+								FabricImage.fromObject(remoteParams.imageObj).then((image) => {
+									image.setCoords()
+									image.id = key
+									canvas.add(image)
+								})
+								imageFound = true
+								continue
+							}
+						case 'group':
+						case 'Group':
 							continue
-						}
-						case 'group': {
-							continue
-						}
 						case 'ungroup':
 							continue
 						case 'activeselection': // should never occur, but may in old versions; ignore
@@ -265,20 +273,13 @@ export async function refreshFromMap(keys) {
 					break
 				}
 				default: {
-					if (remoteParams?.type === 'group') {
+					if (remoteParams?.type === 'group' || remoteParams?.type === 'Group') {
 						let objs = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
 						canvas.discardActiveObject()
 						let group = new Group(objs)
 						group.id = key
 						group.members = remoteParams.members
 						setGroupBorderColor(group)
-						group.set({
-							left: remoteParams.left,
-							top: remoteParams.top,
-							angle: remoteParams.angle,
-							scaleX: remoteParams.scaleX,
-							scaleY: remoteParams.scaleY,
-						})
 						canvas.add(group)
 						canvas.setActiveObject(group)
 					}
@@ -767,7 +768,7 @@ class RectHandler extends Rect {
 	pointerdown(e) {
 		this.setParams()
 		this.dragging = true
-		this.start = canvas.getPointer(e)
+		this.start = canvas.getScenePoint(e)
 		this.left = this.start.x
 		this.top = this.start.y
 		this.width = 0
@@ -780,7 +781,7 @@ class RectHandler extends Rect {
 
 	pointermove(e) {
 		if (!this.dragging) return
-		let pointer = canvas.getPointer(e)
+		let pointer = canvas.getScenePoint(e)
 		// allow rect to be drawn from bottom right corner as well as from top left corner
 		let left = Math.min(this.start.x, pointer.x)
 		let top = Math.min(this.start.y, pointer.y)
@@ -902,7 +903,7 @@ class CircleHandler extends Circle {
 	pointerdown(e) {
 		this.setParams()
 		this.dragging = true
-		this.start = canvas.getPointer(e)
+		this.start = canvas.getScenePoint(e)
 		this.left = this.start.x
 		this.top = this.start.y
 		this.radius = 0
@@ -912,7 +913,7 @@ class CircleHandler extends Circle {
 
 	pointermove(e) {
 		if (!this.dragging) return
-		let pointer = canvas.getPointer(e)
+		let pointer = canvas.getScenePoint(e)
 		// allow drawing from bottom right corner as well as from top left corner
 		let left = Math.min(this.start.x, pointer.x)
 		let top = Math.min(this.start.y, pointer.y)
@@ -1006,7 +1007,7 @@ class LineHandler extends Line {
 		this.setParams()
 		this.dragging = true
 		canvas.selection = false
-		this.start = canvas.getPointer(e)
+		this.start = canvas.getScenePoint(e)
 		this.set({
 			x1: this.start.x,
 			y1: this.start.y,
@@ -1018,7 +1019,7 @@ class LineHandler extends Line {
 
 	pointermove(e) {
 		if (!this.dragging) return
-		let endPoint = canvas.getPointer(e)
+		let endPoint = canvas.getScenePoint(e)
 		let x2 = endPoint.x
 		let y2 = endPoint.y
 		let x1 = this.start.x
@@ -1144,7 +1145,7 @@ class TextHandler extends IText {
 
 	pointerdown(e) {
 		this.setParams()
-		this.start = canvas.getPointer(e)
+		this.start = canvas.getScenePoint(e)
 		this.left = this.start.x
 		this.top = this.start.y
 		this.fontFamily = 'Oxygen'
@@ -1426,7 +1427,6 @@ function makeGroup() {
 	let group = new Group(objects)
 	group.id = uuidv4()
 	group.members = group.getObjects().map((ob) => ob.id)
-	group.type = 'group'
 	setGroupBorderColor(group)
 
 	// Add the group to canvas
@@ -1811,21 +1811,23 @@ function saveChange(obj, params = {}, op) {
  * @returns params
  */
 function setParams(obj, params) {
-	params.left = params.left || obj.left
-	params.top = params.top || obj.top
-	params.width = params.width || obj.width
-	params.height = params.height || obj.height
-	params.angle = obj.angle
-	params.scaleX = obj.scaleX
-	params.scaleY = obj.scaleY
-	params.stroke = params.stroke || obj.stroke
-	params.strokeWidth = params.strokeWidth || obj.strokeWidth
-	params.fill = params.fill || obj.fill
-	params.radius = params.radius || obj.radius
+	params = { ...obj.toObject(), ...params }
+	/* 	params.left = params.left || obj.left
+		params.top = params.top || obj.top
+		params.width = params.width || obj.width
+		params.height = params.height || obj.height
+		params.angle = obj.angle
+		params.scaleX = obj.scaleX
+		params.scaleY = obj.scaleY
+		params.stroke = params.stroke || obj.stroke
+		params.strokeWidth = params.strokeWidth || obj.strokeWidth
+		params.fill = params.fill || obj.fill
+		params.radius = params.radius || obj.radius */
 	params.type = params.type || obj.type
-	if (obj.type === 'path') params.pathOffset = obj.pathOffset
-	if (obj.type === 'image') params.imageObj = obj.toObject()
-	if (obj.type === 'group' || obj.type === 'activeSelection') params.members = obj.members
+	if (obj.type === 'path' || obj.type === 'Path') params.pathOffset = obj.pathOffset
+	if (obj.type === 'image' || obj.type === 'Image') params.imageObj = obj.toObject()
+	if (obj.type === 'group' || obj.type === 'Group' || obj.type === 'activeSelection') params.members = obj.members
+	console.log('Saved params:', params.type, params)
 	return params
 }
 /************************************************** Smart Guides ********************************************/
