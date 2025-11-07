@@ -165,8 +165,6 @@ export async function refreshFromMap(keys) {
 			}
 			case 'selection':
 				continue
-			case 'activeselection': // should never occur, but may in old versions; ignore
-				continue
 			case 'sequence':
 				continue
 			default: {
@@ -219,7 +217,8 @@ export async function refreshFromMap(keys) {
 							continue
 						case 'ungroup':
 							continue
-						case 'activeselection': // should never occur, but may in old versions; ignore
+						case 'activeSelection':
+						case 'ActiveSelection':
 							continue
 						default:
 							throw `bad fabric object type in yDrawingMap.observe: ${type}`
@@ -238,52 +237,51 @@ export async function refreshFromMap(keys) {
 	for (let key of keys) {
 		let remoteParams = yDrawingMap.get(key)
 		if (remoteParams) {
-			switch (key) {
-				case 'selection': {
-					let activeObject = canvas.getActiveObject()
-					if (activeObject) {
-						// if selection has zero members, this means discard selection
-						if (remoteParams.members.length === 0) canvas.discardActiveObject()
-						else {
-							activeObject.set({
-								angle: remoteParams.angle,
-								left: remoteParams.left,
-								scaleX: remoteParams.scaleX,
-								scaleY: remoteParams.scaleY,
-								top: remoteParams.top,
-							})
-						}
-					} else {
-						// no existing active selection, make one
-						let selectedObjects = remoteParams.members.map((id) =>
-							canvas.getObjects().find((o) => o.id === id),
-						)
-						let sel = new ActiveSelection(selectedObjects, {
-							canvas: canvas,
-						})
-						sel.id = 'selection'
-						sel.members = remoteParams.members
-						canvas.setActiveObject(sel)
-					}
-					updateActiveButtons()
+			switch (remoteParams.type) {
+				case 'group':
+				case 'Group': {
+					canvas.discardActiveObject()
+					let objectsInGroup = canvas.getObjects().filter((obj) => remoteParams.members.includes(obj.id))
+					let group = new Group(objectsInGroup)
+					objectsInGroup.forEach(obj => canvas.remove(obj))
+					group.id = key
+					group.members = remoteParams.members
+					setGroupBorderColor(group)
+					canvas.add(group)
+					canvas.setActiveObject(group)
 					break
 				}
-				case 'sequence': {
-					// dealt with below
+				case 'ActiveSelection':
+				case 'activeSelection': {
+					/* An active selection has canvas coordinates for its location and size, and
+					the objects it includes have their positions set relative to the active selection.
+					Thus to locate the objects relative to the canvas, we have to transform their coordinates.
+					remoteParams provides the location and dimensions of the ActiveSelection, the ids of
+					the selected objects, and copies of the selected objects (but these are missing their ids) */
+					if (canvas.getActiveObject()) canvas.discardActiveObject()
+					const asLeft = remoteParams.left;
+					const asTop = remoteParams.top;
+					const asHalfWidth = remoteParams.width / 2;
+					const asHalfHeight = remoteParams.height / 2;
+
+					// Update each object's coordinates
+					for (const i in remoteParams.members) {
+						// for each selected object, its id
+						let id = remoteParams.members[i]
+						// its current location as a relative position
+						let obj = remoteParams.objects[i]
+						// and the fabric object on the canvas
+						let fabricObj = canvas.getObjects().find((o) => o.id === id);
+						fabricObj.set({
+							left: obj.left + asLeft + asHalfWidth,
+							top: obj.top + asTop + asHalfHeight,
+						});
+						fabricObj.setCoords()
+					}
 					break
 				}
-				default: {
-					if (remoteParams?.type === 'group' || remoteParams?.type === 'Group') {
-						let objs = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
-						canvas.discardActiveObject()
-						let group = new Group(objs)
-						group.id = key
-						group.members = remoteParams.members
-						setGroupBorderColor(group)
-						canvas.add(group)
-						canvas.setActiveObject(group)
-					}
-				}
+				default:
+					break
 			}
 		}
 	}
@@ -314,7 +312,7 @@ canvas.on('selection:created', (e) => updateSelection(e))
 canvas.on('selection:updated', (e) => updateSelection(e))
 
 /**
- * save changes and update state when user has selected more than 1 object
+ * update toolbox when user has selected more than 1 object
  * @param {canvasEvent} evt
  */
 function updateSelection(evt) {
@@ -325,17 +323,19 @@ function updateSelection(evt) {
 		let activeObject = canvas.getActiveObject()
 		let activeMembers = canvas.getActiveObjects()
 		// only record selections with more than 1 member object
-		if (activeObject.type === 'activeSelection' && activeMembers.length > 1) {
-			activeObject.id = 'selection'
+		if (activeObject.type === 'activeselection' && activeMembers.length > 1) {
+			if (!activeObject.id) activeObject.id = uuidv4()
 			activeObject.members = activeMembers.map((o) => o.id)
-			saveChange(activeObject, {}, 'add')
+			//saveChange(activeObject, {}, 'add')
 		}
 		if (activeMembers.length > 1) {
 			closeOptionsDialogs()
 		} else {
-			if (evt.selected[0].type !== selectedTool) closeOptionsDialogs()
-			// no option possible when selecting path, group or image
-			if (!['path', 'group', 'image'].includes(evt.selected[0].type)) evt.selected[0].optionsDialog()
+			if (evt.selected[0].type) {
+				if (evt.selected[0].type !== selectedTool) closeOptionsDialogs()
+				// no option possible when selecting path, group or image
+				if (!['path', 'group', 'image'].includes(evt.selected[0].type)) evt.selected[0].optionsDialog()
+			}
 		}
 		updateActiveButtons()
 	}
@@ -344,14 +344,14 @@ function updateSelection(evt) {
 // save changes and update state when user has unselected all objects
 canvas.on('selection:cleared', (evt) => {
 	if (!evt.e) return
-	if (evt.deselected.length > 1) {
-		let oldMembers = evt.deselected
-		saveChange(
-			{ type: 'selection', id: 'selection' },
-			{ members: [], oldMembers: oldMembers.map((o) => o.id) },
-			'discard',
-		)
-	}
+	/* 	if (evt.deselected.length > 1) {
+			let oldMembers = evt.deselected
+			saveChange(
+				{ type: 'selection', id: 'selection' },
+				{ members: [], oldMembers: oldMembers.map((o) => o.id) },
+				'discard',
+			)
+		} */
 	deselectTool()
 	// only allow deletion of selected objects
 	elem('bin').classList.add('disabled')
@@ -485,7 +485,17 @@ function selectTool(event) {
 		fileInput.id = 'fileInput'
 		fileInput.setAttribute('type', 'file')
 		fileInput.setAttribute('accept', 'image/*')
-		fileInput.addEventListener('change', toolHandler(selectedTool).loadImage)
+		fileInput.addEventListener('change', (e) => {
+			if (e.target.files && e.target.files.length > 0) {
+				toolHandler(selectedTool).loadImage(e)
+			} else {
+				// User didn't select a file - deselect the tool
+				deselectTool()
+			}
+		})
+		fileInput.addEventListener('cancel', () => {
+			deselectTool()
+		})
 		fileInput.click()
 	}
 }
@@ -1415,24 +1425,24 @@ function makeGroup() {
 	if (!(activeObj instanceof ActiveSelection)) return
 
 	// Get the objects from the active selection
-	let objects = activeObj.getObjects()
+	let objectsInGroup = activeObj.getObjects()
 
 	// Remove the active selection
 	canvas.discardActiveObject()
 
 	// Remove objects from canvas (they'll be added back as part of the group)
-	objects.forEach(obj => canvas.remove(obj))
+	objectsInGroup.forEach(obj => canvas.remove(obj))
 
 	// Create a new Group
-	let group = new Group(objects)
+	let group = new Group(objectsInGroup)
 	group.id = uuidv4()
-	group.members = group.getObjects().map((ob) => ob.id)
+	group.members = objectsInGroup.map((ob) => ob.id)
 	setGroupBorderColor(group)
 
 	// Add the group to canvas
 	canvas.add(group)
 	canvas.setActiveObject(group)
-	saveChange(group, { members: group.members }, 'insert')
+	saveChange(group, {}, 'insert')
 	canvas.requestRenderAll()
 	elem('group').classList.remove('disabled')
 	alertMsg('Grouped', 'info')
@@ -1773,8 +1783,9 @@ class UndoHandler extends FabricObject {
  * @param {String} op insert|delete|update|null (if null, don't save on the undo stack)
  */
 function saveChange(obj, params = {}, op) {
-	// save current object position as well as any format changes
-	params = setParams(obj, params)
+	if (/back/.test(debug)) console.trace('Saving change for object', obj, 'op:', op, 'params:', params)
+	// get current object position as well as any format changes
+	params = getObjectData(obj, params)
 	// send the object to other clients
 	yDrawingMap.set(obj.id, params)
 	//check whether the order of objects has changed; if so, save the new order
@@ -1810,24 +1821,13 @@ function saveChange(obj, params = {}, op) {
  * @param {object} params - initial parameters
  * @returns params
  */
-function setParams(obj, params) {
+function getObjectData(obj, params) {
 	params = { ...obj.toObject(), ...params }
-	/* 	params.left = params.left || obj.left
-		params.top = params.top || obj.top
-		params.width = params.width || obj.width
-		params.height = params.height || obj.height
-		params.angle = obj.angle
-		params.scaleX = obj.scaleX
-		params.scaleY = obj.scaleY
-		params.stroke = params.stroke || obj.stroke
-		params.strokeWidth = params.strokeWidth || obj.strokeWidth
-		params.fill = params.fill || obj.fill
-		params.radius = params.radius || obj.radius */
+	params.id = obj.id
 	params.type = params.type || obj.type
 	if (obj.type === 'path' || obj.type === 'Path') params.pathOffset = obj.pathOffset
 	if (obj.type === 'image' || obj.type === 'Image') params.imageObj = obj.toObject()
-	if (obj.type === 'group' || obj.type === 'Group' || obj.type === 'activeSelection') params.members = obj.members
-	console.log('Saved params:', params.type, params)
+	if (params.type === 'ActiveSelection' || params.type === 'Group') params.members = obj.getObjects().map((o) => o.id)
 	return params
 }
 /************************************************** Smart Guides ********************************************/
@@ -2022,7 +2022,7 @@ var displacement = 0
  * @param {Event} event
  */
 export function copyBackgroundToClipboard(event) {
-	if (document.getSelection().toString()) return // only copy factors if there is no text selected (e.g. in Notes)
+	if (document.getSelection().toString()) return // only copy if there is no text selected (e.g. in Notes)
 	let activeObjs = canvas.getActiveObjects()
 	if (activeObjs.length === 0) return
 	event.preventDefault()
@@ -2031,17 +2031,17 @@ export function copyBackgroundToClipboard(event) {
 	let groupTop = 0
 	// if the active Object is a group, then the component object positions are relative to the
 	// group top, left, not to the canvas.  Compensate for this
-	if (group.type === 'activeSelection' || group.type === 'group') {
+	if (group.type === 'ActiveSelection' || group.type === 'group') {
 		groupTop = group.top + group.height / 2
 		groupLeft = group.left + group.width / 2
 	}
-	copyText(
-		JSON.stringify(activeObjs.map((obj) => setParams(obj, { left: obj.left + groupLeft, top: obj.top + groupTop }))),
+	copyAsText(
+		JSON.stringify(activeObjs.map((obj) => getObjectData(obj, { left: obj.left + groupLeft, top: obj.top + groupTop }))),
 	)
 	displacement = 0
 }
 
-async function copyText(text) {
+async function copyAsText(text) {
 	try {
 		if (typeof navigator.clipboard.writeText !== 'function')
 			throw new Error('navigator.clipboard.writeText not a function')
@@ -2063,28 +2063,37 @@ async function copyText(text) {
 export async function pasteBackgroundFromClipboard() {
 	let clip = await getClipboardContents()
 	let paramsArray = JSON.parse(clip)
-	canvas.discardActiveObject()
+	if (canvas.getActiveObject())canvas.discardActiveObject()
 	displacement += 10
 	for (let params of paramsArray) {
+		const { type, ...otherParams } = params
 		let copiedObj
-		switch (params.type) {
+		switch (type) {
 			case 'rect':
+				case 'Rect':
 				copiedObj = new RectHandler()
 				break
 			case 'circle':
+			case 'Circle':
 				copiedObj = new CircleHandler()
 				break
 			case 'line':
+			case 'Line':
 				copiedObj = new LineHandler()
 				break
 			case 'text':
+			case 'Text':
+			case 'i-text':
+			case 'IText':
 				copiedObj = new TextHandler()
 				break
 			case 'path':
+			case 'Path':
 				copiedObj = new Path()
 				break
 			case 'image':
-				FabricImage.fromObject(params.imageObj).then((image) => {
+			case 'Image':
+				await FabricImage.fromObject(params.imageObj).then((image) => {
 					image.set({
 						left: params.left + displacement,
 						top: params.top + displacement,
@@ -2096,9 +2105,9 @@ export async function pasteBackgroundFromClipboard() {
 				})
 				continue
 			default:
-				throw `bad fabric object type in pasteFromClipboard: ${params.type}`
+				throw `bad fabric object type in pasteFromClipboard: ${type}`
 		}
-		copiedObj.set(params)
+		copiedObj.set(otherParams)
 		copiedObj.left += displacement
 		copiedObj.top += displacement
 		copiedObj.id = uuidv4()
