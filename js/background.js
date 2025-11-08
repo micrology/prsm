@@ -12,13 +12,14 @@ This software is licenced under the PolyForm Noncommercial License 1.0.0
 
 See the file LICENSE.md for details.
 
-This module provides the background objet-oriented drawing for PRSM
+This module provides the background object-oriented drawing for PRSM
 ********************************************************************************************/
 
 import { doc, debug, yDrawingMap, network, cp, drawingSwitch, yPointsArray, fit } from './prsm.js'
 import {
 	Canvas,
 	FabricObject,
+	InteractiveFabricObject,
 	Rect,
 	Circle,
 	Line,
@@ -30,10 +31,7 @@ import {
 	Point,
 	PencilBrush,
 } from 'fabric'
-import { elem, listen, uuidv4, deepCopy, dragElement, alertMsg, addContextMenu } from '../js/utils.js'
-
-// essential to prevent scaling of borders
-FabricObject.prototype.noScaleCache = false
+import { elem, listen, uuidv4, clean, deepCopy, dragElement, alertMsg, addContextMenu } from '../js/utils.js'
 
 // create a wrapper around native canvas element
 export var canvas = new Canvas('drawing-canvas', {
@@ -94,12 +92,13 @@ export function panCanvas(x, y, zoom) {
  * set up the fabric context, the grid drawn on it and the tools
  */
 function initDraw() {
-	FabricObject.prototype.set({
+	InteractiveFabricObject.ownDefaults = {
+		...InteractiveFabricObject.ownDefaults,
 		transparentCorners: false,
 		cornerColor: 'blue',
 		cornerSize: 5,
 		cornerStyle: 'circle',
-	})
+	}
 	if (drawingSwitch) drawGrid()
 	setUpToolbox()
 	canvas.setViewportTransform([1, 0, 0, 1, canvas.getWidth() / 2, canvas.getHeight() / 2])
@@ -163,21 +162,29 @@ export async function refreshFromMap(keys) {
 				updateActiveButtons()
 				continue
 			}
-			case 'selection':
-				continue
 			case 'sequence':
 				continue
 			default: {
 				let localObj = canvas.getObjects().find((o) => o.id === key)
 				// if object already exists, update it
 				if (localObj) {
-					if (type === 'ungroup') {
-						let items = localObj.removeAll() // returns the objects
-						canvas.remove(localObj)
-						items.forEach(obj => canvas.add(obj))
-						let selection = new ActiveSelection(items, { canvas: canvas })
-						canvas.setActiveObject(selection)
-					} else localObj.set(otherParams)
+					switch (type) {
+						case 'group':
+						case 'Group':
+							break
+						case 'ungroup': {
+							let items = localObj.removeAll() // returns the constituent objects
+							canvas.remove(localObj) // remove the group
+							items.forEach(obj => canvas.add(obj)) // add the constituent objects back to the canvas
+							break
+						}
+						case 'activeSelection':
+						case 'ActiveSelection':
+							break
+						default:
+							localObj.set(otherParams)
+							break
+					}
 				} else {
 					// create a new object
 					switch (type) {
@@ -240,15 +247,39 @@ export async function refreshFromMap(keys) {
 			switch (remoteParams.type) {
 				case 'group':
 				case 'Group': {
+					let existingGroup = canvas.getObjects().find((o) => o.id === remoteParams.id)
 					canvas.discardActiveObject()
+					if (existingGroup) {
+						let items = canvas.getObjects()[0].removeAll()
+						// translate the object coordinates from local to the group to canvas coordinates
+						const asLeft = remoteParams.left;
+						const asTop = remoteParams.top;
+						const asHalfWidth = remoteParams.width / 2;
+						const asHalfHeight = remoteParams.height / 2;
+						// Update each object's coordinates
+						for (const i in remoteParams.members) {
+							// its current location as a position relative to the group
+							let obj = remoteParams.objects[i]
+							// and the object on the canvas
+							let item = items[i]
+							item.set({
+								left: obj.left + asLeft + asHalfWidth,
+								top: obj.top + asTop + asHalfHeight,
+							})
+							item.setCoords()
+							canvas.add(item)
+						}
+						canvas.remove(existingGroup)
+					}
 					let objectsInGroup = canvas.getObjects().filter((obj) => remoteParams.members.includes(obj.id))
-					let group = new Group(objectsInGroup)
 					objectsInGroup.forEach(obj => canvas.remove(obj))
+					let group = new Group(objectsInGroup)
 					group.id = key
+					group.set(clean(remoteParams, {layoutManager: true, type: true}))
 					group.members = remoteParams.members
 					setGroupBorderColor(group)
 					canvas.add(group)
-					canvas.setActiveObject(group)
+					if (group.get('visible')) canvas.setActiveObject(group)
 					break
 				}
 				case 'ActiveSelection':
@@ -288,12 +319,10 @@ export async function refreshFromMap(keys) {
 	// and lastly reorder the objects if necessary
 	if (keys.includes('sequence')) {
 		let remoteParams = yDrawingMap.get('sequence')
-		let newObjects = []
 		remoteParams.forEach((id) => {
-			let newObject = canvas.getObjects().find((obj) => obj.id === id)
-			if (newObject) newObjects.push(newObject)
+			let obj = canvas.getObjects().find((o) => o.id === id)
+			if (obj) canvas.bringObjectToFront(obj)
 		})
-		canvas._objects = newObjects
 	}
 
 	// if at start up, so not in drawing mode, don't show active selection borders
@@ -326,12 +355,11 @@ function updateSelection(evt) {
 		if (activeObject.type === 'activeselection' && activeMembers.length > 1) {
 			if (!activeObject.id) activeObject.id = uuidv4()
 			activeObject.members = activeMembers.map((o) => o.id)
-			//saveChange(activeObject, {}, 'add')
 		}
 		if (activeMembers.length > 1) {
 			closeOptionsDialogs()
 		} else {
-			if (evt.selected[0].type) {
+			if (evt.selected && evt.selected.length > 0 && evt.selected[0].type) {
 				if (evt.selected[0].type !== selectedTool) closeOptionsDialogs()
 				// no option possible when selecting path, group or image
 				if (!['path', 'group', 'image'].includes(evt.selected[0].type)) evt.selected[0].optionsDialog()
@@ -343,15 +371,7 @@ function updateSelection(evt) {
 
 // save changes and update state when user has unselected all objects
 canvas.on('selection:cleared', (evt) => {
-	if (!evt.e) return
-	/* 	if (evt.deselected.length > 1) {
-			let oldMembers = evt.deselected
-			saveChange(
-				{ type: 'selection', id: 'selection' },
-				{ members: [], oldMembers: oldMembers.map((o) => o.id) },
-				'discard',
-			)
-		} */
+	if (!evt.e) return // ignore updates generated by remote activity
 	deselectTool()
 	// only allow deletion of selected objects
 	elem('bin').classList.add('disabled')
@@ -519,6 +539,7 @@ function unselectTool() {
 	if (selectedTool) {
 		elem(selectedTool).classList.remove('selected')
 	}
+	closeOptionsDialogs()
 	selectedTool = null
 	currentObject = null
 }
@@ -716,7 +737,7 @@ canvas.on('mouse:up', function (options) {
 })
 canvas.on('mouse:dblclick', () => fit())
 
-const ARROOWINCR = 1
+const ARROWINCR = 1
 
 function arrowMove(direction) {
 	let activeObj = canvas.getActiveObject()
@@ -725,19 +746,21 @@ function arrowMove(direction) {
 	let left = activeObj.left
 	switch (direction) {
 		case 'ArrowUp':
-			top -= ARROOWINCR
+			top -= ARROWINCR
 			break
 		case 'ArrowDown':
-			top += ARROOWINCR
+			top += ARROWINCR
 			break
 		case 'ArrowLeft':
-			left -= ARROOWINCR
+			left -= ARROWINCR
 			break
 		case 'ArrowRight':
-			left += ARROOWINCR
+			left += ARROWINCR
 			break
 	}
 	activeObj.set({ left: left, top: top })
+	activeObj.setCoords()
+	saveChange(activeObj, {}, 'update')
 	canvas.requestRenderAll()
 }
 
@@ -1457,8 +1480,8 @@ function unGroup() {
 	canvas.remove(activeObj)
 
 	items.forEach(obj => canvas.add(obj))
-	let selection = new ActiveSelection(items, { canvas: canvas })
-	canvas.setActiveObject(selection)
+	//let selection = new ActiveSelection(items, { canvas: canvas })
+	//canvas.setActiveObject(selection)
 
 	saveChange(activeObj, { type: 'ungroup', members: members.map((ob) => ob.id) }, 'delete')
 	canvas.requestRenderAll()
@@ -1827,7 +1850,9 @@ function getObjectData(obj, params) {
 	params.type = params.type || obj.type
 	if (obj.type === 'path' || obj.type === 'Path') params.pathOffset = obj.pathOffset
 	if (obj.type === 'image' || obj.type === 'Image') params.imageObj = obj.toObject()
-	if (params.type === 'ActiveSelection' || params.type === 'Group') params.members = obj.getObjects().map((o) => o.id)
+	if (params.type === 'ActiveSelection' || params.type === 'Group') {
+		params.members = obj.getObjects().map((o) => o.id)
+	}
 	return params
 }
 /************************************************** Smart Guides ********************************************/
@@ -2063,14 +2088,14 @@ async function copyAsText(text) {
 export async function pasteBackgroundFromClipboard() {
 	let clip = await getClipboardContents()
 	let paramsArray = JSON.parse(clip)
-	if (canvas.getActiveObject())canvas.discardActiveObject()
+	if (canvas.getActiveObject()) canvas.discardActiveObject()
 	displacement += 10
 	for (let params of paramsArray) {
 		const { type, ...otherParams } = params
 		let copiedObj
 		switch (type) {
 			case 'rect':
-				case 'Rect':
+			case 'Rect':
 				copiedObj = new RectHandler()
 				break
 			case 'circle':
