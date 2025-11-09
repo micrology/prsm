@@ -265,6 +265,9 @@ aside {
 #statusBar {
 	padding: 3px 20px;
 	border-radius: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 #zoomcontrol {
 	padding-right: 20px;

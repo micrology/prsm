@@ -4417,6 +4417,8 @@ function analyse() {
 	// if showing everything, we are done
 	if (getRadioVal('radius') === 'All' && getRadioVal('stream') === 'All' && getRadioVal('paths') === 'All') {
 		resetAll()
+		showSelected()
+		showNodeOrEdgeData()
 		return
 	}
 	// check that at least one factor is selected
@@ -4431,7 +4433,7 @@ function analyse() {
 		resetAll()
 		return
 	}
-
+	hideNotes()
 	// these operations are not commutative (at least for networks with loops), so do them all in order
 	if (getRadioVal('radius') !== 'All') hideNodesByRadius(selectedNodes, parseInt(getRadioVal('radius')))
 	if (getRadioVal('stream') !== 'All') hideNodesByStream(selectedNodes, getRadioVal('stream'))
