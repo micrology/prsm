@@ -476,8 +476,10 @@ function startY(newRoom) {
 	yHistory = doc.getArray('history')
 	yAwareness = wsProvider.awareness
 
-	/* create a dummy item in yEdgesMap to stop having to wait for the edges map if there are no edges
-	(thus allowing to distinguish between zero edges and no edge map yet loaded) */
+	/* create a dummy item in yNodesMap and yEdgesMap to stop having to wait for the these maps 
+	if there are no nodes or edges (thus allowing to distinguish between zero nodes/edges and 
+	no node/edge map yet loaded) */
+	yNodesMap.set('_dummy_', { dummy: true })
 	yEdgesMap.set('_dummy_', { dummy: true })
 
 	/* set up observers to listen for changes in the yMaps */
@@ -588,6 +590,7 @@ function startY(newRoom) {
 		for (let key of evt.keysChanged) {
 			if (yNodesMap.has(key)) {
 				let obj = yNodesMap.get(key)
+				if (object_equals(obj, { dummy: true })) continue // skip dummy entry
 				if (!object_equals(obj, data.nodes.get(key))) {
 					// fix nodes if this is a view only copy
 					if (viewOnly) obj.fixed = true

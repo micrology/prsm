@@ -275,7 +275,7 @@ export async function refreshFromMap(keys) {
 					objectsInGroup.forEach(obj => canvas.remove(obj))
 					let group = new Group(objectsInGroup)
 					group.id = key
-					group.set(clean(remoteParams, {layoutManager: true, type: true}))
+					group.set(clean(remoteParams, { layoutManager: true, type: true }))
 					group.members = remoteParams.members
 					setGroupBorderColor(group)
 					canvas.add(group)
@@ -1444,8 +1444,10 @@ class ImageHandler extends FabricObject {
 
 function makeGroup() {
 	let activeObj = canvas.getActiveObject()
-	if (!activeObj) return
-	if (!(activeObj instanceof ActiveSelection)) return
+	if (!activeObj || canvas.getActiveObjects().length < 2 || !(activeObj instanceof ActiveSelection)) {
+		alertMsg('Select multiple objects before grouping', 'warning')
+		return
+	}
 
 	// Get the objects from the active selection
 	let objectsInGroup = activeObj.getObjects()
@@ -1480,11 +1482,10 @@ function unGroup() {
 	canvas.remove(activeObj)
 
 	items.forEach(obj => canvas.add(obj))
-	//let selection = new ActiveSelection(items, { canvas: canvas })
-	//canvas.setActiveObject(selection)
 
 	saveChange(activeObj, { type: 'ungroup', members: members.map((ob) => ob.id) }, 'delete')
 	canvas.requestRenderAll()
+	elem('group').classList.add('disabled')
 	alertMsg('Ungrouped', 'info')
 }
 
@@ -1535,7 +1536,7 @@ function checkKey(e) {
 	}
 }
 /**
- * makes the active object invisible (unless it is a group, which is actually deleted)
+ * makes the active object invisible 
  * this allows 'undo' to re-instate the object, by making it visible
  */
 function deleteActiveObjects() {
@@ -1627,9 +1628,8 @@ class UndoHandler extends FabricObject {
 					{
 						// find the previous param set for this group, and set the object to those params
 						let prevDelta = undos.findLast((d) => d.id === undo.id)
-						let paramsWithoutType = { ...prevDelta.params }
-						delete paramsWithoutType.type
-						obj.set(paramsWithoutType)
+						let newParams = clean(prevDelta.params, { type: true, layoutManager: true })
+						obj.set(newParams)
 						obj.setCoords()
 						saveChange(obj, prevDelta.params, null)
 					}
@@ -1651,36 +1651,38 @@ class UndoHandler extends FabricObject {
 		// find the object to be undone from its id
 		let obj = canvas.getObjects().find((o) => o.id === undo.id)
 		// get the current state of the object, so that redo can return it to this state
-		let newParams = {}
-		for (const prop in undo.params) {
-			newParams[prop] = obj[prop]
-		}
-		redos.push({ id: undo.id, params: newParams, op: undo.op })
-		yDrawingMap.set('redos', redos)
-		elem('redotool').classList.remove('disabled')
-		switch (undo.op) {
-			case 'insert':
-				obj.set('visible', false)
-				saveChange(obj, { visible: false }, null)
-				break
-			case 'delete':
-				obj.set('visible', true)
-				saveChange(obj, { visible: true }, null)
-				break
-			case 'update':
-				{
-					// find the previous param set for this object, and set the object to those params
-					let prevDelta = undos.findLast((d) => d.id === obj.id)
+		let newParams = undo.params
+		if (obj) {
+			newParams = obj.toObject()
+			// remove unneeded properties
+			newParams = clean(newParams, { type: true, layoutManager: true })
+			// push the current state onto the redo stack
+			redos.push({ id: undo.id, params: newParams, op: undo.op })
+			yDrawingMap.set('redos', redos)
+			elem('redotool').classList.remove('disabled')
+			switch (undo.op) {
+				case 'insert':
+					obj.set('visible', false)
+					saveChange(obj, { visible: false }, null)
+					break
+				case 'delete':
 					obj.set('visible', true)
-					let paramsWithoutType = { ...prevDelta.params }
-					delete paramsWithoutType.type
-					obj.set(paramsWithoutType)
-					obj.setCoords()
-					saveChange(obj, Object.assign(prevDelta.params, { visible: true }), null)
-				}
-				break
+					saveChange(obj, { visible: true }, null)
+					break
+				case 'update':
+					{
+						// find the previous param set for this object, and set the object to those params
+						let prevDelta = undos.findLast((d) => d.id === obj.id)
+						obj.set('visible', true)
+						let newParams = clean(prevDelta.params, { type: true, layoutManager: true })
+						obj.set(newParams)
+						obj.setCoords()
+						saveChange(obj, Object.assign(prevDelta.params, { visible: true }), null)
+					}
+					break
+			}
+			canvas.discardActiveObject()
 		}
-		canvas.discardActiveObject()
 		canvas.requestRenderAll()
 	}
 
@@ -1730,70 +1732,74 @@ class UndoHandler extends FabricObject {
 			yDrawingMap.set('undos', undos)
 			elem('undotool').classList.remove('disabled')
 			let obj = canvas.getObjects().filter((o) => o.id === redo.id)[0]
-			switch (redo.op) {
-				case 'delete':
-					{
-						// reverse of add group is dispose of it
-						obj.set('visible', false)
-						saveChange(obj, { members: redo.params.members, type: 'group' }, null)
-						canvas.discardActiveObject()
-						updateActiveButtons()
-					}
-					break
-				case 'update':
-					{
-						// find the previous param set for this group, and set the object to those params
-						let prevDelta = undos.findLast((d) => d.id === redo.id)
-						let paramsWithoutType = { ...prevDelta.params }
-						delete paramsWithoutType.type
-						obj.set(paramsWithoutType)
-						obj.setCoords()
-						saveChange(obj, prevDelta.params, null)
-					}
-					break
-				case 'insert':
-					{
-						// reverse of delete group is add it
-						canvas.discardActiveObject()
-						obj.set('visible', true)
-						saveChange(obj, { members: redo.params.members, type: 'group' }, null)
-						canvas.setActiveObject(obj)
-						updateActiveButtons()
-					}
-					break
+			if (obj) {
+				switch (redo.op) {
+					case 'delete':
+						{
+							// reverse of add group is dispose of it
+							obj.set('visible', false)
+							saveChange(obj, { members: redo.params.members, type: 'group' }, null)
+							canvas.discardActiveObject()
+							updateActiveButtons()
+						}
+						break
+					case 'update':
+						{
+							// find the previous param set for this group, and set the object to those params
+							let prevDelta = undos.findLast((d) => d.id === redo.id)
+							let paramsWithoutType = { ...prevDelta.params }
+							delete paramsWithoutType.type
+							obj.set(paramsWithoutType)
+							obj.setCoords()
+							saveChange(obj, prevDelta.params, null)
+						}
+						break
+					case 'insert':
+						{
+							// reverse of delete group is add it
+							canvas.discardActiveObject()
+							obj.set('visible', true)
+							saveChange(obj, { members: redo.params.members, type: 'group' }, null)
+							canvas.setActiveObject(obj)
+							updateActiveButtons()
+						}
+						break
+				}
 			}
 			canvas.requestRenderAll()
 			return
 		}
 		let obj = canvas.getObjects().find((o) => o.id === redo.id)
-		let newParams = {}
-		for (const prop in redo.params) {
-			newParams[prop] = obj[prop]
+		if (obj) {
+			let newParams = {}
+			for (const prop in redo.params) {
+				newParams[prop] = obj[prop]
+			}
+			undos.push({ id: redo.id, params: newParams, op: redo.op })
+			yDrawingMap.set('undos', undos)
+			elem('undotool').classList.remove('disabled')
+			switch (redo.op) {
+				case 'insert':
+					obj.set('visible', true)
+					saveChange(obj, { visible: true }, null)
+					break
+				case 'delete':
+					obj.set('visible', false)
+					saveChange(obj, { visible: false }, null)
+					break
+				case 'update':
+					{
+						let paramsWithoutType = { ...redo.params }
+						delete paramsWithoutType.type
+						obj.set(paramsWithoutType)
+						obj.setCoords()
+						saveChange(obj, Object.assign(redo.params, { visible: true }), null)
+					}
+					break
+			}
+			canvas.discardActiveObject()
+			canvas.requestRenderAll()
 		}
-		undos.push({ id: redo.id, params: newParams, op: redo.op })
-		yDrawingMap.set('undos', undos)
-		elem('undotool').classList.remove('disabled')
-		switch (redo.op) {
-			case 'insert':
-				obj.set('visible', true)
-				saveChange(obj, { visible: true }, null)
-				break
-			case 'delete':
-				obj.set('visible', false)
-				saveChange(obj, { visible: false }, null)
-				break
-			case 'update':
-				{
-					let paramsWithoutType = { ...redo.params }
-					delete paramsWithoutType.type
-					obj.set(paramsWithoutType)
-					obj.setCoords()
-					saveChange(obj, Object.assign(redo.params, { visible: true }), null)
-				}
-				break
-		}
-		canvas.discardActiveObject()
-		canvas.requestRenderAll()
 	}
 }
 /****************************************************************** Broadcast ********************************************/
