@@ -12,18 +12,29 @@ This software is licenced under the PolyForm Noncommercial License 1.0.0
 
 See the file LICENSE.md for details.
 
-This module provides the background objet-oriented drawing for PRSM
+This module provides the background object-oriented drawing for PRSM
 ********************************************************************************************/
 
-import {doc, debug, yDrawingMap, network, cp, drawingSwitch, yPointsArray, fit} from './prsm.js'
-import {fabric} from 'fabric'
-import {elem, listen, uuidv4, deepCopy, dragElement, alertMsg, addContextMenu} from '../js/utils.js'
-
-// essential to prevent scaling of borders
-fabric.Object.prototype.noScaleCache = false
+import { doc, debug, yDrawingMap, network, cp, drawingSwitch, yPointsArray, fit } from './prsm.js'
+import {
+	Canvas,
+	FabricObject,
+	InteractiveFabricObject,
+	Rect,
+	Circle,
+	Line,
+	IText,
+	Path,
+	FabricImage,
+	ActiveSelection,
+	Group,
+	Point,
+	PencilBrush,
+} from 'fabric'
+import { elem, listen, uuidv4, clean, deepCopy, dragElement, alertMsg, addContextMenu } from '../js/utils.js'
 
 // create a wrapper around native canvas element
-export var canvas = new fabric.Canvas('drawing-canvas', {
+export var canvas = new Canvas('drawing-canvas', {
 	enablePointerEvents: true,
 	stopContextMenu: true,
 	fireRightClick: true,
@@ -57,8 +68,7 @@ export function resizeCanvas() {
 	let oldWidth = canvas.getWidth()
 	let oldHeight = canvas.getHeight()
 	zoomCanvas(1.0)
-	canvas.setHeight(underlay.offsetHeight)
-	canvas.setWidth(underlay.offsetWidth)
+	canvas.setDimensions({ width: underlay.offsetWidth, height: underlay.offsetHeight })
 	canvas.calcOffset()
 	panCanvas((canvas.getWidth() - oldWidth) / 2, (canvas.getHeight() - oldHeight) / 2, 1.0)
 	zoomCanvas(network ? network.getScale() : 1)
@@ -70,24 +80,25 @@ export function resizeCanvas() {
  * @param {float} zoom
  */
 export function zoomCanvas(zoom) {
-	canvas.zoomToPoint({x: canvas.getWidth() / 2, y: canvas.getHeight() / 2}, zoom)
+	canvas.zoomToPoint({ x: canvas.getWidth() / 2, y: canvas.getHeight() / 2 }, zoom)
 }
 
 export function panCanvas(x, y, zoom) {
 	zoom = zoom || network.getScale()
-	canvas.relativePan(new fabric.Point(x * zoom, y * zoom))
+	canvas.relativePan(new Point(x * zoom, y * zoom))
 }
 
 /**
  * set up the fabric context, the grid drawn on it and the tools
  */
 function initDraw() {
-	fabric.Object.prototype.set({
+	InteractiveFabricObject.ownDefaults = {
+		...InteractiveFabricObject.ownDefaults,
 		transparentCorners: false,
 		cornerColor: 'blue',
 		cornerSize: 5,
 		cornerStyle: 'circle',
-	})
+	}
 	if (drawingSwitch) drawGrid()
 	setUpToolbox()
 	canvas.setViewportTransform([1, 0, 0, 1, canvas.getWidth() / 2, canvas.getHeight() / 2])
@@ -139,6 +150,7 @@ export async function refreshFromMap(keys) {
 			console.error('Empty remoteParams in refreshFromMap()', key)
 			continue
 		}
+		const { type, ...otherParams } = remoteParams
 		switch (key) {
 			case 'undos': {
 				undos = deepCopy(remoteParams)
@@ -150,56 +162,75 @@ export async function refreshFromMap(keys) {
 				updateActiveButtons()
 				continue
 			}
-			case 'selection':
-				continue
-			case 'activeSelection': // should never occur, but may in old versions; ignore
-				continue
 			case 'sequence':
 				continue
 			default: {
 				let localObj = canvas.getObjects().find((o) => o.id === key)
 				// if object already exists, update it
 				if (localObj) {
-					if (remoteParams.type === 'ungroup') {
-						localObj.toActiveSelection()
-						canvas.discardActiveObject()
-					} else localObj.setOptions(remoteParams)
+					switch (type) {
+						case 'group':
+						case 'Group':
+							break
+						case 'ungroup': {
+							let items = localObj.removeAll() // returns the constituent objects
+							canvas.remove(localObj) // remove the group
+							items.forEach(obj => canvas.add(obj)) // add the constituent objects back to the canvas
+							break
+						}
+						case 'activeSelection':
+						case 'ActiveSelection':
+							break
+						default:
+							localObj.set(otherParams)
+							break
+					}
 				} else {
 					// create a new object
-					switch (remoteParams.type) {
+					switch (type) {
 						case 'rect':
+						case 'Rect':
 							localObj = new RectHandler()
 							break
 						case 'circle':
+						case 'Circle':
 							localObj = new CircleHandler()
 							break
 						case 'line':
+						case 'Line':
 							localObj = new LineHandler()
 							break
 						case 'text':
+						case 'IText':
 							localObj = new TextHandler()
 							break
 						case 'path':
-							localObj = new fabric.Path()
+						case 'Path':
+							localObj = new Path()
 							break
-						case 'image': {
-							fabric.Image.fromObject(remoteParams.imageObj, (image) => {
-								image.setCoords()
-								image.id = key
-								canvas.add(image)
-							})
-							imageFound = true
+						case 'image':
+						case 'Image':
+							{
+								FabricImage.fromObject(remoteParams.imageObj).then((image) => {
+									image.setCoords()
+									image.id = key
+									canvas.add(image)
+								})
+								imageFound = true
+								continue
+							}
+						case 'group':
+						case 'Group':
 							continue
-						}
-						case 'group': {
-							continue
-						}
 						case 'ungroup':
 							continue
+						case 'activeSelection':
+						case 'ActiveSelection':
+							continue
 						default:
-							throw `bad fabric object type in yDrawingMap.observe: ${remoteParams.type}`
+							throw `bad fabric object type in yDrawingMap.observe: ${type}`
 					}
-					localObj.setOptions(remoteParams)
+					localObj.set(otherParams)
 					localObj.id = key
 					canvas.add(localObj)
 				}
@@ -207,78 +238,91 @@ export async function refreshFromMap(keys) {
 			}
 		}
 	}
-	/* This is a horrible hack, because fabric.js doesn't yet support Promises.  If there is an image to load,
-	wait a while to ensure that it has been added to the canvas before proceeding. */
+	// Wait for images to load if any were found
 	if (imageFound) await new Promise((r) => setTimeout(r, 400))
 
 	for (let key of keys) {
 		let remoteParams = yDrawingMap.get(key)
 		if (remoteParams) {
-			switch (key) {
-				case 'selection': {
-					let activeObject = canvas.getActiveObject()
-					if (activeObject) {
-						// if selection has zero members, this means discard selection
-						if (remoteParams.members.length === 0) canvas.discardActiveObject()
-						else {
-							activeObject.set({
-								angle: remoteParams.angle,
-								left: remoteParams.left,
-								scaleX: remoteParams.scaleX,
-								scaleY: remoteParams.scaleY,
-								top: remoteParams.top,
+			switch (remoteParams.type) {
+				case 'group':
+				case 'Group': {
+					let existingGroup = canvas.getObjects().find((o) => o.id === remoteParams.id)
+					canvas.discardActiveObject()
+					if (existingGroup) {
+						let items = canvas.getObjects()[0].removeAll()
+						// translate the object coordinates from local to the group to canvas coordinates
+						const asLeft = remoteParams.left;
+						const asTop = remoteParams.top;
+						const asHalfWidth = remoteParams.width / 2;
+						const asHalfHeight = remoteParams.height / 2;
+						// Update each object's coordinates
+						for (const i in remoteParams.members) {
+							// its current location as a position relative to the group
+							let obj = remoteParams.objects[i]
+							// and the object on the canvas
+							let item = items[i]
+							item.set({
+								left: obj.left + asLeft + asHalfWidth,
+								top: obj.top + asTop + asHalfHeight,
 							})
+							item.setCoords()
+							canvas.add(item)
 						}
-					} else {
-						// no existing active selection, make one
-						let selectedObjects = remoteParams.members.map((id) =>
-							canvas.getObjects().find((o) => o.id === id),
-						)
-						let sel = new fabric.ActiveSelection(selectedObjects, {
-							canvas: canvas,
-						})
-						sel.id = 'selection'
-						sel.members = remoteParams.members
-						canvas.setActiveObject(sel)
+						canvas.remove(existingGroup)
 					}
-					updateActiveButtons()
+					let objectsInGroup = canvas.getObjects().filter((obj) => remoteParams.members.includes(obj.id))
+					objectsInGroup.forEach(obj => canvas.remove(obj))
+					let group = new Group(objectsInGroup)
+					group.id = key
+					group.set(clean(remoteParams, { layoutManager: true, type: true }))
+					group.members = remoteParams.members
+					setGroupBorderColor(group)
+					canvas.add(group)
+					if (group.get('visible')) canvas.setActiveObject(group)
 					break
 				}
-				case 'sequence': {
-					// dealt with below
+				case 'ActiveSelection':
+				case 'activeSelection': {
+					/* An active selection has canvas coordinates for its location and size, and
+					the objects it includes have their positions set relative to the active selection.
+					Thus to locate the objects relative to the canvas, we have to transform their coordinates.
+					remoteParams provides the location and dimensions of the ActiveSelection, the ids of
+					the selected objects, and copies of the selected objects (but these are missing their ids) */
+					if (canvas.getActiveObject()) canvas.discardActiveObject()
+					const asLeft = remoteParams.left;
+					const asTop = remoteParams.top;
+					const asHalfWidth = remoteParams.width / 2;
+					const asHalfHeight = remoteParams.height / 2;
+
+					// Update each object's coordinates
+					for (const i in remoteParams.members) {
+						// for each selected object, its id
+						let id = remoteParams.members[i]
+						// its current location as a relative position
+						let obj = remoteParams.objects[i]
+						// and the fabric object on the canvas
+						let fabricObj = canvas.getObjects().find((o) => o.id === id);
+						fabricObj.set({
+							left: obj.left + asLeft + asHalfWidth,
+							top: obj.top + asTop + asHalfHeight,
+						});
+						fabricObj.setCoords()
+					}
 					break
 				}
-				default: {
-					if (remoteParams?.type === 'group') {
-						let objs = remoteParams.members.map((id) => canvas.getObjects().find((o) => o.id === id))
-						canvas.discardActiveObject()
-						let group = new fabric.Group(objs)
-						group.id = key
-						group.members = remoteParams.members
-						setGroupBorderColor(group)
-						group.set({
-							left: remoteParams.left,
-							top: remoteParams.top,
-							angle: remoteParams.angle,
-							scaleX: remoteParams.scaleX,
-							scaleY: remoteParams.scaleY,
-						})
-						canvas.add(group)
-						canvas.setActiveObject(group)
-					}
-				}
+				default:
+					break
 			}
 		}
 	}
 	// and lastly reorder the objects if necessary
 	if (keys.includes('sequence')) {
 		let remoteParams = yDrawingMap.get('sequence')
-		let newObjects = []
 		remoteParams.forEach((id) => {
-			let newObject = canvas.getObjects().find((obj) => obj.id === id)
-			if (newObject) newObjects.push(newObject)
+			let obj = canvas.getObjects().find((o) => o.id === id)
+			if (obj) canvas.bringObjectToFront(obj)
 		})
-		canvas._objects = newObjects
 	}
 
 	// if at start up, so not in drawing mode, don't show active selection borders
@@ -297,7 +341,7 @@ canvas.on('selection:created', (e) => updateSelection(e))
 canvas.on('selection:updated', (e) => updateSelection(e))
 
 /**
- * save changes and update state when user has selected more than 1 object
+ * update toolbox when user has selected more than 1 object
  * @param {canvasEvent} evt
  */
 function updateSelection(evt) {
@@ -308,17 +352,18 @@ function updateSelection(evt) {
 		let activeObject = canvas.getActiveObject()
 		let activeMembers = canvas.getActiveObjects()
 		// only record selections with more than 1 member object
-		if (activeObject.type === 'activeSelection' && activeMembers.length > 1) {
-			activeObject.id = 'selection'
+		if (activeObject.type === 'activeselection' && activeMembers.length > 1) {
+			if (!activeObject.id) activeObject.id = uuidv4()
 			activeObject.members = activeMembers.map((o) => o.id)
-			saveChange(activeObject, {}, 'add')
 		}
 		if (activeMembers.length > 1) {
 			closeOptionsDialogs()
 		} else {
-			if (evt.selected[0].type !== selectedTool) closeOptionsDialogs()
-			// no option possible when selecting path, group or image
-			if (!['path', 'group', 'image'].includes(evt.selected[0].type)) evt.selected[0].optionsDialog()
+			if (evt.selected && evt.selected.length > 0 && evt.selected[0].type) {
+				if (evt.selected[0].type !== selectedTool) closeOptionsDialogs()
+				// no option possible when selecting path, group or image
+				if (!['path', 'group', 'image'].includes(evt.selected[0].type)) evt.selected[0].optionsDialog()
+			}
 		}
 		updateActiveButtons()
 	}
@@ -326,15 +371,7 @@ function updateSelection(evt) {
 
 // save changes and update state when user has unselected all objects
 canvas.on('selection:cleared', (evt) => {
-	if (!evt.e) return
-	if (evt.deselected.length > 1) {
-		let oldMembers = evt.deselected
-		saveChange(
-			{type: 'selection', id: 'selection'},
-			{members: [], oldMembers: oldMembers.map((o) => o.id)},
-			'discard',
-		)
-	}
+	if (!evt.e) return // ignore updates generated by remote activity
 	deselectTool()
 	// only allow deletion of selected objects
 	elem('bin').classList.add('disabled')
@@ -362,7 +399,7 @@ canvas.on('path:created', () => {
 canvas.on('object:modified', (rec) => {
 	let obj = rec.target
 	if (!obj.id) obj.id = uuidv4()
-	saveChange(obj, {id: obj.id}, 'update')
+	saveChange(obj, { id: obj.id }, 'update')
 })
 
 /**
@@ -453,15 +490,32 @@ function selectTool(event) {
 	selectedTool = tool.id
 	tool.classList.add('selected')
 	// display options dialog
-	toolHandler(selectedTool).optionsDialog()
+	let handler = toolHandler(selectedTool)
+	handler.optionsDialog()
 	canvas.isDrawingMode = tool.id === 'pencil' || tool.id === 'marker'
+	// initialize brush for pencil and marker tools
+	if (canvas.isDrawingMode) {
+		canvas.freeDrawingBrush = new PencilBrush(canvas)
+		canvas.freeDrawingBrush.width = handler.width
+		canvas.freeDrawingBrush.color = handler.color
+	}
 	// if tool is 'image', get image file from user
 	if (tool.id === 'image') {
 		let fileInput = document.createElement('input')
 		fileInput.id = 'fileInput'
 		fileInput.setAttribute('type', 'file')
 		fileInput.setAttribute('accept', 'image/*')
-		fileInput.addEventListener('change', toolHandler(selectedTool).loadImage)
+		fileInput.addEventListener('change', (e) => {
+			if (e.target.files && e.target.files.length > 0) {
+				toolHandler(selectedTool).loadImage(e)
+			} else {
+				// User didn't select a file - deselect the tool
+				deselectTool()
+			}
+		})
+		fileInput.addEventListener('cancel', () => {
+			deselectTool()
+		})
 		fileInput.click()
 	}
 }
@@ -473,7 +527,8 @@ function selectTool(event) {
 export function deselectTool() {
 	unselectTool()
 	canvas.isDrawingMode = false
-	canvas.discardActiveObject().requestRenderAll()
+	canvas.discardActiveObject()
+	canvas.requestRenderAll()
 	closeOptionsDialogs()
 	updateActiveButtons()
 }
@@ -484,6 +539,7 @@ function unselectTool() {
 	if (selectedTool) {
 		elem(selectedTool).classList.remove('selected')
 	}
+	closeOptionsDialogs()
 	selectedTool = null
 	currentObject = null
 }
@@ -612,8 +668,8 @@ canvas.on('mouse:down', function (options) {
 	if (event.button === 2) {
 		if (options.target) {
 			addContextMenu(event.target, [
-				{label: 'Send to back', action: () => sendToBack(options.target)},
-				{label: 'Bring to front', action: () => bringToFront(options.target)},
+				{ label: 'Send to back', action: () => sendToBack(options.target) },
+				{ label: 'Bring to front', action: () => bringToFront(options.target) },
 			])
 		}
 		return
@@ -633,11 +689,11 @@ canvas.on('mouse:down', function (options) {
 })
 
 function sendToBack(obj) {
-	obj.sendToBack()
+	canvas.sendObjectToBack(obj)
 	saveChange(obj, {}, 'insert)')
 }
 function bringToFront(obj) {
-	obj.bringToFront()
+	canvas.bringObjectToFront(obj)
 	saveChange(obj, {}, 'insert)')
 }
 
@@ -670,6 +726,7 @@ canvas.on('mouse:up', function (options) {
 	let event = options.e
 	if (selectedTool) {
 		toolHandler(selectedTool)[event.type](event)
+		closeOptionsDialogs()
 	} else {
 		this.setViewportTransform(this.viewportTransform)
 		this.isDragging = false
@@ -680,7 +737,7 @@ canvas.on('mouse:up', function (options) {
 })
 canvas.on('mouse:dblclick', () => fit())
 
-const ARROOWINCR = 1
+const ARROWINCR = 1
 
 function arrowMove(direction) {
 	let activeObj = canvas.getActiveObject()
@@ -689,19 +746,21 @@ function arrowMove(direction) {
 	let left = activeObj.left
 	switch (direction) {
 		case 'ArrowUp':
-			top -= ARROOWINCR
+			top -= ARROWINCR
 			break
 		case 'ArrowDown':
-			top += ARROOWINCR
+			top += ARROWINCR
 			break
 		case 'ArrowLeft':
-			left -= ARROOWINCR
+			left -= ARROWINCR
 			break
 		case 'ArrowRight':
-			left += ARROOWINCR
+			left += ARROWINCR
 			break
 	}
-	activeObj.set({left: left, top: top})
+	activeObj.set({ left: left, top: top })
+	activeObj.setCoords()
+	saveChange(activeObj, {}, 'update')
 	canvas.requestRenderAll()
 }
 
@@ -725,10 +784,9 @@ function makeOptionsDialog(tool) {
 /******************************************************************Rect ********************************************/
 const cornerRadius = 10 // radius of rounded corners for rounded rectangle
 
-let RectHandler = fabric.util.createClass(fabric.Rect, {
-	type: 'rect',
-	initialize: function () {
-		this.callSuper('initialize', {
+class RectHandler extends Rect {
+	constructor() {
+		super({
 			fill: '#ffffff',
 			strokeWidth: 1,
 			stroke: '#000000',
@@ -738,11 +796,12 @@ let RectHandler = fabric.util.createClass(fabric.Rect, {
 		this.roundCorners = cornerRadius
 		this.id = uuidv4()
 		this.strokeUniform = true
-	},
-	pointerdown: function (e) {
+	}
+
+	pointerdown(e) {
 		this.setParams()
 		this.dragging = true
-		this.start = canvas.getPointer(e)
+		this.start = canvas.getScenePoint(e)
 		this.left = this.start.x
 		this.top = this.start.y
 		this.width = 0
@@ -751,10 +810,11 @@ let RectHandler = fabric.util.createClass(fabric.Rect, {
 		this.ry = this.roundCorners
 		canvas.add(this)
 		canvas.selection = false
-	},
-	pointermove: function (e) {
+	}
+
+	pointermove(e) {
 		if (!this.dragging) return
-		let pointer = canvas.getPointer(e)
+		let pointer = canvas.getScenePoint(e)
 		// allow rect to be drawn from bottom right corner as well as from top left corner
 		let left = Math.min(this.start.x, pointer.x)
 		let top = Math.min(this.start.y, pointer.y)
@@ -765,8 +825,9 @@ let RectHandler = fabric.util.createClass(fabric.Rect, {
 			height: Math.abs(this.start.y - pointer.y),
 		})
 		canvas.requestRenderAll()
-	},
-	pointerup: function () {
+	}
+
+	pointerup() {
 		this.dragging = false
 		currentObject = null
 		if (this.width === 0 || this.height === 0) return
@@ -782,10 +843,12 @@ let RectHandler = fabric.util.createClass(fabric.Rect, {
 			'insert',
 		)
 		canvas.selection = true
-		canvas.setActiveObject(this).requestRenderAll()
+		canvas.setActiveObject(this)
+		canvas.requestRenderAll()
 		unselectTool()
-	},
-	update: function () {
+	}
+
+	update() {
 		this.setParams()
 		saveChange(
 			this,
@@ -798,8 +861,9 @@ let RectHandler = fabric.util.createClass(fabric.Rect, {
 			},
 			'update',
 		)
-	},
-	setParams: function () {
+	}
+
+	setParams() {
 		if (!elem('optionsBox')) return
 		this.roundCorners = elem('rounded').checked ? cornerRadius : 0
 		let fill = elem('fillColor').style.backgroundColor
@@ -813,8 +877,9 @@ let RectHandler = fabric.util.createClass(fabric.Rect, {
 			stroke: elem('borderColor').style.backgroundColor,
 		})
 		canvas.requestRenderAll()
-	},
-	optionsDialog: function () {
+	}
+
+	optionsDialog() {
 		if (elem('optionsBox')) return
 		this.box = makeOptionsDialog('rect')
 		this.box.innerHTML = `
@@ -850,14 +915,13 @@ let RectHandler = fabric.util.createClass(fabric.Rect, {
 		rounded.addEventListener('change', () => {
 			this.update()
 		})
-	},
-})
+	}
+}
 /******************************************************************Circle ********************************************/
 
-let CircleHandler = fabric.util.createClass(fabric.Circle, {
-	type: 'circle',
-	initialize: function () {
-		this.callSuper('initialize', {
+class CircleHandler extends Circle {
+	constructor() {
+		super({
 			fill: '#ffffff',
 			strokeWidth: 1,
 			stroke: '#000000',
@@ -867,20 +931,22 @@ let CircleHandler = fabric.util.createClass(fabric.Circle, {
 		this.id = uuidv4()
 		this.originX = 'left'
 		this.originY = 'top'
-	},
-	pointerdown: function (e) {
+	}
+
+	pointerdown(e) {
 		this.setParams()
 		this.dragging = true
-		this.start = canvas.getPointer(e)
+		this.start = canvas.getScenePoint(e)
 		this.left = this.start.x
 		this.top = this.start.y
 		this.radius = 0
 		canvas.add(this)
 		canvas.selection = false
-	},
-	pointermove: function (e) {
+	}
+
+	pointermove(e) {
 		if (!this.dragging) return
-		let pointer = canvas.getPointer(e)
+		let pointer = canvas.getScenePoint(e)
 		// allow drawing from bottom right corner as well as from top left corner
 		let left = Math.min(this.start.x, pointer.x)
 		let top = Math.min(this.start.y, pointer.y)
@@ -890,21 +956,25 @@ let CircleHandler = fabric.util.createClass(fabric.Circle, {
 			radius: Math.sqrt((this.start.x - pointer.x) ** 2 + (this.start.y - pointer.y) ** 2) / 2,
 		})
 		canvas.requestRenderAll()
-	},
-	pointerup: function () {
+	}
+
+	pointerup() {
 		this.dragging = false
 		currentObject = null
 		if (this.radius === 0) return
-		saveChange(this, {fill: this.fill, strokeWidth: this.strokeWidth, stroke: this.stroke}, 'insert')
+		saveChange(this, { fill: this.fill, strokeWidth: this.strokeWidth, stroke: this.stroke, radius: this.radius }, 'insert')
 		canvas.selection = true
-		canvas.setActiveObject(this).requestRenderAll()
+		canvas.setActiveObject(this)
+		canvas.requestRenderAll()
 		unselectTool()
-	},
-	update: function () {
+	}
+
+	update() {
 		this.setParams()
-		saveChange(this, {fill: this.fill, strokeWidth: this.strokeWidth, stroke: this.stroke}, 'update')
-	},
-	setParams: function () {
+		saveChange(this, { fill: this.fill, strokeWidth: this.strokeWidth, stroke: this.stroke }, 'update')
+	}
+
+	setParams() {
 		if (!elem('optionsBox')) return
 		let fill = elem('fillColor').style.backgroundColor
 		// make white transparent
@@ -915,8 +985,9 @@ let CircleHandler = fabric.util.createClass(fabric.Circle, {
 			stroke: elem('borderColor').style.backgroundColor,
 		})
 		canvas.requestRenderAll()
-	},
-	optionsDialog: function () {
+	}
+
+	optionsDialog() {
 		if (elem('optionsBox')) return
 		this.box = makeOptionsDialog('circle')
 		this.box.innerHTML = `
@@ -946,13 +1017,12 @@ let CircleHandler = fabric.util.createClass(fabric.Circle, {
 		borderColor.style.backgroundColor = this.stroke
 		let fillColor = elem('fillColor')
 		fillColor.style.backgroundColor = this.fill
-	},
-})
+	}
+}
 /******************************************************************Line ********************************************/
-let LineHandler = fabric.util.createClass(fabric.Line, {
-	type: 'line',
-	initialize: function () {
-		this.callSuper('initialize', {
+class LineHandler extends Line {
+	constructor() {
+		super([0, 0, 0, 0], {
 			strokeWidth: 1,
 			stroke: '#000000',
 			strokeUniform: true,
@@ -964,12 +1034,13 @@ let LineHandler = fabric.util.createClass(fabric.Line, {
 		this.stroke = '#000000'
 		this.strokeWidth = 2
 		this.strokeUniform = true
-	},
-	pointerdown: function (e) {
+	}
+
+	pointerdown(e) {
 		this.setParams()
 		this.dragging = true
 		canvas.selection = false
-		this.start = canvas.getPointer(e)
+		this.start = canvas.getScenePoint(e)
 		this.set({
 			x1: this.start.x,
 			y1: this.start.y,
@@ -977,10 +1048,11 @@ let LineHandler = fabric.util.createClass(fabric.Line, {
 			y2: this.start.y,
 		})
 		canvas.add(this)
-	},
-	pointermove: function (e) {
+	}
+
+	pointermove(e) {
 		if (!this.dragging) return
-		let endPoint = canvas.getPointer(e)
+		let endPoint = canvas.getScenePoint(e)
 		let x2 = endPoint.x
 		let y2 = endPoint.y
 		let x1 = this.start.x
@@ -989,10 +1061,11 @@ let LineHandler = fabric.util.createClass(fabric.Line, {
 			if (x2 - x1 > y2 - y1) y2 = y1
 			else x2 = x1
 		}
-		this.set({x1: x1, y1: y1, x2: x2, y2: y2})
+		this.set({ x1: x1, y1: y1, x2: x2, y2: y2 })
 		canvas.requestRenderAll()
-	},
-	pointerup: function () {
+	}
+
+	pointerup() {
 		this.dragging = false
 		currentObject = null
 		if (this.x1 === this.x2 && this.y1 === this.y2) return
@@ -1007,10 +1080,12 @@ let LineHandler = fabric.util.createClass(fabric.Line, {
 			'insert',
 		)
 		canvas.selection = true
-		canvas.setActiveObject(this).requestRenderAll()
+		canvas.setActiveObject(this)
+		canvas.requestRenderAll()
 		unselectTool()
-	},
-	update: function () {
+	}
+
+	update() {
 		this.setParams()
 		saveChange(
 			this,
@@ -1022,14 +1097,15 @@ let LineHandler = fabric.util.createClass(fabric.Line, {
 			},
 			'update',
 		)
-	},
-	setParams: function () {
+	}
+
+	setParams() {
 		if (!elem('optionsBox')) return
 		this.axes = elem('axes').checked
 		if (this.axes) {
 			if (this.x2 - this.x1 > this.y2 - this.y1) this.y2 = this.y1
 			else this.x2 = this.x1
-			this.set({x1: this.x1, y1: this.y1, x2: this.x2, y2: this.y2})
+			this.set({ x1: this.x1, y1: this.y1, x2: this.x2, y2: this.y2 })
 		}
 		// if line is constrained to horizontal/vertical (axes is true),
 		// don't display a rotate control point
@@ -1050,8 +1126,9 @@ let LineHandler = fabric.util.createClass(fabric.Line, {
 			strokeDashArray: elem('dashed').checked ? [10, 10] : null,
 		})
 		canvas.requestRenderAll()
-	},
-	optionsDialog: function () {
+	}
+
+	optionsDialog() {
 		if (elem('optionsBox')) return
 		this.box = makeOptionsDialog('line')
 		this.box.innerHTML = `
@@ -1084,29 +1161,30 @@ let LineHandler = fabric.util.createClass(fabric.Line, {
 		axes.addEventListener('change', () => {
 			this.update()
 		})
-	},
-})
+	}
+}
 
 /******************************************************************Text ********************************************/
 
-let TextHandler = fabric.util.createClass(fabric.IText, {
-	type: 'text',
-	initialize: function () {
-		this.callSuper('initialize', 'Text', {
+class TextHandler extends IText {
+	constructor() {
+		super('Text', {
 			fontSize: 32,
 			fill: '#000000',
 			fontFamily: 'Oxygen',
 		})
 		this.id = uuidv4()
-	},
-	pointerdown: function (e) {
+	}
+
+	pointerdown(e) {
 		this.setParams()
-		this.start = canvas.getPointer(e)
+		this.start = canvas.getScenePoint(e)
 		this.left = this.start.x
 		this.top = this.start.y
 		this.fontFamily = 'Oxygen'
 		canvas.add(this)
-		canvas.setActiveObject(this).requestRenderAll()
+		canvas.setActiveObject(this)
+		canvas.requestRenderAll()
 		unselectTool()
 		this.enterEditing()
 		this.selectAll()
@@ -1122,26 +1200,31 @@ let TextHandler = fabric.util.createClass(fabric.IText, {
 				'insert',
 			)
 		})
-	},
-	pointermove: function () {
+	}
+
+	pointermove() {
 		return
-	},
-	pointerup: function () {
+	}
+
+	pointerup() {
 		return
-	},
-	update: function () {
+	}
+
+	update() {
 		this.setParams()
-		saveChange(this, {fontSize: this.fontSize, fill: this.fill, text: this.text}, 'update')
-	},
-	setParams: function () {
+		saveChange(this, { fontSize: this.fontSize, fill: this.fill, text: this.text }, 'update')
+	}
+
+	setParams() {
 		if (!elem('optionsBox')) return
 		this.set({
 			fontSize: parseInt(elem('fontSize').value),
 			fill: elem('fontColor').style.backgroundColor,
 		})
 		canvas.requestRenderAll()
-	},
-	optionsDialog: function () {
+	}
+
+	optionsDialog() {
 		if (!elem('optionsBox')) {
 			this.box = makeOptionsDialog('text')
 			this.box.innerHTML = `
@@ -1162,37 +1245,48 @@ let TextHandler = fabric.util.createClass(fabric.IText, {
 		})
 		let fontColor = elem('fontColor')
 		fontColor.style.backgroundColor = this.fill
-	},
-})
+	}
+}
 
 /******************************************************************Pencil ********************************************/
 
-let PencilHandler = fabric.util.createClass(fabric.Object, {
-	type: 'pencil',
-	initialize: function () {
-		this.callSuper('initialize', {width: 1, color: '#000000'})
-		canvas.freeDrawingBrush.width = 1
-		canvas.freeDrawingBrush.color = '#000000'
-	},
-	pointerdown: function () {
+class PencilHandler extends FabricObject {
+	constructor() {
+		super({ width: 1, color: '#000000' })
+		this.width = 1
+		this.color = '#000000'
+	}
+
+	pointerdown() {
 		this.setParams()
-	},
-	pointermove: function () {},
-	pointerup: function () {},
-	update: function () {
+		if (canvas.freeDrawingBrush) {
+			canvas.freeDrawingBrush.width = this.width
+			canvas.freeDrawingBrush.color = this.color
+		}
+	}
+
+	pointermove() { }
+
+	pointerup() { }
+
+	update() {
 		this.setParams()
 		let pathObj = getLastPath()
-		saveChange(pathObj, {path: pathObj.path}, 'update')
-	},
-	setParams: function () {
+		saveChange(pathObj, { path: pathObj.path }, 'update')
+	}
+
+	setParams() {
 		if (!elem('optionsBox')) return
 		this.width = parseInt(elem('pencilWidth').value)
 		this.color = elem('pencilColor').style.backgroundColor
-		canvas.freeDrawingBrush.width = this.width
-		canvas.freeDrawingBrush.color = this.color
+		if (canvas.freeDrawingBrush) {
+			canvas.freeDrawingBrush.width = this.width
+			canvas.freeDrawingBrush.color = this.color
+		}
 		canvas.requestRenderAll()
-	},
-	optionsDialog: function () {
+	}
+
+	optionsDialog() {
 		if (!elem('optionsBox')) {
 			this.box = makeOptionsDialog('pencil')
 			this.box.innerHTML = `
@@ -1213,41 +1307,53 @@ let PencilHandler = fabric.util.createClass(fabric.Object, {
 		})
 		let pencilColor = document.getElementById('pencilColor')
 		pencilColor.style.backgroundColor = this.color
-	},
-})
+	}
+}
 
 /******************************************************************Marker ********************************************/
 
-let MarkerHandler = fabric.util.createClass(fabric.Object, {
-	type: 'marker',
-	initialize: function () {
-		this.callSuper('initialize', {
+class MarkerHandler extends FabricObject {
+	constructor() {
+		super({
 			width: 30,
 			color: 'rgba(249, 255, 71, 0.5)',
 			strokeLineCap: 'square',
 			strokeLineJoin: 'bevel',
 		})
-		canvas.freeDrawingBrush.width = 30
-		canvas.freeDrawingBrush.color = 'rgba(249, 255, 71, 0.5)'
-	},
-	pointerdown: function () {
+		this.width = 30
+		this.color = 'rgba(249, 255, 71, 0.5)'
+	}
+
+	pointerdown() {
 		this.setParams()
-	},
-	pointermove: function () {},
-	pointerup: function () {},
-	update: function () {
+		if (canvas.freeDrawingBrush) {
+			canvas.freeDrawingBrush.width = this.width
+			canvas.freeDrawingBrush.color = this.color
+		}
+	}
+
+	pointermove() { }
+
+	pointerup() { }
+
+	update() {
 		this.setParams()
-		saveChange(getLastPath(), {}, 'update')
-	},
-	setParams: function () {
+		let pathObj = getLastPath()
+		saveChange(pathObj, { path: pathObj.path }, 'update')
+	}
+
+	setParams() {
 		if (!elem('optionsBox')) return
 		this.width = parseInt(elem('pencilWidth').value)
 		this.color = elem('pencilColor').style.backgroundColor
-		canvas.freeDrawingBrush.width = this.width
-		canvas.freeDrawingBrush.color = this.color
+		if (canvas.freeDrawingBrush) {
+			canvas.freeDrawingBrush.width = this.width
+			canvas.freeDrawingBrush.color = this.color
+		}
 		canvas.requestRenderAll()
-	},
-	optionsDialog: function () {
+	}
+
+	optionsDialog() {
 		if (!elem('optionsBox')) {
 			this.box = makeOptionsDialog('marker')
 			this.box.innerHTML = `		
@@ -1268,8 +1374,8 @@ let MarkerHandler = fabric.util.createClass(fabric.Object, {
 		})
 		let pencilColor = document.getElementById('pencilColor')
 		pencilColor.style.backgroundColor = this.color
-	},
-})
+	}
+}
 
 /**
  * called after a pencil or marker has been used to retrieve the path object that it created
@@ -1283,20 +1389,20 @@ function getLastPath() {
 }
 /******************************************************************Image ********************************************/
 
-let ImageHandler = fabric.util.createClass(fabric.Object, {
-	type: 'image',
-	initialize: function () {
-		this.callSuper('initialize', {})
-	},
-	loadImage: function (e) {
+class ImageHandler extends FabricObject {
+	constructor() {
+		super({})
+	}
+
+	loadImage(e) {
 		if (e.target.files) {
 			let file = e.target.files[0]
 			let reader = new FileReader()
 			reader.readAsDataURL(file)
 
-			reader.onloadend = function (e) {
+			reader.onloadend = (e) => {
 				let image = new Image()
-				image.onload = function (e) {
+				image.onload = (e) => {
 					let imageElement = e.target
 					// display image centred on viewport with max dimensions 300 x 300
 					if (imageElement.width > imageElement.height) {
@@ -1304,37 +1410,64 @@ let ImageHandler = fabric.util.createClass(fabric.Object, {
 					} else {
 						if (imageElement.height > 300) imageElement.height = 300
 					}
-					this.imageInstance = new fabric.Image(imageElement)
-					this.imageInstance.set({originX: 'center', originY: 'center'})
-					this.imageInstance.viewportCenter()
+					this.imageInstance = new FabricImage(imageElement)
+					this.imageInstance.set({
+						originX: 'center',
+						originY: 'center',
+						left: canvas.getWidth() / 2,
+						top: canvas.getHeight() / 2,
+					})
 					this.imageInstance.setCoords()
 					this.imageInstance.id = uuidv4()
 					canvas.add(this.imageInstance)
 					saveChange(this.imageInstance, {}, 'insert')
 					unselectTool()
-					canvas.setActiveObject(this.imageInstance).requestRenderAll()
+					canvas.setActiveObject(this.imageInstance)
+					canvas.requestRenderAll()
 				}
 				image.src = e.target.result
 			}
 		}
-	},
-	pointerdown: function () {},
-	pointermove: function () {},
-	pointerup: function () {},
-	update: function () {},
-	optionsDialog: function () {},
-})
+	}
+
+	pointerdown() { }
+
+	pointermove() { }
+
+	pointerup() { }
+
+	update() { }
+
+	optionsDialog() { }
+}
 /****************************************************************** Group ********************************************/
 
 function makeGroup() {
 	let activeObj = canvas.getActiveObject()
-	if (!activeObj || activeObj.type !== 'activeSelection') return
-	let group = activeObj.toGroup()
+	if (!activeObj || canvas.getActiveObjects().length < 2 || !(activeObj instanceof ActiveSelection)) {
+		alertMsg('Select multiple objects before grouping', 'warning')
+		return
+	}
+
+	// Get the objects from the active selection
+	let objectsInGroup = activeObj.getObjects()
+
+	// Remove the active selection
+	canvas.discardActiveObject()
+
+	// Remove objects from canvas (they'll be added back as part of the group)
+	objectsInGroup.forEach(obj => canvas.remove(obj))
+
+	// Create a new Group
+	let group = new Group(objectsInGroup)
 	group.id = uuidv4()
-	group.members = group.getObjects().map((ob) => ob.id)
-	group.type = 'group'
+	group.members = objectsInGroup.map((ob) => ob.id)
 	setGroupBorderColor(group)
-	saveChange(group, {members: group.members}, 'insert')
+
+	// Add the group to canvas
+	canvas.add(group)
+	canvas.setActiveObject(group)
+	saveChange(group, {}, 'insert')
 	canvas.requestRenderAll()
 	elem('group').classList.remove('disabled')
 	alertMsg('Grouped', 'info')
@@ -1342,34 +1475,47 @@ function makeGroup() {
 
 function unGroup() {
 	let activeObj = canvas.getActiveObject()
-	if (!activeObj || activeObj.type !== 'group') return
+	if (!activeObj || !(activeObj instanceof Group)) return
+
 	let members = activeObj.getObjects()
-	activeObj.toActiveSelection()
-	saveChange(activeObj, {type: 'ungroup', members: members.map((ob) => ob.id)}, 'delete')
-	canvas.discardActiveObject()
+	let items = activeObj.removeAll() // returns the objects
+	canvas.remove(activeObj)
+
+	items.forEach(obj => canvas.add(obj))
+
+	saveChange(activeObj, { type: 'ungroup', members: members.map((ob) => ob.id) }, 'delete')
 	canvas.requestRenderAll()
+	elem('group').classList.add('disabled')
 	alertMsg('Ungrouped', 'info')
 }
+
 function setGroupBorderColor(group) {
-	group.borderColor = 'green'
-	group.cornerColor = 'green'
+	group.set({
+		borderColor: 'green',
+		cornerColor: 'green',
+		cornerStrokeColor: 'green'
+	})
 }
 /****************************************************** Bin (delete) ********************************************/
 
-let DeleteHandler = fabric.util.createClass(fabric.Object, {
-	type: 'bin',
-	initialize: function () {
-		this.callSuper('initialize', {})
-	},
-	delete: function () {
+class DeleteHandler extends FabricObject {
+	constructor() {
+		super({})
+	}
+
+	delete() {
 		deleteActiveObjects()
 		unselectTool()
-	},
-	pointerdown: function () {},
-	pointermove: function () {},
-	pointerup: function () {},
-	optionsDialog: function () {},
-})
+	}
+
+	pointerdown() { }
+
+	pointermove() { }
+
+	pointerup() { }
+
+	optionsDialog() { }
+}
 /**
  * catch and branch to a handler for special Key commands
  * Delete, ^z (undo) and ^y (redo)
@@ -1390,33 +1536,34 @@ function checkKey(e) {
 	}
 }
 /**
- * makes the active object invisible (unless it is a group, which is actually deleted)
+ * makes the active object invisible 
  * this allows 'undo' to re-instate the object, by making it visible
  */
 function deleteActiveObjects() {
 	canvas.getActiveObjects().forEach((obj) => {
 		if (obj.isEditing) return
 		obj.set('visible', false)
-		saveChange(obj, {visible: false}, 'delete')
+		saveChange(obj, { visible: false }, 'delete')
 		if (obj.type === 'group') {
 			obj.forEachObject((member) => {
 				member.set('visible', false)
 				canvas.add(member)
-				saveChange(member, {visible: false}, 'delete')
+				saveChange(member, { visible: false }, 'delete')
 			})
 		}
 	})
-	canvas.discardActiveObject().requestRenderAll()
+	canvas.discardActiveObject()
+	canvas.requestRenderAll()
 }
 
 /******************************************************************Undo ********************************************/
 
-let UndoHandler = fabric.util.createClass(fabric.Object, {
-	type: 'undo',
-	initialize: function () {
-		this.callSuper('initialize', {})
-	},
-	undo: function () {
+class UndoHandler extends FabricObject {
+	constructor() {
+		super({})
+	}
+
+	undo() {
 		if (undos.length === 0) return // nothing on the undo stack
 		let undo = undos.pop()
 		yDrawingMap.set('undos', undos)
@@ -1451,7 +1598,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 						let selectedObjects = undo.params.oldMembers.map((id) =>
 							canvas.getObjects().find((o) => o.id === id),
 						)
-						let sel = new fabric.ActiveSelection(selectedObjects, {
+						let sel = new ActiveSelection(selectedObjects, {
 							canvas: canvas,
 						})
 						canvas.setActiveObject(sel)
@@ -1472,7 +1619,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 					{
 						// reverse of add group is dispose of it
 						obj.set('visible', false)
-						saveChange(obj, {members: undo.params.members, type: 'group'}, null)
+						saveChange(obj, { members: undo.params.members, type: 'group' }, null)
 						canvas.discardActiveObject()
 						updateActiveButtons()
 					}
@@ -1481,7 +1628,8 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 					{
 						// find the previous param set for this group, and set the object to those params
 						let prevDelta = undos.findLast((d) => d.id === undo.id)
-						obj.setOptions(prevDelta.params)
+						let newParams = clean(prevDelta.params, { type: true, layoutManager: true })
+						obj.set(newParams)
 						obj.setCoords()
 						saveChange(obj, prevDelta.params, null)
 					}
@@ -1491,7 +1639,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 						// reverse of delete group is add it
 						canvas.discardActiveObject()
 						obj.set('visible', true)
-						saveChange(obj, {members: undo.params.members, type: 'group'}, null)
+						saveChange(obj, { members: undo.params.members, type: 'group' }, null)
 						canvas.setActiveObject(obj)
 						updateActiveButtons()
 					}
@@ -1503,36 +1651,42 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 		// find the object to be undone from its id
 		let obj = canvas.getObjects().find((o) => o.id === undo.id)
 		// get the current state of the object, so that redo can return it to this state
-		let newParams = {}
-		for (const prop in undo.params) {
-			newParams[prop] = obj[prop]
-		}
-		redos.push({id: undo.id, params: newParams, op: undo.op})
-		yDrawingMap.set('redos', redos)
-		elem('redotool').classList.remove('disabled')
-		switch (undo.op) {
-			case 'insert':
-				obj.set('visible', false)
-				saveChange(obj, {visible: false}, null)
-				break
-			case 'delete':
-				obj.set('visible', true)
-				saveChange(obj, {visible: true}, null)
-				break
-			case 'update':
-				{
-					// find the previous param set for this object, and set the object to those params
-					let prevDelta = undos.findLast((d) => d.id === obj.id)
+		let newParams = undo.params
+		if (obj) {
+			newParams = obj.toObject()
+			// remove unneeded properties
+			newParams = clean(newParams, { type: true, layoutManager: true })
+			// push the current state onto the redo stack
+			redos.push({ id: undo.id, params: newParams, op: undo.op })
+			yDrawingMap.set('redos', redos)
+			elem('redotool').classList.remove('disabled')
+			switch (undo.op) {
+				case 'insert':
+					obj.set('visible', false)
+					saveChange(obj, { visible: false }, null)
+					break
+				case 'delete':
 					obj.set('visible', true)
-					obj.setOptions(prevDelta.params)
-					obj.setCoords()
-					saveChange(obj, Object.assign(prevDelta.params, {visible: true}), null)
-				}
-				break
+					saveChange(obj, { visible: true }, null)
+					break
+				case 'update':
+					{
+						// find the previous param set for this object, and set the object to those params
+						let prevDelta = undos.findLast((d) => d.id === obj.id)
+						obj.set('visible', true)
+						let newParams = clean(prevDelta.params, { type: true, layoutManager: true })
+						obj.set(newParams)
+						obj.setCoords()
+						saveChange(obj, Object.assign(prevDelta.params, { visible: true }), null)
+					}
+					break
+			}
+			canvas.discardActiveObject()
 		}
-		canvas.discardActiveObject().requestRenderAll()
-	},
-	redo: function () {
+		canvas.requestRenderAll()
+	}
+
+	redo() {
 		if (redos.length === 0) return
 		let redo = redos.pop()
 		yDrawingMap.set('redos', redos)
@@ -1549,7 +1703,7 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 						let selectedObjects = redo.params.members.map((id) =>
 							canvas.getObjects().find((o) => o.id === id),
 						)
-						let sel = new fabric.ActiveSelection(selectedObjects, {
+						let sel = new ActiveSelection(selectedObjects, {
 							canvas: canvas,
 						})
 						canvas.setActiveObject(sel)
@@ -1578,65 +1732,76 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
 			yDrawingMap.set('undos', undos)
 			elem('undotool').classList.remove('disabled')
 			let obj = canvas.getObjects().filter((o) => o.id === redo.id)[0]
-			switch (redo.op) {
-				case 'delete':
-					{
-						// reverse of add group is dispose of it
-						obj.set('visible', false)
-						saveChange(obj, {members: redo.params.members, type: 'group'}, null)
-						canvas.discardActiveObject()
-						updateActiveButtons()
-					}
-					break
-				case 'update':
-					{
-						// find the previous param set for this group, and set the object to those params
-						let prevDelta = undos.findLast((d) => d.id === redo.id)
-						obj.setOptions(prevDelta.params)
-						obj.setCoords()
-						saveChange(obj, prevDelta.params, null)
-					}
-					break
-				case 'insert':
-					{
-						// reverse of delete group is add it
-						canvas.discardActiveObject()
-						obj.set('visible', true)
-						saveChange(obj, {members: redo.params.members, type: 'group'}, null)
-						canvas.setActiveObject(obj)
-						updateActiveButtons()
-					}
-					break
+			if (obj) {
+				switch (redo.op) {
+					case 'delete':
+						{
+							// reverse of add group is dispose of it
+							obj.set('visible', false)
+							saveChange(obj, { members: redo.params.members, type: 'group' }, null)
+							canvas.discardActiveObject()
+							updateActiveButtons()
+						}
+						break
+					case 'update':
+						{
+							// find the previous param set for this group, and set the object to those params
+							let prevDelta = undos.findLast((d) => d.id === redo.id)
+							let paramsWithoutType = { ...prevDelta.params }
+							delete paramsWithoutType.type
+							obj.set(paramsWithoutType)
+							obj.setCoords()
+							saveChange(obj, prevDelta.params, null)
+						}
+						break
+					case 'insert':
+						{
+							// reverse of delete group is add it
+							canvas.discardActiveObject()
+							obj.set('visible', true)
+							saveChange(obj, { members: redo.params.members, type: 'group' }, null)
+							canvas.setActiveObject(obj)
+							updateActiveButtons()
+						}
+						break
+				}
 			}
 			canvas.requestRenderAll()
 			return
 		}
 		let obj = canvas.getObjects().find((o) => o.id === redo.id)
-		let newParams = {}
-		for (const prop in redo.params) {
-			newParams[prop] = obj[prop]
+		if (obj) {
+			let newParams = {}
+			for (const prop in redo.params) {
+				newParams[prop] = obj[prop]
+			}
+			undos.push({ id: redo.id, params: newParams, op: redo.op })
+			yDrawingMap.set('undos', undos)
+			elem('undotool').classList.remove('disabled')
+			switch (redo.op) {
+				case 'insert':
+					obj.set('visible', true)
+					saveChange(obj, { visible: true }, null)
+					break
+				case 'delete':
+					obj.set('visible', false)
+					saveChange(obj, { visible: false }, null)
+					break
+				case 'update':
+					{
+						let paramsWithoutType = { ...redo.params }
+						delete paramsWithoutType.type
+						obj.set(paramsWithoutType)
+						obj.setCoords()
+						saveChange(obj, Object.assign(redo.params, { visible: true }), null)
+					}
+					break
+			}
+			canvas.discardActiveObject()
+			canvas.requestRenderAll()
 		}
-		undos.push({id: redo.id, params: newParams, op: redo.op})
-		yDrawingMap.set('undos', undos)
-		elem('undotool').classList.remove('disabled')
-		switch (redo.op) {
-			case 'insert':
-				obj.set('visible', true)
-				saveChange(obj, {visible: true}, null)
-				break
-			case 'delete':
-				obj.set('visible', false)
-				saveChange(obj, {visible: false}, null)
-				break
-			case 'update':
-				obj.setOptions(redo.params)
-				obj.setCoords()
-				saveChange(obj, Object.assign(redo.params, {visible: true}), null)
-				break
-		}
-		canvas.discardActiveObject().requestRenderAll()
-	},
-})
+	}
+}
 /****************************************************************** Broadcast ********************************************/
 
 /**
@@ -1647,8 +1812,9 @@ let UndoHandler = fabric.util.createClass(fabric.Object, {
  * @param {String} op insert|delete|update|null (if null, don't save on the undo stack)
  */
 function saveChange(obj, params = {}, op) {
-	// save current object position as well as any format changes
-	params = setParams(obj, params)
+	if (/back/.test(debug)) console.trace('Saving change for object', obj, 'op:', op, 'params:', params)
+	// get current object position as well as any format changes
+	params = getObjectData(obj, params)
 	// send the object to other clients
 	yDrawingMap.set(obj.id, params)
 	//check whether the order of objects has changed; if so, save the new order
@@ -1671,7 +1837,7 @@ function saveChange(obj, params = {}, op) {
 	}
 	// save the change on the undo stack
 	if (op) {
-		undos.push({op: op, id: obj.id, params: params})
+		undos.push({ op: op, id: obj.id, params: params })
 		yDrawingMap.set('undos', undos)
 		elem('undotool').classList.remove('disabled')
 	}
@@ -1684,17 +1850,15 @@ function saveChange(obj, params = {}, op) {
  * @param {object} params - initial parameters
  * @returns params
  */
-function setParams(obj, params) {
-	if (obj.cacheProperties) obj.cacheProperties.forEach((p) => (params[p] = obj[p]))
-	params.left = params.left || obj.left
-	params.top = params.top || obj.top
-	params.angle = obj.angle
-	params.scaleX = obj.scaleX
-	params.scaleY = obj.scaleY
+function getObjectData(obj, params) {
+	params = { ...obj.toObject(), ...params }
+	params.id = obj.id
 	params.type = params.type || obj.type
-	if (obj.type === 'path') params.pathOffset = obj.pathOffset
-	if (obj.type === 'image') params.imageObj = obj.toObject()
-	if (obj.type === 'group' || obj.type === 'activeSelection') params.members = obj.members
+	if (obj.type === 'path' || obj.type === 'Path') params.pathOffset = obj.pathOffset
+	if (obj.type === 'image' || obj.type === 'Image') params.imageObj = obj.toObject()
+	if (params.type === 'ActiveSelection' || params.type === 'Group') {
+		params.members = obj.getObjects().map((o) => o.id)
+	}
 	return params
 }
 /************************************************** Smart Guides ********************************************/
@@ -1775,7 +1939,7 @@ function initAligningGuidelines() {
 									: activeObjectCenter.y - activeObjectHalfHeight - aligningLineOffset,
 						})
 						activeObject.setPositionByOrigin(
-							new fabric.Point(snapCenter, activeObjectCenter.y),
+							new Point(snapCenter, activeObjectCenter.y),
 							'center',
 							'center',
 						)
@@ -1822,7 +1986,7 @@ function initAligningGuidelines() {
 									: activeObjectCenter.x - activeObjectHalfWidth - aligningLineOffset,
 						})
 						activeObject.setPositionByOrigin(
-							new fabric.Point(activeObjectCenter.x, snapCenter),
+							new Point(activeObjectCenter.x, snapCenter),
 							'center',
 							'center',
 						)
@@ -1889,7 +2053,7 @@ var displacement = 0
  * @param {Event} event
  */
 export function copyBackgroundToClipboard(event) {
-	if (document.getSelection().toString()) return // only copy factors if there is no text selected (e.g. in Notes)
+	if (document.getSelection().toString()) return // only copy if there is no text selected (e.g. in Notes)
 	let activeObjs = canvas.getActiveObjects()
 	if (activeObjs.length === 0) return
 	event.preventDefault()
@@ -1898,17 +2062,17 @@ export function copyBackgroundToClipboard(event) {
 	let groupTop = 0
 	// if the active Object is a group, then the component object positions are relative to the
 	// group top, left, not to the canvas.  Compensate for this
-	if (group.type === 'activeSelection' || group.type === 'group') {
+	if (group.type === 'ActiveSelection' || group.type === 'group') {
 		groupTop = group.top + group.height / 2
 		groupLeft = group.left + group.width / 2
 	}
-	copyText(
-		JSON.stringify(activeObjs.map((obj) => setParams(obj, {left: obj.left + groupLeft, top: obj.top + groupTop}))),
+	copyAsText(
+		JSON.stringify(activeObjs.map((obj) => getObjectData(obj, { left: obj.left + groupLeft, top: obj.top + groupTop }))),
 	)
 	displacement = 0
 }
 
-async function copyText(text) {
+async function copyAsText(text) {
 	try {
 		if (typeof navigator.clipboard.writeText !== 'function')
 			throw new Error('navigator.clipboard.writeText not a function')
@@ -1930,28 +2094,37 @@ async function copyText(text) {
 export async function pasteBackgroundFromClipboard() {
 	let clip = await getClipboardContents()
 	let paramsArray = JSON.parse(clip)
-	canvas.discardActiveObject()
+	if (canvas.getActiveObject()) canvas.discardActiveObject()
 	displacement += 10
 	for (let params of paramsArray) {
+		const { type, ...otherParams } = params
 		let copiedObj
-		switch (params.type) {
+		switch (type) {
 			case 'rect':
+			case 'Rect':
 				copiedObj = new RectHandler()
 				break
 			case 'circle':
+			case 'Circle':
 				copiedObj = new CircleHandler()
 				break
 			case 'line':
+			case 'Line':
 				copiedObj = new LineHandler()
 				break
 			case 'text':
+			case 'Text':
+			case 'i-text':
+			case 'IText':
 				copiedObj = new TextHandler()
 				break
 			case 'path':
-				copiedObj = new fabric.Path()
+			case 'Path':
+				copiedObj = new Path()
 				break
 			case 'image':
-				fabric.Image.fromObject(params.imageObj, (image) => {
+			case 'Image':
+				await FabricImage.fromObject(params.imageObj).then((image) => {
 					image.set({
 						left: params.left + displacement,
 						top: params.top + displacement,
@@ -1959,13 +2132,13 @@ export async function pasteBackgroundFromClipboard() {
 					})
 					canvas.add(image)
 					canvas.setActiveObject(image)
-					saveChange(image, {imageObj: image.toObject()}, 'insert')
+					saveChange(image, { imageObj: image.toObject() }, 'insert')
 				})
 				continue
 			default:
-				throw `bad fabric object type in pasteFromClipboard: ${params.type}`
+				throw `bad fabric object type in pasteFromClipboard: ${type}`
 		}
-		copiedObj.setOptions(params)
+		copiedObj.set(otherParams)
 		copiedObj.left += displacement
 		copiedObj.top += displacement
 		copiedObj.id = uuidv4()
@@ -2008,7 +2181,7 @@ export function upgradeFromV1(pointsArray) {
 	doc.transact(() => {
 		pointsArray = eraser(pointsArray)
 		pointsArray.forEach((item) => {
-			let fabObj = {id: uuidv4()}
+			let fabObj = { id: uuidv4() }
 			switch (item[0]) {
 				case 'options':
 					options = item[1]
@@ -2063,7 +2236,7 @@ export function upgradeFromV1(pointsArray) {
 						image.src = item[1][0]
 						let promise = new Promise((resolve) => {
 							image.onload = function () {
-								let imageObj = new fabric.Image(image, {
+								let imageObj = new FabricImage(image, {
 									left: item[1][1],
 									top: item[1][2],
 									width: item[1][3],
@@ -2147,11 +2320,11 @@ function eraser() {
  * @returns Boolean
  */
 function intersect(circle, shape) {
-	let circObj = {x: circle[1][0], y: circle[1][1], r: circle[1][2]}
+	let circObj = { x: circle[1][0], y: circle[1][1], r: circle[1][2] }
 	switch (shape[0]) {
 		case 'rect':
 		case 'rrect': {
-			let rectObj = {x: shape[1][0], y: shape[1][1], w: shape[1][2], h: shape[1][3]}
+			let rectObj = { x: shape[1][0], y: shape[1][1], w: shape[1][2], h: shape[1][3] }
 			return circleIntersectsRect(circObj, rectObj)
 		}
 		case 'text': {

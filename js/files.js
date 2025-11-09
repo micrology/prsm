@@ -86,7 +86,7 @@ import { saveAs } from 'file-saver'
 import { read, writeFileXLSX, utils } from 'xlsx'
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
 import { XMLParser } from 'fast-xml-parser'
-import { fabric } from 'fabric'
+import { StaticCanvas } from 'fabric'
 import { version } from '../package.json'
 
 const NODEWIDTH = 10 // chars for label splitting
@@ -1677,7 +1677,7 @@ export function exportPNGfile() {
 	// create an offscreen canvas of the same size to apply the background to
 	let bigBackgroundCanvas = new OffscreenCanvas(bigWidth, bigWidth)
 	bigBackgroundCanvas.id = 'big-background-canvas'
-	let bigFabricCanvas = new fabric.StaticCanvas('big-background-canvas', {
+	let bigFabricCanvas = new StaticCanvas('big-background-canvas', {
 		width: bigWidth,
 		height: bigWidth,
 	})

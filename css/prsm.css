@@ -234,7 +234,7 @@ aside {
 #errMsg {
 	position: absolute;
 	bottom: 40px;
-	left: 10px;
+	left: 70px;
 	color: white;
 	padding: 10px;
 	border-radius: 10px;
@@ -1392,6 +1392,7 @@ input:checked + .slider:before {
 	width: 40px;
 	height: 40px;
 	border-radius: 6px;
+	border: 1px solid rgb(0, 0, 0);
 	text-align: center;
 	line-height: 40px;
 	font-size: 26px;
@@ -1404,7 +1405,8 @@ input:checked + .slider:before {
 }
 .tool:active,
 .selected {
-	background-color: rgb(58, 59, 60);
+	background-color: var(--pop-up-color);
+	color: rgb(0, 0, 0);
 }
 .disabled {
 	color: var(--header-disabled-color);
