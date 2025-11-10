@@ -31,7 +31,7 @@ import {
 	Point,
 	PencilBrush,
 } from 'fabric'
-import { elem, listen, uuidv4, clean, deepCopy, dragElement, alertMsg, addContextMenu } from '../js/utils.js'
+import { elem, uuidv4, clean, deepCopy, dragElement, alertMsg, addContextMenu } from '../js/utils.js'
 
 // create a wrapper around native canvas element
 export var canvas = new Canvas('drawing-canvas', {
@@ -58,7 +58,7 @@ export function setUpBackground() {
 	resizeCanvas()
 	initDraw()
 }
-listen('drawing-canvas', 'keydown', checkKey)
+//listen('drawing-canvas', 'keydown', checkKey)
 
 /**
  * resize the drawing canvas when the window changes size
@@ -140,7 +140,6 @@ export async function refreshFromMap(keys) {
 	if (/back/.test(debug)) {
 		keys.forEach((key) => console.log('Key:', key, 'value:', yDrawingMap.get(key)))
 	}
-	let imageFound = false
 
 	for (let key of keys) {
 		/* active Selection and group have to be dealt with last, because they reference objects that may
@@ -216,7 +215,6 @@ export async function refreshFromMap(keys) {
 									image.id = key
 									canvas.add(image)
 								})
-								imageFound = true
 								continue
 							}
 						case 'group':
@@ -238,9 +236,8 @@ export async function refreshFromMap(keys) {
 			}
 		}
 	}
-	// Wait for images to load if any were found
-	if (imageFound) await new Promise((r) => setTimeout(r, 400))
 
+// now that ordinary objects are done, deal with groups and active selections
 	for (let key of keys) {
 		let remoteParams = yDrawingMap.get(key)
 		if (remoteParams) {
@@ -275,6 +272,7 @@ export async function refreshFromMap(keys) {
 					objectsInGroup.forEach(obj => canvas.remove(obj))
 					let group = new Group(objectsInGroup)
 					group.id = key
+					// give the new group the required position etc., but don't overwrite the layoutManager or the type
 					group.set(clean(remoteParams, { layoutManager: true, type: true }))
 					group.members = remoteParams.members
 					setGroupBorderColor(group)
@@ -444,6 +442,7 @@ function setUpToolbox() {
 /**
  *
  * Toolbox
+ * 
  */
 
 /**
@@ -610,6 +609,8 @@ function toolHandler(tool) {
 /**
  * react to key presses and mouse movements
  */
+
+// backspace = delete selected object
 window.addEventListener('keydown', (e) => {
 	if ((drawingSwitch && e.key === 'Backspace') || e.key === 'Delete') {
 		let obj = canvas.getActiveObject()
@@ -620,6 +621,7 @@ window.addEventListener('keydown', (e) => {
 		}
 	}
 })
+// ctrl+z = undo
 window.addEventListener('keydown', (e) => {
 	if (drawingSwitch && (e.ctrlKey || e.metaKey) && e.key === 'z') {
 		e.preventDefault()
@@ -627,6 +629,7 @@ window.addEventListener('keydown', (e) => {
 		toolHandler('undo').undo()
 	}
 })
+// ctrl+y = redo
 window.addEventListener('keydown', (e) => {
 	if (drawingSwitch && (e.ctrlKey || e.metaKey) && e.key === 'y') {
 		e.preventDefault()
@@ -634,6 +637,7 @@ window.addEventListener('keydown', (e) => {
 		toolHandler('undo').redo()
 	}
 })
+// arrow keys move selected object
 window.addEventListener('keydown', (e) => {
 	if (drawingSwitch && e.key === 'ArrowUp') {
 		e.preventDefault()
@@ -692,6 +696,7 @@ function sendToBack(obj) {
 	canvas.sendObjectToBack(obj)
 	saveChange(obj, {}, 'insert)')
 }
+
 function bringToFront(obj) {
 	canvas.bringObjectToFront(obj)
 	saveChange(obj, {}, 'insert)')
@@ -727,6 +732,7 @@ canvas.on('mouse:up', function (options) {
 	if (selectedTool) {
 		toolHandler(selectedTool)[event.type](event)
 		closeOptionsDialogs()
+		updateActiveButtons()
 	} else {
 		this.setViewportTransform(this.viewportTransform)
 		this.isDragging = false
@@ -781,7 +787,7 @@ function makeOptionsDialog(tool) {
 	return box
 }
 
-/******************************************************************Rect ********************************************/
+/***************************************** Rect ********************************************/
 const cornerRadius = 10 // radius of rounded corners for rounded rectangle
 
 class RectHandler extends Rect {
@@ -830,20 +836,21 @@ class RectHandler extends Rect {
 	pointerup() {
 		this.dragging = false
 		currentObject = null
-		if (this.width === 0 || this.height === 0) return
-		saveChange(
-			this,
-			{
-				rx: this.rx,
-				ry: this.ry,
-				fill: this.fill,
-				strokeWidth: this.strokeWidth,
-				stroke: this.stroke,
-			},
-			'insert',
-		)
-		canvas.selection = true
-		canvas.setActiveObject(this)
+		if (this.width && this.height) {
+			saveChange(
+				this,
+				{
+					rx: this.rx,
+					ry: this.ry,
+					fill: this.fill,
+					strokeWidth: this.strokeWidth,
+					stroke: this.stroke,
+				},
+				'insert',
+			)
+			canvas.selection = true
+			canvas.setActiveObject(this)
+		}
 		canvas.requestRenderAll()
 		unselectTool()
 	}
@@ -917,7 +924,7 @@ class RectHandler extends Rect {
 		})
 	}
 }
-/******************************************************************Circle ********************************************/
+/******************************************* Circle ********************************************/
 
 class CircleHandler extends Circle {
 	constructor() {
@@ -961,10 +968,11 @@ class CircleHandler extends Circle {
 	pointerup() {
 		this.dragging = false
 		currentObject = null
-		if (this.radius === 0) return
-		saveChange(this, { fill: this.fill, strokeWidth: this.strokeWidth, stroke: this.stroke, radius: this.radius }, 'insert')
-		canvas.selection = true
-		canvas.setActiveObject(this)
+		if (this.radius > 0) {
+			saveChange(this, { fill: this.fill, strokeWidth: this.strokeWidth, stroke: this.stroke, radius: this.radius }, 'insert')
+			canvas.selection = true
+			canvas.setActiveObject(this)
+		}
 		canvas.requestRenderAll()
 		unselectTool()
 	}
@@ -1019,7 +1027,7 @@ class CircleHandler extends Circle {
 		fillColor.style.backgroundColor = this.fill
 	}
 }
-/******************************************************************Line ********************************************/
+/******************************************* Line ********************************************/
 class LineHandler extends Line {
 	constructor() {
 		super([0, 0, 0, 0], {
@@ -1068,7 +1076,10 @@ class LineHandler extends Line {
 	pointerup() {
 		this.dragging = false
 		currentObject = null
-		if (this.x1 === this.x2 && this.y1 === this.y2) return
+		if (this.x1 === this.x2 && this.y1 === this.y2) {
+			unselectTool()
+			return
+		}
 		saveChange(
 			this,
 			{
@@ -1164,7 +1175,7 @@ class LineHandler extends Line {
 	}
 }
 
-/******************************************************************Text ********************************************/
+/**************************************** Text ********************************************/
 
 class TextHandler extends IText {
 	constructor() {
@@ -1248,7 +1259,7 @@ class TextHandler extends IText {
 	}
 }
 
-/******************************************************************Pencil ********************************************/
+/***************************************** Pencil ********************************************/
 
 class PencilHandler extends FabricObject {
 	constructor() {
@@ -1310,7 +1321,7 @@ class PencilHandler extends FabricObject {
 	}
 }
 
-/******************************************************************Marker ********************************************/
+/***************************************** Marker ********************************************/
 
 class MarkerHandler extends FabricObject {
 	constructor() {
@@ -1387,7 +1398,7 @@ function getLastPath() {
 	if (!path || path.type !== 'path') throw 'Last path is not a path'
 	return path
 }
-/******************************************************************Image ********************************************/
+/**************************************** Image ********************************************/
 
 class ImageHandler extends FabricObject {
 	constructor() {
@@ -1440,7 +1451,7 @@ class ImageHandler extends FabricObject {
 
 	optionsDialog() { }
 }
-/****************************************************************** Group ********************************************/
+/****************************************** Group ********************************************/
 
 function makeGroup() {
 	let activeObj = canvas.getActiveObject()
@@ -1496,7 +1507,7 @@ function setGroupBorderColor(group) {
 		cornerStrokeColor: 'green'
 	})
 }
-/****************************************************** Bin (delete) ********************************************/
+/************************************* Bin (delete) ********************************************/
 
 class DeleteHandler extends FabricObject {
 	constructor() {
@@ -1516,25 +1527,7 @@ class DeleteHandler extends FabricObject {
 
 	optionsDialog() { }
 }
-/**
- * catch and branch to a handler for special Key commands
- * Delete, ^z (undo) and ^y (redo)
- * @param {event} e
- */
-function checkKey(e) {
-	//e.preventDefault()
-	if (e.keyCode === 46 || e.key === 'Delete' || e.code === 'Delete' || e.key === 'Backspace') {
-		deleteActiveObjects()
-	}
-	if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
-		currentObject = null
-		toolHandler('undo').undo()
-	}
-	if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y')) {
-		currentObject = null
-		toolHandler('undo').redo()
-	}
-}
+
 /**
  * makes the active object invisible 
  * this allows 'undo' to re-instate the object, by making it visible
@@ -1556,7 +1549,7 @@ function deleteActiveObjects() {
 	canvas.requestRenderAll()
 }
 
-/******************************************************************Undo ********************************************/
+/******************************************** Undo ********************************************/
 
 class UndoHandler extends FabricObject {
 	constructor() {
@@ -1747,9 +1740,8 @@ class UndoHandler extends FabricObject {
 						{
 							// find the previous param set for this group, and set the object to those params
 							let prevDelta = undos.findLast((d) => d.id === redo.id)
-							let paramsWithoutType = { ...prevDelta.params }
-							delete paramsWithoutType.type
-							obj.set(paramsWithoutType)
+							let newParams = clean(prevDelta.params, { type: true, layoutManager: true })
+						obj.set(newParams)
 							obj.setCoords()
 							saveChange(obj, prevDelta.params, null)
 						}
@@ -1789,9 +1781,8 @@ class UndoHandler extends FabricObject {
 					break
 				case 'update':
 					{
-						let paramsWithoutType = { ...redo.params }
-						delete paramsWithoutType.type
-						obj.set(paramsWithoutType)
+						let newParams = clean(redo.params, { type: true, layoutManager: true })
+						obj.set(newParams)
 						obj.setCoords()
 						saveChange(obj, Object.assign(redo.params, { visible: true }), null)
 					}
@@ -1802,7 +1793,7 @@ class UndoHandler extends FabricObject {
 		}
 	}
 }
-/****************************************************************** Broadcast ********************************************/
+/******************************************** Broadcast ********************************************/
 
 /**
  * Broadcast the changes to other clients and

@@ -1376,7 +1376,7 @@ input:checked + .slider:before {
 .toolbox {
 	position: absolute;
 	top: 100px;
-	left: 10px;
+	left: 15px;
 	z-index: 1003;
 	display: none;
 }

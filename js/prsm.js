@@ -250,6 +250,13 @@ function addEventListeners() {
 			e.preventDefault()
 		}
 	})
+		listen('body', 'keydown', (e) => {
+		if (e.ctrlKey && e.key == "y" || e.metaKey && e.key == "y") {
+			redo()
+			e.preventDefault()
+		}
+	})
+
 	listen('addNode', 'click', plusNode)
 	listen('net-pane', 'contextmenu', contextMenu)
 	listen('net-pane', 'click', unFollow)
