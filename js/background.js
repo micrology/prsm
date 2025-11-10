@@ -83,6 +83,12 @@ export function zoomCanvas(zoom) {
 	canvas.zoomToPoint({ x: canvas.getWidth() / 2, y: canvas.getHeight() / 2 }, zoom)
 }
 
+/**
+ * pan the canvas by the given amount
+ * @param {float} x - the x distance to pan
+ * @param {float} y - the y distance to pan
+ * @param {float} zoom - the zoom level
+ */
 export function panCanvas(x, y, zoom) {
 	zoom = zoom || network.getScale()
 	canvas.relativePan(new Point(x * zoom, y * zoom))
@@ -451,8 +457,7 @@ function setUpToolbox() {
  * and remember which tool is now selected
  * The undo, redo, delete and image tools are special, because they act
  * immediately when the icon is clicked
- *
- * @param {object} event
+ * @param {object} event - the click event
  */
 function selectTool(event) {
 	let tool = event.currentTarget
@@ -532,7 +537,7 @@ export function deselectTool() {
 	updateActiveButtons()
 }
 /**
- * unselect the current tool
+ * unselect the current tool and close any option dialogs
  */
 function unselectTool() {
 	if (selectedTool) {
@@ -543,7 +548,7 @@ function unselectTool() {
 	currentObject = null
 }
 /**
- * remove any option dialog that is open
+ * remove any option dialog that is open and currently displayed
  */
 function closeOptionsDialogs() {
 	let box = elem('optionsBox')
@@ -569,8 +574,8 @@ function updateActiveButtons() {
 }
 /**
  * return the correct instance of toolHandler for the given tool
- * @param {string} tool
- * @returns {object}
+ * @param {string} tool - the tool id
+ * @returns {object} the tool handler instance
  */
 function toolHandler(tool) {
 	if (currentObject) return currentObject
@@ -692,11 +697,19 @@ canvas.on('mouse:down', function (options) {
 	}
 })
 
+/**
+ * send the given object to the back of the canvas
+ * @param {fabric.Object} obj - the fabric object to send to back
+ */
 function sendToBack(obj) {
 	canvas.sendObjectToBack(obj)
 	saveChange(obj, {}, 'insert)')
 }
 
+/**
+ * bring the given object to the front of the canvas
+ * @param {fabric.Object} obj - the fabric object to bring to front
+ */
 function bringToFront(obj) {
 	canvas.bringObjectToFront(obj)
 	saveChange(obj, {}, 'insert)')
@@ -745,6 +758,10 @@ canvas.on('mouse:dblclick', () => fit())
 
 const ARROWINCR = 1
 
+/**
+ * move the selected object by ARROWINCR in the given direction
+ * @param {string} direction - 'ArrowUp', 'ArrowDown', 'ArrowLeft', or 'ArrowRight'
+ */
 function arrowMove(direction) {
 	let activeObj = canvas.getActiveObject()
 	if (!activeObj) return
@@ -1390,7 +1407,7 @@ class MarkerHandler extends FabricObject {
 
 /**
  * called after a pencil or marker has been used to retrieve the path object that it created
- * @returns fabric path object
+ * @returns {fabric.Path} the last path object created
  */
 function getLastPath() {
 	let objs = canvas.getObjects()
@@ -1453,6 +1470,9 @@ class ImageHandler extends FabricObject {
 }
 /****************************************** Group ********************************************/
 
+/**
+ * create a group from the currently selected objects
+ */
 function makeGroup() {
 	let activeObj = canvas.getActiveObject()
 	if (!activeObj || canvas.getActiveObjects().length < 2 || !(activeObj instanceof ActiveSelection)) {
@@ -1484,6 +1504,9 @@ function makeGroup() {
 	alertMsg('Grouped', 'info')
 }
 
+/**
+ * ungroup the currently selected group
+ */
 function unGroup() {
 	let activeObj = canvas.getActiveObject()
 	if (!activeObj || !(activeObj instanceof Group)) return
@@ -1500,6 +1523,10 @@ function unGroup() {
 	alertMsg('Ungrouped', 'info')
 }
 
+/**
+ * set the border color of the given group to green
+ * @param {fabric.Group} group - the group object
+ */
 function setGroupBorderColor(group) {
 	group.set({
 		borderColor: 'green',
@@ -1529,8 +1556,8 @@ class DeleteHandler extends FabricObject {
 }
 
 /**
- * makes the active object invisible 
- * this allows 'undo' to re-instate the object, by making it visible
+ * makes the active objects invisible 
+ * this allows 'undo' to re-instate the objects, by making them visible
  */
 function deleteActiveObjects() {
 	canvas.getActiveObjects().forEach((obj) => {
@@ -1839,7 +1866,7 @@ function saveChange(obj, params = {}, op) {
  * Collect the parameters that would allow the reproduction of the object
  * @param {object} obj - fabric object
  * @param {object} params - initial parameters
- * @returns params
+ * @returns {object} the object data with all parameters needed for reproduction
  */
 function getObjectData(obj, params) {
 	params = { ...obj.toObject(), ...params }
@@ -1860,6 +1887,9 @@ const aligningLineWidth = 1
 const aligningLineColor = 'rgb(255,0,0)'
 const aligningDash = [5, 5]
 
+/**
+ * initialize the smart guides that help align objects when moving them
+ */
 function initAligningGuidelines() {
 	let ctx = canvas.getSelectionContext()
 	let viewportTransform
@@ -1998,6 +2028,10 @@ function initAligningGuidelines() {
 		canvas.requestRenderAll()
 	})
 
+	/**
+	 * draw a vertical alignment guide line
+	 * @param {object} coords - object with x, y1, y2 coordinates
+	 */
 	function drawVerticalLine(coords) {
 		drawLine(
 			coords.x + 0.5,
@@ -2006,6 +2040,10 @@ function initAligningGuidelines() {
 			coords.y2 > coords.y1 ? coords.y2 : coords.y1,
 		)
 	}
+	/**
+	 * draw a horizontal alignment guide line
+	 * @param {object} coords - object with x1, x2, y coordinates
+	 */
 	function drawHorizontalLine(coords) {
 		drawLine(
 			coords.x1 > coords.x2 ? coords.x2 : coords.x1,
@@ -2014,6 +2052,13 @@ function initAligningGuidelines() {
 			coords.y + 0.5,
 		)
 	}
+	/**
+	 * draw an alignment guide line between two points
+	 * @param {number} x1 - start x coordinate
+	 * @param {number} y1 - start y coordinate
+	 * @param {number} x2 - end x coordinate
+	 * @param {number} y2 - end y coordinate
+	 */
 	function drawLine(x1, y1, x2, y2) {
 		ctx.save()
 		ctx.lineWidth = aligningLineWidth
@@ -2063,6 +2108,11 @@ export function copyBackgroundToClipboard(event) {
 	displacement = 0
 }
 
+/**
+ * copy the given text to the clipboard
+ * @param {string} text - the text to copy
+ * @returns {Promise<boolean>} true if copy was successful, false otherwise
+ */
 async function copyAsText(text) {
 	try {
 		if (typeof navigator.clipboard.writeText !== 'function')
@@ -2140,6 +2190,10 @@ export async function pasteBackgroundFromClipboard() {
 	alertMsg('Pasted', 'info')
 }
 
+/**
+ * retrieve the contents of the clipboard
+ * @returns {Promise<string|null>} the clipboard contents, or null if read failed
+ */
 async function getClipboardContents() {
 	try {
 		if (typeof navigator.clipboard.readText !== 'function')
@@ -2274,7 +2328,7 @@ export function upgradeFromV1(pointsArray) {
 /**
  * Simulate the effect of the v1 eraser by deleting all rects and textboxes that are overlapped by the
  * white circles produced by the v1 eraser
- * @returns a filtered version of yPointsArray, with 'erased' rects, texts and  white marker circles omitted
+ * @returns {array} a filtered version of pointsArray, with 'erased' rects, texts and white marker circles omitted
  */
 function eraser() {
 	let points = deepCopy(yPointsArray.toArray())
@@ -2306,9 +2360,9 @@ function eraser() {
 }
 /**
  * returns true iff the circle overlaps the shape (tests only rects and text boxes, not lines or pencil)
- * @param {array} circle a marker item from yPointsArray
- * @param {array} shape an item form yPointsArray
- * @returns Boolean
+ * @param {array} circle - a marker item from yPointsArray
+ * @param {array} shape - an item from yPointsArray
+ * @returns {boolean} true if circle overlaps shape, false otherwise
  */
 function intersect(circle, shape) {
 	let circObj = { x: circle[1][0], y: circle[1][1], r: circle[1][2] }
@@ -2328,9 +2382,9 @@ function intersect(circle, shape) {
 }
 /**
  * tests whether any part of the circle overlaps the rectangle
- * @param {object} circle an object with x,y as the circle's centre and r, the circle's radius
- * @param {object} rect an object with the rects x,y for its top left, and width and height
- * @returns Boolean
+ * @param {object} circle - object with x, y as the circle's centre and r, the circle's radius
+ * @param {object} rect - object with x, y for its top left, and width and height
+ * @returns {boolean} true if circle overlaps rectangle, false otherwise
  */
 function circleIntersectsRect(circle, rect) {
 	var distX = Math.abs(circle.x - rect.x - rect.w / 2)
