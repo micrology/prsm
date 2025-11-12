@@ -228,15 +228,14 @@ aside {
 	user-select: none;
 	-webkit-user-select: none;
 	z-index: 2000;
+	box-shadow: 0px 6px 24px var(--pop-up-shadow-color);
 }
 .errMsgWrapper{
 	position: absolute;
-	top: 100px;
-	left: 0;
-	width: 100%;
+	bottom: 40px;
+	left: 70px;
 }
 #errMsg {
-	margin: auto;
 	color: white;
 	padding: 10px;
 	border-radius: 10px;
@@ -268,6 +267,9 @@ aside {
 #statusBar {
 	padding: 3px 20px;
 	border-radius: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 #zoomcontrol {
 	padding-right: 20px;
@@ -624,9 +626,11 @@ nav button .pressed {
 }
 .search-ul {
 	width: 195px;
+	height: 350px;
 	position: absolute;
 	right: 5px;
 	top: 13px;
+	overflow-y: auto;
 	z-index: 2500;
 }
 .search-suggestion {
@@ -1337,7 +1341,7 @@ input:checked + .slider:before {
 	bottom: 80px;
 	left: 20px;
 	max-height: 75%;
-	box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
+	box-shadow: 0px 6px 24px var(--pop-up-shadow-color);
 	border: thin solid var(--pop-up-shadow-color);
 	background-color: white;
 	border-radius: 4px;
@@ -1348,7 +1352,13 @@ input:checked + .slider:before {
 }
 .legendWrapper {
 	max-height: calc(100% - 25px);
+	display: grid;
+	grid-template-columns: repeat(2, 50px);
+	grid-auto-rows: max-content;
 	overflow-y: auto;
+	touch-action: pan-y;
+	-webkit-user-select: all;
+	user-select: all;
 }
 .legendTitle {
 	background-color: var(--header-color);
@@ -1360,8 +1370,16 @@ input:checked + .slider:before {
 	-webkit-user-select: none;
 }
 .legendCanvas {
-	width: 100%;
-	height: 100%;
+	width: 50px;
+	height: 30px;
+}
+.legendStyleName {
+	width: 70px;
+	font-size: 11px;
+	font-family: 'Oxygen';
+	color: rgb(0, 0, 0);
+	align-content: center;
+	overflow-wrap: break-word;
 }
 /* drawing layer */
 .drawing-canvas {
@@ -1376,7 +1394,7 @@ input:checked + .slider:before {
 .toolbox {
 	position: absolute;
 	top: 100px;
-	left: 10px;
+	left: 15px;
 	z-index: 1003;
 	display: none;
 }
@@ -1395,6 +1413,7 @@ input:checked + .slider:before {
 	width: 40px;
 	height: 40px;
 	border-radius: 6px;
+	border: 1px solid rgb(0, 0, 0);
 	text-align: center;
 	line-height: 40px;
 	font-size: 26px;
@@ -1407,7 +1426,8 @@ input:checked + .slider:before {
 }
 .tool:active,
 .selected {
-	background-color: rgb(58, 59, 60);
+	background-color: var(--pop-up-color);
+	color: rgb(0, 0, 0);
 }
 .disabled {
 	color: var(--header-disabled-color);
@@ -1953,8 +1973,15 @@ input#splashNameBox::placeholder {
 	flex-direction: column;
 	z-index: 10000;
 }
+#whatsnewintro {
+	background-color: var(--tab-color);
+	color: black;
+	padding: 10px 20px 0 20px;
+	font-size: 0.7em;
+}
 #whatsnewcontent {
-	background-color: var(--notes-background-color);
+	background-color: var(--tab-color);
+	opacity: 0.8;
 	flex-grow: 1;
 }
 #whatsnewcontent h1 {
@@ -1970,26 +1997,7 @@ input#splashNameBox::placeholder {
 #whatsnewcontent li {
 	padding-top: 1rem;
 }
-#whatsnewcontinue {
-	background-color: var(--tab-color);
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: flex-end;
-	align-items: center;
-}
-#whatsnewbutton {
-	background-color: var(--header-color);
-	color: white;
-	border-radius: 4px;
-	box-shadow: 0px 1px 3px #666666;
-	font-size: 20px;
-	padding: 4px;
-	margin: 12px;
-	cursor: default;
-}
-#whatsnewbutton:hover {
-	background-color: var(--header-hover-color);
-}
+
 /* 3d graph display */
 .threeDGraph {
 	grid-area: main;

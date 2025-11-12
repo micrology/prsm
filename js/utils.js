@@ -4,22 +4,14 @@ PRSM Participatory System Mapper
 
 	Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+This software is licenced under the PolyForm Noncommercial License 1.0.0
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+<https://polyformproject.org/licenses/noncommercial/1.0.0>
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+See the file LICENSE.md for details.
 
 This module provides a set of utility functions used widely within the PRSM code.  
- ******************************************************************************************************************** */
+**********************************************************************************************************************/
 
 import * as Hammer from '@egjs/hammerjs'
 import iro from '@jaames/iro'
@@ -302,6 +294,33 @@ Set.prototype.intersection = function (otherSet) {
 	return intersectionSet
 }
 /**
+ * Find the most frequent string in an array.
+ * @param {array} arr array of strings
+ * @returns string
+ */
+export function mostFrequentString(arr) {
+  if (!arr.length) return null; // handle empty array
+
+  const counts = new Map();
+
+  // Count occurrences
+  for (const str of arr) {
+    counts.set(str, (counts.get(str) || 0) + 1);
+  }
+
+  // Find the highest frequency
+  const maxCount = Math.max(...counts.values());
+
+  // Collect all strings with that frequency
+  const mostFrequent = [...counts.entries()]
+    .filter(([, count]) => count === maxCount)
+    .map(([str]) => str);
+
+  // Pick one at random if there are ties
+  const randomIndex = Math.floor(Math.random() * mostFrequent.length);
+  return mostFrequent[randomIndex];
+}
+/**
  * Convert a factor size into a percent (with any size below 30 as zero), for the input range slider
  * @param {Integer} size
  * @returns {Integer} percent
@@ -317,6 +336,7 @@ export function factorSizeToPercent(size) {
  */
 export function setFactorSizeFromPercent(node, percent) {
 	if (percent < 5) {
+		if (node.widthConstraint?.minimum || node.heightConstraint?.minimum) return
 		node.size = 25
 		node.heightConstraint = node.widthConstraint = false
 	} else {
@@ -649,7 +669,7 @@ const random = (items) => items[(Math.random() * items.length) | 0]
  * @param  {number}  differencePoint
  * @return {boolean}
  */
-const rgbIsLight = (r, g, b, differencePoint) => (r * 299 + g * 587 + b * 114) / 1000 >= differencePoint
+export const rgbIsLight = (r, g, b, differencePoint = 128) => (r * 299 + g * 587 + b * 114) / 1000 >= differencePoint
 
 /**
  * return a random colour, with a flag to show whether the color is light or dark,
@@ -791,9 +811,28 @@ const hiddenOpacity = 0.1
 export function setNodeHidden(node, hide) {
 	node.nodeHidden = hide
 	node.opacity = hide ? hiddenOpacity : 1.0
+	if (node.font.color.charAt(0) === '#') node.font.color = hexToRgba(node.font.color)
 	node.font.color = rgba(node.font.color, hide ? hiddenOpacity : 1.0)
 	return node
 }
+
+/**
+ * covert a hex color string such as #123456 to an rgba string
+ * @param {string} hex
+ * @param {string} alpha
+ * @returns string
+ */
+export function hexToRgba(hex, alpha = 1) {
+	hex = hex.replace('#', '')
+	if (hex.length === 3)
+		hex = hex
+			.split('')
+			.map((c) => c + c)
+			.join('')
+	const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16))
+	return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
 /**
  * set this edge to its 'hidden' appearance (very faint), or restore it to its usual appearance
  * @param {object} edge
@@ -827,6 +866,18 @@ export function standardize_color(str) {
 	ctx.fillStyle = str
 	return ctx.fillStyle
 }
+/**
+ * convert a color string to an array of numbers
+ * e.g. 'rgb(255, 0, 0)' -> [255, 0, 0]
+ * @param {string} rgb
+ * @returns {array} array of numbers
+ */
+export function rgbToArray(rgb) {
+	let values = rgb.slice(rgb.indexOf('(') + 1, rgb.indexOf(')')).split(',')
+	return values.map((value) => {
+		return parseInt(value)
+	})
+}
 
 /**
  * return the inverse/complementary colour
@@ -838,25 +889,38 @@ export function invertColor(color) {
 }
 
 /**
- * closure to generate a sequence of colours (as rgb strings, e.g. 'rgb(246,121,16)')
- * based on https://krazydad.com/tutorials/makecolors.php
+ * return a random color as an rgb string, e.g. 'rgb(246,121,16)'
+ * if a seed (number) is provided, the same color will be generated each time for that seed
+ * if no seed is provided, a different color will be generated each time
+ * @param {number} [seed]
+ * @returns {string} rgb(r,g,b)
  */
-export const makeColor = (function () {
-	let counter = 0
-	let freq = 0.3,
-		phase1 = 0,
-		phase2 = 2,
-		phase3 = 4,
-		center = 128,
-		width = 127
-	return function () {
-		counter += 1
-		let red = Math.sin(freq * counter + phase1) * width + center
-		let grn = Math.sin(freq * counter + phase2) * width + center
-		let blu = Math.sin(freq * counter + phase3) * width + center
-		return 'rgb(' + Math.round(red) + ',' + Math.round(grn) + ',' + Math.round(blu) + ')'
-	}
-})()
+export function makeColor(seed) {
+  // Mulberry32 seeded PRNG
+  function mulberry32(a) {
+    return function() {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+
+  if (typeof seed === "number") {
+    // Seeded PRNG (deterministic but well distributed)
+    const rand = mulberry32(seed);
+    let r = Math.floor(rand() * 256);
+    let g = Math.floor(rand() * 256);
+    let b = Math.floor(rand() * 256);
+    return `rgb(${r}, ${g}, ${b})`;
+  } else {
+    // Non-deterministic path
+    let r = Math.floor(Math.random() * 256);
+    let g = Math.floor(Math.random() * 256);
+    let b = Math.floor(Math.random() * 256);
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+}
 
 window.makeColor = makeColor
 /**
@@ -1112,23 +1176,31 @@ export function exactTime(time) {
 }
 
 export function capitalizeFirstLetter(string) {
-	return string.charAt(0).toUpperCase() + string.slice(1)
+	return string ? string.charAt(0).toUpperCase() + string.slice(1) : ''
 }
 export function lowerFirstLetter(string) {
-	return string.charAt(0).toLowerCase() + string.slice(1)
+	return string ? string.charAt(0).toLowerCase() + string.slice(1) : ''
 }
 /**
- *
+ * convert a number of bytes to a human-readable string
  * @param {number} bytes integer to convert
- * @param {boolean} si use base 10 (true) or base 2 (false)
- * @returns {string} e.g. humanFileSize(1929637) => 1.9MB
+ * @param {boolean} isDecimal use base 10 (true) or base 2 (false)
+ * @returns {string} e.g. humanSize(1929637) => 1.9MB
  */
-export function humanSize(bytes, si = true) {
-	let u,
-		b = bytes,
-		t = si ? 1000 : 1024
-	;['', si ? 'k' : 'K', ...'MGTPEZY'].find((x) => ((u = x), (b /= t), b ** 2 < 1))
-	return `${u ? (t * b).toFixed(1) : bytes}${u}${!si && u ? 'i' : ''}B`
+export function humanSize(bytes, isDecimal = true) {
+	if (bytes === 0) return '0B'
+
+	const decimalUnits = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+	const binaryUnits = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB']
+
+	const base = isDecimal ? 1000 : 1024
+	const units = isDecimal ? decimalUnits : binaryUnits
+
+	const i = Math.floor(Math.log(bytes) / Math.log(base))
+	const size = bytes / Math.pow(base, i)
+
+	const formatted = size % 1 === 0 ? size.toString() : size.toFixed(1)
+	return `${formatted}${units[i]}`
 }
 /**
  * test whether the editor has any content
@@ -1152,8 +1224,45 @@ export function stripNL(str) {
 }
 
 /**
+ * encode characters such as & to HTML entities such as &amp; to
+ * make the string XML compliant. Only deals with common entities.
+ * @param {string} text
+ * @returns string
+ */
+export function encodeHTMLEntities(text) {
+	return text.replace(
+		/[&<>"']/g,
+		(match) =>
+			({
+				'&': '&amp;',
+				'<': '&lt;',
+				'>': '&gt;',
+				'"': '&quot;',
+				"'": '&#39;',
+			})[match],
+	)
+}
+
+/**
  * display help page in a separate window
  */
 export function displayHelp() {
 	window.open(MANUALURL, 'helpWindow')
+}
+/**
+ * remove any crud in Local storage
+ * @param {*} preserve - list of items in local storage to keep
+ */
+export async function cleanLocalStorage(preserve = ['doneIntro', 'seenWN', 'myName', 'recents']) {
+	// remove all local storage items that are not in the list
+	let keys = Object.keys(localStorage)
+	keys.forEach((key) => {
+		if (!preserve.includes(key)) localStorage.removeItem(key)
+	})
+	// remove all IndexDB databases (we don't use them any more) except localforage
+	indexedDB.databases().then((dbs) =>
+		dbs.forEach((db) => {
+			if (db.name !== 'localforage') indexedDB.deleteDatabase(db.name)
+		}),
+	)
 }

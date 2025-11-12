@@ -476,7 +476,7 @@ function nodeEditSave() {
 	group.shape = elem('nodeStyleEditShape').value
 	let border = elem('nodeStyleEditBorder').value
 	group.shapeProperties.borderDashes = convertDashes(border)
-	group.borderWidth = border === 'none' ? 0 : 4
+	group.borderWidth = border === 'none' ? 0 : border === 'solid' ? 1 : 4
 	group.font.size = parseInt(elem('nodeStyleEditFontSize').value)
 	setFactorSizeFromPercent(group, elem('nodeStyleEditFactorSize').value)
 	nodeEditUpdateStyleSample(group)
@@ -569,6 +569,7 @@ export function reApplySampleToNodes(groupIds, force) {
 export function refreshSampleNode(groupId) {
 	let sampleElements = Array.from(document.getElementsByClassName('sampleNode'))
 	let sampleElement = sampleElements[groupId.match(/\d+/)?.[0]]
+	if (!sampleElement) return
 	let node = sampleElement.dataSet.get()[0]
 	node = deepMerge(node, styles.nodes[groupId], {
 		chosen: false,
@@ -698,13 +699,14 @@ function linkEditSubmit() {
 }
 /**
  * update all links in the map with this style to the current style features
+ *   (don't touch cluster edges)
  * @param {number[]} groupIds
  * @param {boolean} [force] override any existing individual edge styling
  */
 export function reApplySampleToLinks(groupIds, force) {
 	let edgesToUpdate = data.edges.get({
 		filter: (item) => {
-			return groupIds.includes(item.grp)
+			return groupIds.includes(item.grp) && !item.isClusterEdge
 		},
 	})
 	data.edges.update(
@@ -719,6 +721,7 @@ export function reApplySampleToLinks(groupIds, force) {
 export function refreshSampleLink(groupId) {
 	let sampleElements = Array.from(document.getElementsByClassName('sampleLink'))
 	let sampleElement = sampleElements[groupId.match(/\d+/)?.[0]]
+	if (!sampleElement) return
 	let edge = sampleElement.dataSet.get()[0]
 	edge = deepMerge(edge, styles.edges[groupId], {chosen: false, value: 10})
 	edge.label = edge.groupLabel
@@ -738,10 +741,8 @@ function getArrows(prop) {
 
 /*  ------------display the map legend (includes all styles with a group label that is neither blank or 'Sample') */
 
-var legendData = {nodes: new DataSet(), edges: new DataSet()}
-var legendNetwork = null
-const LEGENDSPACING = 60
-const HALFLEGENDWIDTH = 60
+const LEGENDHEIGHT = 35
+const LEGENDWIDTH = 120
 /**
  * display a legend on the map (but only if the styles have been given names)
  * @param {Boolean} warn true if user is switching display legend on, but there is nothing to show
@@ -770,59 +771,68 @@ export function legend(warn = false) {
 	title.className = 'legendTitle'
 	title.appendChild(document.createTextNode('Legend'))
 	legendBox.appendChild(title)
-	legendBox.style.height = `${LEGENDSPACING * nItems + title.offsetHeight}px`
-	legendBox.style.width = `${HALFLEGENDWIDTH * 2}px`
+	legendBox.style.height = `${LEGENDHEIGHT * nItems + title.offsetHeight}px`
+	legendBox.style.width = `${LEGENDWIDTH}px`
 	let legendWrapper = document.createElement('div')
 	legendWrapper.className = 'legendWrapper'
 	legendBox.appendChild(legendWrapper)
-	let canvas = document.createElement('div')
-	canvas.className = 'legendCanvas'
-	canvas.style.height = `${LEGENDSPACING * nItems}px`
-	legendWrapper.appendChild(canvas)
 
 	dragElement(legendBox, title)
 
-	legendNetwork = new Network(canvas, legendData, {
-		physics: {enabled: false},
-		interaction: {zoomView: false, dragView: false},
-	})
-	let height = 0
 	for (let i = 0; i < nodes.length; i++) {
+		const canvas = document.createElement('div')
+		canvas.className = 'legendCanvas'
+		legendWrapper.appendChild(canvas)
+		let legendData = {nodes: new DataSet(), edges: new DataSet()}
+		let legendNetwork = new Network(canvas, legendData, {
+			physics: {enabled: false},
+			interaction: {zoomView: false, dragView: false},
+		})
 		let node = deepMerge(styles.nodes[nodes[i].groupNode])
 		node.id = i + 10000
-		node.label = node.groupLabel
+		node.shape === 'text' ? (node.label = 'groupLabel') : (node.label = '')
 		node.fixed = true
 		node.chosen = false
 		node.margin = 10
 		node.x = 0
 		node.y = 0
-		node.widthConstraint = 40
-		node.heightConstraint = 40
+		node.widthConstraint = 10
+		node.heightConstraint = 10
 		node.font.size = 10
+		node.size = 10
 		legendData.nodes.update(node)
-		let bbox = legendNetwork.getBoundingBox(node.id)
-		node.y = (bbox.bottom - bbox.top) / 2 + height
-		height += bbox.bottom - bbox.top
-		legendData.nodes.update(node)
+		legendNetwork.fit()
+
+		const style = document.createElement('div')
+		style.className = 'legendStyleName'
+		style.textContent = node.groupLabel
+		legendWrapper.appendChild(style)
 	}
-	height += 50
+
 	for (let i = 0; i < edges.length; i++) {
+		const canvas = document.createElement('div')
+		canvas.className = 'legendCanvas'
+		legendWrapper.appendChild(canvas)
+		let legendData = {nodes: new DataSet(), edges: new DataSet()}
+		let legendNetwork = new Network(canvas, legendData, {
+			physics: {enabled: false},
+			interaction: {zoomView: false, dragView: false},
+		})
+
 		let edge = deepMerge(styles.edges[edges[i].groupLink])
-		edge.label = edge.groupLabel
+		edge.label = ''
 		edge.id = i + 10000
 		edge.from = i + 20000
 		edge.to = i + 30000
 		edge.smooth = {type: 'straightCross'}
-		edge.font = {size: 12, color: 'black', align: 'top', vadjust: -10}
-		edge.widthConstraint = 80
 		edge.chosen = false
 		let nodes = [
 			{
 				id: edge.from,
 				size: 5,
 				shape: 'dot',
-				x: -25,
-				y: height,
+				x: -20,
+				y: 0,
 				fixed: true,
 				chosen: false,
 			},
@@ -830,29 +840,25 @@ export function legend(warn = false) {
 				id: edge.to,
 				shape: 'dot',
 				size: 5,
-				x: +25,
-				y: height,
+				x: +20,
+				y: 0,
 				fixed: true,
 				chosen: false,
 			},
 		]
 		legendData.nodes.update(nodes)
 		legendData.edges.update(edge)
-		height += 50
+		legendNetwork.fit()
+		const style = document.createElement('div')
+		style.className = 'legendStyleName'
+		style.textContent = edge.groupLabel
+		legendWrapper.appendChild(style)
 	}
-	legendNetwork.fit({})
-	// required to allow scrolling on IOS
-	canvas.firstElementChild.firstElementChild.style.touchAction = 'pan-y'
-	canvas.firstElementChild.firstElementChild.style.webkitUserSelect = 'all'
 }
-window.legendData = legendData
 /**
  * remove the legend from the map
  */
 export function clearLegend() {
-	legendData.nodes.clear()
-	legendData.edges.clear()
-	if (legendNetwork) legendNetwork.destroy()
 	let legendBox = elem('legendBox')
 	if (legendBox) legendBox.remove()
 }

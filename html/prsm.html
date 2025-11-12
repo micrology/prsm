@@ -379,6 +379,20 @@
 											<span class="tooltiptext">Save as a Graphviz DOT/GV) file</span>
 										</div>
 									</div>
+									<div>
+										<div class="tooltip">
+											<button class="dropdown-label" type="button" id="exportGraphML">
+												GraphML
+											</button>
+											<span class="tooltiptext">Save as a GraphML file</span>
+										</div>
+									</div>
+									<div>
+										<div class="tooltip">
+											<button class="dropdown-label" type="button" id="exportGEXF">GEXF</button>
+											<span class="tooltiptext">Save as a Gephi GEXF file</span>
+										</div>
+									</div>
 								</div>
 							</div>
 							<!-- copy map button, only visible when in viewOnly mode -->
@@ -947,6 +961,7 @@
 										<option value="none" selected>None</option>
 										<option value="style">by Style</option>
 										<option value="color">by Colour</option>
+										<option value="louvain">by Community</option>
 									</select>
 								</div>
 							</div>
@@ -1095,7 +1110,7 @@
 				>
 					Zoom
 					<span id="zoomminus">&ndash;</span>
-					<input type="range" id="zoom" min="0.1" max="4" step="0.01" value="1" list="zoom-ticks" />
+					<input type="range" id="zoom" min="0" max="4" step="0.01" value="1" list="zoom-ticks" />
 					<datalist id="zoom-ticks">
 						<option>1</option>
 						<option>2</option>
@@ -1129,6 +1144,7 @@
 						<select name="nodeStyleEditShape" id="nodeStyleEditShape">
 							<option value="ellipse">Ellipse</option>
 							<option value="circle">Circle</option>
+							<option value="dot">Dot</option>
 							<option value="box" selected>Rect</option>
 							<option value="diamond">Diamond</option>
 							<option value="star">Star</option>
@@ -1212,8 +1228,8 @@
 						<select name="linkStyleEditWidth" id="linkStyleEditWidth">
 							<option value="1">Width...</option>
 							<option value="1">Width: 1</option>
-							<option value="2">Width: 2</option>
 							<option value="4">Width: 4</option>
+							<option value="8">Width: 8</option>
 						</select>
 					</div>
 					<div></div>
@@ -1282,12 +1298,13 @@
 			</div>
 			<!-- What's New modal dialog -->
 			<div id="whatsnew">
-				<div id="whatsnewcontinue">
-					<button id="whatsnewbutton">Continue...</button>
-				</div>
 				<div id="whatsnewcontent">
 					<h1>What's new</h1>
 					<div id="whatsnewversion"></div>
+					<div id="whatsnewintro">
+						This panel will appear whenever a new version of PRSM is released. You'll only see it once.
+						Click anywhere on the background map to dismiss it.
+					</div>
 					<ul class="whatsnewlist">
 						<script src="../whatsnew.js"></script>
 					</ul>

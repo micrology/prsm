@@ -10,7 +10,7 @@ doc/help/doc_build
 experiments
 .prettierrc
 .vscode
-dbDir
+dbDir*
 data
 .cache
 .parcel-cache

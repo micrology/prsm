@@ -10,7 +10,7 @@
 
 # access the web page at http://localhost:8080
 
-FROM node:18-slim
+FROM node:23-slim
 RUN apt-get -y update && apt-get -y install vim
 RUN npm install -g http-server
 # copy PRSM run files

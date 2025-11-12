@@ -9,9 +9,11 @@ export default defineConfig({
   icon: '/images/favicon.ico',
   logo: '/images/PRSMlogo200.png',
   logoText: 'PRSM Participatory System Mapper',
+  globalStyles: path.join(__dirname, 'styles/index.css'),
   themeConfig: {
     socialLinks: [
       { icon: 'github', mode: 'link', content: 'https://github.com/micrology/prsm/issues' },
     ],
+    
   },
 });

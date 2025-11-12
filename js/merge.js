@@ -7,7 +7,7 @@ import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
 import {DataSet} from 'vis-data/peer'
 import {doc, websocket, data, logHistory, room} from './prsm.js'
-import {uuidv4, deepCopy, alertMsg} from './utils.js'
+import {uuidv4, deepCopy, object_equals, alertMsg} from './utils.js'
 /* --------------------------------- Merge maps ----------------------------- */
 /*
  * Evaluate mergeRoom(string: room code) e.g. mergeRoom('WBI-CRD-ROB-XDK')
@@ -95,11 +95,22 @@ function mergeMaps() {
 					nodesToAdd.push(newNode)
 					// add to lookup table of existing node id to clone node id
 					newNodes.set(BNode.id, newNode.id)
-				} else if (ANode.grp !== BNode.grp)
-					// label is the same, but style is not - just report this
-					logMerge(
-						`Style: '${ANode.grp}' does not match style: '${BNode.grp}' from other map for Factor: '${ANode.label}. Existing style retained.`,
-					)
+				} else {
+					if (ANode.grp !== BNode.grp) {
+						// label is the same, but style is not - just report this
+						logMerge(
+							`Style: '${ANode.grp}' does not match style: '${BNode.grp}' from other map for Factor: '${ANode.label}. Existing style retained.`,
+						)
+					}
+					if (!object_equals(ANode.note, BNode.note)) {
+						// if the note is different, change it to the note from the other map
+						ANode.note = BNode.note
+						logMerge(
+							`Note for the Factor: '${ANode.label}' changed to the Note from the Factor in the other map`,
+						)
+						nodesToAdd.push(ANode)
+					}
+				}
 			} else {
 				// the node is on the other map, but not on this one - add it.
 				nodesToAdd.push(BNode)
@@ -161,10 +172,17 @@ function mergeMaps() {
 					logMerge(
 						`Link with label: '${AEdge.label}' does not match link from other map with label: '${BEdge.label}'.  Existing label retained.`,
 					)
-				else if (AEdge.grp !== BEdge.grp)
-					logMerge(
-						`Link with style: '${AEdge.grp}' does not match style: '${BEdge.grp}' from other map for link '${edgeName}'. Existing style retained.`,
-					)
+				else {
+					if (AEdge.grp !== BEdge.grp)
+						logMerge(
+							`Link with style: '${AEdge.grp}' does not match style: '${BEdge.grp}' from other map for link '${edgeName}'. Existing style retained.`,
+						)
+					if (!object_equals(AEdge.note, BEdge.note)) {
+						AEdge.note = BEdge.note
+						logMerge(`Note for Link: '${edgeName}' changed to the Note from the Link in the other map`)
+						edgesToAdd.push(AEdge)
+					}
+				}
 			} else {
 				// if BEdge's from or to nodes have been substituted for a node in the A map
 				// with the same label, change the from or to ids to the A map version

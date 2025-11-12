@@ -47,6 +47,7 @@ import {
 	AccessorModule,
 	MenuModule,
 	InteractionModule,
+	FilterModule,
 } from 'tabulator-tables'
 //import {TabulatorFull as Tabulator} from 'tabulator-tables'  // documented at https://tabulator.info/
 import {version} from '../package.json'
@@ -64,6 +65,7 @@ Tabulator.registerModule([
 	AccessorModule,
 	MenuModule,
 	InteractionModule,
+	FilterModule,
 ])
 
 const shortAppName = 'PRSM'
@@ -141,6 +143,10 @@ function startY() {
 	else room = room.toUpperCase()
 	debug = [url.searchParams.get('debug')]
 	document.title = document.title + ' ' + room
+	// if debug flag includes 'local' or using a non-standard port (i.e neither 80 nor 443)
+	// assume that the websocket port is 1234 in the same domain as the url
+	if (/local/.test(debug) || (url.port && url.port !== 80 && url.port !== 443))
+		websocket = `ws://${url.hostname}:1234`
 	const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
 	wsProvider.on('sync', () => {
 		console.log(exactTime() + ' remote content loaded')
@@ -671,7 +677,7 @@ function initialiseFactorTable() {
 				factorsTable.getRows().forEach((row) => {
 					row.update({hidden: !ticked})
 					let node = deepCopy(yNodesMap.get(row.getData().id))
-					node.nodeHidden = !ticked
+					hideNodeAndEdges(node, !ticked)
 					yNodesMap.set(node.id, node)
 				})
 			})
@@ -972,7 +978,6 @@ function convertNode(node) {
 	}
 	n.size =
 		n.scaling.label.enabled && n.value != undefined && !isNaN(n.value) ? parseFloat(n.value).toPrecision(3) : '--'
-	if (n.shape == 'database') n.shape = 'cluster'
 	if (n.groupLabel == 'Sample') n.groupLabel = '--'
 	n.borderStyle = n.shapeProperties.borderDashes
 	if (n.borderWidth == 0) n.borderStyle = 'None'
@@ -1044,7 +1049,6 @@ function convertNodeBack(node, field, value) {
 			node.grp = getNodeGroupFromGroupLabel(value)
 			break
 		case 'shape':
-			if (value == 'cluster') value = 'database'
 			node.shape = value
 			break
 		case 'hidden':
@@ -1604,8 +1608,13 @@ function setUpFilter() {
 	openTable.getColumns().forEach((colComp) => {
 		let def = colComp.getDefinition()
 		if (def.formatter != 'color' && def.field != 'selection')
-			// cannot sort by color
-			select[i++] = new Option(def.titleClipboard || def.title || capitalizeFirstLetter(def.field), def.field)
+			// cannot sort by color and avoid SVG titles
+			select[i++] = new Option(
+				def.titleClipboard ||
+					(typeof def.title === 'string' && def.title[0] !== '<' ? def.title : false) ||
+					capitalizeFirstLetter(def.field),
+				def.field,
+			)
 	})
 	filterDiv.appendChild(select)
 	filterDiv.insertAdjacentHTML('afterbegin', 'Filter: ')

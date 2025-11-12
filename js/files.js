@@ -21,7 +21,7 @@ PRSM Participatory System Mapper
 This module provides import and export functions, to read and save map files in a variety of formats.  
  ******************************************************************************************************************** */
 
-import {Network, parseGephiNetwork, parseDOTNetwork} from 'vis-network/peer'
+import { Network, parseGephiNetwork, parseDOTNetwork } from 'vis-network/peer'
 import {
 	data,
 	doc,
@@ -63,24 +63,31 @@ import {
 	deepMerge,
 	deepCopy,
 	splitText,
+	setNodeHidden,
+	setEdgeHidden,
 	standardize_color,
+	rgbIsLight,
+	rgbToArray,
+	hexToRgba,
 	strip,
 	statusMsg,
 	alertMsg,
 	lowerFirstLetter,
+	encodeHTMLEntities,
 	stripNL,
 } from './utils.js'
-import {styles} from './samples.js'
-import {canvas, refreshFromMap, setUpBackground, upgradeFromV1} from './background.js'
-import {refreshSampleNode, refreshSampleLink, updateLegend} from './styles.js'
+import { styles } from './samples.js'
+import { canvas, refreshFromMap, setUpBackground, upgradeFromV1 } from './background.js'
+import { refreshSampleNode, refreshSampleLink, updateLegend } from './styles.js'
 import Quill from 'quill'
-import {saveAs} from 'file-saver'
-import * as quillToWord from 'quill-to-word'
-import {read, writeFileXLSX, utils} from 'xlsx'
-import {compressToUTF16, decompressFromUTF16} from 'lz-string'
-import * as parser from 'fast-xml-parser'
-import {fabric} from 'fabric'
-import {version} from '../package.json'
+import markdownToDelta from 'markdown-to-quill-delta'
+import { saveAs } from 'file-saver'
+//import * as quillToWord from 'quill-to-word'  //dynamically loaded in exportNotes
+import { read, writeFileXLSX, utils } from 'xlsx'
+import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
+import { XMLParser } from 'fast-xml-parser'
+import { StaticCanvas } from 'fabric'
+import { version } from '../package.json'
 
 const NODEWIDTH = 10 // chars for label splitting
 
@@ -112,7 +119,7 @@ export function readSingleFile(e) {
 			document.body.style.cursor = 'default'
 			alertMsg("Error reading '" + fileName + "': " + err.message, 'error')
 			console.log(err)
-			return
+			clearMap()
 		}
 		document.body.style.cursor = 'default'
 	}
@@ -130,7 +137,7 @@ elem('container').addEventListener('drop', (e) => {
 	let dt = e.dataTransfer
 	let files = dt.files
 	if (files.length > 0) {
-		readSingleFile({target: {files: files}})
+		readSingleFile({ target: { files: files } })
 	}
 })
 elem('container').addEventListener('dragover', (e) => {
@@ -158,6 +165,8 @@ function loadFile(contents) {
 				loadGML(arrayBufferToString(contents))
 				break
 			case 'json':
+				loadKumufile(arrayBufferToString(contents))
+				break
 			case 'prsm':
 				loadPRSMfile(arrayBufferToString(contents))
 				break
@@ -166,10 +175,18 @@ function loadFile(contents) {
 				loadDOTfile(arrayBufferToString(contents))
 				break
 			case 'xlsx':
+			case 'xls':
 				loadExcelfile(contents)
 				break
+			case 'gexf':
+				loadGEXFfile(arrayBufferToString(contents))
+				break
+			case 'drawio':
+			case 'xml':
+				loadDrawIOfile(arrayBufferToString(contents))
+				break
 			default:
-				throw {message: 'Unrecognised file name suffix'}
+				throw new Error('Unrecognised file name suffix')
 		}
 		let nodesToUpdate = []
 		data.nodes.get().forEach((n) => {
@@ -179,7 +196,7 @@ function loadFile(contents) {
 			n = deepMerge(styles.nodes[n.grp], n)
 			// version 1.6 made changes to label scaling
 			n.scaling = {
-				label: {enabled: false, max: 40, min: 10},
+				label: { enabled: false, max: 40, min: 10 },
 				max: 100,
 				min: 10,
 			}
@@ -200,11 +217,14 @@ function loadFile(contents) {
 
 		fit()
 		updateLegend()
-		logHistory('loaded &lt;' + lastFileName + '&gt;')
+		// Allow open file undo unless the loaded file is blank (no factors). This gives
+		// users a way of zeroing a map.
+		logHistory('loaded &lt;' + lastFileName + '&gt;', false, data.nodes.length === 0)
 	})
 	yUndoManager.clear()
 	undoRedoButtonStatus()
 	toggleDeleteButton()
+	recreateClusteringMenu(yNetMap.get('attributeTitles')|| {})
 	drawMinimap()
 }
 /**
@@ -230,10 +250,6 @@ function loadPRSMfile(str) {
 	updateLastSamples(json.lastNodeSample, json.lastLinkSample)
 	if (json.buttons) setButtonStatus(json.buttons)
 	if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle))
-	/* if (json.recentMaps) {
-		let recents = JSON.parse(localStorage.getItem('recents')) || {}
-		localStorage.setItem('recents', JSON.stringify(Object.assign(json.recentMaps, recents)))
-	} */
 	if (json.attributeTitles) yNetMap.set('attributeTitles', json.attributeTitles)
 	else yNetMap.set('attributeTitles', {})
 	if (json.edges.length > 0 && 'source' in json.edges[0]) {
@@ -254,13 +270,13 @@ function loadPRSMfile(str) {
 			// at version 1.5, the title: property was renamed to note:
 			if (!n.note && n.title) n.note = n.title.replace(/<br>|<p>/g, '\n')
 			delete n.title
-			if (n.note && !(n.note instanceof Object)) n.note = {ops: [{insert: n.note}]}
+			if (n.note && !(n.note instanceof Object)) n.note = { ops: [{ insert: n.note }] }
 		})
 		data.nodes.add(json.nodes)
 		json.edges.forEach((e) => {
 			if (!e.note && e.title) e.note = e.title.replace(/<br>|<p>/g, '\n')
 			delete e.title
-			if (e.note && !(e.note instanceof Object)) e.note = {ops: [{insert: e.note}]}
+			if (e.note && !(e.note instanceof Object)) e.note = { ops: [{ insert: e.note }] }
 		})
 		data.edges.add(json.edges)
 	}
@@ -358,55 +374,795 @@ function loadDOTfile(graph) {
  */
 function loadGraphML(graphML) {
 	let options = {
-		attributeNamePrefix: '',
-		attrNodeName: 'attr',
-		textNodeName: 'txt',
 		ignoreAttributes: false,
-		ignoreNameSpace: true,
-		allowBooleanAttributes: false,
-		parseNodeValue: true,
-		parseAttributeValue: true,
+		attributeNamePrefix: '',
+		alwaysCreateTextNode: false,
+		isArray: (name, jpath) => {
+			// Define which elements should always be arrays
+			const arrayPaths = [
+				'graphml.key',
+				'graphml.graph.node',
+				'graphml.graph.edge',
+				'graphml.graph.node.data',
+				'graphml.graph.edge.data',
+			]
+			return arrayPaths.includes(jpath)
+		},
+		textNodeName: '#text',
 		trimValues: true,
-		parseTrueNumberOnly: false,
-		arrayMode: false, //"strict"
 	}
-	var result = parser.validate(graphML, options)
-	if (result !== true) {
-		throw {
-			message: result.err.msg + '(line ' + result.err.line + ')',
+	const parser = new XMLParser(options)
+	const parsedData = parser.parse(graphML)
+	if (parsedData.graphml && parsedData.graphml.graph) {
+		let attributeNames = {}
+		if (parsedData.graphml.key) {
+			parsedData.graphml.key.forEach((key) => {
+				attributeNames[key.id] = key['attr.name']
+			})
 		}
-	}
-	let jsonObj = parser.parse(graphML, options)
-	data.nodes.add(
-		jsonObj.graphml.graph.node.map((n) => {
-			return {
-				id: n.attr.id.toString(),
-				label: getLabel(n.data),
+		const nodes = parsedData.graphml.graph.node.map((node) => {
+			const nodeData = {}
+			if (node.data) {
+				node.data.forEach((data) => {
+					nodeData[attributeNames[data['key']]] = data['#text']
+				})
 			}
-		}),
-	)
-	data.edges.add(
-		jsonObj.graphml.graph.edge.map((e) => {
 			return {
-				id: e.attr.id.toString(),
-				from: e.attr.source.toString(),
-				to: e.attr.target.toString(),
+				id: node['id'],
+				...nodeData,
 			}
-		}),
-	)
-
-	function getLabel(arr) {
-		for (let at of arr) {
-			if (at.attr.key == 'label') return at.txt
-		}
+		})
+		const edges = parsedData.graphml.graph.edge.map((edge) => {
+			const edgeData = {}
+			if (edge.data) {
+				edge.data.forEach((data) => {
+					edgeData[attributeNames[data['key']]] = data['#text']
+				})
+			}
+			return {
+				id: edge['id'],
+				source: edge['source'],
+				target: edge['target'],
+				...edgeData,
+			}
+		})
+		let nodesToUpdate = []
+		nodes.forEach((node) => {
+			let n = deepCopy(styles.nodes.group0)
+			if (!node.id) throw new Error(`No ID for node ${node.label}`)
+			n.id = node.id
+			n.label = node.label ? node.label : node.id
+			if (node.size) n.size = node.size
+			if (node.x) n.x = node.x
+			if (node.y) n.y = node.y
+			if (node.r != undefined && node.g != undefined && node.b != undefined) {
+				n.color.background = `rgb(${node.r},${node.g},${node.b})`
+				n.font.color = rgbIsLight(node.r, node.g, node.b) ? 'rgb(0,0,0)' : 'rgb(255,255,255)'
+			}
+			nodesToUpdate.push(n)
+		})
+		data.nodes.update(nodesToUpdate)
+		// and each edge
+		let edgesToUpdate = []
+		edges.forEach((edge) => {
+			let e = deepCopy(styles.edges.edge0)
+			if (!edge.id) throw new Error('Missing edge ID')
+			e.id = edge.id
+			if (!data.nodes.get(edge.source)) throw new Error(`No node ${edge.source} for source of edge ID ${edge.id}`)
+			e.from = edge.source
+			if (!data.nodes.get(edge.target)) throw new Error(`No node ${edge.target} for source of edge ID ${edge.id}`)
+			e.to = edge.target
+			e.width = edge.weight > 20 ? 20 : edge.weight < 1 ? 1 : edge.weight
+			edgesToUpdate.push(e)
+		})
+		data.edges.update(edgesToUpdate)
+	} else {
+		alertMsg('Bad format in GraphML file', 'error')
+		throw new Error('Bad format in GraphML file')
 	}
 }
+
+/**
+ * Parse and load a Gephi GEXF file into PRSM format
+ * @param {string} gexf - XML string from file
+ */
+function loadGEXFfile(gexf) {
+	const parser = new XMLParser({
+		ignoreAttributes: false,
+		attributeNamePrefix: '',
+		processEntities: true,
+		isArray: (name) => ['node', 'edge', 'attribute', 'attvalue'].includes(name),
+		transformTagName: (tag) => (tag.startsWith('viz:') ? tag.replace('viz:', 'viz_') : tag),
+	})
+
+	const jsonObj = parser.parse(gexf)
+	const graph = jsonObj.gexf?.graph || jsonObj.graph
+	if (!graph) throw new Error('Invalid GEXF format: no graph found')
+
+	const attributes = processAttributes(graph.attributes)
+
+	const nodes = (graph.nodes?.node || []).map((node) => ({
+		id: node.id,
+		label: node.label || node.id,
+		attributes: processAttributeValues(node.attvalues?.attvalue || []),
+		...processVizAttributes(node),
+		...processNodePosition(node),
+	}))
+
+	const edges = (graph.edges?.edge || []).map((edge) => ({
+		id: edge.id,
+		source: edge.source,
+		target: edge.target,
+		type: edge.type || graph.defaultedgetype || 'directed',
+		weight: parseFloat(edge.weight) || 1,
+		attributes: processAttributeValues(edge.attvalues?.attvalue || []),
+		...processEdgeVizAttributes(edge),
+	}))
+
+	const attributeNames = { ...(yNetMap.get('attributeTitles') || {}) }
+	Object.entries(attributes.nodes).forEach(([id, { title }]) => (attributeNames[id] = title))
+	yNetMap.set('attributeTitles', attributeNames)
+
+	const nodesToUpdate = nodes.map((node) => {
+		if (!node.id) throw new Error(`No ID for node ${node.label}`)
+		const base = { ...deepCopy(styles.nodes.group0), ...node.attributes }
+		const color = node.viz?.color ? rgba(node.viz.color) : base.color.background
+		return {
+			...base,
+			id: node.id,
+			label: node.label,
+			x: node.position?.x,
+			y: node.position?.y,
+			size: node.viz?.size,
+			shape: node.viz?.shape,
+			color: {
+				border: color,
+				background: color,
+				highlight: {
+					border: color,
+					background: color
+				},
+				hover: {
+					border: color,
+					background: color
+				}
+			},
+			font: color
+				? {
+					...base.font,
+					color: rgbIsLight(color.r, color.g, color.b) ? 'rgb(0,0,0)' : 'rgb(255,255,255)',
+				}
+				: base.font,
+		}
+	})
+	data.nodes.update(nodesToUpdate)
+
+	const edgesToUpdate = edges.map((edge) => {
+		if (!edge.id) throw new Error('Missing edge ID')
+		if (!data.nodes.get(edge.source)) throw new Error(`No node ${edge.source} for edge ${edge.id}`)
+		if (!data.nodes.get(edge.target)) throw new Error(`No node ${edge.target} for edge ${edge.id}`)
+
+		const base = deepCopy(styles.edges.edge0)
+		const color = edge.viz?.color ? rgba(edge.viz.color) : base.color.color
+		const width = Math.min(20, Math.max(1, edge.weight))
+
+		return {
+			...base,
+			id: edge.id,
+			from: edge.source,
+			to: edge.target,
+			width,
+			color: {
+				color: color,
+				highlight: color,
+				hover: color,
+				opacity: 1
+			}
+		}
+	})
+	data.edges.update(edgesToUpdate)
+
+	// === Helpers ===
+	function processAttributes(attributesNode) {
+		const result = { nodes: {}, edges: {} }
+		if (!attributesNode) return result
+		const attributes = Array.isArray(attributesNode) ? attributesNode : [attributesNode]
+
+			; (attributes || []).forEach(({ class: cls, attribute = [] }) => {
+				attribute.forEach(({ id, title, name, type }) => {
+					result[cls === 'node' ? 'nodes' : 'edges'][id] = {
+						title: title || name,
+						type: type || 'string',
+					}
+				})
+			})
+
+		return result
+	}
+
+	function processAttributeValues(attvalues) {
+		return (Array.isArray(attvalues) ? attvalues : []).reduce((acc, { for: key, value }) => {
+			if (key !== undefined && value !== undefined) acc[key] = value
+			return acc
+		}, {})
+	}
+
+	function processVizAttributes(el) {
+		const { viz_size, viz_color, viz_shape } = el
+		const viz = {}
+		if (viz_size) viz.size = parseFloat(viz_size.value || viz_size.size)
+		if (viz_color)
+			viz.color = {
+				r: parseInt(viz_color.r || 0),
+				g: parseInt(viz_color.g || 0),
+				b: parseInt(viz_color.b || 0),
+				a: parseFloat(viz_color.a ?? 1.0),
+			}
+		if (viz_shape) viz.shape = viz_shape.value
+		return Object.keys(viz).length ? { viz } : {}
+	}
+
+	function processNodePosition({ viz_position, x, y, z }) {
+		const pos = viz_position
+			? {
+				x: +viz_position.x || 0,
+				y: +viz_position.y || 0,
+				z: +viz_position.z || 0,
+			}
+			: x || y || z
+				? { x: +x, y: +y, z: +z }
+				: null
+		return pos ? { position: pos } : {}
+	}
+
+	function processEdgeVizAttributes({ viz_thickness, viz_color, viz_shape }) {
+		const viz = {}
+		if (viz_thickness) viz.thickness = parseFloat(viz_thickness.value)
+		if (viz_color)
+			viz.color = {
+				r: parseInt(viz_color.r || 0),
+				g: parseInt(viz_color.g || 0),
+				b: parseInt(viz_color.b || 0),
+				a: parseFloat(viz_color.a ?? 1.0),
+			}
+		if (viz_shape) viz.shape = viz_shape.value
+		return Object.keys(viz).length ? { viz } : {}
+	}
+
+	function rgba({ r, g, b, a = 1.0 }) {
+		return `rgba(${r},${g},${b},${a})`
+	}
+}
+/**
+ * Parse and load a file exported from Draw.io
+ * The file must be in XML format, as exported from Draw.io
+ * The file should contain a single mxGraphModel element with mxCell elements for nodes and edges.
+ * The nodes should have a label and an mxGeometry element with x, y, width and height attributes.
+ * Other node cells are ignored, as are nodes holding images
+ * The edges should have a source and target attribute.
+ * @param {string} contents
+ */
+function loadDrawIOfile(contents) {
+	const parser = new XMLParser({
+		ignoreAttributes: false,
+		attributeNamePrefix: '',
+	})
+
+	const jsonObj = parser.parse(contents)
+	const graph = jsonObj.mxfile?.diagram?.mxGraphModel.root.mxCell
+	if (!graph) throw new Error('Invalid Draw.io format: no graph found')
+	let nodes = []
+	let edges = []
+	graph.forEach((cell) => {
+		// skip the root cell
+		if (cell.mxGeometry) {
+			if (cell.edge) {
+				let edge = {
+					...deepCopy(styles.edges.base),
+					id: cell.id,
+					from: cell.source,
+					to: cell.target,
+					label: splitText((cell.value || '').replace(/<[^>]*>/g, '').replace('&nbsp;', ' ')),
+					grp: 'drawIOEdge',
+				}
+				if (!cell.source || !cell.target) {
+					console.warn(`Edge ${cell.id} has no source or target, ignoring it`)
+					edge = 'ignore'
+				} else if (cell.style) {
+					let style = cell.style.split(';')
+					style.forEach((s) => {
+						if (s.startsWith('strokeColor')) {
+							edge.color.color = hexToRgba(s.split('=')[1])
+						} else if (s.startsWith('strokeWidth')) {
+							edge.width = parseInt(s.split('=')[1])
+						} else if (s.startsWith('dashed')) {
+							edge.dashes = s.split('=')[1] === '1'
+						}
+					})
+				}
+				if (edge !== 'ignore') edges.push(edge)
+			} else {
+				let node = {
+					...deepCopy(styles.nodes.base),
+					id: cell.id,
+					label: splitText((cell.value || ' ').replace(/<[^>]*>/g, '').replace('&nbsp;', ' ')),
+					x: parseFloat(cell.mxGeometry.x),
+					y: parseFloat(cell.mxGeometry.y),
+					widthConstraint: { minimum: parseFloat(cell.mxGeometry.width) },
+					heightConstraint: { minimum: parseFloat(cell.mxGeometry.height) },
+					grp: 'drawIOnode',
+				}
+				if (!node.id || node.label.trim() === '') {
+					//ignore nodes with blank labels
+					console.warn(`Ignoring node ${node.id} without an Id or with a blank label`)
+					node = 'ignore'
+				} else {
+					if (cell.style) {
+						let style = cell.style.split(';')
+						// default node style is a white box with thin black border
+						node.color.background = 'rgba(255, 255, 255, 1)'
+						node.borderWidth = 1
+						node.color.border = 'rgba(0, 0, 0, 1)'
+						node.shape = 'box'
+						style.forEach((s) => {
+							if (s === 'ellipse') {
+								node.shape = 'ellipse'
+								node.heightConstraint = { minimum: 50 }
+							} else if (s === 'text') {
+								node.shape = 'text'
+								node.borderWidth = 0
+							}
+							if (s.startsWith('fillColor')) {
+								node.color.background = hexToRgba(s.split('=')[1])
+							} else if (s.startsWith('strokeColor')) {
+								node.color.border = hexToRgba(s.split('=')[1])
+							} else if (s.startsWith('strokeWidth')) {
+								node.borderWidth = parseInt(s.split('=')[1])
+							} else if (s.startsWith('shape')) {
+								node.shape = s.split('=')[1]
+							} else if (s.startsWith('image')) {
+								// ignore image nodes
+								console.warn(`Ignoring image node ${node.label} (${node.id})`)
+								node = 'ignore'
+							} else if (s.startsWith('fontColor')) {
+								node.font.color = hexToRgba(s.split('=')[1])
+							} else if (s.startsWith('round')) {
+								node.shapeProperties = {
+									borderRadius: parseInt(s.split('=')[1]) ? 6 : 0,
+								}
+							}
+						})
+					}
+					if (node !== 'ignore') nodes.push(node)
+				}
+			}
+		}
+	})
+	data.nodes.update(nodes)
+	// check all edges are connected to nodes
+	edges.forEach((edge) => {
+		if (!edge.id) throw new Error('Missing edge ID')
+		if (!data.nodes.get(edge.from)) throw new Error(`Missing 'from' factor: ${edge.from} for edge: ${edge.id}`)
+		if (!data.nodes.get(edge.to)) throw new Error(`Missing 'to' factor: ${edge.to} for edge: ${edge.id}`)
+	})
+	data.edges.update(edges)
+}
+/**
+ * Parse and load a Kumu file
+ * The file must be in JSON format, as exported from Kumu.
+ *
+ * @param {string} str - JSON string from Kumu file
+ * @returns {void}
+ *
+ */
+function loadKumufile(str) {
+	const kumuData = JSON.parse(str)
+	const elements = kumuData.elements
+	if (!elements) throw new Error('Invalid Kumu file: no elements found')
+	const defaultMap = kumuData.defaultMap
+	const connections = kumuData.connections || []
+	const maps = kumuData.maps
+	const defaultPerspective = maps.find((map) => map._id === defaultMap).defaultPerspective
+	if (!defaultPerspective) {
+		throw new Error('Invalid Kumu file: no default perspective found')
+	}
+	const perspectives = kumuData.perspectives
+	const attributes = kumuData.attributes || {}
+	const nodeMap = new Map()
+	const edgeMap = new Map()
+
+	// convert from Kumu element shapes to nearest PRSM factor shapes
+	const shapeConversion = {
+		circle: 'ellipse',
+		rectangle: 'box',
+		diamond: 'diamond',
+		triangle: 'triangle',
+		hexagon: 'hexagon',
+		square: 'box',
+		pill: 'box',
+		pentagon: 'hexagon',
+		octagon: 'hexagon',
+	}
+	// get names of attributes and save them
+	let attributeToUseAsNodeStyle = 'Category' // the name of the attribute that will be used to style nodes
+	let attributeToUseAsLinkStyle = 'Relationship impact' // the name of the attribute that will be used to style links
+	if (kumuData.description) {
+		attributeToUseAsNodeStyle = /PRSMFactorStyleAttribute\s*=\s['|"](.*)['|"]/i.exec(kumuData.description)?.[1] || attributeToUseAsNodeStyle
+		attributeToUseAsLinkStyle = /PRSMLinkStyleAttribute\s*=\s['|"](.*)['|"]/i.exec(kumuData.description)?.[1] || attributeToUseAsLinkStyle
+	}
+	let attributeToUseAsNodeStyleId // the id of the attribute that will be used to style nodes
+	const attributeNames = { ...(yNetMap.get('attributeTitles') || {}) }
+	attributes.forEach((attr) => {
+		if (!['Description', 'Label'].includes(attr.name)) attributeNames[attr._id] = attr.name
+		if (attr.name === attributeToUseAsNodeStyle) {
+			attributeToUseAsNodeStyleId = attr._id
+			// use the values as the names of the node styles
+			let group = 0
+			for (const styleName of attr.values) {
+				styles.nodes[`group${group}`].groupLabel = styleName
+				refreshSampleNode(`group${group}`)
+				if (group >= 15) break
+				group++
+			}
+		}
+		if (attr.name === attributeToUseAsLinkStyle) {
+			// use the values as the names of the link styles
+			let group = 0
+			for (const styleName of attr.values) {
+				styles.edges[`edge${group}`].groupLabel = styleName
+				refreshSampleLink(`edge${group}`)
+				if (group >= 9) break
+				group++
+			}
+		}
+	})
+	yNetMap.set('attributeTitles', attributeNames)
+
+	// get perspective, edit PRSM styles and apply styles to factors and links
+
+	let perspective = perspectives.find((p) => p._id === defaultPerspective)
+	// translate KUMU CSS style format to an object for easier access
+	let pStyles = parseKumuPerspectiveStyle(perspective.style)
+	// console.log("Styles:", pStyles)
+
+	/* Use the Perspective element styles to set the PRSM styles
+	e.g element["category"="Driver"]
+{
+	color: #d73027;
+	border-colour: black;
+	border-width: 10;
+}
+	will name a PRSM node style "Driver" with a background color of #d73027, 
+	a black border and a border width of 10.
+	*/
+	let elementStyles = pStyles['element-styles']
+	for (const eStyle of elementStyles) {
+		if (eStyle.match?.category) {
+			// find the style with the category name
+			let style = Object.entries(styles.nodes).find((a) => a[1].groupLabel === eStyle.match.category)[0]
+			let styleNode = styles.nodes[style]
+			styleNode.color.background = eStyle.styles.color
+			styleNode.color.border = eStyle.styles['border-color'] || 'black'
+			styleNode.borderWidth = eStyle.styles['border-width'] / 10 || 0
+			styleNode.font.color = eStyle.styles['font-color'] || 'rgb(0,0,0)'
+			styleNode.shape = shapeConversion[eStyle.styles['shape']] || 'dot'
+			refreshSampleNode(style)
+		}
+	}
+
+	// get all elements
+	elements.forEach((element) => {
+		const label = element?.attributes?.label
+		const note = element?.attributes?.description || ''
+		const attributes = {}
+		for (const attr in attributeNames) {
+			let value = element?.attributes[attributeNames[attr].toLowerCase()]
+			// flatten attribute value from an array to a set of strings
+			attributes[attr] = Array.isArray(value) ? value.join(' | ') : value
+		}
+		// skip elements with no label
+		if (label) {
+			nodeMap.set(element._id, {
+				...deepCopy(styles.nodes.base),
+				id: element._id,
+				label: splitText((label || ' ').replace(/<[^>]*>/g, '').replace('&nbsp;', ' ')),
+				note: note ? markdownToDelta(note) : '',
+				shape: 'circle',
+				shapeProperties: { borderRadius: 0 },
+				grp: 'kumuGroup',
+				...attributes,
+			})
+		}
+	})
+
+	let ignoredCategories = pStyles['@settings'].ignore
+	let defaultFontSize = pStyles['@settings']['font-size'] || 250
+	let defaultElementSize = pStyles['@settings']['element-size'] || 100
+	nodeMap.forEach((node, id) => {
+		let category = node[attributeToUseAsNodeStyleId]
+		let group = undefined
+		for (const style in styles.nodes) {
+			if (styles.nodes[style].groupLabel === category) group = style
+		}
+		if (group) {
+			node = deepMerge(node, styles.nodes[group], { grp: group })
+
+			// if the node is in an ignored category, hide it
+			let hideNode = ignoredCategories && ignoredCategories.includes(category)
+			if (hideNode) node = setNodeHidden(node, hideNode)
+		}
+		nodeMap.set(id, node)
+	})
+
+	// get all links
+
+	// first, amend the styles for the links
+	let edgeStyles = pStyles['connection-styles']
+	for (const lStyle of edgeStyles) {
+		if (lStyle.match[attributeToUseAsLinkStyle]) {
+			// find the style with the category name
+			let style = Object.entries(styles.edges).find(
+				(a) => a[1].groupLabel === lStyle.match[attributeToUseAsLinkStyle],
+			)[0]
+			let styleEdge = styles.edges[style]
+			styleEdge.color.color = lStyle.styles.color
+			refreshSampleLink(style)
+		}
+	}
+	connections.forEach((connection) => {
+		const label = connection?.attributes?.label || ''
+		const note = connection?.attributes?.description || ''
+		edgeMap.set(connection._id, {
+			...deepCopy(styles.edges.base),
+			id: connection._id,
+			from: connection.from,
+			to: connection.to,
+			label: splitText((label || '').replace(/<[^>]*>/g, '').replace('&nbsp;', ' ')),
+			note: note ? markdownToDelta(note) : '',
+			groupLabel: connection?.attributes[attributeToUseAsLinkStyle.toLowerCase()],
+			grp: 'kumuEdge',
+		})
+	})
+
+	edgeMap.forEach((edge, id) => {
+		let group = undefined
+		for (const style in styles.edges) {
+			if (styles.edges[style].groupLabel === edge.groupLabel) {
+				group = style
+				break
+			}
+		}
+		if (group) {
+			edge = deepMerge(edge, styles.edges[group], { grp: group })
+			edgeMap.set(id, edge)
+		}
+	})
+
+	let map = maps.find((m) => m._id === defaultMap)
+	if (map.description) {
+		let description = markdownToDelta(map.description)
+		yNetMap.set('mapDescription', description)
+		setSideDrawer({ text: description })
+	}
+	if (map.name) {
+		yNetMap.set('mapTitle', setMapTitle(map.name))
+	}
+	if (map.elements) {
+		map.elements.forEach((element) => {
+			let node = nodeMap.get(element.element)
+			if (node) {
+				let color = element.style.color
+				if (color) {
+					node.color = {
+						background: color,
+						border: color,
+						hover: { background: color, border: color },
+						highlight: { background: color, border: color },
+					}
+					if (node.color.background === 'transparent' || node.color.background === 'rgba(0,0,0,0)') {
+						node.shape = 'text'
+					}
+				}
+				node.font.size = defaultFontSize
+				if (element.style.fontColor) node.font.color = element.style.fontColor
+				if (element.style.fontSize) node.font.size = element.style.fontSize
+				if (element.style.fontFace) node.font.face = element.style.fontFace
+				if (element.style.shape) node.shape = shapeConversion[element.style.shape]
+				if (element.style.shape === 'pill') {
+					node.shapeProperties = { borderRadius: 20 }
+				}
+				let size = element.style.size || defaultElementSize
+				node.size = size
+				if (element.position) {
+					node.x = element?.position?.x
+					node.y = element?.position?.y
+				}
+			}
+		})
+	}
+	data.nodes.update(Array.from(nodeMap.values()))
+
+	if (map.connections) {
+		map.connections.forEach((connection) => {
+			let edge = edgeMap.get(connection.connection)
+			if (connection.style.color) {
+				let color = connection.style.color
+				edge.color = { color: color, hover: color, highlight: color }
+			}
+			edge.font = {
+				color: connection.style.fontColor || 'rgb(0, 0, 0)',
+				size: connection.style.fontSize || defaultFontSize,
+				face: connection.style.fontFace || 'Oxygen',
+			}
+			if (data.nodes.get(edge.from).nodeHidden || data.nodes.get(edge.to).nodeHidden) {
+				setEdgeHidden(edge, true)
+			}
+			edgeMap.set(connection._id, edge)
+		})
+
+		data.edges.update(Array.from(edgeMap.values()))
+	}
+}
+
+function parseKumuPerspectiveStyle(input) {
+	const result = {
+		'@view': {},
+		'@controls': {},
+		'@settings': {},
+		'#background': {},
+		'element-styles': [],
+		'connection-styles': [],
+	}
+
+	// Clean up input
+	const clean = input
+		.replace(/\\n/g, '\n')
+		.replace(/\\t/g, '')
+		.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1')
+		.trim()
+
+	// Utility to parse blocks like @view 'X' { @settings { ... } }
+	function parseBlock(label, blockString) {
+		const settingsMatch = blockString.match(/@settings\s*\{([^}]*)\}/s)
+		if (!settingsMatch) return {}
+		const settingsContent = settingsMatch[1].trim()
+		return parseKeyValueBlock(settingsContent)
+	}
+
+	// Utility to parse key-value pairs (semicolon-separated)
+	function parseKeyValueBlock(text) {
+		const obj = {}
+		const lines = text.split(/;\s*\n?/).filter(Boolean)
+		for (let line of lines) {
+			let [key, value] = line.split(/:\s+/)
+			if (!key || value === undefined) continue
+			key = key.trim()
+			obj[key] = cleanValue(value)
+		}
+		return obj
+	}
+
+	// Utility to clean and convert values
+	function cleanValue(val) {
+		if (!val) return null
+		val = val.trim().replace(/;/g, '').replace(/^"|"$/g, '')
+		if (val === 'True') return true
+		if (val === 'False') return false
+		if (!isNaN(val)) return Number(val)
+		if (val.includes(',')) {
+			return val.split(',').map((v) => cleanValue(v.trim()))
+		}
+		return val
+	}
+
+	// Parse all @view blocks
+	const viewRegex = /@view\s+'([^']+)'\s*\{([^}]*?\})/gs
+	let match
+	while ((match = viewRegex.exec(clean)) !== null) {
+		const [, name, body] = match
+		result['@view'][name] = {
+			'@settings': parseBlock(name, body),
+		}
+	}
+
+	// Parse @settings (global)
+	const [, , globalSettingsMatch] = clean.match(/\}\s*(@settings\s*\{([^}]+)\})/s)
+	if (globalSettingsMatch) {
+		result['@settings'] = parseKeyValueBlock(globalSettingsMatch)
+	}
+
+	// Parse #background
+	const bgMatch = clean.match(/#background\s*\{([^}]+)\}/s)
+	if (bgMatch) {
+		result['#background'] = parseKeyValueBlock(bgMatch[1])
+	}
+
+	// Parse element styles
+	const elementRegex = /element\["([^"]+)"="?([^"\]]*)"?\]\s*\{([^}]+)\}/gs
+	while ((match = elementRegex.exec(clean)) !== null) {
+		const [, key, val, styleBody] = match
+		const styleObj = parseKeyValueBlock(styleBody)
+		result['element-styles'].push({
+			match: { [key]: val },
+			styles: styleObj,
+		})
+	}
+
+	// Parse connection styles
+	const connRegex = /connection\["([^"]+)"="?([^"\]]*)"?\]\s*\{([^}]+)\}/gs
+	while ((match = connRegex.exec(clean)) !== null) {
+		const [, key, val, styleBody] = match
+		const styleObj = parseKeyValueBlock(styleBody)
+		result['connection-styles'].push({
+			match: { [key]: val },
+			styles: styleObj,
+		})
+	}
+
+	// Parse controls
+	function parseToObject(input) {
+		const match = input.match(/@controls\s*{([\s\S]*)}$/)
+		if (!match) return null // Not a valid @controls block
+
+		const content = `{${match[1]}` // restore root-level opening brace
+		const tokens = content.match(/([{}])|("[^"]*"|\w[\w-]*)\s*:?\s*("[^"]*"|[^;{}]+)?;?/g)
+		if (!tokens) return {}
+
+		let index = 0
+
+		function parseBlock() {
+			const result = {}
+
+			while (index < tokens.length) {
+				let token = tokens[index++].trim()
+
+				if (token === '}') {
+					return result
+				} else if (token === '{') {
+					continue
+				}
+
+				const nextToken = tokens[index] ? tokens[index].trim() : null
+
+				if (nextToken === '{') {
+					index++
+					const child = parseBlock()
+					if (result[token]) {
+						if (Array.isArray(result[token])) {
+							result[token].push(child)
+						} else {
+							result[token] = [result[token], child]
+						}
+					} else {
+						result[token] = child
+					}
+				} else if (token.includes(':')) {
+					const [key, val] = token.split(/\s*:\s*/)
+					result[key] = cleanValue(val)
+				} else if (nextToken && nextToken.includes(':')) {
+					const [, val] = nextToken.split(/\s*:\s*/)
+					index++
+					result[token] = cleanValue(val)
+				}
+			}
+
+			return result
+		}
+
+		index++ // Skip initial {
+		return parseBlock()
+	}
+	result['@controls'] = parseToObject(clean)
+
+	return result
+}
+
 /**
  * Parse and load a GML file
  * @param {string} gml
  */
 function loadGML(gml) {
-	if (gml.search('graph') < 0) throw {message: 'invalid GML format'}
+	if (gml.search('graph') < 0) throw new Error('invalid GML format')
 	let tokens = gml.match(/"[^"]+"|[\w]+|\[|\]/g)
 	let node
 	let edge
@@ -547,14 +1303,14 @@ function loadCSV(csv) {
 		if (grp) {
 			let styleNo = parseInt(grp)
 			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
-				throw {
-					message: `Line ${lineNo}: Columns 3 and 4 must be values between 1 and 9 or blank (found ${grp})`,
-				}
+				throw new Error(
+					`Line ${lineNo}: Columns 3 and 4 must be values between 1 and 9 or blank (found ${grp})`,
+				)
 			}
 			grp = 'group' + (styleNo - 1)
 		}
 		if (labels.get(label) == undefined) {
-			labels.set(label, {id: uuidv4(), label: label.toString(), grp: grp})
+			labels.set(label, { id: uuidv4(), label: label.toString(), grp: grp })
 		}
 		return labels.get(label)
 	}
@@ -575,9 +1331,9 @@ function loadCSV(csv) {
 function loadExcelfile(contents) {
 	let workbook = read(contents)
 	let factorsSS = workbook.Sheets['Factors']
-	if (!factorsSS) throw {message: 'Sheet named Factors not found in Workbook'}
+	if (!factorsSS) throw new Error('Sheet named Factors not found in Workbook')
 	let linksSS = workbook.Sheets['Links']
-	if (!linksSS) throw {message: 'Sheet named Links not found in Workbook'}
+	if (!linksSS) throw new Error('Sheet named Links not found in Workbook')
 
 	// attributeNames is an object with properties attributeField: attributeTitle
 	let attributeNames = {}
@@ -586,7 +1342,7 @@ function loadExcelfile(contents) {
 	 Transform data about factors into an array of objects, with properties named after the column headings
 	 (with first letter lower cased if necessary) and values from that row's cells.
 	 add a GUID to the object,  change 'Style' property to 'grp'
-	 Style is a style number between 1 and 9
+	 Style is a style number
 	 Put value of Description or Notes property into notes
 	 Check that any other property names are not in the list of known attribute names; if so add that property name to the attribute name list 
 	 Place the factor either at the given x and y coordinates or at some random location
@@ -594,14 +1350,15 @@ function loadExcelfile(contents) {
 
 	// convert data from Factors sheet into an array of objects with properties starting with lower case letters
 	let factors = utils.sheet_to_json(factorsSS).map((f) => lowerInitialLetterOfProps(f))
+	let maxIndexOfFactorStyles = Object.keys(styles.nodes).length - 1
 	factors.forEach((f) => {
 		f.id = uuidv4()
 		if (f.style) {
 			let styleNo = parseInt(f.style)
-			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
-				throw {
-					message: `Factors - Line ${f.__rowNum__}: Style must be a number between 1 and 9, a style name, or blank (found ${f.style})`,
-				}
+			if (isNaN(styleNo) || styleNo < 1 || styleNo > maxIndexOfFactorStyles) {
+				throw new Error(
+					`Factors - Line ${f.__rowNum__}: Style must be a number between 1 and ${maxIndexOfFactorStyles} or blank (found ${f.style})`,
+				)
 			}
 			f.grp = 'group' + (styleNo - 1)
 			if (f.groupLabel) {
@@ -614,21 +1371,24 @@ function loadExcelfile(contents) {
 			}
 			delete f.style
 		}
-		if (!f.label)
-			throw {
-				message: `Factors - Line ${f.__rowNum__}: Factor does not have a Label`,
-			}
+		if (!f.label) throw new Error(`Factors - Line ${f.__rowNum__}: Factor does not have a Label`)
 		let note = f.description || f.note
 		if (note) {
-			f.note = {ops: [{insert: note + '\n'}]}
+			f.note = { ops: [{ insert: note + '\n' }] }
 			delete f.description
 		}
 		if (f.creator) {
-			f.created = {time: f.createdTime ? Date.parse(f.createdTime) : Date.now(), user: f.creator}
+			f.created = {
+				time: f.createdTime ? Date.parse(f.createdTime) : Date.now(),
+				user: f.creator,
+			}
 			delete f.createdTime
 		}
 		if (f.modifier) {
-			f.modified = {time: f.modifiedTime ? Date.parse(f.modifiedTime) : Date.now(), user: f.modifier}
+			f.modified = {
+				time: f.modifiedTime ? Date.parse(f.modifiedTime) : Date.now(),
+				user: f.modifier,
+			}
 			delete f.modifiedTime
 		}
 		// filter out known properties, leaving the rest to become attributes
@@ -679,9 +1439,9 @@ function loadExcelfile(contents) {
 		if (l.style) {
 			let styleNo = parseInt(l.style)
 			if (isNaN(styleNo) || styleNo < 1 || styleNo > 9) {
-				throw {
-					message: `Links - Line ${l.__rowNum__}: Style must be a number between 1 and 9, a style name, or blank (found ${l.style})`,
-				}
+				throw new Error(
+					`Links - Line ${l.__rowNum__}: Style must be a number between 1 and 9, a style name, or blank (found ${l.style})`,
+				)
 			}
 			l.grp = 'edge' + (styleNo - 1)
 			if (l.groupLabel) {
@@ -695,23 +1455,29 @@ function loadExcelfile(contents) {
 			delete l.style
 		}
 		if (l.creator) {
-			l.created = {time: l.createdTime ? Date.parse(l.createdTime) : Date.now(), user: l.creator}
+			l.created = {
+				time: l.createdTime ? Date.parse(l.createdTime) : Date.now(),
+				user: l.creator,
+			}
 			delete l.createdTime
 		}
 		if (l.modifier) {
-			l.modified = {time: l.modifiedTime ? Date.parse(l.modifiedTime) : Date.now(), user: l.modifier}
+			l.modified = {
+				time: l.modifiedTime ? Date.parse(l.modifiedTime) : Date.now(),
+				user: l.modifier,
+			}
 			delete l.modifiedTime
 		}
 		let fromFactor = factors.find((factor) => factor.label === l.from)
 		if (fromFactor) l.from = fromFactor.id
-		else throw {message: `Links - Line ${l.__rowNum__}: From factor (${l.from}) not found for link`}
+		else throw new Error(`Links - Line ${l.__rowNum__}: From factor (${l.from}) not found for link`)
 		let toFactor = factors.find((factor) => factor.label === l.to)
 		if (toFactor) l.to = toFactor.id
-		else throw {message: `Links - Line ${l.__rowNum__}: To factor (${l.to}) not found for link`}
+		else throw new Error(`Links - Line ${l.__rowNum__}: To factor (${l.to}) not found for link`)
 
 		let note = l.description || l.note
 		if (note) {
-			l.note = {ops: [{insert: note + '\n'}]}
+			l.note = { ops: [{ insert: note + '\n' }] }
 			delete l.description
 		}
 		Object.keys(l)
@@ -749,8 +1515,7 @@ function loadExcelfile(contents) {
 	data.nodes.add(factors)
 	data.edges.add(links)
 	yNetMap.set('attributeTitles', attributeNames)
-	recreateClusteringMenu(attributeNames)
-
+	
 	/**
 	 * ensure the initial letter of each property of obj is lower case
 	 * @param {object} obj
@@ -863,9 +1628,9 @@ function setButtonStatus(settings) {
 	setLegend(settings.legend)
 	yNetMap.set('sizing', settings.sizing)
 	// sizing done after the nodes have been created: sizing(settings.sizing)
-	yNetMap.set('radius', {radiusSetting: 'All', selected: []})
-	yNetMap.set('stream', {streamSetting: 'All', selected: []})
-	yNetMap.set('paths', {pathsSetting: 'All', selected: []})
+	yNetMap.set('radius', { radiusSetting: 'All', selected: [] })
+	yNetMap.set('stream', { streamSetting: 'All', selected: [] })
+	yNetMap.set('paths', { pathsSetting: 'All', selected: [] })
 	yNetMap.set('cluster', 'none')
 	setCluster('none')
 }
@@ -881,8 +1646,8 @@ function setButtonStatus(settings) {
  */
 function saveStr(str, extn) {
 	setFileName(extn)
-	const blob = new Blob([str], {type: 'text/plain;charset=utf-8'})
-	saveAs(blob, lastFileName, {autoBom: true})
+	const blob = new Blob([str], { type: 'text/plain;charset=utf-8' })
+	saveAs(blob, lastFileName, { autoBom: true })
 }
 /**
  * save the map as a PNG image file
@@ -912,15 +1677,18 @@ export function exportPNGfile() {
 	// create an offscreen canvas of the same size to apply the background to
 	let bigBackgroundCanvas = new OffscreenCanvas(bigWidth, bigWidth)
 	bigBackgroundCanvas.id = 'big-background-canvas'
-	let bigFabricCanvas = new fabric.StaticCanvas('big-background-canvas', {width: bigWidth, height: bigWidth})
+	let bigFabricCanvas = new StaticCanvas('big-background-canvas', {
+		width: bigWidth,
+		height: bigWidth,
+	})
 
 	// make a network with the same nodes and links as the original map
 	let bigNetwork = new Network(bigNetDiv, data, {
-		physics: {enabled: false},
+		physics: { enabled: false },
 		edges: {
 			smooth: {
 				enabled: elem('curveSelect').value === 'Curved',
-				type: 'straightCross',
+				type: 'cubicBezier',
 			},
 		},
 	})
@@ -986,8 +1754,8 @@ export function exportPNGfile() {
 		if (selectedNodes.length === 0) selectedNodes = data.nodes.map((n) => n.id)
 		selectedNodes.forEach((nodeId) => {
 			let canvasBB = ntwk.getBoundingBox(nodeId)
-			let tl = ntwk.canvasToDOM({x: canvasBB.left, y: canvasBB.top})
-			let br = ntwk.canvasToDOM({x: canvasBB.right, y: canvasBB.bottom})
+			let tl = ntwk.canvasToDOM({ x: canvasBB.left, y: canvasBB.top })
+			let br = ntwk.canvasToDOM({ x: canvasBB.right, y: canvasBB.bottom })
 			if (left > tl.x) left = tl.x
 			if (right < br.x) right = br.x
 			if (top > tl.y) top = tl.y
@@ -1007,23 +1775,25 @@ export function exportPNGfile() {
 		if (left === Infinity) {
 			top = bottom = left = right = 0
 		}
-		return {left: left, right: right, top: top, bottom: bottom}
+		return { left: left, right: right, top: top, bottom: bottom }
 	}
 }
 /**
  * save a local file containing all the node and edge notes, plus the map description, as a Word document
  */
 export async function exportNotes() {
-	let delta = {ops: [{insert: '\n'}]}
+	let delta = { ops: [{ insert: '\n' }] }
 	// start with the title of the map if there is one
 	let title = elem('maptitle').innerText
 	if (title !== 'Untitled map') {
-		delta = {ops: [{insert: title}, {attributes: {header: 1}, insert: '\n'}]}
+		delta = {
+			ops: [{ insert: title }, { attributes: { header: 1 }, insert: '\n' }],
+		}
 	}
 	// get contents of map note if there is one
 	if (yNetMap.get('mapDescription')) {
 		delta.ops = delta.ops.concat(
-			[{insert: 'Description of the map'}, {attributes: {header: 2}, insert: '\n'}],
+			[{ insert: 'Description of the map' }, { attributes: { header: 2 }, insert: '\n' }],
 			yNetMap.get('mapDescription').text.ops,
 		)
 	}
@@ -1033,15 +1803,15 @@ export async function exportNotes() {
 		.toSorted((a, b) => a.label.localeCompare(b.label))
 		.forEach((n) => {
 			delta.ops = delta.ops.concat(
-				[{insert: `Factor: ${stripNL(n.label)}`}, {attributes: {header: 2}, insert: '\n'}],
-				n.note ? n.note.ops : [{insert: '[No note]\n'}],
+				[{ insert: `Factor: ${stripNL(n.label)}` }, { attributes: { header: 2 }, insert: '\n' }],
+				n.note ? n.note.ops : [{ insert: '[No note]\n' }],
 			)
 		})
 	// add notes for links
 	data.edges.forEach((e) => {
 		let heading = `Link from '${stripNL(data.nodes.get(e.from).label)}' to '${stripNL(data.nodes.get(e.to).label)}'`
-		delta.ops = delta.ops.concat([{insert: heading}, {attributes: {header: 2}, insert: '\n'}])
-		delta.ops = delta.ops.concat(e.note ? e.note.ops : [{insert: '[No note]\n'}])
+		delta.ops = delta.ops.concat([{ insert: heading }, { attributes: { header: 2 }, insert: '\n' }])
+		delta.ops = delta.ops.concat(e.note ? e.note.ops : [{ insert: '[No note]\n' }])
 	})
 	// save the delta as a Word file
 	const quillToWordConfig = {
@@ -1056,7 +1826,8 @@ export async function exportNotes() {
 			},
 		},
 	}
-	const docAsBlob = await quillToWord.generateWord(delta, quillToWordConfig)
+	const ql = await import('quill-to-word')
+	const docAsBlob = await ql.generateWord(delta, quillToWordConfig)
 	setFileName('docx')
 	saveAs(docAsBlob, lastFileName)
 }
@@ -1165,19 +1936,29 @@ export function exportExcel() {
 				'fixed',
 				'font',
 				'grp',
+				'hidden',
 				'id',
+				'clusteredIn',
+				'level',
 				'labelHighlightBold',
 				'locked',
 				'margin',
 				'modified',
+				'nodeHidden',
 				'opacity',
 				'oldFont',
 				'oldFontColor',
 				'oldLabel',
 				'note',
 				'scaling',
+				'shadow',
 				'shapeProperties',
+				'size',
+				'heightConstraint',
+				'val',
+				'value',
 				'wasFixed',
+				'widthConstraint',
 			])
 		})
 
@@ -1300,4 +2081,140 @@ export function exportDOT() {
 		}
 		return val
 	}
+}
+/*
+ * Save the map as a GraphML file
+ * See http://graphml.graphdrawing.org/primer/graphml-primer.html
+ * GraphML is an XML-based file format for graphs. It is a W3C standard and is used by many graph visualization tools.
+ * The GraphML format is a simple and flexible way to represent graphs, including nodes, edges, and their attributes.
+ * It is widely used in graph visualization and analysis tools, such as Gephi, Cytoscape, and Graphviz.
+ * GraphML files can be easily generated and parsed by various programming languages and libraries, making it a popular choice for graph data exchange.
+ * The GraphML format is based on XML, which means it is human-readable and can be easily edited with a text editor.
+ * GraphML files can be used to represent directed and undirected graphs, as well as weighted and unweighted edges.
+ * GraphML files can also include metadata, such as node and edge labels, colors, and styles.
+ */
+export function exportGraphML() {
+	let str = `<?xml version="1.0" encoding="UTF-8"?>
+	<graphml xmlns="http://graphml.graphdrawing.org/xmlns" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+	<key id="d0" for="node" attr.name="label" attr.type="string"/>
+	<key id="d1" for="node" attr.name="style" attr.type="int"/>
+	<key id="d2" for="node" attr.name="color" attr.type="string"/>
+	<key id="d3" for="node" attr.name="shape" attr.type="string"/>
+	<key id="d4" for="node" attr.name="x" attr.type="float"/>
+	<key id="d5" for="node" attr.name="y" attr.type="float"/>
+	<key id="d6" for="node" attr.name="r" attr.type="int"/>
+	<key id="d7" for="node" attr.name="g" attr.type="int"/>
+	<key id="d8" for="node" attr.name="b" attr.type="int"/>
+	<key id="d9" for="node" attr.name="size" attr.type="int"/>
+	<key id="d10" for="edge" attr.name="label" attr.type="string"/>
+	<key id="d11" for="edge" attr.name="style" attr.type="int"/>
+	<key id="d12" for="edge" attr.name="color" attr.type="string"/>
+	<key id="d13" for="edge" attr.name="r" attr.type="int"/>
+	<key id="d14" for="edge" attr.name="g" attr.type="int"/>
+	<key id="d15" for="edge" attr.name="b" attr.type="int"/>
+	<key id="d16" for="edge" attr.name="weight" attr.type="int"/>
+	<graph id="${elem('maptitle').innerText}" edgedefault="directed">`
+	for (let node of data.nodes.get()) {
+		let color = node.color.background || styles.nodes.group0.color.background
+		let rgb = rgbToArray(color)
+		str += `
+		<node id="${node.id}">
+			<data key="d0">${encodeHTMLEntities(node.label)}</data>
+			<data key="d1">${parseInt(node.grp.substring(5)) + 1}</data>
+			<data key="d2">${color}</data>
+			<data key="d3">${node.shape}</data>
+			<data key="d4">${node.x}</data>
+			<data key="d5">${node.y}</data>
+			<data key="d6">${rgb[0]}</data>
+			<data key="d7">${rgb[1]}</data>
+			<data key="d8">${rgb[2]}</data>
+			<data key="d9">${node.size}</data>
+		</node>`
+	}
+	for (let edge of data.edges.get()) {
+		let color = edge.color.color || styles.edges.edge0.color.background
+		let rgb = rgbToArray(color)
+		str += `
+		<edge id="${edge.id}" source="${edge.from}" target="${edge.to}">
+			<data key="d10">${encodeHTMLEntities(edge.label || '')}</data>
+			<data key="d11">${parseInt(edge.grp.substring(4)) + 1}</data>
+			<data key="d12">${color}</data>
+			<data key="d13">${rgb[0]}</data>
+			<data key="d14">${rgb[1]}</data>
+			<data key="d15">${rgb[2]}</data>
+			<data key="d16">${edge.width}</data>
+		</edge>`
+	}
+	str += `
+	</graph>
+	</graphml>`
+	saveStr(str, 'graphml')
+}
+/**
+ * Save the map as a GEXF format file, for input to Gephi etc.
+ * See https://gexf.net/index.html
+ */
+export function exportGEXF() {
+	let str = `<?xml version='1.0' encoding='UTF-8'?>
+		<gexf xmlns="http://gexf.net/1.3" version="1.3" xmlns:viz="http://gexf.net/1.3/viz" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://gexf.net/1.3 http://gexf.net/1.3/gexf.xsd">
+		<meta lastmodifieddate="${new Date(Date.now()).toISOString().slice(0, 10)}">
+			<creator>PRSM ${version}</creator>
+			<title>${elem('maptitle').innerText}</title>
+			<description>Generated from ${window.location.href}</description>
+		</meta>
+		<graph defaultedgetype="directed" mode="static">`
+	let attributeNames = yNetMap.get('attributeTitles') || {}
+	if (attributeNames) {
+		str += `
+			<attributes class="node" mode="static">
+	`
+		Object.keys(attributeNames).forEach((attr) => {
+			str += `		<attribute id="${attr}" title="${attributeNames[attr]}" type="string"/>
+	`
+		})
+		str += `		</attributes>`
+	}
+	str += `
+		<nodes>`
+
+	data.nodes.forEach((node) => {
+		str += `
+			<node id="${node.id}"
+			label="${node.label}">`
+		if (attributeNames) {
+			str += `
+			<attvalues>`
+			Object.keys(attributeNames).forEach((attr) => {
+				if (node[attr])
+					str += `
+				<attvalue for="${attr}" value="${node[attr]}"/>`
+			})
+			str += `
+			</attvalues>`
+		}
+		str += `
+			<viz:size value="${node.size}"/>
+			<viz:position x="${node.x}" y="${node.y}"/>
+			</node>`
+	})
+	str += `
+		</nodes>
+		<edges>
+    `
+	data.edges.forEach((edge) => {
+		str += `
+		<edge id="${edge.id}" 
+		source="${edge.from}" 
+		target="${edge.to}"/>
+		`
+	})
+
+	str += `
+		</edges>
+      </graph>
+	</gexf>`
+
+	saveStr(str, 'gexf')
 }

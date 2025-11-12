@@ -2,15 +2,15 @@
 Description=websocket-server
 
 [Service]
-ExecStart= /home/ec2-user/.nvm/versions/node/v17.7.1/bin/node --max-old-space-size=4096 /data/prsm/node_modules/.bin/y-websocket-server
+ExecStart= /home/ec2-user/.nvm/versions/node/v22.12.0/bin/node --max-old-space-size=2048 /data/prsm/node_modules/.bin/y-websocket-server
 Restart=always
 RestartSec=10
 User=root
 Group=root
-Environment= 'YPERSISTENCE=/data/prsm/dbDir'
-# Output to syslog
-StandardOutput=syslog
-StandardError=syslog
+Environment='YPERSISTENCE=/data/prsm/dbDir'
+# Memory limit to prevent system exhaustion
+MemoryMax=1G
+MemoryAccounting=true
 SyslogIdentifier=websocket-server
 
 [Install]
