@@ -7,7 +7,8 @@
  */
 
 // Backend API endpoint
-const API_ENDPOINT = 'http://localhost:3001/api/chat'
+//const API_ENDPOINT = 'http://localhost:3001/api/chat'
+const API_ENDPOINT = 'https://cress.soc.surrey.ac.uk/api/chat'
 
 // ================================================================================
 

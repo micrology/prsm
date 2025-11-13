@@ -33,6 +33,12 @@ const PORT = process.env.PORT || 3001
 app.use(cors())
 app.use(express.json())
 
+// Log all incoming requests
+app.use((req, res, next) => {
+	console.log('Processing URL:', req.url)
+	next()
+})
+
 // Bedrock configuration from environment variables
 const region = process.env.AWS_REGION || 'eu-west-2'
 const bedrockApiKey = process.env.BEDROCK_API_KEY
