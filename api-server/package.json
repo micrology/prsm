@@ -1,0 +1,30 @@
+{
+	"name": "bedrock",
+	"version": "1.0.0",
+	"source": "src/index.html",
+	"scripts": {
+		"server": "PORT=3001 node src/server.js",
+		"app": "npx parcel serve 'src/index.html' --port 3000 --open",
+		"dev": "npm run server && npm run app",
+		"build": "rm -rf public/* && parcel build --dist-dir public --public-url .",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "scs1ng",
+	"license": "ISC",
+	"description": "",
+	"type": "module",
+	"dependencies": {
+		"@aws-sdk/client-bedrock-runtime": "^3.726.1",
+		"@aws-sdk/client-cognito-identity": "^3.726.1",
+		"@aws-sdk/client-sts": "^3.726.1",
+		"concurrently": "^9.1.2",
+		"cors": "^2.8.5",
+		"dotenv": "^16.4.7",
+		"express": "^4.21.2",
+		"marked": "^17.0.0",
+		"parcel": "^2.13.3",
+		"pretty-bytes": "^7.1.0",
+		"systeminformation": "^5.27.11"
+	}
+}
