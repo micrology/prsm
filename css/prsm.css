@@ -230,7 +230,7 @@ aside {
 	z-index: 2000;
 	box-shadow: 0px 6px 24px var(--pop-up-shadow-color);
 }
-.errMsgWrapper{
+.errMsgWrapper {
 	position: absolute;
 	bottom: 40px;
 	left: 70px;
@@ -267,9 +267,9 @@ aside {
 #statusBar {
 	padding: 3px 20px;
 	border-radius: 5px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 #zoomcontrol {
 	padding-right: 20px;
@@ -1017,7 +1017,7 @@ but moving the panel out of sight works instead */
 
 .itemData {
 	display: grid;
-	padding: 4px;
+	padding: 1px;
 	background-color: var(--panel-color);
 	color: white;
 	font-size: 11px;
@@ -1041,10 +1041,11 @@ but moving the panel out of sight works instead */
 	max-width: 500px;
 	background-color: var(--notes-background-solid-color);
 	resize: both;
-	overflow: hidden;
+	overflow: auto;
 }
 .ql-editor {
 	padding: 3px;
+	overflow-y: auto
 }
 .ql-toolbar {
 	position: sticky;
@@ -1080,22 +1081,26 @@ but moving the panel out of sight works instead */
 	font-size: 12px;
 	line-height: 2;
 }
-.edgeLabel {
-	grid-row: span 2 / span 2;
+#sparklesNode,
+#sparklesEdge svg {
+	padding-right: 10px;
+	transition: transform 0.3s ease;
 }
-#edgeDataHeader {
-	display: grid;
-	grid-template-columns: 1fr, 25px;
-	grid-template-rows: 1fr, 1fr;
+
+#sparklesNode.rotating svg,
+#sparklesEdge.rotating svg {
+	animation: rotate 3s linear infinite;
 }
-#newEdgeWindow {
-	grid-column-start: 2;
-	grid-row-start: 1;
+
+@keyframes rotate {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
 }
-#sparklesEdge {
-	grid-column-start: 2;
-	grid-row-start: 2;
-}
+
 .padlock-hide {
 	display: none;
 }

@@ -252,7 +252,7 @@ function addEventListeners() {
 			e.preventDefault()
 		}
 	})
-		listen('body', 'keydown', (e) => {
+	listen('body', 'keydown', (e) => {
 		if (e.ctrlKey && e.key == "y" || e.metaKey && e.key == "y") {
 			redo()
 			e.preventDefault()
@@ -3846,6 +3846,8 @@ function showNodeData(nodeId) {
  */
 async function genAINode() {
 	alertMsg('Thinking...', 'info', true)
+	const sparklesElem = elem('sparklesNode')
+	sparklesElem.classList.add('rotating')
 	let nodeId = network.getSelectedNodes()[0]
 	let node = data.nodes.get(nodeId)
 	let aiResponse = await getAIresponse(`Explain ${node.label}`)
@@ -3857,6 +3859,8 @@ async function genAINode() {
 		modified: modified,
 	})
 	elem('nodeModified').innerHTML = `${timeAndDate(modified.time)} by ${modified.user}`
+	positionNotes()
+	sparklesElem.classList.remove('rotating')
 	cancelAlertMsg()
 }
 function showEdgeData(edgeId) {
@@ -3923,6 +3927,8 @@ function showEdgeData(edgeId) {
  */
 async function genAIEdge() {
 	alertMsg('Thinking...', 'info', true)
+	const sparklesElem = elem('sparklesEdge')
+	sparklesElem.classList.add('rotating')
 	let edgeId = network.getSelectedEdges()[0]
 	let edge = data.edges.get(edgeId)
 	let aiResponse = await getAIresponse(`Explain the causal link between ${data.nodes.get(edge.from).label} and ${data.nodes.get(edge.to).label}`)
@@ -3934,6 +3940,8 @@ async function genAIEdge() {
 		modified: modified,
 	})
 	elem('edgeModified').innerHTML = `${timeAndDate(modified.time)} by ${modified.user}`
+	positionNotes()
+	sparklesElem.classList.remove('rotating')
 	cancelAlertMsg()
 }
 /**
