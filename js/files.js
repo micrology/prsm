@@ -1693,36 +1693,36 @@ export function exportPNGfile() {
 		},
 	})
 
-	bigNetwork.on('afterDrawing', (bigNetContext) => {
+	bigNetwork.on('afterDrawing', async (bigNetContext) => {
 		// copy the background objects to the big fabric canvas
-		bigFabricCanvas.loadFromJSON(JSON.stringify(canvas), () => {
-			// adjust the fabric canvas scale and center to match the big network and match the background colour
-			bigFabricCanvas.setZoom(bigNetwork.getScale())
-			let fcCenter = bigFabricCanvas.getVpCenter()
-			bigFabricCanvas.relativePan({
-				x: bigNetwork.getScale() * (fcCenter.x - center.x),
-				y: bigNetwork.getScale() * (fcCenter.y - center.y),
-			})
+		await bigFabricCanvas.loadFromJSON(JSON.stringify(canvas))
 
-			bigFabricCanvas.setBackgroundColor(elem('underlay').style.backgroundColor || 'rgb(255, 255, 255)')
-			bigFabricCanvas.requestRenderAll()
-
-			// create an image version of the background and copy it onto the big network canvas
-			let bigBackgroundImage = document.createElement('img')
-			bigBackgroundImage.onload = function () {
-				bigNetContext.globalCompositeOperation = 'destination-over'
-				bigNetContext.drawImage(bigBackgroundImage, 0, 0, bigWidth, bigWidth)
-
-				// save the canvas to a file
-				bigNetContext.canvas.toBlob((blob) => saveAs(blob, lastFileName))
-
-				// clean up
-				bigNetwork.destroy()
-				bigNetDiv.remove()
-				bigFabricCanvas.dispose()
-			}
-			bigBackgroundImage.src = bigFabricCanvas.toDataURL()
+		// adjust the fabric canvas scale and center to match the big network and match the background colour
+		bigFabricCanvas.setZoom(bigNetwork.getScale())
+		let fcCenter = bigFabricCanvas.getVpCenter()
+		bigFabricCanvas.relativePan({
+			x: bigNetwork.getScale() * (fcCenter.x - center.x),
+			y: bigNetwork.getScale() * (fcCenter.y - center.y),
 		})
+
+		bigFabricCanvas.set('backgroundColor', (elem('underlay').style.backgroundColor || 'rgb(255, 255, 255)'))
+		bigFabricCanvas.requestRenderAll()
+
+		// create an image version of the background and copy it onto the big network canvas
+		let bigBackgroundImage = document.createElement('img')
+		bigBackgroundImage.onload = function () {
+			bigNetContext.globalCompositeOperation = 'destination-over'
+			bigNetContext.drawImage(bigBackgroundImage, 0, 0, bigWidth, bigWidth)
+
+			// save the canvas to a file
+			bigNetContext.canvas.toBlob((blob) => saveAs(blob, lastFileName))
+
+			// clean up
+			bigNetwork.destroy()
+			bigNetDiv.remove()
+			bigFabricCanvas.dispose()
+		}
+		bigBackgroundImage.src = bigFabricCanvas.toDataURL()
 	})
 
 	let box = mapBoundingBox(network, canvas, network.getSelectedNodes())

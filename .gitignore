@@ -19,7 +19,7 @@ logs
 vr
 html/*.removed
 archive
-
+.env
 
 
 # Compiled source #
