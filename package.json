@@ -98,6 +98,10 @@
 	},
 	"private": true,
 	"optionalDependencies": {
-		"@parcel/watcher-linux-x64-glibc": "^2.5.1"
+		"@parcel/rust-linux-arm64-gnu": "^2.16.1",
+		"@parcel/watcher-linux-arm64-glibc": "^2.5.1",
+		"@parcel/watcher-linux-x64-glibc": "^2.5.1",
+		"@swc/core-linux-arm64-gnu": "^1.15.2",
+		"lightningcss-linux-arm64-gnu": "^1.30.2"
 	}
 }

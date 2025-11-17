@@ -3974,6 +3974,13 @@ function positionNotes() {
 	if (notesPanelRect.right > settingsRect.left && notesPanelRect.top < settingsRect.bottom) {
 		notesPanel.style.left = `${settingsRect.left - notesPanelRect.width - 20}px`
 	}
+	// if the notes panel is taller than the net pane, increase its width and reduce its height
+	if (notesPanelRect.height > netPaneRect.height - 30) {
+		notesPanel.style.width = `${notesPanelRect.width * notesPanelRect.height / (netPaneRect.height - 60)}px`
+		notesPanel.style.height = `${netPaneRect.height - 60}px`
+		notesPanel.style.left = `${notesPanelRect.right - notesPanelRect.width}px`
+		notesPanelRect = notesPanel.getBoundingClientRect()
+	}
 	// if the notes panel is outside the boundary of the net pane, shift it into the pane
 	if (notesPanelRect.left < netPaneRect.left + 20) notesPanel.style.left = `${netPaneRect.left + 20}px`
 	if (notesPanelRect.right > netPaneRect.right)
