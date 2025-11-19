@@ -77,6 +77,5 @@ async function chat(userMessage, systemMessage = '') {
 
 export async function getAIresponse(question, systemMessage) {
     let markdown = await chat(question, systemMessage)
-    console.log(markdown)
     return markdownToDelta(markdown)
 }
