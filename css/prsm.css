@@ -18,9 +18,8 @@
 	--tutorial-highlight-color: rgb(211, 47, 47);
 	--map-title-color: rgb(255, 193, 7);
 	--sample-selected-color: rgb(173, 216, 230);
-	--notes-background-color: rgb(255, 253, 231);
-	--notes-background-color: rgb(255, 253, 231, 0.9);
-	--notes-background-solid-color: rgb(255, 253, 231);
+	--notes-background-color: rgb(255, 255, 255, 0.9);
+	--notes-background-solid-color: rgb(255, 255, 255);
 	--slider: rgb(13, 38, 68);
 }
 html,
@@ -265,9 +264,9 @@ aside {
 #statusBar {
 	padding: 3px 20px;
 	border-radius: 5px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 #zoomcontrol {
 	padding-right: 20px;
@@ -1012,7 +1011,67 @@ but moving the panel out of sight works instead */
 }
 
 /* the data and notes area that appears if a node or link is selected */
-
+.notePanel {
+	width: 250px;
+	height: 300px; /* Default height – user can resize */
+	top: calc(100% - 380px);
+	left: calc(100% - 265px);
+	z-index: 2000;
+	max-width: 100%;
+	border: 1px solid black;
+	border-radius: 4px;
+	box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	overflow: hidden; /* Prevents internal overflow during resize */
+	min-height: 200px; /* Prevent collapse */
+}
+.notePanel .header {
+	background: black;
+	color: white;
+	line-height: 1.2em;
+	padding: 4px 6px;
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	font-size: 10px;
+}
+.notePanel .history {
+	background: rgb(220, 220, 220);
+	color: black;
+	line-height: 1.2em;
+	display: flex;
+	justify-content: space-between;
+	font-size: 10px;
+}
+.notePanel .history .left{
+	      text-align: left;
+}
+.notePanel .history .right{
+	      text-align: right;
+}
+.notePanel .content {
+	background: white;
+	color: black;
+	overflow-y: auto;
+	flex-grow: 1;
+	padding: 4px;
+}
+.notePanel .corner-handle {
+	width: 0;
+	height: 0;
+	border-bottom: 14px solid dimgrey;
+	border-left: 14px solid transparent;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	cursor: nwse-resize;
+	z-index: 2010;
+}
+.notePanel .corner-handle:hover {
+	border-bottom:14px solid black
+}
 .itemData {
 	display: grid;
 	padding: 4px;
@@ -1045,13 +1104,12 @@ but moving the panel out of sight works instead */
 	padding: 3px;
 }
 .ql-toolbar {
-	position: sticky;
-	top: 0;
 	background-color: var(--notes-background-solid-color);
 }
 .ql-toolbar.ql-snow .ql-formats {
 	margin-right: 0;
 }
+
 .itemData .row {
 	display: flex;
 	justify-content: space-between;
@@ -1074,7 +1132,6 @@ but moving the panel out of sight works instead */
 .nodeLabel,
 .edgeLabel {
 	font-weight: bold;
-	text-decoration: underline;
 	font-size: 12px;
 	line-height: 2;
 }
