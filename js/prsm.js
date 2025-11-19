@@ -391,8 +391,10 @@ function setUpPage() {
 	})
 	setUpSamples()
 	updateLastSamples(lastNodeSample, lastLinkSample)
-	dragElement(elem('nodeDataPanel'), elem('nodeDataHeader'))
-	dragElement(elem('edgeDataPanel'), elem('edgeDataHeader'))
+	makeNotesPanelResizeable(elem('nodeNotePanel'))
+	makeNotesPanelResizeable(elem('edgeNotePanel'))
+	dragElement(elem('nodeNotePanel'), elem('nodeNoteHeader'))
+	dragElement(elem('edgeNotePanel'), elem('edgeNoteHeader'))
 	hideNotes()
 	setUpSideDrawer()
 	displayWhatsNew()
@@ -3771,22 +3773,23 @@ function openNotesWindow() {
  */
 function hideNotes() {
 	if (editor == null) return
-	elem('nodeDataPanel').classList.add('hide')
-	elem('edgeDataPanel').classList.add('hide')
+	elem('nodeNotePanel').classList.add('hide')
+	elem('edgeNotePanel').classList.add('hide')
 	document.getSelection().removeAllRanges()
 	document.querySelectorAll('.ql-toolbar').forEach((e) => e.remove())
 	editor = null
 	if (popupWindow) popupWindow.close()
 }
 /**
- * Show the notes box, the fixed node check box and the node statistics
+ * Show the notes box and the fixed node check box
+ * @param {integer} nodeId
  */
 function showNodeData(nodeId) {
-	let panel = elem('nodeDataPanel')
+	let panel = elem('nodeNotePanel')
 	nodeId = nodeId || network.getSelectedNodes()[0]
 	let node = data.nodes.get(nodeId)
-	elem('fixed').style.display = node.fixed ? 'inline' : 'none'
-	elem('unfixed').style.display = node.fixed ? 'none' : 'inline'
+	elem('fixed').style.display = node.fixed && !viewOnly ? 'inline' : 'none'
+	elem('unfixed').style.display = node.fixed || viewOnly ? 'none' : 'inline'
 	elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : ''
 	if (node.created) {
 		elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${node.created.user}`
@@ -3796,7 +3799,6 @@ function showNodeData(nodeId) {
 		elem('nodeModified').innerHTML = `${timeAndDate(node.modified.time)} by ${node.modified.user}`
 		elem('nodeModification').style.display = 'flex'
 	} else elem('nodeModification').style.display = 'none'
-	elem('node-notes').className = 'notes'
 	editor = new Quill('#node-notes', {
 		modules: {
 			toolbar: viewOnly
@@ -3815,7 +3817,6 @@ function showNodeData(nodeId) {
 		placeholder: 'Notes',
 		theme: 'snow',
 		readOnly: viewOnly,
-		bounds: elem('node-edit-container'),
 	})
 	window.editor = editor // used by popupEditor to access this editor
 	editor.id = node.id
@@ -3837,7 +3838,6 @@ function showNodeData(nodeId) {
 		}
 	})
 	panel.classList.remove('hide')
-	displayStatistics(nodeId)
 	positionNotes()
 }
 /**
@@ -3863,8 +3863,55 @@ async function genAINode() {
 	sparklesElem.classList.remove('rotating')
 	cancelAlertMsg()
 }
+/* Make the notes panel resizeable by dragging its corner handle
+ * @param {HTMLElement} notePanel 
+ */
+function makeNotesPanelResizeable(notePanel) {
+	const notePanelCornerHandle = notePanel.querySelector('.corner-handle')
+
+	let isResizingCorner = false
+	let startX = 0
+	let startY = 0
+	let startWidth = 0
+	let startHeight = 0
+
+	notePanelCornerHandle.addEventListener('mousedown', (e) => {
+		isResizingCorner = true
+		startX = e.clientX
+		startY = e.clientY
+
+		const styles = window.getComputedStyle(notePanel)
+		startWidth = parseInt(styles.width, 10)
+		startHeight = parseInt(styles.height, 10)
+
+		document.body.style.userSelect = 'none'
+	})
+
+	document.addEventListener('mousemove', (e) => {
+		if (!isResizingCorner) return
+
+		const dx = e.clientX - startX
+		const dy = e.clientY - startY
+
+		const newWidth = startWidth + dx
+		const newHeight = startHeight + dy
+
+		if (newWidth > 150) notePanel.style.width = newWidth + 'px'
+		if (newHeight > 200) notePanel.style.height = newHeight + 'px'
+	})
+
+	document.addEventListener('mouseup', () => {
+		isResizingCorner = false
+		document.body.style.userSelect = 'auto'
+		positionNotes()
+	})
+}
+/**
+ * Show the notes box for an edge
+ * @param {integer} edgeId 
+ */
 function showEdgeData(edgeId) {
-	let panel = elem('edgeDataPanel')
+	let panel = elem('edgeNotePanel')
 	edgeId = edgeId || network.getSelectedEdges()[0]
 	let edge = data.edges.get(edgeId)
 	elem('edgeLabel').innerHTML = edge.label?.trim().length
@@ -3896,7 +3943,6 @@ function showEdgeData(edgeId) {
 		placeholder: 'Notes',
 		theme: 'snow',
 		readOnly: viewOnly,
-		bounds: elem('edge-edit-container'),
 	})
 	editor.id = edge.id
 	window.editor = editor // used by popupEditor to access this editor
@@ -3948,7 +3994,7 @@ async function genAIEdge() {
  * Display the statistics for the selected node
  * @param {String} nodeId 
  */
-function displayStatistics(nodeId) {
+/*function displayStatistics(nodeId) {
 	// leverage (outDegree / inDegree)
 	let inDegree = network.getConnectedNodes(nodeId, 'from').length
 	let outDegree = network.getConnectedNodes(nodeId, 'to').length
@@ -3956,23 +4002,45 @@ function displayStatistics(nodeId) {
 	elem('leverage').textContent = leverage
 	let node = data.nodes.get(nodeId)
 	elem('bc').textContent = node.bc >= 0 ? parseFloat(node.bc).toFixed(2) : '--'
-}
+} */
 
 /**
  * ensure that the panel is not outside the net pane, nor obscuring the Settings panel
- * @param {HTMLElement} panel
+ * @param {HTMLElement} notesPanel
  */
 function positionNotes() {
-	let notesPanel
-	if (!elem('nodeDataPanel').classList.contains('hide')) notesPanel = elem('nodeDataPanel')
-	if (!elem('edgeDataPanel').classList.contains('hide')) notesPanel = elem('edgeDataPanel')
-	if (!notesPanel) return
+	let notesPanel = document.getElementById('nodeNotePanel')
+	if (notesPanel.classList.contains('hide')) notesPanel = document.getElementById('edgeNotePanel')
+	if (notesPanel.classList.contains('hide')) return
+	let netPane = document.getElementById('net-pane')
+	let settings = document.getElementById('panel')
+
 	let notesPanelRect = notesPanel.getBoundingClientRect()
-	let settingsRect = elem('panel').getBoundingClientRect()
+	let settingsRect = settings.getBoundingClientRect()
 	let netPaneRect = netPane.getBoundingClientRect()
 	// if the notes would cover up the settings panel, move the notes to the left of the settings panel
-	if (notesPanelRect.right > settingsRect.left && notesPanelRect.top < settingsRect.bottom) {
-		notesPanel.style.left = `${settingsRect.left - notesPanelRect.width - 20}px`
+	if (
+		notesPanelRect.right > settingsRect.left &&
+		notesPanelRect.top < settingsRect.bottom
+	) {
+		notesPanel.style.left = `${settingsRect.left - notesPanelRect.width - 10}px`
+		notesPanelRect = notesPanel.getBoundingClientRect()
+	}
+	// if the notes panel is taller than the net pane, increase its width and reduce its height
+	if (notesPanelRect.height > netPaneRect.height - 20) {
+		notesPanel.style.width = `$({
+						(notesPanelRect.width * notesPanelRect.height) / (netPaneRect.height - 20)
+					}px`
+		notesPanel.style.height = `${netPaneRect.height - 20}px`
+		notesPanel.style.left = `${notesPanelRect.right - notesPanelRect.width}px`
+		notesPanel.style.top = 10
+		notesPanelRect = notesPanel.getBoundingClientRect()
+	}
+	// if the notes panel is wider than the net pane, reduce its width
+	if (notesPanelRect.width > netPaneRect.width) {
+		notesPanel.style.width = `${netPaneRect.width - 20}px`
+		notesPanel.style.left = 10
+		notesPanelRect = notesPanel.getBoundingClientRect()
 	}
 	// if the notes panel is taller than the net pane, increase its width and reduce its height
 	if (notesPanelRect.height > netPaneRect.height - 30) {
@@ -3982,14 +4050,15 @@ function positionNotes() {
 		notesPanelRect = notesPanel.getBoundingClientRect()
 	}
 	// if the notes panel is outside the boundary of the net pane, shift it into the pane
-	if (notesPanelRect.left < netPaneRect.left + 20) notesPanel.style.left = `${netPaneRect.left + 20}px`
-	if (notesPanelRect.right > netPaneRect.right)
-		notesPanel.style.left = `${netPaneRect.right - notesPanelRect.width - 20}px`
-	let top = notesPanelRect.top
-	if (notesPanelRect.bottom > netPaneRect.bottom) top = netPaneRect.bottom - notesPanelRect.height - 10
-	if (top < netPaneRect.top + 30) top = netPaneRect.top + 30
-	notesPanel.style.top = `${top}px`
-	elem('node-notes').style.maxHeight = `${netPaneRect.height - 230}px`
+	if (notesPanelRect.left < netPaneRect.left + 10)
+		notesPanel.style.left = `${netPaneRect.left + 10}px`
+	if (notesPanelRect.right > netPaneRect.right - 10)
+		notesPanel.style.left = `${netPaneRect.right - notesPanelRect.width - 10}px`
+	let visibleBottom = Math.min(notesPanelRect.bottom, notesPanelRect.top + notesPanel.offsetHeight)
+	if (visibleBottom > netPaneRect.bottom - 10)
+		notesPanel.style.top = `${netPaneRect.bottom - notesPanel.offsetHeight - 10}px`
+	if (notesPanelRect.top < netPaneRect.top + 10)
+		notesPanel.style.top = `${netPaneRect.top + 10}px`
 }
 // Network tab
 

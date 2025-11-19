@@ -550,11 +550,11 @@
 					data-tutorial="
 					<h1>Welcome to PRSM</h1>
 					<div id='intro-logo'></div>
-					<p class='tutorial-note'>You can type your name here to show others that you are online:<br />
+					<p class='tutorial-note'>You can type your name here to show others that you are online:<br >
 					  <input id='splashNameBox' type='text'>
 					</p>
 					
-					<p>For a quick tour, press <b>Next</b>,<br />
+					<p>For a quick tour, press <b>Next</b>,<br >
 					  or to skip it, press <b>Skip</b></p>
 					<p class='tutorial-note'> <a href='privacy-notice.html' target='_blank'>Privacy notice</a></p>"
 					data-step="0"
@@ -833,7 +833,7 @@
 								<div>Auto layout:</div>
 								<div>
 									<select id="layoutSelect">
-										<option value="off" selected></option>
+										<option value="off" selected>Off</option>
 										<option value="trophic">Trophic</option>
 										<option value="fan">Fan</option>
 										<option value="barnesHut">Barnes Hut</option>
@@ -999,8 +999,8 @@
 				</div>
 			</aside>
 			<!-- Notes panels -->
-			<div class="itemData hide" id="nodeDataPanel">
-				<div class="row" id="nodeDataHeader">
+			<div class="notePanel hide" id="nodeNotePanel">
+				<div class="header" id="nodeNoteHeader">
 					<div>
 						<span class="nodeLabel" id="nodeLabel"></span>
 					</div>
@@ -1058,28 +1058,18 @@
 						<span class="tooltiptext settingstip">Open in a new window</span>
 					</div>
 				</div>
-				<div class="row">
-					<div>Leverage</div>
-					<div id="leverage"></div>
+				<div class="history" id="nodeCreation">
+					<span class="left">Created:</span>
+					<span class="right" id="nodeCreated"></span>
 				</div>
-				<div class="row">
-					<div>Betweenness centrality</div>
-					<div id="bc"></div>
+				<div class="history" id="nodeModification">
+					<span class="left">Modified:</span>
+					<span class="right" id="nodeModified"></span>
 				</div>
-				<div class="row divider" id="nodeCreation">
-					<div>Created:</div>
-					<div id="nodeCreated"></div>
-				</div>
-				<div class="row" id="nodeModification">
-					<div>Modified:</div>
-					<div id="nodeModified"></div>
-				</div>
-				<div class="row">
-					<div class="edit-container" id="node-edit-container">
-						<div class="notes" id="node-notes"></div>
-					</div>
-				</div>
+				<div class="content" id="node-notes"></div>
+				<div class="corner-handle" id="notePanelCornerHandle"></div>
 			</div>
+<<<<<<< HEAD
 			<div class="itemData hide" id="edgeDataPanel">
 				<div class="row" id="edgeDataHeader">
 					<div class="edgeLabel" id="edgeLabel"></div>
@@ -1093,8 +1083,15 @@
 							<path
 								d="M9.6 2.279a.426.426 0 0 1 .8 0l.407 1.112a6.386 6.386 0 0 0 3.802 3.802l1.112.407a.426.426 0 0 1 0 .8l-1.112.407a6.386 6.386 0 0 0-3.802 3.802l-.407 1.112a.426.426 0 0 1-.8 0l-.407-1.112a6.386 6.386 0 0 0-3.802-3.802L4.279 8.4a.426.426 0 0 1 0-.8l1.112-.407a6.386 6.386 0 0 0 3.802-3.802L9.6 2.279Zm-4.267 8.837a.178.178 0 0 1 .334 0l.169.464a2.662 2.662 0 0 0 1.584 1.584l.464.169a.178.178 0 0 1 0 .334l-.464.169a2.662 2.662 0 0 0-1.584 1.584l-.169.464a.178.178 0 0 1-.334 0l-.169-.464a2.662 2.662 0 0 0-1.584-1.584l-.464-.169a.178.178 0 0 1 0-.334l.464-.169a2.662 2.662 0 0 0 1.584-1.584l.169-.464ZM2.8.14a.213.213 0 0 1 .4 0l.203.556a3.2 3.2 0 0 0 1.901 1.901l.556.203a.213.213 0 0 1 0 .4l-.556.203a3.2 3.2 0 0 0-1.901 1.901L3.2 5.86a.213.213 0 0 1-.4 0l-.203-.556A3.2 3.2 0 0 0 .696 3.403L.14 3.2a.213.213 0 0 1 0-.4l.556-.203A3.2 3.2 0 0 0 2.597.696L2.8.14Z"></path>
 						</svg>
+=======
+			<!-- edge note panel-->
+			<div class="notePanel hide" id="edgeNotePanel">
+				<div class="header" id="edgeNoteHeader">
+					<div>
+						<span class="edgeLabel" id="edgeLabel"></span>
+>>>>>>> 0ccee3f (Redo the Notes Panel, and allow user to move and resize the Panel, while keeping it in the viewport)
 					</div>
-					<div id="newEdgeWindow">
+					<div id="newEdgeWindow" class="tooltip">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="16"
@@ -1106,25 +1103,28 @@
 							<path
 								d="M16 5h1.58l-6.29 6.28a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0L19 6.42V8a1 1 0 0 0 1 1 1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-4a1 1 0 0 0 0 2z" />
 						</svg>
+						<span class="tooltiptext settingstip">Open in a new window</span>
 					</div>
 				</div>
-				<div class="row divider" id="edgeCreation">
-					<div>Created:</div>
-					<div id="edgeCreated"></div>
+				<div class="history" id="edgeCreation">
+					<span class="left">Created:</span>
+					<span class="right" id="edgeCreated"></span>
 				</div>
-				<div class="row" id="edgeModification">
-					<div>Modified:</div>
-					<div id="edgeModified"></div>
+				<div class="history" id="edgeModification">
+					<span class="left">Modified:</span>
+					<span class="right" id="edgeModified"></span>
 				</div>
-				<div class="row">
-					<div class="edit-container" id="edge-edit-container">
-						<div class="notes" id="edge-notes"></div>
-					</div>
-				</div>
+				<div class="content" id="edge-notes"></div>
+				<div class="corner-handle" id="notePanelCornerHandle"></div>
 			</div>
+<<<<<<< HEAD
 			<div class="errMsgWrapper">
 				<div id="errMsg"></div>
 			</div>
+=======
+			<!-- Error Message and Status Bar -->
+			<div id="errMsg"></div>
+>>>>>>> 0ccee3f (Redo the Notes Panel, and allow user to move and resize the Panel, while keeping it in the viewport)
 			<footer
 				data-tutorial="Hints and messages appear here"
 				data-step="9"
@@ -1442,7 +1442,7 @@
 				<li>Paste the link below and click on <b>Merge</b></li>
 			</ol>
 			<label for="mergedRoom">Map to merge:&nbsp;</label>
-			<input type="url" id="mergedRoom" autofocus="true" />
+			<input type="url" id="mergedRoom" autofocus />
 			<button id="merge">Merge</button>
 		</dialog>
 		<script src="../js/prsm.js" type="module" async></script>
