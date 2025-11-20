@@ -3769,10 +3769,12 @@ function openNotesWindow() {
  */
 function hideNotes() {
 	if (editor == null) return
-	elem('nodeNotePanel').classList.add('hide')
-	elem('edgeNotePanel').classList.add('hide')
+	let notesPanel = document.getElementById('nodeNotePanel')
+	if (notesPanel.classList.contains('hide')) notesPanel = document.getElementById('edgeNotePanel')
+	if (notesPanel.classList.contains('hide')) return
+	notesPanel.classList.add('hide')
 	document.getSelection().removeAllRanges()
-	document.querySelectorAll('.ql-toolbar').forEach((e) => e.remove())
+	notesPanel.querySelector('.ql-toolbar').remove()
 	editor = null
 	if (popupWindow) popupWindow.close()
 }
@@ -3849,7 +3851,7 @@ function makeNotesPanelResizeable(notePanel) {
 	let startWidth = 0
 	let startHeight = 0
 
-	notePanelCornerHandle.addEventListener('mousedown', (e) => {
+	notePanelCornerHandle.addEventListener('pointerdown', (e) => {
 		isResizingCorner = true
 		startX = e.clientX
 		startY = e.clientY
@@ -3859,9 +3861,11 @@ function makeNotesPanelResizeable(notePanel) {
 		startHeight = parseInt(styles.height, 10)
 
 		document.body.style.userSelect = 'none'
+		// Prevent default touch behaviors like scrolling
+		notePanelCornerHandle.style.touchAction = 'none'
 	})
 
-	document.addEventListener('mousemove', (e) => {
+	document.addEventListener('pointermove', (e) => {
 		if (!isResizingCorner) return
 
 		const dx = e.clientX - startX
@@ -3874,7 +3878,7 @@ function makeNotesPanelResizeable(notePanel) {
 		if (newHeight > 200) notePanel.style.height = newHeight + 'px'
 	})
 
-	document.addEventListener('mouseup', () => {
+	document.addEventListener('pointerup', () => {
 		isResizingCorner = false
 		document.body.style.userSelect = 'auto'
 		positionNotes()
@@ -5425,6 +5429,7 @@ function renameUser() {
 		yAwareness.setLocalState({ user: myNameRec })
 		showAvatars()
 	}
+	clearStatusBar()
 }
 /**
  * show a ghost box where another user is adding a factor

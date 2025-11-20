@@ -271,6 +271,7 @@ aside {
 #zoomcontrol {
 	padding-right: 20px;
 	white-space: nowrap;
+	margin-left: auto;
 }
 #zoomplus {
 	cursor: zoom-in;
@@ -1067,6 +1068,7 @@ but moving the panel out of sight works instead */
 	bottom: 0;
 	right: 0;
 	cursor: nwse-resize;
+	touch-action: none;
 	z-index: 2010;
 }
 .notePanel .corner-handle:hover {
@@ -2163,6 +2165,9 @@ input#splashNameBox::placeholder {
 	}
 	.tutorial-dialog.splash.intro-splash {
 		width: 350px;
+	}
+	#statusBar {
+		display:none;
 	}
 }
 
