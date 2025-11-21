@@ -768,7 +768,7 @@ export function legend(warn = false) {
 	elem('main').appendChild(legendBox)
 	let title = document.createElement('p')
 	title.id = 'Legend'
-	title.className = 'legendTitle'
+	title.classList.add('legendTitle', 'dragHandle')
 	title.appendChild(document.createTextNode('Legend'))
 	legendBox.appendChild(title)
 	legendBox.style.height = `${LEGENDHEIGHT * nItems + title.offsetHeight}px`

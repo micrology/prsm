@@ -349,6 +349,11 @@ function addEventListeners() {
 
 	listen('body', 'copy', copyToClipboard)
 	listen('body', 'paste', pasteFromClipboard)
+	// change pointer when entering drag handles
+	Array.from(document.getElementsByClassName('drag-handle')).forEach((el) => {
+		el.addEventListener('pointerenter', () => (el.style.cursor = 'move'))
+		el.addEventListener('pointerout', () => (el.style.cursor = 'auto'))
+	})
 	// if user has changed to this  tab, ensure that the network has been drawn
 	document.addEventListener('visibilitychange', () => {
 		network.redraw()

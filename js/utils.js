@@ -13,7 +13,6 @@ See the file LICENSE.md for details.
 This module provides a set of utility functions used widely within the PRSM code.  
 **********************************************************************************************************************/
 
-import * as Hammer from '@egjs/hammerjs'
 import iro from '@jaames/iro'
 
 const MANUALURL = './doc/help/doc_build/manual/Introduction.html'
@@ -384,58 +383,69 @@ export function convertDashes(val) {
  * @param {HTMLElement} header
  */
 export function dragElement(el, header) {
-	header.addEventListener('mouseenter', () => (header.style.cursor = 'move'))
+/* 	header.addEventListener('mouseenter', () => (header.style.cursor = 'move'))
 	header.addEventListener('mouseout', () => (header.style.cursor = 'auto'))
-
-	let mc = new Hammer.Manager(header, {
-		recognizers: [[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}]],
-	})
-	// tie in the handler that will be called
-	mc.on('pan', handleDrag)
-
+ */
+	let isDragging = false
+	let startPosX = 0
+	let startPosY = 0
 	let lastPosX = 0
 	let lastPosY = 0
-	let isDragging = false
 	let width = 0
 	let height = 0
 
-	function handleDrag(ev) {
-		// DRAG STARTED
-		// here, let's snag the current position
-		// and keep track of the fact that we're dragging
-		if (!isDragging) {
-			isDragging = true
-			lastPosX = el.offsetLeft
-			lastPosY = el.offsetTop
-			width = el.offsetWidth
-			height = el.offsetHeight
-		}
-
-		// we simply need to determine where the x,y of this
-		// object is relative to where it's "last" known position is
-		// NOTE:
-		//    deltaX and deltaY are cumulative
-		// Thus we need to always calculate 'real x and y' relative
-		// to the "lastPosX/Y"
+	function onPointerDown(ev) {
+		// Start dragging
+		isDragging = true
+		startPosX = ev.clientX
+		startPosY = ev.clientY
+		lastPosX = el.offsetLeft
+		lastPosY = el.offsetTop
+		width = el.offsetWidth
+		height = el.offsetHeight
+		header.setPointerCapture(ev.pointerId)
 		el.style.cursor = 'move'
-		let posX = ev.deltaX + lastPosX
+	}
+
+	function onPointerMove(ev) {
+		if (!isDragging) return
+
+		// Calculate delta from start position
+		const deltaX = ev.clientX - startPosX
+		const deltaY = ev.clientY - startPosY
+
+		// Calculate new position with boundary constraints
+		let posX = lastPosX + deltaX
 		if (posX < 0) posX = 0
 		if (posX > window.innerWidth - width) posX = window.innerWidth - width
-		let posY = ev.deltaY + lastPosY
+
+		let posY = lastPosY + deltaY
 		if (posY < 0) posY = 0
 		if (posY > window.innerHeight - height) posY = window.innerHeight - height
 
-		// move our element to that position
+		// Move element to new position
 		el.style.left = posX + 'px'
 		el.style.top = posY + 'px'
-
-		// DRAG ENDED
-		// this is where we simply forget we are dragging
-		if (ev.isFinal) {
-			isDragging = false
-			el.style.cursor = 'auto'
-		}
 	}
+
+	function onPointerUp(ev) {
+		if (!isDragging) return
+		isDragging = false
+		el.style.cursor = 'auto'
+		header.releasePointerCapture(ev.pointerId)
+	}
+
+	function onPointerCancel(ev) {
+		if (!isDragging) return
+		isDragging = false
+		el.style.cursor = 'auto'
+		header.releasePointerCapture(ev.pointerId)
+	}
+
+	header.addEventListener('pointerdown', onPointerDown)
+	header.addEventListener('pointermove', onPointerMove)
+	header.addEventListener('pointerup', onPointerUp)
+	header.addEventListener('pointercancel', onPointerCancel)
 }
 /**
  * Create a context menu that pops up when elem is right clicked
