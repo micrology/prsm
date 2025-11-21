@@ -27,7 +27,6 @@ This module provides the background paint functions.
  */
 
 import {yPointsArray, network, drawingSwitch} from './prsm.js'
-import * as Hammer from '@egjs/hammerjs'
 
 /**
  * Initialisation
@@ -69,13 +68,38 @@ export function setUpPaint() {
 	tempCanvas = setUpCanvas('temp-canvas')
 	tempctx = getContext(tempCanvas)
 
-	let mc = new Hammer.Manager(tempCanvas, {
-		recognizers: [[Hammer.Tap], [Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 1}]],
+	// Use pointer events for drawing tools
+	let isPointerDown = false
+	let hasMoved = false
+
+	tempCanvas.addEventListener('pointerdown', (e) => {
+		isPointerDown = true
+		hasMoved = false
+		const event = { type: 'panstart', srcEvent: e }
+		mouseDespatch(event)
 	})
-	mc.on('tap', mouseDespatch)
-	mc.on('panstart', mouseDespatch)
-	mc.on('panmove', mouseDespatch)
-	mc.on('panend', mouseDespatch)
+
+	tempCanvas.addEventListener('pointermove', (e) => {
+		if (!isPointerDown) return
+		hasMoved = true
+		const event = { type: 'panmove', srcEvent: e }
+		mouseDespatch(event)
+	})
+
+	tempCanvas.addEventListener('pointerup', (e) => {
+		if (!isPointerDown) return
+		isPointerDown = false
+		// If pointer didn't move, treat it as a tap
+		const event = { type: hasMoved ? 'panend' : 'tap', srcEvent: e }
+		mouseDespatch(event)
+	})
+
+	tempCanvas.addEventListener('pointercancel', (e) => {
+		if (!isPointerDown) return
+		isPointerDown = false
+		const event = { type: 'panend', srcEvent: e }
+		mouseDespatch(event)
+	})
 }
 /**
  * set up the dimensions of and return the canvas at the id
@@ -589,45 +613,63 @@ class TextHandler extends ToolHandler {
 	 */
 	dragElement(elem) {
 		let resizing = false
+		let startPosX = 0
+		let startPosY = 0
 		let lastPosX = 0
 		let lastPosY = 0
 		let width = 0
 		let height = 0
 		let isDragging = false
 
-		let mc = new Hammer.Manager(elem, {
-			recognizers: [[Hammer.Pan, {direction: Hammer.DIRECTION_ALL, threshold: 0}]],
-		})
-		mc.on('pan', handleDrag)
+		function onPointerDown(e) {
+			isDragging = true
+			startPosX = e.clientX
+			startPosY = e.clientY
+			lastPosX = elem.offsetLeft
+			lastPosY = elem.offsetTop
+			let rect = elem.getBoundingClientRect()
+			width = rect.width
+			height = rect.height
+			resizing = e.target.id === 'resizer'
+			elem.setPointerCapture(e.pointerId)
+		}
 
-		function handleDrag(e) {
-			let target = e.target
-			if (!isDragging) {
-				isDragging = true
-				lastPosX = elem.offsetLeft
-				lastPosY = elem.offsetTop
-				let rect = elem.getBoundingClientRect()
-				width = rect.width
-				height = rect.height
-				resizing = target.id == 'resizer'
-			}
+		function onPointerMove(e) {
+			if (!isDragging) return
+			const deltaX = e.clientX - startPosX
+			const deltaY = e.clientY - startPosY
 			if (resizing) {
-				let newWidth = width + e.deltaX
-				let newHeight = height + e.deltaY
+				let newWidth = width + deltaX
+				let newHeight = height + deltaY
 				elem.style.width = `${newWidth}px`
 				elem.style.height = `${newHeight}px`
 			} else {
 				// move
-				let posX = e.deltaX + lastPosX
-				let posY = e.deltaY + lastPosY
+				let posX = deltaX + lastPosX
+				let posY = deltaY + lastPosY
 				elem.style.left = posX + 'px'
 				elem.style.top = posY + 'px'
 			}
-			if (e.isFinal) {
-				isDragging = false
-				resizing = false
-			}
 		}
+
+		function onPointerUp(e) {
+			if (!isDragging) return
+			isDragging = false
+			resizing = false
+			elem.releasePointerCapture(e.pointerId)
+		}
+
+		function onPointerCancel(e) {
+			if (!isDragging) return
+			isDragging = false
+			resizing = false
+			elem.releasePointerCapture(e.pointerId)
+		}
+
+		elem.addEventListener('pointerdown', onPointerDown)
+		elem.addEventListener('pointermove', onPointerMove)
+		elem.addEventListener('pointerup', onPointerUp)
+		elem.addEventListener('pointercancel', onPointerCancel)
 	}
 }
 let textHandler = new TextHandler()

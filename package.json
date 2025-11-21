@@ -52,7 +52,6 @@
 	},
 	"license": "GPL-3.0-or-later",
 	"dependencies": {
-		"@egjs/hammerjs": "^2.0.17",
 		"@jaames/iro": "^5.5.2",
 		"@y/websocket-server": "^0.1.1",
 		"3d-force-graph": "^1.74.5",

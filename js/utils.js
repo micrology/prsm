@@ -383,9 +383,6 @@ export function convertDashes(val) {
  * @param {HTMLElement} header
  */
 export function dragElement(el, header) {
-/* 	header.addEventListener('mouseenter', () => (header.style.cursor = 'move'))
-	header.addEventListener('mouseout', () => (header.style.cursor = 'auto'))
- */
 	let isDragging = false
 	let startPosX = 0
 	let startPosY = 0

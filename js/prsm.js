@@ -71,7 +71,6 @@ import { trophic } from './trophic.js'
 import { cluster, openCluster } from './cluster.js'
 import { mergeRoom, diffRoom } from './merge.js'
 import Quill from 'quill'
-import Hammer from '@egjs/hammerjs'
 import {
 	setUpSamples,
 	reApplySampleToNodes,
@@ -168,7 +167,6 @@ export var cp = new CP()
 // color picker
 var checkMapSaved = false // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
 var dirty = false // map has been changed by user and may need saving
-var hammer // Hammer pinch recogniser instance
 var followme // clientId of user's cursor to follow
 var editor = null // Quill editor
 var popupWindow = null // window for editing Notes
@@ -382,14 +380,7 @@ function setUpPage() {
 	panel.classList.add('hide')
 	container.panelHidden = true
 	cp.createColorPicker('netBackColorWell', updateNetBack)
-	hammer = new Hammer(netPane)
-	hammer.get('pinch').set({ enable: true })
-	hammer.on('pinchstart', () => {
-		zoomstart()
-	})
-	hammer.on('pinch', (e) => {
-		zoomset(e.scale)
-	})
+	setUpPinchZoom()
 	setUpSamples()
 	updateLastSamples(lastNodeSample, lastLinkSample)
 	makeNotesPanelResizeable(elem('nodeNotePanel'))
@@ -3152,23 +3143,48 @@ function zoomincr(incr) {
 	network.zoom(newScale)
 }
 /**
- * zoom using a pinch/zoom gesture on a tablet
- * note the starting point
+ * Set up pinch-to-zoom using native touch events
  */
-var startzoom = 1
-function zoomstart() {
-	startzoom = Number(elem('zoom').value)
-}
-/**
- * zoom by the given amount
- * @param {Number} newScale
- */
-function zoomset(newScale) {
-	let newZoom = startzoom * newScale
-	if (newZoom > 4) newZoom = 4
-	if (newZoom <= 0.015) newZoom = 0.015
-	elem('zoom').value = newZoom
-	network.zoom(newZoom)
+function setUpPinchZoom() {
+	let initialDistance = null
+	let initialScale = 1
+
+	function getTouchDistance(touch1, touch2) {
+		const dx = touch1.clientX - touch2.clientX
+		const dy = touch1.clientY - touch2.clientY
+		return Math.sqrt(dx * dx + dy * dy)
+	}
+
+	netPane.addEventListener('touchstart', (e) => {
+		if (e.touches.length === 2) {
+			e.preventDefault()
+			initialDistance = getTouchDistance(e.touches[0], e.touches[1])
+			initialScale = Number(elem('zoom').value)
+		}
+	}, { passive: false })
+
+	netPane.addEventListener('touchmove', (e) => {
+		if (e.touches.length === 2 && initialDistance) {
+			e.preventDefault()
+			const currentDistance = getTouchDistance(e.touches[0], e.touches[1])
+			const scale = currentDistance / initialDistance
+			let newZoom = initialScale * scale
+			if (newZoom > 4) newZoom = 4
+			if (newZoom <= 0.015) newZoom = 0.015
+			elem('zoom').value = newZoom
+			network.zoom(newZoom)
+		}
+	}, { passive: false })
+
+	netPane.addEventListener('touchend', (e) => {
+		if (e.touches.length < 2) {
+			initialDistance = null
+		}
+	})
+
+	netPane.addEventListener('touchcancel', () => {
+		initialDistance = null
+	})
 }
 
 var clicks = 0 // accumulate 'mousewheel' clicks sent while display is updating
