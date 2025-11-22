@@ -3976,7 +3976,7 @@ async function genAIEdge() {
 	sparklesElem.classList.add('rotating')
 	let edgeId = network.getSelectedEdges()[0]
 	let edge = data.edges.get(edgeId)
-	let aiResponse = await getAIresponse(`Explain the causal link between ${data.nodes.get(edge.from).label} and ${data.nodes.get(edge.to).label}`)
+	let aiResponse = await getAIresponse(`Explain the causal link from ${data.nodes.get(edge.from).label} to ${data.nodes.get(edge.to).label}`)
 	editor.setContents(aiResponse)
 	let modified = timestamp()
 	data.edges.update({
