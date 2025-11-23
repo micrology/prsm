@@ -3844,12 +3844,13 @@ function showNodeData(nodeId) {
  * return the output from an LLM asked to explain the factor
  */
 async function genAINode() {
-	alertMsg('Thinking...', 'info', true)
+	alertMsg('Processing...', 'info', true)
 	const sparklesElem = elem('sparklesNode')
 	sparklesElem.classList.add('rotating')
 	let nodeId = network.getSelectedNodes()[0]
 	let node = data.nodes.get(nodeId)
-	let aiResponse = await getAIresponse(`Explain ${node.label}`)
+	let context = data.nodes.get().map(n => n.label.replaceAll('\n', ' ')).join(', ')
+	let aiResponse = await getAIresponse(`Explain ${node.label}`, context)
 	editor.setContents(aiResponse)
 	let modified = timestamp()
 	data.nodes.update({
@@ -3971,12 +3972,13 @@ function showEdgeData(edgeId) {
  * relationship between the two linked factors
  */
 async function genAIEdge() {
-	alertMsg('Thinking...', 'info', true)
+	alertMsg('Processing...', 'info', true)
 	const sparklesElem = elem('sparklesEdge')
 	sparklesElem.classList.add('rotating')
 	let edgeId = network.getSelectedEdges()[0]
 	let edge = data.edges.get(edgeId)
-	let aiResponse = await getAIresponse(`Explain the causal link from ${data.nodes.get(edge.from).label} to ${data.nodes.get(edge.to).label}`)
+	let context = data.nodes.get().map(n => n.label.replaceAll('\n', ' ')).join(', ')
+	let aiResponse = await getAIresponse(`Explain the causal link from ${data.nodes.get(edge.from).label} to ${data.nodes.get(edge.to).label}`, context)
 	editor.setContents(aiResponse)
 	let modified = timestamp()
 	data.edges.update({

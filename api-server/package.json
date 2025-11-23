@@ -5,7 +5,6 @@
 	"scripts": {
 		"server": "PORT=3001 node src/server.js",
 		"app": "npx parcel serve 'src/index.html' --port 3000 --open",
-		"dev": "npm run server && npm run app",
 		"build": "rm -rf public/* && parcel build --dist-dir public --public-url .",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},

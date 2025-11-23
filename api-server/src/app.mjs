@@ -7,8 +7,8 @@
  */
 
 // Backend API endpoint
-//const API_ENDPOINT = 'http://localhost:3001/api/chat'
-const API_ENDPOINT = 'https://cress.soc.surrey.ac.uk/api/chat'
+const API_ENDPOINT = 'http://localhost:4001/api/chat'
+//const API_ENDPOINT = 'https://cress.soc.surrey.ac.uk/api/chat'
 
 // ================================================================================
 
@@ -35,7 +35,8 @@ export async function chat(userMessage) {
 			},
 			body: JSON.stringify({
 				message: userMessage,
-				systemPrompt: systemPrompt
+				systemPrompt: systemPrompt,
+				room: 'FAK-ERO-OMK-EYX'
 			})
 		})
 		

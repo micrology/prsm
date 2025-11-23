@@ -1,3 +1,53 @@
+/********************************server.js***********************
+ * Express server that acts as a proxy to the Bedrock API
+ * 
+ * Exposes an endpoint /api/chat that accepts POST requests with a user message
+ * and optional system prompt, forwards them to Bedrock, and returns the response.
+ * 
+ * Requires the following environment variables:
+ * - BEDROCK_API_KEY: Your Bedrock API key
+ * - AWS_REGION: AWS region where Bedrock is hosted (default: eu-west-2)
+ * - MODEL_ID: Bedrock model ID to use (default: eu.anthropic.claude-haiku-4-5-20251001-v1:0)
+ * 
+ * For Bedrock access, also requires the PRSM room requesting access
+ * 
+ * Also exposes a /api/status endpoint that returns basic system information.
+ * 
+ * Run this as a service: prsm-api-server.service:
+ * 
+ * /etc/systemd/system/prsm-api-server.service
+
+[Unit]
+Description=PRSM API Server
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/data/cress/prsm/api-server
+ExecStart=/usr/local/bin/npm run server
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=prsm-api-server
+
+[Install]
+WantedBy=multi-user.target
+ ****************************************************************
+ 
+ or locally
+ 
+ npm run server
+ or
+ PORT=4001 npm run server
+ ***************************************************************
+
+ http://server-domain:${PORT}/api/status
+
+ shows the status of the server
+
+ ****************************************************************/
 import express from 'express'
 import cors from 'cors'
 import { config } from 'dotenv'
@@ -35,7 +85,8 @@ app.use(express.json())
 
 // Log all incoming requests
 app.use((req, res, next) => {
-	console.log('Processing URL:', req.url)
+	let url = new URL(req.url, `http://${req.headers.host}`)
+	console.log(`Processing ${url.pathname} for room ${req.body.room || 'N/A'}`)
 	next()
 })
 
@@ -52,8 +103,10 @@ if (!bedrockApiKey) {
 // Proxy endpoint for Bedrock chat
 app.post('/api/chat', async (req, res) => {
 	try {
-		const { message, systemPrompt } = req.body
+		const { message, systemPrompt, room } = req.body
 
+		if (!room || !room.match(/[a-zA-Z]{3}-[a-zA-Z]{3}-[a-zA-Z]{3}-[a-zA-Z]{3}/))
+			return res.status(400).json({ error: `Invalid room identifier: ${room}` })
 		if (!message) {
 			return res.status(400).json({ error: 'Message is required' })
 		}

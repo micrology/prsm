@@ -230,12 +230,10 @@ aside {
 	z-index: 2000;
 	box-shadow: 0px 6px 24px var(--pop-up-shadow-color);
 }
-.errMsgWrapper {
+#errMsg {
 	position: absolute;
 	bottom: 40px;
 	left: 70px;
-}
-#errMsg {
 	color: white;
 	padding: 10px;
 	border-radius: 10px;
