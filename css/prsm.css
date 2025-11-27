@@ -241,6 +241,7 @@ aside {
 	padding: 10px;
 	border-radius: 10px;
 	opacity: 0;
+	width: fit-content;
 }
 .fadeInAndOut {
 	animation-name: showErrMsg;
@@ -1049,11 +1050,11 @@ but moving the panel out of sight works instead */
 	justify-content: space-between;
 	font-size: 10px;
 }
-.notePanel .history .left{
-	      text-align: left;
+.notePanel .history .left {
+	text-align: left;
 }
-.notePanel .history .right{
-	      text-align: right;
+.notePanel .history .right {
+	text-align: right;
 }
 .notePanel .content {
 	background: white;
@@ -1075,7 +1076,7 @@ but moving the panel out of sight works instead */
 	z-index: 2010;
 }
 .notePanel .corner-handle:hover {
-	border-bottom:14px solid black
+	border-bottom: 14px solid black;
 }
 .itemData {
 	display: grid;
@@ -1139,6 +1140,25 @@ but moving the panel out of sight works instead */
 	font-weight: bold;
 	font-size: 12px;
 	line-height: 2;
+}
+#sparklesNode,
+#sparklesEdge svg {
+	padding-right: 10px;
+	transition: transform 0.3s ease;
+}
+
+#sparklesNode.rotating svg,
+#sparklesEdge.rotating svg {
+	animation: rotate 3s linear infinite;
+}
+
+@keyframes rotate {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
 }
 .padlock-hide {
 	display: none;
@@ -2170,7 +2190,7 @@ input#splashNameBox::placeholder {
 		width: 350px;
 	}
 	#statusBar {
-		display:none;
+		display: none;
 	}
 }
 

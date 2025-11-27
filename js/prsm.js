@@ -41,6 +41,7 @@ import {
 	generateName,
 	statusMsg,
 	alertMsg,
+	cancelAlertMsg,
 	clearStatusBar,
 	shorten,
 	initials,
@@ -95,6 +96,7 @@ import {
 	upgradeFromV1,
 	updateFromDrawingMap,
 } from './background.js'
+import { getAIresponse } from './ai.js'
 import { version } from '../package.json'
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
 
@@ -319,6 +321,9 @@ function addEventListeners() {
 	listen('lock', 'click', setFixed)
 	listen('newNodeWindow', 'click', openNotesWindow)
 	listen('newEdgeWindow', 'click', openNotesWindow)
+	listen('sparklesNode', 'click', genAINode)
+	listen('sparklesEdge', 'click', genAIEdge)
+
 
 	Array.from(document.getElementsByName('radius')).forEach((elem) => {
 		elem.addEventListener('change', analyse)
@@ -2076,7 +2081,6 @@ function setUpSideDrawer() {
 		[{ align: [] }],
 
 		['link', 'image'],
-		[{ size: ['small', false, 'large', 'huge'] }],
 		[{ header: [1, 2, 3, 4, 5, 6, false] }],
 
 		[{ color: [] }, { background: [] }],
@@ -3859,6 +3863,30 @@ function showNodeData(nodeId) {
 	positionNotes()
 }
 /**
+ * user has clicked on the sparkles icon in a Factor window
+ * return the output from an LLM asked to explain the factor
+ */
+async function genAINode() {
+	alertMsg('Processing...', 'info', true)
+	const sparklesElem = elem('sparklesNode')
+	sparklesElem.classList.add('rotating')
+	let nodeId = network.getSelectedNodes()[0]
+	let node = data.nodes.get(nodeId)
+	let context = data.nodes.get().map(n => n.label.replaceAll('\n', ' ')).join(', ')
+	let aiResponse = await getAIresponse(`Explain ${node.label}`, context)
+	editor.setContents(aiResponse)
+	let modified = timestamp()
+	data.nodes.update({
+		id: nodeId,
+		note: isQuillEmpty(editor) ? '' : editor.getContents(),
+		modified: modified,
+	})
+	elem('nodeModified').innerHTML = `${timeAndDate(modified.time)} by ${modified.user}`
+	positionNotes()
+	sparklesElem.classList.remove('rotating')
+	cancelAlertMsg()
+}
+/**
  * Make the notes panel resizeable by dragging its corner handle
  * @param {HTMLElement} notePanel 
  */
@@ -3964,18 +3992,31 @@ function showEdgeData(edgeId) {
 	panel.classList.remove('hide')
 	positionNotes()
 }
-
-/* // Statistics specific to a node
-function displayStatistics(nodeId) {
-	// leverage (outDegree / inDegree)
-	let inDegree = network.getConnectedNodes(nodeId, 'from').length
-	let outDegree = network.getConnectedNodes(nodeId, 'to').length
-	let leverage = inDegree === 0 ? '--' : (outDegree / inDegree).toPrecision(3)
-	elem('leverage').textContent = leverage
-	let node = data.nodes.get(nodeId)
-	elem('bc').textContent = node.bc >= 0 ? parseFloat(node.bc).toFixed(2) : '--'
-} */
-
+/**
+ * user has clicked on the sparkles icon in a Link node window
+ * return the output from an LLM asked to elaborate on the causal
+ * relationship between the two linked factors
+ */
+async function genAIEdge() {
+	alertMsg('Processing...', 'info', true)
+	const sparklesElem = elem('sparklesEdge')
+	sparklesElem.classList.add('rotating')
+	let edgeId = network.getSelectedEdges()[0]
+	let edge = data.edges.get(edgeId)
+	let context = data.nodes.get().map(n => n.label.replaceAll('\n', ' ')).join(', ')
+	let aiResponse = await getAIresponse(`Explain the causal link from ${data.nodes.get(edge.from).label} to ${data.nodes.get(edge.to).label}`, context)
+	editor.setContents(aiResponse)
+	let modified = timestamp()
+	data.edges.update({
+		id: edgeId,
+		note: isQuillEmpty(editor) ? '' : editor.getContents(),
+		modified: modified,
+	})
+	elem('edgeModified').innerHTML = `${timeAndDate(modified.time)} by ${modified.user}`
+	positionNotes()
+	sparklesElem.classList.remove('rotating')
+	cancelAlertMsg()
+}
 /**
  * ensure that the panel is not outside the net pane, nor obscuring the Settings panel
  * @param {HTMLElement} notesPanel

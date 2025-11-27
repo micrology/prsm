@@ -1,6 +1,6 @@
 {
 	"name": "participatory-system-mapper",
-	"version": "2.6.5",
+	"version": "3.0.2",
 	"description": "Participatory System Mapper, browser app for collaboratively creating system maps",
 	"keywords": [
 		"social network",
@@ -52,6 +52,9 @@
 	},
 	"license": "GPL-3.0-or-later",
 	"dependencies": {
+		"@aws-sdk/client-bedrock-runtime": "^3.726.1",
+		"@aws-sdk/client-cognito-identity": "^3.726.1",
+		"@aws-sdk/client-sts": "^3.726.1",
 		"@jaames/iro": "^5.5.2",
 		"@y/websocket-server": "^0.1.1",
 		"3d-force-graph": "^1.74.5",
@@ -94,6 +97,10 @@
 	},
 	"private": true,
 	"optionalDependencies": {
-		"@parcel/watcher-linux-x64-glibc": "^2.5.1"
+		"@parcel/rust-linux-arm64-gnu": "^2.16.1",
+		"@parcel/watcher-linux-arm64-glibc": "^2.5.1",
+		"@parcel/watcher-linux-x64-glibc": "^2.5.1",
+		"@swc/core-linux-arm64-gnu": "^1.15.2",
+		"lightningcss-linux-arm64-gnu": "^1.30.2"
 	}
 }
