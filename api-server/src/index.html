@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Simple Web Page</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				margin: 20px;
+				line-height: 1.5;
+			}
+			.container {
+				max-width: 600px;
+				margin: auto;
+			}
+			textarea {
+				width: 100%;
+				height: 100px;
+				margin-bottom: 10px;
+			}
+			button {
+				display: block;
+				margin-bottom: 10px;
+				padding: 10px 20px;
+				background-color: #007bff;
+				color: white;
+				border: none;
+				cursor: pointer;
+				font-size: 16px;
+			}
+			button:hover {
+				background-color: #0056b3;
+			}
+			.output {
+				padding: 10px;
+				border: 1px solid #ccc;
+				background-color: #f9f9f9;
+				min-height: 50px;
+			}
+		</style>
+		<script type="module" src="app.mjs"></script>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Simple Chat</h1>
+			<textarea id="inputText" placeholder="Enter some text..."></textarea>
+			<button onclick="submitText()">Submit</button>
+			<div class="output" id="outputText"></div>
+		</div>
+	</body>
+</html>
