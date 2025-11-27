@@ -1078,18 +1078,6 @@ but moving the panel out of sight works instead */
 .notePanel .corner-handle:hover {
 	border-bottom: 14px solid black;
 }
-.itemData {
-	display: grid;
-	padding: 4px;
-	background-color: var(--panel-color);
-	color: white;
-	font-size: 11px;
-	border-radius: 4px;
-	position: fixed;
-	top: calc(100% - 380px);
-	left: calc(100% - 265px);
-	z-index: 2000;
-}
 .notes {
 	padding: 4px;
 	color: rgb(0, 0, 0);
@@ -1114,26 +1102,6 @@ but moving the panel out of sight works instead */
 }
 .ql-toolbar.ql-snow .ql-formats {
 	margin-right: 0;
-}
-
-.itemData .row {
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-	font-size: 10px;
-}
-.itemData .row div {
-	margin: auto 0;
-}
-.itemData .row .centered {
-	justify-content: center;
-}
-.itemData .row.divider {
-	margin-top: 5px;
-	border-top: 1px solid rgb(211, 211, 211);
-}
-.itemData .row .hidden {
-	display: none;
 }
 .nodeLabel,
 .edgeLabel {
@@ -1162,6 +1130,9 @@ but moving the panel out of sight works instead */
 }
 .padlock-hide {
 	display: none;
+}
+#lock:hover, #unlock:hover, #newNodeWindow:hover, #newEdgeWindow:hover {
+	cursor: auto;
 }
 
 /* switch */

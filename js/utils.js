@@ -392,6 +392,8 @@ export function dragElement(el, header) {
 	let height = 0
 
 	function onPointerDown(ev) {
+		// user has clicked on a child element - ignore dragging
+		if (ev.target !== this) return
 		// Start dragging
 		isDragging = true
 		startPosX = ev.clientX
