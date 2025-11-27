@@ -34,6 +34,9 @@ SyslogIdentifier=prsm-api-server
 
 [Install]
 WantedBy=multi-user.target
+
+for status, use:
+journalctl -f -u prsm-api-server
  ****************************************************************
  
  or locally

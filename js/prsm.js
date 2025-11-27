@@ -110,7 +110,6 @@ const TIMETOEDIT = 5 * 60 * 1000 // if node/edge edit dialog is not saved after 
 const magnification = 3 // magnification of the loupe (magnifier 'glass')
 export const NLEVELS = 20 // max. number of levels for trophic layout
 const ROLLBACKS = 10 // max. number of versions stored for rollback
-const SLOWTRIPTIME = 1000 // any more than this number of ms for the round trip generates a warning
 
 export var network
 export var room
@@ -5116,7 +5115,6 @@ dragElement(elem('history-window'), elem('history-header'))
 
 /* --------------------------------------- avatars and shared cursors--------------------------------*/
 
-var lastPktTime // time when a round trip duration packet was last sent
 var oldViewOnly = viewOnly // save the viewOnly state
 /* tell user if they are offline and disconnect websocket server */
 window.addEventListener('offline', () => {
@@ -5131,7 +5129,6 @@ window.addEventListener('offline', () => {
 window.addEventListener('online', () => {
 	wsProvider.connect()
 	alertMsg('Network connection re-established', 'info')
-	lastPktTime = null
 	viewOnly = oldViewOnly
 	if (!viewOnly) showNavButtons()
 	sideDrawEditor.enable(true)
@@ -5143,7 +5140,7 @@ window.addEventListener('online', () => {
  */
 function setUpAwareness() {
 	showAvatars()
-	roundTripTimer()
+	//roundTripTimer()
 	yAwareness.on('change', (event) => receiveEvent(event))
 
 	// regularly broadcast our own state, every 20 seconds
@@ -5187,32 +5184,6 @@ function setUpAwareness() {
 		)
 	})
 }
-/**
- * measure the time taken to send an update to another Y.doc
- * responds to updates sent as 'pkt' objects every 20 seconds (see above)
- */
-function roundTripTimer() {
-	const ydocB = new Y.Doc()
-	const wsProviderB = new WebsocketProvider(websocket, `prsm${room}`, ydocB)
-	const yAwarenessB = wsProviderB.awareness
-	wsProviderB.disconnectBc()
-	// clientB listens to updates, extracts the time from the state and displays it and
-	// how long ago the state change was made ( time now - state.time )
-	yAwarenessB.on('change', (event, origin) => {
-		if (typeof origin === 'string') return // ignore local changes (e.g. through broadcast channel)
-		let sentpkt = yAwarenessB.getStates()?.get(yAwareness.clientID)?.pkt
-		if (sentpkt) {
-			// ignore repetitions of the same state time sent when other things change in the state object
-			if (lastPktTime && lastPktTime !== sentpkt.time) {
-				if (Date.now() - sentpkt.time > SLOWTRIPTIME || /round/.test(debug)) {
-					alertMsg(`Slow or unstable network connection (${Date.now() - sentpkt.time} ms)`, 'warn')
-					console.log(`${exactTime(sentpkt.time)} Round trip: ${Date.now() - sentpkt.time} ms`)
-				}
-				lastPktTime = sentpkt.time
-			}
-		}
-	})
-}
 
 /**
  * Set the awareness local state to show whether this client is sleeping (no mouse movement for 15 minutes)
@@ -5223,6 +5194,8 @@ function asleep(isSleeping) {
 	myNameRec.asleep = isSleeping
 	yAwareness.setLocalState({ user: myNameRec })
 	showAvatars()
+	if (isSleeping) wsProvider.disconnect()
+	else wsProvider.connect()
 }
 /**
  * display the awareness events
