@@ -1117,7 +1117,8 @@ but moving the panel out of sight works instead */
 }
 
 #sparklesNode.rotating svg,
-#sparklesEdge.rotating svg {
+#sparklesEdge.rotating svg,
+#sparklesSideNote.rotating svg {
 	animation: rotate 3s linear infinite;
 }
 

@@ -3869,7 +3869,7 @@ async function genAINode() {
 	let nodeId = network.getSelectedNodes()[0]
 	let node = data.nodes.get(nodeId)
 	let context = data.nodes.get().map(n => n.label.replaceAll('\n', ' ')).join(', ')
-	let aiResponse = await getAIresponse(`Explain ${node.label}`, context)
+	let aiResponse = await getAIresponse(`Explain ${node.label}. Answer concisely in no more than 200 words.`, context)
 	editor.setContents(aiResponse)
 	let modified = timestamp()
 	data.nodes.update({
@@ -4000,7 +4000,8 @@ async function genAIEdge() {
 	let edgeId = network.getSelectedEdges()[0]
 	let edge = data.edges.get(edgeId)
 	let context = data.nodes.get().map(n => n.label.replaceAll('\n', ' ')).join(', ')
-	let aiResponse = await getAIresponse(`Explain the causal link from ${data.nodes.get(edge.from).label} to ${data.nodes.get(edge.to).label}`, context)
+	let aiResponse = await getAIresponse(`Explain the causal link from ${data.nodes.get(edge.from).label} to 
+	${data.nodes.get(edge.to).label}. Answer concisely in no more than 200 words.`, context)
 	editor.setContents(aiResponse)
 	let modified = timestamp()
 	data.edges.update({
