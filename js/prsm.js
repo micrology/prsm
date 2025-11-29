@@ -323,6 +323,7 @@ function addEventListeners() {
 	listen('newEdgeWindow', 'click', openNotesWindow)
 	listen('sparklesNode', 'click', genAINode)
 	listen('sparklesEdge', 'click', genAIEdge)
+	listen('sparklesSideNote', 'click', genAISideNote)
 
 
 	Array.from(document.getElementsByName('radius')).forEach((elem) => {
@@ -2071,26 +2072,10 @@ export function saveState(options) {
  * set up the side drawer for notes
  */
 function setUpSideDrawer() {
-	let toolbarOptions = [
-		['bold', 'italic', 'underline', 'strike'],
-		['blockquote', 'code-block'],
-
-		[{ list: 'ordered' }, { list: 'bullet' }],
-		[{ script: 'sub' }, { script: 'super' }],
-		[{ indent: '-1' }, { indent: '+1' }],
-		[{ align: [] }],
-
-		['link', 'image'],
-		[{ header: [1, 2, 3, 4, 5, 6, false] }],
-
-		[{ color: [] }, { background: [] }],
-		[{ font: [] }],
-
-		['clean'],
-	]
 	sideDrawEditor = new Quill(elem('drawer-editor'), {
 		modules: {
-			toolbar: viewOnly ? null : toolbarOptions,
+			//we need to have this in HTML, to add the AI sparkle icon to the tools
+			toolbar: viewOnly ? null : '#sideNotesToolbar'
 		},
 		placeholder: 'Notes about the map',
 		theme: 'snow',
@@ -2109,6 +2094,17 @@ export function setSideDrawer(contents) {
 export function disableSideDrawerEditing() {
 	sideDrawEditor.disable()
 	elem('drawer').firstElementChild.style.display = 'none'
+}
+async function genAISideNote() {
+	alertMsg('Processing...', 'info', true)
+	const sparklesElem = elem('sparklesSideNote')
+	sparklesElem.classList.add('rotating')
+	let causes = data.edges.get().map(e => data.nodes.get(e.from).label.replaceAll('\n', ' ') + ' causes ' + data.nodes.get(e.to).label.replaceAll('\n', ' ')).join('; ')
+	let aiResponse = await getAIresponse(`A system map includes the following causal relationships. Write a description of the system map that will help a non-expert understand it. Use no more than 300 words. >>>${causes}<<<`)
+	sideDrawEditor.setContents(aiResponse)
+	yNetMap.set('mapDescription', { text: sideDrawEditor.getContents() })
+	sparklesElem.classList.remove('rotating')
+	cancelAlertMsg()
 }
 
 /************************************************************* badges around the factors ******************************************/

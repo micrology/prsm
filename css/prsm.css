@@ -242,6 +242,7 @@ aside {
 	border-radius: 10px;
 	opacity: 0;
 	width: fit-content;
+	z-index: 10000
 }
 .fadeInAndOut {
 	animation-name: showErrMsg;

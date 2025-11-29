@@ -572,6 +572,77 @@
 				<!-- Map notes drawer -->
 				<div id="drawer-wrapper" class="hide-drawer">
 					<div id="drawer">
+						<div id="sideNotesToolbar">
+							<!--['bold', 'italic', 'underline', 'strike']-->
+							<span class="ql-formats">
+								<button class="ql-bold"></button>
+								<button class="ql-italic"></button>
+								<button class="ql-underline"></button>
+								<button class="ql-strike"></button>
+							</span>
+							<!--['blockquote', 'code-block']-->
+							<span class="ql-formats">
+								<button class="ql-blockquote"></button>
+								<button class="ql-code-block"></button>
+							</span>
+							<!--[{ 'script': 'sub'}, { 'script': 'super' }]-->
+							<span class="ql-formats">
+								<button class="ql-script" value="sub"></button>
+								<button class="ql-script" value="super"></button>
+							</span>
+							<!--[{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'indent': '-1'}, { 'indent': '+1' }, { 'direction': 'rtl' }, { 'align': [] }]-->
+							<span class="ql-formats">
+								<button class="ql-list" value="ordered"></button>
+								<button class="ql-list" value="bullet"></button>
+								<button class="ql-indent" value="-1"></button>
+								<button class="ql-indent" value="+1"></button>
+								<select class="ql-align">
+									<option selected></option>
+									<option value="center"></option>
+									<option value="right"></option>
+									<option value="justify"></option>
+								</select>
+							</span>
+							<!--['image', 'video', 'formula', 'link']-->
+							<span class="ql-formats">
+								<button class="ql-image"></button>
+								<button class="ql-link"></button>
+							</span>
+							<!--[{ 'header': [1, 2, 3, 4, 5, 6, false] }]-->
+							<span class="ql-formats">
+								<select class="ql-header">
+									<option value="1"></option>
+									<option value="2"></option>
+									<option value="3"></option>
+									<option value="4"></option>
+									<option value="5"></option>
+									<option value="6"></option>
+									<option selected></option>
+								</select>
+							</span>
+							<!--[{ 'color': [] }, { 'background': [] }]-->
+							<span class="ql-formats">
+								<select class="ql-color"></select>
+								<select class="ql-background"></select>
+							</span>
+							<!--['clean']-->
+							<span class="ql-formats">
+								<button class="ql-clean"></button>
+							</span>
+							<span class="ql-formats">
+								<button id="sparklesSideNote">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										viewBox="0 0 16 16"
+										width="16"
+										height="16"
+										fill="#000000">
+										<path
+											d="M9.6 2.279a.426.426 0 0 1 .8 0l.407 1.112a6.386 6.386 0 0 0 3.802 3.802l1.112.407a.426.426 0 0 1 0 .8l-1.112.407a6.386 6.386 0 0 0-3.802 3.802l-.407 1.112a.426.426 0 0 1-.8 0l-.407-1.112a6.386 6.386 0 0 0-3.802-3.802L4.279 8.4a.426.426 0 0 1 0-.8l1.112-.407a6.386 6.386 0 0 0 3.802-3.802L9.6 2.279Zm-4.267 8.837a.178.178 0 0 1 .334 0l.169.464a2.662 2.662 0 0 0 1.584 1.584l.464.169a.178.178 0 0 1 0 .334l-.464.169a2.662 2.662 0 0 0-1.584 1.584l-.169.464a.178.178 0 0 1-.334 0l-.169-.464a2.662 2.662 0 0 0-1.584-1.584l-.464-.169a.178.178 0 0 1 0-.334l.464-.169a2.662 2.662 0 0 0 1.584-1.584l.169-.464ZM2.8.14a.213.213 0 0 1 .4 0l.203.556a3.2 3.2 0 0 0 1.901 1.901l.556.203a.213.213 0 0 1 0 .4l-.556.203a3.2 3.2 0 0 0-1.901 1.901L3.2 5.86a.213.213 0 0 1-.4 0l-.203-.556A3.2 3.2 0 0 0 .696 3.403L.14 3.2a.213.213 0 0 1 0-.4l.556-.203A3.2 3.2 0 0 0 2.597.696L2.8.14Z"></path>
+									</svg>
+								</button>
+							</span>
+						</div>
 						<div id="drawer-editor"></div>
 					</div>
 					<div class="tooltip" id="drawer-handle">
