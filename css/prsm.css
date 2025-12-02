@@ -242,7 +242,7 @@ aside {
 	border-radius: 10px;
 	opacity: 0;
 	width: fit-content;
-	z-index: 10000
+	z-index: 10000;
 }
 .fadeInAndOut {
 	animation-name: showErrMsg;
@@ -1133,7 +1133,12 @@ but moving the panel out of sight works instead */
 .padlock-hide {
 	display: none;
 }
-#lock:hover, #unlock:hover, #newNodeWindow:hover, #newEdgeWindow:hover {
+#lock:hover,
+#unlock:hover,
+#newNodeWindow:hover,
+#newEdgeWindow:hover,
+#sparklesNode:hover,
+#sparklesEdge:hover {
 	cursor: auto;
 }
 

@@ -2100,7 +2100,29 @@ async function genAISideNote() {
 	const sparklesElem = elem('sparklesSideNote')
 	sparklesElem.classList.add('rotating')
 	let causes = data.edges.get().map(e => data.nodes.get(e.from).label.replaceAll('\n', ' ') + ' causes ' + data.nodes.get(e.to).label.replaceAll('\n', ' ')).join('; ')
-	let aiResponse = await getAIresponse(`A system map includes the following causal relationships. Write a description of the system map that will help a non-expert understand it. Use no more than 300 words. >>>${causes}<<<`)
+	let title = elem('maptitle').innerText
+		if (title === 'Untitled map') title = 'System Map'
+	/* 	let aiResponse = await getAIresponse(`A system map includes the following causal relationships. Write a description of the system map that will help a non-expert understand it. Use no more than 300 words. >>>${causes}<<<`) */
+	let aiResponse = await getAIresponse(`I want you to generate a compact, readable narrative description of a system map.
+
+I will provide:
+• A title for the system map.
+• A list of causal links, each given as a pair of factors in the form “A causes B”, where A is the cause and B is the effect.
+
+Your task is to:
+	1.	Produce a short, coherent, well-structured markdown description explaining the main dynamics of the system.
+	2.	Cluster related factors, highlight feedback loops if present, and describe the overall behaviour of the system.
+	3.	Avoid restating every causal link individually. Instead, synthesise them into a readable explanation.
+	4.	Use bullet points where appropriate but do *not* include a title or any section headings.
+	5.	Keep the description concise and accessible, suitable for a briefing note.  Use no more than 300 words.
+  
+Output only the final description in markdown.
+
+Here is the title and list of causal links:
+Title: >>>${title}<<<
+Causal Links:
+ >>>${causes}<<<`)
+	
 	sideDrawEditor.setContents(aiResponse)
 	yNetMap.set('mapDescription', { text: sideDrawEditor.getContents() })
 	sparklesElem.classList.remove('rotating')
