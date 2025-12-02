@@ -2096,6 +2096,10 @@ export function disableSideDrawerEditing() {
 	elem('drawer').firstElementChild.style.display = 'none'
 }
 async function genAISideNote() {
+	if (data.nodes.length === 0) {
+		alertMsg('Add some factors and causal links to the map first', 'error')
+		return
+	}
 	alertMsg('Processing...', 'info', true)
 	const sparklesElem = elem('sparklesSideNote')
 	sparklesElem.classList.add('rotating')

@@ -730,7 +730,7 @@ export function statusMsg(msg) {
  * @param {string} [status] type of msg - info, warn, error
  * @param {boolean} [dontFade] if true, don't fade the message in and out
  */
-export function alertMsg(msg, status, dontFade) {
+export function alertMsg(msg, status, dontFade = false) {
 	let errMsgElement = elem('errMsg')
 	switch (status) {
 		case 'info':
