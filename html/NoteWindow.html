@@ -31,9 +31,12 @@
 					document.title = node.label
 				} else {
 					selectedObj = 'edge'
-					if (!edgeId) throw 'NoteWindow opened when neither a factor nor a link has been selected'
+					if (!edgeId)
+						throw 'NoteWindow opened when neither a factor nor a link has been selected'
 					edge = window.opener.data.edges.get(edgeId)
-					document.title = edge.label || 'Link'
+					document.title = edge.label?.trim().length
+						? edge.label
+						: `Link from "${shorten(window.opener.data.nodes.get(edge.from).label)}" to "${shorten(window.opener.data.nodes.get(edge.to).label)}"`
 				}
 				let toolbarOptions = [
 					['bold', 'italic', 'underline', 'strike'],
@@ -54,9 +57,7 @@
 					['clean'],
 				]
 				let popupEditor = new Quill(document.getElementById('editor'), {
-					modules: {
-						toolbar: toolbarOptions,
-					},
+					modules: {toolbar: toolbarOptions},
 					placeholder: 'Notes',
 					theme: 'snow',
 				})
@@ -80,6 +81,9 @@
 						window.opener.editor.setContents(popupEditor.getContents())
 					}
 				})
+			}
+			function shorten(label, maxLength = 15) {
+				return label.length > maxLength ? label.substring(0, maxLength) + '...' : label
 			}
 			function isQuillEmpty(quill) {
 				if ((quill.getContents()['ops'] || []).length !== 1) {
