@@ -392,9 +392,17 @@ export function dragElement(el, header) {
 	let height = 0
 
 	function onPointerDown(ev) {
-		// user has clicked on a child element - ignore dragging
-		if (ev.target !== this) return
-		// Start dragging
+		// Don't start dragging if clicking on interactive button elements
+		const target = ev.target
+		// Check if the target or any of its ancestors (up to the header) has the interactiveButton class
+		let element = target
+		while (element && element !== header) {
+			if (element.classList && element.classList.contains('interactiveButton')) {
+				return // Don't start dragging
+			}
+			element = element.parentElement
+		}
+		// Start dragging (allow clicking on header or any of its children)
 		isDragging = true
 		startPosX = ev.clientX
 		startPosY = ev.clientY

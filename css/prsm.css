@@ -1079,6 +1079,31 @@ but moving the panel out of sight works instead */
 .notePanel .corner-handle:hover {
 	border-bottom: 14px solid black;
 }
+.notePanel .corner-handle-top-left {
+	width: 14px;
+	height: 14px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	cursor: nwse-resize;
+	touch-action: none;
+	z-index: 2010;
+	pointer-events: none;
+}
+.notePanel .corner-handle-top-left::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+	border-top: 14px solid dimgrey;
+	border-right: 14px solid transparent;
+	pointer-events: auto;
+}
+.notePanel .corner-handle-top-left:hover::before {
+	border-top: 14px solid black;
+}
 .notes {
 	padding: 4px;
 	color: rgb(0, 0, 0);

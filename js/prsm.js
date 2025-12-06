@@ -3936,18 +3936,23 @@ Format everything in Markdown.`
 	cancelAlertMsg()
 }
 /**
- * Make the notes panel resizeable by dragging its corner handle
+ * Make the notes panel resizeable by dragging its corner handles
  * @param {HTMLElement} notePanel 
  */
 function makeNotesPanelResizeable(notePanel) {
 	const notePanelCornerHandle = notePanel.querySelector('.corner-handle')
+	const notePanelTopLeftHandle = notePanel.querySelector('.corner-handle-top-left')
 
 	let isResizingCorner = false
+	let isResizingTopLeft = false
 	let startX = 0
 	let startY = 0
 	let startWidth = 0
 	let startHeight = 0
+	let startLeft = 0
+	let startTop = 0
 
+	// Bottom-right corner handle
 	notePanelCornerHandle.addEventListener('pointerdown', (e) => {
 		isResizingCorner = true
 		startX = e.clientX
@@ -3962,21 +3967,54 @@ function makeNotesPanelResizeable(notePanel) {
 		notePanelCornerHandle.style.touchAction = 'none'
 	})
 
+	// Top-left corner handle
+	notePanelTopLeftHandle.addEventListener('pointerdown', (e) => {
+		isResizingTopLeft = true
+		startX = e.clientX
+		startY = e.clientY
+
+		const styles = window.getComputedStyle(notePanel)
+		startWidth = parseInt(styles.width, 10)
+		startHeight = parseInt(styles.height, 10)
+		startLeft = parseInt(styles.left, 10)
+		startTop = parseInt(styles.top, 10)
+
+		document.body.style.userSelect = 'none'
+		// Prevent default touch behaviors like scrolling
+		notePanelTopLeftHandle.style.touchAction = 'none'
+	})
+
 	document.addEventListener('pointermove', (e) => {
-		if (!isResizingCorner) return
+		if (isResizingCorner) {
+			const dx = e.clientX - startX
+			const dy = e.clientY - startY
 
-		const dx = e.clientX - startX
-		const dy = e.clientY - startY
+			const newWidth = startWidth + dx
+			const newHeight = startHeight + dy
 
-		const newWidth = startWidth + dx
-		const newHeight = startHeight + dy
+			if (newWidth > 150) notePanel.style.width = newWidth + 'px'
+			if (newHeight > 200) notePanel.style.height = newHeight + 'px'
+		} else if (isResizingTopLeft) {
+			const dx = e.clientX - startX
+			const dy = e.clientY - startY
 
-		if (newWidth > 150) notePanel.style.width = newWidth + 'px'
-		if (newHeight > 200) notePanel.style.height = newHeight + 'px'
+			const newWidth = startWidth - dx
+			const newHeight = startHeight - dy
+
+			if (newWidth > 150) {
+				notePanel.style.width = newWidth + 'px'
+				notePanel.style.left = startLeft + dx + 'px'
+			}
+			if (newHeight > 200) {
+				notePanel.style.height = newHeight + 'px'
+				notePanel.style.top = startTop + dy + 'px'
+			}
+		}
 	})
 
 	document.addEventListener('pointerup', () => {
 		isResizingCorner = false
+		isResizingTopLeft = false
 		document.body.style.userSelect = 'auto'
 		positionNotes()
 	})
