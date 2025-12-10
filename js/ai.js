@@ -67,7 +67,7 @@ async function chat(userMessage, systemPrompt = null) {
 
     } catch (err) {
         console.log(`ERROR: ${err.message}`)
-        return `<p style="color: red;">Error: ${err.message}</p>`
+        return `# Error: ${err.message}`
     }
 }
 

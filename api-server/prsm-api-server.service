@@ -1,0 +1,24 @@
+# /etc/systemd/system/prsm-api-server.service 
+# sets up the PRSM API Server (including access to AWS Bedrock for AI queries)
+#
+# after installing, run
+#   sudo systemctl daemon-reload
+#   sudo systemctl restart prsm-api-server
+
+[Unit]
+Description=PRSM API Server
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/data/cress/prsm/api-server
+ExecStart=/usr/local/bin/npm run server
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=prsm-api-server
+
+[Install]
+WantedBy=multi-user.target

@@ -22,7 +22,7 @@ This module provides the Data View
  ******************************************************************************************************************** */
 
 import * as Y from 'yjs'
-import {WebsocketProvider} from 'y-websocket'
+import { WebsocketProvider } from 'y-websocket'
 import {
 	listen,
 	elem,
@@ -50,10 +50,10 @@ import {
 	FilterModule,
 } from 'tabulator-tables'
 //import {TabulatorFull as Tabulator} from 'tabulator-tables'  // documented at https://tabulator.info/
-import {version} from '../package.json'
+import { version } from '../package.json'
 import Quill from 'quill'
-import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html'
-import {DateTime} from 'luxon'
+import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html'
+import { DateTime } from 'luxon'
 
 Tabulator.registerModule([
 	FormatModule,
@@ -184,6 +184,7 @@ function startY() {
 				updates = [],
 				deletes = []
 			event.changes.keys.forEach((value, key) => {
+				if (key === '_dummy_') return; // skip dummy entry
 				switch (value.action) {
 					case 'add':
 						adds.push(convertNode(yNodesMap.get(key)))
@@ -210,6 +211,7 @@ function startY() {
 				updates = [],
 				deletes = []
 			event.changes.keys.forEach((value, key) => {
+				if (key === '_dummy_') return; // skip dummy entry
 				switch (value.action) {
 					case 'add':
 						adds.push(convertEdge(yEdgesMap.get(key)))
@@ -256,7 +258,7 @@ function startY() {
 								if (obj[attributeFieldName] == '*deleted*') {
 									colComp.delete()
 								} else {
-									colComp.updateDefinition({title: obj[attributeFieldName]})
+									colComp.updateDefinition({ title: obj[attributeFieldName] })
 								}
 							} else {
 								if (obj[attributeFieldName] != '*deleted*') {
@@ -379,7 +381,7 @@ var headerContextMenu = [
  */
 function initialiseFactorTable() {
 	let tabledata = Array.from(yNodesMap.values())
-		.filter((n) => !n.isCluster)
+		.filter((n) => !n.isCluster && !n.dummy)
 		.map((n) => {
 			return convertNode(n)
 		})
@@ -432,7 +434,7 @@ function initialiseFactorTable() {
 				minWidth: 300,
 				bottomCalc: 'count',
 				bottomCalcFormatter: bottomCalcFormatter,
-				bottomCalcFormatterParams: {legend: 'Count:'},
+				bottomCalcFormatterParams: { legend: 'Count:' },
 			},
 			{
 				title: 'Modified',
@@ -452,7 +454,7 @@ function initialiseFactorTable() {
 						field: 'groupLabel',
 						minWidth: 100,
 						editor: 'list',
-						editorParams: {valuesLookup: styleNodeNames},
+						editorParams: { valuesLookup: styleNodeNames },
 					},
 					{
 						title: 'Shape',
@@ -484,7 +486,7 @@ function initialiseFactorTable() {
 						headerVertical: true,
 						bottomCalc: 'count',
 						bottomCalcFormatter: bottomCalcFormatter,
-						bottomCalcFormatterParams: {legend: 'Count:'},
+						bottomCalcFormatterParams: { legend: 'Count:' },
 					},
 					{
 						title: 'Locked',
@@ -495,7 +497,7 @@ function initialiseFactorTable() {
 						headerVertical: true,
 						bottomCalc: 'count',
 						bottomCalcFormatter: bottomCalcFormatter,
-						bottomCalcFormatterParams: {legend: 'Count:'},
+						bottomCalcFormatterParams: { legend: 'Count:' },
 					},
 					{
 						title: 'Relative Size',
@@ -540,7 +542,7 @@ function initialiseFactorTable() {
 						field: 'borderStyle',
 						headerVertical: true,
 						editor: 'list',
-						editorParams: {values: ['Solid', 'Dashed', 'Dotted', 'None']},
+						editorParams: { values: ['Solid', 'Dashed', 'Dotted', 'None'] },
 					},
 					{
 						title: 'Font colour',
@@ -576,7 +578,7 @@ function initialiseFactorTable() {
 						cssClass: 'grey',
 						bottomCalc: 'avg',
 						bottomCalcFormatter: bottomCalcFormatter,
-						bottomCalcFormatterParams: {legend: 'Avg:', precision: 2},
+						bottomCalcFormatterParams: { legend: 'Avg:', precision: 2 },
 					},
 					{
 						title: 'Out-degree',
@@ -586,7 +588,7 @@ function initialiseFactorTable() {
 						cssClass: 'grey',
 						bottomCalc: 'avg',
 						bottomCalcFormatter: bottomCalcFormatter,
-						bottomCalcFormatterParams: {legend: 'Avg:', precision: 2},
+						bottomCalcFormatterParams: { legend: 'Avg:', precision: 2 },
 					},
 					{
 						title: 'Total degree',
@@ -596,7 +598,7 @@ function initialiseFactorTable() {
 						cssClass: 'grey',
 						bottomCalc: 'avg',
 						bottomCalcFormatter: bottomCalcFormatter,
-						bottomCalcFormatterParams: {legend: 'Avg:', precision: 2},
+						bottomCalcFormatterParams: { legend: 'Avg:', precision: 2 },
 					},
 					{
 						title: 'Leverage',
@@ -614,7 +616,7 @@ function initialiseFactorTable() {
 						cssClass: 'grey',
 						bottomCalc: 'max',
 						bottomCalcFormatter: bottomCalcFormatter,
-						bottomCalcFormatterParams: {legend: 'Max:'},
+						bottomCalcFormatterParams: { legend: 'Max:' },
 					},
 					{
 						title: `${svg('thumbUp')}`,
@@ -668,14 +670,14 @@ function initialiseFactorTable() {
 		listen('select-all', 'click', (e) => {
 			let ticked = headerTickToggle(e, '#select-all')
 			factorsTable.getRows('active').forEach((row) => {
-				row.update({selection: !ticked})
+				row.update({ selection: !ticked })
 			})
 		})
 		listen('hide-all-factors', 'click', (e) => {
 			let ticked = headerTickToggle(e, '#hide-all-factors')
 			doc.transact(() => {
 				factorsTable.getRows().forEach((row) => {
-					row.update({hidden: !ticked})
+					row.update({ hidden: !ticked })
 					let node = deepCopy(yNodesMap.get(row.getData().id))
 					hideNodeAndEdges(node, !ticked)
 					yNodesMap.set(node.id, node)
@@ -885,7 +887,7 @@ function quillFormatter(cell) {
 	let note = cell.getValue()
 	if (note) {
 		qed.setContents(note)
-		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert()
+		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, { inlineStyles: true }).convert()
 		// this should work, but there is a bug in Tabulator
 		//		if (elem(`hide${cell.getColumn().getParentColumn().getField()}`).dataset.collapsed == 'false')
 		if (elem(`hide${table === 'factors-table' ? 'Notes' : 'LinkNotes'}`).dataset.collapsed == 'false')
@@ -902,7 +904,7 @@ function quillFormatter(cell) {
 function quillAccessor(note) {
 	if (note) {
 		qed.setContents(note)
-		return new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true}).convert()
+		return new QuillDeltaToHtmlConverter(qed.getContents().ops, { inlineStyles: true }).convert()
 	}
 	return ''
 }
@@ -926,10 +928,10 @@ function quillEditor(cell, onRendered, success) {
 				'italic',
 				'underline',
 				'link',
-				{list: 'ordered'},
-				{list: 'bullet'},
-				{indent: '-1'},
-				{indent: '+1'},
+				{ list: 'ordered' },
+				{ list: 'bullet' },
+				{ indent: '-1' },
+				{ indent: '+1' },
 			],
 		},
 		placeholder: 'Notes',
@@ -1027,8 +1029,8 @@ function updateNodeCellData(cell) {
 			node = deepMerge(node, ySamplesMap.get(node.grp).node)
 			factorsTable.updateData([convertNode(node)])
 		}
-		node.modified = {time: Date.now(), user: myNameRec.name}
-		let update = {id: node.id, modifiedTime: timeAndDate(node.modified.time)}
+		node.modified = { time: Date.now(), user: myNameRec.name }
+		let update = { id: node.id, modifiedTime: timeAndDate(node.modified.time) }
 		update[field] = value
 		cell.getTable().updateData([update])
 		// sync it
@@ -1127,7 +1129,7 @@ function getNodeGroupFromGroupLabel(groupLabel) {
  * @return {Tabulator} the table
  */
 function initialiseLinkTable() {
-	let tabledata = Array.from(yEdgesMap.values()).map((n) => {
+	let tabledata = Array.from(yEdgesMap.values()).filter((n) => !n.dummy).map((n) => {
 		return convertEdge(n)
 	})
 
@@ -1177,9 +1179,9 @@ function initialiseLinkTable() {
 				cssClass: 'grey',
 				bottomCalc: 'count',
 				bottomCalcFormatter: bottomCalcFormatter,
-				bottomCalcFormatterParams: {legend: 'Count:'},
+				bottomCalcFormatterParams: { legend: 'Count:' },
 			},
-			{title: 'To', field: 'toLabel', width: 300, cssClass: 'grey'},
+			{ title: 'To', field: 'toLabel', width: 300, cssClass: 'grey' },
 			{
 				title: 'Modified',
 				field: 'modifiedTime',
@@ -1198,7 +1200,7 @@ function initialiseLinkTable() {
 						field: 'groupLabel',
 						minWidth: 100,
 						editor: 'list',
-						editorParams: {values: styleEdgeNames},
+						editorParams: { values: styleEdgeNames },
 					},
 					{
 						title: `Hidden&nbsp;
@@ -1212,7 +1214,7 @@ function initialiseLinkTable() {
 						headerVertical: true,
 						bottomCalc: 'count',
 						bottomCalcFormatter: bottomCalcFormatter,
-						bottomCalcFormatterParams: {legend: 'Count:'},
+						bottomCalcFormatterParams: { legend: 'Count:' },
 					},
 					{
 						title: 'Arrow',
@@ -1302,14 +1304,14 @@ function initialiseLinkTable() {
 		listen('select-all-links', 'click', (e) => {
 			let ticked = headerTickToggle(e, '#select-all-links')
 			linksTable.getRows('active').forEach((row) => {
-				row.update({selection: !ticked})
+				row.update({ selection: !ticked })
 			})
 		})
 		listen('hide-all-links', 'click', (e) => {
 			let ticked = headerTickToggle(e, '#hide-all-links')
 			doc.transact(() => {
 				linksTable.getRows().forEach((row) => {
-					row.update({hidden: !ticked})
+					row.update({ hidden: !ticked })
 					let edge = deepCopy(yEdgesMap.get(row.getData().id))
 					edge.edgeHidden = !ticked
 					yEdgesMap.set(edge.id, edge)
@@ -1414,8 +1416,8 @@ function updateEdgeCellData(cell) {
 			edge = deepMerge(edge, ySamplesMap.get(edge.grp).edge)
 			linksTable.updateData([convertEdge(edge)])
 		}
-		edge.modified = {time: Date.now(), user: myNameRec.name}
-		let update = {id: edge.id, modifiedTime: timeAndDate(edge.modified.time)}
+		edge.modified = { time: Date.now(), user: myNameRec.name }
+		let update = { id: edge.id, modifiedTime: timeAndDate(edge.modified.time) }
 		update[field] = value
 		cell.getTable().updateData([update])
 		// sync it
@@ -1611,8 +1613,8 @@ function setUpFilter() {
 			// cannot sort by color and avoid SVG titles
 			select[i++] = new Option(
 				def.titleClipboard ||
-					(typeof def.title === 'string' && def.title[0] !== '<' ? def.title : false) ||
-					capitalizeFirstLetter(def.field),
+				(typeof def.title === 'string' && def.title[0] !== '<' ? def.title : false) ||
+				capitalizeFirstLetter(def.field),
 				def.field,
 			)
 	})
@@ -1652,7 +1654,7 @@ function updateFilter() {
 	let filterVal = select.options[select.selectedIndex].value
 	var typeVal = type.options[type.selectedIndex].value
 	if (filterVal) {
-		if (filterVal == 'note') openTable.setFilter(noteFilter, {type: typeVal, str: value})
+		if (filterVal == 'note') openTable.setFilter(noteFilter, { type: typeVal, str: value })
 		else openTable.setFilter(filterVal, typeVal, value)
 	}
 }
@@ -1665,7 +1667,7 @@ function updateFilter() {
 function noteFilter(data, params) {
 	if (data.note) {
 		qed.setContents(data.note)
-		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {inlineStyles: true})
+		let html = new QuillDeltaToHtmlConverter(qed.getContents().ops, { inlineStyles: true })
 			.convert()
 			.replace(/(<([^>]+)>)/gi, '')
 		switch (params.type) {
