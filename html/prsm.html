@@ -1,553 +1,538 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<title>Participatory System Mapper</title>
-		<meta
-			name="Description"
-			content="PRSM enables groups of people, each using their own computer (or tablet) 
+  <head>
+    <title>Participatory System Mapper</title>
+    <meta
+      name="Description"
+      content="PRSM enables groups of people, each using their own computer (or tablet) 
 		to collaborate in the drawing of a map. They may be sitting around a table, discussing the map as it is 
 		created face to face, or working remotely, using video conferencing and the app. 
 		Everyone can participate because every edit (creating nodes and links, arranging them 
 		and so on) is broadcast to all the other participants as the changes are made (just as Google Docs 
 		does for text, for example). When you start PRSM in your browser, a 'room' is created for you in which 
 		to draw your network. You can add other users to this room to share the work. Only those with access 
-		to the room can see what is being created." />
-		<meta charset="utf-8" />
-		<meta
-			name="viewport"
-			content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no" />
-		<link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png" />
-		<link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png" />
-		<link rel="shortcut icon" href="../icons/favicon.ico" />
-		<link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" />
-		<meta name="mobile-web-app-capable" content="yes" />
-		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
-		<style>
-			@font-face {
-				font-family: 'Oxygen';
-				src: url('../fonts/oxygen-regular-webfont.woff2') format('woff2');
-				font-weight: normal;
-				font-style: normal;
-				font-display: swap;
-			}
-			@font-face {
-				font-family: 'Oxygen';
-				src: url('../fonts/oxygen-bold-webfont.woff2') format('woff2');
-				font-weight: 700;
-				font-style: normal;
-				font-display: swap;
-			}
-		</style>
-		<link href="../node_modules/quill/dist/quill.snow.css" rel="stylesheet" />
-		<link href="../css/prsm.css" rel="stylesheet" />
-		<script>
-			/*
-			 * reject Internet Explorer and any browser not able to understand ES6
-			 */
-			function isES6() {
-				try {
-					Function('() => {};')
-					return true
-				} catch (exception) {
-					return false
-				}
-			}
-			if (window.document.documentMode || !isES6()) {
-				alert(
-					'Your browser does not support all the features required.  Try an up-to-date copy of Edge, Chrome, Firefox or Safari',
-				)
-			}
-		</script>
-	</head>
+		to the room can see what is being created."
+    />
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
+    />
+    <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png" />
+    <link rel="shortcut icon" href="../icons/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <style>
+      @font-face {
+        font-family: 'Oxygen';
+        src: url('../fonts/oxygen-regular-webfont.woff2') format('woff2');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Oxygen';
+        src: url('../fonts/oxygen-bold-webfont.woff2') format('woff2');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+    </style>
+    <link href="../node_modules/quill/dist/quill.snow.css" rel="stylesheet" />
+    <link href="../css/prsm.css" rel="stylesheet" />
+    <script>
+      /*
+       * reject Internet Explorer and any browser not able to understand ES6
+       */
+      function isES6() {
+        try {
+          Function('() => {};')
+          return true
+        } catch (exception) {
+          return false
+        }
+      }
+      if (window.document.documentMode || !isES6()) {
+        alert(
+          'Your browser does not support all the features required.  Try an up-to-date copy of Edge, Chrome, Firefox or Safari'
+        )
+      }
+    </script>
+  </head>
 
-	<body id="body">
-		<div id="container">
-			<header>
-				<nav id="navbar">
-					<div>
-						<div class="strap">
-							<span class="strapline">Participatory System Mapper</span>
-							<span class="version" id="version">2.0.0</span>
-						</div>
-						<div class="title">
-							<div
-								class="maptitle unsetmaptitle"
-								id="maptitle"
-								contenteditable="true"
-								data-tutorial="You can name your map here"
-								data-step="1"
-								data-position="below">
-								Untitled map
-							</div>
-							<div class="recent-rooms-caret hidden" id="recent-rooms-caret">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="10"
-									height="10"
-									fill="currentColor"
-									class="bi bi-caret-down-fill"
-									viewBox="0 0 16 16">
-									<path
-										d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
-								</svg>
-							</div>
-							<div id="recent-rooms"></div>
-						</div>
-					</div>
-					<div class="button-wrapper">
-						<div class="buttons" id="buttons">
-							<div
-								class="tooltip"
-								data-tutorial="Clicking the <span style='font-size: larger'><b>+</b></span> creates a new factor"
-								data-step="2"
-								data-position="below">
-								<button type="button" id="addNode">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="currentColor"
-										class="bi bi-plus-lg"
-										viewBox="0 0 16 16">
-										<path
-											d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z" />
-									</svg>
-								</button>
-								<div class="button-text">Add factor</div>
-								<span class="tooltiptext">Add a new factor</span>
-							</div>
-							<div
-								class="tooltip right-border"
-								data-tutorial="Clicking the arrow creates a link"
-								data-step="3"
-								data-position="below">
-								<button type="button" id="addLink">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="currentColor"
-										class="bi bi-arrow-right"
-										viewBox="0 0 16 16">
-										<path
-											stroke="currentColor"
-											stroke-width="1.2"
-											fill-rule="evenodd"
-											d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-									</svg>
-								</button>
-								<div class="button-text">Add link</div>
-								<span class="tooltiptext">Add a new link between factors</span>
-							</div>
-							<div class="tooltip">
-								<button type="button" id="undo" class="disabled">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="currentColor"
-										class="bi bi-arrow-counterclockwise"
-										viewBox="0 0 16 16">
-										<path
-											fill-rule="evenodd"
-											d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z" />
-										<path
-											d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z" />
-									</svg>
-								</button>
-								<div class="button-text">Undo</div>
-								<span class="tooltiptext">Undo the last action</span>
-							</div>
-							<div class="tooltip">
-								<button type="button" id="redo" class="disabled">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="currentColor"
-										class="bi bi-arrow-clockwise"
-										viewBox="0 0 16 16">
-										<path
-											fill-rule="evenodd"
-											d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z" />
-										<path
-											d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z" />
-									</svg>
-								</button>
-								<div class="button-text">Redo</div>
-								<span class="tooltiptext">Redo the last undo</span>
-							</div>
-							<div
-								class="tooltip right-border"
-								data-tutorial="Selecting a factor or link and then clicking here deletes it"
-								data-step="4"
-								data-position="below">
-								<button type="button" id="deleteNode" class="disabled">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="currentColor"
-										class="bi bi-trash"
-										viewBox="0 0 16 16">
-										<path
-											d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-										<path
-											fill-rule="evenodd"
-											d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
-									</svg>
-								</button>
-								<div class="button-text">Delete</div>
-								<span class="tooltiptext">Delete selected factors and links</span>
-							</div>
-							<div class="tooltip">
-								<button type="button" id="share">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="currentColor"
-										class="bi bi-people-fill"
-										viewBox="0 0 16 16">
-										<path
-											d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
-										<path
-											fill-rule="evenodd"
-											d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z" />
-										<path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" />
-									</svg>
-								</button>
-								<div class="button-text">Share</div>
-								<span class="tooltiptext">Share the map using a web link</span>
-							</div>
-							<div class="tooltip">
-								<button type="button" id="openFile">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="currentColor"
-										class="bi bi-folder2-open"
-										viewBox="0 0 16 16">
-										<path
-											d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v.64c.57.265.94.876.856 1.546l-.64 5.124A2.5 2.5 0 0 1 12.733 15H3.266a2.5 2.5 0 0 1-2.481-2.19l-.64-5.124A1.5 1.5 0 0 1 1 6.14V3.5zM2 6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3H2.5a.5.5 0 0 0-.5.5V6zm-.367 1a.5.5 0 0 0-.496.562l.64 5.124A1.5 1.5 0 0 0 3.266 14h9.468a1.5 1.5 0 0 0 1.489-1.314l.64-5.124A.5.5 0 0 0 14.367 7H1.633z" />
-									</svg>
-								</button>
-								<div class="button-text">Open</div>
-								<span class="tooltiptext">Open a map file</span>
-							</div>
-							<div class="dropdown-wrapper">
-								<span id="open-dropdown">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16"
-										height="16"
-										fill="currentColor"
-										class="bi bi-caret-down-fill"
-										viewBox="0 0 16 16">
-										<path
-											d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
-									</svg>
-								</span>
-								<div class="dropdown-content">
-									<div>
-										<div class="tooltip">
-											<button
-												class="dropdown-label"
-												type="button"
-												id="replaceMap">
-												Replace
-											</button>
-											<span class="tooltiptext"
-												>Replace the map with a new one</span
-											>
-										</div>
-									</div>
-									<div>
-										<div class="tooltip">
-											<button
-												class="dropdown-label"
-												type="button"
-												id="mergeMap">
-												Merge
-											</button>
-											<span class="tooltiptext"
-												>Merge a new map into the this one</span
-											>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div
-								class="tooltip"
-								data-tutorial="Save the map to your disk"
-								data-step="5"
-								data-position="left">
-								<button type="button" id="saveFile">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="currentColor"
-										class="bi bi-download"
-										viewBox="0 0 16 16">
-										<path
-											d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
-										<path
-											d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
-									</svg>
-								</button>
-								<div class="button-text">Save</div>
-								<span class="tooltiptext">Save the map to a file</span>
-							</div>
-							<div class="dropdown-wrapper">
-								<span id="save-dropdown">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16"
-										height="16"
-										fill="currentColor"
-										class="bi bi-caret-down-fill"
-										viewBox="0 0 16 16">
-										<path
-											d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
-									</svg>
-								</span>
-								<div class="dropdown-content">
-									<div>
-										<div class="tooltip">
-											<button
-												class="dropdown-label"
-												type="button"
-												id="exportPRSM">
-												PRSM
-											</button>
-											<span class="tooltiptext">Save as a PRSM file</span>
-										</div>
-									</div>
-									<div>
-										<div class="tooltip">
-											<button
-												class="dropdown-label"
-												type="button"
-												id="exportImage">
-												Image
-											</button>
-											<span class="tooltiptext"
-												>Save as a PNG image file</span
-											>
-										</div>
-									</div>
-									<!-- 									<div>
+  <body id="body">
+    <div id="container">
+      <header>
+        <nav id="navbar">
+          <div>
+            <div class="strap">
+              <span class="strapline">Participatory System Mapper</span>
+              <span class="version" id="version">2.0.0</span>
+            </div>
+            <div class="title">
+              <div
+                class="maptitle unsetmaptitle"
+                id="maptitle"
+                contenteditable="true"
+                data-tutorial="You can name your map here"
+                data-step="1"
+                data-position="below"
+              >
+                Untitled map
+              </div>
+              <div class="recent-rooms-caret hidden" id="recent-rooms-caret">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="10"
+                  height="10"
+                  fill="currentColor"
+                  class="bi bi-caret-down-fill"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"
+                  />
+                </svg>
+              </div>
+              <div id="recent-rooms"></div>
+            </div>
+          </div>
+          <div class="button-wrapper">
+            <div class="buttons" id="buttons">
+              <div
+                class="tooltip"
+                data-tutorial="Clicking the <span style='font-size: larger'><b>+</b></span> creates a new factor"
+                data-step="2"
+                data-position="below"
+              >
+                <button type="button" id="addNode">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    class="bi bi-plus-lg"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"
+                    />
+                  </svg>
+                </button>
+                <div class="button-text">Add factor</div>
+                <span class="tooltiptext">Add a new factor</span>
+              </div>
+              <div
+                class="tooltip right-border"
+                data-tutorial="Clicking the arrow creates a link"
+                data-step="3"
+                data-position="below"
+              >
+                <button type="button" id="addLink">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    class="bi bi-arrow-right"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-width="1.2"
+                      fill-rule="evenodd"
+                      d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"
+                    />
+                  </svg>
+                </button>
+                <div class="button-text">Add link</div>
+                <span class="tooltiptext">Add a new link between factors</span>
+              </div>
+              <div class="tooltip">
+                <button type="button" id="undo" class="disabled">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    class="bi bi-arrow-counterclockwise"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"
+                    />
+                    <path
+                      d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"
+                    />
+                  </svg>
+                </button>
+                <div class="button-text">Undo</div>
+                <span class="tooltiptext">Undo the last action</span>
+              </div>
+              <div class="tooltip">
+                <button type="button" id="redo" class="disabled">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    class="bi bi-arrow-clockwise"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"
+                    />
+                    <path
+                      d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"
+                    />
+                  </svg>
+                </button>
+                <div class="button-text">Redo</div>
+                <span class="tooltiptext">Redo the last undo</span>
+              </div>
+              <div
+                class="tooltip right-border"
+                data-tutorial="Selecting a factor or link and then clicking here deletes it"
+                data-step="4"
+                data-position="below"
+              >
+                <button type="button" id="deleteNode" class="disabled">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    class="bi bi-trash"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+                    />
+                  </svg>
+                </button>
+                <div class="button-text">Delete</div>
+                <span class="tooltiptext">Delete selected factors and links</span>
+              </div>
+              <div class="tooltip">
+                <button type="button" id="share">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    class="bi bi-people-fill"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"
+                    />
+                    <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" />
+                  </svg>
+                </button>
+                <div class="button-text">Share</div>
+                <span class="tooltiptext">Share the map using a web link</span>
+              </div>
+              <div class="tooltip">
+                <button type="button" id="openFile">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    class="bi bi-folder2-open"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v.64c.57.265.94.876.856 1.546l-.64 5.124A2.5 2.5 0 0 1 12.733 15H3.266a2.5 2.5 0 0 1-2.481-2.19l-.64-5.124A1.5 1.5 0 0 1 1 6.14V3.5zM2 6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3H2.5a.5.5 0 0 0-.5.5V6zm-.367 1a.5.5 0 0 0-.496.562l.64 5.124A1.5 1.5 0 0 0 3.266 14h9.468a1.5 1.5 0 0 0 1.489-1.314l.64-5.124A.5.5 0 0 0 14.367 7H1.633z"
+                    />
+                  </svg>
+                </button>
+                <div class="button-text">Open</div>
+                <span class="tooltiptext">Open a map file</span>
+              </div>
+              <div class="dropdown-wrapper">
+                <span id="open-dropdown">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-caret-down-fill"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"
+                    />
+                  </svg>
+                </span>
+                <div class="dropdown-content">
+                  <div>
+                    <div class="tooltip">
+                      <button class="dropdown-label" type="button" id="replaceMap">Replace</button>
+                      <span class="tooltiptext">Replace the map with a new one</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="tooltip">
+                      <button class="dropdown-label" type="button" id="mergeMap">Merge</button>
+                      <span class="tooltiptext">Merge a new map into the this one</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="tooltip"
+                data-tutorial="Save the map to your disk"
+                data-step="5"
+                data-position="left"
+              >
+                <button type="button" id="saveFile">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    class="bi bi-download"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"
+                    />
+                    <path
+                      d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"
+                    />
+                  </svg>
+                </button>
+                <div class="button-text">Save</div>
+                <span class="tooltiptext">Save the map to a file</span>
+              </div>
+              <div class="dropdown-wrapper">
+                <span id="save-dropdown">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-caret-down-fill"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"
+                    />
+                  </svg>
+                </span>
+                <div class="dropdown-content">
+                  <div>
+                    <div class="tooltip">
+                      <button class="dropdown-label" type="button" id="exportPRSM">PRSM</button>
+                      <span class="tooltiptext">Save as a PRSM file</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="tooltip">
+                      <button class="dropdown-label" type="button" id="exportImage">Image</button>
+                      <span class="tooltiptext">Save as a PNG image file</span>
+                    </div>
+                  </div>
+                  <!-- 									<div>
 										<div class="tooltip">
 											<button class="dropdown-label" type="button" id="exportCVS">CSV</button>
 											<span class="tooltiptext">Save as CSV files</span>
 										</div>
 									</div>
  -->
-									<div>
-										<div class="tooltip">
-											<button
-												class="dropdown-label"
-												type="button"
-												id="exportExcel">
-												Excel
-											</button>
-											<span class="tooltiptext">Save as Excel workbook</span>
-										</div>
-									</div>
-									<div>
-										<div class="tooltip">
-											<button
-												class="dropdown-label"
-												type="button"
-												id="exportNotes">
-												Notes
-											</button>
-											<span class="tooltiptext"
-												>Save all Notes as A Word doc</span
-											>
-										</div>
-									</div>
-									<div>
-										<div class="tooltip">
-											<button
-												class="dropdown-label"
-												type="button"
-												id="exportGML">
-												GML
-											</button>
-											<span class="tooltiptext">Save as a GML file</span>
-										</div>
-									</div>
-									<div>
-										<div class="tooltip">
-											<button
-												class="dropdown-label"
-												type="button"
-												id="exportDOT">
-												GV
-											</button>
-											<span class="tooltiptext"
-												>Save as a Graphviz DOT/GV) file</span
-											>
-										</div>
-									</div>
-									<div>
-										<div class="tooltip">
-											<button
-												class="dropdown-label"
-												type="button"
-												id="exportGraphML">
-												GraphML
-											</button>
-											<span class="tooltiptext">Save as a GraphML file</span>
-										</div>
-									</div>
-									<div>
-										<div class="tooltip">
-											<button
-												class="dropdown-label"
-												type="button"
-												id="exportGEXF">
-												GEXF
-											</button>
-											<span class="tooltiptext"
-												>Save as a Gephi GEXF file</span
-											>
-										</div>
-									</div>
-								</div>
-							</div>
-							<!-- copy map button, only visible when in viewOnly mode -->
-							<div class="tooltip" id="copy-map-button">
-								<button type="button" id="copy-map">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="currentColor"
-										class="bi bi-copy"
-										viewBox="0 0 16 16">
-										<path
-											fill-rule="evenodd"
-											d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z" />
-									</svg>
-								</button>
-								<div class="button-text">Copy map</div>
-								<span class="tooltiptext">Copy map into a new browser tab</span>
-							</div>
-							<div
-								class="tooltip left-border"
-								data-tutorial="Search for factors"
-								data-step="6"
-								data-position="left">
-								<button type="button" id="search">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="currentColor"
-										class="bi bi-search"
-										viewBox="0 0 16 16">
-										<path
-											d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-									</svg>
-								</button>
-								<div class="button-text">Search</div>
-								<span class="tooltiptext searchtip"
-									>Search for factors by name</span
-								>
-							</div>
-							<div
-								class="tooltip"
-								id="help-button"
-								data-tutorial="Open a new window with more help"
-								data-step="7"
-								data-position="left">
-								<button type="button" id="help">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="currentColor"
-										class="bi bi-question-lg"
-										viewBox="0 0 16 16">
-										<path
-											d="M3 4.075a.423.423 0 0 0 .43.44H4.9c.247 0 .442-.2.475-.445.159-1.17.962-2.022 2.393-2.022 1.222 0 2.342.611 2.342 2.082 0 1.132-.668 1.652-1.72 2.444-1.2.872-2.15 1.89-2.082 3.542l.005.386c.003.244.202.44.446.44h1.445c.247 0 .446-.2.446-.446v-.188c0-1.278.487-1.652 1.8-2.647 1.086-.826 2.217-1.743 2.217-3.667C12.667 1.301 10.393 0 7.903 0 5.645 0 3.17 1.053 3.001 4.075zm2.776 10.273c0 .95.758 1.652 1.8 1.652 1.085 0 1.832-.702 1.832-1.652 0-.985-.747-1.675-1.833-1.675-1.04 0-1.799.69-1.799 1.675z" />
-									</svg>
-								</button>
-								<div class="button-text">Help</div>
-								<span class="tooltiptext">Show help in a new window</span>
-							</div>
-							<div
-								class="tooltip"
-								data-tutorial="Show more options"
-								data-step="8"
-								data-position="left">
-								<button type="button" id="panelToggle">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="currentColor"
-										class="bi bi-sliders"
-										viewBox="0 0 16 16">
-										<path
-											fill-rule="evenodd"
-											d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3h9.05zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8h2.05zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1h9.05z" />
-									</svg>
-								</button>
-								<div class="button-text">Settings</div>
-								<span class="tooltiptext settingstip">
-									Show or hide
-									<br />
-									the settings panel
-								</span>
-							</div>
-						</div>
-					</div>
-				</nav>
-			</header>
-			<main id="main" tabindex="0">
-				<input class="search-bar" id="search-bar" placeholder="Search..." />
-				<span class="search-icon" style="display: none" id="search-icon">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="16"
-						height="16"
-						fill="currentColor"
-						class="bi bi-search"
-						viewBox="0 0 16 16">
-						<path
-							d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-					</svg>
-				</span>
-				<div id="suggestion-list"></div>
-				<div class="avatars" id="avatars"></div>
-				<div id="popup">
-					<div id="popup-top">
-						<div id="popup-operation">Factor</div>
-						<div id="popup-cancelButton">&times;</div>
-					</div>
-					<div>
-						<div id="popup-label" contenteditable="true" spellcheck="true"></div>
-					</div>
-					<input type="button" value="save" id="popup-saveButton" />
-				</div>
-				<div id="loading">
-					<div class="loader">
-						<div class="loader--dot"></div>
-						<div class="loader--dot"></div>
-						<div class="loader--dot"></div>
-						<div class="loader--dot"></div>
-						<div class="loader--dot"></div>
-						<div class="loader--dot"></div>
-					</div>
-				</div>
-				<div
-					id="net-pane"
-					data-tutorial="
+                  <div>
+                    <div class="tooltip">
+                      <button class="dropdown-label" type="button" id="exportExcel">Excel</button>
+                      <span class="tooltiptext">Save as Excel workbook</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="tooltip">
+                      <button class="dropdown-label" type="button" id="exportNotes">Notes</button>
+                      <span class="tooltiptext">Save all Notes as A Word doc</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="tooltip">
+                      <button class="dropdown-label" type="button" id="exportGML">GML</button>
+                      <span class="tooltiptext">Save as a GML file</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="tooltip">
+                      <button class="dropdown-label" type="button" id="exportDOT">GV</button>
+                      <span class="tooltiptext">Save as a Graphviz DOT/GV) file</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="tooltip">
+                      <button class="dropdown-label" type="button" id="exportGraphML">
+                        GraphML
+                      </button>
+                      <span class="tooltiptext">Save as a GraphML file</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="tooltip">
+                      <button class="dropdown-label" type="button" id="exportGEXF">GEXF</button>
+                      <span class="tooltiptext">Save as a Gephi GEXF file</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- copy map button, only visible when in viewOnly mode -->
+              <div class="tooltip" id="copy-map-button">
+                <button type="button" id="copy-map">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    class="bi bi-copy"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"
+                    />
+                  </svg>
+                </button>
+                <div class="button-text">Copy map</div>
+                <span class="tooltiptext">Copy map into a new browser tab</span>
+              </div>
+              <div
+                class="tooltip left-border"
+                data-tutorial="Search for factors"
+                data-step="6"
+                data-position="left"
+              >
+                <button type="button" id="search">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    class="bi bi-search"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"
+                    />
+                  </svg>
+                </button>
+                <div class="button-text">Search</div>
+                <span class="tooltiptext searchtip">Search for factors by name</span>
+              </div>
+              <div
+                class="tooltip"
+                id="help-button"
+                data-tutorial="Open a new window with more help"
+                data-step="7"
+                data-position="left"
+              >
+                <button type="button" id="help">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    class="bi bi-question-lg"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M3 4.075a.423.423 0 0 0 .43.44H4.9c.247 0 .442-.2.475-.445.159-1.17.962-2.022 2.393-2.022 1.222 0 2.342.611 2.342 2.082 0 1.132-.668 1.652-1.72 2.444-1.2.872-2.15 1.89-2.082 3.542l.005.386c.003.244.202.44.446.44h1.445c.247 0 .446-.2.446-.446v-.188c0-1.278.487-1.652 1.8-2.647 1.086-.826 2.217-1.743 2.217-3.667C12.667 1.301 10.393 0 7.903 0 5.645 0 3.17 1.053 3.001 4.075zm2.776 10.273c0 .95.758 1.652 1.8 1.652 1.085 0 1.832-.702 1.832-1.652 0-.985-.747-1.675-1.833-1.675-1.04 0-1.799.69-1.799 1.675z"
+                    />
+                  </svg>
+                </button>
+                <div class="button-text">Help</div>
+                <span class="tooltiptext">Show help in a new window</span>
+              </div>
+              <div
+                class="tooltip"
+                data-tutorial="Show more options"
+                data-step="8"
+                data-position="left"
+              >
+                <button type="button" id="panelToggle">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    class="bi bi-sliders"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3h9.05zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8h2.05zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1h9.05z"
+                    />
+                  </svg>
+                </button>
+                <div class="button-text">Settings</div>
+                <span class="tooltiptext settingstip">
+                  Show or hide
+                  <br />
+                  the settings panel
+                </span>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </header>
+      <main id="main" tabindex="0">
+        <input class="search-bar" id="search-bar" placeholder="Search..." />
+        <span class="search-icon" style="display: none" id="search-icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            class="bi bi-search"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"
+            />
+          </svg>
+        </span>
+        <div id="suggestion-list"></div>
+        <div class="avatars" id="avatars"></div>
+        <div id="popup">
+          <div id="popup-top">
+            <div id="popup-operation">Factor</div>
+            <div id="popup-cancelButton">&times;</div>
+          </div>
+          <div>
+            <div id="popup-label" contenteditable="true" spellcheck="true"></div>
+          </div>
+          <input type="button" value="save" id="popup-saveButton" />
+        </div>
+        <div id="loading">
+          <div class="loader">
+            <div class="loader--dot"></div>
+            <div class="loader--dot"></div>
+            <div class="loader--dot"></div>
+            <div class="loader--dot"></div>
+            <div class="loader--dot"></div>
+            <div class="loader--dot"></div>
+          </div>
+        </div>
+        <div
+          id="net-pane"
+          data-tutorial="
 					<h1>Welcome to PRSM</h1>
 					<div id='intro-logo'></div>
 					<p class='tutorial-note'>You can type your name here to show others that you are online:<br >
@@ -557,111 +542,110 @@
 					<p>For a quick tour, press <b>Next</b>,<br >
 					  or to skip it, press <b>Skip</b></p>
 					<p class='tutorial-note'> <a href='privacy-notice.html' target='_blank'>Privacy notice</a></p>"
-					data-step="0"
-					data-position="splash"></div>
-				<!-- Mini map -->
-				<div id="minimapWrapper">
-					<img
-						id="minimapImage"
-						src="#"
-						ondragstart="return false;"
-						draggable="false"
-						alt="Minimap" />
-					<div id="minimapRadar"></div>
-				</div>
-				<!-- Map notes drawer -->
-				<div id="drawer-wrapper" class="hide-drawer">
-					<div id="drawer">
-						<div id="sideNotesToolbar">
-							<!--['bold', 'italic', 'underline', 'strike']-->
-							<span class="ql-formats">
-								<button class="ql-bold"></button>
-								<button class="ql-italic"></button>
-								<button class="ql-underline"></button>
-								<button class="ql-strike"></button>
-							</span>
-							<!--['blockquote', 'code-block']-->
-							<span class="ql-formats">
-								<button class="ql-blockquote"></button>
-								<button class="ql-code-block"></button>
-							</span>
-							<!--[{ 'script': 'sub'}, { 'script': 'super' }]-->
-							<span class="ql-formats">
-								<button class="ql-script" value="sub"></button>
-								<button class="ql-script" value="super"></button>
-							</span>
-							<!--[{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'indent': '-1'}, { 'indent': '+1' }, { 'direction': 'rtl' }, { 'align': [] }]-->
-							<span class="ql-formats">
-								<button class="ql-list" value="ordered"></button>
-								<button class="ql-list" value="bullet"></button>
-								<button class="ql-indent" value="-1"></button>
-								<button class="ql-indent" value="+1"></button>
-								<select class="ql-align">
-									<option selected></option>
-									<option value="center"></option>
-									<option value="right"></option>
-									<option value="justify"></option>
-								</select>
-							</span>
-							<!--['image', 'video', 'formula', 'link']-->
-							<span class="ql-formats">
-								<button class="ql-image"></button>
-								<button class="ql-link"></button>
-							</span>
-							<!--[{ 'header': [1, 2, 3, 4, 5, 6, false] }]-->
-							<span class="ql-formats">
-								<select class="ql-header">
-									<option value="1"></option>
-									<option value="2"></option>
-									<option value="3"></option>
-									<option value="4"></option>
-									<option value="5"></option>
-									<option value="6"></option>
-									<option selected></option>
-								</select>
-							</span>
-							<!--[{ 'color': [] }, { 'background': [] }]-->
-							<span class="ql-formats">
-								<select class="ql-color"></select>
-								<select class="ql-background"></select>
-							</span>
-							<!--['clean']-->
-							<span class="ql-formats">
-								<button class="ql-clean"></button>
-							</span>
-							<span class="ql-formats">
-								<button id="sparklesSideNote">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										viewBox="0 0 16 16"
-										width="16"
-										height="16"
-										fill="#000000">
-										<path
-											d="M9.6 2.279a.426.426 0 0 1 .8 0l.407 1.112a6.386 6.386 0 0 0 3.802 3.802l1.112.407a.426.426 0 0 1 0 .8l-1.112.407a6.386 6.386 0 0 0-3.802 3.802l-.407 1.112a.426.426 0 0 1-.8 0l-.407-1.112a6.386 6.386 0 0 0-3.802-3.802L4.279 8.4a.426.426 0 0 1 0-.8l1.112-.407a6.386 6.386 0 0 0 3.802-3.802L9.6 2.279Zm-4.267 8.837a.178.178 0 0 1 .334 0l.169.464a2.662 2.662 0 0 0 1.584 1.584l.464.169a.178.178 0 0 1 0 .334l-.464.169a2.662 2.662 0 0 0-1.584 1.584l-.169.464a.178.178 0 0 1-.334 0l-.169-.464a2.662 2.662 0 0 0-1.584-1.584l-.464-.169a.178.178 0 0 1 0-.334l.464-.169a2.662 2.662 0 0 0 1.584-1.584l.169-.464ZM2.8.14a.213.213 0 0 1 .4 0l.203.556a3.2 3.2 0 0 0 1.901 1.901l.556.203a.213.213 0 0 1 0 .4l-.556.203a3.2 3.2 0 0 0-1.901 1.901L3.2 5.86a.213.213 0 0 1-.4 0l-.203-.556A3.2 3.2 0 0 0 .696 3.403L.14 3.2a.213.213 0 0 1 0-.4l.556-.203A3.2 3.2 0 0 0 2.597.696L2.8.14Z"></path>
-									</svg>
-								</button>
-							</span>
-						</div>
-						<div id="drawer-editor"></div>
-					</div>
-					<div class="tooltip" id="drawer-handle">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							height="16"
-							width="4"
-							viewBox="0 0 128 512">
-							<path
-								d="M64 360a56 56 0 1 0 0 112 56 56 0 1 0 0-112zm0-160a56 56 0 1 0 0 112 56 56 0 1 0 0-112zM120 96A56 56 0 1 0 8 96a56 56 0 1 0 112 0z" />
-						</svg>
-						<span class="tooltiptext overviewtoggletip"
-							>Open or close the map overview</span
-						>
-					</div>
-				</div>
-				<div
-					data-tutorialclass="wide"
-					data-tutorial="
+          data-step="0"
+          data-position="splash"
+        ></div>
+        <!-- Mini map -->
+        <div id="minimapWrapper">
+          <img
+            id="minimapImage"
+            src="#"
+            ondragstart="return false"
+            draggable="false"
+            alt="Minimap"
+          />
+          <div id="minimapRadar"></div>
+        </div>
+        <!-- Map notes drawer -->
+        <div id="drawer-wrapper" class="hide-drawer">
+          <div id="drawer">
+            <div id="sideNotesToolbar">
+              <!--['bold', 'italic', 'underline', 'strike']-->
+              <span class="ql-formats">
+                <button class="ql-bold"></button>
+                <button class="ql-italic"></button>
+                <button class="ql-underline"></button>
+                <button class="ql-strike"></button>
+              </span>
+              <!--['blockquote', 'code-block']-->
+              <span class="ql-formats">
+                <button class="ql-blockquote"></button>
+                <button class="ql-code-block"></button>
+              </span>
+              <!--[{ 'script': 'sub'}, { 'script': 'super' }]-->
+              <span class="ql-formats">
+                <button class="ql-script" value="sub"></button>
+                <button class="ql-script" value="super"></button>
+              </span>
+              <!--[{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'indent': '-1'}, { 'indent': '+1' }, { 'direction': 'rtl' }, { 'align': [] }]-->
+              <span class="ql-formats">
+                <button class="ql-list" value="ordered"></button>
+                <button class="ql-list" value="bullet"></button>
+                <button class="ql-indent" value="-1"></button>
+                <button class="ql-indent" value="+1"></button>
+                <select class="ql-align">
+                  <option selected></option>
+                  <option value="center"></option>
+                  <option value="right"></option>
+                  <option value="justify"></option>
+                </select>
+              </span>
+              <!--['image', 'video', 'formula', 'link']-->
+              <span class="ql-formats">
+                <button class="ql-image"></button>
+                <button class="ql-link"></button>
+              </span>
+              <!--[{ 'header': [1, 2, 3, 4, 5, 6, false] }]-->
+              <span class="ql-formats">
+                <select class="ql-header">
+                  <option value="1"></option>
+                  <option value="2"></option>
+                  <option value="3"></option>
+                  <option value="4"></option>
+                  <option value="5"></option>
+                  <option value="6"></option>
+                  <option selected></option>
+                </select>
+              </span>
+              <!--[{ 'color': [] }, { 'background': [] }]-->
+              <span class="ql-formats">
+                <select class="ql-color"></select>
+                <select class="ql-background"></select>
+              </span>
+              <!--['clean']-->
+              <span class="ql-formats">
+                <button class="ql-clean"></button>
+              </span>
+              <span class="ql-formats">
+                <button id="sparklesSideNote">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 16 16"
+                    width="16"
+                    height="16"
+                    fill="#000000"
+                  >
+                    <path
+                      d="M9.6 2.279a.426.426 0 0 1 .8 0l.407 1.112a6.386 6.386 0 0 0 3.802 3.802l1.112.407a.426.426 0 0 1 0 .8l-1.112.407a6.386 6.386 0 0 0-3.802 3.802l-.407 1.112a.426.426 0 0 1-.8 0l-.407-1.112a6.386 6.386 0 0 0-3.802-3.802L4.279 8.4a.426.426 0 0 1 0-.8l1.112-.407a6.386 6.386 0 0 0 3.802-3.802L9.6 2.279Zm-4.267 8.837a.178.178 0 0 1 .334 0l.169.464a2.662 2.662 0 0 0 1.584 1.584l.464.169a.178.178 0 0 1 0 .334l-.464.169a2.662 2.662 0 0 0-1.584 1.584l-.169.464a.178.178 0 0 1-.334 0l-.169-.464a2.662 2.662 0 0 0-1.584-1.584l-.464-.169a.178.178 0 0 1 0-.334l.464-.169a2.662 2.662 0 0 0 1.584-1.584l.169-.464ZM2.8.14a.213.213 0 0 1 .4 0l.203.556a3.2 3.2 0 0 0 1.901 1.901l.556.203a.213.213 0 0 1 0 .4l-.556.203a3.2 3.2 0 0 0-1.901 1.901L3.2 5.86a.213.213 0 0 1-.4 0l-.203-.556A3.2 3.2 0 0 0 .696 3.403L.14 3.2a.213.213 0 0 1 0-.4l.556-.203A3.2 3.2 0 0 0 2.597.696L2.8.14Z"
+                    ></path>
+                  </svg>
+                </button>
+              </span>
+            </div>
+            <div id="drawer-editor"></div>
+          </div>
+          <div class="tooltip" id="drawer-handle">
+            <svg xmlns="http://www.w3.org/2000/svg" height="16" width="4" viewBox="0 0 128 512">
+              <path
+                d="M64 360a56 56 0 1 0 0 112 56 56 0 1 0 0-112zm0-160a56 56 0 1 0 0 112 56 56 0 1 0 0-112zM120 96A56 56 0 1 0 8 96a56 56 0 1 0 112 0z"
+              />
+            </svg>
+            <span class="tooltiptext overviewtoggletip">Open or close the map overview</span>
+          </div>
+        </div>
+        <div
+          data-tutorialclass="wide"
+          data-tutorial="
 					<p><b>And finally, some shortcuts:</b></p>
 					<p><i>Click</i> on a factor or link to select it.<br>
 					A <i>long click</i> or a <i>control-click</i> on a factor or link adds it to the selection.<br>
@@ -669,845 +653,834 @@
 					<i>Drag</i> on the background to move the map.<br>
 					<i>Double-click</i> on the background to zoom the map so that it all fits in the window.<br>
 					<i>Double-click</i> on a factor or link to edit it.</p>"
-					data-step="12"
-					data-position="splash"></div>
-				<div
-					id="underlay"
-					data-tutorial="
+          data-step="12"
+          data-position="splash"
+        ></div>
+        <div
+          id="underlay"
+          data-tutorial="
 			<b>That's the end of the tour.</b><p>Press <b>Done</b> and then click <br>
 				on the <b>+</b> button above to add your first factor.</p>"
-					data-step="13"
-					data-position="splash">
-					<canvas class="drawing-canvas" id="drawing-canvas"></canvas>
-					<div class="toolbox" id="toolbox">
-						<div class="toolbox-header" id="toolbox-header"></div>
-						<div class="tool" id="line">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-border-width"
-								viewBox="0 0 16 16">
-								<path
-									d="M0 3.5A.5.5 0 0 1 .5 3h15a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H.5a.5.5 0 0 1-.5-.5v-2zm0 5A.5.5 0 0 1 .5 8h15a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H.5a.5.5 0 0 1-.5-.5v-1zm0 4a.5.5 0 0 1 .5-.5h15a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5z" />
-							</svg>
-							<span class="tooltiptext">Line</span>
-						</div>
-						<div class="tool" id="rect">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-bounding-box-circles"
-								viewBox="0 0 16 16">
-								<path
-									d="M2 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM0 2a2 2 0 0 1 3.937-.5h8.126A2 2 0 1 1 14.5 3.937v8.126a2 2 0 1 1-2.437 2.437H3.937A2 2 0 1 1 1.5 12.063V3.937A2 2 0 0 1 0 2zm2.5 1.937v8.126c.703.18 1.256.734 1.437 1.437h8.126a2.004 2.004 0 0 1 1.437-1.437V3.937A2.004 2.004 0 0 1 12.063 2.5H3.937A2.004 2.004 0 0 1 2.5 3.937zM14 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM2 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm12 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
-							</svg>
-							<span class="tooltiptext">Rectangle</span>
-						</div>
-						<div class="tool" id="circle">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-circle"
-								viewBox="0 0 16 16">
-								<path
-									d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-							</svg>
-							<span class="tooltiptext">Circle or Ellipse</span>
-						</div>
-						<div class="tool" id="text">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-type"
-								viewBox="0 0 16 16">
-								<path
-									d="m2.244 13.081.943-2.803H6.66l.944 2.803H8.86L5.54 3.75H4.322L1 13.081h1.244zm2.7-7.923L6.34 9.314H3.51l1.4-4.156h.034zm9.146 7.027h.035v.896h1.128V8.125c0-1.51-1.114-2.345-2.646-2.345-1.736 0-2.59.916-2.666 2.174h1.108c.068-.718.595-1.19 1.517-1.19.971 0 1.518.52 1.518 1.464v.731H12.19c-1.647.007-2.522.8-2.522 2.058 0 1.319.957 2.18 2.345 2.18 1.06 0 1.716-.43 2.078-1.011zm-1.763.035c-.752 0-1.456-.397-1.456-1.244 0-.65.424-1.115 1.408-1.115h1.805v.834c0 .896-.752 1.525-1.757 1.525z" />
-							</svg>
-							<span class="tooltiptext">Text</span>
-						</div>
-						<div class="tool" id="pencil">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-pencil-fill"
-								viewBox="0 0 16 16">
-								<path
-									d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z" />
-							</svg>
-							<span class="tooltiptext">Pencil</span>
-						</div>
-						<div class="tool" id="marker">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-brush-fill"
-								viewBox="0 0 16 16">
-								<path
-									d="M15.825.12a.5.5 0 0 1 .132.584c-1.53 3.43-4.743 8.17-7.095 10.64a6.067 6.067 0 0 1-2.373 1.534c-.018.227-.06.538-.16.868-.201.659-.667 1.479-1.708 1.74a8.118 8.118 0 0 1-3.078.132 3.659 3.659 0 0 1-.562-.135 1.382 1.382 0 0 1-.466-.247.714.714 0 0 1-.204-.288.622.622 0 0 1 .004-.443c.095-.245.316-.38.461-.452.394-.197.625-.453.867-.826.095-.144.184-.297.287-.472l.117-.198c.151-.255.326-.54.546-.848.528-.739 1.201-.925 1.746-.896.126.007.243.025.348.048.062-.172.142-.38.238-.608.261-.619.658-1.419 1.187-2.069 2.176-2.67 6.18-6.206 9.117-8.104a.5.5 0 0 1 .596.04z" />
-							</svg>
-							<span class="tooltiptext">Marker</span>
-						</div>
-						<div class="tool" id="image">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-image"
-								viewBox="0 0 16 16">
-								<path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-								<path
-									d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z" />
-							</svg>
-							<span class="tooltiptext">Load image</span>
-						</div>
-						<div class="toolbox-divider" id="toolbox-divider"></div>
-						<div class="tool disabled" id="group">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-subtract"
-								viewBox="0 0 16 16">
-								<path
-									d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2z" />
-							</svg>
-							<span class="tooltiptext">Group or ungroup</span>
-						</div>
-						<div class="tool disabled" id="bin">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-trash"
-								viewBox="0 0 16 16">
-								<path
-									d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-								<path
-									fill-rule="evenodd"
-									d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
-							</svg>
-							<span class="tooltiptext">Delete selection</span>
-						</div>
-						<div class="tool disabled" id="undotool">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-arrow-counterclockwise"
-								viewBox="0 0 16 16">
-								<path
-									fill-rule="evenodd"
-									d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z" />
-								<path
-									d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z" />
-							</svg>
-							<span class="tooltiptext">Undo last change</span>
-						</div>
-						<div class="tool disabled" id="redotool">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-arrow-clockwise"
-								viewBox="0 0 16 16">
-								<path
-									fill-rule="evenodd"
-									d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z" />
-								<path
-									d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z" />
-							</svg>
-							<span class="tooltiptext">Redo last undo</span>
-						</div>
-					</div>
-				</div>
-			</main>
-			<aside class="hide" id="panel">
-				<div class="panelHeader dragHandle" id="panelHeader"></div>
-				<!-- Tabs -->
-				<div class="tab" id="tab">
-					<div class="tablinks" id="nodesButton">Factors</div>
-					<div class="tablinks" id="linksButton">Links</div>
-					<div class="tablinks" id="networkButton">Network</div>
-					<div class="tablinks" id="analysisButton">Analysis</div>
-				</div>
-				<!-- Tab content -->
-				<!-- Factor tab -->
-				<div class="tabcontent hide" id="nodesTab">
-					<div class="samples">
-						<div class="sampleGrid">
-							<div class="sampleNode" id="nodeSample1"></div>
-							<div class="sampleNode" id="nodeSample2"></div>
-							<div class="sampleNode" id="nodeSample3"></div>
-							<div class="sampleNode" id="nodeSample4"></div>
-							<div class="sampleNode" id="nodeSample5"></div>
-							<div class="sampleNode" id="nodeSample6"></div>
-							<div class="sampleNode" id="nodeSample7"></div>
-							<div class="sampleNode" id="nodeSample8"></div>
-							<div class="sampleNode" id="nodeSample9"></div>
-							<div class="sampleNode" id="nodeSample10"></div>
-							<div class="sampleNode" id="nodeSample11"></div>
-							<div class="sampleNode" id="nodeSample12"></div>
-							<div class="sampleNode" id="nodeSample13"></div>
-							<div class="sampleNode" id="nodeSample14"></div>
-							<div class="sampleNode" id="nodeSample15"></div>
-						</div>
-						<div class="panelRow centered">
-							<button type="button" class="btn" id="allFactors">
-								Select all factors
-							</button>
-						</div>
-					</div>
-				</div>
-				<!-- Links Tab -->
-				<div class="tabcontent hide" id="linksTab">
-					<div class="samples">
-						<div class="sampleGrid">
-							<div class="sampleLink" id="linkSample1"></div>
-							<div class="sampleLink" id="linkSample2"></div>
-							<div class="sampleLink" id="linkSample3"></div>
-							<div class="sampleLink" id="linkSample4"></div>
-							<div class="sampleLink" id="linkSample5"></div>
-							<div class="sampleLink" id="linkSample6"></div>
-							<div class="sampleLink" id="linkSample7"></div>
-							<div class="sampleLink" id="linkSample8"></div>
-							<div class="sampleLink" id="linkSample9"></div>
-						</div>
-						<div class="panelRow centered">
-							<button type="button" class="btn" id="allLinks">
-								Select all links
-							</button>
-						</div>
-					</div>
-				</div>
-				<!-- Network tab -->
-				<div class="tabcontent hide" id="networkTab">
-					<div class="networkStyles">
-						<div class="networkGrid">
-							<div class="panelRow">
-								<div>Auto layout:</div>
-								<div>
-									<select id="layoutSelect">
-										<option value="off" selected>Off</option>
-										<option value="trophic">Trophic</option>
-										<option value="fan">Fan</option>
-										<option value="barnesHut">Barnes Hut</option>
-										<option value="forceAtlas2Based">Force Atlas 2</option>
-										<option value="repulsion">Repulsion</option>
-									</select>
-								</div>
-							</div>
-							<div class="panelRow">
-								<div>Snap to grid</div>
-								<label for="snaptogridswitch">
-									<input type="checkbox" id="snaptogridswitch" />
-								</label>
-							</div>
-							<div class="panelRow">
-								<div>Link:</div>
-								<div>
-									<select id="curveSelect">
-										<option value="Curved" selected>Curved</option>
-										<option value="Straight">Straight</option>
-									</select>
-								</div>
-							</div>
-							<div class="panelRow">
-								<div>Switch to drawing layer</div>
-								<label class="switch" for="drawing">
-									<input type="checkbox" id="drawing" />
-									<span class="slider rounded"></span>
-								</label>
-							</div>
-							<div class="panelRow">
-								<div>Background:</div>
-								<div class="input-color-container">
-									<div class="color-well" id="netBackColorWell"></div>
-								</div>
-							</div>
-							<div class="panelRow">
-								<div>Show legend</div>
-								<label for="showLegendSwitch">
-									<input type="checkbox" id="showLegendSwitch" />
-								</label>
-							</div>
-							<div class="panelRow">
-								<div>Show other users</div>
-								<label for="showUsersSwitch">
-									<input type="checkbox" id="showUsersSwitch" checked />
-								</label>
-							</div>
-							<div class="panelRow">
-								<div>Show history</div>
-								<label for="showHistorySwitch">
-									<input type="checkbox" id="showHistorySwitch" />
-								</label>
-							</div>
-							<div class="panelRow">
-								<div>Show notes</div>
-								<label for="showNotesSwitch">
-									<input type="checkbox" id="showNotesSwitch" checked />
-								</label>
-							</div>
-							<div class="panelRow">
-								<div>Show reactions</div>
-								<label for="showVotingSwitch">
-									<input type="checkbox" id="showVotingSwitch" />
-								</label>
-							</div>
-						</div>
-					</div>
-				</div>
-				<!-- Analysis tab -->
-				<div class="tabcontent hide" id="analysisTab">
-					<div class="networkStyles">
-						<div class="networkGrid">
-							<div class="panelRow">
-								<label for="radiusAll">Show all</label>
-								<input
-									type="radio"
-									id="radiusAll"
-									name="radius"
-									value="All"
-									checked />
-							</div>
-							<div class="panelRow">
-								<label for="oneLink">Show only Factors 1 link away</label>
-								<input type="radio" id="oneLink" name="radius" value="1" />
-							</div>
-							<div class="panelRow">
-								<label for="oneLink">Show only Factors 2 links away</label>
-								<input type="radio" id="twoLinks" name="radius" value="2" />
-							</div>
-							<div class="panelRow">
-								<label for="threeLinks">Show only Factors 3 links away</label>
-								<input type="radio" id="threeLinks" name="radius" value="3" />
-							</div>
-							<div class="panelRow divider">
-								<label for="streamAll">Show all</label>
-								<input
-									type="radio"
-									id="streamAll"
-									name="stream"
-									value="All"
-									checked />
-							</div>
-							<div class="panelRow">
-								<label for="upstream">Show only Factors upstream</label>
-								<input type="radio" id="upstream" name="stream" value="upstream" />
-							</div>
-							<div class="panelRow">
-								<label for="downstream">Show only Factors downstream</label>
-								<input
-									type="radio"
-									id="downstream"
-									name="stream"
-									value="downstream" />
-							</div>
-							<div class="panelRow divider">
-								<label for="pathsAll">Show all</label>
-								<input
-									type="radio"
-									id="pathsAll"
-									name="paths"
-									value="All"
-									checked />
-							</div>
-							<div class="panelRow">
-								<label for="allPaths">Show all paths between</label>
-								<input type="radio" id="allPaths" name="paths" value="allPaths" />
-							</div>
-							<div class="panelRow">
-								<label for="shortestPath">Show shortest path between</label>
-								<input
-									type="radio"
-									id="shortestPath"
-									name="paths"
-									value="shortestPath" />
-							</div>
-							<div class="panelRow divider">
-								<div>Size Factors to:</div>
-								<div>
-									<select id="sizing">
-										<option value="Off" selected>---</option>
-										<option value="Equal">Equal</option>
-										<option value="Inputs">Inputs</option>
-										<option value="Outputs">Outputs</option>
-										<option value="Leverage">Leverage</option>
-										<option value="Centrality">Centrality</option>
-									</select>
-								</div>
-							</div>
-							<div class="panelRow divider">
-								<div>Cluster:</div>
-								<div>
-									<select id="clustering">
-										<option value="none" selected>None</option>
-										<option value="style">by Style</option>
-										<option value="color">by Colour</option>
-										<option value="louvain">by Community</option>
-									</select>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</aside>
-			<!-- Notes panels -->
-			<div class="notePanel hide" id="nodeNotePanel">
-				<div class="header dragHandle" id="nodeNoteHeader">
-					<div>
-						<span class="nodeLabel" id="nodeLabel"></span>
-					</div>
-					<div id="lock" class="interactiveButton">
-						<span id="unfixed" class="tooltip">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-unlock-fill"
-								viewBox="0 0 16 16">
-								<path
-									d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2z" />
-							</svg>
-							<span class="tooltiptext">Lock position</span>
-						</span>
-						<span id="fixed" class="tooltip">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								fill="currentColor"
-								class="bi bi-lock-fill"
-								viewBox="0 0 16 16">
-								<path
-									d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
-							</svg>
-							<span class="tooltiptext">Unlock position</span>
-						</span>
-					</div>
-					<div id="sparklesNode" class="interactiveButton">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 16 16"
-							width="16"
-							height="16"
-							fill="#ffffff">
-							<path
-								d="M9.6 2.279a.426.426 0 0 1 .8 0l.407 1.112a6.386 6.386 0 0 0 3.802 3.802l1.112.407a.426.426 0 0 1 0 .8l-1.112.407a6.386 6.386 0 0 0-3.802 3.802l-.407 1.112a.426.426 0 0 1-.8 0l-.407-1.112a6.386 6.386 0 0 0-3.802-3.802L4.279 8.4a.426.426 0 0 1 0-.8l1.112-.407a6.386 6.386 0 0 0 3.802-3.802L9.6 2.279Zm-4.267 8.837a.178.178 0 0 1 .334 0l.169.464a2.662 2.662 0 0 0 1.584 1.584l.464.169a.178.178 0 0 1 0 .334l-.464.169a2.662 2.662 0 0 0-1.584 1.584l-.169.464a.178.178 0 0 1-.334 0l-.169-.464a2.662 2.662 0 0 0-1.584-1.584l-.464-.169a.178.178 0 0 1 0-.334l.464-.169a2.662 2.662 0 0 0 1.584-1.584l.169-.464ZM2.8.14a.213.213 0 0 1 .4 0l.203.556a3.2 3.2 0 0 0 1.901 1.901l.556.203a.213.213 0 0 1 0 .4l-.556.203a3.2 3.2 0 0 0-1.901 1.901L3.2 5.86a.213.213 0 0 1-.4 0l-.203-.556A3.2 3.2 0 0 0 .696 3.403L.14 3.2a.213.213 0 0 1 0-.4l.556-.203A3.2 3.2 0 0 0 2.597.696L2.8.14Z"></path>
-						</svg>
-					</div>
-					<div id="newNodeWindow" class="tooltip interactiveButton">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="16"
-							height="16"
-							viewBox="0 0 24 24"
-							fill="currentColor">
-							<path
-								d="M20 11a1 1 0 0 0-1 1v6a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6a1 1 0 0 0 0-2H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-6a1 1 0 0 0-1-1z" />
-							<path
-								d="M16 5h1.58l-6.29 6.28a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0L19 6.42V8a1 1 0 0 0 1 1 1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-4a1 1 0 0 0 0 2z" />
-						</svg>
-						<span class="tooltiptext settingstip">Open in a new window</span>
-					</div>
-				</div>
-				<div class="history" id="nodeCreation">
-					<span class="left">Created:</span>
-					<span class="right" id="nodeCreated"></span>
-				</div>
-				<div class="history" id="nodeModification">
-					<span class="left">Modified:</span>
-					<span class="right" id="nodeModified"></span>
-				</div>
-				<div class="content" id="node-notes"></div>
-				<div class="corner-handle-top-left" id="notePanelTopLeftHandle"></div>
-				<div class="corner-handle" id="notePanelCornerHandle"></div>
-			</div>
-			<!-- edge note panel-->
-			<div class="notePanel hide" id="edgeNotePanel">
-				<div class="header dragHandle" id="edgeNoteHeader">
-					<div>
-						<span class="edgeLabel" id="edgeLabel"></span>
-					</div>
-					<div id="sparklesEdge" class="interactiveButton">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 16 16"
-							width="16"
-							height="16"
-							fill="#ffffff">
-							<path
-								d="M9.6 2.279a.426.426 0 0 1 .8 0l.407 1.112a6.386 6.386 0 0 0 3.802 3.802l1.112.407a.426.426 0 0 1 0 .8l-1.112.407a6.386 6.386 0 0 0-3.802 3.802l-.407 1.112a.426.426 0 0 1-.8 0l-.407-1.112a6.386 6.386 0 0 0-3.802-3.802L4.279 8.4a.426.426 0 0 1 0-.8l1.112-.407a6.386 6.386 0 0 0 3.802-3.802L9.6 2.279Zm-4.267 8.837a.178.178 0 0 1 .334 0l.169.464a2.662 2.662 0 0 0 1.584 1.584l.464.169a.178.178 0 0 1 0 .334l-.464.169a2.662 2.662 0 0 0-1.584 1.584l-.169.464a.178.178 0 0 1-.334 0l-.169-.464a2.662 2.662 0 0 0-1.584-1.584l-.464-.169a.178.178 0 0 1 0-.334l.464-.169a2.662 2.662 0 0 0 1.584-1.584l.169-.464ZM2.8.14a.213.213 0 0 1 .4 0l.203.556a3.2 3.2 0 0 0 1.901 1.901l.556.203a.213.213 0 0 1 0 .4l-.556.203a3.2 3.2 0 0 0-1.901 1.901L3.2 5.86a.213.213 0 0 1-.4 0l-.203-.556A3.2 3.2 0 0 0 .696 3.403L.14 3.2a.213.213 0 0 1 0-.4l.556-.203A3.2 3.2 0 0 0 2.597.696L2.8.14Z"></path>
-						</svg>
-					</div>
+          data-step="13"
+          data-position="splash"
+        >
+          <canvas class="drawing-canvas" id="drawing-canvas"></canvas>
+          <div class="toolbox" id="toolbox">
+            <div class="toolbox-header" id="toolbox-header"></div>
+            <div class="tool" id="line">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-border-width"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M0 3.5A.5.5 0 0 1 .5 3h15a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H.5a.5.5 0 0 1-.5-.5v-2zm0 5A.5.5 0 0 1 .5 8h15a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H.5a.5.5 0 0 1-.5-.5v-1zm0 4a.5.5 0 0 1 .5-.5h15a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5z"
+                />
+              </svg>
+              <span class="tooltiptext">Line</span>
+            </div>
+            <div class="tool" id="rect">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-bounding-box-circles"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M2 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM0 2a2 2 0 0 1 3.937-.5h8.126A2 2 0 1 1 14.5 3.937v8.126a2 2 0 1 1-2.437 2.437H3.937A2 2 0 1 1 1.5 12.063V3.937A2 2 0 0 1 0 2zm2.5 1.937v8.126c.703.18 1.256.734 1.437 1.437h8.126a2.004 2.004 0 0 1 1.437-1.437V3.937A2.004 2.004 0 0 1 12.063 2.5H3.937A2.004 2.004 0 0 1 2.5 3.937zM14 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM2 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm12 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
+                />
+              </svg>
+              <span class="tooltiptext">Rectangle</span>
+            </div>
+            <div class="tool" id="circle">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-circle"
+                viewBox="0 0 16 16"
+              >
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+              </svg>
+              <span class="tooltiptext">Circle or Ellipse</span>
+            </div>
+            <div class="tool" id="text">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-type"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="m2.244 13.081.943-2.803H6.66l.944 2.803H8.86L5.54 3.75H4.322L1 13.081h1.244zm2.7-7.923L6.34 9.314H3.51l1.4-4.156h.034zm9.146 7.027h.035v.896h1.128V8.125c0-1.51-1.114-2.345-2.646-2.345-1.736 0-2.59.916-2.666 2.174h1.108c.068-.718.595-1.19 1.517-1.19.971 0 1.518.52 1.518 1.464v.731H12.19c-1.647.007-2.522.8-2.522 2.058 0 1.319.957 2.18 2.345 2.18 1.06 0 1.716-.43 2.078-1.011zm-1.763.035c-.752 0-1.456-.397-1.456-1.244 0-.65.424-1.115 1.408-1.115h1.805v.834c0 .896-.752 1.525-1.757 1.525z"
+                />
+              </svg>
+              <span class="tooltiptext">Text</span>
+            </div>
+            <div class="tool" id="pencil">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-pencil-fill"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"
+                />
+              </svg>
+              <span class="tooltiptext">Pencil</span>
+            </div>
+            <div class="tool" id="marker">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-brush-fill"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M15.825.12a.5.5 0 0 1 .132.584c-1.53 3.43-4.743 8.17-7.095 10.64a6.067 6.067 0 0 1-2.373 1.534c-.018.227-.06.538-.16.868-.201.659-.667 1.479-1.708 1.74a8.118 8.118 0 0 1-3.078.132 3.659 3.659 0 0 1-.562-.135 1.382 1.382 0 0 1-.466-.247.714.714 0 0 1-.204-.288.622.622 0 0 1 .004-.443c.095-.245.316-.38.461-.452.394-.197.625-.453.867-.826.095-.144.184-.297.287-.472l.117-.198c.151-.255.326-.54.546-.848.528-.739 1.201-.925 1.746-.896.126.007.243.025.348.048.062-.172.142-.38.238-.608.261-.619.658-1.419 1.187-2.069 2.176-2.67 6.18-6.206 9.117-8.104a.5.5 0 0 1 .596.04z"
+                />
+              </svg>
+              <span class="tooltiptext">Marker</span>
+            </div>
+            <div class="tool" id="image">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-image"
+                viewBox="0 0 16 16"
+              >
+                <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                <path
+                  d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"
+                />
+              </svg>
+              <span class="tooltiptext">Load image</span>
+            </div>
+            <div class="toolbox-divider" id="toolbox-divider"></div>
+            <div class="tool disabled" id="group">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-subtract"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2z"
+                />
+              </svg>
+              <span class="tooltiptext">Group or ungroup</span>
+            </div>
+            <div class="tool disabled" id="bin">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-trash"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"
+                />
+                <path
+                  fill-rule="evenodd"
+                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+                />
+              </svg>
+              <span class="tooltiptext">Delete selection</span>
+            </div>
+            <div class="tool disabled" id="undotool">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-arrow-counterclockwise"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"
+                />
+                <path
+                  d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"
+                />
+              </svg>
+              <span class="tooltiptext">Undo last change</span>
+            </div>
+            <div class="tool disabled" id="redotool">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-arrow-clockwise"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"
+                />
+                <path
+                  d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"
+                />
+              </svg>
+              <span class="tooltiptext">Redo last undo</span>
+            </div>
+          </div>
+        </div>
+      </main>
+      <aside class="hide" id="panel">
+        <div class="panelHeader dragHandle" id="panelHeader"></div>
+        <!-- Tabs -->
+        <div class="tab" id="tab">
+          <div class="tablinks" id="nodesButton">Factors</div>
+          <div class="tablinks" id="linksButton">Links</div>
+          <div class="tablinks" id="networkButton">Network</div>
+          <div class="tablinks" id="analysisButton">Analysis</div>
+        </div>
+        <!-- Tab content -->
+        <!-- Factor tab -->
+        <div class="tabcontent hide" id="nodesTab">
+          <div class="samples">
+            <div class="sampleGrid">
+              <div class="sampleNode" id="nodeSample1"></div>
+              <div class="sampleNode" id="nodeSample2"></div>
+              <div class="sampleNode" id="nodeSample3"></div>
+              <div class="sampleNode" id="nodeSample4"></div>
+              <div class="sampleNode" id="nodeSample5"></div>
+              <div class="sampleNode" id="nodeSample6"></div>
+              <div class="sampleNode" id="nodeSample7"></div>
+              <div class="sampleNode" id="nodeSample8"></div>
+              <div class="sampleNode" id="nodeSample9"></div>
+              <div class="sampleNode" id="nodeSample10"></div>
+              <div class="sampleNode" id="nodeSample11"></div>
+              <div class="sampleNode" id="nodeSample12"></div>
+              <div class="sampleNode" id="nodeSample13"></div>
+              <div class="sampleNode" id="nodeSample14"></div>
+              <div class="sampleNode" id="nodeSample15"></div>
+            </div>
+            <div class="panelRow centered">
+              <button type="button" class="btn" id="allFactors">Select all factors</button>
+            </div>
+          </div>
+        </div>
+        <!-- Links Tab -->
+        <div class="tabcontent hide" id="linksTab">
+          <div class="samples">
+            <div class="sampleGrid">
+              <div class="sampleLink" id="linkSample1"></div>
+              <div class="sampleLink" id="linkSample2"></div>
+              <div class="sampleLink" id="linkSample3"></div>
+              <div class="sampleLink" id="linkSample4"></div>
+              <div class="sampleLink" id="linkSample5"></div>
+              <div class="sampleLink" id="linkSample6"></div>
+              <div class="sampleLink" id="linkSample7"></div>
+              <div class="sampleLink" id="linkSample8"></div>
+              <div class="sampleLink" id="linkSample9"></div>
+            </div>
+            <div class="panelRow centered">
+              <button type="button" class="btn" id="allLinks">Select all links</button>
+            </div>
+          </div>
+        </div>
+        <!-- Network tab -->
+        <div class="tabcontent hide" id="networkTab">
+          <div class="networkStyles">
+            <div class="networkGrid">
+              <div class="panelRow">
+                <div>Auto layout:</div>
+                <div>
+                  <select id="layoutSelect">
+                    <option value="off" selected>Off</option>
+                    <option value="trophic">Trophic</option>
+                    <option value="fan">Fan</option>
+                    <option value="barnesHut">Barnes Hut</option>
+                    <option value="forceAtlas2Based">Force Atlas 2</option>
+                    <option value="repulsion">Repulsion</option>
+                  </select>
+                </div>
+              </div>
+              <div class="panelRow">
+                <div>Snap to grid</div>
+                <label for="snaptogridswitch">
+                  <input type="checkbox" id="snaptogridswitch" />
+                </label>
+              </div>
+              <div class="panelRow">
+                <div>Link:</div>
+                <div>
+                  <select id="curveSelect">
+                    <option value="Curved" selected>Curved</option>
+                    <option value="Straight">Straight</option>
+                  </select>
+                </div>
+              </div>
+              <div class="panelRow">
+                <div>Switch to drawing layer</div>
+                <label class="switch" for="drawing">
+                  <input type="checkbox" id="drawing" />
+                  <span class="slider rounded"></span>
+                </label>
+              </div>
+              <div class="panelRow">
+                <div>Background:</div>
+                <div class="input-color-container">
+                  <div class="color-well" id="netBackColorWell"></div>
+                </div>
+              </div>
+              <div class="panelRow">
+                <div>Show legend</div>
+                <label for="showLegendSwitch">
+                  <input type="checkbox" id="showLegendSwitch" />
+                </label>
+              </div>
+              <div class="panelRow">
+                <div>Show other users</div>
+                <label for="showUsersSwitch">
+                  <input type="checkbox" id="showUsersSwitch" checked />
+                </label>
+              </div>
+              <div class="panelRow">
+                <div>Show history</div>
+                <label for="showHistorySwitch">
+                  <input type="checkbox" id="showHistorySwitch" />
+                </label>
+              </div>
+              <div class="panelRow">
+                <div>Show notes</div>
+                <label for="showNotesSwitch">
+                  <input type="checkbox" id="showNotesSwitch" checked />
+                </label>
+              </div>
+              <div class="panelRow">
+                <div>Show reactions</div>
+                <label for="showVotingSwitch">
+                  <input type="checkbox" id="showVotingSwitch" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Analysis tab -->
+        <div class="tabcontent hide" id="analysisTab">
+          <div class="networkStyles">
+            <div class="networkGrid">
+              <div class="panelRow">
+                <label for="radiusAll">Show all</label>
+                <input type="radio" id="radiusAll" name="radius" value="All" checked />
+              </div>
+              <div class="panelRow">
+                <label for="oneLink">Show only Factors 1 link away</label>
+                <input type="radio" id="oneLink" name="radius" value="1" />
+              </div>
+              <div class="panelRow">
+                <label for="oneLink">Show only Factors 2 links away</label>
+                <input type="radio" id="twoLinks" name="radius" value="2" />
+              </div>
+              <div class="panelRow">
+                <label for="threeLinks">Show only Factors 3 links away</label>
+                <input type="radio" id="threeLinks" name="radius" value="3" />
+              </div>
+              <div class="panelRow divider">
+                <label for="streamAll">Show all</label>
+                <input type="radio" id="streamAll" name="stream" value="All" checked />
+              </div>
+              <div class="panelRow">
+                <label for="upstream">Show only Factors upstream</label>
+                <input type="radio" id="upstream" name="stream" value="upstream" />
+              </div>
+              <div class="panelRow">
+                <label for="downstream">Show only Factors downstream</label>
+                <input type="radio" id="downstream" name="stream" value="downstream" />
+              </div>
+              <div class="panelRow divider">
+                <label for="pathsAll">Show all</label>
+                <input type="radio" id="pathsAll" name="paths" value="All" checked />
+              </div>
+              <div class="panelRow">
+                <label for="allPaths">Show all paths between</label>
+                <input type="radio" id="allPaths" name="paths" value="allPaths" />
+              </div>
+              <div class="panelRow">
+                <label for="shortestPath">Show shortest path between</label>
+                <input type="radio" id="shortestPath" name="paths" value="shortestPath" />
+              </div>
+              <div class="panelRow divider">
+                <div>Size Factors to:</div>
+                <div>
+                  <select id="sizing">
+                    <option value="Off" selected>---</option>
+                    <option value="Equal">Equal</option>
+                    <option value="Inputs">Inputs</option>
+                    <option value="Outputs">Outputs</option>
+                    <option value="Leverage">Leverage</option>
+                    <option value="Centrality">Centrality</option>
+                  </select>
+                </div>
+              </div>
+              <div class="panelRow divider">
+                <div>Cluster:</div>
+                <div>
+                  <select id="clustering">
+                    <option value="none" selected>None</option>
+                    <option value="style">by Style</option>
+                    <option value="color">by Colour</option>
+                    <option value="louvain">by Community</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+      <!-- Notes panels -->
+      <div class="notePanel hide" id="nodeNotePanel">
+        <div class="header dragHandle" id="nodeNoteHeader">
+          <div>
+            <span class="nodeLabel" id="nodeLabel"></span>
+          </div>
+          <div id="lock" class="interactiveButton">
+            <span id="unfixed" class="tooltip">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-unlock-fill"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2z"
+                />
+              </svg>
+              <span class="tooltiptext">Lock position</span>
+            </span>
+            <span id="fixed" class="tooltip">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-lock-fill"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"
+                />
+              </svg>
+              <span class="tooltiptext">Unlock position</span>
+            </span>
+          </div>
+          <div id="sparklesNode" class="interactiveButton">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              width="16"
+              height="16"
+              fill="#ffffff"
+            >
+              <path
+                d="M9.6 2.279a.426.426 0 0 1 .8 0l.407 1.112a6.386 6.386 0 0 0 3.802 3.802l1.112.407a.426.426 0 0 1 0 .8l-1.112.407a6.386 6.386 0 0 0-3.802 3.802l-.407 1.112a.426.426 0 0 1-.8 0l-.407-1.112a6.386 6.386 0 0 0-3.802-3.802L4.279 8.4a.426.426 0 0 1 0-.8l1.112-.407a6.386 6.386 0 0 0 3.802-3.802L9.6 2.279Zm-4.267 8.837a.178.178 0 0 1 .334 0l.169.464a2.662 2.662 0 0 0 1.584 1.584l.464.169a.178.178 0 0 1 0 .334l-.464.169a2.662 2.662 0 0 0-1.584 1.584l-.169.464a.178.178 0 0 1-.334 0l-.169-.464a2.662 2.662 0 0 0-1.584-1.584l-.464-.169a.178.178 0 0 1 0-.334l.464-.169a2.662 2.662 0 0 0 1.584-1.584l.169-.464ZM2.8.14a.213.213 0 0 1 .4 0l.203.556a3.2 3.2 0 0 0 1.901 1.901l.556.203a.213.213 0 0 1 0 .4l-.556.203a3.2 3.2 0 0 0-1.901 1.901L3.2 5.86a.213.213 0 0 1-.4 0l-.203-.556A3.2 3.2 0 0 0 .696 3.403L.14 3.2a.213.213 0 0 1 0-.4l.556-.203A3.2 3.2 0 0 0 2.597.696L2.8.14Z"
+              ></path>
+            </svg>
+          </div>
+          <div id="newNodeWindow" class="tooltip interactiveButton">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                d="M20 11a1 1 0 0 0-1 1v6a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6a1 1 0 0 0 0-2H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-6a1 1 0 0 0-1-1z"
+              />
+              <path
+                d="M16 5h1.58l-6.29 6.28a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0L19 6.42V8a1 1 0 0 0 1 1 1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-4a1 1 0 0 0 0 2z"
+              />
+            </svg>
+            <span class="tooltiptext settingstip">Open in a new window</span>
+          </div>
+        </div>
+        <div class="history" id="nodeCreation">
+          <span class="left">Created:</span>
+          <span class="right" id="nodeCreated"></span>
+        </div>
+        <div class="history" id="nodeModification">
+          <span class="left">Modified:</span>
+          <span class="right" id="nodeModified"></span>
+        </div>
+        <div class="content" id="node-notes"></div>
+        <div class="corner-handle-top-left" id="notePanelTopLeftHandle"></div>
+        <div class="corner-handle" id="notePanelCornerHandle"></div>
+      </div>
+      <!-- edge note panel-->
+      <div class="notePanel hide" id="edgeNotePanel">
+        <div class="header dragHandle" id="edgeNoteHeader">
+          <div>
+            <span class="edgeLabel" id="edgeLabel"></span>
+          </div>
+          <div id="sparklesEdge" class="interactiveButton">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              width="16"
+              height="16"
+              fill="#ffffff"
+            >
+              <path
+                d="M9.6 2.279a.426.426 0 0 1 .8 0l.407 1.112a6.386 6.386 0 0 0 3.802 3.802l1.112.407a.426.426 0 0 1 0 .8l-1.112.407a6.386 6.386 0 0 0-3.802 3.802l-.407 1.112a.426.426 0 0 1-.8 0l-.407-1.112a6.386 6.386 0 0 0-3.802-3.802L4.279 8.4a.426.426 0 0 1 0-.8l1.112-.407a6.386 6.386 0 0 0 3.802-3.802L9.6 2.279Zm-4.267 8.837a.178.178 0 0 1 .334 0l.169.464a2.662 2.662 0 0 0 1.584 1.584l.464.169a.178.178 0 0 1 0 .334l-.464.169a2.662 2.662 0 0 0-1.584 1.584l-.169.464a.178.178 0 0 1-.334 0l-.169-.464a2.662 2.662 0 0 0-1.584-1.584l-.464-.169a.178.178 0 0 1 0-.334l.464-.169a2.662 2.662 0 0 0 1.584-1.584l.169-.464ZM2.8.14a.213.213 0 0 1 .4 0l.203.556a3.2 3.2 0 0 0 1.901 1.901l.556.203a.213.213 0 0 1 0 .4l-.556.203a3.2 3.2 0 0 0-1.901 1.901L3.2 5.86a.213.213 0 0 1-.4 0l-.203-.556A3.2 3.2 0 0 0 .696 3.403L.14 3.2a.213.213 0 0 1 0-.4l.556-.203A3.2 3.2 0 0 0 2.597.696L2.8.14Z"
+              ></path>
+            </svg>
+          </div>
 
-					<div id="newEdgeWindow" class="tooltip interactiveButton">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="16"
-							height="16"
-							viewBox="0 0 24 24"
-							fill="currentColor">
-							<path
-								d="M20 11a1 1 0 0 0-1 1v6a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6a1 1 0 0 0 0-2H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-6a1 1 0 0 0-1-1z" />
-							<path
-								d="M16 5h1.58l-6.29 6.28a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0L19 6.42V8a1 1 0 0 0 1 1 1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-4a1 1 0 0 0 0 2z" />
-						</svg>
-						<span class="tooltiptext settingstip">Open in a new window</span>
-					</div>
-				</div>
-				<div class="history" id="edgeCreation">
-					<span class="left">Created:</span>
-					<span class="right" id="edgeCreated"></span>
-				</div>
-				<div class="history" id="edgeModification">
-					<span class="left">Modified:</span>
-					<span class="right" id="edgeModified"></span>
-				</div>
-				<div class="content" id="edge-notes"></div>
-				<div class="corner-handle-top-left" id="notePanelTopLeftHandle"></div>
-				<div class="corner-handle" id="notePanelCornerHandle"></div>
-			</div>
-			<!-- Error Message and Status Bar -->
-			<div id="errMsg"></div>
-			<footer
-				data-tutorial="Hints and messages appear here"
-				data-step="9"
-				data-position="above">
-				<div id="statusBar">
-					<br />
-				</div>
-				<div
-					id="zoomcontrol"
-					data-tutorial="Zoom in for detail or out for an overview"
-					data-step="10"
-					data-position="left-bottom">
-					Zoom
-					<span id="zoomminus">&ndash;</span>
-					<input
-						type="range"
-						id="zoom"
-						min="0"
-						max="4"
-						step="0.01"
-						value="1"
-						list="zoom-ticks" />
-					<datalist id="zoom-ticks">
-						<option>1</option>
-						<option>2</option>
-						<option>3</option>
-					</datalist>
-					<span id="zoomplus">+</span>
-				</div>
-			</footer>
-			<!-- Node Style Editor -->
-			<div id="nodeStyleEditorContainer" class="styleEditorContainer hideEditor">
-				<div class="styleEditor">
-					<div class="header">Edit factor style</div>
-					<div class="x-button" id="nodeStyleEditCancel">&times;</div>
-					<div class="title">
-						Name of style:
-						<input
-							name="nodeStyleEditName"
-							id="nodeStyleEditName"
-							placeholder="Sample" />
-					</div>
-					<div>fill</div>
-					<div>border</div>
-					<div>font</div>
-					<div class="input-color-container">
-						<div class="color-well" id="nodeStyleEditFillColor"></div>
-					</div>
-					<div class="input-color-container">
-						<div class="color-well" id="nodeStyleEditBorderColor"></div>
-					</div>
-					<div class="input-color-container">
-						<div class="color-well" id="nodeStyleEditFontColor"></div>
-					</div>
-					<div>
-						<select name="nodeStyleEditShape" id="nodeStyleEditShape">
-							<option value="ellipse">Ellipse</option>
-							<option value="circle">Circle</option>
-							<option value="dot">Dot</option>
-							<option value="box" selected>Rect</option>
-							<option value="diamond">Diamond</option>
-							<option value="star">Star</option>
-							<option value="triangle">Triangle</option>
-							<option value="hexagon">Hexagon</option>
-							<option value="text">Text</option>
-						</select>
-					</div>
-					<div>
-						<select name="nodeStyleEditBorder" id="nodeStyleEditBorder">
-							<option value="solid" selected>Solid</option>
-							<option value="dashed">Dashed</option>
-							<option value="dots">Dotted</option>
-							<option value="none">None</option>
-						</select>
-					</div>
-					<div>
-						<select name="nodeStyleEditFontSize" id="nodeStyleEditFontSize">
-							<option value="24">Large</option>
-							<option value="14" selected>Normal</option>
-							<option value="10">Small</option>
-						</select>
-					</div>
-					<div class="sizer">
-						<span id="nodeStyleEditLock">
-							<span id="nodeStyleEditUnfixed" style="display: none">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="16"
-									height="16"
-									fill="currentColor"
-									class="bi bi-unlock-fill"
-									viewBox="0 0 16 16">
-									<path
-										d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2z" />
-								</svg>
-							</span>
-							<span id="nodeStyleEditFixed" style="display: inline">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="16"
-									height="16"
-									fill="currentColor"
-									class="bi bi-lock-fill"
-									viewBox="0 0 16 16">
-									<path
-										d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
-								</svg>
-							</span>
-						</span>
-						<label
-							>&nbsp;Size:
-							<input type="range" class="sizer xrange" id="nodeStyleEditFactorSize" />
-						</label>
-					</div>
-					<div class="submit">
-						<input
-							type="button"
-							value="save"
-							id="nodeStyleEditSubmit"
-							class="save-button" />
-					</div>
-				</div>
-			</div>
-			<!-- Link Style Editor -->
-			<div
-				id="linkStyleEditorContainer"
-				class="styleEditorContainer hideEditor"
-				style="top: 200px">
-				<div class="styleEditor">
-					<div class="header">Edit link style</div>
-					<div class="x-button" id="linkStyleEditCancel">&times;</div>
-					<div class="title">
-						Name of style:
-						<input
-							name="linkStyleEditName"
-							id="linkStyleEditName"
-							placeholder="Sample" />
-					</div>
-					<div>colour</div>
-					<div></div>
-					<div></div>
-					<div class="input-color-container">
-						<div class="color-well" id="linkStyleEditLineColor"></div>
-					</div>
-					<div>
-						<select name="linkStyleEditWidth" id="linkStyleEditWidth">
-							<option value="1">Width...</option>
-							<option value="1">Width: 1</option>
-							<option value="4">Width: 4</option>
-							<option value="8">Width: 8</option>
-						</select>
-					</div>
-					<div></div>
-					<div>
-						<select name="linkStyleEditDashes" id="linkStyleEditDashes">
-							<option value="solid" selected>Solid</option>
-							<option value="dashedLinks">Dashed</option>
-							<option value="dots">Dotted</option>
-						</select>
-					</div>
-					<div>
-						<select name="linkStyleEditArrows" id="linkStyleEditArrows">
-							<option value="vee">Arrows...</option>
-							<option value="vee">Sharp</option>
-							<option value="arrow">Triangle</option>
-							<option value="bar">Bar</option>
-							<option value="circle">Circle</option>
-							<option value="box">Box</option>
-							<option value="diamond">Diamond</option>
-							<option value="none">None</option>
-						</select>
-					</div>
-					<input
-						type="button"
-						value="save"
-						id="linkStyleEditSubmit"
-						class="save-button submit" />
-				</div>
-			</div>
-			<!-- Share model dialog -->
-			<div id="shareModal" class="modal">
-				<div class="modal-content">
-					<div class="modal-header">
-						<span class="close" id="modal-close">&times;</span>
-						<h2>Share the network with other participants</h2>
-					</div>
-					<div class="modal-body">
-						<div class="invite">
-							To invite others to participate in developing this map, send them this
-							link:
-						</div>
-						<div class="clone">
-							Open a clone of the map
-							<div class="small">
-								(users will be able to modify the map, but their changes won't
-								change this one)
-							</div>
-						</div>
-						<button class="modal-button clone-button" type="button" id="clone-button">
-							Clone map
-						</button>
-						<div class="view">
-							Open a read-only copy of the map
-							<div class="small">
-								(users will be able to see the map, but will not be able to modify
-								it)
-								<br />
-								Allow users to make an editable copy <br />of the read-only map
-								<input type="checkbox" id="addCopyButton" />
-							</div>
-						</div>
-						<button class="modal-button view-button" type="button" id="view-button">
-							Read only
-						</button>
-						<div class="table">
-							Open a data view of the map
-							<div class="small">(view Factors and Links in a data table)</div>
-						</div>
-						<button class="modal-button table-button" type="button" id="table-button">
-							Data view
-						</button>
-						<textarea
-							class="text-to-copy"
-							rows="1"
-							readonly
-							id="text-to-copy"></textarea>
-						<div class="copy-text-container">
-							<button type="button" id="copy-text">Copy to clipboard</button>
-							<span class="copied-text" id="copied-text">Copied!</span>
-						</div>
-					</div>
-				</div>
-			</div>
-			<!-- What's New modal dialog -->
-			<div id="whatsnew">
-				<div id="whatsnewcontent">
-					<h1>What's new</h1>
-					<div id="whatsnewversion"></div>
-					<div id="whatsnewintro">
-						This panel will appear whenever a new version of PRSM is released. You'll
-						only see it once. Click anywhere on the background map to dismiss it.
-					</div>
-					<ul class="whatsnewlist">
-						<script src="../whatsnew.js"></script>
-					</ul>
-				</div>
-			</div>
-			<!-- Open file dialog -->
-			<input type="file" id="fileInput" style="display: none" />
-			<!-- History window -->
-			<div class="history-window" id="history-window">
-				<div class="history-header" id="history-header">
-					History
-					<div class="tooltip">
-						<span class="history-copy" id="history-copy">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="12"
-								height="12"
-								fill="currentColor"
-								class="bi bi-clipboard"
-								viewBox="0 0 16 16">
-								<path
-									d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
-								<path
-									d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
-							</svg>
-						</span>
-						<span class="tooltiptext" style="margin-left: -100px"
-							>Copy history to clipboard</span
-						>
-					</div>
-					<span class="history-close" id="history-close">&times;</span>
-				</div>
-				<div class="history-log-wrapper" id="history-log-wrapper">
-					<div class="history-log" id="history-log"></div>
-				</div>
-			</div>
-			<ol class="contextmenu" id="styleNodeContextMenu">
-				<li class="menu-item">
-					<div class="menu-btn">
-						<span class="menu-text" id="styleNodeContextMenuSelect"
-							>Select Factors</span
-						>
-					</div>
-				</li>
-				<li class="menu-item">
-					<div class="menu-btn">
-						<span class="menu-text" id="styleNodeContextMenuHide">Hide Factors</span>
-					</div>
-				</li>
-			</ol>
-			<ol class="contextmenu" id="styleEdgeContextMenu">
-				<li class="menu-item">
-					<div class="menu-btn">
-						<span class="menu-text" id="styleEdgeContextMenuSelect">Select Links</span>
-					</div>
-				</li>
-				<li class="menu-item">
-					<div class="menu-btn">
-						<span class="menu-text" id="styleEdgeContextMenuHide">Hide Links</span>
-					</div>
-				</li>
-			</ol>
-		</div>
-		<!-- merge dialog	-->
-		<dialog id="mergeDialog">
-			<button id="mergeClose">&times;</button>
-			<h2>Merge maps</h2>
-			<ol>
-				<li>Open the map you want to merge in another browser tab</li>
-				<li>
-					Click on the <b>Share</b> button in that tab and copy the link to the clipboard
-				</li>
-				<li>Paste the link below and click on <b>Merge</b></li>
-			</ol>
-			<label for="mergedRoom">Map to merge:&nbsp;</label>
-			<input type="url" id="mergedRoom" autofocus />
-			<button id="merge">Merge</button>
-		</dialog>
-		<script src="../js/prsm.js" type="module" async></script>
-	</body>
+          <div id="newEdgeWindow" class="tooltip interactiveButton">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                d="M20 11a1 1 0 0 0-1 1v6a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6a1 1 0 0 0 0-2H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-6a1 1 0 0 0-1-1z"
+              />
+              <path
+                d="M16 5h1.58l-6.29 6.28a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0L19 6.42V8a1 1 0 0 0 1 1 1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-4a1 1 0 0 0 0 2z"
+              />
+            </svg>
+            <span class="tooltiptext settingstip">Open in a new window</span>
+          </div>
+        </div>
+        <div class="history" id="edgeCreation">
+          <span class="left">Created:</span>
+          <span class="right" id="edgeCreated"></span>
+        </div>
+        <div class="history" id="edgeModification">
+          <span class="left">Modified:</span>
+          <span class="right" id="edgeModified"></span>
+        </div>
+        <div class="content" id="edge-notes"></div>
+        <div class="corner-handle-top-left" id="notePanelTopLeftHandle"></div>
+        <div class="corner-handle" id="notePanelCornerHandle"></div>
+      </div>
+      <!-- Error Message and Status Bar -->
+      <div id="errMsg"></div>
+      <footer data-tutorial="Hints and messages appear here" data-step="9" data-position="above">
+        <div id="statusBar">
+          <br />
+        </div>
+        <div
+          id="zoomcontrol"
+          data-tutorial="Zoom in for detail or out for an overview"
+          data-step="10"
+          data-position="left-bottom"
+        >
+          Zoom
+          <span id="zoomminus">&ndash;</span>
+          <input type="range" id="zoom" min="0" max="4" step="0.01" value="1" list="zoom-ticks" />
+          <datalist id="zoom-ticks">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+          </datalist>
+          <span id="zoomplus">+</span>
+        </div>
+      </footer>
+      <!-- Node Style Editor -->
+      <div id="nodeStyleEditorContainer" class="styleEditorContainer hideEditor">
+        <div class="styleEditor">
+          <div class="header">Edit factor style</div>
+          <div class="x-button" id="nodeStyleEditCancel">&times;</div>
+          <div class="title">
+            Name of style:
+            <input name="nodeStyleEditName" id="nodeStyleEditName" placeholder="Sample" />
+          </div>
+          <div>fill</div>
+          <div>border</div>
+          <div>font</div>
+          <div class="input-color-container">
+            <div class="color-well" id="nodeStyleEditFillColor"></div>
+          </div>
+          <div class="input-color-container">
+            <div class="color-well" id="nodeStyleEditBorderColor"></div>
+          </div>
+          <div class="input-color-container">
+            <div class="color-well" id="nodeStyleEditFontColor"></div>
+          </div>
+          <div>
+            <select name="nodeStyleEditShape" id="nodeStyleEditShape">
+              <option value="ellipse">Ellipse</option>
+              <option value="circle">Circle</option>
+              <option value="dot">Dot</option>
+              <option value="box" selected>Rect</option>
+              <option value="diamond">Diamond</option>
+              <option value="star">Star</option>
+              <option value="triangle">Triangle</option>
+              <option value="hexagon">Hexagon</option>
+              <option value="text">Text</option>
+            </select>
+          </div>
+          <div>
+            <select name="nodeStyleEditBorder" id="nodeStyleEditBorder">
+              <option value="solid" selected>Solid</option>
+              <option value="dashed">Dashed</option>
+              <option value="dots">Dotted</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+          <div>
+            <select name="nodeStyleEditFontSize" id="nodeStyleEditFontSize">
+              <option value="24">Large</option>
+              <option value="14" selected>Normal</option>
+              <option value="10">Small</option>
+            </select>
+          </div>
+          <div class="sizer">
+            <span id="nodeStyleEditLock">
+              <span id="nodeStyleEditUnfixed" style="display: none">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-unlock-fill"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2z"
+                  />
+                </svg>
+              </span>
+              <span id="nodeStyleEditFixed" style="display: inline">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-lock-fill"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"
+                  />
+                </svg>
+              </span>
+            </span>
+            <label>
+              &nbsp;Size:
+              <input type="range" class="sizer xrange" id="nodeStyleEditFactorSize" />
+            </label>
+          </div>
+          <div class="submit">
+            <input type="button" value="save" id="nodeStyleEditSubmit" class="save-button" />
+          </div>
+        </div>
+      </div>
+      <!-- Link Style Editor -->
+      <div id="linkStyleEditorContainer" class="styleEditorContainer hideEditor" style="top: 200px">
+        <div class="styleEditor">
+          <div class="header">Edit link style</div>
+          <div class="x-button" id="linkStyleEditCancel">&times;</div>
+          <div class="title">
+            Name of style:
+            <input name="linkStyleEditName" id="linkStyleEditName" placeholder="Sample" />
+          </div>
+          <div>colour</div>
+          <div></div>
+          <div></div>
+          <div class="input-color-container">
+            <div class="color-well" id="linkStyleEditLineColor"></div>
+          </div>
+          <div>
+            <select name="linkStyleEditWidth" id="linkStyleEditWidth">
+              <option value="1">Width...</option>
+              <option value="1">Width: 1</option>
+              <option value="4">Width: 4</option>
+              <option value="8">Width: 8</option>
+            </select>
+          </div>
+          <div></div>
+          <div>
+            <select name="linkStyleEditDashes" id="linkStyleEditDashes">
+              <option value="solid" selected>Solid</option>
+              <option value="dashedLinks">Dashed</option>
+              <option value="dots">Dotted</option>
+            </select>
+          </div>
+          <div>
+            <select name="linkStyleEditArrows" id="linkStyleEditArrows">
+              <option value="vee">Arrows...</option>
+              <option value="vee">Sharp</option>
+              <option value="arrow">Triangle</option>
+              <option value="bar">Bar</option>
+              <option value="circle">Circle</option>
+              <option value="box">Box</option>
+              <option value="diamond">Diamond</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+          <input type="button" value="save" id="linkStyleEditSubmit" class="save-button submit" />
+        </div>
+      </div>
+      <!-- Share model dialog -->
+      <div id="shareModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <span class="close" id="modal-close">&times;</span>
+            <h2>Share the network with other participants</h2>
+          </div>
+          <div class="modal-body">
+            <div class="invite">
+              To invite others to participate in developing this map, send them this link:
+            </div>
+            <div class="clone">
+              Open a clone of the map
+              <div class="small">
+                (users will be able to modify the map, but their changes won't change this one)
+              </div>
+            </div>
+            <button class="modal-button clone-button" type="button" id="clone-button">
+              Clone map
+            </button>
+            <div class="view">
+              Open a read-only copy of the map
+              <div class="small">
+                (users will be able to see the map, but will not be able to modify it)
+                <br />
+                Allow users to make an editable copy
+                <br />
+                of the read-only map
+                <input type="checkbox" id="addCopyButton" />
+              </div>
+            </div>
+            <button class="modal-button view-button" type="button" id="view-button">
+              Read only
+            </button>
+            <div class="table">
+              Open a data view of the map
+              <div class="small">(view Factors and Links in a data table)</div>
+            </div>
+            <button class="modal-button table-button" type="button" id="table-button">
+              Data view
+            </button>
+            <textarea class="text-to-copy" rows="1" readonly id="text-to-copy"></textarea>
+            <div class="copy-text-container">
+              <button type="button" id="copy-text">Copy to clipboard</button>
+              <span class="copied-text" id="copied-text">Copied!</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- What's New modal dialog -->
+      <div id="whatsnew">
+        <div id="whatsnewcontent">
+          <h1>What's new</h1>
+          <div id="whatsnewversion"></div>
+          <div id="whatsnewintro">
+            This panel will appear whenever a new version of PRSM is released. You'll only see it
+            once. Click anywhere on the background map to dismiss it.
+          </div>
+          <ul class="whatsnewlist">
+            <script src="../whatsnew.js"></script>
+          </ul>
+        </div>
+      </div>
+      <!-- Open file dialog -->
+      <input type="file" id="fileInput" style="display: none" />
+      <!-- History window -->
+      <div class="history-window" id="history-window">
+        <div class="history-header" id="history-header">
+          History
+          <div class="tooltip">
+            <span class="history-copy" id="history-copy">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="12"
+                fill="currentColor"
+                class="bi bi-clipboard"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"
+                />
+                <path
+                  d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"
+                />
+              </svg>
+            </span>
+            <span class="tooltiptext" style="margin-left: -100px">Copy history to clipboard</span>
+          </div>
+          <span class="history-close" id="history-close">&times;</span>
+        </div>
+        <div class="history-log-wrapper" id="history-log-wrapper">
+          <div class="history-log" id="history-log"></div>
+        </div>
+      </div>
+      <ol class="contextmenu" id="styleNodeContextMenu">
+        <li class="menu-item">
+          <div class="menu-btn">
+            <span class="menu-text" id="styleNodeContextMenuSelect">Select Factors</span>
+          </div>
+        </li>
+        <li class="menu-item">
+          <div class="menu-btn">
+            <span class="menu-text" id="styleNodeContextMenuHide">Hide Factors</span>
+          </div>
+        </li>
+      </ol>
+      <ol class="contextmenu" id="styleEdgeContextMenu">
+        <li class="menu-item">
+          <div class="menu-btn">
+            <span class="menu-text" id="styleEdgeContextMenuSelect">Select Links</span>
+          </div>
+        </li>
+        <li class="menu-item">
+          <div class="menu-btn">
+            <span class="menu-text" id="styleEdgeContextMenuHide">Hide Links</span>
+          </div>
+        </li>
+      </ol>
+    </div>
+    <!-- merge dialog	-->
+    <dialog id="mergeDialog">
+      <button id="mergeClose">&times;</button>
+      <h2>Merge maps</h2>
+      <ol>
+        <li>Open the map you want to merge in another browser tab</li>
+        <li>
+          Click on the
+          <b>Share</b>
+          button in that tab and copy the link to the clipboard
+        </li>
+        <li>
+          Paste the link below and click on
+          <b>Merge</b>
+        </li>
+      </ol>
+      <label for="mergedRoom">Map to merge:&nbsp;</label>
+      <input type="url" id="mergedRoom" autofocus />
+      <button id="merge">Merge</button>
+    </dialog>
+    <script src="../js/prsm.js" type="module" async></script>
+  </body>
 </html>

@@ -214,7 +214,7 @@ window.onbeforeunload = function (event) {
  */
 function addEventListeners() {
   listen('maptitle', 'keydown', (e) => {
-    //disallow Enter key
+    // disallow Enter key
     if (e.key === 'Enter') {
       e.preventDefault()
     }
@@ -294,17 +294,17 @@ function addEventListeners() {
   listen('zoomplus', 'click', () => {
     zoomincr(0.1)
   })
-  listen('nodesButton', 'click', () => {
-    openTab('nodesTab')
+  listen('nodesButton', 'click', (e) => {
+    openTab('nodesTab', e)
   })
-  listen('linksButton', 'click', () => {
-    openTab('linksTab')
+  listen('linksButton', 'click', (e) => {
+    openTab('linksTab', e)
   })
-  listen('networkButton', 'click', () => {
-    openTab('networkTab')
+  listen('networkButton', 'click', (e) => {
+    openTab('networkTab', e)
   })
-  listen('analysisButton', 'click', () => {
-    openTab('analysisTab')
+  listen('analysisButton', 'click', (e) => {
+    openTab('analysisTab', e)
   })
   listen('layoutSelect', 'change', autoLayout)
   listen('snaptogridswitch', 'click', snapToGridSwitch)
@@ -409,15 +409,20 @@ export function progressBar(sliderEl) {
  * for this (Major.Minor) version
  */
 function displayWhatsNew() {
-  //new user - don't tell them what is new
+  // new user - don't tell them what is new
   if (!localStorage.getItem('doneIntro')) return
   const versionDecoded = version.match(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)/)
   const seen = localStorage.getItem('seenWN')
   if (seen) {
     const seenDecoded = seen.match(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)/)
     // if this is a new minor version, show the What's New dialog
-    if (seenDecoded && versionDecoded[1] === seenDecoded[1] && versionDecoded[2] === seenDecoded[2])
-      {return}
+    if (
+      seenDecoded &&
+      versionDecoded[1] === seenDecoded[1] &&
+      versionDecoded[2] === seenDecoded[2]
+    ) {
+      return
+    }
   }
   elem('whatsnewversion').innerHTML = `Version ${version}`
   elem('whatsnew').style.display = 'flex'
@@ -456,10 +461,11 @@ function startY(newRoom) {
     // (if the room already exists, wait until the map data is loaded before displaying it)
     if (url.searchParams.get('room') !== null) {
       observed('synced')
-      if (/load/.test(debug))
-        {console.log(
+      if (/load/.test(debug)) {
+        console.log(
           `Nodes: ${yNodesMap.size} Edges: ${yEdgesMap.size} Samples: ${ySamplesMap.size} Network settings: ${yNetMap.size}	Points: ${yPointsArray.length} Drawing objects: ${yDrawingMap.size} History entries: ${yHistory.length}	`
-        )}
+        )
+      }
       unknownRoomTimeout = setTimeout(() => {
         if (!netLoaded) {
           displayNetPane(
@@ -577,10 +583,11 @@ function startY(newRoom) {
       foundMaps.has('synced')
     ) {
       displayNetPane(`${exactTime()} all content loaded from ${websocket}`)
-      if (/load/.test(debug))
-        {console.log(
+      if (/load/.test(debug)) {
+        console.log(
           `Nodes: ${yNodesMap.size} Edges: ${yEdgesMap.size} Samples: ${ySamplesMap.size} Network settings: ${yNetMap.size} Points: ${yPointsArray.length} Drawing objects: ${yDrawingMap.size} History entries: ${yHistory.length}	`
-        )}
+        )
+      }
     }
   }
 
@@ -595,18 +602,20 @@ function startY(newRoom) {
       `${evt}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`
     )
     clearTimeout(unknownRoomTimeout)
-    doc.transact(() => {
-      properties.items.forEach((id) => {
-        if (origin === null) {
-          // this is a local change
-          if (evt === 'remove') {
-            yNodesMap.delete(id.toString())
-          } else {
-            yNodesMap.set(id.toString(), deepCopy(nodes.get(id)))
+    if (!viewOnly) {
+      doc.transact(() => {
+        properties.items.forEach((id) => {
+          if (origin === null) {
+            // this is a local change
+            if (evt === 'remove') {
+              yNodesMap.delete(id.toString())
+            } else {
+              yNodesMap.set(id.toString(), deepCopy(nodes.get(id)))
+            }
           }
-        }
-      })
-    }, dontUndo)
+        })
+      }, dontUndo)
+    }
     dontUndo = null
   })
   /* 
@@ -636,15 +645,17 @@ function startY(newRoom) {
         }
       } else {
         hideNotes()
-        if (data.nodes.get(key))
-          {network.getConnectedEdges(key).forEach((edge) => nodesToRemove.push(edge))}
+        if (data.nodes.get(key)) {
+          network.getConnectedEdges(key).forEach((edge) => nodesToRemove.push(edge))
+        }
         nodesToRemove.push(key)
       }
     }
     if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote')
     if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
-    if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0))
-      {showChange(evt, yNodesMap)}
+    if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0)) {
+      showChange(evt, yNodesMap)
+    }
     observed('nodes')
   })
   /* 
@@ -655,16 +666,18 @@ function startY(newRoom) {
       'edges.on',
       `${evt}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`
     )
-    doc.transact(() => {
-      properties.items.forEach((id) => {
-        if (origin === null) {
-          if (evt === 'remove') yEdgesMap.delete(id.toString())
-          else {
-            yEdgesMap.set(id.toString(), deepCopy(edges.get(id)))
+    if (!viewOnly) {
+      doc.transact(() => {
+        properties.items.forEach((id) => {
+          if (origin === null) {
+            if (evt === 'remove') yEdgesMap.delete(id.toString())
+            else {
+              yEdgesMap.set(id.toString(), deepCopy(edges.get(id)))
+            }
           }
-        }
-      })
-    }, dontUndo)
+        })
+      }, dontUndo)
+    }
     dontUndo = null
   })
   yEdgesMap.observe((evt) => {
@@ -677,8 +690,9 @@ function startY(newRoom) {
         if (objectEquals(obj, { dummy: true })) continue // skip dummy entry
         if (!objectEquals(obj, data.edges.get(key))) {
           edgesToUpdate.push(deepCopy(obj))
-          if (editor && editor.id === key && evt.transaction.local === false)
-            {editor.setContents(obj.note)}
+          if (editor && editor.id === key && evt.transaction.local === false) {
+            editor.setContents(obj.note)
+          }
         }
       } else {
         hideNotes()
@@ -692,8 +706,9 @@ function startY(newRoom) {
       // vis-network will cancel the edit mode for this user.  Re-instate it.
       if (inAddMode === 'addLink') network.addEdgeMode()
     }
-    if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0))
-      {showChange(evt, yEdgesMap)}
+    if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0)) {
+      showChange(evt, yEdgesMap)
+    }
     observed('edges')
   })
   /**
@@ -1410,9 +1425,9 @@ function draw() {
           if (clickPos.x < bBox.left + (bBox.right - bBox.left) / 2) {
             // if user has not already voted for this, add their vote, i.e. add their clientID
             // or if they have voted, remove it
-            if (node.thumbUp?.includes(clientID))
-              {node.thumbUp = node.thumbUp.filter((c) => c !== clientID)}
-            else if (node.thumbUp) node.thumbUp.push(clientID)
+            if (node.thumbUp?.includes(clientID)) {
+              node.thumbUp = node.thumbUp.filter((c) => c !== clientID)
+            } else if (node.thumbUp) node.thumbUp.push(clientID)
             else node.thumbUp = [clientID]
           } else {
             if (node.thumbDown?.includes(clientID)) {
@@ -2006,11 +2021,13 @@ export function drawMinimap(ratio = 5) {
       let left = radarStart.x + dx
       let top = radarStart.y + dy
       if (left < 0) left = 0
-      if (left + minimapRadar.offsetWidth >= minimapWidth)
-        {left = minimapWidth - minimapRadar.offsetWidth}
+      if (left + minimapRadar.offsetWidth >= minimapWidth) {
+        left = minimapWidth - minimapRadar.offsetWidth
+      }
       if (top < 0) top = 0
-      if (top + minimapRadar.offsetHeight >= minimapHeight)
-        {top = minimapHeight - minimapRadar.offsetHeight}
+      if (top + minimapRadar.offsetHeight >= minimapHeight) {
+        top = minimapHeight - minimapRadar.offsetHeight
+      }
       minimapRadar.style.left = `${Math.round(left)}px`
       minimapRadar.style.top = `${Math.round(top)}px`
       const initialDOMPosition = network.canvasToDOM(initialPosition)
@@ -2394,8 +2411,9 @@ function copyToClipboard(event) {
     const edgesFromNode = network.getConnectedEdges(nId)
     edgesFromNode.forEach((eId) => {
       const edge = data.edges.get(eId)
-      if (nIds.includes(edge.to) && nIds.includes(edge.from) && !edges.find((e) => e.id === eId))
-        {edges.push(edge)}
+      if (nIds.includes(edge.to) && nIds.includes(edge.from) && !edges.find((e) => e.id === eId)) {
+        edges.push(edge)
+      }
     })
   })
   eIds.forEach((eId) => {
@@ -3111,8 +3129,9 @@ function createTitleDropDown() {
  * @param {Event} event
  */
 function changeRoom(event) {
-  if (data.nodes.length > 0)
-    {if (!confirm('Are you sure you want to move to a different map?')) return}
+  if (data.nodes.length > 0) {
+    if (!confirm('Are you sure you want to move to a different map?')) return
+  }
   const newRoom = event.target.dataset.room
   removeTitleDropDown()
   const url = new URL(document.location)
@@ -3143,7 +3162,7 @@ const worker = new Worker(new URL('./betweenness.js', import.meta.url), { type: 
 /**
  * Ask the web worker to recalculate network statistics
  */
-function recalculateStats() {
+export function recalculateStats() {
   // wait 200 mSecs for things to settle down before recalculating
   setTimeout(() => {
     worker.postMessage([nodes.get(), edges.get()])
@@ -3782,21 +3801,20 @@ function keepPaneInWindow(pane) {
   }
 }
 
-function openTab(tabId) {
-  let i
+function openTab(tabId, evt) {
   const tabcontent = document.getElementsByClassName('tabcontent')
   // Get all elements with class="tabcontent" and hide them by moving them off screen
-  for (i = 0; i < tabcontent.length; i++) {
+  for (let i = 0; i < tabcontent.length; i++) {
     tabcontent[i].classList.add('hide')
   }
   // Get all elements with class="tablinks" and remove the class "active"
   const tablinks = document.getElementsByClassName('tablinks')
-  for (i = 0; i < tablinks.length; i++) {
+  for (let i = 0; i < tablinks.length; i++) {
     tablinks[i].className = tablinks[i].className.replace(' active', '')
   }
   // Show the current tab, and add an "active" class to the button that opened the tab
   elem(tabId).classList.remove('hide')
-  event.currentTarget.className += ' active'
+  evt.currentTarget.className += ' active'
   clearStatusBar()
   // if a Notes panel is in the way, move it
   positionNotes()
@@ -4845,8 +4863,9 @@ function analyse() {
   }
   hideNotes()
   // these operations are not commutative (at least for networks with loops), so do them all in order
-  if (getRadioVal('radius') !== 'All')
-    {hideNodesByRadius(selectedNodes, parseInt(getRadioVal('radius')))}
+  if (getRadioVal('radius') !== 'All') {
+    hideNodesByRadius(selectedNodes, parseInt(getRadioVal('radius')))
+  }
   if (getRadioVal('stream') !== 'All') hideNodesByStream(selectedNodes, getRadioVal('stream'))
   if (getRadioVal('paths') !== 'All') hideNodesByPaths(selectedNodes, getRadioVal('paths'))
 
@@ -4901,8 +4920,9 @@ function analyse() {
     const linkIdsInRadiusSet = new Set()
 
     // put those factors and links within radius links into these sets
-    if (getRadioVal('stream') === 'upstream' || getRadioVal('stream') === 'All')
-      {inSet(selectedNodes, radius, 'to')}
+    if (getRadioVal('stream') === 'upstream' || getRadioVal('stream') === 'All') {
+      inSet(selectedNodes, radius, 'to')
+    }
     if (getRadioVal('stream') === 'downstream' || getRadioVal('stream') === 'All') {
       inSet(selectedNodes, radius, 'from')
     }
@@ -4918,8 +4938,9 @@ function analyse() {
     nodeIdsInRadiusSet.forEach((f) => {
       network.getConnectedEdges(f).forEach((e) => {
         const edge = data.edges.get(e)
-        if (nodeIdsInRadiusSet.has(edge.from) && nodeIdsInRadiusSet.has(edge.to))
-          {setEdgeHidden(edge, false)}
+        if (nodeIdsInRadiusSet.has(edge.from) && nodeIdsInRadiusSet.has(edge.to)) {
+          setEdgeHidden(edge, false)
+        }
       })
     })
 
@@ -5003,8 +5024,9 @@ function analyse() {
     nodeIdsInStreamSet.forEach((f) => {
       network.getConnectedEdges(f).forEach((e) => {
         const edge = data.edges.get(e)
-        if (nodeIdsInStreamSet.has(edge.from) && nodeIdsInStreamSet.has(edge.to))
-          {setEdgeHidden(edge, false)}
+        if (nodeIdsInStreamSet.has(edge.from) && nodeIdsInStreamSet.has(edge.to)) {
+          setEdgeHidden(edge, false)
+        }
       })
     })
   }
@@ -5575,7 +5597,7 @@ function showAvatars() {
   )
   const nameRecs = recs
 
-    .map(([, value]) => value.user)
+    .map(([, value]) => value.user || null)
     .filter((e) => e) // remove any recs without a user record
     .filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates, by name
     .sort((a, b) => (a.name.charAt(0).toUpperCase() > b.name.charAt(0).toUpperCase() ? 1 : -1)) // sort names
@@ -5597,11 +5619,13 @@ function showAvatars() {
       // to avoid flashes, don't touch anything that is already correct
       if (ava.dataset.tooltip !== nameRec.name) ava.dataset.tooltip = nameRec.name
       const circle = ava.firstChild
-      if (circle.style.backgroundColor !== nameRec.color)
-        {circle.style.backgroundColor = nameRec.color}
+      if (circle.style.backgroundColor !== nameRec.color) {
+        circle.style.backgroundColor = nameRec.color
+      }
       const circleBorderColor = nameRec.anon ? 'white' : 'black'
-      if (circle.style.borderColor !== circleBorderColor)
-        {circle.style.borderColor = circleBorderColor}
+      if (circle.style.borderColor !== circleBorderColor) {
+        circle.style.borderColor = circleBorderColor
+      }
       if (circle.innerText !== shortName) circle.innerText = shortName
       const circleFontColor = circle.style.color
       if (circleFontColor !== (nameRec.isLight ? 'black' : 'white')) {
@@ -5619,8 +5643,9 @@ function showAvatars() {
       } else {
         if (nameRec.asleep) cursorDiv.style.display = 'none'
         if (cursorDiv.innerText !== shortName) cursorDiv.innerText = shortName
-        if (cursorDiv.style.backgroundColor !== nameRec.color)
-          {cursorDiv.style.backgroundColor = nameRec.color}
+        if (cursorDiv.style.backgroundColor !== nameRec.color) {
+          cursorDiv.style.backgroundColor = nameRec.color
+        }
       }
       currentCursors.push(cursorDiv)
     }

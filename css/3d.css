@@ -1,21 +1,21 @@
 .legend {
-	box-shadow: none;
-	border: none;
-	border-radius: unset;
-	overflow: auto;
-	bottom: 40px;
+  box-shadow: none;
+  border: none;
+  border-radius: unset;
+  overflow: auto;
+  bottom: 40px;
 }
 .info {
-	position: fixed;
-	bottom: 2px;
-	color: black;
-	font-size: x-small;
-	left: 0;
-	right: 0;
-	text-align: center;
-	overflow: auto;
+  position: fixed;
+  bottom: 2px;
+  color: black;
+  font-size: x-small;
+  left: 0;
+  right: 0;
+  text-align: center;
+  overflow: auto;
 }
 .buttons {
-	color: white;
-	font-size: 12px;
+  color: white;
+  font-size: 12px;
 }

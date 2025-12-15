@@ -36,6 +36,12 @@ export function elem(id) {
   return document.getElementById(id)
 }
 
+/**
+ * Add an item to an array if it doesn't already exist
+ * @param {Array} array - the array to add to
+ * @param {any} item - the item to add
+ * @returns {Array} the updated array
+ */
 export function pushnew(array, item) {
   if (array) {
     if (!array.includes(item)) array.push(item)
@@ -104,7 +110,12 @@ export function getScaleFreeNetwork(nodeCount) {
   }
 }
 
-let randomSeed = 764 // Math.round(Math.random()*1000);
+let randomSeed = 764 // Math.round(Math.random()*1000)
+
+/**
+ * Generate a seeded random number
+ * @returns {number} a random number between 0 and 1                                           ...
+ */
 function seededRandom() {
   const x = Math.sin(randomSeed++) * 10000
   return x - Math.floor(x)
@@ -222,8 +233,9 @@ export function objectEquals(x, y) {
   }
 
   for (const p in y) {
-    if (Object.prototype.hasOwnProperty.call(y, p) && !Object.prototype.hasOwnProperty.call(x, p))
-      {return false}
+    if (Object.prototype.hasOwnProperty.call(y, p) && !Object.prototype.hasOwnProperty.call(x, p)) {
+      return false
+    }
   }
   // allows x[ p ] to be set to undefined
 

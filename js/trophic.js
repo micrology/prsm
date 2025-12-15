@@ -249,8 +249,9 @@ function solve(A, B) {
 
   function findPivotRow(sys, index) {
     let row = index
-    for (let i = index; i < sys.length; i++)
-      {if (Math.abs(sys[i][index]) > Math.abs(sys[row][index])) row = i}
+    for (let i = index; i < sys.length; i++) {
+      if (Math.abs(sys[i][index]) > Math.abs(sys[row][index])) row = i
+    }
     if (sys[row][index] === 0) return false
     return row
   }

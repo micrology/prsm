@@ -345,9 +345,9 @@ class LineHandler extends ToolHandler {
         else this.endX = this.startX
       }
       drawHelper.clear(tempctx)
-      if (this.dashed)
-        {drawHelper.dashedLine(tempctx, [this.startX, this.startY, this.endX, this.endY])}
-      else drawHelper.line(tempctx, [this.startX, this.startY, this.endX, this.endY])
+      if (this.dashed) {
+        drawHelper.dashedLine(tempctx, [this.startX, this.startY, this.endX, this.endY])
+      } else drawHelper.line(tempctx, [this.startX, this.startY, this.endX, this.endY])
     }
   }
   panend() {

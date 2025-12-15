@@ -153,8 +153,9 @@ function loadFile(contents) {
       !confirm(
         'Loading a file will delete the current network.  Are you sure you want to replace it?'
       )
-    )
-      {return}
+    ) {
+      return
+    }
   }
   saveState()
   // load the file as one single yjs transaction to reduce server traffic
@@ -454,11 +455,13 @@ function loadGraphML(graphML) {
       const e = deepCopy(styles.edges.edge0)
       if (!edge.id) throw new Error('Missing edge ID')
       e.id = edge.id
-      if (!data.nodes.get(edge.source))
-        {throw new Error(`No node ${edge.source} for source of edge ID ${edge.id}`)}
+      if (!data.nodes.get(edge.source)) {
+        throw new Error(`No node ${edge.source} for source of edge ID ${edge.id}`)
+      }
       e.from = edge.source
-      if (!data.nodes.get(edge.target))
-        {throw new Error(`No node ${edge.target} for source of edge ID ${edge.id}`)}
+      if (!data.nodes.get(edge.target)) {
+        throw new Error(`No node ${edge.target} for source of edge ID ${edge.id}`)
+      }
       e.to = edge.target
       e.width = edge.weight > 20 ? 20 : edge.weight < 1 ? 1 : edge.weight
       edgesToUpdate.push(e)
@@ -755,10 +758,12 @@ function loadDrawIOfile(contents) {
   // check all edges are connected to nodes
   edges.forEach((edge) => {
     if (!edge.id) throw new Error('Missing edge ID')
-    if (!data.nodes.get(edge.from))
-      {throw new Error(`Missing 'from' factor: ${edge.from} for edge: ${edge.id}`)}
-    if (!data.nodes.get(edge.to))
-      {throw new Error(`Missing 'to' factor: ${edge.to} for edge: ${edge.id}`)}
+    if (!data.nodes.get(edge.from)) {
+      throw new Error(`Missing 'from' factor: ${edge.from} for edge: ${edge.id}`)
+    }
+    if (!data.nodes.get(edge.to)) {
+      throw new Error(`Missing 'to' factor: ${edge.to} for edge: ${edge.id}`)
+    }
   })
   data.edges.update(edges)
 }
@@ -1799,11 +1804,13 @@ export function exportPNGfile() {
         const boundingBox = obj.getBoundingRect()
         console.log(obj, boundingBox)
         if (left > boundingBox.left) left = boundingBox.left
-        if (right < boundingBox.left + boundingBox.width)
-          {right = boundingBox.left + boundingBox.width}
+        if (right < boundingBox.left + boundingBox.width) {
+          right = boundingBox.left + boundingBox.width
+        }
         if (top > boundingBox.top) top = boundingBox.top
-        if (bottom < boundingBox.top + boundingBox.height)
-          {bottom = boundingBox.top + boundingBox.height}
+        if (bottom < boundingBox.top + boundingBox.height) {
+          bottom = boundingBox.top + boundingBox.height
+        }
       })
     }
     if (left === Infinity) {

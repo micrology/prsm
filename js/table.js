@@ -48,8 +48,7 @@ import {
   MenuModule,
   InteractionModule,
   FilterModule,
-} from 'tabulator-tables'
-//import {TabulatorFull as Tabulator} from 'tabulator-tables'  // documented at https://tabulator.info/
+} from 'tabulator-tables' // documented at https://tabulator.info/
 import { version } from '../package.json'
 import Quill from 'quill'
 import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html'

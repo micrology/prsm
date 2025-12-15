@@ -4,32 +4,36 @@
 
 Calculate betweenness centrality for the current network factors
 
-Since this can take several seconds, this calculation is passed off to a Web Worker 
+Since this can take several seconds, this calculation is passed off to a Web Worker
 (i.e. a separate thread).
 
-It is invoked every time the network changes (factors or links are added or deleted).  
+It is invoked every time the network changes (factors or links are added or deleted).
 The centralities are cached after calculation, and can therefore be retrieved whenever
 required.
 
-
  Code adapted from https://github.com/anvaka/ngraph.centrality/tree/master/src
- 
+
  */
 
-/* 
-Receive message from main thread, consisting of node and link objects, do calculation 
+/*
+Receive message from main thread, consisting of node and link objects, do calculation
 and return it to the main thread
  */
 
-onmessage = function (e) {
+self.onmessage = function (e) {
   const graph = {
     nodes: e.data[0], // array of node objects
     edges: e.data[1], // array of edge objects
   }
-  if (checkComplete(graph)) postMessage(betweenness(graph))
-  else postMessage('Corrupt network: links are connected to non-existent factors')
+  if (checkComplete(graph)) self.postMessage(betweenness(graph))
+  else self.postMessage('Corrupt network: links are connected to non-existent factors')
 }
 
+/**
+ * Check whether all edges are connected to existing nodes
+ * @param {object} graph - object with nodes and edges arrays
+ * @returns {boolean} true if all edges have valid source and target nodes
+ */
 function checkComplete(graph) {
   // sanity check: do all the edges connect existing nodes
   let ok = true
@@ -46,32 +50,40 @@ function checkComplete(graph) {
   return ok
 }
 
-let betweennessCache = {
-  structure: [],
-  betweenness: undefined,
-}
+let betweennessCache = { structure: [], betweenness: undefined }
 
+/**
+ * Calculate betweenness centrality for all nodes in the graph, using caching
+ * @param {object} graph - object with nodes and edges arrays
+ * @returns {object|null} object mapping node IDs to betweenness centrality values
+ */
 function betweenness(graph) {
   const struct = getIds(graph.nodes).concat(getIds(graph.edges))
   if (struct.length === 0) return null
   // check whether the network structure has changed;
   // if not, just return the previous result immediately
   if (eqArray(struct, betweennessCache.structure)) return betweennessCache.betweenness
-  betweennessCache = {
-    structure: struct,
-    betweenness: betweenness1(graph),
-  }
+  betweennessCache = { structure: struct, betweenness: betweenness1(graph) }
   return betweennessCache.betweenness
 }
 
-// return an array of ids extracted from an array of node or link objects
+/**
+ * Extract IDs from an array of node or link objects
+ * @param {Array} arr - array of objects with id properties
+ * @returns {Array} array of IDs
+ */
 function getIds(arr) {
   return arr.map(function (item) {
     return item.id
   })
 }
 
-// check whether two arrays of Ids are the same
+/**
+ * Check whether two arrays of IDs are the same
+ * @param {Array} a - first array
+ * @param {Array} b - second array
+ * @returns {boolean} true if arrays contain the same IDs
+ */
 function eqArray(a, b) {
   if (a.length !== b.length) return false
   a = a.sort()
@@ -80,6 +92,11 @@ function eqArray(a, b) {
   return true
 }
 
+/**
+ * Calculate betweenness centrality using Brandes' algorithm
+ * @param {object} graph - object with nodes and edges arrays
+ * @returns {object} object mapping node IDs to betweenness centrality values
+ */
 function betweenness1(graph) {
   // graph is an object: {nodes, edges} where nodes and edges are arrays of objects
   const Q = []
@@ -101,16 +118,27 @@ function betweenness1(graph) {
 
   return centrality
 
+  /**
+   * Initialize centrality to zero for a node
+   * @param {object} node - node object
+   */
   function setCentralityToZero(node) {
     centrality[node.id] = 0
   }
 
+  /**
+   * Calculate centrality contribution for a single source node
+   * @param {object} node - node object
+   */
   function calculateCentrality(node) {
     currentNode = node.id
     singleSourceShortestPath(currentNode)
     accumulate()
   }
 
+  /**
+   * Accumulate centrality contributions from shortest paths
+   */
   function accumulate() {
     graph.nodes.forEach(setDeltaToZero)
     while (S.length) {
@@ -127,10 +155,18 @@ function betweenness1(graph) {
     }
   }
 
+  /**
+   * Initialize delta to zero for a node
+   * @param {object} node - node object
+   */
   function setDeltaToZero(node) {
     delta[node.id] = 0
   }
 
+  /**
+   * Compute single-source shortest paths from the given source node
+   * @param {string} source - ID of the source node
+   */
   function singleSourceShortestPath(source) {
     graph.nodes.forEach(initNode)
     dist[source] = 0
@@ -140,10 +176,10 @@ function betweenness1(graph) {
     while (Q.length) {
       const v = Q.shift()
       S.push(v)
-      forEachLinkedNode(v, (otherNode) => toId(otherNode, v))
+      forEachLinkedNode(v, toId, v)
     }
 
-    function toId(otherNode, v) {
+    function toId(otherNode, link, v) {
       // NOTE: This code will also consider multi-edges, which are often
       // ignored by popular software (Gephi/NetworkX). Depending on your use
       // case this may not be desired and deduping needs to be performed. To
@@ -173,13 +209,13 @@ function betweenness1(graph) {
       }
     }
 
-    function forEachLinkedNode(nodeId, callback) {
+    function forEachLinkedNode(nodeId, callback, v) {
       const links = linksFrom(nodeId)
       if (links) {
         for (let i = 0; i < links.length; ++i) {
           const link = links[i]
           if (link.from === nodeId) {
-            callback(getNode(link.to), link)
+            callback(getNode(link.to), link, v)
           }
         }
       }

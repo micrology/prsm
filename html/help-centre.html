@@ -1,20 +1,20 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="author" content="Nigel Gilbert" />
-		<link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png" />
-		<link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png" />
-		<link rel="shortcut icon" href="../icons/favicon.ico" />
-		<link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" />
-		<link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-		<link href="../css/web.css" rel="stylesheet" />
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Nigel Gilbert" />
+    <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png" />
+    <link rel="shortcut icon" href="../icons/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" />
+    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../css/web.css" rel="stylesheet" />
 
-		<title>PRSM: Participatory System Mapper</title>
-		<meta
-			name="description"
-			content="PRSM enables groups of people, each using their own computer (or tablet) 
+    <title>PRSM: Participatory System Mapper</title>
+    <meta
+      name="description"
+      content="PRSM enables groups of people, each using their own computer (or tablet) 
 		to collaborate in the drawing of a map. They may be sitting around a table, discussing the map as it is 
 		created face to face, or working remotely, using video conferencing or the chat feature that is built 
 		into the app. Everyone can participate because every edit (creating nodes and links, arranging them 
@@ -22,142 +22,155 @@
 		does for text, for example). When you start PRSM in your browser, a 'room' is created for you in which 
 		to draw your network. You can add other users to this room to share the work. Only those with access 
 		to the room can see what is being created."
-		/>
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@400;700&display=swap" rel="stylesheet" />
-		<link
-			href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap"
-			rel="stylesheet"
-		/>
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oxygen:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
 
-		<script src="https://kit.fontawesome.com/dcbad58dab.js" crossorigin="anonymous"></script>
-	</head>
-	<body>
-		<!-- Fixed navbar -->
-		<nav class="navbar navbar-expand-sm navbar-light text-black bg-white fixed-top">
-			<div class="container-fluid">
-				<a class="navbar-brand" href="index.html">
-					<img src="../icons/PRSMlogo200.png" alt="PRSM logo" />
-					<span class="d-none d-md-inline">&nbsp;Participatory System Mapper Help</span>
-				</a>
-				<button
-					class="navbar-toggler"
-					type="button"
-					data-bs-toggle="collapse"
-					data-bs-target="#main-navigation"
-					aria-controls="main-navigation"
-					aria-expanded="false"
-					aria-label="Toggle navigation"
-				>
-					<span class="navbar-toggler-icon"></span>
-				</button>
-				<div class="collapse navbar-collapse" id="main-navigation">
-					<ul class="navbar-nav m-auto">
-						<li class="nav-item">
-							<a class="nav-link" href="index.html#about">About</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="index.html#our-story">Our Story</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="examples.html">Examples</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="help-centre.html">Help Centre</a>
-						</li>
-						<li class="nav-item">
-							<a
-								class="nav-link"
-								href="https://gitter.im/PRSM-community/community"
-								target="_blank"
-								rel="noopener"
-							>
-								Community
-							</a>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</nav>
-		<div class="container">
-			<div class="dummy-navbar"></div>
-			<div class="row">
-				<div class="col">
-					<h1 class="text-center">Help Centre</h1>
-					<p class="text-center">
-						For further help, see our
-						<a href="https://gitter.im/PRSM-community/community">Gitter community</a>
-						or contact
-						<a href="mailto:prsm@prsm.uk"><b>prsm@prsm.uk</b></a>
-						.
-					</p>
-				</div>
-			</div>
-			<div class="embed-responsive">
-				<iframe
-					src="./doc/help/doc_build/manual/Introduction.html"
-					id="help"
-					class="embed-responsive-item"
-					title="Help"
-				></iframe>
-			</div>
-		</div>
-		<footer id="contact">
-			<hr />
-			<div class="row px-3">
-				<div class="col-sm-4">
-					<h1 class="text-center">PRSM</h1>
-				</div>
-				<div class="col-sm-2">
-					<img class="logo" src="../img/cecanlogo.webp" />
-				</div>
-				<div class="col-sm-2">
-					<img class="logo" src="../img/cresslogo.webp" />
-				</div>
-				<div class="col-sm-2">
-					<img class="logo" src="../img/Surrey.webp" />
-				</div>
-				<div class="col-sm-2">
-					<img class="logo" src="../img/ESRC+logo.webp" />
-				</div>
-			</div>
-			<div class="row p-3">
-				<div class="col-sm-7 my-auto">
-					<address class="ms-3">
-						<small>
-							Centre for Research in Social Simulation, University of Surrey, Guildford GU2 7XH, UK.
-							<br />
-							email:
-							<a href="mailto:prsm@prsm.uk"><b>prsm@prsm.uk</b></a>
-						</small>
-					</address>
-				</div>
-				<div class="col-sm-5 social-icons">
-					<a class="mx-1" href="https://www.linkedin.com/groups/8178569/" title="LinkedIn" target="_blank">
-						<i class="fab fa-linkedin-in"></i>
-					</a>
-					<a class="mx-1" href="https://www.facebook.com/PRSMapp" title="Facebook" target="_blank">
-						<i class="fa fa-facebook"></i>
-					</a>
-					<a class="mx-1" href="https://www.instagram.com/officialprsm/" title="Instagram" target="_blank">
-						<i class="fab fa-instagram"></i>
-					</a>
-					<a
-						class="mx-1"
-						href="https://github.com/micrology/prsm"
-						title="GitHub"
-						target="_blank"
-						rel="noopener"
-					>
-						<i class="fab fa-github"></i>
-					</a>
-					<a class="mx-1" href="https://twitter.com/OfficialPrsm" title="Twitter" target="_blank">
-						<i class="fa fa-twitter"></i>
-					</a>
-				</div>
-			</div>
-		</footer>
-		<script src="../node_modules/bootstrap/dist/js/bootstrap.min.js" type="module"></script>
-	</body>
+    <script src="https://kit.fontawesome.com/dcbad58dab.js" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-expand-sm navbar-light text-black bg-white fixed-top">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">
+          <img src="../icons/PRSMlogo200.png" alt="PRSM logo" />
+          <span class="d-none d-md-inline">&nbsp;Participatory System Mapper Help</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#main-navigation"
+          aria-controls="main-navigation"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="main-navigation">
+          <ul class="navbar-nav m-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html#about">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="index.html#our-story">Our Story</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="examples.html">Examples</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="help-centre.html">Help Centre</a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                href="https://gitter.im/PRSM-community/community"
+                target="_blank"
+                rel="noopener"
+              >
+                Community
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      <div class="dummy-navbar"></div>
+      <div class="row">
+        <div class="col">
+          <h1 class="text-center">Help Centre</h1>
+          <p class="text-center">
+            For further help, see our
+            <a href="https://gitter.im/PRSM-community/community">Gitter community</a>
+            or contact
+            <a href="mailto:prsm@prsm.uk"><b>prsm@prsm.uk</b></a>
+            .
+          </p>
+        </div>
+      </div>
+      <div class="embed-responsive">
+        <iframe
+          src="./doc/help/doc_build/manual/Introduction.html"
+          id="help"
+          class="embed-responsive-item"
+          title="Help"
+        ></iframe>
+      </div>
+    </div>
+    <footer id="contact">
+      <hr />
+      <div class="row px-3">
+        <div class="col-sm-4">
+          <h1 class="text-center">PRSM</h1>
+        </div>
+        <div class="col-sm-2">
+          <img class="logo" src="../img/cecanlogo.webp" />
+        </div>
+        <div class="col-sm-2">
+          <img class="logo" src="../img/cresslogo.webp" />
+        </div>
+        <div class="col-sm-2">
+          <img class="logo" src="../img/Surrey.webp" />
+        </div>
+        <div class="col-sm-2">
+          <img class="logo" src="../img/ESRC+logo.webp" />
+        </div>
+      </div>
+      <div class="row p-3">
+        <div class="col-sm-7 my-auto">
+          <address class="ms-3">
+            <small>
+              Centre for Research in Social Simulation, University of Surrey, Guildford GU2 7XH, UK.
+              <br />
+              email:
+              <a href="mailto:prsm@prsm.uk"><b>prsm@prsm.uk</b></a>
+            </small>
+          </address>
+        </div>
+        <div class="col-sm-5 social-icons">
+          <a
+            class="mx-1"
+            href="https://www.linkedin.com/groups/8178569/"
+            title="LinkedIn"
+            target="_blank"
+          >
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+          <a class="mx-1" href="https://www.facebook.com/PRSMapp" title="Facebook" target="_blank">
+            <i class="fa fa-facebook"></i>
+          </a>
+          <a
+            class="mx-1"
+            href="https://www.instagram.com/officialprsm/"
+            title="Instagram"
+            target="_blank"
+          >
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a
+            class="mx-1"
+            href="https://github.com/micrology/prsm"
+            title="GitHub"
+            target="_blank"
+            rel="noopener"
+          >
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="mx-1" href="https://twitter.com/OfficialPrsm" title="Twitter" target="_blank">
+            <i class="fa fa-twitter"></i>
+          </a>
+        </div>
+      </div>
+    </footer>
+    <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js" type="module"></script>
+  </body>
 </html>

@@ -375,8 +375,9 @@ function updateSelection(evt) {
       if (evt.selected && evt.selected.length > 0 && evt.selected[0].type) {
         if (evt.selected[0].type !== selectedTool) closeOptionsDialogs()
         // no option possible when selecting path, group or image
-        if (!['path', 'group', 'image'].includes(evt.selected[0].type))
-          {evt.selected[0].optionsDialog()}
+        if (!['path', 'group', 'image'].includes(evt.selected[0].type)) {
+          evt.selected[0].optionsDialog()
+        }
       }
     }
     updateActiveButtons()
@@ -1842,8 +1843,9 @@ class UndoHandler extends FabricObject {
  * @param {String} op insert|delete|update|null (if null, don't save on the undo stack)
  */
 function saveChange(obj, params = {}, op) {
-  if (/back/.test(debug))
-    {console.trace('Saving change for object', obj, 'op:', op, 'params:', params)}
+  if (/back/.test(debug)) {
+    console.trace('Saving change for object', obj, 'op:', op, 'params:', params)
+  }
   // get current object position as well as any format changes
   params = getObjectData(obj, params)
   // send the object to other clients
