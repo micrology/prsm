@@ -33,45 +33,44 @@ import { room, debug } from './prsm.js'
 
 // Function to send a message to the AI and get a response
 async function chat(userMessage, systemPrompt = null) {
-    try {
-        // Backend API endpoint
-        let API_ENDPOINT = 'https://cress.soc.surrey.ac.uk/api/chat'
-        if (/local/.test(debug)) {
-            console.log('Using LOCAL AI API endpoint')
-            API_ENDPOINT = 'http://localhost:3001/api/chat'
-        }
-        if (/prompt/.test(debug)) {
-            console.log('System Prompt:', systemPrompt)
-            console.log('User Message:', userMessage)
-        }
-        // Call backend proxy API
-        const response = await fetch(API_ENDPOINT, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                message: userMessage,
-                systemPrompt: systemPrompt,
-                room: room
-            })
-        })
-
-        if (!response.ok) {
-            const errorData = await response.json()
-            throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'}`)
-        }
-
-        const data = await response.json()
-        return data.response
-
-    } catch (err) {
-        console.log(`ERROR: ${err.message}`)
-        return `# Error: ${err.message}`
+  try {
+    // Backend API endpoint
+    let API_ENDPOINT = 'https://cress.soc.surrey.ac.uk/api/chat'
+    if (/local/.test(debug)) {
+      console.log('Using LOCAL AI API endpoint')
+      API_ENDPOINT = 'http://localhost:3001/api/chat'
     }
+    if (/prompt/.test(debug)) {
+      console.log('System Prompt:', systemPrompt)
+      console.log('User Message:', userMessage)
+    }
+    // Call backend proxy API
+    const response = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: userMessage,
+        systemPrompt,
+        room,
+      }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'}`)
+    }
+
+    const data = await response.json()
+    return data.response
+  } catch (err) {
+    console.log(`ERROR: ${err.message}`)
+    return `# Error: ${err.message}`
+  }
 }
 
 export async function getAIresponse(userMessage, systemPrompt) {
-    let markdown = await chat(userMessage, systemPrompt)
-    return markdownToDelta(markdown)
+  const markdown = await chat(userMessage, systemPrompt)
+  return markdownToDelta(markdown)
 }
