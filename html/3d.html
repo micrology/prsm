@@ -43,7 +43,14 @@
       }
     </style>
     <link href="../css/3d.css" rel="stylesheet" />
-    <script src="//unpkg.com/3d-force-graph"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+          "three/": "https://unpkg.com/three@0.170.0/"
+        }
+      }
+    </script>
     <script src="../js/3d.js" type="module"></script>
   </head>
 

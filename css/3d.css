@@ -1,10 +1,3 @@
-.legend {
-  box-shadow: none;
-  border: none;
-  border-radius: unset;
-  overflow: auto;
-  bottom: 40px;
-}
 .info {
   position: fixed;
   bottom: 2px;

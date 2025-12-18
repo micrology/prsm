@@ -10,16 +10,13 @@ import * as Y from 'yjs'
 import { WebsocketProvider } from 'y-websocket'
 import { Network } from 'vis-network/peer/'
 import { DataSet } from 'vis-data/peer'
-import { elem, listen, deepMerge, standardizeColor } from './utils.js'
+import { elem, listen, standardizeColor, dragElement } from './utils.js'
 import { version } from '../package.json'
-// For unknown reasons, ForceGraph3D crashes if loaded from node_modules, but works if loaded from a CDN
 import ForceGraph3D from '3d-force-graph'
-//global ForceGraph3D
 import SpriteText from 'three-spritetext'
 import * as THREE from 'three'
 
 const shortAppName = 'PRSM'
-
 let debug = ''
 window.debug = debug
 let room
@@ -63,10 +60,10 @@ function startY() {
   wsProvider.on('status', (event) => {
     console.log(
       exactTime() +
-        event.status +
-        (event.status === 'connected' ? ' to' : ' from') +
-        ' room ' +
-        room
+      event.status +
+      (event.status === 'connected' ? ' to' : ' from') +
+      ' room ' +
+      room
     ) // logs when websocket is "connected" or "disconnected"
   })
 
@@ -79,8 +76,8 @@ function startY() {
   console.log('My client ID: ' + clientID)
 
   /* 
-	for convenience when debugging
-	 */
+  for convenience when debugging
+   */
   window.debug = debug
   window.clientID = clientID
   window.yNodesMap = yNodesMap
@@ -144,7 +141,6 @@ function cancelLoading() {
   elem('loading').style.display = 'none'
   clearTimeout(loadingDelayTimer)
 }
-
 /**
  * Convert a node from the normal PRSM format to the one required by the 3d display
  * @param {Object} node
@@ -181,11 +177,11 @@ function convertEdge(edge) {
  */
 function convertData() {
   const graphNodes = Array.from(yNodesMap.values())
-    .filter((n) => !n.isCluster)
+    .filter((n) => !n.isCluster && !n.dummy)
     .map((n) => {
       return convertNode(n)
     })
-  const graphEdges = Array.from(yEdgesMap.values()).map((e) => {
+  const graphEdges = Array.from(yEdgesMap.values()).filter((e) => !e.dummy).map((e) => {
     return convertEdge(e)
   })
   // note neighbouring nodes and links to those for each node
@@ -221,7 +217,6 @@ function display() {
   elem('info').style.color = elem('mode').value === 'light' ? 'black' : 'white'
 
   graph = ForceGraph3D()(threeDGraphDiv)
-    //		.cooldownTicks(0)
     .width(width)
     .height(height)
     .graphData(convertData())
@@ -374,19 +369,12 @@ function display() {
 /**
  * Draw the legend floating above the 3d display
  */
-const legendData = { nodes: new DataSet(), edges: new DataSet() }
-let legendNetwork = null
-const LEGENDSPACING = 60
-const HALFLEGENDWIDTH = 60
+
+const LEGENDHEIGHT = 35
+const LEGENDWIDTH = 120
 function legend() {
-  const nodes = Array.from(ySamplesMap)
-    .filter((a) => a[1].node)
-    .map((a) => a[1].node.groupLabel)
-    .filter((a) => a !== 'Sample')
-  const edges = Array.from(ySamplesMap)
-    .filter((a) => a[1].edge)
-    .map((a) => a[1].edge.groupLabel)
-    .filter((a) => a !== 'Sample')
+  const nodes = Array.from(ySamplesMap.values()).filter(a => a.node && a.node.groupLabel !== 'Sample')
+  const edges = Array.from(ySamplesMap.values()).filter(a => a.edge && a.edge.groupLabel !== 'Sample')
   const nItems = nodes.length + edges.length
   if (nItems === 0) return
   const legendBox = document.createElement('div')
@@ -398,67 +386,68 @@ function legend() {
   title.className = 'legendTitle'
   title.appendChild(document.createTextNode('Legend'))
   legendBox.appendChild(title)
-  const boxheight = LEGENDSPACING * nItems + title.offsetHeight
-  const threeDGraphDiv = elem('3dgraph')
-  legendBox.style.height =
-    (boxheight < threeDGraphDiv.clientHeight - 100
-      ? boxheight
-      : threeDGraphDiv.clientHeight - 100) + 'px'
-  legendBox.style.width = HALFLEGENDWIDTH * 2 + 'px'
-  const canvas = document.createElement('div')
-  canvas.className = 'legendCanvas'
-  canvas.style.height = LEGENDSPACING * nItems + 'px'
-  legendBox.appendChild(canvas)
+  legendBox.style.height = `${LEGENDHEIGHT * nItems + title.offsetHeight}px`
+  legendBox.style.width = `${LEGENDWIDTH}px`
+  const legendWrapper = document.createElement('div')
+  legendWrapper.className = 'legendWrapper'
+  legendBox.appendChild(legendWrapper)
 
-  legendNetwork = new Network(canvas, legendData, {
-    physics: { enabled: false },
-    interaction: { zoomView: false, dragView: false },
-  })
-  let height = legendNetwork.DOMtoCanvas({ x: 0, y: 0 }).y
+  dragElement(legendBox, title)
+
   for (let i = 0; i < nodes.length; i++) {
-    const node = deepMerge(
-      Array.from(ySamplesMap)
-        .filter((a) => a[1].node)
-        .find((a) => a[1].node.groupLabel === nodes[i])[1].node
-    )
+    const canvas = document.createElement('div')
+    canvas.className = 'legendCanvas'
+    legendWrapper.appendChild(canvas)
+    const legendData = { nodes: new DataSet(), edges: new DataSet() }
+    const legendNetwork = new Network(canvas, legendData, {
+      physics: { enabled: false },
+      interaction: { zoomView: false, dragView: false },
+    })
+    const node = nodes[i].node
     node.id = i + 10000
-    node.label = node.groupLabel
+    node.shape === 'text' ? (node.label = 'groupLabel') : (node.label = '')
     node.fixed = true
     node.chosen = false
     node.margin = 10
     node.x = 0
     node.y = 0
-    node.widthConstraint = 40
-    node.heightConstraint = 40
+    node.widthConstraint = 10
+    node.heightConstraint = 10
     node.font.size = 10
+    node.size = 10
     legendData.nodes.update(node)
-    const bbox = legendNetwork.getBoundingBox(node.id)
-    node.y = (bbox.bottom - bbox.top) / 2 + height
-    height += bbox.bottom - bbox.top
-    legendData.nodes.update(node)
+    legendNetwork.fit()
+
+    const style = document.createElement('div')
+    style.className = 'legendStyleName'
+    style.textContent = node.groupLabel
+    legendWrapper.appendChild(style)
   }
-  height += 50
+
   for (let i = 0; i < edges.length; i++) {
-    const edge = deepMerge(
-      Array.from(ySamplesMap)
-        .filter((a) => a[1].edge)
-        .find((a) => a[1].edge.groupLabel === edges[i])[1].edge
-    )
-    edge.label = edge.groupLabel
+    const canvas = document.createElement('div')
+    canvas.className = 'legendCanvas'
+    legendWrapper.appendChild(canvas)
+    const legendData = { nodes: new DataSet(), edges: new DataSet() }
+    const legendNetwork = new Network(canvas, legendData, {
+      physics: { enabled: false },
+      interaction: { zoomView: false, dragView: false },
+    })
+
+    const edge = edges[i].edge
+    edge.label = ''
     edge.id = i + 10000
     edge.from = i + 20000
     edge.to = i + 30000
     edge.smooth = { type: 'straightCross' }
-    edge.font = { size: 12, color: 'black', align: 'top', vadjust: -10 }
-    edge.widthConstraint = 80
     edge.chosen = false
     const nodes = [
       {
         id: edge.from,
         size: 5,
         shape: 'dot',
-        x: -25,
-        y: height,
+        x: -20,
+        y: 0,
         fixed: true,
         chosen: false,
       },
@@ -466,15 +455,18 @@ function legend() {
         id: edge.to,
         shape: 'dot',
         size: 5,
-        x: +25,
-        y: height,
+        x: +20,
+        y: 0,
         fixed: true,
         chosen: false,
       },
     ]
     legendData.nodes.update(nodes)
     legendData.edges.update(edge)
-    height += 50
+    legendNetwork.fit()
+    const style = document.createElement('div')
+    style.className = 'legendStyleName'
+    style.textContent = edge.groupLabel
+    legendWrapper.appendChild(style)
   }
-  legendNetwork.fit({})
 }

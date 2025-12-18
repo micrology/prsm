@@ -122,8 +122,10 @@ export let room
  * aware - show awareness traffic
  * round - round trip timing
  * back - drawing on background
+ * prompt - show AI prompts
  */
 export let debug = ''
+const allowAI = false // set to false to hide 'sparkle' buttons and so make AI features inaccessible to users
 let viewOnly // when true, user can only view, not modify, the network
 let showCopyMapButton = false // show the Copy Map button on the navbar in viewOnly mode
 let nodes // a dataset of nodes
@@ -393,6 +395,12 @@ function setUpPage() {
   dragElement(elem('edgeNotePanel'), elem('edgeNoteHeader'))
   hideNotes()
   setUpSideDrawer()
+  // remove AI sparkle buttons if not providing AI features
+  if (!allowAI) {
+    Array.from(document.getElementsByClassName('sparkle')).forEach((elem) => {
+      elem.style.display = 'none'
+    })
+  }
   displayWhatsNew()
 }
 const sliderColor = getComputedStyle(document.documentElement).getPropertyValue('--slider')
