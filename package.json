@@ -34,6 +34,9 @@
   "parcelIgnore": [
     "/doc/help/"
   ],
+  "features": {
+    "ai": false
+  },
   "scripts": {
     "lint": "eslint ./js/*.js",
     "pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/*.css doc/**/*.{html,css} package.json",

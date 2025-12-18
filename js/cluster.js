@@ -207,7 +207,7 @@ function clusterByLouvain() {
  * Builds cluster nodes for each entry in `groups` using the provided
  * `makeProps(key, members)` function which must return { id, label, color }.
  *
- * @param {Object} groups - map of groupKey -> Array<node>
+ * @param {Object} groups - map of groupKey to Array of nodes
  * @param {function(string, Array): {id:string, label:string, color:string}} makeProps
  */
 function clusterGroups(groups, makeProps) {

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>trophic.js - Documentation</title>
+    <title>betweenness.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -405,437 +405,247 @@
     </nav>
 
     <div id="main">
-      <h1 class="page-title">trophic.js</h1>
+      <h1 class="page-title">betweenness.js</h1>
 
       <section>
         <article>
-          <pre
-            class="prettyprint source linenums"
-          ><code>/*********************************************************************************************************************  
+          <pre class="prettyprint source linenums"><code>'use strict'
 
-PRSM Participatory System Mapper 
+/**
 
-    Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+Calculate betweenness centrality for the current network factors
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+Since this can take several seconds, this calculation is passed off to a Web Worker
+(i.e. a separate thread).
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+It is invoked every time the network changes (factors or links are added or deleted).
+The centralities are cached after calculation, and can therefore be retrieved whenever
+required.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see &lt;https://www.gnu.org/licenses/>.
+ Code adapted from https://github.com/anvaka/ngraph.centrality/tree/master/src
 
-
-This module does trophic layout.  
- ******************************************************************************************************************** */
+ */
 
 /*
-translation of the Trophic Levels algorithm to javascript
-
-NG 18 December 2020
-
-*/
-
-/* simple minded adjacency matrix manipulation functions.
- * They generally assume that the matrix is square (no checks are done
- * that they are).
- * Assumes all weights are unity (TODO: allow weighted edges)
- * Matrix data structure is just an array of arrays
+Receive message from main thread, consisting of node and link objects, do calculation
+and return it to the main thread
  */
 
-import { NLEVELS } from './prsm.js'
-/**
- * convert a directed adjacency matrix to an undirected one
- * mirror the elements above the leading diagonal to below it
- * @param {array[]} a
- * @returns {array[]} a copy of a
- */
-function undirected(a) {
-  const b = Array(a.length)
-  for (let i = 0; i &lt; a.length; i++) {
-    b[i] = new Array(a.length)
-    b[i][i] = a[i][i]
+self.onmessage = function (e) {
+  const graph = {
+    nodes: e.data[0], // array of node objects
+    edges: e.data[1], // array of edge objects
   }
-  for (let i = 0; i &lt; a.length; i++) {
-    for (let j = i + 1; j &lt; a.length; j++) {
-      if (a[i][j] || a[j][i]) {
-        b[i][j] = 1
-        b[j][i] = 1
-      } else {
-        b[i][j] = 0
-        b[j][i] = 0
-      }
-    }
-  }
-  return b
+  if (checkComplete(graph)) self.postMessage(betweenness(graph))
+  else self.postMessage('Corrupt network: links are connected to non-existent factors')
 }
+
 /**
- * check that all nodes are connected to at least one other node
- * i.e. every row includes at least one 1
- * @param {array[]} a
+ * Check whether all edges are connected to existing nodes
+ * @param {object} graph - object with nodes and edges arrays
+ * @returns {boolean} true if all edges have valid source and target nodes
  */
-function connected(a) {
-  for (let i = 0; i &lt; a.length; i++) {
-    let nonzero = false
-    for (let j = 0; j &lt; a.length; j++) {
-      if (a[i][j] !== 0) {
-        nonzero = true
-        break
-      }
+function checkComplete(graph) {
+  // sanity check: do all the edges connect existing nodes
+  let ok = true
+  graph.edges.forEach((edge) => {
+    if (graph.nodes.find((node) => node.id === edge.from) === null) {
+      console.log('Edge ' + edge.id + ' is missing a source node linked to it:' + edge.from)
+      ok = false
     }
-    if (!nonzero) return false
-  }
+    if (graph.nodes.find((node) => node.id === edge.to) === null) {
+      console.log('Edge ' + edge.id + ' is missing a destination node linked to it:' + edge.to)
+      ok = false
+    }
+  })
+  return ok
+}
+
+let betweennessCache = { structure: [], betweenness: undefined }
+
+/**
+ * Calculate betweenness centrality for all nodes in the graph, using caching
+ * @param {object} graph - object with nodes and edges arrays
+ * @returns {object|null} object mapping node IDs to betweenness centrality values
+ */
+function betweenness(graph) {
+  const struct = getIds(graph.nodes).concat(getIds(graph.edges))
+  if (struct.length === 0) return null
+  // check whether the network structure has changed;
+  // if not, just return the previous result immediately
+  if (eqArray(struct, betweennessCache.structure)) return betweennessCache.betweenness
+  betweennessCache = { structure: struct, betweenness: betweenness1(graph) }
+  return betweennessCache.betweenness
+}
+
+/**
+ * Extract IDs from an array of node or link objects
+ * @param {Array} arr - array of objects with id properties
+ * @returns {Array} array of IDs
+ */
+function getIds(arr) {
+  return arr.map(function (item) {
+    return item.id
+  })
+}
+
+/**
+ * Check whether two arrays of IDs are the same
+ * @param {Array} a - first array
+ * @param {Array} b - second array
+ * @returns {boolean} true if arrays contain the same IDs
+ */
+function eqArray(a, b) {
+  if (a.length !== b.length) return false
+  a = a.sort()
+  b = b.sort()
+  for (let i = 0; i &lt; a.length; i++) if (a[i] !== b[i]) return false
   return true
 }
-/**
- * swap cell values across the leading diagonal
- * @param {array[]} a
- * @returns {array[]} a transposed copy of a
- */
-function transpose(a) {
-  const b = new Array(a.length)
-  for (let i = 0; i &lt; a.length; i++) {
-    b[i] = new Array(a.length)
-    for (let j = 0; j &lt; a.length; j++) b[i][j] = a[j][i]
-  }
-  return b
-}
-/**
- * return a vector of the number of edges out of a node
- * @param {array[]} a
- * @returns {array}
- */
-/* eslint-disable camelcase */
-function out_degree(a) {
-  const v = new Array(a.length)
-  for (let row = 0; row &lt; a.length; row++) v[row] = sumVec(a[row])
-  return v
-}
-/**
- * return a vector of the number of edges into a node
- * @param {array[]} a
- * @returns {array}
- */
-function in_degree(a) {
-  return out_degree(transpose(a))
-}
-/* eslint-enable camelcase */
-/**
- * returns the summation of the values in the vector
- * @param {array} v
- * @returns {number}
- */
-function sumVec(v) {
-  let sum = 0
-  for (let i = 0; i &lt; v.length; i++) sum += v[i]
-  return sum
-}
-/**
- * v1 - v2
- * @param {array} v1
- * @param {array} v2
- * @returns {array}
- */
-function subVec(v1, v2) {
-  const res = new Array(v1.length)
-  for (let i = 0; i &lt; v1.length; i++) res[i] = v1[i] - v2[i]
-  return res
-}
-/**
- * v1 + v2
- * @param {array} v1
- * @param {array} v2
- * @returns {array}
- */
-function addVec(v1, v2) {
-  const res = new Array(v1.length)
-  for (let i = 0; i &lt; v1.length; i++) res[i] = v1[i] + v2[i]
-  return res
-}
-/**
- * subtract matrix b from a
- * @param {array[]} a
- * @param {array[]} b
- */
-function subtract(a, b) {
-  const c = new Array(a.length)
-  for (let i = 0; i &lt; a.length; i++) {
-    c[i] = subVec(a[i], b[i])
-  }
-  return c
-}
-/**
- * Add matrix a to its transpose, but normalise the cell values resulting to 0/1
- * @param {array[]} a
- * @returns {array[]} a copy of the result
- */
-function mergeTranspose(a) {
-  const b = transpose(a)
-  for (let i = 0; i &lt; a.length; i++) {
-    for (let j = 0; j &lt; a.length; j++) if (a[i][j] > 0) b[i][j] = 1
-  }
-  return b
-}
-/**
- * create a new matrix of size n, with all cells zero
- * @param {number} n
- */
-function zero(n) {
-  const b = new Array(n)
-  for (let i = 0; i &lt; n; i++) {
-    b[i] = new Array(n).fill(0)
-  }
-  return b
-}
-/**
- * create a zero matrix with v as the leading diagonal
- * @param {array} v
- * @returns {array[]}
- */
-function diag(v) {
-  const b = zero(v.length)
-  for (let i = 0; i &lt; v.length; i++) {
-    b[i][i] = v[i]
-  }
-  return b
-}
-/**
- * subtract the minimum value of any cell from each cell of the vector
- * @param {array} v
- */
-function rebase(v) {
-  const min = Math.min(...v)
-  const res = new Array(v.length)
-  for (let i = 0; i &lt; v.length; i++) res[i] = v[i] - min
-  return res
-}
-/**
- * solve Ax=B by Gauss-Jordan elimination method
- * adapted from https://www.npmjs.com/package/linear-equation-system
- * @param {array[]} A
- * @param {array} B
- */
-function solve(A, B) {
-  let system = A.slice()
-  for (let i = 0; i &lt; B.length; i++) system[i].push(B[i])
 
-  for (let i = 0; i &lt; system.length; i++) {
-    const pivotRow = findPivotRow(system, i)
-    if (!pivotRow) return false //Singular system
-    if (pivotRow !== i) system = swapRows(system, i, pivotRow)
-    const pivot = system[i][i]
-    for (let j = i; j &lt; system[i].length; j++) {
-      //divide row by pivot
-      system[i][j] = system[i][j] / pivot
-    }
-    for (let j = i + 1; j &lt; system.length; j++) {
-      // Cancel below pivot
-      if (system[j][i] !== 0) {
-        const operable = system[j][i]
-        for (let k = i; k &lt; system[i].length; k++) {
-          system[j][k] -= operable * system[i][k]
-        }
-      }
-    }
-  }
-  for (let i = system.length - 1; i > 0; i--) {
-    // Back substitution
-    for (let j = i - 1; j >= 0; j--) {
-      if (system[j][i] !== 0) {
-        const operable = system[j][i]
-        for (let k = j; k &lt; system[j].length; k++) {
-          system[j][k] -= operable * system[i][k]
-        }
-      }
-    }
-  }
-  const answer = []
-  for (let i = 0; i &lt; system.length; i++) {
-    answer.push(system[i].pop())
-  }
-  return answer
+/**
+ * Calculate betweenness centrality using Brandes' algorithm
+ * @param {object} graph - object with nodes and edges arrays
+ * @returns {object} object mapping node IDs to betweenness centrality values
+ */
+function betweenness1(graph) {
+  // graph is an object: {nodes, edges} where nodes and edges are arrays of objects
+  const Q = []
+  const S = [] // Queue and Stack
+  // list of predecessors on shortest paths from source
+  const pred = Object.create(null)
+  // distance from source
+  const dist = Object.create(null)
+  // number of shortest paths from source to key
+  const sigma = Object.create(null)
+  // dependency of source on key
+  const delta = Object.create(null)
 
-  function findPivotRow(sys, index) {
-    let row = index
-    for (let i = index; i &lt; sys.length; i++) {
-      if (Math.abs(sys[i][index]) > Math.abs(sys[row][index])) row = i
-    }
-    if (sys[row][index] === 0) return false
-    return row
-  }
+  let currentNode
+  const centrality = Object.create(null)
 
-  function swapRows(sys, row1, row2) {
-    const cache = sys[row1]
-    sys[row1] = sys[row2]
-    sys[row2] = cache
-    return sys
-  }
-}
-/**
- * Round the cell values of v to the given number of decimal places
- * @param {array} v
- * @param {number} places
- */
-function round(v, places) {
-  for (let i = 0; i &lt; v.length; i++) v[i] = v[i].toFixed(places)
-  return v
-}
+  graph.nodes.forEach(setCentralityToZero)
+  graph.nodes.forEach(calculateCentrality)
 
-/* --------------------------------------------------------------------*/
-/**
- * This is the Trophic Levels Algorithm
- *
- * @param {array[]} a square adjacency matrix
- * @returns {array} levels (heights)
- */
-/* eslint-disable camelcase */
-function get_trophic_levels(a) {
-  // get undirected matrix
-  const au = undirected(a)
-  // check connected
-  if (connected(au)) {
-    // get in degree vector
-    const in_deg = in_degree(a)
-    // get out degree vector
-    const out_deg = out_degree(a)
-    // get in - out
-    const v = subVec(in_deg, out_deg)
-    // get diagonal matrix, subtract (adj. matrix plus its transpose)
-    const L = subtract(diag(addVec(in_deg, out_deg)), mergeTranspose(a))
-    // set (0,0) to zero
-    L[0][0] = 0
-    // do linear solve
-    let h = solve(L, v)
-    if (!h) {
-      throw new Error('Singular matrix')
-    }
-    // base to zero
-    h = rebase(h)
-    // round to 3 decimal places
-    h = round(h, 3)
-    // return tropic heights
-    return h
-  } else {
-    throw new Error('Network must be weakly connected')
-  }
-}
-/* eslint-enable camelcase */
-/**
- * convert a vector of objects, each an edge referencing from and to nodes
- * to an adjacency matrix.  nodes is a list of nodes that acts as the index for the adj. matrix.
- * @param {array} v list of edges
- * @param {array} nodes list of node Ids
- * @returns matrix
- */
-function edgeListToAdjMatrix(v, nodes) {
-  const a = zero(nodes.length)
-  for (let i = 0; i &lt; v.length; i++) {
-    a[nodes.indexOf(v[i].from)][nodes.indexOf(v[i].to)] = 1
-  }
-  return a
-}
-/**
- * returns a list of the node Ids mentioned in a vector of edges
- * @param {array} v edges
- */
-function nodeList(v) {
-  const nodes = []
-  for (let i = 0; i &lt; v.length; i++) {
-    if (nodes.indexOf(v[i].from) === -1) nodes.push(v[i].from)
-    if (nodes.indexOf(v[i].to) === -1) nodes.push(v[i].to)
-  }
-  return nodes
-}
-/**
- * given a complete set of edges, returns a list of lists of edges, each list being the edges of a connected component
- * @param {object} data
- */
-function connectedComponents(data) {
-  const edges = data.edges.get()
-  const cc = []
-  const added = []
-  let component = []
-  // starting from each edge...
-  edges.forEach((e) => {
-    if (!added.includes(e)) {
-      component = []
-      //do a depth first search for connected edges
-      dfs(e)
-      cc.push(component)
-    }
-  })
+  return centrality
+
   /**
-   * depth first search for edges connected to 'to' or 'from' nodes of this edge
-   * adds edges found to component array
-   * @param {object} e
+   * Initialize centrality to zero for a node
+   * @param {object} node - node object
    */
-  function dfs(e) {
-    added.push(e)
-    component.push(e)
-    edges
-      .filter((next) => {
-        return (
-          e !== next &amp;&amp;
-          (next.from === e.to || next.to === e.from || next.from === -e.from || next.to === e.to)
-        )
-      })
-      .forEach((next) => {
-        if (!added.includes(next)) dfs(next)
-      })
+  function setCentralityToZero(node) {
+    centrality[node.id] = 0
   }
-  return cc
-}
 
-/**
- * shift the positions of nodes according to the trophic 'height' (actually, here, the x coordinate)
- * @param {object} data
- * @returns list of nodes whose positions have been altered
- */
-export function trophic(data) {
-  // get a list of lists of connected components, each list being pairs of to and from nodes
-  // process each connected component individually
-  // nodes that are not connected to anything (degree 0) moved to the base level
-  const updatedNodes = []
-  // save min and max x coordinates of nodes
-  const minX = Math.min(...data.nodes.map((n) => n.x))
-  const maxX = Math.max(...data.nodes.map((n) => n.x))
-  connectedComponents(data).forEach((edges) => {
-    const nodeIds = nodeList(edges)
-    const nodes = data.nodes.get(nodeIds)
-    // convert to an adjacency matrix
-    const adj = edgeListToAdjMatrix(edges, nodeIds)
-    // get trophic levels
-    let levels = get_trophic_levels(adj)
-    // experimental: round levels to integers within the range 0 .. NLEVELS
-    let range = Math.max(...levels) - Math.min(...levels)
-    levels = levels.map((l) => Math.round((l * NLEVELS) / range))
-    // rescale x to match original max and min
-    range = Math.max(...levels) - Math.min(...levels)
-    // if all nodes are at same trophic height (range === 0, so scale would be infinity), line them up
-    const scale = range > 0.000001 ? (maxX - minX) / range : 0
-    // move nodes to new positions
-    for (let i = 0; i &lt; nodeIds.length; i++) {
-      const node = nodes[i]
-      node.x = levels[i] * scale + minX
-      node.level = levels[i]
-      updatedNodes.push(node)
+  /**
+   * Calculate centrality contribution for a single source node
+   * @param {object} node - node object
+   */
+  function calculateCentrality(node) {
+    currentNode = node.id
+    singleSourceShortestPath(currentNode)
+    accumulate()
+  }
+
+  /**
+   * Accumulate centrality contributions from shortest paths
+   */
+  function accumulate() {
+    graph.nodes.forEach(setDeltaToZero)
+    while (S.length) {
+      const w = S.pop()
+      const coeff = (1 + delta[w]) / sigma[w]
+      const predecessors = pred[w]
+      for (let idx = 0; idx &lt; predecessors.length; ++idx) {
+        const v = predecessors[idx]
+        delta[v] += sigma[v] * coeff
+      }
+      if (w !== currentNode) {
+        centrality[w] += delta[w]
+      }
     }
-  })
-  // move all the rest (i.e. unconnected nodes) to the base level
-  data.nodes
-    .get()
-    .filter((n) => !updatedNodes.some((u) => n.id === u.id))
-    .forEach((n) => {
-      n.x = minX
-      n.level = 0
-    })
+  }
 
-  return data.nodes.get()
+  /**
+   * Initialize delta to zero for a node
+   * @param {object} node - node object
+   */
+  function setDeltaToZero(node) {
+    delta[node.id] = 0
+  }
+
+  /**
+   * Compute single-source shortest paths from the given source node
+   * @param {string} source - ID of the source node
+   */
+  function singleSourceShortestPath(source) {
+    graph.nodes.forEach(initNode)
+    dist[source] = 0
+    sigma[source] = 1
+    Q.push(source)
+
+    while (Q.length) {
+      const v = Q.shift()
+      S.push(v)
+      forEachLinkedNode(v, toId, v)
+    }
+
+    function toId(otherNode, link, v) {
+      // NOTE: This code will also consider multi-edges, which are often
+      // ignored by popular software (Gephi/NetworkX). Depending on your use
+      // case this may not be desired and deduping needs to be performed. To
+      // save memory I'm not deduping here...
+      processNode(otherNode.id, v)
+    }
+
+    function initNode(node) {
+      const nodeId = node.id
+      pred[nodeId] = [] // empty list
+      dist[nodeId] = -1
+      sigma[nodeId] = 0
+    }
+
+    function processNode(w, v) {
+      // path discovery
+      if (dist[w] === -1) {
+        // Node w is found for the first time
+        dist[w] = dist[v] + 1
+        Q.push(w)
+      }
+      // path counting
+      if (dist[w] === dist[v] + 1) {
+        // edge (v, w) on a shortest path
+        sigma[w] += sigma[v]
+        pred[w].push(v)
+      }
+    }
+
+    function forEachLinkedNode(nodeId, callback, v) {
+      const links = linksFrom(nodeId)
+      if (links) {
+        for (let i = 0; i &lt; links.length; ++i) {
+          const link = links[i]
+          if (link.from === nodeId) {
+            callback(getNode(link.to), link, v)
+          }
+        }
+      }
+    }
+
+    // return all the link objects that start from the given node
+    function linksFrom(nodeId) {
+      return graph.edges.filter(function (item) {
+        return item.from === nodeId
+      })
+    }
+
+    // return the node object with the given Id
+    function getNode(nodeId) {
+      return graph.nodes.filter(function (item) {
+        return item.id === nodeId
+      })[0]
+    }
+  }
 }
 </code></pre>
         </article>

@@ -97,7 +97,7 @@ import {
   updateFromDrawingMap,
 } from './background.js'
 import { getAIresponse } from './ai.js'
-import { version } from '../package.json'
+import { version, features } from '../package.json'
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
 
 const appName = 'Participatory System Mapper'
@@ -125,7 +125,7 @@ export let room
  * prompt - show AI prompts
  */
 export let debug = ''
-const allowAI = false // set to false to hide 'sparkle' buttons and so make AI features inaccessible to users
+console.log(`${appName} version ${version} [features: ${features.ai ? 'AI' : 'no AI'}]`)
 let viewOnly // when true, user can only view, not modify, the network
 let showCopyMapButton = false // show the Copy Map button on the navbar in viewOnly mode
 let nodes // a dataset of nodes
@@ -396,7 +396,7 @@ function setUpPage() {
   hideNotes()
   setUpSideDrawer()
   // remove AI sparkle buttons if not providing AI features
-  if (!allowAI) {
+  if (!features.ai) {
     Array.from(document.getElementsByClassName('sparkle')).forEach((elem) => {
       elem.style.display = 'none'
     })

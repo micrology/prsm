@@ -60,10 +60,10 @@ function startY() {
   wsProvider.on('status', (event) => {
     console.log(
       exactTime() +
-      event.status +
-      (event.status === 'connected' ? ' to' : ' from') +
-      ' room ' +
-      room
+        event.status +
+        (event.status === 'connected' ? ' to' : ' from') +
+        ' room ' +
+        room
     ) // logs when websocket is "connected" or "disconnected"
   })
 
@@ -181,9 +181,11 @@ function convertData() {
     .map((n) => {
       return convertNode(n)
     })
-  const graphEdges = Array.from(yEdgesMap.values()).filter((e) => !e.dummy).map((e) => {
-    return convertEdge(e)
-  })
+  const graphEdges = Array.from(yEdgesMap.values())
+    .filter((e) => !e.dummy)
+    .map((e) => {
+      return convertEdge(e)
+    })
   // note neighbouring nodes and links to those for each node
   // (used for highlighting links when hovering over nodes)
   graphEdges.forEach((link) => {
@@ -373,8 +375,12 @@ function display() {
 const LEGENDHEIGHT = 35
 const LEGENDWIDTH = 120
 function legend() {
-  const nodes = Array.from(ySamplesMap.values()).filter(a => a.node && a.node.groupLabel !== 'Sample')
-  const edges = Array.from(ySamplesMap.values()).filter(a => a.edge && a.edge.groupLabel !== 'Sample')
+  const nodes = Array.from(ySamplesMap.values()).filter(
+    (a) => a.node && a.node.groupLabel !== 'Sample'
+  )
+  const edges = Array.from(ySamplesMap.values()).filter(
+    (a) => a.edge && a.edge.groupLabel !== 'Sample'
+  )
   const nItems = nodes.length + edges.length
   if (nItems === 0) return
   const legendBox = document.createElement('div')
