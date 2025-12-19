@@ -524,10 +524,6 @@ nav {
   margin-top: 2px;
   cursor: default;
 }
-.room-title-text:hover {
-  background-color: var(--header-hover-color);
-}
-
 .button-wrapper {
   margin: auto 50px auto auto;
 }
@@ -652,11 +648,6 @@ nav button .pressed {
   margin-top: 2px;
   cursor: default;
 }
-.and-more {
-  text-align: center;
-  color: rgb(128, 128, 128);
-}
-
 #download {
   width: 0;
   height: 0;
@@ -1113,13 +1104,6 @@ but moving the panel out of sight works instead */
   outline: none;
   font-family: Oxygen, sans-serif;
 }
-.edit-container {
-  width: 100%;
-  max-width: 500px;
-  background-color: var(--notes-background-solid-color);
-  resize: both;
-  overflow: hidden;
-}
 .ql-editor {
   padding: 3px;
 }
@@ -1154,9 +1138,6 @@ but moving the panel out of sight works instead */
   to {
     transform: rotate(360deg);
   }
-}
-.padlock-hide {
-  display: none;
 }
 #lock:hover,
 #unlock:hover,
@@ -1937,13 +1918,6 @@ input#splashNameBox::placeholder {
 .menu-item.disabled .menu-btn {
   cursor: default;
 }
-.menu-separator {
-  display: block;
-  margin: 7px 5px;
-  height: 1px;
-  border-bottom: 1px solid rgb(255, 255, 255);
-  background-color: rgb(170, 170, 170);
-}
 .show-menu,
 .menu-item:hover > .menu {
   opacity: 0.95;
@@ -2210,8 +2184,6 @@ input#splashNameBox::placeholder {
   header,
   aside,
   footer,
-  .chatbox-tab,
-  .chatbox,
   .avatars {
     display: none;
   }

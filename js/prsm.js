@@ -3976,7 +3976,7 @@ function hideNotes() {
   if (notesPanel.classList.contains('hide')) return
   notesPanel.classList.add('hide')
   document.getSelection().removeAllRanges()
-  notesPanel.querySelector('.ql-toolbar').remove()
+  notesPanel.querySelector('.ql-toolbar')?.remove()
   editor = null
   if (popupWindow) popupWindow.close()
 }
@@ -3988,8 +3988,9 @@ function showNodeData(nodeId) {
   const panel = elem('nodeNotePanel')
   nodeId = nodeId || network.getSelectedNodes()[0]
   const node = data.nodes.get(nodeId)
-  elem('fixed').style.display = node.fixed && !viewOnly ? 'inline' : 'none'
-  elem('unfixed').style.display = node.fixed || viewOnly ? 'none' : 'inline'
+  const readOnly = viewOnly || node.fixed
+  elem('fixed').style.display = readOnly ? 'inline' : 'none'
+  elem('unfixed').style.display = readOnly ? 'none' : 'inline'
   elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : ''
   if (node.created) {
     elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${node.created.user}`
@@ -4001,7 +4002,7 @@ function showNodeData(nodeId) {
   } else elem('nodeModification').style.display = 'none'
   editor = new Quill('#node-notes', {
     modules: {
-      toolbar: viewOnly
+      toolbar: readOnly
         ? null
         : [
             'bold',
@@ -4016,7 +4017,7 @@ function showNodeData(nodeId) {
     },
     placeholder: 'Notes',
     theme: 'snow',
-    readOnly: viewOnly,
+    readOnly,
   })
   window.editor = editor // used by popupEditor to access this editor
   editor.id = node.id
