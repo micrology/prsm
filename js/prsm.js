@@ -320,7 +320,7 @@ function addEventListeners() {
   listen('showHistorySwitch', 'click', showHistorySwitch)
   listen('showNotesSwitch', 'click', showNotesSwitch)
   listen('clustering', 'change', selectClustering)
-  listen('lock', 'click', setFixed)
+  listen('pin', 'click', setFixed)
   listen('newNodeWindow', 'click', openNotesWindow)
   listen('newEdgeWindow', 'click', openNotesWindow)
   listen('sparklesNode', 'click', genAINode)
@@ -2257,9 +2257,9 @@ Causal Links:
 const noteImage = new Image()
 noteImage.src =
   'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktY2FyZC10ZXh0IiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik0xNC41IDNhLjUuNSAwIDAgMSAuNS41djlhLjUuNSAwIDAgMS0uNS41aC0xM2EuNS41IDAgMCAxLS41LS41di05YS41LjUgMCAwIDEgLjUtLjVoMTN6bS0xMy0xQTEuNSAxLjUgMCAwIDAgMCAzLjV2OUExLjUgMS41IDAgMCAwIDEuNSAxNGgxM2ExLjUgMS41IDAgMCAwIDEuNS0xLjV2LTlBMS41IDEuNSAwIDAgMCAxNC41IDJoLTEzeiIvPgogIDxwYXRoIGQ9Ik0zIDUuNWEuNS41IDAgMCAxIC41LS41aDlhLjUuNSAwIDAgMSAwIDFoLTlhLjUuNSAwIDAgMS0uNS0uNXpNMyA4YS41LjUgMCAwIDEgLjUtLjVoOWEuNS41IDAgMCAxIDAgMWgtOUEuNS41IDAgMCAxIDMgOHptMCAyLjVhLjUuNSAwIDAgMSAuNS0uNWg2YS41LjUgMCAwIDEgMCAxaC02YS41LjUgMCAwIDEtLjUtLjV6Ii8+Cjwvc3ZnPg=='
-const lockImage = new Image()
-lockImage.src =
-  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktbG9jay1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik04IDFhMiAyIDAgMCAxIDIgMnY0SDZWM2EyIDIgMCAwIDEgMi0yem0zIDZWM2EzIDMgMCAwIDAtNiAwdjRhMiAyIDAgMCAwLTIgMnY1YTIgMiAwIDAgMCAyIDJoNmEyIDIgMCAwIDAgMi0yVjlhMiAyIDAgMCAwLTItMnoiLz4KPC9zdmc+'
+const pinImage = new Image()
+pinImage.src =
+  'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22currentColor%22%20class%3D%22bi%20bi-pin-fill%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M4.146.146A.5.5%200%200%201%204.5%200h7a.5.5%200%200%201%20.5.5c0%20.68-.342%201.174-.646%201.479-.126.125-.25.224-.354.298v4.431l.078.048c.203.127.476.314.751.555C12.36%207.775%2013%208.527%2013%209.5a.5.5%200%200%201-.5.5h-4v4.5c0%20.276-.224%201.5-.5%201.5s-.5-1.224-.5-1.5V10h-4a.5.5%200%200%201-.5-.5c0-.973.64-1.725%201.17-2.189A6%206%200%200%201%205%206.708V2.277a3%203%200%200%201-.354-.298C4.342%201.674%204%201.179%204%20.5a.5.5%200%200%201%20.146-.354%22%2F%3E%3C%2Fsvg%3E'
 const thumbUpImage = new Image()
 thumbUpImage.src =
   'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktaGFuZC10aHVtYnMtdXAiIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTguODY0LjA0NkM3LjkwOC0uMTkzIDcuMDIuNTMgNi45NTYgMS40NjZjLS4wNzIgMS4wNTEtLjIzIDIuMDE2LS40MjggMi41OS0uMTI1LjM2LS40NzkgMS4wMTMtMS4wNCAxLjYzOS0uNTU3LjYyMy0xLjI4MiAxLjE3OC0yLjEzMSAxLjQxQzIuNjg1IDcuMjg4IDIgNy44NyAyIDguNzJ2NC4wMDFjMCAuODQ1LjY4MiAxLjQ2NCAxLjQ0OCAxLjU0NSAxLjA3LjExNCAxLjU2NC40MTUgMi4wNjguNzIzbC4wNDguMDNjLjI3Mi4xNjUuNTc4LjM0OC45Ny40ODQuMzk3LjEzNi44NjEuMjE3IDEuNDY2LjIxN2gzLjVjLjkzNyAwIDEuNTk5LS40NzcgMS45MzQtMS4wNjRhMS44NiAxLjg2IDAgMCAwIC4yNTQtLjkxMmMwLS4xNTItLjAyMy0uMzEyLS4wNzctLjQ2NC4yMDEtLjI2My4zOC0uNTc4LjQ4OC0uOTAxLjExLS4zMy4xNzItLjc2Mi4wMDQtMS4xNDkuMDY5LS4xMy4xMi0uMjY5LjE1OS0uNDAzLjA3Ny0uMjcuMTEzLS41NjguMTEzLS44NTcgMC0uMjg4LS4wMzYtLjU4NS0uMTEzLS44NTZhMi4xNDQgMi4xNDQgMCAwIDAtLjEzOC0uMzYyIDEuOSAxLjkgMCAwIDAgLjIzNC0xLjczNGMtLjIwNi0uNTkyLS42ODItMS4xLTEuMi0xLjI3Mi0uODQ3LS4yODItMS44MDMtLjI3Ni0yLjUxNi0uMjExYTkuODQgOS44NCAwIDAgMC0uNDQzLjA1IDkuMzY1IDkuMzY1IDAgMCAwLS4wNjItNC41MDlBMS4zOCAxLjM4IDAgMCAwIDkuMTI1LjExMUw4Ljg2NC4wNDZ6TTExLjUgMTQuNzIxSDhjLS41MSAwLS44NjMtLjA2OS0xLjE0LS4xNjQtLjI4MS0uMDk3LS41MDYtLjIyOC0uNzc2LS4zOTNsLS4wNC0uMDI0Yy0uNTU1LS4zMzktMS4xOTgtLjczMS0yLjQ5LS44NjgtLjMzMy0uMDM2LS41NTQtLjI5LS41NTQtLjU1VjguNzJjMC0uMjU0LjIyNi0uNTQzLjYyLS42NSAxLjA5NS0uMyAxLjk3Ny0uOTk2IDIuNjE0LTEuNzA4LjYzNS0uNzEgMS4wNjQtMS40NzUgMS4yMzgtMS45NzguMjQzLS43LjQwNy0xLjc2OC40ODItMi44NS4wMjUtLjM2Mi4zNi0uNTk0LjY2Ny0uNTE4bC4yNjIuMDY2Yy4xNi4wNC4yNTguMTQzLjI4OC4yNTVhOC4zNCA4LjM0IDAgMCAxLS4xNDUgNC43MjUuNS41IDAgMCAwIC41OTUuNjQ0bC4wMDMtLjAwMS4wMTQtLjAwMy4wNTgtLjAxNGE4LjkwOCA4LjkwOCAwIDAgMSAxLjAzNi0uMTU3Yy42NjMtLjA2IDEuNDU3LS4wNTQgMi4xMS4xNjQuMTc1LjA1OC40NS4zLjU3LjY1LjEwNy4zMDguMDg3LjY3LS4yNjYgMS4wMjJsLS4zNTMuMzUzLjM1My4zNTRjLjA0My4wNDMuMTA1LjE0MS4xNTQuMzE1LjA0OC4xNjcuMDc1LjM3LjA3NS41ODEgMCAuMjEyLS4wMjcuNDE0LS4wNzUuNTgyLS4wNS4xNzQtLjExMS4yNzItLjE1NC4zMTVsLS4zNTMuMzUzLjM1My4zNTRjLjA0Ny4wNDcuMTA5LjE3Ny4wMDUuNDg4YTIuMjI0IDIuMjI0IDAgMCAxLS41MDUuODA1bC0uMzUzLjM1My4zNTMuMzU0Yy4wMDYuMDA1LjA0MS4wNS4wNDEuMTdhLjg2Ni44NjYgMCAwIDEtLjEyMS40MTZjLS4xNjUuMjg4LS41MDMuNTYtMS4wNjYuNTZ6Ii8+Cjwvc3ZnPg=='
@@ -2277,15 +2277,15 @@ thumbDownFilledImage.src =
  * @param {CanvasRenderingContext2D} ctx NetPane canvas context
  */
 function drawBadges(ctx) {
-  // padlock for locked factors
+  // pin for pinned factors
   if (!viewOnly) {
-    // for a view only map, factors are always locked, so don't bother with padlock
+    // for a view only map, factors are always pinned, so don't bother with pin badges
     data.nodes
       .get()
       .filter((node) => !node.nodeHidden && node.fixed && !node.clusteredIn)
       .forEach((node) => {
         const box = network.getBoundingBox(node.id)
-        drawTheBadge(lockImage, ctx, box.left - 10, box.top)
+        drawTheBadge(pinImage, ctx, box.left - 10, box.top)
       })
   }
   if (showNotesToggle) {
@@ -3988,9 +3988,8 @@ function showNodeData(nodeId) {
   const panel = elem('nodeNotePanel')
   nodeId = nodeId || network.getSelectedNodes()[0]
   const node = data.nodes.get(nodeId)
-  const readOnly = viewOnly || node.fixed
-  elem('fixed').style.display = readOnly ? 'inline' : 'none'
-  elem('unfixed').style.display = readOnly ? 'none' : 'inline'
+  elem('fixed').style.display = node.fixed && !viewOnly ? 'inline' : 'none'
+  elem('unfixed').style.display = node.fixed || viewOnly ? 'none' : 'inline'
   elem('nodeLabel').innerHTML = node.label ? shorten(node.label) : ''
   if (node.created) {
     elem('nodeCreated').innerHTML = `${timeAndDate(node.created.time)} by ${node.created.user}`
@@ -4002,7 +4001,7 @@ function showNodeData(nodeId) {
   } else elem('nodeModification').style.display = 'none'
   editor = new Quill('#node-notes', {
     modules: {
-      toolbar: readOnly
+      toolbar: viewOnly
         ? null
         : [
             'bold',
@@ -4017,7 +4016,7 @@ function showNodeData(nodeId) {
     },
     placeholder: 'Notes',
     theme: 'snow',
-    readOnly,
+    readOnly: viewOnly,
   })
   window.editor = editor // used by popupEditor to access this editor
   editor.id = node.id
