@@ -494,9 +494,9 @@ function startY(newRoom) {
   })
 
   /* 
-	create a yMap for the nodes and one for the edges (we need two because there is no 
-	guarantee that the the ids of nodes will differ from the ids of edges) 
-	 */
+  create a yMap for the nodes and one for the edges (we need two because there is no 
+  guarantee that the the ids of nodes will differ from the ids of edges) 
+   */
   yNodesMap = doc.getMap('nodes')
   yEdgesMap = doc.getMap('edges')
   ySamplesMap = doc.getMap('samples')
@@ -507,8 +507,8 @@ function startY(newRoom) {
   yAwareness = wsProvider.awareness
 
   /* create a dummy item in yNodesMap and yEdgesMap to stop having to wait for the these maps 
-	if there are no nodes or edges (thus allowing to distinguish between zero nodes/edges and 
-	no node/edge map yet loaded) */
+  if there are no nodes or edges (thus allowing to distinguish between zero nodes/edges and 
+  no node/edge map yet loaded) */
   yNodesMap.set('_dummy_', { dummy: true })
   yEdgesMap.set('_dummy_', { dummy: true })
 
@@ -553,8 +553,8 @@ function startY(newRoom) {
   }
 
   /* 
-	for convenience when debugging
-	 */
+  for convenience when debugging
+   */
   window.debug = debug
   window.data = data
   window.clientID = clientID
@@ -600,10 +600,10 @@ function startY(newRoom) {
   }
 
   /* 
-	nodes.on listens for when local nodes or edges are changed (added, updated or removed).
-	If a local node is removed, the yMap is updated to broadcast to other clients that the node 
-	has been deleted. If a local node is added or updated, that is also broadcast.
-	 */
+  nodes.on listens for when local nodes or edges are changed (added, updated or removed).
+  If a local node is removed, the yMap is updated to broadcast to other clients that the node 
+  has been deleted. If a local node is added or updated, that is also broadcast.
+   */
   nodes.on('*', (evt, properties, origin) => {
     yjsTrace(
       'nodes.on',
@@ -627,11 +627,11 @@ function startY(newRoom) {
     dontUndo = null
   })
   /* 
-	yNodesMap.observe listens for changes in the yMap, receiving a set of the keys that have
-	had changed values.  If the change was to delete an entry, the corresponding node and all links to/from it are
-	removed from the local nodes dataSet. Otherwise, if the received node differs from the local one, 
-	the local node dataSet is updated (which includes adding a new node if it does not already exist locally).
-	 */
+  yNodesMap.observe listens for changes in the yMap, receiving a set of the keys that have
+  had changed values.  If the change was to delete an entry, the corresponding node and all links to/from it are
+  removed from the local nodes dataSet. Otherwise, if the received node differs from the local one, 
+  the local node dataSet is updated (which includes adding a new node if it does not already exist locally).
+   */
   yNodesMap.observe((evt) => {
     yjsTrace('yNodesMap.observe', evt)
     const nodesToUpdate = []
@@ -644,7 +644,7 @@ function startY(newRoom) {
           // fix nodes if this is a view only copy
           if (viewOnly) obj.fixed = true
           nodesToUpdate.push(deepCopy(obj))
-          // if a note on a node is being remotely edited and is on display here, update the local note and the padlock
+          // if a note on a node is being remotely edited and is on display here, update the local note and the pin badge
           if (editor && editor.id === key && evt.transaction.local === false) {
             editor.setContents(obj.note)
             elem('fixed').style.display = obj.fixed ? 'inline' : 'none'
@@ -667,8 +667,8 @@ function startY(newRoom) {
     observed('nodes')
   })
   /* 
-	See comments above about nodes
-	 */
+  See comments above about nodes
+   */
   edges.on('*', (evt, properties, origin) => {
     yjsTrace(
       'edges.on',
@@ -785,16 +785,16 @@ function startY(newRoom) {
     observed('samples')
   })
   /*
-	Map controls (those on the Network tab) are of three kinds:
-	1. Those that affect only the local map and are not promulgated to other users
-	e.g zoom, show drawing layer, show history
-	2. Those where the control status (e.g. whether a switch is on or off) is promulgated,
-	but the effect of the switch is handled by yNodesMap and yEdgesMap (e.g. Show Factors
-		x links away; Size Factors to)
-	3. Those whose effects are promulgated and switches controlled here by yNetMap (e.g
-		Background)
-	For cases 2 and 3, the functions called here must not invoke yNetMap.set() to avoid loops
-	*/
+  Map controls (those on the Network tab) are of three kinds:
+  1. Those that affect only the local map and are not promulgated to other users
+  e.g zoom, show drawing layer, show history
+  2. Those where the control status (e.g. whether a switch is on or off) is promulgated,
+  but the effect of the switch is handled by yNodesMap and yEdgesMap (e.g. Show Factors
+    x links away; Size Factors to)
+  3. Those whose effects are promulgated and switches controlled here by yNetMap (e.g
+    Background)
+  For cases 2 and 3, the functions called here must not invoke yNetMap.set() to avoid loops
+  */
   yNetMap.observe((evt) => {
     yjsTrace('YNetMap.observe', evt)
 
@@ -1313,8 +1313,7 @@ function draw() {
         })
         item.edges.forEach((edgeId) => {
           logHistory(
-            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
-              data.nodes.get(data.edges.get(edgeId).to).label
+            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
             }'`
           )
         })
@@ -1327,8 +1326,7 @@ function draw() {
       deleteEdge: function (item, callback) {
         item.edges.forEach((edgeId) => {
           logHistory(
-            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
-              data.nodes.get(data.edges.get(edgeId).to).label
+            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
             }'`
           )
         })
@@ -1782,20 +1780,20 @@ function draw() {
       physics: { enabled: false },
     })
     /* // unhide any hidden nodes and edges
-		let changedNodes = []
-		bigNetData.nodes.forEach((n) => {
-			if (n.nodeHidden) {
-				changedNodes.push(setNodeHidden(n, false))
-			}
-		})
-		let changedEdges = []
-		bigNetData.edges.forEach((e) => {
-			if (e.edgeHidden) {
-				changedEdges.push(setEdgeHidden(e, false))
-			}
-		})
-		bigNetData.nodes.update(changedNodes)
-		bigNetData.edges.update(changedEdges) */
+    let changedNodes = []
+    bigNetData.nodes.forEach((n) => {
+      if (n.nodeHidden) {
+        changedNodes.push(setNodeHidden(n, false))
+      }
+    })
+    let changedEdges = []
+    bigNetData.edges.forEach((e) => {
+      if (e.edgeHidden) {
+        changedEdges.push(setEdgeHidden(e, false))
+      }
+    })
+    bigNetData.nodes.update(changedNodes)
+    bigNetData.edges.update(changedEdges) */
     bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
     bigNetwork.on('afterDrawing', () => {
       setCanvasBackground(bigNetCanvas)
@@ -1821,7 +1819,7 @@ function draw() {
       bigNetCanvas,
       ((e.clientX - netPaneRect.x) * bigNetCanvas.width) / netPaneCanvas.clientWidth - halfMagSize,
       ((e.clientY - netPaneRect.y) * bigNetCanvas.height) / netPaneCanvas.clientHeight -
-        halfMagSize,
+      halfMagSize,
       magSize,
       magSize,
       0,
@@ -1950,11 +1948,11 @@ export function drawMinimap(ratio = 5) {
 
     minimapRadar.style.left = `${Math.round(
       ((currentDOMPosition.x - initialDOMPosition.x) * scale) / ratio +
-        (minimapWidth * (1 - scale)) / 2
+      (minimapWidth * (1 - scale)) / 2
     )}px`
     minimapRadar.style.top = `${Math.round(
       ((currentDOMPosition.y - initialDOMPosition.y) * scale) / ratio +
-        (minimapHeight * (1 - scale)) / 2
+      (minimapHeight * (1 - scale)) / 2
     )}px`
     minimapRadar.style.width = `${minimapWidth * scale}px`
     minimapRadar.style.height = `${minimapHeight * scale}px`
@@ -2047,12 +2045,12 @@ export function drawMinimap(ratio = 5) {
           x:
             ((radarRect.left - wrapperRect.left + (radarRect.width - wrapperRect.width) / 2) *
               ratio) /
-              scale +
+            scale +
             initialDOMPosition.x,
           y:
             ((radarRect.top - wrapperRect.top + (radarRect.height - wrapperRect.height) / 2) *
               ratio) /
-              scale +
+            scale +
             initialDOMPosition.y,
         }),
       })
@@ -2225,7 +2223,6 @@ async function genAISideNote() {
     .join('; ')
   let title = elem('maptitle').innerText
   if (title === 'Untitled map') title = 'System Map'
-  /* 	let aiResponse = await getAIresponse(`A system map includes the following causal relationships. Write a description of the system map that will help a non-expert understand it. Use no more than 300 words. >>>${causes}<<<`) */
   const aiResponse =
     await getAIresponse(`I want you to generate a compact, readable narrative description of a system map.
 
@@ -2476,7 +2473,7 @@ async function pasteFromClipboard() {
   let nodes
   let edges
   try {
-    ;({ nodes, edges } = JSON.parse(clip))
+    ; ({ nodes, edges } = JSON.parse(clip))
   } catch {
     // silently return (i.e. use system paste) if there is nothing relevant on the clipboard
     return
@@ -3445,21 +3442,19 @@ function ghostCursor() {
     const boxHalfWidth = box.offsetWidth / 2
     const boxHalfHeight = box.offsetHeight / 2
     const left = window.event.pageX - boxHalfWidth
-    box.style.left = `${
-      left <= netPaneRect.left
-        ? netPaneRect.left
-        : left >= netPaneRect.right - box.offsetWidth
-          ? netPaneRect.right - box.offsetWidth
-          : left
-    }px`
+    box.style.left = `${left <= netPaneRect.left
+      ? netPaneRect.left
+      : left >= netPaneRect.right - box.offsetWidth
+        ? netPaneRect.right - box.offsetWidth
+        : left
+      }px`
     const top = window.event.pageY - boxHalfHeight
-    box.style.top = `${
-      top <= netPaneRect.top
-        ? netPaneRect.top
-        : top >= netPaneRect.bottom - box.offsetHeight
-          ? netPaneRect.bottom - box.offsetHeight
-          : top
-    }px`
+    box.style.top = `${top <= netPaneRect.top
+      ? netPaneRect.top
+      : top >= netPaneRect.bottom - box.offsetHeight
+        ? netPaneRect.bottom - box.offsetHeight
+        : top
+      }px`
   }
 }
 /**
@@ -3800,12 +3795,11 @@ function keepPaneInWindow(pane) {
     pane.style.left = `${container.offsetLeft + container.offsetWidth - pane.offsetWidth}px`
   }
   if (pane.offsetTop + pane.offsetHeight > container.offsetTop + container.offsetHeight) {
-    pane.style.top = `${
-      container.offsetTop +
+    pane.style.top = `${container.offsetTop +
       container.offsetHeight -
       pane.offsetHeight -
       document.querySelector('footer').offsetHeight
-    }px`
+      }px`
   }
 }
 
@@ -3848,8 +3842,7 @@ function applySampleToNode(event) {
   const nNodes = nodesToUpdate.length
   if (nNodes) {
     logHistory(
-      `applied ${styles.nodes[sample].groupLabel} style to ${
-        nNodes === 1 ? nodesToUpdate[0].label : nNodes + ' factors'
+      `applied ${styles.nodes[sample].groupLabel} style to ${nNodes === 1 ? nodesToUpdate[0].label : nNodes + ' factors'
       }`
     )
   }
@@ -3936,13 +3929,13 @@ function doShowNotes(toggle) {
   showNodeOrEdgeData()
 }
 /**
- * User has clicked the padlock.  Toggle padlock state and fix the location of the node
+ * User has clicked the pinned badge.  Toggle pin state and fix the location of the node
  */
 function setFixed() {
   if (viewOnly) return
-  const locked = elem('fixed').style.display === 'none'
+  const pinned = elem('fixed').style.display === 'none'
   const node = data.nodes.get(editor.id)
-  node.fixed = locked
+  node.fixed = pinned
   elem('fixed').style.display = node.fixed ? 'inline' : 'none'
   elem('unfixed').style.display = node.fixed ? 'none' : 'inline'
   data.nodes.update(node)
@@ -4004,15 +3997,15 @@ function showNodeData(nodeId) {
       toolbar: viewOnly
         ? null
         : [
-            'bold',
-            'italic',
-            'underline',
-            'link',
-            { list: 'ordered' },
-            { list: 'bullet' },
-            { indent: '-1' },
-            { indent: '+1' },
-          ],
+          'bold',
+          'italic',
+          'underline',
+          'link',
+          { list: 'ordered' },
+          { list: 'bullet' },
+          { indent: '-1' },
+          { indent: '+1' },
+        ],
     },
     placeholder: 'Notes',
     theme: 'snow',
@@ -4045,16 +4038,18 @@ function showNodeData(nodeId) {
  * return the output from an LLM asked to explain the factor
  */
 async function genAINode() {
-  alertMsg('Processing...', 'info', true)
-  editor.setText('Processing...\n')
   const sparklesElem = elem('sparklesNode')
   sparklesElem.classList.add('rotating')
   const nodeId = network.getSelectedNodes()[0]
   const node = data.nodes.get(nodeId)
-  const context = data.nodes
+  let context = data.nodes
     .get()
     .map((n) => n.label.replaceAll('\n', ' '))
     .join(', ')
+  const userPrompt = editor.getText().trim()
+  if (!userPrompt.includes('This text has been generated by AI')) {
+    context += `, and also consider: ${userPrompt}`
+  }
   const systemPrompt = `You are to explain a single factor, A.
 Follow all the instructions below for your response:
 
@@ -4076,6 +4071,9 @@ The summary should concisely restate the main points in no more than 50 words.
 
 Maximum total output length: 200 words.
 Format everything in Markdown.`
+  alertMsg('Processing...', 'info', true)
+  editor.setText('Processing...\n')
+
   const aiResponse = await getAIresponse(
     `Explain ${node.label}. Use these keywords as context: ${context}`,
     systemPrompt
@@ -4204,15 +4202,15 @@ function showEdgeData(edgeId) {
       toolbar: viewOnly
         ? null
         : [
-            'bold',
-            'italic',
-            'underline',
-            'link',
-            { list: 'ordered' },
-            { list: 'bullet' },
-            { indent: '-1' },
-            { indent: '+1' },
-          ],
+          'bold',
+          'italic',
+          'underline',
+          'link',
+          { list: 'ordered' },
+          { list: 'bullet' },
+          { indent: '-1' },
+          { indent: '+1' },
+        ],
     },
     placeholder: 'Notes',
     theme: 'snow',
@@ -4246,17 +4244,18 @@ function showEdgeData(edgeId) {
  * relationship between the two linked factors
  */
 async function genAIEdge() {
-  alertMsg('Processing...', 'info', true)
-  editor.setText('Processing...\n')
   const sparklesElem = elem('sparklesEdge')
   sparklesElem.classList.add('rotating')
   const edgeId = network.getSelectedEdges()[0]
   const edge = data.edges.get(edgeId)
-  const context = data.nodes
+  let context = data.nodes
     .get()
     .map((n) => n.label.replaceAll('\n', ' '))
     .join(', ')
-  const systemPrompt = `You are to explain a single causal link of the form A causes B.
+  const userPrompt = editor.getText().trim()
+  if (!userPrompt.includes('This text has been generated by AI')) {
+    context += `, and also consider: ${userPrompt}`
+  } const systemPrompt = `You are to explain a single causal link of the form A causes B.
 Follow all the instructions below for your response:
 
 Write a compact, clear explanation of why or how A causes B.
@@ -4278,6 +4277,8 @@ The summary should concisely restate the main points in no more than 50 words.
 
 Maximum total output length: 200 words.
 Format everything in Markdown.`
+  alertMsg('Processing...', 'info', true)
+  editor.setText('Processing...\n')
   const aiResponse = await getAIresponse(
     `
 Explain the causal link from ${data.nodes.get(edge.from).label} to ${data.nodes.get(edge.to).label}. 
@@ -4768,7 +4769,7 @@ function setRadioVal(name, value) {
   }
 }
 /**
- * Return an array of the node Ids of Factors that are selected or are locked
+ * Return an array of the node Ids of Factors that are selected or are pinned (fixed in position)
  * @returns Array
  */
 function getSelectedAndFixedNodes() {
@@ -5265,7 +5266,7 @@ export function sizing(metric) {
         node.widthConstraint =
           node.heightConstraint =
           node.size =
-            MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
+          MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
     }
   })
   data.nodes.update(nodesToUpdate)

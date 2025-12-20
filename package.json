@@ -35,7 +35,7 @@
     "/doc/help/"
   ],
   "features": {
-    "ai": false
+    "ai": true
   },
   "scripts": {
     "lint": "eslint ./js/*.js",
