@@ -10,7 +10,6 @@ This software is licenced under the PolyForm Noncommercial License 1.0.0
 
 See the file LICENSE.md for details.
 
-
 This is the main entry point for PRSM.  
 ********************************************************************************************/
 
@@ -2521,7 +2520,7 @@ async function getClipboardContents() {
   }
 }
 
-/* ----------------- dialogs for creating and editing nodes and links ----------------*/
+/* ----------------- dialogues for creating and editing nodes and links ----------------*/
 
 /**
  * Initialise the dialog for creating nodes/edges
@@ -5607,7 +5606,7 @@ function showAvatars() {
   const nameRecs = recs
 
     .map(([, value]) => value.user || null)
-    .filter((e) => e) // remove any recs without a user record
+    .filter((e) => e) // remove any records without a user record
     .filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates, by name
     .sort((a, b) => (a.name.charAt(0).toUpperCase() > b.name.charAt(0).toUpperCase() ? 1 : -1)) // sort names
 

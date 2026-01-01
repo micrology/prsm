@@ -1,0 +1,54 @@
+{
+  "version": "0.2",
+  "language": "en-GB",
+  "dictionaries": ["en_GB", "custom-dictionary"],
+  "enabled": true,
+  "ignorePaths": ["node_modules", "dist", "build"],
+  "words": ["PRSM"],
+  "patterns": [
+    {
+      "name": "jsDocParamName",
+      "pattern": "@param\\s+\\{[^}]*\\}\\s+[a-zA-Z_][a-zA-Z0-9_]*"
+    },
+    {
+      "name": "jsDocReturnsName",
+      "pattern": "@returns?\\s+\\{[^}]*\\}\\s+[a-zA-Z_][a-zA-Z0-9_]*"
+    },
+    {
+      "name": "HtmlVisibleText",
+      "pattern": "/>[^<]+</"
+    },
+    {
+      "name": "ScriptBlock",
+      "pattern": "<script[\\s\\S]*?<\\/script>"
+    },
+    {
+      "name": "HtmlOrJsxTag",
+      "pattern": "<[A-Za-z][^>]*>"
+    }
+  ],
+  "ignoreRegExpList": ["HtmlOrJsxTag"],
+  "languageSettings": [
+    {
+      "languageId": "javascript",
+      "includeRegExpList": ["CStyleComment", "LineComment"],
+      "ignoreRegExpList": ["jsDocParamName", "jsDocReturnsName"]
+    },
+    {
+      "languageId": "css",
+      "includeRegExpList": ["CStyleComment"]
+    },
+    {
+      "languageId": "html",
+      "includeRegExpList": ["HtmlComment", "HtmlVisibleText"],
+      "ignoreRegExpList": ["ScriptBlock"]
+    }
+  ],
+  "dictionaryDefinitions": [
+    {
+      "name": "custom-dictionary",
+      "path": "./.cspell/custom-dictionary.txt",
+      "addWords": true
+    }
+  ]
+}
