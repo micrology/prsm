@@ -2,20 +2,20 @@
 
 PRSM Participatory System Mapper 
 
-	Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+  Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
 This module provides import and export functions, to read and save map files in a variety of formats.  
@@ -850,15 +850,15 @@ function loadKumufile(str) {
   // console.log("Styles:", pStyles)
 
   /* Use the Perspective element styles to set the PRSM styles
-	e.g element["category"="Driver"]
+  e.g element["category"="Driver"]
 {
-	color: #d73027;
-	border-colour: black;
-	border-width: 10;
+  color: #d73027;
+  border-colour: black;
+  border-width: 10;
 }
-	will name a PRSM node style "Driver" with a background color of #d73027, 
-	a black border and a border width of 10.
-	*/
+  will name a PRSM node style "Driver" with a background color of #d73027, 
+  a black border and a border width of 10.
+  */
   const elementStyles = pStyles['element-styles']
   for (const eStyle of elementStyles) {
     if (eStyle.match?.category) {
@@ -1270,9 +1270,9 @@ function loadGML(gml) {
 }
 /**
  * Read a comma separated values file consisting of 'From' label and 'to' label, on each row,
-	 with a header row (ignored) 
-	optional, cols 3 and 4 can include the groups (styles) of the from and to nodes,
-	column 5 can include the style of the edge.  All these must be integers between 1 and 9
+   with a header row (ignored) 
+  optional, cols 3 and 4 can include the groups (styles) of the from and to nodes,
+  column 5 can include the style of the edge.  All these must be integers between 1 and 9
  * @param {string} csv 
  */
 function loadCSV(csv) {
@@ -1368,14 +1368,14 @@ function loadExcelfile(contents) {
   const attributeNames = {}
 
   /* 
-	 Transform data about factors into an array of objects, with properties named after the column headings
-	 (with first letter lower cased if necessary) and values from that row's cells.
-	 add a GUID to the object,  change 'Style' property to 'grp'
-	 Style is a style number
-	 Put value of Description or Notes property into notes
-	 Check that any other property names are not in the list of known attribute names; if so add that property name to the attribute name list 
-	 Place the factor either at the given x and y coordinates or at some random location
-	 */
+   Transform data about factors into an array of objects, with properties named after the column headings
+   (with first letter lower cased if necessary) and values from that row's cells.
+   add a GUID to the object,  change 'Style' property to 'grp'
+   Style is a style number
+   Put value of Description or Notes property into notes
+   Check that any other property names are not in the list of known attribute names; if so add that property name to the attribute name list 
+   Place the factor either at the given x and y coordinates or at some random location
+   */
 
   // convert data from Factors sheet into an array of objects with properties starting with lower case letters
   const factors = utils.sheet_to_json(factorsSS).map((f) => lowerInitialLetterOfProps(f))
@@ -1459,9 +1459,9 @@ function loadExcelfile(contents) {
     if (!f.y || isNaN(f.y)) f.y = Math.random() * 500
   })
   /* for each row of links
-	add a GUID
-	look up from and to in factor objects and replace with their ids
-	add other attributes as for factors */
+  add a GUID
+  look up from and to in factor objects and replace with their ids
+  add other attributes as for factors */
 
   const links = utils.sheet_to_json(linksSS).map((l) => lowerInitialLetterOfProps(l))
   links.forEach((l) => {
@@ -1586,8 +1586,6 @@ export function savePRSMfile() {
       version,
       room,
       mapTitle: elem('maptitle').innerText,
-      // 			security risk to save recent maps to a file
-      //			recentMaps: JSON.parse(localStorage.getItem('recents')),
       lastNodeSample,
       lastLinkSample,
       // clustering, and up/down, paths between and x links away settings are not saved (and hidden property is not saved)
@@ -1890,55 +1888,55 @@ export function setFileName(extn = 'prsm') {
  * Now obsolete, as the Excel file format is much more useful
  */
 /* export function exportCVS() {
-	let dummyDiv = document.createElement('div')
-	dummyDiv.id = 'dummy-div'
-	dummyDiv.style.display = 'none'
-	container.appendChild(dummyDiv)
-	let qed = new Quill('#dummy-div')
-	let str = 'Id,Label,Style,Note\n'
-	for (let node of data.nodes.get()) {
-		str += node.id + ','
-		if (node.label) str += '"' + node.label.replaceAll('\n', ' ') + '"'
-		str += ',' + node.grp + ','
-		if (node.note) {
-			qed.setContents(node.note)
-			// convert Quill formatted note to HTML, escaping all "
-			str +=
-				'"' +
-				new QuillDeltaToHtmlConverter(qed.getContents().ops, {
-					inlineStyles: true,
-				})
-					.convert()
-					.replaceAll('"', '""') +
-				'"'
-		}
-		str += '\n'
-	}
-	saveStr(str, 'nodes.csv')
-	str = 'Source,Target,Type,Id,Label,Style,Note\n'
-	for (let edge of data.edges.get()) {
-		str += edge.from + ','
-		str += edge.to + ','
-		str += 'directed,'
-		str += edge.id + ','
-		if (edge.label) str += edge.label.replaceAll('\n', ' ') + '"'
-		str += ',' + edge.grp + ','
-		if (edge.note) {
-			qed.setContents(edge.note)
-			// convert Quill formatted note to HTML, escaping all "
-			str +=
-				'"' +
-				new QuillDeltaToHtmlConverter(qed.getContents().ops, {
-					inlineStyles: true,
-				})
-					.convert()
-					.replaceAll('"', '""') +
-				'"'
-		}
-		str += '\n'
-	}
-	saveStr(str, 'edges.csv')
-	dummyDiv.remove()
+  let dummyDiv = document.createElement('div')
+  dummyDiv.id = 'dummy-div'
+  dummyDiv.style.display = 'none'
+  container.appendChild(dummyDiv)
+  let qed = new Quill('#dummy-div')
+  let str = 'Id,Label,Style,Note\n'
+  for (let node of data.nodes.get()) {
+    str += node.id + ','
+    if (node.label) str += '"' + node.label.replaceAll('\n', ' ') + '"'
+    str += ',' + node.grp + ','
+    if (node.note) {
+      qed.setContents(node.note)
+      // convert Quill formatted note to HTML, escaping all "
+      str +=
+        '"' +
+        new QuillDeltaToHtmlConverter(qed.getContents().ops, {
+          inlineStyles: true,
+        })
+          .convert()
+          .replaceAll('"', '""') +
+        '"'
+    }
+    str += '\n'
+  }
+  saveStr(str, 'nodes.csv')
+  str = 'Source,Target,Type,Id,Label,Style,Note\n'
+  for (let edge of data.edges.get()) {
+    str += edge.from + ','
+    str += edge.to + ','
+    str += 'directed,'
+    str += edge.id + ','
+    if (edge.label) str += edge.label.replaceAll('\n', ' ') + '"'
+    str += ',' + edge.grp + ','
+    if (edge.note) {
+      qed.setContents(edge.note)
+      // convert Quill formatted note to HTML, escaping all "
+      str +=
+        '"' +
+        new QuillDeltaToHtmlConverter(qed.getContents().ops, {
+          inlineStyles: true,
+        })
+          .convert()
+          .replaceAll('"', '""') +
+        '"'
+    }
+    str += '\n'
+  }
+  saveStr(str, 'edges.csv')
+  dummyDiv.remove()
 } */
 /**
  * Save the map in an Excel workbook, with two sheets: Factors and Links

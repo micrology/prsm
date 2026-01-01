@@ -772,6 +772,7 @@ canvas.on('mouse:dblclick', () => fit())
 const ARROWINCR = 1
 
 /**
+ * cSpell: ignore ARROWINCR
  * move the selected object by ARROWINCR in the given direction
  * @param {string} direction - 'ArrowUp', 'ArrowDown', 'ArrowLeft', or 'ArrowRight'
  */

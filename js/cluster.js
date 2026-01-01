@@ -489,10 +489,10 @@ function jLouvain(nodes, edges, initialPartition = null) {
   }
 
   /**
-   * Get all neighboring nodes for a given node
+   * Get all neighbouring nodes for a given node
    * @param {Object} graph - Graph object with _assocMat adjacency matrix
    * @param {number|string} node - Node identifier
-   * @returns {string[]} Array of neighbor node identifiers (as strings)
+   * @returns {string[]} Array of neighbour node identifiers (as strings)
    */
   const getNeighboursOfNode = (graph, node) => {
     return graph._assocMat[node] ? Object.keys(graph._assocMat[node]) : []
@@ -657,7 +657,7 @@ function jLouvain(nodes, edges, initialPartition = null) {
   }
 
   /**
-   * Get the communities of neighboring nodes and their edge weights
+   * Get the communities of neighbouring nodes and their edge weights
    * @param {number|string} node - Node identifier
    * @param {Object} graph - Graph object with adjacency matrix
    * @param {Object} status - Status object with community assignments
@@ -738,7 +738,7 @@ function jLouvain(nodes, edges, initialPartition = null) {
    * @param {Object} status - Status object with current community assignments (modified in place)
    */
   const computeOneLevel = (graph, status) => {
-    // Compute one level of the Communities Dendogram
+    // Compute one level of the Communities Dendrogram
     let modifiedFlag = true
     let nbPassDone = 0
     let curMod = calculateModularity(status)
@@ -811,19 +811,19 @@ function jLouvain(nodes, edges, initialPartition = null) {
   }
 
   /**
-   * Extract the partition at a specific level of the dendogram
-   * @param {Array} dendogram - Array of partitions at each level
+   * Extract the partition at a specific level of the dendrogram
+   * @param {Array} dendrogram - Array of partitions at each level
    * @param {number} level - Level to extract (0 = first level, higher = more aggregated)
    * @returns {Object} Node to community mapping at the specified level
    */
-  const partitionAtLevel = (dendogram, level) => {
-    const partition = clone(dendogram[0])
+  const partitionAtLevel = (dendrogram, level) => {
+    const partition = clone(dendrogram[0])
 
     for (let i = 1; i <= level; i++) {
       Object.keys(partition).forEach((key) => {
         const node = key
         const com = partition[key]
-        partition[node] = dendogram[i][com]
+        partition[node] = dendrogram[i][com]
       })
     }
 
@@ -831,13 +831,13 @@ function jLouvain(nodes, edges, initialPartition = null) {
   }
 
   /**
-   * Generate the complete dendogram (hierarchy) of community partitions
+   * Generate the complete dendrogram (hierarchy) of community partitions
    * @param {Object} graph - Input graph with nodes, edges, and adjacency matrix
    * @param {Object|null} partInit - Optional initial partition
    * @param {Object} localState - Local state for algorithm execution
    * @returns {Array} Array of partitions, each representing a level in the hierarchy
    */
-  const generateDendogram = (graph, partInit, localState) => {
+  const generatedendrogram = (graph, partInit, localState) => {
     if (graph.edges.length === 0) {
       return Object.fromEntries(graph.nodes.map((node) => [node, node]))
     }
@@ -889,7 +889,7 @@ function jLouvain(nodes, edges, initialPartition = null) {
     _assocMat: assocMat,
   }
 
-  // Generate dendogram and return final partition
-  const dendogram = generateDendogram(graph, initialPartition, localState)
-  return partitionAtLevel(dendogram, 0)
+  // Generate dendrogram and return final partition
+  const dendrogram = generatedendrogram(graph, initialPartition, localState)
+  return partitionAtLevel(dendrogram, 0)
 }

@@ -756,6 +756,7 @@ export function generateName() {
 export function statusMsg(msg) {
   elem('statusBar').innerHTML = htmlEntities(msg)
 }
+// CSpell: ignore dontFade
 /**
  * show alert messages at the bottom of the window
  * @param {string} msg
@@ -1082,7 +1083,7 @@ export class CP {
   }
 
   /**
-   * attach a color picker to an element to recolor the background to that element
+   * attach a color picker to an element to recolour the background to that element
    * @param {string} wellId the id of the DOM element to attach the color picker to
    * @param {string} callback - function to call when the color has been chosen, with that color as argument
    */

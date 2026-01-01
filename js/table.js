@@ -898,8 +898,6 @@ function quillFormatter(cell) {
     const html = new QuillDeltaToHtmlConverter(qed.getContents().ops, {
       inlineStyles: true,
     }).convert()
-    // this should work, but there is a bug in Tabulator
-    //		if (elem(`hide${cell.getColumn().getParentColumn().getField()}`).dataset.collapsed === 'false')
     if (
       elem(`hide${table === 'factors-table' ? 'Notes' : 'LinkNotes'}`).dataset.collapsed === 'false'
     ) {

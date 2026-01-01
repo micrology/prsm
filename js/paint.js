@@ -285,6 +285,7 @@ class ToolHandler {
    */
   panmove() {}
   /**
+   * CSpell: ignore panend
    * panend means the shape has been completed - add a marker to record that
    */
   panend() {
@@ -880,7 +881,7 @@ const eraserHandler = new EraserHandler()
  *  When the user is satisfied, indicated by clicking outside the image, it is drawn on the main canvas.
  *
  * Selecting the file is handled within the selectTool fn, not here, because of the restriction that file dialogs can
- * only be opended from direct user action.
+ * only be opened from direct user action.
  */
 
 const resizeBox = 10 // size in pixels of small square that is the resizing handle

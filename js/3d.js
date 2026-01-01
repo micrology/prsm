@@ -1,7 +1,7 @@
 /**
  *
  * PRSM 3D map view
- * generates a 'three dimensional'view of a PRSM map, build on threejs
+ * generates a 'three dimensional' view of a PRSM map, built on Three.js
  *
  *
  * */

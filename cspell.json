@@ -35,6 +35,11 @@
       "ignoreRegExpList": ["jsDocParamName", "jsDocReturnsName"]
     },
     {
+      "languageId": "typescript",
+      "includeRegExpList": ["CStyleComment"],
+      "ignoreRegExpList": ["jsDocParamName", "jsDocReturnsName"]
+    },
+    {
       "languageId": "css",
       "includeRegExpList": ["CStyleComment"]
     },
