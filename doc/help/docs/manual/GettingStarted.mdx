@@ -34,7 +34,7 @@ This what they do, from left to right:
 * **Bin** First, select a factor or a link by clicking on it.  Note that the selected factor or link gains a shadow and is listed in the status bar at the bottom of the window. Then click on the Bin button (or press the backspace or delete keys) - the factor or link is deleted.  The Undo button will restore it if you deleted it by mistake.
 * **Share** Shows a dialog box with a web link that you can copy and send to someone else.  If they then access that link, they will see your network and can edit and add to it. See [Sharing](#sharing) below.
 * **Open** Read in a file containing a network from your computer drive.  See [Reading and Saving](/manual/Files#reading-and-importing-maps) for supported file formats.  If you hover over the small triangle next to the button, you can choose whether the content of the file replaces the network in the browser or is [merged](/manual/Cloning#merging-maps) with it (if you click on the button itself, the file replaces the network).
-* **Save**  Save the network in a file on your computer. The file is saved in the app's own format, or if you hover over the small triangle next to the button, you can choose to save an image of the map as a high resolution image (a .PNG file), or the map data in GML (Graph Markup Language) or CSV (Comma Separated Values) formats. See [Reading and Saving](/manual/Files#saving-and-exporting-maps) for further details.
+* **Save**  Save the network in a file on your computer. The file is saved in the app's own format, or if you hover over the small triangle next to the button, you can choose to save an image of the map as a high resolution image (a .PNG file), as a Microsoft Excel file, or the map data in GML (Graph Markup Language) or several other formats. See [Reading and Saving](/manual/Files#saving-and-exporting-maps) for further details.
 * **Search** Search for factors by name.
 * **Help** Display this help page in a separate browser tab.
 * **Settings** Opens a panel that allows much more customisation and exploration of the network (see [Styling the map](/manual/Styling#styling-the-map) and [Analysing the map](/manual/Styling#analysing-the-map)).
@@ -85,11 +85,11 @@ alt="Notes Window button"
 style={{ width: 24, display: "inline" }}
 /> at the top right of the panel will open a new window that also shows the notes for the factor or link.  Using this window is easier if you have more than a few words to write.  It also provides a more extensive range of editing buttons:  you can style the text, insert images into the text, change the font and so on.  The small panel version of the notes keeps in sync with the larger window, and the text is saved as you write. When you are finished, click on the map background to deselect the factor or link; this also closes the Note Window.
 
-For factors, there is also an open or closed padlock symbol <img
+For factors, there is also a pushpin symbol <img
 src={normalizeImagePath("/images/padlock.png")}
-alt="Padlock"
+alt="Pushpin"
 style={{ width: 24, display: "inline" }}
-/>. If this is shown closed, the factor will be locked into place on the network pane and cannot be dragged elsewhere.  The factor will have a small padlock symbol at the top left.  
+/>. If this is shown solid white, the factor will be locked into place on the network pane and cannot be dragged elsewhere.  The factor will have a small pushpin symbol at the top left.  
 
 :::tip
 
@@ -99,7 +99,13 @@ Locking a factor is useful when you are doing analysis of the map (see the [Anal
 
 ### Overview
 
-On the left edge of the map, half way down, is a small yellow tab with three black dots.  Clicking on this opens an **overview panel** where you can describe the map as a whole and enter notes about it. Click on the tab again to close the panel.
+On the left edge of the map, half way down, is a small tab with three black dots.  Clicking on this opens an **overview panel** where you can describe the map as a whole and enter notes about it. Click on the tab again to close the panel.
+
+<img
+src={normalizeImagePath("/images/OverviewPanel.png")}
+alt="Overview Panel"
+style={{ width: 500}}
+/>
 
 ## Sharing
 
@@ -111,7 +117,7 @@ Click the 'Copy to clipboard' button to copy the web link to the clipboard, and 
 
 There are also three buttons on the right.  If you click  the **Clone map** button, a browser tab will open with the same map but in a new room - any changes made to this new map will *not* appear in the original room.  You can then send the web address to others, confident that they will not disturb the original map.  If you click the **Read only** button, a copy of the map will be made in a new browser tab, but without any of the buttons that would allow one to modify the map. You can use the web link of this map to distribute the map to people whom you want to look at the map, but not change it.  For more detail about these and about linking and merging maps, see the section on [Cloning, Linking and Merging Maps](/manual/Cloning).
 
-If you click the **Data view** button, the web link will be a spreadsheet-like view of the factors and links in the map (see the section on the [Data view](/manual/DataView#data-view)).
+If you click the **Data view** button, a new browser tab will open with a spreadsheet-like view of the factors and links in the map (see the section on the [Data view](/manual/DataView#data-view)).
 
 ## Avatars and pointers
 
@@ -129,7 +135,7 @@ You can 'follow' the mouse movements of another user by clicking on their avatar
 
 :::tip
 
-If you didn't provide your real name when you first started using PRSM, your nickname is randomly generated.  If you want to change your name, for instance to use your real name, click on your avatar (the one at the left edge), type in your replacement name and press OK.  
+If you didn't provide your real name when you first started using PRSM, your nickname is randomly generated.  If you want to change your name, for instance to use your real name, click on your avatar (the left most one), type in your replacement name and press OK.  
 
 :::
 

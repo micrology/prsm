@@ -1144,7 +1144,8 @@ but moving the panel out of sight works instead */
 #newNodeWindow:hover,
 #newEdgeWindow:hover,
 #sparklesNode:hover,
-#sparklesEdge:hover {
+#sparklesEdge:hover,
+#popup-cancelButton:hover {
   cursor: auto;
 }
 
