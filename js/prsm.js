@@ -2581,8 +2581,7 @@ function clearPopUp() {
   elem('popup-cancelButton').onclick = null
   elem('popup-label').onkeyup = null
   elem('popup').style.display = 'none'
-  if (elem('popup-node-editor')) elem('popup-node-editor').remove()
-  if (elem('popup-link-editor')) elem('popup-link-editor').remove()
+  if (elem('popup-editor')) elem('popup-editor').remove()
   if (elem('popup').timer) {
     clearTimeout(elem('popup').timer)
     elem('popup').timer = undefined
@@ -2677,10 +2676,16 @@ function editNode(item, point, cancelAction, callback) {
   elem('popup').insertAdjacentHTML(
     'beforeend',
     `
-		<div class="popup-node-editor" id="popup-node-editor">	
-			<div>fill</div>
-			<div>border</div>
-			<div>font</div>
+		<div class="popup-editor" id="popup-editor">
+    
+<!-- Header Labels -->
+
+    <div class="grid-header">fill</div>
+    <div class="grid-header">border</div>
+    <div class="grid-header">font</div>
+
+    <!-- Color Wells -->
+
 			<div class="input-color-container">
 				<div class="color-well" id="node-backgroundColor"></div>
 			</div>
@@ -2690,6 +2695,9 @@ function editNode(item, point, cancelAction, callback) {
 			<div class="input-color-container">
 				<div class="color-well" id="node-fontColor"></div>
 			</div>
+
+    <!-- Selection Dropdowns -->
+
 			<div>
 				<select name="nodeEditShape" id="nodeEditShape">
 					<option value="box">Shape...</option>
@@ -2721,12 +2729,12 @@ function editNode(item, point, cancelAction, callback) {
 					<option value="10">Small</option>
 				</select>
 			</div>
-			<div id="popup-sizer">
-				<label
-					>&nbsp;Size:
-					<input type="range" class="xrange" id="nodeEditSizer" />
-				</label>
-			</div>
+    <!-- Size Slider (Spans full width) -->
+      <div id="popup-sizer">
+          <div class="sizer-label">Size</div>
+          <input type="range" class="range" id="nodeEditSizer"
+          style="background: linear-gradient(to right, rgb(13, 38, 68) 0%, rgb(204, 204, 204) 0%);">
+      </div>
 		</div>
 		`
   )
@@ -2773,8 +2781,8 @@ function editNode(item, point, cancelAction, callback) {
   function makePortalInput(portal) {
     portal = portal || ''
     // expand the dialog to accommodate the textarea
-    elem('popup').style.height = `${230}px`
-    elem('popup-node-editor').insertAdjacentHTML(
+ //   elem('popup').style.height = `${230}px`
+    elem('popup-editor').insertAdjacentHTML(
       'beforeend',
       `<div id="popup-portal-link">
       				<label for="popup-portal-room">Map:</label>
@@ -2891,8 +2899,8 @@ function editEdge(item, point, cancelAction, callback) {
   initPopUp('Edit Link', 170, item, cancelAction, saveEdge, callback)
   elem('popup').insertAdjacentHTML(
     'beforeend',
-    `<div class="popup-link-editor" id="popup-link-editor">
-		<div>colour</div>
+    `<div class="popup-editor" id="popup-editor">
+		<div class="grid-header">colour</div>
 		<div></div>
 		<div></div>
 		<div class="input-color-container">
@@ -2919,19 +2927,16 @@ function editEdge(item, point, cancelAction, callback) {
 		</div>
 		<div>
 			<select name="linkEditDashes" id="linkEditDashes">
-				<option value="solid" selected>Solid</option>
-				<option value="dashedLinks">Dashed</option>
-				<option value="dots">Dotted</option>
+				<option value="solid" selected>Solid line</option>
+				<option value="dashedLinks">Dashed line</option>
+				<option value="dots">Dotted line</option>
 			</select>
 		</div>
 		<div>
-			<i>Font size:</i>	
-		</div>
-		<div>
 			<select id="linkEditFontSize">
-				<option value="24">Large</option>
-				<option value="14">Normal</option>
-				<option value="10">Small</option>
+				<option value="24">Large font</option>
+				<option value="14" selected>Normal font</option>
+				<option value="10">Small font</option>
 			</select>
 		</div>
 	</div>
