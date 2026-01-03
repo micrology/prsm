@@ -2537,7 +2537,7 @@ function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback)
   inAddMode = false
   inEditMode = true
   changeCursor('default')
-  elem('popup').style.height = `${height}px`
+ // elem('popup').style.height = `${height}px`
   elem('popup').style.borderColor = item.color.background
   elem('popup-operation').innerHTML = popUpTitle
   elem('popup-saveButton').onclick = saveAction.bind(this, item, callback)
