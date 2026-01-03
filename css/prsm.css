@@ -5,22 +5,22 @@
   box-sizing: border-box;
   touch-action: none;
   /* interface colours defined here: CECAN theme */
-  --header-color: rgb(13, 38, 68);
+  --header-color: rgb(0, 51, 112);
   --header-hover-color: rgb(128, 128, 128);
   --header-pressed-color: rgb(128, 128, 128);
-  --header-buttons-color: rgb(13, 38, 68);
-  --header-disabled-color: rgb(33, 95, 171);
-  --panel-color: rgb(64, 64, 64);
+  --header-buttons-color: rgb(4, 66, 142);
+  --header-disabled-color: rgb(41, 136, 252);
+  --panel-color: rgb(0, 54, 120);
   --pop-up-color: rgb(245, 245, 245);
   --pop-up-shadow-color: rgb(201, 201, 201);
-  --modal-header-color: rgb(13, 38, 68);
+  --modal-header-color: rgb(4, 66, 142);
   --tab-color: rgb(220, 220, 220);
   --tutorial-highlight-color: rgb(211, 47, 47);
   --map-title-color: rgb(255, 193, 7);
   --sample-selected-color: rgb(173, 216, 230);
   --notes-background-color: rgb(255, 255, 255, 0.9);
   --notes-background-solid-color: rgb(255, 255, 255);
-  --slider: rgb(13, 38, 68);
+  --slider: rgb(4, 66, 142);
 }
 html,
 body,
@@ -287,6 +287,7 @@ aside {
 #zoomcontrol input[type='range'] {
   vertical-align: middle;
   width: 180px;
+  accent-color: var(--panel-color);
 }
 .splash {
   text-align: center;
@@ -388,7 +389,7 @@ aside {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #666;
+  color: var(--header-color);
   text-align: center;
   font-weight: 600;
   margin-bottom: -4px;
@@ -419,7 +420,7 @@ aside {
   -webkit-appearance: none;
   width: 12px;
   height: 12px;
-  background: black;
+  background: var(--header-color);
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
@@ -432,7 +433,7 @@ aside {
 }
 .popup-editor #popup-portal-room {
   resize: none;
-  border: 1px solid rgb(0, 0, 0);
+  border: 1px solid var(--header-color);
   border-radius: 4px;
   padding: 4px;
   vertical-align: middle;
@@ -443,7 +444,7 @@ aside {
   overflow: hidden;
   width: 20px;
   height: 20px;
-  border: solid 2px rgb(211, 211, 211);
+  border: solid 2px var(--header-color);
   border-radius: 20px;
   margin: auto;
   padding: 0;
@@ -488,7 +489,6 @@ nav {
   background-color: var(--header-color);
   flex-direction: row;
   justify-content: flex-start;
-  padding: 10px 0 0 20px;
   user-select: none;
 }
 .strapline {
@@ -605,12 +605,13 @@ nav button .pressed {
   display: inline-block;
   padding: 0 4px 0 0;
   color: white;
+  background-color: var(--panel-color);
   z-index: 2050;
 }
 .dropdown-content {
   display: none;
   position: absolute;
-  background-color: var(--header-color);
+  background-color: var(--panel-color);
   z-index: 10;
 }
 .dropdown-wrapper:hover .dropdown-content {
@@ -625,6 +626,10 @@ nav button .pressed {
 .dropdown-content .tooltip .tooltiptext {
   top: 0;
   left: -70px;
+}
+.dropdown-item,
+#save-dropdown {
+  background-color: var(--panel-color);
 }
 .search-bar {
   display: none;
@@ -1049,7 +1054,7 @@ but moving the panel out of sight works instead */
   min-height: 200px; /* Prevent collapse */
 }
 .notePanel .header {
-  background: black;
+  background: var(--header-color);
   color: white;
   line-height: 1.2em;
   padding: 4px 6px;
@@ -1352,11 +1357,11 @@ input:checked + .slider:before {
   left: calc(100% - 630px);
   width: 400px;
   z-index: 2200;
-  background-color: rgb(0, 0, 0);
+  background-color: var(--panel-color);
   border-radius: 4px;
 }
 .history-header {
-  background-color: rgb(0, 0, 0);
+  background-color: var(--panel-color);
   border-radius: 4px 4px 0 0;
   text-align: center;
   color: white;
@@ -1381,7 +1386,7 @@ input:checked + .slider:before {
   overflow-y: scroll;
   overflow-x: hidden;
   width: 100%;
-  border: 2px solid rgb(0, 0, 0);
+  border: 2px solid var(--panel-color);
   border-radius: 0 0 4px 4px;
   box-sizing: border-box;
 }
@@ -1481,7 +1486,7 @@ input:checked + .slider:before {
 .toolbox-header {
   height: 15px;
   width: 40px;
-  border: 1px solid rgb(0, 0, 0);
+  border: 1px solid var(--panel-color);
   border-radius: 3px;
   margin: 8px;
 }
@@ -1498,7 +1503,7 @@ input:checked + .slider:before {
   line-height: 40px;
   font-size: 26px;
   color: white;
-  background-color: rgb(0, 0, 0);
+  background-color: var(--panel-color);
   margin: 8px;
 }
 .tool:hover {

@@ -278,13 +278,13 @@
                   </svg>
                 </span>
                 <div class="dropdown-content">
-                  <div>
+                  <div class="dropdown-item">
                     <div class="tooltip">
                       <button class="dropdown-label" type="button" id="replaceMap">Replace</button>
                       <span class="tooltiptext">Replace the map with a new one</span>
                     </div>
                   </div>
-                  <div>
+                  <div class="dropdown-item">
                     <div class="tooltip">
                       <button class="dropdown-label" type="button" id="mergeMap">Merge</button>
                       <span class="tooltiptext">Merge a new map into the this one</span>
@@ -334,50 +334,43 @@
                   </svg>
                 </span>
                 <div class="dropdown-content">
-                  <div>
+                  <div class="dropdown-item">
                     <div class="tooltip">
                       <button class="dropdown-label" type="button" id="exportPRSM">PRSM</button>
                       <span class="tooltiptext">Save as a PRSM file</span>
                     </div>
                   </div>
-                  <div>
+                  <div class="dropdown-item">
                     <div class="tooltip">
                       <button class="dropdown-label" type="button" id="exportImage">Image</button>
                       <span class="tooltiptext">Save as a PNG image file</span>
                     </div>
                   </div>
-                  <!-- 									<div>
-										<div class="tooltip">
-											<button class="dropdown-label" type="button" id="exportCVS">CSV</button>
-											<span class="tooltiptext">Save as CSV files</span>
-										</div>
-									</div>
- -->
-                  <div>
+                  <div class="dropdown-item">
                     <div class="tooltip">
                       <button class="dropdown-label" type="button" id="exportExcel">Excel</button>
                       <span class="tooltiptext">Save as Excel workbook</span>
                     </div>
                   </div>
-                  <div>
+                  <div class="dropdown-item">
                     <div class="tooltip">
                       <button class="dropdown-label" type="button" id="exportNotes">Notes</button>
                       <span class="tooltiptext">Save all Notes as A Word doc</span>
                     </div>
                   </div>
-                  <div>
+                  <div class="dropdown-item">
                     <div class="tooltip">
                       <button class="dropdown-label" type="button" id="exportGML">GML</button>
                       <span class="tooltiptext">Save as a GML file</span>
                     </div>
                   </div>
-                  <div>
+                  <div class="dropdown-item">
                     <div class="tooltip">
                       <button class="dropdown-label" type="button" id="exportDOT">GV</button>
                       <span class="tooltiptext">Save as a Graphviz DOT/GV) file</span>
                     </div>
                   </div>
-                  <div>
+                  <div class="dropdown-item">
                     <div class="tooltip">
                       <button class="dropdown-label" type="button" id="exportGraphML">
                         GraphML
@@ -385,7 +378,7 @@
                       <span class="tooltiptext">Save as a GraphML file</span>
                     </div>
                   </div>
-                  <div>
+                  <div class="dropdown-item">
                     <div class="tooltip">
                       <button class="dropdown-label" type="button" id="exportGEXF">GEXF</button>
                       <span class="tooltiptext">Save as a Gephi GEXF file</span>
@@ -513,7 +506,7 @@
         <div id="popup">
           <div id="popup-top">
             <div id="popup-operation">Factor</div>
-            <div class="interactiveButton"id="popup-cancelButton">&times;</div>
+            <div class="interactiveButton" id="popup-cancelButton">&times;</div>
           </div>
           <div>
             <div id="popup-label" contenteditable="true" spellcheck="true"></div>
@@ -1196,7 +1189,16 @@
         >
           Zoom
           <span id="zoomminus">&ndash;</span>
-          <input type="range" id="zoom" min="0" max="4" step="0.01" value="1" list="zoom-ticks" />
+          <input
+            type="range"
+            class="range"
+            id="zoom"
+            min="0"
+            max="4"
+            step="0.01"
+            value="1"
+            list="zoom-ticks"
+          />
           <datalist id="zoom-ticks">
             <option>1</option>
             <option>2</option>
@@ -1430,7 +1432,7 @@
             </span>
             <span class="tooltiptext" style="margin-left: -100px">Copy history to clipboard</span>
           </div>
-          <span class="history-close" id="history-close">&times;</span>
+          <span class="history-close interactiveButton" id="history-close">&times;</span>
         </div>
         <div class="history-log-wrapper" id="history-log-wrapper">
           <div class="history-log" id="history-log"></div>
