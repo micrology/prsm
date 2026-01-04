@@ -3,24 +3,45 @@ sidebar_position: 13
 ---
 # Release Notes
 
-## 2.3
+## Version 2.6, September 2025
+
+* New: Louvain clustering of factors. This is a method of detecting communities or clusters of related factors within a map. See Louvain Clustering for further details.
+* Command/Control key combinations can be used instead of the Save (^S), Open (^O) and Undo (^Z) buttons.
+* And formatting changes and bug fixes.
+
+## Version 2.5, April 2025
+
+* New: importing and exporting GEXF and GraphML files. These are standard formats for representing graphs and networks. You can now import and export PRSM maps in these formats, making it easier to share your maps with other applications and tools. See Opening and Saving maps.
+* The Force Atlas 2 layout engine has been tuned to give a more useful layout of complex maps.
+* The Settings Factor Styles panel has the number of available styles doubled from 6 to 12.
+
+## Version 2.4, December 2024
+
+* This version introduces a new type of factor: 'Portals'. A portal factor is a special type of factor that links to another map. When you click on a portal factor, the map it links to will open in a new browser tab. This useful when, for example, you have several related maps and want to move easily between them. It is also useful if you have a high level or abstract map. Portal factors on this map can link to more detailed maps that expand on the factors in the high level one. * See Linking one map to another for further details.
+When opening a map from a file, you can now choose whether the map should replace the existing map, or be merged with it. See Merging Maps.
+* The colour picker, used to choose the colour of factors, links, background shapes and the map background, has been enhanced to control the transparency of the colour. One use of this is that if you make the map background transparent and then obtain a high definition image of the map, that image will also have a transparent background, which can be helpful when incorporating the image into a web page.
+* When creating a 'read-only' copy of a map, you can choose whether to include a 'Copy map' button in the top bar. If you do, viewers cannot change the read only map, but they can create a fully editable copy of the map in a new room, displayed in a new browser tab.
+* The User Manual has been reformatted and extended and you can now search it.
+* And bug fixes and security updates.
+
+## Version 2.3
 
 * The chat feature (the dialog icon in the bottom right corner) has been removed - it was very rarely used.
 * A "minimap" has replaced it. The minimap is a small version of the entire map, displayed in the bottom right corner of the screen. It only appears if some parts of the map are not visible within the main window. A rectangular outline on the minimap indicates the portion of the map that is currently visible in the main window. This helps you to see how the visible section fits within the larger map, especially if the map is extensive. You can drag the rectangle on the minimap to quickly move the visible area to a different part of the map.
 * To change your name and your initials shown on the avatar at the top right corner of the map and elsewhere, click on the avatar.  A dialog will open for you to enter your new name.
 * To open a PRSM map file (or any of the other types of file that PRSM can read), you can either use the Open button or you can now drag a file from your desktop and drop it on the PRSM browser window.
 
-## 2.2
+## Version 2.2
 
 * The shapes for individual factors, or for all the factors of the same style, can be resized to be relatively larger than other factors.  This is done with new sliders included on the pop-up dialogs for editing factors and editing factor styles.
 * You can save a high resolution (8192 x 8192 pixels) image of the map as a Portable Network Graphics (.png) file using the Save drop down menu.  The image, which is suitable for publication, will show the whole map.  If, however, you want the image to include just a portion of the map, select a factor or factors that you want the image to be centred on before Saving the image.  The image will include just those factors and the neighbouring ones.
 
-## 2.1
+## Version 2.1
 
 * There is now a panel into which you can write a description or notes about the map as a whole.  To view the panel, click on the small grey button on the left edge of the map area.  While entering or editing text, you can use the formatting buttons at the top of the panel: bold, italic, underline, as well as change font size, insert images etc.  The contents of the panel are shared with other participants as you write. Click on the grey button again to put the panel away.
 * Instead of some factors and links being hidden when using the Analysis features, they are faded out, to provide more context around those that are shown.
 
-## 2.0
+## Version 2.0
 
 Comparing version 2.0.x with version 1.9.0:
 

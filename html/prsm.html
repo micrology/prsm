@@ -1401,8 +1401,7 @@
             This panel will appear whenever a new version of PRSM is released. You'll only see it
             once. Click anywhere on the background map to dismiss it.
           </div>
-          <ul class="whatsnewlist">
-            <script src="../whatsnew.js"></script>
+          <ul class="whatsnewlist" id="whatsnewlist">
           </ul>
         </div>
       </div>
@@ -1483,6 +1482,14 @@
       <input type="url" id="mergedRoom" autofocus />
       <button id="merge">Merge</button>
     </dialog>
+    <script>
+      fetch('./whatsnew.html')
+        .then(response => response.text())
+        .then(html => {
+          document.getElementById('whatsnewlist').innerHTML = html;
+        })
+        .catch(error => console.error('Error loading whatsnew content:', error));
+    </script>
     <script src="../js/prsm.js" type="module" async></script>
   </body>
 </html>
