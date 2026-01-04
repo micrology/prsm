@@ -422,7 +422,7 @@ function displayWhatsNew() {
   const seen = localStorage.getItem('seenWN')
   if (seen) {
     const seenDecoded = seen.match(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)/)
-    // if this is a new minor version, show the What's New dialog
+    // if this is a new minor version, show the What's New dialog else return without showing it
     if (
       seenDecoded &&
       versionDecoded[1] === seenDecoded[1] &&
@@ -436,7 +436,7 @@ function displayWhatsNew() {
   elem('net-pane').addEventListener('click', hideWhatsNew, { once: true })
 }
 /**
- * hide the What's New dialog when the user has clicked Continue, and note tha the user has seen it
+ * hide the What's New dialog when the user has clicked Continue, and note that the user has seen it
  */
 function hideWhatsNew() {
   localStorage.setItem('seenWN', version)
@@ -2548,14 +2548,14 @@ function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback)
   setEndOfContenteditable(popupLabel)
   listen('popup', 'keydown', captureReturn)
   function captureReturn(e) {
-    /*     if (e.key === 'Enter' && !e.shiftKey) {
-          elem('popup').removeEventListener('keydown', captureReturn)
-          saveAction(item, callback) 
-        } else */
-    if (e.key === 'Escape') {
+    if (e.key === 'Enter' && !e.shiftKey) {
       elem('popup').removeEventListener('keydown', captureReturn)
-      cancelAction(item, callback)
-    }
+      saveAction(item, callback)
+    } else
+      if (e.key === 'Escape') {
+        elem('popup').removeEventListener('keydown', captureReturn)
+        cancelAction(item, callback)
+      }
   }
 }
 /**
@@ -2710,6 +2710,7 @@ function editNode(item, point, cancelAction, callback) {
 					<option value="hexagon">Hexagon</option>
 					<option value="text">Text</option>
 					<option value="portal">Portal</option>
+          <option value="image" disabled>Cluster</option>
 				</select>
 			</div>
 			<div>
@@ -3448,17 +3449,17 @@ function ghostCursor() {
     const boxHalfHeight = box.offsetHeight / 2
     const left = window.event.pageX - boxHalfWidth
     box.style.left = `${left <= netPaneRect.left
-        ? netPaneRect.left
-        : left >= netPaneRect.right - box.offsetWidth
-          ? netPaneRect.right - box.offsetWidth
-          : left
+      ? netPaneRect.left
+      : left >= netPaneRect.right - box.offsetWidth
+        ? netPaneRect.right - box.offsetWidth
+        : left
       }px`
     const top = window.event.pageY - boxHalfHeight
     box.style.top = `${top <= netPaneRect.top
-        ? netPaneRect.top
-        : top >= netPaneRect.bottom - box.offsetHeight
-          ? netPaneRect.bottom - box.offsetHeight
-          : top
+      ? netPaneRect.top
+      : top >= netPaneRect.bottom - box.offsetHeight
+        ? netPaneRect.bottom - box.offsetHeight
+        : top
       }px`
   }
 }

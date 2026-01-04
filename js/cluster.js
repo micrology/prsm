@@ -196,7 +196,7 @@ function clusterByLouvain() {
   clusterGroups(communities, (comm) => {
     return {
       id: `cluster-louvain-${comm}`,
-      label: `Cluster ${comm}`,
+      label: `Cluster ${parseInt(comm) + 1}`,  //start counting 1
       color: commColors[comm],
     }
   })

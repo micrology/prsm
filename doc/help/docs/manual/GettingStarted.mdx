@@ -85,8 +85,14 @@ alt="Notes Window button"
 style={{ width: 24, display: "inline" }}
 /> at the top right of the panel will open a new window that also shows the notes for the factor or link.  Using this window is easier if you have more than a few words to write.  It also provides a more extensive range of editing buttons:  you can style the text, insert images into the text, change the font and so on.  The small panel version of the notes keeps in sync with the larger window, and the text is saved as you write. When you are finished, click on the map background to deselect the factor or link; this also closes the Note Window.
 
+Clicking the 'Sparkle' button  <img
+src={normalizeImagePath("/images/SparkleIcon.png")}
+alt="Sparkle Button"
+style={{ width: 24, display: "inline" }}
+/> will get AI to generate a draft descriptive note.  For further details see the [AI Assistance](/manual/AIAssistance) section.
+
 For factors, there is also a pushpin symbol <img
-src={normalizeImagePath("/images/padlock.png")}
+src={normalizeImagePath("/images/PinIcon.png")}
 alt="Pushpin"
 style={{ width: 24, display: "inline" }}
 />. If this is shown solid white, the factor will be locked into place on the network pane and cannot be dragged elsewhere.  The factor will have a small pushpin symbol at the top left.  
@@ -104,7 +110,7 @@ On the left edge of the map, half way down, is a small tab with three black dots
 <img
 src={normalizeImagePath("/images/OverviewPanel.png")}
 alt="Overview Panel"
-style={{ width: 500}}
+style={{ width: 400}}
 />
 
 ## Sharing
@@ -113,9 +119,9 @@ If you use [https://prsm.uk/prsm.html](https://prsm.uk/prsm.html) to start the a
 
 ![Sharing box](/images/prsm-share.png)
 
-Click the 'Copy to clipboard' button to copy the web link to the clipboard, and then paste the link into an email or a text message or just tell other participants the name of the room (which is a randomly generated set of 4 groups of three letters separated by hyphens).  When they access the link, they will see whatever is in your app window.
+Click the 'Copy to clipboard' button to copy the web link to the clipboard, and then paste the link into an email or a text message or just tell other participants the name of the room (which is a randomly generated set of 4 groups of three letters separated by hyphens).  When they access the link, they will see whatever is in your browser window.
 
-There are also three buttons on the right.  If you click  the **Clone map** button, a browser tab will open with the same map but in a new room - any changes made to this new map will *not* appear in the original room.  You can then send the web address to others, confident that they will not disturb the original map.  If you click the **Read only** button, a copy of the map will be made in a new browser tab, but without any of the buttons that would allow one to modify the map. You can use the web link of this map to distribute the map to people whom you want to look at the map, but not change it.  For more detail about these and about linking and merging maps, see the section on [Cloning, Linking and Merging Maps](/manual/Cloning).
+There are also three buttons on the right.  If you click  the **Clone map** button, a browser tab will open with the same map but in a new room - any changes made to this new map will *not* appear in the original room.  You can then send the web address to others, confident that they will not disturb the original map.  If you click the **Read only** button, a copy of the map will be made in a new browser tab, but without any of the buttons that would allow one to modify the map. You can use the web link of this map to distribute the map to people whom you want to look at the map, but not change it. If you check the box, 'Allow users to make an editable copy', the map will include a button that will allow them to make a an additional copy which *is* editable.  For more detail about these and about linking and merging maps, see the section on [Cloning, Linking and Merging Maps](/manual/Cloning).
 
 If you click the **Data view** button, a new browser tab will open with a spreadsheet-like view of the factors and links in the map (see the section on the [Data view](/manual/DataView#data-view)).
 
@@ -165,6 +171,8 @@ style={{ width: 400}}
 />
 
 See [Styling the map](/manual/Styling#styling-the-map) for more on changing the look of factors and links.
+
+If the dialog appears in an inconvenient place, you can move it by dragging the top header element.  The same applies to all the dialogs in PRSM: they can be moved by dragging their headers.  If you want to cancel all your changes, click on the small '**x**' in the header, or press <kbd>ESC</kbd>.  This also works in other PRSM dialogs.
 
 :::info Privacy and security
 

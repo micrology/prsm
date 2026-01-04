@@ -16,6 +16,9 @@
   background-color: #6b6969;
   color: white;
 }
+th {
+  color: white !important;
+}
 .r31 {
   background-color: #f8f8f8;
 }

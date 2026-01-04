@@ -44,12 +44,12 @@ However, as a special case, if you replace your map with an empty one (a map wit
 
 ### Excel
 
-An **Excel** workbook should contain two spreadsheets, one named ‘Factors’ and the other named ‘Links’.  Both should have a Header (i.e. first row) of column names, with the remaining rows containing data about each Factor or Link (in any order).
+To allow PRSM to read data about a map from Excel, the **Excel** workbook should contain two spreadsheets, one named ‘Factors’ and the other named ‘Links’.  Both should have a Header (i.e. first row) of column names, with the remaining rows containing data about each Factor or Link (in any order).
 
 The *Factors sheet* must have a column headed ‘Label’.  This column should contain text that will become the labels of the factors. It may, optionally, have:
 
 * a column headed either 'Note' or ‘Description’.  The contents of this column will become notes for the Factors (i.e. the text shown in the Notes box when you select a Factor).
-* a column headed ‘Style’, with the contents being numbers between 1 and 9, representing the style to be applied to the Factor (the styles are numbered according to the [Factor Styles](/manual/Styling#factors-tab) tab, from top left to bottom right).
+* a column headed ‘Style’, with the contents being numbers between 1 and 15, representing the style to be applied to the Factor (the styles are numbered according to the [Factor Styles](/manual/Styling#factors-tab) tab, from top left to bottom right).
 * columns headed 'x' and 'y', holding the numeric coordinates of the Factors in the map.
 
 All other columns are considered to be values of Attributes assigned to Factors and visible in the [Data View](/manual/DataView#data-view) of the map.
@@ -75,15 +75,7 @@ style={{ width: 100}}
 />
 </p>
 
-The map can be saved in the app's own native format, or as a[**GRAPHML**](http://graphml.graphdrawing.org/), [**GEXF**](https://gexf.net/primer.html), [**GML**](https://en.wikipedia.org/wiki/Graph_Modelling_Language) or [**GraphVix**](https://graphviz.org/) file, or as an **Excel** workbook. The Notes can be written into a file readable by **Microsoft Word**. PRSM can also output the map as a high resolution image.
-
-### Exporting the map to other software
-
-To transfer a map into other software, such as [Gephi](https://gephi.org/), export the map data into a file (use the GEXF format for Gephi).  The fle can then be read into the other software (using its Import or Open command) and analysed as a network.
-
-### Notes file
-
-The output is a **Word** file (.docx) containing, in order, the name of the map, the contents of the map description, any Notes attached to Factors and any Notes attached to Links. The file will be formatted as far as possible similarly to the text in the app (e.g. it will retain bold and italic and bullets, and inserted images).
+The map can be saved in the app's own native format, or as a [**GRAPHML**](http://graphml.graphdrawing.org/), [**GEXF**](https://gexf.net/primer.html), [**GML**](https://en.wikipedia.org/wiki/Graph_Modelling_Language) or [**GraphVix**](https://graphviz.org/) file, or as an **Excel** workbook. The Notes can be written into a file readable by **Microsoft Word**. PRSM can also output the map as a high resolution image.  In more detail:
 
 ### Image file
 
@@ -104,3 +96,11 @@ style={{ width: 600}}
 />
 
 Unless you change the background colour, the image will have a solid white background.  If you would prefer a transparent background (so that, for example, you can paste the image into a presentation and still see the slide background), go to the Background colour well in the [Network tab](/manual/Styling#network-tab) of the Settings dialog and move the lower slider to the left, to maximum transparency.
+
+### Notes file
+
+The output is a **Word** file (.docx) containing, in order, the name of the map, the contents of the map description, any Notes attached to Factors and any Notes attached to Links. The file will be formatted as far as possible similarly to the text in the app (e.g. it will retain bold and italic and bullets, and inserted images).
+
+### Exporting the map to other software
+
+To transfer a map into other software, such as [Gephi](https://gephi.org/), export the map data into a file (use the GEXF format for Gephi).  The fle can then be read into the other software (using its Import or Open command) and analysed as a network.
