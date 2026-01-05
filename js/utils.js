@@ -497,10 +497,10 @@ export function addContextMenu(elem, menu) {
         : mouseY
     menuEl.style.top = `${posY}px`
     menuEl.style.left = `${posX}px`
-    menuEl.classList.remove('visible')
+    /* menuEl.classList.remove('visible')
     setTimeout(() => {
       menuEl.classList.add('visible')
-    })
+    }) */
   })
   document.body.addEventListener('click', () => {
     menuEl.classList.remove('visible')

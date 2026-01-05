@@ -5,22 +5,34 @@
   box-sizing: border-box;
   touch-action: none;
   /* interface colours defined here: CECAN theme */
-  --header-color: rgb(0, 51, 112);
-  --header-hover-color: rgb(128, 128, 128);
-  --header-pressed-color: rgb(128, 128, 128);
-  --header-buttons-color: rrgb(0, 47, 104);
-  --header-disabled-color: rgb(41, 136, 252);
-  --panel-color: rgb(0, 47, 104);
-  --pop-up-color: rgb(245, 245, 245);
-  --pop-up-shadow-color: rgb(201, 201, 201);
-  --modal-header-color: rgb(0, 47, 104);
-  --tab-color: rgb(220, 220, 220);
-  --tutorial-highlight-color: rgb(211, 47, 47);
-  --map-title-color: rgb(255, 193, 7);
-  --sample-selected-color: rgb(173, 216, 230);
-  --notes-background-color: rgb(255, 255, 255, 0.9);
-  --notes-background-solid-color: rgb(255, 255, 255);
-  --slider: rgb(0, 47, 104);
+  /* --primary-color: rgb(0, 51, 112);
+  --tip-background-color: rgb(128, 128, 128);
+  --tip-background-color: rgb(128, 128, 128);
+  --primary-color: rgb(0, 47, 104);
+  --disabled-color: rgb(41, 136, 252);
+  --primary-color: rgb(0, 47, 104);
+  --shadow-color: rgb(245, 245, 245);
+  --shadow-color: rgb(201, 201, 201);
+  --primary-color: rgb(0, 47, 104);
+  --shadow-color: rgb(220, 220, 220);
+  --alert-color: rgb(211, 47, 47);
+  --secondary-color: rgb(255, 193, 7);
+  --selection-color: rgb(173, 216, 230);
+  --background-color: rgb(255, 255, 255, 0.9);
+  --background-opaque-color: rgb(255, 255, 255);
+  --primary-color: rgb(0, 47, 104); */
+  /* interface colours defined here: PRSM theme */
+  --primary-color: rgb(0, 51, 112);
+  --secondary-color: rgb(255, 193, 7);
+  --selection-color: rgb(173, 216, 230);
+  --tip-background-color: rgb(128, 128, 128);
+  --tip-font-color: rgb(255, 255, 255);
+  --shadow-color: rgb(201, 201, 201);
+  --hover-color: rgb(128, 128, 128);
+  --disabled-color: rgb(41, 136, 252);
+  --alert-color: rgb(211, 47, 47);
+  --background-color: rgba(255, 255, 255, 0.9);
+  --background-opaque-color: rgb(255, 255, 255);
 }
 html,
 body,
@@ -53,11 +65,12 @@ p {
 }
 button,
 input,
+textarea
 select {
-  font-family: Oxygen, sans-serif;
+  font: inherit;
 }
 select {
-  border-color: rgb(211, 211, 211);
+  border-color: var(--shadow-color);
   border-radius: 5px;
   font-size: 12px;
   outline: none;
@@ -94,8 +107,8 @@ select {
   text-align: center;
   font-size: 14px;
   background-color: white;
-  color: rgb(0, 0, 0);
-  border-top: 1px solid rgb(211, 211, 211);
+  color: black;
+  border-top: 1px solid var(--shadow-color);
   user-select: none;
   -webkit-user-select: none;
 }
@@ -136,7 +149,7 @@ select {
   height: 20px;
   width: 20px;
   border-radius: 100%;
-  background-color: rgb(0, 0, 0);
+  background-color: black;
   position: absolute;
 }
 .loader--dot:first-child {
@@ -185,7 +198,7 @@ select {
   outline: none;
   border-radius: 15px;
   height: 6px;
-  background: #ccc;
+  background: var(--shadow-color)
 }
 /* Thumb: all except Firefox */
 .xrange::-webkit-slider-thumb {
@@ -193,7 +206,7 @@ select {
   appearance: none;
   height: 12px;
   width: 12px;
-  background-color: var(--slider);
+  background-color: var(--primary-color);
   border-radius: 50%;
   border: none;
   transition: 0.2s ease-in-out;
@@ -202,7 +215,7 @@ select {
 .xrange::-moz-range-thumb {
   height: 12px;
   width: 12px;
-  background-color: var(--slider);
+  background-color: var(--primary-color);
   border-radius: 50%;
   border: none;
   transition: 0.2s ease-in-out;
@@ -228,7 +241,7 @@ aside {
   user-select: none;
   -webkit-user-select: none;
   z-index: 2000;
-  box-shadow: 0px 6px 24px var(--pop-up-shadow-color);
+  box-shadow: 0px 6px 24px var(--shadow-color);
 }
 .dragHandle {
   cursor: move;
@@ -251,12 +264,9 @@ aside {
 }
 @keyframes showErrMsg {
   from {
-    opacity: 0;
-  }
-  20% {
     opacity: 1;
   }
-  80% {
+  90% {
     opacity: 1;
   }
   to {
@@ -268,7 +278,6 @@ aside {
 }
 #statusBar {
   padding: 3px 20px;
-  border-radius: 5px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -287,16 +296,7 @@ aside {
 #zoomcontrol .range {
   vertical-align: middle;
   width: 180px;
-  accent-color: var(--panel-color);
-}
-#zoomcontrol .range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
-  background-color: red;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  accent-color: var(--primary-color);
 }
 .splash {
   text-align: center;
@@ -313,15 +313,14 @@ aside {
   border: 1px rgb(0, 0, 255) dotted;
 }
 /* Add and edit factor and link dialog */
-
 #popup {
   display: none;
   position: absolute;
   width: 275px;
   z-index: 50;
-  background-color: white;
-  box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
-  border: thin solid var(--pop-up-shadow-color);
+  background-color: var(--background-opaque-color);
+  box-shadow: 2px 2px 10px 0px var(--shadow-color);
+  border: thin solid var(--shadow-color);
   border-radius: 6px;
 }
 #popup-top {
@@ -329,8 +328,8 @@ aside {
   font-size: 16px;
   font-weight: bold;
   padding: 3px 5px;
-  border-bottom: 1px solid lightgray;
-  background-color: var(--header-color);
+  border-bottom: 1px solid var(--shadow-color);
+  background-color: var(--primary-color);
   color: white;
   border-radius: 6px 6px 0 0;
 }
@@ -340,10 +339,10 @@ aside {
   overflow-y: auto;
   overflow-x: hidden;
   outline: none;
-  color: rgb(0, 0, 0);
+  color: black;
   min-width: 160px;
   min-height: 30px;
-  border: 1px solid lightgrey;
+  border: 1px solid var(--shadow-color);
   border-radius: 4px;
   padding: 2px;
   margin: 6px;
@@ -356,7 +355,7 @@ aside {
 }
 #popup-saveButton {
   font-size: 12px;
-  background-color: var(--header-color);
+  background-color: var(--primary-color);
   color: white;
   border-radius: 3px;
   padding: 3px 10px;
@@ -369,7 +368,7 @@ aside {
   right: 7px;
 }
 #popup-saveButton:hover {
-  background-color: rgb(128, 128, 128);
+  background-color: var(--hover-color);
 }
 #popup-cancelButton {
   font-size: 20px;
@@ -379,7 +378,7 @@ aside {
   top: -6px;
 }
 #popup-cancelButton:hover {
-  color: rgb(128, 128, 128);
+  color: var(--hover-color);
   text-decoration: none;
   cursor: default;
 }
@@ -390,15 +389,14 @@ aside {
   align-items: center;
   grid-gap: 7px;
   margin: 10px;
-  color: rgb(0, 0, 0);
-  font-family: Oxygen, sans-serif;
+  color: black
   font-size: 12px;
 }
 .popup-editor .grid-header {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--header-color);
+  color: var(--primary-color);
   text-align: center;
   font-weight: 600;
   margin-bottom: -4px;
@@ -434,7 +432,7 @@ select option {
   -webkit-appearance: none;
   width: 12px;
   height: 12px;
-  background: var(--header-color);
+  background: var(--primary-color);
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
@@ -447,7 +445,7 @@ select option {
 }
 .popup-editor #popup-portal-room {
   resize: none;
-  border: 1px solid var(--header-color);
+  border: 1px solid var(--primary-color);
   border-radius: 4px;
   padding: 4px;
   vertical-align: middle;
@@ -458,7 +456,7 @@ select option {
   overflow: hidden;
   width: 20px;
   height: 20px;
-  border: solid 2px var(--header-color);
+  border: solid 2px var(--primary-color);
   border-radius: 20px;
   margin: auto;
   padding: 0;
@@ -493,14 +491,14 @@ select option {
   z-index: 5000;
   background-color: rgb(211, 211, 211);
   border-radius: 4px;
-  box-shadow: 4px 4px 15px 0px var(--pop-up-shadow-color);
-  border: thin solid var(--pop-up-shadow-color);
+  box-shadow: 4px 4px 15px 0px var(--shadow-color);
+  border: thin solid var(--shadow-color);
 }
 /* ----- Top Navigation Bar ---------------------------------------------------------- */
 
 nav {
   display: flex;
-  background-color: var(--header-color);
+  background-color: var(--primary-color);
   flex-direction: row;
   justify-content: flex-start;
   user-select: none;
@@ -525,7 +523,7 @@ nav {
   font-size: 20px;
   margin: 5px 0 0 10px;
   padding: 3px;
-  color: var(--map-title-color);
+  color: var(--secondary-color);
   text-align: left;
 }
 .unsetmaptitle {
@@ -555,7 +553,7 @@ nav {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  background-color: var(--header-color);
+  background-color: var(--primary-color);
   color: white;
   border-radius: 4px;
   padding: 2px;
@@ -570,15 +568,15 @@ nav {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  border: var(--tab-color) solid 1px;
-  background-color: var(--header-buttons-color);
+  border: var(--shadow-color) solid 1px;
+  background-color: var(--primary-color);
   border-radius: 4px;
   padding: 5px;
 }
 nav button {
   border: none;
   color: white;
-  background-color: var(--header-buttons-color);
+  background-color: var(--primary-color);
   margin: auto 5px;
   padding: 1px 6px;
   outline: none;
@@ -588,17 +586,17 @@ nav .button-text {
   color: white;
 }
 nav button:active {
-  color: var(--header-hover-color);
+  color: var(--tip-background-color);
 }
 nav button .pressed {
-  color: var(--header-pressed-color);
+  color: var(--tip-background-color);
 }
 .disabled {
-  color: var(--header-disabled-color);
+  color: var(--disabled-color);
 }
 .disabled:hover,
 .disabled:active {
-  color: var(--header-disabled-color);
+  color: var(--disabled-color);
 }
 .right-border {
   border-right: 1px solid white;
@@ -619,20 +617,20 @@ nav button .pressed {
   display: inline-block;
   padding: 0 4px 0 0;
   color: white;
-  background-color: var(--panel-color);
+  background-color: var(--primary-color);
   z-index: 2050;
 }
 .dropdown-content {
   display: none;
   position: absolute;
-  background-color: var(--panel-color);
+  background-color: var(--primary-color);
   z-index: 10;
 }
 .dropdown-wrapper:hover .dropdown-content {
   display: block;
 }
 .dropdown-label:hover {
-  background-color: var(--header-hover-color);
+  background-color: var(--hover-color);
 }
 .dropdown-content .tooltip button {
   font-size: 14px;
@@ -643,7 +641,7 @@ nav button .pressed {
 }
 .dropdown-item,
 #save-dropdown {
-  background-color: var(--panel-color);
+  background-color: var(--primary-color);
 }
 .search-bar {
   display: none;
@@ -786,7 +784,7 @@ nav button .pressed {
 }
 .modal-header {
   padding: 4px 16px;
-  background-color: var(--modal-header-color);
+  background-color: var(--primary-color);
   color: white;
 }
 .modal-header .close {
@@ -798,7 +796,7 @@ nav button .pressed {
 }
 .modal-header .close:hover,
 .modal-header .close:focus {
-  color: rgb(128, 128, 128);
+  color: var(--hover-color);
   text-decoration: none;
   cursor: pointer;
 }
@@ -815,14 +813,14 @@ nav button .pressed {
 }
 .modal-body .modal-button {
   border-radius: 8px;
-  color: rgb(0, 0, 0);
+  color: black;
   background-color: white;
   border: 2px solid rgb(128, 128, 128);
   text-align: center;
   box-shadow: 1px 1px 4px rgb(128, 128, 128);
 }
 .modal-body .modal-button:hover {
-  border-color: rgb(0, 0, 0);
+  border-color: var(--hover-color);
 }
 .modal-body .modal-button:active {
   box-shadow: inset 0px 0px 5px rgb(193, 193, 193);
@@ -926,7 +924,7 @@ nav button .pressed {
 
 .panelHeader {
   width: 100%;
-  background-color: var(--panel-color);
+  background-color: var(--primary-color);
   height: 8px;
   border-radius: 4px 4px 0 0;
 }
@@ -937,14 +935,14 @@ nav button .pressed {
   justify-content: space-between;
   padding: 0 4px 0 4px;
   overflow: hidden;
-  background-color: var(--panel-color);
+  background-color: var(--primary-color);
 }
 /* Style the buttons that are used to open the tab content */
 
 .tab .tablinks {
   flex: 1;
   font-size: 11px;
-  background-color: var(--panel-color);
+  background-color: var(--primary-color);
   color: white;
   float: left;
   border: 1px solid white;
@@ -962,7 +960,7 @@ nav button .pressed {
 
 .tab .tablinks.active {
   background-color: white;
-  color: rgb(0, 0, 0);
+  color: black;
 }
 /* Style the tab content */
 
@@ -973,14 +971,9 @@ nav button .pressed {
 .samples,
 .networkStyles {
   padding: 4px;
-  background-color: var(--panel-color);
+  background-color: var(--primary-color);
   color: white;
   font-size: 11px;
-  border-radius: 4px;
-}
-.samples,
-.networkStyles {
-  border-radius: 0 0 4px 4px;
 }
 .networkGrid {
   display: grid;
@@ -1030,7 +1023,7 @@ but moving the panel out of sight works instead */
   border-radius: 3px;
   margin-top: 10px;
   outline: none;
-  background-color: var(--tab-color);
+  background-color: var(--shadow-color);
 }
 .sampleGrid {
   display: grid;
@@ -1047,9 +1040,8 @@ but moving the panel out of sight works instead */
   background-color: white;
 }
 .sampleSelected {
-  box-shadow: 0 0 0 2px var(--sample-selected-color);
+  outline: 2px solid var(--selection-color);
 }
-
 /* the data and notes area that appears if a node or link is selected */
 .notePanel {
   width: 250px;
@@ -1068,7 +1060,7 @@ but moving the panel out of sight works instead */
   min-height: 200px; /* Prevent collapse */
 }
 .notePanel .header {
-  background: var(--header-color);
+  background: var(--primary-color);
   color: white;
   line-height: 1.2em;
   padding: 4px 6px;
@@ -1140,18 +1132,17 @@ but moving the panel out of sight works instead */
 }
 .notes {
   padding: 4px;
-  color: rgb(0, 0, 0);
+  color: black;
   width: 100%;
   min-height: 100px;
   overflow: auto;
   outline: none;
-  font-family: Oxygen, sans-serif;
 }
 .ql-editor {
   padding: 3px;
 }
 .ql-toolbar {
-  background-color: var(--notes-background-solid-color);
+  background-color: var(--background-opaque-color);
 }
 .ql-toolbar.ql-snow .ql-formats {
   margin-right: 0;
@@ -1212,7 +1203,7 @@ but moving the panel out of sight works instead */
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgb(0, 0, 0);
+  background-color: black;
   transition: 0.4s;
 }
 .slider:before {
@@ -1251,13 +1242,13 @@ input:checked + .slider:before {
   border-top: 1px solid white;
   border-radius: 8px;
   font-size: 12px;
-  color: rgb(0, 0, 0);
+  color: black;
   outline: none;
   transition: All 250ms ease;
 }
 .pushbutton:active {
   background-color: rgb(128, 128, 128);
-  border: 1px solid rgb(0, 0, 0);
+  border: 1px solid black;
   border-top: 1px solid rgb(128, 128, 128);
   color: white;
   transition: All 250ms ease;
@@ -1272,11 +1263,10 @@ input:checked + .slider:before {
   grid-gap: 5px;
   border-radius: 6px;
   width: 250px;
-  background-color: var(--pop-up-color);
-  box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
-  border: thin solid var(--pop-up-shadow-color);
-  color: rgb(0, 0, 0);
-  font-family: Oxygen, sans-serif;
+  background-color: var(--shadow-color);
+  box-shadow: 2px 2px 10px 0px var(--shadow-color);
+  border: thin solid var(--shadow-color);
+  color: black;
   font-size: 12px;
   padding: 10px;
 }
@@ -1292,15 +1282,14 @@ input:checked + .slider:before {
   justify-self: start;
   font-weight: bold;
   font-size: 14px;
-  color: rgb(0, 0, 0);
+  color: black;
 }
 .styleEditor .title {
   grid-column: 1/4;
 }
 .styleEditor .title input {
-  font-family: sans-serif;
   font-size: 12px;
-  border: 1px solid rgb(0, 0, 0);
+  border: 1px solid black;
   border-radius: 4px;
   padding: 4px;
   margin: -2px 0 0 11px;
@@ -1310,20 +1299,20 @@ input:checked + .slider:before {
   justify-self: end;
 }
 .styleEditor .x-button {
-  color: rgb(0, 0, 0);
+  color: black;
   position: absolute;
   top: 3px;
   right: 5px;
   font-size: 20px;
 }
 .styleEditor .x-button:hover {
-  color: rgb(128, 128, 128);
+  color: var(--hover-color);
   text-decoration: none;
   cursor: pointer;
 }
 .styleEditor .save-button {
   font-size: 12px;
-  background-color: rgb(0, 0, 0);
+  background-color: black;
   color: white;
   border-radius: 20%;
   padding: 3px;
@@ -1331,7 +1320,7 @@ input:checked + .slider:before {
 .styleEditor .save-button:hover {
   text-decoration: none;
   cursor: pointer;
-  background-color: rgb(128, 128, 128);
+  background-color: var(--hover-color);
 }
 .styleEditor .submit {
   grid-column: 3/4;
@@ -1371,11 +1360,11 @@ input:checked + .slider:before {
   left: calc(100% - 630px);
   width: 400px;
   z-index: 2200;
-  background-color: var(--panel-color);
+  background-color: var(--primary-color);
   border-radius: 4px;
 }
 .history-header {
-  background-color: var(--panel-color);
+  background-color: var(--primary-color);
   border-radius: 4px 4px 0 0;
   text-align: center;
   color: white;
@@ -1385,14 +1374,14 @@ input:checked + .slider:before {
   float: right;
 }
 .history-close:hover {
-  color: var(--header-hover-color);
+  color: var(--hover-color);
   cursor: default;
 }
 .history-copy {
   padding-left: 10px;
 }
 .history-copy:hover {
-  color: var(--header-hover-color);
+  color: var(--hover-color);
   cursor: auto;
 }
 .history-log-wrapper {
@@ -1400,7 +1389,7 @@ input:checked + .slider:before {
   overflow-y: scroll;
   overflow-x: hidden;
   width: 100%;
-  border: 2px solid var(--panel-color);
+  border: 2px solid var(--primary-color);
   border-radius: 0 0 4px 4px;
   box-sizing: border-box;
 }
@@ -1410,7 +1399,7 @@ input:checked + .slider:before {
   min-width: 0;
   max-width: 100%;
   font-size: 12px;
-  background-color: var(--notes-background-color);
+  background-color: var(--background-color);
   user-select: none;
   -webkit-user-select: none;
   padding-top: 4px;
@@ -1440,8 +1429,8 @@ input:checked + .slider:before {
   bottom: 80px;
   left: 20px;
   max-height: 75%;
-  box-shadow: 0px 6px 24px var(--pop-up-shadow-color);
-  border: thin solid var(--pop-up-shadow-color);
+  box-shadow: 0px 6px 24px var(--shadow-color);
+  border: thin solid var(--shadow-color);
   background-color: white;
   border-radius: 4px;
   margin: 0;
@@ -1460,7 +1449,7 @@ input:checked + .slider:before {
   user-select: all;
 }
 .legendTitle {
-  background-color: var(--header-color);
+  background-color: var(--primary-color);
   color: white;
   border-radius: 4px 4px 0 0;
   text-align: center;
@@ -1475,8 +1464,7 @@ input:checked + .slider:before {
 .legendStyleName {
   width: 70px;
   font-size: 11px;
-  font-family: 'Oxygen';
-  color: rgb(0, 0, 0);
+  color: black;
   align-content: center;
   overflow-wrap: break-word;
 }
@@ -1500,7 +1488,7 @@ input:checked + .slider:before {
 .toolbox-header {
   height: 15px;
   width: 40px;
-  border: 1px solid var(--panel-color);
+  border: 1px solid var(--primary-color);
   border-radius: 3px;
   margin: 8px;
 }
@@ -1512,30 +1500,30 @@ input:checked + .slider:before {
   width: 40px;
   height: 40px;
   border-radius: 6px;
-  border: 1px solid rgb(0, 0, 0);
+  border: 1px solid black;
   text-align: center;
   line-height: 40px;
   font-size: 26px;
   color: white;
-  background-color: var(--panel-color);
+  background-color: var(--primary-color);
   margin: 8px;
 }
 .tool:hover {
-  box-shadow: 0 0 0 2px rgb(169, 169, 169) inset;
+  box-shadow: 0 0 0 2px var(--hover-color) inset;
 }
 .tool:active,
 .selected {
-  background-color: var(--pop-up-color);
-  color: rgb(0, 0, 0);
+  background-color: var(--shadow-color);
+  color: black;
 }
 .disabled {
-  color: var(--header-disabled-color);
+  color: var(--disabled-color);
 }
 .tool .tooltiptext {
   visibility: hidden;
   top: 0;
   left: 50px;
-  background-color: rgb(128, 128, 128);
+  background-color: var(--tip-background-color);
   color: white;
   text-align: center;
   padding: 5px 10px;
@@ -1560,11 +1548,11 @@ input:checked + .slider:before {
   display: grid;
   width: 165px;
   grid-template-columns: auto auto;
-  box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
-  border: thin solid var(--pop-up-shadow-color);
-  background-color: var(--pop-up-color);
+  box-shadow: 2px 2px 10px 0px var(--shadow-color);
+  border: thin solid var(--shadow-color);
+  background-color: var(--shadow-color);
   z-index: 1002;
-  color: rgb(0, 0, 0);
+  color: black;
   border-radius: 6px;
   font-size: 14px;
 }
@@ -1576,7 +1564,7 @@ input:checked + .slider:before {
   margin-top: -5px;
   border-width: 10px;
   border-style: solid;
-  border-color: transparent var(--pop-up-shadow-color) transparent transparent;
+  border-color: transparent var(--shadow-color) transparent transparent;
 }
 .options div {
   text-align: center;
@@ -1602,12 +1590,11 @@ input:checked + .slider:before {
   height: 40px;
   text-align: center;
   line-height: 40px;
-  font-family: Oxygen, sans-serif;
   font-weight: bold;
   font-size: 24px;
   user-select: none;
   -webkit-user-select: none;
-  border: 2px solid rgb(0, 0, 0);
+  border: 2px solid black;
   box-shadow:
     0 4px 8px 0 rgba(0, 0, 0, 0.2),
     0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -1624,7 +1611,7 @@ input:checked + .slider:before {
   width: max-content;
   padding: 8px;
   border-radius: 4px;
-  background: var(--header-color);
+  background: var(--primary-color);
   color: white;
   position: absolute;
   text-align: center;
@@ -1647,9 +1634,8 @@ input:checked + .slider:before {
   max-height: 24px;
   width: max-content;
   padding: 8px;
-  font-family: Oxygen, sans-serif;
   border-radius: 4px;
-  background: var(--header-color);
+  background: var(--primary-color);
   color: white;
   position: absolute;
   text-align: center;
@@ -1688,10 +1674,9 @@ input:checked + .slider:before {
   justify-items: center;
   border-radius: 6px;
   width: 230px;
-  background-color: var(--pop-up-color);
-  border: thin solid var(--pop-up-shadow-color);
-  color: rgb(0, 0, 0);
-  font-family: Oxygen, sans-serif;
+  background-color: var(--background-color);
+  border: thin solid var(--shadow-color);
+  color: black;
   font-size: 16px;
   padding: 5px;
 }
@@ -1699,25 +1684,25 @@ input:checked + .slider:before {
 .tutorial-dialog.below-left,
 .tutorial-dialog.below-middle,
 .tutorial-dialog.below-right {
-  border-top: var(--tutorial-highlight-color) 4px solid;
+  border-top: var(--alert-color) 4px solid;
 }
 .tutorial-dialog.left,
 .tutorial-dialog.left-top,
 .tutorial-dialog.left-middle,
 .tutorial-dialog.left-bottom {
-  border-right: var(--tutorial-highlight-color) 4px solid;
+  border-right: var(--alert-color) 4px solid;
 }
 .tutorial-dialog.above,
 .tutorial-dialog.above-left,
 .tutorial-dialog.above-middle,
 .tutorial-dialog.above-right {
-  border-bottom: var(--tutorial-highlight-color) 4px solid;
+  border-bottom: var(--alert-color) 4px solid;
 }
 .tutorial-dialog.right,
 .tutorial-dialog.right-top,
 .tutorial-dialog.right-middle,
 .tutorial-dialog.right-bottom {
-  border-left: var(--tutorial-highlight-color) 4px solid;
+  border-left: var(--alert-color) 4px solid;
 }
 .tutorial-dialog.splash {
   position: fixed;
@@ -1754,24 +1739,27 @@ input#splashNameBox::placeholder {
   position: absolute;
   top: -6px;
   right: 3px;
-  color: rgb(128, 128, 128);
+  color: black;
   font-size: 20px;
 }
 .tutorial-dialog .x-button:hover {
-  color: rgb(0, 0, 0);
+  color: var(--hover-color);
   text-decoration: none;
   cursor: pointer;
 }
 .tutorial-dialog .tutorial-button {
-  font-size: 12px;
-  background-color: var(--header-buttons-color);
+  font-size: 14px;
+  background-color: var(--primary-color);
   color: white;
-  border-radius: 20%;
+  border-radius: 4px;
+  border-width: 0;
+  padding:2px;
+  line-height: normal;
 }
 .tutorial-dialog .tutorial-button:hover {
   text-decoration: none;
   cursor: pointer;
-  background-color: rgb(128, 128, 128);
+  background-color: var(--hover-color);
 }
 .tutorial-dialog .next {
   grid-column: 2;
@@ -1784,20 +1772,20 @@ input#splashNameBox::placeholder {
   justify-self: start;
 }
 .tutorial-arrow {
-  border: 10px solid var(--tutorial-highlight-color);
+  border: 10px solid var(--alert-color);
   position: absolute;
 }
 .tutorial-arrow.below,
 .tutorial-arrow.below-middle,
 .tutorial-arrow.below-right {
-  border-color: transparent transparent var(--tutorial-highlight-color) transparent;
+  border-color: transparent transparent var(--alert-color) transparent;
   top: -20px;
   left: 20px;
 }
 .tutorial-arrow.above,
 .tutorial-arrow.above-middle,
 .tutorial-arrow.above-right {
-  border-color: var(--tutorial-highlight-color) transparent transparent transparent;
+  border-color: var(--alert-color) transparent transparent transparent;
   bottom: -20px;
   left: 20px;
 }
@@ -1826,13 +1814,13 @@ input#splashNameBox::placeholder {
 .tutorial-arrow.right-middle,
 .tutorial-arrow.right-bottom {
   left: -20px;
-  border-color: transparent var(--tutorial-highlight-color) transparent transparent;
+  border-color: transparent var(--alert-color) transparent transparent;
 }
 .tutorial-arrow.left,
 .tutorial-arrow.left-middle,
 .tutorial-arrow.left-bottom {
   right: -20px;
-  border-color: transparent transparent transparent var(--tutorial-highlight-color);
+  border-color: transparent transparent transparent var(--alert-color);
 }
 .tutorial-arrow.right-middle,
 .tutorial-arrow.left-middle {
@@ -1843,7 +1831,7 @@ input#splashNameBox::placeholder {
 }
 .tutorial-border {
   position: fixed;
-  border: 3px solid var(--tutorial-highlight-color);
+  border: 3px solid var(--alert-color);
   z-index: 4999;
 }
 .tutorial-note {
@@ -1862,7 +1850,7 @@ input#splashNameBox::placeholder {
 .magnifier {
   display: none;
   position: absolute;
-  border: 1px rgb(0, 0, 0) solid;
+  border: 1px black solid;
   box-shadow: 5px 5px 10px rgb(30, 30, 30);
   border-radius: 50%;
   z-index: 5000;
@@ -1885,34 +1873,36 @@ input#splashNameBox::placeholder {
   transition-duration: 0.2s;
   transition-timing-function: linear;
 }
+/* ghost factor while placing new factor */
 .ghost-factor {
   position: absolute;
   z-index: 50;
   width: 190px;
   height: 75px;
-  color: rgb(128, 128, 128);
-  background-color: rgb(235, 232, 232);
-  border: thin solid var(--pop-up-shadow-color);
+  color: var(--hover-color);
+  background-color: var(--shadow-color);
+  border: thin solid var(--shadow-color);
   border-radius: 5px;
   text-align: center;
   padding: 5px;
 }
 .factor-cursor {
   background-color: transparent;
-  box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
+  box-shadow: 2px 2px 10px 0px var(--shadow-color);
   cursor: cell;
   pointer-events: none;
 }
-/* style context menu */
+/* style context menu (right click)*/
 .contextmenu {
   position: absolute;
   padding: 0;
   margin: 0;
-  background: rgb(238, 238, 238);
+  background: var(--tip-background-color);
+  color: var(--tip-font-color);
   z-index: 3000;
   border-radius: 7px;
-  box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
-  border: thin solid var(--pop-up-shadow-color);
+  box-shadow: 2px 2px 10px 0px var(--shadow-color);
+  border: thin solid var(--shadow-color);
   opacity: 0;
   transform: translate(0, 15px) scale(0.95);
   transition:
@@ -1937,7 +1927,7 @@ input#splashNameBox::placeholder {
   overflow: visible;
   display: block;
   width: 100%;
-  color: rgb(68, 68, 68);
+  color: var(--tip-font-color);
   font-size: 12px;
   text-align: left;
   cursor: pointer;
@@ -1975,35 +1965,28 @@ input#splashNameBox::placeholder {
   position: absolute;
   padding: 0;
   margin: 0;
-  background: rgb(238, 238, 238);
+  background: var(--tip-background-color);
   z-index: 10000;
   border-radius: 7px;
-  box-shadow: 2px 2px 10px 0px var(--pop-up-shadow-color);
-  border: thin solid var(--pop-up-shadow-color);
-  transform: scale(0);
-  transform-origin: top left;
+  box-shadow: 2px 2px 10px 0px var(--shadow-color);
+  border: thin solid var(--shadow-color);
   cursor: default;
 }
 .context-menu.visible {
   transform: scale(1);
   transition: transform 200ms ease-in-out;
 }
-
 .context-menu .item {
   margin: 2px;
   padding: 2px;
   white-space: nowrap;
-  border-bottom: 1px solid rgb(211, 211, 211);
   border-radius: 7px;
-  color: rgb(68, 68, 68);
+  color: var(--tip-font-color);
   font-size: 12px;
   text-align: left;
 }
-.context-menu .item:last-child {
-  border-bottom: none;
-}
 .context-menu .item:hover {
-  background-color: var(--pop-up-shadow-color);
+  background-color: var(--shadow-color);
 }
 /* map notes drawer */
 #drawer-wrapper {
@@ -2025,13 +2008,13 @@ input#splashNameBox::placeholder {
   display: flex;
   flex-direction: column;
   padding-left: 10px;
-  background-color: var(--notes-background-color);
+  background-color: var(--background-color);
   box-shadow:
     rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
     rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 #drawer-handle {
-  background-color: var(--notes-background-color);
+  background-color: var(--background-color);
   padding: 14px 0 0 2px;
   box-shadow:
     0 1px 2px #3c40434d,
@@ -2041,7 +2024,7 @@ input#splashNameBox::placeholder {
   width: 10px;
   height: 30px;
   border-radius: 0 4px 4px 0;
-  border: 1px solid #ecf0f1;
+  border: 1px solid var(--shadow-color);
 }
 .hide-drawer {
   transform: translateX(var(--drawer-closed-width));
@@ -2066,13 +2049,13 @@ input#splashNameBox::placeholder {
   z-index: 10000;
 }
 #whatsnewintro {
-  background-color: var(--tab-color);
+  background-color: var(--shadow-color);
   color: black;
   padding: 10px 20px 0 20px;
   font-size: 0.7em;
 }
 #whatsnewcontent {
-  background-color: var(--tab-color);
+  background-color: var(--shadow-color);
   opacity: 0.8;
   flex-grow: 1;
 }
@@ -2232,6 +2215,6 @@ input#splashNameBox::placeholder {
   }
   .legend {
     box-shadow: none;
-    border: 1px rgb(211, 211, 211) solid;
+    border: 1px var(--shadow-color) solid;
   }
 }
