@@ -4666,9 +4666,9 @@ function toggleDrawingLayer() {
   } else {
     // expose drawing layer
     elem('toolbox').style.display = 'block'
-    ul.style.zIndex = 1000
+    ul.style.zIndex = 70
     ul.style.cursor = 'default'
-    document.querySelector('.upper-canvas').style.zIndex = 1001
+    document.querySelector('.upper-canvas').style.zIndex = 71
     // make the underlay (which is now overlay) translucent
     makeTranslucent(ul)
     clearLegend()

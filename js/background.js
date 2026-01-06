@@ -507,6 +507,8 @@ function selectTool(event) {
   selectedTool = tool.id
   tool.classList.add('selected')
   // display options dialog
+  // first hide the tool tip, which gets in the way of the options dialog
+  tool.childNodes[3].style.visibility='hidden'
   const handler = toolHandler(selectedTool)
   handler.optionsDialog()
   canvas.isDrawingMode = tool.id === 'pencil' || tool.id === 'marker'
@@ -554,7 +556,9 @@ export function deselectTool() {
  */
 function unselectTool() {
   if (selectedTool) {
-    elem(selectedTool).classList.remove('selected')
+    const el = elem(selectedTool)
+    el.classList.remove('selected')
+    el.childNodes[3].style.visibility='hidden'
   }
   closeOptionsDialogs()
   selectedTool = null

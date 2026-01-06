@@ -484,6 +484,21 @@ export function addContextMenu(elem, menu) {
   const menuEl = document.createElement('div')
   menuEl.classList.add('context-menu')
   document.body.appendChild(menuEl)
+  
+  const removeMenu = () => {
+    if (menuEl.parentNode) {
+      document.body.removeChild(menuEl)
+    }
+    document.removeEventListener('click', handleClickOutside)
+  }
+  
+  // Handler for clicks outside the menu
+  const handleClickOutside = (event) => {
+    if (!menuEl.contains(event.target)) {
+      removeMenu()
+    }
+  }
+  // Handler for clicks on a menu item
   elem.addEventListener('contextmenu', (event) => {
     event.preventDefault()
     const { clientX: mouseX, clientY: mouseY } = event
@@ -497,21 +512,21 @@ export function addContextMenu(elem, menu) {
         : mouseY
     menuEl.style.top = `${posY}px`
     menuEl.style.left = `${posX}px`
-    /* menuEl.classList.remove('visible')
+    menuEl.classList.remove('visible')
     setTimeout(() => {
       menuEl.classList.add('visible')
-    }) */
+      // Attach click listener after menu becomes visible
+      document.addEventListener('click', handleClickOutside)
+    })
   })
-  document.body.addEventListener('click', () => {
-    menuEl.classList.remove('visible')
-  })
+  
   menu.forEach((item) => {
     const { label, action } = item
     const option = document.createElement('div')
     option.classList.add('item')
     option.innerHTML = label
     option.addEventListener('click', () => {
-      document.body.removeChild(menuEl)
+      removeMenu()
       action()
     })
     option.addEventListener('contextmenu', (event) => event.preventDefault())

@@ -1,26 +1,39 @@
 /* Top level styles setting out the page elements */
 
+/* cSpell:disable
+ * Z-INDEX REFERENCE
+ * All z-index values are organized in steps of 10 to maintain stacking order
+ * and allow for easy insertion of new layers.
+ *
+ * 10  - #net-pane
+ * 20  - #minimapWrapper
+ * 30  - .dropdown-content, .styleEditorContainer, .hoverme
+ * 40  - .legend
+ * 50  - #popup, .ghost-factor
+ * 60  - .selectionBox
+ * 70  - #container > footer, .loader, .upper-canvas
+ * 71  - .background-canvas when editing background
+ * 80  - .options, .tool .tooltiptext
+ * 90  - .toolbox
+ * 100 - .modal
+ * 110 - aside, .notePanel
+ * 120 - .notePanel .corner-handle, .notePanel .corner-handle-top-left
+ * 130 - .dropdown-wrapper
+ * 140 - .history-window
+ * 150 - .room-titles, .search-bar, .search-ul
+ * 160 - .search-icon
+ * 170 - .tutorial-background, .contextmenu
+ * 180 - .tooltip .tooltiptext
+ * 190 - .tutorial-border
+ * 200 - .color-picker-container, .tutorial-dialog, .magnifier, #drawer-wrapper
+ * 210 - .shared-cursor
+ * 220 - #errMsg, .context-menu, #whatsnew
+ * cSpell:enable
+ */
 :root {
   font-family: Oxygen, sans-serif;
   box-sizing: border-box;
   touch-action: none;
-  /* interface colours defined here: CECAN theme */
-  /* --primary-color: rgb(0, 51, 112);
-  --tip-background-color: rgb(128, 128, 128);
-  --tip-background-color: rgb(128, 128, 128);
-  --primary-color: rgb(0, 47, 104);
-  --disabled-color: rgb(41, 136, 252);
-  --primary-color: rgb(0, 47, 104);
-  --shadow-color: rgb(245, 245, 245);
-  --shadow-color: rgb(201, 201, 201);
-  --primary-color: rgb(0, 47, 104);
-  --shadow-color: rgb(220, 220, 220);
-  --alert-color: rgb(211, 47, 47);
-  --secondary-color: rgb(255, 193, 7);
-  --selection-color: rgb(173, 216, 230);
-  --background-color: rgb(255, 255, 255, 0.9);
-  --background-opaque-color: rgb(255, 255, 255);
-  --primary-color: rgb(0, 47, 104); */
   /* interface colours defined here: PRSM theme */
   --primary-color: rgb(0, 51, 112);
   --secondary-color: rgb(255, 193, 7);
@@ -99,7 +112,7 @@ select {
 #container > footer {
   grid-area: footer;
   width: 100%;
-  z-index: 130;
+  z-index: 70;
   display: flex;
   justify-content: space-between;
   padding: 5px;
@@ -139,7 +152,7 @@ select {
   left: 0;
   right: 0;
   margin: auto;
-  z-index: 140;
+  z-index: 70;
 }
 .loader--dot {
   animation-name: loader;
@@ -240,7 +253,7 @@ aside {
   width: 200px;
   user-select: none;
   -webkit-user-select: none;
-  z-index: 200;
+  z-index: 110;
   box-shadow: 0px 6px 24px var(--shadow-color);
 }
 .dragHandle {
@@ -255,7 +268,7 @@ aside {
   border-radius: 10px;
   opacity: 0;
   width: fit-content;
-  z-index: 280;
+  z-index: 220;
 }
 .fadeInAndOut {
   animation-name: showErrMsg;
@@ -317,7 +330,7 @@ aside {
   display: none;
   position: absolute;
   width: 275px;
-  z-index: 40;
+  z-index: 50;
   background-color: var(--background-opaque-color);
   box-shadow: 2px 2px 10px 0px var(--shadow-color);
   border: thin solid var(--shadow-color);
@@ -389,7 +402,7 @@ aside {
   align-items: center;
   grid-gap: 7px;
   margin: 10px;
-  color: black
+  color: black;
   font-size: 12px;
 }
 .popup-editor .grid-header {
@@ -488,7 +501,7 @@ select option {
 .color-picker-container {
   display: none;
   position: absolute;
-  z-index: 260;
+  z-index: 200;
   background-color: rgb(211, 211, 211);
   border-radius: 4px;
   box-shadow: 4px 4px 15px 0px var(--shadow-color);
@@ -541,7 +554,7 @@ nav {
   position: absolute;
   left: 0px;
   top: 65px;
-  z-index: 210;
+  z-index: 150;
   max-height: calc(100% - 200px);
   overflow-y: auto;
   scrollbar-color: white black;
@@ -618,7 +631,7 @@ nav button .pressed {
   padding: 0 4px 0 0;
   color: white;
   background-color: var(--primary-color);
-  z-index: 180;
+  z-index: 130;
 }
 .dropdown-content {
   display: none;
@@ -649,7 +662,7 @@ nav button .pressed {
   height: 2em;
   position: absolute;
   right: 5px;
-  z-index: 220;
+  z-index: 150;
   font-size: 12px;
   overflow: hidden;
   white-space: nowrap;
@@ -662,7 +675,7 @@ nav button .pressed {
   margin-right: 12px;
   margin-top: 8px;
   position: relative;
-  z-index: 230;
+  z-index: 160;
 }
 .search-ul {
   width: 195px;
@@ -671,7 +684,7 @@ nav button .pressed {
   right: 5px;
   top: 13px;
   overflow-y: auto;
-  z-index: 240;
+  z-index: 150;
 }
 .search-suggestion {
   list-style-type: none;
@@ -716,7 +729,7 @@ nav button .pressed {
   border-radius: 6px;
   font-size: 12px;
   position: absolute;
-  z-index: 250;
+  z-index: 180;
   opacity: 0;
   transition-property: opacity;
   transition-delay: 2s;
@@ -749,7 +762,7 @@ nav button .pressed {
 .modal {
   display: none;
   position: fixed;
-  z-index: 150;
+  z-index: 100;
   padding-top: 100px;
   left: 0;
   top: 0;
@@ -1048,7 +1061,7 @@ but moving the panel out of sight works instead */
   height: 300px; /* Default height – user can resize */
   top: calc(100% - 380px);
   left: calc(100% - 265px);
-  z-index: 190;
+  z-index: 110;
   max-width: 100%;
   border: 1px solid black;
   border-radius: 4px;
@@ -1100,7 +1113,7 @@ but moving the panel out of sight works instead */
   right: 0;
   cursor: nwse-resize;
   touch-action: none;
-  z-index: 100;
+  z-index: 120;
 }
 .notePanel .corner-handle:hover {
   border-bottom: 14px solid black;
@@ -1113,7 +1126,7 @@ but moving the panel out of sight works instead */
   left: 0;
   cursor: nwse-resize;
   touch-action: none;
-  z-index: 110;
+  z-index: 120;
   pointer-events: none;
 }
 .notePanel .corner-handle-top-left::before {
@@ -1275,7 +1288,7 @@ input:checked + .slider:before {
 }
 .styleEditorContainer {
   position: absolute;
-  z-index: 50;
+  z-index: 30;
 }
 .styleEditor .header {
   grid-column: 1/3;
@@ -1359,7 +1372,7 @@ input:checked + .slider:before {
   top: 110px;
   left: calc(100% - 630px);
   width: 400px;
-  z-index: 170;
+  z-index: 140;
   background-color: var(--primary-color);
   border-radius: 4px;
 }
@@ -1436,7 +1449,7 @@ input:checked + .slider:before {
   margin: 0;
   user-select: none;
   -webkit-user-select: none;
-  z-index: 70;
+  z-index: 40;
 }
 .legendWrapper {
   max-height: calc(100% - 25px);
@@ -1482,7 +1495,7 @@ input:checked + .slider:before {
   position: absolute;
   top: 100px;
   left: 15px;
-  z-index: 120;
+  z-index: 90;
   display: none;
 }
 .toolbox-header {
@@ -1548,7 +1561,7 @@ input:checked + .slider:before {
   box-shadow: 2px 2px 10px 0px var(--shadow-color);
   border: thin solid var(--shadow-color);
   background-color: var(--shadow-color);
-  z-index: 90;
+  z-index: 80;
   color: black;
   border-radius: 6px;
   font-size: 14px;
@@ -1600,7 +1613,7 @@ input:checked + .slider:before {
   display: inline;
   position: relative;
   padding: 8px;
-  z-index: 160;
+  z-index: 30;
 }
 .hoverme:hover::after {
   content: attr(data-tooltip);
@@ -1664,7 +1677,7 @@ input:checked + .slider:before {
 /* ---------------------------- Tutorial --------------------------------*/
 .tutorial-dialog {
   position: fixed;
-  z-index: 310;
+  z-index: 200;
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 20px 1fr 25px;
@@ -1829,7 +1842,7 @@ input#splashNameBox::placeholder {
 .tutorial-border {
   position: fixed;
   border: 3px solid var(--alert-color);
-  z-index: 300;
+  z-index: 190;
 }
 .tutorial-note {
   font-size: smaller;
@@ -1840,7 +1853,7 @@ input#splashNameBox::placeholder {
   height: 100%;
   top: 0;
   left: 0;
-  z-index: 290;
+  z-index: 170;
   background-color: rgba(0, 0, 0, 0.3);
 }
 /* magnifier */
@@ -1850,7 +1863,7 @@ input#splashNameBox::placeholder {
   border: 1px black solid;
   box-shadow: 5px 5px 10px rgb(30, 30, 30);
   border-radius: 50%;
-  z-index: 320;
+  z-index: 200;
 }
 .shared-cursor {
   position: absolute;
@@ -1861,7 +1874,7 @@ input#splashNameBox::placeholder {
   padding: 5px;
   text-align: center;
   font-size: 10px;
-  z-index: 330;
+  z-index: 210;
   cursor: default;
   user-select: none;
   -webkit-user-select: none;
@@ -1873,7 +1886,7 @@ input#splashNameBox::placeholder {
 /* ghost factor while placing new factor */
 .ghost-factor {
   position: absolute;
-  z-index: 270;
+  z-index: 50;
   width: 190px;
   height: 75px;
   color: var(--hover-color);
@@ -1896,7 +1909,7 @@ input#splashNameBox::placeholder {
   margin: 0;
   background: var(--tip-background-color);
   color: var(--tip-font-color);
-  z-index: 340;
+  z-index: 170;
   border-radius: 7px;
   box-shadow: 2px 2px 10px 0px var(--shadow-color);
   border: thin solid var(--shadow-color);
@@ -1963,7 +1976,7 @@ input#splashNameBox::placeholder {
   padding: 0;
   margin: 0;
   background: var(--tip-background-color);
-  z-index: 350;
+  z-index: 220;
   border-radius: 7px;
   box-shadow: 2px 2px 10px 0px var(--shadow-color);
   border: thin solid var(--shadow-color);
@@ -1996,7 +2009,7 @@ input#splashNameBox::placeholder {
   width: var(--drawer-open-width);
   height: 100%;
   transition: transform 0.5s ease;
-  z-index: 360;
+  z-index: 200;
 }
 #drawer {
   border: 1px solid rgb(128, 128, 128);
@@ -2043,7 +2056,7 @@ input#splashNameBox::placeholder {
   text-align: center;
   display: none;
   flex-direction: column;
-  z-index: 370;
+  z-index: 220;
 }
 #whatsnewintro {
   background-color: var(--shadow-color);
