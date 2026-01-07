@@ -32,6 +32,7 @@ import {
   setNodeHidden,
   setEdgeHidden,
   dragElement,
+  addContextMenu,
   statusMsg,
   alertMsg,
   clearStatusBar,
@@ -96,9 +97,10 @@ export function setUpSamples() {
     sampleElement.addEventListener('click', () => {
       updateLastSamples(groupId, null)
     })
-    sampleElement.addEventListener('contextmenu', (event) => {
+    /* sampleElement.addEventListener('contextmenu', (event) => {
       styleNodeContextMenu(event, sampleElement, groupId)
-    })
+    }) */
+    addContextMenu(sampleElement, [{label: 'SelectFactors', action: () => selectFactorsWithStyle(groupId)},{label: 'Hide/Unhide Factors', action: () => hideFactorsWithStyle(sampleElement, groupId)}])
     sampleElement.addEventListener('mouseover', () =>
       statusMsg(
         'Left click: apply style to selected; Double click: edit style; Right click: Select or Hide all with this style'
@@ -339,7 +341,30 @@ function styleNodeContextMenu(event, sampleElement, groupId) {
     yNetMap.set('factorsHiddenByStyle', factorsHiddenByStyle)
   }
 }
-
+  function selectFactorsWithStyle(groupId) {
+    selectFactors(data.nodes.getIds({ filter: (node) => node.grp === groupId }))
+  }
+function hideFactorsWithStyle(sampleElement, groupId) {
+      const toggle = !sampleElement.dataset.hide === 'hidden'
+    const nodes = data.nodes.get({ filter: (node) => node.grp === groupId })
+    nodes.forEach((node) => {
+      setNodeHidden(node, toggle)
+    })
+    data.nodes.update(nodes)
+    const edges = []
+    nodes.forEach((node) => {
+      const connectedEdges = network.getConnectedEdges(node.id)
+      connectedEdges.forEach((edgeId) => {
+        edges.push(data.edges.get(edgeId))
+      })
+    })
+    edges.forEach((edge) => {
+      setEdgeHidden(edge, toggle)
+    })
+    data.edges.update(edges)
+    factorsHiddenByStyle[sampleElement.id] = toggle
+    yNetMap.set('factorsHiddenByStyle', factorsHiddenByStyle)
+  }
 /**
  * Context menu for edge styles
  * @param {Event} event
