@@ -1566,6 +1566,7 @@ export function savePRSMfile() {
   const nodeFields = [
     'id',
     'label',
+    'note',
     'grp',
     'x',
     'y',
