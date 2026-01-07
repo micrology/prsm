@@ -2,20 +2,20 @@
 
 PRSM Participatory System Mapper 
 
-	Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+  Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
 This module handles operations related to the Styles tabs.  
@@ -97,10 +97,11 @@ export function setUpSamples() {
     sampleElement.addEventListener('click', () => {
       updateLastSamples(groupId, null)
     })
-    /* sampleElement.addEventListener('contextmenu', (event) => {
-      styleNodeContextMenu(event, sampleElement, groupId)
-    }) */
-    addContextMenu(sampleElement, [{label: 'SelectFactors', action: () => selectFactorsWithStyle(groupId)},{label: 'Hide/Unhide Factors', action: () => hideFactorsWithStyle(sampleElement, groupId)}])
+    sampleElement.addEventListener('pointerdown', (event) => {
+      if (event.button === 2) {  // right click)
+        styleNodeContextMenu(sampleElement, groupId)
+      }
+    })
     sampleElement.addEventListener('mouseover', () =>
       statusMsg(
         'Left click: apply style to selected; Double click: edit style; Right click: Select or Hide all with this style'
@@ -164,8 +165,10 @@ export function setUpSamples() {
     sampleElement.addEventListener('click', () => {
       updateLastSamples(null, groupId)
     })
-    sampleElement.addEventListener('contextmenu', (event) => {
-      styleEdgeContextMenu(event, sampleElement, groupId)
+    sampleElement.addEventListener('pointerdown', (event) => {
+      if (event.button === 2) {  // right click)
+        styleEdgeContextMenu(sampleElement, groupId)
+      }
     })
     sampleElement.addEventListener('mouseover', () =>
       statusMsg(
@@ -253,184 +256,100 @@ function initSample(wrapper, sampleData) {
   wrapper.net = net
   return net
 }
-
 const factorsHiddenByStyle = {}
 const linksHiddenByStyle = {}
-listen('nodesTab', 'contextmenu', (e) => {
-  e.preventDefault()
-})
-listen('linksTab', 'contextmenu', (e) => {
-  e.preventDefault()
-})
-
 /**
  * Context menu for node styles
- * @param {Event} event
  * @param {HTMLElement} sampleElement
  * @param {string} groupId
  */
-function styleNodeContextMenu(event, sampleElement, groupId) {
-  const menu = elem('styleNodeContextMenu')
-  showMenu(event.pageX, event.pageY)
-  document.addEventListener('click', onClick, false)
-
-  function onClick(event) {
-    // Safari emits a contextmenu and a click event on control-click; ignore the click
-    if (event.ctrlKey && !event.target.id) return
-    event.preventDefault()
-    hideMenu()
-    document.removeEventListener('click', onClick)
-    switch (event.target.id) {
-      case 'styleNodeContextMenuSelect': {
-        selectFactorsWithStyle(groupId)
-        break
-      }
-      case 'styleNodeContextMenuHide': {
-        if (sampleElement.dataset.hide !== 'hidden') {
-          hideFactorsWithStyle(groupId, true)
-          sampleElement.dataset.hide = 'hidden'
-          sampleElement.style.opacity = 0.6
-        } else {
-          hideFactorsWithStyle(groupId, false)
-          sampleElement.dataset.hide = 'visible'
-          sampleElement.style.opacity = 1.0
-        }
-        break
-      }
-      default: // clicked off menu
-        break
-    }
-  }
-  function showMenu(x, y) {
-    elem('styleNodeContextMenuHide').innerText =
-      sampleElement.dataset.hide === 'hidden' ? 'Unhide Factors' : 'Hide Factors'
-    if (x + menu.offsetWidth > elem('container').offsetWidth) {
-      x = elem('container').offsetWidth - menu.offsetWidth
-    }
-    if (y + menu.offsetHeight > elem('container').offsetHeight) {
-      y = elem('container').offsetHeighth - menu.offsetHeight
-    }
-    menu.style.left = `${x}px`
-    menu.style.top = `${y}px`
-    menu.classList.add('show-menu')
-  }
-  function hideMenu() {
-    menu.classList.remove('show-menu')
-  }
-  function selectFactorsWithStyle(groupId) {
-    selectFactors(data.nodes.getIds({ filter: (node) => node.grp === groupId }))
-  }
-  function hideFactorsWithStyle(groupId, toggle) {
-    const nodes = data.nodes.get({ filter: (node) => node.grp === groupId })
-    nodes.forEach((node) => {
-      setNodeHidden(node, toggle)
-    })
-    data.nodes.update(nodes)
-    const edges = []
-    nodes.forEach((node) => {
-      const connectedEdges = network.getConnectedEdges(node.id)
-      connectedEdges.forEach((edgeId) => {
-        edges.push(data.edges.get(edgeId))
-      })
-    })
-    edges.forEach((edge) => {
-      setEdgeHidden(edge, toggle)
-    })
-    data.edges.update(edges)
-    factorsHiddenByStyle[sampleElement.id] = toggle
-    yNetMap.set('factorsHiddenByStyle', factorsHiddenByStyle)
-  }
+function styleNodeContextMenu(sampleElement, groupId) {
+  addContextMenu(sampleElement, [
+    {
+      label: 'Select Factors',
+      action: () => selectFactorsWithStyle(groupId)
+    },
+    {
+      label: `${sampleElement.dataset.hide === 'hidden' ? 'Unhide' : 'Hide'} Factors`,
+      action: () => hideFactorsWithStyle(sampleElement, groupId)
+    }])
 }
-  function selectFactorsWithStyle(groupId) {
-    selectFactors(data.nodes.getIds({ filter: (node) => node.grp === groupId }))
-  }
+/**
+ * Select all the factors with the given style
+ * Used by Style context menu
+ * @param {integer} groupId 
+ */
+function selectFactorsWithStyle(groupId) {
+  selectFactors(data.nodes.getIds({ filter: (node) => node.grp === groupId }))
+}
+/**
+ * Hide or unhide all the factors with the given style
+ * Used by Style context menu
+ * @param {HTMLElement} sampleElement 
+ * @param {integer} groupId 
+ */
 function hideFactorsWithStyle(sampleElement, groupId) {
-      const toggle = !sampleElement.dataset.hide === 'hidden'
-    const nodes = data.nodes.get({ filter: (node) => node.grp === groupId })
-    nodes.forEach((node) => {
-      setNodeHidden(node, toggle)
+  const wasHidden = sampleElement.dataset.hide === 'hidden'
+  const nodes = data.nodes.get({ filter: (node) => node.grp === groupId })
+  nodes.forEach((node) => {
+    setNodeHidden(node, !wasHidden)
+  })
+  data.nodes.update(nodes)
+  const edges = []
+  nodes.forEach((node) => {
+    const connectedEdges = network.getConnectedEdges(node.id)
+    connectedEdges.forEach((edgeId) => {
+      edges.push(data.edges.get(edgeId))
     })
-    data.nodes.update(nodes)
-    const edges = []
-    nodes.forEach((node) => {
-      const connectedEdges = network.getConnectedEdges(node.id)
-      connectedEdges.forEach((edgeId) => {
-        edges.push(data.edges.get(edgeId))
-      })
-    })
-    edges.forEach((edge) => {
-      setEdgeHidden(edge, toggle)
-    })
-    data.edges.update(edges)
-    factorsHiddenByStyle[sampleElement.id] = toggle
-    yNetMap.set('factorsHiddenByStyle', factorsHiddenByStyle)
-  }
+  })
+  edges.forEach((edge) => {
+    setEdgeHidden(edge, !wasHidden)
+  })
+  data.edges.update(edges)
+  factorsHiddenByStyle[sampleElement.id] = !wasHidden
+  yNetMap.set('factorsHiddenByStyle', factorsHiddenByStyle)
+  sampleElement.dataset.hide = wasHidden ? 'visible' : 'hidden'
+}
 /**
  * Context menu for edge styles
- * @param {Event} event
  * @param {HTMLElement} sampleElement
  * @param {string} groupId
  */
-function styleEdgeContextMenu(event, sampleElement, groupId) {
-  const menu = elem('styleEdgeContextMenu')
-  showMenu(event.pageX, event.pageY)
-  document.addEventListener('click', onClick, false)
-
-  function onClick(event) {
-    // Safari emits a contextmenu and a click event on control-click; ignore the click
-    if (event.ctrlKey && !event.target.id) return
-    event.preventDefault()
-    hideMenu()
-    document.removeEventListener('click', onClick)
-    switch (event.target.id) {
-      case 'styleEdgeContextMenuSelect': {
-        selectLinksWithStyle(groupId)
-        break
-      }
-      case 'styleEdgeContextMenuHide': {
-        if (sampleElement.dataset.hide !== 'hidden') {
-          hideLinksWithStyle(groupId, true)
-          sampleElement.dataset.hide = 'hidden'
-          sampleElement.style.opacity = 0.6
-        } else {
-          hideLinksWithStyle(groupId, false)
-          sampleElement.dataset.hide = 'visible'
-          sampleElement.style.opacity = 1.0
-        }
-        break
-      }
-      default: // clicked off menu
-        break
-    }
-  }
-  function showMenu(x, y) {
-    elem('styleEdgeContextMenuHide').innerText =
-      sampleElement.dataset.hide === 'hidden' ? 'Unhide Links' : 'Hide Links'
-    if (x + menu.offsetWidth > elem('container').offsetWidth) {
-      x = elem('container').offsetWidth - menu.offsetWidth
-    }
-    if (y + menu.offsetHeight > elem('container').offsetHeight) {
-      y = elem('container').offsetHeighth - menu.offsetHeight
-    }
-    menu.style.left = `${x}px`
-    menu.style.top = `${y}px`
-    menu.classList.add('show-menu')
-  }
-  function hideMenu() {
-    menu.classList.remove('show-menu')
-  }
-  function selectLinksWithStyle(groupId) {
-    selectLinks(data.edges.getIds({ filter: (edge) => edge.grp === groupId }))
-  }
-  function hideLinksWithStyle(groupId, toggle) {
-    const edges = data.edges.get({ filter: (edge) => edge.grp === groupId })
-    edges.forEach((edge) => {
-      setEdgeHidden(edge, toggle)
-    })
-    data.edges.update(edges)
-    linksHiddenByStyle[sampleElement.id] = toggle
-    yNetMap.set('linksHiddenByStyle', linksHiddenByStyle)
-  }
+function styleEdgeContextMenu(sampleElement, groupId) {
+  addContextMenu(sampleElement,
+    [{
+      label: 'Select Links',
+      action: () => selectLinksWithStyle(groupId)
+    },
+      {
+        label: `${sampleElement.dataset.hide === 'hidden' ? 'Unhide' : 'Hide'} Links`,
+        action: () => hideLinksWithStyle(sampleElement, groupId)
+      }])
+}
+/**
+ * Select all the links with the given style
+ * Used by Style context menu
+ * @param {integer} groupId 
+ */
+function selectLinksWithStyle(groupId) {
+  selectLinks(data.edges.getIds({ filter: (edge) => edge.grp === groupId }))
+}
+/**
+ * Hide or unhide all the links with the given style
+ * Used by Style context menu
+ * @param {HTMLElement} sampleElement 
+ * @param {integer} groupId 
+ */
+function hideLinksWithStyle(sampleElement, groupId) {
+  const wasHidden = sampleElement.dataset.hide === 'hidden'
+  const edges = data.edges.get({ filter: (edge) => edge.grp === groupId })
+  edges.forEach((edge) => {
+    setEdgeHidden(edge, !wasHidden)
+  })
+  data.edges.update(edges)
+  linksHiddenByStyle[sampleElement.id] = !wasHidden
+  yNetMap.set('linksHiddenByStyle', linksHiddenByStyle)
+  sampleElement.dataset.hide = wasHidden ? 'visible' : 'hidden'
 }
 /**
  * open the dialog to edit a node style

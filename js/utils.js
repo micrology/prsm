@@ -477,6 +477,11 @@ export function dragElement(el, header) {
 }
 /**
  * Create a context menu that pops up when elem is right clicked
+ * NB:  Use something like addEventListener('pointerdown', (event) => {
+ *        if (event.button === 2) { addContextMenu(elem, menu)
+ * }})
+ * to run this.
+ * 
  * @param {HTMLElement} elem click this to get a context menu
  * @param {array} menu array of menu options: ([{label: string, action: function to call when this option selected} {...}])
  */
