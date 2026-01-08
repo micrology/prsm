@@ -198,9 +198,6 @@ export function setUpSamples() {
   listen('linkStyleEditDashes', 'input', linkEditSave)
   listen('linkStyleEditArrows', 'change', linkEditSave)
   listen('linkStyleEditSubmit', 'click', linkEditSubmit)
-  listen('styleNodeContextMenuHide', 'contextmenu', (e) => e.preventDefault())
-  listen('styleNodeContextMenuSelect', 'contextmenu', (e) => e.preventDefault())
-  listen('styleEdgeContextMenuSelect', 'contextmenu', (e) => e.preventDefault())
 }
 /**
  * assemble styles by merging the specifics into the default

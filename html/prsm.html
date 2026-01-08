@@ -1083,7 +1083,7 @@
               <span class="tooltiptext">Unpin factor</span>
             </span>
           </div>
-          <div id="sparklesNode" class="interactiveButton sparkle">
+          <div id="sparklesNode" class="tooltip interactiveButton">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"
@@ -1095,6 +1095,7 @@
                 d="M9.6 2.279a.426.426 0 0 1 .8 0l.407 1.112a6.386 6.386 0 0 0 3.802 3.802l1.112.407a.426.426 0 0 1 0 .8l-1.112.407a6.386 6.386 0 0 0-3.802 3.802l-.407 1.112a.426.426 0 0 1-.8 0l-.407-1.112a6.386 6.386 0 0 0-3.802-3.802L4.279 8.4a.426.426 0 0 1 0-.8l1.112-.407a6.386 6.386 0 0 0 3.802-3.802L9.6 2.279Zm-4.267 8.837a.178.178 0 0 1 .334 0l.169.464a2.662 2.662 0 0 0 1.584 1.584l.464.169a.178.178 0 0 1 0 .334l-.464.169a2.662 2.662 0 0 0-1.584 1.584l-.169.464a.178.178 0 0 1-.334 0l-.169-.464a2.662 2.662 0 0 0-1.584-1.584l-.464-.169a.178.178 0 0 1 0-.334l.464-.169a2.662 2.662 0 0 0 1.584-1.584l.169-.464ZM2.8.14a.213.213 0 0 1 .4 0l.203.556a3.2 3.2 0 0 0 1.901 1.901l.556.203a.213.213 0 0 1 0 .4l-.556.203a3.2 3.2 0 0 0-1.901 1.901L3.2 5.86a.213.213 0 0 1-.4 0l-.203-.556A3.2 3.2 0 0 0 .696 3.403L.14 3.2a.213.213 0 0 1 0-.4l.556-.203A3.2 3.2 0 0 0 2.597.696L2.8.14Z"
               ></path>
             </svg>
+            <span class="tooltiptext">Use AI</span>
           </div>
           <div id="newNodeWindow" class="tooltip interactiveButton">
             <svg
@@ -1132,7 +1133,7 @@
           <div>
             <span class="edgeLabel" id="edgeLabel"></span>
           </div>
-          <div id="sparklesEdge" class="interactiveButton sparkle">
+          <div id="sparklesEdge" class="tooltip interactiveButton">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"
@@ -1144,8 +1145,8 @@
                 d="M9.6 2.279a.426.426 0 0 1 .8 0l.407 1.112a6.386 6.386 0 0 0 3.802 3.802l1.112.407a.426.426 0 0 1 0 .8l-1.112.407a6.386 6.386 0 0 0-3.802 3.802l-.407 1.112a.426.426 0 0 1-.8 0l-.407-1.112a6.386 6.386 0 0 0-3.802-3.802L4.279 8.4a.426.426 0 0 1 0-.8l1.112-.407a6.386 6.386 0 0 0 3.802-3.802L9.6 2.279Zm-4.267 8.837a.178.178 0 0 1 .334 0l.169.464a2.662 2.662 0 0 0 1.584 1.584l.464.169a.178.178 0 0 1 0 .334l-.464.169a2.662 2.662 0 0 0-1.584 1.584l-.169.464a.178.178 0 0 1-.334 0l-.169-.464a2.662 2.662 0 0 0-1.584-1.584l-.464-.169a.178.178 0 0 1 0-.334l.464-.169a2.662 2.662 0 0 0 1.584-1.584l.169-.464ZM2.8.14a.213.213 0 0 1 .4 0l.203.556a3.2 3.2 0 0 0 1.901 1.901l.556.203a.213.213 0 0 1 0 .4l-.556.203a3.2 3.2 0 0 0-1.901 1.901L3.2 5.86a.213.213 0 0 1-.4 0l-.203-.556A3.2 3.2 0 0 0 .696 3.403L.14 3.2a.213.213 0 0 1 0-.4l.556-.203A3.2 3.2 0 0 0 2.597.696L2.8.14Z"
               ></path>
             </svg>
+            <span class="tooltiptext">Use AI</span>
           </div>
-
           <div id="newEdgeWindow" class="tooltip interactiveButton">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -1402,8 +1403,7 @@
             This panel will appear whenever a new version of PRSM is released. You'll only see it
             once. Click anywhere on the background map to dismiss it.
           </div>
-          <ul class="whatsnewlist" id="whatsnewlist">
-          </ul>
+          <ul class="whatsnewlist" id="whatsnewlist"></ul>
         </div>
       </div>
       <!-- Open file dialog -->
@@ -1438,31 +1438,8 @@
           <div class="history-log" id="history-log"></div>
         </div>
       </div>
-      <ol class="contextmenu" id="styleNodeContextMenu">
-        <li class="menu-item">
-          <div class="menu-btn">
-            <span class="menu-text" id="styleNodeContextMenuSelect">Select Factors</span>
-          </div>
-        </li>
-        <li class="menu-item">
-          <div class="menu-btn">
-            <span class="menu-text" id="styleNodeContextMenuHide">Hide Factors</span>
-          </div>
-        </li>
-      </ol>
-      <ol class="contextmenu" id="styleEdgeContextMenu">
-        <li class="menu-item">
-          <div class="menu-btn">
-            <span class="menu-text" id="styleEdgeContextMenuSelect">Select Links</span>
-          </div>
-        </li>
-        <li class="menu-item">
-          <div class="menu-btn">
-            <span class="menu-text" id="styleEdgeContextMenuHide">Hide Links</span>
-          </div>
-        </li>
-      </ol>
-    </div> <!-- /container -->
+    </div>
+    <!-- /container -->
     <!-- merge dialog	-->
     <dialog id="mergeDialog">
       <button id="mergeClose">&times;</button>
@@ -1485,11 +1462,11 @@
     </dialog>
     <script>
       fetch('./whatsnew.html')
-        .then(response => response.text())
-        .then(html => {
-          document.getElementById('whatsnewlist').innerHTML = html;
+        .then((response) => response.text())
+        .then((html) => {
+          document.getElementById('whatsnewlist').innerHTML = html
         })
-        .catch(error => console.error('Error loading whatsnew content:', error));
+        .catch((error) => console.error('Error loading whatsnew content:', error))
     </script>
     <script src="../js/prsm.js" type="module" async></script>
   </body>

@@ -286,9 +286,6 @@ aside {
     opacity: 0;
   }
 }
-.dontFade {
-  opacity: 1;
-}
 #statusBar {
   padding: 3px 20px;
   overflow: hidden;
@@ -702,11 +699,7 @@ nav button .pressed {
   margin-top: 2px;
   cursor: default;
 }
-#download {
-  width: 0;
-  height: 0;
-  visibility: hidden;
-}
+
 /* Tooltips for nav bar buttons and chat window*/
 
 .tooltip {
@@ -1143,14 +1136,6 @@ but moving the panel out of sight works instead */
 .notePanel .corner-handle-top-left:hover::before {
   border-top: 14px solid black;
 }
-.notes {
-  padding: 4px;
-  color: black;
-  width: 100%;
-  min-height: 100px;
-  overflow: auto;
-  outline: none;
-}
 .ql-editor {
   padding: 3px;
 }
@@ -1186,8 +1171,7 @@ but moving the panel out of sight works instead */
     transform: rotate(360deg);
   }
 }
-#lock:hover,
-#unlock:hover,
+#pin:hover,
 #newNodeWindow:hover,
 #newEdgeWindow:hover,
 #sparklesNode:hover,
@@ -1246,27 +1230,6 @@ input:checked + .slider:before {
 .slider.rounded:before {
   border-radius: 50%;
 }
-
-/* create a push button */
-.pushbutton {
-  padding: 0 5px;
-  background-color: white;
-  border: 1px solid rgb(128, 128, 128);
-  border-top: 1px solid white;
-  border-radius: 8px;
-  font-size: 12px;
-  color: black;
-  outline: none;
-  transition: All 250ms ease;
-}
-.pushbutton:active {
-  background-color: rgb(128, 128, 128);
-  border: 1px solid black;
-  border-top: 1px solid rgb(128, 128, 128);
-  color: white;
-  transition: All 250ms ease;
-}
-
 /*  style editors */
 .styleEditor {
   display: grid;
@@ -1902,75 +1865,7 @@ input#splashNameBox::placeholder {
   cursor: cell;
   pointer-events: none;
 }
-/* style context menu (right click)*/
-.contextmenu {
-  position: absolute;
-  padding: 0;
-  margin: 0;
-  background: var(--tip-background-color);
-  color: var(--tip-font-color);
-  z-index: 170;
-  border-radius: 7px;
-  box-shadow: 2px 2px 10px 0px var(--shadow-color);
-  border: thin solid var(--shadow-color);
-  opacity: 0;
-  transform: translate(0, 15px) scale(0.95);
-  transition:
-    transform 0.1s ease-out,
-    opacity 0.1s ease-out;
-  pointer-events: none;
-}
-.menu-item {
-  display: block;
-  position: relative;
-  margin: 0;
-  padding: 0;
-  white-space: nowrap;
-  border-bottom: 1px solid rgb(211, 211, 211);
-}
-.menu-item:last-child {
-  border-bottom: none;
-}
-.menu-btn {
-  background: none;
-  line-height: normal;
-  overflow: visible;
-  display: block;
-  width: 100%;
-  color: var(--tip-font-color);
-  font-size: 12px;
-  text-align: left;
-  cursor: pointer;
-  border: 1px solid transparent;
-  white-space: nowrap;
-  border-radius: 3px;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.menu-item:hover > .menu-btn {
-  color: white;
-  outline: none;
-  background-color: rgb(46, 57, 64);
-  border: 1px solid rgb(46, 57, 64);
-}
-.menu-item.disabled {
-  opacity: 0.5;
-  pointer-events: none;
-}
-.menu-item.disabled .menu-btn {
-  cursor: default;
-}
-.show-menu,
-.menu-item:hover > .menu {
-  opacity: 0.95;
-  transform: translate(0, 0) scale(1);
-  pointer-events: auto;
-}
-.menu-item:hover > .menu {
-  -webkit-transition-delay: 100ms;
-  transition-delay: 300ms;
-}
+/* context menu */
 .context-menu {
   position: absolute;
   padding: 0;
