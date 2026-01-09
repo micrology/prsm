@@ -2284,51 +2284,51 @@ function drawBadges(ctx) {
         drawTheBadge(pinImage, ctx, box.left - 10, box.top)
       })
   }
-  if (showNotesToggle) {
-    // note card for Factors and Links with Notes
-    data.nodes
-      .get()
-      .filter(
-        (node) =>
-          !node.hidden &&
-          !node.nodeHidden &&
-          node.note &&
-          node.note !== 'Notes' &&
-          !node.clusteredIn
-      )
-      .forEach((node) => {
-        const box = network.getBoundingBox(node.id)
-        drawTheBadge(noteImage, ctx, box.right, box.top)
-      })
-    // an edge note badge is placed where a middle arrow would be
-    const changedEdges = []
-    data.edges.get().forEach((edge) => {
-      if (
-        !edge.edgeHidden &&
-        edge.note &&
-        edge.note !== 'Notes' &&
-        edge.arrows &&
-        edge.arrows.middle &&
-        !edge.arrows.middle.enabled
-      ) {
-        // there is a note, but the badge is not shown, so show it
-        changedEdges.push(edge)
-        edge.arrows.middle.enabled = true
-        edge.arrows.middle.type = 'image'
-        edge.arrows.middle.src = noteImage.src
-      } else if (
-        (!edge.note || (edge.note && edge.note === 'Notes') || edge.edgeHidden) &&
-        edge.arrows &&
-        edge.arrows.middle &&
-        edge.arrows.middle.enabled
-      ) {
-        // there is not a note, but the badge is shown, so remove it
-        changedEdges.push(edge)
-        edge.arrows.middle.enabled = false
-      }
+  // note card for Factors and Links with Notes
+  data.nodes
+    .get()
+    .filter(
+      (node) =>
+        !node.hidden &&
+        !node.nodeHidden &&
+        node.note &&
+        node.note !== 'Notes' &&
+        !node.clusteredIn &&
+        showNotesToggle
+    )
+    .forEach((node) => {
+      const box = network.getBoundingBox(node.id)
+      drawTheBadge(noteImage, ctx, box.right, box.top)
     })
-    data.edges.update(changedEdges)
-  }
+  // an edge note badge is placed where a middle arrow would be
+  const changedEdges = []
+  data.edges.get().forEach((edge) => {
+    if (
+      !edge.edgeHidden &&
+      edge.note &&
+      edge.note !== 'Notes' &&
+      edge.arrows &&
+      edge.arrows.middle &&
+      !edge.arrows.middle.enabled &&
+      showNotesToggle
+    ) {
+      // there is a note, but the badge is not shown, so show it
+      changedEdges.push(edge)
+      edge.arrows.middle.enabled = true
+      edge.arrows.middle.type = 'image'
+      edge.arrows.middle.src = noteImage.src
+    } else if (
+      (!edge.note || (edge.note && edge.note === 'Notes') || edge.edgeHidden || !showNotesToggle) &&
+      edge.arrows &&
+      edge.arrows.middle &&
+      edge.arrows.middle.enabled
+    ) {
+      // there is not a note, but the badge is shown, so remove it
+      changedEdges.push(edge)
+      edge.arrows.middle.enabled = false
+    }
+  })
+  data.edges.update(changedEdges)
   // draw the voting thumbs up/down (but not for nodes inside a cluster, or for cluster nodes)
   if (showVotingToggle) {
     data.nodes

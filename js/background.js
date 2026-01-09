@@ -177,6 +177,9 @@ export async function refreshFromMap(keys) {
       }
       case 'sequence':
         continue
+      case 'activeSelection':
+      case 'ActiveSelection':
+        continue
       default: {
         let localObj = canvas.getObjects().find((o) => o.id === key)
         // if object already exists, update it
@@ -298,10 +301,10 @@ export async function refreshFromMap(keys) {
         case 'ActiveSelection':
         case 'activeSelection': {
           /* An active selection has canvas coordinates for its location and size, and
-					the objects it includes have their positions set relative to the active selection.
-					Thus to locate the objects relative to the canvas, we have to transform their coordinates.
-					remoteParams provides the location and dimensions of the ActiveSelection, the ids of
-					the selected objects, and copies of the selected objects (but these are missing their ids) */
+          the objects it includes have their positions set relative to the active selection.
+          Thus to locate the objects relative to the canvas, we have to transform their coordinates.
+          remoteParams provides the location and dimensions of the ActiveSelection, the ids of
+          the selected objects, and copies of the selected objects (but these are missing their ids) */
           if (canvas.getActiveObject()) canvas.discardActiveObject()
           const asLeft = remoteParams.left
           const asTop = remoteParams.top
@@ -508,7 +511,7 @@ function selectTool(event) {
   tool.classList.add('selected')
   // display options dialog
   // first hide the tool tip, which gets in the way of the options dialog
-  tool.childNodes[3].style.visibility='hidden'
+  tool.childNodes[3].style.visibility = 'hidden'
   const handler = toolHandler(selectedTool)
   handler.optionsDialog()
   canvas.isDrawingMode = tool.id === 'pencil' || tool.id === 'marker'
@@ -558,7 +561,7 @@ function unselectTool() {
   if (selectedTool) {
     const el = elem(selectedTool)
     el.classList.remove('selected')
-    el.childNodes[3].style.visibility='hidden'
+    el.childNodes[3].style.visibility = 'hidden'
   }
   closeOptionsDialogs()
   selectedTool = null
@@ -1261,9 +1264,9 @@ class TextHandler extends IText {
     })
   }
 
-  pointermove() {}
+  pointermove() { }
 
-  pointerup() {}
+  pointerup() { }
 
   update() {
     this.setParams()
@@ -1320,9 +1323,9 @@ class PencilHandler extends FabricObject {
     }
   }
 
-  pointermove() {}
+  pointermove() { }
 
-  pointerup() {}
+  pointerup() { }
 
   update() {
     this.setParams()
@@ -1387,9 +1390,9 @@ class MarkerHandler extends FabricObject {
     }
   }
 
-  pointermove() {}
+  pointermove() { }
 
-  pointerup() {}
+  pointerup() { }
 
   update() {
     this.setParams()
@@ -1485,15 +1488,15 @@ class ImageHandler extends FabricObject {
     }
   }
 
-  pointerdown() {}
+  pointerdown() { }
 
-  pointermove() {}
+  pointermove() { }
 
-  pointerup() {}
+  pointerup() { }
 
-  update() {}
+  update() { }
 
-  optionsDialog() {}
+  optionsDialog() { }
 }
 /****************************************** Group ********************************************/
 
@@ -1577,13 +1580,13 @@ class DeleteHandler extends FabricObject {
     unselectTool()
   }
 
-  pointerdown() {}
+  pointerdown() { }
 
-  pointermove() {}
+  pointermove() { }
 
-  pointerup() {}
+  pointerup() { }
 
-  optionsDialog() {}
+  optionsDialog() { }
 }
 
 /**
