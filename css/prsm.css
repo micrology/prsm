@@ -1837,7 +1837,7 @@ input#splashNameBox::placeholder {
   padding: 5px;
   text-align: center;
   font-size: 10px;
-  z-index: 210;
+  z-index: 75;
   cursor: default;
   user-select: none;
   -webkit-user-select: none;

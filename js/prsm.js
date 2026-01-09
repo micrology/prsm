@@ -5612,7 +5612,6 @@ function showAvatars() {
     1
   )
   const nameRecs = recs
-
     .map(([, value]) => value.user || null)
     .filter((e) => e) // remove any records without a user record
     .filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i) // remove duplicates, by name
@@ -5627,6 +5626,12 @@ function showAvatars() {
   // check that an avatar exists for each name; if not create one.  If it does, check that it is still looking right
   nameRecs.forEach((nameRec) => {
     const ava = elem(`ava${nameRec.id}`)
+    if (nameRec.name === 'debug') { // skip the debug user
+      if (ava) {
+        removeAvatar(ava)
+      }
+      return 
+    }
     const shortName = initials(nameRec.name)
     if (ava === null) {
       makeAvatar(nameRec)
@@ -5671,6 +5676,8 @@ function showAvatars() {
 
   const df = document.createDocumentFragment()
   nameRecs.forEach((nameRec) => {
+    // skip debug user
+    if (nameRec.name === 'debug') return
     df.appendChild(elem(`ava${nameRec.id}`))
   })
   avatars.replaceChildren(df)
@@ -5787,12 +5794,7 @@ function followUser() {
  */
 function renameUser() {
   const newName = prompt('Enter your new name', myNameRec.name)
-  if (newName) {
-    myNameRec.name = newName
-    myNameRec.anon = false
-    yAwareness.setLocalState({ user: myNameRec })
-    showAvatars()
-  }
+  saveUserName(newName)
   clearStatusBar()
 }
 /**
