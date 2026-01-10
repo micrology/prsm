@@ -963,42 +963,8 @@ function initiateClone() {
         .then(() => {
           // if there is no clone, clone will be null
           if (clone) {
-            const state = JSON.parse(decompressFromUTF16(clone))
-            data.nodes.update(state.nodes)
-            data.edges.update(state.edges)
-            doc.transact(() => {
-              for (const k in state.net) {
-                yNetMap.set(k, state.net[k])
-              }
-              viewOnly = state.options.viewOnly
-              yNetMap.set('viewOnly', viewOnly)
-              data.nodes.get().forEach((obj) => (obj.fixed = viewOnly))
-              if (viewOnly) hideNavButtons()
-              styles.nodes = deepCopy(state.samples.nodes)
-              styles.edges = deepCopy(state.samples.edges)
-              for (const k in styles.nodes) {
-                ySamplesMap.set(k, { node: styles.nodes[k] })
-                refreshSampleNode(k)
-              }
-              for (const k in styles.edges) {
-                ySamplesMap.set(k, { edge: styles.edges[k] })
-                refreshSampleLink(k)
-               }
-               setLegend(state.net.legend, true)
-              if (state.paint) {
-                yPointsArray.delete(0, yPointsArray.length)
-                yPointsArray.insert(0, state.paint)
-              }
-              if (state.drawing) {
-                for (const k in state.drawing) {
-                  yDrawingMap.set(k, state.drawing[k])
-                }
-                updateFromDrawingMap()
-              }
-              logHistory(state.options.created.action, state.options.created.actor)
-            }, 'clone')
-            unSelect()
-            fit()
+            const state = restoreState(clone)
+            logHistory(state.options.created.action, state.options.created.actor)
           }
         })
         .catch((err) => {
@@ -1008,6 +974,51 @@ function initiateClone() {
     .catch((err) => {
       console.log('Cant get localForage clone key: ', err)
     })
+}
+/**
+ * Given a compressed binary string retrieved from local storage, restore the map state
+ * @param {UTF16string} compressedState
+ * @return {object} the restored state 
+ */
+function restoreState(compressedState) {
+  const state = JSON.parse(decompressFromUTF16(compressedState))
+  data.nodes.clear()
+  data.edges.clear()
+  data.nodes.update(state.nodes)
+  data.edges.update(state.edges)
+  doc.transact(() => {
+    for (const k in state.net) {
+      yNetMap.set(k, state.net[k])
+    }
+    viewOnly = state.options.viewOnly
+    yNetMap.set('viewOnly', viewOnly)
+    data.nodes.get().forEach((obj) => (obj.fixed = viewOnly))
+    if (viewOnly) hideNavButtons()
+    styles.nodes = deepCopy(state.samples.nodes)
+    styles.edges = deepCopy(state.samples.edges)
+    for (const k in styles.nodes) {
+      ySamplesMap.set(k, { node: styles.nodes[k] })
+      refreshSampleNode(k)
+    }
+    for (const k in styles.edges) {
+      ySamplesMap.set(k, { edge: styles.edges[k] })
+      refreshSampleLink(k)
+    }
+    setLegend(state.net.legend, true)
+    if (state.paint) {
+      yPointsArray.delete(0, yPointsArray.length)
+      yPointsArray.insert(0, state.paint)
+    }
+    if (state.drawing) {
+      for (const k in state.drawing) {
+        yDrawingMap.set(k, state.drawing[k])
+      }
+      updateFromDrawingMap()
+    }
+  }, 'clone')
+  unSelect()
+  fit()
+  return state
 }
 /**
  * Display observed yjs event
@@ -2150,7 +2161,7 @@ export async function logHistory(action, actor, dontSaveState = null) {
   // store the current state of the map for possible rollback
   if (!dontSaveState) {
     await localForage.setItem(timekey(now), savedState).then(() => {
-      savedState = saveState()
+      savedState = saveState({ viewOnly: false })
 
       // delete all but the last ROLLBACKS saved states
       for (let i = 0; i < yHistory.length - ROLLBACKS; i++) {
@@ -5409,31 +5420,7 @@ function rollback(event) {
   localForage.getItem(timekey(rbTime)).then((rb) => {
     if (!rb) return
     if (!confirm(`Roll back the map to what it was before ${timeAndDate(rbTime)}?`)) return
-    const state = JSON.parse(decompressFromUTF16(rb))
-    data.nodes.clear()
-    data.edges.clear()
-    data.nodes.update(state.nodes)
-    data.edges.update(state.edges)
-    doc.transact(() => {
-      for (const k in state.net) {
-        yNetMap.set(k, state.net[k])
-      }
-      setMapTitle(state.net.mapTitle)
-      for (const k in state.samples) {
-        ySamplesMap.set(k, state.samples[k])
-      }
-      if (state.paint) {
-        yPointsArray.delete(0, yPointsArray.length)
-        yPointsArray.insert(0, state.paint)
-      }
-      if (state.drawing) {
-        yDrawingMap.clear()
-        for (const k in state.drawing) {
-          yDrawingMap.set(k, state.drawing[k])
-        }
-        updateFromDrawingMap()
-      }
-    })
+    restoreState(rb)
     localForage.removeItem(timekey(rbTime))
     logHistory(
       `rolled back the map to what it was before ${timeAndDate(rbTime, true)}`,
@@ -5646,7 +5633,7 @@ function showAvatars() {
       if (ava) {
         removeAvatar(ava)
       }
-      return 
+      return
     }
     const shortName = initials(nameRec.name)
     if (ava === null) {
