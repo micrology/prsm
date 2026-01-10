@@ -974,9 +974,17 @@ function initiateClone() {
               yNetMap.set('viewOnly', viewOnly)
               data.nodes.get().forEach((obj) => (obj.fixed = viewOnly))
               if (viewOnly) hideNavButtons()
-              for (const k in state.samples) {
-                ySamplesMap.set(k, state.samples[k])
+              styles.nodes = deepCopy(state.samples.nodes)
+              styles.edges = deepCopy(state.samples.edges)
+              for (const k in styles.nodes) {
+                ySamplesMap.set(k, { node: styles.nodes[k] })
+                refreshSampleNode(k)
               }
+              for (const k in styles.edges) {
+                ySamplesMap.set(k, { edge: styles.edges[k] })
+                refreshSampleLink(k)
+               }
+               setLegend(state.net.legend, true)
               if (state.paint) {
                 yPointsArray.delete(0, yPointsArray.length)
                 yPointsArray.insert(0, state.paint)
@@ -2164,7 +2172,7 @@ export function saveState(options) {
       nodes: data.nodes.get(),
       edges: data.edges.get(),
       net: yNetMap.toJSON(),
-      samples: ySamplesMap.toJSON(),
+      samples: styles,
       paint: yPointsArray.toArray(),
       drawing: yDrawingMap.toJSON(),
       options,
@@ -4726,12 +4734,20 @@ function selectUsersItems(event) {
   network.setSelection({ nodes: usersNodes, edges: userEdges })
   showSelected()
 }
-
+/**
+ * Toggle display of the legend and record its setting
+ * @param {event} e 
+ */
 function legendSwitch(e) {
   const on = e.target.checked
   setLegend(on, true)
   yNetMap.set('legend', on)
 }
+/**
+ * 
+ * @param {Boolean} on 
+ * @param {Boolean} warn 
+ */
 export function setLegend(on, warn) {
   elem('showLegendSwitch').checked = on
   if (on) legend(warn)

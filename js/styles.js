@@ -318,10 +318,10 @@ function styleEdgeContextMenu(sampleElement, groupId) {
       label: 'Select Links',
       action: () => selectLinksWithStyle(groupId)
     },
-      {
-        label: `${sampleElement.dataset.hide === 'hidden' ? 'Unhide' : 'Hide'} Links`,
-        action: () => hideLinksWithStyle(sampleElement, groupId)
-      }])
+    {
+      label: `${sampleElement.dataset.hide === 'hidden' ? 'Unhide' : 'Hide'} Links`,
+      action: () => hideLinksWithStyle(sampleElement, groupId)
+    }])
 }
 /**
  * Select all the links with the given style
@@ -365,6 +365,7 @@ function editNodeStyle(styleElement, groupId) {
   updateNodeEditor(groupId)
   // display the style dialog
   nodeEditorShow()
+  elem('nodeStyleEditName').focus( )
 }
 /**
  * ensure that the edit node style dialog shows the current state of the style
@@ -551,6 +552,7 @@ function editLinkStyle(styleElement, groupId) {
   updateLinkEditor(groupId)
   // display the style dialog
   linkEditorShow()
+  elem('linkStyleEditName').focus( )
 }
 /**
  * ensure that the edit link style dialog shows the current state of the style
@@ -699,20 +701,14 @@ const LEGENDHEIGHT = 35
 const LEGENDWIDTH = 120
 /**
  * display a legend on the map (but only if the styles have been given names)
- * @param {Boolean} warn true if user is switching display legend on, but there is nothing to show
+ * @param {Boolean} warn if true, warn if user is switching display legend on, but there is nothing to show
  */
 export function legend(warn = false) {
   clearLegend()
 
-  const sampleNodeDivs = document.getElementsByClassName('sampleNode')
-  const nodes = Array.from(sampleNodeDivs).filter(
-    (elem) => elem.dataSet.get('1').groupLabel !== 'Sample'
-  )
-  const sampleEdgeDivs = document.getElementsByClassName('sampleLink')
-  const edges = Array.from(sampleEdgeDivs).filter(
-    (elem) => !['Sample', '', ' '].includes(elem.dataSet.get('1').groupLabel)
-  )
-  const nItems = nodes.length + edges.length
+  const namedNodeStyles = Object.keys(styles.nodes).filter(key => styles.nodes[key].groupLabel && styles.nodes[key].groupLabel !== 'Sample')
+  const namedEdgeStyles = Object.keys(styles.edges).filter(key => styles.edges[key].groupLabel && styles.edges[key].groupLabel !== 'Sample')
+  const nItems = namedNodeStyles.length + namedEdgeStyles.length
   if (nItems === 0) {
     if (warn) alertMsg('Nothing to include in the Legend - rename some styles first', 'warn')
     elem('showLegendSwitch').checked = false
@@ -735,7 +731,7 @@ export function legend(warn = false) {
 
   dragElement(legendBox, title)
 
-  for (let i = 0; i < nodes.length; i++) {
+  for (let i = 0; i < namedNodeStyles.length; i++) {
     const canvas = document.createElement('div')
     canvas.className = 'legendCanvas'
     legendWrapper.appendChild(canvas)
@@ -744,7 +740,7 @@ export function legend(warn = false) {
       physics: { enabled: false },
       interaction: { zoomView: false, dragView: false },
     })
-    const node = deepMerge(styles.nodes[nodes[i].groupNode])
+    const node = deepMerge(styles.nodes[namedNodeStyles[i]])
     node.id = i + 10000
     node.shape === 'text' ? (node.label = 'groupLabel') : (node.label = '')
     node.fixed = true
@@ -765,7 +761,7 @@ export function legend(warn = false) {
     legendWrapper.appendChild(style)
   }
 
-  for (let i = 0; i < edges.length; i++) {
+  for (let i = 0; i < namedEdgeStyles.length; i++) {
     const canvas = document.createElement('div')
     canvas.className = 'legendCanvas'
     legendWrapper.appendChild(canvas)
@@ -775,7 +771,7 @@ export function legend(warn = false) {
       interaction: { zoomView: false, dragView: false },
     })
 
-    const edge = deepMerge(styles.edges[edges[i].groupLink])
+    const edge = deepMerge(styles.edges[namedEdgeStyles[i]])
     edge.label = ''
     edge.id = i + 10000
     edge.from = i + 20000

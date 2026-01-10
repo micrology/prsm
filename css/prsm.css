@@ -13,10 +13,11 @@
  * 60  - .selectionBox
  * 70  - #container > footer, .loader, .upper-canvas
  * 71  - .background-canvas when editing background
+ * 75 - .shared-cursor
  * 80  - .options, .tool .tooltiptext
  * 90  - .toolbox
  * 100 - .modal
- * 110 - aside, .notePanel
+ * 110 -  aside, .notePanel
  * 120 - .notePanel .corner-handle, .notePanel .corner-handle-top-left
  * 130 - .dropdown-wrapper
  * 140 - .history-window
@@ -26,7 +27,6 @@
  * 180 - .tooltip .tooltiptext
  * 190 - .tutorial-border
  * 200 - .color-picker-container, .tutorial-dialog, .magnifier, #drawer-wrapper
- * 210 - .shared-cursor
  * 220 - #errMsg, .context-menu, #whatsnew
  * cSpell:enable
  */
@@ -1239,7 +1239,7 @@ input:checked + .slider:before {
   grid-gap: 5px;
   border-radius: 6px;
   width: 250px;
-  background-color: var(--shadow-color);
+  background-color: var(--background-opaque-color);
   box-shadow: 2px 2px 10px 0px var(--shadow-color);
   border: thin solid var(--shadow-color);
   color: black;
