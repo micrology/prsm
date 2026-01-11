@@ -43,7 +43,7 @@ journalctl -f -u prsm-api-server
  
  npm run server
  or
- PORT=4001 npm run server
+ PORT=XXXX npm run server
  ***************************************************************
 
  http://server-domain:${PORT}/api/status
@@ -56,6 +56,10 @@ import cors from 'cors'
 import { config } from 'dotenv'
 import pkg from 'systeminformation';
 import prettyBytes from 'pretty-bytes'
+import { WebsocketProvider } from 'y-websocket'
+import * as Y from 'yjs'
+import { createHttpTerminator } from 'http-terminator'
+
 const si = pkg;
 
 const HTMLheader = `<!DOCTYPE html>
@@ -88,7 +92,7 @@ app.use(express.json())
 
 // Log all incoming requests
 app.use((req, res, next) => {
-	let url = new URL(req.url, `http://${req.headers.host}`)
+	const url = new URL(req.url, `http://${req.headers.host}`)
 	console.log(`Processing ${url.pathname} for room ${req.body.room || 'N/A'}`)
 	next()
 })
@@ -108,8 +112,9 @@ app.post('/api/chat', async (req, res) => {
 	try {
 		const { message, systemPrompt, room } = req.body
 
-		if (!room || !room.match(/[a-zA-Z]{3}-[a-zA-Z]{3}-[a-zA-Z]{3}-[a-zA-Z]{3}/))
+		if (!room || !room.match(/[a-zA-Z]{3}-[a-zA-Z]{3}-[a-zA-Z]{3}-[a-zA-Z]{3}/)) {
 			return res.status(400).json({ error: `Invalid room identifier: ${room}` })
+		}
 		if (!message) {
 			return res.status(400).json({ error: 'Message is required' })
 		}
@@ -188,7 +193,41 @@ app.get('/api/status', async (req, res) => {
 		res.status(500).json({ error: error.message })
 	}
 })
+app.post('/api/getMap', async (req, res) => {
+	try {
+		let { room } = req.body
+		if (!room || !room.match(/[a-zA-Z]{3}-[a-zA-Z]{3}-[a-zA-Z]{3}-[a-zA-Z]{3}/)) {
+			return res.status(400).json({ error: `Invalid room identifier: ${room}` })
+		}
+		room = room.toUpperCase()
+		const websocket = 'wss://www.prsm.uk/wss'
+		const doc = new Y.Doc()
+		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		wsProvider.on('synced', () => {
+			console.log('synced')
+			const yNodesMap = doc.getMap('nodes')
+			const yEdgesMap = doc.getMap('edges')
+			const yNetMap = doc.getMap('network')
 
-app.listen(PORT, () => {
+			res.json({ response: `Room ${room}: ${yNodesMap.size} nodes, ${yEdgesMap.size} edges, Title: ${yNetMap.get('mapTitle')}` })
+		})
+	} catch (error) {
+		console.error('Server error:', error)
+		res.status(500).json({ error: error.message })
+	}
+})
+
+const server =app.listen(PORT, () => {
 	console.log(`Proxy server running on http://localhost:${PORT}`)
 })
+
+const httpTerminator = createHttpTerminator({ server });
+
+// Graceful shutdown on Ctrl-C
+process.on('SIGINT', () => {
+  console.log('\nReceived SIGINT, shutting down...');
+  httpTerminator.terminate().then(() => {
+    console.log('HTTP server closed');
+    process.exit(0);
+  });
+});

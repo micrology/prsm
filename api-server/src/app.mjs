@@ -4,15 +4,17 @@
  * Communicates with a proxy server that accesses Bedrock API
  * 
  * Example: Explain the causal link between consumer energy bills and greenhouse gas emissions
+ * curl -d '{"room":"ABC-DEF-GHI-JKL"}' -H "Content-Type: application/json" -X POST http://localhost:3001/api/getMap
+ * 
  */
+import { marked } from "marked"
 
 // Backend API endpoint
-const API_ENDPOINT = 'http://localhost:4001/api/chat'
+const API_ENDPOINT = 'http://localhost:3001/api/chat'
 //const API_ENDPOINT = 'https://cress.soc.surrey.ac.uk/api/chat'
 
 // ================================================================================
 
-import { marked } from "marked"
 
 export async function chat(userMessage) {
 	try {
@@ -35,7 +37,7 @@ export async function chat(userMessage) {
 			},
 			body: JSON.stringify({
 				message: userMessage,
-				systemPrompt: systemPrompt,
+				systemPrompt,
 				room: 'FAK-ERO-OMK-EYX'
 			})
 		})

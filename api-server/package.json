@@ -21,9 +21,12 @@
 		"cors": "^2.8.5",
 		"dotenv": "^16.4.7",
 		"express": "^4.21.2",
+		"http-terminator": "^3.2.0",
 		"marked": "^17.0.0",
 		"parcel": "^2.13.3",
 		"pretty-bytes": "^7.1.0",
-		"systeminformation": "^5.27.11"
+		"systeminformation": "^5.27.11",
+		"y-websocket": "^3.0.0",
+		"yjs": "^13.6.29"
 	}
 }
