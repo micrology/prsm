@@ -175,6 +175,7 @@ let popupWindow = null // window for editing Notes
 let popupEditor = null // Quill editor in popup window
 let sideDrawEditor = null // Quill editor in side drawer
 let loadingDelayTimer // timer to delay the start of the loading animation for few moments
+let noServerTimer = null // timer to show no server connection message
 let netLoaded = false // becomes true when map is fully displayed
 let savedState = '' // the current state of the map (nodes, edges, network settings) before current user action
 let unknownRoomTimeout = null // timer to check if the room exists
@@ -186,6 +187,10 @@ window.addEventListener('load', () => {
   loadingDelayTimer = setTimeout(() => {
     elem('loading').style.display = 'block'
   }, 200)
+  // if no sync after half a minute, show no server connection message
+  noServerTimer = setTimeout(() => {
+    displayNoServerWarning()
+  }, 30000)
   addEventListeners()
   setUpPage()
   setUpBackground()
@@ -208,6 +213,15 @@ window.onbeforeunload = function (event) {
     event.preventDefault()
     event.returnValue = 'You have unsaved unchanges.  Are you sure you want to leave?'
   }
+}
+/**
+ * Display a warning that no server connection could be made
+ */
+function displayNoServerWarning() {
+  elem('loading').style.display = 'none'
+  clearTimeout(loadingDelayTimer)
+  elem('no-server').style.display = 'block'
+  clearTimeout(noServerTimer)
 }
 
 /**
@@ -463,6 +477,7 @@ function startY(newRoom) {
   }
   wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
   wsProvider.on('synced', () => {
+    clearTimeout(noServerTimer)
     // if this is a clone, load the cloned data
     initiateClone()
     // (if the room already exists, wait until the map data is loaded before displaying it)

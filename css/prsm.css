@@ -203,6 +203,20 @@ select {
     transform: translateX(0);
   }
 }
+/* no server connection error splash */
+#no-server {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  border: 1px solid var(--alert-color);
+  background-color: white;
+  font-size: 36px;
+  z-index: 80;
+  text-align: center;
+}
 /* cross-browser range input style */
 .xrange {
   -webkit-appearance: none;
