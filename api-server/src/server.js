@@ -60,6 +60,8 @@ import { WebsocketProvider } from 'y-websocket'
 import * as Y from 'yjs'
 import { createHttpTerminator } from 'http-terminator'
 
+		const websocket = 'wss://www.prsm.uk/wss'
+
 const si = pkg;
 
 const HTMLheader = `<!DOCTYPE html>
@@ -195,29 +197,31 @@ app.get('/api/status', async (req, res) => {
 })
 app.post('/api/getMap', async (req, res) => {
 	try {
-		let { room } = req.body
-		if (!room || !room.match(/[a-zA-Z]{3}-[a-zA-Z]{3}-[a-zA-Z]{3}-[a-zA-Z]{3}/)) {
-			return res.status(400).json({ error: `Invalid room identifier: ${room}` })
-		}
-		room = room.toUpperCase()
-		const websocket = 'wss://www.prsm.uk/wss'
+		const room = checkRoom(req.body.room)
 		const doc = new Y.Doc()
 		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
 		wsProvider.on('synced', () => {
-			console.log('synced')
 			const yNodesMap = doc.getMap('nodes')
 			const yEdgesMap = doc.getMap('edges')
 			const yNetMap = doc.getMap('network')
 
-			res.json({ response: `Room ${room}: ${yNodesMap.size} nodes, ${yEdgesMap.size} edges, Title: ${yNetMap.get('mapTitle')}` })
+			res.json({
+				room,
+				title: yNetMap.get('mapTitle'),
+				viewOnly: yNetMap.get('viewOnly'),
+				version: yNetMap.get('version'),
+				backgroundColor: yNetMap.get('backgroundColor'),
+				nodes: stripArray(Array.from(yNodesMap.values()), ['id', 'borderWidth', 'created', 'label', 'x', 'y', 'color', 'font', 'groupLabel', 'grp', 'modified', 'shape']),
+				edges: stripArray(Array.from(yEdgesMap.values()), ['id', 'from', 'to', 'label', 'color', 'dashes', 'width', 'arrows', 'groupLabel', 'grp', 'created', 'modified']),
+			})
+			doc.destroy()
 		})
 	} catch (error) {
-		console.error('Server error:', error)
 		res.status(500).json({ error: error.message })
 	}
 })
 
-const server =app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
 	console.log(`Proxy server running on http://localhost:${PORT}`)
 })
 
@@ -225,9 +229,37 @@ const httpTerminator = createHttpTerminator({ server });
 
 // Graceful shutdown on Ctrl-C
 process.on('SIGINT', () => {
-  console.log('\nReceived SIGINT, shutting down...');
-  httpTerminator.terminate().then(() => {
-    console.log('HTTP server closed');
-    process.exit(0);
-  });
+	console.log('\nReceived SIGINT, shutting down...');
+	httpTerminator.terminate().then(() => {
+		console.log('HTTP server closed');
+		process.exit(0);
+	});
 });
+
+function checkRoom(room) {
+	room = room.toUpperCase()
+	if (!room || !room.match(/[A-Z]{3}-[A-Z]{3}-[A-Z]{3}-[A-Z]{3}/)) {
+		throw new Error(`Invalid room identifier: ${room}`)
+	}
+	return room
+}
+/**
+ * return a copy of an object that only includes the properties that are in allowed
+ * @param {Object} obj the object to copy
+ * @param {array} allowed list of allowed properties
+ */
+function strip(obj, allowed) {
+	return allowed.reduce((a, e) => {
+		a[e] = obj[e]
+		return a
+	}, {})
+}
+/**
+ * return an array of objects, each stripped to only include the allowed properties
+ * @param {array} arr 
+ * @param {array} allowed 
+ * @returns 
+ */
+function stripArray(arr, allowed) {
+	return arr.map((item) => strip(item, allowed))
+}

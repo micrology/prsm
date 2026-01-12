@@ -276,6 +276,15 @@ export function strip(obj, allowed) {
   }, {})
 }
 /**
+ * return an array of objects, each stripped to only include the allowed properties
+ * @param {array} arr 
+ * @param {array} allowed 
+ * @returns 
+ */
+export function stripArray(arr, allowed) {
+  return arr.map((item) => strip(item, allowed))
+}
+/**
  * divide txt into lines to make it roughly square, with a
  * maximum width of width characters, but not breaking words and
  * respecting embedded line breaks (\n).
