@@ -3,7 +3,7 @@
   "language": "en-GB",
   "dictionaries": ["en_GB", "custom-dictionary"],
   "enabled": true,
-  "ignorePaths": ["node_modules", "dist", "build"],
+  "ignorePaths": ["node_modules", "dist", "build", "/\\.*"],
   "words": ["PRSM"],
   "patterns": [
     {
@@ -25,6 +25,10 @@
     {
       "name": "HtmlOrJsxTag",
       "pattern": "<[A-Za-z][^>]*>"
+    },
+    {
+      "name": "MarkdownCodeBlock",
+      "pattern": "```[\\s\\S]*?```"
     }
   ],
   "ignoreRegExpList": ["HtmlOrJsxTag"],
@@ -47,6 +51,18 @@
       "languageId": "html",
       "includeRegExpList": ["HtmlComment", "HtmlVisibleText"],
       "ignoreRegExpList": ["ScriptBlock"]
+    },
+    {
+      "languageId": "php",
+      "includeRegExpList": ["CStyleComment", "LineComment"]
+    },
+    {
+      "languageId": "markdown",
+      "ignoreRegExpList": ["MarkdownCodeBlock"]
+    },
+    {
+      "languageId": "mdx",
+      "ignoreRegExpList": ["MarkdownCodeBlock"]
     }
   ],
   "dictionaryDefinitions": [

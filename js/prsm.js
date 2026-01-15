@@ -122,6 +122,7 @@ export let room
  * round - round trip timing
  * back - drawing on background
  * prompt - show AI prompts
+ * local - use local websocket server and AI API endpoint
  */
 export let debug = ''
 console.log(`${appName} version ${version} [features: ${features.ai ? 'AI' : 'no AI'}]`)

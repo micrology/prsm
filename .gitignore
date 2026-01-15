@@ -18,6 +18,7 @@ data
 logs
 vr
 html/*.removed
+js/*.removed
 archive
 .env
 

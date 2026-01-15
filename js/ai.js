@@ -45,15 +45,14 @@ async function chat(userMessage, systemPrompt = null) {
       console.log('User Message:', userMessage)
     }
     // Call backend proxy API
-    const response = await fetch(API_ENDPOINT, {
+    const response = await fetch(`${API_ENDPOINT}/${room}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         message: userMessage,
-        systemPrompt,
-        room,
+        systemPrompt
       }),
     })
 
