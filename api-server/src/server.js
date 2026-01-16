@@ -325,7 +325,7 @@ app.post('/api/map/:room/factor/:factor', async (req, res) => {
 			}, grp: 0, shape: "box", shapeProperties: {}, ...spec,
 			created: { time: Date.now(), user: 'API' },
 			modified: { time: Date.now(), user: 'API' },
-			...spec, id: req.params.factor
+			id: req.params.factor
 		}
 
 		const doc = new Y.Doc()
@@ -386,20 +386,176 @@ app.delete('/api/map/:room/factor/:factor', async (req, res) => {
 	}
 })
 
-// GET details about a specific link
+/**
+ * Return full details about a specific link
+ */
 app.get('/api/map/:room/link/:link', async (req, res) => {
+	try {
+		console.log(`Fetching link ${req.params.link} for room ${req.params.room}`)
+		const doc = new Y.Doc()
+		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		let sentResponse = false;
+		wsProvider.on('synced', () => {
+			if (!sentResponse) {
+				const yEdgesMap = doc.getMap('edges')
+				const linkDetails = yEdgesMap.get(req.params.link)
+				if (linkDetails && !sentResponse) {
+					res.json(
+						strip(linkDetails, ['id', 'label', 'from', 'to', 'arrows', 'width', 'dashes', 'color', 'created', 'modified', 'groupLabel', 'grp', 'font'])
+					)
+				} else {
+					res.status(404).json({ error: 'Link not found' })
+				}
+				sentResponse = true
+				doc.destroy()
+				wsProvider.disconnect()
+			}
+		})
+	} catch (error) {
+		res.status(500).json({ error: error.message })
+	}
 })
 
-// PATCH update a specific link
+/**
+ * Update properties of a specific link
+ * Body must include an 'update' object with the properties to update
+ */
 app.patch('/api/map/:room/link/:link', async (req, res) => {
+	try {
+		console.log(`Updating link ${req.params.link} for room ${req.params.room}`)
+		const { update } = req.body
+
+		if (!update) {
+			return res.status(400).json({ error: 'Nothing provided for update' })
+		}
+
+		const doc = new Y.Doc()
+		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		let sentResponse = false;
+		wsProvider.on('synced', () => {
+			if (!sentResponse) {
+				const yEdgesMap = doc.getMap('edges')
+				const oldLink = yEdgesMap.get(req.params.link)
+				if (oldLink) {
+					const newLink = { ...oldLink, ...update, modified: { time: Date.now(), user: 'API' } }
+					yEdgesMap.set(req.params.link, newLink)
+					res.json(
+						strip(newLink, ['id', 'label', 'from', 'to', 'arrows', 'width', 'dashes', 'color', 'created', 'modified', 'groupLabel', 'grp', 'font'])
+					)
+				} else {
+					res.status(404).json({ error: 'Link not found' })
+				}
+				sentResponse = true
+				doc.destroy()
+				wsProvider.disconnect()
+			}
+		})
+	} catch (error) {
+		res.status(500).json({ error: error.message })
+	}
 })
 
-// POST create a new link
+/**
+ * Create a new link with specified properties
+ * Body must include a 'spec' object with the link properties
+ */
 app.post('/api/map/:room/link/:link', async (req, res) => {
+	try {
+		console.log(`Creating link ${req.params.link} for room ${req.params.room}`)
+		const { spec } = req.body
+
+		// validate spec: must have at least a from and to
+		if (!spec) {
+			return res.status(400).json({ error: 'Missing link specification' })
+		}
+		if (!spec.from || !spec.to) {
+			return res.status(400).json({ error: 'Missing link endpoints in spec.' })
+		}
+		const newLink = {
+			// default properties, which may be overwritten by spec.
+			color: {
+				color: "rgb(0,0,0)",
+				highlight: "rgb(0,0,0)",
+				hover: "rgb(0,0,0)"
+			}, font: {
+				face: "Oxygen",
+				color: "rgb(0, 0, 0)",
+				size: 14
+			}, grp: 0,
+			arrows: {
+				to: {
+					enabled: true,
+					type: "vee"
+				},
+				middle: {
+					enabled: false
+				},
+				from: {
+					enabled: false
+				},
+			},
+			dashes: false,
+			...spec,
+			created: { time: Date.now(), user: 'API' },
+			modified: { time: Date.now(), user: 'API' },
+			id: req.params.link
+		}
+
+		const doc = new Y.Doc()
+		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		let sentResponse = false;
+		wsProvider.on('synced', () => {
+			if (!sentResponse) {
+				const yNodesMap = doc.getMap('nodes')
+				const edgesMap = doc.getMap('edges')
+				// also ensure that the nodes exist
+				if (!yNodesMap.has(newLink.from) || !yNodesMap.has(newLink.to)) {
+					res.status(400).json({ error: 'One or both link endpoints do not exist as factors.' })
+				} else {
+					edgesMap.set(req.params.link, newLink)
+					res.json(
+						strip(newLink, ['id', 'label', 'from', 'to', 'arrows', 'width', 'dashes', 'color', 'created', 'modified', 'groupLabel', 'grp', 'font']))
+				}
+			}
+			sentResponse = true
+			doc.destroy()
+			wsProvider.disconnect()
+		})
+	} catch (error) {
+		res.status(500).json({ error: error.message })
+	}
 })
 
-// DELETE a specific link
+/**
+ * Delete a specific link
+ */
 app.delete('/api/map/:room/link/:link', async (req, res) => {
+	try {
+		console.log(`Deleting link ${req.params.link} for room ${req.params.room}`)
+
+		const doc = new Y.Doc()
+		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		let sentResponse = false;
+		wsProvider.on('synced', () => {
+			if (!sentResponse) {
+				const yEdgesMap = doc.getMap('edges')
+				const oldLink = yEdgesMap.get(req.params.link)
+				console.log(`Old link: ${JSON.stringify(oldLink)}, linkid: ${req.params.link}`)
+				console.log(`Edges before deletion: ${JSON.stringify(Array.from(yEdgesMap.entries()))}`)
+				if (oldLink) {
+					yEdgesMap.delete(req.params.link)
+					res.json({ message: 'Link deleted' })
+				} else {
+					res.status(404).json({ error: 'Link not found' })
+				}
+				sentResponse = true;
+			}
+			doc.destroy()
+			wsProvider.disconnect()
+		})
+	} catch (error) {
+		res.status(500).json({ error: error.message })
+	}
 })
 
 // Start the server

@@ -1,6 +1,6 @@
 # Analysing the map
 
-import { normalizeImagePath } from 'rspress/runtime';
+import { normalizeImagePath } from '@rspress/core/runtime';
 
 Once you have a map, you may want to examine it for themes and patterns. This is easiest if you examine portions of the map, or 'sub-maps', one at a time.  PRSM includes several features to make this easier. These are located on the Analysis tab of the Settings dialog.
 <img
@@ -181,7 +181,7 @@ style={{ width: 600}}
 
   Links to and from cluster factors are labelled with the number of links that they aggregate.
 
-  Clustering is done according to the values of  the clustering attribute - all factors with the same value for this attribute are joined into the same cluster.  The **Cluster** pull-down menu offers **Style** (i.e. the factors' style as set in the [Factors tab](/manual/Stylng#factors-tab)) **Colour** (i.e. the colour of the factors' backgrounds) and **Community** (see below) as possible attributes with which to cluster.  In addition, bespoke attributes can be used by creating a new column in the Data View and giving each factor a value there (see the section on the [Data View](/manual/DataView#data-view) for how to create attributes).  These additional attributes are automatically added to the Cluster pull-down menu when they are created.
+  Clustering is done according to the values of  the clustering attribute - all factors with the same value for this attribute are joined into the same cluster.  The **Cluster** pull-down menu offers **Style** (i.e. the factors' style as set in the [Factors tab](/manual/Styling#factors-tab)) **Colour** (i.e. the colour of the factors' backgrounds) and **Community** (see below) as possible attributes with which to cluster.  In addition, bespoke attributes can be used by creating a new column in the Data View and giving each factor a value there (see the section on the [Data View](/manual/DataView#data-view) for how to create attributes).  These additional attributes are automatically added to the Cluster pull-down menu when they are created.
 
   A cluster factor must include more than one ordinary factor, so if the clustering attribute for a factor is is unique to that factor (no other factor has the same value for the attribute) it will remain outside any cluster.  If the value of the clustering attribute in the Data View is blank for a factor, that factor will also remain unclustered.  
 

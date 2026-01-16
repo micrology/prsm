@@ -166,8 +166,7 @@ const hiddenNodes = {
   selected: [],
 }
 const tutorial = new Tutorial() // object driving the tutorial
-export const cp = new CP()
-// color picker
+export const cp = new CP()  // color picker
 let checkMapSaved = false // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
 let dirty = false // map has been changed by user and may need saving
 let followme // clientId of user's cursor to follow
@@ -460,17 +459,24 @@ function hideWhatsNew() {
 /**
  * create a new shared document and start the WebSocket provider
  */
-function startY(newRoom) {
+function startY() {
   const url = new URL(document.location)
-  if (newRoom) room = newRoom
-  else {
-    // get the room number from the URL, or if none, generate a new one
-    room = url.searchParams.get('room')
-  }
+  // get the room number from the URL, or if none, generate a new one
+  room = url.searchParams.get('room')
   if (room == null || room === '') {
     room = generateRoom()
     checkMapSaved = true
-  } else room = room.toUpperCase()
+    // rewrite the URL to include the room and reload from there
+    window.location.replace(`${window.location.origin}${window.location.pathname}?room=${room}${debug ? `&debug=${debug}` : ''}`)
+    // save that this is a new room in session storage
+    sessionStorage.setItem('newRoom', 'true')
+  } else {
+    room = room.toUpperCase()
+    sessionStorage.setItem('newRoom', 'false')
+  }
+
+  // connect websocket provider
+
   // if debug flag includes 'local' or using a non-standard port (i.e neither 80 nor 443)
   // assume that the websocket port is 1234 in the same domain as the url
   if (/local/.test(debug) || (url.port && url.port !== 80 && url.port !== 443)) {
@@ -482,7 +488,7 @@ function startY(newRoom) {
     // if this is a clone, load the cloned data
     initiateClone()
     // (if the room already exists, wait until the map data is loaded before displaying it)
-    if (url.searchParams.get('room') !== null) {
+    if (!sessionStorage.getItem('newRoom')) {
       observed('synced')
       if (/load/.test(debug)) {
         console.log(
@@ -500,6 +506,7 @@ function startY(newRoom) {
       // if this is a new map, display it
       displayNetPane(`${exactTime()} no remote content loaded from ${websocket}`)
     }
+    sessionStorage.setItem('newRoom', 'false')
   })
   wsProvider.disconnectBc()
   wsProvider.on('status', (event) => {

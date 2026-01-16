@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { defineConfig } from 'rspress/config';
+import { defineConfig } from '@rspress/core';
 
 export default defineConfig({
   root: path.join(__dirname, 'docs'),
@@ -10,6 +10,11 @@ export default defineConfig({
   logo: '/images/PRSMlogo200.png',
   logoText: 'PRSM Participatory System Mapper',
   globalStyles: path.join(__dirname, 'styles/index.css'),
+  markdown: {
+    shiki: {
+      langs: ['javascript', 'typescript', 'json', 'bash', 'yaml', 'php'],
+    },
+  },
   themeConfig: {
     socialLinks: [
       { icon: 'github', mode: 'link', content: 'https://github.com/micrology/prsm/issues' },

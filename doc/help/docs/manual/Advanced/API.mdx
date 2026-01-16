@@ -1,45 +1,66 @@
-# API Reference
+# Interfacing with PRSM (API)
+
+import {LanguageTabs, LanguageTab} from "rspress-language-tabs"
 
 ## Overview
 
-PRSM provides an API (Application Programming Interface) for other programs so that they can read and modify maps.
-This is done by accessing specific web addresses (called 'endpoints') with parameters that state what operation is to be carried out.
+PRSM provides an API (Application Programming Interface) for other programs so that they can read and modify maps. This is done by accessing specific web addresses (called 'endpoints') with parameters that state what operation is to be carried out.
 
 ## Base URL
 
 All the endpoints are based on the following web address - see below for the actual endpoints.
 
-```url
+```text
 https://prsm.uk/api/map
 ```
 
 ## Authentication
 
-All API accesses have to be accompanied by the room name of the map to be accessed or modified. For example, to get a list of the factors and links in a map with the room name `ABC-DEF-GHI-JKL`, one would use the web address:
+All API accesses have to be accompanied by the room ID of the map to be accessed or modified. This map *must already exist*, having previously been created in the PRSM web app.  See [Sharing](/manual/GettingStarted#sharing) for how to find the ID of a map.
 
-```url
+## Returned values
+
+All the API endpoints return a [JSON](https://www.json.org/json-en.html) formatted string.  This will either be the retrieved data, or an error message.  The format of the retrieved data varies according to the endpoint, but the error messages are in a standard format, such as:
+
+```bash
+{"error":"Map not found"}
+```
+
+In addition, the response includes a status code:
+
+- `200` - Success
+- `404` - Not found
+- `500` - Server error
+
+## A simple example
+
+To get a list of the factors and links in a map with the room ID `ABC-DEF-GHI-JKL`, one would use the web address:
+
+```text
 https://prsm.uk/api/map/ABC-DEF-GHI-JKL
 ```
 
-Typically, however, this web address would be accessed from the code inside a program.  This program can be written in any suitable language, for example, JavaScript or PHP.  For example, this snippet in JavaScript  returns data about the map as a JSON string in the data variable:
+Normally this web address would be accessed from code inside a program or from the command line.  The program can be written in any suitable language such as JavaScript or PHP.  For example, this snippet returns data about the map as a JSON string in the `data` variable (click on the tabs for samples in each language):
 
+<LanguageTabs>
+ <LanguageTab language="javascript">
 ```javascript
 const response = await fetch(`https://prsm.uk/api/map/ABC-DEF-GHI-JKL`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       }
-      })
+    })
 if (!response.ok) {
       const errorData = await response.json()
       throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'}`)
     }
 const data = await response.json()
 ```
+</LanguageTab>
+<LanguageTab language="php">
 
-or equivalently in PHP
-
-```PHP
+```php
 <?php
 $url = "https://prsm.uk/api/map/ABC-DEF-GHI-JKL";
 // Initialize cURL session
@@ -67,57 +88,691 @@ if ($httpCode < 200 || $httpCode >= 300) {
 ?>
 ```
 
+</LanguageTab>
+<LanguageTab language="bash" label="Command Line">
+```bash
+curl -H "Content-Type: application/json" -X GET https://prsm.uk/api/map/ABC-DEF-GHI-JKL
+```
+</LanguageTab>
+</LanguageTabs>
+
+## Modifying Factors and Links
+
+When you want to modify a factor or link (for example, changing the colour of a factor), you send the changes to the API using a PATCH request. The request body must contain an `update` object with the properties you want to change. These properties will overwrite the existing values.
+
+For example, to change a specific factor's background colour to red and increase its border width to 4 pixels, you would send the following PATCH request to `/api/map/{roomID}/factor/{factorID}`:
+
+<LanguageTabs>
+ <LanguageTab language="javascript">
+```javascript
+const response = await fetch(`https://prsm.uk/api/map/ABC-DEF-GHI-JKL/factor/86db33bf-0b88-45da-a829-7c777d9bf4ba`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        update: {color: {background: 'rgb(255,0,0)'}, borderWidth: 4 }
+      }),
+      })
+if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'}`)
+    }
+const data = await response.json()
+```
+</LanguageTab>
+<LanguageTab language="php">
+
+```php
+<?php
+$url = "https://prsm.uk/api/map/ABC-DEF-GHI-JKL/factor/86db33bf-0b88-45da-a829-7c777d9bf4ba";
+
+// Prepare the JSON body payload
+$payload = json_encode([
+    'update' => [
+        'color' => ['background' => 'rgb(255,0,0)'],
+        'borderWidth' => 4
+    ]
+]);
+// Initialize cURL session
+$ch = curl_init($url);
+// Configure cURL options
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_CUSTOMREQUEST => 'PATCH',
+    CURLOPT_HTTPHEADER => [
+        'Content-Type: application/json',
+        'Content-Length: ' . strlen($payload)
+    ],
+    CURLOPT_POSTFIELDS => $payload,
+]);
+// Execute request
+$response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+// Handle transport-level errors
+if ($response === false) {
+    throw new Exception('cURL error: ' . curl_error($ch));
+}
+curl_close($ch);
+// Decode JSON response
+$data = json_decode($response, true);
+// Handle HTTP-level errors (like `!response.ok`)
+if ($httpCode < 200 || $httpCode >= 300) {
+    $errorMsg = isset($data['error']) ? $data['error'] : 'Unknown error';
+    throw new Exception("HTTP {$httpCode}: {$errorMsg}");
+}
+// Use $data as needed
+?>
+```
+
+</LanguageTab>
+<LanguageTab language="bash" label="Command Line">
+```bash
+curl -H "Content-Type: application/json" -X PATCH \
+   -d '{"update": {"color": {"background": "rgb(255,0,0)"}, "borderWidth": 4 }}' \
+   https://prsm.uk/api/map/ABC-DEF-GHI-JKL/factor/86db33bf-0b88-45da-a829-7c777d9bf4ba
+```
+</LanguageTab>
+</LanguageTabs>
+
 ## Endpoints
 
-### GET /resource
+### GET /map/\{roomID\}
 
-**Description:** Retrieve resources.
+**Description:**
+
+Returns data about the map as a whole.
 
 **Parameters:**
 
-| Name  | Type   | Required | Description               |
-|-------|--------|----------|---------------------------|
-| id    | string | yes      | Resource identifier       |
-| limit | number | no       | Max results (default: 10) |
+- `roomID`: The room identifier for the map
 
 **Response:**
 
+Returns a JSON string of an object with the properties:
+
+- room: the roomID
+- title: the title of the map, if any
+- viewOnly:  `true` if the map cannot be altered by the user (NB: even if true, the map can still be altered through the API)
+- version: the version number of PRSM used to create the map
+- backgroundColor: the color of the map background
+- nodes: an array of the factors in the map.  Each consists of an object with properties:
+  - id: a unique identifier for the factor
+  - label: the label of the factor (the text that is visible on the factor)
+  - x, y : the position of the factor on the underlying canvas (this does not change even if the map is scrolled around the viewport)
+- edges: an array of the links in the map.   Each consists of an object with properties:
+  - id: a unique identifier for the link
+  - label: the label of the link, if any
+  - from: the id of the factor that the link points away from
+  - to: the id of the factor that the link points to
+
+**Example output:**
+
 ```json
-{
-    "id": "string",
-    "name": "string",
-    "created": "ISO 8601 timestamp"
-}
+{"room":"ABC-DEF-GHI-JKL",
+"title":"An example map",
+"version":"3.0.3",
+"nodes":[{},{"id":"86db33bf-0b88-45da-a829-7c777d9bf4ba","label":"test for notes","x":-46,"y":-131},{"id":"87b4444e-233c-4ce8-9a39-4f629c1ff43a","label":"Another factor","x":145,"y":-32}],
+"edges":[{},{"id":"6a12f9f4-3e84-4888-8b13-5f7023e3024e","from":"86db33bf-0b88-45da-a829-7c777d9bf4ba","to":"87b4444e-233c-4ce8-9a39-4f629c1ff43a"}]}
 ```
 
-**Status Codes:**
+### GET /map/\{roomID\}/factor/\{factorID\}
 
-- `200` - Success
-- `404` - Not found
-- `500` - Server error
+**Description:**
 
-### POST /resource
+Returns full details about a specific factor in the map.
 
-**Description:** Create a new resource.
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `factorID`: The unique identifier for the factor
+
+**Response:**
+
+Returns a JSON string of an object with the properties:
+
+- id: a unique identifier for the factor
+- label: the label of the factor (the text that is visible on the factor)
+- x, y: the position of the factor on the underlying canvas
+- borderWidth: the width of the factor's border
+- color: an object containing color settings:
+  - border: the border color
+  - background: the background color
+  - highlight: highlight colors (border and background)
+  - hover: hover colors (border and background)
+- created: an object with time (timestamp) and user properties
+- modified: an object with time (timestamp) and user properties
+- groupLabel: the label of the group this factor belongs to, if any
+- grp: the group number
+- font: an object with font settings (face, color, size)
+- shape: the shape of the factor (e.g., "box", "ellipse")
+- shapeProperties: additional shape-specific properties
+
+**Example output:**
+
+```json
+{"id":"86db33bf-0b88-45da-a829-7c777d9bf4ba",
+"label":"test label",
+"x":-46,
+"y":-131,
+"grp": "group0",
+"borderWidth":1,
+"color": {
+    "border": "rgb(154, 219, 180)",
+    "background": "rgb(154, 219, 180)",
+    "highlight": {
+        "border": "rgb(154, 219, 180)",
+        "background": "rgb(154, 219, 180)"
+    },
+    "hover": {
+        "border": "rgb(154, 219, 180)",
+        "background": "rgb(154, 219, 180)"
+    }
+},
+"font": {
+    "face": "Oxygen",
+    "color": "rgb(0, 0, 0)",
+    "size": 14
+},
+"borderWidth": 0,
+"shape": "box",
+"shapeProperties": {
+    "borderDashes": false
+},
+"groupLabel": "Sample",
+"created":{"time":1640000000000,"user":"john@example.com"},
+"modified":{"time":1640000000000,"user":"john@example.com"}}
+```
+
+### PATCH /map/\{roomID\}/factor/\{factorID\}
+
+**Description:**
+
+Updates properties of a specific factor.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `factorID`: The unique identifier for the factor
 
 **Request Body:**
 
+The body must include an `update` object with the properties to update. Any property from the factor can be updated (label, color, position, etc.).
+
+**Response:**
+
+Returns the updated factor object with all its properties (same format as GET /map/\{roomID\}/factor/\{factorID\}).
+
+**Example request:**
+
 ```json
 {
-    "name": "string"
+  "update": {
+    "label": "Updated label",
+    "color": {"background": "rgb(255,0,0)"},
+    "borderWidth": 2
+  }
 }
 ```
 
-**Response:** Same as GET (201 Created)
+### POST /map/\{roomID\}/factor/\{factorID\}
 
-## Error Handling
+**Description:**
 
-Describe common error responses and their meanings.
+Creates a new factor with the specified properties.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `factorID`: The unique identifier for the new factor (should be a UUID)
+
+**Request Body:**
+
+The body must include a `spec` object with the factor properties. The only required property is `label`. All other properties have defaults:
+
+- label (required): the text to display on the factor
+- x, y (default: 0, 0): position on the canvas
+- borderWidth (default: 0): width of the border
+- color (default: green): color settings object
+- font (default: Oxygen, 14pt, black): font settings object
+- grp (default: 0): group number
+- shape (default: "box"): the shape of the factor
+- shapeProperties (default: {}): additional shape properties
+
+**Response:**
+
+Returns the created factor object with all its properties.
+
+**Example request body:**
+
+```json
+{
+  "spec": {
+    "label": "New Factor",
+    "x": 100,
+    "y": 200,
+    "color": {"background": "rgb(200,200,255)"}
+  }
+}
+```
+
+### DELETE /map/\{roomID\}/factor/\{factorID\}
+
+**Description:**
+
+Deletes a specific factor and all links connected to it.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `factorID`: The unique identifier for the factor
+
+**Response:**
+
+Returns a success message.
+
+**Example output:**
+
+```json
+{"message": "Factor deleted"}
+```
+
+### GET /map/\{roomID\}/link/\{linkID\}
+
+**Description:**
+
+Returns full details about a specific link in the map.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `linkID`: The unique identifier for the link
+
+**Response:**
+
+Returns a JSON string of an object with the properties:
+
+- id: a unique identifier for the link
+- label: the label of the link, if any
+- from: the id of the factor that the link points away from
+- to: the id of the factor that the link points to
+- arrows: an object describing arrow configuration:
+  - to: arrow at the "to" end (enabled, type)
+  - middle: arrow in the middle (enabled)
+  - from: arrow at the "from" end (enabled)
+- width: the width of the link line
+- dashes: whether the link is dashed (true/false)
+- color: an object containing color settings (color, highlight, hover)
+- created: an object with time (timestamp) and user properties
+- modified: an object with time (timestamp) and user properties
+- groupLabel: the label of the group this link belongs to, if any
+- grp: the group number
+- font: an object with font settings (face, color, size)
+
+**Example output:**
+
+```json
+{"id":"860a240b-15d5-4d99-bc69-f1a3d01391c4",
+"label":" ","from":"8d3bf8b9-ff59-45e3-b7d9-86fffd801327",
+"to":"501086d4-eaba-4ff1-ab8a-35295bd0310f",
+"arrows":{"to":{"enabled":true,"type":"vee"},"middle":{"enabled":false},"from":{"enabled":false}},
+"width":1,
+"dashes":false,
+"color":{"color":"rgb(255,0,255)"},
+"created":{"time":1732706793944,"user":"john@example.com"},
+"modified":{"time":1768508302550,"user":"john@example.com"},
+"groupLabel":"Complex",
+"grp":"edge0",
+"font":{"size":14,"align":"top","background":"rgb(255,255,255)","color":"rgba(0,0,0,1)"}}
+```
+
+### PATCH /map/\{roomID\}/link/\{linkID\}
+
+**Description:**
+
+Updates properties of a specific link.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `linkID`: The unique identifier for the link
+
+**Request Body:**
+
+The body must include an `update` object with the properties to update. Any property from the link can be updated (label, color, arrows, width, dashes, etc.).
+
+**Response:**
+
+Returns the updated link object with all its properties (same format as GET /map/\{roomID\}/link/\{linkID\}).
+
+**Example request:**
+
+```json
+{
+  "update": {
+    "label": "influences",
+    "width": 3,
+    "dashes": true
+  }
+}
+```
+
+### POST /map/\{roomID\}/link/\{linkID\}
+
+**Description:**
+
+Creates a new link with the specified properties.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `linkID`: The unique identifier for the new link (should be a UUID)
+
+**Request Body:**
+
+The body must include a `spec` object with the link properties. Required properties are `from` and `to` (factor IDs). All other properties have defaults:
+
+- from (required): the id of the source factor
+- to (required): the id of the target factor
+- label (optional): text to display on the link
+- color (default: black): color settings object
+- font (default: Oxygen, 14pt, black): font settings object
+- grp (default: 0): group number
+- arrows (default: "to" arrow enabled): arrow configuration
+- dashes (default: false): whether the link is dashed
+- width (optional): width of the link line
+
+**Response:**
+
+Returns the created link object with all its properties. Returns an error if either the `from` or `to` factor does not exist.
+
+**Example request:**
+
+```json
+{
+  "spec": {
+    "from": "86db33bf-0b88-45da-a829-7c777d9bf4ba",
+    "to": "87b4444e-233c-4ce8-9a39-4f629c1ff43a",
+    "label": "leads to"
+  }
+}
+```
+
+### DELETE /map/\{roomID\}/link/\{linkID\}
+
+**Description:**
+
+Deletes a specific link.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `linkID`: The unique identifier for the link
+
+**Response:**
+
+Returns a success message.
+
+**Example output:**
+
+```json
+{"message": "Link deleted"}
+```
 
 ## Rate Limiting
 
-Include throttling or quota information if applicable.
+To avoid server overload, the endpoints are limited to 60 requests per minute per IP address. If exceeded, the API returns a 503 status with an error message.
 
-## Examples
+## Example
 
-Include curl or JavaScript examples for common use cases.
+To show how one might put these endpoints together, the following complete program changes the background of all the factors that are the standard green (in fact, the colour 'rgb(154, 219, 180)') to red ('rgb(152554, 0, 0)').  It first obtains a list of all factors, then examines each one to test its background colour, and then if it the colour is green, changes it to red.
+
+<LanguageTabs>
+ <LanguageTab language="javascript">
+
+```javascript
+/**
+ * Update factor colors in a PRSM map
+ * Finds all factors with a specific background color and updates them to a new color
+ */
+
+const ROOM_ID = 'ABC-DEF-GHI-JKL'
+const BASE_URL = 'https://prsm.uk/api/map'
+const OLD_COLOR = 'rgb(154, 219, 180)'
+const NEW_COLOR = 'rgb(255, 0, 0)'
+
+async function main() {
+  try {
+    console.log(`Fetching map data for room ${ROOM_ID}...`)
+
+    // Get the map data to retrieve all factor IDs
+    const mapResponse = await fetch(`${BASE_URL}/${ROOM_ID}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+
+    if (!mapResponse.ok) {
+      const errorData = await mapResponse.json()
+      throw new Error(`HTTP ${mapResponse.status}: ${errorData.error || 'Unknown error'}`)
+    }
+
+    const mapData = await mapResponse.json()
+    const factorIds = mapData.nodes.map(node => node.id).filter(id => id) // filter out any null/undefined ids
+
+    console.log(`Found ${factorIds.length} factors in the map`)
+
+    // Fetch details for each factor to check its background color
+    const factorsToUpdate = []
+
+    for (const factorId of factorIds) {
+      console.log(`Checking factor ${factorId}...`)
+
+      const factorResponse = await fetch(`${BASE_URL}/${ROOM_ID}/factor/${factorId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+
+      if (!factorResponse.ok) {
+        console.warn(`Failed to fetch factor ${factorId}, skipping...`)
+        continue
+      }
+
+      const factorData = await factorResponse.json()
+
+      // Check if the background color matches the old color
+      // Note: colors may have spaces after commas, so we normalize them
+      const normalizeColor = (color) => color.replace(/\s+/g, '')
+
+      if (factorData.color && factorData.color.background) {
+        const currentColor = normalizeColor(factorData.color.background)
+        const targetColor = normalizeColor(OLD_COLOR)
+
+        if (currentColor === targetColor) {
+          factorsToUpdate.push({
+            id: factorId,
+            label: factorData.label
+          })
+        }
+      }
+    }
+
+    console.log(`\nFound ${factorsToUpdate.length} factors with background color ${OLD_COLOR}`)
+
+    // Update each matching factor
+    for (const factor of factorsToUpdate) {
+      console.log(`Updating factor "${factor.label}" (${factor.id})...`)
+
+      const updateResponse = await fetch(`${BASE_URL}/${ROOM_ID}/factor/${factor.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          update: {
+            color: {
+              background: NEW_COLOR
+            }
+          }
+        })
+      })
+
+      if (!updateResponse.ok) {
+        const errorData = await updateResponse.json()
+        console.error(`Failed to update factor ${factor.id}: ${errorData.error}`)
+        continue
+      }
+
+      const updatedFactor = await updateResponse.json()
+      console.log(`✓ Updated "${updatedFactor.label}" to ${NEW_COLOR}`)
+    }
+
+    console.log(`\nComplete! Updated ${factorsToUpdate.length} factors.`)
+
+  } catch (error) {
+    console.error('Error:', error.message)
+    process.exit(1)
+  }
+}
+
+main()
+```
+
+</LanguageTab>
+<LanguageTab language="php">
+
+```php
+<?php
+/**
+ * Update factor colors in a PRSM map
+ * Finds all factors with a specific background color and updates them to a new color
+ */
+
+const ROOM_ID = 'ABC-DEF-GHI-JKL';
+const BASE_URL = 'https://prsm.uk/api/map';
+const OLD_COLOR = 'rgb(154, 219, 180)';
+const NEW_COLOR = 'rgb(255, 0, 0)';
+
+/**
+ * Normalize color string by removing all whitespace
+ */
+function normalizeColor($color) {
+    return preg_replace('/\s+/', '', $color);
+}
+
+/**
+ * Make an HTTP request using cURL
+ */
+function makeRequest($url, $method = 'GET', $data = null) {
+    $ch = curl_init();
+    
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    
+    if ($data !== null) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    }
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    
+    if ($error) {
+        throw new Exception("cURL error: $error");
+    }
+    
+    $decoded = json_decode($response, true);
+    
+    if ($httpCode >= 400) {
+        $errorMsg = isset($decoded['error']) ? $decoded['error'] : 'Unknown error';
+        throw new Exception("HTTP $httpCode: $errorMsg");
+    }
+    
+    return $decoded;
+}
+
+function main() {
+    try {
+        echo "Fetching map data for room " . ROOM_ID . "...\n";
+        
+        // Get the map data to retrieve all factor IDs
+        $mapData = makeRequest(BASE_URL . '/' . ROOM_ID);
+        
+        $factorIds = array_filter(
+            array_map(function($node) { return isset($node['id']) ? $node['id'] : null; }, $mapData['nodes']),
+            function($id) { return !empty($id); }
+        );
+        
+        echo "Found " . count($factorIds) . " factors in the map\n";
+        
+        // Fetch details for each factor to check its background color
+        $factorsToUpdate = [];
+        
+        foreach ($factorIds as $factorId) {
+            echo "Checking factor $factorId...\n";
+            
+            try {
+                $factorData = makeRequest(BASE_URL . '/' . ROOM_ID . '/factor/' . $factorId);
+                
+                // Check if the background color matches the old color
+                if (isset($factorData['color']['background'])) {
+                    $currentColor = normalizeColor($factorData['color']['background']);
+                    $targetColor = normalizeColor(OLD_COLOR);
+                    
+                    if ($currentColor === $targetColor) {
+                        $factorsToUpdate[] = [
+                            'id' => $factorId,
+                            'label' => $factorData['label']
+                        ];
+                    }
+                }
+            } catch (Exception $e) {
+                echo "Failed to fetch factor $factorId, skipping...\n";
+                continue;
+            }
+        }
+        
+        echo "\nFound " . count($factorsToUpdate) . " factors with background color " . OLD_COLOR . "\n";
+        
+        // Update each matching factor
+        foreach ($factorsToUpdate as $factor) {
+            echo "Updating factor \"{$factor['label']}\" ({$factor['id']})...\n";
+            
+            try {
+                $updatedFactor = makeRequest(
+                    BASE_URL . '/' . ROOM_ID . '/factor/' . $factor['id'],
+                    'PATCH',
+                    [
+                        'update' => [
+                            'color' => [
+                                'background' => NEW_COLOR
+                            ]
+                        ]
+                    ]
+                );
+                
+                echo "✓ Updated \"{$updatedFactor['label']}\" to " . NEW_COLOR . "\n";
+            } catch (Exception $e) {
+                echo "Failed to update factor {$factor['id']}: {$e->getMessage()}\n";
+                continue;
+            }
+        }
+        
+        echo "\nComplete! Updated " . count($factorsToUpdate) . " factors.\n";
+        
+    } catch (Exception $e) {
+        echo "Error: {$e->getMessage()}\n";
+        exit(1);
+    }
+}
+
+main();
+```
+
+</LanguageTab>
+</LanguageTabs>

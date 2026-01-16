@@ -8,9 +8,13 @@
     "preview": "rspress preview"
   },
   "dependencies": {
-    "rspress": "^1.43.11"
+    "@rspress/core": "^2.0.0-rc.5",
+    "rspress-language-tabs": "^1.1.0"
   },
   "devDependencies": {
-    "@types/node": "^16"
+    "@types/node": "^22"
+  },
+  "engines": {
+    "node": ">=20.9.0"
   }
 }
