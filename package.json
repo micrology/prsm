@@ -62,7 +62,7 @@
     "@y/websocket-server": "^0.1.1",
     "3d-force-graph": "^1.74.5",
     "bootstrap": "^5.3.3",
-    "fabric": "^6.0.0",
+    "fabric": "^7.1.0",
     "fast-xml-parser": "^5.0.8",
     "file-saver": "^2.0.5",
     "localforage": "^1.10.0",
