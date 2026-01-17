@@ -466,13 +466,13 @@ function startY() {
   if (room == null || room === '') {
     room = generateRoom()
     checkMapSaved = true
-    // rewrite the URL to include the room and reload from there
-    window.location.replace(`${window.location.origin}${window.location.pathname}?room=${room}${debug ? `&debug=${debug}` : ''}`)
     // save that this is a new room in session storage
     sessionStorage.setItem('newRoom', 'true')
+    // rewrite the URL to include the room and reload from there
+    window.location.replace(`${window.location.origin}${window.location.pathname}?room=${room}${debug ? `&debug=${debug}` : ''}`)
+    // NB never gets here, because of the reload
   } else {
     room = room.toUpperCase()
-    sessionStorage.setItem('newRoom', 'false')
   }
 
   // connect websocket provider
@@ -488,7 +488,7 @@ function startY() {
     // if this is a clone, load the cloned data
     initiateClone()
     // (if the room already exists, wait until the map data is loaded before displaying it)
-    if (!sessionStorage.getItem('newRoom')) {
+    if (sessionStorage.getItem('newRoom') === 'false') {
       observed('synced')
       if (/load/.test(debug)) {
         console.log(
@@ -504,7 +504,7 @@ function startY() {
       }, 6000)
     } else {
       // if this is a new map, display it
-      displayNetPane(`${exactTime()} no remote content loaded from ${websocket}`)
+       displayNetPane(`${exactTime()} no remote content loaded from ${websocket}`)
     }
     sessionStorage.setItem('newRoom', 'false')
   })

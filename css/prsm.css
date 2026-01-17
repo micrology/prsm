@@ -340,7 +340,7 @@ aside {
 #popup {
   display: none;
   position: absolute;
-  width: 275px;
+  width: 300px;
   z-index: 50;
   background-color: var(--background-opaque-color);
   box-shadow: 2px 2px 10px 0px var(--shadow-color);

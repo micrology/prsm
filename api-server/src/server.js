@@ -194,7 +194,7 @@ app.get('/api/map/:room', async (req, res) => {
 						title: yNetMap.get('mapTitle'),
 						viewOnly: yNetMap.get('viewOnly'),
 						version: yNetMap.get('version'),
-						backgroundColor: yNetMap.get('backgroundColor'),
+						background: yNetMap.get('background'),
 						nodes: stripArray(Array.from(yNodesMap.values()), ['id', 'label', 'x', 'y']),
 						edges: stripArray(Array.from(yEdgesMap.values()), ['id', 'from', 'to', 'label']),
 					})
@@ -217,7 +217,45 @@ app.get('/api/map/:room', async (req, res) => {
  * UPDATE basic map info (title and background color)
  */
 app.patch('/api/map/:room', async (req, res) => {
-	//TODO
+	try {
+		console.log(`Updating map for room ${room}`)
+		const { update } = req.body
+
+		if (!update) {
+			return res.status(400).json({ error: 'Nothing provided for update' })
+		}
+		const doc = new Y.Doc()
+		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		let sentResponse = false;
+		wsProvider.on('synced', () => {
+			if (!sentResponse) {
+				try {
+					const yNetMap = doc.getMap('network')
+					checkMapExists(yNetMap)
+					if (update.title) {
+						yNetMap.set('mapTitle', update.title)
+					}
+					if (update.background) {
+						yNetMap.set('background', update.background)
+					}
+					res.json({
+						room,
+						title: yNetMap.get('mapTitle'),
+						background: yNetMap.get('background'),
+					})
+					sentResponse = true
+				} catch (error) {
+					res.status(500).json({ error: error.message })
+					sentResponse = true
+				} finally {
+					doc.destroy()
+					wsProvider.disconnect()
+				}
+			}
+		})
+	} catch (error) {
+		res.status(500).json({ error: error.message })
+	}
 })
 
 /**
@@ -540,8 +578,6 @@ app.delete('/api/map/:room/link/:link', async (req, res) => {
 			if (!sentResponse) {
 				const yEdgesMap = doc.getMap('edges')
 				const oldLink = yEdgesMap.get(req.params.link)
-				console.log(`Old link: ${JSON.stringify(oldLink)}, linkid: ${req.params.link}`)
-				console.log(`Edges before deletion: ${JSON.stringify(Array.from(yEdgesMap.entries()))}`)
 				if (oldLink) {
 					yEdgesMap.delete(req.params.link)
 					res.json({ message: 'Link deleted' })

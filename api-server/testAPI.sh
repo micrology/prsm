@@ -2,6 +2,8 @@
 echo -e "Starting test script for API server\n\n"
 echo -e "Get map"
 curl -H "Content-Type: application/json" -X GET http://localhost:3001/api/map/VXB-BJN-TAS-YOP | head -c 200
+echo -e "\n\nChange map title and background color"
+curl -H "Content-Type: application/json" -X PATCH -d '{"update": {"title": "Updated map title", "background": "rgb(200,200,200)"}}' http://localhost:3001/api/map/VXB-BJN-TAS-YOP
 echo -e "\n\nGet factor c184317c-1046-44c0-acbd-246ae6c06c21"
 curl -H "Content-Type: application/json" -X GET http://localhost:3001/api/map/VXB-BJN-TAS-YOP/factor/c184317c-1046-44c0-acbd-246ae6c06c21
 echo -e "\n\nUpdate factor c184317c-1046-44c0-acbd-246ae6c06c21"
