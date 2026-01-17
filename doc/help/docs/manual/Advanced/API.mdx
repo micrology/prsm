@@ -216,6 +216,35 @@ Returns a JSON string of an object with the properties:
 "edges":[{},{"id":"6a12f9f4-3e84-4888-8b13-5f7023e3024e","from":"86db33bf-0b88-45da-a829-7c777d9bf4ba","to":"87b4444e-233c-4ce8-9a39-4f629c1ff43a"}]}
 ```
 
+### PATCH /map/\{roomID\}
+
+**Description:**
+
+Updates the title and/or background colour of the map.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+
+**Request Body:**
+
+The body must include an `update` object with the properties to update: the new map title, the new background colour, or both.
+
+**Example request body:**
+
+```json
+{
+  "update": {
+    "title": "New title",
+    "background": "rgb(255,0,0)",
+  }
+}
+```
+
+**Response:**
+
+Returns a JSON string of an object with the new title and background properties.
+
 ### GET /map/\{roomID\}/factor/\{factorID\}
 
 **Description:**
@@ -299,11 +328,7 @@ Updates properties of a specific factor.
 
 The body must include an `update` object with the properties to update. Any property from the factor can be updated (label, color, position, etc.).
 
-**Response:**
-
-Returns the updated factor object with all its properties (same format as GET /map/\{roomID\}/factor/\{factorID\}).
-
-**Example request:**
+**Example request body:**
 
 ```json
 {
@@ -314,6 +339,10 @@ Returns the updated factor object with all its properties (same format as GET /m
   }
 }
 ```
+
+**Response:**
+
+Returns the updated factor object with all its properties (same format as GET /map/\{roomID\}/factor/\{factorID\}).
 
 ### POST /map/\{roomID\}/factor/\{factorID\}
 

@@ -104,7 +104,6 @@ app.all([
 	'/api/chat/:room'
 ], (req, res, next) => {
 	try {
-		console.log(`Processing ${req.path}`)
 		room = checkRoom(req.params.room)
 		next()
 	} catch (error) {
@@ -205,6 +204,7 @@ app.get('/api/map/:room', async (req, res) => {
 				} finally {
 					doc.destroy()
 					wsProvider.disconnect()
+					wsProvider.destroy()
 				}
 			}
 		})
@@ -250,6 +250,7 @@ app.patch('/api/map/:room', async (req, res) => {
 				} finally {
 					doc.destroy()
 					wsProvider.disconnect()
+					wsProvider.destroy()
 				}
 			}
 		})
@@ -281,6 +282,7 @@ app.get('/api/map/:room/factor/:factor', async (req, res) => {
 				sentResponse = true
 				doc.destroy()
 				wsProvider.disconnect()
+				wsProvider.destroy()
 			}
 		})
 	} catch (error) {
@@ -320,6 +322,7 @@ app.patch('/api/map/:room/factor/:factor', async (req, res) => {
 				sentResponse = true
 				doc.destroy()
 				wsProvider.disconnect()
+				wsProvider.destroy()
 			}
 		})
 	} catch (error) {
@@ -380,6 +383,7 @@ app.post('/api/map/:room/factor/:factor', async (req, res) => {
 			sentResponse = true
 			doc.destroy()
 			wsProvider.disconnect()
+			wsProvider.destroy()
 		})
 	} catch (error) {
 		res.status(500).json({ error: error.message })
@@ -418,6 +422,7 @@ app.delete('/api/map/:room/factor/:factor', async (req, res) => {
 			}
 			doc.destroy()
 			wsProvider.disconnect()
+			wsProvider.destroy()
 		})
 	} catch (error) {
 		res.status(500).json({ error: error.message })
@@ -447,6 +452,7 @@ app.get('/api/map/:room/link/:link', async (req, res) => {
 				sentResponse = true
 				doc.destroy()
 				wsProvider.disconnect()
+				wsProvider.destroy()
 			}
 		})
 	} catch (error) {
@@ -486,6 +492,7 @@ app.patch('/api/map/:room/link/:link', async (req, res) => {
 				sentResponse = true
 				doc.destroy()
 				wsProvider.disconnect()
+				wsProvider.destroy()
 			}
 		})
 	} catch (error) {
@@ -558,6 +565,7 @@ app.post('/api/map/:room/link/:link', async (req, res) => {
 			sentResponse = true
 			doc.destroy()
 			wsProvider.disconnect()
+			wsProvider.destroy()
 		})
 	} catch (error) {
 		res.status(500).json({ error: error.message })
@@ -588,6 +596,7 @@ app.delete('/api/map/:room/link/:link', async (req, res) => {
 			}
 			doc.destroy()
 			wsProvider.disconnect()
+			wsProvider.destroy()
 		})
 	} catch (error) {
 		res.status(500).json({ error: error.message })
