@@ -977,26 +977,21 @@ function startY() {
  * load cloned data from localStorage
  * if there is no clone, returns without doing anything
  */
-function initiateClone() {
-  localForage
-    .getItem('clone')
-    .then((clone) => {
-      localForage
-        .removeItem('clone')
-        .then(() => {
-          // if there is no clone, clone will be null
-          if (clone) {
-            const state = restoreState(clone)
-            logHistory(state.options.created.action, state.options.created.actor)
-          }
-        })
-        .catch((err) => {
-          console.log('Cant delete localForage clone key: ', err)
-        })
-    })
-    .catch((err) => {
-      console.log('Cant get localForage clone key: ', err)
-    })
+async function initiateClone() {
+  try {
+    const clone = await localForage.getItem('clone')
+    if (clone) {
+      try {
+        await localForage.removeItem('clone')
+           const state = restoreState(clone)
+          logHistory(state.options.created.action, state.options.created.actor)
+      } catch (err) {
+        console.log('Cant delete localForage clone key: ', err)
+      }
+    }
+  } catch (err) {
+    console.log('Cant get localForage clone key: ', err)
+  }
 }
 /**
  * Given a compressed binary string retrieved from local storage, restore the map state
