@@ -126,6 +126,7 @@ export let room
  */
 export let debug = ''
 console.log(`${appName} version ${version} [features: ${features.ai ? 'AI' : 'no AI'}]`)
+export const baseUrl = window.location.origin
 let viewOnly // when true, user can only view, not modify, the network
 let showCopyMapButton = false // show the Copy Map button on the navbar in viewOnly mode
 let nodes // a dataset of nodes
@@ -3125,7 +3126,7 @@ export function setMapTitle(title) {
  * @param {String} title
  */
 
-const TITLELISTLEN = 500
+const TITLELISTLEN = 50
 function titleDropDown(title) {
   let recentMaps = localStorage.getItem('recents')
   if (recentMaps) recentMaps = JSON.parse(recentMaps)

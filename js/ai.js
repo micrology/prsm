@@ -29,13 +29,13 @@ This module generates responses using an LLM.
 ********************************************************************************************/
 
 import markdownToDelta from 'markdown-to-quill-delta'
-import { room, debug } from './prsm.js'
+import { baseUrl, room, debug } from './prsm.js'
 
 // Function to send a message to the AI and get a response
 async function chat(userMessage, systemPrompt = null) {
   try {
     // Backend API endpoint
-    let API_ENDPOINT = 'https://cress.soc.surrey.ac.uk/api/chat'
+    let API_ENDPOINT = `${baseUrl}/api/chat`
     if (/local/.test(debug)) {
       console.log('Using LOCAL AI API endpoint')
       API_ENDPOINT = 'http://localhost:3001/api/chat'
@@ -57,8 +57,7 @@ async function chat(userMessage, systemPrompt = null) {
     })
 
     if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'}`)
+      throw new Error(`HTTP ${response.status}: ${response.statusText || 'Unknown error'}`)
     }
 
     const data = await response.json()
