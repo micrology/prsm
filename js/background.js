@@ -1472,8 +1472,8 @@ class ImageHandler extends FabricObject {
           this.imageInstance.set({
             originX: 'center',
             originY: 'center',
-            left: canvas.getWidth() / 2,
-            top: canvas.getHeight() / 2,
+            left: canvas.getVpCenter().x,
+            top: canvas.getVpCenter().y,
           })
           this.imageInstance.setCoords()
           this.imageInstance.id = uuidv4()

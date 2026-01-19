@@ -505,7 +505,7 @@ function startY() {
       }, 6000)
     } else {
       // if this is a new map, display it
-       displayNetPane(`${exactTime()} no remote content loaded from ${websocket}`)
+      displayNetPane(`${exactTime()} no remote content loaded from ${websocket}`)
     }
     sessionStorage.setItem('newRoom', 'false')
   })
@@ -984,8 +984,8 @@ async function initiateClone() {
     if (clone) {
       try {
         await localForage.removeItem('clone')
-           const state = restoreState(clone)
-          logHistory(state.options.created.action, state.options.created.actor)
+        const state = restoreState(clone)
+        logHistory(state.options.created.action, state.options.created.actor)
       } catch (err) {
         console.log('Cant delete localForage clone key: ', err)
       }
@@ -2569,7 +2569,7 @@ async function getClipboardContents() {
  * @param {function} saveAction
  * @param {function} callback
  */
-function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback) {
+function initPopUp(popUpTitle, item, cancelAction, saveAction, callback) {
   inAddMode = false
   inEditMode = true
   changeCursor('default')
@@ -2580,7 +2580,7 @@ function initPopUp(popUpTitle, height, item, cancelAction, saveAction, callback)
   elem('popup-cancelButton').onclick = cancelAction.bind(this, item, callback)
   const popupLabel = elem('popup-label')
   popupLabel.style.fontSize = '14px'
-  popupLabel.innerText = item.label === undefined ? '' : item.label //.replace(/\n/g, ' ')
+  popupLabel.innerText = item.label === undefined ? '' : item.label
   popupLabel.focus()
   // Set the cursor to the end
   setEndOfContenteditable(popupLabel)
@@ -2661,7 +2661,7 @@ function cancelEdit(item, callback) {
  */
 function addLabel(item, cancelAction, callback) {
   if (elem('popup').style.display === 'block') return // can't add factor when factor is already being added
-  initPopUp('Add Factor', 60, item, cancelAction, saveLabel, callback)
+  initPopUp('Add Factor', item, cancelAction, saveLabel, callback)
   const pos = network.canvasToDOM({ x: item.x, y: item.y })
   positionPopUp(pos)
   removeFactorCursor()
@@ -2709,7 +2709,7 @@ function saveLabel(node, callback) {
  */
 function editNode(item, point, cancelAction, callback) {
   if (item.locked) return
-  initPopUp('Edit Factor', 180, item, cancelAction, saveNode, callback)
+  initPopUp('Edit Factor', item, cancelAction, saveNode, callback)
   elem('popup').insertAdjacentHTML(
     'beforeend',
     `
@@ -2934,7 +2934,7 @@ function unlockAll() {
  */
 function editEdge(item, point, cancelAction, callback) {
   if (item.locked) return
-  initPopUp('Edit Link', 170, item, cancelAction, saveEdge, callback)
+  initPopUp('Edit Link', item, cancelAction, saveEdge, callback)
   elem('popup').insertAdjacentHTML(
     'beforeend',
     `<div class="popup-editor" id="popup-editor">
@@ -3004,7 +3004,7 @@ function editEdge(item, point, cancelAction, callback) {
 function saveEdge(item, callback) {
   unlockEdge(item)
   item.label = splitText(elem('popup-label').innerText, NODEWIDTH)
-  if (item.label === '') item.label = ' '
+  if (item.label === '') item.label = '\0'
   const color = elem('linkEditLineColor').style.backgroundColor
   item.color.color = color
   item.color.hover = color
@@ -3478,21 +3478,20 @@ function ghostCursor() {
   box.id = 'factor-cursor'
   document.body.appendChild(box)
   const netPaneRect = netPane.getBoundingClientRect()
-  keepInWindow(box, netPaneRect)
-  document.addEventListener('pointermove', () => {
-    keepInWindow(box, netPaneRect)
+  document.addEventListener('pointermove', (event) => {
+    keepInWindow(event, box, netPaneRect)
   })
-  function keepInWindow(box, netPaneRect) {
+  function keepInWindow(event, box, netPaneRect) {
     const boxHalfWidth = box.offsetWidth / 2
     const boxHalfHeight = box.offsetHeight / 2
-    const left = window.event.pageX - boxHalfWidth
+    const left = event.pageX - boxHalfWidth
     box.style.left = `${left <= netPaneRect.left
       ? netPaneRect.left
       : left >= netPaneRect.right - box.offsetWidth
         ? netPaneRect.right - box.offsetWidth
         : left
       }px`
-    const top = window.event.pageY - boxHalfHeight
+    const top = event.pageY - boxHalfHeight
     box.style.top = `${top <= netPaneRect.top
       ? netPaneRect.top
       : top >= netPaneRect.bottom - box.offsetHeight
