@@ -859,14 +859,13 @@ class RectHandler extends Rect {
   pointermove(e) {
     if (!this.dragging) return
     const pointer = canvas.getScenePoint(e)
-    // allow rect to be drawn from bottom right corner as well as from top left corner
-    const left = Math.min(this.start.x, pointer.x)
-    const top = Math.min(this.start.y, pointer.y)
+    const width = pointer.x - this.start.x
+    const height = pointer.y - this.start.y
     this.set({
-      left,
-      top,
-      width: Math.abs(this.start.x - pointer.x),
-      height: Math.abs(this.start.y - pointer.y),
+      left: this.start.x + width / 2,
+      top: this.start.y + height / 2,
+      width: Math.abs(width),
+      height: Math.abs(height),
     })
     canvas.requestRenderAll()
   }
@@ -974,8 +973,6 @@ class CircleHandler extends Circle {
     })
     this.dragging = false
     this.id = uuidv4()
-    this.originX = 'left'
-    this.originY = 'top'
   }
 
   pointerdown(e) {
@@ -992,13 +989,11 @@ class CircleHandler extends Circle {
   pointermove(e) {
     if (!this.dragging) return
     const pointer = canvas.getScenePoint(e)
-    // allow drawing from bottom right corner as well as from top left corner
-    const left = Math.min(this.start.x, pointer.x)
-    const top = Math.min(this.start.y, pointer.y)
+    const radius = Math.sqrt((this.start.x - pointer.x) ** 2 + (this.start.y - pointer.y) ** 2) / 2
     this.set({
-      left,
-      top,
-      radius: Math.sqrt((this.start.x - pointer.x) ** 2 + (this.start.y - pointer.y) ** 2) / 2,
+      left: this.start.x + (pointer.x - this.start.x) / 2,
+      top: this.start.y + (pointer.y - this.start.y) / 2,
+      radius,
     })
     canvas.requestRenderAll()
   }
@@ -1470,8 +1465,6 @@ class ImageHandler extends FabricObject {
           }
           this.imageInstance = new FabricImage(imageElement)
           this.imageInstance.set({
-            originX: 'center',
-            originY: 'center',
             left: canvas.getVpCenter().x,
             top: canvas.getVpCenter().y,
           })
@@ -2336,8 +2329,6 @@ export function upgradeFromV1(pointsArray) {
           fabObj.fill = options.fillStyle
           fabObj.strokeWidth = 0
           fabObj.stroke = options.fillStyle
-          fabObj.originX = 'center'
-          fabObj.originY = 'center'
           fabObj.left = item[1][0]
           fabObj.top = item[1][1]
           fabObj.radius = item[1][2] / 2
