@@ -21,7 +21,7 @@ After=network.target
 [Service]
 Type=simple
 User=ec2-user
-WorkingDirectory=/data/cress/prsm/api-server
+WorkingDirectory=/data/prsm/api-server
 ExecStart=/usr/local/bin/npm run server
 Restart=always
 RestartSec=10
@@ -50,12 +50,15 @@ import * as Y from 'yjs'
 import { createHttpTerminator } from 'http-terminator'
 import rateLimit from 'express-rate-limit'
 
-//const websocket = 'wss://www.prsm.uk/wss'
-const websocket = 'ws://localhost:1234'
-
 // Load environment variables from .env file
 config()
 
+// use local websocket server if in development mode
+let websocket = 'wss://www.prsm.uk/wss'
+if (process.env.NODE_ENV === "dev") {
+	console.log('Running in development mode')
+	 websocket = 'ws://localhost:1234'
+}
 const app = express()
 const PORT = process.env.PORT || 3001
 let room
@@ -605,7 +608,7 @@ app.delete('/api/map/:room/link/:link', async (req, res) => {
 
 // Start the server
 const server = app.listen(PORT, () => {
-	console.log(`Proxy server running on http://localhost:${PORT}`)
+	console.log(`Proxy server running on http://localhost:${PORT} using websocket server at ${websocket}`)
 })
 
 const httpTerminator = createHttpTerminator({ server });

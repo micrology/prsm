@@ -52,7 +52,7 @@ async function chat(userMessage, systemPrompt = null) {
       },
       body: JSON.stringify({
         message: userMessage,
-        systemPrompt
+        systemPrompt,
       }),
     })
 

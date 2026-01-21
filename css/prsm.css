@@ -78,8 +78,7 @@ p {
 }
 button,
 input,
-textarea
-select {
+textarea select {
   font: inherit;
 }
 select {
@@ -225,7 +224,7 @@ select {
   outline: none;
   border-radius: 15px;
   height: 6px;
-  background: var(--shadow-color)
+  background: var(--shadow-color);
 }
 /* Thumb: all except Firefox */
 .xrange::-webkit-slider-thumb {
@@ -1740,7 +1739,7 @@ input#splashNameBox::placeholder {
   color: white;
   border-radius: 4px;
   border-width: 0;
-  padding:2px;
+  padding: 2px;
   line-height: normal;
 }
 .tutorial-dialog .tutorial-button:hover {

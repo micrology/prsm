@@ -1259,9 +1259,9 @@ class TextHandler extends IText {
     })
   }
 
-  pointermove() { }
+  pointermove() {}
 
-  pointerup() { }
+  pointerup() {}
 
   update() {
     this.setParams()
@@ -1318,9 +1318,9 @@ class PencilHandler extends FabricObject {
     }
   }
 
-  pointermove() { }
+  pointermove() {}
 
-  pointerup() { }
+  pointerup() {}
 
   update() {
     this.setParams()
@@ -1385,9 +1385,9 @@ class MarkerHandler extends FabricObject {
     }
   }
 
-  pointermove() { }
+  pointermove() {}
 
-  pointerup() { }
+  pointerup() {}
 
   update() {
     this.setParams()
@@ -1481,15 +1481,15 @@ class ImageHandler extends FabricObject {
     }
   }
 
-  pointerdown() { }
+  pointerdown() {}
 
-  pointermove() { }
+  pointermove() {}
 
-  pointerup() { }
+  pointerup() {}
 
-  update() { }
+  update() {}
 
-  optionsDialog() { }
+  optionsDialog() {}
 }
 /****************************************** Group ********************************************/
 
@@ -1573,13 +1573,13 @@ class DeleteHandler extends FabricObject {
     unselectTool()
   }
 
-  pointerdown() { }
+  pointerdown() {}
 
-  pointermove() { }
+  pointermove() {}
 
-  pointerup() { }
+  pointerup() {}
 
-  optionsDialog() { }
+  optionsDialog() {}
 }
 
 /**

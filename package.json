@@ -1,6 +1,6 @@
 {
   "name": "participatory-system-mapper",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Participatory System Mapper, browser app for collaboratively creating system maps",
   "keywords": [
     "social network",
@@ -43,7 +43,6 @@
     "build-help": "cd doc/help && npm run build",
     "spellcheck": "npx cspell './js/*.js' './html/*.html' './css/*.css' 'doc/help/docs/manual/*.mdx'",
     "check": "npm run lint && npm run spellcheck &&npm run build-help && npm run pretty",
-    "serve": "npx parcel serve './html/*.html' --port 4444 --open",
     "websocket": "YPERSISTENCE=./dbDir npx y-websocket",
     "dev": "npm run clean && npx parcel watch './html/*.html' --no-hmr",
     "build": "rm -rf dist/* && npx parcel build './html/*.html'",

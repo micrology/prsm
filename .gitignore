@@ -21,7 +21,7 @@ html/*.removed
 js/*.removed
 archive
 .env
-
+.cspell
 
 # Compiled source #
 ###################

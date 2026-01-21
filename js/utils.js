@@ -277,9 +277,9 @@ export function strip(obj, allowed) {
 }
 /**
  * return an array of objects, each stripped to only include the allowed properties
- * @param {array} arr 
- * @param {array} allowed 
- * @returns 
+ * @param {array} arr
+ * @param {array} allowed
+ * @returns {array} array of stripped objects
  */
 export function stripArray(arr, allowed) {
   return arr.map((item) => strip(item, allowed))
@@ -290,6 +290,7 @@ export function stripArray(arr, allowed) {
  * respecting embedded line breaks (\n).
  * @param {string} txt
  * @param {number} width
+ * @returns {string} the split text
  */
 export function splitText(txt, width = 10) {
   let lines = ''
@@ -490,7 +491,7 @@ export function dragElement(el, header) {
  *        if (event.button === 2) { addContextMenu(elem, menu)
  * }})
  * to run this.
- * 
+ *
  * @param {HTMLElement} elem click this to get a context menu
  * @param {array} menu array of menu options: ([{label: string, action: function to call when this option selected} {...}])
  */
@@ -498,14 +499,14 @@ export function addContextMenu(elem, menu) {
   const menuEl = document.createElement('div')
   menuEl.classList.add('context-menu')
   document.body.appendChild(menuEl)
-  
+
   const removeMenu = () => {
     if (menuEl.parentNode) {
       document.body.removeChild(menuEl)
     }
     document.removeEventListener('click', handleClickOutside)
   }
-  
+
   // Handler for clicks outside the menu
   const handleClickOutside = (event) => {
     if (!menuEl.contains(event.target)) {
@@ -533,7 +534,7 @@ export function addContextMenu(elem, menu) {
       document.addEventListener('click', handleClickOutside)
     })
   })
-  
+
   menu.forEach((item) => {
     const { label, action } = item
     const option = document.createElement('div')

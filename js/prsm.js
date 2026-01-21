@@ -167,7 +167,7 @@ const hiddenNodes = {
   selected: [],
 }
 const tutorial = new Tutorial() // object driving the tutorial
-export const cp = new CP()  // color picker
+export const cp = new CP() // color picker
 let checkMapSaved = false // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
 let dirty = false // map has been changed by user and may need saving
 let followme // clientId of user's cursor to follow
@@ -470,7 +470,9 @@ function startY() {
     // save that this is a new room in session storage
     sessionStorage.setItem('newRoom', 'true')
     // rewrite the URL to include the room and reload from there
-    window.location.replace(`${window.location.origin}${window.location.pathname}?room=${room}${debug ? `&debug=${debug}` : ''}`)
+    window.location.replace(
+      `${window.location.origin}${window.location.pathname}?room=${room}${debug ? `&debug=${debug}` : ''}`
+    )
     // NB never gets here, because of the reload
   } else {
     room = room.toUpperCase()
@@ -997,7 +999,7 @@ async function initiateClone() {
 /**
  * Given a compressed binary string retrieved from local storage, restore the map state
  * @param {UTF16string} compressedState
- * @return {object} the restored state 
+ * @return {object} the restored state
  */
 function restoreState(compressedState) {
   const state = JSON.parse(decompressFromUTF16(compressedState))
@@ -1350,7 +1352,8 @@ function draw() {
         })
         item.edges.forEach((edgeId) => {
           logHistory(
-            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
+            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
+              data.nodes.get(data.edges.get(edgeId).to).label
             }'`
           )
         })
@@ -1363,7 +1366,8 @@ function draw() {
       deleteEdge: function (item, callback) {
         item.edges.forEach((edgeId) => {
           logHistory(
-            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
+            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
+              data.nodes.get(data.edges.get(edgeId).to).label
             }'`
           )
         })
@@ -1856,7 +1860,7 @@ function draw() {
       bigNetCanvas,
       ((e.clientX - netPaneRect.x) * bigNetCanvas.width) / netPaneCanvas.clientWidth - halfMagSize,
       ((e.clientY - netPaneRect.y) * bigNetCanvas.height) / netPaneCanvas.clientHeight -
-      halfMagSize,
+        halfMagSize,
       magSize,
       magSize,
       0,
@@ -1985,11 +1989,11 @@ export function drawMinimap(ratio = 5) {
 
     minimapRadar.style.left = `${Math.round(
       ((currentDOMPosition.x - initialDOMPosition.x) * scale) / ratio +
-      (minimapWidth * (1 - scale)) / 2
+        (minimapWidth * (1 - scale)) / 2
     )}px`
     minimapRadar.style.top = `${Math.round(
       ((currentDOMPosition.y - initialDOMPosition.y) * scale) / ratio +
-      (minimapHeight * (1 - scale)) / 2
+        (minimapHeight * (1 - scale)) / 2
     )}px`
     minimapRadar.style.width = `${minimapWidth * scale}px`
     minimapRadar.style.height = `${minimapHeight * scale}px`
@@ -2082,12 +2086,12 @@ export function drawMinimap(ratio = 5) {
           x:
             ((radarRect.left - wrapperRect.left + (radarRect.width - wrapperRect.width) / 2) *
               ratio) /
-            scale +
+              scale +
             initialDOMPosition.x,
           y:
             ((radarRect.top - wrapperRect.top + (radarRect.height - wrapperRect.height) / 2) *
               ratio) /
-            scale +
+              scale +
             initialDOMPosition.y,
         }),
       })
@@ -2510,7 +2514,7 @@ async function pasteFromClipboard() {
   let nodes
   let edges
   try {
-    ; ({ nodes, edges } = JSON.parse(clip))
+    ;({ nodes, edges } = JSON.parse(clip))
   } catch {
     // silently return (i.e. use system paste) if there is nothing relevant on the clipboard
     return
@@ -2589,11 +2593,10 @@ function initPopUp(popUpTitle, item, cancelAction, saveAction, callback) {
     if (e.key === 'Enter' && !e.shiftKey) {
       elem('popup').removeEventListener('keydown', captureReturn)
       saveAction(item, callback)
-    } else
-      if (e.key === 'Escape') {
-        elem('popup').removeEventListener('keydown', captureReturn)
-        cancelAction(item, callback)
-      }
+    } else if (e.key === 'Escape') {
+      elem('popup').removeEventListener('keydown', captureReturn)
+      cancelAction(item, callback)
+    }
   }
 }
 /**
@@ -3485,19 +3488,21 @@ function ghostCursor() {
     const boxHalfWidth = box.offsetWidth / 2
     const boxHalfHeight = box.offsetHeight / 2
     const left = event.pageX - boxHalfWidth
-    box.style.left = `${left <= netPaneRect.left
-      ? netPaneRect.left
-      : left >= netPaneRect.right - box.offsetWidth
-        ? netPaneRect.right - box.offsetWidth
-        : left
-      }px`
+    box.style.left = `${
+      left <= netPaneRect.left
+        ? netPaneRect.left
+        : left >= netPaneRect.right - box.offsetWidth
+          ? netPaneRect.right - box.offsetWidth
+          : left
+    }px`
     const top = event.pageY - boxHalfHeight
-    box.style.top = `${top <= netPaneRect.top
-      ? netPaneRect.top
-      : top >= netPaneRect.bottom - box.offsetHeight
-        ? netPaneRect.bottom - box.offsetHeight
-        : top
-      }px`
+    box.style.top = `${
+      top <= netPaneRect.top
+        ? netPaneRect.top
+        : top >= netPaneRect.bottom - box.offsetHeight
+          ? netPaneRect.bottom - box.offsetHeight
+          : top
+    }px`
   }
 }
 /**
@@ -3838,11 +3843,12 @@ function keepPaneInWindow(pane) {
     pane.style.left = `${container.offsetLeft + container.offsetWidth - pane.offsetWidth}px`
   }
   if (pane.offsetTop + pane.offsetHeight > container.offsetTop + container.offsetHeight) {
-    pane.style.top = `${container.offsetTop +
+    pane.style.top = `${
+      container.offsetTop +
       container.offsetHeight -
       pane.offsetHeight -
       document.querySelector('footer').offsetHeight
-      }px`
+    }px`
   }
 }
 // CSpell: ignore tabcontent, tablinks
@@ -3885,7 +3891,8 @@ function applySampleToNode(event) {
   const nNodes = nodesToUpdate.length
   if (nNodes) {
     logHistory(
-      `applied ${styles.nodes[sample].groupLabel} style to ${nNodes === 1 ? nodesToUpdate[0].label : nNodes + ' factors'
+      `applied ${styles.nodes[sample].groupLabel} style to ${
+        nNodes === 1 ? nodesToUpdate[0].label : nNodes + ' factors'
       }`
     )
   }
@@ -4040,15 +4047,15 @@ function showNodeData(nodeId) {
       toolbar: viewOnly
         ? null
         : [
-          'bold',
-          'italic',
-          'underline',
-          'link',
-          { list: 'ordered' },
-          { list: 'bullet' },
-          { indent: '-1' },
-          { indent: '+1' },
-        ],
+            'bold',
+            'italic',
+            'underline',
+            'link',
+            { list: 'ordered' },
+            { list: 'bullet' },
+            { indent: '-1' },
+            { indent: '+1' },
+          ],
     },
     placeholder: 'Notes',
     theme: 'snow',
@@ -4245,15 +4252,15 @@ function showEdgeData(edgeId) {
       toolbar: viewOnly
         ? null
         : [
-          'bold',
-          'italic',
-          'underline',
-          'link',
-          { list: 'ordered' },
-          { list: 'bullet' },
-          { indent: '-1' },
-          { indent: '+1' },
-        ],
+            'bold',
+            'italic',
+            'underline',
+            'link',
+            { list: 'ordered' },
+            { list: 'bullet' },
+            { indent: '-1' },
+            { indent: '+1' },
+          ],
     },
     placeholder: 'Notes',
     theme: 'snow',
@@ -4765,7 +4772,7 @@ function selectUsersItems(event) {
 }
 /**
  * Toggle display of the legend and record its setting
- * @param {event} e 
+ * @param {event} e
  */
 function legendSwitch(e) {
   const on = e.target.checked
@@ -4773,9 +4780,9 @@ function legendSwitch(e) {
   yNetMap.set('legend', on)
 }
 /**
- * 
- * @param {Boolean} on 
- * @param {Boolean} warn 
+ *
+ * @param {Boolean} on
+ * @param {Boolean} warn
  */
 export function setLegend(on, warn) {
   elem('showLegendSwitch').checked = on
@@ -5318,7 +5325,7 @@ export function sizing(metric) {
         node.widthConstraint =
           node.heightConstraint =
           node.size =
-          MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
+            MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
     }
   })
   data.nodes.update(nodesToUpdate)
@@ -5647,7 +5654,8 @@ function showAvatars() {
   // check that an avatar exists for each name; if not create one.  If it does, check that it is still looking right
   nameRecs.forEach((nameRec) => {
     const ava = elem(`ava${nameRec.id}`)
-    if (nameRec.name === 'debug') { // skip the debug user
+    if (nameRec.name === 'debug') {
+      // skip the debug user
       if (ava) {
         removeAvatar(ava)
       }

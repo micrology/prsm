@@ -98,7 +98,8 @@ export function setUpSamples() {
       updateLastSamples(groupId, null)
     })
     sampleElement.addEventListener('pointerdown', (event) => {
-      if (event.button === 2) {  // right click)
+      if (event.button === 2) {
+        // right click)
         styleNodeContextMenu(sampleElement, groupId)
       }
     })
@@ -166,7 +167,8 @@ export function setUpSamples() {
       updateLastSamples(null, groupId)
     })
     sampleElement.addEventListener('pointerdown', (event) => {
-      if (event.button === 2) {  // right click)
+      if (event.button === 2) {
+        // right click)
         styleEdgeContextMenu(sampleElement, groupId)
       }
     })
@@ -264,17 +266,18 @@ function styleNodeContextMenu(sampleElement, groupId) {
   addContextMenu(sampleElement, [
     {
       label: 'Select Factors',
-      action: () => selectFactorsWithStyle(groupId)
+      action: () => selectFactorsWithStyle(groupId),
     },
     {
       label: `${sampleElement.dataset.hide === 'hidden' ? 'Unhide' : 'Hide'} Factors`,
-      action: () => hideFactorsWithStyle(sampleElement, groupId)
-    }])
+      action: () => hideFactorsWithStyle(sampleElement, groupId),
+    },
+  ])
 }
 /**
  * Select all the factors with the given style
  * Used by Style context menu
- * @param {integer} groupId 
+ * @param {integer} groupId
  */
 function selectFactorsWithStyle(groupId) {
   selectFactors(data.nodes.getIds({ filter: (node) => node.grp === groupId }))
@@ -282,8 +285,8 @@ function selectFactorsWithStyle(groupId) {
 /**
  * Hide or unhide all the factors with the given style
  * Used by Style context menu
- * @param {HTMLElement} sampleElement 
- * @param {integer} groupId 
+ * @param {HTMLElement} sampleElement
+ * @param {integer} groupId
  */
 function hideFactorsWithStyle(sampleElement, groupId) {
   const wasHidden = sampleElement.dataset.hide === 'hidden'
@@ -313,20 +316,21 @@ function hideFactorsWithStyle(sampleElement, groupId) {
  * @param {string} groupId
  */
 function styleEdgeContextMenu(sampleElement, groupId) {
-  addContextMenu(sampleElement,
-    [{
+  addContextMenu(sampleElement, [
+    {
       label: 'Select Links',
-      action: () => selectLinksWithStyle(groupId)
+      action: () => selectLinksWithStyle(groupId),
     },
     {
       label: `${sampleElement.dataset.hide === 'hidden' ? 'Unhide' : 'Hide'} Links`,
-      action: () => hideLinksWithStyle(sampleElement, groupId)
-    }])
+      action: () => hideLinksWithStyle(sampleElement, groupId),
+    },
+  ])
 }
 /**
  * Select all the links with the given style
  * Used by Style context menu
- * @param {integer} groupId 
+ * @param {integer} groupId
  */
 function selectLinksWithStyle(groupId) {
   selectLinks(data.edges.getIds({ filter: (edge) => edge.grp === groupId }))
@@ -334,8 +338,8 @@ function selectLinksWithStyle(groupId) {
 /**
  * Hide or unhide all the links with the given style
  * Used by Style context menu
- * @param {HTMLElement} sampleElement 
- * @param {integer} groupId 
+ * @param {HTMLElement} sampleElement
+ * @param {integer} groupId
  */
 function hideLinksWithStyle(sampleElement, groupId) {
   const wasHidden = sampleElement.dataset.hide === 'hidden'
@@ -365,7 +369,7 @@ function editNodeStyle(styleElement, groupId) {
   updateNodeEditor(groupId)
   // display the style dialog
   nodeEditorShow()
-  elem('nodeStyleEditName').focus( )
+  elem('nodeStyleEditName').focus()
 }
 /**
  * ensure that the edit node style dialog shows the current state of the style
@@ -552,7 +556,7 @@ function editLinkStyle(styleElement, groupId) {
   updateLinkEditor(groupId)
   // display the style dialog
   linkEditorShow()
-  elem('linkStyleEditName').focus( )
+  elem('linkStyleEditName').focus()
 }
 /**
  * ensure that the edit link style dialog shows the current state of the style
@@ -706,8 +710,12 @@ const LEGENDWIDTH = 120
 export function legend(warn = false) {
   clearLegend()
 
-  const namedNodeStyles = Object.keys(styles.nodes).filter(key => styles.nodes[key].groupLabel && styles.nodes[key].groupLabel !== 'Sample')
-  const namedEdgeStyles = Object.keys(styles.edges).filter(key => styles.edges[key].groupLabel && styles.edges[key].groupLabel !== 'Sample')
+  const namedNodeStyles = Object.keys(styles.nodes).filter(
+    (key) => styles.nodes[key].groupLabel && styles.nodes[key].groupLabel !== 'Sample'
+  )
+  const namedEdgeStyles = Object.keys(styles.edges).filter(
+    (key) => styles.edges[key].groupLabel && styles.edges[key].groupLabel !== 'Sample'
+  )
   const nItems = namedNodeStyles.length + namedEdgeStyles.length
   if (nItems === 0) {
     if (warn) alertMsg('Nothing to include in the Legend - rename some styles first', 'warn')
