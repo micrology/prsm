@@ -1,6 +1,6 @@
 {
   "name": "participatory-system-mapper",
-  "version": "3.0.4",
+  "version": "2.7.0",
   "description": "Participatory System Mapper, browser app for collaboratively creating system maps",
   "keywords": [
     "social network",
@@ -35,7 +35,7 @@
     "/doc/help/"
   ],
   "features": {
-    "ai": true
+    "ai": false
   },
   "scripts": {
     "lint": "eslint ./js/*.js",
