@@ -1,6 +1,7 @@
 #! /bin/bash
-echo -e "Starting test script for API server\n\n"
-echo -e "Get map"
+echo -e "Chat"
+curl -H "Content-Type: application/json" -X POST -d '{"message": "Hello, how are you?", "systemPrompt": ""}' http://localhost:3001/api/chat/FAK-ERO-OMK-EYX
+echo -e "\n\nGet map"
 curl -H "Content-Type: application/json" -X GET http://localhost:3001/api/map/VXB-BJN-TAS-YOP | head -c 200
 echo -e "\n\nChange map title and background color"
 curl -H "Content-Type: application/json" -X PATCH -d '{"update": {"title": "Updated map title", "background": "rgb(200,200,200)"}}' http://localhost:3001/api/map/VXB-BJN-TAS-YOP

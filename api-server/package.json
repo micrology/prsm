@@ -1,32 +1,33 @@
 {
 	"name": "prsm-api-server",
 	"version": "1.0.0",
-	"source": "src/server.js",
-	"main": "dist/server.js",
 	"scripts": {
-		"serve": "PORT=3001 node dist/server.js",
-		"local": "PORT=3001 NODE_ENV=\"dev\" node dist/server.js",
-		"build": "rm -rf dist/* && parcel build",
+		"build:app": "rm -rf dist/* && parcel build src/index.html",
+		"dev": "parcel src/index.html --port 4000",
+		"serve": "PORT=3001 node src/api-server.mjs",
+		"local": "PORT=3001 NODE_ENV=\"dev\" node src/api-server.mjs",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"keywords": [],
 	"author": "prsm@prsm.uk",
 	"license": "ISC",
 	"description": "PRSM API Server",
-	"type": "module",
 	"dependencies": {
 		"@aws-sdk/client-bedrock-runtime": "^3.726.1",
 		"@aws-sdk/client-cognito-identity": "^3.726.1",
+		"@aws-sdk/client-secrets-manager": "^3.974.0",
 		"@aws-sdk/client-sts": "^3.726.1",
 		"cors": "^2.8.5",
 		"dotenv": "^16.4.7",
 		"express": "^4.21.2",
 		"express-rate-limit": "^8.2.1",
 		"http-terminator": "^3.2.0",
+		"marked": "^17.0.1",
 		"y-websocket": "^3.0.0",
 		"yjs": "^13.6.29"
 	},
+
 	"devDependencies": {
-		"parcel": "^2.16.3"
+		"parcel": "latest"
 	}
 }

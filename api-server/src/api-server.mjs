@@ -1,7 +1,6 @@
 /********************************server.js***********************
  * Express server that provides API access to a map
- *  and also acts as a proxy to the Bedrock API
- * 
+ *  and also acts as a proxy to the Bedrock API:
  * Exposes an endpoint /api/chat that accepts POST requests with a user message
  * and optional system prompt, forwards them to Bedrock, and returns the response.
  * 
@@ -9,55 +8,33 @@
  * - BEDROCK_API_KEY: Your Bedrock API key
  * - AWS_REGION: AWS region where Bedrock is hosted (default: eu-west-2)
  * - MODEL_ID: Bedrock model ID to use (default: eu.anthropic.claude-haiku-4-5-20251001-v1:0)
+ * These are obtained from the AWS Secrets Manager
  * 
  * Run this as a service: prsm-api-server.service:
  * 
  * /etc/systemd/system/prsm-api-server.service
 
-[Unit]
-Description=PRSM API Server
-After=network.target
-
-[Service]
-Type=simple
-User=ec2-user
-WorkingDirectory=/data/prsm/api-server
-ExecStart=/usr/local/bin/npm run serve
-Restart=always
-RestartSec=10
-StandardOutput=journal
-StandardError=journal
-SyslogIdentifier=prsm-api-server
-
-[Install]
-WantedBy=multi-user.target
-
 for status, use:
 journalctl -f -u prsm-api-server
- ****************************************************************
- 
- or locally
- 
- npm run server
- or
- PORT=XXXX npm run server
+****************************************************************
+*
+* or locally:
+* npm run local
  ***************************************************************/
+
 import express from 'express'
 import cors from 'cors'
-import { config } from 'dotenv'
 import { WebsocketProvider } from 'y-websocket'
 import * as Y from 'yjs'
 import { createHttpTerminator } from 'http-terminator'
 import rateLimit from 'express-rate-limit'
-
-// Load environment variables from .env file
-config()
+import { loadSecrets } from './secrets.mjs'
 
 // use local websocket server if in development mode
 let websocket = 'wss://www.prsm.uk/wss'
 if (process.env.NODE_ENV === "dev") {
 	console.log('Running in development mode')
-	 websocket = 'ws://localhost:1234'
+	websocket = 'ws://localhost:1234'
 }
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -89,22 +66,12 @@ app.use(cors())
 app.use(express.json())
 app.use(globalLimiter)
 
-
-// Bedrock configuration from environment variables
-const region = process.env.AWS_REGION || 'eu-west-2'
-const bedrockApiKey = process.env.BEDROCK_API_KEY
-const modelId = process.env.MODEL_ID || 'eu.anthropic.claude-haiku-4-5-20251001-v1:0'
-
-if (!bedrockApiKey) {
-	console.error('ERROR: BEDROCK_API_KEY environment variable is not set')
-	process.exit(1)
-}
 // Log all incoming requests
 app.all([
+	'/api/chat/:room',
 	'/api/map/:room',
 	'/api/map/:room/factor/:factor',
-	'/api/map/:room/link/:link',
-	'/api/chat/:room'
+	'/api/map/:room/link/:link'
 ], (req, res, next) => {
 	try {
 		room = checkRoom(req.params.room)
@@ -115,6 +82,16 @@ app.all([
 })
 // Proxy endpoint for Bedrock chat
 app.post('/api/chat/:room', ChatLimiter, async (req, res) => {
+	// Bedrock configuration from environment variables
+	const region = process.env.AWS_REGION || 'eu-west-2'
+	const bedrockApiKey = process.env.BEDROCK_API_KEY
+	const modelId = process.env.MODEL_ID || 'eu.anthropic.claude-haiku-4-5-20251001-v1:0'
+
+	if (!bedrockApiKey) {
+		console.error('ERROR: BEDROCK_API_KEY environment variable is not set')
+		return res.status(500).json({ error: 'LLM API key is not set' })
+	}
+
 	if (inFlightChatRequests >= MAX_IN_FLIGHT_CHAT) {
 		return res.status(503).json({ error: 'Server is busy, please retry later.' })
 	}
@@ -606,12 +583,24 @@ app.delete('/api/map/:room/link/:link', async (req, res) => {
 	}
 })
 
-// Start the server
-const server = app.listen(PORT, () => {
-	console.log(`Proxy server running on http://localhost:${PORT} using websocket server at ${websocket}`)
-})
+let server // server instance
+let httpTerminator // terminator instance
+/**
+ * Start the server after loading secrets
+ */
+async function start() {
+	// Load secrets first
+	await loadSecrets();
 
-const httpTerminator = createHttpTerminator({ server });
+	// Start the server
+	server = app.listen(PORT, () => {
+		console.log(`Proxy server running on http://localhost:${PORT} using websocket server at ${websocket}`)
+	})
+	httpTerminator = createHttpTerminator({ server });
+}
+start();
+
+/****** Utilities  ************/
 
 // Graceful shutdown on Ctrl-C
 process.on('SIGINT', () => {

@@ -12,8 +12,9 @@ After=network.target
 [Service]
 Type=simple
 User=ec2-user
-WorkingDirectory=/data/cress/prsm/api-server
-ExecStart=/usr/local/bin/npm run server
+WorkingDirectory=/data/prsm/api-server
+ExecStart='PORT=3001 node src/api-server.mjs'
+Environment='AWS_REGION=eu-west-2'
 Restart=always
 RestartSec=10
 StandardOutput=journal
