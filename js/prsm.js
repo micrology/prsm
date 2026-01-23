@@ -491,7 +491,7 @@ function startY() {
     // if this is a clone, load the cloned data
     initiateClone()
     // (if the room already exists, wait until the map data is loaded before displaying it)
-    if (sessionStorage.getItem('newRoom') === 'false') {
+    if (!sessionStorage.getItem('newRoom') || sessionStorage.getItem('newRoom') === 'false') {
       observed('synced')
       if (/load/.test(debug)) {
         console.log(
