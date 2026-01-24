@@ -157,7 +157,7 @@ app.post('/api/chat/:room', ChatLimiter, async (req, res) => {
  */
 app.get('/api/map/:room', async (req, res) => {
 	try {
-		console.log(`Fetching map for room ${room}`)
+		logAPICalls(`Fetching map for room ${room}`)
 		const doc = new Y.Doc()
 		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
 		let sentResponse = false;
@@ -198,7 +198,7 @@ app.get('/api/map/:room', async (req, res) => {
  */
 app.patch('/api/map/:room', async (req, res) => {
 	try {
-		console.log(`Updating map for room ${room}`)
+		logAPICalls(`Updating map for room ${room}`)
 		const { update } = req.body
 
 		if (!update) {
@@ -244,7 +244,7 @@ app.patch('/api/map/:room', async (req, res) => {
  */
 app.get('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
-		console.log(`Fetching factor ${req.params.factor} for room ${req.params.room}`)
+		logAPICalls(`Fetching factor ${req.params.factor} for room ${req.params.room}`)
 		const doc = new Y.Doc()
 		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
 		let sentResponse = false;
@@ -276,7 +276,7 @@ app.get('/api/map/:room/factor/:factor', async (req, res) => {
  */
 app.patch('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
-		console.log(`Updating factor ${req.params.factor} for room ${req.params.room}`)
+		logAPICalls(`Updating factor ${req.params.factor} for room ${req.params.room}`)
 		const { update } = req.body
 
 		if (!update) {
@@ -316,7 +316,7 @@ app.patch('/api/map/:room/factor/:factor', async (req, res) => {
  */
 app.post('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
-		console.log(`Creating factor ${req.params.factor} for room ${req.params.room}`)
+		logAPICalls(`Creating factor ${req.params.factor} for room ${req.params.room}`)
 		const { spec } = req.body
 
 		// validate spec: must have at least a label
@@ -375,7 +375,7 @@ app.post('/api/map/:room/factor/:factor', async (req, res) => {
  */
 app.delete('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
-		console.log(`Deleting factor ${req.params.factor} for room ${req.params.room}`)
+		logAPICalls(`Deleting factor ${req.params.factor} for room ${req.params.room}`)
 
 		const doc = new Y.Doc()
 		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
@@ -414,7 +414,7 @@ app.delete('/api/map/:room/factor/:factor', async (req, res) => {
  */
 app.get('/api/map/:room/link/:link', async (req, res) => {
 	try {
-		console.log(`Fetching link ${req.params.link} for room ${req.params.room}`)
+		logAPICalls(`Fetching link ${req.params.link} for room ${req.params.room}`)
 		const doc = new Y.Doc()
 		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
 		let sentResponse = false;
@@ -446,7 +446,7 @@ app.get('/api/map/:room/link/:link', async (req, res) => {
  */
 app.patch('/api/map/:room/link/:link', async (req, res) => {
 	try {
-		console.log(`Updating link ${req.params.link} for room ${req.params.room}`)
+		logAPICalls(`Updating link ${req.params.link} for room ${req.params.room}`)
 		const { update } = req.body
 
 		if (!update) {
@@ -486,7 +486,7 @@ app.patch('/api/map/:room/link/:link', async (req, res) => {
  */
 app.post('/api/map/:room/link/:link', async (req, res) => {
 	try {
-		console.log(`Creating link ${req.params.link} for room ${req.params.room}`)
+		logAPICalls(`Creating link ${req.params.link} for room ${req.params.room}`)
 		const { spec } = req.body
 
 		// validate spec: must have at least a from and to
@@ -557,7 +557,7 @@ app.post('/api/map/:room/link/:link', async (req, res) => {
  */
 app.delete('/api/map/:room/link/:link', async (req, res) => {
 	try {
-		console.log(`Deleting link ${req.params.link} for room ${req.params.room}`)
+		logAPICalls(`Deleting link ${req.params.link} for room ${req.params.room}`)
 
 		const doc = new Y.Doc()
 		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
@@ -635,6 +635,15 @@ function checkMapExists(yNetMap) {
 		throw new Error('Map not found')
 	}
 }
+/**
+ * time stamp and output message to console
+ * @param {string} message 
+ */
+function logAPICalls(message) {
+	const timestamp = new Date().toLocaleString()
+	console.log(`[${timestamp}] ${message}`)
+}	
+
 // utility functions
 
 /**

@@ -470,6 +470,7 @@ function startY() {
     // save that this is a new room in session storage
     sessionStorage.setItem('newRoom', 'true')
     // rewrite the URL to include the room and reload from there
+    console.log(`Generated new room: ${room} and storage is ${sessionStorage.getItem('newRoom')}`)
     window.location.replace(
       `${window.location.origin}${window.location.pathname}?room=${room}${debug ? `&debug=${debug}` : ''}`
     )
@@ -491,7 +492,7 @@ function startY() {
     // if this is a clone, load the cloned data
     initiateClone()
     // (if the room already exists, wait until the map data is loaded before displaying it)
-    if (!sessionStorage.getItem('newRoom') || sessionStorage.getItem('newRoom') === 'false') {
+    if (sessionStorage.getItem('newRoom') && sessionStorage.getItem('newRoom') === 'false') {
       observed('synced')
       if (/load/.test(debug)) {
         console.log(
