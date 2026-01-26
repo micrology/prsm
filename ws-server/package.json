@@ -1,0 +1,24 @@
+{
+  "name": "@y/websocket-server",
+  "version": "0.1.1",
+  "description": "Backend for y-websocket",
+  "type": "module",
+  "scripts": {
+    "start": "node ./src/server.js"
+  },
+  "author": "Kevin Jahns <kevin.jahns@protonmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "lib0": "^0.2.117",
+    "y-protocols": "^1.0.7",
+    "ws": "^8.19.0",
+    "y-leveldb": "^0.2.0"
+  },
+  "peerDependencies": {
+    "yjs": "^13.6.29"
+  },
+  "engines": {
+    "npm": ">=8.0.0",
+    "node": ">=16.0.0"
+  }
+}

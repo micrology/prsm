@@ -11,6 +11,7 @@ experiments
 .prettierrc
 .vscode
 dbDir*
+tempDB*
 data
 .cache
 .parcel-cache
