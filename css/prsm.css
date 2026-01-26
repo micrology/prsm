@@ -1974,7 +1974,7 @@ input#splashNameBox::placeholder {
 }
 #whatsnewcontent {
   background-color: var(--shadow-color);
-  opacity: 0.8;
+  opacity: 0.9;
   flex-grow: 1;
 }
 #whatsnewcontent h1 {

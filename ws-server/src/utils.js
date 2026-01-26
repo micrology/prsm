@@ -24,6 +24,10 @@ const wsReadyStateOpen = 1
 const wsReadyStateClosing = 2 // eslint-disable-line
 const wsReadyStateClosed = 3 // eslint-disable-line
 
+/**
+* Log message to console with timestamp when verbose mode is enabled
+ * @param {string} msg
+ */
 const log = (msg) => {
   if (verbose) {
     console.log(`${new Date().toLocaleTimeString()} ${msg}`)
@@ -46,7 +50,6 @@ if (typeof persistenceDir === 'string') {
   persistence = {
     provider: ldb,
     bindState: async (docName, ydoc) => {
-      // IMPORTANT: ldb.getYDoc creates a NEW Y.Doc that we must destroy
       const persistedYdoc = await ldb.getYDoc(docName)
       const newUpdates = Y.encodeStateAsUpdate(ydoc)
       ldb.storeUpdate(docName, newUpdates)
@@ -54,7 +57,7 @@ if (typeof persistenceDir === 'string') {
       // Apply persisted state to our doc
       Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(persistedYdoc))
 
-      // CRITICAL: Destroy the temporary Y.Doc to prevent memory leak
+      // Destroy the temporary Y.Doc to prevent memory leak
       persistedYdoc.destroy()
 
       // Store the update handler so we can remove it later
@@ -351,7 +354,7 @@ export const setupWSConnection = (conn, req, { docName = (req.url || '').slice(1
   // get doc, initialize if it does not exist yet
   const doc = getYDoc(docName, gc)
   doc.conns.set(conn, new Set())
-  log(`Connection opened. ${doc.conns.size} connections remain for document "${doc.name}".`)
+  log(`Connection opened. There are ${doc.conns.size} connections for document "${doc.name}". ${Math.round(memoryUsage().heapUsed / 1024 / 1024)} MB memory in use`)
   // Message handler - store reference for cleanup
   const messageHandler = /** @param {ArrayBuffer} message */ (message) => {
     messageListener(conn, doc, new Uint8Array(message))
