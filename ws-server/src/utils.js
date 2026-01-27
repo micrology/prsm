@@ -238,7 +238,8 @@ export const getYDoc = (docname, gc = true) => {
     const doc = new WSSharedDoc(docname)
     doc.gc = gc
     if (persistence !== null) {
-      persistence.bindState(docname, doc)
+      // Store the persistence promise so clients can wait for initialization
+      doc.whenInitialized = persistence.bindState(docname, doc)
     }
     docs.set(docname, doc)
     return doc
@@ -250,8 +251,13 @@ export const getYDoc = (docname, gc = true) => {
  * @param {WSSharedDoc} doc
  * @param {Uint8Array} message
  */
-const messageListener = (conn, doc, message) => {
+const messageListener = async (conn, doc, message) => {
   try {
+    // Ensure persistence has loaded before processing sync messages
+    if (doc.whenInitialized) {
+      await doc.whenInitialized
+    }
+
     const encoder = encoding.createEncoder()
     const decoder = decoding.createDecoder(message)
     const messageType = decoding.readVarUint(decoder)
