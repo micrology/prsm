@@ -1,15 +1,24 @@
+# /etc/systemd/system/websocket-server.service
+# used by PRSM
+# after installation:
+#  sudo systemctl daemon-reload
+#  sudo systemctl restart websocket-server.service
+#  systemctl status websocket-server.service
+
 [Unit]
 Description=websocket-server
 
 [Service]
-ExecStart= /home/ec2-user/.nvm/versions/node/v22.12.0/bin/node --max-old-space-size=2048 /data/prsm/node_modules/.bin/y-websocket-server
+ExecStart= /usr/bin/node --max-old-space-size=4096 /data/prsm/ws-server/src/server.js
 Restart=always
 RestartSec=10
 User=root
 Group=root
 Environment='YPERSISTENCE=/data/prsm/dbDir'
+# set to 0 for quiet mode
+Environment='VERBOSE=1'
 # Memory limit to prevent system exhaustion
-MemoryMax=2.5G
+MemoryMax=5G
 MemoryAccounting=true
 SyslogIdentifier=websocket-server
 

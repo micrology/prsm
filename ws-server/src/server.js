@@ -5,7 +5,10 @@ import http from 'http'
 import * as number from 'lib0/number'
 import { setupWSConnection } from './utils.js'
 
-const wss = new WebSocketServer({ noServer: true })
+const wss = new WebSocketServer({
+  noServer: true,
+  maxPayload: 256 * 1024 * 1024  // 256 MB (adjust as needed)
+})
 const host = process.env.HOST || 'localhost'
 const port = number.parseInt(process.env.PORT || '1234')
 
@@ -14,8 +17,14 @@ const server = http.createServer((_request, response) => {
   response.end('okay')
 })
 
-wss.on('connection', setupWSConnection)
-
+wss.on('connection', (ws, request) => {
+  ws.on('error', (error) => {
+    console.error('WebSocket error:', error)
+    // Gracefully close the connection on error
+    ws.close(1011, 'Internal server error') // 1011 is the status code for internal errors
+  })
+  setupWSConnection(ws, request)
+})
 server.on('upgrade', (request, socket, head) => {
   // You may check auth of request here..
   // Call `wss.HandleUpgrade` *after* you checked whether the client has access

@@ -24,13 +24,24 @@ const wsReadyStateOpen = 1
 const wsReadyStateClosing = 2 // eslint-disable-line
 const wsReadyStateClosed = 3 // eslint-disable-line
 
+/**
+* Log message to console with timestamp when verbose mode is enabled
+ * @param {string} msg
+ */
 const log = (msg) => {
   if (verbose) {
     console.log(`${new Date().toLocaleTimeString()} ${msg}`)
   }
 }
 
-log(`Initial memory usage: ${Math.round(memoryUsage().heapUsed / 1024 / 1024)} MB`)
+const reportMemory = () => {
+  const mem = memoryUsage()
+  return `Total Memory: ${Math.round(mem.rss / 1024 / 1024)} MB; ` + 
+    `Heap: ${Math.round(mem.heapUsed / 1024 / 1024)} MB of ${Math.round(mem.heapTotal / 1024 / 1024)} MB; ` +
+    `External: ${Math.round(mem.external / 1024 / 1024)} MB. `      // C++ objects
+}
+
+log(`Initial memory use: ${reportMemory()}`)
 
 // disable gc when using snapshots!
 const gcEnabled = process.env.GC !== 'false' && process.env.GC !== '0'
@@ -46,7 +57,6 @@ if (typeof persistenceDir === 'string') {
   persistence = {
     provider: ldb,
     bindState: async (docName, ydoc) => {
-      // IMPORTANT: ldb.getYDoc creates a NEW Y.Doc that we must destroy
       const persistedYdoc = await ldb.getYDoc(docName)
       const newUpdates = Y.encodeStateAsUpdate(ydoc)
       ldb.storeUpdate(docName, newUpdates)
@@ -54,7 +64,7 @@ if (typeof persistenceDir === 'string') {
       // Apply persisted state to our doc
       Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(persistedYdoc))
 
-      // CRITICAL: Destroy the temporary Y.Doc to prevent memory leak
+      // Destroy the temporary Y.Doc to prevent memory leak
       persistedYdoc.destroy()
 
       // Store the update handler so we can remove it later
@@ -288,7 +298,7 @@ const destroyDocument = (docname, doc) => {
         docs.delete(docname)
         if (docs.size === 0) {
           log('No remaining documents in memory.')
-          log(`Memory usage: ${Math.round(memoryUsage().heapUsed / 1024 / 1024)} MB`)
+          log(`${reportMemory()}`)
         }
       })
   } else {
@@ -296,7 +306,7 @@ const destroyDocument = (docname, doc) => {
     docs.delete(docname)
     if (docs.size === 0) {
       log('No remaining documents in memory.')
-      log(`Memory usage: ${Math.round(memoryUsage().heapUsed / 1024 / 1024)} MB`)
+      log(`${reportMemory()}`)
     }
   }
 }
@@ -316,7 +326,7 @@ const closeConn = (doc, conn) => {
     awarenessProtocol.removeAwarenessStates(doc.awareness, Array.from(controlledIds), null)
     if (doc.conns.size === 0) {
       log(`All connections closed for document "${doc.name}". Destroying document.`)
-      log(`${docs.size} documents remaining. Memory usage: ${Math.round(memoryUsage().heapUsed / 1024 / 1024)} MB`)
+      log(`${docs.size} documents remaining. ${reportMemory()}`)
       destroyDocument(doc.name, doc)
     }
   }
@@ -351,7 +361,7 @@ export const setupWSConnection = (conn, req, { docName = (req.url || '').slice(1
   // get doc, initialize if it does not exist yet
   const doc = getYDoc(docName, gc)
   doc.conns.set(conn, new Set())
-  log(`Connection opened. ${doc.conns.size} connections remain for document "${doc.name}".`)
+  log(`Connection opened. There are ${doc.conns.size} connections for document "${doc.name}". ${reportMemory()}`)
   // Message handler - store reference for cleanup
   const messageHandler = /** @param {ArrayBuffer} message */ (message) => {
     messageListener(conn, doc, new Uint8Array(message))
