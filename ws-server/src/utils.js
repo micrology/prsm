@@ -36,7 +36,7 @@ const log = (msg) => {
 
 const reportMemory = () => {
   const mem = memoryUsage()
-  return `Total Memory: ${Math.round(mem.rss / 1024 / 1024)} MB; ` + 
+  return `Total Memory: ${Math.round(mem.rss / 1024 / 1024)} MB; ` +
     `Heap: ${Math.round(mem.heapUsed / 1024 / 1024)} MB of ${Math.round(mem.heapTotal / 1024 / 1024)} MB; ` +
     `External: ${Math.round(mem.external / 1024 / 1024)} MB. `      // C++ objects
 }
@@ -53,7 +53,15 @@ let persistence = null
 if (typeof persistenceDir === 'string') {
   console.info('Persisting documents to "' + persistenceDir + '"')
   // @ts-ignore
-  const ldb = new LeveldbPersistence(persistenceDir)
+  const ldb = new LeveldbPersistence(persistenceDir, {
+    // More aggressive options for a server environment - with the default, memory use can grow to 4GB
+    levelOptions: {
+      cacheSize: 1 * 1024 * 1024,        
+      writeBufferSize: 2 * 1024 * 1024,
+      maxOpenFiles: 50,                  
+      compression: true
+    }
+  })
   persistence = {
     provider: ldb,
     bindState: async (docName, ydoc) => {
