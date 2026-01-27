@@ -34,7 +34,14 @@ const log = (msg) => {
   }
 }
 
-log(`Initial memory usage: ${Math.round(memoryUsage().heapUsed / 1024 / 1024)} MB`)
+const reportMemory = () => {
+  const mem = memoryUsage()
+  return `Total Memory: ${Math.round(mem.rss / 1024 / 1024)} MB; ` + 
+    `Heap: ${Math.round(mem.heapUsed / 1024 / 1024)} MB of ${Math.round(mem.heapTotal / 1024 / 1024)} MB; ` +
+    `External: ${Math.round(mem.external / 1024 / 1024)} MB. `      // C++ objects
+}
+
+log(`Initial memory use: ${reportMemory()}`)
 
 // disable gc when using snapshots!
 const gcEnabled = process.env.GC !== 'false' && process.env.GC !== '0'
@@ -291,7 +298,7 @@ const destroyDocument = (docname, doc) => {
         docs.delete(docname)
         if (docs.size === 0) {
           log('No remaining documents in memory.')
-          log(`Memory usage: ${Math.round(memoryUsage().heapUsed / 1024 / 1024)} MB`)
+          log(`${reportMemory()}`)
         }
       })
   } else {
@@ -299,7 +306,7 @@ const destroyDocument = (docname, doc) => {
     docs.delete(docname)
     if (docs.size === 0) {
       log('No remaining documents in memory.')
-      log(`Memory usage: ${Math.round(memoryUsage().heapUsed / 1024 / 1024)} MB`)
+      log(`${reportMemory()}`)
     }
   }
 }
@@ -319,7 +326,7 @@ const closeConn = (doc, conn) => {
     awarenessProtocol.removeAwarenessStates(doc.awareness, Array.from(controlledIds), null)
     if (doc.conns.size === 0) {
       log(`All connections closed for document "${doc.name}". Destroying document.`)
-      log(`${docs.size} documents remaining. Memory usage: ${Math.round(memoryUsage().heapUsed / 1024 / 1024)} MB`)
+      log(`${docs.size} documents remaining. ${reportMemory()}`)
       destroyDocument(doc.name, doc)
     }
   }
@@ -354,7 +361,7 @@ export const setupWSConnection = (conn, req, { docName = (req.url || '').slice(1
   // get doc, initialize if it does not exist yet
   const doc = getYDoc(docName, gc)
   doc.conns.set(conn, new Set())
-  log(`Connection opened. There are ${doc.conns.size} connections for document "${doc.name}". ${Math.round(memoryUsage().heapUsed / 1024 / 1024)} MB memory in use`)
+  log(`Connection opened. There are ${doc.conns.size} connections for document "${doc.name}". ${reportMemory()}`)
   // Message handler - store reference for cleanup
   const messageHandler = /** @param {ArrayBuffer} message */ (message) => {
     messageListener(conn, doc, new Uint8Array(message))

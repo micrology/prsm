@@ -51,7 +51,8 @@
     "rebuild-docker": "docker buildx build -f docker/docker-y-websocket/Dockerfile --platform linux/amd64,linux/arm64 -t micrology/prsm-y-websocket --push . && docker buildx build --platform linux/amd64,linux/arm64 -t micrology/prsm-httpd --push -f docker/docker-httpd/Dockerfile .",
     "manual": "cd doc/help && npm run dev &",
     "deploy": "npm run build && doc/help/deploy.rspress.bash && npm run build-help",
-    "analyse": "npx parcel build './html/*.html' --detailed-report"
+    "analyse": "npx parcel build './html/*.html' --detailed-report",
+    "install": "npm i && pushd ./doc/help && npm i && popd && pushd ./ws-server && npm i && popd && pushd ./api-server && npm i && popd"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {
