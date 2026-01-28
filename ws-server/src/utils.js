@@ -53,15 +53,7 @@ let persistence = null
 if (typeof persistenceDir === 'string') {
   console.info('Persisting documents to "' + persistenceDir + '"')
   // @ts-ignore
-  const ldb = new LeveldbPersistence(persistenceDir, {
-    // More aggressive options for a server environment - with the default, memory use can grow to 4GB
-    levelOptions: {
-      cacheSize: 1 * 1024 * 1024,        
-      writeBufferSize: 2 * 1024 * 1024,
-      maxOpenFiles: 50,                  
-      compression: true
-    }
-  })
+  const ldb = new LeveldbPersistence(persistenceDir)
   persistence = {
     provider: ldb,
     bindState: async (docName, ydoc) => {
