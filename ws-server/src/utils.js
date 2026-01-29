@@ -7,7 +7,7 @@ import * as decoding from 'lib0/decoding'
 import * as map from 'lib0/map'
 
 import * as eventloop from 'lib0/eventloop'
-import { LeveldbPersistence } from 'y-leveldb'
+import { LeveldbPersistence } from './y-leveldb.js'
 
 import { memoryUsage } from 'node:process';
 

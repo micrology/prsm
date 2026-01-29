@@ -3800,7 +3800,7 @@ function doSearch(event) {
   const nodeId = event.target.dataset.id
   if (nodeId) {
     const prevPos = network.getViewPosition()
-    network.focus(nodeId, { scale: 1.5 })
+    network.focus(nodeId, { scale: 1.0, animation: { duration: 500 } })
     const newPos = network.getViewPosition()
     const newScale = network.getScale()
     zoomCanvas(1.0)
