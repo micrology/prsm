@@ -52,7 +52,7 @@
     "manual": "cd doc/help && npm run dev &",
     "deploy": "npm run build && doc/help/deploy.rspress.bash && npm run build-help",
     "analyse": "npx parcel build './html/*.html' --detailed-report",
-    "install": "npm i && pushd ./doc/help && npm i && popd && pushd ./ws-server && npm i && popd && pushd ./api-server && npm i && popd"
+    "install:all": "npm i && pushd ./doc/help && npm i && popd && pushd ./ws-server && npm i && popd && pushd ./api-server && npm i && popd"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {
@@ -60,7 +60,6 @@
     "@aws-sdk/client-cognito-identity": "^3.965.0",
     "@aws-sdk/client-sts": "^3.965.0",
     "@jaames/iro": "^5.5.2",
-    "@y/websocket-server": "^0.1.1",
     "3d-force-graph": "^1.74.5",
     "bootstrap": "^5.3.3",
     "fabric": "^7.0.0",
@@ -79,7 +78,6 @@
     "vis-network": "^9.1.4",
     "vis-util": "^5.0.3",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
-    "y-leveldb": "^0.2.0",
     "y-websocket": "^3.0.0",
     "yjs": "^13.6.27"
   },
