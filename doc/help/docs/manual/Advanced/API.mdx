@@ -40,7 +40,7 @@ To get a list of the factors and links in a map with the room ID `ABC-DEF-GHI-JK
 https://prsm.uk/api/map/ABC-DEF-GHI-JKL
 ```
 
-Normally this web address would be accessed from code inside a program or from the command line.  The program can be written in any suitable language such as JavaScript or PHP.  For example, this snippet returns data about the map as a JSON string in the `data` variable (click on the tabs for samples in each language):
+Normally this web address would be accessed from code inside a program or from the command line.  The program can be written in any suitable language such as JavaScript, Python or PHP.  For example, this snippet returns data about the map as a JSON string in the `data` variable (click on the tabs for samples in each language):
 
 <LanguageTabs>
  <LanguageTab language="javascript">
@@ -58,6 +58,35 @@ if (!response.ok) {
 const data = await response.json()
 ```
 </LanguageTab>
+<languageTab language="python">
+
+```python
+import requests
+
+url = "https://prsm.uk/api/map/ABC-DEF-GHI-JKL"
+headers = {
+    "Content-Type": "application/json"
+}
+
+try:
+    response = requests.get(url, headers=headers)
+    
+    if not response.ok:
+        try:
+            error_data = response.json()
+            error_msg = error_data.get('error', 'Unknown error')
+        except ValueError:
+            error_msg = 'Unknown error'
+        raise Exception(f"HTTP {response.status_code}: {error_msg}")
+
+    data = response.json()
+    print(data)
+
+except requests.exceptions.RequestException as e:
+    print(f"An error occurred: {e}")
+```
+
+</languageTab>
 <LanguageTab language="php">
 
 ```php
@@ -120,6 +149,42 @@ if (!response.ok) {
     }
 const data = await response.json()
 ```
+</LanguageTab>
+<LanguageTab language="python">
+
+```python
+import requests
+
+url = "https://prsm.uk/api/map/ABC-DEF-GHI-JKL/factor/86db33bf-0b88-45da-a829-7c777d9bf4ba"
+
+# In Python, we just use a dictionary for the body
+payload = {
+    "update": {
+        "color": {
+            "background": "rgb(255,0,0)"
+        },
+        "borderWidth": 4
+    }
+}
+
+# The 'json=' parameter handles headers and stringification automatically
+response = requests.patch(url, json=payload)
+
+# Checking for a successful response (200-299)
+if not response.ok:
+    try:
+        error_data = response.json()
+        error_msg = error_data.get('error', 'Unknown error')
+    except ValueError:
+        # In case the response isn't valid JSON
+        error_msg = 'Unknown error'
+    
+    raise Exception(f"HTTP {response.status_code}: {error_msg}")
+
+# Parse the successful response
+data = response.json()
+```
+
 </LanguageTab>
 <LanguageTab language="php">
 
@@ -554,7 +619,7 @@ To avoid server overload, the endpoints are limited to 60 requests per minute pe
 
 ## Example
 
-To show how one might put these endpoints together, the following complete program changes the background of all the factors that are the standard green (in fact, the colour 'rgb(154, 219, 180)') to red ('rgb(152554, 0, 0)').  It first obtains a list of all factors, then examines each one to test its background colour, and then if it the colour is green, changes it to red.
+To show how one might put these endpoints together, the following complete program changes the background of all the factors that are the standard green (in fact, the colour 'rgb(154, 219, 180)') to red ('rgb(255, 0, 0)').  It first obtains a list of all factors, then examines each one to test its background colour, and then if the colour is green, changes it to red.
 
 <LanguageTabs>
  <LanguageTab language="javascript">
@@ -671,6 +736,107 @@ main()
 ```
 
 </LanguageTab>
+<languageTab language="python">
+
+```python
+import requests
+import sys
+
+# Constants
+ROOM_ID = 'ABC-DEF-GHI-JKL'
+BASE_URL = 'https://prsm.uk/api/map'
+OLD_COLOR = 'rgb(154, 219, 180)'
+NEW_COLOR = 'rgb(255, 0, 0)'
+
+def normalize_color(color_str):
+    """Removes all whitespace to allow for accurate color comparison."""
+    return color_str.replace(" ", "")
+
+def main():
+    headers = {'Content-Type': 'application/json'}
+    
+    try:
+        print(f"Fetching map data for room {ROOM_ID}...")
+
+        # 1. Get the map data
+        map_response = requests.get(f"{BASE_URL}/{ROOM_ID}", headers=headers)
+        
+        if not map_response.ok:
+            error_data = map_response.json()
+            error_msg = error_data.get('error', 'Unknown error')
+            raise Exception(f"HTTP {map_response.status_code}: {error_msg}")
+
+        map_data = map_response.json()
+        # Extract IDs using a list comprehension
+        factor_ids = [node['id'] for node in map_data.get('nodes', []) if node.get('id')]
+
+        print(f"Found {len(factor_ids)} factors in the map")
+
+        # 2. Fetch details for each factor
+        factors_to_update = []
+        target_color_normalized = normalize_color(OLD_COLOR)
+
+        for factor_id in factor_ids:
+            print(f"Checking factor {factor_id}...")
+            
+            factor_response = requests.get(f"{BASE_URL}/{ROOM_ID}/factor/{factor_id}", headers=headers)
+
+            if not factor_response.ok:
+                print(f"Warning: Failed to fetch factor {factor_id}, skipping...")
+                continue
+
+            factor_data = factor_response.json()
+
+            # Check nested dictionary for background color
+            color_config = factor_data.get('color', {})
+            current_bg = color_config.get('background')
+
+            if current_bg:
+                if normalize_color(current_bg) == target_color_normalized:
+                    factors_to_update.append({
+                        'id': factor_id,
+                        'label': factor_data.get('label', 'Unknown')
+                    })
+
+        print(f"\nFound {len(factors_to_update)} factors with background color {OLD_COLOR}")
+
+        # 3. Update each matching factor
+        for factor in factors_to_update:
+            print(f"Updating factor \"{factor['label']}\" ({factor['id']})...")
+
+            payload = {
+                "update": {
+                    "color": {
+                        "background": NEW_COLOR
+                    }
+                }
+            }
+
+            # Use the 'json' parameter to automatically set headers and stringify
+            update_response = requests.patch(
+                f"{BASE_URL}/{ROOM_ID}/factor/{factor['id']}", 
+                json=payload
+            )
+
+            if not update_response.ok:
+                error_data = update_response.json()
+                print(f"Error: Failed to update factor {factor['id']}: {error_data.get('error')}")
+                continue
+
+            updated_data = update_response.json()
+            print(f"✓ Updated \"{updated_data.get('label')}\" to {NEW_COLOR}")
+
+        print(f"\nComplete! Updated {len(factors_to_update)} factors.")
+
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+</languageTab>
 <LanguageTab language="php">
 
 ```php

@@ -179,7 +179,6 @@ let loadingDelayTimer // timer to delay the start of the loading animation for f
 let noServerTimer = null // timer to show no server connection message
 let netLoaded = false // becomes true when map is fully displayed
 let savedState = '' // the current state of the map (nodes, edges, network settings) before current user action
-let unknownRoomTimeout = null // timer to check if the room exists
 const setupStartTime = Date.now() // time when setup started
 /**
  * top level function to initialise everything
@@ -493,19 +492,7 @@ function startY() {
     initiateClone()
     // (if the room already exists, wait until the map data is loaded before displaying it)
     if (sessionStorage.getItem('newRoom') && sessionStorage.getItem('newRoom') === 'false') {
-      observed('synced')
-      if (/load/.test(debug)) {
-        console.log(
-          `Nodes: ${yNodesMap.size} Edges: ${yEdgesMap.size} Samples: ${ySamplesMap.size} Network settings: ${yNetMap.size}	Points: ${yPointsArray.length} Drawing objects: ${yDrawingMap.size} History entries: ${yHistory.length}	`
-        )
-      }
-      unknownRoomTimeout = setTimeout(() => {
-        if (!netLoaded) {
-          displayNetPane(
-            `${exactTime()} Timed out waiting for ${room} to load. Found only ${Array.from(foundMaps).join(', ')} maps.`
-          )
-        }
-      }, 6000)
+           displayNetPane(`${exactTime()} all content loaded from ${websocket}`)
     } else {
       // if this is a new map, display it
       displayNetPane(`${exactTime()} no remote content loaded from ${websocket}`)
@@ -531,12 +518,6 @@ function startY() {
   yDrawingMap = doc.getMap('drawing')
   yHistory = doc.getArray('history')
   yAwareness = wsProvider.awareness
-
-  /* create a dummy item in yNodesMap and yEdgesMap to stop having to wait for the these maps 
-  if there are no nodes or edges (thus allowing to distinguish between zero nodes/edges and 
-  no node/edge map yet loaded) */
-  yNodesMap.set('_dummy_', { dummy: true })
-  yEdgesMap.set('_dummy_', { dummy: true })
 
   /* set up observers to listen for changes in the yMaps */
 
@@ -598,33 +579,6 @@ function startY() {
   window.diffRoom = diffRoom
   window.wsProvider = wsProvider
 
-  const foundMaps = new Set()
-  /**
-   * note that one of the required yMaps has been loaded; if all have been found, display the map
-   * @param {string} what name of the yMap that has just been loaded
-   */
-  function observed(what) {
-    // do nothing if the map is already displayed
-    if (netLoaded) return
-    if (/load/.test(debug)) {
-      console.log(`${exactTime()} Observed: ${what}`)
-    }
-    foundMaps.add(what)
-    if (
-      foundMaps.has('nodes') &&
-      foundMaps.has('edges') &&
-      foundMaps.has('network') &&
-      foundMaps.has('synced')
-    ) {
-      displayNetPane(`${exactTime()} all content loaded from ${websocket}`)
-      if (/load/.test(debug)) {
-        console.log(
-          `Nodes: ${yNodesMap.size} Edges: ${yEdgesMap.size} Samples: ${ySamplesMap.size} Network settings: ${yNetMap.size} Points: ${yPointsArray.length} Drawing objects: ${yDrawingMap.size} History entries: ${yHistory.length}	`
-        )
-      }
-    }
-  }
-
   /* 
   nodes.on listens for when local nodes or edges are changed (added, updated or removed).
   If a local node is removed, the yMap is updated to broadcast to other clients that the node 
@@ -635,7 +589,7 @@ function startY() {
       'nodes.on',
       `${evt}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`
     )
-    clearTimeout(unknownRoomTimeout)
+ //   clearTimeout(unknownRoomTimeout)
     if (!viewOnly) {
       doc.transact(() => {
         properties.items.forEach((id) => {
@@ -690,7 +644,6 @@ function startY() {
     if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0)) {
       showChange(evt, yNodesMap)
     }
-    observed('nodes')
   })
   /* 
   See comments above about nodes
@@ -743,7 +696,6 @@ function startY() {
     if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0)) {
       showChange(evt, yEdgesMap)
     }
-    observed('edges')
   })
   /**
    * utility trace function that prints the change in the value of a YMap property to the console
@@ -808,7 +760,6 @@ function startY() {
     if (edgesToUpdate) {
       reApplySampleToLinks(edgesToUpdate)
     }
-    observed('samples')
   })
   /*
   Map controls (those on the Network tab) are of three kinds:
@@ -922,7 +873,6 @@ function startY() {
         }
       }
     }
-    observed('network')
   })
   yPointsArray.observe((evt) => {
     yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1))
@@ -931,12 +881,12 @@ function startY() {
   yDrawingMap.observe((evt) => {
     yjsTrace('yDrawingMap.observe', evt)
     updateFromRemote(evt)
-    observed('drawing')
+//    observed('drawing')
   })
   yHistory.observe(() => {
     yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1))
     if (elem('showHistorySwitch').checked) showHistory()
-    observed('history')
+    // observed('history')
   })
   yUndoManager.on('stack-item-added', (evt) => {
     yjsTrace('yUndoManager.on stack-item-added', evt)
@@ -5381,9 +5331,9 @@ export function setCluster(option) {
 export function recreateClusteringMenu(obj) {
   // remove any old select items, other than the standard ones (which are the first 4: None, Style, Color, Community)
   const select = elem('clustering')
-  for (let i = 4, len = select.options.length; i < len; i++) {
-    select.remove()
-  }
+ for (let i = select.options.length - 1; i >= 4; i--) {
+  select.remove(i);
+}
   // append the ones provided
   for (const property in obj) {
     if (obj[property] !== '*deleted*') {
