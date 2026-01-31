@@ -38,12 +38,12 @@ function checkComplete(graph) {
   // sanity check: do all the edges connect existing nodes
   let ok = true
   graph.edges.forEach((edge) => {
-    if (graph.nodes.find((node) => node.id === edge.from) === null) {
-      console.log('Edge ' + edge.id + ' is missing a source node linked to it:' + edge.from)
+    if (!graph.nodes.find((node) => node.id === edge.from)) {
+      console.log('Edge ' + edge.id + ' is missing a source node linked to it: ' + edge.from)
       ok = false
     }
-    if (graph.nodes.find((node) => node.id === edge.to) === null) {
-      console.log('Edge ' + edge.id + ' is missing a destination node linked to it:' + edge.to)
+    if (!graph.nodes.find((node) => node.id === edge.to)) {
+      console.log('Edge ' + edge.id + ' is missing a destination node linked to it: ' + edge.to)
       ok = false
     }
   })
