@@ -7,6 +7,9 @@ import * as buffer from 'lib0/buffer.js'
 import { Level as DefaultLevel } from 'level'
 import { Buffer } from 'buffer'
 
+/**
+ * The threshold of updates before a document is automatically compacted/flushed.
+ */
 export const PREFERRED_TRIM_SIZE = 500
 
 const YEncodingString = 0
@@ -16,9 +19,13 @@ const YEncodingUint32 = 1
  * @typedef {import('abstract-level').AbstractLevel<any, Array<String|number>, Uint8Array>} AbstractLevel
  */
 /**
+ * Type definition for keys used in the LevelDB store.
  * @typedef {['v1', string, 'update', number] | ['v1', string, 'meta', string] | ['v1_sv', number]} DocKey
  */
 
+/**
+ * Configuration for value encoding in LevelDB.
+ */
 const valueEncoding = {
   buffer: true,
   type: 'y-value',
@@ -27,10 +34,12 @@ const valueEncoding = {
 }
 
 /**
- * Write two bytes as an unsigned integer in big endian order.
+ * Write four bytes as an unsigned integer in big endian order.
+ * (most significant byte first)
+ *
  * @function
  * @param {encoding.Encoder} encoder
- * @param {number} num
+ * @param {number} num The number that is to be encoded.
  */
 export const writeUint32BigEndian = (encoder, num) => {
   for (let i = 3; i >= 0; i--) {
@@ -40,9 +49,11 @@ export const writeUint32BigEndian = (encoder, num) => {
 
 /**
  * Read 4 bytes as unsigned integer in big endian order.
+ * (most significant byte first)
+ *
  * @function
  * @param {decoding.Decoder} decoder
- * @return {number}
+ * @return {number} An unsigned integer.
  */
 export const readUint32BigEndian = decoder => {
   const uint =
@@ -54,9 +65,14 @@ export const readUint32BigEndian = decoder => {
   return uint
 }
 
+/**
+ * Configuration for key encoding in LevelDB.
+ * Handles the transformation of array-based keys into binary buffers.
+ */
 export const keyEncoding = {
   buffer: true,
   type: 'y-keys',
+  /* istanbul ignore next */
   encode: /** @param {Array<string|number>} arr */  arr => {
     const encoder = encoding.createEncoder()
     for (let i = 0; i < arr.length; i++) {
@@ -64,7 +80,7 @@ export const keyEncoding = {
       if (typeof v === 'string') {
         encoding.writeUint8(encoder, YEncodingString)
         encoding.writeVarString(encoder, v)
-      } else if (typeof v === 'number') {
+      } else /* istanbul ignore else */ if (typeof v === 'number') {
         encoding.writeUint8(encoder, YEncodingUint32)
         writeUint32BigEndian(encoder, v)
       } else {
@@ -90,11 +106,20 @@ export const keyEncoding = {
   }
 }
 
+/**
+ * Safely retrieves a value from LevelDB. 
+ * Returns `undefined` instead of throwing an error if the key is not found.
+ *
+ * @param {AbstractLevel} db
+ * @param {any} key
+ * @return {Promise<Uint8Array | undefined>}
+ */
 const levelGet = async (db, key) => {
   let res
   try {
     res = await db.get(key)
   } catch (err) {
+    /* istanbul ignore else */
     if (/** @type {any} */ (err).notFound) {
       return
     } else {
@@ -104,12 +129,23 @@ const levelGet = async (db, key) => {
   return res
 }
 
+/**
+ * Stores a value in LevelDB.
+ * Transforms Uint8Array to Buffer to ensure compatibility with the database engine.
+ *
+ * @param {any} db
+ * @param {any} key
+ * @param {Uint8Array} val
+ */
 const levelPut = async (db, key, val) => db.put(key, Buffer.from(val))
 
 /**
- * Modern memory-safe bulk entry getter using Async Iterators.
+ * Retrieves a range of database entries (keys and values) as an array.
+ * Uses modern Async Iterators to ensure the underlying C++ iterator is closed.
+ *
  * @param {AbstractLevel} db
  * @param {import('abstract-level').AbstractIteratorOptions<any, Uint8Array>} opts
+ * @return {Promise<Array<{ key: DocKey, value: Uint8Array }>>}
  */
 export const getLevelBulkEntries = async (db, opts) => {
   const result = []
@@ -120,9 +156,12 @@ export const getLevelBulkEntries = async (db, opts) => {
 }
 
 /**
- * Modern memory-safe bulk key getter.
+ * Retrieves a range of database keys as an array.
+ * Uses modern Async Iterators to ensure memory is released instantly.
+ *
  * @param {AbstractLevel} db
  * @param {import('abstract-level').AbstractIteratorOptions<any, Uint8Array>} opts
+ * @return {Promise<Array<DocKey>>}
  */
 export const getLevelBulkKeys = async (db, opts) => {
   const result = []
@@ -133,9 +172,12 @@ export const getLevelBulkKeys = async (db, opts) => {
 }
 
 /**
- * Modern memory-safe bulk value getter.
+ * Retrieves a range of database values as an array.
+ * Uses modern Async Iterators to prevent "External" memory growth.
+ *
  * @param {AbstractLevel} db
  * @param {import('abstract-level').AbstractIteratorOptions<DocKey, Uint8Array>} opts
+ * @return {Promise<Array<Uint8Array>>}
  */
 export const getLevelBulkValues = async (db, opts) => {
   const result = []
@@ -145,34 +187,78 @@ export const getLevelBulkValues = async (db, opts) => {
   return result
 }
 
+/**
+ * Retrieves all binary Yjs update values for a specific document.
+ *
+ * @param {any} db
+ * @param {string} docName
+ * @param {any} [opts]
+ * @return {Promise<Array<Uint8Array>>}
+ */
 export const getLevelUpdates = (db, docName, opts = {}) => getLevelBulkValues(db, {
   gte: createDocumentUpdateKey(docName, 0),
   lt: createDocumentUpdateKey(docName, binary.BITS32),
   ...opts
 })
 
+/**
+ * Retrieves all stored update entries (keys and values) for a specific document.
+ *
+ * @param {any} db
+ * @param {string} docName
+ * @param {any} [opts]
+ * @return {Promise<Array<{key: DocKey, value: Uint8Array }>>}
+ */
 export const getLevelUpdatesEntries = (db, docName, opts = {}) => getLevelBulkEntries(db, {
   gte: createDocumentUpdateKey(docName, 0),
   lt: createDocumentUpdateKey(docName, binary.BITS32),
   ...opts
 })
 
+/**
+ * Retrieves all binary update keys for a specific document.
+ *
+ * @param {any} db
+ * @param {string} docName
+ * @param {any} opts
+ * @return {Promise<Array<DocKey>>}
+ */
+/* istanbul ignore next */
 export const getLevelUpdatesKeys = (db, docName, opts = {}) => getLevelBulkKeys(db, {
   gte: createDocumentUpdateKey(docName, 0),
   lt: createDocumentUpdateKey(docName, binary.BITS32),
   ...opts
 })
 
+/**
+ * Retrieves the state vector keys for all documents currently stored in the database.
+ *
+ * @param {AbstractLevel} db
+ * @return {Promise<Array<DocKey>>}
+ */
 export const getAllDocsKeys = (db) => getLevelBulkKeys(db, {
   gte: ['v1_sv'],
   lt: ['v1_sw']
 })
 
+/**
+ * Retrieves the state vector entries (keys and values) for all documents.
+ *
+ * @param {AbstractLevel} db
+ * @return {Promise<Array<{ key: DocKey, value: Uint8Array }>>}
+ */
 export const getAllDocs = (db) => getLevelBulkEntries(db, {
   gte: ['v1_sv'],
   lt: ['v1_sw']
 })
 
+/**
+ * Retrieves the highest update clock index currently stored for a document.
+ *
+ * @param {any} db
+ * @param {string} docName
+ * @return {Promise<number>} Returns -1 if the document has no updates.
+ */
 export const getCurrentUpdateClock = (db, docName) => getLevelUpdatesKeys(db, docName, { reverse: true, limit: 1 }).then(entries => {
   if (entries.length === 0) {
     return -1
@@ -181,7 +267,17 @@ export const getCurrentUpdateClock = (db, docName) => getLevelUpdatesKeys(db, do
   }
 })
 
+/**
+ * Deletes all keys within a specified range from the database.
+ * Uses `db.clear` if supported for better performance.
+ *
+ * @param {any} db
+ * @param {Array<string|number>} gte Greater than or equal (inclusive)
+ * @param {Array<string|number>} lt lower than (exclusive)
+ * @return {Promise<void>}
+ */
 const clearRange = async (db, gte, lt) => {
+  /* istanbul ignore else */
   if (db.supports.clear) {
     await db.clear({ gte, lt })
   } else {
@@ -191,15 +287,74 @@ const clearRange = async (db, gte, lt) => {
   }
 }
 
+/**
+ * Deletes a range of updates for a specific document based on their clock indices.
+ *
+ * @param {any} db
+ * @param {string} docName
+ * @param {number} from The starting clock index (inclusive)
+ * @param {number} to The ending clock index (exclusive)
+ * @return {Promise<void>}
+ */
 const clearUpdatesRange = async (db, docName, from, to) => clearRange(db, createDocumentUpdateKey(docName, from), createDocumentUpdateKey(docName, to))
 
+/**
+ * Generates a database key for a specific document update at a specific clock.
+ *
+ * @param {string} docName
+ * @param {number} clock The unique sequence clock
+ * @return {DocKey}
+ */
 const createDocumentUpdateKey = (docName, clock) => ['v1', docName, 'update', clock]
+
+/**
+ * Generates a database key for a specific metadata entry of a document.
+ *
+ * @param {string} docName
+ * @param {string} metaKey
+ * @return {DocKey}
+ */
 const createDocumentMetaKey = (docName, metaKey) => ['v1', docName, 'meta', metaKey]
+
+/**
+ * Generates an upper bound key for document metadata range queries.
+ *
+ * @param {string} docName
+ * @return {DocKey}
+ */
 const createDocumentMetaEndKey = (docName) => ['v1', docName, 'metb']
+
+/**
+ * Generates a database key for a document's state vector.
+ *
+ * @param {string} docName
+ * @return {DocKey}
+ */
 const createDocumentStateVectorKey = (docName) => ['v1_sv', docName]
+
+/**
+ * Generates the first possible key for a document's range in the store.
+ *
+ * @param {string} docName
+ * @return {DocKey}
+ */
 const createDocumentFirstKey = (docName) => ['v1', docName]
+
+/**
+ * Generates the last possible key for a document's range in the store.
+ * Used as an upper limit for cleanup operations.
+ *
+ * @param {string} docName
+ * @return {DocKey}
+ */
 const createDocumentLastKey = (docName) => ['v1', docName, 'zzzzzzz']
 
+/**
+ * Merges a list of binary Yjs updates into a single update and computes the new state vector.
+ *
+ * @param {Array<Uint8Array>} updates
+ * @return {{update:Uint8Array, sv: Uint8Array}}
+ */
 const mergeUpdates = (updates) => {
   const ydoc = new Y.Doc()
   ydoc.transact(() => {
@@ -210,6 +365,14 @@ const mergeUpdates = (updates) => {
   return { update: Y.encodeStateAsUpdate(ydoc), sv: Y.encodeStateVector(ydoc) }
 }
 
+/**
+ * Writes the document's state vector and the current clock to the database.
+ *
+ * @param {any} db
+ * @param {string} docName
+ * @param {Uint8Array} sv The binary state vector
+ * @param {number} clock The clock at which this state vector was captured
+ */
 const writeStateVector = async (db, docName, sv, clock) => {
   const encoder = encoding.createEncoder()
   encoding.writeVarUint(encoder, clock)
@@ -217,6 +380,12 @@ const writeStateVector = async (db, docName, sv, clock) => {
   await levelPut(db, createDocumentStateVectorKey(docName), encoding.toUint8Array(encoder))
 }
 
+/**
+ * Decodes a stored state vector and its associated clock.
+ *
+ * @param {Uint8Array} buf
+ * @return {{ sv: Uint8Array, clock: number }}
+ */
 const decodeLeveldbStateVector = buf => {
   const decoder = decoding.createDecoder(buf)
   const clock = decoding.readVarUint(decoder)
@@ -224,19 +393,46 @@ const decodeLeveldbStateVector = buf => {
   return { sv, clock }
 }
 
+/**
+ * Retrieves and decodes the stored state vector for a document.
+ *
+ * @param {any} db
+ * @param {string} docName
+ * @return {Promise<{sv: Uint8Array | null, clock: number}>}
+ */
 const readStateVector = async (db, docName) => {
   const buf = await levelGet(db, createDocumentStateVectorKey(docName))
-  if (buf == null) return { sv: null, clock: -1 }
+  if (buf == null) {
+    return { sv: null, clock: -1 }
+  }
   return decodeLeveldbStateVector(buf)
 }
 
+/**
+ * Consolidates all current updates for a document into a single base update.
+ * Clears the old individual updates to keep the database lean.
+ *
+ * @param {any} db
+ * @param {string} docName
+ * @param {Uint8Array} stateAsUpdate The merged update data
+ * @param {Uint8Array} stateVector The current state vector
+ * @return {Promise<number>} returns the clock of the flushed doc
+ */
 const flushDocument = async (db, docName, stateAsUpdate, stateVector) => {
   const clock = await storeUpdate(db, docName, stateAsUpdate)
   await writeStateVector(db, docName, stateVector, clock)
-  await clearUpdatesRange(db, docName, 0, clock)
+  await clearUpdatesRange(db, docName, 0, clock) 
   return clock
 }
 
+/**
+ * Appends a new Yjs update to the document's update log in the database.
+ *
+ * @param {any} db
+ * @param {string} docName
+ * @param {Uint8Array} update
+ * @return {Promise<number>} Returns the clock assigned to the stored update
+ */
 const storeUpdate = async (db, docName, update) => {
   const clock = await getCurrentUpdateClock(db, docName)
   if (clock === -1) {
@@ -249,33 +445,50 @@ const storeUpdate = async (db, docName, update) => {
   return clock + 1
 }
 
+/**
+ * A persistence layer for Yjs using LevelDB.
+ * Manages document updates, state vectors, and metadata with optimized memory usage.
+ */
 export class LeveldbPersistence {
   /**
-   * @param {string} location
+   * @param {string} location The directory path for the database files.
    * @param {object} opts
+   * @param {any} [opts.Level] Level-compatible adapter. Defaults to `level`.
+   * @param {object} [opts.levelOptions] Options passed to the level instance for tuning.
    */
-  constructor (location, { Level = DefaultLevel, levelOptions = {} } = {}) {
-    // Merged memory guards to prevent "External" memory growth
+  constructor (location, /* istanbul ignore next */ { Level = DefaultLevel, levelOptions = {} } = {}) {
+    // Merged memory guards to prevent "External" memory growth especially for large values.
     const finalOptions = {
-      cacheSize: 128 * 1024 * 1024, // 128MB limit for block cache
-      writeBufferSize: 16 * 1024 * 1024, // 16MB for 1MB value handling
+      cacheSize: 128 * 1024 * 1024, // 128MB limit for internal block cache
+      writeBufferSize: 16 * 1024 * 1024, // 16MB for more efficient value flushes
       maxOpenFiles: 1000,
       ...levelOptions,
       valueEncoding,
       keyEncoding
     }
 
+    /**
+     * @type {import('abstract-level').AbstractLevel<any>}
+     */
     const db = new Level(location, finalOptions)
     this.tr = promise.resolve()
 
+    /**
+     * Internal transaction helper to ensure operations on the database are serialized.
+     *
+     * @template T
+     * @param {function(any):Promise<T>} f A transaction that receives the db object
+     * @return {Promise<T>}
+     */
     this._transact = f => {
       const currTr = this.tr
       this.tr = (async () => {
         await currTr
-        let res = null
+        let res = /** @type {any} */ (null)
         try {
           res = await f(db)
         } catch (err) {
+          /* istanbul ignore next */
           console.warn('Error during y-leveldb transaction', err)
         }
         return res
@@ -284,6 +497,11 @@ export class LeveldbPersistence {
     }
   }
 
+  /**
+   * Merges all individual updates for a document into a single, optimized base update.
+   * @param {string} docName
+   * @return {Promise<void>}
+   */
   flushDocument (docName) {
     return this._transact(async db => {
       const updates = await getLevelUpdates(db, docName)
@@ -292,6 +510,11 @@ export class LeveldbPersistence {
     })
   }
 
+  /**
+   * Retrieves a document from the database and returns it as a Y.Doc instance.
+   * @param {string} docName
+   * @return {Promise<Y.Doc>}
+   */
   getYDoc (docName) {
     return this._transact(async db => {
       const updates = await getLevelUpdates(db, docName)
@@ -308,6 +531,11 @@ export class LeveldbPersistence {
     })
   }
 
+  /**
+   * Retrieves the current state vector of a document.
+   * @param {string} docName
+   * @return {Promise<Uint8Array>}
+   */
   getStateVector (docName) {
     return this._transact(async db => {
       const { clock, sv } = await readStateVector(db, docName)
@@ -326,15 +554,32 @@ export class LeveldbPersistence {
     })
   }
 
+  /**
+   * Stores a new update for the document.
+   * @param {string} docName
+   * @param {Uint8Array} update
+   * @return {Promise<number>} Returns the clock of the stored update.
+   */
   storeUpdate (docName, update) {
     return this._transact(db => storeUpdate(db, docName, update))
   }
 
+  /**
+   * Calculates the difference between the stored document and a provided state vector.
+   * @param {string} docName
+   * @param {Uint8Array} stateVector
+   * @return {Promise<Uint8Array>} The binary update representing the difference.
+   */
   async getDiff (docName, stateVector) {
     const ydoc = await this.getYDoc(docName)
     return Y.encodeStateAsUpdate(ydoc, stateVector)
   }
 
+  /**
+   * Completely removes all data and updates for a specific document from the store.
+   * @param {string} docName
+   * @return {Promise<void>}
+   */
   clearDocument (docName) {
     return this._transact(async db => {
       await db.del(createDocumentStateVectorKey(docName))
@@ -342,14 +587,33 @@ export class LeveldbPersistence {
     })
   }
 
+  /**
+   * Stores a generic metadata entry for a document.
+   * @param {string} docName
+   * @param {string} metaKey
+   * @param {any} value
+   * @return {Promise<void>}
+   */
   setMeta (docName, metaKey, value) {
     return this._transact(db => levelPut(db, createDocumentMetaKey(docName, metaKey), buffer.encodeAny(value)))
   }
 
+  /**
+   * Deletes a metadata entry from a document.
+   * @param {string} docName
+   * @param {string} metaKey
+   * @return {Promise<void>}
+   */
   delMeta (docName, metaKey) {
     return this._transact(db => db.del(createDocumentMetaKey(docName, metaKey)))
   }
 
+  /**
+   * Retrieves a metadata entry for a document.
+   * @param {string} docName
+   * @param {string} metaKey
+   * @return {Promise<any>}
+   */
   getMeta (docName, metaKey) {
     return this._transact(async db => {
       const res = await levelGet(db, createDocumentMetaKey(docName, metaKey))
@@ -358,6 +622,10 @@ export class LeveldbPersistence {
     })
   }
 
+  /**
+   * Returns a list of all document names currently stored in the database.
+   * @return {Promise<Array<string>>}
+   */
   getAllDocNames () {
     return this._transact(async db => {
       const docKeys = await getAllDocsKeys(db)
@@ -365,6 +633,10 @@ export class LeveldbPersistence {
     })
   }
 
+  /**
+   * Returns state vectors and names for all documents in the store.
+   * @return {Promise<Array<{ name: string, sv: Uint8Array, clock: number }>>}
+   */
   getAllDocStateVectors () {
     return this._transact(async db => {
       const docs = await getAllDocs(db)
@@ -375,6 +647,11 @@ export class LeveldbPersistence {
     })
   }
 
+  /**
+   * Retrieves all metadata entries for a document as a Map.
+   * @param {string} docName
+   * @return {Promise<Map<string, any>>}
+   */
   getMetas (docName) {
     return this._transact(async db => {
       const data = await getLevelBulkEntries(db, {
@@ -389,37 +666,37 @@ export class LeveldbPersistence {
     })
   }
 
+  /**
+   * Closes the database connection and releases all associated resources.
+   * @return {Promise<void>}
+   */
   destroy () {
     return this._transact(db => db.close())
   }
 
+  /**
+   * Deletes all data within the entire database.
+   * @return {Promise<void>}
+   */
   clearAll () {
     return this._transact(async db => db.clear())
   }
-}
-/**
- * Monitors memory usage and logs it to the console.
- * Specifically tracks 'external' memory where LevelDB lives.
- */
-/* function startMemoryLogging() {
-  console.log('--- Memory Monitor Started ---');
-  
-  setInterval(() => {
-    const usage = process.memoryUsage();
     
-    const toMB = (bytes) => (bytes / 1024 / 1024).toFixed(2) + ' MB';
-
-    console.log(`[${new Date().toLocaleTimeString()}] ` +
-      `External: ${toMB(usage.external)} | ` +
-      `RSS: ${toMB(usage.rss)} | ` +
-      `Heap Used: ${toMB(usage.heapUsed)}`
-    );
-
-    // Alert if external memory crosses a specific threshold (e.g., 1GB)
-    if (usage.external > 1024 * 1024 * 1024) {
-      console.warn('⚠️ WARNING: External memory has exceeded 1GB!');
-    }
-  }, 60000); // Logs every 60 seconds
+    /**
+   * Manually triggers a database-wide compaction.
+   * This operation is CPU and I/O intensive and should be run 
+   * during low-traffic periods.
+   * * @return {Promise<void>}
+   */
+  compact () {
+    return this._transact(async db => {
+      // If the underlying implementation supports compactRange (classic-level does)
+      if (typeof db.compactRange === 'function') {
+        // Passing null, null compacts the entire database
+        await db.compactRange(null, null)
+      } else {
+        console.warn('Compaction not supported by the current Level adapter.')
+      }
+    })
+  }
 }
-
-startMemoryLogging(); */
