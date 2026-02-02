@@ -152,7 +152,7 @@ let panel // the DOM right side panel element
 let myNameRec // the user's name record {actual name, type, etc.}
 export let lastNodeSample = 'group0' // the last used node style
 export let lastLinkSample = 'edge0' // the last used edge style
-/** @type {(string|boolean)} */
+let magnifying = false // true when the magnifier is active
 let inAddMode = false // true when adding a new Factor to the network; used to choose cursor pointer
 let inEditMode = false //true when node or edge is being edited (dialog is open)
 let snapToGridToggle = false // true when snapping nodes to the (unseen) grid
@@ -492,7 +492,7 @@ function startY() {
     initiateClone()
     // (if the room already exists, wait until the map data is loaded before displaying it)
     if (sessionStorage.getItem('newRoom') && sessionStorage.getItem('newRoom') === 'false') {
-           displayNetPane(`${exactTime()} all content loaded from ${websocket}`)
+      displayNetPane(`${exactTime()} all content loaded from ${websocket}`)
     } else {
       // if this is a new map, display it
       displayNetPane(`${exactTime()} no remote content loaded from ${websocket}`)
@@ -589,7 +589,7 @@ function startY() {
       'nodes.on',
       `${evt}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`
     )
- //   clearTimeout(unknownRoomTimeout)
+    //   clearTimeout(unknownRoomTimeout)
     if (!viewOnly) {
       doc.transact(() => {
         properties.items.forEach((id) => {
@@ -881,7 +881,7 @@ function startY() {
   yDrawingMap.observe((evt) => {
     yjsTrace('yDrawingMap.observe', evt)
     updateFromRemote(evt)
-//    observed('drawing')
+    //    observed('drawing')
   })
   yHistory.observe(() => {
     yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1))
@@ -1303,8 +1303,7 @@ function draw() {
         })
         item.edges.forEach((edgeId) => {
           logHistory(
-            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
-              data.nodes.get(data.edges.get(edgeId).to).label
+            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
             }'`
           )
         })
@@ -1317,8 +1316,7 @@ function draw() {
       deleteEdge: function (item, callback) {
         item.edges.forEach((edgeId) => {
           logHistory(
-            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
-              data.nodes.get(data.edges.get(edgeId).to).label
+            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
             }'`
           )
         })
@@ -1376,40 +1374,7 @@ function draw() {
         }, 500)
       }
     }
-    const keys = params.event.pointers[0]
-    if (!keys) return
-    if (keys.metaKey) {
-      // if the Command key (on a Mac) is down, and the click is on a node/edge, log it to the console
-      if (params.nodes.length === 1) {
-        const node = data.nodes.get(params.nodes[0])
-        console.log('node = ', node)
-        window.node = node
-      }
-      if (params.edges.length === 1) {
-        const edge = data.edges.get(params.edges[0])
-        console.log('edge = ', edge)
-        window.edge = edge
-      }
-      return
-    }
-    if (keys.altKey) {
-      // if the Option/ALT key is down, add a node if on the background
-      if (params.nodes.length === 0 && params.edges.length === 0) {
-        const pos = params.pointer.canvas
-        let item = { id: uuidv4(), label: '', x: pos.x, y: pos.y }
-        item = deepMerge(item, styles.nodes[lastNodeSample])
-        item.grp = lastNodeSample
-        addLabel(item, clearPopUp, function (newItem) {
-          if (newItem !== null) data.nodes.add(newItem)
-        })
-      }
-      return
-    }
-    if (keys.shiftKey) {
-      if (!inEditMode) showMagnifier(keys)
-      return
-    }
-    // Might be a click on a thumb up/down
+    // Might be a click on a thumb up/down. If so, increment the vote count
     if (showVotingToggle) {
       for (const node of data.nodes.get()) {
         const bBox = network.getBoundingBox(node.id)
@@ -1438,6 +1403,48 @@ function draw() {
         }
       }
     }
+    // check for modifier keys
+    const keys = params.event.pointers[0]
+    if (!keys) return
+    if (keys.metaKey) {
+      // if the Command key (on a Mac) is down, and the click is on a node/edge, log it to the console
+      // this makes debugging easier
+      if (params.nodes.length === 1) {
+        const node = data.nodes.get(params.nodes[0])
+        console.log('node = ', node)
+        window.node = node
+      }
+      if (params.edges.length === 1) {
+        const edge = data.edges.get(params.edges[0])
+        console.log('edge = ', edge)
+        window.edge = edge
+      }
+      return
+    }
+    if (keys.ctrlKey) {
+      const e = params.event.pointers[0]
+      // if the Control key is down, show the magnifier
+      if (!inEditMode && e.ctrlKey && !magnifying) showMagnifier(e)
+    }
+    if (keys.altKey) {
+      // if the Option/ALT key is down, add a node if on the background
+      if (params.nodes.length === 0 && params.edges.length === 0) {
+        const pos = params.pointer.canvas
+        let item = { id: uuidv4(), label: '', x: pos.x, y: pos.y }
+        item = deepMerge(item, styles.nodes[lastNodeSample])
+        item.grp = lastNodeSample
+        addLabel(item, clearPopUp, function (newItem) {
+          if (newItem !== null) data.nodes.add(newItem)
+        })
+      } 
+      // eslint-disable-next-line no-useless-return
+      return
+    }
+    /* if (keys.shiftKey) {
+      // do nothing: Vis-network selects nodes in this mode
+      return
+    } */
+
   })
 
   // despatch to edit a node or an edge or to fit the network on the pane
@@ -1453,6 +1460,7 @@ function draw() {
       fit()
     }
   })
+
   network.on('selectNode', function (params) {
     if (/gui/.test(debug)) console.log('selectNode', params)
     // if user is doing an analysis, do nothing
@@ -1575,30 +1583,15 @@ function draw() {
     const nodeId = network.getNodeAt(e.pointer.DOM)
     if (nodeId) openCluster(nodeId)
   })
-
-  let viewPosition
-  let selectionCanvasStart = {}
-  let selectionStart = {}
-  const selectionArea = document.createElement('div')
-  selectionArea.className = 'selectionBox'
-  selectionArea.style.display = 'none'
-  elem('main').appendChild(selectionArea)
-
   network.on('dragStart', function (params) {
     if (/gui/.test(debug)) console.log('dragStart')
-    viewPosition = network.getViewPosition()
     const e = params.event.pointers[0]
-    // start drawing a selection rectangle if the CTRL key is down and click is on the background
-    if (e.ctrlKey && params.nodes.length === 0 && params.edges.length === 0) {
-      network.setOptions({ interaction: { dragView: false } })
-      listen('net-pane', 'mousemove', showAreaSelection)
-      selectionStart = { x: e.offsetX, y: e.offsetY }
-      selectionCanvasStart = params.pointer.canvas
-      selectionArea.style.left = `${e.offsetX}px`
-      selectionArea.style.top = `${e.offsetY}px`
-      selectionArea.style.width = '0px'
-      selectionArea.style.height = '0px'
-      selectionArea.style.display = 'block'
+    if (e.ctrlKey) {
+      // if the Control key is down, show the magnifier and prevent dragging the map
+      if (!inEditMode && !magnifying) showMagnifier(e)
+      network.setOptions({
+        interaction: { dragView: false, selectable: false },
+      })
       return
     }
     if (e.altKey) {
@@ -1617,74 +1610,17 @@ function draw() {
     }
     changeCursor('grabbing')
   })
-  /**
-   * update the selection rectangle as the mouse moves
-   * @param {Event} event
-   */
-  function showAreaSelection(event) {
-    selectionArea.style.left = `${Math.min(selectionStart.x, event.offsetX)}px`
-    selectionArea.style.top = `${Math.min(selectionStart.y, event.offsetY)}px`
-    selectionArea.style.width = `${Math.abs(event.offsetX - selectionStart.x)}px`
-    selectionArea.style.height = `${Math.abs(event.offsetY - selectionStart.y)}px`
-  }
-  network.on('dragging', function () {
-    if (/gui/.test(debug)) console.log('dragging')
-    const endViewPosition = network.getViewPosition()
-    panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
-    viewPosition = endViewPosition
+  network.on('dragging', function (params) {
+    if (/gui/.test(debug)) console.log(`dragging`)
   })
   network.on('dragEnd', function (params) {
     if (/gui/.test(debug)) console.log('dragEnd')
-    const endViewPosition = network.getViewPosition()
-    panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
-    if (selectionArea.style.display === 'block') {
-      selectionArea.style.display = 'none'
-      network.setOptions({ interaction: { dragView: true } })
-      elem('net-pane').removeEventListener('mousemove', showAreaSelection)
+    if (!inEditMode && magnifying) {
+      closeMagnifier()
+      network.setOptions({
+        interaction: { dragView: true, selectable: true },
+      })
     }
-    const e = params.event.pointers[0]
-    if (e.ctrlKey && params.nodes.length === 0 && params.edges.length === 0) {
-      network.storePositions()
-      const selectionCanvasEnd = params.pointer.canvas
-      if (selectionCanvasStart.x > selectionCanvasEnd.x) {
-        ;[selectionCanvasStart.x, selectionCanvasEnd.x] = [
-          selectionCanvasEnd.x,
-          selectionCanvasStart.x,
-        ]
-      }
-      if (selectionCanvasStart.y > selectionCanvasEnd.y) {
-        ;[selectionCanvasStart.y, selectionCanvasEnd.y] = [
-          selectionCanvasEnd.y,
-          selectionCanvasStart.y,
-        ]
-      }
-      const selectedNodes = data.nodes.get({
-        filter: function (node) {
-          return (
-            !node.nodeHidden &&
-            node.x >= selectionCanvasStart.x &&
-            node.x <= selectionCanvasEnd.x &&
-            node.y >= selectionCanvasStart.y &&
-            node.y <= selectionCanvasEnd.y
-          )
-        },
-      })
-      network.setSelection({
-        nodes: selectedNodes.map((n) => n.id).concat(network.getSelectedNodes()),
-      })
-      showSelected()
-      showNodeOrEdgeData()
-      return
-    }
-    const newPositions = network.getPositions(params.nodes)
-    data.nodes.update(
-      data.nodes.get(params.nodes).map((n) => {
-        n.x = newPositions[n.id].x
-        n.y = newPositions[n.id].y
-        if (snapToGridToggle) snapToGrid(n)
-        return n
-      })
-    )
     changeCursor('default')
   })
   network.on('controlNodeDragging', function () {
@@ -1720,26 +1656,30 @@ function draw() {
   let bigNetwork = null
   let bigNetCanvas = null
   let netPaneRect = null
-  let magnifying = false
+
 
   netPane.addEventListener('keydown', (e) => {
-    if (!inEditMode && e.shiftKey && !magnifying) createMagnifier(e)
+    if (!inEditMode && e.ctrlKey && !magnifying) showMagnifier(e)
   })
   netPane.addEventListener('mousemove', (e) => {
-    if (magnifying && !inEditMode && e.shiftKey) showMagnifier(e)
+    if (magnifying && !inEditMode && e.ctrlKey) showMagnifier(e)
   })
   netPane.addEventListener('keyup', (e) => {
-    if (e.key === 'Shift') closeMagnifier()
+    if (e.key === 'Control') {
+      closeMagnifier()
+    }
   })
   // ensure magnifier shows even if mouse is over the panel (e.g. when doing analysis)
   panel.addEventListener('keydown', (e) => {
-    if (!inEditMode && e.shiftKey && !magnifying) createMagnifier(e)
+    if (!inEditMode && e.ctrlKey && !magnifying) showMagnifier(e)
   })
   panel.addEventListener('mousemove', (e) => {
-    if (magnifying && !inEditMode && e.shiftKey) showMagnifier(e)
+    if (magnifying && !inEditMode && e.ctrlKey) showMagnifier(e)
   })
   panel.addEventListener('keyup', (e) => {
-    if (e.key === 'Shift') closeMagnifier()
+    if (e.key === 'Control') {
+      closeMagnifier()
+    }
   })
 
   /**
@@ -1751,7 +1691,7 @@ function draw() {
       bigNetPane.remove()
     }
     if (drawingSwitch) return
-    magnifying = true
+    console.log('Creating magnifier', magnifying)
     netPaneRect = netPane.getBoundingClientRect()
     network.storePositions()
     bigNetPane = document.createElement('div')
@@ -1771,21 +1711,6 @@ function draw() {
     bigNetwork = new Network(bigNetPane, bigNetData, {
       physics: { enabled: false },
     })
-    /* // unhide any hidden nodes and edges
-    let changedNodes = []
-    bigNetData.nodes.forEach((n) => {
-      if (n.nodeHidden) {
-        changedNodes.push(setNodeHidden(n, false))
-      }
-    })
-    let changedEdges = []
-    bigNetData.edges.forEach((e) => {
-      if (e.edgeHidden) {
-        changedEdges.push(setEdgeHidden(e, false))
-      }
-    })
-    bigNetData.nodes.update(changedNodes)
-    bigNetData.edges.update(changedEdges) */
     bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
     bigNetwork.on('afterDrawing', () => {
       setCanvasBackground(bigNetCanvas)
@@ -1796,7 +1721,6 @@ function draw() {
     })
     netPane.style.cursor = 'none'
     magnifier.style.display = 'none'
-    showMagnifier(e)
   }
   /**
    * display the loupe, centred on the mouse pointer, and fill it with
@@ -1805,13 +1729,14 @@ function draw() {
   function showMagnifier(e) {
     e.preventDefault()
     if (drawingSwitch) return
+    magnifying = true
     if (bigNetCanvas == null) createMagnifier()
     magnifierCtx.fillRect(0, 0, magSize, magSize)
     magnifierCtx.drawImage(
       bigNetCanvas,
       ((e.clientX - netPaneRect.x) * bigNetCanvas.width) / netPaneCanvas.clientWidth - halfMagSize,
       ((e.clientY - netPaneRect.y) * bigNetCanvas.height) / netPaneCanvas.clientHeight -
-        halfMagSize,
+      halfMagSize,
       magSize,
       magSize,
       0,
@@ -1940,11 +1865,11 @@ export function drawMinimap(ratio = 5) {
 
     minimapRadar.style.left = `${Math.round(
       ((currentDOMPosition.x - initialDOMPosition.x) * scale) / ratio +
-        (minimapWidth * (1 - scale)) / 2
+      (minimapWidth * (1 - scale)) / 2
     )}px`
     minimapRadar.style.top = `${Math.round(
       ((currentDOMPosition.y - initialDOMPosition.y) * scale) / ratio +
-        (minimapHeight * (1 - scale)) / 2
+      (minimapHeight * (1 - scale)) / 2
     )}px`
     minimapRadar.style.width = `${minimapWidth * scale}px`
     minimapRadar.style.height = `${minimapHeight * scale}px`
@@ -2037,12 +1962,12 @@ export function drawMinimap(ratio = 5) {
           x:
             ((radarRect.left - wrapperRect.left + (radarRect.width - wrapperRect.width) / 2) *
               ratio) /
-              scale +
+            scale +
             initialDOMPosition.x,
           y:
             ((radarRect.top - wrapperRect.top + (radarRect.height - wrapperRect.height) / 2) *
               ratio) /
-              scale +
+            scale +
             initialDOMPosition.y,
         }),
       })
@@ -2465,7 +2390,7 @@ async function pasteFromClipboard() {
   let nodes
   let edges
   try {
-    ;({ nodes, edges } = JSON.parse(clip))
+    ; ({ nodes, edges } = JSON.parse(clip))
   } catch {
     // silently return (i.e. use system paste) if there is nothing relevant on the clipboard
     return
@@ -3439,21 +3364,19 @@ function ghostCursor() {
     const boxHalfWidth = box.offsetWidth / 2
     const boxHalfHeight = box.offsetHeight / 2
     const left = event.pageX - boxHalfWidth
-    box.style.left = `${
-      left <= netPaneRect.left
-        ? netPaneRect.left
-        : left >= netPaneRect.right - box.offsetWidth
-          ? netPaneRect.right - box.offsetWidth
-          : left
-    }px`
+    box.style.left = `${left <= netPaneRect.left
+      ? netPaneRect.left
+      : left >= netPaneRect.right - box.offsetWidth
+        ? netPaneRect.right - box.offsetWidth
+        : left
+      }px`
     const top = event.pageY - boxHalfHeight
-    box.style.top = `${
-      top <= netPaneRect.top
-        ? netPaneRect.top
-        : top >= netPaneRect.bottom - box.offsetHeight
-          ? netPaneRect.bottom - box.offsetHeight
-          : top
-    }px`
+    box.style.top = `${top <= netPaneRect.top
+      ? netPaneRect.top
+      : top >= netPaneRect.bottom - box.offsetHeight
+        ? netPaneRect.bottom - box.offsetHeight
+        : top
+      }px`
   }
 }
 /**
@@ -3794,12 +3717,11 @@ function keepPaneInWindow(pane) {
     pane.style.left = `${container.offsetLeft + container.offsetWidth - pane.offsetWidth}px`
   }
   if (pane.offsetTop + pane.offsetHeight > container.offsetTop + container.offsetHeight) {
-    pane.style.top = `${
-      container.offsetTop +
+    pane.style.top = `${container.offsetTop +
       container.offsetHeight -
       pane.offsetHeight -
       document.querySelector('footer').offsetHeight
-    }px`
+      }px`
   }
 }
 // CSpell: ignore tabcontent, tablinks
@@ -3842,8 +3764,7 @@ function applySampleToNode(event) {
   const nNodes = nodesToUpdate.length
   if (nNodes) {
     logHistory(
-      `applied ${styles.nodes[sample].groupLabel} style to ${
-        nNodes === 1 ? nodesToUpdate[0].label : nNodes + ' factors'
+      `applied ${styles.nodes[sample].groupLabel} style to ${nNodes === 1 ? nodesToUpdate[0].label : nNodes + ' factors'
       }`
     )
   }
@@ -3998,15 +3919,15 @@ function showNodeData(nodeId) {
       toolbar: viewOnly
         ? null
         : [
-            'bold',
-            'italic',
-            'underline',
-            'link',
-            { list: 'ordered' },
-            { list: 'bullet' },
-            { indent: '-1' },
-            { indent: '+1' },
-          ],
+          'bold',
+          'italic',
+          'underline',
+          'link',
+          { list: 'ordered' },
+          { list: 'bullet' },
+          { indent: '-1' },
+          { indent: '+1' },
+        ],
     },
     placeholder: 'Notes',
     theme: 'snow',
@@ -4203,15 +4124,15 @@ function showEdgeData(edgeId) {
       toolbar: viewOnly
         ? null
         : [
-            'bold',
-            'italic',
-            'underline',
-            'link',
-            { list: 'ordered' },
-            { list: 'bullet' },
-            { indent: '-1' },
-            { indent: '+1' },
-          ],
+          'bold',
+          'italic',
+          'underline',
+          'link',
+          { list: 'ordered' },
+          { list: 'bullet' },
+          { indent: '-1' },
+          { indent: '+1' },
+        ],
     },
     placeholder: 'Notes',
     theme: 'snow',
@@ -5276,7 +5197,7 @@ export function sizing(metric) {
         node.widthConstraint =
           node.heightConstraint =
           node.size =
-            MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
+          MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
     }
   })
   data.nodes.update(nodesToUpdate)
@@ -5331,9 +5252,9 @@ export function setCluster(option) {
 export function recreateClusteringMenu(obj) {
   // remove any old select items, other than the standard ones (which are the first 4: None, Style, Color, Community)
   const select = elem('clustering')
- for (let i = select.options.length - 1; i >= 4; i--) {
-  select.remove(i);
-}
+  for (let i = select.options.length - 1; i >= 4; i--) {
+    select.remove(i);
+  }
   // append the ones provided
   for (const property in obj) {
     if (obj[property] !== '*deleted*') {
