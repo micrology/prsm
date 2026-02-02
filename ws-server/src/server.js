@@ -5,6 +5,8 @@ import http from 'http'
 import * as number from 'lib0/number'
 import { setupWSConnection } from './utils.js'
 
+process.title = 'websocket-server'
+
 const wss = new WebSocketServer({
   noServer: true,
   maxPayload: 256 * 1024 * 1024  // 256 MB (adjust as needed)

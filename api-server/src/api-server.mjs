@@ -30,6 +30,8 @@ import { createHttpTerminator } from 'http-terminator'
 import rateLimit from 'express-rate-limit'
 import { loadSecrets } from './secrets.mjs'
 
+process.title = 'api-server'
+
 // use local websocket server if in development mode
 let websocket = 'wss://www.prsm.uk/wss'
 if (process.env.NODE_ENV === "dev") {
