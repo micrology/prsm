@@ -1164,6 +1164,9 @@ but moving the panel out of sight works instead */
   font-size: 12px;
   line-height: 2;
 }
+.sparkle {
+  display: block;
+}
 #sparklesNode,
 #sparklesEdge svg {
   padding-right: 10px;
