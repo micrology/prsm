@@ -36,6 +36,14 @@ echo -e "\n\nDelete factor"
 curl -H "Content-Type: application/json" -X DELETE  http://localhost:3001/api/map/VXB-BJN-TAS-YOP/factor/80a484e8-c2c0-4a57-a12a-newfactor
 echo -e "\n\nDelete link"
 curl -H "Content-Type: application/json" -X DELETE  http://localhost:3001/api/map/VXB-BJN-TAS-YOP/link/02102d1a-1b34-48d5-be75-f91cb6d44bf0
+echo -e "\n\nGet all styles"
+curl -H "Content-Type: application/json" -X GET http://localhost:3001/api/map/VXB-BJN-TAS-YOP/styles | head -c 200
+echo -e "\n\nGet one style"
+curl -H "Content-Type: application/json" -X GET http://localhost:3001/api/map/VXB-BJN-TAS-YOP/styles/group1
+echo -e "\n\nUpdate style for a factor"
+curl -H "Content-Type: application/json" -X PATCH -d '{"update": {"color": {"background": "rgb(255,0,255)"}}}' http://localhost:3001/api/map/VXB-BJN-TAS-YOP/styles/group0
+echo -e "\n\nUpdate style for a link"
+curl -H "Content-Type: application/json" -X PATCH -d '{"update": {"color": {"color": "rgb(255,0,255)"}}}' http://localhost:3001/api/map/VXB-BJN-TAS-YOP/styles/edge0
 echo -e "\n\nTry to get deleted factor - should fail"
 curl -H "Content-Type: application/json" -X GET http://localhost:3001/api/map/VXB-BJN-TAS-YOP/factor/80a484e8-c2c0-4a57-a12a-newfactor
 echo -e "\n\nTry to get deleted link - should fail"

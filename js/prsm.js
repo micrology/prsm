@@ -199,6 +199,7 @@ window.addEventListener('load', () => {
   setUpAwareness()
   setUpShareDialog()
   draw()
+  setUpSamplesMap()
 })
 /**
  * Clean up before user departs
@@ -734,6 +735,7 @@ function startY() {
       }
     })
   }
+
   ySamplesMap.observe((evt) => {
     yjsTrace('ySamplesMap.observe', evt)
     const nodesToUpdate = []
@@ -1436,7 +1438,7 @@ function draw() {
         addLabel(item, clearPopUp, function (newItem) {
           if (newItem !== null) data.nodes.add(newItem)
         })
-      } 
+      }
       // eslint-disable-next-line no-useless-return
       return
     }
@@ -1761,7 +1763,18 @@ function draw() {
     magnifying = false
   }
 } // end draw()
-
+/**
+ * set up the ySamplesMap with the node and edge styles defined in styles
+ * This has to be done after the window has been drawn
+ */
+function setUpSamplesMap() {
+  for (const k in styles.nodes) {
+    ySamplesMap.set(k, { node: styles.nodes[k] })
+  }
+  for (const k in styles.edges) {
+    ySamplesMap.set(k, { edge: styles.edges[k] })
+  }
+}
 /**
  * draw the background on the given canvas (which will be a magnified version of the net pane)
  * @param {HTMLElement} canvas
