@@ -240,9 +240,23 @@ curl -H "Content-Type: application/json" -X PATCH \
 </LanguageTab>
 </LanguageTabs>
 
+:::tip
+
+If you wnat to create a new factor or link with a specific design programmatically, it is helpful first to create a factor or link with that design by hand on a map and then use the `GET factor` endpoint to retrieve its details.  You can then use this as a template to create new similar factors or links programmatically.
+
+:::
+
+:::info
+
+What this manual refers to as `style` is called internally, `grp`.  And the name of a style is called its `groupLabel`.
+
+:::
+
 ## Endpoints
 
-### GET /map/\{roomID\}
+### Get map information
+
+`GET https://prsm.uk/api/map{roomID}`
 
 **Description:**
 
@@ -281,7 +295,9 @@ Returns a JSON string of an object with the properties:
 "edges":[{},{"id":"6a12f9f4-3e84-4888-8b13-5f7023e3024e","from":"86db33bf-0b88-45da-a829-7c777d9bf4ba","to":"87b4444e-233c-4ce8-9a39-4f629c1ff43a"}]}
 ```
 
-### PATCH /map/\{roomID\}
+### Update a map's title and background
+
+`PATCH https://prsm.uk/api/map/{roomID}`
 
 **Description:**
 
@@ -310,7 +326,9 @@ The body must include an `update` object with the properties to update: the new 
 
 Returns a JSON string of an object with the new title and background properties.
 
-### GET /map/\{roomID\}/factor/\{factorID\}
+### Get the details of a factor
+
+`GET https://prsm.uk/api/map{roomID}/factor/{factorID}`
 
 **Description:**
 
@@ -378,7 +396,9 @@ Returns a JSON string of an object with the properties:
 "modified":{"time":1640000000000,"user":"john@example.com"}}
 ```
 
-### PATCH /map/\{roomID\}/factor/\{factorID\}
+### Update the details of a factor
+
+`PATCH https://prsm.uk/api/map{roomID}/factor/{factorID}`
 
 **Description:**
 
@@ -409,7 +429,9 @@ The body must include an `update` object with the properties to update. Any prop
 
 Returns the updated factor object with all its properties (same format as GET /map/\{roomID\}/factor/\{factorID\}).
 
-### POST /map/\{roomID\}/factor/\{factorID\}
+### Add a new factor
+
+`POST https://prsm.uk/api/map{roomID}/factor/{factorID}`
 
 **Description:**
 
@@ -450,7 +472,9 @@ Returns the created factor object with all its properties.
 }
 ```
 
-### DELETE /map/\{roomID\}/factor/\{factorID\}
+### Delete a factor
+
+`DELETE https://prsm.uk/api/map{roomID}/factor/{factorID}`
 
 **Description:**
 
@@ -471,7 +495,9 @@ Returns a success message.
 {"message": "Factor deleted"}
 ```
 
-### GET /map/\{roomID\}/link/\{linkID\}
+### Get details about a link
+
+`GET https://prsm.uk/api/map{roomID}/link/{linkID}`
 
 **Description:**
 
@@ -520,7 +546,9 @@ Returns a JSON string of an object with the properties:
 "font":{"size":14,"align":"top","background":"rgb(255,255,255)","color":"rgba(0,0,0,1)"}}
 ```
 
-### PATCH /map/\{roomID\}/link/\{linkID\}
+### Update details about a link
+
+`PATCH https://prsm.uk/api/map{roomID}/link/{linkID}`
 
 **Description:**
 
@@ -551,7 +579,15 @@ Returns the updated link object with all its properties (same format as GET /map
 }
 ```
 
-### POST /map/\{roomID\}/link/\{linkID\}
+**Example output:**
+
+```json
+{"node":{"groupLabel":"Sample","borderWidth":0,"borderWidthSelected":4,"color":{"background":"rgb(255,0,255)"},"fixed":false,"font":{"face":"Oxygen","color":"rgb(0, 0, 0)","size":14},"labelHighlightBold":true,"margin":20,"shape":"box","shapeProperties":{"borderDashes":false},"scaling":{"min":10,"max":40,"label":{"enabled":false,"min":10,"max":40}},"size":25,"heightConstraint":false,"widthConstraint":false}}
+```
+
+### Add a new link
+
+`POST https://prsm.uk/api/map{roomID}/link/{linkID}`
 
 **Description:**
 
@@ -592,7 +628,9 @@ Returns the created link object with all its properties. Returns an error if eit
 }
 ```
 
-### DELETE /map/\{roomID\}/link/\{linkID\}
+### Delete a link
+
+`DELETE https://prsm.uk/api/map{roomID}/link/{linkID}`
 
 **Description:**
 
@@ -611,6 +649,112 @@ Returns a success message.
 
 ```json
 {"message": "Link deleted"}
+```
+
+### Get a list of all styles
+
+`GET https://prsm.uk/api/map/{roomID}styles`
+
+**Description:**
+
+Returns details about all the styles (factor styles and link styles), as shown in the Settings panel.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+
+**Response:**
+
+Returns a JSON string of an Array of Arrays.  Each sub-array has one element that is the `grp` (e.g. `group0`, `group1` ... `group14` for factor styles and `edge0` ... `edge8` for link styles) and a second element that is an object describing the style.  For the properties of these objects, see the descriptions of factor and link properties above.
+
+For example, the following shows the first few lines returned from the default styles as they appear when you start a new map.
+
+```json
+[
+  [
+    "group0",
+    {
+      "node": {
+        "groupLabel": "Sample",
+        "borderWidth": 0,
+        "borderWidthSelected": 4,
+        "color": {
+          "border": "rgb(154, 219, 180)",
+          "background": "rgb(219, 11, 0)",
+          "highlight": {
+            "border": "rgb(154, 219, 180)",
+            "background": "rgb(219, 11, 0)"
+          },
+```
+
+### Get details of a style
+
+`GET https://prsm.uk/api/map/{roomID}styles/{styleID}`
+
+**Description:**
+
+Returns details about a style.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `styleID`: The identifier (`grp`) of the style
+
+**Response:**
+
+Returns a JSON string of an Array with one element that is the `grp` (e.g. `group0`, `group1` ... `group14` for factor styles and `edge0` ... `edge8` for link styles) and a second element that is an object describing the style.  For the properties of these objects, see the descriptions of factor and link properties above.
+
+**Example:**
+
+The following shows what is returned from the default styles for the factor style, `group0`.
+
+```json
+["group0",{"node":{"groupLabel":"Sample","borderWidth":0,
+"borderWidthSelected":4,"color":{
+"border":"rgb(154, 219, 180)","background":"rgb(154, 219, 180)"},
+"highlight":{"border":"rgb(154, 219, 180)","background":"rgb(154, 219, 180)"},
+"hover":{"border":"rgb(154, 219, 180)","background":"rgb(154, 219, 180)"}},
+"fixed":false,
+"font":{"face":"Oxygen","color":"rgb(0, 0, 0)","size":14},
+"labelHighlightBold":true,"margin":20,"shape":"box",
+"shapeProperties":{"borderDashes":false},
+"scaling":{"min":10,"max":40,"label":{"enabled":false,"min":10,"max":40}},
+"size":25,"heightConstraint":false,"widthConstraint":false}}]```
+```
+
+### Update a style
+
+`PATCH https://prsm.uk/api/map/{roomID}styles/{styleID}`
+
+**Description:**
+
+Updates details about a style.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `styleID`: The identifier (`grp`) of the style
+
+**Request Body:**
+
+The body must include an `update` object with the properties to update. Any property from the style can be updated (groupName, color, arrows, width, dashes, etc.).  For example, `{"update": {"color": {"background": "rgb(255,0,0)"}}}`
+
+**Response:**
+
+Returns a JSON string of an object describing the style.  For the properties of these objects, see the descriptions of factor and link properties above.
+
+**Example:**
+
+The following shows what is returned from the default styles for the factor style, `group0` after updating the background colour to red (`rgb(255,0,0)`).
+
+```json
+{"node":{"groupLabel":"Sample","borderWidth":0,"borderWidthSelected":4,
+"color":{"background":"rgb(255,0,0)"},"fixed":false,
+"font":{"face":"Oxygen","color":"rgb(0, 0, 0)","size":14},
+"labelHighlightBold":true,"margin":20,"shape":"box",
+"shapeProperties":{"borderDashes":false},
+"scaling":{"min":10,"max":40,"label":{"enabled":false,"min":10,"max":40}},
+"size":25,"heightConstraint":false,"widthConstraint":false}}
 ```
 
 ## Rate Limiting

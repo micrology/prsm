@@ -52,7 +52,8 @@
     "manual": "cd doc/help && npm run dev &",
     "deploy": "npm run build && doc/help/deploy.rspress.bash && npm run build-help",
     "analyse": "npx parcel build './html/*.html' --detailed-report",
-    "install:all": "npm i && pushd ./doc/help && npm i && popd && pushd ./ws-server && npm i && popd && pushd ./api-server && npm i && popd"
+    "install:all": "npm i && pushd ./doc/help && npm i && popd && pushd ./ws-server && npm i && popd && pushd ./api-server && npm i && popd",
+     "upgrade:all": "npm upgrade && pushd ./doc/help && npm upgrade && popd && pushd ./ws-server && npm upgrade && popd && pushd ./api-server && npm upgrade && popd"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {

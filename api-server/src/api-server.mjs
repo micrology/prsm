@@ -40,7 +40,7 @@ if (process.env.NODE_ENV === "dev") {
 }
 const app = express()
 const PORT = process.env.PORT || 3001
-let room
+let room = '' // current room, set by middleware that checks the room parameter in incoming requests
 
 // Rate limiting and concurrency control
 const globalLimiter = rateLimit({
@@ -68,12 +68,15 @@ app.use(cors())
 app.use(express.json())
 app.use(globalLimiter)
 
-// Log all incoming requests
+// Check that all incoming requests have a valid room id., and note it for use in the handlers
+
 app.all([
 	'/api/chat/:room',
 	'/api/map/:room',
 	'/api/map/:room/factor/:factor',
-	'/api/map/:room/link/:link'
+	'/api/map/:room/link/:link',
+	'/api/map/:room/styles',
+	'/api/map/:room/styles/:style'
 ], (req, res, next) => {
 	try {
 		room = checkRoom(req.params.room)
@@ -246,7 +249,7 @@ app.patch('/api/map/:room', async (req, res) => {
  */
 app.get('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
-		logAPICalls(`Fetching factor ${req.params.factor} for room ${req.params.room}`)
+		logAPICalls(`Fetching factor ${req.params.factor} for room ${room}`)
 		const doc = new Y.Doc()
 		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
 		let sentResponse = false;
@@ -278,7 +281,7 @@ app.get('/api/map/:room/factor/:factor', async (req, res) => {
  */
 app.patch('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
-		logAPICalls(`Updating factor ${req.params.factor} for room ${req.params.room}`)
+		logAPICalls(`Updating factor ${req.params.factor} for room ${room}`)
 		const { update } = req.body
 
 		if (!update) {
@@ -293,7 +296,7 @@ app.patch('/api/map/:room/factor/:factor', async (req, res) => {
 				const yNodesMap = doc.getMap('nodes')
 				const oldFactor = yNodesMap.get(req.params.factor)
 				if (oldFactor) {
-					const newFactor = { ...oldFactor, ...update, modified: { time: Date.now(), user: 'API' } }
+					const newFactor = { ...deepUpdate(oldFactor, update), modified: { time: Date.now(), user: 'API' } }
 					yNodesMap.set(req.params.factor, newFactor)
 					res.json(
 						strip(newFactor, ['id', 'label', 'x', 'y', 'borderWidth', 'color', 'created', 'modified', 'groupLabel', 'grp', 'font', 'shape', 'shapeProperties'])
@@ -318,7 +321,7 @@ app.patch('/api/map/:room/factor/:factor', async (req, res) => {
  */
 app.post('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
-		logAPICalls(`Creating factor ${req.params.factor} for room ${req.params.room}`)
+		logAPICalls(`Creating factor ${req.params.factor} for room ${room}`)
 		const { spec } = req.body
 
 		// validate spec: must have at least a label
@@ -377,7 +380,7 @@ app.post('/api/map/:room/factor/:factor', async (req, res) => {
  */
 app.delete('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
-		logAPICalls(`Deleting factor ${req.params.factor} for room ${req.params.room}`)
+		logAPICalls(`Deleting factor ${req.params.factor} for room ${room}`)
 
 		const doc = new Y.Doc()
 		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
@@ -416,7 +419,7 @@ app.delete('/api/map/:room/factor/:factor', async (req, res) => {
  */
 app.get('/api/map/:room/link/:link', async (req, res) => {
 	try {
-		logAPICalls(`Fetching link ${req.params.link} for room ${req.params.room}`)
+		logAPICalls(`Fetching link ${req.params.link} for room ${room}`)
 		const doc = new Y.Doc()
 		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
 		let sentResponse = false;
@@ -448,7 +451,7 @@ app.get('/api/map/:room/link/:link', async (req, res) => {
  */
 app.patch('/api/map/:room/link/:link', async (req, res) => {
 	try {
-		logAPICalls(`Updating link ${req.params.link} for room ${req.params.room}`)
+		logAPICalls(`Updating link ${req.params.link} for room ${room}`)
 		const { update } = req.body
 
 		if (!update) {
@@ -463,7 +466,7 @@ app.patch('/api/map/:room/link/:link', async (req, res) => {
 				const yEdgesMap = doc.getMap('edges')
 				const oldLink = yEdgesMap.get(req.params.link)
 				if (oldLink) {
-					const newLink = { ...oldLink, ...update, modified: { time: Date.now(), user: 'API' } }
+					const newLink = { ...deepUpdate(oldLink, update), modified: { time: Date.now(), user: 'API' } }
 					yEdgesMap.set(req.params.link, newLink)
 					res.json(
 						strip(newLink, ['id', 'label', 'from', 'to', 'arrows', 'width', 'dashes', 'color', 'created', 'modified', 'groupLabel', 'grp', 'font'])
@@ -488,7 +491,7 @@ app.patch('/api/map/:room/link/:link', async (req, res) => {
  */
 app.post('/api/map/:room/link/:link', async (req, res) => {
 	try {
-		logAPICalls(`Creating link ${req.params.link} for room ${req.params.room}`)
+		logAPICalls(`Creating link ${req.params.link} for room ${room}`)
 		const { spec } = req.body
 
 		// validate spec: must have at least a from and to
@@ -559,7 +562,7 @@ app.post('/api/map/:room/link/:link', async (req, res) => {
  */
 app.delete('/api/map/:room/link/:link', async (req, res) => {
 	try {
-		logAPICalls(`Deleting link ${req.params.link} for room ${req.params.room}`)
+		logAPICalls(`Deleting link ${req.params.link} for room ${room}`)
 
 		const doc = new Y.Doc()
 		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
@@ -584,7 +587,94 @@ app.delete('/api/map/:room/link/:link', async (req, res) => {
 		res.status(500).json({ error: error.message })
 	}
 })
+/**
+ *  Return a list of all styles (colors, fonts, shapes) used in the map, for factors and links.
+ */
+app.get('/api/map/:room/styles', async (req, res) => {
+	try {
+		logAPICalls(`Fetching styles for room ${room}`)
+		const doc = new Y.Doc()
+		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		let sentResponse = false;
+		wsProvider.on('synced', () => {
+			if (!sentResponse) {
+				const ySamplesMap = doc.getMap('samples')
+				const styles = Array.from(ySamplesMap.entries()).filter(style => /^[edge|group]/.test(style[0]))
+				console.log(styles)
+				res.json(styles)
+				sentResponse = true
+				doc.destroy()
+				wsProvider.disconnect()
+				wsProvider.destroy()
+			}
+		})
+	} catch (error) {
+		res.status(500).json({ error: error.message })
+	}
+})
 
+/**
+ *  Return the info for the given style.
+ */
+app.get('/api/map/:room/styles/:style', async (req, res) => {
+	try {
+		logAPICalls(`Fetching styles for room ${room}`)
+		const doc = new Y.Doc()
+		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		let sentResponse = false;
+		wsProvider.on('synced', () => {
+			if (!sentResponse) {
+				const ySamplesMap = doc.getMap('samples')
+				const style = ySamplesMap.get(req.params.style)
+				if (style) {
+					res.json([req.params.style, style])
+					sentResponse = true
+				} else {
+					res.status(404).json({ error: 'Style not found' })
+				}
+				doc.destroy()
+				wsProvider.disconnect()
+				wsProvider.destroy()
+			}
+		})
+	} catch (error) {
+		res.status(500).json({ error: error.message })
+	}
+})
+
+app.patch('/api/map/:room/styles/:style', async (req, res) => {
+	try {
+		logAPICalls(`Updating style ${req.params.style} for room ${room}`)
+		const { update } = req.body
+
+		if (!update) {
+			return res.status(400).json({ error: 'Nothing provided for update' })
+		}
+
+		const doc = new Y.Doc()
+		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		let sentResponse = false;
+		wsProvider.on('synced', () => {
+			if (!sentResponse) {
+				const yStylesMap = doc.getMap('samples')
+				const oldStyle = yStylesMap.get(req.params.style)
+				if (oldStyle) {
+					const newStyle = deepUpdate(oldStyle, update)
+					yStylesMap.set(req.params.style, newStyle)
+					res.json(newStyle)
+				} else {
+					res.status(404).json({ error: 'Style not found' })
+				}
+				sentResponse = true
+				doc.destroy()
+				wsProvider.disconnect()
+				wsProvider.destroy()
+			}
+		})
+	} catch (error) {
+		res.status(500).json({ error: error.message })
+	}
+})
 let server // server instance
 let httpTerminator // terminator instance
 /**
@@ -644,10 +734,40 @@ function checkMapExists(yNetMap) {
 function logAPICalls(message) {
 	const timestamp = new Date().toLocaleString()
 	console.log(`[${timestamp}] ${message}`)
-}	
+}
 
 // utility functions
-
+/**
+ * Recursively updates properties in a target object with values from an update object.
+ * Searches deeply through nested objects to find and update matching keys.
+ * Only updates keys that already exist in the target object; it does not add new keys.
+ * Stops as soon as a match is found and updated, so if there are multiple nested objects 
+ * with the same key, only the first one encountered will be updated.
+ * 
+ * @param {Object} target - The object to update
+ * @param {Object} updates - Object containing key-value pairs to update
+ * @returns {Object} The updated target object
+ */
+function deepUpdate(target, updates) {
+	for (const [key, value] of Object.entries(updates)) {
+		if (Object.hasOwn(target, key)) {
+			target[key] = value;
+		} else {
+			// Search nested objects, stopping at first match
+			for (const prop in target) {
+				if (typeof target[prop] === 'object' && target[prop] !== null) {
+					if (Object.hasOwn(target[prop], key)) {
+						target[prop][key] = value;
+						break; // Stop after first match
+					}
+					// Recursively search deeper if not found at this level
+					deepUpdate(target[prop], { [key]: value });
+				}
+			}
+		}
+	}
+	return target;
+}
 /**
  * return a copy of an object that only includes the properties that are in allowed
  * @param {Object} obj the object to copy
