@@ -59,7 +59,7 @@ const ChatLimiter = rateLimit({
 		error: 'Too many chat requests, please slow down and try again shortly.',
 	},
 })
-
+app.set('trust proxy', 1) // trust first proxy, if behind a proxy
 let inFlightChatRequests = 0
 const MAX_IN_FLIGHT_CHAT = 10
 
@@ -91,6 +91,7 @@ app.post('/api/chat/:room', ChatLimiter, async (req, res) => {
 	const region = process.env.AWS_REGION || 'eu-west-2'
 	const bedrockApiKey = process.env.BEDROCK_API_KEY
 	const modelId = process.env.MODEL_ID || 'eu.anthropic.claude-haiku-4-5-20251001-v1:0'
+	logAPICalls(`Using chat for room ${room}`)
 
 	if (!bedrockApiKey) {
 		console.error('ERROR: BEDROCK_API_KEY environment variable is not set')
