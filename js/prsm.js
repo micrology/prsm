@@ -1585,6 +1585,7 @@ function draw() {
     const nodeId = network.getNodeAt(e.pointer.DOM)
     if (nodeId) openCluster(nodeId)
   })
+  let viewPosition = network.getViewPosition()
   network.on('dragStart', function (params) {
     if (/gui/.test(debug)) console.log('dragStart')
     const e = params.event.pointers[0]
@@ -1614,15 +1615,29 @@ function draw() {
   })
   network.on('dragging', function (params) {
     if (/gui/.test(debug)) console.log(`dragging`)
+    const endViewPosition = network.getViewPosition()
+    panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
+    viewPosition = endViewPosition
   })
   network.on('dragEnd', function (params) {
     if (/gui/.test(debug)) console.log('dragEnd')
+    const endViewPosition = network.getViewPosition()
+    panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
     if (!inEditMode && magnifying) {
       closeMagnifier()
       network.setOptions({
         interaction: { dragView: true, selectable: true },
       })
     }
+    const newPositions = network.getPositions(params.nodes)
+    data.nodes.update(
+      data.nodes.get(params.nodes).map((n) => {
+        n.x = newPositions[n.id].x
+        n.y = newPositions[n.id].y
+        if (snapToGridToggle) snapToGrid(n)
+        return n
+      })
+    )
     changeCursor('default')
   })
   network.on('controlNodeDragging', function () {
