@@ -242,7 +242,7 @@ curl -H "Content-Type: application/json" -X PATCH \
 
 :::tip
 
-If you wnat to create a new factor or link with a specific design programmatically, it is helpful first to create a factor or link with that design by hand on a map and then use the `GET factor` endpoint to retrieve its details.  You can then use this as a template to create new similar factors or links programmatically.
+If you want to create a new factor or link with a specific design programmatically, it is helpful first to create a factor or link with that design by hand on a map and then use the `GET factor` endpoint to retrieve its details.  You can then use this as a template to create new similar factors or links programmatically.
 
 :::
 
@@ -765,9 +765,9 @@ To avoid server overload, the endpoints are limited to 60 requests per minute pe
 
 To show how one might put these endpoints together, the following complete program changes the background of all the factors that are the standard green (in fact, the colour 'rgb(154, 219, 180)') to red ('rgb(255, 0, 0)').  It first obtains a list of all factors, then examines each one to test its background colour, and then if the colour is green, changes it to red.
 
+{/* cspell:disable */}
 <LanguageTabs>
  <LanguageTab language="javascript">
-
 ```javascript
 /**
  * Update factor colors in a PRSM map
@@ -1115,3 +1115,4 @@ main();
 
 </LanguageTab>
 </LanguageTabs>
+{/* cspell:enable */}
