@@ -164,7 +164,6 @@
         <li><a href="global.html#hideWhatsNew">hideWhatsNew</a></li>
         <li><a href="global.html#htmlEntities">htmlEntities</a></li>
         <li><a href="global.html#humanSize">humanSize</a></li>
-        <li><a href="global.html#inAddMode">inAddMode</a></li>
         <li><a href="global.html#in_degree">in_degree</a></li>
         <li><a href="global.html#initAligningGuidelines">initAligningGuidelines</a></li>
         <li><a href="global.html#initDraw">initDraw</a></li>
@@ -302,6 +301,7 @@
         <li><a href="global.html#setUpPage">setUpPage</a></li>
         <li><a href="global.html#setUpPinchZoom">setUpPinchZoom</a></li>
         <li><a href="global.html#setUpSamples">setUpSamples</a></li>
+        <li><a href="global.html#setUpSamplesMap">setUpSamplesMap</a></li>
         <li><a href="global.html#setUpShareDialog">setUpShareDialog</a></li>
         <li><a href="global.html#setUpSideDrawer">setUpSideDrawer</a></li>
         <li><a href="global.html#setUpTabs">setUpTabs</a></li>
@@ -553,7 +553,7 @@ let panel // the DOM right side panel element
 let myNameRec // the user's name record {actual name, type, etc.}
 export let lastNodeSample = 'group0' // the last used node style
 export let lastLinkSample = 'edge0' // the last used edge style
-/** @type {(string|boolean)} */
+let magnifying = false // true when the magnifier is active
 let inAddMode = false // true when adding a new Factor to the network; used to choose cursor pointer
 let inEditMode = false //true when node or edge is being edited (dialog is open)
 let snapToGridToggle = false // true when snapping nodes to the (unseen) grid
@@ -568,7 +568,7 @@ const hiddenNodes = {
   selected: [],
 }
 const tutorial = new Tutorial() // object driving the tutorial
-export const cp = new CP()  // color picker
+export const cp = new CP() // color picker
 let checkMapSaved = false // if the map is new (no 'room' in URL), or has been imported from a file, and changes have been made, warn user before quitting
 let dirty = false // map has been changed by user and may need saving
 let followme // clientId of user's cursor to follow
@@ -580,7 +580,6 @@ let loadingDelayTimer // timer to delay the start of the loading animation for f
 let noServerTimer = null // timer to show no server connection message
 let netLoaded = false // becomes true when map is fully displayed
 let savedState = '' // the current state of the map (nodes, edges, network settings) before current user action
-let unknownRoomTimeout = null // timer to check if the room exists
 const setupStartTime = Date.now() // time when setup started
 /**
  * top level function to initialise everything
@@ -601,6 +600,7 @@ window.addEventListener('load', () => {
   setUpAwareness()
   setUpShareDialog()
   draw()
+  setUpSamplesMap()
 })
 /**
  * Clean up before user departs
@@ -871,7 +871,10 @@ function startY() {
     // save that this is a new room in session storage
     sessionStorage.setItem('newRoom', 'true')
     // rewrite the URL to include the room and reload from there
-    window.location.replace(`${window.location.origin}${window.location.pathname}?room=${room}${debug ? `&amp;debug=${debug}` : ''}`)
+    console.log(`Generated new room: ${room} and storage is ${sessionStorage.getItem('newRoom')}`)
+    window.location.replace(
+      `${window.location.origin}${window.location.pathname}?room=${room}${debug ? `&amp;debug=${debug}` : ''}`
+    )
     // NB never gets here, because of the reload
   } else {
     room = room.toUpperCase()
@@ -890,20 +893,8 @@ function startY() {
     // if this is a clone, load the cloned data
     initiateClone()
     // (if the room already exists, wait until the map data is loaded before displaying it)
-    if (sessionStorage.getItem('newRoom') === 'false') {
-      observed('synced')
-      if (/load/.test(debug)) {
-        console.log(
-          `Nodes: ${yNodesMap.size} Edges: ${yEdgesMap.size} Samples: ${ySamplesMap.size} Network settings: ${yNetMap.size}	Points: ${yPointsArray.length} Drawing objects: ${yDrawingMap.size} History entries: ${yHistory.length}	`
-        )
-      }
-      unknownRoomTimeout = setTimeout(() => {
-        if (!netLoaded) {
-          displayNetPane(
-            `${exactTime()} Timed out waiting for ${room} to load. Found only ${Array.from(foundMaps).join(', ')} maps.`
-          )
-        }
-      }, 6000)
+    if (sessionStorage.getItem('newRoom') &amp;&amp; sessionStorage.getItem('newRoom') === 'false') {
+      displayNetPane(`${exactTime()} all content loaded from ${websocket}`)
     } else {
       // if this is a new map, display it
       displayNetPane(`${exactTime()} no remote content loaded from ${websocket}`)
@@ -929,12 +920,6 @@ function startY() {
   yDrawingMap = doc.getMap('drawing')
   yHistory = doc.getArray('history')
   yAwareness = wsProvider.awareness
-
-  /* create a dummy item in yNodesMap and yEdgesMap to stop having to wait for the these maps 
-  if there are no nodes or edges (thus allowing to distinguish between zero nodes/edges and 
-  no node/edge map yet loaded) */
-  yNodesMap.set('_dummy_', { dummy: true })
-  yEdgesMap.set('_dummy_', { dummy: true })
 
   /* set up observers to listen for changes in the yMaps */
 
@@ -996,33 +981,6 @@ function startY() {
   window.diffRoom = diffRoom
   window.wsProvider = wsProvider
 
-  const foundMaps = new Set()
-  /**
-   * note that one of the required yMaps has been loaded; if all have been found, display the map
-   * @param {string} what name of the yMap that has just been loaded
-   */
-  function observed(what) {
-    // do nothing if the map is already displayed
-    if (netLoaded) return
-    if (/load/.test(debug)) {
-      console.log(`${exactTime()} Observed: ${what}`)
-    }
-    foundMaps.add(what)
-    if (
-      foundMaps.has('nodes') &amp;&amp;
-      foundMaps.has('edges') &amp;&amp;
-      foundMaps.has('network') &amp;&amp;
-      foundMaps.has('synced')
-    ) {
-      displayNetPane(`${exactTime()} all content loaded from ${websocket}`)
-      if (/load/.test(debug)) {
-        console.log(
-          `Nodes: ${yNodesMap.size} Edges: ${yEdgesMap.size} Samples: ${ySamplesMap.size} Network settings: ${yNetMap.size} Points: ${yPointsArray.length} Drawing objects: ${yDrawingMap.size} History entries: ${yHistory.length}	`
-        )
-      }
-    }
-  }
-
   /* 
   nodes.on listens for when local nodes or edges are changed (added, updated or removed).
   If a local node is removed, the yMap is updated to broadcast to other clients that the node 
@@ -1033,7 +991,7 @@ function startY() {
       'nodes.on',
       `${evt}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`
     )
-    clearTimeout(unknownRoomTimeout)
+    //   clearTimeout(unknownRoomTimeout)
     if (!viewOnly) {
       doc.transact(() => {
         properties.items.forEach((id) => {
@@ -1088,7 +1046,6 @@ function startY() {
     if (/changes/.test(debug) &amp;&amp; (nodesToUpdate.length > 0 || nodesToRemove.length > 0)) {
       showChange(evt, yNodesMap)
     }
-    observed('nodes')
   })
   /* 
   See comments above about nodes
@@ -1141,7 +1098,6 @@ function startY() {
     if (/changes/.test(debug) &amp;&amp; (edgesToUpdate.length > 0 || edgesToRemove.length > 0)) {
       showChange(evt, yEdgesMap)
     }
-    observed('edges')
   })
   /**
    * utility trace function that prints the change in the value of a YMap property to the console
@@ -1180,6 +1136,7 @@ function startY() {
       }
     })
   }
+
   ySamplesMap.observe((evt) => {
     yjsTrace('ySamplesMap.observe', evt)
     const nodesToUpdate = []
@@ -1206,7 +1163,6 @@ function startY() {
     if (edgesToUpdate) {
       reApplySampleToLinks(edgesToUpdate)
     }
-    observed('samples')
   })
   /*
   Map controls (those on the Network tab) are of three kinds:
@@ -1320,7 +1276,6 @@ function startY() {
         }
       }
     }
-    observed('network')
   })
   yPointsArray.observe((evt) => {
     yjsTrace('yPointsArray.observe', yPointsArray.get(yPointsArray.length - 1))
@@ -1329,12 +1284,12 @@ function startY() {
   yDrawingMap.observe((evt) => {
     yjsTrace('yDrawingMap.observe', evt)
     updateFromRemote(evt)
-    observed('drawing')
+    //    observed('drawing')
   })
   yHistory.observe(() => {
     yjsTrace('yHistory.observe', yHistory.get(yHistory.length - 1))
     if (elem('showHistorySwitch').checked) showHistory()
-    observed('history')
+    // observed('history')
   })
   yUndoManager.on('stack-item-added', (evt) => {
     yjsTrace('yUndoManager.on stack-item-added', evt)
@@ -1398,7 +1353,7 @@ async function initiateClone() {
 /**
  * Given a compressed binary string retrieved from local storage, restore the map state
  * @param {UTF16string} compressedState
- * @return {object} the restored state 
+ * @return {object} the restored state
  */
 function restoreState(compressedState) {
   const state = JSON.parse(decompressFromUTF16(compressedState))
@@ -1822,40 +1777,7 @@ function draw() {
         }, 500)
       }
     }
-    const keys = params.event.pointers[0]
-    if (!keys) return
-    if (keys.metaKey) {
-      // if the Command key (on a Mac) is down, and the click is on a node/edge, log it to the console
-      if (params.nodes.length === 1) {
-        const node = data.nodes.get(params.nodes[0])
-        console.log('node = ', node)
-        window.node = node
-      }
-      if (params.edges.length === 1) {
-        const edge = data.edges.get(params.edges[0])
-        console.log('edge = ', edge)
-        window.edge = edge
-      }
-      return
-    }
-    if (keys.altKey) {
-      // if the Option/ALT key is down, add a node if on the background
-      if (params.nodes.length === 0 &amp;&amp; params.edges.length === 0) {
-        const pos = params.pointer.canvas
-        let item = { id: uuidv4(), label: '', x: pos.x, y: pos.y }
-        item = deepMerge(item, styles.nodes[lastNodeSample])
-        item.grp = lastNodeSample
-        addLabel(item, clearPopUp, function (newItem) {
-          if (newItem !== null) data.nodes.add(newItem)
-        })
-      }
-      return
-    }
-    if (keys.shiftKey) {
-      if (!inEditMode) showMagnifier(keys)
-      return
-    }
-    // Might be a click on a thumb up/down
+    // Might be a click on a thumb up/down. If so, increment the vote count
     if (showVotingToggle) {
       for (const node of data.nodes.get()) {
         const bBox = network.getBoundingBox(node.id)
@@ -1884,6 +1806,48 @@ function draw() {
         }
       }
     }
+    // check for modifier keys
+    const keys = params.event.pointers[0]
+    if (!keys) return
+    if (keys.metaKey) {
+      // if the Command key (on a Mac) is down, and the click is on a node/edge, log it to the console
+      // this makes debugging easier
+      if (params.nodes.length === 1) {
+        const node = data.nodes.get(params.nodes[0])
+        console.log('node = ', node)
+        window.node = node
+      }
+      if (params.edges.length === 1) {
+        const edge = data.edges.get(params.edges[0])
+        console.log('edge = ', edge)
+        window.edge = edge
+      }
+      return
+    }
+    if (keys.ctrlKey) {
+      const e = params.event.pointers[0]
+      // if the Control key is down, show the magnifier
+      if (!inEditMode &amp;&amp; e.ctrlKey &amp;&amp; !magnifying) showMagnifier(e)
+    }
+    if (keys.altKey) {
+      // if the Option/ALT key is down, add a node if on the background
+      if (params.nodes.length === 0 &amp;&amp; params.edges.length === 0) {
+        const pos = params.pointer.canvas
+        let item = { id: uuidv4(), label: '', x: pos.x, y: pos.y }
+        item = deepMerge(item, styles.nodes[lastNodeSample])
+        item.grp = lastNodeSample
+        addLabel(item, clearPopUp, function (newItem) {
+          if (newItem !== null) data.nodes.add(newItem)
+        })
+      }
+      // eslint-disable-next-line no-useless-return
+      return
+    }
+    /* if (keys.shiftKey) {
+      // do nothing: Vis-network selects nodes in this mode
+      return
+    } */
+
   })
 
   // despatch to edit a node or an edge or to fit the network on the pane
@@ -1899,6 +1863,7 @@ function draw() {
       fit()
     }
   })
+
   network.on('selectNode', function (params) {
     if (/gui/.test(debug)) console.log('selectNode', params)
     // if user is doing an analysis, do nothing
@@ -2021,30 +1986,16 @@ function draw() {
     const nodeId = network.getNodeAt(e.pointer.DOM)
     if (nodeId) openCluster(nodeId)
   })
-
-  let viewPosition
-  let selectionCanvasStart = {}
-  let selectionStart = {}
-  const selectionArea = document.createElement('div')
-  selectionArea.className = 'selectionBox'
-  selectionArea.style.display = 'none'
-  elem('main').appendChild(selectionArea)
-
+  let viewPosition = network.getViewPosition()
   network.on('dragStart', function (params) {
     if (/gui/.test(debug)) console.log('dragStart')
-    viewPosition = network.getViewPosition()
     const e = params.event.pointers[0]
-    // start drawing a selection rectangle if the CTRL key is down and click is on the background
-    if (e.ctrlKey &amp;&amp; params.nodes.length === 0 &amp;&amp; params.edges.length === 0) {
-      network.setOptions({ interaction: { dragView: false } })
-      listen('net-pane', 'mousemove', showAreaSelection)
-      selectionStart = { x: e.offsetX, y: e.offsetY }
-      selectionCanvasStart = params.pointer.canvas
-      selectionArea.style.left = `${e.offsetX}px`
-      selectionArea.style.top = `${e.offsetY}px`
-      selectionArea.style.width = '0px'
-      selectionArea.style.height = '0px'
-      selectionArea.style.display = 'block'
+    if (e.ctrlKey) {
+      // if the Control key is down, show the magnifier and prevent dragging the map
+      if (!inEditMode &amp;&amp; !magnifying) showMagnifier(e)
+      network.setOptions({
+        interaction: { dragView: false, selectable: false },
+      })
       return
     }
     if (e.altKey) {
@@ -2063,18 +2014,8 @@ function draw() {
     }
     changeCursor('grabbing')
   })
-  /**
-   * update the selection rectangle as the mouse moves
-   * @param {Event} event
-   */
-  function showAreaSelection(event) {
-    selectionArea.style.left = `${Math.min(selectionStart.x, event.offsetX)}px`
-    selectionArea.style.top = `${Math.min(selectionStart.y, event.offsetY)}px`
-    selectionArea.style.width = `${Math.abs(event.offsetX - selectionStart.x)}px`
-    selectionArea.style.height = `${Math.abs(event.offsetY - selectionStart.y)}px`
-  }
-  network.on('dragging', function () {
-    if (/gui/.test(debug)) console.log('dragging')
+  network.on('dragging', function (params) {
+    if (/gui/.test(debug)) console.log(`dragging`)
     const endViewPosition = network.getViewPosition()
     panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
     viewPosition = endViewPosition
@@ -2083,44 +2024,11 @@ function draw() {
     if (/gui/.test(debug)) console.log('dragEnd')
     const endViewPosition = network.getViewPosition()
     panCanvas(viewPosition.x - endViewPosition.x, viewPosition.y - endViewPosition.y)
-    if (selectionArea.style.display === 'block') {
-      selectionArea.style.display = 'none'
-      network.setOptions({ interaction: { dragView: true } })
-      elem('net-pane').removeEventListener('mousemove', showAreaSelection)
-    }
-    const e = params.event.pointers[0]
-    if (e.ctrlKey &amp;&amp; params.nodes.length === 0 &amp;&amp; params.edges.length === 0) {
-      network.storePositions()
-      const selectionCanvasEnd = params.pointer.canvas
-      if (selectionCanvasStart.x > selectionCanvasEnd.x) {
-        ;[selectionCanvasStart.x, selectionCanvasEnd.x] = [
-          selectionCanvasEnd.x,
-          selectionCanvasStart.x,
-        ]
-      }
-      if (selectionCanvasStart.y > selectionCanvasEnd.y) {
-        ;[selectionCanvasStart.y, selectionCanvasEnd.y] = [
-          selectionCanvasEnd.y,
-          selectionCanvasStart.y,
-        ]
-      }
-      const selectedNodes = data.nodes.get({
-        filter: function (node) {
-          return (
-            !node.nodeHidden &amp;&amp;
-            node.x >= selectionCanvasStart.x &amp;&amp;
-            node.x &lt;= selectionCanvasEnd.x &amp;&amp;
-            node.y >= selectionCanvasStart.y &amp;&amp;
-            node.y &lt;= selectionCanvasEnd.y
-          )
-        },
+    if (!inEditMode &amp;&amp; magnifying) {
+      closeMagnifier()
+      network.setOptions({
+        interaction: { dragView: true, selectable: true },
       })
-      network.setSelection({
-        nodes: selectedNodes.map((n) => n.id).concat(network.getSelectedNodes()),
-      })
-      showSelected()
-      showNodeOrEdgeData()
-      return
     }
     const newPositions = network.getPositions(params.nodes)
     data.nodes.update(
@@ -2166,26 +2074,30 @@ function draw() {
   let bigNetwork = null
   let bigNetCanvas = null
   let netPaneRect = null
-  let magnifying = false
+
 
   netPane.addEventListener('keydown', (e) => {
-    if (!inEditMode &amp;&amp; e.shiftKey &amp;&amp; !magnifying) createMagnifier(e)
+    if (!inEditMode &amp;&amp; e.ctrlKey &amp;&amp; !magnifying) showMagnifier(e)
   })
   netPane.addEventListener('mousemove', (e) => {
-    if (magnifying &amp;&amp; !inEditMode &amp;&amp; e.shiftKey) showMagnifier(e)
+    if (magnifying &amp;&amp; !inEditMode &amp;&amp; e.ctrlKey) showMagnifier(e)
   })
   netPane.addEventListener('keyup', (e) => {
-    if (e.key === 'Shift') closeMagnifier()
+    if (e.key === 'Control') {
+      closeMagnifier()
+    }
   })
   // ensure magnifier shows even if mouse is over the panel (e.g. when doing analysis)
   panel.addEventListener('keydown', (e) => {
-    if (!inEditMode &amp;&amp; e.shiftKey &amp;&amp; !magnifying) createMagnifier(e)
+    if (!inEditMode &amp;&amp; e.ctrlKey &amp;&amp; !magnifying) showMagnifier(e)
   })
   panel.addEventListener('mousemove', (e) => {
-    if (magnifying &amp;&amp; !inEditMode &amp;&amp; e.shiftKey) showMagnifier(e)
+    if (magnifying &amp;&amp; !inEditMode &amp;&amp; e.ctrlKey) showMagnifier(e)
   })
   panel.addEventListener('keyup', (e) => {
-    if (e.key === 'Shift') closeMagnifier()
+    if (e.key === 'Control') {
+      closeMagnifier()
+    }
   })
 
   /**
@@ -2197,7 +2109,7 @@ function draw() {
       bigNetPane.remove()
     }
     if (drawingSwitch) return
-    magnifying = true
+    console.log('Creating magnifier', magnifying)
     netPaneRect = netPane.getBoundingClientRect()
     network.storePositions()
     bigNetPane = document.createElement('div')
@@ -2217,21 +2129,6 @@ function draw() {
     bigNetwork = new Network(bigNetPane, bigNetData, {
       physics: { enabled: false },
     })
-    /* // unhide any hidden nodes and edges
-    let changedNodes = []
-    bigNetData.nodes.forEach((n) => {
-      if (n.nodeHidden) {
-        changedNodes.push(setNodeHidden(n, false))
-      }
-    })
-    let changedEdges = []
-    bigNetData.edges.forEach((e) => {
-      if (e.edgeHidden) {
-        changedEdges.push(setEdgeHidden(e, false))
-      }
-    })
-    bigNetData.nodes.update(changedNodes)
-    bigNetData.edges.update(changedEdges) */
     bigNetCanvas = bigNetPane.firstElementChild.firstElementChild
     bigNetwork.on('afterDrawing', () => {
       setCanvasBackground(bigNetCanvas)
@@ -2242,7 +2139,6 @@ function draw() {
     })
     netPane.style.cursor = 'none'
     magnifier.style.display = 'none'
-    showMagnifier(e)
   }
   /**
    * display the loupe, centred on the mouse pointer, and fill it with
@@ -2251,6 +2147,7 @@ function draw() {
   function showMagnifier(e) {
     e.preventDefault()
     if (drawingSwitch) return
+    magnifying = true
     if (bigNetCanvas == null) createMagnifier()
     magnifierCtx.fillRect(0, 0, magSize, magSize)
     magnifierCtx.drawImage(
@@ -2282,7 +2179,18 @@ function draw() {
     magnifying = false
   }
 } // end draw()
-
+/**
+ * set up the ySamplesMap with the node and edge styles defined in styles
+ * This has to be done after the window has been drawn
+ */
+function setUpSamplesMap() {
+  for (const k in styles.nodes) {
+    ySamplesMap.set(k, { node: styles.nodes[k] })
+  }
+  for (const k in styles.edges) {
+    ySamplesMap.set(k, { edge: styles.edges[k] })
+  }
+}
 /**
  * draw the background on the given canvas (which will be a magnified version of the net pane)
  * @param {HTMLElement} canvas
@@ -2990,11 +2898,10 @@ function initPopUp(popUpTitle, item, cancelAction, saveAction, callback) {
     if (e.key === 'Enter' &amp;&amp; !e.shiftKey) {
       elem('popup').removeEventListener('keydown', captureReturn)
       saveAction(item, callback)
-    } else
-      if (e.key === 'Escape') {
-        elem('popup').removeEventListener('keydown', captureReturn)
-        cancelAction(item, callback)
-      }
+    } else if (e.key === 'Escape') {
+      elem('popup').removeEventListener('keydown', captureReturn)
+      cancelAction(item, callback)
+    }
   }
 }
 /**
@@ -4195,7 +4102,7 @@ function doSearch(event) {
   const nodeId = event.target.dataset.id
   if (nodeId) {
     const prevPos = network.getViewPosition()
-    network.focus(nodeId, { scale: 1.5 })
+    network.focus(nodeId, { scale: 1.0, animation: { duration: 500 } })
     const newPos = network.getViewPosition()
     const newScale = network.getScale()
     zoomCanvas(1.0)
@@ -5166,7 +5073,7 @@ function selectUsersItems(event) {
 }
 /**
  * Toggle display of the legend and record its setting
- * @param {event} e 
+ * @param {event} e
  */
 function legendSwitch(e) {
   const on = e.target.checked
@@ -5174,9 +5081,9 @@ function legendSwitch(e) {
   yNetMap.set('legend', on)
 }
 /**
- * 
- * @param {Boolean} on 
- * @param {Boolean} warn 
+ *
+ * @param {Boolean} on
+ * @param {Boolean} warn
  */
 export function setLegend(on, warn) {
   elem('showLegendSwitch').checked = on
@@ -5774,8 +5681,8 @@ export function setCluster(option) {
 export function recreateClusteringMenu(obj) {
   // remove any old select items, other than the standard ones (which are the first 4: None, Style, Color, Community)
   const select = elem('clustering')
-  for (let i = 4, len = select.options.length; i &lt; len; i++) {
-    select.remove()
+  for (let i = select.options.length - 1; i >= 4; i--) {
+    select.remove(i);
   }
   // append the ones provided
   for (const property in obj) {
@@ -6048,7 +5955,8 @@ function showAvatars() {
   // check that an avatar exists for each name; if not create one.  If it does, check that it is still looking right
   nameRecs.forEach((nameRec) => {
     const ava = elem(`ava${nameRec.id}`)
-    if (nameRec.name === 'debug') { // skip the debug user
+    if (nameRec.name === 'debug') {
+      // skip the debug user
       if (ava) {
         removeAvatar(ava)
       }
@@ -6268,7 +6176,7 @@ function showGhostFactor(userId, addingFactor) {
     <footer>
       Documentation generated by
       <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a>
-      on Wed Jan 21 2026 22:08:27 GMT+0000 (Greenwich Mean Time) using the
+      on Thu Feb 12 2026 09:47:59 GMT+0000 (Greenwich Mean Time) using the
       <a href="https://github.com/clenemt/docdash">docdash</a>
       theme.
     </footer>

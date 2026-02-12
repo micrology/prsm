@@ -1847,17 +1847,14 @@ input#splashNameBox::placeholder {
 
   /* Thicker, more reflective Glass Border */
   border: 6px solid rgba(255, 255, 255, 0.45);
-  
+
   /* ACCENTUATED DEPTH */
   box-shadow: 
     /* 1. Heavy drop shadow for lift */
     0 20px 40px rgba(0, 0, 0, 0.8),
-    /* 2. Intense Bottom "Depth" Shadow (The Liquid Pool) */
-    inset 0 -15px 25px rgba(0, 0, 0, 0.3),
-    /* 3. Intense Top "Inner Glow" (The Refraction) */
-    inset 0 10px 20px rgba(255, 255, 255, 0.6),
-    /* 4. Sharp Rim Light (The Bezel Edge) */
-    inset 0 0 0 2px rgba(255, 255, 255, 0.2);
+    /* 2. Intense Bottom "Depth" Shadow (The Liquid Pool) */ inset 0 -15px 25px rgba(0, 0, 0, 0.3),
+    /* 3. Intense Top "Inner Glow" (The Refraction) */ inset 0 10px 20px rgba(255, 255, 255, 0.6),
+    /* 4. Sharp Rim Light (The Bezel Edge) */ inset 0 0 0 2px rgba(255, 255, 255, 0.2);
 
   /* This makes the background image pop */
   backdrop-filter: blur(2px) saturate(130%);
@@ -1867,7 +1864,7 @@ input#splashNameBox::placeholder {
 
 /* Enhanced Specular Highlight */
 .magnifier::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 5%;
   left: 10%;
@@ -1875,11 +1872,7 @@ input#splashNameBox::placeholder {
   height: 45%;
   border-radius: 50%;
   /* A more opaque white at the top to mimic a bright light source */
-  background: linear-gradient(
-    to bottom, 
-    rgba(255, 255, 255, 0.6) 0%, 
-    rgba(255, 255, 255, 0) 100%
-  );
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 100%);
   filter: blur(2px); /* Softens the light reflection */
 }
 .shared-cursor {

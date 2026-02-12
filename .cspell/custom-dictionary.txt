@@ -47,6 +47,7 @@ Sarahan
 submaps
 tablink
 trackpads
+trashcan
 uncluster
 unclustered
 undos
