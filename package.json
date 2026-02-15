@@ -53,7 +53,9 @@
     "deploy": "npm run build && doc/help/deploy.rspress.bash && npm run build-help",
     "analyse": "npx parcel build './html/*.html' --detailed-report",
     "install:all": "npm i && pushd ./doc/help && npm i && popd && pushd ./ws-server && npm i && popd && pushd ./api-server && npm i && popd",
-    "upgrade:all": "npm upgrade && pushd ./doc/help && npm upgrade && popd && pushd ./ws-server && npm upgrade && popd && pushd ./api-server && npm upgrade && popd"
+    "upgrade:all": "npm upgrade && pushd ./doc/help && npm upgrade && popd && pushd ./ws-server && npm upgrade && popd && pushd ./api-server && npm upgrade && popd",
+    "start:all-locally": "YPERSISTENCE=./dbDir VERBOSE=1 node ./ws-server/src/server.js & PORT=3001 NODE_ENV='dev' node ./api-server/src/api-server.mjs & npm run dev",
+    "stop:all-locally": "pkill -f 'ws-server/src/server.js|api-server/src/api-server.mjs|parcel watch'; kill $(lsof -ti:3001,1234) 2>/dev/null || true"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {
