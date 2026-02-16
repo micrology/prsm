@@ -1,0 +1,298 @@
+{
+  "name": "vis-network",
+  "version": "0.0.0-no-version",
+  "description": "A dynamic, browser-based visualization library.",
+  "homepage": "https://visjs.github.io/vis-network/",
+  "license": "(Apache-2.0 OR MIT)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/visjs/vis-network.git"
+  },
+  "bugs": {
+    "url": "https://github.com/visjs/vis-network/issues"
+  },
+  "keywords": [
+    "vis",
+    "visualization",
+    "web based",
+    "browser based",
+    "typescript",
+    "javascript",
+    "chart",
+    "graph",
+    "network",
+    "browser"
+  ],
+  "browser": "./peer/umd/vis-network.min.cjs",
+  "jsnext": "./esnext/esm/vis-network.mjs",
+  "main": "./peer/umd/vis-network.cjs",
+  "module": "./peer/esm/vis-network.mjs",
+  "types": "./declarations/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./peer/esm/vis-network.mjs",
+      "require": "./peer/umd/vis-network.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./package.json": "./package.json",
+    "./declarations/index.d.ts": {
+      "types": "./declarations/index.d.ts"
+    },
+    "./standalone": {
+      "import": "./standalone/esm/vis-network.mjs",
+      "require": "./standalone/umd/vis-network.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./standalone/esm/vis-network.js": {
+      "import": "./standalone/esm/vis-network.mjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./standalone/esm/vis-network.mjs": {
+      "import": "./standalone/esm/vis-network.mjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./standalone/esm/vis-network.min.js": {
+      "import": "./standalone/esm/vis-network.min.mjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./standalone/esm/vis-network.min.mjs": {
+      "import": "./standalone/esm/vis-network.min.mjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./standalone/umd/vis-network.js": {
+      "require": "./standalone/umd/vis-network.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./standalone/umd/vis-network.cjs": {
+      "require": "./standalone/umd/vis-network.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./standalone/umd/vis-network.min.js": {
+      "require": "./standalone/umd/vis-network.min.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./standalone/umd/vis-network.min.cjs": {
+      "require": "./standalone/umd/vis-network.min.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./peer": {
+      "import": "./peer/esm/vis-network.mjs",
+      "require": "./peer/umd/vis-network.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./peer/esm/vis-network.js": {
+      "import": "./peer/esm/vis-network.mjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./peer/esm/vis-network.mjs": {
+      "import": "./peer/esm/vis-network.mjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./peer/esm/vis-network.min.js": {
+      "import": "./peer/esm/vis-network.min.mjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./peer/esm/vis-network.min.mjs": {
+      "import": "./peer/esm/vis-network.min.mjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./peer/umd/vis-network.js": {
+      "require": "./peer/umd/vis-network.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./peer/umd/vis-network.cjs": {
+      "require": "./peer/umd/vis-network.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./peer/umd/vis-network.min.js": {
+      "require": "./peer/umd/vis-network.min.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./peer/umd/vis-network.min.cjs": {
+      "require": "./peer/umd/vis-network.min.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./esnext": {
+      "import": "./esnext/esm/vis-network.mjs",
+      "require": "./esnext/umd/vis-network.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./esnext/esm/vis-network.js": {
+      "import": "./esnext/esm/vis-network.mjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./esnext/esm/vis-network.mjs": {
+      "import": "./esnext/esm/vis-network.mjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./esnext/esm/vis-network.min.js": {
+      "import": "./esnext/esm/vis-network.min.mjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./esnext/esm/vis-network.min.mjs": {
+      "import": "./esnext/esm/vis-network.min.mjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./esnext/umd/vis-network.js": {
+      "require": "./esnext/umd/vis-network.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./esnext/umd/vis-network.cjs": {
+      "require": "./esnext/umd/vis-network.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./esnext/umd/vis-network.min.js": {
+      "require": "./esnext/umd/vis-network.min.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./esnext/umd/vis-network.min.cjs": {
+      "require": "./esnext/umd/vis-network.min.cjs",
+      "types": "./declarations/index.d.ts"
+    },
+    "./styles/*": "./styles/*",
+    "./dist/vis-network": {
+      "import": "./dist/vis-network.mjs",
+      "require": "./dist/vis-network.cjs"
+    },
+    "./dist/vis-network.js": {
+      "import": "./dist/vis-network.mjs",
+      "require": "./dist/vis-network.cjs"
+    },
+    "./dist/vis-network.min": {
+      "import": "./dist/vis-network.min.mjs",
+      "require": "./dist/vis-network.min.cjs"
+    },
+    "./dist/vis-network.min.js": {
+      "import": "./dist/vis-network.min.mjs",
+      "require": "./dist/vis-network.min.cjs"
+    },
+    "./dist/vis-network.esm": {
+      "import": "./dist/vis-network.mjs",
+      "require": "./dist/vis-network.cjs"
+    },
+    "./dist/vis-network.esm.js": {
+      "import": "./dist/vis-network.mjs",
+      "require": "./dist/vis-network.cjs"
+    },
+    "./dist/vis-network.esm.min": {
+      "import": "./dist/vis-network.min.mjs",
+      "require": "./dist/vis-network.min.cjs"
+    },
+    "./dist/vis-network.esm.min.js": {
+      "import": "./dist/vis-network.min.mjs",
+      "require": "./dist/vis-network.min.cjs"
+    }
+  },
+  "files": [
+    "HISTORY.md",
+    "LICENSE*",
+    "declarations",
+    "dist",
+    "esnext",
+    "peer",
+    "standalone",
+    "styles"
+  ],
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/visjs"
+  },
+  "type": "module",
+  "scripts": {
+    "serve": "serve -l tcp://127.0.0.1:58253",
+    "test": "npm run test:unit && npm run test:e2e:functional && npm run test:e2e:visual",
+    "test:e2e:functional": "cross-env CYPRESS_FUNCTIONAL=true npm run test:e2e:headless",
+    "test:e2e:gui": "start-server-and-test test:e2e:transpile-watch-and-serve \"http://127.0.0.1:58253\" \"cypress open\"",
+    "test:e2e:headless": "start-server-and-test test:e2e:transpile-and-serve \"http://127.0.0.1:58253\" \"cypress run\"",
+    "test:e2e:transpile": "tsc --skipLibCheck --module esnext --moduleResolution bundler cypress/pages/standard-cytest-script.ts cypress/pages/pollution-detector.ts",
+    "test:e2e:transpile-and-serve": "npm run test:e2e:transpile && npm run serve",
+    "test:e2e:transpile-and-watch": "npm run test:e2e:transpile -- --watch",
+    "test:e2e:transpile-watch-and-serve": "npm run test:e2e:transpile && start-server-and-test serve :58253 test:e2e:transpile-and-watch",
+    "test:e2e:visual": "npm run test:e2e:visual:base:latest && npm run test:e2e:visual:regression:head",
+    "test:e2e:visual:base:no-env": "shx rm -rf \"cypress/snapshots/*\" && cross-env CYPRESS_VISUAL=true CYPRESS_visualRegressionType=base  npm run test:e2e:headless",
+    "test:e2e:visual:base:head": "npm run test:e2e:visual:base:no-env",
+    "test:e2e:visual:base:latest": "cross-env CYPRESS_VIS_NETWORK_TAG=latest npm run test:e2e:visual:base:no-env",
+    "test:e2e:visual:regression:no-env": "cross-env CYPRESS_VISUAL=true CYPRESS_visualRegressionType=regression npm run test:e2e:headless",
+    "test:e2e:visual:regression:head": "npm run test:e2e:visual:regression:no-env",
+    "test:e2e:visual:regression:latest": "cross-env CYPRESS_VIS_NETWORK_TAG=latest npm run test:e2e:visual:regression:no-env",
+    "test:coverage": "cross-env BABEL_ENV=test-cov nyc mocha --exit",
+    "test:unit": "mocha --exit",
+    "build": "npm run build:declarations && npm run build:code && npm run build:legacy:types && npm run build:legacy:code && npm run build:legacy:images",
+    "build:legacy:types": "shx mkdir -p dist && shx cp -r \"types/\" dist && tsc -p tsconfig.types.json",
+    "build:legacy:code": "rollup --config rollup.config.js",
+    "build:legacy:images": "shx mkdir -p dist/img/network && shx cp \"lib/assets/*\" dist/img/network",
+    "build:declarations": "shx mkdir -p declarations && shx cp -r \"types/*\" declarations && tsc -p tsconfig.declarations.json",
+    "build:code": "rollup --config rollup.build.js",
+    "build:watch": "rollup --watch --config rollup.build.js",
+    "prepublishOnly": "npm run build",
+    "generate-examples-index": "generate-examples-index --config generate-examples-index.json",
+    "style": "prettier --check .",
+    "style-fix": "prettier --write .",
+    "lint": "eslint --ext .js,.ts .",
+    "lint-fix": "eslint --fix --ext .js,.ts .",
+    "clean": "shx rm -rf \"declarations\" \"dist\" \"esnext\" \"examples/index.html\" \"examples/static/*\" \"peer\" \"standalone\" \"styles\" \"vis-network*\" \"cypress/{fixtures,integration,pages,support}/**/*.js{,.map}\" \"cypress/snapshots/{actual,diff}/*\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,ts,css,html,json,md,yml,yaml}": "prettier --write",
+    "*.{js,ts}": "eslint --fix",
+    ".*.{js,ts,css,html,json,md,yml,yaml}": "prettier --write",
+    ".*.{js,ts}": "eslint --fix"
+  },
+  "config": {
+    "snap-shot-it": {
+      "sortSnapshots": true,
+      "useRelativePath": true
+    }
+  },
+  "volta": {
+    "node": "24.13.1",
+    "npm": "11.10.0",
+    "pnpm": "10.29.3"
+  },
+  "peerDependencies": {
+    "@egjs/hammerjs": "^2.0.0",
+    "component-emitter": "^1.3.0 || ^2.0.0",
+    "keycharm": "^0.2.0 || ^0.3.0 || ^0.4.0",
+    "uuid": "^3.4.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0 || ^13.0.0",
+    "vis-data": ">=8.0.0",
+    "vis-util": ">=6.0.0"
+  },
+  "devDependencies": {
+    "@egjs/hammerjs": "2.0.17",
+    "@mdi/font": "7.4.47",
+    "@semantic-release/commit-analyzer": "13.0.1",
+    "@semantic-release/github": "11.0.6",
+    "@semantic-release/npm": "12.0.2",
+    "@semantic-release/release-notes-generator": "14.1.0",
+    "@types/chai": "5.2.3",
+    "@types/mocha": "10.0.10",
+    "@types/sinon": "17.0.4",
+    "compare-versions": "6.1.1",
+    "component-emitter": "1.3.1",
+    "cross-env": "10.1.0",
+    "cypress": "15.10.0",
+    "cypress-visual-regression": "5.3.0",
+    "eslint": "8.57.1",
+    "gh-pages": "6.3.0",
+    "husky": "9.1.7",
+    "jsdom": "27.4.0",
+    "jsdom-global": "3.0.2",
+    "keycharm": "0.4.0",
+    "lint-staged": "16.2.7",
+    "mocha": "11.7.5",
+    "nyc": "17.1.0",
+    "postcss": "8.5.6",
+    "sazerac": "2.0.0",
+    "semantic-release": "24.2.9",
+    "serve": "14.2.5",
+    "shx": "0.4.0",
+    "sinon": "21.0.0",
+    "snap-shot-it": "7.9.10",
+    "start-server-and-test": "2.1.3",
+    "uuid": "13.0.0",
+    "vis-data": "8.0.3",
+    "vis-dev-utils": "6.0.1",
+    "vis-util": "6.0.0"
+  }
+}

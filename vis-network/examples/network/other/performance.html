@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Vis Network | Other | Performance</title>
+
+    <style type="text/css">
+      body {
+        font: 10pt sans;
+      }
+      #mynetwork {
+        width: 600px;
+        height: 600px;
+        border: 1px solid lightgray;
+      }
+    </style>
+
+    <script
+      type="text/javascript"
+      src="../../../standalone/umd/vis-network.min.js"
+    ></script>
+
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/alea@1.0.0/alea.js"
+    ></script>
+
+    <script type="module">
+      import { generateRandomNodesAndEdges } from "../exampleUtil.js";
+
+      var nodes = null;
+      var edges = null;
+      var setSmooth = false;
+
+      function destroy() {
+        if (globalThis.network != null) {
+          globalThis.network.destroy();
+          globalThis.network = null;
+        }
+      }
+
+      function draw() {
+        destroy();
+        var nodeCount = document.getElementById("nodeCount").value;
+        if (nodeCount > 100) {
+          document.getElementById("disable-smooth-curves").style.display =
+            "inline";
+          document.getElementById("enable-smooth-curves").style.display =
+            "none";
+        } else if (setSmooth === false) {
+          document.getElementById("disable-smooth-curves").style.display =
+            "none";
+          document.getElementById("enable-smooth-curves").style.display =
+            "none";
+        }
+        // create a network
+        var container = document.getElementById("mynetwork");
+        var data = generateRandomNodesAndEdges(nodeCount);
+        var options = {
+          physics: { stabilization: false },
+        };
+        globalThis.network = new vis.Network(container, data, options);
+      }
+
+      function disableSmoothCurves() {
+        setSmooth = true;
+        globalThis.network.setOptions({
+          edges: { smooth: { type: "continuous" } },
+        });
+        document.getElementById("disable-smooth-curves").style.display = "none";
+        document.getElementById("enable-smooth-curves").style.display =
+          "inline";
+      }
+
+      function enableSmoothCurves() {
+        setSmooth = false;
+        document.getElementById("disable-smooth-curves").style.display =
+          "inline";
+        document.getElementById("enable-smooth-curves").style.display = "none";
+        globalThis.network.setOptions({
+          edges: { smooth: { type: "dynamic" } },
+        });
+      }
+
+      draw();
+
+      globalThis.draw = draw;
+      globalThis.disableSmoothCurves = disableSmoothCurves;
+      globalThis.enableSmoothCurves = enableSmoothCurves;
+    </script>
+  </head>
+  <body>
+    <p>Generate a random network with nodes and edges.</p>
+    <form onsubmit="draw(); return false;">
+      <label for="nodeCount">Number of nodes:</label>
+      <input id="nodeCount" type="text" value="25" style="width: 50px" />
+      <input type="button" value="Go" onclick="draw()" />
+    </form>
+
+    <a
+      id="disable-smooth-curves"
+      style="display: none"
+      href="#"
+      onclick="disableSmoothCurves()"
+    >
+      You may want to disable dynamic smooth curves for better performance with
+      a large amount of nodes and edges. Click here to disable them.
+    </a>
+    <a
+      id="enable-smooth-curves"
+      style="display: none"
+      href="#"
+      onclick="enableSmoothCurves()"
+    >
+      Click here to reenable the dynamic smooth curves.
+    </a>
+
+    <div id="mynetwork"></div>
+  </body>
+</html>
