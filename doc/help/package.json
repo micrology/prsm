@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "rspress dev",
-    "build": "rspress build",
+    "generate-meta": "node scripts/generate-meta.mjs",
+    "dev": "npm run generate-meta && rspress dev",
+    "build": "npm run generate-meta && rspress build",
     "preview": "rspress preview"
   },
   "dependencies": {

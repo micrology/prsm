@@ -1,9 +1,13 @@
 import * as path from 'path';
 import { defineConfig } from '@rspress/core';
 
+// Use production base path when PRSM_DEPLOY=production (for deployment to prsm.uk)
+// Use development base path otherwise (for local development at localhost/prsm/)
+const isProd = process.env.PRSM_DEPLOY === 'production';
+
 export default defineConfig({
   root: path.join(__dirname, 'docs'),
-  base: '/prsm/doc/help/doc_build/',
+  base: isProd ? '/doc/help/doc_build/' : '/prsm/doc/help/doc_build/',
   title: 'PRSM',
   description: 'User Manual',
   icon: '/images/favicon.ico',

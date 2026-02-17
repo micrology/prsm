@@ -1,1 +1,0 @@
-import "./cypress-visual-regression";

@@ -5,7 +5,6 @@
   "Mouse",
   "Styling",
   "Drawing",
-  "AIAssistance",
   "DataView",
   "Files",
   "Cloning",
@@ -14,7 +13,7 @@
     "type": "dir",
     "name": "Advanced",
     "label": "Advanced",
-    "collapsible?" : true,
+    "collapsible?": true,
     "collapsed": false
   },
   "Acknowledgements",

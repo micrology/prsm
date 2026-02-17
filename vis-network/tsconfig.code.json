@@ -1,7 +1,10 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "allowImportingTsExtensions": false,
+    "noEmit": false,
+    "declaration": false
   },
   "include": ["lib"]
 }
