@@ -22,7 +22,7 @@ This module handles operations related to the Styles tabs.
  ******************************************************************************************************************** */
 
 import { Network } from "../vis-network/peer"
-import { DataSet } from "vis-data/peer"
+import { DataSet } from "vis-data/esnext"
 import {
 	listen,
 	elem,

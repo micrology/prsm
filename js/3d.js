@@ -9,7 +9,7 @@
 import * as Y from "yjs"
 import { WebsocketProvider } from "y-websocket"
 import { Network } from "../vis-network/peer"
-import { DataSet } from "vis-data/peer"
+import { DataSet } from "vis-data/esnext"
 import { elem, listen, standardizeColor, dragElement } from "./utils.js"
 import { version } from "../package.json"
 import ForceGraph3D from "3d-force-graph"

@@ -5,7 +5,7 @@
 
 import * as Y from "yjs"
 import { WebsocketProvider } from "y-websocket"
-import { DataSet } from "vis-data/peer"
+import { DataSet } from "vis-data/esnext"
 import { doc, websocket, data, logHistory, room } from "./prsm.js"
 import { uuidv4, deepCopy, objectEquals, alertMsg } from "./utils.js"
 /* --------------------------------- Merge maps ----------------------------- */

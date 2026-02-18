@@ -16,7 +16,7 @@ This is the main entry point for PRSM.
 import * as Y from "yjs"
 import { WebsocketProvider } from "y-websocket"
 import { Network } from "../vis-network/peer"
-import { DataSet } from "vis-data/peer"
+import { DataSet } from "vis-data/esnext"
 import diff from "microdiff"
 import localForage from "localforage"
 import {
