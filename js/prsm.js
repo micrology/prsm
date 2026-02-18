@@ -243,14 +243,16 @@ function addEventListeners() {
 	})
 	listen("recent-rooms-caret", "click", createTitleDropDown)
 	listen("maptitle", "keydown", (e) => {
-		if (e.target.innerText === "Untitled map")
+		if (e.target.innerText === "Untitled map") {
 			window.getSelection().selectAllChildren(e.target)
+		}
 	})
 	listen("maptitle", "keyup", mapTitle)
 	listen("maptitle", "paste", pasteMapTitle)
 	listen("maptitle", "click", (e) => {
-		if (e.target.innerText === "Untitled map")
+		if (e.target.innerText === "Untitled map") {
 			window.getSelection().selectAllChildren(e.target)
+		}
 	})
 	listen("body", "keydown", (e) => {
 		if ((e.ctrlKey && e.key === "s") || (e.metaKey && e.key === "s")) {
@@ -1556,8 +1558,9 @@ function draw() {
 			// clicked on a node
 			const prevSelIds = params.previousSelection.nodes.map((node) => node.id)
 			let hiddenEdge
-			if (params.edges.length)
+			if (params.edges.length) {
 				hiddenEdge = data.edges.get(params.edges[0]).edgeHidden
+			}
 			if (
 				prevSelIds.includes(params.nodes[0]) ||
 				data.nodes.get(params.nodes[0]).nodeHidden ||
@@ -1708,7 +1711,7 @@ function draw() {
 	network.on("edgeCurvatureChanged", function (params) {
 		if (/gui/.test(debug)) console.log("edgeCurvatureChanged", params)
 		const edge = data.edges.get(params.edgeId)
-		edge.smooth = {type: params.type, roundness: params.roundness}
+		edge.smooth = { type: params.type, roundness: params.roundness }
 		data.edges.update(edge)
 	})
 
@@ -2470,10 +2473,12 @@ function copyToClipboard(event) {
 	})
 	eIds.forEach((eId) => {
 		const edge = data.edges.get(eId)
-		if (!nodes.find((n) => n.id === edge.from))
+		if (!nodes.find((n) => n.id === edge.from)) {
 			nodes.push(data.nodes.get(edge.from))
-		if (!nodes.find((n) => n.id === edge.to))
+		}
+		if (!nodes.find((n) => n.id === edge.to)) {
 			nodes.push(data.nodes.get(edge.to))
+		}
 		if (!edges.find((e) => e.id === eId)) edges.push(data.edges.get(eId))
 	})
 	copyText(JSON.stringify({ nodes, edges }))
@@ -2907,10 +2912,11 @@ function saveNode(item, callback) {
 		item.label.replace(/\s+|\n/g, "") === item.oldLabel.replace(/\s+|\n/g, "")
 	) {
 		logHistory(`edited factor: '${item.label}'`)
-	} else
+	} else {
 		logHistory(
 			`edited factor, changing label from '${item.oldLabel}' to '${item.label}'`
 		)
+	}
 	clearPopUp()
 	callback(item)
 }
@@ -3173,8 +3179,9 @@ function titleDropDown(title) {
 		localStorage.setItem("recents", JSON.stringify(recentMaps))
 	}
 	// if there is more than 1, append a down arrow after the map title as a cue to there being a list
-	if (Object.keys(recentMaps).length > 1)
+	if (Object.keys(recentMaps).length > 1) {
 		elem("recent-rooms-caret").classList.remove("hidden")
+	}
 }
 /**
  * Create a drop down list of previous maps used for user selection
@@ -4061,8 +4068,9 @@ function openNotesWindow() {
 function hideNotes() {
 	if (editor == null) return
 	let notesPanel = document.getElementById("nodeNotePanel")
-	if (notesPanel.classList.contains("hide"))
+	if (notesPanel.classList.contains("hide")) {
 		notesPanel = document.getElementById("edgeNotePanel")
+	}
 	if (notesPanel.classList.contains("hide")) return
 	notesPanel.classList.add("hide")
 	document.getSelection().removeAllRanges()
@@ -4413,8 +4421,9 @@ Use these keywords as context: ${context}`,
  */
 function positionNotes() {
 	let notesPanel = document.getElementById("nodeNotePanel")
-	if (notesPanel.classList.contains("hide"))
+	if (notesPanel.classList.contains("hide")) {
 		notesPanel = document.getElementById("edgeNotePanel")
+	}
 	if (notesPanel.classList.contains("hide")) return
 	const netPane = document.getElementById("net-pane")
 	const settings = document.getElementById("panel")
@@ -4746,8 +4755,9 @@ function makeSolid(el) {
 }
 export function setBackground(color) {
 	elem("underlay").style.backgroundColor = color
-	if (elem("toolbox").style.display === "block")
+	if (elem("toolbox").style.display === "block") {
 		makeTranslucent(elem("underlay"))
+	}
 	elem("netBackColorWell").style.backgroundColor = color
 }
 
@@ -4924,15 +4934,18 @@ function setAnalysisButtonsFromRemote() {
 		) {
 			network.selectNodes(selectedNodes, false) // in viewing  only mode, this does nothing
 			if (selectedNodes.length > 0) {
-				if (!viewOnly)
+				if (!viewOnly) {
 					statusMsg(`${listFactors(getSelectedAndFixedNodes())} selected`)
+				}
 			} else clearStatusBar()
 		}
 		showNodeOrEdgeData()
-		if (hiddenNodes.radiusSetting)
+		if (hiddenNodes.radiusSetting) {
 			setRadioVal("radius", hiddenNodes.radiusSetting)
-		if (hiddenNodes.streamSetting)
+		}
+		if (hiddenNodes.streamSetting) {
 			setRadioVal("stream", hiddenNodes.streamSetting)
+		}
 		if (hiddenNodes.pathsSetting) setRadioVal("paths", hiddenNodes.pathsSetting)
 	}
 }
@@ -5003,10 +5016,12 @@ function analyse() {
 	if (getRadioVal("radius") !== "All") {
 		hideNodesByRadius(selectedNodes, parseInt(getRadioVal("radius")))
 	}
-	if (getRadioVal("stream") !== "All")
+	if (getRadioVal("stream") !== "All") {
 		hideNodesByStream(selectedNodes, getRadioVal("stream"))
-	if (getRadioVal("paths") !== "All")
+	}
+	if (getRadioVal("paths") !== "All") {
 		hideNodesByPaths(selectedNodes, getRadioVal("paths"))
+	}
 
 	// finally display the map with its hidden factors and edges
 	data.nodes.update(nodes)
@@ -5022,8 +5037,9 @@ function analyse() {
 	if (getRadioVal("radius") === "3") radiusMsg = "within three links"
 	let pathsMsg = ""
 	if (getRadioVal("paths") === "allPaths") pathsMsg = ": showing all paths"
-	if (getRadioVal("paths") === "shortestPath")
+	if (getRadioVal("paths") === "shortestPath") {
 		pathsMsg = ": showing shortest paths"
+	}
 	if (getRadioVal("stream") === "All" && getRadioVal("radius") === "All") {
 		statusMsg(
 			`Showing  ${getRadioVal("paths") === "allPaths" ? "all paths" : "shortest paths"} between ${listFactors(
@@ -5256,8 +5272,9 @@ function analyse() {
 				let paths = getPaths(source, dest)
 				// if no path found, getPaths return an array of length greater than the total number of factors in the map, or a string
 				// in this case, return an empty list
-				if (!Array.isArray(paths) || paths.length === data.nodes.length + 1)
+				if (!Array.isArray(paths) || paths.length === data.nodes.length + 1) {
 					paths = []
+				}
 				if (!all) {
 					for (let i = 0; i < paths.length - 1; i++) {
 						links.push({ from: paths[i], to: paths[i + 1] })
@@ -5395,8 +5412,9 @@ export function sizing(metric) {
 		}
 		if (node.val < min) min = node.val
 		if (node.val > max) max = node.val
-		if (metric === "Off" || metric === "Equal" || node.val !== oldValue)
+		if (metric === "Off" || metric === "Equal" || node.val !== oldValue) {
 			nodesToUpdate.push(node)
+		}
 	})
 	data.nodes.forEach((node) => {
 		switch (metric) {
@@ -5538,8 +5556,9 @@ function rollback(event) {
 			!confirm(
 				`Roll back the map to what it was before ${timeAndDate(rbTime)}?`
 			)
-		)
+		) {
 			return
+		}
 		restoreState(rb)
 		localForage.removeItem(timekey(rbTime))
 		logHistory(
@@ -5695,8 +5714,9 @@ function receiveEvent(event) {
 				if (
 					refreshAvatars ||
 					!objectEquals(rec.user, lastAvatarStatus.get(userId))
-				)
+				) {
 					showAvatars()
+				}
 				lastAvatarStatus.set(userId, rec.user)
 				// set a timer for this avatar to self-destruct if no update has been received for a minute
 				const ava = elem(`ava${userId}`)
@@ -5705,8 +5725,9 @@ function receiveEvent(event) {
 					ava.timer = setTimeout(removeAvatar, 60000, ava)
 				}
 			}
-			if (userId !== clientID && rec.addingFactor)
+			if (userId !== clientID && rec.addingFactor) {
 				showGhostFactor(userId, rec.addingFactor)
+			}
 		})
 	}
 	if (followme) followUser()
@@ -5771,8 +5792,9 @@ function showAvatars() {
 			refreshAvatars = true
 		} else {
 			// to avoid flashes, don't touch anything that is already correct
-			if (ava.dataset.tooltip !== nameRec.name)
+			if (ava.dataset.tooltip !== nameRec.name) {
 				ava.dataset.tooltip = nameRec.name
+			 }
 			const circle = ava.firstChild
 			if (circle.style.backgroundColor !== nameRec.color) {
 				circle.style.backgroundColor = nameRec.color

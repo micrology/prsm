@@ -1,96 +1,106 @@
 <html>
-  <head>
-    <title>Note Window</title>
-    <link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet" />
-    <style>
-      body {
-        overflow-y: hidden;
-      }
-      .ql-container {
-        height: auto;
-        position: sticky;
-        top: 0;
-      }
-      .ql-editor {
-        height: 508px;
-        overflow-y: scroll;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="editor"></div>
-    <script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>
-    <script>
-      function loadEditor() {
-        let selectedObj = 'node'
-        let nodeId = window.opener.network.getSelectedNodes()[0]
-        let edgeId = window.opener.network.getSelectedEdges()[0]
-        let node, edge
-        if (nodeId) {
-          node = window.opener.data.nodes.get(nodeId)
-          document.title = node.label
-        } else {
-          selectedObj = 'edge'
-          if (!edgeId) throw 'NoteWindow opened when neither a factor nor a link has been selected'
-          edge = window.opener.data.edges.get(edgeId)
-          document.title = edge.label?.trim().length
-            ? edge.label
-            : `Link from "${shorten(window.opener.data.nodes.get(edge.from).label)}" to "${shorten(window.opener.data.nodes.get(edge.to).label)}"`
-        }
-        let toolbarOptions = [
-          ['bold', 'italic', 'underline', 'strike'],
-          ['blockquote', 'code-block'],
+	<head>
+		<title>Note Window</title>
+		<link
+			href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css"
+			rel="stylesheet"
+		/>
+		<style>
+			body {
+				overflow-y: hidden;
+			}
+			.ql-container {
+				height: auto;
+				position: sticky;
+				top: 0;
+			}
+			.ql-editor {
+				height: 508px;
+				overflow-y: scroll;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="editor"></div>
+		<script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>
+		<script>
+			function loadEditor() {
+				let selectedObj = "node"
+				let nodeId = window.opener.network.getSelectedNodes()[0]
+				let edgeId = window.opener.network.getSelectedEdges()[0]
+				let node, edge
+				if (nodeId) {
+					node = window.opener.data.nodes.get(nodeId)
+					document.title = node.label
+				} else {
+					selectedObj = "edge"
+					if (!edgeId)
+						throw "NoteWindow opened when neither a factor nor a link has been selected"
+					edge = window.opener.data.edges.get(edgeId)
+					document.title = edge.label?.trim().length
+						? edge.label
+						: `Link from "${shorten(window.opener.data.nodes.get(edge.from).label)}" to "${shorten(window.opener.data.nodes.get(edge.to).label)}"`
+				}
+				let toolbarOptions = [
+					["bold", "italic", "underline", "strike"],
+					["blockquote", "code-block"],
 
-          [{ list: 'ordered' }, { list: 'bullet' }],
-          [{ script: 'sub' }, { script: 'super' }],
-          [{ indent: '-1' }, { indent: '+1' }],
-          [{ align: [] }],
+					[{ list: "ordered" }, { list: "bullet" }],
+					[{ script: "sub" }, { script: "super" }],
+					[{ indent: "-1" }, { indent: "+1" }],
+					[{ align: [] }],
 
-          ['link', 'image'],
-          [{ size: ['small', false, 'large', 'huge'] }],
-          [{ header: [1, 2, 3, 4, 5, 6, false] }],
+					["link", "image"],
+					[{ size: ["small", false, "large", "huge"] }],
+					[{ header: [1, 2, 3, 4, 5, 6, false] }],
 
-          [{ color: [] }, { background: [] }],
-          [{ font: [] }],
+					[{ color: [] }, { background: [] }],
+					[{ font: [] }],
 
-          ['clean'],
-        ]
-        let popupEditor = new Quill(document.getElementById('editor'), {
-          modules: { toolbar: toolbarOptions },
-          placeholder: 'Notes',
-          theme: 'snow',
-        })
-        window.popupEditor = popupEditor
-        popupEditor.setContents(selectedObj === 'node' ? node.note : edge.note)
-        popupEditor.on('text-change', (delta, oldDelta, source) => {
-          if (source === 'user') {
-            if (selectedObj === 'node') {
-              window.opener.data.nodes.update({
-                id: nodeId,
-                note: isQuillEmpty(popupEditor) ? '' : popupEditor.getContents(),
-                modified: window.opener.timestamp(),
-              })
-            } else {
-              window.opener.data.edges.update({
-                id: edgeId,
-                note: isQuillEmpty(popupEditor) ? '' : popupEditor.getContents(),
-                modified: window.opener.timestamp(),
-              })
-            }
-            window.opener.editor.setContents(popupEditor.getContents())
-          }
-        })
-      }
-      function shorten(label, maxLength = 15) {
-        return label.length > maxLength ? label.substring(0, maxLength) + '...' : label
-      }
-      function isQuillEmpty(quill) {
-        if ((quill.getContents()['ops'] || []).length !== 1) {
-          return false
-        }
-        return quill.getText().trim().length === 0
-      }
-      window.addEventListener('load', () => loadEditor())
-    </script>
-  </body>
+					["clean"],
+				]
+				let popupEditor = new Quill(document.getElementById("editor"), {
+					modules: { toolbar: toolbarOptions },
+					placeholder: "Notes",
+					theme: "snow",
+				})
+				window.popupEditor = popupEditor
+				popupEditor.setContents(selectedObj === "node" ? node.note : edge.note)
+				popupEditor.on("text-change", (delta, oldDelta, source) => {
+					if (source === "user") {
+						if (selectedObj === "node") {
+							window.opener.data.nodes.update({
+								id: nodeId,
+								note: isQuillEmpty(popupEditor)
+									? ""
+									: popupEditor.getContents(),
+								modified: window.opener.timestamp(),
+							})
+						} else {
+							window.opener.data.edges.update({
+								id: edgeId,
+								note: isQuillEmpty(popupEditor)
+									? ""
+									: popupEditor.getContents(),
+								modified: window.opener.timestamp(),
+							})
+						}
+						window.opener.editor.setContents(popupEditor.getContents())
+					}
+				})
+			}
+			function shorten(label, maxLength = 15) {
+				return label.length > maxLength
+					? label.substring(0, maxLength) + "..."
+					: label
+			}
+			function isQuillEmpty(quill) {
+				if ((quill.getContents()["ops"] || []).length !== 1) {
+					return false
+				}
+				return quill.getText().trim().length === 0
+			}
+			window.addEventListener("load", () => loadEditor())
+		</script>
+	</body>
 </html>

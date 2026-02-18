@@ -1,20 +1,37 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="author" content="Nigel Gilbert" />
-    <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png" />
-    <link rel="shortcut icon" href="../icons/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" />
-    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="../css/web.css" rel="stylesheet" />
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="author" content="Nigel Gilbert" />
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="32x32"
+			href="../icons/favicon-32x32.png"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="16x16"
+			href="../icons/favicon-16x16.png"
+		/>
+		<link rel="shortcut icon" href="../icons/favicon.ico" />
+		<link
+			rel="apple-touch-icon"
+			sizes="180x180"
+			href="../icons/apple-touch-icon.png"
+		/>
+		<link
+			href="../node_modules/bootstrap/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+		/>
+		<link href="../css/web.css" rel="stylesheet" />
 
-    <title>PRSM: Participatory System Mapper: Privacy</title>
-    <meta
-      name="description"
-      content="PRSM enables groups of people, each using their own computer (or tablet) 
+		<title>PRSM: Participatory System Mapper: Privacy</title>
+		<meta
+			name="description"
+			content="PRSM enables groups of people, each using their own computer (or tablet) 
 		to collaborate in the drawing of a map. They may be sitting around a table, discussing the map as it is 
 		created face to face, or working remotely, using video conferencing or the chat feature that is built 
 		into the app. Everyone can participate because every edit (creating nodes and links, arranging them 
@@ -22,267 +39,305 @@
 		does for text, for example). When you start PRSM in your browser, a 'room' is created for you in which 
 		to draw your network. You can add other users to this room to share the work. Only those with access 
 		to the room can see what is being created."
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Oxygen:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap"
-      rel="stylesheet"
-    />
+		/>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Oxygen:wght@400;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap"
+			rel="stylesheet"
+		/>
 
-    <script src="https://kit.fontawesome.com/dcbad58dab.js" crossorigin="anonymous"></script>
-  </head>
-  <body>
-    <!-- Fixed navbar -->
-    <nav class="navbar navbar-expand-sm navbar-light text-black bg-white fixed-top">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="index.html">
-          <img src="../icons/PRSMlogo200.png" alt="PRSM logo" />
-          <span class="d-none d-md-inline">&nbsp;Participatory System Mapper</span>
-        </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#main-navigation"
-          aria-controls="main-navigation"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="main-navigation">
-          <ul class="navbar-nav m-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="index.html#about">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="index.html#our-story">Our Story</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="examples.html">Examples</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="help-centre.html">Help Centre</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-    <div class="dummy-navbar"></div>
-    <div class="container px-4">
-      <div class="row p-3">
-        <div class="col-xs-12 mx-5">
-          <h1>Privacy Notice</h1>
-          <h5>
-            How the Centre for Research in Social Simulation at the University of Surrey handles
-            your personal data
-          </h5>
-          <p>
-            The University of Surrey is the "Data Controller" of your personal data. We are
-            registered with the Information Commissioner's Office (our notification number is
-            Z6346945) and we are committed to ensuring that the personal data we process is handled
-            in accordance with data protection legislation.
-          </p>
-          <p>
-            The Centre for Research in Social Simulation (
-            <a href="https://cress.soc.surrey.ac.uk/web/home" target="_blank">CRESS</a>
-            ) and the Centre for the Evaluation of Complexity across the Nexus (
-            <a href="http://www.cecan.ac.uk/" target="_blank">CECAN</a>
-            ) are both part of the University of Surrey. We have a named Data Protection Officer,
-            Suzie Mereweather, who can be contacted via
-            <a href="mailto:dataprotection@surrey.ac.uk">dataprotection@surrey.ac.uk</a>
-            .
-          </p>
+		<script
+			src="https://kit.fontawesome.com/dcbad58dab.js"
+			crossorigin="anonymous"
+		></script>
+	</head>
+	<body>
+		<!-- Fixed navbar -->
+		<nav
+			class="navbar navbar-expand-sm navbar-light text-black bg-white fixed-top"
+		>
+			<div class="container-fluid">
+				<a class="navbar-brand" href="index.html">
+					<img src="../icons/PRSMlogo200.png" alt="PRSM logo" />
+					<span class="d-none d-md-inline"
+						>&nbsp;Participatory System Mapper</span
+					>
+				</a>
+				<button
+					class="navbar-toggler"
+					type="button"
+					data-bs-toggle="collapse"
+					data-bs-target="#main-navigation"
+					aria-controls="main-navigation"
+					aria-expanded="false"
+					aria-label="Toggle navigation"
+				>
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="main-navigation">
+					<ul class="navbar-nav m-auto">
+						<li class="nav-item">
+							<a class="nav-link" href="index.html#about">About</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="index.html#our-story">Our Story</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="examples.html">Examples</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="help-centre.html">Help Centre</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<div class="dummy-navbar"></div>
+		<div class="container px-4">
+			<div class="row p-3">
+				<div class="col-xs-12 mx-5">
+					<h1>Privacy Notice</h1>
+					<h5>
+						How the Centre for Research in Social Simulation at the University
+						of Surrey handles your personal data
+					</h5>
+					<p>
+						The University of Surrey is the "Data Controller" of your personal
+						data. We are registered with the Information Commissioner's Office
+						(our notification number is Z6346945) and we are committed to
+						ensuring that the personal data we process is handled in accordance
+						with data protection legislation.
+					</p>
+					<p>
+						The Centre for Research in Social Simulation (
+						<a href="https://cress.soc.surrey.ac.uk/web/home" target="_blank"
+							>CRESS</a
+						>
+						) and the Centre for the Evaluation of Complexity across the Nexus (
+						<a href="http://www.cecan.ac.uk/" target="_blank">CECAN</a>
+						) are both part of the University of Surrey. We have a named Data
+						Protection Officer, Suzie Mereweather, who can be contacted via
+						<a href="mailto:dataprotection@surrey.ac.uk"
+							>dataprotection@surrey.ac.uk</a
+						>
+						.
+					</p>
 
-          <p>
-            One of our responsibilities is to tell you about the different ways we collect and use
-            your personal data. This statement provides details about these uses.
-          </p>
-          <h5>What information do we collect from you?</h5>
-          <p>
-            PRSM holds and processes personal data about users when you engage with the service. We
-            collect
-          </p>
-          <ul>
-            <li>
-              the name you choose to give us when prompted on the screen. This stored on your
-              computer or device in the browser's local storage (similar to saving a 'cookie').
-            </li>
-            <li>the IP address you access from (although we don't store this)</li>
-            <li>
-              data you enter into the chatbox if you use this. We don't expect to collect sensitive
-              personal data through the chatbox and ask you to be careful not to enter any sensitive
-              personal data.
-            </li>
-          </ul>
+					<p>
+						One of our responsibilities is to tell you about the different ways
+						we collect and use your personal data. This statement provides
+						details about these uses.
+					</p>
+					<h5>What information do we collect from you?</h5>
+					<p>
+						PRSM holds and processes personal data about users when you engage
+						with the service. We collect
+					</p>
+					<ul>
+						<li>
+							the name you choose to give us when prompted on the screen. This
+							stored on your computer or device in the browser's local storage
+							(similar to saving a 'cookie').
+						</li>
+						<li>
+							the IP address you access from (although we don't store this)
+						</li>
+						<li>
+							data you enter into the chatbox if you use this. We don't expect
+							to collect sensitive personal data through the chatbox and ask you
+							to be careful not to enter any sensitive personal data.
+						</li>
+					</ul>
 
-          <h5>Why do we collect this information and what do we do with it?</h5>
-          <p>
-            We ask you for your name so that we can recognise you if you leave and return to the
-            service. We store data entered via the chatbox so that you and other participants in
-            your 'room' have a record of the discussion.
-          </p>
-          <p>
-            All the data we collect is in the University's legitimate interest, to provide the PRSM
-            service.
-          </p>
-          <p>
-            The University processes personal data in accordance with data protection legislation
-            and its own
-            <a
-              href="https://www.surrey.ac.uk/information-governance/data-protection"
-              target="_blank"
-            >
-              Data Protection Policy
-            </a>
-            .
-          </p>
-          <h5>How long do we keep your information?</h5>
-          <p>
-            We keep your personal data only while you or any of the other participants in the 'room'
-            maintain an online copy of the PRSM map.
-          </p>
-          <h5>How do we protect your data?</h5>
-          <p>
-            We take the security of the personal data we hold seriously. Details on university wide
-            measures surrounding IT security can be found in the principal
-            <a
-              href="https://www.surrey.ac.uk/sites/default/files/2020-12/information-security.pdf"
-              target="_blank"
-            >
-              IT Security Policy
-            </a>
-            which sets out the definition of, commitment to and requirements of Information
-            Technology and Security.
-          </p>
+					<h5>Why do we collect this information and what do we do with it?</h5>
+					<p>
+						We ask you for your name so that we can recognise you if you leave
+						and return to the service. We store data entered via the chatbox so
+						that you and other participants in your 'room' have a record of the
+						discussion.
+					</p>
+					<p>
+						All the data we collect is in the University's legitimate interest,
+						to provide the PRSM service.
+					</p>
+					<p>
+						The University processes personal data in accordance with data
+						protection legislation and its own
+						<a
+							href="https://www.surrey.ac.uk/information-governance/data-protection"
+							target="_blank"
+						>
+							Data Protection Policy
+						</a>
+						.
+					</p>
+					<h5>How long do we keep your information?</h5>
+					<p>
+						We keep your personal data only while you or any of the other
+						participants in the 'room' maintain an online copy of the PRSM map.
+					</p>
+					<h5>How do we protect your data?</h5>
+					<p>
+						We take the security of the personal data we hold seriously. Details
+						on university wide measures surrounding IT security can be found in
+						the principal
+						<a
+							href="https://www.surrey.ac.uk/sites/default/files/2020-12/information-security.pdf"
+							target="_blank"
+						>
+							IT Security Policy
+						</a>
+						which sets out the definition of, commitment to and requirements of
+						Information Technology and Security.
+					</p>
 
-          <p>
-            We have internal policies and controls in place to try to ensure that your data is not
-            lost, accidentally destroyed, misused or disclosed, and is not accessed except by our
-            employees in the performance of their duties.
-          </p>
+					<p>
+						We have internal policies and controls in place to try to ensure
+						that your data is not lost, accidentally destroyed, misused or
+						disclosed, and is not accessed except by our employees in the
+						performance of their duties.
+					</p>
 
-          <h5>Who do we share your information with?</h5>
-          <p>
-            Your data is only shared with other participants in your 'room'. It is stored locally on
-            your own computer and also on the service's server, which is located within the European
-            Union, in Ireland.
-          </p>
-          <h5>What rights do you have in relation to the way we process your data?</h5>
-          <p>
-            As an individual whose data we process (a data subject), you have certain rights in
-            relation to the processing. You can find detailed information about your rights as a
-            data subject on the
-            <a
-              href="https://www.surrey.ac.uk/information-governance/data-protection/guide-data-subject-rights"
-              target="_blank"
-            >
-              University's webpage
-            </a>
-            .
-          </p>
-          <p>You have the right to:</p>
-          <ol>
-            <li>
-              Withdraw your consent in circumstances where we are processing your personal data on
-              that basis;
-            </li>
-            <li>
-              Ask us to confirm that your personal data is being processed and to access (i.e. have
-              a copy) of that data as well as to be provided with supplemental information about the
-              processing;
-            </li>
-            <li>
-              request that we rectify any inaccuracies where the data we hold on you is inaccurate
-              or incomplete;
-            </li>
-            <li>Have your data erased by us;</li>
-            <li>Restrict the processing of your personal data in certain ways;</li>
-            <li>Obtain your personal data for reuse;</li>
-            <li>Object to certain processing of your personal data.</li>
-          </ol>
+					<h5>Who do we share your information with?</h5>
+					<p>
+						Your data is only shared with other participants in your 'room'. It
+						is stored locally on your own computer and also on the service's
+						server, which is located within the European Union, in Ireland.
+					</p>
+					<h5>
+						What rights do you have in relation to the way we process your data?
+					</h5>
+					<p>
+						As an individual whose data we process (a data subject), you have
+						certain rights in relation to the processing. You can find detailed
+						information about your rights as a data subject on the
+						<a
+							href="https://www.surrey.ac.uk/information-governance/data-protection/guide-data-subject-rights"
+							target="_blank"
+						>
+							University's webpage
+						</a>
+						.
+					</p>
+					<p>You have the right to:</p>
+					<ol>
+						<li>
+							Withdraw your consent in circumstances where we are processing
+							your personal data on that basis;
+						</li>
+						<li>
+							Ask us to confirm that your personal data is being processed and
+							to access (i.e. have a copy) of that data as well as to be
+							provided with supplemental information about the processing;
+						</li>
+						<li>
+							request that we rectify any inaccuracies where the data we hold on
+							you is inaccurate or incomplete;
+						</li>
+						<li>Have your data erased by us;</li>
+						<li>
+							Restrict the processing of your personal data in certain ways;
+						</li>
+						<li>Obtain your personal data for reuse;</li>
+						<li>Object to certain processing of your personal data.</li>
+					</ol>
 
-          <p>
-            To exercise any of these rights, please contact
-            <a href="mailto:dataprotection@surrey.ac.uk" target="_blank">
-              dataprotection@surrey.ac.uk
-            </a>
-            .
-          </p>
-          <p>
-            If you have any concerns about the way that we have handled your personal data, please
-            contact us as we would like to have the opportunity to resolve your concerns. If you're
-            still unhappy, you have the right to lodge a complaint with the Information
-            Commissioner's Office. Please see their website at:
-            <a href="https://ico.org.uk/make-a-complaint/" target="_blank">
-              https://ico.org.uk/make-a-complaint/
-            </a>
-            .
-          </p>
-        </div>
-      </div>
-    </div>
-    <footer id="contact">
-      <hr />
-      <div class="row px-3">
-        <div class="col-sm-4">
-          <h1 class="text-center">PRSM</h1>
-        </div>
-        <div class="col-sm-2">
-          <img class="logo" src="../img/cecanlogo.webp" />
-        </div>
-        <div class="col-sm-2">
-          <img class="logo" src="../img/cresslogo.webp" />
-        </div>
-        <div class="col-sm-2">
-          <img class="logo" src="../img/Surrey.webp" />
-        </div>
-        <div class="col-sm-2">
-          <img class="logo" src="../img/ESRC+logo.webp" />
-        </div>
-      </div>
-      <div class="row p-3">
-        <div class="col-sm-7 my-auto">
-          <address class="ms-3">
-            <small>
-              Centre for Research in Social Simulation, University of Surrey, Guildford GU2 7XH, UK.
-              <br />
-              email:
-              <a href="mailto:prsm@prsm.uk"><b>prsm@prsm.uk</b></a>
-            </small>
-          </address>
-        </div>
-        <div class="col-sm-5 social-icons">
-          <a
-            class="mx-1"
-            href="https://www.linkedin.com/groups/8178569/"
-            title="LinkedIn"
-            target="_blank"
-          >
-            <i class="fab fa-linkedin-in"></i>
-          </a>
-          <a class="mx-1" href="https://www.facebook.com/PRSMapp" title="Facebook" target="_blank">
-            <i class="fa fa-facebook"></i>
-          </a>
-          <a
-            class="mx-1"
-            href="https://www.instagram.com/officialprsm/"
-            title="Instagram"
-            target="_blank"
-          >
-            <i class="fab fa-instagram"></i>
-          </a>
-          <a class="mx-1" href="https://twitter.com/OfficialPrsm" title="Twitter" target="_blank">
-            <i class="fa fa-twitter"></i>
-          </a>
-        </div>
-      </div>
-    </footer>
-    <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js" type="module"></script>
-  </body>
+					<p>
+						To exercise any of these rights, please contact
+						<a href="mailto:dataprotection@surrey.ac.uk" target="_blank">
+							dataprotection@surrey.ac.uk
+						</a>
+						.
+					</p>
+					<p>
+						If you have any concerns about the way that we have handled your
+						personal data, please contact us as we would like to have the
+						opportunity to resolve your concerns. If you're still unhappy, you
+						have the right to lodge a complaint with the Information
+						Commissioner's Office. Please see their website at:
+						<a href="https://ico.org.uk/make-a-complaint/" target="_blank">
+							https://ico.org.uk/make-a-complaint/
+						</a>
+						.
+					</p>
+				</div>
+			</div>
+		</div>
+		<footer id="contact">
+			<hr />
+			<div class="row px-3">
+				<div class="col-sm-4">
+					<h1 class="text-center">PRSM</h1>
+				</div>
+				<div class="col-sm-2">
+					<img class="logo" src="../img/cecanlogo.webp" />
+				</div>
+				<div class="col-sm-2">
+					<img class="logo" src="../img/cresslogo.webp" />
+				</div>
+				<div class="col-sm-2">
+					<img class="logo" src="../img/Surrey.webp" />
+				</div>
+				<div class="col-sm-2">
+					<img class="logo" src="../img/ESRC+logo.webp" />
+				</div>
+			</div>
+			<div class="row p-3">
+				<div class="col-sm-7 my-auto">
+					<address class="ms-3">
+						<small>
+							Centre for Research in Social Simulation, University of Surrey,
+							Guildford GU2 7XH, UK.
+							<br />
+							email:
+							<a href="mailto:prsm@prsm.uk"><b>prsm@prsm.uk</b></a>
+						</small>
+					</address>
+				</div>
+				<div class="col-sm-5 social-icons">
+					<a
+						class="mx-1"
+						href="https://www.linkedin.com/groups/8178569/"
+						title="LinkedIn"
+						target="_blank"
+					>
+						<i class="fab fa-linkedin-in"></i>
+					</a>
+					<a
+						class="mx-1"
+						href="https://www.facebook.com/PRSMapp"
+						title="Facebook"
+						target="_blank"
+					>
+						<i class="fa fa-facebook"></i>
+					</a>
+					<a
+						class="mx-1"
+						href="https://www.instagram.com/officialprsm/"
+						title="Instagram"
+						target="_blank"
+					>
+						<i class="fab fa-instagram"></i>
+					</a>
+					<a
+						class="mx-1"
+						href="https://twitter.com/OfficialPrsm"
+						title="Twitter"
+						target="_blank"
+					>
+						<i class="fa fa-twitter"></i>
+					</a>
+				</div>
+			</div>
+		</footer>
+		<script
+			src="../node_modules/bootstrap/dist/js/bootstrap.min.js"
+			type="module"
+		></script>
+	</body>
 </html>

@@ -28,47 +28,49 @@ SOFTWARE.
 This module generates responses using an LLM.  
 ********************************************************************************************/
 
-import markdownToDelta from 'markdown-to-quill-delta'
-import { baseUrl, room, debug } from './prsm.js'
+import markdownToDelta from "markdown-to-quill-delta"
+import { baseUrl, room, debug } from "./prsm.js"
 
 // Function to send a message to the AI and get a response
 async function chat(userMessage, systemPrompt = null) {
-  try {
-    // Backend API endpoint
-    let API_ENDPOINT = `${baseUrl}/api/chat`
-    if (/local/.test(debug)) {
-      console.log('Using LOCAL AI API endpoint')
-      API_ENDPOINT = 'http://localhost:3001/api/chat'
-    }
-    if (/prompt/.test(debug)) {
-      console.log('System Prompt:', systemPrompt)
-      console.log('User Message:', userMessage)
-    }
-    // Call backend proxy API
-    const response = await fetch(`${API_ENDPOINT}/${room}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        message: userMessage,
-        systemPrompt,
-      }),
-    })
+	try {
+		// Backend API endpoint
+		let API_ENDPOINT = `${baseUrl}/api/chat`
+		if (/local/.test(debug)) {
+			console.log("Using LOCAL AI API endpoint")
+			API_ENDPOINT = "http://localhost:3001/api/chat"
+		}
+		if (/prompt/.test(debug)) {
+			console.log("System Prompt:", systemPrompt)
+			console.log("User Message:", userMessage)
+		}
+		// Call backend proxy API
+		const response = await fetch(`${API_ENDPOINT}/${room}`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				message: userMessage,
+				systemPrompt,
+			}),
+		})
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText || 'Unknown error'}`)
-    }
+		if (!response.ok) {
+			throw new Error(
+				`HTTP ${response.status}: ${response.statusText || "Unknown error"}`
+			)
+		}
 
-    const data = await response.json()
-    return data.response
-  } catch (err) {
-    console.log(`ERROR: ${err.message}`)
-    return `# Error: ${err.message}`
-  }
+		const data = await response.json()
+		return data.response
+	} catch (err) {
+		console.log(`ERROR: ${err.message}`)
+		return `# Error: ${err.message}`
+	}
 }
 
 export async function getAIresponse(userMessage, systemPrompt) {
-  const markdown = await chat(userMessage, systemPrompt)
-  return markdownToDelta(markdown)
+	const markdown = await chat(userMessage, systemPrompt)
+	return markdownToDelta(markdown)
 }
