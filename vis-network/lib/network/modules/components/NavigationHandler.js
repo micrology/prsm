@@ -1,6 +1,5 @@
-import { Hammer } from "vis-util/esnext";
-import { onRelease, onTouch } from "../../../hammerUtil.js";
 import keycharm from "keycharm";
+import GestureHandler from "../../../GestureHandler.js";
 
 /**
  * Navigation Handler
@@ -67,7 +66,7 @@ class NavigationHandler {
    * Cleans up previous navigation items
    */
   cleanNavigation() {
-    // clean hammer bindings
+    // clean gesture bindings
     if (this.navigationHammers.length != 0) {
       for (let i = 0; i < this.navigationHammers.length; i++) {
         this.navigationHammers[i].destroy();
@@ -131,23 +130,27 @@ class NavigationHandler {
         this.navigationDOM[navigationDivs[i]],
       );
 
-      const hammer = new Hammer(this.navigationDOM[navigationDivs[i]]);
+      const gestures = new GestureHandler(this.navigationDOM[navigationDivs[i]]);
       if (navigationDivActions[i] === "_fit") {
-        onTouch(hammer, this._fit.bind(this));
+        gestures.on("hammer.input", (event) => {
+          if (event.isFirst) this._fit();
+        });
       } else {
-        onTouch(hammer, this.bindToRedraw.bind(this, navigationDivActions[i]));
+        gestures.on("hammer.input", (event) => {
+          if (event.isFirst)
+            this.bindToRedraw.bind(this, navigationDivActions[i])();
+        });
       }
 
-      this.navigationHammers.push(hammer);
+      this.navigationHammers.push(gestures);
     }
 
-    // use a hammer for the release so we do not require the one used in the rest of the network
-    // the one the rest uses can be overloaded by the manipulation system.
-    const hammerFrame = new Hammer(this.canvas.frame);
-    onRelease(hammerFrame, () => {
-      this._stopMovement();
+    // use a gesture handler for the release so we do not require the one used in the rest of the network
+    const gestureFrame = new GestureHandler(this.canvas.frame);
+    gestureFrame.on("hammer.input", (event) => {
+      if (event.isFinal) this._stopMovement();
     });
-    this.navigationHammers.push(hammerFrame);
+    this.navigationHammers.push(gestureFrame);
 
     this.iconsCreated = true;
   }

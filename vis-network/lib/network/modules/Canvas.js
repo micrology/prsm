@@ -1,6 +1,5 @@
-import { onRelease, onTouch } from "../../hammerUtil.js";
-
-import { Hammer, selectiveDeepExtend } from "vis-util/esnext";
+import { selectiveDeepExtend } from "vis-util/esnext";
+import GestureHandler from "../../GestureHandler.js";
 
 /**
  * Create the main frame for the Network.
@@ -258,7 +257,7 @@ class Canvas {
   }
 
   /**
-   * This function binds hammer, it can be repeated over and over due to the uniqueness check.
+   * This function binds gesture handlers, it can be repeated over and over due to the uniqueness check.
    * @private
    */
   _bindHammer() {
@@ -268,16 +267,15 @@ class Canvas {
     this.drag = {};
     this.pinch = {};
 
-    // init hammer
-    this.hammer = new Hammer(this.frame.canvas);
+    // init gesture handler (replaces Hammer.js)
+    this.hammer = new GestureHandler(this.frame.canvas);
     this.hammer.get("pinch").set({ enable: true });
-    // enable to get better response, todo: test on mobile.
-    this.hammer
-      .get("pan")
-      .set({ threshold: 5, direction: Hammer.DIRECTION_ALL });
 
-    onTouch(this.hammer, (event) => {
-      this.body.eventListeners.onTouch(event);
+    // Register for input start events (hammer.input with isFirst)
+    this.hammer.on("hammer.input", (event) => {
+      if (event.isFirst) {
+        this.body.eventListeners.onTouch(event);
+      }
     });
     this.hammer.on("tap", (event) => {
       this.body.eventListeners.onTap(event);
@@ -313,10 +311,24 @@ class Canvas {
       this.body.eventListeners.onContext(event);
     });
 
-    this.hammerFrame = new Hammer(this.frame);
-    onRelease(this.hammerFrame, (event) => {
-      this.body.eventListeners.onRelease(event);
-    });
+    // Simple pointerup listener for frame (for release events)
+    // We don't use a full GestureHandler here to avoid duplicate event processing
+    this._framePointerUpHandler = (event) => {
+      // Create a minimal event object compatible with what onRelease expects
+      this.body.eventListeners.onRelease({
+        center: { x: event.clientX, y: event.clientY },
+        srcEvent: event,
+        isFinal: true,
+      });
+    };
+    this.frame.addEventListener("pointerup", this._framePointerUpHandler);
+    
+    // Store reference for cleanup
+    this.hammerFrame = {
+      destroy: () => {
+        this.frame.removeEventListener("pointerup", this._framePointerUpHandler);
+      }
+    };
   }
 
   /**
