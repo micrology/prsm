@@ -1642,6 +1642,7 @@ function draw() {
 	let viewPosition = network.getViewPosition()
 	network.on("dragStart", function (params) {
 		if (/gui/.test(debug)) console.log("dragStart")
+		viewPosition = network.getViewPosition()
 		const e = params.event.pointers[0]
 		if (e.ctrlKey) {
 			// if the Control key is down, show the magnifier and prevent dragging the map
