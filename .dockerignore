@@ -4,3 +4,5 @@
 !.htaccess
 !dist
 !doc/help/doc_build
+!ws-server
+!whatsnew.html
