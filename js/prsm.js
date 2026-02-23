@@ -996,8 +996,7 @@ function restoreState(compressedState) {
 		for (const k in state.net) {
 			yNetMap.set(k, state.net[k])
 		}
-		viewOnly = state.options.viewOnly
-		yNetMap.set("viewOnly", viewOnly)
+		viewOnly = state.net.viewOnly || false
 		data.nodes.get().forEach((obj) => (obj.fixed = viewOnly))
 		if (viewOnly) hideNavButtons()
 		styles.nodes = deepCopy(state.samples.nodes)

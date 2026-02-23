@@ -21,12 +21,26 @@
 
 services:
   y-websocket:
-    image: docker.io/micrology/prsm-y-websocket
+#    image: docker.io/micrology/prsm-y-websocket
+    image: micrology/prsm-y-websocket
     ports: 
       - "1234:1234"
     restart: unless-stopped
+# to provide persistence for maps, bind a local directory to the container. 
+# The local directory will be created if it does not exist. 
+# The container will write map data to this directory, and read from it when it starts up.
+    volumes:
+      - type: bind
+      # replace the source, `./ws-server/db`, with the path to the local directory you want 
+      # to use for persistence.  The path may be relative to the location of this file
+      # or an absolute path (on Windows, use an absolute path).
+      # The container will read and write map data to this directory.
+        source: ./ws-server/db
+        target: /db
   htppd:
-    image: docker.io/micrology/prsm-httpd
+#   image: docker.io/micrology/prsm-httpd
+    image: micrology/prsm-httpd
     ports:
       - "8080:8080"
     restart: unless-stopped
+ 
