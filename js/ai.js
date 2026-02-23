@@ -30,6 +30,7 @@ This module generates responses using an LLM.
 
 import markdownToDelta from "markdown-to-quill-delta"
 import { baseUrl, room, debug } from "./prsm.js"
+import { alertMsg } from "./utils.js"
 
 // Function to send a message to the AI and get a response
 async function chat(userMessage, systemPrompt = null) {
@@ -58,7 +59,7 @@ async function chat(userMessage, systemPrompt = null) {
 
 		if (!response.ok) {
 			throw new Error(
-				`HTTP ${response.status}: ${response.statusText || "Unknown error"}`
+				`${response.statusText} (${response.status})` || "Unknown error"
 			)
 		}
 
@@ -66,7 +67,8 @@ async function chat(userMessage, systemPrompt = null) {
 		return data.response
 	} catch (err) {
 		console.log(`ERROR: ${err.message}`)
-		return `# Error: ${err.message}`
+		alertMsg(`AI: ${err.message}`, 'error')
+		return `Error: ${err.message}`
 	}
 }
 
