@@ -613,7 +613,6 @@ function startY() {
 			"nodes.on",
 			`${evt}  ${JSON.stringify(properties.items)} origin: ${origin} dontUndo: ${dontUndo}`
 		)
-		//   clearTimeout(unknownRoomTimeout)
 		if (!viewOnly) {
 			doc.transact(() => {
 				properties.items.forEach((id) => {
@@ -915,12 +914,10 @@ function startY() {
 	yDrawingMap.observe((evt) => {
 		yjsTrace("yDrawingMap.observe", evt)
 		updateFromRemote(evt)
-		//    observed('drawing')
 	})
 	yHistory.observe(() => {
 		yjsTrace("yHistory.observe", yHistory.get(yHistory.length - 1))
 		if (elem("showHistorySwitch").checked) showHistory()
-		// observed('history')
 	})
 	yUndoManager.on("stack-item-added", (evt) => {
 		yjsTrace("yUndoManager.on stack-item-added", evt)
@@ -1698,6 +1695,9 @@ function draw() {
 				return n
 			})
 		)
+		logHistory(`moved factor${params.nodes.length > 1 ? "s" : ""}: '${params.nodes
+			.map((id) => shorten(data.nodes.get(id).label))
+			.join("', '")}'`)
 		changeCursor("default")
 	})
 	network.on("controlNodeDragging", function () {
@@ -5515,13 +5515,21 @@ function showHistory() {
 		<div class="history-rollback" data-time="${rec.time}"></div>`
 		)
 		.join(" ")
-	document
-		.querySelectorAll("div.history-rollback")
-		.forEach((e) => addRollbackIcon(e))
-	if (log.children.length > 0) {
-		// without the timeout, the window does not scroll fully to the bottom
-		setTimeout(() => log.lastChild.scrollIntoView(false), 20)
-	}
+	Promise.all(
+		Array.from(document.querySelectorAll("div.history-rollback")).map((e) =>
+			addRollbackIcon(e)
+		)
+	).then(() => scrollHistoryToBottom())
+}
+/**
+ * Scroll the history log wrapper so the most recent entry is visible at the bottom
+ */
+function scrollHistoryToBottom() {
+	const wrapper = elem("history-log-wrapper")
+	const log = elem("history-log")
+	requestAnimationFrame(() => {
+		wrapper.scrollTo({ top: log.offsetHeight - wrapper.clientHeight, behavior: "smooth" })
+	})
 }
 /**
  * add a button for rolling back if there is state data corresponding to this log record
