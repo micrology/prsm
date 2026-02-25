@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<title>PRSM: 3D View</title>
-		<meta
-			name="Description"
-			content="PRSM enables groups of people, each using their own computer (or tablet) 
+  <head>
+    <title>PRSM: 3D View</title>
+    <meta
+      name="Description"
+      content="PRSM enables groups of people, each using their own computer (or tablet) 
 		to collaborate in the drawing of a map. They may be sitting around a table, discussing the map as it is 
 		created face to face, or working remotely, using video conferencing or the chat feature that is built 
 		into the app. Everyone can participate because every edit (creating nodes and links, arranging them 
@@ -12,101 +12,86 @@
 		does for text, for example). When you start PRSM in your browser, a 'room' is created for you in which 
 		to draw your network. You can add other users to this room to share the work. Only those with access 
 		to the room can see what is being created."
-		/>
-		<meta charset="utf-8" />
-		<meta
-			name="viewport"
-			content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
-		/>
-		<link
-			rel="icon"
-			type="image/png"
-			sizes="32x32"
-			href="../icons/favicon-32x32.png"
-		/>
-		<link
-			rel="icon"
-			type="image/png"
-			sizes="16x16"
-			href="../icons/favicon-16x16.png"
-		/>
-		<link rel="shortcut icon" href="../icons/favicon.ico" />
-		<link
-			rel="apple-touch-icon"
-			sizes="180x180"
-			href="../icons/apple-touch-icon.png"
-		/>
-		<meta name="mobile-web-app-capable" content="yes" />
-		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    />
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
+    />
+    <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png" />
+    <link rel="shortcut icon" href="../icons/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
-		<link href="../css/prsm.css" rel="stylesheet" />
-		<style>
-			@font-face {
-				font-family: "Oxygen";
-				src: url("../fonts/oxygen-regular-webfont.woff2") format("woff2");
-				font-weight: normal;
-				font-style: normal;
-				font-display: swap;
-			}
-			@font-face {
-				font-family: "Oxygen";
-				src: url("../fonts/oxygen-bold-webfont.woff2") format("woff2");
-				font-weight: 700;
-				font-style: normal;
-				font-display: swap;
-			}
-		</style>
-		<link href="../css/3d.css" rel="stylesheet" />
-		<script type="importmap">
-			{
-				"imports": {
-					"three": "https://unpkg.com/three@0.170.0/build/three.module.js",
-					"three/": "https://unpkg.com/three@0.170.0/"
-				}
-			}
-		</script>
-		<script src="../js/3d.js" type="module"></script>
-	</head>
+    <link href="../css/prsm.css" rel="stylesheet" />
+    <style>
+      @font-face {
+        font-family: 'Oxygen';
+        src: url('../fonts/oxygen-regular-webfont.woff2') format('woff2');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Oxygen';
+        src: url('../fonts/oxygen-bold-webfont.woff2') format('woff2');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+    </style>
+    <link href="../css/3d.css" rel="stylesheet" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+          "three/": "https://unpkg.com/three@0.170.0/"
+        }
+      }
+    </script>
+    <script src="../js/3d.js" type="module"></script>
+  </head>
 
-	<body id="body">
-		<div id="container">
-			<header>
-				<nav id="navbar">
-					<div>
-						<div class="strap">
-							<span class="strapline">Participatory System Mapper</span>
-							<span class="version" id="version">1.9.0</span>
-						</div>
-						<div class="maptitle unsetmaptitle" id="maptitle">Untitled map</div>
-					</div>
-					<div class="button-wrapper">
-						<div class="buttons" id="buttons">
-							<select name="mode" id="mode">
-								<option value="light" selected>Light</option>
-								<option value="dark">Dark</option>
-							</select>
-							<span style="padding-left: 5px">mode</span>
-						</div>
-					</div>
-				</nav>
-			</header>
-			<div id="loading">
-				<div class="loader">
-					<div class="loader--dot"></div>
-					<div class="loader--dot"></div>
-					<div class="loader--dot"></div>
-					<div class="loader--dot"></div>
-					<div class="loader--dot"></div>
-					<div class="loader--dot"></div>
-				</div>
-			</div>
-			<div class="threeDGraph" id="3dgraph"></div>
-			<div class="info" id="info">
-				Drag over the background to rotate. Scroll up or down to zoom in or out.
-				Double click on the background to re-centre. Mouse over a factor (hover)
-				to highlight its links. Click on a factor to centre it. Drag a factor to
-				freeze it; drag again to unfreeze.
-			</div>
-		</div>
-	</body>
+  <body id="body">
+    <div id="container">
+      <header>
+        <nav id="navbar">
+          <div>
+            <div class="strap">
+              <span class="strapline">Participatory System Mapper</span>
+              <span class="version" id="version">1.9.0</span>
+            </div>
+            <div class="maptitle unsetmaptitle" id="maptitle">Untitled map</div>
+          </div>
+          <div class="button-wrapper">
+            <div class="buttons" id="buttons">
+              <select name="mode" id="mode">
+                <option value="light" selected>Light</option>
+                <option value="dark">Dark</option>
+              </select>
+              <span style="padding-left: 5px">mode</span>
+            </div>
+          </div>
+        </nav>
+      </header>
+      <div id="loading">
+        <div class="loader">
+          <div class="loader--dot"></div>
+          <div class="loader--dot"></div>
+          <div class="loader--dot"></div>
+          <div class="loader--dot"></div>
+          <div class="loader--dot"></div>
+          <div class="loader--dot"></div>
+        </div>
+      </div>
+      <div class="threeDGraph" id="3dgraph"></div>
+      <div class="info" id="info">
+        Drag over the background to rotate. Scroll up or down to zoom in or out. Double click on the
+        background to re-centre. Mouse over a factor (hover) to highlight its links. Click on a
+        factor to centre it. Drag a factor to freeze it; drag again to unfreeze.
+      </div>
+    </div>
+  </body>
 </html>
