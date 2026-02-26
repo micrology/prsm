@@ -164,7 +164,7 @@ class EdgesHandler {
                 if (type === undefined) {
                   edge.setOptions({ smooth: false });
                 } else {
-                  edge.setOptions({ smooth: { type: type } });
+                  edge.setOptions({ smooth: { type } });
                 }
                 dataChanged = true;
               }

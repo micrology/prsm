@@ -230,10 +230,10 @@ class HierarchicalStatus {
     }
 
     return {
-      min_x: min_x,
-      max_x: max_x,
-      min_y: min_y,
-      max_y: max_y,
+      min_x,
+      max_x,
+      min_y,
+      max_y,
     };
   }
 
@@ -487,7 +487,7 @@ class LayoutEngine {
           this.optionsBackup.edges = { smooth: allOptions.edges.smooth };
           allOptions.edges.smooth = {
             enabled: allOptions.edges.smooth,
-            type: type,
+            type,
           };
         } else {
           const smooth = allOptions.edges.smooth;
@@ -514,7 +514,7 @@ class LayoutEngine {
           // NOTE: Copying an object to self; this is basically setting defaults for undefined variables
           allOptions.edges.smooth = {
             enabled: smooth.enabled === undefined ? true : smooth.enabled,
-            type: type,
+            type,
             roundness: smooth.roundness === undefined ? 0.5 : smooth.roundness,
             forceDirection:
               smooth.forceDirection === undefined
@@ -1152,7 +1152,7 @@ class LayoutEngine {
     const centerAllParents = () => {
       for (const nodeId in this.body.nodes) {
         if (Object.prototype.hasOwnProperty.call(this.body.nodes, nodeId))
-          this._centerParent(this.body.nodes[nodeId]);
+          {this._centerParent(this.body.nodes[nodeId]);}
       }
     };
 
@@ -1517,7 +1517,7 @@ class LayoutEngine {
     const minLevel = 100000;
 
     // TODO: this should come from options.
-    // eslint-disable-next-line no-unused-vars -- This should eventually be implemented with these parameters used.
+     
     const customCallback = function (nodeA, nodeB, edge) {};
 
     // TODO: perhaps move to HierarchicalStatus.

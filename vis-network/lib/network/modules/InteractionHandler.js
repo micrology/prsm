@@ -301,7 +301,7 @@ class InteractionHandler {
       for (const node of this.selectionHandler.getSelectedNodes()) {
         const s = {
           id: node.id,
-          node: node,
+          node,
 
           // store original x, y, xFixed and yFixed, make the node temporarily Fixed
           x: node.x,
@@ -321,7 +321,7 @@ class InteractionHandler {
       if (edge !== undefined && edge.connected) {
         this.drag.edge = {
           id: edge.id,
-          edge: edge,
+          edge,
           initialRoundness: edge.options.smooth.roundness,
           initialType: edge.options.smooth.type,
           fromNode: edge.from,
@@ -586,7 +586,7 @@ class InteractionHandler {
         scale = 10;
       }
 
-      let preScaleDragPointer = undefined;
+      let preScaleDragPointer;
       if (this.drag !== undefined) {
         if (this.drag.dragging === true) {
           preScaleDragPointer = this.canvas.DOMtoCanvas(this.drag.pointer);
@@ -615,13 +615,13 @@ class InteractionHandler {
         this.body.emitter.emit("zoom", {
           direction: "+",
           scale: this.body.view.scale,
-          pointer: pointer,
+          pointer,
         });
       } else {
         this.body.emitter.emit("zoom", {
           direction: "-",
           scale: this.body.view.scale,
-          pointer: pointer,
+          pointer,
         });
       }
     }

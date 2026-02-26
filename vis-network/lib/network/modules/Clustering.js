@@ -398,7 +398,7 @@ class ClusterEngine {
 
     for (const childNodeKey in childNodesObj) {
       if (!Object.prototype.hasOwnProperty.call(childNodesObj, childNodeKey))
-        continue;
+        {continue;}
 
       const childNode = childNodesObj[childNodeKey];
       for (let y = 0; y < childNode.edges.length; y++) {
@@ -463,7 +463,7 @@ class ClusterEngine {
 
           // Only edges from the cluster outwards are being replaced.
           if (childNodesObj[otherNodeId] === undefined) {
-            createEdges.push({ edge: edge, fromId: fromId, toId: toId });
+            createEdges.push({ edge, fromId, toId });
           }
         }
       }
@@ -637,7 +637,7 @@ class ClusterEngine {
     }
 
     // give the clusterNode a position if it does not have one.
-    let pos = undefined;
+    let pos;
     if (clusterNodeProperties.x === undefined) {
       pos = this._getClusterPosition(childNodesObj);
       clusterNodeProperties.x = pos.x;
@@ -1335,7 +1335,7 @@ class ClusterEngine {
     // Determine the deleted nodes
     for (nodeId in this.clusteredNodes) {
       if (!Object.prototype.hasOwnProperty.call(this.clusteredNodes, nodeId))
-        continue;
+        {continue;}
       const node = this.body.nodes[nodeId];
 
       if (node === undefined) {

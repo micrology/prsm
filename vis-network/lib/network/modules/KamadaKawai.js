@@ -71,11 +71,11 @@ class KamadaKawai {
     const maxInnerIterations = 5;
 
     let maxEnergy = 1e9;
-    let highE_nodeId = 0,
-      dE_dx = 0,
-      dE_dy = 0,
-      delta_m = 0,
-      subIterations = 0;
+    let highE_nodeId = 0;
+      let dE_dx = 0;
+      let dE_dy = 0;
+      let delta_m = 0;
+      let subIterations = 0;
 
     while (maxEnergy > threshold && iterations < maxIterations) {
       iterations += 1;
@@ -102,8 +102,8 @@ class KamadaKawai {
     const nodes = this.body.nodes;
     let maxEnergy = 0;
     let maxEnergyNodeId = nodesArray[0];
-    let dE_dx_max = 0,
-      dE_dy_max = 0;
+    let dE_dx_max = 0;
+      let dE_dy_max = 0;
 
     for (let nodeIdx = 0; nodeIdx < nodesArray.length; nodeIdx++) {
       const m = nodesArray[nodeIdx];
@@ -173,11 +173,11 @@ class KamadaKawai {
       }
     }
     // make the variable names easier to make the solving of the linear system easier to read
-    const A = d2E_dx2,
-      B = d2E_dxdy,
-      C = dE_dx,
-      D = d2E_dy2,
-      E = dE_dy;
+    const A = d2E_dx2;
+      const B = d2E_dxdy;
+      const C = dE_dx;
+      const D = d2E_dy2;
+      const E = dE_dy;
 
     // solve the linear system for dx and dy
     const dy = (C / A + E / B) / (B / A - D / B);

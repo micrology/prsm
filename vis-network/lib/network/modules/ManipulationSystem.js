@@ -467,7 +467,7 @@ class ManipulationSystem {
     this.inMode = "delete";
     const selectedNodes = this.selectionHandler.getSelectedNodeIds();
     const selectedEdges = this.selectionHandler.getSelectedEdgeIds();
-    let deleteFunction = undefined;
+    let deleteFunction;
     if (selectedNodes.length > 0) {
       for (let i = 0; i < selectedNodes.length; i++) {
         if (this.body.nodes[selectedNodes[i]].isCluster === true) {
@@ -864,7 +864,7 @@ class ManipulationSystem {
    */
   _temporaryBindEvent(event, newFunction) {
     this.temporaryEventFunctions.push({
-      event: event,
+      event,
       boundFunction: newFunction,
     });
     this.body.emitter.on(event, newFunction);
@@ -1060,7 +1060,7 @@ class ManipulationSystem {
     this.selectionHandler.unselectAll();
     const overlappingNodeIds =
       this.selectionHandler._getAllNodesOverlappingWith(pointerObj);
-    let node = undefined;
+    let node;
     for (let i = overlappingNodeIds.length - 1; i >= 0; i--) {
       if (overlappingNodeIds[i] !== this.selectedControlNode.id) {
         node = this.body.nodes[overlappingNodeIds[i]];
@@ -1159,7 +1159,7 @@ class ManipulationSystem {
 
     const pointerObj = this.selectionHandler._pointerToPositionObject(pointer);
     // remember the edge id
-    let connectFromId = undefined;
+    let connectFromId;
     if (this.temporaryIds.edges[0] !== undefined) {
       connectFromId = this.body.edges[this.temporaryIds.edges[0]].fromId;
     }
@@ -1167,7 +1167,7 @@ class ManipulationSystem {
     // get the overlapping node but NOT the temporary node;
     const overlappingNodeIds =
       this.selectionHandler._getAllNodesOverlappingWith(pointerObj);
-    let node = undefined;
+    let node;
     for (let i = overlappingNodeIds.length - 1; i >= 0; i--) {
       // if the node id is NOT a temporary node, accept the node.
       if (this.temporaryIds.nodes.indexOf(overlappingNodeIds[i]) === -1) {
@@ -1203,7 +1203,7 @@ class ManipulationSystem {
     const pointerObj = this.selectionHandler._pointerToPositionObject(pointer);
 
     // remember the edge id
-    let connectFromId = undefined;
+    let connectFromId;
     if (this.temporaryIds.edges[0] !== undefined) {
       connectFromId = this.body.edges[this.temporaryIds.edges[0]].fromId;
     }
@@ -1211,7 +1211,7 @@ class ManipulationSystem {
     // get the overlapping node but NOT the temporary node;
     const overlappingNodeIds =
       this.selectionHandler._getAllNodesOverlappingWith(pointerObj);
-    let node = undefined;
+    let node;
     for (let i = overlappingNodeIds.length - 1; i >= 0; i--) {
       // if the node id is NOT a temporary node, accept the node.
       if (this.temporaryIds.nodes.indexOf(overlappingNodeIds[i]) === -1) {

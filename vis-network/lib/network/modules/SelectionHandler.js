@@ -670,9 +670,9 @@ class SelectionHandler {
    */
   selectNodes(selection, highlightEdges = true) {
     if (!selection || selection.length === undefined)
-      throw "Selection must be an array with ids";
+      {throw "Selection must be an array with ids";}
 
-    this.setSelection({ nodes: selection }, { highlightEdges: highlightEdges });
+    this.setSelection({ nodes: selection }, { highlightEdges });
   }
 
   /**
@@ -682,7 +682,7 @@ class SelectionHandler {
    */
   selectEdges(selection) {
     if (!selection || selection.length === undefined)
-      throw "Selection must be an array with ids";
+      {throw "Selection must be an array with ids";}
 
     this.setSelection({ edges: selection });
   }

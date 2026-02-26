@@ -848,8 +848,8 @@ class PhysicsEngine {
       ctx.fillStyle = color;
       EndPoints.draw(ctx, {
         type: "arrow",
-        point: point,
-        angle: angle,
+        point,
+        angle,
         length: arrowSize,
       });
       ctx.fill();
