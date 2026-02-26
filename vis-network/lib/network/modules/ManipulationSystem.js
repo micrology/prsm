@@ -1,6 +1,6 @@
-import { Hammer, deepExtend, recursiveDOMDelete } from "vis-util/esnext";
+import { deepExtend, recursiveDOMDelete } from "vis-util/esnext";
 import { v4 as randomUUID } from "uuid";
-import { onTouch } from "../../hammerUtil.js";
+import GestureHandler from "../../GestureHandler.js";
 
 /**
  * Clears the toolbar div element of children
@@ -925,16 +925,18 @@ class ManipulationSystem {
   }
 
   /**
-   * Bind an hammer instance to a DOM element.
+   * Bind gesture events to a DOM element.
    * @param {Element} domElement
    * @param {Function} boundFunction
    */
   _bindElementEvents(domElement, boundFunction) {
-    // Bind touch events.
-    const hammer = new Hammer(domElement, {});
-    onTouch(hammer, boundFunction);
+    // Bind touch/pointer events using GestureHandler.
+    const gestures = new GestureHandler(domElement);
+    gestures.on("hammer.input", (event) => {
+      if (event.isFirst) boundFunction();
+    });
     this._domEventListenerCleanupQueue.push(() => {
-      hammer.destroy();
+      gestures.destroy();
     });
 
     // Bind keyboard events.

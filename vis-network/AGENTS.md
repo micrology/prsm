@@ -62,12 +62,12 @@ All options defined in `lib/network/options.ts` with validation schemas.
 ## Peer Dependencies
 
 This build externalizes these packages (must be provided by the consuming app):
-- `@egjs/hammerjs` - Touch gestures
 - `component-emitter` - Event emitter
 - `keycharm` - Keyboard shortcuts
-- `uuid` - ID generation
 - `vis-data` - DataSet/DataView
 - `vis-util` - Utilities, Configurator, Validator
+
+Note: Touch/mouse gestures are now handled by the native Pointer Events API via `lib/GestureHandler.js` (no external dependency). UUID is bundled directly.
 
 ## File Conventions
 

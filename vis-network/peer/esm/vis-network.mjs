@@ -5,7 +5,7 @@ import "vis-util/esnext/styles/color-picker.css";
 import "vis-util/esnext/styles/configurator.css";
 import "vis-util/esnext/styles/popup.css";
 import $fL4N6$componentemitter from "component-emitter";
-import {Validator as $fL4N6$Validator, VALIDATOR_PRINT_STYLE as $fL4N6$VALIDATOR_PRINT_STYLE, selectiveDeepExtend as $fL4N6$selectiveDeepExtend, Configurator as $fL4N6$Configurator, deepExtend as $fL4N6$deepExtend, Activator as $fL4N6$Activator, recursiveDOMDelete as $fL4N6$recursiveDOMDelete, bridgeObject as $fL4N6$bridgeObject, forEach as $fL4N6$forEach, selectiveNotDeepExtend as $fL4N6$selectiveNotDeepExtend, parseColor as $fL4N6$parseColor, mergeOptions as $fL4N6$mergeOptions, fillIfDefined as $fL4N6$fillIfDefined, overrideOpacity as $fL4N6$overrideOpacity, topMost as $fL4N6$topMost, isString as $fL4N6$isString, HSVToHex as $fL4N6$HSVToHex, Alea as $fL4N6$Alea, Hammer as $fL4N6$Hammer, easingFunctions as $fL4N6$easingFunctions, getAbsoluteLeft as $fL4N6$getAbsoluteLeft, getAbsoluteTop as $fL4N6$getAbsoluteTop, Popup as $fL4N6$Popup} from "vis-util/esnext";
+import {Validator as $fL4N6$Validator, VALIDATOR_PRINT_STYLE as $fL4N6$VALIDATOR_PRINT_STYLE, selectiveDeepExtend as $fL4N6$selectiveDeepExtend, Configurator as $fL4N6$Configurator, deepExtend as $fL4N6$deepExtend, Activator as $fL4N6$Activator, recursiveDOMDelete as $fL4N6$recursiveDOMDelete, bridgeObject as $fL4N6$bridgeObject, forEach as $fL4N6$forEach, selectiveNotDeepExtend as $fL4N6$selectiveNotDeepExtend, parseColor as $fL4N6$parseColor, mergeOptions as $fL4N6$mergeOptions, fillIfDefined as $fL4N6$fillIfDefined, overrideOpacity as $fL4N6$overrideOpacity, topMost as $fL4N6$topMost, isString as $fL4N6$isString, HSVToHex as $fL4N6$HSVToHex, Alea as $fL4N6$Alea, easingFunctions as $fL4N6$easingFunctions, getAbsoluteLeft as $fL4N6$getAbsoluteLeft, getAbsoluteTop as $fL4N6$getAbsoluteTop, Popup as $fL4N6$Popup} from "vis-util/esnext";
 import {isDataViewLike as $fL4N6$isDataViewLike, DataSet as $fL4N6$DataSet} from "vis-data/esnext";
 import {v4 as $fL4N6$v4} from "uuid";
 import $fL4N6$keycharm from "keycharm";
@@ -10673,7 +10673,7 @@ var $7a28e9ef21bbdc7f$export$2e2bcd8739ae039 = $7a28e9ef21bbdc7f$var$Cluster;
         const clusterId = clusterNodeProperties.id;
         if (clusterNodeProperties.label === undefined) clusterNodeProperties.label = "cluster";
         // give the clusterNode a position if it does not have one.
-        let pos = undefined;
+        let pos;
         if (clusterNodeProperties.x === undefined) {
             pos = this._getClusterPosition(childNodesObj);
             clusterNodeProperties.x = pos.x;
@@ -11604,37 +11604,353 @@ var $4f46f7af079d997f$export$2e2bcd8739ae039 = $4f46f7af079d997f$var$ClusterEngi
 var $3e9588719eeb5100$export$2e2bcd8739ae039 = $3e9588719eeb5100$var$CanvasRenderer;
 
 
-/**
- * Register a touch event, taking place before a gesture
- * @param {Hammer} hammer       A hammer instance
- * @param {Function} callback   Callback, called as callback(event)
- */ function $927933cf439f2095$export$4e06c554ec7776d6(hammer, callback) {
-    callback.inputHandler = function(event) {
-        if (event.isFirst) callback(event);
-    };
-    hammer.on("hammer.input", callback.inputHandler);
-}
-function $927933cf439f2095$export$89453ad4819c8ee0(hammer, callback) {
-    callback.inputHandler = function(event) {
-        if (event.isFinal) callback(event);
-    };
-    return hammer.on("hammer.input", callback.inputHandler);
-}
-function $927933cf439f2095$export$412ec9581b948621(hammer, callback) {
-    hammer.off("hammer.input", callback.inputHandler);
-}
-const $927933cf439f2095$export$f194b3d2dec5d179 = $927933cf439f2095$export$412ec9581b948621;
-function $927933cf439f2095$export$4527fecdfbcc9cf8(pinchRecognizer) {
-    const TOUCH_ACTION_PAN_Y = "pan-y";
-    pinchRecognizer.getTouchAction = function() {
-        // default method returns [TOUCH_ACTION_NONE]
-        return [
-            TOUCH_ACTION_PAN_Y
-        ];
-    };
-    return pinchRecognizer;
-}
 
+/**
+ * GestureHandler - Native Pointer Events gesture recognition
+ *
+ * Replaces Hammer.js with native browser APIs for modern browsers.
+ * Implements: tap, doubletap, press, panstart, panmove, panend, pinch
+ */ // Configuration
+const $ed0f58f1c3bb9663$var$TAP_MAX_DURATION = 250; // ms - max time for a tap
+const $ed0f58f1c3bb9663$var$TAP_MAX_DISTANCE = 10; // px - max movement for a tap
+const $ed0f58f1c3bb9663$var$DOUBLETAP_MAX_INTERVAL = 300; // ms - max time between taps
+const $ed0f58f1c3bb9663$var$PRESS_MIN_DURATION = 251; // ms - min time for press/hold
+const $ed0f58f1c3bb9663$var$PAN_THRESHOLD = 5; // px - min movement to start pan
+/**
+ * Calculate distance between two points
+ */ function $ed0f58f1c3bb9663$var$getDistance(p1, p2) {
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+/**
+ * Calculate center point of two pointers
+ */ function $ed0f58f1c3bb9663$var$getCenter(p1, p2) {
+    return {
+        x: (p1.x + p2.x) / 2,
+        y: (p1.y + p2.y) / 2
+    };
+}
+/**
+ * GestureHandler class
+ * Provides Hammer.js-compatible gesture recognition using native Pointer Events
+ */ class $ed0f58f1c3bb9663$var$GestureHandler {
+    /**
+   * @param {HTMLElement} element - The element to attach gesture handling to
+   * @param {object} [options] - Configuration options
+   */ constructor(element, options = {}){
+        this.element = element;
+        this.options = {
+            pinchEnabled: true,
+            ...options
+        };
+        // Event listeners map: eventType -> Set of callbacks
+        this._listeners = new Map();
+        // Active pointers tracking
+        this._pointers = new Map();
+        // Gesture state
+        this._state = {
+            // Tap detection
+            lastTapTime: 0,
+            lastTapCenter: null,
+            // Press detection
+            pressTimer: null,
+            pressTriggered: false,
+            // Pan detection
+            isPanning: false,
+            panStarted: false,
+            startPointer: null,
+            startCenter: null,
+            // Pinch detection
+            initialPinchDistance: null,
+            lastScale: 1
+        };
+        // Bound handlers for cleanup
+        this._onPointerDown = this._handlePointerDown.bind(this);
+        this._onPointerMove = this._handlePointerMove.bind(this);
+        this._onPointerUp = this._handlePointerUp.bind(this);
+        this._onPointerCancel = this._handlePointerCancel.bind(this);
+        this._bindEvents();
+    }
+    /**
+   * Bind native pointer events
+   */ _bindEvents() {
+        this.element.addEventListener("pointerdown", this._onPointerDown);
+        this.element.addEventListener("pointermove", this._onPointerMove);
+        this.element.addEventListener("pointerup", this._onPointerUp);
+        this.element.addEventListener("pointercancel", this._onPointerCancel);
+        // Note: We don't listen to pointerleave because setPointerCapture
+        // ensures we get events even when pointer leaves the element
+        // Prevent default touch behaviors to avoid conflicts
+        this.element.style.touchAction = "none";
+    }
+    /**
+   * Create a normalized event object compatible with Hammer.js events
+   */ _createEvent(type, pointerEvent, extra = {}) {
+        const pointers = Array.from(this._pointers.values());
+        let center;
+        if (pointers.length >= 2) center = $ed0f58f1c3bb9663$var$getCenter({
+            x: pointers[0].clientX,
+            y: pointers[0].clientY
+        }, {
+            x: pointers[1].clientX,
+            y: pointers[1].clientY
+        });
+        else if (pointers.length === 1) center = {
+            x: pointers[0].clientX,
+            y: pointers[0].clientY
+        };
+        else if (pointerEvent) center = {
+            x: pointerEvent.clientX,
+            y: pointerEvent.clientY
+        };
+        else center = {
+            x: 0,
+            y: 0
+        };
+        const startCenter = this._state.startCenter || center;
+        return {
+            type: type,
+            center: center,
+            deltaX: center.x - startCenter.x,
+            deltaY: center.y - startCenter.y,
+            scale: extra.scale || 1,
+            isFirst: extra.isFirst || false,
+            isFinal: extra.isFinal || false,
+            srcEvent: pointerEvent,
+            pointers: pointers,
+            changedPointers: pointerEvent ? [
+                pointerEvent
+            ] : pointers,
+            preventDefault: ()=>pointerEvent?.preventDefault(),
+            ...extra
+        };
+    }
+    /**
+   * Handle pointer down event
+   */ _handlePointerDown(event) {
+        // Store this pointer
+        this._pointers.set(event.pointerId, event);
+        // Capture pointer for reliable tracking
+        this.element.setPointerCapture(event.pointerId);
+        const pointerCount = this._pointers.size;
+        if (pointerCount === 1) {
+            // Single pointer - potential tap, press, or pan start
+            this._state.startPointer = {
+                x: event.clientX,
+                y: event.clientY
+            };
+            this._state.startCenter = {
+                x: event.clientX,
+                y: event.clientY
+            };
+            this._state.startTime = Date.now();
+            this._state.isPanning = false;
+            this._state.panStarted = false;
+            this._state.pressTriggered = false;
+            // Start press timer
+            this._state.pressTimer = setTimeout(()=>{
+                if (!this._state.isPanning && this._pointers.size === 1) {
+                    this._state.pressTriggered = true;
+                    this._emit("press", this._createEvent("press", event));
+                }
+            }, $ed0f58f1c3bb9663$var$PRESS_MIN_DURATION);
+            // Emit input start (hammer.input with isFirst)
+            this._emitInput(event, true, false);
+        } else if (pointerCount === 2 && this.options.pinchEnabled) {
+            // Two pointers - start pinch
+            this._cancelPress();
+            const pointers = Array.from(this._pointers.values());
+            this._state.initialPinchDistance = $ed0f58f1c3bb9663$var$getDistance({
+                x: pointers[0].clientX,
+                y: pointers[0].clientY
+            }, {
+                x: pointers[1].clientX,
+                y: pointers[1].clientY
+            });
+            this._state.lastScale = 1;
+        }
+    }
+    /**
+   * Handle pointer move event
+   */ _handlePointerMove(event) {
+        if (!this._pointers.has(event.pointerId)) return;
+        // Update pointer position
+        this._pointers.set(event.pointerId, event);
+        const pointerCount = this._pointers.size;
+        if (pointerCount === 1 && this._state.startPointer) {
+            // Check for pan
+            const distance = $ed0f58f1c3bb9663$var$getDistance(this._state.startPointer, {
+                x: event.clientX,
+                y: event.clientY
+            });
+            if (distance > $ed0f58f1c3bb9663$var$PAN_THRESHOLD) {
+                this._cancelPress();
+                this._state.isPanning = true;
+                if (!this._state.panStarted) {
+                    this._state.panStarted = true;
+                    this._emit("panstart", this._createEvent("panstart", event, {
+                        isFirst: true
+                    }));
+                } else this._emit("panmove", this._createEvent("panmove", event));
+            }
+        } else if (pointerCount === 2 && this.options.pinchEnabled) {
+            // Handle pinch
+            const pointers = Array.from(this._pointers.values());
+            const currentDistance = $ed0f58f1c3bb9663$var$getDistance({
+                x: pointers[0].clientX,
+                y: pointers[0].clientY
+            }, {
+                x: pointers[1].clientX,
+                y: pointers[1].clientY
+            });
+            if (this._state.initialPinchDistance) {
+                const scale = currentDistance / this._state.initialPinchDistance;
+                this._emit("pinch", this._createEvent("pinch", event, {
+                    scale: scale
+                }));
+                this._state.lastScale = scale;
+            }
+        }
+    }
+    /**
+   * Handle pointer up event
+   */ _handlePointerUp(event) {
+        if (!this._pointers.has(event.pointerId)) return;
+        const wasMultiTouch = this._pointers.size > 1;
+        // Remove this pointer
+        this._pointers.delete(event.pointerId);
+        try {
+            this.element.releasePointerCapture(event.pointerId);
+        } catch  {
+        // Ignore if capture was already released
+        }
+        this._cancelPress();
+        // Emit input end (hammer.input with isFinal)
+        if (this._pointers.size === 0) this._emitInput(event, false, true);
+        if (wasMultiTouch) {
+            // Reset pinch state
+            this._state.initialPinchDistance = null;
+            return;
+        }
+        const duration = Date.now() - this._state.startTime;
+        const distance = $ed0f58f1c3bb9663$var$getDistance(this._state.startPointer, {
+            x: event.clientX,
+            y: event.clientY
+        });
+        if (this._state.panStarted) {
+            // End pan
+            this._emit("panend", this._createEvent("panend", event, {
+                isFinal: true
+            }));
+            this._state.panStarted = false;
+            this._state.isPanning = false;
+        } else if (duration < $ed0f58f1c3bb9663$var$TAP_MAX_DURATION && distance < $ed0f58f1c3bb9663$var$TAP_MAX_DISTANCE && !this._state.pressTriggered) {
+            // This is a tap
+            const now = Date.now();
+            const lastTapCenter = this._state.lastTapCenter;
+            const tapCenter = {
+                x: event.clientX,
+                y: event.clientY
+            };
+            // Check for double tap
+            if (lastTapCenter && now - this._state.lastTapTime < $ed0f58f1c3bb9663$var$DOUBLETAP_MAX_INTERVAL && $ed0f58f1c3bb9663$var$getDistance(lastTapCenter, tapCenter) < $ed0f58f1c3bb9663$var$TAP_MAX_DISTANCE) {
+                this._emit("doubletap", this._createEvent("doubletap", event));
+                this._state.lastTapTime = 0;
+                this._state.lastTapCenter = null;
+            } else {
+                // Single tap
+                this._emit("tap", this._createEvent("tap", event));
+                this._state.lastTapTime = now;
+                this._state.lastTapCenter = tapCenter;
+            }
+        }
+        // Reset state
+        this._state.startPointer = null;
+    }
+    /**
+   * Handle pointer cancel event
+   */ _handlePointerCancel(event) {
+        this._handlePointerUp(event);
+    }
+    /**
+   * Cancel press timer
+   */ _cancelPress() {
+        if (this._state.pressTimer) {
+            clearTimeout(this._state.pressTimer);
+            this._state.pressTimer = null;
+        }
+    }
+    /**
+   * Emit hammer.input events (isFirst/isFinal)
+   */ _emitInput(event, isFirst, isFinal) {
+        this._emit("hammer.input", this._createEvent("hammer.input", event, {
+            isFirst: isFirst,
+            isFinal: isFinal
+        }));
+    }
+    /**
+   * Emit an event to registered listeners
+   */ _emit(eventType, event) {
+        const listeners = this._listeners.get(eventType);
+        if (listeners) listeners.forEach((callback)=>{
+            try {
+                callback(event);
+            } catch (err) {
+                console.error(`Error in gesture handler for ${eventType}:`, err);
+            }
+        });
+    }
+    /**
+   * Register an event listener
+   * @param {string} eventTypes - Space-separated event types
+   * @param {Function} callback - Event handler
+   */ on(eventTypes, callback) {
+        eventTypes.split(" ").forEach((eventType)=>{
+            if (!this._listeners.has(eventType)) this._listeners.set(eventType, new Set());
+            this._listeners.get(eventType).add(callback);
+        });
+        return this;
+    }
+    /**
+   * Unregister an event listener
+   * @param {string} eventTypes - Space-separated event types
+   * @param {Function} callback - Event handler to remove
+   */ off(eventTypes, callback) {
+        eventTypes.split(" ").forEach((eventType)=>{
+            const listeners = this._listeners.get(eventType);
+            if (listeners) listeners.delete(callback);
+        });
+        return this;
+    }
+    /**
+   * Get a recognizer (for Hammer.js API compatibility)
+   * Returns a mock object with set() method
+   */ get(recognizerName) {
+        return {
+            set: (options)=>{
+                if (recognizerName === "pinch" && options.enable !== undefined) this.options.pinchEnabled = options.enable;
+                // Pan threshold could be configured here if needed
+                return this;
+            }
+        };
+    }
+    /**
+   * Clean up and remove all event listeners
+   */ destroy() {
+        this._cancelPress();
+        this.element.removeEventListener("pointerdown", this._onPointerDown);
+        this.element.removeEventListener("pointermove", this._onPointerMove);
+        this.element.removeEventListener("pointerup", this._onPointerUp);
+        this.element.removeEventListener("pointercancel", this._onPointerCancel);
+        this._listeners.clear();
+        this._pointers.clear();
+    }
+}
+/**
+ * Compatibility constant for pan direction (Hammer.DIRECTION_ALL)
+ */ $ed0f58f1c3bb9663$var$GestureHandler.DIRECTION_ALL = 30;
+var $ed0f58f1c3bb9663$export$2e2bcd8739ae039 = $ed0f58f1c3bb9663$var$GestureHandler;
 
 
 /**
@@ -11825,24 +12141,20 @@ function $927933cf439f2095$export$4527fecdfbcc9cf8(pinchRecognizer) {
         this._bindHammer();
     }
     /**
-   * This function binds hammer, it can be repeated over and over due to the uniqueness check.
+   * This function binds gesture handlers, it can be repeated over and over due to the uniqueness check.
    * @private
    */ _bindHammer() {
         if (this.hammer !== undefined) this.hammer.destroy();
         this.drag = {};
         this.pinch = {};
-        // init hammer
-        this.hammer = new (0, $fL4N6$Hammer)(this.frame.canvas);
+        // init gesture handler (replaces Hammer.js)
+        this.hammer = new (0, $ed0f58f1c3bb9663$export$2e2bcd8739ae039)(this.frame.canvas);
         this.hammer.get("pinch").set({
             enable: true
         });
-        // enable to get better response, todo: test on mobile.
-        this.hammer.get("pan").set({
-            threshold: 5,
-            direction: (0, $fL4N6$Hammer).DIRECTION_ALL
-        });
-        (0, $927933cf439f2095$export$4e06c554ec7776d6)(this.hammer, (event)=>{
-            this.body.eventListeners.onTouch(event);
+        // Register for input start events (hammer.input with isFirst)
+        this.hammer.on("hammer.input", (event)=>{
+            if (event.isFirst) this.body.eventListeners.onTouch(event);
         });
         this.hammer.on("tap", (event)=>{
             this.body.eventListeners.onTap(event);
@@ -11875,10 +12187,26 @@ function $927933cf439f2095$export$4527fecdfbcc9cf8(pinchRecognizer) {
         this.frame.canvas.addEventListener("contextmenu", (event)=>{
             this.body.eventListeners.onContext(event);
         });
-        this.hammerFrame = new (0, $fL4N6$Hammer)(this.frame);
-        (0, $927933cf439f2095$export$89453ad4819c8ee0)(this.hammerFrame, (event)=>{
-            this.body.eventListeners.onRelease(event);
-        });
+        // Simple pointerup listener for frame (for release events)
+        // We don't use a full GestureHandler here to avoid duplicate event processing
+        this._framePointerUpHandler = (event)=>{
+            // Create a minimal event object compatible with what onRelease expects
+            this.body.eventListeners.onRelease({
+                center: {
+                    x: event.clientX,
+                    y: event.clientY
+                },
+                srcEvent: event,
+                isFinal: true
+            });
+        };
+        this.frame.addEventListener("pointerup", this._framePointerUpHandler);
+        // Store reference for cleanup
+        this.hammerFrame = {
+            destroy: ()=>{
+                this.frame.removeEventListener("pointerup", this._framePointerUpHandler);
+            }
+        };
     }
     /**
    * Set a new size for the network
@@ -12361,7 +12689,6 @@ var $4f8b208841166d8c$export$2e2bcd8739ae039 = $4f8b208841166d8c$var$View;
 
 
 
-
 /**
  * Navigation Handler
  */ class $defe13d714ffdd87$var$NavigationHandler {
@@ -12409,7 +12736,7 @@ var $4f8b208841166d8c$export$2e2bcd8739ae039 = $4f8b208841166d8c$var$View;
     /**
    * Cleans up previous navigation items
    */ cleanNavigation() {
-        // clean hammer bindings
+        // clean gesture bindings
         if (this.navigationHammers.length != 0) {
             for(let i = 0; i < this.navigationHammers.length; i++)this.navigationHammers[i].destroy();
             this.navigationHammers = [];
@@ -12452,18 +12779,21 @@ var $4f8b208841166d8c$export$2e2bcd8739ae039 = $4f8b208841166d8c$var$View;
             this.navigationDOM[navigationDivs[i]] = document.createElement("div");
             this.navigationDOM[navigationDivs[i]].className = "vis-button vis-" + navigationDivs[i];
             this.navigationDOM["wrapper"].appendChild(this.navigationDOM[navigationDivs[i]]);
-            const hammer = new (0, $fL4N6$Hammer)(this.navigationDOM[navigationDivs[i]]);
-            if (navigationDivActions[i] === "_fit") (0, $927933cf439f2095$export$4e06c554ec7776d6)(hammer, this._fit.bind(this));
-            else (0, $927933cf439f2095$export$4e06c554ec7776d6)(hammer, this.bindToRedraw.bind(this, navigationDivActions[i]));
-            this.navigationHammers.push(hammer);
+            const gestures = new (0, $ed0f58f1c3bb9663$export$2e2bcd8739ae039)(this.navigationDOM[navigationDivs[i]]);
+            if (navigationDivActions[i] === "_fit") gestures.on("hammer.input", (event)=>{
+                if (event.isFirst) this._fit();
+            });
+            else gestures.on("hammer.input", (event)=>{
+                if (event.isFirst) this.bindToRedraw.bind(this, navigationDivActions[i])();
+            });
+            this.navigationHammers.push(gestures);
         }
-        // use a hammer for the release so we do not require the one used in the rest of the network
-        // the one the rest uses can be overloaded by the manipulation system.
-        const hammerFrame = new (0, $fL4N6$Hammer)(this.canvas.frame);
-        (0, $927933cf439f2095$export$89453ad4819c8ee0)(hammerFrame, ()=>{
-            this._stopMovement();
+        // use a gesture handler for the release so we do not require the one used in the rest of the network
+        const gestureFrame = new (0, $ed0f58f1c3bb9663$export$2e2bcd8739ae039)(this.canvas.frame);
+        gestureFrame.on("hammer.input", (event)=>{
+            if (event.isFinal) this._stopMovement();
         });
-        this.navigationHammers.push(hammerFrame);
+        this.navigationHammers.push(gestureFrame);
         this.iconsCreated = true;
     }
     /**
@@ -13069,7 +13399,7 @@ var $defe13d714ffdd87$export$2e2bcd8739ae039 = $defe13d714ffdd87$var$NavigationH
             const scaleOld = this.body.view.scale;
             if (scale < 0.00001) scale = 0.00001;
             if (scale > 10) scale = 10;
-            let preScaleDragPointer = undefined;
+            let preScaleDragPointer;
             if (this.drag !== undefined) {
                 if (this.drag.dragging === true) preScaleDragPointer = this.canvas.DOMtoCanvas(this.drag.pointer);
             }
@@ -15367,7 +15697,6 @@ function $f35dbbec52904026$export$7d01f59b19133c15(nodes) {
    */ _determineLevelsCustomCallback() {
         const minLevel = 100000;
         // TODO: this should come from options.
-        // eslint-disable-next-line no-unused-vars -- This should eventually be implemented with these parameters used.
         const customCallback = function(nodeA, nodeB, edge) {};
         // TODO: perhaps move to HierarchicalStatus.
         //       But I currently don't see the point, this method is not used.
@@ -15865,7 +16194,7 @@ var $6265d5a5fbe1fcd7$export$2e2bcd8739ae039 = $6265d5a5fbe1fcd7$var$LayoutEngin
         this.inMode = "delete";
         const selectedNodes = this.selectionHandler.getSelectedNodeIds();
         const selectedEdges = this.selectionHandler.getSelectedEdgeIds();
-        let deleteFunction = undefined;
+        let deleteFunction;
         if (selectedNodes.length > 0) {
             for(let i = 0; i < selectedNodes.length; i++)if (this.body.nodes[selectedNodes[i]].isCluster === true) {
                 alert(this.options.locales[this.options.locale]["deleteClusterError"] || this.options.locales["en"]["deleteClusterError"]);
@@ -16173,15 +16502,17 @@ var $6265d5a5fbe1fcd7$export$2e2bcd8739ae039 = $6265d5a5fbe1fcd7$var$LayoutEngin
         this.temporaryEventFunctions = [];
     }
     /**
-   * Bind an hammer instance to a DOM element.
+   * Bind gesture events to a DOM element.
    * @param {Element} domElement
    * @param {Function} boundFunction
    */ _bindElementEvents(domElement, boundFunction) {
-        // Bind touch events.
-        const hammer = new (0, $fL4N6$Hammer)(domElement, {});
-        (0, $927933cf439f2095$export$4e06c554ec7776d6)(hammer, boundFunction);
+        // Bind touch/pointer events using GestureHandler.
+        const gestures = new (0, $ed0f58f1c3bb9663$export$2e2bcd8739ae039)(domElement);
+        gestures.on("hammer.input", (event)=>{
+            if (event.isFirst) boundFunction();
+        });
         this._domEventListenerCleanupQueue.push(()=>{
-            hammer.destroy();
+            gestures.destroy();
         });
         // Bind keyboard events.
         const keyupListener = ({ keyCode: keyCode, key: key })=>{
@@ -16274,7 +16605,7 @@ var $6265d5a5fbe1fcd7$export$2e2bcd8739ae039 = $6265d5a5fbe1fcd7$var$LayoutEngin
         // we use the selection to find the node that is being dragged. We explicitly DEselect the control node here.
         this.selectionHandler.unselectAll();
         const overlappingNodeIds = this.selectionHandler._getAllNodesOverlappingWith(pointerObj);
-        let node = undefined;
+        let node;
         for(let i = overlappingNodeIds.length - 1; i >= 0; i--)if (overlappingNodeIds[i] !== this.selectedControlNode.id) {
             node = this.body.nodes[overlappingNodeIds[i]];
             break;
@@ -16345,11 +16676,11 @@ var $6265d5a5fbe1fcd7$export$2e2bcd8739ae039 = $6265d5a5fbe1fcd7$var$LayoutEngin
         const pointer = this.body.functions.getPointer(event.center);
         const pointerObj = this.selectionHandler._pointerToPositionObject(pointer);
         // remember the edge id
-        let connectFromId = undefined;
+        let connectFromId;
         if (this.temporaryIds.edges[0] !== undefined) connectFromId = this.body.edges[this.temporaryIds.edges[0]].fromId;
         // get the overlapping node but NOT the temporary node;
         const overlappingNodeIds = this.selectionHandler._getAllNodesOverlappingWith(pointerObj);
-        let node = undefined;
+        let node;
         for(let i = overlappingNodeIds.length - 1; i >= 0; i--)// if the node id is NOT a temporary node, accept the node.
         if (this.temporaryIds.nodes.indexOf(overlappingNodeIds[i]) === -1) {
             node = this.body.nodes[overlappingNodeIds[i]];
@@ -16375,11 +16706,11 @@ var $6265d5a5fbe1fcd7$export$2e2bcd8739ae039 = $6265d5a5fbe1fcd7$var$LayoutEngin
         const pointer = this.body.functions.getPointer(event.center);
         const pointerObj = this.selectionHandler._pointerToPositionObject(pointer);
         // remember the edge id
-        let connectFromId = undefined;
+        let connectFromId;
         if (this.temporaryIds.edges[0] !== undefined) connectFromId = this.body.edges[this.temporaryIds.edges[0]].fromId;
         // get the overlapping node but NOT the temporary node;
         const overlappingNodeIds = this.selectionHandler._getAllNodesOverlappingWith(pointerObj);
-        let node = undefined;
+        let node;
         for(let i = overlappingNodeIds.length - 1; i >= 0; i--)// if the node id is NOT a temporary node, accept the node.
         if (this.temporaryIds.nodes.indexOf(overlappingNodeIds[i]) === -1) {
             node = this.body.nodes[overlappingNodeIds[i]];
@@ -18692,7 +19023,11 @@ var $f4e3bd9783dd785a$export$2e2bcd8739ae039 = $f4e3bd9783dd785a$var$FloydWarsha
         const maxIterations = Math.max(1000, Math.min(10 * this.body.nodeIndices.length, 6000));
         const maxInnerIterations = 5;
         let maxEnergy = 1e9;
-        let highE_nodeId = 0, dE_dx = 0, dE_dy = 0, delta_m = 0, subIterations = 0;
+        let highE_nodeId = 0;
+        let dE_dx = 0;
+        let dE_dy = 0;
+        let delta_m = 0;
+        let subIterations = 0;
         while(maxEnergy > threshold && iterations < maxIterations){
             iterations += 1;
             [highE_nodeId, maxEnergy, dE_dx, dE_dy] = this._getHighestEnergyNode(ignoreClusters);
@@ -18715,7 +19050,8 @@ var $f4e3bd9783dd785a$export$2e2bcd8739ae039 = $f4e3bd9783dd785a$var$FloydWarsha
         const nodes = this.body.nodes;
         let maxEnergy = 0;
         let maxEnergyNodeId = nodesArray[0];
-        let dE_dx_max = 0, dE_dy_max = 0;
+        let dE_dx_max = 0;
+        let dE_dy_max = 0;
         for(let nodeIdx = 0; nodeIdx < nodesArray.length; nodeIdx++){
             const m = nodesArray[nodeIdx];
             // by not evaluating nodes with predefined positions we should only move nodes that have no positions.
@@ -18781,7 +19117,11 @@ var $f4e3bd9783dd785a$export$2e2bcd8739ae039 = $f4e3bd9783dd785a$var$FloydWarsha
             }
         }
         // make the variable names easier to make the solving of the linear system easier to read
-        const A = d2E_dx2, B = d2E_dxdy, C = dE_dx, D = d2E_dy2, E = dE_dy;
+        const A = d2E_dx2;
+        const B = d2E_dxdy;
+        const C = dE_dx;
+        const D = d2E_dy2;
+        const E = dE_dy;
         // solve the linear system for dx and dy
         const dy = (C / A + E / B) / (B / A - D / B);
         const dx = -(B * dy + C) / A;
