@@ -13269,6 +13269,8 @@ var $defe13d714ffdd87$export$2e2bcd8739ae039 = $defe13d714ffdd87$var$NavigationH
         let newRoundness = Math.abs(perpDistance) / (edgeLength * 0.25);
         // Clamp roundness to reasonable values
         newRoundness = Math.max(0, Math.min(newRoundness, 4));
+        // if edge is almost straight, snap it to actually straight
+        if (newRoundness < 0.1) newRoundness = 0;
         // Determine if we need to change the curve direction based on which side of the baseline we're on
         const currentType = edge.options.smooth.type;
         let newType = currentType;
