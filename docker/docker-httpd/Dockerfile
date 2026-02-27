@@ -15,7 +15,6 @@ RUN npm install -g http-server
 # copy PRSM run files
 COPY [".htaccess", "/public/"]
 COPY ["dist/*", "/public/prsm/"]
-COPY ["whatsnew.html", "/public/prsm/"]
 # copy user manual files
 COPY ["doc/help/doc_build/", "/public/prsm/doc/help/doc_build"]
 # redirect localhost to localhost/prsm

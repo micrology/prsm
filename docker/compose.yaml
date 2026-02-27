@@ -21,8 +21,8 @@
 
 services:
   y-websocket:
-#    image: docker.io/micrology/prsm-y-websocket
-    image: micrology/prsm-y-websocket
+    image: docker.io/micrology/prsm-y-websocket
+    pull_policy: always
     ports: 
       - "1234:1234"
     restart: unless-stopped
@@ -38,8 +38,8 @@ services:
         source: ./ws-server/db
         target: /db
   htppd:
-#   image: docker.io/micrology/prsm-httpd
-    image: micrology/prsm-httpd
+    image: docker.io/micrology/prsm-httpd
+    pull_policy: always
     ports:
       - "8080:8080"
     restart: unless-stopped

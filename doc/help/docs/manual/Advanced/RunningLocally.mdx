@@ -12,38 +12,38 @@ The API feature and the AI assistance are not available when running PRSM from a
 :::
 
 1. Check to see whether `python3` is already installed, by typing `python3 --version` at the command prompt.  If it responds with the version of the python installation, you can go on to the next step.  If you get an error message, you will need to install python, using [these instructions](https://www.python.org/downloads/).
-1. Install `podman` using the instructions [here](https://podman.io/getting-started/installation).
+1. Install `podman` using [these instructions](https://podman.io/getting-started/installation).
 1. Install [podman-compose](https://github.com/containers/podman-compose) using the command:  
  `pip3 install podman-compose`
 1. If not already done during the installation, run:
 
-```bash
-podman machine init
-podman machine start
-```
+    ```bash
+    podman machine init
+    podman machine start
+    ```
 
-5. Create a blank, plain text file in a convenient directory and name it `compose.yaml`. Use a text editor to copy the following into the file (be sure to use a text editor, not a word processor):  
+1. Create a blank, plain text file in a convenient directory and name it `compose.yaml`. Use a text editor to copy the following into the file (be sure to use a text editor, not a word processor):  
 
-```yaml
-        services:
-          y-websocket:
-            image: docker.io/micrology/prsm-y-websocket
-            ports: 
-              - "1234:1234"
-            restart: unless-stopped
-          htppd:
-            image: docker.io/micrology/prsm-httpd
-            ports:
-              - "8080:8080"
-            restart: unless-stopped
-```
+    ```yaml
+            services:
+              y-websocket:
+                image: docker.io/micrology/prsm-y-websocket
+                ports: 
+                  - "1234:1234"
+                restart: unless-stopped
+              htppd:
+                image: docker.io/micrology/prsm-httpd
+                ports:
+                  - "8080:8080"
+                restart: unless-stopped
+    ```
 
-6. Save the file and then run the command:  
+1. Save the file and then run the command:  
 `podman-compose up -d`  
 in the same directory as the `compose.yaml` file
 1. In a web browser,  on the same computer, enter [http://localhost:8080](http://localhost:8080) in the address bar.  You should see the PRSM welcome page (the same as at [https://prsm.uk](https://prsm.uk)).  Click on the 'Start now' button to get to a blank PRSM map.  This copy of PRSM is running entirely locally: you can disconnect the computer from the internet and it will still function.  
 
-If the computer is on an intranet, it should be possible to access this local version of PRSM with a URL something like [http://168.192.0.123:8080](http://168.192.0.123:8080), where the IP address is the local *intranet* address of the server (or if it has one, you can use the local network name of the computer, followed by :8080 as the port number).  
+If the computer is on a local intranet, it should be possible to access this local version of PRSM with a URL something like [http://168.192.0.123:8080](http://168.192.0.123:8080), where the IP address is the local *intranet* address of the server (or if it has one, you can use the local network name of the computer, followed by :8080 as the port number).  
 
 :::tip
 
@@ -54,7 +54,7 @@ If the browser reports that the location is not found, check for access being bl
 To stop the PRSM service, navigate to the directory with the `compose.yaml` file and enter the command:  
 `podman-compose down`
 
-Maps (rooms) that are created using the containerised version are independent of those created using the usual https://prsm.uk location. You can however save the map to a PRSM file and reload the file in the other environment.
+Maps (rooms) created using the containerised version are independent of those created using the usual <https://prsm.uk> location. You can however save the map to a PRSM file and reload the file in the other environment.
 
 Maps are only preserved within the container so long as the container is running.  If the container is stopped, the maps disappear (although you can save them first to a file), unless an external directory is attached to the container when it is started.  To attach an external directory, edit the `compose.yaml` file to add the section shown below:
 

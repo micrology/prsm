@@ -1,6 +1,6 @@
 {
   "name": "participatory-system-mapper",
-  "version": "3.0.5",
+  "version": "3.1.0",
   "description": "Participatory System Mapper, browser app for collaboratively creating system maps",
   "keywords": [
     "social network",
@@ -45,6 +45,7 @@
     "pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/*.css doc/**/*.{html,css} package.json",
     "build-help": "cd doc/help && PRSM_DEPLOY=production npm run build",
     "build-help-locally": "cd doc/help && npm run build",
+    "build-vis-network": "cd vis-network && npm run build",
     "spellcheck": "npx cspell './js/*.js' './html/*.html' './css/*.css' 'doc/help/docs/manual/*.mdx'",
     "check": "npm run lint && npm run spellcheck &&npm run build-help && npm run pretty",
     "dev": "npm run clean && npx parcel watch './html/*.html' --no-hmr",
@@ -52,9 +53,9 @@
     "jsdoc": "npx jsdoc -r -c .jsdoc.json",
     "clean": "rm -rf dist/*",
     "rebuild-docker": "docker buildx build -f docker/docker-y-websocket/Dockerfile --platform linux/amd64,linux/arm64 -t micrology/prsm-y-websocket --push . && docker buildx build --platform linux/amd64,linux/arm64 -t micrology/prsm-httpd --push -f docker/docker-httpd/Dockerfile .",
-    "deploy": "npm run build && npm run build-help",
+    "deploy": "npm run install:all && npm run build-vis-network && npm run build && npm run build-help",
     "analyse": "npx parcel build './html/*.html' --detailed-report",
-    "install:all": "npm i && pushd ./doc/help && npm i && popd && pushd ./ws-server && npm i && popd && pushd ./api-server && npm i && popd",
+    "install:all": "npm i && pushd ./doc/help && npm i && popd && pushd ./ws-server && npm i && popd && pushd ./api-server && npm i && popd && pushd ./vis-network && npm i && popd",
     "upgrade:all": "npm upgrade && pushd ./doc/help && npm upgrade && popd && pushd ./ws-server && npm upgrade && popd && pushd ./api-server && npm upgrade && popd",
     "start:all-locally": "YPERSISTENCE=./dbDir VERBOSE=1 node ./ws-server/src/server.js & PORT=3001 NODE_ENV='dev' node ./api-server/src/api-server.mjs & npm run dev",
     "stop:all-locally": "pkill -f 'ws-server/src/server.js|api-server/src/api-server.mjs|parcel watch'; kill $(lsof -ti:3001,1234) 2>/dev/null || true"
