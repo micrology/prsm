@@ -229,8 +229,8 @@ function loadFile(contents) {
     // users a way of zeroing a map.
     logHistory('loaded &lt;' + lastFileName + '&gt;', false, data.nodes.length === 0)
   })
-	yUndoManager.clear()
-	deleteSavedRollbacks()
+  yUndoManager.clear()
+  deleteSavedRollbacks()
   undoRedoButtonStatus()
   toggleDeleteButton()
   recreateClusteringMenu(yNetMap.get('attributeTitles') || {})
@@ -249,12 +249,12 @@ function arrayBufferToString(contents) {
  * delete any saved rollbacks for the current room from localForage
  */
 async function deleteSavedRollbacks() {
-	const keys = await localForage.keys()
-	keys.forEach((key) => {
-		if (key.startsWith(room)) {
-			localForage.removeItem(key)
-		}
-	})
+  const keys = await localForage.keys()
+  keys.forEach((key) => {
+    if (key.startsWith(room)) {
+      localForage.removeItem(key)
+    }
+  })
 }
 /**
  * Parse and load a PRSM map file, or a JSON file exported from Gephi

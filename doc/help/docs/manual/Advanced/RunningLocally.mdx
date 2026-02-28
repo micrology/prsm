@@ -54,7 +54,7 @@ If the browser reports that the location is not found, check for access being bl
 To stop the PRSM service, navigate to the directory with the `compose.yaml` file and enter the command:  
 `podman-compose down`
 
-Maps (rooms) created using the containerised version are independent of those created using the usual <https://prsm.uk> location. You can however save the map to a PRSM file and reload the file in the other environment.
+Maps (rooms) created using the containerised version are independent of those created using the usual [https://prsm.uk](https://prsm.uk) location. You can however save the map to a PRSM file and reload the file in the other environment.
 
 Maps are only preserved within the container so long as the container is running.  If the container is stopped, the maps disappear (although you can save them first to a file), unless an external directory is attached to the container when it is started.  To attach an external directory, edit the `compose.yaml` file to add the section shown below:
 
