@@ -1364,7 +1364,7 @@
           </div>
           <div class="modal-body">
             <div class="invite">
-              To invite others to participate in developing this map, send them this link:
+              To invite others to participate in developing this map, show them the QR code or send them the link:
             </div>
             <div class="clone">
               Open a clone of the map
@@ -1396,10 +1396,13 @@
             <button class="modal-button table-button" type="button" id="table-button">
               Data view
             </button>
-            <textarea class="text-to-copy" rows="1" readonly id="text-to-copy"></textarea>
+            <img id="qr-code" class="qr-code" alt="QR code" />
             <div class="copy-text-container">
-              <button type="button" id="copy-text">Copy to clipboard</button>
-              <span class="copied-text" id="copied-text">Copied!</span>
+              <textarea class="text-to-copy" rows="1" readonly id="text-to-copy"></textarea>
+              <div>
+                <button type="button" id="copy-text">Copy to clipboard</button>
+                <span class="copied-text" id="copied-text">Copied!</span>
+              </div>
             </div>
           </div>
         </div>

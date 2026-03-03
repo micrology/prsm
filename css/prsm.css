@@ -884,20 +884,25 @@ nav button .pressed {
 .modal-body .small {
   font-size: small;
 }
-.modal-body .text-to-copy {
+.modal-body .qr-code {
   grid-column: 1;
   grid-row: 2;
-  align-self: start;
-  justify-self: start;
-  max-width: 100%;
+  width: 100px;
+  height: 100px;
+  place-self: center;
 }
 .modal-body .copy-text-container {
   grid-column: 1;
   grid-row: 3;
 }
+.modal-body .text-to-copy {
+  max-width: 100%;
+  width: 100%;
+}
 .modal-body .copied-text {
   display: none;
   font-size: 12px;
+  padding-left: 6px;
 }
 
 /* -----Merge modal dialog ------------------------------------------------------------------- */

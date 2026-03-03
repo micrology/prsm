@@ -98,6 +98,7 @@ import {
 import { getAIresponse } from './ai.js'
 import { version, features } from '../package.json'
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
+import QRCode from 'qrcode'
 
 const appName = 'Participatory System Mapper'
 const shortAppName = 'PRSM'
@@ -3566,12 +3567,17 @@ function setUpShareDialog() {
   const modal = elem('shareModal')
   const inputElem = elem('text-to-copy')
   const copiedText = elem('copied-text')
+  const qrcode = elem('qr-code')
 
   // When the user clicks the button, open the modal
   listen('share', 'click', () => {
     const path = `${window.location.pathname}?room=${room}`
     const linkToShare = window.location.origin + path
     copiedText.style.display = 'none'
+    qrcode.src = ''
+    generateQR(linkToShare).then((qr) => {
+      qrcode.src = qr
+    })
     modal.style.display = 'block'
     inputElem.cols = linkToShare.length.toString()
     inputElem.value = linkToShare
@@ -3596,7 +3602,13 @@ function setUpShareDialog() {
       copiedText.style.display = 'inline-block'
     }
   })
-
+async function generateQR(text) {
+  try {
+    return await QRCode.toDataURL(text)
+  } catch (err) {
+    console.error(err)
+  }
+}
   function openWindow(type) {
     let path = ''
     switch (type) {
