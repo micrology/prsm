@@ -82,7 +82,7 @@
               >
                 Untitled map
               </div>
-              <div class="recent-rooms-caret hidden" id="recent-rooms-caret">
+              <div class="rooms-menu-caret" id="rooms-menu-caret">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="10"
@@ -96,7 +96,52 @@
                   />
                 </svg>
               </div>
-              <div id="recent-rooms"></div>
+              <!-- Recent rooms and projects dropdown menu -->
+              <div id="rooms-menu" class="rm-menu-panel">
+                <div id="rm-scroll-box">
+                  <div class="rm-item" id="projectsTrigger">
+                    <b>Projects</b>
+                    <span class="arrow">▶</span>
+                  </div>
+                  <div
+                    class="rm-item"
+                    id="newMapTrigger"
+                    data-room="new"
+                    style="color: var(--tertiary-color)"
+                  >
+                    <b>New map</b>
+                  </div>
+                  <div
+                    class="rm-item"
+                    id="saveListToFileTrigger"
+                    data-room="save"
+                    style="color: var(--tertiary-color)"
+                  >
+                    <b>Save list to file</b>
+                  </div>
+                  <div id="map-list-items"></div>
+                </div>
+              </div>
+
+              <div id="projects-menu" class="rm-menu-panel">
+                <div id="project-list-items"></div>
+              </div>
+              <div id="project-maps-menu" class="rm-menu-panel">
+                <div id="project-maps-list"></div>
+              </div>
+
+              <div id="rm-modal-overlay">
+                <div class="rm-modal-content">
+                  <div class="rm-modal-content-header">
+                    <div>Enter name of new project</div>
+                    <div id="rm-modal-cancel">x</div>
+                  </div>
+                  <input type="text" id="projectNameInput" placeholder="Project Name..." />
+                  <div class="rm-modal-actions">
+                    <button class="rm-btn rm-btn-ok" id="rm-modal-ok">OK</button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <div class="button-wrapper">
@@ -1364,7 +1409,8 @@
           </div>
           <div class="modal-body">
             <div class="invite">
-              To invite others to participate in developing this map, show them the QR code or send them the link:
+              To invite others to participate in developing this map, show them the QR code or send
+              them the link:
             </div>
             <div class="clone">
               Open a clone of the map

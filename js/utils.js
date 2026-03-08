@@ -760,6 +760,14 @@ function randomColour() {
     ),
   }
 }
+/**
+ * return the value of a CSS Variable, such as --primary-color
+ * @param {string} varName name of a CSS variable defined in the HTML body element
+ * @returns {string} the value of the CSS variable
+ */
+export function getCSSVariable(varName) {
+  return window.getComputedStyle(document.body).getPropertyValue(varName)
+}
 
 const capitalize = (string) => string[0].toUpperCase() + string.slice(1)
 
@@ -797,15 +805,15 @@ export function alertMsg(msg, status, dontFade = false) {
   const errMsgElement = elem('errMsg')
   switch (status) {
     case 'info':
-      errMsgElement.style.backgroundColor = 'black'
+      errMsgElement.style.backgroundColor = getCSSVariable('--primary-color')
       errMsgElement.style.color = 'white'
       break
     case 'warn':
-      errMsgElement.style.backgroundColor = '#FFEB3B'
+      errMsgElement.style.backgroundColor = getCSSVariable('--warning-color') 
       errMsgElement.style.color = 'black'
       break
     case 'error':
-      errMsgElement.style.backgroundColor = 'red'
+      errMsgElement.style.backgroundColor = getCSSVariable('--alert-color')
       errMsgElement.style.color = 'white'
       break
     default:

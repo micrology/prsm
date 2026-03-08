@@ -95,6 +95,7 @@ import {
   upgradeFromV1,
   updateFromDrawingMap,
 } from './background.js'
+import { createRoomMenus, showProjectsMenu } from './projects.js'
 import { getAIresponse } from './ai.js'
 import { version, features } from '../package.json'
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
@@ -239,7 +240,7 @@ function addEventListeners() {
   listen('net-pane', 'keydown', (e) => {
     if (e.which === 8 || e.which === 46) deleteNode()
   })
-  listen('recent-rooms-caret', 'click', createTitleDropDown)
+  listen('rooms-menu-caret', 'click', showProjectsMenu)
   listen('maptitle', 'keydown', (e) => {
     if (e.target.innerText === 'Untitled map') {
       window.getSelection().selectAllChildren(e.target)
@@ -280,7 +281,7 @@ function addEventListeners() {
   listen('addNode', 'click', plusNode)
   listen('net-pane', 'contextmenu', contextMenu)
   listen('net-pane', 'click', unFollow)
-  listen('net-pane', 'click', removeTitleDropDown)
+  //listen('net-pane', 'click', removeTitleDropDown)
   listen('drawer-handle', 'click', () => {
     elem('drawer-wrapper').classList.toggle('hide-drawer')
   })
@@ -1307,8 +1308,7 @@ function draw() {
         })
         item.edges.forEach((edgeId) => {
           logHistory(
-            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
-              data.nodes.get(data.edges.get(edgeId).to).label
+            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
             }'`
           )
         })
@@ -1321,8 +1321,7 @@ function draw() {
       deleteEdge: function (item, callback) {
         item.edges.forEach((edgeId) => {
           logHistory(
-            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
-              data.nodes.get(data.edges.get(edgeId).to).label
+            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
             }'`
           )
         })
@@ -1774,7 +1773,7 @@ function draw() {
       bigNetCanvas,
       ((e.clientX - netPaneRect.x) * bigNetCanvas.width) / netPaneCanvas.clientWidth - halfMagSize,
       ((e.clientY - netPaneRect.y) * bigNetCanvas.height) / netPaneCanvas.clientHeight -
-        halfMagSize,
+      halfMagSize,
       magSize,
       magSize,
       0,
@@ -1916,11 +1915,11 @@ export function drawMinimap(ratio = 5) {
 
     minimapRadar.style.left = `${Math.round(
       ((currentDOMPosition.x - initialDOMPosition.x) * scale) / ratio +
-        (minimapWidth * (1 - scale)) / 2
+      (minimapWidth * (1 - scale)) / 2
     )}px`
     minimapRadar.style.top = `${Math.round(
       ((currentDOMPosition.y - initialDOMPosition.y) * scale) / ratio +
-        (minimapHeight * (1 - scale)) / 2
+      (minimapHeight * (1 - scale)) / 2
     )}px`
     minimapRadar.style.width = `${minimapWidth * scale}px`
     minimapRadar.style.height = `${minimapHeight * scale}px`
@@ -2013,12 +2012,12 @@ export function drawMinimap(ratio = 5) {
           x:
             ((radarRect.left - wrapperRect.left + (radarRect.width - wrapperRect.width) / 2) *
               ratio) /
-              scale +
+            scale +
             initialDOMPosition.x,
           y:
             ((radarRect.top - wrapperRect.top + (radarRect.height - wrapperRect.height) / 2) *
               ratio) /
-              scale +
+            scale +
             initialDOMPosition.y,
         }),
       })
@@ -2445,7 +2444,7 @@ async function pasteFromClipboard() {
   let nodes
   let edges
   try {
-    ;({ nodes, edges } = JSON.parse(clip))
+    ; ({ nodes, edges } = JSON.parse(clip))
   } catch {
     // silently return (i.e. use system paste) if there is nothing relevant on the clipboard
     return
@@ -3052,86 +3051,10 @@ export function setMapTitle(title) {
   if (title !== div.innerText.trim()) div.innerText = title
   if (title.length >= 50) setEndOfContenteditable(div)
   setFileName()
-  titleDropDown(title)
+  createRoomMenus(title)
   return title
 }
-/**
- * Add this title to the local record of maps used
- * The list is stored as an object so that it is easy to add [room, title] pairs
- * and easy to modify the title of an existing room
- * @param {String} title
- */
 
-const TITLELISTLEN = 50
-function titleDropDown(title) {
-  let recentMaps = localStorage.getItem('recents')
-  if (recentMaps) recentMaps = JSON.parse(recentMaps)
-  else recentMaps = {}
-  //TODO this should be Map, not an object, to guarantee preservation of the insertion order
-  if (title !== 'Untitled map') {
-    recentMaps[room] = title
-    // save only the most recent entries
-    recentMaps = Object.fromEntries(Object.entries(recentMaps).slice(-TITLELISTLEN))
-    localStorage.setItem('recents', JSON.stringify(recentMaps))
-  }
-  // if there is more than 1, append a down arrow after the map title as a cue to there being a list
-  if (Object.keys(recentMaps).length > 1) {
-    elem('recent-rooms-caret').classList.remove('hidden')
-  }
-}
-/**
- * Create a drop down list of previous maps used for user selection
- */
-function createTitleDropDown() {
-  removeTitleDropDown()
-  const selectList = document.createElement('ul')
-  selectList.id = 'recent-rooms-select'
-  selectList.classList.add('room-titles')
-  elem('recent-rooms').appendChild(selectList)
-  const recentMaps = JSON.parse(localStorage.getItem('recents'))
-  // list is with New Map and then the most recent at the top
-  if (recentMaps) {
-    makeTitleDropDownEntry('*New map*', '*new*', false)
-    const props = Object.keys(recentMaps).reverse()
-    props.forEach((prop) => {
-      makeTitleDropDownEntry(recentMaps[prop], prop)
-    })
-  }
-  /**
-   * create a previous map menu item
-   * @param {string} name Title of map
-   * @param {string} room
-   */
-  function makeTitleDropDownEntry(name, room) {
-    const li = document.createElement('li')
-    li.classList.add('room-title')
-    li.textContent = name
-    li.dataset.room = room
-    li.addEventListener('click', (event) => changeRoom(event))
-    selectList.appendChild(li)
-  }
-}
-/**
- * User has clicked one of the previous map titles - confirm and change to the web page for that room
- * @param {Event} event
- */
-function changeRoom(event) {
-  if (data.nodes.length > 0) {
-    if (!confirm('Are you sure you want to move to a different map?')) return
-  }
-  const newRoom = event.target.dataset.room
-  removeTitleDropDown()
-  const url = new URL(document.location)
-  url.search = newRoom !== '*new*' ? `?room=${newRoom}` : ''
-  window.location.replace(url)
-}
-/**
- * Remove the drop down list of previous maps if user clicks on the net-pane or on a map title.
- */
-function removeTitleDropDown() {
-  const oldSelect = elem('recent-rooms-select')
-  if (oldSelect) oldSelect.remove()
-}
 /**
  * unselect all nodes and edges
  */
@@ -3425,21 +3348,19 @@ function ghostCursor() {
     const boxHalfWidth = box.offsetWidth / 2
     const boxHalfHeight = box.offsetHeight / 2
     const left = event.pageX - boxHalfWidth
-    box.style.left = `${
-      left <= netPaneRect.left
+    box.style.left = `${left <= netPaneRect.left
         ? netPaneRect.left
         : left >= netPaneRect.right - box.offsetWidth
           ? netPaneRect.right - box.offsetWidth
           : left
-    }px`
+      }px`
     const top = event.pageY - boxHalfHeight
-    box.style.top = `${
-      top <= netPaneRect.top
+    box.style.top = `${top <= netPaneRect.top
         ? netPaneRect.top
         : top >= netPaneRect.bottom - box.offsetHeight
           ? netPaneRect.bottom - box.offsetHeight
           : top
-    }px`
+      }px`
   }
 }
 /**
@@ -3602,13 +3523,13 @@ function setUpShareDialog() {
       copiedText.style.display = 'inline-block'
     }
   })
-async function generateQR(text) {
-  try {
-    return await QRCode.toDataURL(text)
-  } catch (err) {
-    console.error(err)
+  async function generateQR(text) {
+    try {
+      return await QRCode.toDataURL(text)
+    } catch (err) {
+      console.error(err)
+    }
   }
-}
   function openWindow(type) {
     let path = ''
     switch (type) {
@@ -3791,12 +3712,11 @@ function keepPaneInWindow(pane) {
     pane.style.left = `${container.offsetLeft + container.offsetWidth - pane.offsetWidth}px`
   }
   if (pane.offsetTop + pane.offsetHeight > container.offsetTop + container.offsetHeight) {
-    pane.style.top = `${
-      container.offsetTop +
+    pane.style.top = `${container.offsetTop +
       container.offsetHeight -
       pane.offsetHeight -
       document.querySelector('footer').offsetHeight
-    }px`
+      }px`
   }
 }
 // CSpell: ignore tabcontent, tablinks
@@ -3839,8 +3759,7 @@ function applySampleToNode(event) {
   const nNodes = nodesToUpdate.length
   if (nNodes) {
     logHistory(
-      `applied ${styles.nodes[sample].groupLabel} style to ${
-        nNodes === 1 ? nodesToUpdate[0].label : nNodes + ' factors'
+      `applied ${styles.nodes[sample].groupLabel} style to ${nNodes === 1 ? nodesToUpdate[0].label : nNodes + ' factors'
       }`
     )
   }
@@ -3997,15 +3916,15 @@ function showNodeData(nodeId) {
       toolbar: viewOnly
         ? null
         : [
-            'bold',
-            'italic',
-            'underline',
-            'link',
-            { list: 'ordered' },
-            { list: 'bullet' },
-            { indent: '-1' },
-            { indent: '+1' },
-          ],
+          'bold',
+          'italic',
+          'underline',
+          'link',
+          { list: 'ordered' },
+          { list: 'bullet' },
+          { indent: '-1' },
+          { indent: '+1' },
+        ],
     },
     placeholder: 'Notes',
     theme: 'snow',
@@ -4202,15 +4121,15 @@ function showEdgeData(edgeId) {
       toolbar: viewOnly
         ? null
         : [
-            'bold',
-            'italic',
-            'underline',
-            'link',
-            { list: 'ordered' },
-            { list: 'bullet' },
-            { indent: '-1' },
-            { indent: '+1' },
-          ],
+          'bold',
+          'italic',
+          'underline',
+          'link',
+          { list: 'ordered' },
+          { list: 'bullet' },
+          { indent: '-1' },
+          { indent: '+1' },
+        ],
     },
     placeholder: 'Notes',
     theme: 'snow',
@@ -5301,7 +5220,7 @@ export function sizing(metric) {
         node.widthConstraint =
           node.heightConstraint =
           node.size =
-            MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
+          MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
     }
   })
   data.nodes.update(nodesToUpdate)

@@ -79,6 +79,7 @@ import {
 import { styles } from './samples.js'
 import { canvas, refreshFromMap, setUpBackground, upgradeFromV1 } from './background.js'
 import { refreshSampleNode, refreshSampleLink, updateLegend } from './styles.js'
+import { loadMapList } from './projects.js'
 import Quill from 'quill'
 import markdownToDelta from 'markdown-to-quill-delta'
 import { saveAs } from 'file-saver'
@@ -115,7 +116,7 @@ export function readSingleFile(e) {
     try {
       document.body.style.cursor = 'wait'
       loadFile(e.target.result)
-      if (!msg) alertMsg("Read '" + fileName + "'", 'info')
+      if (!msg) statusMsg(`Read '${fileName}'`)
     } catch (err) {
       document.body.style.cursor = 'default'
       alertMsg("Error reading '" + fileName + "': " + err.message, 'error')
@@ -149,6 +150,12 @@ elem('container').addEventListener('dragover', (e) => {
  * @param {string} contents - what is in the file
  */
 function loadFile(contents) {
+  const extn = lastFileName.split('.').pop().toLowerCase()
+  // saved menu of maps treated as a special case, to avoid deleting the current map when loading the menu
+  if (extn === 'prsml') {
+    loadMapList(arrayBufferToString(contents))
+    return
+  }
   if (data.nodes.length > 0) {
     if (
       !confirm(
@@ -162,7 +169,7 @@ function loadFile(contents) {
   // load the file as one single yjs transaction to reduce server traffic
   clearMap()
   doc.transact(() => {
-    switch (lastFileName.split('.').pop().toLowerCase()) {
+    switch (extn) {
       case 'csv':
         loadCSV(arrayBufferToString(contents))
         break
@@ -559,9 +566,9 @@ function loadGEXFfile(gexf) {
       },
       font: color
         ? {
-            ...base.font,
-            color: rgbIsLight(color.r, color.g, color.b) ? 'rgb(0,0,0)' : 'rgb(255,255,255)',
-          }
+          ...base.font,
+          color: rgbIsLight(color.r, color.g, color.b) ? 'rgb(0,0,0)' : 'rgb(255,255,255)',
+        }
         : base.font,
     }
   })
@@ -602,14 +609,14 @@ function loadGEXFfile(gexf) {
     if (!attributesNode) return result
     const attributes = Array.isArray(attributesNode) ? attributesNode : [attributesNode]
 
-    ;(attributes || []).forEach(({ class: cls, attribute = [] }) => {
-      attribute.forEach(({ id, title, name, type }) => {
-        result[cls === 'node' ? 'nodes' : 'edges'][id] = {
-          title: title || name,
-          type: type || 'string',
-        }
+      ; (attributes || []).forEach(({ class: cls, attribute = [] }) => {
+        attribute.forEach(({ id, title, name, type }) => {
+          result[cls === 'node' ? 'nodes' : 'edges'][id] = {
+            title: title || name,
+            type: type || 'string',
+          }
+        })
       })
-    })
 
     return result
   }
@@ -642,10 +649,10 @@ function loadGEXFfile(gexf) {
   function processNodePosition({ viz_position, x, y, z }) {
     const pos = viz_position
       ? {
-          x: +viz_position.x || 0,
-          y: +viz_position.y || 0,
-          z: +viz_position.z || 0,
-        }
+        x: +viz_position.x || 0,
+        y: +viz_position.y || 0,
+        z: +viz_position.z || 0,
+      }
       : x || y || z
         ? { x: +x, y: +y, z: +z }
         : null
@@ -1931,45 +1938,45 @@ export function setFileName(extn = 'prsm') {
   let qed = new Quill('#dummy-div')
   let str = 'Id,Label,Style,Note\n'
   for (let node of data.nodes.get()) {
-	str += node.id + ','
-	if (node.label) str += '"' + node.label.replaceAll('\n', ' ') + '"'
-	str += ',' + node.grp + ','
-	if (node.note) {
-	  qed.setContents(node.note)
-	  // convert Quill formatted note to HTML, escaping all "
-	  str +=
-		'"' +
-		new QuillDeltaToHtmlConverter(qed.getContents().ops, {
-		  inlineStyles: true,
-		})
-		  .convert()
-		  .replaceAll('"', '""') +
-		'"'
-	}
-	str += '\n'
+  str += node.id + ','
+  if (node.label) str += '"' + node.label.replaceAll('\n', ' ') + '"'
+  str += ',' + node.grp + ','
+  if (node.note) {
+    qed.setContents(node.note)
+    // convert Quill formatted note to HTML, escaping all "
+    str +=
+    '"' +
+    new QuillDeltaToHtmlConverter(qed.getContents().ops, {
+      inlineStyles: true,
+    })
+      .convert()
+      .replaceAll('"', '""') +
+    '"'
+  }
+  str += '\n'
   }
   saveStr(str, 'nodes.csv')
   str = 'Source,Target,Type,Id,Label,Style,Note\n'
   for (let edge of data.edges.get()) {
-	str += edge.from + ','
-	str += edge.to + ','
-	str += 'directed,'
-	str += edge.id + ','
-	if (edge.label) str += edge.label.replaceAll('\n', ' ') + '"'
-	str += ',' + edge.grp + ','
-	if (edge.note) {
-	  qed.setContents(edge.note)
-	  // convert Quill formatted note to HTML, escaping all "
-	  str +=
-		'"' +
-		new QuillDeltaToHtmlConverter(qed.getContents().ops, {
-		  inlineStyles: true,
-		})
-		  .convert()
-		  .replaceAll('"', '""') +
-		'"'
-	}
-	str += '\n'
+  str += edge.from + ','
+  str += edge.to + ','
+  str += 'directed,'
+  str += edge.id + ','
+  if (edge.label) str += edge.label.replaceAll('\n', ' ') + '"'
+  str += ',' + edge.grp + ','
+  if (edge.note) {
+    qed.setContents(edge.note)
+    // convert Quill formatted note to HTML, escaping all "
+    str +=
+    '"' +
+    new QuillDeltaToHtmlConverter(qed.getContents().ops, {
+      inlineStyles: true,
+    })
+      .convert()
+      .replaceAll('"', '""') +
+    '"'
+  }
+  str += '\n'
   }
   saveStr(str, 'edges.csv')
   dummyDiv.remove()
