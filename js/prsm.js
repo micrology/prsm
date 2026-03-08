@@ -969,7 +969,16 @@ function restoreState(compressedState) {
     }
     viewOnly = state.net.viewOnly || false
     data.nodes.get().forEach((obj) => (obj.fixed = viewOnly))
-    if (viewOnly) hideNavButtons()
+    if (viewOnly) {
+      hideNavButtons()
+      network.setOptions({
+        interaction: {
+          dragNodes: false,
+          dragEdges: false,
+          hover: false,
+        }
+      })
+    }
     styles.nodes = deepCopy(state.samples.nodes)
     styles.edges = deepCopy(state.samples.edges)
     for (const k in styles.nodes) {
@@ -1338,6 +1347,7 @@ function draw() {
   if (viewOnly) {
     options.interaction = {
       dragNodes: false,
+      dragEdges: false,
       hover: false,
     }
   }
@@ -2127,11 +2137,13 @@ export async function logHistory(action, actor, dontSaveState = null) {
  * @returns binary string
  */
 export function saveState(options) {
+  const netMap = yNetMap.toJSON()
+  netMap.viewOnly = options?.viewOnly || false
   return compressToUTF16(
     JSON.stringify({
       nodes: data.nodes.get(),
       edges: data.edges.get(),
-      net: yNetMap.toJSON(),
+      net: netMap,
       samples: styles,
       paint: yPointsArray.toArray(),
       drawing: yDrawingMap.toJSON(),
@@ -3349,17 +3361,17 @@ function ghostCursor() {
     const boxHalfHeight = box.offsetHeight / 2
     const left = event.pageX - boxHalfWidth
     box.style.left = `${left <= netPaneRect.left
-        ? netPaneRect.left
-        : left >= netPaneRect.right - box.offsetWidth
-          ? netPaneRect.right - box.offsetWidth
-          : left
+      ? netPaneRect.left
+      : left >= netPaneRect.right - box.offsetWidth
+        ? netPaneRect.right - box.offsetWidth
+        : left
       }px`
     const top = event.pageY - boxHalfHeight
     box.style.top = `${top <= netPaneRect.top
-        ? netPaneRect.top
-        : top >= netPaneRect.bottom - box.offsetHeight
-          ? netPaneRect.bottom - box.offsetHeight
-          : top
+      ? netPaneRect.top
+      : top >= netPaneRect.bottom - box.offsetHeight
+        ? netPaneRect.bottom - box.offsetHeight
+        : top
       }px`
   }
 }
@@ -3543,6 +3555,8 @@ function setUpShareDialog() {
       }
       case 'table': {
         path = `${window.location.pathname.replace('prsm.html', 'table.html')}?room=${room}`
+        const debugType = new URL(window.location.href).searchParams.get('debug')
+        if (debugType) path += `&debug=${debugType}`
         window.open(path, '_blank')
         break
       }
@@ -4294,6 +4308,7 @@ function autoLayout(e) {
     network.setOptions({ physics: { enabled: false } })
     network.storePositions()
     alertMsg(`Previous layout cancelled`, 'warn')
+    clearStatusBar()
   }
   doc.transact(() => {
     switch (option) {
@@ -4434,7 +4449,8 @@ function autoLayout(e) {
     network.setOptions({ physics: { enabled: false } })
     network.storePositions()
     elem('layoutSelect').value = 'off'
-    statusMsg(`${label} layout applied`)
+    if (option !== 'off') statusMsg(`${label} layout applied`)
+    else statusMsg('Layout cancelled')
     data.nodes.update(data.nodes.get())
   }
 
