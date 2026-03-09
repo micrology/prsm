@@ -49,7 +49,7 @@ const TITLELISTLEN = 50
  * @param {string} title - The title of the currently open map.
  */
 export function createRoomMenus(title) {
-    const recents = JSON.parse(localStorage.getItem('recents')) || '{}'
+    const recents = JSON.parse(localStorage.getItem('recents')) || {}
     projects = recents.projects || {}
     maps = clean(recents, { projects: true })
     maps.new = '<b>New Map</b>'
