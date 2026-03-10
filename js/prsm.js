@@ -1154,7 +1154,7 @@ function setUpUserName() {
  */
 function saveUserName(name) {
   if (name.length > 0) {
-    myNameRec.name = name
+    myNameRec.name = name.replace(/[&<>*"']/g, '')
     myNameRec.anon = false
   } else {
     myNameRec = generateName()

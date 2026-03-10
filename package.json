@@ -86,7 +86,7 @@
     "uuid": "^11.0.0",
     "vis-data": "^7.1.4",
     "vis-util": "^5.0.3",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "y-websocket": "^3.0.0",
     "yjs": "^13.6.27"
   },

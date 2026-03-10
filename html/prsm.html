@@ -47,12 +47,7 @@
        * reject Internet Explorer and any browser not able to understand ES6
        */
       function isES6() {
-        try {
-          Function('() => {};')
-          return true
-        } catch (exception) {
-          return false
-        }
+        return typeof Promise !== 'undefined' && typeof Symbol !== 'undefined'
       }
       if (window.document.documentMode || !isES6()) {
         alert(

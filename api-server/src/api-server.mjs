@@ -40,7 +40,6 @@ if (process.env.NODE_ENV === "dev") {
 }
 const app = express()
 const PORT = process.env.PORT || 3001
-let room = '' // current room, set by middleware that checks the room parameter in incoming requests
 
 // Rate limiting and concurrency control
 const globalLimiter = rateLimit({
@@ -64,7 +63,7 @@ let inFlightChatRequests = 0
 const MAX_IN_FLIGHT_CHAT = 10
 
 // Middleware
-app.use(cors())
+app.use(cors(['https://prsm.uk:3001', 'http://localhost:3001']))
 app.use(express.json())
 app.use(globalLimiter)
 
@@ -79,7 +78,7 @@ app.all([
 	'/api/map/:room/styles/:style'
 ], (req, res, next) => {
 	try {
-		room = checkRoom(req.params.room)
+		checkRoom(req.params.room)
 		next()
 	} catch (error) {
 		res.status(500).json({ error: error.message })
@@ -91,7 +90,7 @@ app.post('/api/chat/:room', ChatLimiter, async (req, res) => {
 	const region = process.env.AWS_REGION || 'eu-west-2'
 	const bedrockApiKey = process.env.BEDROCK_API_KEY
 	const modelId = process.env.MODEL_ID || 'eu.anthropic.claude-haiku-4-5-20251001-v1:0'
-	logAPICalls(`Using chat for room ${room}`)
+	logAPICalls(`Using chat for room ${req.params.room}`)
 
 	if (!bedrockApiKey) {
 		console.error('ERROR: BEDROCK_API_KEY environment variable is not set')
@@ -107,6 +106,10 @@ app.post('/api/chat/:room', ChatLimiter, async (req, res) => {
 		const { message, systemPrompt } = req.body
 		if (!message) {
 			return res.status(400).json({ error: 'Message is required' })
+		}
+		// reject excessively long prompts
+		if (message.length + systemPrompt?.length > 10000) {
+			return res.status(400).json({ error: 'Message is too long. Please limit to 10000 characters.' })
 		}
 		const conversation = [
 			{
@@ -163,9 +166,9 @@ app.post('/api/chat/:room', ChatLimiter, async (req, res) => {
  */
 app.get('/api/map/:room', async (req, res) => {
 	try {
-		logAPICalls(`Fetching map for room ${room}`)
+		logAPICalls(`Fetching map for room ${req.params.room}`)
 		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
 		let sentResponse = false;
 		wsProvider.on('synced', () => {
 			if (!sentResponse) {
@@ -175,7 +178,7 @@ app.get('/api/map/:room', async (req, res) => {
 					const yNetMap = doc.getMap('network')
 					checkMapExists(yNetMap)
 					res.json({
-						room,
+						room: req.params.room,
 						title: yNetMap.get('mapTitle'),
 						viewOnly: yNetMap.get('viewOnly'),
 						version: yNetMap.get('version'),
@@ -204,14 +207,14 @@ app.get('/api/map/:room', async (req, res) => {
  */
 app.patch('/api/map/:room', async (req, res) => {
 	try {
-		logAPICalls(`Updating map for room ${room}`)
+		logAPICalls(`Updating map for room ${req.params.room}`)
 		const { update } = req.body
 
 		if (!update) {
 			return res.status(400).json({ error: 'Nothing provided for update' })
 		}
 		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
 		let sentResponse = false;
 		wsProvider.on('synced', () => {
 			if (!sentResponse) {
@@ -225,7 +228,7 @@ app.patch('/api/map/:room', async (req, res) => {
 						yNetMap.set('background', update.background)
 					}
 					res.json({
-						room,
+						room: req.params.room,
 						title: yNetMap.get('mapTitle'),
 						background: yNetMap.get('background'),
 					})
@@ -250,9 +253,9 @@ app.patch('/api/map/:room', async (req, res) => {
  */
 app.get('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
-		logAPICalls(`Fetching factor ${req.params.factor} for room ${room}`)
+		logAPICalls(`Fetching factor ${req.params.factor} for room ${req.params.room}`)
 		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
 		let sentResponse = false;
 		wsProvider.on('synced', () => {
 			if (!sentResponse) {
@@ -282,7 +285,7 @@ app.get('/api/map/:room/factor/:factor', async (req, res) => {
  */
 app.patch('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
-		logAPICalls(`Updating factor ${req.params.factor} for room ${room}`)
+		logAPICalls(`Updating factor ${req.params.factor} for room ${req.params.room}`)
 		const { update } = req.body
 
 		if (!update) {
@@ -290,7 +293,7 @@ app.patch('/api/map/:room/factor/:factor', async (req, res) => {
 		}
 
 		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
 		let sentResponse = false;
 		wsProvider.on('synced', () => {
 			if (!sentResponse) {
@@ -322,7 +325,7 @@ app.patch('/api/map/:room/factor/:factor', async (req, res) => {
  */
 app.post('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
-		logAPICalls(`Creating factor ${req.params.factor} for room ${room}`)
+		logAPICalls(`Creating factor ${req.params.factor} for room ${req.params.room}`)
 		const { spec } = req.body
 
 		// validate spec: must have at least a label
@@ -356,7 +359,7 @@ app.post('/api/map/:room/factor/:factor', async (req, res) => {
 		}
 
 		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
 		let sentResponse = false;
 		wsProvider.on('synced', () => {
 			if (!sentResponse) {
@@ -381,10 +384,10 @@ app.post('/api/map/:room/factor/:factor', async (req, res) => {
  */
 app.delete('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
-		logAPICalls(`Deleting factor ${req.params.factor} for room ${room}`)
+		logAPICalls(`Deleting factor ${req.params.factor} for room ${req.params.room}`)
 
 		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
 		let sentResponse = false;
 		wsProvider.on('synced', () => {
 			if (!sentResponse) {
@@ -420,9 +423,9 @@ app.delete('/api/map/:room/factor/:factor', async (req, res) => {
  */
 app.get('/api/map/:room/link/:link', async (req, res) => {
 	try {
-		logAPICalls(`Fetching link ${req.params.link} for room ${room}`)
+		logAPICalls(`Fetching link ${req.params.link} for room ${req.params.room}`)
 		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
 		let sentResponse = false;
 		wsProvider.on('synced', () => {
 			if (!sentResponse) {
@@ -452,7 +455,7 @@ app.get('/api/map/:room/link/:link', async (req, res) => {
  */
 app.patch('/api/map/:room/link/:link', async (req, res) => {
 	try {
-		logAPICalls(`Updating link ${req.params.link} for room ${room}`)
+		logAPICalls(`Updating link ${req.params.link} for room ${req.params.room}`)
 		const { update } = req.body
 
 		if (!update) {
@@ -460,7 +463,7 @@ app.patch('/api/map/:room/link/:link', async (req, res) => {
 		}
 
 		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
 		let sentResponse = false;
 		wsProvider.on('synced', () => {
 			if (!sentResponse) {
@@ -492,7 +495,7 @@ app.patch('/api/map/:room/link/:link', async (req, res) => {
  */
 app.post('/api/map/:room/link/:link', async (req, res) => {
 	try {
-		logAPICalls(`Creating link ${req.params.link} for room ${room}`)
+		logAPICalls(`Creating link ${req.params.link} for room ${req.params.room}`)
 		const { spec } = req.body
 
 		// validate spec: must have at least a from and to
@@ -533,7 +536,7 @@ app.post('/api/map/:room/link/:link', async (req, res) => {
 		}
 
 		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
 		let sentResponse = false;
 		wsProvider.on('synced', () => {
 			if (!sentResponse) {
@@ -563,10 +566,10 @@ app.post('/api/map/:room/link/:link', async (req, res) => {
  */
 app.delete('/api/map/:room/link/:link', async (req, res) => {
 	try {
-		logAPICalls(`Deleting link ${req.params.link} for room ${room}`)
+		logAPICalls(`Deleting link ${req.params.link} for room ${req.params.room}`)
 
 		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
 		let sentResponse = false;
 		wsProvider.on('synced', () => {
 			if (!sentResponse) {
@@ -593,9 +596,9 @@ app.delete('/api/map/:room/link/:link', async (req, res) => {
  */
 app.get('/api/map/:room/styles', async (req, res) => {
 	try {
-		logAPICalls(`Fetching styles for room ${room}`)
+		logAPICalls(`Fetching styles for room ${req.params.room}`)
 		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
 		let sentResponse = false;
 		wsProvider.on('synced', () => {
 			if (!sentResponse) {
@@ -619,9 +622,9 @@ app.get('/api/map/:room/styles', async (req, res) => {
  */
 app.get('/api/map/:room/styles/:style', async (req, res) => {
 	try {
-		logAPICalls(`Fetching styles for room ${room}`)
+		logAPICalls(`Fetching styles for room ${req.params.room}`)
 		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
 		let sentResponse = false;
 		wsProvider.on('synced', () => {
 			if (!sentResponse) {
@@ -645,7 +648,7 @@ app.get('/api/map/:room/styles/:style', async (req, res) => {
 
 app.patch('/api/map/:room/styles/:style', async (req, res) => {
 	try {
-		logAPICalls(`Updating style ${req.params.style} for room ${room}`)
+		logAPICalls(`Updating style ${req.params.style} for room ${req.params.room}`)
 		const { update } = req.body
 
 		if (!update) {
@@ -653,7 +656,7 @@ app.patch('/api/map/:room/styles/:style', async (req, res) => {
 		}
 
 		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
 		let sentResponse = false;
 		wsProvider.on('synced', () => {
 			if (!sentResponse) {
