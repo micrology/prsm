@@ -175,11 +175,12 @@ function renderProjectMaps(proj) {
 
 /**
  * Stores a room/title pair in the maps object. If a map with the same title
- * already exists, the current date/time is appended to make it unique.
+ * already exists but the room is different,the current date/time is appended to make the title unique.
  * @param {string} room - The room identifier used as the URL search parameter.
  * @param {string} title - The display title for the map.
  */
 function storeMapRoom(room, title) {
+    if (maps[room] === title) return
     if (Object.values(maps).includes(title.replace(/\w*(\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2}:\d{2})/g, ''))) title += ` (${new Date().toLocaleString()})`
     maps[room] = title
 }
@@ -299,14 +300,14 @@ elem('newMapTrigger').onclick = (e) => {
 
 elem('saveListToFileTrigger').onclick = (e) => {
     e.stopPropagation()
-    const str = JSON.stringify({ projects: { ...projects }, ...maps })
+    const str = JSON.stringify({ info: { type: "PRSM map menu list", version: '1.0', date: new Date().toLocaleString() }, projects: { ...projects }, ...maps }, null, "\t")
     const blob = new Blob([str], { type: 'text/plain;charset=utf-8' })
     saveAs(blob, 'PRSMMapList.prsml', { autoBom: true })
     statusMsg('Map list saved to file.  To read it back in, drag and drop it over the map', 'info')
 }
 /**
  * Loads a map list from a JSON string (e.g. from a dragged-and-dropped
- * `.prsml` file), replaces the in-memory projects and maps, persists
+ * `.prsml` file), merges the contents with the in-memory projects and maps, persists
  * to localStorage, and re-renders both menus.
  * @param {string} str - A JSON string previously exported via the save trigger.
  */
@@ -314,8 +315,8 @@ export function loadMapList(str) {
     try {
         const obj = JSON.parse(str)
         if (obj.projects && Object.keys(obj).length > 1) {
-            projects = obj.projects
-            maps = clean(obj, { projects: true })
+            projects = { ...projects, ...obj.projects }
+            maps = { ...maps, ...clean(obj, { projects: true, info: true }) }
             storeList()
             renderProjects()
             renderMaps()
