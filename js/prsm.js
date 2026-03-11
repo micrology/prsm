@@ -2017,6 +2017,7 @@ export function drawMinimap(ratio = 5) {
       const scale = initialScale / network.getScale()
       const radarRect = minimapRadar.getBoundingClientRect()
       const wrapperRect = minimapWrapper.getBoundingClientRect()
+      const prevPos = network.getViewPosition()
       network.moveTo({
         position: network.DOMtoCanvas({
           x:
@@ -2031,6 +2032,12 @@ export function drawMinimap(ratio = 5) {
             initialDOMPosition.y,
         }),
       })
+      // move background as well , keeping them in sync
+      const newPos = network.getViewPosition()
+      const newScale = network.getScale()
+      zoomCanvas(1.0)
+      panCanvas(prevPos.x - newPos.x, prevPos.y - newPos.y, 1.0)
+      zoomCanvas(newScale)
     }
     /**
      * note that the mouse is up and stop dragging
@@ -3277,6 +3284,19 @@ let ticking = false // if true, we are waiting for an AnimationFrame */
 // listen for zoom/pinch (confusingly, referred to as mousewheel events)
 listen(
   'net-pane',
+  'wheel',
+  (e) => {
+    e.preventDefault()
+    // reject all but vertical touch movements
+    if (Math.abs(e.deltaX) <= 1) zoomscroll(e)
+  },
+  // must be passive, else pinch/zoom is intercepted by the browser itself
+  { passive: false }
+)
+// also for the background underlay, so that user can zoom when drawing
+// NB not (yet) implemented for tablets
+listen(
+  'underlay',
   'wheel',
   (e) => {
     e.preventDefault()

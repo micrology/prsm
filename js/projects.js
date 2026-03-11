@@ -180,7 +180,7 @@ function renderProjectMaps(proj) {
  * @param {string} title - The display title for the map.
  */
 function storeMapRoom(room, title) {
-    if (Object.values(maps).includes(title)) title += ` (${new Date().toLocaleString()})`
+    if (Object.values(maps).includes(title.replace(/\w*(\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2}:\d{2})/g, ''))) title += ` (${new Date().toLocaleString()})`
     maps[room] = title
 }
 /**

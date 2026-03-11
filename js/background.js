@@ -23,7 +23,7 @@ import {
   Rect,
   Circle,
   Line,
-  IText,
+  Textbox,
   Path,
   FabricImage,
   ActiveSelection,
@@ -221,6 +221,7 @@ export async function refreshFromMap(keys) {
               break
             case 'text':
             case 'IText':
+              case 'Textbox':
               localObj = new TextHandler()
               break
             case 'path':
@@ -1227,7 +1228,7 @@ class LineHandler extends Line {
 
 /**************************************** Text ********************************************/
 
-class TextHandler extends IText {
+class TextHandler extends Textbox {
   constructor() {
     super('Text', {
       fontSize: 32,
@@ -1235,6 +1236,9 @@ class TextHandler extends IText {
       fontFamily: 'Oxygen',
     })
     this.id = uuidv4()
+    this.on('editing:entered', () => {
+      closeOptionsDialogs()
+    })
   }
 
   pointerdown(e) {
