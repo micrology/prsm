@@ -509,6 +509,7 @@ select option {
   border-radius: 20px;
   margin: auto;
   background-color: white;
+  box-shadow: inset 0px 0px 3px 0px black;
 }
 .color-picker-container {
   display: none;
@@ -1104,6 +1105,7 @@ nav button .pressed {
   background-color: var(--primary-color);
   color: white;
   font-size: 11px;
+  border-radius: 0 0 4px 4px;
 }
 .networkGrid {
   display: grid;
@@ -1128,6 +1130,20 @@ nav button .pressed {
 .panelRow.hidden {
   display: none;
 }
+.panelRow .btn {
+  font-size: 12px;
+  border-radius: 3px;
+  border: 1px solid white;
+  margin-top: 5px;
+  padding: 2px;
+  line-height: 1.1;
+  background-color: var(--primary-color);
+  color: white;
+}
+.panelRow .btn:active {
+  background-color: white;
+  color: black;
+}
 .networkGrid .panelRow {
   padding: 4px;
 }
@@ -1141,19 +1157,6 @@ but moving the panel out of sight works instead */
   position: absolute !important;
   top: -9999px !important;
   left: -9999px !important;
-}
-.btn {
-  display: inline-block;
-  font-weight: 400;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
-  font-size: 12px;
-  line-height: 1;
-  border-radius: 3px;
-  margin-top: 10px;
-  outline: none;
-  background-color: var(--shadow-color);
 }
 .sampleGrid {
   display: grid;
@@ -1327,7 +1330,7 @@ but moving the panel out of sight works instead */
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: black;
+  background-color: lightgrey;
   transition: 0.4s;
 }
 .slider:before {
@@ -1335,13 +1338,12 @@ but moving the panel out of sight works instead */
   content: '';
   height: 14px;
   width: 14px;
-  left: 2px;
-  bottom: 1px;
   background-color: white;
+  border: solid 1px grey;
   transition: 0.4s;
 }
 input:checked + .slider {
-  background-color: rgb(169, 169, 169);
+  background-color: var(--primary-color);
 }
 input:focus + .slider {
   box-shadow: 0 0 1px rgb(169, 169, 169);
