@@ -312,6 +312,10 @@ elem('saveListToFileTrigger').onclick = (e) => {
  * @param {string} str - A JSON string previously exported via the save trigger.
  */
 export function loadMapList(str) {
+    if (badMapListFormat(str)) {
+        alertMsg('Invalid map list format: ' + badMapListFormat(str), 'error')
+        return
+    }
     try {
         const obj = JSON.parse(str)
         if (obj.projects && Object.keys(obj).length > 1) {
@@ -327,6 +331,110 @@ export function loadMapList(str) {
     } catch (e) {
         alertMsg('Error loading map list: ' + e.message, 'error')
     }
+}
+
+/**
+ * Validates a JSON string against the PRSM map list format.
+ * @param {string} jsonStr - The JSON string to validate.
+ * @return {boolean|string} Returns false if valid, or a string describing the error.
+ */
+function badMapListFormat(jsonStr) {
+  let data;
+
+  // 1. Check for valid JSON syntax
+  try {
+    data = JSON.parse(jsonStr);
+  } catch (e) {
+    return "Invalid JSON: The string could not be parsed.";
+  }
+
+  // 2. Root must be a non-null object
+  if (typeof data !== "object" || data === null || Array.isArray(data)) {
+    return "Format Error: Root must be a JSON object.";
+  }
+
+  const tripleDashRegex = /^[a-zA-Z]{3}-[a-zA-Z]{3}-[a-zA-Z]{3}-[a-zA-Z]{3}$/;
+  const uuid4Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+  // 3. Check for required 'projects' property
+  if (!Object.hasOwn(data, "projects")) {
+    return "Missing Property: Required 'projects' property is missing.";
+  }
+
+  // 4. Validate Root level properties
+  for (const key in data) {
+    if (key === "projects") {
+      if (typeof data.projects !== "object" || data.projects === null || Array.isArray(data.projects)) {
+        return "Type Error: 'projects' must be an object.";
+      }
+      continue;
+    }
+
+    if (key === "info") {
+      if (typeof data.info !== "object" || data.info === null ) {
+        return "Type Error: The 'info' property must be an object.";
+      }
+      continue;
+    }
+
+    if (key === "new") {
+      if (typeof data.new !== "string") {
+        return "Type Error: The root 'new' property must be a string.";
+      }
+      continue;
+    }
+
+    if (!tripleDashRegex.test(key)) {
+      return `Validation Error: Unexpected root property name "${key}".`;
+    }
+    
+    if (typeof data[key] !== "string") {
+      return `Type Error: Property "${key}" must have a string value.`;
+    }
+  }
+
+  // 5. Validate the 'projects' object contents
+  const projects = data.projects;
+
+  if (!Object.hasOwn(projects, "new")) {
+    return "Missing Property: 'projects.new' is required.";
+  }
+  if (typeof projects.new !== "string") {
+    return "Type Error: 'projects.new' must be a string.";
+  }
+
+  for (const projKey in projects) {
+    if (projKey === "new") continue;
+
+    if (!uuid4Regex.test(projKey)) {
+      return `Property Error: Key "${projKey}" in projects is not a valid UUID4 format.`;
+    }
+
+    const projectEntry = projects[projKey];
+    if (typeof projectEntry !== "object" || projectEntry === null) {
+      return `Type Error: Project "${projKey}" must be an object.`;
+    }
+
+    if (!Object.hasOwn(projectEntry, "name")) {
+      return `Missing Property: Project "${projKey}" is missing the required "name" property.`;
+    }
+    if (typeof projectEntry.name !== "string") {
+      return `Type Error: The "name" property in project "${projKey}" must be a string.`;
+    }
+
+    for (const subKey in projectEntry) {
+      if (subKey === "name") continue;
+
+      if (!tripleDashRegex.test(subKey)) {
+        return `Validation Error: Unexpected property "${subKey}" in project "${projKey}".`;
+      }
+      if (typeof projectEntry[subKey] !== "string") {
+        return `Type Error: Property "${subKey}" in project "${projKey}" must be a string.`;
+      }
+    }
+  }
+
+  return false;
 }
 
 [mainMenu, projectsMenu, projectMapsMenu].forEach((panel) => {
