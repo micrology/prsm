@@ -647,6 +647,11 @@ function startY() {
     }
     if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote')
     if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
+    if (nodesToUpdate.length > 0 || nodesToRemove.length > 0) {
+      // if user is in mid-flight adding a Factor, and someone else has changed data,
+      // vis-network will cancel the edit mode for this user.  Re-instate it.
+      if (inAddMode === 'addNode') network.addNodeMode()
+    }
     if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0)) {
       showChange(evt, yNodesMap)
     }
@@ -695,9 +700,10 @@ function startY() {
     if (edgesToUpdate.length > 0) edges.update(edgesToUpdate, 'remote')
     if (edgesToRemove.length > 0) edges.remove(edgesToRemove, 'remote')
     if (edgesToUpdate.length > 0 || edgesToRemove.length > 0) {
-      // if user is in mid-flight adding a Link, and someone else has just added a link,
+      // if user is in mid-flight adding a Factor or Link, and someone else has changed data,
       // vis-network will cancel the edit mode for this user.  Re-instate it.
       if (inAddMode === 'addLink') network.addEdgeMode()
+      if (inAddMode === 'addNode') network.addNodeMode()
     }
     if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0)) {
       showChange(evt, yEdgesMap)
