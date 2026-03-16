@@ -2519,6 +2519,8 @@ async function getClipboardContents() {
 
 /* ----------------- dialogues for creating and editing nodes and links ----------------*/
 
+let currentCaptureReturn = null
+
 /**
  * Initialise the dialog for creating nodes/edges
  * @param {string} popUpTitle
@@ -2543,16 +2545,22 @@ function initPopUp(popUpTitle, item, cancelAction, saveAction, callback) {
   popupLabel.focus()
   // Set the cursor to the end
   setEndOfContenteditable(popupLabel)
-  listen('popup', 'keydown', captureReturn)
+  if (currentCaptureReturn) {
+    elem('popup').removeEventListener('keydown', currentCaptureReturn)
+  }
   function captureReturn(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       elem('popup').removeEventListener('keydown', captureReturn)
+      currentCaptureReturn = null
       saveAction(item, callback)
     } else if (e.key === 'Escape') {
       elem('popup').removeEventListener('keydown', captureReturn)
+      currentCaptureReturn = null
       cancelAction(item, callback)
     }
   }
+  currentCaptureReturn = captureReturn
+  listen('popup', 'keydown', captureReturn)
 }
 /**
  * Position the editing dialog box so that it is to the left of the item being edited,
@@ -2575,6 +2583,10 @@ function clearPopUp() {
   elem('popup-saveButton').onclick = null
   elem('popup-cancelButton').onclick = null
   elem('popup-label').onkeyup = null
+  if (currentCaptureReturn) {
+    elem('popup').removeEventListener('keydown', currentCaptureReturn)
+    currentCaptureReturn = null
+  }
   elem('popup').style.display = 'none'
   if (elem('popup-editor')) elem('popup-editor').remove()
   if (elem('popup').timer) {
