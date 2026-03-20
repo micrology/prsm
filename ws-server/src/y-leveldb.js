@@ -359,20 +359,14 @@ const createDocumentLastKey = (docName) => ['v1', docName, 'zzzzzzz']
 
 /**
  * Merges a list of binary Yjs updates into a single update and computes the new state vector.
+ * Uses Yjs binary-level merge (no Y.Doc created), which is far more memory-efficient.
  *
  * @param {Array<Uint8Array>} updates
  * @return {{update:Uint8Array, sv: Uint8Array}}
  */
 const mergeUpdates = (updates) => {
-  const ydoc = new Y.Doc()
-  ydoc.transact(() => {
-    for (let i = 0; i < updates.length; i++) {
-      Y.applyUpdate(ydoc, updates[i])
-    }
-  })
-  const update = Y.encodeStateAsUpdate(ydoc)
-  const sv = Y.encodeStateVector(ydoc)
-  ydoc.destroy()
+  const update = Y.mergeUpdates(updates)
+  const sv = Y.encodeStateVectorFromUpdate(update)
   return { update, sv }
 }
 
@@ -447,10 +441,7 @@ const flushDocument = async (db, docName, stateAsUpdate, stateVector) => {
 const storeUpdate = async (db, docName, update) => {
   const clock = await getCurrentUpdateClock(db, docName)
   if (clock === -1) {
-    const ydoc = new Y.Doc()
-    Y.applyUpdate(ydoc, update)
-    const sv = Y.encodeStateVector(ydoc)
-    ydoc.destroy()
+    const sv = Y.encodeStateVectorFromUpdate(update)
     await writeStateVector(db, docName, sv, 0)
   }
   await levelPut(db, createDocumentUpdateKey(docName, clock + 1), update)
