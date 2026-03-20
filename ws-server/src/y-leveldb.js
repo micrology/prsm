@@ -29,8 +29,8 @@ const YEncodingUint32 = 1
 const valueEncoding = {
   buffer: true,
   type: 'y-value',
-  encode: /** @param {any} data */ data => data,
-  decode: /** @param {any} data */ data => data
+  encode: /** @param {any} data */ (data) => data,
+  decode: /** @param {any} data */ (data) => data,
 }
 
 /**
@@ -55,12 +55,13 @@ export const writeUint32BigEndian = (encoder, num) => {
  * @param {decoding.Decoder} decoder
  * @return {number} An unsigned integer.
  */
-export const readUint32BigEndian = decoder => {
+export const readUint32BigEndian = (decoder) => {
   const uint =
     (decoder.arr[decoder.pos + 3] +
-    (decoder.arr[decoder.pos + 2] << 8) +
-    (decoder.arr[decoder.pos + 1] << 16) +
-    (decoder.arr[decoder.pos] << 24)) >>> 0
+      (decoder.arr[decoder.pos + 2] << 8) +
+      (decoder.arr[decoder.pos + 1] << 16) +
+      (decoder.arr[decoder.pos] << 24)) >>>
+    0
   decoder.pos += 4
   return uint
 }
@@ -73,15 +74,15 @@ export const keyEncoding = {
   buffer: true,
   type: 'y-keys',
   /* istanbul ignore next */
-  encode: /** @param {Array<string|number>} arr */  arr => {
+  encode: /** @param {Array<string|number>} arr */ (arr) => {
     const encoder = encoding.createEncoder()
     for (let i = 0; i < arr.length; i++) {
       const v = arr[i]
       if (typeof v === 'string') {
         encoding.writeUint8(encoder, YEncodingString)
         encoding.writeVarString(encoder, v)
-      } else /* istanbul ignore else */ if (typeof v === 'number') {
-        encoding.writeUint8(encoder, YEncodingUint32)
+      } else if (typeof v === 'number') {
+        /* istanbul ignore else */ encoding.writeUint8(encoder, YEncodingUint32)
         writeUint32BigEndian(encoder, v)
       } else {
         throw new Error('Unexpected key value')
@@ -89,7 +90,7 @@ export const keyEncoding = {
     }
     return Buffer.from(encoding.toUint8Array(encoder))
   },
-  decode: /** @param {Uint8Array} buf */ buf => {
+  decode: /** @param {Uint8Array} buf */ (buf) => {
     const decoder = decoding.createDecoder(buf)
     const key = []
     while (decoding.hasContent(decoder)) {
@@ -103,11 +104,11 @@ export const keyEncoding = {
       }
     }
     return key
-  }
+  },
 }
 
 /**
- * Safely retrieves a value from LevelDB. 
+ * Safely retrieves a value from LevelDB.
  * Returns `undefined` instead of throwing an error if the key is not found.
  *
  * @param {AbstractLevel} db
@@ -195,11 +196,12 @@ export const getLevelBulkValues = async (db, opts) => {
  * @param {any} [opts]
  * @return {Promise<Array<Uint8Array>>}
  */
-export const getLevelUpdates = (db, docName, opts = {}) => getLevelBulkValues(db, {
-  gte: createDocumentUpdateKey(docName, 0),
-  lt: createDocumentUpdateKey(docName, binary.BITS32),
-  ...opts
-})
+export const getLevelUpdates = (db, docName, opts = {}) =>
+  getLevelBulkValues(db, {
+    gte: createDocumentUpdateKey(docName, 0),
+    lt: createDocumentUpdateKey(docName, binary.BITS32),
+    ...opts,
+  })
 
 /**
  * Retrieves all stored update entries (keys and values) for a specific document.
@@ -209,11 +211,12 @@ export const getLevelUpdates = (db, docName, opts = {}) => getLevelBulkValues(db
  * @param {any} [opts]
  * @return {Promise<Array<{key: DocKey, value: Uint8Array }>>}
  */
-export const getLevelUpdatesEntries = (db, docName, opts = {}) => getLevelBulkEntries(db, {
-  gte: createDocumentUpdateKey(docName, 0),
-  lt: createDocumentUpdateKey(docName, binary.BITS32),
-  ...opts
-})
+export const getLevelUpdatesEntries = (db, docName, opts = {}) =>
+  getLevelBulkEntries(db, {
+    gte: createDocumentUpdateKey(docName, 0),
+    lt: createDocumentUpdateKey(docName, binary.BITS32),
+    ...opts,
+  })
 
 /**
  * Retrieves all binary update keys for a specific document.
@@ -224,11 +227,12 @@ export const getLevelUpdatesEntries = (db, docName, opts = {}) => getLevelBulkEn
  * @return {Promise<Array<DocKey>>}
  */
 /* istanbul ignore next */
-export const getLevelUpdatesKeys = (db, docName, opts = {}) => getLevelBulkKeys(db, {
-  gte: createDocumentUpdateKey(docName, 0),
-  lt: createDocumentUpdateKey(docName, binary.BITS32),
-  ...opts
-})
+export const getLevelUpdatesKeys = (db, docName, opts = {}) =>
+  getLevelBulkKeys(db, {
+    gte: createDocumentUpdateKey(docName, 0),
+    lt: createDocumentUpdateKey(docName, binary.BITS32),
+    ...opts,
+  })
 
 /**
  * Retrieves the state vector keys for all documents currently stored in the database.
@@ -236,10 +240,11 @@ export const getLevelUpdatesKeys = (db, docName, opts = {}) => getLevelBulkKeys(
  * @param {AbstractLevel} db
  * @return {Promise<Array<DocKey>>}
  */
-export const getAllDocsKeys = (db) => getLevelBulkKeys(db, {
-  gte: ['v1_sv'],
-  lt: ['v1_sw']
-})
+export const getAllDocsKeys = (db) =>
+  getLevelBulkKeys(db, {
+    gte: ['v1_sv'],
+    lt: ['v1_sw'],
+  })
 
 /**
  * Retrieves the state vector entries (keys and values) for all documents.
@@ -247,10 +252,11 @@ export const getAllDocsKeys = (db) => getLevelBulkKeys(db, {
  * @param {AbstractLevel} db
  * @return {Promise<Array<{ key: DocKey, value: Uint8Array }>>}
  */
-export const getAllDocs = (db) => getLevelBulkEntries(db, {
-  gte: ['v1_sv'],
-  lt: ['v1_sw']
-})
+export const getAllDocs = (db) =>
+  getLevelBulkEntries(db, {
+    gte: ['v1_sv'],
+    lt: ['v1_sw'],
+  })
 
 /**
  * Retrieves the highest update clock index currently stored for a document.
@@ -259,13 +265,14 @@ export const getAllDocs = (db) => getLevelBulkEntries(db, {
  * @param {string} docName
  * @return {Promise<number>} Returns -1 if the document has no updates.
  */
-export const getCurrentUpdateClock = (db, docName) => getLevelUpdatesKeys(db, docName, { reverse: true, limit: 1 }).then(entries => {
-  if (entries.length === 0) {
-    return -1
-  } else {
-    return /** @type {number} */ (entries[0][3])
-  }
-})
+export const getCurrentUpdateClock = (db, docName) =>
+  getLevelUpdatesKeys(db, docName, { reverse: true, limit: 1 }).then((entries) => {
+    if (entries.length === 0) {
+      return -1
+    } else {
+      return /** @type {number} */ (entries[0][3])
+    }
+  })
 
 /**
  * Deletes all keys within a specified range from the database.
@@ -282,7 +289,7 @@ const clearRange = async (db, gte, lt) => {
     await db.clear({ gte, lt })
   } else {
     const keys = await getLevelBulkKeys(db, { gte, lt })
-    const ops = keys.map(key => ({ type: 'del', key }))
+    const ops = keys.map((key) => ({ type: 'del', key }))
     await db.batch(ops)
   }
 }
@@ -296,7 +303,8 @@ const clearRange = async (db, gte, lt) => {
  * @param {number} to The ending clock index (exclusive)
  * @return {Promise<void>}
  */
-const clearUpdatesRange = async (db, docName, from, to) => clearRange(db, createDocumentUpdateKey(docName, from), createDocumentUpdateKey(docName, to))
+const clearUpdatesRange = async (db, docName, from, to) =>
+  clearRange(db, createDocumentUpdateKey(docName, from), createDocumentUpdateKey(docName, to))
 
 /**
  * Generates a database key for a specific document update at a specific clock.
@@ -362,7 +370,10 @@ const mergeUpdates = (updates) => {
       Y.applyUpdate(ydoc, updates[i])
     }
   })
-  return { update: Y.encodeStateAsUpdate(ydoc), sv: Y.encodeStateVector(ydoc) }
+  const update = Y.encodeStateAsUpdate(ydoc)
+  const sv = Y.encodeStateVector(ydoc)
+  ydoc.destroy()
+  return { update, sv }
 }
 
 /**
@@ -386,7 +397,7 @@ const writeStateVector = async (db, docName, sv, clock) => {
  * @param {Uint8Array} buf
  * @return {{ sv: Uint8Array, clock: number }}
  */
-const decodeLeveldbStateVector = buf => {
+const decodeLeveldbStateVector = (buf) => {
   const decoder = decoding.createDecoder(buf)
   const clock = decoding.readVarUint(decoder)
   const sv = decoding.readVarUint8Array(decoder)
@@ -421,7 +432,7 @@ const readStateVector = async (db, docName) => {
 const flushDocument = async (db, docName, stateAsUpdate, stateVector) => {
   const clock = await storeUpdate(db, docName, stateAsUpdate)
   await writeStateVector(db, docName, stateVector, clock)
-  await clearUpdatesRange(db, docName, 0, clock) 
+  await clearUpdatesRange(db, docName, 0, clock)
   return clock
 }
 
@@ -439,6 +450,7 @@ const storeUpdate = async (db, docName, update) => {
     const ydoc = new Y.Doc()
     Y.applyUpdate(ydoc, update)
     const sv = Y.encodeStateVector(ydoc)
+    ydoc.destroy()
     await writeStateVector(db, docName, sv, 0)
   }
   await levelPut(db, createDocumentUpdateKey(docName, clock + 1), update)
@@ -456,7 +468,10 @@ export class LeveldbPersistence {
    * @param {any} [opts.Level] Level-compatible adapter. Defaults to `level`.
    * @param {object} [opts.levelOptions] Options passed to the level instance for tuning.
    */
-  constructor (location, /* istanbul ignore next */ { Level = DefaultLevel, levelOptions = {} } = {}) {
+  constructor(
+    location,
+    /* istanbul ignore next */ { Level = DefaultLevel, levelOptions = {} } = {}
+  ) {
     // Merged memory guards to prevent "External" memory growth especially for large values.
     const finalOptions = {
       cacheSize: 128 * 1024 * 1024, // 128MB limit for internal block cache
@@ -464,7 +479,7 @@ export class LeveldbPersistence {
       maxOpenFiles: 1000,
       ...levelOptions,
       valueEncoding,
-      keyEncoding
+      keyEncoding,
     }
 
     /**
@@ -480,7 +495,7 @@ export class LeveldbPersistence {
      * @param {function(any):Promise<T>} f A transaction that receives the db object
      * @return {Promise<T>}
      */
-    this._transact = f => {
+    this._transact = (f) => {
       const currTr = this.tr
       this.tr = (async () => {
         await currTr
@@ -502,8 +517,8 @@ export class LeveldbPersistence {
    * @param {string} docName
    * @return {Promise<void>}
    */
-  flushDocument (docName) {
-    return this._transact(async db => {
+  flushDocument(docName) {
+    return this._transact(async (db) => {
       const updates = await getLevelUpdates(db, docName)
       const { update, sv } = mergeUpdates(updates)
       await flushDocument(db, docName, update, sv)
@@ -515,8 +530,8 @@ export class LeveldbPersistence {
    * @param {string} docName
    * @return {Promise<Y.Doc>}
    */
-  getYDoc (docName) {
-    return this._transact(async db => {
+  getYDoc(docName) {
+    return this._transact(async (db) => {
       const updates = await getLevelUpdates(db, docName)
       const ydoc = new Y.Doc()
       ydoc.transact(() => {
@@ -536,8 +551,8 @@ export class LeveldbPersistence {
    * @param {string} docName
    * @return {Promise<Uint8Array>}
    */
-  getStateVector (docName) {
-    return this._transact(async db => {
+  getStateVector(docName) {
+    return this._transact(async (db) => {
       const { clock, sv } = await readStateVector(db, docName)
       let curClock = -1
       if (sv !== null) {
@@ -560,8 +575,8 @@ export class LeveldbPersistence {
    * @param {Uint8Array} update
    * @return {Promise<number>} Returns the clock of the stored update.
    */
-  storeUpdate (docName, update) {
-    return this._transact(db => storeUpdate(db, docName, update))
+  storeUpdate(docName, update) {
+    return this._transact((db) => storeUpdate(db, docName, update))
   }
 
   /**
@@ -570,9 +585,11 @@ export class LeveldbPersistence {
    * @param {Uint8Array} stateVector
    * @return {Promise<Uint8Array>} The binary update representing the difference.
    */
-  async getDiff (docName, stateVector) {
+  async getDiff(docName, stateVector) {
     const ydoc = await this.getYDoc(docName)
-    return Y.encodeStateAsUpdate(ydoc, stateVector)
+    const diff = Y.encodeStateAsUpdate(ydoc, stateVector)
+    ydoc.destroy()
+    return diff
   }
 
   /**
@@ -580,8 +597,8 @@ export class LeveldbPersistence {
    * @param {string} docName
    * @return {Promise<void>}
    */
-  clearDocument (docName) {
-    return this._transact(async db => {
+  clearDocument(docName) {
+    return this._transact(async (db) => {
       await db.del(createDocumentStateVectorKey(docName))
       await clearRange(db, createDocumentFirstKey(docName), createDocumentLastKey(docName))
     })
@@ -594,8 +611,10 @@ export class LeveldbPersistence {
    * @param {any} value
    * @return {Promise<void>}
    */
-  setMeta (docName, metaKey, value) {
-    return this._transact(db => levelPut(db, createDocumentMetaKey(docName, metaKey), buffer.encodeAny(value)))
+  setMeta(docName, metaKey, value) {
+    return this._transact((db) =>
+      levelPut(db, createDocumentMetaKey(docName, metaKey), buffer.encodeAny(value))
+    )
   }
 
   /**
@@ -604,8 +623,8 @@ export class LeveldbPersistence {
    * @param {string} metaKey
    * @return {Promise<void>}
    */
-  delMeta (docName, metaKey) {
-    return this._transact(db => db.del(createDocumentMetaKey(docName, metaKey)))
+  delMeta(docName, metaKey) {
+    return this._transact((db) => db.del(createDocumentMetaKey(docName, metaKey)))
   }
 
   /**
@@ -614,8 +633,8 @@ export class LeveldbPersistence {
    * @param {string} metaKey
    * @return {Promise<any>}
    */
-  getMeta (docName, metaKey) {
-    return this._transact(async db => {
+  getMeta(docName, metaKey) {
+    return this._transact(async (db) => {
       const res = await levelGet(db, createDocumentMetaKey(docName, metaKey))
       if (res == null) return
       return buffer.decodeAny(res)
@@ -626,10 +645,10 @@ export class LeveldbPersistence {
    * Returns a list of all document names currently stored in the database.
    * @return {Promise<Array<string>>}
    */
-  getAllDocNames () {
-    return this._transact(async db => {
+  getAllDocNames() {
+    return this._transact(async (db) => {
       const docKeys = await getAllDocsKeys(db)
-      return docKeys.map(key => /** @type {string} */ (key[1]))
+      return docKeys.map((key) => /** @type {string} */ (key[1]))
     })
   }
 
@@ -637,10 +656,10 @@ export class LeveldbPersistence {
    * Returns state vectors and names for all documents in the store.
    * @return {Promise<Array<{ name: string, sv: Uint8Array, clock: number }>>}
    */
-  getAllDocStateVectors () {
-    return this._transact(async db => {
+  getAllDocStateVectors() {
+    return this._transact(async (db) => {
       const docs = await getAllDocs(db)
-      return docs.map(doc => {
+      return docs.map((doc) => {
         const { sv, clock } = decodeLeveldbStateVector(doc.value)
         return { name: /** @type {string} */ (doc.key[1]), sv, clock }
       })
@@ -652,16 +671,18 @@ export class LeveldbPersistence {
    * @param {string} docName
    * @return {Promise<Map<string, any>>}
    */
-  getMetas (docName) {
-    return this._transact(async db => {
+  getMetas(docName) {
+    return this._transact(async (db) => {
       const data = await getLevelBulkEntries(db, {
         gte: createDocumentMetaKey(docName, ''),
         lt: createDocumentMetaEndKey(docName),
         keys: true,
-        values: true
+        values: true,
       })
       const metas = new Map()
-      data.forEach(v => { metas.set(v.key[3], buffer.decodeAny(v.value)) })
+      data.forEach((v) => {
+        metas.set(v.key[3], buffer.decodeAny(v.value))
+      })
       return metas
     })
   }
@@ -670,26 +691,26 @@ export class LeveldbPersistence {
    * Closes the database connection and releases all associated resources.
    * @return {Promise<void>}
    */
-  destroy () {
-    return this._transact(db => db.close())
+  destroy() {
+    return this._transact((db) => db.close())
   }
 
   /**
    * Deletes all data within the entire database.
    * @return {Promise<void>}
    */
-  clearAll () {
-    return this._transact(async db => db.clear())
+  clearAll() {
+    return this._transact(async (db) => db.clear())
   }
-    
-    /**
+
+  /**
    * Manually triggers a database-wide compaction.
-   * This operation is CPU and I/O intensive and should be run 
+   * This operation is CPU and I/O intensive and should be run
    * during low-traffic periods.
    * * @return {Promise<void>}
    */
-  compact () {
-    return this._transact(async db => {
+  compact() {
+    return this._transact(async (db) => {
       // If the underlying implementation supports compactRange (classic-level does)
       if (typeof db.compactRange === 'function') {
         // Passing null, null compacts the entire database
@@ -697,6 +718,21 @@ export class LeveldbPersistence {
       } else {
         console.warn('Compaction not supported by the current Level adapter.')
       }
+    })
+  }
+
+  /**
+   * Flushes a document using a pre-computed state update and state vector.
+   * Avoids re-reading all updates from the database when the state is already
+   * available in memory (e.g. when a document is being destroyed after use).
+   * @param {string} docName
+   * @param {Uint8Array} stateAsUpdate The full document state as a binary update
+   * @param {Uint8Array} stateVector The document's state vector
+   * @return {Promise<number>} The clock of the flushed document
+   */
+  flushDocumentState(docName, stateAsUpdate, stateVector) {
+    return this._transact(async (db) => {
+      return flushDocument(db, docName, stateAsUpdate, stateVector)
     })
   }
 }

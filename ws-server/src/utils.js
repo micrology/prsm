@@ -9,7 +9,7 @@ import * as map from 'lib0/map'
 import * as eventloop from 'lib0/eventloop'
 import { LeveldbPersistence } from './y-leveldb.js'
 
-import { memoryUsage } from 'node:process';
+import { memoryUsage } from 'node:process'
 
 import { callbackHandler, isCallbackSet } from './callback.js'
 
@@ -25,7 +25,7 @@ const wsReadyStateClosing = 2 // eslint-disable-line
 const wsReadyStateClosed = 3 // eslint-disable-line
 
 /**
-* Log message to console with timestamp when verbose mode is enabled
+ * Log message to console with timestamp when verbose mode is enabled
  * @param {string} msg
  */
 const log = (msg) => {
@@ -36,9 +36,11 @@ const log = (msg) => {
 
 const reportMemory = () => {
   const mem = memoryUsage()
-  return `Total Memory: ${Math.round(mem.rss / 1024 / 1024)} MB; ` +
+  return (
+    `Total Memory: ${Math.round(mem.rss / 1024 / 1024)} MB; ` +
     `Heap: ${Math.round(mem.heapUsed / 1024 / 1024)} MB of ${Math.round(mem.heapTotal / 1024 / 1024)} MB; ` +
-    `External: ${Math.round(mem.external / 1024 / 1024)} MB. `      // C++ objects
+    `External: ${Math.round(mem.external / 1024 / 1024)} MB. `
+  ) // C++ objects
 }
 
 log(`Initial memory use: ${reportMemory()}`)
@@ -68,13 +70,17 @@ if (typeof persistenceDir === 'string') {
       persistedYdoc.destroy()
 
       // Store the update handler so we can remove it later
-      const persistenceUpdateHandler = update => {
+      const persistenceUpdateHandler = (update) => {
         ldb.storeUpdate(docName, update)
       }
       ydoc._persistenceUpdateHandler = persistenceUpdateHandler
       ydoc.on('update', persistenceUpdateHandler)
     },
-    writeState: async (_docName, _ydoc) => { }
+    writeState: async (docName, ydoc) => {
+      const update = Y.encodeStateAsUpdate(ydoc)
+      const sv = Y.encodeStateVector(ydoc)
+      await ldb.flushDocumentState(docName, update, sv)
+    },
   }
 } else {
   console.info('No persistence database configured.')
@@ -84,14 +90,14 @@ if (typeof persistenceDir === 'string') {
  * @param {{bindState: function(string,WSSharedDoc):void,
  * writeState:function(string,WSSharedDoc):Promise<any>,provider:any}|null} persistence_
  */
-export const setPersistence = persistence_ => {
+export const setPersistence = (persistence_) => {
   persistence = persistence_
 }
 
 /**
  * @return {null|{bindState: function(string,WSSharedDoc):void,
-  * writeState:function(string,WSSharedDoc):Promise<any>}|null} used persistence layer
-  */
+ * writeState:function(string,WSSharedDoc):Promise<any>}|null} used persistence layer
+ */
 export const getPersistence = () => persistence
 
 /**
@@ -120,7 +126,7 @@ const updateHandler = (update, _origin, doc, _tr) => {
 /**
  * @type {(ydoc: Y.Doc) => Promise<void>}
  */
-let contentInitializor = _ydoc => Promise.resolve()
+let contentInitializor = (_ydoc) => Promise.resolve()
 
 /**
  * This function is called once every time a Yjs document is created. You can
@@ -158,14 +164,21 @@ export class WSSharedDoc extends Y.Doc {
       if (conn !== null) {
         const connControlledIDs = /** @type {Set<number>} */ (this.conns.get(conn))
         if (connControlledIDs !== undefined) {
-          added.forEach(clientID => { connControlledIDs.add(clientID) })
-          removed.forEach(clientID => { connControlledIDs.delete(clientID) })
+          added.forEach((clientID) => {
+            connControlledIDs.add(clientID)
+          })
+          removed.forEach((clientID) => {
+            connControlledIDs.delete(clientID)
+          })
         }
       }
       // broadcast awareness update
       const encoder = encoding.createEncoder()
       encoding.writeVarUint(encoder, messageAwareness)
-      encoding.writeVarUint8Array(encoder, awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients))
+      encoding.writeVarUint8Array(
+        encoder,
+        awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients)
+      )
       const buff = encoding.toUint8Array(encoder)
       this.conns.forEach((_, c) => {
         send(this, c, buff)
@@ -173,7 +186,7 @@ export class WSSharedDoc extends Y.Doc {
     }
     // Store handler references for cleanup
     this._awarenessChangeHandler = awarenessChangeHandler
-    this._updateHandler = /** @type {any} */(updateHandler)
+    this._updateHandler = /** @type {any} */ (updateHandler)
 
     this.awareness.on('update', this._awarenessChangeHandler)
     this.on('update', this._updateHandler)
@@ -274,7 +287,11 @@ const messageListener = async (conn, doc, message) => {
         }
         break
       case messageAwareness: {
-        awarenessProtocol.applyAwarenessUpdate(doc.awareness, decoding.readVarUint8Array(decoder), conn)
+        awarenessProtocol.applyAwarenessUpdate(
+          doc.awareness,
+          decoding.readVarUint8Array(decoder),
+          conn
+        )
         break
       }
     }
@@ -292,11 +309,12 @@ const messageListener = async (conn, doc, message) => {
  */
 const destroyDocument = (docname, doc) => {
   if (persistence !== null) {
-    persistence.writeState(docname, doc)
+    persistence
+      .writeState(docname, doc)
       .then(() => {
         log(`Document state saved for ${docname}`)
       })
-      .catch(err => {
+      .catch((err) => {
         console.error('Error writing state for', docname, err)
       })
       .finally(() => {
@@ -349,7 +367,9 @@ const send = (doc, conn, m) => {
     closeConn(doc, conn)
   }
   try {
-    conn.send(m, {}, err => { err != null && closeConn(doc, conn) })
+    conn.send(m, {}, (err) => {
+      err != null && closeConn(doc, conn)
+    })
   } catch (e) {
     closeConn(doc, conn)
   }
@@ -362,12 +382,18 @@ const pingTimeout = 30000
  * @param {import('http').IncomingMessage} req
  * @param {any} opts
  */
-export const setupWSConnection = (conn, req, { docName = (req.url || '').slice(1).split('?')[0], gc = true } = {}) => {
+export const setupWSConnection = (
+  conn,
+  req,
+  { docName = (req.url || '').slice(1).split('?')[0], gc = true } = {}
+) => {
   conn.binaryType = 'arraybuffer'
   // get doc, initialize if it does not exist yet
   const doc = getYDoc(docName, gc)
   doc.conns.set(conn, new Set())
-  log(`Connection opened. There are ${doc.conns.size} connections for document "${doc.name}". ${reportMemory()}`)
+  log(
+    `Connection opened. There are ${doc.conns.size} connections for document "${doc.name}". ${reportMemory()}`
+  )
   // Message handler - store reference for cleanup
   const messageHandler = /** @param {ArrayBuffer} message */ (message) => {
     messageListener(conn, doc, new Uint8Array(message))
@@ -418,9 +444,11 @@ export const setupWSConnection = (conn, req, { docName = (req.url || '').slice(1
     if (awarenessStates.size > 0) {
       const encoder = encoding.createEncoder()
       encoding.writeVarUint(encoder, messageAwareness)
-      encoding.writeVarUint8Array(encoder, awarenessProtocol.encodeAwarenessUpdate(doc.awareness, Array.from(awarenessStates.keys())))
+      encoding.writeVarUint8Array(
+        encoder,
+        awarenessProtocol.encodeAwarenessUpdate(doc.awareness, Array.from(awarenessStates.keys()))
+      )
       send(doc, conn, encoding.toUint8Array(encoder))
     }
   }
 }
-
