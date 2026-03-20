@@ -504,6 +504,18 @@ export class LeveldbPersistence {
   }
 
   /**
+   * Returns the number of stored updates for a document (keys only, cheap).
+   * @param {string} docName
+   * @return {Promise<number>}
+   */
+  getUpdateCount(docName) {
+    return this._transact(async (db) => {
+      const keys = await getLevelUpdatesKeys(db, docName)
+      return keys.length
+    })
+  }
+
+  /**
    * Merges all individual updates for a document into a single, optimized base update.
    * @param {string} docName
    * @return {Promise<void>}
