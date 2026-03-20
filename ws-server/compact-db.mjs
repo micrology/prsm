@@ -45,7 +45,7 @@ for (let i = 0; i < docNames.length; i += BATCH_SIZE) {
 
   for (const docName of batch) {
     try {
-      await ldb.flushDocument(docName)
+      await ldb.flushDocumentStreaming(docName)
       flushed++
     } catch (err) {
       errors++

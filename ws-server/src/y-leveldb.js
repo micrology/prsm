@@ -726,4 +726,43 @@ export class LeveldbPersistence {
       return flushDocument(db, docName, stateAsUpdate, stateVector)
     })
   }
+
+  /**
+   * Flushes a document by streaming updates from the database and merging
+   * them incrementally. Unlike flushDocument, this never loads all updates
+   * into memory at once, so it can handle arbitrarily large documents.
+   * @param {string} docName
+   * @param {number} [batchSize=500] Number of updates to read per batch
+   * @return {Promise<void>}
+   */
+  flushDocumentStreaming(docName, batchSize = 500) {
+    return this._transact(async (db) => {
+      let accumulated = null
+      let batch = []
+      let totalUpdates = 0
+
+      for await (const value of db.values({
+        gte: createDocumentUpdateKey(docName, 0),
+        lt: createDocumentUpdateKey(docName, binary.BITS32),
+      })) {
+        batch.push(value)
+        totalUpdates++
+        if (batch.length >= batchSize) {
+          const batchMerge = Y.mergeUpdates(batch)
+          accumulated = accumulated ? Y.mergeUpdates([accumulated, batchMerge]) : batchMerge
+          batch = []
+        }
+      }
+      if (batch.length > 0) {
+        const batchMerge = Y.mergeUpdates(batch)
+        accumulated = accumulated ? Y.mergeUpdates([accumulated, batchMerge]) : batchMerge
+        batch = []
+      }
+
+      if (totalUpdates <= 1 || accumulated === null) return
+
+      const sv = Y.encodeStateVectorFromUpdate(accumulated)
+      await flushDocument(db, docName, accumulated, sv)
+    })
+  }
 }
