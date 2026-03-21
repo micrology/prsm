@@ -516,6 +516,15 @@ export class LeveldbPersistence {
   }
 
   /**
+   * Returns the raw binary updates for a document without creating a Y.Doc.
+   * @param {string} docName
+   * @return {Promise<Array<Uint8Array>>}
+   */
+  getDocUpdates(docName) {
+    return this._transact((db) => getLevelUpdates(db, docName))
+  }
+
+  /**
    * Merges all individual updates for a document into a single, optimized base update.
    * @param {string} docName
    * @return {Promise<void>}

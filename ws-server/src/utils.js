@@ -7,7 +7,7 @@ import * as decoding from 'lib0/decoding'
 import * as map from 'lib0/map'
 
 import * as eventloop from 'lib0/eventloop'
-import { LeveldbPersistence } from './y-leveldb.js'
+import { LeveldbPersistence, PREFERRED_TRIM_SIZE } from './y-leveldb.js'
 
 import { memoryUsage } from 'node:process'
 
@@ -59,15 +59,20 @@ if (typeof persistenceDir === 'string') {
   persistence = {
     provider: ldb,
     bindState: async (docName, ydoc) => {
-      const persistedYdoc = await ldb.getYDoc(docName)
-      const newUpdates = Y.encodeStateAsUpdate(ydoc)
-      ldb.storeUpdate(docName, newUpdates)
+      // Read raw binary updates and apply directly to the live doc.
+      // This avoids creating a temporary Y.Doc, roughly halving peak memory.
+      const updates = await ldb.getDocUpdates(docName)
+      if (updates.length > 0) {
+        const merged = updates.length > 1 ? Y.mergeUpdates(updates) : updates[0]
+        Y.applyUpdate(ydoc, merged)
+      }
 
-      // Apply persisted state to our doc
-      Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(persistedYdoc))
-
-      // Destroy the temporary Y.Doc to prevent memory leak
-      persistedYdoc.destroy()
+      // If many updates were stored, flush to a single compacted entry
+      if (updates.length > PREFERRED_TRIM_SIZE) {
+        const update = Y.encodeStateAsUpdate(ydoc)
+        const sv = Y.encodeStateVector(ydoc)
+        await ldb.flushDocumentState(docName, update, sv)
+      }
 
       // Store the update handler so we can remove it later
       const persistenceUpdateHandler = (update) => {
