@@ -61,10 +61,21 @@ if (typeof persistenceDir === 'string') {
     bindState: async (docName, ydoc) => {
       // Read raw binary updates and apply directly to the live doc.
       // This avoids creating a temporary Y.Doc, roughly halving peak memory.
+      log(`bindState: loading "${docName}". ${reportMemory()}`)
       const updates = await ldb.getDocUpdates(docName)
+      const totalBytes = updates.reduce((sum, u) => sum + u.byteLength, 0)
+      log(
+        `bindState: read ${updates.length} updates ` +
+          `(${Math.round(totalBytes / 1024 / 1024)} MB) for "${docName}". ${reportMemory()}`
+      )
       if (updates.length > 0) {
         const merged = updates.length > 1 ? Y.mergeUpdates(updates) : updates[0]
+        log(
+          `bindState: merged to ${Math.round(merged.byteLength / 1024 / 1024)} MB ` +
+            `for "${docName}". ${reportMemory()}`
+        )
         Y.applyUpdate(ydoc, merged)
+        log(`bindState: applied to live doc "${docName}". ${reportMemory()}`)
       }
 
       // If many updates were stored, flush to a single compacted entry
@@ -73,6 +84,8 @@ if (typeof persistenceDir === 'string') {
         const sv = Y.encodeStateVector(ydoc)
         await ldb.flushDocumentState(docName, update, sv)
       }
+
+      log(`bindState: complete for "${docName}". ${reportMemory()}`)
 
       // Store the update handler so we can remove it later
       const persistenceUpdateHandler = (update) => {
