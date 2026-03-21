@@ -716,8 +716,11 @@ export class LeveldbPersistence {
     return this._transact(async (db) => {
       // If the underlying implementation supports compactRange (classic-level does)
       if (typeof db.compactRange === 'function') {
-        // Passing null, null compacts the entire database
-        await db.compactRange(null, null)
+        // Use raw buffer boundaries spanning the entire keyspace,
+        // bypassing the custom keyEncoding (which cannot encode null).
+        await db.compactRange(Buffer.alloc(0), Buffer.from([0xff]), {
+          keyEncoding: 'buffer',
+        })
       } else {
         console.warn('Compaction not supported by the current Level adapter.')
       }
