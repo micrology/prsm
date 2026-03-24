@@ -37,9 +37,9 @@ const log = (msg) => {
 const reportMemory = () => {
   const mem = memoryUsage()
   return (
-    `Total Memory: ${Math.round(mem.rss / 1024 / 1024)} MB; ` +
+    `Total Memory: ${Math.round(mem.rss / 1024 / 1024)} MB; ` /* +
     `Heap: ${Math.round(mem.heapUsed / 1024 / 1024)} MB of ${Math.round(mem.heapTotal / 1024 / 1024)} MB; ` +
-    `External: ${Math.round(mem.external / 1024 / 1024)} MB. `
+    `External: ${Math.round(mem.external / 1024 / 1024)} MB. ` */
   ) // C++ objects
 }
 
@@ -61,21 +61,21 @@ if (typeof persistenceDir === 'string') {
     bindState: async (docName, ydoc) => {
       // Read raw binary updates and apply directly to the live doc.
       // This avoids creating a temporary Y.Doc, roughly halving peak memory.
-      log(`bindState: loading "${docName}". ${reportMemory()}`)
+      //log(`bindState: loading "${docName}". ${reportMemory()}`)
       const updates = await ldb.getDocUpdates(docName)
-      const totalBytes = updates.reduce((sum, u) => sum + u.byteLength, 0)
-      log(
+      /* const totalBytes = updates.reduce((sum, u) => sum + u.byteLength, 0)
+       log(
         `bindState: read ${updates.length} updates ` +
           `(${Math.round(totalBytes / 1024 / 1024)} MB) for "${docName}". ${reportMemory()}`
-      )
+      ) */
       if (updates.length > 0) {
         const merged = updates.length > 1 ? Y.mergeUpdates(updates) : updates[0]
-        log(
+        /* log(
           `bindState: merged to ${Math.round(merged.byteLength / 1024 / 1024)} MB ` +
             `for "${docName}". ${reportMemory()}`
-        )
+        ) */
         Y.applyUpdate(ydoc, merged)
-        log(`bindState: applied to live doc "${docName}". ${reportMemory()}`)
+        /* log(`bindState: applied to live doc "${docName}". ${reportMemory()}`) */
       }
 
       // If many updates were stored, flush to a single compacted entry
@@ -85,7 +85,7 @@ if (typeof persistenceDir === 'string') {
         await ldb.flushDocumentState(docName, update, sv)
       }
 
-      log(`bindState: complete for "${docName}". ${reportMemory()}`)
+      /* log(`bindState: complete for "${docName}". ${reportMemory()}`) */
 
       // Store the update handler so we can remove it later
       const persistenceUpdateHandler = (update) => {
@@ -329,9 +329,9 @@ const destroyDocument = (docname, doc) => {
   if (persistence !== null) {
     persistence
       .writeState(docname, doc)
-      .then(() => {
+      /* .then(() => {
         log(`Document state saved for ${docname}`)
-      })
+      }) */
       .catch((err) => {
         console.error('Error writing state for', docname, err)
       })

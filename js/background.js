@@ -54,6 +54,7 @@ window.canvas = canvas
 let selectedTool = null //the id of the currently selected tool
 let currentObject = null // the object implementing the tool currently selected, if any
 
+const undoStackLength = 20 // max. length of undo/redo stacks
 let undos = [] // stack of user changes to objects for undo
 let redos = [] // stack of undos for redoing
 
@@ -159,8 +160,7 @@ export async function refreshFromMap(keys) {
   }
 
   for (const key of keys) {
-    /* active Selection and group have to be dealt with last, because they reference objects that may
-     * not have been put on the canvas yet */
+    /* active Selection and group have to be dealt with last, because they reference objects that may not have been put on the canvas yet */
     const remoteParams = yDrawingMap.get(key)
     if (!remoteParams) {
       console.error('Empty remoteParams in refreshFromMap()', key)
@@ -221,7 +221,7 @@ export async function refreshFromMap(keys) {
               break
             case 'text':
             case 'IText':
-              case 'Textbox':
+            case 'Textbox':
               localObj = new TextHandler()
               break
             case 'path':
@@ -1267,9 +1267,9 @@ class TextHandler extends Textbox {
     })
   }
 
-  pointermove() {}
+  pointermove() { }
 
-  pointerup() {}
+  pointerup() { }
 
   update() {
     this.setParams()
@@ -1326,9 +1326,9 @@ class PencilHandler extends FabricObject {
     }
   }
 
-  pointermove() {}
+  pointermove() { }
 
-  pointerup() {}
+  pointerup() { }
 
   update() {
     this.setParams()
@@ -1393,9 +1393,9 @@ class MarkerHandler extends FabricObject {
     }
   }
 
-  pointermove() {}
+  pointermove() { }
 
-  pointerup() {}
+  pointerup() { }
 
   update() {
     this.setParams()
@@ -1489,15 +1489,15 @@ class ImageHandler extends FabricObject {
     }
   }
 
-  pointerdown() {}
+  pointerdown() { }
 
-  pointermove() {}
+  pointermove() { }
 
-  pointerup() {}
+  pointerup() { }
 
-  update() {}
+  update() { }
 
-  optionsDialog() {}
+  optionsDialog() { }
 }
 /****************************************** Group ********************************************/
 
@@ -1581,13 +1581,13 @@ class DeleteHandler extends FabricObject {
     unselectTool()
   }
 
-  pointerdown() {}
+  pointerdown() { }
 
-  pointermove() {}
+  pointermove() { }
 
-  pointerup() {}
+  pointerup() { }
 
-  optionsDialog() {}
+  optionsDialog() { }
 }
 
 /**
@@ -1892,6 +1892,7 @@ function saveChange(obj, params = {}, op) {
   // save the change on the undo stack
   if (op) {
     undos.push({ op, id: obj.id, params })
+    undos = undos.slice(-undoStackLength)
     yDrawingMap.set('undos', undos)
     elem('undotool').classList.remove('disabled')
   }
