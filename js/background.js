@@ -252,12 +252,19 @@ export async function refreshFromMap(keys) {
           localObj.id = key
           canvas.add(localObj)
         }
+        // Fix for Line: Line.toObject() serializes x1/y1/x2/y2 as relative
+        // offsets (via calcLinePoints()), but Line._set() treats them as absolute
+        // coordinates and recalculates left/top via _setWidthHeight(), overriding
+        // the correct position. Re-apply the serialized left/top to correct this.
+        if ((type === 'line' || type === 'Line') && remoteParams.left != null) {
+          localObj.set({ left: remoteParams.left, top: remoteParams.top })
+        }
         localObj.setCoords()
       }
     }
   }
 
-  // now that ordinary objects are done, deal with groups and active selections
+  // now that ordinary objects are done
   for (const key of keys) {
     const remoteParams = yDrawingMap.get(key)
     if (remoteParams) {
