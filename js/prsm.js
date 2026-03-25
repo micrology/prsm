@@ -648,8 +648,9 @@ function startY() {
     if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote')
     if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
     if (nodesToUpdate.length > 0 || nodesToRemove.length > 0) {
-      // if user is in mid-flight adding a Factor, and someone else has changed data,
+      // if user is in mid-flight adding a Factor or Link, and someone else has changed data,
       // vis-network will cancel the edit mode for this user.  Re-instate it.
+      if (inAddMode === 'addLink') network.addEdgeMode()
       if (inAddMode === 'addNode') network.addNodeMode()
     }
     if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0)) {
@@ -772,6 +773,12 @@ function startY() {
     }
     if (edgesToUpdate) {
       reApplySampleToLinks(edgesToUpdate)
+    }
+    if (nodesToUpdate.length > 0 || edgesToUpdate.length > 0) {
+      // if user is in mid-flight adding a Factor or Link, and someone else has changed data,
+      // vis-network will cancel the edit mode for this user.  Re-instate it.
+      if (inAddMode === 'addLink') network.addEdgeMode()
+      if (inAddMode === 'addNode') network.addNodeMode()
     }
   })
   /*
@@ -1281,11 +1288,12 @@ function draw() {
         item = deepMerge(item, styles.edges[lastLinkSample])
         item.grp = lastLinkSample
         item.created = timestamp()
-        clearStatusBar()
-        callback(item)
-        logHistory(
-          `added link from '${data.nodes.get(item.from).label}' to '${data.nodes.get(item.to).label}'`
-        )
+    clearStatusBar()
+    network.manipulation.inMode = 'addEdge' // ensure still in Add mode, in case others have done something meanwhile
+    callback(item)
+    logHistory(
+      `added link from '${data.nodes.get(item.from).label}' to '${data.nodes.get(item.to).label}'`
+    )
       },
       editEdge: {
         editWithoutDrag: function (item, callback) {
