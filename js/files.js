@@ -1650,6 +1650,7 @@ export function savePRSMfile() {
           'label',
           'modified',
           'note',
+          'smooth',
           'to',
           'width',
         ],
