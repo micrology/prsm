@@ -40,6 +40,7 @@
   "features": {
     "ai": true
   },
+  "type": "module",
   "scripts": {
     "lint": "eslint --fix ./js/*.js",
     "pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/*.css doc/**/*.{html,css} package.json",

@@ -300,6 +300,7 @@ function loadPRSMfile(str) {
       if (n.note && !(n.note instanceof Object)) {
         n.note = { ops: [{ insert: n.note }] }
       }
+      n.label = splitText(n.label)
     })
     data.nodes.add(json.nodes)
     json.edges.forEach((e) => {
@@ -308,6 +309,7 @@ function loadPRSMfile(str) {
       if (e.note && !(e.note instanceof Object)) {
         e.note = { ops: [{ insert: e.note }] }
       }
+      if (e.label) e.label = splitText(e.label)
     })
     data.edges.add(json.edges)
   }
@@ -1733,7 +1735,7 @@ export function exportPNGfile() {
   network.storePositions()
 
   // first, create a large offscreen div to hold a copy of the network at the required width
-  const bigWidth = 4096 / window.devicePixelRatio // half the number of pixels in the image file (also half the height, as the image is square)
+  const bigWidth = 8192 / window.devicePixelRatio // half the number of pixels in the image file (also half the height, as the image is square)
   const bigMargin = 256 / window.devicePixelRatio // white space around network so not too close to printable edge
 
   const bigNetDiv = document.createElement('div')
@@ -1789,8 +1791,13 @@ export function exportPNGfile() {
       bigNetContext.drawImage(bigBackgroundImage, 0, 0, bigWidth, bigWidth)
 
       // save the canvas to a file
-      bigNetContext.canvas.toBlob((blob) => saveAs(blob, lastFileName))
-
+      bigNetContext.canvas.toBlob((blob) => {
+        if (!blob) {
+          alertMsg('Image too large to export', 'error')
+          return
+        }
+        saveAs(blob, lastFileName)
+      })
       // clean up
       bigNetwork.destroy()
       bigNetDiv.remove()

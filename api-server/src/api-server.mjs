@@ -38,6 +38,8 @@ if (process.env.NODE_ENV === "dev") {
 	console.log('Running in development mode')
 	websocket = 'ws://localhost:1234'
 }
+const modelId = process.env.MODEL_ID || 'qwen.qwen3-235b-a22b-2507-v1:0'
+
 const app = express()
 const PORT = process.env.PORT || 3001
 
@@ -89,7 +91,6 @@ app.post('/api/chat/:room', ChatLimiter, async (req, res) => {
 	// Bedrock configuration from environment variables
 	const region = process.env.AWS_REGION || 'eu-west-2'
 	const bedrockApiKey = process.env.BEDROCK_API_KEY
-	const modelId = process.env.MODEL_ID || 'eu.anthropic.claude-haiku-4-5-20251001-v1:0'
 	logAPICalls(`Using chat for room ${req.params.room}`)
 
 	if (!bedrockApiKey) {
@@ -108,8 +109,9 @@ app.post('/api/chat/:room', ChatLimiter, async (req, res) => {
 			return res.status(400).json({ error: 'Message is required' })
 		}
 		// reject excessively long prompts
-		if (message.length + systemPrompt?.length > 10000) {
-			return res.status(400).json({ error: 'Message is too long. Please limit to 10000 characters.' })
+		const maxPromptLength = parseInt(process.env.MAX_PROMPT_LENGTH) || 10000
+		if (message.length + systemPrompt?.length > maxPromptLength) {
+			return res.status(400).json({ error: `Message is too long. Please limit to ${maxPromptLength} characters.` })
 		}
 		const conversation = [
 			{
@@ -127,7 +129,7 @@ app.post('/api/chat/:room', ChatLimiter, async (req, res) => {
 \tFormat your answer using Markdown. `,
 				},
 			],
-			inferenceConfig: { maxTokens: 512, temperature: 0.5 },
+inferenceConfig: { maxTokens: parseInt(process.env.MAX_TOKENS) || 512, temperature: 0.5 },
 		}
 
 		const url = `https://bedrock-runtime.${region}.amazonaws.com/model/${modelId}/converse`
@@ -147,6 +149,9 @@ app.post('/api/chat/:room', ChatLimiter, async (req, res) => {
 		}
 
 		const data = await response.json()
+		if (data.usage) {
+			logAPICalls(`Token usage - input: ${data.usage.inputTokens}, output: ${data.usage.outputTokens}, total: ${data.usage.totalTokens}`)
+		}
 		const responseText = data.output.message.content[0].text
 
 		res.json({ response: responseText })
@@ -687,10 +692,9 @@ let httpTerminator // terminator instance
 async function start() {
 	// Load secrets first
 	await loadSecrets();
-
 	// Start the server
 	server = app.listen(PORT, () => {
-		console.log(`Proxy server running on http://localhost:${PORT} using websocket server at ${websocket}`)
+		console.log(`Proxy server running on http://localhost:${PORT} using websocket server at ${websocket} and model ${modelId}`)
 	})
 	httpTerminator = createHttpTerminator({ server });
 }

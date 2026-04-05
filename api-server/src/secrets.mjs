@@ -11,7 +11,9 @@ export async function loadSecrets() {
     
     // Load into environment variables
     Object.keys(secrets).forEach(key => {
-      process.env[key] = secrets[key];
+      if (!process.env[key]) {
+        process.env[key] = secrets[key];
+      }
     });
     
      return secrets;
