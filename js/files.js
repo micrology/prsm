@@ -1729,6 +1729,7 @@ function saveStr(str, extn) {
 const maxScale = 5 // max upscaling for image (avoids blowing up very small networks excessively)
 
 export function exportPNGfile() {
+  document.body.style.cursor = 'wait'
   setFileName('png')
 
   // create a very large canvas, so we can download at high resolution
@@ -1794,9 +1795,11 @@ export function exportPNGfile() {
       bigNetContext.canvas.toBlob((blob) => {
         if (!blob) {
           alertMsg('Image too large to export', 'error')
+          document.body.style.cursor = 'default'
           return
         }
         saveAs(blob, lastFileName)
+        document.body.style.cursor = 'default'
       })
       // clean up
       bigNetwork.destroy()
