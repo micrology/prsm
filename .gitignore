@@ -24,6 +24,7 @@ js/*.removed
 archive
 .env
 .cspell
+merge-results*
 
 # Compiled source #
 ###################

@@ -25,7 +25,12 @@ The following environment variables can be set:
 - DEBUG: (optional) set to any value to enable debug logging, which will include the full system prompt and LLM response in the console output.
 - NODE_ENV: (optional) set to 'dev' to connect to a local WebSocket server at ws://localhost:1234 instead of the production server at wss://www.prsm.uk/wss
 
-A Bedrock API key must be provided as secret with the name 'BEDROCK_API_KEY' - see secrets.mjs for details.  
+A Bedrock API key must be provided as secret with the name 'BEDROCK_API_KEY' - see secrets.mjs for details. 
+
+
+Example command line:
+
+MODEL_ID='eu.anthropic.claude-haiku-4-5-20251001-v1:0' node mergeWithAI.mjs 'ZFC-XIT-LSX-NNI' 'OEM-VRT-AOP-JBQ' 'RPH-VTQ-DNB-EJD' 'XZO-ZYS-BRE-MTK'
 */
 
 const debug = process.env.DEBUG || ''
@@ -35,9 +40,8 @@ if (process.env.NODE_ENV === 'dev') {
     websocket = 'ws://localhost:1234'
 }
 
-const context = debug
-    ? ''
-    : `The UK Electoral Commision is looking ahead to a programme of work over the next 12 months to identify the next set of major challenges for UK elections. System mapping will allow us to identify more comprehensively the different components of the system and the linkages between them, so that we can focus our efforts on the key points of the system that will have most significant impact. We are looking to merge together a number of different system maps that have been created by different teams across the Commission, to create a single master map that captures the full complexity of the electoral system. This will allow us to identify key leverage points for intervention and to develop more effective strategies for addressing the challenges we face.`
+const context = process.env.CONTEXT  ||
+    `The UK Electoral Commision is looking ahead to a programme of work over the next 12 months to identify the next set of major challenges for UK elections. System mapping will allow us to identify more comprehensively the different components of the system and the linkages between them, so that we can focus our efforts on the key points of the system that will have most significant impact. We are looking to merge together a number of different system maps that have been created by different teams across the Commission, to create a single master map that captures the full complexity of the electoral system. This will allow us to identify key leverage points for intervention and to develop more effective strategies for addressing the challenges we face.`
 
 /**
  * Build the LLM system prompt by loading maps from rooms and composing merge instructions.
@@ -56,9 +60,9 @@ Context: ${context}
 Input Data
 ${rooms.length} JSON files are provided below. Each contains:
 
-1. A nodes array of objects with id (unique string), a label (descriptive string), color, grp (which defines the way the node is styled when displayed), shape, x and y (the location of the node on the map), and notes (in "delta" format - see https://quilljs.com/docs/delta).
+1. A nodes array of objects with id (unique string), a label (descriptive string), shape, and a note (in "delta" format - see https://quilljs.com/docs/delta).
 
-2. An edges array of objects with id, 'from' (source node ID), 'to' (target node ID), color, grp (which defines the way the edge is styled when displayed), and notes (in "delta" format - see https://quilljs.com/docs/delta).
+2. An edges array of objects with id, 'from' (source node ID), 'to' (target node ID), and a note (in "delta" format - see https://quilljs.com/docs/delta).
 
 Core Objective:
 
@@ -74,7 +78,13 @@ Deduplication Logic:
 
     * Conceptually similar (e.g., "Cost of Electricity" and "Energy Prices").
 
-* Edges: Once nodes are merged, identify redundant edges. If multiple edges now connect the same source node to the same target node, include that relationship only once in the final map.
+    * take into account the context provided by those nodes that are directly connected to the nodes that are under consideration for merging, to avoid merging nodes that have similar labels but different meanings in the context of the map.
+
+* Edges: Once nodes are merged, identify redundant edges. 
+
+    * If multiple edges now connect the same source node to the same target node, include that relationship only once in the final map by merging them. 
+
+    * Do not include any edges where the source and target node are the same after merging.
 
 Technical Constraints:
 
@@ -82,23 +92,29 @@ Technical Constraints:
 
 * Ensure that all the nodes and edges that have not been merged are retained in the final map with their original properties.
 
-* Ignore non-essential properties (e.g., coordinates, colors) present in the source files when merging.  When merging nodes, retain the most descriptive label. Choose color, grp, shape and coordinates from one of the nodes to be merged - it does not matter which.  When merging edges, choose other properties from one of the edges being merged.
+* Ignore non-essential properties (e.g., shape, note) present in the source files when merging.  When merging nodes, retain the most descriptive label. When the shapes of the nodes to be merged differ, prefer the shape that is not 'box'.
 
 * The "note" property of nodes and edges contains rich text in "delta" format (see https://quilljs.com/docs/delta). When merging, concatenate the "ops" arrays from the "note" properties of the relevant nodes or edges to preserve all the note content, by forming one "ops" array as the "note" property of the merged node or edge, with an "insert" operation for each original node or edge's "note" property. If there is no "note" property for either of the nodes (or edges) being merged, omit the property from the node or edge.
 
-* Maintain the directed nature of the causal links.
+* Maintain the directed nature of the causal links. 
+
+Post-processing: After merging, identify up to 6 semantic clusters of nodes that have emerged in the map. These are groups of nodes that are closely interconnected and share similar themes. Document these clusters in the synthesis report and give all the nodes in the cluster the same, distinct 'grp' property value to allow them to be styled as a group in the PRSM interface.  'grp' values should follow the pattern 'group0', 'group1', etc, with the first cluster labelled 'group0'.
 
 Required Output:
 
 1. Merged JSON Map: A single JSON object containing a nodes array and an edges array representing the total system.
 
-2. Synthesis Report: A table or list documenting:
+2. Synthesis Report: A report formatted in Markdown with the heading: 'Synthesis Report' that contains tables or lists documenting:
 
     * Node Merges: Which original labels were grouped together and the reasoning for the semantic match.
 
     * Edge Consolidation: A summary of how links were re-mapped to the new node IDs.
-    * Key Insights: Any notable patterns or clusters that emerged from the merged map.
 
+    * Cluster Analysis: A description of any clusters that emerged, the nodes they contain, and the themes they represent.
+
+    * Key Insights: Any notable patterns that emerged from the merged map.
+
+These two sections must be separated by the delimiter @@@@ on a new line to allow them to be split apart after generation.
 Maps to Merge:
 
 ${inputMaps}
@@ -190,7 +206,7 @@ function strip(obj, allowed) {
  * @returns {Object}
  */
 function stripNode(node) {
-    const strippedNode = strip(node, ['id', 'label', 'color', 'grp', 'shape', 'x', 'y', 'note'])
+    const strippedNode = strip(node, ['id', 'label', 'shape', 'note'])
 
     if (strippedNode.color) {
         strippedNode.color = strip(strippedNode.color, ['border', 'background'])
@@ -204,7 +220,7 @@ function stripNode(node) {
  * @returns {Object}
  */
 function stripEdge(edge) {
-    const strippedEdge = strip(edge, ['id', 'from', 'to', 'label', 'color', 'grp', 'note'])
+    const strippedEdge = strip(edge, ['id', 'from', 'to', 'label', 'note'])
 
     if (strippedEdge.color) {
         strippedEdge.color = strip(strippedEdge.color, ['color'])
@@ -296,11 +312,11 @@ async function writeResults(resultString) {
         return edge
     })
 
-    const report = resultString.match(/Synthesis Report[\s\S]*$/)
+    const report = resultString.match(/@@@@\s*([\s\S]*$)/)
     if (!report) throw new Error('No Synthesis Report found in LLM response')
 
     await writeFile(`${fileName}.prsm`, JSON.stringify(styledJson), 'utf8')
-    await writeFile(`${fileName}.md`, `# ${report[0]}`, 'utf8')
+    await writeFile(`${fileName}.md`, report[1], 'utf8')
     console.log(`Results saved to ${fileName}`)
 }
 

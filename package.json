@@ -57,7 +57,7 @@
     "deploy": "npm run install:all && npm run build-vis-network && npm run build && npm run build-help",
     "analyse": "npx parcel build './html/*.html' --detailed-report",
     "install:all": "npm i && (cd ./doc/help && npm i) && (cd ./ws-server && npm i) && (cd ./api-server && npm i) && (cd ./vis-network && npm i)",
-    "upgrade:all": "npm upgrade && (cd ./doc/help && npm upgrade) && (cd ./ws-server && npm upgrade) && (cd ./api-server && npm upgrade)",
+    "upgrade:all": "npm upgrade && (cd ./doc/help && npm upgrade) && (cd ./ws-server && npm upgrade) && (cd ./api-server && npm upgrade) && (cd ./vis-network && npm upgrade)",
     "start:all-locally": "YPERSISTENCE=./dbDir VERBOSE=1 node ./ws-server/src/server.js & PORT=3001 NODE_ENV='dev' node ./api-server/src/api-server.mjs & npm run dev",
     "stop:all-locally": "pkill -f 'ws-server/src/server.js|api-server/src/api-server.mjs|parcel watch'; kill $(lsof -ti:3001,1234) 2>/dev/null || true"
   },
