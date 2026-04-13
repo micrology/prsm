@@ -74,6 +74,7 @@
     "fast-xml-parser": "^5.5.9",
     "file-saver": "^2.0.5",
     "keycharm": "^0.4.0",
+    "level": "^10.0.0",
     "localforage": "^1.10.0",
     "luxon": "^3.2.1",
     "lz-string": "^1.4.4",
