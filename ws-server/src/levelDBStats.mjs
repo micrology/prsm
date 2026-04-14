@@ -11,7 +11,7 @@
  */
 
 import * as Y from 'yjs'
-import { LeveldbPersistence } from 'y-leveldb'
+import { LeveldbPersistence } from './y-leveldb.js'
 import { Command } from 'commander'
 
 
@@ -53,6 +53,9 @@ function humanSize(bytes) {
 
 async function processRoom(source, room) {
     current++
+    const roomCode = room.slice(4)
+    process.stdout.write(`${current}/${all} ${roomCode}\r`)
+
     const persistence = new LeveldbPersistence(source)
     let doc = null
     let update = null
@@ -74,11 +77,8 @@ async function processRoom(source, room) {
         const updateSize = update.length
         
         if (verbose  || updateSize > 5 * 1024 * 1024) {
-            const roomCode = room.slice(4)
             console.log(`${current}/${all} ${roomCode} ${mapTitle} (size: ${humanSize(updateSize)}): ${nodesSize} nodes, ${edgesSize} edges,
             last accessed: ${lastAccessed ? new Date(lastAccessed).toLocaleString() : 'unknown'}`)
-        } else {
-            process.stdout.write(`${current}/${all} \r`)
         }
         // Update statistics
         if (mapTitle === 'Untitled') nUntitled++

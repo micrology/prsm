@@ -12,7 +12,7 @@
  *   node clear-doc.mjs /data/prsm/dbDir prsmVXS-NLT-TAT-WNO
  */
 
-import { LeveldbPersistence } from './src/y-leveldb.js'
+import { LeveldbPersistence } from './y-leveldb.js'
 
 const dbPath = process.argv[2]
 const docName = process.argv[3]
