@@ -1550,8 +1550,6 @@ input:checked + .slider:before {
   grid-auto-rows: max-content;
   overflow-y: auto;
   touch-action: pan-y;
-  -webkit-user-select: all;
-  user-select: all;
 }
 .legendTitle {
   background-color: var(--primary-color);

@@ -275,7 +275,6 @@ function loadPRSMfile(str) {
     msg = 'old version'
   }
   updateLastSamples(json.lastNodeSample, json.lastLinkSample)
-  if (json.buttons) setButtonStatus(json.buttons)
   if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle))
   if (json.attributeTitles) yNetMap.set('attributeTitles', json.attributeTitles)
   else yNetMap.set('attributeTitles', {})
@@ -362,6 +361,7 @@ function loadPRSMfile(str) {
   }
   // node sizing has to be done after nodes have been created
   sizing(yNetMap.get('sizing'))
+  if (json.buttons) setButtonStatus(json.buttons)
 }
 /**
  * parse and load a GraphViz (.DOT or .GV) file

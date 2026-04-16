@@ -36,6 +36,7 @@ import {
   statusMsg,
   alertMsg,
   clearStatusBar,
+  getTextWidth,
   factorSizeToPercent,
   setFactorSizeFromPercent,
   convertDashes,
@@ -701,8 +702,9 @@ function getArrows(prop) {
 
 /*  ------------display the map legend (includes all styles with a group label that is neither blank or 'Sample') */
 
-const LEGENDHEIGHT = 35
-const LEGENDWIDTH = 120
+const LEGENDHEIGHT = 31
+const LEGENDWIDTH = 50  //minimum width of legend - may be increased to fit style names
+const MAXLEGENDWIDTH = 240
 /**
  * display a legend on the map (but only if the styles have been given names)
  * @param {Boolean} warn if true, warn if user is switching display legend on, but there is nothing to show
@@ -724,6 +726,21 @@ export function legend(warn = false) {
     elem('showLegendSwitch').checked = false
     return
   }
+  let lWidth = LEGENDWIDTH
+  namedNodeStyles.forEach((style) => {
+    let labelWidth = getTextWidth(styles.nodes[style].groupLabel)
+    if (labelWidth > lWidth) {
+      lWidth = labelWidth
+    }
+  })
+  namedEdgeStyles.forEach((style) => {
+    let labelWidth = getTextWidth(styles.edges[style].groupLabel)
+    if (labelWidth > lWidth) {
+      lWidth = labelWidth
+    }
+  })
+  lWidth += 60 // width of icon and padding
+  if (lWidth > MAXLEGENDWIDTH) lWidth = MAXLEGENDWIDTH
   const legendBox = document.createElement('div')
   legendBox.className = 'legend'
   legendBox.id = 'legendBox'
@@ -734,7 +751,7 @@ export function legend(warn = false) {
   title.appendChild(document.createTextNode('Legend'))
   legendBox.appendChild(title)
   legendBox.style.height = `${LEGENDHEIGHT * nItems + title.offsetHeight}px`
-  legendBox.style.width = `${LEGENDWIDTH}px`
+  legendBox.style.width = `${lWidth}px`
   const legendWrapper = document.createElement('div')
   legendWrapper.className = 'legendWrapper'
   legendBox.appendChild(legendWrapper)
@@ -768,6 +785,7 @@ export function legend(warn = false) {
     const style = document.createElement('div')
     style.className = 'legendStyleName'
     style.textContent = node.groupLabel
+    style.style.width = `${lWidth - 60}px`
     legendWrapper.appendChild(style)
   }
 
@@ -814,6 +832,7 @@ export function legend(warn = false) {
     const style = document.createElement('div')
     style.className = 'legendStyleName'
     style.textContent = edge.groupLabel
+    style.style.width = `${lWidth - 60}px`
     legendWrapper.appendChild(style)
   }
 }
