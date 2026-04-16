@@ -200,7 +200,7 @@ function addMapToProject() {
     }
     projectData[room] = title
     storeList()
-    alertMsg(`Added ${title} to ${projectData.name}`, 'info')
+    alertMsg(`Added ${title} to the ${projectData.name} project`, 'info')
 }
 
 /**
