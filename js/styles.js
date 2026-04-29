@@ -728,13 +728,13 @@ export function legend(warn = false) {
   }
   let lWidth = LEGENDWIDTH
   namedNodeStyles.forEach((style) => {
-    let labelWidth = getTextWidth(styles.nodes[style].groupLabel)
+    const labelWidth = getTextWidth(styles.nodes[style].groupLabel)
     if (labelWidth > lWidth) {
       lWidth = labelWidth
     }
   })
   namedEdgeStyles.forEach((style) => {
-    let labelWidth = getTextWidth(styles.edges[style].groupLabel)
+    const labelWidth = getTextWidth(styles.edges[style].groupLabel)
     if (labelWidth > lWidth) {
       lWidth = labelWidth
     }
