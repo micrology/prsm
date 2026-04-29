@@ -1,6 +1,6 @@
 # Security headers
 <IfModule mod_headers.c>
-Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://kit.fontawesome.com http://s3.amazonaws.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com http://cdn-images.mailchimp.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://digitalasset.intuit.com; connect-src 'self' ws://localhost:1234 http://localhost:3001 wss://www.prsm.uk"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://kit.fontawesome.com http://s3.amazonaws.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com http://cdn-images.mailchimp.com; font-src 'self' https://fonts.gstatic.com https://ka-f.fontawesome.com; img-src 'self' data: https://digitalasset.intuit.com; connect-src 'self' ws://localhost:1234 http://localhost:3001 wss://www.prsm.uk https://ka-f.fontawesome.com"  
 	Header always set X-Frame-Options "DENY"
 	Header always set X-Content-Type-Options "nosniff"
 	Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
@@ -37,4 +37,6 @@ RewriteCond %{REQUEST_URI} !/acme-challenge/ [NC]
 RewriteCond %{REQUEST_URI} !/doc/ [NC]
 RewriteCond %{REQUEST_URI} !/vr/ [NC]
 RewriteCond %{REQUEST_URI} !norton [NC]
+RewriteCond %{REQUEST_URI} !robots\.txt [NC]
+RewriteCond %{REQUEST_URI} !sitemap\.xml [NC]
 RewriteRule 	"^(.*)$"	"dist/$1" [PT]
