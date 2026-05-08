@@ -12,6 +12,7 @@ experiments
 .prettierrc
 .vscode
 dbDir*
+helpCache
 tempDB*
 data
 .cache

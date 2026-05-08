@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const sendBtn = document.getElementById('send-btn')
   const userInput = document.getElementById('user-input')
   const messagesDiv = document.getElementById('chat-messages')
+  const chatHistory = []
 
   // configure image path for markdown-rendered images (e.g. from help assistant)
   const isLocal =
@@ -18,7 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const message = prompt || userInput.value.trim()
     if (!message) return
 
-    // Add User Message to UI
+    // Add User Message to UI and chat history
+    chatHistory.push({ role: 'user', content: [{ text: message }] })
     appendMessage('user', message)
     userInput.value = ''
     overlay.style.display = 'block'
@@ -27,13 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await fetch('http://localhost:3001/api/helpAssistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ messages: chatHistory }),
       })
 
       const data = await response.json()
       overlay.style.display = 'none'
-      if (data.error) throw new Error(data.error)
 
+      if (data.error) throw new Error(data.error)
+      // Add AI response to history
+      chatHistory.push({ role: 'assistant', content: [{ text: data.response }] })
       // Render the AI response as Markdown
       appendMessage('ai', data.response, data.sources)
     } catch (err) {
@@ -70,9 +74,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     msgDiv.innerHTML = DOMPurify.sanitize(htmlContent)
+
+    // Remove any previous spacer
+    const oldSpacer = messagesDiv.querySelector('.chat-spacer')
+    if (oldSpacer) oldSpacer.remove()
+
     messagesDiv.appendChild(msgDiv)
+
     if (sender === 'user') {
-      messagesDiv.scrollTop = msgDiv.offsetTop
+      // Add a spacer so there is always enough overflow to scroll
+      // the user message to the very top of the visible area
+      const spacer = document.createElement('div')
+      spacer.className = 'chat-spacer'
+      spacer.style.height = messagesDiv.clientHeight + 'px'
+      messagesDiv.appendChild(spacer)
+
+      const pageY = window.scrollY
+      msgDiv.scrollIntoView({ block: 'start' })
+      window.scrollTo(0, pageY)
     }
   }
 

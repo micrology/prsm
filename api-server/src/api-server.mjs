@@ -181,6 +181,7 @@ app.post('/api/chat/:room', chatLimiter, async (req, res) => {
  * Uses RAG to answer questions based on the PRSM manual
  */
 app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
+	const {messages} = req.body
 	const region = process.env.AWS_REGION || 'eu-west-2'
 	const bedrockApiKey = process.env.BEDROCK_API_KEY
 	const kbId = process.env.KNOWLEDGE_BASE_ID || '48IIKVEPJC'
@@ -191,24 +192,58 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 	}
 
 	try {
-		const {message} = req.body
-		if (!message) return res.status(400).json({error: 'Message is required'})
+		const lastUserMessage = messages[messages.length - 1].content[0].text
 
-		// STEP 0: Check cache first
+			// STEP 0: Check cache first
 		try {
-			const cachedResponse = await helpCache.get(message)
+			const cachedResponse = await helpCache.get(lastUserMessage)
 			if (cachedResponse) {
-				logAPICalls(`Help Assistant cache hit for message: ${message}`)
+				logAPICalls(`Help Assistant cache hit for message: ${lastUserMessage}`)
 				return res.json(cachedResponse)
 			}
 		} catch (err) {
 			// Cache miss or error, proceed without failing
-			logAPICalls(`Help Assistant cache miss for message: ${message}`)
+			logAPICalls(`Help Assistant cache miss for message: ${lastUserMessage}`)
 		}
+
+		// STEP -1: If it's a follow-up, rephrase it for the Knowledge Base search
+		let standaloneQuery = lastUserMessage
+		if (messages.length > 1) {
+			const rephrasePayload = {
+				modelId,
+				messages: [
+					...messages.slice(0, -1),
+					{
+						role: 'user',
+						content: [
+							{
+								text: `Based on the conversation above, write a specific search query to find information for the user's last request: "${lastUserMessage}". Return ONLY the search query text, no other text.`,
+							},
+						],
+					},
+				],
+				inferenceConfig: {maxTokens: 50, temperature: 0},
+			}
+
+			const rephraseRes = await fetch(
+				`https://bedrock-runtime.${region}.amazonaws.com/model/${modelId}/converse`,
+				{
+					method: 'POST',
+					headers: {'Content-Type': 'application/json', Authorization: `Bearer ${bedrockApiKey}`},
+					body: JSON.stringify(rephrasePayload),
+				},
+			)
+			const rephraseData = await rephraseRes.json()
+			standaloneQuery = rephraseData.output.message.content[0].text
+		}
+
+		if (!standaloneQuery) return res.status(400).json({error: 'Message is required'})
+
+
 		// STEP 1: Retrieve context from the Knowledge Base
 		const retrieveCommand = new RetrieveCommand({
 			knowledgeBaseId: kbId,
-			retrievalQuery: {text: message},
+			retrievalQuery: {text: standaloneQuery},
 			retrievalConfiguration: {
 				vectorSearchConfiguration: {numberOfResults: 3},
 			},
@@ -236,11 +271,9 @@ Your primary goal is to provide instructions based on the standard user interfac
 ### MANUAL CONTEXT
 <context>${context}</context>`
 
-		const conversation = [{role: 'user', content: [{text: message}]}]
-
-		const payload = {
+		const finalPayload = {
 			modelId, // Uses 'qwen.qwen3-235b-a22b-2507-v1:0'
-			messages: conversation,
+			messages,
 			system: [
 				{
 					text: systemPrompt,
@@ -253,21 +286,21 @@ Your primary goal is to provide instructions based on the standard user interfac
 		}
 
 		const url = `https://bedrock-runtime.${region}.amazonaws.com/model/${modelId}/converse`
-		const response = await fetch(url, {
+		const finalResponse = await fetch(url, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${bedrockApiKey}`,
 			},
-			body: JSON.stringify(payload),
+			body: JSON.stringify(finalPayload),
 		})
 
-		if (!response.ok) {
-			const errorText = await response.text()
+		if (!finalResponse.ok) {
+			const errorText = await finalResponse.text()
 			console.error('Bedrock API error:', errorText)
-			return res.status(response.status).json({error: errorText})
+			return res.status(finalResponse.status).json({error: errorText})
 		}
-		const data = await response.json()
+		const data = await finalResponse.json()
 		const responseText = data.output.message.content[0].text
 		// Map the retrieval results to specific URLs or identifiers
 		const sources = retrieveResponse.retrievalResults.map((result) => {
@@ -288,14 +321,17 @@ Your primary goal is to provide instructions based on the standard user interfac
 		// Remove duplicates if multiple chunks come from the same page
 		const uniqueSources = [...new Set(sources)]
 
-		// Cache the response for future requests
-		try {
-			await helpCache.put(message, {
-				response: responseText,
-				sources: uniqueSources,
-			})
-		} catch (err) {
-			logAPICalls(`Failed to cache response for message: ${message}`)
+		// Cache the response for future requests, but not if it is a follow up question, as these will have been rephrased to reference the original query.
+		if (messages.length === 1) {
+			try {
+				await helpCache.put(lastUserMessage, {
+					response: responseText,
+					sources: uniqueSources,
+				})
+				logAPICalls(`Cached response for message: ${lastUserMessage}`)
+			} catch (err) {
+				logAPICalls(`Failed to cache response for message: ${lastUserMessage}`)
+			}
 		}
 
 		res.json({
