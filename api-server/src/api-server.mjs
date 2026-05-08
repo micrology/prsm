@@ -3,42 +3,50 @@
  *  and also acts as a proxy to the Bedrock API:
  * Exposes an endpoint /api/chat that accepts POST requests with a user message
  * and optional system prompt, forwards them to Bedrock, and returns the response.
- * 
+ *
  * Requires the following environment variables:
  * - BEDROCK_API_KEY: Your Bedrock API key
  * - AWS_REGION: AWS region where Bedrock is hosted (default: eu-west-2)
  * - MODEL_ID: Bedrock model ID to use (default: eu.anthropic.claude-haiku-4-5-20251001-v1:0)
  * These are obtained from the AWS Secrets Manager
- * 
+ *
  * Run this as a service: prsm-api-server.service:
- * 
+ *
  * /etc/systemd/system/prsm-api-server.service
-
-for status, use:
-journalctl -f -u prsm-api-server
-****************************************************************
-*
-* or locally:
-* npm run local
+ *
+ * for status, use:
+ * journalctl -f -u prsm-api-server
+ ****************************************************************
+ *
+ * or locally:
+ * npm run local
  ***************************************************************/
 
 import express from 'express'
 import cors from 'cors'
-import { WebsocketProvider } from 'y-websocket'
+import {WebsocketProvider} from 'y-websocket'
 import * as Y from 'yjs'
-import { createHttpTerminator } from 'http-terminator'
+import {createHttpTerminator} from 'http-terminator'
+import {BedrockAgentRuntimeClient, RetrieveCommand} from '@aws-sdk/client-bedrock-agent-runtime'
+import {ClassicLevel} from 'classic-level'
 import rateLimit from 'express-rate-limit'
-import { loadSecrets } from './secrets.mjs'
+import {loadSecrets} from './secrets.mjs'
 
 process.title = 'api-server'
 
 // use local websocket server if in development mode
 let websocket = 'wss://www.prsm.uk/wss'
-if (process.env.NODE_ENV === "dev") {
+if (process.env.NODE_ENV === 'dev') {
 	console.log('Running in development mode')
 	websocket = 'ws://localhost:1234'
 }
 const modelId = process.env.MODEL_ID || 'qwen.qwen3-235b-a22b-2507-v1:0'
+const agentClient = new BedrockAgentRuntimeClient({
+	region: process.env.AWS_REGION || 'eu-west-2',
+})
+
+// cache for help assistant answers, to avoid repeated calls to Bedrock for the same question
+const helpCache = new ClassicLevel('./helpCache', {valueEncoding: 'json'})
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -46,14 +54,14 @@ const PORT = process.env.PORT || 3001
 // Rate limiting and concurrency control
 const globalLimiter = rateLimit({
 	windowMs: 60 * 1000, // 1 minute
-	max: 60,            // 60 requests per minute per IP
+	max: 60, // 60 requests per minute per IP
 	standardHeaders: true,
 	legacyHeaders: false,
 })
 
-const ChatLimiter = rateLimit({
+const chatLimiter = rateLimit({
 	windowMs: 60 * 1000, // 1 minute
-	max: 5,             // 5 chat requests per minute per IP
+	max: 5, // 5 chat requests per minute per IP
 	standardHeaders: true,
 	legacyHeaders: false,
 	message: {
@@ -65,29 +73,32 @@ let inFlightChatRequests = 0
 const MAX_IN_FLIGHT_CHAT = 10
 
 // Middleware
-app.use(cors(['https://prsm.uk:3001', 'http://localhost:3001']))
+app.use(cors({origin: ['https://prsm.uk', 'http://localhost', 'http://127.0.0.1']}))
 app.use(express.json())
 app.use(globalLimiter)
 
 // Check that all incoming requests have a valid room id., and note it for use in the handlers
 
-app.all([
-	'/api/chat/:room',
-	'/api/map/:room',
-	'/api/map/:room/factor/:factor',
-	'/api/map/:room/link/:link',
-	'/api/map/:room/styles',
-	'/api/map/:room/styles/:style'
-], (req, res, next) => {
-	try {
-		checkRoom(req.params.room)
-		next()
-	} catch (error) {
-		res.status(500).json({ error: error.message })
-	}
-})
+app.all(
+	[
+		'/api/chat/:room',
+		'/api/map/:room',
+		'/api/map/:room/factor/:factor',
+		'/api/map/:room/link/:link',
+		'/api/map/:room/styles',
+		'/api/map/:room/styles/:style',
+	],
+	(req, res, next) => {
+		try {
+			checkRoom(req.params.room)
+			next()
+		} catch (error) {
+			res.status(400).json({error: error.message})
+		}
+	},
+)
 // Proxy endpoint for Bedrock chat
-app.post('/api/chat/:room', ChatLimiter, async (req, res) => {
+app.post('/api/chat/:room', chatLimiter, async (req, res) => {
 	// Bedrock configuration from environment variables
 	const region = process.env.AWS_REGION || 'eu-west-2'
 	const bedrockApiKey = process.env.BEDROCK_API_KEY
@@ -95,28 +106,28 @@ app.post('/api/chat/:room', ChatLimiter, async (req, res) => {
 
 	if (!bedrockApiKey) {
 		console.error('ERROR: BEDROCK_API_KEY environment variable is not set')
-		return res.status(500).json({ error: 'LLM API key is not set' })
+		return res.status(500).json({error: 'LLM API key is not set'})
 	}
 
 	if (inFlightChatRequests >= MAX_IN_FLIGHT_CHAT) {
-		return res.status(503).json({ error: 'Server is busy, please retry later.' })
+		return res.status(503).json({error: 'Server is busy, please retry later.'})
 	}
 
 	inFlightChatRequests += 1
 	try {
-		const { message, systemPrompt } = req.body
+		const {message, systemPrompt} = req.body
 		if (!message) {
-			return res.status(400).json({ error: 'Message is required' })
+			return res.status(400).json({error: 'Message is required'})
 		}
 		// reject excessively long prompts
 		const maxPromptLength = parseInt(process.env.MAX_PROMPT_LENGTH) || 10000
-		if (message.length + systemPrompt?.length > maxPromptLength) {
-			return res.status(400).json({ error: `Message is too long. Please limit to ${maxPromptLength} characters.` })
+		if (message.length + (systemPrompt?.length || 0) > maxPromptLength) {
+			return res.status(400).json({error: `Message is too long. Please limit to ${maxPromptLength} characters.`})
 		}
 		const conversation = [
 			{
 				role: 'user',
-				content: [{ text: message }],
+				content: [{text: message}],
 			},
 		]
 		const payload = {
@@ -129,7 +140,7 @@ app.post('/api/chat/:room', ChatLimiter, async (req, res) => {
 \tFormat your answer using Markdown. `,
 				},
 			],
-inferenceConfig: { maxTokens: parseInt(process.env.MAX_TOKENS) || 512, temperature: 0.5 },
+			inferenceConfig: {maxTokens: parseInt(process.env.MAX_TOKENS) || 512, temperature: 0.5},
 		}
 
 		const url = `https://bedrock-runtime.${region}.amazonaws.com/model/${modelId}/converse`
@@ -145,21 +156,155 @@ inferenceConfig: { maxTokens: parseInt(process.env.MAX_TOKENS) || 512, temperatu
 		if (!response.ok) {
 			const errorText = await response.text()
 			console.error('Bedrock API error:', errorText)
-			return res.status(response.status).json({ error: errorText })
+			return res.status(response.status).json({error: errorText})
 		}
 
 		const data = await response.json()
 		if (data.usage) {
-			logAPICalls(`Token usage - input: ${data.usage.inputTokens}, output: ${data.usage.outputTokens}, total: ${data.usage.totalTokens}`)
+			logAPICalls(
+				`Token usage - input: ${data.usage.inputTokens}, output: ${data.usage.outputTokens}, total: ${data.usage.totalTokens}`,
+			)
 		}
 		const responseText = data.output.message.content[0].text
 
-		res.json({ response: responseText })
+		res.json({response: responseText})
 	} catch (error) {
 		console.error('Server error:', error)
-		res.status(500).json({ error: error.message })
+		res.status(500).json({error: error.message})
 	} finally {
 		inFlightChatRequests -= 1
+	}
+})
+
+/**
+ * Help Assistant Endpoint
+ * Uses RAG to answer questions based on the PRSM manual
+ */
+app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
+	const region = process.env.AWS_REGION || 'eu-west-2'
+	const bedrockApiKey = process.env.BEDROCK_API_KEY
+	const kbId = process.env.KNOWLEDGE_BASE_ID || '48IIKVEPJC'
+
+	if (!bedrockApiKey) {
+		console.error('ERROR: BEDROCK_API_KEY environment variable is not set')
+		return res.status(500).json({error: 'LLM API key is not set'})
+	}
+
+	try {
+		const {message} = req.body
+		if (!message) return res.status(400).json({error: 'Message is required'})
+
+		// STEP 0: Check cache first
+		try {
+			const cachedResponse = await helpCache.get(message)
+			if (cachedResponse) {
+				logAPICalls(`Help Assistant cache hit for message: ${message}`)
+				return res.json(cachedResponse)
+			}
+		} catch (err) {
+			// Cache miss or error, proceed without failing
+			logAPICalls(`Help Assistant cache miss for message: ${message}`)
+		}
+		// STEP 1: Retrieve context from the Knowledge Base
+		const retrieveCommand = new RetrieveCommand({
+			knowledgeBaseId: kbId,
+			retrievalQuery: {text: message},
+			retrievalConfiguration: {
+				vectorSearchConfiguration: {numberOfResults: 3},
+			},
+		})
+
+		const retrieveResponse = await agentClient.send(retrieveCommand)
+		const context = retrieveResponse.retrievalResults.map((result) => result.content.text).join('\n\n')
+
+		// STEP 2: Generate answer using your existing Qwen model
+		const systemPrompt = `You are the PRSM Help Assistant, a technical expert for the PRSM Particpatory system Mapping web application.
+
+Your primary goal is to provide instructions based on the standard user interface and general features. You are also able to provide general guidance aboout how to conduct Participatory System Mapping.
+
+### CONSTRAINTS
+- **API EXCLUSION:** You are STRICTLY FORBIDDEN from mentioning or referencing the "PRSM API" or technical API endpoints unless the user specifically asks a question containing the word "API". 
+- **SOURCE TRUTH:** Use only the provided Context. If the information is missing, state clearly that you do not know.
+
+### RESPONSE GUIDELINES
+1. **Focus:** Prioritize UI-based workflows and manual instructions.
+2. **Formatting:** Always use clean Markdown with headers for organization.
+3. **Examples:** Provide code snippets only when they illustrate configuration or non-API technical setups described in the manual.
+4. **Clarity:** Ensure instructions are clear and actionable for users of all technical levels.
+5. **Continuations:** Offer to provide more detail or cover additional topics if the user is interested.
+
+### MANUAL CONTEXT
+<context>${context}</context>`
+
+		const conversation = [{role: 'user', content: [{text: message}]}]
+
+		const payload = {
+			modelId, // Uses 'qwen.qwen3-235b-a22b-2507-v1:0'
+			messages: conversation,
+			system: [
+				{
+					text: systemPrompt,
+				},
+			],
+			inferenceConfig: {
+				maxTokens: parseInt(process.env.MAX_TOKENS) || 2048,
+				temperature: 0.2, // Lower temperature for factual help
+			},
+		}
+
+		const url = `https://bedrock-runtime.${region}.amazonaws.com/model/${modelId}/converse`
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${bedrockApiKey}`,
+			},
+			body: JSON.stringify(payload),
+		})
+
+		if (!response.ok) {
+			const errorText = await response.text()
+			console.error('Bedrock API error:', errorText)
+			return res.status(response.status).json({error: errorText})
+		}
+		const data = await response.json()
+		const responseText = data.output.message.content[0].text
+		// Map the retrieval results to specific URLs or identifiers
+		const sources = retrieveResponse.retrievalResults.map((result) => {
+			const customUri =
+				result.content?.metadata?.['x-amz-bedrock-kb-source-uri'] ||
+				result.metadata?.['x-amz-bedrock-kb-source-uri']
+			if (customUri) {
+				return customUri
+			}
+			const loc = result.location
+			if (loc.type === 'WEB') {
+				return loc.webLocation.url // This returns the specific page URL (e.g., .../Factors.html)
+			} else if (loc.type === 'S3') {
+				return loc.s3Location.uri
+			}
+			return 'Manual (General)'
+		})
+		// Remove duplicates if multiple chunks come from the same page
+		const uniqueSources = [...new Set(sources)]
+
+		// Cache the response for future requests
+		try {
+			await helpCache.put(message, {
+				response: responseText,
+				sources: uniqueSources,
+			})
+		} catch (err) {
+			logAPICalls(`Failed to cache response for message: ${message}`)
+		}
+
+		res.json({
+			response: responseText,
+			sources: uniqueSources,
+		})
+	} catch (error) {
+		console.error('Help Assistant Error:', error)
+		res.status(500).json({error: error.message})
 	}
 })
 
@@ -172,38 +317,29 @@ inferenceConfig: { maxTokens: parseInt(process.env.MAX_TOKENS) || 512, temperatu
 app.get('/api/map/:room', async (req, res) => {
 	try {
 		logAPICalls(`Fetching map for room ${req.params.room}`)
-		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
-		let sentResponse = false;
-		wsProvider.on('synced', () => {
-			if (!sentResponse) {
-				try {
-					const yNodesMap = doc.getMap('nodes')
-					const yEdgesMap = doc.getMap('edges')
-					const yNetMap = doc.getMap('network')
-					checkMapExists(yNetMap)
-					res.json({
-						room: req.params.room,
-						title: yNetMap.get('mapTitle'),
-						viewOnly: yNetMap.get('viewOnly'),
-						version: yNetMap.get('version'),
-						background: yNetMap.get('background'),
-						nodes: stripArray(Array.from(yNodesMap.values()), ['id', 'label', 'x', 'y']),
-						edges: stripArray(Array.from(yEdgesMap.values()), ['id', 'from', 'to', 'label']),
-					})
-					sentResponse = true
-				} catch (error) {
-					res.status(500).json({ error: error.message })
-					sentResponse = true
-				} finally {
-					doc.destroy()
-					wsProvider.disconnect()
-					wsProvider.destroy()
-				}
-			}
-		})
+		const {doc, wsProvider} = await withSyncedDoc(req.params.room)
+		try {
+			const yNodesMap = doc.getMap('nodes')
+			const yEdgesMap = doc.getMap('edges')
+			const yNetMap = doc.getMap('network')
+			checkMapExists(yNetMap)
+			res.json({
+				room: req.params.room,
+				title: yNetMap.get('mapTitle'),
+				viewOnly: yNetMap.get('viewOnly'),
+				version: yNetMap.get('version'),
+				background: yNetMap.get('background'),
+				nodes: stripArray(Array.from(yNodesMap.values()), ['id', 'label', 'x', 'y']),
+				edges: stripArray(Array.from(yEdgesMap.values()), ['id', 'from', 'to', 'label']),
+			})
+		} finally {
+			doc.destroy()
+			wsProvider.disconnect()
+			wsProvider.destroy()
+		}
 	} catch (error) {
-		res.status(500).json({ error: error.message })
+		const status = error.message === 'WebSocket sync timed out' ? 504 : 500
+		res.status(status).json({error: error.message})
 	}
 })
 
@@ -213,43 +349,36 @@ app.get('/api/map/:room', async (req, res) => {
 app.patch('/api/map/:room', async (req, res) => {
 	try {
 		logAPICalls(`Updating map for room ${req.params.room}`)
-		const { update } = req.body
+		const {update} = req.body
 
 		if (!update) {
-			return res.status(400).json({ error: 'Nothing provided for update' })
+			return res.status(400).json({error: 'Nothing provided for update'})
 		}
-		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
-		let sentResponse = false;
-		wsProvider.on('synced', () => {
-			if (!sentResponse) {
-				try {
-					const yNetMap = doc.getMap('network')
-					checkMapExists(yNetMap)
-					if (update.title) {
-						yNetMap.set('mapTitle', update.title)
-					}
-					if (update.background) {
-						yNetMap.set('background', update.background)
-					}
-					res.json({
-						room: req.params.room,
-						title: yNetMap.get('mapTitle'),
-						background: yNetMap.get('background'),
-					})
-					sentResponse = true
-				} catch (error) {
-					res.status(500).json({ error: error.message })
-					sentResponse = true
-				} finally {
-					doc.destroy()
-					wsProvider.disconnect()
-					wsProvider.destroy()
-				}
+		const {doc, wsProvider} = await withSyncedDoc(req.params.room)
+		try {
+			const yNetMap = doc.getMap('network')
+			checkMapExists(yNetMap)
+			if (update.title) {
+				yNetMap.set('mapTitle', update.title)
 			}
-		})
+			if (update.background) {
+				yNetMap.set('background', update.background)
+			}
+			res.json({
+				room: req.params.room,
+				title: yNetMap.get('mapTitle'),
+				background: yNetMap.get('background'),
+			})
+		} catch (error) {
+			res.status(500).json({error: error.message})
+		} finally {
+			doc.destroy()
+			wsProvider.disconnect()
+			wsProvider.destroy()
+		}
 	} catch (error) {
-		res.status(500).json({ error: error.message })
+		const status = error.message === 'WebSocket sync timed out' ? 504 : 500
+		res.status(status).json({error: error.message})
 	}
 })
 
@@ -259,28 +388,41 @@ app.patch('/api/map/:room', async (req, res) => {
 app.get('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
 		logAPICalls(`Fetching factor ${req.params.factor} for room ${req.params.room}`)
-		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
-		let sentResponse = false;
-		wsProvider.on('synced', () => {
-			if (!sentResponse) {
-				const yNodesMap = doc.getMap('nodes')
-				const factorDetails = yNodesMap.get(req.params.factor)
-				if (factorDetails && !sentResponse) {
-					res.json(
-						strip(factorDetails, ['id', 'label', 'x', 'y', 'borderWidth', 'color', 'created', 'modified', 'groupLabel', 'grp', 'font', 'shape', 'shapeProperties'])
-					)
-				} else {
-					res.status(404).json({ error: 'Factor not found' })
-				}
-				sentResponse = true
-				doc.destroy()
-				wsProvider.disconnect()
-				wsProvider.destroy()
+		const {doc, wsProvider} = await withSyncedDoc(req.params.room)
+		try {
+			const yNodesMap = doc.getMap('nodes')
+			const factorDetails = yNodesMap.get(req.params.factor)
+			if (factorDetails) {
+				res.json(
+					strip(factorDetails, [
+						'id',
+						'label',
+						'x',
+						'y',
+						'borderWidth',
+						'color',
+						'created',
+						'modified',
+						'groupLabel',
+						'grp',
+						'font',
+						'shape',
+						'shapeProperties',
+					]),
+				)
+			} else {
+				res.status(404).json({error: 'Factor not found'})
 			}
-		})
+		} catch (error) {
+			res.status(500).json({error: error.message})
+		} finally {
+			doc.destroy()
+			wsProvider.disconnect()
+			wsProvider.destroy()
+		}
 	} catch (error) {
-		res.status(500).json({ error: error.message })
+		const status = error.message === 'WebSocket sync timed out' ? 504 : 500
+		res.status(status).json({error: error.message})
 	}
 })
 
@@ -291,36 +433,49 @@ app.get('/api/map/:room/factor/:factor', async (req, res) => {
 app.patch('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
 		logAPICalls(`Updating factor ${req.params.factor} for room ${req.params.room}`)
-		const { update } = req.body
+		const {update} = req.body
 
 		if (!update) {
-			return res.status(400).json({ error: 'Nothing provided for update' })
+			return res.status(400).json({error: 'Nothing provided for update'})
 		}
 
-		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
-		let sentResponse = false;
-		wsProvider.on('synced', () => {
-			if (!sentResponse) {
-				const yNodesMap = doc.getMap('nodes')
-				const oldFactor = yNodesMap.get(req.params.factor)
-				if (oldFactor) {
-					const newFactor = { ...deepUpdate(oldFactor, update), modified: { time: Date.now(), user: 'API' } }
-					yNodesMap.set(req.params.factor, newFactor)
-					res.json(
-						strip(newFactor, ['id', 'label', 'x', 'y', 'borderWidth', 'color', 'created', 'modified', 'groupLabel', 'grp', 'font', 'shape', 'shapeProperties'])
-					)
-				} else {
-					res.status(404).json({ error: 'Factor not found' })
-				}
-				sentResponse = true
-				doc.destroy()
-				wsProvider.disconnect()
-				wsProvider.destroy()
+		const {doc, wsProvider} = await withSyncedDoc(req.params.room)
+		try {
+			const yNodesMap = doc.getMap('nodes')
+			const oldFactor = yNodesMap.get(req.params.factor)
+			if (oldFactor) {
+				const newFactor = {...deepUpdate(oldFactor, update), modified: {time: Date.now(), user: 'API'}}
+				yNodesMap.set(req.params.factor, newFactor)
+				res.json(
+					strip(newFactor, [
+						'id',
+						'label',
+						'x',
+						'y',
+						'borderWidth',
+						'color',
+						'created',
+						'modified',
+						'groupLabel',
+						'grp',
+						'font',
+						'shape',
+						'shapeProperties',
+					]),
+				)
+			} else {
+				res.status(404).json({error: 'Factor not found'})
 			}
-		})
+		} catch (error) {
+			res.status(500).json({error: error.message})
+		} finally {
+			doc.destroy()
+			wsProvider.disconnect()
+			wsProvider.destroy()
+		}
 	} catch (error) {
-		res.status(500).json({ error: error.message })
+		const status = error.message === 'WebSocket sync timed out' ? 504 : 500
+		res.status(status).json({error: error.message})
 	}
 })
 
@@ -331,56 +486,77 @@ app.patch('/api/map/:room/factor/:factor', async (req, res) => {
 app.post('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
 		logAPICalls(`Creating factor ${req.params.factor} for room ${req.params.room}`)
-		const { spec } = req.body
+		const {spec} = req.body
 
 		// validate spec: must have at least a label
 		if (!spec) {
-			return res.status(400).json({ error: 'Missing factor specification' })
+			return res.status(400).json({error: 'Missing factor specification'})
 		}
 		if (!spec.label) {
-			return res.status(400).json({ error: 'Missing factor label in spec.' })
+			return res.status(400).json({error: 'Missing factor label in spec.'})
 		}
 		const newFactor = {
 			// default properties, which may be overwritten by spec.
-			x: 0, y: 0, borderWidth: 0, color: {
-				border: "rgb(154, 219, 180)",
-				background: "rgb(154, 219, 180)",
+			x: 0,
+			y: 0,
+			borderWidth: 0,
+			color: {
+				border: 'rgb(154, 219, 180)',
+				background: 'rgb(154, 219, 180)',
 				highlight: {
-					border: "rgb(154, 219, 180)",
-					background: "rgb(154, 219, 180)"
+					border: 'rgb(154, 219, 180)',
+					background: 'rgb(154, 219, 180)',
 				},
 				hover: {
-					border: "rgb(154, 219, 180)",
-					background: "rgb(154, 219, 180)"
-				}
-			}, font: {
-				face: "Oxygen",
-				color: "rgb(0, 0, 0)",
-				size: 14
-			}, grp: 0, shape: "box", shapeProperties: {}, ...spec,
-			created: { time: Date.now(), user: 'API' },
-			modified: { time: Date.now(), user: 'API' },
-			id: req.params.factor
+					border: 'rgb(154, 219, 180)',
+					background: 'rgb(154, 219, 180)',
+				},
+			},
+			font: {
+				face: 'Oxygen',
+				color: 'rgb(0, 0, 0)',
+				size: 14,
+			},
+			grp: 0,
+			shape: 'box',
+			shapeProperties: {},
+			...spec,
+			created: {time: Date.now(), user: 'API'},
+			modified: {time: Date.now(), user: 'API'},
+			id: req.params.factor,
 		}
 
-		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
-		let sentResponse = false;
-		wsProvider.on('synced', () => {
-			if (!sentResponse) {
-				const yNodesMap = doc.getMap('nodes')
-				yNodesMap.set(req.params.factor, newFactor)
-				res.json(
-					strip(newFactor, ['id', 'label', 'x', 'y', 'borderWidth', 'color', 'created', 'modified', 'groupLabel', 'grp', 'font', 'shape', 'shapeProperties'])
-				)
-			}
-			sentResponse = true
+		const {doc, wsProvider} = await withSyncedDoc(req.params.room)
+		try {
+			const yNodesMap = doc.getMap('nodes')
+			yNodesMap.set(req.params.factor, newFactor)
+			res.json(
+				strip(newFactor, [
+					'id',
+					'label',
+					'x',
+					'y',
+					'borderWidth',
+					'color',
+					'created',
+					'modified',
+					'groupLabel',
+					'grp',
+					'font',
+					'shape',
+					'shapeProperties',
+				]),
+			)
+		} catch (error) {
+			res.status(500).json({error: error.message})
+		} finally {
 			doc.destroy()
 			wsProvider.disconnect()
 			wsProvider.destroy()
-		})
+		}
 	} catch (error) {
-		res.status(500).json({ error: error.message })
+		const status = error.message === 'WebSocket sync timed out' ? 504 : 500
+		res.status(status).json({error: error.message})
 	}
 })
 
@@ -390,36 +566,33 @@ app.post('/api/map/:room/factor/:factor', async (req, res) => {
 app.delete('/api/map/:room/factor/:factor', async (req, res) => {
 	try {
 		logAPICalls(`Deleting factor ${req.params.factor} for room ${req.params.room}`)
-
-		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
-		let sentResponse = false;
-		wsProvider.on('synced', () => {
-			if (!sentResponse) {
-				const yNodesMap = doc.getMap('nodes')
-				const oldFactor = yNodesMap.get(req.params.factor)
-				if (oldFactor) {
-					// delete all links to this factor
-					for (const [edgeId, edge] of doc.getMap('edges')) {
-						if (edge.from === req.params.factor || edge.to === req.params.factor) {
-							doc.getMap('edges').delete(edgeId)
-						}
+		const {doc, wsProvider} = await withSyncedDoc(req.params.room)
+		try {
+			const yNodesMap = doc.getMap('nodes')
+			const oldFactor = yNodesMap.get(req.params.factor)
+			if (oldFactor) {
+				// delete all links to this factor
+				for (const [edgeId, edge] of doc.getMap('edges')) {
+					if (edge.from === req.params.factor || edge.to === req.params.factor) {
+						doc.getMap('edges').delete(edgeId)
 					}
-					// then delete the factor
-					yNodesMap.delete(req.params.factor)
-					res.json({ message: 'Factor deleted' })
-					sentResponse = true;
-				} else {
-					res.status(404).json({ error: 'Factor not found' })
 				}
-				sentResponse = true;
+				// then delete the factor
+				yNodesMap.delete(req.params.factor)
+				res.json({message: 'Factor deleted'})
+			} else {
+				res.status(404).json({error: 'Factor not found'})
 			}
+		} catch (error) {
+			res.status(500).json({error: error.message})
+		} finally {
 			doc.destroy()
 			wsProvider.disconnect()
 			wsProvider.destroy()
-		})
+		}
 	} catch (error) {
-		res.status(500).json({ error: error.message })
+		const status = error.message === 'WebSocket sync timed out' ? 504 : 500
+		res.status(status).json({error: error.message})
 	}
 })
 
@@ -429,28 +602,41 @@ app.delete('/api/map/:room/factor/:factor', async (req, res) => {
 app.get('/api/map/:room/link/:link', async (req, res) => {
 	try {
 		logAPICalls(`Fetching link ${req.params.link} for room ${req.params.room}`)
-		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
-		let sentResponse = false;
-		wsProvider.on('synced', () => {
-			if (!sentResponse) {
-				const yEdgesMap = doc.getMap('edges')
-				const linkDetails = yEdgesMap.get(req.params.link)
-				if (linkDetails && !sentResponse) {
-					res.json(
-						strip(linkDetails, ['id', 'label', 'from', 'to', 'arrows', 'width', 'dashes', 'color', 'created', 'modified', 'groupLabel', 'grp', 'font'])
-					)
-				} else {
-					res.status(404).json({ error: 'Link not found' })
-				}
-				sentResponse = true
-				doc.destroy()
-				wsProvider.disconnect()
-				wsProvider.destroy()
+		const {doc, wsProvider} = await withSyncedDoc(req.params.room)
+		try {
+			const yEdgesMap = doc.getMap('edges')
+			const linkDetails = yEdgesMap.get(req.params.link)
+			if (linkDetails) {
+				res.json(
+					strip(linkDetails, [
+						'id',
+						'label',
+						'from',
+						'to',
+						'arrows',
+						'width',
+						'dashes',
+						'color',
+						'created',
+						'modified',
+						'groupLabel',
+						'grp',
+						'font',
+					]),
+				)
+			} else {
+				res.status(404).json({error: 'Link not found'})
 			}
-		})
+		} catch (error) {
+			res.status(500).json({error: error.message})
+		} finally {
+			doc.destroy()
+			wsProvider.disconnect()
+			wsProvider.destroy()
+		}
 	} catch (error) {
-		res.status(500).json({ error: error.message })
+		const status = error.message === 'WebSocket sync timed out' ? 504 : 500
+		res.status(status).json({error: error.message})
 	}
 })
 
@@ -461,36 +647,49 @@ app.get('/api/map/:room/link/:link', async (req, res) => {
 app.patch('/api/map/:room/link/:link', async (req, res) => {
 	try {
 		logAPICalls(`Updating link ${req.params.link} for room ${req.params.room}`)
-		const { update } = req.body
+		const {update} = req.body
 
 		if (!update) {
-			return res.status(400).json({ error: 'Nothing provided for update' })
+			return res.status(400).json({error: 'Nothing provided for update'})
 		}
 
-		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
-		let sentResponse = false;
-		wsProvider.on('synced', () => {
-			if (!sentResponse) {
-				const yEdgesMap = doc.getMap('edges')
-				const oldLink = yEdgesMap.get(req.params.link)
-				if (oldLink) {
-					const newLink = { ...deepUpdate(oldLink, update), modified: { time: Date.now(), user: 'API' } }
-					yEdgesMap.set(req.params.link, newLink)
-					res.json(
-						strip(newLink, ['id', 'label', 'from', 'to', 'arrows', 'width', 'dashes', 'color', 'created', 'modified', 'groupLabel', 'grp', 'font'])
-					)
-				} else {
-					res.status(404).json({ error: 'Link not found' })
-				}
-				sentResponse = true
-				doc.destroy()
-				wsProvider.disconnect()
-				wsProvider.destroy()
+		const {doc, wsProvider} = await withSyncedDoc(req.params.room)
+		try {
+			const yEdgesMap = doc.getMap('edges')
+			const oldLink = yEdgesMap.get(req.params.link)
+			if (oldLink) {
+				const newLink = {...deepUpdate(oldLink, update), modified: {time: Date.now(), user: 'API'}}
+				yEdgesMap.set(req.params.link, newLink)
+				res.json(
+					strip(newLink, [
+						'id',
+						'label',
+						'from',
+						'to',
+						'arrows',
+						'width',
+						'dashes',
+						'color',
+						'created',
+						'modified',
+						'groupLabel',
+						'grp',
+						'font',
+					]),
+				)
+			} else {
+				res.status(404).json({error: 'Link not found'})
 			}
-		})
+		} catch (error) {
+			res.status(500).json({error: error.message})
+		} finally {
+			doc.destroy()
+			wsProvider.disconnect()
+			wsProvider.destroy()
+		}
 	} catch (error) {
-		res.status(500).json({ error: error.message })
+		const status = error.message === 'WebSocket sync timed out' ? 504 : 500
+		res.status(status).json({error: error.message})
 	}
 })
 
@@ -501,68 +700,84 @@ app.patch('/api/map/:room/link/:link', async (req, res) => {
 app.post('/api/map/:room/link/:link', async (req, res) => {
 	try {
 		logAPICalls(`Creating link ${req.params.link} for room ${req.params.room}`)
-		const { spec } = req.body
+		const {spec} = req.body
 
 		// validate spec: must have at least a from and to
 		if (!spec) {
-			return res.status(400).json({ error: 'Missing link specification' })
+			return res.status(400).json({error: 'Missing link specification'})
 		}
 		if (!spec.from || !spec.to) {
-			return res.status(400).json({ error: 'Missing link endpoints in spec.' })
+			return res.status(400).json({error: 'Missing link endpoints in spec.'})
 		}
 		const newLink = {
 			// default properties, which may be overwritten by spec.
 			color: {
-				color: "rgb(0,0,0)",
-				highlight: "rgb(0,0,0)",
-				hover: "rgb(0,0,0)"
-			}, font: {
-				face: "Oxygen",
-				color: "rgb(0, 0, 0)",
-				size: 14
-			}, grp: 0,
+				color: 'rgb(0,0,0)',
+				highlight: 'rgb(0,0,0)',
+				hover: 'rgb(0,0,0)',
+			},
+			font: {
+				face: 'Oxygen',
+				color: 'rgb(0, 0, 0)',
+				size: 14,
+			},
+			grp: 0,
 			arrows: {
 				to: {
 					enabled: true,
-					type: "vee"
+					type: 'vee',
 				},
 				middle: {
-					enabled: false
+					enabled: false,
 				},
 				from: {
-					enabled: false
+					enabled: false,
 				},
 			},
 			dashes: false,
 			...spec,
-			created: { time: Date.now(), user: 'API' },
-			modified: { time: Date.now(), user: 'API' },
-			id: req.params.link
+			created: {time: Date.now(), user: 'API'},
+			modified: {time: Date.now(), user: 'API'},
+			id: req.params.link,
 		}
 
-		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
-		let sentResponse = false;
-		wsProvider.on('synced', () => {
-			if (!sentResponse) {
-				const yNodesMap = doc.getMap('nodes')
-				const edgesMap = doc.getMap('edges')
-				// also ensure that the nodes exist
-				if (!yNodesMap.has(newLink.from) || !yNodesMap.has(newLink.to)) {
-					res.status(400).json({ error: 'One or both link endpoints do not exist as factors.' })
-				} else {
-					edgesMap.set(req.params.link, newLink)
-					res.json(
-						strip(newLink, ['id', 'label', 'from', 'to', 'arrows', 'width', 'dashes', 'color', 'created', 'modified', 'groupLabel', 'grp', 'font']))
-				}
+		const {doc, wsProvider} = await withSyncedDoc(req.params.room)
+		try {
+			const yNodesMap = doc.getMap('nodes')
+			const edgesMap = doc.getMap('edges')
+			// also ensure that the nodes exist
+			if (!yNodesMap.has(newLink.from) || !yNodesMap.has(newLink.to)) {
+				res.status(400).json({error: 'One or both link endpoints do not exist as factors.'})
+			} else {
+				edgesMap.set(req.params.link, newLink)
+				res.json(
+					strip(newLink, [
+						'id',
+						'label',
+						'from',
+						'to',
+						'arrows',
+						'width',
+						'dashes',
+						'color',
+						'created',
+						'modified',
+						'groupLabel',
+						'grp',
+						'font',
+					]),
+				)
 			}
-			sentResponse = true
+		} catch (error) {
+			res.status(500).json({error: error.message})
+		} finally {
 			doc.destroy()
 			wsProvider.disconnect()
 			wsProvider.destroy()
-		})
+		}
 	} catch (error) {
-		res.status(500).json({ error: error.message })
+		const status = error.message === 'WebSocket sync timed out' ? 504 : 500
+		res.status(status).json({error: error.message})
 	}
 })
 
@@ -573,27 +788,26 @@ app.delete('/api/map/:room/link/:link', async (req, res) => {
 	try {
 		logAPICalls(`Deleting link ${req.params.link} for room ${req.params.room}`)
 
-		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
-		let sentResponse = false;
-		wsProvider.on('synced', () => {
-			if (!sentResponse) {
-				const yEdgesMap = doc.getMap('edges')
-				const oldLink = yEdgesMap.get(req.params.link)
-				if (oldLink) {
-					yEdgesMap.delete(req.params.link)
-					res.json({ message: 'Link deleted' })
-				} else {
-					res.status(404).json({ error: 'Link not found' })
-				}
-				sentResponse = true;
+		const {doc, wsProvider} = await withSyncedDoc(req.params.room)
+		try {
+			const yEdgesMap = doc.getMap('edges')
+			const oldLink = yEdgesMap.get(req.params.link)
+			if (oldLink) {
+				yEdgesMap.delete(req.params.link)
+				res.json({message: 'Link deleted'})
+			} else {
+				res.status(404).json({error: 'Link not found'})
 			}
+		} catch (error) {
+			res.status(500).json({error: error.message})
+		} finally {
 			doc.destroy()
 			wsProvider.disconnect()
 			wsProvider.destroy()
-		})
+		}
 	} catch (error) {
-		res.status(500).json({ error: error.message })
+		const status = error.message === 'WebSocket sync timed out' ? 504 : 500
+		res.status(status).json({error: error.message})
 	}
 })
 /**
@@ -602,23 +816,21 @@ app.delete('/api/map/:room/link/:link', async (req, res) => {
 app.get('/api/map/:room/styles', async (req, res) => {
 	try {
 		logAPICalls(`Fetching styles for room ${req.params.room}`)
-		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
-		let sentResponse = false;
-		wsProvider.on('synced', () => {
-			if (!sentResponse) {
-				const ySamplesMap = doc.getMap('samples')
-				const styles = Array.from(ySamplesMap.entries()).filter(style => /^[edge|group]/.test(style[0]))
-				console.log(styles)
-				res.json(styles)
-				sentResponse = true
-				doc.destroy()
-				wsProvider.disconnect()
-				wsProvider.destroy()
-			}
-		})
+		const {doc, wsProvider} = await withSyncedDoc(req.params.room)
+		try {
+			const ySamplesMap = doc.getMap('samples')
+			const styles = Array.from(ySamplesMap.entries()).filter((style) => /^(edge|group)/.test(style[0]))
+			res.json(styles)
+		} catch (error) {
+			res.status(500).json({error: error.message})
+		} finally {
+			doc.destroy()
+			wsProvider.disconnect()
+			wsProvider.destroy()
+		}
 	} catch (error) {
-		res.status(500).json({ error: error.message })
+		const status = error.message === 'WebSocket sync timed out' ? 504 : 500
+		res.status(status).json({error: error.message})
 	}
 })
 
@@ -628,62 +840,61 @@ app.get('/api/map/:room/styles', async (req, res) => {
 app.get('/api/map/:room/styles/:style', async (req, res) => {
 	try {
 		logAPICalls(`Fetching styles for room ${req.params.room}`)
-		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
-		let sentResponse = false;
-		wsProvider.on('synced', () => {
-			if (!sentResponse) {
-				const ySamplesMap = doc.getMap('samples')
-				const style = ySamplesMap.get(req.params.style)
-				if (style) {
-					res.json([req.params.style, style])
-					sentResponse = true
-				} else {
-					res.status(404).json({ error: 'Style not found' })
-				}
-				doc.destroy()
-				wsProvider.disconnect()
-				wsProvider.destroy()
+		const {doc, wsProvider} = await withSyncedDoc(req.params.room)
+		try {
+			const ySamplesMap = doc.getMap('samples')
+			const style = ySamplesMap.get(req.params.style)
+			if (style) {
+				res.json([req.params.style, style])
+			} else {
+				res.status(404).json({error: 'Style not found'})
 			}
-		})
+		} catch (error) {
+			res.status(500).json({error: error.message})
+		} finally {
+			doc.destroy()
+			wsProvider.disconnect()
+			wsProvider.destroy()
+		}
 	} catch (error) {
-		res.status(500).json({ error: error.message })
+		const status = error.message === 'WebSocket sync timed out' ? 504 : 500
+		res.status(status).json({error: error.message})
 	}
 })
 
 app.patch('/api/map/:room/styles/:style', async (req, res) => {
 	try {
 		logAPICalls(`Updating style ${req.params.style} for room ${req.params.room}`)
-		const { update } = req.body
+		const {update} = req.body
 
 		if (!update) {
-			return res.status(400).json({ error: 'Nothing provided for update' })
+			return res.status(400).json({error: 'Nothing provided for update'})
 		}
 
-		const doc = new Y.Doc()
-		const wsProvider = new WebsocketProvider(websocket, `prsm${req.params.room}`, doc)
-		let sentResponse = false;
-		wsProvider.on('synced', () => {
-			if (!sentResponse) {
-				const yStylesMap = doc.getMap('samples')
-				const oldStyle = yStylesMap.get(req.params.style)
-				if (oldStyle) {
-					const newStyle = deepUpdate(oldStyle, update)
-					yStylesMap.set(req.params.style, newStyle)
-					res.json(newStyle)
-				} else {
-					res.status(404).json({ error: 'Style not found' })
-				}
-				sentResponse = true
-				doc.destroy()
-				wsProvider.disconnect()
-				wsProvider.destroy()
+		const {doc, wsProvider} = await withSyncedDoc(req.params.room)
+		try {
+			const yStylesMap = doc.getMap('samples')
+			const oldStyle = yStylesMap.get(req.params.style)
+			if (oldStyle) {
+				const newStyle = deepUpdate(oldStyle, update)
+				yStylesMap.set(req.params.style, newStyle)
+				res.json(newStyle)
+			} else {
+				res.status(404).json({error: 'Style not found'})
 			}
-		})
+		} catch (error) {
+			res.status(500).json({error: error.message})
+		} finally {
+			doc.destroy()
+			wsProvider.disconnect()
+			wsProvider.destroy()
+		}
 	} catch (error) {
-		res.status(500).json({ error: error.message })
+		const status = error.message === 'WebSocket sync timed out' ? 504 : 500
+		res.status(status).json({error: error.message})
 	}
 })
+
 let server // server instance
 let httpTerminator // terminator instance
 /**
@@ -691,43 +902,75 @@ let httpTerminator // terminator instance
  */
 async function start() {
 	// Load secrets first
-	await loadSecrets();
+	await loadSecrets()
 	// Start the server
 	server = app.listen(PORT, () => {
-		console.log(`Proxy server running on http://localhost:${PORT} using websocket server at ${websocket} and model ${modelId}`)
+		console.log(
+			`Proxy server running on http://localhost:${PORT} using websocket server at ${websocket}, model ${modelId} and helpCache at ${helpCache.location}`,
+		)
 	})
-	httpTerminator = createHttpTerminator({ server });
+	httpTerminator = createHttpTerminator({server})
 }
-start();
+start()
 
 /****** Utilities  ************/
 
-// Graceful shutdown on Ctrl-C
+const WS_TIMEOUT_MS = 10000
+/**
+ * Return a promise that resolves with the Y.Doc and WebsocketProvider for a given room once the document is synced
+ * Rejects if syncing takes longer than WS_TIMEOUT_MS
+ * @param {string} room
+ * @returns Promise that resolves with {doc, wsProvider}
+ */
+function withSyncedDoc(room) {
+	return new Promise((resolve, reject) => {
+		const doc = new Y.Doc()
+		const wsProvider = new WebsocketProvider(websocket, `prsm${room}`, doc)
+		const timer = setTimeout(() => {
+			doc.destroy()
+			wsProvider.disconnect()
+			wsProvider.destroy()
+			reject(new Error('WebSocket sync timed out'))
+		}, WS_TIMEOUT_MS)
+		wsProvider.on('synced', () => {
+			clearTimeout(timer)
+			resolve({doc, wsProvider})
+		})
+	})
+}
+
+// Graceful shutdown on Ctrl-C and systemctl stop
 process.on('SIGINT', () => {
-	console.log('\nReceived SIGINT, shutting down...');
-	httpTerminator.terminate().then(() => {
-		console.log('HTTP server closed');
-		process.exit(0);
-	});
-});
+	console.log('\nReceived SIGINT, shutting down...')
+	handleShutdown()
+})
+process.on('SIGTERM', () => {
+	console.log('\nReceived SIGTERM, shutting down...')
+	handleShutdown()
+})
+async function handleShutdown() {
+	await httpTerminator.terminate()
+	await helpCache.close()
+	console.log('Help cache closed')
+	console.log('HTTP server closed')
+	process.exit(0)
+}
+
 /**
  * Check that a room identifier is properly formed
- * @param {string} room 
- * @returns {string} room in uppercase if valid
+ * @param {string} room
  * @throws {Error} if room is invalid
  */
 function checkRoom(room) {
-	room = room.toUpperCase()
-	if (!room || !room.match(/[A-Z]{3}-[A-Z]{3}-[A-Z]{3}-[A-Z]{3}/)) {
+	if (!room || !room.match(/^[A-Z]{3}-[A-Z]{3}-[A-Z]{3}-[A-Z]{3}$/)) {
 		throw new Error(`Invalid room identifier: ${room}`)
 	}
-	return room
 }
 /**
  * Check that a map has been created using the web interface
  * Since there is no way to list existing Yjs documents on the server,
  * we check for the presence of the 'lastLoaded' property in the network map
- * @param {Y.Map} yNetMap 
+ * @param {Y.Map} yNetMap
  */
 function checkMapExists(yNetMap) {
 	const lastLoaded = yNetMap.get('lastLoaded')
@@ -737,7 +980,7 @@ function checkMapExists(yNetMap) {
 }
 /**
  * time stamp and output message to console
- * @param {string} message 
+ * @param {string} message
  */
 function logAPICalls(message) {
 	const timestamp = new Date().toLocaleString()
@@ -749,32 +992,31 @@ function logAPICalls(message) {
  * Recursively updates properties in a target object with values from an update object.
  * Searches deeply through nested objects to find and update matching keys.
  * Only updates keys that already exist in the target object; it does not add new keys.
- * Stops as soon as a match is found and updated, so if there are multiple nested objects 
+ * Stops as soon as a match is found and updated, so if there are multiple nested objects
  * with the same key, only the first one encountered will be updated.
- * 
+ *
  * @param {Object} target - The object to update
  * @param {Object} updates - Object containing key-value pairs to update
  * @returns {Object} The updated target object
  */
 function deepUpdate(target, updates) {
+	const result = structuredClone(target)
 	for (const [key, value] of Object.entries(updates)) {
-		if (Object.hasOwn(target, key)) {
-			target[key] = value;
+		if (Object.hasOwn(result, key)) {
+			result[key] = value
 		} else {
-			// Search nested objects, stopping at first match
-			for (const prop in target) {
-				if (typeof target[prop] === 'object' && target[prop] !== null) {
-					if (Object.hasOwn(target[prop], key)) {
-						target[prop][key] = value;
-						break; // Stop after first match
+			for (const prop in result) {
+				if (typeof result[prop] === 'object' && result[prop] !== null) {
+					if (Object.hasOwn(result[prop], key)) {
+						result[prop][key] = value
+						break
 					}
-					// Recursively search deeper if not found at this level
-					deepUpdate(target[prop], { [key]: value });
+					result[prop] = deepUpdate(result[prop], {[key]: value})
 				}
 			}
 		}
 	}
-	return target;
+	return result
 }
 /**
  * return a copy of an object that only includes the properties that are in allowed
@@ -789,9 +1031,9 @@ function strip(obj, allowed) {
 }
 /**
  * return an array of objects, each stripped to only include the allowed properties
- * @param {array} arr 
- * @param {array} allowed 
- * @returns 
+ * @param {array} arr
+ * @param {array} allowed
+ * @returns
  */
 function stripArray(arr, allowed) {
 	return arr.map((item) => strip(item, allowed))

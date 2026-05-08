@@ -6,11 +6,11 @@
   "scripts": {
     "generate-meta": "node scripts/generate-meta.mjs",
     "dev": "npm run generate-meta && rspress dev",
-    "build": "npm run generate-meta && rspress build",
+    "build": "npm run generate-meta && rspress build && python3.11 scripts/metadataForS3bucket.py",
     "preview": "rspress preview"
   },
   "dependencies": {
-    "@rspress/core": "^2.0.0-rc.5",
+    "@rspress/core": "^2.0.10",
     "rspress-language-tabs": "^1.1.0"
   },
   "devDependencies": {

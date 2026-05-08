@@ -1,6 +1,6 @@
 # Security headers
 <IfModule mod_headers.c>
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://kit.fontawesome.com http://s3.amazonaws.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com http://cdn-images.mailchimp.com; font-src 'self' https://fonts.gstatic.com https://ka-f.fontawesome.com; img-src 'self' data: https://digitalasset.intuit.com; connect-src 'self' ws://localhost:1234 http://localhost:3001 wss://www.prsm.uk https://ka-f.fontawesome.com; frame-ancestors 'self' https://prsm.uk;"  
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://kit.fontawesome.com http://s3.amazonaws.com https://cdn.jsdelivr.net https://*.us20.list-manage.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com http://cdn-images.mailchimp.com; font-src 'self' https://fonts.gstatic.com https://ka-f.fontawesome.com; img-src 'self' data: https://digitalasset.intuit.com; connect-src 'self' ws://localhost:1234 http://localhost:3001 wss://www.prsm.uk https://ka-f.fontawesome.com; frame-ancestors 'self' https://prsm.uk"  
 	Header always set X-Content-Type-Options "nosniff"
 	Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 </IfModule>
