@@ -2135,6 +2135,9 @@ input#splashNameBox::placeholder {
 #whatsnewcontent li {
   padding-top: 1rem;
 }
+#whatsnewcontent li ul li{
+  padding-top: 0;
+}
 
 /* 3d graph display */
 .threeDGraph {
