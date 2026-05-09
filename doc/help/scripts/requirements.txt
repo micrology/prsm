@@ -33,7 +33,7 @@ matplotlib==3.10.1
 mdurl==0.1.2
 multidict==6.7.1
 networkx==3.4.2
-nltk==3.9.1
+nltk==3.9.4
 numpy==2.1.1
 openai==1.44.0
 packaging==26.0
