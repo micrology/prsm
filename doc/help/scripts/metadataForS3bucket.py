@@ -1,5 +1,11 @@
+# Copies help manual markdown files to AWS S3 bucket so that they can be used for RAG
+#  chatbot training with Bedrock. Each markdown file gets a corresponding metadata JSON
+#  sidecar with the citation URL for the live docs.  The vector base is then synced to
+#  the newly copied files.
+
 import os
 import json
+import sys
 import boto3
 import time
 
@@ -14,6 +20,8 @@ DS_ID = "1CCOHBXV47" # Bedrock Data Source ID
 def sync_to_bedrock_s3():
     s3_client = boto3.client('s3')
     count = 0
+    if not os.path.exists(LOCAL_DOCS_PATH):
+            sys.exit(f"Error: The path '{LOCAL_DOCS_PATH}' does not exist. Aborting.")
 
     print(f"Starting sync of {LOCAL_DOCS_PATH} to s3://{S3_BUCKET_NAME}...")
 
@@ -56,8 +64,6 @@ def sync_to_bedrock_s3():
 
     print(f"\nDone! Uploaded {count} Markdown files and {count} metadata sidecars.")
     return count
-
-import time
 
 def trigger_bedrock_sync():
     client = boto3.client('bedrock-agent')

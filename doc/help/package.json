@@ -6,7 +6,7 @@
   "scripts": {
     "generate-meta": "node scripts/generate-meta.mjs",
     "dev": "npm run generate-meta && rspress dev",
-    "build": "npm run generate-meta && rspress build && python3.11 scripts/metadataForS3bucket.py",
+    "build": "npm run generate-meta && rspress build && scripts/venv/bin/python metadataForS3bucket.py",
     "preview": "rspress preview"
   },
   "dependencies": {

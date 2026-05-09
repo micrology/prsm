@@ -26,6 +26,8 @@ archive
 .env
 .cspell
 merge-results*
+venv/
+requirements.txt
 
 # Compiled source #
 ###################
