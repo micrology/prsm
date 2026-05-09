@@ -568,9 +568,9 @@ function loadGEXFfile(gexf) {
       },
       font: color
         ? {
-          ...base.font,
-          color: rgbIsLight(color.r, color.g, color.b) ? 'rgb(0,0,0)' : 'rgb(255,255,255)',
-        }
+            ...base.font,
+            color: rgbIsLight(color.r, color.g, color.b) ? 'rgb(0,0,0)' : 'rgb(255,255,255)',
+          }
         : base.font,
     }
   })
@@ -611,14 +611,14 @@ function loadGEXFfile(gexf) {
     if (!attributesNode) return result
     const attributes = Array.isArray(attributesNode) ? attributesNode : [attributesNode]
 
-      ; (attributes || []).forEach(({ class: cls, attribute = [] }) => {
-        attribute.forEach(({ id, title, name, type }) => {
-          result[cls === 'node' ? 'nodes' : 'edges'][id] = {
-            title: title || name,
-            type: type || 'string',
-          }
-        })
+    ;(attributes || []).forEach(({ class: cls, attribute = [] }) => {
+      attribute.forEach(({ id, title, name, type }) => {
+        result[cls === 'node' ? 'nodes' : 'edges'][id] = {
+          title: title || name,
+          type: type || 'string',
+        }
       })
+    })
 
     return result
   }
@@ -651,10 +651,10 @@ function loadGEXFfile(gexf) {
   function processNodePosition({ viz_position, x, y, z }) {
     const pos = viz_position
       ? {
-        x: +viz_position.x || 0,
-        y: +viz_position.y || 0,
-        z: +viz_position.z || 0,
-      }
+          x: +viz_position.x || 0,
+          y: +viz_position.y || 0,
+          z: +viz_position.z || 0,
+        }
       : x || y || z
         ? { x: +x, y: +y, z: +z }
         : null

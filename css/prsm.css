@@ -48,6 +48,7 @@
   --background-color: rgba(255, 255, 255, 0.9);
   --background-opaque-color: rgb(255, 255, 255);
   --warning-color: rgb(255, 235, 59);
+  --whatsnew-color: rgb(230, 241, 255);
 }
 html,
 body,
@@ -660,15 +661,15 @@ nav {
   background-color: var(--primary-color);
   color: white;
   border-radius: 8px 8px 0 0;
-  display:flex;
+  display: flex;
   justify-content: space-between;
 }
 #rm-modal-cancel {
-  font-weight:bold;
+  font-weight: bold;
   font-size: larger;
 }
 #rm-modal-cancel:hover {
-  color: var(--hover-color)
+  color: var(--hover-color);
 }
 .rm-modal-content input {
   width: 90%;
@@ -2106,19 +2107,20 @@ input#splashNameBox::placeholder {
   box-shadow:
     0 4px 8px 0 rgba(0, 0, 0, 0.2),
     0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border: 2px solid var(--primary-color);
   text-align: center;
   display: none;
   flex-direction: column;
   z-index: 220;
 }
 #whatsnewintro {
-  background-color: var(--shadow-color);
+  background-color: var(--whatsnew-color);
   color: black;
   padding: 10px 20px 0 20px;
   font-size: 0.7em;
 }
 #whatsnewcontent {
-  background-color: var(--shadow-color);
+  background-color: var(--whatsnew-color);
   opacity: 0.9;
   flex-grow: 1;
 }
@@ -2135,7 +2137,7 @@ input#splashNameBox::placeholder {
 #whatsnewcontent li {
   padding-top: 1rem;
 }
-#whatsnewcontent li ul li{
+#whatsnewcontent li ul li {
   padding-top: 0;
 }
 

@@ -18,6 +18,7 @@ elem
 ESRC
 Ferdinandi
 Ferninandi
+flyout
 Gephi
 GEXF
 GRAPHML
@@ -31,6 +32,7 @@ mindmap
 Miserables
 Moller
 Narasimhan
+NEMO
 newfactor
 NLEVELS
 Noncommercial
@@ -38,7 +40,9 @@ onsstepstart
 onstep
 prsm
 PRSM
+prsml
 pushpin
+recents
 reclustered
 rspress
 Sansom
@@ -46,6 +50,7 @@ Sarah
 Sarahan
 submaps
 tablink
+TITLELISTLEN
 trackpads
 trashcan
 uncluster

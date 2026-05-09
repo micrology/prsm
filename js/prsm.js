@@ -989,7 +989,7 @@ function restoreState(compressedState) {
           dragNodes: false,
           dragEdges: false,
           hover: false,
-        }
+        },
       })
     }
     styles.nodes = deepCopy(state.samples.nodes)
@@ -1288,12 +1288,12 @@ function draw() {
         item = deepMerge(item, styles.edges[lastLinkSample])
         item.grp = lastLinkSample
         item.created = timestamp()
-    clearStatusBar()
-    network.manipulation.inMode = 'addEdge' // ensure still in Add mode, in case others have done something meanwhile
-    callback(item)
-    logHistory(
-      `added link from '${data.nodes.get(item.from).label}' to '${data.nodes.get(item.to).label}'`
-    )
+        clearStatusBar()
+        network.manipulation.inMode = 'addEdge' // ensure still in Add mode, in case others have done something meanwhile
+        callback(item)
+        logHistory(
+          `added link from '${data.nodes.get(item.from).label}' to '${data.nodes.get(item.to).label}'`
+        )
       },
       editEdge: {
         editWithoutDrag: function (item, callback) {
@@ -1331,7 +1331,8 @@ function draw() {
         })
         item.edges.forEach((edgeId) => {
           logHistory(
-            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
+            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
+              data.nodes.get(data.edges.get(edgeId).to).label
             }'`
           )
         })
@@ -1344,7 +1345,8 @@ function draw() {
       deleteEdge: function (item, callback) {
         item.edges.forEach((edgeId) => {
           logHistory(
-            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${data.nodes.get(data.edges.get(edgeId).to).label
+            `deleted link from '${data.nodes.get(data.edges.get(edgeId).from).label}' to '${
+              data.nodes.get(data.edges.get(edgeId).to).label
             }'`
           )
         })
@@ -1797,7 +1799,7 @@ function draw() {
       bigNetCanvas,
       ((e.clientX - netPaneRect.x) * bigNetCanvas.width) / netPaneCanvas.clientWidth - halfMagSize,
       ((e.clientY - netPaneRect.y) * bigNetCanvas.height) / netPaneCanvas.clientHeight -
-      halfMagSize,
+        halfMagSize,
       magSize,
       magSize,
       0,
@@ -1939,11 +1941,11 @@ export function drawMinimap(ratio = 5) {
 
     minimapRadar.style.left = `${Math.round(
       ((currentDOMPosition.x - initialDOMPosition.x) * scale) / ratio +
-      (minimapWidth * (1 - scale)) / 2
+        (minimapWidth * (1 - scale)) / 2
     )}px`
     minimapRadar.style.top = `${Math.round(
       ((currentDOMPosition.y - initialDOMPosition.y) * scale) / ratio +
-      (minimapHeight * (1 - scale)) / 2
+        (minimapHeight * (1 - scale)) / 2
     )}px`
     minimapRadar.style.width = `${minimapWidth * scale}px`
     minimapRadar.style.height = `${minimapHeight * scale}px`
@@ -2037,12 +2039,12 @@ export function drawMinimap(ratio = 5) {
           x:
             ((radarRect.left - wrapperRect.left + (radarRect.width - wrapperRect.width) / 2) *
               ratio) /
-            scale +
+              scale +
             initialDOMPosition.x,
           y:
             ((radarRect.top - wrapperRect.top + (radarRect.height - wrapperRect.height) / 2) *
               ratio) /
-            scale +
+              scale +
             initialDOMPosition.y,
         }),
       })
@@ -2477,7 +2479,7 @@ async function pasteFromClipboard() {
   let nodes
   let edges
   try {
-    ; ({ nodes, edges } = JSON.parse(clip))
+    ;({ nodes, edges } = JSON.parse(clip))
   } catch {
     // silently return (i.e. use system paste) if there is nothing relevant on the clipboard
     return
@@ -3406,19 +3408,21 @@ function ghostCursor() {
     const boxHalfWidth = box.offsetWidth / 2
     const boxHalfHeight = box.offsetHeight / 2
     const left = event.pageX - boxHalfWidth
-    box.style.left = `${left <= netPaneRect.left
-      ? netPaneRect.left
-      : left >= netPaneRect.right - box.offsetWidth
-        ? netPaneRect.right - box.offsetWidth
-        : left
-      }px`
+    box.style.left = `${
+      left <= netPaneRect.left
+        ? netPaneRect.left
+        : left >= netPaneRect.right - box.offsetWidth
+          ? netPaneRect.right - box.offsetWidth
+          : left
+    }px`
     const top = event.pageY - boxHalfHeight
-    box.style.top = `${top <= netPaneRect.top
-      ? netPaneRect.top
-      : top >= netPaneRect.bottom - box.offsetHeight
-        ? netPaneRect.bottom - box.offsetHeight
-        : top
-      }px`
+    box.style.top = `${
+      top <= netPaneRect.top
+        ? netPaneRect.top
+        : top >= netPaneRect.bottom - box.offsetHeight
+          ? netPaneRect.bottom - box.offsetHeight
+          : top
+    }px`
   }
 }
 /**
@@ -3772,11 +3776,12 @@ function keepPaneInWindow(pane) {
     pane.style.left = `${container.offsetLeft + container.offsetWidth - pane.offsetWidth}px`
   }
   if (pane.offsetTop + pane.offsetHeight > container.offsetTop + container.offsetHeight) {
-    pane.style.top = `${container.offsetTop +
+    pane.style.top = `${
+      container.offsetTop +
       container.offsetHeight -
       pane.offsetHeight -
       document.querySelector('footer').offsetHeight
-      }px`
+    }px`
   }
 }
 // CSpell: ignore tabcontent, tablinks
@@ -3819,7 +3824,8 @@ function applySampleToNode(event) {
   const nNodes = nodesToUpdate.length
   if (nNodes) {
     logHistory(
-      `applied ${styles.nodes[sample].groupLabel} style to ${nNodes === 1 ? nodesToUpdate[0].label : nNodes + ' factors'
+      `applied ${styles.nodes[sample].groupLabel} style to ${
+        nNodes === 1 ? nodesToUpdate[0].label : nNodes + ' factors'
       }`
     )
   }
@@ -3976,15 +3982,15 @@ function showNodeData(nodeId) {
       toolbar: viewOnly
         ? null
         : [
-          'bold',
-          'italic',
-          'underline',
-          'link',
-          { list: 'ordered' },
-          { list: 'bullet' },
-          { indent: '-1' },
-          { indent: '+1' },
-        ],
+            'bold',
+            'italic',
+            'underline',
+            'link',
+            { list: 'ordered' },
+            { list: 'bullet' },
+            { indent: '-1' },
+            { indent: '+1' },
+          ],
     },
     placeholder: 'Notes',
     theme: 'snow',
@@ -4181,15 +4187,15 @@ function showEdgeData(edgeId) {
       toolbar: viewOnly
         ? null
         : [
-          'bold',
-          'italic',
-          'underline',
-          'link',
-          { list: 'ordered' },
-          { list: 'bullet' },
-          { indent: '-1' },
-          { indent: '+1' },
-        ],
+            'bold',
+            'italic',
+            'underline',
+            'link',
+            { list: 'ordered' },
+            { list: 'bullet' },
+            { indent: '-1' },
+            { indent: '+1' },
+          ],
     },
     placeholder: 'Notes',
     theme: 'snow',
@@ -5282,7 +5288,7 @@ export function sizing(metric) {
         node.widthConstraint =
           node.heightConstraint =
           node.size =
-          MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
+            MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
     }
   })
   data.nodes.update(nodesToUpdate)

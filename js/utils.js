@@ -809,7 +809,7 @@ export function alertMsg(msg, status, dontFade = false) {
       errMsgElement.style.color = 'white'
       break
     case 'warn':
-      errMsgElement.style.backgroundColor = getCSSVariable('--warning-color') 
+      errMsgElement.style.backgroundColor = getCSSVariable('--warning-color')
       errMsgElement.style.color = 'black'
       break
     case 'error':
@@ -879,16 +879,16 @@ export function initials(name) {
     .toUpperCase()
 }
 
-export function getTextWidth(text, font = "normal 11px Oxygen") {
+export function getTextWidth(text, font = 'normal 11px Oxygen') {
   // Create a dummy canvas (not added to DOM)
-  const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d");
-  
+  const canvas = document.createElement('canvas')
+  const context = canvas.getContext('2d')
+
   // The font must match the target element's CSS font e.g. "normal 11px Oxygen"
-  context.font = font; 
-  
-  const metrics = context.measureText(text);
-  return metrics.width;
+  context.font = font
+
+  const metrics = context.measureText(text)
+  return metrics.width
 }
 
 /**********************************************************colours ************************************************** */

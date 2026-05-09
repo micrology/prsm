@@ -1,0 +1,34 @@
+{
+  "name": "ws-server",
+  "version": "1.0.0",
+  "description": "Memory safe version of y-websocket server",
+  "main": "server.js",
+  "scripts": {
+    "start": "YPERSISTENCE=./dbDir VERBOSE=1 node ./src/server.js",
+    "test": "curl -v http://localhost:1234"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/micrology/prsm.git"
+  },
+  "keywords": [
+    "web",
+    "socket",
+    "server"
+  ],
+  "author": "Nigel Gilbert",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/micrology/prsm/issues"
+  },
+  "homepage": "https://github.com/micrology/prsm#readme",
+  "type": "module",
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "level": "^10.0.0",
+    "lib0": "^0.2.117",
+    "ws": "^8.20.0",
+    "y-protocols": "^1.0.7",
+    "yjs": "^13.6.30"
+  }
+}

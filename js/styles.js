@@ -703,7 +703,7 @@ function getArrows(prop) {
 /*  ------------display the map legend (includes all styles with a group label that is neither blank or 'Sample') */
 
 const LEGENDHEIGHT = 31
-const LEGENDWIDTH = 50  //minimum width of legend - may be increased to fit style names
+const LEGENDWIDTH = 50 //minimum width of legend - may be increased to fit style names
 const MAXLEGENDWIDTH = 240
 /**
  * display a legend on the map (but only if the styles have been given names)
