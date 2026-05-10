@@ -21,7 +21,9 @@ def sync_to_bedrock_s3():
     s3_client = boto3.client('s3')
     count = 0
     if not os.path.exists(LOCAL_DOCS_PATH):
-            sys.exit(f"Error: The path '{LOCAL_DOCS_PATH}' does not exist. Aborting.")
+            print(f"Error: The path '{LOCAL_DOCS_PATH}' does not exist. Aborting.")
+            # fail gracefully without error code so that docs can still be built and published, but not synced to AWS S3 or Bedrock
+            sys.exit(0)
 
     print(f"Starting sync of {LOCAL_DOCS_PATH} to s3://{S3_BUCKET_NAME}...")
 

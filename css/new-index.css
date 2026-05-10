@@ -20,7 +20,6 @@ body {
   background-color: var(--brand-color) !important;
   border-color: var(--brand-color) !important;
   color: #fff !important;
-  padding: 0.8rem 2rem;
   font-weight: bold;
 }
 
@@ -85,7 +84,7 @@ button.chat-suggestion:hover {
   justify-content: space-around;
 }
 .prsm-logo {
-  height: 80px;
+  height: 50px;
   margin-left: 2rem;
 }
 @media (max-width: 768px) {
@@ -208,6 +207,9 @@ code {
   flex-direction: column;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   margin-bottom: 10px;
+}
+#chatbothelp {
+  scroll-margin-top: 70px;
 }
 #chat-header {
   background: var(--brand-color);
