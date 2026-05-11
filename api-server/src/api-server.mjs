@@ -36,6 +36,7 @@ process.title = 'api-server'
 
 // use local websocket server if in development mode
 let websocket = 'wss://www.prsm.uk/wss'
+const helpCacheLocation = process.env.HELP_CACHE_LOCATION ||'./helpCache'
 if (process.env.NODE_ENV === 'dev') {
 	console.log('Running in development mode')
 	websocket = 'ws://localhost:1234'
@@ -46,7 +47,7 @@ const agentClient = new BedrockAgentRuntimeClient({
 })
 
 // cache for help assistant answers, to avoid repeated calls to Bedrock for the same question
-const helpCache = new ClassicLevel('./helpCache', {valueEncoding: 'json'})
+const helpCache = new ClassicLevel(helpCacheLocation, {valueEncoding: 'json'})
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -330,7 +331,7 @@ Your primary goal is to provide instructions based on the standard user interfac
 				})
 				logAPICalls(`Cached response for message: ${lastUserMessage}`)
 			} catch (err) {
-				logAPICalls(`Failed to cache response for message: ${lastUserMessage}`)
+				logAPICalls(`Failed to cache response for message: ${lastUserMessage}. Error: ${err.message}`)
 			}
 		}
 
