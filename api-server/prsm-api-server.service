@@ -14,7 +14,7 @@ Type=simple
 User=ec2-user
 ExecStart=/usr/bin/node /data/prsm/api-server/src/api-server.mjs
 Environment='AWS_REGION=eu-west-2'
-Environment='/data/prsm/helpCache'
+Environment='HELP_CACHE_LOCATION=/data/prsm/helpCache'
 Restart=always
 RestartSec=10
 StandardOutput=journal

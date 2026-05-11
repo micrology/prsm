@@ -195,7 +195,7 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 	try {
 		const lastUserMessage = messages[messages.length - 1].content[0].text
 
-			// STEP 0: Check cache first
+		// STEP -1: Check cache first
 		try {
 			const cachedResponse = await helpCache.get(lastUserMessage)
 			if (cachedResponse) {
@@ -204,10 +204,10 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 			}
 		} catch (err) {
 			// Cache miss or error, proceed without failing
-			logAPICalls(`Help Assistant cache miss for message: ${lastUserMessage}`)
+			logAPICalls(`Help Assistant cache miss for message: ${lastUserMessage}. Error: ${err.message}`)
 		}
 
-		// STEP -1: If it's a follow-up, rephrase it for the Knowledge Base search
+		// STEP 0: If it's a follow-up, rephrase it for the Knowledge Base search
 		let standaloneQuery = lastUserMessage
 		if (messages.length > 1) {
 			const rephrasePayload = {
