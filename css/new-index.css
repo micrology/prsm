@@ -224,6 +224,12 @@ code {
   padding: 15px;
   background: #f9f9f9;
 }
+#chat-messages h1 {
+  font-size:x-large;
+}
+#chat-messages h2 {
+  font-size:large;
+}
 #chat-input-area {
   display: flex;
   padding: 10px;
