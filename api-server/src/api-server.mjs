@@ -41,7 +41,8 @@ if (process.env.NODE_ENV === 'dev') {
 	console.log('Running in development mode')
 	websocket = 'ws://localhost:1234'
 }
-const modelId = process.env.MODEL_ID || 'qwen.qwen3-235b-a22b-2507-v1:0'
+const qualityModelId = process.env.MODEL_ID || 'eu.anthropic.claude-haiku-4-5-20251001-v1:0';
+const cheapModelId = 'qwen.qwen3-235b-a22b-2507-v1:0';
 const agentClient = new BedrockAgentRuntimeClient({
 	region: process.env.AWS_REGION || 'eu-west-2',
 })
@@ -132,7 +133,7 @@ app.post('/api/chat/:room', chatLimiter, async (req, res) => {
 			},
 		]
 		const payload = {
-			modelId,
+			modelId: qualityModelId,
 			messages: conversation,
 			system: [
 				{
@@ -144,7 +145,7 @@ app.post('/api/chat/:room', chatLimiter, async (req, res) => {
 			inferenceConfig: {maxTokens: parseInt(process.env.MAX_TOKENS) || 512, temperature: 0.5},
 		}
 
-		const url = `https://bedrock-runtime.${region}.amazonaws.com/model/${modelId}/converse`
+		const url = `https://bedrock-runtime.${region}.amazonaws.com/model/${qualityModelId}/converse`
 		const response = await fetch(url, {
 			method: 'POST',
 			headers: {
@@ -211,7 +212,7 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 		let standaloneQuery = lastUserMessage
 		if (messages.length > 1) {
 			const rephrasePayload = {
-				modelId,
+				modelId: cheapModelId, // Use Qwen here to save money,
 				messages: [
 					...messages.slice(0, -1),
 					{
@@ -227,7 +228,7 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 			}
 
 			const rephraseRes = await fetch(
-				`https://bedrock-runtime.${region}.amazonaws.com/model/${modelId}/converse`,
+				`https://bedrock-runtime.${region}.amazonaws.com/model/${cheapModelId}/converse`,
 				{
 					method: 'POST',
 					headers: {'Content-Type': 'application/json', Authorization: `Bearer ${bedrockApiKey}`},
@@ -273,7 +274,7 @@ Your primary goal is to provide instructions based on the standard user interfac
 <context>${context}</context>`
 
 		const finalPayload = {
-			modelId, // Uses 'qwen.qwen3-235b-a22b-2507-v1:0'
+			modelId: qualityModelId, // Use Haiku 4.5 for the final response
 			messages,
 			system: [
 				{
@@ -286,7 +287,7 @@ Your primary goal is to provide instructions based on the standard user interfac
 			},
 		}
 
-		const url = `https://bedrock-runtime.${region}.amazonaws.com/model/${modelId}/converse`
+		const url = `https://bedrock-runtime.${region}.amazonaws.com/model/${qualityModelId}/converse`
 		const finalResponse = await fetch(url, {
 			method: 'POST',
 			headers: {
@@ -302,6 +303,12 @@ Your primary goal is to provide instructions based on the standard user interfac
 			return res.status(finalResponse.status).json({error: errorText})
 		}
 		const data = await finalResponse.json()
+
+		if (data.usage) {
+			logAPICalls(
+				`Token usage - input: ${data.usage.inputTokens}, output: ${data.usage.outputTokens}, total: ${data.usage.totalTokens}`,
+			)
+		}
 		const responseText = data.output.message.content[0].text
 		// Map the retrieval results to specific URLs or identifiers
 		const sources = retrieveResponse.retrievalResults.map((result) => {
@@ -943,7 +950,9 @@ async function start() {
 	// Start the server
 	server = app.listen(PORT, () => {
 		console.log(
-			`Proxy server running on http://localhost:${PORT} using websocket server at ${websocket}, model ${modelId} and helpCache at ${helpCache.location}`,
+			`Proxy server running on http://localhost:${PORT} using websocket server at ${websocket}, 
+			models ${qualityModelId} and ${cheapModelId} and 
+			helpCache at ${helpCache.location}`,
 		)
 	})
 	httpTerminator = createHttpTerminator({server})

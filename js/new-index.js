@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const IMAGE_BASE_URL = isLocal
     ? 'http://127.0.0.1/prsm/doc/help/doc_build'
     : 'https://prsm.uk/doc/help/doc_build'
-  const API_BASE_URL = isLocal ? 'http://127.0.0.1:3001' : 'https://prsm.uk'
+  const API_BASE_URL = isLocal ? 'http://localhost:3001' : 'https://prsm.uk'
   async function sendMessage(prompt = '') {
     const message = prompt || userInput.value.trim()
     if (!message) return
