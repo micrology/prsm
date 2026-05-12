@@ -346,7 +346,8 @@ function loadPRSMfile(str) {
   }
   if (json.background) {
     setUpBackground()
-    const map = JSON.parse(json.background)
+    // old versios used to double stringify the background, so check for that
+    const map = typeof json.background === 'string' ? JSON.parse(json.background) : json.background
     for (const [key, value] of Object.entries(map)) {
       yDrawingMap.set(key, value)
     }
@@ -1658,7 +1659,7 @@ export function savePRSMfile() {
         ],
         filter: (e) => !e.isClusterEdge,
       }),
-      background: JSON.stringify(yDrawingMap.toJSON()),
+      background: yDrawingMap.toJSON(),
       history: yHistory.map((s) => {
         s.state = null
         return s

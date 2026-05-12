@@ -244,6 +244,7 @@ export async function refreshFromMap(keys) {
               continue
             case 'activeSelection':
             case 'ActiveSelection':
+            case 'selection':
               continue
             default:
               throw new Error(`bad fabric object type in yDrawingMap.observe: ${type}`)
