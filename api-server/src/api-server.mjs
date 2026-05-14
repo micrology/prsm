@@ -203,9 +203,12 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 				logAPICalls(`Help Assistant cache hit for message: ${lastUserMessage}`)
 				return res.json(cachedResponse)
 			}
+			else {
+				logAPICalls(`Help Assistant cache miss for message: ${lastUserMessage}.`)
+			}
 		} catch (err) {
 			// Cache miss or error, proceed without failing
-			logAPICalls(`Help Assistant cache miss for message: ${lastUserMessage}. Error: ${err.message}`)
+			logAPICalls(`Help Assistant cache error for message: ${lastUserMessage}. Error: ${err.message}`)
 		}
 
 		// STEP 0: If it's a follow-up, rephrase it for the Knowledge Base search
