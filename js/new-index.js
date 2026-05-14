@@ -66,14 +66,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Append Sources if they exist
     if (sources.length > 0) {
       htmlContent += `<div class="source-header">Sources:</div>`
-      sources.forEach((url) => {
-        // Extract a readable title from the URL if possible
-        const title = url.split('/').pop().replace('.html', '').replace(/-/g, ' ')
-        htmlContent += `<a href="${url}" target="_blank" class="source-link">📖 ${title}</a>`
+      sources.forEach((source) => {
+        // source is now an object: { name, url }
+        if (source.url) {
+          // If we have a URL, make it a real link
+          htmlContent += `<a href="${source.url}" target="_blank" class="source-link">📖 ${source.name}</a>`
+        } else {
+          // Fallback for sources without URLs
+          // Extract a readable title from the name if possible
+          const title = source.name.split('/').pop().replace('.html', '').replace(/-/g, ' ')
+          htmlContent += `<span class="source-link">📖 ${title}</span>`
+        }
       })
     }
-
-    msgDiv.innerHTML = DOMPurify.sanitize(htmlContent)
+    const ALLOWED_ATTR = ['href', 'src', 'alt', 'title', 'class', 'target']
+    msgDiv.innerHTML = DOMPurify.sanitize(htmlContent, { ALLOWED_ATTR })
 
     // Remove any previous spacer
     const oldSpacer = messagesDiv.querySelector('.chat-spacer')

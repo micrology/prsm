@@ -36,13 +36,13 @@ process.title = 'api-server'
 
 // use local websocket server if in development mode
 let websocket = 'wss://www.prsm.uk/wss'
-const helpCacheLocation = process.env.HELP_CACHE_LOCATION ||'./helpCache'
+const helpCacheLocation = process.env.HELP_CACHE_LOCATION || './helpCache'
 if (process.env.NODE_ENV === 'dev') {
 	console.log('Running in development mode')
 	websocket = 'ws://localhost:1234'
 }
-const qualityModelId = process.env.MODEL_ID || 'eu.anthropic.claude-haiku-4-5-20251001-v1:0';
-const cheapModelId = 'qwen.qwen3-235b-a22b-2507-v1:0';
+const qualityModelId = process.env.MODEL_ID || 'eu.anthropic.claude-haiku-4-5-20251001-v1:0'
+const cheapModelId = 'qwen.qwen3-235b-a22b-2507-v1:0'
 const agentClient = new BedrockAgentRuntimeClient({
 	region: process.env.AWS_REGION || 'eu-west-2',
 })
@@ -241,7 +241,6 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 
 		if (!standaloneQuery) return res.status(400).json({error: 'Message is required'})
 
-
 		// STEP 1: Retrieve context from the Knowledge Base
 		const retrieveCommand = new RetrieveCommand({
 			knowledgeBaseId: kbId,
@@ -310,24 +309,27 @@ Your primary goal is to provide instructions based on the standard user interfac
 			)
 		}
 		const responseText = data.output.message.content[0].text
-		// Map the retrieval results to specific URLs or identifiers
-		const sources = retrieveResponse.retrievalResults.map((result) => {
-			const customUri =
-				result.content?.metadata?.['x-amz-bedrock-kb-source-uri'] ||
-				result.metadata?.['x-amz-bedrock-kb-source-uri']
-			if (customUri) {
-				return customUri
-			}
-			const loc = result.location
-			if (loc.type === 'WEB') {
-				return loc.webLocation.url // This returns the specific page URL (e.g., .../Factors.html)
-			} else if (loc.type === 'S3') {
-				return loc.s3Location.uri
-			}
-			return 'Manual (General)'
+
+		// Map results to objects: { name, url }
+		const sourceObjects = retrieveResponse.retrievalResults.map((result) => {
+			const metadata = result.content?.metadata || result.metadata || {}
+
+			// 1. Get the display name (Label)
+			const name =
+				metadata.display_name ||
+				metadata['x-amz-bedrock-kb-source-uri'] ||
+				result.location?.s3Location?.uri ||
+				'Manual Source'
+
+			// 2. Get the web URL (Link)
+			// We check our custom 'url' field, then fallback to Bedrock's 'webLocation' if it's a web crawl
+			const url = metadata.url || result.location?.webLocation?.url || null
+
+			return {name, url}
 		})
-		// Remove duplicates if multiple chunks come from the same page
-		const uniqueSources = [...new Set(sources)]
+
+		// Deduplicate based on the 'name' to avoid repeating the same chapter link
+		const uniqueSources = Array.from(new Map(sourceObjects.map((item) => [item.name, item])).values())
 
 		// Cache the response for future requests, but not if it is a follow up question, as these will have been rephrased to reference the original query.
 		if (messages.length === 1) {
