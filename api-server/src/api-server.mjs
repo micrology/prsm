@@ -36,7 +36,10 @@ process.title = 'api-server'
 
 // use local websocket server if in development mode
 let websocket = 'wss://www.prsm.uk/wss'
+
 const helpCacheLocation = process.env.HELP_CACHE_LOCATION || './helpCache'
+const cacheResults = process.env.DONT_CACHE_HELP !== 'true'
+
 if (process.env.NODE_ENV === 'dev') {
 	console.log('Running in development mode')
 	websocket = 'ws://localhost:1234'
@@ -202,8 +205,7 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 			if (cachedResponse) {
 				logAPICalls(`Help Assistant cache hit for message: ${lastUserMessage}`)
 				return res.json(cachedResponse)
-			}
-			else {
+			} else {
 				logAPICalls(`Help Assistant cache miss for message: ${lastUserMessage}.`)
 			}
 		} catch (err) {
@@ -240,6 +242,7 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 			)
 			const rephraseData = await rephraseRes.json()
 			standaloneQuery = rephraseData.output.message.content[0].text
+			//console.log(`Rephrased follow-up query for better retrieval: "${standaloneQuery}"`)
 		}
 
 		if (!standaloneQuery) return res.status(400).json({error: 'Message is required'})
@@ -249,28 +252,54 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 			knowledgeBaseId: kbId,
 			retrievalQuery: {text: standaloneQuery},
 			retrievalConfiguration: {
-				vectorSearchConfiguration: {numberOfResults: 3},
+				vectorSearchConfiguration: {numberOfResults: 5},
 			},
 		})
 
 		const retrieveResponse = await agentClient.send(retrieveCommand)
-		const context = retrieveResponse.retrievalResults.map((result) => result.content.text).join('\n\n')
+		const retrievalResults = retrieveResponse.retrievalResults
+		const context = retrievalResults
+			.map((r, index) => {
+				const meta = r.content?.metadata || r.metadata || {}
+				const s3Uri = r.location?.s3Location?.uri || ''
+				const isManual = meta.doc_type === 'manual' || s3Uri.toLowerCase().endsWith('.md')
+				const label = isManual ? 'SOURCE: PRSM USER MANUAL' : 'SOURCE: RESEARCH MATERIAL'
+				return `[Source Index: ${index}] --- ${label} ---\n${r.content.text}\n`
+			})
+			.join('\n\n')
 
-		// STEP 2: Generate answer using your existing Qwen model
-		const systemPrompt = `You are the PRSM Help Assistant, a technical expert for the PRSM Particpatory system Mapping web application.
+		// console.log(`\nChunks retrieved from KB:\n${context}`)
+
+		// STEP 2: Generate answer using the high quality model, with the retrieved context as part of the system prompt
+		const systemPrompt = `You are the PRSM Help Assistant, a technical expert for the PRSM Participatory System Mapping web application.
 
 Your primary goal is to provide instructions based on the standard user interface and general features. You are also able to provide general guidance aboout how to conduct Participatory System Mapping.
+
+### INTENT-BASED FILTERING (CRITICAL)
+Before answering, determine the user's intent:
+
+1. **PRACTICAL "HOW-TO" QUERIES:** (e.g., "How do I...", "Where is the button for...", "Steps to...")
+   - **RULE:** You must EXCLUSIVELY use information labeled '[SOURCE: PRSM USER MANUAL]'. 
+   - **ACTION:** Ignore all chunks labeled '[SOURCE: RESEARCH MATERIAL]'. Do not include definitions, theories, or academic background. Just give the steps.
+
+2. **CONCEPTUAL/THEORETICAL QUERIES:** (e.g., "What is a link?", "Why use mapping?", "Explain the theory of...")
+   - **RULE:** Use both 'MANUAL' and 'CONCEPTUAL' sources.
+   - **ACTION:** Provide the theoretical definition from the research material, but follow it up by explaining how that specific concept is implemented or represented within the PRSM application using the manual.
 
 ### CONSTRAINTS
 - **API EXCLUSION:** You are STRICTLY FORBIDDEN from mentioning or referencing the "PRSM API" or technical API endpoints unless the user specifically asks a question containing the word "API". 
 - **SOURCE TRUTH:** Use only the provided Context. If the information is missing, state clearly that you do not know.
+- **USER FOCUS:** Always prioritize providing instructions that a user can follow through the UI, even if you know there are API endpoints that could also achieve the same result. The user is not a developer and does not have access to the API.
+- **PRIORITIZE MANUAL:** Always prioritize information from the PRSM manual, as this is the official source of truth for how to use the application. If other sources offer conflicting information, always default to the manual's guidance.
 
 ### RESPONSE GUIDELINES
 1. **Focus:** Prioritize UI-based workflows and manual instructions.
-2. **Formatting:** Always use clean Markdown with headers for organization.
-3. **Examples:** Provide code snippets only when they illustrate configuration or non-API technical setups described in the manual.
-4. **Clarity:** Ensure instructions are clear and actionable for users of all technical levels.
-5. **Continuations:** Offer to provide more detail or cover additional topics if the user is interested.
+2. For practical queries, strictly provide a numbered list of steps and nothing else.
+3. **Formatting:** Always use clean Markdown with headers for organization.
+4. **Examples:** Provide code snippets only when they illustrate configuration or non-API technical setups described in the manual.
+5. **Clarity:** Ensure instructions are clear and actionable for users of all technical levels.
+6. **Continuations:** Offer to provide more detail or cover additional topics if the user is interested.
+7. **Citations:** At the very end of your response, on a final line by itself, you MUST write "USED_SOURCES: [index1, index2]" listing the numeric indices of the sources you actually extracted information from. If you ignored a source because it was the wrong doc_type, do NOT include its index.
 
 ### MANUAL CONTEXT
 <context>${context}</context>`
@@ -304,38 +333,48 @@ Your primary goal is to provide instructions based on the standard user interfac
 			console.error('Bedrock API error:', errorText)
 			return res.status(finalResponse.status).json({error: errorText})
 		}
-		const data = await finalResponse.json()
+		const finalData = await finalResponse.json()
 
-		if (data.usage) {
+		if (finalData.usage) {
 			logAPICalls(
-				`Token usage - input: ${data.usage.inputTokens}, output: ${data.usage.outputTokens}, total: ${data.usage.totalTokens}`,
+				`Token usage - input: ${finalData.usage.inputTokens}, output: ${finalData.usage.outputTokens}, total: ${finalData.usage.totalTokens}`,
 			)
 		}
-		const responseText = data.output.message.content[0].text
+		const fullAiResponse = finalData.output.message.content[0].text
+		// console.log(`Full AI response:\n${fullAiResponse}\nEnd of response.`)
 
-		// Map results to objects: { name, url }
-		const sourceObjects = retrieveResponse.retrievalResults.map((result) => {
-			const metadata = result.content?.metadata || result.metadata || {}
+		// 1. Extract the indices from the "USED_SOURCES: [0, 2]" string
+		const sourceMatch = fullAiResponse.match(/USED_SOURCES:\s*\[(.*?)\]/)
+		const usedIndices = sourceMatch
+			? sourceMatch[1]
+					.split(',')
+					.map((num) => parseInt(num.trim()))
+					.filter((n) => !isNaN(n))
+			: []
 
-			// 1. Get the display name (Label)
-			const name =
-				metadata.display_name ||
-				metadata['x-amz-bedrock-kb-source-uri'] ||
-				result.location?.s3Location?.uri ||
-				'Manual Source'
+		// 2. Clean the response text for the user (remove the technical tag)
+		const responseText = fullAiResponse.replace(/USED_SOURCES:\s*\[.*?\]/, '').trim()
 
-			// 2. Get the web URL (Link)
-			// We check our custom 'url' field, then fallback to Bedrock's 'webLocation' if it's a web crawl
-			const url = metadata.url || result.location?.webLocation?.url || null
+		// 3. Map only the USED sources
+		const sources = usedIndices
+			.map((index) => {
+				const result = retrievalResults[index]
+				if (!result) return null
 
-			return {name, url}
-		})
+				const metadata = result.content?.metadata || result.metadata || {}
+				return {
+					name: metadata.display_name || metadata['x-amz-bedrock-kb-source-uri'] || 'Manual Source',
+					url: metadata.url || result.location?.webLocation?.url || null,
+				}
+			})
+			.filter(Boolean) // Remove any nulls
+		// console.log(`Sources cited by the AI (after filtering): ${JSON.stringify(sources)}`)
 
-		// Deduplicate based on the 'name' to avoid repeating the same chapter link
-		const uniqueSources = Array.from(new Map(sourceObjects.map((item) => [item.name, item])).values())
+		// 4. Deduplicate (in case the LLM cited two chunks from the same chapter)
+		const uniqueSources = Array.from(new Map(sources.map((s) => [s.name, s])).values())
 
-		// Cache the response for future requests, but not if it is a follow up question, as these will have been rephrased to reference the original query.
-		if (messages.length === 1) {
+		// Cache the response for future requests. If the same question is asked again, we can return the cached answer without calling Bedrock, which saves costs and reduces latency.
+		if (cacheResults) {
 			try {
 				await helpCache.put(lastUserMessage, {
 					response: responseText,

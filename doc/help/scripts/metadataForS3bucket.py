@@ -3,6 +3,8 @@
 #  sidecar with the citation URL for the live docs.  The vector base is then synced to
 #  the newly copied files.
 
+# USAGE: scripts/venv/bin/python scripts/metadataForS3bucket.py
+
 import os
 import json
 import sys
@@ -44,7 +46,8 @@ def sync_to_bedrock_s3():
                 # 3. Create Metadata JSON
                 metadata = {
                     "metadataAttributes": {
-                        "x-amz-bedrock-kb-source-uri": full_web_url
+                        "x-amz-bedrock-kb-source-uri": full_web_url,
+                        "doc_type": "manual"
                     }
                 }
                 metadata_json = json.dumps(metadata, indent=4)

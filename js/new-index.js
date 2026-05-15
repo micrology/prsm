@@ -72,10 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
           // If we have a URL, make it a real link
           htmlContent += `<a href="${source.url}" target="_blank" class="source-link">📖 ${source.name}</a>`
         } else {
-          // Fallback for sources without URLs
-          // Extract a readable title from the name if possible
+          // Fallback for sources without source.url: name is a link to a local file path.  Extract a readable title from it
           const title = source.name.split('/').pop().replace('.html', '').replace(/-/g, ' ')
-          htmlContent += `<span class="source-link">📖 ${title}</span>`
+          htmlContent += `<a href="${source.name}" target="_blank" class="source-link">📖 ${title}</a>`
         }
       })
     }
