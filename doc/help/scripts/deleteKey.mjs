@@ -46,8 +46,13 @@ try {
     }
   }
 } catch (err) {
-  if (err.code === 'LEVEL_LOCKED') {
-    console.error(`Database is locked by another process: ${helpCacheLocation}`)
+  if (err.code === 'LEVEL_DATABASE_NOT_OPEN') {
+    const isLock = err.cause?.message?.toLowerCase().includes('lock')
+    if (isLock) {
+      console.error(`Database is locked by another process: ${helpCacheLocation}`)
+    } else {
+      console.error(`Database failed to open: ${err.cause?.message ?? err.message}`)
+    }
   } else {
     console.error(`Error: ${err.message}`)
   }
