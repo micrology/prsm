@@ -225,10 +225,10 @@ code {
   background: #f9f9f9;
 }
 #chat-messages h1 {
-  font-size:x-large;
+  font-size: x-large;
 }
 #chat-messages h2 {
-  font-size:large;
+  font-size: large;
 }
 #chat-input-area {
   display: flex;
@@ -264,6 +264,21 @@ code {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+.button-pair {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-left: 10px;
+}
+.chat-button {
+  background: white;
+  color: black;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 12px;
+  font-size: x-small;
+  padding: 1px;
 }
 
 /* Styles for Markdown content */

@@ -373,8 +373,10 @@ Before answering, determine the user's intent:
 		// 4. Deduplicate (in case the LLM cited two chunks from the same chapter)
 		const uniqueSources = Array.from(new Map(sources.map((s) => [s.name, s])).values())
 
-		// Cache the response for future requests. If the same question is asked again, we can return the cached answer without calling Bedrock, which saves costs and reduces latency.
-		if (cacheResults) {
+		// Cache the response for future requests. If the same question is asked again, we can return
+		// the cached answer without calling Bedrock, which saves costs and reduces latency.  But do not
+		// cache if it's a follow-up question, as the answer may depend on the previous conversation.
+		if (cacheResults  && messages.length === 1) {  // i.e just one user message
 			try {
 				await helpCache.put(lastUserMessage, {
 					response: responseText,

@@ -1,12 +1,15 @@
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
+import '@knadh/oat/oat.min.js'
 
 document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('processing-overlay')
   const sendBtn = document.getElementById('send-btn')
+  const copyChat = document.getElementById('copy-chat')
+  const newChat = document.getElementById('new-chat')
   const userInput = document.getElementById('user-input')
   const messagesDiv = document.getElementById('chat-messages')
-  const chatHistory = []
+  let chatHistory = []
 
   // configure image path for markdown-rendered images (e.g. from help assistant)
   const isLocal =
@@ -100,11 +103,18 @@ document.addEventListener('DOMContentLoaded', () => {
       window.scrollTo(0, pageY)
     }
   }
-
+// Event listeners
   sendBtn.addEventListener('click', () => sendMessage())
   userInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendMessage()
   })
+  
+  copyChat.addEventListener('click', () => copyChatWindowToClipboard())
+  
+   newChat.addEventListener('click', () => {
+     chatHistory = []
+     messagesDiv.innerHTML = ''
+   })
 
   // Select all the suggestion buttons and add the listener
   document.querySelectorAll('.chat-suggestion').forEach((button) => {
@@ -130,6 +140,14 @@ document.addEventListener('DOMContentLoaded', () => {
       hamburger.setAttribute('aria-expanded', false)
     })
   })
+
+  function copyChatWindowToClipboard() {
+    const chatContent = messagesDiv.innerText
+    navigator.clipboard.writeText(chatContent).then(
+      () => window.ot.toast('Chat copied to clipboard', '', {variant: 'success', duration: 3000, placement: 'top-center'}),
+      (err) => window.ot.toast(`Failed to copy chat: ${err}`, '', {variant: 'error', duration: 5000, placement: 'top-center'})
+    )
+  }
 
   // cookie policy
   window.addEventListener('load', () => {
