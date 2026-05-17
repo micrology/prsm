@@ -3,7 +3,7 @@
   --brand-color-hover: rgba(0, 50, 112, 0.569);
   --brand-color-secondary: rgb(255, 193, 7);
   --brand-color-secondary-hover: rgba(255, 193, 7, 0.569);
-  --brand-color-background: rgb(240, 248, 255);
+  --brand-color-background: light-dark(rgb(240, 248, 255), rgb(3, 65, 140));
 }
 
 body {
@@ -176,7 +176,6 @@ section {
 }
 
 code {
-  background: #f4f4f4;
   padding: 0.3rem 0.6rem;
   border-radius: 4px;
   display: inline-block;
@@ -316,22 +315,26 @@ code {
   display: none;
   grid-template-columns: 1fr auto;
   grid-template-rows: auto auto;
-  grid-gap: 10px;
   left: 30px;
   bottom: 50px;
   max-width: 400px;
   z-index: 1000;
-  background: #fff;
+  background: var(--foreground);
+  color: var(--background);
   clear: left;
-  border: 1px solid black;
+  border: 1px solid var(--background);
   padding: 6px;
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
+.cookie-overlay a {
+  color: var(--background);
+}
 #accept-cookies {
   background-color: var(--brand-color);
   color: white;
-  border: none;
+  /* border: 1px solid white; */
+  box-shadow: 0 0 2px 3px grey;
   padding: 6px;
   border-radius: 4px;
   cursor: pointer;
@@ -344,10 +347,10 @@ code {
   right: 30px;
   top: 300px;
   z-index: 1000;
-  background: #fff;
+  background: var(--background);
   clear: left;
   width: 500px;
-  border: 1px solid black;
+  border: 1px solid var(--foreground);
   visibility: hidden;
 }
 .closeBtn {
