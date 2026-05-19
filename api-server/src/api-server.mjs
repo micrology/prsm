@@ -31,6 +31,7 @@ import {BedrockAgentRuntimeClient, RetrieveCommand} from '@aws-sdk/client-bedroc
 import {ClassicLevel} from 'classic-level'
 import rateLimit from 'express-rate-limit'
 import {loadSecrets} from './secrets.mjs'
+import Delta from 'quill-delta'
 
 process.title = 'api-server'
 
@@ -88,6 +89,7 @@ app.all(
 	[
 		'/api/chat/:room',
 		'/api/map/:room',
+		'/api/map/:room/allFactorsAndLinks',
 		'/api/map/:room/factor/:factor',
 		'/api/map/:room/link/:link',
 		'/api/map/:room/styles',
@@ -376,7 +378,8 @@ Before answering, determine the user's intent:
 		// Cache the response for future requests. If the same question is asked again, we can return
 		// the cached answer without calling Bedrock, which saves costs and reduces latency.  But do not
 		// cache if it's a follow-up question, as the answer may depend on the previous conversation.
-		if (cacheResults  && messages.length === 1) {  // i.e just one user message
+		if (cacheResults && messages.length === 1) {
+			// i.e just one user message
 			try {
 				await helpCache.put(lastUserMessage, {
 					response: responseText,
@@ -461,6 +464,46 @@ app.patch('/api/map/:room', async (req, res) => {
 			})
 		} catch (error) {
 			res.status(500).json({error: error.message})
+		} finally {
+			doc.destroy()
+			wsProvider.disconnect()
+			wsProvider.destroy()
+		}
+	} catch (error) {
+		const status = error.message === 'WebSocket sync timed out' ? 504 : 500
+		res.status(status).json({error: error.message})
+	}
+})
+
+/**
+ * Return full details about all factors and links
+ */
+app.get('/api/map/:room/allFactorsAndLinks', async (req, res) => {
+	try {
+		logAPICalls(`Fetching all factors and links for room ${req.params.room}`)
+		const {doc, wsProvider} = await withSyncedDoc(req.params.room)
+		try {
+			const yNodesMap = doc.getMap('nodes')
+			console.log(`Fetched ${yNodesMap.size} factors for room ${req.params.room}`)
+			const yEdgesMap = doc.getMap('edges')
+			const factors = stripArray(Array.from(yNodesMap.values()), [
+				'id',
+				'label',
+				'x',
+				'y',
+				'borderWidth',
+				'color',
+				'created',
+				'modified',
+				'groupLabel',
+				'grp',
+				'font',
+				'shape',
+				'shapeProperties',
+			])
+			const links = stripArray(Array.from(yEdgesMap.values()), ['id', 'from', 'to', 'label', 'created', 'modified'])
+			console.log(`Fetched ${factors.length} factors and ${links.length} links for room ${req.params.room}`)
+			res.json({factors, links})
 		} finally {
 			doc.destroy()
 			wsProvider.disconnect()
@@ -1129,4 +1172,112 @@ function strip(obj, allowed) {
  */
 function stripArray(arr, allowed) {
 	return arr.map((item) => strip(item, allowed))
+}
+
+/**
+ * Translates a Quill Delta object/instance into CommonMark Markdown.
+ * deltaInput looks like this:
+ * {
+ *   ops: [
+ *       { insert: 'This text is ' },
+ *       { insert: 'underlined', attributes: { underline: true } },
+ *       { insert: '.\n' },
+ *   ]
+ * }
+ * @param {Object|Delta} deltaInput - The Quill Delta to translate.
+ * @returns {string} The formatted Markdown string.
+ */
+export function deltaToMarkdown(deltaInput) {
+	const delta = new Delta(deltaInput)
+	let markdown = ''
+	let currentLinePieces = []
+
+	delta.ops.forEach((op) => {
+		if (!op.insert) return
+
+		const text = op.insert
+		const attributes = op.attributes || {}
+
+		if (typeof text === 'string') {
+			const parts = text.split(/(\n)/)
+
+			parts.forEach((part) => {
+				if (part === '\n') {
+					const lineText = currentLinePieces.join('')
+
+					// Handle Indents: 4 spaces per indent level
+					let indentPrefix = ''
+					if (attributes.indent && attributes.indent > 0) {
+						indentPrefix = '    '.repeat(attributes.indent)
+					}
+
+					// Process Block Formats
+					if (attributes.header) {
+						const depth = Math.min(attributes.header, 6)
+						markdown += indentPrefix + '#'.repeat(depth) + ' ' + lineText + '\n'
+					} else if (attributes.blockquote) {
+						markdown += indentPrefix + '> ' + lineText + '\n'
+					} else if (attributes['code-block']) {
+						const ticks = String.fromCharCode(96, 96, 96)
+						markdown += ticks + '\n' + lineText + '\n' + ticks + '\n'
+					} else if (attributes.list === 'ordered') {
+						markdown += indentPrefix + '1. ' + lineText + '\n'
+					} else if (attributes.list === 'bullet') {
+						markdown += indentPrefix + '* ' + lineText + '\n'
+					} else {
+						markdown += indentPrefix + lineText + '\n'
+					}
+
+					currentLinePieces = []
+				} else if (part !== '') {
+					let formattedPart = part
+
+					if (attributes.code) {
+						formattedPart = '`' + formattedPart + '`'
+					} else {
+						// Apply inline formats
+						if (attributes.bold) {
+							formattedPart = `**${formattedPart}**`
+						}
+						if (attributes.italic) {
+							formattedPart = `*${formattedPart}*`
+						}
+						if (attributes.underline) {
+							formattedPart = `<u>${formattedPart}</u>`
+						}
+						if (attributes.strike) {
+							formattedPart = `~~${formattedPart}~~`
+						}
+					}
+
+					if (attributes.link) {
+						formattedPart = `[${formattedPart}](${attributes.link})`
+					}
+
+					currentLinePieces.push(formattedPart)
+				}
+			})
+		} else if (typeof text === 'object') {
+			// Handle Embeds: Images
+			if (text.image) {
+				const alt = attributes.alt || ''
+
+				if (attributes.width || attributes.height) {
+					let imgTag = `<img src="${text.image}" alt="${alt}"`
+					if (attributes.width) imgTag += ` width="${attributes.width}"`
+					if (attributes.height) imgTag += ` height="${attributes.height}"`
+					imgTag += ' />'
+					currentLinePieces.push(imgTag)
+				} else {
+					currentLinePieces.push(`![${alt}](${text.image})`)
+				}
+			}
+		}
+	})
+
+	if (currentLinePieces.length > 0) {
+		markdown += currentLinePieces.join('')
+	}
+
+	return markdown
 }
