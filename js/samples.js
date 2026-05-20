@@ -303,6 +303,61 @@ export const styles = {
         color: 'rgb(0, 0, 0)',
       },
     },
+    edge9: {
+      arrows: {
+        to: {
+          enabled: true,
+          type: 'circle',
+        },
+      },
+    },
+    edge10: {
+      arrows: {
+        to: {
+          enabled: true,
+          type: 'bar',
+        },
+      },
+    },
+    edge11: {
+      arrows: {
+        to: {
+          enabled: true,
+          type: 'diamond',
+        },
+      },
+    },
+    edge12: {
+      arrows: {
+        to: {
+          enabled: true,
+          type: 'arrow',
+        },
+      },
+    },
+    edge13: {
+      arrows: {
+        to: {
+          enabled: true,
+          type: 'vee',
+        },
+      },
+    },
+    edge14: {
+      arrows: {
+        to: {
+          enabled: false,
+        },
+      },
+    },
+    edge15: {
+      arrows: {
+        to: {
+          enabled: false,
+        },
+      },
+      width: 8,
+    },
     cluster: {
       color: {
         color: 'rgb(141, 110, 99)',
