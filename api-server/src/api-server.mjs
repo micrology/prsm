@@ -59,14 +59,14 @@ const PORT = process.env.PORT || 3001
 // Rate limiting and concurrency control
 const globalLimiter = rateLimit({
 	windowMs: 60 * 1000, // 1 minute
-	max: 60, // 60 requests per minute per IP
+	limit: 60, // 60 requests per minute per IP
 	standardHeaders: true,
 	legacyHeaders: false,
 })
 
 const chatLimiter = rateLimit({
 	windowMs: 60 * 1000, // 1 minute
-	max: 5, // 5 chat requests per minute per IP
+	limit: 5, // 5 chat requests per minute per IP
 	standardHeaders: true,
 	legacyHeaders: false,
 	message: {
@@ -500,7 +500,14 @@ app.get('/api/map/:room/allFactorsAndLinks', async (req, res) => {
 				'shape',
 				'shapeProperties',
 			])
-			const links = stripArray(Array.from(yEdgesMap.values()), ['id', 'from', 'to', 'label', 'created', 'modified'])
+			const links = stripArray(Array.from(yEdgesMap.values()), [
+				'id',
+				'from',
+				'to',
+				'label',
+				'created',
+				'modified',
+			])
 			console.log(`Fetched ${factors.length} factors and ${links.length} links for room ${req.params.room}`)
 			res.json({factors, links})
 		} finally {
@@ -632,8 +639,10 @@ app.post('/api/map/:room/factor/:factor', async (req, res) => {
 			x: 0,
 			y: 0,
 			borderWidth: 0,
+			borderWidthSelected: 4,
 			color: {
 				border: 'rgb(154, 219, 180)',
+
 				background: 'rgb(154, 219, 180)',
 				highlight: {
 					border: 'rgb(154, 219, 180)',
@@ -644,14 +653,28 @@ app.post('/api/map/:room/factor/:factor', async (req, res) => {
 					background: 'rgb(154, 219, 180)',
 				},
 			},
+			fixed: false,
 			font: {
 				face: 'Oxygen',
 				color: 'rgb(0, 0, 0)',
 				size: 14,
 			},
+			groupLabel: 'Sample',
 			grp: 0,
+			heightConstraint: false,
+			labelHighlightBold: true,
+			margin: 20,
+			nodeHidden: false,
+			opacity: 1,
+			scaling: {
+				label: {enabled: false, min: 10, max: 40},
+				max: 40,
+				min: 10,
+			},
 			shape: 'box',
-			shapeProperties: {},
+			shapeProperties: {borderDashes: false},
+			size: 25,
+			widthConstraint: false,
 			...spec,
 			created: {time: Date.now(), user: 'API'},
 			modified: {time: Date.now(), user: 'API'},
@@ -867,6 +890,12 @@ app.post('/api/map/:room/link/:link', async (req, res) => {
 				},
 			},
 			dashes: false,
+			edgeHidden: false,
+			groupLabel: 'Sample',
+			hoverWidth: 1,
+			labelHighlightBold: false,
+			selectionWidth: 0,
+			width: 1,
 			...spec,
 			created: {time: Date.now(), user: 'API'},
 			modified: {time: Date.now(), user: 'API'},

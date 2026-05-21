@@ -28,6 +28,7 @@ archive
 merge-results*
 venv/
 requirements.txt
+.VSCodeCounter
 
 # Compiled source #
 ###################
