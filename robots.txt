@@ -1,4 +1,30 @@
+# robots.txt for https://prsm.uk
+# https://www.rfc-editor.org/rfc/rfc9309
+
 User-agent: *
 Allow: /
+
+# Development artifacts and server internals
+Disallow: /node_modules/
+Disallow: /doc/help/node_modules/
+Disallow: /doc/help/scripts/venv/
+Disallow: /doc/help/doc_build/
+Disallow: /doc/jsdoc/
+
+# Database and cache directories
+Disallow: /dbDir/
+Disallow: /dbDir02-11-2025/
+Disallow: /dbDir21-03-2026-11-43/
+Disallow: /dbDir-backup-20260320/
+Disallow: /helpCache/
+
+# Server source code
+Disallow: /api-server/
+Disallow: /ws-server/
+Disallow: /dist/
+
+# Package metadata
+Disallow: /package.json
+Disallow: /package-lock.json
 
 Sitemap: https://prsm.uk/sitemap.xml
