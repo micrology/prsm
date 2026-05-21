@@ -58,8 +58,11 @@ const PORT = process.env.PORT || 3001
 
 // Rate limiting and concurrency control
 const globalLimiter = rateLimit({
-	windowMs: 60 * 1000, // 1 minute
+/* 	windowMs: 60 * 1000, // 1 minute
 	limit: 60, // 60 requests per minute per IP
+ */
+	windowMs: 1000, // 1 second
+	limit: 60, // 10 requests per second per IP
 	standardHeaders: true,
 	legacyHeaders: false,
 })
