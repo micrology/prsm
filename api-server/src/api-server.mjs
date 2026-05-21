@@ -402,6 +402,25 @@ Before answering, determine the user's intent:
 
 // Endpoints for API access to map data
 
+// The properties of factors and links that are safe to expose through the API
+
+const publicFactorProperties = [
+	'id',
+	'label',
+	'x',
+	'y',
+	'borderWidth',
+	'color',
+	'created',
+	'modified',
+	'groupLabel',
+	'grp',
+	'font',
+	'shape',
+	'shapeProperties',
+	'note',
+]
+const publicLinkProperties = ['id', 'from', 'to', 'label', 'created', 'modified', 'note']
 /**
  * GET basic info about the map: title, background color, list of factors and links
  * Map must exist (i.e. have been created using the web interface)
@@ -485,29 +504,8 @@ app.get('/api/map/:room/allFactorsAndLinks', async (req, res) => {
 			const yNodesMap = doc.getMap('nodes')
 			console.log(`Fetched ${yNodesMap.size} factors for room ${req.params.room}`)
 			const yEdgesMap = doc.getMap('edges')
-			const factors = stripArray(Array.from(yNodesMap.values()), [
-				'id',
-				'label',
-				'x',
-				'y',
-				'borderWidth',
-				'color',
-				'created',
-				'modified',
-				'groupLabel',
-				'grp',
-				'font',
-				'shape',
-				'shapeProperties',
-			])
-			const links = stripArray(Array.from(yEdgesMap.values()), [
-				'id',
-				'from',
-				'to',
-				'label',
-				'created',
-				'modified',
-			])
+			const factors = stripArray(Array.from(yNodesMap.values()), publicFactorProperties)
+			const links = stripArray(Array.from(yEdgesMap.values()), publicLinkProperties)
 			console.log(`Fetched ${factors.length} factors and ${links.length} links for room ${req.params.room}`)
 			res.json({factors, links})
 		} finally {
@@ -532,23 +530,7 @@ app.get('/api/map/:room/factor/:factor', async (req, res) => {
 			const yNodesMap = doc.getMap('nodes')
 			const factorDetails = yNodesMap.get(req.params.factor)
 			if (factorDetails) {
-				res.json(
-					strip(factorDetails, [
-						'id',
-						'label',
-						'x',
-						'y',
-						'borderWidth',
-						'color',
-						'created',
-						'modified',
-						'groupLabel',
-						'grp',
-						'font',
-						'shape',
-						'shapeProperties',
-					]),
-				)
+				res.json(strip(factorDetails, publicFactorProperties))
 			} else {
 				res.status(404).json({error: 'Factor not found'})
 			}
@@ -585,23 +567,7 @@ app.patch('/api/map/:room/factor/:factor', async (req, res) => {
 			if (oldFactor) {
 				const newFactor = {...deepUpdate(oldFactor, update), modified: {time: Date.now(), user: 'API'}}
 				yNodesMap.set(req.params.factor, newFactor)
-				res.json(
-					strip(newFactor, [
-						'id',
-						'label',
-						'x',
-						'y',
-						'borderWidth',
-						'color',
-						'created',
-						'modified',
-						'groupLabel',
-						'grp',
-						'font',
-						'shape',
-						'shapeProperties',
-					]),
-				)
+				res.json(strip(newFactor, publicFactorProperties))
 			} else {
 				res.status(404).json({error: 'Factor not found'})
 			}
@@ -685,23 +651,7 @@ app.post('/api/map/:room/factor/:factor', async (req, res) => {
 		try {
 			const yNodesMap = doc.getMap('nodes')
 			yNodesMap.set(req.params.factor, newFactor)
-			res.json(
-				strip(newFactor, [
-					'id',
-					'label',
-					'x',
-					'y',
-					'borderWidth',
-					'color',
-					'created',
-					'modified',
-					'groupLabel',
-					'grp',
-					'font',
-					'shape',
-					'shapeProperties',
-				]),
-			)
+			res.json(strip(newFactor, publicFactorProperties))
 		} catch (error) {
 			res.status(500).json({error: error.message})
 		} finally {
@@ -762,23 +712,7 @@ app.get('/api/map/:room/link/:link', async (req, res) => {
 			const yEdgesMap = doc.getMap('edges')
 			const linkDetails = yEdgesMap.get(req.params.link)
 			if (linkDetails) {
-				res.json(
-					strip(linkDetails, [
-						'id',
-						'label',
-						'from',
-						'to',
-						'arrows',
-						'width',
-						'dashes',
-						'color',
-						'created',
-						'modified',
-						'groupLabel',
-						'grp',
-						'font',
-					]),
-				)
+				res.json(strip(linkDetails, publicLinkProperties))
 			} else {
 				res.status(404).json({error: 'Link not found'})
 			}
@@ -815,23 +749,7 @@ app.patch('/api/map/:room/link/:link', async (req, res) => {
 			if (oldLink) {
 				const newLink = {...deepUpdate(oldLink, update), modified: {time: Date.now(), user: 'API'}}
 				yEdgesMap.set(req.params.link, newLink)
-				res.json(
-					strip(newLink, [
-						'id',
-						'label',
-						'from',
-						'to',
-						'arrows',
-						'width',
-						'dashes',
-						'color',
-						'created',
-						'modified',
-						'groupLabel',
-						'grp',
-						'font',
-					]),
-				)
+				res.json(strip(newLink, publicLinkProperties))
 			} else {
 				res.status(404).json({error: 'Link not found'})
 			}
@@ -911,23 +829,7 @@ app.post('/api/map/:room/link/:link', async (req, res) => {
 				res.status(400).json({error: 'One or both link endpoints do not exist as factors.'})
 			} else {
 				edgesMap.set(req.params.link, newLink)
-				res.json(
-					strip(newLink, [
-						'id',
-						'label',
-						'from',
-						'to',
-						'arrows',
-						'width',
-						'dashes',
-						'color',
-						'created',
-						'modified',
-						'groupLabel',
-						'grp',
-						'font',
-					]),
-				)
+				res.json(strip(newLink, publicLinkProperties))
 			}
 		} catch (error) {
 			res.status(500).json({error: error.message})
@@ -1138,7 +1040,7 @@ function checkRoom(room) {
 function checkMapExists(yNetMap) {
 	const lastLoaded = yNetMap.get('lastLoaded')
 	if (!lastLoaded) {
-		throw new Error('Map not found')
+		throw new Error('Map not found.  Have you created the map through the PRSM web interface?')
 	}
 }
 /**

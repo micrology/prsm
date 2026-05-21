@@ -6,7 +6,7 @@ echo -e "\nUsing room id: $room_id\n"
 echo -e "\nChat"
 curl -H "Content-Type: application/json" -X POST -d '{"message": "Hello, how are you?", "systemPrompt": ""}' $api_server/api/chat/FAK-ERO-OMK-EYX
 echo -e "\n\nGet help: how do I add a factor to a map?"
-curl -H "Content-Type: application/json" -X POST -d '{"message": "How do I add a factor to a map?"}' $api_server/api/helpAssistant
+curl -H "Content-Type: application/json" -X POST -d '{"messages":[{"role":"user","content":[{"text":"How do I add a factor to a map?"}]}]}' $api_server/api/helpAssistant
 echo -e "\n\nGet map"
 curl -H "Content-Type: application/json" -X GET $api_server/api/map/$room_id | head -c 200
 echo -e "\n\nChange map title and background color"
@@ -16,7 +16,7 @@ curl -H "Content-Type: application/json" -X GET $api_server/api/map/$room_id/fac
 echo -e "\n\nUpdate factor c184317c-1046-44c0-acbd-246ae6c06c21"
 curl -H "Content-Type: application/json" -X PATCH -d '{"update": {"color": {"background": "rgb(0,0,255)"}}}' $api_server/api/map/$room_id/factor/c184317c-1046-44c0-acbd-246ae6c06c21
 echo -e "\n\nCreate factor 80a484e8-c2c0-4a57-a12a-newfactor"
-curl -H "Content-Type: application/json" -X POST -d '{"spec": {"label": "New factor", "color": {"background": "rgb(0,255,0)"}}}' $api_server/api/map/$room_id/factor/80a484e8-c2c0-4a57-a12a-newfactor
+curl -H "Content-Type: application/json" -X POST -d '{"spec": {"label": "New factor", "color": {"background": "rgb(0,255,0)"}, "note": "This is a new factor"}}' $api_server/api/map/$room_id/factor/80a484e8-c2c0-4a57-a12a-newfactor
 echo -e "\n\nUpdate factor 80a484e8-c2c0-4a57-a12a-newfactor"
 curl -H "Content-Type: application/json" -X PATCH -d '{"update": {"label": "XXX"}}' $api_server/api/map/$room_id/factor/80a484e8-c2c0-4a57-a12a-newfactor
 echo -e "\n\nGet updated factor 80a484e8-c2c0-4a57-a12a-newfactor"
