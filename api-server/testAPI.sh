@@ -16,7 +16,7 @@ curl -H "Content-Type: application/json" -X GET $api_server/api/map/$room_id/fac
 echo -e "\n\nUpdate factor c184317c-1046-44c0-acbd-246ae6c06c21"
 curl -H "Content-Type: application/json" -X PATCH -d '{"update": {"color": {"background": "rgb(0,0,255)"}}}' $api_server/api/map/$room_id/factor/c184317c-1046-44c0-acbd-246ae6c06c21
 echo -e "\n\nCreate factor 80a484e8-c2c0-4a57-a12a-newfactor"
-curl -H "Content-Type: application/json" -X POST -d '{"spec": {"label": "New factor", "color": {"background": "rgb(0,255,0)"}, "note": "This is a new factor"}}' $api_server/api/map/$room_id/factor/80a484e8-c2c0-4a57-a12a-newfactor
+curl -H "Content-Type: application/json" -X POST -d '{"spec":{"label":"New factor","color":{"background":"rgb(0,255,0)"},"note":{"ops":[{"insert":"This is a new factor\n"}]}}}' $api_server/api/map/$room_id/factor/80a484e8-c2c0-4a57-a12a-newfactor
 echo -e "\n\nUpdate factor 80a484e8-c2c0-4a57-a12a-newfactor"
 curl -H "Content-Type: application/json" -X PATCH -d '{"update": {"label": "XXX"}}' $api_server/api/map/$room_id/factor/80a484e8-c2c0-4a57-a12a-newfactor
 echo -e "\n\nGet updated factor 80a484e8-c2c0-4a57-a12a-newfactor"
