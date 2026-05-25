@@ -1435,7 +1435,7 @@ function draw() {
       }
     }
     // check for modifier keys
-    const keys = params.event.pointers[0]
+    const keys = params.event.srcEvent
     if (!keys) return
     if (keys.metaKey) {
       // if the Command key (on a Mac) is down, and the click is on a node/edge, log it to the console
@@ -1452,11 +1452,6 @@ function draw() {
       }
       return
     }
-    if (keys.ctrlKey) {
-      const e = params.event.pointers[0]
-      // if the Control key is down, show the magnifier
-      if (!inEditMode && e.ctrlKey && !magnifying) showMagnifier(e)
-    }
     if (keys.altKey) {
       // if the Option/ALT key is down, add a node if on the background
       if (params.nodes.length === 0 && params.edges.length === 0) {
@@ -1467,14 +1462,13 @@ function draw() {
         addLabel(item, clearPopUp, function (newItem) {
           if (newItem !== null) data.nodes.add(newItem)
         })
+      } else {
+        network.unselectAll()
+        plusLink()
       }
       // eslint-disable-next-line no-useless-return
       return
     }
-    /* if (keys.shiftKey) {
-      // do nothing: Vis-network selects nodes in this mode
-      return
-    } */
   })
 
   // despatch to edit a node or an edge or to fit the network on the pane
@@ -1499,6 +1493,11 @@ function draw() {
       getRadioVal('stream') !== 'All' ||
       getRadioVal('paths') !== 'All'
     ) {
+      return
+    }
+    // if alt or meta keys are down, do nothing
+    const keys = params.event.srcEvent
+    if (keys && (keys.altKey || keys.metaKey)) {
       return
     }
     // if a 'hidden' node is clicked, it is selected, but we don't want this

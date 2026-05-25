@@ -58,13 +58,13 @@ const PORT = process.env.PORT || 3001
 
 // Rate limiting and concurrency control
 const globalLimiter = rateLimit({
-/* 	windowMs: 60 * 1000, // 1 minute
-	limit: 60, // 60 requests per minute per IP
- */
 	windowMs: 1000, // 1 second
-	limit: 60, // 10 requests per second per IP
+	limit: 20, // 20 requests per second per IP
 	standardHeaders: true,
 	legacyHeaders: false,
+	message: {
+		error: 'Too many requests per second (>20), please slow down and try again.',
+	},
 })
 
 const chatLimiter = rateLimit({
@@ -405,27 +405,28 @@ Before answering, determine the user's intent:
 
 // Endpoints for API access to map data
 
-// The properties of factors and links that are safe to expose through the API
+// The properties of factors and links that should not be exposed through the API
 
-const publicFactorProperties = [
-	'id',
-	'label',
-	'x',
-	'y',
-	'borderWidth',
-	'color',
-	'created',
-	'modified',
-	'groupLabel',
-	'grp',
-	'font',
-	'shape',
-	'shapeProperties',
-	'note',
+const privateFactorProperties = [
+	'bc',
+	'borderWidthSelected',
+	'clusteredIn',
+	'fixed',
+	'heightConstraint',
+	'labelHighlightBold',
+	'margin',
+	'nodeHidden',
+	'opacity',
+	'scaling',
+	'size',
+	'val',
+	'widthConstraint',
 ]
-const publicLinkProperties = ['id', 'from', 'to', 'label', 'created', 'modified', 'note']
+
+const privateLinkProperties = ['edgeHidden', 'hoverWidth', 'labelHighlightBold', 'selectionWidth', 'locked', 'opacity']
+
 /**
- * GET basic info about the map: title, background color, list of factors and links
+ * GET basic info about the map: title, background color, attribute dictionary, list of factors and links
  * Map must exist (i.e. have been created using the web interface)
  */
 app.get('/api/map/:room', async (req, res) => {
@@ -443,8 +444,9 @@ app.get('/api/map/:room', async (req, res) => {
 				viewOnly: yNetMap.get('viewOnly'),
 				version: yNetMap.get('version'),
 				background: yNetMap.get('background'),
-				nodes: stripArray(Array.from(yNodesMap.values()), ['id', 'label', 'x', 'y']),
-				edges: stripArray(Array.from(yEdgesMap.values()), ['id', 'from', 'to', 'label']),
+				attributeTitles: yNetMap.get('attributeTitles') || {},
+				nodes: Array.from(yNodesMap.values(), (n => ({ id: n.id, label: n.label, x: n.x, y: n.y }))),
+				edges: Array.from(yEdgesMap.values(), (e => ({ id: e.id, from: e.from, to: e.to, label: e.label }))),
 			})
 		} finally {
 			doc.destroy()
@@ -507,8 +509,8 @@ app.get('/api/map/:room/allFactorsAndLinks', async (req, res) => {
 			const yNodesMap = doc.getMap('nodes')
 			console.log(`Fetched ${yNodesMap.size} factors for room ${req.params.room}`)
 			const yEdgesMap = doc.getMap('edges')
-			const factors = stripArray(Array.from(yNodesMap.values()), publicFactorProperties)
-			const links = stripArray(Array.from(yEdgesMap.values()), publicLinkProperties)
+			const factors = stripArray(Array.from(yNodesMap.values()), privateFactorProperties)
+			const links = stripArray(Array.from(yEdgesMap.values()), privateLinkProperties)
 			console.log(`Fetched ${factors.length} factors and ${links.length} links for room ${req.params.room}`)
 			res.json({factors, links})
 		} finally {
@@ -533,7 +535,7 @@ app.get('/api/map/:room/factor/:factor', async (req, res) => {
 			const yNodesMap = doc.getMap('nodes')
 			const factorDetails = yNodesMap.get(req.params.factor)
 			if (factorDetails) {
-				res.json(strip(factorDetails, publicFactorProperties))
+				res.json(strip(factorDetails, privateFactorProperties))
 			} else {
 				res.status(404).json({error: 'Factor not found'})
 			}
@@ -570,7 +572,7 @@ app.patch('/api/map/:room/factor/:factor', async (req, res) => {
 			if (oldFactor) {
 				const newFactor = {...deepUpdate(oldFactor, update), modified: {time: Date.now(), user: 'API'}}
 				yNodesMap.set(req.params.factor, newFactor)
-				res.json(strip(newFactor, publicFactorProperties))
+				res.json(strip(newFactor, privateFactorProperties))
 			} else {
 				res.status(404).json({error: 'Factor not found'})
 			}
@@ -654,7 +656,7 @@ app.post('/api/map/:room/factor/:factor', async (req, res) => {
 		try {
 			const yNodesMap = doc.getMap('nodes')
 			yNodesMap.set(req.params.factor, newFactor)
-			res.json(strip(newFactor, publicFactorProperties))
+			res.json(strip(newFactor, privateFactorProperties))
 		} catch (error) {
 			res.status(500).json({error: error.message})
 		} finally {
@@ -715,7 +717,7 @@ app.get('/api/map/:room/link/:link', async (req, res) => {
 			const yEdgesMap = doc.getMap('edges')
 			const linkDetails = yEdgesMap.get(req.params.link)
 			if (linkDetails) {
-				res.json(strip(linkDetails, publicLinkProperties))
+				res.json(strip(linkDetails, privateLinkProperties))
 			} else {
 				res.status(404).json({error: 'Link not found'})
 			}
@@ -752,7 +754,7 @@ app.patch('/api/map/:room/link/:link', async (req, res) => {
 			if (oldLink) {
 				const newLink = {...deepUpdate(oldLink, update), modified: {time: Date.now(), user: 'API'}}
 				yEdgesMap.set(req.params.link, newLink)
-				res.json(strip(newLink, publicLinkProperties))
+				res.json(strip(newLink, privateLinkProperties))
 			} else {
 				res.status(404).json({error: 'Link not found'})
 			}
@@ -832,7 +834,7 @@ app.post('/api/map/:room/link/:link', async (req, res) => {
 				res.status(400).json({error: 'One or both link endpoints do not exist as factors.'})
 			} else {
 				edgesMap.set(req.params.link, newLink)
-				res.json(strip(newLink, publicLinkProperties))
+				res.json(strip(newLink, privateLinkProperties))
 			}
 		} catch (error) {
 			res.status(500).json({error: error.message})
@@ -905,12 +907,18 @@ app.get('/api/map/:room/styles', async (req, res) => {
  */
 app.get('/api/map/:room/styles/:style', async (req, res) => {
 	try {
-		logAPICalls(`Fetching styles for room ${req.params.room}`)
+		logAPICalls(`Fetching ${req.params.style} style for room ${req.params.room}`)
 		const {doc, wsProvider} = await withSyncedDoc(req.params.room)
 		try {
 			const ySamplesMap = doc.getMap('samples')
 			const style = ySamplesMap.get(req.params.style)
 			if (style) {
+				if (style.node) {
+					style.node = strip(style.node, privateFactorProperties)
+				}
+				if (style.edge) {
+					style.edge = strip(style.edge, privateLinkProperties)
+				}
 				res.json([req.params.style, style])
 			} else {
 				res.status(404).json({error: 'Style not found'})
@@ -944,7 +952,13 @@ app.patch('/api/map/:room/styles/:style', async (req, res) => {
 			if (oldStyle) {
 				const newStyle = deepUpdate(oldStyle, update)
 				yStylesMap.set(req.params.style, newStyle)
-				res.json(newStyle)
+				if (newStyle.node) {
+					newStyle.node = strip(newStyle.node, privateFactorProperties)
+				}
+				if (newStyle.edge) {
+					newStyle.edge = strip(newStyle.edge, privateLinkProperties)
+				}
+				res.json([req.params.style, newStyle])
 			} else {
 				res.status(404).json({error: 'Style not found'})
 			}
@@ -1087,22 +1101,20 @@ function deepUpdate(target, updates) {
 	return result
 }
 /**
- * return a copy of an object that only includes the properties that are in allowed
+ * return a copy of the object but omitting the properties that are in stripList
  * @param {Object} obj the object to copy
- * @param {array} allowed list of allowed properties
+ * @param {array} stripList list of properties to omit
+ * @returns {Object} copy of the object with specified properties omitted
  */
-function strip(obj, allowed) {
-	return allowed.reduce((a, e) => {
-		a[e] = obj[e]
-		return a
-	}, {})
+function strip(obj, stripList) {
+	return Object.fromEntries(Object.entries(obj).filter(([key]) => !stripList.includes(key)))
 }
 /**
- * return an array of objects, each stripped to only include the allowed properties
+ * return an array of objects, each stripped to omit the listed properties
  * @param {array} arr
- * @param {array} allowed
- * @returns
+ * @param {array} stripList list of properties to omit
+ * @returns {array} Array of stripped objects
  */
-function stripArray(arr, allowed) {
-	return arr.map((item) => strip(item, allowed))
+function stripArray(arr, stripList) {
+	return arr.map((item) => strip(item, stripList))
 }

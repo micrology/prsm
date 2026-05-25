@@ -115,18 +115,19 @@ function setUpTabs() {
   const tabs = document.getElementsByClassName('table-tab')
   for (let i = 0; i < tabs.length; i++) {
     listen(tabs[i].id, 'click', (e) => {
-      const tabs = document.getElementsByClassName('table-tab')
-      for (let i = 0; i < tabs.length; i++) {
-        tabs[i].classList.remove('active')
+      const allTabs = document.getElementsByClassName('table-tab')
+      for (let j = 0; j < allTabs.length; j++) {
+        allTabs[j].classList.remove('active')
       }
       e.currentTarget.classList.add('active')
       const tabcontent = document.getElementsByClassName('table')
-      for (let i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = 'none'
+      for (let k = 0; k < tabcontent.length; k++) {
+        tabcontent[k].style.display = 'none'
       }
       elem(e.currentTarget.dataset.table).style.display = 'block'
       table = e.currentTarget.dataset.table
       openTable = table === 'factors-table' ? factorsTable : linksTable
+      syncAttributeColumns(openTable, attributeTitles, true)
       if (filterDisplayed) closeFilter()
     })
   }
@@ -138,13 +139,16 @@ function startY() {
   // get the room number from the URL, or if none, complain
   const url = new URL(document.location)
   room = url.searchParams.get('room')
-  if (room === null || room === '') alert('No room name')
-  else room = room.toUpperCase()
+  if (room === null || room === '') {
+    alert('No room name')
+    return
+  }
+  room = room.toUpperCase()
   debug = [url.searchParams.get('debug')]
   document.title = document.title + ' ' + room
   // if debug flag includes 'local' or using a non-standard port (i.e neither 80 nor 443)
   // assume that the websocket port is 1234 in the same domain as the url
-  if (/local/.test(debug) || (url.port && url.port !== 80 && url.port !== 443)) {
+  if (/local/.test(debug) || (url.port && url.port !== '80' && url.port !== '443')) {
     websocket = `ws://${url.hostname}:1234`
   }
   const wsProvider = new WebsocketProvider(websocket, 'prsm' + room, doc)
@@ -257,28 +261,9 @@ function startY() {
         case 'attributeTitles': {
           if (!initialising) {
             attributeTitles = obj
-            const colComps = factorsTable.getColumns()
-            for (const attributeFieldName in obj) {
-              const colComp = colComps.find((c) => c.getField() === attributeFieldName)
-              if (colComp) {
-                if (obj[attributeFieldName] === '*deleted*') {
-                  colComp.delete()
-                } else {
-                  colComp.updateDefinition({ title: obj[attributeFieldName] })
-                }
-              } else {
-                if (obj[attributeFieldName] !== '*deleted*') {
-                  factorsTable.addColumn({
-                    title: obj[attributeFieldName],
-                    editableTitle: true,
-                    field: attributeFieldName,
-                    editor: 'input',
-                    width: 100,
-                    headerContextMenu,
-                  })
-                }
-              }
-            }
+            const isFactorsVisible = table === 'factors-table'
+            syncAttributeColumns(factorsTable, obj, isFactorsVisible)
+            syncAttributeColumns(linksTable, obj, !isFactorsVisible)
           }
           break
         }
@@ -295,9 +280,9 @@ function startY() {
     yjsTrace('yUndoManager.on stack-item-popped', true, event)
     undoRedoButtonStatus()
   })
-  myNameRec = JSON.parse(localStorage.getItem('myName'))
+  myNameRec = JSON.parse(localStorage.getItem('myName')) || {}
   myNameRec.id = clientID
-  console.log('My name: ' + myNameRec.name)
+  console.log('My name: ' + (myNameRec.name || 'unknown'))
 } // end startY()
 
 function yjsTrace(where, source, what) {
@@ -344,19 +329,19 @@ function setUpShareDialog() {
   // When the user clicks anywhere on the background, close it
   listen('shareModal', 'click', closeShareDialog)
 
-  function closeShareDialog() {
+  function closeShareDialog(event) {
     const modal = elem('shareModal')
     if (event.target === modal || event.target === elem('modal-close')) {
       modal.style.display = 'none'
       copiedText.style.display = 'none'
     }
   }
-  listen('copy-text', 'click', (e) => {
+  listen('copy-text', 'click', async (e) => {
     e.preventDefault()
     // Select the text
     inputElem.select()
-    if (copyText(inputElem.value)) // Display the copied text message
-    {
+    const copied = await copyText(inputElem.value)
+    if (copied) {
       copiedText.style.display = 'inline-block'
     }
   })
@@ -1085,7 +1070,7 @@ function convertNodeBack(node, field, value) {
           node.shapeProperties.borderDashes = false
           break
         case 'Dotted':
-          node.shapeProperties.borderDashes = false
+          node.shapeProperties.borderDashes = [2, 8]
           break
         case 'Dashed':
           node.shapeProperties.borderDashes = true
@@ -1139,9 +1124,14 @@ function hideNodeAndEdges(node, value) {
  * @param {String} groupLabel
  */
 function getNodeGroupFromGroupLabel(groupLabel) {
-  return Array.from(ySamplesMap.entries()).filter(
+  const match = Array.from(ySamplesMap.entries()).find(
     (a) => a[1].node && a[1].node.groupLabel === groupLabel
-  )[0][0]
+  )
+  if (!match) {
+    console.error(`No style found for group label: ${groupLabel}`)
+    return undefined
+  }
+  return match[0]
 }
 /**
  * define the Link table
@@ -1367,7 +1357,7 @@ function initialiseLinkTable() {
   return linksTable
 }
 /**
- * @return list of Factor Style names (omitting those called the default, 'Sample')
+ * @return {Array} list of Link Style names (omitting those called the default, 'Sample')
  */
 function styleEdgeNames() {
   return Array.from(ySamplesMap.values())
@@ -1383,8 +1373,8 @@ function styleEdgeNames() {
  */
 function convertEdge(edge) {
   const e = deepCopy(edge)
-  e.fromLabel = yNodesMap.get(e.from).label
-  e.toLabel = yNodesMap.get(e.to).label
+  e.fromLabel = yNodesMap.get(e.from)?.label ?? '??'
+  e.toLabel = yNodesMap.get(e.to)?.label ?? '??'
   e.arrowShape = e.arrows.to.type
   if (e.groupLabel === 'Sample') e.groupLabel = '--'
   if (Array.isArray(e.dashes)) e.lineStyle = 'Dotted'
@@ -1494,9 +1484,48 @@ function convertEdgeBack(edge, field, value) {
 }
 
 function getEdgeGroupFromGroupLabel(groupLabel) {
-  return Array.from(ySamplesMap.entries()).filter(
+  const match = Array.from(ySamplesMap.entries()).find(
     (a) => a[1].edge && a[1].edge.groupLabel === groupLabel
-  )[0][0]
+  )
+  if (!match) {
+    console.error(`No style found for group label: ${groupLabel}`)
+    return undefined
+  }
+  return match[0]
+}
+
+/**
+ * Update attribute columns on a table: update/delete existing ones,
+ * and optionally add columns that don't yet exist.
+ * New columns are only added to the currently visible table to avoid
+ * corrupting Tabulator's layout on a hidden table.
+ * @param {Tabulator} tbl - the table to sync
+ * @param {Object} attrs - the attributeTitles object
+ * @param {boolean} addNew - whether to add columns that don't exist yet
+ */
+function syncAttributeColumns(tbl, attrs, addNew) {
+  const colComps = tbl.getColumns()
+  for (const field in attrs) {
+    const colComp = colComps.find((c) => c.getField() === field)
+    if (colComp) {
+      if (attrs[field] === '*deleted*') {
+        colComp.delete()
+      } else {
+        colComp.updateDefinition({ title: attrs[field] })
+      }
+    } else if (addNew && attrs[field] !== '*deleted*') {
+      const colDef = {
+        title: attrs[field],
+        editableTitle: true,
+        field,
+        editor: 'input',
+        width: getWidthOfTitle(attrs[field]),
+        headerContextMenu,
+      }
+      if (tbl === factorsTable) colDef.editable = isNotCluster
+      tbl.addColumn(colDef)
+    }
+  }
 }
 
 /**
@@ -1522,7 +1551,7 @@ function getWidthOfTitle(text, fontname = 'Oxygen', fontsize = 13.33) {
     getWidthOfTitle.c = document.createElement('canvas')
     getWidthOfTitle.ctx = getWidthOfTitle.c.getContext('2d')
   }
-  const fontspec = fontsize + ' ' + fontname
+  const fontspec = fontsize + 'px ' + fontname
   if (getWidthOfTitle.ctx.font !== fontspec) getWidthOfTitle.ctx.font = fontspec
   return getWidthOfTitle.ctx.measureText(text + '  ').width + 90
 }
@@ -1546,7 +1575,6 @@ function colorEditor(cell, onRendered, success) {
   //set focus on the select box when the editor is selected (timeout allows for editor to be added to DOM)
   onRendered(function () {
     editor.focus()
-    editor.style.css = '100%'
   })
 
   //when the value has been set, trigger the cell to update
