@@ -445,8 +445,9 @@ function initialiseFactorTable() {
             title: 'Style',
             field: 'groupLabel',
             minWidth: 100,
-            editor: 'list',
-            editorParams: { valuesLookup: styleNodeNames },
+            cssClass: 'grey',
+            /*             editor: 'list',
+            editorParams: { valuesLookup: styleNodeNames }, */
           },
           {
             title: 'Shape',
@@ -825,12 +826,12 @@ function bottomCalcFormatter(cell, params) {
 /**
  * @return list of Factor Style names (omitting those called the default, 'Sample')
  */
-function styleNodeNames() {
+/* function styleNodeNames() {
   return Array.from(ySamplesMap.values())
     .filter((s) => s.node)
     .map((s) => s.node.groupLabel)
     .filter((l) => l !== 'Sample')
-}
+} */
 /**
  * return the SVG code for the given icon (see Bootstrap Icons)
  * @param {String} icon
@@ -1210,8 +1211,9 @@ function initialiseLinkTable() {
             title: 'Style',
             field: 'groupLabel',
             minWidth: 100,
-            editor: 'list',
-            editorParams: { values: styleEdgeNames },
+            cssClass: 'grey',
+            /*            editor: 'list',
+            editorParams: { values: styleEdgeNames }, */
           },
           {
             title: `Hidden&nbsp;

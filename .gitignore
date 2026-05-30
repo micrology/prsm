@@ -29,6 +29,8 @@ merge-results*
 venv/
 requirements.txt
 .VSCodeCounter
+.agents
+skills-lock.json
 
 # Compiled source #
 ###################
