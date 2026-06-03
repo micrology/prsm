@@ -70,7 +70,6 @@ Tabulator.registerModule([
 const shortAppName = 'PRSM'
 
 let debug = ''
-window.debug = debug
 let room
 const doc = new Y.Doc()
 let websocket = 'wss://www.prsm.uk/wss' // web socket server URL
@@ -144,7 +143,7 @@ function startY() {
     return
   }
   room = room.toUpperCase()
-  debug = [url.searchParams.get('debug')]
+  debug = new URL(document.location).searchParams.get('debug')
   document.title = document.title + ' ' + room
   // if debug flag includes 'local' or using a non-standard port (i.e neither 80 nor 443)
   // assume that the websocket port is 1234 in the same domain as the url
@@ -160,11 +159,7 @@ function startY() {
   })
   wsProvider.on('status', (event) => {
     console.log(
-      exactTime() +
-        event.status +
-        (event.status === 'connected' ? ' to' : ' from') +
-        ' room ' +
-        room
+      `${exactTime()} ${event.status} ${event.status === 'connected' ? ' to' : ' from'} room ${room}`
     ) // logs when websocket is "connected" or "disconnected"
   })
 
@@ -286,7 +281,7 @@ function startY() {
 } // end startY()
 
 function yjsTrace(where, source, what) {
-  if (window.debug.includes('yjs')) {
+  if (/yjs/.test(debug)) {
     console.log(exactTime(), source ? 'local' : 'non-local', where, what)
   }
 }
@@ -388,7 +383,7 @@ function initialiseFactorTable() {
     resizableRows: true,
     clipboard: true,
     clipboardCopyConfig: {
-      columnHeaders: true, //do not include column headers in clipboard output
+      columnHeaders: true, //do include column headers in clipboard output
       columnGroups: false, //do not include column groups in column headers for printed table
       rowGroups: false, //do not include row groups in clipboard output
       columnCalcs: false, //do not include column calculation rows in clipboard output
@@ -870,6 +865,7 @@ function svg(icon) {
 		  </svg>`
     default:
       console.log('Bad request for svg')
+      return ''
   }
 }
 /**
@@ -1115,8 +1111,9 @@ function hideNodeAndEdges(node, value) {
   setNodeHidden(node, value)
   yEdgesMap.forEach((e) => {
     if (e.from === node.id || e.to === node.id) {
-      setEdgeHidden(e, value)
-      yEdgesMap.set(e.id, e)
+      const edge = deepCopy(e)
+      setEdgeHidden(edge, value)
+      yEdgesMap.set(edge.id, edge)
     }
   })
 }
@@ -1152,7 +1149,7 @@ function initialiseLinkTable() {
     },
     clipboard: true,
     clipboardCopyConfig: {
-      columnHeaders: true, //do not include column headers in clipboard output
+      columnHeaders: true, //do include column headers in clipboard output
       columnGroups: false, //do not include column groups in column headers for printed table
       rowGroups: false, //do not include row groups in clipboard output
       columnCalcs: false, //do not include column calculation rows in clipboard output
@@ -1361,12 +1358,12 @@ function initialiseLinkTable() {
 /**
  * @return {Array} list of Link Style names (omitting those called the default, 'Sample')
  */
-function styleEdgeNames() {
+/* function styleEdgeNames() {
   return Array.from(ySamplesMap.values())
     .filter((s) => s.edge)
     .map((s) => s.edge.groupLabel)
     .filter((l) => l !== 'Sample')
-}
+} */
 /**
  * spread some deep values to the top level to suit the requirements of the Tabulator package better
  * NB: any such converted values cannot then be edited without special attention (in updateEdgeCellData)
