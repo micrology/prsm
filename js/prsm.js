@@ -1264,8 +1264,11 @@ function draw() {
       },
       addEdge: function (item, callback) {
         inAddMode = false
+        // Restore interaction options and clean up InteractionHandler drag state
+        // that may have been set before addEdgeMode() replaced the handlers
+        resetDragState()
         network.setOptions({
-          interaction: { dragView: true, selectable: true },
+          interaction: { dragView: true, selectable: true, dragNodes: true },
         })
         showPressed('addLink', 'remove')
         if (item.from === item.to) {
@@ -1453,6 +1456,8 @@ function draw() {
       return
     }
     if (keys.altKey) {
+      // if already in addLink mode (e.g. from a prior ALT+drag), don't toggle it off
+      if (inAddMode === 'addLink') return
       // if the Option/ALT key is down, add a node if on the background
       if (params.nodes.length === 0 && params.edges.length === 0) {
         const pos = params.pointer.canvas
@@ -1635,11 +1640,21 @@ function draw() {
         showPressed('addLink', 'add')
         statusMsg('Now drag to the middle of the Destination factor')
         network.setOptions({
-          interaction: { dragView: false, selectable: false },
+          interaction: { dragView: false, selectable: false, dragNodes: false },
         })
         network.addEdgeMode()
-        return
+        // Manually trigger _handleConnect to create the control node, because the
+        // original onTouch (which _handleConnect replaces) already fired before
+        // addEdgeMode() installed the ManipulationSystem handlers.
+        const rect = netPane.querySelector('canvas').getBoundingClientRect()
+        network.body.eventListeners.onTouch({
+          center: {
+            x: params.pointer.DOM.x + rect.left,
+            y: params.pointer.DOM.y + rect.top,
+          },
+        })
       }
+      return
     }
     changeCursor('grabbing')
   })
@@ -1686,7 +1701,11 @@ function draw() {
   })
   network.on('controlNodeDragEnd', function (event) {
     if (/gui/.test(debug)) console.log('controlNodeDragEnd')
-    if (event.controlEdge.from !== event.controlEdge.to) changeCursor('default')
+    // Only reset cursor when a genuine edge drag completed (not a spurious
+    // _finishConnect fired via onRelease when no control node existed)
+    if (event.controlEdge.from !== undefined && event.controlEdge.from !== event.controlEdge.to) {
+      changeCursor('default')
+    }
   })
   network.on('edgeCurvatureChanged', function (params) {
     if (/gui/.test(debug)) console.log('edgeCurvatureChanged', params)
@@ -3469,7 +3488,7 @@ function plusLink() {
         'Now drag from the middle of the Source factor to the middle of the Destination factor'
       )
       network.setOptions({
-        interaction: { dragView: false, selectable: false },
+        interaction: { dragView: false, selectable: false, dragNodes: false },
       })
       network.addEdgeMode()
   }
@@ -3480,11 +3499,29 @@ function plusLink() {
 function stopEdit() {
   inAddMode = false
   network.disableEditMode()
+  resetDragState()
   network.setOptions({
-    interaction: { dragView: true, selectable: true },
+    interaction: { dragView: true, selectable: true, dragNodes: true },
   })
   clearStatusBar()
   changeCursor('default')
+}
+/**
+ * Reset InteractionHandler drag state that may have been left over from
+ * entering addEdgeMode() mid-drag.  Without this, drag.dragging remains
+ * true and blocks subsequent normal drag operations.
+ */
+function resetDragState() {
+  const drag = network.interactionHandler.drag
+  // restore the original fixed state of any nodes that were temporarily fixed
+  if (drag.selection) {
+    for (const s of drag.selection) {
+      s.node.options.fixed.x = s.xFixed
+      s.node.options.fixed.y = s.yFixed
+    }
+  }
+  drag.dragging = false
+  drag.selection = []
 }
 /**
  * Add or remove the CSS style showing that the button has been pressed
