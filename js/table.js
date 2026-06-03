@@ -48,6 +48,7 @@ import {
   MenuModule,
   InteractionModule,
   FilterModule,
+  ResizeColumnsModule,
 } from 'tabulator-tables' // documented at https://tabulator.info/
 import { version } from '../package.json'
 import Quill from 'quill'
@@ -65,6 +66,7 @@ Tabulator.registerModule([
   MenuModule,
   InteractionModule,
   FilterModule,
+  ResizeColumnsModule,
 ])
 
 const shortAppName = 'PRSM'
@@ -417,8 +419,9 @@ function initialiseFactorTable() {
         title: 'Label',
         field: 'label',
         editor: 'textarea',
-        maxWidth: 300,
+        width: 300,
         minWidth: 300,
+        resizable: true,
         bottomCalc: 'count',
         bottomCalcFormatter,
         bottomCalcFormatterParams: { legend: 'Count:' },
@@ -441,8 +444,7 @@ function initialiseFactorTable() {
             field: 'groupLabel',
             minWidth: 100,
             cssClass: 'grey',
-            /*             editor: 'list',
-            editorParams: { valuesLookup: styleNodeNames }, */
+            resizable: true,
           },
           {
             title: 'Shape',
@@ -721,7 +723,7 @@ function isNotCluster(cell) {
 /**
  * return HTML string for column group header, with embedded collapse/reveal icon
  * @param {String} field field name of column group
- * @param {Boolean} collapse which header 9and which collapse/reveal icon) to use
+ * @param {Boolean} collapse which header (and which collapse/reveal icon) to use
  * @returns HTML string
  */
 function groupTitle(field, collapse = true) {
@@ -737,27 +739,32 @@ function groupTitle(field, collapse = true) {
 }
 /**
  * hides (or shows) all but the first column in the column group and replaces the column group header
- * @param {Object} table table with this col group
+ * @param {Tabulator} table table with this col group
  * @param {String} field field name of column group
  */
 function collapseColGroup(table, field) {
-  let first = true
-  table.columnManager.columnsByIndex.forEach((col) => {
-    if (col.parent.field === field) {
-      if (first) {
-        first = false
-        if (document.getElementById(`hide${field}`).dataset.collapsed === 'true') {
-          col.parent.titleElement.innerHTML = groupTitle(field, false)
-        } else col.parent.titleElement.innerHTML = groupTitle(field, true)
-        listen(`hide${field}`, 'click', () => {
-          collapseColGroup(table, field)
-        })
-      } else {
-        if (col.visible) col.hide()
-        else col.show()
-      }
-    }
+  const groupCol = table.getColumns(true).find((c) => c.getField() === field)
+  if (!groupCol) return
+
+  const subCols = groupCol.getSubColumns()
+  if (subCols.length === 0) return
+
+  // Toggle the group header between collapsed/uncollapsed
+  const collapsed = document.getElementById(`hide${field}`).dataset.collapsed === 'true'
+  groupCol.getElement().querySelector('.tabulator-col-title').innerHTML = groupTitle(
+    field,
+    !collapsed
+  )
+
+  listen(`hide${field}`, 'click', () => {
+    collapseColGroup(table, field)
   })
+
+  // Toggle visibility of all sub-columns except the first
+  for (let i = 1; i < subCols.length; i++) {
+    if (subCols[i].isVisible()) subCols[i].hide()
+    else subCols[i].show()
+  }
 }
 /**
  * reduce (and shorten the notes text) or expand the width of the Notes column
@@ -765,16 +772,21 @@ function collapseColGroup(table, field) {
  * @param {string} field
  */
 function collapseNotes(table, field = 'Notes') {
-  const col = table.columnManager.columnsByIndex.filter((c) => c.field === 'note')[0]
-  if (document.getElementById(`hide${field}`).dataset.collapsed === 'true') {
-    col.parent.titleElement.innerHTML = groupTitle(field, false)
-    col.setWidth(200)
-  } else {
-    col.parent.titleElement.innerHTML = groupTitle(field, true)
-    col.setWidth(600)
-  }
-  // rewrite the values, so that the Notes formatter can shorten or expand the displayed text
-  col.getCells().forEach((cell) => cell.setValue(cell.getValue()))
+  const groupCol = table.getColumns(true).find((c) => c.getField() === field)
+  if (!groupCol) return
+
+  const noteCol = groupCol.getSubColumns().find((c) => c.getField() === 'note')
+  if (!noteCol) return
+
+  const collapsed = document.getElementById(`hide${field}`).dataset.collapsed === 'true'
+  groupCol.getElement().querySelector('.tabulator-col-title').innerHTML = groupTitle(
+    field,
+    !collapsed
+  )
+
+  noteCol.setWidth(collapsed ? 200 : 600)
+  noteCol.getCells().forEach((cell) => cell.setValue(cell.getValue()))
+
   listen(`hide${field}`, 'click', () => {
     collapseNotes(table, field)
   })
@@ -1185,12 +1197,21 @@ function initialiseLinkTable() {
         title: 'From',
         field: 'fromLabel',
         width: 300,
+        minWidth: 300,
+        resizable: true,
         cssClass: 'grey',
         bottomCalc: 'count',
         bottomCalcFormatter,
         bottomCalcFormatterParams: { legend: 'Count:' },
       },
-      { title: 'To', field: 'toLabel', width: 300, cssClass: 'grey' },
+      {
+        title: 'To',
+        field: 'toLabel',
+        width: 300,
+        minWidth: 300,
+        resizable: true,
+        cssClass: 'grey',
+      },
       {
         title: 'Modified',
         field: 'modifiedTime',
@@ -1209,8 +1230,7 @@ function initialiseLinkTable() {
             field: 'groupLabel',
             minWidth: 100,
             cssClass: 'grey',
-            /*            editor: 'list',
-            editorParams: { values: styleEdgeNames }, */
+            resizable: true,
           },
           {
             title: `Hidden&nbsp;
