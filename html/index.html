@@ -1,577 +1,499 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>PRSM | Participatory System Mapper for Policy & Research</title>
+    <meta name="title" content="PRSM | Participatory System Mapper for Policy & Research" />
+    <meta
+      name="description"
+      content="A free, secure, and open-source tool for collaborative systems mapping. Designed for professionals in public policy, environmental research, and evaluation. Export to Excel, GML, and GEXF."
+    />
     <meta name="author" content="Nigel Gilbert" />
     <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png" />
     <link rel="shortcut icon" href="../icons/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png" />
-    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="../css/web.css" rel="stylesheet" />
-    <title>PRSM: Participatory System Mapper</title>
-    <meta
-      name="description"
-      content="PRSM enables groups of people, each using their own computer (or tablet) 
-		to collaborate in the drawing of a map. They may be sitting around a table, discussing the map as it is 
-		created face to face, or working remotely, using video conferencing or the chat feature that is built 
-		into the app. Everyone can participate because every edit (creating nodes and links, arranging them 
-		and so on) is broadcast to all the other participants as the changes are made (just as Google Docs 
-		does for text, for example). When you start PRSM in your browser, a 'room' is created for you in which 
-		to draw your network. You can add other users to this room to share the work. Only those with access 
-		to the room can see what is being created."
-    />
+
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="PRSM: Participatory System Mapper" />
-    <meta property="og:title" content="PRSM: Participatory System Mapper" />
-    <meta
-      property="og:image"
-      content="https://prsm.uk/public/pexels-dobromir-hristov-3845161.jpg"
-    />
-    <meta property="og:image:alt" content="A prism showing a rainbow" />
+    <meta property="og:url" content="https://prsm.uk/" />
+    <meta property="og:title" content="PRSM: Professional Collaborative System Mapping" />
     <meta
       property="og:description"
-      content="The Participatory System Mapper (PRSM) is an app that makes it easy to draw networks (or maps) of systems, working together collaboratively"
+      content="Build complex causal maps in real-time workshops. Supported by CECAN and the University of Surrey. No install required."
     />
-    <meta property="og:url" content="https://prsm.uk" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:site" content="@@OfficialPRSM" />
-    <meta name="twitter:title" content="PRSM: Participatory System Mapper" />
+    <meta property="og:image" content="https://prsm.uk/preview-image.png" />
+
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content="PRSM | Participatory System Mapper" />
     <meta
-      name="twitter:description"
-      content="The Participatory System Mapper (PRSM) is an app that makes it easy to draw networks (or maps) of systems, working together collaboratively"
+      property="twitter:description"
+      content="The official tool for Participatory Systems Mapping (PSM) in policy evaluation."
     />
-    <meta
-      name="twitter:image"
-      content="https://prsm.uk/public/pexels-dobromir-hristov-3845161.jpg"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Oxygen:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://kit.fontawesome.com/dcbad58dab.js" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="../node_modules/@knadh/oat/oat.min.css" />
+    <!-- <script src="../node_modules/@knadh/oat/oat.min.js" defer></script> -->
+    <link rel="stylesheet" href="../css/new-index.css" />
+
+    <!-- mailchimp subscription form -->
     <link
       href="//cdn-images.mailchimp.com/embedcode/classic-061523.css"
       rel="stylesheet"
       type="text/css"
     />
-    <style type="text/css">
-      #mc_embed_signup {
-        position: fixed;
-        right: 30px;
-        top: 300px;
-        z-index: 1000;
-        background: #fff;
-        clear: left;
-        width: 500px;
-        border: 1px solid black;
-        visibility: hidden;
-      }
-      .closeBtn {
-        position: absolute;
-        right: -30px;
-        top: -30px;
-        width: 40px;
-        height: 40px;
-        background-color: white;
-        border-radius: 50%;
-        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-        font-weight: bold;
-        color: #333;
-        cursor: pointer;
-        user-select: none;
-      }
-    </style>
   </head>
-
   <body>
-    <div>
-      <!-- Fixed navbar -->
-      <nav class="navbar navbar-expand-sm navbar-light text-black bg-white fixed-top">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="index.html">
-            <img src="../icons/PRSMlogo200.png" alt="PRSM logo" />
-            <span class="d-none d-md-inline">&nbsp;Participatory System Mapper</span>
+    <div class="nav-buttons">
+      <a href="https://prsm.uk/">
+        <img class="prsm-logo" src="../icons/PRSMlogo200.png" alt="PRSM logo" />
+      </a>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          fill="currentColor"
+          class="bi bi-list"
+          viewBox="0 0 16 16"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"
+          />
+        </svg>
+      </button>
+      <nav class="nav-menu">
+        <a class="button secondary" href="https://prsm.uk/examples.html">Examples</a>
+        <a class="button secondary" href="#chatbothelp">Chatbot Help</a>
+        <a class="button secondary" href="https://prsm.uk/help-centre.html">Documentation</a>
+        <a class="button primary" href="https://prsm.uk/prsm.html" target="_blank">Launch PRSM</a>
+        <div style="font-size: large">
+          <a href="https://github.com/micrology/prsm" title="GitHub" target="_blank" rel="noopener">
+            GitHub
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-github"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"
+              />
+            </svg>
           </a>
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#main-navigation"
-            aria-controls="main-navigation"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="main-navigation">
-            <ul class="navbar-nav m-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="./index.html#about">About</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="./index.html#our-story">Our Story</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="./examples.html">Examples</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="./help-centre.html">Help Centre</a>
-              </li>
-              <!-- <li class="nav-item">
-                <a
-                  class="nav-link"
-                  href="https://gitter.im/PRSM-community/community"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  Community
-                </a>
-              </li> -->
-            </ul>
-            <ul class="nav navbar-nav ms-auto">
-              <li>
-                <a class="btn btn-primary btn-lg" href="./prsm.html" target="_blank" rel="noopener">
-                  Start now
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
       </nav>
+    </div>
+    <div class="container">
+      <header class="hero-container">
+        <div>
+          <h1>Participatory System Mapper (PRSM)</h1>
+          <p class="large">
+            A free, secure, and open-source platform for mapping complex systems. Built for
+            researchers, policy-makers, and facilitators to collaborate in real-time.
+          </p>
+          <div style="display: flex; justify-content: center; margin: 2rem 0">
+            <a href="https://prsm.uk/prsm.html" class="button primary">Launch PRSM Web App</a>
+          </div>
+          <div class="slug">
+            No installation required. Free to use. Secure. Optimized for Desktop and Tablet.
+          </div>
+        </div>
+        <img
+          src="../img/pexels-dobromir-hristov-3845161.webp"
+          alt="PRSM Identity"
+          class="prism-image"
+        />
+      </header>
 
-      <div class="container-fluid">
-        <div class="dummy-navbar"></div>
+      <section id="map-preview" class="map-showcase">
+        <h2>Visualising Complexity</h2>
+        <p>
+          From social integration to environmental policy, PRSM handles hundreds of interconnected
+          variables with ease.
+        </p>
+        <div class="map-frame">
+          <img src="../img/germancasestudymap3.png" alt="Case Study System Map" />
+          <p>
+            <small>
+              <em>Example: Policy System Map showing causal links and stakeholder clusters.</em>
+            </small>
+          </p>
+        </div>
+      </section>
+
+      <section style="padding: 2rem 0">
         <div class="row">
-          <div class="col-xs-12 text-center">
-            <div class="hero">
-              <img
-                class="img-fluid"
-                src="../img/pexels-dobromir-hristov-3845161.webp"
-                width="1400"
-                height="788"
-                alt="Rainbow prism"
-              />
-              <div class="overlay-text">
-                <div class="display-2">PRSM</div>
-                <div class="text-responsive">
-                  The Participatory System Mapper (PRSM) is a free, open-source and secure tool for
-                  mind-mapping and system visualisation
+          <div class="col-4">
+            <div class="feature-card">
+              <h3>Facilitate Workshops</h3>
+              <p>
+                Invite stakeholders to add nodes and links simultaneously. Perfect for Zoom/Teams
+                breakouts or face-to-face sessions on tablets.
+              </p>
+              <div style="font-size: small">
+                <p>
+                  Groups of people, each using their own computer (or tablet) can collaborate in the
+                  drawing of a map using PRSM. They may be sitting around a table, discussing the
+                  map as it is created face to face, or working remotely, using PRSM and video
+                  conferencing.
+                </p>
+                <p>
+                  Everyone can participate because every edit (creating nodes and links, arranging
+                  them, annotating them, and so on) is broadcast to all the other participants as
+                  the changes are made.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-8">
+            <div class="feature-card">
+              <video class="img-fluid" id="vid1" autoplay loop muted>
+                <source src="../img/PRSMCleanAir.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-4">
+            <div class="feature-card">
+              <h3>Work securely</h3>
+              <p>
+                Designed, shaped and coded by experts with an emphasis on security and ease of use
+              </p>
+              <p>
+                <b>PRSM</b>
+                is secure — the only way to gain access to a map is if you have the web address of
+                the shared ‘room’, a random string of 12 letters.
+              </p>
+              <p>
+                <b>PRSM</b>
+                is GDPR compliant: for details see our
+                <a href="privacy-notice.html" target="_blank" rel="noopener">privacy notice</a>
+                .
+              </p>
+              <p>
+                Encoded data is transmitted between users using a server located in Ireland, and so
+                does not leave the jurisdiction of the GDPR. You can also install the server on your
+                local intranet if you wish.
+              </p>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="feature-card">
+              <h3>Map any network</h3>
+              <p>
+                The network or map can be anything that has items (or 'factors' or 'nodes')
+                connected by links (or 'edges').
+              </p>
+              <ul style="font-size: x-small">
+                <li>People (the nodes) connected by knowing each other (e.g. a stakeholder map)</li>
+                <li>
+                  Factors or variables causing (the links) changes in other factors (e.g. a causal
+                  loop diagram)
+                </li>
+                <li>
+                  Theories expressed as variables and relationships between them (e.g. a Theory of
+                  Change)
+                </li>
+                <li>
+                  Company boards of directors (the nodes) and the directors that sit on more than
+                  one board (the links) (e.g. interlocking directorates )
+                </li>
+                <li>
+                  Twitter hashtags (the nodes) included together on posts (the links) (a hashtag
+                  network)
+                </li>
+                <li>
+                  Scientists (the nodes) co-authoring or co-citing papers (the links) (e.g. a
+                  co-citation network)
+                </li>
+              </ul>
+              … and anything else that has items and links between the items.
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="feature-card">
+              <h3>AI Assistance</h3>
+              <p>
+                Get AI-generated suggestions to annotate nodes and links, provide explanations of
+                complex relationships, and generate summaries of the whole map.
+              </p>
+              <h3>Export & Report</h3>
+              <p>
+                Get high-res images for publication, import and export raw data to
+                <strong>Excel, GML, and GEXF and other network formats</strong>
+                for further analysis, or connect your code through the PRSM API
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="chatbothelp">
+        <div class="row">
+          <div class="col-12">
+            <!-- Chat UI -->
+            <div id="chat-wrapper">
+              <div id="chat-container">
+                <div id="chat-header">
+                  The PRSM Assistant - an AI powered chatbot that can answer questions about PRSM
+                  and how to use it
+                </div>
+                <div id="chat-messages"></div>
+                <div id="processing-overlay" aria-busy="true" style="display: none">
+                  Processing...
+                </div>
+                <div id="chat-input-area">
+                  <input
+                    type="text"
+                    id="user-input"
+                    placeholder="Ask anything about PRSM and how it can be used..."
+                  />
+                  <button id="send-btn">Send</button>
+                  <div class="button-pair">
+                    <button class="chat-button" title="Copy to clipboard" id="copy-chat">Copy</button>
+                    <button class="chat-button" title="Start a new chat" id="new-chat">New</button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="row align-items-center" id="about">
-          <div class="col-sm-6 p-5">
-            <h1>Collaborative Creativity</h1>
-            <h4>
-              The Participatory System Mapper (PRSM) is an app that makes it easy to draw networks
-              (or 'maps') of systems, working together collaboratively
-            </h4>
-          </div>
-          <div class="col-sm-6 p-5">
-            <video class="img-fluid" id="vid1" autoplay loop muted>
-              <source src="../img/PRSMCleanAir.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          </div>
-        </div>
-        <div class="row align-items-center shaded">
-          <div class="col-sm-6 p-1">
-            <!-- 						<img class="img-fluid" src="../img/marvin-meyer-SYTO3xs06fU-unsplash.jpg" >
- -->
-            <img
-              class="img-fluid"
-              src="../img/marvin-meyer-syto3xs06fu-unsplash.webp"
-              width="1400"
-              height="933"
-              alt="Desk with laptops"
-            />
-          </div>
-          <div class="col-sm-6 p-5">
-            <p>
-              Groups of people, each using their own computer (or tablet) can collaborate in the
-              drawing of a map using PRSM.
+        <div class="row">
+          <div class="col-12">
+            <p style="font-size: x-small">
+              The PRSM Assistant is an AI-powered chatbot designed to help users navigate and
+              utilize the features of the Participatory System Mapper (PRSM). Whether you're new to
+              PRSM or looking for advanced tips, the assistant can provide guidance on how to create
+              maps, use specific tools, and make the most of your mapping experience. However,
+              please note that the assistant is not perfect and may not always provide accurate or
+              complete information.
             </p>
-            <p>
-              They may be sitting around a table, discussing the map as it is created face to face,
-              or working remotely, using video conferencing or the chat feature that is built into
-              the app.
-            </p>
-            <p>
-              Everyone can participate because every edit (creating nodes and links, arranging them,
-              annotating them, and so on) is broadcast to all the other participants as the changes
-              are made.
-            </p>
-          </div>
-        </div>
-        <div class="row g-5 py-5 align-items-center">
-          <div class="col-md-6">
-            <p>PRSM runs in a web browser on a desktop PC or a tablet.</p>
-            <p>
-              When you start PRSM in your browser, a 'room' is created for you in which to draw your
-              network. You can add other users to this room to share the work. Only those with
-              access to the room can see what is being created.
-            </p>
-          </div>
-          <div class="col-md-6">
-            <img
-              class="img-fluid"
-              src="../img/aqriskcascade-greenenergy.webp"
-              width="1400"
-              height="1005"
-              alt="Map of Air Quality Risk Cascade"
-            />
-          </div>
-        </div>
-        <div class="row g-5 py-5 align-items-center shaded">
-          <div class="col-md-6">
-            <img
-              class="img-fluid"
-              src="../img/NPCexample_rdnoi3.webp"
-              width="1400"
-              height="882"
-              alt="Map of NPC Theory of Change"
-            />
-          </div>
-          <div class="col-md-6">
-            <h4>What can you map?</h4>
-            <p>
-              The network or map can be anything that has items (or 'factors' or 'nodes') connected
-              by links (or ‘edges').
-            </p>
-            <ul>
-              <li>People (the nodes) connected by knowing each other (e.g. a stakeholder map)</li>
-              <li>
-                Factors or variables causing (the links) changes in other factors (e.g. a causal
-                loop diagram)
-              </li>
-              <li>
-                Theories expressed as variables and relationships between them (e.g. a Theory of
-                Change)
-              </li>
-              <li>
-                Company boards of directors (the nodes) and the directors that sit on more than one
-                board (the links) (e.g. interlocking directorates )
-              </li>
-              <li>
-                Twitter hashtags (the nodes) included together on posts (the links) (a hashtag
-                network)
-              </li>
-              <li>
-                Scientists (the nodes) co-authoring or co-citing papers (the links) (e.g. a
-                co-citation network)
-              </li>
-            </ul>
-            &hellip; and anything else that has items and links between the items.
-          </div>
-        </div>
-        <div class="row g-5 py-5 align-items-center">
-          <div class="col-md-6">
-            <h4>Data view</h4>
-            <p>
-              In addition to the 'map' view, PRSM will also show a data view: a spreadsheet with one
-              sheet for all the factors and and another for all the links. Each row describes a
-              factor or link, and these can be edited from the data view as well as from the map
-              view. The data view also shows some network statistics (degree, betweenness centrality
-              etc.) and this view can be used to assign values to factors for analysis.
-            </p>
-          </div>
-          <div class="col-md-6">
-            <img
-              class="img-fluid"
-              src="../img/DataViewExample.webp"
-              width="2282"
-              height="1272"
-              alt="Data View"
-            />
-          </div>
-        </div>
-        <div class="row text-bg-dark" style="padding-top: 20px">
-          <div class="col-sm-8 text-center mx-auto">
-            <h4>
-              To use
-              <b>PRSM</b>
-              , all you need is a modern web browser such as Chrome, Firefox, Microsoft Edge or
-              Safari running on a desktop, tablet or phone.
-            </h4>
-            <p style="font-size: small">It will not work with Internet Explorer.</p>
-          </div>
-        </div>
-        <div class="row row-cols-3 text-bg-dark">
-          <div class="col-md-4">
-            <img
-              class="img-fluid d-block mx-auto"
-              src="../img/ExampleMapLaptop.webp"
-              width="372"
-              height="240"
-              alt="Example Map"
-            />
-            <p class="text-center">Laptop</p>
-          </div>
-          <div class="col-md-4">
-            <img
-              class="img-fluid d-block mx-auto"
-              width="286"
-              height="200"
-              src="../img/ExampleMapTablet.webp"
-              alt="Example Map"
-            />
-            <p class="text-center">Tablet</p>
-          </div>
-          <div class="col-md-4 mx-auto">
-            <img
-              class="img-fluid d-block mx-auto"
-              width="92"
-              height="200"
-              src="../img/ExampleMapPhone.webp"
-              alt="Example Map"
-            />
-            <p class="text-center">Phone</p>
-          </div>
-        </div>
-        <div class="row py-5">
-          <div class="col-sm-8 text-center mx-auto">
-            <h4>
-              The software is free and
-              <a href="https://github.com/micrology/prsm" target="_blank" rel="noopener">
-                open source
-              </a>
-              .
-            </h4>
           </div>
         </div>
         <div class="row">
-          <div class="col-xs-12 text-center mx-auto">
-            <a class="btn btn-primary btn-lg" href="./prsm.html" target="_blank" rel="noopener">
-              Try it
+          <div class="col-12">
+            Try:
+            <button class="chat-suggestion">What is a system map?</button>
+            <button class="chat-suggestion">how do I draw a link between two factors?</button>
+            <button class="chat-suggestion">Can I use PRSM for a stakeholder map?</button>
+            <button class="chat-suggestion">Can I export to Excel?</button>
+            <button class="chat-suggestion">Give me some tips about running a PSM workshop.</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="our-story">
+        <h2>Our Story</h2>
+        <div class="our-story">
+          <p>
+            The
+            <a href="https://www.cecan.ac.uk/" target="_blank" rel="noopener">
+              Centre for the Evaluation of Complexity Across the Nexus
             </a>
-          </div>
+            (CECAN) was founded in 2016 as an
+            <a href="https://esrc.ukri.org/" target="_blank" rel="noopener">ESRC</a>
+            research centre, with the aim of 'transforming the practice of policy evaluation across
+            the food, energy, water and environmental domains to make it fit for a complex world'.
+            Since then, CECAN has worked closely with UK government departments and others and has
+            developed a
+            <a
+              href="https://www.cecan.ac.uk/wp-content/uploads/2020/09/PSM-Workshop-method.pdf"
+              target="_blank"
+              rel="noopener"
+            >
+              methodology
+            </a>
+            for creating participatory system maps. These maps were thought to be very helpful to
+            those who worked on them &mdash; policymakers, policy analysts, and stakeholders in
+            public policy &mdash; but it was laborious to digitise the paper and Post-It&trade;
+            notes that were used in mapping sessions. We therefore began investigating the
+            possibility of asking participants to use mapping software.
+          </p>
+          <p>
+            Shortly afterwards (early 2020), the COVID-19 pandemic meant that the kind of
+            face-to-face mapping workshops we had been organising were no longer feasible. Over the
+            course of 2020, we developed PRSM and somewhat hesitantly tried it out with some pilot
+            workshops. Gradually, the reliability and capability of PRSM improved, and we learned
+            how to run system mapping workshops online, which requires somewhat different strategies
+            than face-face workshops. The core of PRSM is now stable and well tested, but it
+            continues to be extended to add further features.
+          </p>
         </div>
-        <div class="row align-items-center">
-          <div class="col-sm-6 p-5">
-            <h1>Integrity</h1>
-            <p>
-              Designed, shaped and coded by experts with an emphasis on security and ease of use
-            </p>
-            <p>
-              <b>PRSM</b>
-              is secure &mdash; the only way to gain access to a map is if you have the web address
-              of the shared &lsquo;room&rsquo;, a random string of 12 letters.
-            </p>
-            <p>
-              <b>PRSM</b>
-              is GDPR compliant: for details see our
-              <a href="./privacy-notice.html" target="_blank" rel="noopener">privacy notice</a>
-              .
-            </p>
-            <p>
-              Encoded data is transmitted between users using a server located in Ireland, and so
-              does not leave the jurisdiction of the GDPR. You can also install the server on your
-              local intranet if you wish. You can save maps to your local computer in PRSM&rsquo;s
-              own format, save an image of the network, or export maps to Microsoft Excel or in one
-              of several standard network formats.
-            </p>
-          </div>
-          <div class="col-sm-6 p-5">
-            <img
-              class="img-fluid"
-              src="../img/ShareMap.webp"
-              width="2276"
-              height="1398"
-              alt="Example of sharing a map"
-            />
-          </div>
-        </div>
-        <div class="row shaded" id="our-story">
-          <div class="col-sm-3 p-5">
-            <h1>Our Story</h1>
-          </div>
-          <div class="col-sm-9 p-5">
-            <p>
-              The
-              <a href="https://www.cecan.ac.uk/" target="_blank" rel="noopener">
-                Centre for the Evaluation of Complexity Across the Nexus
-              </a>
-              (CECAN) was founded in 2016 as an
-              <a href="https://esrc.ukri.org/" target="_blank" rel="noopener">ESRC</a>
-              research centre, with the aim of 'transforming the practice of policy evaluation
-              across the food, energy, water and environmental domains to make it fit for a complex
-              world'. Since then, CECAN has worked closely with UK government departments and others
-              and has developed a
-              <a
-                href="https://www.cecan.ac.uk/wp-content/uploads/2020/09/PSM-Workshop-method.pdf"
-                target="_blank"
-                rel="noopener"
-              >
-                methodology
-              </a>
-              for creating participatory system maps. These maps were thought to be very helpful to
-              those who worked on them &mdash; policymakers, policy analysts, and stakeholders in
-              public policy &mdash; but it was laborious to digitise the paper and Post-It&trade;
-              notes that were used in mapping sessions. We therefore began investigating the
-              possibility of asking participants to use mapping software.
-            </p>
-            <p>
-              Shortly afterwards (early 2020), the COVID-19 pandemic meant that the kind of
-              face-to-face mapping workshops we had been organising were no longer feasible. Over
-              the course of 2020, we developed PRSM and somewhat hesitantly tried it out with some
-              pilot workshops. Gradually, the reliability and capability of PRSM improved, and we
-              learned how to run system mapping workshops online, which requires somewhat different
-              strategies than face-face workshops. The core of PRSM is now stable and well tested,
-              but it continues to be extended to add further features.
-            </p>
+      </section>
+
+      <section>
+        <div class="row">
+          <div class="col-12">
+            <h2>Acknowledgements</h2>
           </div>
         </div>
         <div class="row">
-          <div class="col-xs-12 p-5">
-            <h1>PRSM would like to thank...</h1>
-            <p>
-              all who helped inspire, suggest features for and test PRSM, including Pete
-              Barbrook-Johnson, Paul Brand, Brian Castellani, Linda Gessner, Robin Gilbert, Kevin
-              Jahns, Robert MacKay, Kavin Narasimhan, Alex Penn, Bazil Sansom, Helen Wilkinson, and
-              many others.
-            </p>
+          <div class="col-3">
+            <img class="logo" src="../img/cecanlogo.png" alt="CECAN logo" />
+          </div>
+          <div class="col-3">
+            <img class="logo" src="../img/cresslogo.png" alt="CRESS logo" />
+          </div>
+          <div class="col-3">
+            <img class="logo" src="../img/surreylogo.png" alt="University of Surrey logo" />
+          </div>
+          <div class="col-3">
+            <img class="logo" src="../img/ESRClogo.png" alt="ESRC logo" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            Thank you to all who helped inspire, suggest features for and test PRSM, including Pete
+            Barbrook-Johnson, Paul Brand, Brian Castellani, Linda Gessner, Robin Gilbert, Kevin
+            Jahns, Robert MacKay, Kavin Narasimhan, Alex Penn, Bazil Sansom, Helen Wilkinson, and
+            many others.
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="row">
+          <div class="col-12">
             <p>
               PRSM was designed and written by
               <a href="https://en.wikipedia.org/wiki/Nigel_Gilbert" target="_blank" rel="noopener">
                 Nigel Gilbert
               </a>
-              .
+              . To cite PRSM, use:
+              <code>
+                Gilbert, N. (2026). PRSM: The Participatory System Mapper. https://prsm.uk
+              </code>
             </p>
           </div>
         </div>
-      </div>
+      </section>
+      <section>
+        <div class="row">
+          <div class="col-12">
+            <address>
+              <small>
+                Centre for Research in Social Simulation, University of Surrey, Guildford GU2 7XH,
+                UK. email:
+                <a href="mailto:prsm@prsm.uk"><b>prsm@prsm.uk</b></a>
+              </small>
+            </address>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <div class="social-media">
+              <a
+                href="https://www.linkedin.com/groups/8178569/"
+                title="LinkedIn"
+                target="_blank"
+                rel="noopener"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  fill="currentColor"
+                  class="bi bi-linkedin"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"
+                  />
+                </svg>
+              </a>
+              <a
+                href="https://www.facebook.com/PRSMapp"
+                title="Facebook"
+                target="_blank"
+                rel="noopener"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  fill="currentColor"
+                  class="bi bi-facebook"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951"
+                  />
+                </svg>
+              </a>
+              <a
+                href="https://www.instagram.com/officialprsm/"
+                title="Instagram"
+                target="_blank"
+                rel="noopener"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  fill="currentColor"
+                  class="bi bi-instagram"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"
+                  />
+                </svg>
+              </a>
+              <a
+                href="https://twitter.com/OfficialPrsm"
+                title="Twitter"
+                target="_blank"
+                rel="noopener"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  fill="currentColor"
+                  class="bi bi-twitter-x"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"
+                  />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
 
-    <footer id="contact">
-      <hr />
-      <div class="row px-3">
-        <div class="col-sm-4">
-          <h1 class="text-center">PRSM</h1>
-        </div>
-        <div class="col-sm-2">
-          <img class="logo" src="../img/cecanlogo.webp" width="130" alt="CECAN logo" />
-        </div>
-        <div class="col-sm-2">
-          <img class="logo" src="../img/cresslogo.webp" width="130" alt="CRESS logo" />
-        </div>
-        <div class="col-sm-2">
-          <img class="logo" src="../img/Surrey.webp" width="130" alt="University of Surrey logo" />
-        </div>
-        <div class="col-sm-2">
-          <img class="logo" src="../img/ESRC+logo.webp" width="130" alt="ESRC logo" />
-        </div>
-      </div>
-      <div class="row p-3">
-        <div class="col-sm-7 my-auto">
-          <address class="ms-3">
-            <small>
-              Centre for Research in Social Simulation, University of Surrey, Guildford GU2 7XH, UK.
-              <br />
-              email:
-              <a href="mailto:prsm@prsm.uk"><b>prsm@prsm.uk</b></a>
-            </small>
-          </address>
-        </div>
-        <div class="col-sm-5 social-icons">
-          <a
-            class="mx-1"
-            href="https://www.linkedin.com/groups/8178569/"
-            title="LinkedIn"
-            target="_blank"
-            rel="noopener"
-          >
-            <i class="fab fa-linkedin-in"></i>
-          </a>
-          <a
-            class="mx-1"
-            href="https://www.facebook.com/PRSMapp"
-            title="Facebook"
-            target="_blank"
-            rel="noopener"
-          >
-            <i class="fa fa-facebook"></i>
-          </a>
-          <a
-            class="mx-1"
-            href="https://www.instagram.com/officialprsm/"
-            title="Instagram"
-            target="_blank"
-            rel="noopener"
-          >
-            <i class="fab fa-instagram"></i>
-          </a>
-          <a
-            class="mx-1"
-            href="https://github.com/micrology/prsm"
-            title="GitHub"
-            target="_blank"
-            rel="noopener"
-          >
-            <i class="fab fa-github"></i>
-          </a>
-          <a
-            class="mx-1"
-            href="https://twitter.com/OfficialPrsm"
-            title="Twitter"
-            target="_blank"
-            rel="noopener"
-          >
-            <i class="fa fa-twitter"></i>
-          </a>
-        </div>
-      </div>
-    </footer>
     <!-- cookie query -->
-    <div class="cookie-overlay p-4 d-none">
-      <div class="d-flex">
-        <div class="me-3">
-          In order to provide you with the best experience,
-          <br />
-          this website uses cookies. By using our website,
-          <br />
-          you agree to our use of cookies.
-          <a href="./privacy-notice.html" target="_blank" rel="noopener">More Info.</a>
-        </div>
-        <span class="close-cookies"><i class="fas fa-times"></i></span>
+    <div class="cookie-overlay">
+      <div>
+        In order to provide you with the best experience, this website uses cookies. By using our
+        website, you agree to our use of cookies.
+        <a href="./privacy-notice.html" target="_blank" rel="noopener">More Info.</a>
       </div>
-      <button class="btn btn-primary mt-3 accept-cookies">OK</button>
+      <div id="close-cookies">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          fill="currentColor"
+          class="bi bi-x-circle"
+          viewBox="0 0 16 16"
+        >
+          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+          <path
+            d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"
+          />
+        </svg>
+      </div>
+      <button id="accept-cookies">OK</button>
     </div>
-    <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js" type="module"></script>
-    <script>
-      // cookie policy
-      window.addEventListener('load', () => {
-        let cookieOverlay = document.querySelector('.cookie-overlay')
-        if (document.cookie.indexOf('accepted_cookies=') < 0) {
-          cookieOverlay.classList.remove('d-none')
-          cookieOverlay.classList.add('d-block')
-        }
-        let acceptCookies = document.querySelector('.accept-cookies')
-        acceptCookies.addEventListener('click', function () {
-          document.cookie = 'accepted_cookies=yes;'
-          cookieOverlay.classList.remove('d-block')
-          cookieOverlay.classList.add('d-none')
-        })
-        let closeCookies = document.querySelector('.close-cookies')
-        closeCookies.addEventListener('click', function () {
-          cookieOverlay.classList.remove('d-block')
-          cookieOverlay.classList.add('d-none')
-        })
-      })
-    </script>
+
     <div id="mc_embed_shell">
       <div id="mc_embed_signup">
         <form
@@ -583,9 +505,7 @@
           target="_blank"
         >
           <div id="mc_embed_signup_scroll">
-            <span id="closeBtn" class="closeBtn" aria-label="Close" aria-hidden="true">
-              <i class="fas fa-times"></i>
-            </span>
+            <span id="closeBtn" class="closeBtn" aria-hidden="true">X</span>
             <h2>Subscribe to the PRSM Newsletter</h2>
             <p>
               The PRSM newsletter comes out occasionally to announce new features. Your email will
@@ -614,8 +534,6 @@
               <div class="response" id="mce-success-response" style="display: none"></div>
             </div>
             <div aria-hidden="true" style="position: absolute; left: -5000px">
-              /* real people should not fill this in and expect good things - do not remove this or
-              risk form bot sign ups */
               <input
                 type="text"
                 name="b_b58b5b5baefd90ec35d583546_e6838f8c8f"
@@ -630,7 +548,7 @@
                   name="subscribe"
                   id="mc-embedded-subscribe"
                   class="button"
-                  style="background-color: var(--bs-blue)"
+                  style="background-color: var(--brand-color)"
                   value="Subscribe"
                 />
                 <p style="margin: 0px auto">
@@ -666,40 +584,8 @@
           </div>
         </form>
       </div>
-      <script
-        type="text/javascript"
-        src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"
-      ></script>
-      <script type="text/javascript">
-        ;(function ($) {
-          window.fnames = new Array()
-          window.ftypes = new Array()
-          fnames[0] = 'EMAIL'
-          ftypes[0] = 'email'
-          fnames[1] = 'FNAME'
-          ftypes[1] = 'text'
-          fnames[2] = 'LNAME'
-          ftypes[2] = 'text'
-          fnames[3] = 'ADDRESS'
-          ftypes[3] = 'address'
-          fnames[4] = 'PHONE'
-          ftypes[4] = 'phone'
-          fnames[5] = 'BIRTHDAY'
-          ftypes[5] = 'birthday'
-        })(jQuery)
-        var $mcj = jQuery.noConflict(true)
-      </script>
-      <script>
-        // Show popup after 10 seconds
-        setTimeout(() => {
-          document.getElementById('mc_embed_signup').style.visibility = 'visible'
-        }, 10000)
-
-        // Close button event
-        document.getElementById('closeBtn').onclick = function () {
-          document.getElementById('mc_embed_shell').style.display = 'none'
-        }
-      </script>
     </div>
+    <script src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script>
+    <script src="../js/new-index.js" type="module"></script>
   </body>
 </html>
