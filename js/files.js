@@ -300,6 +300,9 @@ function loadPRSMfile(str) {
         n.note = { ops: [{ insert: n.note }] }
       }
       n.label = splitText(n.label)
+      // vis-network cannot handle null coordinates; replace with 0
+      if (n.x == null) n.x = 0
+      if (n.y == null) n.y = 0
     })
     data.nodes.add(json.nodes)
     json.edges.forEach((e) => {

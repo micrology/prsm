@@ -14,6 +14,7 @@ This is the main entry point for PRSM.
 ********************************************************************************************/
 
 import * as Y from 'yjs'
+
 import { WebsocketProvider } from 'y-websocket'
 import { Network } from '../vis-network/peer'
 import { DataSet } from 'vis-data/esnext'
@@ -585,6 +586,8 @@ function startY() {
   window.mergeRoom = mergeRoom
   window.diffRoom = diffRoom
   window.wsProvider = wsProvider
+  window.Y = Y
+  window.doc = doc
 
   /* 
   nodes.on listens for when local nodes or edges are changed (added, updated or removed).
@@ -604,7 +607,12 @@ function startY() {
             if (evt === 'remove') {
               yNodesMap.delete(id.toString())
             } else {
-              yNodesMap.set(id.toString(), deepCopy(nodes.get(id)))
+              const val = deepCopy(nodes.get(id))
+              // vis-network cannot handle null coordinates and will enter a
+              // feedback loop if they are stored in yjs and later synced back
+              if (val.x === null) val.x = 0
+              if (val.y === null) val.y = 0
+              yNodesMap.set(id.toString(), val)
             }
           }
         })
@@ -625,7 +633,7 @@ function startY() {
     for (const key of evt.keysChanged) {
       if (yNodesMap.has(key)) {
         const obj = yNodesMap.get(key)
-        if (objectEquals(obj, { dummy: true })) continue // skip dummy entry
+        if (objectEquals(obj, { dummy: true })) continue // skip dummy entry     
         if (!objectEquals(obj, data.nodes.get(key))) {
           // fix nodes if this is a view only copy
           if (viewOnly) obj.fixed = true
@@ -645,7 +653,9 @@ function startY() {
         nodesToRemove.push(key)
       }
     }
-    if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote')
+    if (nodesToUpdate.length > 0) {
+      nodes.update(nodesToUpdate, 'remote')
+    }
     if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
     if (nodesToUpdate.length > 0 || nodesToRemove.length > 0) {
       // if user is in mid-flight adding a Factor or Link, and someone else has changed data,
@@ -768,10 +778,10 @@ function startY() {
         }
       }
     }
-    if (nodesToUpdate) {
+    if (nodesToUpdate.length > 0 && netLoaded) {
       reApplySampleToNodes(nodesToUpdate)
     }
-    if (edgesToUpdate) {
+    if (edgesToUpdate.length > 0 && netLoaded) {
       reApplySampleToLinks(edgesToUpdate)
     }
     if (nodesToUpdate.length > 0 || edgesToUpdate.length > 0) {

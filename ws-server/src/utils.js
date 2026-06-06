@@ -36,11 +36,9 @@ const log = (msg) => {
 
 const reportMemory = () => {
   const mem = memoryUsage()
-  return (
-    `Total Memory: ${Math.round(mem.rss / 1024 / 1024)} MB; ` /* +
+  return `Total Memory: ${Math.round(mem.rss / 1024 / 1024)} MB; ` /* +
     `Heap: ${Math.round(mem.heapUsed / 1024 / 1024)} MB of ${Math.round(mem.heapTotal / 1024 / 1024)} MB; ` +
-    `External: ${Math.round(mem.external / 1024 / 1024)} MB. ` */
-  ) // C++ objects
+    `External: ${Math.round(mem.external / 1024 / 1024)} MB. ` */ // C++ objects
 }
 
 log(`Initial memory use: ${reportMemory()}`)
@@ -70,12 +68,7 @@ if (typeof persistenceDir === 'string') {
       ) */
       if (updates.length > 0) {
         const merged = updates.length > 1 ? Y.mergeUpdates(updates) : updates[0]
-        /* log(
-          `bindState: merged to ${Math.round(merged.byteLength / 1024 / 1024)} MB ` +
-            `for "${docName}". ${reportMemory()}`
-        ) */
         Y.applyUpdate(ydoc, merged)
-        /* log(`bindState: applied to live doc "${docName}". ${reportMemory()}`) */
       }
 
       // If many updates were stored, flush to a single compacted entry
@@ -400,7 +393,7 @@ const pingTimeout = 30000
  * @param {import('http').IncomingMessage} req
  * @param {any} opts
  */
-export const setupWSConnection = (
+export const setupWSConnection = async (
   conn,
   req,
   { docName = (req.url || '').slice(1).split('?')[0], gc = true } = {}
@@ -450,9 +443,14 @@ export const setupWSConnection = (
   }
   conn.on('pong', pongHandler)
 
-  // put the following in a variables in a block so the interval handlers don't keep in in
-  // scope
+  // Ensure the document is fully loaded from persistence before sending
+  // sync step 1, so the state vector reflects the actual stored data.
+  // Without this, an empty state vector is sent, forcing the client to
+  // re-encode the entire document state in its sync step 2 response.
   {
+    if (doc.whenInitialized) {
+      await doc.whenInitialized
+    }
     // send sync step 1
     const encoder = encoding.createEncoder()
     encoding.writeVarUint(encoder, messageSync)

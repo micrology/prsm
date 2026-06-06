@@ -400,6 +400,8 @@ export function trophic(data) {
     let levels = get_trophic_levels(adj)
     // experimental: round levels to integers within the range 0 .. NLEVELS
     let range = Math.max(...levels) - Math.min(...levels)
+    // if range is zero (i.e. all nodes at same trophic height), line them up at the base level
+    if (range < 0.000001) range = 1
     levels = levels.map((l) => Math.round((l * NLEVELS) / range))
     // rescale x to match original max and min
     range = Math.max(...levels) - Math.min(...levels)
