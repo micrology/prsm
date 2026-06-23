@@ -318,24 +318,36 @@ export async function refreshFromMap(keys) {
           remoteParams provides the location and dimensions of the ActiveSelection, the ids of
           the selected objects, and copies of the selected objects (but these are missing their ids) */
           if (canvas.getActiveObject()) canvas.discardActiveObject()
-          const asLeft = remoteParams.left
-          const asTop = remoteParams.top
-          const asHalfWidth = remoteParams.width / 2
-          const asHalfHeight = remoteParams.height / 2
+          // sanity check: ensure the active selection has valid coordinates
+          if (
+            remoteParams.left &&
+            remoteParams.top &&
+            remoteParams.width &&
+            remoteParams.height &&
+            remoteParams.members &&
+            remoteParams.objects
+          ) {
+            const asLeft = remoteParams.left
+            const asTop = remoteParams.top
+            const asHalfWidth = remoteParams.width / 2
+            const asHalfHeight = remoteParams.height / 2
 
-          // Update each object's coordinates
-          for (const i in remoteParams.members) {
-            // for each selected object, its id
-            const id = remoteParams.members[i]
-            // its current location as a relative position
-            const obj = remoteParams.objects[i]
-            // and the fabric object on the canvas
-            const fabricObj = canvas.getObjects().find((o) => o.id === id)
-            fabricObj.set({
-              left: obj.left + asLeft + asHalfWidth,
-              top: obj.top + asTop + asHalfHeight,
-            })
-            fabricObj.setCoords()
+            // Update each object's coordinates
+            for (const i in remoteParams.members) {
+              // for each selected object, its id
+              const id = remoteParams.members[i]
+              // its current location as a relative position
+              const obj = remoteParams.objects[i]
+              // and the fabric object on the canvas
+              const fabricObj = canvas.getObjects().find((o) => o.id === id)
+              fabricObj.set({
+                left: obj.left + asLeft + asHalfWidth,
+                top: obj.top + asTop + asHalfHeight,
+              })
+              fabricObj.setCoords()
+            }
+          } else {
+            console.error('Invalid ActiveSelection parameters:', remoteParams)
           }
           break
         }
