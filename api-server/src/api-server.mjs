@@ -124,14 +124,14 @@ app.post('/api/chat/:room', chatLimiter, async (req, res) => {
 
 	inFlightChatRequests += 1
 	try {
-		const {message, systemPrompt} = req.body
+		const { message, systemPrompt } = req.body
 		if (!message) {
 			return res.status(400).json({error: 'Message is required'})
 		}
 		// reject excessively long prompts
-		const maxPromptLength = parseInt(process.env.MAX_PROMPT_LENGTH) || 10000
+		const maxPromptLength = parseInt(process.env.MAX_PROMPT_LENGTH) || 30000
 		if (message.length + (systemPrompt?.length || 0) > maxPromptLength) {
-			return res.status(400).json({error: `Message is too long. Please limit to ${maxPromptLength} characters.`})
+			return res.status(400).json(`Message is too long. Please limit to ${maxPromptLength} characters.`)
 		}
 		const conversation = [
 			{
