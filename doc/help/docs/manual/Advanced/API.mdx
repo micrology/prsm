@@ -18,6 +18,10 @@ https://prsm.uk/api/map
 
 All API accesses have to be accompanied by the room ID of the map to be accessed or modified. This map *must already exist*, having previously been created in the PRSM web app.  See [Sharing](/manual/GettingStarted#sharing) for how to find the ID of a map.
 
+## Rate limiting
+
+To prevent malicious use, if calls from an IP address arrive at a rate of more than 20 per second, the excess will be rejected with a message and HTTP status `503`.  It is recommended that API calls are separated by calls to a `sleep` function that pauses the calling program for about 100 milliseconds between API accesses.
+
 ## Returned values
 
 All the API endpoints return a [JSON](https://www.json.org/json-en.html) formatted string.  This will either be the retrieved data, or an error message.  The format of the retrieved data varies according to the endpoint, but the error messages are in a standard format, such as:
@@ -31,6 +35,7 @@ In addition, the response includes a status code:
 - `200` - Success
 - `404` - Not found
 - `500` - Server error
+- `503` - Rate limit exceeded
 
 ## A simple example
 
@@ -252,6 +257,12 @@ What this manual refers to as `style` is called internally, `grp`.  And the name
 
 :::
 
+## Attributes
+
+Arbitrary variables may be attached to both factors and links.  These are called `attributes` and they can be created, viewed and their values edited in the [Data View](/manual/DataView#Managing_the_whole_table).  Attributes have a title (the name that is shown at the top of their column in the Data View) and an internal name of the form `attX`, where `X` is a number, e.g. `att1`.
+
+If there are any attributes defined for a factor or a link, the internal name and the attribute value will be returned when getting the details using the `GET factor` or `GET link` endpoints.  For example, the JSON returned might include `"att1":"female"`.  The JSON returned by the `GET map information` endpoint will include a property, `attributeTitles`, whose value is an object associating each of the internal attribute names with their external titles, e.g. `"attributeTitles":{"att1":"Gender"}`.
+
 ## Endpoints
 
 ### Get map information
@@ -354,6 +365,7 @@ Returns a JSON string of an object with the properties:
   - hover: hover colors (border and background)
 - created: an object with time (timestamp) and user properties
 - modified: an object with time (timestamp) and user properties
+- note: an object in [https://quilljs.com/docs/delta/](Quill Delta) format that describes the Note associated with this factor
 - groupLabel: the label of the group this factor belongs to, if any
 - grp: the group number
 - font: an object with font settings (face, color, size)
@@ -365,6 +377,7 @@ Returns a JSON string of an object with the properties:
 ```json
 {"id":"86db33bf-0b88-45da-a829-7c777d9bf4ba",
 "label":"test label",
+"note":{"ops":[{"insert":"THIS IS A NOTE\n"}]},
 "x":-46,
 "y":-131,
 "grp": "group0",
@@ -451,6 +464,7 @@ The body must include a `spec` object with the factor properties. The only requi
 - borderWidth (default: 0): width of the border
 - color (default: green): color settings object
 - font (default: Oxygen, 14pt, black): font settings object
+- note: (default: balnk): object in [https://quilljs.com/docs/delta/](Quill Delta) format describing a note
 - grp (default: 0): group number
 - shape (default: "box"): the shape of the factor
 - shapeProperties (default: {}): additional shape properties
@@ -522,6 +536,7 @@ Returns a JSON string of an object with the properties:
   - from: arrow at the "from" end (enabled)
 - width: the width of the link line
 - dashes: whether the link is dashed (true/false)
+- note: an object in [https://quilljs.com/docs/delta/](Quill Delta) format that describes the Note associated with this link
 - color: an object containing color settings (color, highlight, hover)
 - created: an object with time (timestamp) and user properties
 - modified: an object with time (timestamp) and user properties
@@ -534,6 +549,7 @@ Returns a JSON string of an object with the properties:
 ```json
 {"id":"860a240b-15d5-4d99-bc69-f1a3d01391c4",
 "label":" ","from":"8d3bf8b9-ff59-45e3-b7d9-86fffd801327",
+"note":{"ops":[{"insert":"THIS IS A NOTE FOR A LINK\n"}]},
 "to":"501086d4-eaba-4ff1-ab8a-35295bd0310f",
 "arrows":{"to":{"enabled":true,"type":"vee"},"middle":{"enabled":false},"from":{"enabled":false}},
 "width":1,
@@ -757,17 +773,14 @@ The following shows what is returned from the default styles for the factor styl
 "size":25,"heightConstraint":false,"widthConstraint":false}}
 ```
 
-## Rate Limiting
-
-To avoid server overload, the endpoints are limited to 60 requests per minute per IP address. If exceeded, the API returns a 503 status with an error message.
-
 ## Example
 
 To show how one might put these endpoints together, the following complete program changes the background of all the factors that are the standard green (in fact, the colour 'rgb(154, 219, 180)') to red ('rgb(255, 0, 0)').  It first obtains a list of all factors, then examines each one to test its background colour, and then if the colour is green, changes it to red.
 
-{/* cspell:disable */}
+{/*cspell:disable*/}
 <LanguageTabs>
  <LanguageTab language="javascript">
+
 ```javascript
 /**
  * Update factor colors in a PRSM map
