@@ -202,7 +202,6 @@ window.addEventListener('load', () => {
   setUpAwareness()
   setUpShareDialog()
   draw()
-  setUpSamplesMap()
 })
 /**
  * Clean up before user departs
@@ -498,6 +497,13 @@ function startY() {
     clearTimeout(noServerTimer)
     // if this is a clone, load the cloned data
     initiateClone()
+    // Initialise ySamplesMap with local defaults only when this is a genuinely new map
+    // (i.e. the server has no style data yet). For existing maps the server values are
+    // already in ySamplesMap after sync; writing defaults here would race against them
+    // via Yjs's CRDT and could permanently overwrite customised style values.
+    if (ySamplesMap.size === 0) {
+      setUpSamplesMap()
+    }
     // (if the room already exists, wait until the map data is loaded before displaying it)
     if (sessionStorage.getItem('newRoom') && sessionStorage.getItem('newRoom') === 'false') {
       displayNetPane(`${exactTime()} all content loaded from ${websocket}`)
@@ -1853,16 +1859,19 @@ function draw() {
   }
 } // end draw()
 /**
- * set up the ySamplesMap with the node and edge styles defined in styles
- * This has to be done after the window has been drawn
+ * set up the ySamplesMap with the node and edge styles defined in styles.
+ * Must only be called for a brand-new map (when ySamplesMap.size === 0 after sync)
+ * so that it never overwrites customised style values already stored on the server.
  */
 function setUpSamplesMap() {
-  for (const k in styles.nodes) {
-    ySamplesMap.set(k, { node: styles.nodes[k] })
-  }
-  for (const k in styles.edges) {
-    ySamplesMap.set(k, { edge: styles.edges[k] })
-  }
+  doc.transact(() => {
+    for (const k in styles.nodes) {
+      ySamplesMap.set(k, { node: styles.nodes[k] })
+    }
+    for (const k in styles.edges) {
+      ySamplesMap.set(k, { edge: styles.edges[k] })
+    }
+  })
 }
 /**
  * draw the background on the given canvas (which will be a magnified version of the net pane)
