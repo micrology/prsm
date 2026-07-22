@@ -296,6 +296,29 @@ export async function refreshFromMap(keys) {
             }
             canvas.remove(existingGroup)
           }
+          // Fix: before building the group, reposition each member to its stored
+          // group-relative position (converted to canvas-absolute).  Without this,
+          // asynchronous font loading can give a Textbox a different height at
+          // reload time (fallback vs. real font metrics), shifting the group's
+          // computed bounding-box centre and displacing the other members (e.g. a
+          // surrounding rectangle) relative to the text.
+          if (remoteParams.objects && remoteParams.members) {
+            const groupLeft = remoteParams.left
+            const groupTop = remoteParams.top
+            const groupHalfWidth = remoteParams.width / 2
+            const groupHalfHeight = remoteParams.height / 2
+            remoteParams.members.forEach((id, i) => {
+              const storedMember = remoteParams.objects[i]
+              const fabricObj = canvas.getObjects().find((o) => o.id === id)
+              if (fabricObj && storedMember) {
+                fabricObj.set({
+                  left: storedMember.left + groupLeft + groupHalfWidth,
+                  top: storedMember.top + groupTop + groupHalfHeight,
+                })
+                fabricObj.setCoords()
+              }
+            })
+          }
           const objectsInGroup = canvas
             .getObjects()
             .filter((obj) => remoteParams.members.includes(obj.id))
