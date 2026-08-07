@@ -11,7 +11,7 @@
  */
 
 import * as Y from 'yjs'
-import { LeveldbPersistence } from './y-leveldb.js'
+import { LeveldbPersistence } from '../src/y-leveldb.js'
 import { Command } from 'commander'
 
 
