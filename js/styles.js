@@ -201,6 +201,9 @@ export function setUpSamples() {
   listen('linkStyleEditDashes', 'input', linkEditSave)
   listen('linkStyleEditArrows', 'change', linkEditSave)
   listen('linkStyleEditSubmit', 'click', linkEditSubmit)
+
+  dragElement(elem('nodeStyleEditorContainer'), elem('nodeStyleEditorHeader'))
+  dragElement(elem('linkStyleEditorContainer'), elem('linkStyleEditorHeader'))
 }
 /**
  * assemble styles by merging the specifics into the default
@@ -390,15 +393,15 @@ function updateNodeEditor(groupId) {
   elem('nodeStyleEditFontSize').value = group.font.size
   if (group.fixed) {
     elem('nodeStyleEditFixed').style.display = 'inline'
-    elem('nodeStyleEditUnfixed').style.display = 'none'
+    elem('nodeStyleEditUnFixed').style.display = 'none'
   } else {
     elem('nodeStyleEditFixed').style.display = 'none'
-    elem('nodeStyleEditUnfixed').style.display = 'inline'
+    elem('nodeStyleEditUnFixed').style.display = 'inline'
   }
   elem('nodeStyleEditFactorSize').value = factorSizeToPercent(group.size)
   progressBar(elem('nodeStyleEditFactorSize'))
 }
-listen('nodeStyleEditLock', 'click', toggleNodeStyleLock)
+listen('editStylePin', 'click', toggleNodeStyleLock)
 
 /**
  * Toggle the lock state of the node style
@@ -407,10 +410,10 @@ function toggleNodeStyleLock() {
   const group = styles.nodes[elem('nodeStyleEditorContainer').groupId]
   if (group.fixed) {
     elem('nodeStyleEditFixed').style.display = 'none'
-    elem('nodeStyleEditUnfixed').style.display = 'inline'
+    elem('nodeStyleEditUnFixed').style.display = 'inline'
   } else {
     elem('nodeStyleEditFixed').style.display = 'inline'
-    elem('nodeStyleEditUnfixed').style.display = 'none'
+    elem('nodeStyleEditUnFixed').style.display = 'none'
   }
   group.fixed = !group.fixed
 }
@@ -480,7 +483,7 @@ function nodeEditorShow() {
   const panelRect = elem('panel').getBoundingClientRect()
   const container = elem('nodeStyleEditorContainer')
   container.style.top = `${panelRect.top}px`
-  container.style.left = `${panelRect.left - 300}px`
+  container.style.left = `${panelRect.left - 320}px`
   container.classList.remove('hideEditor')
 }
 /**
@@ -636,7 +639,7 @@ function linkEditorShow() {
   const panelRect = elem('panel').getBoundingClientRect()
   const container = elem('linkStyleEditorContainer')
   container.style.top = `${panelRect.top}px`
-  container.style.left = `${panelRect.left - 300}px`
+  container.style.left = `${panelRect.left - 320}px`
   container.classList.remove('hideEditor')
 }
 /**

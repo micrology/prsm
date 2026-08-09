@@ -2588,7 +2588,16 @@ function initPopUp(popUpTitle, item, cancelAction, saveAction, callback) {
   elem('popup-cancelButton').onclick = cancelAction.bind(this, item, callback)
   const popupLabel = elem('popup-label')
   popupLabel.style.fontSize = '14px'
-  popupLabel.innerText = item.label === undefined ? '' : item.label
+  // Empty link labels are stored as '\0'; treat those as blank for editing/placeholder
+  const label = !item.label || item.label === '\0' ? '' : item.label
+  if (label) {
+    popupLabel.innerText = label
+  } else {
+    // Keep the node truly empty so the caret still works in contenteditable
+    popupLabel.replaceChildren()
+  }
+  syncPopupLabelPlaceholder(popupLabel)
+  popupLabel.oninput = () => syncPopupLabelPlaceholder(popupLabel)
   popupLabel.focus()
   // Set the cursor to the end
   setEndOfContenteditable(popupLabel)
@@ -2610,6 +2619,20 @@ function initPopUp(popUpTitle, item, cancelAction, saveAction, callback) {
   listen('popup', 'keydown', captureReturn)
 }
 /**
+ * Toggle the contenteditable placeholder for #popup-label.
+ * Browsers often insert <br> or whitespace into empty contenteditables, so :empty is unreliable.
+ * @param {HTMLElement} popupLabel
+ */
+function syncPopupLabelPlaceholder(popupLabel) {
+  const text = popupLabel.innerText
+    // eslint-disable-next-line no-control-regex
+    .replace(/\u0000/g, '')
+    .replace(/\u200B/g, '')
+    .trim()
+  const empty = text.length === 0
+  popupLabel.classList.toggle('is-placeholder', empty && popupLabel.hasAttribute('placeholder'))
+}
+/**
  * Position the editing dialog box so that it is to the left of the item being edited,
  * but not outside the window
  * @param {Object} point
@@ -2629,7 +2652,11 @@ function positionPopUp(point) {
 function clearPopUp() {
   elem('popup-saveButton').onclick = null
   elem('popup-cancelButton').onclick = null
-  elem('popup-label').onkeyup = null
+  const popupLabel = elem('popup-label')
+  popupLabel.onkeyup = null
+  popupLabel.oninput = null
+  popupLabel.removeAttribute('placeholder')
+  popupLabel.classList.remove('is-placeholder')
   if (currentCaptureReturn) {
     elem('popup').removeEventListener('keydown', currentCaptureReturn)
     currentCaptureReturn = null
@@ -2754,7 +2781,7 @@ function editNode(item, point, cancelAction, callback) {
 
 			<div>
 				<select name="nodeEditShape" id="nodeEditShape">
-					<option value="box">Shape...</option>
+					<option value="" selected>Shape...</option>
 					<option value="ellipse">Ellipse</option>
 					<option value="circle">Circle</option>
 					<option value="dot">Dot</option>
@@ -2769,8 +2796,9 @@ function editNode(item, point, cancelAction, callback) {
 				</select>
 			</div>
 			<div>
-				<select name="nodeEditBorder" id="node-borderType">
-					<option value="solid" selected>Solid</option>
+				<select name="nodeEditBorder" id="node-borderType">  
+					<option value="" selected>Border...</option>
+					<option value="solid">Solid</option>
 					<option value="dashed">Dashed</option>
 					<option value="dots">Dotted</option>
 					<option value="none">No border</option>
@@ -2778,7 +2806,7 @@ function editNode(item, point, cancelAction, callback) {
 			</div>
 			<div>
 				<select name="nodeEditFontSize" id="nodeEditFontSize">
-					<option value="14">Size...</option>
+					<option value="" selected>Font Size...</option>
 					<option value="24">Large</option>
 					<option value="14">Normal</option>
 					<option value="10">Small</option>
@@ -2965,6 +2993,7 @@ function editEdge(item, point, cancelAction, callback) {
 		</div>
 		<div>
 			<select name="linkEditWidth" id="linkEditWidth">
+      <option value="" selected>Width...</option>
 				<option value="1">Width: 1</option>
 				<option value="4">Width: 4</option>
 				<option value="8">Width: 8</option>
@@ -2972,7 +3001,7 @@ function editEdge(item, point, cancelAction, callback) {
 		</div>
 		<div>
 			<select name="linkEditArrows" id="linkEditArrows">
-				<option value="vee">Arrows...</option>
+				<option value="" selected>Arrows...</option>
 				<option value="vee">Sharp</option>
 				<option value="arrow">Triangle</option>
 				<option value="bar">Bar</option>
@@ -2984,15 +3013,17 @@ function editEdge(item, point, cancelAction, callback) {
 		</div>
 		<div>
 			<select name="linkEditDashes" id="linkEditDashes">
-				<option value="solid" selected>Solid line</option>
+      <option value="" selected>Line style...</option>
+				<option value="solid">Solid line</option>
 				<option value="dashedLinks">Dashed line</option>
 				<option value="dots">Dotted line</option>
 			</select>
 		</div>
 		<div>
 			<select id="linkEditFontSize">
+      <option value="" selected>Font size...</option>
 				<option value="24">Large font</option>
-				<option value="14" selected>Normal font</option>
+				<option value="14">Normal font</option>
 				<option value="10">Small font</option>
 			</select>
 		</div>
@@ -3000,6 +3031,9 @@ function editEdge(item, point, cancelAction, callback) {
 `
   )
   elem('popup').style.borderColor = item.color.color
+  const popupLabel = elem('popup-label')
+  popupLabel.setAttribute('placeholder', 'Link label...')
+  syncPopupLabelPlaceholder(popupLabel)
   elem('linkEditWidth').value = parseInt(item.width)
   cp.createColorPicker('linkEditLineColor')
   elem('linkEditLineColor').style.backgroundColor = standardizeColor(item.color.color)
