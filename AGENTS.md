@@ -11,6 +11,17 @@
 - HTML5, modern CSS (Flexbox/Grid), ES2021+ JavaScript
 - No frameworks—vanilla JS
 
+## Browser Support
+
+Target the `browserslist` in `package.json`:
+
+- last 2 Chrome versions
+- last 2 Firefox versions
+- last 2 Safari versions
+- last 2 Edge versions
+
+When applying modern-web-guidance, assume those browsers and prefer native platform features over polyfills.
+
 ## 🎨 Coding Conventions
 
 - Format JS with: `prettier --write .`
