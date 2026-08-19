@@ -3466,6 +3466,7 @@ function plusNode() {
 function ghostCursor() {
   // no ghost cursor if the hardware only supports touch
   if (!window.matchMedia('(any-hover: hover)').matches) return
+  document.body.classList.add('adding-factor')
   const box = document.createElement('div')
   box.classList.add('ghost-factor', 'factor-cursor')
   box.innerText = 'Click on the map to add a factor'
@@ -3500,6 +3501,7 @@ function ghostCursor() {
  * remove the factor cursor if it exists
  */
 function removeFactorCursor() {
+  document.body.classList.remove('adding-factor')
   const factorCursor = elem('factor-cursor')
   if (factorCursor) {
     factorCursor.remove()
