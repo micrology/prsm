@@ -98,6 +98,7 @@ import {
 } from './background.js'
 import { createRoomMenus, showProjectsMenu } from './projects.js'
 import { getAIresponse } from './ai.js'
+import {openAIAsstDialog} from './aiasst.js'
 import { version, features } from '../package.json'
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
 import QRCode from 'qrcode'
@@ -201,6 +202,7 @@ window.addEventListener('load', () => {
   setUpUserName()
   setUpAwareness()
   setUpShareDialog()
+  openAIAsstDialog()
   draw()
 })
 /**

@@ -1142,13 +1142,51 @@
         <div class="history-log" id="history-log"></div>
       </div>
     </div>
-    <!-- AI Assistant launcher -->
-    <div id="ai-assistant-launcher" class="ai-assistant-container">
-      <button class="ai-assistant-fab-btn" aria-label="Open AI assistant">
-        <span class="ai-assistant-icon">✨</span>
-      </button>
-      <div class="ai-assistant-bubble">Ask PRSM's AI assistant...</div>
+    <div class="ai-assistant-container">
+      <!-- AI Assistant launcher -->
+      <div id="ai-assistant-launcher">
+        <button id="toggle-chat-btn" class="ai-assistant-fab-btn" aria-label="Open AI assistant">
+          <span class="ai-assistant-icon">✨</span>
+        </button>
+        <div class="ai-assistant-bubble">Ask PRSM's AI assistant...</div>
+      </div>
+
+      <!-- The Floating AI Assistant Dialog Window -->
+      <div id="chat-dialog" class="chat-widget hidden">
+        <!-- Header Area -->
+        <div class="chat-header">
+          <div class="chat-title">
+            <span class="status-dot"></span>
+            <strong>PRSM Assistant</strong>
+          </div>
+          <button id="close-chat-btn" class="close-btn" aria-label="Close Chat">✕</button>
+        </div>
+
+        <!-- Scrollable Message Body -->
+        <div class="chat-body">
+          <!-- Example Bot Text (Approx. 75 words illustrated, scrolls easily up to 200+) -->
+          <div class="message message-bot">
+            <p>Hello! I can help you analyze your system map. To track causal loops, draw a connection between your
+              primary factor nodes, then click the connection line to assign a weight polarity (+ or -).</p>
+            <p>If you want to isolate a specific cluster, just type <em>"highlight central nodes"</em> and I can execute
+              that visualization layout directly on your canvas canvas for you!</p>
+          </div>
+
+          <!-- Suggestion Prompt Chips -->
+          <div class="prompt-chips">
+            <button class="chip-btn">How to link nodes?</button>
+            <button class="chip-btn">Analyze my loops</button>
+          </div>
+        </div>
+
+        <!-- Input Footer Area -->
+        <div class="chat-footer">
+          <input type="text" placeholder="Ask a question about PRSM..." aria-label="Message Input">
+          <button class="send-btn" aria-label="Send Message">➔</button>
+        </div>
+      </div>
     </div>
+
   </div>
   <!-- /container -->
   <!-- merge dialog	-->

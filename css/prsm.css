@@ -2235,7 +2235,166 @@ body.adding-factor .ai-assistant-container {
 	visibility: visible;
 	transform: translateY(0);
 }
+/* 2. Floating Dialog Layout Container */
+.chat-widget {
+  width: 360px;
+  height: 500px;
+  z-index: 240;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e1e8ed;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease;
+  transform-origin: bottom right;
+}
 
+/* Utility State to manage transitions gracefully */
+.chat-widget.hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.8) translateY(20px);
+  pointer-events: none;
+}
+
+/* 3. Header Styling */
+.chat-header {
+  background: #1a1a1a;
+  color: #ffffff;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.chat-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+}
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #2ecc71;
+  border-radius: 50%;
+  display: inline-block;
+}
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.close-btn:hover {
+  color: #fff;
+}
+
+/* 4. Scrollable Chat Message Canvas */
+.chat-body {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Scrollbar Customization for smaller spaces */
+.chat-body::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+/* 5. Typography Layout for 200-word responses */
+.message {
+  max-width: 85%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5; /* Essential line formatting */
+}
+.message p {
+  margin: 0 0 10px 0;
+}
+.message p:last-child {
+  margin-bottom: 0;
+}
+.message-bot {
+  background: #ffffff;
+  color: #2d3748;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  border: 1px solid #edf2f7;
+}
+
+/* Prompt Chips UI */
+.prompt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.chip-btn {
+  background: #edf2f7;
+  border: 1px solid #e2e8f0;
+  color: #4a5568;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.chip-btn:hover {
+  background: #e2e8f0;
+  color: #1a202c;
+}
+
+/* 6. Footer Input Row styling */
+.chat-footer {
+  padding: 12px;
+  background: #ffffff;
+  border-top: 1px solid #edf2f7;
+  display: flex;
+  gap: 8px;
+}
+.chat-footer input {
+  flex: 1;
+  border: 1px solid #cbd5e1;
+  padding: 10px 14px;
+  border-radius: 24px;
+  font-size: 14px;
+  outline: none;
+}
+.chat-footer input:focus {
+  border-color: #007bff;
+}
+.send-btn {
+  width: 38px;
+  height: 38px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Hide the hover tooltip completely if the open widget is visible */
+.chat-widget:not(.hidden) ~ .chat-prompt-bubble {
+  display: none !important;
+}
 
 /* 3d graph display */
 .threeDGraph {
