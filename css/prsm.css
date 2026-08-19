@@ -2236,7 +2236,7 @@ body.adding-factor .ai-assistant-container {
 	transform: translateY(0);
 }
 /* 2. Floating Dialog Layout Container */
-.chat-widget {
+.aiassistant-widget {
   width: 360px;
   height: 500px;
   z-index: 240;
@@ -2253,7 +2253,7 @@ body.adding-factor .ai-assistant-container {
 }
 
 /* Utility State to manage transitions gracefully */
-.chat-widget.hidden {
+.aiassistant-widget.hidden {
   opacity: 0;
   visibility: hidden;
   transform: scale(0.8) translateY(20px);
@@ -2261,15 +2261,15 @@ body.adding-factor .ai-assistant-container {
 }
 
 /* 3. Header Styling */
-.chat-header {
-  background: #1a1a1a;
+.aiassistant-header {
+  background: var(--primary-color);
   color: #ffffff;
-  padding: 14px 16px;
+  padding: 4px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.chat-title {
+.aiassistant-title {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2282,7 +2282,7 @@ body.adding-factor .ai-assistant-container {
   border-radius: 50%;
   display: inline-block;
 }
-.close-btn {
+.aiassistant-close-btn {
   background: transparent;
   border: none;
   color: #888;
@@ -2290,12 +2290,12 @@ body.adding-factor .ai-assistant-container {
   cursor: pointer;
   transition: color 0.2s;
 }
-.close-btn:hover {
+.aiassistant-close-btn:hover {
   color: #fff;
 }
 
 /* 4. Scrollable Chat Message Canvas */
-.chat-body {
+.aiassistant-body {
   flex: 1;
   padding: 16px;
   overflow-y: auto;
@@ -2306,10 +2306,10 @@ body.adding-factor .ai-assistant-container {
 }
 
 /* Scrollbar Customization for smaller spaces */
-.chat-body::-webkit-scrollbar {
+.aiassistant-body::-webkit-scrollbar {
   width: 6px;
 }
-.chat-body::-webkit-scrollbar-thumb {
+.aiassistant-body::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 3px;
 }
@@ -2360,14 +2360,14 @@ body.adding-factor .ai-assistant-container {
 }
 
 /* 6. Footer Input Row styling */
-.chat-footer {
+.aiassistant-footer {
   padding: 12px;
   background: #ffffff;
   border-top: 1px solid #edf2f7;
   display: flex;
   gap: 8px;
 }
-.chat-footer input {
+.aiassistant-footer input {
   flex: 1;
   border: 1px solid #cbd5e1;
   padding: 10px 14px;
@@ -2375,13 +2375,13 @@ body.adding-factor .ai-assistant-container {
   font-size: 14px;
   outline: none;
 }
-.chat-footer input:focus {
-  border-color: #007bff;
+.aiassistant-footer input:focus {
+  border-color: var(--primary-color);
 }
-.send-btn {
+.aiassistant-send-btn {
   width: 38px;
   height: 38px;
-  background: #007bff;
+  background: var(--primary-color);
   color: white;
   border: none;
   border-radius: 50%;
@@ -2392,7 +2392,7 @@ body.adding-factor .ai-assistant-container {
   justify-content: center;
 }
 /* Hide the hover tooltip completely if the open widget is visible */
-.chat-widget:not(.hidden) ~ .chat-prompt-bubble {
+.aiassistant-widget:not(.hidden) ~ .aiassistant-prompt-bubble {
   display: none !important;
 }
 
