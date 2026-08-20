@@ -2336,7 +2336,48 @@ body.adding-factor .ai-assistant-container {
   box-shadow: 0 2px 4px rgba(0,0,0,0.04);
   border: 1px solid #edf2f7;
 }
-
+/* Styles for Markdown content */
+.message {
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+.message.user-message {
+  color: white;
+  background-color: var(--primary-color);
+  padding: 0.75rem;
+}
+.message.user-message::first-letter {
+  text-transform: uppercase;
+}
+.message.ai-message {
+  color: #333;
+}
+.message.source-link {
+  display: block;
+  font-size: 0.85em;
+  color: #1a73e8;
+  text-decoration: none;
+  margin-top: 5px;
+}
+.message.source-header {
+  font-weight: bold;
+  margin-top: 10px;
+  font-size: 0.9em;
+}
+#processing-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px 20px;
+  border: 1px solid var(--primary-color);
+  border-radius: 20px;
+  color: var(--primary-color);
+  font-weight: bold;
+  z-index: 1001; /* High value to float above chat-messages */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
 /* Prompt Chips UI */
 .prompt-chips {
   display: flex;

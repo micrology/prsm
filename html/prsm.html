@@ -1159,30 +1159,36 @@
             <span class="status-dot"></span>
             <strong>PRSM Assistant</strong>
           </div>
-          <button id="close-aiassistant-btn" class="aiassistant-close-btn interactiveButton" aria-label="Close Chat">✕</button>
+          <button id="close-aiassistant-btn" class="aiassistant-close-btn interactiveButton"
+            aria-label="Close Chat">✕</button>
         </div>
 
         <!-- Scrollable Message Body -->
-        <div class="aiassistant-body">
+        <div id="aiassistant-messages" class="aiassistant-body">
           <!-- Example Bot Text (Approx. 75 words illustrated, scrolls easily up to 200+) -->
           <div class="message message-bot">
-            <p>Hello! I can help you analyze your system map. To track causal loops, draw a connection between your
-              primary factor nodes, then click the connection line to assign a weight polarity (+ or -).</p>
-            <p>If you want to isolate a specific cluster, just type <em>"highlight central nodes"</em> and I can execute
-              that visualization layout directly on your canvas canvas for you!</p>
+            <p>The PRSM Assistant is an AI-powered chatbot designed to help you navigate and 
+              use the features of the Participatory System Mapper (PRSM). Whether you're new to 
+              PRSM or looking for advanced tips, the assistant can provide guidance on how to 
+              create maps, use specific tools, and make the most of the app. For example:</p>
           </div>
 
           <!-- Suggestion Prompt Chips -->
           <div class="prompt-chips">
-            <button class="chip-btn">How to link nodes?</button>
-            <button class="chip-btn">Analyze my loops</button>
+            <button class="chip-btn">How do I draw a link between two factors?</button>
+            <button class="chip-btn">Can I use PRSM for a stakeholder map?</button>
+            <button class="chip-btn">Can I export to Excel?</button>
+            <button class="chip-btn">Give me some tips about running a PSM workshop.</button>
           </div>
         </div>
-
+        <div id="processing-overlay" aria-busy="true" style="display: none">
+          Processing...
+        </div>
         <!-- Input Footer Area -->
         <div class="aiassistant-footer">
-          <input type="text" placeholder="Ask a question about PRSM..." aria-label="Message Input">
-          <button class="aiassistant-send-btn" aria-label="Send Message">➔</button>
+          <input type="text" id="aiassistant-user-input" placeholder="Ask a question about PRSM..."
+            aria-label="Message Input">
+          <button id="aiassistant-send-btn" class="aiassistant-send-btn" aria-label="Send Message">➔</button>
         </div>
       </div>
     </div>
