@@ -2337,10 +2337,7 @@ body.adding-factor .ai-assistant-container {
   border: 1px solid #edf2f7;
 }
 /* Styles for Markdown content */
-.message {
-  margin-bottom: 15px;
-  line-height: 1.5;
-}
+
 .message.user-message {
   color: white;
   background-color: var(--primary-color);

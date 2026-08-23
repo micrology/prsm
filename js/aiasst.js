@@ -9,7 +9,7 @@ export function openAIAsstDialog() {
 	const sendBtn = elem("aiassistant-send-btn")
 	const userInput = elem("aiassistant-user-input")
 	const messagesDiv = elem("aiassistant-messages")
-const overlay = document.getElementById('processing-overlay')
+	const overlay = document.getElementById("processing-overlay")
 
 	dragElement(elem("ai-assistant-container"), elem("aiassistant-header"))
 
@@ -34,12 +34,6 @@ const overlay = document.getElementById('processing-overlay')
 		})
 	})
 
-	/* const overlay = document.getElementById('processing-overlay')
-  const sendBtn = document.getElementById('send-btn')
-  const copyChat = document.getElementById('copy-chat')
-  const newChat = document.getElementById('new-chat')
-  const userInput = document.getElementById('user-input')
-  const messagesDiv = document.getElementById('chat-messages') */
 	let chatHistory = []
 
 	// configure image path for markdown-rendered images (e.g. from help assistant)
@@ -54,9 +48,13 @@ const overlay = document.getElementById('processing-overlay')
 		const message = prompt || userInput.value.trim()
 		if (!message) return
 
+		if (chatHistory.length === 0) {
+			// remove the initial explanation and chips
+			messagesDiv.innerHTML = ""
+		}
 		// Add User Message to UI and chat history
 		chatHistory.push({ role: "user", content: [{ text: message }] })
-		appendMessage("user", message)
+		const userMsgEl = appendMessage("user", message)
 		userInput.value = ""
 		overlay.style.display = "block"
 
@@ -82,8 +80,31 @@ const overlay = document.getElementById('processing-overlay')
 			overlay.style.display = "none"
 			appendMessage("ai", `**Error:** ${err.message}`)
 		}
+		scrollUserMessageNearTop(userMsgEl)
 	}
 
+	/**
+	 * Scroll the chat so the given user message sits near the top of the
+	 * viewport, leaving a few pixels of the previous answer visible above it.
+	 * @param {HTMLElement} userMsgEl
+	 */
+	function scrollUserMessageNearTop(userMsgEl) {
+		const PREVIOUS_PEEK_PX = 36
+		const msgTop =
+			userMsgEl.getBoundingClientRect().top -
+			messagesDiv.getBoundingClientRect().top +
+			messagesDiv.scrollTop
+		const top = Math.max(0, msgTop - PREVIOUS_PEEK_PX)
+		messagesDiv.scrollTo({ top, behavior: "smooth" })
+	}
+
+	/**
+	 * Append a chat bubble and return the created element.
+	 * @param {string} sender
+	 * @param {string} text
+	 * @param {Array<{name: string, url?: string}>} [sources]
+	 * @returns {HTMLElement}
+	 */
 	function appendMessage(sender, text, sources = []) {
 		const msgDiv = document.createElement("div")
 		msgDiv.className = `message ${sender}-message`
@@ -123,23 +144,7 @@ const overlay = document.getElementById('processing-overlay')
 		const ALLOWED_ATTR = ["href", "src", "alt", "title", "class", "target"]
 		msgDiv.innerHTML = DOMPurify.sanitize(htmlContent, { ALLOWED_ATTR })
 
-		// Remove any previous spacer
-		const oldSpacer = messagesDiv.querySelector(".chat-spacer")
-		if (oldSpacer) oldSpacer.remove()
-
 		messagesDiv.appendChild(msgDiv)
-
-		if (sender === "user") {
-			// Add a spacer so there is always enough overflow to scroll
-			// the user message to the very top of the visible area
-			const spacer = document.createElement("div")
-			spacer.className = "chat-spacer"
-			spacer.style.height = messagesDiv.clientHeight + "px"
-			messagesDiv.appendChild(spacer)
-
-			const pageY = window.scrollY
-			msgDiv.scrollIntoView({ block: "start" })
-			window.scrollTo(0, pageY)
-		}
+		return msgDiv
 	}
 }
