@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "generate-meta": "node scripts/generate-meta.mjs",
-    "dev": "npm run generate-meta && rspress dev",
+    "dev": "npm run generate-meta && rspress build",
     "build": "npm run generate-meta && rspress build && scripts/venv/bin/python scripts/metadataForS3bucket.py",
     "preview": "rspress preview"
   },
@@ -14,7 +14,7 @@
     "rspress-language-tabs": "^1.1.0"
   },
   "devDependencies": {
-    "@types/node": "^22"
+    "@types/node": "^22.0.0"
   },
   "engines": {
     "node": ">=20.9.0"
