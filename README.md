@@ -56,14 +56,23 @@ The javascript (ES6) code in sub-directory ```js``` is divided into modules:
 * `cluster.js` clusters factors
 * `table.js` provides the data view
 * `trophic.js` does the trophic layout algorithm
-* `betweenness.js` is a web worker that cacilates network statistics in the background
+* `betweenness.js` is a web worker that calculates network statistics in the background
 * `tutorial.js` manages the initial tour
+* `projects.js` handles the dropdown menu of recent maps and projects
 * `utils.js` includes utility functions common to several modules
 * `merge.js` provides undocumented functions to merge two maps into one
+* `ai.js` calls the API on the server to provide AI generated descriptions of factors, links and maps
+* `aiassist.js` provides the AI Help Assistant front end for PRSM
 
 The HTML files that display in the browser are in the ```html``` directory.
 
-PRSM uses two important packages: [```yjs```](https://github.com/yjs/yjs) and [```vis-network```](https://visjs.org/).  The former handles the sharing between participants' browsers and the latter draws the network. A few other packages are used for dealing with touch input ([```Hammer```](https://hammerjs.github.io/)), drawing emojis, and parsing XML file input.  
+The `api-server` sub-directory contains code that runs as a service on a server and offers an API to read and modify maps, and also a bridge to LLMs provided by AWS Bedrock.
+
+The `doc` sub-directory provides a few example maps used as case studies in the documentation (`doc/examples`), the user guide (`doc/help`) and a JSDoc function dictionary (in `doc/jsdoc`).
+
+The `vis-network` sub-directory is a modified version of [```vis-network```](https://visjs.org/), adapted for PRSM (in particular to permit user-bendable edges (links) in maps, and with code that is redundant for PRSM removed).
+
+PRSM uses two important packages: [```yjs```](https://github.com/yjs/yjs) and [```vis-network```](https://visjs.org/).  The former handles the sharing between participants' browsers and the latter draws the network. A few other packages are used for dealing with touch input ([```Hammer```](https://hammerjs.github.io/)), editing text ([```Quill```](https://quilljs.com/)), and parsing XML file input.  
 
 These components are assembled using [```parcel```](https://parceljs.org/) and the bundled files are placed in the ```dist``` directory.  So that users have an easy URL to access (i.e. not needing to include ```dist``` in the link), there is an ```.htaccess``` file that rewrites URLs from what the user puts into their browser to the correct location.
 
@@ -79,7 +88,7 @@ and build the distribution with
 npm run build
 ```
 
-The Apache2 `headers` module must be enabled. If the installation isn't visible in your browser this is likely the cause.
+If you are using Apache to serve the code, the Apache2 `headers` module must be enabled. If the installation isn't visible in your browser this is likely to be the cause.
 Enabling the module is simple on Debian/Ubuntu systems:
 
 ```bash

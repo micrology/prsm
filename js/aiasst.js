@@ -1,4 +1,24 @@
-import { elem, dragElement } from './utils.js'
+/********************************************************************************************* 
+
+PRSM Participatory System Mapper 
+
+MIT License
+
+Copyright (c) [2022] Nigel Gilbert email: prsm@prsm.uk
+
+This software is licenced under the PolyForm Noncommercial License 1.0.0
+
+<https://polyformproject.org/licenses/noncommercial/1.0.0>
+
+See the file LICENSE.md for details.
+
+This module provides the AI Help Assistant front end for PRSM
+********************************************************************************************/
+
+import {
+  elem,
+  dragElement,
+} from './utils.js'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 
