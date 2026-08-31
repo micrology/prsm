@@ -17,26 +17,26 @@ import { elem, clean, uuidv4, getCSSVariable, alertMsg, statusMsg } from './util
 import { data, room } from './prsm.js'
 import { saveAs } from 'file-saver'
 
-/** @type {HTMLElement} The top-level rooms/maps/projects dropdown panel. */
+/** The top-level rooms/maps/projects dropdown panel. @type {HTMLElement} */
 const mainMenu = elem('rooms-menu')
-/** @type {HTMLElement} The flyout panel listing saved projects. */
+/** The flyout panel listing saved projects. @type {HTMLElement} */
 const projectsMenu = elem('projects-menu')
-/** @type {HTMLElement} The flyout panel listing maps within a project. */
+/** The flyout panel listing maps within a project. @type {HTMLElement} */
 const projectMapsMenu = elem('project-maps-menu')
-/** @type {HTMLElement} The scrollable container inside the main menu. */
+/** The scrollable container inside the main menu. @type {HTMLElement} */
 const scrollBox = elem('rm-scroll-box')
-/** @type {HTMLElement} The modal overlay used when creating a new project. */
+/** The modal overlay used when creating a new project. @type {HTMLElement} */
 const modalOverlay = elem('rm-modal-overlay')
-/** @type {HTMLInputElement} The text input element for the new-project name. */
+/** The text input element for the new-project name. @type {HTMLInputElement} */
 const projectNameInput = elem('projectNameInput')
 
-/** @type {Object.<string, Object>} Map of project UIDs to project data objects. */
+/** Map of project UIDs to project data objects. @type {Object.<string, Object>} */
 let projects = {}
-/** @type {Object.<string, string>} Map of room identifiers to map display titles. */
+/** Map of room identifiers to map display titles. @type {Object.<string, string>} */
 let maps = {}
-/** @type {string|null} UID of the currently highlighted/active project, or null. */
+/** UID of the currently highlighted/active project, or null. @type {string|null} */
 let activeProject = null
-/** @type {ReturnType<typeof setTimeout>} Timer used to delay closing the menus on mouse-leave. */
+/** Timer used to delay closing the menus on mouse-leave. @type {number|undefined} */
 let closeTimer
 
 /** Maximum number of recent map entries retained in localStorage. */
@@ -187,8 +187,9 @@ function storeMapRoom(room, title) {
   if (maps[room] === title) return
   if (
     Object.values(maps).includes(title.replace(/\w*(\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2}:\d{2})/g, ''))
-  )
+  ) {
     title += ` (${new Date().toLocaleString()})`
+  }
   maps[room] = title
 }
 /**

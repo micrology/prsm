@@ -103,18 +103,18 @@ document.addEventListener('DOMContentLoaded', () => {
       window.scrollTo(0, pageY)
     }
   }
-// Event listeners
+  // Event listeners
   sendBtn.addEventListener('click', () => sendMessage())
   userInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendMessage()
   })
-  
+
   copyChat.addEventListener('click', () => copyChatWindowToClipboard())
-  
-   newChat.addEventListener('click', () => {
-     chatHistory = []
-     messagesDiv.innerHTML = ''
-   })
+
+  newChat.addEventListener('click', () => {
+    chatHistory = []
+    messagesDiv.innerHTML = ''
+  })
 
   // Select all the suggestion buttons and add the listener
   document.querySelectorAll('.chat-suggestion').forEach((button) => {
@@ -144,8 +144,18 @@ document.addEventListener('DOMContentLoaded', () => {
   function copyChatWindowToClipboard() {
     const chatContent = messagesDiv.innerText
     navigator.clipboard.writeText(chatContent).then(
-      () => window.ot.toast('Chat copied to clipboard', '', {variant: 'success', duration: 3000, placement: 'top-center'}),
-      (err) => window.ot.toast(`Failed to copy chat: ${err}`, '', {variant: 'error', duration: 5000, placement: 'top-center'})
+      () =>
+        window.ot.toast('Chat copied to clipboard', '', {
+          variant: 'success',
+          duration: 3000,
+          placement: 'top-center',
+        }),
+      (err) =>
+        window.ot.toast(`Failed to copy chat: ${err}`, '', {
+          variant: 'error',
+          duration: 5000,
+          placement: 'top-center',
+        })
     )
   }
 

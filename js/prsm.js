@@ -98,7 +98,7 @@ import {
 } from './background.js'
 import { createRoomMenus, showProjectsMenu } from './projects.js'
 import { getAIresponse } from './ai.js'
-import {openAIAsstDialog} from './aiasst.js'
+import { openAIAsstDialog } from './aiasst.js'
 import { version, features } from '../package.json'
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
 import QRCode from 'qrcode'
@@ -641,7 +641,7 @@ function startY() {
     for (const key of evt.keysChanged) {
       if (yNodesMap.has(key)) {
         const obj = yNodesMap.get(key)
-        if (objectEquals(obj, { dummy: true })) continue // skip dummy entry     
+        if (objectEquals(obj, { dummy: true })) continue // skip dummy entry
         if (!objectEquals(obj, data.nodes.get(key))) {
           // fix nodes if this is a view only copy
           if (viewOnly) obj.fixed = true
@@ -2622,7 +2622,7 @@ function initPopUp(popUpTitle, item, cancelAction, saveAction, callback) {
 }
 /**
  * Toggle the contenteditable placeholder for #popup-label.
- * Browsers often insert <br> or whitespace into empty contenteditables, so :empty is unreliable.
+ * Browsers often insert <br> or whitespace into empty contenteditable DIVs, so :empty is unreliable.
  * @param {HTMLElement} popupLabel
  */
 function syncPopupLabelPlaceholder(popupLabel) {

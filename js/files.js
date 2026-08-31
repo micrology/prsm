@@ -349,7 +349,7 @@ function loadPRSMfile(str) {
   }
   if (json.background) {
     setUpBackground()
-    // old versios used to double stringify the background, so check for that
+    // old versions used to double stringify the background, so check for that
     const map = typeof json.background === 'string' ? JSON.parse(json.background) : json.background
     for (const [key, value] of Object.entries(map)) {
       yDrawingMap.set(key, value)

@@ -4,7 +4,7 @@
   "dictionaries": ["en_GB", "custom-dictionary"],
   "enabled": true,
   "ignorePaths": ["node_modules", "dist", "build", "/\\.*"],
-  "words": ["PRSM"],
+  "words": ["CRDT", "PRSM"],
   "patterns": [
     {
       "name": "jsDocParamName",

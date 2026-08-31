@@ -101,7 +101,7 @@ export function openAIAsstDialog() {
    * Append a chat bubble and return the created element.
    * @param {string} sender
    * @param {string} text
-   * @param {Array<{name: string, url?: string}>} [sources]
+   * @param {Array.<{name: string, url: (string|undefined)}>} [sources]
    * @returns {HTMLElement}
    */
   function appendMessage(sender, text, sources = []) {

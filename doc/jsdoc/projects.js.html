@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>styles.js - Documentation</title>
+    <title>projects.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -417,868 +417,489 @@
     </nav>
 
     <div id="main">
-      <h1 class="page-title">styles.js</h1>
+      <h1 class="page-title">projects.js</h1>
 
       <section>
         <article>
           <pre
             class="prettyprint source linenums"
-          ><code>/*********************************************************************************************************************  
+          ><code>/********************************************************************************************* 
 
 PRSM Participatory System Mapper 
 
-  Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+Copyright (c) [2022] Nigel Gilbert email: prsm@prsm.uk
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+This software is licenced under the PolyForm Noncommercial License 1.0.0
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+&lt;https://polyformproject.org/licenses/noncommercial/1.0.0>
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see &lt;https://www.gnu.org/licenses/>.
+See the file LICENSE.md for details.
 
+This code handles the dropdown menu of recent maps and projects.  
+********************************************************************************************/
 
-This module handles operations related to the Styles tabs.  
- ******************************************************************************************************************** */
+import { elem, clean, uuidv4, getCSSVariable, alertMsg, statusMsg } from './utils.js'
+import { data, room } from './prsm.js'
+import { saveAs } from 'file-saver'
 
-import { Network } from '../vis-network/peer'
-import { DataSet } from 'vis-data/esnext'
-import {
-  listen,
-  elem,
-  deepMerge,
-  deepCopy,
-  standardizeColor,
-  setNodeHidden,
-  setEdgeHidden,
-  dragElement,
-  addContextMenu,
-  statusMsg,
-  alertMsg,
-  clearStatusBar,
-  getTextWidth,
-  factorSizeToPercent,
-  setFactorSizeFromPercent,
-  convertDashes,
-  getDashes,
-} from './utils.js'
-import {
-  network,
-  data,
-  ySamplesMap,
-  yNetMap,
-  selectFactors,
-  selectLinks,
-  updateLastSamples,
-  cp,
-  logHistory,
-  progressBar,
-} from './prsm.js'
-import { styles } from './samples.js'
+/** The top-level rooms/maps/projects dropdown panel. @type {HTMLElement} */
+const mainMenu = elem('rooms-menu')
+/** The flyout panel listing saved projects. @type {HTMLElement} */
+const projectsMenu = elem('projects-menu')
+/** The flyout panel listing maps within a project. @type {HTMLElement} */
+const projectMapsMenu = elem('project-maps-menu')
+/** The scrollable container inside the main menu. @type {HTMLElement} */
+const scrollBox = elem('rm-scroll-box')
+/** The modal overlay used when creating a new project. @type {HTMLElement} */
+const modalOverlay = elem('rm-modal-overlay')
+/** The text input element for the new-project name. @type {HTMLInputElement} */
+const projectNameInput = elem('projectNameInput')
+
+/** Map of project UIDs to project data objects. @type {Object.&lt;string, Object>} */
+let projects = {}
+/** Map of room identifiers to map display titles. @type {Object.&lt;string, string>} */
+let maps = {}
+/** UID of the currently highlighted/active project, or null. @type {string|null} */
+let activeProject = null
+/** Timer used to delay closing the menus on mouse-leave. @type {number|undefined} */
+let closeTimer
+
+/** Maximum number of recent map entries retained in localStorage. */
+const TITLELISTLEN = 50
 
 /**
- * The samples are each a mini vis-network showing just one node or two nodes and a link
+ * Initialises the recent maps and projects menus from localStorage,
+ * stores the current room if the map has a title, trims the list to the
+ * most recent {@link TITLELISTLEN} entries, and re-renders both menus.
+ * @param {string} title - The title of the currently open map.
  */
-export function setUpSamples() {
-  // expand the styles object to include the default values
-  expandStylesObject()
-  // Get all elements with class='sampleNode' and add listener and canvas
-  const emptyDataSet = new DataSet([])
-  let sampleElements = document.getElementsByClassName('sampleNode')
-  for (let i = 0; i &lt; sampleElements.length; i++) {
-    const groupId = `group${i}`
-    const sampleElement = sampleElements[i]
-    const sampleOptions = styles.nodes[groupId]
-    const groupLabel = styles.nodes[groupId].groupLabel
-    const nodeDataSet = new DataSet([
-      deepMerge(
-        {
-          id: '1',
-          label: groupLabel === undefined ? '' : groupLabel,
-        },
-        sampleOptions,
-        {
-          chosen: false,
-          widthConstraint: 50,
-          heightConstraint: 50,
-          font: { size: 14 },
-          size: 50,
-          margin: 10,
-          scaling: { label: { enabled: false } },
+export function createRoomMenus(title) {
+  const recents = JSON.parse(localStorage.getItem('recents')) || {}
+  projects = recents.projects || {}
+  maps = clean(recents, { projects: true })
+  maps.new = '&lt;b>New Map&lt;/b>'
+  projects.new = '&lt;b>New Project&lt;/b>'
+  // only store the map room if the map has a title
+  if (title !== 'Untitled map') {
+    storeMapRoom(room, title)
+  }
+  // save only the most recent entries
+  maps = Object.fromEntries(Object.entries(maps).slice(-TITLELISTLEN))
+  storeList()
+  renderProjects()
+  renderMaps()
+}
+
+/**
+ * Renders the flat list of recent maps into the #map-list-items container.
+ * Each entry is a clickable div that navigates to that map's room.
+ */
+function renderMaps() {
+  const container = elem('map-list-items')
+  container.innerHTML = ''
+  Object.entries(maps)
+    .reverse()
+    .forEach(([url, title]) => {
+      if (url !== 'new') {
+        const div = document.createElement('div')
+        div.className = 'rm-item'
+        div.dataset.room = url
+        div.innerHTML = `&lt;span>${title}&lt;/span>`
+        div.onclick = () => {
+          changeRoom(div)
         }
-      ),
-    ])
-    initSample(sampleElement, {
-      nodes: nodeDataSet,
-      edges: emptyDataSet,
-    })
-    sampleElement.addEventListener('dblclick', () => {
-      editNodeStyle(sampleElement, groupId)
-    })
-    sampleElement.addEventListener('click', () => {
-      updateLastSamples(groupId, null)
-    })
-    sampleElement.addEventListener('pointerdown', (event) => {
-      if (event.button === 2) {
-        // right click)
-        styleNodeContextMenu(sampleElement, groupId)
+        div.onmouseenter = () => {
+          projectsMenu.classList.remove('show')
+          projectMapsMenu.classList.remove('show')
+          activeProject = null
+        }
+        container.appendChild(div)
       }
     })
-    sampleElement.addEventListener('mouseover', () =>
-      statusMsg(
-        'Left click: apply style to selected; Double click: edit style; Right click: Select or Hide all with this style'
-      )
-    )
-    sampleElement.addEventListener('mouseout', () => clearStatusBar())
-    sampleElement.groupNode = groupId
-    sampleElement.dataSet = nodeDataSet
-  }
-  // and to all sampleLinks
-  sampleElements = document.getElementsByClassName('sampleLink')
-  for (let i = 0; i &lt; sampleElements.length; i++) {
-    const sampleElement = sampleElements[i]
-    const groupId = `edge${i}`
-    const groupLabel = styles.edges[groupId].groupLabel
-    const sampleOptions = styles.edges[groupId]
-    const edgeDataSet = new DataSet([
-      deepMerge(
-        {
-          id: '1',
-          from: 1,
-          to: 2,
-          label: groupLabel === undefined ? '' : groupLabel,
-        },
-        sampleOptions,
-        {
-          font: {
-            size: 24,
-            color: 'black',
-            align: 'top',
-            vadjust: -40,
-          },
-          widthConstraint: 100,
-          value: 10,
+}
+
+/**
+ * Renders the list of projects into the #project-list-items container.
+ * Each project entry shows a flyout of maps belonging to it on hover,
+ * and a "New Project" entry that opens the creation modal.
+ */
+function renderProjects() {
+  const container = elem('project-list-items')
+  container.innerHTML = ''
+  Object.entries(projects)
+    .reverse()
+    .forEach(([projectUID, projectData]) => {
+      const div = document.createElement('div')
+      div.className = 'rm-item'
+      div.dataset.project = projectData
+      if (projectUID === 'new') {
+        div.innerHTML = `&lt;b>New Project&lt;/b>`
+        div.onclick = () => {
+          closeAll()
+          modalOverlay.style.display = 'flex'
+          projectNameInput.value = ''
+          projectNameInput.focus()
         }
-      ),
-    ])
-    const nodesDataSet = new DataSet([
-      {
-        id: 1,
-        size: 5,
-        shape: 'dot',
-        fixed: true,
-        chosen: false,
-      },
-      {
-        id: 2,
-        size: 5,
-        shape: 'dot',
-        fixed: true,
-        chosen: false,
-      },
-    ])
-    initSample(sampleElement, {
-      nodes: nodesDataSet,
-      edges: edgeDataSet,
-    })
-    sampleElement.addEventListener('dblclick', () => {
-      editLinkStyle(sampleElement, groupId)
-    })
-    sampleElement.addEventListener('click', () => {
-      updateLastSamples(null, groupId)
-    })
-    sampleElement.addEventListener('pointerdown', (event) => {
-      if (event.button === 2) {
-        // right click)
-        styleEdgeContextMenu(sampleElement, groupId)
+        div.onmouseenter = (e) => {
+          clearTimeout(closeTimer)
+          projectMapsMenu.classList.remove('show')
+          activeProject = null
+        }
+        container.appendChild(div)
+        return
       }
+      div.innerHTML = `&lt;span>${projectData.name}&lt;/span>&lt;span class="arrow">▶&lt;/span>`
+
+      div.onmouseenter = (e) => {
+        clearTimeout(closeTimer)
+        activeProject = projectUID
+        const rect = div.getBoundingClientRect()
+        renderProjectMaps(projectData)
+        projectMapsMenu.style.top = rect.top + 'px'
+        projectMapsMenu.style.left = rect.right - 4 + 'px'
+        projectMapsMenu.classList.add('show')
+      }
+      container.appendChild(div)
     })
-    sampleElement.addEventListener('mouseover', () =>
-      statusMsg(
-        'Left click: apply style to selected; Double click: edit style; Right click: Select all with this style'
-      )
-    )
-    sampleElement.groupLink = groupId
-    sampleElement.dataSet = edgeDataSet
-  }
-  // set up color pickers
-  cp.createColorPicker('nodeStyleEditFillColor', nodeEditSave)
-  cp.createColorPicker('nodeStyleEditBorderColor', nodeEditSave)
-  cp.createColorPicker('nodeStyleEditFontColor', nodeEditSave)
-  cp.createColorPicker('linkStyleEditLineColor', linkEditSave)
-
-  // set up listeners
-  listen('nodeStyleEditCancel', 'click', nodeEditCancel)
-  listen('nodeStyleEditName', 'keyup', nodeEditSave)
-  listen('nodeStyleEditShape', 'change', nodeEditSave)
-  listen('nodeStyleEditBorder', 'change', nodeEditSave)
-  listen('nodeStyleEditFontSize', 'change', nodeEditSave)
-  listen('nodeStyleEditSubmit', 'click', nodeEditSubmit)
-
-  listen('linkStyleEditCancel', 'click', linkEditCancel)
-  listen('linkStyleEditName', 'keyup', linkEditSave)
-  listen('linkStyleEditWidth', 'input', linkEditSave)
-  listen('linkStyleEditDashes', 'input', linkEditSave)
-  listen('linkStyleEditArrows', 'change', linkEditSave)
-  listen('linkStyleEditSubmit', 'click', linkEditSubmit)
-
-  dragElement(elem('nodeStyleEditorContainer'), elem('nodeStyleEditorHeader'))
-  dragElement(elem('linkStyleEditorContainer'), elem('linkStyleEditorHeader'))
 }
-/**
- * assemble styles by merging the specifics into the default
- */
-function expandStylesObject() {
-  let base = styles.nodes.base
-  for (const prop in styles.nodes) {
-    const grp = deepMerge(base, styles.nodes[prop])
-    // make the hover and highlight colors the same as the basic ones
-    grp.color.highlight = {}
-    grp.color.highlight.border = grp.color.border
-    grp.color.highlight.background = grp.color.background
-    grp.color.hover = {}
-    grp.color.hover.border = grp.color.border
-    grp.color.hover.background = grp.color.background
-    //		grp.font.size = base.font.size
-    styles.nodes[prop] = grp
-  }
-  base = styles.edges.base
-  for (const prop in styles.edges) {
-    const grp = deepMerge(base, styles.edges[prop])
-    grp.color.highlight = grp.color.color
-    grp.color.hover = grp.color.color
-    styles.edges[prop] = grp
-  }
-}
-/**
- * create the sample network
- * @param {HTMLElement} wrapper
- * @param {object} sampleData
- */
-function initSample(wrapper, sampleData) {
-  const options = {
-    interaction: {
-      dragNodes: false,
-      dragView: false,
-      selectable: true,
-      zoomView: false,
-    },
-    manipulation: {
-      enabled: false,
-    },
-    layout: {
-      hierarchical: {
-        enabled: true,
-        direction: 'LR',
-      },
-    },
-  }
-  const net = new Network(wrapper, sampleData, options)
-  net.fit()
-  net.storePositions()
-  wrapper.net = net
-  return net
-}
-const factorsHiddenByStyle = {}
-const linksHiddenByStyle = {}
-/**
- * Context menu for node styles
- * @param {HTMLElement} sampleElement
- * @param {string} groupId
- */
-function styleNodeContextMenu(sampleElement, groupId) {
-  addContextMenu(sampleElement, [
-    {
-      label: 'Select Factors',
-      action: () => selectFactorsWithStyle(groupId),
-    },
-    {
-      label: `${sampleElement.dataset.hide === 'hidden' ? 'Unhide' : 'Hide'} Factors`,
-      action: () => hideFactorsWithStyle(sampleElement, groupId),
-    },
-  ])
-}
-/**
- * Select all the factors with the given style
- * Used by Style context menu
- * @param {integer} groupId
- */
-function selectFactorsWithStyle(groupId) {
-  selectFactors(data.nodes.getIds({ filter: (node) => node.grp === groupId }))
-}
-/**
- * Hide or unhide all the factors with the given style
- * Used by Style context menu
- * @param {HTMLElement} sampleElement
- * @param {integer} groupId
- */
-function hideFactorsWithStyle(sampleElement, groupId) {
-  const wasHidden = sampleElement.dataset.hide === 'hidden'
-  const nodes = data.nodes.get({ filter: (node) => node.grp === groupId })
-  nodes.forEach((node) => {
-    setNodeHidden(node, !wasHidden)
-  })
-  data.nodes.update(nodes)
-  const edges = []
-  nodes.forEach((node) => {
-    const connectedEdges = network.getConnectedEdges(node.id)
-    connectedEdges.forEach((edgeId) => {
-      edges.push(data.edges.get(edgeId))
-    })
-  })
-  edges.forEach((edge) => {
-    setEdgeHidden(edge, !wasHidden)
-  })
-  data.edges.update(edges)
-  factorsHiddenByStyle[sampleElement.id] = !wasHidden
-  yNetMap.set('factorsHiddenByStyle', factorsHiddenByStyle)
-  sampleElement.dataset.hide = wasHidden ? 'visible' : 'hidden'
-}
-/**
- * Context menu for edge styles
- * @param {HTMLElement} sampleElement
- * @param {string} groupId
- */
-function styleEdgeContextMenu(sampleElement, groupId) {
-  addContextMenu(sampleElement, [
-    {
-      label: 'Select Links',
-      action: () => selectLinksWithStyle(groupId),
-    },
-    {
-      label: `${sampleElement.dataset.hide === 'hidden' ? 'Unhide' : 'Hide'} Links`,
-      action: () => hideLinksWithStyle(sampleElement, groupId),
-    },
-  ])
-}
-/**
- * Select all the links with the given style
- * Used by Style context menu
- * @param {integer} groupId
- */
-function selectLinksWithStyle(groupId) {
-  selectLinks(data.edges.getIds({ filter: (edge) => edge.grp === groupId }))
-}
-/**
- * Hide or unhide all the links with the given style
- * Used by Style context menu
- * @param {HTMLElement} sampleElement
- * @param {integer} groupId
- */
-function hideLinksWithStyle(sampleElement, groupId) {
-  const wasHidden = sampleElement.dataset.hide === 'hidden'
-  const edges = data.edges.get({ filter: (edge) => edge.grp === groupId })
-  edges.forEach((edge) => {
-    setEdgeHidden(edge, !wasHidden)
-  })
-  data.edges.update(edges)
-  linksHiddenByStyle[sampleElement.id] = !wasHidden
-  yNetMap.set('linksHiddenByStyle', linksHiddenByStyle)
-  sampleElement.dataset.hide = wasHidden ? 'visible' : 'hidden'
-}
-/**
- * open the dialog to edit a node style
- * @param {HTMLElement} styleElement
- * @param {number} groupId
- */
-function editNodeStyle(styleElement, groupId) {
-  styleElement.net.unselectAll()
-  const container = elem('nodeStyleEditorContainer')
-  container.groupId = groupId
-  // save the current style format (so that there can be a revert in case of cancelling the edit)
-  container.origGroup = deepCopy(styles.nodes[groupId])
-  // save the div in which the style is displayed
-  container.styleElement = styleElement
-  // set the style dialog widgets with the current values for the group style
-  updateNodeEditor(groupId)
-  // display the style dialog
-  nodeEditorShow()
-  elem('nodeStyleEditName').focus()
-}
-/**
- * ensure that the edit node style dialog shows the current state of the style
- * @param {string} groupId
- */
-function updateNodeEditor(groupId) {
-  const group = styles.nodes[groupId]
-  elem('nodeStyleEditName').value = group.groupLabel !== 'Sample' ? group.groupLabel : ''
-  elem('nodeStyleEditFillColor').style.backgroundColor = standardizeColor(group.color.background)
-  elem('nodeStyleEditBorderColor').style.backgroundColor = standardizeColor(group.color.border)
-  elem('nodeStyleEditFontColor').style.backgroundColor = standardizeColor(group.font.color)
-  elem('nodeStyleEditShape').value = group.shape
-  elem('nodeStyleEditBorder').value = getDashes(
-    group.shapeProperties.borderDashes,
-    group.borderWidth
-  )
-  elem('nodeStyleEditFontSize').value = group.font.size
-  if (group.fixed) {
-    elem('nodeStyleEditFixed').style.display = 'inline'
-    elem('nodeStyleEditUnFixed').style.display = 'none'
-  } else {
-    elem('nodeStyleEditFixed').style.display = 'none'
-    elem('nodeStyleEditUnFixed').style.display = 'inline'
-  }
-  elem('nodeStyleEditFactorSize').value = factorSizeToPercent(group.size)
-  progressBar(elem('nodeStyleEditFactorSize'))
-}
-listen('editStylePin', 'click', toggleNodeStyleLock)
 
 /**
- * Toggle the lock state of the node style
+ * Populates the project-maps flyout panel with the maps belonging to a project,
+ * plus "Add this map" and "Delete this project" action items.
+ * @param {Object.&lt;string, string>} proj - Project data object where each key is a
+ *   room URL (or 'name') and each value is the map title (or the project name).
  */
-function toggleNodeStyleLock() {
-  const group = styles.nodes[elem('nodeStyleEditorContainer').groupId]
-  if (group.fixed) {
-    elem('nodeStyleEditFixed').style.display = 'none'
-    elem('nodeStyleEditUnFixed').style.display = 'inline'
-  } else {
-    elem('nodeStyleEditFixed').style.display = 'inline'
-    elem('nodeStyleEditUnFixed').style.display = 'none'
-  }
-  group.fixed = !group.fixed
-}
-/**
- * save changes to the style made with the edit dialog to the style object
- */
-function nodeEditSave() {
-  const groupId = elem('nodeStyleEditorContainer').groupId
-  const group = styles.nodes[groupId]
-  group.groupLabel = elem('nodeStyleEditName').value
-  if (group.groupLabel === '') group.groupLabel = 'Sample'
-  group.color.background = elem('nodeStyleEditFillColor').style.backgroundColor
-  group.color.border = elem('nodeStyleEditBorderColor').style.backgroundColor
-  group.color.highlight.background = group.color.background
-  group.color.highlight.border = group.color.border
-  group.color.hover.background = group.color.background
-  group.color.hover.border = group.color.border
-  group.font.color = elem('nodeStyleEditFontColor').style.backgroundColor
-  group.shape = elem('nodeStyleEditShape').value
-  const border = elem('nodeStyleEditBorder').value
-  group.shapeProperties.borderDashes = convertDashes(border)
-  group.borderWidth = border === 'none' ? 0 : border === 'solid' ? 1 : 4
-  group.font.size = parseInt(elem('nodeStyleEditFontSize').value)
-  setFactorSizeFromPercent(group, elem('nodeStyleEditFactorSize').value)
-  nodeEditUpdateStyleSample(group)
-}
-/**
- * update the style sample to show changes to style
- * @param {Object} group
- */
-function nodeEditUpdateStyleSample(group) {
-  const groupId = elem('nodeStyleEditorContainer').groupId
-  const styleElement = elem('nodeStyleEditorContainer').styleElement
-  let node = styleElement.dataSet.get('1')
-  node.label = group.groupLabel
-  // the node in the style sample does not change size
-  node = deepMerge(node, styles.nodes[groupId], {
-    chosen: false,
-    size: 50,
-    widthConstraint: 50,
-    heightConstraint: 50,
-    margin: 10,
-    font: { size: 14 },
-  })
-  styleElement.dataSet.update(node)
-}
-/**
- * cancel any editing of the style and revert to what it was previously
- */
-function nodeEditCancel() {
-  // restore saved group format
-  const groupId = elem('nodeStyleEditorContainer').groupId
-  styles.nodes[groupId] = elem('nodeStyleEditorContainer').origGroup
-  nodeEditUpdateStyleSample(styles.nodes[groupId])
-  nodeEditorHide()
-}
-/**
- * hide the node style editor dialog
- */
-function nodeEditorHide() {
-  elem('nodeStyleEditorContainer').classList.add('hideEditor')
-}
-/**
- * show the node style editor dialog
- */
-function nodeEditorShow() {
-  const panelRect = elem('panel').getBoundingClientRect()
-  const container = elem('nodeStyleEditorContainer')
-  container.style.top = `${panelRect.top}px`
-  container.style.left = `${panelRect.left - 320}px`
-  container.classList.remove('hideEditor')
-}
-/**
- * save the edited style and close the style editor.  Update the nodes
- * in the map and the legend to the current style
- */
-function nodeEditSubmit() {
-  nodeEditSave()
-  nodeEditorHide()
-  // apply updated style to all nodes having that style
-  const groupId = elem('nodeStyleEditorContainer').groupId
-  // somewhere - but I have no idea where or why, this is set to true, but it must be false
-  styles.nodes[groupId].scaling.label.enabled = false
-  reApplySampleToNodes([groupId], true)
-  ySamplesMap.set(groupId, {
-    node: styles.nodes[groupId],
-  })
-  updateLegend()
-  network.redraw()
-  logHistory('edited a Factor style')
-}
-/**
- * update all nodes in the map with this style to the current style features
- * @param {number[]} groupIds
- * @param {boolean} [force] override any existing individual node styling
- */
-export function reApplySampleToNodes(groupIds, force) {
-  const nodesToUpdate = data.nodes.get({
-    filter: (item) => {
-      return groupIds.includes(item.grp)
-    },
-  })
-  data.nodes.update(
-    nodesToUpdate.map((node) => {
-      return force
-        ? deepMerge(node, styles.nodes[node.grp])
-        : deepMerge(styles.nodes[node.grp], node)
-    })
-  )
-}
-/**
- * ensure that the styles displayed in the node styles panel display the styles defined in the styles array
- */
-export function refreshSampleNode(groupId) {
-  const sampleElements = Array.from(document.getElementsByClassName('sampleNode'))
-  const sampleElement = sampleElements[groupId.match(/\d+/)?.[0]]
-  if (!sampleElement) return
-  let node = sampleElement.dataSet.get()[0]
-  node = deepMerge(node, styles.nodes[groupId], {
-    chosen: false,
-    size: 50,
-    widthConstraint: 50,
-    heightConstraint: 50,
-    margin: 10,
-    font: { size: 14 },
-  })
-  node.label = node.groupLabel
-  sampleElement.dataSet.remove(node.id)
-  sampleElement.dataSet.update(node)
-  sampleElement.net.fit()
-}
-/**
- * open the dialog to edit a link style
- * @param {HTMLElement} styleElement
- * @param {string} groupId
- */
-function editLinkStyle(styleElement, groupId) {
-  const container = elem('linkStyleEditorContainer')
-  container.styleElement = styleElement
-  container.groupId = groupId
-  // save the current style format (so that there can be a revert in case of cancelling the edit)
-  container.origGroup = deepCopy(styles.edges[groupId])
-  // set the style dialog widgets with the current values for the group style
-  updateLinkEditor(groupId)
-  // display the style dialog
-  linkEditorShow()
-  elem('linkStyleEditName').focus()
-}
-/**
- * ensure that the edit link style dialog shows the current state of the style
- * @param {string} groupId
- */
-function updateLinkEditor(groupId) {
-  const group = styles.edges[groupId]
-  elem('linkStyleEditName').value = group.groupLabel !== 'Sample' ? group.groupLabel : ''
-  elem('linkStyleEditLineColor').style.backgroundColor = standardizeColor(group.color.color)
-  elem('linkStyleEditWidth').value = group.width
-  elem('linkStyleEditDashes').value = getDashes(group.dashes, 1)
-  elem('linkStyleEditArrows').value = getArrows(group.arrows)
-}
-/**
- * save changes to the style made with the edit dialog to the style object
- */
-function linkEditSave() {
-  const groupId = elem('linkStyleEditorContainer').groupId
-  const group = styles.edges[groupId]
-  group.groupLabel = elem('linkStyleEditName').value
-  if (group.groupLabel === '') group.groupLabel = 'Sample'
-  group.color.color = elem('linkStyleEditLineColor').style.backgroundColor
-  group.color.highlight = group.color.color
-  group.color.hover = group.color.color
-  group.width = parseInt(elem('linkStyleEditWidth').value)
-  group.dashes = convertDashes(elem('linkStyleEditDashes').value)
-  groupArrows(elem('linkStyleEditArrows').value)
-  linkEditUpdateStyleSample(group)
-  /**
-   * Set the link object properties to show various arrow types
-   * @param {string} val
-   */
-  function groupArrows(val) {
-    if (val !== '') {
-      group.arrows.from.enabled = false
-      group.arrows.middle.enabled = false
-      group.arrows.to.enabled = true
-      if (val === 'none') group.arrows.to.enabled = false
-      else group.arrows.to.type = val
+function renderProjectMaps(proj) {
+  const list = elem('project-maps-list')
+  list.innerHTML = ''
+  Object.entries(proj).forEach(([url, title]) => {
+    if (url !== 'name') {
+      const div = document.createElement('div')
+      div.className = 'rm-item'
+      div.dataset.room = url
+      div.innerHTML = `&lt;span>${title}&lt;/span>`
+      div.onclick = () => {
+        changeRoom(div)
+      }
+      list.appendChild(div)
     }
+  })
+  const addBtn = document.createElement('div')
+  addBtn.className = 'rm-item'
+  addBtn.style.color = getCSSVariable('--tertiary-color')
+  addBtn.textContent = 'Add this map to the project'
+  addBtn.onclick = () => {
+    addMapToProject()
+    closeAll()
   }
-}
-/**
- * update the style sample to show changes to style
- * @param {Object} group
- */
-function linkEditUpdateStyleSample(group) {
-  // update the style edge to show changes to style
-  const groupId = elem('linkStyleEditorContainer').groupId
-  const styleElement = elem('linkStyleEditorContainer').styleElement
-  let edge = styleElement.dataSet.get('1')
-  edge.label = group.groupLabel
-  edge = deepMerge(edge, styles.edges[groupId], { chosen: false })
-  const dataSet = styleElement.dataSet
-  dataSet.update(edge)
-}
-/**
- * cancel any editing of the style and revert to what it was previously
- */
-function linkEditCancel() {
-  // restore saved group format
-  const groupId = elem('linkStyleEditorContainer').groupId
-  styles.edges[groupId] = elem('linkStyleEditorContainer').origGroup
-  linkEditorHide()
-}
-/**
- * hide the link style editor dialog
- */
-function linkEditorHide() {
-  elem('linkStyleEditorContainer').classList.add('hideEditor')
-}
-/**
- * show the link style editor dialog
- */
-function linkEditorShow() {
-  const panelRect = elem('panel').getBoundingClientRect()
-  const container = elem('linkStyleEditorContainer')
-  container.style.top = `${panelRect.top}px`
-  container.style.left = `${panelRect.left - 320}px`
-  container.classList.remove('hideEditor')
-}
-/**
- * save the edited style and close the style editor.  Update the links
- * in the map and the legend to the current style
- */
-function linkEditSubmit() {
-  linkEditSave()
-  linkEditorHide()
-  // apply updated style to all edges having that style
-  const groupId = elem('linkStyleEditorContainer').groupId
-  reApplySampleToLinks([groupId], true)
-  ySamplesMap.set(groupId, {
-    edge: styles.edges[groupId],
-  })
-  updateLegend()
-  network.redraw()
-  logHistory('edited a Link style')
-}
-/**
- * update all links in the map with this style to the current style features
- *   (don't touch cluster edges)
- * @param {number[]} groupIds
- * @param {boolean} [force] override any existing individual edge styling
- */
-export function reApplySampleToLinks(groupIds, force) {
-  const edgesToUpdate = data.edges.get({
-    filter: (item) => {
-      return groupIds.includes(item.grp) &amp;&amp; !item.isClusterEdge
-    },
-  })
-  data.edges.update(
-    edgesToUpdate.map((edge) => {
-      return force
-        ? deepMerge(edge, styles.edges[edge.grp])
-        : deepMerge(styles.edges[edge.grp], edge)
-    })
-  )
-}
-/**
- * ensure that the styles displayed in the link styles panel display the styles defined in the styles array
- */
-export function refreshSampleLink(groupId) {
-  const sampleElements = Array.from(document.getElementsByClassName('sampleLink'))
-  const sampleElement = sampleElements[groupId.match(/\d+/)?.[0]]
-  if (!sampleElement) return
-  let edge = sampleElement.dataSet.get()[0]
-  edge = deepMerge(edge, styles.edges[groupId], { chosen: false, value: 10 })
-  edge.label = edge.groupLabel
-  sampleElement.dataSet.remove(edge.id)
-  sampleElement.dataSet.update(edge)
-  sampleElement.net.fit()
-}
-/**
- * Convert from style object properties to arrow menu selection
- * @param {Object} prop
- */
-function getArrows(prop) {
-  let val = 'none'
-  if (prop.to?.enabled &amp;&amp; prop.to.type) val = prop.to.type
-  return val
+  list.appendChild(addBtn)
+
+  const delBtn = document.createElement('div')
+  delBtn.className = 'rm-item'
+  delBtn.style.color = getCSSVariable('--alert-color')
+  delBtn.textContent = 'Delete this project'
+  delBtn.onclick = deleteActiveProject
+  list.appendChild(delBtn)
 }
 
-/*  ------------display the map legend (includes all styles with a group label that is neither blank or 'Sample') */
-
-const LEGENDHEIGHT = 31
-const LEGENDWIDTH = 50 //minimum width of legend - may be increased to fit style names
-const MAXLEGENDWIDTH = 240
 /**
- * display a legend on the map (but only if the styles have been given names)
- * @param {Boolean} warn if true, warn if user is switching display legend on, but there is nothing to show
+ * Stores a room/title pair in the maps object. If a map with the same title
+ * already exists but the room is different,the current date/time is appended to make the title unique.
+ * @param {string} room - The room identifier used as the URL search parameter.
+ * @param {string} title - The display title for the map.
  */
-export function legend(warn = false) {
-  clearLegend()
-
-  const namedNodeStyles = Object.keys(styles.nodes).filter(
-    (key) => styles.nodes[key].groupLabel &amp;&amp; styles.nodes[key].groupLabel !== 'Sample'
+function storeMapRoom(room, title) {
+  if (maps[room] === title) return
+  if (
+    Object.values(maps).includes(title.replace(/\w*(\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2}:\d{2})/g, ''))
   )
-  const namedEdgeStyles = Object.keys(styles.edges).filter(
-    (key) => styles.edges[key].groupLabel &amp;&amp; styles.edges[key].groupLabel !== 'Sample'
-  )
-  const nItems = namedNodeStyles.length + namedEdgeStyles.length
-  if (nItems === 0) {
-    if (warn) {
-      alertMsg('Nothing to include in the Legend - rename some styles first', 'warn')
-    }
-    elem('showLegendSwitch').checked = false
+    title += ` (${new Date().toLocaleString()})`
+  maps[room] = title
+}
+/**
+ * Adds the currently open map to the active project.
+ * Displays a warning if no project is active, the map is already in the
+ * project, or the map still has the default 'Untitled map' title.
+ */
+function addMapToProject() {
+  if (!activeProject) return alertMsg('No project selected', 'error')
+  const projectData = projects[activeProject]
+  if (projects[activeProject][room]) return alertMsg('This map is already in the project', 'warn')
+  const title = elem('maptitle').innerHTML.trim()
+  if (title === 'Untitled map') {
+    alertMsg('Please give your map a title before adding it to a project', 'warn')
     return
   }
-  let lWidth = LEGENDWIDTH
-  namedNodeStyles.forEach((style) => {
-    const labelWidth = getTextWidth(styles.nodes[style].groupLabel)
-    if (labelWidth > lWidth) {
-      lWidth = labelWidth
-    }
-  })
-  namedEdgeStyles.forEach((style) => {
-    const labelWidth = getTextWidth(styles.edges[style].groupLabel)
-    if (labelWidth > lWidth) {
-      lWidth = labelWidth
-    }
-  })
-  lWidth += 60 // width of icon and padding
-  if (lWidth > MAXLEGENDWIDTH) lWidth = MAXLEGENDWIDTH
-  const legendBox = document.createElement('div')
-  legendBox.className = 'legend'
-  legendBox.id = 'legendBox'
-  elem('main').appendChild(legendBox)
-  const title = document.createElement('p')
-  title.id = 'Legend'
-  title.classList.add('legendTitle', 'dragHandle')
-  title.appendChild(document.createTextNode('Legend'))
-  legendBox.appendChild(title)
-  legendBox.style.height = `${LEGENDHEIGHT * nItems + title.offsetHeight}px`
-  legendBox.style.width = `${lWidth}px`
-  const legendWrapper = document.createElement('div')
-  legendWrapper.className = 'legendWrapper'
-  legendBox.appendChild(legendWrapper)
+  projectData[room] = title
+  storeList()
+  alertMsg(`Added ${title} to the ${projectData.name} project`, 'info')
+}
 
-  dragElement(legendBox, title)
+/**
+ * Prompts the user to confirm deletion of the active project, then removes
+ * it from storage, re-renders the projects menu, and closes all panels.
+ */
+function deleteActiveProject() {
+  if (!activeProject) return
+  const projectName = projects[activeProject].name
+  if (!confirm(`Are you sure you want to delete the project "${projectName}"?`)) return
+  delete projects[activeProject]
+  storeList()
+  alertMsg(`Project ${projectName} deleted`, 'info')
+  activeProject = null
+  renderProjects()
+  closeAll()
+}
 
-  for (let i = 0; i &lt; namedNodeStyles.length; i++) {
-    const canvas = document.createElement('div')
-    canvas.className = 'legendCanvas'
-    legendWrapper.appendChild(canvas)
-    const legendData = { nodes: new DataSet(), edges: new DataSet() }
-    const legendNetwork = new Network(canvas, legendData, {
-      physics: { enabled: false },
-      interaction: { zoomView: false, dragView: false },
-    })
-    const node = deepMerge(styles.nodes[namedNodeStyles[i]])
-    node.id = i + 10000
-    node.shape === 'text' ? (node.label = 'groupLabel') : (node.label = '')
-    node.fixed = true
-    node.chosen = false
-    node.margin = 10
-    node.x = 0
-    node.y = 0
-    node.widthConstraint = 10
-    node.heightConstraint = 10
-    node.font.size = 10
-    node.size = 10
-    legendData.nodes.update(node)
-    legendNetwork.fit()
+/**
+ * Toggles the visibility of the main rooms/projects menu panel.
+ * Adjusts the scroll-box max-height to fit within the network pane.
+ * @param {MouseEvent} e - The triggering mouse event (propagation is stopped).
+ */
+export function showProjectsMenu(e) {
+  e.stopPropagation()
+  scrollBox.style.maxHeight = elem('net-pane').clientHeight - 20 + 'px'
+  mainMenu.classList.toggle('show')
+}
 
-    const style = document.createElement('div')
-    style.className = 'legendStyleName'
-    style.textContent = node.groupLabel
-    style.style.width = `${lWidth - 60}px`
-    legendWrapper.appendChild(style)
+/**
+ * Persists the current projects and maps objects to localStorage
+ * under the 'recents' key as a single serialised JSON object.
+ */
+function storeList() {
+  localStorage.setItem('recents', JSON.stringify({ projects: { ...projects }, ...maps }))
+}
+
+/**
+ * User has clicked one of the previous map titles - confirm and change to the web page for that room
+ * @param {HTMLDivElement} div The div element that was clicked, containing the room data attribute
+ */
+function changeRoom(div) {
+  if (data.nodes.length > 0) {
+    if (!confirm('Are you sure you want to move to a different map?')) return
   }
+  closeAll()
+  const url = new URL(document.location)
+  url.search = div.dataset.room !== 'new' ? `?room=${div.dataset.room}` : ''
+  window.location.replace(url)
+}
 
-  for (let i = 0; i &lt; namedEdgeStyles.length; i++) {
-    const canvas = document.createElement('div')
-    canvas.className = 'legendCanvas'
-    legendWrapper.appendChild(canvas)
-    const legendData = { nodes: new DataSet(), edges: new DataSet() }
-    const legendNetwork = new Network(canvas, legendData, {
-      physics: { enabled: false },
-      interaction: { zoomView: false, dragView: false },
-    })
-
-    const edge = deepMerge(styles.edges[namedEdgeStyles[i]])
-    edge.label = ''
-    edge.id = i + 10000
-    edge.from = i + 20000
-    edge.to = i + 30000
-    edge.smooth = { type: 'straightCross' }
-    edge.chosen = false
-    const nodes = [
-      {
-        id: edge.from,
-        size: 5,
-        shape: 'dot',
-        x: -20,
-        y: 0,
-        fixed: true,
-        chosen: false,
-      },
-      {
-        id: edge.to,
-        shape: 'dot',
-        size: 5,
-        x: +20,
-        y: 0,
-        fixed: true,
-        chosen: false,
-      },
-    ]
-    legendData.nodes.update(nodes)
-    legendData.edges.update(edge)
-    legendNetwork.fit()
-    const style = document.createElement('div')
-    style.className = 'legendStyleName'
-    style.textContent = edge.groupLabel
-    style.style.width = `${lWidth - 60}px`
-    legendWrapper.appendChild(style)
+// Keyboard Listeners
+window.addEventListener('keydown', (e) => {
+  if (document.activeElement === projectNameInput) {
+    if (e.key === 'Enter') elem('rm-modal-ok').click()
+    if (e.key === 'Escape') elem('rm-modal-cancel').click()
+    return
   }
+  if (e.key === 'Delete' &amp;&amp; projectMapsMenu.classList.contains('show')) deleteActiveProject()
+})
+
+const observer = new MutationObserver(() => {
+  if (mainMenu.classList.contains('show')) scrollBox.scrollTop = 0
+})
+observer.observe(mainMenu, { attributes: true, attributeFilter: ['class'] })
+
+elem('rm-modal-cancel').onclick = () => (modalOverlay.style.display = 'none')
+modalOverlay.addEventListener('click', (event) => {
+  if (event.target === event.currentTarget) {
+    modalOverlay.style.display = 'none'
+  }
+})
+elem('rm-modal-ok').onclick = () => {
+  const name = projectNameInput.value.trim()
+  if (name) {
+    projects[uuidv4()] = { name }
+    renderProjects()
+    alertMsg(`New project created: ${name}`, 'info')
+    storeList()
+  }
+  modalOverlay.style.display = 'none'
+}
+
+elem('projectsTrigger').onmouseenter = (e) => {
+  clearTimeout(closeTimer)
+  const rect = e.currentTarget.getBoundingClientRect()
+  projectsMenu.style.top = rect.top + 'px'
+  projectsMenu.style.left = rect.right - 4 + 'px'
+  projectsMenu.classList.add('show')
+  projectMapsMenu.classList.remove('show')
+}
+
+elem('newMapTrigger').onclick = (e) => {
+  e.stopPropagation()
+  changeRoom(e.currentTarget)
+}
+
+elem('saveListToFileTrigger').onclick = (e) => {
+  e.stopPropagation()
+  const str = JSON.stringify(
+    {
+      info: { type: 'PRSM map menu list', version: '1.0', date: new Date().toLocaleString() },
+      projects: { ...projects },
+      ...maps,
+    },
+    null,
+    '\t'
+  )
+  const blob = new Blob([str], { type: 'text/plain;charset=utf-8' })
+  saveAs(blob, 'PRSMMapList.prsml', { autoBom: true })
+  statusMsg('Map list saved to file.  To read it back in, drag and drop it over the map', 'info')
 }
 /**
- * remove the legend from the map
+ * Loads a map list from a JSON string (e.g. from a dragged-and-dropped
+ * `.prsml` file), merges the contents with the in-memory projects and maps, persists
+ * to localStorage, and re-renders both menus.
+ * @param {string} str - A JSON string previously exported via the save trigger.
  */
-export function clearLegend() {
-  const legendBox = elem('legendBox')
-  if (legendBox) legendBox.remove()
-}
-/**
- * redraw the legend (to show updated styles)
- */
-export function updateLegend() {
-  if (elem('showLegendSwitch').checked) {
-    legend(false)
-    clearStatusBar()
+export function loadMapList(str) {
+  if (badMapListFormat(str)) {
+    alertMsg('Invalid map list format: ' + badMapListFormat(str), 'error')
+    return
   }
+  try {
+    const obj = JSON.parse(str)
+    if (obj.projects &amp;&amp; Object.keys(obj).length > 1) {
+      projects = { ...projects, ...obj.projects }
+      maps = { ...maps, ...clean(obj, { projects: true, info: true }) }
+      storeList()
+      renderProjects()
+      renderMaps()
+      alertMsg('Map list loaded successfully', 'info')
+    } else {
+      alertMsg('Invalid map list file', 'error')
+    }
+  } catch (e) {
+    alertMsg('Error loading map list: ' + e.message, 'error')
+  }
+}
+
+/**
+ * Validates a JSON string against the PRSM map list format.
+ * @param {string} jsonStr - The JSON string to validate.
+ * @return {boolean|string} Returns false if valid, or a string describing the error.
+ */
+function badMapListFormat(jsonStr) {
+  let data
+
+  // 1. Check for valid JSON syntax
+  try {
+    data = JSON.parse(jsonStr)
+  } catch (e) {
+    return 'Invalid JSON: The string could not be parsed.'
+  }
+
+  // 2. Root must be a non-null object
+  if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+    return 'Format Error: Root must be a JSON object.'
+  }
+
+  const tripleDashRegex = /^[a-zA-Z]{3}-[a-zA-Z]{3}-[a-zA-Z]{3}-[a-zA-Z]{3}$/
+  const uuid4Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+  // 3. Check for required 'projects' property
+  if (!Object.hasOwn(data, 'projects')) {
+    return "Missing Property: Required 'projects' property is missing."
+  }
+
+  // 4. Validate Root level properties
+  for (const key in data) {
+    if (key === 'projects') {
+      if (
+        typeof data.projects !== 'object' ||
+        data.projects === null ||
+        Array.isArray(data.projects)
+      ) {
+        return "Type Error: 'projects' must be an object."
+      }
+      continue
+    }
+
+    if (key === 'info') {
+      if (typeof data.info !== 'object' || data.info === null) {
+        return "Type Error: The 'info' property must be an object."
+      }
+      continue
+    }
+
+    if (key === 'new') {
+      if (typeof data.new !== 'string') {
+        return "Type Error: The root 'new' property must be a string."
+      }
+      continue
+    }
+
+    if (!tripleDashRegex.test(key)) {
+      return `Validation Error: Unexpected root property name "${key}".`
+    }
+
+    if (typeof data[key] !== 'string') {
+      return `Type Error: Property "${key}" must have a string value.`
+    }
+  }
+
+  // 5. Validate the 'projects' object contents
+  const projects = data.projects
+
+  if (!Object.hasOwn(projects, 'new')) {
+    return "Missing Property: 'projects.new' is required."
+  }
+  if (typeof projects.new !== 'string') {
+    return "Type Error: 'projects.new' must be a string."
+  }
+
+  for (const projKey in projects) {
+    if (projKey === 'new') continue
+
+    if (!uuid4Regex.test(projKey)) {
+      return `Property Error: Key "${projKey}" in projects is not a valid UUID4 format.`
+    }
+
+    const projectEntry = projects[projKey]
+    if (typeof projectEntry !== 'object' || projectEntry === null) {
+      return `Type Error: Project "${projKey}" must be an object.`
+    }
+
+    if (!Object.hasOwn(projectEntry, 'name')) {
+      return `Missing Property: Project "${projKey}" is missing the required "name" property.`
+    }
+    if (typeof projectEntry.name !== 'string') {
+      return `Type Error: The "name" property in project "${projKey}" must be a string.`
+    }
+
+    for (const subKey in projectEntry) {
+      if (subKey === 'name') continue
+
+      if (!tripleDashRegex.test(subKey)) {
+        return `Validation Error: Unexpected property "${subKey}" in project "${projKey}".`
+      }
+      if (typeof projectEntry[subKey] !== 'string') {
+        return `Type Error: Property "${subKey}" in project "${projKey}" must be a string.`
+      }
+    }
+  }
+
+  return false
+}
+
+;[mainMenu, projectsMenu, projectMapsMenu].forEach((panel) => {
+  panel.onmouseenter = () => clearTimeout(closeTimer)
+  panel.onmouseleave = (e) => {
+    closeTimer = setTimeout(() => {
+      const dest = e.relatedTarget
+      if (![mainMenu, projectsMenu, projectMapsMenu].some((p) => p.contains(dest))) closeAll()
+    }, 150)
+  }
+})
+
+/**
+ * Hides all three menu panels (main menu, projects flyout, project-maps flyout)
+ * by removing the 'show' CSS class from each.
+ */
+function closeAll() {
+  ;[mainMenu, projectsMenu, projectMapsMenu].forEach((m) => m.classList.remove('show'))
+}
+window.onclick = (e) => {
+  if (e.target.id !== 'mapsTrigger') closeAll()
 }
 </code></pre>
         </article>

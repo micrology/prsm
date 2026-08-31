@@ -749,7 +749,7 @@ function collapseColGroup(table, field) {
   const subCols = groupCol.getSubColumns()
   if (subCols.length === 0) return
 
-  // Toggle the group header between collapsed/uncollapsed
+  // Toggle the group header between collapsed/expanded
   const collapsed = document.getElementById(`hide${field}`).dataset.collapsed === 'true'
   groupCol.getElement().querySelector('.tabulator-col-title').innerHTML = groupTitle(
     field,
