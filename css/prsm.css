@@ -2213,8 +2213,8 @@ body.adding-factor .ai-assistant-container {
 		visibility 0.2s;
 }
 .ai-assistant-fab-btn {
-	width: 56px;
-	height: 56px;
+	width: 40px;
+	height: 40px;
 	border-radius: 50%;
 	background: var(--primary-color);
 	border: none;
@@ -2227,7 +2227,7 @@ body.adding-factor .ai-assistant-container {
 		background-color 0.2s;
 }
 .ai-assistant-fab-btn:hover {
-	transform: scale(1.05);
+	transform: scale(0.95);
 	background: var(--tertiary-color);
 }
 .ai-assistant-fab-btn:hover + .ai-assistant-bubble {
@@ -2281,6 +2281,8 @@ body.adding-factor .ai-assistant-container {
   background: #2ecc71;
   border-radius: 50%;
   display: inline-block;
+}.status-dot-active {
+  background: #fec73b;
 }
 .aiassistant-close-btn {
   background: transparent;
@@ -2349,14 +2351,14 @@ body.adding-factor .ai-assistant-container {
 .message.ai-message {
   color: #333;
 }
-.message.source-link {
+.message .source-link {
   display: block;
   font-size: 0.85em;
   color: #1a73e8;
   text-decoration: none;
   margin-top: 5px;
 }
-.message.source-header {
+.message .source-header {
   font-weight: bold;
   margin-top: 10px;
   font-size: 0.9em;
@@ -2374,6 +2376,30 @@ body.adding-factor .ai-assistant-container {
   font-weight: bold;
   z-index: 1001; /* High value to float above chat-messages */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+/* Animated ellipsis after "Working" — fixed width so the label stays put */
+#processing-overlay::after {
+  content: '...';
+  display: inline-block;
+  width: 3ch;
+  overflow: hidden;
+  white-space: nowrap;
+  vertical-align: bottom;
+  animation: processing-ellipsis 1.2s steps(4, end) infinite;
+}
+@keyframes processing-ellipsis {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #processing-overlay::after {
+    animation: none;
+    clip-path: none;
+  }
 }
 /* Prompt Chips UI */
 .prompt-chips {

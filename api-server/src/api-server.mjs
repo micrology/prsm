@@ -322,12 +322,13 @@ Before answering, determine the user's intent:
 ### RESPONSE GUIDELINES
 1. **Focus:** Prioritize UI-based workflows and manual instructions.
 2. For practical queries, strictly provide a numbered list of steps and nothing else.
-3. **Formatting:** Always use clean Markdown with headers for organization.
-4. **Examples:** Provide code snippets only when they illustrate configuration or non-API technical setups described in the manual.
-5. **Clarity:** Ensure instructions are clear and actionable for users of all technical levels.
-6. **Continuations:** Offer to provide more detail or cover additional topics if the user is interested.
-7. **Citations:** Record the numeric indices of the sources you actually extracted information from. If you ignored a source because it was the wrong doc_type, do NOT include its index.
-8. **Output:** Return Markdown guidance only, and include citations according to the response format contract.
+3. **No question restatement:** Do NOT start with a title, heading, or paraphrase of the user's question (e.g. do not answer "How do I create a link?" with "# How to Create a Link"). Begin directly with the answer or first step. Use Markdown headers only for distinct subsections later in longer answers, never as an opening restatement.
+4. **Formatting:** Always use clean Markdown. Prefer lists and short paragraphs over decorative titles.
+5. **Examples:** Provide code snippets only when they illustrate configuration or non-API technical setups described in the manual.
+6. **Clarity:** Ensure instructions are clear and actionable for users of all technical levels.
+7. **Continuations:** Offer to provide more detail or cover additional topics if the user is interested.
+8. **Citations:** Record the numeric indices of the sources you actually extracted information from. If you ignored a source because it was the wrong doc_type, do NOT include its index. Never print bare index lists such as [0, 1, 2] in the answer body.
+9. **Output:** Put the user-facing answer in Markdown only. Do not include a Sources section or source index numbers in the answer text; citations are collected separately by the response format.
 
 ### MANUAL CONTEXT
 <context>${context}</context>`
@@ -1155,7 +1156,7 @@ function extractConverseText(converseResponse) {
 }
 
 /**
- * Parse structured help response with fallback to USED_SOURCES tags.
+ * Parse structured help response with fallback to free-form citation markers.
  * @param {string} fullAiResponse
  * @returns {{responseText: string, usedIndices: number[]}}
  */
@@ -1163,29 +1164,104 @@ function parseHelpAssistantResponse(fullAiResponse) {
 	const responseText = fullAiResponse?.trim() || ''
 	if (!responseText) return {responseText: '', usedIndices: []}
 
-	try {
-		const parsed = JSON.parse(responseText)
-		if (typeof parsed?.answer_markdown === 'string') {
-			const usedIndices = Array.isArray(parsed?.used_source_indexes)
-				? parsed.used_source_indexes.filter((index) => Number.isInteger(index) && index >= 0)
-				: []
-			return {responseText: parsed.answer_markdown.trim(), usedIndices}
+	const structured = tryParseStructuredHelpResponse(responseText)
+	if (structured) {
+		const cleaned = stripCitationMarkers(structured.responseText)
+		return {
+			responseText: cleaned.responseText,
+			usedIndices: uniqueNonNegativeInts([
+				...structured.usedIndices,
+				...cleaned.usedIndices,
+			]),
 		}
-	} catch {
-		// fall through to legacy format parser
 	}
 
-	const sourceMatch = responseText.match(/USED_SOURCES:\s*\[(.*?)\]/)
-	const usedIndices = sourceMatch
-		? sourceMatch[1]
-				.split(',')
-				.map((num) => parseInt(num.trim()))
-				.filter((n) => !isNaN(n))
-		: []
-	return {
-		responseText: responseText.replace(/USED_SOURCES:\s*\[.*?\]/, '').trim(),
-		usedIndices,
+	return stripCitationMarkers(responseText)
+}
+
+/**
+ * Try to parse a structured JSON help response, including fenced ```json blocks.
+ * @param {string} responseText
+ * @returns {{responseText: string, usedIndices: number[]}|null}
+ */
+function tryParseStructuredHelpResponse(responseText) {
+	const candidates = [responseText]
+	const fenced = responseText.match(/```(?:json)?\s*([\s\S]*?)```/i)
+	if (fenced?.[1]) candidates.unshift(fenced[1].trim())
+
+	for (const candidate of candidates) {
+		try {
+			const parsed = JSON.parse(candidate)
+			if (typeof parsed?.answer_markdown === 'string') {
+				return {
+					responseText: parsed.answer_markdown.trim(),
+					usedIndices: normaliseSourceIndexes(parsed.used_source_indexes),
+				}
+			}
+		} catch {
+			// try next candidate
+		}
 	}
+	return null
+}
+
+/**
+ * Remove free-form citation markers from answer text and collect their indices.
+ * Handles USED_SOURCES tags and bare trailing index lists the model sometimes emits.
+ * @param {string} responseText
+ * @returns {{responseText: string, usedIndices: number[]}}
+ */
+function stripCitationMarkers(responseText) {
+	let text = responseText
+	const usedIndices = []
+
+	text = text.replace(/USED_SOURCES:\s*\[([^\]]*)\]/gi, (_, body) => {
+		usedIndices.push(...parseIndexList(body))
+		return ''
+	})
+
+	// e.g. "Sources: [0, 1, 3]" or a final line that is only "[0, 1, 3]"
+	text = text.replace(/(?:^|\n)\s*(?:Sources?\s*:\s*)?\[\s*\d+(?:\s*,\s*\d+)*\s*\]\s*$/i, (match) => {
+		const body = match.match(/\[([^\]]*)\]/)?.[1] || ''
+		usedIndices.push(...parseIndexList(body))
+		return ''
+	})
+
+	return {
+		responseText: text.trim(),
+		usedIndices: uniqueNonNegativeInts(usedIndices),
+	}
+}
+
+/**
+ * @param {unknown} value
+ * @returns {number[]}
+ */
+function normaliseSourceIndexes(value) {
+	if (!Array.isArray(value)) return []
+	return uniqueNonNegativeInts(
+		value.map((index) => (typeof index === 'string' ? parseInt(index, 10) : index)),
+	)
+}
+
+/**
+ * @param {string} body
+ * @returns {number[]}
+ */
+function parseIndexList(body) {
+	return uniqueNonNegativeInts(
+		String(body)
+			.split(',')
+			.map((num) => parseInt(num.trim(), 10)),
+	)
+}
+
+/**
+ * @param {number[]} indexes
+ * @returns {number[]}
+ */
+function uniqueNonNegativeInts(indexes) {
+	return [...new Set(indexes.filter((n) => Number.isInteger(n) && n >= 0))]
 }
 
 // utility functions
