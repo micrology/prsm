@@ -114,7 +114,7 @@
     "path-browserify": "^1.0.1",
     "prettier": "^3.4.2",
     "process": "^0.11.10",
-    "sharp": "^0.33.5",
+    "sharp": "^0.35.4",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0"
   },
