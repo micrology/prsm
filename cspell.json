@@ -1,10 +1,28 @@
 {
   "version": "0.2",
   "language": "en-GB",
-  "dictionaries": ["en_GB", "custom-dictionary"],
+  "dictionaries": [
+    "en_GB",
+    "custom-dictionary"
+  ],
   "enabled": true,
-  "ignorePaths": ["node_modules", "dist", "build", "/\\.*"],
-  "words": ["aiassist", "CRDT", "PRSM"],
+  "ignorePaths": [
+    "node_modules",
+    "dist",
+    "build",
+    "/\\.*"
+  ],
+  "words": [
+    "aiassist",
+    "aiasst",
+    "CRDT",
+    "Dockerfiles",
+    "micrology",
+    "PRSM",
+    "Subpackages",
+    "vendored",
+    "YPERSISTENCE"
+  ],
   "patterns": [
     {
       "name": "jsDocParamName",
@@ -31,38 +49,65 @@
       "pattern": "```[\\s\\S]*?```"
     }
   ],
-  "ignoreRegExpList": ["HtmlOrJsxTag"],
+  "ignoreRegExpList": [
+    "HtmlOrJsxTag"
+  ],
   "languageSettings": [
     {
       "languageId": "javascript",
-      "includeRegExpList": ["CStyleComment", "LineComment"],
-      "ignoreRegExpList": ["jsDocParamName", "jsDocReturnsName"]
+      "includeRegExpList": [
+        "CStyleComment",
+        "LineComment"
+      ],
+      "ignoreRegExpList": [
+        "jsDocParamName",
+        "jsDocReturnsName"
+      ]
     },
     {
       "languageId": "typescript",
-      "includeRegExpList": ["CStyleComment"],
-      "ignoreRegExpList": ["jsDocParamName", "jsDocReturnsName"]
+      "includeRegExpList": [
+        "CStyleComment"
+      ],
+      "ignoreRegExpList": [
+        "jsDocParamName",
+        "jsDocReturnsName"
+      ]
     },
     {
       "languageId": "css",
-      "includeRegExpList": ["CStyleComment"]
+      "includeRegExpList": [
+        "CStyleComment"
+      ]
     },
     {
       "languageId": "html",
-      "includeRegExpList": ["HtmlComment", "HtmlVisibleText"],
-      "ignoreRegExpList": ["ScriptBlock"]
+      "includeRegExpList": [
+        "HtmlComment",
+        "HtmlVisibleText"
+      ],
+      "ignoreRegExpList": [
+        "ScriptBlock"
+      ]
     },
     {
       "languageId": "php",
-      "includeRegExpList": ["CStyleComment", "LineComment"]
+      "includeRegExpList": [
+        "CStyleComment",
+        "LineComment"
+      ]
     },
     {
       "languageId": "markdown",
-      "ignoreRegExpList": ["MarkdownCodeBlock"]
+      "ignoreRegExpList": [
+        "MarkdownCodeBlock"
+      ]
     },
     {
       "languageId": "mdx",
-      "ignoreRegExpList": ["MarkdownCodeBlock"]
+      "ignoreRegExpList": [
+        "MarkdownCodeBlock"
+      ]
     }
   ],
   "dictionaryDefinitions": [
