@@ -697,7 +697,7 @@
 					<i>Drag</i> on the background to move the map.<br>
 					<i>Double-click</i> on the background to zoom the map so that it all fits in the window.<br>
 					<i>Double-click</i> on a factor or link to edit it.</p>"
-          data-step="12"
+          data-step="13"
           data-position="splash"
         ></div>
         <div
@@ -705,7 +705,7 @@
           data-tutorial="
 			<b>That's the end of the tour.</b><p>Press <b>Done</b> and then click <br>
 				on the <b>+</b> button above to add your first factor.</p>"
-          data-step="13"
+          data-step="14"
           data-position="splash"
         >
           <canvas class="drawing-canvas" id="drawing-canvas"></canvas>
@@ -1243,7 +1243,7 @@
         <div
           id="zoomcontrol"
           data-tutorial="Zoom in for detail or out for an overview"
-          data-step="10"
+          data-step="11"
           data-position="left-bottom"
         >
           Zoom
@@ -1512,14 +1512,22 @@
       <div id="ai-assistant-container" class="ai-assistant-container">
         <!-- AI Assistant launcher -->
         <div id="ai-assistant-launcher">
-          <button
-            id="toggle-aiassistant-btn"
-            class="ai-assistant-fab-btn"
-            aria-label="Open AI assistant"
+          <div
+            class="tooltip"
+            id="help-button"
+            data-tutorial="Ask the AI Assistant for guidance on using PRSM"
+            data-step="10"
+            data-position="above"
           >
-            <span class="ai-assistant-icon">✨</span>
-          </button>
-          <div class="ai-assistant-bubble">Ask PRSM's AI assistant...</div>
+            <button
+              id="toggle-aiassistant-btn"
+              class="ai-assistant-fab-btn"
+              aria-label="Open AI assistant"
+            >
+              <span class="ai-assistant-icon">✨</span>
+            </button>
+                     </div>
+            <div class="ai-assistant-bubble">Ask PRSM's AI assistant...</div>
         </div>
 
         <!-- The Floating AI Assistant Dialog Window -->
@@ -1601,7 +1609,7 @@
       <button id="merge">Merge</button>
     </dialog>
     <script>
-      fetch('./whatsnew.html')
+      fetch('./whatsnew.html', { cache: 'no-cache' })
         .then((response) => response.text())
         .then((html) => {
           document.getElementById('whatsnewlist').innerHTML = html
