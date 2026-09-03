@@ -97,6 +97,11 @@ def trigger_bedrock_sync():
         time.sleep(5)
 
 if __name__ == "__main__":
+    # Production deploys skip S3/Bedrock sync; docs are uploaded from the dev machine.
+    if os.environ.get("PRSM_DEPLOY") == "production":
+        print("PRSM_DEPLOY=production: skipping S3/Bedrock help docs sync.")
+        sys.exit(0)
+
     success  = sync_to_bedrock_s3()
     if (success > 0):
         trigger_bedrock_sync()
