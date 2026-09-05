@@ -428,16 +428,16 @@ import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 
 export function openAIAsstDialog() {
-  const toggleBtn = elem('toggle-aiassistant-btn')
-  const closeBtn = elem('close-aiassistant-btn')
-  const chatDialog = elem('aiassistant-dialog')
-  const sendBtn = elem('aiassistant-send-btn')
-  const userInput = elem('aiassistant-user-input')
-  const messagesDiv = elem('aiassistant-messages')
+  const toggleBtn = elem('toggle-ai-assistant-btn')
+  const closeBtn = elem('close-ai-assistant-btn')
+  const chatDialog = elem('ai-assistant-dialog')
+  const sendBtn = elem('ai-assistant-send-btn')
+  const userInput = elem('ai-assistant-user-input')
+  const messagesDiv = elem('ai-assistant-messages')
   const statusDot = elem('status-dot')
   const overlay = document.getElementById('processing-overlay')
 
-  dragElement(elem('ai-assistant-container'), elem('aiassistant-header'))
+  dragElement(elem('ai-assistant-container'), elem('ai-assistant-header'))
 
   // Open / Close Toggle mechanism
   function toggleChat() {

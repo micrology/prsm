@@ -15,28 +15,31 @@ See the file LICENSE.md for details.
 This module provides the AI Help Assistant front end for PRSM
 ********************************************************************************************/
 
-import {
-  elem,
-  dragElement,
-} from './utils.js'
+import { elem, dragElement } from './utils.js'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 
 export function openAIAsstDialog() {
-  const toggleBtn = elem('toggle-aiassistant-btn')
-  const closeBtn = elem('close-aiassistant-btn')
-  const chatDialog = elem('aiassistant-dialog')
-  const sendBtn = elem('aiassistant-send-btn')
-  const userInput = elem('aiassistant-user-input')
-  const messagesDiv = elem('aiassistant-messages')
+  const toggleBtn = elem('toggle-ai-assistant-btn')
+  const closeBtn = elem('close-ai-assistant-btn')
+  const chatDialog = elem('ai-assistant-dialog')
+  const sendBtn = elem('ai-assistant-send-btn')
+  const userInput = elem('ai-assistant-user-input')
+  const messagesDiv = elem('ai-assistant-messages')
   const statusDot = elem('status-dot')
-  const overlay = document.getElementById('processing-overlay')
+  const overlay = elem('processing-overlay')
 
-  dragElement(elem('ai-assistant-container'), elem('aiassistant-header'))
+  dragElement(elem('ai-assistant-container'), elem('ai-assistant-header'))
 
-  // Open / Close Toggle mechanism
+  /**
+   *  Toggle the visibility of the chat dialog and legend box when the user clicks the "AI Help" 
+   *    button or the "X" close button.
+   *  If the chat dialog is currently hidden, show it and hide the legend box.
+   *  If the chat dialog is currently visible, hide it and show the legend box.
+   */
   function toggleChat() {
     chatDialog.classList.toggle('hidden')
+    elem('legendBox').classList.toggle('hidden')
   }
 
   // Event listeners

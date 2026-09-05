@@ -1118,8 +1118,8 @@ portrait.addEventListener('change', () => {
   setvh()
 })
 /**
- * in View Only mode, hide all the Nav Bar buttons except the search button
- * and make the map title not editable
+ * in View Only mode, hide all the Nav Bar buttons except the search button,
+ * make the map title not editable, and hide the AI Help button and dialog
  */
 function hideNavButtons() {
   elem('buttons').style.visibility = 'hidden'
@@ -1134,6 +1134,7 @@ function hideNavButtons() {
     panel.classList.add('hide')
     container.panelHidden = true
   }
+  elem('ai-assistant-container').style.display = 'none'
 }
 /** restore all the Nav Bar buttons when leaving view only mode (e.g. when
  * going back online)

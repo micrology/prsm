@@ -1565,7 +1565,7 @@ select option {
 /* Legend */
 .legend {
   position: fixed;
-  bottom: 80px;
+  bottom: 85px;
   left: 20px;
   max-height: 75%;
   box-shadow: 0px 6px 24px var(--shadow-color);
@@ -1575,7 +1575,7 @@ select option {
   margin: 0;
   user-select: none;
   -webkit-user-select: none;
-  z-index: 40;
+  z-index: 50;
 }
 .legendWrapper {
   max-height: calc(100% - 25px);
@@ -2187,19 +2187,24 @@ input#splashNameBox::placeholder {
 body.adding-factor .ai-assistant-container {
   pointer-events: none;
 }
+#ai-assistant-launcher {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
 .ai-assistant-bubble {
   background: #333;
   color: #fff;
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 13px;
-  margin-bottom: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   white-space: nowrap;
   /* Smooth transition states */
   opacity: 0;
   visibility: hidden;
-  transform: translateY(10px);
+  transform: translateX(-10px);
   transition:
     opacity 0.2s ease,
     transform 0.2s ease,
@@ -2223,13 +2228,13 @@ body.adding-factor .ai-assistant-container {
   transform: scale(0.95);
   background: var(--tertiary-color);
 }
-.ai-assistant-fab-btn:hover + .ai-assistant-bubble {
+#ai-assistant-launcher:hover .ai-assistant-bubble {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
+  transform: translateX(0);
 }
 /* 2. Floating Dialog Layout Container */
-.aiassistant-widget {
+.ai-assistant-widget {
   width: 360px;
   height: 500px;
   z-index: 240;
@@ -2248,7 +2253,7 @@ body.adding-factor .ai-assistant-container {
 }
 
 /* Utility State to manage transitions gracefully */
-.aiassistant-widget.hidden {
+.ai-assistant-widget.hidden {
   opacity: 0;
   visibility: hidden;
   transform: scale(0.8) translateY(20px);
@@ -2256,7 +2261,7 @@ body.adding-factor .ai-assistant-container {
 }
 
 /* 3. Header Styling */
-.aiassistant-header {
+.ai-assistant-header {
   background: var(--primary-color);
   color: #ffffff;
   padding: 4px 16px;
@@ -2264,7 +2269,7 @@ body.adding-factor .ai-assistant-container {
   justify-content: space-between;
   align-items: center;
 }
-.aiassistant-title {
+.ai-assistant-title {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2280,7 +2285,7 @@ body.adding-factor .ai-assistant-container {
 .status-dot-active {
   background: #fec73b;
 }
-.aiassistant-close-btn {
+.ai-assistant-close-btn {
   background: transparent;
   border: none;
   color: #888;
@@ -2288,12 +2293,12 @@ body.adding-factor .ai-assistant-container {
   cursor: pointer;
   transition: color 0.2s;
 }
-.aiassistant-close-btn:hover {
+.ai-assistant-close-btn:hover {
   color: #fff;
 }
 
 /* 4. Scrollable Chat Message Canvas */
-.aiassistant-body {
+.ai-assistant-body {
   flex: 1;
   padding: 16px;
   overflow-y: auto;
@@ -2304,10 +2309,10 @@ body.adding-factor .ai-assistant-container {
 }
 
 /* Scrollbar Customization for smaller spaces */
-.aiassistant-body::-webkit-scrollbar {
+.ai-assistant-body::-webkit-scrollbar {
   width: 6px;
 }
-.aiassistant-body::-webkit-scrollbar-thumb {
+.ai-assistant-body::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 3px;
 }
@@ -2420,14 +2425,14 @@ body.adding-factor .ai-assistant-container {
 }
 
 /* 6. Footer Input Row styling */
-.aiassistant-footer {
+.ai-assistant-footer {
   padding: 12px;
   background: #ffffff;
   border-top: 1px solid #edf2f7;
   display: flex;
   gap: 8px;
 }
-.aiassistant-footer input {
+.ai-assistant-footer input {
   flex: 1;
   border: 1px solid #cbd5e1;
   padding: 10px 14px;
@@ -2435,10 +2440,10 @@ body.adding-factor .ai-assistant-container {
   font-size: 14px;
   outline: none;
 }
-.aiassistant-footer input:focus {
+.ai-assistant-footer input:focus {
   border-color: var(--primary-color);
 }
-.aiassistant-send-btn {
+.ai-assistant-send-btn {
   width: 38px;
   height: 38px;
   background: var(--primary-color);
@@ -2452,7 +2457,7 @@ body.adding-factor .ai-assistant-container {
   justify-content: center;
 }
 /* Hide the hover tooltip completely if the open widget is visible */
-.aiassistant-widget:not(.hidden) ~ .aiassistant-prompt-bubble {
+.ai-assistant-widget:not(.hidden) ~ .ai-assistant-prompt-bubble {
   display: none !important;
 }
 
