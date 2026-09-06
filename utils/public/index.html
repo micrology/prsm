@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>PRSM Usage Dashboard</title>
+  <link rel="stylesheet" href="/dashboard.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-text">
+      <p class="eyebrow">Local only · 127.0.0.1:8080</p>
+      <h1>PRSM Usage Dashboard</h1>
+      <p class="subtitle">Server health, websocket activity, and API usage for today.</p>
+    </div>
+    <div class="header-actions">
+      <p id="day-label" class="meta">—</p>
+      <p id="updated-at" class="meta">Loading…</p>
+      <button type="button" id="refresh-btn" class="btn">Refresh</button>
+    </div>
+  </header>
+
+  <p id="status-banner" class="status-banner" hidden></p>
+
+  <main class="layout">
+    <section class="panel" aria-labelledby="server-heading">
+      <div class="panel-header">
+        <h2 id="server-heading">Server</h2>
+        <p class="panel-note">AWS EC2 host metrics</p>
+      </div>
+      <div id="server-grid" class="stat-grid"></div>
+      <div id="server-extra" class="extra-block"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="websocket-heading">
+      <div class="panel-header">
+        <h2 id="websocket-heading">WebSocket server</h2>
+        <p class="panel-note">websocket-server.service</p>
+      </div>
+      <div id="websocket-grid" class="stat-grid"></div>
+      <div id="websocket-extra" class="extra-block"></div>
+    </section>
+
+    <section class="panel panel-wide" aria-labelledby="api-heading">
+      <div class="panel-header">
+        <h2 id="api-heading">API server</h2>
+        <p class="panel-note">prsm-api-server.service</p>
+      </div>
+      <div id="api-grid" class="stat-grid"></div>
+      <div id="api-extra" class="extra-block"></div>
+
+      <div class="table-section">
+        <div class="table-header">
+          <h3>Help cache</h3>
+          <p id="help-cache-meta" class="meta">—</p>
+        </div>
+        <div class="table-scroll" tabindex="0">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Question</th>
+                <th scope="col">Answer</th>
+                <th scope="col">Sources</th>
+              </tr>
+            </thead>
+            <tbody id="help-cache-body">
+              <tr><td colspan="3">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Bound to 127.0.0.1 only. Non-local requests are rejected with HTTP 403.</p>
+  </footer>
+
+  <script src="/dashboard.js" defer></script>
+</body>
+</html>

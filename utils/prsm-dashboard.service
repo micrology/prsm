@@ -1,0 +1,31 @@
+# /etc/systemd/system/prsm-dashboard.service
+# Local-only PRSM usage dashboard (127.0.0.1:8080)
+#
+# after installing, run:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now prsm-dashboard
+#   systemctl status prsm-dashboard
+
+[Unit]
+Description=PRSM Usage Dashboard
+Documentation=file:///data/prsm/utils/dashboard-server.mjs
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+Group=ec2-user
+WorkingDirectory=/data/prsm/utils
+ExecStart=/usr/bin/node /data/prsm/utils/dashboard-server.mjs
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=prsm-dashboard
+
+# Soft memory ceiling; dashboard is lightweight
+MemoryMax=256M
+MemoryAccounting=true
+
+[Install]
+WantedBy=multi-user.target

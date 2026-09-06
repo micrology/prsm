@@ -6,6 +6,7 @@ node_modules
 doc/help/node_modules
 doc/help/doc_build
 doc/help/docs/manual/_meta.json
+rspress.config.ts=
 *.bbprojectd
 *.code-workspace
 experiments

@@ -1,0 +1,355 @@
+/**
+ * PRSM dashboard front-end.
+ * Fetches /api/stats and renders the three monitoring sections.
+ */
+
+const REFRESH_MS = 30000;
+
+const els = {
+  dayLabel: document.getElementById('day-label'),
+  updatedAt: document.getElementById('updated-at'),
+  refreshBtn: document.getElementById('refresh-btn'),
+  statusBanner: document.getElementById('status-banner'),
+  serverGrid: document.getElementById('server-grid'),
+  serverExtra: document.getElementById('server-extra'),
+  websocketGrid: document.getElementById('websocket-grid'),
+  websocketExtra: document.getElementById('websocket-extra'),
+  apiGrid: document.getElementById('api-grid'),
+  apiExtra: document.getElementById('api-extra'),
+  helpCacheMeta: document.getElementById('help-cache-meta'),
+  helpCacheBody: document.getElementById('help-cache-body'),
+};
+
+/**
+ * Escape text for safe HTML insertion.
+ * @param {unknown} value
+ * @returns {string}
+ */
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+/**
+ * @param {string} label
+ * @param {string} value
+ * @param {{small?: boolean}} [opts]
+ * @returns {string}
+ */
+function statCard(label, value, opts = {}) {
+  const valueClass = opts.small ? 'stat-value small' : 'stat-value';
+  return `
+    <article class="stat-card">
+      <span class="stat-label">${escapeHtml(label)}</span>
+      <span class="${valueClass}">${value}</span>
+    </article>
+  `;
+}
+
+/**
+ * @param {string} state
+ * @returns {string}
+ */
+function stateBadge(state) {
+  const normalised = String(state || 'unknown').toLowerCase();
+  let cls = 'badge';
+  if (normalised !== 'active' && normalised !== 'running') cls += ' warn';
+  if (normalised === 'failed' || normalised === 'inactive') cls += ' danger';
+  return `<span class="${cls}">${escapeHtml(state || 'unknown')}</span>`;
+}
+
+/**
+ * @param {string|number|Date|null|undefined} value
+ * @returns {string}
+ */
+function formatTime(value) {
+  if (!value) return '—';
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleString();
+}
+
+/**
+ * @param {object} server
+ */
+function renderServer(server) {
+  const load = server.loadAverage || {};
+  const memory = server.memory || {};
+  const swap = server.swap || {};
+  const largest = server.largestProcess;
+
+  els.serverGrid.innerHTML = [
+    statCard('Hostname', escapeHtml(server.hostname || '—')),
+    statCard('Uptime', escapeHtml(server.uptimeHuman || '—')),
+    statCard(
+      'Load average',
+      escapeHtml(`${load.one?.toFixed?.(2) ?? load.one} / ${load.five?.toFixed?.(2) ?? load.five} / ${load.fifteen?.toFixed?.(2) ?? load.fifteen}`),
+    ),
+    statCard('CPUs', escapeHtml(String(server.cpuCount ?? '—'))),
+    statCard(
+      'Memory free / available',
+      escapeHtml(`${memory.freeHuman || '—'} / ${memory.availableHuman || '—'}`),
+      {small: true},
+    ),
+    statCard(
+      'Memory used',
+      escapeHtml(`${memory.usedHuman || '—'} (${memory.usedPercent ?? '—'}%)`),
+      {small: true},
+    ),
+    statCard(
+      'Swap free / total',
+      escapeHtml(`${swap.freeHuman || '—'} / ${swap.totalHuman || '—'}`),
+      {small: true},
+    ),
+    statCard('Apache processes', escapeHtml(String(server.apacheProcesses ?? 0))),
+    statCard('php-fpm processes', escapeHtml(String(server.phpFpmProcesses ?? 0))),
+    statCard(
+      'Largest process',
+      escapeHtml(
+        largest
+          ? `${largest.command} · ${largest.rssHuman} (${largest.pmem}%)`
+          : '—',
+      ),
+      {small: true},
+    ),
+  ].join('');
+
+  const diskItems = (server.disks || [])
+    .map(
+      (disk) => `
+      <li>
+        <span><code>${escapeHtml(disk.mount)}</code> <span class="muted">${escapeHtml(disk.filesystem)}</span></span>
+        <span class="mono">${escapeHtml(disk.availableHuman)} free · ${escapeHtml(disk.usePercent)}</span>
+      </li>`,
+    )
+    .join('');
+
+  els.serverExtra.innerHTML = `
+    <div class="subpanel">
+      <h3>Disk</h3>
+      <ul class="kv-list">${diskItems || '<li><span class="muted">No disk data</span></li>'}</ul>
+      <p class="meta note-spacing">Platform: ${escapeHtml(server.platform || '—')}</p>
+    </div>
+  `;
+}
+
+/**
+ * @param {object} websocket
+ */
+function renderWebsocket(websocket) {
+  const service = websocket.service || {};
+
+  els.websocketGrid.innerHTML = [
+    statCard('Service', stateBadge(service.activeState)),
+    statCard('Memory in use', escapeHtml(service.memoryHuman || '—')),
+    statCard('Users today (by IP)', escapeHtml(String(websocket.usersToday ?? 0))),
+    statCard('Rooms accessed today', escapeHtml(String(websocket.roomsAccessedToday ?? 0))),
+    statCard('Users online now', escapeHtml(String(websocket.usersOnlineNow ?? 0))),
+    statCard('WSS hits today', escapeHtml(String(websocket.wssHitsToday ?? 0))),
+    statCard('Active documents', escapeHtml(String((websocket.activeDocuments || []).length))),
+    statCard('Active connections', escapeHtml(String(websocket.activeConnections ?? 0))),
+  ].join('');
+
+  const online = (websocket.onlineClients || [])
+    .map(
+      (client) => `
+      <li>
+        <code>${escapeHtml(client.ip)}</code>
+        <span class="mono">${escapeHtml(client.connections)} conn</span>
+      </li>`,
+    )
+    .join('');
+
+  const roomRows = (websocket.roomsToday || [])
+    .map((entry) => {
+      const room = typeof entry === 'string' ? entry : entry.room;
+      const count = typeof entry === 'string' ? '—' : entry.count;
+      return `
+      <tr>
+        <td class="mono">${escapeHtml(count)}</td>
+        <td><code>${escapeHtml(room)}</code></td>
+      </tr>`;
+    })
+    .join('');
+
+  const roomsTable = roomRows
+    ? `
+      <div class="table-scroll table-scroll-compact" tabindex="0">
+        <table class="data-table data-table-compact">
+          <thead>
+            <tr>
+              <th scope="col">Count</th>
+              <th scope="col">Room</th>
+            </tr>
+          </thead>
+          <tbody>${roomRows}</tbody>
+        </table>
+      </div>`
+    : '<p class="muted">None yet</p>';
+
+  const docs = (websocket.activeDocuments || [])
+    .map(
+      (doc) => `
+      <li>
+        <code>${escapeHtml(doc.room)}</code>
+        <span class="mono">${escapeHtml(doc.connections)}</span>
+      </li>`,
+    )
+    .join('');
+
+  const onlineNote = websocket.onlineError
+    ? `<p class="meta">Online probe note: ${escapeHtml(websocket.onlineError)}</p>`
+    : '';
+
+  els.websocketExtra.innerHTML = `
+    <div class="subpanel">
+      <h3>Online clients</h3>
+      <ul class="kv-list">${online || '<li><span class="muted">None right now</span></li>'}</ul>
+      ${onlineNote}
+    </div>
+    <div class="subpanel">
+      <h3>Active documents (from service log)</h3>
+      <ul class="kv-list">${docs || '<li><span class="muted">None</span></li>'}</ul>
+    </div>
+    <div class="subpanel">
+      <h3>Rooms accessed today</h3>
+      ${roomsTable}
+      <p class="meta note-spacing">PID ${escapeHtml(service.mainPid ?? '—')} · ${escapeHtml(service.subState || '')}</p>
+    </div>
+  `;
+}
+
+/**
+ * @param {object} api
+ * @param {object} helpCache
+ */
+function renderApi(api, helpCache) {
+  const service = api.service || {};
+
+  els.apiGrid.innerHTML = [
+    statCard('Service', stateBadge(service.activeState)),
+    statCard('Memory in use', escapeHtml(service.memoryHuman || '—')),
+    statCard('Users today (by IP)', escapeHtml(String(api.usersToday ?? 0))),
+    statCard('PRSM API hits today', escapeHtml(String(api.apiHitsToday ?? 0))),
+    statCard(
+      'Top IP today',
+      escapeHtml(api.topIp ? `${api.topIp.ip} (${api.topIp.count})` : '—'),
+      {small: true},
+    ),
+    statCard(
+      'Room most used today',
+      escapeHtml(api.topRoom ? `${api.topRoom.room} (${api.topRoom.count})` : '—'),
+      {small: true},
+    ),
+    statCard('Scanner/other /api hits', escapeHtml(String(api.scannerOrOtherHitsToday ?? 0))),
+    statCard('Help cache entries', escapeHtml(String(helpCache?.count ?? 0))),
+  ].join('');
+
+  const routes = (api.routes || [])
+    .map(
+      (row) => `
+      <li>
+        <code>${escapeHtml(row.route)}</code>
+        <span class="mono">${escapeHtml(row.count)}</span>
+      </li>`,
+    )
+    .join('');
+
+  els.apiExtra.innerHTML = `
+    <div class="subpanel">
+      <h3>Route usage today</h3>
+      <ul class="kv-list">${routes || '<li><span class="muted">No PRSM API traffic yet today</span></li>'}</ul>
+      <p class="meta note-spacing">PID ${escapeHtml(service.mainPid ?? '—')} · ${escapeHtml(service.subState || '')}</p>
+    </div>
+  `;
+
+  if (helpCache?.error) {
+    els.helpCacheMeta.textContent = `Error reading helpCache: ${helpCache.error}`;
+  } else {
+    els.helpCacheMeta.textContent = `${helpCache?.count ?? 0} cached Q&A pairs`;
+  }
+
+  const rows = helpCache?.entries || [];
+  if (!rows.length) {
+    els.helpCacheBody.innerHTML =
+      '<tr><td colspan="3">No help cache entries found.</td></tr>';
+    return;
+  }
+
+  els.helpCacheBody.innerHTML = rows
+    .map((row) => {
+      const sources = (row.sources || [])
+        .map((source) => source?.name || source?.url || 'source')
+        .filter(Boolean)
+        .join(', ');
+      return `
+        <tr>
+          <td>${escapeHtml(row.question)}</td>
+          <td class="answer-cell">${escapeHtml(row.answer)}</td>
+          <td>${escapeHtml(sources || '—')}</td>
+        </tr>
+      `;
+    })
+    .join('');
+}
+
+/**
+ * @param {object} data
+ */
+function renderAll(data) {
+  els.dayLabel.textContent = data.dayLabel ? `Today · ${data.dayLabel}` : 'Today';
+  els.updatedAt.textContent = `Updated ${formatTime(data.collectedAt)}`;
+  renderServer(data.server || {});
+  renderWebsocket(data.websocket || {});
+  renderApi(data.api || {}, data.helpCache || {});
+}
+
+/**
+ * @param {string} message
+ * @param {boolean} [isError]
+ */
+function setStatus(message, isError = false) {
+  if (!message) {
+    els.statusBanner.hidden = true;
+    els.statusBanner.textContent = '';
+    return;
+  }
+  els.statusBanner.hidden = false;
+  els.statusBanner.textContent = message;
+  els.statusBanner.classList.toggle('is-error', Boolean(isError));
+}
+
+/**
+ * Fetch stats and refresh the UI.
+ * @returns {Promise<void>}
+ */
+async function refresh() {
+  els.refreshBtn.disabled = true;
+  try {
+    const response = await fetch('/api/stats', {cache: 'no-store'});
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
+    renderAll(data);
+    setStatus('');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    setStatus(`Failed to load stats: ${message}`, true);
+    els.updatedAt.textContent = 'Update failed';
+  } finally {
+    els.refreshBtn.disabled = false;
+  }
+}
+
+els.refreshBtn.addEventListener('click', () => {
+  refresh();
+});
+
+refresh();
+setInterval(refresh, REFRESH_MS);
