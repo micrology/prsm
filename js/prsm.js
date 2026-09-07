@@ -202,7 +202,7 @@ window.addEventListener('load', () => {
   setUpUserName()
   setUpAwareness()
   setUpShareDialog()
-  openAIAsstDialog()
+  if (features.ai) openAIAsstDialog()
   draw()
 })
 /**
@@ -417,11 +417,13 @@ function setUpPage() {
   dragElement(elem('edgeNotePanel'), elem('edgeNoteHeader'))
   hideNotes()
   setUpSideDrawer()
-  // remove AI sparkle buttons if not providing AI features
+  // remove AI UI if not providing AI features (e.g. Docker self-host build)
   if (!features.ai) {
-    Array.from(document.getElementsByClassName('sparkle')).forEach((elem) => {
-      elem.style.display = 'none'
+    Array.from(document.getElementsByClassName('sparkle')).forEach((el) => {
+      el.style.display = 'none'
     })
+    const aiAssistant = elem('ai-assistant-container')
+    if (aiAssistant) aiAssistant.style.display = 'none'
   }
   displayWhatsNew()
 }

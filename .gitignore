@@ -33,6 +33,7 @@ requirements.txt
 .agents
 skills-lock.json
 launch_dashboard.sh
+dashboard
 
 # Compiled source #
 ###################

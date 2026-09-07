@@ -1,8 +1,18 @@
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import '@knadh/oat/oat.min.js'
+import { features } from '../package.json'
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Docker / no-API builds: keep AI marketing copy, hide the live chatbot widget
+  if (!features.ai) {
+    const chatbotHelp = document.getElementById('chatbothelp')
+    if (chatbotHelp) chatbotHelp.style.display = 'none'
+    document.querySelectorAll('a[href="#chatbothelp"]').forEach((link) => {
+      link.style.display = 'none'
+    })
+  }
+
   const overlay = document.getElementById('processing-overlay')
   const sendBtn = document.getElementById('send-btn')
   const copyChat = document.getElementById('copy-chat')

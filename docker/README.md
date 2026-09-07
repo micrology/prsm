@@ -61,9 +61,11 @@ podman exec -it docker_htppd_1 bash    # shell in the httpd container (name may 
 
 ## Build images yourself
 
-Build from the **repository root** after a production frontend + help build (`npm run deploy` or equivalent), so `dist/` and `doc/help/doc_build/` exist for the httpd image.
+From the **repository root**, build frontend + help with AI disabled (required for the httpd image; `api-server` is not in the container stack), then build the images:
 
 ```bash
+npm run build-for-docker   # sets features.ai=false only for this build, then restores package.json
+
 # httpd
 docker build -f docker/docker-httpd/Dockerfile -t micrology/prsm-httpd .
 docker run -d -p 8080:8080 --name prsm-httpd micrology/prsm-httpd
@@ -73,14 +75,12 @@ docker build -f docker/docker-y-websocket/Dockerfile -t micrology/prsm-y-websock
 docker run -d -p 1234:1234 --name prsm-y-websocket micrology/prsm-y-websocket
 ```
 
-Multi-arch publish (maintainers), also available as root `npm run rebuild-docker`:
+`build-for-docker` (`utils/build-for-docker.mjs`) produces `dist/` and `doc/help/doc_build/` with AI UI gated off. Do not use a normal production `deploy`/`build` (AI on) as the source for the httpd image.
+
+Multi-arch publish (maintainers): root `npm run rebuild-docker` runs `build-for-docker` then pushes both images:
 
 ```bash
-docker buildx build --platform linux/amd64,linux/arm64 \
-  -t micrology/prsm-httpd --push -f docker/docker-httpd/Dockerfile .
-
-docker buildx build --platform linux/amd64,linux/arm64 \
-  -t micrology/prsm-y-websocket --push -f docker/docker-y-websocket/Dockerfile .
+npm run rebuild-docker
 ```
 
 ## See also

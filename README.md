@@ -323,7 +323,8 @@ Root `.htaccess` CSP already allows `ws://localhost:1234` and `http://localhost:
 | `npm run check` | lint + spellcheck + help build + prettier |
 | `npm run jsdoc` | Generate JSDoc under `doc/jsdoc` |
 | `npm run analyse` | Parcel detailed bundle report |
-| `npm run rebuild-docker` | Multi-arch build/push of published images |
+| `npm run build-for-docker` | Build `dist/` + help with `features.ai` temporarily false |
+| `npm run rebuild-docker` | `build-for-docker` then multi-arch build/push of images |
 
 Subpackages define additional scripts; see their READMEs and `package.json` files.
 
@@ -360,7 +361,7 @@ Dockerfiles and comments live under `docker/`. Root script:
 npm run rebuild-docker
 ```
 
-builds and pushes multi-arch `micrology/prsm-y-websocket` and `micrology/prsm-httpd` images. Prefer the published images for ordinary self-hosting ([section 2](#2-running-prsm-on-your-own-network)).
+runs `build-for-docker` (frontend + help with AI off, without leaving `package.json` changed) then builds and pushes multi-arch `micrology/prsm-y-websocket` and `micrology/prsm-httpd` images. Prefer the published images for ordinary self-hosting ([section 2](#2-running-prsm-on-your-own-network)).
 
 ---
 
