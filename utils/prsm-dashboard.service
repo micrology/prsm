@@ -1,5 +1,5 @@
 # /etc/systemd/system/prsm-dashboard.service
-# Local-only PRSM usage dashboard (127.0.0.1:8080)
+# Local-only PRSM usage dashboard (127.0.0.1:8881)
 #
 # after installing, run:
 #   sudo systemctl daemon-reload

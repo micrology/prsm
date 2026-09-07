@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
  * PRSM usage dashboard server.
- * Binds exclusively to 127.0.0.1:8080 and rejects non-local clients.
+ * Binds exclusively to 127.0.0.1:8881 and rejects non-local clients.
  *
  * Start: node utils/dashboard-server.mjs
- * Open:  http://127.0.0.1:8080/
+ * Open:  http://127.0.0.1:8881/
  */
 
 import http from 'node:http'
@@ -28,7 +28,7 @@ const REPO_ROOT = path.resolve(__dirname, '..')
 const ACCESS_LOG = '/data/logs/apache/access_log'
 const HELP_CACHE_DIR = path.join(REPO_ROOT, 'helpCache')
 const HOST = '127.0.0.1'
-const PORT = 8080
+const PORT = 8881
 
 const require = createRequire(path.join(REPO_ROOT, 'api-server', 'package.json'))
 const {ClassicLevel} = require('classic-level')
