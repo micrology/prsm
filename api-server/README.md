@@ -93,7 +93,7 @@ On start, [`src/secrets.mjs`](src/secrets.mjs) loads secret id **`prsm/api-serve
 | `BEDROCK_API_KEY` | required for AI | Bearer token for Bedrock Runtime Converse |
 | `MODEL_ID` | `eu.anthropic.claude-haiku-4-5-20251001-v1:0` | Primary (quality) chat / help model |
 | `KNOWLEDGE_BASE_ID` | `48IIKVEPJC` | Bedrock KB for Help Assistant retrieval |
-| `HELP_CACHE_LOCATION` | `./helpCache` | Classic-Level cache directory for help answers |
+| `HELP_CACHE_LOCATION` | `./helpCache.db` (repo root) | SQLite file for help answers + metadata |
 | `DONT_CACHE_HELP` | — | Set `true` to disable writing/using the help cache |
 | `MAX_TOKENS` | `512` (chat) | Max output tokens for chat Converse calls |
 | `MAX_PROMPT_LENGTH` | `30000` | Max combined user + system prompt length (chat) |
@@ -123,7 +123,7 @@ Document names on the wire are `prsm` + room code (same convention as the fronte
 | Method | Path | Body | Notes |
 | --- | --- | --- | --- |
 | `POST` | `/api/chat/:room` | `{ "message", "systemPrompt"? }` | Bedrock Converse; returns `{ response }` |
-| `POST` | `/api/helpAssistant` | `{ "messages": [ … Bedrock-style turns … ] }` | RAG help; returns `{ response, sources }` |
+| `POST` | `/api/helpAssistant` | `{ "messages": [ … Bedrock-style turns … ], "room"? }` | RAG help; returns `{ response, sources }`. Optional `room` (`AAA-BBB-CCC-DDD`) is stored with cache metadata only. |
 
 ### Map metadata
 
@@ -160,6 +160,35 @@ Document names on the wire are `prsm` + room code (same convention as the fronte
 | `PATCH` | `/api/map/:room/styles/:style` | `{ "update": { … } }` |
 
 Map mutations open a short-lived Yjs client, sync (10s timeout → HTTP 504), apply changes, then disconnect. Concurrent browser editors see updates through the same websocket room.
+
+## Help cache (SQLite)
+
+First-turn Help Assistant answers are cached in SQLite to avoid repeat Bedrock calls. Each row stores the question, answer, sources, optional room id, timestamp, and outcome (`ok` | `out_of_scope` | `insufficient_context` | `unknown`).
+
+### Migrate from LevelDB
+
+Dev and production each keep their **own** cache files. Run the migration **once on each machine** after deploying this code:
+
+```bash
+# From repo root. Defaults: ./helpCache → ./helpCache.db
+node api-server/utils/migrate-help-cache.mjs
+
+# Explicit paths (production example):
+node api-server/utils/migrate-help-cache.mjs /data/prsm/helpCache /data/prsm/helpCache.db
+
+# Overwrite existing SQLite rows for the same question:
+node api-server/utils/migrate-help-cache.mjs --force
+```
+
+Stop the API server before migrating if it still holds a LevelDB lock. The old LevelDB directory is left in place as a backup.
+
+Ops helpers:
+
+```bash
+node doc/help/scripts/listKeys.mjs [db-path]
+node doc/help/scripts/deleteKey.mjs [db-path] "exact question text"
+api-server/utils/dump_help_cache.sh
+```
 
 ## CLI: merge maps with AI
 

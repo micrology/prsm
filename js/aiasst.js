@@ -19,6 +19,20 @@ import { elem, dragElement } from './utils.js'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 
+/**
+ * Current map room from the page URL, if present.
+ * Read at request time (not via import from prsm.js) to avoid a circular dependency.
+ * @returns {string | null}
+ */
+function currentRoom() {
+  try {
+    const value = new URL(document.location).searchParams.get('room')
+    return value ? value.trim().toUpperCase() : null
+  } catch {
+    return null
+  }
+}
+
 export function openAIAsstDialog() {
   const toggleBtn = elem('toggle-ai-assistant-btn')
   const closeBtn = elem('close-ai-assistant-btn')
@@ -36,10 +50,11 @@ export function openAIAsstDialog() {
    *    button or the "X" close button.
    *  If the chat dialog is currently hidden, show it and hide the legend box.
    *  If the chat dialog is currently visible, hide it and show the legend box.
+   *  legendBox is only present when the map legend is shown, so it may be absent.
    */
   function toggleChat() {
-    chatDialog.classList.toggle('hidden')
-    elem('legendBox').classList.toggle('hidden')
+    chatDialog?.classList.toggle('hidden')
+    elem('legendBox')?.classList.toggle('hidden')
   }
 
   // Event listeners
@@ -82,7 +97,7 @@ export function openAIAsstDialog() {
       const response = await fetch(`${API_BASE_URL}/api/helpAssistant`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: chatHistory }),
+        body: JSON.stringify({ messages: chatHistory, room: currentRoom() }),
       })
 
       const data = await response.json()

@@ -1,11 +1,11 @@
-cp -r ../../helpCache /tmp/helpCache_copy && rm -f /tmp/helpCache_copy/LOCK && node -e "
-const { Level } = require('level');
-const db = new Level('/tmp/helpCache_copy', { valueEncoding: 'utf8', createIfMissing: false });
-db.open().then(async () => {
-  for await (const [key, value] of db.iterator()) {
-    const preview = value.length > 200 ? value.substring(0, 200) + '...' : value;
-    console.log(key + ' => ' + preview);
-  }
-  await db.close();
-}).catch(e => console.error(e));
-"
+#!/usr/bin/env bash
+# Dump SQLite help cache entries (dev helper).
+# Usage: ./dump_help_cache.sh [path/to/helpCache.db]
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+DB="${1:-${HELP_CACHE_LOCATION:-$ROOT/helpCache.db}}"
+# If a legacy LevelDB dir path is passed, prefer sibling .db
+if [[ -d "$DB" && ! -f "$DB" ]]; then
+  DB="${DB}.db"
+fi
+node "$ROOT/doc/help/scripts/listKeys.mjs" "$DB"

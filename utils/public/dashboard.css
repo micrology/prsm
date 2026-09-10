@@ -392,11 +392,135 @@ h3 {
   font-size: 0.85rem;
 }
 
-.answer-cell {
-  white-space: pre-wrap;
-  word-break: break-word;
+.data-table-help {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.data-table-help th,
+.data-table-help td {
+  overflow-wrap: anywhere;
+  padding: 0.5rem 0.4rem;
+}
+
+/* When */
+.data-table-help th:nth-child(1),
+.data-table-help td:nth-child(1) {
+  width: 6.5rem;
+  font-weight: 500;
+  white-space: normal;
+}
+
+/* Room */
+.data-table-help th:nth-child(2),
+.data-table-help td:nth-child(2) {
+  width: 6.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Outcome */
+.data-table-help th:nth-child(3),
+.data-table-help td:nth-child(3) {
+  width: 5.75rem;
+  white-space: nowrap;
+}
+
+/* Question */
+.data-table-help th:nth-child(4),
+.data-table-help td:nth-child(4) {
+  width: 16%;
+  font-weight: 600;
+}
+
+/* Answer — takes remaining space */
+.data-table-help th:nth-child(5),
+.data-table-help td:nth-child(5) {
+  width: auto;
+}
+
+/* Sources */
+.data-table-help th:nth-child(6),
+.data-table-help td:nth-child(6) {
+  width: 5.5rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.badge.ok {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.when-cell {
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+
+.data-table-help .badge {
+  font-size: 0.68rem;
+  padding: 0.1rem 0.4rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.help-cell-text {
+  min-width: 0;
+}
+
+.help-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
   font-family: var(--ui);
   line-height: 1.4;
+}
+
+.help-row-expandable {
+  cursor: pointer;
+}
+
+.help-row-expandable:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: -2px;
+}
+
+.help-row-expandable.is-expanded {
+  background: color-mix(in srgb, var(--brand-soft) 40%, transparent);
+}
+
+.help-row-expandable.is-expanded .help-clamp {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  overflow: visible;
+}
+
+.help-more-hint {
+  display: none;
+}
+
+.help-clamp.is-truncated + .help-more-hint {
+  display: inline-block;
+  margin-top: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+.help-more-hint::before {
+  content: 'Show more';
+}
+
+.help-row-expandable.is-expanded .help-more-hint::before {
+  content: 'Show less';
 }
 
 .site-footer {

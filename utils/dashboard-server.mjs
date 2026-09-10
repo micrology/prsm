@@ -8,7 +8,7 @@
  */
 
 import http from 'node:http'
-import fs from 'node:fs'
+import fs, {createReadStream} from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 import os from 'node:os'
@@ -16,8 +16,6 @@ import {fileURLToPath} from 'node:url'
 import {execFile} from 'node:child_process'
 import {promisify} from 'node:util'
 import {createRequire} from 'node:module'
-import {pipeline} from 'node:stream/promises'
-import {createReadStream, createWriteStream} from 'node:fs'
 
 process.title = 'prsm-dashboard'
 
@@ -26,12 +24,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PUBLIC_DIR = path.join(__dirname, 'public')
 const REPO_ROOT = path.resolve(__dirname, '..')
 const ACCESS_LOG = '/data/logs/apache/access_log'
-const HELP_CACHE_DIR = path.join(REPO_ROOT, 'helpCache')
+const HELP_CACHE_DB = process.env.HELP_CACHE_LOCATION
+	? path.resolve(process.env.HELP_CACHE_LOCATION.endsWith('.db') ||
+			process.env.HELP_CACHE_LOCATION.endsWith('.sqlite') ||
+			process.env.HELP_CACHE_LOCATION.endsWith('.sqlite3')
+			? process.env.HELP_CACHE_LOCATION
+			: `${process.env.HELP_CACHE_LOCATION}.db`)
+	: path.join(REPO_ROOT, 'helpCache.db')
 const HOST = '127.0.0.1'
 const PORT = 8881
 
 const require = createRequire(path.join(REPO_ROOT, 'api-server', 'package.json'))
-const {ClassicLevel} = require('classic-level')
+const sqlite3 = require('sqlite3')
 
 const ROOM_RE = /[A-Z]{3}-[A-Z]{3}-[A-Z]{3}-[A-Z]{3}/
 const API_ROOM_PATH_RE =
@@ -580,76 +584,91 @@ async function collectApiStats(accessEntries) {
 }
 
 /**
- * Recursively copy a directory.
- * @param {string} src
- * @param {string} dest
+ * @param {sqlite3.Database} database
+ * @param {string} sql
+ * @param {unknown[]} [params]
+ * @returns {Promise<any[]>}
  */
-async function copyDir(src, dest) {
-	await fsp.mkdir(dest, {recursive: true})
-	const entries = await fsp.readdir(src, {withFileTypes: true})
-	for (const entry of entries) {
-		const from = path.join(src, entry.name)
-		const to = path.join(dest, entry.name)
-		if (entry.isDirectory()) {
-			await copyDir(from, to)
-		} else if (entry.isFile()) {
-			await pipeline(createReadStream(from), createWriteStream(to))
-		}
-	}
+function sqliteAll(database, sql, params = []) {
+	return new Promise((resolve, reject) => {
+		database.all(sql, params, (err, rows) => {
+			if (err) reject(err)
+			else resolve(rows || [])
+		})
+	})
 }
 
 /**
- * Dump helpCache Q&A pairs via a temporary copy (avoids LOCK conflicts).
+ * Read help cache Q&A pairs from SQLite (WAL-friendly concurrent read).
  */
 async function collectHelpCache() {
-	const tmpDir = await fsp.mkdtemp(path.join(os.tmpdir(), 'prsm-helpCache-'))
-	/** @type {Array<{question: string, answer: string, sources: Array<{name?: string, url?: string|null}>}>} */
+	/** @type {Array<{question: string, answer: string, sources: Array<{name?: string, url?: string|null}>, room: string|null, askedAt: string|null, outcome: string}>} */
 	const entries = []
 
 	try {
-		await copyDir(HELP_CACHE_DIR, tmpDir)
-		try {
-			await fsp.unlink(path.join(tmpDir, 'LOCK'))
-		} catch {
-			// ignore missing lock
+		await fsp.access(HELP_CACHE_DB)
+	} catch {
+		return {
+			count: 0,
+			entries: [],
+			path: HELP_CACHE_DB,
+			error: `Help cache database not found at ${HELP_CACHE_DB}`,
+		}
+	}
+
+	/** @type {sqlite3.Database | null} */
+	let database = null
+	try {
+		database = await new Promise((resolve, reject) => {
+			const handle = new sqlite3.Database(HELP_CACHE_DB, sqlite3.OPEN_READONLY, (err) =>
+				err ? reject(err) : resolve(handle),
+			)
+		})
+
+		const rows = await sqliteAll(
+			database,
+			`SELECT question, response, sources_json, room, asked_at, outcome
+			   FROM help_cache
+			  ORDER BY asked_at DESC, id DESC`,
+		)
+
+		for (const row of rows) {
+			let sources = []
+			try {
+				const parsed = JSON.parse(row.sources_json || '[]')
+				sources = Array.isArray(parsed) ? parsed : []
+			} catch {
+				sources = []
+			}
+			entries.push({
+				question: String(row.question ?? ''),
+				answer: String(row.response ?? ''),
+				sources,
+				room: row.room ? String(row.room) : null,
+				askedAt: row.asked_at ? String(row.asked_at) : null,
+				outcome: String(row.outcome || 'unknown'),
+			})
 		}
 
-		const db = new ClassicLevel(tmpDir, {
-			valueEncoding: 'json',
-			createIfMissing: false,
-		})
-		await db.open()
-		try {
-			for await (const [key, value] of db.iterator()) {
-				const question = String(key)
-				let answer = ''
-				/** @type {Array<{name?: string, url?: string|null}>} */
-				let sources = []
-				if (value && typeof value === 'object') {
-					answer = String(value.response ?? value.answer ?? '')
-					if (Array.isArray(value.sources)) sources = value.sources
-				} else if (typeof value === 'string') {
-					answer = value
-				} else {
-					answer = JSON.stringify(value)
-				}
-				entries.push({question, answer, sources})
-			}
-		} finally {
-			await db.close()
+		const byOutcome = {}
+		for (const entry of entries) {
+			byOutcome[entry.outcome] = (byOutcome[entry.outcome] || 0) + 1
 		}
+
+		return {count: entries.length, entries, byOutcome, path: HELP_CACHE_DB, error: null}
 	} catch (error) {
 		return {
 			count: 0,
 			entries: [],
+			byOutcome: {},
+			path: HELP_CACHE_DB,
 			error: error instanceof Error ? error.message : String(error),
 		}
 	} finally {
-		await fsp.rm(tmpDir, {recursive: true, force: true}).catch(() => {})
+		if (database) {
+			await new Promise((resolve) => database.close(() => resolve()))
+		}
 	}
-
-	entries.sort((a, b) => a.question.localeCompare(b.question))
-	return {count: entries.length, entries, error: null}
 }
 
 /**

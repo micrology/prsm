@@ -270,13 +270,19 @@ function renderApi(api, helpCache) {
   if (helpCache?.error) {
     els.helpCacheMeta.textContent = `Error reading helpCache: ${helpCache.error}`;
   } else {
-    els.helpCacheMeta.textContent = `${helpCache?.count ?? 0} cached Q&A pairs`;
+    const byOutcome = helpCache?.byOutcome || {};
+    const outcomeParts = Object.entries(byOutcome)
+      .map(([name, count]) => `${name}: ${count}`)
+      .join(' · ');
+    els.helpCacheMeta.textContent = outcomeParts
+      ? `${helpCache?.count ?? 0} cached Q&A pairs · ${outcomeParts}`
+      : `${helpCache?.count ?? 0} cached Q&A pairs`;
   }
 
   const rows = helpCache?.entries || [];
   if (!rows.length) {
     els.helpCacheBody.innerHTML =
-      '<tr><td colspan="3">No help cache entries found.</td></tr>';
+      '<tr><td colspan="6">No help cache entries found.</td></tr>';
     return;
   }
 
@@ -287,14 +293,83 @@ function renderApi(api, helpCache) {
         .filter(Boolean)
         .join(', ');
       return `
-        <tr>
-          <td>${escapeHtml(row.question)}</td>
-          <td class="answer-cell">${escapeHtml(row.answer)}</td>
-          <td>${escapeHtml(sources || '—')}</td>
+        <tr class="help-row-expandable" tabindex="0" aria-expanded="false">
+          <td class="mono when-cell">${escapeHtml(formatTime(row.askedAt))}</td>
+          <td class="mono">${escapeHtml(row.room || '—')}</td>
+          <td>${outcomeBadge(row.outcome)}</td>
+          <td class="help-cell-text">
+            <div class="help-clamp">${escapeHtml(row.question)}</div>
+            <span class="help-more-hint" aria-hidden="true"></span>
+          </td>
+          <td class="help-cell-text help-cell-answer">
+            <div class="help-clamp">${escapeHtml(row.answer)}</div>
+            <span class="help-more-hint" aria-hidden="true"></span>
+          </td>
+          <td class="help-cell-text help-cell-sources">
+            <div class="help-clamp">${escapeHtml(sources || '—')}</div>
+            <span class="help-more-hint" aria-hidden="true"></span>
+          </td>
         </tr>
       `;
     })
     .join('');
+
+  bindHelpCacheRowExpansion(els.helpCacheBody);
+}
+
+/**
+ * Clamp long Q/A/source cells; click or Enter/Space expands the row (retrofit admin pattern).
+ * @param {HTMLElement} tbody
+ */
+function bindHelpCacheRowExpansion(tbody) {
+  if (!tbody) return;
+
+  const measure = () => {
+    for (const node of tbody.querySelectorAll('.help-clamp')) {
+      node.classList.toggle('is-truncated', node.scrollHeight - node.clientHeight > 2);
+    }
+  };
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(measure);
+  else measure();
+
+  if (tbody.dataset.expandBound === 'true') return;
+  tbody.dataset.expandBound = 'true';
+
+  tbody.addEventListener('click', (event) => {
+    const row = event.target.closest('tr.help-row-expandable');
+    if (!row || !tbody.contains(row)) return;
+    toggleHelpRowExpansion(row);
+  });
+
+  tbody.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const row = event.target.closest('tr.help-row-expandable');
+    if (!row || !tbody.contains(row)) return;
+    event.preventDefault();
+    toggleHelpRowExpansion(row);
+  });
+}
+
+/**
+ * @param {HTMLElement} row
+ */
+function toggleHelpRowExpansion(row) {
+  const expanded = row.classList.toggle('is-expanded');
+  row.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+}
+
+/**
+ * @param {string|undefined|null} outcome
+ * @returns {string}
+ */
+function outcomeBadge(outcome) {
+  const value = String(outcome || 'unknown');
+  let cls = 'badge';
+  if (value === 'ok') cls += ' ok';
+  else if (value === 'out_of_scope') cls += ' warn';
+  else if (value === 'insufficient_context') cls += ' warn';
+  else if (value === 'error') cls += ' danger';
+  return `<span class="${cls}">${escapeHtml(value)}</span>`;
 }
 
 /**

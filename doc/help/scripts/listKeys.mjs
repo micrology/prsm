@@ -1,56 +1,70 @@
-import {ClassicLevel} from 'classic-level'
+#!/usr/bin/env node
+/**
+ * List all help cache entries from the SQLite helpCache database.
+ *
+ * Usage: node listKeys.mjs [db-path]
+ * Default: HELP_CACHE_LOCATION or ../../helpCache.db from repo root.
+ */
+import path from 'node:path'
+import {fileURLToPath} from 'node:url'
 import {existsSync} from 'node:fs'
 import {homedir} from 'node:os'
+import {
+	initHelpCache,
+	listHelpCache,
+	closeHelpCache,
+	getHelpCacheLocation,
+	resolveHelpCachePath,
+} from '../../../api-server/src/help-cache.mjs'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const REPO_ROOT = path.resolve(__dirname, '../../..')
 
 let [helpCacheLocation] = process.argv.slice(2)
 
-if (!helpCacheLocation) {
-	console.error('Usage: node listKeys.mjs <db-path>')
-	process.exit(1)
-}
-
-// Expand leading ~ to home directory
-if (helpCacheLocation.startsWith('~')) {
+if (helpCacheLocation?.startsWith('~')) {
 	helpCacheLocation = helpCacheLocation.replace('~', homedir())
 }
 
-if (!existsSync(helpCacheLocation)) {
-	console.error(`Database path does not exist: ${helpCacheLocation}`)
+const dbPath = resolveHelpCachePath(
+	helpCacheLocation || process.env.HELP_CACHE_LOCATION || path.join(REPO_ROOT, 'helpCache.db'),
+)
+
+if (!existsSync(dbPath)) {
+	console.error(`Database path does not exist: ${dbPath}`)
 	process.exit(1)
 }
 
-let helpCache
-try {
-	helpCache = new ClassicLevel(helpCacheLocation, {valueEncoding: 'json'})
-	await helpCache.open()
+process.env.HELP_CACHE_LOCATION = dbPath
 
-	let count = 0
-	for await (const [key, value] of helpCache.iterator()) {
-		count++
-		console.log(`\n--- Entry ${count} ---`)
-		console.log(`KEY:   ${key}`)
-		console.log(`VALUE: ${JSON.stringify(value, null, 2)}`)
+try {
+	const database = await initHelpCache({path: dbPath})
+	if (!database) {
+		console.error(`Failed to open help cache at ${dbPath}`)
+		process.exit(1)
 	}
 
-	if (count === 0) {
+	const entries = await listHelpCache()
+	if (entries.length === 0) {
 		console.log('Database is empty.')
 	} else {
+		let count = 0
+		for (const entry of entries) {
+			count += 1
+			console.log(`\n--- Entry ${count} ---`)
+			console.log(`QUESTION: ${entry.question}`)
+			console.log(`ASKED_AT: ${entry.askedAt}`)
+			console.log(`ROOM:     ${entry.room || '—'}`)
+			console.log(`OUTCOME:  ${entry.outcome}`)
+			console.log(`SOURCES:  ${JSON.stringify(entry.sources)}`)
+			console.log(`RESPONSE: ${entry.response}`)
+		}
 		console.log(`\nTotal entries: ${count}`)
 	}
+	console.log(`Database: ${getHelpCacheLocation()}`)
 } catch (err) {
-	if (err.code === 'LEVEL_DATABASE_NOT_OPEN') {
-		const isLock = err.cause?.message?.toLowerCase().includes('lock')
-		if (isLock) {
-			console.error(`Database is locked by another process: ${helpCacheLocation}`)
-		} else {
-			console.error(`Database failed to open: ${err.cause?.message ?? err.message}`)
-		}
-	} else {
-		console.error(`Error: ${err.message}`)
-	}
+	console.error(`Error: ${err.message}`)
 	process.exitCode = 1
 } finally {
-	if (helpCache) {
-		await helpCache.close()
-	}
+	await closeHelpCache().catch(() => {})
 }

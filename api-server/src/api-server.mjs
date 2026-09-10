@@ -28,17 +28,24 @@ import {WebsocketProvider} from 'y-websocket'
 import * as Y from 'yjs'
 import {createHttpTerminator} from 'http-terminator'
 import {BedrockAgentRuntimeClient, RetrieveCommand} from '@aws-sdk/client-bedrock-agent-runtime'
-import {ClassicLevel} from 'classic-level'
 import rateLimit from 'express-rate-limit'
 import {loadSecrets} from './secrets.mjs'
+import {
+	initHelpCache,
+	getCachedHelp,
+	putCachedHelp,
+	closeHelpCache,
+	getHelpCacheLocation,
+} from './help-cache.mjs'
 
 process.title = 'api-server'
 
 // use local websocket server if in development mode
 let websocket = 'wss://www.prsm.uk/wss'
 
-const helpCacheLocation = process.env.HELP_CACHE_LOCATION || './helpCache'
 const cacheResults = process.env.DONT_CACHE_HELP !== 'true'
+const ROOM_ID_RE = /^[A-Z]{3}-[A-Z]{3}-[A-Z]{3}-[A-Z]{3}$/
+const HELP_OUTCOMES = new Set(['ok', 'out_of_scope', 'insufficient_context', 'unknown'])
 
 if (process.env.NODE_ENV === 'dev') {
 	console.log('Running in development mode')
@@ -67,9 +74,6 @@ const HELP_STRUCTURED_OUTPUT_ENABLED = process.env.HELP_STRUCTURED_OUTPUT !== 'f
 const agentClient = new BedrockAgentRuntimeClient({
 	region: process.env.AWS_REGION || 'eu-west-2',
 })
-
-// cache for help assistant answers, to avoid repeated calls to Bedrock for the same question
-const helpCache = new ClassicLevel(helpCacheLocation, {valueEncoding: 'json'})
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -207,10 +211,11 @@ app.post('/api/chat/:room', chatLimiter, async (req, res) => {
  * Uses RAG to answer questions based on the PRSM manual
  */
 app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
-	const {messages} = req.body
+	const {messages, room: rawRoom} = req.body
 	const region = process.env.AWS_REGION || 'eu-west-2'
 	const bedrockApiKey = process.env.BEDROCK_API_KEY
 	const kbId = process.env.KNOWLEDGE_BASE_ID || '48IIKVEPJC'
+	const room = normaliseOptionalRoom(rawRoom)
 
 	if (!bedrockApiKey) {
 		console.error('ERROR: BEDROCK_API_KEY environment variable is not set')
@@ -220,18 +225,17 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 	try {
 		const lastUserMessage = messages[messages.length - 1].content[0].text
 
-		// STEP -1: Check cache first
-		try {
-			const cachedResponse = await helpCache.get(lastUserMessage)
-			if (cachedResponse) {
+		// STEP -1: Check cache first (first-turn questions only are stored)
+		if (cacheResults && messages.length === 1) {
+			const cached = await getCachedHelp(lastUserMessage)
+			if (cached) {
 				logAPICalls(`Help Assistant cache hit for message: ${lastUserMessage}`)
-				return res.json(cachedResponse)
-			} else {
-				logAPICalls(`Help Assistant cache miss for message: ${lastUserMessage}.`)
+				return res.json({
+					response: cached.response,
+					sources: cached.sources,
+				})
 			}
-		} catch (err) {
-			// Cache miss or error, proceed without failing
-			logAPICalls(`Help Assistant cache error for message: ${lastUserMessage}. Error: ${err.message}`)
+			logAPICalls(`Help Assistant cache miss for message: ${lastUserMessage}.`)
 		}
 
 		// STEP 0: If it's a follow-up, rephrase it for the Knowledge Base search
@@ -329,6 +333,7 @@ Before answering, determine the user's intent:
 7. **Continuations:** Offer to provide more detail or cover additional topics if the user is interested.
 8. **Citations:** Record the numeric indices of the sources you actually extracted information from. If you ignored a source because it was the wrong doc_type, do NOT include its index. Never print bare index lists such as [0, 1, 2] in the answer body.
 9. **Output:** Put the user-facing answer in Markdown only. Do not include a Sources section or source index numbers in the answer text; citations are collected separately by the response format.
+10. **Outcome:** Set outcome to one of: "ok" (usable in-scope answer grounded in context), "out_of_scope" (not about PRSM or participatory system mapping), "insufficient_context" (in-scope topic but context is missing so you cannot answer), or "unknown" only if you truly cannot classify.
 
 ### MANUAL CONTEXT
 <context>${context}</context>`
@@ -353,7 +358,7 @@ Before answering, determine the user's intent:
 								structure: {
 									jsonSchema: {
 										name: 'prsm_help_response',
-										description: 'Structured response for PRSM help assistant with cited source indices.',
+										description: 'Structured response for PRSM help assistant with cited source indices and outcome.',
 										schema: JSON.stringify({
 											type: 'object',
 											properties: {
@@ -362,8 +367,12 @@ Before answering, determine the user's intent:
 													type: 'array',
 													items: {type: 'integer'},
 												},
+												outcome: {
+													type: 'string',
+													enum: ['ok', 'out_of_scope', 'insufficient_context', 'unknown'],
+												},
 											},
-											required: ['answer_markdown', 'used_source_indexes'],
+											required: ['answer_markdown', 'used_source_indexes', 'outcome'],
 											additionalProperties: false,
 										}),
 									},
@@ -416,7 +425,7 @@ Before answering, determine the user's intent:
 		}
 		const fullAiResponse = extractConverseText(finalData)
 		// console.log(`Full AI response:\n${fullAiResponse}\nEnd of response.`)
-		const {responseText, usedIndices} = parseHelpAssistantResponse(fullAiResponse)
+		const {responseText, usedIndices, outcome: parsedOutcome} = parseHelpAssistantResponse(fullAiResponse)
 		if (!responseText) {
 			return res.status(502).json({error: 'Model response was empty'})
 		}
@@ -438,20 +447,23 @@ Before answering, determine the user's intent:
 
 		// 4. Deduplicate (in case the LLM cited two chunks from the same chapter)
 		const uniqueSources = Array.from(new Map(sources.map((s) => [s.name, s])).values())
+		const outcome = normaliseHelpOutcome(parsedOutcome, responseText, usedIndices)
 
 		// Cache the response for future requests. If the same question is asked again, we can return
 		// the cached answer without calling Bedrock, which saves costs and reduces latency.  But do not
 		// cache if it's a follow-up question, as the answer may depend on the previous conversation.
 		if (cacheResults && messages.length === 1) {
-			// i.e just one user message
-			try {
-				await helpCache.put(lastUserMessage, {
-					response: responseText,
-					sources: uniqueSources,
-				})
-				logAPICalls(`Cached response for message: ${lastUserMessage}`)
-			} catch (err) {
-				logAPICalls(`Failed to cache response for message: ${lastUserMessage}. Error: ${err.message}`)
+			const written = await putCachedHelp({
+				question: lastUserMessage,
+				response: responseText,
+				sources: uniqueSources,
+				room,
+				outcome,
+			})
+			if (written) {
+				logAPICalls(`Cached response for message: ${lastUserMessage} (outcome=${outcome})`)
+			} else {
+				logAPICalls(`Failed to cache response for message: ${lastUserMessage}`)
 			}
 		}
 
@@ -1045,12 +1057,13 @@ let httpTerminator // terminator instance
 async function start() {
 	// Load secrets first
 	await loadSecrets()
+	await initHelpCache()
 	// Start the server
 	server = app.listen(PORT, () => {
 		console.log(
 			`Proxy server running on http://localhost:${PORT} using websocket server at ${websocket}, 
 			models ${qualityModelId} and ${cheapModelId} and 
-			helpCache at ${helpCache.location}`,
+			helpCache at ${getHelpCacheLocation()}`,
 		)
 	})
 	httpTerminator = createHttpTerminator({server})
@@ -1094,8 +1107,12 @@ process.on('SIGTERM', () => {
 })
 async function handleShutdown() {
 	await httpTerminator.terminate()
-	await helpCache.close()
-	console.log('Help cache closed')
+	try {
+		await closeHelpCache()
+		console.log('Help cache closed')
+	} catch (err) {
+		console.error('Error closing help cache:', err?.message || err)
+	}
 	console.log('HTTP server closed')
 	process.exit(0)
 }
@@ -1106,9 +1123,20 @@ async function handleShutdown() {
  * @throws {Error} if room is invalid
  */
 function checkRoom(room) {
-	if (!room || !room.match(/^[A-Z]{3}-[A-Z]{3}-[A-Z]{3}-[A-Z]{3}$/)) {
+	if (!room || !ROOM_ID_RE.test(room)) {
 		throw new Error(`Invalid room identifier: ${room}`)
 	}
+}
+
+/**
+ * Optional room from help assistant body: valid AAA-BBB-CCC-DDD or null.
+ * @param {unknown} room
+ * @returns {string | null}
+ */
+function normaliseOptionalRoom(room) {
+	if (typeof room !== 'string') return null
+	const normalised = room.trim().toUpperCase()
+	return ROOM_ID_RE.test(normalised) ? normalised : null
 }
 /**
  * Check that a map has been created using the web interface
@@ -1158,11 +1186,11 @@ function extractConverseText(converseResponse) {
 /**
  * Parse structured help response with fallback to free-form citation markers.
  * @param {string} fullAiResponse
- * @returns {{responseText: string, usedIndices: number[]}}
+ * @returns {{responseText: string, usedIndices: number[], outcome: string|null}}
  */
 function parseHelpAssistantResponse(fullAiResponse) {
 	const responseText = fullAiResponse?.trim() || ''
-	if (!responseText) return {responseText: '', usedIndices: []}
+	if (!responseText) return {responseText: '', usedIndices: [], outcome: null}
 
 	const structured = tryParseStructuredHelpResponse(responseText)
 	if (structured) {
@@ -1173,16 +1201,18 @@ function parseHelpAssistantResponse(fullAiResponse) {
 				...structured.usedIndices,
 				...cleaned.usedIndices,
 			]),
+			outcome: structured.outcome,
 		}
 	}
 
-	return stripCitationMarkers(responseText)
+	const cleaned = stripCitationMarkers(responseText)
+	return {...cleaned, outcome: null}
 }
 
 /**
  * Try to parse a structured JSON help response, including fenced ```json blocks.
  * @param {string} responseText
- * @returns {{responseText: string, usedIndices: number[]}|null}
+ * @returns {{responseText: string, usedIndices: number[], outcome: string|null}|null}
  */
 function tryParseStructuredHelpResponse(responseText) {
 	const candidates = [responseText]
@@ -1196,6 +1226,7 @@ function tryParseStructuredHelpResponse(responseText) {
 				return {
 					responseText: parsed.answer_markdown.trim(),
 					usedIndices: normaliseSourceIndexes(parsed.used_source_indexes),
+					outcome: typeof parsed.outcome === 'string' ? parsed.outcome : null,
 				}
 			}
 		} catch {
@@ -1203,6 +1234,28 @@ function tryParseStructuredHelpResponse(responseText) {
 		}
 	}
 	return null
+}
+
+/**
+ * Normalise model outcome or apply a conservative heuristic fallback.
+ * @param {string | null | undefined} outcome
+ * @param {string} responseText
+ * @param {number[]} usedIndices
+ * @returns {string}
+ */
+function normaliseHelpOutcome(outcome, responseText, usedIndices) {
+	const raw = typeof outcome === 'string' ? outcome.trim().toLowerCase() : ''
+	if (HELP_OUTCOMES.has(raw)) return raw
+
+	const text = String(responseText || '').toLowerCase()
+	const noSources = !usedIndices || usedIndices.length === 0
+	const dontKnow =
+		/\bi (do not|don't|cannot|can't) know\b/.test(text) ||
+		/\bnot (enough|sufficient) (information|context)\b/.test(text) ||
+		/\bi('m| am) (not )?able to (answer|help)\b/.test(text)
+	if (noSources && dontKnow) return 'insufficient_context'
+	if (noSources && /\bout of scope\b|\bnot related to prsm\b/.test(text)) return 'out_of_scope'
+	return noSources ? 'unknown' : 'ok'
 }
 
 /**
