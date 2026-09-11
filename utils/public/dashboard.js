@@ -292,6 +292,10 @@ function renderApi(api, helpCache) {
         .map((source) => source?.name || source?.url || 'source')
         .filter(Boolean)
         .join(', ');
+      const rawNote =
+        row.rawQuestion && row.rawQuestion !== row.question
+          ? `<div class="help-raw-question">asked as: ${escapeHtml(row.rawQuestion)}</div>`
+          : '';
       return `
         <tr class="help-row-expandable" tabindex="0" aria-expanded="false">
           <td class="mono when-cell">${escapeHtml(formatTime(row.askedAt))}</td>
@@ -299,6 +303,7 @@ function renderApi(api, helpCache) {
           <td>${outcomeBadge(row.outcome)}</td>
           <td class="help-cell-text">
             <div class="help-clamp">${escapeHtml(row.question)}</div>
+            ${rawNote}
             <span class="help-more-hint" aria-hidden="true"></span>
           </td>
           <td class="help-cell-text help-cell-answer">

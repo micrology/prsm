@@ -163,7 +163,8 @@ async function main() {
 				}
 
 				const ok = await putCachedHelp({
-					question,
+					standaloneQuery: question,
+					rawQuestion: question,
 					response,
 					sources,
 					room: null,

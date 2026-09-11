@@ -619,15 +619,25 @@ async function collectHelpCache() {
 	/** @type {sqlite3.Database | null} */
 	let database = null
 	try {
+		// Open read-write (not OPEN_READONLY) so WAL commits from the API process are visible,
+		// then lock to query-only so the dashboard never mutates the store.
 		database = await new Promise((resolve, reject) => {
-			const handle = new sqlite3.Database(HELP_CACHE_DB, sqlite3.OPEN_READONLY, (err) =>
-				err ? reject(err) : resolve(handle),
+			const handle = new sqlite3.Database(
+				HELP_CACHE_DB,
+				sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
+				(err) => (err ? reject(err) : resolve(handle)),
 			)
+		})
+		await new Promise((resolve, reject) => {
+			database.run('PRAGMA busy_timeout = 5000', (err) => (err ? reject(err) : resolve()))
+		})
+		await new Promise((resolve, reject) => {
+			database.run('PRAGMA query_only = ON', (err) => (err ? reject(err) : resolve()))
 		})
 
 		const rows = await sqliteAll(
 			database,
-			`SELECT question, response, sources_json, room, asked_at, outcome
+			`SELECT question, standalone_query, raw_question, response, sources_json, room, asked_at, outcome
 			   FROM help_cache
 			  ORDER BY asked_at DESC, id DESC`,
 		)
@@ -640,8 +650,12 @@ async function collectHelpCache() {
 			} catch {
 				sources = []
 			}
+			const standalone = String(row.standalone_query ?? row.question ?? '')
+			const raw = row.raw_question != null ? String(row.raw_question) : ''
 			entries.push({
-				question: String(row.question ?? ''),
+				question: standalone,
+				standaloneQuery: standalone,
+				rawQuestion: raw && raw !== standalone ? raw : null,
 				answer: String(row.response ?? ''),
 				sources,
 				room: row.room ? String(row.room) : null,

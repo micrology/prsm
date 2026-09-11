@@ -225,20 +225,7 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 	try {
 		const lastUserMessage = messages[messages.length - 1].content[0].text
 
-		// STEP -1: Check cache first (first-turn questions only are stored)
-		if (cacheResults && messages.length === 1) {
-			const cached = await getCachedHelp(lastUserMessage)
-			if (cached) {
-				logAPICalls(`Help Assistant cache hit for message: ${lastUserMessage}`)
-				return res.json({
-					response: cached.response,
-					sources: cached.sources,
-				})
-			}
-			logAPICalls(`Help Assistant cache miss for message: ${lastUserMessage}.`)
-		}
-
-		// STEP 0: If it's a follow-up, rephrase it for the Knowledge Base search
+		// STEP 0: Build a standalone search query (rephrase follow-ups with conversation context)
 		let standaloneQuery = lastUserMessage
 		if (messages.length > 1) {
 			const rephrasePayload = withServiceTier({
@@ -277,6 +264,22 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 		}
 
 		if (!standaloneQuery) return res.status(400).json({error: 'Message is required'})
+
+		// STEP 0b: Cache lookup by standalone / reformulated query (after rephrase when needed)
+		if (cacheResults) {
+			const cached = await getCachedHelp(standaloneQuery)
+			if (cached) {
+				logAPICalls(
+					`Help Assistant cache hit for standalone query: ${standaloneQuery}` +
+						(lastUserMessage !== standaloneQuery ? ` (raw: ${lastUserMessage})` : ''),
+				)
+				return res.json({
+					response: cached.response,
+					sources: cached.sources,
+				})
+			}
+			logAPICalls(`Help Assistant cache miss for standalone query: ${standaloneQuery}.`)
+		}
 
 		// STEP 1: Retrieve context from the Knowledge Base
 		const retrieveCommand = new RetrieveCommand({
@@ -449,21 +452,23 @@ Before answering, determine the user's intent:
 		const uniqueSources = Array.from(new Map(sources.map((s) => [s.name, s])).values())
 		const outcome = normaliseHelpOutcome(parsedOutcome, responseText, usedIndices)
 
-		// Cache the response for future requests. If the same question is asked again, we can return
-		// the cached answer without calling Bedrock, which saves costs and reduces latency.  But do not
-		// cache if it's a follow-up question, as the answer may depend on the previous conversation.
-		if (cacheResults && messages.length === 1) {
+		// Persist under the standalone / reformulated query so follow-ups share a meaningful key.
+		if (cacheResults) {
 			const written = await putCachedHelp({
-				question: lastUserMessage,
+				standaloneQuery,
+				rawQuestion: lastUserMessage,
 				response: responseText,
 				sources: uniqueSources,
 				room,
 				outcome,
 			})
 			if (written) {
-				logAPICalls(`Cached response for message: ${lastUserMessage} (outcome=${outcome})`)
+				logAPICalls(
+					`Cached response for standalone query: ${standaloneQuery} (outcome=${outcome})` +
+						(lastUserMessage !== standaloneQuery ? ` raw=${lastUserMessage}` : ''),
+				)
 			} else {
-				logAPICalls(`Failed to cache response for message: ${lastUserMessage}`)
+				logAPICalls(`Failed to cache response for standalone query: ${standaloneQuery}`)
 			}
 		}
 

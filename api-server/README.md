@@ -163,7 +163,7 @@ Map mutations open a short-lived Yjs client, sync (10s timeout → HTTP 504), ap
 
 ## Help cache (SQLite)
 
-First-turn Help Assistant answers are cached in SQLite to avoid repeat Bedrock calls. Each row stores the question, answer, sources, optional room id, timestamp, and outcome (`ok` | `out_of_scope` | `insufficient_context` | `unknown`).
+Help Assistant answers are cached in SQLite to avoid repeat Bedrock calls. The cache key is the **standalone / reformulated search query** (after follow-up rephrasing when needed); the raw user utterance is stored alongside when it differs. Each row also has answer, sources, optional room id, timestamp, and outcome (`ok` | `out_of_scope` | `insufficient_context` | `unknown`). Lookup runs after rephrase and before the expensive KB + quality-model path.
 
 ### Migrate from LevelDB
 

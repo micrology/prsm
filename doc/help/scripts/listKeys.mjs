@@ -52,8 +52,9 @@ try {
 		for (const entry of entries) {
 			count += 1
 			console.log(`\n--- Entry ${count} ---`)
-			console.log(`QUESTION: ${entry.question}`)
-			console.log(`ASKED_AT: ${entry.askedAt}`)
+			console.log(`STANDALONE: ${entry.standaloneQuery || entry.question}`)
+			if (entry.rawQuestion) console.log(`RAW:       ${entry.rawQuestion}`)
+			console.log(`ASKED_AT:  ${entry.askedAt}`)
 			console.log(`ROOM:     ${entry.room || '—'}`)
 			console.log(`OUTCOME:  ${entry.outcome}`)
 			console.log(`SOURCES:  ${JSON.stringify(entry.sources)}`)
