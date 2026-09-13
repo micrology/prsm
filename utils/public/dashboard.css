@@ -151,6 +151,22 @@ h3 {
   cursor: wait;
 }
 
+.btn-danger {
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--line));
+  background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+  color: var(--danger);
+}
+
+.btn-danger:hover:not(:disabled),
+.btn-danger:focus-visible:not(:disabled) {
+  background: color-mix(in srgb, var(--danger) 22%, var(--surface));
+  outline: none;
+}
+
+.btn-danger:disabled {
+  cursor: not-allowed;
+}
+
 .status-banner {
   margin-bottom: 1rem;
   padding: 0.85rem 1rem;
@@ -403,17 +419,31 @@ h3 {
   padding: 0.5rem 0.4rem;
 }
 
-/* When */
+/* Select */
 .data-table-help th:nth-child(1),
-.data-table-help td:nth-child(1) {
+.data-table-help td:nth-child(1),
+.data-table-help .help-select-col {
+  width: 2.25rem;
+  min-width: 2.25rem;
+  max-width: 2.25rem;
+  text-align: center;
+  vertical-align: middle;
+  font-weight: 500;
+  padding-left: 0.35rem;
+  padding-right: 0.15rem;
+}
+
+/* When */
+.data-table-help th:nth-child(2),
+.data-table-help td:nth-child(2) {
   width: 6.5rem;
   font-weight: 500;
   white-space: normal;
 }
 
 /* Room */
-.data-table-help th:nth-child(2),
-.data-table-help td:nth-child(2) {
+.data-table-help th:nth-child(3),
+.data-table-help td:nth-child(3) {
   width: 6.75rem;
   white-space: nowrap;
   overflow: hidden;
@@ -421,31 +451,52 @@ h3 {
 }
 
 /* Outcome */
-.data-table-help th:nth-child(3),
-.data-table-help td:nth-child(3) {
+.data-table-help th:nth-child(4),
+.data-table-help td:nth-child(4) {
   width: 5.75rem;
   white-space: nowrap;
 }
 
 /* Question */
-.data-table-help th:nth-child(4),
-.data-table-help td:nth-child(4) {
+.data-table-help th:nth-child(5),
+.data-table-help td:nth-child(5) {
   width: 16%;
   font-weight: 600;
 }
 
 /* Answer — takes remaining space */
-.data-table-help th:nth-child(5),
-.data-table-help td:nth-child(5) {
+.data-table-help th:nth-child(6),
+.data-table-help td:nth-child(6) {
   width: auto;
 }
 
 /* Sources */
-.data-table-help th:nth-child(6),
-.data-table-help td:nth-child(6) {
+.data-table-help th:nth-child(7),
+.data-table-help td:nth-child(7) {
   width: 5.5rem;
   color: var(--muted);
   font-size: 0.82rem;
+}
+
+.help-select-checkbox {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--brand);
+  vertical-align: middle;
+}
+
+.help-cache-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin-top: 0.75rem;
+}
+
+.help-cache-actions .meta {
+  min-height: 1.2em;
 }
 
 .badge.ok {

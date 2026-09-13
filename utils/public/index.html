@@ -59,6 +59,15 @@
           <table class="data-table data-table-help">
             <thead>
               <tr>
+                <th scope="col" class="help-select-col">
+                  <input
+                    type="checkbox"
+                    id="help-cache-select-all"
+                    class="help-select-checkbox"
+                    title="Check to select all rows for deletion"
+                    aria-label="Select all help cache rows for deletion"
+                  >
+                </th>
                 <th scope="col">When</th>
                 <th scope="col">Room</th>
                 <th scope="col">Outcome</th>
@@ -68,9 +77,15 @@
               </tr>
             </thead>
             <tbody id="help-cache-body">
-              <tr><td colspan="6">Loading…</td></tr>
+              <tr><td colspan="7">Loading…</td></tr>
             </tbody>
           </table>
+        </div>
+        <div class="help-cache-actions">
+          <button type="button" id="help-cache-delete-btn" class="btn btn-danger" disabled>
+            Delete selected
+          </button>
+          <p id="help-cache-delete-status" class="meta" aria-live="polite"></p>
         </div>
       </div>
     </section>

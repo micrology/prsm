@@ -46,7 +46,7 @@ export function openAIAsstDialog() {
   dragElement(elem('ai-assistant-container'), elem('ai-assistant-header'))
 
   /**
-   *  Toggle the visibility of the chat dialog and legend box when the user clicks the "AI Help" 
+   *  Toggle the visibility of the chat dialog and legend box when the user clicks the "AI Help"
    *    button or the "X" close button.
    *  If the chat dialog is currently hidden, show it and hide the legend box.
    *  If the chat dialog is currently visible, hide it and show the legend box.

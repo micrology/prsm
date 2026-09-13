@@ -686,6 +686,114 @@ async function collectHelpCache() {
 }
 
 /**
+ * Delete help cache rows by standalone query (cache key).
+ * @param {string[]} keys
+ * @returns {Promise<{deleted: number, missing: string[], error: string|null}>}
+ */
+async function deleteHelpCacheKeys(keys) {
+	const uniqueKeys = [...new Set(keys.map((k) => String(k ?? '').trim()).filter(Boolean))]
+	if (!uniqueKeys.length) {
+		return {deleted: 0, missing: [], error: null}
+	}
+
+	try {
+		await fsp.access(HELP_CACHE_DB)
+	} catch {
+		return {
+			deleted: 0,
+			missing: uniqueKeys,
+			error: `Help cache database not found at ${HELP_CACHE_DB}`,
+		}
+	}
+
+	/** @type {sqlite3.Database | null} */
+	let database = null
+	try {
+		database = await new Promise((resolve, reject) => {
+			const handle = new sqlite3.Database(
+				HELP_CACHE_DB,
+				sqlite3.OPEN_READWRITE,
+				(err) => (err ? reject(err) : resolve(handle)),
+			)
+		})
+		await new Promise((resolve, reject) => {
+			database.run('PRAGMA busy_timeout = 5000', (err) => (err ? reject(err) : resolve()))
+		})
+
+		let deleted = 0
+		/** @type {string[]} */
+		const missing = []
+		for (const key of uniqueKeys) {
+			const changes = await new Promise((resolve, reject) => {
+				database.run(
+					`DELETE FROM help_cache
+					  WHERE standalone_query = ?
+					     OR question = ?`,
+					[key, key],
+					function onRun(err) {
+						if (err) reject(err)
+						else resolve(this.changes || 0)
+					},
+				)
+			})
+			if (changes > 0) deleted += changes
+			else missing.push(key)
+		}
+
+		await new Promise((resolve, reject) => {
+			database.run('PRAGMA wal_checkpoint(PASSIVE)', (err) => (err ? reject(err) : resolve()))
+		}).catch(() => {})
+
+		return {deleted, missing, error: null}
+	} catch (error) {
+		return {
+			deleted: 0,
+			missing: uniqueKeys,
+			error: error instanceof Error ? error.message : String(error),
+		}
+	} finally {
+		if (database) {
+			await new Promise((resolve) => database.close(() => resolve()))
+		}
+	}
+}
+
+/**
+ * Read a JSON request body (size-capped).
+ * @param {import('node:http').IncomingMessage} req
+ * @param {number} [maxBytes]
+ * @returns {Promise<unknown>}
+ */
+function readJsonBody(req, maxBytes = 1_000_000) {
+	return new Promise((resolve, reject) => {
+		const chunks = []
+		let total = 0
+		req.on('data', (chunk) => {
+			total += chunk.length
+			if (total > maxBytes) {
+				reject(new Error('Request body too large'))
+				req.destroy()
+				return
+			}
+			chunks.push(chunk)
+		})
+		req.on('end', () => {
+			try {
+				const raw = Buffer.concat(chunks).toString('utf8')
+				if (!raw.trim()) {
+					resolve({})
+					return
+				}
+				resolve(JSON.parse(raw))
+			} catch (error) {
+				reject(error instanceof Error ? error : new Error(String(error)))
+			}
+		})
+		req.on('error', reject)
+	})
+}
+
+/**
  * Aggregate payload for the dashboard.
  */
 async function collectAllStats() {
@@ -779,6 +887,31 @@ async function handleRequest(req, res) {
 
 	if (method === 'GET' && url.pathname === '/api/health') {
 		sendJson(res, 200, {ok: true, bind: `${HOST}:${PORT}`})
+		return
+	}
+
+	if (
+		(method === 'POST' || method === 'DELETE') &&
+		url.pathname === '/api/help-cache/delete'
+	) {
+		try {
+			const body = /** @type {{keys?: unknown}} */ (await readJsonBody(req))
+			const keys = Array.isArray(body?.keys) ? body.keys.map(String) : []
+			if (!keys.length) {
+				sendJson(res, 400, {error: 'Request body must include a non-empty keys array'})
+				return
+			}
+			const result = await deleteHelpCacheKeys(keys)
+			if (result.error) {
+				sendJson(res, 500, result)
+				return
+			}
+			sendJson(res, 200, result)
+		} catch (error) {
+			sendJson(res, 400, {
+				error: error instanceof Error ? error.message : String(error),
+			})
+		}
 		return
 	}
 
