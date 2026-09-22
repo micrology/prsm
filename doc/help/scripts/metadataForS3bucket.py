@@ -15,8 +15,8 @@ import time
 LOCAL_DOCS_PATH = "/Users/scs1ng/Sites/prsm/doc/help/doc_build/manual" #  rspress markdown folder
 S3_BUCKET_NAME = "prsm-help-162252354798-eu-west-2-an"     # Your private bucket
 BASE_WEB_URL = "https://prsm.uk/doc/help/doc_build/manual/" # Live site URL
-KB_ID = "48IIKVEPJC" # Bedrock Knowledge Base ID
-DS_ID = "0IAQRLSSIW" # Bedrock Data Source ID
+KB_ID = "PXDZJOQZPQ" # Bedrock Knowledge Base ID
+DS_ID = "PEM4ZCPRFF" # Bedrock Data Source ID
 # ---------------------
 
 def sync_to_bedrock_s3():
