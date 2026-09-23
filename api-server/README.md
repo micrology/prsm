@@ -163,7 +163,9 @@ Map mutations open a short-lived Yjs client, sync (10s timeout → HTTP 504), ap
 
 ## Help cache (SQLite)
 
-Help Assistant answers are cached in SQLite to avoid repeat Bedrock calls. The cache key is the **standalone / reformulated search query** (after follow-up rephrasing when needed); the raw user utterance is stored alongside when it differs. Each row also has answer, sources, optional room id, timestamp, and outcome (`ok` | `out_of_scope` | `insufficient_context` | `unknown`). Lookup runs after rephrase and before the expensive KB + quality-model path.
+Help Assistant answers are cached in SQLite to avoid repeat Bedrock calls. The cache key is the **normalised standalone / reformulated search query** (trim, strip wrapping quotes, collapse whitespace, lowercase; after follow-up rephrasing when needed). The raw user utterance is stored alongside when it differs. Each row also has answer, sources, optional room id, timestamp, and outcome (`ok` | `out_of_scope` | `insufficient_context` | `unknown`).
+
+Lookup runs after rephrase and before the expensive KB + quality-model path. Rows with `outcome=insufficient_context` are **kept** for the dashboard but **not** returned as answers. When the model reports `insufficient_context`, the server retries **once** with the raw question plus ` using PRSM` (if that yields a different key), and caches the retry under that key.
 
 ### Migrate from LevelDB
 

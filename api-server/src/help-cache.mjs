@@ -1,9 +1,12 @@
 /**
  * SQLite-backed cache for PRSM Help Assistant Q&A.
  *
- * Cache key is the standalone / reformulated search query (UNIQUE), not the
- * raw chat utterance. Follow-ups are rephrased before lookup/store so keys
- * stay meaningful. raw_question keeps what the user typed for the dashboard.
+ * Cache key is the normalised standalone / reformulated search query (UNIQUE),
+ * not the raw chat utterance. Follow-ups are rephrased before lookup/store so
+ * keys stay meaningful. raw_question keeps what the user typed for the dashboard.
+ *
+ * Entries with outcome=insufficient_context are still stored (for the dashboard)
+ * but are skipped on answer lookup so a failed retrieval is not replayed forever.
  *
  * Store failures are logged and must never break the user-facing request.
  */
@@ -30,6 +33,33 @@ export function resolveHelpCachePath(location = process.env.HELP_CACHE_LOCATION)
 		return path.resolve(location)
 	}
 	return path.resolve(`${location}.db`)
+}
+
+/**
+ * Normalise a standalone / reformulated query for use as a cache key.
+ * Trims, strips wrapping quotes, collapses whitespace, lowercases.
+ * @param {unknown} query
+ * @returns {string}
+ */
+export function normaliseStandaloneQuery(query) {
+	let text = String(query ?? '').trim()
+	if (!text) return ''
+
+	// Strip one layer of matching wrapping quotes the rephraser sometimes adds.
+	const wrappers = [
+		['"', '"'],
+		["'", "'"],
+		['“', '”'],
+		['‘', '’'],
+	]
+	for (const [open, close] of wrappers) {
+		if (text.startsWith(open) && text.endsWith(close) && text.length >= open.length + close.length + 1) {
+			text = text.slice(open.length, -close.length).trim()
+			break
+		}
+	}
+
+	return text.replace(/\s+/g, ' ').toLowerCase()
 }
 
 /**
@@ -220,22 +250,29 @@ export function getHelpCacheLocation() {
 
 /**
  * Look up a cached answer by standalone / reformulated query text.
+ * By default skips outcome=insufficient_context (still stored for analytics).
  * @param {string} standaloneQuery
+ * @param {{includeUnusable?: boolean}} [options]
  * @returns {Promise<object | null>}
  */
-export async function getCachedHelp(standaloneQuery) {
+export async function getCachedHelp(standaloneQuery, options = {}) {
 	try {
 		const database = await initHelpCache()
-		if (!database || !standaloneQuery) return null
+		const key = normaliseStandaloneQuery(standaloneQuery)
+		if (!database || !key) return null
+		const includeUnusable = options.includeUnusable === true
 		const row = await get(
 			database,
 			`SELECT * FROM help_cache
 			  WHERE standalone_query = ?
 			     OR (standalone_query IS NULL AND question = ?)
 			  LIMIT 1`,
-			[standaloneQuery, standaloneQuery],
+			[key, key],
 		)
-		return row ? mapRow(row) : null
+		if (!row) return null
+		const mapped = mapRow(row)
+		if (!includeUnusable && mapped.outcome === 'insufficient_context') return null
+		return mapped
 	} catch (error) {
 		console.error('Failed to read help cache:', error?.message || error)
 		return null
@@ -261,8 +298,8 @@ export async function putCachedHelp(entry) {
 		const database = await initHelpCache()
 		if (!database) return false
 
-		const standaloneQuery = String(entry.standaloneQuery ?? entry.question ?? '')
-		const rawQuestion = String(entry.rawQuestion ?? entry.question ?? standaloneQuery)
+		const standaloneQuery = normaliseStandaloneQuery(entry.standaloneQuery ?? entry.question ?? '')
+		const rawQuestion = String(entry.rawQuestion ?? entry.question ?? standaloneQuery).trim()
 		const response = String(entry.response ?? '')
 		if (!standaloneQuery || !response) return false
 
@@ -319,13 +356,17 @@ export async function listHelpCache() {
 export async function deleteHelpCacheKey(standaloneQuery) {
 	try {
 		const database = await initHelpCache()
-		if (!database || !standaloneQuery) return false
+		const key = normaliseStandaloneQuery(standaloneQuery)
+		const raw = String(standaloneQuery ?? '').trim()
+		if (!database || (!key && !raw)) return false
 		const result = await run(
 			database,
 			`DELETE FROM help_cache
 			  WHERE standalone_query = ?
+			     OR standalone_query = ?
+			     OR question = ?
 			     OR question = ?`,
-			[standaloneQuery, standaloneQuery],
+			[key, raw, key, raw],
 		)
 		return (result?.changes ?? 0) > 0
 	} catch (error) {

@@ -30,7 +30,14 @@ import {createHttpTerminator} from 'http-terminator'
 import {BedrockAgentRuntimeClient, RetrieveCommand} from '@aws-sdk/client-bedrock-agent-runtime'
 import rateLimit from 'express-rate-limit'
 import {loadSecrets} from './secrets.mjs'
-import {initHelpCache, getCachedHelp, putCachedHelp, closeHelpCache, getHelpCacheLocation} from './help-cache.mjs'
+import {
+	initHelpCache,
+	getCachedHelp,
+	putCachedHelp,
+	closeHelpCache,
+	getHelpCacheLocation,
+	normaliseStandaloneQuery,
+} from './help-cache.mjs'
 
 process.title = 'api-server'
 
@@ -263,232 +270,106 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 			}
 		}
 
+		standaloneQuery = normaliseStandaloneQuery(standaloneQuery)
 		if (!standaloneQuery) return res.status(400).json({error: 'Message is required'})
 
-		// STEP 0b: Cache lookup by standalone / reformulated query (after rephrase when needed)
+		const cacheNote =
+			normaliseStandaloneQuery(lastUserMessage) !== standaloneQuery ? ` (raw: ${lastUserMessage})` : ''
+
+		// STEP 0b: Cache lookup (skips serving insufficient_context; those stay in DB for the dashboard)
+		let skipPrimaryGenerate = false
 		if (cacheResults) {
-			const cached = await getCachedHelp(standaloneQuery)
-			if (cached) {
-				logAPICalls(
-					`Help Assistant cache hit for standalone query: ${standaloneQuery}` +
-						(lastUserMessage !== standaloneQuery ? ` (raw: ${lastUserMessage})` : ''),
-				)
+			const cached = await getCachedHelp(standaloneQuery, {includeUnusable: true})
+			if (cached && cached.outcome !== 'insufficient_context') {
+				logAPICalls(`Help Assistant cache hit for standalone query: ${standaloneQuery}${cacheNote}`)
 				return res.json({
 					response: cached.response,
 					// Manual-only answers must not expose sources; drop legacy cached manual entries too.
 					sources: citableResearchSources(cached.sources),
 				})
 			}
-			logAPICalls(`Help Assistant cache miss for standalone query: ${standaloneQuery}.`)
-		}
-
-		// STEP 1: Retrieve context from the Knowledge Base
-		const retrieveCommand = new RetrieveCommand({
-			knowledgeBaseId: kbId,
-			retrievalQuery: {text: standaloneQuery},
-			retrievalConfiguration: {
-				vectorSearchConfiguration: {numberOfResults: 5},
-			},
-		})
-
-		const retrieveResponse = await agentClient.send(retrieveCommand)
-		const retrievalResults = retrieveResponse.retrievalResults
-		const context = retrievalResults
-			.map((r, index) => {
-				const label = isManualRetrievalResult(r)
-					? 'SOURCE: PRSM USER MANUAL'
-					: 'SOURCE: RESEARCH MATERIAL'
-				return `[Source Index: ${index}] --- ${label} ---\n${r.content.text}\n`
-			})
-			.join('\n\n')
-
-		// console.log(`\nChunks retrieved from KB:\n${context}`)
-
-		// STEP 2: Generate answer using the high quality model, with the retrieved context as part of the system prompt
-		const systemPrompt = `You are the PRSM Help Assistant, a technical expert for the PRSM Participatory System Mapping web application.
-
-Your primary goal is to provide instructions based on the standard user interface and general features. You are also able to provide general guidance aboout how to conduct Participatory System Mapping.
-
-### INTENT-BASED FILTERING (CRITICAL)
-Before answering, determine the user's intent:
-
-1. **PRACTICAL "HOW-TO" QUERIES:** (e.g., "How do I...", "Where is the button for...", "Steps to...")
-   - **RULE:** You must EXCLUSIVELY use information labeled '[SOURCE: PRSM USER MANUAL]'. 
-   - **ACTION:** Ignore all chunks labeled '[SOURCE: RESEARCH MATERIAL]'. Do not include definitions, theories, or academic background. Just give the steps.
-
-2. **CONCEPTUAL/THEORETICAL QUERIES:** (e.g., "What is a link?", "Why use mapping?", "Explain the theory of...")
-   - **RULE:** Use both 'MANUAL' and 'CONCEPTUAL' sources.
-   - **ACTION:** Provide the theoretical definition from the research material, but follow it up by explaining how that specific concept is implemented or represented within the PRSM application using the manual.
-
-### CONSTRAINTS
-- **API EXCLUSION:** You are STRICTLY FORBIDDEN from mentioning or referencing the "PRSM API" or technical API endpoints unless the user specifically asks a question containing the word "API". 
-- **SOURCE TRUTH:** Use only the provided Context. If the information is missing, state clearly that you do not know.
-- **USER FOCUS:** Always prioritize providing instructions that a user can follow through the UI, even if you know there are API endpoints that could also achieve the same result. The user is not a developer and does not have access to the API.
-- **PRIORITIZE MANUAL:** Always prioritize information from the PRSM manual, as this is the official source of truth for how to use the application. If other sources offer conflicting information, always default to the manual's guidance.
-
-### RESPONSE GUIDELINES
-1. **Focus:** Prioritize UI-based workflows and manual instructions.
-2. For practical queries, strictly provide a numbered list of steps and nothing else.
-3. **No question restatement:** Do NOT start with a title, heading, or paraphrase of the user's question (e.g. do not answer "How do I create a link?" with "# How to Create a Link"). Begin directly with the answer or first step. Use Markdown headers only for distinct subsections later in longer answers, never as an opening restatement.
-4. **Formatting:** Always use clean Markdown. Prefer lists and short paragraphs over decorative titles.
-5. **Examples:** Provide code snippets only when they illustrate configuration or non-API technical setups described in the manual.
-6. **Clarity:** Ensure instructions are clear and actionable for users of all technical levels.
-7. **Continuations:** Offer to provide more detail or cover additional topics if the user is interested.
-8. **Citations:** Record the numeric indices of the sources you actually extracted information from. If you ignored a source because it was the wrong doc_type, do NOT include its index. Never print bare index lists such as [0, 1, 2] in the answer body.
-9. **Output:** Put the user-facing answer in Markdown only. Do not include a Sources section or source index numbers in the answer text; citations are collected separately by the response format.
-10. **Outcome:** Set outcome to one of: "ok" (usable in-scope answer grounded in context), "out_of_scope" (not about PRSM or participatory system mapping), "insufficient_context" (in-scope topic but context is missing so you cannot answer), or "unknown" only if you truly cannot classify.
-
-### MANUAL CONTEXT
-<context>${context}</context>`
-
-		const finalPayload = withServiceTier(
-			{
-				modelId: qualityModelId, // Use Haiku 4.5 for the final response
-				messages,
-				system: [
-					{
-						text: systemPrompt,
-					},
-				],
-				inferenceConfig: {
-					maxTokens: parseInt(process.env.MAX_TOKENS) || 2048,
-					temperature: 0.2, // Lower temperature for factual help
-				},
-				...(HELP_STRUCTURED_OUTPUT_ENABLED
-					? {
-							outputConfig: {
-								textFormat: {
-									type: 'json_schema',
-									structure: {
-										jsonSchema: {
-											name: 'prsm_help_response',
-											description:
-												'Structured response for PRSM help assistant with cited source indices and outcome.',
-											schema: JSON.stringify({
-												type: 'object',
-												properties: {
-													answer_markdown: {type: 'string'},
-													used_source_indexes: {
-														type: 'array',
-														items: {type: 'integer'},
-													},
-													outcome: {
-														type: 'string',
-														enum: ['ok', 'out_of_scope', 'insufficient_context', 'unknown'],
-													},
-												},
-												required: ['answer_markdown', 'used_source_indexes', 'outcome'],
-												additionalProperties: false,
-											}),
-										},
-									},
-								},
-							},
-						}
-					: {}),
-			},
-			HELP_SERVICE_TIER,
-		)
-
-		const url = `https://bedrock-runtime.${region}.amazonaws.com/model/${qualityModelId}/converse`
-		let finalResponse = await fetch(url, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${bedrockApiKey}`,
-			},
-			body: JSON.stringify(finalPayload),
-		})
-		if (!finalResponse.ok && HELP_STRUCTURED_OUTPUT_ENABLED) {
-			const retryPayload = withServiceTier(
-				{
-					modelId: qualityModelId,
-					messages,
-					system: [{text: systemPrompt}],
-					inferenceConfig: {
-						maxTokens: parseInt(process.env.MAX_TOKENS) || 2048,
-						temperature: 0.2,
-					},
-				},
-				HELP_SERVICE_TIER,
-			)
-			finalResponse = await fetch(url, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${bedrockApiKey}`,
-				},
-				body: JSON.stringify(retryPayload),
-			})
-		}
-		if (!finalResponse.ok) {
-			const errorText = await finalResponse.text()
-			console.error('Bedrock API error:', errorText)
-			return res.status(finalResponse.status).json({error: errorText})
-		}
-		const finalData = await finalResponse.json()
-
-		if (finalData.usage) {
-			logAPICalls(
-				`Token usage - input: ${finalData.usage.inputTokens}, output: ${finalData.usage.outputTokens}, total: ${finalData.usage.totalTokens}`,
-			)
-		}
-		const fullAiResponse = extractConverseText(finalData)
-		// console.log(`Full AI response:\n${fullAiResponse}\nEnd of response.`)
-		const {responseText, usedIndices, outcome: parsedOutcome} = parseHelpAssistantResponse(fullAiResponse)
-		if (!responseText) {
-			return res.status(502).json({error: 'Model response was empty'})
-		}
-
-		// 3. Map only USED research sources for the client (never cite the user manual)
-		const sources = usedIndices
-			.map((index) => {
-				const result = retrievalResults[index]
-				if (!result || isManualRetrievalResult(result)) return null
-
-				const metadata = result.content?.metadata || result.metadata || {}
-				return {
-					name:
-						metadata.display_name ||
-						metadata['x-amz-bedrock-kb-source-uri'] ||
-						'Research Source',
-					url: metadata.url || result.location?.webLocation?.url || null,
-				}
-			})
-			.filter(Boolean)
-		// console.log(`Sources cited by the AI (after filtering): ${JSON.stringify(sources)}`)
-
-		// 4. Keep only citable research material (with http(s) URLs) and dedupe
-		const uniqueSources = citableResearchSources(sources)
-		const outcome = normaliseHelpOutcome(parsedOutcome, responseText, usedIndices)
-
-		// Persist under the standalone / reformulated query so follow-ups share a meaningful key.
-		if (cacheResults) {
-			const written = await putCachedHelp({
-				standaloneQuery,
-				rawQuestion: lastUserMessage,
-				response: responseText,
-				sources: uniqueSources,
-				room,
-				outcome,
-			})
-			if (written) {
+			if (cached?.outcome === 'insufficient_context') {
+				// Do not serve the failed answer; jump to the PRSM retry path if possible.
 				logAPICalls(
-					`Cached response for standalone query: ${standaloneQuery} (outcome=${outcome})` +
-						(lastUserMessage !== standaloneQuery ? ` raw=${lastUserMessage}` : ''),
+					`Help Assistant cache skip (insufficient_context) for standalone query: ${standaloneQuery}.`,
 				)
+				skipPrimaryGenerate = true
 			} else {
-				logAPICalls(`Failed to cache response for standalone query: ${standaloneQuery}`)
+				logAPICalls(`Help Assistant cache miss for standalone query: ${standaloneQuery}.`)
+			}
+		}
+
+		const helpCtx = {region, bedrockApiKey, kbId, messages}
+		/** @type {{responseText: string, sources: object[], outcome: string} | null} */
+		let result = null
+
+		if (!skipPrimaryGenerate) {
+			result = await answerHelpQuery(standaloneQuery, helpCtx)
+			if (cacheResults) {
+				await cacheHelpResult({
+					standaloneQuery,
+					rawQuestion: lastUserMessage,
+					result,
+					room,
+				})
+			}
+		}
+
+		// On insufficient_context (live or previously cached), retry once with raw + " using PRSM".
+		const needsRetry = skipPrimaryGenerate || result?.outcome === 'insufficient_context'
+		if (needsRetry) {
+			const retryQuery = buildPrsmRetryQuery(lastUserMessage, standaloneQuery)
+			if (retryQuery) {
+				logAPICalls(
+					`Help Assistant insufficient_context; retrying once with: ${retryQuery}` +
+						` (was: ${standaloneQuery})`,
+				)
+
+				if (cacheResults) {
+					const cachedRetry = await getCachedHelp(retryQuery)
+					if (cachedRetry) {
+						logAPICalls(`Help Assistant cache hit for retry query: ${retryQuery}`)
+						return res.json({
+							response: cachedRetry.response,
+							sources: citableResearchSources(cachedRetry.sources),
+						})
+					}
+				}
+
+				const retryResult = await answerHelpQuery(retryQuery, helpCtx)
+				if (cacheResults) {
+					// Keep any original insufficient_context row for the dashboard; store the
+					// retry under its own key only (lookup already skips insufficient rows).
+					await cacheHelpResult({
+						standaloneQuery: retryQuery,
+						rawQuestion: lastUserMessage,
+						result: retryResult,
+						room,
+					})
+				}
+				result = retryResult
+			} else if (!result) {
+				// Prior insufficient_context but no distinct retry query — re-run primary.
+				result = await answerHelpQuery(standaloneQuery, helpCtx)
+				if (cacheResults) {
+					await cacheHelpResult({
+						standaloneQuery,
+						rawQuestion: lastUserMessage,
+						result,
+						room,
+					})
+				}
 			}
 		}
 
 		res.json({
-			response: responseText,
-			sources: uniqueSources,
+			response: result.responseText,
+			sources: citableResearchSources(result.sources),
 		})
 	} catch (error) {
 		console.error('Help Assistant Error:', error)
-		res.status(500).json({error: error.message})
+		const status = Number.isInteger(error?.status) ? error.status : 500
+		res.status(status).json({error: error.message})
 	}
 })
 
@@ -1198,6 +1079,7 @@ function extractConverseText(converseResponse) {
 		.trim()
 }
 
+
 /**
  * Whether a KB retrieval result is from the PRSM user manual (vs research material).
  * @param {object} result
@@ -1229,6 +1111,248 @@ function citableResearchSources(sources) {
 			url: source.url.trim(),
 		}))
 	return Array.from(new Map(cleaned.map((s) => [s.name, s])).values())
+}
+
+/**
+ * Build a one-shot retry search query from the raw user utterance.
+ * Returns '' when it would not differ from the already-tried standalone query.
+ * @param {string} rawQuestion
+ * @param {string} alreadyTriedStandalone
+ * @returns {string}
+ */
+function buildPrsmRetryQuery(rawQuestion, alreadyTriedStandalone) {
+	const raw = String(rawQuestion ?? '').trim()
+	if (!raw) return ''
+	const withPrsm = /\bprsm\b/i.test(raw) ? raw : `${raw.replace(/[?.!\s]+$/u, '')} using PRSM`
+	const normalised = normaliseStandaloneQuery(withPrsm)
+	if (!normalised || normalised === normaliseStandaloneQuery(alreadyTriedStandalone)) return ''
+	return normalised
+}
+
+/**
+ * Persist a help answer; failures are logged only.
+ * @param {{
+ *   standaloneQuery: string,
+ *   rawQuestion: string,
+ *   result: {responseText: string, sources: object[], outcome: string},
+ *   room: string | null,
+ * }} args
+ */
+async function cacheHelpResult({standaloneQuery, rawQuestion, result, room}) {
+	const written = await putCachedHelp({
+		standaloneQuery,
+		rawQuestion,
+		response: result.responseText,
+		sources: result.sources,
+		room,
+		outcome: result.outcome,
+	})
+	if (written) {
+		logAPICalls(
+			`Cached response for standalone query: ${standaloneQuery} (outcome=${result.outcome})` +
+				(normaliseStandaloneQuery(rawQuestion) !== normaliseStandaloneQuery(standaloneQuery)
+					? ` raw=${rawQuestion}`
+					: ''),
+		)
+	} else {
+		logAPICalls(`Failed to cache response for standalone query: ${standaloneQuery}`)
+	}
+}
+
+/**
+ * Retrieve KB context and generate a structured help answer for one search query.
+ * @param {string} retrievalQuery
+ * @param {{
+ *   region: string,
+ *   bedrockApiKey: string,
+ *   kbId: string,
+ *   messages: object[],
+ * }} ctx
+ * @returns {Promise<{responseText: string, sources: object[], outcome: string}>}
+ */
+async function answerHelpQuery(retrievalQuery, ctx) {
+	const {region, bedrockApiKey, kbId, messages} = ctx
+
+	const retrieveCommand = new RetrieveCommand({
+		knowledgeBaseId: kbId,
+		retrievalQuery: {text: retrievalQuery},
+		retrievalConfiguration: {
+			vectorSearchConfiguration: {numberOfResults: 5},
+		},
+	})
+
+	const retrieveResponse = await agentClient.send(retrieveCommand)
+	const retrievalResults = retrieveResponse.retrievalResults || []
+	const context = retrievalResults
+		.map((r, index) => {
+			const label = isManualRetrievalResult(r)
+				? 'SOURCE: PRSM USER MANUAL'
+				: 'SOURCE: RESEARCH MATERIAL'
+			return `[Source Index: ${index}] --- ${label} ---\n${r.content.text}\n`
+		})
+		.join('\n\n')
+
+	const systemPrompt = buildHelpSystemPrompt(context)
+	const finalPayload = withServiceTier(
+		{
+			modelId: qualityModelId,
+			messages,
+			system: [{text: systemPrompt}],
+			inferenceConfig: {
+				maxTokens: parseInt(process.env.MAX_TOKENS) || 2048,
+				temperature: 0.2,
+			},
+			...(HELP_STRUCTURED_OUTPUT_ENABLED
+				? {
+						outputConfig: {
+							textFormat: {
+								type: 'json_schema',
+								structure: {
+									jsonSchema: {
+										name: 'prsm_help_response',
+										description:
+											'Structured response for PRSM help assistant with cited source indices and outcome.',
+										schema: JSON.stringify({
+											type: 'object',
+											properties: {
+												answer_markdown: {type: 'string'},
+												used_source_indexes: {
+													type: 'array',
+													items: {type: 'integer'},
+												},
+												outcome: {
+													type: 'string',
+													enum: ['ok', 'out_of_scope', 'insufficient_context', 'unknown'],
+												},
+											},
+											required: ['answer_markdown', 'used_source_indexes', 'outcome'],
+											additionalProperties: false,
+										}),
+									},
+								},
+							},
+						},
+					}
+				: {}),
+		},
+		HELP_SERVICE_TIER,
+	)
+
+	const url = `https://bedrock-runtime.${region}.amazonaws.com/model/${qualityModelId}/converse`
+	let finalResponse = await fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${bedrockApiKey}`,
+		},
+		body: JSON.stringify(finalPayload),
+	})
+	if (!finalResponse.ok && HELP_STRUCTURED_OUTPUT_ENABLED) {
+		const unstructuredPayload = withServiceTier(
+			{
+				modelId: qualityModelId,
+				messages,
+				system: [{text: systemPrompt}],
+				inferenceConfig: {
+					maxTokens: parseInt(process.env.MAX_TOKENS) || 2048,
+					temperature: 0.2,
+				},
+			},
+			HELP_SERVICE_TIER,
+		)
+		finalResponse = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${bedrockApiKey}`,
+			},
+			body: JSON.stringify(unstructuredPayload),
+		})
+	}
+	if (!finalResponse.ok) {
+		const errorText = await finalResponse.text()
+		console.error('Bedrock API error:', errorText)
+		const err = new Error(errorText)
+		err.status = finalResponse.status
+		throw err
+	}
+
+	const finalData = await finalResponse.json()
+	if (finalData.usage) {
+		logAPICalls(
+			`Token usage - input: ${finalData.usage.inputTokens}, output: ${finalData.usage.outputTokens}, total: ${finalData.usage.totalTokens}`,
+		)
+	}
+
+	const fullAiResponse = extractConverseText(finalData)
+	const {responseText, usedIndices, outcome: parsedOutcome} = parseHelpAssistantResponse(fullAiResponse)
+	if (!responseText) {
+		const err = new Error('Model response was empty')
+		err.status = 502
+		throw err
+	}
+
+	// Map only USED research sources for the client (never cite the user manual)
+	const sources = usedIndices
+		.map((index) => {
+			const result = retrievalResults[index]
+			if (!result || isManualRetrievalResult(result)) return null
+			const metadata = result.content?.metadata || result.metadata || {}
+			return {
+				name:
+					metadata.display_name ||
+					metadata['x-amz-bedrock-kb-source-uri'] ||
+					'Research Source',
+				url: metadata.url || result.location?.webLocation?.url || null,
+			}
+		})
+		.filter(Boolean)
+
+	const uniqueSources = citableResearchSources(sources)
+	const outcome = normaliseHelpOutcome(parsedOutcome, responseText, usedIndices)
+	return {responseText, sources: uniqueSources, outcome}
+}
+
+/**
+ * @param {string} context
+ * @returns {string}
+ */
+function buildHelpSystemPrompt(context) {
+	return `You are the PRSM Help Assistant, a technical expert for the PRSM Participatory System Mapping web application.
+
+Your primary goal is to provide instructions based on the standard user interface and general features. You are also able to provide general guidance aboout how to conduct Participatory System Mapping.
+
+### INTENT-BASED FILTERING (CRITICAL)
+Before answering, determine the user's intent:
+
+1. **PRACTICAL "HOW-TO" QUERIES:** (e.g., "How do I...", "Where is the button for...", "Steps to...")
+   - **RULE:** You must EXCLUSIVELY use information labeled '[SOURCE: PRSM USER MANUAL]'. 
+   - **ACTION:** Ignore all chunks labeled '[SOURCE: RESEARCH MATERIAL]'. Do not include definitions, theories, or academic background. Just give the steps.
+
+2. **CONCEPTUAL/THEORETICAL QUERIES:** (e.g., "What is a link?", "Why use mapping?", "Explain the theory of...")
+   - **RULE:** Use both 'MANUAL' and 'CONCEPTUAL' sources.
+   - **ACTION:** Provide the theoretical definition from the research material, but follow it up by explaining how that specific concept is implemented or represented within the PRSM application using the manual.
+
+### CONSTRAINTS
+- **API EXCLUSION:** You are STRICTLY FORBIDDEN from mentioning or referencing the "PRSM API" or technical API endpoints unless the user specifically asks a question containing the word "API". 
+- **SOURCE TRUTH:** Use only the provided Context. If the information is missing, state clearly that you do not know.
+- **USER FOCUS:** Always prioritize providing instructions that a user can follow through the UI, even if you know there are API endpoints that could also achieve the same result. The user is not a developer and does not have access to the API.
+- **PRIORITIZE MANUAL:** Always prioritize information from the PRSM manual, as this is the official source of truth for how to use the application. If other sources offer conflicting information, always default to the manual's guidance.
+
+### RESPONSE GUIDELINES
+1. **Focus:** Prioritize UI-based workflows and manual instructions.
+2. For practical queries, strictly provide a numbered list of steps and nothing else.
+3. **No question restatement:** Do NOT start with a title, heading, or paraphrase of the user's question (e.g. do not answer "How do I create a link?" with "# How to Create a Link"). Begin directly with the answer or first step. Use Markdown headers only for distinct subsections later in longer answers, never as an opening restatement.
+4. **Formatting:** Always use clean Markdown. Prefer lists and short paragraphs over decorative titles.
+5. **Examples:** Provide code snippets only when they illustrate configuration or non-API technical setups described in the manual.
+6. **Clarity:** Ensure instructions are clear and actionable for users of all technical levels.
+7. **Continuations:** Offer to provide more detail or cover additional topics if the user is interested.
+8. **Citations:** Record the numeric indices of the sources you actually extracted information from. If you ignored a source because it was the wrong doc_type, do NOT include its index. Never print bare index lists such as [0, 1, 2] in the answer body.
+9. **Output:** Put the user-facing answer in Markdown only. Do not include a Sources section or source index numbers in the answer text; citations are collected separately by the response format.
+10. **Outcome:** Set outcome to one of: "ok" (usable in-scope answer grounded in context), "out_of_scope" (not about PRSM or participatory system mapping), "insufficient_context" (in-scope topic but context is missing so you cannot answer), or "unknown" only if you truly cannot classify.
+
+### MANUAL CONTEXT
+<context>${context}</context>`
 }
 
 /**

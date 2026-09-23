@@ -60,7 +60,7 @@ try {
 		process.exit(1)
 	}
 
-	const existing = await getCachedHelp(key)
+	const existing = await getCachedHelp(key, {includeUnusable: true})
 	if (!existing) {
 		console.error(`Key "${key}" not found in database`)
 		process.exitCode = 1
