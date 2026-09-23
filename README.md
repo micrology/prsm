@@ -38,6 +38,7 @@ When you start the app, a private *room* is created for your map. Only people wi
 1. [For end users](#1-for-end-users)
 2. [Running PRSM on your own network](#2-running-prsm-on-your-own-network)
 3. [For developers: adapting and enhancing PRSM](#3-for-developers-adapting-and-enhancing-prsm)
+   - includes [Usage dashboard launcher](#usage-dashboard-launcher-dashboard--launch_dashboardsh)
 4. [Licence](#licence)
 5. [Acknowledgements](#acknowledgements)
 6. [Contact](#contact)
@@ -184,20 +185,23 @@ AI features can be disabled at build/config time via `"features": { "ai": … }`
 
 ```text
 .
-├── html/           # Browser entry pages (main map: prsm.html)
-├── js/             # Frontend ES modules
-├── css/            # Stylesheets
-├── dist/           # Parcel build output (generated)
-├── api-server/     # Map API + AWS Bedrock bridge  → see api-server/README
-├── ws-server/      # Yjs websocket server           → see ws-server/README
-├── vis-network/    # Modified vis-network fork      → see vis-network/README
-├── doc/            # Examples, JSDoc, user manual   → see doc/README
+├── html/                 # Browser entry pages (main map: prsm.html)
+├── js/                   # Frontend ES modules
+├── css/                  # Stylesheets
+├── dist/                 # Parcel build output (generated)
+├── api-server/           # Map API + AWS Bedrock bridge  → see api-server/README
+├── ws-server/            # Yjs websocket server           → see ws-server/README
+├── vis-network/          # Modified vis-network fork      → see vis-network/README
+├── doc/                  # Examples, JSDoc, user manual   → see doc/README
 │   ├── examples/
-│   ├── help/       # Rspress user guide sources
+│   ├── help/             # Rspress user guide sources
 │   └── jsdoc/
-├── docker/         # Container images + compose.yaml
-├── data/           # Sample / legacy maps
-└── package.json    # Root scripts and frontend dependencies
+├── docker/               # Container images + compose.yaml
+├── data/                 # Sample / legacy maps
+├── utils/                # Maintainer tools (incl. usage dashboard server)
+├── dashboard             # Symlink → launch_dashboard.sh
+├── launch_dashboard.sh   # Open / tunnel / run the usage dashboard
+└── package.json          # Root scripts and frontend dependencies
 ```
 
 Frontend modules under `js/` (high level):
@@ -260,23 +264,26 @@ npm run deploy
 
 ### Local development (full stack)
 
-The root package can start the websocket server, API server (dev mode), and Parcel watch together:
+The root package can start the websocket server, API server (dev mode), Parcel watch, and a local usage dashboard together:
 
 ```bash
 npm run start:all-locally
 ```
 
-This runs approximately:
+This runs [`utils/start-all-locally.sh`](utils/start-all-locally.sh), which starts each service **detached** (`nohup` + stdin from `/dev/null`) so Node does not crash with `read EIO` when the npm script exits and the terminal TTY goes away. Approximately:
 
-- `ws-server` with `YPERSISTENCE=./dbDir` on port **1234**
-- `api-server` with `NODE_ENV=dev` on port **3001** (talks to `ws://localhost:1234`)
-- `parcel watch` on `html/*.html` (no HMR)
+- `ws-server` with `YPERSISTENCE=./dbDir` on port **1234** (log: `$TMPDIR/prsm-local/ws-server.log`)
+- `api-server` with `NODE_ENV=dev` on port **3001** (log: `$TMPDIR/prsm-local/api-server.log`)
+- `parcel watch` on `html/*.html` (no HMR; log: `$TMPDIR/prsm-local/parcel.log`)
+- `./launch_dashboard.sh local` — local usage dashboard on **8881** (see [Usage dashboard launcher](#usage-dashboard-launcher-dashboard--launch_dashboardsh))
 
 Stop everything started that way:
 
 ```bash
 npm run stop:all-locally
 ```
+
+(`stop:all-locally` runs [`utils/stop-all-locally.sh`](utils/stop-all-locally.sh), including `./launch_dashboard.sh kill` to free port **8881**.)
 
 #### Pointing the browser at local services
 
@@ -302,6 +309,53 @@ Other useful `debug=` tokens (comma-separated) are listed in the header comment 
 
 Root `.htaccess` CSP already allows `ws://localhost:1234` and `http://localhost:3001` for local connect targets when you serve via Apache with that file.
 
+### Usage dashboard launcher (`./dashboard` / `launch_dashboard.sh`)
+
+Maintainers can open a **localhost-only usage dashboard** on port **8881**. The dashboard UI and Node server live under [`utils/`](utils/) (`dashboard-server.mjs`, `public/`). On the production host the same server can run under systemd via [`utils/prsm-dashboard.service`](utils/prsm-dashboard.service).
+
+From the repo root, use either entry point (they are the same script):
+
+```bash
+./dashboard                 # preferred short name
+./launch_dashboard.sh       # real script; ./dashboard is a symlink to this file
+```
+
+#### What it does
+
+| Invocation | Behaviour |
+| --- | --- |
+| `./dashboard` *(no args)* | If nothing is listening on **8881**, start an **AWS SSM port-forward** to the configured EC2 instance (`TARGET_INSTANCE` in the script), then open the browser. If **8881** is already in use, only open the browser. |
+| `./dashboard local` | Kill any existing listener on **8881**, start `node utils/dashboard-server.mjs` in the background (detached from the TTY), then open the browser. |
+| `./dashboard status` | Report whether something is listening on **8881**. |
+| `./dashboard kill` | Kill process(es) bound to **8881** (SSM tunnel and/or local Node server). |
+| `./dashboard log` | Print the SSM tunnel log (`/tmp/ssm_dashboard.log`). |
+| `./dashboard tail` | Follow the SSM tunnel log. |
+
+The browser helper prefers **Google Chrome** on macOS (reuses an existing tab whose URL starts with `http://localhost:8881` when possible) and falls back to macOS `open`.
+
+#### URLs, bind address, and logs
+
+- URL: [http://localhost:8881/](http://localhost:8881/)
+- The Node server binds to **`127.0.0.1:8881`** and rejects non-local clients.
+- Default (SSM) mode log: `/tmp/ssm_dashboard.log`
+- `local` mode log: `/tmp/prsm_dashboard.log`
+
+#### Prerequisites
+
+| Mode | Needs |
+| --- | --- |
+| Default (SSM tunnel) | [AWS CLI](https://aws.amazon.com/cli/) v2, Session Manager plugin, credentials that can `ssm:StartSession` on the target instance, and a dashboard already running on that host on port **8881**. |
+| `local` | Node.js available as `node`, plus whatever host data the dashboard reads (Apache access log, help-cache SQLite, `systemctl` / `ss`, and so on). On a developer laptop many production metrics will be empty or errored; the UI and static assets still load. |
+
+#### Direct server start (without the launcher)
+
+```bash
+node utils/dashboard-server.mjs
+# then open http://127.0.0.1:8881/
+```
+
+Prefer `./dashboard local` for day-to-day use: it restarts a stale listener cleanly, detaches the process (so a closed terminal does not kill the server with a TTY `EIO`), writes a log file, and opens the browser.
+
 ### Useful npm scripts (root)
 
 | Script | Purpose |
@@ -315,8 +369,8 @@ Root `.htaccess` CSP already allows `ws://localhost:1234` and `http://localhost:
 | `npm run build-help` | Production user-manual build |
 | `npm run build-help-locally` | Local help build |
 | `npm run deploy` | `install:all` + vis-network + app + help builds |
-| `npm run start:all-locally` | ws-server + api-server (dev) + Parcel watch |
-| `npm run stop:all-locally` | Stop the local stack processes |
+| `npm run start:all-locally` | ws-server + api-server (dev) + Parcel watch + local usage dashboard |
+| `npm run stop:all-locally` | Stop the local stack processes (including dashboard on **8881**) |
 | `npm run lint` | ESLint with `--fix` on `js/*.js` |
 | `npm run pretty` | Prettier on HTML/JS/CSS and related paths |
 | `npm run spellcheck` | cspell on main sources and help MDX |
@@ -350,6 +404,7 @@ There is no automated test suite at present.
 | Local WebSocket / API selection | URL `debug=local`; see `js/prsm.js`, `js/ai.js`, `js/aiasst.js` |
 | API port, Bedrock, CORS, secrets | `api-server/` (env + Secrets Manager) |
 | Websocket host/port/persistence | `ws-server/` (`HOST`, `PORT`, `YPERSISTENCE`, `VERBOSE`) |
+| Usage dashboard (local / SSM) | `./dashboard` → `launch_dashboard.sh`; server in `utils/dashboard-server.mjs` |
 | URL rewriting / CSP | `.htaccess` |
 | Container packaging | `docker/` |
 

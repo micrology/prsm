@@ -2296,6 +2296,11 @@ body.adding-factor .ai-assistant-container {
 .ai-assistant-close-btn:hover {
   color: #fff;
 }
+.ai-assistant-support {
+  font-size: 10px;
+  color: #888;
+  margin: auto;
+}
 
 /* 4. Scrollable Chat Message Canvas */
 .ai-assistant-body {

@@ -275,7 +275,8 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 				)
 				return res.json({
 					response: cached.response,
-					sources: cached.sources,
+					// Manual-only answers must not expose sources; drop legacy cached manual entries too.
+					sources: citableResearchSources(cached.sources),
 				})
 			}
 			logAPICalls(`Help Assistant cache miss for standalone query: ${standaloneQuery}.`)
@@ -294,10 +295,9 @@ app.post('/api/helpAssistant', chatLimiter, async (req, res) => {
 		const retrievalResults = retrieveResponse.retrievalResults
 		const context = retrievalResults
 			.map((r, index) => {
-				const meta = r.content?.metadata || r.metadata || {}
-				const s3Uri = r.location?.s3Location?.uri || ''
-				const isManual = meta.doc_type === 'manual' || s3Uri.toLowerCase().endsWith('.md')
-				const label = isManual ? 'SOURCE: PRSM USER MANUAL' : 'SOURCE: RESEARCH MATERIAL'
+				const label = isManualRetrievalResult(r)
+					? 'SOURCE: PRSM USER MANUAL'
+					: 'SOURCE: RESEARCH MATERIAL'
 				return `[Source Index: ${index}] --- ${label} ---\n${r.content.text}\n`
 			})
 			.join('\n\n')
@@ -440,23 +440,26 @@ Before answering, determine the user's intent:
 			return res.status(502).json({error: 'Model response was empty'})
 		}
 
-		// 3. Map only the USED sources
+		// 3. Map only USED research sources for the client (never cite the user manual)
 		const sources = usedIndices
 			.map((index) => {
 				const result = retrievalResults[index]
-				if (!result) return null
+				if (!result || isManualRetrievalResult(result)) return null
 
 				const metadata = result.content?.metadata || result.metadata || {}
 				return {
-					name: metadata.display_name || metadata['x-amz-bedrock-kb-source-uri'] || 'Manual Source',
+					name:
+						metadata.display_name ||
+						metadata['x-amz-bedrock-kb-source-uri'] ||
+						'Research Source',
 					url: metadata.url || result.location?.webLocation?.url || null,
 				}
 			})
-			.filter(Boolean) // Remove any nulls
+			.filter(Boolean)
 		// console.log(`Sources cited by the AI (after filtering): ${JSON.stringify(sources)}`)
 
-		// 4. Deduplicate (in case the LLM cited two chunks from the same chapter)
-		const uniqueSources = Array.from(new Map(sources.map((s) => [s.name, s])).values())
+		// 4. Keep only citable research material (with http(s) URLs) and dedupe
+		const uniqueSources = citableResearchSources(sources)
 		const outcome = normaliseHelpOutcome(parsedOutcome, responseText, usedIndices)
 
 		// Persist under the standalone / reformulated query so follow-ups share a meaningful key.
@@ -1193,6 +1196,39 @@ function extractConverseText(converseResponse) {
 		.map((block) => block.text)
 		.join('\n')
 		.trim()
+}
+
+/**
+ * Whether a KB retrieval result is from the PRSM user manual (vs research material).
+ * @param {object} result
+ * @returns {boolean}
+ */
+function isManualRetrievalResult(result) {
+	const meta = result?.content?.metadata || result?.metadata || {}
+	const s3Uri = result?.location?.s3Location?.uri || ''
+	const sourceUri = String(meta['x-amz-bedrock-kb-source-uri'] || '')
+	return (
+		meta.doc_type === 'manual' ||
+		s3Uri.toLowerCase().endsWith('.md') ||
+		sourceUri.toLowerCase().endsWith('.md')
+	)
+}
+
+/**
+ * Sources shown to the user are research citations only (must have a real URL).
+ * Drops manual / legacy cache entries such as `{ name: 'Manual Source', url: null }`.
+ * @param {Array.<{name?: string, url?: string|null}>|null|undefined} sources
+ * @returns {Array.<{name: string, url: string}>}
+ */
+function citableResearchSources(sources) {
+	if (!Array.isArray(sources)) return []
+	const cleaned = sources
+		.filter((source) => source && typeof source.url === 'string' && /^https?:\/\//i.test(source.url.trim()))
+		.map((source) => ({
+			name: source.name || 'Research Source',
+			url: source.url.trim(),
+		}))
+	return Array.from(new Map(cleaned.map((s) => [s.name, s])).values())
 }
 
 /**

@@ -76,19 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
     marked.use({ renderer })
     let htmlContent = marked.parse(text)
 
-    // 2. Append Sources if they exist
-    if (sources.length > 0) {
+    // 2. Append research sources only (manual answers intentionally have none)
+    const citableSources = (sources || []).filter(
+      (source) => source && typeof source.url === 'string' && /^https?:\/\//i.test(source.url.trim())
+    )
+    if (citableSources.length > 0) {
       htmlContent += `<div class="source-header">Sources:</div>`
-      sources.forEach((source) => {
-        // source is now an object: { name, url }
-        if (source.url) {
-          // If we have a URL, make it a real link
-          htmlContent += `<a href="${source.url}" target="_blank" class="source-link">📖 ${source.name}</a>`
-        } else {
-          // Fallback for sources without source.url: name is a link to a local file path.  Extract a readable title from it
-          const title = source.name.split('/').pop().replace('.html', '').replace(/-/g, ' ')
-          htmlContent += `<a href="${source.name}" target="_blank" class="source-link">📖 ${title}</a>`
-        }
+      citableSources.forEach((source) => {
+        htmlContent += `<a href="${source.url.trim()}" target="_blank" class="source-link">📖 ${source.name || 'Research Source'}</a>`
       })
     }
     const ALLOWED_ATTR = ['href', 'src', 'alt', 'title', 'class', 'target']

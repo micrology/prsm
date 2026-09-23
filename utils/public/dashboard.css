@@ -444,10 +444,9 @@ h3 {
 /* Room */
 .data-table-help th:nth-child(3),
 .data-table-help td:nth-child(3) {
-  width: 6.75rem;
+  width: 8rem;
+  font-size: 0.75rem;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* Outcome */
@@ -455,6 +454,7 @@ h3 {
 .data-table-help td:nth-child(4) {
   width: 5.75rem;
   white-space: nowrap;
+  text-wrap: wrap;
 }
 
 /* Question */

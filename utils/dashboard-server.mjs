@@ -19,6 +19,20 @@ import {createRequire} from 'node:module'
 
 process.title = 'prsm-dashboard'
 
+// Avoid crashing when launched under a TTY that later disappears (EIO on stdin).
+// Prefer a fully detached launch (see launch_dashboard.sh / start-all-locally.sh);
+// these handlers are a backstop if stdin is still a TTY.
+if (process.stdin) {
+	process.stdin.on('error', () => {})
+	try {
+		process.stdin.pause()
+		if (typeof process.stdin.unref === 'function') process.stdin.unref()
+		if (typeof process.stdin.destroy === 'function') process.stdin.destroy()
+	} catch {
+		/* ignore */
+	}
+}
+
 const execFileAsync = promisify(execFile)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PUBLIC_DIR = path.join(__dirname, 'public')
