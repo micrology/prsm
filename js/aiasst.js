@@ -47,16 +47,38 @@ export function openAIAsstDialog() {
   dragElement(assistantContainer, elem('ai-assistant-header'))
   makeAIAssistantFabDraggable(assistantContainer, toggleBtn)
 
+  /** True when this module hid the legend because the chat would cover it. */
+  let legendHiddenByChat = false
+
   /**
-   *  Toggle the visibility of the chat dialog and legend box when the user clicks the "AI Help"
-   *    button or the "X" close button.
-   *  If the chat dialog is currently hidden, show it and hide the legend box.
-   *  If the chat dialog is currently visible, hide it and show the legend box.
-   *  legendBox is only present when the map legend is shown, so it may be absent.
+   * Toggle the AI chat dialog. Hide the map legend only when opening the chat
+   * would cover it (e.g. FAB still in the default corner). If the FAB has been
+   * dragged clear of the legend, leave the legend visible.
    */
   function toggleChat() {
-    chatDialog?.classList.toggle('hidden')
-    elem('legendBox')?.classList.toggle('hidden')
+    if (!chatDialog) return
+
+    const opening = chatDialog.classList.contains('hidden')
+    const legendBox = elem('legendBox')
+
+    if (opening) {
+      const dialogRect = getChatDialogOpenRect(chatDialog)
+      chatDialog.classList.remove('hidden')
+
+      if (legendBox && !legendBox.classList.contains('hidden')) {
+        const legendRect = legendBox.getBoundingClientRect()
+        if (rectsOverlap(dialogRect, legendRect)) {
+          legendBox.classList.add('hidden')
+          legendHiddenByChat = true
+        }
+      }
+    } else {
+      chatDialog.classList.add('hidden')
+      if (legendHiddenByChat) {
+        legendBox?.classList.remove('hidden')
+        legendHiddenByChat = false
+      }
+    }
   }
 
   // Event listeners
@@ -187,6 +209,34 @@ export function openAIAsstDialog() {
     messagesDiv.appendChild(msgDiv)
     return msgDiv
   }
+}
+
+/**
+ * @param {DOMRectReadOnly} a
+ * @param {DOMRectReadOnly} b
+ * @returns {boolean}
+ */
+function rectsOverlap(a, b) {
+  return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top
+}
+
+/**
+ * Bounding box of the chat dialog as it appears when open.
+ * While `.hidden`, CSS transform shrinks/shifts the panel, so clear that for measurement.
+ * @param {HTMLElement} dialog
+ * @returns {DOMRect}
+ */
+function getChatDialogOpenRect(dialog) {
+  const previousTransition = dialog.style.transition
+  const previousTransform = dialog.style.transform
+  dialog.style.transition = 'none'
+  dialog.style.transform = 'none'
+  // Force layout with the open-size transform so getBoundingClientRect is accurate.
+  dialog.getBoundingClientRect()
+  const rect = dialog.getBoundingClientRect()
+  dialog.style.transition = previousTransition
+  dialog.style.transform = previousTransform
+  return rect
 }
 
 /**
