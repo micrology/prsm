@@ -2188,12 +2188,16 @@ body.adding-factor .ai-assistant-container {
   pointer-events: none;
 }
 #ai-assistant-launcher {
+  position: relative;
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px;
 }
 .ai-assistant-bubble {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translate(0, -50%) translateX(-10px);
   background: #333;
   color: #fff;
   padding: 8px 12px;
@@ -2201,10 +2205,10 @@ body.adding-factor .ai-assistant-container {
   font-size: 13px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   white-space: nowrap;
-  /* Smooth transition states */
+  /* Decorative only: never steal hover/cursor from the FAB */
+  pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transform: translateX(-10px);
   transition:
     opacity 0.2s ease,
     transform 0.2s ease,
@@ -2218,20 +2222,47 @@ body.adding-factor .ai-assistant-container {
   border: none;
   color: white;
   font-size: 24px;
-  cursor: pointer;
+  /* Arrow until a press-hold starts a drag; avoids grab/arrow flicker on hover. */
+  cursor: default;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
   box-shadow: 0 4px 16px rgba(0, 123, 255, 0.3);
-  transition:
-    transform 0.2s,
-    background-color 0.2s;
+  transition: background-color 0.2s;
+}
+/* Scale the icon, not the button — scaling the button shrinks its hit area. */
+.ai-assistant-icon {
+  display: inline-block;
+  transition: transform 0.2s;
 }
 .ai-assistant-fab-btn:hover {
-  transform: scale(0.95);
   background: var(--tertiary-color);
+}
+.ai-assistant-fab-btn:hover .ai-assistant-icon {
+  transform: scale(0.95);
+}
+/* Document-level so the hand persists while dragging across the map. */
+html.ai-assistant-fab-grabbing,
+html.ai-assistant-fab-grabbing * {
+  cursor: grabbing !important;
+}
+.ai-assistant-container.is-dragging .ai-assistant-fab-btn {
+  cursor: grabbing;
+}
+.ai-assistant-container.is-dragging .ai-assistant-fab-btn .ai-assistant-icon {
+  transform: none;
+  transition: none;
+}
+.ai-assistant-container.is-dragging .ai-assistant-bubble {
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(0, -50%) translateX(-10px);
+  transition: none;
 }
 #ai-assistant-launcher:hover .ai-assistant-bubble {
   opacity: 1;
   visibility: visible;
-  transform: translateX(0);
+  transform: translate(0, -50%) translateX(0);
 }
 /* 2. Floating Dialog Layout Container */
 .ai-assistant-widget {

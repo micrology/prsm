@@ -42,8 +42,10 @@ export function openAIAsstDialog() {
   const messagesDiv = elem('ai-assistant-messages')
   const statusDot = elem('status-dot')
   const overlay = elem('processing-overlay')
+  const assistantContainer = elem('ai-assistant-container')
 
-  dragElement(elem('ai-assistant-container'), elem('ai-assistant-header'))
+  dragElement(assistantContainer, elem('ai-assistant-header'))
+  makeAIAssistantFabDraggable(assistantContainer, toggleBtn)
 
   /**
    *  Toggle the visibility of the chat dialog and legend box when the user clicks the "AI Help"
@@ -58,7 +60,16 @@ export function openAIAsstDialog() {
   }
 
   // Event listeners
-  toggleBtn.addEventListener('click', toggleChat)
+  // Click opens/closes the assistant; drag reposition is handled separately and suppresses click.
+  toggleBtn.addEventListener('click', (event) => {
+    if (toggleBtn.dataset.suppressClick === 'true') {
+      event.preventDefault()
+      event.stopPropagation()
+      delete toggleBtn.dataset.suppressClick
+      return
+    }
+    toggleChat()
+  })
   closeBtn.addEventListener('click', toggleChat)
 
   sendBtn.addEventListener('click', () => sendMessage())
@@ -161,7 +172,8 @@ export function openAIAsstDialog() {
 
     // 2. Append research sources only (manual answers intentionally have none)
     const citableSources = (sources || []).filter(
-      (source) => source && typeof source.url === 'string' && /^https?:\/\//i.test(source.url.trim())
+      (source) =>
+        source && typeof source.url === 'string' && /^https?:\/\//i.test(source.url.trim())
     )
     if (citableSources.length > 0) {
       htmlContent += `<div class="source-header">Sources:</div>`
@@ -175,4 +187,171 @@ export function openAIAsstDialog() {
     messagesDiv.appendChild(msgDiv)
     return msgDiv
   }
+}
+
+/**
+ * Allow the AI assistant FAB to be dragged to a new spot on the net-pane.
+ * A short press still activates the button; only movement past a threshold repositions.
+ * Position is kept for the page session (until reload).
+ * @param {HTMLElement} container
+ * @param {HTMLElement} fabBtn
+ */
+function makeAIAssistantFabDraggable(container, fabBtn) {
+  if (!container || !fabBtn) return
+
+  const DRAG_THRESHOLD_PX = 5
+  /** Hold this long before the cursor switches to grabbing (drag affordance). */
+  const DRAG_CURSOR_DELAY_MS = 150
+  let activePointerId = null
+  let startClientX = 0
+  let startClientY = 0
+  let originContainerLeft = 0
+  let originContainerTop = 0
+  let originFabLeft = 0
+  let originFabTop = 0
+  let fabWidth = 0
+  let fabHeight = 0
+  let fabOffsetX = 0
+  let fabOffsetY = 0
+  let isDragging = false
+  let dragCursorTimer = null
+
+  /**
+   * @param {number} value
+   * @param {number} min
+   * @param {number} max
+   * @returns {number}
+   */
+  function clamp(value, min, max) {
+    if (max < min) return min
+    return Math.min(Math.max(value, min), max)
+  }
+
+  /**
+   * Constrain the FAB to the net-pane when available.
+   * @returns {{left: number, top: number, right: number, bottom: number}}
+   */
+  function getDragBounds() {
+    const pane = elem('net-pane')
+    if (pane) {
+      const rect = pane.getBoundingClientRect()
+      return { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom }
+    }
+    return { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight }
+  }
+
+  /**
+   * Switch from CSS bottom/left anchoring to explicit top/left so dragging is stable.
+   * @param {number} left
+   * @param {number} top
+   */
+  function lockContainerPosition(left, top) {
+    container.style.left = `${left}px`
+    container.style.top = `${top}px`
+    container.style.bottom = 'auto'
+    container.style.right = 'auto'
+  }
+
+  function clearDragCursorTimer() {
+    if (dragCursorTimer !== null) {
+      clearTimeout(dragCursorTimer)
+      dragCursorTimer = null
+    }
+  }
+
+  /** Show grabbing cursor while pressed long enough or actively dragging. */
+  function showDragCursor() {
+    container.classList.add('is-dragging')
+    // Keep grabbing even when the pointer leaves the button (e.g. over the map).
+    document.documentElement.classList.add('ai-assistant-fab-grabbing')
+  }
+
+  function hideDragCursor() {
+    container.classList.remove('is-dragging')
+    document.documentElement.classList.remove('ai-assistant-fab-grabbing')
+  }
+
+  /**
+   * Begin a drag once the pointer has moved far enough.
+   * Cursor may already be grabbing from the hold delay; click is only suppressed after real movement.
+   */
+  function beginDrag() {
+    if (isDragging || activePointerId === null) return
+    isDragging = true
+    clearDragCursorTimer()
+    showDragCursor()
+    lockContainerPosition(originContainerLeft, originContainerTop)
+  }
+
+  function endDrag(event) {
+    if (activePointerId === null || event.pointerId !== activePointerId) return
+
+    clearDragCursorTimer()
+
+    if (fabBtn.hasPointerCapture(event.pointerId)) {
+      fabBtn.releasePointerCapture(event.pointerId)
+    }
+
+    if (isDragging) {
+      // Prevent the trailing click from toggling the assistant after a drag.
+      fabBtn.dataset.suppressClick = 'true'
+    }
+
+    activePointerId = null
+    isDragging = false
+    hideDragCursor()
+  }
+
+  fabBtn.addEventListener('pointerdown', (event) => {
+    if (event.button !== 0) return
+
+    activePointerId = event.pointerId
+    startClientX = event.clientX
+    startClientY = event.clientY
+    isDragging = false
+    delete fabBtn.dataset.suppressClick
+    clearDragCursorTimer()
+
+    const containerRect = container.getBoundingClientRect()
+    const fabRect = fabBtn.getBoundingClientRect()
+    originContainerLeft = containerRect.left
+    originContainerTop = containerRect.top
+    originFabLeft = fabRect.left
+    originFabTop = fabRect.top
+    fabWidth = fabRect.width
+    fabHeight = fabRect.height
+    fabOffsetX = fabRect.left - containerRect.left
+    fabOffsetY = fabRect.top - containerRect.top
+
+    fabBtn.setPointerCapture(event.pointerId)
+
+    // Arrow on hover; after a short hold while pressed, switch to grabbing hand.
+    dragCursorTimer = setTimeout(() => {
+      dragCursorTimer = null
+      if (activePointerId === null) return
+      showDragCursor()
+    }, DRAG_CURSOR_DELAY_MS)
+  })
+
+  fabBtn.addEventListener('pointermove', (event) => {
+    if (activePointerId === null || event.pointerId !== activePointerId) return
+
+    const deltaX = event.clientX - startClientX
+    const deltaY = event.clientY - startClientY
+
+    if (!isDragging) {
+      if (Math.hypot(deltaX, deltaY) < DRAG_THRESHOLD_PX) return
+      beginDrag()
+    }
+
+    // Keep the FAB on the net-pane; the chat panel may extend outside.
+    const bounds = getDragBounds()
+    const nextFabLeft = clamp(originFabLeft + deltaX, bounds.left, bounds.right - fabWidth)
+    const nextFabTop = clamp(originFabTop + deltaY, bounds.top, bounds.bottom - fabHeight)
+
+    lockContainerPosition(nextFabLeft - fabOffsetX, nextFabTop - fabOffsetY)
+  })
+
+  fabBtn.addEventListener('pointerup', endDrag)
+  fabBtn.addEventListener('pointercancel', endDrag)
 }
