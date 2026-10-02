@@ -372,6 +372,10 @@ code {
   cursor: pointer;
   user-select: none;
 }
+iframe {
+  width: 100%;
+  height: 100vh;
+}
 @media (max-width: 800px) {
   .hero-container {
     grid-template-columns: 1fr;

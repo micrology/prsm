@@ -9,7 +9,7 @@
 # interactive:
 # docker run -it --rm -p1234:1234 --name prsm-y-websocket micrology/prsm-y-websocket
 
-FROM node:24-slim
+FROM node:26-slim
 WORKDIR /public/prsm/ws-server
 COPY ./ws-server/src /public/prsm/ws-server/src
 COPY ./ws-server/package.json /public/prsm/ws-server/package.json

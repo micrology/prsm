@@ -10,7 +10,7 @@
 
 # access the web page at http://localhost:8080
 
-FROM node:24-slim
+FROM node:26-slim
 RUN npm install -g http-server
 # copy PRSM run files
 COPY [".htaccess", "/public/"]
