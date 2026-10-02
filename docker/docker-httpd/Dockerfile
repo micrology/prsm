@@ -17,6 +17,10 @@ COPY [".htaccess", "/public/"]
 COPY ["dist/*", "/public/prsm/"]
 # copy user manual files
 COPY ["doc/help/doc_build/", "/public/prsm/doc/help/doc_build"]
+# The manual is built (build-help) for the production base path /doc/help/doc_build/,
+# so its assets are requested from /doc/..., while the Help button opens /prsm/doc/...
+# Make both paths resolve to the same files.
+RUN ln -s /public/prsm/doc /public/doc
 # redirect localhost to localhost/prsm
 RUN echo '<META HTTP-EQUIV="Refresh" CONTENT="0; URL='\'''./prsm/index.html''\''">' > /public/index.html
 ENV HOST=0.0.0.0
