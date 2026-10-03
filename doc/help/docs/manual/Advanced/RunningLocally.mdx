@@ -28,11 +28,13 @@ The API feature and the AI assistance are not available when running PRSM from a
             services:
               y-websocket:
                 image: docker.io/micrology/prsm-y-websocket
+                pull_policy: always
                 ports: 
                   - "1234:1234"
                 restart: unless-stopped
               htppd:
                 image: docker.io/micrology/prsm-httpd
+                pull_policy: always
                 ports:
                   - "8080:8080"
                 restart: unless-stopped
@@ -61,6 +63,7 @@ Maps are only preserved within the container so long as the container is running
 ```yaml
   y-websocket:
     image: docker.io/micrology/prsm-y-websocket
+    pull_policy: always
     ports: 
       - "1234:1234"
     restart: unless-stopped
