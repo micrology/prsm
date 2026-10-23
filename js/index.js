@@ -78,7 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Append research sources only (manual answers intentionally have none)
     const citableSources = (sources || []).filter(
-      (source) => source && typeof source.url === 'string' && /^https?:\/\//i.test(source.url.trim())
+      (source) =>
+        source && typeof source.url === 'string' && /^https?:\/\//i.test(source.url.trim())
     )
     if (citableSources.length > 0) {
       htmlContent += `<div class="source-header">Sources:</div>`

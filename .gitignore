@@ -23,8 +23,8 @@ data
 .history
 logs
 vr
-html/*.removed
-js/*.removed
+*.removed
+3d.*
 archive
 .env
 .cspell
