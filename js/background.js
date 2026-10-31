@@ -139,19 +139,52 @@ export function redraw() {
  */
 export function updateFromRemote(event) {
   if (event.transaction.local === false && event.keysChanged.size > 0) {
-    //oddly, keys changed includes old, cleared keys, so use this instead.
+    // event.changes.keys includes adds, updates and deletes (yDrawingMap.clear() reports deletes).
     refreshFromMap([...event.changes.keys.keys()])
   }
+}
+/**
+ * Clear local drawing canvas state (objects and undo/redo stacks).
+ * Call when replacing the whole map so stale undo entries cannot linger.
+ */
+export function clearDrawingState() {
+  canvas.discardActiveObject()
+  canvas.clear()
+  undos = []
+  redos = []
+  nChanges = 0
+  updateActiveButtons()
 }
 /**
  * redisplay the objects on the canvas, using the data in yDrawingMap
  */
 export function updateFromDrawingMap() {
-  canvas.clear()
+  clearDrawingState()
   refreshFromMap([...yDrawingMap.keys()])
 }
 /**
- * add or refresh objects that have the given list of id, using data in yDrawingMap
+ * Remove a drawing object (and nested group members) from the local canvas
+ * when its yDrawingMap entry has been deleted on another client.
+ * @param {string} key
+ */
+function removeLocalDrawingObject(key) {
+  const localObj = canvas.getObjects().find((o) => o.id === key)
+  if (!localObj) return
+  if (localObj.type === 'group' || localObj.type === 'Group') {
+    // Groups may still hold member objects; drop members that are no longer in the map.
+    const members = typeof localObj.getObjects === 'function' ? localObj.getObjects() : []
+    members.forEach((member) => {
+      if (member.id && !yDrawingMap.has(member.id)) {
+        canvas.remove(member)
+      }
+    })
+  }
+  canvas.remove(localObj)
+  if (canvas.getActiveObject()?.id === key) canvas.discardActiveObject()
+}
+/**
+ * add or refresh objects that have the given list of id, using data in yDrawingMap.
+ * Missing map entries mean the key was deleted remotely — remove the local object.
  * @param {array} keys
  */
 export async function refreshFromMap(keys) {
@@ -160,10 +193,28 @@ export async function refreshFromMap(keys) {
   }
 
   for (const key of keys) {
-    /* active Selection and group have to be dealt with last, because they reference objects that may not have been put on the canvas yet */
+    /* active Selection and group have to be dealt with last, because they reference objects
+ that may not have been put on the canvas yet */
     const remoteParams = yDrawingMap.get(key)
     if (!remoteParams) {
-      console.error('Empty remoteParams in refreshFromMap()', key)
+      // Key deleted (e.g. another client loaded a map with no / empty background).
+      // Clear matching local state instead of logging an error and leaving stale objects.
+      switch (key) {
+        case 'undos':
+          undos = []
+          updateActiveButtons()
+          break
+        case 'redos':
+          redos = []
+          updateActiveButtons()
+          break
+        case 'sequence':
+        case 'activeSelection':
+        case 'ActiveSelection':
+          break
+        default:
+          removeLocalDrawingObject(key)
+      }
       continue
     }
     const { type, ...otherParams } = remoteParams
@@ -382,10 +433,12 @@ export async function refreshFromMap(keys) {
   // and lastly reorder the objects if necessary
   if (keys.includes('sequence')) {
     const remoteParams = yDrawingMap.get('sequence')
-    remoteParams.forEach((id) => {
-      const obj = canvas.getObjects().find((o) => o.id === id)
-      if (obj) canvas.bringObjectToFront(obj)
-    })
+    if (remoteParams && Array.isArray(remoteParams)) {
+      remoteParams.forEach((id) => {
+        const obj = canvas.getObjects().find((o) => o.id === id)
+        if (obj) canvas.bringObjectToFront(obj)
+      })
+    }
   }
 
   // if at start up, so not in drawing mode, don't show active selection borders

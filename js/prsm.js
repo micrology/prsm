@@ -95,6 +95,7 @@ import {
   pasteBackgroundFromClipboard,
   upgradeFromV1,
   updateFromDrawingMap,
+  clearDrawingState,
 } from './background.js'
 import { createRoomMenus, showProjectsMenu } from './projects.js'
 import { getAIresponse } from './ai.js'
@@ -2123,7 +2124,7 @@ export function clearMap() {
     data.nodes.clear()
     data.edges.clear()
     yDrawingMap.clear()
-    canvas.clear()
+    clearDrawingState()
     draw()
   })
 }
@@ -5336,11 +5337,16 @@ const EQUAL_WIDTH = 100
 const MAX_WIDTH = 200
 
 export function sizing(metric) {
+  // Empty/undefined comes from older saves and from yNetMap before buttons are applied.
+  // Falling through to the metric branch previously set size to NaN (JSON null).
+  if (!metric) metric = 'Off'
+  // HTML option value is "Equal"; accept the old lowercase form too.
+  if (typeof metric === 'string' && metric.toLowerCase() === 'equal') metric = 'Equal'
+
   const nodesToUpdate = []
   let min = Number.MAX_VALUE
   let max = 0
   data.nodes.forEach((node) => {
-    const oldValue = node.val
     switch (metric) {
       case 'Off':
       case 'Equal': {
@@ -5362,16 +5368,24 @@ export function sizing(metric) {
         break
       }
       case 'Centrality': {
-        node.val = node.bc
+        node.val = node.bc || 0
+        break
+      }
+      default: {
+        // Unknown metric: treat like Off so we never write NaN sizes
+        metric = 'Off'
+        node.val = 0
         break
       }
     }
     if (node.val < min) min = node.val
     if (node.val > max) max = node.val
-    if (metric === 'Off' || metric === 'Equal' || node.val !== oldValue) {
-      nodesToUpdate.push(node)
-    }
   })
+  // No numeric vals yet (e.g. empty map): keep scale well-defined
+  if (min === Number.MAX_VALUE) {
+    min = 0
+    max = 0
+  }
   data.nodes.forEach((node) => {
     switch (metric) {
       case 'Off': {
@@ -5383,12 +5397,15 @@ export function sizing(metric) {
         node.widthConstraint = node.heightConstraint = node.size = EQUAL_WIDTH
         break
       }
-      default:
+      default: {
+        const value = typeof node.val === 'number' && !Number.isNaN(node.val) ? node.val : 0
         node.widthConstraint =
           node.heightConstraint =
           node.size =
-            MIN_WIDTH + MAX_WIDTH * scale(min, max, node.val)
+            MIN_WIDTH + MAX_WIDTH * scale(min, max, value)
+      }
     }
+    nodesToUpdate.push(node)
   })
   data.nodes.update(nodesToUpdate)
   elem('sizing').value = metric

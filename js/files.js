@@ -77,7 +77,13 @@ import {
   stripNL,
 } from './utils.js'
 import { styles } from './samples.js'
-import { canvas, refreshFromMap, setUpBackground, upgradeFromV1 } from './background.js'
+import {
+  canvas,
+  clearDrawingState,
+  refreshFromMap,
+  setUpBackground,
+  upgradeFromV1,
+} from './background.js'
 import { refreshSampleNode, refreshSampleLink, updateLegend } from './styles.js'
 import { loadMapList } from './projects.js'
 import Quill from 'quill'
@@ -340,7 +346,7 @@ function loadPRSMfile(str) {
     }
   }
   yDrawingMap.clear()
-  canvas.clear()
+  clearDrawingState()
   yPointsArray.delete(0, yPointsArray.length)
   if (json.underlay) {
     // background from v1; update it
@@ -363,9 +369,10 @@ function loadPRSMfile(str) {
     disableSideDrawerEditing()
     setSideDrawer(json.description)
   }
-  // node sizing has to be done after nodes have been created
-  sizing(yNetMap.get('sizing'))
+  // Apply Network panel settings first so sizing uses the value from the file
+  // (not a stale/missing yNetMap entry). Sizing itself must run after nodes exist.
   if (json.buttons) setButtonStatus(json.buttons)
+  sizing(json.buttons?.sizing || 'Off')
 }
 /**
  * parse and load a GraphViz (.DOT or .GV) file
@@ -1687,7 +1694,7 @@ function getButtonStatus() {
     curve: elem('curveSelect').value,
     background: elem('netBackColorWell').style.backgroundColor,
     legend: elem('showLegendSwitch').checked,
-    sizing: elem('sizing').value,
+    sizing: elem('sizing').value || 'Off',
   }
 }
 /**
@@ -1703,8 +1710,8 @@ function setButtonStatus(settings) {
   setBackground(yNetMap.get('background'))
   yNetMap.set('legend', settings.legend)
   setLegend(settings.legend)
-  yNetMap.set('sizing', settings.sizing)
-  // sizing done after the nodes have been created: sizing(settings.sizing)
+  yNetMap.set('sizing', settings.sizing || 'Off')
+  // sizing is applied by the caller after nodes exist
   yNetMap.set('radius', { radiusSetting: 'All', selected: [] })
   yNetMap.set('stream', { streamSetting: 'All', selected: [] })
   yNetMap.set('paths', { pathsSetting: 'All', selected: [] })
