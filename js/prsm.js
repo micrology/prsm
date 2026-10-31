@@ -3153,8 +3153,9 @@ function pasteMapTitle(e) {
 /**
  * Format the map title
  * @param {string} title
+ * @param {boolean} setLastFileName If true, set the last file name to the title 
  */
-export function setMapTitle(title) {
+export function setMapTitle(title, setLastFileName = true) {
   const div = elem('maptitle')
   clearStatusBar()
   if (!title) {
@@ -3173,7 +3174,9 @@ export function setMapTitle(title) {
   }
   if (title !== div.innerText.trim()) div.innerText = title
   if (title.length >= 50) setEndOfContenteditable(div)
-  setFileName()
+  if (setLastFileName) {
+    setFileName()
+  }
   createRoomMenus(title)
   return title
 }

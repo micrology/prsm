@@ -159,7 +159,7 @@ function loadFile(contents) {
   if (data.nodes.length > 0) {
     if (
       !confirm(
-        'Loading a file will delete the current network.  Are you sure you want to replace it?'
+        `Loading the '${lastFileName}' file will delete the current network.  Are you sure you want to replace it?`
       )
     ) {
       return
@@ -275,7 +275,7 @@ function loadPRSMfile(str) {
     msg = 'old version'
   }
   updateLastSamples(json.lastNodeSample, json.lastLinkSample)
-  if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle))
+  if (json.mapTitle) yNetMap.set('mapTitle', setMapTitle(json.mapTitle, false))
   if (json.attributeTitles) yNetMap.set('attributeTitles', json.attributeTitles)
   else yNetMap.set('attributeTitles', {})
   if (json.edges.length > 0 && 'source' in json.edges[0]) {
