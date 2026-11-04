@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>PRSM / Cytoscape test bed</title>
+    <link rel="stylesheet" href="test.css" />
+    <style>
+      body {
+        margin: 0;
+        font: 14px sans-serif;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+      header {
+        padding: 6px 10px;
+        background: #eee;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      main {
+        flex: 1;
+        display: flex;
+        min-height: 0;
+      }
+      main > div {
+        flex: 1;
+        min-width: 0;
+      }
+      #cy2 {
+        border-left: 2px solid #999;
+      }
+      #cy2.off {
+        display: none;
+      }
+      #info {
+        white-space: pre;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <label>
+        Map file (.prsm)
+        <input type="file" id="file" accept=".prsm,.json" />
+      </label>
+      <label>
+        Curves
+        <select id="curve">
+          <option>Curved</option>
+          <option>Straight</option>
+        </select>
+      </label>
+      <button id="addNode">Add factor</button>
+      <button id="addLink">Add link</button>
+      <button id="undo">Undo</button>
+      <button id="redo">Redo</button>
+      <label>
+        <input type="checkbox" id="second" checked />
+        second user
+      </label>
+      <span id="info">no map loaded</span>
+    </header>
+    <main>
+      <div id="cy"></div>
+      <div id="cy2"></div>
+    </main>
+    <script type="module" src="./test.js"></script>
+  </body>
+</html>

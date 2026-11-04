@@ -1,0 +1,34 @@
+@font-face {
+  font-family: 'Oxygen';
+  src: url('../fonts/oxygen-regular-webfont.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Oxygen';
+  src: url('../fonts/oxygen-bold-webfont.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+#cy,
+#cy2 {
+  position: relative;
+}
+.adding-node {
+  cursor: copy;
+}
+.adding-link {
+  cursor: crosshair;
+}
+.cy-label-editor {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  transform: translate(-50%, -50%);
+  font:
+    14px Oxygen,
+    sans-serif;
+  text-align: center;
+  z-index: 10;
+}
