@@ -53,7 +53,19 @@ export function compileStylesheet(styles) {
       selector: 'edge:selected',
       style: { 'underlay-color': SELECT_COLOR, 'underlay-opacity': 0.35, 'underlay-padding': 4 },
     },
-    { selector: '.hidden', style: { display: 'none' } },
+    { selector: '.hidden, .clusterHidden', style: { display: 'none' } },
+    {
+      selector: ':parent.expanded',
+      style: {
+        shape: 'round-rectangle',
+        'background-opacity': 0.15,
+        'border-width': 2,
+        'border-style': 'dashed',
+        padding: 20,
+        'text-valign': 'top',
+        'text-margin-y': -4,
+      },
+    },
     {
       selector: '.eh-handle',
       style: { 'background-color': SELECT_COLOR, width: 12, height: 12, shape: 'ellipse' },

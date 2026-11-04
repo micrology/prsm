@@ -4,27 +4,39 @@ User gestures never change the graph directly; they call MapStore methods, whose
 back through here, whether they are local, undone, or made by another user.
 **************************************************************************************** */
 import { compileStylesheet, nodeElement, edgeElement, applyCurves } from './graph.js'
+import { applyClusterView, VIEW_CLASSES } from './clusterview.js'
 
 const POSITION_EPSILON = 0.01
+
+/**
+ * @param {object} data node data (or record)
+ * @returns {string} a value that changes when the node's cluster membership changes
+ */
+function clusterKey(data) {
+  return JSON.stringify([data.cluster, data.inCluster])
+}
 
 /**
  * Bring one node in the graph up to date with its record
  * @param {cytoscape.Core} cy
  * @param {string} id
  * @param {object|undefined} rec current record, undefined if deleted
+ * @returns {boolean} true if clustering is affected
  */
 function syncNode(cy, id, rec) {
   const ele = cy.getElementById(id)
   if (!rec) {
+    const had = ele.nonempty() && clusterKey(ele.data()) !== clusterKey({})
     ele.remove()
-    return
+    return had
   }
   const def = nodeElement({ id, ...rec })
   if (ele.empty()) {
     cy.add(def)
     cy.getElementById(id).scratch('_ov', def.style)
-    return
+    return clusterKey(def.data) !== clusterKey({})
   }
+  const before = clusterKey(ele.data())
   syncCommon(ele, def)
   const p = ele.position()
   if (
@@ -33,6 +45,7 @@ function syncNode(cy, id, rec) {
   ) {
     ele.position(def.position)
   }
+  return before !== clusterKey(ele.data())
 }
 
 /**
@@ -43,10 +56,11 @@ function syncNode(cy, id, rec) {
 function syncCommon(ele, def) {
   const { source, target, ...data } = def.data
   for (const k of Object.keys(ele.data())) {
-    if (!(k in def.data) && k !== 'source' && k !== 'target') ele.removeData(k)
+    if (!(k in def.data) && !['source', 'target', 'parent'].includes(k)) ele.removeData(k)
   }
   ele.data(data)
-  ele.classes(def.classes ?? '')
+  const kept = ele.classes().filter((c) => VIEW_CLASSES.has(c))
+  ele.classes([def.classes, ...kept].filter(Boolean))
   const old = ele.scratch('_ov')
   if (JSON.stringify(old) === JSON.stringify(def.style)) return
   if (old) ele.removeStyle(Object.keys(old).join(' '))
@@ -87,9 +101,10 @@ function syncEdge(cy, id, rec) {
  */
 function applyChanges(cy, store, changed, full = false) {
   const changedEdges = []
+  let clustering = full
   cy.batch(() => {
     for (const id of full ? store.nodes.keys() : (changed.nodes ?? [])) {
-      syncNode(cy, id, store.nodes.get(id))
+      if (syncNode(cy, id, store.nodes.get(id))) clustering = true
     }
     for (const id of full ? store.edges.keys() : (changed.edges ?? [])) {
       const e = syncEdge(cy, id, store.edges.get(id))
@@ -100,6 +115,10 @@ function applyChanges(cy, store, changed, full = false) {
   const edges = cy.collection(changedEdges)
   // an edge whose source or target is new also needs its curve
   applyCurves(edges, cy.scratch('curveMode'))
+  if (clustering || (changed.edges && cy.scratch('hasClusters'))) {
+    cy.scratch('hasClusters', applyClusterView(cy))
+    applyCurves(cy.edges('.meta'), cy.scratch('curveMode'))
+  }
 }
 
 /**

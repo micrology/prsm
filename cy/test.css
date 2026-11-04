@@ -32,3 +32,7 @@
   text-align: center;
   z-index: 10;
 }
+#cy.current,
+#cy2.current {
+  box-shadow: inset 0 0 0 2px #3399ff;
+}

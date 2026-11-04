@@ -4,9 +4,11 @@ import { parseMapText, normaliseLegacy, legacyToV2 } from './legacy.js'
 import { MapStore } from './store.js'
 import { bindGraph } from './binding.js'
 import { Editor } from './editing.js'
+import { clusterBy } from './cluster.js'
 
 const info = document.getElementById('info')
 const view = { a: null, b: null }
+let active = 'a'
 
 /**
  * Create a store, graph and editor in a container
@@ -27,21 +29,31 @@ function createView(id) {
   const editor = new Editor(cy, store, {
     defaultNodeStyle: () => [...store.styles.keys()].find((k) => k.startsWith('group')),
     defaultEdgeStyle: () => [...store.styles.keys()].find((k) => k.startsWith('edge')),
-    onMode: (mode) => highlight(id, mode),
+    onMode: (mode) => syncMode(mode),
   })
+  document.getElementById(id).addEventListener('pointerdown', () => setActive(id), true)
   return { store, cy, editor }
 }
 
 /**
- * Show which mode is active on the buttons
- * @param {string} id container id
+ * The Add buttons set the mode of both panes, so that either can be clicked next
  * @param {string} mode
  */
-function highlight(id, mode) {
-  if (id !== 'cy') return
+function syncMode(mode) {
+  for (const v of [view.a, view.b]) if (v?.editor.mode !== mode) v.editor.setMode(mode)
   for (const b of ['addNode', 'addLink']) {
     document.getElementById(b).classList.toggle('active', b === mode)
   }
+}
+
+/**
+ * The toolbar acts on the pane that was used last
+ * @param {string} id container id
+ */
+function setActive(id) {
+  active = id === 'cy' ? 'a' : 'b'
+  document.getElementById('cy').classList.toggle('current', active === 'a')
+  document.getElementById('cy2').classList.toggle('current', active === 'b')
 }
 
 /** connect two stores so that every change made in one appears in the other, as a server would */
@@ -62,13 +74,15 @@ document.getElementById('file').addEventListener('change', async (e) => {
   if (file) loadText(await file.text())
 })
 document.getElementById('curve').addEventListener('change', (e) => {
-  const settings = { ...view.a.store.meta.get('settings'), curve: e.target.value }
-  view.a.store.transact(() => view.a.store.meta.set('settings', settings), 'meta')
+  view[active].store.setSetting('curve', e.target.value)
+})
+document.getElementById('cluster').addEventListener('change', (e) => {
+  clusterBy(view[active].store, e.target.value)
 })
 document.getElementById('addNode').addEventListener('click', () => toggleMode('addNode'))
 document.getElementById('addLink').addEventListener('click', () => toggleMode('addLink'))
-document.getElementById('undo').addEventListener('click', () => view.a.store.undo())
-document.getElementById('redo').addEventListener('click', () => view.a.store.redo())
+document.getElementById('undo').addEventListener('click', () => view[active].store.undo())
+document.getElementById('redo').addEventListener('click', () => view[active].store.redo())
 document.getElementById('second').addEventListener('change', (e) => {
   document.getElementById('cy2').classList.toggle('off', !e.target.checked)
   view.b.cy.resize()
@@ -79,7 +93,7 @@ document.getElementById('second').addEventListener('change', (e) => {
  * @param {string} mode 'addNode' or 'addLink'
  */
 function toggleMode(mode) {
-  const { editor } = view.a
+  const { editor } = view[active]
   editor.setMode(editor.mode === mode ? 'select' : mode)
 }
 
@@ -97,6 +111,7 @@ async function loadText(text) {
   }
   const t1 = performance.now()
   document.getElementById('curve').value = file.meta.settings.curve
+  document.getElementById('cluster').value = 'none'
   view.a.store.loadFile(file)
   const t2 = performance.now()
   for (const v of [view.a, view.b]) {

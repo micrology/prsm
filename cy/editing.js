@@ -10,6 +10,7 @@ Modes (as in the current app):
 import cytoscape from 'cytoscape'
 import edgehandles from 'cytoscape-edgehandles'
 import { applyCurves } from './graph.js'
+import { setCollapsed, dissolveCluster } from './cluster.js'
 
 cytoscape.use(edgehandles)
 
@@ -39,6 +40,9 @@ export function curveFromPointer(src, tgt, pt) {
  * Attach the editing behaviour to a graph
  */
 export class Editor {
+  /** the editor of the pane the user last used (several graphs may share a page) */
+  static active = null
+
   /**
    * @param {cytoscape.Core} cy graph, already bound to store
    * @param {MapStore} store
@@ -57,10 +61,12 @@ export class Editor {
     this.handles = this.createEdgeHandles()
     cy.on('dragfree', 'node', (evt) => this.queueMove(evt.target))
     cy.on('tap', (evt) => this.onTap(evt))
-    cy.on('dbltap', 'node, edge', (evt) => this.editLabel(evt.target))
+    cy.on('dbltap', 'node, edge', (evt) => this.onDoubleTap(evt.target))
+    cy.on('cxttap', 'node[cluster]', (evt) => dissolveCluster(store, evt.target.id()))
     cy.on('tapstart', 'edge:selected', (evt) => this.startBend(evt))
     cy.on('ehcomplete', (evt, source, target, added) => this.onLinkDrawn(source, target, added))
-    this.onKey = (evt) => this.handleKey(evt)
+    cy.container().addEventListener('pointerdown', () => (Editor.active = this), true)
+    this.onKey = (evt) => Editor.active === this && this.handleKey(evt)
     cy.container().ownerDocument.addEventListener('keydown', this.onKey)
   }
 
@@ -88,8 +94,7 @@ export class Editor {
   setMode(mode) {
     this.mode = mode
     const linking = mode === 'addLink'
-    this.cy.autoungrabify(linking)
-    this.cy.userPanningEnabled(!linking)
+    // edgehandles locks the factors while draw mode is on, and restores them when it ends
     if (linking) this.handles.enableDrawMode()
     else this.handles.disableDrawMode()
     this.cy.container().classList.toggle('adding-node', mode === 'addNode')
@@ -104,7 +109,7 @@ export class Editor {
   queueMove(node) {
     const first = this.pendingMoves.size === 0
     const moved = node.selected() ? this.cy.nodes(':selected') : node
-    moved.forEach((n) => this.pendingMoves.add(n.id()))
+    moved.union(moved.descendants()).forEach((n) => this.pendingMoves.add(n.id()))
     if (first) queueMicrotask(() => this.flushMoves())
   }
 
@@ -125,9 +130,11 @@ export class Editor {
   onTap(evt) {
     if (this.mode !== 'addNode' || evt.target !== this.cy) return
     const style = this.options.defaultNodeStyle?.() ?? 'group0'
-    const id = this.store.addNode({ label: '', style, x: evt.position.x, y: evt.position.y })
+    const { x, y } = evt.position
     this.setMode('select')
-    this.editLabel(this.cy.getElementById(id))
+    this.openInput(evt.renderedPosition, 120, '', (label) => {
+      if (label) this.store.addNode({ label, style, x, y })
+    })
   }
 
   /**
@@ -170,32 +177,53 @@ export class Editor {
   }
 
   /**
+   * Double-click opens or closes a cluster, and edits the label of anything else
+   * @param {cytoscape.SingularElementReturnValue} ele
+   */
+  onDoubleTap(ele) {
+    if (ele.hasClass('meta')) return
+    const cluster = ele.data('cluster')
+    if (cluster) setCollapsed(this.store, ele.id(), !cluster.collapsed)
+    else this.editLabel(ele)
+  }
+
+  /**
    * Show a text box over a factor or link to edit its label
    * @param {cytoscape.SingularElementReturnValue} ele
    */
   editLabel(ele) {
+    const pos = ele.isNode() ? ele.renderedPosition() : ele.renderedMidpoint()
+    const kind = ele.isNode() ? 'nodes' : 'edges'
+    this.openInput(pos, Math.max(ele.renderedWidth(), 120), ele.data('label'), (label) => {
+      if (label !== ele.data('label')) this.store.update(kind, ele.id(), { label })
+    })
+  }
+
+  /**
+   * Show a text box at a position in the graph; Enter or losing focus accepts, Escape cancels
+   * @param {{x:number,y:number}} pos centre of the box, in pixels within the graph container
+   * @param {number} width in pixels
+   * @param {string} initial starting text
+   * @param {function} onDone called with the text if accepted
+   */
+  openInput(pos, width, initial, onDone) {
     const container = this.cy.container()
     const input = container.ownerDocument.createElement('input')
     input.className = 'cy-label-editor'
-    input.value = ele.data('label')
-    const pos = ele.isNode() ? ele.renderedPosition() : ele.renderedMidpoint()
+    input.value = initial
     input.style.setProperty('--x', `${pos.x}px`)
     input.style.setProperty('--y', `${pos.y}px`)
-    input.style.setProperty('--w', `${Math.max(ele.renderedWidth?.() ?? 0, 120)}px`)
+    input.style.setProperty('--w', `${width}px`)
     container.append(input)
     input.focus()
     input.select()
-    const original = ele.data('label')
     let done = false
-    const finish = (save) => {
+    const finish = (accept) => {
       if (done) return
       done = true
-      const label = save ? input.value : original
+      const text = input.value
       input.remove()
-      if (ele.isNode() && !original && !label) this.store.remove([ele.id()])
-      else if (label !== original) {
-        this.store.update(ele.isNode() ? 'nodes' : 'edges', ele.id(), { label })
-      }
+      if (accept) onDone(text)
     }
     input.addEventListener('keydown', (e) => {
       e.stopPropagation()

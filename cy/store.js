@@ -109,6 +109,7 @@ export class MapStore {
    */
   canLink(source, target) {
     if (source === target || !this.nodes.has(source) || !this.nodes.has(target)) return false
+    if (this.nodes.get(source).cluster || this.nodes.get(target).cluster) return false
     for (const e of this.edges.values()) {
       if (e.source === source && e.target === target) return false
     }
@@ -154,9 +155,31 @@ export class MapStore {
       for (const [id, e] of this.edges.entries()) {
         if (gone.has(e.source) || gone.has(e.target)) this.edges.delete(id)
       }
+      this.freeMembers(gone)
       for (const id of edgeIds) this.edges.delete(id)
       for (const id of nodeIds) this.nodes.delete(id)
     })
+  }
+
+  /**
+   * Members of deleted clusters become ordinary factors again
+   * @param {Set<string>} gone ids of nodes being deleted
+   */
+  freeMembers(gone) {
+    for (const [id, rec] of this.nodes.entries()) {
+      if (!gone.has(rec.inCluster) || gone.has(id)) continue
+      const { inCluster, ...rest } = rec
+      this.nodes.set(id, rest)
+    }
+  }
+
+  /**
+   * Change one of the map-wide settings
+   * @param {string} key
+   * @param {*} value
+   */
+  setSetting(key, value) {
+    this.transact(() => this.meta.set('settings', { ...this.meta.get('settings'), [key]: value }))
   }
 
   /**

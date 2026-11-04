@@ -350,6 +350,17 @@ export function legacyToV2(legacy) {
 /**
  * Build the v2 style table and the resolved legacy styles (used to compute per-element overrides)
  */
+/**
+ * Node and edge styles share an id space in v2, so the names used by both tables must be made distinct
+ * @param {string} kind 'node' or 'edge'
+ * @param {string} id vis-network style id
+ * @returns {string}
+ */
+function styleId(kind, id) {
+  if (id === 'base') return `${kind}Base`
+  return id === 'cluster' ? `${kind}Cluster` : id
+}
+
 function convertStyles(fileStyles, report) {
   const merged = {
     nodes: deepMerge(DEFAULT_STYLES.nodes, fileStyles?.nodes),
@@ -364,7 +375,7 @@ function convertStyles(fileStyles, report) {
       delete st.chosen
       const resolved = id === 'base' ? st : deepMerge(table.base, st)
       legacyStyles[`${kind}s`][id] = resolved
-      styles[id === 'base' ? `${kind}Base` : id] = {
+      styles[styleId(kind, id)] = {
         kind,
         name: st.groupLabel ?? resolved.groupLabel ?? '',
         css: toCss(resolved, report),
