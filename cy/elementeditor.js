@@ -5,6 +5,7 @@ its label and override its appearance. The fields are the same columns that the 
 until Save is pressed, and then all the changes form a single undoable transaction.
 **************************************************************************************** */
 import { factorColumns, linkColumns } from './columns.js'
+import { splitText } from './text.js'
 import { SHAPES, ARROWS, LINE_STYLES } from './styleeditor.js'
 
 const SLIDER_MIN = 5
@@ -91,7 +92,7 @@ export class ElementEditor {
     this.changes = new Map()
     this.label = el('textarea', {
       className: 'element-label',
-      rows: 2,
+      rows: 1,
       placeholder: isNode ? 'Factor label...' : 'Link label...',
       value: rec.label ?? '',
     })
@@ -105,14 +106,22 @@ export class ElementEditor {
       this.buttons()
     )
     this.box.addEventListener('keydown', (e) => this.onKey(e))
+    this.label.addEventListener('input', () => this.fitLabel())
     // the graph listens on its container, so keep the dialog's own events away from it
     for (const type of ['mousedown', 'touchstart', 'wheel', 'dblclick']) {
       this.box.addEventListener(type, (e) => e.stopPropagation())
     }
     this.cy.container().append(this.box)
+    this.fitLabel()
     this.place(ele)
     this.label.focus()
     this.label.select()
+  }
+
+  /** Make the label box tall enough to show the whole label, so it never needs scrolling */
+  fitLabel() {
+    this.label.style.height = 'auto'
+    this.label.style.height = `${this.label.scrollHeight}px`
   }
 
   /** Close the dialog without saving */
@@ -210,7 +219,7 @@ export class ElementEditor {
   save() {
     const { id, isNode, rec } = this.target
     const name = isNode ? 'nodes' : 'edges'
-    const label = this.label.value
+    const label = isNode ? splitText(this.label.value) : this.label.value
     const labelEmpty = isNode && label.trim() === ''
     this.close()
     if (labelEmpty) return

@@ -340,3 +340,82 @@ collapse; locked factors do not open). It edits the label, fill/border/font colo
 (factors), or colour, width, arrow, line style and font size (links). Its fields are the table's columns, so reads and writes share one
 code path and write overrides. Nothing is written until Save (or Enter in the label); Escape or the cross cancels. Save is one undoable
 transaction. Relative size is now applied as a per-element width/height, so it also beats a shape's own size. Not yet done: portal shapes.
+
+## 17. Phase 6 plan: the user interface (the new app shell)
+
+**Renumbering.** 6 = UI (this section); 7 = save/open/merge/export/importers; 8 = backgrounds as region nodes; 9 = cut-over (room
+migration, version gate, deleting vis-network, vis-data, Fabric, Tabulator, `js/table.js`).
+
+**Approach.** Reuse the markup and css of `html/prsm.html` and `css/prsm.css`, so the look is the same, but replace `js/prsm.js` (5,965 lines,
+144 functions, about 150 `data.nodes/edges` uses and about 190 `network.*` calls) by small modules around the `cy/` modules. The new
+app is a separate entry point (`html/prsm2.html` and `js/app/*.js`) built alongside the old one, which keeps working until phase 9.
+Nothing in the new modules may use a global `network`, `data` or `doc`: each takes the `MapStore` and the `cy` instance it needs.
+
+**Inventory of what the original UI has, and what it becomes.**
+
+| Area (original) | New module | Notes |
+|---|---|---|
+| Navbar: title, rooms/projects menu, Add factor, Add link, Undo, Redo, Delete, Share, Open/Save/Export, Search, Help, panel toggle | `toolbar.js`, `rooms.js` (reuse `projects.js` with little change) | Open/Save/Export buttons are present but wired in phase 7. |
+| Canvas, zoom control, status bar, alerts | `statusbar.js` | Cytoscape gives zoom, pinch and pan. Fit and zoom slider are small. |
+| Side panel, tab Factors/Links: 15 sample swatches each, click applies to the selection, double-click edits | `palette.js` | Swatches are the styles already in `store.styles`; the edit dialog is the phase 4 style editor. |
+| Side panel, tab Network: layout, snap to grid, curves, background colour, drawing, legend, users, history, notes, voting switches | `networkpanel.js` | Layouts: Off, Trophic (`trophic.js` reused), Fan, and force layouts from `cytoscape-fcose` or `cose` in place of Barnes Hut, Force Atlas 2, Repulsion. Snap to grid done by our own code on drag-free. |
+| Side panel, tab Analysis: radius, upstream/downstream, paths, shortest path, sizing, clustering | `analysis.js` | Much simpler with Cytoscape: `neighborhood`, `successors`/`predecessors`, `aStar`/`dijkstra`. Hidden-by-analysis becomes a class, not a data change. |
+| Notes panels for factors and links (Quill, resizable, AI-generated notes) | `notespanel.js` | Reuse `noteeditor.js` and `aiasst.js`. |
+| Search bar | `search.js` | Uses `cy.nodes()` filters and `cy.fit`. |
+| History log and rollback | `history.js` | Log is already a shared Yjs array; rollback uses stored snapshots. Needs a decision, see below. |
+| Awareness: other users' cursors, avatars, follow, ghost factor while a user adds one | `awareness.js` | DOM overlays placed from `renderedPosition`; Yjs awareness unchanged. |
+| Badges on factors (pin, note card, thumbs) | `badges.js` | Cytoscape has no canvas hook as vis had. Options: SVG data-URI `background-image` classes (cheap, scale with zoom), or a DOM overlay. Start with classes. |
+| Legend, minimap | `legend.js`, `minimap.js` | Legend is built from the styles. Minimap: own small canvas, as now. |
+| Share dialog (QR, clone, view-only), view-only mode, clone | `share.js` | Mostly DOM; room logic reused. |
+| Tutorial, help, What's New, splash and user name | reuse `tutorial.js`, `index.js` pieces | |
+| Drawing layer, background shapes | phase 8 | The Drawing switch is hidden until then. |
+| 3D view (`3d.js`) | phase 9 | Reads the store through a small adapter. Needs checking for vis dependencies. |
+
+**Order of work (each step ends with a browser check against a real Yjs server, and a note in this document).**
+1. *Shell*: `prsm2.html`, `app.js`: room from the URL, Yjs provider and persistence, user name, open a legacy `.prsm` via the converter,
+   full-window `cy`, toolbar (add, link, delete, undo, redo, fit), zoom and status bar, alerts. Styles and table as panels/windows.
+2. *Side panel*: tabs, palettes, Network tab settings that already exist (curves, cluster, layout Off/Trophic/force, snap to grid, background colour).
+3. *Notes and search*: notes panels, search, badges (pin, notes, thumbs) and the voting switch.
+4. *Collaboration*: awareness cursors, avatars, follow, ghost factor, users switch; history log and rollback.
+5. *Analysis tab and sizing*; legend; minimap.
+6. *Share, view-only, clone, rooms/projects menus, tutorial and help*.
+7. *Side-by-side review* of old and new on the same maps; fix visual differences (fonts, spacing, panel behaviour) until the two are close to identical.
+
+**Decisions needed.**
+- *History/rollback*: keep the existing log and snapshots (each snapshot a v2 file; larger than now) or only keep the log text and rely on undo? Proposal: keep both, snapshots stored compressed as now.
+- *Layouts*: are Barnes Hut, Force Atlas 2 and Repulsion needed under those names? Proposal: offer Off, Trophic, Fan, Force-directed (fcose) and Hierarchical (dagre, if the dependency is acceptable).
+- *Badges* as image classes (proposal) rather than DOM overlay.
+- *Whether prsm2.html is a separate page until the cut-over* (proposal) or an in-place replacement on a branch.
+- *Size of the job*: new code is expected to be roughly 4,000 to 5,000 lines (the old file is 6,000 plus html), much of it moved rather than invented; an estimate of the token cost is 150 to 250k output tokens.
+
+### 17.1 Decisions and step 1 result
+
+Decisions: keep both log and compressed snapshots; layouts are Off, Trophic, Fan, Force-directed (fcose) and Hierarchical (dagre); badges are image classes; the new app is a separate page named `prsm4.html` (the current release is 3.3.3), the old app remaining until the cut-over.
+
+Step 1 (shell) is done: `html/prsm4.html` is a copy of `prsm.html` without the Fabric toolbox, loading `js/app/app.js` and `css/prsm4.css`.
+
+- `room.js`: room from the URL (generated and redirected if absent), server address (`?ws=` overrides; a non-standard port means `ws://host:1234`), document name `prsm4<ROOM>` so that v4 maps never share a room with older ones.
+- `user.js`: the user record in local storage (`myName`), as before.
+- `toolbar.js`: Add factor, Add link, Undo, Redo, Delete, Open, with the `pressed` and `disabled` states.
+- `zoom.js`: the zoom slider and +/- (the slider value is the Cytoscape zoom, as before).
+- `app.js`: the App class owns store, graph, editor and provider; no globals except `window.prsm` for tests. A new room is given the standard styles. Opening a file reads any legacy format through the converter.
+- Verified against a real Yjs server with two clients: room sync, add, delete, undo, button states, zoom, opening a legacy map, which appeared in the other client.
+
+Still the copy of the old markup: the side panel, search, minimap and dialogs, which are wired in the following steps.
+
+### 17.2 Step 2 result: the side panel
+
+- `palette.js`: 15 factor and 15 link swatches, each a small Cytoscape graph drawn with the shared stylesheet. Click applies the style to the selection; double-click opens the style editor in a dialog.
+- `sidepanel.js`: panel toggle, dragging, tabs and the colour picker.
+- `netsettings.js`: layout menu, curve, snap to grid and background colour. These are shared settings in `meta.settings`.
+- `layouts.js`: Off, Trophic (`cy/trophic.js`), Fan, Force-directed (fcose) and Hierarchical (dagre). Only visible factors take part. Fan: selected factors form level 0; unreached factors share that column.
+- The version shown is a constant in `app.js` (4.0.0).
+- Verified with scripted events against a Yjs server on a legacy map, including the Fan layout.
+
+### 17.3 Step 3 result: notes, search, badges and voting
+
+- `badges.js`: pin, note card and thumbs (with counts) are drawn on a canvas laid over the map, using the original Bootstrap icon paths. A canvas rather than image classes, because vote counts are text and link badges sit at the link midpoint. A click just below a factor's left or right half is a vote (stored in `thumbUp`/`thumbDown`).
+- `notes.js`: the draggable, resizeable Quill panel for the one selected factor or link, with created/modified details and the pin button (sets `locked`). It follows remote edits, undo and the Show notes switch. The AI and "open in a new window" buttons are hidden until later.
+- `search.js`: suggestions from labels; choosing one centres the map on the factor at zoom 1.
+- Show notes (`showNotes`) and Show reactions (`voting`) are shared settings in `meta.settings`.
+- The converter maps the old pin (`fixed: true`) to `locked`. The store stamps edits with the user's name.

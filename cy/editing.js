@@ -11,6 +11,7 @@ import cytoscape from 'cytoscape'
 import edgehandles from 'cytoscape-edgehandles'
 import { applyCurves } from './graph.js'
 import { setCollapsed, dissolveCluster } from './cluster.js'
+import { splitText } from './text.js'
 import { ElementEditor } from './elementeditor.js'
 
 cytoscape.use(edgehandles)
@@ -63,7 +64,6 @@ export class Editor {
     this.handles = this.createEdgeHandles()
     cy.on('dragfree', 'node', (evt) => this.queueMove(evt.target))
     cy.on('tap', (evt) => this.onTap(evt))
-    cy.on('tapstart pan zoom', () => this.elementEditor.close())
     cy.on('dbltap', 'node, edge', (evt) => this.onDoubleTap(evt.target))
     cy.on('cxttap', 'node[cluster]', (evt) => dissolveCluster(store, evt.target.id()))
     cy.on('tapstart', 'edge:selected', (evt) => this.startBend(evt))
@@ -136,7 +136,7 @@ export class Editor {
     const { x, y } = evt.position
     this.setMode('select')
     this.openInput(evt.renderedPosition, 120, '', (label) => {
-      if (label) this.store.addNode({ label, style, x, y })
+      if (label) this.store.addNode({ label: splitText(label), style, x, y })
     })
   }
 

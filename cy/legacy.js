@@ -411,6 +411,8 @@ function convertNode(n, legacyStyles, report) {
   const out = { id: String(n.id), x: n.x, y: n.y, style }
   for (const k of NODE_KEEP) if (n[k] !== undefined) out[k] = n[k]
   if (n.nodeHidden) out.hidden = true
+  // a pinned factor (vis-network `fixed`) cannot be dragged
+  if (n.fixed === true) out.locked = true
   // user attributes: att1, att2, ...
   for (const k of Object.keys(n)) if (/^att\d+$/.test(k)) out[k] = n[k]
   const base = legacyStyles.nodes[n.grp] || legacyStyles.nodes.base

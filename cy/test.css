@@ -208,7 +208,8 @@
     16px Oxygen,
     sans-serif;
   text-align: center;
-  resize: vertical;
+  resize: none;
+  overflow: hidden;
 }
 .element-grid {
   display: grid;
