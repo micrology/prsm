@@ -36,3 +36,232 @@
 #cy2.current {
   box-shadow: inset 0 0 0 2px #3399ff;
 }
+#styles {
+  flex: 0 0 240px;
+  overflow-y: auto;
+  padding: 8px 10px;
+  border-left: 2px solid #999;
+  font: 13px sans-serif;
+}
+#styles[hidden] {
+  display: none;
+}
+#styles h2,
+#styles h3 {
+  margin: 8px 0 4px;
+  font-size: 14px;
+}
+#styles label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 3px 0;
+}
+#styles .style-list button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  text-align: left;
+}
+#styles .style-list button.on {
+  background: #cde;
+}
+#styles .swatch {
+  width: 14px;
+  height: 14px;
+  background: var(--c);
+  border: 1px solid #666;
+}
+#table {
+  flex: 0 0 40vh;
+  display: flex;
+  flex-direction: column;
+  border-top: 2px solid #999;
+  font:
+    13px Oxygen,
+    sans-serif;
+}
+#table[hidden] {
+  display: none;
+}
+.table-bar,
+.table-filter {
+  display: flex;
+  gap: 6px;
+  padding: 4px 8px;
+  background: #f4f4f4;
+}
+.table-bar .tab.on {
+  background: #cde;
+}
+.table-scroll {
+  flex: 1;
+  overflow: auto;
+}
+.prsm-table {
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+.prsm-table th,
+.prsm-table td {
+  border: 1px solid #ddd;
+  padding: 2px 6px;
+  text-align: left;
+}
+.prsm-table thead th {
+  position: sticky;
+  background: #eee;
+  font-weight: normal;
+  color: #666;
+  z-index: 1;
+}
+.prsm-table thead tr.groups th {
+  top: 0;
+  text-align: center;
+}
+.prsm-table thead tr.titles th {
+  top: 24px;
+}
+.prsm-table th.editable {
+  color: #000;
+  font-weight: bold;
+}
+.prsm-table th.collapsible {
+  cursor: pointer;
+}
+.prsm-table button.sort,
+.prsm-table button.delete-column {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 0 2px;
+}
+.prsm-table tr.selected td {
+  background: #e8f1ff;
+}
+.prsm-table td.cell-number,
+.prsm-table td.cell-date {
+  text-align: right;
+}
+.prsm-table td.cell-bool,
+.prsm-table td.cell-select-row,
+.prsm-table td.cell-color {
+  text-align: center;
+}
+.prsm-table td.cell-select,
+.prsm-table td.cell-number,
+.prsm-table td.cell-text,
+.prsm-table td.cell-note {
+  cursor: text;
+}
+.prsm-table tfoot td {
+  position: sticky;
+  bottom: 0;
+  background: #eee;
+  font-weight: bold;
+}
+.prsm-table .swatch-input {
+  width: 32px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid #888;
+}
+.prsm-table input[type='number'] {
+  width: 6em;
+}
+.note-dialog {
+  width: 480px;
+}
+
+.element-editor {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 280px;
+  z-index: 50;
+  background: #fff;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.35);
+  border: thin solid #999;
+  border-radius: 6px;
+  font:
+    12px Oxygen,
+    sans-serif;
+  color: #000;
+}
+.element-title {
+  padding: 3px 6px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  background: #3399ff;
+  border-radius: 6px 6px 0 0;
+}
+.element-label {
+  display: block;
+  box-sizing: border-box;
+  width: calc(100% - 12px);
+  margin: 6px;
+  padding: 2px;
+  font:
+    16px Oxygen,
+    sans-serif;
+  text-align: center;
+  resize: vertical;
+}
+.element-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 7px;
+  margin: 10px;
+  justify-items: center;
+  align-items: center;
+}
+.element-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.element-field.wide {
+  grid-column: 1 / 4;
+  flex-direction: row;
+  width: 100%;
+  gap: 10px;
+}
+.element-field.wide input {
+  flex: 1;
+}
+.element-field-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #3399ff;
+  font-weight: 600;
+}
+.element-field select {
+  font-size: 10px;
+  text-transform: uppercase;
+  max-width: 80px;
+}
+.element-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 6px 6px;
+}
+.element-save {
+  background: #3399ff;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+.element-cancel {
+  border: none;
+  background: none;
+  font-size: 16px;
+  cursor: pointer;
+}

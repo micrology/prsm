@@ -59,8 +59,12 @@ function syncCommon(ele, def) {
     if (!(k in def.data) && !['source', 'target', 'parent'].includes(k)) ele.removeData(k)
   }
   ele.data(data)
+  if (ele.isNode()) {
+    if (def.data.locked) ele.ungrabify()
+    else ele.grabify()
+  }
   const kept = ele.classes().filter((c) => VIEW_CLASSES.has(c))
-  ele.classes([def.classes, ...kept].filter(Boolean))
+  ele.classes([def.classes, ...kept].filter(Boolean).join(' '))
   const old = ele.scratch('_ov')
   if (JSON.stringify(old) === JSON.stringify(def.style)) return
   if (old) ele.removeStyle(Object.keys(old).join(' '))

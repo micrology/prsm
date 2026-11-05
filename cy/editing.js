@@ -11,6 +11,7 @@ import cytoscape from 'cytoscape'
 import edgehandles from 'cytoscape-edgehandles'
 import { applyCurves } from './graph.js'
 import { setCollapsed, dissolveCluster } from './cluster.js'
+import { ElementEditor } from './elementeditor.js'
 
 cytoscape.use(edgehandles)
 
@@ -56,11 +57,13 @@ export class Editor {
     this.cy = cy
     this.store = store
     this.options = options
+    this.elementEditor = new ElementEditor(cy, store)
     this.mode = 'select'
     this.pendingMoves = new Set()
     this.handles = this.createEdgeHandles()
     cy.on('dragfree', 'node', (evt) => this.queueMove(evt.target))
     cy.on('tap', (evt) => this.onTap(evt))
+    cy.on('tapstart pan zoom', () => this.elementEditor.close())
     cy.on('dbltap', 'node, edge', (evt) => this.onDoubleTap(evt.target))
     cy.on('cxttap', 'node[cluster]', (evt) => dissolveCluster(store, evt.target.id()))
     cy.on('tapstart', 'edge:selected', (evt) => this.startBend(evt))
@@ -184,19 +187,7 @@ export class Editor {
     if (ele.hasClass('meta')) return
     const cluster = ele.data('cluster')
     if (cluster) setCollapsed(this.store, ele.id(), !cluster.collapsed)
-    else this.editLabel(ele)
-  }
-
-  /**
-   * Show a text box over a factor or link to edit its label
-   * @param {cytoscape.SingularElementReturnValue} ele
-   */
-  editLabel(ele) {
-    const pos = ele.isNode() ? ele.renderedPosition() : ele.renderedMidpoint()
-    const kind = ele.isNode() ? 'nodes' : 'edges'
-    this.openInput(pos, Math.max(ele.renderedWidth(), 120), ele.data('label'), (label) => {
-      if (label !== ele.data('label')) this.store.update(kind, ele.id(), { label })
-    })
+    else this.elementEditor.open(ele)
   }
 
   /**

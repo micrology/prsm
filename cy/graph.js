@@ -83,6 +83,30 @@ export function compileStylesheet(styles) {
   return sheet
 }
 
+const MIN_RELATIVE_SIZE = 5
+
+/**
+ * @param {string} style style id
+ * @param {object} data element data
+ * @returns {string} Cytoscape classes: the style, and 'hidden' if the user has hidden the element
+ */
+function classesOf(style, data) {
+  return data.hidden ? `${style} hidden` : style
+}
+
+/**
+ * Relative size is a percentage: 5% is 32.5px across and 100% is 270px (as in the old size slider).
+ * It is applied as a per-element style so that it also beats a shape's own size.
+ * @param {object|undefined} overrides the element's style overrides
+ * @param {number|undefined} value relative size, in percent
+ * @returns {object|undefined} overrides with width and height added if a size is set
+ */
+function withRelativeSize(overrides, value) {
+  if (!(value >= MIN_RELATIVE_SIZE)) return overrides
+  const size = 32.5 + ((Math.min(value, 100) - MIN_RELATIVE_SIZE) * (270 - 32.5)) / 95
+  return { ...overrides, width: size, height: size }
+}
+
 /**
  * Convert a v2 node record to a Cytoscape element definition
  * @param {object} rec node record (id included)
@@ -95,8 +119,8 @@ export function nodeElement(rec) {
     group: 'nodes',
     data,
     position: { x: x ?? 0, y: y ?? 0 },
-    classes: style,
-    style: overrides,
+    classes: classesOf(style, data),
+    style: withRelativeSize(overrides, data.value),
   }
 }
 
@@ -108,7 +132,7 @@ export function nodeElement(rec) {
 export function edgeElement(rec) {
   const { style, overrides, ...data } = rec
   data.label ??= ''
-  return { group: 'edges', data, classes: style, style: overrides }
+  return { group: 'edges', data, classes: classesOf(style, data), style: overrides }
 }
 
 /**

@@ -1,10 +1,13 @@
 import * as Y from 'yjs'
+import { WebsocketProvider } from 'y-websocket'
 import cytoscape from 'cytoscape'
 import { parseMapText, normaliseLegacy, legacyToV2 } from './legacy.js'
 import { MapStore } from './store.js'
 import { bindGraph } from './binding.js'
 import { Editor } from './editing.js'
-import { clusterBy } from './cluster.js'
+import { clusterBy, clusterByLouvain } from './cluster.js'
+import { StyleEditor } from './styleeditor.js'
+import { TableView } from './tableview.js'
 
 const info = document.getElementById('info')
 const view = { a: null, b: null }
@@ -54,6 +57,7 @@ function setActive(id) {
   active = id === 'cy' ? 'a' : 'b'
   document.getElementById('cy').classList.toggle('current', active === 'a')
   document.getElementById('cy2').classList.toggle('current', active === 'b')
+  styleEditor.setView(view[active])
 }
 
 /** connect two stores so that every change made in one appears in the other, as a server would */
@@ -67,7 +71,24 @@ function connect(a, b) {
 
 view.a = createView('cy')
 view.b = createView('cy2')
-connect(view.a.store, view.b.store)
+const params = new URLSearchParams(location.search)
+if (params.get('ws')) {
+  // ?ws=ws://localhost:4399&room=test: both panes are separate clients of a real Yjs server
+  const room = `prsm-test-${params.get('room') ?? 'room'}`
+  for (const v of [view.a, view.b]) {
+    v.provider = new WebsocketProvider(params.get('ws'), room, v.store.doc)
+  }
+  window.providers = [view.a.provider, view.b.provider]
+} else connect(view.a.store, view.b.store)
+const styleEditor = new StyleEditor(document.getElementById('styles'))
+styleEditor.attach(view.a)
+styleEditor.attach(view.b)
+styleEditor.setView(view.a)
+document.getElementById('toggleStyles').addEventListener('click', () => {
+  const panel = document.getElementById('styles')
+  panel.hidden = !panel.hidden
+  for (const v of [view.a, view.b]) v.cy.resize()
+})
 
 document.getElementById('file').addEventListener('change', async (e) => {
   const file = e.target.files[0]
@@ -77,8 +98,26 @@ document.getElementById('curve').addEventListener('change', (e) => {
   view[active].store.setSetting('curve', e.target.value)
 })
 document.getElementById('cluster').addEventListener('change', (e) => {
-  clusterBy(view[active].store, e.target.value)
+  const { store } = view[active]
+  if (e.target.value !== 'louvain') return clusterBy(store, e.target.value)
+  if (clusterByLouvain(store) < 0) e.target.value = 'none'
 })
+
+/** Offer the user's attributes as ways to cluster */
+function fillClusterMenu() {
+  const menu = document.getElementById('cluster')
+  const fixed = ['none', 'style', 'color', 'louvain']
+  for (const o of [...menu.options]) {
+    if (!fixed.includes(o.value)) o.remove()
+  }
+  const titles = view[active].store.attributeTitles()
+  for (const [field, title] of Object.entries(titles)) {
+    if (title === '*deleted*') continue
+    menu.append(
+      Object.assign(document.createElement('option'), { value: field, textContent: title })
+    )
+  }
+}
 document.getElementById('addNode').addEventListener('click', () => toggleMode('addNode'))
 document.getElementById('addLink').addEventListener('click', () => toggleMode('addLink'))
 document.getElementById('undo').addEventListener('click', () => view[active].store.undo())
@@ -123,4 +162,26 @@ async function loadText(text) {
     `convert ${(t1 - t0).toFixed(0)} ms, load+render ${(t2 - t1).toFixed(0)} ms`
 }
 window.loadMap = loadText
+view.a.store.doc.on('afterTransaction', (tr) => {
+  if (tr.changed.has(view.a.store.meta)) fillClusterMenu()
+})
 window.view = view
+
+const tableView = new TableView(document.getElementById('table'), view.a.store, {
+  onSelect: (ids) => {
+    const { cy } = view.a
+    cy.batch(() => {
+      cy.elements(':selected').unselect()
+      for (const id of ids) cy.getElementById(id).select()
+    })
+  },
+})
+view.a.cy.on('select unselect', () =>
+  tableView.setSelection(view.a.cy.elements(':selected').map((e) => e.id()))
+)
+document.getElementById('toggleTable').addEventListener('click', () => {
+  const panel = document.getElementById('table')
+  panel.hidden = !panel.hidden
+  for (const v of [view.a, view.b]) v.cy.resize()
+})
+window.tableView = tableView

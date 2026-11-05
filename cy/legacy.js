@@ -361,6 +361,11 @@ function styleId(kind, id) {
   return id === 'cluster' ? `${kind}Cluster` : id
 }
 
+/** the old app labelled unnamed styles 'Sample' */
+function placeholderName(name) {
+  return !name || name === 'Sample' ? '' : name
+}
+
 function convertStyles(fileStyles, report) {
   const merged = {
     nodes: deepMerge(DEFAULT_STYLES.nodes, fileStyles?.nodes),
@@ -377,7 +382,7 @@ function convertStyles(fileStyles, report) {
       legacyStyles[`${kind}s`][id] = resolved
       styles[styleId(kind, id)] = {
         kind,
-        name: st.groupLabel ?? resolved.groupLabel ?? '',
+        name: placeholderName(st.groupLabel ?? resolved.groupLabel),
         css: toCss(resolved, report),
       }
     }
@@ -385,7 +390,16 @@ function convertStyles(fileStyles, report) {
   return { styles, legacyStyles }
 }
 
-const NODE_KEEP = ['label', 'note', 'created', 'modified', 'locked', 'thumbUp', 'thumbDown']
+const NODE_KEEP = [
+  'label',
+  'note',
+  'created',
+  'modified',
+  'locked',
+  'thumbUp',
+  'thumbDown',
+  'value',
+]
 
 function convertNode(n, legacyStyles, report) {
   let style = n.grp || 'group0'
@@ -396,6 +410,7 @@ function convertNode(n, legacyStyles, report) {
   }
   const out = { id: String(n.id), x: n.x, y: n.y, style }
   for (const k of NODE_KEEP) if (n[k] !== undefined) out[k] = n[k]
+  if (n.nodeHidden) out.hidden = true
   // user attributes: att1, att2, ...
   for (const k of Object.keys(n)) if (/^att\d+$/.test(k)) out[k] = n[k]
   const base = legacyStyles.nodes[n.grp] || legacyStyles.nodes.base
@@ -433,6 +448,7 @@ function convertEdge(e, nodeIds, edgeIds, legacyStyles, report) {
   }
   const out = { id, source: String(e.from), target: String(e.to), style }
   for (const k of ['label', 'note', 'created', 'modified']) if (e[k] !== undefined) out[k] = e[k]
+  if (e.edgeHidden) out.hidden = true
   const base = legacyStyles.edges[e.grp] || legacyStyles.edges.base
   const own = edgeStyleToCss(
     { color: e.color, dashes: e.dashes, width: e.width, font: e.font, arrows: e.arrows },

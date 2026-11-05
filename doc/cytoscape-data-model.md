@@ -276,3 +276,67 @@ Code: `cy/store.js` (Yjs document and all mutations), `cy/binding.js` (store to 
   style changes with per-element overrides preserved, curve mode switch, and mirroring to the second user.
 - **Not yet done:** selection details (select-all, lasso), remote cursors/awareness, snap-to-grid, locked nodes, copy/paste,
   the style editor (phase 4), and Yjs-server transport (the test bed uses in-page forwarding).
+
+## 13. Phase 4 results (clustering and style editor, in the test bed)
+
+- **Clusters** are ordinary node records: `{label, style:'clusterNode', cluster:{collapsed}, x, y}`; members carry `inCluster: <clusterId>`.
+  Old `cluster` node and edge styles became `clusterNode` and `clusterEdge` (they previously collided under one id).
+  `cluster.js` holds the store-side operations (`clusterBy`, `setCollapsed`, `dissolveCluster`); `clusterview.js` derives, at
+  runtime only, the hidden members, the compound parent of an expanded cluster, and the summary ("meta") links with counts.
+- **Gestures:** double-click toggles collapsed/expanded (an expanded cluster is a dashed compound box); right-click dissolves.
+  Links to clusters are refused by `canLink`; deleting a cluster frees its members.
+- **Style editor** (`styleeditor.js`): lists node and link styles, edits the `css` of one style (shape, colours, border, font,
+  arrows, line style), adds, renames and deletes styles (elements of a deleted style revert to the base style), sets the style of
+  the selection and edits per-element `overrides` (colour) with "Clear overrides". Everything goes through `MapStore`
+  (`setStyle`, `addStyle`, `deleteStyle`, `setElementStyle`, `setOverrides`), so it is undoable and shared. Changing the shape
+  applies the same size/label-position bundle the converter uses. The old placeholder style name `Sample` is converted to "unnamed".
+- **Not yet done:** Louvain clustering, attribute choices in the Cluster menu, stats, table view, richer override controls.
+
+## 14. Table view specification (phase 4, to be built in the test bed)
+
+Replaces `js/table.js` and `tabulator-tables` with a hand-written `<table>` rendered from `MapStore`. (`xlsx` is used only by `files.js`
+for spreadsheet import/export and is dealt with in phase 5.) The table runs in its own window, with its own `MapStore` on the same room.
+
+**Architecture.** Columns are data: `{id, title, group, type, editable, get(rec, resolved), set(store, ids, value), aggregate}`. The
+Factors and Links tabs, sorting, filtering, the footer and clipboard copy are all generated from these lists. One `afterTransaction`
+listener re-renders only changed rows. Edits call `MapStore` methods, so undo/redo and sharing need no extra code. Degree, leverage and
+betweenness come from a headless Cytoscape graph kept in step with the store by `bindGraph`.
+
+**Factors tab.** Header groups Factor (Select, Label, Modified), Format (Style, Shape, Hidden, Locked, Relative size, Fill, Border
+width, Border colour, Border style, Font colour, Font size), Statistics (In-degree, Out-degree, Total degree, Leverage, Betweenness,
+thumbs up, thumbs down), user attribute columns, Notes. Footer: count of factors, hidden, locked, mean degrees, maximum betweenness.
+**Links tab.** From, To, Modified; Style group (Style, Hidden, Arrow, Colour, Width, Line style, Font size, Font colour); Notes.
+
+**Editing.** Editable columns have a darker heading. Number: type; Shape, Border style, Arrow, Line style, Style: dropdown; colours:
+colour widget; Hidden and Locked: checkbox; Notes: click opens the Quill dialog (cell shows the first 30 characters of plain text).
+Style-dependent cells show the *resolved* value (override, else style); editing writes a per-element override, and an empty value
+clears it (shown as '—' for Style and Relative size). Relative size is a size multiplier override. Cluster nodes have no rows; the footer
+mentions how many there are. Members of collapsed clusters are listed normally. Sort: every column, ascending/descending, empties last;
+colour columns sort by hue. Footer covers all rows, not just filtered ones.
+
+**Kept from the old table:** user attribute columns (add, rename, delete), filter dialog, copy to clipboard, collapsible column groups,
+row selection linked to the map selection, undo/redo buttons.
+
+## 15. Phase 4 results: table and clustering
+
+Table built as `tableview.js` (DOM), `columns.js` (columns as data), `tablemodel.js` (sort/filter/footer), `stats.js` (degree, leverage,
+Brandes betweenness computed straight from the store; no headless graph), `noteeditor.js`. Changes from the spec as built: the footer
+covers only the rows left after filtering; factor and link labels are editable (a factor label edit reaches the links table because link
+ends are looked up from the store); labels and notes are shortened to 30 characters with an ellipsis in cells; Relative size is a
+percentage (5 to 100) mapped to a node width/height of 32.5 to 270 px, as the old size slider did. `created`/`modified` are `{time, user}`.
+
+Clustering menu: None, Style, Color, Louvain (`louvain.js`, the old jLouvain moved out of `js/cluster.js` unchanged) and one entry per
+user attribute. All produce ordinary cluster node records, so they are shared and undoable.
+
+## 16. Sharing test and the element dialog
+
+**Real Yjs server.** The test bed takes `?ws=ws://localhost:4399&room=name`; each pane is then a separate `y-websocket` client of the
+server (`cd ws-server && PORT=4399 node src/server.js`; port 4321 was in use by another project on the development machine).
+Verified: loading a map in one client, label and position edits, undo (undoes only the local user's own changes), clustering and its
+undo, and a client joining later all behave as with the in-page forwarding.
+
+**Element dialog** (`elementeditor.js`). Double-clicking a factor or link opens a dialog over it (cluster nodes still expand or
+collapse; locked factors do not open). It edits the label, fill/border/font colours, shape, border style, font size and relative size
+(factors), or colour, width, arrow, line style and font size (links). Its fields are the table's columns, so reads and writes share one
+code path and write overrides. Nothing is written until Save (or Enter in the label); Escape or the cross cancels. Save is one undoable
+transaction. Relative size is now applied as a per-element width/height, so it also beats a shape's own size. Not yet done: portal shapes.

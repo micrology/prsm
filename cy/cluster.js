@@ -8,6 +8,8 @@ members when expanded, and the summary links between collapsed clusters and othe
 is worked out by clusterview.js and is never stored.
 **************************************************************************************** */
 
+import { jLouvain } from './louvain.js'
+
 const MIN_CLUSTER_SIZE = 2
 export const CLUSTER_STYLE = 'clusterNode'
 
@@ -163,15 +165,56 @@ export function clusterBy(store, mode, options = {}) {
     for (const [key, group] of groups) {
       if (group.members.length < MIN_CLUSTER_SIZE) continue
       n++
-      addCluster(store, `cluster-${mode}-${key}`, {
+      addCluster(store, `cluster-${options.name ?? mode}-${key}`, {
         ...group,
         label: group.label || `Cluster ${n}`,
       })
       made++
     }
-    store.meta.set('settings', { ...store.meta.get('settings'), cluster: mode })
+    store.meta.set('settings', {
+      ...store.meta.get('settings'),
+      cluster: options.name ?? mode,
+    })
   })
   return made
+}
+
+/**
+ * Find the most common value
+ * @param {Array<string>} values
+ * @returns {string|undefined}
+ */
+function mostFrequent(values) {
+  const counts = new Map()
+  for (const v of values) counts.set(v, (counts.get(v) ?? 0) + 1)
+  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0]
+}
+
+/**
+ * Cluster the factors into communities found by the Louvain method
+ * @param {MapStore} store
+ * @returns {number} the number of clusters made, or -1 if the map has no links to analyse
+ */
+export function clusterByLouvain(store) {
+  const ids = plainNodes(store).map(([id]) => id)
+  const edges = [...store.edges.values()]
+    .filter((e) => store.nodes.has(e.source) && store.nodes.has(e.target))
+    .map((e) => ({ source: e.source, target: e.target, weight: 1 }))
+  if (edges.length === 0) return -1
+  const partition = jLouvain(ids, edges)
+  const groups = new Map()
+  for (const id of ids) {
+    const key = partition[id]
+    if (key === undefined) continue
+    if (!groups.has(key)) groups.set(key, { label: `Cluster ${Number(key) + 1}`, members: [] })
+    groups.get(key).members.push(id)
+  }
+  for (const g of groups.values()) {
+    g.color = mostFrequent(
+      g.members.map((m) => nodeCss(store, store.nodes.get(m))['background-color'])
+    )
+  }
+  return clusterBy(store, 'groups', { groups, name: 'louvain' })
 }
 
 /**

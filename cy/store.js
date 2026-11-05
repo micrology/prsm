@@ -31,6 +31,7 @@ export class MapStore {
     this.nodes = doc.getMap('nodes')
     this.edges = doc.getMap('edges')
     this.styles = doc.getMap('styles')
+    this.userName = ''
     this.undoManager = new Y.UndoManager([this.nodes, this.edges, this.styles], {
       trackedOrigins: new Set([LOCAL]),
       captureTimeout: 400,
@@ -76,6 +77,11 @@ export class MapStore {
     }
   }
 
+  /** @returns {{time:number,user:string}} the form of the created and modified fields */
+  stamp() {
+    return { time: Date.now(), user: this.userName }
+  }
+
   /**
    * Add a factor
    * @param {object} rec node record without id
@@ -83,7 +89,7 @@ export class MapStore {
    */
   addNode(rec) {
     const id = crypto.randomUUID()
-    const now = Date.now()
+    const now = this.stamp()
     this.transact(() => this.nodes.set(id, { created: now, modified: now, ...rec }))
     return id
   }
@@ -96,7 +102,7 @@ export class MapStore {
   addEdge(rec) {
     if (!this.canLink(rec.source, rec.target)) return null
     const id = crypto.randomUUID()
-    const now = Date.now()
+    const now = this.stamp()
     this.transact(() => this.edges.set(id, { created: now, modified: now, ...rec }))
     return id
   }
@@ -126,7 +132,7 @@ export class MapStore {
     const ymap = this[kind]
     const old = ymap.get(id)
     if (!old) return
-    const rec = { ...old, ...patch, modified: Date.now() }
+    const rec = { ...old, ...patch, modified: this.stamp() }
     for (const k of Object.keys(rec)) if (rec[k] === undefined) delete rec[k]
     this.transact(() => ymap.set(id, rec))
   }
@@ -189,6 +195,93 @@ export class MapStore {
    */
   setStyle(id, style) {
     this.transact(() => this.styles.set(id, style))
+  }
+
+  /** @returns {object} user-defined attribute titles by field (att1, att2...); deleted ones are '*deleted*' */
+  attributeTitles() {
+    return this.meta.get('attributeTitles') ?? {}
+  }
+
+  /**
+   * Add a user-defined attribute (a column in the table)
+   * @returns {string} the field name, e.g. att3
+   */
+  addAttribute() {
+    const titles = this.attributeTitles()
+    const n = Object.keys(titles).length + 1
+    this.transact(() => this.meta.set('attributeTitles', { ...titles, [`att${n}`]: `Att ${n}` }))
+    return `att${n}`
+  }
+
+  /**
+   * Rename an attribute, or delete it (title '*deleted*'; the values stay in the records)
+   * @param {string} field
+   * @param {string} title
+   */
+  setAttributeTitle(field, title) {
+    this.transact(() =>
+      this.meta.set('attributeTitles', { ...this.attributeTitles(), [field]: title })
+    )
+  }
+
+  /**
+   * Add a new style
+   * @param {'node'|'edge'} kind
+   * @param {string} name
+   * @param {object} css Cytoscape style properties
+   * @returns {string} the id of the new style
+   */
+  addStyle(kind, name, css) {
+    const id = `${kind === 'node' ? 'group' : 'edge'}${crypto.randomUUID().slice(0, 8)}`
+    this.setStyle(id, { kind, name, css })
+    return id
+  }
+
+  /**
+   * Delete a style; elements that used it get another style
+   * @param {string} id style to delete
+   * @param {string} replacement id of the style the elements should use instead
+   */
+  deleteStyle(id, replacement) {
+    const kind = this.styles.get(id)?.kind
+    if (!kind || id === `${kind}Base`) return
+    this.transact(() => {
+      const ymap = kind === 'node' ? this.nodes : this.edges
+      for (const [key, rec] of ymap.entries()) {
+        if (rec.style === id) ymap.set(key, { ...rec, style: replacement })
+      }
+      this.styles.delete(id)
+    })
+  }
+
+  /**
+   * Set the style of several nodes or edges in one undo step
+   * @param {'nodes'|'edges'} kind
+   * @param {Array<string>} ids
+   * @param {string} style style id
+   */
+  setElementStyle(kind, ids, style) {
+    this.transact(() => {
+      for (const id of ids) this.update(kind, id, { style })
+    })
+  }
+
+  /**
+   * Change the per-element style overrides of several nodes or edges
+   * @param {'nodes'|'edges'} kind
+   * @param {Array<string>} ids
+   * @param {object|null} patch properties to add (undefined deletes one); null clears all overrides
+   */
+  setOverrides(kind, ids, patch) {
+    this.transact(() => {
+      for (const id of ids) {
+        const rec = this[kind].get(id)
+        if (!rec) continue
+        const merged = patch ? { ...rec.overrides, ...patch } : {}
+        for (const k of Object.keys(merged)) if (merged[k] === undefined) delete merged[k]
+        this.update(kind, id, { overrides: Object.keys(merged).length ? merged : undefined })
+      }
+    })
   }
 
   undo() {
