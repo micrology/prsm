@@ -111,6 +111,18 @@ export class History {
    */
   describe(tr) {
     const { store } = this
+    const clusterAction = tr.meta.get('clusterAction')
+    if (clusterAction) {
+      if (clusterAction.mode === 'none') return 'removed clustering'
+      const names = { style: 'Style', color: 'Colour', louvain: 'Community' }
+      const name =
+        names[clusterAction.mode] ??
+        store.attributeTitles()[clusterAction.mode] ??
+        clusterAction.mode
+      return clusterAction.count
+        ? `clustered the factors according to their ${name}`
+        : `found no clusters according to ${name}`
+    }
     const parts = []
     for (const kind of ['nodes', 'edges']) {
       const ids = tr.changed.get(store[kind])

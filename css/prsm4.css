@@ -145,3 +145,33 @@
 .history-window.show {
   display: block;
 }
+.legend[hidden] {
+  display: none;
+}
+
+.legendWrapper {
+  grid-template-columns: 50px minmax(70px, 190px);
+}
+
+#minimapWrapper {
+  width: 180px;
+  height: 120px;
+  padding: 0;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+#minimapWrapper.show {
+  display: block;
+}
+
+#minimapWrapper:focus-visible {
+  outline: 3px solid #3399ff;
+  outline-offset: 2px;
+}
+
+#minimapCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

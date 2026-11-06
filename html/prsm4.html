@@ -591,16 +591,14 @@
           </p>
         </div>
         <!-- Mini map -->
-        <div id="minimapWrapper">
-          <img
-            id="minimapImage"
-            src="#"
-            ondragstart="return false"
-            draggable="false"
-            alt="Minimap"
-          />
-          <div id="minimapRadar"></div>
-        </div>
+        <button
+          id="minimapWrapper"
+          type="button"
+          aria-label="Map overview. Click or use arrow keys to pan the map."
+          title="Click or drag to pan. Focus the overview and use the arrow keys to pan."
+        >
+          <canvas id="minimapCanvas" aria-hidden="true"></canvas>
+        </button>
         <!-- Map notes drawer -->
         <div id="drawer-wrapper" class="hide-drawer">
           <div id="drawer">
@@ -861,7 +859,7 @@
                 <input type="radio" id="oneLink" name="radius" value="1" />
               </div>
               <div class="panelRow">
-                <label for="oneLink">Show only Factors 2 links away</label>
+                <label for="twoLinks">Show only Factors 2 links away</label>
                 <input type="radio" id="twoLinks" name="radius" value="2" />
               </div>
               <div class="panelRow">
@@ -893,7 +891,7 @@
                 <input type="radio" id="shortestPath" name="paths" value="shortestPath" />
               </div>
               <div class="panelRow divider">
-                <div>Size Factors to:</div>
+                <label for="sizing">Size Factors to:</label>
                 <div>
                   <select id="sizing">
                     <option value="Off" selected>---</option>
@@ -906,7 +904,7 @@
                 </div>
               </div>
               <div class="panelRow divider">
-                <div>Cluster:</div>
+                <label for="clustering">Cluster:</label>
                 <div>
                   <select id="clustering">
                     <option value="none" selected>None</option>

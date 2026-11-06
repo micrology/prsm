@@ -123,8 +123,9 @@ function releaseAll(store) {
  * @param {MapStore} store
  * @param {string} id
  * @param {{label: string, color: string, members: Array<string>}} group
+ * @param {string} mode clustering mode
  */
-function addCluster(store, id, group) {
+function addCluster(store, id, group, mode) {
   let x = 0
   let y = 0
   for (const m of group.members) {
@@ -137,7 +138,7 @@ function addCluster(store, id, group) {
   store.nodes.set(id, {
     label: group.label,
     style: CLUSTER_STYLE,
-    cluster: { collapsed: true },
+    cluster: { collapsed: true, mode },
     x: x / group.members.length,
     y: y / group.members.length,
     created: now,
@@ -157,24 +158,31 @@ function addCluster(store, id, group) {
  */
 export function clusterBy(store, mode, options = {}) {
   let made = 0
-  store.transact(() => {
+  store.transact((transaction) => {
     releaseAll(store)
-    if (mode === 'none') return
+    if (mode === 'none') {
+      store.meta.set('settings', { ...store.meta.get('settings'), cluster: 'none' })
+      transaction.meta.set('clusterAction', { mode: 'none', count: 0 })
+      return
+    }
     const groups = mode === 'groups' ? options.groups : groupBy(store, describer(store, mode))
     let n = 0
     for (const [key, group] of groups) {
       if (group.members.length < MIN_CLUSTER_SIZE) continue
       n++
-      addCluster(store, `cluster-${options.name ?? mode}-${key}`, {
-        ...group,
-        label: group.label || `Cluster ${n}`,
-      })
+      addCluster(
+        store,
+        `cluster-${options.name ?? mode}-${key}`,
+        { ...group, label: group.label || `Cluster ${n}` },
+        options.name ?? mode
+      )
       made++
     }
     store.meta.set('settings', {
       ...store.meta.get('settings'),
       cluster: options.name ?? mode,
     })
+    transaction.meta.set('clusterAction', { mode: options.name ?? mode, count: made })
   })
   return made
 }

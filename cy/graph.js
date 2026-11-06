@@ -70,7 +70,7 @@ export function compileStylesheet(styles) {
       selector: 'edge:selected',
       style: { 'underlay-color': SELECT_COLOR, 'underlay-opacity': 0.35, 'underlay-padding': 4 },
     },
-    { selector: '.hidden, .clusterHidden', style: { display: 'none' } },
+    { selector: '.hidden, .clusterHidden, .analysisHidden', style: { display: 'none' } },
     {
       selector: ':parent.expanded',
       style: {

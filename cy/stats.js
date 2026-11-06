@@ -82,14 +82,18 @@ function shortestPaths(source, ids, out) {
 /**
  * Statistics for every factor
  * @param {MapStore} store
+ * @param {{centrality?:boolean}} [options] omit the expensive betweenness calculation when it is not needed
  * @returns {Map<string, {inDegree:number, outDegree:number, degree:number, leverage:number|null, betweenness:number}>}
  *   leverage is null when the factor has no incoming links
  */
-export function computeStats(store) {
+export function computeStats(store, { centrality = true } = {}) {
   const { ids, out } = adjacency(store)
-  const bc = betweenness(ids, out)
+  const bc = centrality ? betweenness(ids, out) : new Map()
   const stats = new Map(
-    ids.map((id) => [id, { inDegree: 0, outDegree: out.get(id).length, betweenness: bc.get(id) }])
+    ids.map((id) => [
+      id,
+      { inDegree: 0, outDegree: out.get(id).length, betweenness: bc.get(id) ?? 0 },
+    ])
   )
   for (const targets of out.values()) for (const t of targets) stats.get(t).inDegree++
   for (const s of stats.values()) {

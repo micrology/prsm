@@ -9,7 +9,13 @@ Nothing here is stored; it is recomputed whenever a record that matters changes.
 const SEPARATOR = '\n'
 
 // classes set by this module; the binding must keep them when it resets a node's style classes
-export const VIEW_CLASSES = new Set(['clusterHidden', 'collapsed', 'expanded', 'meta'])
+export const VIEW_CLASSES = new Set([
+  'clusterHidden',
+  'collapsed',
+  'expanded',
+  'meta',
+  'analysisHidden',
+])
 
 /**
  * @param {cytoscape.NodeSingular} node

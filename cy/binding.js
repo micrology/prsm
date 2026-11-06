@@ -40,6 +40,7 @@ function syncNode(cy, id, rec) {
   const ele = cy.getElementById(id)
   if (!rec) {
     const had = ele.nonempty() && clusterKey(ele.data()) !== clusterKey({})
+    if (ele.isNode() && ele.isParent()) ele.children().move({ parent: null })
     ele.remove()
     return had
   }
@@ -123,7 +124,7 @@ function applyChanges(cy, store, changed, full = false) {
     for (const id of full ? store.nodes.keys() : (changed.nodes ?? [])) {
       if (syncNode(cy, id, store.nodes.get(id))) clustering = true
     }
-    for (const id of full ? store.edges.keys() : (changed.edges ?? [])) {
+    for (const id of full || clustering ? store.edges.keys() : (changed.edges ?? [])) {
       const e = syncEdge(cy, id, store.edges.get(id))
       if (e) changedEdges.push(e)
     }

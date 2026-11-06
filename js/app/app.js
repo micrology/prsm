@@ -20,6 +20,9 @@ import { History } from './history.js'
 import { Badges } from './badges.js'
 import { NotesPanel } from './notes.js'
 import { Search } from './search.js'
+import { Analysis } from './analysis.js'
+import { Legend } from './legend.js'
+import { Minimap } from './minimap.js'
 
 const VERSION = '4.0.0'
 const NO_SERVER_DELAY_MS = 8000
@@ -53,6 +56,9 @@ class App {
     })
     bindZoomControl(this.cy)
     this.createSidePanel()
+    this.analysis = new Analysis({ store: this.store, cy: this.cy })
+    this.legend = new Legend({ store: this.store, palette: this.palette })
+    this.minimap = new Minimap(this.cy)
     this.badges = new Badges({ store: this.store, cy: this.cy, clientId: this.user.id })
     this.notes = new NotesPanel({ store: this.store, cy: this.cy })
     this.search = new Search({ cy: this.cy })
