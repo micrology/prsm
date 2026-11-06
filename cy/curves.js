@@ -76,18 +76,60 @@ export function symmetricCurvePoints(src, tgt, curve) {
   return { distances: [curve.side * curve.roundness * len * 0.5], weights: [0.5] }
 }
 
+const CLEARANCE = 6
+
+/**
+ * @param {{hw:number,hh:number}} half half the width and height of a node
+ * @param {number} dx direction from the node centre
+ * @param {number} dy
+ * @returns {number} distance from the centre of the node to its edge, in that direction
+ */
+function reach({ hw, hh }, dx, dy) {
+  const len = Math.hypot(dx, dy)
+  const tx = dx === 0 ? Infinity : hw / Math.abs(dx / len)
+  const ty = dy === 0 ? Infinity : hh / Math.abs(dy / len)
+  return Math.min(tx, ty)
+}
+
+/**
+ * Cytoscape cannot find where an edge leaves a node if the first control point is inside the node, and
+ * then the edge is not drawn. So move the control points out of the nodes, or draw a straight line if
+ * the nodes are too close for that.
+ * @param {{distances:number[], weights:number[]}} pts
+ * @param {{x:number,y:number}} src
+ * @param {{x:number,y:number}} tgt
+ * @param {{src:{hw:number,hh:number}, tgt:{hw:number,hh:number}}} sizes
+ * @returns {{distances:number[], weights:number[]}|null}
+ */
+export function clearOfNodes(pts, src, tgt, sizes) {
+  const dx = tgt.x - src.x
+  const dy = tgt.y - src.y
+  const len = Math.hypot(dx, dy)
+  const near = (reach(sizes.src, dx, dy) + CLEARANCE) / len
+  const far = 1 - (reach(sizes.tgt, dx, dy) + CLEARANCE) / len
+  if (near >= far) return null
+  const last = pts.weights.length - 1
+  const weights = pts.weights.map((w, i) => {
+    if (i === 0) return Math.max(w, near)
+    return i === last ? Math.min(w, far) : w
+  })
+  return { distances: pts.distances, weights }
+}
+
 /**
  * The Cytoscape style properties that draw an edge between src and tgt
  * @param {{x:number,y:number}} src
  * @param {{x:number,y:number}} tgt
  * @param {{side:number, roundness:number}|undefined} curve the edge's own curve, if it has one
  * @param {number} mapRoundness 0.5 or 0 from the map-wide setting
+ * @param {{src:{hw:number,hh:number}, tgt:{hw:number,hh:number}}} [sizes] node half sizes, to keep the curve out of the nodes
  * @returns {object}
  */
-export function edgeCurveStyle(src, tgt, curve, mapRoundness) {
-  const pts = curve
+export function edgeCurveStyle(src, tgt, curve, mapRoundness, sizes) {
+  const raw = curve
     ? symmetricCurvePoints(src, tgt, curve)
     : defaultCurvePoints(src, tgt, mapRoundness)
+  const pts = raw && sizes ? clearOfNodes(raw, src, tgt, sizes) : raw
   if (!pts) return { 'curve-style': 'straight' }
   return {
     'curve-style': 'unbundled-bezier',

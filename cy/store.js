@@ -31,6 +31,7 @@ export class MapStore {
     this.nodes = doc.getMap('nodes')
     this.edges = doc.getMap('edges')
     this.styles = doc.getMap('styles')
+    this.history = doc.getArray('history')
     this.userName = ''
     this.undoManager = new Y.UndoManager([this.nodes, this.edges, this.styles], {
       trackedOrigins: new Set([LOCAL]),

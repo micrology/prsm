@@ -1146,6 +1146,16 @@ export class CP {
   createColorPicker(wellId, callback, onChange) {
     const well = elem(wellId)
     well.style.backgroundColor = '#ffffff'
+    this.attachTo(well, callback, onChange)
+  }
+
+  /**
+   * attach a color picker to an element, which need not have an id or be in the document yet
+   * @param {HTMLElement} well the element whose background colour is chosen
+   * @param {function} callback called with the colour when the picker is closed
+   * @param {function} [onChange] called each time the colour changes while the picker is open
+   */
+  attachTo(well, callback, onChange) {
     // add listener to display picker when well clicked
     well.addEventListener('click', (event) => {
       this.container.style.display = 'block'

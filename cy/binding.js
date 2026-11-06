@@ -17,6 +17,19 @@ function clusterKey(data) {
 }
 
 /**
+ * Add an element, applying its style overrides afterwards (Cytoscape warns about a style given at creation)
+ * @param {cytoscape.Core} cy
+ * @param {object} def element definition
+ * @returns {cytoscape.CollectionReturnValue}
+ */
+function addElement(cy, def) {
+  const { style, ...rest } = def
+  const added = cy.add(rest)
+  if (style) added.style(style)
+  return added
+}
+
+/**
  * Bring one node in the graph up to date with its record
  * @param {cytoscape.Core} cy
  * @param {string} id
@@ -32,8 +45,8 @@ function syncNode(cy, id, rec) {
   }
   const def = nodeElement({ id, ...rec })
   if (ele.empty()) {
-    cy.add(def)
-    cy.getElementById(id).scratch('_ov', def.style)
+    const added = addElement(cy, def)
+    added.scratch('_ov', def.style)
     return clusterKey(def.data) !== clusterKey({})
   }
   const before = clusterKey(ele.data())
@@ -88,7 +101,7 @@ function syncEdge(cy, id, rec) {
   const def = edgeElement({ id, ...rec })
   if (ele.empty()) {
     if (cy.getElementById(rec.source).empty() || cy.getElementById(rec.target).empty()) return null
-    const added = cy.add(def)
+    const added = addElement(cy, def)
     added.scratch('_ov', def.style)
     return added
   }
@@ -116,7 +129,8 @@ function applyChanges(cy, store, changed, full = false) {
     }
   })
   if (changed.styles) cy.style(compileStylesheet(Object.fromEntries(store.styles.entries())))
-  const edges = cy.collection(changedEdges)
+  // a change of style can change the size of the nodes, which affects where the curves can go
+  const edges = changed.styles ? cy.edges() : cy.collection(changedEdges)
   // an edge whose source or target is new also needs its curve
   applyCurves(edges, cy.scratch('curveMode'))
   if (clustering || (changed.edges && cy.scratch('hasClusters'))) {

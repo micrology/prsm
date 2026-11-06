@@ -4,6 +4,7 @@ choosing the style of the selected factors and links, and for per-element overri
 Every change goes through MapStore methods, so it is undoable and shared like any other.
 **************************************************************************************** */
 import { nodeStyleToCss } from './legacy.js'
+import { colorWell } from './colorwell.js'
 
 export const SHAPES = [
   'ellipse',
@@ -132,9 +133,12 @@ export function shapePatch(shape, css) {
 export class StyleEditor {
   /**
    * @param {HTMLElement} container
+   * @param {object} [options]
+   * @param {boolean} [options.single] show only the form for the current style, not the list of styles
    */
-  constructor(container) {
+  constructor(container, { single = false } = {}) {
     this.container = container
+    this.single = single
     this.view = null
     this.current = null
     this.pending = false
@@ -184,6 +188,10 @@ export class StyleEditor {
     }
     const { store } = this.view
     if (!store.styles.has(this.current)) this.current = null
+    if (this.single) {
+      this.container.replaceChildren(this.current ? this.form(this.current) : '')
+      return
+    }
     this.container.replaceChildren(
       el('h2', { textContent: 'Styles' }),
       (this.list = el('div', { className: 'style-list' })),
@@ -248,7 +256,9 @@ export class StyleEditor {
       const value = st.css[field.prop] ?? base?.css[field.prop]
       f.append(this.row(field, value, (v) => this.editStyle(id, field, v)))
     }
-    if (!id.endsWith('Base') && !id.startsWith('cluster')) f.append(this.deleteButton(id, st.kind))
+    if (!this.single && !id.endsWith('Base') && !id.startsWith('cluster')) {
+      f.append(this.deleteButton(id, st.kind))
+    }
     return f
   }
 
@@ -276,14 +286,30 @@ export class StyleEditor {
    * @returns {HTMLElement}
    */
   row(field, value, onChange) {
+    if (field.type === 'color') return this.colorRow(field, value, onChange)
     const input = this.input(field, value)
     const live = field.type !== 'select'
     input.addEventListener(live ? 'input' : 'change', () => {
-      this.typing = field.type === 'color'
       onChange(field.type === 'number' ? Number(input.value) : input.value)
-      this.typing = false
     })
     return el('label', {}, field.label, input)
+  }
+
+  /**
+   * @param {object} field
+   * @param {string} value current colour
+   * @param {function(string):void} onChange
+   * @returns {HTMLElement} a labelled colour well
+   */
+  colorRow(field, value, onChange) {
+    const well = colorWell(toHex(value), {
+      onInput: (color) => {
+        this.typing = true
+        onChange(color)
+        this.typing = false
+      },
+    })
+    return el('label', {}, field.label, well)
   }
 
   input(field, value) {
@@ -294,7 +320,6 @@ export class StyleEditor {
       const options = field.options.map((o) => el('option', { value: o, textContent: o }))
       return Object.assign(el('select', {}, ...options), { value: shown })
     }
-    if (field.type === 'color') return el('input', { type: 'color', value: toHex(value) })
     return el('input', { type: 'number', min: 0, step: 1, value: value ?? 0 })
   }
 

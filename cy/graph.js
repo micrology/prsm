@@ -6,6 +6,19 @@ import { edgeCurveStyle } from './curves.js'
 
 const SELECT_COLOR = '#3399ff'
 
+// Cytoscape deprecates `width: label` but offers no replacement for sizing a node to its label,
+// and we choose the wheel sensitivity deliberately, so these two warnings are dropped.
+const IGNORED_WARNINGS = [
+  /value of `label` is deprecated/,
+  /custom wheel sensitivity/,
+  /has invalid endpoints/,
+]
+const nativeWarn = console.warn.bind(console)
+console.warn = (...args) => {
+  if (IGNORED_WARNINGS.some((re) => re.test(String(args[0])))) return
+  nativeWarn(...args)
+}
+
 /**
  * Compile the v2 style table into a Cytoscape stylesheet
  * @param {object} styles file.styles
@@ -48,6 +61,10 @@ export function compileStylesheet(styles) {
     {
       selector: 'node:selected',
       style: { 'underlay-color': SELECT_COLOR, 'underlay-opacity': 0.35, 'underlay-padding': 6 },
+    },
+    {
+      selector: 'node, edge',
+      style: { 'overlay-opacity': 0 },
     },
     {
       selector: 'edge:selected',
@@ -153,12 +170,15 @@ export function applyCurves(target, mode) {
   const edges = target.edges ? target.edges() : target
   const roundness = mode === 'Curved' ? 0.5 : 0
   edges.forEach((edge) => {
+    const half = (n) => ({ hw: n.outerWidth() / 2, hh: n.outerHeight() / 2 })
+    const sizes = { src: half(edge.source()), tgt: half(edge.target()) }
     edge.style(
       edgeCurveStyle(
         edge.source().position(),
         edge.target().position(),
         edge.data('curve'),
-        roundness
+        roundness,
+        sizes
       )
     )
   })

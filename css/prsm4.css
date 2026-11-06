@@ -17,7 +17,7 @@
 }
 .style-dialog {
   position: fixed;
-  inset: 80px 20px auto auto;
+  inset: 80px auto auto calc(100vw - 300px);
   margin: 0;
   width: 260px;
   max-height: 70vh;
@@ -74,9 +74,6 @@
 }
 
 /* badges drawn over the map */
-#net-pane {
-  position: relative;
-}
 .badge-layer {
   position: absolute;
   inset: 0;
@@ -98,4 +95,53 @@
 #newNodeWindow,
 #newEdgeWindow {
   display: none;
+}
+
+.style-dialog-bar {
+  cursor: move;
+}
+.style-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 10px 10px;
+}
+#styleEditorBody label .color-well {
+  margin: 0 0 0 auto;
+}
+
+/* collaboration: users' colours come from custom properties set for each user */
+.off {
+  display: none !important;
+}
+.avatars .round,
+.shared-cursor {
+  background-color: var(--user-color);
+  color: var(--user-text);
+}
+.avatars .round {
+  border-color: var(--user-border);
+  cursor: pointer;
+}
+.avatars .round.asleep {
+  opacity: 0.2;
+}
+.ghost-factor {
+  left: var(--x, 0);
+  top: var(--y, 0);
+  pointer-events: none;
+}
+/* pointers move with a compositor-only transform, so 25 of them cost little */
+.shared-cursor {
+  left: 0;
+  top: 0;
+  transform: translate(var(--x, 0), var(--y, 0));
+  transition: none;
+  will-change: transform;
+  pointer-events: none;
+}
+.shared-cursor.glide {
+  transition: transform 0.2s linear;
+}
+.history-window.show {
+  display: block;
 }

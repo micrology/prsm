@@ -4,12 +4,15 @@ import { elem, listen } from '../utils.js'
 
 const SAMPLE_COUNT = 15
 const SAMPLE_LABEL = 'Sample'
+const SAMPLE_PADDING = 4
+const LINK_LENGTH = 44
 const LINK_END_STYLE = {
-  width: 6,
-  height: 6,
+  width: 4,
+  height: 4,
+  padding: 0,
   shape: 'ellipse',
   label: '',
-  'background-color': '#999',
+  'background-color': '#555',
   'border-width': 0,
 }
 
@@ -65,6 +68,7 @@ export class Palette {
       div.addEventListener('click', (e) => e.detail === 1 && this.apply(kind, styleId))
       div.addEventListener('dblclick', () => this.onEditStyle(styleId))
       this.swatches.push({ kind, styleId, div, graph })
+      new ResizeObserver(() => this.redraw(graph, kind)).observe(div)
     }
   }
 
@@ -80,7 +84,7 @@ export class Palette {
         ? [{ data: { id: 'n', label: SAMPLE_LABEL }, classes: styleId }]
         : [
             { data: { id: 'a' }, position: { x: 0, y: 0 }, classes: 'sampleEnd' },
-            { data: { id: 'b' }, position: { x: 60, y: 0 }, classes: 'sampleEnd' },
+            { data: { id: 'b' }, position: { x: LINK_LENGTH, y: 0 }, classes: 'sampleEnd' },
             { data: { id: 'e', source: 'a', target: 'b', label: '' }, classes: styleId },
           ]
     return cytoscape({
@@ -106,10 +110,34 @@ export class Palette {
     for (const { kind, styleId, graph } of this.swatches) {
       graph.style(sheet)
       if (kind === 'node') graph.getElementById('n').data('label', this.sampleLabel(styleId))
-      graph.resize()
-      graph.fit(undefined, 8)
+      this.redraw(graph, kind)
     }
     this.markUsed()
+  }
+
+  /**
+   * Re-measure a swatch (its tab may only just have become visible) and fit it
+   * @param {cytoscape.Core} graph
+   * @param {'node'|'edge'} kind
+   */
+  redraw(graph, kind) {
+    graph.resize()
+    this.fitSample(graph, kind)
+  }
+
+  /**
+   * A factor is scaled to fit its swatch; a link is shown at full size so that it stays visible
+   * @param {cytoscape.Core} graph
+   * @param {'node'|'edge'} kind
+   */
+  fitSample(graph, kind) {
+    if (kind === 'node') return graph.fit(undefined, SAMPLE_PADDING)
+    graph.nodes().style(LINK_END_STYLE)
+    const edge = graph.edges()[0]
+    edge.removeStyle()
+    edge.style({ width: Math.max(2, edge.numericStyle('width') * 2), 'arrow-scale': 1.5 })
+    graph.zoom(1)
+    graph.center()
   }
 
   /**

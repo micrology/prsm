@@ -4,7 +4,7 @@ import { parseMapText, normaliseLegacy, legacyToV2 } from '../../cy/legacy.js'
 import { MapStore } from '../../cy/store.js'
 import { bindGraph } from '../../cy/binding.js'
 import { Editor } from '../../cy/editing.js'
-import { alertMsg, elem, listen, statusMsg } from '../utils.js'
+import { alertMsg, dragElement, elem, listen, statusMsg } from '../utils.js'
 import { docName, generateRoom, redirectToRoom, roomFromUrl, serverUrl } from './room.js'
 import { loadUser } from './user.js'
 import { Toolbar } from './toolbar.js'
@@ -13,6 +13,10 @@ import { StyleEditor } from '../../cy/styleeditor.js'
 import { Palette } from './palette.js'
 import { SidePanel, createColorPicker } from './sidepanel.js'
 import { NetworkSettings } from './netsettings.js'
+import '../../cy/editors.css'
+import { useColorPicker } from '../../cy/colorwell.js'
+import { Collaboration } from './collab.js'
+import { History } from './history.js'
 import { Badges } from './badges.js'
 import { NotesPanel } from './notes.js'
 import { Search } from './search.js'
@@ -39,6 +43,7 @@ class App {
       defaultNodeStyle: () => this.palette.lastStyle('node'),
       defaultEdgeStyle: () => this.palette.lastStyle('edge'),
       onMode: (mode) => this.toolbar.showMode(mode),
+      onAddingFactor: (pos) => this.collab?.setAddingFactor(pos),
     })
     this.toolbar = new Toolbar({
       store: this.store,
@@ -51,6 +56,13 @@ class App {
     this.badges = new Badges({ store: this.store, cy: this.cy, clientId: this.user.id })
     this.notes = new NotesPanel({ store: this.store, cy: this.cy })
     this.search = new Search({ cy: this.cy })
+    this.collab = new Collaboration({
+      store: this.store,
+      cy: this.cy,
+      provider: this.provider,
+      user: this.user,
+    })
+    this.history = new History({ store: this.store, room: this.room })
     this.wireFileInput()
     this.waitForServer()
     elem('version').textContent = VERSION
@@ -74,30 +86,47 @@ class App {
 
   createSidePanel() {
     this.sidePanel = new SidePanel()
-    this.styleEditor = new StyleEditor(elem('styleEditorBody'))
+    this.styleEditor = new StyleEditor(elem('styleEditorBody'), { single: true })
+    this.cy.on('dbltap', (evt) => evt.target === this.cy && fitMap(this.cy))
     this.styleEditor.attach({ store: this.store, cy: this.cy })
     this.styleEditor.setView({ store: this.store, cy: this.cy })
-    listen('styleDialogClose', 'click', () => elem('styleDialog').close())
+    dragElement(elem('styleDialog'), elem('styleDialogBar'))
+    listen('styleDialogClose', 'click', () => this.closeStyleDialog(true))
+    listen('styleDialogSave', 'click', () => this.closeStyleDialog(false))
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && elem('styleDialog').open) this.closeStyleDialog(true)
+    })
     this.palette = new Palette({
       store: this.store,
       cy: this.cy,
       onEditStyle: (id) => this.editStyle(id),
     })
-    this.networkSettings = new NetworkSettings({
-      store: this.store,
-      cy: this.cy,
-      colorPicker: createColorPicker(),
-    })
+    const colorPicker = createColorPicker()
+    useColorPicker(colorPicker)
+    this.networkSettings = new NetworkSettings({ store: this.store, cy: this.cy, colorPicker })
   }
 
   /**
    * @param {string} styleId the style to show in the style editor
    */
   editStyle(styleId) {
+    const dialog = elem('styleDialog')
+    if (dialog.open) this.closeStyleDialog(false)
+    this.styleBackup = { id: styleId, style: structuredClone(this.store.styles.get(styleId)) }
     this.styleEditor.current = styleId
     this.styleEditor.render()
-    const dialog = elem('styleDialog')
-    if (!dialog.open) dialog.show()
+    elem('styleDialogTitle').textContent = `Edit style: ${this.styleBackup.style.name ?? styleId}`
+    dialog.show()
+  }
+
+  /**
+   * @param {boolean} revert true to put the style back as it was when the dialog was opened
+   */
+  closeStyleDialog(revert) {
+    const backup = this.styleBackup
+    this.styleBackup = null
+    if (revert && backup) this.store.setStyle(backup.id, backup.style)
+    elem('styleDialog').close()
   }
 
   /** Show the map once the server has sent what it holds; a room with nothing in it is new */
@@ -112,6 +141,7 @@ class App {
       this.cy.resize()
       fitMap(this.cy)
       this.store.undoManager.clear()
+      this.history.reset()
       statusMsg(`Connected to room ${this.room}`)
     })
   }

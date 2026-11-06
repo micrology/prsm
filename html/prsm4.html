@@ -1302,7 +1302,7 @@
         <div class="history-header" id="history-header">
           History
           <div class="tooltip">
-            <span class="history-copy" id="history-copy">
+            <span class="history-copy interactiveButton" id="history-copy">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="12"
@@ -1419,11 +1419,16 @@
     <!-- /container -->
     <!-- merge dialog	-->
     <dialog id="styleDialog" class="style-dialog">
-      <div class="style-dialog-bar">
-        <span>Edit styles</span>
-        <button type="button" id="styleDialogClose" aria-label="Close">&times;</button>
+      <div class="style-dialog-bar" id="styleDialogBar">
+        <span id="styleDialogTitle">Edit style</span>
+        <button type="button" class="interactiveButton" id="styleDialogClose" aria-label="Close">
+          &times;
+        </button>
       </div>
       <div id="styleEditorBody"></div>
+      <div class="style-dialog-buttons">
+        <button type="button" id="styleDialogSave">Save</button>
+      </div>
     </dialog>
     <dialog id="mergeDialog">
       <button id="mergeClose">&times;</button>

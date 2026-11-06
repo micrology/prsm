@@ -419,3 +419,9 @@ Still the copy of the old markup: the side panel, search, minimap and dialogs, w
 - `search.js`: suggestions from labels; choosing one centres the map on the factor at zoom 1.
 - Show notes (`showNotes`) and Show reactions (`voting`) are shared settings in `meta.settings`.
 - The converter maps the old pin (`fixed: true`) to `locked`. The store stamps edits with the user's name.
+
+### 17.4 Problem-list fixes and step 4 (collaboration)
+
+Fixes after review: shared editor CSS moved to `cy/editors.css`; all colour inputs use the iro.js picker through `cy/colorwell.js` (`CP.attachTo`); double-clicking a style swatch opens a single-style dialog (Save, × and Esc revert) that can be dragged; the background double-click fits the map; Cytoscape warnings that cannot be avoided (`width: label`, wheel sensitivity, overlapping edge endpoints) are filtered in `cy/graph.js`; Add link clears the selection.
+
+Step 4: `js/app/collab.js` (`Collaboration`) draws avatars, pointers and the ghost factor from Yjs awareness (colours through the `--user-color` custom properties), follows a user when their avatar is clicked (click again to stop), renames the user, and selects a user's edits on right click. `js/app/history.js` (`History`) logs each local transaction in the shared `history` array of the document, describing it by comparing the records with the previous state, and keeps a compressed v2 snapshot of the map before each action in localForage (last 15) so that the user can roll back their own actions.

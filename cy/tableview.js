@@ -4,6 +4,7 @@ MapStore method (through the setters in columns.js), so undo/redo and sharing wo
 graph. The table is re-drawn (after a short delay) after any change to the store.
 **************************************************************************************** */
 import { computeStats } from './stats.js'
+import { colorWell } from './colorwell.js'
 import { factorColumns, linkColumns } from './columns.js'
 import {
   cellValue,
@@ -364,15 +365,11 @@ export class TableView {
   }
 
   swatch(td, col, row) {
-    const color = cellValue(col, row)
-    const input = el('input', { type: 'color', value: color, className: 'swatch-input' })
-    input.addEventListener('focus', () => (this.editing = true))
-    input.addEventListener('change', () => {
-      this.editing = false
-      col.set(this.targets(row), input.value)
+    const well = colorWell(cellValue(col, row), {
+      onCommit: (color) => col.set(this.targets(row), color),
     })
-    input.addEventListener('blur', () => this.endEdit())
-    td.append(input)
+    well.classList.add('swatch-input')
+    td.append(well)
     return td
   }
 

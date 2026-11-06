@@ -6,6 +6,7 @@ until Save is pressed, and then all the changes form a single undoable transacti
 **************************************************************************************** */
 import { factorColumns, linkColumns } from './columns.js'
 import { splitText } from './text.js'
+import { colorWell } from './colorwell.js'
 import { SHAPES, ARROWS, LINE_STYLES } from './styleeditor.js'
 
 const SLIDER_MIN = 5
@@ -160,9 +161,7 @@ export class ElementEditor {
   }
 
   colorControl(col, current) {
-    const input = el('input', { type: 'color', value: current })
-    input.addEventListener('input', () => this.changes.set(col, input.value))
-    return input
+    return colorWell(current, { onInput: (color) => this.changes.set(col, color) })
   }
 
   sizeControl(col, current) {

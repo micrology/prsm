@@ -97,6 +97,7 @@ export class Editor {
   setMode(mode) {
     this.mode = mode
     const linking = mode === 'addLink'
+    if (linking) this.cy.elements(':selected').unselect()
     // edgehandles locks the factors while draw mode is on, and restores them when it ends
     if (linking) this.handles.enableDrawMode()
     else this.handles.disableDrawMode()
@@ -135,9 +136,16 @@ export class Editor {
     const style = this.options.defaultNodeStyle?.() ?? 'group0'
     const { x, y } = evt.position
     this.setMode('select')
-    this.openInput(evt.renderedPosition, 120, '', (label) => {
-      if (label) this.store.addNode({ label: splitText(label), style, x, y })
-    })
+    this.options.onAddingFactor?.({ x, y })
+    this.openInput(
+      evt.renderedPosition,
+      120,
+      '',
+      (label) => {
+        if (label) this.store.addNode({ label: splitText(label), style, x, y })
+      },
+      () => this.options.onAddingFactor?.(null)
+    )
   }
 
   /**
@@ -196,8 +204,9 @@ export class Editor {
    * @param {number} width in pixels
    * @param {string} initial starting text
    * @param {function} onDone called with the text if accepted
+   * @param {function} [onClose] called when the box has gone, however it was closed
    */
-  openInput(pos, width, initial, onDone) {
+  openInput(pos, width, initial, onDone, onClose) {
     const container = this.cy.container()
     const input = container.ownerDocument.createElement('input')
     input.className = 'cy-label-editor'
@@ -215,6 +224,7 @@ export class Editor {
       const text = input.value
       input.remove()
       if (accept) onDone(text)
+      onClose?.()
     }
     input.addEventListener('keydown', (e) => {
       e.stopPropagation()
