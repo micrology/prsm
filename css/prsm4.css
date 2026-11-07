@@ -252,15 +252,70 @@
 
 .tour-dialog[open] {
   position: fixed;
-  inset: auto 1rem 1rem auto;
+  inset: 0 auto auto 0;
   margin: 0;
-  width: min(24rem, calc(100vw - 2rem));
-  max-height: 65vh;
-  overflow: auto;
-  border: 1px solid var(--primary-color);
-  border-radius: 4px;
+  box-sizing: border-box;
+  width: min(20rem, calc(100vw - 1rem));
+  max-height: calc(100dvh - 1rem);
+  overflow: visible;
+  border: 1px solid var(--shadow-color);
+  border-radius: 6px;
   padding: 1rem;
+  background: var(--background-color);
   z-index: 210;
+}
+
+.tour-dialog[open].tour-splash {
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  width: min(36rem, calc(100vw - 2rem));
+  border-color: black;
+  text-align: center;
+}
+
+#tour-text {
+  max-height: calc(100dvh - 9rem);
+  overflow-y: auto;
+}
+
+#tour-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+}
+
+.tour-splash #tour-arrow {
+  display: none;
+}
+
+.tour-dialog[data-popper-placement^='bottom'] {
+  border-top: 4px solid var(--alert-color);
+}
+.tour-dialog[data-popper-placement^='bottom'] #tour-arrow {
+  top: -23px;
+  border-bottom-color: var(--alert-color);
+}
+.tour-dialog[data-popper-placement^='top'] {
+  border-bottom: 4px solid var(--alert-color);
+}
+.tour-dialog[data-popper-placement^='top'] #tour-arrow {
+  bottom: -23px;
+  border-top-color: var(--alert-color);
+}
+.tour-dialog[data-popper-placement^='left'] {
+  border-right: 4px solid var(--alert-color);
+}
+.tour-dialog[data-popper-placement^='left'] #tour-arrow {
+  right: -23px;
+  border-left-color: var(--alert-color);
+}
+.tour-dialog[data-popper-placement^='right'] {
+  border-left: 4px solid var(--alert-color);
+}
+.tour-dialog[data-popper-placement^='right'] #tour-arrow {
+  left: -23px;
+  border-right-color: var(--alert-color);
 }
 
 .tour-header,
@@ -275,13 +330,24 @@
   font-size: 1rem;
 }
 
+.tour-header button {
+  border: 0;
+  background-color: var(--background-color);
+  font-size: x-large;
+}
+
 .tour-target {
-  outline: 3px solid var(--primary-color);
+  outline: 3px solid var(--alert-color);
   outline-offset: 3px;
 }
 
-.view-only #tour-start {
-  display: none;
+.tour-actions button {
+  border: 0;
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: white;
+  background: var(--primary-color);
+  font-size: 14px;
 }
 
 .share-dialog .modal-body {

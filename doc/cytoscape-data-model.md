@@ -447,4 +447,4 @@ The Share dialog can create an editable clone in a new room on the same server. 
 
 The Share dialog can also make a separate read-only copy, optionally allowing viewers to create an editable clone. Its read-only flag is stored with the map so a link, a reopened room and Data View retain the same interface. Map changes, including notes, votes, keyboard shortcuts and table edits, are disabled; pan, zoom, search and notes remain available. This is a UI convenience, **not server-enforced access control**.
 
-The introductory tour uses the existing control descriptions, runs for first-time users and can be reopened using Tour. It is not shown for read-only copies. The published Help link still describes the older app.
+The introductory tour uses the existing control descriptions and runs for first-time users. To see it again, open Help from the map, reset the tour from the Getting Started page of the user manual and reload the map. It is not shown for read-only copies. The published Help link still describes the older app.

@@ -68,7 +68,6 @@
               <span class="strapline">Participatory System Mapper</span>
               <span class="version" id="version">4.0.0</span>
               <span id="read-only-notice" hidden>Read-only view (not access control)</span>
-              <button type="button" id="tour-start">Tour</button>
             </div>
             <div class="title">
               <div
@@ -543,7 +542,7 @@
           data-tutorial="
 					<h1>Welcome to PRSM</h1>
 					<div id='intro-logo'></div>
-					<p class='tutorial-note'>You can type your name here to show others that you are online:<br >
+					<p class='tutorial-note'><label for='splashNameBox'>You can type your name here to show others that you are online:</label><br >
 					  <input id='splashNameBox' type='text'>
 					</p>
 					
@@ -1258,6 +1257,7 @@
         </div>
       </dialog>
       <dialog id="tour-dialog" class="tour-dialog" aria-labelledby="tour-title">
+        <div id="tour-arrow" aria-hidden="true"></div>
         <div class="tour-header">
           <h2 id="tour-title" tabindex="-1"></h2>
           <button type="button" id="tour-close" aria-label="Close tour">&times;</button>

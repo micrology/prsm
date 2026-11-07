@@ -85,9 +85,15 @@ class App {
         this.applyViewOnly()
       }
     })
-    listen('help', 'click', () =>
-      window.open('https://www.prsm.uk/doc/help/doc_build/manual/Introduction.html', 'helpWindow')
-    )
+    const helpUrl = 'https://www.prsm.uk/doc/help/doc_build/manual/Introduction.html'
+    let helpWindow
+    listen('help', 'click', () => {
+      helpWindow = window.open(helpUrl, 'helpWindow')
+    })
+    window.addEventListener('message', (event) => {
+      if (event.origin !== new URL(helpUrl).origin || event.source !== helpWindow) return
+      if (event.data?.type === 'prsm-reset-tour') localStorage.setItem('doneIntro', 'false')
+    })
     this.wireFileInput()
     this.waitForServer()
     elem('version').textContent = VERSION
