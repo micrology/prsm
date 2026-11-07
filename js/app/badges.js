@@ -154,6 +154,7 @@ export class Badges {
    * @param {{x:number,y:number}} pos where the click was, in map coordinates
    */
   vote(pos) {
+    if (this.store.meta.get('viewOnly')) return
     if (!this.settings.voting) return
     const hit = this.cy
       .nodes()

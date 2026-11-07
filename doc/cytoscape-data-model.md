@@ -434,3 +434,17 @@ Subsequent fixes: cursor-only awareness updates move only the relevant pointer, 
 - Sizing is a shared setting, calculated from the underlying factors and links; Off restores individual size overrides. Clustering uses the shared, undoable cluster records and supports named attributes.
 - The legend displays named factor and link styles and follows the shared legend setting. The minimap is a simplified local overview with a viewport rectangle; click, drag, or use arrow keys to pan.
 - Removing an expanded cluster first detaches its members so Cytoscape does not remove them and their links with the compound node. Clustering history entries name the chosen grouping; legend samples use fixed dimensions for label-sized shapes. The minimap accepts arrow keys when focused, with a visible focus indicator.
+
+### 17.6 Step 6 in progress
+
+The Share button opens an accessible dialog with an editable-room invitation link, QR code and clipboard action; the configured websocket override is retained in the link. Data view opens a separate tab connected to the same room, with shared edits and history, sorting, filtering, copy and undo. The map title is shared and saved in the file; pressing Enter commits a change and Escape cancels it. The Help button opens the published original user manual (which describes the older app and requires internet access).
+
+The title dropdown provides recent titled maps and local projects, including creating a new room, adding maps to projects, and saving/loading a list. Each v4 list entry contains its websocket server and room. Lists are stored separately from the older app and older `.prsml` lists are rejected rather than pointing to different-schema rooms; conflicting project imports are reported without changing the existing list. The most recent 50 maps are retained.
+
+When a different room has the same title as an existing map, its menu label includes the date and time; the shared map title remains unchanged. A server without `YPERSISTENCE` retains inactive rooms in memory only, so they survive participants leaving but not a server restart. Configure `YPERSISTENCE` for durable maps.
+
+The Share dialog can create an editable clone in a new room on the same server. It snapshots the complete map, checks that the new room is empty and waits for another client to receive the snapshot before opening it. It keeps the initializing connection open until the new tab joins. Edits to either room are independent.
+
+The Share dialog can also make a separate read-only copy, optionally allowing viewers to create an editable clone. Its read-only flag is stored with the map so a link, a reopened room and Data View retain the same interface. Map changes, including notes, votes, keyboard shortcuts and table edits, are disabled; pan, zoom, search and notes remain available. This is a UI convenience, **not server-enforced access control**.
+
+The introductory tour uses the existing control descriptions, runs for first-time users and can be reopened using Tour. It is not shown for read-only copies. The published Help link still describes the older app.

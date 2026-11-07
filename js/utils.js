@@ -1062,7 +1062,9 @@ export function lightOrDark(color) {
 /* --------------------color picker -----------------------------*/
 
 export class CP {
-  constructor() {
+  /** @param {HTMLElement|null} boundsElement the area within which the picker should open */
+  constructor(boundsElement = null) {
+    this.boundsElement = boundsElement
     this.container = document.createElement('div')
     this.container.className = 'color-picker-container'
     this.container.id = 'colorPicker'
@@ -1159,7 +1161,7 @@ export class CP {
     // add listener to display picker when well clicked
     well.addEventListener('click', (event) => {
       this.container.style.display = 'block'
-      const netPane = elem('net-pane').getBoundingClientRect()
+      const netPane = (this.boundsElement ?? elem('net-pane')).getBoundingClientRect()
       // locate picker so it does not go outside netPane
       let top = event.clientY + well.offsetHeight + 10
       if (top > netPane.bottom - this.container.offsetHeight) {

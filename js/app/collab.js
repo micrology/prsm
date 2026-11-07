@@ -174,6 +174,11 @@ export class Collaboration {
     const name = prompt('Enter your new name', this.user.name)
     clearStatusBar()
     if (name === null) return
+    this.setName(name)
+  }
+
+  /** Update the shared identity after a name has been entered. */
+  setName(name) {
     Object.assign(this.user, renameUser(this.user, name))
     this.store.userName = this.user.name
     this.awareness.setLocalStateField('user', this.user)

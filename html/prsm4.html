@@ -67,19 +67,23 @@
             <div class="strap">
               <span class="strapline">Participatory System Mapper</span>
               <span class="version" id="version">4.0.0</span>
+              <span id="read-only-notice" hidden>Read-only view (not access control)</span>
+              <button type="button" id="tour-start">Tour</button>
             </div>
             <div class="title">
               <div
                 class="maptitle unsetmaptitle"
                 id="maptitle"
-                contenteditable="true"
+                contenteditable="false"
+                role="textbox"
+                aria-label="Map title"
                 data-tutorial="You can name your map here"
                 data-step="1"
                 data-position="below"
               >
                 Untitled map
               </div>
-              <div class="rooms-menu-caret" id="rooms-menu-caret">
+              <button type="button" class="rooms-menu-caret" id="rooms-menu-caret" aria-label="Recent maps and projects" aria-expanded="false" aria-controls="rooms-menu">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -92,51 +96,20 @@
                     d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"
                   />
                 </svg>
-              </div>
+              </button>
               <!-- Recent rooms and projects dropdown menu -->
               <div id="rooms-menu" class="rm-menu-panel">
                 <div id="rm-scroll-box">
-                  <div class="rm-item" id="projectsTrigger">
-                    <b>Projects</b>
-                    <span class="arrow">▶</span>
-                  </div>
-                  <div
-                    class="rm-item"
-                    id="newMapTrigger"
-                    data-room="new"
-                    style="color: var(--tertiary-color)"
-                  >
-                    <b>New map</b>
-                  </div>
-                  <div
-                    class="rm-item"
-                    id="saveListToFileTrigger"
-                    data-room="save"
-                    style="color: var(--tertiary-color)"
-                  >
-                    <b>Save list to file</b>
-                  </div>
+                  <details id="projectsTrigger">
+                    <summary class="rm-item"><b>Projects</b></summary>
+                    <div id="project-list-items"></div>
+                    <button type="button" class="rm-item room-action" id="newProjectTrigger">New project</button>
+                  </details>
+                  <button type="button" class="rm-item room-action" id="newMapTrigger">New map</button>
+                  <button type="button" class="rm-item room-action" id="saveListToFileTrigger">Save list to file</button>
+                  <button type="button" class="rm-item room-action" id="loadListFromFileTrigger">Load list from file</button>
+                  <input type="file" id="mapListInput" accept=".prsml,application/json" hidden />
                   <div id="map-list-items"></div>
-                </div>
-              </div>
-
-              <div id="projects-menu" class="rm-menu-panel">
-                <div id="project-list-items"></div>
-              </div>
-              <div id="project-maps-menu" class="rm-menu-panel">
-                <div id="project-maps-list"></div>
-              </div>
-
-              <div id="rm-modal-overlay">
-                <div class="rm-modal-content">
-                  <div class="rm-modal-content-header">
-                    <div>Enter name of new project</div>
-                    <div id="rm-modal-cancel">x</div>
-                  </div>
-                  <input type="text" id="projectNameInput" placeholder="Project Name..." />
-                  <div class="rm-modal-actions">
-                    <button class="rm-btn rm-btn-ok" id="rm-modal-ok">OK</button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -691,7 +664,7 @@
           data-tutorial="
 					<p><b>And finally, some shortcuts:</b></p>
 					<p><i>Click</i> on a factor or link to select it.<br>
-					A <i>long click</i> or a <i>control-click</i> on a factor or link adds it to the selection.<br>
+					Select multiple factors or links to work with them together.<br>
 					A <i>click</i> on the background cancels the selection.<br>
 					<i>Drag</i> on the background to move the map.<br>
 					<i>Double-click</i> on the background to zoom the map so that it all fits in the window.<br>
@@ -1229,18 +1202,18 @@
         </div>
       </div>
       <!-- Share model dialog -->
-      <div id="shareModal" class="modal">
+      <dialog id="shareModal" class="share-dialog" aria-labelledby="share-title">
         <div class="modal-content">
           <div class="modal-header">
-            <span class="close" id="modal-close">&times;</span>
-            <h2>Share the network with other participants</h2>
+            <button type="button" class="close" id="modal-close" aria-label="Close">&times;</button>
+            <h2 id="share-title">Share the network with other participants</h2>
           </div>
           <div class="modal-body">
-            <div class="invite">
+            <div class="invite" id="share-invite">
               To invite others to participate in developing this map, show them the QR code or send
               them the link:
             </div>
-            <div class="clone">
+            <div class="clone" id="share-clone">
               Open a clone of the map
               <div class="small">
                 (users will be able to modify the map, but their changes won't change this one)
@@ -1249,15 +1222,12 @@
             <button class="modal-button clone-button" type="button" id="clone-button">
               Clone map
             </button>
-            <div class="view">
+            <div class="view" id="share-view">
               Open a read-only copy of the map
               <div class="small">
-                (users will be able to see the map, but will not be able to modify it)
+                (view-only interface, not server-enforced access control)
                 <br />
-                Allow users to make an editable copy
-                <br />
-                of the read-only map
-                <input type="checkbox" id="addCopyButton" />
+                <label><input type="checkbox" id="addCopyButton" /> Allow an editable copy</label>
               </div>
             </div>
             <button class="modal-button view-button" type="button" id="view-button">
@@ -1270,17 +1240,34 @@
             <button class="modal-button table-button" type="button" id="table-button">
               Data view
             </button>
-            <img id="qr-code" class="qr-code" alt="QR code" />
+            <img id="qr-code" class="qr-code" alt="QR code for the invitation link" />
             <div class="copy-text-container">
-              <textarea class="text-to-copy" rows="1" readonly id="text-to-copy"></textarea>
-              <div>
+              <textarea
+                class="text-to-copy"
+                rows="1"
+                readonly
+                id="text-to-copy"
+                aria-label="Invitation link"
+              ></textarea>
+              <div class="copy-actions">
                 <button type="button" id="copy-text">Copy to clipboard</button>
-                <span class="copied-text" id="copied-text">Copied!</span>
+                <span class="copied-text" id="copied-text" role="status">Copied!</span>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </dialog>
+      <dialog id="tour-dialog" class="tour-dialog" aria-labelledby="tour-title">
+        <div class="tour-header">
+          <h2 id="tour-title" tabindex="-1"></h2>
+          <button type="button" id="tour-close" aria-label="Close tour">&times;</button>
+        </div>
+        <div id="tour-text"></div>
+        <div class="tour-actions">
+          <button type="button" id="tour-back">Back</button>
+          <button type="button" id="tour-next">Next</button>
+        </div>
+      </dialog>
       <!-- What's New modal dialog -->
       <div id="whatsnew">
         <div id="whatsnewcontent">

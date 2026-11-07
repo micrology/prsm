@@ -175,3 +175,188 @@
   width: 100%;
   height: 100%;
 }
+.share-dialog {
+  width: min(95vw, 680px);
+  max-height: 90vh;
+  padding: 0;
+  border: 0;
+  overscroll-behavior: contain;
+}
+
+.share-dialog::backdrop {
+  background: rgb(0 0 0 / 45%);
+  overscroll-behavior: contain;
+}
+
+.share-dialog .modal-content {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  animation: none;
+}
+
+.share-dialog .modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.share-dialog .modal-header h2 {
+  flex: 1;
+  margin: 0;
+  order: -1;
+}
+
+.share-dialog .modal-header .close {
+  flex: none;
+  float: none;
+  margin: 0;
+  padding: 0 8px;
+  border: 0;
+  background-color: transparent;
+  line-height: 1;
+}
+
+.share-dialog .modal-header .close,
+.share-dialog .modal-header .close:focus,
+.share-dialog .modal-header .close:hover {
+  color: white;
+}
+
+.share-dialog .modal-header .close:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.share-dialog [hidden] {
+  display: none;
+}
+
+.view-only #buttons > :not(:has(#share, #search, #help, #copy-map)) {
+  display: none;
+}
+
+.view-only #copy-map-button.view-copy-enabled {
+  display: block;
+}
+
+.view-only #ai-assistant-container,
+.view-only #panel,
+.view-only #drawer-wrapper {
+  display: none;
+}
+
+#read-only-notice {
+  margin-left: 0.5em;
+}
+
+.tour-dialog[open] {
+  position: fixed;
+  inset: auto 1rem 1rem auto;
+  margin: 0;
+  width: min(24rem, calc(100vw - 2rem));
+  max-height: 65vh;
+  overflow: auto;
+  border: 1px solid var(--primary-color);
+  border-radius: 4px;
+  padding: 1rem;
+  z-index: 210;
+}
+
+.tour-header,
+.tour-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tour-header h2 {
+  font-size: 1rem;
+}
+
+.tour-target {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 3px;
+}
+
+.view-only #tour-start {
+  display: none;
+}
+
+.share-dialog .modal-body {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+}
+
+.share-dialog .copy-text-container {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  min-width: 0;
+}
+
+.share-dialog .text-to-copy {
+  box-sizing: border-box;
+  min-height: 2.5em;
+  padding: 0.4em;
+  font: inherit;
+  line-height: 1.4;
+}
+
+.share-dialog .copy-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.share-dialog .copied-text {
+  display: block;
+  padding: 0;
+  visibility: hidden;
+  white-space: nowrap;
+}
+
+.share-dialog .copied-text.show {
+  visibility: visible;
+}
+
+button.rooms-menu-caret {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.room-action {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font: inherit;
+}
+
+#rooms-menu .rm-item {
+  font-size: 12px;
+}
+
+#rooms-menu .room-command,
+#rooms-menu > #rm-scroll-box > .room-action,
+#projectsTrigger > summary {
+  color: var(--tertiary-color);
+}
+
+#projectsTrigger > summary::after,
+#project-list-items summary::after {
+  content: '▸';
+  color: #777;
+}
+
+#projectsTrigger[open] > summary::after,
+#project-list-items details[open] > summary::after {
+  content: '▾';
+}
+
+#rooms-menu details details {
+  padding-left: 12px;
+}
+
+#rm-scroll-box {
+  max-height: min(70vh, 500px);
+}

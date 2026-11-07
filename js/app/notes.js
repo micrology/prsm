@@ -131,6 +131,15 @@ export class NotesPanel {
     this.editors[kind] = editor
   }
 
+  /** Allow notes to be read without allowing changes in a view-only map. */
+  setReadOnly(readOnly) {
+    for (const editor of Object.values(this.editors)) {
+      editor.enable(!readOnly)
+      editor.getModule('toolbar').container.hidden = readOnly
+    }
+    elem('pin').hidden = readOnly
+  }
+
   /** @returns {boolean} whether notes are to be shown */
   get enabled() {
     return this.store.meta.get('settings')?.showNotes ?? true

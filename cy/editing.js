@@ -65,7 +65,9 @@ export class Editor {
     cy.on('dragfree', 'node', (evt) => this.queueMove(evt.target))
     cy.on('tap', (evt) => this.onTap(evt))
     cy.on('dbltap', 'node, edge', (evt) => this.onDoubleTap(evt.target))
-    cy.on('cxttap', 'node[cluster]', (evt) => dissolveCluster(store, evt.target.id()))
+    cy.on('cxttap', 'node[cluster]', (evt) => {
+      if (!this.options.isReadOnly?.()) dissolveCluster(store, evt.target.id())
+    })
     cy.on('tapstart', 'edge:selected', (evt) => this.startBend(evt))
     cy.on('ehcomplete', (evt, source, target, added) => this.onLinkDrawn(source, target, added))
     cy.container().addEventListener('pointerdown', () => (Editor.active = this), true)
@@ -132,6 +134,7 @@ export class Editor {
    * @param {object} evt Cytoscape tap event
    */
   onTap(evt) {
+    if (this.options.isReadOnly?.()) return
     if (this.mode !== 'addNode' || evt.target !== this.cy) return
     const style = this.options.defaultNodeStyle?.() ?? 'group0'
     const { x, y } = evt.position
@@ -166,6 +169,7 @@ export class Editor {
    * @param {object} evt Cytoscape tapstart event
    */
   startBend(evt) {
+    if (this.options.isReadOnly?.()) return
     if (this.mode !== 'select') return
     const edge = evt.target
     const cy = this.cy
@@ -192,6 +196,7 @@ export class Editor {
    * @param {cytoscape.SingularElementReturnValue} ele
    */
   onDoubleTap(ele) {
+    if (this.options.isReadOnly?.()) return
     if (ele.hasClass('meta')) return
     const cluster = ele.data('cluster')
     if (cluster) setCollapsed(this.store, ele.id(), !cluster.collapsed)
@@ -239,6 +244,7 @@ export class Editor {
    * @param {KeyboardEvent} evt
    */
   handleKey(evt) {
+    if (this.options.isReadOnly?.()) return
     if (evt.target.matches?.('input, textarea, [contenteditable]')) return
     const mod = evt.metaKey || evt.ctrlKey
     if (mod && evt.key.toLowerCase() === 'z') {

@@ -66,13 +66,15 @@ export class History {
    * @param {object} app
    * @param {import('../../cy/store.js').MapStore} app.store
    * @param {string} app.room
+   * @param {boolean} [app.withUI] whether this page has the history window
    */
-  constructor({ store, room }) {
+  constructor({ store, room, withUI = true }) {
     this.store = store
     this.room = room
-    this.window = elem('history-window')
     this.before = this.capture()
     store.doc.on('afterTransaction', (tr) => this.onTransaction(tr))
+    if (!withUI) return
+    this.window = elem('history-window')
     store.history.observe(() => this.render())
     dragElement(this.window, elem('history-header'))
     listen('showHistorySwitch', 'click', () => this.show(elem('showHistorySwitch').checked))
@@ -129,7 +131,9 @@ export class History {
       if (ids) parts.push(...describeRecords(kind, this.before[kind], store[kind], ids))
     }
     if (tr.changed.has(store.styles)) parts.push('edited a style')
-    if (tr.changed.has(store.meta)) parts.push('changed the map settings')
+    const meta = tr.changed.get(store.meta)
+    if (meta?.has('title')) parts.push('renamed the map')
+    if (meta && [...meta].some((key) => key !== 'title')) parts.push('changed the map settings')
     return parts.join(', ')
   }
 

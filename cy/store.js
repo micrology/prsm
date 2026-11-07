@@ -44,6 +44,7 @@ export class MapStore {
    * @param {string} [origin]
    */
   transact(fn, origin = LOCAL) {
+    if (this.meta.get('viewOnly')) throw new Error('This map is read-only')
     this.doc.transact(fn, origin)
   }
 
@@ -286,10 +287,12 @@ export class MapStore {
   }
 
   undo() {
+    if (this.meta.get('viewOnly')) throw new Error('This map is read-only')
     this.undoManager.undo()
   }
 
   redo() {
+    if (this.meta.get('viewOnly')) throw new Error('This map is read-only')
     this.undoManager.redo()
   }
 }

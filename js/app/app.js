@@ -23,6 +23,9 @@ import { Search } from './search.js'
 import { Analysis } from './analysis.js'
 import { Legend } from './legend.js'
 import { Minimap } from './minimap.js'
+import { Share } from './share.js'
+import { Rooms } from './rooms.js'
+import { Tutorial } from './tutorial.js'
 
 const VERSION = '4.0.0'
 const NO_SERVER_DELAY_MS = 8000
@@ -36,6 +39,9 @@ class App {
     const url = new URL(document.location)
     this.room = roomFromUrl(url)
     if (!this.room) return redirectToRoom(generateRoom())
+    for (const id of ['buttons', 'net-pane', 'panel', 'nodeNotePanel', 'edgeNotePanel']) {
+      elem(id).inert = true
+    }
     this.store = new MapStore()
     this.cy = this.createGraph()
     this.provider = new WebsocketProvider(serverUrl(url), docName(this.room), this.store.doc)
@@ -47,6 +53,7 @@ class App {
       defaultEdgeStyle: () => this.palette.lastStyle('edge'),
       onMode: (mode) => this.toolbar.showMode(mode),
       onAddingFactor: (pos) => this.collab?.setAddingFactor(pos),
+      isReadOnly: () => !this.ready || Boolean(this.store.meta.get('viewOnly')),
     })
     this.toolbar = new Toolbar({
       store: this.store,
@@ -69,6 +76,18 @@ class App {
       user: this.user,
     })
     this.history = new History({ store: this.store, room: this.room })
+    this.share = new Share({ store: this.store, provider: this.provider })
+    this.rooms = new Rooms({ store: this.store, room: this.room, server: serverUrl(url) })
+    this.tutorial = new Tutorial({ user: this.user, collaboration: this.collab })
+    this.bindTitle()
+    this.store.meta.observe((event) => {
+      if (this.ready && (event.keysChanged.has('viewOnly') || event.keysChanged.has('allowCopy'))) {
+        this.applyViewOnly()
+      }
+    })
+    listen('help', 'click', () =>
+      window.open('https://www.prsm.uk/doc/help/doc_build/manual/Introduction.html', 'helpWindow')
+    )
     this.wireFileInput()
     this.waitForServer()
     elem('version').textContent = VERSION
@@ -142,6 +161,12 @@ class App {
     this.provider.once('sync', () => {
       clearTimeout(this.noServerTimer)
       if (this.store.styles.size === 0) this.initialiseNewMap()
+      this.rooms.start()
+      this.ready = true
+      this.applyViewOnly()
+      for (const id of ['buttons', 'net-pane', 'panel', 'nodeNotePanel', 'edgeNotePanel']) {
+        elem(id).inert = false
+      }
       elem('loading').classList.remove('show')
       elem('net-pane').classList.add('loaded')
       this.cy.resize()
@@ -149,7 +174,33 @@ class App {
       this.store.undoManager.clear()
       this.history.reset()
       statusMsg(`Connected to room ${this.room}`)
+      if (!this.store.meta.get('viewOnly')) this.tutorial.startIfNeeded()
     })
+  }
+
+  /** Set up the view-only interface from the shared map metadata. */
+  applyViewOnly() {
+    const viewOnly = Boolean(this.store.meta.get('viewOnly'))
+    document.body.classList.toggle('view-only', viewOnly)
+    this.cy.autoungrabify(viewOnly)
+    elem('maptitle').contentEditable = String(!viewOnly)
+    elem('read-only-notice').hidden = !viewOnly
+    elem('copy-map-button').classList.toggle(
+      'view-copy-enabled',
+      viewOnly && Boolean(this.store.meta.get('allowCopy'))
+    )
+    for (const id of [
+      'addNode',
+      'addLink',
+      'undo',
+      'redo',
+      'deleteNode',
+      'openFile',
+      'panelToggle',
+    ]) {
+      elem(id).disabled = viewOnly
+    }
+    this.notes.setReadOnly(viewOnly)
   }
 
   showNoServer() {
@@ -160,6 +211,36 @@ class App {
   /** A new room gets an empty map with the standard styles */
   initialiseNewMap() {
     this.store.loadFile(legacyToV2(normaliseLegacy({ nodes: [], edges: [] })).file)
+  }
+
+  /** Keep the editable map title in sync with the shared document. */
+  bindTitle() {
+    const title = elem('maptitle')
+    const current = () => this.store.meta.get('title')?.trim() || 'Untitled map'
+    const show = () => {
+      title.textContent = current()
+      title.classList.toggle('unsetmaptitle', current() === 'Untitled map')
+    }
+    let beforeEdit = ''
+    title.addEventListener('focus', () => (beforeEdit = title.textContent))
+    title.addEventListener('blur', () => {
+      const value = title.textContent.replace(/\s+/g, ' ').trim() || 'Untitled map'
+      if (value !== beforeEdit && value !== current()) {
+        this.store.transact(() => this.store.meta.set('title', value))
+      }
+      show()
+    })
+    title.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') title.textContent = beforeEdit
+      if (event.key === 'Enter' || event.key === 'Escape') {
+        event.preventDefault()
+        title.blur()
+      }
+    })
+    this.store.meta.observe((event) => {
+      if (event.keysChanged.has('title') && document.activeElement !== title) show()
+    })
+    show()
   }
 
   wireFileInput() {

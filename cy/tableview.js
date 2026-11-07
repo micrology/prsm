@@ -58,13 +58,14 @@ export class TableView {
   /**
    * @param {HTMLElement} container
    * @param {MapStore} store
-   * @param {{onSelect?: function(Set<string>):void}} [options] onSelect is called when the user
-   *   changes which rows are selected
+   * @param {{onSelect?: function(Set<string>):void, onError?: function(Error):void, readOnly?: function():boolean}} [options]
    */
   constructor(container, store, options = {}) {
     this.container = container
     this.store = store
     this.onSelect = options.onSelect ?? (() => {})
+    this.onError = options.onError ?? ((error) => console.error(error))
+    this.readOnly = options.readOnly ?? (() => false)
     this.tab = 'factors'
     this.sort = null
     this.filter = { field: 'label', op: 'like', value: '' }
@@ -129,15 +130,17 @@ export class TableView {
       return b
     }
     this.addColumnButton = button('Add column', () => this.store.addAttribute())
+    this.undoButton = button('Undo', () => this.store.undo())
+    this.redoButton = button('Redo', () => this.store.redo())
     const bar = el(
       'div',
       { className: 'table-bar' },
       ...this.tabs,
       button('Filter', () => this.toggleFilter()),
-      button('Copy', () => this.copy()),
+      button('Copy', () => this.copy().catch(this.onError)),
       this.addColumnButton,
-      button('Undo', () => this.store.undo()),
-      button('Redo', () => this.store.redo())
+      this.undoButton,
+      this.redoButton
     )
     this.filterBar = el('div', { className: 'table-filter', hidden: true })
     this.scroller = el('div', { className: 'table-scroll' })
@@ -181,6 +184,9 @@ export class TableView {
 
   render() {
     this.dirty = false
+    for (const button of [this.addColumnButton, this.undoButton, this.redoButton]) {
+      button.hidden = this.readOnly()
+    }
     const scroll = { top: this.scroller.scrollTop, left: this.scroller.scrollLeft }
     const cols = this.columns()
     const { rows, clusters } = this.allRows()
@@ -253,7 +259,10 @@ export class TableView {
    * @returns {HTMLElement}
    */
   headerCell(col, shown) {
-    const th = el('th', { className: col.editable ? 'editable' : '', title: col.tip ?? '' })
+    const th = el('th', {
+      className: col.editable && !this.readOnly() ? 'editable' : '',
+      title: col.tip ?? '',
+    })
     if (col.type === 'select-row') th.append(this.selectAllBox(shown))
     else th.append(this.titleText(col))
     const arrow = el('button', {
@@ -266,7 +275,7 @@ export class TableView {
       th.setAttribute('aria-sort', this.sort.dir === 1 ? 'ascending' : 'descending')
     }
     th.append(arrow)
-    if (col.attribute) th.append(this.deleteButton(col))
+    if (col.attribute && !this.readOnly()) th.append(this.deleteButton(col))
     return th
   }
 
@@ -282,7 +291,7 @@ export class TableView {
   }
 
   titleText(col) {
-    if (!col.attribute) return el('span', { textContent: col.title })
+    if (!col.attribute || this.readOnly()) return el('span', { textContent: col.title })
     const span = el('span', {
       textContent: col.title,
       contentEditable: 'plaintext-only',
@@ -336,12 +345,14 @@ export class TableView {
     const td = el('td', { className: `cell-${col.type}` })
     if (col.type === 'select-row') return this.rowBox(td, row)
     if (col.type === 'bool') return this.flagBox(td, col, row)
-    if (col.type === 'color') return this.swatch(td, col, row)
+    if (col.type === 'color' && !this.readOnly()) return this.swatch(td, col, row)
     const full = displayValue(col, row)
     const limit = col.type === 'note' ? NOTE_PREVIEW_LENGTH : col.truncate
     td.textContent = limit ? shorten(full, limit) : full
     if (limit && full.length > limit) td.title = full
-    if (col.editable) td.addEventListener('click', () => this.startEdit(td, col, row))
+    if (col.editable && !this.readOnly()) {
+      td.addEventListener('click', () => this.startEdit(td, col, row))
+    }
     return td
   }
 
@@ -359,6 +370,7 @@ export class TableView {
 
   flagBox(td, col, row) {
     const box = el('input', { type: 'checkbox', checked: Boolean(cellValue(col, row)) })
+    box.disabled = this.readOnly()
     box.addEventListener('change', () => col.set(this.targets(row), box.checked))
     td.append(box)
     return td
@@ -502,10 +514,14 @@ export class TableView {
   }
 
   /** Copy the shown rows (or just the selected ones) to the clipboard as tab-separated text */
-  copy() {
+  async copy() {
+    if (!navigator.clipboard?.writeText) throw new Error('Clipboard access is unavailable')
     const cols = this.visible(this.columns()).filter((c) => c.type !== 'select-row')
     let rows = this.shownRows(this.columns(), this.allRows().rows)
-    if (this.selected.size) rows = rows.filter((r) => this.selected.has(r.id))
+    const source = this.tab === 'factors' ? this.store.nodes : this.store.edges
+    if ([...this.selected].some((id) => source.has(id))) {
+      rows = rows.filter((r) => this.selected.has(r.id))
+    }
     const lines = [
       cols.map((c) => c.tip ?? c.title),
       ...rows.map((r) => cols.map((c) => this.copyText(c, r))),

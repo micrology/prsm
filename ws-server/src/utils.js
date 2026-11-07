@@ -337,12 +337,8 @@ const destroyDocument = (docname, doc) => {
         }
       })
   } else {
-    doc.cleanup()
-    docs.delete(docname)
-    if (docs.size === 0) {
-      log('No remaining documents in memory.')
-      log(`${reportMemory()}`)
-    }
+    // Without disk persistence, the in-memory document is the only copy.
+    log(`Keeping document "${docname}" in memory until the server stops.`)
   }
 }
 
@@ -360,7 +356,7 @@ const closeConn = (doc, conn) => {
     doc.conns.delete(conn)
     awarenessProtocol.removeAwarenessStates(doc.awareness, Array.from(controlledIds), null)
     if (doc.conns.size === 0) {
-      log(`All connections closed for document "${doc.name}". Destroying document.`)
+      log(`All connections closed for document "${doc.name}".`)
       log(`${docs.size} documents remaining. ${reportMemory()}`)
       destroyDocument(doc.name, doc)
     }
