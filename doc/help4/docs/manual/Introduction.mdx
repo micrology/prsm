@@ -1,0 +1,84 @@
+# Introduction
+
+:::warning Draft
+This guide is being revised for PRSM 4. Other pages and screenshots may still
+describe the legacy app. The overview below describes PRSM 4.
+:::
+
+## Starting and sharing a map
+
+Opening PRSM 4 creates a room for your map. Give the map a title at the top
+of the page. Select **Share** to copy its link or show its QR code to other
+participants. People who open that link can work on the same map.
+
+The Share dialog can also create an independent editable copy or a view-only
+copy. View-only is an interface restriction, **not server-enforced access
+control**; do not rely on it to protect confidential information. The data
+view opens the same room in a separate tab.
+
+The menu beside the title lists recently visited maps and projects. It can
+also save and reload a list of maps. The list is stored in this browser,
+separately from the legacy app's list.
+
+## Editing and exploring
+
+Use the toolbar to add factors and links, undo or redo edits, delete a
+selection, search, open or save a map, and open the settings panel. Drag a
+factor to move it; drag the background to move the map. Use the zoom controls
+to change magnification. Factor and link notes can be edited in their notes
+panels.
+
+The settings panel includes factor and link styles, network settings and
+analysis controls. Network settings offer trophic, fan, force-directed and
+hierarchical layouts. Analysis can filter by distance, direction or paths,
+size factors by network measures, and group factors into clusters.
+
+## Files and compatibility
+
+**Save** writes a native PRSM 4 `.prsm` file. PRSM 4 can read older `.prsm`
+files, but the legacy application cannot open the new format. Legacy
+background drawings are retained in the file but are not yet displayed.
+Opening a file to replace a nonempty shared map requires confirmation.
+
+The app also imports Excel, CSV, GraphML, GEXF, GML and Graphviz DOT/GV,
+and exports Excel, GraphML, GEXF, GML and DOT. These interchange formats are
+not complete backups. Kumu and draw.io are not supported.
+
+Image export produces an 8192 × 8192 PNG of the visible map, framed around
+selected factors if any. It omits the on-screen legend and legacy background
+drawings. Notes export creates a Word document with the map description,
+factor notes and link notes. See the [files page](/manual/Files) for details.
+
+## See the tour again
+
+Open this manual using the map's **Help** button, click
+<button onClick={()=>{window.localStorage.setItem('doneIntro', 'false'); window.opener?.postMessage({ type: 'prsm-reset-tour' }, window.location.origin)}}>reset the tour</button>,
+then reload the map.
+
+The Participatory System Mapper (PRSM for short) is a web app that makes it easy for a group of people working together to draw networks (or 'maps') of systems.  
+
+![Example map: Some factors causing loss of biodiversity](/images/biodiversityImproved.webp)
+
+## Maps
+
+The network or map can be anything that has items (or 'factors' or 'nodes') connected by links (or 'edges').  Here are some examples:
+
+* People (the nodes) connected by knowing each other
+* Factors or variables causing (the links) changes in other factors
+* Switches connected by wires
+* Computers connected by network links
+* Theories expressed as variables and relationships between them
+* Company boards of directors (the nodes) and the directors that sit on more than one board (the links)
+* Twitter hashtags (the nodes) included together on posts (the links)
+* Scientists (the nodes) co-authoring papers (the links)
+* and so on.
+
+## Systems
+
+The software is aimed at people who are interested in understanding whole systems.  [Wikipedia](https://en.wikipedia.org/wiki/System) defines a system as "a group of interacting or interrelated entities that form a unified whole".
+
+## Participatory system mapping
+
+The app is designed to enable groups of people, each using their own computer (or tablet) to collaborate in the drawing of a map.  They may be sitting around a table, discussing the map as it is created face to face, or working remotely, using audio or video conferencing.  Everyone can participate because every edit (creating nodes and links, arranging them and so on) is broadcast to all the other participants as the changes are made.  
+
+When you start the app in your browser, a 'room' is created for you in which to draw your network.  You can add other users to this room to share the work.  Only those with access to the room can see what is being created.

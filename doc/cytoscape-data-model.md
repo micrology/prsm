@@ -1,5 +1,10 @@
 # PRSM on Cytoscape: data model, file format and legacy mapping (draft 1)
 
+> Historical design and implementation notes: references below to `cy/`,
+> `js/app/`, and the old HTML locations predate the move to `prsm4/`.
+> Current production modules are in `prsm4/src/`, tests in `prsm4/tests/`,
+> and the conversion report in `prsm4/tools/`.
+
 Status: design draft for discussion. No code has been changed.
 
 ## 1. Goals and principles

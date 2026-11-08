@@ -1,0 +1,77 @@
+@import '../../src/graph/editors.css';
+@import '../../src/graph/tableview.css';
+@font-face {
+  font-family: 'Oxygen';
+  src: url('../../../fonts/oxygen-regular-webfont.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Oxygen';
+  src: url('../../../fonts/oxygen-bold-webfont.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+#cy,
+#cy2 {
+  position: relative;
+}
+.adding-node {
+  cursor: copy;
+}
+.adding-link {
+  cursor: crosshair;
+}
+#cy.current,
+#cy2.current {
+  box-shadow: inset 0 0 0 2px #3399ff;
+}
+#styles {
+  flex: 0 0 240px;
+  overflow-y: auto;
+  padding: 8px 10px;
+  border-left: 2px solid #999;
+  font: 13px sans-serif;
+}
+#styles[hidden] {
+  display: none;
+}
+#styles h2,
+#styles h3 {
+  margin: 8px 0 4px;
+  font-size: 14px;
+}
+#styles label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 3px 0;
+}
+#styles .style-list button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  text-align: left;
+}
+#styles .style-list button.on {
+  background: #cde;
+}
+#styles .swatch {
+  width: 14px;
+  height: 14px;
+  background: var(--c);
+  border: 1px solid #666;
+}
+#table {
+  flex: 0 0 40vh;
+  display: flex;
+  flex-direction: column;
+  border-top: 2px solid #999;
+  font:
+    13px Oxygen,
+    sans-serif;
+}
+#table[hidden] {
+  display: none;
+}

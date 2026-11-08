@@ -1,0 +1,11 @@
+# syntax=docker/dockerfile:1
+
+FROM node:26-slim
+RUN npm install -g http-server
+COPY ["dist4/", "/public/prsm/"]
+COPY ["doc/help4/doc_build/", "/public/prsm/doc/help4/doc_build/"]
+RUN ln -s /public/prsm/doc /public/doc
+RUN echo '<meta http-equiv="refresh" content="0; url=./prsm/prsm4.html">' > /public/index.html
+ENV HOST=0.0.0.0
+EXPOSE 8080
+CMD ["http-server", "/public", "-p", "8080"]

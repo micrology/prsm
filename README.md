@@ -362,12 +362,18 @@ Prefer `./dashboard local` for day-to-day use: it restarts a stale listener clea
 | --- | --- |
 | `npm run install:all` | `npm i` in root, `doc/help`, `api-server`, `vis-network`, `ws-server` |
 | `npm run upgrade:all` | Upgrade dependencies in those packages |
-| `npm run dev` | Clean `dist/` and Parcel-watch `html/*.html` |
-| `npm run build` | Production Parcel build into `dist/` |
+| `npm run dev` | Clean `dist/` and watch the legacy pages |
+| `npm run build` | Build the legacy pages into `dist/` |
+| `npm run dev:prsm4` | Watch the PRSM 4 pages in `dist4/` |
+| `npm run build:prsm4` | Build the PRSM 4 pages into `dist4/` |
+| `npm run deploy:prsm4` | Build PRSM 4 and its manual for deployment |
+| `npm run test:prsm4` | Run PRSM 4 unit and collaboration integration tests |
 | `npm run clean` | Remove `dist/*` |
 | `npm run build-vis-network` | Build the vendored network library |
 | `npm run build-help` | Production user-manual build |
 | `npm run build-help-locally` | Local help build |
+| `npm run build:help4` | Build the draft PRSM 4 manual for production |
+| `npm run build:help4:local` | Build the draft PRSM 4 manual for local hosting |
 | `npm run deploy` | `install:all` + vis-network + app + help builds |
 | `npm run start:all-locally` | ws-server + api-server (dev) + Parcel watch + local usage dashboard |
 | `npm run stop:all-locally` | Stop the local stack processes (including dashboard on **8881**) |
@@ -375,12 +381,27 @@ Prefer `./dashboard local` for day-to-day use: it restarts a stale listener clea
 | `npm run pretty` | Prettier on HTML/JS/CSS and related paths |
 | `npm run spellcheck` | cspell on main sources and help MDX |
 | `npm run check` | lint + spellcheck + help build + prettier |
-| `npm run jsdoc` | Generate JSDoc under `doc/jsdoc` |
+| `npm run jsdoc` | Generate the legacy JSDoc index under `doc/jsdoc` |
+| `npm run jsdoc:prsm4` | Generate the PRSM 4 JSDoc index under `doc/jsdoc4` |
 | `npm run analyse` | Parcel detailed bundle report |
 | `npm run build-for-docker` | Build `dist/` + help with `features.ai` temporarily false |
 | `npm run rebuild-docker` | `build-for-docker` then multi-arch build/push of images |
 
 Subpackages define additional scripts; see their READMEs and `package.json` files.
+
+The PRSM 4 build is separate from the legacy `dist/` output. Serve `dist4/`
+to run PRSM 4 locally; a server serving only `dist/` will not serve
+`prsm4.html` or `table4.html`. The PRSM 4 manual in `doc/help4/` is a draft
+copied from the legacy manual and shares its image assets; some pages still
+need revision. The application opens this manual on the same host. Publish
+the manual at `/doc/help4/doc_build/` on the same host as the application,
+including when running locally.
+For a separate container image, see `docker/README.md`.
+Some import tests use the optional local sample corpus in `data/`, which is
+not tracked by Git; those tests report a skip when their samples are absent.
+The PRSM 4 JSDoc build translates editor-oriented type expressions in memory
+to syntax understood by JSDoc 4; the original annotations are unchanged.
+Tuple types in the generated index are represented as arrays of their members.
 
 ### Coding conventions
 
@@ -393,7 +414,8 @@ Subpackages define additional scripts; see their READMEs and `package.json` file
 
 Browser targets are the `browserslist` in root `package.json` (last two versions of Chrome, Firefox, Safari, Edge).
 
-There is no automated test suite at present.
+PRSM 4 has unit and collaboration integration tests; run them with
+`npm run test:prsm4`. Some additional format samples in `data/` are optional.
 
 ### Configuration knobs developers often need
 

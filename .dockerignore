@@ -3,6 +3,13 @@
 *
 !.htaccess
 !dist
+!dist4
+!doc
+!doc/help
 !doc/help/doc_build
+!doc/help/doc_build/**
+!doc/help4
+!doc/help4/doc_build
+!doc/help4/doc_build/**
 !ws-server
 !whatsnew.html

@@ -5,6 +5,9 @@ dist
 node_modules
 doc/help/node_modules
 doc/help/doc_build
+doc/help4/doc_build
+doc/jsdoc4
+dist4
 doc/help/docs/manual/_meta.json
 rspress.config.ts=
 *.bbprojectd
@@ -76,4 +79,3 @@ dashboard
 .Trashes
 ehthumbs.db
 Thumbs.db
-

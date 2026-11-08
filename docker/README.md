@@ -77,6 +77,23 @@ docker run -d -p 1234:1234 --name prsm-y-websocket micrology/prsm-y-websocket
 
 `build-for-docker` (`utils/build-for-docker.mjs`) produces `dist/` and `doc/help/doc_build/` with AI UI gated off. Do not use a normal production `deploy`/`build` (AI on) as the source for the httpd image.
 
+### PRSM 4
+
+PRSM 4 has its own image and manual. The legacy image and its build remain unchanged.
+After installing the root and `doc/help` dependencies, build it from the repository root:
+
+```bash
+npm run deploy:prsm4
+docker build -f docker/docker-httpd/Dockerfile.prsm4 -t prsm4-httpd .
+docker run --rm -p 8080:8080 prsm4-httpd
+```
+
+Open `http://localhost:8080/prsm/prsm4.html`. Run the websocket service separately
+on port 1234; configure `YPERSISTENCE` if maps must survive server restarts. The
+same websocket service can serve both versions: PRSM 4 uses a separate document
+namespace. The PRSM 4 manual is still a draft and is built without the legacy
+manual's AWS knowledge-base synchronization.
+
 Multi-arch publish (maintainers): root `npm run rebuild-docker` runs `build-for-docker` then pushes both images:
 
 ```bash

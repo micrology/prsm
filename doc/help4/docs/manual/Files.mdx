@@ -1,0 +1,94 @@
+# Opening and saving maps
+
+## Recent maps and projects
+
+Select the arrow beside the map title to see recently visited maps. Give a map
+a title before adding it to a project. The menu lets you create projects, add
+the current map, delete a project without deleting its maps, and save or load
+the list as a `.prsml` file.
+
+The list is kept in this browser, separately from the legacy PRSM list. It
+contains room references, not map backups. Save each map as a `.prsm` file if
+you need a backup. A PRSM 4 list cannot import a legacy map list because the
+two versions use different rooms.
+
+## Opening a map
+
+Use **Open** to choose a file. PRSM 4 recognises `.prsm`, `.xlsx`, `.xls`,
+`.csv`, `.graphml`, `.gexf`, `.gml`, `.dot` and `.gv`. Kumu and draw.io are
+not supported.
+
+Opening a file replaces the current room's map **for everyone in the room**.
+If the room already contains factors or links, PRSM asks for confirmation.
+Invalid files are rejected before the current map is replaced. To combine
+maps instead, use **Open → Merge** and supply the share link of another
+PRSM 4 room; see [Merging maps](/manual/Cloning#merging-maps).
+
+PRSM 4 reads legacy `.prsm` files and converts them to its own format.
+Legacy background drawings are preserved in saved files but are not yet
+displayed. A `.prsm` file saved by PRSM 4 cannot be opened in the legacy app.
+
+### Excel
+
+An Excel workbook must contain sheets named `Factors` and `Links`. Each needs
+a header row:
+
+| Sheet | Required columns | Optional columns |
+| --- | --- | --- |
+| Factors | `Label` | `ID`, `Note` or `Description`, `Style`, `X`, `Y` |
+| Links | `From`, `To` | `ID`, `SourceID`, `TargetID`, `Label`, `Note` or `Description`, `Style` |
+
+`From` and `To` identify factors by label. If labels are duplicated, use
+`SourceID` and `TargetID` to identify the relevant factor IDs. Style numbers
+range from 1 to 15. Other columns become map attributes. Duplicate column
+headings, missing endpoints and ambiguous labels are reported as errors.
+
+### CSV
+
+CSV import reads a link list. The first row is a header; subsequent rows have
+the source and target factor labels in the first two columns, optionally
+followed by source-factor, target-factor and link style numbers (1–15).
+Factors are created from the labels. For example:
+
+```csv
+From,To,From style,To style,Link style
+Rain,Flooding,1,2,1
+Flooding,Road closure,2,3,1
+```
+
+### Graph formats
+
+GraphML, GEXF, GML and Graphviz imports support common graph data and some
+styling, not every feature of those formats. The app reports warnings where
+data cannot be represented. Undirected links are imported as directed.
+Graphviz HTML labels are not supported.
+
+## Saving and exporting
+
+**Save** downloads a native PRSM 4 `.prsm` file. Use it for backups and for
+reopening a map in PRSM 4. The menu beside Save also offers Excel, GraphML,
+GEXF, GML, Graphviz, image and notes exports. The interchange formats are
+not complete backups:
+
+- Excel exports notes as plain text and does not preserve custom styles.
+- GraphML and GEXF export notes as plain text and do not preserve all PRSM
+  styling; clusters and links to omitted factors are excluded.
+- GML and Graphviz export notes as plain text and omit attributes, most
+  styling, clusters and links to omitted factors.
+
+### Image
+
+Image export produces an **8192 × 8192 pixel PNG**. It frames the visible map,
+or the selected factors if any are selected; other visible elements within
+that frame can appear too. The image includes the background colour but not
+the on-screen legend or retained legacy background drawings. If the browser
+cannot render or encode an image at this size, PRSM reports an error. Choose
+the print resolution in your publication software.
+
+### Notes
+
+Notes export produces a Word `.docx` document with the map title and
+description, factors in alphabetical order, then links. Missing notes are
+shown as `[No note]`. Embedded PNG images are included; other images,
+including externally hosted images, are omitted with a warning. Cluster
+records and links without two ordinary factors are excluded.

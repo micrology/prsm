@@ -1,0 +1,116 @@
+/* Styles shared by the editors in the test bed and PRSM 4 */
+.cy-label-editor {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  transform: translate(-50%, -50%);
+  font:
+    14px Oxygen,
+    sans-serif;
+  text-align: center;
+  z-index: 10;
+}
+.note-dialog {
+  width: 480px;
+}
+.element-editor {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 280px;
+  z-index: 50;
+  background: #fff;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.35);
+  border: thin solid #999;
+  border-radius: 6px;
+  font:
+    12px Oxygen,
+    sans-serif;
+  color: #000;
+}
+.element-label {
+  display: block;
+  box-sizing: border-box;
+  width: calc(100% - 12px);
+  margin: 6px;
+  padding: 2px;
+  font:
+    16px Oxygen,
+    sans-serif;
+  text-align: center;
+  resize: none;
+  overflow: hidden;
+}
+.element-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.element-field.wide input {
+  flex: 1;
+}
+.element-field select {
+  font-size: 10px;
+  text-transform: uppercase;
+  max-width: 80px;
+}
+.element-save {
+  background: #3399ff;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+/* A colour square that opens the colour picker (colorwell.js) */
+.color-well {
+  display: inline-block;
+  width: 32px;
+  height: 18px;
+  border: 1px solid #888;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.element-title {
+  padding: 3px 6px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  background: #3399ff;
+  border-radius: 6px 6px 0 0;
+}
+.element-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 7px;
+  margin: 10px;
+  justify-items: center;
+  align-items: center;
+}
+.element-field.wide {
+  grid-column: 1 / 4;
+  flex-direction: row;
+  width: 100%;
+  gap: 10px;
+}
+.element-field-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #3399ff;
+  font-weight: 600;
+}
+.element-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 6px 6px;
+}
+.element-cancel {
+  border: none;
+  background: none;
+  font-size: 16px;
+  cursor: pointer;
+}

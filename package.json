@@ -26,6 +26,10 @@
     "default": {
       "distDir": "dist",
       "publicUrl": "."
+    },
+    "prsm4": {
+      "distDir": "dist4",
+      "publicUrl": "."
     }
   },
   "browserslist": [
@@ -35,7 +39,8 @@
     "last 2 Edge versions"
   ],
   "parcelIgnore": [
-    "/doc/help/"
+    "/doc/help/",
+    "/doc/help4/"
   ],
   "features": {
     "ai": true
@@ -46,17 +51,24 @@
     "pretty": "prettier --write ./html/*.html ./*.html ./js/*.js ./css/*.css doc/**/*.{html,css} package.json",
     "build-help": "cd doc/help && PRSM_DEPLOY=production npm run build",
     "build-help-locally": "cd doc/help && npm run build",
+    "build:help4": "cd doc/help && PRSM_DEPLOY=production npx rspress build --config rspress4.config.ts",
+    "build:help4:local": "cd doc/help && npx rspress build --config rspress4.config.ts",
     "build-vis-network": "cd vis-network && npm run build",
     "spellcheck": "npx cspell './js/*.js' './html/*.html' './css/*.css' 'doc/help/docs/manual/*.mdx'",
     "check": "npm run lint && npm run spellcheck &&npm run build-help && npm run pretty",
-    "dev": "npm run clean && npx parcel watch './html/*.html' --no-hmr",
-    "build": "rm -rf dist/* && npx parcel build './html/*.html'",
+    "dev": "npm run clean && node utils/legacy-parcel.mjs watch --no-hmr",
+    "dev:prsm4": "npx parcel watch 'prsm4/html/*.html' --target prsm4 --no-hmr",
+    "build": "npm run clean && node utils/legacy-parcel.mjs build",
+    "build:prsm4": "npx parcel build 'prsm4/html/*.html' --target prsm4 --no-cache",
+    "deploy:prsm4": "npm run build:prsm4 && npm run build:help4",
+    "test:prsm4": "node --test prsm4/tests/unit/*.test.js prsm4/tests/integration/*.test.js",
     "jsdoc": "npx jsdoc -r -c .jsdoc.json",
+    "jsdoc:prsm4": "npx jsdoc -r -c .jsdoc4.json",
     "clean": "rm -rf dist/*",
     "build-for-docker": "node ./utils/build-for-docker.mjs",
     "rebuild-docker": "npm run build-for-docker && docker buildx build -f docker/docker-y-websocket/Dockerfile --platform linux/amd64,linux/arm64 -t micrology/prsm-y-websocket --push . && docker buildx build --platform linux/amd64,linux/arm64 -t micrology/prsm-httpd --push -f docker/docker-httpd/Dockerfile .",
     "deploy": "npm run install:all && npm run build-vis-network && npm run build && npm run build-help",
-    "analyse": "npx parcel build './html/*.html' --detailed-report",
+    "analyse": "node utils/legacy-parcel.mjs build --detailed-report",
     "install:all": "npm i && (cd ./doc/help && npm i) && (cd ./api-server && npm i) && (cd ./vis-network && npm i)  && (cd ./ws-server && npm i)",
     "upgrade:all": "npm upgrade && (cd ./doc/help && npm upgrade) && (cd ./api-server && npm upgrade) && (cd ./vis-network && npm upgrade) && (cd ./ws-server && npm upgrade)",
     "start:all-locally": "./utils/start-all-locally.sh",

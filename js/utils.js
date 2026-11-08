@@ -23,6 +23,7 @@ const MANUALURL = './doc/help/doc_build/manual/Introduction.html'
  * @param {string} event
  * @param {function} callback
  * @param {object} options
+ * @returns {void}
  */
 export function listen(id, event, callback, options) {
   elem(id).addEventListener(event, callback, options)
@@ -31,6 +32,7 @@ export function listen(id, event, callback, options) {
 /**
  * return the HTML element with the id
  * @param {string} id
+ * @returns {HTMLElement|null} The matching element, if present.
  */
 export function elem(id) {
   return document.getElementById(id)
@@ -54,6 +56,8 @@ export function pushnew(array, item) {
  * Taken from the vis-network distribution
  *
  * Created by Alex on 5/20/2015.
+ * @param {number} nodeCount Number of nodes to generate.
+ * @returns {{nodes: Array<object>, edges: Array<object>}} Generated graph.
  */
 export function getScaleFreeNetwork(nodeCount) {
   const nodes = []
@@ -123,6 +127,7 @@ function seededRandom() {
 
 /**
  * return a GUID
+ * @returns {string} Random UUID.
  */
 export function uuidv4() {
   return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
@@ -132,7 +137,7 @@ export function uuidv4() {
 /**
  * return true if obj has no properties, i.e. is {}
  * @param {Object} obj
- * @returns true or false
+ * @returns {boolean} Whether the object has no own properties.
  */
 export function isEmpty(obj) {
   for (const p in obj) {
@@ -140,11 +145,11 @@ export function isEmpty(obj) {
   }
   return true
 }
-/*
+/**
  * Deep merge two or more objects together.
  * (c) 2019 Chris Ferdinandi, MIT License, https://gomakethings.com
  * if two objects have the same property, the value of the second one is used
- * @param   {Object[]}   objects  The objects to merge together
+ * @param {...Object} objects The objects to merge together.
  * @returns {Object}            A new, merged, object
  */
 export function deepMerge() {
@@ -152,6 +157,11 @@ export function deepMerge() {
   const newObj = {}
 
   // Merge the object into the newObj object
+  /**
+   * Merge an object's own properties into the accumulated result.
+   * @param {Object} obj Object to merge.
+   * @returns {void}
+   */
   function merge(obj) {
     for (const prop in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, prop)) {
@@ -177,6 +187,7 @@ export function deepMerge() {
  * returns a deep copy of the object
  * original replaced by new built-in
  * @param {Object} obj
+ * @returns {Object} Cloned object.
  */
 export function deepCopy(obj) {
   /* 	if (typeof obj !== 'object' || obj === null) {
@@ -203,6 +214,7 @@ window.deepCopy = deepCopy
  * adapted from https://stackoverflow.com/questions/1068834/object-comparison-in-javascript
  * @param {Object} x
  * @param {Object} y
+ * @returns {boolean} Whether the values are deeply equal.
  */
 export function objectEquals(x, y) {
   if (x === y) return true
@@ -246,6 +258,7 @@ window.objectEquals = objectEquals
  * return a copy of an object, with the properties in the object propsToRemove removed
  * @param {Object} source
  * @param {Object} propsToRemove
+ * @returns {Object} Copy without the specified properties.
  */
 export function clean(source, propsToRemove) {
   const out = {}
@@ -257,7 +270,8 @@ export function clean(source, propsToRemove) {
 /**
  * remove the given properties from all the objects in the array
  * @param {Array} arr array of objects
- * @param {string} propsToRemove
+ * @param {Object} propsToRemove Object whose keys are removed.
+ * @returns {Array} Copies with those properties removed.
  */
 export function cleanArray(arr, propsToRemove) {
   return arr.map((item) => {
@@ -268,6 +282,7 @@ export function cleanArray(arr, propsToRemove) {
  * return a copy of an object that only includes the properties that are in allowed
  * @param {Object} obj the object to copy
  * @param {array} allowed list of allowed properties
+ * @returns {Object} Copy containing the requested properties.
  */
 export function strip(obj, allowed) {
   return allowed.reduce((a, e) => {
@@ -315,6 +330,7 @@ export function splitText(txt, width = 10) {
 }
 /**
  * Performs intersection operation between called set and otherSet
+ * @param {Set} thisSet First set.
  * @param {Set} otherSet
  * @returns {Set}
  */
@@ -326,7 +342,7 @@ export function setIntersection(thisSet, otherSet) {
 /**
  * Find the most frequent string in an array.
  * @param {array} arr array of strings
- * @returns string
+ * @returns {string|null} Most frequent value, or null for an empty array.
  */
 export function mostFrequentString(arr) {
   if (!arr.length) return null // handle empty array
@@ -363,6 +379,7 @@ export function factorSizeToPercent(size) {
  * Set the factor size according to the input range slider value (less then 5% is treated as the normal size)
  * @param {object} node
  * @param {integer} percent
+ * @returns {void}
  */
 export function setFactorSizeFromPercent(node, percent) {
   if (percent < 5) {
@@ -377,6 +394,7 @@ export function setFactorSizeFromPercent(node, percent) {
  * convert from style object properties to dashed border menu selection
  * @param {any} bDashes select menu value
  * @param {number} bWidth border width
+ * @returns {string|null} Dash menu value, or null if unrecognized.
  */
 export function getDashes(bDashes, bWidth) {
   if (bWidth === 0) return 'none'
@@ -391,6 +409,7 @@ export function getDashes(bDashes, bWidth) {
 /**
  * Convert from dashed menu selection to style object properties
  * @param {string} val
+ * @returns {boolean|number[]} Dash setting.
  */
 export function convertDashes(val) {
   switch (val) {
@@ -412,6 +431,7 @@ export function convertDashes(val) {
  * allow user to drag the element that has a header element that acts as the handle
  * @param {HTMLElement} el
  * @param {HTMLElement} header
+ * @returns {void}
  */
 export function dragElement(el, header) {
   let isDragging = false
@@ -422,6 +442,11 @@ export function dragElement(el, header) {
   let width = 0
   let height = 0
 
+  /**
+   * Start dragging from a non-interactive part of the header.
+   * @param {PointerEvent} ev Pointer event.
+   * @returns {void}
+   */
   function onPointerDown(ev) {
     // Don't start dragging if clicking on interactive button elements
     const target = ev.target
@@ -445,6 +470,11 @@ export function dragElement(el, header) {
     el.style.cursor = 'move'
   }
 
+  /**
+   * Move the dragged element within the viewport.
+   * @param {PointerEvent} ev Pointer event.
+   * @returns {void}
+   */
   function onPointerMove(ev) {
     if (!isDragging) return
 
@@ -466,6 +496,11 @@ export function dragElement(el, header) {
     el.style.top = posY + 'px'
   }
 
+  /**
+   * End a drag and release pointer capture.
+   * @param {PointerEvent} ev Pointer event.
+   * @returns {void}
+   */
   function onPointerUp(ev) {
     if (!isDragging) return
     isDragging = false
@@ -473,6 +508,11 @@ export function dragElement(el, header) {
     header.releasePointerCapture(ev.pointerId)
   }
 
+  /**
+   * Cancel a drag and release pointer capture.
+   * @param {PointerEvent} ev Pointer event.
+   * @returns {void}
+   */
   function onPointerCancel(ev) {
     if (!isDragging) return
     isDragging = false
@@ -494,12 +534,17 @@ export function dragElement(el, header) {
  *
  * @param {HTMLElement} elem click this to get a context menu
  * @param {array} menu array of menu options: ([{label: string, action: function to call when this option selected} {...}])
+ * @returns {void}
  */
 export function addContextMenu(elem, menu) {
   const menuEl = document.createElement('div')
   menuEl.classList.add('context-menu')
   document.body.appendChild(menuEl)
 
+  /**
+   * Remove the context menu and its outside-click listener.
+   * @returns {void}
+   */
   const removeMenu = () => {
     if (menuEl.parentNode) {
       document.body.removeChild(menuEl)
@@ -507,7 +552,11 @@ export function addContextMenu(elem, menu) {
     document.removeEventListener('click', handleClickOutside)
   }
 
-  // Handler for clicks outside the menu
+  /**
+   * Dismiss the context menu when clicking outside it.
+   * @param {MouseEvent} event Click event.
+   * @returns {void}
+   */
   const handleClickOutside = (event) => {
     if (!menuEl.contains(event.target)) {
       removeMenu()
@@ -728,6 +777,11 @@ const colors = [
   '#ffff00',
 ]
 
+/**
+ * Pick a random item from an array.
+ * @param {Array} items Choices.
+ * @returns {*} Selected item.
+ */
 const random = (items) => items[(Math.random() * items.length) | 0]
 
 /**
@@ -769,10 +823,16 @@ export function getCSSVariable(varName) {
   return window.getComputedStyle(document.body).getPropertyValue(varName)
 }
 
+/**
+ * Capitalize the first character of a nonempty string.
+ * @param {string} string Text to capitalize.
+ * @returns {string} Capitalized text.
+ */
 const capitalize = (string) => string[0].toUpperCase() + string.slice(1)
 
 /**
  * return a random fancy name for an avatar, with a random colour
+ * @returns {object} Anonymous user name, colour and initial presence state.
  */
 export function generateName() {
   const name = capitalize(random(ADJECTIVES)) + ' ' + capitalize(random(SEA_CREATURES))
@@ -790,6 +850,7 @@ export function generateName() {
 /**
  * show status message at the bottom of the window
  * @param {string} msg
+ * @returns {void}
  */
 export function statusMsg(msg) {
   elem('statusBar').innerHTML = htmlEntities(msg)
@@ -800,6 +861,7 @@ export function statusMsg(msg) {
  * @param {string} msg
  * @param {string} [status] type of msg - info, warn, error
  * @param {boolean} [dontFade] if true, don't fade the message in and out
+ * @returns {void}
  */
 export function alertMsg(msg, status, dontFade = false) {
   const errMsgElement = elem('errMsg')
@@ -832,6 +894,7 @@ export function alertMsg(msg, status, dontFade = false) {
 }
 /**
  * cancel the alert message
+ * @returns {void}
  */
 export function cancelAlertMsg() {
   elem('errMsg').style.opacity = 0
@@ -839,6 +902,7 @@ export function cancelAlertMsg() {
 /**
  * replace special characters with their HTML entity codes
  * @param {string} str
+ * @returns {string} Escaped text.
  */
 function htmlEntities(str) {
   return String(str)
@@ -850,23 +914,26 @@ function htmlEntities(str) {
 }
 /**
  * remove any previous message from the status bar
+ * @returns {void}
  */
 export function clearStatusBar() {
   statusMsg(' ')
 }
-/**
- * shorten the label if necessary and add an ellipsis
- * @param {string} label text to shorten
- * @param {number} maxLength if longer than this, cut the excess
- */
 const SHORTLABELLEN = 25 // when listing node labels, use ellipsis after this number of chars
 
+/**
+ * Shorten a label if necessary and add an ellipsis.
+ * @param {string} label Text to shorten.
+ * @param {number} [maxLength] Maximum length before shortening.
+ * @returns {string} Shortened or original label.
+ */
 export function shorten(label, maxLength = SHORTLABELLEN) {
   return label.length > maxLength ? label.substring(0, maxLength) + '...' : label
 }
 /**
  * return the initials of the given name as a string: Nigel Gilbert -> NG
  * @param {string} name
+ * @returns {string} Uppercase initials.
  */
 export function initials(name) {
   return name
@@ -879,6 +946,12 @@ export function initials(name) {
     .toUpperCase()
 }
 
+/**
+ * Measure the width of text rendered in a font.
+ * @param {string} text Text to measure.
+ * @param {string} [font] Canvas font specification.
+ * @returns {number} Width in pixels.
+ */
 export function getTextWidth(text, font = 'normal 11px Oxygen') {
   // Create a dummy canvas (not added to DOM)
   const canvas = document.createElement('canvas')
@@ -913,8 +986,8 @@ export function setNodeHidden(node, hide) {
 /**
  * covert a hex color string such as #123456 to an rgba string
  * @param {string} hex
- * @param {string} alpha
- * @returns string
+ * @param {number} [alpha] Opacity.
+ * @returns {string} RGBA colour.
  */
 export function hexToRgba(hex, alpha = 1) {
   hex = hex.replace('#', '')
@@ -944,6 +1017,9 @@ export function setEdgeHidden(edge, hide) {
 
 /**
  * convert an rgb(a) string to rgba with given alpha value
+ * @param {string} rgb RGB or RGBA colour.
+ * @param {number} alpha Opacity to set.
+ * @returns {string} RGBA colour.
  */
 function rgba(rgb, alpha) {
   if (rgb.indexOf('a') === -1) {
@@ -955,6 +1031,7 @@ function rgba(rgb, alpha) {
  * return the hex value for the CSS color in str (which may be a color name, e.g. white, or a hex number
  * or any other legal CSS color value)
  * @param {string} str
+ * @returns {string} Normalized canvas colour.
  */
 export function standardizeColor(str) {
   if (!str) return '#000000'
@@ -979,7 +1056,7 @@ export function rgbToArray(rgb) {
 /**
  * return the inverse/complementary colour
  * @param {string} color as a hex string
- * @returns hex string
+ * @returns {string} Complementary hex colour.
  */
 export function invertColor(color) {
   return '#' + ('000000' + (0xffffff ^ parseInt(color.substring(1), 16)).toString(16)).slice(-6)
@@ -994,6 +1071,11 @@ export function invertColor(color) {
  */
 export function makeColor(seed) {
   // Mulberry32 seeded PRNG
+  /**
+   * Create a deterministic pseudorandom number generator.
+   * @param {number} a Seed.
+   * @returns {function():number} Generator producing values from zero up to one.
+   */
   function mulberry32(a) {
     return function () {
       a |= 0
@@ -1025,7 +1107,7 @@ window.makeColor = makeColor
  * Determine whether a color is light or dark (so text in a contrasting color can be overlaid)
  * from https://awik.io/determine-color-bright-dark-using-javascript/
  * @param {string} color
- * @returns 'light' or 'dark'
+ * @returns {'light'|'dark'} Colour brightness classification.
  */
 export function lightOrDark(color) {
   // Variables for red, green, blue values
@@ -1062,7 +1144,10 @@ export function lightOrDark(color) {
 /* --------------------color picker -----------------------------*/
 
 export class CP {
-  /** @param {HTMLElement|null} boundsElement the area within which the picker should open */
+  /**
+   * Create the shared colour picker and its recent-colour cache.
+   * @param {HTMLElement|null} boundsElement the area within which the picker should open
+   */
   constructor(boundsElement = null) {
     this.boundsElement = boundsElement
     this.container = document.createElement('div')
@@ -1143,7 +1228,9 @@ export class CP {
   /**
    * attach a color picker to an element to recolour the background to that element
    * @param {string} wellId the id of the DOM element to attach the color picker to
-   * @param {string} callback - function to call when the color has been chosen, with that color as argument
+   * @param {function} callback function to call when the color has been chosen, with that color as argument
+   * @param {function} [onChange] called while the colour changes
+   * @returns {void}
    */
   createColorPicker(wellId, callback, onChange) {
     const well = elem(wellId)
@@ -1156,6 +1243,7 @@ export class CP {
    * @param {HTMLElement} well the element whose background colour is chosen
    * @param {function} callback called with the colour when the picker is closed
    * @param {function} [onChange] called each time the colour changes while the picker is open
+   * @returns {void}
    */
   attachTo(well, callback, onChange) {
     // add listener to display picker when well clicked
@@ -1192,7 +1280,8 @@ export class CP {
   /**
    * Report chosen colour when user clicks outside of picker (and well)
    * Hide the picker and save the colour choice in the previously selected colour grid
-   * @param {event} event
+   * @param {Event} event
+   * @returns {void}
    */
   closeColorPicker(event) {
     if (!(this.container.contains(event.target) || this.container.well.contains(event.target))) {
@@ -1212,6 +1301,7 @@ export class CP {
    * into a free slot, or if there isn't one shift the current colours to the left
    * and save the new at the right end
    * @param {string} color
+   * @returns {void}
    */
   saveColor(color) {
     const saveds = this.colorCache.children
@@ -1236,6 +1326,7 @@ export class CP {
  * Returns a nicely formatted Date (or time if the date is today), given a Time value (from Date() )
  * @param {number} utc
  * @param {boolean} full - if true, don't use Today in date
+ * @returns {string} Formatted local date and time.
  */
 export function timeAndDate(utc, full = false) {
   const time = new Date()
@@ -1273,6 +1364,7 @@ export function timeAndDate(utc, full = false) {
 /**
  * positions the caret at the end of text in a contenteditable div
  * @param {*} contentEditableElement
+ * @returns {void}
  */
 export function setEndOfContenteditable(contentEditableElement) {
   const range = document.createRange() //Create a range (a range is a like the selection but invisible)
@@ -1284,16 +1376,28 @@ export function setEndOfContenteditable(contentEditableElement) {
 }
 
 /**
- * @returns a string with current time to the nearest millisecond
+ * Format a time with its milliseconds.
+ * @param {number} [time] Timestamp, or the current time if omitted.
+ * @returns {string} Local time and milliseconds.
  */
 export function exactTime(time) {
   const d = time ? new Date(time) : new Date()
   return `${d.toLocaleTimeString()}:${d.getMilliseconds()} `
 }
 
+/**
+ * Convert the first character of a string to uppercase.
+ * @param {string} string Input text.
+ * @returns {string} Text with an uppercase initial.
+ */
 export function capitalizeFirstLetter(string) {
   return string ? string.charAt(0).toUpperCase() + string.slice(1) : ''
 }
+/**
+ * Convert the first character of a string to lowercase.
+ * @param {string} string Input text.
+ * @returns {string} Text with a lowercase initial.
+ */
 export function lowerFirstLetter(string) {
   return string ? string.charAt(0).toLowerCase() + string.slice(1) : ''
 }
@@ -1322,7 +1426,7 @@ export function humanSize(bytes, isDecimal = true) {
  * test whether the editor has any content
  * (could be an empty string or a Quill insert operation of just a single newline character)
  * @param {object} quill editor
- * @returns boolean
+ * @returns {boolean} Whether the editor is empty.
  */
 export function isQuillEmpty(quill) {
   if ((quill.getContents()['ops'] || []).length !== 1) {
@@ -1333,7 +1437,7 @@ export function isQuillEmpty(quill) {
 /**
  * Replace all \n, \r with a space
  * @param {string} str
- * @returns string
+ * @returns {string} Text with line breaks replaced.
  */
 export function stripNL(str) {
   return str.replace(/\r?\n|\r/g, ' ')
@@ -1343,7 +1447,7 @@ export function stripNL(str) {
  * encode characters such as & to HTML entities such as &amp; to
  * make the string XML compliant. Only deals with common entities.
  * @param {string} text
- * @returns string
+ * @returns {string} XML-compatible text.
  */
 export function encodeHTMLEntities(text) {
   return text.replace(
@@ -1361,6 +1465,7 @@ export function encodeHTMLEntities(text) {
 
 /**
  * display help page in a separate window
+ * @returns {void}
  */
 export function displayHelp() {
   window.open(MANUALURL, 'helpWindow')
@@ -1368,6 +1473,7 @@ export function displayHelp() {
 /**
  * remove any crud in Local storage
  * @param {*} preserve - list of items in local storage to keep
+ * @returns {Promise<void>} Resolves after starting IndexedDB cleanup.
  */
 export async function cleanLocalStorage(preserve = ['doneIntro', 'seenWN', 'myName', 'recents']) {
   // remove all local storage items that are not in the list

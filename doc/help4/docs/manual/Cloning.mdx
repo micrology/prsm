@@ -1,0 +1,43 @@
+# Sharing, copying and merging maps
+
+## Sharing a room
+
+Select **Share** to copy the current map link or show its QR code. People who
+open it join the same room and see changes made by participants. The Share
+dialog also opens the **Data View** in a separate tab for the same room.
+
+Anyone with the room link and access to the collaboration server may be able
+to access its map. Treat the link accordingly.
+
+## Creating a copy
+
+The Share dialog can create a **copy** in a new room. Changes to the copy do
+not change the original. It can also create a **view-only copy**, with an
+option to let viewers make their own editable copies. The original remains
+editable.
+
+View-only is a restriction in the PRSM interface, **not server-enforced
+access control**. It is not a way to protect confidential information from
+someone who can access the room. Creating a copy requires a working
+collaboration connection and permission to open a new browser tab.
+
+## Merging maps
+
+To merge another PRSM 4 map into the current one:
+
+1. Open the source map and copy its Share link.
+2. Return to the destination map, select **Open → Merge**, and paste the link.
+3. Select **Merge**. The resulting changes are shared with everyone in the
+   destination room; the source map is not modified.
+
+Factors are matched first by ID and then by a unique matching label, ignoring
+whitespace. A factor whose ID matches but whose label differs is added as a
+separate factor and marked with a red dashed border. Links connected to such
+factors are similarly marked. If a label matches several destination factors,
+the merge is rejected until the ambiguity is resolved.
+
+For matched factors and links, incoming notes replace differing existing
+notes; existing styles and link labels are retained if they differ. New
+elements are added, and PRSM reports conflicts or omissions. Attribute titles
+must agree between the maps before merging. Clusters and source background
+drawings are not merged. Use **Undo** to undo a merge.

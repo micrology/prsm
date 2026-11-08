@@ -1,0 +1,21 @@
+[
+  "Introduction",
+  "Examples",
+  "GettingStarted",
+  "Mouse",
+  "Styling",
+  "Drawing",
+  "DataView",
+  "Files",
+  "Cloning",
+  "Analysing",
+  {
+    "type": "dir",
+    "name": "Advanced",
+    "label": "Advanced",
+    "collapsible?": true,
+    "collapsed": false
+  },
+  "Acknowledgements",
+  "ReleaseNotes"
+]
