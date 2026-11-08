@@ -62,6 +62,7 @@
     "build:prsm4": "npx parcel build 'prsm4/html/*.html' --target prsm4 --no-cache",
     "deploy:prsm4": "npm run build:prsm4 && npm run build:help4",
     "test:prsm4": "node --test prsm4/tests/unit/*.test.js prsm4/tests/integration/*.test.js",
+    "test:prsm4:local": "node --test prsm4/tests/local-stack.test.js",
     "jsdoc": "npx jsdoc -r -c .jsdoc.json",
     "jsdoc:prsm4": "npx jsdoc -r -c .jsdoc4.json",
     "clean": "rm -rf dist/*",
@@ -72,7 +73,9 @@
     "install:all": "npm i && (cd ./doc/help && npm i) && (cd ./api-server && npm i) && (cd ./vis-network && npm i)  && (cd ./ws-server && npm i)",
     "upgrade:all": "npm upgrade && (cd ./doc/help && npm upgrade) && (cd ./api-server && npm upgrade) && (cd ./vis-network && npm upgrade) && (cd ./ws-server && npm upgrade)",
     "start:all-locally": "./utils/start-all-locally.sh",
-    "stop:all-locally": "./utils/stop-all-locally.sh"
+    "stop:all-locally": "./utils/stop-all-locally.sh",
+    "start:all-locally:prsm4": "node utils/prsm4-local.mjs start",
+    "stop:all-locally:prsm4": "node utils/prsm4-local.mjs stop"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {
