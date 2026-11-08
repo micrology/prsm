@@ -104,6 +104,8 @@ The map can be saved in the app's own native format, or as a [**GRAPHML**](http:
 
 You can save a high resolution (8192 x 8192 pixels) image of the map as a **Portable Network Graphics** (.png) file.  If no factors or links are selected, the image will show the whole map.  Here is an example of an image of a large map.
 
+In PRSM 4, the PNG includes the visible map and its background colour, but not the on-screen legend or legacy background drawings. If the browser cannot create an image at this size, an error is shown. The pixel dimensions are fixed; choose the resolution in your publication software to determine its printed size.
+
 <img
 src={normalizeImagePath("/images/imageexample.jpg")}
 alt="Image Example"
@@ -123,6 +125,8 @@ Unless you change the background colour, the image will have a solid white backg
 ### Notes file
 
 The output is a **Word** file (.docx) containing, in order, the name of the map, the contents of the map description, any Notes attached to Factors and any Notes attached to Links. The file will be formatted as far as possible similarly to the text in the app (e.g. it will retain bold and italic and bullets, and inserted images).
+
+In PRSM 4, the document includes factors and links without notes as `[No note]`. Embedded PNG images are included; other image types and images hosted externally are omitted with a warning. Cluster records are excluded.
 
 ### Exporting the map to other software
 

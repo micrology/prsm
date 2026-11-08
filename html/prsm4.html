@@ -1416,7 +1416,7 @@
       </div>
     </dialog>
     <dialog id="mergeDialog">
-      <button id="mergeClose">&times;</button>
+      <button type="button" id="mergeClose" aria-label="Close merge dialog">&times;</button>
       <h2>Merge maps</h2>
       <ol>
         <li>Open the map you want to merge in another browser tab</li>
@@ -1432,7 +1432,8 @@
       </ol>
       <label for="mergedRoom">Map to merge:&nbsp;</label>
       <input type="url" id="mergedRoom" autofocus />
-      <button id="merge">Merge</button>
+      <button type="button" id="merge">Merge</button>
+      <p id="merge-error" role="alert"></p>
     </dialog>
     <script>
       fetch('./whatsnew.html', { cache: 'no-cache' })

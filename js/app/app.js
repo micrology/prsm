@@ -1,6 +1,6 @@
 import cytoscape from 'cytoscape'
 import { WebsocketProvider } from 'y-websocket'
-import { parseMapText, normaliseLegacy, legacyToV2 } from '../../cy/legacy.js'
+import { normaliseLegacy, legacyToV2 } from '../../cy/legacy.js'
 import { MapStore } from '../../cy/store.js'
 import { bindGraph } from '../../cy/binding.js'
 import { Editor } from '../../cy/editing.js'
@@ -26,6 +26,15 @@ import { Minimap } from './minimap.js'
 import { Share } from './share.js'
 import { Rooms } from './rooms.js'
 import { Tutorial } from './tutorial.js'
+import { readMapFile, writeMapFile } from './map-file.js'
+import { mergeMap, readMergeRoom } from './merge.js'
+import { readCSV, readSpreadsheet, writeSpreadsheet } from './spreadsheet.js'
+import { readGraphXml, writeGraphXml } from './graph-xml.js'
+import { readGml, writeGml } from './gml.js'
+import { readGraphviz, writeGraphviz } from './graphviz.js'
+import { exportImage } from './image-export.js'
+import { exportNotes } from './notes-export.js'
+import { saveAs } from 'file-saver'
 
 const VERSION = '4.0.0'
 const NO_SERVER_DELAY_MS = 8000
@@ -95,6 +104,24 @@ class App {
       if (event.data?.type === 'prsm-reset-tour') localStorage.setItem('doneIntro', 'false')
     })
     this.wireFileInput()
+    listen('replaceMap', 'click', () => elem('fileInput').click())
+    listen('mergeMap', 'click', () => {
+      this.mergeRequest = (this.mergeRequest ?? 0) + 1
+      elem('mergedRoom').value = ''
+      elem('merge-error').textContent = ''
+      elem('mergeDialog').showModal()
+    })
+    listen('mergeClose', 'click', () => elem('mergeDialog').close())
+    listen('merge', 'click', () => this.mergeRoom())
+    listen('saveFile', 'click', () => this.saveMap())
+    listen('exportPRSM', 'click', () => this.saveMap())
+    listen('exportExcel', 'click', () => this.saveSpreadsheet())
+    listen('exportGraphML', 'click', () => this.saveGraphXml('graphml'))
+    listen('exportGEXF', 'click', () => this.saveGraphXml('gexf'))
+    listen('exportGML', 'click', () => this.saveGml())
+    listen('exportDOT', 'click', () => this.saveGraphviz())
+    listen('exportImage', 'click', () => this.saveImage())
+    listen('exportNotes', 'click', () => this.saveNotes())
     this.waitForServer()
     elem('version').textContent = VERSION
   }
@@ -253,21 +280,206 @@ class App {
     listen('fileInput', 'change', async (e) => {
       const file = e.target.files[0]
       e.target.value = ''
-      if (file) this.openText(await file.text())
+      if (!file) return
+      try {
+        const extension = file.name.split('.').pop().toLowerCase()
+        if (extension === 'xlsx' || extension === 'xls') {
+          await this.openMap(readSpreadsheet(await file.arrayBuffer()))
+        } else if (extension === 'csv') {
+          await this.openMap(readCSV(await file.text()))
+        } else if (extension === 'graphml' || extension === 'gexf') {
+          await this.openMap(readGraphXml(await file.text(), extension))
+        } else if (extension === 'gml') {
+          await this.openMap(readGml(await file.text()))
+        } else if (extension === 'dot' || extension === 'gv') {
+          await this.openMap(readGraphviz(await file.text()))
+        } else if (extension === 'prsm') {
+          await this.openText(await file.text())
+        } else {
+          throw new Error(`Unsupported file format: .${extension}`)
+        }
+      } catch (error) {
+        alertMsg(`Could not open '${file.name}': ${error.message}`, 'error')
+      }
     })
   }
 
+  /** Download the map as a GML file. */
+  saveGml() {
+    try {
+      const title = (this.store.meta.get('title') || 'Untitled map').replace(/[\\/:*?"<>|]/g, '_')
+      saveAs(new Blob([writeGml(this.store)], { type: 'text/plain;charset=utf-8' }), `${title}.gml`)
+      alertMsg(
+        'GML exports use plain-text notes and omit attributes, most styling, clusters and links to omitted factors.',
+        'warn'
+      )
+    } catch (error) {
+      alertMsg(`Could not export the graph: ${error.message}`, 'error')
+    }
+  }
+
+  /** Download a high-resolution PNG of the map. */
+  async saveImage() {
+    const button = elem('exportImage')
+    if (button.disabled) return
+    button.disabled = true
+    try {
+      statusMsg('Preparing high-resolution image...')
+      const background = getComputedStyle(elem('net-pane')).backgroundColor
+      const blob = await exportImage(this.cy, background)
+      const title = (this.store.meta.get('title') || 'Untitled map').replace(/[\\/:*?"<>|]/g, '_')
+      saveAs(blob, `${title}.png`)
+      statusMsg('Image exported at 8192 × 8192 pixels')
+    } catch (error) {
+      statusMsg('Image export failed')
+      alertMsg(`Could not export image: ${error.message}`, 'error')
+    } finally {
+      button.disabled = false
+    }
+  }
+
+  /** Download all map notes as a Word document. */
+  async saveNotes() {
+    const button = elem('exportNotes')
+    if (button.disabled) return
+    button.disabled = true
+    try {
+      const { blob, warnings } = await exportNotes(this.store)
+      const title = (this.store.meta.get('title') || 'Untitled map').replace(/[\\/:*?"<>|]/g, '_')
+      saveAs(blob, `${title}.docx`)
+      if (warnings.length) alertMsg(warnings.join('; '), 'warn')
+    } catch (error) {
+      alertMsg(`Could not export notes: ${error.message}`, 'error')
+    } finally {
+      button.disabled = false
+    }
+  }
+
+  /** Download the map as a Graphviz DOT file. */
+  saveGraphviz() {
+    try {
+      const title = (this.store.meta.get('title') || 'Untitled map').replace(/[\\/:*?"<>|]/g, '_')
+      saveAs(
+        new Blob([writeGraphviz(this.store)], { type: 'text/vnd.graphviz;charset=utf-8' }),
+        `${title}.gv`
+      )
+      alertMsg(
+        'Graphviz exports use plain-text notes and omit attributes, most styling, clusters and links to omitted factors.',
+        'warn'
+      )
+    } catch (error) {
+      alertMsg(`Could not export the graph: ${error.message}`, 'error')
+    }
+  }
+
+  /** Download the map as a graph interchange XML file. */
+  saveGraphXml(format) {
+    try {
+      const title = (this.store.meta.get('title') || 'Untitled map').replace(/[\\/:*?"<>|]/g, '_')
+      saveAs(
+        new Blob([writeGraphXml(this.store, format)], { type: 'application/xml;charset=utf-8' }),
+        `${title}.${format}`
+      )
+      alertMsg(
+        'Graph exports use plain-text notes and do not preserve all PRSM styling. Clusters and links to omitted factors are excluded.',
+        'warn'
+      )
+    } catch (error) {
+      alertMsg(`Could not export the graph: ${error.message}`, 'error')
+    }
+  }
+
+  /** Download factors and links as an Excel workbook. */
+  saveSpreadsheet() {
+    try {
+      const title = (this.store.meta.get('title') || 'Untitled map').replace(/[\\/:*?"<>|]/g, '_')
+      const bytes = writeSpreadsheet(this.store)
+      saveAs(
+        new Blob([bytes], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        }),
+        `${title}.xlsx`
+      )
+      alertMsg('Excel exports notes as plain text and does not preserve custom styles.', 'warn')
+    } catch (error) {
+      alertMsg(`Could not export the spreadsheet: ${error.message}`, 'error')
+    }
+  }
+
+  /** Download the current map in the native PRSM format. */
+  saveMap() {
+    try {
+      const title = (this.store.meta.get('title') || 'Untitled map').replace(/[\\/:*?"<>|]/g, '_')
+      saveAs(
+        new Blob([writeMapFile(this.store)], { type: 'text/plain;charset=utf-8' }),
+        `${title}.prsm`
+      )
+    } catch (error) {
+      alertMsg(`Could not save the map: ${error.message}`, 'error')
+    }
+  }
+
+  /** Merge a second PRSM 4 room into the current map. */
+  async mergeRoom() {
+    const button = elem('merge')
+    const request = this.mergeRequest
+    button.disabled = true
+    elem('merge-error').textContent = ''
+    try {
+      const url = new URL(elem('mergedRoom').value.trim())
+      if (roomFromUrl(url) === this.room && serverUrl(url) === serverUrl(new URL(location.href))) {
+        throw new Error('Choose a different map')
+      }
+      const file = await readMergeRoom(url)
+      if (!elem('mergeDialog').open || this.mergeRequest !== request) return
+      const result = mergeMap(this.store, file)
+      elem('mergeDialog').close()
+      fitMap(this.cy)
+      const message = `Merged ${result.addedNodes} factors and ${result.addedEdges} links; ${result.conflicts} renamed factor conflicts`
+      alertMsg(
+        result.warnings.length ? `${message}. ${result.warnings.join('; ')}` : message,
+        result.warnings.length ? 'warn' : 'info',
+        result.warnings.length > 0
+      )
+    } catch (error) {
+      if (elem('mergeDialog').open && this.mergeRequest === request) {
+        elem('merge-error').textContent = `Could not merge the map: ${error.message}`
+      }
+    } finally {
+      button.disabled = false
+    }
+  }
+
   /**
-   * Replace the map with the contents of a PRSM file in any format earlier versions wrote
+   * Replace the map with a native or legacy PRSM file.
    * @param {string} text
    */
   async openText(text) {
+    await this.openMap(readMapFile(text))
+  }
+
+  /** Replace the current map after parsing and validating the imported file. */
+  async openMap({ file, warnings }) {
+    if (
+      (this.store.nodes.size || this.store.edges.size) &&
+      !confirm(
+        'Opening this file will replace the current map for everyone in this room. Continue?'
+      )
+    ) {
+      return
+    }
     await document.fonts.load('14px Oxygen')
-    const { file, report } = legacyToV2(normaliseLegacy(parseMapText(text)))
-    if (!file) return alertMsg(report.warnings.join('; '), 'error')
-    this.store.loadFile(file)
+    delete file.meta.viewOnly
+    delete file.meta.allowCopy
+    this.store.loadFile(file, { replaceHistory: true })
+    this.history.reset()
     fitMap(this.cy)
-    alertMsg(`Opened a map of ${file.nodes.length} factors and ${file.edges.length} links`, 'info')
+    const message = `Opened a map of ${file.nodes.length} factors and ${file.edges.length} links`
+    alertMsg(
+      warnings.length ? `${message}. ${warnings.join('; ')}` : message,
+      warnings.length ? 'warn' : 'info',
+      warnings.length > 0
+    )
   }
 }
 

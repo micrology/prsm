@@ -343,7 +343,8 @@ transaction. Relative size is now applied as a per-element width/height, so it a
 
 ## 17. Phase 6 plan: the user interface (the new app shell)
 
-**Renumbering.** 6 = UI (this section); 7 = save/open/merge/export/importers; 8 = backgrounds as region nodes; 9 = cut-over (room
+**Current order.** 6 = UI (this section); 7 = side-by-side interaction and UI review (deferred);
+8 = save/open/merge/export/importers; then backgrounds as region nodes and cut-over (room
 migration, version gate, deleting vis-network, vis-data, Fabric, Tabulator, `js/table.js`).
 
 **Approach.** Reuse the markup and css of `html/prsm.html` and `css/prsm.css`, so the look is the same, but replace `js/prsm.js` (5,965 lines,
@@ -355,7 +356,7 @@ Nothing in the new modules may use a global `network`, `data` or `doc`: each tak
 
 | Area (original) | New module | Notes |
 |---|---|---|
-| Navbar: title, rooms/projects menu, Add factor, Add link, Undo, Redo, Delete, Share, Open/Save/Export, Search, Help, panel toggle | `toolbar.js`, `rooms.js` (reuse `projects.js` with little change) | Open/Save/Export buttons are present but wired in phase 7. |
+| Navbar: title, rooms/projects menu, Add factor, Add link, Undo, Redo, Delete, Share, Open/Save/Export, Search, Help, panel toggle | `toolbar.js`, `rooms.js` (reuse `projects.js` with little change) | File actions are wired in phase 8. |
 | Canvas, zoom control, status bar, alerts | `statusbar.js` | Cytoscape gives zoom, pinch and pan. Fit and zoom slider are small. |
 | Side panel, tab Factors/Links: 15 sample swatches each, click applies to the selection, double-click edits | `palette.js` | Swatches are the styles already in `store.styles`; the edit dialog is the phase 4 style editor. |
 | Side panel, tab Network: layout, snap to grid, curves, background colour, drawing, legend, users, history, notes, voting switches | `networkpanel.js` | Layouts: Off, Trophic (`trophic.js` reused), Fan, and force layouts from `cytoscape-fcose` or `cose` in place of Barnes Hut, Force Atlas 2, Repulsion. Snap to grid done by our own code on drag-free. |
@@ -368,7 +369,7 @@ Nothing in the new modules may use a global `network`, `data` or `doc`: each tak
 | Legend, minimap | `legend.js`, `minimap.js` | Legend is built from the styles. Minimap: own small canvas, as now. |
 | Share dialog (QR, clone, view-only), view-only mode, clone | `share.js` | Mostly DOM; room logic reused. |
 | Tutorial, help, What's New, splash and user name | reuse `tutorial.js`, `index.js` pieces | |
-| Drawing layer, background shapes | phase 8 | The Drawing switch is hidden until then. |
+| Drawing layer, background shapes | later backgrounds phase | The Drawing switch is hidden until then. |
 | 3D view (`3d.js`) | phase 9 | Reads the store through a small adapter. Needs checking for vis dependencies. |
 
 **Order of work (each step ends with a browser check against a real Yjs server, and a note in this document).**
@@ -448,3 +449,25 @@ The Share dialog can create an editable clone in a new room on the same server. 
 The Share dialog can also make a separate read-only copy, optionally allowing viewers to create an editable clone. Its read-only flag is stored with the map so a link, a reopened room and Data View retain the same interface. Map changes, including notes, votes, keyboard shortcuts and table edits, are disabled; pan, zoom, search and notes remain available. This is a UI convenience, **not server-enforced access control**.
 
 The introductory tour uses the existing control descriptions and runs for first-time users. To see it again, open Help from the map, reset the tour from the Getting Started page of the user manual and reload the map. It is not shown for read-only copies. The published Help link still describes the older app.
+
+## 18. Phase 8: files, import and export
+
+The side-by-side UI review is deferred. The first file-workflow increment connects Save and Export → PRSM to a compressed native schema-v2 `.prsm` file, and Open and Replace to either that format or legacy PRSM maps. Replacement is confirmed for a non-empty shared map, and invalid or unsupported files do not replace it. The saved file contains map metadata, styles, factors, links and shared history; it is not compatible with the legacy app.
+
+Legacy background data is retained in map metadata and in subsequent saves, but is not yet displayed or converted to region nodes. The user is warned when opening a map containing it. Links with missing endpoints in legacy files are omitted and reported. The parser converted 216 of the 217 `.prsm` files in `data/`; the remaining `styles.prsm` is invalid JSON.
+
+Merge accepts a PRSM 4 map's sharing link and reads the source room without changing it. It matches factors by ID, then by a unique label ignoring whitespace; a changed label for the same ID creates a red dashed factor and red dashed links. Matching factors and links keep their destination style and receive the source note. New factors and links retain their source styles, with conflicting style IDs remapped. The merge is one undoable transaction and is recorded in history. Ambiguous factor labels and differing attribute titles stop the merge without changes. Source backgrounds are not merged and are reported.
+
+Excel import supports `Factors` and `Links` worksheets, including labels, numbered styles, positions, plain-text notes and attributes. Excel export adds IDs so links remain unambiguous when factor labels repeat. It is an interchange format: rich note formatting and custom style definitions are not preserved. CSV import reads an edge list with a header, source and target labels, and optional source, target and link style numbers. Invalid files are rejected before replacing the map.
+
+GraphML and GEXF can be opened and exported as interchange formats. Basic labels, positions, plain-text notes and attributes are imported; simple colours and link weights are also read where available. Missing or colliding link IDs are remapped, dangling links are omitted, and undirected links become directed; these changes are reported. Nested graphs and ambiguous repeated attributes are rejected. Advanced formatting, undeclared attributes, defaults and dynamic graph features may be omitted. Exports retain labels, positions, plain notes, attributes and link widths, but not full PRSM styling; cluster records and links to omitted factors are excluded. Use native PRSM files for a complete backup.
+
+GML import and export cover factors, links, labels, positions, simple colours and plain-text notes. GML exports use numeric factor IDs and omit attributes, most styling, clusters and links to omitted factors. Unsupported properties may be omitted on import; dangling links and conversion of undirected links are reported.
+
+Graphviz DOT/GV import and export support labels, simple colours, positions and plain-text notes. Imports handle node and edge defaults, subgraphs, edge chains and strict graphs; undirected links become directed and unsupported properties may be omitted. HTML labels are rejected rather than silently discarded. Exports omit attributes, most styling, clusters and links to omitted factors; notes and link IDs use PRSM-specific DOT attributes. PRSM coordinates are retained as Graphviz `pos` values, although Graphviz layout engines may change positions.
+
+Image export renders an 8192 × 8192 pixel PNG on a separate Cytoscape graph, independent of screen zoom and pixel density. The whole visible map is framed when nothing is selected; selected factors determine the centre and scale otherwise, with nearby map content also visible. Selection highlights are omitted. The map background colour is included, but the HTML legend and retained legacy background objects are not. Export reports an error if the browser cannot allocate or encode an image at the required dimensions. PNG pixel dimensions are fixed; the physical print size depends on the resolution chosen when placing the image in a publication.
+
+Notes export produces a Word `.docx` containing the map title, retained description, alphabetically sorted factors and then links, including `[No note]` for items without notes. It retains supported Quill text formatting, hyperlinks, lists and embedded PNG images. Other image types and externally hosted images are omitted and reported; unsupported embedded items cause an explicit error. Cluster records and links without two ordinary factors are excluded.
+
+Still to do: background conversion. Kumu and draw.io are intentionally excluded from PRSM 4 because their earlier importers were unreliable and rarely used.

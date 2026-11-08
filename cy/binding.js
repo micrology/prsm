@@ -37,8 +37,13 @@ function addElement(cy, def) {
  * @returns {boolean} true if clustering is affected
  */
 function syncNode(cy, id, rec) {
-  const ele = cy.getElementById(id)
+  let ele = cy.getElementById(id)
+  if (rec && ele.isEdge()) {
+    ele.remove()
+    ele = cy.collection()
+  }
   if (!rec) {
+    if (ele.isEdge()) return false
     const had = ele.nonempty() && clusterKey(ele.data()) !== clusterKey({})
     if (ele.isNode() && ele.isParent()) ele.children().move({ parent: null })
     ele.remove()
@@ -81,7 +86,7 @@ function syncCommon(ele, def) {
   ele.classes([def.classes, ...kept].filter(Boolean).join(' '))
   const old = ele.scratch('_ov')
   if (JSON.stringify(old) === JSON.stringify(def.style)) return
-  if (old) ele.removeStyle(Object.keys(old).join(' '))
+  if (old && Object.keys(old).length) ele.removeStyle(Object.keys(old).join(' '))
   if (def.style) ele.style(def.style)
   ele.scratch('_ov', def.style)
 }
@@ -94,8 +99,13 @@ function syncCommon(ele, def) {
  * @returns {cytoscape.CollectionReturnValue|null} the edge if it is new or changed
  */
 function syncEdge(cy, id, rec) {
-  const ele = cy.getElementById(id)
+  let ele = cy.getElementById(id)
+  if (rec && ele.isNode()) {
+    ele.remove()
+    ele = cy.collection()
+  }
   if (!rec) {
+    if (ele.isNode()) return null
     ele.remove()
     return null
   }
@@ -105,6 +115,9 @@ function syncEdge(cy, id, rec) {
     const added = addElement(cy, def)
     added.scratch('_ov', def.style)
     return added
+  }
+  if (ele.data('source') !== rec.source || ele.data('target') !== rec.target) {
+    ele = ele.move({ source: rec.source, target: rec.target })
   }
   syncCommon(ele, def)
   return ele

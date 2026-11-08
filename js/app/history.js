@@ -113,6 +113,10 @@ export class History {
    */
   describe(tr) {
     const { store } = this
+    const mergeAction = tr.meta.get('mergeAction')
+    if (mergeAction) {
+      return `merged a map: added ${mergeAction.nodes} factors and ${mergeAction.edges} links, ${mergeAction.conflicts} renamed factor conflicts`
+    }
     const clusterAction = tr.meta.get('clusterAction')
     if (clusterAction) {
       if (clusterAction.mode === 'none') return 'removed clustering'

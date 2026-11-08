@@ -51,15 +51,21 @@ export class MapStore {
   /**
    * Replace the content of the document with a v2 file (not undoable)
    * @param {object} file v2 file object, as produced by legacyToV2()
+   * @param {{replaceHistory?: boolean}} [options] whether to replace the shared history
    */
-  loadFile(file) {
+  loadFile(file, { replaceHistory = false } = {}) {
     this.transact(() => {
       for (const m of [this.nodes, this.edges, this.styles]) m.clear()
+      this.meta.clear()
       for (const [k, v] of Object.entries(file.meta)) this.meta.set(k, v)
       this.meta.set('schemaVersion', SCHEMA_VERSION)
       for (const [id, st] of Object.entries(file.styles)) this.styles.set(id, st)
       for (const { id, ...rec } of file.nodes) this.nodes.set(id, rec)
       for (const { id, ...rec } of file.edges) this.edges.set(id, rec)
+      if (replaceHistory) {
+        this.history.delete(0, this.history.length)
+        if (file.history?.length) this.history.push(file.history)
+      }
     }, LOAD)
     this.undoManager.clear()
   }
