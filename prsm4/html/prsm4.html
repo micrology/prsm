@@ -76,12 +76,11 @@
                 contenteditable="false"
                 role="textbox"
                 aria-label="Map title"
+                aria-placeholder="Untitled"
                 data-tutorial="You can name your map here"
                 data-step="1"
                 data-position="below"
-              >
-                Untitled map
-              </div>
+              ></div>
               <button type="button" class="rooms-menu-caret" id="rooms-menu-caret" aria-label="Recent maps and projects" aria-expanded="false" aria-controls="rooms-menu">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -649,14 +648,14 @@
             </div>
             <div id="drawer-editor"></div>
           </div>
-          <div class="tooltip" id="drawer-handle">
+          <button type="button" class="tooltip" id="drawer-handle" aria-label="Open or close the map overview" aria-expanded="false" aria-controls="drawer">
             <svg xmlns="http://www.w3.org/2000/svg" height="16" width="4" viewBox="0 0 128 512">
               <path
                 d="M64 360a56 56 0 1 0 0 112 56 56 0 1 0 0-112zm0-160a56 56 0 1 0 0 112 56 56 0 1 0 0-112zM120 96A56 56 0 1 0 8 96a56 56 0 1 0 112 0z"
               />
             </svg>
             <span class="tooltiptext overviewtoggletip">Open or close the map overview</span>
-          </div>
+          </button>
         </div>
         <div
           data-tutorialclass="wide"
@@ -942,7 +941,7 @@
             </svg>
             <span class="tooltiptext">Use AI</span>
           </div>
-          <div id="newNodeWindow" class="tooltip interactiveButton">
+          <button type="button" id="newNodeWindow" class="tooltip interactiveButton note-window-button" aria-label="Open factor notes in a new window">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -958,7 +957,7 @@
               />
             </svg>
             <span class="tooltiptext settingstip">Open in a new window</span>
-          </div>
+          </button>
         </div>
         <div class="history" id="nodeCreation">
           <span class="left">Created:</span>
@@ -992,7 +991,7 @@
             </svg>
             <span class="tooltiptext">Use AI</span>
           </div>
-          <div id="newEdgeWindow" class="tooltip interactiveButton">
+          <button type="button" id="newEdgeWindow" class="tooltip interactiveButton note-window-button" aria-label="Open link notes in a new window">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -1008,7 +1007,7 @@
               />
             </svg>
             <span class="tooltiptext settingstip">Open in a new window</span>
-          </div>
+          </button>
         </div>
         <div class="history" id="edgeCreation">
           <span class="left">Created:</span>
@@ -1224,7 +1223,7 @@
             <div class="view" id="share-view">
               Open a read-only copy of the map
               <div class="small">
-                (view-only interface, not server-enforced access control)
+                (users will be able to see the map, but will not be able to modify it)
                 <br />
                 <label><input type="checkbox" id="addCopyButton" /> Allow an editable copy</label>
               </div>
@@ -1246,6 +1245,7 @@
                 rows="1"
                 readonly
                 id="text-to-copy"
+                autofocus
                 aria-label="Invitation link"
               ></textarea>
               <div class="copy-actions">
@@ -1318,14 +1318,14 @@
           <div
             class="tooltip"
             id="help-button"
-            data-tutorial="Ask the AI Assistant for guidance on using PRSM"
-            data-step="10"
-            data-position="above"
           >
             <button
               id="toggle-ai-assistant-btn"
               class="ai-assistant-fab-btn"
               aria-label="Open AI assistant"
+              data-tutorial="Obtain help from an AI assistant"
+              data-step="10"
+              data-position="above"
             >
               <span class="ai-assistant-icon">✨</span>
             </button>

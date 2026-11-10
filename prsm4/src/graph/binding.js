@@ -65,7 +65,7 @@ function syncNode(cy, id, rec) {
   const def = nodeElement({ id, ...rec })
   if (ele.empty()) {
     const added = addElement(cy, def)
-    added.scratch('_ov', def.style)
+    added.scratch('_ov', def.style ?? null)
     return clusterKey(def.data) !== clusterKey({})
   }
   const before = clusterKey(ele.data())
@@ -99,10 +99,10 @@ function syncCommon(ele, def) {
   const kept = ele.classes().filter((c) => VIEW_CLASSES.has(c))
   ele.classes([def.classes, ...kept].filter(Boolean).join(' '))
   const old = ele.scratch('_ov')
-  if (JSON.stringify(old) === JSON.stringify(def.style)) return
+  if (JSON.stringify(old) === JSON.stringify(def.style ?? null)) return
   if (old && Object.keys(old).length) ele.removeStyle(Object.keys(old).join(' '))
   if (def.style) ele.style(def.style)
-  ele.scratch('_ov', def.style)
+  ele.scratch('_ov', def.style ?? null)
 }
 
 /**
@@ -127,7 +127,7 @@ function syncEdge(cy, id, rec) {
   if (ele.empty()) {
     if (cy.getElementById(rec.source).empty() || cy.getElementById(rec.target).empty()) return null
     const added = addElement(cy, def)
-    added.scratch('_ov', def.style)
+    added.scratch('_ov', def.style ?? null)
     return added
   }
   if (ele.data('source') !== rec.source || ele.data('target') !== rec.target) {

@@ -456,6 +456,15 @@ Browser targets are the `browserslist` in root `package.json` (last two versions
 
 PRSM 4 has unit and collaboration integration tests; run them with
 `npm run test:prsm4`. Some additional format samples in `data/` are optional.
+In PRSM 4, standard copy and paste shortcuts duplicate selected factors and
+links within or between maps. Copying a link also includes its endpoint
+factors. Clipboard data includes the styles used by those elements; if the
+destination has a different style under the same ID, the source style is
+imported separately. Attribute titles must agree between maps when copied
+elements contain attribute values. Dissolve selected clusters before copying.
+Choosing a style swatch for selected elements clears their individual appearance
+overrides and factor relative sizes. The disc factor shape is circular with its label below; database
+shapes from older maps are displayed as discs.
 
 ### Configuration knobs developers often need
 

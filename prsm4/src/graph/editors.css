@@ -1,15 +1,39 @@
 /* Styles shared by the editors in the test bed and PRSM 4 */
-.cy-label-editor {
+.factor-placement-ghost,
+.factor-placement-editor {
   position: absolute;
   left: var(--x);
   top: var(--y);
-  width: var(--w);
+  width: 200px;
+  height: 85px;
+  box-sizing: border-box;
+  border: thin solid var(--shadow-color, #ccc);
+  border-radius: 5px;
+  box-shadow: 2px 2px 10px var(--shadow-color, #ccc);
+  background: var(--background-color, white);
   transform: translate(-50%, -50%);
+  z-index: 50;
+}
+.factor-placement-ghost {
+  pointer-events: none;
+  background: transparent;
+}
+.factor-placement-ghost[hidden] {
+  display: none;
+}
+.factor-placement-editor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cy-label-editor {
+  width: var(--w);
+  max-height: 100%;
+  resize: none;
   font:
     14px Oxygen,
     sans-serif;
   text-align: center;
-  z-index: 10;
 }
 .note-dialog {
   width: 480px;
@@ -57,7 +81,7 @@
   max-width: 80px;
 }
 .element-save {
-  background: #3399ff;
+  background: var(--primary-color, #06326c);
   color: #fff;
   border: none;
   border-radius: 3px;
@@ -74,11 +98,15 @@
   cursor: pointer;
 }
 .element-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: move;
   padding: 3px 6px;
   font-size: 16px;
   font-weight: bold;
   color: #fff;
-  background: #3399ff;
+  background: var(--primary-color, #06326c);
   border-radius: 6px 6px 0 0;
 }
 .element-grid {
@@ -99,18 +127,19 @@
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #3399ff;
+  color: var(--primary-color, #06326c);
   font-weight: 600;
 }
 .element-buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   padding: 0 6px 6px;
 }
 .element-cancel {
   border: none;
   background: none;
+  color: inherit;
   font-size: 16px;
   cursor: pointer;
 }

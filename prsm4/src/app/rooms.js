@@ -179,7 +179,7 @@ export class Rooms {
    */
   remember() {
     const current = this.current()
-    if (current.title === 'Untitled map') return
+    if (!this.store.meta.get('title')?.trim()) return
     this.change((list) => {
       const existing =
         list.maps.find((map) => identity(map) === identity(current)) ??
@@ -315,7 +315,9 @@ export class Rooms {
    */
   addToProject(id) {
     const map = this.current()
-    if (map.title === 'Untitled map') return alertMsg('Please give your map a title first', 'warn')
+    if (!this.store.meta.get('title')?.trim()) {
+      return alertMsg('Please give your map a title first', 'warn')
+    }
     if (
       this.change((list) => {
         const project = list.projects.find((item) => item.id === id)

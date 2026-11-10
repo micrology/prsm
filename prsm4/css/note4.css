@@ -1,0 +1,22 @@
+html,
+body {
+  height: 100%;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font-family: sans-serif;
+}
+h1 {
+  margin: 0;
+  padding: 0.6rem 1rem;
+  font-size: 1.1rem;
+  background: #06326c;
+  color: white;
+}
+#note-editor {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}

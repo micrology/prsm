@@ -20,12 +20,13 @@ import { factorColumns, linkColumns } from './columns.js'
 import { splitText } from './text.js'
 import { colorWell } from './colorwell.js'
 import { SHAPES, ARROWS, LINE_STYLES } from './styleeditor.js'
+import { dragElement } from '../../../js/utils.js'
 
 const SLIDER_MIN = 5
 const FONT_SIZES = [
-  ['Large', 24],
-  ['Normal', 14],
-  ['Small', 10],
+  ['Large font', 24],
+  ['Normal font', 14],
+  ['Small font', 10],
 ]
 /**
  * Make labelled choices from lowercase option values.
@@ -117,10 +118,24 @@ export class ElementEditor {
       value: rec.label ?? '',
     })
     const fields = (isNode ? NODE_FIELDS : EDGE_FIELDS).map((f) => this.field(f, cols))
+    const cancel = el('button', {
+      type: 'button',
+      className: 'element-cancel interactiveButton',
+      textContent: '✕',
+      title: 'Cancel',
+      ariaLabel: 'Close editor',
+    })
+    cancel.addEventListener('click', () => this.close())
+    const header = el(
+      'div',
+      { className: 'element-title' },
+      isNode ? 'Edit Factor' : 'Edit Link',
+      cancel
+    )
     this.box = el(
       'div',
       { className: 'element-editor' },
-      el('div', { className: 'element-title' }, isNode ? 'Edit Factor' : 'Edit Link'),
+      header,
       this.label,
       el('div', { className: 'element-grid' }, ...fields.filter(Boolean)),
       this.buttons()
@@ -132,6 +147,7 @@ export class ElementEditor {
       this.box.addEventListener(type, (e) => e.stopPropagation())
     }
     this.cy.container().append(this.box)
+    dragElement(this.box, header)
     this.fitLabel()
     this.place(ele)
     this.label.focus()
@@ -257,10 +273,8 @@ export class ElementEditor {
    */
   buttons() {
     const save = el('button', { className: 'element-save', textContent: 'Save' })
-    const cancel = el('button', { className: 'element-cancel', textContent: '✕', title: 'Cancel' })
     save.addEventListener('click', () => this.save())
-    cancel.addEventListener('click', () => this.close())
-    return el('div', { className: 'element-buttons' }, cancel, save)
+    return el('div', { className: 'element-buttons' }, save)
   }
 
   /**

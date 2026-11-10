@@ -855,6 +855,18 @@ export function generateName() {
 export function statusMsg(msg) {
   elem('statusBar').innerHTML = htmlEntities(msg)
 }
+let alertTimeout = null
+let alertDuration = null
+
+/**
+ * Set an automatic expiry for alerts in the current application.
+ * @param {number} duration Duration in milliseconds.
+ * @returns {void}
+ */
+export function setAlertDuration(duration) {
+  alertDuration = duration
+}
+
 // CSpell: ignore dontFade
 /**
  * show alert messages at the bottom of the window
@@ -883,6 +895,18 @@ export function alertMsg(msg, status, dontFade = false) {
       return
   }
   errMsgElement.innerHTML = msg
+  if (alertDuration !== null) {
+    clearTimeout(alertTimeout)
+    errMsgElement.classList.remove('fadeInAndOut')
+    if (status === 'error' || status === 'warn') {
+      errMsgElement.style.opacity = 1
+      alertTimeout = setTimeout(() => {
+        errMsgElement.style.opacity = 0
+      }, alertDuration)
+      return
+    }
+    errMsgElement.style.opacity = dontFade ? 1 : 0
+  }
   if (dontFade) {
     errMsgElement.style.opacity = 1
   } else {

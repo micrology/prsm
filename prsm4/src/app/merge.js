@@ -13,6 +13,7 @@ Combines the contents of maps.
 import * as Y from 'yjs'
 import { WebsocketProvider } from 'y-websocket'
 import { docName, roomFromUrl, serverUrl } from './room.js'
+import { normalizeMapShapes } from '../graph/shapes.js'
 
 const TIMEOUT_MS = 10000
 /**
@@ -78,6 +79,7 @@ export async function readMergeRoom(url) {
  * @returns {{addedNodes:number, addedEdges:number, conflicts:number, warnings:string[]}} merge result
  */
 export function mergeMap(store, file) {
+  file = normalizeMapShapes(file)
   const warnings = []
   for (const [field, title] of Object.entries(file.meta.attributeTitles ?? {})) {
     if (store.attributeTitles()[field] !== title) {

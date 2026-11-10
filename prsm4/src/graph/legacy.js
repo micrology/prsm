@@ -145,7 +145,8 @@ const NODE_SHAPES = {
   ellipse: 'ellipse',
   circle: 'ellipse',
   box: 'round-rectangle',
-  database: 'barrel',
+  database: 'ellipse',
+  disc: 'ellipse',
   text: 'rectangle',
   dot: 'ellipse',
   square: 'rectangle',
@@ -156,7 +157,7 @@ const NODE_SHAPES = {
   star: 'star',
 }
 // vis-network draws the label inside these shapes; for all others it is drawn below the shape
-const LABEL_INSIDE = new Set(['ellipse', 'circle', 'box', 'database', 'text'])
+const LABEL_INSIDE = new Set(['ellipse', 'circle', 'box', 'text'])
 
 const ARROW_SHAPES = {
   vee: 'vee',
@@ -465,7 +466,7 @@ function convertNode(n, legacyStyles, report) {
   if (n.fixed === true) out.locked = true
   // user attributes: att1, att2, ...
   for (const k of Object.keys(n)) if (/^att\d+$/.test(k)) out[k] = n[k]
-  const base = legacyStyles.nodes[n.grp] || legacyStyles.nodes.base
+  const base = legacyStyles.nodes[style] || legacyStyles.nodes.base
   const own = nodeStyleToCss(
     {
       color: n.color,

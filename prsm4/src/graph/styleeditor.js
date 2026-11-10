@@ -17,11 +17,12 @@ Every change goes through MapStore methods, so it is undoable and shared like an
 **************************************************************************************** */
 import { nodeStyleToCss } from './legacy.js'
 import { colorWell } from './colorwell.js'
+import { shapeName } from './shapes.js'
 
 export const SHAPES = [
   'ellipse',
   'box',
-  'database',
+  'disc',
   'text',
   'square',
   'triangle',
@@ -294,7 +295,10 @@ export class StyleEditor {
     const fields = st.kind === 'node' ? NODE_FIELDS : EDGE_FIELDS
     const f = el('div', { className: 'style-form' }, this.nameRow(id, st))
     for (const field of fields) {
-      const value = st.css[field.prop] ?? base?.css[field.prop]
+      const value =
+        field.prop === 'shape'
+          ? shapeName({ ...base?.css, ...st.css })
+          : (st.css[field.prop] ?? base?.css[field.prop])
       f.append(this.row(field, value, (v) => this.editStyle(id, field, v)))
     }
     if (!this.single && !id.endsWith('Base') && !id.startsWith('cluster')) {

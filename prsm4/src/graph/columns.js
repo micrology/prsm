@@ -17,6 +17,9 @@ MapStore, and how to total it in the table footer. The table view, sorting, filt
 copy-to-clipboard are all driven from these lists.
 **************************************************************************************** */
 import { toHex, shapePatch, SHAPES, ARROWS, LINE_STYLES, colorPatch } from './styleeditor.js'
+import { shapeName } from './shapes.js'
+
+export { shapeName } from './shapes.js'
 
 /** Labels longer than this are shortened with an ellipsis in the tables */
 export const LABEL_PREVIEW_LENGTH = 30
@@ -67,19 +70,6 @@ export function hueOf(hex) {
   if (d === 0) return -1 + max
   const h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4
   return (h * 60 + 360) % 360
-}
-
-/**
- * Translate a resolved Cytoscape shape to the menu's shape name.
- * @param {object} css resolved css of a node
- * @returns {string} name of the shape as offered in the shape menus
- */
-export function shapeName(css) {
-  const shape = css.shape
-  if (shape === 'round-rectangle') return 'box'
-  if (shape === 'barrel') return 'database'
-  if (shape === 'rectangle') return css['background-opacity'] === 0 ? 'text' : 'square'
-  return shape ?? 'ellipse'
 }
 
 /**
@@ -408,6 +398,7 @@ function nodeFormatColumns(store) {
           shapeName({
             shape: resolve(store, 'node', rec, 'shape'),
             'background-opacity': resolve(store, 'node', rec, 'background-opacity'),
+            'text-valign': resolve(store, 'node', rec, 'text-valign'),
           }),
       },
       (v) => shapeOverride(v, base())

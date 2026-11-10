@@ -209,7 +209,8 @@ export class Palette {
       this.store.setElementStyle(
         KINDS[kind].table,
         selected.map((e) => e.id()),
-        styleId
+        styleId,
+        true
       )
     }
     this.markUsed()

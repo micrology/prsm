@@ -30,6 +30,7 @@ When applying modern-web-guidance, assume those browsers and prefer native platf
 - Constants: `UPPER_SNAKE_CASE`
 - Use CSS classes—no inline styles
 - Document public functions with JSDoc
+- Ensure that all functions, except anonymous ones, have a comment documenting their purpose
 
 ## Directory Structure
 

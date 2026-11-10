@@ -27,9 +27,9 @@ export class Tutorial {
     this.user = user
     this.collaboration = collaboration
     this.dialog = elem('tour-dialog')
-    this.steps = [...document.querySelectorAll('[data-step]')]
-      .filter((element) => element.dataset.step !== '10')
-      .sort((a, b) => Number(a.dataset.step) - Number(b.dataset.step))
+    this.steps = [...document.querySelectorAll('[data-step]')].sort(
+      (a, b) => Number(a.dataset.step) - Number(b.dataset.step)
+    )
     listen('tour-next', 'click', () => this.move(1))
     listen('tour-back', 'click', () => this.move(-1))
     listen('tour-close', 'click', () => this.finish())
@@ -61,6 +61,7 @@ export class Tutorial {
   start() {
     if (this.dialog.open) return
     this.index = 0
+    document.body.classList.add('tour-active')
     this.dialog.show()
     this.show()
   }
@@ -93,7 +94,8 @@ export class Tutorial {
       })
     }
     if (!splash) this.position(target)
-    elem('tour-title').focus()
+    if (name) name.focus()
+    else elem('tour-title').focus()
   }
 
   /**
@@ -141,6 +143,7 @@ export class Tutorial {
     this.popper?.destroy()
     this.popper = null
     document.querySelector('.tour-target')?.classList.remove('tour-target')
+    document.body.classList.remove('tour-active')
     this.dialog.close()
     localStorage.setItem(DONE_KEY, 'done')
   }

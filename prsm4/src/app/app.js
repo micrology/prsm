@@ -16,7 +16,15 @@ import { normaliseLegacy, legacyToV2 } from '../graph/legacy.js'
 import { MapStore } from '../graph/store.js'
 import { bindGraph } from '../graph/binding.js'
 import { Editor } from '../graph/editing.js'
-import { alertMsg, dragElement, elem, listen, statusMsg } from '../../../js/utils.js'
+import { bindClipboard } from '../graph/clipboard.js'
+import {
+  alertMsg,
+  dragElement,
+  elem,
+  listen,
+  setAlertDuration,
+  statusMsg,
+} from '../../../js/utils.js'
 import { docName, generateRoom, redirectToRoom, roomFromUrl, serverUrl } from './room.js'
 import { loadUser } from './user.js'
 import { Toolbar } from './toolbar.js'
@@ -38,6 +46,9 @@ import { Minimap } from './minimap.js'
 import { Share } from './share.js'
 import { Rooms } from './rooms.js'
 import { Tutorial } from './tutorial.js'
+import { bindSelectionStatus } from './selection-status.js'
+import { Overview } from './overview.js'
+import { Magnifier } from './magnifier.js'
 import { readMapFile, writeMapFile } from './map-file.js'
 import { mergeMap, readMergeRoom } from './merge.js'
 import { readCSV, readSpreadsheet, writeSpreadsheet } from './spreadsheet.js'
@@ -58,6 +69,7 @@ const NO_SERVER_DELAY_MS = 8000
 class App {
   /** Initialize the map, collaboration and user interface for the current room. */
   constructor() {
+    setAlertDuration(15000)
     const url = new URL(document.location)
     this.room = roomFromUrl(url)
     if (!this.room) return redirectToRoom(generateRoom())
@@ -66,6 +78,14 @@ class App {
     }
     this.store = new MapStore()
     this.cy = this.createGraph()
+    bindSelectionStatus(this.cy, statusMsg)
+    bindClipboard(
+      this.cy,
+      this.store,
+      alertMsg,
+      () => !this.ready || Boolean(this.store.meta.get('viewOnly'))
+    )
+    this.magnifier = new Magnifier(this.cy)
     this.provider = new WebsocketProvider(serverUrl(url), docName(this.room), this.store.doc)
     this.user = loadUser(this.provider.awareness.clientID)
     this.provider.awareness.setLocalState({ user: this.user })
@@ -116,6 +136,7 @@ class App {
     this.minimap = new Minimap(this.cy)
     this.badges = new Badges({ store: this.store, cy: this.cy, clientId: this.user.id })
     this.notes = new NotesPanel({ store: this.store, cy: this.cy })
+    this.overview = new Overview(this.store)
     this.search = new Search({ cy: this.cy })
     this.collab = new Collaboration({
       store: this.store,
@@ -293,6 +314,7 @@ class App {
       elem(id).disabled = viewOnly
     }
     this.notes.setReadOnly(viewOnly)
+    this.overview.setReadOnly(viewOnly)
   }
 
   /**
@@ -322,19 +344,19 @@ class App {
      * Read the shared title or its default.
      * @returns {string} Map title.
      */
-    const current = () => this.store.meta.get('title')?.trim() || 'Untitled map'
+    const current = () => this.store.meta.get('title')?.trim() || ''
     /**
      * Display the current shared title.
      * @returns {void}
      */
     const show = () => {
       title.textContent = current()
-      title.classList.toggle('unsetmaptitle', current() === 'Untitled map')
+      title.classList.toggle('unsetmaptitle', !current())
     }
     let beforeEdit = ''
     title.addEventListener('focus', () => (beforeEdit = title.textContent))
     title.addEventListener('blur', () => {
-      const value = title.textContent.replace(/\s+/g, ' ').trim() || 'Untitled map'
+      const value = title.textContent.replace(/\s+/g, ' ').trim()
       if (value !== beforeEdit && value !== current()) {
         this.store.transact(() => this.store.meta.set('title', value))
       }
@@ -585,6 +607,7 @@ class App {
     delete file.meta.viewOnly
     delete file.meta.allowCopy
     this.store.loadFile(file, { replaceHistory: true })
+    this.rooms.remember()
     this.history.reset()
     fitMap(this.cy)
     const message = `Opened a map of ${file.nodes.length} factors and ${file.edges.length} links`

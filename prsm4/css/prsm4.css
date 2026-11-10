@@ -1,4 +1,10 @@
 /* Additions for PRSM 4 (Cytoscape): state classes replace the inline styles the old code set from JavaScript */
+#container {
+  grid-template-columns: minmax(0, 1fr);
+}
+#statusBar {
+  min-width: 0;
+}
 #net-pane.loaded {
   visibility: visible;
 }
@@ -15,6 +21,19 @@
 #net-pane {
   background-color: var(--map-background, #fff);
 }
+.maptitle:empty::before {
+  content: 'Untitled';
+  color: rgb(211, 211, 211);
+  pointer-events: none;
+}
+#errMsg {
+  transition: opacity 0.3s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  #errMsg {
+    transition: none;
+  }
+}
 .image-export-graph {
   position: fixed;
   left: -10000px;
@@ -22,6 +41,24 @@
   width: 512px;
   height: 512px;
   pointer-events: none;
+}
+.magnifier4 {
+  position: fixed;
+  left: var(--x);
+  top: var(--y);
+  width: 200px;
+  height: 200px;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--shadow-color);
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--lens-background, white);
+  box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  z-index: 200;
+}
+.magnifier4[hidden] {
+  display: none;
 }
 .style-dialog {
   position: fixed;
@@ -41,6 +78,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 4px 8px;
+  font-size: 16px;
   background: var(--primary-color);
   color: white;
 }
@@ -100,13 +138,34 @@
 /* these arrive with the AI assistant and the separate notes window */
 #sparklesNode,
 #sparklesEdge,
-#newNodeWindow,
-#newEdgeWindow {
+#sparklesSideNote {
   display: none;
+}
+.note-window-button {
+  border: 0;
+  padding: 0;
+  color: inherit;
+  background: transparent;
 }
 
 .style-dialog-bar {
   cursor: move;
+  font-weight: bold;
+}
+#styleEditorBody input[type='number'] {
+  width: 4.5em;
+  box-sizing: border-box;
+  text-align: right;
+}
+#drawer-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex: none;
+}
+#ai-assistant-dialog.hidden {
+  display: none;
 }
 .style-dialog-buttons {
   display: flex;
@@ -249,9 +308,20 @@
 }
 
 .view-only #ai-assistant-container,
-.view-only #panel,
-.view-only #drawer-wrapper {
+.view-only #panel {
   display: none;
+}
+
+#drawer-editor {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #drawer-wrapper {
+    transition: none;
+  }
 }
 
 #read-only-notice {
@@ -273,12 +343,26 @@
   z-index: 210;
 }
 
+body.tour-active #net-pane::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: var(--shadow-color);
+  opacity: 0.65;
+  pointer-events: none;
+}
+
 .tour-dialog[open].tour-splash {
   inset: 50% auto auto 50%;
   transform: translate(-50%, -50%);
   width: min(36rem, calc(100vw - 2rem));
   border-color: black;
   text-align: center;
+}
+
+.tour-splash #tour-text h1 {
+  font-size: 2rem;
 }
 
 #tour-text {
@@ -339,9 +423,16 @@
 }
 
 .tour-header button {
+  position: relative;
+  top: -6px;
+  right: -6px;
   border: 0;
   background-color: var(--background-color);
   font-size: x-large;
+}
+
+.tour-actions {
+  margin-top: 1.5rem;
 }
 
 .tour-target {

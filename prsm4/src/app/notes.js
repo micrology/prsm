@@ -12,7 +12,7 @@ Displays and edits factor and link notes.
 
 import Quill from 'quill'
 import 'quill/dist/quill.snow.css'
-import { dragElement, elem, listen, shorten, timeAndDate } from '../../../js/utils.js'
+import { alertMsg, dragElement, elem, listen, shorten, timeAndDate } from '../../../js/utils.js'
 import { hasNote } from './badges.js'
 
 const TOOLBAR = [
@@ -125,8 +125,13 @@ export class NotesPanel {
     this.shown = null
     this.pending = false
     this.editors = {}
+    this.windowName = `prsm4Notes-${crypto.randomUUID()}`
     for (const [kind, parts] of Object.entries(PARTS)) this.setUpPanel(kind, parts)
     listen('pin', 'click', () => this.togglePin())
+    listen('newNodeWindow', 'click', () => this.openWindow())
+    listen('newEdgeWindow', 'click', () => this.openWindow())
+    window.addEventListener('message', (event) => this.windowMessage(event))
+    window.addEventListener('beforeunload', () => this.noteWindow?.close())
     cy.on('select unselect remove', () => this.requestRefresh())
     store.doc.on('afterTransaction', (tr) => this.onChange(tr))
     this.refresh()
@@ -162,6 +167,7 @@ export class NotesPanel {
       editor.getModule('toolbar').container.hidden = readOnly
     }
     elem('pin').hidden = readOnly
+    this.sendWindowState()
   }
 
   /**
@@ -208,6 +214,8 @@ export class NotesPanel {
    */
   hide() {
     if (!this.shown) return
+    this.noteWindow?.close()
+    this.noteWindow = null
     elem(PARTS[this.shown.kind].panel).classList.add('hide')
     document.getSelection().removeAllRanges()
     this.shown = null
@@ -297,6 +305,61 @@ export class NotesPanel {
     if (!tr.changed.get(this.store[kind])?.has(id)) return
     this.showDetails(kind, id)
     this.syncContents(kind, id)
+    if (!this.receivingWindowEdit) this.sendWindowState()
+  }
+
+  /**
+   * Open the larger notes editor for the current selection.
+   * @returns {void}
+   */
+  openWindow() {
+    if (!this.shown) return
+    if (this.noteWindow && !this.noteWindow.closed) {
+      this.noteWindow.focus()
+      return
+    }
+    this.noteWindow = window.open('note4.html', this.windowName, 'width=700,height=600')
+    if (!this.noteWindow) alertMsg('Could not open notes. Please allow pop-ups for PRSM.', 'error')
+  }
+
+  /**
+   * Send the selected note to its larger editor.
+   * @param {number} [sequence] Edit sequence being acknowledged.
+   * @returns {void}
+   */
+  sendWindowState(sequence) {
+    if (!this.shown || !this.noteWindow || this.noteWindow.closed) return
+    const { kind, id } = this.shown
+    this.noteWindow.postMessage(
+      {
+        type: 'prsm4-note-state',
+        note: this.contentsOf(kind, id),
+        label: this.store[kind].get(id)?.label || 'Notes',
+        readOnly: Boolean(this.store.meta.get('viewOnly')),
+        sequence,
+      },
+      location.origin
+    )
+  }
+
+  /**
+   * Receive edits only from the notes window belonging to this map.
+   * @param {MessageEvent} event Window message.
+   * @returns {void}
+   */
+  windowMessage(event) {
+    if (event.origin !== location.origin || event.source !== this.noteWindow || !this.shown) return
+    if (event.data?.type === 'prsm4-note-ready') return this.sendWindowState()
+    if (event.data?.type !== 'prsm4-note-edit' || this.store.meta.get('viewOnly')) return
+    const note = event.data.note
+    if (!note || !Array.isArray(note.ops) || !Number.isSafeInteger(event.data.sequence)) return
+    this.receivingWindowEdit = true
+    try {
+      this.store.update(this.shown.kind, this.shown.id, { note: hasNote(note) ? note : undefined })
+    } finally {
+      this.receivingWindowEdit = false
+    }
+    this.sendWindowState(event.data.sequence)
   }
 
   /**

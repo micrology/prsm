@@ -15,6 +15,7 @@ graph.js: build a Cytoscape instance from a v2 map file (phase 2: read-only rend
 **************************************************************************************** */
 import cytoscape from 'cytoscape'
 import { edgeCurveStyle } from './curves.js'
+import { normalizeShape } from './shapes.js'
 
 const SELECT_COLOR = '#3399ff'
 
@@ -77,7 +78,10 @@ export function compileStylesheet(styles) {
   const ids = Object.keys(styles).sort((a, b) => isBase(b) - isBase(a))
   for (const id of ids) {
     const st = styles[id]
-    sheet.push({ selector: isBase(id) ? st.kind : `${st.kind}.${id}`, style: st.css })
+    sheet.push({
+      selector: isBase(id) ? st.kind : `${st.kind}.${id}`,
+      style: st.kind === 'node' ? normalizeShape(st.css) : st.css,
+    })
   }
   sheet.push(
     {
@@ -160,7 +164,7 @@ export function nodeElement(rec) {
     data,
     position: { x: x ?? 0, y: y ?? 0 },
     classes: classesOf(style, data),
-    style: withRelativeSize(overrides, data.value),
+    style: withRelativeSize(normalizeShape(overrides), data.value),
   }
 }
 

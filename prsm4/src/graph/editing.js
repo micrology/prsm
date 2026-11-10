@@ -25,6 +25,7 @@ import { applyCurves } from './graph.js'
 import { setCollapsed, dissolveCluster } from './cluster.js'
 import { splitText } from './text.js'
 import { ElementEditor } from './elementeditor.js'
+import { suspendBoxSelection } from './box-selection.js'
 
 cytoscape.use(edgehandles)
 
@@ -74,6 +75,20 @@ export class Editor {
     this.elementEditor = new ElementEditor(cy, store)
     this.mode = 'select'
     this.pendingMoves = new Set()
+    this.ghost = cy.container().ownerDocument.createElement('div')
+    this.ghost.className = 'factor-placement-ghost'
+    this.ghost.hidden = true
+    cy.container().append(this.ghost)
+    this.moveGhost = (event) => {
+      if (this.mode !== 'addNode') return
+      const bounds = cy.container().getBoundingClientRect()
+      this.ghost.style.setProperty('--x', `${event.clientX - bounds.left}px`)
+      this.ghost.style.setProperty('--y', `${event.clientY - bounds.top}px`)
+      this.ghost.hidden = false
+    }
+    this.hideGhost = () => (this.ghost.hidden = true)
+    cy.container().addEventListener('pointermove', this.moveGhost)
+    cy.container().addEventListener('pointerleave', this.hideGhost)
     this.handles = this.createEdgeHandles()
     cy.on('dragfree', 'node', (evt) => this.queueMove(evt.target))
     cy.on('tap', (evt) => this.onTap(evt))
@@ -99,6 +114,9 @@ export class Editor {
    */
   destroy() {
     this.cy.container().ownerDocument.removeEventListener('keydown', this.onKey)
+    this.cy.container().removeEventListener('pointermove', this.moveGhost)
+    this.cy.container().removeEventListener('pointerleave', this.hideGhost)
+    this.ghost.remove()
     this.handles.destroy()
   }
 
@@ -128,6 +146,7 @@ export class Editor {
    */
   setMode(mode) {
     this.mode = mode
+    this.hideGhost()
     const linking = mode === 'addLink'
     if (linking) this.cy.elements(':selected').unselect()
     // edgehandles locks the factors while draw mode is on, and restores them when it ends
@@ -214,6 +233,8 @@ export class Editor {
     const [src, tgt] = [edge.source().position(), edge.target().position()]
     let curve = edge.data('curve')
     let moved = false
+    const releaseBoxSelection = suspendBoxSelection(cy)
+    const panning = cy.userPanningEnabled()
     cy.userPanningEnabled(false)
     /**
      * Preview the curve as the pointer moves.
@@ -229,7 +250,8 @@ export class Editor {
     cy.on('tapdrag', onDrag)
     cy.one('tapend', () => {
       cy.off('tapdrag', onDrag)
-      cy.userPanningEnabled(true)
+      cy.userPanningEnabled(panning)
+      releaseBoxSelection()
       if (moved) this.store.update('edges', edge.id(), { curve })
     })
   }
@@ -258,13 +280,17 @@ export class Editor {
    */
   openInput(pos, width, initial, onDone, onClose) {
     const container = this.cy.container()
-    const input = container.ownerDocument.createElement('input')
+    const box = container.ownerDocument.createElement('div')
+    box.className = 'factor-placement-editor'
+    const input = container.ownerDocument.createElement('textarea')
     input.className = 'cy-label-editor'
     input.value = initial
-    input.style.setProperty('--x', `${pos.x}px`)
-    input.style.setProperty('--y', `${pos.y}px`)
+    input.setAttribute('aria-label', 'Factor label')
+    box.style.setProperty('--x', `${pos.x}px`)
+    box.style.setProperty('--y', `${pos.y}px`)
     input.style.setProperty('--w', `${width}px`)
-    container.append(input)
+    box.append(input)
+    container.append(box)
     input.focus()
     input.select()
     let done = false
@@ -277,13 +303,16 @@ export class Editor {
       if (done) return
       done = true
       const text = input.value
-      input.remove()
+      box.remove()
       if (accept) onDone(text)
       onClose?.()
     }
     input.addEventListener('keydown', (e) => {
       e.stopPropagation()
-      if (e.key === 'Enter') finish(true)
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+        e.preventDefault()
+        finish(true)
+      }
       if (e.key === 'Escape') finish(false)
     })
     input.addEventListener('blur', () => finish(true))

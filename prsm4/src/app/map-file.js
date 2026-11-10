@@ -12,6 +12,7 @@ Reads and writes native PRSM map files.
 
 import lzString from 'lz-string'
 import { legacyToV2, normaliseLegacy, parseMapText } from '../graph/legacy.js'
+import { normalizeMapShapes } from '../graph/shapes.js'
 
 /**
  * Check whether a value is a non-array object.
@@ -117,7 +118,7 @@ export function readMapFile(text) {
   if (file.meta.legacyBackground || file.meta.legacyUnderlay) {
     warnings.push('The legacy background is preserved but is not yet displayed')
   }
-  return { file, warnings }
+  return { file: normalizeMapShapes(file), warnings }
 }
 
 /**

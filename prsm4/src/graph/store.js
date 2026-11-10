@@ -298,11 +298,19 @@ export class MapStore {
    * @param {'nodes'|'edges'} kind
    * @param {Array<string>} ids
    * @param {string} style style id
+   * @param {boolean} [clearOverrides] Whether to remove individual styling and factor size.
    * @returns {void}
    */
-  setElementStyle(kind, ids, style) {
+  setElementStyle(kind, ids, style, clearOverrides = false) {
     this.transact(() => {
-      for (const id of ids) this.update(kind, id, { style })
+      for (const id of ids) {
+        const patch = { style }
+        if (clearOverrides) {
+          patch.overrides = undefined
+          if (kind === 'nodes') patch.value = undefined
+        }
+        this.update(kind, id, patch)
+      }
     })
   }
 
