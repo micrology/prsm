@@ -27,6 +27,8 @@ Header append Vary User-Agent env=!dont-vary
 
 # Allow Parcel to put files in /dist
 RewriteEngine  on
+# Serve the stable icon without rewriting it into the hash-named build assets.
+RewriteRule ^favicon\.ico$ - [END]
 # use the dist version of the entry code
 # but not if they are already linked to that directory
 RewriteCond %{REQUEST_URI} !/dist/ [NC]
