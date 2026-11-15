@@ -16,7 +16,15 @@ its value from a record (and the style it inherits from), how to write a new val
 MapStore, and how to total it in the table footer. The table view, sorting, filtering and
 copy-to-clipboard are all driven from these lists.
 **************************************************************************************** */
-import { toHex, shapePatch, SHAPES, ARROWS, LINE_STYLES, colorPatch } from './styleeditor.js'
+import {
+  shapePatch,
+  SHAPES,
+  ARROWS,
+  LINE_STYLES,
+  colorPatch,
+  colorWithOpacity,
+  colorOpacityProperty,
+} from './styleeditor.js'
 import { shapeName } from './shapes.js'
 
 export { shapeName } from './shapes.js'
@@ -124,7 +132,8 @@ function colorColumn(store, kind, prop, extra) {
    * @param {object} row Table row.
    * @returns {string} Hexadecimal colour.
    */
-  col.get = (row) => toHex(raw(row))
+  col.get = (row) =>
+    colorWithOpacity(raw(row), resolve(store, kind, row.rec, colorOpacityProperty(prop)) ?? 1)
   return col
 }
 

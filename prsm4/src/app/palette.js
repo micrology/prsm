@@ -52,6 +52,7 @@ export class Palette {
     this.onEditStyle = onEditStyle
     this.last = { node: 'group0', edge: 'edge0' }
     this.swatches = []
+    this.createContextMenu()
     for (const kind of Object.keys(KINDS)) this.createSwatches(kind)
     for (const [kind, k] of Object.entries(KINDS)) {
       listen(k.selectAll, 'click', () => this.selectAll(kind))
@@ -83,9 +84,90 @@ export class Palette {
       const graph = this.miniGraph(div, kind, styleId)
       div.addEventListener('click', (e) => e.detail === 1 && this.apply(kind, styleId))
       div.addEventListener('dblclick', () => this.onEditStyle(styleId))
+      if (kind === 'node') {
+        div.tabIndex = 0
+        div.setAttribute('role', 'button')
+        div.setAttribute('aria-label', `Factor style ${i + 1}`)
+        div.addEventListener('contextmenu', (event) => this.openContextMenu(event, styleId))
+        div.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            this.apply(kind, styleId)
+          }
+        })
+      }
       this.swatches.push({ kind, styleId, div, graph })
       new ResizeObserver(() => this.redraw(graph, kind)).observe(div)
     }
+  }
+
+  /**
+   * Create the factor style action menu.
+   * @returns {void}
+   */
+  createContextMenu() {
+    this.menu = document.createElement('div')
+    this.menu.className = 'palette-context-menu'
+    this.menu.setAttribute('popover', 'auto')
+    this.menu.setAttribute('aria-label', 'Factor style actions')
+    const select = document.createElement('button')
+    select.type = 'button'
+    select.textContent = 'Select factors'
+    select.addEventListener('click', () => {
+      const nodes = this.styleNodes()
+      this.cy.batch(() => {
+        this.cy.elements(':selected').unselect()
+        nodes.not('.clusterHidden, :parent').select()
+      })
+      this.menu.hidePopover()
+    })
+    this.hideButton = document.createElement('button')
+    this.hideButton.type = 'button'
+    this.hideButton.addEventListener('click', () => {
+      const ids = this.styleNodes().map((node) => node.id())
+      const hidden = this.hideButton.dataset.show !== 'true'
+      this.store.transact(() => {
+        for (const id of ids) this.store.update('nodes', id, { hidden: hidden || undefined })
+      })
+      this.menu.hidePopover()
+    })
+    this.menu.append(select, this.hideButton)
+    document.body.append(this.menu)
+  }
+
+  /**
+   * Return factors using the context menu's style.
+   * @returns {cytoscape.NodeCollection} Matching factors.
+   */
+  styleNodes() {
+    return this.cy
+      .nodes()
+      .filter((node) => this.store.nodes.get(node.id())?.style === this.menuStyle)
+  }
+
+  /**
+   * Open style actions at the pointer or focused swatch.
+   * @param {MouseEvent} event Context-menu event.
+   * @param {string} styleId Style identifier.
+   * @returns {void}
+   */
+  openContextMenu(event, styleId) {
+    event.preventDefault()
+    this.menuStyle = styleId
+    const nodes = this.styleNodes()
+    const show = nodes.nonempty() && nodes.every((node) => node.data('hidden'))
+    this.hideButton.textContent = show ? 'Show factors' : 'Hide factors'
+    this.hideButton.dataset.show = String(show)
+    this.hideButton.disabled = Boolean(this.store.meta.get('viewOnly'))
+    if (this.menu.matches(':popover-open')) this.menu.hidePopover()
+    this.menu.showPopover()
+    const rect = this.menu.getBoundingClientRect()
+    const anchor = event.currentTarget.getBoundingClientRect()
+    const x = event.clientX || anchor.left
+    const y = event.clientY || anchor.bottom
+    this.menu.style.left = `${Math.max(0, Math.min(x, innerWidth - rect.width))}px`
+    this.menu.style.top = `${Math.max(0, Math.min(y, innerHeight - rect.height))}px`
+    this.menu.querySelector('button').focus()
   }
 
   /**

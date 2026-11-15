@@ -75,6 +75,20 @@
 .element-field.wide input {
   flex: 1;
 }
+.element-size-control {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+.element-pin {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.5;
+}
+.element-pin[aria-pressed='true'] {
+  opacity: 1;
+}
 .element-field select {
   font-size: 10px;
   text-transform: uppercase;

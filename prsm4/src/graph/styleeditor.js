@@ -47,6 +47,34 @@ const EDGE_COLOR_PROPS = [
   'source-arrow-color',
   'mid-target-arrow-color',
 ]
+const COLOR_OPACITY = {
+  'background-color': 'background-opacity',
+  'border-color': 'border-opacity',
+  'line-color': 'line-opacity',
+  color: 'text-opacity',
+}
+
+/**
+ * Combine a CSS colour with a separate Cytoscape opacity for a colour well.
+ * @param {string} color Colour.
+ * @param {number} opacity Opacity from zero to one.
+ * @returns {string} CSS colour including alpha.
+ */
+export function colorWithOpacity(color, opacity = 1) {
+  const hex = toHex(color)
+  return `${hex.slice(0, 7)}${Math.round(Math.max(0, Math.min(1, opacity)) * 255)
+    .toString(16)
+    .padStart(2, '0')}`
+}
+
+/**
+ * Identify the Cytoscape opacity corresponding to a colour property.
+ * @param {string} prop Colour property.
+ * @returns {string|undefined} Opacity property.
+ */
+export function colorOpacityProperty(prop) {
+  return COLOR_OPACITY[prop]
+}
 
 const NODE_FIELDS = [
   { prop: 'shape', label: 'Shape', type: 'select', options: SHAPES },
@@ -122,10 +150,25 @@ export function toHex(color) {
  * @returns {object}
  */
 export function colorPatch(kind, prop, value) {
+  const rgba = value.match(
+    /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)$/i
+  )
+  const alpha = rgba
+    ? Number(rgba[4] ?? 1)
+    : /^#[\da-f]{8}$/i.test(value)
+      ? parseInt(value.slice(7), 16) / 255
+      : 1
+  const color = rgba
+    ? `rgb(${rgba[1]}, ${rgba[2]}, ${rgba[3]})`
+    : value.startsWith('#')
+      ? value.slice(0, 7)
+      : value
+  const opacity = COLOR_OPACITY[prop]
+  const patch = opacity ? { [opacity]: alpha } : {}
   if (kind === 'edge' && prop === 'line-color') {
-    return Object.fromEntries(EDGE_COLOR_PROPS.map((p) => [p, value]))
+    return { ...patch, ...Object.fromEntries(EDGE_COLOR_PROPS.map((p) => [p, color])) }
   }
-  return { [prop]: value }
+  return { ...patch, [prop]: color }
 }
 
 /**
@@ -295,10 +338,14 @@ export class StyleEditor {
     const fields = st.kind === 'node' ? NODE_FIELDS : EDGE_FIELDS
     const f = el('div', { className: 'style-form' }, this.nameRow(id, st))
     for (const field of fields) {
-      const value =
+      let value =
         field.prop === 'shape'
           ? shapeName({ ...base?.css, ...st.css })
           : (st.css[field.prop] ?? base?.css[field.prop])
+      if (field.type === 'color') {
+        const opacity = colorOpacityProperty(field.prop)
+        value = colorWithOpacity(value, st.css[opacity] ?? base?.css[opacity] ?? 1)
+      }
       f.append(this.row(field, value, (v) => this.editStyle(id, field, v)))
     }
     if (!this.single && !id.endsWith('Base') && !id.startsWith('cluster')) {
@@ -361,7 +408,7 @@ export class StyleEditor {
    * @returns {HTMLElement} a labelled colour well
    */
   colorRow(field, value, onChange) {
-    const well = colorWell(toHex(value), {
+    const well = colorWell(value, {
       /**
        * Apply a live colour change while retaining the current editor.
        * @param {string} color Chosen colour.
@@ -452,7 +499,11 @@ export class StyleEditor {
     select.value = used.size === 1 ? [...used][0] : ''
     select.addEventListener('change', () => store.setElementStyle(mapName, ids, select.value))
     const colorProp = kind === 'node' ? 'background-color' : 'line-color'
-    const color = this.row({ label: 'Colour', type: 'color' }, eles[0].style(colorProp), (v) =>
+    const colorValue = colorWithOpacity(
+      eles[0].style(colorProp),
+      eles[0].numericStyle(colorOpacityProperty(colorProp))
+    )
+    const color = this.row({ label: 'Colour', type: 'color' }, colorValue, (v) =>
       store.setOverrides(mapName, ids, colorPatch(kind, colorProp, v))
     )
     const reset = el('button', { textContent: 'Clear overrides' })

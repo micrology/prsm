@@ -93,7 +93,14 @@ export class Analysis {
   filter() {
     const { cy } = this
     const { radius, stream, paths } = this.values()
-    const graph = cy.elements().not('.meta, .hidden, .clusterHidden')
+    const candidates = cy.elements().not('.meta, .hidden, .clusterHidden')
+    const availableNodes = candidates.nodes()
+    const availableEdges = candidates
+      .edges()
+      .filter(
+        (edge) => availableNodes.contains(edge.source()) && availableNodes.contains(edge.target())
+      )
+    const graph = availableNodes.union(availableEdges)
     const roots = cy.collection(this.roots.map((id) => cy.getElementById(id))).intersection(graph)
     if (this.roots.length && roots.empty()) {
       for (const name of MODES) {
@@ -112,7 +119,7 @@ export class Analysis {
         try {
           const result = pathsBetween(nodes.union(edges), roots, paths === 'shortestPath')
           if (result.edges().empty()) {
-            alertMsg('No path between the selected factors', 'info')
+            alertMsg('No path between the selected factors', 'warn')
             elem('pathsAll').checked = true
           } else {
             nodes = result.nodes()
@@ -127,6 +134,7 @@ export class Analysis {
     }
     cy.batch(() => {
       cy.elements().removeClass('analysisHidden')
+      candidates.edges().difference(availableEdges).addClass('analysisHidden')
       if (this.roots.length && roots.nonempty()) {
         graph.difference(nodes.union(edges)).addClass('analysisHidden')
       }
@@ -218,7 +226,7 @@ export class Analysis {
           const size =
             mode === 'Equal'
               ? 100
-              : 50 + 200 * (max === min ? 0.5 : (values[i] - min) / (max - min))
+              : 25 + 100 * (max === min ? 0.5 : (values[i] - min) / (max - min))
           node.style({ width: size, height: size })
         }
       })

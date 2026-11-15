@@ -157,10 +157,12 @@ export class Badges {
     const down = node.data('thumbDown') ?? []
     const upPath = up.includes(this.clientId) ? THUMB_UP_FILLED : THUMB_UP_OUTLINE
     const downPath = down.includes(this.clientId) ? THUMB_DOWN_FILLED : THUMB_DOWN_OUTLINE
-    this.icon(ctx, upPath, box.x1 + 20, box.y2)
-    if (up.length) ctx.fillText(String(up.length), box.x1 + 36, box.y2 + 10)
-    this.icon(ctx, downPath, box.x2 - 36, box.y2)
-    if (down.length) ctx.fillText(String(down.length), box.x2 - 20, box.y2 + 10)
+    this.icon(ctx, upPath, box.x1, box.y2)
+    if (up.length) ctx.fillText(String(up.length), box.x1 + ICON_SIZE, box.y2 + 10)
+    this.icon(ctx, downPath, Math.max(box.x2 - ICON_SIZE, box.x1 + ICON_SIZE + 12), box.y2)
+    if (down.length) {
+      ctx.fillText(String(down.length), Math.max(box.x2, box.x1 + 2 * ICON_SIZE + 12), box.y2 + 10)
+    }
   }
 
   /**
@@ -193,7 +195,8 @@ export class Badges {
     if (hit.empty()) return
     const node = hit[0]
     const box = node.boundingBox({ includeLabels: false })
-    this.toggleVote(node, pos.x < (box.x1 + box.x2) / 2 ? SIDES[0] : SIDES[1])
+    const right = Math.max(box.x2, box.x1 + 2 * ICON_SIZE + 12)
+    this.toggleVote(node, pos.x < (box.x1 + right) / 2 ? SIDES[0] : SIDES[1])
   }
 
   /**
@@ -203,7 +206,12 @@ export class Badges {
    * @returns {boolean}
    */
   isInThumbRow(box, pos) {
-    return pos.x > box.x1 && pos.x < box.x2 && pos.y > box.y2 && pos.y < box.y2 + THUMB_ROW_HEIGHT
+    return (
+      pos.x > box.x1 &&
+      pos.x < Math.max(box.x2, box.x1 + 2 * ICON_SIZE + 12) &&
+      pos.y > box.y2 &&
+      pos.y < box.y2 + THUMB_ROW_HEIGHT
+    )
   }
 
   /**
@@ -217,6 +225,13 @@ export class Badges {
     const updated = voters.includes(this.clientId)
       ? voters.filter((id) => id !== this.clientId)
       : [...voters, this.clientId]
-    this.store.update('nodes', node.id(), { [side]: updated.length ? updated : undefined })
+    this.store.transact((transaction) => {
+      transaction.meta.set('reaction', {
+        side: side === 'thumbUp' ? 'up' : 'down',
+        added: !voters.includes(this.clientId),
+        label: node.data('label') ?? '',
+      })
+      this.store.update('nodes', node.id(), { [side]: updated.length ? updated : undefined })
+    })
   }
 }

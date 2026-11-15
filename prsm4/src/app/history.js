@@ -11,10 +11,11 @@ Records map changes and restores earlier versions.
 ********************************************************************************************/
 
 import localForage from 'localforage'
-import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
+import lzString from 'lz-string'
 import { LOCAL } from '../graph/store.js'
 import { alertMsg, dragElement, elem, listen, shorten, timeAndDate } from '../../../js/utils.js'
 
+const { compressToUTF16, decompressFromUTF16 } = lzString
 const MAX_ROLLBACKS = 15
 const LABEL_LENGTH = 25
 const MOVE_FIELDS = new Set(['x', 'y', 'modified'])
@@ -57,13 +58,13 @@ function onlyMoved(before, after) {
  * @returns {string[]} phrases such as "added factor 'Rain'"
  */
 export function describeRecords(kind, before, ymap, ids) {
-  const groups = { added: [], deleted: [], moved: [], edited: [] }
+  const groups = { added: [], deleted: [], edited: [] }
   for (const id of ids) {
     const old = before.get(id)
     const now = ymap.get(id)
     if (!old && now) groups.added.push(now)
     else if (old && !now) groups.deleted.push(old)
-    else if (old && now) groups[onlyMoved(old, now) ? 'moved' : 'edited'].push(now)
+    else if (old && now && !onlyMoved(old, now)) groups.edited.push(now)
   }
   return Object.entries(groups)
     .filter(([, recs]) => recs.length > 0)
@@ -137,6 +138,10 @@ export class History {
    */
   describe(tr) {
     const { store } = this
+    const reaction = tr.meta.get('reaction')
+    if (reaction) {
+      return `${reaction.added ? 'added' : 'removed'} a thumbs ${reaction.side} reaction ${reaction.added ? 'to' : 'from'} '${shorten(reaction.label, LABEL_LENGTH)}'`
+    }
     const mergeAction = tr.meta.get('mergeAction')
     if (mergeAction) {
       return `merged a map: added ${mergeAction.nodes} factors and ${mergeAction.edges} links, ${mergeAction.conflicts} renamed factor conflicts`

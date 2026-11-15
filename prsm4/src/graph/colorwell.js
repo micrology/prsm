@@ -59,7 +59,7 @@ export function colorWell(value, { onInput, onCommit } = {}) {
 function nativeWell(value, onInput, onCommit) {
   const input = document.createElement('input')
   input.type = 'color'
-  input.value = value
+  input.value = /^#[\da-f]{8}$/i.test(value) ? value.slice(0, 7) : value
   input.addEventListener('input', () => onInput?.(input.value))
   input.addEventListener('change', () => onCommit?.(input.value))
   return input

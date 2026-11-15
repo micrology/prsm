@@ -4,7 +4,7 @@ import cytoscape from 'cytoscape'
 import { MapStore } from '../../src/graph/store.js'
 import { bindGraph } from '../../src/graph/binding.js'
 import { nodeStyleToCss } from '../../src/graph/legacy.js'
-import { shapePatch, SHAPES } from '../../src/graph/styleeditor.js'
+import { colorPatch, shapePatch, SHAPES } from '../../src/graph/styleeditor.js'
 import { shapeName } from '../../src/graph/shapes.js'
 import { readMapFile } from '../../src/app/map-file.js'
 import { suspendBoxSelection } from '../../src/graph/box-selection.js'
@@ -148,4 +148,36 @@ test('overlapping box-selection suspensions restore the original state only at t
   release()
   assert.equal(cy.boxSelectionEnabled(), false)
   cy.destroy()
+})
+
+test('colour patches store transparency separately for factors and links', () => {
+  assert.deepEqual(colorPatch('node', 'background-color', 'rgba(255, 0, 20, 0.25)'), {
+    'background-color': 'rgb(255, 0, 20)',
+    'background-opacity': 0.25,
+  })
+  assert.deepEqual(colorPatch('node', 'border-color', '#12345600'), {
+    'border-color': '#123456',
+    'border-opacity': 0,
+  })
+  assert.deepEqual(colorPatch('edge', 'line-color', '#123456ff'), {
+    'line-color': '#123456',
+    'line-opacity': 1,
+    'source-arrow-color': '#123456',
+    'target-arrow-color': '#123456',
+    'mid-target-arrow-color': '#123456',
+  })
+  assert.equal(colorPatch('edge', 'color', 'rgba(1, 2, 3, 0.6)')['text-opacity'], 0.6)
+})
+
+test('locked factors remain pinned after loading and can be unpinned', () => {
+  const store = new MapStore()
+  const id = store.addNode({ label: 'Pinned', x: 0, y: 0, locked: true })
+  const cy = cytoscape({ headless: true, styleEnabled: true })
+  const unbind = bindGraph(cy, store)
+  assert.equal(cy.getElementById(id).grabbable(), false)
+  store.update('nodes', id, { locked: undefined })
+  assert.equal(cy.getElementById(id).grabbable(), true)
+  unbind()
+  cy.destroy()
+  store.doc.destroy()
 })

@@ -172,6 +172,38 @@
   justify-content: flex-end;
   padding: 0 10px 10px;
 }
+.style-dialog-buttons button {
+  background: var(--primary-color);
+  color: white;
+}
+.map-background-well {
+  background-color: white;
+}
+.legend {
+  height: max-content;
+}
+.palette-context-menu {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  padding: 4px;
+  border: 1px solid var(--shadow-color);
+  background: white;
+  box-shadow: 0 3px 12px var(--shadow-color);
+}
+.palette-context-menu button {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  border: 0;
+  text-align: left;
+  background: white;
+  color: var(--primary-color);
+}
+.palette-context-menu button:hover,
+.palette-context-menu button:focus-visible {
+  background: var(--selection-color);
+}
 #styleEditorBody label .color-well {
   margin: 0 0 0 auto;
 }

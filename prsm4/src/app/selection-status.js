@@ -39,12 +39,14 @@ export function selectionMessage(selected) {
   const nodes = selected.nodes().filter((node) => !node.hasClass('meta'))
   const edges = selected.edges().filter((edge) => !edge.hasClass('meta'))
   const parts = []
-  if (nodes.length) {
+  if (nodes.length > 5) parts.push(`${nodes.length} factors`)
+  else if (nodes.length) {
     parts.push(
       `Factor${nodes.length === 1 ? '' : 's'}: ${joinNames(nodes.map((n) => `'${shortLabel(n.data('label'))}'`))}`
     )
   }
-  if (edges.length) {
+  if (edges.length > 2) parts.push(`${edges.length} links`)
+  else if (edges.length) {
     parts.push(
       joinNames(
         edges.map((edge) => {

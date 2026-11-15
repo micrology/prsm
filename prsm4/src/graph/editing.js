@@ -22,7 +22,7 @@ Modes (as in the current app):
 import cytoscape from 'cytoscape'
 import edgehandles from 'cytoscape-edgehandles'
 import { applyCurves } from './graph.js'
-import { setCollapsed, dissolveCluster } from './cluster.js'
+import { setCollapsed } from './cluster.js'
 import { splitText } from './text.js'
 import { ElementEditor } from './elementeditor.js'
 import { suspendBoxSelection } from './box-selection.js'
@@ -93,8 +93,41 @@ export class Editor {
     cy.on('dragfree', 'node', (evt) => this.queueMove(evt.target))
     cy.on('tap', (evt) => this.onTap(evt))
     cy.on('dbltap', 'node, edge', (evt) => this.onDoubleTap(evt.target))
-    cy.on('cxttap', 'node[cluster]', (evt) => {
-      if (!this.options.isReadOnly?.()) dissolveCluster(store, evt.target.id())
+    cy.on('cxttap', 'node', (evt) => {
+      if (this.options.isReadOnly?.()) return
+      const node = evt.target
+      const cluster = node.data('cluster')
+      const id = cluster ? node.id() : node.data('inCluster')
+      if (id) setCollapsed(store, id, cluster ? cluster.collapsed === false : true)
+    })
+    this.prepareAltGesture = (evt) => {
+      if (
+        !evt.altKey ||
+        evt.button !== 0 ||
+        this.mode !== 'select' ||
+        this.options.isReadOnly?.()
+      ) {
+        return
+      }
+      if (evt.target.tagName !== 'CANVAS') return
+      this.altUngrabify = cy.autoungrabify()
+      cy.autoungrabify(true)
+    }
+    cy.container().addEventListener('mousedown', this.prepareAltGesture, true)
+    this.restoreAltGesture = () => {
+      if (this.altUngrabify === undefined) return
+      cy.autoungrabify(this.altUngrabify)
+      this.altUngrabify = undefined
+    }
+    cy.on('tapstart', this.restoreAltGesture)
+    cy.container().ownerDocument.addEventListener('mouseup', this.restoreAltGesture, true)
+    cy.on('tapstart', 'node', (evt) => {
+      if (!evt.originalEvent?.altKey || this.mode !== 'select' || this.options.isReadOnly?.()) {
+        return
+      }
+      if (evt.target.data('cluster')) return
+      this.setMode('addLink')
+      this.handles.start(evt.target)
     })
     cy.on('tapstart', 'edge:selected', (evt) => this.startBend(evt))
     cy.on('ehcomplete', (evt, source, target, added) => this.onLinkDrawn(source, target, added))
@@ -116,6 +149,9 @@ export class Editor {
     this.cy.container().ownerDocument.removeEventListener('keydown', this.onKey)
     this.cy.container().removeEventListener('pointermove', this.moveGhost)
     this.cy.container().removeEventListener('pointerleave', this.hideGhost)
+    this.cy.container().removeEventListener('mousedown', this.prepareAltGesture, true)
+    this.cy.container().ownerDocument.removeEventListener('mouseup', this.restoreAltGesture, true)
+    this.cy.off('tapstart', this.restoreAltGesture)
     this.ghost.remove()
     this.handles.destroy()
   }
@@ -190,7 +226,8 @@ export class Editor {
    */
   onTap(evt) {
     if (this.options.isReadOnly?.()) return
-    if (this.mode !== 'addNode' || evt.target !== this.cy) return
+    if (evt.target !== this.cy) return
+    if (this.mode !== 'addNode' && !(this.mode === 'select' && evt.originalEvent?.altKey)) return
     const style = this.options.defaultNodeStyle?.() ?? 'group0'
     const { x, y } = evt.position
     this.setMode('select')
@@ -257,7 +294,7 @@ export class Editor {
   }
 
   /**
-   * Double-click opens or closes a cluster, and edits the label of anything else
+   * Double-click edits a factor or link, except for cluster boundaries.
    * @param {cytoscape.SingularElementReturnValue} ele
    * @returns {void}
    */
@@ -265,8 +302,7 @@ export class Editor {
     if (this.options.isReadOnly?.()) return
     if (ele.hasClass('meta')) return
     const cluster = ele.data('cluster')
-    if (cluster) setCollapsed(this.store, ele.id(), !cluster.collapsed)
-    else this.elementEditor.open(ele)
+    if (!cluster) this.elementEditor.open(ele)
   }
 
   /**

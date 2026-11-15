@@ -65,6 +65,7 @@ function syncNode(cy, id, rec) {
   const def = nodeElement({ id, ...rec })
   if (ele.empty()) {
     const added = addElement(cy, def)
+    if (def.data.locked) added.ungrabify()
     added.scratch('_ov', def.style ?? null)
     return clusterKey(def.data) !== clusterKey({})
   }
