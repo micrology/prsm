@@ -47,6 +47,18 @@ export function hasNote(note) {
 }
 
 /**
+ * Place the voting row below both the factor shape and its label.
+ * @param {cytoscape.NodeSingular} node Factor.
+ * @returns {{x1:number,x2:number,y2:number}} Voting row bounds.
+ */
+export function thumbBounds(node) {
+  const options = { includeLabels: false, includeOverlays: false, includeUnderlays: false }
+  const shape = node.boundingBox(options)
+  const withLabel = node.boundingBox({ ...options, includeLabels: true })
+  return { x1: shape.x1, x2: shape.x2, y2: Math.max(shape.y2, withLabel.y2) }
+}
+
+/**
  * Small icons around factors and links: a pin for factors that cannot be moved, a note card
  * for those with Notes, and thumbs up and down (with counts) when reactions are switched on.
  * They are drawn on a canvas laid over the map, so they follow pan and zoom, and a click
@@ -68,7 +80,7 @@ export class Badges {
     this.canvas.className = 'badge-layer'
     cy.container().append(this.canvas)
     this.pending = false
-    cy.on('render viewport data position add remove', () => this.requestDraw())
+    cy.on('render viewport data position add remove style', () => this.requestDraw())
     cy.on('tap', (evt) => this.vote(evt.position))
     store.doc.on('afterTransaction', (tr) => tr.changed.has(store.meta) && this.requestDraw())
   }
@@ -126,7 +138,10 @@ export class Badges {
         .filter((e) => e.visible() && hasNote(e.data('note')))
         .forEach((e) => {
           const { x, y } = e.midpoint()
+          ctx.save()
+          ctx.globalAlpha = e.hasClass('hidden') || e.hasClass('analysisHidden') ? 0.2 : 1
           this.icon(ctx, NOTE_PATH, x - ICON_SIZE / 2, y - ICON_SIZE / 2)
+          ctx.restore()
         })
     }
   }
@@ -140,9 +155,12 @@ export class Badges {
    */
   drawNodeBadges(ctx, node, showNotes) {
     const box = node.boundingBox({ includeLabels: false, includeOverlays: false })
+    ctx.save()
+    ctx.globalAlpha = node.hasClass('hidden') || node.hasClass('analysisHidden') ? 0.2 : 1
     if (node.data('locked')) this.icon(ctx, PIN_PATH, box.x1 - 10, box.y1)
     if (showNotes && hasNote(node.data('note'))) this.icon(ctx, NOTE_PATH, box.x2, box.y1)
-    if (this.settings.voting && !isCluster(node)) this.drawThumbs(ctx, node, box)
+    if (this.settings.voting && !isCluster(node)) this.drawThumbs(ctx, node, thumbBounds(node))
+    ctx.restore()
   }
 
   /**
@@ -191,10 +209,10 @@ export class Badges {
     const hit = this.cy
       .nodes()
       .filter((n) => n.visible() && !n.isParent() && !isCluster(n))
-      .filter((n) => this.isInThumbRow(n.boundingBox({ includeLabels: false }), pos))
+      .filter((n) => this.isInThumbRow(thumbBounds(n), pos))
     if (hit.empty()) return
     const node = hit[0]
-    const box = node.boundingBox({ includeLabels: false })
+    const box = thumbBounds(node)
     const right = Math.max(box.x2, box.x1 + 2 * ICON_SIZE + 12)
     this.toggleVote(node, pos.x < (box.x1 + right) / 2 ? SIDES[0] : SIDES[1])
   }

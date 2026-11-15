@@ -253,12 +253,17 @@ export class NotesPanel {
    * Show or hide a creation or modification stamp.
    * @param {string} rowId
    * @param {string} textId
-   * @param {{time:number,user:string}|undefined} stamp
+   * @param {{time:number,user:string}|number|undefined} stamp
    * @returns {void}
    */
   showStamp(rowId, textId, stamp) {
-    elem(rowId).classList.toggle('gone', !stamp)
-    if (stamp) elem(textId).textContent = `${timeAndDate(stamp.time)} by ${stamp.user}`
+    const time = typeof stamp === 'number' ? stamp : stamp?.time
+    const valid = Number.isFinite(time)
+    elem(rowId).classList.toggle('gone', !valid)
+    if (valid) {
+      const user = typeof stamp === 'object' && stamp.user ? ` by ${stamp.user}` : ''
+      elem(textId).textContent = `${timeAndDate(time)}${user}`
+    }
   }
 
   /**

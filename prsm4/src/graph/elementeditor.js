@@ -198,7 +198,7 @@ export class ElementEditor {
           : this.selectControl(field, col, current)
     const wide = field.kind === 'size' ? ' wide' : ''
     return el(
-      field.kind === 'size' ? 'div' : 'label',
+      'label',
       { className: `element-field${wide}` },
       el('span', { className: 'element-field-title', textContent: field.title ?? '' }),
       control
@@ -239,21 +239,7 @@ export class ElementEditor {
     input.addEventListener('input', () => {
       this.changes.set(col, input.value >= SLIDER_MIN ? Number(input.value) : undefined)
     })
-    const pin = el('button', {
-      type: 'button',
-      className: 'element-pin',
-      textContent: '📌',
-      title: 'Pin factor',
-      ariaLabel: 'Pin factor',
-      ariaPressed: String(Boolean(this.target.rec.locked)),
-    })
-    pin.addEventListener('click', () => {
-      const locked = pin.getAttribute('aria-pressed') !== 'true'
-      pin.setAttribute('aria-pressed', String(locked))
-      const lockColumn = factorColumns(this.store).find((field) => field.id === 'locked')
-      this.changes.set(lockColumn, locked)
-    })
-    return el('span', { className: 'element-size-control' }, pin, input)
+    return input
   }
 
   /**

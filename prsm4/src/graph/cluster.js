@@ -161,7 +161,7 @@ function addCluster(store, id, group, mode) {
     y += rec.y
     store.nodes.set(m, { ...rec, inCluster: id })
   }
-  const now = Date.now()
+  const now = store.stamp()
   store.nodes.set(id, {
     label: group.label,
     style: CLUSTER_STYLE,

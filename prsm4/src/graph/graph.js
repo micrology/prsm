@@ -96,7 +96,7 @@ export function compileStylesheet(styles) {
       selector: 'edge:selected',
       style: { 'underlay-color': SELECT_COLOR, 'underlay-opacity': 0.35, 'underlay-padding': 4 },
     },
-    { selector: '.hidden, .analysisHidden', style: { opacity: 0.6 } },
+    { selector: '.hidden, .analysisHidden', style: { opacity: 0.2 } },
     { selector: '.clusterHidden', style: { display: 'none' } },
     {
       selector: ':parent.expanded',

@@ -241,8 +241,9 @@ class App {
    */
   editStyle(styleId) {
     const dialog = elem('styleDialog')
-    if (dialog.open) this.closeStyleDialog(false)
+    if (dialog.open) this.closeStyleDialog(false, false)
     this.styleBackup = { id: styleId, style: structuredClone(this.store.styles.get(styleId)) }
+    this.history.beginStyleEdit(this.styleBackup)
     this.styleEditor.current = styleId
     this.styleEditor.render()
     elem('styleDialogTitle').textContent = `Edit style: ${this.styleBackup.style.name ?? styleId}`
@@ -252,12 +253,14 @@ class App {
   /**
    * Close the style editor, optionally restoring its original value.
    * @param {boolean} revert true to put the style back as it was when the dialog was opened
+   * @param {boolean} [recordSave] Whether this close was an explicit save.
    * @returns {void}
    */
-  closeStyleDialog(revert) {
+  closeStyleDialog(revert, recordSave = true) {
     const backup = this.styleBackup
     this.styleBackup = null
-    if (revert && backup) this.store.setStyle(backup.id, backup.style)
+    if (revert && backup) this.styleEditor.setStyle(backup.id, backup.style)
+    if (backup) this.history.finishStyleEdit(!revert && recordSave)
     elem('styleDialog').close()
   }
 

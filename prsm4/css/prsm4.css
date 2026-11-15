@@ -175,11 +175,15 @@
 .style-dialog-buttons button {
   background: var(--primary-color);
   color: white;
+  border-radius: 4px;
+  border: none;
 }
 .map-background-well {
   background-color: white;
 }
 .legend {
+  display: flex;
+  flex-direction: column;
   height: max-content;
 }
 .palette-context-menu {
@@ -244,12 +248,18 @@
 .history-window.show {
   display: block;
 }
+.history-rollback {
+  min-height: 20px;
+}
 .legend[hidden] {
   display: none;
 }
 
 .legendWrapper {
   grid-template-columns: 50px minmax(70px, 190px);
+  max-height: none;
+  min-height: 0;
+  flex: 0 1 auto;
 }
 
 #minimapWrapper {

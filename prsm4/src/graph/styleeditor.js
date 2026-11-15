@@ -363,7 +363,7 @@ export class StyleEditor {
   nameRow(id, st) {
     const input = el('input', { type: 'text', value: st.name ?? '' })
     input.addEventListener('change', () => {
-      this.view.store.setStyle(id, { ...this.view.store.styles.get(id), name: input.value })
+      this.setStyle(id, { ...this.view.store.styles.get(id), name: input.value })
     })
     return el('label', {}, 'Name', input)
   }
@@ -456,7 +456,21 @@ export class StyleEditor {
     if (field.prop === 'font-family') patch = { [field.prop]: `${value}, sans-serif` }
     const css = { ...st.css, ...patch }
     for (const k of Object.keys(css)) if (css[k] === undefined) delete css[k]
-    store.setStyle(id, { ...st, css })
+    this.setStyle(id, { ...st, css })
+  }
+
+  /**
+   * Apply a style edit, marking live dialog changes as previews.
+   * @param {string} id Style identifier.
+   * @param {object} style Updated style.
+   * @returns {void}
+   */
+  setStyle(id, style) {
+    const { store } = this.view
+    store.transact((transaction) => {
+      if (this.single) transaction.meta.set('stylePreview', id)
+      store.setStyle(id, style)
+    })
   }
 
   /**

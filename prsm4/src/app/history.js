@@ -18,8 +18,17 @@ import { alertMsg, dragElement, elem, listen, shorten, timeAndDate } from '../..
 const { compressToUTF16, decompressFromUTF16 } = lzString
 const MAX_ROLLBACKS = 15
 const LABEL_LENGTH = 25
-const MOVE_FIELDS = new Set(['x', 'y', 'modified'])
+const UNLOGGED_FIELDS = new Set(['x', 'y', 'modified', 'note'])
 const NOUNS = { nodes: ['factor', 'factors'], edges: ['link', 'links'] }
+const SETTING_ACTIONS = {
+  background: () => 'changed the map background colour',
+  curve: (value) => `changed the link style to ${String(value).toLowerCase()}`,
+  snapToGrid: (value) => `${value ? 'enabled' : 'disabled'} snap to grid`,
+  showNotes: (value) => `${value ? 'showed' : 'hid'} note indicators`,
+  voting: (value) => `${value ? 'showed' : 'hid'} reactions`,
+  legend: (value) => `${value ? 'showed' : 'hid'} the legend`,
+  sizing: (value) => `changed factor sizing to ${value}`,
+}
 
 const ROLLBACK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.161 8a6.84 6.84 0 1 0 6.842-6.84.58.58 0 1 1 0-1.16 8 8 0 1 1-6.556 3.412l-.663-.577a.58.58 0 0 1 .227-.997l2.52-.69a.58.58 0 0 1 .728.633l-.332 2.592a.58.58 0 0 1-.956.364l-.643-.56A6.812 6.812 0 0 0 1.16 8z"/><path d="M6.641 11.671V8.843h1.57l1.498 2.828h1.314L9.377 8.665c.897-.3 1.427-1.106 1.427-2.1 0-1.37-.943-2.246-2.456-2.246H5.5v7.352h1.141zm0-3.75V5.277h1.57c.881 0 1.416.499 1.416 1.32 0 .84-.504 1.324-1.386 1.324h-1.6z"/></svg><span class="tooltiptext rollbacktip">Rollback to before this action</span>`
 
@@ -37,15 +46,15 @@ function nameOf(kind, recs) {
 }
 
 /**
- * Check whether only a record's position and modification stamp changed.
+ * Check whether only unlogged fields changed.
  * @param {object} before record before the change
  * @param {object} after record after the change
- * @returns {boolean} whether only the position changed
+ * @returns {boolean} Whether the changes should not be logged.
  */
-function onlyMoved(before, after) {
+function onlyUnloggedChanges(before, after) {
   const keys = new Set([...Object.keys(before), ...Object.keys(after)])
   return [...keys].every(
-    (k) => MOVE_FIELDS.has(k) || JSON.stringify(before[k]) === JSON.stringify(after[k])
+    (k) => UNLOGGED_FIELDS.has(k) || JSON.stringify(before[k]) === JSON.stringify(after[k])
   )
 }
 
@@ -55,20 +64,45 @@ function onlyMoved(before, after) {
  * @param {Map<string, object>} before the records before the transaction, by id
  * @param {import('yjs').Map} ymap the records now
  * @param {Set<string>} ids the ids of the records the transaction changed
+ * @param {Map<string, object>|import('yjs').Map} nodes Factors used to name link endpoints.
+ * @param {Map<string, object>|import('yjs').Map} [previousNodes] Factors before the transaction.
  * @returns {string[]} phrases such as "added factor 'Rain'"
  */
-export function describeRecords(kind, before, ymap, ids) {
+export function describeRecords(kind, before, ymap, ids, nodes, previousNodes = nodes) {
   const groups = { added: [], deleted: [], edited: [] }
   for (const id of ids) {
     const old = before.get(id)
     const now = ymap.get(id)
     if (!old && now) groups.added.push(now)
     else if (old && !now) groups.deleted.push(old)
-    else if (old && now && !onlyMoved(old, now)) groups.edited.push(now)
+    else if (old && now && !onlyUnloggedChanges(old, now)) groups.edited.push(now)
   }
   return Object.entries(groups)
     .filter(([, recs]) => recs.length > 0)
-    .map(([verb, recs]) => `${verb} ${nameOf(kind, recs)}`)
+    .map(([verb, recs]) => {
+      if (kind === 'edges' && recs.length === 1 && (verb === 'added' || verb === 'deleted')) {
+        if (verb === 'deleted' && recs[0].label?.trim()) return `deleted ${nameOf(kind, recs)}`
+        const factors = verb === 'deleted' ? previousNodes : nodes
+        const source = factors?.get(recs[0].source)?.label
+        const target = factors?.get(recs[0].target)?.label
+        if (source && target) {
+          const article = verb === 'deleted' ? 'the' : 'a'
+          return `${verb} ${article} link from '${shorten(source.replace(/\s+/g, ' ').trim(), LABEL_LENGTH)}' to '${shorten(target.replace(/\s+/g, ' ').trim(), LABEL_LENGTH)}'`
+        }
+      }
+      return `${verb} ${nameOf(kind, recs)}`
+    })
+}
+
+/**
+ * Describe a style change in the history log.
+ * @param {object} style Style record.
+ * @returns {string} Description of the change.
+ */
+function styleAction(style) {
+  const name = style?.name?.trim()
+  const kind = style?.kind === 'node' ? 'factor' : style?.kind === 'edge' ? 'link' : null
+  return name && kind ? `edited the ${name} ${kind} style` : 'edited a style'
 }
 
 /**
@@ -92,7 +126,10 @@ export class History {
     if (!withUI) return
     this.window = elem('history-window')
     store.history.observe(() => this.render())
-    dragElement(this.window, elem('history-header'))
+    const header = elem('history-header')
+    dragElement(this.window, header)
+    header.addEventListener('pointermove', () => this.fitLog())
+    window.addEventListener('resize', () => this.fitLog())
     listen('showHistorySwitch', 'click', () => this.show(elem('showHistorySwitch').checked))
     listen('history-close', 'click', () => this.show(false))
     listen('history-copy', 'click', () => this.copy())
@@ -125,7 +162,16 @@ export class History {
    * @returns {void}
    */
   onTransaction(tr) {
-    const text = tr.origin === LOCAL ? this.describe(tr) : null
+    if (tr.origin === LOCAL && tr.meta.has('stylePreview')) {
+      if (this.styleEdit?.id === tr.meta.get('stylePreview')) this.styleEdit.changed = true
+      this.before = this.capture()
+      return
+    }
+    let text = tr.origin === LOCAL ? this.describe(tr) : null
+    const undoManager = this.store.undoManager
+    if (tr.origin === undoManager && undoManager.currStackItem) {
+      text = undoManager.undoing ? 'undid the last change' : 'redid the last change'
+    }
     const before = this.before
     this.before = this.capture()
     if (text) this.log(text, before.file)
@@ -161,13 +207,66 @@ export class History {
     const parts = []
     for (const kind of ['nodes', 'edges']) {
       const ids = tr.changed.get(store[kind])
-      if (ids) parts.push(...describeRecords(kind, this.before[kind], store[kind], ids))
+      if (ids) {
+        parts.push(
+          ...describeRecords(
+            kind,
+            this.before[kind],
+            store[kind],
+            ids,
+            store.nodes,
+            this.before.nodes
+          )
+        )
+      }
     }
-    if (tr.changed.has(store.styles)) parts.push('edited a style')
+    const styles = tr.changed.get(store.styles)
+    if (styles) {
+      for (const id of styles) {
+        const style = store.styles.get(id) ?? this.before.file.styles[id]
+        parts.push(styleAction(style))
+      }
+    }
     const meta = tr.changed.get(store.meta)
     if (meta?.has('title')) parts.push('renamed the map')
-    if (meta && [...meta].some((key) => key !== 'title')) parts.push('changed the map settings')
+    if (meta?.has('settings')) {
+      const old = this.before.file.meta.settings ?? {}
+      const settings = store.meta.get('settings') ?? {}
+      const keys = new Set([...Object.keys(old), ...Object.keys(settings)])
+      for (const key of keys) {
+        if (JSON.stringify(old[key]) === JSON.stringify(settings[key])) continue
+        parts.push(SETTING_ACTIONS[key]?.(settings[key]) ?? 'changed the map settings')
+      }
+    }
+    if (meta && [...meta].some((key) => key !== 'title' && key !== 'settings')) {
+      parts.push('changed the map settings')
+    }
     return parts.join(', ')
+  }
+
+  /**
+   * Track a style dialog's original value while it previews changes.
+   * @param {{id:string,style:object}} backup Original style.
+   * @returns {void}
+   */
+  beginStyleEdit(backup) {
+    this.styleEdit = { ...backup, changed: false }
+  }
+
+  /**
+   * Record a saved style edit once, retaining a rollback snapshot.
+   * @param {boolean} save Whether the edit was saved.
+   * @returns {void}
+   */
+  finishStyleEdit(save) {
+    const edit = this.styleEdit
+    this.styleEdit = null
+    if (!save || !edit?.changed) return
+    const current = this.store.styles.get(edit.id)
+    if (!current) return
+    const before = this.store.toFile()
+    before.styles[edit.id] = edit.style
+    this.log(styleAction(current), before)
   }
 
   /**
@@ -224,7 +323,24 @@ export class History {
     const log = elem('history-log')
     log.replaceChildren(...this.store.history.toArray().flatMap((rec) => this.entry(rec)))
     const wrapper = elem('history-log-wrapper')
+    this.fitLog()
     wrapper.scrollTop = wrapper.scrollHeight
+    requestAnimationFrame(() => {
+      if (this.window.classList.contains('show')) wrapper.scrollTop = wrapper.scrollHeight
+    })
+  }
+
+  /**
+   * Keep the scrollable log within the visible viewport.
+   * @returns {void}
+   */
+  fitLog() {
+    if (!this.window.classList.contains('show')) return
+    const wrapper = elem('history-log-wrapper')
+    const atBottom = wrapper.scrollHeight - wrapper.clientHeight - wrapper.scrollTop <= 1
+    const available = window.innerHeight - wrapper.getBoundingClientRect().top - 8
+    wrapper.style.maxHeight = `${Math.max(0, Math.min(500, available))}px`
+    if (atBottom) wrapper.scrollTop = wrapper.scrollHeight
   }
 
   /**
@@ -254,11 +370,15 @@ export class History {
    * @returns {void}
    */
   addRollback(cell, rec) {
+    if (!cell.isConnected) return
+    const wrapper = elem('history-log-wrapper')
+    const atBottom = wrapper.scrollHeight - wrapper.clientHeight - wrapper.scrollTop <= 24
     const tip = document.createElement('div')
     tip.className = 'tooltip'
     tip.innerHTML = ROLLBACK_ICON
     tip.addEventListener('click', () => this.rollback(rec.time))
     cell.append(tip)
+    if (atBottom) wrapper.scrollTop = wrapper.scrollHeight
   }
 
   /**
