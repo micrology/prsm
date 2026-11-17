@@ -294,9 +294,10 @@ stack without stopping or reusing its services:
 npm run start:all-locally:prsm4
 ```
 
-Once the initial Parcel build and websocket server are ready, open
+Once the initial Parcel build, websocket server and API server are ready, open
 http://localhost:4174/prsm4.html. The server redirects the page to include
-the local websocket override, which is retained in room and data-view links.
+the local websocket override and help API setting. The websocket override is
+retained in room and data-view links.
 The stack watches PRSM 4 source files and serves `dist4/` and the PRSM 4
 manual on the same origin. If Help is unavailable, build it with
 `npm run build:help4:local`.
@@ -304,9 +305,15 @@ manual on the same origin. If Help is unavailable, build it with
 The local websocket server runs on **1235** and stores rooms in `dbDir4/`,
 separate from the legacy server's `dbDir/`. Consequently, maps saved in
 one local database are not automatically available in the other. The
-development HTTP and websocket servers are accessible only on localhost.
-The legacy API and usage dashboard are not started: PRSM 4 does not currently
-use the legacy API, and the dashboard is a shared maintainer tool.
+development HTTP, websocket and API servers are accessible only on localhost.
+The stack starts its own API on **3002** and forwards AI help requests through
+the app's HTTP server. The API requires AWS credentials with access to the
+Secrets Manager configuration and the Bedrock configuration described above;
+startup fails if the secrets cannot be loaded. Its help cache is stored in the
+stack's local state directory unless `HELP_CACHE_LOCATION` is set. The usage
+dashboard is not started. The assistant
+uses the API's configured knowledge base, which must contain PRSM 4 guidance
+to answer version-specific questions accurately.
 
 Logs and a control file are kept in `${TMPDIR:-/tmp}/prsm4-local/`. Stop
 only this stack with:
@@ -316,7 +323,7 @@ npm run stop:all-locally:prsm4
 ```
 
 If a port is already in use, startup fails instead of stopping the other
-service. To change the defaults, set `PRSM4_HTTP_PORT`, `PRSM4_WS_PORT`,
+service. To change the defaults, set `PRSM4_HTTP_PORT`, `PRSM4_WS_PORT`, `PRSM4_API_PORT`,
 `PRSM4_DB_DIR`, or `PRSM4_LOCAL_DIR` before starting. Use the same
 `PRSM4_LOCAL_DIR` when stopping. If the supervisor crashes and leaves its
 `state.json` behind, verify its recorded process is no longer running

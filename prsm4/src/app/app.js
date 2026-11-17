@@ -57,6 +57,8 @@ import { readGml, writeGml } from './gml.js'
 import { readGraphviz, writeGraphviz } from './graphviz.js'
 import { exportImage } from './image-export.js'
 import { exportNotes } from './notes-export.js'
+import { openAIAsstDialog } from './aiasst.js'
+import { features } from '../../../package.json'
 import { saveAs } from 'file-saver'
 
 const VERSION = '4.0.0'
@@ -133,6 +135,12 @@ class App {
     this.createSidePanel()
     this.analysis = new Analysis({ store: this.store, cy: this.cy })
     this.legend = new Legend({ store: this.store, palette: this.palette })
+    if (features.ai) {
+      openAIAsstDialog({ room: this.room, legend: this.legend.box })
+    } else {
+      elem('ai-assistant-container').hidden = true
+      elem('toggle-ai-assistant-btn').removeAttribute('data-step')
+    }
     this.minimap = new Minimap(this.cy)
     this.badges = new Badges({ store: this.store, cy: this.cy, clientId: this.user.id })
     this.notes = new NotesPanel({ store: this.store, cy: this.cy })

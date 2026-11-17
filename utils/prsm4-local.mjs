@@ -36,6 +36,7 @@ const STATE_FILE = path.join(STATE_DIR, 'state.json')
 const LOG_FILE = path.join(STATE_DIR, 'stack.log')
 const HTTP_PORT = port('PRSM4_HTTP_PORT', 4174)
 const WS_PORT = port('PRSM4_WS_PORT', 1235)
+const API_PORT = port('PRSM4_API_PORT', 3002)
 const DB_DIR = path.resolve(process.env.PRSM4_DB_DIR || path.join(ROOT, 'dbDir4'))
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -132,6 +133,7 @@ async function start() {
   child.unref()
   console.log(`PRSM 4: http://localhost:${HTTP_PORT}/prsm4.html`)
   console.log(`WebSocket: ws://localhost:${WS_PORT}; persistent rooms: ${DB_DIR}`)
+  console.log(`Help API: http://127.0.0.1:${API_PORT}`)
   console.log(`Logs: ${LOG_FILE}`)
   if (!existsSync(path.join(ROOT, 'doc/help4/doc_build/manual/Introduction.html'))) {
     console.log('The manual has not been built. Run npm run build:help4:local to enable Help.')
@@ -148,8 +150,9 @@ async function stop() {
   }
   const state = JSON.parse(readFileSync(STATE_FILE, 'utf8'))
   const status = await control(state, 'POST')
-  if (status !== 200)
+  if (status !== 200) {
     throw new Error(`PRSM 4 control endpoint rejected the stop request (${status})`)
+  }
   for (let i = 0; i < 100; i++) {
     if (!existsSync(STATE_FILE)) {
       console.log('PRSM 4 local stack stopped.')
@@ -158,6 +161,54 @@ async function stop() {
     await new Promise((resolve) => setTimeout(resolve, 100))
   }
   throw new Error(`PRSM 4 did not stop in time. See ${LOG_FILE}`)
+}
+
+/** Forward help requests to this stack's local API.
+ * @param {http.IncomingMessage} request Browser request.
+ * @param {http.ServerResponse} response Browser response.
+ * @returns {void}
+ */
+function proxyHelp(request, response) {
+  const origin = request.headers.origin
+  const allowedOrigins = [`http://localhost:${HTTP_PORT}`, `http://127.0.0.1:${HTTP_PORT}`]
+  if (origin && !allowedOrigins.includes(origin)) {
+    response.writeHead(403).end('Forbidden')
+    return
+  }
+  if (request.method !== 'POST') {
+    response.writeHead(405).end()
+    return
+  }
+  const upstream = http.request(
+    {
+      hostname: '127.0.0.1',
+      port: API_PORT,
+      path: '/api/helpAssistant',
+      method: 'POST',
+      headers: { 'content-type': request.headers['content-type'] || 'application/json' },
+    },
+    (result) => {
+      response.writeHead(result.statusCode, {
+        'content-type': result.headers['content-type'] || 'application/json',
+      })
+      result.on('error', (error) => response.destroy(error))
+      result.pipe(response)
+    }
+  )
+  upstream.on('error', (error) => {
+    console.error('Help API request failed:', error.message)
+    if (response.headersSent) {
+      response.destroy(error)
+    } else {
+      response
+        .writeHead(502, { 'content-type': 'application/json' })
+        .end(
+          JSON.stringify({ error: 'Local help API is unavailable. Check the PRSM 4 stack log.' })
+        )
+    }
+  })
+  request.on('aborted', () => upstream.destroy())
+  request.pipe(upstream)
 }
 
 /** Serve the PRSM 4 build and manual on the same origin.
@@ -180,13 +231,20 @@ async function serve(request, response, token, shutdown) {
     }
     return
   }
+  if (url.pathname === '/api/helpAssistant') {
+    proxyHelp(request, response)
+    return
+  }
   if (!['GET', 'HEAD'].includes(request.method)) {
     response.writeHead(405).end()
     return
   }
   if (url.pathname === '/') url.pathname = '/prsm4.html'
-  if (['/prsm4.html', '/table4.html'].includes(url.pathname) && !url.searchParams.has('ws')) {
-    url.searchParams.set('ws', `ws://localhost:${WS_PORT}`)
+  const isApp = url.pathname === '/prsm4.html'
+  const needsWebsocket = (isApp || url.pathname === '/table4.html') && !url.searchParams.has('ws')
+  if (needsWebsocket || (isApp && url.searchParams.get('localApi') !== '1')) {
+    if (needsWebsocket) url.searchParams.set('ws', `ws://localhost:${WS_PORT}`)
+    if (isApp) url.searchParams.set('localApi', '1')
     response.writeHead(302, { location: `${url.pathname}${url.search}` }).end()
     return
   }
@@ -215,17 +273,18 @@ async function serve(request, response, token, shutdown) {
       'cache-control': 'no-cache',
     })
     if (request.method === 'HEAD') response.end()
-    else
+    else {
       createReadStream(file)
         .on('error', (error) => response.destroy(error))
         .pipe(response)
+    }
   } catch (error) {
     if (error.code !== 'ENOENT' && error.code !== 'ENOTDIR') console.error(error)
     response.writeHead(error.code === 'ENOENT' || error.code === 'ENOTDIR' ? 404 : 500).end()
   }
 }
 
-/** Supervise the watcher and websocket server until stopped or a child fails.
+/** Supervise the watcher and local services until stopped or a child fails.
  * @returns {Promise<void>}
  */
 async function supervise() {
@@ -287,8 +346,9 @@ async function supervise() {
             process.stdout.write(`[${label}] ${data}`)
             output += data.toString()
             if (pattern.test(output)) resolve()
-            if (label === 'parcel' && /Build failed/i.test(output))
+            if (label === 'parcel' && /Build failed/i.test(output)) {
               reject(new Error('Parcel build failed'))
+            }
             output = output.slice(-4096)
           })
         }
@@ -325,6 +385,19 @@ async function supervise() {
         process.env,
         /Built in/i
       ),
+      launch(
+        'api',
+        ['api-server/src/api-server.mjs'],
+        {
+          ...process.env,
+          NODE_ENV: 'dev',
+          HOST: '127.0.0.1',
+          PORT: String(API_PORT),
+          HELP_CACHE_LOCATION:
+            process.env.HELP_CACHE_LOCATION || path.join(STATE_DIR, 'helpCache.db'),
+        },
+        /Proxy server running/
+      ),
     ])
     ready = true
     if (process.connected) process.send('ready')
@@ -336,9 +409,9 @@ async function supervise() {
 try {
   if (process.argv[2] === 'start') await start()
   else if (process.argv[2] === 'stop') await stop()
-  else if (process.argv[2] === 'supervise' && process.send && process.env.PRSM4_LOCAL_TOKEN)
+  else if (process.argv[2] === 'supervise' && process.send && process.env.PRSM4_LOCAL_TOKEN) {
     await supervise()
-  else throw new Error('Usage: node utils/prsm4-local.mjs <start|stop>')
+  } else throw new Error('Usage: node utils/prsm4-local.mjs <start|stop>')
 } catch (error) {
   console.error(error.message)
   process.exitCode = 1

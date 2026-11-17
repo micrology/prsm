@@ -104,7 +104,9 @@ let inFlightChatRequests = 0
 const MAX_IN_FLIGHT_CHAT = 10
 
 // Middleware
-app.use(cors({origin: ['https://prsm.uk', 'http://localhost', 'http://127.0.0.1']}))
+const allowedOrigins = ['https://prsm.uk', 'http://localhost', 'http://127.0.0.1']
+if (process.env.NODE_ENV === 'dev') allowedOrigins.push(/^http:\/\/(localhost|127\.0\.0\.1)(:\d{1,5})?$/)
+app.use(cors({origin: allowedOrigins}))
 app.use(express.json())
 app.use(globalLimiter)
 
@@ -955,7 +957,7 @@ async function start() {
 	await loadSecrets()
 	await initHelpCache()
 	// Start the server
-	server = app.listen(PORT, () => {
+	server = app.listen(PORT, process.env.HOST || undefined, () => {
 		console.log(
 			`Proxy server running on http://localhost:${PORT} using websocket server at ${websocket}, 
 			models ${qualityModelId} and ${cheapModelId} and 

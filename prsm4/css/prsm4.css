@@ -164,8 +164,31 @@
   padding: 0;
   flex: none;
 }
-#ai-assistant-dialog.hidden {
+#ai-assistant-container[hidden],
+.legend.assistant-covered {
   display: none;
+}
+#ai-assistant-container {
+  pointer-events: none;
+}
+#ai-assistant-launcher,
+#ai-assistant-dialog:not(.hidden) {
+  pointer-events: auto;
+}
+#ai-assistant-dialog {
+  width: min(360px, calc(100vw - 28px));
+  max-height: calc(100dvh - 100px);
+}
+#ai-assistant-messages .chat-image {
+  max-width: 100%;
+  height: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  #ai-assistant-dialog,
+  .ai-assistant-bubble,
+  .ai-assistant-icon {
+    transition: none;
+  }
 }
 .style-dialog-buttons {
   display: flex;
