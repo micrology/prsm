@@ -669,10 +669,7 @@ function startY() {
     }
     if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
     if (nodesToUpdate.length > 0 || nodesToRemove.length > 0) {
-      // if user is in mid-flight adding a Factor or Link, and someone else has changed data,
-      // vis-network will cancel the edit mode for this user.  Re-instate it.
-      if (inAddMode === 'addLink') network.addEdgeMode()
-      if (inAddMode === 'addNode') network.addNodeMode()
+      reinstateAddModeIfNeeded()
     }
     if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0)) {
       showChange(evt, yNodesMap)
@@ -722,10 +719,7 @@ function startY() {
     if (edgesToUpdate.length > 0) edges.update(edgesToUpdate, 'remote')
     if (edgesToRemove.length > 0) edges.remove(edgesToRemove, 'remote')
     if (edgesToUpdate.length > 0 || edgesToRemove.length > 0) {
-      // if user is in mid-flight adding a Factor or Link, and someone else has changed data,
-      // vis-network will cancel the edit mode for this user.  Re-instate it.
-      if (inAddMode === 'addLink') network.addEdgeMode()
-      if (inAddMode === 'addNode') network.addNodeMode()
+      reinstateAddModeIfNeeded()
     }
     if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0)) {
       showChange(evt, yEdgesMap)
@@ -1394,6 +1388,7 @@ function draw() {
   }
   network = new Network(netPane, data, options)
   window.network = network
+  preserveAddModeAcrossRemoteEdits()
   elem('zoom').value = network.getScale()
 
   // start with factor tab open, but hidden
@@ -3569,6 +3564,41 @@ function stopEdit() {
   })
   clearStatusBar()
   changeCursor('default')
+}
+/**
+ * vis-network ManipulationSystem listens for `_dataChanged` and calls `_restore()`,
+ * which runs disableEditMode() and destroys the temporary rubber-band edge used while
+ * drawing a link. Under concurrent remote edits that fires continuously, so Add Link
+ * can look active (button/cursor) while dragging never shows a control point.
+ * Keep intentional add-factor / add-link modes across remote DataSet churn.
+ */
+function preserveAddModeAcrossRemoteEdits() {
+  const manip = network.manipulation
+  const originalRestore = manip._restore.bind(manip)
+  manip._restore = () => {
+    if (inAddMode === 'addLink' || inAddMode === 'addNode') return
+    originalRestore()
+  }
+}
+/**
+ * If vis-network still dropped out of add mode, re-enter it — but only when needed.
+ * Calling addEdgeMode() while already in addEdge runs `_clean()` and wipes the
+ * in-progress rubber-band control edge, so never re-enter unnecessarily.
+ */
+function reinstateAddModeIfNeeded() {
+  if (!network) return
+  if (inAddMode === 'addLink') {
+    if (network.manipulation.inMode !== 'addEdge') {
+      network.addEdgeMode()
+      network.setOptions({
+        interaction: { dragView: false, selectable: false, dragNodes: false },
+      })
+    }
+  } else if (inAddMode === 'addNode') {
+    if (network.manipulation.inMode !== 'addNode') {
+      network.addNodeMode()
+    }
+  }
 }
 /**
  * Reset InteractionHandler drag state that may have been left over from

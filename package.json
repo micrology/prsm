@@ -60,7 +60,8 @@
     "install:all": "npm i && (cd ./doc/help && npm i) && (cd ./api-server && npm i) && (cd ./vis-network && npm i)  && (cd ./ws-server && npm i)",
     "upgrade:all": "npm upgrade && (cd ./doc/help && npm upgrade) && (cd ./api-server && npm upgrade) && (cd ./vis-network && npm upgrade) && (cd ./ws-server && npm upgrade)",
     "start:all-locally": "./utils/start-all-locally.sh",
-    "stop:all-locally": "./utils/stop-all-locally.sh"
+    "stop:all-locally": "./utils/stop-all-locally.sh",
+    "stress:prsm": "node ./utils/stress-test-prsm.mjs"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {

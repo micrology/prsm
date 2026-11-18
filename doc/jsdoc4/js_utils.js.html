@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>js/utils.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Analysis.html">Analysis</a><ul class='methods'><li data-type='method'><a href="Analysis.html#choose">choose</a></li><li data-type='method'><a href="Analysis.html#cluster">cluster</a></li><li data-type='method'><a href="Analysis.html#filter">filter</a></li><li data-type='method'><a href="Analysis.html#onChange">onChange</a></li><li data-type='method'><a href="Analysis.html#showSettings">showSettings</a></li><li data-type='method'><a href="Analysis.html#size">size</a></li><li data-type='method'><a href="Analysis.html#update">update</a></li><li data-type='method'><a href="Analysis.html#values">values</a></li></ul></li><li><a href="App.html">App</a><ul class='methods'><li data-type='method'><a href="App.html#applyViewOnly">applyViewOnly</a></li><li data-type='method'><a href="App.html#bindTitle">bindTitle</a></li><li data-type='method'><a href="App.html#closeStyleDialog">closeStyleDialog</a></li><li data-type='method'><a href="App.html#createGraph">createGraph</a></li><li data-type='method'><a href="App.html#createSidePanel">createSidePanel</a></li><li data-type='method'><a href="App.html#editStyle">editStyle</a></li><li data-type='method'><a href="App.html#initialiseNewMap">initialiseNewMap</a></li><li data-type='method'><a href="App.html#mergeRoom">mergeRoom</a></li><li data-type='method'><a href="App.html#openMap">openMap</a></li><li data-type='method'><a href="App.html#openText">openText</a></li><li data-type='method'><a href="App.html#saveGml">saveGml</a></li><li data-type='method'><a href="App.html#saveGraphXml">saveGraphXml</a></li><li data-type='method'><a href="App.html#saveGraphviz">saveGraphviz</a></li><li data-type='method'><a href="App.html#saveImage">saveImage</a></li><li data-type='method'><a href="App.html#saveMap">saveMap</a></li><li data-type='method'><a href="App.html#saveNotes">saveNotes</a></li><li data-type='method'><a href="App.html#saveSpreadsheet">saveSpreadsheet</a></li><li data-type='method'><a href="App.html#showNoServer">showNoServer</a></li><li data-type='method'><a href="App.html#waitForServer">waitForServer</a></li><li data-type='method'><a href="App.html#wireFileInput">wireFileInput</a></li></ul></li><li><a href="Badges.html">Badges</a><ul class='methods'><li data-type='method'><a href="Badges.html#draw">draw</a></li><li data-type='method'><a href="Badges.html#drawNodeBadges">drawNodeBadges</a></li><li data-type='method'><a href="Badges.html#drawThumbs">drawThumbs</a></li><li data-type='method'><a href="Badges.html#icon">icon</a></li><li data-type='method'><a href="Badges.html#isInThumbRow">isInThumbRow</a></li><li data-type='method'><a href="Badges.html#requestDraw">requestDraw</a></li><li data-type='method'><a href="Badges.html#toggleVote">toggleVote</a></li><li data-type='method'><a href="Badges.html#vote">vote</a></li></ul></li><li><a href="CP_CP.html">CP</a></li><li><a href="Collaboration.html">Collaboration</a><ul class='methods'><li data-type='method'><a href="Collaboration.html#follow">follow</a></li><li data-type='method'><a href="Collaboration.html#makeAvatar">makeAvatar</a></li><li data-type='method'><a href="Collaboration.html#movePointer">movePointer</a></li><li data-type='method'><a href="Collaboration.html#onAwareness">onAwareness</a></li><li data-type='method'><a href="Collaboration.html#onMouseMove">onMouseMove</a></li><li data-type='method'><a href="Collaboration.html#others">others</a></li><li data-type='method'><a href="Collaboration.html#place">place</a></li><li data-type='method'><a href="Collaboration.html#placeAll">placeAll</a></li><li data-type='method'><a href="Collaboration.html#refresh">refresh</a></li><li data-type='method'><a href="Collaboration.html#remember">remember</a></li><li data-type='method'><a href="Collaboration.html#rename">rename</a></li><li data-type='method'><a href="Collaboration.html#schedulePlace">schedulePlace</a></li><li data-type='method'><a href="Collaboration.html#selectEdits">selectEdits</a></li><li data-type='method'><a href="Collaboration.html#setAddingFactor">setAddingFactor</a></li><li data-type='method'><a href="Collaboration.html#setAsleep">setAsleep</a></li><li data-type='method'><a href="Collaboration.html#setName">setName</a></li><li data-type='method'><a href="Collaboration.html#showAvatars">showAvatars</a></li><li data-type='method'><a href="Collaboration.html#showGhosts">showGhosts</a></li><li data-type='method'><a href="Collaboration.html#showPointers">showPointers</a></li><li data-type='method'><a href="Collaboration.html#signature">signature</a></li><li data-type='method'><a href="Collaboration.html#syncDivs">syncDivs</a></li><li data-type='method'><a href="Collaboration.html#toScreen">toScreen</a></li><li data-type='method'><a href="Collaboration.html#toggleFollow">toggleFollow</a></li><li data-type='method'><a href="Collaboration.html#wake">wake</a></li></ul></li><li><a href="Editor.html">Editor</a><ul class='methods'><li data-type='method'><a href="Editor.html#createEdgeHandles">createEdgeHandles</a></li><li data-type='method'><a href="Editor.html#deleteSelection">deleteSelection</a></li><li data-type='method'><a href="Editor.html#destroy">destroy</a></li><li data-type='method'><a href="Editor.html#flushMoves">flushMoves</a></li><li data-type='method'><a href="Editor.html#handleKey">handleKey</a></li><li data-type='method'><a href="Editor.html#onDoubleTap">onDoubleTap</a></li><li data-type='method'><a href="Editor.html#onKey">onKey</a></li><li data-type='method'><a href="Editor.html#onLinkDrawn">onLinkDrawn</a></li><li data-type='method'><a href="Editor.html#onTap">onTap</a></li><li data-type='method'><a href="Editor.html#openInput">openInput</a></li><li data-type='method'><a href="Editor.html#queueMove">queueMove</a></li><li data-type='method'><a href="Editor.html#setMode">setMode</a></li><li data-type='method'><a href="Editor.html#startBend">startBend</a></li></ul></li><li><a href="ElementEditor.html">ElementEditor</a><ul class='methods'><li data-type='method'><a href="ElementEditor.html#buttons">buttons</a></li><li data-type='method'><a href="ElementEditor.html#close">close</a></li><li data-type='method'><a href="ElementEditor.html#colorControl">colorControl</a></li><li data-type='method'><a href="ElementEditor.html#field">field</a></li><li data-type='method'><a href="ElementEditor.html#fitLabel">fitLabel</a></li><li data-type='method'><a href="ElementEditor.html#onKey">onKey</a></li><li data-type='method'><a href="ElementEditor.html#open">open</a></li><li data-type='method'><a href="ElementEditor.html#place">place</a></li><li data-type='method'><a href="ElementEditor.html#save">save</a></li><li data-type='method'><a href="ElementEditor.html#selectControl">selectControl</a></li><li data-type='method'><a href="ElementEditor.html#sizeControl">sizeControl</a></li></ul></li><li><a href="History.html">History</a><ul class='methods'><li data-type='method'><a href="History.html#addRollback">addRollback</a></li><li data-type='method'><a href="History.html#beginStyleEdit">beginStyleEdit</a></li><li data-type='method'><a href="History.html#capture">capture</a></li><li data-type='method'><a href="History.html#copy">copy</a></li><li data-type='method'><a href="History.html#describe">describe</a></li><li data-type='method'><a href="History.html#entry">entry</a></li><li data-type='method'><a href="History.html#finishStyleEdit">finishStyleEdit</a></li><li data-type='method'><a href="History.html#fitLog">fitLog</a></li><li data-type='method'><a href="History.html#key">key</a></li><li data-type='method'><a href="History.html#log">log</a></li><li data-type='method'><a href="History.html#onTransaction">onTransaction</a></li><li data-type='method'><a href="History.html#prune">prune</a></li><li data-type='method'><a href="History.html#render">render</a></li><li data-type='method'><a href="History.html#reset">reset</a></li><li data-type='method'><a href="History.html#rollback">rollback</a></li><li data-type='method'><a href="History.html#show">show</a></li></ul></li><li><a href="Legend.html">Legend</a><ul class='methods'><li data-type='method'><a href="Legend.html#namedStyles">namedStyles</a></li><li data-type='method'><a href="Legend.html#render">render</a></li></ul></li><li><a href="Magnifier.html">Magnifier</a><ul class='methods'><li data-type='method'><a href="Magnifier.html#close">close</a></li><li data-type='method'><a href="Magnifier.html#create">create</a></li><li data-type='method'><a href="Magnifier.html#move">move</a></li></ul></li><li><a href="MapStore.html">MapStore</a><ul class='methods'><li data-type='method'><a href="MapStore.html#addAttribute">addAttribute</a></li><li data-type='method'><a href="MapStore.html#addEdge">addEdge</a></li><li data-type='method'><a href="MapStore.html#addNode">addNode</a></li><li data-type='method'><a href="MapStore.html#addStyle">addStyle</a></li><li data-type='method'><a href="MapStore.html#attributeTitles">attributeTitles</a></li><li data-type='method'><a href="MapStore.html#canLink">canLink</a></li><li data-type='method'><a href="MapStore.html#deleteStyle">deleteStyle</a></li><li data-type='method'><a href="MapStore.html#freeMembers">freeMembers</a></li><li data-type='method'><a href="MapStore.html#loadFile">loadFile</a></li><li data-type='method'><a href="MapStore.html#moveNodes">moveNodes</a></li><li data-type='method'><a href="MapStore.html#redo">redo</a></li><li data-type='method'><a href="MapStore.html#remove">remove</a></li><li data-type='method'><a href="MapStore.html#setAttributeTitle">setAttributeTitle</a></li><li data-type='method'><a href="MapStore.html#setElementStyle">setElementStyle</a></li><li data-type='method'><a href="MapStore.html#setOverrides">setOverrides</a></li><li data-type='method'><a href="MapStore.html#setSetting">setSetting</a></li><li data-type='method'><a href="MapStore.html#setStyle">setStyle</a></li><li data-type='method'><a href="MapStore.html#stamp">stamp</a></li><li data-type='method'><a href="MapStore.html#toFile">toFile</a></li><li data-type='method'><a href="MapStore.html#transact">transact</a></li><li data-type='method'><a href="MapStore.html#undo">undo</a></li><li data-type='method'><a href="MapStore.html#update">update</a></li></ul></li><li><a href="Minimap.html">Minimap</a><ul class='methods'><li data-type='method'><a href="Minimap.html#draw">draw</a></li><li data-type='method'><a href="Minimap.html#keyPan">keyPan</a></li><li data-type='method'><a href="Minimap.html#panTo">panTo</a></li><li data-type='method'><a href="Minimap.html#schedule">schedule</a></li></ul></li><li><a href="NetworkSettings.html">NetworkSettings</a><ul class='methods'><li data-type='method'><a href="NetworkSettings.html#fillLayoutMenu">fillLayoutMenu</a></li><li data-type='method'><a href="NetworkSettings.html#runLayout">runLayout</a></li><li data-type='method'><a href="NetworkSettings.html#setSnap">setSnap</a></li><li data-type='method'><a href="NetworkSettings.html#showSettings">showSettings</a></li><li data-type='method'><a href="NetworkSettings.html#snapDragged">snapDragged</a></li><li data-type='method'><a href="NetworkSettings.html#snapped">snapped</a></li></ul></li><li><a href="NotesPanel.html">NotesPanel</a><ul class='methods'><li data-type='method'><a href="NotesPanel.html#contentsOf">contentsOf</a></li><li data-type='method'><a href="NotesPanel.html#hide">hide</a></li><li data-type='method'><a href="NotesPanel.html#onChange">onChange</a></li><li data-type='method'><a href="NotesPanel.html#openWindow">openWindow</a></li><li data-type='method'><a href="NotesPanel.html#refresh">refresh</a></li><li data-type='method'><a href="NotesPanel.html#requestRefresh">requestRefresh</a></li><li data-type='method'><a href="NotesPanel.html#saveNote">saveNote</a></li><li data-type='method'><a href="NotesPanel.html#sendWindowState">sendWindowState</a></li><li data-type='method'><a href="NotesPanel.html#setReadOnly">setReadOnly</a></li><li data-type='method'><a href="NotesPanel.html#setUpPanel">setUpPanel</a></li><li data-type='method'><a href="NotesPanel.html#showDetails">showDetails</a></li><li data-type='method'><a href="NotesPanel.html#showPin">showPin</a></li><li data-type='method'><a href="NotesPanel.html#showStamp">showStamp</a></li><li data-type='method'><a href="NotesPanel.html#syncContents">syncContents</a></li><li data-type='method'><a href="NotesPanel.html#togglePin">togglePin</a></li><li data-type='method'><a href="NotesPanel.html#windowMessage">windowMessage</a></li></ul></li><li><a href="Overview.html">Overview</a><ul class='methods'><li data-type='method'><a href="Overview.html#refresh">refresh</a></li><li data-type='method'><a href="Overview.html#setReadOnly">setReadOnly</a></li></ul></li><li><a href="Palette.html">Palette</a><ul class='methods'><li data-type='method'><a href="Palette.html#apply">apply</a></li><li data-type='method'><a href="Palette.html#createContextMenu">createContextMenu</a></li><li data-type='method'><a href="Palette.html#createSwatches">createSwatches</a></li><li data-type='method'><a href="Palette.html#fitSample">fitSample</a></li><li data-type='method'><a href="Palette.html#lastStyle">lastStyle</a></li><li data-type='method'><a href="Palette.html#markUsed">markUsed</a></li><li data-type='method'><a href="Palette.html#miniGraph">miniGraph</a></li><li data-type='method'><a href="Palette.html#onChange">onChange</a></li><li data-type='method'><a href="Palette.html#openContextMenu">openContextMenu</a></li><li data-type='method'><a href="Palette.html#redraw">redraw</a></li><li data-type='method'><a href="Palette.html#refresh">refresh</a></li><li data-type='method'><a href="Palette.html#sampleLabel">sampleLabel</a></li><li data-type='method'><a href="Palette.html#selectAll">selectAll</a></li><li data-type='method'><a href="Palette.html#styleNodes">styleNodes</a></li></ul></li><li><a href="Rooms.html">Rooms</a><ul class='methods'><li data-type='method'><a href="Rooms.html#action">action</a></li><li data-type='method'><a href="Rooms.html#addToProject">addToProject</a></li><li data-type='method'><a href="Rooms.html#change">change</a></li><li data-type='method'><a href="Rooms.html#close">close</a></li><li data-type='method'><a href="Rooms.html#current">current</a></li><li data-type='method'><a href="Rooms.html#deleteProject">deleteProject</a></li><li data-type='method'><a href="Rooms.html#importList">importList</a></li><li data-type='method'><a href="Rooms.html#navigate">navigate</a></li><li data-type='method'><a href="Rooms.html#newProject">newProject</a></li><li data-type='method'><a href="Rooms.html#read">read</a></li><li data-type='method'><a href="Rooms.html#remember">remember</a></li><li data-type='method'><a href="Rooms.html#render">render</a></li><li data-type='method'><a href="Rooms.html#saveList">saveList</a></li><li data-type='method'><a href="Rooms.html#start">start</a></li><li data-type='method'><a href="Rooms.html#toggle">toggle</a></li></ul></li><li><a href="Search.html">Search</a><ul class='methods'><li data-type='method'><a href="Search.html#clearSuggestions">clearSuggestions</a></li><li data-type='method'><a href="Search.html#close">close</a></li><li data-type='method'><a href="Search.html#goTo">goTo</a></li><li data-type='method'><a href="Search.html#onKey">onKey</a></li><li data-type='method'><a href="Search.html#showSuggestions">showSuggestions</a></li><li data-type='method'><a href="Search.html#suggestion">suggestion</a></li><li data-type='method'><a href="Search.html#toggle">toggle</a></li></ul></li><li><a href="Share.html">Share</a><ul class='methods'><li data-type='method'><a href="Share.html#copy">copy</a></li><li data-type='method'><a href="Share.html#open">open</a></li><li data-type='method'><a href="Share.html#openClone">openClone</a></li><li data-type='method'><a href="Share.html#openTable">openTable</a></li></ul></li><li><a href="SidePanel.html">SidePanel</a><ul class='methods'><li data-type='method'><a href="SidePanel.html#openTab">openTab</a></li><li data-type='method'><a href="SidePanel.html#show">show</a></li><li data-type='method'><a href="SidePanel.html#toggle">toggle</a></li></ul></li><li><a href="StyleEditor.html">StyleEditor</a><ul class='methods'><li data-type='method'><a href="StyleEditor.html#addButton">addButton</a></li><li data-type='method'><a href="StyleEditor.html#attach">attach</a></li><li data-type='method'><a href="StyleEditor.html#colorRow">colorRow</a></li><li data-type='method'><a href="StyleEditor.html#deleteButton">deleteButton</a></li><li data-type='method'><a href="StyleEditor.html#editStyle">editStyle</a></li><li data-type='method'><a href="StyleEditor.html#form">form</a></li><li data-type='method'><a href="StyleEditor.html#input">input</a></li><li data-type='method'><a href="StyleEditor.html#listItem">listItem</a></li><li data-type='method'><a href="StyleEditor.html#nameRow">nameRow</a></li><li data-type='method'><a href="StyleEditor.html#render">render</a></li><li data-type='method'><a href="StyleEditor.html#renderList">renderList</a></li><li data-type='method'><a href="StyleEditor.html#row">row</a></li><li data-type='method'><a href="StyleEditor.html#schedule">schedule</a></li><li data-type='method'><a href="StyleEditor.html#selectionControls">selectionControls</a></li><li data-type='method'><a href="StyleEditor.html#selectionSection">selectionSection</a></li><li data-type='method'><a href="StyleEditor.html#setStyle">setStyle</a></li><li data-type='method'><a href="StyleEditor.html#setView">setView</a></li><li data-type='method'><a href="StyleEditor.html#stylesOf">stylesOf</a></li></ul></li><li><a href="TableView.html">TableView</a><ul class='methods'><li data-type='method'><a href="TableView.html#allRows">allRows</a></li><li data-type='method'><a href="TableView.html#arrowFor">arrowFor</a></li><li data-type='method'><a href="TableView.html#bodyRow">bodyRow</a></li><li data-type='method'><a href="TableView.html#build">build</a></li><li data-type='method'><a href="TableView.html#cell">cell</a></li><li data-type='method'><a href="TableView.html#columns">columns</a></li><li data-type='method'><a href="TableView.html#commitText">commitText</a></li><li data-type='method'><a href="TableView.html#copy">copy</a></li><li data-type='method'><a href="TableView.html#copyText">copyText</a></li><li data-type='method'><a href="TableView.html#deleteButton">deleteButton</a></li><li data-type='method'><a href="TableView.html#endEdit">endEdit</a></li><li data-type='method'><a href="TableView.html#flagBox">flagBox</a></li><li data-type='method'><a href="TableView.html#footerRow">footerRow</a></li><li data-type='method'><a href="TableView.html#footerText">footerText</a></li><li data-type='method'><a href="TableView.html#groupRow">groupRow</a></li><li data-type='method'><a href="TableView.html#groups">groups</a></li><li data-type='method'><a href="TableView.html#headerCell">headerCell</a></li><li data-type='method'><a href="TableView.html#onTransaction">onTransaction</a></li><li data-type='method'><a href="TableView.html#refreshStats">refreshStats</a></li><li data-type='method'><a href="TableView.html#render">render</a></li><li data-type='method'><a href="TableView.html#renderFilter">renderFilter</a></li><li data-type='method'><a href="TableView.html#rowBox">rowBox</a></li><li data-type='method'><a href="TableView.html#schedule">schedule</a></li><li data-type='method'><a href="TableView.html#selectAllBox">selectAllBox</a></li><li data-type='method'><a href="TableView.html#selectInput">selectInput</a></li><li data-type='method'><a href="TableView.html#setSelection">setSelection</a></li><li data-type='method'><a href="TableView.html#shownRows">shownRows</a></li><li data-type='method'><a href="TableView.html#sortBy">sortBy</a></li><li data-type='method'><a href="TableView.html#startEdit">startEdit</a></li><li data-type='method'><a href="TableView.html#swatch">swatch</a></li><li data-type='method'><a href="TableView.html#targets">targets</a></li><li data-type='method'><a href="TableView.html#textInput">textInput</a></li><li data-type='method'><a href="TableView.html#titleRow">titleRow</a></li><li data-type='method'><a href="TableView.html#titleText">titleText</a></li><li data-type='method'><a href="TableView.html#toggleFilter">toggleFilter</a></li><li data-type='method'><a href="TableView.html#visible">visible</a></li></ul></li><li><a href="Toolbar.html">Toolbar</a><ul class='methods'><li data-type='method'><a href="Toolbar.html#showDeleteState">showDeleteState</a></li><li data-type='method'><a href="Toolbar.html#showMode">showMode</a></li><li data-type='method'><a href="Toolbar.html#showUndoState">showUndoState</a></li><li data-type='method'><a href="Toolbar.html#toggleMode">toggleMode</a></li></ul></li><li><a href="Tutorial.html">Tutorial</a><ul class='methods'><li data-type='method'><a href="Tutorial.html#finish">finish</a></li><li data-type='method'><a href="Tutorial.html#move">move</a></li><li data-type='method'><a href="Tutorial.html#position">position</a></li><li data-type='method'><a href="Tutorial.html#show">show</a></li><li data-type='method'><a href="Tutorial.html#start">start</a></li><li data-type='method'><a href="Tutorial.html#startIfNeeded">startIfNeeded</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#CAPITALISED">CAPITALISED</a></li><li><a href="global.html#LABEL_PREVIEW_LENGTH">LABEL_PREVIEW_LENGTH</a></li><li><a href="global.html#PARTS">PARTS</a></li><li><a href="global.html#accumulateFrom">accumulateFrom</a></li><li><a href="global.html#addAttributes">addAttributes</a></li><li><a href="global.html#addCluster">addCluster</a></li><li><a href="global.html#addContextMenu">addContextMenu</a></li><li><a href="global.html#addEdge">addEdge</a></li><li><a href="global.html#addElement">addElement</a></li><li><a href="global.html#addExportedAttributes">addExportedAttributes</a></li><li><a href="global.html#addNode">addNode</a></li><li><a href="global.html#addVec">addVec</a></li><li><a href="global.html#adjacency">adjacency</a></li><li><a href="global.html#alertMsg">alertMsg</a></li><li><a href="global.html#appendNote">appendNote</a></li><li><a href="global.html#appendSources">appendSources</a></li><li><a href="global.html#appendText">appendText</a></li><li><a href="global.html#applyBox">applyBox</a></li><li><a href="global.html#applyChanges">applyChanges</a></li><li><a href="global.html#applyClusterView">applyClusterView</a></li><li><a href="global.html#applyCurves">applyCurves</a></li><li><a href="global.html#attributeColumns">attributeColumns</a></li><li><a href="global.html#attributes">attributes</a></li><li><a href="global.html#betweenness">betweenness</a></li><li><a href="global.html#bindClipboard">bindClipboard</a></li><li><a href="global.html#bindGraph">bindGraph</a></li><li><a href="global.html#bindSelectionStatus">bindSelectionStatus</a></li><li><a href="global.html#bindZoomControl">bindZoomControl</a></li><li><a href="global.html#borderStyleColumn">borderStyleColumn</a></li><li><a href="global.html#canConnect">canConnect</a></li><li><a href="global.html#cancelAlertMsg">cancelAlertMsg</a></li><li><a href="global.html#capitalize">capitalize</a></li><li><a href="global.html#capitalizeFirstLetter">capitalizeFirstLetter</a></li><li><a href="global.html#cellValue">cellValue</a></li><li><a href="global.html#centre">centre</a></li><li><a href="global.html#classesOf">classesOf</a></li><li><a href="global.html#clean">clean</a></li><li><a href="global.html#cleanArray">cleanArray</a></li><li><a href="global.html#cleanLocalStorage">cleanLocalStorage</a></li><li><a href="global.html#clearOfNodes">clearOfNodes</a></li><li><a href="global.html#clearStatusBar">clearStatusBar</a></li><li><a href="global.html#clusterBy">clusterBy</a></li><li><a href="global.html#clusterByLouvain">clusterByLouvain</a></li><li><a href="global.html#clusterKey">clusterKey</a></li><li><a href="global.html#collapsedMap">collapsedMap</a></li><li><a href="global.html#colorColumn">colorColumn</a></li><li><a href="global.html#colorFromText">colorFromText</a></li><li><a href="global.html#colorOpacityProperty">colorOpacityProperty</a></li><li><a href="global.html#colorPatch">colorPatch</a></li><li><a href="global.html#colorWell">colorWell</a></li><li><a href="global.html#colorWithOpacity">colorWithOpacity</a></li><li><a href="global.html#colourFor">colourFor</a></li><li><a href="global.html#compare">compare</a></li><li><a href="global.html#compileStylesheet">compileStylesheet</a></li><li><a href="global.html#components">components</a></li><li><a href="global.html#computeStats">computeStats</a></li><li><a href="global.html#connected">connected</a></li><li><a href="global.html#convertDashes">convertDashes</a></li><li><a href="global.html#convertEdge">convertEdge</a></li><li><a href="global.html#convertNode">convertNode</a></li><li><a href="global.html#convertStyles">convertStyles</a></li><li><a href="global.html#coordinate">coordinate</a></li><li><a href="global.html#copySelection">copySelection</a></li><li><a href="global.html#createColorPicker">createColorPicker</a></li><li><a href="global.html#createGraph">createGraph</a></li><li><a href="global.html#cssColumn">cssColumn</a></li><li><a href="global.html#cssDiff">cssDiff</a></li><li><a href="global.html#cubicPoint">cubicPoint</a></li><li><a href="global.html#curveFromPointer">curveFromPointer</a></li><li><a href="global.html#dashesToLineStyle">dashesToLineStyle</a></li><li><a href="global.html#decode">decode</a></li><li><a href="global.html#decodeLabel">decodeLabel</a></li><li><a href="global.html#deepCopy">deepCopy</a></li><li><a href="global.html#deepMerge">deepMerge</a></li><li><a href="global.html#defaultCurvePoints">defaultCurvePoints</a></li><li><a href="global.html#defaultEdgeStyle">defaultEdgeStyle</a></li><li><a href="global.html#defaultNodeStyle">defaultNodeStyle</a></li><li><a href="global.html#describeRecords">describeRecords</a></li><li><a href="global.html#describer">describer</a></li><li><a href="global.html#diag">diag</a></li><li><a href="global.html#displayHelp">displayHelp</a></li><li><a href="global.html#displayTitle">displayTitle</a></li><li><a href="global.html#displayValue">displayValue</a></li><li><a href="global.html#dissolveCluster">dissolveCluster</a></li><li><a href="global.html#docName">docName</a></li><li><a href="global.html#dragElement">dragElement</a></li><li><a href="global.html#edgeCurveStyle">edgeCurveStyle</a></li><li><a href="global.html#edgeElement">edgeElement</a></li><li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li><li><a href="global.html#edgeStyle">edgeStyle</a></li><li><a href="global.html#edgeStyleToCss">edgeStyleToCss</a></li><li><a href="global.html#editNote">editNote</a></li><li><a href="global.html#editValue">editValue</a></li><li><a href="global.html#editingText">editingText</a></li><li><a href="global.html#el">el</a></li><li><a href="global.html#elem">elem</a></li><li><a href="global.html#encodeHTMLEntities">encodeHTMLEntities</a></li><li><a href="global.html#equal">equal</a></li><li><a href="global.html#esc">esc</a></li><li><a href="global.html#exactTime">exactTime</a></li><li><a href="global.html#exportImage">exportImage</a></li><li><a href="global.html#exportNotes">exportNotes</a></li><li><a href="global.html#exportedAttributes">exportedAttributes</a></li><li><a href="global.html#exportedValues">exportedValues</a></li><li><a href="global.html#factorColumns">factorColumns</a></li><li><a href="global.html#factorSizeToPercent">factorSizeToPercent</a></li><li><a href="global.html#fanLayout">fanLayout</a></li><li><a href="global.html#fanLevels">fanLevels</a></li><li><a href="global.html#filterRows">filterRows</a></li><li><a href="global.html#fitDistance">fitDistance</a></li><li><a href="global.html#fitMap">fitMap</a></li><li><a href="global.html#fitWeight">fitWeight</a></li><li><a href="global.html#flagColumn">flagColumn</a></li><li><a href="global.html#footerValue">footerValue</a></li><li><a href="global.html#generateName">generateName</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#get">get</a></li><li><a href="global.html#getCSSVariable">getCSSVariable</a></li><li><a href="global.html#getChatDialogOpenRect">getChatDialogOpenRect</a></li><li><a href="global.html#getDashes">getDashes</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#getTextWidth">getTextWidth</a></li><li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li><li><a href="global.html#gexfDefinitions">gexfDefinitions</a></li><li><a href="global.html#gexfValues">gexfValues</a></li><li><a href="global.html#grabHandle">grabHandle</a></li><li><a href="global.html#graphmlValues">graphmlValues</a></li><li><a href="global.html#groupBy">groupBy</a></li><li><a href="global.html#hasNote">hasNote</a></li><li><a href="global.html#heading">heading</a></li><li><a href="global.html#hexToRgba">hexToRgba</a></li><li><a href="global.html#htmlEntities">htmlEntities</a></li><li><a href="global.html#hueOf">hueOf</a></li><li><a href="global.html#humanSize">humanSize</a></li><li><a href="global.html#identity">identity</a></li><li><a href="global.html#imageViewport">imageViewport</a></li><li><a href="global.html#in_degree">in_degree</a></li><li><a href="global.html#initialiseClone">initialiseClone</a></li><li><a href="global.html#initials">initials</a></li><li><a href="global.html#invertColor">invertColor</a></li><li><a href="global.html#isCluster">isCluster</a></li><li><a href="global.html#isEmpty">isEmpty</a></li><li><a href="global.html#isObject">isObject</a></li><li><a href="global.html#isPlainObject">isPlainObject</a></li><li><a href="global.html#isQuillEmpty">isQuillEmpty</a></li><li><a href="global.html#isReadOnly">isReadOnly</a></li><li><a href="global.html#jLouvain">jLouvain</a></li><li><a href="global.html#joinNames">joinNames</a></li><li><a href="global.html#label">label</a></li><li><a href="global.html#labelKey">labelKey</a></li><li><a href="global.html#layoutPositions">layoutPositions</a></li><li><a href="global.html#legacyToV2">legacyToV2</a></li><li><a href="global.html#lightOrDark">lightOrDark</a></li><li><a href="global.html#linkColumns">linkColumns</a></li><li><a href="global.html#list">list</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#loadUser">loadUser</a></li><li><a href="global.html#lowerFirstLetter">lowerFirstLetter</a></li><li><a href="global.html#makeAIAssistantFabDraggable">makeAIAssistantFabDraggable</a></li><li><a href="global.html#makeColor">makeColor</a></li><li><a href="global.html#makeFile">makeFile</a></li><li><a href="global.html#makeNode">makeNode</a></li><li><a href="global.html#makeResizeable">makeResizeable</a></li><li><a href="global.html#mapData">mapData</a></li><li><a href="global.html#marginOf">marginOf</a></li><li><a href="global.html#measureDeviation">measureDeviation</a></li><li><a href="global.html#mergeMap">mergeMap</a></li><li><a href="global.html#mergeTranspose">mergeTranspose</a></li><li><a href="global.html#modifiedColumn">modifiedColumn</a></li><li><a href="global.html#mostFrequent">mostFrequent</a></li><li><a href="global.html#mostFrequentString">mostFrequentString</a></li><li><a href="global.html#nameOf">nameOf</a></li><li><a href="global.html#nativeWell">nativeWell</a></li><li><a href="global.html#nodeCss">nodeCss</a></li><li><a href="global.html#nodeElement">nodeElement</a></li><li><a href="global.html#nodeFormatColumns">nodeFormatColumns</a></li><li><a href="global.html#nodeStyle">nodeStyle</a></li><li><a href="global.html#nodeStyleToCss">nodeStyleToCss</a></li><li><a href="global.html#normaliseLegacy">normaliseLegacy</a></li><li><a href="global.html#normaliseLegacyStrings">normaliseLegacyStrings</a></li><li><a href="global.html#normalizeColor">normalizeColor</a></li><li><a href="global.html#normalizeMapShapes">normalizeMapShapes</a></li><li><a href="global.html#normalizeShape">normalizeShape</a></li><li><a href="global.html#note">note</a></li><li><a href="global.html#noteText">noteText</a></li><li><a href="global.html#notesColumn">notesColumn</a></li><li><a href="global.html#notesDelta">notesDelta</a></li><li><a href="global.html#number">number</a></li><li><a href="global.html#objectEquals">objectEquals</a></li><li><a href="global.html#onAddingFactor">onAddingFactor</a></li><li><a href="global.html#onCommit">onCommit</a></li><li><a href="global.html#onEditStyle">onEditStyle</a></li><li><a href="global.html#onError">onError</a></li><li><a href="global.html#onInput">onInput</a></li><li><a href="global.html#onMode">onMode</a></li><li><a href="global.html#onOpenFile">onOpenFile</a></li><li><a href="global.html#onlyUnloggedChanges">onlyUnloggedChanges</a></li><li><a href="global.html#openAIAsstDialog">openAIAsstDialog</a></li><li><a href="global.html#options">options</a></li><li><a href="global.html#out_degree">out_degree</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseMapText">parseMapText</a></li><li><a href="global.html#parseXml">parseXml</a></li><li><a href="global.html#passes">passes</a></li><li><a href="global.html#pasteSelection">pasteSelection</a></li><li><a href="global.html#pathsBetween">pathsBetween</a></li><li><a href="global.html#placeMembers">placeMembers</a></li><li><a href="global.html#placeholderName">placeholderName</a></li><li><a href="global.html#plainNodes">plainNodes</a></li><li><a href="global.html#positionsOf">positionsOf</a></li><li><a href="global.html#pushnew">pushnew</a></li><li><a href="global.html#quadPoint">quadPoint</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#random">random</a></li><li><a href="global.html#randomColour">randomColour</a></li><li><a href="global.html#reach">reach</a></li><li><a href="global.html#reachable">reachable</a></li><li><a href="global.html#readCSV">readCSV</a></li><li><a href="global.html#readEdge">readEdge</a></li><li><a href="global.html#readGexf">readGexf</a></li><li><a href="global.html#readGml">readGml</a></li><li><a href="global.html#readGraphXml">readGraphXml</a></li><li><a href="global.html#readGraphml">readGraphml</a></li><li><a href="global.html#readGraphviz">readGraphviz</a></li><li><a href="global.html#readMapFile">readMapFile</a></li><li><a href="global.html#readMergeRoom">readMergeRoom</a></li><li><a href="global.html#readNode">readNode</a></li><li><a href="global.html#readOnly">readOnly</a></li><li><a href="global.html#readSpreadsheet">readSpreadsheet</a></li><li><a href="global.html#rebase">rebase</a></li><li><a href="global.html#rectsOverlap">rectsOverlap</a></li><li><a href="global.html#redirectToRoom">redirectToRoom</a></li><li><a href="global.html#releaseAll">releaseAll</a></li><li><a href="global.html#renameUser">renameUser</a></li><li><a href="global.html#requestHelp">requestHelp</a></li><li><a href="global.html#resolve">resolve</a></li><li><a href="global.html#rgbIsLight">rgbIsLight</a></li><li><a href="global.html#rgbToArray">rgbToArray</a></li><li><a href="global.html#rgba">rgba</a></li><li><a href="global.html#roomFromUrl">roomFromUrl</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#rows">rows</a></li><li><a href="global.html#runExtension">runExtension</a></li><li><a href="global.html#sameValue">sameValue</a></li><li><a href="global.html#seededRandom">seededRandom</a></li><li><a href="global.html#selectionMessage">selectionMessage</a></li><li><a href="global.html#serverUrl">serverUrl</a></li><li><a href="global.html#set">set</a></li><li><a href="global.html#setAlertDuration">setAlertDuration</a></li><li><a href="global.html#setCollapsed">setCollapsed</a></li><li><a href="global.html#setEdgeHidden">setEdgeHidden</a></li><li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li><li><a href="global.html#setFactorSizeFromPercent">setFactorSizeFromPercent</a></li><li><a href="global.html#setIntersection">setIntersection</a></li><li><a href="global.html#setNodeHidden">setNodeHidden</a></li><li><a href="global.html#shapeName">shapeName</a></li><li><a href="global.html#shapeOverride">shapeOverride</a></li><li><a href="global.html#shapePatch">shapePatch</a></li><li><a href="global.html#shortLabel">shortLabel</a></li><li><a href="global.html#shorten">shorten</a></li><li><a href="global.html#shortestPaths">shortestPaths</a></li><li><a href="global.html#showTitle">showTitle</a></li><li><a href="global.html#smoothToCurve">smoothToCurve</a></li><li><a href="global.html#solve">solve</a></li><li><a href="global.html#sortKey">sortKey</a></li><li><a href="global.html#sortRows">sortRows</a></li><li><a href="global.html#splitText">splitText</a></li><li><a href="global.html#standardizeColor">standardizeColor</a></li><li><a href="global.html#statColumns">statColumns</a></li><li><a href="global.html#statusMsg">statusMsg</a></li><li><a href="global.html#string">string</a></li><li><a href="global.html#strip">strip</a></li><li><a href="global.html#stripArray">stripArray</a></li><li><a href="global.html#stripNL">stripNL</a></li><li><a href="global.html#styleAction">styleAction</a></li><li><a href="global.html#styleColumn">styleColumn</a></li><li><a href="global.html#styleId">styleId</a></li><li><a href="global.html#styleName">styleName</a></li><li><a href="global.html#styleNumber">styleNumber</a></li><li><a href="global.html#subVec">subVec</a></li><li><a href="global.html#subtract">subtract</a></li><li><a href="global.html#sumVec">sumVec</a></li><li><a href="global.html#summariseLinks">summariseLinks</a></li><li><a href="global.html#suspendBoxSelection">suspendBoxSelection</a></li><li><a href="global.html#symmetricCurvePoints">symmetricCurvePoints</a></li><li><a href="global.html#syncCommon">syncCommon</a></li><li><a href="global.html#syncEdge">syncEdge</a></li><li><a href="global.html#syncNode">syncNode</a></li><li><a href="global.html#syncSettings">syncSettings</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#thumbBounds">thumbBounds</a></li><li><a href="global.html#timeAndDate">timeAndDate</a></li><li><a href="global.html#toElements">toElements</a></li><li><a href="global.html#toHex">toHex</a></li><li><a href="global.html#toRecords">toRecords</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#transpose">transpose</a></li><li><a href="global.html#trophicLayout">trophicLayout</a></li><li><a href="global.html#trophicLevels">trophicLevels</a></li><li><a href="global.html#trophicPositions">trophicPositions</a></li><li><a href="global.html#undirected">undirected</a></li><li><a href="global.html#useColorPicker">useColorPicker</a></li><li><a href="global.html#uuidv4">uuidv4</a></li><li><a href="global.html#validList">validList</a></li><li><a href="global.html#validateFile">validateFile</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#visVia">visVia</a></li><li><a href="global.html#visibleFactors">visibleFactors</a></li><li><a href="global.html#waitForCopy">waitForCopy</a></li><li><a href="global.html#waitForSync">waitForSync</a></li><li><a href="global.html#withRelativeSize">withRelativeSize</a></li><li><a href="global.html#writeGml">writeGml</a></li><li><a href="global.html#writeGraphXml">writeGraphXml</a></li><li><a href="global.html#writeGraphviz">writeGraphviz</a></li><li><a href="global.html#writeMapFile">writeMapFile</a></li><li><a href="global.html#writeSpreadsheet">writeSpreadsheet</a></li><li><a href="global.html#zero">zero</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">js/utils.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*********************************************************************************************************************  
+
+PRSM Participatory System Mapper 
+
+	Copyright (C) 2022  Nigel Gilbert prsm@prsm.uk
+
+This software is licenced under the PolyForm Noncommercial License 1.0.0
+
+&lt;https://polyformproject.org/licenses/noncommercial/1.0.0>
+
+See the file LICENSE.md for details.
+
+This module provides a set of utility functions used widely within the PRSM code.  
+**********************************************************************************************************************/
+
+import iro from '@jaames/iro'
+
+const MANUALURL = './doc/help/doc_build/manual/Introduction.html'
+/**
+ * attach an event listener
+ *
+ * @param {string} id - id of the element on which to hang the event listener
+ * @param {string} event
+ * @param {function} callback
+ * @param {object} options
+ * @returns {void}
+ */
+export function listen(id, event, callback, options) {
+  elem(id).addEventListener(event, callback, options)
+}
+
+/**
+ * return the HTML element with the id
+ * @param {string} id
+ * @returns {HTMLElement|null} The matching element, if present.
+ */
+export function elem(id) {
+  return document.getElementById(id)
+}
+
+/**
+ * Add an item to an array if it doesn't already exist
+ * @param {Array} array - the array to add to
+ * @param {any} item - the item to add
+ * @returns {Array} the updated array
+ */
+export function pushnew(array, item) {
+  if (array) {
+    if (!array.includes(item)) array.push(item)
+  } else array = [item]
+  return array
+}
+
+/**
+ * Create a random scale free network, used only for testing and demoing
+ * Taken from the vis-network distribution
+ *
+ * Created by Alex on 5/20/2015.
+ * @param {number} nodeCount Number of nodes to generate.
+ * @returns {{nodes: Array&lt;object>, edges: Array&lt;object>}} Generated graph.
+ */
+export function getScaleFreeNetwork(nodeCount) {
+  const nodes = []
+  const edges = []
+  const connectionCount = []
+
+  // randomly create some nodes and edges
+  for (let i = 0; i &lt; nodeCount; i++) {
+    nodes.push({
+      id: String(i),
+      label: String(i),
+      grp: 'group0',
+      value: 1,
+    })
+
+    connectionCount[i] = 0
+
+    // create edges in a scale-free-network way
+    if (i === 1) {
+      const from = i
+      const to = 0
+      edges.push({
+        from: from.toString(),
+        to: to.toString(),
+        grp: 'edge0',
+      })
+      connectionCount[from]++
+      connectionCount[to]++
+    } else if (i > 1) {
+      const conn = edges.length * 2
+      const rand = Math.floor(seededRandom() * conn)
+      let cum = 0
+      let j = 0
+      while (j &lt; connectionCount.length &amp;&amp; cum &lt; rand) {
+        cum += connectionCount[j]
+        j++
+      }
+
+      const from = i
+      const to = j
+      edges.push({
+        from: from.toString(),
+        to: to.toString(),
+        grp: 'edge0',
+      })
+      connectionCount[from]++
+      connectionCount[to]++
+    }
+  }
+
+  return {
+    nodes,
+    edges,
+  }
+}
+
+let randomSeed = 764 // Math.round(Math.random()*1000)
+
+/**
+ * Generate a seeded random number
+ * @returns {number} a random number between 0 and 1                                           ...
+ */
+function seededRandom() {
+  const x = Math.sin(randomSeed++) * 10000
+  return x - Math.floor(x)
+}
+
+/**
+ * return a GUID
+ * @returns {string} Random UUID.
+ */
+export function uuidv4() {
+  return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
+    (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] &amp; (15 >> (c / 4)))).toString(16)
+  )
+}
+/**
+ * return true if obj has no properties, i.e. is {}
+ * @param {Object} obj
+ * @returns {boolean} Whether the object has no own properties.
+ */
+export function isEmpty(obj) {
+  for (const p in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, p)) return false
+  }
+  return true
+}
+/**
+ * Deep merge two or more objects together.
+ * (c) 2019 Chris Ferdinandi, MIT License, https://gomakethings.com
+ * if two objects have the same property, the value of the second one is used
+ * @param {...Object} objects The objects to merge together.
+ * @returns {Object}            A new, merged, object
+ */
+export function deepMerge() {
+  // Setup merged object
+  const newObj = {}
+
+  // Merge the object into the newObj object
+  /**
+   * Merge an object's own properties into the accumulated result.
+   * @param {Object} obj Object to merge.
+   * @returns {void}
+   */
+  function merge(obj) {
+    for (const prop in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, prop)) {
+        // If property is an object, merge properties
+        if (Object.prototype.toString.call(obj[prop]) === '[object Object]') {
+          newObj[prop] = deepMerge(newObj[prop], obj[prop])
+        } else {
+          newObj[prop] = obj[prop]
+        }
+      }
+    }
+  }
+
+  // Loop through each object and conduct a merge
+  for (let i = 0; i &lt; arguments.length; i++) {
+    merge(arguments[i])
+  }
+
+  return newObj
+}
+
+/**
+ * returns a deep copy of the object
+ * original replaced by new built-in
+ * @param {Object} obj
+ * @returns {Object} Cloned object.
+ */
+export function deepCopy(obj) {
+  /* 	if (typeof obj !== 'object' || obj === null) {
+		return obj
+	}
+	if (obj instanceof Array) {
+		return obj.reduce((arr, item, i) => {
+			arr[i] = deepCopy(item)
+			return arr
+		}, [])
+	}
+	if (obj instanceof Object) {
+		return Object.keys(obj).reduce((newObj, key) => {
+			newObj[key] = deepCopy(obj[key])
+			return newObj
+		}, {})
+	} */
+  return structuredClone(obj)
+}
+window.deepCopy = deepCopy
+/**
+ * compare two objects for deep equality
+ * fast but doesn't cater for obscure cases
+ * adapted from https://stackoverflow.com/questions/1068834/object-comparison-in-javascript
+ * @param {Object} x
+ * @param {Object} y
+ * @returns {boolean} Whether the values are deeply equal.
+ */
+export function objectEquals(x, y) {
+  if (x === y) return true
+  // if both x and y are null or undefined and exactly the same
+
+  if (!(x instanceof Object) || !(y instanceof Object)) return false
+  // if they are not strictly equal, they both need to be Objects
+
+  if (x.constructor !== y.constructor) return false
+  // they must have the exact same prototype chain, the closest we can do is
+  // test their constructor.
+
+  for (const p in x) {
+    if (!Object.prototype.hasOwnProperty.call(x, p)) continue
+    // other properties were tested using x.constructor === y.constructor
+
+    if (!Object.prototype.hasOwnProperty.call(y, p)) return false
+    // allows to compare x[ p ] and y[ p ] when set to undefined
+
+    if (x[p] === y[p]) continue
+    // if they have the same strict value or identity then they are equal
+
+    if (typeof x[p] !== 'object') return false
+    // Numbers, Strings, Functions, Booleans must be strictly equal
+
+    if (!objectEquals(x[p], y[p])) return false
+    // Objects and Arrays must be tested recursively
+  }
+
+  for (const p in y) {
+    if (Object.prototype.hasOwnProperty.call(y, p) &amp;&amp; !Object.prototype.hasOwnProperty.call(x, p)) {
+      return false
+    }
+  }
+  // allows x[ p ] to be set to undefined
+
+  return true
+}
+window.objectEquals = objectEquals
+/**
+ * return a copy of an object, with the properties in the object propsToRemove removed
+ * @param {Object} source
+ * @param {Object} propsToRemove
+ * @returns {Object} Copy without the specified properties.
+ */
+export function clean(source, propsToRemove) {
+  const out = {}
+  for (const key in source) {
+    if (!(key in propsToRemove)) out[key] = source[key]
+  }
+  return out
+}
+/**
+ * remove the given properties from all the objects in the array
+ * @param {Array} arr array of objects
+ * @param {Object} propsToRemove Object whose keys are removed.
+ * @returns {Array} Copies with those properties removed.
+ */
+export function cleanArray(arr, propsToRemove) {
+  return arr.map((item) => {
+    return clean(item, propsToRemove)
+  })
+}
+/**
+ * return a copy of an object that only includes the properties that are in allowed
+ * @param {Object} obj the object to copy
+ * @param {array} allowed list of allowed properties
+ * @returns {Object} Copy containing the requested properties.
+ */
+export function strip(obj, allowed) {
+  return allowed.reduce((a, e) => {
+    a[e] = obj[e]
+    return a
+  }, {})
+}
+/**
+ * return an array of objects, each stripped to only include the allowed properties
+ * @param {array} arr
+ * @param {array} allowed
+ * @returns {array} array of stripped objects
+ */
+export function stripArray(arr, allowed) {
+  return arr.map((item) => strip(item, allowed))
+}
+/**
+ * divide txt into lines to make it roughly square, with a
+ * maximum width of width characters, but not breaking words and
+ * respecting embedded line breaks (\n).
+ * @param {string} txt
+ * @param {number} width
+ * @returns {string} the split text
+ */
+export function splitText(txt, width = 10) {
+  let lines = ''
+  const chunks = txt.trim().split('\n')
+  chunks.forEach((chunk) => {
+    const words = chunk.trim().split(/\s/)
+    const nChars = chunk.trim().length
+    if (nChars > 2 * width) width = Math.floor(Math.sqrt(nChars))
+
+    for (let i = 0, linelength = 0; i &lt; words.length; i++) {
+      lines += words[i]
+      if (i === words.length - 1) break
+      linelength += words[i].length
+      if (linelength > width) {
+        lines += '\n'
+        linelength = 0
+      } else lines += ' '
+    }
+    lines += '\n'
+  })
+  return lines.trim()
+}
+/**
+ * Performs intersection operation between called set and otherSet
+ * @param {Set} thisSet First set.
+ * @param {Set} otherSet
+ * @returns {Set}
+ */
+export function setIntersection(thisSet, otherSet) {
+  const intersectionSet = new Set()
+  for (const el of otherSet) if (thisSet.has(el)) intersectionSet.add(el)
+  return intersectionSet
+}
+/**
+ * Find the most frequent string in an array.
+ * @param {array} arr array of strings
+ * @returns {string|null} Most frequent value, or null for an empty array.
+ */
+export function mostFrequentString(arr) {
+  if (!arr.length) return null // handle empty array
+
+  const counts = new Map()
+
+  // Count occurrences
+  for (const str of arr) {
+    counts.set(str, (counts.get(str) || 0) + 1)
+  }
+
+  // Find the highest frequency
+  const maxCount = Math.max(...counts.values())
+
+  // Collect all strings with that frequency
+  const mostFrequent = [...counts.entries()]
+    .filter(([, count]) => count === maxCount)
+    .map(([str]) => str)
+
+  // Pick one at random if there are ties
+  const randomIndex = Math.floor(Math.random() * mostFrequent.length)
+  return mostFrequent[randomIndex]
+}
+/**
+ * Convert a factor size into a percent (with any size below 30 as zero), for the input range slider
+ * @param {Integer} size
+ * @returns {Integer} percent
+ */
+export function factorSizeToPercent(size) {
+  const fSize = (size - 20) / 2.5
+  return isNaN(fSize) || fSize &lt; 30 ? 0 : fSize
+}
+/**
+ * Set the factor size according to the input range slider value (less then 5% is treated as the normal size)
+ * @param {object} node
+ * @param {integer} percent
+ * @returns {void}
+ */
+export function setFactorSizeFromPercent(node, percent) {
+  if (percent &lt; 5) {
+    if (node.widthConstraint?.minimum || node.heightConstraint?.minimum) return
+    node.size = 25
+    node.heightConstraint = node.widthConstraint = false
+  } else {
+    node.heightConstraint = node.widthConstraint = node.size = percent * 2.5 + 20
+  }
+}
+/**
+ * convert from style object properties to dashed border menu selection
+ * @param {any} bDashes select menu value
+ * @param {number} bWidth border width
+ * @returns {string|null} Dash menu value, or null if unrecognized.
+ */
+export function getDashes(bDashes, bWidth) {
+  if (bWidth === 0) return 'none'
+  if (bDashes === false) return 'solid'
+  if (bDashes === true) return 'dashed'
+  if (Array.isArray(bDashes)) {
+    if (bDashes[0] === 10) return 'dashedLinks'
+    return 'dots'
+  }
+  return null
+}
+/**
+ * Convert from dashed menu selection to style object properties
+ * @param {string} val
+ * @returns {boolean|number[]} Dash setting.
+ */
+export function convertDashes(val) {
+  switch (val) {
+    case 'dashed': // dashes [5,15] for node borders
+      return true
+    case 'dashedLinks': // dashes for links
+      return [10, 10]
+    case 'solid': // solid
+      return false
+    case 'none': //solid, zero width
+      return false
+    case 'dots':
+      return [2, 8]
+    default:
+      return false
+  }
+}
+/**
+ * allow user to drag the element that has a header element that acts as the handle
+ * @param {HTMLElement} el
+ * @param {HTMLElement} header
+ * @returns {void}
+ */
+export function dragElement(el, header) {
+  let isDragging = false
+  let startPosX = 0
+  let startPosY = 0
+  let lastPosX = 0
+  let lastPosY = 0
+  let width = 0
+  let height = 0
+
+  /**
+   * Start dragging from a non-interactive part of the header.
+   * @param {PointerEvent} ev Pointer event.
+   * @returns {void}
+   */
+  function onPointerDown(ev) {
+    // Don't start dragging if clicking on interactive button elements
+    const target = ev.target
+    // Check if the target or any of its ancestors (up to the header) has the interactiveButton class
+    let element = target
+    while (element &amp;&amp; element !== header) {
+      if (element.classList &amp;&amp; element.classList.contains('interactiveButton')) {
+        return // Don't start dragging
+      }
+      element = element.parentElement
+    }
+    // Start dragging (allow clicking on header or any of its children)
+    isDragging = true
+    startPosX = ev.clientX
+    startPosY = ev.clientY
+    lastPosX = el.offsetLeft
+    lastPosY = el.offsetTop
+    width = el.offsetWidth
+    height = el.offsetHeight
+    header.setPointerCapture(ev.pointerId)
+    el.style.cursor = 'move'
+  }
+
+  /**
+   * Move the dragged element within the viewport.
+   * @param {PointerEvent} ev Pointer event.
+   * @returns {void}
+   */
+  function onPointerMove(ev) {
+    if (!isDragging) return
+
+    // Calculate delta from start position
+    const deltaX = ev.clientX - startPosX
+    const deltaY = ev.clientY - startPosY
+
+    // Calculate new position with boundary constraints
+    let posX = lastPosX + deltaX
+    if (posX &lt; 0) posX = 0
+    if (posX > window.innerWidth - width) posX = window.innerWidth - width
+
+    let posY = lastPosY + deltaY
+    if (posY &lt; 0) posY = 0
+    if (posY > window.innerHeight - height) posY = window.innerHeight - height
+
+    // Move element to new position
+    el.style.left = posX + 'px'
+    el.style.top = posY + 'px'
+  }
+
+  /**
+   * End a drag and release pointer capture.
+   * @param {PointerEvent} ev Pointer event.
+   * @returns {void}
+   */
+  function onPointerUp(ev) {
+    if (!isDragging) return
+    isDragging = false
+    el.style.cursor = 'auto'
+    header.releasePointerCapture(ev.pointerId)
+  }
+
+  /**
+   * Cancel a drag and release pointer capture.
+   * @param {PointerEvent} ev Pointer event.
+   * @returns {void}
+   */
+  function onPointerCancel(ev) {
+    if (!isDragging) return
+    isDragging = false
+    el.style.cursor = 'auto'
+    header.releasePointerCapture(ev.pointerId)
+  }
+
+  header.addEventListener('pointerdown', onPointerDown)
+  header.addEventListener('pointermove', onPointerMove)
+  header.addEventListener('pointerup', onPointerUp)
+  header.addEventListener('pointercancel', onPointerCancel)
+}
+/**
+ * Create a context menu that pops up when elem is right clicked
+ * NB:  Use something like addEventListener('pointerdown', (event) => {
+ *        if (event.button === 2) { addContextMenu(elem, menu)
+ * }})
+ * to run this.
+ *
+ * @param {HTMLElement} elem click this to get a context menu
+ * @param {array} menu array of menu options: ([{label: string, action: function to call when this option selected} {...}])
+ * @returns {void}
+ */
+export function addContextMenu(elem, menu) {
+  const menuEl = document.createElement('div')
+  menuEl.classList.add('context-menu')
+  document.body.appendChild(menuEl)
+
+  /**
+   * Remove the context menu and its outside-click listener.
+   * @returns {void}
+   */
+  const removeMenu = () => {
+    if (menuEl.parentNode) {
+      document.body.removeChild(menuEl)
+    }
+    document.removeEventListener('click', handleClickOutside)
+  }
+
+  /**
+   * Dismiss the context menu when clicking outside it.
+   * @param {MouseEvent} event Click event.
+   * @returns {void}
+   */
+  const handleClickOutside = (event) => {
+    if (!menuEl.contains(event.target)) {
+      removeMenu()
+    }
+  }
+  // Handler for clicks on a menu item
+  elem.addEventListener('contextmenu', (event) => {
+    event.preventDefault()
+    const { clientX: mouseX, clientY: mouseY } = event
+    const posX =
+      window.innerWidth - mouseX &lt; menuEl.offsetWidth + 4
+        ? window.innerWidth - menuEl.offsetWidth - 4
+        : mouseX
+    const posY =
+      window.innerHeight - mouseY &lt; menuEl.offsetHeight + 4
+        ? window.innerHeight - menuEl.offsetHeight - 4
+        : mouseY
+    menuEl.style.top = `${posY}px`
+    menuEl.style.left = `${posX}px`
+    menuEl.classList.remove('visible')
+    setTimeout(() => {
+      menuEl.classList.add('visible')
+      // Attach click listener after menu becomes visible
+      document.addEventListener('click', handleClickOutside)
+    })
+  })
+
+  menu.forEach((item) => {
+    const { label, action } = item
+    const option = document.createElement('div')
+    option.classList.add('item')
+    option.innerHTML = label
+    option.addEventListener('click', () => {
+      removeMenu()
+      action()
+    })
+    option.addEventListener('contextmenu', (event) => event.preventDefault())
+    menuEl.appendChild(option)
+  })
+}
+
+const SEA_CREATURES = Object.freeze([
+  'walrus',
+  'seal',
+  'fish',
+  'shark',
+  'clam',
+  'coral',
+  'whale',
+  'crab',
+  'lobster',
+  'starfish',
+  'eel',
+  'dolphin',
+  'squid',
+  'jellyfish',
+  'ray',
+  'shrimp',
+  'herring',
+  'angler',
+  'mackerel',
+  'salmon',
+  'urchin',
+  'anemone',
+  'morel',
+  'axolotl',
+  'blobfish',
+  'tubeworm',
+  'seabream',
+  'seaweed',
+  'anchovy',
+  'cod',
+  'barramundi',
+  'carp',
+  'crayfish',
+  'haddock',
+  'hake',
+  'octopus',
+  'plaice',
+  'sardine',
+  'skate',
+  'sturgeon',
+  'swordfish',
+  'whelk',
+])
+
+const ADJECTIVES = Object.freeze([
+  'cute',
+  'adorable',
+  'lovable',
+  'happy',
+  'sandy',
+  'bubbly',
+  'friendly',
+  'drifting',
+  'huge',
+  'big',
+  'small',
+  'giant',
+  'massive',
+  'tiny',
+  'nippy',
+  'odd',
+  'perfect',
+  'rude',
+  'wonderful',
+  'agile',
+  'beautiful',
+  'bossy',
+  'candid',
+  'carnivorous',
+  'clever',
+  'cold',
+  'cold-blooded',
+  'colorful',
+  'cuddly',
+  'curious',
+  'cute',
+  'dangerous',
+  'deadly',
+  'domestic',
+  'dominant',
+  'energetic',
+  'fast',
+  'feisty',
+  'ferocious',
+  'fierce',
+  'fluffy',
+  'friendly',
+  'furry',
+  'fuzzy',
+  'grumpy',
+  'hairy',
+  'heavy',
+  'herbivorous',
+  'jealous',
+  'large',
+  'lazy',
+  'loud',
+  'lovable',
+  'loving',
+  'malicious',
+  'maternal',
+  'mean',
+  'messy',
+  'nocturnal',
+  'noisy',
+  'nosy',
+  'picky',
+  'playful',
+  'poisonous',
+  'quick',
+  'rough',
+  'sassy',
+  'scaly',
+  'short',
+  'shy',
+  'slimy',
+  'slow',
+  'small',
+  'smart',
+  'smelly',
+  'soft',
+  'spikey',
+  'stinky',
+  'strong',
+  'stubborn',
+  'submissive',
+  'tall',
+  'tame',
+  'tenacious',
+  'territorial',
+  'tiny',
+  'vicious',
+  'warm',
+  'wild',
+])
+
+const colors = [
+  '#00ffff',
+  '#f0ffff',
+  '#f5f5dc',
+  '#0000ff',
+  '#a52a2a',
+  '#00008b',
+  '#008b8b',
+  '#a9a9a9',
+  '#006400',
+  '#bdb76b',
+  '#8b008b',
+  '#556b2f',
+  '#ff8c00',
+  '#9932cc',
+  '#8b0000',
+  '#e9967a',
+  '#9400d3',
+  '#ff00ff',
+  '#ffd700',
+  '#008000',
+  '#4b0082',
+  '#f0e68c',
+  '#add8e6',
+  '#e0ffff',
+  '#90ee90',
+  '#d3d3d3',
+  '#ffb6c1',
+  '#ffffe0',
+  '#00ff00',
+  '#ff00ff',
+  '#800000',
+  '#000080',
+  '#808000',
+  '#ffa500',
+  '#ffc0cb',
+  '#800080',
+  '#ff0000',
+  '#c0c0c0',
+  '#ffff00',
+]
+
+/**
+ * Pick a random item from an array.
+ * @param {Array} items Choices.
+ * @returns {*} Selected item.
+ */
+const random = (items) => items[(Math.random() * items.length) | 0]
+
+/**
+ * Determine whether the RGB color is light or not
+ * http://www.w3.org/TR/AERT#color-contrast
+ * @param  {number}  r               Red
+ * @param  {number}  g               Green
+ * @param  {number}  b               Blue
+ * @param  {number}  differencePoint
+ * @return {boolean}
+ */
+export const rgbIsLight = (r, g, b, differencePoint = 128) =>
+  (r * 299 + g * 587 + b * 114) / 1000 >= differencePoint
+
+/**
+ * return a random colour, with a flag to show whether the color is light or dark,
+ *  to suggest whether text applied should be white or black
+ * @returns {Object} {color: string, isLight: boolean}
+ */
+function randomColour() {
+  const color = random(colors)
+  const rgb = color.replace('#', '')
+  return {
+    color,
+    isLight: rgbIsLight(
+      parseInt(rgb.substring(0, 2), 16),
+      parseInt(rgb.substring(2, 4), 16),
+      parseInt(rgb.substring(4, 6), 16),
+      128
+    ),
+  }
+}
+/**
+ * return the value of a CSS Variable, such as --primary-color
+ * @param {string} varName name of a CSS variable defined in the HTML body element
+ * @returns {string} the value of the CSS variable
+ */
+export function getCSSVariable(varName) {
+  return window.getComputedStyle(document.body).getPropertyValue(varName)
+}
+
+/**
+ * Capitalize the first character of a nonempty string.
+ * @param {string} string Text to capitalize.
+ * @returns {string} Capitalized text.
+ */
+const capitalize = (string) => string[0].toUpperCase() + string.slice(1)
+
+/**
+ * return a random fancy name for an avatar, with a random colour
+ * @returns {object} Anonymous user name, colour and initial presence state.
+ */
+export function generateName() {
+  const name = capitalize(random(ADJECTIVES)) + ' ' + capitalize(random(SEA_CREATURES))
+
+  return {
+    ...randomColour(),
+    name,
+    anon: true,
+    asleep: false,
+  }
+}
+
+/*----------- Status messages ---------------------------------------
+ */
+/**
+ * show status message at the bottom of the window
+ * @param {string} msg
+ * @returns {void}
+ */
+export function statusMsg(msg) {
+  elem('statusBar').innerHTML = htmlEntities(msg)
+}
+let alertTimeout = null
+let alertDuration = null
+
+/**
+ * Set an automatic expiry for alerts in the current application.
+ * @param {number} duration Duration in milliseconds.
+ * @returns {void}
+ */
+export function setAlertDuration(duration) {
+  alertDuration = duration
+}
+
+// CSpell: ignore dontFade
+/**
+ * show alert messages at the bottom of the window
+ * @param {string} msg
+ * @param {string} [status] type of msg - info, warn, error
+ * @param {boolean} [dontFade] if true, don't fade the message in and out
+ * @returns {void}
+ */
+export function alertMsg(msg, status, dontFade = false) {
+  const errMsgElement = elem('errMsg')
+  switch (status) {
+    case 'info':
+      errMsgElement.style.backgroundColor = getCSSVariable('--primary-color')
+      errMsgElement.style.color = 'white'
+      break
+    case 'warn':
+      errMsgElement.style.backgroundColor = getCSSVariable('--warning-color')
+      errMsgElement.style.color = 'black'
+      break
+    case 'error':
+      errMsgElement.style.backgroundColor = getCSSVariable('--alert-color')
+      errMsgElement.style.color = 'white'
+      break
+    default:
+      console.log('Unknown status in alertMsg: ' + status)
+      return
+  }
+  errMsgElement.innerHTML = msg
+  if (alertDuration !== null) {
+    clearTimeout(alertTimeout)
+    errMsgElement.classList.remove('fadeInAndOut')
+    if (status === 'error' || status === 'warn') {
+      errMsgElement.style.opacity = 1
+      alertTimeout = setTimeout(() => {
+        errMsgElement.style.opacity = 0
+      }, alertDuration)
+      return
+    }
+    errMsgElement.style.opacity = dontFade ? 1 : 0
+  }
+  if (dontFade) {
+    errMsgElement.style.opacity = 1
+  } else {
+    listen('errMsg', 'animationend', () => {
+      elem('errMsg').classList.remove('fadeInAndOut')
+    })
+    errMsgElement.classList.add('fadeInAndOut')
+  }
+}
+/**
+ * cancel the alert message
+ * @returns {void}
+ */
+export function cancelAlertMsg() {
+  elem('errMsg').style.opacity = 0
+}
+/**
+ * replace special characters with their HTML entity codes
+ * @param {string} str
+ * @returns {string} Escaped text.
+ */
+function htmlEntities(str) {
+  return String(str)
+    .replace(/&amp;/g, '&amp;amp;')
+    .replace(/&lt;/g, '&amp;lt;')
+    .replace(/>/g, '&amp;gt;')
+    .replace(/"/g, '&amp;quot;')
+    .replace(/'/g, '&amp;quot;')
+}
+/**
+ * remove any previous message from the status bar
+ * @returns {void}
+ */
+export function clearStatusBar() {
+  statusMsg(' ')
+}
+const SHORTLABELLEN = 25 // when listing node labels, use ellipsis after this number of chars
+
+/**
+ * Shorten a label if necessary and add an ellipsis.
+ * @param {string} label Text to shorten.
+ * @param {number} [maxLength] Maximum length before shortening.
+ * @returns {string} Shortened or original label.
+ */
+export function shorten(label, maxLength = SHORTLABELLEN) {
+  return label.length > maxLength ? label.substring(0, maxLength) + '...' : label
+}
+/**
+ * return the initials of the given name as a string: Nigel Gilbert -> NG
+ * @param {string} name
+ * @returns {string} Uppercase initials.
+ */
+export function initials(name) {
+  return name
+    .replace(/[^A-Za-z0-9À-ÿ ]/gi, '')
+    .replace(/ +/gi, ' ')
+    .match(/(^\S\S?|\b\S)?/g)
+    .join('')
+    .match(/(^\S|\S$)?/g)
+    .join('')
+    .toUpperCase()
+}
+
+/**
+ * Measure the width of text rendered in a font.
+ * @param {string} text Text to measure.
+ * @param {string} [font] Canvas font specification.
+ * @returns {number} Width in pixels.
+ */
+export function getTextWidth(text, font = 'normal 11px Oxygen') {
+  // Create a dummy canvas (not added to DOM)
+  const canvas = document.createElement('canvas')
+  const context = canvas.getContext('2d')
+
+  // The font must match the target element's CSS font e.g. "normal 11px Oxygen"
+  context.font = font
+
+  const metrics = context.measureText(text)
+  return metrics.width
+}
+
+/**********************************************************colours ************************************************** */
+
+const hiddenOpacity = 0.1
+/**
+ * set this node to its 'hidden' appearance (very faint), or restore it to its usual appearance
+ * @param {object} node
+ * @param {boolean} hide
+ * @returns {object} node
+ */
+export function setNodeHidden(node, hide) {
+  node.nodeHidden = hide
+  node.opacity = hide ? hiddenOpacity : 1.0
+  if (node.font.color.charAt(0) === '#') {
+    node.font.color = hexToRgba(node.font.color)
+  }
+  node.font.color = rgba(node.font.color, hide ? hiddenOpacity : 1.0)
+  return node
+}
+
+/**
+ * covert a hex color string such as #123456 to an rgba string
+ * @param {string} hex
+ * @param {number} [alpha] Opacity.
+ * @returns {string} RGBA colour.
+ */
+export function hexToRgba(hex, alpha = 1) {
+  hex = hex.replace('#', '')
+  if (hex.length === 3) {
+    hex = hex
+      .split('')
+      .map((c) => c + c)
+      .join('')
+  }
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16))
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
+/**
+ * set this edge to its 'hidden' appearance (very faint), or restore it to its usual appearance
+ * @param {object} edge
+ * @param {boolean} hide
+ * @returns {object} edge
+ */
+export function setEdgeHidden(edge, hide) {
+  edge.edgeHidden = hide
+  edge.color.opacity = hide ? hiddenOpacity : 1.0
+  if (!edge.font.color) edge.font.color = 'rgba(0,0,0,1)'
+  edge.font.color = rgba(edge.font.color, hide ? hiddenOpacity : 1.0)
+  return edge
+}
+
+/**
+ * convert an rgb(a) string to rgba with given alpha value
+ * @param {string} rgb RGB or RGBA colour.
+ * @param {number} alpha Opacity to set.
+ * @returns {string} RGBA colour.
+ */
+function rgba(rgb, alpha) {
+  if (rgb.indexOf('a') === -1) {
+    rgb = rgb.replace('rgb', 'rgba').replace(')', ',0.0)')
+  }
+  return rgb.replace(/[^,]*$/, ` ${alpha})`)
+}
+/**
+ * return the hex value for the CSS color in str (which may be a color name, e.g. white, or a hex number
+ * or any other legal CSS color value)
+ * @param {string} str
+ * @returns {string} Normalized canvas colour.
+ */
+export function standardizeColor(str) {
+  if (!str) return '#000000'
+  if (str.charAt(0) === '#') return str
+  const ctx = document.createElement('canvas').getContext('2d')
+  ctx.fillStyle = str
+  return ctx.fillStyle
+}
+/**
+ * convert a color string to an array of numbers
+ * e.g. 'rgb(255, 0, 0)' -> [255, 0, 0]
+ * @param {string} rgb
+ * @returns {array} array of numbers
+ */
+export function rgbToArray(rgb) {
+  const values = rgb.slice(rgb.indexOf('(') + 1, rgb.indexOf(')')).split(',')
+  return values.map((value) => {
+    return parseInt(value)
+  })
+}
+
+/**
+ * return the inverse/complementary colour
+ * @param {string} color as a hex string
+ * @returns {string} Complementary hex colour.
+ */
+export function invertColor(color) {
+  return '#' + ('000000' + (0xffffff ^ parseInt(color.substring(1), 16)).toString(16)).slice(-6)
+}
+
+/**
+ * return a random color as an rgb string, e.g. 'rgb(246,121,16)'
+ * if a seed (number) is provided, the same color will be generated each time for that seed
+ * if no seed is provided, a different color will be generated each time
+ * @param {number} [seed]
+ * @returns {string} rgb(r,g,b)
+ */
+export function makeColor(seed) {
+  // Mulberry32 seeded PRNG
+  /**
+   * Create a deterministic pseudorandom number generator.
+   * @param {number} a Seed.
+   * @returns {function():number} Generator producing values from zero up to one.
+   */
+  function mulberry32(a) {
+    return function () {
+      a |= 0
+      a = (a + 0x6d2b79f5) | 0
+      let t = Math.imul(a ^ (a >>> 15), 1 | a)
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+    }
+  }
+
+  if (typeof seed === 'number') {
+    // Seeded PRNG (deterministic but well distributed)
+    const rand = mulberry32(seed)
+    const r = Math.floor(rand() * 256)
+    const g = Math.floor(rand() * 256)
+    const b = Math.floor(rand() * 256)
+    return `rgb(${r}, ${g}, ${b})`
+  } else {
+    // Non-deterministic path
+    const r = Math.floor(Math.random() * 256)
+    const g = Math.floor(Math.random() * 256)
+    const b = Math.floor(Math.random() * 256)
+    return `rgb(${r}, ${g}, ${b})`
+  }
+}
+
+window.makeColor = makeColor
+/**
+ * Determine whether a color is light or dark (so text in a contrasting color can be overlaid)
+ * from https://awik.io/determine-color-bright-dark-using-javascript/
+ * @param {string} color
+ * @returns {'light'|'dark'} Colour brightness classification.
+ */
+export function lightOrDark(color) {
+  // Variables for red, green, blue values
+  let r, g, b
+
+  // Check the format of the color, HEX or RGB?
+  if (color.match(/^rgb/)) {
+    // If RGB --> store the red, green, blue values in separate variables
+    color = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/)
+
+    r = color[1]
+    g = color[2]
+    b = color[3]
+  } else {
+    // If hex --> Convert it to RGB: http://gist.github.com/983661
+    color = +('0x' + color.slice(1).replace(color.length &lt; 5 &amp;&amp; /./g, '$&amp;$&amp;'))
+
+    r = color >> 16
+    g = (color >> 8) &amp; 255
+    b = color &amp; 255
+  }
+
+  // HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
+  const hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b))
+
+  // Using the HSP value, determine whether the color is light or dark
+  if (hsp > 127.5) {
+    return 'light'
+  } else {
+    return 'dark'
+  }
+}
+
+/* --------------------color picker -----------------------------*/
+
+export class CP {
+  /**
+   * Create the shared colour picker and its recent-colour cache.
+   * @param {HTMLElement|null} boundsElement the area within which the picker should open
+   */
+  constructor(boundsElement = null) {
+    this.boundsElement = boundsElement
+    this.container = document.createElement('div')
+    this.container.className = 'color-picker-container'
+    this.container.id = 'colorPicker'
+    const controls = document.createElement('div')
+    controls.id = 'colorPickerControls'
+    this.container.appendChild(controls)
+    document.querySelector('body').insertAdjacentElement('beforeend', this.container)
+
+    // see https://iro.js.org/guide.html#getting-started
+    this.colorPicker = new iro.ColorPicker('#colorPickerControls', {
+      width: 160,
+      color: 'rgba(255, 255, 255, 1)',
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255,1)',
+      margin: 6,
+      layout: [
+        {
+          component: iro.ui.Wheel,
+          options: {
+            borderColor: '#ffffff',
+          },
+        },
+        {
+          component: iro.ui.Slider,
+          options: {
+            borderColor: '#000000',
+            sliderType: 'value',
+            padding: 2,
+            handleRadius: 4,
+          },
+        },
+        {
+          component: iro.ui.Slider,
+          options: {
+            borderColor: '#000000',
+            sliderType: 'alpha',
+            padding: 2,
+            handleRadius: 4,
+          },
+        },
+      ],
+    })
+
+    // set up a grid of squares to hold last 8 selected colors
+    this.colorCache = document.createElement('div')
+    this.colorCache.id = 'colorCache'
+    this.colorCache.className = 'color-cache'
+    for (let i = 0; i &lt; 8; i++) {
+      const c = document.createElement('div')
+      c.id = 'color' + i
+      c.className = 'cached-color'
+      // prefill with standard colours
+      c.style.backgroundColor = [
+        'rgba(255, 0, 0,1)',
+        'rgba(0, 255, 0,1)',
+        'rgb(0, 0, 255)',
+        'rgba(255, 255, 0,1)',
+        'rgb(255, 255, 255)',
+        'rgba(0, 0, 0,1)',
+        'rgba(154, 219, 180,1)',
+        'rgba(219, 110, 103,1)',
+      ][i]
+      c.addEventListener('click', (e) => {
+        const color = e.target.style.backgroundColor
+        if (color) {
+          this.colorPicker.color.rgbaString = e.target.style.backgroundColor
+        }
+      })
+      this.colorCache.appendChild(c)
+    }
+    document
+      .getElementById('colorPickerControls')
+      .insertAdjacentElement('afterend', this.colorCache)
+  }
+
+  /**
+   * attach a color picker to an element to recolour the background to that element
+   * @param {string} wellId the id of the DOM element to attach the color picker to
+   * @param {function} callback function to call when the color has been chosen, with that color as argument
+   * @param {function} [onChange] called while the colour changes
+   * @returns {void}
+   */
+  createColorPicker(wellId, callback, onChange) {
+    const well = elem(wellId)
+    well.style.backgroundColor = '#ffffff'
+    this.attachTo(well, callback, onChange)
+  }
+
+  /**
+   * attach a color picker to an element, which need not have an id or be in the document yet
+   * @param {HTMLElement} well the element whose background colour is chosen
+   * @param {function} callback called with the colour when the picker is closed
+   * @param {function} [onChange] called each time the colour changes while the picker is open
+   * @returns {void}
+   */
+  attachTo(well, callback, onChange) {
+    // add listener to display picker when well clicked
+    well.addEventListener('click', (event) => {
+      this.container.style.display = 'block'
+      const netPane = (this.boundsElement ?? elem('net-pane')).getBoundingClientRect()
+      // locate picker so it does not go outside netPane
+      let top = event.clientY + well.offsetHeight + 10
+      if (top > netPane.bottom - this.container.offsetHeight) {
+        top = netPane.bottom - this.container.offsetHeight - 10
+      }
+      if (top &lt; netPane.top) top = netPane.top + 10
+      let left = event.clientX - this.container.offsetWidth / 2
+      if (left &lt; netPane.left) left = netPane.left + 10
+      if (left > netPane.right - this.container.offsetWidth) {
+        left = netPane.right - this.container.offsetWidth - 10
+      }
+      this.container.style.top = `${top}px`
+      this.container.style.left = `${left}px`
+      this.container.well = well
+      this.container.callback = callback
+      this.container.onChange = onChange
+      this.colorPicker.color.rgbaString = well.style.backgroundColor
+      this.onclose = this.closeColorPicker.bind(this)
+      document.addEventListener('click', this.onclose, true)
+
+      // update well as color is changed
+      this.colorPicker.on('color:change', (color) => {
+        well.style.backgroundColor = color.rgbaString
+        if (onChange) onChange()
+      })
+    })
+  }
+  /**
+   * Report chosen colour when user clicks outside of picker (and well)
+   * Hide the picker and save the colour choice in the previously selected colour grid
+   * @param {Event} event
+   * @returns {void}
+   */
+  closeColorPicker(event) {
+    if (!(this.container.contains(event.target) || this.container.well.contains(event.target))) {
+      this.container.style.display = 'none'
+      document.removeEventListener('click', this.onclose, true)
+      const color = this.container.well.style.backgroundColor
+      // save the chosen color for future selection if it is not already there
+      this.saveColor(color)
+
+      const callback = this.container.callback
+      if (callback) callback(color)
+      this.colorPicker.off('color:change')
+    }
+  }
+  /**
+   * Save the color in the previously selected colour grid, if not already saved
+   * into a free slot, or if there isn't one shift the current colours to the left
+   * and save the new at the right end
+   * @param {string} color
+   * @returns {void}
+   */
+  saveColor(color) {
+    const saveds = this.colorCache.children
+    for (let i = 0; i &lt; 8; i++) {
+      if (saveds[i].style.backgroundColor === color) return
+    }
+    for (let i = 0; i &lt; 8; i++) {
+      if (saveds[i].style.backgroundColor === '') {
+        saveds[i].style.backgroundColor = color
+        return
+      }
+    }
+    for (let i = 0, j = 1; j &lt; 8; i++, j++) {
+      saveds[i].style.backgroundColor = saveds[j].style.backgroundColor
+    }
+    saveds[7].style.backgroundColor = color
+  }
+}
+
+/********************************************************************** text ************************************************ */
+/**
+ * Returns a nicely formatted Date (or time if the date is today), given a Time value (from Date() )
+ * @param {number} utc
+ * @param {boolean} full - if true, don't use Today in date
+ * @returns {string} Formatted local date and time.
+ */
+export function timeAndDate(utc, full = false) {
+  const time = new Date()
+  time.setTime(utc)
+  if (!full &amp;&amp; time.toDateString() === new Date().toDateString()) {
+    // return Today, 12:34
+    return (
+      'Today, ' +
+      time.toLocaleString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    )
+  }
+  if (!full &amp;&amp; time.getFullYear() === new Date().getFullYear()) {
+    // return 12 Sept, 12:34
+    return time.toLocaleString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+  // return 12 Sep 2023, 12:34
+  return time
+    .toLocaleString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+    .replace('Sept', 'Sep')
+}
+/**
+ * positions the caret at the end of text in a contenteditable div
+ * @param {*} contentEditableElement
+ * @returns {void}
+ */
+export function setEndOfContenteditable(contentEditableElement) {
+  const range = document.createRange() //Create a range (a range is a like the selection but invisible)
+  range.selectNodeContents(contentEditableElement) //Select the entire contents of the element with the range
+  range.collapse(false) //collapse the range to the end point. false means collapse to end rather than the start
+  const selection = window.getSelection() //get the selection object (allows you to change selection)
+  selection.removeAllRanges() //remove any selections already made
+  selection.addRange(range) //make the range you have just created the visible selection
+}
+
+/**
+ * Format a time with its milliseconds.
+ * @param {number} [time] Timestamp, or the current time if omitted.
+ * @returns {string} Local time and milliseconds.
+ */
+export function exactTime(time) {
+  const d = time ? new Date(time) : new Date()
+  return `${d.toLocaleTimeString()}:${d.getMilliseconds()} `
+}
+
+/**
+ * Convert the first character of a string to uppercase.
+ * @param {string} string Input text.
+ * @returns {string} Text with an uppercase initial.
+ */
+export function capitalizeFirstLetter(string) {
+  return string ? string.charAt(0).toUpperCase() + string.slice(1) : ''
+}
+/**
+ * Convert the first character of a string to lowercase.
+ * @param {string} string Input text.
+ * @returns {string} Text with a lowercase initial.
+ */
+export function lowerFirstLetter(string) {
+  return string ? string.charAt(0).toLowerCase() + string.slice(1) : ''
+}
+/**
+ * convert a number of bytes to a human-readable string
+ * @param {number} bytes integer to convert
+ * @param {boolean} isDecimal use base 10 (true) or base 2 (false)
+ * @returns {string} e.g. humanSize(1929637) => 1.9MB
+ */
+export function humanSize(bytes, isDecimal = true) {
+  if (bytes === 0) return '0B'
+
+  const decimalUnits = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+  const binaryUnits = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB']
+
+  const base = isDecimal ? 1000 : 1024
+  const units = isDecimal ? decimalUnits : binaryUnits
+
+  const i = Math.floor(Math.log(bytes) / Math.log(base))
+  const size = bytes / Math.pow(base, i)
+
+  const formatted = size % 1 === 0 ? size.toString() : size.toFixed(1)
+  return `${formatted}${units[i]}`
+}
+/**
+ * test whether the editor has any content
+ * (could be an empty string or a Quill insert operation of just a single newline character)
+ * @param {object} quill editor
+ * @returns {boolean} Whether the editor is empty.
+ */
+export function isQuillEmpty(quill) {
+  if ((quill.getContents()['ops'] || []).length !== 1) {
+    return false
+  }
+  return quill.getText().trim().length === 0
+}
+/**
+ * Replace all \n, \r with a space
+ * @param {string} str
+ * @returns {string} Text with line breaks replaced.
+ */
+export function stripNL(str) {
+  return str.replace(/\r?\n|\r/g, ' ')
+}
+
+/**
+ * encode characters such as &amp; to HTML entities such as &amp;amp; to
+ * make the string XML compliant. Only deals with common entities.
+ * @param {string} text
+ * @returns {string} XML-compatible text.
+ */
+export function encodeHTMLEntities(text) {
+  return text.replace(
+    /[&amp;&lt;>"']/g,
+    (match) =>
+      ({
+        '&amp;': '&amp;amp;',
+        '&lt;': '&amp;lt;',
+        '>': '&amp;gt;',
+        '"': '&amp;quot;',
+        "'": '&amp;#39;',
+      })[match]
+  )
+}
+
+/**
+ * display help page in a separate window
+ * @returns {void}
+ */
+export function displayHelp() {
+  window.open(MANUALURL, 'helpWindow')
+}
+/**
+ * remove any crud in Local storage
+ * @param {*} preserve - list of items in local storage to keep
+ * @returns {Promise&lt;void>} Resolves after starting IndexedDB cleanup.
+ */
+export async function cleanLocalStorage(preserve = ['doneIntro', 'seenWN', 'myName', 'recents']) {
+  // remove all local storage items that are not in the list
+  const keys = Object.keys(localStorage)
+  keys.forEach((key) => {
+    if (!preserve.includes(key)) localStorage.removeItem(key)
+  })
+  // remove all IndexDB databases (we don't use them any more) except localforage
+  indexedDB.databases().then((dbs) =>
+    dbs.forEach((db) => {
+      if (db.name !== 'localforage') indexedDB.deleteDatabase(db.name)
+    })
+  )
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Tue Nov 17 2026 21:45:52 GMT+0000 (GMT+00:00) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

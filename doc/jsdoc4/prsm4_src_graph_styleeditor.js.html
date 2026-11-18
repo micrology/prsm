@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>prsm4/src/graph/styleeditor.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Analysis.html">Analysis</a><ul class='methods'><li data-type='method'><a href="Analysis.html#choose">choose</a></li><li data-type='method'><a href="Analysis.html#cluster">cluster</a></li><li data-type='method'><a href="Analysis.html#filter">filter</a></li><li data-type='method'><a href="Analysis.html#onChange">onChange</a></li><li data-type='method'><a href="Analysis.html#showSettings">showSettings</a></li><li data-type='method'><a href="Analysis.html#size">size</a></li><li data-type='method'><a href="Analysis.html#update">update</a></li><li data-type='method'><a href="Analysis.html#values">values</a></li></ul></li><li><a href="App.html">App</a><ul class='methods'><li data-type='method'><a href="App.html#applyViewOnly">applyViewOnly</a></li><li data-type='method'><a href="App.html#bindTitle">bindTitle</a></li><li data-type='method'><a href="App.html#closeStyleDialog">closeStyleDialog</a></li><li data-type='method'><a href="App.html#createGraph">createGraph</a></li><li data-type='method'><a href="App.html#createSidePanel">createSidePanel</a></li><li data-type='method'><a href="App.html#editStyle">editStyle</a></li><li data-type='method'><a href="App.html#initialiseNewMap">initialiseNewMap</a></li><li data-type='method'><a href="App.html#mergeRoom">mergeRoom</a></li><li data-type='method'><a href="App.html#openMap">openMap</a></li><li data-type='method'><a href="App.html#openText">openText</a></li><li data-type='method'><a href="App.html#saveGml">saveGml</a></li><li data-type='method'><a href="App.html#saveGraphXml">saveGraphXml</a></li><li data-type='method'><a href="App.html#saveGraphviz">saveGraphviz</a></li><li data-type='method'><a href="App.html#saveImage">saveImage</a></li><li data-type='method'><a href="App.html#saveMap">saveMap</a></li><li data-type='method'><a href="App.html#saveNotes">saveNotes</a></li><li data-type='method'><a href="App.html#saveSpreadsheet">saveSpreadsheet</a></li><li data-type='method'><a href="App.html#showNoServer">showNoServer</a></li><li data-type='method'><a href="App.html#waitForServer">waitForServer</a></li><li data-type='method'><a href="App.html#wireFileInput">wireFileInput</a></li></ul></li><li><a href="Badges.html">Badges</a><ul class='methods'><li data-type='method'><a href="Badges.html#draw">draw</a></li><li data-type='method'><a href="Badges.html#drawNodeBadges">drawNodeBadges</a></li><li data-type='method'><a href="Badges.html#drawThumbs">drawThumbs</a></li><li data-type='method'><a href="Badges.html#icon">icon</a></li><li data-type='method'><a href="Badges.html#isInThumbRow">isInThumbRow</a></li><li data-type='method'><a href="Badges.html#requestDraw">requestDraw</a></li><li data-type='method'><a href="Badges.html#toggleVote">toggleVote</a></li><li data-type='method'><a href="Badges.html#vote">vote</a></li></ul></li><li><a href="CP_CP.html">CP</a></li><li><a href="Collaboration.html">Collaboration</a><ul class='methods'><li data-type='method'><a href="Collaboration.html#follow">follow</a></li><li data-type='method'><a href="Collaboration.html#makeAvatar">makeAvatar</a></li><li data-type='method'><a href="Collaboration.html#movePointer">movePointer</a></li><li data-type='method'><a href="Collaboration.html#onAwareness">onAwareness</a></li><li data-type='method'><a href="Collaboration.html#onMouseMove">onMouseMove</a></li><li data-type='method'><a href="Collaboration.html#others">others</a></li><li data-type='method'><a href="Collaboration.html#place">place</a></li><li data-type='method'><a href="Collaboration.html#placeAll">placeAll</a></li><li data-type='method'><a href="Collaboration.html#refresh">refresh</a></li><li data-type='method'><a href="Collaboration.html#remember">remember</a></li><li data-type='method'><a href="Collaboration.html#rename">rename</a></li><li data-type='method'><a href="Collaboration.html#schedulePlace">schedulePlace</a></li><li data-type='method'><a href="Collaboration.html#selectEdits">selectEdits</a></li><li data-type='method'><a href="Collaboration.html#setAddingFactor">setAddingFactor</a></li><li data-type='method'><a href="Collaboration.html#setAsleep">setAsleep</a></li><li data-type='method'><a href="Collaboration.html#setName">setName</a></li><li data-type='method'><a href="Collaboration.html#showAvatars">showAvatars</a></li><li data-type='method'><a href="Collaboration.html#showGhosts">showGhosts</a></li><li data-type='method'><a href="Collaboration.html#showPointers">showPointers</a></li><li data-type='method'><a href="Collaboration.html#signature">signature</a></li><li data-type='method'><a href="Collaboration.html#syncDivs">syncDivs</a></li><li data-type='method'><a href="Collaboration.html#toScreen">toScreen</a></li><li data-type='method'><a href="Collaboration.html#toggleFollow">toggleFollow</a></li><li data-type='method'><a href="Collaboration.html#wake">wake</a></li></ul></li><li><a href="Editor.html">Editor</a><ul class='methods'><li data-type='method'><a href="Editor.html#createEdgeHandles">createEdgeHandles</a></li><li data-type='method'><a href="Editor.html#deleteSelection">deleteSelection</a></li><li data-type='method'><a href="Editor.html#destroy">destroy</a></li><li data-type='method'><a href="Editor.html#flushMoves">flushMoves</a></li><li data-type='method'><a href="Editor.html#handleKey">handleKey</a></li><li data-type='method'><a href="Editor.html#onDoubleTap">onDoubleTap</a></li><li data-type='method'><a href="Editor.html#onKey">onKey</a></li><li data-type='method'><a href="Editor.html#onLinkDrawn">onLinkDrawn</a></li><li data-type='method'><a href="Editor.html#onTap">onTap</a></li><li data-type='method'><a href="Editor.html#openInput">openInput</a></li><li data-type='method'><a href="Editor.html#queueMove">queueMove</a></li><li data-type='method'><a href="Editor.html#setMode">setMode</a></li><li data-type='method'><a href="Editor.html#startBend">startBend</a></li></ul></li><li><a href="ElementEditor.html">ElementEditor</a><ul class='methods'><li data-type='method'><a href="ElementEditor.html#buttons">buttons</a></li><li data-type='method'><a href="ElementEditor.html#close">close</a></li><li data-type='method'><a href="ElementEditor.html#colorControl">colorControl</a></li><li data-type='method'><a href="ElementEditor.html#field">field</a></li><li data-type='method'><a href="ElementEditor.html#fitLabel">fitLabel</a></li><li data-type='method'><a href="ElementEditor.html#onKey">onKey</a></li><li data-type='method'><a href="ElementEditor.html#open">open</a></li><li data-type='method'><a href="ElementEditor.html#place">place</a></li><li data-type='method'><a href="ElementEditor.html#save">save</a></li><li data-type='method'><a href="ElementEditor.html#selectControl">selectControl</a></li><li data-type='method'><a href="ElementEditor.html#sizeControl">sizeControl</a></li></ul></li><li><a href="History.html">History</a><ul class='methods'><li data-type='method'><a href="History.html#addRollback">addRollback</a></li><li data-type='method'><a href="History.html#beginStyleEdit">beginStyleEdit</a></li><li data-type='method'><a href="History.html#capture">capture</a></li><li data-type='method'><a href="History.html#copy">copy</a></li><li data-type='method'><a href="History.html#describe">describe</a></li><li data-type='method'><a href="History.html#entry">entry</a></li><li data-type='method'><a href="History.html#finishStyleEdit">finishStyleEdit</a></li><li data-type='method'><a href="History.html#fitLog">fitLog</a></li><li data-type='method'><a href="History.html#key">key</a></li><li data-type='method'><a href="History.html#log">log</a></li><li data-type='method'><a href="History.html#onTransaction">onTransaction</a></li><li data-type='method'><a href="History.html#prune">prune</a></li><li data-type='method'><a href="History.html#render">render</a></li><li data-type='method'><a href="History.html#reset">reset</a></li><li data-type='method'><a href="History.html#rollback">rollback</a></li><li data-type='method'><a href="History.html#show">show</a></li></ul></li><li><a href="Legend.html">Legend</a><ul class='methods'><li data-type='method'><a href="Legend.html#namedStyles">namedStyles</a></li><li data-type='method'><a href="Legend.html#render">render</a></li></ul></li><li><a href="Magnifier.html">Magnifier</a><ul class='methods'><li data-type='method'><a href="Magnifier.html#close">close</a></li><li data-type='method'><a href="Magnifier.html#create">create</a></li><li data-type='method'><a href="Magnifier.html#move">move</a></li></ul></li><li><a href="MapStore.html">MapStore</a><ul class='methods'><li data-type='method'><a href="MapStore.html#addAttribute">addAttribute</a></li><li data-type='method'><a href="MapStore.html#addEdge">addEdge</a></li><li data-type='method'><a href="MapStore.html#addNode">addNode</a></li><li data-type='method'><a href="MapStore.html#addStyle">addStyle</a></li><li data-type='method'><a href="MapStore.html#attributeTitles">attributeTitles</a></li><li data-type='method'><a href="MapStore.html#canLink">canLink</a></li><li data-type='method'><a href="MapStore.html#deleteStyle">deleteStyle</a></li><li data-type='method'><a href="MapStore.html#freeMembers">freeMembers</a></li><li data-type='method'><a href="MapStore.html#loadFile">loadFile</a></li><li data-type='method'><a href="MapStore.html#moveNodes">moveNodes</a></li><li data-type='method'><a href="MapStore.html#redo">redo</a></li><li data-type='method'><a href="MapStore.html#remove">remove</a></li><li data-type='method'><a href="MapStore.html#setAttributeTitle">setAttributeTitle</a></li><li data-type='method'><a href="MapStore.html#setElementStyle">setElementStyle</a></li><li data-type='method'><a href="MapStore.html#setOverrides">setOverrides</a></li><li data-type='method'><a href="MapStore.html#setSetting">setSetting</a></li><li data-type='method'><a href="MapStore.html#setStyle">setStyle</a></li><li data-type='method'><a href="MapStore.html#stamp">stamp</a></li><li data-type='method'><a href="MapStore.html#toFile">toFile</a></li><li data-type='method'><a href="MapStore.html#transact">transact</a></li><li data-type='method'><a href="MapStore.html#undo">undo</a></li><li data-type='method'><a href="MapStore.html#update">update</a></li></ul></li><li><a href="Minimap.html">Minimap</a><ul class='methods'><li data-type='method'><a href="Minimap.html#draw">draw</a></li><li data-type='method'><a href="Minimap.html#keyPan">keyPan</a></li><li data-type='method'><a href="Minimap.html#panTo">panTo</a></li><li data-type='method'><a href="Minimap.html#schedule">schedule</a></li></ul></li><li><a href="NetworkSettings.html">NetworkSettings</a><ul class='methods'><li data-type='method'><a href="NetworkSettings.html#fillLayoutMenu">fillLayoutMenu</a></li><li data-type='method'><a href="NetworkSettings.html#runLayout">runLayout</a></li><li data-type='method'><a href="NetworkSettings.html#setSnap">setSnap</a></li><li data-type='method'><a href="NetworkSettings.html#showSettings">showSettings</a></li><li data-type='method'><a href="NetworkSettings.html#snapDragged">snapDragged</a></li><li data-type='method'><a href="NetworkSettings.html#snapped">snapped</a></li></ul></li><li><a href="NotesPanel.html">NotesPanel</a><ul class='methods'><li data-type='method'><a href="NotesPanel.html#contentsOf">contentsOf</a></li><li data-type='method'><a href="NotesPanel.html#hide">hide</a></li><li data-type='method'><a href="NotesPanel.html#onChange">onChange</a></li><li data-type='method'><a href="NotesPanel.html#openWindow">openWindow</a></li><li data-type='method'><a href="NotesPanel.html#refresh">refresh</a></li><li data-type='method'><a href="NotesPanel.html#requestRefresh">requestRefresh</a></li><li data-type='method'><a href="NotesPanel.html#saveNote">saveNote</a></li><li data-type='method'><a href="NotesPanel.html#sendWindowState">sendWindowState</a></li><li data-type='method'><a href="NotesPanel.html#setReadOnly">setReadOnly</a></li><li data-type='method'><a href="NotesPanel.html#setUpPanel">setUpPanel</a></li><li data-type='method'><a href="NotesPanel.html#showDetails">showDetails</a></li><li data-type='method'><a href="NotesPanel.html#showPin">showPin</a></li><li data-type='method'><a href="NotesPanel.html#showStamp">showStamp</a></li><li data-type='method'><a href="NotesPanel.html#syncContents">syncContents</a></li><li data-type='method'><a href="NotesPanel.html#togglePin">togglePin</a></li><li data-type='method'><a href="NotesPanel.html#windowMessage">windowMessage</a></li></ul></li><li><a href="Overview.html">Overview</a><ul class='methods'><li data-type='method'><a href="Overview.html#refresh">refresh</a></li><li data-type='method'><a href="Overview.html#setReadOnly">setReadOnly</a></li></ul></li><li><a href="Palette.html">Palette</a><ul class='methods'><li data-type='method'><a href="Palette.html#apply">apply</a></li><li data-type='method'><a href="Palette.html#createContextMenu">createContextMenu</a></li><li data-type='method'><a href="Palette.html#createSwatches">createSwatches</a></li><li data-type='method'><a href="Palette.html#fitSample">fitSample</a></li><li data-type='method'><a href="Palette.html#lastStyle">lastStyle</a></li><li data-type='method'><a href="Palette.html#markUsed">markUsed</a></li><li data-type='method'><a href="Palette.html#miniGraph">miniGraph</a></li><li data-type='method'><a href="Palette.html#onChange">onChange</a></li><li data-type='method'><a href="Palette.html#openContextMenu">openContextMenu</a></li><li data-type='method'><a href="Palette.html#redraw">redraw</a></li><li data-type='method'><a href="Palette.html#refresh">refresh</a></li><li data-type='method'><a href="Palette.html#sampleLabel">sampleLabel</a></li><li data-type='method'><a href="Palette.html#selectAll">selectAll</a></li><li data-type='method'><a href="Palette.html#styleNodes">styleNodes</a></li></ul></li><li><a href="Rooms.html">Rooms</a><ul class='methods'><li data-type='method'><a href="Rooms.html#action">action</a></li><li data-type='method'><a href="Rooms.html#addToProject">addToProject</a></li><li data-type='method'><a href="Rooms.html#change">change</a></li><li data-type='method'><a href="Rooms.html#close">close</a></li><li data-type='method'><a href="Rooms.html#current">current</a></li><li data-type='method'><a href="Rooms.html#deleteProject">deleteProject</a></li><li data-type='method'><a href="Rooms.html#importList">importList</a></li><li data-type='method'><a href="Rooms.html#navigate">navigate</a></li><li data-type='method'><a href="Rooms.html#newProject">newProject</a></li><li data-type='method'><a href="Rooms.html#read">read</a></li><li data-type='method'><a href="Rooms.html#remember">remember</a></li><li data-type='method'><a href="Rooms.html#render">render</a></li><li data-type='method'><a href="Rooms.html#saveList">saveList</a></li><li data-type='method'><a href="Rooms.html#start">start</a></li><li data-type='method'><a href="Rooms.html#toggle">toggle</a></li></ul></li><li><a href="Search.html">Search</a><ul class='methods'><li data-type='method'><a href="Search.html#clearSuggestions">clearSuggestions</a></li><li data-type='method'><a href="Search.html#close">close</a></li><li data-type='method'><a href="Search.html#goTo">goTo</a></li><li data-type='method'><a href="Search.html#onKey">onKey</a></li><li data-type='method'><a href="Search.html#showSuggestions">showSuggestions</a></li><li data-type='method'><a href="Search.html#suggestion">suggestion</a></li><li data-type='method'><a href="Search.html#toggle">toggle</a></li></ul></li><li><a href="Share.html">Share</a><ul class='methods'><li data-type='method'><a href="Share.html#copy">copy</a></li><li data-type='method'><a href="Share.html#open">open</a></li><li data-type='method'><a href="Share.html#openClone">openClone</a></li><li data-type='method'><a href="Share.html#openTable">openTable</a></li></ul></li><li><a href="SidePanel.html">SidePanel</a><ul class='methods'><li data-type='method'><a href="SidePanel.html#openTab">openTab</a></li><li data-type='method'><a href="SidePanel.html#show">show</a></li><li data-type='method'><a href="SidePanel.html#toggle">toggle</a></li></ul></li><li><a href="StyleEditor.html">StyleEditor</a><ul class='methods'><li data-type='method'><a href="StyleEditor.html#addButton">addButton</a></li><li data-type='method'><a href="StyleEditor.html#attach">attach</a></li><li data-type='method'><a href="StyleEditor.html#colorRow">colorRow</a></li><li data-type='method'><a href="StyleEditor.html#deleteButton">deleteButton</a></li><li data-type='method'><a href="StyleEditor.html#editStyle">editStyle</a></li><li data-type='method'><a href="StyleEditor.html#form">form</a></li><li data-type='method'><a href="StyleEditor.html#input">input</a></li><li data-type='method'><a href="StyleEditor.html#listItem">listItem</a></li><li data-type='method'><a href="StyleEditor.html#nameRow">nameRow</a></li><li data-type='method'><a href="StyleEditor.html#render">render</a></li><li data-type='method'><a href="StyleEditor.html#renderList">renderList</a></li><li data-type='method'><a href="StyleEditor.html#row">row</a></li><li data-type='method'><a href="StyleEditor.html#schedule">schedule</a></li><li data-type='method'><a href="StyleEditor.html#selectionControls">selectionControls</a></li><li data-type='method'><a href="StyleEditor.html#selectionSection">selectionSection</a></li><li data-type='method'><a href="StyleEditor.html#setStyle">setStyle</a></li><li data-type='method'><a href="StyleEditor.html#setView">setView</a></li><li data-type='method'><a href="StyleEditor.html#stylesOf">stylesOf</a></li></ul></li><li><a href="TableView.html">TableView</a><ul class='methods'><li data-type='method'><a href="TableView.html#allRows">allRows</a></li><li data-type='method'><a href="TableView.html#arrowFor">arrowFor</a></li><li data-type='method'><a href="TableView.html#bodyRow">bodyRow</a></li><li data-type='method'><a href="TableView.html#build">build</a></li><li data-type='method'><a href="TableView.html#cell">cell</a></li><li data-type='method'><a href="TableView.html#columns">columns</a></li><li data-type='method'><a href="TableView.html#commitText">commitText</a></li><li data-type='method'><a href="TableView.html#copy">copy</a></li><li data-type='method'><a href="TableView.html#copyText">copyText</a></li><li data-type='method'><a href="TableView.html#deleteButton">deleteButton</a></li><li data-type='method'><a href="TableView.html#endEdit">endEdit</a></li><li data-type='method'><a href="TableView.html#flagBox">flagBox</a></li><li data-type='method'><a href="TableView.html#footerRow">footerRow</a></li><li data-type='method'><a href="TableView.html#footerText">footerText</a></li><li data-type='method'><a href="TableView.html#groupRow">groupRow</a></li><li data-type='method'><a href="TableView.html#groups">groups</a></li><li data-type='method'><a href="TableView.html#headerCell">headerCell</a></li><li data-type='method'><a href="TableView.html#onTransaction">onTransaction</a></li><li data-type='method'><a href="TableView.html#refreshStats">refreshStats</a></li><li data-type='method'><a href="TableView.html#render">render</a></li><li data-type='method'><a href="TableView.html#renderFilter">renderFilter</a></li><li data-type='method'><a href="TableView.html#rowBox">rowBox</a></li><li data-type='method'><a href="TableView.html#schedule">schedule</a></li><li data-type='method'><a href="TableView.html#selectAllBox">selectAllBox</a></li><li data-type='method'><a href="TableView.html#selectInput">selectInput</a></li><li data-type='method'><a href="TableView.html#setSelection">setSelection</a></li><li data-type='method'><a href="TableView.html#shownRows">shownRows</a></li><li data-type='method'><a href="TableView.html#sortBy">sortBy</a></li><li data-type='method'><a href="TableView.html#startEdit">startEdit</a></li><li data-type='method'><a href="TableView.html#swatch">swatch</a></li><li data-type='method'><a href="TableView.html#targets">targets</a></li><li data-type='method'><a href="TableView.html#textInput">textInput</a></li><li data-type='method'><a href="TableView.html#titleRow">titleRow</a></li><li data-type='method'><a href="TableView.html#titleText">titleText</a></li><li data-type='method'><a href="TableView.html#toggleFilter">toggleFilter</a></li><li data-type='method'><a href="TableView.html#visible">visible</a></li></ul></li><li><a href="Toolbar.html">Toolbar</a><ul class='methods'><li data-type='method'><a href="Toolbar.html#showDeleteState">showDeleteState</a></li><li data-type='method'><a href="Toolbar.html#showMode">showMode</a></li><li data-type='method'><a href="Toolbar.html#showUndoState">showUndoState</a></li><li data-type='method'><a href="Toolbar.html#toggleMode">toggleMode</a></li></ul></li><li><a href="Tutorial.html">Tutorial</a><ul class='methods'><li data-type='method'><a href="Tutorial.html#finish">finish</a></li><li data-type='method'><a href="Tutorial.html#move">move</a></li><li data-type='method'><a href="Tutorial.html#position">position</a></li><li data-type='method'><a href="Tutorial.html#show">show</a></li><li data-type='method'><a href="Tutorial.html#start">start</a></li><li data-type='method'><a href="Tutorial.html#startIfNeeded">startIfNeeded</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#CAPITALISED">CAPITALISED</a></li><li><a href="global.html#LABEL_PREVIEW_LENGTH">LABEL_PREVIEW_LENGTH</a></li><li><a href="global.html#PARTS">PARTS</a></li><li><a href="global.html#accumulateFrom">accumulateFrom</a></li><li><a href="global.html#addAttributes">addAttributes</a></li><li><a href="global.html#addCluster">addCluster</a></li><li><a href="global.html#addContextMenu">addContextMenu</a></li><li><a href="global.html#addEdge">addEdge</a></li><li><a href="global.html#addElement">addElement</a></li><li><a href="global.html#addExportedAttributes">addExportedAttributes</a></li><li><a href="global.html#addNode">addNode</a></li><li><a href="global.html#addVec">addVec</a></li><li><a href="global.html#adjacency">adjacency</a></li><li><a href="global.html#alertMsg">alertMsg</a></li><li><a href="global.html#appendNote">appendNote</a></li><li><a href="global.html#appendSources">appendSources</a></li><li><a href="global.html#appendText">appendText</a></li><li><a href="global.html#applyBox">applyBox</a></li><li><a href="global.html#applyChanges">applyChanges</a></li><li><a href="global.html#applyClusterView">applyClusterView</a></li><li><a href="global.html#applyCurves">applyCurves</a></li><li><a href="global.html#attributeColumns">attributeColumns</a></li><li><a href="global.html#attributes">attributes</a></li><li><a href="global.html#betweenness">betweenness</a></li><li><a href="global.html#bindClipboard">bindClipboard</a></li><li><a href="global.html#bindGraph">bindGraph</a></li><li><a href="global.html#bindSelectionStatus">bindSelectionStatus</a></li><li><a href="global.html#bindZoomControl">bindZoomControl</a></li><li><a href="global.html#borderStyleColumn">borderStyleColumn</a></li><li><a href="global.html#canConnect">canConnect</a></li><li><a href="global.html#cancelAlertMsg">cancelAlertMsg</a></li><li><a href="global.html#capitalize">capitalize</a></li><li><a href="global.html#capitalizeFirstLetter">capitalizeFirstLetter</a></li><li><a href="global.html#cellValue">cellValue</a></li><li><a href="global.html#centre">centre</a></li><li><a href="global.html#classesOf">classesOf</a></li><li><a href="global.html#clean">clean</a></li><li><a href="global.html#cleanArray">cleanArray</a></li><li><a href="global.html#cleanLocalStorage">cleanLocalStorage</a></li><li><a href="global.html#clearOfNodes">clearOfNodes</a></li><li><a href="global.html#clearStatusBar">clearStatusBar</a></li><li><a href="global.html#clusterBy">clusterBy</a></li><li><a href="global.html#clusterByLouvain">clusterByLouvain</a></li><li><a href="global.html#clusterKey">clusterKey</a></li><li><a href="global.html#collapsedMap">collapsedMap</a></li><li><a href="global.html#colorColumn">colorColumn</a></li><li><a href="global.html#colorFromText">colorFromText</a></li><li><a href="global.html#colorOpacityProperty">colorOpacityProperty</a></li><li><a href="global.html#colorPatch">colorPatch</a></li><li><a href="global.html#colorWell">colorWell</a></li><li><a href="global.html#colorWithOpacity">colorWithOpacity</a></li><li><a href="global.html#colourFor">colourFor</a></li><li><a href="global.html#compare">compare</a></li><li><a href="global.html#compileStylesheet">compileStylesheet</a></li><li><a href="global.html#components">components</a></li><li><a href="global.html#computeStats">computeStats</a></li><li><a href="global.html#connected">connected</a></li><li><a href="global.html#convertDashes">convertDashes</a></li><li><a href="global.html#convertEdge">convertEdge</a></li><li><a href="global.html#convertNode">convertNode</a></li><li><a href="global.html#convertStyles">convertStyles</a></li><li><a href="global.html#coordinate">coordinate</a></li><li><a href="global.html#copySelection">copySelection</a></li><li><a href="global.html#createColorPicker">createColorPicker</a></li><li><a href="global.html#createGraph">createGraph</a></li><li><a href="global.html#cssColumn">cssColumn</a></li><li><a href="global.html#cssDiff">cssDiff</a></li><li><a href="global.html#cubicPoint">cubicPoint</a></li><li><a href="global.html#curveFromPointer">curveFromPointer</a></li><li><a href="global.html#dashesToLineStyle">dashesToLineStyle</a></li><li><a href="global.html#decode">decode</a></li><li><a href="global.html#decodeLabel">decodeLabel</a></li><li><a href="global.html#deepCopy">deepCopy</a></li><li><a href="global.html#deepMerge">deepMerge</a></li><li><a href="global.html#defaultCurvePoints">defaultCurvePoints</a></li><li><a href="global.html#defaultEdgeStyle">defaultEdgeStyle</a></li><li><a href="global.html#defaultNodeStyle">defaultNodeStyle</a></li><li><a href="global.html#describeRecords">describeRecords</a></li><li><a href="global.html#describer">describer</a></li><li><a href="global.html#diag">diag</a></li><li><a href="global.html#displayHelp">displayHelp</a></li><li><a href="global.html#displayTitle">displayTitle</a></li><li><a href="global.html#displayValue">displayValue</a></li><li><a href="global.html#dissolveCluster">dissolveCluster</a></li><li><a href="global.html#docName">docName</a></li><li><a href="global.html#dragElement">dragElement</a></li><li><a href="global.html#edgeCurveStyle">edgeCurveStyle</a></li><li><a href="global.html#edgeElement">edgeElement</a></li><li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li><li><a href="global.html#edgeStyle">edgeStyle</a></li><li><a href="global.html#edgeStyleToCss">edgeStyleToCss</a></li><li><a href="global.html#editNote">editNote</a></li><li><a href="global.html#editValue">editValue</a></li><li><a href="global.html#editingText">editingText</a></li><li><a href="global.html#el">el</a></li><li><a href="global.html#elem">elem</a></li><li><a href="global.html#encodeHTMLEntities">encodeHTMLEntities</a></li><li><a href="global.html#equal">equal</a></li><li><a href="global.html#esc">esc</a></li><li><a href="global.html#exactTime">exactTime</a></li><li><a href="global.html#exportImage">exportImage</a></li><li><a href="global.html#exportNotes">exportNotes</a></li><li><a href="global.html#exportedAttributes">exportedAttributes</a></li><li><a href="global.html#exportedValues">exportedValues</a></li><li><a href="global.html#factorColumns">factorColumns</a></li><li><a href="global.html#factorSizeToPercent">factorSizeToPercent</a></li><li><a href="global.html#fanLayout">fanLayout</a></li><li><a href="global.html#fanLevels">fanLevels</a></li><li><a href="global.html#filterRows">filterRows</a></li><li><a href="global.html#fitDistance">fitDistance</a></li><li><a href="global.html#fitMap">fitMap</a></li><li><a href="global.html#fitWeight">fitWeight</a></li><li><a href="global.html#flagColumn">flagColumn</a></li><li><a href="global.html#footerValue">footerValue</a></li><li><a href="global.html#generateName">generateName</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#get">get</a></li><li><a href="global.html#getCSSVariable">getCSSVariable</a></li><li><a href="global.html#getChatDialogOpenRect">getChatDialogOpenRect</a></li><li><a href="global.html#getDashes">getDashes</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#getTextWidth">getTextWidth</a></li><li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li><li><a href="global.html#gexfDefinitions">gexfDefinitions</a></li><li><a href="global.html#gexfValues">gexfValues</a></li><li><a href="global.html#grabHandle">grabHandle</a></li><li><a href="global.html#graphmlValues">graphmlValues</a></li><li><a href="global.html#groupBy">groupBy</a></li><li><a href="global.html#hasNote">hasNote</a></li><li><a href="global.html#heading">heading</a></li><li><a href="global.html#hexToRgba">hexToRgba</a></li><li><a href="global.html#htmlEntities">htmlEntities</a></li><li><a href="global.html#hueOf">hueOf</a></li><li><a href="global.html#humanSize">humanSize</a></li><li><a href="global.html#identity">identity</a></li><li><a href="global.html#imageViewport">imageViewport</a></li><li><a href="global.html#in_degree">in_degree</a></li><li><a href="global.html#initialiseClone">initialiseClone</a></li><li><a href="global.html#initials">initials</a></li><li><a href="global.html#invertColor">invertColor</a></li><li><a href="global.html#isCluster">isCluster</a></li><li><a href="global.html#isEmpty">isEmpty</a></li><li><a href="global.html#isObject">isObject</a></li><li><a href="global.html#isPlainObject">isPlainObject</a></li><li><a href="global.html#isQuillEmpty">isQuillEmpty</a></li><li><a href="global.html#isReadOnly">isReadOnly</a></li><li><a href="global.html#jLouvain">jLouvain</a></li><li><a href="global.html#joinNames">joinNames</a></li><li><a href="global.html#label">label</a></li><li><a href="global.html#labelKey">labelKey</a></li><li><a href="global.html#layoutPositions">layoutPositions</a></li><li><a href="global.html#legacyToV2">legacyToV2</a></li><li><a href="global.html#lightOrDark">lightOrDark</a></li><li><a href="global.html#linkColumns">linkColumns</a></li><li><a href="global.html#list">list</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#loadUser">loadUser</a></li><li><a href="global.html#lowerFirstLetter">lowerFirstLetter</a></li><li><a href="global.html#makeAIAssistantFabDraggable">makeAIAssistantFabDraggable</a></li><li><a href="global.html#makeColor">makeColor</a></li><li><a href="global.html#makeFile">makeFile</a></li><li><a href="global.html#makeNode">makeNode</a></li><li><a href="global.html#makeResizeable">makeResizeable</a></li><li><a href="global.html#mapData">mapData</a></li><li><a href="global.html#marginOf">marginOf</a></li><li><a href="global.html#measureDeviation">measureDeviation</a></li><li><a href="global.html#mergeMap">mergeMap</a></li><li><a href="global.html#mergeTranspose">mergeTranspose</a></li><li><a href="global.html#modifiedColumn">modifiedColumn</a></li><li><a href="global.html#mostFrequent">mostFrequent</a></li><li><a href="global.html#mostFrequentString">mostFrequentString</a></li><li><a href="global.html#nameOf">nameOf</a></li><li><a href="global.html#nativeWell">nativeWell</a></li><li><a href="global.html#nodeCss">nodeCss</a></li><li><a href="global.html#nodeElement">nodeElement</a></li><li><a href="global.html#nodeFormatColumns">nodeFormatColumns</a></li><li><a href="global.html#nodeStyle">nodeStyle</a></li><li><a href="global.html#nodeStyleToCss">nodeStyleToCss</a></li><li><a href="global.html#normaliseLegacy">normaliseLegacy</a></li><li><a href="global.html#normaliseLegacyStrings">normaliseLegacyStrings</a></li><li><a href="global.html#normalizeColor">normalizeColor</a></li><li><a href="global.html#normalizeMapShapes">normalizeMapShapes</a></li><li><a href="global.html#normalizeShape">normalizeShape</a></li><li><a href="global.html#note">note</a></li><li><a href="global.html#noteText">noteText</a></li><li><a href="global.html#notesColumn">notesColumn</a></li><li><a href="global.html#notesDelta">notesDelta</a></li><li><a href="global.html#number">number</a></li><li><a href="global.html#objectEquals">objectEquals</a></li><li><a href="global.html#onAddingFactor">onAddingFactor</a></li><li><a href="global.html#onCommit">onCommit</a></li><li><a href="global.html#onEditStyle">onEditStyle</a></li><li><a href="global.html#onError">onError</a></li><li><a href="global.html#onInput">onInput</a></li><li><a href="global.html#onMode">onMode</a></li><li><a href="global.html#onOpenFile">onOpenFile</a></li><li><a href="global.html#onlyUnloggedChanges">onlyUnloggedChanges</a></li><li><a href="global.html#openAIAsstDialog">openAIAsstDialog</a></li><li><a href="global.html#options">options</a></li><li><a href="global.html#out_degree">out_degree</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseMapText">parseMapText</a></li><li><a href="global.html#parseXml">parseXml</a></li><li><a href="global.html#passes">passes</a></li><li><a href="global.html#pasteSelection">pasteSelection</a></li><li><a href="global.html#pathsBetween">pathsBetween</a></li><li><a href="global.html#placeMembers">placeMembers</a></li><li><a href="global.html#placeholderName">placeholderName</a></li><li><a href="global.html#plainNodes">plainNodes</a></li><li><a href="global.html#positionsOf">positionsOf</a></li><li><a href="global.html#pushnew">pushnew</a></li><li><a href="global.html#quadPoint">quadPoint</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#random">random</a></li><li><a href="global.html#randomColour">randomColour</a></li><li><a href="global.html#reach">reach</a></li><li><a href="global.html#reachable">reachable</a></li><li><a href="global.html#readCSV">readCSV</a></li><li><a href="global.html#readEdge">readEdge</a></li><li><a href="global.html#readGexf">readGexf</a></li><li><a href="global.html#readGml">readGml</a></li><li><a href="global.html#readGraphXml">readGraphXml</a></li><li><a href="global.html#readGraphml">readGraphml</a></li><li><a href="global.html#readGraphviz">readGraphviz</a></li><li><a href="global.html#readMapFile">readMapFile</a></li><li><a href="global.html#readMergeRoom">readMergeRoom</a></li><li><a href="global.html#readNode">readNode</a></li><li><a href="global.html#readOnly">readOnly</a></li><li><a href="global.html#readSpreadsheet">readSpreadsheet</a></li><li><a href="global.html#rebase">rebase</a></li><li><a href="global.html#rectsOverlap">rectsOverlap</a></li><li><a href="global.html#redirectToRoom">redirectToRoom</a></li><li><a href="global.html#releaseAll">releaseAll</a></li><li><a href="global.html#renameUser">renameUser</a></li><li><a href="global.html#requestHelp">requestHelp</a></li><li><a href="global.html#resolve">resolve</a></li><li><a href="global.html#rgbIsLight">rgbIsLight</a></li><li><a href="global.html#rgbToArray">rgbToArray</a></li><li><a href="global.html#rgba">rgba</a></li><li><a href="global.html#roomFromUrl">roomFromUrl</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#rows">rows</a></li><li><a href="global.html#runExtension">runExtension</a></li><li><a href="global.html#sameValue">sameValue</a></li><li><a href="global.html#seededRandom">seededRandom</a></li><li><a href="global.html#selectionMessage">selectionMessage</a></li><li><a href="global.html#serverUrl">serverUrl</a></li><li><a href="global.html#set">set</a></li><li><a href="global.html#setAlertDuration">setAlertDuration</a></li><li><a href="global.html#setCollapsed">setCollapsed</a></li><li><a href="global.html#setEdgeHidden">setEdgeHidden</a></li><li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li><li><a href="global.html#setFactorSizeFromPercent">setFactorSizeFromPercent</a></li><li><a href="global.html#setIntersection">setIntersection</a></li><li><a href="global.html#setNodeHidden">setNodeHidden</a></li><li><a href="global.html#shapeName">shapeName</a></li><li><a href="global.html#shapeOverride">shapeOverride</a></li><li><a href="global.html#shapePatch">shapePatch</a></li><li><a href="global.html#shortLabel">shortLabel</a></li><li><a href="global.html#shorten">shorten</a></li><li><a href="global.html#shortestPaths">shortestPaths</a></li><li><a href="global.html#showTitle">showTitle</a></li><li><a href="global.html#smoothToCurve">smoothToCurve</a></li><li><a href="global.html#solve">solve</a></li><li><a href="global.html#sortKey">sortKey</a></li><li><a href="global.html#sortRows">sortRows</a></li><li><a href="global.html#splitText">splitText</a></li><li><a href="global.html#standardizeColor">standardizeColor</a></li><li><a href="global.html#statColumns">statColumns</a></li><li><a href="global.html#statusMsg">statusMsg</a></li><li><a href="global.html#string">string</a></li><li><a href="global.html#strip">strip</a></li><li><a href="global.html#stripArray">stripArray</a></li><li><a href="global.html#stripNL">stripNL</a></li><li><a href="global.html#styleAction">styleAction</a></li><li><a href="global.html#styleColumn">styleColumn</a></li><li><a href="global.html#styleId">styleId</a></li><li><a href="global.html#styleName">styleName</a></li><li><a href="global.html#styleNumber">styleNumber</a></li><li><a href="global.html#subVec">subVec</a></li><li><a href="global.html#subtract">subtract</a></li><li><a href="global.html#sumVec">sumVec</a></li><li><a href="global.html#summariseLinks">summariseLinks</a></li><li><a href="global.html#suspendBoxSelection">suspendBoxSelection</a></li><li><a href="global.html#symmetricCurvePoints">symmetricCurvePoints</a></li><li><a href="global.html#syncCommon">syncCommon</a></li><li><a href="global.html#syncEdge">syncEdge</a></li><li><a href="global.html#syncNode">syncNode</a></li><li><a href="global.html#syncSettings">syncSettings</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#thumbBounds">thumbBounds</a></li><li><a href="global.html#timeAndDate">timeAndDate</a></li><li><a href="global.html#toElements">toElements</a></li><li><a href="global.html#toHex">toHex</a></li><li><a href="global.html#toRecords">toRecords</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#transpose">transpose</a></li><li><a href="global.html#trophicLayout">trophicLayout</a></li><li><a href="global.html#trophicLevels">trophicLevels</a></li><li><a href="global.html#trophicPositions">trophicPositions</a></li><li><a href="global.html#undirected">undirected</a></li><li><a href="global.html#useColorPicker">useColorPicker</a></li><li><a href="global.html#uuidv4">uuidv4</a></li><li><a href="global.html#validList">validList</a></li><li><a href="global.html#validateFile">validateFile</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#visVia">visVia</a></li><li><a href="global.html#visibleFactors">visibleFactors</a></li><li><a href="global.html#waitForCopy">waitForCopy</a></li><li><a href="global.html#waitForSync">waitForSync</a></li><li><a href="global.html#withRelativeSize">withRelativeSize</a></li><li><a href="global.html#writeGml">writeGml</a></li><li><a href="global.html#writeGraphXml">writeGraphXml</a></li><li><a href="global.html#writeGraphviz">writeGraphviz</a></li><li><a href="global.html#writeMapFile">writeMapFile</a></li><li><a href="global.html#writeSpreadsheet">writeSpreadsheet</a></li><li><a href="global.html#zero">zero</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">prsm4/src/graph/styleeditor.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*********************************************************************************************
+
+PRSM Participatory System Mapper
+
+Copyright (c) [2022] Nigel Gilbert email: prsm@prsm.uk
+This software is licenced under the PolyForm Noncommercial License 1.0.0
+&lt;https://polyformproject.org/licenses/noncommercial/1.0.0>
+See the file LICENSE.md for details.
+
+Edits factor and link styles.
+********************************************************************************************/
+
+/* ****************************************************************************************
+styleeditor.js: a panel for editing the map's styles (the css held in store.styles), for
+choosing the style of the selected factors and links, and for per-element overrides.
+Every change goes through MapStore methods, so it is undoable and shared like any other.
+**************************************************************************************** */
+import { nodeStyleToCss } from './legacy.js'
+import { colorWell } from './colorwell.js'
+import { shapeName } from './shapes.js'
+
+export const SHAPES = [
+  'ellipse',
+  'box',
+  'disc',
+  'text',
+  'square',
+  'triangle',
+  'hexagon',
+  'diamond',
+  'star',
+]
+export const FONTS = ['Oxygen', 'Arial', 'Georgia', 'Courier New', 'Times New Roman', 'Verdana']
+export const LINE_STYLES = ['solid', 'dashed', 'dotted']
+export const ARROWS = ['none', 'triangle', 'vee', 'circle', 'diamond', 'tee', 'square']
+const SHAPE_KEYS = [
+  'text-valign',
+  'text-margin-y',
+  'width',
+  'height',
+  'padding',
+  'background-opacity',
+]
+const EDGE_COLOR_PROPS = [
+  'line-color',
+  'target-arrow-color',
+  'source-arrow-color',
+  'mid-target-arrow-color',
+]
+const COLOR_OPACITY = {
+  'background-color': 'background-opacity',
+  'border-color': 'border-opacity',
+  'line-color': 'line-opacity',
+  color: 'text-opacity',
+}
+
+/**
+ * Combine a CSS colour with a separate Cytoscape opacity for a colour well.
+ * @param {string} color Colour.
+ * @param {number} opacity Opacity from zero to one.
+ * @returns {string} CSS colour including alpha.
+ */
+export function colorWithOpacity(color, opacity = 1) {
+  const hex = toHex(color)
+  return `${hex.slice(0, 7)}${Math.round(Math.max(0, Math.min(1, opacity)) * 255)
+    .toString(16)
+    .padStart(2, '0')}`
+}
+
+/**
+ * Identify the Cytoscape opacity corresponding to a colour property.
+ * @param {string} prop Colour property.
+ * @returns {string|undefined} Opacity property.
+ */
+export function colorOpacityProperty(prop) {
+  return COLOR_OPACITY[prop]
+}
+
+const NODE_FIELDS = [
+  { prop: 'shape', label: 'Shape', type: 'select', options: SHAPES },
+  { prop: 'background-color', label: 'Fill', type: 'color' },
+  { prop: 'border-color', label: 'Border', type: 'color' },
+  { prop: 'border-width', label: 'Border width', type: 'number' },
+  {
+    prop: 'border-style',
+    label: 'Border style',
+    type: 'select',
+    options: [...LINE_STYLES, 'double'],
+  },
+  { prop: 'color', label: 'Font colour', type: 'color' },
+  { prop: 'font-size', label: 'Font size', type: 'number' },
+  { prop: 'font-family', label: 'Font', type: 'select', options: FONTS },
+]
+const EDGE_FIELDS = [
+  { prop: 'line-color', label: 'Colour', type: 'color' },
+  { prop: 'width', label: 'Width', type: 'number' },
+  { prop: 'line-style', label: 'Line', type: 'select', options: LINE_STYLES },
+  { prop: 'target-arrow-shape', label: 'Arrow at end', type: 'select', options: ARROWS },
+  { prop: 'source-arrow-shape', label: 'Arrow at start', type: 'select', options: ARROWS },
+  { prop: 'color', label: 'Font colour', type: 'color' },
+  { prop: 'font-size', label: 'Font size', type: 'number' },
+]
+
+/**
+ * Make a DOM element
+ * @param {string} tag
+ * @param {object} [props] properties to assign (className, textContent, ...)
+ * @param {...(Node|string)} children
+ * @returns {HTMLElement}
+ */
+function el(tag, props = {}, ...children) {
+  const e = Object.assign(document.createElement(tag), props)
+  e.append(...children)
+  return e
+}
+
+/**
+ * Choose the display name for a style.
+ * @param {string} id style id
+ * @param {{name:string}} st
+ * @returns {string} name to show for the style
+ */
+function styleName(id, st) {
+  if (st.name) return st.name
+  return id.endsWith('Base') ? 'Default' : `(unnamed ${id})`
+}
+
+let colorContext = null
+
+/**
+ * Convert a CSS colour to a hexadecimal input value.
+ * @param {string} color any CSS colour
+ * @returns {string} #rrggbb, as needed by an &lt;input type="color">
+ */
+export function toHex(color) {
+  colorContext ??= document.createElement('canvas').getContext('2d')
+  colorContext.fillStyle = '#000000'
+  colorContext.fillStyle = color || '#000000'
+  const v = colorContext.fillStyle
+  if (v.startsWith('#')) return v
+  const [r, g, b] = v.match(/[\d.]+/g).map(Number)
+  return `#${[r, g, b].map((n) => Math.round(n).toString(16).padStart(2, '0')).join('')}`
+}
+
+/**
+ * The properties that change when an edge or node colour is changed
+ * @param {'node'|'edge'} kind
+ * @param {string} prop the property chosen in the form
+ * @param {string} value
+ * @returns {object}
+ */
+export function colorPatch(kind, prop, value) {
+  const rgba = value.match(
+    /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)$/i
+  )
+  const alpha = rgba
+    ? Number(rgba[4] ?? 1)
+    : /^#[\da-f]{8}$/i.test(value)
+      ? parseInt(value.slice(7), 16) / 255
+      : 1
+  const color = rgba
+    ? `rgb(${rgba[1]}, ${rgba[2]}, ${rgba[3]})`
+    : value.startsWith('#')
+      ? value.slice(0, 7)
+      : value
+  const opacity = COLOR_OPACITY[prop]
+  const patch = opacity ? { [opacity]: alpha } : {}
+  if (kind === 'edge' &amp;&amp; prop === 'line-color') {
+    return { ...patch, ...Object.fromEntries(EDGE_COLOR_PROPS.map((p) => [p, color])) }
+  }
+  return { ...patch, [prop]: color }
+}
+
+/**
+ * Properties to set when the shape of a node style changes (undefined values are removed)
+ * @param {string} shape one of SHAPES
+ * @param {object} css current css of the style
+ * @returns {object}
+ */
+export function shapePatch(shape, css) {
+  const fresh = nodeStyleToCss({ shape, font: { size: css['font-size'] ?? 14 } })
+  const patch = { shape: fresh.shape }
+  for (const k of SHAPE_KEYS) patch[k] = fresh[k]
+  if (shape === 'text') patch['border-width'] = 0
+  return patch
+}
+
+/**
+ * The style editing panel. It works on one view (store and graph) at a time.
+ */
+export class StyleEditor {
+  /**
+   * Create a style editor for a container.
+   * @param {HTMLElement} container
+   * @param {object} [options]
+   * @param {boolean} [options.single] show only the form for the current style, not the list of styles
+   */
+  constructor(container, { single = false } = {}) {
+    this.container = container
+    this.single = single
+    this.view = null
+    this.current = null
+    this.pending = false
+    this.typing = false
+  }
+
+  /**
+   * Listen to the store and graph of a view
+   * @param {{store: MapStore, cy: cytoscape.Core}} view
+   * @returns {void}
+   */
+  attach(view) {
+    /**
+     * Schedule a refresh only for the active view.
+     * @returns {void|boolean} False when the view is inactive.
+     */
+    const refresh = () => view === this.view &amp;&amp; this.schedule()
+    view.store.doc.on('afterTransaction', refresh)
+    view.cy.on('select unselect', refresh)
+  }
+
+  /**
+   * Select the map and graph whose styles are being edited.
+   * @param {{store: MapStore, cy: cytoscape.Core}} view the view to edit
+   * @returns {void}
+   */
+  setView(view) {
+    if (view === this.view) return
+    this.view = view
+    this.current = null
+    this.render()
+  }
+
+  /**
+   * Coalesce editor redraws into the next animation frame.
+   * @returns {void}
+   */
+  schedule() {
+    if (this.pending) return
+    this.pending = true
+    requestAnimationFrame(() => {
+      this.pending = false
+      this.render()
+    })
+  }
+
+  /**
+   * List styles of a kind, with the base style first.
+   * @param {'node'|'edge'} kind Element kind.
+   * @returns {Array&lt;[string, object]>} Style IDs and records.
+   */
+  stylesOf(kind) {
+    const all = [...this.view.store.styles.entries()].filter(([, s]) => s.kind === kind)
+    return all.sort(([a], [b]) => (b === `${kind}Base`) - (a === `${kind}Base`))
+  }
+
+  /**
+   * Render the current style editor and selection controls.
+   * @returns {void}
+   */
+  render() {
+    if (!this.view) return
+    if (this.typing) {
+      this.renderList()
+      return
+    }
+    const { store } = this.view
+    if (!store.styles.has(this.current)) this.current = null
+    if (this.single) {
+      this.container.replaceChildren(this.current ? this.form(this.current) : '')
+      return
+    }
+    this.container.replaceChildren(
+      el('h2', { textContent: 'Styles' }),
+      (this.list = el('div', { className: 'style-list' })),
+      this.selectionSection(),
+      this.current ? this.form(this.current) : el('p', { textContent: 'Choose a style to edit.' })
+    )
+    this.renderList()
+  }
+
+  /**
+   * Refresh the style list without replacing an active input.
+   * @returns {void}
+   */
+  renderList() {
+    if (!this.list) return
+    this.list.replaceChildren()
+    for (const kind of ['node', 'edge']) {
+      this.list.append(el('h3', { textContent: kind === 'node' ? 'Factors' : 'Links' }))
+      for (const [id, st] of this.stylesOf(kind)) this.list.append(this.listItem(id, st))
+      this.list.append(this.addButton(kind))
+    }
+  }
+
+  /**
+   * Create a style list entry.
+   * @param {string} id
+   * @param {object} st
+   * @returns {HTMLElement}
+   */
+  listItem(id, st) {
+    const swatch = el('span', { className: 'swatch' })
+    swatch.style.setProperty('--c', toHex(st.css['background-color'] ?? st.css['line-color']))
+    const name = styleName(id, st)
+    const b = el('button', { className: id === this.current ? 'on' : '' }, swatch, name)
+    b.addEventListener('click', () => {
+      this.current = id
+      this.render()
+    })
+    return b
+  }
+
+  /**
+   * Create a button for adding a style.
+   * @param {'node'|'edge'} kind
+   * @returns {HTMLElement}
+   */
+  addButton(kind) {
+    const b = el('button', { textContent: '+ new style', className: 'add' })
+    b.addEventListener('click', () => {
+      const { store } = this.view
+      const base = store.styles.get(this.current)?.kind === kind ? this.current : `${kind}Base`
+      this.current = store.addStyle(kind, 'New style', { ...store.styles.get(base).css })
+    })
+    return b
+  }
+
+  /**
+   * Create the editing form for a style.
+   * @param {string} id
+   * @returns {HTMLElement} form for editing the style
+   */
+  form(id) {
+    const { store } = this.view
+    const st = store.styles.get(id)
+    const base = store.styles.get(`${st.kind}Base`)
+    const fields = st.kind === 'node' ? NODE_FIELDS : EDGE_FIELDS
+    const f = el('div', { className: 'style-form' }, this.nameRow(id, st))
+    for (const field of fields) {
+      let value =
+        field.prop === 'shape'
+          ? shapeName({ ...base?.css, ...st.css })
+          : (st.css[field.prop] ?? base?.css[field.prop])
+      if (field.type === 'color') {
+        const opacity = colorOpacityProperty(field.prop)
+        value = colorWithOpacity(value, st.css[opacity] ?? base?.css[opacity] ?? 1)
+      }
+      f.append(this.row(field, value, (v) => this.editStyle(id, field, v)))
+    }
+    if (!this.single &amp;&amp; !id.endsWith('Base') &amp;&amp; !id.startsWith('cluster')) {
+      f.append(this.deleteButton(id, st.kind))
+    }
+    return f
+  }
+
+  /**
+   * Create the style name input.
+   * @param {string} id Style ID.
+   * @param {object} st Style record.
+   * @returns {HTMLElement} Label and input.
+   */
+  nameRow(id, st) {
+    const input = el('input', { type: 'text', value: st.name ?? '' })
+    input.addEventListener('change', () => {
+      this.setStyle(id, { ...this.view.store.styles.get(id), name: input.value })
+    })
+    return el('label', {}, 'Name', input)
+  }
+
+  /**
+   * Create a button that deletes a style and reassigns its elements.
+   * @param {string} id Style ID.
+   * @param {'node'|'edge'} kind Element kind.
+   * @returns {HTMLElement} Delete button.
+   */
+  deleteButton(id, kind) {
+    const b = el('button', { textContent: 'Delete style' })
+    b.addEventListener('click', () => {
+      this.view.store.deleteStyle(id, `${kind}Base`)
+      this.current = null
+    })
+    return b
+  }
+
+  /**
+   * Create a labelled control for a style property.
+   * @param {object} field entry of NODE_FIELDS or EDGE_FIELDS
+   * @param {*} value current value
+   * @param {function(string|number):void} onChange
+   * @returns {HTMLElement}
+   */
+  row(field, value, onChange) {
+    if (field.type === 'color') return this.colorRow(field, value, onChange)
+    const input = this.input(field, value)
+    const live = field.type !== 'select'
+    input.addEventListener(live ? 'input' : 'change', () => {
+      onChange(field.type === 'number' ? Number(input.value) : input.value)
+    })
+    return el('label', {}, field.label, input)
+  }
+
+  /**
+   * Create a labelled colour control for a style property.
+   * @param {object} field
+   * @param {string} value current colour
+   * @param {function(string):void} onChange
+   * @returns {HTMLElement} a labelled colour well
+   */
+  colorRow(field, value, onChange) {
+    const well = colorWell(value, {
+      /**
+       * Apply a live colour change while retaining the current editor.
+       * @param {string} color Chosen colour.
+       * @returns {void}
+       */
+      onInput: (color) => {
+        this.typing = true
+        onChange(color)
+        this.typing = false
+      },
+    })
+    return el('label', {}, field.label, well)
+  }
+
+  /**
+   * Create a numeric or selection input for a style field.
+   * @param {object} field Field definition.
+   * @param {*} value Current value.
+   * @returns {HTMLElement} Input element.
+   */
+  input(field, value) {
+    if (field.type === 'select') {
+      const shown = String(value ?? '')
+        .split(',')[0]
+        .trim()
+      const options = field.options.map((o) => el('option', { value: o, textContent: o }))
+      return Object.assign(el('select', {}, ...options), { value: shown })
+    }
+    return el('input', { type: 'number', min: 0, step: 1, value: value ?? 0 })
+  }
+
+  /**
+   * Change one property of a style
+   * @param {string} id
+   * @param {object} field
+   * @param {string|number} value
+   * @returns {void}
+   */
+  editStyle(id, field, value) {
+    const { store } = this.view
+    const st = store.styles.get(id)
+    let patch = { [field.prop]: value }
+    if (field.type === 'color') patch = colorPatch(st.kind, field.prop, value)
+    if (field.prop === 'shape') patch = shapePatch(value, st.css)
+    if (field.prop === 'font-family') patch = { [field.prop]: `${value}, sans-serif` }
+    const css = { ...st.css, ...patch }
+    for (const k of Object.keys(css)) if (css[k] === undefined) delete css[k]
+    this.setStyle(id, { ...st, css })
+  }
+
+  /**
+   * Apply a style edit, marking live dialog changes as previews.
+   * @param {string} id Style identifier.
+   * @param {object} style Updated style.
+   * @returns {void}
+   */
+  setStyle(id, style) {
+    const { store } = this.view
+    store.transact((transaction) => {
+      if (this.single) transaction.meta.set('stylePreview', id)
+      store.setStyle(id, style)
+    })
+  }
+
+  /**
+   * Create controls for the selected factors and links.
+   * @returns {HTMLElement} Selection section.
+   */
+  selectionSection() {
+    const { cy } = this.view
+    const nodes = cy.nodes(':selected').filter('[!cluster]')
+    const edges = cy.edges(':selected').not('.meta')
+    const s = el('div', { className: 'selection' })
+    if (!nodes.length &amp;&amp; !edges.length) {
+      s.append(
+        el('h3', { textContent: 'Selection' }),
+        el('p', { textContent: 'Nothing selected.' })
+      )
+      return s
+    }
+    s.append(el('h3', { textContent: `Selection: ${nodes.length} factors, ${edges.length} links` }))
+    if (nodes.length) s.append(this.selectionControls('node', nodes))
+    if (edges.length) s.append(this.selectionControls('edge', edges))
+    return s
+  }
+
+  /**
+   * Create style and override controls for selected elements.
+   * @param {'node'|'edge'} kind
+   * @param {cytoscape.Collection} eles selected elements of that kind
+   * @returns {HTMLElement}
+   */
+  selectionControls(kind, eles) {
+    const { store } = this.view
+    const mapName = `${kind}s`
+    const ids = eles.map((e) => e.id())
+    const used = new Set(ids.map((id) => store[mapName].get(id)?.style))
+    const choices = this.stylesOf(kind).map(([id, st]) =>
+      el('option', { value: id, textContent: styleName(id, st) })
+    )
+    const select = el('select', {}, ...choices)
+    select.value = used.size === 1 ? [...used][0] : ''
+    select.addEventListener('change', () => store.setElementStyle(mapName, ids, select.value))
+    const colorProp = kind === 'node' ? 'background-color' : 'line-color'
+    const colorValue = colorWithOpacity(
+      eles[0].style(colorProp),
+      eles[0].numericStyle(colorOpacityProperty(colorProp))
+    )
+    const color = this.row({ label: 'Colour', type: 'color' }, colorValue, (v) =>
+      store.setOverrides(mapName, ids, colorPatch(kind, colorProp, v))
+    )
+    const reset = el('button', { textContent: 'Clear overrides' })
+    reset.addEventListener('click', () => store.setOverrides(mapName, ids, null))
+    return el(
+      'div',
+      {},
+      el('label', {}, kind === 'node' ? 'Factor style' : 'Link style', select),
+      color,
+      reset
+    )
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Tue Nov 17 2026 21:45:52 GMT+0000 (GMT+00:00) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>
