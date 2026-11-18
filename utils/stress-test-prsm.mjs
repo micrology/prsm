@@ -35,11 +35,23 @@
  * websocket to flush, then disconnect.
  */
 
-import * as Y from 'yjs'
-import { WebsocketProvider } from 'y-websocket'
 import { randomUUID } from 'node:crypto'
 import { hostname } from 'node:os'
 import process from 'node:process'
+
+// y-websocket registers process.on('exit') per provider; 15 clients trip the default max of 10.
+process.setMaxListeners(0)
+// Node 22+ exposes experimental localStorage that warns unless --localstorage-file is set.
+// yjs/lib0 may touch it; suppress that noise only.
+const _emitWarning = process.emitWarning.bind(process)
+process.emitWarning = (warning, ...args) => {
+  const msg = typeof warning === 'string' ? warning : warning?.message
+  if (msg && /localStorage/i.test(msg)) return
+  return _emitWarning(warning, ...args)
+}
+
+const Y = await import('yjs')
+const { WebsocketProvider } = await import('y-websocket')
 
 // ---------------------------------------------------------------------------
 // CLI
@@ -56,7 +68,7 @@ const DEFAULTS = {
   rampMs: 200, // stagger client start
   machine: hostname().split('.')[0].slice(0, 12) || 'host',
   connectTimeoutMs: 30000,
-  flushMs: 1500, // wait after deletes before disconnect so updates reach the server
+  flushMs: 3000, // wait after deletes before disconnect so updates reach the server
   cleanupOnly: false,
   cleanupPrefix: 'Stress-', // label prefix for --cleanup-only
 }
@@ -307,9 +319,9 @@ class StressClient {
     const docName = `prsm${this.cfg.room}`
     this.provider = new WebsocketProvider(this.cfg.ws, docName, this.doc, {
       connect: true,
+      // Multiple clients in one process must not share BroadcastChannel state.
+      disableBc: true,
     })
-    // Disable BroadcastChannel so multiple clients in one Node process stay independent
-    this.provider.disconnectBc()
 
     const user = makeUser(this.name)
     user.id = this.doc.clientID
@@ -481,12 +493,15 @@ class StressClient {
       console.error(`[${this.name}] cleanup error:`, err.message || err)
     }
     // Give y-websocket time to push local updates before tearing down the socket.
+    // Prefer a connected socket; if already down, nothing to flush.
     if (this.provider?.wsconnected) {
       await sleep(this.cfg.flushMs)
+    } else {
+      await sleep(Math.min(500, this.cfg.flushMs))
     }
     try {
       this.provider?.awareness?.setLocalState(null)
-      this.provider?.disconnect()
+      // destroy() disconnects and removes the process 'exit' listener
       this.provider?.destroy()
     } catch {
       /* ignore */
@@ -512,8 +527,10 @@ async function runCleanupOnly(opts) {
   const doc = new Y.Doc()
   const yNodes = doc.getMap('nodes')
   const yEdges = doc.getMap('edges')
-  const provider = new WebsocketProvider(opts.ws, `prsm${opts.room}`, doc, { connect: true })
-  provider.disconnectBc()
+  const provider = new WebsocketProvider(opts.ws, `prsm${opts.room}`, doc, {
+    connect: true,
+    disableBc: true,
+  })
 
   await new Promise((resolve, reject) => {
     if (provider.synced) {
@@ -610,25 +627,47 @@ Open an observer browser on:
   }
 
   let shuttingDown = false
+  /** @type {Promise<void> | null} */
+  let shutdownPromise = null
   const startedAt = Date.now()
 
-  const shutdown = async (signal) => {
-    if (shuttingDown) return
+  const shutdown = (signal) => {
+    if (shutdownPromise) return shutdownPromise
     shuttingDown = true
-    console.log(`\n${signal}: stopping clients (interruptible) and flushing deletes…`)
-    // Mark all stopping first so sleeps abort immediately
-    for (const c of clients) c.stopping = true
-    await Promise.all(clients.map((c) => c.shutdown()))
-    printStats(stats, startedAt)
-    process.exit(stats.errors > 0 ? 1 : 0)
+    shutdownPromise = (async () => {
+      console.log(`
+${signal}: stopping clients (interruptible) and flushing deletes…`)
+      // Mark all stopping first so sleeps abort immediately
+      for (const c of clients) c.stopping = true
+      // One client does a full Stress- sweep so leftovers from any machine tag are cleared.
+      if (clients[0]) {
+        try {
+          const swept = deleteByLabelPrefix(
+            clients[0].doc,
+            clients[0].yNodes,
+            clients[0].yEdges,
+            opts.cleanupPrefix
+          )
+          if (swept.nodes || swept.edges) {
+            console.log(
+              `Swept ${swept.nodes} leftover factor(s) and ${swept.edges} link(s) with prefix "${opts.cleanupPrefix}"`
+            )
+          }
+        } catch (err) {
+          console.error('Sweep error:', err.message || err)
+        }
+      }
+      await Promise.all(clients.map((c) => c.shutdown()))
+      printStats(stats, startedAt)
+    })()
+    return shutdownPromise
   }
   process.on('SIGINT', () => {
-    void shutdown('SIGINT')
+    void shutdown('SIGINT').then(() => process.exit(stats.errors > 0 ? 1 : 0))
   })
   process.on('SIGTERM', () => {
-    void shutdown('SIGTERM')
+    void shutdown('SIGTERM').then(() => process.exit(stats.errors > 0 ? 1 : 0))
   })
-
   // Connect with ramp
   for (const c of clients) {
     try {
@@ -639,7 +678,7 @@ Open an observer browser on:
       console.error(err.message || err)
       stats.errors += 1
       await shutdown('connect-failure')
-      return
+      process.exit(1)
     }
     if (opts.rampMs) await sleep(opts.rampMs)
   }
@@ -666,11 +705,9 @@ Open an observer browser on:
   )
 
   clearInterval(ticker)
-  if (!shuttingDown) {
-    for (const c of clients) c.stopping = true
-    await Promise.all(clients.map((c) => c.shutdown()))
-    printStats(stats, startedAt)
-  }
+  // Always go through the shared shutdown path so Ctrl+C and normal completion
+  // cannot race (previously main called process.exit while SIGINT flush was in flight).
+  await shutdown(shuttingDown ? 'already-stopping' : 'complete')
   process.exit(stats.errors > 0 ? 1 : 0)
 }
 

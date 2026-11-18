@@ -641,6 +641,7 @@ function startY() {
     yjsTrace('yNodesMap.observe', evt)
     const nodesToUpdate = []
     const nodesToRemove = []
+    const edgesToRemove = []
     for (const key of evt.keysChanged) {
       if (yNodesMap.has(key)) {
         const obj = yNodesMap.get(key)
@@ -658,19 +659,19 @@ function startY() {
         }
       } else {
         hideNotes()
-        if (data.nodes.get(key)) {
-          network.getConnectedEdges(key).forEach((edge) => nodesToRemove.push(edge))
+        // Remove dangling links via the edges DataSet (not nodes.remove — edge ids are not node ids).
+        // Skip while drawing a link: getConnectedEdges can include the temporary rubber-band edge.
+        if (data.nodes.get(key) && !isDrawingLink()) {
+          network.getConnectedEdges(key).forEach((edgeId) => edgesToRemove.push(edgeId))
         }
         nodesToRemove.push(key)
       }
     }
-    if (nodesToUpdate.length > 0) {
-      nodes.update(nodesToUpdate, 'remote')
+    if (shouldBufferRemoteMapEdits()) {
+      bufferRemoteNodeEdits(nodesToUpdate, nodesToRemove, edgesToRemove)
+      return
     }
-    if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
-    if (nodesToUpdate.length > 0 || nodesToRemove.length > 0) {
-      reinstateAddModeIfNeeded()
-    }
+    applyRemoteNodeEdits(nodesToUpdate, nodesToRemove, edgesToRemove)
     if (/changes/.test(debug) && (nodesToUpdate.length > 0 || nodesToRemove.length > 0)) {
       showChange(evt, yNodesMap)
     }
@@ -716,11 +717,11 @@ function startY() {
         edgesToRemove.push(key)
       }
     }
-    if (edgesToUpdate.length > 0) edges.update(edgesToUpdate, 'remote')
-    if (edgesToRemove.length > 0) edges.remove(edgesToRemove, 'remote')
-    if (edgesToUpdate.length > 0 || edgesToRemove.length > 0) {
-      reinstateAddModeIfNeeded()
+    if (shouldBufferRemoteMapEdits()) {
+      bufferRemoteEdgeEdits(edgesToUpdate, edgesToRemove)
+      return
     }
+    applyRemoteEdgeEdits(edgesToUpdate, edgesToRemove)
     if (/changes/.test(debug) && (edgesToUpdate.length > 0 || edgesToRemove.length > 0)) {
       showChange(evt, yEdgesMap)
     }
@@ -1313,6 +1314,8 @@ function draw() {
         logHistory(
           `added link from '${data.nodes.get(item.from).label}' to '${data.nodes.get(item.to).label}'`
         )
+        // Remote edits were buffered during the drag; apply them now.
+        flushRemoteMapEditBuffer()
       },
       editEdge: {
         editWithoutDrag: function (item, callback) {
@@ -2580,6 +2583,7 @@ let currentCaptureReturn = null
  */
 function initPopUp(popUpTitle, item, cancelAction, saveAction, callback) {
   inAddMode = false
+  flushRemoteMapEditBuffer()
   inEditMode = true
   changeCursor('default')
   // elem('popup').style.height = `${height}px`
@@ -3564,6 +3568,8 @@ function stopEdit() {
   })
   clearStatusBar()
   changeCursor('default')
+  // Apply any remote map edits that were held back so the rubber-band could survive.
+  flushRemoteMapEditBuffer()
 }
 /**
  * vis-network ManipulationSystem listens for `_dataChanged` and calls `_restore()`,
@@ -3579,6 +3585,114 @@ function preserveAddModeAcrossRemoteEdits() {
     if (inAddMode === 'addLink' || inAddMode === 'addNode') return
     originalRestore()
   }
+  // Also protect temporary rubber-band geometry from EdgesHandler cleanup when a
+  // remote endpoint vanishes mid-drag (or any other _dataChanged side effect).
+  const edgesHandler = network.edgesHandler
+  if (edgesHandler && !edgesHandler._prsmRemoveInvalidPatched) {
+    const originalRemoveInvalid = edgesHandler._removeInvalidEdges.bind(edgesHandler)
+    edgesHandler._removeInvalidEdges = () => {
+      if (isDrawingLink()) return
+      originalRemoveInvalid()
+    }
+    edgesHandler._prsmRemoveInvalidPatched = true
+  }
+}
+/**
+ * True while the user is in Add Link mode (whether or not a drag has started).
+ */
+function isInAddLinkOrNodeMode() {
+  return inAddMode === 'addLink' || inAddMode === 'addNode'
+}
+/**
+ * True while a rubber-band link drag is in progress (temporary control node exists).
+ */
+function isDrawingLink() {
+  return (
+    inAddMode === 'addLink' &&
+    network &&
+    network.manipulation &&
+    network.manipulation.temporaryIds &&
+    network.manipulation.temporaryIds.nodes.length > 0
+  )
+}
+/**
+ * While adding a factor/link, do not apply remote DataSet updates immediately.
+ * Each update emits vis-network `_dataChanged`, which destroys the temporary
+ * rubber-band control edge (a flash of red is all the user sees under load).
+ */
+function shouldBufferRemoteMapEdits() {
+  return isInAddLinkOrNodeMode()
+}
+
+/** @type {{nodes: Map<string, object>, nodeRemoves: Set<string>, edgeRemoves: Set<string>, edges: Map<string, object>} | null} */
+let remoteMapEditBuffer = null
+
+function ensureRemoteMapEditBuffer() {
+  if (!remoteMapEditBuffer) {
+    remoteMapEditBuffer = {
+      nodes: new Map(),
+      nodeRemoves: new Set(),
+      edges: new Map(),
+      edgeRemoves: new Set(),
+    }
+  }
+  return remoteMapEditBuffer
+}
+
+function bufferRemoteNodeEdits(nodesToUpdate, nodesToRemove, edgesToRemove) {
+  const buf = ensureRemoteMapEditBuffer()
+  nodesToUpdate.forEach((n) => {
+    buf.nodeRemoves.delete(n.id)
+    buf.nodes.set(n.id, n)
+  })
+  nodesToRemove.forEach((id) => {
+    buf.nodes.delete(id)
+    buf.nodeRemoves.add(id)
+  })
+  edgesToRemove.forEach((id) => {
+    buf.edges.delete(id)
+    buf.edgeRemoves.add(id)
+  })
+}
+
+function bufferRemoteEdgeEdits(edgesToUpdate, edgesToRemove) {
+  const buf = ensureRemoteMapEditBuffer()
+  edgesToUpdate.forEach((e) => {
+    buf.edgeRemoves.delete(e.id)
+    buf.edges.set(e.id, e)
+  })
+  edgesToRemove.forEach((id) => {
+    buf.edges.delete(id)
+    buf.edgeRemoves.add(id)
+  })
+}
+
+function applyRemoteNodeEdits(nodesToUpdate, nodesToRemove, edgesToRemove) {
+  if (nodesToUpdate.length > 0) nodes.update(nodesToUpdate, 'remote')
+  if (edgesToRemove.length > 0) edges.remove(edgesToRemove, 'remote')
+  if (nodesToRemove.length > 0) nodes.remove(nodesToRemove, 'remote')
+  if (nodesToUpdate.length > 0 || nodesToRemove.length > 0 || edgesToRemove.length > 0) {
+    reinstateAddModeIfNeeded()
+  }
+}
+
+function applyRemoteEdgeEdits(edgesToUpdate, edgesToRemove) {
+  if (edgesToUpdate.length > 0) edges.update(edgesToUpdate, 'remote')
+  if (edgesToRemove.length > 0) edges.remove(edgesToRemove, 'remote')
+  if (edgesToUpdate.length > 0 || edgesToRemove.length > 0) {
+    reinstateAddModeIfNeeded()
+  }
+}
+
+/**
+ * Apply buffered remote edits after add-link / add-node finishes.
+ */
+function flushRemoteMapEditBuffer() {
+  if (!remoteMapEditBuffer) return
+  const buf = remoteMapEditBuffer
+  remoteMapEditBuffer = null
+  applyRemoteNodeEdits([...buf.nodes.values()], [...buf.nodeRemoves], [...buf.edgeRemoves])
+  applyRemoteEdgeEdits([...buf.edges.values()], [])
 }
 /**
  * If vis-network still dropped out of add mode, re-enter it — but only when needed.

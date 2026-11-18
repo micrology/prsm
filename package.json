@@ -20,7 +20,11 @@
     "devlop": "devlop/lib/default.js",
     "unist-util-visit-parents/do-not-use-color": "unist-util-visit-parents/lib/color.js",
     "three/webgpu": "three/build/three.webgpu.js",
-    "three/tsl": "three/build/three.tsl.js"
+    "three/tsl": "three/build/three.tsl.js",
+    "three/addons/controls/TrackballControls.js": "three/examples/jsm/controls/TrackballControls.js",
+    "three/addons/controls/ArcballControls.js": "three/examples/jsm/controls/ArcballControls.js",
+    "three/addons/controls/OrbitControls.js": "three/examples/jsm/controls/OrbitControls.js",
+    "three/addons/controls/FlyControls.js": "three/examples/jsm/controls/FlyControls.js"
   },
   "targets": {
     "default": {
@@ -58,7 +62,7 @@
     "deploy": "npm run install:all && npm run build-vis-network && npm run build && npm run build-help",
     "analyse": "npx parcel build './html/*.html' --detailed-report",
     "install:all": "npm i && (cd ./doc/help && npm i) && (cd ./api-server && npm i) && (cd ./vis-network && npm i)  && (cd ./ws-server && npm i)",
-    "upgrade:all": "npm upgrade && (cd ./doc/help && npm upgrade) && (cd ./api-server && npm upgrade) && (cd ./vis-network && npm upgrade) && (cd ./ws-server && npm upgrade)",
+    "upgrade:all": "npm upgrade && (cd ./doc/help && echo \"help\" && npm upgrade) && (cd ./api-server && echo \"api\"&& npm upgrade) && (cd ./vis-network && echo \"vis-network\"&& npm upgrade) && (cd ./ws-server && echo \"ws-server\"&& npm upgrade)",
     "start:all-locally": "./utils/start-all-locally.sh",
     "stop:all-locally": "./utils/stop-all-locally.sh",
     "stress:prsm": "node ./utils/stress-test-prsm.mjs"
@@ -125,5 +129,13 @@
     "@parcel/watcher-linux-x64-glibc": "^2.6.0",
     "@swc/core-linux-arm64-gnu": "^1.15.2",
     "lightningcss-linux-arm64-gnu": "^1.30.2"
+  },
+  "allowScripts": {
+    "@swc/core@1.16.22": true,
+    "canvas@3.2.3": true,
+    "classic-level@3.0.0": true,
+    "lmdb@2.8.5": true,
+    "msgpackr-extract@3.0.7": true,
+    "@parcel/watcher@2.5.1": true
   }
 }
