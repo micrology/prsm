@@ -372,6 +372,9 @@ class StressClient {
   }
 
   createPair(cycle, pairIndex) {
+    // Guard: shutdown may flip stopping between the run-loop check and this call.
+    if (this.stopping) return
+
     const baseX = ((this.cfg.index * 17 + pairIndex * 13) % 40) * 40 - 400
     const baseY = ((this.cfg.index * 11 + cycle * 7 + pairIndex * 19) % 30) * 40 - 300
     const jitter = () => (Math.random() - 0.5) * 30
@@ -395,6 +398,9 @@ class StressClient {
       userName: this.name,
     })
     const edge = makeLink({ id: idE, from: idA, to: idB, userName: this.name })
+
+    // If stop landed during construction, do not publish.
+    if (this.stopping) return
 
     this.doc.transact(() => {
       this.yNodes.set(idA, nodeA)
@@ -479,29 +485,16 @@ class StressClient {
   }
 
   /**
-   * Stop creating, delete anything still owned, wait for websocket flush, disconnect.
-   * Previously we disconnected (and process.exit'd) before deletes were sent, which
-   * left hundreds of orphan factors on the server.
+   * Drop the websocket quickly. Map cleanup is done by a dedicated connection
+   * after all clients have stopped creating — avoids races where createPair
+   * runs after a per-client deleteOwned/sweep.
    */
-  async shutdown() {
+  async disconnectOnly() {
     this.stopping = true
     clearInterval(this._heartbeat)
-    try {
-      this.deleteOwned()
-      this.cleanupOrphansByLabel()
-    } catch (err) {
-      console.error(`[${this.name}] cleanup error:`, err.message || err)
-    }
-    // Give y-websocket time to push local updates before tearing down the socket.
-    // Prefer a connected socket; if already down, nothing to flush.
-    if (this.provider?.wsconnected) {
-      await sleep(this.cfg.flushMs)
-    } else {
-      await sleep(Math.min(500, this.cfg.flushMs))
-    }
+    this.ownedPairs = []
     try {
       this.provider?.awareness?.setLocalState(null)
-      // destroy() disconnects and removes the process 'exit' listener
       this.provider?.destroy()
     } catch {
       /* ignore */
@@ -518,12 +511,51 @@ class StressClient {
 // Cleanup-only mode
 // ---------------------------------------------------------------------------
 
-async function runCleanupOnly(opts) {
-  console.log(`PRSM stress cleanup
+/**
+ * Wait until provider reports synced (or timeout).
+ * @param {import('y-websocket').WebsocketProvider} provider
+ * @param {number} timeoutMs
+ */
+function waitProviderSync(provider, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    if (provider.synced) {
+      resolve()
+      return
+    }
+    const timer = setTimeout(() => reject(new Error('sync timeout')), timeoutMs)
+    const onSync = (s) => {
+      if (s) {
+        clearTimeout(timer)
+        provider.off('sync', onSync)
+        resolve()
+      }
+    }
+    provider.on('sync', onSync)
+  })
+}
+
+function countByLabelPrefix(yNodes, prefix) {
+  let n = 0
+  yNodes.forEach((node) => {
+    if (node && typeof node.label === 'string' && node.label.startsWith(prefix)) n++
+  })
+  return n
+}
+
+/**
+ * Dedicated cleanup connection: sync room, delete all Stress-* factors, wait until
+ * local view is clean, give the socket time to flush, optionally verify once more.
+ * Used both by --cleanup-only and by normal/SIGINT shutdown after workers stop.
+ */
+async function cleanupRoom(opts, { quiet = false } = {}) {
+  if (!quiet) {
+    console.log(`PRSM stress cleanup
   room:   ${opts.room}
   ws:     ${opts.ws}
   prefix: ${opts.cleanupPrefix}
 `)
+  }
+
   const doc = new Y.Doc()
   const yNodes = doc.getMap('nodes')
   const yEdges = doc.getMap('edges')
@@ -532,29 +564,72 @@ async function runCleanupOnly(opts) {
     disableBc: true,
   })
 
-  await new Promise((resolve, reject) => {
-    if (provider.synced) {
-      resolve()
-      return
-    }
-    const timer = setTimeout(() => reject(new Error('sync timeout')), opts.connectTimeoutMs)
-    provider.on('sync', (s) => {
-      if (s) {
-        clearTimeout(timer)
-        resolve()
-      }
-    })
-  })
+  try {
+    await waitProviderSync(provider, opts.connectTimeoutMs)
+  } catch (err) {
+    provider.destroy()
+    doc.destroy()
+    throw err
+  }
 
-  console.log(`Synced. Map has ${yNodes.size} factors, ${yEdges.size} links.`)
   const before = { nodes: yNodes.size, edges: yEdges.size }
-  const result = deleteByLabelPrefix(doc, yNodes, yEdges, opts.cleanupPrefix)
-  console.log(`Deleted ${result.nodes} factors and ${result.edges} links with prefix "${opts.cleanupPrefix}".`)
-  await sleep(opts.flushMs)
-  console.log(`After flush: ${yNodes.size} factors, ${yEdges.size} links (was ${before.nodes}/${before.edges}).`)
-  provider.disconnect()
-  provider.destroy()
-  doc.destroy()
+  if (!quiet) {
+    console.log(
+      `Synced. Map has ${before.nodes} factors, ${before.edges} links ` +
+        `(${countByLabelPrefix(yNodes, opts.cleanupPrefix)} with prefix "${opts.cleanupPrefix}").`
+    )
+  }
+
+  let totalDeleted = { nodes: 0, edges: 0 }
+  // Retry a few times: concurrent clients or slow server merge can leave stragglers.
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    const remaining = countByLabelPrefix(yNodes, opts.cleanupPrefix)
+    if (remaining === 0) break
+    const result = deleteByLabelPrefix(doc, yNodes, yEdges, opts.cleanupPrefix)
+    totalDeleted.nodes += result.nodes
+    totalDeleted.edges += result.edges
+    if (!quiet) {
+      console.log(
+        `Cleanup attempt ${attempt}: deleted ${result.nodes} factors, ${result.edges} links ` +
+          `(${countByLabelPrefix(yNodes, opts.cleanupPrefix)} still local).`
+      )
+    }
+    // Let deletes propagate; then re-check.
+    await sleep(Math.max(opts.flushMs, 1500))
+  }
+
+  const afterLocal = countByLabelPrefix(yNodes, opts.cleanupPrefix)
+  if (!quiet) {
+    console.log(
+      `Cleanup done. Deleted ${totalDeleted.nodes} factors / ${totalDeleted.edges} links total. ` +
+        `Map now ${yNodes.size} factors, ${yEdges.size} links ` +
+        `(${afterLocal} still matching "${opts.cleanupPrefix}").`
+    )
+  }
+  if (afterLocal > 0) {
+    console.warn(
+      `Warning: ${afterLocal} factor(s) with prefix "${opts.cleanupPrefix}" remain. ` +
+        `Re-run: node utils/stress-test-prsm.mjs --cleanup-only`
+    )
+  }
+
+  try {
+    provider.awareness.setLocalState(null)
+    provider.destroy()
+  } catch {
+    /* ignore */
+  }
+  try {
+    doc.destroy()
+  } catch {
+    /* ignore */
+  }
+
+  return { ...totalDeleted, remaining: afterLocal, before, after: { nodes: yNodes.size, edges: yEdges.size } }
+}
+
+async function runCleanupOnly(opts) {
+  await cleanupRoom(opts, { quiet: false })
 }
 
 // ---------------------------------------------------------------------------
@@ -629,6 +704,8 @@ Open an observer browser on:
   let shuttingDown = false
   /** @type {Promise<void> | null} */
   let shutdownPromise = null
+  /** @type {Promise<void>[]} */
+  let runPromises = []
   const startedAt = Date.now()
 
   const shutdown = (signal) => {
@@ -636,28 +713,33 @@ Open an observer browser on:
     shuttingDown = true
     shutdownPromise = (async () => {
       console.log(`
-${signal}: stopping clients (interruptible) and flushing deletes…`)
-      // Mark all stopping first so sleeps abort immediately
+${signal}: stopping creators, then dedicated cleanup…`)
+
+      // 1. Stop all creation immediately (createPair also checks this flag).
       for (const c of clients) c.stopping = true
-      // One client does a full Stress- sweep so leftovers from any machine tag are cleared.
-      if (clients[0]) {
-        try {
-          const swept = deleteByLabelPrefix(
-            clients[0].doc,
-            clients[0].yNodes,
-            clients[0].yEdges,
-            opts.cleanupPrefix
-          )
-          if (swept.nodes || swept.edges) {
-            console.log(
-              `Swept ${swept.nodes} leftover factor(s) and ${swept.edges} link(s) with prefix "${opts.cleanupPrefix}"`
-            )
-          }
-        } catch (err) {
-          console.error('Sweep error:', err.message || err)
-        }
+
+      // 2. Wait for run loops to finish so nothing creates after cleanup starts.
+      if (runPromises.length > 0) {
+        await Promise.race([
+          Promise.allSettled(runPromises),
+          sleep(8000), // don't hang forever if a client is wedged
+        ])
+      } else {
+        // Brief settle if runs never started
+        await sleep(200)
       }
-      await Promise.all(clients.map((c) => c.shutdown()))
+
+      // 3. Drop worker sockets so they cannot race the cleanup connection.
+      await Promise.all(clients.map((c) => c.disconnectOnly()))
+
+      // 4. Fresh connection owns cleanup (no concurrent creators).
+      try {
+        await cleanupRoom(opts, { quiet: false })
+      } catch (err) {
+        console.error('Cleanup failed:', err.message || err)
+        stats.errors += 1
+      }
+
       printStats(stats, startedAt)
     })()
     return shutdownPromise
@@ -693,16 +775,15 @@ ${signal}: stopping clients (interruptible) and flushing deletes…`)
     )
   }, 10000)
 
-  await Promise.all(
-    clients.map(async (c) => {
-      try {
-        await c.run()
-      } catch (err) {
-        stats.errors += 1
-        console.error(`[${c.name}] fatal:`, err.message || err)
-      }
-    })
-  )
+  runPromises = clients.map(async (c) => {
+    try {
+      await c.run()
+    } catch (err) {
+      stats.errors += 1
+      console.error(`[${c.name}] fatal:`, err.message || err)
+    }
+  })
+  await Promise.all(runPromises)
 
   clearInterval(ticker)
   // Always go through the shared shutdown path so Ctrl+C and normal completion
