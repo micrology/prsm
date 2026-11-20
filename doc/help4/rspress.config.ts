@@ -2,8 +2,8 @@ import * as path from 'path';
 import { defineConfig } from '@rspress/core';
 
 export default defineConfig({
-  root: path.join(__dirname, '../help4/docs'),
-  outDir: path.join(__dirname, '../help4/doc_build'),
+  root: path.join(__dirname, 'docs'),
+  outDir: path.join(__dirname, 'doc_build'),
   base: '/doc/help4/doc_build/',
   title: 'PRSM 4',
   description: 'PRSM 4 user manual (draft)',

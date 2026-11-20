@@ -4,6 +4,16 @@ import cytoscape from 'cytoscape'
 import { MapStore } from '../../src/graph/store.js'
 import { bindGraph } from '../../src/graph/binding.js'
 import { readMapFile, writeMapFile } from '../../src/app/map-file.js'
+import { createDefaultMap } from '../../src/graph/defaults.js'
+import { legacyToV2, normaliseLegacy } from '../../src/graph/legacy.js'
+
+test('native defaults preserve the original new-map appearance and are independent', () => {
+  const first = createDefaultMap()
+  const second = createDefaultMap()
+  assert.deepEqual(first, legacyToV2(normaliseLegacy({ nodes: [], edges: [] })).file)
+  first.styles.group0.css.shape = 'changed'
+  assert.notEqual(first.styles.group0.css.shape, second.styles.group0.css.shape)
+})
 
 const sample = () => ({
   format: 'prsm',

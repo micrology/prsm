@@ -10,7 +10,7 @@ See the file LICENSE.md for details.
 Finds factors by their labels.
 ********************************************************************************************/
 
-import { elem, listen } from '../../../js/utils.js'
+import { elem, listen } from '../shared/utils.js'
 
 const ZOOM_ON_FOUND = 1
 const MOVE_MS = 500

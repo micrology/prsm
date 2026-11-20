@@ -11,7 +11,7 @@ Displays and edits the shared description of the map.
 ********************************************************************************************/
 
 import Quill from 'quill'
-import { elem, listen } from '../../../js/utils.js'
+import { elem, listen } from '../shared/utils.js'
 
 /** The shared map overview drawer. */
 export class Overview {

@@ -3,7 +3,7 @@
     "allowUnknownTags": false
   },
   "source": {
-    "include": ["./prsm4/src", "./js/utils.js", "./js/samples.js"],
+    "include": ["./prsm4/src"],
     "includePattern": ".js$"
   },
   "plugins": ["plugins/markdown", "./utils/jsdoc-prsm4.cjs"],

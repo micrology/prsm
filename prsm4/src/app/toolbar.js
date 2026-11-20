@@ -10,7 +10,7 @@ See the file LICENSE.md for details.
 Provides the map editor toolbar.
 ********************************************************************************************/
 
-import { elem, listen } from '../../../js/utils.js'
+import { elem, listen } from '../shared/utils.js'
 
 /**
  * Connects the buttons of the navigation bar to the editor and store.

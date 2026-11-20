@@ -11,7 +11,7 @@ Imports and exports maps in Graphviz DOT format.
 ********************************************************************************************/
 
 import parseDot from 'dotparser'
-import { legacyToV2, normaliseLegacy } from '../graph/legacy.js'
+import { createDefaultMap } from '../graph/defaults.js'
 import { noteText, resolve } from '../graph/columns.js'
 
 /**
@@ -286,7 +286,7 @@ export function readGraphviz(input) {
     }
   }
   visit(graph.children, { node: {}, edge: {} }, new Set())
-  const file = legacyToV2(normaliseLegacy({ nodes: [], edges: [] })).file
+  const file = createDefaultMap()
   for (const [id, attrs] of nodes) file.nodes.push(makeNode(id, attrs, file.nodes.length))
   for (const item of edges) {
     let id = item.attrs.prsm_id

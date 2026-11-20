@@ -10,7 +10,7 @@ See the file LICENSE.md for details.
 Displays an overview of the map and its visible area.
 ********************************************************************************************/
 
-import { elem } from '../../../js/utils.js'
+import { elem } from '../shared/utils.js'
 
 const WIDTH = 180
 const HEIGHT = 120

@@ -12,7 +12,7 @@ Displays and selects factor and link styles.
 
 import cytoscape from 'cytoscape'
 import { compileStylesheet } from '../graph/graph.js'
-import { elem, listen } from '../../../js/utils.js'
+import { elem, listen } from '../shared/utils.js'
 
 const SAMPLE_COUNT = 15
 const SAMPLE_LABEL = 'Sample'

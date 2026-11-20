@@ -19,7 +19,7 @@ const root = path.resolve('.')
 async function createTestProject(dir) {
   const project = path.join(dir, 'project')
   await mkdir(project)
-  for (const name of ['prsm4', 'css', 'js', 'icons', 'fonts', 'utils']) {
+  for (const name of ['prsm4', 'utils']) {
     await cp(path.join(root, name), path.join(project, name), { recursive: true })
   }
   for (const name of ['package.json', 'package-lock.json', '.parcelrc']) {

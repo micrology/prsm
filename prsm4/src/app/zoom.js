@@ -10,7 +10,7 @@ See the file LICENSE.md for details.
 Controls the map viewport and magnification.
 ********************************************************************************************/
 
-import { elem, listen } from '../../../js/utils.js'
+import { elem, listen } from '../shared/utils.js'
 
 const ZOOM_STEP = 1.2
 

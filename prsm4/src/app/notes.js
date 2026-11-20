@@ -12,7 +12,7 @@ Displays and edits factor and link notes.
 
 import Quill from 'quill'
 import 'quill/dist/quill.snow.css'
-import { alertMsg, dragElement, elem, listen, shorten, timeAndDate } from '../../../js/utils.js'
+import { alertMsg, dragElement, elem, listen, shorten, timeAndDate } from '../shared/utils.js'
 import { hasNote } from './badges.js'
 
 const TOOLBAR = [

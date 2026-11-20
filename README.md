@@ -300,7 +300,7 @@ the local websocket override and help API setting. The websocket override is
 retained in room and data-view links.
 The stack watches PRSM 4 source files and serves `dist4/` and the PRSM 4
 manual on the same origin. If Help is unavailable, build it with
-`npm run build:help4:local`.
+`npm ci --prefix doc/help4` followed by `npm run build:help4:local`.
 
 The local websocket server runs on **1235** and stores rooms in `dbDir4/`,
 separate from the legacy server's `dbDir/`. Consequently, maps saved in
@@ -439,7 +439,7 @@ Subpackages define additional scripts; see their READMEs and `package.json` file
 The PRSM 4 build is separate from the legacy `dist/` output. Serve `dist4/`
 to run PRSM 4 locally; a server serving only `dist/` will not serve
 `prsm4.html` or `table4.html`. The PRSM 4 manual in `doc/help4/` is a draft
-copied from the legacy manual and shares its image assets; some pages still
+copied from the legacy manual with its own image assets; some pages still
 need revision. The application opens this manual on the same host. Publish
 the manual at `/doc/help4/doc_build/` on the same host as the application,
 including when running locally.

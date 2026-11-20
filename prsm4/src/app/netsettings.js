@@ -10,7 +10,7 @@ See the file LICENSE.md for details.
 Provides settings for the map and its appearance.
 ********************************************************************************************/
 
-import { alertMsg, elem, listen, statusMsg } from '../../../js/utils.js'
+import { alertMsg, elem, listen, statusMsg } from '../shared/utils.js'
 import { layoutPositions, LAYOUTS } from './layouts.js'
 
 const GRID_SPACING = 50
@@ -26,7 +26,7 @@ export class NetworkSettings {
    * @param {object} app Settings dependencies.
    * @param {import('../graph/store.js').MapStore} app.store Map store.
    * @param {cytoscape.Core} app.cy Displayed graph.
-   * @param {import('../../../js/utils.js').CP} app.colorPicker Shared colour picker.
+   * @param {import('../shared/utils.js').CP} app.colorPicker Shared colour picker.
    */
   constructor({ store, cy, colorPicker }) {
     this.store = store

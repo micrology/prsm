@@ -12,7 +12,7 @@ Starts the PRSM 4 map editor and connects its features.
 
 import cytoscape from 'cytoscape'
 import { WebsocketProvider } from 'y-websocket'
-import { normaliseLegacy, legacyToV2 } from '../graph/legacy.js'
+import { createDefaultMap } from '../graph/defaults.js'
 import { MapStore } from '../graph/store.js'
 import { bindGraph } from '../graph/binding.js'
 import { Editor } from '../graph/editing.js'
@@ -24,7 +24,7 @@ import {
   listen,
   setAlertDuration,
   statusMsg,
-} from '../../../js/utils.js'
+} from '../shared/utils.js'
 import { docName, generateRoom, redirectToRoom, roomFromUrl, serverUrl } from './room.js'
 import { loadUser } from './user.js'
 import { Toolbar } from './toolbar.js'
@@ -342,7 +342,7 @@ class App {
    * @returns {void}
    */
   initialiseNewMap() {
-    this.store.loadFile(legacyToV2(normaliseLegacy({ nodes: [], edges: [] })).file)
+    this.store.loadFile(createDefaultMap())
   }
 
   /**

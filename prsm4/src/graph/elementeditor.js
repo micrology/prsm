@@ -20,7 +20,7 @@ import { factorColumns, linkColumns } from './columns.js'
 import { splitText } from './text.js'
 import { colorWell } from './colorwell.js'
 import { SHAPES, ARROWS, LINE_STYLES } from './styleeditor.js'
-import { dragElement } from '../../../js/utils.js'
+import { dragElement } from '../shared/utils.js'
 
 const SLIDER_MIN = 5
 const FONT_SIZES = [

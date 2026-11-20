@@ -13,7 +13,7 @@ Records map changes and restores earlier versions.
 import localForage from 'localforage'
 import lzString from 'lz-string'
 import { LOCAL } from '../graph/store.js'
-import { alertMsg, dragElement, elem, listen, shorten, timeAndDate } from '../../../js/utils.js'
+import { alertMsg, dragElement, elem, listen, shorten, timeAndDate } from '../shared/utils.js'
 
 const { compressToUTF16, decompressFromUTF16 } = lzString
 const MAX_ROLLBACKS = 15

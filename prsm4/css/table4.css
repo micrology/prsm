@@ -2,7 +2,7 @@
 
 @font-face {
   font-family: Oxygen;
-  src: url('../../fonts/oxygen-regular-webfont.woff2') format('woff2');
+  src: url('../fonts/oxygen-regular-webfont.woff2') format('woff2');
 }
 
 body {

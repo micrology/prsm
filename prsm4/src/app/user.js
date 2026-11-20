@@ -10,7 +10,7 @@ See the file LICENSE.md for details.
 Manages the current user display name.
 ********************************************************************************************/
 
-import { generateName } from '../../../js/utils.js'
+import { generateName } from '../shared/utils.js'
 
 const STORAGE_KEY = 'myName'
 const FORBIDDEN_CHARS = /[&<>*"']/g

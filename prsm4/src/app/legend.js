@@ -10,7 +10,7 @@ See the file LICENSE.md for details.
 Displays the map style legend.
 ********************************************************************************************/
 
-import { alertMsg, dragElement, elem, listen } from '../../../js/utils.js'
+import { alertMsg, dragElement, elem, listen } from '../shared/utils.js'
 import { compileStylesheet } from '../graph/graph.js'
 
 /** A draggable legend containing the named factor and link styles. */

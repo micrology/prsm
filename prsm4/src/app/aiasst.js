@@ -15,7 +15,7 @@ See the file LICENSE.md for details.
 This module provides the AI Help Assistant front end for PRSM
 ********************************************************************************************/
 
-import { elem, dragElement } from '../../../js/utils.js'
+import { elem, dragElement } from '../shared/utils.js'
 import { marked } from 'marked'
 
 /**
@@ -116,7 +116,7 @@ export function openAIAsstDialog({ room, legend }) {
 
   const chatHistory = []
   let pending = false
-  const imageBaseUrl = 'https://prsm.uk/doc/help/doc_build'
+  const imageBaseUrl = new URL('/doc/help4/doc_build', window.location.origin).href
   const apiBaseUrl = helpServiceOrigin(new URL(window.location.href))
 
   /** Send a question and keep successful exchanges for follow-up questions.

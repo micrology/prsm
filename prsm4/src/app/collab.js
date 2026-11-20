@@ -10,7 +10,7 @@ See the file LICENSE.md for details.
 Displays and manages collaboration with other users.
 ********************************************************************************************/
 
-import { alertMsg, clearStatusBar, elem, initials, listen, statusMsg } from '../../../js/utils.js'
+import { alertMsg, clearStatusBar, elem, initials, listen, statusMsg } from '../shared/utils.js'
 import { renameUser } from './user.js'
 
 const SLEEP_AFTER_MS = 15 * 60 * 1000

@@ -10,7 +10,7 @@ See the file LICENSE.md for details.
 Imports and exports maps in GML format.
 ********************************************************************************************/
 
-import { legacyToV2, normaliseLegacy } from '../graph/legacy.js'
+import { createDefaultMap } from '../graph/defaults.js'
 import { noteText, resolve } from '../graph/columns.js'
 
 /**
@@ -182,7 +182,7 @@ function readEdge(item, nodes, ids, warnings) {
 export function readGml(input) {
   const graph = value(parse(input), 'graph')
   if (!Array.isArray(graph)) throw new Error('GML must contain a graph list')
-  const file = legacyToV2(normaliseLegacy({ nodes: [], edges: [] })).file
+  const file = createDefaultMap()
   const ids = new Set()
   for (const [, item] of graph.filter(([key]) => key === 'node')) {
     const node = readNode(item, file.nodes.length)

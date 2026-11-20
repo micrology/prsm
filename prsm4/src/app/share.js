@@ -11,7 +11,7 @@ Provides links for sharing maps and opening the data view.
 ********************************************************************************************/
 
 import QRCode from 'qrcode'
-import { alertMsg, elem, listen } from '../../../js/utils.js'
+import { alertMsg, elem, listen } from '../shared/utils.js'
 import { initialiseClone } from './clone.js'
 import { generateRoom, serverUrl } from './room.js'
 

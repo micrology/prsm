@@ -10,7 +10,7 @@ See the file LICENSE.md for details.
 Manages recently visited maps and project lists.
 ********************************************************************************************/
 
-import { alertMsg, elem, listen } from '../../../js/utils.js'
+import { alertMsg, elem, listen } from '../shared/utils.js'
 import { generateRoom } from './room.js'
 
 const STORAGE_KEY = 'prsm4MapList'

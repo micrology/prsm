@@ -20,7 +20,7 @@ in the browser and under Node.
   legacyToV2(json)       -> { file, report }   v2 file object and a report of what was dropped/changed
 **************************************************************************************** */
 import lzString from 'lz-string'
-import { styles as DEFAULT_STYLES } from '../../../js/samples.js'
+import { styles as DEFAULT_STYLES } from './legacy-defaults.js'
 
 export const SCHEMA_VERSION = 2
 

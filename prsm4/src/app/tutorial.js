@@ -11,7 +11,7 @@ Guides new users through the map editor.
 ********************************************************************************************/
 
 import { createPopper } from '@popperjs/core'
-import { elem, listen } from '../../../js/utils.js'
+import { elem, listen } from '../shared/utils.js'
 
 const DONE_KEY = 'doneIntro'
 
@@ -85,7 +85,7 @@ export class Tutorial {
     const name = document.getElementById('splashNameBox')
     if (name) {
       const logo = document.createElement('img')
-      logo.src = new URL('../../../icons/PRSMlogo80.webp', import.meta.url)
+      logo.src = new URL('../../icons/PRSMlogo80.webp', import.meta.url)
       logo.alt = ''
       elem('intro-logo').append(logo)
       name.placeholder = this.user.name

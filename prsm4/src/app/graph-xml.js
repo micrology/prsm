@@ -11,7 +11,7 @@ Imports and exports maps in GraphML and GEXF formats.
 ********************************************************************************************/
 
 import { XMLParser, XMLValidator } from 'fast-xml-parser'
-import { legacyToV2, normaliseLegacy } from '../graph/legacy.js'
+import { createDefaultMap } from '../graph/defaults.js'
 import { noteText, resolve } from '../graph/columns.js'
 
 /**
@@ -94,7 +94,7 @@ function number(value, fallback) {
  * @returns {object} Native map snapshot.
  */
 function makeFile() {
-  return legacyToV2(normaliseLegacy({ nodes: [], edges: [] })).file
+  return createDefaultMap()
 }
 
 /**

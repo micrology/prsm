@@ -11,7 +11,7 @@ Imports and exports map data in spreadsheet formats.
 ********************************************************************************************/
 
 import { read, utils, write } from 'xlsx'
-import { legacyToV2, normaliseLegacy } from '../graph/legacy.js'
+import { createDefaultMap } from '../graph/defaults.js'
 import { noteText } from '../graph/columns.js'
 
 const FACTOR_FIELDS = new Set(['id', 'label', 'note', 'description', 'style', 'x', 'y'])
@@ -133,7 +133,7 @@ export function readCSV(text) {
   if (!records.length || records[0].length < 2) {
     throw new Error('CSV must have at least two columns')
   }
-  const file = legacyToV2(normaliseLegacy({ nodes: [], edges: [] })).file
+  const file = createDefaultMap()
   const nodes = new Map()
   /**
    * Find or create a factor for a CSV endpoint.
@@ -197,7 +197,7 @@ export function readSpreadsheet(data) {
       throw new Error(`${sheet} sheet must have ${required.join(' and ')} columns`)
     }
   }
-  const file = legacyToV2(normaliseLegacy({ nodes: [], edges: [] })).file
+  const file = createDefaultMap()
   const titles = {}
   const headings = {}
   const byLabel = new Map()

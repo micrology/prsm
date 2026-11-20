@@ -10,7 +10,7 @@ See the file LICENSE.md for details.
 Displays the map settings side panel.
 ********************************************************************************************/
 
-import { CP, dragElement, elem, listen } from '../../../js/utils.js'
+import { CP, dragElement, elem, listen } from '../shared/utils.js'
 
 const TABS = {
   nodesButton: 'nodesTab',

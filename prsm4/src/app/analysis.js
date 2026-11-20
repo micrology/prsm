@@ -13,7 +13,7 @@ Provides map analysis and clustering controls.
 import { clusterBy, clusterByLouvain } from '../graph/cluster.js'
 import { applyCurves } from '../graph/graph.js'
 import { computeStats } from '../graph/stats.js'
-import { alertMsg, elem, listen, statusMsg } from '../../../js/utils.js'
+import { alertMsg, elem, listen, statusMsg } from '../shared/utils.js'
 import { PathSearchLimitError, pathsBetween, reachable } from './analysis-graph.js'
 
 const METRICS = {
