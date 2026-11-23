@@ -65,7 +65,9 @@
     "upgrade:all": "npm upgrade && (cd ./doc/help && echo \"help\" && npm upgrade) && (cd ./api-server && echo \"api\"&& npm upgrade) && (cd ./vis-network && echo \"vis-network\"&& npm upgrade) && (cd ./ws-server && echo \"ws-server\"&& npm upgrade)",
     "start:all-locally": "./utils/start-all-locally.sh",
     "stop:all-locally": "./utils/stop-all-locally.sh",
-    "stress:prsm": "node ./utils/stress-test-prsm.mjs"
+    "stress:prsm": "node ./utils/stress-test-prsm.mjs",
+    "test:minimap": "node ./utils/test-minimap-bounds.mjs",
+    "test": "npm run test:minimap"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {

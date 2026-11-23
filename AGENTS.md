@@ -46,13 +46,16 @@ src/
 
 ## ✅ Testing Protocol
 
-- No tests implemented
+- Minimap overview bounds / drag-outside refresh: pure unit tests (no browser)
+  - `npm run test:minimap` → `utils/test-minimap-bounds.mjs`
+  - Logic under test: `js/minimap-bounds.js` (used by `js/prsm.js`)
 
 ## Commands
 
-npm run build      # Build the project
-npm run lint       # Lint code
-npm build-help     # Build the user manual
+npm run build         # Build the project
+npm run lint          # Lint code
+npm run build-help    # Build the user manual
+npm run test:minimap  # Minimap bounds regression tests
 
 ## Core Principles
 

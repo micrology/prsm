@@ -102,6 +102,10 @@ import { openAIAsstDialog } from './aiasst.js'
 import { version, features } from '../package.json'
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
 import QRCode from 'qrcode'
+import {
+  computeOverviewCanvasBounds,
+  shouldRefreshMinimapForMovedNodes,
+} from './minimap-bounds.js'
 
 const appName = 'Participatory System Mapper'
 const shortAppName = 'PRSM'
@@ -112,6 +116,19 @@ const TIMETOEDIT = 5 * 60 * 1000 // if node/edge edit dialog is not saved after 
 const magnification = 3 // magnification of the loupe (magnifier 'glass')
 export const NLEVELS = 20 // max. number of levels for trophic layout
 const ROLLBACKS = 15 // max. number of versions stored for rollback
+/** Minimum view scale. Below this, click→canvas conversion places factors at extreme coords. */
+const MIN_SCALE = 0.1
+/** Maximum view scale (matches zoom slider max). */
+const MAX_SCALE = 4
+/**
+ * Max |x| or |y| (canvas units) allowed when placing a new factor.
+ * Beyond this the factor is re-centred on the current view (guards tiny-scale / bad pointer coords).
+ */
+const MAX_NODE_COORD = 20000
+/** Multiplicative zoom step per normalised wheel notch (similar to vis-network zoomSpeed). */
+const WHEEL_ZOOM_SPEED = 0.1
+/** Pixel delta treated as one discrete mouse-wheel notch when deltaMode is DOM_DELTA_PIXEL. */
+const WHEEL_PIXELS_PER_NOTCH = 100
 
 export let network
 export let room
@@ -1263,6 +1280,7 @@ function draw() {
       enabled: false,
       addNode: function (item, callback) {
         item.label = ''
+        clampNodePosition(item)
         item = deepMerge(item, styles.nodes[lastNodeSample])
         item.grp = lastNodeSample
         item.created = timestamp()
@@ -1391,7 +1409,7 @@ function draw() {
   network = new Network(netPane, data, options)
   window.network = network
   preserveAddModeAcrossRemoteEdits()
-  elem('zoom').value = network.getScale()
+  setZoomSlider(network.getScale())
 
   // start with factor tab open, but hidden
   elem('nodesButton').click()
@@ -1481,6 +1499,7 @@ function draw() {
       if (params.nodes.length === 0 && params.edges.length === 0) {
         const pos = params.pointer.canvas
         let item = { id: uuidv4(), label: '', x: pos.x, y: pos.y }
+        clampNodePosition(item)
         item = deepMerge(item, styles.nodes[lastNodeSample])
         item.grp = lastNodeSample
         addLabel(item, clearPopUp, function (newItem) {
@@ -1708,6 +1727,8 @@ function draw() {
           .map((id) => shorten(data.nodes.get(id).label))
           .join("', '")}'`
       )
+      // Cheap check: only rebuild the minimap snapshot if a moved factor left the overview
+      refreshMinimapIfOutsideOverview(params.nodes)
     }
     if (params.edges.length > 0) {
       logHistory(`curved an edge`)
@@ -1896,217 +1917,387 @@ export function setCanvasBackground(canvas) {
 
 /* --------------------------------------------draw and update the minimap --------------------------------------------*/
 /**
+ * Module state for the minimap so it can be refreshed on factor add/delete without
+ * stacking listeners when drawMinimap() is called again (e.g. after loading a file).
+ */
+const minimapState = {
+  ratio: 5,
+  fullNetPane: null,
+  fullNetwork: null,
+  initialScale: 1,
+  initialPosition: { x: 0, y: 0 },
+  /** Canvas-space rectangle last captured in the minimap overview image (after fit). */
+  overviewBounds: null,
+  minimapWidth: 0,
+  minimapHeight: 0,
+  /** When true, the next fullNetwork afterDrawing takes a snapshot into the minimap image. */
+  snapshotPending: false,
+  /** Coalesce bulk add/remove (file load) into one refresh per animation frame. */
+  refreshScheduled: false,
+  /** Main network instance listeners were bound to (rebind after clearMap/draw). */
+  boundNetwork: null,
+  radarDragBound: false,
+  nodesListenersBound: false,
+}
+
+/**
  * Draw the minimap, which is a scaled down version of the network
- * with a 'radar' overlay showing the current view
+ * with a 'radar' overlay showing the current view.
+ * Safe to call more than once; rebinds to the current main network if needed.
  *
  * @param {number} [ratio=5] - the ratio of the size of the minimap to the network
  */
 export function drawMinimap(ratio = 5) {
-  let fullNetPane, fullNetwork, initialScale, initialPosition, minimapWidth, minimapHeight
-  const minimapWrapper = document.getElementById('minimapWrapper') // a div to contain the minimap
-  const minimapImage = document.getElementById('minimapImage') // an img, child of minimapWrapper
-  const minimapRadar = document.getElementById('minimapRadar') // a div, child of minimapWrapper
-  // size the minimap
-  minimapSetup()
-  // set up dragging of the radar overlay
-  let dragging = false // if true, ignore clicks when user is dragging radar overlay
-  dragRadar()
-  /**
-   * Set the size of the minimap and its components
-   */
-  function minimapSetup() {
-    const { clientWidth, clientHeight } = network.body.container
-    minimapWidth = clientWidth / ratio
-    minimapHeight = clientHeight / ratio
-    minimapWrapper.style.width = `${minimapWidth}px`
-    minimapWrapper.style.height = `${minimapHeight}px`
-    minimapRadar.style.width = `${minimapWidth}px`
-    minimapRadar.style.height = `${minimapHeight}px`
-    drawMinimapImage()
-    drawRadar()
-  }
-  /**
-   * Draw a copy of the full network offscreen, then create an image of it
-   * The visible network can't be used, because it may be scaled and panned, but the minimap image needs to
-   * show the full network
-   */
-  function drawMinimapImage() {
-    if (!elem('fullnetPane')) {
-      // if the full network does not exist, create it
-      fullNetPane = document.createElement('div')
-      fullNetPane.style.position = 'absolute'
-      fullNetPane.style.top = '-9999px'
-      fullNetPane.style.left = '-9999px'
-      fullNetPane.style.width = `${netPane.offsetWidth}px`
-      fullNetPane.style.height = `${netPane.offsetHeight}px`
-      fullNetPane.id = 'fullNetPane'
-      netPane.appendChild(fullNetPane)
-      fullNetwork = new Network(fullNetPane, data, {
-        physics: { enabled: false },
-      })
-    }
-    fullNetwork.setOptions({
-      edges: { smooth: elem('curveSelect').value === 'cubicBezier' },
-    })
-    fullNetwork.fit()
-    initialScale = fullNetwork.getScale()
-    initialPosition = fullNetwork.getViewPosition()
+  minimapState.ratio = ratio
+  const minimapWrapper = document.getElementById('minimapWrapper')
+  const minimapImage = document.getElementById('minimapImage')
+  const minimapRadar = document.getElementById('minimapRadar')
+  if (!minimapWrapper || !minimapImage || !minimapRadar || !network) return
 
-    const fullNetworklCanvas = fullNetPane.firstElementChild.firstElementChild
-    fullNetwork.on('afterDrawing', () => {
-      // make the image as a reduced version of the fullNetwork
+  bindMainNetworkListeners()
+  bindNodeStructureListeners()
+  bindRadarDrag(minimapWrapper, minimapRadar)
+  minimapSetup(minimapWrapper, minimapImage, minimapRadar)
+}
+
+/**
+ * Set the size of the minimap and rebuild the overview image.
+ * @param {HTMLElement} minimapWrapper
+ * @param {HTMLImageElement} minimapImage
+ * @param {HTMLElement} minimapRadar
+ */
+function minimapSetup(minimapWrapper, minimapImage, minimapRadar) {
+  const { clientWidth, clientHeight } = network.body.container
+  const { ratio } = minimapState
+  minimapState.minimapWidth = clientWidth / ratio
+  minimapState.minimapHeight = clientHeight / ratio
+  minimapWrapper.style.width = `${minimapState.minimapWidth}px`
+  minimapWrapper.style.height = `${minimapState.minimapHeight}px`
+  minimapRadar.style.width = `${minimapState.minimapWidth}px`
+  minimapRadar.style.height = `${minimapState.minimapHeight}px`
+  drawMinimapImage(minimapImage)
+  drawRadar(minimapWrapper, minimapRadar)
+}
+
+/**
+ * Ensure the off-screen full-map network exists (id fullNetPane), re-fit it to all
+ * factors, and request a one-shot canvas snapshot for the minimap image.
+ * Shared DataSet means drag/update redraws fullNetwork too; snapshot only when pending
+ * so continuous pan/drag does not pay toDataURL cost.
+ * @param {HTMLImageElement} minimapImage
+ */
+function drawMinimapImage(minimapImage) {
+  if (!minimapImage) minimapImage = document.getElementById('minimapImage')
+  if (!minimapImage || !netPane) return
+
+  ensureFullNetwork(minimapImage)
+
+  const { fullNetwork } = minimapState
+  if (!fullNetwork) return
+
+  fullNetwork.setOptions({
+    edges: { smooth: elem('curveSelect').value === 'cubicBezier' },
+  })
+  // Fit to the whole map so newly added distant factors appear on the overview
+  fullNetwork.fit()
+  minimapState.initialScale = fullNetwork.getScale()
+  minimapState.initialPosition = fullNetwork.getViewPosition()
+  minimapState.overviewBounds = getOverviewCanvasBounds()
+  minimapState.snapshotPending = true
+  fullNetwork.redraw()
+}
+
+/**
+ * Canvas-space rectangle currently shown by the off-screen full-map fit
+ * (i.e. what the minimap image covers). Cheap; used to detect factors dragged outside.
+ * @returns {{left: number, right: number, top: number, bottom: number}|null}
+ */
+function getOverviewCanvasBounds() {
+  const pane = minimapState.fullNetPane || netPane
+  return computeOverviewCanvasBounds({
+    scale: minimapState.initialScale,
+    position: minimapState.initialPosition,
+    width: pane?.clientWidth,
+    height: pane?.clientHeight,
+  })
+}
+
+/**
+ * After factors have been moved, refresh the minimap overview only if any of them
+ * (or their bounding boxes) lie outside the canvas area last shown on the minimap.
+ * Bounding-box checks are cheap; the snapshot rebuild only runs when needed.
+ * @param {Array<string|number>} [nodeIds] ids of moved factors; all nodes if omitted
+ */
+function refreshMinimapIfOutsideOverview(nodeIds) {
+  const bounds = minimapState.overviewBounds
+  if (!bounds || !network || !data?.nodes) return
+
+  const ids = nodeIds?.length ? nodeIds : data.nodes.getIds()
+  const nodes = data.nodes.get(ids).filter(Boolean)
+  const needsRefresh = shouldRefreshMinimapForMovedNodes({
+    bounds,
+    nodes,
+    getBoundingBox: (id) => {
+      try {
+        return network.getBoundingBox(id)
+      } catch {
+        return undefined
+      }
+    },
+  })
+  if (needsRefresh) scheduleMinimapImageRefresh()
+}
+
+/**
+ * Create or reuse the off-screen Network used only for minimap snapshots.
+ * @param {HTMLImageElement} minimapImage
+ */
+function ensureFullNetwork(minimapImage) {
+  let fullNetPane = elem('fullNetPane')
+  if (!fullNetPane) {
+    fullNetPane = document.createElement('div')
+    fullNetPane.style.position = 'absolute'
+    fullNetPane.style.top = '-9999px'
+    fullNetPane.style.left = '-9999px'
+    fullNetPane.style.width = `${netPane.offsetWidth}px`
+    fullNetPane.style.height = `${netPane.offsetHeight}px`
+    fullNetPane.id = 'fullNetPane'
+    netPane.appendChild(fullNetPane)
+    minimapState.fullNetPane = fullNetPane
+    minimapState.fullNetwork = null
+  } else {
+    minimapState.fullNetPane = fullNetPane
+    // Keep pane size in sync with the main map on resize
+    fullNetPane.style.width = `${netPane.offsetWidth}px`
+    fullNetPane.style.height = `${netPane.offsetHeight}px`
+  }
+
+  if (!minimapState.fullNetwork) {
+    minimapState.fullNetwork = new Network(fullNetPane, data, {
+      physics: { enabled: false },
+    })
+    minimapState.fullNetwork.on('afterDrawing', () => {
+      if (!minimapState.snapshotPending) return
+      minimapState.snapshotPending = false
+      const canvas = minimapState.fullNetPane?.firstElementChild?.firstElementChild
+      if (!canvas || !minimapImage) return
+      const { minimapWidth, minimapHeight } = minimapState
       const tempCanvas = document.createElement('canvas')
       const tempContext = tempCanvas.getContext('2d')
       tempCanvas.width = minimapWidth
       tempCanvas.height = minimapHeight
-      tempContext.drawImage(fullNetworklCanvas, 0, 0, minimapWidth, minimapHeight)
+      tempContext.drawImage(canvas, 0, 0, minimapWidth, minimapHeight)
       minimapImage.src = tempCanvas.toDataURL()
       minimapImage.width = minimapWidth
       minimapImage.height = minimapHeight
     })
   }
-  /**
-   * Move a radar overlay on the minimap to show the current view of the network
-   */
-  function drawRadar() {
-    const scale = initialScale / network.getScale()
-    // fade out the whole minimap if the network is all visible in the viewport
-    // (there is no value in having a minimap in this case)
-    if (scale >= 1 && networkInPane()) {
-      minimapWrapper.style.display = 'none'
-      return
-    } else minimapWrapper.style.display = 'block'
-    const currentDOMPosition = network.canvasToDOM(network.getViewPosition())
-    const initialDOMPosition = network.canvasToDOM(initialPosition)
+}
 
-    minimapRadar.style.left = `${Math.round(
-      ((currentDOMPosition.x - initialDOMPosition.x) * scale) / ratio +
-        (minimapWidth * (1 - scale)) / 2
-    )}px`
-    minimapRadar.style.top = `${Math.round(
-      ((currentDOMPosition.y - initialDOMPosition.y) * scale) / ratio +
-        (minimapHeight * (1 - scale)) / 2
-    )}px`
-    minimapRadar.style.width = `${minimapWidth * scale}px`
-    minimapRadar.style.height = `${minimapHeight * scale}px`
-  }
-  /**
-   *
-   * @returns {boolean} - true if the network is entirely within the viewport
-   */
-  function networkInPane() {
-    const netPaneTopLeft = network.DOMtoCanvas({ x: 0, y: 0 })
-    const netPaneBottomRight = network.DOMtoCanvas({
-      x: netPane.clientWidth,
-      y: netPane.clientHeight,
-    })
-    for (const nodeId of data.nodes.getIds()) {
-      const boundingBox = network.getBoundingBox(nodeId)
-      if (boundingBox.left < netPaneTopLeft.x) return false
-      if (boundingBox.right > netPaneBottomRight.x) return false
-      if (boundingBox.top < netPaneTopLeft.y) return false
-      if (boundingBox.bottom > netPaneBottomRight.y) return false
-    }
-    return true
-  }
-  /**
-   * Whenever the network is resized, the minimap needs to be resized and the radar overlay moved
-   */
-  network.on('resize', () => {
-    minimapSetup()
+/**
+ * Schedule a re-fit + snapshot of the whole map (coalesced to one per frame).
+ * Used when factors are added or removed locally or remotely.
+ */
+function scheduleMinimapImageRefresh() {
+  if (minimapState.refreshScheduled) return
+  minimapState.refreshScheduled = true
+  requestAnimationFrame(() => {
+    minimapState.refreshScheduled = false
+    if (!network) return
+    const minimapImage = document.getElementById('minimapImage')
+    const minimapWrapper = document.getElementById('minimapWrapper')
+    const minimapRadar = document.getElementById('minimapRadar')
+    drawMinimapImage(minimapImage)
+    drawRadar(minimapWrapper, minimapRadar)
   })
-  /**
-   * Whenever the network is changed, panned or zoomed, the radar overlay needs to be moved
-   */
+}
+
+/**
+ * Move a radar overlay on the minimap to show the current view of the network
+ * @param {HTMLElement} [minimapWrapper]
+ * @param {HTMLElement} [minimapRadar]
+ */
+function drawRadar(minimapWrapper, minimapRadar) {
+  if (!network || !minimapState.initialScale) return
+  minimapWrapper = minimapWrapper || document.getElementById('minimapWrapper')
+  minimapRadar = minimapRadar || document.getElementById('minimapRadar')
+  if (!minimapWrapper || !minimapRadar) return
+
+  const { ratio, initialScale, initialPosition, minimapWidth, minimapHeight } = minimapState
+  const scale = initialScale / network.getScale()
+  // fade out the whole minimap if the network is all visible in the viewport
+  if (scale >= 1 && networkInPane()) {
+    minimapWrapper.style.display = 'none'
+    return
+  }
+  minimapWrapper.style.display = 'block'
+  const currentDOMPosition = network.canvasToDOM(network.getViewPosition())
+  const initialDOMPosition = network.canvasToDOM(initialPosition)
+
+  minimapRadar.style.left = `${Math.round(
+    ((currentDOMPosition.x - initialDOMPosition.x) * scale) / ratio +
+      (minimapWidth * (1 - scale)) / 2
+  )}px`
+  minimapRadar.style.top = `${Math.round(
+    ((currentDOMPosition.y - initialDOMPosition.y) * scale) / ratio +
+      (minimapHeight * (1 - scale)) / 2
+  )}px`
+  minimapRadar.style.width = `${minimapWidth * scale}px`
+  minimapRadar.style.height = `${minimapHeight * scale}px`
+}
+
+/**
+ * @returns {boolean} true if every factor is entirely within the main viewport
+ */
+function networkInPane() {
+  const netPaneTopLeft = network.DOMtoCanvas({ x: 0, y: 0 })
+  const netPaneBottomRight = network.DOMtoCanvas({
+    x: netPane.clientWidth,
+    y: netPane.clientHeight,
+  })
+  for (const nodeId of data.nodes.getIds()) {
+    const boundingBox = network.getBoundingBox(nodeId)
+    if (boundingBox.left < netPaneTopLeft.x) return false
+    if (boundingBox.right > netPaneBottomRight.x) return false
+    if (boundingBox.top < netPaneTopLeft.y) return false
+    if (boundingBox.bottom > netPaneBottomRight.y) return false
+  }
+  return true
+}
+
+/**
+ * Bind resize / afterDrawing on the current main network (once per network instance).
+ */
+function bindMainNetworkListeners() {
+  if (minimapState.boundNetwork === network) return
+  minimapState.boundNetwork = network
+  network.on('resize', () => {
+    const minimapWrapper = document.getElementById('minimapWrapper')
+    const minimapImage = document.getElementById('minimapImage')
+    const minimapRadar = document.getElementById('minimapRadar')
+    if (minimapWrapper && minimapImage && minimapRadar) {
+      minimapSetup(minimapWrapper, minimapImage, minimapRadar)
+    }
+  })
   network.on('afterDrawing', () => {
     drawRadar()
   })
-  /**
-   * Set up dragging of the radar overlay
-   */
-  function dragRadar() {
-    let x, y, radarStart
-    minimapRadar.addEventListener('pointerdown', dragMouseDown)
-    minimapWrapper.addEventListener(
-      'wheel',
-      (e) => {
-        e.preventDefault()
-        // reject all but vertical touch movements
-        if (Math.abs(e.deltaX) <= 1) zoomscroll(e)
-      },
-      { passive: false }
-    )
-    /**
-     * note that the mouse is down on the radar overlay and start dragging
-     * @param {event} e
-     */
-    function dragMouseDown(e) {
+}
+
+/**
+ * Rebuild the whole-map overview when factors are added or removed (local or remote).
+ * DataSet events cover both; rAF coalesces bulk loads. Position-only updates do not refresh.
+ */
+function bindNodeStructureListeners() {
+  if (minimapState.nodesListenersBound || !data?.nodes) return
+  minimapState.nodesListenersBound = true
+  data.nodes.on('add', scheduleMinimapImageRefresh)
+  data.nodes.on('remove', scheduleMinimapImageRefresh)
+}
+
+/**
+ * Set up dragging of the radar overlay once.
+ * @param {HTMLElement} minimapWrapper
+ * @param {HTMLElement} minimapRadar
+ */
+function bindRadarDrag(minimapWrapper, minimapRadar) {
+  if (minimapState.radarDragBound) return
+  minimapState.radarDragBound = true
+
+  let dragging = false
+  let x, y, radarStart
+
+  minimapRadar.addEventListener('pointerdown', dragMouseDown)
+  minimapWrapper.addEventListener(
+    'wheel',
+    (e) => {
       e.preventDefault()
-      x = e.clientX
-      y = e.clientY
-      radarStart = { x: minimapRadar.offsetLeft, y: minimapRadar.offsetTop }
-      minimapRadar.addEventListener('pointermove', drag)
-      minimapRadar.addEventListener('pointerup', dragMouseUp)
+      if (Math.abs(e.deltaX) <= 1) zoomscroll(e)
+    },
+    { passive: false }
+  )
+
+  function dragMouseDown(e) {
+    e.preventDefault()
+    x = e.clientX
+    y = e.clientY
+    radarStart = { x: minimapRadar.offsetLeft, y: minimapRadar.offsetTop }
+    minimapRadar.addEventListener('pointermove', drag)
+    minimapRadar.addEventListener('pointerup', dragMouseUp)
+  }
+
+  function drag(e) {
+    e.preventDefault()
+    dragging = true
+    const dx = e.clientX - x
+    const dy = e.clientY - y
+    const { ratio, initialScale, initialPosition, minimapWidth, minimapHeight } = minimapState
+    let left = radarStart.x + dx
+    let top = radarStart.y + dy
+    if (left < 0) left = 0
+    if (left + minimapRadar.offsetWidth >= minimapWidth) {
+      left = minimapWidth - minimapRadar.offsetWidth
     }
-    /**
-     * move the radar overlay as the mouse moves
-     * @param {event} e
-     */
-    function drag(e) {
-      e.preventDefault()
-      dragging = true
-      const dx = e.clientX - x
-      const dy = e.clientY - y
-      let left = radarStart.x + dx
-      let top = radarStart.y + dy
-      if (left < 0) left = 0
-      if (left + minimapRadar.offsetWidth >= minimapWidth) {
-        left = minimapWidth - minimapRadar.offsetWidth
-      }
-      if (top < 0) top = 0
-      if (top + minimapRadar.offsetHeight >= minimapHeight) {
-        top = minimapHeight - minimapRadar.offsetHeight
-      }
-      minimapRadar.style.left = `${Math.round(left)}px`
-      minimapRadar.style.top = `${Math.round(top)}px`
-      const initialDOMPosition = network.canvasToDOM(initialPosition)
-      const scale = initialScale / network.getScale()
-      const radarRect = minimapRadar.getBoundingClientRect()
-      const wrapperRect = minimapWrapper.getBoundingClientRect()
-      const prevPos = network.getViewPosition()
-      network.moveTo({
-        position: network.DOMtoCanvas({
-          x:
-            ((radarRect.left - wrapperRect.left + (radarRect.width - wrapperRect.width) / 2) *
-              ratio) /
-              scale +
-            initialDOMPosition.x,
-          y:
-            ((radarRect.top - wrapperRect.top + (radarRect.height - wrapperRect.height) / 2) *
-              ratio) /
-              scale +
-            initialDOMPosition.y,
-        }),
-      })
-      // move background as well , keeping them in sync
-      const newPos = network.getViewPosition()
-      const newScale = network.getScale()
-      zoomCanvas(1.0)
-      panCanvas(prevPos.x - newPos.x, prevPos.y - newPos.y, 1.0)
-      zoomCanvas(newScale)
+    if (top < 0) top = 0
+    if (top + minimapRadar.offsetHeight >= minimapHeight) {
+      top = minimapHeight - minimapRadar.offsetHeight
     }
-    /**
-     * note that the mouse is up and stop dragging
-     * @param {event} e
-     */
-    function dragMouseUp(e) {
-      e.preventDefault()
-      if (dragging) {
-        minimapRadar.removeEventListener('pointermove', drag)
-        minimapRadar.removeEventListener('pointerup', dragMouseUp)
-      }
+    minimapRadar.style.left = `${Math.round(left)}px`
+    minimapRadar.style.top = `${Math.round(top)}px`
+    const initialDOMPosition = network.canvasToDOM(initialPosition)
+    const scale = initialScale / network.getScale()
+    const radarRect = minimapRadar.getBoundingClientRect()
+    const wrapperRect = minimapWrapper.getBoundingClientRect()
+    const prevPos = network.getViewPosition()
+    network.moveTo({
+      position: network.DOMtoCanvas({
+        x:
+          ((radarRect.left - wrapperRect.left + (radarRect.width - wrapperRect.width) / 2) *
+            ratio) /
+            scale +
+          initialDOMPosition.x,
+        y:
+          ((radarRect.top - wrapperRect.top + (radarRect.height - wrapperRect.height) / 2) *
+            ratio) /
+            scale +
+          initialDOMPosition.y,
+      }),
+    })
+    const newPos = network.getViewPosition()
+    const newScale = network.getScale()
+    zoomCanvas(1.0)
+    panCanvas(prevPos.x - newPos.x, prevPos.y - newPos.y, 1.0)
+    zoomCanvas(newScale)
+  }
+
+  function dragMouseUp(e) {
+    e.preventDefault()
+    if (dragging) {
+      minimapRadar.removeEventListener('pointermove', drag)
+      minimapRadar.removeEventListener('pointerup', dragMouseUp)
+      dragging = false
     }
   }
+}
+
+/**
+ * Tear down the off-screen full-map network (e.g. when clearing the map).
+ * The next drawMinimap() recreates it against the current DataSet.
+ */
+function destroyMinimapFullNetwork() {
+  if (minimapState.fullNetwork) {
+    try {
+      minimapState.fullNetwork.destroy()
+    } catch {
+      /* already destroyed */
+    }
+    minimapState.fullNetwork = null
+  }
+  const pane = elem('fullNetPane')
+  if (pane) pane.remove()
+  minimapState.fullNetPane = null
+  minimapState.boundNetwork = null
+  minimapState.snapshotPending = false
 }
 /* -------------------------------------------- network map utilities --------------------------------------------*/
 /**
@@ -2116,6 +2307,7 @@ export function clearMap() {
   doc.transact(() => {
     unSelect()
     ensureNotDrawing()
+    destroyMinimapFullNetwork()
     network.destroy()
     checkMapSaved = true
     data.nodes.clear()
@@ -3281,8 +3473,42 @@ function showSelected() {
   toggleDeleteButton()
 }
 /* ----------------------------------------zoom slider -------------------------------------------- */
+/**
+ * Clamp a scale into the allowed zoom range.
+ * @param {number} scale
+ * @returns {number}
+ */
+function clampScale(scale) {
+  if (!Number.isFinite(scale)) return 1
+  if (scale < MIN_SCALE) return MIN_SCALE
+  if (scale > MAX_SCALE) return MAX_SCALE
+  return scale
+}
+/**
+ * Keep the zoom range input in sync with the effective scale.
+ * @param {number} scale
+ */
+function setZoomSlider(scale) {
+  elem('zoom').value = clampScale(scale)
+}
+/**
+ * If a new factor's canvas coordinates are non-finite or absurdly far from the
+ * origin, re-centre it on the current view so it stays visible and editable.
+ * @param {{x?: number, y?: number}} item
+ * @returns {{x?: number, y?: number}}
+ */
+function clampNodePosition(item) {
+  const xBad = !Number.isFinite(item.x) || Math.abs(item.x) > MAX_NODE_COORD
+  const yBad = !Number.isFinite(item.y) || Math.abs(item.y) > MAX_NODE_COORD
+  if (xBad || yBad) {
+    const centre = network.getViewPosition()
+    item.x = centre.x
+    item.y = centre.y
+  }
+  return item
+}
 Network.prototype.zoom = function (scale) {
-  const newScale = scale === undefined ? 1 : scale < 0.001 ? 0.001 : scale
+  const newScale = clampScale(scale === undefined ? 1 : scale)
   const animationOptions = {
     scale: newScale,
     animation: {
@@ -3291,6 +3517,7 @@ Network.prototype.zoom = function (scale) {
   }
   this.view.moveTo(animationOptions)
   zoomCanvas(newScale)
+  setZoomSlider(newScale)
 }
 
 /**
@@ -3302,11 +3529,16 @@ export function fit() {
     position: { x: 0, y: 0 }, // fit to centre of canvas
   })
   const newPos = network.getViewPosition()
-  const newScale = network.getScale()
+  // fit() may compute a scale below MIN_SCALE for huge maps; keep UI/placement safe
+  const fittedScale = network.getScale()
+  const newScale = clampScale(fittedScale)
+  if (newScale !== fittedScale) {
+    network.moveTo({ scale: newScale, animation: false })
+  }
   zoomCanvas(1.0)
   panCanvas(prevPos.x - newPos.x, prevPos.y - newPos.y, 1.0)
   zoomCanvas(newScale)
-  elem('zoom').value = newScale
+  setZoomSlider(newScale)
   network.storePositions()
 }
 /**
@@ -3316,18 +3548,14 @@ function zoomnet() {
   network.zoom(Number(elem('zoom').value))
 }
 /**
- * zoom by the given amount (+ve or -ve);
+ * zoom by the given relative amount (+ve zoom in, -ve zoom out);
  * used by the + and - buttons at the ends of the zoom slider
  * and by trackpad zoom/pinch.
- * If the new zoom level becomes below zero, do nothing
- * @param {Number} incr
+ * @param {Number} incr relative change, e.g. 0.1 or -0.1
  */
 function zoomincr(incr) {
-  let newScale = network.getScale() * (1 + incr)
-  if (newScale <= 0) newScale = 0.015
-  if (newScale <= 4 && newScale >= 0) {
-    elem('zoom').value = newScale
-  }
+  if (!Number.isFinite(incr) || incr === 0) return
+  const newScale = clampScale(network.getScale() * (1 + incr))
   network.zoom(newScale)
 }
 /**
@@ -3349,7 +3577,7 @@ function setUpPinchZoom() {
       if (e.touches.length === 2) {
         e.preventDefault()
         initialDistance = getTouchDistance(e.touches[0], e.touches[1])
-        initialScale = Number(elem('zoom').value)
+        initialScale = network.getScale()
       }
     },
     { passive: false }
@@ -3362,11 +3590,7 @@ function setUpPinchZoom() {
         e.preventDefault()
         const currentDistance = getTouchDistance(e.touches[0], e.touches[1])
         const scale = currentDistance / initialDistance
-        let newZoom = initialScale * scale
-        if (newZoom > 4) newZoom = 4
-        if (newZoom <= 0.015) newZoom = 0.015
-        elem('zoom').value = newZoom
-        network.zoom(newZoom)
+        network.zoom(clampScale(initialScale * scale))
       }
     },
     { passive: false }
@@ -3383,8 +3607,8 @@ function setUpPinchZoom() {
   })
 }
 
-let clicks = 0 // accumulate 'mousewheel' clicks sent while display is updating
-let ticking = false // if true, we are waiting for an AnimationFrame */
+let wheelDeltaPixels = 0 // accumulate wheel delta (normalised to pixels) between frames
+let ticking = false // if true, we are waiting for an AnimationFrame
 // see https://www.html5rocks.com/en/tutorials/speed/animations/
 
 // listen for zoom/pinch (confusingly, referred to as mousewheel events)
@@ -3413,22 +3637,42 @@ listen(
   { passive: false }
 )
 /**
- * Zoom using a trackpad (with a mousewheel or two fingers)
- * @param {Event} event
+ * Convert a wheel event's deltaY into CSS-pixel units across deltaMode values.
+ * Windows mice often report ~100px per notch (deltaMode 0); lines/pages need scaling.
+ * @param {WheelEvent} event
+ * @returns {number} delta in approximate CSS pixels (positive = scroll down / zoom out)
+ */
+function wheelDeltaToPixels(event) {
+  const delta = event.deltaY
+  if (!Number.isFinite(delta) || delta === 0) return 0
+  // 0: DOM_DELTA_PIXEL, 1: DOM_DELTA_LINE, 2: DOM_DELTA_PAGE
+  if (event.deltaMode === 1) return delta * 16
+  if (event.deltaMode === 2) return delta * (window.innerHeight || 800)
+  return delta
+}
+/**
+ * Zoom using a mouse wheel or trackpad.
+ * Accumulates normalised pixel deltas and applies a multiplicative scale change
+ * once per animation frame so a single Windows wheel notch cannot collapse scale to the floor.
+ * @param {WheelEvent} event
  */
 function zoomscroll(event) {
-  clicks += event.deltaY
+  wheelDeltaPixels += wheelDeltaToPixels(event)
   requestZoom()
 }
 function requestZoom() {
   if (!ticking) requestAnimationFrame(zoomUpdate)
   ticking = true
 }
-const MOUSEWHEELZOOMRATE = 0.01 // how many 'clicks' of the mouse wheel/finger track correspond to 1 zoom increment
 function zoomUpdate() {
-  zoomincr(-clicks * MOUSEWHEELZOOMRATE)
+  // One mouse-wheel notch (~100px) → one WHEEL_ZOOM_SPEED step; trackpads send many small deltas.
+  let notches = wheelDeltaPixels / WHEEL_PIXELS_PER_NOTCH
+  // Cap per-frame change so a burst of events cannot jump more than a few steps
+  notches = Math.max(-3, Math.min(3, notches))
+  // scroll down (positive) → zoom out → negative relative incr
+  zoomincr(-notches * WHEEL_ZOOM_SPEED)
   ticking = false
-  clicks = 0
+  wheelDeltaPixels = 0
 }
 
 /* -----------Operations related to the top button bar (not the side panel)------------- */
@@ -3981,7 +4225,7 @@ function doSearch(event) {
     zoomCanvas(1.0)
     panCanvas(prevPos.x - newPos.x, prevPos.y - newPos.y, 1.0)
     zoomCanvas(newScale)
-    elem('zoom').value = newScale
+    setZoomSlider(newScale)
     network.storePositions()
     hideSearchBar()
   }
