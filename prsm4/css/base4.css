@@ -1842,6 +1842,7 @@ html.ai-assistant-fab-grabbing * {
 .message-bot {
   background: #ffffff;
   color: #2d3748;
+  font-size: 12px;
   align-self: flex-start;
   border-bottom-left-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);

@@ -144,5 +144,13 @@
     "@parcel/watcher-linux-x64-glibc": "^2.6.0",
     "@swc/core-linux-arm64-gnu": "^1.15.2",
     "lightningcss-linux-arm64-gnu": "^1.30.2"
+  },
+  "allowScripts": {
+    "@parcel/watcher@2.6.0": true,
+    "@swc/core@1.16.21": true,
+    "canvas@3.2.3": true,
+    "classic-level@3.0.0": true,
+    "lmdb@2.8.5": true,
+    "msgpackr-extract@3.0.4": true
   }
 }

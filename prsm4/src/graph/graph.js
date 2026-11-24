@@ -177,6 +177,7 @@ export function nodeElement(rec) {
 export function edgeElement(rec) {
   const { style, overrides, ...data } = rec
   data.label ??= ''
+  data.style = style
   return { group: 'edges', data, classes: classesOf(style, data), style: overrides }
 }
 
@@ -190,15 +191,57 @@ export function toElements(file) {
 }
 
 /**
+ * Resolve a link's individual, style and network choices.
+ * @param {cytoscape.EdgeSingular} edge Link.
+ * @param {string} mode Network link type.
+ * @returns {{type:string, useBend:boolean}} Resolved type and whether to use its saved bend.
+ */
+function resolveLinkType(edge, mode) {
+  const styles = edge.cy().scratch('_linkStyles') ?? {}
+  const own = edge.scratch('_ov')?.['curve-style']
+  const styled =
+    styles[edge.data('style')]?.css?.['curve-style'] ?? styles.edgeBase?.css?.['curve-style']
+  const preview = edge.scratch('_curvePreview')
+  const type = preview
+    ? 'unbundled-bezier'
+    : (own ?? styled ?? (edge.data('curve') ? 'unbundled-bezier' : mode))
+  return { type, useBend: Boolean(preview || own || !styled) }
+}
+
+/**
+ * Remove generated Bezier geometry while preserving explicit overrides.
+ * @param {cytoscape.EdgeSingular} edge Link.
+ * @returns {void}
+ */
+function clearCurveGeometry(edge) {
+  const geometry = ['edge-distances', 'control-point-distances', 'control-point-weights']
+  edge.removeStyle(geometry.join(' '))
+  for (const prop of geometry) {
+    const value = edge.scratch('_ov')?.[prop]
+    if (value !== undefined) edge.style(prop, value)
+  }
+}
+
+/**
  * Set the curve geometry of edges from the current node positions
  * @param {cytoscape.Core|cytoscape.EdgeCollection} target
- * @param {string} mode 'Curved' or 'Straight' (the map-wide setting)
+ * @param {string} mode The map-wide link type.
  * @returns {void}
  */
 export function applyCurves(target, mode) {
   const edges = target.edges ? target.edges() : target
-  const roundness = mode === 'Curved' ? 0.5 : 0
   edges.forEach((edge) => {
+    const { type, useBend } = resolveLinkType(edge, mode)
+    if (
+      type === 'round-segments' ||
+      type === 'round-taxi' ||
+      type === 'straight' ||
+      type === 'Straight'
+    ) {
+      clearCurveGeometry(edge)
+      edge.style('curve-style', type === 'Straight' ? 'straight' : type)
+      return
+    }
     /**
      * Measure half the rendered dimensions of a factor.
      * @param {cytoscape.NodeSingular} n Factor.
@@ -210,8 +253,8 @@ export function applyCurves(target, mode) {
       edgeCurveStyle(
         edge.source().position(),
         edge.target().position(),
-        edge.data('curve'),
-        roundness,
+        useBend ? edge.data('curve') : undefined,
+        0.5,
         sizes
       )
     )
@@ -237,6 +280,8 @@ export function createGraph(container, file) {
     minZoom: 0.02,
     maxZoom: 8,
   })
+  cy.scratch('_linkStyles', file.styles)
+  for (const rec of file.edges) cy.getElementById(rec.id).scratch('_ov', rec.overrides ?? null)
   applyCurves(cy, mode)
   // curves depend on the positions of both end points, so recompute them when nodes move
   cy.on('position', 'node', (evt) =>

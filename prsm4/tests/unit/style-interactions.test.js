@@ -29,6 +29,7 @@ test('palette applies factor and link styles, clears overrides and can be undone
     source: a,
     target: b,
     style: 'edge0',
+    curve: { side: 1, roundness: 0.3 },
     overrides: { 'line-color': 'blue', width: 10 },
   })
   const cy = cytoscape({ headless: true, styleEnabled: true })
@@ -48,9 +49,11 @@ test('palette applies factor and link styles, clears overrides and can be undone
   store.undoManager.stopCapturing()
   Palette.prototype.apply.call(palette, 'edge', 'edge0')
   assert.equal(store.edges.get(link).overrides, undefined)
+  assert.equal(store.edges.get(link).curve, undefined)
   assert.equal(cy.getElementById(link).style('width'), '3px')
   store.undo()
   assert.equal(store.edges.get(link).overrides.width, 10)
+  assert.equal(store.edges.get(link).curve.roundness, 0.3)
   unbind()
   cy.destroy()
   store.doc.destroy()
@@ -120,7 +123,11 @@ test('bending disables box selection and restores existing interaction settings'
     cy,
     mode: 'select',
     options: {},
-    store: { update: (...args) => updates.push(args) },
+    store: {
+      transact: (fn) => fn(),
+      update: (...args) => updates.push(args),
+      setOverrides: (...args) => updates.push(args),
+    },
   }
   cy.userPanningEnabled(false)
   Editor.prototype.startBend.call(editor, { target: edge })
@@ -131,7 +138,104 @@ test('bending disables box selection and restores existing interaction settings'
   assert.equal(cy.userPanningEnabled(), false)
   assert.equal(updates[0][1], 'e')
   assert.ok(updates[0][2].curve.roundness > 0)
+  assert.equal(updates[1][2]['curve-style'], 'unbundled-bezier')
   cy.destroy()
+})
+
+test('link types inherit from the map and style, with per-link overrides taking precedence', () => {
+  const store = new MapStore()
+  store.setStyle('edge0', { kind: 'edge', css: {} })
+  const a = store.addNode({ x: 0, y: 0 })
+  const b = store.addNode({ x: 250, y: 100 })
+  const c = store.addNode({ x: 500, y: 0 })
+  const first = store.addEdge({ source: a, target: b, style: 'edge0' })
+  const cy = cytoscape({ headless: true, styleEnabled: true })
+  const unbind = bindGraph(cy, store)
+  const type = (id) => cy.getElementById(id).style('curve-style')
+  store.setSetting('curve', 'round-taxi')
+  assert.equal(type(first), 'round-taxi')
+  const second = store.addEdge({ source: b, target: c, style: 'edge0' })
+  assert.equal(type(second), 'round-taxi')
+  store.setStyle('edge0', { kind: 'edge', css: { 'curve-style': 'round-segments' } })
+  assert.equal(type(first), 'round-segments')
+  assert.equal(type(second), 'round-segments')
+  assert.equal(cy.getElementById(first).style('edge-distances'), 'intersection')
+  store.setOverrides('edges', [first], { 'curve-style': 'straight' })
+  store.setSetting('curve', 'Straight')
+  assert.equal(type(first), 'straight')
+  assert.equal(type(second), 'round-segments')
+  store.undoManager.stopCapturing()
+  store.setOverrides('edges', [first], { 'curve-style': 'round-taxi' })
+  assert.equal(type(first), 'round-taxi')
+  store.undo()
+  assert.equal(type(first), 'straight')
+  store.setOverrides('edges', [first], { 'curve-style': undefined })
+  assert.equal(type(first), 'round-segments')
+  store.setStyle('edge0', { kind: 'edge', css: {} })
+  assert.equal(type(first), 'straight')
+  unbind()
+  cy.destroy()
+  store.doc.destroy()
+})
+
+test('existing bends survive network changes and explicit link and style choices take precedence', () => {
+  const store = new MapStore()
+  store.setStyle('edge0', { kind: 'edge', css: {} })
+  const a = store.addNode({ x: 0, y: 0 })
+  const b = store.addNode({ x: 250, y: 100 })
+  const id = store.addEdge({
+    source: a,
+    target: b,
+    style: 'edge0',
+    curve: { side: 1, roundness: 0.3 },
+  })
+  const cy = cytoscape({ headless: true, styleEnabled: true })
+  const unbind = bindGraph(cy, store)
+  const edge = cy.getElementById(id)
+  store.setSetting('curve', 'round-taxi')
+  assert.equal(edge.style('curve-style'), 'unbundled-bezier')
+  store.setStyle('edge0', { kind: 'edge', css: { 'curve-style': 'round-segments' } })
+  assert.equal(edge.style('curve-style'), 'round-segments')
+  store.setOverrides('edges', [id], { 'curve-style': 'unbundled-bezier' })
+  assert.equal(edge.style('curve-style'), 'unbundled-bezier')
+  const saved = readMapFile(JSON.stringify(store.toFile())).file
+  assert.equal(saved.meta.settings.curve, 'round-taxi')
+  assert.equal(saved.styles.edge0.css['curve-style'], 'round-segments')
+  assert.equal(saved.edges[0].overrides['curve-style'], 'unbundled-bezier')
+  const restored = new MapStore()
+  restored.loadFile(saved)
+  const restoredCy = cytoscape({ headless: true, styleEnabled: true })
+  const stop = bindGraph(restoredCy, restored)
+  assert.equal(restoredCy.getElementById(id).style('curve-style'), 'unbundled-bezier')
+  stop()
+  restoredCy.destroy()
+  restored.doc.destroy()
+  unbind()
+  cy.destroy()
+  store.doc.destroy()
+})
+
+test('dragging a link creates an undoable per-link curve over its style', () => {
+  const store = new MapStore()
+  store.setStyle('edge0', { kind: 'edge', css: { 'curve-style': 'round-taxi' } })
+  const a = store.addNode({ x: 0, y: 0 })
+  const b = store.addNode({ x: 250, y: 100 })
+  const id = store.addEdge({ source: a, target: b, style: 'edge0' })
+  const cy = cytoscape({ headless: true, styleEnabled: true })
+  const unbind = bindGraph(cy, store)
+  const edge = cy.getElementById(id)
+  const editor = { cy, mode: 'select', options: {}, store }
+  store.undoManager.stopCapturing()
+  Editor.prototype.startBend.call(editor, { target: edge })
+  cy.emit({ type: 'tapdrag', position: { x: 100, y: 80 } })
+  assert.equal(edge.style('curve-style'), 'unbundled-bezier')
+  cy.emit('tapend')
+  assert.equal(store.edges.get(id).overrides['curve-style'], 'unbundled-bezier')
+  store.undo()
+  assert.equal(edge.style('curve-style'), 'round-taxi')
+  unbind()
+  cy.destroy()
+  store.doc.destroy()
 })
 
 test('overlapping box-selection suspensions restore the original state only at the end', () => {

@@ -282,6 +282,7 @@ export class Editor {
       moved = true
       curve = curveFromPointer(src, tgt, e.position)
       edge.data('curve', curve)
+      edge.scratch('_curvePreview', true)
       applyCurves(edge, cy.scratch('curveMode'))
     }
     cy.on('tapdrag', onDrag)
@@ -289,7 +290,13 @@ export class Editor {
       cy.off('tapdrag', onDrag)
       cy.userPanningEnabled(panning)
       releaseBoxSelection()
-      if (moved) this.store.update('edges', edge.id(), { curve })
+      if (moved) {
+        edge.removeScratch('_curvePreview')
+        this.store.transact(() => {
+          this.store.update('edges', edge.id(), { curve })
+          this.store.setOverrides('edges', [edge.id()], { 'curve-style': 'unbundled-bezier' })
+        })
+      }
     })
   }
 

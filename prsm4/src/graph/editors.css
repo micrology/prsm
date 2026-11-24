@@ -80,6 +80,9 @@
   text-transform: uppercase;
   max-width: 80px;
 }
+.element-field.wide select {
+  max-width: none;
+}
 .element-save {
   background: var(--primary-color, #06326c);
   color: #fff;

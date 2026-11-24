@@ -308,6 +308,7 @@ export class MapStore {
         if (clearOverrides) {
           patch.overrides = undefined
           if (kind === 'nodes') patch.value = undefined
+          if (kind === 'edges') patch.curve = undefined
         }
         this.update(kind, id, patch)
       }

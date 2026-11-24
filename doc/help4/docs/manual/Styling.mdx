@@ -60,7 +60,7 @@ The legend can be moved by dragging the top of the Legend pane.
 
 ## Links tab
 
-The Links tab is very similar to the Factors tab, except that it relates to the links.  There are 9 link styles and each of these can be changed by double clicking the link style. There are options to change the colour of the link, whether it has an arrow at the end, whether it is solid, dashed or dotted, and to add a  link label.
+The Links tab is very similar to the Factors tab, except that it relates to the links. Double click a link style to change its colour, arrows, line pattern or link type. The link type can follow the network setting or be set for that style. Double click an individual link to choose its own link type or return it to the style setting. An individual link choice takes precedence over its style, which in turn takes precedence over the network setting. Dragging a link gives it an individual curve; choosing "Use link style" removes that curve and restores inheritance.
 
 <img
 src={normalizeImagePath("/images/LinksPanel.png")}
@@ -84,7 +84,7 @@ On the Network tab, there are controls for:
 
 * **Auto Layout** Choose which layout algorithm (see [below](#layout)) to apply.  The algorithm will then adjust the positions of the factors and links and, once complete, the selection will revert to 'Off', leaving the factors where the algorithm has placed them.
 * **Snap to grid**  When ON, factors shift to be at the intersection of invisible grid lines.  This makes it much easier to line up factors neatly.
-* **Link** Links can either be drawn using a curved line or a straight line.  This control swaps between the two.
+* **Link** Choose the default link type: Curved, Straight, Round segments or Round taxi. This applies to existing and new links unless their style or individual settings override it.
 * **Switch to drawing layer** Puts the network pane into drawing mode, so that background shapes, images and text can be added.  See [Drawing Mode](Drawing/#drawing-mode) for more details.
 * **Background** This changes the colour of the background of the network pane.  Click on the colour well to display possible colours.  The default is white, but a black background can also be effective.
 * **Show legend** If the factor and link styles are given names (other than 'Sample'), the styles and their names will be shown in a panel at the left bottom of the network pane headed 'Legend', when this switch is ON.  See the description of the [Factors tab](#factors-tab).

@@ -158,7 +158,10 @@ function applyChanges(cy, store, changed, full = false) {
       if (e) changedEdges.push(e)
     }
   })
-  if (changed.styles) cy.style(compileStylesheet(Object.fromEntries(store.styles.entries())))
+  if (changed.styles) {
+    cy.scratch('_linkStyles', Object.fromEntries(store.styles.entries()))
+    cy.style(compileStylesheet(Object.fromEntries(store.styles.entries())))
+  }
   // a change of style can change the size of the nodes, which affects where the curves can go
   const edges = changed.styles ? cy.edges() : cy.collection(changedEdges)
   // an edge whose source or target is new also needs its curve
@@ -177,6 +180,7 @@ function applyChanges(cy, store, changed, full = false) {
  */
 export function bindGraph(cy, store) {
   cy.scratch('curveMode', store.meta.get('settings')?.curve ?? 'Curved')
+  cy.scratch('_linkStyles', Object.fromEntries(store.styles.entries()))
   cy.style(compileStylesheet(Object.fromEntries(store.styles.entries())))
   applyChanges(cy, store, {}, true)
   applyCurves(cy, cy.scratch('curveMode'))

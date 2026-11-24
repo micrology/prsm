@@ -29,6 +29,13 @@ points (see measureDeviation()).
 
 const MIN_LENGTH = 1
 
+export const LINK_TYPES = [
+  ['Straight', 'straight'],
+  ['Curved', 'unbundled-bezier'],
+  ['Round segments', 'round-segments'],
+  ['Round taxi', 'round-taxi'],
+]
+
 // Fitted by least-squares against vis-network's cubicBezier (roundness 0.5), for an edge whose longer
 // axis is horizontal and which slopes by angle theta (0..45 degrees, every 5 degrees).  The two control
 // points are point-symmetric about the mid-point of the edge, so one weight and one distance describe both.

@@ -21,6 +21,7 @@ import { splitText } from './text.js'
 import { colorWell } from './colorwell.js'
 import { SHAPES, ARROWS, LINE_STYLES } from './styleeditor.js'
 import { dragElement } from '../shared/utils.js'
+import { LINK_TYPES } from './curves.js'
 
 const SLIDER_MIN = 5
 const FONT_SIZES = [
@@ -54,6 +55,14 @@ const NODE_FIELDS = [
   { col: 'value', kind: 'size', title: 'size' },
 ]
 const EDGE_FIELDS = [
+  {
+    col: 'linkType',
+    kind: 'select',
+    title: 'Link type',
+    options: LINK_TYPES,
+    inherit: 'Use link style',
+    wide: true,
+  },
   { col: 'color', kind: 'color', title: 'colour' },
   {
     col: 'width',
@@ -109,6 +118,24 @@ export class ElementEditor {
     const rec = (isNode ? this.store.nodes : this.store.edges).get(ele.id())
     if (!rec) return
     const cols = isNode ? factorColumns(this.store) : linkColumns(this.store)
+    if (!isNode) {
+      cols.push({
+        id: 'linkType',
+        title: 'Link type',
+        get: ({ rec }) =>
+          rec.overrides?.['curve-style'] ??
+          (rec.curve &&
+          !this.store.styles.get(rec.style)?.css?.['curve-style'] &&
+          !this.store.styles.get('edgeBase')?.css?.['curve-style']
+            ? 'unbundled-bezier'
+            : undefined),
+        set: (ids, value) =>
+          this.store.transact(() => {
+            if (!value) for (const id of ids) this.store.update('edges', id, { curve: undefined })
+            this.store.setOverrides('edges', ids, { 'curve-style': value || undefined })
+          }),
+      })
+    }
     this.target = { id: ele.id(), isNode, rec }
     this.changes = new Map()
     this.label = el('textarea', {
@@ -196,7 +223,7 @@ export class ElementEditor {
         : field.kind === 'size'
           ? this.sizeControl(col, current)
           : this.selectControl(field, col, current)
-    const wide = field.kind === 'size' ? ' wide' : ''
+    const wide = field.kind === 'size' || field.wide ? ' wide' : ''
     return el(
       'label',
       { className: `element-field${wide}` },
@@ -251,7 +278,11 @@ export class ElementEditor {
    */
   selectControl(field, col, current) {
     const options = field.options.map(([text, value]) => el('option', { textContent: text, value }))
-    const select = el('select', {}, el('option', { value: '', textContent: `${col.title}...` }))
+    const select = el(
+      'select',
+      {},
+      el('option', { value: '', textContent: field.inherit ?? `${col.title}...` })
+    )
     select.append(...options)
     const match = options.find(
       (o) => String(o.value).toLowerCase() === String(current).toLowerCase()
@@ -262,7 +293,7 @@ export class ElementEditor {
       select.value = current
     }
     select.addEventListener('change', () => {
-      if (select.value === '') return
+      if (select.value === '' && !field.inherit) return
       this.changes.set(col, col.type === 'number' ? Number(select.value) : select.value)
     })
     return select

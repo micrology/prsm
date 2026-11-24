@@ -18,6 +18,7 @@ Every change goes through MapStore methods, so it is undoable and shared like an
 import { nodeStyleToCss } from './legacy.js'
 import { colorWell } from './colorwell.js'
 import { shapeName } from './shapes.js'
+import { LINK_TYPES } from './curves.js'
 
 export const SHAPES = [
   'ellipse',
@@ -92,6 +93,13 @@ const NODE_FIELDS = [
   { prop: 'font-family', label: 'Font', type: 'select', options: FONTS },
 ]
 const EDGE_FIELDS = [
+  {
+    prop: 'curve-style',
+    label: 'Link type',
+    type: 'select',
+    options: LINK_TYPES,
+    inherit: 'Use network setting',
+  },
   { prop: 'line-color', label: 'Colour', type: 'color' },
   { prop: 'width', label: 'Width', type: 'number' },
   { prop: 'line-style', label: 'Line', type: 'select', options: LINE_STYLES },
@@ -338,8 +346,9 @@ export class StyleEditor {
     const fields = st.kind === 'node' ? NODE_FIELDS : EDGE_FIELDS
     const f = el('div', { className: 'style-form' }, this.nameRow(id, st))
     for (const field of fields) {
-      let value =
-        field.prop === 'shape'
+      let value = field.inherit
+        ? st.css[field.prop]
+        : field.prop === 'shape'
           ? shapeName({ ...base?.css, ...st.css })
           : (st.css[field.prop] ?? base?.css[field.prop])
       if (field.type === 'color') {
@@ -434,7 +443,12 @@ export class StyleEditor {
       const shown = String(value ?? '')
         .split(',')[0]
         .trim()
-      const options = field.options.map((o) => el('option', { value: o, textContent: o }))
+      const options = field.options.map((o) =>
+        Array.isArray(o)
+          ? el('option', { value: o[1], textContent: o[0] })
+          : el('option', { value: o, textContent: o })
+      )
+      if (field.inherit) options.unshift(el('option', { value: '', textContent: field.inherit }))
       return Object.assign(el('select', {}, ...options), { value: shown })
     }
     return el('input', { type: 'number', min: 0, step: 1, value: value ?? 0 })
@@ -451,6 +465,7 @@ export class StyleEditor {
     const { store } = this.view
     const st = store.styles.get(id)
     let patch = { [field.prop]: value }
+    if (field.inherit && value === '') patch = { [field.prop]: undefined }
     if (field.type === 'color') patch = colorPatch(st.kind, field.prop, value)
     if (field.prop === 'shape') patch = shapePatch(value, st.css)
     if (field.prop === 'font-family') patch = { [field.prop]: `${value}, sans-serif` }
