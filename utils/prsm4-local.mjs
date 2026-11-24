@@ -163,12 +163,12 @@ async function stop() {
   throw new Error(`PRSM 4 did not stop in time. See ${LOG_FILE}`)
 }
 
-/** Forward help requests to this stack's local API.
+/** Forward AI requests to this stack's local API.
  * @param {http.IncomingMessage} request Browser request.
  * @param {http.ServerResponse} response Browser response.
  * @returns {void}
  */
-function proxyHelp(request, response) {
+function proxyAI(request, response) {
   const origin = request.headers.origin
   const allowedOrigins = [`http://localhost:${HTTP_PORT}`, `http://127.0.0.1:${HTTP_PORT}`]
   if (origin && !allowedOrigins.includes(origin)) {
@@ -183,7 +183,7 @@ function proxyHelp(request, response) {
     {
       hostname: '127.0.0.1',
       port: API_PORT,
-      path: '/api/helpAssistant',
+      path: request.url,
       method: 'POST',
       headers: { 'content-type': request.headers['content-type'] || 'application/json' },
     },
@@ -196,15 +196,13 @@ function proxyHelp(request, response) {
     }
   )
   upstream.on('error', (error) => {
-    console.error('Help API request failed:', error.message)
+    console.error('AI API request failed:', error.message)
     if (response.headersSent) {
       response.destroy(error)
     } else {
       response
         .writeHead(502, { 'content-type': 'application/json' })
-        .end(
-          JSON.stringify({ error: 'Local help API is unavailable. Check the PRSM 4 stack log.' })
-        )
+        .end(JSON.stringify({ error: 'Local AI API is unavailable. Check the PRSM 4 stack log.' }))
     }
   })
   request.on('aborted', () => upstream.destroy())
@@ -231,8 +229,8 @@ async function serve(request, response, token, shutdown) {
     }
     return
   }
-  if (url.pathname === '/api/helpAssistant') {
-    proxyHelp(request, response)
+  if (url.pathname === '/api/helpAssistant' || /^\/api\/chat\/[^/]+$/.test(url.pathname)) {
+    proxyAI(request, response)
     return
   }
   if (!['GET', 'HEAD'].includes(request.method)) {

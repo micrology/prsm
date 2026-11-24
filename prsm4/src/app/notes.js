@@ -14,6 +14,7 @@ import Quill from 'quill'
 import 'quill/dist/quill.snow.css'
 import { alertMsg, dragElement, elem, listen, shorten, timeAndDate } from '../shared/utils.js'
 import { hasNote } from './badges.js'
+import { generateElementNote, runAI } from './ai.js'
 
 const TOOLBAR = [
   'bold',
@@ -118,10 +119,12 @@ export class NotesPanel {
    * @param {object} app
    * @param {import('../graph/store.js').MapStore} app.store
    * @param {cytoscape.Core} app.cy
+   * @param {object} app.ai AI service configuration.
    */
-  constructor({ store, cy }) {
+  constructor({ store, cy, ai }) {
     this.store = store
     this.cy = cy
+    this.ai = ai
     this.shown = null
     this.pending = false
     this.editors = {}
@@ -130,6 +133,28 @@ export class NotesPanel {
     listen('pin', 'click', () => this.togglePin())
     listen('newNodeWindow', 'click', () => this.openWindow())
     listen('newEdgeWindow', 'click', () => this.openWindow())
+    for (const [kind, id] of [
+      ['nodes', 'sparklesNode'],
+      ['edges', 'sparklesEdge'],
+    ]) {
+      const button = elem(id)
+      button.hidden = !ai.enabled
+      listen(id, 'click', () => {
+        if (this.shown?.kind !== kind) return
+        const target = this.shown.id
+        runAI(button, () =>
+          generateElementNote({
+            store,
+            kind,
+            id: target,
+            noteText: this.editors[kind].getText(),
+            baseUrl: ai.baseUrl,
+            room: ai.room,
+            isReadOnly: ai.isReadOnly,
+          })
+        )
+      })
+    }
     window.addEventListener('message', (event) => this.windowMessage(event))
     window.addEventListener('beforeunload', () => this.noteWindow?.close())
     cy.on('select unselect remove', () => this.requestRefresh())
@@ -167,6 +192,8 @@ export class NotesPanel {
       editor.getModule('toolbar').container.hidden = readOnly
     }
     elem('pin').hidden = readOnly
+    elem('sparklesNode').hidden = readOnly || !this.ai.enabled
+    elem('sparklesEdge').hidden = readOnly || !this.ai.enabled
     this.sendWindowState()
   }
 

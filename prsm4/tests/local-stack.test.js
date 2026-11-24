@@ -169,6 +169,24 @@ test(
         ).status,
         403
       )
+      const chatRequest = {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', origin: url },
+        body: JSON.stringify({ message: '' }),
+      }
+      const chat = await fetch(`${url}/api/chat/ABC-DEF-GHI-JKL`, chatRequest)
+      assert.equal(chat.status, 400)
+      assert.equal((await chat.json()).error, 'Message is required')
+      assert.equal(
+        (
+          await fetch(`${url}/api/chat/ABC-DEF-GHI-JKL`, {
+            ...chatRequest,
+            headers: { ...chatRequest.headers, origin: 'https://example.com' },
+          })
+        ).status,
+        403
+      )
+      assert.equal((await fetch(`${url}/api/chat/ABC-DEF-GHI-JKL`)).status, 405)
 
       const a = await connect(wsPort)
       const b = await connect(wsPort)

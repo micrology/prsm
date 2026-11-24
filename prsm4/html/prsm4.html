@@ -631,8 +631,9 @@
                 <button class="ql-clean"></button>
               </span>
               <span class="ql-formats">
-                <button class="sparkle" id="sparklesSideNote">
+                <button type="button" class="sparkle" id="sparklesSideNote" aria-label="Generate map overview with AI" title="Use AI" hidden>
                   <svg
+                    aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 16 16"
                     width="16"
@@ -929,8 +930,9 @@
               <span class="tooltiptext">Unpin factor</span>
             </span>
           </div>
-          <div id="sparklesNode" class="tooltip interactiveButton sparkle">
+          <button type="button" id="sparklesNode" class="tooltip interactiveButton sparkle" aria-label="Generate factor notes with AI" hidden>
             <svg
+              aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"
               width="16"
@@ -942,7 +944,7 @@
               ></path>
             </svg>
             <span class="tooltiptext">Use AI</span>
-          </div>
+          </button>
           <button type="button" id="newNodeWindow" class="tooltip interactiveButton note-window-button" aria-label="Open factor notes in a new window">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -979,8 +981,9 @@
           <div>
             <span class="edgeLabel" id="edgeLabel"></span>
           </div>
-          <div id="sparklesEdge" class="tooltip interactiveButton sparkle">
+          <button type="button" id="sparklesEdge" class="tooltip interactiveButton sparkle" aria-label="Generate link notes with AI" hidden>
             <svg
+              aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"
               width="16"
@@ -992,7 +995,7 @@
               ></path>
             </svg>
             <span class="tooltiptext">Use AI</span>
-          </div>
+          </button>
           <button type="button" id="newEdgeWindow" class="tooltip interactiveButton note-window-button" aria-label="Open link notes in a new window">
             <svg
               xmlns="http://www.w3.org/2000/svg"

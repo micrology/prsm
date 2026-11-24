@@ -135,11 +135,22 @@
 .search-icon.show {
   display: block;
 }
-/* these arrive with the AI assistant and the separate notes window */
-#sparklesNode,
-#sparklesEdge,
-#sparklesSideNote {
+.sparkle[hidden] {
   display: none;
+}
+.notePanel .sparkle {
+  border: 0;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+}
+.sparkle:disabled {
+  opacity: 0.6;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .sparkle.rotating svg {
+    animation: rotate 1s linear infinite;
+  }
 }
 .note-window-button {
   border: 0;

@@ -57,7 +57,7 @@ import { readGml, writeGml } from './gml.js'
 import { readGraphviz, writeGraphviz } from './graphviz.js'
 import { exportImage } from './image-export.js'
 import { exportNotes } from './notes-export.js'
-import { openAIAsstDialog } from './aiasst.js'
+import { helpServiceOrigin, openAIAsstDialog } from './aiasst.js'
 import { features } from '../../../package.json'
 import { saveAs } from 'file-saver'
 
@@ -143,8 +143,14 @@ class App {
     }
     this.minimap = new Minimap(this.cy)
     this.badges = new Badges({ store: this.store, cy: this.cy, clientId: this.user.id })
-    this.notes = new NotesPanel({ store: this.store, cy: this.cy })
-    this.overview = new Overview(this.store)
+    const ai = {
+      enabled: features.ai,
+      room: this.room,
+      baseUrl: helpServiceOrigin(url),
+      isReadOnly: () => !this.ready || Boolean(this.store.meta.get('viewOnly')),
+    }
+    this.notes = new NotesPanel({ store: this.store, cy: this.cy, ai })
+    this.overview = new Overview(this.store, ai)
     this.search = new Search({ cy: this.cy })
     this.collab = new Collaboration({
       store: this.store,

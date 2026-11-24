@@ -12,20 +12,28 @@ Displays and edits the shared description of the map.
 
 import Quill from 'quill'
 import { elem, listen } from '../shared/utils.js'
+import { generateOverview, runAI } from './ai.js'
 
 /** The shared map overview drawer. */
 export class Overview {
   /**
    * Connect the map description to its editor.
    * @param {import('../graph/store.js').MapStore} store Shared map.
+   * @param {object} ai AI service configuration.
    */
-  constructor(store) {
+  constructor(store, ai) {
     this.store = store
+    this.ai = ai
     this.editor = new Quill('#drawer-editor', {
       modules: { toolbar: '#sideNotesToolbar' },
       placeholder: 'Notes about the map',
       theme: 'snow',
     })
+    const button = elem('sparklesSideNote')
+    button.hidden = !ai.enabled
+    listen('sparklesSideNote', 'click', () =>
+      runAI(button, () => generateOverview({ store, ...ai }))
+    )
     elem('drawer').inert = true
     listen('drawer-handle', 'click', () => {
       const wrapper = elem('drawer-wrapper')

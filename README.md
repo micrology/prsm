@@ -306,8 +306,8 @@ The local websocket server runs on **1235** and stores rooms in `dbDir4/`,
 separate from the legacy server's `dbDir/`. Consequently, maps saved in
 one local database are not automatically available in the other. The
 development HTTP, websocket and API servers are accessible only on localhost.
-The stack starts its own API on **3002** and forwards AI help requests through
-the app's HTTP server. The API requires AWS credentials with access to the
+The stack starts its own API on **3002** and forwards AI help and note-generation
+requests through the app's HTTP server. The API requires AWS credentials with access to the
 Secrets Manager configuration and the Bedrock configuration described above;
 startup fails if the secrets cannot be loaded. Its help cache is stored in the
 stack's local state directory unless `HELP_CACHE_LOCATION` is set. The usage
@@ -321,6 +321,9 @@ only this stack with:
 ```bash
 npm run stop:all-locally:prsm4
 ```
+
+Parcel watches app source files, but changes to the local supervisor or API server
+require stopping and starting the stack again.
 
 If a port is already in use, startup fails instead of stopping the other
 service. To change the defaults, set `PRSM4_HTTP_PORT`, `PRSM4_WS_PORT`, `PRSM4_API_PORT`,

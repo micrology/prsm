@@ -28,11 +28,11 @@ alt="Factor with AI generated Note"
 style={{ width: 500}}
 />
 
-The AI is provided with the factor label (or the 'from' and 'to' factor labels for links) as cues for the description, together with rest of the map and the map's title, if any, as context. Hence to get a better description, factor labels should be precise, and the map should have a meaningful title.  
+The AI is provided with the factor label (or the 'from' and 'to' factor labels for links) as cues for the description, together with the labels of the factors in the map as context. Hence, factor labels should be precise.
 
 :::tip
 
-If the Note panel already contains text, this too is provided to the AI.  This already existing text can be used to prompt the AI and influence what it generates.
+If the Note panel already contains text, this too is provided to the AI. This text can be used to prompt the AI and influence what it generates.
 
 :::
 
@@ -41,7 +41,7 @@ The AI uses the information it has gained from extensive training on documents f
 Requesting a description for a second time may generate a slightly different text because the AI is not deterministic (i.e. it depends on probabilities).
 
 :::info
-To create the text, data is sent to an AI server in the UK.  No data is retained on the server or used for training. PRSM only uses AI to generate these descriptions - if you don't use the Sparkle button, no AI is accessed.
+To create the text, data is sent to an AI server in the UK. No data is retained on the server or used for training. AI note generation sends this data only when you use a Sparkle button; the separate AI help assistant also uses AI when you ask it a question.
 
 The prompt to obtain a description of a link (the prompt for factors is similar) is like this:
 
@@ -71,7 +71,7 @@ Maximum total output length: 200 words.
 
 ## System map overview description
 
-When you open the [map overview](/manual/GettingStarted#overview) (using the toggle at the middle left edge of the map window), the editing toolbar at the top includes the 'Sparkle' button that can be used to get an AI generated description of the whole map.  The AI is provided with the map (the factor labels and the links) and the map title to base its description on.  The same cautions should be borne in mind: the text it generates should be treated as fallible and only a starting point for a more expert and more informed description.  Do not rely on the accuracy of the text, or on the validity of the web links and academic papers cited. It should be carefully checked.
+When you open the [map overview](/manual/GettingStarted#overview) (using the toggle at the middle left edge of the map window), the editing toolbar at the top includes the 'Sparkle' button that can be used to get an AI generated description of the whole map. The AI is provided with the map title and the factor labels. The same cautions should be borne in mind: the text it generates should be treated as fallible and only a starting point for a more expert and more informed description. Do not rely on the accuracy of the text, or on the validity of the web links and academic papers cited. It should be carefully checked.
 
 <img
 src={normalizeImagePath("/images/AIMapDescription.png")}

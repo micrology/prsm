@@ -82,7 +82,6 @@ import {
   clearLegend,
 } from './styles.js'
 import {
-  canvas,
   nChanges,
   setUpBackground,
   updateFromRemote,
