@@ -325,6 +325,15 @@ npm run stop:all-locally:prsm4
 Parcel watches app source files, but changes to the local supervisor or API server
 require stopping and starting the stack again.
 
+Run a bounded collaboration stress test with `npm run stress:prsm4 -- --cycles 5`.
+It uses ten headless Yjs clients and a fresh room on the local websocket server,
+not browser windows. Use `npm run stress:prsm4 -- --help` to see options and
+the printed observer URL to inspect the map in a browser. Supplying an existing
+room or remote websocket server modifies that map: cleanup removes the test
+factors and any links attached to them. The printed run-specific prefix and
+room can be used with `--cleanup-only`
+and `--cleanup-prefix` if the test is interrupted before cleanup finishes.
+
 If a port is already in use, startup fails instead of stopping the other
 service. To change the defaults, set `PRSM4_HTTP_PORT`, `PRSM4_WS_PORT`, `PRSM4_API_PORT`,
 `PRSM4_DB_DIR`, or `PRSM4_LOCAL_DIR` before starting. Use the same

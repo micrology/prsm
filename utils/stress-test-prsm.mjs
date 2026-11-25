@@ -580,7 +580,7 @@ async function cleanupRoom(opts, { quiet = false } = {}) {
     )
   }
 
-  let totalDeleted = { nodes: 0, edges: 0 }
+  const totalDeleted = { nodes: 0, edges: 0 }
   // Retry a few times: concurrent clients or slow server merge can leave stragglers.
   for (let attempt = 1; attempt <= 5; attempt++) {
     const remaining = countByLabelPrefix(yNodes, opts.cleanupPrefix)
@@ -745,10 +745,10 @@ ${signal}: stopping creators, then dedicated cleanup…`)
     return shutdownPromise
   }
   process.on('SIGINT', () => {
-    void shutdown('SIGINT').then(() => process.exit(stats.errors > 0 ? 1 : 0))
+    shutdown('SIGINT').then(() => process.exit(stats.errors > 0 ? 1 : 0))
   })
   process.on('SIGTERM', () => {
-    void shutdown('SIGTERM').then(() => process.exit(stats.errors > 0 ? 1 : 0))
+    shutdown('SIGTERM').then(() => process.exit(stats.errors > 0 ? 1 : 0))
   })
   // Connect with ramp
   for (const c of clients) {

@@ -81,6 +81,7 @@
     "start:all-locally:prsm4": "node utils/prsm4-local.mjs start",
     "stop:all-locally:prsm4": "node utils/prsm4-local.mjs stop",
     "stress:prsm": "node ./utils/stress-test-prsm.mjs",
+    "stress:prsm4": "node ./prsm4/tests/stress-test-prsm4.mjs",
     "test:minimap": "node ./utils/test-minimap-bounds.mjs",
     "test": "npm run test:minimap"
   },
