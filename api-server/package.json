@@ -31,5 +31,13 @@
 	},
 	"devDependencies": {
 		"parcel": "latest"
+	},
+	"allowScripts": {
+		"@parcel/watcher@2.6.0": true,
+		"@swc/core@1.16.22": true,
+		"classic-level@3.0.0": true,
+		"lmdb@2.8.5": true,
+		"msgpackr-extract@3.0.7": true,
+		"sqlite3@6.0.1": true
 	}
 }

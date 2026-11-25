@@ -1,0 +1,2294 @@
+---
+url: /doc/help4/doc_build/index.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Introduction
+
+:::warning Draft
+This manual is being revised for PRSM 4. Some pages and screenshots still describe
+the legacy version; check the app for the currently available controls. Start with
+the [PRSM 4 overview](/doc/help4/doc_build/manual/Introduction.md).
+:::
+
+The Participatory System Mapper (PRSM for short) is a web app that makes it easy for a group of people working together to draw networks (or 'maps') of systems.
+
+![Example map: Some factors causing loss of biodiversity](/images/biodiversityImproved.webp)
+
+## Maps
+
+The network or map can be anything that has items (or 'factors' or 'nodes') connected by links (or 'edges').  Here are some examples:
+
+- People (the nodes) connected by knowing each other
+- Factors or variables causing (the links) changes in other factors
+- Switches connected by wires
+- Computers connected by network links
+- Theories expressed as variables and relationships between them
+- Company boards of directors (the nodes) and the directors that sit on more than one board (the links)
+- Twitter hashtags (the nodes) included together on posts (the links)
+- Scientists (the nodes) co-authoring papers (the links)
+- and so on.
+
+## Systems
+
+The software is aimed at people who are interested in understanding whole systems.  [Wikipedia](https://en.wikipedia.org/wiki/System) defines a system as "a group of interacting or interrelated entities that form a unified whole".
+
+## Participatory system mapping
+
+The app is designed to enable groups of people, each using their own computer (or tablet) to collaborate in the drawing of a map.  They may be sitting around a table, discussing the map as it is created face to face, or working remotely, using audio or video conferencing.  Everyone can participate because every edit (creating nodes and links, arranging them and so on) is broadcast to all the other participants as the changes are made.
+
+When you start the app in your browser, a 'room' is created for you in which to draw your network.  You can add other users to this room to share the work.  Only those with access to the room can see what is being created.
+
+
+
+---
+url: /doc/help4/doc_build/manual/AIAssistance.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# AI Assistance
+
+:::warning Draft
+This page has not yet been fully revised for PRSM 4 and may describe the legacy app. See the [PRSM 4 overview](/doc/help4/doc_build/manual/Introduction.md) for current guidance.
+:::
+
+## AI generated Factor and Link descriptions
+
+All factors and links may have Notes associated with them.  These notes are displayed when a factor or link is selected.  They describe the factors and links in more detail than can be accommodated in a label.
+
+The descriptions may be typed in by hand, or they can be generated using a Large Language Model (LLM), a type of artificial intelligence (AI).
+
+To get AI to create a description, select a node or a link and click on the 'sparkle' button  ![Notes Window button](/doc/help4/doc_build/images/SparkleIcon.png) at the top of the Note panel.  After a short pause, the Note panel will be filled with an AI generated description.  This text can be  - and usually should be - edited to provide more detail and correct any mistakes.  The text may be too long for it all to be visible within the Note panel.  You can scroll the text, or click on the New window icon ![Notes Window button](/doc/help4/doc_build/images/newwindow.png) to copy the text into a much larger window.
+![Factor with AI generated Note](/doc/help4/doc_build/images/AIFactorNote.png)
+The AI is provided with the factor label (or the 'from' and 'to' factor labels for links) as cues for the description, together with rest of the map and the map's title, if any, as context. Hence to get a better description, factor labels should be precise, and the map should have a meaningful title.
+
+:::tip
+
+If the Note panel already contains text, this too is provided to the AI.  This already existing text can be used to prompt the AI and influence what it generates.
+
+:::
+
+The AI uses the information it has gained from extensive training on documents found on the internet together with information from the map to create the description.  The text it generates should be treated as fallible and only a starting point for more expert and more informed descriptions.  Do not rely on the accuracy of the text, or on the validity of the web links and academic papers cited. This all should be carefully checked.
+
+Requesting a description for a second time may generate a slightly different text because the AI is not deterministic (i.e. it depends on probabilities).
+
+:::info
+To create the text, data is sent to an AI server in the UK.  No data is retained on the server or used for training. PRSM only uses AI to generate these descriptions - if you don't use the Sparkle button, no AI is accessed.
+
+The prompt to obtain a description of a link (the prompt for factors is similar) is like this:
+
+```text
+I want you to explain a single causal link of the form "A causes B". 
+Write a compact, clear explanation of why or how A causes B.
+
+Structure the output in the following order without using any section 
+headings or a title:
+1 Introduction
+2 Bullet points explaining the causal reasoning
+3 Evidence section containing academic citations and links to relevant 
+web pages
+4 Summary
+The bullet points should clearly explain the causal reasoning.
+The evidence section should provide academic references and links 
+to web pages with a brief explanation of how each supports the link.
+All academic references must include full citations (author, date, 
+title, source). Do not include DOIs.  You must verify that all 
+academic references that you mention actually exist. Always embed 
+links for any cited web pages.
+The summary should concisely restate the main points.
+Maximum total output length: 200 words.
+```
+
+:::
+
+## System map overview description
+
+When you open the [map overview](/doc/help4/doc_build/manual/GettingStarted.md#overview) (using the toggle at the middle left edge of the map window), the editing toolbar at the top includes the 'Sparkle' button that can be used to get an AI generated description of the whole map.  The AI is provided with the map (the factor labels and the links) and the map title to base its description on.  The same cautions should be borne in mind: the text it generates should be treated as fallible and only a starting point for a more expert and more informed description.  Do not rely on the accuracy of the text, or on the validity of the web links and academic papers cited. It should be carefully checked.
+
+![AI generated map description](/doc/help4/doc_build/images/AIMapDescription.png)
+:::info
+
+The prompt for the map overview is:
+
+```text
+I want you to generate a compact, readable narrative description 
+of a system map.
+
+I will provide:
+• A title for the system map.
+• A list of causal links, each given as a pair of factors in the 
+form “A causes B”, where A is the cause and B is the effect.
+
+Your task is to:
+1. Produce a short, coherent, well-structured description 
+explaining the main dynamics of the system.
+2. Cluster related factors, highlight feedback loops if present, 
+and describe the overall behaviour of the system.
+3. Avoid restating every causal link individually. Instead, 
+synthesise them into a readable explanation.
+4. Use bullet points where appropriate but do *not* include 
+a title or any section headings.
+5. Keep the description concise and accessible, suitable for 
+a briefing note.  Use no more than 300 words.
+```
+
+:::
+
+
+
+---
+url: /doc/help4/doc_build/manual/Acknowledgements.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Acknowledgements
+
+:::warning Draft
+This page has not yet been fully revised for PRSM 4 and may describe the legacy app. See the [PRSM 4 overview](/doc/help4/doc_build/manual/Introduction.md) for current guidance.
+:::
+
+With thanks to all who helped inspire, suggest features for, comment on, and test PRSM, including members of [CECAN](https://www.cecan.ac.uk/), [CRESS](https://cress.soc.surrey.ac.uk/), [Risk Solutions](https://www.risksol.co.uk/), and Robin Gilbert.
+
+## Bug reports and feature requests
+
+Please report problems, suggestions and praise to [nigel@prsm.uk](mailto:nigel@prsm.uk)
+
+
+
+---
+url: /doc/help4/doc_build/manual/Additional help.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Additional help for use by the AI Assistant
+
+:::warning Draft
+This page has not yet been fully revised for PRSM 4 and may describe the legacy app. See the [PRSM 4 overview](/doc/help4/doc_build/manual/Introduction.md) for current guidance.
+:::
+
+## Creating factors
+
+To create a factor, click on the 'Add factor' button at the top of the window. Then click somewhere on the blank area below (the 'network pane') to create a node for the network. A small dialog box will open for you to type in a label for the factor.
+
+## What PRSM is used for
+
+The primary use of PRSM is for creating system maps.
+The network or map can be anything that has items (or 'factors' or 'nodes') connected by links (or 'edges'). For example:
+
+- People (the nodes) connected by knowing each other (e.g. a stakeholder map)
+- Factors or variables causing (the links) changes in other factors (e.g. a causal loop diagram)
+- Theories expressed as variables and relationships between them (e.g. a Theory of Change)
+- Company boards of directors (the nodes) and the directors that sit on more than one board (the links) (e.g. interlocking directorates )
+- Twitter hashtags (the nodes) included together on posts (the links) (a hashtag network)
+- Scientists (the nodes) co-authoring or co-citing papers (the links) (e.g. a co-citation network)
+  … and anything else that has items and links between the items.
+
+The maps can be created collaboratively.  Groups of people, each using their own computer (or tablet) can collaborate in the drawing of a map using PRSM. They may be sitting around a table, discussing the map as it is created face to face, or working remotely, using PRSM and video conferencing.
+
+Everyone can participate because every edit (creating nodes and links, arranging them, annotating them, and so on) is broadcast to all the other participants as the changes are made.
+
+## Changing the look or the name of a factor (editing its label, colour, border, font, or size)
+
+If you want to change the look of a single factor, double click on it.  This brings up an editing palette that will allow you to change the label, the colour of the factor, its border or its font, add a solid, dashed or dotted border, change the outline shape of the factor, or change the size of the font. If you want to change not just one factor, but all similar factors, head to the Settings button and click on the Factors tab to edit a Factor style.
+
+## Changing the look or the name of a link (editing its label, colour, or font)
+
+If you want to change the look of a single link, double click on it.  This brings up an editing palette that will allow you to change the label, the colour of the link, its border or its font, change the shape of the arrow head, or change the size of the font. If you want to change not just one link, but all similar links, head to the Settings button and click on the Links tab to edit a Link style.
+
+## Adding a legend or key
+
+A legend or key can be shown on the map.  The legend shows the names of Factor and Link styles, next to a small version of the Factor or Link style.  A legend is only shown if (a) you have set the name of one or more Factor or Link styles (that is, changed it from the default 'sample') _and_ you have checked the 'Show legend' check box on the Network tab of the Settings panel.
+
+For example, if you had some factors that are Activities, some that are Change mechanisms, some Outcomes and some Impacts, you could give four of the styles these names, colour their fills red, orange, yellow and blue, and then apply these styles to the appropriate factors in the network. Then check \`Show legend' on the Network tab. The legend will be automatically displayed on the network pane.
+
+The legend can be moved by dragging the top of the Legend pane.
+
+## About PRSM
+
+PRSM was designed and written by Nigel Gilbert.  He can be reached at [prsm@prsm.uk](mailto:prsm@prsm.uk).
+
+## Citing PRSM in scientific literature
+
+To cite PRSM, use: `Gilbert, N. (2026). PRSM: The Participatory System Mapper. <https://prsm.uk>` as your reference in a bibliography.
+
+## Where PRSM data and maps are stored
+
+The data you enter to create and edit maps is encoded and stored in the cloud: specifically in an Amazon Web Services data centre located in the United Kingdom.
+
+
+
+---
+url: /doc/help4/doc_build/manual/Advanced/API.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Interfacing with PRSM (API)
+
+:::warning Draft
+This page has not yet been fully revised for PRSM 4 and may describe the legacy app. See the [PRSM 4 overview](/doc/help4/doc_build/manual/Introduction.md) for current guidance.
+:::
+
+## Overview
+
+PRSM provides an API (Application Programming Interface) for other programs so that they can read and modify maps. This is done by accessing specific web addresses (called 'endpoints') with parameters that state what operation is to be carried out.
+
+## Base URL
+
+All the endpoints are based on the following web address - see below for the actual endpoints.
+
+```text
+https://prsm.uk/api/map
+```
+
+## Authentication
+
+All API accesses have to be accompanied by the room ID of the map to be accessed or modified. This map _must already exist_, having previously been created in the PRSM web app.  See [Sharing](/doc/help4/doc_build/manual/GettingStarted.md#sharing) for how to find the ID of a map.
+
+## Rate limiting
+
+To prevent malicious use, if calls from an IP address arrive at a rate of more than 20 per second, the excess will be rejected with a message and HTTP status `503`.  It is recommended that API calls are separated by calls to a `sleep` function that pauses the calling program for about 100 milliseconds between API accesses.
+
+## Returned values
+
+All the API endpoints return a [JSON](https://www.json.org/json-en.html) formatted string.  This will either be the retrieved data, or an error message.  The format of the retrieved data varies according to the endpoint, but the error messages are in a standard format, such as:
+
+```bash
+{"error":"Map not found"}
+```
+
+In addition, the response includes a status code:
+
+- `200` - Success
+- `404` - Not found
+- `500` - Server error
+- `503` - Rate limit exceeded
+
+## A simple example
+
+To get a list of the factors and links in a map with the room ID `ABC-DEF-GHI-JKL`, one would use the web address:
+
+```text
+https://prsm.uk/api/map/ABC-DEF-GHI-JKL
+```
+
+Normally this web address would be accessed from code inside a program or from the command line.  The program can be written in any suitable language such as JavaScript, Python or PHP.  For example, this snippet returns data about the map as a JSON string in the `data` variable (click on the tabs for samples in each language):
+
+
+**undefined**
+
+```javascript
+const response = await fetch(`https://prsm.uk/api/map/ABC-DEF-GHI-JKL`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'}`)
+    }
+const data = await response.json()
+```
+
+
+**undefined**
+
+```javascript
+const response = await fetch(`https://prsm.uk/api/map/ABC-DEF-GHI-JKL`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'}`)
+    }
+const data = await response.json()
+```
+
+
+**undefined**
+
+```javascript
+const response = await fetch(`https://prsm.uk/api/map/ABC-DEF-GHI-JKL`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'}`)
+    }
+const data = await response.json()
+```
+
+
+**undefined**
+
+```javascript
+const response = await fetch(`https://prsm.uk/api/map/ABC-DEF-GHI-JKL`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'}`)
+    }
+const data = await response.json()
+```
+
+
+## Modifying Factors and Links
+
+When you want to modify a factor or link (for example, changing the colour of a factor), you send the changes to the API using a PATCH request. The request body must contain an `update` object with the properties you want to change. These properties will overwrite the existing values.
+
+For example, to change a specific factor's background colour to red and increase its border width to 4 pixels, you would send the following PATCH request to `/api/map/{roomID}/factor/{factorID}`:
+
+
+**undefined**
+
+```javascript
+const response = await fetch(`https://prsm.uk/api/map/ABC-DEF-GHI-JKL/factor/86db33bf-0b88-45da-a829-7c777d9bf4ba`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        update: {color: {background: 'rgb(255,0,0)'}, borderWidth: 4 }
+      }),
+      })
+if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'}`)
+    }
+const data = await response.json()
+```
+
+
+**undefined**
+
+```javascript
+const response = await fetch(`https://prsm.uk/api/map/ABC-DEF-GHI-JKL/factor/86db33bf-0b88-45da-a829-7c777d9bf4ba`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        update: {color: {background: 'rgb(255,0,0)'}, borderWidth: 4 }
+      }),
+      })
+if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'}`)
+    }
+const data = await response.json()
+```
+
+
+**undefined**
+
+```javascript
+const response = await fetch(`https://prsm.uk/api/map/ABC-DEF-GHI-JKL/factor/86db33bf-0b88-45da-a829-7c777d9bf4ba`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        update: {color: {background: 'rgb(255,0,0)'}, borderWidth: 4 }
+      }),
+      })
+if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'}`)
+    }
+const data = await response.json()
+```
+
+
+**undefined**
+
+```javascript
+const response = await fetch(`https://prsm.uk/api/map/ABC-DEF-GHI-JKL/factor/86db33bf-0b88-45da-a829-7c777d9bf4ba`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        update: {color: {background: 'rgb(255,0,0)'}, borderWidth: 4 }
+      }),
+      })
+if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'}`)
+    }
+const data = await response.json()
+```
+
+
+:::tip
+
+If you want to create a new factor or link with a specific design programmatically, it is helpful first to create a factor or link with that design by hand on a map and then use the `GET factor` endpoint to retrieve its details.  You can then use this as a template to create new similar factors or links programmatically.
+
+:::
+
+:::info
+
+What this manual refers to as `style` is called internally, `grp`.  And the name of a style is called its `groupLabel`.
+
+:::
+
+## Attributes
+
+Arbitrary variables may be attached to both factors and links.  These are called `attributes` and they can be created, viewed and their values edited in the [Data View](/doc/help4/doc_build/manual/DataView.md#Managing_the_whole_table).  Attributes have a title (the name that is shown at the top of their column in the Data View) and an internal name of the form `attX`, where `X` is a number, e.g. `att1`.
+
+If there are any attributes defined for a factor or a link, the internal name and the attribute value will be returned when getting the details using the `GET factor` or `GET link` endpoints.  For example, the JSON returned might include `"att1":"female"`.  The JSON returned by the `GET map information` endpoint will include a property, `attributeTitles`, whose value is an object associating each of the internal attribute names with their external titles, e.g. `"attributeTitles":{"att1":"Gender"}`.
+
+## Endpoints
+
+### Get map information
+
+`GET https://prsm.uk/api/map{roomID}`
+
+**Description:**
+
+Returns data about the map as a whole.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+
+**Response:**
+
+Returns a JSON string of an object with the properties:
+
+- room: the roomID
+- title: the title of the map, if any
+- viewOnly:  `true` if the map cannot be altered by the user (NB: even if true, the map can still be altered through the API)
+- version: the version number of PRSM used to create the map
+- backgroundColor: the color of the map background
+- nodes: an array of the factors in the map.  Each consists of an object with properties:
+  - id: a unique identifier for the factor
+  - label: the label of the factor (the text that is visible on the factor)
+  - x, y : the position of the factor on the underlying canvas (this does not change even if the map is scrolled around the viewport)
+- edges: an array of the links in the map.   Each consists of an object with properties:
+  - id: a unique identifier for the link
+  - label: the label of the link, if any
+  - from: the id of the factor that the link points away from
+  - to: the id of the factor that the link points to
+
+**Example output:**
+
+```json
+{"room":"ABC-DEF-GHI-JKL",
+"title":"An example map",
+"version":"3.0.3",
+"nodes":[{},{"id":"86db33bf-0b88-45da-a829-7c777d9bf4ba","label":"test for notes","x":-46,"y":-131},{"id":"87b4444e-233c-4ce8-9a39-4f629c1ff43a","label":"Another factor","x":145,"y":-32}],
+"edges":[{},{"id":"6a12f9f4-3e84-4888-8b13-5f7023e3024e","from":"86db33bf-0b88-45da-a829-7c777d9bf4ba","to":"87b4444e-233c-4ce8-9a39-4f629c1ff43a"}]}
+```
+
+### Update a map's title and background
+
+`PATCH https://prsm.uk/api/map/{roomID}`
+
+**Description:**
+
+Updates the title and/or background colour of the map.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+
+**Request Body:**
+
+The body must include an `update` object with the properties to update: the new map title, the new background colour, or both.
+
+**Example request body:**
+
+```json
+{
+  "update": {
+    "title": "New title",
+    "background": "rgb(255,0,0)",
+  }
+}
+```
+
+**Response:**
+
+Returns a JSON string of an object with the new title and background properties.
+
+### Get the details of a factor
+
+`GET https://prsm.uk/api/map{roomID}/factor/{factorID}`
+
+**Description:**
+
+Returns full details about a specific factor in the map.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `factorID`: The unique identifier for the factor
+
+**Response:**
+
+Returns a JSON string of an object with the properties:
+
+- id: a unique identifier for the factor
+- label: the label of the factor (the text that is visible on the factor)
+- x, y: the position of the factor on the underlying canvas
+- borderWidth: the width of the factor's border
+- color: an object containing color settings:
+  - border: the border color
+  - background: the background color
+  - highlight: highlight colors (border and background)
+  - hover: hover colors (border and background)
+- created: an object with time (timestamp) and user properties
+- modified: an object with time (timestamp) and user properties
+- note: an object in \[[https://quilljs.com/docs/delta/\](Quill](https://quilljs.com/docs/delta/]\(Quill) Delta) format that describes the Note associated with this factor
+- groupLabel: the label of the group this factor belongs to, if any
+- grp: the group number
+- font: an object with font settings (face, color, size)
+- shape: the shape of the factor (e.g., "box", "ellipse")
+- shapeProperties: additional shape-specific properties
+
+**Example output:**
+
+```json
+{"id":"86db33bf-0b88-45da-a829-7c777d9bf4ba",
+"label":"test label",
+"note":{"ops":[{"insert":"THIS IS A NOTE\n"}]},
+"x":-46,
+"y":-131,
+"grp": "group0",
+"borderWidth":1,
+"color": {
+    "border": "rgb(154, 219, 180)",
+    "background": "rgb(154, 219, 180)",
+    "highlight": {
+        "border": "rgb(154, 219, 180)",
+        "background": "rgb(154, 219, 180)"
+    },
+    "hover": {
+        "border": "rgb(154, 219, 180)",
+        "background": "rgb(154, 219, 180)"
+    }
+},
+"font": {
+    "face": "Oxygen",
+    "color": "rgb(0, 0, 0)",
+    "size": 14
+},
+"borderWidth": 0,
+"shape": "box",
+"shapeProperties": {
+    "borderDashes": false
+},
+"groupLabel": "Sample",
+"created":{"time":1640000000000,"user":"john@example.com"},
+"modified":{"time":1640000000000,"user":"john@example.com"}}
+```
+
+### Update the details of a factor
+
+`PATCH https://prsm.uk/api/map{roomID}/factor/{factorID}`
+
+**Description:**
+
+Updates properties of a specific factor.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `factorID`: The unique identifier for the factor
+
+**Request Body:**
+
+The body must include an `update` object with the properties to update. Any property from the factor can be updated (label, color, position, etc.).
+
+**Example request body:**
+
+```json
+{
+  "update": {
+    "label": "Updated label",
+    "color": {"background": "rgb(255,0,0)"},
+    "borderWidth": 2
+  }
+}
+```
+
+**Response:**
+
+Returns the updated factor object with all its properties (same format as GET /map/\{roomID}/factor/\{factorID}).
+
+### Add a new factor
+
+`POST https://prsm.uk/api/map{roomID}/factor/{factorID}`
+
+**Description:**
+
+Creates a new factor with the specified properties.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `factorID`: The unique identifier for the new factor (should be a UUID)
+
+**Request Body:**
+
+The body must include a `spec` object with the factor properties. The only required property is `label`. All other properties have defaults:
+
+- label (required): the text to display on the factor
+- x, y (default: 0, 0): position on the canvas
+- borderWidth (default: 0): width of the border
+- color (default: green): color settings object
+- font (default: Oxygen, 14pt, black): font settings object
+- note: (default: balnk): object in \[[https://quilljs.com/docs/delta/\](Quill](https://quilljs.com/docs/delta/]\(Quill) Delta) format describing a note
+- grp (default: 0): group number
+- shape (default: "box"): the shape of the factor
+- shapeProperties (default: {}): additional shape properties
+
+**Response:**
+
+Returns the created factor object with all its properties.
+
+**Example request body:**
+
+```json
+{
+  "spec": {
+    "label": "New Factor",
+    "x": 100,
+    "y": 200,
+    "color": {"background": "rgb(200,200,255)"}
+  }
+}
+```
+
+### Delete a factor
+
+`DELETE https://prsm.uk/api/map{roomID}/factor/{factorID}`
+
+**Description:**
+
+Deletes a specific factor and all links connected to it.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `factorID`: The unique identifier for the factor
+
+**Response:**
+
+Returns a success message.
+
+**Example output:**
+
+```json
+{"message": "Factor deleted"}
+```
+
+### Get details about a link
+
+`GET https://prsm.uk/api/map{roomID}/link/{linkID}`
+
+**Description:**
+
+Returns full details about a specific link in the map.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `linkID`: The unique identifier for the link
+
+**Response:**
+
+Returns a JSON string of an object with the properties:
+
+- id: a unique identifier for the link
+- label: the label of the link, if any
+- from: the id of the factor that the link points away from
+- to: the id of the factor that the link points to
+- arrows: an object describing arrow configuration:
+  - to: arrow at the "to" end (enabled, type)
+  - middle: arrow in the middle (enabled)
+  - from: arrow at the "from" end (enabled)
+- width: the width of the link line
+- dashes: whether the link is dashed (true/false)
+- note: an object in \[[https://quilljs.com/docs/delta/\](Quill](https://quilljs.com/docs/delta/]\(Quill) Delta) format that describes the Note associated with this link
+- color: an object containing color settings (color, highlight, hover)
+- created: an object with time (timestamp) and user properties
+- modified: an object with time (timestamp) and user properties
+- groupLabel: the label of the group this link belongs to, if any
+- grp: the group number
+- font: an object with font settings (face, color, size)
+
+**Example output:**
+
+```json
+{"id":"860a240b-15d5-4d99-bc69-f1a3d01391c4",
+"label":" ","from":"8d3bf8b9-ff59-45e3-b7d9-86fffd801327",
+"note":{"ops":[{"insert":"THIS IS A NOTE FOR A LINK\n"}]},
+"to":"501086d4-eaba-4ff1-ab8a-35295bd0310f",
+"arrows":{"to":{"enabled":true,"type":"vee"},"middle":{"enabled":false},"from":{"enabled":false}},
+"width":1,
+"dashes":false,
+"color":{"color":"rgb(255,0,255)"},
+"created":{"time":1732706793944,"user":"john@example.com"},
+"modified":{"time":1768508302550,"user":"john@example.com"},
+"groupLabel":"Complex",
+"grp":"edge0",
+"font":{"size":14,"align":"top","background":"rgb(255,255,255)","color":"rgba(0,0,0,1)"}}
+```
+
+### Update details about a link
+
+`PATCH https://prsm.uk/api/map{roomID}/link/{linkID}`
+
+**Description:**
+
+Updates properties of a specific link.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `linkID`: The unique identifier for the link
+
+**Request Body:**
+
+The body must include an `update` object with the properties to update. Any property from the link can be updated (label, color, arrows, width, dashes, etc.).
+
+**Response:**
+
+Returns the updated link object with all its properties (same format as GET /map/\{roomID}/link/\{linkID}).
+
+**Example request:**
+
+```json
+{
+  "update": {
+    "label": "influences",
+    "width": 3,
+    "dashes": true
+  }
+}
+```
+
+**Example output:**
+
+```json
+{"node":{"groupLabel":"Sample","borderWidth":0,"borderWidthSelected":4,"color":{"background":"rgb(255,0,255)"},"fixed":false,"font":{"face":"Oxygen","color":"rgb(0, 0, 0)","size":14},"labelHighlightBold":true,"margin":20,"shape":"box","shapeProperties":{"borderDashes":false},"scaling":{"min":10,"max":40,"label":{"enabled":false,"min":10,"max":40}},"size":25,"heightConstraint":false,"widthConstraint":false}}
+```
+
+### Add a new link
+
+`POST https://prsm.uk/api/map{roomID}/link/{linkID}`
+
+**Description:**
+
+Creates a new link with the specified properties.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `linkID`: The unique identifier for the new link (should be a UUID)
+
+**Request Body:**
+
+The body must include a `spec` object with the link properties. Required properties are `from` and `to` (factor IDs). All other properties have defaults:
+
+- from (required): the id of the source factor
+- to (required): the id of the target factor
+- label (optional): text to display on the link
+- color (default: black): color settings object
+- font (default: Oxygen, 14pt, black): font settings object
+- grp (default: 0): group number
+- arrows (default: "to" arrow enabled): arrow configuration
+- dashes (default: false): whether the link is dashed
+- width (optional): width of the link line
+
+**Response:**
+
+Returns the created link object with all its properties. Returns an error if either the `from` or `to` factor does not exist.
+
+**Example request:**
+
+```json
+{
+  "spec": {
+    "from": "86db33bf-0b88-45da-a829-7c777d9bf4ba",
+    "to": "87b4444e-233c-4ce8-9a39-4f629c1ff43a",
+    "label": "leads to"
+  }
+}
+```
+
+### Delete a link
+
+`DELETE https://prsm.uk/api/map{roomID}/link/{linkID}`
+
+**Description:**
+
+Deletes a specific link.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `linkID`: The unique identifier for the link
+
+**Response:**
+
+Returns a success message.
+
+**Example output:**
+
+```json
+{"message": "Link deleted"}
+```
+
+### Get a list of all styles
+
+`GET https://prsm.uk/api/map/{roomID}styles`
+
+**Description:**
+
+Returns details about all the styles (factor styles and link styles), as shown in the Settings panel.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+
+**Response:**
+
+Returns a JSON string of an Array of Arrays.  Each sub-array has one element that is the `grp` (e.g. `group0`, `group1` ... `group14` for factor styles and `edge0` ... `edge8` for link styles) and a second element that is an object describing the style.  For the properties of these objects, see the descriptions of factor and link properties above.
+
+For example, the following shows the first few lines returned from the default styles as they appear when you start a new map.
+
+```json
+[
+  [
+    "group0",
+    {
+      "node": {
+        "groupLabel": "Sample",
+        "borderWidth": 0,
+        "borderWidthSelected": 4,
+        "color": {
+          "border": "rgb(154, 219, 180)",
+          "background": "rgb(219, 11, 0)",
+          "highlight": {
+            "border": "rgb(154, 219, 180)",
+            "background": "rgb(219, 11, 0)"
+          },
+```
+
+### Get details of a style
+
+`GET https://prsm.uk/api/map/{roomID}styles/{styleID}`
+
+**Description:**
+
+Returns details about a style.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `styleID`: The identifier (`grp`) of the style
+
+**Response:**
+
+Returns a JSON string of an Array with one element that is the `grp` (e.g. `group0`, `group1` ... `group14` for factor styles and `edge0` ... `edge8` for link styles) and a second element that is an object describing the style.  For the properties of these objects, see the descriptions of factor and link properties above.
+
+**Example:**
+
+The following shows what is returned from the default styles for the factor style, `group0`.
+
+````json
+["group0",{"node":{"groupLabel":"Sample","borderWidth":0,
+"borderWidthSelected":4,"color":{
+"border":"rgb(154, 219, 180)","background":"rgb(154, 219, 180)"},
+"highlight":{"border":"rgb(154, 219, 180)","background":"rgb(154, 219, 180)"},
+"hover":{"border":"rgb(154, 219, 180)","background":"rgb(154, 219, 180)"}},
+"fixed":false,
+"font":{"face":"Oxygen","color":"rgb(0, 0, 0)","size":14},
+"labelHighlightBold":true,"margin":20,"shape":"box",
+"shapeProperties":{"borderDashes":false},
+"scaling":{"min":10,"max":40,"label":{"enabled":false,"min":10,"max":40}},
+"size":25,"heightConstraint":false,"widthConstraint":false}}]```
+````
+
+### Update a style
+
+`PATCH https://prsm.uk/api/map/{roomID}styles/{styleID}`
+
+**Description:**
+
+Updates details about a style.
+
+**Parameters:**
+
+- `roomID`: The room identifier for the map
+- `styleID`: The identifier (`grp`) of the style
+
+**Request Body:**
+
+The body must include an `update` object with the properties to update. Any property from the style can be updated (groupName, color, arrows, width, dashes, etc.).  For example, `{"update": {"color": {"background": "rgb(255,0,0)"}}}`
+
+**Response:**
+
+Returns a JSON string of an object describing the style.  For the properties of these objects, see the descriptions of factor and link properties above.
+
+**Example:**
+
+The following shows what is returned from the default styles for the factor style, `group0` after updating the background colour to red (`rgb(255,0,0)`).
+
+```json
+{"node":{"groupLabel":"Sample","borderWidth":0,"borderWidthSelected":4,
+"color":{"background":"rgb(255,0,0)"},"fixed":false,
+"font":{"face":"Oxygen","color":"rgb(0, 0, 0)","size":14},
+"labelHighlightBold":true,"margin":20,"shape":"box",
+"shapeProperties":{"borderDashes":false},
+"scaling":{"min":10,"max":40,"label":{"enabled":false,"min":10,"max":40}},
+"size":25,"heightConstraint":false,"widthConstraint":false}}
+```
+
+## Example
+
+To show how one might put these endpoints together, the following complete program changes the background of all the factors that are the standard green (in fact, the colour 'rgb(154, 219, 180)') to red ('rgb(255, 0, 0)').  It first obtains a list of all factors, then examines each one to test its background colour, and then if the colour is green, changes it to red.
+
+
+
+**undefined**
+
+```javascript
+/**
+ * Update factor colors in a PRSM map
+ * Finds all factors with a specific background color and updates them to a new color
+ */
+
+const ROOM_ID = 'ABC-DEF-GHI-JKL'
+const BASE_URL = 'https://prsm.uk/api/map'
+const OLD_COLOR = 'rgb(154, 219, 180)'
+const NEW_COLOR = 'rgb(255, 0, 0)'
+
+async function main() {
+  try {
+    console.log(`Fetching map data for room ${ROOM_ID}...`)
+
+    // Get the map data to retrieve all factor IDs
+    const mapResponse = await fetch(`${BASE_URL}/${ROOM_ID}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+
+    if (!mapResponse.ok) {
+      const errorData = await mapResponse.json()
+      throw new Error(`HTTP ${mapResponse.status}: ${errorData.error || 'Unknown error'}`)
+    }
+
+    const mapData = await mapResponse.json()
+    const factorIds = mapData.nodes.map(node => node.id).filter(id => id) // filter out any null/undefined ids
+
+    console.log(`Found ${factorIds.length} factors in the map`)
+
+    // Fetch details for each factor to check its background color
+    const factorsToUpdate = []
+
+    for (const factorId of factorIds) {
+      console.log(`Checking factor ${factorId}...`)
+
+      const factorResponse = await fetch(`${BASE_URL}/${ROOM_ID}/factor/${factorId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+
+      if (!factorResponse.ok) {
+        console.warn(`Failed to fetch factor ${factorId}, skipping...`)
+        continue
+      }
+
+      const factorData = await factorResponse.json()
+
+      // Check if the background color matches the old color
+      // Note: colors may have spaces after commas, so we normalize them
+      const normalizeColor = (color) => color.replace(/\s+/g, '')
+
+      if (factorData.color && factorData.color.background) {
+        const currentColor = normalizeColor(factorData.color.background)
+        const targetColor = normalizeColor(OLD_COLOR)
+
+        if (currentColor === targetColor) {
+          factorsToUpdate.push({
+            id: factorId,
+            label: factorData.label
+          })
+        }
+      }
+    }
+
+    console.log(`\nFound ${factorsToUpdate.length} factors with background color ${OLD_COLOR}`)
+
+    // Update each matching factor
+    for (const factor of factorsToUpdate) {
+      console.log(`Updating factor "${factor.label}" (${factor.id})...`)
+
+      const updateResponse = await fetch(`${BASE_URL}/${ROOM_ID}/factor/${factor.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          update: {
+            color: {
+              background: NEW_COLOR
+            }
+          }
+        })
+      })
+
+      if (!updateResponse.ok) {
+        const errorData = await updateResponse.json()
+        console.error(`Failed to update factor ${factor.id}: ${errorData.error}`)
+        continue
+      }
+
+      const updatedFactor = await updateResponse.json()
+      console.log(`✓ Updated "${updatedFactor.label}" to ${NEW_COLOR}`)
+    }
+
+    console.log(`\nComplete! Updated ${factorsToUpdate.length} factors.`)
+
+  } catch (error) {
+    console.error('Error:', error.message)
+    process.exit(1)
+  }
+}
+
+main()
+```
+
+
+**undefined**
+
+```javascript
+/**
+ * Update factor colors in a PRSM map
+ * Finds all factors with a specific background color and updates them to a new color
+ */
+
+const ROOM_ID = 'ABC-DEF-GHI-JKL'
+const BASE_URL = 'https://prsm.uk/api/map'
+const OLD_COLOR = 'rgb(154, 219, 180)'
+const NEW_COLOR = 'rgb(255, 0, 0)'
+
+async function main() {
+  try {
+    console.log(`Fetching map data for room ${ROOM_ID}...`)
+
+    // Get the map data to retrieve all factor IDs
+    const mapResponse = await fetch(`${BASE_URL}/${ROOM_ID}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+
+    if (!mapResponse.ok) {
+      const errorData = await mapResponse.json()
+      throw new Error(`HTTP ${mapResponse.status}: ${errorData.error || 'Unknown error'}`)
+    }
+
+    const mapData = await mapResponse.json()
+    const factorIds = mapData.nodes.map(node => node.id).filter(id => id) // filter out any null/undefined ids
+
+    console.log(`Found ${factorIds.length} factors in the map`)
+
+    // Fetch details for each factor to check its background color
+    const factorsToUpdate = []
+
+    for (const factorId of factorIds) {
+      console.log(`Checking factor ${factorId}...`)
+
+      const factorResponse = await fetch(`${BASE_URL}/${ROOM_ID}/factor/${factorId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+
+      if (!factorResponse.ok) {
+        console.warn(`Failed to fetch factor ${factorId}, skipping...`)
+        continue
+      }
+
+      const factorData = await factorResponse.json()
+
+      // Check if the background color matches the old color
+      // Note: colors may have spaces after commas, so we normalize them
+      const normalizeColor = (color) => color.replace(/\s+/g, '')
+
+      if (factorData.color && factorData.color.background) {
+        const currentColor = normalizeColor(factorData.color.background)
+        const targetColor = normalizeColor(OLD_COLOR)
+
+        if (currentColor === targetColor) {
+          factorsToUpdate.push({
+            id: factorId,
+            label: factorData.label
+          })
+        }
+      }
+    }
+
+    console.log(`\nFound ${factorsToUpdate.length} factors with background color ${OLD_COLOR}`)
+
+    // Update each matching factor
+    for (const factor of factorsToUpdate) {
+      console.log(`Updating factor "${factor.label}" (${factor.id})...`)
+
+      const updateResponse = await fetch(`${BASE_URL}/${ROOM_ID}/factor/${factor.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          update: {
+            color: {
+              background: NEW_COLOR
+            }
+          }
+        })
+      })
+
+      if (!updateResponse.ok) {
+        const errorData = await updateResponse.json()
+        console.error(`Failed to update factor ${factor.id}: ${errorData.error}`)
+        continue
+      }
+
+      const updatedFactor = await updateResponse.json()
+      console.log(`✓ Updated "${updatedFactor.label}" to ${NEW_COLOR}`)
+    }
+
+    console.log(`\nComplete! Updated ${factorsToUpdate.length} factors.`)
+
+  } catch (error) {
+    console.error('Error:', error.message)
+    process.exit(1)
+  }
+}
+
+main()
+```
+
+
+**undefined**
+
+```javascript
+/**
+ * Update factor colors in a PRSM map
+ * Finds all factors with a specific background color and updates them to a new color
+ */
+
+const ROOM_ID = 'ABC-DEF-GHI-JKL'
+const BASE_URL = 'https://prsm.uk/api/map'
+const OLD_COLOR = 'rgb(154, 219, 180)'
+const NEW_COLOR = 'rgb(255, 0, 0)'
+
+async function main() {
+  try {
+    console.log(`Fetching map data for room ${ROOM_ID}...`)
+
+    // Get the map data to retrieve all factor IDs
+    const mapResponse = await fetch(`${BASE_URL}/${ROOM_ID}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+
+    if (!mapResponse.ok) {
+      const errorData = await mapResponse.json()
+      throw new Error(`HTTP ${mapResponse.status}: ${errorData.error || 'Unknown error'}`)
+    }
+
+    const mapData = await mapResponse.json()
+    const factorIds = mapData.nodes.map(node => node.id).filter(id => id) // filter out any null/undefined ids
+
+    console.log(`Found ${factorIds.length} factors in the map`)
+
+    // Fetch details for each factor to check its background color
+    const factorsToUpdate = []
+
+    for (const factorId of factorIds) {
+      console.log(`Checking factor ${factorId}...`)
+
+      const factorResponse = await fetch(`${BASE_URL}/${ROOM_ID}/factor/${factorId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+
+      if (!factorResponse.ok) {
+        console.warn(`Failed to fetch factor ${factorId}, skipping...`)
+        continue
+      }
+
+      const factorData = await factorResponse.json()
+
+      // Check if the background color matches the old color
+      // Note: colors may have spaces after commas, so we normalize them
+      const normalizeColor = (color) => color.replace(/\s+/g, '')
+
+      if (factorData.color && factorData.color.background) {
+        const currentColor = normalizeColor(factorData.color.background)
+        const targetColor = normalizeColor(OLD_COLOR)
+
+        if (currentColor === targetColor) {
+          factorsToUpdate.push({
+            id: factorId,
+            label: factorData.label
+          })
+        }
+      }
+    }
+
+    console.log(`\nFound ${factorsToUpdate.length} factors with background color ${OLD_COLOR}`)
+
+    // Update each matching factor
+    for (const factor of factorsToUpdate) {
+      console.log(`Updating factor "${factor.label}" (${factor.id})...`)
+
+      const updateResponse = await fetch(`${BASE_URL}/${ROOM_ID}/factor/${factor.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          update: {
+            color: {
+              background: NEW_COLOR
+            }
+          }
+        })
+      })
+
+      if (!updateResponse.ok) {
+        const errorData = await updateResponse.json()
+        console.error(`Failed to update factor ${factor.id}: ${errorData.error}`)
+        continue
+      }
+
+      const updatedFactor = await updateResponse.json()
+      console.log(`✓ Updated "${updatedFactor.label}" to ${NEW_COLOR}`)
+    }
+
+    console.log(`\nComplete! Updated ${factorsToUpdate.length} factors.`)
+
+  } catch (error) {
+    console.error('Error:', error.message)
+    process.exit(1)
+  }
+}
+
+main()
+```
+
+
+
+
+
+---
+url: /doc/help4/doc_build/manual/Advanced/Extending.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Extending PRSM
+
+:::warning Draft
+This page has not yet been fully revised for PRSM 4 and may describe the legacy app. See the [PRSM 4 overview](/doc/help4/doc_build/manual/Introduction.md) for current guidance.
+:::
+
+
+_(The following is intended for developers who want to extend PRSM)_
+
+The program code is available on [GitHub](https://github.com/micrology/prsm).
+
+The javascript (ES6) code in sub-directory `js` is divided into several modules: those that handle the main network pane (`prsm.js`), the background painting functions (`background.js`), editing the styles (`styles.js`) (the default styles are in `samples.js`), the initial tour (`tutorial.js`),  trophic layout (`trophic.js`), clustering (`cluster.js`), the calculation of  betweenness centrality (`betweenness.js`), file saving and reading (`files.js`), the data view (`table.js`), the interface to the AI Large Language Model (`ai.js`) and  shared utility functions (`utils.js` and `merge.js`).  The entry point HTML file that displays in the browser (`prsm.html`) is in the `html` directory.
+
+PRSM uses two important packages: [`yjs`](https://github.com/yjs/yjs) and [`vis-network`](https://visjs.org/).  The former handles the sharing between participants' browsers and the latter draws the network. A few other packages are used for vector graphics for the background (`fabric.js`), and parsing XML file input.  These and commands for checking and packaging the app are listed in `package.json`.
+
+These components are assembled using [`parcel`](https://parceljs.org/) and the bundled file is placed in the `dist` directory.  So that users have an easy URL to access (i.e. not needing to include `dist` in the link), there is an `.htaccess` file that rewrites URLs from what the user puts into their browser to the correct location.
+
+To install the code, use `git` to clone the [repo](https://github.com/micrology/prsm) to your local disk and change to the cloned directory.  Then install the required packages with
+
+```bash
+        npm install
+```
+
+and build the distribution with
+
+```bash
+        npm run build
+```
+
+Documentation can be found in the `doc` directory including a [jsdoc](https://jsdoc.app/index.html) index of all functions and methods.
+
+See `package.json` for other npm commands.
+
+
+
+---
+url: /doc/help4/doc_build/manual/Advanced/RunningLocally.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Running PRSM locally or on an intranet
+
+:::warning Draft
+This page has not yet been fully revised for PRSM 4 and may describe the legacy app. See the [PRSM 4 overview](/doc/help4/doc_build/manual/Introduction.md) for current guidance.
+:::
+
+Some organisations would prefer to run PRSM entirely within their own intranet.  Sometimes it may be desirable to run PRSM just on one computer working offline.  For these cases, PRSM is also available in 'containerised' form, which makes it easy to install it on a local server on an intranet, or even on a laptop.  The server can be a Linux, Windows or Apple Mac machine. The following instructions assume that you have some experience with using the command line in a Terminal or Powershell.
+
+:::info
+
+The API feature and the AI assistance are not available when running PRSM from a container, because they require access to or from outside the container.
+
+:::
+
+1. Check to see whether `python3` is already installed, by typing `python3 --version` at the command prompt.  If it responds with the version of the python installation, you can go on to the next step.  If you get an error message, you will need to install python, using [these instructions](https://www.python.org/downloads/).
+
+2. Install `podman` using [these instructions](https://podman.io/getting-started/installation).
+
+3. Install [podman-compose](https://github.com/containers/podman-compose) using the command:\
+   `pip3 install podman-compose`
+
+4. If not already done during the installation, run:
+
+   ```bash
+   podman machine init
+   podman machine start
+   ```
+
+5. Create a blank, plain text file in a convenient directory and name it `compose.yaml`. Use a text editor to copy the following into the file (be sure to use a text editor, not a word processor):
+
+   ```yaml
+           services:
+             y-websocket:
+               image: docker.io/micrology/prsm-y-websocket
+               pull_policy: always
+               ports: 
+                 - "1234:1234"
+               restart: unless-stopped
+             htppd:
+               image: docker.io/micrology/prsm-httpd
+               pull_policy: always
+               ports:
+                 - "8080:8080"
+               restart: unless-stopped
+   ```
+
+6. Save the file and then run the command:\
+   `podman-compose up -d`\
+   in the same directory as the `compose.yaml` file
+
+7. In a web browser,  on the same computer, enter [http://localhost:8080](http://localhost:8080) in the address bar.  You should see the PRSM welcome page (the same as at [https://prsm.uk](https://prsm.uk)).  Click on the 'Start now' button to get to a blank PRSM map.  This copy of PRSM is running entirely locally: you can disconnect the computer from the internet and it will still function.
+
+If the computer is on a local intranet, it should be possible to access this local version of PRSM with a URL something like [http://168.192.0.123:8080](http://168.192.0.123:8080), where the IP address is the local _intranet_ address of the server (or if it has one, you can use the local network name of the computer, followed by :8080 as the port number).
+
+:::tip
+
+If the browser reports that the location is not found, check for access being blocked by a firewall.  A firewall needs to pass ports 8080 _and_ 1234.  These port numbers can be changed to any free numbers above 1000 by stopping the service (see below) and editing the `compose.yaml` file to `xxxx:1234`and `yyyy:8080`, substituting the new numbers for `xxxx` and `yyyy`.
+
+:::
+
+To stop the PRSM service, navigate to the directory with the `compose.yaml` file and enter the command:\
+`podman-compose down`
+
+Maps (rooms) created using the containerised version are independent of those created using the usual [https://prsm.uk](https://prsm.uk) location. You can however save the map to a PRSM file and reload the file in the other environment.
+
+Maps are only preserved within the container so long as the container is running.  If the container is stopped, the maps disappear (although you can save them first to a file), unless an external directory is attached to the container when it is started.  To attach an external directory, edit the `compose.yaml` file to add the section shown below:
+
+```yaml
+  y-websocket:
+    image: docker.io/micrology/prsm-y-websocket
+    pull_policy: always
+    ports: 
+      - "1234:1234"
+    restart: unless-stopped
+# to provide persistence for maps, bind a local directory to the container. 
+# The local directory will be created if it does not exist. 
+# The container will write map data to this directory, and read from it when it starts up.
+    volumes:
+      - type: bind
+      # replace the source, `./ws-server/db`, with the path to the local directory you want 
+      # to use for persistence.  The path may be relative to the location of this file
+      # or an absolute path (on Windows, use an absolute path).
+      # The container will read and write map data to this directory.
+        source: ./ws-server/db
+        target: /db
+```
+
+After editing `compose.yaml`, stop the container with `podman-compose down` and restart it with `podman-compose up -d`.
+
+
+
+---
+url: /doc/help4/doc_build/manual/Analysing.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Analysing the map
+
+:::warning Draft
+This page has not yet been fully revised for PRSM 4 and may describe the legacy app. See the [PRSM 4 overview](/doc/help4/doc_build/manual/Introduction.md) for current guidance.
+:::
+
+Once you have a map, you may want to examine it for themes and patterns. This is easiest if you examine portions of the map, or 'sub-maps', one at a time.  PRSM includes several features to make this easier. These are located on the Analysis tab of the Settings dialog.
+
+![Analysis Panel](/doc/help4/doc_build/images/AnalysisPanel.png)
+## Using PRSM for map analysis
+
+As  Barbrook-Johnson and Penn ([2021](https://doi.org/10.1177/1356389020976153)) explain, network analysis can be combined with subjective information to answer a range of questions, as indicated in the table below.
+
+
+| **Way to start
+** | **Starting point options
+** | **How to build
+** | **Interpretation
+** | **How to do it with PRSM
+** |
+| --- | --- | --- | --- | --- |
+| **Stakeholder-suggested factors
+** | Intervention or controllable factors | Downstream factors and edges | What is the intervention or controllable factor affecting? Unexpected indirect effects? | Select the intervention factor and choose ‘Show only Factors downstream’ |
+| For multiple factors create a union or intersection of multiple downstream submaps | How are multiple interventions complementing or clashing with each other? | Select all the interventions and choose ‘Show only Factors downstream’ |
+| Paths between intervention factors and outcome factors, including ego networks of factors on paths | What does the intervention rely on to achieve its goals? What wider context might affect it? | Select all the factors on the path(s) between the intervention(s) and the outcomes(s), and choose ‘Show only Factors 1 link away’ (or 2 or 3 links away) |
+| Important or outcome factors | Upstream factors and edges | What is influencing the thing we care about? Constraints? Control? Buffered or buffeted? | Select the intervention factor and choose ‘Show only Factors upstream’ |
+| For multiple factors create a union or intersection of ego networks. Or, pull out paths between outcomes. | What trade-offs or synergies might there be between achieving the things we care about? | Select all the interventions and choose ‘Show only Factors upstream’ |
+| Ego networks | What is influencing the thing we care about, what does it influence and how do those things interact? | Select the factor and choose ‘Show only Factors 1 link away’ (or 2 or 3 links away) |
+| Union or intersection of upstream factors and edges | What factors influence multiple outcomes? Identify potential levers in the system, co-benefits, synergies, or risks. | Select all the outcome factors and choose ‘Show only Factors upstream’ |
+| Vulnerable to change factors | Up and/or downstream factors and edges | What might mitigate change in this factor? What impact might change have? | Select one or more factors and choose ‘Show only Factors 1 link away’ (or 2 or 3 links away) |
+| Union/intersection multiple downstream sub maps | Are there compound risks, how might interventions interact with external change? | Select factors and choose ‘Show only Factors downstream’ |
+| --- |
+| **System-suggested factors
+** | Influential (i.e. many outgoing connections) | Downstream factors and edges | What is this influential thing affecting? Vulnerability or lever? | First, set ‘Size Factors to: Outputs’ to see which factors have many outgoing connections. Then select an influential factor and choose ‘Show only Factors downstream’. |
+| Central to the map (i.e. well-connected, or bridging) | Downstream and/or upstream factors and edges | What is influencing this central factor? What influence does it have? Bottleneck, bridge, transmitter? | First, set ‘Size Factors to: Centrality’ to see which factors are central. Then select a central factor and choose ‘Show only Factors upstream’. |
+| Ego networks | What does this factor bridge or connect? | First, set ‘Size Factors to: Centrality’ to see which factors are central. Then select a central factor and choose ‘Show only Factors 1 link away’. |
+| Influenced (i.e. many incoming connections) | Upstream factors and edges | What is influencing this highly influenced factor? Buffered or buffeted? | First, set ‘Size Factors to: Inputs’ to see which factors have many incoming connections. Then select a factor and choose ‘Show only Factors upstream'. |
+| Unusual network property | Any of the above | Does this factor play an important but counter-intuitive role in the system? | Set ‘Size Factors to: Leverage’ to see which factors have either many incoming but few outgoing connections or few outgoing but many incoming connections. |
+
+
+With thanks to Alex Penn and Pete Barbrook-Johnson for the original of this table, adapted from
+
+[Barbrook-Johnson, P., & Penn, A. (2021). Participatory systems mapping for complex energy policy evaluation. _Evaluation_, 27(1), 57–79](https://doi.org/10.1177/1356389020976153).
+
+## The Analysis panel
+
+The Analysis panel allows you to view portions of the map and to cluster factors to help with the analysis of the network.
+
+![Analysis Panel](/doc/help4/doc_build/images/AnalysisPanel.png)
+The panel is divided into sections:
+
+### Focusing on parts of the map
+
+- **Show only neighbouring Factors** If you first select a factor (or several factors) and then one of these options, all factors in the network will be hidden, except for those 1, 2, or 3 links away from the selected factor(s).  This is useful when you want to focus on just one part of a large network.
+- **Show only up or downstream Factors**  If you first select a factor (or several factors) and then one of these options, all factors in the network will be hidden, except for those 'downstream' (i.e. linked to the selected factor(s) by following links directed _away_ from those factor(s)), or those 'upstream' (i.e. linked to the selected factor(s) by following links directed _towards_ those factor(s)).
+- **Show paths between** If you first select at least two factors, and then
+
+  - **Show all paths between**, only those links that lie on a path between the selected factors will be shown.  A 'path' is a set of links that, following the direction of the arrows, connects two factors.  There may be several ways of getting from one factor to another; if so, all the paths are shown.  All factors that do not lie on the connecting paths are hidden.
+  - **Show shortest path between** displays only the path with the fewest links between the selected factors (if there are two shortest paths with same number of links, only one, chosen arbitrarily, is shown).
+
+  For both these options, all the selected factors in turn are used as the starting point for the paths, and all other factors are used as the end points.  For example, if factors A, B and C are selected, paths from A to B, A, to C, B to A, B to C , C to A and C to B will be shown (if they exist).  This has the incidental use of identifying 'loops' that could indicate feedbacks.  If there is a path from A to B _and_ a path from B to A, the effect of A on B will feedback on A.
+
+Here is an example.  The first is the original network.
+
+![Show All example](/doc/help4/doc_build/images/ShowAll.png)
+The second is the same network with **Show all paths** between Factors 1 and 7. Notice that Factors 4 and 9 are not on any path.
+
+![Show All paths example](/doc/help4/doc_build/images/ShowAllPaths.png)
+The third is the same network with **Show shortest path** between Factors 1 and 7.
+
+![Shortest Paths example](/doc/help4/doc_build/images/ShowShortestPath.png)
+The above three options can be combined.  For example, the shortest path between two Factors option may display two paths: one with a couple of links and another feedback path going in the reverse direction that winds around the map and includes many links.  Because it consists of many links, the latter path may not be of much interest.  Choosing both **Show Shortest path** and **Show only Factors 2 links away** will display just the direct path.
+
+### Emphasising important factors
+
+- **Size Factors to** This is used to change the size of the factors to be proportional to one of a set of metrics: the number of inputs (the 'in-degree'), the number of outputs (the 'out-degree'), the leverage (ratio of outputs to inputs), or the [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality).  Note that the factors are always drawn large enough to accommodate their labels, and so the size may not be exactly proportional to the metric.  The  values of leverage and betweenness centrality of a factor are shown in its Notes panel.
+
+### Clustering factors to reduce complexity
+
+- **Cluster** With large maps, it is sometimes useful to aggregate factors into groups, thus displaying the map at a higher level of abstraction. For example, all the factors relating to the effect of climate change might be replaced on the map by one 'Climate Change Cluster' factor, and similarly, all the factors concerned with transport replaced by one Transport factor. Links that used to go to factors outside the cluster are replaced by links that go to the new Cluster factor (and likewise for links that go from the clustered factors to factors outside the cluster).
+
+  For example, here is a simple map before clustering:
+
+![Before clustering example](/doc/help4/doc_build/images/BeforeClustering.png)
+and here is the same map after clustering by Style:
+
+![Clustered example](/doc/help4/doc_build/images/Clustered.png)
+Links to and from cluster factors are labelled with the number of links that they aggregate.
+
+Clustering is done according to the values of  the clustering attribute - all factors with the same value for this attribute are joined into the same cluster.  The **Cluster** pull-down menu offers **Style** (i.e. the factors' style as set in the [Factors tab](/doc/help4/doc_build/manual/Styling.md#factors-tab)) **Colour** (i.e. the colour of the factors' backgrounds) and **Community** (see below) as possible attributes with which to cluster.  In addition, bespoke attributes can be used by creating a new column in the Data View and giving each factor a value there (see the section on the [Data View](/doc/help4/doc_build/manual/DataView.md#data-view) for how to create attributes).  These additional attributes are automatically added to the Cluster pull-down menu when they are created.
+
+A cluster factor must include more than one ordinary factor, so if the clustering attribute for a factor is is unique to that factor (no other factor has the same value for the attribute) it will remain outside any cluster.  If the value of the clustering attribute in the Data View is blank for a factor, that factor will also remain unclustered.
+
+In addition to these ways of clustering by factor attributes, one can also cluster factors into 'communities'.  Communities are defined by the strength of their links to other factors using the [Louvain cluster detection algorithm](https://arxiv.org/pdf/0803.0476).  The strength of a link is assumed to be 1 unless a numerical attribute called 'weight' has been defined (in the [Data View](/doc/help4/doc_build/manual/DataView.md#data-view)), in which case the strengths are those given by this attribute.
+
+Once the map has been clustered, a cluster factor can be 'unclustered' (its component factors revealed) by right (CTRL) clicking it, and reclustered by right (CTRL) clicking any of the component factors.  To uncluster the map as a whole, select None from the Cluster pull-down menu.
+
+Cluster factors can be edited just like ordinary factors, by double clicking them, for example to change their shape, label or border.
+
+
+
+---
+url: /doc/help4/doc_build/manual/Cloning.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Sharing, copying and merging maps
+
+## Sharing a room
+
+Select **Share** to copy the current map link or show its QR code. People who
+open it join the same room and see changes made by participants. The Share
+dialog also opens the **Data View** in a separate tab for the same room.
+
+Anyone with the room link and access to the collaboration server may be able
+to access its map. Treat the link accordingly.
+
+## Creating a copy
+
+The Share dialog can create a **copy** in a new room. Changes to the copy do
+not change the original. It can also create a **view-only copy**, with an
+option to let viewers make their own editable copies. The original remains
+editable.
+
+View-only is a restriction in the PRSM interface, **not server-enforced
+access control**. It is not a way to protect confidential information from
+someone who can access the room. Creating a copy requires a working
+collaboration connection and permission to open a new browser tab.
+
+## Merging maps
+
+To merge another PRSM 4 map into the current one:
+
+1. Open the source map and copy its Share link.
+2. Return to the destination map, select **Open → Merge**, and paste the link.
+3. Select **Merge**. The resulting changes are shared with everyone in the
+   destination room; the source map is not modified.
+
+Factors are matched first by ID and then by a unique matching label, ignoring
+whitespace. A factor whose ID matches but whose label differs is added as a
+separate factor and marked with a red dashed border. Links connected to such
+factors are similarly marked. If a label matches several destination factors,
+the merge is rejected until the ambiguity is resolved.
+
+For matched factors and links, incoming notes replace differing existing
+notes; existing styles and link labels are retained if they differ. New
+elements are added, and PRSM reports conflicts or omissions. Attribute titles
+must agree between the maps before merging. Clusters and source background
+drawings are not merged. Use **Undo** to undo a merge.
+
+
+
+---
+url: /doc/help4/doc_build/manual/DataView.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Data View
+
+:::warning Draft
+This page has not yet been fully revised for PRSM 4 and may describe the legacy app. See the [PRSM 4 overview](/doc/help4/doc_build/manual/Introduction.md) for current guidance.
+:::
+
+As well as the Map View, PRSM also provides an alternative Data View.  This shows the factors and links in tables like a spreadsheet.  You can make changes in the Data View and the changes to factors and links will immediately be passed over to the Map view.  For some tasks, the Data View is more convenient than the Map, especially when one wants to summarise or make changes to lots of factors or links at the same time.
+
+To see a Data View, open a PRSM map, click on the Share button at the top, and click on the Data View button. This will open a new tab in your browser showing the Data View.
+
+![Data View](/images/DataView.png)
+
+## The Data View table
+
+The main part of the Data View when opened shows a table with one row for each of the factors in the map.  On the left are the factors' labels.  To the right, there is  a group of columns that show the format of the factors, a group of columns with various statistics about the factors and a column showing the Notes attached to the factors. At the bottom of the table are summaries (counts of how many factors there are, the average betweenness centrality, and so on).  If there are too many factors to fit in the window, you can scroll the table to the top or bottom.
+
+Only the first column of the Format and Statistics column groups are shown when the Data View is first opened.  To reveal the other columns in each group, click on the ![Expand Button](/doc/help4/doc_build/images/ExpandSymbol.png) to the right of the group heading.  Similarly, the Notes column can be expanded to show more of the Notes.
+![Expanded Data View](/images/ExpandedDataView.png)
+
+Use the small triangles in the column headings to sort the table according to the values in that column - one click for ascending  and two for descending.
+
+Most of the cells in the Format section of these tables are editable (columns with headings in **bold** have editable cells; those with headings in grey are not). To edit a cell, click it. Depending on the column, you can then edit the text (e.g. the Label), select from a drop down menu (e.g. Shape) or enter a number (e.g. Font size).
+
+Some columns need further explanation:
+
+- **Select** If  you edit a value in a row that has a check mark (tick) in the Select column, the same edit will be made in all the other rows that are checked.  For example, if you check three rows and change the value of the Shape column in any one of the three selected rows to 'ellipse', the other two rows' shape will also change to 'ellipse'.  This is a convenient way to change multiple factors at once. Clicking the check box in the heading will select all the factors (or unselect them all if they are all selected).
+- **Style** The values in this column are the styles assigned in the Style panel in the Map view.  '--' is shown for factors that use a style that has not been named.
+- **Hidden** A factor with a check (tick) in this column is not displayed in the Map view.  The Links to that factor are also hidden.  For instance, when you use the 'Show only factors upstream' feature in the Network panel in the Map view, this fades the factors that are downstream. However, using this column in the Data view is more flexible: you can hide any factor on the map. Clicking the check box in the heading will Hide all the factors (so that you will see only the faint outlines of factors and links  in the Map view). Unchecking it will 'unhide' all factors.
+- **Relative size** This column can be used to alter the size (width and height) of factors on the map.  Enter a number between 0 and 10 to control the size (e.g. a factor with a relative size of 10 will be shown as much bigger on the map than a factor with relative size 1).
+- **Fill colour** Double clicking on the cell will open a colour editor that you can use to change the background colour of the factor.  The colour editor is the standard one for the browser, and it may have more features than the one used elsewhere in PRSM (e.g. you may be able to specify a colour using its hex code).
+- **Notes** Clicking on a cell in the Notes column will display a dialog in the middle of the window in which you can create or edit a Note. Click anywhere outside the dialog box to save the edit.
+
+Above the table, there are tabs labelled 'Factors' and 'Links'.  Clicking the Links tab displays a similar table but with one row for each Link:
+
+![Data View Links Tab](/images/DataViewLinksTab.png)
+
+## Managing the whole table
+
+At the top right is a row of buttons.  These are:
+
+- **Add attr.** Clicking on this button will add an extra column on the right of the Factor table. This can be used to add any 'attribute' you wish to the factors.  You can edit the heading to give the column an appropriate title, and then enter numbers or text into the cells.  For example, you might use the extra column to record the importance of factors.  Attributes can be used to [cluster](/doc/help4/doc_build/manual/Styling.md#analysis-tab) Factors.
+
+  Right click the column heading to see a menu to delete the column.
+
+![Attribute](/images/Attribute.png)
+
+- **Undo** Restores the previous edit of a cell value.
+- **Redo** Retracts a previous 'undo'.
+- **Share** Allows you to copy the web link you need to open a Map view.
+- **Copy table** Clicking on this button copies the whole table to the clipboard.  You can then paste it into a spreadsheet such as Microsoft Excel for further analysis.
+- **Filter** This enables you to filter rows according to some condition - for example, you might filter out all the rows that have labels that do not have the word 'climate' in them.  Clicking on the button reveals a dialog just above the table:
+
+![Filter](/images/Filter.png)
+
+The first drop down menu includes all the columns (except those that are for colours; you cannot filter by colour).  The second drop down menu has a set of conditions to apply to the values in the filter column.  To the right of this is a text box where you can complete the condition.  For example, to filter out all but those factors that have the word 'climate' in their label, you would use:
+
+`Label contains Climate`
+
+The rightmost ☒ is a button to dismiss the filter (or you can click the filter button again).
+
+- **Help** brings you to this documentation.
+
+## Using the Filter and Select
+
+The Filter and the Select column can be used in combination.  For example, suppose you wanted to display in a larger size all the factors that influenced  2 or more other factors, to emphasise them in the Map view.  This is what you could do:
+
+1. Click on the Filter button. Set up a filter with Out-degree >= 2
+2. Click on the Select all check box at the top of the first column
+3. Click on one of the cells in the Relative Size column.  Edit the value to ‘5’
+4. Look at the Map view. Observe that all the factors with 2 or more links pointing away from them are now larger than the rest.
+
+![OutDegreeFilter](/images/OutDegreeFilter.png)
+
+Another, more complicated example: Show only those factors in the map with a value of betweenness centrality greater than some threshold, together with the links that go between these factors, and hide all other factors and links.
+
+1. In the Data view, sort the factors by Betweenness (click on the sorting triangle in the column header).
+2. Click the checkbox in the Hidden column header.  This hides every factor in the map (if you glance at the map now, you’ll find that it is apparently empty)
+3. Open the Filter (click on the Filter button at the top), and filter using ‘Betweenness’ ‘>=’ ‘70’   (or whatever threshold value you choose).
+4. Uncheck the cells in the Hidden column in each of the rows that are now visible.  This reveals the factors on the Map that have a Betweenness Centrality greater than the threshold, and the Links between them.
+
+
+
+---
+url: /doc/help4/doc_build/manual/Drawing.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Drawing Mode
+
+:::warning Draft
+This page has not yet been fully revised for PRSM 4 and may describe the legacy app. See the [PRSM 4 overview](/doc/help4/doc_build/manual/Introduction.md) for current guidance.
+:::
+
+In the Settings panel, on the Network tab, switching 'Switch drawing layer' ON reveals a group of buttons on the left that enables you to draw shapes, write text, and import images onto the network background.
+
+![Drawing layer](/images/drawingLayer.png)
+
+In drawing mode, the background has a faint square grid to help you line up your drawing.
+
+The zoom slider at the bottom left of the window can be used to zoom in and out.  Double clicking on the background sets the zoom level to 1.
+
+Drag over the background grid to move the drawing within the window.
+
+When you click on some of the drawing buttons, a small dialog box appears that can be used to adjust the drawing tool. For instance, the Line tool, which draws straight lines, has options for the line thickness, line colour and a couple more.
+
+![Drawing layer samples](/images/drawingLayerSamples.png)
+
+Above the column of buttons is a rectangle outline.  This is a 'handle' for the buttons.  Dragging the handle moves all the buttons together to a new spot in the window - useful if you want to draw where the buttons were.
+
+## Moving and modifying objects
+
+Once you have drawn an object (a straight line, or a rectangle, circle, free-form line or marker line), you can select it by clicking on it. The cursor will change to a cross.  Using the mouse (or a stylus or finger), you can  move the object around. To aid in aligning objects, when a side or end is just above or below or to the left or right of another object, red dotted guide lines will appear and the object will momentarily 'stick' on the alignment.  For a finer control of the position, use the arrow keys on the keyboard (up, down, left and right).
+
+![Aligning Objevts](/doc/help4/doc_build/images/aligningObjects.png)
+Once an object has been selected, you can change its shape or orientation, and its colour and other characteristics. To change the fill or border colours, click in the corresponding colour well and choose a new colour.  'White' in the colour well is rendered as transparent, i.e. you will be able to see through the shape.  To get a non-transparent white shape, choose a shade very slightly different from white.  Coloured shapes are shown as slightly translucent, so that you can see the factors and links on the map behind them.  When you exit from drawing mode, the shapes will get their full colours and the network will appear in front of the shapes.
+
+Drag one of the small blue dots (control points) to change an object's height or width.  Drag the dot above the object to the left or right to rotate it.
+
+Click on the background to deselect the object.
+
+## The drawing tools
+
+The drawing tools are, in order from top to bottom:
+
+- **Line** draws straight lines.  There are options for the line width, the colour of the line, whether it is solid or dashed, and whether the line can be at any angle or must be either exactly horizontal or vertical.  To use the tool, first adjust the options, for example, set the colour of the line, then click on the background at the desired start position and drag across to where you want the line to end.  When the line has been drawn, you can select it by clicking on it.  This redisplays the options so that you can modify the line, for example to make it thicker.
+- **Rectangle** The options are the width of the border around the rectangle and the border's colour, the colour of the inside of the rectangle (the 'fill' colour) and whether it should have rounded or sharp corners.  To draw a rectangle, click where one corner should be, then drag to where the opposite corner should be.
+- **Text**  Use this tool to add text to the background. The options are the colour and size of the text.  Click on the background to position a text box into which you can type.  Then type your text (to replace the sample _Text_). Click anywhere outside the box to finish.  The text can continue over several lines.
+- **Pencil** draws freehand lines.
+- **Marker** draws lines like a marker or highlighter pen.
+- **Image** Clicking on this tool gives you a file chooser to select an image file (picture) from your computer - JPG, PNG and GIF formats are accepted. When the image has been placed on the background, you can drag it to where you want it, and resize it using the control points (small blue dots at the corners).  Click anywhere outside the image when you have got it into the right location.
+- **Group** This groups objects so that they move together (see [below](#grouping-objects) for details).
+- **Delete** Deletes (erases) the selected object(s). The <kbd>Delete</kbd> key on the keyboard can also be used.
+- **Undo** This tool will undo the effect of the last action (e.g. if you have just placed an image on the background, it will remove the image,  if you have drawn a line with the pencil, it will undo that line, or if you have moved a rectangle, it will undo the move).  Each click of the Undo button removes one previous drawing action. <kbd>⌘</kbd><kbd>Z</kbd> or <kbd>⌃</kbd><kbd>Z</kbd> can also be used.
+- **Redo** Reverses the action of the previous Undo, e.g. restore the removed image. <kbd>⌘</kbd><kbd>Y</kbd> or <kbd>⌃</kbd><kbd>Y</kbd> can also be used.
+
+## Grouping objects
+
+A single object can be selected by clicking on it.  To select more than one object hold down the Shift key and click on each object to be included in the selection.
+
+You can then move, expand or shrink, or rotate the selected  objects together as a group as though they were one object.
+
+The grouping only lasts until you click on the background to cancel the selection. To make the group permanent, select the objects and then click on the Group button ![Grouping Button](/doc/help4/doc_build/images/groupButton.png). To ungroup a group, select the group and click on the Group button again.
+:::tip
+Grouping is often useful to combine a textual label with a shape, for example:
+
+![Labelled Shape](/doc/help4/doc_build/images/labelledShape.png)
+:::
+
+## Moving shapes to the front or back
+
+If two shapes overlap, you can move one to be in the front of the other. Right clicking on an object brings up a popup menu: 'Send to back ' and 'Bring to front'.  Choose one to alter which shape is in front.
+
+![Send to Back/Front menu](/doc/help4/doc_build/images/send-to-back.png)
+
+
+---
+url: /doc/help4/doc_build/manual/Examples.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Examples
+
+:::warning Draft
+This page has not yet been fully revised for PRSM 4 and may describe the legacy app. See the [PRSM 4 overview](/doc/help4/doc_build/manual/Introduction.md) for current guidance.
+:::
+
+Here are a few examples of what you can do with the app:
+
+The first is a theory of change adapted from an [NPC report](https://www.thinknpc.org/resource-hub/ten-steps/).
+
+![NCP Example](/images/NPCexample.png)
+
+The second is a system map about the environmental impact of the transport of goods, developed by a small group of experts working together using the app.
+
+![SCandL Example](/images/SCandLexample.png)
+
+The third is a large network of 736 nodes and about 9000 links representing the team members playing in the 2019 football World Cup.
+
+![World Cup 2019 Example](/images/WorldCup2019example.webp)
+
+The fourth is a map of the UK surface transport system focusing on Transport Decarbonisation, Air Quality and Health (see Penn, A. S., Bartington, S. E., Moller, S. J., Hamilton, I., Levine, J. G., Hatcher, K., & Gilbert, N. (2022). Adopting a Whole Systems Approach to Transport Decarbonisation, Air Quality and Health: An Online Participatory Systems Mapping Case Study in the UK. Atmosphere, 13(3), Article 3. [https://doi.org/10.3390/atmos13030492](https://doi.org/10.3390/atmos13030492))
+
+![Transition full map](/images/TransitionMapforG0.webp)
+
+and an extract from that map showing the implications of changing the number of electric cars.
+
+![Downstream electric cars](/images/TransitionDownstreamElectricCars.png)
+
+This uses some of the PRSM [analysis](/doc/help4/doc_build/manual/Styling.md#analysis-tab) and [layout](/doc/help4/doc_build/manual/Styling.md#layout) functions: "Show only factors 3 links from the selected factor"; "Show links downstream of the selected factor"; and the "Fan" layout.
+
+
+
+---
+url: /doc/help4/doc_build/manual/Files.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Opening and saving maps
+
+## Recent maps and projects
+
+Select the arrow beside the map title to see recently visited maps. Give a map
+a title before adding it to a project. The menu lets you create projects, add
+the current map, delete a project without deleting its maps, and save or load
+the list as a `.prsml` file.
+
+The list is kept in this browser, separately from the legacy PRSM list. It
+contains room references, not map backups. Save each map as a `.prsm` file if
+you need a backup. A PRSM 4 list cannot import a legacy map list because the
+two versions use different rooms.
+
+## Opening a map
+
+Use **Open** to choose a file. PRSM 4 recognises `.prsm`, `.xlsx`, `.xls`,
+`.csv`, `.graphml`, `.gexf`, `.gml`, `.dot` and `.gv`. Kumu and draw\.io are
+not supported.
+
+Opening a file replaces the current room's map **for everyone in the room**.
+If the room already contains factors or links, PRSM asks for confirmation.
+Invalid files are rejected before the current map is replaced. To combine
+maps instead, use **Open → Merge** and supply the share link of another
+PRSM 4 room; see [Merging maps](/doc/help4/doc_build/manual/Cloning.md#merging-maps).
+
+PRSM 4 reads legacy `.prsm` files and converts them to its own format.
+Legacy background drawings are preserved in saved files but are not yet
+displayed. A `.prsm` file saved by PRSM 4 cannot be opened in the legacy app.
+
+### Excel
+
+An Excel workbook must contain sheets named `Factors` and `Links`. Each needs
+a header row:
+
+| Sheet   | Required columns | Optional columns                                                        |
+| ------- | ---------------- | ----------------------------------------------------------------------- |
+| Factors | `Label`          | `ID`, `Note` or `Description`, `Style`, `X`, `Y`                        |
+| Links   | `From`, `To`     | `ID`, `SourceID`, `TargetID`, `Label`, `Note` or `Description`, `Style` |
+
+`From` and `To` identify factors by label. If labels are duplicated, use
+`SourceID` and `TargetID` to identify the relevant factor IDs. Style numbers
+range from 1 to 15. Other columns become map attributes. Duplicate column
+headings, missing endpoints and ambiguous labels are reported as errors.
+
+### CSV
+
+CSV import reads a link list. The first row is a header; subsequent rows have
+the source and target factor labels in the first two columns, optionally
+followed by source-factor, target-factor and link style numbers (1–15).
+Factors are created from the labels. For example:
+
+```csv
+From,To,From style,To style,Link style
+Rain,Flooding,1,2,1
+Flooding,Road closure,2,3,1
+```
+
+### Graph formats
+
+GraphML, GEXF, GML and Graphviz imports support common graph data and some
+styling, not every feature of those formats. The app reports warnings where
+data cannot be represented. Undirected links are imported as directed.
+Graphviz HTML labels are not supported.
+
+## Saving and exporting
+
+**Save** downloads a native PRSM 4 `.prsm` file. Use it for backups and for
+reopening a map in PRSM 4. The menu beside Save also offers Excel, GraphML,
+GEXF, GML, Graphviz, image and notes exports. The interchange formats are
+not complete backups:
+
+- Excel exports notes as plain text and does not preserve custom styles.
+- GraphML and GEXF export notes as plain text and do not preserve all PRSM
+  styling; clusters and links to omitted factors are excluded.
+- GML and Graphviz export notes as plain text and omit attributes, most
+  styling, clusters and links to omitted factors.
+
+### Image
+
+Image export produces an **8192 × 8192 pixel PNG**. It frames the visible map,
+or the selected factors if any are selected; other visible elements within
+that frame can appear too. The image includes the background colour but not
+the on-screen legend or retained legacy background drawings. If the browser
+cannot render or encode an image at this size, PRSM reports an error. Choose
+the print resolution in your publication software.
+
+### Notes
+
+Notes export produces a Word `.docx` document with the map title and
+description, factors in alphabetical order, then links. Missing notes are
+shown as `[No note]`. Embedded PNG images are included; other images,
+including externally hosted images, are omitted with a warning. Cluster
+records and links without two ordinary factors are excluded.
+
+
+
+---
+url: /doc/help4/doc_build/manual/GettingStarted.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Getting started
+
+When you first open PRSM 4, a short tour introduces the controls. You can
+enter a name or use the suggested name. To see the tour again, open Help from
+the map, use **reset the tour** on the [introduction](/doc/help4/doc_build/manual/Introduction.md#see-the-tour-again),
+then reload the map.
+
+Enter a title at the top of the map. The arrow beside it opens the recent maps
+and projects menu. The toolbar provides these actions:
+
+- **Add factor:** select the button, click the map background, and enter a
+  label.
+- **Add link:** select the button and drag from one factor to another.
+- **Undo**, **Redo** and **Delete:** reverse or repeat an edit, or delete the
+  selected factors and links.
+- **Share:** invite participants, open the data view, or make a copy.
+- **Open** and **Save:** open or export files. See [Opening and saving
+  maps](/doc/help4/doc_build/manual/Files.md).
+- **Search:** find factors by label.
+- **Help** opens this manual; **Settings** opens the side panel.
+
+Select a factor or link by clicking it. Drag a factor to move it, or drag
+the background to pan the map. Double-click a factor or link to edit its
+properties. A selected link can be dragged to change its curve. Use the
+zoom controls to adjust magnification; double-click the map background to
+fit the map in the window.
+
+The settings panel has tabs for factor styles, link styles, network settings
+and analysis. It can be moved by dragging its header. Select a factor or
+link to view or edit its notes in the notes panel. Use **Share → Data View**
+to work with factors and links in tables.
+
+Changes made in a shared room are visible to other participants. Before
+replacing a map with a file, remember that replacement affects everyone in
+that room. [Sharing, copying and merging](/doc/help4/doc_build/manual/Cloning.md) explains how to
+make an independent copy or combine maps.
+
+
+
+---
+url: /doc/help4/doc_build/manual/Installation.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Installation
+
+:::warning Draft
+This page has not yet been fully revised for PRSM 4 and may describe the legacy app. See the [PRSM 4 overview](/doc/help4/doc_build/manual/Introduction.md) for current guidance.
+:::
+
+**No installation** on your computer is needed.  The software is a web app, which means that it can be accessed using a web browser by pasting this link into its address bar:
+
+[https://prsm.uk/prsm.html](https://prsm.uk/prsm.html)
+
+:::info
+
+You need a modern web browser such as Chrome, Firefox, Microsoft Edge or Safari.  It will not work with Internet Explorer. You can use a monitor and keyboard with a mouse or a trackpad, or a touchscreen on a phone, tablet or interactive display.
+
+:::
+
+The software is free and available under an [MIT](https://choosealicense.com/licenses/mit/) license.
+
+
+
+---
+url: /doc/help4/doc_build/manual/Introduction.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Introduction
+
+:::warning Draft
+This guide is being revised for PRSM 4. Other pages and screenshots may still
+describe the legacy app. The overview below describes PRSM 4.
+:::
+
+## Starting and sharing a map
+
+Opening PRSM 4 creates a room for your map. Give the map a title at the top
+of the page. Select **Share** to copy its link or show its QR code to other
+participants. People who open that link can work on the same map.
+
+The Share dialog can also create an independent editable copy or a view-only
+copy. View-only is an interface restriction, **not server-enforced access
+control**; do not rely on it to protect confidential information. The data
+view opens the same room in a separate tab.
+
+The menu beside the title lists recently visited maps and projects. It can
+also save and reload a list of maps. The list is stored in this browser,
+separately from the legacy app's list.
+
+## Editing and exploring
+
+Use the toolbar to add factors and links, undo or redo edits, delete a
+selection, search, open or save a map, and open the settings panel. Drag a
+factor to move it; drag the background to move the map. Use the zoom controls
+to change magnification. Factor and link notes can be edited in their notes
+panels.
+
+The settings panel includes factor and link styles, network settings and
+analysis controls. Network settings offer trophic, fan, force-directed and
+hierarchical layouts. Analysis can filter by distance, direction or paths,
+size factors by network measures, and group factors into clusters.
+
+## Files and compatibility
+
+**Save** writes a native PRSM 4 `.prsm` file. PRSM 4 can read older `.prsm`
+files, but the legacy application cannot open the new format. Legacy
+background drawings are retained in the file but are not yet displayed.
+Opening a file to replace a nonempty shared map requires confirmation.
+
+The app also imports Excel, CSV, GraphML, GEXF, GML and Graphviz DOT/GV,
+and exports Excel, GraphML, GEXF, GML and DOT. These interchange formats are
+not complete backups. Kumu and draw\.io are not supported.
+
+Image export produces an 8192 × 8192 PNG of the visible map, framed around
+selected factors if any. It omits the on-screen legend and legacy background
+drawings. Notes export creates a Word document with the map description,
+factor notes and link notes. See the [files page](/doc/help4/doc_build/manual/Files.md) for details.
+
+## See the tour again
+
+Open this manual using the map's **Help**
+ button, click
+reset the tour
+,
+then reload the map.
+The Participatory System Mapper (PRSM for short) is a web app that makes it easy for a group of people working together to draw networks (or 'maps') of systems.
+
+![Example map: Some factors causing loss of biodiversity](/images/biodiversityImproved.webp)
+
+## Maps
+
+The network or map can be anything that has items (or 'factors' or 'nodes') connected by links (or 'edges').  Here are some examples:
+
+- People (the nodes) connected by knowing each other
+- Factors or variables causing (the links) changes in other factors
+- Switches connected by wires
+- Computers connected by network links
+- Theories expressed as variables and relationships between them
+- Company boards of directors (the nodes) and the directors that sit on more than one board (the links)
+- Twitter hashtags (the nodes) included together on posts (the links)
+- Scientists (the nodes) co-authoring papers (the links)
+- and so on.
+
+## Systems
+
+The software is aimed at people who are interested in understanding whole systems.  [Wikipedia](https://en.wikipedia.org/wiki/System) defines a system as "a group of interacting or interrelated entities that form a unified whole".
+
+## Participatory system mapping
+
+The app is designed to enable groups of people, each using their own computer (or tablet) to collaborate in the drawing of a map.  They may be sitting around a table, discussing the map as it is created face to face, or working remotely, using audio or video conferencing.  Everyone can participate because every edit (creating nodes and links, arranging them and so on) is broadcast to all the other participants as the changes are made.
+
+When you start the app in your browser, a 'room' is created for you in which to draw your network.  You can add other users to this room to share the work.  Only those with access to the room can see what is being created.
+
+
+
+---
+url: /doc/help4/doc_build/manual/Mouse.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Using the mouse and touch
+
+:::warning Draft
+This page has not yet been fully revised for PRSM 4 and may describe the legacy app. See the [PRSM 4 overview](/doc/help4/doc_build/manual/Introduction.md) for current guidance.
+:::
+
+You can use the following mouse actions (or finger or pencil gestures on a tablet):
+
+- a _**click**_ on a factor or a link will select it (the factor or link gains a shadow to show it has been selected, and a message appears in the status bar).  Selected factors can be moved by dragging them (hold down and then move the mouse) and can be deleted (click on the dustbin/trashcan icon in the navigation bar). The curvature of a selected link can be changed by dragging the middle of the link.
+- a _**long click**_ on a factor or link extends the selection: that factor or link is added to those already selected.
+- a _**control-click**_ (hold down the control key and click with the mouse) on a factor or link also extends the selection.
+- a _**double-click**_ on a factor or link opens an editing dialog so that you can edit its label, change colors and border widths etc. (see [Formatting factors and links](/doc/help4/doc_build/manual/GettingStarted.md#formatting-factors-and-links)).
+- a _**click**_ on the background de-selects all factors and links.
+- _**dragging**_ the background moves the whole map. Dragging a factor moves it.  Dragging a link will make it more or less rounded.
+- a _**double-click**_ on the background zooms the whole map in or out so that it neatly fits the window.  Any selected factors or links are de-selected.
+- holding down the _**shift**_ key and dragging shows a selection rectangle - when you release the mouse, all factors in the rectangle are selected.
+- holding down the _**control**_ key and moving the mouse shows a loupe (a magnifying glass) to see small details of the map.
+- holding down the _**option**_ or _**ALT**_ key and clicking on the background is a shortcut for adding a new factor
+- holding down the _**option**_ or _**ALT**_ key and clicking on a factor is a shortcut for adding a link - the pointer will become a cross and you can then drag from the factor to another factor to create the link.
+
+When editing a label for a Factor or a Link, the _**enter**_ key closes the dialog (the same as clicking on `Save`), _**shift**_ + _**enter**_ adds a newline, and _**esc**_ cancels any changes and closes the dialog (the same as clicking the **x**)
+
+The actions that involve holding down a key while clicking with the mouse do not work on touchscreens.
+
+
+
+---
+url: /doc/help4/doc_build/manual/ReleaseNotes.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Release Notes
+
+:::warning Draft
+This page has not yet been fully revised for PRSM 4 and may describe the legacy app. See the [PRSM 4 overview](/doc/help4/doc_build/manual/Introduction.md) for current guidance.
+:::
+
+## Version 2.6, September 2025
+
+- New: Louvain clustering of factors. This is a method of detecting communities or clusters of related factors within a map. See Louvain Clustering for further details.
+- Command/Control key combinations can be used instead of the Save (^S), Open (^O) and Undo (^Z) buttons.
+- And formatting changes and bug fixes.
+
+## Version 2.5, April 2025
+
+- New: importing and exporting GEXF and GraphML files. These are standard formats for representing graphs and networks. You can now import and export PRSM maps in these formats, making it easier to share your maps with other applications and tools. See Opening and Saving maps.
+- The Force Atlas 2 layout engine has been tuned to give a more useful layout of complex maps.
+- The Settings Factor Styles panel has the number of available styles doubled from 6 to 12.
+
+## Version 2.4, December 2024
+
+- This version introduces a new type of factor: 'Portals'. A portal factor is a special type of factor that links to another map. When you click on a portal factor, the map it links to will open in a new browser tab. This useful when, for example, you have several related maps and want to move easily between them. It is also useful if you have a high level or abstract map. Portal factors on this map can link to more detailed maps that expand on the factors in the high level one. \* See Linking one map to another for further details.
+  When opening a map from a file, you can now choose whether the map should replace the existing map, or be merged with it. See Merging Maps.
+- The colour picker, used to choose the colour of factors, links, background shapes and the map background, has been enhanced to control the transparency of the colour. One use of this is that if you make the map background transparent and then obtain a high definition image of the map, that image will also have a transparent background, which can be helpful when incorporating the image into a web page.
+- When creating a 'read-only' copy of a map, you can choose whether to include a 'Copy map' button in the top bar. If you do, viewers cannot change the read only map, but they can create a fully editable copy of the map in a new room, displayed in a new browser tab.
+- The User Manual has been reformatted and extended and you can now search it.
+- And bug fixes and security updates.
+
+## Version 2.3
+
+- The chat feature (the dialog icon in the bottom right corner) has been removed - it was very rarely used.
+- A "minimap" has replaced it. The minimap is a small version of the entire map, displayed in the bottom right corner of the screen. It only appears if some parts of the map are not visible within the main window. A rectangular outline on the minimap indicates the portion of the map that is currently visible in the main window. This helps you to see how the visible section fits within the larger map, especially if the map is extensive. You can drag the rectangle on the minimap to quickly move the visible area to a different part of the map.
+- To change your name and your initials shown on the avatar at the top right corner of the map and elsewhere, click on the avatar.  A dialog will open for you to enter your new name.
+- To open a PRSM map file (or any of the other types of file that PRSM can read), you can either use the Open button or you can now drag a file from your desktop and drop it on the PRSM browser window.
+
+## Version 2.2
+
+- The shapes for individual factors, or for all the factors of the same style, can be resized to be relatively larger than other factors.  This is done with new sliders included on the pop-up dialogs for editing factors and editing factor styles.
+- You can save a high resolution (8192 x 8192 pixels) image of the map as a Portable Network Graphics (.png) file using the Save drop down menu.  The image, which is suitable for publication, will show the whole map.  If, however, you want the image to include just a portion of the map, select a factor or factors that you want the image to be centred on before Saving the image.  The image will include just those factors and the neighbouring ones.
+
+## Version 2.1
+
+- There is now a panel into which you can write a description or notes about the map as a whole.  To view the panel, click on the small grey button on the left edge of the map area.  While entering or editing text, you can use the formatting buttons at the top of the panel: bold, italic, underline, as well as change font size, insert images etc.  The contents of the panel are shared with other participants as you write. Click on the grey button again to put the panel away.
+- Instead of some factors and links being hidden when using the Analysis features, they are faded out, to provide more context around those that are shown.
+
+## Version 2.0
+
+Comparing version 2.0.x with version 1.9.0:
+
+### New features
+
+- Factors can be voted on (see Setting, Network, Show Reactions).
+- Data from Excel spreadsheets can be imported and the data in maps can be exported to Excel.
+- Notes attached to factors and links can now be edited in a separate window, which can be much larger than the existing Notes panel and offers a wider range of editing commands.
+- Right clicking on a user's avatar (the initials in a circle at the top left of the map) selects all the factors and links that that user has created or modified.
+- Networks in [DOT or GV](https://en.wikipedia.org/wiki/DOT_\(graph_description_language\)) formatted files can be imported.
+- The log of a map's history can be copied to the clipboard and pasted into a word processor or spreadsheet.
+- It is possible to run PRSM within an intranet, with no access needed to the wider internet, for use cases requiring the highest level of security.
+
+### Improvements
+
+- The User Manual has been completely re-implemented and is now much easier to use.
+- The drawing layer behind the map now uses  'objects' which can be moved, resized, modified and deleted.  The logic for the drawing layer was completely re-implemented.
+- PRSM supports many more simultaneous users working together at the same time (at least 25), because of an improved way of handling updates to users' cursors.
+- `.prsm` files,the native format for saving PRSM maps, are now compressed and much smaller than previously.  Older files can still be read.
+- Cloning maps is much faster.
+- Users can use trackpads on laptops instead of a mouse.
+- The Styles palette now offers more shapes for factors (ellipse, diamond,star, triangle, hexagon).
+- Keyboard shortcuts have been added for Delete, Undo, and Redo.
+
+### Resolved issues
+
+- Numerous optimisations and bug fixes.
+- Some minor changes to the appearance of the  interface to make PRSM easier and more intuitive to use.
+
+
+
+---
+url: /doc/help4/doc_build/manual/Styling.md
+---
+
+> For AI agents: the complete documentation index is available at /doc/help4/doc_build/llms.txt, the full documentation bundle is available at /doc/help4/doc_build/llms-full.txt.
+
+# Styling the map
+
+:::warning Draft
+This page has not yet been fully revised for PRSM 4 and may describe the legacy app. See the [PRSM 4 overview](/doc/help4/doc_build/manual/Introduction.md) for current guidance.
+:::
+
+The view you see when you first open the app is intentionally very simple, but hidden away are many more features.  To access these, click on the last, Settings, button on the top bar: ![Settings Button](/doc/help4/doc_build/images/SettingsButton.png).  This will reveal a panel with a set of four tabs: Factors, Links, Network and Analysis, with the Factors tab open.
+The panel showing the tabs can moved across the network pane: drag it using the thin black strip at the top of the panel above the tab buttons.  This can be useful if the panel gets in the way of seeing the network.
+
+## Factors tab
+
+![Factors Panel](/doc/help4/doc_build/images/FactorsPanel.png)
+There are 15 sample styles for how factors can look.  If you select a factor from the network and then click on one of the 15 styles, the factor will change to resemble the style.  As a short cut, if you click on the 'Select all factors' button at the bottom, and then click on a style, all the factors will change to the chosen style.
+
+Double clicking on any of the 15 styles opens a dialog box to change the style:
+
+![Factors Style](/doc/help4/doc_build/images/FactorsStyle.png)
+There are options to change the colour of the background (the 'fill'), the border and the font, to change the shape, for example to a rectangle or a circle, to change the border from solid to dashed or dotted or none, and to change the font size of the label.  Clicking on the padlock symbol will [lock](/doc/help4/doc_build/manual/GettingStarted.md#notes) all the factors with this style; clicking on it again will unlock them all. The Size slider adjusts the relative size of the factors. Moving the dot on the slider to the far left sets the factors to their normal size, and moving it to the right makes the factors bigger.
+
+Clicking on one of the coloured circles ('colour wells') brings up a dialog to choose a colour.
+
+![Colour wheel](/doc/help4/doc_build/images/ColourWheel.png)
+The upper circle can be used to adjust the colour.  The upper slider varies the darkness of the colour and the lower slider adjusts the transparency (the 'alpha' value).  The bottom squares record the last eight colours used - you can click on one of these to restore that specific colour.
+
+If you right click (or CTRL click) on one of the style samples, there is a menu with which you can either select all the factors that have that style, or hide all those factors from view.
+
+![Factor Right Click menu](/doc/help4/doc_build/images/FactorsRightClick.png)
+### Legend
+
+You can also change the name of the style.  If you do so, this name will appear on the network pane as one item in the 'legend'.  So, for example, if you had some factors that are Activities, some that are Change mechanisms, some Outcomes and some Impacts, you could give four of the styles these names, colour their fills red, orange, yellow and blue, and then apply these styles to the appropriate factors in the network.  The legend will be automatically displayed on the network pane:
+
+![Legend](/images/Legend.png)
+
+The legend can be moved by dragging the top of the Legend pane.
+
+## Links tab
+
+The Links tab is very similar to the Factors tab, except that it relates to the links.  There are 9 link styles and each of these can be changed by double clicking the link style. There are options to change the colour of the link, whether it has an arrow at the end, whether it is solid, dashed or dotted, and to add a  link label.
+
+![Links Panel](/doc/help4/doc_build/images/LinksPanel.png)
+## Network tab
+
+The Network tab enables you to change many aspects of the network visualisation and what is shown in the window.
+
+![Network Panel](/doc/help4/doc_build/images/NetworkPanel.png)
+On the Network tab, there are controls for:
+
+- **Auto Layout** Choose which layout algorithm (see [below](#layout)) to apply.  The algorithm will then adjust the positions of the factors and links and, once complete, the selection will revert to 'Off', leaving the factors where the algorithm has placed them.
+- **Snap to grid**  When ON, factors shift to be at the intersection of invisible grid lines.  This makes it much easier to line up factors neatly.
+- **Link** Links can either be drawn using a curved line or a straight line.  This control swaps between the two.
+- **Switch to drawing layer** Puts the network pane into drawing mode, so that background shapes, images and text can be added.  See [Drawing Mode](/doc/help4/doc_build/manual/Drawing.md#drawing-mode) for more details.
+- **Background** This changes the colour of the background of the network pane.  Click on the colour well to display possible colours.  The default is white, but a black background can also be effective.
+- **Show legend** If the factor and link styles are given names (other than 'Sample'), the styles and their names will be shown in a panel at the left bottom of the network pane headed 'Legend', when this switch is ON.  See the description of the [Factors tab](#factors-tab).
+- **Show other users** When ON, the positions of other users' mouse pointers are shown in real time.
+- **Show history** When ON, a panel displaying every change to a factor or link (adding a factor or link, editing it or deleting it) is shown. It is possible to 'rollback' the map to the state it was in before a change.  This can be quicker than repeatedly undoing changes with the Undo button.  To rollback, click on the <img src={normalizeImagePath('/images/bootstrap-reboot.svg')} alt="settings" style={{display: "inline" }} /> button.  You will be asked to confirm the action.  The states of the map for the previous 10 changes are kept. Clicking on the clipboard icon <img src={normalizeImagePath("/images/history-clipboard-icon.png")} alt="Clipboard button" style={{ width: 20, display: "inline" }} /> copies the log to the clipboard, from where it can be pasted into a spreadsheet or word processor app.
+- **Show notes** When a factor or link is selected, normally a Notes panel pops up at the bottom right of the map.  Turning this switch OFF prevents the Notes panels from being displayed.
+- **Show reactions** When this switch is on, a thumbs up (👍) and a thumbs down (👎) symbol appear below each factor.  People can vote using these symbols (for example, to indicate which factors they think most important, or to 'Like' a factor), by clicking on the symbol.  A second click removes their vote.  The numbers beside the symbols indicates how many people have voted.
+
+![Reactions](/doc/help4/doc_build/images/FactorReactions.png)
+### Layout
+
+It is sometimes useful to get PRSM to arrange factors using an automatic procedure and then adjust their positions manually to achieve the desired placement.  PRSM provides several layout algorithms:
+
+- The _trophic_ algorithm helps to reveal [the causal structure of the map](https://royalsocietypublishing.org/doi/10.1098/rsos.201138). With the trophic layout, the factors are arranged along the horizontal axis according to their positions (their trophic levels) in the overall causal flow within the system, making it easier to identify upstream and downstream factors; the linked chains of influence that connect them; and where factors act on the system within this overall causal structure (which may be upstream or downstream). It will re-arrange the factors and links to create a layout such that all the links point from left to right and are arranged according to [trophic level](https://en.wikipedia.org/wiki/Trophic_level).
+- _Fan_ Arranges the factors in a fan shape starting from a selected factor.  You need to select at least one factor before using this layout option.  It is most useful after displaying the factors up or downstream from a selected factor (see [Analysis](#analysis-tab) below for an explanation of Up and Down stream).
+- _Barnes Hut_ This is a 'gravity' algorithm.  Each factor is modelled as though it has a mass that repulses all other factors with a force depending on the inverse square distance away, while the links are modelled as springs that pull the factors together. The algorithm is iterative, i.e. it tries repeatedly to find the best arrangement of factors that balance the repulsive forces between the factors and the attractive forces from the springs.
+- _Force Atlas 2_ This is a variation of the Barnes Hut algorithm in which the repulsion between the factors is linear rather than quadratic.
+- _Repulsion_  Another variation of Barnes Hut.
+
+There is no best layout algorithm that works for all networks; you need to see which one looks good for your map. If you don't like the effect of an algorithm, you can choose another one, or use the Undo button on the top bar to revert the map to its original layout.
+
+## Analysis tab
+
+The Analysis tab allows you to view portions of the map and to cluster factors to help with the analysis of the network (see the [Analysis](/doc/help4/doc_build/manual/Analysing.md#analysing-the-map) section for help on how this can be useful).
+
+![Analysis Panel](/doc/help4/doc_build/images/AnalysisPanel.png)
+The panel is divided into five sections:
+
+- **Show only neighbouring Factors** If you first select a factor (or several factors) and then one of these options, all factors in the network will be hidden, except for those 1, 2, or 3 links away from the selected factor(s).  This is useful when you want to focus on just one part of a large network.
+- **Show only up or downstream Factors**  If you first select a factor (or several factors) and then one of these options, all factors in the network will be hidden, except for those 'downstream' (i.e. linked to the selected factor(s) by following links directed _away_ from those factor(s)), or those 'upstream' (i.e. linked to the selected factor(s) by following links directed _towards_ those factor(s)).
+- **Show paths between** If you first select at least two factors, and then
+  - **Show all paths between**, only those links that lie on a path between the selected factors will be shown.  A 'path' is a set of links that, following the direction of the arrows, connects two factors.  There may be several ways of getting from one factor to another; if so, all the paths are shown.  All factors that do not lie on the connecting paths are hidden.
+  - **Show shortest path between** displays only the path with the fewest links between the selected factors (if there are two shortest paths with same number of links, only one, chosen arbitrarily, is shown).
+
+See the [Analysis](/doc/help4/doc_build/manual/Analysing.md#focusing-on-parts-of-the-map) section for more on these.
+
+- **Size Factors to** This is used to change the size of the factors to be proportional to one of a set of metrics: the number of inputs (the 'in-degree'), the number of outputs (the 'out-degree'), the leverage (ratio of outputs to inputs), or the [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality).  Note that the factors are always drawn large enough to accommodate their labels, and so the size may not be exactly proportional to the metric.  The  values of leverage and betweenness centrality of a factor are shown in the [Data View](/doc/help4/doc_build/manual/DataView.md#data-view).
+- **Cluster** With large maps, it is sometimes useful to aggregate factors into groups, thus displaying the map at a higher level of abstraction. For example, all the factors relating to the effect of climate change might be replaced on the map by one 'Climate Change Cluster' factor, and similarly, all the factors concerned with transport replaced by one Transport factor. Links that used to go to factors outside the cluster are replaced by links that go to the new Cluster factor (and likewise for links that go from the clustered factors to factors outside the cluster).
+
+Clustering is done according to the values of  the clustering attribute - all factors with the same value for this attribute are joined into the same cluster.  The **Cluster** pull-down menu offers as standard, **Style** (i.e. the factors' style as set in the [Factors tab](#factors-tab)) and **Colour** (i.e. the colour of the factors' backgrounds) as possible attributes with which to cluster.  There is also clustering using the [**Louvain**](https://en.wikipedia.org/wiki/Louvain_method) algorithm which forms non-overlapping clusters of 'communities'. In addition, bespoke attributes can be used by creating a new column in the Data View and giving each factor a value there (see the section on the [Data View](/doc/help4/doc_build/manual/DataView.md#data-view) for how to create attributes).  These additional attributes are automatically added to the Cluster pull-down menu when they are created.
+
+Once the map has been clustered, a cluster factor can be 'unclustered' (its component factors revealed) by right (CTRL) clicking it, and reclustered by right (CTRL) clicking any of the component factors.  To uncluster the map as a whole, select None from the Cluster pull-down menu.
+
+

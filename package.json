@@ -1,6 +1,6 @@
 {
   "name": "participatory-system-mapper",
-  "version": "3.3.3",
+  "version": "3.3.4",
   "description": "Participatory System Mapper, browser app for collaboratively creating system maps",
   "keywords": [
     "social network",
@@ -20,7 +20,11 @@
     "devlop": "devlop/lib/default.js",
     "unist-util-visit-parents/do-not-use-color": "unist-util-visit-parents/lib/color.js",
     "three/webgpu": "three/build/three.webgpu.js",
-    "three/tsl": "three/build/three.tsl.js"
+    "three/tsl": "three/build/three.tsl.js",
+    "three/addons/controls/TrackballControls.js": "three/examples/jsm/controls/TrackballControls.js",
+    "three/addons/controls/ArcballControls.js": "three/examples/jsm/controls/ArcballControls.js",
+    "three/addons/controls/OrbitControls.js": "three/examples/jsm/controls/OrbitControls.js",
+    "three/addons/controls/FlyControls.js": "three/examples/jsm/controls/FlyControls.js"
   },
   "targets": {
     "default": {
@@ -71,11 +75,14 @@
     "deploy": "npm run install:all && npm run build-vis-network && npm run build && npm run build-help",
     "analyse": "node utils/legacy-parcel.mjs build --detailed-report",
     "install:all": "npm i && (cd ./doc/help && npm i) && (cd ./api-server && npm i) && (cd ./vis-network && npm i)  && (cd ./ws-server && npm i)",
-    "upgrade:all": "npm upgrade && (cd ./doc/help && npm upgrade) && (cd ./api-server && npm upgrade) && (cd ./vis-network && npm upgrade) && (cd ./ws-server && npm upgrade)",
+    "upgrade:all": "npm upgrade && (cd ./doc/help && echo \"help\" && npm upgrade) && (cd ./api-server && echo \"api\"&& npm upgrade) && (cd ./vis-network && echo \"vis-network\"&& npm upgrade) && (cd ./ws-server && echo \"ws-server\"&& npm upgrade)",
     "start:all-locally": "./utils/start-all-locally.sh",
     "stop:all-locally": "./utils/stop-all-locally.sh",
     "start:all-locally:prsm4": "node utils/prsm4-local.mjs start",
-    "stop:all-locally:prsm4": "node utils/prsm4-local.mjs stop"
+    "stop:all-locally:prsm4": "node utils/prsm4-local.mjs stop",
+    "stress:prsm": "node ./utils/stress-test-prsm.mjs",
+    "test:minimap": "node ./utils/test-minimap-bounds.mjs",
+    "test": "npm run test:minimap"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {

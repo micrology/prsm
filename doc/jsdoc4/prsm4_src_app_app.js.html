@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>prsm4/src/app/app.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Analysis.html">Analysis</a><ul class='methods'><li data-type='method'><a href="Analysis.html#choose">choose</a></li><li data-type='method'><a href="Analysis.html#cluster">cluster</a></li><li data-type='method'><a href="Analysis.html#filter">filter</a></li><li data-type='method'><a href="Analysis.html#onChange">onChange</a></li><li data-type='method'><a href="Analysis.html#showSettings">showSettings</a></li><li data-type='method'><a href="Analysis.html#size">size</a></li><li data-type='method'><a href="Analysis.html#update">update</a></li><li data-type='method'><a href="Analysis.html#values">values</a></li></ul></li><li><a href="App.html">App</a><ul class='methods'><li data-type='method'><a href="App.html#applyViewOnly">applyViewOnly</a></li><li data-type='method'><a href="App.html#bindTitle">bindTitle</a></li><li data-type='method'><a href="App.html#closeStyleDialog">closeStyleDialog</a></li><li data-type='method'><a href="App.html#createGraph">createGraph</a></li><li data-type='method'><a href="App.html#createSidePanel">createSidePanel</a></li><li data-type='method'><a href="App.html#editStyle">editStyle</a></li><li data-type='method'><a href="App.html#initialiseNewMap">initialiseNewMap</a></li><li data-type='method'><a href="App.html#mergeRoom">mergeRoom</a></li><li data-type='method'><a href="App.html#openMap">openMap</a></li><li data-type='method'><a href="App.html#openText">openText</a></li><li data-type='method'><a href="App.html#saveGml">saveGml</a></li><li data-type='method'><a href="App.html#saveGraphXml">saveGraphXml</a></li><li data-type='method'><a href="App.html#saveGraphviz">saveGraphviz</a></li><li data-type='method'><a href="App.html#saveImage">saveImage</a></li><li data-type='method'><a href="App.html#saveMap">saveMap</a></li><li data-type='method'><a href="App.html#saveNotes">saveNotes</a></li><li data-type='method'><a href="App.html#saveSpreadsheet">saveSpreadsheet</a></li><li data-type='method'><a href="App.html#showNoServer">showNoServer</a></li><li data-type='method'><a href="App.html#waitForServer">waitForServer</a></li><li data-type='method'><a href="App.html#wireFileInput">wireFileInput</a></li></ul></li><li><a href="Badges.html">Badges</a><ul class='methods'><li data-type='method'><a href="Badges.html#draw">draw</a></li><li data-type='method'><a href="Badges.html#drawNodeBadges">drawNodeBadges</a></li><li data-type='method'><a href="Badges.html#drawThumbs">drawThumbs</a></li><li data-type='method'><a href="Badges.html#icon">icon</a></li><li data-type='method'><a href="Badges.html#isInThumbRow">isInThumbRow</a></li><li data-type='method'><a href="Badges.html#requestDraw">requestDraw</a></li><li data-type='method'><a href="Badges.html#toggleVote">toggleVote</a></li><li data-type='method'><a href="Badges.html#vote">vote</a></li></ul></li><li><a href="CP_CP.html">CP</a></li><li><a href="Collaboration.html">Collaboration</a><ul class='methods'><li data-type='method'><a href="Collaboration.html#follow">follow</a></li><li data-type='method'><a href="Collaboration.html#makeAvatar">makeAvatar</a></li><li data-type='method'><a href="Collaboration.html#movePointer">movePointer</a></li><li data-type='method'><a href="Collaboration.html#onAwareness">onAwareness</a></li><li data-type='method'><a href="Collaboration.html#onMouseMove">onMouseMove</a></li><li data-type='method'><a href="Collaboration.html#others">others</a></li><li data-type='method'><a href="Collaboration.html#place">place</a></li><li data-type='method'><a href="Collaboration.html#placeAll">placeAll</a></li><li data-type='method'><a href="Collaboration.html#refresh">refresh</a></li><li data-type='method'><a href="Collaboration.html#remember">remember</a></li><li data-type='method'><a href="Collaboration.html#rename">rename</a></li><li data-type='method'><a href="Collaboration.html#schedulePlace">schedulePlace</a></li><li data-type='method'><a href="Collaboration.html#selectEdits">selectEdits</a></li><li data-type='method'><a href="Collaboration.html#setAddingFactor">setAddingFactor</a></li><li data-type='method'><a href="Collaboration.html#setAsleep">setAsleep</a></li><li data-type='method'><a href="Collaboration.html#setName">setName</a></li><li data-type='method'><a href="Collaboration.html#showAvatars">showAvatars</a></li><li data-type='method'><a href="Collaboration.html#showGhosts">showGhosts</a></li><li data-type='method'><a href="Collaboration.html#showPointers">showPointers</a></li><li data-type='method'><a href="Collaboration.html#signature">signature</a></li><li data-type='method'><a href="Collaboration.html#syncDivs">syncDivs</a></li><li data-type='method'><a href="Collaboration.html#toScreen">toScreen</a></li><li data-type='method'><a href="Collaboration.html#toggleFollow">toggleFollow</a></li><li data-type='method'><a href="Collaboration.html#wake">wake</a></li></ul></li><li><a href="Editor.html">Editor</a><ul class='methods'><li data-type='method'><a href="Editor.html#createEdgeHandles">createEdgeHandles</a></li><li data-type='method'><a href="Editor.html#deleteSelection">deleteSelection</a></li><li data-type='method'><a href="Editor.html#destroy">destroy</a></li><li data-type='method'><a href="Editor.html#flushMoves">flushMoves</a></li><li data-type='method'><a href="Editor.html#handleKey">handleKey</a></li><li data-type='method'><a href="Editor.html#onDoubleTap">onDoubleTap</a></li><li data-type='method'><a href="Editor.html#onKey">onKey</a></li><li data-type='method'><a href="Editor.html#onLinkDrawn">onLinkDrawn</a></li><li data-type='method'><a href="Editor.html#onTap">onTap</a></li><li data-type='method'><a href="Editor.html#openInput">openInput</a></li><li data-type='method'><a href="Editor.html#queueMove">queueMove</a></li><li data-type='method'><a href="Editor.html#setMode">setMode</a></li><li data-type='method'><a href="Editor.html#startBend">startBend</a></li></ul></li><li><a href="ElementEditor.html">ElementEditor</a><ul class='methods'><li data-type='method'><a href="ElementEditor.html#buttons">buttons</a></li><li data-type='method'><a href="ElementEditor.html#close">close</a></li><li data-type='method'><a href="ElementEditor.html#colorControl">colorControl</a></li><li data-type='method'><a href="ElementEditor.html#field">field</a></li><li data-type='method'><a href="ElementEditor.html#fitLabel">fitLabel</a></li><li data-type='method'><a href="ElementEditor.html#onKey">onKey</a></li><li data-type='method'><a href="ElementEditor.html#open">open</a></li><li data-type='method'><a href="ElementEditor.html#place">place</a></li><li data-type='method'><a href="ElementEditor.html#save">save</a></li><li data-type='method'><a href="ElementEditor.html#selectControl">selectControl</a></li><li data-type='method'><a href="ElementEditor.html#sizeControl">sizeControl</a></li></ul></li><li><a href="History.html">History</a><ul class='methods'><li data-type='method'><a href="History.html#addRollback">addRollback</a></li><li data-type='method'><a href="History.html#beginStyleEdit">beginStyleEdit</a></li><li data-type='method'><a href="History.html#capture">capture</a></li><li data-type='method'><a href="History.html#copy">copy</a></li><li data-type='method'><a href="History.html#describe">describe</a></li><li data-type='method'><a href="History.html#entry">entry</a></li><li data-type='method'><a href="History.html#finishStyleEdit">finishStyleEdit</a></li><li data-type='method'><a href="History.html#fitLog">fitLog</a></li><li data-type='method'><a href="History.html#key">key</a></li><li data-type='method'><a href="History.html#log">log</a></li><li data-type='method'><a href="History.html#onTransaction">onTransaction</a></li><li data-type='method'><a href="History.html#prune">prune</a></li><li data-type='method'><a href="History.html#render">render</a></li><li data-type='method'><a href="History.html#reset">reset</a></li><li data-type='method'><a href="History.html#rollback">rollback</a></li><li data-type='method'><a href="History.html#show">show</a></li></ul></li><li><a href="Legend.html">Legend</a><ul class='methods'><li data-type='method'><a href="Legend.html#namedStyles">namedStyles</a></li><li data-type='method'><a href="Legend.html#render">render</a></li></ul></li><li><a href="Magnifier.html">Magnifier</a><ul class='methods'><li data-type='method'><a href="Magnifier.html#close">close</a></li><li data-type='method'><a href="Magnifier.html#create">create</a></li><li data-type='method'><a href="Magnifier.html#move">move</a></li></ul></li><li><a href="MapStore.html">MapStore</a><ul class='methods'><li data-type='method'><a href="MapStore.html#addAttribute">addAttribute</a></li><li data-type='method'><a href="MapStore.html#addEdge">addEdge</a></li><li data-type='method'><a href="MapStore.html#addNode">addNode</a></li><li data-type='method'><a href="MapStore.html#addStyle">addStyle</a></li><li data-type='method'><a href="MapStore.html#attributeTitles">attributeTitles</a></li><li data-type='method'><a href="MapStore.html#canLink">canLink</a></li><li data-type='method'><a href="MapStore.html#deleteStyle">deleteStyle</a></li><li data-type='method'><a href="MapStore.html#freeMembers">freeMembers</a></li><li data-type='method'><a href="MapStore.html#loadFile">loadFile</a></li><li data-type='method'><a href="MapStore.html#moveNodes">moveNodes</a></li><li data-type='method'><a href="MapStore.html#redo">redo</a></li><li data-type='method'><a href="MapStore.html#remove">remove</a></li><li data-type='method'><a href="MapStore.html#setAttributeTitle">setAttributeTitle</a></li><li data-type='method'><a href="MapStore.html#setElementStyle">setElementStyle</a></li><li data-type='method'><a href="MapStore.html#setOverrides">setOverrides</a></li><li data-type='method'><a href="MapStore.html#setSetting">setSetting</a></li><li data-type='method'><a href="MapStore.html#setStyle">setStyle</a></li><li data-type='method'><a href="MapStore.html#stamp">stamp</a></li><li data-type='method'><a href="MapStore.html#toFile">toFile</a></li><li data-type='method'><a href="MapStore.html#transact">transact</a></li><li data-type='method'><a href="MapStore.html#undo">undo</a></li><li data-type='method'><a href="MapStore.html#update">update</a></li></ul></li><li><a href="Minimap.html">Minimap</a><ul class='methods'><li data-type='method'><a href="Minimap.html#draw">draw</a></li><li data-type='method'><a href="Minimap.html#keyPan">keyPan</a></li><li data-type='method'><a href="Minimap.html#panTo">panTo</a></li><li data-type='method'><a href="Minimap.html#schedule">schedule</a></li></ul></li><li><a href="NetworkSettings.html">NetworkSettings</a><ul class='methods'><li data-type='method'><a href="NetworkSettings.html#fillLayoutMenu">fillLayoutMenu</a></li><li data-type='method'><a href="NetworkSettings.html#runLayout">runLayout</a></li><li data-type='method'><a href="NetworkSettings.html#setSnap">setSnap</a></li><li data-type='method'><a href="NetworkSettings.html#showSettings">showSettings</a></li><li data-type='method'><a href="NetworkSettings.html#snapDragged">snapDragged</a></li><li data-type='method'><a href="NetworkSettings.html#snapped">snapped</a></li></ul></li><li><a href="NotesPanel.html">NotesPanel</a><ul class='methods'><li data-type='method'><a href="NotesPanel.html#contentsOf">contentsOf</a></li><li data-type='method'><a href="NotesPanel.html#hide">hide</a></li><li data-type='method'><a href="NotesPanel.html#onChange">onChange</a></li><li data-type='method'><a href="NotesPanel.html#openWindow">openWindow</a></li><li data-type='method'><a href="NotesPanel.html#refresh">refresh</a></li><li data-type='method'><a href="NotesPanel.html#requestRefresh">requestRefresh</a></li><li data-type='method'><a href="NotesPanel.html#saveNote">saveNote</a></li><li data-type='method'><a href="NotesPanel.html#sendWindowState">sendWindowState</a></li><li data-type='method'><a href="NotesPanel.html#setReadOnly">setReadOnly</a></li><li data-type='method'><a href="NotesPanel.html#setUpPanel">setUpPanel</a></li><li data-type='method'><a href="NotesPanel.html#showDetails">showDetails</a></li><li data-type='method'><a href="NotesPanel.html#showPin">showPin</a></li><li data-type='method'><a href="NotesPanel.html#showStamp">showStamp</a></li><li data-type='method'><a href="NotesPanel.html#syncContents">syncContents</a></li><li data-type='method'><a href="NotesPanel.html#togglePin">togglePin</a></li><li data-type='method'><a href="NotesPanel.html#windowMessage">windowMessage</a></li></ul></li><li><a href="Overview.html">Overview</a><ul class='methods'><li data-type='method'><a href="Overview.html#refresh">refresh</a></li><li data-type='method'><a href="Overview.html#setReadOnly">setReadOnly</a></li></ul></li><li><a href="Palette.html">Palette</a><ul class='methods'><li data-type='method'><a href="Palette.html#apply">apply</a></li><li data-type='method'><a href="Palette.html#createContextMenu">createContextMenu</a></li><li data-type='method'><a href="Palette.html#createSwatches">createSwatches</a></li><li data-type='method'><a href="Palette.html#fitSample">fitSample</a></li><li data-type='method'><a href="Palette.html#lastStyle">lastStyle</a></li><li data-type='method'><a href="Palette.html#markUsed">markUsed</a></li><li data-type='method'><a href="Palette.html#miniGraph">miniGraph</a></li><li data-type='method'><a href="Palette.html#onChange">onChange</a></li><li data-type='method'><a href="Palette.html#openContextMenu">openContextMenu</a></li><li data-type='method'><a href="Palette.html#redraw">redraw</a></li><li data-type='method'><a href="Palette.html#refresh">refresh</a></li><li data-type='method'><a href="Palette.html#sampleLabel">sampleLabel</a></li><li data-type='method'><a href="Palette.html#selectAll">selectAll</a></li><li data-type='method'><a href="Palette.html#styleNodes">styleNodes</a></li></ul></li><li><a href="Rooms.html">Rooms</a><ul class='methods'><li data-type='method'><a href="Rooms.html#action">action</a></li><li data-type='method'><a href="Rooms.html#addToProject">addToProject</a></li><li data-type='method'><a href="Rooms.html#change">change</a></li><li data-type='method'><a href="Rooms.html#close">close</a></li><li data-type='method'><a href="Rooms.html#current">current</a></li><li data-type='method'><a href="Rooms.html#deleteProject">deleteProject</a></li><li data-type='method'><a href="Rooms.html#importList">importList</a></li><li data-type='method'><a href="Rooms.html#navigate">navigate</a></li><li data-type='method'><a href="Rooms.html#newProject">newProject</a></li><li data-type='method'><a href="Rooms.html#read">read</a></li><li data-type='method'><a href="Rooms.html#remember">remember</a></li><li data-type='method'><a href="Rooms.html#render">render</a></li><li data-type='method'><a href="Rooms.html#saveList">saveList</a></li><li data-type='method'><a href="Rooms.html#start">start</a></li><li data-type='method'><a href="Rooms.html#toggle">toggle</a></li></ul></li><li><a href="Search.html">Search</a><ul class='methods'><li data-type='method'><a href="Search.html#clearSuggestions">clearSuggestions</a></li><li data-type='method'><a href="Search.html#close">close</a></li><li data-type='method'><a href="Search.html#goTo">goTo</a></li><li data-type='method'><a href="Search.html#onKey">onKey</a></li><li data-type='method'><a href="Search.html#showSuggestions">showSuggestions</a></li><li data-type='method'><a href="Search.html#suggestion">suggestion</a></li><li data-type='method'><a href="Search.html#toggle">toggle</a></li></ul></li><li><a href="Share.html">Share</a><ul class='methods'><li data-type='method'><a href="Share.html#copy">copy</a></li><li data-type='method'><a href="Share.html#open">open</a></li><li data-type='method'><a href="Share.html#openClone">openClone</a></li><li data-type='method'><a href="Share.html#openTable">openTable</a></li></ul></li><li><a href="SidePanel.html">SidePanel</a><ul class='methods'><li data-type='method'><a href="SidePanel.html#openTab">openTab</a></li><li data-type='method'><a href="SidePanel.html#show">show</a></li><li data-type='method'><a href="SidePanel.html#toggle">toggle</a></li></ul></li><li><a href="StyleEditor.html">StyleEditor</a><ul class='methods'><li data-type='method'><a href="StyleEditor.html#addButton">addButton</a></li><li data-type='method'><a href="StyleEditor.html#attach">attach</a></li><li data-type='method'><a href="StyleEditor.html#colorRow">colorRow</a></li><li data-type='method'><a href="StyleEditor.html#deleteButton">deleteButton</a></li><li data-type='method'><a href="StyleEditor.html#editStyle">editStyle</a></li><li data-type='method'><a href="StyleEditor.html#form">form</a></li><li data-type='method'><a href="StyleEditor.html#input">input</a></li><li data-type='method'><a href="StyleEditor.html#listItem">listItem</a></li><li data-type='method'><a href="StyleEditor.html#nameRow">nameRow</a></li><li data-type='method'><a href="StyleEditor.html#render">render</a></li><li data-type='method'><a href="StyleEditor.html#renderList">renderList</a></li><li data-type='method'><a href="StyleEditor.html#row">row</a></li><li data-type='method'><a href="StyleEditor.html#schedule">schedule</a></li><li data-type='method'><a href="StyleEditor.html#selectionControls">selectionControls</a></li><li data-type='method'><a href="StyleEditor.html#selectionSection">selectionSection</a></li><li data-type='method'><a href="StyleEditor.html#setStyle">setStyle</a></li><li data-type='method'><a href="StyleEditor.html#setView">setView</a></li><li data-type='method'><a href="StyleEditor.html#stylesOf">stylesOf</a></li></ul></li><li><a href="TableView.html">TableView</a><ul class='methods'><li data-type='method'><a href="TableView.html#allRows">allRows</a></li><li data-type='method'><a href="TableView.html#arrowFor">arrowFor</a></li><li data-type='method'><a href="TableView.html#bodyRow">bodyRow</a></li><li data-type='method'><a href="TableView.html#build">build</a></li><li data-type='method'><a href="TableView.html#cell">cell</a></li><li data-type='method'><a href="TableView.html#columns">columns</a></li><li data-type='method'><a href="TableView.html#commitText">commitText</a></li><li data-type='method'><a href="TableView.html#copy">copy</a></li><li data-type='method'><a href="TableView.html#copyText">copyText</a></li><li data-type='method'><a href="TableView.html#deleteButton">deleteButton</a></li><li data-type='method'><a href="TableView.html#endEdit">endEdit</a></li><li data-type='method'><a href="TableView.html#flagBox">flagBox</a></li><li data-type='method'><a href="TableView.html#footerRow">footerRow</a></li><li data-type='method'><a href="TableView.html#footerText">footerText</a></li><li data-type='method'><a href="TableView.html#groupRow">groupRow</a></li><li data-type='method'><a href="TableView.html#groups">groups</a></li><li data-type='method'><a href="TableView.html#headerCell">headerCell</a></li><li data-type='method'><a href="TableView.html#onTransaction">onTransaction</a></li><li data-type='method'><a href="TableView.html#refreshStats">refreshStats</a></li><li data-type='method'><a href="TableView.html#render">render</a></li><li data-type='method'><a href="TableView.html#renderFilter">renderFilter</a></li><li data-type='method'><a href="TableView.html#rowBox">rowBox</a></li><li data-type='method'><a href="TableView.html#schedule">schedule</a></li><li data-type='method'><a href="TableView.html#selectAllBox">selectAllBox</a></li><li data-type='method'><a href="TableView.html#selectInput">selectInput</a></li><li data-type='method'><a href="TableView.html#setSelection">setSelection</a></li><li data-type='method'><a href="TableView.html#shownRows">shownRows</a></li><li data-type='method'><a href="TableView.html#sortBy">sortBy</a></li><li data-type='method'><a href="TableView.html#startEdit">startEdit</a></li><li data-type='method'><a href="TableView.html#swatch">swatch</a></li><li data-type='method'><a href="TableView.html#targets">targets</a></li><li data-type='method'><a href="TableView.html#textInput">textInput</a></li><li data-type='method'><a href="TableView.html#titleRow">titleRow</a></li><li data-type='method'><a href="TableView.html#titleText">titleText</a></li><li data-type='method'><a href="TableView.html#toggleFilter">toggleFilter</a></li><li data-type='method'><a href="TableView.html#visible">visible</a></li></ul></li><li><a href="Toolbar.html">Toolbar</a><ul class='methods'><li data-type='method'><a href="Toolbar.html#showDeleteState">showDeleteState</a></li><li data-type='method'><a href="Toolbar.html#showMode">showMode</a></li><li data-type='method'><a href="Toolbar.html#showUndoState">showUndoState</a></li><li data-type='method'><a href="Toolbar.html#toggleMode">toggleMode</a></li></ul></li><li><a href="Tutorial.html">Tutorial</a><ul class='methods'><li data-type='method'><a href="Tutorial.html#finish">finish</a></li><li data-type='method'><a href="Tutorial.html#move">move</a></li><li data-type='method'><a href="Tutorial.html#position">position</a></li><li data-type='method'><a href="Tutorial.html#show">show</a></li><li data-type='method'><a href="Tutorial.html#start">start</a></li><li data-type='method'><a href="Tutorial.html#startIfNeeded">startIfNeeded</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#CAPITALISED">CAPITALISED</a></li><li><a href="global.html#LABEL_PREVIEW_LENGTH">LABEL_PREVIEW_LENGTH</a></li><li><a href="global.html#PARTS">PARTS</a></li><li><a href="global.html#accumulateFrom">accumulateFrom</a></li><li><a href="global.html#addAttributes">addAttributes</a></li><li><a href="global.html#addCluster">addCluster</a></li><li><a href="global.html#addContextMenu">addContextMenu</a></li><li><a href="global.html#addEdge">addEdge</a></li><li><a href="global.html#addElement">addElement</a></li><li><a href="global.html#addExportedAttributes">addExportedAttributes</a></li><li><a href="global.html#addNode">addNode</a></li><li><a href="global.html#addVec">addVec</a></li><li><a href="global.html#adjacency">adjacency</a></li><li><a href="global.html#alertMsg">alertMsg</a></li><li><a href="global.html#appendNote">appendNote</a></li><li><a href="global.html#appendSources">appendSources</a></li><li><a href="global.html#appendText">appendText</a></li><li><a href="global.html#applyBox">applyBox</a></li><li><a href="global.html#applyChanges">applyChanges</a></li><li><a href="global.html#applyClusterView">applyClusterView</a></li><li><a href="global.html#applyCurves">applyCurves</a></li><li><a href="global.html#attributeColumns">attributeColumns</a></li><li><a href="global.html#attributes">attributes</a></li><li><a href="global.html#betweenness">betweenness</a></li><li><a href="global.html#bindClipboard">bindClipboard</a></li><li><a href="global.html#bindGraph">bindGraph</a></li><li><a href="global.html#bindSelectionStatus">bindSelectionStatus</a></li><li><a href="global.html#bindZoomControl">bindZoomControl</a></li><li><a href="global.html#borderStyleColumn">borderStyleColumn</a></li><li><a href="global.html#canConnect">canConnect</a></li><li><a href="global.html#cancelAlertMsg">cancelAlertMsg</a></li><li><a href="global.html#capitalize">capitalize</a></li><li><a href="global.html#capitalizeFirstLetter">capitalizeFirstLetter</a></li><li><a href="global.html#cellValue">cellValue</a></li><li><a href="global.html#centre">centre</a></li><li><a href="global.html#classesOf">classesOf</a></li><li><a href="global.html#clean">clean</a></li><li><a href="global.html#cleanArray">cleanArray</a></li><li><a href="global.html#cleanLocalStorage">cleanLocalStorage</a></li><li><a href="global.html#clearOfNodes">clearOfNodes</a></li><li><a href="global.html#clearStatusBar">clearStatusBar</a></li><li><a href="global.html#clusterBy">clusterBy</a></li><li><a href="global.html#clusterByLouvain">clusterByLouvain</a></li><li><a href="global.html#clusterKey">clusterKey</a></li><li><a href="global.html#collapsedMap">collapsedMap</a></li><li><a href="global.html#colorColumn">colorColumn</a></li><li><a href="global.html#colorFromText">colorFromText</a></li><li><a href="global.html#colorOpacityProperty">colorOpacityProperty</a></li><li><a href="global.html#colorPatch">colorPatch</a></li><li><a href="global.html#colorWell">colorWell</a></li><li><a href="global.html#colorWithOpacity">colorWithOpacity</a></li><li><a href="global.html#colourFor">colourFor</a></li><li><a href="global.html#compare">compare</a></li><li><a href="global.html#compileStylesheet">compileStylesheet</a></li><li><a href="global.html#components">components</a></li><li><a href="global.html#computeStats">computeStats</a></li><li><a href="global.html#connected">connected</a></li><li><a href="global.html#convertDashes">convertDashes</a></li><li><a href="global.html#convertEdge">convertEdge</a></li><li><a href="global.html#convertNode">convertNode</a></li><li><a href="global.html#convertStyles">convertStyles</a></li><li><a href="global.html#coordinate">coordinate</a></li><li><a href="global.html#copySelection">copySelection</a></li><li><a href="global.html#createColorPicker">createColorPicker</a></li><li><a href="global.html#createGraph">createGraph</a></li><li><a href="global.html#cssColumn">cssColumn</a></li><li><a href="global.html#cssDiff">cssDiff</a></li><li><a href="global.html#cubicPoint">cubicPoint</a></li><li><a href="global.html#curveFromPointer">curveFromPointer</a></li><li><a href="global.html#dashesToLineStyle">dashesToLineStyle</a></li><li><a href="global.html#decode">decode</a></li><li><a href="global.html#decodeLabel">decodeLabel</a></li><li><a href="global.html#deepCopy">deepCopy</a></li><li><a href="global.html#deepMerge">deepMerge</a></li><li><a href="global.html#defaultCurvePoints">defaultCurvePoints</a></li><li><a href="global.html#defaultEdgeStyle">defaultEdgeStyle</a></li><li><a href="global.html#defaultNodeStyle">defaultNodeStyle</a></li><li><a href="global.html#describeRecords">describeRecords</a></li><li><a href="global.html#describer">describer</a></li><li><a href="global.html#diag">diag</a></li><li><a href="global.html#displayHelp">displayHelp</a></li><li><a href="global.html#displayTitle">displayTitle</a></li><li><a href="global.html#displayValue">displayValue</a></li><li><a href="global.html#dissolveCluster">dissolveCluster</a></li><li><a href="global.html#docName">docName</a></li><li><a href="global.html#dragElement">dragElement</a></li><li><a href="global.html#edgeCurveStyle">edgeCurveStyle</a></li><li><a href="global.html#edgeElement">edgeElement</a></li><li><a href="global.html#edgeListToAdjMatrix">edgeListToAdjMatrix</a></li><li><a href="global.html#edgeStyle">edgeStyle</a></li><li><a href="global.html#edgeStyleToCss">edgeStyleToCss</a></li><li><a href="global.html#editNote">editNote</a></li><li><a href="global.html#editValue">editValue</a></li><li><a href="global.html#editingText">editingText</a></li><li><a href="global.html#el">el</a></li><li><a href="global.html#elem">elem</a></li><li><a href="global.html#encodeHTMLEntities">encodeHTMLEntities</a></li><li><a href="global.html#equal">equal</a></li><li><a href="global.html#esc">esc</a></li><li><a href="global.html#exactTime">exactTime</a></li><li><a href="global.html#exportImage">exportImage</a></li><li><a href="global.html#exportNotes">exportNotes</a></li><li><a href="global.html#exportedAttributes">exportedAttributes</a></li><li><a href="global.html#exportedValues">exportedValues</a></li><li><a href="global.html#factorColumns">factorColumns</a></li><li><a href="global.html#factorSizeToPercent">factorSizeToPercent</a></li><li><a href="global.html#fanLayout">fanLayout</a></li><li><a href="global.html#fanLevels">fanLevels</a></li><li><a href="global.html#filterRows">filterRows</a></li><li><a href="global.html#fitDistance">fitDistance</a></li><li><a href="global.html#fitMap">fitMap</a></li><li><a href="global.html#fitWeight">fitWeight</a></li><li><a href="global.html#flagColumn">flagColumn</a></li><li><a href="global.html#footerValue">footerValue</a></li><li><a href="global.html#generateName">generateName</a></li><li><a href="global.html#generateRoom">generateRoom</a></li><li><a href="global.html#get">get</a></li><li><a href="global.html#getCSSVariable">getCSSVariable</a></li><li><a href="global.html#getChatDialogOpenRect">getChatDialogOpenRect</a></li><li><a href="global.html#getDashes">getDashes</a></li><li><a href="global.html#getScaleFreeNetwork">getScaleFreeNetwork</a></li><li><a href="global.html#getTextWidth">getTextWidth</a></li><li><a href="global.html#get_trophic_levels">get_trophic_levels</a></li><li><a href="global.html#gexfDefinitions">gexfDefinitions</a></li><li><a href="global.html#gexfValues">gexfValues</a></li><li><a href="global.html#grabHandle">grabHandle</a></li><li><a href="global.html#graphmlValues">graphmlValues</a></li><li><a href="global.html#groupBy">groupBy</a></li><li><a href="global.html#hasNote">hasNote</a></li><li><a href="global.html#heading">heading</a></li><li><a href="global.html#hexToRgba">hexToRgba</a></li><li><a href="global.html#htmlEntities">htmlEntities</a></li><li><a href="global.html#hueOf">hueOf</a></li><li><a href="global.html#humanSize">humanSize</a></li><li><a href="global.html#identity">identity</a></li><li><a href="global.html#imageViewport">imageViewport</a></li><li><a href="global.html#in_degree">in_degree</a></li><li><a href="global.html#initialiseClone">initialiseClone</a></li><li><a href="global.html#initials">initials</a></li><li><a href="global.html#invertColor">invertColor</a></li><li><a href="global.html#isCluster">isCluster</a></li><li><a href="global.html#isEmpty">isEmpty</a></li><li><a href="global.html#isObject">isObject</a></li><li><a href="global.html#isPlainObject">isPlainObject</a></li><li><a href="global.html#isQuillEmpty">isQuillEmpty</a></li><li><a href="global.html#isReadOnly">isReadOnly</a></li><li><a href="global.html#jLouvain">jLouvain</a></li><li><a href="global.html#joinNames">joinNames</a></li><li><a href="global.html#label">label</a></li><li><a href="global.html#labelKey">labelKey</a></li><li><a href="global.html#layoutPositions">layoutPositions</a></li><li><a href="global.html#legacyToV2">legacyToV2</a></li><li><a href="global.html#lightOrDark">lightOrDark</a></li><li><a href="global.html#linkColumns">linkColumns</a></li><li><a href="global.html#list">list</a></li><li><a href="global.html#listen">listen</a></li><li><a href="global.html#loadUser">loadUser</a></li><li><a href="global.html#lowerFirstLetter">lowerFirstLetter</a></li><li><a href="global.html#makeAIAssistantFabDraggable">makeAIAssistantFabDraggable</a></li><li><a href="global.html#makeColor">makeColor</a></li><li><a href="global.html#makeFile">makeFile</a></li><li><a href="global.html#makeNode">makeNode</a></li><li><a href="global.html#makeResizeable">makeResizeable</a></li><li><a href="global.html#mapData">mapData</a></li><li><a href="global.html#marginOf">marginOf</a></li><li><a href="global.html#measureDeviation">measureDeviation</a></li><li><a href="global.html#mergeMap">mergeMap</a></li><li><a href="global.html#mergeTranspose">mergeTranspose</a></li><li><a href="global.html#modifiedColumn">modifiedColumn</a></li><li><a href="global.html#mostFrequent">mostFrequent</a></li><li><a href="global.html#mostFrequentString">mostFrequentString</a></li><li><a href="global.html#nameOf">nameOf</a></li><li><a href="global.html#nativeWell">nativeWell</a></li><li><a href="global.html#nodeCss">nodeCss</a></li><li><a href="global.html#nodeElement">nodeElement</a></li><li><a href="global.html#nodeFormatColumns">nodeFormatColumns</a></li><li><a href="global.html#nodeStyle">nodeStyle</a></li><li><a href="global.html#nodeStyleToCss">nodeStyleToCss</a></li><li><a href="global.html#normaliseLegacy">normaliseLegacy</a></li><li><a href="global.html#normaliseLegacyStrings">normaliseLegacyStrings</a></li><li><a href="global.html#normalizeColor">normalizeColor</a></li><li><a href="global.html#normalizeMapShapes">normalizeMapShapes</a></li><li><a href="global.html#normalizeShape">normalizeShape</a></li><li><a href="global.html#note">note</a></li><li><a href="global.html#noteText">noteText</a></li><li><a href="global.html#notesColumn">notesColumn</a></li><li><a href="global.html#notesDelta">notesDelta</a></li><li><a href="global.html#number">number</a></li><li><a href="global.html#objectEquals">objectEquals</a></li><li><a href="global.html#onAddingFactor">onAddingFactor</a></li><li><a href="global.html#onCommit">onCommit</a></li><li><a href="global.html#onEditStyle">onEditStyle</a></li><li><a href="global.html#onError">onError</a></li><li><a href="global.html#onInput">onInput</a></li><li><a href="global.html#onMode">onMode</a></li><li><a href="global.html#onOpenFile">onOpenFile</a></li><li><a href="global.html#onlyUnloggedChanges">onlyUnloggedChanges</a></li><li><a href="global.html#openAIAsstDialog">openAIAsstDialog</a></li><li><a href="global.html#options">options</a></li><li><a href="global.html#out_degree">out_degree</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseMapText">parseMapText</a></li><li><a href="global.html#parseXml">parseXml</a></li><li><a href="global.html#passes">passes</a></li><li><a href="global.html#pasteSelection">pasteSelection</a></li><li><a href="global.html#pathsBetween">pathsBetween</a></li><li><a href="global.html#placeMembers">placeMembers</a></li><li><a href="global.html#placeholderName">placeholderName</a></li><li><a href="global.html#plainNodes">plainNodes</a></li><li><a href="global.html#positionsOf">positionsOf</a></li><li><a href="global.html#pushnew">pushnew</a></li><li><a href="global.html#quadPoint">quadPoint</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#random">random</a></li><li><a href="global.html#randomColour">randomColour</a></li><li><a href="global.html#reach">reach</a></li><li><a href="global.html#reachable">reachable</a></li><li><a href="global.html#readCSV">readCSV</a></li><li><a href="global.html#readEdge">readEdge</a></li><li><a href="global.html#readGexf">readGexf</a></li><li><a href="global.html#readGml">readGml</a></li><li><a href="global.html#readGraphXml">readGraphXml</a></li><li><a href="global.html#readGraphml">readGraphml</a></li><li><a href="global.html#readGraphviz">readGraphviz</a></li><li><a href="global.html#readMapFile">readMapFile</a></li><li><a href="global.html#readMergeRoom">readMergeRoom</a></li><li><a href="global.html#readNode">readNode</a></li><li><a href="global.html#readOnly">readOnly</a></li><li><a href="global.html#readSpreadsheet">readSpreadsheet</a></li><li><a href="global.html#rebase">rebase</a></li><li><a href="global.html#rectsOverlap">rectsOverlap</a></li><li><a href="global.html#redirectToRoom">redirectToRoom</a></li><li><a href="global.html#releaseAll">releaseAll</a></li><li><a href="global.html#renameUser">renameUser</a></li><li><a href="global.html#requestHelp">requestHelp</a></li><li><a href="global.html#resolve">resolve</a></li><li><a href="global.html#rgbIsLight">rgbIsLight</a></li><li><a href="global.html#rgbToArray">rgbToArray</a></li><li><a href="global.html#rgba">rgba</a></li><li><a href="global.html#roomFromUrl">roomFromUrl</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#rows">rows</a></li><li><a href="global.html#runExtension">runExtension</a></li><li><a href="global.html#sameValue">sameValue</a></li><li><a href="global.html#seededRandom">seededRandom</a></li><li><a href="global.html#selectionMessage">selectionMessage</a></li><li><a href="global.html#serverUrl">serverUrl</a></li><li><a href="global.html#set">set</a></li><li><a href="global.html#setAlertDuration">setAlertDuration</a></li><li><a href="global.html#setCollapsed">setCollapsed</a></li><li><a href="global.html#setEdgeHidden">setEdgeHidden</a></li><li><a href="global.html#setEndOfContenteditable">setEndOfContenteditable</a></li><li><a href="global.html#setFactorSizeFromPercent">setFactorSizeFromPercent</a></li><li><a href="global.html#setIntersection">setIntersection</a></li><li><a href="global.html#setNodeHidden">setNodeHidden</a></li><li><a href="global.html#shapeName">shapeName</a></li><li><a href="global.html#shapeOverride">shapeOverride</a></li><li><a href="global.html#shapePatch">shapePatch</a></li><li><a href="global.html#shortLabel">shortLabel</a></li><li><a href="global.html#shorten">shorten</a></li><li><a href="global.html#shortestPaths">shortestPaths</a></li><li><a href="global.html#showTitle">showTitle</a></li><li><a href="global.html#smoothToCurve">smoothToCurve</a></li><li><a href="global.html#solve">solve</a></li><li><a href="global.html#sortKey">sortKey</a></li><li><a href="global.html#sortRows">sortRows</a></li><li><a href="global.html#splitText">splitText</a></li><li><a href="global.html#standardizeColor">standardizeColor</a></li><li><a href="global.html#statColumns">statColumns</a></li><li><a href="global.html#statusMsg">statusMsg</a></li><li><a href="global.html#string">string</a></li><li><a href="global.html#strip">strip</a></li><li><a href="global.html#stripArray">stripArray</a></li><li><a href="global.html#stripNL">stripNL</a></li><li><a href="global.html#styleAction">styleAction</a></li><li><a href="global.html#styleColumn">styleColumn</a></li><li><a href="global.html#styleId">styleId</a></li><li><a href="global.html#styleName">styleName</a></li><li><a href="global.html#styleNumber">styleNumber</a></li><li><a href="global.html#subVec">subVec</a></li><li><a href="global.html#subtract">subtract</a></li><li><a href="global.html#sumVec">sumVec</a></li><li><a href="global.html#summariseLinks">summariseLinks</a></li><li><a href="global.html#suspendBoxSelection">suspendBoxSelection</a></li><li><a href="global.html#symmetricCurvePoints">symmetricCurvePoints</a></li><li><a href="global.html#syncCommon">syncCommon</a></li><li><a href="global.html#syncEdge">syncEdge</a></li><li><a href="global.html#syncNode">syncNode</a></li><li><a href="global.html#syncSettings">syncSettings</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#thumbBounds">thumbBounds</a></li><li><a href="global.html#timeAndDate">timeAndDate</a></li><li><a href="global.html#toElements">toElements</a></li><li><a href="global.html#toHex">toHex</a></li><li><a href="global.html#toRecords">toRecords</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#transpose">transpose</a></li><li><a href="global.html#trophicLayout">trophicLayout</a></li><li><a href="global.html#trophicLevels">trophicLevels</a></li><li><a href="global.html#trophicPositions">trophicPositions</a></li><li><a href="global.html#undirected">undirected</a></li><li><a href="global.html#useColorPicker">useColorPicker</a></li><li><a href="global.html#uuidv4">uuidv4</a></li><li><a href="global.html#validList">validList</a></li><li><a href="global.html#validateFile">validateFile</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#visVia">visVia</a></li><li><a href="global.html#visibleFactors">visibleFactors</a></li><li><a href="global.html#waitForCopy">waitForCopy</a></li><li><a href="global.html#waitForSync">waitForSync</a></li><li><a href="global.html#withRelativeSize">withRelativeSize</a></li><li><a href="global.html#writeGml">writeGml</a></li><li><a href="global.html#writeGraphXml">writeGraphXml</a></li><li><a href="global.html#writeGraphviz">writeGraphviz</a></li><li><a href="global.html#writeMapFile">writeMapFile</a></li><li><a href="global.html#writeSpreadsheet">writeSpreadsheet</a></li><li><a href="global.html#zero">zero</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">prsm4/src/app/app.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*********************************************************************************************
+
+PRSM Participatory System Mapper
+
+Copyright (c) [2022] Nigel Gilbert email: prsm@prsm.uk
+This software is licenced under the PolyForm Noncommercial License 1.0.0
+&lt;https://polyformproject.org/licenses/noncommercial/1.0.0>
+See the file LICENSE.md for details.
+
+Starts the PRSM 4 map editor and connects its features.
+********************************************************************************************/
+
+import cytoscape from 'cytoscape'
+import { WebsocketProvider } from 'y-websocket'
+import { normaliseLegacy, legacyToV2 } from '../graph/legacy.js'
+import { MapStore } from '../graph/store.js'
+import { bindGraph } from '../graph/binding.js'
+import { Editor } from '../graph/editing.js'
+import { bindClipboard } from '../graph/clipboard.js'
+import {
+  alertMsg,
+  dragElement,
+  elem,
+  listen,
+  setAlertDuration,
+  statusMsg,
+} from '../../../js/utils.js'
+import { docName, generateRoom, redirectToRoom, roomFromUrl, serverUrl } from './room.js'
+import { loadUser } from './user.js'
+import { Toolbar } from './toolbar.js'
+import { bindZoomControl, fitMap } from './zoom.js'
+import { StyleEditor } from '../graph/styleeditor.js'
+import { Palette } from './palette.js'
+import { SidePanel, createColorPicker } from './sidepanel.js'
+import { NetworkSettings } from './netsettings.js'
+import '../graph/editors.css'
+import { useColorPicker } from '../graph/colorwell.js'
+import { Collaboration } from './collab.js'
+import { History } from './history.js'
+import { Badges } from './badges.js'
+import { NotesPanel } from './notes.js'
+import { Search } from './search.js'
+import { Analysis } from './analysis.js'
+import { Legend } from './legend.js'
+import { Minimap } from './minimap.js'
+import { Share } from './share.js'
+import { Rooms } from './rooms.js'
+import { Tutorial } from './tutorial.js'
+import { bindSelectionStatus } from './selection-status.js'
+import { Overview } from './overview.js'
+import { Magnifier } from './magnifier.js'
+import { readMapFile, writeMapFile } from './map-file.js'
+import { mergeMap, readMergeRoom } from './merge.js'
+import { readCSV, readSpreadsheet, writeSpreadsheet } from './spreadsheet.js'
+import { readGraphXml, writeGraphXml } from './graph-xml.js'
+import { readGml, writeGml } from './gml.js'
+import { readGraphviz, writeGraphviz } from './graphviz.js'
+import { exportImage } from './image-export.js'
+import { exportNotes } from './notes-export.js'
+import { openAIAsstDialog } from './aiasst.js'
+import { features } from '../../../package.json'
+import { saveAs } from 'file-saver'
+
+const VERSION = '4.0.0'
+const NO_SERVER_DELAY_MS = 8000
+
+/**
+ * PRSM 4: a Cytoscape map, shared through a Yjs server.
+ * Nothing here is global: the pieces of the app are given the store and the graph they need.
+ */
+class App {
+  /** Initialize the map, collaboration and user interface for the current room. */
+  constructor() {
+    setAlertDuration(15000)
+    const url = new URL(document.location)
+    this.room = roomFromUrl(url)
+    if (!this.room) return redirectToRoom(generateRoom())
+    for (const id of ['buttons', 'net-pane', 'panel', 'nodeNotePanel', 'edgeNotePanel']) {
+      elem(id).inert = true
+    }
+    this.store = new MapStore()
+    this.cy = this.createGraph()
+    bindSelectionStatus(this.cy, statusMsg)
+    bindClipboard(
+      this.cy,
+      this.store,
+      alertMsg,
+      () => !this.ready || Boolean(this.store.meta.get('viewOnly'))
+    )
+    this.magnifier = new Magnifier(this.cy)
+    this.provider = new WebsocketProvider(serverUrl(url), docName(this.room), this.store.doc)
+    this.user = loadUser(this.provider.awareness.clientID)
+    this.provider.awareness.setLocalState({ user: this.user })
+    this.store.userName = this.user.name
+    this.editor = new Editor(this.cy, this.store, {
+      /**
+       * Get the style for new factors.
+       * @returns {string} Last chosen factor style.
+       */
+      defaultNodeStyle: () => this.palette.lastStyle('node'),
+      /**
+       * Get the style for new links.
+       * @returns {string} Last chosen link style.
+       */
+      defaultEdgeStyle: () => this.palette.lastStyle('edge'),
+      /**
+       * Reflect the editing mode in the toolbar.
+       * @param {string} mode New editing mode.
+       * @returns {void}
+       */
+      onMode: (mode) => this.toolbar.showMode(mode),
+      /**
+       * Share where a factor is being added.
+       * @param {object|null} pos Map position, or null when finished.
+       * @returns {void}
+       */
+      onAddingFactor: (pos) => this.collab?.setAddingFactor(pos),
+      /**
+       * Check whether the current map is unavailable for editing.
+       * @returns {boolean} Whether editing is disabled.
+       */
+      isReadOnly: () => !this.ready || Boolean(this.store.meta.get('viewOnly')),
+    })
+    this.toolbar = new Toolbar({
+      store: this.store,
+      editor: this.editor,
+      cy: this.cy,
+      /**
+       * Open the browser's file chooser.
+       * @returns {void}
+       */
+      onOpenFile: () => elem('fileInput').click(),
+    })
+    bindZoomControl(this.cy)
+    this.createSidePanel()
+    this.analysis = new Analysis({ store: this.store, cy: this.cy })
+    this.legend = new Legend({ store: this.store, palette: this.palette })
+    if (features.ai) {
+      openAIAsstDialog({ room: this.room, legend: this.legend.box })
+    } else {
+      elem('ai-assistant-container').hidden = true
+      elem('toggle-ai-assistant-btn').removeAttribute('data-step')
+    }
+    this.minimap = new Minimap(this.cy)
+    this.badges = new Badges({ store: this.store, cy: this.cy, clientId: this.user.id })
+    this.notes = new NotesPanel({ store: this.store, cy: this.cy })
+    this.overview = new Overview(this.store)
+    this.search = new Search({ cy: this.cy })
+    this.collab = new Collaboration({
+      store: this.store,
+      cy: this.cy,
+      provider: this.provider,
+      user: this.user,
+    })
+    this.history = new History({ store: this.store, room: this.room })
+    this.share = new Share({ store: this.store, provider: this.provider })
+    this.rooms = new Rooms({ store: this.store, room: this.room, server: serverUrl(url) })
+    this.tutorial = new Tutorial({ user: this.user, collaboration: this.collab })
+    this.bindTitle()
+    this.store.meta.observe((event) => {
+      if (this.ready &amp;&amp; (event.keysChanged.has('viewOnly') || event.keysChanged.has('allowCopy'))) {
+        this.applyViewOnly()
+      }
+    })
+    const helpUrl = new URL('/doc/help4/doc_build/manual/Introduction.html', location.origin).href
+    let helpWindow
+    listen('help', 'click', () => {
+      helpWindow = window.open(helpUrl, 'helpWindow')
+    })
+    window.addEventListener('message', (event) => {
+      if (event.origin !== new URL(helpUrl).origin || event.source !== helpWindow) return
+      if (event.data?.type === 'prsm-reset-tour') localStorage.setItem('doneIntro', 'false')
+    })
+    this.wireFileInput()
+    listen('replaceMap', 'click', () => elem('fileInput').click())
+    listen('mergeMap', 'click', () => {
+      this.mergeRequest = (this.mergeRequest ?? 0) + 1
+      elem('mergedRoom').value = ''
+      elem('merge-error').textContent = ''
+      elem('mergeDialog').showModal()
+    })
+    listen('mergeClose', 'click', () => elem('mergeDialog').close())
+    listen('merge', 'click', () => this.mergeRoom())
+    listen('saveFile', 'click', () => this.saveMap())
+    listen('exportPRSM', 'click', () => this.saveMap())
+    listen('exportExcel', 'click', () => this.saveSpreadsheet())
+    listen('exportGraphML', 'click', () => this.saveGraphXml('graphml'))
+    listen('exportGEXF', 'click', () => this.saveGraphXml('gexf'))
+    listen('exportGML', 'click', () => this.saveGml())
+    listen('exportDOT', 'click', () => this.saveGraphviz())
+    listen('exportImage', 'click', () => this.saveImage())
+    listen('exportNotes', 'click', () => this.saveNotes())
+    this.waitForServer()
+    elem('version').textContent = VERSION
+  }
+
+  /**
+   * Create and bind an empty graph to the shared map.
+   * @returns {cytoscape.Core} an empty graph, bound to the store
+   */
+  createGraph() {
+    const cy = cytoscape({
+      container: elem('net-pane'),
+      layout: { name: 'preset' },
+      wheelSensitivity: 0.3,
+      selectionType: 'additive',
+      minZoom: 0.02,
+      maxZoom: 8,
+    })
+    bindGraph(cy, this.store)
+    return cy
+  }
+
+  /**
+   * Set up style, palette and network settings controls.
+   * @returns {void}
+   */
+  createSidePanel() {
+    this.sidePanel = new SidePanel()
+    this.styleEditor = new StyleEditor(elem('styleEditorBody'), { single: true })
+    this.cy.on('dbltap', (evt) => evt.target === this.cy &amp;&amp; fitMap(this.cy))
+    this.styleEditor.attach({ store: this.store, cy: this.cy })
+    this.styleEditor.setView({ store: this.store, cy: this.cy })
+    dragElement(elem('styleDialog'), elem('styleDialogBar'))
+    listen('styleDialogClose', 'click', () => this.closeStyleDialog(true))
+    listen('styleDialogSave', 'click', () => this.closeStyleDialog(false))
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' &amp;&amp; elem('styleDialog').open) this.closeStyleDialog(true)
+    })
+    this.palette = new Palette({
+      store: this.store,
+      cy: this.cy,
+      /**
+       * Open a style in the editor.
+       * @param {string} id Style ID.
+       * @returns {void}
+       */
+      onEditStyle: (id) => this.editStyle(id),
+    })
+    const colorPicker = createColorPicker()
+    useColorPicker(colorPicker)
+    this.networkSettings = new NetworkSettings({ store: this.store, cy: this.cy, colorPicker })
+  }
+
+  /**
+   * Open a style for editing, remembering its original value.
+   * @param {string} styleId the style to show in the style editor
+   * @returns {void}
+   */
+  editStyle(styleId) {
+    const dialog = elem('styleDialog')
+    if (dialog.open) this.closeStyleDialog(false, false)
+    this.styleBackup = { id: styleId, style: structuredClone(this.store.styles.get(styleId)) }
+    this.history.beginStyleEdit(this.styleBackup)
+    this.styleEditor.current = styleId
+    this.styleEditor.render()
+    elem('styleDialogTitle').textContent = `Edit style: ${this.styleBackup.style.name ?? styleId}`
+    dialog.show()
+  }
+
+  /**
+   * Close the style editor, optionally restoring its original value.
+   * @param {boolean} revert true to put the style back as it was when the dialog was opened
+   * @param {boolean} [recordSave] Whether this close was an explicit save.
+   * @returns {void}
+   */
+  closeStyleDialog(revert, recordSave = true) {
+    const backup = this.styleBackup
+    this.styleBackup = null
+    if (revert &amp;&amp; backup) this.styleEditor.setStyle(backup.id, backup.style)
+    if (backup) this.history.finishStyleEdit(!revert &amp;&amp; recordSave)
+    elem('styleDialog').close()
+  }
+
+  /**
+   * Show the map when the server has synchronized the room.
+   * @returns {void}
+   */
+  waitForServer() {
+    this.noServerTimer = setTimeout(() => this.showNoServer(), NO_SERVER_DELAY_MS)
+    elem('loading').classList.add('show')
+    this.provider.once('sync', () => {
+      clearTimeout(this.noServerTimer)
+      if (this.store.styles.size === 0) this.initialiseNewMap()
+      this.rooms.start()
+      this.ready = true
+      this.applyViewOnly()
+      for (const id of ['buttons', 'net-pane', 'panel', 'nodeNotePanel', 'edgeNotePanel']) {
+        elem(id).inert = false
+      }
+      elem('loading').classList.remove('show')
+      elem('net-pane').classList.add('loaded')
+      this.cy.resize()
+      fitMap(this.cy)
+      this.store.undoManager.clear()
+      this.history.reset()
+      statusMsg(`Connected to room ${this.room}`)
+      if (!this.store.meta.get('viewOnly')) this.tutorial.startIfNeeded()
+    })
+  }
+
+  /**
+   * Set up the view-only interface from the shared map metadata.
+   * @returns {void}
+   */
+  applyViewOnly() {
+    const viewOnly = Boolean(this.store.meta.get('viewOnly'))
+    document.body.classList.toggle('view-only', viewOnly)
+    this.cy.autoungrabify(viewOnly)
+    elem('maptitle').contentEditable = String(!viewOnly)
+    elem('read-only-notice').hidden = !viewOnly
+    elem('copy-map-button').classList.toggle(
+      'view-copy-enabled',
+      viewOnly &amp;&amp; Boolean(this.store.meta.get('allowCopy'))
+    )
+    for (const id of [
+      'addNode',
+      'addLink',
+      'undo',
+      'redo',
+      'deleteNode',
+      'openFile',
+      'panelToggle',
+    ]) {
+      elem(id).disabled = viewOnly
+    }
+    this.notes.setReadOnly(viewOnly)
+    this.overview.setReadOnly(viewOnly)
+  }
+
+  /**
+   * Show the connection warning if synchronization is delayed.
+   * @returns {void}
+   */
+  showNoServer() {
+    elem('loading').classList.remove('show')
+    elem('no-server').classList.add('show')
+  }
+
+  /**
+   * Initialize an empty map with the standard styles in a new room.
+   * @returns {void}
+   */
+  initialiseNewMap() {
+    this.store.loadFile(legacyToV2(normaliseLegacy({ nodes: [], edges: [] })).file)
+  }
+
+  /**
+   * Keep the editable map title in sync with the shared document.
+   * @returns {void}
+   */
+  bindTitle() {
+    const title = elem('maptitle')
+    /**
+     * Read the shared title or its default.
+     * @returns {string} Map title.
+     */
+    const current = () => this.store.meta.get('title')?.trim() || ''
+    /**
+     * Display the current shared title.
+     * @returns {void}
+     */
+    const show = () => {
+      title.textContent = current()
+      title.classList.toggle('unsetmaptitle', !current())
+    }
+    let beforeEdit = ''
+    title.addEventListener('focus', () => (beforeEdit = title.textContent))
+    title.addEventListener('blur', () => {
+      const value = title.textContent.replace(/\s+/g, ' ').trim()
+      if (value !== beforeEdit &amp;&amp; value !== current()) {
+        this.store.transact(() => this.store.meta.set('title', value))
+      }
+      show()
+    })
+    title.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') title.textContent = beforeEdit
+      if (event.key === 'Enter' || event.key === 'Escape') {
+        event.preventDefault()
+        title.blur()
+      }
+    })
+    this.store.meta.observe((event) => {
+      if (event.keysChanged.has('title') &amp;&amp; document.activeElement !== title) show()
+    })
+    show()
+  }
+
+  /**
+   * Parse selected map files and report import errors.
+   * @returns {void}
+   */
+  wireFileInput() {
+    listen('fileInput', 'change', async (e) => {
+      const file = e.target.files[0]
+      e.target.value = ''
+      if (!file) return
+      try {
+        const extension = file.name.split('.').pop().toLowerCase()
+        if (extension === 'xlsx' || extension === 'xls') {
+          await this.openMap(readSpreadsheet(await file.arrayBuffer()))
+        } else if (extension === 'csv') {
+          await this.openMap(readCSV(await file.text()))
+        } else if (extension === 'graphml' || extension === 'gexf') {
+          await this.openMap(readGraphXml(await file.text(), extension))
+        } else if (extension === 'gml') {
+          await this.openMap(readGml(await file.text()))
+        } else if (extension === 'dot' || extension === 'gv') {
+          await this.openMap(readGraphviz(await file.text()))
+        } else if (extension === 'prsm') {
+          await this.openText(await file.text())
+        } else {
+          throw new Error(`Unsupported file format: .${extension}`)
+        }
+      } catch (error) {
+        alertMsg(`Could not open '${file.name}': ${error.message}`, 'error')
+      }
+    })
+  }
+
+  /**
+   * Download the map as a GML file.
+   * @returns {void}
+   */
+  saveGml() {
+    try {
+      const title = (this.store.meta.get('title') || 'Untitled map').replace(/[\\/:*?"&lt;>|]/g, '_')
+      saveAs(new Blob([writeGml(this.store)], { type: 'text/plain;charset=utf-8' }), `${title}.gml`)
+      alertMsg(
+        'GML exports use plain-text notes and omit attributes, most styling, clusters and links to omitted factors.',
+        'warn'
+      )
+    } catch (error) {
+      alertMsg(`Could not export the graph: ${error.message}`, 'error')
+    }
+  }
+
+  /**
+   * Download a high-resolution PNG of the map.
+   * @returns {Promise&lt;void>} Resolves after export or error reporting.
+   */
+  async saveImage() {
+    const button = elem('exportImage')
+    if (button.disabled) return
+    button.disabled = true
+    try {
+      statusMsg('Preparing high-resolution image...')
+      const background = getComputedStyle(elem('net-pane')).backgroundColor
+      const blob = await exportImage(this.cy, background)
+      const title = (this.store.meta.get('title') || 'Untitled map').replace(/[\\/:*?"&lt;>|]/g, '_')
+      saveAs(blob, `${title}.png`)
+      statusMsg('Image exported at 8192 × 8192 pixels')
+    } catch (error) {
+      statusMsg('Image export failed')
+      alertMsg(`Could not export image: ${error.message}`, 'error')
+    } finally {
+      button.disabled = false
+    }
+  }
+
+  /**
+   * Download all map notes as a Word document.
+   * @returns {Promise&lt;void>} Resolves after export or error reporting.
+   */
+  async saveNotes() {
+    const button = elem('exportNotes')
+    if (button.disabled) return
+    button.disabled = true
+    try {
+      const { blob, warnings } = await exportNotes(this.store)
+      const title = (this.store.meta.get('title') || 'Untitled map').replace(/[\\/:*?"&lt;>|]/g, '_')
+      saveAs(blob, `${title}.docx`)
+      if (warnings.length) alertMsg(warnings.join('; '), 'warn')
+    } catch (error) {
+      alertMsg(`Could not export notes: ${error.message}`, 'error')
+    } finally {
+      button.disabled = false
+    }
+  }
+
+  /**
+   * Download the map as a Graphviz DOT file.
+   * @returns {void}
+   */
+  saveGraphviz() {
+    try {
+      const title = (this.store.meta.get('title') || 'Untitled map').replace(/[\\/:*?"&lt;>|]/g, '_')
+      saveAs(
+        new Blob([writeGraphviz(this.store)], { type: 'text/vnd.graphviz;charset=utf-8' }),
+        `${title}.gv`
+      )
+      alertMsg(
+        'Graphviz exports use plain-text notes and omit attributes, most styling, clusters and links to omitted factors.',
+        'warn'
+      )
+    } catch (error) {
+      alertMsg(`Could not export the graph: ${error.message}`, 'error')
+    }
+  }
+
+  /**
+   * Download the map as a graph interchange XML file.
+   * @param {'graphml'|'gexf'} format Export format.
+   * @returns {void}
+   */
+  saveGraphXml(format) {
+    try {
+      const title = (this.store.meta.get('title') || 'Untitled map').replace(/[\\/:*?"&lt;>|]/g, '_')
+      saveAs(
+        new Blob([writeGraphXml(this.store, format)], { type: 'application/xml;charset=utf-8' }),
+        `${title}.${format}`
+      )
+      alertMsg(
+        'Graph exports use plain-text notes and do not preserve all PRSM styling. Clusters and links to omitted factors are excluded.',
+        'warn'
+      )
+    } catch (error) {
+      alertMsg(`Could not export the graph: ${error.message}`, 'error')
+    }
+  }
+
+  /**
+   * Download factors and links as an Excel workbook.
+   * @returns {void}
+   */
+  saveSpreadsheet() {
+    try {
+      const title = (this.store.meta.get('title') || 'Untitled map').replace(/[\\/:*?"&lt;>|]/g, '_')
+      const bytes = writeSpreadsheet(this.store)
+      saveAs(
+        new Blob([bytes], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        }),
+        `${title}.xlsx`
+      )
+      alertMsg('Excel exports notes as plain text and does not preserve custom styles.', 'warn')
+    } catch (error) {
+      alertMsg(`Could not export the spreadsheet: ${error.message}`, 'error')
+    }
+  }
+
+  /**
+   * Download the current map in the native PRSM format.
+   * @returns {void}
+   */
+  saveMap() {
+    try {
+      const title = (this.store.meta.get('title') || 'Untitled map').replace(/[\\/:*?"&lt;>|]/g, '_')
+      saveAs(
+        new Blob([writeMapFile(this.store)], { type: 'text/plain;charset=utf-8' }),
+        `${title}.prsm`
+      )
+    } catch (error) {
+      alertMsg(`Could not save the map: ${error.message}`, 'error')
+    }
+  }
+
+  /**
+   * Merge a second PRSM 4 room into the current map.
+   * @returns {Promise&lt;void>} Resolves after merging or reporting an error.
+   */
+  async mergeRoom() {
+    const button = elem('merge')
+    const request = this.mergeRequest
+    button.disabled = true
+    elem('merge-error').textContent = ''
+    try {
+      const url = new URL(elem('mergedRoom').value.trim())
+      if (roomFromUrl(url) === this.room &amp;&amp; serverUrl(url) === serverUrl(new URL(location.href))) {
+        throw new Error('Choose a different map')
+      }
+      const file = await readMergeRoom(url)
+      if (!elem('mergeDialog').open || this.mergeRequest !== request) return
+      const result = mergeMap(this.store, file)
+      elem('mergeDialog').close()
+      fitMap(this.cy)
+      const message = `Merged ${result.addedNodes} factors and ${result.addedEdges} links; ${result.conflicts} renamed factor conflicts`
+      alertMsg(
+        result.warnings.length ? `${message}. ${result.warnings.join('; ')}` : message,
+        result.warnings.length ? 'warn' : 'info',
+        result.warnings.length > 0
+      )
+    } catch (error) {
+      if (elem('mergeDialog').open &amp;&amp; this.mergeRequest === request) {
+        elem('merge-error').textContent = `Could not merge the map: ${error.message}`
+      }
+    } finally {
+      button.disabled = false
+    }
+  }
+
+  /**
+   * Replace the map with a native or legacy PRSM file.
+   * @param {string} text
+   * @returns {Promise&lt;void>} Resolves after opening or cancelling replacement.
+   */
+  async openText(text) {
+    await this.openMap(readMapFile(text))
+  }
+
+  /**
+   * Replace the current map after parsing and validating the imported file.
+   * @param {object} result Parsed import.
+   * @param {object} result.file Native map snapshot.
+   * @param {string[]} result.warnings Import warnings to display.
+   * @returns {Promise&lt;void>} Resolves after replacement or cancellation.
+   */
+  async openMap({ file, warnings }) {
+    if (
+      (this.store.nodes.size || this.store.edges.size) &amp;&amp;
+      !confirm(
+        'Opening this file will replace the current map for everyone in this room. Continue?'
+      )
+    ) {
+      return
+    }
+    await document.fonts.load('14px Oxygen')
+    delete file.meta.viewOnly
+    delete file.meta.allowCopy
+    this.store.loadFile(file, { replaceHistory: true })
+    this.rooms.remember()
+    this.history.reset()
+    fitMap(this.cy)
+    const message = `Opened a map of ${file.nodes.length} factors and ${file.edges.length} links`
+    alertMsg(
+      warnings.length ? `${message}. ${warnings.join('; ')}` : message,
+      warnings.length ? 'warn' : 'info',
+      warnings.length > 0
+    )
+  }
+}
+
+window.prsm = new App()
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Tue Nov 17 2026 21:45:52 GMT+0000 (GMT+00:00) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

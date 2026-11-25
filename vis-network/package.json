@@ -80,5 +80,11 @@
     "typescript": "^5.3.0",
     "vis-data": "8.0.3",
     "vis-util": "6.0.0"
+  },
+  "allowScripts": {
+    "@parcel/watcher@2.6.0": true,
+    "@swc/core@1.16.22": true,
+    "lmdb@2.8.5": true,
+    "msgpackr-extract@3.0.7": true
   }
 }

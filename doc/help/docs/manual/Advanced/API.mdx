@@ -259,7 +259,7 @@ What this manual refers to as `style` is called internally, `grp`.  And the name
 
 ## Attributes
 
-Arbitrary variables may be attached to both factors and links.  These are called `attributes` and they can be created, viewed and their values edited in the [Data View](/manual/DataView#Managing_the_whole_table).  Attributes have a title (the name that is shown at the top of their column in the Data View) and an internal name of the form `attX`, where `X` is a number, e.g. `att1`.
+Arbitrary variables may be attached to both factors and links.  These are called `attributes` and they can be created, viewed and their values edited in the [Data View](/manual/DataView#managing-the-whole-table).  Attributes have a title (the name that is shown at the top of their column in the Data View) and an internal name of the form `attX`, where `X` is a number, e.g. `att1`.
 
 If there are any attributes defined for a factor or a link, the internal name and the attribute value will be returned when getting the details using the `GET factor` or `GET link` endpoints.  For example, the JSON returned might include `"att1":"female"`.  The JSON returned by the `GET map information` endpoint will include a property, `attributeTitles`, whose value is an object associating each of the internal attribute names with their external titles, e.g. `"attributeTitles":{"att1":"Gender"}`.
 
