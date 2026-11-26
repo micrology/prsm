@@ -1126,7 +1126,7 @@ nav button .pressed {
 }
 
 #sparklesNode,
-#sparklesEdge svg {
+#sparklesEdge {
   padding-right: 10px;
   transition: transform 0.3s ease;
 }

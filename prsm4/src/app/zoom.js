@@ -13,6 +13,7 @@ Controls the map viewport and magnification.
 import { elem, listen } from '../shared/utils.js'
 
 const ZOOM_STEP = 1.2
+const MAX_FIT_ZOOM = 1
 
 /**
  * The zoom slider and +/- buttons in the footer, kept in step with the graph.
@@ -45,10 +46,12 @@ function centre(cy) {
 }
 
 /**
- * Fit the whole map into the window
+ * Fit and centre the whole map without enlarging it beyond its normal size.
  * @param {cytoscape.Core} cy
  * @returns {void}
  */
 export function fitMap(cy) {
-  if (cy.elements().nonempty()) cy.fit(undefined, 30)
+  if (cy.elements().empty()) return
+  cy.fit(undefined, 30)
+  if (cy.zoom() > MAX_FIT_ZOOM) cy.zoom({ level: MAX_FIT_ZOOM, renderedPosition: centre(cy) })
 }

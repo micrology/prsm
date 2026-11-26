@@ -62,6 +62,7 @@ import { features } from '../../package.json'
 import { saveAs } from 'file-saver'
 
 const VERSION = '4.0.0'
+const LOADING_DELAY_MS = 500
 const NO_SERVER_DELAY_MS = 8000
 
 /**
@@ -284,9 +285,10 @@ class App {
    */
   waitForServer() {
     this.noServerTimer = setTimeout(() => this.showNoServer(), NO_SERVER_DELAY_MS)
-    elem('loading').classList.add('show')
+    this.loadingDelayTimer = setTimeout(() => elem('loading').classList.add('show'), LOADING_DELAY_MS)
     this.provider.once('sync', () => {
       clearTimeout(this.noServerTimer)
+      clearTimeout(this.loadingDelayTimer)
       if (this.store.styles.size === 0) this.initialiseNewMap()
       this.rooms.start()
       this.ready = true
@@ -339,6 +341,7 @@ class App {
    * @returns {void}
    */
   showNoServer() {
+    clearTimeout(this.loadingDelayTimer)
     elem('loading').classList.remove('show')
     elem('no-server').classList.add('show')
   }
@@ -363,12 +366,18 @@ class App {
      */
     const current = () => this.store.meta.get('title')?.trim() || ''
     /**
+     * Format the browser tab title.
+     * @returns {string} Tab title.
+     */
+    const tabTitle = () => (current() ? `PRSM | ${current()}` : 'PRSM 4')
+    /**
      * Display the current shared title.
      * @returns {void}
      */
     const show = () => {
       title.textContent = current()
       title.classList.toggle('unsetmaptitle', !current())
+      document.title = tabTitle()
     }
     let beforeEdit = ''
     title.addEventListener('focus', () => (beforeEdit = title.textContent))
@@ -387,7 +396,9 @@ class App {
       }
     })
     this.store.meta.observe((event) => {
-      if (event.keysChanged.has('title') && document.activeElement !== title) show()
+      if (!event.keysChanged.has('title')) return
+      document.title = tabTitle()
+      if (document.activeElement !== title) show()
     })
     show()
   }

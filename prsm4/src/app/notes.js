@@ -12,7 +12,7 @@ Displays and edits factor and link notes.
 
 import Quill from 'quill'
 import 'quill/dist/quill.snow.css'
-import { alertMsg, dragElement, elem, listen, shorten, timeAndDate } from '../shared/utils.js'
+import { alertMsg, dragElement, elem, listen, timeAndDate } from '../shared/utils.js'
 import { hasNote } from './badges.js'
 import { generateElementNote, runAI } from './ai.js'
 
@@ -270,10 +270,24 @@ export class NotesPanel {
     const rec = this.store[kind].get(id)
     if (!rec) return
     const { label, prefix } = PARTS[kind]
-    elem(label).textContent = shorten((rec.label ?? '').replace(/\n/g, ' '))
+    elem(label).textContent = this.labelOf(kind, rec)
     this.showStamp(`${prefix}Creation`, `${prefix}Created`, rec.created)
     this.showStamp(`${prefix}Modification`, `${prefix}Modified`, rec.modified)
     if (kind === 'nodes') this.showPin(Boolean(rec.locked))
+  }
+
+  /**
+   * Describe the selected factor or link for its notes heading.
+   * @param {'nodes'|'edges'} kind Record kind.
+   * @param {object} rec Factor or link record.
+   * @returns {string} Single-line heading.
+   */
+  labelOf(kind, rec) {
+    const label = (rec.label ?? '').replace(/\s+/g, ' ').trim()
+    if (kind === 'nodes' || label) return label
+    const source = this.store.nodes.get(rec.source)?.label?.replace(/\s+/g, ' ').trim()
+    const target = this.store.nodes.get(rec.target)?.label?.replace(/\s+/g, ' ').trim()
+    return `Link from ${source || 'Unnamed factor'} to ${target || 'Unnamed factor'}`
   }
 
   /**
@@ -333,10 +347,15 @@ export class NotesPanel {
     if (tr.changed.has(this.store.meta)) this.refresh()
     if (!this.shown) return
     const { kind, id } = this.shown
-    if (!this.store[kind].has(id)) return this.refresh()
-    if (!tr.changed.get(this.store[kind])?.has(id)) return
+    const rec = this.store[kind].get(id)
+    if (!rec) return this.refresh()
+    const recordChanged = tr.changed.get(this.store[kind])?.has(id)
+    const changedNodes = tr.changed.get(this.store.nodes)
+    const endpointChanged =
+      kind === 'edges' && (changedNodes?.has(rec.source) || changedNodes?.has(rec.target))
+    if (!recordChanged && !endpointChanged) return
     this.showDetails(kind, id)
-    this.syncContents(kind, id)
+    if (recordChanged) this.syncContents(kind, id)
     if (!this.receivingWindowEdit) this.sendWindowState()
   }
 
@@ -362,11 +381,13 @@ export class NotesPanel {
   sendWindowState(sequence) {
     if (!this.shown || !this.noteWindow || this.noteWindow.closed) return
     const { kind, id } = this.shown
+    const rec = this.store[kind].get(id)
+    if (!rec) return
     this.noteWindow.postMessage(
       {
         type: 'prsm4-note-state',
         note: this.contentsOf(kind, id),
-        label: this.store[kind].get(id)?.label || 'Notes',
+        label: this.labelOf(kind, rec) || 'Notes',
         readOnly: Boolean(this.store.meta.get('viewOnly')),
         sequence,
       },

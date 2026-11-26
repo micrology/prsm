@@ -138,6 +138,20 @@
 .sparkle[hidden] {
   display: none;
 }
+.notePanel .header > div:first-child {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+.notePanel .header > div:first-child > span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.notePanel .header > :not(:first-child) {
+  flex-shrink: 0;
+}
 .notePanel .sparkle {
   border: 0;
   padding: 0;
