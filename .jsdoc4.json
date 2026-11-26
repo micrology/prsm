@@ -8,7 +8,7 @@
   },
   "plugins": ["plugins/markdown", "./utils/jsdoc-prsm4.cjs"],
   "opts": {
-    "template": "node_modules/docdash",
+    "template": "prsm4/node_modules/docdash",
     "encoding": "utf8",
     "destination": "./doc/jsdoc4",
     "recurse": true

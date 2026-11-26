@@ -1,0 +1,81 @@
+{
+  "name": "participatory-system-mapper-prsm4",
+  "version": "4.0.0",
+  "description": "PRSM 4 frontend",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-or-later",
+  "features": {
+    "ai": true
+  },
+  "alias": {
+    "devlop": "devlop/lib/default.js",
+    "unist-util-visit-parents/do-not-use-color": "unist-util-visit-parents/lib/color.js"
+  },
+  "targets": {
+    "prsm4": {
+      "distDir": "../dist4",
+      "publicUrl": "."
+    }
+  },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
+  ],
+  "parcelIgnore": [
+    "/doc/help4/"
+  ],
+  "scripts": {
+    "dev": "parcel watch 'html/*.html' --target prsm4 --no-hmr",
+    "build": "parcel build 'html/*.html' --target prsm4 --no-cache",
+    "build:help": "npm run build --prefix ../doc/help4",
+    "build:help:local": "npm run build --prefix ../doc/help4",
+    "deploy": "npm run build && npm run build:help",
+    "test": "cd .. && node --test prsm4/tests/unit/*.test.js prsm4/tests/integration/*.test.js",
+    "test:local": "cd .. && node --test prsm4/tests/local-stack.test.js",
+    "jsdoc": "cd .. && jsdoc -r -c .jsdoc4.json",
+    "start:all-locally": "node ../utils/prsm4-local.mjs start",
+    "stop:all-locally": "node ../utils/prsm4-local.mjs stop",
+    "stress": "cd .. && node ./prsm4/tests/stress-test-prsm4.mjs"
+  },
+  "dependencies": {
+    "@jaames/iro": "^5.5.2",
+    "@popperjs/core": "^2.11.8",
+    "cytoscape": "^3.34.4",
+    "cytoscape-dagre": "^4.0.1",
+    "cytoscape-edgehandles": "^4.0.1",
+    "cytoscape-fcose": "^2.2.0",
+    "dompurify": "^3.4.2",
+    "dotparser": "^1.1.1",
+    "fast-xml-parser": "^5.7.0",
+    "file-saver": "^2.0.5",
+    "localforage": "^1.10.0",
+    "lz-string": "^1.4.4",
+    "markdown-to-quill-delta": "^1.0.1",
+    "marked": "^18.0.3",
+    "qrcode": "^1.5.4",
+    "quill": "^2.0.0",
+    "quill-to-word": "^1.3.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "y-websocket": "^3.0.0",
+    "yjs": "^13.6.27"
+  },
+  "devDependencies": {
+    "buffer": "^6.0.3",
+    "docdash": "^2.0.2",
+    "jsdoc": "^4.0.2",
+    "parcel": "^2.16.4",
+    "parcel-resolver-ignore": "^2.2.1",
+    "process": "^0.11.10",
+    "ws": "^8.20.0"
+  },
+  "allowScripts": {
+    "@parcel/watcher@2.6.0": true,
+    "@swc/core@1.16.22": true,
+    "canvas@3.2.3": true,
+    "lmdb@2.8.5": true,
+    "msgpackr-extract@3.0.7": true
+  }
+}

@@ -288,10 +288,20 @@ npm run stop:all-locally
 #### PRSM 4 local development
 
 PRSM 4 has an independent local stack, which can run alongside the legacy
-stack without stopping or reusing its services:
+stack without stopping or reusing its services. From the repository root,
+install its frontend and shared server dependencies (the legacy root
+dependencies are not required):
 
 ```bash
-npm run start:all-locally:prsm4
+npm ci --prefix prsm4
+npm ci --prefix api-server
+npm ci --prefix ws-server
+```
+
+Then start the stack:
+
+```bash
+npm --prefix prsm4 run start:all-locally
 ```
 
 Once the initial Parcel build, websocket server and API server are ready, open
@@ -300,7 +310,7 @@ the local websocket override and help API setting. The websocket override is
 retained in room and data-view links.
 The stack watches PRSM 4 source files and serves `dist4/` and the PRSM 4
 manual on the same origin. If Help is unavailable, build it with
-`npm ci --prefix doc/help4` followed by `npm run build:help4:local`.
+`npm ci --prefix doc/help4` followed by `npm --prefix prsm4 run build:help:local`.
 
 The local websocket server runs on **1235** and stores rooms in `dbDir4/`,
 separate from the legacy server's `dbDir/`. Consequently, maps saved in
@@ -319,15 +329,15 @@ Logs and a control file are kept in `${TMPDIR:-/tmp}/prsm4-local/`. Stop
 only this stack with:
 
 ```bash
-npm run stop:all-locally:prsm4
+npm --prefix prsm4 run stop:all-locally
 ```
 
 Parcel watches app source files, but changes to the local supervisor or API server
 require stopping and starting the stack again.
 
-Run a bounded collaboration stress test with `npm run stress:prsm4 -- --cycles 5`.
+Run a bounded collaboration stress test with `npm --prefix prsm4 run stress -- --cycles 5`.
 It uses ten headless Yjs clients and a fresh room on the local websocket server,
-not browser windows. Use `npm run stress:prsm4 -- --help` to see options and
+not browser windows. Use `npm --prefix prsm4 run stress -- --help` to see options and
 the printed observer URL to inspect the map in a browser. Supplying an existing
 room or remote websocket server modifies that map: cleanup removes the test
 factors and any links attached to them. The printed run-specific prefix and
@@ -420,33 +430,46 @@ Prefer `./dashboard local` for day-to-day use: it restarts a stale listener clea
 | `npm run upgrade:all` | Upgrade dependencies in those packages |
 | `npm run dev` | Clean `dist/` and watch the legacy pages |
 | `npm run build` | Build the legacy pages into `dist/` |
-| `npm run dev:prsm4` | Watch the PRSM 4 pages in `dist4/` |
-| `npm run build:prsm4` | Build the PRSM 4 pages into `dist4/` |
-| `npm run deploy:prsm4` | Build PRSM 4 and its manual for deployment |
-| `npm run test:prsm4` | Run PRSM 4 unit and collaboration integration tests |
-| `npm run test:prsm4:local` | Exercise local startup, collaboration, persistence and shutdown |
 | `npm run clean` | Remove `dist/*` |
 | `npm run build-vis-network` | Build the vendored network library |
 | `npm run build-help` | Production user-manual build |
 | `npm run build-help-locally` | Local help build |
-| `npm run build:help4` | Build the draft PRSM 4 manual for production |
-| `npm run build:help4:local` | Build the draft PRSM 4 manual for local hosting |
 | `npm run deploy` | `install:all` + vis-network + app + help builds |
 | `npm run start:all-locally` | ws-server + api-server (dev) + Parcel watch + local usage dashboard |
 | `npm run stop:all-locally` | Stop the local stack processes (including dashboard on **8881**) |
-| `npm run start:all-locally:prsm4` | Start the independent local PRSM 4 stack |
-| `npm run stop:all-locally:prsm4` | Stop the local PRSM 4 stack |
 | `npm run lint` | ESLint with `--fix` on `js/*.js` |
 | `npm run pretty` | Prettier on HTML/JS/CSS and related paths |
 | `npm run spellcheck` | cspell on main sources and help MDX |
 | `npm run check` | lint + spellcheck + help build + prettier |
 | `npm run jsdoc` | Generate the legacy JSDoc index under `doc/jsdoc` |
-| `npm run jsdoc:prsm4` | Generate the PRSM 4 JSDoc index under `doc/jsdoc4` |
 | `npm run analyse` | Parcel detailed bundle report |
 | `npm run build-for-docker` | Build `dist/` + help with `features.ai` temporarily false |
 | `npm run rebuild-docker` | `build-for-docker` then multi-arch build/push of images |
 
 Subpackages define additional scripts; see their READMEs and `package.json` files.
+
+### PRSM 4 npm scripts
+
+Run these from the repository root after installing the PRSM 4 dependencies
+as described above. The help and deploy commands also require
+`npm ci --prefix doc/help4`.
+
+| Script | Purpose |
+| --- | --- |
+| `npm --prefix prsm4 run dev` | Watch PRSM 4 pages in `dist4/` |
+| `npm --prefix prsm4 run build` | Build PRSM 4 into `dist4/` |
+| `npm --prefix prsm4 run build:help` | Build the draft PRSM 4 manual |
+| `npm --prefix prsm4 run build:help:local` | Build the manual for local hosting |
+| `npm --prefix prsm4 run deploy` | Build PRSM 4 and its manual |
+| `npm --prefix prsm4 test` | Run unit and collaboration integration tests |
+| `npm --prefix prsm4 run test:local` | Test local startup, persistence and shutdown |
+| `npm --prefix prsm4 run jsdoc` | Generate the PRSM 4 JSDoc index under `doc/jsdoc4` |
+| `npm --prefix prsm4 run start:all-locally` | Start the local PRSM 4 stack |
+| `npm --prefix prsm4 run stop:all-locally` | Stop the local PRSM 4 stack |
+| `npm --prefix prsm4 run stress` | Run the headless collaboration stress test |
+
+PRSM 4's `features.ai` setting is in its own `prsm4/package.json`, separate
+from the legacy setting.
 
 The PRSM 4 build is separate from the legacy `dist/` output. Serve `dist4/`
 to run PRSM 4 locally; a server serving only `dist/` will not serve
@@ -474,7 +497,7 @@ Tuple types in the generated index are represented as arrays of their members.
 Browser targets are the `browserslist` in root `package.json` (last two versions of Chrome, Firefox, Safari, Edge).
 
 PRSM 4 has unit and collaboration integration tests; run them with
-`npm run test:prsm4`. Some additional format samples in `data/` are optional.
+`npm --prefix prsm4 test`. Some additional format samples in `data/` are optional.
 In PRSM 4, standard copy and paste shortcuts duplicate selected factors and
 links within or between maps. Copying a link also includes its endpoint
 factors. Clipboard data includes the styles used by those elements; if the

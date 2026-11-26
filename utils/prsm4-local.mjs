@@ -136,7 +136,7 @@ async function start() {
   console.log(`Help API: http://127.0.0.1:${API_PORT}`)
   console.log(`Logs: ${LOG_FILE}`)
   if (!existsSync(path.join(ROOT, 'doc/help4/doc_build/manual/Introduction.html'))) {
-    console.log('The manual has not been built. Run npm run build:help4:local to enable Help.')
+    console.log('The manual has not been built. Run npm --prefix prsm4 run build:help:local.')
   }
 }
 
@@ -330,10 +330,10 @@ async function supervise() {
       server.listen(HTTP_PORT, '127.0.0.1', resolve)
     })
     server.on('error', (error) => shutdown(error.message))
-    const launch = (label, args, env, pattern) =>
+    const launch = (label, args, env, pattern, cwd = ROOT) =>
       new Promise((resolve, reject) => {
         const child = spawn(process.execPath, args, {
-          cwd: ROOT,
+          cwd,
           env,
           stdio: ['ignore', 'pipe', 'pipe'],
         })
@@ -375,13 +375,14 @@ async function supervise() {
         [
           'node_modules/parcel/lib/bin.js',
           'watch',
-          'prsm4/html/*.html',
+          'html/*.html',
           '--target',
           'prsm4',
           '--no-hmr',
         ],
         process.env,
-        /Built in/i
+        /Built in/i,
+        path.join(ROOT, 'prsm4')
       ),
       launch(
         'api',

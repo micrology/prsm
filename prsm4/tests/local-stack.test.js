@@ -19,13 +19,13 @@ const root = path.resolve('.')
 async function createTestProject(dir) {
   const project = path.join(dir, 'project')
   await mkdir(project)
-  for (const name of ['prsm4', 'utils']) {
-    await cp(path.join(root, name), path.join(project, name), { recursive: true })
-  }
-  for (const name of ['package.json', 'package-lock.json', '.parcelrc']) {
-    await cp(path.join(root, name), path.join(project, name))
-  }
-  for (const name of ['node_modules', 'api-server', 'ws-server']) {
+  await cp(path.join(root, 'prsm4'), path.join(project, 'prsm4'), {
+    recursive: true,
+    filter: (source) => source !== path.join(root, 'prsm4', 'node_modules'),
+  })
+  await cp(path.join(root, 'utils'), path.join(project, 'utils'), { recursive: true })
+  await symlink(path.join(root, 'prsm4/node_modules'), path.join(project, 'prsm4/node_modules'), 'dir')
+  for (const name of ['api-server', 'ws-server']) {
     await symlink(path.join(root, name), path.join(project, name), 'dir')
   }
   return project
@@ -116,7 +116,12 @@ test(
         true
       )
       await closeHelpCache()
-      await run('start')
+      try {
+        await run('start')
+      } catch (error) {
+        const log = await readFile(path.join(env.PRSM4_LOCAL_DIR, 'stack.log'), 'utf8')
+        throw new Error(`Local stack startup failed: ${error.message}\n${log}`, { cause: error })
+      }
       await assert.rejects(run('start'), /state already exists/)
       const url = `http://127.0.0.1:${httpPort}`
       const redirect = await fetch(`${url}/prsm4.html`, { redirect: 'manual' })

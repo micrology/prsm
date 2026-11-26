@@ -58,7 +58,7 @@ import { readGraphviz, writeGraphviz } from './graphviz.js'
 import { exportImage } from './image-export.js'
 import { exportNotes } from './notes-export.js'
 import { helpServiceOrigin, openAIAsstDialog } from './aiasst.js'
-import { features } from '../../../package.json'
+import { features } from '../../package.json'
 import { saveAs } from 'file-saver'
 
 const VERSION = '4.0.0'

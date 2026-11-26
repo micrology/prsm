@@ -80,10 +80,12 @@ docker run -d -p 1234:1234 --name prsm-y-websocket micrology/prsm-y-websocket
 ### PRSM 4
 
 PRSM 4 has its own image and manual. The legacy image and its build remain unchanged.
-After installing the root and `doc/help` dependencies, build it from the repository root:
+Install the PRSM 4 and manual dependencies and build it from the repository root:
 
 ```bash
-npm run deploy:prsm4
+npm ci --prefix prsm4
+npm ci --prefix doc/help4
+npm --prefix prsm4 run deploy
 docker build -f docker/docker-httpd/Dockerfile.prsm4 -t prsm4-httpd .
 docker run --rm -p 8080:8080 prsm4-httpd
 ```
