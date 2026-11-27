@@ -116,6 +116,7 @@ class App {
        * @returns {void}
        */
       onAddingFactor: (pos) => this.collab?.setAddingFactor(pos),
+      onMessage: statusMsg,
       /**
        * Check whether the current map is unavailable for editing.
        * @returns {boolean} Whether editing is disabled.
@@ -285,7 +286,10 @@ class App {
    */
   waitForServer() {
     this.noServerTimer = setTimeout(() => this.showNoServer(), NO_SERVER_DELAY_MS)
-    this.loadingDelayTimer = setTimeout(() => elem('loading').classList.add('show'), LOADING_DELAY_MS)
+    this.loadingDelayTimer = setTimeout(
+      () => elem('loading').classList.add('show'),
+      LOADING_DELAY_MS
+    )
     this.provider.once('sync', () => {
       clearTimeout(this.noServerTimer)
       clearTimeout(this.loadingDelayTimer)

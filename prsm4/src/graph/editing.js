@@ -78,6 +78,7 @@ export class Editor {
     this.ghost = cy.container().ownerDocument.createElement('div')
     this.ghost.className = 'factor-placement-ghost'
     this.ghost.hidden = true
+    this.ghost.innerText = 'Click on the map to add a factor'
     cy.container().append(this.ghost)
     this.moveGhost = (event) => {
       if (this.mode !== 'addNode') return
@@ -146,6 +147,7 @@ export class Editor {
    * @returns {void}
    */
   destroy() {
+    this.placementDialog?.close()
     this.cy.container().ownerDocument.removeEventListener('keydown', this.onKey)
     this.cy.container().removeEventListener('pointermove', this.moveGhost)
     this.cy.container().removeEventListener('pointerleave', this.hideGhost)
@@ -226,6 +228,7 @@ export class Editor {
    */
   onTap(evt) {
     if (this.options.isReadOnly?.()) return
+    if (this.placementDialog) return
     if (evt.target !== this.cy) return
     if (this.mode !== 'addNode' && !(this.mode === 'select' && evt.originalEvent?.altKey)) return
     const style = this.options.defaultNodeStyle?.() ?? 'group0'
@@ -234,10 +237,8 @@ export class Editor {
     this.options.onAddingFactor?.({ x, y })
     this.openInput(
       evt.renderedPosition,
-      120,
-      '',
       (label) => {
-        if (label) this.store.addNode({ label: splitText(label), style, x, y })
+        this.store.addNode({ label: splitText(label), style, x, y })
       },
       () => this.options.onAddingFactor?.(null)
     )
@@ -313,52 +314,88 @@ export class Editor {
   }
 
   /**
-   * Show a text box at a position in the graph; Enter or losing focus accepts, Escape cancels
+   * Show the factor placement dialog at a position in the graph.
    * @param {{x:number,y:number}} pos centre of the box, in pixels within the graph container
-   * @param {number} width in pixels
-   * @param {string} initial starting text
    * @param {function} onDone called with the text if accepted
    * @param {function} [onClose] called when the box has gone, however it was closed
    * @returns {void}
    */
-  openInput(pos, width, initial, onDone, onClose) {
+  openInput(pos, onDone, onClose) {
     const container = this.cy.container()
-    const box = container.ownerDocument.createElement('div')
+    const box = container.ownerDocument.createElement('dialog')
     box.className = 'factor-placement-editor'
-    const input = container.ownerDocument.createElement('textarea')
-    input.className = 'cy-label-editor'
-    input.value = initial
-    input.setAttribute('aria-label', 'Factor label')
-    box.style.setProperty('--x', `${pos.x}px`)
-    box.style.setProperty('--y', `${pos.y}px`)
-    input.style.setProperty('--w', `${width}px`)
-    box.append(input)
+    box.setAttribute('aria-label', 'Add Factor')
+    box.innerHTML = `
+      <form novalidate>
+        <div class="factor-placement-header">
+          <h1>Add Factor</h1>
+          <button type="button" class="factor-placement-cancel" aria-label="Cancel adding factor">&times;</button>
+        </div>
+        <div class="factor-placement-body">
+          <textarea class="cy-label-editor" aria-label="Factor label" aria-required="true" autofocus></textarea>
+          <button type="submit" class="factor-placement-save">save</button>
+        </div>
+        <span class="factor-placement-message" role="alert"></span>
+      </form>`
     container.append(box)
-    input.focus()
-    input.select()
-    let done = false
-    /**
-     * Close the input once, optionally accepting its text.
-     * @param {boolean} accept Whether to accept the entered text.
-     * @returns {void}
-     */
-    const finish = (accept) => {
-      if (done) return
-      done = true
-      const text = input.value
+    this.placementDialog = box
+    const form = box.querySelector('form')
+    const input = box.querySelector('textarea')
+    const message = box.querySelector('.factor-placement-message')
+    box.addEventListener('close', () => {
+      if (message.textContent) this.options.onMessage?.('')
+      this.placementDialog = null
       box.remove()
-      if (accept) onDone(text)
       onClose?.()
-    }
+    })
+    box.querySelector('.factor-placement-cancel').addEventListener('click', () => box.close())
+    form.addEventListener('submit', (event) => {
+      event.preventDefault()
+      const error = !input.value.trim()
+        ? 'Enter a label'
+        : this.options.isReadOnly?.()
+          ? 'This map is read-only'
+          : ''
+      if (error) {
+        message.textContent = error
+        if (!input.value.trim()) input.setAttribute('aria-invalid', 'true')
+        this.options.onMessage?.(error)
+        input.focus()
+        return
+      }
+      onDone(input.value)
+      box.close()
+    })
+    input.addEventListener('input', () => {
+      if (!message.textContent || !input.value.trim()) return
+      message.textContent = ''
+      input.removeAttribute('aria-invalid')
+      this.options.onMessage?.('')
+    })
     input.addEventListener('keydown', (e) => {
       e.stopPropagation()
-      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+      if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault()
-        finish(true)
+        if (!e.isComposing && e.keyCode !== 229) form.requestSubmit()
       }
-      if (e.key === 'Escape') finish(false)
     })
-    input.addEventListener('blur', () => finish(true))
+    box.showModal()
+    const bounds = container.getBoundingClientRect()
+    const size = box.getBoundingClientRect()
+    const viewport = container.ownerDocument.defaultView
+    const x = Math.max(
+      8,
+      Math.min(bounds.left + pos.x - size.width / 2, viewport.innerWidth - size.width - 8)
+    )
+    const y = Math.max(
+      8,
+      Math.min(
+        bounds.top + pos.y - size.height / 2,
+        Math.min(viewport.innerHeight, bounds.bottom) - size.height - 8
+      )
+    )
+    box.style.setProperty('--x', `${x}px`)
+    box.style.setProperty('--y', `${y}px`)
   }
 
   /**
@@ -368,6 +405,7 @@ export class Editor {
    */
   handleKey(evt) {
     if (this.options.isReadOnly?.()) return
+    if (this.placementDialog?.open) return
     if (evt.target.matches?.('input, textarea, [contenteditable]')) return
     const mod = evt.metaKey || evt.ctrlKey
     if (mod && evt.key.toLowerCase() === 'z') {

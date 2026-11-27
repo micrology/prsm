@@ -33,6 +33,7 @@ function createView(id) {
     defaultNodeStyle: () => [...store.styles.keys()].find((k) => k.startsWith('group')),
     defaultEdgeStyle: () => [...store.styles.keys()].find((k) => k.startsWith('edge')),
     onMode: (mode) => syncMode(mode),
+    onMessage: (message) => (info.textContent = message),
   })
   document.getElementById(id).addEventListener('pointerdown', () => setActive(id), true)
   return { store, cy, editor }
@@ -185,3 +186,9 @@ document.getElementById('toggleTable').addEventListener('click', () => {
   for (const v of [view.a, view.b]) v.cy.resize()
 })
 window.tableView = tableView
+
+if (params.has('placement-tests')) {
+  window.placementTests = import('./placement.test.js').then(({ runPlacementTests }) =>
+    runPlacementTests(view.a)
+  )
+}
