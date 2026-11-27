@@ -192,3 +192,9 @@ if (params.has('placement-tests')) {
     runPlacementTests(view.a)
   )
 }
+
+if (params.has('element-editor-tests')) {
+  window.elementEditorTests = import('./element-editor.test.js').then(({ runElementEditorTests }) =>
+    runElementEditorTests(view.a)
+  )
+}

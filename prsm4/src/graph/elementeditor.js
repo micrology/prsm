@@ -25,9 +25,9 @@ import { LINK_TYPES } from './curves.js'
 
 const SLIDER_MIN = 5
 const FONT_SIZES = [
-  ['Large font', 24],
-  ['Normal font', 14],
-  ['Small font', 10],
+  ['Large', 24],
+  ['Medium', 14],
+  ['Small', 10],
 ]
 /**
  * Make labelled choices from lowercase option values.
@@ -73,9 +73,10 @@ const EDGE_FIELDS = [
       ['Width: 8', 8],
     ],
   },
-  { col: 'arrow', kind: 'select', options: CAPITALISED(ARROWS) },
+  { kind: 'caption', title: 'Arrow' },
   { col: 'lineStyle', kind: 'select', options: CAPITALISED(LINE_STYLES) },
   { col: 'fontSize', kind: 'select', options: FONT_SIZES },
+  { col: 'arrow', kind: 'select', options: CAPITALISED(ARROWS) },
 ]
 const MARGIN = 8
 
@@ -214,6 +215,9 @@ export class ElementEditor {
    * @returns {HTMLElement|null} a labelled control for the field
    */
   field(field, cols) {
+    if (field.kind === 'caption') {
+      return el('span', { className: 'element-field-title', textContent: field.title })
+    }
     const col = cols.find((c) => c.id === field.col)
     if (!col) return null
     const current = col.get(this.target)
@@ -280,7 +284,7 @@ export class ElementEditor {
     const options = field.options.map(([text, value]) => el('option', { textContent: text, value }))
     const select = el(
       'select',
-      {},
+      { ariaLabel: field.title || col.title },
       el('option', { value: '', textContent: field.inherit ?? `${col.title}...` })
     )
     select.append(...options)

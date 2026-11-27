@@ -1585,22 +1585,35 @@ input#splashNameBox::placeholder {
 
 #whatsnew {
   position: fixed;
-  left: 50vw;
-  top: 50vh;
-  transform: translate(-50%, -50%);
-  min-width: 500px;
+  width: min(500px, calc(100vw - 32px));
+  min-width: 0;
   min-height: 200px;
-  max-height: 70%;
+  max-height: 70vh;
+  padding: 0;
   overflow: auto;
+  overscroll-behavior: contain;
   border-radius: 8px;
   box-shadow:
     0 4px 8px 0 rgba(0, 0, 0, 0.2),
     0 6px 20px 0 rgba(0, 0, 0, 0.19);
   border: 2px solid var(--primary-color);
   text-align: center;
-  display: none;
-  flex-direction: column;
-  z-index: 220;
+}
+
+#whatsnew::backdrop {
+  background: transparent;
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.whatsnew-close {
+  margin: 16px;
+  padding: 6px 16px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--primary-color);
+  color: white;
+  cursor: pointer;
 }
 
 #whatsnewintro {
@@ -2102,7 +2115,6 @@ input[type='range'] {
   }
 
 #whatsnew {
-    min-width: 350px;
     max-height: 550px;
     overflow: auto;
   }

@@ -1274,17 +1274,20 @@
         </div>
       </dialog>
       <!-- What's New modal dialog -->
-      <div id="whatsnew">
+      <dialog id="whatsnew" aria-labelledby="whatsnewtitle">
         <div id="whatsnewcontent">
-          <h1>What's new</h1>
+          <h1 id="whatsnewtitle">What's new</h1>
           <div id="whatsnewversion"></div>
           <div id="whatsnewintro">
-            This panel will appear whenever a new version of PRSM is released. You'll only see it
-            once. Click anywhere on the background map to dismiss it.
+            This panel appears when a new major or minor version of PRSM is released. You'll only
+            see it once. Click outside this panel or choose Continue to dismiss it.
           </div>
           <ul class="whatsnewlist" id="whatsnewlist"></ul>
+          <form method="dialog">
+            <button type="submit" class="whatsnew-close" autofocus>Continue</button>
+          </form>
         </div>
-      </div>
+      </dialog>
       <!-- Open file dialog -->
       <input type="file" id="fileInput" style="display: none" />
       <!-- History window -->
@@ -1444,14 +1447,6 @@
       <button type="button" id="merge">Merge</button>
       <p id="merge-error" role="alert"></p>
     </dialog>
-    <script>
-      fetch('./whatsnew.html', { cache: 'no-cache' })
-        .then((response) => response.text())
-        .then((html) => {
-          document.getElementById('whatsnewlist').innerHTML = html
-        })
-        .catch((error) => console.error('Error loading whatsnew content:', error))
-    </script>
     <script src="../src/app/app.js" type="module" async></script>
   </body>
 </html>

@@ -58,10 +58,10 @@ import { readGraphviz, writeGraphviz } from './graphviz.js'
 import { exportImage } from './image-export.js'
 import { exportNotes } from './notes-export.js'
 import { helpServiceOrigin, openAIAsstDialog } from './aiasst.js'
-import { features } from '../../package.json'
+import { features, version as VERSION } from '../../package.json'
 import { saveAs } from 'file-saver'
+import { showWhatsNew } from './whatsnew.js'
 
-const VERSION = '4.0.0'
 const LOADING_DELAY_MS = 500
 const NO_SERVER_DELAY_MS = 8000
 
@@ -200,6 +200,10 @@ class App {
     listen('exportNotes', 'click', () => this.saveNotes())
     this.waitForServer()
     elem('version').textContent = VERSION
+    showWhatsNew(VERSION).catch((error) => {
+      console.error("Unable to show What's New:", error)
+      alertMsg("Unable to load What's New.", 'warn')
+    })
   }
 
   /**
