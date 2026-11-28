@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "YPERSISTENCE=./dbDir VERBOSE=1 node ./src/server.js",
-    "test": "curl -v http://localhost:1234"
+    "test": "curl -v http://localhost:1234",
+    "test:lifecycle": "env -u YPERSISTENCE -u VERBOSE node ./test/doc-lifecycle.test.mjs"
   },
   "repository": {
     "type": "git",
