@@ -88,8 +88,16 @@ if (typeof persistenceDir === 'string') {
       ydoc.on('update', persistenceUpdateHandler)
     },
     writeState: async (docName, ydoc) => {
+      // Empty-room compaction only. Live rooms already append via storeUpdate;
+      // flushing a snapshot while clients are attached can clear newer clocks.
+      if (ydoc.conns?.size > 0) {
+        return
+      }
       const update = Y.encodeStateAsUpdate(ydoc)
       const sv = Y.encodeStateVector(ydoc)
+      if (ydoc.conns?.size > 0) {
+        return
+      }
       await ldb.flushDocumentState(docName, update, sv)
     },
   }
@@ -215,6 +223,8 @@ export class WSSharedDoc extends Y.Doc {
       this.on('update', this._callbackUpdateHandler)
     }
     this.whenInitialized = contentInitializor(this)
+    /** True while an empty-room teardown (flush + possible eviction) is in flight */
+    this._pendingDestroy = false
   }
 
   /**
@@ -314,35 +324,61 @@ const messageListener = async (conn, doc, message) => {
 }
 
 /**
- * Destroy a document and clean up all references
+ * Whether empty-room teardown may remove this doc from the in-memory cache.
+ * @param {Map<string, WSSharedDoc>} docMap
+ * @param {string} docname
+ * @param {WSSharedDoc} doc
+ * @return {boolean}
+ */
+export const shouldEvictDoc = (docMap, docname, doc) =>
+  doc.conns.size === 0 && docMap.get(docname) === doc
+
+/**
+ * Complete teardown when the room is still empty and this instance is still cached.
+ * Clears `_pendingDestroy` when eviction is aborted so a later last-close can retry.
  * @param {string} docname
  * @param {WSSharedDoc} doc
  */
-const destroyDocument = (docname, doc) => {
+const finishDestroyDocument = (docname, doc) => {
+  if (!shouldEvictDoc(docs, docname, doc)) {
+    doc._pendingDestroy = false
+    return
+  }
+  doc.cleanup()
+  docs.delete(docname)
+  if (docs.size === 0) {
+    log('No remaining documents in memory.')
+    log(`${reportMemory()}`)
+  }
+}
+
+/**
+ * Destroy a document and clean up all references.
+ * Eviction is connection-aware: a client may rejoin while persistence flushes.
+ * @param {string} docname
+ * @param {WSSharedDoc} doc
+ */
+export const destroyDocument = (docname, doc) => {
+  if (doc._pendingDestroy) {
+    return
+  }
+  doc._pendingDestroy = true
+
   if (persistence !== null) {
-    persistence
-      .writeState(docname, doc)
-      /* .then(() => {
-        log(`Document state saved for ${docname}`)
-      }) */
-      .catch((err) => {
-        console.error('Error writing state for', docname, err)
-      })
-      .finally(() => {
-        doc.cleanup()
-        docs.delete(docname)
-        if (docs.size === 0) {
-          log('No remaining documents in memory.')
-          log(`${reportMemory()}`)
+    ;(async () => {
+      try {
+        // Skip compaction if someone already rejoined; incremental updates cover live rooms.
+        if (doc.conns.size === 0) {
+          await persistence.writeState(docname, doc)
         }
-      })
+      } catch (err) {
+        console.error('Error writing state for', docname, err)
+      } finally {
+        finishDestroyDocument(docname, doc)
+      }
+    })()
   } else {
-    doc.cleanup()
-    docs.delete(docname)
-    if (docs.size === 0) {
-      log('No remaining documents in memory.')
-      log(`${reportMemory()}`)
-    }
+    finishDestroyDocument(docname, doc)
   }
 }
 
